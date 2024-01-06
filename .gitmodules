@@ -1,0 +1,3 @@
+[submodule "wzlibcpp"]
+	path = wzlibcpp
+	url = https://github.com/PShocker/wzlibcpp.git
