@@ -8,6 +8,7 @@
 
 #include "util/string_util.hpp"
 #include "util/wz_util.hpp"
+#include "worldmap/worldmap.hpp"
 
 // Screen dimension constants
 const int SCREEN_WIDTH = 1280;
