@@ -75,13 +75,15 @@ int main(int argc, char *args[])
                         auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
                         auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
 
-                        // int size = raw_data.size();
                         // SDL_Surface *imageSurface = SDL_CreateRGBSurfaceFrom(raw_data.data(), imageWidth, imageHeight, 16, imageWidth * 2,
                         //                                                      0x0F00, 0x00F0, 0x000F, 0xF000);
-
-                        SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_TARGET, imageWidth, imageHeight);
+                        // auto fmt = imageSurface->format;
+                        // SDL_Texture *texture2 = SDL_CreateTextureFromSurface(renderer, imageSurface);
+                        SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, imageWidth, imageHeight);
                         SDL_UpdateTexture(texture, NULL, raw_data.data(), imageWidth * sizeof(Uint16));
-                        // SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, imageSurface);
+                        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+                        
+
                         SDL_Rect dstRect;
                         dstRect.x = x - ox;
                         dstRect.y = y - oy;
