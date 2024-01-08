@@ -1,9 +1,10 @@
 #include <SDL2/SDL.h>
+#include "util/currenton.hpp"
 
 namespace worldmap
 {
 
-  class Camera
+  class Camera : public Currenton<Camera>
   {
   public:
     Camera();

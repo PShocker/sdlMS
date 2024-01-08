@@ -1,6 +1,6 @@
+#include <vector>
 #include "util/currenton.hpp"
 #include "sdlms/tile.hpp"
-#include <vector>
 #include "wz/Property.hpp"
 
 namespace worldmap
