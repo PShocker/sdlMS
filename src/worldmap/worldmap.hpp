@@ -9,6 +9,7 @@ namespace worldmap
     class WorldMap final : public Currenton<WorldMap>
     {
     public:
+        WorldMap();
         WorldMap(int mapId, SDL_Renderer *renderer);
         std::vector<Tile> get_tile();
 

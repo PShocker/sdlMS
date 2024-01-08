@@ -6,6 +6,10 @@
 
 namespace worldmap
 {
+    WorldMap::WorldMap()
+    {
+    }
+
     WorldMap::WorldMap(int mapId, SDL_Renderer *renderer)
     {
         wz::Node *root = WzUtil::Map->get_root();

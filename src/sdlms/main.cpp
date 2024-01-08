@@ -1,5 +1,4 @@
 #include "sdlms/main.hpp"
-#include "main.hpp"
 
 Main::Main(){
 }
