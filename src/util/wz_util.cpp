@@ -5,27 +5,10 @@
 	{                              \
 		U8(A), U8(B), U8(C), U8(D) \
 	}
-namespace WzUtil
-{
-	wz::File *Base;
-	wz::File *Character;
-	wz::File *Effect;
-	wz::File *Etc;
-	wz::File *Item;
-	wz::File *List;
-	wz::File *Map;
-	wz::File *Mob;
-	wz::File *Morph;
-	wz::File *Npc;
-	wz::File *Quest;
-	wz::File *Reactor;
-	wz::File *Skill;
-	wz::File *Sound;
-	wz::File *String;
-	wz::File *TamingMob;
-	wz::File *UI;
 
-	void init()
+namespace util
+{
+	WzUtil::WzUtil()
 	{
 		const auto iv = IV4(0xb9, 0x7d, 0x63, 0xe9);
 		// 默认全部加载成功，因为不可能失败
@@ -64,9 +47,5 @@ namespace WzUtil
 		String->parse();
 		TamingMob->parse();
 		UI->parse();
-
-		return;
 	}
-	
-	
 }

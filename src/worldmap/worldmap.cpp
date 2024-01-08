@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <string>
 
+using namespace util;
+
 namespace worldmap
 {
     WorldMap::WorldMap()
@@ -12,7 +14,7 @@ namespace worldmap
 
     WorldMap::WorldMap(int mapId, SDL_Renderer *renderer)
     {
-        wz::Node *root = WzUtil::Map->get_root();
+        wz::Node *root = WzUtil::current()->Map->get_root();
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
         auto node = root->find_from_path(StringUtil::to_ustring(path));
         for (size_t i = 0; i < 8; i++)

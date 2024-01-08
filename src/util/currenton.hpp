@@ -1,5 +1,5 @@
-#ifndef HEADER_SUPERTUX_UTIL_CURRENTON_HPP
-#define HEADER_SUPERTUX_UTIL_CURRENTON_HPP
+#ifndef HEADER_UTIL_CURRENTON_HPP
+#define HEADER_UTIL_CURRENTON_HPP
 
 /**
  *   A 'Currenton' allows access to the currently active instance of a

@@ -1,3 +1,6 @@
+#ifndef HEADER_WORLDMAP_CAMERA
+#define HEADER_WORLDMAP_CAMERA
+
 #include <SDL2/SDL.h>
 #include "util/currenton.hpp"
 
@@ -18,3 +21,5 @@ namespace worldmap
   };
 
 } // namespace worldmap
+
+#endif

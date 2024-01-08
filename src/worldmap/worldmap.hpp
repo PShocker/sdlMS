@@ -1,3 +1,6 @@
+#ifndef HEADER_WORLDMAP_WORLDMAP
+#define HEADER_WORLDMAP_WORLDMAP
+
 #include <vector>
 #include "util/currenton.hpp"
 #include "sdlms/tile.hpp"
@@ -11,6 +14,8 @@ namespace worldmap
     public:
         WorldMap();
         WorldMap(int mapId, SDL_Renderer *renderer);
+
+    public:
         std::vector<Tile> get_tile();
 
     private:
@@ -24,3 +29,5 @@ namespace worldmap
         WorldMap &operator=(const WorldMap &) = delete;
     };
 }
+
+#endif

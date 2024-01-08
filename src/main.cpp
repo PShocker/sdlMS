@@ -7,8 +7,7 @@
 #include <wz/Property.hpp>
 
 #include "util/string_util.hpp"
-#include "util/wz_util.hpp"
-#include "worldmap/worldmap.hpp"
+#include "sdlms/main.hpp"
 
 // Screen dimension constants
 const int SCREEN_WIDTH = 1280;
@@ -16,9 +15,12 @@ const int SCREEN_HEIGHT = 800;
 
 SDL_Rect camera = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
-int main(int argc, char *args[])
+static Main g_main;
+
+int main(int argc, char *argv[])
 {
-    WzUtil::init();
+    int ret = g_main.run(argc, argv);
+    return ret;
     int mapId = 100000000;
 
     // The window we'll be rendering to

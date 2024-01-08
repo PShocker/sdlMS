@@ -1,30 +1,38 @@
-#pragma once
+#ifndef HEADER_UTIL_WZUTIL
+#define HEADER_UTIL_WZUTIL
+
 #include <wz/File.hpp>
 #include <memory>
 #include "string_util.hpp"
+#include "util/currenton.hpp"
 
-namespace WzUtil
+namespace util
 {
-	const std::string filename_prefix = "C:/Users/Shocker/Desktop/sdlMS/data/";
+	class WzUtil final : public Currenton<WzUtil>
+	{
+	public:
+		WzUtil();
 
-	extern wz::File *Base;
-	extern wz::File *Character;
-	extern wz::File *Effect;
-	extern wz::File *Etc;
-	extern wz::File *Item;
-	extern wz::File *List;
-	extern wz::File *Map;
-	extern wz::File *Mob;
-	extern wz::File *Morph;
-	extern wz::File *Npc;
-	extern wz::File *Quest;
-	extern wz::File *Reactor;
-	extern wz::File *Skill;
-	extern wz::File *Sound;
-	extern wz::File *String;
-	extern wz::File *TamingMob;
-	extern wz::File *UI;
+	public:
+		const std::string filename_prefix = "C:/Users/Shocker/Desktop/sdlMS/data/";
+		wz::File *Base;
+		wz::File *Character;
+		wz::File *Effect;
+		wz::File *Etc;
+		wz::File *Item;
+		wz::File *List;
+		wz::File *Map;
+		wz::File *Mob;
+		wz::File *Morph;
+		wz::File *Npc;
+		wz::File *Quest;
+		wz::File *Reactor;
+		wz::File *Skill;
+		wz::File *Sound;
+		wz::File *String;
+		wz::File *TamingMob;
+		wz::File *UI;
 
-	void init();
-
-}; // namespace WzFiles
+	}; // namespace WzFiles
+}
+#endif
