@@ -14,6 +14,7 @@ include_directories(
     wzlibcpp/include
     wzlibcpp/mio/include
     wzlibcpp/pystring
+    src/
 )
 
 file(GLOB ZLIB_FILES ${ZLIB_LIBRARY}/*.a)

@@ -68,11 +68,5 @@ namespace WzUtil
 		return;
 	}
 	
-	std::u16string get_map_node_path(int32_t mapid)
-	{
-		std::string strid = StringUtil::extend_id(mapid, 9);
-		std::string prefix = std::to_string(mapid / 100000000);
-		std::string path = "Map/Map" + prefix + "/" + strid + ".img";
-		return StringUtil::to_ustring(path);
-	}
+	
 }

@@ -27,5 +27,4 @@ namespace WzUtil
 
 	void init();
 
-	std::u16string get_map_node_path(int32_t mapid);
 }; // namespace WzFiles

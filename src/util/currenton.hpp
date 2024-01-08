@@ -17,9 +17,6 @@ private:
 protected:
   Currenton()
   {
-    // FIXME: temporarly disabled, as Sector() for the main menu,
-    // doesn't get cleaned up before a real Sector() starts
-    // assert(!s_current);
     s_current = this;
   }
 
