@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 
 #include "sdlms/graphics.hpp"
+#include "graphics.hpp"
 
 /* Graphics class
  * Holds all information dealing with graphics for the game
@@ -43,4 +44,14 @@ void Graphics::clear()
 SDL_Renderer *Graphics::getRenderer() const
 {
 	return this->_renderer;
+}
+
+void Graphics::set_tile(std::vector<Tile> tile)
+{
+	_tile = tile;
+}
+
+std::vector<Tile> Graphics::get_tile()
+{
+    return _tile;
 }

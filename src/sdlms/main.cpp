@@ -14,10 +14,10 @@ int Main::run(int argc, char **argv)
     SDL_Renderer *_renderer = _graphics->getRenderer();
 
     _input.reset(new Input());
-    _wzUtil.reset(new WzUtil());
-    _mapUtil.reset(new MapUtil());
+    _wz_util.reset(new WzUtil());
+    _map_util.reset(new MapUtil());
 
-    auto tiles=_mapUtil->load_tile(mapId,_renderer);
+    _graphics->set_tile(_map_util->load_tile(mapId,_renderer));
 
     SDL_Event event;
     while (true)
@@ -55,7 +55,7 @@ int Main::run(int argc, char **argv)
         }
 
         // 更新屏幕
-        for (auto it : tiles)
+        for (auto it : _graphics->get_tile())
         {
             SDL_RenderCopy(_renderer, it.get_texture(), NULL, it.get_rect());
         }

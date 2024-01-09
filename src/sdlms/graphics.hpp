@@ -5,7 +5,9 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include "util/currenton.hpp"
+#include "sdlms/tile.hpp"
 
 class Graphics final : public Currenton<Graphics>
 {
@@ -33,11 +35,16 @@ public:
 	 */
 	SDL_Renderer *getRenderer() const;
 
+	void set_tile(std::vector<Tile> tile);
+
+	std::vector<Tile> get_tile();
+
 private:
 	SDL_Window *_window;
 	SDL_Renderer *_renderer;
 
 	std::map<std::string, SDL_Surface *> _spriteSheets;
+	std::vector<Tile> _tile;
 };
 
 #endif
