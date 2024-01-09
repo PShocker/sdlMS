@@ -50,11 +50,11 @@ int Main::run(int argc, char **argv)
         }
         else if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
         {
-            _camera->x -= 5;
+            _camera->viewport.x-=5;
         }
         else if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
         {
-            _camera->x += 5;
+            _camera->viewport.x+=5;
         }
         // 更新屏幕
         _map->draw();

@@ -8,6 +8,7 @@
 #include <vector>
 #include "util/currenton.hpp"
 #include "sdlms/tile.hpp"
+#include "sdlms/camera.hpp"
 
 class Graphics final : public Currenton<Graphics>
 {
@@ -18,7 +19,7 @@ public:
 	/* void blitSurface
 	 * Draws a texture to a certain part of the screen
 	 */
-	void blitSurface(SDL_Texture *source, SDL_Rect *sourceRectangle, SDL_FRect *destinationRectangle);
+	void blitSurface(SDL_Texture *source, SDL_Rect *sourceRectangle, SDL_Rect *destinationRectangle);
 
 	/* void flip
 	 * Renders everything to the screen

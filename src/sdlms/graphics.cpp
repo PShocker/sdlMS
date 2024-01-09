@@ -2,7 +2,6 @@
 #include <SDL2/SDL.h>
 
 #include "sdlms/graphics.hpp"
-#include "graphics.hpp"
 
 /* Graphics class
  * Holds all information dealing with graphics for the game
@@ -26,10 +25,10 @@ Graphics::~Graphics()
 	SDL_DestroyRenderer(this->_renderer);
 }
 
-void Graphics::blitSurface(SDL_Texture *texture, SDL_Rect *sourceRectangle, SDL_FRect *destinationRectangle)
+void Graphics::blitSurface(SDL_Texture *texture, SDL_Rect *sourceRectangle, SDL_Rect *destinationRectangle)
 {
-	SDL_RenderCopyF(this->_renderer, texture, sourceRectangle, destinationRectangle);
-	// SDL_RenderCopy(this->_renderer, texture, sourceRectangle, destinationRectangle);
+	// SDL_RenderCopyF(this->_renderer, texture, sourceRectangle, destinationRectangle);
+	SDL_RenderCopy(this->_renderer, texture, sourceRectangle, destinationRectangle);
 }
 
 void Graphics::flip()

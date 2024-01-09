@@ -10,8 +10,7 @@ public:
   Camera();
 
 public:
-  float x;
-  float y;
+  SDL_Rect viewport{0, 0, 800, 600};
 
 private:
   Camera(const Camera &) = delete;
