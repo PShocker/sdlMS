@@ -35,6 +35,8 @@ public:
 	 */
 	SDL_Renderer *getRenderer() const;
 
+	void draw();
+
 	void set_tile(std::vector<Tile> tile);
 
 	std::vector<Tile> get_tile();
