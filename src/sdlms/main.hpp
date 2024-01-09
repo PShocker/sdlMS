@@ -4,18 +4,21 @@
 #include "worldmap/camera.hpp"
 #include "worldmap/worldmap.hpp"
 #include "util/wz_util.hpp"
+#include "sdlms/graphics.hpp"
+
+using namespace worldmap;
+using namespace util;
 
 class Main final
 {
-public:
-    Main();
 
 public:
     int run(int argc, char **argv);
 
 private:
-    worldmap::WorldMap m_world_map;
-    worldmap::Camera m_camera;
-    util::WzUtil m_wz_util;
+    std::unique_ptr<WzUtil> _wzUtil;
+    std::unique_ptr<WorldMap> _worldMap;
+    std::unique_ptr<Camera> _camera;
+    std::unique_ptr<Graphics> _graphics;
 };
 #endif
