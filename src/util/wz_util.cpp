@@ -11,7 +11,7 @@ namespace util
 	WzUtil::WzUtil()
 	{
 		const auto iv = IV4(0xb9, 0x7d, 0x63, 0xe9);
-		// 默认全部加载成功，因为不可能失败
+		// 默认全部加载
 		Base = (new wz::File(iv, (std::string(filename_prefix) + std::string("Base.wz")).c_str()));
 		Character = (new wz::File(iv, (std::string(filename_prefix) + std::string("Character.wz")).c_str()));
 		Effect = (new wz::File(iv, (std::string(filename_prefix) + std::string("Effect.wz")).c_str()));
@@ -30,22 +30,22 @@ namespace util
 		TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
 		UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
 
-		Base->parse();
-		Character->parse();
-		Effect->parse();
-		Etc->parse();
-		Item->parse();
-		List->parse();
+		// Base->parse();
+		// Character->parse();
+		// Effect->parse();
+		// Etc->parse();
+		// Item->parse();
+		// List->parse();
 		Map->parse();
-		Mob->parse();
-		Morph->parse();
-		Npc->parse();
-		Quest->parse();
-		Reactor->parse();
-		Skill->parse();
-		Sound->parse();
-		String->parse();
-		TamingMob->parse();
-		UI->parse();
+		// Mob->parse();
+		// Morph->parse();
+		// Npc->parse();
+		// Quest->parse();
+		// Reactor->parse();
+		// Skill->parse();
+		// Sound->parse();
+		// String->parse();
+		// TamingMob->parse();
+		// UI->parse();
 	}
 }

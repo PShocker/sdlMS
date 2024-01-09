@@ -5,6 +5,7 @@
 #include "worldmap/worldmap.hpp"
 #include "util/wz_util.hpp"
 #include "sdlms/graphics.hpp"
+#include "sdlms/input.hpp"
 
 using namespace worldmap;
 using namespace util;
@@ -20,5 +21,6 @@ private:
     std::unique_ptr<WorldMap> _worldMap;
     std::unique_ptr<Camera> _camera;
     std::unique_ptr<Graphics> _graphics;
+    std::unique_ptr<Input> _input;
 };
 #endif
