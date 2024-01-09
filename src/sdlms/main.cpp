@@ -15,7 +15,9 @@ int Main::run(int argc, char **argv)
 
     _input.reset(new Input());
     _wzUtil.reset(new WzUtil());
-    _worldMap.reset(new WorldMap(mapId, _renderer));
+    _mapUtil.reset(new MapUtil());
+
+    auto tiles=_mapUtil->load_tile(mapId,_renderer);
 
     SDL_Event event;
     while (true)
@@ -53,7 +55,7 @@ int Main::run(int argc, char **argv)
         }
 
         // 更新屏幕
-        for (auto it : _worldMap->get_tile())
+        for (auto it : tiles)
         {
             SDL_RenderCopy(_renderer, it.get_texture(), NULL, it.get_rect());
         }

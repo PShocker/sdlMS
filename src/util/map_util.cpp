@@ -1,29 +1,29 @@
-#include "worldmap.hpp"
+#include "util/map_util.hpp"
 #include "util/wz_util.hpp"
 #include "util/string_util.hpp"
 #include <SDL2/SDL.h>
 #include <string>
 
-using namespace util;
-
-namespace worldmap
+namespace util
 {
-    WorldMap::WorldMap()
+    MapUtil::MapUtil()
     {
     }
 
-    WorldMap::WorldMap(int mapId, SDL_Renderer *renderer)
+    std::vector<Tile> MapUtil::load_tile(int mapId, SDL_Renderer *renderer)
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
         auto node = root->find_from_path(StringUtil::to_ustring(path));
+        std::vector<Tile> tile;
         for (size_t i = 0; i < 8; i++)
         {
-            load_tile(root, node, renderer, i);
+            load_tile(root, node, renderer, i, tile);
         }
+        return tile;
     }
 
-    void WorldMap::load_tile(wz::Node *root, wz::Node *node, SDL_Renderer *renderer, int i)
+    void MapUtil::load_tile(wz::Node *root, wz::Node *node, SDL_Renderer *renderer, int i, std::vector<Tile> &tile)
     {
         node = node->get_child(StringUtil::to_ustring(std::to_string(i)));
         auto tS = node->get_child(u"info")->get_child(u"tS");
@@ -63,10 +63,4 @@ namespace worldmap
             }
         }
     }
-
-    std::vector<Tile> WorldMap::get_tile()
-    {
-        return tile;
-    }
-
 }

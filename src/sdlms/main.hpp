@@ -2,7 +2,7 @@
 #define HEADER_SDLMS_MAIN
 
 #include "worldmap/camera.hpp"
-#include "worldmap/worldmap.hpp"
+#include "util/map_util.hpp"
 #include "util/wz_util.hpp"
 #include "sdlms/graphics.hpp"
 #include "sdlms/input.hpp"
@@ -18,7 +18,7 @@ public:
 
 private:
     std::unique_ptr<WzUtil> _wzUtil;
-    std::unique_ptr<WorldMap> _worldMap;
+    std::unique_ptr<MapUtil> _mapUtil;
     std::unique_ptr<Camera> _camera;
     std::unique_ptr<Graphics> _graphics;
     std::unique_ptr<Input> _input;
