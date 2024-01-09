@@ -6,13 +6,11 @@
 class Tile
 {
 public:
-    Tile(SDL_Texture *texture, SDL_Rect *rect, int format, int layer, int z);
-    SDL_Texture* get_texture();
-    SDL_Rect* get_rect();
+    Tile(SDL_Texture *texture, SDL_FRect *rect, int format, int layer, int z);
 
-private:
+public:
     SDL_Texture *texture;
-    SDL_Rect *rect;
+    SDL_FRect *rect;
     int format;
     int layer;
     int z;

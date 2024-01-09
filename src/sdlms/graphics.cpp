@@ -8,8 +8,8 @@
  * Holds all information dealing with graphics for the game
  */
 
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 800;
+const int SCREEN_WIDTH = 800;
+const int SCREEN_HEIGHT = 600;
 
 Graphics::Graphics()
 {
@@ -26,9 +26,10 @@ Graphics::~Graphics()
 	SDL_DestroyRenderer(this->_renderer);
 }
 
-void Graphics::blitSurface(SDL_Texture *texture, SDL_Rect *sourceRectangle, SDL_Rect *destinationRectangle)
+void Graphics::blitSurface(SDL_Texture *texture, SDL_Rect *sourceRectangle, SDL_FRect *destinationRectangle)
 {
-	SDL_RenderCopy(this->_renderer, texture, sourceRectangle, destinationRectangle);
+	SDL_RenderCopyF(this->_renderer, texture, sourceRectangle, destinationRectangle);
+	// SDL_RenderCopy(this->_renderer, texture, sourceRectangle, destinationRectangle);
 }
 
 void Graphics::flip()
@@ -44,14 +45,4 @@ void Graphics::clear()
 SDL_Renderer *Graphics::getRenderer() const
 {
 	return this->_renderer;
-}
-
-void Graphics::set_tile(std::vector<Tile> tile)
-{
-	_tile = tile;
-}
-
-std::vector<Tile> Graphics::get_tile()
-{
-    return _tile;
 }

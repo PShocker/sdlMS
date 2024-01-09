@@ -13,11 +13,14 @@ int Main::run(int argc, char **argv)
     _graphics.reset(new Graphics());
     SDL_Renderer *_renderer = _graphics->getRenderer();
 
-    _input.reset(new Input());
     _wz_util.reset(new WzUtil());
     _map_util.reset(new MapUtil());
 
-    _graphics->set_tile(_map_util->load_tile(mapId,_renderer));
+    _input.reset(new Input());
+    _map.reset(new Map());
+    _camera.reset(new Camera());
+
+    _map->_tile = _map_util->load_tile(mapId, _renderer);
 
     SDL_Event event;
     while (true)
@@ -47,22 +50,14 @@ int Main::run(int argc, char **argv)
         }
         else if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
         {
-            printf("123");
+            _camera->x -= 5;
         }
         else if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
         {
-            printf("456");
+            _camera->x += 5;
         }
-
         // 更新屏幕
-        for (auto it : _graphics->get_tile())
-        {
-            SDL_RenderCopy(_renderer, it.get_texture(), NULL, it.get_rect());
-        }
-
-        SDL_RenderPresent(_renderer);
-        SDL_Delay(16);
-        SDL_RenderClear(_renderer);
+        _map->draw();
     }
 
     printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
