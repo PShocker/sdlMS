@@ -5,7 +5,8 @@
 
 #include "util/currenton.hpp"
 #include "sdlms/tile.hpp"
-#include  "sdlms/graphics.hpp"
+#include "sdlms/obj.hpp"
+#include "sdlms/graphics.hpp"
 
 class Map : public Currenton<Map>
 {
@@ -14,7 +15,7 @@ public:
 
 public:
     std::vector<Tile> _tile;
-
+    std::vector<Obj> _obj;
 };
 
 #endif

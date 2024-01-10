@@ -1,6 +1,5 @@
 #include "sdlms/main.hpp"
 #include <SDL2/SDL.h>
-#include "main.hpp"
 
 // Screen dimension constants
 const int SCREEN_WIDTH = 1280;
@@ -23,6 +22,7 @@ int Main::run(int argc, char **argv)
     _input.reset(new Input());
 
     _map->_tile = _map_util->load_tile(mapId);
+    _map->_obj = _map_util->load_obj(mapId);
 
     while (true)
     {
@@ -42,6 +42,6 @@ int Main::run(int argc, char **argv)
         }
     }
 
-    printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+    printf("SDL_Error: %s\n", SDL_GetError());
     return 0;
 }

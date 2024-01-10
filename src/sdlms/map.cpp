@@ -5,11 +5,18 @@ void Map::draw()
 {
     Graphics::current()->clear();
     auto camera = Camera::current();
+    for (auto it : _obj)
+    {
+        SDL_Rect rect{it._rect[0]->x, it._rect[0]->y, it._rect[0]->w, it._rect[0]->h};
+        rect.x -= camera->viewport.x;
+        Graphics::current()->blitSurface(it._texture[0], NULL, &rect);
+    }
+
     for (auto it : _tile)
     {
-        SDL_Rect rect{it.rect->x, it.rect->y, it.rect->w, it.rect->h};
+        SDL_Rect rect{it._rect->x, it._rect->y, it._rect->w, it._rect->h};
         rect.x -= camera->viewport.x;
-        Graphics::current()->blitSurface(it.texture, NULL, &rect);
+        Graphics::current()->blitSurface(it._texture, NULL, &rect);
     }
     Graphics::current()->flip();
 }

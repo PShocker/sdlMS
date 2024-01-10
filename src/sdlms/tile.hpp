@@ -9,10 +9,11 @@ public:
     Tile(SDL_Texture *texture, SDL_Rect *rect, int format, int layer, int z);
 
 public:
-    SDL_Texture *texture;
-    SDL_Rect *rect;
-    int format;
-    int layer;
-    int z;
+    SDL_Texture *_texture;
+    SDL_Rect *_rect;
+    int _format;
+    int _layer;
+    int _z;
+    
 };
 #endif

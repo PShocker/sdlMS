@@ -6,6 +6,7 @@
 
 #include "util/currenton.hpp"
 #include "sdlms/tile.hpp"
+#include "sdlms/obj.hpp"
 
 namespace util
 {
@@ -17,12 +18,14 @@ namespace util
 
     public:
         std::vector<Tile> load_tile(int mapId);
+        std::vector<Obj> load_obj(int mapId);
 
     private:
         SDL_Renderer *_renderer;
 
     private:
         void load_tile(wz::Node *root, wz::Node *node, int i, std::vector<Tile> &tile);
+        void load_obj(wz::Node *root, wz::Node *node, int i, std::vector<Obj> &obj);
     };
 }
 
