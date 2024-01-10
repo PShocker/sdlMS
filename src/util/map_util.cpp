@@ -1,6 +1,7 @@
 #include "util/map_util.hpp"
 #include "util/wz_util.hpp"
 #include "util/string_util.hpp"
+#include "sdlms/graphics.hpp"
 #include <SDL2/SDL.h>
 #include <string>
 
@@ -8,9 +9,10 @@ namespace util
 {
     MapUtil::MapUtil()
     {
+        _renderer = Graphics::current()->getRenderer();
     }
 
-    std::vector<Tile> MapUtil::load_tile(int mapId, SDL_Renderer *renderer)
+    std::vector<Tile> MapUtil::load_tile(int mapId)
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
@@ -18,12 +20,12 @@ namespace util
         std::vector<Tile> tile;
         for (size_t i = 0; i < 8; i++)
         {
-            load_tile(root, node, renderer, i, tile);
+            load_tile(root, node, i, tile);
         }
         return tile;
     }
 
-    void MapUtil::load_tile(wz::Node *root, wz::Node *node, SDL_Renderer *renderer, int i, std::vector<Tile> &tile)
+    void MapUtil::load_tile(wz::Node *root, wz::Node *node, int i, std::vector<Tile> &tile)
     {
         node = node->get_child(StringUtil::to_ustring(std::to_string(i)));
         auto tS = node->get_child(u"info")->get_child(u"tS");
@@ -52,7 +54,7 @@ namespace util
                 {
                     z = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"zM"))->get();
                 }
-                SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
+                SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
                 SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
                 SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 

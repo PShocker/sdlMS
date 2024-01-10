@@ -2,9 +2,10 @@
 #define HEADER_WORLDMAP_WORLDMAP
 
 #include <vector>
+#include "wz/Property.hpp"
+
 #include "util/currenton.hpp"
 #include "sdlms/tile.hpp"
-#include "wz/Property.hpp"
 
 namespace util
 {
@@ -15,10 +16,13 @@ namespace util
         MapUtil();
 
     public:
-        std::vector<Tile> load_tile(int mapId, SDL_Renderer *renderer);
+        std::vector<Tile> load_tile(int mapId);
 
     private:
-        void load_tile(wz::Node *root, wz::Node *node, SDL_Renderer *renderer, int i, std::vector<Tile> &tile);
+        SDL_Renderer *_renderer;
+
+    private:
+        void load_tile(wz::Node *root, wz::Node *node, int i, std::vector<Tile> &tile);
     };
 }
 
