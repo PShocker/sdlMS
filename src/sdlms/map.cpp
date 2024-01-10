@@ -3,6 +3,7 @@
 
 void Map::draw()
 {
+    Graphics::current()->clear();
     for (auto it : _tile)
     {
         SDL_Rect rect{it.rect->x, it.rect->y, it.rect->w, it.rect->h};
@@ -10,6 +11,4 @@ void Map::draw()
         Graphics::current()->blitSurface(it.texture, NULL, &rect);
     }
     Graphics::current()->flip();
-    SDL_Delay(10);
-    Graphics::current()->clear();
 }
