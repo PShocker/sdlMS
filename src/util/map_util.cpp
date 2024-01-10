@@ -12,21 +12,22 @@ namespace util
         _renderer = Graphics::current()->getRenderer();
     }
 
-    std::vector<Tile> MapUtil::load_tile(int mapId)
+    std::array<std::vector<Tile>, 8> MapUtil::load_tile(int mapId)
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
         auto node = root->find_from_path(StringUtil::to_ustring(path));
-        std::vector<Tile> tile;
+        std::array<std::vector<Tile>, 8> tile;
         for (size_t i = 0; i < 8; i++)
         {
-            load_tile(root, node, i, tile);
+            tile[i] = load_tile(root, node, i);
         }
         return tile;
     }
 
-    void MapUtil::load_tile(wz::Node *root, wz::Node *node, int i, std::vector<Tile> &tile)
+    std::vector<Tile> MapUtil::load_tile(wz::Node *root, wz::Node *node, int i)
     {
+        std::vector<Tile> tile;
         node = node->get_child(StringUtil::to_ustring(std::to_string(i)));
         auto tS = node->get_child(u"info")->get_child(u"tS");
         if (tS != nullptr)
@@ -64,6 +65,9 @@ namespace util
                 tile.push_back(t);
             }
         }
+        std::sort(tile.begin(), tile.end(), [](const Tile t1, const Tile t2)
+                  { return t1._z < t2._z; });
+        return tile;
     }
 
     std::vector<Obj> MapUtil::load_obj(int mapId)

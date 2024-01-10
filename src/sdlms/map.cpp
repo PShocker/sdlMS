@@ -12,11 +12,14 @@ void Map::draw()
         Graphics::current()->blitSurface(it._texture[0], NULL, &rect);
     }
 
-    for (auto it : _tile)
+    for (auto tile : _tile)
     {
-        SDL_Rect rect{it._rect->x, it._rect->y, it._rect->w, it._rect->h};
-        rect.x -= camera->viewport.x;
-        Graphics::current()->blitSurface(it._texture, NULL, &rect);
+        for (auto it : tile)
+        {
+            SDL_Rect rect{it._rect->x, it._rect->y, it._rect->w, it._rect->h};
+            rect.x -= camera->viewport.x;
+            Graphics::current()->blitSurface(it._texture, NULL, &rect);
+        }
     }
     Graphics::current()->flip();
 }

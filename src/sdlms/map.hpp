@@ -1,6 +1,7 @@
 #ifndef HEADER_SDLMS_MAP
 #define HEADER_SDLMS_MAP
 #include <vector>
+#include <array>
 #include <SDL2/SDL.h>
 
 #include "util/currenton.hpp"
@@ -14,7 +15,7 @@ public:
     void draw();
 
 public:
-    std::vector<Tile> _tile;
+    std::array<std::vector<Tile>,8> _tile;
     std::vector<Obj> _obj;
 };
 
