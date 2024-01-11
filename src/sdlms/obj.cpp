@@ -43,5 +43,6 @@ void Obj::draw()
 {
     SDL_Rect rect{_rect[_frameIndex]->x, _rect[_frameIndex]->y, _rect[_frameIndex]->w, _rect[_frameIndex]->h};
     rect.x -= _camera->viewport.x;
+    rect.y -= _camera->viewport.y;
     _graphics->blitSurface(_texture[_frameIndex], NULL, &rect);
 }

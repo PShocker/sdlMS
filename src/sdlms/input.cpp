@@ -76,13 +76,22 @@ int Input::loop()
 	{
 		return -1;
 	}
-	else if (isKeyHeld(SDL_SCANCODE_LEFT) == true)
+	
+	if (isKeyHeld(SDL_SCANCODE_LEFT) == true)
 	{
 		camera->viewport.x -= 5;
 	}
-	else if (isKeyHeld(SDL_SCANCODE_RIGHT) == true)
+	if (isKeyHeld(SDL_SCANCODE_RIGHT) == true)
 	{
 		camera->viewport.x += 5;
+	}
+	if (isKeyHeld(SDL_SCANCODE_UP) == true)
+	{
+		camera->viewport.y -= 5;
+	}
+	if (isKeyHeld(SDL_SCANCODE_DOWN) == true)
+	{
+		camera->viewport.y += 5;
 	}
 	return 0;
 }

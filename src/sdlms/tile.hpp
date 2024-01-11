@@ -5,22 +5,17 @@
 
 #include "sdlms/graphics.hpp"
 #include "sdlms/camera.hpp"
+#include "sdlms/sprite.hpp"
 
-class Tile
+class Tile : public Sprite
 {
 public:
     Tile(SDL_Texture *texture, SDL_Rect *rect, int format, int layer, int z);
     void draw();
 
 public:
-    SDL_Texture *_texture;
-    SDL_Rect *_rect;
-    int _format;
     int _layer;
     int _z;
 
-private:
-    Camera *_camera;
-    Graphics *_graphics;
 };
 #endif

@@ -32,5 +32,18 @@ public:
 private:
     Camera *_camera;
     Graphics *_graphics;
+
+private:
+    enum Type
+    {
+        NORMAL,
+        HTILED,
+        VTILED,
+        TILED,
+        HMOVEA,
+        VMOVEA,
+        HMOVEB,
+        VMOVEB
+    };
 };
 #endif
