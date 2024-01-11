@@ -30,7 +30,10 @@ void Map::update(int elapsedTime)
     {
         for (auto &it : _obj[i])
         {
+            //更新帧状态
             it.update(elapsedTime);
         }
     }
+    
+
 }
