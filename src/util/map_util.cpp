@@ -70,21 +70,22 @@ namespace util
         return tile;
     }
 
-    std::vector<Obj> MapUtil::load_obj(int mapId)
+    std::array<std::vector<Obj>, 8> MapUtil::load_obj(int mapId)
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
         auto node = root->find_from_path(StringUtil::to_ustring(path));
-        std::vector<Obj> obj;
+        std::array<std::vector<Obj>, 8> obj;
         for (size_t i = 0; i < 8; i++)
         {
-            load_obj(root, node, i, obj);
+            obj[i] = load_obj(root, node, i);
         }
         return obj;
     }
 
-    void MapUtil::load_obj(wz::Node *root, wz::Node *node, int i, std::vector<Obj> &obj)
+    std::vector<Obj> MapUtil::load_obj(wz::Node *root, wz::Node *node, int i)
     {
+        std::vector<Obj> obj;
         node = node->get_child(StringUtil::to_ustring(std::to_string(i)))->get_child(u"obj");
         for (auto it : node->get_children())
         {
@@ -140,5 +141,9 @@ namespace util
             Obj o(v_texture, v_rect, v_delay, v_format, i, z, url);
             obj.push_back(o);
         }
+        std::sort(obj.begin(), obj.end(), [](const Obj o1, const Obj o2)
+                  { return o1._z < o2._z; });
+        return obj;
     }
+
 }

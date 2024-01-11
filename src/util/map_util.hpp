@@ -17,15 +17,15 @@ namespace util
         MapUtil();
 
     public:
-        std::array<std::vector<Tile>,8> load_tile(int mapId);
-        std::vector<Obj> load_obj(int mapId);
+        std::array<std::vector<Tile>, 8> load_tile(int mapId);
+        std::array<std::vector<Obj>, 8> load_obj(int mapId);
 
     private:
         SDL_Renderer *_renderer;
 
     private:
         std::vector<Tile> load_tile(wz::Node *root, wz::Node *node, int i);
-        void load_obj(wz::Node *root, wz::Node *node, int i, std::vector<Obj> &obj);
+        std::vector<Obj> load_obj(wz::Node *root, wz::Node *node, int i);
     };
 }
 

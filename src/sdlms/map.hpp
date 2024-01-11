@@ -16,7 +16,7 @@ public:
 
 public:
     std::array<std::vector<Tile>,8> _tile;
-    std::vector<Obj> _obj;
+    std::array<std::vector<Obj>,8> _obj;
 };
 
 #endif
