@@ -7,6 +7,7 @@
 #include "util/currenton.hpp"
 #include "sdlms/tile.hpp"
 #include "sdlms/obj.hpp"
+#include "sdlms/backgrd.hpp"
 #include "sdlms/graphics.hpp"
 
 class Map : public Currenton<Map>
@@ -16,8 +17,9 @@ public:
     void update(int elapsedTime);
 
 public:
-    std::array<std::vector<Tile>,8> _tile;
-    std::array<std::vector<Obj>,8> _obj;
+    std::array<std::vector<Tile>, 8> _tile;
+    std::array<std::vector<Obj>, 8> _obj;
+    std::vector<BackGrd> _backgrd;
 };
 
 #endif

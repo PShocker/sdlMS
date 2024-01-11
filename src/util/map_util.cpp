@@ -4,6 +4,7 @@
 #include "sdlms/graphics.hpp"
 #include <SDL2/SDL.h>
 #include <string>
+#include "map_util.hpp"
 
 namespace util
 {
@@ -144,6 +145,93 @@ namespace util
         std::sort(obj.begin(), obj.end(), [](const Obj o1, const Obj o2)
                   { return o1._z < o2._z; });
         return obj;
+    }
+
+    std::vector<BackGrd> MapUtil::load_backgrd(int mapId)
+    {
+        wz::Node *root = WzUtil::current()->Map->get_root();
+        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
+        auto node = root->find_from_path(StringUtil::to_ustring(path));
+        return load_backgrd(root, node);
+    }
+
+    std::vector<BackGrd> MapUtil::load_backgrd(wz::Node *root, wz::Node *node)
+    {
+        std::vector<BackGrd> v_backgrd;
+        node = node->get_child(u"back");
+        if (node != nullptr)
+        {
+            for (auto it : node->get_children())
+            {
+                auto bS = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"bS"))->get();
+                auto ani = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"ani"))->get();
+
+                auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
+                auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
+
+                auto cx = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"cx"))->get();
+                auto cy = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"cy"))->get();
+
+                auto rx = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"rx"))->get();
+                auto ry = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"ry"))->get();
+
+                auto type = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"type"))->get();
+
+                auto no = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"no"))->get();
+
+                auto front = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"front"))->get();
+
+                std::vector<SDL_Texture *> v_texture;
+                std::vector<SDL_Rect *> v_rect;
+                std::vector<int> v_delay;
+                std::vector<int> v_format;
+
+                switch (ani)
+                {
+                case 0:
+                {
+                    auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + StringUtil::to_ustring(std::to_string(no));
+                    auto back = root->find_from_path(url);
+                    auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(back);
+                    auto height = canvas->get().height;
+                    auto width = canvas->get().width;
+                    auto raw_data = canvas->get_raw_data();
+
+                    auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
+                    auto ox = o->get().x;
+                    auto oy = o->get().y;
+
+                    cx = cx == 0 ? width : cx;
+                    cy = cy == 0 ? height : cy;
+
+                    SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
+                    SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
+                    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+                    v_texture.push_back(texture);
+
+                    SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
+                    v_rect.push_back(rect);
+
+                    BackGrd backgrd(v_texture, v_rect, v_delay,
+                                    v_format, type,
+                                    front, 0,
+                                    v_texture.size(),
+                                    url);
+
+                    v_backgrd.push_back(backgrd);
+                    break;
+                }
+                case 1:
+                {
+                    auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + StringUtil::to_ustring(std::to_string(no));
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+        }
+        return v_backgrd;
     }
 
 }

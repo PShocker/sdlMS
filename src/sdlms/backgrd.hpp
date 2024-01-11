@@ -8,7 +8,10 @@
 class BackGrd
 {
 public:
-    BackGrd(SDL_Texture *texture, SDL_Rect *rect, int format, bool front);
+    BackGrd(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect, std::vector<int> delay,
+            std::vector<int> format, int type, int front,
+            int frameIndex, int frameSize,
+            std::u16string url);
 
 public:
     std::vector<SDL_Texture *> _texture;
@@ -16,8 +19,10 @@ public:
     std::vector<int> _delay;
     std::vector<int> _format;
     int _type;
-    bool front;
+    int _front;
     int _frameIndex;
+    int _frameSize;
+    int _frameTime;
     std::u16string _url;
 };
 #endif
