@@ -20,6 +20,9 @@ include_directories(
 file(GLOB ZLIB_FILES ${ZLIB_LIBRARY}/*.a)
 file(GLOB SOURCE_FILES src/**/*.cpp)
 
+
+# set(CMAKE_EXE_LINKER_FLAGS "-static")
+
 # executable is ahead of `target_link...`
 add_executable(SimpleWindow src/main.cpp ${SOURCE_FILES})
 # 包含 SDL2 头文件目录
