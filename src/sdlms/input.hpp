@@ -8,6 +8,8 @@
 class Input : public Currenton<Input>
 {
 public:
+	Input();
+
 	void beginNewFrame();
 	void keyUpEvent(const SDL_Event &event);
 	void keyDownEvent(const SDL_Event &event);
