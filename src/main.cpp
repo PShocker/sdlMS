@@ -7,6 +7,5 @@ static Main g_main;
 
 int main(int argc, char *argv[])
 {
-    int ret = g_main.run(argc, argv);
-    return ret;
+    return g_main.run(argc, argv);
 }
