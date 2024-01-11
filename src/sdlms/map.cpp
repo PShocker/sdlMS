@@ -4,26 +4,19 @@
 void Map::draw()
 {
     Graphics::current()->clear();
-    auto camera = Camera::current();
     for (auto it : _backgrd)
     {
-        SDL_Rect rect{it._rect[it._frameIndex]->x, it._rect[it._frameIndex]->y, it._rect[it._frameIndex]->w, it._rect[it._frameIndex]->h};
-        rect.x -= camera->viewport.x;
-        Graphics::current()->blitSurface(it._texture[it._frameIndex], NULL, &rect);
+        it.draw();
     }
     for (size_t i = 0; i < 8; i++)
     {
         for (auto it : _obj[i])
         {
-            SDL_Rect rect{it._rect[it._frameIndex]->x, it._rect[it._frameIndex]->y, it._rect[it._frameIndex]->w, it._rect[it._frameIndex]->h};
-            rect.x -= camera->viewport.x;
-            Graphics::current()->blitSurface(it._texture[it._frameIndex], NULL, &rect);
+            it.draw();
         }
         for (auto it : _tile[i])
         {
-            SDL_Rect rect{it._rect->x, it._rect->y, it._rect->w, it._rect->h};
-            rect.x -= camera->viewport.x;
-            Graphics::current()->blitSurface(it._texture, NULL, &rect);
+            it.draw();
         }
     }
     Graphics::current()->flip();

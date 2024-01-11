@@ -3,10 +3,14 @@
 
 #include <SDL2/SDL.h>
 
+#include "sdlms/graphics.hpp"
+#include "sdlms/camera.hpp"
+
 class Tile
 {
 public:
     Tile(SDL_Texture *texture, SDL_Rect *rect, int format, int layer, int z);
+    void draw();
 
 public:
     SDL_Texture *_texture;
@@ -14,6 +18,8 @@ public:
     int _format;
     int _layer;
     int _z;
-    
+
+private:
+    Camera *_camera;
 };
 #endif

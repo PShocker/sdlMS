@@ -5,6 +5,10 @@
 #include <vector>
 #include <string>
 
+#include "sdlms/graphics.hpp"
+#include "sdlms/camera.hpp"
+
+
 class Obj
 {
 public:
@@ -12,6 +16,7 @@ public:
         std::vector<int> format, int layer, int z, std::u16string url, int frameSize);
 
     void update(int elapsedTime);
+    void draw();
 
 public:
     std::vector<SDL_Texture *> _texture;
@@ -24,5 +29,8 @@ public:
     int _frameTime;
     int _frameSize;
     std::u16string _url;
+
+private:
+    Camera *_camera;
 };
 #endif

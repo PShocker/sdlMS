@@ -5,6 +5,9 @@
 #include <vector>
 #include <string>
 
+#include "sdlms/graphics.hpp"
+#include "sdlms/camera.hpp"
+
 class BackGrd
 {
 public:
@@ -12,6 +15,7 @@ public:
             std::vector<int> format, int type, int front,
             int frameIndex, int frameSize,
             std::u16string url);
+    void draw();
 
 public:
     std::vector<SDL_Texture *> _texture;
@@ -24,5 +28,8 @@ public:
     int _frameSize;
     int _frameTime;
     std::u16string _url;
+
+private:
+    Camera *_camera;
 };
 #endif
