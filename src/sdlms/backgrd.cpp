@@ -12,11 +12,12 @@ BackGrd::BackGrd(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rec
                                        _url(url)
 {
     _camera = Camera::current();
+    _graphics=Graphics::current();
 }
 
 void BackGrd::draw()
 {
     SDL_Rect rect{_rect[_frameIndex]->x, _rect[_frameIndex]->y, _rect[_frameIndex]->w, _rect[_frameIndex]->h};
     rect.x -= _camera->viewport.x;
-    Graphics::current()->blitSurface(_texture[_frameIndex], NULL, &rect);
+    _graphics->blitSurface(_texture[_frameIndex], NULL, &rect);
 }

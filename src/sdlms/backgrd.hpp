@@ -31,5 +31,6 @@ public:
 
 private:
     Camera *_camera;
+    Graphics *_graphics;
 };
 #endif
