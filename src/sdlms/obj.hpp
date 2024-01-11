@@ -9,7 +9,9 @@ class Obj
 {
 public:
     Obj(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect, std::vector<int> delay,
-        std::vector<int> format, int layer, int z,std::u16string url);
+        std::vector<int> format, int layer, int z, std::u16string url, int _frameSize);
+
+    void update(int elapsedTime);
 
 public:
     std::vector<SDL_Texture *> _texture;
@@ -19,6 +21,8 @@ public:
     int _layer;
     int _z;
     int _frameIndex;
+    int _frameTime;
+    int _frameSize;
     std::u16string _url;
 };
 #endif

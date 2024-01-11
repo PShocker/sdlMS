@@ -138,7 +138,7 @@ namespace util
                 SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
                 v_rect.push_back(rect);
             }
-            Obj o(v_texture, v_rect, v_delay, v_format, i, z, url);
+            Obj o(v_texture, v_rect, v_delay, v_format, i, z, url, v_texture.size());
             obj.push_back(o);
         }
         std::sort(obj.begin(), obj.end(), [](const Obj o1, const Obj o2)

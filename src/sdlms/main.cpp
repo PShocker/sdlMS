@@ -32,6 +32,7 @@ int Main::run(int argc, char **argv)
         {
             break;
         }
+        _map->update(FRAME_DELAY);
         // 更新屏幕
         _map->draw();
 

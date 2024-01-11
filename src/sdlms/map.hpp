@@ -13,6 +13,7 @@ class Map : public Currenton<Map>
 {
 public:
     void draw();
+    void update(int elapsedTime);
 
 public:
     std::array<std::vector<Tile>,8> _tile;

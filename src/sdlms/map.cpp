@@ -9,9 +9,9 @@ void Map::draw()
     {
         for (auto it : _obj[i])
         {
-            SDL_Rect rect{it._rect[0]->x, it._rect[0]->y, it._rect[0]->w, it._rect[0]->h};
+            SDL_Rect rect{it._rect[it._frameIndex]->x, it._rect[it._frameIndex]->y, it._rect[it._frameIndex]->w, it._rect[it._frameIndex]->h};
             rect.x -= camera->viewport.x;
-            Graphics::current()->blitSurface(it._texture[0], NULL, &rect);
+            Graphics::current()->blitSurface(it._texture[it._frameIndex], NULL, &rect);
         }
         for (auto it : _tile[i])
         {
@@ -21,4 +21,16 @@ void Map::draw()
         }
     }
     Graphics::current()->flip();
+}
+
+
+void Map::update(int elapsedTime)
+{
+    for (size_t i = 0; i < 8; i++)
+    {
+        for (auto &it : _obj[i])
+        {
+            it.update(elapsedTime);
+        }
+    }
 }
