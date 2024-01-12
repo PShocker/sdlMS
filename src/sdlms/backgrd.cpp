@@ -78,11 +78,6 @@ void BackGrd::update(int elapsedTime)
                 tile_cnt_x = ceil((viewprot.x + viewprot.w - tile_start_left) / float(_cx));
                 point.x = tile_start_left;
             }
-            for (int i = 0; i < tile_cnt_x; i++)
-            {
-                SDL_Rect *rect = new SDL_Rect{point.x + i * _cx, s._rect->y, s._rect->w, s._rect->h};
-                _backgrds.push_back(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444));
-            }
         }
 
         if (vtile > 0 && _cy > 0)
@@ -104,13 +99,14 @@ void BackGrd::update(int elapsedTime)
                 tile_cnt_y = ceil((viewprot.y + viewprot.h - tile_start_top) / float(_cy));
                 point.y = tile_start_top;
             }
-            for (int i = 0; i < tile_cnt_y; i++)
+        }
+
+        for (int i = 0; i < tile_cnt_y; i++)
+        {
+            for (int j = 0; j < tile_cnt_x; j++)
             {
-                for (int j = 0; j < tile_cnt_x; j++)
-                {
-                    SDL_Rect *rect = new SDL_Rect{point.x + i * _cx, point.y + j * _cy, s._rect->w, s._rect->h};
-                    _backgrds.push_back(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444));
-                }
+                SDL_Rect *rect = new SDL_Rect{point.x + i * _cx, point.y + j * _cy, s._rect->w, s._rect->h};
+                _backgrds.push_back(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444));
             }
         }
     }
