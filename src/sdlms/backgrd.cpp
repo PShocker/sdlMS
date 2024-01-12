@@ -70,7 +70,7 @@ void BackGrd::update(int elapsedTime)
         }
         else
         {
-            position_offset_x = viewprot.x * (_rx + 100) / 100.0;
+            position_offset_x = (viewprot.x + viewprot.w) * (_rx + 100) / 100.0;
         }
 
         if (vspeed > 0)
@@ -81,7 +81,7 @@ void BackGrd::update(int elapsedTime)
         }
         else
         {
-            position_offset_y = viewprot.y * (_ry + 100) / 100.0;
+            position_offset_y = (viewprot.y + viewprot.h) / 2 * (_ry + 100) / 100.0;
         }
         point.x += position_offset_x;
         point.y += position_offset_y;
@@ -109,10 +109,10 @@ void BackGrd::update(int elapsedTime)
 
         if (vtile > 0 && _cy > 0)
         {
-            auto tile_start_bottom = int(point.y + s._rect->h - viewprot.y) % _cx;
+            auto tile_start_bottom = int(point.y + s._rect->h - viewprot.y) % _cy;
             if (tile_start_bottom <= 0)
             {
-                tile_start_bottom = tile_start_bottom + _cx;
+                tile_start_bottom = tile_start_bottom + _cy;
             }
             tile_start_bottom = tile_start_bottom + viewprot.y;
 
@@ -132,7 +132,7 @@ void BackGrd::update(int elapsedTime)
         {
             for (int j = 0; j < tile_cnt_x; j++)
             {
-                SDL_Rect *rect = new SDL_Rect{point.x + i * _cx, point.y + j * _cy, s._rect->w, s._rect->h};
+                SDL_Rect *rect = new SDL_Rect{point.x + j * _cx, point.y + i * _cy, s._rect->w, s._rect->h};
                 _backgrds.push_back(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444));
             }
         }
