@@ -212,7 +212,7 @@ namespace util
 
                     Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
 
-                    BackGrd backgrd(sprite, type, front, url);
+                    BackGrd backgrd(sprite, type, front, rx, ry, cx, cy, ani, url);
 
                     v_backgrd.push_back(backgrd);
                     break;
