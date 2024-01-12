@@ -43,11 +43,11 @@ void BackGrd::update(int elapsedTime)
     {
     case Type::HMOVEA:
     case Type::HMOVEB:
-        hspeed = _rx / 16;
+        hspeed = 1;
         break;
     case Type::VMOVEA:
     case Type::VMOVEB:
-        vspeed = _ry / 16;
+        vspeed = 1;
         break;
     }
 
