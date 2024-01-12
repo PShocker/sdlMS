@@ -22,14 +22,14 @@ public:
     void update(int elapsedTime);
 
 public:
-    int _type;
-    int _front;
-    int _rx;
-    int _ry;
-    int _cx;
-    int _cy;
-    int _ani;
-    std::u16string _url;
+    const int _type;
+    const int _front;
+    const int _rx;
+    const int _ry;
+    const int _cx;
+    const int _cy;
+    const int _ani;
+    const std::u16string _url;
     std::variant<Sprite, AnimatedSprite> _backgrd;
     std::vector<std::variant<Sprite, AnimatedSprite>> _backgrds;
 
