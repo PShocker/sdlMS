@@ -22,8 +22,13 @@ void Map::draw()
     Graphics::current()->flip();
 }
 
+
 void Map::update(int elapsedTime)
 {
+    for (auto &it : _backgrd)
+    {
+        it.update(elapsedTime);
+    }
     for (size_t i = 0; i < 8; i++)
     {
         for (auto &it : _obj[i])
@@ -31,9 +36,5 @@ void Map::update(int elapsedTime)
             // 更新帧状态
             it.update(elapsedTime);
         }
-    }
-    for (auto &it : _backgrd)
-    {
-        it.update(elapsedTime);
     }
 }
