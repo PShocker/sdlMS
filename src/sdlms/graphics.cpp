@@ -7,8 +7,6 @@
  * Holds all information dealing with graphics for the game
  */
 
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
 
 Graphics::Graphics()
 {

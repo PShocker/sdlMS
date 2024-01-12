@@ -22,8 +22,8 @@ void BackGrd::update(int elapsedTime)
     auto htile = 0; // 水平平铺
     auto vtile = 0; // 垂直平铺
 
-    auto hspeed = 0;
-    auto vspeed = 0;
+    auto hspeed = 0; // 水平移动
+    auto vspeed = 0; // 垂直移动
     switch (_type)
     {
     case Type::HTILED:
