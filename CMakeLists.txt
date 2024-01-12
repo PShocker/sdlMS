@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.19.2)
 project(SimpleWindow)
 
+set(CMAKE_CXX_STANDARD 20)
+
 # sdl2 is install here
 set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
 set(ZLIB_LIBRARY "wzlibcpp/zlib/lib")
