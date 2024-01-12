@@ -15,6 +15,5 @@ public:
 public:
     int _layer;
     int _z;
-
 };
 #endif
