@@ -70,7 +70,7 @@ void BackGrd::update(int elapsedTime)
         }
         else
         {
-            position_offset_x = (viewprot.x + viewprot.w) / 2 * (_rx + 100) / 100.0;
+            position_offset_x = viewprot.x * (_rx + 100) / 100.0;
         }
 
         if (vspeed > 0)
@@ -81,7 +81,7 @@ void BackGrd::update(int elapsedTime)
         }
         else
         {
-            position_offset_y = (viewprot.y + viewprot.h) / 2 * (_ry + 100) / 100.0;
+            position_offset_y = viewprot.y * (_ry + 100) / 100.0;
         }
         point.x += position_offset_x;
         point.y += position_offset_y;
