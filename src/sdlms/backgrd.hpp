@@ -30,7 +30,7 @@ public:
     const int _cy;
     const int _ani;
     const std::u16string _url;
-    std::variant<Sprite, AnimatedSprite> _backgrd;
+    const std::variant<Sprite, AnimatedSprite> _backgrd;
     std::vector<std::variant<Sprite, AnimatedSprite>> _backgrds;
 
 private:
