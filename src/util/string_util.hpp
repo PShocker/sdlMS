@@ -22,7 +22,5 @@ namespace util
         std::u16string to_ustring(std::string str);
 
         std::string to_string(std::u16string str);
-
-        int to_int(std::u16string str);
     }
 }

@@ -44,11 +44,5 @@ namespace util
         {
             return std::string{str.begin(), str.end()};
         }
-
-        int to_int(std::u16string str)
-        {
-            std::string s = std::string{str.begin(), str.end()};
-            return std::stoi(s);
-        }
     }
 }

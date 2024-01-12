@@ -4,7 +4,6 @@
 #include "sdlms/graphics.hpp"
 #include <SDL2/SDL.h>
 #include <string>
-#include "map_util.hpp"
 
 namespace util
 {
@@ -17,7 +16,7 @@ namespace util
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
-        auto node = root->find_from_path(StringUtil::to_ustring(path));
+        auto node = root->find_from_path(path);
         std::array<std::vector<Tile>, 8> tile;
         for (size_t i = 0; i < 8; i++)
         {
@@ -29,7 +28,7 @@ namespace util
     std::vector<Tile> MapUtil::load_tile(wz::Node *root, wz::Node *node, int i)
     {
         std::vector<Tile> tile;
-        node = node->get_child(StringUtil::to_ustring(std::to_string(i)));
+        node = node->get_child(std::to_string(i));
         auto tS = node->get_child(u"info")->get_child(u"tS");
         if (tS != nullptr)
         {
@@ -75,7 +74,7 @@ namespace util
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
-        auto node = root->find_from_path(StringUtil::to_ustring(path));
+        auto node = root->find_from_path(path);
         std::array<std::vector<Obj>, 8> obj;
         for (size_t i = 0; i < 8; i++)
         {
@@ -87,7 +86,7 @@ namespace util
     std::vector<Obj> MapUtil::load_obj(wz::Node *root, wz::Node *node, int i)
     {
         std::vector<Obj> obj;
-        node = node->get_child(StringUtil::to_ustring(std::to_string(i)))->get_child(u"obj");
+        node = node->get_child(std::to_string(i))->get_child(u"obj");
         for (auto it : node->get_children())
         {
             std::vector<SDL_Texture *> v_texture;
@@ -151,7 +150,7 @@ namespace util
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
-        auto node = root->find_from_path(StringUtil::to_ustring(path));
+        auto node = root->find_from_path(path);
         return load_backgrd(root, node);
     }
 
