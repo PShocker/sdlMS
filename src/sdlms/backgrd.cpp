@@ -1,23 +1,14 @@
 #include "sdlms/backgrd.hpp"
 
-BackGrd::BackGrd(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect, std::vector<int> delay,
-                 std::vector<int> format, int type, int front,
-                 int frameIndex, int frameSize,
-                 std::u16string url) : _texture(texture), _rect(rect),
-                                       _delay(delay), _format(format),
-                                       _type(type), _front(front),
-                                       _frameIndex(frameIndex),
-                                       _frameSize(frameSize),
-                                       _frameTime(0),
-                                       _url(url)
+BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> backgrd,
+                 int type, int front, std::u16string url) : _backgrd(backgrd),
+                                                            _type(type), _front(front),
+                                                            _url(url)
 {
-    _camera = Camera::current();
-    _graphics = Graphics::current();
 }
 
-void BackGrd::draw()
+void BackGrd::update(int elapsedTime)
 {
-    SDL_Rect rect{_rect[_frameIndex]->x, _rect[_frameIndex]->y, _rect[_frameIndex]->w, _rect[_frameIndex]->h};
     auto htile = 0;
     auto vtile = 0;
 
@@ -51,7 +42,16 @@ void BackGrd::draw()
     //     vspeed = ry / 16;
     //     break;
     // }
-    rect.x -= _camera->viewport.x;
-    rect.y -= _camera->viewport.y;
-    _graphics->blitSurface(_texture[_frameIndex], NULL, &rect);
+}
+
+void BackGrd::draw()
+{
+    if (std::holds_alternative<Sprite>(_backgrd))
+    {
+        std::get<Sprite>(_backgrd).draw();
+    }
+    else if (std::holds_alternative<AnimatedSprite>(_backgrd))
+    {
+        std::get<AnimatedSprite>(_backgrd).draw();
+    }
 }

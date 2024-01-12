@@ -32,4 +32,8 @@ void Map::update(int elapsedTime)
             it.update(elapsedTime);
         }
     }
+    for (auto it : _backgrd)
+    {
+        it.update(elapsedTime);
+    }
 }

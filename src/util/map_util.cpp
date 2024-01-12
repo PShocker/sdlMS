@@ -181,10 +181,10 @@ namespace util
 
                 auto front = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"front"))->get();
 
-                std::vector<SDL_Texture *> v_texture;
-                std::vector<SDL_Rect *> v_rect;
-                std::vector<int> v_delay;
-                std::vector<int> v_format;
+                // std::vector<SDL_Texture *> v_texture;
+                // std::vector<SDL_Rect *> v_rect;
+                // std::vector<int> v_delay;
+                // std::vector<int> v_format;
 
                 switch (ani)
                 {
@@ -207,16 +207,12 @@ namespace util
                     SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
                     SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
                     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-                    v_texture.push_back(texture);
 
                     SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
-                    v_rect.push_back(rect);
 
-                    BackGrd backgrd(v_texture, v_rect, v_delay,
-                                    v_format, type,
-                                    front, 0,
-                                    v_texture.size(),
-                                    url);
+                    Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
+
+                    BackGrd backgrd(sprite, type, front, url);
 
                     v_backgrd.push_back(backgrd);
                     break;

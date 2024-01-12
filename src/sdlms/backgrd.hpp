@@ -4,34 +4,24 @@
 #include <SDL2/SDL.h>
 #include <vector>
 #include <string>
+#include <variant>
 
-#include "sdlms/graphics.hpp"
-#include "sdlms/camera.hpp"
+#include "sdlms/animatedsprite.hpp"
+#include "sdlms/sprite.hpp"
 
 class BackGrd
 {
 public:
-    BackGrd(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect, std::vector<int> delay,
-            std::vector<int> format, int type, int front,
-            int frameIndex, int frameSize,
-            std::u16string url);
+    BackGrd(std::variant<Sprite, AnimatedSprite> backgrd, int type, int front, std::u16string url);
     void draw();
+    void update(int elapsedTime);
+
 
 public:
-    std::vector<SDL_Texture *> _texture;
-    std::vector<SDL_Rect *> _rect;
-    std::vector<int> _delay;
-    std::vector<int> _format;
     int _type;
     int _front;
-    int _frameIndex;
-    int _frameSize;
-    int _frameTime;
     std::u16string _url;
-
-private:
-    Camera *_camera;
-    Graphics *_graphics;
+    std::variant<Sprite, AnimatedSprite> _backgrd;
 
 private:
     enum Type
