@@ -8,6 +8,7 @@
 #include "sdlms/tile.hpp"
 #include "sdlms/obj.hpp"
 #include "sdlms/backgrd.hpp"
+#include "sdlms/portal.hpp"
 
 namespace util
 {
@@ -21,6 +22,7 @@ namespace util
         std::array<std::vector<Tile>, 8> load_tile(int mapId);
         std::array<std::vector<Obj>, 8> load_obj(int mapId);
         std::vector<BackGrd> load_backgrd(int mapId);
+        std::vector<Portal> load_portal(int mapId);
 
     private:
         SDL_Renderer *_renderer;
@@ -29,6 +31,7 @@ namespace util
         std::vector<Tile> load_tile(wz::Node *root, wz::Node *node, int i);
         std::vector<Obj> load_obj(wz::Node *root, wz::Node *node, int i);
         std::vector<BackGrd> load_backgrd(wz::Node *root, wz::Node *node);
+        std::vector<Portal> load_portal(wz::Node *root, wz::Node *node);
     };
 }
 

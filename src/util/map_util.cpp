@@ -236,4 +236,25 @@ namespace util
         return v_backgrd;
     }
 
+    std::vector<Portal> MapUtil::load_portal(int mapId)
+    {
+        wz::Node *root = WzUtil::current()->Map->get_root();
+        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
+        auto node = root->find_from_path(path);
+        return load_portal(root, node);
+    }
+
+    std::vector<Portal> MapUtil::load_portal(wz::Node *root, wz::Node *node)
+    {
+        node = node->get_child(u"portal");
+        if (node != nullptr)
+        {
+            for (auto it : node->get_children())
+            {
+
+            }
+        }
+
+        // auto url = ;
+    }
 }
