@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.19.2)
-project(SimpleWindow)
+project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -15,7 +15,6 @@ include_directories(
     wzlibcpp/
     wzlibcpp/include
     wzlibcpp/mio/include
-    wzlibcpp/pystring
     src/
 )
 
@@ -25,9 +24,11 @@ file(GLOB SOURCE_FILES src/**/*.cpp)
 
 # set(CMAKE_EXE_LINKER_FLAGS "-static")
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+
 # executable is ahead of `target_link...`
-add_executable(SimpleWindow src/main.cpp ${SOURCE_FILES})
+add_executable(sdlMS src/main.cpp ${SOURCE_FILES})
 # 包含 SDL2 头文件目录
-target_include_directories(SimpleWindow PRIVATE ${SDL2_INCLUDE_DIRS})
+target_include_directories(sdlMS PRIVATE ${SDL2_INCLUDE_DIRS})
 # 链接 SDL2 库
-target_link_libraries(SimpleWindow PRIVATE ${SDL2_LIBRARIES} wzlib ${ZLIB_FILES})
+target_link_libraries(sdlMS PRIVATE ${SDL2_LIBRARIES} wzlib ${ZLIB_FILES})

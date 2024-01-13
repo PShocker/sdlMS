@@ -37,7 +37,7 @@ void AnimatedSprite::update(int elapsedTime)
 
 void AnimatedSprite::draw()
 {
-    SDL_FRect rect{_rect[_frameIndex]->x, _rect[_frameIndex]->y, _rect[_frameIndex]->w, _rect[_frameIndex]->h};
+    SDL_FRect rect{(float)_rect[_frameIndex]->x, (float)_rect[_frameIndex]->y, (float)_rect[_frameIndex]->w, (float)_rect[_frameIndex]->h};
     rect.x -= _camera->viewport.x;
     rect.y -= _camera->viewport.y;
     if (_flip > 0) // 翻转
