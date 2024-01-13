@@ -19,9 +19,12 @@ void Map::draw()
             it.draw();
         }
     }
+    for (auto it : _portal)
+    {
+        it.draw();
+    }
     Graphics::current()->flip();
 }
-
 
 void Map::update(int elapsedTime)
 {

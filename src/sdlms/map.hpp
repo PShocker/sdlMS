@@ -8,6 +8,7 @@
 #include "sdlms/tile.hpp"
 #include "sdlms/obj.hpp"
 #include "sdlms/backgrd.hpp"
+#include "sdlms/portal.hpp"
 #include "sdlms/graphics.hpp"
 
 class Map : public Currenton<Map>
@@ -20,6 +21,7 @@ public:
     std::array<std::vector<Tile>, 8> _tile;
     std::array<std::vector<Obj>, 8> _obj;
     std::vector<BackGrd> _backgrd;
+    std::vector<Portal> _portal;
 };
 
 #endif

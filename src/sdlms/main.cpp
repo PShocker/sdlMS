@@ -21,6 +21,7 @@ int Main::run(int argc, char **argv)
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);
     _map->_backgrd = _map_util->load_backgrd(mapId);
+    _map->_portal = _map_util->load_portal(mapId);
 
     while (true)
     {

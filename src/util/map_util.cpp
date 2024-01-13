@@ -246,17 +246,70 @@ namespace util
 
     std::vector<Portal> MapUtil::load_portal(wz::Node *root, wz::Node *node)
     {
-        std::vector<Portal> portal;
+        std::vector<Portal> v_portal;
 
         node = node->get_child(u"portal");
         if (node != nullptr)
         {
+            std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
+                                        u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
+                                        u"pci", u"pcig", u"pshg"};
             for (auto it : node->get_children())
             {
+                if (it.second[0]->get_child(u"pt") != nullptr)
+                {
+                    auto pt = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"pt"))->get();
+                    if (pt < 0 || pt >= pt_list->size())
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
+                        auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
+                        {
+                            auto url = u"MapHelper.img/portal/editor/" + pt_list[pt];
 
+                            auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
+                            auto raw_data = canvas->get_raw_data();
+                            auto height = canvas->get().height;
+                            auto width = canvas->get().width;
+
+                            auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
+                            auto ox = o->get().x;
+                            auto oy = o->get().y;
+
+                            SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
+                            SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
+                            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+
+                            SDL_FRect *rect = new SDL_FRect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+
+                            Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
+
+                            Portal portal(sprite, 0, url);
+
+                            v_portal.push_back(portal);
+                        }
+
+                        {
+                            if (pt == 7)
+                            {
+                                pt = 2;
+                            }
+                            auto url = u"MapHelper.img/portal/game/" + pt_list[pt];
+                            if (root->find_from_path(url) != nullptr)
+                            {
+                                // auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
+                                // auto raw_data = canvas->get_raw_data();
+                                // auto height = canvas->get().height;
+                                // auto width = canvas->get().width;
+                            }
+                        }
+                    }
+                }
             }
         }
-        return portal;
-
+        return v_portal;
     }
 }

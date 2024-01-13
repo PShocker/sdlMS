@@ -12,41 +12,23 @@
 class Portal
 {
 public:
-    Portal(std::variant<Sprite, AnimatedSprite> backgrd,
-            int id, int type,
-            int front,
-            int rx, int ry,
-            int cx, int cy,
-            int ani,
-            std::u16string url);
+    Portal(std::variant<Sprite, AnimatedSprite> portal,
+           int type,
+           std::u16string url);
     void draw();
     void update(int elapsedTime);
 
 public:
+    std::variant<Sprite, AnimatedSprite> _portal;
     int _type;
-    int _front;
-    int _rx;
-    int _ry;
-    int _cx;
-    int _cy;
-    int _ani;
-    float _position_offset_x;
-    float _position_offset_y;
     std::u16string _url;
-    std::variant<Sprite, AnimatedSprite> _backgrd;
-    std::vector<std::variant<Sprite, AnimatedSprite>> _backgrds;
 
 private:
     enum Type
     {
-        NORMAL,
-        HTILED,
-        VTILED,
-        TILED,
-        HMOVEA,
-        VMOVEA,
-        HMOVEB,
-        VMOVEB
+        EDITOR,
+        GAME
     };
 };
+
 #endif
