@@ -246,6 +246,8 @@ namespace util
 
     std::vector<Portal> MapUtil::load_portal(wz::Node *root, wz::Node *node)
     {
+        std::vector<Portal> portal;
+
         node = node->get_child(u"portal");
         if (node != nullptr)
         {
@@ -254,7 +256,7 @@ namespace util
 
             }
         }
+        return portal;
 
-        // auto url = ;
     }
 }
