@@ -29,6 +29,8 @@ public:
     int _cx;
     int _cy;
     int _ani;
+    float _position_offset_x;
+    float _position_offset_y;
     std::u16string _url;
     std::variant<Sprite, AnimatedSprite> _backgrd;
     std::vector<std::variant<Sprite, AnimatedSprite>> _backgrds;

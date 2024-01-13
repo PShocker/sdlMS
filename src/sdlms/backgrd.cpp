@@ -10,7 +10,7 @@ BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> backgrd,
                                                 _type(type), _front(front),
                                                 _rx(rx), _ry(ry),
                                                 _cx(cx), _cy(cy),
-                                                _ani(ani),
+                                                _ani(ani), _position_offset_x(0.0),
                                                 _url(url)
 {
 }
@@ -60,31 +60,25 @@ void BackGrd::update(int elapsedTime)
         auto tile_cnt_y = 1;
         auto s = std::get<Sprite>(_backgrd);
         SDL_Point point = {s._rect->x, s._rect->y};
-        auto position_offset_x = 0;
-        auto position_offset_y = 0;
         if (hspeed > 0)
         {
-            position_offset_x += (_rx * 5.0 * elapsedTime);
-            position_offset_x -= floor(position_offset_x / _cx) * _cx;
-            position_offset_x = int(position_offset_x) % _cx;
+            _position_offset_x = float(int(_position_offset_x + _rx * 0.02 * elapsedTime) % _cx);
         }
         else
         {
-            position_offset_x = (viewprot.x + viewprot.w / 2) * (_rx + 100) / 100.0;
+            _position_offset_x = (viewprot.x + viewprot.w / 2) * (_rx + 100) / 100.0;
         }
 
         if (vspeed > 0)
         {
-            position_offset_y += (_ry * 5.0 * elapsedTime);
-            position_offset_y -= floor(position_offset_y / _cy) * _cy;
-            position_offset_y = int(position_offset_y) % _cy;
+            _position_offset_y = (float)(int(_position_offset_y + _ry * 0.02 * elapsedTime) % _cy);
         }
         else
         {
-            position_offset_y = (viewprot.y + viewprot.h / 2) * (_ry + 100) / 100.0;
+            _position_offset_y = (viewprot.y + viewprot.h / 2) * (_ry + 100) / 100.0;
         }
-        point.x += position_offset_x;
-        point.y += position_offset_y;
+        point.x += _position_offset_x;
+        point.y += _position_offset_y;
 
         if (htile > 0 && _cx > 0)
         {
