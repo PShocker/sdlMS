@@ -59,7 +59,7 @@ namespace util
                 SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
                 SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-                SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
+                SDL_FRect *rect = new SDL_FRect{(float)x - ox, (float)y - oy, (float)width, (float)height};
                 Tile t(texture, rect, SDL_PIXELFORMAT_ARGB4444, i, z);
 
                 tile.push_back(t);
@@ -103,6 +103,8 @@ namespace util
             auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
             auto z = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"z"))->get();
 
+            auto filp = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
+
             for (auto it : root->find_from_path(url)->get_children())
             {
                 wz::Property<wz::WzCanvas> *canvas;
@@ -138,7 +140,7 @@ namespace util
                 SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
                 v_rect.push_back(rect);
             }
-            Obj o(v_texture, v_rect, v_delay, v_format, i, z, url, v_texture.size());
+            Obj o(v_texture, v_rect, v_delay, v_format, i, z, filp, url, v_texture.size());
             obj.push_back(o);
         }
         std::sort(obj.begin(), obj.end(), [](const Obj o1, const Obj o2)
@@ -180,6 +182,9 @@ namespace util
 
                 auto front = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"front"))->get();
 
+                auto id = std::stoi(StringUtil::to_string(it.first));
+                // auto id = 0;
+
                 // std::vector<SDL_Texture *> v_texture;
                 // std::vector<SDL_Rect *> v_rect;
                 // std::vector<int> v_delay;
@@ -207,11 +212,11 @@ namespace util
                     SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
                     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-                    SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
+                    SDL_FRect *rect = new SDL_FRect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
                     Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
 
-                    BackGrd backgrd(sprite, type, front, rx, ry, cx, cy, ani, url);
+                    BackGrd backgrd(sprite, id, type, front, rx, ry, cx, cy, ani, url);
 
                     v_backgrd.push_back(backgrd);
                     break;
@@ -226,6 +231,8 @@ namespace util
                 }
             }
         }
+        std::sort(v_backgrd.begin(), v_backgrd.end(), [](const BackGrd b1, const BackGrd b2)
+                  { return b1._id + b1._front * 1024 < b2._id + b2._front * 1024; });
         return v_backgrd;
     }
 

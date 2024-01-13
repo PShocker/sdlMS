@@ -7,7 +7,6 @@
  * Holds all information dealing with graphics for the game
  */
 
-
 Graphics::Graphics()
 {
 	if (SDL_Init(SDL_INIT_VIDEO) >= 0)
@@ -23,10 +22,14 @@ Graphics::~Graphics()
 	SDL_DestroyRenderer(this->_renderer);
 }
 
-void Graphics::blitSurface(SDL_Texture *texture, SDL_Rect *sourceRectangle, SDL_Rect *destinationRectangle)
+void Graphics::blitSurface(SDL_Texture *texture, SDL_Rect *sourceRectangle, SDL_FRect *destinationRectangle)
 {
-	// SDL_RenderCopyF(this->_renderer, texture, sourceRectangle, destinationRectangle);
-	SDL_RenderCopy(this->_renderer, texture, sourceRectangle, destinationRectangle);
+	SDL_RenderCopyF(this->_renderer, texture, sourceRectangle, destinationRectangle);
+}
+
+void Graphics::blitSurfaceEx(SDL_Texture *texture, SDL_Rect *sourceRectangle, SDL_FRect *destinationRectangle, const double angle, const SDL_FPoint *center, SDL_RendererFlip flip = SDL_FLIP_NONE)
+{
+	SDL_RenderCopyExF(this->_renderer, texture, sourceRectangle, destinationRectangle, angle, center, flip);
 }
 
 void Graphics::flip()

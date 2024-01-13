@@ -12,7 +12,8 @@
 class BackGrd
 {
 public:
-    BackGrd(std::variant<Sprite, AnimatedSprite> backgrd, int type,
+    BackGrd(std::variant<Sprite, AnimatedSprite> backgrd,
+            int id, int type,
             int front,
             int rx, int ry,
             int cx, int cy,
@@ -22,6 +23,7 @@ public:
     void update(int elapsedTime);
 
 public:
+    int _id;
     int _type;
     int _front;
     int _rx;

@@ -12,7 +12,7 @@ public:
   Camera();
 
 public:
-  SDL_Rect viewport;
+  SDL_FRect viewport;
 
 private:
   Camera(const Camera &) = delete;

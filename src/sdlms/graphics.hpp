@@ -18,8 +18,12 @@ public:
 	/* void blitSurface
 	 * Draws a texture to a certain part of the screen
 	 */
-	void blitSurface(SDL_Texture *source, SDL_Rect *sourceRectangle, SDL_Rect *destinationRectangle);
+	void blitSurface(SDL_Texture *source, SDL_Rect *sourceRectangle, SDL_FRect *destinationRectangle);
 
+	/* void blitSurfaceEx
+	 * Draws a texture to a certain part of the screen with flip
+	 */
+	void blitSurfaceEx(SDL_Texture *source, SDL_Rect *sourceRectangle, SDL_FRect *destinationRectangle, double angle, const SDL_FPoint *center, SDL_RendererFlip flip);
 	/* void flip
 	 * Renders everything to the screen
 	 */

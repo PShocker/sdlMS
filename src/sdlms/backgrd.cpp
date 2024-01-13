@@ -3,14 +3,17 @@
 #include "sdlms/backgrd.hpp"
 
 BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> backgrd,
-                 int type, int front,
+                 int id, int type,
+                 int front,
                  int rx, int ry,
                  int cx, int cy,
                  int ani, std::u16string url) : _backgrd(backgrd),
-                                                _type(type), _front(front),
+                                                _id(id), _type(type),
+                                                _front(front),
                                                 _rx(rx), _ry(ry),
                                                 _cx(cx), _cy(cy),
-                                                _ani(ani), _position_offset_x(0.0),
+                                                _ani(ani),
+                                                _position_offset_x(0.0), _position_offset_y(0.0),
                                                 _url(url)
 {
 }
@@ -59,7 +62,7 @@ void BackGrd::update(int elapsedTime)
         auto tile_cnt_x = 1;
         auto tile_cnt_y = 1;
         auto s = std::get<Sprite>(_backgrd);
-        SDL_Point point = {s._rect->x, s._rect->y};
+        SDL_FPoint point = {s._rect->x, s._rect->y};
         if (hspeed > 0)
         {
             _position_offset_x = float(int(_position_offset_x + _rx * 0.02 * elapsedTime) % _cx);
@@ -126,7 +129,7 @@ void BackGrd::update(int elapsedTime)
         {
             for (int j = 0; j < tile_cnt_x; j++)
             {
-                SDL_Rect *rect = new SDL_Rect{point.x + j * _cx, point.y + i * _cy, s._rect->w, s._rect->h};
+                SDL_FRect *rect = new SDL_FRect{point.x + j * _cx, point.y + i * _cy, s._rect->w, s._rect->h};
                 _backgrds.push_back(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444));
             }
         }

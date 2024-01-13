@@ -13,7 +13,8 @@ class AnimatedSprite
 public:
     AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect,
                    std::vector<int> delay,
-                   std::vector<int> format, int frameSize);
+                   std::vector<int> format, int frameSize,
+                   int flip);
 
     void update(int elapsedTime);
     void draw();
@@ -26,6 +27,7 @@ public:
     int _frameIndex;
     int _frameTime;
     int _frameSize;
+    int _flip;
 
 protected:
     Camera *_camera;

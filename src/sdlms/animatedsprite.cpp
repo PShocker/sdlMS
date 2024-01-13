@@ -3,11 +3,12 @@
 
 AnimatedSprite::AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect,
                                std::vector<int> delay, std::vector<int> format,
-                               int frameSize) : _texture(texture), _rect(rect),
-                                                _delay(delay), _format(format),
-                                                _frameIndex(0),
-                                                _frameTime(0),
-                                                _frameSize(frameSize)
+                               int frameSize, int flip) : _texture(texture), _rect(rect),
+                                                          _delay(delay), _format(format),
+                                                          _frameIndex(0),
+                                                          _frameTime(0),
+                                                          _frameSize(frameSize),
+                                                          _flip(flip)
 {
     _camera = Camera::current();
     _graphics = Graphics::current();
@@ -36,8 +37,15 @@ void AnimatedSprite::update(int elapsedTime)
 
 void AnimatedSprite::draw()
 {
-    SDL_Rect rect{_rect[_frameIndex]->x, _rect[_frameIndex]->y, _rect[_frameIndex]->w, _rect[_frameIndex]->h};
+    SDL_FRect rect{_rect[_frameIndex]->x, _rect[_frameIndex]->y, _rect[_frameIndex]->w, _rect[_frameIndex]->h};
     rect.x -= _camera->viewport.x;
     rect.y -= _camera->viewport.y;
-    _graphics->blitSurface(_texture[_frameIndex], NULL, &rect);
+    if (_flip > 0) // 翻转
+    {
+        _graphics->blitSurfaceEx(_texture[_frameIndex], NULL, &rect, 0, 0, SDL_FLIP_HORIZONTAL);
+    }
+    else
+    {
+        _graphics->blitSurface(_texture[_frameIndex], NULL, &rect);
+    }
 }

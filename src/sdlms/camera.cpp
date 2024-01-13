@@ -2,5 +2,5 @@
 
 Camera::Camera()
 {
-    viewport = SDL_Rect{0, 0, Graphics::SCREEN_WIDTH, Graphics::SCREEN_HEIGHT};
+    viewport = SDL_FRect{0, 0, Graphics::SCREEN_WIDTH, Graphics::SCREEN_HEIGHT};
 }
