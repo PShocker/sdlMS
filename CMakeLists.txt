@@ -5,7 +5,6 @@ set(CMAKE_CXX_STANDARD 20)
 
 # sdl2 is install here
 set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
-set(ZLIB_LIBRARY "wzlibcpp/zlib/lib")
 
 find_package(SDL2 REQUIRED)
 
@@ -18,7 +17,6 @@ include_directories(
     src/
 )
 
-file(GLOB ZLIB_FILES ${ZLIB_LIBRARY}/*.a)
 file(GLOB SOURCE_FILES src/**/*.cpp)
 
 
@@ -31,4 +29,4 @@ add_executable(sdlMS src/main.cpp ${SOURCE_FILES})
 # 包含 SDL2 头文件目录
 target_include_directories(sdlMS PRIVATE ${SDL2_INCLUDE_DIRS})
 # 链接 SDL2 库
-target_link_libraries(sdlMS PRIVATE ${SDL2_LIBRARIES} wzlib ${ZLIB_FILES})
+target_link_libraries(sdlMS PRIVATE ${SDL2_LIBRARIES} wzlib)

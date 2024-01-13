@@ -1,10 +1,10 @@
 用SDL2复刻冒险岛,使用cmake(MinGW)构建.
 
-如果使用Windows+MinGW,则wzlibcpp的zlib不需要更改,否则需要重新编译zlib静态库
-
-https://github.com/madler/zlib
-
-放到zlib目录
+需要配置好SDL2库,修改CMakeList.txt
+```
+# sdl2 is install here 修改你自己的SDL路径
+set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
+````
 
 资源文件进QQ群760717877下载
 
