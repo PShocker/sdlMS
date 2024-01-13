@@ -1,16 +1,13 @@
 #include "sdlms/main.hpp"
 #include <SDL2/SDL.h>
 
-// Screen dimension constants
-const int SCREEN_WIDTH = 1280;
-const int SCREEN_HEIGHT = 800;
 
 const int FPS = 60;
 const int FRAME_DELAY = 1000 / FPS;
 
 int Main::run(int argc, char **argv)
 {
-    int mapId = 101000000;
+    int mapId = 100000000;
 
     _graphics.reset(new Graphics());
 
