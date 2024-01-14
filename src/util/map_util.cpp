@@ -65,8 +65,8 @@ namespace util
                 tile.push_back(t);
             }
         }
-        std::sort(tile.begin(), tile.end(), [](const Tile t1, const Tile t2)
-                  { return t1._z < t2._z; });
+        std::ranges::sort(tile, [](const Tile a, const Tile b)
+                  { return a._z < b._z; });
         return tile;
     }
 
@@ -143,8 +143,8 @@ namespace util
             Obj o(v_texture, v_rect, v_delay, v_format, i, z, filp, url, v_texture.size());
             obj.push_back(o);
         }
-        std::sort(obj.begin(), obj.end(), [](const Obj o1, const Obj o2)
-                  { return o1._z < o2._z; });
+        std::ranges::sort(obj, [](const Obj a, const Obj b)
+                          { return a._z < b._z; });
         return obj;
     }
 
@@ -231,8 +231,8 @@ namespace util
                 }
             }
         }
-        std::sort(v_backgrd.begin(), v_backgrd.end(), [](const BackGrd b1, const BackGrd b2)
-                  { return b1._id + b1._front * 1024 < b2._id + b2._front * 1024; });
+        std::ranges::sort(v_backgrd, [](const BackGrd a, const BackGrd b)
+                          { return a._id + a._front * 1024 < b._id + b._front * 1024; });
         return v_backgrd;
     }
 

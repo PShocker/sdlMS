@@ -2,6 +2,7 @@
 #define HEADER_WORLDMAP_WORLDMAP
 
 #include <vector>
+#include <ranges>
 #include "wz/Property.hpp"
 
 #include "util/currenton.hpp"
