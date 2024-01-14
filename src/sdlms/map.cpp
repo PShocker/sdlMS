@@ -4,22 +4,22 @@
 void Map::draw()
 {
     Graphics::current()->clear();
-    for (auto it : _backgrd)
+    for (auto &it : _backgrd)
     {
         it.draw();
     }
     for (size_t i = 0; i < 8; i++)
     {
-        for (auto it : _obj[i])
+        for (auto &it : _obj[i])
         {
             it.draw();
         }
-        for (auto it : _tile[i])
+        for (auto &it : _tile[i])
         {
             it.draw();
         }
     }
-    for (auto it : _portal)
+    for (auto &it : _portal)
     {
         it.draw();
     }
