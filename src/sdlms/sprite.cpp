@@ -8,6 +8,10 @@ Sprite::Sprite(SDL_Texture *texture, SDL_FRect *rect, int format) : _texture(tex
     _graphics = Graphics::current();
 }
 
+Sprite::~Sprite()
+{
+}
+
 void Sprite::draw()
 {
     SDL_FRect rect{_rect->x, _rect->y, _rect->w, _rect->h};

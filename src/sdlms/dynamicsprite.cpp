@@ -4,6 +4,10 @@ DynamicSprite::DynamicSprite(std::variant<Sprite, AnimatedSprite> dynamicsprite)
 {
 }
 
+DynamicSprite::~DynamicSprite()
+{
+}
+
 void DynamicSprite::draw()
 {
     if (std::holds_alternative<Sprite>(_dynamicsprite))

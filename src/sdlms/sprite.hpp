@@ -10,6 +10,8 @@ class Sprite
 {
 public:
     Sprite(SDL_Texture *texture, SDL_FRect *rect, int format);
+    ~Sprite();
+    
     void draw();
 
 public:

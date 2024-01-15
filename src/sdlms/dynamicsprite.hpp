@@ -10,6 +10,7 @@ class DynamicSprite
 {
 public:
     DynamicSprite(std::variant<Sprite, AnimatedSprite> dynamicsprite);
+    ~DynamicSprite();
     void draw();
     void update(int elapsedTime);
 
