@@ -137,6 +137,8 @@ namespace util
                     a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
                     a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
                 }
+                
+                v_a.push_back(std::tuple<int, int>(a0, a1));
 
                 auto raw_data = canvas->get_raw_data();
                 auto height = canvas->get().height;
