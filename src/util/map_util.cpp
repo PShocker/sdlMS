@@ -297,7 +297,7 @@ namespace util
                                 if (root->find_from_path(url + u"/default") != NULL)
                                 {
                                     // 三段式传送门
-                                    
+
                                     
                                 }
                                 else
@@ -323,7 +323,7 @@ namespace util
                                         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
                                         v_texture.push_back(texture);
 
-                                        v_delay.push_back(200);
+                                        v_delay.push_back(100);
 
                                         SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
                                         v_rect.push_back(rect);
