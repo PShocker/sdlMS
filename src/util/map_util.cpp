@@ -298,8 +298,24 @@ namespace util
                                 pt = 2;
                             }
                             auto url = u"MapHelper.img/portal/game/" + std::basic_string<char16_t>(pt_list[pt]);
-                            if (root->find_from_path(url) != nullptr)
+                            if (root->find_from_path(url) != NULL)
                             {
+                                if (root->find_from_path(url + u"/default") != NULL)
+                                {
+                                    //三段式传送门
+                                    printf("123");
+
+                                }
+                                else
+                                {
+                                    //普通的传送门,通常为pv
+                                    printf("123");
+                                    printf("123");
+                                    printf("123");
+                                    printf("123");
+
+                                }
+
                                 // auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
                                 // auto raw_data = canvas->get_raw_data();
                                 // auto height = canvas->get().height;

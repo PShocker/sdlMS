@@ -18,4 +18,8 @@ void DynamicSprite::draw()
 
 void DynamicSprite::update(int elapsedTime)
 {
+    if (std::holds_alternative<AnimatedSprite>(_dynamicsprite))
+    {
+        std::get<AnimatedSprite>(_dynamicsprite).update(elapsedTime);
+    }
 }
