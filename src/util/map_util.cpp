@@ -93,6 +93,7 @@ namespace util
             std::vector<SDL_Rect *> v_rect;
             std::vector<int> v_delay;
             std::vector<int> v_format;
+            std::vector<std::tuple<int, int>> v_a;
             auto oS = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"oS"))->get();
             auto l0 = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"l0"))->get();
             auto l1 = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"l1"))->get();
@@ -128,6 +129,15 @@ namespace util
                 auto delay = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"delay"));
                 v_delay.push_back(delay == nullptr ? 0 : delay->get());
 
+                auto a0 = 255;
+                auto a1 = 255;
+
+                if (canvas->get_child(u"a0") != NULL && canvas->get_child(u"a1") != NULL)
+                {
+                    a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
+                    a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
+                }
+
                 auto raw_data = canvas->get_raw_data();
                 auto height = canvas->get().height;
                 auto width = canvas->get().width;
@@ -140,7 +150,7 @@ namespace util
                 SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
                 v_rect.push_back(rect);
             }
-            Obj o(v_texture, v_rect, v_delay, v_format, i, z, filp, url, v_texture.size());
+            Obj o(v_texture, v_rect, v_delay, v_format, i, z, filp, url, v_texture.size(), v_a);
             obj.push_back(o);
         }
         std::ranges::sort(obj, [](const Obj a, const Obj b)
@@ -297,8 +307,6 @@ namespace util
                                 if (root->find_from_path(url + u"/default") != NULL)
                                 {
                                     // 三段式传送门
-
-                                    
                                 }
                                 else
                                 {
@@ -307,6 +315,8 @@ namespace util
                                     std::vector<SDL_Rect *> v_rect;
                                     std::vector<int> v_delay;
                                     std::vector<int> v_format;
+                                    std::vector<std::tuple<int, int>> v_a;
+
                                     for (auto it : root->find_from_path(url)->get_children())
                                     {
                                         auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it.second[0]);
@@ -328,7 +338,7 @@ namespace util
                                         SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
                                         v_rect.push_back(rect);
                                     }
-                                    AnimatedSprite animatedsprite(v_texture, v_rect, v_delay, v_format, v_texture.size());
+                                    AnimatedSprite animatedsprite(v_texture, v_rect, v_delay, v_format, v_texture.size(), v_a);
                                     Portal portal(animatedsprite, Portal::Type::GAME, url);
                                     v_portal.push_back(portal);
                                 }

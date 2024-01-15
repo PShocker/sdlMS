@@ -3,12 +3,14 @@
 
 AnimatedSprite::AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect,
                                std::vector<int> delay, std::vector<int> format,
-                               int frameSize, int flip) : _texture(texture), _rect(rect),
-                                                          _delay(delay), _format(format),
-                                                          _frameIndex(0),
-                                                          _frameTime(0),
-                                                          _frameSize(frameSize),
-                                                          _flip(flip)
+                               int frameSize, std::vector<std::tuple<int, int>> a,
+                               int flip) : _texture(texture), _rect(rect),
+                                           _delay(delay), _format(format),
+                                           _frameIndex(0),
+                                           _frameTime(0),
+                                           _frameSize(frameSize),
+                                           _flip(flip),
+                                           _a(a)
 {
     _camera = Camera::current();
     _graphics = Graphics::current();
