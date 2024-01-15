@@ -183,12 +183,6 @@ namespace util
                 auto front = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"front"))->get();
 
                 auto id = std::stoi(StringUtil::to_string(it.first));
-                // auto id = 0;
-
-                // std::vector<SDL_Texture *> v_texture;
-                // std::vector<SDL_Rect *> v_rect;
-                // std::vector<int> v_delay;
-                // std::vector<int> v_format;
 
                 switch (ani)
                 {
@@ -287,7 +281,7 @@ namespace util
 
                             Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
 
-                            Portal portal(sprite, 0, url);
+                            Portal portal(sprite, Portal::Type::EDITOR, url);
 
                             v_portal.push_back(portal);
                         }
@@ -302,24 +296,41 @@ namespace util
                             {
                                 if (root->find_from_path(url + u"/default") != NULL)
                                 {
-                                    //三段式传送门
-                                    printf("123");
-
+                                    // 三段式传送门
+                                    
                                 }
                                 else
                                 {
-                                    //普通的传送门,通常为pv
-                                    printf("123");
-                                    printf("123");
-                                    printf("123");
-                                    printf("123");
+                                    // 普通的传送门,通常为pv
+                                    std::vector<SDL_Texture *> v_texture;
+                                    std::vector<SDL_Rect *> v_rect;
+                                    std::vector<int> v_delay;
+                                    std::vector<int> v_format;
+                                    for (auto it : root->find_from_path(url)->get_children())
+                                    {
+                                        auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it.second[0]);
+                                        auto height = canvas->get().height;
+                                        auto width = canvas->get().width;
+                                        auto raw_data = canvas->get_raw_data();
 
+                                        auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
+                                        auto ox = o->get().x;
+                                        auto oy = o->get().y;
+
+                                        SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
+                                        SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
+                                        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+                                        v_texture.push_back(texture);
+
+                                        v_delay.push_back(200);
+
+                                        SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
+                                        v_rect.push_back(rect);
+                                    }
+                                    AnimatedSprite animatedsprite(v_texture, v_rect, v_delay, v_format, v_texture.size());
+                                    Portal portal(animatedsprite, Portal::Type::GAME, url);
+                                    v_portal.push_back(portal);
                                 }
-
-                                // auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
-                                // auto raw_data = canvas->get_raw_data();
-                                // auto height = canvas->get().height;
-                                // auto width = canvas->get().width;
                             }
                         }
                     }

@@ -16,13 +16,12 @@ public:
     Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
            int type,
            std::u16string url);
-    void update(int elapsedTime);
 
 public:
     int _type;
     std::u16string _url;
 
-private:
+public:
     enum Type
     {
         EDITOR,

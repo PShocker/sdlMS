@@ -40,4 +40,8 @@ void Map::update(int elapsedTime)
             it.update(elapsedTime);
         }
     }
+    for (auto &it : _portal)
+    {
+        it.update(elapsedTime);
+    }
 }

@@ -14,7 +14,7 @@ public:
     AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect,
                    std::vector<int> delay,
                    std::vector<int> format, int frameSize,
-                   int flip);
+                   int flip = SDL_FLIP_NONE);
 
     void update(int elapsedTime);
     void draw();
