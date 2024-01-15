@@ -66,7 +66,7 @@ namespace util
             }
         }
         std::ranges::sort(tile, [](const Tile a, const Tile b)
-                  { return a._z < b._z; });
+                          { return a._z < b._z; });
         return tile;
     }
 
@@ -251,9 +251,9 @@ namespace util
         node = node->get_child(u"portal");
         if (node != nullptr)
         {
-            std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
-                                        u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
-                                        u"pci", u"pcig", u"pshg"};
+            const std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
+                                              u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
+                                              u"pci", u"pcig", u"pshg"};
             for (auto it : node->get_children())
             {
                 if (it.second[0]->get_child(u"pt") != nullptr)
