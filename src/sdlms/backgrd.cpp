@@ -2,12 +2,12 @@
 
 #include "sdlms/backgrd.hpp"
 
-BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> backgrd,
+BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> dynamicsprite,
                  int id, int type,
                  int front,
                  int rx, int ry,
                  int cx, int cy,
-                 int ani, std::u16string url) : _backgrd(backgrd),
+                 int ani, std::u16string url) : DynamicSprite(dynamicsprite),
                                                 _id(id), _type(type),
                                                 _front(front),
                                                 _rx(rx), _ry(ry),
@@ -57,11 +57,11 @@ void BackGrd::update(int elapsedTime)
     }
 
     auto viewprot = Camera::current()->viewport;
-    if (std::holds_alternative<Sprite>(_backgrd))
+    if (std::holds_alternative<Sprite>(_dynamicsprite))
     {
         auto tile_cnt_x = 1;
         auto tile_cnt_y = 1;
-        auto s = std::get<Sprite>(_backgrd);
+        auto s = std::get<Sprite>(_dynamicsprite);
         SDL_FPoint point = {s._rect->x, s._rect->y};
         if (hspeed > 0)
         {
@@ -130,7 +130,7 @@ void BackGrd::update(int elapsedTime)
             for (int j = 0; j < tile_cnt_x; j++)
             {
                 SDL_FRect *rect = new SDL_FRect{point.x + j * _cx, point.y + i * _cy, s._rect->w, s._rect->h};
-                _backgrds.push_back(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444));
+                _backgrds.push_back(DynamicSprite(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444)));
             }
         }
     }
@@ -140,13 +140,6 @@ void BackGrd::draw()
 {
     for (auto &it : _backgrds)
     {
-        if (std::holds_alternative<Sprite>(it))
-        {
-            std::get<Sprite>(it).draw();
-        }
-        else if (std::holds_alternative<AnimatedSprite>(it))
-        {
-            std::get<AnimatedSprite>(it).draw();
-        }
+        it.draw();
     }
 }

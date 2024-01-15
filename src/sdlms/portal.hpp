@@ -8,18 +8,17 @@
 
 #include "sdlms/animatedsprite.hpp"
 #include "sdlms/sprite.hpp"
+#include "sdlms/dynamicsprite.hpp"
 
-class Portal
+class Portal : public DynamicSprite
 {
 public:
-    Portal(std::variant<Sprite, AnimatedSprite> portal,
+    Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
            int type,
            std::u16string url);
-    void draw();
     void update(int elapsedTime);
 
 public:
-    std::variant<Sprite, AnimatedSprite> _portal;
     int _type;
     std::u16string _url;
 

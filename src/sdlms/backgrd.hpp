@@ -8,11 +8,12 @@
 
 #include "sdlms/animatedsprite.hpp"
 #include "sdlms/sprite.hpp"
+#include "sdlms/dynamicsprite.hpp"
 
-class BackGrd
+class BackGrd : public DynamicSprite
 {
 public:
-    BackGrd(std::variant<Sprite, AnimatedSprite> backgrd,
+    BackGrd(std::variant<Sprite, AnimatedSprite> dynamicsprite,
             int id, int type,
             int front,
             int rx, int ry,
@@ -34,8 +35,7 @@ public:
     float _position_offset_x;
     float _position_offset_y;
     std::u16string _url;
-    std::variant<Sprite, AnimatedSprite> _backgrd;
-    std::vector<std::variant<Sprite, AnimatedSprite>> _backgrds;
+    std::vector<DynamicSprite> _backgrds;
 
 private:
     enum Type

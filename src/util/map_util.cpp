@@ -251,15 +251,15 @@ namespace util
         node = node->get_child(u"portal");
         if (node != nullptr)
         {
-            const std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
-                                              u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
-                                              u"pci", u"pcig", u"pshg"};
+            constexpr const char16_t *pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
+                                                   u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
+                                                   u"pci", u"pcig", u"pshg"};
             for (auto it : node->get_children())
             {
                 if (it.second[0]->get_child(u"pt") != nullptr)
                 {
                     auto pt = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"pt"))->get();
-                    if (pt < 0 || pt >= pt_list->size())
+                    if (pt < 0 || pt >= sizeof(pt_list))
                     {
                         continue;
                     }
@@ -268,7 +268,7 @@ namespace util
                         auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
                         auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
                         {
-                            auto url = u"MapHelper.img/portal/editor/" + pt_list[pt];
+                            auto url = u"MapHelper.img/portal/editor/" + std::basic_string<char16_t>(pt_list[pt]);
 
                             auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
                             auto raw_data = canvas->get_raw_data();
@@ -297,7 +297,7 @@ namespace util
                             {
                                 pt = 2;
                             }
-                            auto url = u"MapHelper.img/portal/game/" + pt_list[pt];
+                            auto url = u"MapHelper.img/portal/game/" + std::basic_string<char16_t>(pt_list[pt]);
                             if (root->find_from_path(url) != nullptr)
                             {
                                 // auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
