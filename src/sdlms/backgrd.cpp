@@ -138,7 +138,7 @@ void BackGrd::update(int elapsedTime)
 
 void BackGrd::draw()
 {
-    for (auto it : _backgrds)
+    for (auto &it : _backgrds)
     {
         if (std::holds_alternative<Sprite>(it))
         {
