@@ -137,7 +137,7 @@ namespace util
                     a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
                     a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
                 }
-                
+
                 v_a.push_back(std::tuple<int, int>(a0, a1));
 
                 auto raw_data = canvas->get_raw_data();
@@ -339,6 +339,12 @@ namespace util
 
                                         SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
                                         v_rect.push_back(rect);
+
+                                        auto a0 = 255;
+                                        auto a1 = 255;
+
+                                        v_a.push_back(std::tuple<int, int>(a0, a1));
+                                        
                                     }
                                     AnimatedSprite animatedsprite(v_texture, v_rect, v_delay, v_format, v_texture.size(), v_a);
                                     Portal portal(animatedsprite, Portal::Type::GAME, url);

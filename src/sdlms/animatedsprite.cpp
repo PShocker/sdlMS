@@ -34,6 +34,20 @@ void AnimatedSprite::update(int elapsedTime)
             // 切换下一帧
             _frameTime = 0;
         }
+        auto a0 = std::get<0>(_a[_frameIndex]);
+        auto a1 = std::get<1>(_a[_frameIndex]);
+        auto alpha = 255;
+
+        if (a0 <= a1)
+        {
+            alpha = (float)a0 + (float)(a1 - a0) / (float)_delay[_frameIndex] * (float)_frameTime;
+        }
+        else
+        {
+            alpha = (float)a0 - (float)(a0 - a1) / (float)_delay[_frameIndex] * (float)_frameTime;
+        }
+
+        SDL_SetTextureAlphaMod(_texture[_frameIndex], alpha);
     }
 }
 
