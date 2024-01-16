@@ -11,7 +11,7 @@
 class AnimatedSprite
 {
 public:
-    AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect,
+    AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect> rect,
                    std::vector<int> delay,
                    std::vector<int> format, int frameSize,
                    std::vector<std::tuple<int, int>> a,
@@ -22,7 +22,7 @@ public:
 
 public:
     std::vector<SDL_Texture *> _texture;
-    std::vector<SDL_Rect *> _rect;
+    std::vector<SDL_Rect> _rect;
     std::vector<int> _delay;
     std::vector<int> _format;
     int _frameIndex;

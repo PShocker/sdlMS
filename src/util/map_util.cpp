@@ -90,7 +90,7 @@ namespace util
         for (auto it : node->get_children())
         {
             std::vector<SDL_Texture *> v_texture;
-            std::vector<SDL_Rect *> v_rect;
+            std::vector<SDL_Rect> v_rect;
             std::vector<int> v_delay;
             std::vector<int> v_format;
             std::vector<std::tuple<int, int>> v_a;
@@ -149,7 +149,7 @@ namespace util
                 SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
                 v_texture.push_back(texture);
 
-                SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
+                SDL_Rect rect{x - ox, y - oy, width, height};
                 v_rect.push_back(rect);
             }
             Obj o(v_texture, v_rect, v_delay, v_format, i, z, filp, url, v_texture.size(), v_a);
@@ -314,7 +314,7 @@ namespace util
                                 {
                                     // 普通的传送门,通常为pv
                                     std::vector<SDL_Texture *> v_texture;
-                                    std::vector<SDL_Rect *> v_rect;
+                                    std::vector<SDL_Rect> v_rect;
                                     std::vector<int> v_delay;
                                     std::vector<int> v_format;
                                     std::vector<std::tuple<int, int>> v_a;
@@ -337,14 +337,13 @@ namespace util
 
                                         v_delay.push_back(100);
 
-                                        SDL_Rect *rect = new SDL_Rect{x - ox, y - oy, width, height};
+                                        SDL_Rect rect{x - ox, y - oy, width, height};
                                         v_rect.push_back(rect);
 
                                         auto a0 = 255;
                                         auto a1 = 255;
 
                                         v_a.push_back(std::tuple<int, int>(a0, a1));
-                                        
                                     }
                                     AnimatedSprite animatedsprite(v_texture, v_rect, v_delay, v_format, v_texture.size(), v_a);
                                     Portal portal(animatedsprite, Portal::Type::GAME, url);

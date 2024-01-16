@@ -1,7 +1,7 @@
 #include "sdlms/animatedsprite.hpp"
 #include "animatedsprite.hpp"
 
-AnimatedSprite::AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect,
+AnimatedSprite::AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect> rect,
                                std::vector<int> delay, std::vector<int> format,
                                int frameSize, std::vector<std::tuple<int, int>> a,
                                int flip) : _texture(texture), _rect(rect),
@@ -54,7 +54,7 @@ void AnimatedSprite::update(int elapsedTime)
 
 void AnimatedSprite::draw()
 {
-    SDL_FRect rect{(float)_rect[_frameIndex]->x, (float)_rect[_frameIndex]->y, (float)_rect[_frameIndex]->w, (float)_rect[_frameIndex]->h};
+    SDL_FRect rect{(float)_rect[_frameIndex].x, (float)_rect[_frameIndex].y, (float)_rect[_frameIndex].w, (float)_rect[_frameIndex].h};
     rect.x -= _camera->viewport.x;
     rect.y -= _camera->viewport.y;
     if (_flip > 0) // 翻转

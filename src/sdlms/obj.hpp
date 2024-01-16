@@ -12,7 +12,7 @@
 class Obj : public AnimatedSprite
 {
 public:
-    Obj(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect *> rect, std::vector<int> delay,
+    Obj(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect> rect, std::vector<int> delay,
         std::vector<int> format, int layer, int z,
         int flip, std::u16string url, int frameSize,
         std::vector<std::tuple<int, int>> a);
