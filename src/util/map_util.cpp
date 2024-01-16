@@ -59,7 +59,7 @@ namespace util
                 SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
                 SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-                SDL_FRect *rect = new SDL_FRect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+                SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
                 Tile t(texture, rect, SDL_PIXELFORMAT_ARGB4444, i, z);
 
                 tile.push_back(t);
@@ -218,7 +218,7 @@ namespace util
                     SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
                     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-                    SDL_FRect *rect = new SDL_FRect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+                    SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
                     Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
 
@@ -289,7 +289,7 @@ namespace util
                             SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
                             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-                            SDL_FRect *rect = new SDL_FRect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+                            SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
                             Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
 

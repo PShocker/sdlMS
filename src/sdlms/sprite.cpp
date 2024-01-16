@@ -1,6 +1,6 @@
 #include "sdlms/sprite.hpp"
 
-Sprite::Sprite(SDL_Texture *texture, SDL_FRect *rect, int format) : _texture(texture),
+Sprite::Sprite(SDL_Texture *texture, SDL_FRect rect, int format) : _texture(texture),
                                                                    _rect(rect),
                                                                    _format(format)
 {
@@ -14,7 +14,7 @@ Sprite::~Sprite()
 
 void Sprite::draw()
 {
-    SDL_FRect rect{_rect->x, _rect->y, _rect->w, _rect->h};
+    SDL_FRect rect{_rect.x, _rect.y, _rect.w, _rect.h};
     rect.x -= _camera->viewport.x;
     rect.y -= _camera->viewport.y;
     _graphics->blitSurface(_texture, NULL, &rect);

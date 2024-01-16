@@ -62,7 +62,7 @@ void BackGrd::update(int elapsedTime)
         auto tile_cnt_x = 1;
         auto tile_cnt_y = 1;
         auto s = std::get<Sprite>(_dynamicsprite);
-        SDL_FPoint point = {s._rect->x, s._rect->y};
+        SDL_FPoint point = {s._rect.x, s._rect.y};
         if (hspeed > 0)
         {
             _position_offset_x = float(int(_position_offset_x + _rx * 0.02 * elapsedTime) % _cx);
@@ -85,14 +85,14 @@ void BackGrd::update(int elapsedTime)
 
         if (htile > 0 && _cx > 0)
         {
-            auto tile_start_right = int(point.x + s._rect->w - viewprot.x) % _cx;
+            auto tile_start_right = int(point.x + s._rect.w - viewprot.x) % _cx;
             if (tile_start_right <= 0)
             {
                 tile_start_right = tile_start_right + _cx;
             }
             tile_start_right = tile_start_right + viewprot.x;
 
-            auto tile_start_left = tile_start_right - s._rect->w;
+            auto tile_start_left = tile_start_right - s._rect.w;
             if (tile_start_left >= viewprot.x + viewprot.w)
             {
                 tile_cnt_x = 0;
@@ -106,14 +106,14 @@ void BackGrd::update(int elapsedTime)
 
         if (vtile > 0 && _cy > 0)
         {
-            auto tile_start_bottom = int(point.y + s._rect->h - viewprot.y) % _cy;
+            auto tile_start_bottom = int(point.y + s._rect.h - viewprot.y) % _cy;
             if (tile_start_bottom <= 0)
             {
                 tile_start_bottom = tile_start_bottom + _cy;
             }
             tile_start_bottom = tile_start_bottom + viewprot.y;
 
-            auto tile_start_top = tile_start_bottom - s._rect->h;
+            auto tile_start_top = tile_start_bottom - s._rect.h;
             if (tile_start_top >= viewprot.y + viewprot.h)
             {
                 tile_cnt_y = 0;
@@ -129,7 +129,7 @@ void BackGrd::update(int elapsedTime)
         {
             for (int j = 0; j < tile_cnt_x; j++)
             {
-                SDL_FRect *rect = new SDL_FRect{point.x + j * _cx, point.y + i * _cy, s._rect->w, s._rect->h};
+                SDL_FRect rect{point.x + j * _cx, point.y + i * _cy, s._rect.w, s._rect.h};
                 _backgrds.push_back(DynamicSprite(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444)));
             }
         }

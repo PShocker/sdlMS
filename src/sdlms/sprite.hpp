@@ -9,14 +9,15 @@
 class Sprite
 {
 public:
-    Sprite(SDL_Texture *texture, SDL_FRect *rect, int format);
+    Sprite(SDL_Texture *texture, SDL_FRect rect, int format);
     ~Sprite();
     
     void draw();
 
 public:
     SDL_Texture *_texture;
-    SDL_FRect *_rect;
+    // SDL_FRect *_rect;
+    SDL_FRect _rect;
     int _format;
 
 protected:
