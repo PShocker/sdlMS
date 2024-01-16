@@ -1,4 +1,4 @@
-用SDL2复刻冒险岛,使用cmake(MinGW)构建.
+用SDL2复刻冒险岛,使用[cmake(MinGW)](https://github.com/niXman/mingw-builds-binaries/releases/tag/13.2.0-rt_v11-rev0)构建.
 
 需要配置好SDL2库,修改CMakeList.txt
 ```
