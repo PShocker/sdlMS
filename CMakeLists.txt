@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 20)
 # sdl2 is install here
 set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
 
-set(FFMPEG_INCLUDE "C:/Users/Shocker/Desktop/build/include")
-set(FFMPEG_LIB "C:/Users/Shocker/Desktop/build/lib")
+set(FFMPEG_INCLUDE "C:/Users/Shocker/Desktop/FFMPEG/include")
+set(FFMPEG_LIB "C:/Users/Shocker/Desktop/FFMPEG/lib")
 
 find_package(SDL2 REQUIRED)
 
