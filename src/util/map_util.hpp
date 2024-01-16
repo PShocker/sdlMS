@@ -11,9 +11,9 @@
 #include "sdlms/backgrd.hpp"
 #include "sdlms/portal.hpp"
 
+// 地图加载的类,用来加载地图上的资源
 namespace util
 {
-
     class MapUtil final : public Currenton<MapUtil>
     {
     public:

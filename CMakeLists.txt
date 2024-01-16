@@ -11,11 +11,16 @@ find_package(SDL2 REQUIRED)
 add_subdirectory(wzlibcpp)
 
 include_directories(
+    src/
+)
+
+include_directories(
     wzlibcpp/
     wzlibcpp/include
     wzlibcpp/mio/include
-    src/
 )
+
+
 
 file(GLOB SOURCE_FILES src/**/*.cpp)
 
