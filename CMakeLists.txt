@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 20)
 # sdl2 is install here
 set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
 
+set(FFMPEG_INCLUDE "C:/Users/Shocker/Desktop/build/include")
+set(FFMPEG_LIB "C:/Users/Shocker/Desktop/build/lib")
+
 find_package(SDL2 REQUIRED)
 
 add_subdirectory(wzlibcpp)
@@ -20,10 +23,13 @@ include_directories(
     wzlibcpp/mio/include
 )
 
+include_directories(
+    ${FFMPEG_INCLUDE}
+)
 
+link_directories(${FFMPEG_LIB})
 
 file(GLOB SOURCE_FILES src/**/*.cpp)
-
 
 # set(CMAKE_EXE_LINKER_FLAGS "-static")
 
@@ -35,3 +41,5 @@ add_executable(sdlMS src/main.cpp ${SOURCE_FILES})
 target_include_directories(sdlMS PRIVATE ${SDL2_INCLUDE_DIRS})
 # 链接 SDL2 库
 target_link_libraries(sdlMS PRIVATE ${SDL2_LIBRARIES} wzlib)
+# 链接 FFMPEG库
+target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter)
