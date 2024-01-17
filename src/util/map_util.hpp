@@ -1,5 +1,5 @@
-#ifndef HEADER_WORLDMAP_WORLDMAP
-#define HEADER_WORLDMAP_WORLDMAP
+#ifndef HEADER_UTIL_MAP
+#define HEADER_UTIL_MAP
 
 #include <vector>
 #include <ranges>

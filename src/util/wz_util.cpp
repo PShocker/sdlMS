@@ -43,7 +43,7 @@ namespace util
 		// Quest->parse();
 		// Reactor->parse();
 		// Skill->parse();
-		// Sound->parse();
+		Sound->parse();
 		// String->parse();
 		// TamingMob->parse();
 		// UI->parse();

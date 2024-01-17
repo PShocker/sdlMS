@@ -1,7 +1,6 @@
 #include "sdlms/main.hpp"
 #include <SDL2/SDL.h>
 
-
 const int FPS = 60;
 const int FRAME_DELAY = 1000 / FPS;
 
@@ -11,8 +10,11 @@ int Main::run(int argc, char **argv)
 
     _graphics.reset(new Graphics());
 
+    _ffmpeg.reset(new FFMPEG());
+
     _wz_util.reset(new WzUtil());
     _map_util.reset(new MapUtil());
+    _sound_util.reset(new SoundUtil());
 
     _map.reset(new Map());
     _camera.reset(new Camera());
@@ -22,6 +24,8 @@ int Main::run(int argc, char **argv)
     _map->_obj = _map_util->load_obj(mapId);
     _map->_backgrd = _map_util->load_backgrd(mapId);
     _map->_portal = _map_util->load_portal(mapId);
+
+    _map->_sound = _ffmpeg->decodeAudioToPCM(_sound_util->load_sound(mapId));
 
     while (true)
     {

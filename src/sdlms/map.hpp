@@ -22,6 +22,7 @@ public:
     std::array<std::vector<Obj>, 8> _obj;
     std::vector<BackGrd> _backgrd;
     std::vector<Portal> _portal;
+    std::vector<uint8_t> _sound;
 };
 
 #endif

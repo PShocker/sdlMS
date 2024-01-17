@@ -43,8 +43,8 @@ target_include_directories(sdlMS PRIVATE ${SDL2_INCLUDE_DIRS})
 target_link_libraries(sdlMS PRIVATE ${SDL2_LIBRARIES} wzlib)
 # 链接 FFMPEG库
 target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
-
-target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5 zlib1)
-
+# 链接 FFMPEG依赖库,wzlib里面已经包含了zlib库
+target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5)
+# 链接 Windows平台库
 target_link_libraries(sdlMS PRIVATE bcrypt ws2_32 Secur32 Strmiids)
 
