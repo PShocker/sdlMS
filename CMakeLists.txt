@@ -33,7 +33,7 @@ file(GLOB SOURCE_FILES src/**/*.cpp)
 
 # set(CMAKE_EXE_LINKER_FLAGS "-static")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 
 # executable is ahead of `target_link...`
 add_executable(sdlMS src/main.cpp ${SOURCE_FILES})

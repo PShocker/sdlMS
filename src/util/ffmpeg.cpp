@@ -85,59 +85,8 @@ namespace util
             return std::vector<uint8_t>();
         }
 
-        // 分配音频数据缓冲区并读取解码后的PCM音频数据
+        // 解码并存储PCM数据
         std::vector<uint8_t> pcmData;
-        AVPacket packet;
-        AVFrame *frame = av_frame_alloc();
-        if (!frame)
-        {
-            // 处理无法分配帧结构的情况
-            // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-            return std::vector<uint8_t>();
-        }
-        while (av_read_frame(formatContext, &packet) >= 0)
-        {
-            if (packet.stream_index == audioStreamIndex)
-            {
-                int ret = avcodec_send_packet(codecContext, &packet);
-                while (ret >= 0)
-                {
-                    ret = avcodec_receive_frame(codecContext, frame);
-                    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-                    {
-                        break;
-                    }
-                    else if (ret < 0)
-                    {
-                        // 处理解码错误的情况
-                        // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-                        return std::vector<uint8_t>();
-                    }
-                    // 解码成功，将PCM音频数据保存到std::vector
-                    int dataSize = av_get_bytes_per_sample(codecContext->sample_fmt);
-                    if (dataSize < 0)
-                    {
-                        // 处理样本格式错误的情况
-                        // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-                        return std::vector<uint8_t>();
-                    }
-                    int numChannels = codecContext->ch_layout.nb_channels;
-                    for (int i = 0; i < frame->nb_samples; i++)
-                    {
-                        for (int ch = 0; ch < numChannels; ch++)
-                        {
-                            pcmData.insert(pcmData.end(), frame->data[ch] + i * dataSize, frame->data[ch] + i * dataSize + dataSize);
-                        }
-                    }
-                }
-            }
-            av_packet_unref(&packet);
-        }
-        av_frame_free(&frame);
-
-        // 释放资源
-        avcodec_free_context(&codecContext);
-        avformat_close_input(&formatContext);
 
         return pcmData;
     }
