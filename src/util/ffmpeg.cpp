@@ -87,6 +87,39 @@ namespace util
 
         // 解码并存储PCM数据
         std::vector<uint8_t> pcmData;
+        // 设置采样率
+        codecContext->sample_rate = 44100; // 例如，设置采样率为44100Hz
+        // 解码音频帧
+        AVPacket *packet = av_packet_alloc();
+        AVFrame *frame = av_frame_alloc();
+        while (av_read_frame(formatContext, packet) >= 0)
+        {
+            if (packet->stream_index == audioStreamIndex)
+            {
+                int ret = avcodec_send_packet(codecContext, packet);
+                if (ret < 0)
+                {
+                    // 发送数据到解码器失败
+                    break;
+                }
+                while (ret >= 0)
+                {
+                    ret = avcodec_receive_frame(codecContext, frame);
+                    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
+                    {
+                        break;
+                    }
+                    else if (ret < 0)
+                    {
+                        // 解码音频帧失败
+                        break;
+                    }
+
+                    av_frame_unref(frame);
+                }
+            }
+            av_packet_unref(packet);
+        }
 
         return pcmData;
     }
