@@ -57,23 +57,17 @@ namespace util
             return std::vector<uint8_t>();
         }
 
-        int audioStreamIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
-        if (audioStreamIndex == -1)
+        const AVCodec *codec;
+        int audioStreamIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
+        if (audioStreamIndex == -1 || !codec)
         {
+            // 打开音频解码器并分配解码上下文
             // 处理找不到音频流的情况
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return std::vector<uint8_t>();
         }
         AVCodecParameters *codecParameters = formatContext->streams[audioStreamIndex]->codecpar;
 
-        // 打开音频解码器并分配解码上下文
-        const AVCodec *codec = avcodec_find_decoder(codecParameters->codec_id);
-        if (!codec)
-        {
-            // 处理找不到解码器的情况
-            // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-            return std::vector<uint8_t>();
-        }
         AVCodecContext *codecContext = avcodec_alloc_context3(codec);
         if (!codecContext)
         {
