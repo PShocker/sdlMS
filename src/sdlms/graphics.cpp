@@ -9,7 +9,7 @@
 
 Graphics::Graphics()
 {
-	if (SDL_Init(SDL_INIT_VIDEO) >= 0)
+	if (SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO) >= 0)
 	{
 		SDL_CreateWindowAndRenderer(SCREEN_WIDTH, SCREEN_HEIGHT, 0, &this->_window, &this->_renderer);
 		SDL_SetWindowTitle(this->_window, "sdlMS");
