@@ -11,6 +11,8 @@
 #include "sdlms/graphics.hpp"
 #include "sdlms/input.hpp"
 #include "sdlms/map.hpp"
+#include "sdlms/sound.hpp"
+
 
 using namespace util;
 
@@ -28,6 +30,7 @@ private:
     std::unique_ptr<Graphics> _graphics;
     std::unique_ptr<Input> _input;
     std::unique_ptr<Map> _map;
+    std::unique_ptr<Sound> _sound;
     std::unique_ptr<FFMPEG> _ffmpeg;
     
 };

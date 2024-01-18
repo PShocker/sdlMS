@@ -20,12 +20,16 @@ int Main::run(int argc, char **argv)
     _camera.reset(new Camera());
     _input.reset(new Input());
 
+    _sound.reset(new Sound());
+
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);
     _map->_backgrd = _map_util->load_backgrd(mapId);
     _map->_portal = _map_util->load_portal(mapId);
 
     _map->_sound = _ffmpeg->decodeAudioToPCM(_sound_util->load_sound(mapId));
+
+    _sound->load(_map->_sound);
 
     while (true)
     {
