@@ -12,7 +12,7 @@ namespace util
     class FFMPEG final : public Currenton<FFMPEG>
     {
     public:
-        std::vector<uint8_t> decodeAudioToPCM(std::vector<uint8_t> data);
+        std::tuple<std::vector<uint8_t>, int> decodeAudioToPCM(std::vector<uint8_t> data);
     };
 }
 

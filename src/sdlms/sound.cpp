@@ -8,15 +8,19 @@ Sound::Sound()
 {
 }
 
-int Sound::load(std::vector<uint8_t> data)
+int Sound::load(std::tuple<std::vector<uint8_t>, int> data)
 {
-    audio_size = data.size();
-    audio_buf = new uint8_t[data.size()];
+    auto pcm_data=std::get<0>(data);
+    auto freq=std::get<1>(data);
+
+
+    audio_size = pcm_data.size();
+    audio_buf = new uint8_t[pcm_data.size()];
     audio_pos = audio_buf;
-    memcpy(audio_buf, data.data(), data.size());
+    memcpy(audio_buf, pcm_data.data(), pcm_data.size());
 
     SDL_AudioSpec spec;
-    spec.freq = 44100;
+    spec.freq = freq;
     spec.format = AUDIO_S16SYS;
     spec.channels = 2;
     spec.silence = 0;

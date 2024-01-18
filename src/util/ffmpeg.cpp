@@ -11,7 +11,7 @@ extern "C"
 namespace util
 {
 
-    std::vector<uint8_t> FFMPEG::decodeAudioToPCM(std::vector<uint8_t> data)
+    std::tuple<std::vector<uint8_t>, int> FFMPEG::decodeAudioToPCM(std::vector<uint8_t> data)
     {
         struct buffer_data
         {
@@ -48,13 +48,13 @@ namespace util
         {
             // 处理打开文件失败的情况
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-            return std::vector<uint8_t>();
+            return std::tuple<std::vector<uint8_t>, int>(std::vector<uint8_t>(), 0);
         }
         if (avformat_find_stream_info(formatContext, nullptr) < 0)
         {
             // 处理找不到音频流信息的情况
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-            return std::vector<uint8_t>();
+            return std::tuple<std::vector<uint8_t>, int>(std::vector<uint8_t>(), 0);
         }
 
         const AVCodec *codec;
@@ -64,7 +64,7 @@ namespace util
             // 打开音频解码器并分配解码上下文
             // 处理找不到音频流的情况
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-            return std::vector<uint8_t>();
+            return std::tuple<std::vector<uint8_t>, int>(std::vector<uint8_t>(), 0);
         }
         AVCodecParameters *codecParameters = formatContext->streams[audioStreamIndex]->codecpar;
 
@@ -73,19 +73,19 @@ namespace util
         {
             // 处理无法分配解码上下文的情况
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-            return std::vector<uint8_t>();
+            return std::tuple<std::vector<uint8_t>, int>(std::vector<uint8_t>(), 0);
         }
         if (avcodec_parameters_to_context(codecContext, codecParameters) < 0)
         {
             // 处理无法设置解码器参数的情况
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-            return std::vector<uint8_t>();
+            return std::tuple<std::vector<uint8_t>, int>(std::vector<uint8_t>(), 0);
         }
         if (avcodec_open2(codecContext, codec, nullptr) < 0)
         {
             // 处理无法打开解码器的情况
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
-            return std::vector<uint8_t>();
+            return std::tuple<std::vector<uint8_t>, int>(std::vector<uint8_t>(), 0);
         }
 
         // 解码并存储PCM数据
@@ -122,7 +122,7 @@ namespace util
                 auto error = avcodec_receive_frame(codecContext, frame);
                 if (error == AVERROR(EAGAIN) || error == AVERROR_EOF || error < 0)
                 {
-                    return std::vector<uint8_t>();
+                    return std::tuple<std::vector<uint8_t>, int>(std::vector<uint8_t>(), 0);
                 }
                 else if (error == 0)
                 {
@@ -152,6 +152,6 @@ namespace util
         avcodec_free_context(&codecContext);
         avformat_close_input(&formatContext);
 
-        return pcmData;
+        return std::tuple<std::vector<uint8_t>, int>(pcmData, outSampleRate);
     }
 }

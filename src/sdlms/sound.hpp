@@ -11,7 +11,8 @@ class Sound : public Currenton<Sound>
 {
 public:
     Sound();
-    int load(std::vector<uint8_t> data);
+
+    int load(std::tuple<std::vector<uint8_t>, int> data);
 };
 
 #endif
