@@ -5,19 +5,37 @@ extern "C"
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 }
 
 namespace util
 {
+
     std::vector<uint8_t> FFMPEG::decodeAudioToPCM(std::vector<uint8_t> data)
     {
+        struct buffer_data
+        {
+            uint8_t *ptr;
+            size_t size; ///< size left in the buffer
+        } bd{data.data(), data.size()};
+
+        auto avio_ctx_buffer = av_malloc(0x1000);
         AVIOContext *ioCtx = avio_alloc_context(
-            (unsigned char *)av_malloc(data.size()), data.size(),
-            0, &data,
+            (uint8_t *)avio_ctx_buffer, 0x1000,
+            0, &bd,
             [](void *opaque, uint8_t *buf, int buf_size) -> int
             {
-                std::vector<uint8_t> *data = (std::vector<uint8_t> *)opaque;
-                memcpy(buf, data->data(), buf_size);
+                struct buffer_data *bd = (struct buffer_data *)opaque;
+                buf_size = FFMIN(buf_size, bd->size);
+
+                if (!buf_size)
+                    return AVERROR_EOF;
+
+                /* copy internal buffer data to buf */
+                memcpy(buf, bd->ptr, buf_size);
+                bd->ptr += buf_size;
+                bd->size -= buf_size;
+
                 return buf_size;
             },
             NULL, NULL);
@@ -38,24 +56,15 @@ namespace util
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return std::vector<uint8_t>();
         }
-        int audioStreamIndex = -1;
-        AVCodecParameters *codecParameters = nullptr;
-        for (unsigned int i = 0; i < formatContext->nb_streams; i++)
-        {
-            AVCodecParameters *codecpar = formatContext->streams[i]->codecpar;
-            if (codecpar->codec_type == AVMEDIA_TYPE_AUDIO)
-            {
-                audioStreamIndex = i;
-                codecParameters = codecpar;
-                break;
-            }
-        }
+
+        int audioStreamIndex = av_find_best_stream(formatContext, AVMEDIA_TYPE_AUDIO, -1, -1, NULL, 0);
         if (audioStreamIndex == -1)
         {
             // 处理找不到音频流的情况
             // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return std::vector<uint8_t>();
         }
+        AVCodecParameters *codecParameters = formatContext->streams[audioStreamIndex]->codecpar;
 
         // 打开音频解码器并分配解码上下文
         const AVCodec *codec = avcodec_find_decoder(codecParameters->codec_id);
@@ -90,28 +99,64 @@ namespace util
         // 解码音频帧
         AVPacket *packet = av_packet_alloc();
         AVFrame *frame = av_frame_alloc();
+
+        SwrContext *swrContext = swr_alloc();
+        // 音频格式  输入的采样设置参数
+        AVSampleFormat inFormat = codecContext->sample_fmt;
+        // 出入的采样格式
+        AVSampleFormat outFormat = AV_SAMPLE_FMT_S16;
+        // 输入采样率
+        int inSampleRate = codecContext->sample_rate;
+        // 输出采样率
+        int outSampleRate = 44100;
+        // 输入声道布局
+        uint64_t in_ch_layout = codecContext->channel_layout;
+        // 输出声道布局
+        uint64_t out_ch_layout = AV_CH_LAYOUT_STEREO;
+        swr_alloc_set_opts(swrContext, out_ch_layout, outFormat, outSampleRate,
+                           in_ch_layout, inFormat, inSampleRate, 0, NULL);
+
+        swr_init(swrContext);
+
+        int outChannelCount = av_get_channel_layout_nb_channels(out_ch_layout);
+
+        uint8_t *out_buffer = (uint8_t *)av_malloc(2 * 44100);
         while (av_read_frame(formatContext, packet) >= 0)
         {
-            if (packet->stream_index == audioStreamIndex)
+            if ((avcodec_send_packet(codecContext, packet)) >= 0)
             {
-                int ret = avcodec_send_packet(codecContext, packet);
-                if (ret < 0)
+                auto error = avcodec_receive_frame(codecContext, frame);
+                if (error == AVERROR(EAGAIN) || error == AVERROR_EOF || error < 0)
                 {
-                    // 发送数据到解码器失败
-                    break;
+                    return std::vector<uint8_t>();
                 }
-                while (ret >= 0)
+                else if (error == 0)
                 {
-                    ret = avcodec_receive_frame(codecContext, frame);
-                    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF || ret < 0)
-                    {
-                        break;
-                    }
+                    swr_convert(swrContext, &out_buffer, 44100 * 2,
+                                (const uint8_t **)frame->data,
+                                frame->nb_samples);
+                    int size = av_samples_get_buffer_size(NULL, outChannelCount,
+                                                          frame->nb_samples,
+                                                          AV_SAMPLE_FMT_S16, 1);
+
+                    std::vector<uint8_t> out(out_buffer, out_buffer + size);
+
+                    pcmData.insert(pcmData.end(), out.begin(), out.end());
+
                     av_frame_unref(frame);
                 }
+                av_packet_unref(packet);
             }
-            av_packet_unref(packet);
         }
+        av_freep(&out_buffer);
+
+        av_frame_free(&frame);
+        av_packet_free(&packet);
+
+        swr_free(&swrContext);
+
+        avcodec_free_context(&codecContext);
+        avformat_close_input(&formatContext);
 
         return pcmData;
     }
