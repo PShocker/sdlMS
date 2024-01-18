@@ -102,7 +102,7 @@ namespace util
         // 输入采样率
         int inSampleRate = codecContext->sample_rate;
         // 输出采样率
-        int outSampleRate = 44100;
+        int outSampleRate = inSampleRate;
         // 输入声道布局
         uint64_t in_ch_layout = codecContext->channel_layout;
         // 输出声道布局
@@ -114,7 +114,7 @@ namespace util
 
         int outChannelCount = av_get_channel_layout_nb_channels(out_ch_layout);
 
-        uint8_t *out_buffer = (uint8_t *)av_malloc(2 * 44100);
+        uint8_t *out_buffer = (uint8_t *)av_malloc(2 * outSampleRate);
         while (av_read_frame(formatContext, packet) >= 0)
         {
             if ((avcodec_send_packet(codecContext, packet)) >= 0)
@@ -126,7 +126,7 @@ namespace util
                 }
                 else if (error == 0)
                 {
-                    swr_convert(swrContext, &out_buffer, 44100 * 2,
+                    swr_convert(swrContext, &out_buffer, outSampleRate * 2,
                                 (const uint8_t **)frame->data,
                                 frame->nb_samples);
                     int size = av_samples_get_buffer_size(NULL, outChannelCount,
