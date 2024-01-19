@@ -16,7 +16,7 @@ class Portal : public DynamicSprite
 {
 public:
     Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
-           int type,
+           int type, int tm,
            std::u16string url);
     void draw();
 
@@ -24,6 +24,7 @@ public:
 
 public:
     int _type;
+    int _tm;
     std::u16string _url;
 
 public:

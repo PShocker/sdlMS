@@ -1,8 +1,10 @@
 #include "sdlms/portal.hpp"
 
-Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite, int type, std::u16string url) : DynamicSprite(dynamicsprite),
-                                                                                                   _type(type),
-                                                                                                   _url(url)
+Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
+               int type, int tm,
+               std::u16string url) : DynamicSprite(dynamicsprite),
+                                     _type(type), _tm(tm),
+                                     _url(url)
 {
     _camera = Camera::current();
 }

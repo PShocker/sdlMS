@@ -265,6 +265,8 @@ namespace util
                 if (it.second[0]->get_child(u"pt") != nullptr)
                 {
                     auto pt = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"pt"))->get();
+                    auto tm = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"tm"))->get();
+
                     if (pt < 0 || pt >= sizeof(pt_list))
                     {
                         continue;
@@ -293,7 +295,7 @@ namespace util
 
                             Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
 
-                            Portal portal(sprite, Portal::Type::EDITOR, url);
+                            Portal portal(sprite, Portal::Type::EDITOR, tm, url);
 
                             v_portal.push_back(portal);
                         }
@@ -346,7 +348,7 @@ namespace util
                                         v_a.push_back(std::tuple<int, int>(a0, a1));
                                     }
                                     AnimatedSprite animatedsprite(v_texture, v_rect, v_delay, v_format, v_texture.size(), v_a);
-                                    Portal portal(animatedsprite, Portal::Type::GAME, url);
+                                    Portal portal(animatedsprite, Portal::Type::GAME,tm, url);
                                     v_portal.push_back(portal);
                                 }
                             }
