@@ -202,30 +202,33 @@ namespace util
                 {
                     auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + StringUtil::to_ustring(std::to_string(no));
                     auto back = root->find_from_path(url);
-                    auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(back);
-                    auto height = canvas->get().height;
-                    auto width = canvas->get().width;
-                    auto raw_data = canvas->get_raw_data();
+                    if (back != nullptr)
+                    {
+                        auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(back);
+                        auto height = canvas->get().height;
+                        auto width = canvas->get().width;
+                        auto raw_data = canvas->get_raw_data();
 
-                    auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
-                    auto ox = o->get().x;
-                    auto oy = o->get().y;
+                        auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
+                        auto ox = o->get().x;
+                        auto oy = o->get().y;
 
-                    cx = cx == 0 ? width : cx;
-                    cy = cy == 0 ? height : cy;
+                        cx = cx == 0 ? width : cx;
+                        cy = cy == 0 ? height : cy;
 
-                    SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
-                    SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
-                    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+                        SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
+                        SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
+                        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-                    SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+                        SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-                    Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
+                        Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
 
-                    BackGrd backgrd(sprite, id, type, front, rx, ry, cx, cy, ani, url);
+                        BackGrd backgrd(sprite, id, type, front, rx, ry, cx, cy, ani, url);
 
-                    v_backgrd.push_back(backgrd);
-                    break;
+                        v_backgrd.push_back(backgrd);
+                        break;
+                    }
                 }
                 case 1:
                 {
@@ -348,7 +351,7 @@ namespace util
                                         v_a.push_back(std::tuple<int, int>(a0, a1));
                                     }
                                     AnimatedSprite animatedsprite(v_texture, v_rect, v_delay, v_format, v_texture.size(), v_a);
-                                    Portal portal(animatedsprite, Portal::Type::GAME,tm, url);
+                                    Portal portal(animatedsprite, Portal::Type::GAME, tm, url);
                                     v_portal.push_back(portal);
                                 }
                             }
