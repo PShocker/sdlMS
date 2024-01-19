@@ -14,6 +14,8 @@ public:
     
     void draw();
 
+    SDL_FRect rect();
+
 public:
     SDL_Texture *_texture;
     // SDL_FRect *_rect;

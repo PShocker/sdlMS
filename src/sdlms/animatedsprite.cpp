@@ -1,5 +1,4 @@
 #include "sdlms/animatedsprite.hpp"
-#include "animatedsprite.hpp"
 
 AnimatedSprite::AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect> rect,
                                std::vector<int> delay, std::vector<int> format,
@@ -54,15 +53,21 @@ void AnimatedSprite::update(int elapsedTime)
 
 void AnimatedSprite::draw()
 {
-    SDL_FRect rect{(float)_rect[_frameIndex].x, (float)_rect[_frameIndex].y, (float)_rect[_frameIndex].w, (float)_rect[_frameIndex].h};
-    rect.x -= _camera->viewport.x;
-    rect.y -= _camera->viewport.y;
+    auto fr = rect();
+    // SDL_FRect rect{(float)_rect[_frameIndex].x, (float)_rect[_frameIndex].y, (float)_rect[_frameIndex].w, (float)_rect[_frameIndex].h};
+    fr.x -= _camera->viewport.x;
+    fr.y -= _camera->viewport.y;
     if (_flip > 0) // 翻转
     {
-        _graphics->blitSurfaceEx(_texture[_frameIndex], NULL, &rect, 0, 0, SDL_FLIP_HORIZONTAL);
+        _graphics->blitSurfaceEx(_texture[_frameIndex], NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);
     }
     else
     {
-        _graphics->blitSurface(_texture[_frameIndex], NULL, &rect);
+        _graphics->blitSurface(_texture[_frameIndex], NULL, &fr);
     }
+}
+
+SDL_FRect AnimatedSprite::rect()
+{
+    return SDL_FRect{(float)_rect[_frameIndex].x, (float)_rect[_frameIndex].y, (float)_rect[_frameIndex].w, (float)_rect[_frameIndex].h};
 }

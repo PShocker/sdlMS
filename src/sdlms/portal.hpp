@@ -10,6 +10,8 @@
 #include "sdlms/sprite.hpp"
 #include "sdlms/dynamicsprite.hpp"
 
+#include "sdlms/camera.hpp"
+
 class Portal : public DynamicSprite
 {
 public:
@@ -17,6 +19,8 @@ public:
            int type,
            std::u16string url);
     void draw();
+
+    void event(const SDL_Event &event);
 
 public:
     int _type;
@@ -28,6 +32,9 @@ public:
         EDITOR,
         GAME
     };
+
+private:
+    Camera *_camera;
 };
 
 #endif

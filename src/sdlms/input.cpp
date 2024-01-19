@@ -76,7 +76,7 @@ int Input::loop()
 	{
 		return -1;
 	}
-	
+
 	if (isKeyHeld(SDL_SCANCODE_LEFT) == true)
 	{
 		camera->viewport.x -= 5;
@@ -93,5 +93,7 @@ int Input::loop()
 	{
 		camera->viewport.y += 5;
 	}
+	Map::current()->event(event);
+
 	return 0;
 }

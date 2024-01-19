@@ -1,5 +1,10 @@
 #include "sdlms/map.hpp"
 #include "sdlms/camera.hpp"
+#include "map.hpp"
+
+Map::Map()
+{
+}
 
 void Map::draw()
 {
@@ -43,5 +48,13 @@ void Map::update(int elapsedTime)
     for (auto &it : _portal)
     {
         it.update(elapsedTime);
+    }
+}
+
+void Map::event(const SDL_Event &event)
+{
+    for (auto &it : _portal)
+    {
+        it.event(event);
     }
 }

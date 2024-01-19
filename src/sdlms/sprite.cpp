@@ -14,8 +14,13 @@ Sprite::~Sprite()
 
 void Sprite::draw()
 {
-    SDL_FRect rect{_rect.x, _rect.y, _rect.w, _rect.h};
-    rect.x -= _camera->viewport.x;
-    rect.y -= _camera->viewport.y;
-    _graphics->blitSurface(_texture, NULL, &rect);
+    auto fr = rect();
+    fr.x -= _camera->viewport.x;
+    fr.y -= _camera->viewport.y;
+    _graphics->blitSurface(_texture, NULL, &fr);
+}
+
+SDL_FRect Sprite::rect()
+{
+    return _rect;
 }

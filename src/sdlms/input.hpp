@@ -5,6 +5,9 @@
 #include <map>
 #include "util/currenton.hpp"
 
+#include "sdlms/map.hpp"
+#include "sdlms/camera.hpp"
+
 class Input : public Currenton<Input>
 {
 public:

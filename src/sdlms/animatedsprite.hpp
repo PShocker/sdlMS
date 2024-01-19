@@ -20,6 +20,8 @@ public:
     void update(int elapsedTime);
     void draw();
 
+    SDL_FRect rect();
+
 public:
     std::vector<SDL_Texture *> _texture;
     std::vector<SDL_Rect> _rect;
