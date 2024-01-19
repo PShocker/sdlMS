@@ -130,7 +130,7 @@ void BackGrd::update(int elapsedTime)
             for (int j = 0; j < tile_cnt_x; j++)
             {
                 SDL_FRect rect{point.x + j * _cx, point.y + i * _cy, s._rect.w, s._rect.h};
-                _backgrds.push_back(DynamicSprite(Sprite(s._texture, rect, SDL_PIXELFORMAT_ARGB4444)));
+                _backgrds.push_back(DynamicSprite(Sprite(s._texture, rect)));
             }
         }
     }

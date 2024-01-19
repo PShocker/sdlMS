@@ -46,6 +46,8 @@ namespace util
                 auto height = canvas->get().height;
                 auto width = canvas->get().width;
 
+                auto format = canvas->get().format;
+
                 auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(root->find_from_path(url)->get_child(u"origin"));
                 auto ox = o->get().x;
                 auto oy = o->get().y;
@@ -55,12 +57,11 @@ namespace util
                 {
                     z = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"zM"))->get();
                 }
-                SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
-                SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
-                SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-
                 SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
-                Tile t(texture, rect, SDL_PIXELFORMAT_ARGB4444, i, z);
+
+                Sprite sprite(raw_data, rect, (int)format);
+
+                Tile t(sprite, i, z);
 
                 tile.push_back(t);
             }
@@ -89,10 +90,8 @@ namespace util
         node = node->get_child(std::to_string(i))->get_child(u"obj");
         for (auto it : node->get_children())
         {
-            std::vector<SDL_Texture *> v_texture;
-            std::vector<SDL_Rect> v_rect;
+            std::vector<Sprite> v_sprite;
             std::vector<int> v_delay;
-            std::vector<int> v_format;
             std::vector<std::tuple<int, int>> v_a;
             auto oS = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"oS"))->get();
             auto l0 = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"l0"))->get();
@@ -144,15 +143,14 @@ namespace util
                 auto height = canvas->get().height;
                 auto width = canvas->get().width;
 
-                SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
-                SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
-                SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-                v_texture.push_back(texture);
+                auto format = canvas->get().format;
+                SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-                SDL_Rect rect{x - ox, y - oy, width, height};
-                v_rect.push_back(rect);
+                Sprite sprite(raw_data, rect, (int)format);
+
+                v_sprite.push_back(sprite);
             }
-            Obj o(v_texture, v_rect, v_delay, v_format, i, z, filp, url, v_texture.size(), v_a);
+            Obj o(v_sprite, v_delay, i, z, filp, url, v_sprite.size(), v_a);
             obj.push_back(o);
         }
         std::ranges::sort(obj, [](const Obj a, const Obj b)
@@ -209,6 +207,8 @@ namespace util
                         auto width = canvas->get().width;
                         auto raw_data = canvas->get_raw_data();
 
+                        auto format = canvas->get().format;
+
                         auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
                         auto ox = o->get().x;
                         auto oy = o->get().y;
@@ -216,13 +216,9 @@ namespace util
                         cx = cx == 0 ? width : cx;
                         cy = cy == 0 ? height : cy;
 
-                        SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
-                        SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
-                        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-
                         SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-                        Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
+                        Sprite sprite(raw_data, rect, (int)format);
 
                         BackGrd backgrd(sprite, id, type, front, rx, ry, cx, cy, ani, url);
 
@@ -286,17 +282,15 @@ namespace util
                             auto height = canvas->get().height;
                             auto width = canvas->get().width;
 
+                            auto format = canvas->get().format;
+
                             auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
                             auto ox = o->get().x;
                             auto oy = o->get().y;
 
-                            SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
-                            SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
-                            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-
                             SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-                            Sprite sprite(texture, rect, SDL_PIXELFORMAT_ARGB4444);
+                            Sprite sprite(raw_data, rect, (int)format);
 
                             Portal portal(sprite, Portal::Type::EDITOR, tm, url);
 
@@ -318,10 +312,8 @@ namespace util
                                 else
                                 {
                                     // 普通的传送门,通常为pv
-                                    std::vector<SDL_Texture *> v_texture;
-                                    std::vector<SDL_Rect> v_rect;
+                                    std::vector<Sprite> v_sprite;
                                     std::vector<int> v_delay;
-                                    std::vector<int> v_format;
                                     std::vector<std::tuple<int, int>> v_a;
 
                                     for (auto it : root->find_from_path(url)->get_children())
@@ -335,22 +327,22 @@ namespace util
                                         auto ox = o->get().x;
                                         auto oy = o->get().y;
 
-                                        SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
-                                        SDL_UpdateTexture(texture, NULL, raw_data.data(), width * sizeof(Uint16));
-                                        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-                                        v_texture.push_back(texture);
+                                        auto format = canvas->get().format;
+
+                                        SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+
+                                        Sprite sprite(raw_data, rect, (int)format);
 
                                         v_delay.push_back(100);
 
-                                        SDL_Rect rect{x - ox, y - oy, width, height};
-                                        v_rect.push_back(rect);
+                                        v_sprite.push_back(sprite);
 
                                         auto a0 = 255;
                                         auto a1 = 255;
 
                                         v_a.push_back(std::tuple<int, int>(a0, a1));
                                     }
-                                    AnimatedSprite animatedsprite(v_texture, v_rect, v_delay, v_format, v_texture.size(), v_a);
+                                    AnimatedSprite animatedsprite(v_sprite, v_delay, v_sprite.size(), v_a);
                                     Portal portal(animatedsprite, Portal::Type::GAME, tm, url);
                                     v_portal.push_back(portal);
                                 }

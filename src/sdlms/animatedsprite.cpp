@@ -1,18 +1,16 @@
 #include "sdlms/animatedsprite.hpp"
 
-AnimatedSprite::AnimatedSprite(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect> rect,
-                               std::vector<int> delay, std::vector<int> format,
+AnimatedSprite::AnimatedSprite(std::vector<Sprite> sprite,
+                               std::vector<int> delay,
                                int frameSize, std::vector<std::tuple<int, int>> a,
-                               int flip) : _texture(texture), _rect(rect),
-                                           _delay(delay), _format(format),
+                               int flip) : _sprite(sprite),
+                                           _delay(delay),
                                            _frameIndex(0),
                                            _frameTime(0),
                                            _frameSize(frameSize),
                                            _flip(flip),
                                            _a(a)
 {
-    _camera = Camera::current();
-    _graphics = Graphics::current();
 }
 
 void AnimatedSprite::update(int elapsedTime)
@@ -46,28 +44,31 @@ void AnimatedSprite::update(int elapsedTime)
             {
                 alpha = (float)a0 - (float)(a0 - a1) / (float)_delay[_frameIndex] * (float)_frameTime;
             }
-            SDL_SetTextureAlphaMod(_texture[_frameIndex], alpha);
+            SDL_SetTextureAlphaMod(_sprite[_frameIndex]._texture, alpha);
         }
     }
 }
 
 void AnimatedSprite::draw()
 {
+    auto camera = Camera::current();
+    auto graphics = Graphics::current();
     auto fr = rect();
     // SDL_FRect rect{(float)_rect[_frameIndex].x, (float)_rect[_frameIndex].y, (float)_rect[_frameIndex].w, (float)_rect[_frameIndex].h};
-    fr.x -= _camera->viewport.x;
-    fr.y -= _camera->viewport.y;
+    fr.x -= camera->viewport.x;
+    fr.y -= camera->viewport.y;
     if (_flip > 0) // 翻转
     {
-        _graphics->blitSurfaceEx(_texture[_frameIndex], NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);
+        graphics->blitSurfaceEx(_sprite[_frameIndex]._texture, NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);
     }
     else
     {
-        _graphics->blitSurface(_texture[_frameIndex], NULL, &fr);
+        graphics->blitSurface(_sprite[_frameIndex]._texture, NULL, &fr);
     }
 }
 
 SDL_FRect AnimatedSprite::rect()
 {
-    return SDL_FRect{(float)_rect[_frameIndex].x, (float)_rect[_frameIndex].y, (float)_rect[_frameIndex].w, (float)_rect[_frameIndex].h};
+
+    return SDL_FRect{(float)_sprite[_frameIndex]._rect.x, (float)_sprite[_frameIndex]._rect.y, (float)_sprite[_frameIndex]._rect.w, (float)_sprite[_frameIndex]._rect.h};
 }

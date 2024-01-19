@@ -1,12 +1,12 @@
 #include "sdlms/obj.hpp"
 
-Obj::Obj(std::vector<SDL_Texture *> texture, std::vector<SDL_Rect> rect,
+Obj::Obj(std::vector<Sprite> sprite,
          std::vector<int> delay,
-         std::vector<int> format, int layer,
+         int layer,
          int z, int flip, std::u16string url,
          int frameSize,
-         std::vector<std::tuple<int, int>> a) : AnimatedSprite(texture, rect, delay,
-                                                               format, frameSize,
+         std::vector<std::tuple<int, int>> a) : AnimatedSprite(sprite, delay,
+                                                               frameSize,
                                                                a, flip),
                                                 _layer(layer), _z(z),
                                                 _url(url)
