@@ -79,19 +79,19 @@ int Input::loop()
 
 	if (isKeyHeld(SDL_SCANCODE_LEFT) == true)
 	{
-		camera->viewport.x -= 5;
+		camera->viewport.x -= 10;
 	}
 	if (isKeyHeld(SDL_SCANCODE_RIGHT) == true)
 	{
-		camera->viewport.x += 5;
+		camera->viewport.x += 10;
 	}
 	if (isKeyHeld(SDL_SCANCODE_UP) == true)
 	{
-		camera->viewport.y -= 5;
+		camera->viewport.y -= 10;
 	}
 	if (isKeyHeld(SDL_SCANCODE_DOWN) == true)
 	{
-		camera->viewport.y += 5;
+		camera->viewport.y += 10;
 	}
 	Map::current()->event(event);
 
