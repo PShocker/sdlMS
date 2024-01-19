@@ -3,6 +3,12 @@ project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
+    endif()
+endif()
+
 # sdl2 is install here
 set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
 
