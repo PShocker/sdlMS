@@ -74,7 +74,7 @@ void BackGrd::update(int elapsedTime)
     SDL_FPoint point = {s->_rect.x, s->_rect.y};
     if (hspeed > 0)
     {
-        _position_offset_x = float(int(_position_offset_x + _rx * 0.02 * elapsedTime) % _cx);
+        _position_offset_x = float(int(_position_offset_x + _rx * 0.05 * elapsedTime) % _cx);
     }
     else
     {
@@ -83,7 +83,7 @@ void BackGrd::update(int elapsedTime)
 
     if (vspeed > 0)
     {
-        _position_offset_y = (float)(int(_position_offset_y + _ry * 0.02 * elapsedTime) % _cy);
+        _position_offset_y = (float)(int(_position_offset_y + _ry * 0.05 * elapsedTime) % _cy);
     }
     else
     {
