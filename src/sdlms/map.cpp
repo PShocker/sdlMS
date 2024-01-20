@@ -9,9 +9,10 @@ Map::Map()
 void Map::draw()
 {
     Graphics::current()->clear();
+    // 绘制背景
     for (auto &it : _backgrd)
     {
-        it.draw();
+        it.draw(false);
     }
     for (size_t i = 0; i < 8; i++)
     {
@@ -23,6 +24,11 @@ void Map::draw()
         {
             it.draw();
         }
+    }
+    // 绘制前景
+    for (auto &it : _backgrd)
+    {
+        it.draw(true);
     }
     for (auto &it : _portal)
     {
