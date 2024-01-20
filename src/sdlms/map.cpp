@@ -1,3 +1,5 @@
+#include <ranges>
+
 #include "sdlms/map.hpp"
 #include "sdlms/camera.hpp"
 #include "map.hpp"
@@ -10,9 +12,10 @@ void Map::draw()
 {
     Graphics::current()->clear();
     // 绘制背景
-    for (auto &it : _backgrd)
+    for (auto &it : _backgrd | std::views::filter([](BackGrd b)
+                                                  { return b._front == 0; }))
     {
-        it.draw(false);
+        it.draw();
     }
     for (size_t i = 0; i < 8; i++)
     {
@@ -25,10 +28,10 @@ void Map::draw()
             it.draw();
         }
     }
-    // 绘制前景
-    for (auto &it : _backgrd)
+    for (auto &it : _backgrd | std::views::filter([](BackGrd b)
+                                                  { return b._front > 0; }))
     {
-        it.draw(true);
+        it.draw();
     }
     for (auto &it : _portal)
     {

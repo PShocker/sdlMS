@@ -144,22 +144,10 @@ void BackGrd::update(int elapsedTime)
     }
 }
 
-void BackGrd::draw(bool front)
+void BackGrd::draw()
 {
-    if (front == true && _front != 0)
+    for (auto &it : _backgrds)
     {
-        // 绘制前景
-        for (auto &it : _backgrds)
-        {
-            it.draw();
-        }
-    }
-    else if (front == false && _front == 0)
-    {
-        // 绘制背景
-        for (auto &it : _backgrds)
-        {
-            it.draw();
-        }
+        it.draw();
     }
 }

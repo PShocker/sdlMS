@@ -20,7 +20,7 @@ public:
             int cx, int cy,
             int ani,
             std::u16string url);
-    void draw(bool front);
+    void draw();
     void update(int elapsedTime);
 
 public:
