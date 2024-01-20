@@ -66,8 +66,7 @@ namespace util
                 tile.push_back(t);
             }
         }
-        std::ranges::sort(tile, [](const Tile a, const Tile b)
-                          { return a._z < b._z; });
+
         return tile;
     }
 
@@ -153,9 +152,41 @@ namespace util
             Obj o(v_sprite, v_delay, i, z, url, v_sprite.size(), v_a);
             obj.push_back(o);
         }
-        std::ranges::sort(obj, [](const Obj a, const Obj b)
-                          { return a._z < b._z; });
         return obj;
+    }
+
+    std::array<std::vector<std::variant<Tile, Obj>>, 8> MapUtil::sort_tile_obj(std::array<std::vector<Tile>, 8> tile,
+                                                                               std::array<std::vector<Obj>, 8> obj)
+    {
+        std::array<std::vector<std::variant<Tile, Obj>>, 8> r;
+        for (size_t i = 0; i < 8; i++)
+        {
+            for (auto &it : tile[i])
+            {
+                r[i].push_back(it);
+            }
+            for (auto &it : obj[i])
+            {
+                r[i].push_back(it);
+            }
+            std::ranges::sort(r[i], [](const std::variant<Tile, Obj> a, const std::variant<Tile, Obj> b)
+                              {
+                                auto func = [](const std::variant<Tile, Obj> v) -> int
+                                {
+                                    int z=0;
+                                    if (std::holds_alternative<Obj>(v))
+                                    {
+                                        z=std::get<Obj>(v)._z;
+                                    }
+                                    else if (std::holds_alternative<Tile>(v))
+                                    {
+                                        z=std::get<Tile>(v)._z;
+                                    }
+                                    return z;
+                                };
+                                return func(a)<func(b); });
+        }
+        return r;
     }
 
     std::vector<BackGrd> MapUtil::load_backgrd(int mapId)

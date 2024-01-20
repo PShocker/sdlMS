@@ -15,13 +15,16 @@ void Map::draw()
     }
     for (size_t i = 0; i < 8; i++)
     {
-        for (auto &it : _obj[i])
+        for (auto &it : _tile_obj[i])
         {
-            it.draw();
-        }
-        for (auto &it : _tile[i])
-        {
-            it.draw();
+            if (std::holds_alternative<Obj>(it))
+            {
+                std::get<Obj>(it).draw();
+            }
+            else if (std::holds_alternative<Tile>(it))
+            {
+                std::get<Tile>(it).draw();
+            }
         }
     }
     for (auto &it : _portal)

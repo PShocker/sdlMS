@@ -27,6 +27,7 @@ int Main::run(int argc, char **argv)
     _map->_obj = _map_util->load_obj(mapId);
     _map->_backgrd = _map_util->load_backgrd(mapId);
     _map->_portal = _map_util->load_portal(mapId);
+    _map->_tile_obj = _map_util->sort_tile_obj(_map->_tile,_map->_obj);
 
     _map->_sound = _ffmpeg->decodeAudioToPCM(_sound_util->load_sound(mapId));
 

@@ -22,6 +22,8 @@ namespace util
     public:
         std::array<std::vector<Tile>, 8> load_tile(int mapId);
         std::array<std::vector<Obj>, 8> load_obj(int mapId);
+        std::array<std::vector<std::variant<Tile, Obj>>, 8> sort_tile_obj(std::array<std::vector<Tile>, 8> tile,
+                                                           std::array<std::vector<Obj>, 8> obj);
         std::vector<BackGrd> load_backgrd(int mapId);
         std::vector<Portal> load_portal(int mapId);
 
