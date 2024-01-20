@@ -24,7 +24,6 @@ public:
 public:
     std::array<std::vector<Tile>, 8> _tile;
     std::array<std::vector<Obj>, 8> _obj;
-    std::array<std::vector<std::variant<Tile, Obj>>, 8> _tile_obj;
     std::vector<BackGrd> _backgrd;
     std::vector<Portal> _portal;
     std::tuple<std::vector<uint8_t>, int> _sound; // pcm流,采样率
