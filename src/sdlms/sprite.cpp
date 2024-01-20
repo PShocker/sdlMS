@@ -1,8 +1,10 @@
 #include "sdlms/sprite.hpp"
 #include "sprite.hpp"
 
-Sprite::Sprite(const std::vector<uint8_t> &raw_data, SDL_FRect rect, unsigned int format) : _rect(rect),
-                                                                                            _format(format)
+Sprite::Sprite(const std::vector<uint8_t> &raw_data,
+               SDL_FRect rect,
+               unsigned int format, int flip) : _rect(rect),
+                                                _format(format), _flip(flip)
 {
     switch (format)
     {
@@ -22,7 +24,7 @@ Sprite::Sprite(const std::vector<uint8_t> &raw_data, SDL_FRect rect, unsigned in
     SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
 }
 
-Sprite::Sprite(SDL_Texture *texture, SDL_FRect rect) : _texture(texture), _rect(rect)
+Sprite::Sprite(SDL_Texture *texture, SDL_FRect rect, int flip) : _texture(texture), _rect(rect), _flip(flip)
 {
 }
 
@@ -33,7 +35,14 @@ void Sprite::draw()
     auto fr = rect();
     fr.x -= camera->viewport.x;
     fr.y -= camera->viewport.y;
-    graphics->blitSurface(_texture, NULL, &fr);
+    if (_flip > 0) // 翻转
+    {
+        graphics->blitSurfaceEx(_texture, NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);
+    }
+    else
+    {
+        graphics->blitSurface(_texture, NULL, &fr);
+    }
 }
 
 SDL_FRect Sprite::rect()

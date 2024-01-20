@@ -10,8 +10,8 @@
 class Sprite
 {
 public:
-    Sprite(const std::vector<uint8_t> &raw_data, SDL_FRect rect, unsigned int format);
-    Sprite(SDL_Texture *texture, SDL_FRect rect);
+    Sprite(const std::vector<uint8_t> &raw_data, SDL_FRect rect, unsigned int format, int flip = SDL_FLIP_NONE);
+    Sprite(SDL_Texture *texture, SDL_FRect rect, int flip);
 
     void draw();
 
@@ -21,5 +21,6 @@ public:
     SDL_Texture *_texture;
     SDL_FRect _rect;
     unsigned int _format;
+    int _flip;
 };
 #endif

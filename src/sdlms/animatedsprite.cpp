@@ -2,14 +2,12 @@
 
 AnimatedSprite::AnimatedSprite(std::vector<Sprite> sprite,
                                std::vector<int> delay,
-                               int frameSize, std::vector<std::tuple<int, int>> a,
-                               int flip) : _sprite(sprite),
-                                           _delay(delay),
-                                           _frameIndex(0),
-                                           _frameTime(0),
-                                           _frameSize(frameSize),
-                                           _flip(flip),
-                                           _a(a)
+                               int frameSize, std::vector<std::tuple<int, int>> a) : _sprite(sprite),
+                                                                                     _delay(delay),
+                                                                                     _frameIndex(0),
+                                                                                     _frameTime(0),
+                                                                                     _frameSize(frameSize),
+                                                                                     _a(a)
 {
 }
 
@@ -51,20 +49,12 @@ void AnimatedSprite::update(int elapsedTime)
 
 void AnimatedSprite::draw()
 {
-    auto camera = Camera::current();
-    auto graphics = Graphics::current();
-    auto fr = rect();
-    // SDL_FRect rect{(float)_rect[_frameIndex].x, (float)_rect[_frameIndex].y, (float)_rect[_frameIndex].w, (float)_rect[_frameIndex].h};
-    fr.x -= camera->viewport.x;
-    fr.y -= camera->viewport.y;
-    if (_flip > 0) // 翻转
-    {
-        graphics->blitSurfaceEx(_sprite[_frameIndex]._texture, NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);
-    }
-    else
-    {
-        graphics->blitSurface(_sprite[_frameIndex]._texture, NULL, &fr);
-    }
+    _sprite[_frameIndex].draw();
+}
+
+Sprite AnimatedSprite::sprite()
+{
+    return _sprite[_frameIndex];
 }
 
 SDL_FRect AnimatedSprite::rect()

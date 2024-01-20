@@ -146,11 +146,11 @@ namespace util
                 auto format = canvas->get().format;
                 SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-                Sprite sprite(raw_data, rect, (int)format);
+                Sprite sprite(raw_data, rect, (int)format, filp);
 
                 v_sprite.push_back(sprite);
             }
-            Obj o(v_sprite, v_delay, i, z, filp, url, v_sprite.size(), v_a);
+            Obj o(v_sprite, v_delay, i, z, url, v_sprite.size(), v_a);
             obj.push_back(o);
         }
         std::ranges::sort(obj, [](const Obj a, const Obj b)
@@ -194,6 +194,8 @@ namespace util
 
                 auto id = std::stoi(StringUtil::to_string(it.first));
 
+                auto filp = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
+
                 switch (ani)
                 {
                 case 0:
@@ -218,7 +220,7 @@ namespace util
 
                         SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-                        Sprite sprite(raw_data, rect, (int)format);
+                        Sprite sprite(raw_data, rect, (int)format, filp);
 
                         BackGrd backgrd(sprite, id, type, front, rx, ry, cx, cy, ani, url);
 
@@ -229,6 +231,54 @@ namespace util
                 case 1:
                 {
                     auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + StringUtil::to_ustring(std::to_string(no));
+                    std::vector<Sprite> v_sprite;
+                    std::vector<int> v_delay;
+                    std::vector<std::tuple<int, int>> v_a;
+                    for (auto it : root->find_from_path(url)->get_children())
+                    {
+                        wz::Property<wz::WzCanvas> *canvas;
+                        if (it.second[0]->type == wz::Type::UOL)
+                        {
+                            auto i = dynamic_cast<wz::Property<wz::WzUOL> *>(it.second[0]);
+                            canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url)->get_child(i->get().uol));
+                        }
+                        else if (it.second[0]->type == wz::Type::Canvas)
+                        {
+                            canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it.second[0]);
+                        }
+                        else
+                        {
+                            continue;
+                        }
+                        auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
+                        auto ox = o->get().x;
+                        auto oy = o->get().y;
+
+                        auto delay = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"delay"));
+                        v_delay.push_back(delay == nullptr ? 0 : delay->get());
+
+                        auto a0 = 255;
+                        auto a1 = 255;
+                        if (canvas->get_child(u"a0") != NULL && canvas->get_child(u"a1") != NULL)
+                        {
+                            a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
+                            a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
+                        }
+                        v_a.push_back(std::tuple<int, int>(a0, a1));
+
+                        auto raw_data = canvas->get_raw_data();
+                        auto height = canvas->get().height;
+                        auto width = canvas->get().width;
+
+                        auto format = canvas->get().format;
+                        SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+
+                        Sprite sprite(raw_data, rect, (int)format, filp);
+                        v_sprite.push_back(sprite);
+                    }
+                    AnimatedSprite animatedsprite(v_sprite, v_delay, v_sprite.size(), v_a);
+                    BackGrd backgrd(animatedsprite, id, type, front, rx, ry, cx, cy, ani, url);
+                    v_backgrd.push_back(backgrd);
                     break;
                 }
                 default:

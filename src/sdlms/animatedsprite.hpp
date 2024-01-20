@@ -15,12 +15,11 @@ public:
     AnimatedSprite(std::vector<Sprite> sprite,
                    std::vector<int> delay,
                    int frameSize,
-                   std::vector<std::tuple<int, int>> a,
-                   int flip = SDL_FLIP_NONE);
+                   std::vector<std::tuple<int, int>> a);
 
     void update(int elapsedTime);
     void draw();
-
+    Sprite sprite();
     SDL_FRect rect();
 
 public:
@@ -29,7 +28,6 @@ public:
     int _frameIndex;
     int _frameTime;
     int _frameSize;
-    int _flip;
 
     std::vector<std::tuple<int, int>> _a;
 };
