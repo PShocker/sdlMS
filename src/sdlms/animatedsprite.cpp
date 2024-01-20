@@ -52,11 +52,6 @@ void AnimatedSprite::draw()
     _sprite[_frameIndex].draw();
 }
 
-Sprite AnimatedSprite::sprite()
-{
-    return _sprite[_frameIndex];
-}
-
 SDL_FRect AnimatedSprite::rect()
 {
 

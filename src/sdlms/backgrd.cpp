@@ -62,8 +62,7 @@ void BackGrd::update(int elapsedTime)
     if (std::holds_alternative<AnimatedSprite>(_dynamicsprite))
     {
         std::get<AnimatedSprite>(_dynamicsprite).update(elapsedTime);
-        auto temp = std::get<AnimatedSprite>(_dynamicsprite).sprite();
-        s = &temp;
+        s = &std::get<AnimatedSprite>(_dynamicsprite)._sprite[std::get<AnimatedSprite>(_dynamicsprite)._frameIndex];
     }
     else if (std::holds_alternative<Sprite>(_dynamicsprite))
     {

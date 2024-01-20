@@ -19,7 +19,6 @@ public:
 
     void update(int elapsedTime);
     void draw();
-    Sprite sprite();
     SDL_FRect rect();
 
 public:
