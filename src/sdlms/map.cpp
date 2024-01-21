@@ -12,10 +12,9 @@ void Map::draw()
 {
     Graphics::current()->clear();
     // 绘制背景
-    for (auto &it : _backgrd | std::views::filter([](BackGrd b)
-                                                  { return b._front == 0; }))
+    for (auto &it : _backgrd)
     {
-        it.draw();
+        it.draw(false);
     }
     for (size_t i = 0; i < 8; i++)
     {
@@ -28,10 +27,10 @@ void Map::draw()
             it.draw();
         }
     }
-    for (auto &it : _backgrd | std::views::filter([](BackGrd b)
-                                                  { return b._front > 0; }))
+    // 绘制前景
+    for (auto &it : _backgrd)
     {
-        it.draw();
+        it.draw(true);
     }
     for (auto &it : _portal)
     {
