@@ -46,6 +46,6 @@ namespace util
 		Sound->parse();
 		// String->parse();
 		// TamingMob->parse();
-		// UI->parse();
+		UI->parse();
 	}
 }

@@ -5,6 +5,7 @@
 #include "util/map_util.hpp"
 #include "util/wz_util.hpp"
 #include "util/sound_util.hpp"
+#include "util/ui_util.hpp"
 #include "util/ffmpeg.hpp"
 
 #include "sdlms/camera.hpp"
@@ -26,6 +27,7 @@ private:
     std::unique_ptr<WzUtil> _wz_util;
     std::unique_ptr<MapUtil> _map_util;
     std::unique_ptr<SoundUtil> _sound_util;
+    std::unique_ptr<UIUtil> _ui_util;
     std::unique_ptr<Camera> _camera;
     std::unique_ptr<Graphics> _graphics;
     std::unique_ptr<Input> _input;

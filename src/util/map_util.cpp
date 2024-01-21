@@ -401,4 +401,11 @@ namespace util
         }
         return v_portal;
     }
+
+    wz::Node *MapUtil::load_node(int mapId)
+    {
+        wz::Node *root = WzUtil::current()->Map->get_root();
+        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
+        return root->find_from_path(path);
+    }
 }
