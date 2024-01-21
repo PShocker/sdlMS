@@ -5,9 +5,6 @@
 #include <map>
 #include "util/currenton.hpp"
 
-#include "sdlms/map.hpp"
-#include "sdlms/camera.hpp"
-
 class MiniMap : public Currenton<MiniMap>
 {
 public:

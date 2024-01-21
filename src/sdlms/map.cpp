@@ -36,6 +36,7 @@ void Map::draw()
     {
         it.draw();
     }
+    _minimap.draw();
     Graphics::current()->flip();
 }
 
