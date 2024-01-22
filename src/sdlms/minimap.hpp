@@ -3,13 +3,17 @@
 
 #include <SDL2/SDL.h>
 #include <map>
+#include <string>
+#include "sdlms/sprite.hpp"
 #include "util/currenton.hpp"
 
 class MiniMap : public Currenton<MiniMap>
 {
 public:
-	MiniMap();
     void draw();
+
+public:
+    std::map<std::string, Sprite> _s;
 };
 
 #endif

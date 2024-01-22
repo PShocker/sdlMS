@@ -14,6 +14,7 @@ public:
     Sprite(SDL_Texture *texture, SDL_FRect rect, int flip);
 
     void draw();
+    void _draw();
 
     SDL_FRect rect();
 

@@ -25,6 +25,8 @@ int Main::run(int argc, char **argv)
 
     _sound.reset(new Sound());
 
+    _hud->_minimap->_s=_hud_util->load_minimap();
+
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);
     _map->_backgrd = _map_util->load_backgrd(mapId);
@@ -44,8 +46,10 @@ int Main::run(int argc, char **argv)
         }
         _map->update(FRAME_DELAY);
         // 更新屏幕
+        Graphics::current()->clear();
         _map->draw();
-
+        _hud->draw();
+        Graphics::current()->flip();
         auto frameTime = SDL_GetTicks() - frameStart; // 计算当前帧的时间
         if (frameTime < FRAME_DELAY)
         {

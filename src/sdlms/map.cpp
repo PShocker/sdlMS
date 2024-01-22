@@ -10,7 +10,7 @@ Map::Map()
 
 void Map::draw()
 {
-    Graphics::current()->clear();
+
     // 绘制背景
     for (auto &it : _backgrd)
     {
@@ -36,8 +36,6 @@ void Map::draw()
     {
         it.draw();
     }
-    _minimap.draw();
-    Graphics::current()->flip();
 }
 
 void Map::update(int elapsedTime)

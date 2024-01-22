@@ -13,7 +13,7 @@ namespace util
 
         auto root = WzUtil::current()->UI->get_root();
 
-        auto node = root->find_from_path(u"UIWindow.img/MiniMap/MinMap");
+        auto node = root->find_from_path(u"UIWindow.img/MiniMap/MaxMap");
         auto func = [](wz::Property<wz::WzCanvas> *canvas) -> Sprite
         {
             auto height = canvas->get().height;
@@ -34,6 +34,7 @@ namespace util
         s.insert(std::make_pair("ne", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"ne")))));
         s.insert(std::make_pair("sw", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw")))));
         s.insert(std::make_pair("se", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se")))));
+        s.insert(std::make_pair("n", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n")))));
 
         return s;
     }

@@ -45,6 +45,21 @@ void Sprite::draw()
     }
 }
 
+void Sprite::_draw()
+{
+    auto camera = Camera::current();
+    auto graphics = Graphics::current();
+    auto fr = rect();
+    if (_flip > 0) // 翻转
+    {
+        graphics->blitSurfaceEx(_texture, NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);
+    }
+    else
+    {
+        graphics->blitSurface(_texture, NULL, &fr);
+    }
+}
+
 SDL_FRect Sprite::rect()
 {
     return _rect;
