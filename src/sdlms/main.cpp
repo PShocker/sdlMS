@@ -16,9 +16,10 @@ int Main::run(int argc, char **argv)
     _wz_util.reset(new WzUtil());
     _map_util.reset(new MapUtil());
     _sound_util.reset(new SoundUtil());
-    _ui_util.reset(new UIUtil());
+    _hud_util.reset(new HudUtil());
 
     _map.reset(new Map());
+    _hud.reset(new Hud());
     _camera.reset(new Camera());
     _input.reset(new Input());
 

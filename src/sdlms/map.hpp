@@ -28,7 +28,6 @@ public:
     std::vector<BackGrd> _backgrd;
     std::vector<Portal> _portal;
     std::tuple<std::vector<uint8_t>, int> _sound; // pcm流,采样率
-    MiniMap _minimap;
 };
 
 #endif

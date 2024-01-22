@@ -1,5 +1,5 @@
 #include "sdlms/minimap.hpp"
-#include "util/ui_util.hpp"
+#include "util/hud_util.hpp"
 
 MiniMap::MiniMap()
 {
@@ -7,7 +7,7 @@ MiniMap::MiniMap()
 
 void MiniMap::draw()
 {
-    auto s = util::UIUtil::current()->load_minimap();
+    auto s = util::HudUtil::current()->load_minimap();
     for (auto &it : s)
     {
         it.draw();
