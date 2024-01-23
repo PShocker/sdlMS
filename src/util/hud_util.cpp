@@ -95,7 +95,7 @@ namespace util
             }
 
             // // 创建需要填充的矩形
-            SDL_FRect rect = {6, 72, minimap->_rect.w, minimap->_rect.h};
+            SDL_FRect rect = {6, 72, (float)width, (float)height};
 
             SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_TARGET, rect.w, rect.h);
             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
