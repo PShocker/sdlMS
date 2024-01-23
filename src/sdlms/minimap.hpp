@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <map>
 #include <string>
+#include <memory>
+
 #include "sdlms/sprite.hpp"
 #include "util/currenton.hpp"
 
@@ -13,7 +15,7 @@ public:
     void draw();
 
 public:
-    std::map<std::string, Sprite> _vec;
+    std::vector<Sprite> _s;
 };
 
 #endif

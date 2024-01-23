@@ -24,6 +24,7 @@ namespace util
         std::array<std::vector<Obj>, 8> load_obj(int mapId);
         std::vector<BackGrd> load_backgrd(int mapId);
         std::vector<Portal> load_portal(int mapId);
+        Sprite *load_minimap(int mapId);
         wz::Node *load_node(int mapId);
 
     private:

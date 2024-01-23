@@ -6,40 +6,111 @@
 
 namespace util
 {
-
-    std::map<std::string, Sprite> HudUtil::load_minimap()
+    HudUtil::HudUtil()
     {
-        std::map<std::string, Sprite> s;
+        _renderer = Graphics::current()->getRenderer();
+    }
 
-        auto root = WzUtil::current()->UI->get_root();
+    std::vector<Sprite> HudUtil::load_minimap(int mapId)
+    {
+        std::vector<Sprite> v_s;
 
-        auto node = root->find_from_path(u"UIWindow.img/MiniMap/MaxMap");
-        auto func = [](wz::Property<wz::WzCanvas> *canvas) -> Sprite
+        auto minimap = MapUtil::current()->load_minimap(mapId);
+        if (minimap != nullptr)
         {
-            auto height = canvas->get().height;
-            auto width = canvas->get().width;
-            auto raw_data = canvas->get_raw_data();
-            auto format = canvas->get().format;
+            int width = minimap->_rect.w;
+            int height = minimap->_rect.h;
 
-            auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
-            auto ox = o->get().x;
-            auto oy = o->get().y;
+            auto node = WzUtil::current()->UI->get_root()->find_from_path(u"UIWindow.img/MiniMap/MaxMap");
+            auto func = [](wz::Property<wz::WzCanvas> *canvas) -> Sprite
+            {
+                auto height = canvas->get().height;
+                auto width = canvas->get().width;
+                auto raw_data = canvas->get_raw_data();
+                auto format = canvas->get().format;
 
-            SDL_FRect rect{(float)ox, (float)oy, (float)width, (float)height};
-            Sprite sprite(raw_data, rect, (int)format);
-            return sprite;
-        };
+                auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
+                auto ox = o->get().x;
+                auto oy = o->get().y;
 
-        s.insert(std::make_pair("nw", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"nw")))));
-        s.insert(std::make_pair("ne", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"ne")))));
-        s.insert(std::make_pair("sw", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw")))));
-        s.insert(std::make_pair("se", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se")))));
-        s.insert(std::make_pair("n", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n")))));
-        s.insert(std::make_pair("s", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s")))));
-        s.insert(std::make_pair("c", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c")))));
-        s.insert(std::make_pair("w", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w")))));
-        s.insert(std::make_pair("e", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e")))));
+                SDL_FRect rect{(float)ox, (float)oy, (float)width, (float)height};
+                Sprite sprite(raw_data, rect, (int)format);
+                return sprite;
+            };
+            auto nw = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"nw")));
+            v_s.push_back(nw);
 
-        return s;
+            auto ne = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"ne")));
+            ne._rect.x = width + 6;
+            v_s.push_back(ne);
+
+            auto sw = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw")));
+            sw._rect.y = height + 72;
+            v_s.push_back(sw);
+
+            auto se = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se")));
+            se._rect.x = width + 6;
+            se._rect.y = height + 72;
+            v_s.push_back(se);
+
+            auto n = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n")));
+
+            for (size_t x = 6; x <= width + 6; x++)
+            {
+                SDL_FRect rect{(float)x, n._rect.y, n._rect.w, n._rect.h};
+                v_s.push_back(Sprite(n._texture, rect, n._flip));
+            }
+
+            auto s = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s")));
+
+            s._rect.x = 6;
+            s._rect.y = height + 72;
+
+            for (size_t x = 6; x <= width + 6; x++)
+            {
+                SDL_FRect rect{(float)x, s._rect.y, s._rect.w, s._rect.h};
+                v_s.push_back(Sprite(s._texture, rect, s._flip));
+            }
+
+            auto w = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w")));
+
+            w._rect.x = 0;
+            w._rect.y = 0;
+
+            for (size_t y = 72; y < height + 72; y++)
+            {
+                SDL_FRect rect{w._rect.x, (float)y, w._rect.w, w._rect.h};
+                v_s.push_back(Sprite(w._texture, rect, w._flip));
+            }
+
+            auto e = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e")));
+
+            e._rect.x = width + 6;
+            e._rect.y = 0;
+
+            for (size_t y = 72; y < height + 72; y++)
+            {
+                SDL_FRect rect{e._rect.x, (float)y, e._rect.w, e._rect.h};
+                v_s.push_back(Sprite(e._texture, rect, e._flip));
+            }
+
+            // // 创建需要填充的矩形
+            SDL_FRect rect = {6, 72, minimap->_rect.w, minimap->_rect.h};
+
+            SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_TARGET, rect.w, rect.h);
+            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderTarget(_renderer, texture);
+            SDL_SetRenderDrawColor(_renderer, 0x00, 0x00, 0x0F, 0x7F); // 使用ARGB4444格式，每个分量占4位
+            SDL_RenderFillRect(_renderer, NULL);
+            // 将渲染目标重新设置为默认渲染器
+            SDL_SetRenderTarget(_renderer, NULL);
+
+            v_s.push_back(Sprite(texture, rect, SDL_FLIP_NONE));
+
+            minimap->_rect.x = 6;
+            minimap->_rect.y = 72;
+            v_s.push_back(*minimap);
+        }
+        return v_s;
     }
 }

@@ -402,6 +402,29 @@ namespace util
         return v_portal;
     }
 
+    Sprite *MapUtil::load_minimap(int mapId)
+    {
+        auto node = load_node(mapId);
+        auto minimap = node->find_from_path(u"miniMap/canvas");
+        if (minimap != nullptr)
+        {
+            auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(minimap);
+            auto height = canvas->get().height;
+            auto width = canvas->get().width;
+            auto raw_data = canvas->get_raw_data();
+
+            SDL_FRect rect{0, 0, (float)width, (float)height};
+
+            auto format = canvas->get().format;
+
+            return new Sprite(raw_data, rect, (int)format);
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
     wz::Node *MapUtil::load_node(int mapId)
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
