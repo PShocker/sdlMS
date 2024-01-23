@@ -25,7 +25,7 @@ int Main::run(int argc, char **argv)
 
     _sound.reset(new Sound());
 
-    _hud->_minimap->_s=_hud_util->load_minimap();
+    _hud->_minimap->_vec=_hud_util->load_minimap();
 
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);

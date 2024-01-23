@@ -13,7 +13,7 @@ public:
     void draw();
 
 public:
-    std::map<std::string, Sprite> _s;
+    std::map<std::string, Sprite> _vec;
 };
 
 #endif

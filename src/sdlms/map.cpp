@@ -10,7 +10,6 @@ Map::Map()
 
 void Map::draw()
 {
-
     // 绘制背景
     for (auto &it : _backgrd)
     {

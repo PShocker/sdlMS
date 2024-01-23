@@ -35,6 +35,10 @@ namespace util
         s.insert(std::make_pair("sw", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw")))));
         s.insert(std::make_pair("se", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se")))));
         s.insert(std::make_pair("n", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n")))));
+        s.insert(std::make_pair("s", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s")))));
+        s.insert(std::make_pair("c", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c")))));
+        s.insert(std::make_pair("w", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w")))));
+        s.insert(std::make_pair("e", func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e")))));
 
         return s;
     }
