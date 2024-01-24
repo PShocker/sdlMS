@@ -1,6 +1,7 @@
 #include "util/hud_util.hpp"
 #include "util/wz_util.hpp"
 #include "sdlms/graphics.hpp"
+#include "sdlms/ttf.hpp"
 
 #include "wz/Property.hpp"
 
@@ -110,6 +111,9 @@ namespace util
             minimap->_rect.x = 6;
             minimap->_rect.y = 72;
             v_s.push_back(*minimap);
+
+            Sprite title(TTF::current()->load_font("你好"), SDL_FRect{30, 20, 30, 30}, SDL_FLIP_NONE);
+            v_s.push_back(title);
         }
         return v_s;
     }

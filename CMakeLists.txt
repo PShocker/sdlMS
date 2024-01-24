@@ -12,6 +12,10 @@ endif()
 # sdl2 is install here
 set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
 
+set(SDL_TTF_INCLUDE_DIRS "C:/Users/Shocker/Desktop/SDL2_ttf-2.22.0/x86_64-w64-mingw32/include")
+set(SDL_TTF_LIBRARIES "C:/Users/Shocker/Desktop/SDL2_ttf-2.22.0/x86_64-w64-mingw32/lib")
+
+
 set(FFMPEG_INCLUDE "C:/Users/Shocker/Desktop/FFMPEG/include")
 set(FFMPEG_LIB "C:/Users/Shocker/Desktop/FFMPEG/lib")
 
@@ -30,10 +34,14 @@ include_directories(
 )
 
 include_directories(
+    ${SDL_TTF_INCLUDE_DIRS}
     ${FFMPEG_INCLUDE}
 )
 
-link_directories(${FFMPEG_LIB})
+link_directories(
+    ${SDL_TTF_LIBRARIES}
+    ${FFMPEG_LIB}
+)
 
 file(GLOB SOURCE_FILES src/**/*.cpp)
 
@@ -53,6 +61,8 @@ target_link_libraries(sdlMS PRIVATE ${SDL2_LIBRARIES} wzlib)
 target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
 # 链接 FFMPEG依赖库,wzlib里面已经包含了zlib库
 target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5)
+# SDL_TTF库
+target_link_libraries(sdlMS PRIVATE SDL2_ttf)
 # 链接 Windows平台库
 target_link_libraries(sdlMS PRIVATE bcrypt ws2_32 Secur32 Strmiids)
 
