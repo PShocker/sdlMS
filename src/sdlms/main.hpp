@@ -7,6 +7,7 @@
 #include "util/sound_util.hpp"
 #include "util/hud_util.hpp"
 #include "util/ffmpeg.hpp"
+#include "util/freetype.hpp"
 
 #include "sdlms/camera.hpp"
 #include "sdlms/graphics.hpp"
@@ -14,7 +15,8 @@
 #include "sdlms/map.hpp"
 #include "sdlms/sound.hpp"
 #include "sdlms/hud.hpp"
-#include "sdlms/ttf.hpp"
+
+
 
 
 using namespace util;
@@ -37,7 +39,7 @@ private:
     std::unique_ptr<Hud> _hud;
     std::unique_ptr<Sound> _sound;
     std::unique_ptr<FFMPEG> _ffmpeg;
-    std::unique_ptr<TTF> _ttf;
+    std::unique_ptr<FreeType> _freetype;
     
 };
 #endif

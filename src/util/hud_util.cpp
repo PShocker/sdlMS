@@ -1,7 +1,7 @@
 #include "util/hud_util.hpp"
 #include "util/wz_util.hpp"
 #include "sdlms/graphics.hpp"
-#include "sdlms/ttf.hpp"
+#include "util/freetype.hpp"
 
 #include "wz/Property.hpp"
 
@@ -112,7 +112,8 @@ namespace util
             minimap->_rect.y = 72;
             v_s.push_back(*minimap);
 
-            Sprite title(TTF::current()->load_font("你好hello"), SDL_FRect{30, 20, 100, 30}, SDL_FLIP_NONE);
+            Sprite title(FreeType::current()->load_str("123"), SDL_FRect{10, 10, 40, 40}, SDL_FLIP_NONE);
+
             v_s.push_back(title);
         }
         return v_s;

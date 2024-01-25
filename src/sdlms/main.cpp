@@ -25,7 +25,7 @@ int Main::run(int argc, char **argv)
 
     _sound.reset(new Sound());
 
-    _ttf.reset(new TTF());
+    _freetype.reset(new FreeType());
 
     _hud->_minimap->_s = _hud_util->load_minimap(mapId);
 
