@@ -20,13 +20,10 @@ namespace util
 
         FT_Load_Char(*_face, s.c_str()[0], FT_LOAD_RENDER);
 
-        auto glyph = (*_face)->glyph;
-        SDL_Surface *surface = SDL_CreateRGBSurfaceWithFormatFrom(
-            glyph->bitmap.buffer, glyph->bitmap.width, glyph->bitmap.rows,
-            8, glyph->bitmap.pitch, SDL_PIXELFORMAT_RGBA32);
-
-        SDL_Texture *texture = SDL_CreateTextureFromSurface(_renderer, surface);
-        SDL_FreeSurface(surface);
+        FT_GlyphSlot g = (*_face)->glyph;
+        // 创建SDL纹理并将位图数据复制到纹理中
+        SDL_Texture *texture = SDL_CreateTexture(_renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, g->bitmap.width, g->bitmap.rows);
+        SDL_UpdateTexture(texture, NULL, g->bitmap.buffer, g->bitmap.pitch);
         return texture;
     }
 }
