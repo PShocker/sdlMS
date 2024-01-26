@@ -1,3 +1,5 @@
+#include <freetype/ftoutln.h>
+
 #include "sdlms/graphics.hpp"
 #include "util/freetype.hpp"
 
@@ -12,7 +14,8 @@ namespace util
         // 加载字体文件
         _face = new FT_Face{};
         FT_New_Face(*_library, (filename_prefix + "simsun.ttc").c_str(), 0, _face);
-        FT_Set_Pixel_Sizes(*_face, 0, 36);
+        FT_Set_Char_Size(*_face, 0, 16 * 64, 300, 300);
+        // FT_Set_Pixel_Sizes(*_face, 0, 36);
         FT_Select_Charmap(*_face, FT_ENCODING_UNICODE);
     }
 
@@ -22,6 +25,11 @@ namespace util
         FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, s.c_str()[0]), FT_LOAD_RENDER);
 
         FT_GlyphSlot glyph = (*_face)->glyph;
+
+        FT_Outline_Embolden(&(glyph->outline), 900000);
+
+        // 将加粗后的字形渲染到位图中
+        FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
 
         // 转换为ARGB8888格式
         unsigned char *data = glyph->bitmap.buffer;
