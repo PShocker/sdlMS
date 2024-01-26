@@ -14,22 +14,19 @@ namespace util
         // 加载字体文件
         _face = new FT_Face{};
         FT_New_Face(*_library, (filename_prefix + "simsun.ttc").c_str(), 0, _face);
-        FT_Set_Char_Size(*_face, 0, 16 * 64, 300, 300);
-        // FT_Set_Pixel_Sizes(*_face, 0, 36);
+        FT_Set_Char_Size(*_face, 0, 8 * 64, 400, 400);
+        // FT_Set_Pixel_Sizes(*_face, 0, 48);
         FT_Select_Charmap(*_face, FT_ENCODING_UNICODE);
     }
 
     std::tuple<SDL_Texture *, int, int> FreeType::load_str(const std::wstring &s)
     {
-
-        FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, s.c_str()[0]), FT_LOAD_RENDER);
-
         FT_GlyphSlot glyph = (*_face)->glyph;
 
-        FT_Outline_Embolden(&(glyph->outline), 900000);
-
-        // 将加粗后的字形渲染到位图中
-        FT_Render_Glyph(glyph, FT_RENDER_MODE_NORMAL);
+        for (auto &c : s)
+        {
+            FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_RENDER);
+        }
 
         // 转换为ARGB8888格式
         unsigned char *data = glyph->bitmap.buffer;
