@@ -11,17 +11,18 @@ namespace util
         FT_Init_FreeType(_library);
         // 加载字体文件
         _face = new FT_Face{};
-        FT_New_Face(*_library, (filename_prefix + "font.ttc").c_str(), 0, _face);
-        FT_Set_Pixel_Sizes(*_face, 0, 64);
+        FT_New_Face(*_library, (filename_prefix + "simsun.ttc").c_str(), 0, _face);
+        FT_Set_Pixel_Sizes(*_face, 0, 36);
         FT_Select_Charmap(*_face, FT_ENCODING_UNICODE);
     }
 
-    SDL_Texture *FreeType::load_str(const std::wstring &s)
+    std::tuple<SDL_Texture *, int, int> FreeType::load_str(const std::wstring &s)
     {
 
         FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, s.c_str()[0]), FT_LOAD_RENDER);
 
         FT_GlyphSlot glyph = (*_face)->glyph;
+
         // 转换为ARGB8888格式
         unsigned char *data = glyph->bitmap.buffer;
         int width = glyph->bitmap.width;
@@ -42,6 +43,6 @@ namespace util
 
         delete argbData;
 
-        return texture;
+        return {texture, width, height};
     }
 }

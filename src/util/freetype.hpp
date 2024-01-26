@@ -18,12 +18,12 @@ namespace util
     {
     public:
         FreeType();
-        SDL_Texture *load_str(const std::wstring &s);
+        std::tuple<SDL_Texture *, int, int> load_str(const std::wstring &s);
 
     public:
-        const std::string filename_prefix = "C:/Users/Shocker/Desktop/sdlMS/data/";
+        const std::string filename_prefix = "C:/Windows/Fonts/";
         FT_Library *_library;
-        FT_Face* _face;
+        FT_Face *_face;
 
     private:
         SDL_Renderer *_renderer;

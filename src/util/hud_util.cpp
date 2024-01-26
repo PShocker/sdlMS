@@ -112,7 +112,9 @@ namespace util
             minimap->_rect.y = 72;
             v_s.push_back(*minimap);
 
-            Sprite title(FreeType::current()->load_str(L"国"), SDL_FRect{10, 20, 20, 20}, SDL_FLIP_NONE);
+            auto t = FreeType::current()->load_str(L"射");
+
+            Sprite title(std::get<0>(t), SDL_FRect{10, 20, (float)std::get<1>(t), (float)std::get<2>(t)}, SDL_FLIP_NONE);
 
             v_s.push_back(title);
         }
