@@ -18,7 +18,7 @@ namespace util
     {
     public:
         FreeType();
-        SDL_Texture *load_str(const std::string &s);
+        SDL_Texture *load_str(const std::wstring &s);
 
     public:
         const std::string filename_prefix = "C:/Users/Shocker/Desktop/sdlMS/data/";

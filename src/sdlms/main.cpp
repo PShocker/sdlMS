@@ -49,7 +49,7 @@ int Main::run(int argc, char **argv)
         _map->update(FRAME_DELAY);
         // 更新屏幕
         Graphics::current()->clear();
-        _map->draw();
+        // _map->draw();
         _hud->draw();
         Graphics::current()->flip();
         auto frameTime = SDL_GetTicks() - frameStart; // 计算当前帧的时间
