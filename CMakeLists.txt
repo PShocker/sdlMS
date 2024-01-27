@@ -63,6 +63,6 @@ target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avf
 target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5)
 # freetype
 target_link_libraries(sdlMS PRIVATE freetype)
-# 链接 Windows平台库
+# 链接 Windows平台库(FFMPEG)
 target_link_libraries(sdlMS PRIVATE bcrypt ws2_32 Secur32 Strmiids)
 
