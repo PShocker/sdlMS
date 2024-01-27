@@ -6,8 +6,8 @@ const int FRAME_DELAY = 1000 / FPS;
 
 int Main::run(int argc, char **argv)
 {
-    int mapId = 100000000;
-    // int mapId = 222020110;
+    // int mapId = 100000000;
+    int mapId = 222020110;
 
     _graphics.reset(new Graphics());
 
@@ -38,24 +38,27 @@ int Main::run(int argc, char **argv)
 
     _sound->load(_map->_sound);
 
+    unsigned int frameStart;
+    unsigned int frameTime;
+
     while (true)
     {
-        auto frameStart = SDL_GetTicks(); // 获取当前帧开始的时间
+        frameStart = SDL_GetTicks(); // 获取当前帧开始的时间
 
         if (_input->loop() < 0)
         {
             break;
         }
-        _map->update(FRAME_DELAY);
+        _map->update(frameTime - frameStart);
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();
         _hud->draw();
         Graphics::current()->flip();
-        auto frameTime = SDL_GetTicks() - frameStart; // 计算当前帧的时间
-        if (frameTime < FRAME_DELAY)
+        frameTime = SDL_GetTicks();
+        if (frameTime - frameStart < FRAME_DELAY)
         {
-            SDL_Delay(FRAME_DELAY - frameTime); // 控制帧率
+            SDL_Delay(FRAME_DELAY - (frameTime - frameStart)); // 控制帧率
         }
     }
 
