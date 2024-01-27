@@ -11,7 +11,7 @@
 
 #include "util/currenton.hpp"
 
-// 加载声音
+// 加载字体
 namespace util
 {
     class FreeType final : public Currenton<FreeType>
