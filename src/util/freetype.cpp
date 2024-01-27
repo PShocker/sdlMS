@@ -13,10 +13,10 @@ namespace util
         FT_Init_FreeType(_library);
         // 加载字体文件
         _face = new FT_Face{};
-        FT_New_Face(*_library, (filename_prefix + "simsun.ttc").c_str(), 0, _face);
+        FT_New_Face(*_library, (filename_prefix + "MapleMono-SC-NF-Regular.ttf").c_str(), 0, _face);
         // 设置字体大小
-        int fontSize = 14;
-        FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 96, 96);
+        int fontSize = 12;
+        FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 90, 90);
         // FT_Set_Pixel_Sizes(*_face, 0, 48);
     }
 
@@ -41,7 +41,7 @@ namespace util
         for (auto &c : s)
         {
             FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_RENDER);
-            SDL_Rect charRect = {offsetX + glyph->bitmap_left, 0, (int)glyph->bitmap.width, (int)glyph->bitmap.rows};
+            SDL_Rect charRect = {offsetX, 0, (int)glyph->bitmap.width, (int)glyph->bitmap.rows};
             // 转换为ARGB8888格式
             unsigned char *data = glyph->bitmap.buffer;
 
@@ -49,8 +49,8 @@ namespace util
             for (int i = 0; i < glyph->bitmap.width * glyph->bitmap.rows; ++i)
             {
                 argbData[4 * i] = 0;
-                argbData[4 * i + 1] = data[i];
-                argbData[4 * i + 2] = data[i];
+                argbData[4 * i + 1] = 0;
+                argbData[4 * i + 2] = 0;
                 argbData[4 * i + 3] = data[i];
             }
             SDL_UpdateTexture(texture, &charRect, argbData, glyph->bitmap.width * sizeof(Uint32));
@@ -61,7 +61,7 @@ namespace util
 
         // 创建SDL纹理并将位图数据复制到纹理中
 
-        // SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
         return {texture, width, height};
     }
