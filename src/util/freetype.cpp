@@ -13,9 +13,9 @@ namespace util
         FT_Init_FreeType(_library);
         // 加载字体文件
         _face = new FT_Face{};
-        FT_New_Face(*_library, (filename_prefix + "DroidSansMono.ttf").c_str(), 0, _face);
+        FT_New_Face(*_library, (filename_prefix + "NotoSansSC-Regular.ttf").c_str(), 0, _face);
         // 设置字体大小
-        int fontSize = 12;
+        int fontSize = 14;
         FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 90, 90);
         // FT_Set_Pixel_Sizes(*_face, 0, 48);
     }
@@ -42,7 +42,7 @@ namespace util
         {
 
             FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_RENDER);
-            SDL_Rect charRect = {offsetX, height - glyph->bitmap.rows, (int)glyph->bitmap.width, (int)glyph->bitmap.rows};
+            SDL_Rect charRect = {offsetX, (height - glyph->bitmap.rows) / 2, (int)glyph->bitmap.width, (int)glyph->bitmap.rows};
             // 转换为ARGB8888格式
             unsigned char *data = glyph->bitmap.buffer;
 

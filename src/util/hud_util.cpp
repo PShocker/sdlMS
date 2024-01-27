@@ -112,7 +112,7 @@ namespace util
             minimap->_rect.y = 72;
             v_s.push_back(*minimap);
 
-            auto t = FreeType::current()->load_str(L"角色信息aAaBCD::[]'");
+            auto t = FreeType::current()->load_str(L"射手村");
 
             Sprite title(std::get<0>(t), SDL_FRect{10, 20, (float)std::get<1>(t), (float)std::get<2>(t)}, SDL_FLIP_NONE);
 
