@@ -40,8 +40,9 @@ namespace util
 
         for (auto &c : s)
         {
+
             FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_RENDER);
-            SDL_Rect charRect = {offsetX, 0, (int)glyph->bitmap.width, (int)glyph->bitmap.rows};
+            SDL_Rect charRect = {offsetX, (height - glyph->bitmap.rows) / 2, (int)glyph->bitmap.width, (int)glyph->bitmap.rows};
             // 转换为ARGB8888格式
             unsigned char *data = glyph->bitmap.buffer;
 
