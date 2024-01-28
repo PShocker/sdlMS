@@ -14,9 +14,9 @@ namespace util
     {
     public:
         StringUtil();
-        std::wstring load_map_name(int mapId);
+        std::tuple<std::u16string, std::u16string> load_map_name(int mapId);
 
-        std::map<int, std::tuple<std::wstring, std::wstring>> _stringMap;
+        std::map<int, std::tuple<std::u16string, std::u16string>> _stringMap;
     };
 }
 

@@ -1,7 +1,9 @@
 #include "util/hud_util.hpp"
 #include "util/wz_util.hpp"
-#include "sdlms/graphics.hpp"
 #include "util/freetype.hpp"
+#include "util/string_util.hpp"
+
+#include "sdlms/graphics.hpp"
 
 #include "wz/Property.hpp"
 
@@ -112,7 +114,9 @@ namespace util
             minimap->_rect.y = 72;
             v_s.push_back(*minimap);
 
-            auto t = FreeType::current()->load_str(L"射手村");
+            auto [mapName, streetName] = StringUtil::current()->load_map_name(mapId);
+
+            auto t = FreeType::current()->load_str(mapName);
 
             Sprite title(std::get<0>(t), SDL_FRect{52, 22, (float)std::get<1>(t), (float)std::get<2>(t)}, SDL_FLIP_NONE);
 

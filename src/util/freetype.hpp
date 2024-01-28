@@ -18,7 +18,7 @@ namespace util
     {
     public:
         FreeType();
-        std::tuple<SDL_Texture *, int, int> load_str(const std::wstring &s);
+        std::tuple<SDL_Texture *, int, int> load_str(const std::u16string &s);
 
     public:
         const std::string filename_prefix = "C:/Users/Shocker/Desktop/sdlMS/font/";

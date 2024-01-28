@@ -20,7 +20,7 @@ namespace util
         // FT_Set_Pixel_Sizes(*_face, 0, 48);
     }
 
-    std::tuple<SDL_Texture *, int, int> FreeType::load_str(const std::wstring &s)
+    std::tuple<SDL_Texture *, int, int> FreeType::load_str(const std::u16string &s)
     {
         FT_GlyphSlot glyph = (*_face)->glyph;
 
