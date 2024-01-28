@@ -14,19 +14,18 @@ namespace util
 
     std::array<std::vector<Tile>, 8> MapUtil::load_tile(int mapId)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
-        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
-        auto node = root->find_from_path(path);
         std::array<std::vector<Tile>, 8> tile;
         for (size_t i = 0; i < 8; i++)
         {
-            tile[i] = load_tile(root, node, i);
+            tile[i] = load_tile(load_node(mapId), i);
         }
         return tile;
     }
 
-    std::vector<Tile> MapUtil::load_tile(wz::Node *root, wz::Node *node, int i)
+    std::vector<Tile> MapUtil::load_tile(wz::Node *node, int i)
     {
+        wz::Node *root = WzUtil::current()->Map->get_root();
+
         std::vector<Tile> tile;
         node = node->get_child(std::to_string(i));
         auto tS = node->get_child(u"info")->get_child(u"tS");
@@ -39,7 +38,9 @@ namespace util
                 auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
                 auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
 
-                auto url = u"Tile/" + dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get() + u".img/" + u + u"/" + StringUtil::to_ustring(std::to_string(no));
+                auto no_str = std::to_string(no);
+
+                auto url = u"Tile/" + dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get() + u".img/" + u + u"/" + std::u16string{no_str.begin(), no_str.end()};
 
                 auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
                 auto raw_data = canvas->get_raw_data();
@@ -70,19 +71,18 @@ namespace util
 
     std::array<std::vector<Obj>, 8> MapUtil::load_obj(int mapId)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
-        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
-        auto node = root->find_from_path(path);
         std::array<std::vector<Obj>, 8> obj;
         for (size_t i = 0; i < 8; i++)
         {
-            obj[i] = load_obj(root, node, i);
+            obj[i] = load_obj(load_node(mapId), i);
         }
         return obj;
     }
 
-    std::vector<Obj> MapUtil::load_obj(wz::Node *root, wz::Node *node, int i)
+    std::vector<Obj> MapUtil::load_obj(wz::Node *node, int i)
     {
+        wz::Node *root = WzUtil::current()->Map->get_root();
+
         std::vector<Obj> obj;
         node = node->get_child(std::to_string(i))->get_child(u"obj");
         for (auto it : node->get_children())
@@ -157,14 +157,13 @@ namespace util
 
     std::vector<BackGrd> MapUtil::load_backgrd(int mapId)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
-        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
-        auto node = root->find_from_path(path);
-        return load_backgrd(root, node);
+        return load_backgrd(load_node(mapId));
     }
 
-    std::vector<BackGrd> MapUtil::load_backgrd(wz::Node *root, wz::Node *node)
+    std::vector<BackGrd> MapUtil::load_backgrd(wz::Node *node)
     {
+        wz::Node *root = WzUtil::current()->Map->get_root();
+
         std::vector<BackGrd> v_backgrd;
         node = node->get_child(u"back");
         if (node != nullptr)
@@ -189,15 +188,15 @@ namespace util
 
                 auto front = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"front"))->get();
 
-                auto id = std::stoi(StringUtil::to_string(it.first));
-
+                auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
                 auto filp = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
 
                 switch (ani)
                 {
                 case 0:
                 {
-                    auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + StringUtil::to_ustring(std::to_string(no));
+                    auto no_str = std::to_string(no);
+                    auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
                     auto back = root->find_from_path(url);
                     if (back != nullptr)
                     {
@@ -227,7 +226,8 @@ namespace util
                 }
                 case 1:
                 {
-                    auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + StringUtil::to_ustring(std::to_string(no));
+                    auto no_str = std::to_string(no);
+                    auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + std::u16string{no_str.begin(), no_str.end()};
                     std::vector<Sprite> v_sprite;
                     std::vector<int> v_delay;
                     std::vector<std::tuple<int, int>> v_a;
@@ -290,14 +290,13 @@ namespace util
 
     std::vector<Portal> MapUtil::load_portal(int mapId)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
-        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
-        auto node = root->find_from_path(path);
-        return load_portal(root, node);
+        return load_portal(load_node(mapId));
     }
 
-    std::vector<Portal> MapUtil::load_portal(wz::Node *root, wz::Node *node)
+    std::vector<Portal> MapUtil::load_portal(wz::Node *node)
     {
+        wz::Node *root = WzUtil::current()->Map->get_root();
+
         std::vector<Portal> v_portal;
 
         node = node->get_child(u"portal");
@@ -458,7 +457,12 @@ namespace util
     wz::Node *MapUtil::load_node(int mapId)
     {
         wz::Node *root = WzUtil::current()->Map->get_root();
-        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
+        auto s = std::to_string(mapId);
+        if (s.size() < 9)
+        {
+            s.insert(0, 9 - s.size(), '0');
+        }
+        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + s + ".img";
         return root->find_from_path(path);
     }
 }

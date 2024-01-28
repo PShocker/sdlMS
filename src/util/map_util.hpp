@@ -32,10 +32,10 @@ namespace util
         SDL_Renderer *_renderer;
 
     private:
-        std::vector<Tile> load_tile(wz::Node *root, wz::Node *node, int i);
-        std::vector<Obj> load_obj(wz::Node *root, wz::Node *node, int i);
-        std::vector<BackGrd> load_backgrd(wz::Node *root, wz::Node *node);
-        std::vector<Portal> load_portal(wz::Node *root, wz::Node *node);
+        std::vector<Tile> load_tile(wz::Node *node, int i);
+        std::vector<Obj> load_obj(wz::Node *node, int i);
+        std::vector<BackGrd> load_backgrd(wz::Node *node);
+        std::vector<Portal> load_portal(wz::Node *node);
     };
 }
 
