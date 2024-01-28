@@ -116,11 +116,13 @@ namespace util
 
             auto [mapName, streetName] = StringUtil::current()->load_map_name(mapId);
 
-            auto t = FreeType::current()->load_str(mapName);
+            auto t_up = FreeType::current()->load_str(streetName);
 
-            Sprite title(std::get<0>(t), SDL_FRect{52, 22, (float)std::get<1>(t), (float)std::get<2>(t)}, SDL_FLIP_NONE);
+            v_s.push_back(Sprite(std::get<0>(t_up), SDL_FRect{52, 22, (float)std::get<1>(t_up), (float)std::get<2>(t_up)}, SDL_FLIP_NONE));
 
-            v_s.push_back(title);
+            auto t_down = FreeType::current()->load_str(mapName);
+
+            v_s.push_back(Sprite(std::get<0>(t_down), SDL_FRect{52, 40, (float)std::get<1>(t_down), (float)std::get<2>(t_down)}, SDL_FLIP_NONE));
 
             auto mark = MapUtil::current()->load_mark(mapId);
 
