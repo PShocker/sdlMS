@@ -114,7 +114,7 @@ namespace util
 
             auto t = FreeType::current()->load_str(L"射手村");
 
-            Sprite title(std::get<0>(t), SDL_FRect{50, 22, (float)std::get<1>(t), (float)std::get<2>(t)}, SDL_FLIP_NONE);
+            Sprite title(std::get<0>(t), SDL_FRect{52, 22, (float)std::get<1>(t), (float)std::get<2>(t)}, SDL_FLIP_NONE);
 
             v_s.push_back(title);
 
