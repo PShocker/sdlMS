@@ -1,13 +1,13 @@
 #include "util/sound_util.hpp"
 #include "util/wz_util.hpp"
+#include "util/map_util.hpp"
 
 namespace util
 {
     std::vector<u8> SoundUtil::load_sound(int mapId)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
-        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + StringUtil::extend_id(mapId, 9) + ".img";
-        auto node = root->find_from_path(path + "/info/bgm");
+        auto node = MapUtil::current()->load_node(mapId);
+        node = node->find_from_path("info/bgm");
         if (node != nullptr)
         {
             auto url = dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();

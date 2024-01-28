@@ -17,6 +17,7 @@ int Main::run(int argc, char **argv)
     _map_util.reset(new MapUtil());
     _sound_util.reset(new SoundUtil());
     _hud_util.reset(new HudUtil());
+    _string_util.reset(new StringUtil());
 
     _map.reset(new Map());
     _hud.reset(new Hud());

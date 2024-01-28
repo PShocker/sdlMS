@@ -44,7 +44,7 @@ namespace util
 		// Reactor->parse();
 		// Skill->parse();
 		Sound->parse();
-		// String->parse();
+		String->parse();
 		// TamingMob->parse();
 		UI->parse();
 	}

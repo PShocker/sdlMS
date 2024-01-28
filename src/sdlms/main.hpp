@@ -8,6 +8,7 @@
 #include "util/hud_util.hpp"
 #include "util/ffmpeg.hpp"
 #include "util/freetype.hpp"
+#include "util/string_util.hpp"
 
 #include "sdlms/camera.hpp"
 #include "sdlms/graphics.hpp"
@@ -40,6 +41,7 @@ private:
     std::unique_ptr<Sound> _sound;
     std::unique_ptr<FFMPEG> _ffmpeg;
     std::unique_ptr<FreeType> _freetype;
+    std::unique_ptr<StringUtil> _string_util;
     
 };
 #endif
