@@ -425,6 +425,36 @@ namespace util
         }
     }
 
+    Sprite *MapUtil::load_mark(int mapId)
+    {
+        auto node = load_node(mapId);
+        node = node->find_from_path(u"info/mapMark");
+        if (node != nullptr)
+        {
+            auto url = u"MapHelper.img/mark/" + dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
+            wz::Node *root = WzUtil::current()->Map->get_root();
+            auto mark = root->find_from_path(url);
+            if (mark != NULL)
+            {
+                auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(mark);
+                auto height = canvas->get().height;
+                auto width = canvas->get().width;
+                auto raw_data = canvas->get_raw_data();
+
+                SDL_FRect rect{0, 0, (float)width, (float)height};
+
+                auto format = canvas->get().format;
+
+                return new Sprite(raw_data, rect, (int)format);
+            }
+        }
+        else
+        {
+            return nullptr;
+        }
+        return nullptr;
+    }
+
     wz::Node *MapUtil::load_node(int mapId)
     {
         wz::Node *root = WzUtil::current()->Map->get_root();

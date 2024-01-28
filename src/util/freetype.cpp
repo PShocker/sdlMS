@@ -15,7 +15,7 @@ namespace util
         _face = new FT_Face{};
         FT_New_Face(*_library, (filename_prefix + "NotoSansSC-Regular.ttf").c_str(), 0, _face);
         // 设置字体大小
-        int fontSize = 14;
+        int fontSize = 13;
         FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 90, 90);
         // FT_Set_Pixel_Sizes(*_face, 0, 48);
     }
@@ -49,9 +49,9 @@ namespace util
             unsigned char *argbData = new unsigned char[glyph->bitmap.width * glyph->bitmap.rows * 4];
             for (int i = 0; i < glyph->bitmap.width * glyph->bitmap.rows; ++i)
             {
-                argbData[4 * i] = 0;
-                argbData[4 * i + 1] = 0;
-                argbData[4 * i + 2] = 0;
+                argbData[4 * i] = 255;
+                argbData[4 * i + 1] = 255;
+                argbData[4 * i + 2] = 255;
                 argbData[4 * i + 3] = data[i];
             }
             SDL_UpdateTexture(texture, &charRect, argbData, glyph->bitmap.width * sizeof(Uint32));
