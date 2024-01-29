@@ -44,11 +44,11 @@ namespace util
         {
             FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_DEFAULT);
 
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
+            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_SDF);
 
             auto bitmap = glyph_slot->bitmap;
 
-            SDL_Rect charRect = {offsetX, (height - glyph_slot->bitmap.rows) / 2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+            SDL_Rect charRect = {offsetX, 0, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
             // 转换为ARGB8888格式
             unsigned char *data = bitmap.buffer;
 
@@ -57,12 +57,14 @@ namespace util
             {
                 for (int x = 0; x < bitmap.width; x++)
                 {
+                    // 获取距离场位图中当前像素的灰度值
+                    unsigned char value = data[y * bitmap.pitch + x];
 
                     argbData[(y * bitmap.width + x) * 4] = 255;
-                    argbData[(y * bitmap.width + x) * 4 + 1] = 255;
-                    argbData[(y * bitmap.width + x) * 4 + 2] = 255;
+                    argbData[(y * bitmap.width + x) * 4 + 1] = value;
+                    argbData[(y * bitmap.width + x) * 4 + 2] = value;
 
-                    argbData[(y * bitmap.width + x) * 4 + 3] = data[y * bitmap.width + x];
+                    argbData[(y * bitmap.width + x) * 4 + 3] = value;
                 }
             }
 
