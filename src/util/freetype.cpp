@@ -50,7 +50,6 @@ namespace util
 
             SDL_Rect charRect = {offsetX, 0, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
             // 转换为ARGB8888格式
-            unsigned char *data = bitmap.buffer;
 
             unsigned char *argbData = new unsigned char[bitmap.width * bitmap.rows * 4];
             for (int y = 0; y < bitmap.rows; y++)
@@ -58,13 +57,15 @@ namespace util
                 for (int x = 0; x < bitmap.width; x++)
                 {
                     // 获取距离场位图中当前像素的灰度值
-                    unsigned char value = data[y * bitmap.pitch + x];
+                    unsigned char value = bitmap.buffer[y * bitmap.pitch + x];
 
-                    argbData[(y * bitmap.width + x) * 4] = 255;
-                    argbData[(y * bitmap.width + x) * 4 + 1] = value;
-                    argbData[(y * bitmap.width + x) * 4 + 2] = value;
+                    unsigned char alpha = static_cast<unsigned char>((1 - value) * 255);
 
-                    argbData[(y * bitmap.width + x) * 4 + 3] = value;
+                    argbData[(y * bitmap.width + x) * 4] = alpha;
+                    argbData[(y * bitmap.width + x) * 4 + 1] = 0;
+                    argbData[(y * bitmap.width + x) * 4 + 2] = 0;
+
+                    argbData[(y * bitmap.width + x) * 4 + 3] = 0;
                 }
             }
 
