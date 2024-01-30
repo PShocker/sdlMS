@@ -15,9 +15,9 @@ namespace util
         FT_Init_FreeType(_library);
         // 加载字体文件
         _face = new FT_Face{};
-        FT_New_Face(*_library, (filename_prefix + "NotoSerifSC-SemiBold.otf").c_str(), 0, _face);
+        FT_New_Face(*_library, (filename_prefix + "NotoSansSC-Regular.ttf").c_str(), 0, _face);
         // 设置字体大小
-        int fontSize = 48;
+        int fontSize = 20;
         // FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 72, 72);
         FT_Set_Pixel_Sizes(*_face, 0, fontSize);
     }
@@ -33,8 +33,6 @@ namespace util
         {
             FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_DEFAULT);
 
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_SDF);
-
             width += glyph_slot->bitmap.width;
             height = glyph_slot->bitmap.rows > height ? glyph_slot->bitmap.rows : height;
         }
@@ -47,7 +45,7 @@ namespace util
         {
             FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_DEFAULT);
 
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_SDF);
+            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
 
             auto bitmap = glyph_slot->bitmap;
 
@@ -59,22 +57,11 @@ namespace util
             {
                 for (int x = 0; x < bitmap.width; x++)
                 {
-                    // 获取距离场位图中当前像素的灰度值
                     char value = bitmap.buffer[y * bitmap.width + x];
-                    if (value < 0)
-                    {
-                        argbData[(y * bitmap.width + x) * 4] = 255;     // B
-                        argbData[(y * bitmap.width + x) * 4 + 1] = 255; // G
-                        argbData[(y * bitmap.width + x) * 4 + 2] = 255; // R
-                        argbData[(y * bitmap.width + x) * 4 + 3] = 255; // A
-                    }
-                    else
-                    {
-                        argbData[(y * bitmap.width + x) * 4] = 0;     // B
-                        argbData[(y * bitmap.width + x) * 4 + 1] = 0; // G
-                        argbData[(y * bitmap.width + x) * 4 + 2] = 0; // R
-                        argbData[(y * bitmap.width + x) * 4 + 3] = 255; // A
-                    }
+                    argbData[(y * bitmap.width + x) * 4] = 255;         // B
+                    argbData[(y * bitmap.width + x) * 4 + 1] = 255;     // G
+                    argbData[(y * bitmap.width + x) * 4 + 2] = 255;     // R
+                    argbData[(y * bitmap.width + x) * 4 + 3] = value; // A
                 }
             }
 
