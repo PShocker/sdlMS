@@ -15,7 +15,7 @@ namespace util
         FT_Init_FreeType(_library);
         // 加载字体文件
         _face = new FT_Face{};
-        FT_New_Face(*_library, (filename_prefix + "NotoSerifSC-Regular.otf").c_str(), 0, _face);
+        FT_New_Face(*_library, (filename_prefix + "NotoSerifSC-SemiBold.otf").c_str(), 0, _face);
         // 设置字体大小
         int fontSize = 48;
         // FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 72, 72);
@@ -68,19 +68,12 @@ namespace util
                         argbData[(y * bitmap.width + x) * 4 + 2] = 255; // R
                         argbData[(y * bitmap.width + x) * 4 + 3] = 255; // A
                     }
-                    else if (value > 0)
-                    {
-                        argbData[(y * bitmap.width + x) * 4] = 0;         // B
-                        argbData[(y * bitmap.width + x) * 4 + 1] = 0;     // G
-                        argbData[(y * bitmap.width + x) * 4 + 2] = 0;     // R
-                        argbData[(y * bitmap.width + x) * 4 + 3] = value; // A
-                    }
-                    else if (value == 0)
+                    else
                     {
                         argbData[(y * bitmap.width + x) * 4] = 0;     // B
                         argbData[(y * bitmap.width + x) * 4 + 1] = 0; // G
                         argbData[(y * bitmap.width + x) * 4 + 2] = 0; // R
-                        argbData[(y * bitmap.width + x) * 4 + 3] = 0;
+                        argbData[(y * bitmap.width + x) * 4 + 3] = 255; // A
                     }
                 }
             }
