@@ -17,7 +17,7 @@ namespace util
         _face = new FT_Face{};
         FT_New_Face(*_library, (filename_prefix + "NotoSerifSC-Regular.otf").c_str(), 0, _face);
         // 设置字体大小
-        int fontSize = 24;
+        int fontSize = 48;
         // FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 72, 72);
         FT_Set_Pixel_Sizes(*_face, 0, fontSize);
     }
