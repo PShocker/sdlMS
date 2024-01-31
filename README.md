@@ -9,6 +9,7 @@ set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
 资源文件进QQ群760717877下载
 
 资源路径修改 
+
 src\util\wz_util.hpp
 ```
 const std::string filename_prefix = "C:/Users/Shocker/Desktop/sdlMS/data/"; //修改成你的路径
