@@ -17,7 +17,7 @@ namespace util
         _face = new FT_Face{};
         FT_New_Face(*_library, (filename_prefix + "NotoSansSC-Regular.ttf").c_str(), 0, _face);
         // 设置字体大小
-        int fontSize = 20;
+        int fontSize = 14;
         // FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 72, 72);
         FT_Set_Pixel_Sizes(*_face, 0, fontSize);
     }
@@ -33,6 +33,8 @@ namespace util
         {
             FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_DEFAULT);
 
+            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_SDF);
+
             width += glyph_slot->bitmap.width;
             height = glyph_slot->bitmap.rows > height ? glyph_slot->bitmap.rows : height;
         }
@@ -45,11 +47,11 @@ namespace util
         {
             FT_Load_Glyph(*_face, FT_Get_Char_Index(*_face, c), FT_LOAD_DEFAULT);
 
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
+            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_SDF);
 
             auto bitmap = glyph_slot->bitmap;
 
-            SDL_Rect charRect = {offsetX, (height - glyph_slot->bitmap.rows) / 2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+            SDL_Rect charRect = {offsetX, 0, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
             // 转换为ARGB8888格式
 
             unsigned char *argbData = new unsigned char[bitmap.width * bitmap.rows * 4];
@@ -58,9 +60,9 @@ namespace util
                 for (int x = 0; x < bitmap.width; x++)
                 {
                     char value = bitmap.buffer[y * bitmap.width + x];
-                    argbData[(y * bitmap.width + x) * 4] = 255;         // B
-                    argbData[(y * bitmap.width + x) * 4 + 1] = 255;     // G
-                    argbData[(y * bitmap.width + x) * 4 + 2] = 255;     // R
+                    argbData[(y * bitmap.width + x) * 4] = 0;       // B
+                    argbData[(y * bitmap.width + x) * 4 + 1] = 0;   // G
+                    argbData[(y * bitmap.width + x) * 4 + 2] = 0;   // R
                     argbData[(y * bitmap.width + x) * 4 + 3] = value; // A
                 }
             }
