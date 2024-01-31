@@ -50,10 +50,14 @@ namespace util
             FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
 
             auto bitmap = glyph_slot->bitmap;
-
-            SDL_Rect charRect = {offsetX, (height - glyph_slot->bitmap.rows) / 2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+            // 默认底部对齐
+            SDL_Rect charRect = {offsetX, (height - glyph_slot->bitmap.rows), (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+            // 特殊符号居中
+            if (c==u'<'||c==u'>')
+            {
+                charRect.y=(height - glyph_slot->bitmap.rows)/2;
+            }
             // 转换为ARGB8888格式
-
             unsigned char *argbData = new unsigned char[bitmap.width * bitmap.rows * 4];
             for (int y = 0; y < bitmap.rows; y++)
             {
