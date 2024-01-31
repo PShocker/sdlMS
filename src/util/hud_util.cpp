@@ -23,13 +23,13 @@ namespace util
         {
             auto [mapName, streetName] = StringUtil::current()->load_map_name(mapId);
 
-            SDL_Point t_offset={52,22};
+            SDL_Point t_offset = {52, 25};
 
             auto t_up = FreeType::current()->load_str(streetName);
 
             auto t_down = FreeType::current()->load_str(mapName);
 
-            int width = std::max((int)minimap->_rect.w, std::max((int)std::get<1>(t_up)+(int)t_offset.x, (int)std::get<1>(t_down)+(int)t_offset.x));
+            int width = std::max((int)minimap->_rect.w, std::max((int)std::get<1>(t_up) + (int)t_offset.x, (int)std::get<1>(t_down) + (int)t_offset.x));
             int height = minimap->_rect.h;
 
             auto node = WzUtil::current()->UI->get_root()->find_from_path(u"UIWindow.img/MiniMap/MaxMap");
@@ -118,7 +118,7 @@ namespace util
 
             v_s.push_back(Sprite(texture, rect, SDL_FLIP_NONE));
 
-            minimap->_rect.x = (width-minimap->_rect.w)/2;
+            minimap->_rect.x = std::max((float)(width - minimap->_rect.w) / 2, (float)6);
             minimap->_rect.y = 72;
             v_s.push_back(*minimap);
 
@@ -132,6 +132,12 @@ namespace util
             mark->_rect.y = 22;
 
             v_s.push_back(*mark);
+
+            auto title = func(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_parent()->find_from_path(u"title")));
+            title._rect.x = 7;
+            title._rect.y = 5;
+
+            v_s.push_back(title);
         }
         return v_s;
     }
