@@ -21,7 +21,15 @@ namespace util
         auto minimap = MapUtil::current()->load_minimap(mapId);
         if (minimap != nullptr)
         {
-            int width = minimap->_rect.w;
+            auto [mapName, streetName] = StringUtil::current()->load_map_name(mapId);
+
+            SDL_Point t_offset={52,22};
+
+            auto t_up = FreeType::current()->load_str(streetName);
+
+            auto t_down = FreeType::current()->load_str(mapName);
+
+            int width = std::max((int)minimap->_rect.w, std::max((int)std::get<1>(t_up)+(int)t_offset.x, (int)std::get<1>(t_down)+(int)t_offset.x));
             int height = minimap->_rect.h;
 
             auto node = WzUtil::current()->UI->get_root()->find_from_path(u"UIWindow.img/MiniMap/MaxMap");
@@ -110,24 +118,18 @@ namespace util
 
             v_s.push_back(Sprite(texture, rect, SDL_FLIP_NONE));
 
-            minimap->_rect.x = 6;
+            minimap->_rect.x = (width-minimap->_rect.w)/2;
             minimap->_rect.y = 72;
             v_s.push_back(*minimap);
 
-            auto [mapName, streetName] = StringUtil::current()->load_map_name(mapId);
+            v_s.push_back(Sprite(std::get<0>(t_up), SDL_FRect{(float)t_offset.x, (float)t_offset.y, (float)std::get<1>(t_up), (float)std::get<2>(t_up)}, SDL_FLIP_NONE));
 
-            auto t_up = FreeType::current()->load_str(streetName);
-
-            v_s.push_back(Sprite(std::get<0>(t_up), SDL_FRect{52, 22, (float)std::get<1>(t_up), (float)std::get<2>(t_up)}, SDL_FLIP_NONE));
-
-            auto t_down = FreeType::current()->load_str(mapName);
-
-            v_s.push_back(Sprite(std::get<0>(t_down), SDL_FRect{52, 41, (float)std::get<1>(t_down), (float)std::get<2>(t_down)}, SDL_FLIP_NONE));
+            v_s.push_back(Sprite(std::get<0>(t_down), SDL_FRect{(float)t_offset.x, (float)t_offset.y + (float)std::get<2>(t_up), (float)std::get<1>(t_down), (float)std::get<2>(t_down)}, SDL_FLIP_NONE));
 
             auto mark = MapUtil::current()->load_mark(mapId);
 
             mark->_rect.x = 10;
-            mark->_rect.y = 20;
+            mark->_rect.y = 22;
 
             v_s.push_back(*mark);
         }
