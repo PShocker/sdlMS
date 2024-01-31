@@ -51,7 +51,7 @@ namespace util
 
             auto bitmap = glyph_slot->bitmap;
 
-            SDL_Rect charRect = {offsetX, 0, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+            SDL_Rect charRect = {offsetX, (height - glyph_slot->bitmap.rows) / 2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
             // 转换为ARGB8888格式
 
             unsigned char *argbData = new unsigned char[bitmap.width * bitmap.rows * 4];
