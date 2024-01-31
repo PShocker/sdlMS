@@ -17,7 +17,7 @@ namespace util
         _face = new FT_Face{};
         FT_New_Face(*_library, (filename_prefix + "NotoSansSC-Regular.ttf").c_str(), 0, _face);
         // 设置字体大小
-        int fontSize = 14;
+        int fontSize = 13;
         // FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 72, 72);
         FT_Set_Pixel_Sizes(*_face, 0, fontSize);
     }
@@ -59,11 +59,26 @@ namespace util
             {
                 for (int x = 0; x < bitmap.width; x++)
                 {
+
                     char value = bitmap.buffer[y * bitmap.width + x];
-                    argbData[(y * bitmap.width + x) * 4] = 0;       // B
-                    argbData[(y * bitmap.width + x) * 4 + 1] = 0;   // G
-                    argbData[(y * bitmap.width + x) * 4 + 2] = 0;   // R
-                    argbData[(y * bitmap.width + x) * 4 + 3] = value; // A
+                    // if (value > 0)
+                    // {
+                        argbData[(y * bitmap.width + x) * 4] = 0;     // B
+                        argbData[(y * bitmap.width + x) * 4 + 1] = 0; // G
+                        argbData[(y * bitmap.width + x) * 4 + 2] = 0; // R
+                        argbData[(y * bitmap.width + x) * 4 + 3] = value; // A
+                    // }
+                    // else if (value < 0)
+                    // {
+                    //     argbData[(y * bitmap.width + x) * 4] = 0;     // B
+                    //     argbData[(y * bitmap.width + x) * 4 + 1] = 0; // G
+                    //     argbData[(y * bitmap.width + x) * 4 + 2] = 0; // R
+                    //     argbData[(y * bitmap.width + x) * 4 + 3] = 255; // A
+                    // }
+                    // else
+                    // {
+                    //     argbData[(y * bitmap.width + x) * 4 + 3] = 0; // A
+                    // }
                 }
             }
 
