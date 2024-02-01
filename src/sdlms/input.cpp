@@ -49,6 +49,22 @@ bool Input::isKeyHeld(SDL_Scancode key)
 	return this->_heldKeys[key];
 }
 
+// 键盘按下回调函数
+int Input::KeyEvent(void *userdata, SDL_Event *event)
+{
+	if (event->type == SDL_KEYDOWN)
+	{
+		if (event->key.repeat == 0)
+		{
+			keyDownEvent(*event);
+		}
+		else if (event->type == SDL_KEYUP)
+		{
+			keyUpEvent(*event);
+		}
+	}
+}
+
 int Input::loop()
 {
 	beginNewFrame();

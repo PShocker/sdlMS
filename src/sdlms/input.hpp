@@ -21,6 +21,7 @@ public:
 	bool wasKeyReleased(SDL_Scancode key);
 	bool isKeyHeld(SDL_Scancode key);
 
+	int KeyEvent(void *userdata, SDL_Event *event);
 	int loop();
 
 private:
