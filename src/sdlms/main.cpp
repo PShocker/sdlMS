@@ -54,7 +54,7 @@ int Main::run(int argc, char **argv)
         _map->update(frameStart-frameTime);
         // 更新屏幕
         Graphics::current()->clear();
-        // _map->draw();
+        _map->draw();
         _hud->draw();
         Graphics::current()->flip();
         frameTime = SDL_GetTicks();
