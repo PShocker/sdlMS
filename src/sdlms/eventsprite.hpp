@@ -17,14 +17,17 @@ public:
     {
         NORMAL,
         PRESSED,
-        DISABLE,
+        DISABLED,
         MOUSEOVER,
         KEYFOCUSED,
     };
 
     static inline const std::map<std::u16string, Event> EventMap = {
         {u"normal", NORMAL},
-        {u"mouseOver", MOUSEOVER},
+        {u"press", PRESSED},
+        {u"disabled", DISABLED},
+        {u"mouseover", MOUSEOVER},
+        {u"keyfocused", KEYFOCUSED},
     };
 
 public:
