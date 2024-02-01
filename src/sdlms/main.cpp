@@ -6,8 +6,8 @@ const int FRAME_DELAY = 1000 / FPS;
 
 int Main::run(int argc, char **argv)
 {
-    int mapId = 100000000;
-    // int mapId = 222020110;
+    // int mapId = 101000000;
+    int mapId = 222020111;
 
     _graphics.reset(new Graphics());
 
@@ -54,7 +54,7 @@ int Main::run(int argc, char **argv)
         _map->update(frameStart-frameTime);
         // 更新屏幕
         Graphics::current()->clear();
-        _map->draw();
+        // _map->draw();
         _hud->draw();
         Graphics::current()->flip();
         frameTime = SDL_GetTicks();

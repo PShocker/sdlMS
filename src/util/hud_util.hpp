@@ -22,6 +22,7 @@ namespace util
 
     private:
         Sprite load_sprite(wz::Property<wz::WzCanvas> *canvas);
+        Sprite load_event_sprite(wz::Property<wz::WzCanvas> *canvas);
     };
 }
 #endif

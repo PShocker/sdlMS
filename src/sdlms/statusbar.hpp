@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "sdlms/sprite.hpp"
+#include "sdlms/eventsprite.hpp"
 #include "util/currenton.hpp"
 
 class StatusBar : public Currenton<StatusBar>
@@ -16,6 +17,7 @@ public:
 
 public:
     std::vector<Sprite> _s;
+    std::vector<EventSprite> _e;
 };
 
 #endif
