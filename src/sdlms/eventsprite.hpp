@@ -22,8 +22,9 @@ public:
         KEYFOCUSED,
     };
 
-    std::map<std::u16string, Event> EventMap = {
+    static inline const std::map<std::u16string, Event> EventMap = {
         {u"normal", NORMAL},
+        {u"mouseOver", MOUSEOVER},
     };
 
 public:
