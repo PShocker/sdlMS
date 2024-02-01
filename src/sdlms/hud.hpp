@@ -6,6 +6,7 @@
 #include "util/currenton.hpp"
 #include "sdlms/graphics.hpp"
 #include "sdlms/minimap.hpp"
+#include "sdlms/statusbar.hpp"
 
 class Hud : public Currenton<Hud>
 {
@@ -15,6 +16,7 @@ public:
 
 public:
     std::unique_ptr<MiniMap> _minimap;
+    std::unique_ptr<StatusBar> _statusbar;
 };
 
 #endif

@@ -15,9 +15,13 @@ namespace util
     public:
         HudUtil();
         std::vector<Sprite> load_minimap(int mapId);
+        std::vector<Sprite> load_statusbar();
 
     private:
         SDL_Renderer *_renderer;
+
+    private:
+        Sprite load_sprite(wz::Property<wz::WzCanvas> *canvas);
     };
 }
 #endif

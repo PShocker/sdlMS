@@ -6,8 +6,8 @@ const int FRAME_DELAY = 1000 / FPS;
 
 int Main::run(int argc, char **argv)
 {
-    // int mapId = 100000000;
-    int mapId = 222020110;
+    int mapId = 100000000;
+    // int mapId = 222020110;
 
     _graphics.reset(new Graphics());
 
@@ -29,6 +29,7 @@ int Main::run(int argc, char **argv)
     _freetype.reset(new FreeType());
 
     _hud->_minimap->_s = _hud_util->load_minimap(mapId);
+    _hud->_statusbar->_s = _hud_util->load_statusbar();
 
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);

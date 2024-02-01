@@ -1,7 +1,7 @@
-#include "sdlms/minimap.hpp"
+#include "sdlms/statusbar.hpp"
 
 
-void MiniMap::draw()
+void StatusBar::draw()
 {
     for (auto &it : _s)
     {
