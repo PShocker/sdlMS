@@ -16,6 +16,7 @@ void EventSprite::event(SDL_Event &event)
         auto rf = _eventsprite[_event]->rect();
         if (SDL_PointInFRect(&p, &rf))
         {
+            _event=Event::MOUSEOVER;
             printf("EventSprite");
         }
     }
