@@ -21,7 +21,7 @@ void Portal::event(const SDL_Event &event)
 {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && _type == Type::GAME)
     {
-        SDL_FPoint p{(float)event.button.x + _camera->viewport.x, (float)event.button.y + _camera->viewport.y};
+        SDL_FPoint p{(float)event.button.x + _camera->_viewport.x, (float)event.button.y + _camera->_viewport.y};
         auto rf = rect();
         if (SDL_PointInFRect(&p, &rf))
         {

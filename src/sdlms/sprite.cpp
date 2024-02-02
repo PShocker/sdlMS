@@ -33,8 +33,8 @@ void Sprite::draw()
     auto camera = Camera::current();
     auto graphics = Graphics::current();
     auto fr = rect();
-    fr.x -= camera->viewport.x;
-    fr.y -= camera->viewport.y;
+    fr.x -= camera->_viewport.x;
+    fr.y -= camera->_viewport.y;
     if (_flip > 0) // 翻转
     {
         graphics->blitSurfaceEx(_texture, NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);

@@ -19,10 +19,11 @@ int Main::run(int argc, char **argv)
     _hud_util.reset(new HudUtil());
     _string_util.reset(new StringUtil());
 
+    _input.reset(new Input());
     _map.reset(new Map());
     _hud.reset(new Hud());
     _camera.reset(new Camera());
-    _input.reset(new Input());
+    
 
     _sound.reset(new Sound());
 

@@ -3,10 +3,9 @@
 
 #include <SDL2/SDL.h>
 #include <map>
-#include "util/currenton.hpp"
+#include <functional>
 
-#include "sdlms/map.hpp"
-#include "sdlms/camera.hpp"
+#include "util/currenton.hpp"
 
 class Input : public Currenton<Input>
 {
@@ -21,13 +20,16 @@ public:
 	bool wasKeyReleased(SDL_Scancode key);
 	bool isKeyHeld(SDL_Scancode key);
 
-	int KeyEvent(void *userdata, SDL_Event *event);
 	int loop();
+	void event(std::function<void(SDL_Event &event)> func);
 
 private:
 	std::map<SDL_Scancode, bool> _heldKeys;
 	std::map<SDL_Scancode, bool> _pressedKeys;
 	std::map<SDL_Scancode, bool> _releasedKeys;
+
+private:
+	std::vector<std::function<void(SDL_Event &event)>> _listeners;
 };
 
 #endif

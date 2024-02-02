@@ -55,7 +55,7 @@ void BackGrd::update(int elapsedTime)
         break;
     }
 
-    auto viewprot = Camera::current()->viewport;
+    auto viewprot = Camera::current()->_viewport;
 
     const Sprite *s;
 

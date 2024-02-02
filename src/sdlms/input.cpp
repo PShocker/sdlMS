@@ -1,5 +1,4 @@
 #include "sdlms/input.hpp"
-#include "sdlms/camera.hpp"
 
 /* Input class
  * Keeps track of keyboard state
@@ -49,26 +48,9 @@ bool Input::isKeyHeld(SDL_Scancode key)
 	return this->_heldKeys[key];
 }
 
-// 键盘按下回调函数
-int Input::KeyEvent(void *userdata, SDL_Event *event)
-{
-	if (event->type == SDL_KEYDOWN)
-	{
-		if (event->key.repeat == 0)
-		{
-			keyDownEvent(*event);
-		}
-		else if (event->type == SDL_KEYUP)
-		{
-			keyUpEvent(*event);
-		}
-	}
-}
-
 int Input::loop()
 {
 	beginNewFrame();
-	Camera *camera = Camera::current();
 	SDL_Event event;
 	if (SDL_PollEvent(&event))
 	{
@@ -88,28 +70,17 @@ int Input::loop()
 			return -1;
 		}
 	}
-	if (wasKeyPressed(SDL_SCANCODE_ESCAPE) == true)
-	{
-		return -1;
-	}
+	// Map::current()->event(event);
 
-	if (isKeyHeld(SDL_SCANCODE_LEFT) == true)
+	for (auto &listener : _listeners)
 	{
-		camera->viewport.x -= 10;
+		listener(event);
 	}
-	if (isKeyHeld(SDL_SCANCODE_RIGHT) == true)
-	{
-		camera->viewport.x += 10;
-	}
-	if (isKeyHeld(SDL_SCANCODE_UP) == true)
-	{
-		camera->viewport.y -= 10;
-	}
-	if (isKeyHeld(SDL_SCANCODE_DOWN) == true)
-	{
-		camera->viewport.y += 10;
-	}
-	Map::current()->event(event);
 
 	return 0;
+}
+
+void Input::event(std::function<void(SDL_Event &event)> func)
+{
+	_listeners.push_back(func);
 }
