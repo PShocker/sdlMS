@@ -36,6 +36,7 @@ public:
 
 private:
     Camera *_camera;
+    Input *_input;
 };
 
 #endif

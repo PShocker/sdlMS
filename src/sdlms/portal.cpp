@@ -7,6 +7,9 @@ Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
                                      _url(url)
 {
     _camera = Camera::current();
+
+    _input = Input::current();
+    _input->event(std::bind(&event, this, std::placeholders::_1));
 }
 
 void Portal::draw()
@@ -25,7 +28,7 @@ void Portal::event(const SDL_Event &event)
         auto rf = rect();
         if (SDL_PointInFRect(&p, &rf))
         {
-            printf("123");
+            printf("123Shocker");
         }
     }
 }

@@ -10,7 +10,7 @@ class Camera : public Currenton<Camera>
 {
 public:
   Camera();
-  void handle_input(SDL_Event &event);
+  void event(SDL_Event &event);
 
 public:
   SDL_FRect _viewport;
