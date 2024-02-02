@@ -3,6 +3,9 @@
 EventSprite::EventSprite(std::map<Event, DynamicSprite *> eventsprite) : _eventsprite(eventsprite)
 {
     _camera = Camera::current();
+
+    _input = Input::current();
+    _input->event(std::bind(&event, this, std::placeholders::_1));
 }
 
 void EventSprite::event(SDL_Event &event)
@@ -16,8 +19,11 @@ void EventSprite::event(SDL_Event &event)
         auto rf = _eventsprite[_event]->rect();
         if (SDL_PointInFRect(&p, &rf))
         {
-            _event=Event::MOUSEOVER;
-            printf("EventSprite");
+            _event = Event::MOUSEOVER;
+        }
+        else
+        {
+            _event = Event::NORMAL;
         }
     }
 }

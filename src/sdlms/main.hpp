@@ -9,6 +9,7 @@
 #include "util/ffmpeg.hpp"
 #include "util/freetype.hpp"
 #include "util/string_util.hpp"
+#include "util/sprite_util.hpp"
 
 #include "sdlms/camera.hpp"
 #include "sdlms/graphics.hpp"
@@ -33,6 +34,7 @@ private:
     std::unique_ptr<MapUtil> _map_util;
     std::unique_ptr<SoundUtil> _sound_util;
     std::unique_ptr<HudUtil> _hud_util;
+    std::unique_ptr<SpriteUtil> _sprite_util;
     std::unique_ptr<Camera> _camera;
     std::unique_ptr<Graphics> _graphics;
     std::unique_ptr<Input> _input;

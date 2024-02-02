@@ -1,6 +1,5 @@
 #include "util/map_util.hpp"
 #include "util/wz_util.hpp"
-#include "util/string_util.hpp"
 #include "sdlms/graphics.hpp"
 #include <SDL2/SDL.h>
 #include <string>
@@ -10,6 +9,7 @@ namespace util
     MapUtil::MapUtil()
     {
         _renderer = Graphics::current()->getRenderer();
+        _sprite_util = SpriteUtil::current();
     }
 
     std::array<std::vector<Tile>, 8> MapUtil::load_tile(int mapId)
@@ -42,22 +42,13 @@ namespace util
 
                 auto url = u"Tile/" + dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get() + u".img/" + u + u"/" + std::u16string{no_str.begin(), no_str.end()};
 
-                auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
-                auto raw_data = canvas->get_raw_data();
-                auto height = canvas->get().height;
-                auto width = canvas->get().width;
+                auto tn = root->find_from_path(url);
 
-                auto format = canvas->get().format;
+                auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(tn);
 
-                auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(root->find_from_path(url)->get_child(u"origin"));
-                auto ox = o->get().x;
-                auto oy = o->get().y;
+                Sprite sprite = _sprite_util->load_sprite(canvas, x, y);
 
-                auto z = dynamic_cast<wz::Property<int> *>(root->find_from_path(url)->get_child(u"z"))->get();
-
-                SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
-
-                Sprite sprite(raw_data, rect, (int)format);
+                auto z = dynamic_cast<wz::Property<int> *>(tn->get_child(u"z"))->get();
 
                 Tile t(sprite, i, z);
 
@@ -200,23 +191,10 @@ namespace util
                     auto back = root->find_from_path(url);
                     if (back != nullptr)
                     {
-                        auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(back);
-                        auto height = canvas->get().height;
-                        auto width = canvas->get().width;
-                        auto raw_data = canvas->get_raw_data();
+                        Sprite sprite = _sprite_util->load_sprite(back, x, y);
 
-                        auto format = canvas->get().format;
-
-                        auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
-                        auto ox = o->get().x;
-                        auto oy = o->get().y;
-
-                        cx = cx == 0 ? width : cx;
-                        cy = cy == 0 ? height : cy;
-
-                        SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
-
-                        Sprite sprite(raw_data, rect, (int)format, filp);
+                        cx = cx == 0 ? sprite._rect.w : cx;
+                        cy = cy == 0 ? sprite._rect.h : cy;
 
                         BackGrd backgrd(sprite, id, type, front, rx, ry, cx, cy, ani, url);
 
@@ -323,20 +301,9 @@ namespace util
                         {
                             auto url = u"MapHelper.img/portal/editor/" + std::basic_string<char16_t>(pt_list[pt]);
 
-                            auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url));
-                            auto raw_data = canvas->get_raw_data();
-                            auto height = canvas->get().height;
-                            auto width = canvas->get().width;
+                            auto pn = root->find_from_path(url);
 
-                            auto format = canvas->get().format;
-
-                            auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
-                            auto ox = o->get().x;
-                            auto oy = o->get().y;
-
-                            SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
-
-                            Sprite sprite(raw_data, rect, (int)format);
+                            Sprite sprite = _sprite_util->load_sprite(pn, x, y);
 
                             Portal portal(sprite, Portal::Type::EDITOR, tm, url);
 
@@ -401,30 +368,24 @@ namespace util
         return v_portal;
     }
 
-    Sprite *MapUtil::load_minimap(int mapId)
+    std::tuple<bool, std::optional<Sprite>> MapUtil::load_minimap(int mapId)
     {
+        std::optional<Sprite> optional;
+
         auto node = load_node(mapId);
         auto minimap = node->find_from_path(u"miniMap/canvas");
         if (minimap != nullptr)
         {
-            auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(minimap);
-            auto height = canvas->get().height;
-            auto width = canvas->get().width;
-            auto raw_data = canvas->get_raw_data();
-
-            SDL_FRect rect{0, 0, (float)width, (float)height};
-
-            auto format = canvas->get().format;
-
-            return new Sprite(raw_data, rect, (int)format);
+            optional = _sprite_util->load_sprite(minimap);
+            return {true, optional};
         }
         else
         {
-            return nullptr;
+            return {false, optional};
         }
     }
 
-    Sprite *MapUtil::load_mark(int mapId)
+    Sprite MapUtil::load_mark(int mapId)
     {
         auto node = load_node(mapId);
         node = node->find_from_path(u"info/mapMark");
@@ -435,23 +396,10 @@ namespace util
             auto mark = root->find_from_path(url);
             if (mark != NULL)
             {
-                auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(mark);
-                auto height = canvas->get().height;
-                auto width = canvas->get().width;
-                auto raw_data = canvas->get_raw_data();
-
-                SDL_FRect rect{0, 0, (float)width, (float)height};
-
-                auto format = canvas->get().format;
-
-                return new Sprite(raw_data, rect, (int)format);
+                Sprite sprite = _sprite_util->load_sprite(mark);
+                return sprite;
             }
         }
-        else
-        {
-            return nullptr;
-        }
-        return nullptr;
     }
 
     wz::Node *MapUtil::load_node(int mapId)

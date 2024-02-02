@@ -9,7 +9,7 @@
 #include "sdlms/animatedsprite.hpp"
 #include "sdlms/sprite.hpp"
 #include "sdlms/dynamicsprite.hpp"
-
+#include "sdlms/input.hpp"
 #include "sdlms/camera.hpp"
 
 class Portal : public DynamicSprite

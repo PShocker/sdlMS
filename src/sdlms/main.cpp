@@ -6,18 +6,20 @@ const int FRAME_DELAY = 1000 / FPS;
 
 int Main::run(int argc, char **argv)
 {
-    // int mapId = 101000000;
-    int mapId = 222020111;
+    int mapId = 100000000;
+    // int mapId = 222020111;
 
     _graphics.reset(new Graphics());
 
     _ffmpeg.reset(new FFMPEG());
 
     _wz_util.reset(new WzUtil());
+    _sprite_util.reset(new SpriteUtil());
     _map_util.reset(new MapUtil());
     _sound_util.reset(new SoundUtil());
-    _hud_util.reset(new HudUtil());
     _string_util.reset(new StringUtil());
+    _freetype.reset(new FreeType());
+    _hud_util.reset(new HudUtil());
 
     _input.reset(new Input());
     _map.reset(new Map());
@@ -27,7 +29,7 @@ int Main::run(int argc, char **argv)
 
     _sound.reset(new Sound());
 
-    _freetype.reset(new FreeType());
+    
 
     _hud->_minimap->_s = _hud_util->load_minimap(mapId);
     _hud->_statusbar->_s = _hud_util->load_statusbar();

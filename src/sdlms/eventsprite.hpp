@@ -10,6 +10,7 @@
 #include "sdlms/sprite.hpp"
 #include "sdlms/camera.hpp"
 #include "sdlms/dynamicsprite.hpp"
+#include "sdlms/input.hpp"
 
 class EventSprite
 {
@@ -44,5 +45,6 @@ public:
 
 private:
     Camera *_camera;
+    Input *_input;
 };
 #endif
