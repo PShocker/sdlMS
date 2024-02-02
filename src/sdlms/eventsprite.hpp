@@ -8,6 +8,7 @@
 
 #include "sdlms/animatedsprite.hpp"
 #include "sdlms/sprite.hpp"
+#include "sdlms/camera.hpp"
 #include "sdlms/dynamicsprite.hpp"
 
 class EventSprite
@@ -31,11 +32,17 @@ public:
     };
 
 public:
-    EventSprite(std::map<Event, DynamicSprite> eventsprite);
+    EventSprite(std::map<Event, DynamicSprite*> eventsprite);
+    void event(SDL_Event &event);
+
     void draw();
     void update(int elapsedTime);
 
 public:
-    std::map<Event, DynamicSprite> _eventsprite;
+    std::map<Event, DynamicSprite*> _eventsprite;
+    Event _event = NORMAL;
+
+private:
+    Camera *_camera;
 };
 #endif

@@ -54,6 +54,5 @@ void AnimatedSprite::draw()
 
 SDL_FRect AnimatedSprite::rect()
 {
-
     return SDL_FRect{(float)_sprite[_frameIndex]._rect.x, (float)_sprite[_frameIndex]._rect.y, (float)_sprite[_frameIndex]._rect.w, (float)_sprite[_frameIndex]._rect.h};
 }
