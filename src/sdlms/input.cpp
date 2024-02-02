@@ -70,7 +70,6 @@ int Input::loop()
 			return -1;
 		}
 	}
-	// Map::current()->event(event);
 
 	for (auto &listener : _listeners)
 	{
