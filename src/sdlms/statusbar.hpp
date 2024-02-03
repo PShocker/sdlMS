@@ -17,7 +17,7 @@ public:
 
 public:
     std::vector<Sprite> _s;
-    std::vector<EventSprite> _e;
+    std::vector<EventSprite*> _e;
 };
 
 #endif

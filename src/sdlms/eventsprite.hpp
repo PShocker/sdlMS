@@ -26,21 +26,24 @@ public:
 
     static inline const std::map<std::u16string, Event> EventMap = {
         {u"normal", NORMAL},
-        {u"press", PRESSED},
+        {u"pressed", PRESSED},
         {u"disabled", DISABLED},
-        {u"mouseover", MOUSEOVER},
+        {u"mouseOver", MOUSEOVER},
         {u"keyfocused", KEYFOCUSED},
     };
 
 public:
-    EventSprite(std::map<Event, DynamicSprite*> eventsprite);
+    EventSprite(std::map<Event, DynamicSprite> eventsprite);
     void event(SDL_Event &event);
 
     void draw();
+    void _draw();
     void update(int elapsedTime);
+    SDL_FRect rect();
+
 
 public:
-    std::map<Event, DynamicSprite*> _eventsprite;
+    std::map<Event, DynamicSprite> _eventsprite;
     Event _event = NORMAL;
 
 private:

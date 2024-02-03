@@ -29,10 +29,9 @@ int Main::run(int argc, char **argv)
 
     _sound.reset(new Sound());
 
-    
-
     _hud->_minimap->_s = _hud_util->load_minimap(mapId);
     _hud->_statusbar->_s = _hud_util->load_statusbar();
+    _hud->_statusbar->_e = _hud_util->load_event_sprite();
 
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);

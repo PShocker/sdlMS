@@ -12,10 +12,9 @@
 class Obj : public AnimatedSprite
 {
 public:
-    Obj(std::vector<Sprite> sprite, std::vector<int> delay,
+    Obj(AnimatedSprite animatedsprite,
         int layer, int z,
-        std::u16string url, int frameSize,
-        std::vector<std::tuple<int, int>> a);
+        std::u16string url);
 
 public:
     int _layer;

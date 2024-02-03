@@ -1,5 +1,4 @@
 #include "sdlms/dynamicsprite.hpp"
-#include "dynamicsprite.hpp"
 
 DynamicSprite::DynamicSprite(std::variant<Sprite, AnimatedSprite> dynamicsprite) : _dynamicsprite(dynamicsprite)
 {
@@ -18,6 +17,18 @@ void DynamicSprite::draw()
     else if (std::holds_alternative<AnimatedSprite>(_dynamicsprite))
     {
         std::get<AnimatedSprite>(_dynamicsprite).draw();
+    }
+}
+
+void DynamicSprite::_draw()
+{
+    if (std::holds_alternative<Sprite>(_dynamicsprite))
+    {
+        std::get<Sprite>(_dynamicsprite)._draw();
+    }
+    else if (std::holds_alternative<AnimatedSprite>(_dynamicsprite))
+    {
+        std::get<AnimatedSprite>(_dynamicsprite)._draw();
     }
 }
 

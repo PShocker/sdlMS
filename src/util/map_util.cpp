@@ -10,6 +10,7 @@ namespace util
     {
         _renderer = Graphics::current()->getRenderer();
         _sprite_util = SpriteUtil::current();
+        _map_node = WzUtil::current()->Map->get_root();
     }
 
     std::array<std::vector<Tile>, 8> MapUtil::load_tile(int mapId)
@@ -24,8 +25,6 @@ namespace util
 
     std::vector<Tile> MapUtil::load_tile(wz::Node *node, int i)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
-
         std::vector<Tile> tile;
         node = node->get_child(std::to_string(i));
         auto tS = node->get_child(u"info")->get_child(u"tS");
@@ -42,11 +41,9 @@ namespace util
 
                 auto url = u"Tile/" + dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get() + u".img/" + u + u"/" + std::u16string{no_str.begin(), no_str.end()};
 
-                auto tn = root->find_from_path(url);
+                auto tn = _map_node->find_from_path(url);
 
-                auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(tn);
-
-                Sprite sprite = _sprite_util->load_sprite(canvas, x, y);
+                Sprite sprite = _sprite_util->load_sprite(tn, x, y);
 
                 auto z = dynamic_cast<wz::Property<int> *>(tn->get_child(u"z"))->get();
 
@@ -72,8 +69,6 @@ namespace util
 
     std::vector<Obj> MapUtil::load_obj(wz::Node *node, int i)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
-
         std::vector<Obj> obj;
         node = node->get_child(std::to_string(i))->get_child(u"obj");
         for (auto it : node->get_children())
@@ -91,54 +86,11 @@ namespace util
             auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
             auto z = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"z"))->get();
 
-            auto filp = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
+            auto flip = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
 
-            for (auto it : root->find_from_path(url)->get_children())
-            {
-                wz::Property<wz::WzCanvas> *canvas;
-                if (it.second[0]->type == wz::Type::UOL)
-                {
-                    auto i = dynamic_cast<wz::Property<wz::WzUOL> *>(it.second[0]);
-                    canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url)->get_child(i->get().uol));
-                }
-                else if (it.second[0]->type == wz::Type::Canvas)
-                {
-                    canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it.second[0]);
-                }
-                else
-                {
-                    continue;
-                }
-                auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
-                auto ox = o->get().x;
-                auto oy = o->get().y;
+            auto animatedsprite = _sprite_util->load_animated_sprite(_map_node->find_from_path(url), x, y, flip);
 
-                auto delay = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"delay"));
-                v_delay.push_back(delay == nullptr ? 0 : delay->get());
-
-                auto a0 = 255;
-                auto a1 = 255;
-
-                if (canvas->get_child(u"a0") != NULL && canvas->get_child(u"a1") != NULL)
-                {
-                    a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
-                    a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
-                }
-
-                v_a.push_back(std::tuple<int, int>(a0, a1));
-
-                auto raw_data = canvas->get_raw_data();
-                auto height = canvas->get().height;
-                auto width = canvas->get().width;
-
-                auto format = canvas->get().format;
-                SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
-
-                Sprite sprite(raw_data, rect, (int)format, filp);
-
-                v_sprite.push_back(sprite);
-            }
-            Obj o(v_sprite, v_delay, i, z, url, v_sprite.size(), v_a);
+            Obj o(animatedsprite, i, z, url);
             obj.push_back(o);
         }
         std::ranges::sort(obj, [](const Obj a, const Obj b)
@@ -153,8 +105,6 @@ namespace util
 
     std::vector<BackGrd> MapUtil::load_backgrd(wz::Node *node)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
-
         std::vector<BackGrd> v_backgrd;
         node = node->get_child(u"back");
         if (node != nullptr)
@@ -180,7 +130,7 @@ namespace util
                 auto front = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"front"))->get();
 
                 auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
-                auto filp = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
+                auto flip = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
 
                 switch (ani)
                 {
@@ -188,7 +138,7 @@ namespace util
                 {
                     auto no_str = std::to_string(no);
                     auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-                    auto back = root->find_from_path(url);
+                    auto back = _map_node->find_from_path(url);
                     if (back != nullptr)
                     {
                         Sprite sprite = _sprite_util->load_sprite(back, x, y);
@@ -206,52 +156,7 @@ namespace util
                 {
                     auto no_str = std::to_string(no);
                     auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-                    std::vector<Sprite> v_sprite;
-                    std::vector<int> v_delay;
-                    std::vector<std::tuple<int, int>> v_a;
-                    for (auto it : root->find_from_path(url)->get_children())
-                    {
-                        wz::Property<wz::WzCanvas> *canvas;
-                        if (it.second[0]->type == wz::Type::UOL)
-                        {
-                            auto i = dynamic_cast<wz::Property<wz::WzUOL> *>(it.second[0]);
-                            canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(root->find_from_path(url)->get_child(i->get().uol));
-                        }
-                        else if (it.second[0]->type == wz::Type::Canvas)
-                        {
-                            canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it.second[0]);
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                        auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
-                        auto ox = o->get().x;
-                        auto oy = o->get().y;
-
-                        auto delay = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"delay"));
-                        v_delay.push_back(delay == nullptr ? 0 : delay->get());
-
-                        auto a0 = 255;
-                        auto a1 = 255;
-                        if (canvas->get_child(u"a0") != NULL && canvas->get_child(u"a1") != NULL)
-                        {
-                            a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
-                            a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
-                        }
-                        v_a.push_back(std::tuple<int, int>(a0, a1));
-
-                        auto raw_data = canvas->get_raw_data();
-                        auto height = canvas->get().height;
-                        auto width = canvas->get().width;
-
-                        auto format = canvas->get().format;
-                        SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
-
-                        Sprite sprite(raw_data, rect, (int)format, filp);
-                        v_sprite.push_back(sprite);
-                    }
-                    AnimatedSprite animatedsprite(v_sprite, v_delay, v_sprite.size(), v_a);
+                    auto animatedsprite = _sprite_util->load_animated_sprite(_map_node->find_from_path(url), x, y, flip);
                     BackGrd backgrd(animatedsprite, id, type, front, rx, ry, cx, cy, ani, url);
                     v_backgrd.push_back(backgrd);
                     break;
@@ -273,7 +178,6 @@ namespace util
 
     std::vector<Portal> MapUtil::load_portal(wz::Node *node)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
 
         std::vector<Portal> v_portal;
 
@@ -301,7 +205,7 @@ namespace util
                         {
                             auto url = u"MapHelper.img/portal/editor/" + std::basic_string<char16_t>(pt_list[pt]);
 
-                            auto pn = root->find_from_path(url);
+                            auto pn = _map_node->find_from_path(url);
 
                             Sprite sprite = _sprite_util->load_sprite(pn, x, y);
 
@@ -316,46 +220,17 @@ namespace util
                                 pt = 2;
                             }
                             auto url = u"MapHelper.img/portal/game/" + std::basic_string<char16_t>(pt_list[pt]);
-                            if (root->find_from_path(url) != NULL)
+                            if (_map_node->find_from_path(url) != NULL)
                             {
-                                if (root->find_from_path(url + u"/default") != NULL)
+                                if (_map_node->find_from_path(url + u"/default") != NULL)
                                 {
                                     // 三段式传送门
                                 }
                                 else
                                 {
                                     // 普通的传送门,通常为pv
-                                    std::vector<Sprite> v_sprite;
-                                    std::vector<int> v_delay;
-                                    std::vector<std::tuple<int, int>> v_a;
+                                    auto animatedsprite = _sprite_util->load_animated_sprite(_map_node->find_from_path(url), x, y);
 
-                                    for (auto it : root->find_from_path(url)->get_children())
-                                    {
-                                        auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it.second[0]);
-                                        auto height = canvas->get().height;
-                                        auto width = canvas->get().width;
-                                        auto raw_data = canvas->get_raw_data();
-
-                                        auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
-                                        auto ox = o->get().x;
-                                        auto oy = o->get().y;
-
-                                        auto format = canvas->get().format;
-
-                                        SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
-
-                                        Sprite sprite(raw_data, rect, (int)format);
-
-                                        v_delay.push_back(100);
-
-                                        v_sprite.push_back(sprite);
-
-                                        auto a0 = 255;
-                                        auto a1 = 255;
-
-                                        v_a.push_back(std::tuple<int, int>(a0, a1));
-                                    }
-                                    AnimatedSprite animatedsprite(v_sprite, v_delay, v_sprite.size(), v_a);
                                     Portal portal(animatedsprite, Portal::Type::GAME, tm, url);
                                     v_portal.push_back(portal);
                                 }
@@ -368,7 +243,7 @@ namespace util
         return v_portal;
     }
 
-    std::tuple<bool, std::optional<Sprite>> MapUtil::load_minimap(int mapId)
+    std::optional<Sprite> MapUtil::load_minimap(int mapId)
     {
         std::optional<Sprite> optional;
 
@@ -377,40 +252,36 @@ namespace util
         if (minimap != nullptr)
         {
             optional = _sprite_util->load_sprite(minimap);
-            return {true, optional};
         }
-        else
-        {
-            return {false, optional};
-        }
+        return optional;
     }
 
-    Sprite MapUtil::load_mark(int mapId)
+    std::optional<Sprite> MapUtil::load_mark(int mapId)
     {
+        std::optional<Sprite> optional;
+
         auto node = load_node(mapId);
         node = node->find_from_path(u"info/mapMark");
         if (node != nullptr)
         {
             auto url = u"MapHelper.img/mark/" + dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
-            wz::Node *root = WzUtil::current()->Map->get_root();
-            auto mark = root->find_from_path(url);
+            auto mark = _map_node->find_from_path(url);
             if (mark != NULL)
             {
-                Sprite sprite = _sprite_util->load_sprite(mark);
-                return sprite;
+                optional = _sprite_util->load_sprite(mark);
             }
         }
+        return optional;
     }
 
     wz::Node *MapUtil::load_node(int mapId)
     {
-        wz::Node *root = WzUtil::current()->Map->get_root();
         auto s = std::to_string(mapId);
         if (s.size() < 9)
         {
             s.insert(0, 9 - s.size(), '0');
         }
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + s + ".img";
-        return root->find_from_path(path);
+        return _map_node->find_from_path(path);
     }
 }

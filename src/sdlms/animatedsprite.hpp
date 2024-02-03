@@ -19,6 +19,7 @@ public:
 
     void update(int elapsedTime);
     void draw();
+    void _draw();
     SDL_FRect rect();
 
 public:

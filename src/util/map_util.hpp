@@ -26,13 +26,16 @@ namespace util
         std::array<std::vector<Obj>, 8> load_obj(int mapId);
         std::vector<BackGrd> load_backgrd(int mapId);
         std::vector<Portal> load_portal(int mapId);
-        std::tuple<bool, std::optional<Sprite>> load_minimap(int mapId);
-        Sprite load_mark(int mapId);
+        std::optional<Sprite> load_minimap(int mapId);
+        std::optional<Sprite> load_mark(int mapId);
         wz::Node *load_node(int mapId);
 
     private:
         SDL_Renderer *_renderer;
         SpriteUtil *_sprite_util;
+
+    private:
+        wz::Node *_map_node;
 
     private:
         std::vector<Tile> load_tile(wz::Node *node, int i);

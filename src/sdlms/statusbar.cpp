@@ -7,4 +7,8 @@ void StatusBar::draw()
     {
         it._draw();
     }
+    for (auto &it : _e)
+    {
+        it->draw();
+    }
 }

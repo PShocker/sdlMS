@@ -9,7 +9,7 @@ Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
     _camera = Camera::current();
 
     _input = Input::current();
-    _input->event(std::bind(&event, this, std::placeholders::_1));
+    // _input->event(std::bind(&event, this, std::placeholders::_1));
 }
 
 void Portal::draw()
@@ -22,13 +22,16 @@ void Portal::draw()
 }
 void Portal::event(const SDL_Event &event)
 {
-    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT && _type == Type::GAME)
+    if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
     {
-        SDL_FPoint p{(float)event.button.x + _camera->_viewport.x, (float)event.button.y + _camera->_viewport.y};
-        auto rf = rect();
-        if (SDL_PointInFRect(&p, &rf))
+        if (_type == Type::GAME)
         {
-            printf("123Shocker");
+            SDL_FPoint p{(float)event.button.x + _camera->_viewport.x, (float)event.button.y + _camera->_viewport.y};
+            auto rf = rect();
+            if (SDL_PointInFRect(&p, &rf))
+            {
+                printf("123Shocker");
+            }
         }
     }
 }

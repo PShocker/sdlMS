@@ -52,6 +52,11 @@ void AnimatedSprite::draw()
     _sprite[_frameIndex].draw();
 }
 
+void AnimatedSprite::_draw()
+{
+    _sprite[_frameIndex]._draw();
+}
+
 SDL_FRect AnimatedSprite::rect()
 {
     return SDL_FRect{(float)_sprite[_frameIndex]._rect.x, (float)_sprite[_frameIndex]._rect.y, (float)_sprite[_frameIndex]._rect.w, (float)_sprite[_frameIndex]._rect.h};

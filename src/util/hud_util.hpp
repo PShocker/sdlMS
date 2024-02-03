@@ -21,7 +21,7 @@ namespace util
         HudUtil();
         std::vector<Sprite> load_minimap(int mapId);
         std::vector<Sprite> load_statusbar();
-        std::vector<EventSprite> load_event_sprite();
+        std::vector<EventSprite*> load_event_sprite();
 
     private:
         SDL_Renderer *_renderer;
@@ -31,7 +31,7 @@ namespace util
         MapUtil *_map_util;
 
     private:
-        std::vector<EventSprite> load_event_sprite(wz::Node *node);
+        wz::Node *_ui_node;
     };
 }
 #endif
