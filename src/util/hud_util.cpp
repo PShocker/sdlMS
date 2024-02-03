@@ -181,10 +181,7 @@ namespace util
 
         auto StatusBar = _ui_node->find_from_path(u"StatusBar.img");
 
-        auto BtShop = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtShop"));
-
-        BtShop->rect().x = 100;
-        BtShop->rect().y = 100;
+        auto BtShop = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtShop"),590,Graphics::SCREEN_HEIGHT-18);
 
         v_s.push_back(BtShop);
 

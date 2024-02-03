@@ -9,6 +9,6 @@ void StatusBar::draw()
     }
     for (auto &it : _e)
     {
-        it->draw();
+        it->_draw();
     }
 }

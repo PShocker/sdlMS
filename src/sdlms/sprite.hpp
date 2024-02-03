@@ -16,7 +16,7 @@ public:
     void draw();
     void _draw();
 
-    SDL_FRect *rect();
+    SDL_FRect rect();
 
 public:
     SDL_Texture *_texture;
