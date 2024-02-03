@@ -10,7 +10,33 @@ EventSprite::EventSprite(std::map<Event, DynamicSprite> eventsprite) : _eventspr
 
 void EventSprite::event(SDL_Event &event)
 {
-    if (event.type == SDL_MOUSEMOTION)
+    if (_input->isMouseHeld(SDL_BUTTON_LEFT))
+    {
+        int x = event.motion.x;
+        int y = event.motion.y;
+        SDL_FPoint p{(float)x, (float)y};
+        auto rf = _eventsprite.at(_event).rect();
+        if (SDL_PointInFRect(&p, &rf))
+        {
+            _event = Event::PRESSED;
+        }
+    }
+    else if (_input->wasMouseReleased(SDL_BUTTON_LEFT))
+    {
+        int x = event.motion.x;
+        int y = event.motion.y;
+        SDL_FPoint p{(float)x, (float)y};
+        auto rf = _eventsprite.at(_event).rect();
+        if (SDL_PointInFRect(&p, &rf))
+        {
+            _event = Event::MOUSEOVER;
+        }
+        else
+        {
+            _event = Event::NORMAL;
+        }
+    }
+    else if (event.type == SDL_MOUSEMOTION)
     {
         int x = event.motion.x;
         int y = event.motion.y;

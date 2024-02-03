@@ -20,6 +20,11 @@ public:
 	bool wasKeyReleased(SDL_Scancode key);
 	bool isKeyHeld(SDL_Scancode key);
 
+	void mouseUpEvent(int key);
+	void mouseDownEvent(int key);
+	bool isMouseHeld(int key);
+	bool wasMouseReleased(int key);
+
 	int loop();
 	void event(std::function<void(SDL_Event &event)> func);
 
@@ -27,6 +32,10 @@ private:
 	std::map<SDL_Scancode, bool> _heldKeys;
 	std::map<SDL_Scancode, bool> _pressedKeys;
 	std::map<SDL_Scancode, bool> _releasedKeys;
+
+	std::map<int, bool> _heldMouse;
+	std::map<int, bool> _pressedMouse;
+	std::map<int, bool> _releasedMouse;
 
 private:
 	std::vector<std::function<void(SDL_Event &event)>> _listeners;

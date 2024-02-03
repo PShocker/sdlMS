@@ -14,6 +14,9 @@ void Input::beginNewFrame()
 {
 	this->_pressedKeys.clear();
 	this->_releasedKeys.clear();
+
+	this->_pressedMouse.clear();
+	this->_releasedMouse.clear();
 }
 
 // This gets called when a key has been pressed
@@ -48,6 +51,28 @@ bool Input::isKeyHeld(SDL_Scancode key)
 	return this->_heldKeys[key];
 }
 
+void Input::mouseDownEvent(int key)
+{
+	this->_pressedMouse[key] = true;
+	this->_heldMouse[key] = true;
+}
+
+void Input::mouseUpEvent(int key)
+{
+	this->_releasedMouse[key] = true;
+	this->_heldMouse[key] = false;
+}
+
+bool Input::isMouseHeld(int key)
+{
+	return this->_heldMouse[key];
+}
+// Check if a certain key was released during the current frame
+bool Input::wasMouseReleased(int key)
+{
+	return this->_releasedMouse[key];
+}
+
 int Input::loop()
 {
 	beginNewFrame();
@@ -64,6 +89,14 @@ int Input::loop()
 		else if (event.type == SDL_KEYUP)
 		{
 			keyUpEvent(event);
+		}
+		else if (event.type == SDL_MOUSEBUTTONDOWN)
+		{
+			mouseDownEvent(event.button.button);
+		}
+		else if (event.type == SDL_MOUSEBUTTONUP)
+		{
+			mouseUpEvent(event.button.button);
 		}
 		else if (event.type == SDL_QUIT)
 		{
