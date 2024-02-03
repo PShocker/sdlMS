@@ -14,7 +14,7 @@ void EventSprite::event(SDL_Event &event)
     {
         int x = event.motion.x;
         int y = event.motion.y;
-        SDL_FPoint p{(float)x + _camera->_viewport.x, (float)y + _camera->_viewport.y};
+        SDL_FPoint p{(float)x, (float)y};
         auto rf = _eventsprite.at(_event).rect();
         if (SDL_PointInFRect(&p, &rf))
         {
