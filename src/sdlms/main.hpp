@@ -10,6 +10,7 @@
 #include "util/freetype.hpp"
 #include "util/string_util.hpp"
 #include "util/sprite_util.hpp"
+#include "util/cursor_util.hpp"
 
 #include "sdlms/camera.hpp"
 #include "sdlms/graphics.hpp"
@@ -17,8 +18,7 @@
 #include "sdlms/map.hpp"
 #include "sdlms/sound.hpp"
 #include "sdlms/hud.hpp"
-
-
+#include "sdlms/cursor.hpp"
 
 
 using namespace util;
@@ -44,6 +44,8 @@ private:
     std::unique_ptr<FFMPEG> _ffmpeg;
     std::unique_ptr<FreeType> _freetype;
     std::unique_ptr<StringUtil> _string_util;
+    std::unique_ptr<CursorUtil> _cursor_util;
+    std::unique_ptr<Cursor> _cursor;
     
 };
 #endif

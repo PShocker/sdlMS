@@ -21,6 +21,8 @@ public:
     void draw();
     void _draw();
     SDL_FRect rect();
+    Sprite sprite();
+    Sprite sprite(int index);
 
 public:
     std::vector<Sprite> _sprite;

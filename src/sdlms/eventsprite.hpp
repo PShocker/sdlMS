@@ -41,7 +41,6 @@ public:
     void update(int elapsedTime);
     SDL_FRect rect();
 
-
 public:
     std::map<Event, DynamicSprite> _eventsprite;
     Event _event = NORMAL;

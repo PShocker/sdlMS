@@ -21,6 +21,7 @@ public:
 public:
     SDL_Texture *_texture;
     SDL_FRect _rect;
+    std::vector<uint8_t> _raw_data;
     unsigned int _format;
     int _flip;
 };

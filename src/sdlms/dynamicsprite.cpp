@@ -52,3 +52,15 @@ SDL_FRect DynamicSprite::rect()
     }
     return SDL_FRect{};
 }
+
+Sprite DynamicSprite::sprite()
+{
+    if (std::holds_alternative<Sprite>(_dynamicsprite))
+    {
+        return std::get<Sprite>(_dynamicsprite);
+    }
+    else if (std::holds_alternative<AnimatedSprite>(_dynamicsprite))
+    {
+        return std::get<AnimatedSprite>(_dynamicsprite).sprite();
+    }
+}

@@ -20,12 +20,15 @@ int Main::run(int argc, char **argv)
     _string_util.reset(new StringUtil());
     _freetype.reset(new FreeType());
     _hud_util.reset(new HudUtil());
+    _cursor_util.reset(new CursorUtil());
 
     _input.reset(new Input());
     _map.reset(new Map());
     _hud.reset(new Hud());
     _camera.reset(new Camera());
-    
+    _cursor.reset(new Cursor());
+
+    _cursor->_s=_cursor_util->load();
 
     _sound.reset(new Sound());
 
@@ -41,6 +44,7 @@ int Main::run(int argc, char **argv)
     _map->_sound = _ffmpeg->decodeAudioToPCM(_sound_util->load_sound(mapId));
 
     _sound->load(_map->_sound);
+    _cursor->load();
 
     unsigned int frameStart;
     unsigned int frameTime;

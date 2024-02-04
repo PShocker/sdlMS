@@ -4,7 +4,8 @@
 Sprite::Sprite(const std::vector<uint8_t> &raw_data,
                SDL_FRect rect,
                unsigned int format, int flip) : _rect(rect),
-                                                _format(format), _flip(flip)
+                                                _format(format), _flip(flip),
+                                                _raw_data(raw_data)
 {
     switch (format)
     {

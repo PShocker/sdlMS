@@ -92,7 +92,6 @@ namespace util
         }
 
         return new EventSprite(eventsprite);
-        // auto backgrnd = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"base/backgrnd")));
     }
 
 }
