@@ -181,10 +181,21 @@ namespace util
 
         auto StatusBar = _ui_node->find_from_path(u"StatusBar.img");
 
-        auto BtShop = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtShop"),590,Graphics::SCREEN_HEIGHT-18);
+        auto BtShop = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtShop"), 590, Graphics::SCREEN_HEIGHT - 18);
 
         v_s.push_back(BtShop);
 
+        auto BtMenu = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtMenu"), 635, Graphics::SCREEN_HEIGHT - 18);
+
+        v_s.push_back(BtMenu);
+
+        auto BtChat = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtChat"), 680, Graphics::SCREEN_HEIGHT - 18);
+
+        v_s.push_back(BtChat);
+
+        auto BtNPT = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtNPT"), 725, Graphics::SCREEN_HEIGHT - 18);
+
+        v_s.push_back(BtNPT);
         return v_s;
     }
 }

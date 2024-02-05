@@ -28,7 +28,7 @@ int Main::run(int argc, char **argv)
     _camera.reset(new Camera());
     _cursor.reset(new Cursor());
 
-    _cursor->_s=_cursor_util->load();
+    _cursor->_s = _cursor_util->load();
 
     _sound.reset(new Sound());
 
@@ -52,12 +52,11 @@ int Main::run(int argc, char **argv)
     while (true)
     {
         frameStart = SDL_GetTicks(); // 获取当前帧开始的时间
-
         if (_input->loop() < 0)
         {
             break;
-        }
-        _map->update(frameStart-frameTime);
+        } 
+        _map->update(frameStart - frameTime);
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();
