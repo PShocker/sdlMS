@@ -230,10 +230,6 @@ namespace util
                                 {
                                     // 普通的传送门,通常为pv
                                     auto animatedsprite = _sprite_util->load_animated_sprite(_map_node->find_from_path(url), x, y);
-                                    for (size_t i = 0; i < animatedsprite._frameSize; i++)
-                                    {
-                                        animatedsprite._delay.at(i) = 150;
-                                    }
 
                                     Portal portal(animatedsprite, Portal::Type::GAME, tm, url);
                                     v_portal.push_back(portal);

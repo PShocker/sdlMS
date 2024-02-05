@@ -51,7 +51,7 @@ namespace util
                 continue;
             }
             auto delay = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"delay"));
-            v_delay.push_back(delay == nullptr ? 0 : delay->get());
+            v_delay.push_back(delay == nullptr ? 100 : delay->get());
 
             auto a0 = 255;
             auto a1 = 255;
