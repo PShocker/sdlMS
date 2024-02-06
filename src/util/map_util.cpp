@@ -141,7 +141,7 @@ namespace util
                     auto back = _map_node->find_from_path(url);
                     if (back != nullptr)
                     {
-                        Sprite sprite = _sprite_util->load_sprite(back, x, y);
+                        Sprite sprite = _sprite_util->load_sprite(back, x, y, flip);
 
                         cx = cx == 0 ? sprite._rect.w : cx;
                         cy = cy == 0 ? sprite._rect.h : cy;
