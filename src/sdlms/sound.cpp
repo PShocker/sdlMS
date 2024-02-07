@@ -10,9 +10,7 @@ Sound::Sound()
 
 int Sound::load(std::tuple<std::vector<uint8_t>, int> data)
 {
-    auto pcm_data=std::get<0>(data);
-    auto freq=std::get<1>(data);
-
+    auto [pcm_data, freq] = data;
 
     audio_size = pcm_data.size();
     audio_buf = new uint8_t[pcm_data.size()];
