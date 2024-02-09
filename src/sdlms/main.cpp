@@ -21,7 +21,7 @@ int Main::run(int argc, char **argv)
     _freetype.reset(new FreeType());
     _hud_util.reset(new HudUtil());
     _cursor_util.reset(new CursorUtil());
-    _character_util.reset(new CharacterUtil());
+    // _character_util.reset(new CharacterUtil());
 
     _input.reset(new Input());
     _map.reset(new Map());

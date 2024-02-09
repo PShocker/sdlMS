@@ -35,7 +35,7 @@ namespace util
                         }
                         stance_delays[type][frame] = delay;
 
-                        std::unordered_map<Layer, std::unordered_map<std::string, std::tuple<int, int>>> body_shift_map;
+                        std::unordered_map<Layer, std::unordered_map<std::u16string, std::tuple<int, int>>> body_shift_map;
 
                         for (auto part_node : frame_node->get_children())
                         {
@@ -48,11 +48,17 @@ namespace util
 
                                 for (auto map_node : part_node.second[0]->get_child(u"map")->get_children())
                                 {
-                                    // auto zstr = dynamic_cast<wz::Property<wz::WzVec2D> *>(part_node.second[0]->get_child(u"z"))->get();
+                                    auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(map_node.second[0])->get();
 
-                                    // body_shift_map[z].emplace(map_node.name(), map_node);
+                                    body_shift_map[z].emplace(map_node.first, std::tuple<int, int>{v.x, v.y});
                                 }
                             }
+                        }
+                        std::string frame_str = std::to_string(frame);
+                        auto h = head_node->find_from_path(ststr + u"/" + std::u16string{frame_str.begin(), frame_str.end()} + u"/" + u"head");
+                        if (h->type == wz::Type::UOL)
+                        {
+                            h = dynamic_cast<wz::Property<wz::WzUOL> *>(h)->get_uol();
                         }
                     }
                 }

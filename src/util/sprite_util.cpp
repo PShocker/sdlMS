@@ -39,8 +39,8 @@ namespace util
             wz::Property<wz::WzCanvas> *canvas;
             if (it.second[0]->type == wz::Type::UOL)
             {
-                auto i = dynamic_cast<wz::Property<wz::WzUOL> *>(it.second[0]);
-                canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_child(i->get().uol));
+                auto uol = dynamic_cast<wz::Property<wz::WzUOL> *>(it.second[0]);
+                canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(uol->get_uol());
             }
             else if (it.second[0]->type == wz::Type::Canvas)
             {
