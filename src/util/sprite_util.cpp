@@ -73,7 +73,7 @@ namespace util
 
     EventSprite *SpriteUtil::load_event_sprite(wz::Node *node, int x, int y)
     {
-        std::map<EventSprite::Event, DynamicSprite> eventsprite;
+        std::unordered_map<EventSprite::Event, DynamicSprite> eventsprite;
 
         auto func = [this, x, y, &eventsprite](std::u16string str, EventSprite::Event event, wz::Node *node) -> void
         {

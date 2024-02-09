@@ -33,7 +33,7 @@ public:
     };
 
 public:
-    EventSprite(std::map<Event, DynamicSprite> eventsprite);
+    EventSprite(std::unordered_map<Event, DynamicSprite> eventsprite);
     void event(SDL_Event &event);
 
     void draw();
@@ -42,7 +42,7 @@ public:
     SDL_FRect rect();
 
 public:
-    std::map<Event, DynamicSprite> _eventsprite;
+    std::unordered_map<Event, DynamicSprite> _eventsprite;
     Event _event = NORMAL;
 
 private:

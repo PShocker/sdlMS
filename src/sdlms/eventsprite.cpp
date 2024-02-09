@@ -1,6 +1,6 @@
 #include "sdlms/eventsprite.hpp"
 
-EventSprite::EventSprite(std::map<Event, DynamicSprite> eventsprite) : _eventsprite(eventsprite)
+EventSprite::EventSprite(std::unordered_map<Event, DynamicSprite> eventsprite) : _eventsprite(eventsprite)
 {
     _camera = Camera::current();
 
