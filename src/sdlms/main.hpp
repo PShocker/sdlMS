@@ -11,6 +11,7 @@
 #include "util/string_util.hpp"
 #include "util/sprite_util.hpp"
 #include "util/cursor_util.hpp"
+#include "util/character_util.hpp"
 
 #include "sdlms/camera.hpp"
 #include "sdlms/graphics.hpp"
@@ -46,6 +47,7 @@ private:
     std::unique_ptr<StringUtil> _string_util;
     std::unique_ptr<CursorUtil> _cursor_util;
     std::unique_ptr<Cursor> _cursor;
+    std::unique_ptr<CharacterUtil> _character_util;
     
 };
 #endif

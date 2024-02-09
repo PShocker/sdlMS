@@ -31,7 +31,7 @@ namespace util
 		UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
 
 		// Base->parse();
-		// Character->parse();
+		Character->parse();
 		// Effect->parse();
 		// Etc->parse();
 		// Item->parse();
