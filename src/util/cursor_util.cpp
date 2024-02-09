@@ -12,11 +12,11 @@ namespace util
         _sprite_util = SpriteUtil::current();
     }
 
-    std::map<Cursor::Event, DynamicSprite> CursorUtil::load()
+    std::unordered_map<Cursor::Event, DynamicSprite> CursorUtil::load()
     {
         auto node = _ui_node->find_from_path(u"Basic.img/Cursor");
 
-        std::map<Cursor::Event, DynamicSprite> eventsprite;
+        std::unordered_map<Cursor::Event, DynamicSprite> eventsprite;
 
         auto func = [this, &eventsprite](std::u16string str, Cursor::Event event, wz::Node *node) -> void
         {

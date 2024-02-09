@@ -10,24 +10,27 @@
 #include "util/currenton.hpp"
 #include "util/sprite_util.hpp"
 
-#include "sdlms/cursor.hpp"
+#include "sdlms/character.hpp"
 
-// 加载鼠标
-class Cursor;
+
+class Character;
 
 namespace util
 {
-    class CursorUtil final : public Currenton<CursorUtil>
+    class CharacterUtil final : public Currenton<CharacterUtil>
     {
     public:
-        CursorUtil();
-        std::unordered_map<Cursor::Event, DynamicSprite> load();
+        CharacterUtil();
+        std::map<Character::Status, DynamicSprite> load();
 
     private:
         SpriteUtil *_sprite_util;
 
     private:
-        wz::Node *_ui_node;
+        wz::Node *_character_node;
+    
+    private:
+        void load_body(wz::Node *node);
     };
 }
 

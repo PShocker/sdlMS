@@ -3,6 +3,9 @@
 
 #include <SDL2/SDL.h>
 #include <vector>
+#include <map>
+#include <string>
+#include <any>
 
 #include "sdlms/graphics.hpp"
 #include "sdlms/camera.hpp"
@@ -24,5 +27,6 @@ public:
     std::vector<uint8_t> _raw_data;
     unsigned int _format;
     int _flip;
+    // std::map<std::u16string, std::any> _others;
 };
 #endif

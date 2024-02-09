@@ -37,7 +37,7 @@ public:
     void event(SDL_Event &event);
 
 public:
-    std::map<Event, DynamicSprite> _s;
+    std::unordered_map<Event, DynamicSprite> _s;
     Event _event = NORMAL;
 
 private:
@@ -45,7 +45,7 @@ private:
     Input *_input;
 
 private:
-    std::map<Event, std::vector<SDL_Cursor *>> _c;
+    std::unordered_map<Event, std::vector<SDL_Cursor *>> _c;
 };
 
 #endif
