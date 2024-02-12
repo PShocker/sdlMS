@@ -28,4 +28,13 @@ void Character::event(SDL_Event &event)
 
 void Character::load()
 {
+    
+}
+
+void Character::draw(){
+    for (auto &it:_v)
+    {
+        it._draw();
+    }
+    
 }

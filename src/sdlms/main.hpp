@@ -47,6 +47,7 @@ private:
     std::unique_ptr<StringUtil> _string_util;
     std::unique_ptr<CursorUtil> _cursor_util;
     std::unique_ptr<Cursor> _cursor;
+    std::unique_ptr<Character> _character;
     std::unique_ptr<CharacterUtil> _character_util;
     
 };

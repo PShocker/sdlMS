@@ -26,10 +26,12 @@ public:
     Character();
     void load();
     void event(SDL_Event &event);
+    void draw();
 
 public:
     std::map<Status, DynamicSprite> _s;
     Status _status = STAND;
+    std::vector<Sprite> _v;
 
 private:
     Camera *_camera;

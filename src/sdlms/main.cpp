@@ -21,13 +21,14 @@ int Main::run(int argc, char **argv)
     _freetype.reset(new FreeType());
     _hud_util.reset(new HudUtil());
     _cursor_util.reset(new CursorUtil());
-    // _character_util.reset(new CharacterUtil());
+    _character_util.reset(new CharacterUtil());
 
     _input.reset(new Input());
     _map.reset(new Map());
     _hud.reset(new Hud());
     _camera.reset(new Camera());
     _cursor.reset(new Cursor());
+    _character.reset(new Character());
 
     _cursor->_s = _cursor_util->load();
 
@@ -47,6 +48,8 @@ int Main::run(int argc, char **argv)
     _sound->load(_map->_sound);
     _cursor->load();
 
+    _character->_v=_character_util->load();
+
     unsigned int frameStart;
     unsigned int frameTime;
 
@@ -62,6 +65,7 @@ int Main::run(int argc, char **argv)
         Graphics::current()->clear();
         _map->draw();
         _hud->draw();
+        _character->draw();
         Graphics::current()->flip();
         frameTime = SDL_GetTicks();
         if (frameTime - frameStart < FRAME_DELAY)

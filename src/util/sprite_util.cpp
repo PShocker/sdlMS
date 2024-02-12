@@ -4,6 +4,11 @@ namespace util
 {
     Sprite SpriteUtil::load_sprite(wz::Node *node, int x, int y, int flip)
     {
+        if (node->type == wz::Type::UOL)
+        {
+            node = dynamic_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
+        }
+
         auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node);
         auto raw_data = canvas->get_raw_data();
         auto height = canvas->get().height;

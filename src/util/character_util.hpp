@@ -9,6 +9,7 @@
 
 #include "util/currenton.hpp"
 #include "util/sprite_util.hpp"
+#include "util/point.hpp"
 
 #include "sdlms/character.hpp"
 
@@ -20,7 +21,7 @@ namespace util
     {
     public:
         CharacterUtil();
-        std::map<Character::Status, DynamicSprite> load();
+        std::vector<Sprite> load();
 
     private:
         SpriteUtil *_sprite_util;
@@ -32,7 +33,7 @@ namespace util
         void load_body(wz::Node *node);
 
     public:
-        enum Layer
+        enum Layer : uint8_t
         {
             BODY,
             ARM,
@@ -145,16 +146,16 @@ namespace util
                 {u"lefEar", Layer::LEF_EAR}};
 
     private:
-        std::unordered_map<uint8_t, std::tuple<int, int>> body_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, std::tuple<int, int>> arm_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, std::tuple<int, int>> hand_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, std::tuple<int, int>> head_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, std::tuple<int, int>> hair_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, std::tuple<int, int>> face_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, uint16_t> stance_delays[Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> body_positions[Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> arm_positions[Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> hand_positions[Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> head_positions[Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> hair_positions[Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> face_positions[Type::LENGTH];
+        std::unordered_map<uint8_t, int32_t> stance_delays[Type::LENGTH];
 
         // std::unordered_map<std::string, std::unordered_map<uint8_t, BodyAction>> body_actions;
-        std::unordered_map<std::string, std::vector<uint16_t>> attack_delays;
+        std::unordered_map<std::string, std::vector<int32_t>> attack_delays;
     };
 }
 
