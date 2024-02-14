@@ -24,19 +24,19 @@ void Character::event(SDL_Event &event)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
     {
-        pos.a -= 5;
+        pos.a -= 3;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
     {
-        pos.a += 5;
+        pos.a += 3;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
     {
-        pos.b -= 5;
+        pos.b -= 3;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
     {
-        pos.b += 5;
+        pos.b += 3;
     }
 }
 
