@@ -2,8 +2,6 @@
 
 Character::Character()
 {
-    _camera = Camera::current();
-
     _input = Input::current();
     _input->event(std::bind(&event, this, std::placeholders::_1));
 }
@@ -24,17 +22,30 @@ void Character::event(SDL_Event &event)
             _status = Status::WALK;
         }
     }
-}
-
-void Character::load()
-{
-    
-}
-
-void Character::draw(){
-    for (auto &it:_v)
+    if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
     {
-        it._draw();
+        pos.a -= 10;
     }
-    
+    if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
+    {
+        pos.a += 10;
+    }
+    if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
+    {
+        pos.b -= 10;
+    }
+    if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
+    {
+        pos.b += 10;
+    }
+}
+
+void Character::draw()
+{
+    for (auto it : _v)
+    {
+        it._rect.x+=pos.a;
+        it._rect.y+=pos.b;
+        it.draw();
+    }
 }

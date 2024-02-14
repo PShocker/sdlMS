@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include "template/currenton.hpp"
-#include "sdlms/camera.hpp"
+
 
 class Graphics final : public Currenton<Graphics>
 {

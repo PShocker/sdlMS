@@ -2,8 +2,6 @@
 
 Cursor::Cursor()
 {
-    _camera = Camera::current();
-
     _input = Input::current();
     _input->event(std::bind(&event, this, std::placeholders::_1));
 }

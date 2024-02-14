@@ -1,5 +1,6 @@
 #include "sdlms/sprite.hpp"
-#include "sprite.hpp"
+#include "sdlms/camera.hpp"
+#include "sdlms/graphics.hpp"
 
 Sprite::Sprite(const std::vector<uint8_t> &raw_data,
                SDL_FRect rect,

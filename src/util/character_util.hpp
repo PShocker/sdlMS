@@ -29,9 +29,6 @@ namespace util
     private:
         wz::Node *_character_node;
 
-    private:
-        void load_body(wz::Node *node);
-
     public:
         enum Layer : uint8_t
         {

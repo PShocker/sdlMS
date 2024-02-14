@@ -1,5 +1,5 @@
-#ifndef HEADER_SDLMS_PLAYER
-#define HEADER_SDLMS_PLAYER
+#ifndef HEADER_SDLMS_CHARACTER
+#define HEADER_SDLMS_CHARACTER
 
 #include <cstdint>
 #include <vector>
@@ -9,7 +9,10 @@
 #include "sdlms/dynamicsprite.hpp"
 #include "sdlms/input.hpp"
 
-class Character
+#include "template/currenton.hpp"
+#include "template/point.hpp"
+
+class Character : public Currenton<Character>
 {
 
 public:
@@ -24,7 +27,6 @@ public:
 
 public:
     Character();
-    void load();
     void event(SDL_Event &event);
     void draw();
 
@@ -32,9 +34,9 @@ public:
     std::map<Status, DynamicSprite> _s;
     Status _status = STAND;
     std::vector<Sprite> _v;
+    Point<int> pos={400,80};
 
 private:
-    Camera *_camera;
     Input *_input;
 };
 

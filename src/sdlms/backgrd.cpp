@@ -15,6 +15,7 @@ BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> dynamicsprite,
                                                 _position_offset_x(0.0), _position_offset_y(0.0),
                                                 _url(url)
 {
+    _camera = Camera::current();
 }
 
 void BackGrd::update(int elapsedTime)
@@ -55,7 +56,7 @@ void BackGrd::update(int elapsedTime)
         break;
     }
 
-    auto viewprot = Camera::current()->_viewport;
+    auto viewprot = _camera->_viewport;
 
     const Sprite *s;
 

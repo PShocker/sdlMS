@@ -6,7 +6,6 @@
 #include <string>
 
 #include "sdlms/graphics.hpp"
-#include "sdlms/camera.hpp"
 #include "sdlms/sprite.hpp"
 
 class AnimatedSprite

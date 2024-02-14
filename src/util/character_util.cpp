@@ -103,18 +103,16 @@ namespace util
         auto body_node = _character_node->find_from_path(u"00002000.img");
         auto head_node = _character_node->find_from_path(u"00012000.img");
 
-        Point<int> pos={400,80};
-
-        Sprite body = _sprite_util->load_sprite(body_node->find_from_path(u"stand1/0/body"), pos.x(), pos.y());
-        Sprite arm = _sprite_util->load_sprite(body_node->find_from_path(u"stand1/0/arm"), pos.x() + b.x() + 1, pos.y() + b.y() - 5);
-        Sprite head = _sprite_util->load_sprite(head_node->find_from_path(u"stand1/0/head"), pos.x() + d.x(), pos.y() + d.y());
-        Sprite face = _sprite_util->load_sprite(_character_node->find_from_path(u"Face/00020000.img/default/face"), pos.x() + e.x() + 1, pos.y() + e.y() + 12);
-        Sprite hair = _sprite_util->load_sprite(_character_node->find_from_path(u"Hair/00030000.img/default/hair"), pos.x() + f.x(), pos.y() + f.y());
-        Sprite hair_over_head = _sprite_util->load_sprite(_character_node->find_from_path(u"Hair/00030000.img/default/hairOverHead"), pos.x() + f.x(), pos.y() + f.y());
-        Sprite coat = _sprite_util->load_sprite(_character_node->find_from_path(u"Coat/01040041.img/stand1/0/mail"), pos.x()+a.x()+7, pos.y()+a.y()-1);
-        Sprite coat_arm = _sprite_util->load_sprite(_character_node->find_from_path(u"Coat/01040041.img/stand1/0/mailArm"), pos.x()+a.x()+9, pos.y()+a.y()-6);
-        Sprite pants = _sprite_util->load_sprite(_character_node->find_from_path(u"Pants/01060000.img/stand1/0/pants"), pos.x()+a.x()+6, pos.y()+a.y()+7);
-        Sprite shoes = _sprite_util->load_sprite(_character_node->find_from_path(u"Shoes/01070009.img/stand1/0/shoes"), pos.x()+a.x()+3, pos.y()+a.y()+20);
+        Sprite body = _sprite_util->load_sprite(body_node->find_from_path(u"stand1/0/body"));
+        Sprite arm = _sprite_util->load_sprite(body_node->find_from_path(u"stand1/0/arm"), b.x() + 1, b.y() - 5);
+        Sprite head = _sprite_util->load_sprite(head_node->find_from_path(u"stand1/0/head"), d.x(), d.y());
+        Sprite face = _sprite_util->load_sprite(_character_node->find_from_path(u"Face/00020000.img/default/face"), e.x() + 1, e.y() + 12);
+        Sprite hair = _sprite_util->load_sprite(_character_node->find_from_path(u"Hair/00030000.img/default/hair"), f.x(), f.y());
+        Sprite hair_over_head = _sprite_util->load_sprite(_character_node->find_from_path(u"Hair/00030000.img/default/hairOverHead"), f.x(), f.y());
+        Sprite coat = _sprite_util->load_sprite(_character_node->find_from_path(u"Coat/01040041.img/stand1/0/mail"), a.x() + 7, a.y() - 1);
+        Sprite coat_arm = _sprite_util->load_sprite(_character_node->find_from_path(u"Coat/01040041.img/stand1/0/mailArm"), a.x() + 9, a.y() - 6);
+        Sprite pants = _sprite_util->load_sprite(_character_node->find_from_path(u"Pants/01060000.img/stand1/0/pants"), a.x() + 6, a.y() + 7);
+        Sprite shoes = _sprite_util->load_sprite(_character_node->find_from_path(u"Shoes/01070009.img/stand1/0/shoes"), a.x() + 3, a.y() + 20);
 
         v.push_back(body);
         v.push_back(arm);

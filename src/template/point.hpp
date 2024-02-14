@@ -1,6 +1,9 @@
 #ifndef HEADER_TEMPLATE_POINT
 #define HEADER_TEMPLATE_POINT
 
+#include <cmath>
+#include <string>
+
 template <class T>
 class Point
 {
@@ -177,7 +180,7 @@ public:
             b / (v.b == 0 ? 1 : v.b)};
     }
 
-private:
+public:
     T a;
     T b;
 };

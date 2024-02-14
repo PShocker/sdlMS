@@ -7,8 +7,8 @@
 #include <string>
 #include <any>
 
-#include "sdlms/graphics.hpp"
-#include "sdlms/camera.hpp"
+
+
 
 class Sprite
 {

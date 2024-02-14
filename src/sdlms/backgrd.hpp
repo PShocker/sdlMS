@@ -9,6 +9,7 @@
 #include "sdlms/animatedsprite.hpp"
 #include "sdlms/sprite.hpp"
 #include "sdlms/dynamicsprite.hpp"
+#include "sdlms/camera.hpp"
 
 class BackGrd : public DynamicSprite
 {
@@ -49,5 +50,8 @@ private:
         HMOVEB,
         VMOVEB
     };
+
+private:
+    Camera *_camera;
 };
 #endif
