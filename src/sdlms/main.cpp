@@ -26,9 +26,9 @@ int Main::run(int argc, char **argv)
 
     _input.reset(new Input());
     _map.reset(new Map());
+    _character.reset(new Character());
     _camera.reset(new Camera());
     _cursor.reset(new Cursor());
-    _character.reset(new Character());
     _minimap.reset(new MiniMap());
     _statusbar.reset(new StatusBar());
 

@@ -34,7 +34,7 @@ public:
     std::map<Status, DynamicSprite> _s;
     Status _status = STAND;
     std::vector<Sprite> _v;
-    Point<int> pos={400,80};
+    Point<float> pos={400,80};
 
 private:
     Input *_input;

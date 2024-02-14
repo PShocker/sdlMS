@@ -32,7 +32,7 @@ private:
 
 private:
   Input *_input;
-  // Character *_character;
+  Character *_character;
 };
 
 #endif
