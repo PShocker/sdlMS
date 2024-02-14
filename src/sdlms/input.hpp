@@ -5,7 +5,7 @@
 #include <map>
 #include <functional>
 
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 
 class Input : public Currenton<Input>
 {

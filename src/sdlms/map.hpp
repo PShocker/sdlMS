@@ -4,7 +4,7 @@
 #include <array>
 #include <SDL2/SDL.h>
 
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 #include "sdlms/tile.hpp"
 #include "sdlms/obj.hpp"
 #include "sdlms/backgrd.hpp"

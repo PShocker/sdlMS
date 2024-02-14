@@ -5,7 +5,7 @@
 #include <ranges>
 #include "wz/Property.hpp"
 
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 #include "util/sprite_util.hpp"
 
 #include "sdlms/tile.hpp"

@@ -6,7 +6,7 @@
 #include <map>
 
 #include <SDL2/SDL.h>
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 #include "sdlms/dynamicsprite.hpp"
 #include "sdlms/input.hpp"
 

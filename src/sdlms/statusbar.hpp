@@ -8,7 +8,7 @@
 
 #include "sdlms/sprite.hpp"
 #include "sdlms/eventsprite.hpp"
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 
 class StatusBar : public Currenton<StatusBar>
 {

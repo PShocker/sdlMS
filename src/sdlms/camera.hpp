@@ -2,7 +2,7 @@
 #define HEADER_SDLMS_CAMERA
 
 #include <SDL2/SDL.h>
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 #include "sdlms/graphics.hpp"
 #include "sdlms/input.hpp"
 

@@ -7,9 +7,9 @@
 
 #include "wz/Property.hpp"
 
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 #include "util/sprite_util.hpp"
-#include "util/point.hpp"
+#include "template/point.hpp"
 
 #include "sdlms/character.hpp"
 

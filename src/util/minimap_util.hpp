@@ -4,7 +4,7 @@
 #include <vector>
 #include <SDL2/SDL.h>
 
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 #include "util/map_util.hpp"
 #include "util/sprite_util.hpp"
 #include "util/freetype_util.hpp"

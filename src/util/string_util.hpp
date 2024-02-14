@@ -5,7 +5,7 @@
 #include <ranges>
 #include "wz/Property.hpp"
 
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 
 // 加载声音
 namespace util

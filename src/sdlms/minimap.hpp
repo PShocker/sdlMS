@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "sdlms/sprite.hpp"
-#include "util/currenton.hpp"
+#include "template/currenton.hpp"
 
 class MiniMap : public Currenton<MiniMap>
 {
