@@ -1,4 +1,4 @@
-#include "util/ffmpeg.hpp"
+#include "util/ffmpeg_util.hpp"
 
 extern "C"
 {
@@ -10,8 +10,7 @@ extern "C"
 
 namespace util
 {
-
-    std::tuple<std::vector<uint8_t>, int> FFMPEG::decodeAudioToPCM(std::vector<uint8_t> data)
+    std::tuple<std::vector<uint8_t>, int> FfmpegUtil::decodeAudioToPCM(std::vector<uint8_t> data)
     {
         struct buffer_data
         {

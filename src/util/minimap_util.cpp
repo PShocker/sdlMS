@@ -13,7 +13,7 @@ namespace util
     {
         _renderer = Graphics::current()->getRenderer();
         _sprite_util = SpriteUtil::current();
-        _freetype = FreeType::current();
+        _freetype_util = FreeTypeUtil::current();
         _string_util = StringUtil::current();
         _map_util = MapUtil::current();
 
@@ -32,9 +32,9 @@ namespace util
 
             SDL_Point t_offset = {52, 25};
 
-            auto t_up = _freetype->load_str(streetName);
+            auto t_up = _freetype_util->load_str(streetName);
 
-            auto t_down = _freetype->load_str(mapName);
+            auto t_down = _freetype_util->load_str(mapName);
 
             int width = std::max((int)minimap._rect.w, std::max((int)std::get<1>(t_up) + (int)t_offset.x, (int)std::get<1>(t_down) + (int)t_offset.x));
             int height = minimap._rect.h;

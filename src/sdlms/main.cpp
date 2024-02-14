@@ -11,14 +11,14 @@ int Main::run(int argc, char **argv)
 
     _graphics.reset(new Graphics());
 
-    _ffmpeg.reset(new FFMPEG());
+    _ffmpeg_util.reset(new FfmpegUtil());
 
     _wz_util.reset(new WzUtil());
     _sprite_util.reset(new SpriteUtil());
     _map_util.reset(new MapUtil());
     _sound_util.reset(new SoundUtil());
     _string_util.reset(new StringUtil());
-    _freetype.reset(new FreeType());
+    _freetype_util.reset(new FreeTypeUtil());
     _cursor_util.reset(new CursorUtil());
     _character_util.reset(new CharacterUtil());
     _statusbar_util.reset(new StatusBarUtil());
@@ -45,7 +45,7 @@ int Main::run(int argc, char **argv)
     _map->_backgrd = _map_util->load_backgrd(mapId);
     _map->_portal = _map_util->load_portal(mapId);
 
-    _map->_sound = _ffmpeg->decodeAudioToPCM(_sound_util->load_sound(mapId));
+    _map->_sound = _ffmpeg_util->decodeAudioToPCM(_sound_util->load_sound(mapId));
 
     _sound->load(_map->_sound);
     _cursor->load();

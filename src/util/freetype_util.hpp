@@ -14,10 +14,10 @@
 // 加载字体
 namespace util
 {
-    class FreeType final : public Currenton<FreeType>
+    class FreeTypeUtil final : public Currenton<FreeTypeUtil>
     {
     public:
-        FreeType();
+        FreeTypeUtil();
         std::tuple<SDL_Texture *, int, int> load_str(const std::u16string &s);
 
     public:

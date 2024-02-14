@@ -9,7 +9,7 @@
 // 加载声音
 namespace util
 {
-    class FFMPEG final : public Currenton<FFMPEG>
+    class FfmpegUtil final : public Currenton<FfmpegUtil>
     {
     public:
         std::tuple<std::vector<uint8_t>, int> decodeAudioToPCM(std::vector<uint8_t> data);

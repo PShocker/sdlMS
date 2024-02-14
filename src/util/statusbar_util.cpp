@@ -13,7 +13,7 @@ namespace util
     {
         _renderer = Graphics::current()->getRenderer();
         _sprite_util = SpriteUtil::current();
-        _freetype = FreeType::current();
+        _freetype_util = FreeTypeUtil::current();
         _string_util = StringUtil::current();
 
         _ui_node = WzUtil::current()->UI->get_root();

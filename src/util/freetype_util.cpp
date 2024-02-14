@@ -3,11 +3,11 @@
 #include FT_STROKER_H
 
 #include "sdlms/graphics.hpp"
-#include "util/freetype.hpp"
+#include "util/freetype_util.hpp"
 
 namespace util
 {
-    FreeType::FreeType()
+    FreeTypeUtil::FreeTypeUtil()
     {
         _renderer = Graphics::current()->getRenderer();
 
@@ -22,7 +22,7 @@ namespace util
         FT_Set_Pixel_Sizes(*_face, 0, fontSize);
     }
 
-    std::tuple<SDL_Texture *, int, int> FreeType::load_str(const std::u16string &s)
+    std::tuple<SDL_Texture *, int, int> FreeTypeUtil::load_str(const std::u16string &s)
     {
         FT_GlyphSlot glyph_slot = (*_face)->glyph;
 

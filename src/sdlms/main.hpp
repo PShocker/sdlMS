@@ -5,8 +5,8 @@
 #include "util/map_util.hpp"
 #include "util/wz_util.hpp"
 #include "util/sound_util.hpp"
-#include "util/ffmpeg.hpp"
-#include "util/freetype.hpp"
+#include "util/ffmpeg_util.hpp"
+#include "util/freetype_util.hpp"
 #include "util/string_util.hpp"
 #include "util/sprite_util.hpp"
 #include "util/cursor_util.hpp"
@@ -44,8 +44,8 @@ private:
     std::unique_ptr<MiniMap> _minimap;
     std::unique_ptr<StatusBar> _statusbar;
     std::unique_ptr<Sound> _sound;
-    std::unique_ptr<FFMPEG> _ffmpeg;
-    std::unique_ptr<FreeType> _freetype;
+    std::unique_ptr<FfmpegUtil> _ffmpeg_util;
+    std::unique_ptr<FreeTypeUtil> _freetype_util;
     std::unique_ptr<StringUtil> _string_util;
     std::unique_ptr<CursorUtil> _cursor_util;
     std::unique_ptr<Cursor> _cursor;

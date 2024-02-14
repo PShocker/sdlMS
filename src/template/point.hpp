@@ -1,5 +1,5 @@
-#ifndef HEADER_UTIL_POINT
-#define HEADER_UTIL_POINT
+#ifndef HEADER_TEMPLATE_POINT
+#define HEADER_TEMPLATE_POINT
 
 template <class T>
 class Point
