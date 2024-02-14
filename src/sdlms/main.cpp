@@ -19,24 +19,26 @@ int Main::run(int argc, char **argv)
     _sound_util.reset(new SoundUtil());
     _string_util.reset(new StringUtil());
     _freetype.reset(new FreeType());
-    _hud_util.reset(new HudUtil());
     _cursor_util.reset(new CursorUtil());
     _character_util.reset(new CharacterUtil());
+    _statusbar_util.reset(new StatusBarUtil());
+    _minimap_util.reset(new MiniMapUtil());
 
     _input.reset(new Input());
     _map.reset(new Map());
-    _hud.reset(new Hud());
     _camera.reset(new Camera());
     _cursor.reset(new Cursor());
     _character.reset(new Character());
+    _minimap.reset(new MiniMap());
+    _statusbar.reset(new StatusBar());
 
     _cursor->_s = _cursor_util->load();
 
     _sound.reset(new Sound());
 
-    _hud->_minimap->_s = _hud_util->load_minimap(mapId);
-    _hud->_statusbar->_s = _hud_util->load_statusbar();
-    _hud->_statusbar->_e = _hud_util->load_event_sprite();
+    _minimap->_s = _minimap_util->load_minimap(mapId);
+    _statusbar->_s = _statusbar_util->load_statusbar();
+    _statusbar->_e = _statusbar_util->load_event_sprite();
 
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);
@@ -64,7 +66,8 @@ int Main::run(int argc, char **argv)
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();
-        _hud->draw();
+        _minimap->draw();
+        _statusbar->draw();
         _character->draw();
         Graphics::current()->flip();
         frameTime = SDL_GetTicks();

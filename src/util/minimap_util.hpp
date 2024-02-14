@@ -1,5 +1,5 @@
-#ifndef HEADER_UTIL_HUD
-#define HEADER_UTIL_HUD
+#ifndef HEADER_UTIL_MINIMAP
+#define HEADER_UTIL_MINIMAP
 
 #include <vector>
 #include <SDL2/SDL.h>
@@ -15,13 +15,11 @@
 
 namespace util
 {
-    class HudUtil final : public Currenton<HudUtil>
+    class MiniMapUtil final : public Currenton<MiniMapUtil>
     {
     public:
-        HudUtil();
+        MiniMapUtil();
         std::vector<Sprite> load_minimap(int mapId);
-        std::vector<Sprite> load_statusbar();
-        std::vector<EventSprite*> load_event_sprite();
 
     private:
         SDL_Renderer *_renderer;
