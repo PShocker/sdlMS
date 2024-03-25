@@ -17,6 +17,7 @@ namespace util
     {
     public:
         Sprite load_sprite(wz::Node *node, int x = 0, int y = 0, int flip = SDL_FLIP_NONE);
+        Sprite load_sprite(wz::Node *node, Point<int32_t> p, int flip = SDL_FLIP_NONE);
         AnimatedSprite load_animated_sprite(wz::Node *node, int x = 0, int y = 0, int flip = SDL_FLIP_NONE);
         EventSprite *load_event_sprite(wz::Node *node, int x = 0, int y = 0);
     };
