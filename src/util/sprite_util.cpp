@@ -34,6 +34,11 @@ namespace util
         return sprite;
     }
 
+    Sprite SpriteUtil::load_sprite(wz::Node *node, Point<int32_t> p, int flip)
+    {
+        return load_sprite(node, p.x(), p.y(), flip);
+    }
+
     AnimatedSprite SpriteUtil::load_animated_sprite(wz::Node *node, int x, int y, int flip)
     {
         std::vector<Sprite> v_sprite;

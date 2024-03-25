@@ -4,12 +4,21 @@
 #include <cmath>
 #include <string>
 
+#include "wz/Property.hpp"
+
 template <class T>
 class Point
 {
 public:
     // Construct a point from the specified coordinates
     constexpr Point(T first, T second) : a(first), b(second) {}
+
+    constexpr Point(wz::Node *w)
+    {
+        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(w)->get();
+        a = v.x;
+        b = v.y;
+    }
 
     // Construct a point with coordinates (0, 0)
     constexpr Point() : Point(0, 0) {}
