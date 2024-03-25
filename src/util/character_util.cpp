@@ -132,7 +132,7 @@ namespace util
         auto _coat_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat_arm->find_from_path(u"map/navel"))->get();
         Sprite coat_arm = _sprite_util->load_sprite(_coat_arm, a - Point<int32_t>(_coat_arm_pos.x, _coat_arm_pos.y));
 
-        auto _pants = _character_node->find_from_path(u"Pants/01062034.img/stand1/0/pants");
+        auto _pants = _character_node->find_from_path(u"Pants/01062040.img/stand1/0/pants");
         auto _pants_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_pants->find_from_path(u"map/navel"))->get();
         Sprite pants = _sprite_util->load_sprite(_pants, a - Point<int32_t>(_pants_pos.x, _pants_pos.y));
 
