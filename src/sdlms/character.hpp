@@ -69,6 +69,7 @@ public:
     Point<float> pos = {0, 0};
     int _frameIndex = 0;
     int _frameTime = 0;
+    bool _direct=true;
 
 private:
     Input *_input;
