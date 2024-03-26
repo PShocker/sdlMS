@@ -50,7 +50,7 @@ int Main::run(int argc, char **argv)
     _sound->load(_map->_sound);
     _cursor->load();
 
-    _character->_v=_character_util->load();
+    _character->_s=_character_util->load();
 
     unsigned int frameStart;
     unsigned int frameTime;
@@ -63,6 +63,7 @@ int Main::run(int argc, char **argv)
             break;
         } 
         _map->update(frameStart - frameTime);
+        _character->update(frameStart - frameTime);
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();

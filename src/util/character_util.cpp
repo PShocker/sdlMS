@@ -90,67 +90,108 @@ namespace util
         }
     }
 
-    std::vector<Sprite> CharacterUtil::load()
+    std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>,int>>> CharacterUtil::load()
     {
-        std::vector<Sprite> v;
-        auto a = body_positions[Type::STAND1][0];
-        auto b = arm_positions[Type::STAND1][0];
-        auto c = hand_positions[Type::STAND1][0];
-        auto d = head_positions[Type::STAND1][0];
-        auto e = face_positions[Type::STAND1][0];
-        auto f = hair_positions[Type::STAND1][0];
+        std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> _s;
 
-        auto body_node = _character_node->find_from_path(u"00002000.img");
-        auto head_node = _character_node->find_from_path(u"00012000.img");
+        for (uint8_t i = 0; i < Character::Type::LENGTH; i++)
+        {
+            std::vector<std::tuple<std::vector<Sprite>, int>> _v;
+            for (uint8_t no = 0; no < body_positions[i].size(); no++)
+            {
+                std::vector<Sprite> v;
+                auto a = body_positions[i][no];
+                auto b = arm_positions[i][no];
+                auto c = hand_positions[i][no];
+                auto d = head_positions[i][no];
+                auto e = face_positions[i][no];
+                auto f = hair_positions[i][no];
 
-        Sprite body = _sprite_util->load_sprite(body_node->find_from_path(u"stand1/0/body"));
+                auto body_node = _character_node->find_from_path(u"00002000.img");
+                auto head_node = _character_node->find_from_path(u"00012000.img");
 
-        auto _arm = body_node->find_from_path(u"stand1/0/arm");
-        auto _arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_arm->find_from_path(u"map/hand"))->get();
-        Sprite arm = _sprite_util->load_sprite(_arm, b - Point<int32_t>(_arm_pos.x, _arm_pos.y));
+                auto no_str = std::to_string(no);
 
-        auto _head = head_node->find_from_path(u"stand1/0/head");
-        Sprite head = _sprite_util->load_sprite(_head, d);
+                auto type = _type_map.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
 
-        auto _face = _character_node->find_from_path(u"Face/00020000.img/default/face");
-        auto _face_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_face->find_from_path(u"map/brow"))->get();
-        Sprite face = _sprite_util->load_sprite(_face, e - Point<int32_t>(_face_pos.x, _face_pos.y));
+                Sprite body = _sprite_util->load_sprite(
+                    body_node->find_from_path(type + u"/body"));
+                v.push_back(body);
 
-        auto _hair = _character_node->find_from_path(u"Hair/00030000.img/default/hair");
-        auto _hair_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hair->find_from_path(u"map/brow"))->get();
-        Sprite hair = _sprite_util->load_sprite(_hair, f - Point<int32_t>(_hair_pos.x, _hair_pos.y));
+                auto _arm = body_node->find_from_path(type + u"/arm");
+                if (_arm != nullptr)
+                {
+                    auto _arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_arm->find_from_path(u"map/hand"))->get();
+                    Sprite arm = _sprite_util->load_sprite(_arm, b - Point<int32_t>(_arm_pos.x, _arm_pos.y));
+                    v.push_back(arm);
+                }
 
-        auto _hair_over_head = _character_node->find_from_path(u"Hair/00030000.img/default/hairOverHead");
-        auto _hair_over_head_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hair_over_head->find_from_path(u"map/brow"))->get();
-        Sprite hair_over_head = _sprite_util->load_sprite(_hair_over_head, f - Point<int32_t>(_hair_over_head_pos.x, _hair_over_head_pos.y));
+                auto _head = head_node->find_from_path(type + u"/head");
+                if (_head != nullptr)
+                {
+                    Sprite head = _sprite_util->load_sprite(_head, d);
+                    v.push_back(head);
+                }
 
-        auto _coat = _character_node->find_from_path(u"Coat/01040041.img/stand1/0/mail");
-        auto _coat_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat->find_from_path(u"map/navel"))->get();
-        Sprite coat = _sprite_util->load_sprite(_coat, a - Point<int32_t>(_coat_pos.x, _coat_pos.y));
+                auto _face = _character_node->find_from_path(u"Face/00020000.img/default/face");
+                auto _face_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_face->find_from_path(u"map/brow"))->get();
+                Sprite face = _sprite_util->load_sprite(_face, e - Point<int32_t>(_face_pos.x, _face_pos.y));
+                v.push_back(face);
 
-        auto _coat_arm = _character_node->find_from_path(u"Coat/01040041.img/stand1/0/mailArm");
-        auto _coat_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat_arm->find_from_path(u"map/navel"))->get();
-        Sprite coat_arm = _sprite_util->load_sprite(_coat_arm, a - Point<int32_t>(_coat_arm_pos.x, _coat_arm_pos.y));
+                auto _hair = _character_node->find_from_path(u"Hair/00030000.img/" + type + u"/hair");
+                if (_hair != nullptr)
+                {
+                    auto _hair_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hair->find_from_path(u"map/brow"))->get();
+                    Sprite hair = _sprite_util->load_sprite(_hair, f - Point<int32_t>(_hair_pos.x, _hair_pos.y));
+                    v.push_back(hair);
+                }
 
-        auto _pants = _character_node->find_from_path(u"Pants/01062040.img/stand1/0/pants");
-        auto _pants_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_pants->find_from_path(u"map/navel"))->get();
-        Sprite pants = _sprite_util->load_sprite(_pants, a - Point<int32_t>(_pants_pos.x, _pants_pos.y));
+                auto _hair_over_head = _character_node->find_from_path(u"Hair/00030000.img/" + type + u"/hairOverHead");
+                if (_hair_over_head != nullptr)
+                {
+                    auto _hair_over_head_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hair_over_head->find_from_path(u"map/brow"))->get();
+                    Sprite hair_over_head = _sprite_util->load_sprite(_hair_over_head, f - Point<int32_t>(_hair_over_head_pos.x, _hair_over_head_pos.y));
+                    v.push_back(hair_over_head);
+                }
 
-        auto _shoes = _character_node->find_from_path(u"Shoes/01070009.img/stand1/0/shoes");
-        auto _shoes_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_shoes->find_from_path(u"map/navel"))->get();
-        Sprite shoes = _sprite_util->load_sprite(_shoes, a - Point<int32_t>(_shoes_pos.x, _shoes_pos.y));
+                auto _coat = _character_node->find_from_path(u"Coat/01040041.img/" + type + u"/mail");
+                if (_coat != nullptr)
+                {
+                    auto _coat_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat->find_from_path(u"map/navel"))->get();
+                    Sprite coat = _sprite_util->load_sprite(_coat, a - Point<int32_t>(_coat_pos.x, _coat_pos.y));
+                    v.push_back(coat);
+                }
 
-        v.push_back(body);
-        v.push_back(arm);
-        v.push_back(head);
-        v.push_back(face);
-        v.push_back(hair);
-        v.push_back(hair_over_head);
-        v.push_back(coat);
-        v.push_back(coat_arm);
-        v.push_back(pants);
-        v.push_back(shoes);
+                auto _coat_arm = _character_node->find_from_path(u"Coat/01040041.img/" + type + u"/mailArm");
+                if (_coat_arm != nullptr)
+                {
+                    auto _coat_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat_arm->find_from_path(u"map/navel"))->get();
+                    Sprite coat_arm = _sprite_util->load_sprite(_coat_arm, a - Point<int32_t>(_coat_arm_pos.x, _coat_arm_pos.y));
+                    v.push_back(coat_arm);
+                }
 
-        return v;
+                auto _pants = _character_node->find_from_path(u"Pants/01062040.img/" + type + u"/pants");
+                if (_pants != nullptr)
+                {
+                    auto _pants_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_pants->find_from_path(u"map/navel"))->get();
+                    Sprite pants = _sprite_util->load_sprite(_pants, a - Point<int32_t>(_pants_pos.x, _pants_pos.y));
+                    v.push_back(pants);
+                }
+
+                auto _shoes = _character_node->find_from_path(u"Shoes/01070009.img/" + type + u"/shoes");
+                if (_shoes != nullptr)
+                {
+                    auto _shoes_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_shoes->find_from_path(u"map/navel"))->get();
+                    Sprite shoes = _sprite_util->load_sprite(_shoes, a - Point<int32_t>(_shoes_pos.x, _shoes_pos.y));
+                    v.push_back(shoes);
+                }
+
+                auto delay = stance_delays[i][no];
+
+                _v.push_back({v, delay});
+            }
+            _s.emplace(i,_v);
+        }
+        return _s;
     }
 }
