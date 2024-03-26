@@ -50,7 +50,7 @@ void Character::draw()
         if (_direct == false)
         {
             it._flip = 1;
-            it._rect.x = -it._rect.x;
+            it._rect.x = -it._rect.x - it._rect.w;
         }
         it._rect.x += pos.a;
         it._rect.y += pos.b;
