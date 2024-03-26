@@ -30,5 +30,6 @@ void Camera::event(SDL_Event &event)
         auto camera_next_pos = camera_pos + (player_pos - camera_pos) * CAMERA_MOVE_INTERPOLATE;
         _viewport.x = camera_next_pos.a;
         _viewport.y = camera_next_pos.b;
+        return;
     }
 }
