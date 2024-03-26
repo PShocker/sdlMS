@@ -8,12 +8,11 @@
 #include "wz/Property.hpp"
 
 #include "template/currenton.hpp"
-#include "util/sprite_util.hpp"
 #include "template/point.hpp"
 
-#include "sdlms/character.hpp"
+#include "util/sprite_util.hpp"
 
-class Character;
+#include "sdlms/character.hpp"
 
 namespace util
 {
@@ -21,7 +20,7 @@ namespace util
     {
     public:
         CharacterUtil();
-        std::vector<Sprite> load();
+        std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>,int>>> load();
 
     private:
         SpriteUtil *_sprite_util;
@@ -48,81 +47,80 @@ namespace util
             LEF_EAR,
             NUM_LAYERS
         };
-        enum Type : uint8_t
-        {
-            ALERT,
-            DEAD,
-            FLY,
-            HEAL,
-            JUMP,
-            LADDER,
-            PRONE,
-            PRONESTAB,
-            ROPE,
-            SHOT,
-            SHOOT1,
-            SHOOT2,
-            SHOOTF,
-            SIT,
-            STABO1,
-            STABO2,
-            STABOF,
-            STABT1,
-            STABT2,
-            STABTF,
-            STAND1,
-            STAND2,
-            SWINGO1,
-            SWINGO2,
-            SWINGO3,
-            SWINGOF,
-            SWINGP1,
-            SWINGP2,
-            SWINGPF,
-            SWINGT1,
-            SWINGT2,
-            SWINGT3,
-            SWINGTF,
-            WALK1,
-            WALK2,
-            LENGTH,
-        };
-        static inline const std::map<std::u16string, Type> type_map = {
-            {u"alert", Type::ALERT},
-            {u"dead", Type::DEAD},
-            {u"fly", Type::FLY},
-            {u"heal", Type::HEAL},
-            {u"jump", Type::JUMP},
-            {u"ladder", Type::LADDER},
-            {u"prone", Type::PRONE},
-            {u"proneStab", Type::PRONESTAB},
-            {u"rope", Type::ROPE},
-            {u"shot", Type::SHOT},
-            {u"shoot1", Type::SHOOT1},
-            {u"shoot2", Type::SHOOT2},
-            {u"shootF", Type::SHOOTF},
-            {u"sit", Type::SIT},
-            {u"stabO1", Type::STABO1},
-            {u"stabO2", Type::STABO2},
-            {u"stabOF", Type::STABOF},
-            {u"stabT1", Type::STABT1},
-            {u"stabT2", Type::STABT2},
-            {u"stabTF", Type::STABTF},
-            {u"stand1", Type::STAND1},
-            {u"stand2", Type::STAND2},
-            {u"swingO1", Type::SWINGO1},
-            {u"swingO2", Type::SWINGO2},
-            {u"swingO3", Type::SWINGO3},
-            {u"swingOF", Type::SWINGOF},
-            {u"swingP1", Type::SWINGP1},
-            {u"swingP2", Type::SWINGP2},
-            {u"swingPF", Type::SWINGPF},
-            {u"swingT1", Type::SWINGT1},
-            {u"swingT2", Type::SWINGT2},
-            {u"swingT3", Type::SWINGT3},
-            {u"swingTF", Type::SWINGTF},
-            {u"walk1", Type::WALK1},
-            {u"walk2", Type::WALK2}};
+
+        static inline const std::unordered_map<std::u16string, Character::Type> type_map = {
+            {u"alert", Character::Type::ALERT},
+            {u"dead", Character::Type::DEAD},
+            {u"fly", Character::Type::FLY},
+            {u"heal", Character::Type::HEAL},
+            {u"jump", Character::Type::JUMP},
+            {u"ladder", Character::Type::LADDER},
+            {u"prone", Character::Type::PRONE},
+            {u"proneStab", Character::Type::PRONESTAB},
+            {u"rope", Character::Type::ROPE},
+            {u"shot", Character::Type::SHOT},
+            {u"shoot1", Character::Type::SHOOT1},
+            {u"shoot2", Character::Type::SHOOT2},
+            {u"shootF", Character::Type::SHOOTF},
+            {u"sit", Character::Type::SIT},
+            {u"stabO1", Character::Type::STABO1},
+            {u"stabO2", Character::Type::STABO2},
+            {u"stabOF", Character::Type::STABOF},
+            {u"stabT1", Character::Type::STABT1},
+            {u"stabT2", Character::Type::STABT2},
+            {u"stabTF", Character::Type::STABTF},
+            {u"stand1", Character::Type::STAND1},
+            {u"stand2", Character::Type::STAND2},
+            {u"swingO1", Character::Type::SWINGO1},
+            {u"swingO2", Character::Type::SWINGO2},
+            {u"swingO3", Character::Type::SWINGO3},
+            {u"swingOF", Character::Type::SWINGOF},
+            {u"swingP1", Character::Type::SWINGP1},
+            {u"swingP2", Character::Type::SWINGP2},
+            {u"swingPF", Character::Type::SWINGPF},
+            {u"swingT1", Character::Type::SWINGT1},
+            {u"swingT2", Character::Type::SWINGT2},
+            {u"swingT3", Character::Type::SWINGT3},
+            {u"swingTF", Character::Type::SWINGTF},
+            {u"walk1", Character::Type::WALK1},
+            {u"walk2", Character::Type::WALK2}};
+
+        static inline const std::unordered_map<uint8_t, std::u16string> _type_map = {
+            {Character::Type::ALERT, u"alert"},
+            {Character::Type::DEAD, u"dead"},
+            {Character::Type::FLY, u"fly"},
+            {Character::Type::HEAL, u"heal"},
+            {Character::Type::JUMP, u"jump"},
+            {Character::Type::LADDER, u"ladder"},
+            {Character::Type::PRONE, u"prone"},
+            {Character::Type::PRONESTAB, u"proneStab"},
+            {Character::Type::ROPE, u"rope"},
+            {Character::Type::SHOT, u"shot"},
+            {Character::Type::SHOOT1, u"shoot1"},
+            {Character::Type::SHOOT2, u"shoot2"},
+            {Character::Type::SHOOTF, u"shootF"},
+            {Character::Type::SIT, u"sit"},
+            {Character::Type::STABO1, u"stabO1"},
+            {Character::Type::STABO2, u"stabO2"},
+            {Character::Type::STABOF, u"stabOF"},
+            {Character::Type::STABT1, u"stabT1"},
+            {Character::Type::STABT2, u"stabT2"},
+            {Character::Type::STABTF, u"stabTF"},
+            {Character::Type::STAND1, u"stand1"},
+            {Character::Type::STAND2, u"stand2"},
+            {Character::Type::SWINGO1, u"swingO1"},
+            {Character::Type::SWINGO2, u"swingO2"},
+            {Character::Type::SWINGO3, u"swingO3"},
+            {Character::Type::SWINGOF, u"swingOF"},
+            {Character::Type::SWINGP1, u"swingP1"},
+            {Character::Type::SWINGP2, u"swingP2"},
+            {Character::Type::SWINGPF, u"swingPF"},
+            {Character::Type::SWINGT1, u"swingT1"},
+            {Character::Type::SWINGT2, u"swingT2"},
+            {Character::Type::SWINGT3, u"swingT3"},
+            {Character::Type::SWINGTF, u"swingTF"},
+            {Character::Type::WALK1, u"walk1"},
+            {Character::Type::WALK2, u"walk2"}};
 
         static inline const std::unordered_map<std::u16string, Layer> layer_map =
             {
@@ -143,13 +141,13 @@ namespace util
                 {u"lefEar", Layer::LEF_EAR}};
 
     private:
-        std::unordered_map<uint8_t, Point<int32_t>> body_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, Point<int32_t>> arm_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, Point<int32_t>> hand_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, Point<int32_t>> head_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, Point<int32_t>> hair_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, Point<int32_t>> face_positions[Type::LENGTH];
-        std::unordered_map<uint8_t, int32_t> stance_delays[Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> body_positions[Character::Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> arm_positions[Character::Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> hand_positions[Character::Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> head_positions[Character::Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> hair_positions[Character::Type::LENGTH];
+        std::unordered_map<uint8_t, Point<int32_t>> face_positions[Character::Type::LENGTH];
+        std::unordered_map<uint8_t, int32_t> stance_delays[Character::Type::LENGTH];
 
         // std::unordered_map<std::string, std::unordered_map<uint8_t, BodyAction>> body_actions;
         std::unordered_map<std::string, std::vector<int32_t>> attack_delays;

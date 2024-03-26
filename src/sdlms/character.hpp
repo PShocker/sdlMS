@@ -16,25 +16,59 @@ class Character : public Currenton<Character>
 {
 
 public:
-    enum Status
+    enum Type : uint8_t
     {
-        STAND,
-        WALK,
-        // DISABLED,
-        // MOUSEOVER,
-        // KEYFOCUSED,
+        ALERT,
+        DEAD,
+        FLY,
+        HEAL,
+        JUMP,
+        LADDER,
+        PRONE,
+        PRONESTAB,
+        ROPE,
+        SHOT,
+        SHOOT1,
+        SHOOT2,
+        SHOOTF,
+        SIT,
+        STABO1,
+        STABO2,
+        STABOF,
+        STABT1,
+        STABT2,
+        STABTF,
+        STAND1,
+        STAND2,
+        SWINGO1,
+        SWINGO2,
+        SWINGO3,
+        SWINGOF,
+        SWINGP1,
+        SWINGP2,
+        SWINGPF,
+        SWINGT1,
+        SWINGT2,
+        SWINGT3,
+        SWINGTF,
+        WALK1,
+        WALK2,
+        LENGTH,
     };
 
 public:
     Character();
     void event(SDL_Event &event);
     void draw();
+    void update(int elapsedTime);
 
 public:
-    std::map<Status, DynamicSprite> _s;
-    Status _status = STAND;
+    std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> _s;
+    Type _status = WALK1;
     std::vector<Sprite> _v;
-    Point<float> pos={400,80};
+    Point<float> pos = {0, 0};
+    int _frameIndex = 0;
+    int _frameTime = 0;
 
 private:
     Input *_input;

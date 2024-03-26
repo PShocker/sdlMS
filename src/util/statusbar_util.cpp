@@ -32,7 +32,7 @@ namespace util
 
         for (size_t i = 0; i < Graphics::SCREEN_WIDTH; i += backgrnd._rect.w)
         {
-            SDL_FRect rect{i, backgrnd._rect.y, backgrnd._rect.w, backgrnd._rect.h};
+            SDL_FRect rect{(float)i, backgrnd._rect.y, backgrnd._rect.w, backgrnd._rect.h};
             v_s.push_back(Sprite(backgrnd._texture, rect, SDL_FLIP_NONE));
         }
 
