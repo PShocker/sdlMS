@@ -59,7 +59,7 @@ void Character::draw()
 }
 void Character::update(int elapsedTime)
 {
-    auto v = _s[_status];
+    auto v = _s[_status]; //tuple{vector<sprite>,delay}
     _frameTime += elapsedTime;
     if (_frameTime >= std::get<1>(v.at(_frameIndex)))
     {
