@@ -22,7 +22,7 @@ Sprite::Sprite(const std::vector<uint8_t> &raw_data,
         SDL_UpdateTexture(_texture, NULL, raw_data.data(), rect.w * sizeof(Uint32));
         SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
         break;
-    case 513:
+    case 517:
         format = SDL_PIXELFORMAT_RGB565;
         _texture = SDL_CreateTexture(Graphics::current()->getRenderer(), format, SDL_TEXTUREACCESS_STATIC, rect.w, rect.h);
         SDL_UpdateTexture(_texture, NULL, raw_data.data(), rect.w * sizeof(Uint16));

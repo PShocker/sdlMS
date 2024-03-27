@@ -14,7 +14,7 @@ namespace util
         auto height = canvas->get().height;
         auto width = canvas->get().width;
 
-        auto format = canvas->get().format;
+        auto format = canvas->get().format + canvas->get().format2;
 
         auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
 
