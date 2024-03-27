@@ -4,6 +4,8 @@ Character::Character()
 {
     _input = Input::current();
     _input->event(std::bind(&event, this, std::placeholders::_1));
+
+    _renderer = Graphics::current()->getRenderer();
 }
 
 void Character::event(SDL_Event &event)
@@ -14,24 +16,24 @@ void Character::event(SDL_Event &event)
 
     if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
     {
-        pos.a -= 3;
+        _pos.a -= 3;
         _status = Type::WALK1;
         _direct = true;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
     {
-        pos.a += 3;
+        _pos.a += 3;
         _status = Type::WALK1;
         _direct = false;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
     {
-        pos.b -= 3;
+        _pos.b -= 3;
         _status = Type::WALK1;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
     {
-        pos.b += 3;
+        _pos.b += 3;
         _status = Type::WALK1;
     }
     if (status != _status)
@@ -52,14 +54,15 @@ void Character::draw()
             it._flip = 1;
             it._rect.x = -it._rect.x - it._rect.w;
         }
-        it._rect.x += pos.a;
-        it._rect.y += pos.b;
+        it._rect.x += _pos.a;
+        it._rect.y += _pos.b;
         it.draw();
     }
+    SDL_RenderDrawPoint(_renderer, _pos.x(), _pos.y());
 }
 void Character::update(int elapsedTime)
 {
-    auto v = _s[_status]; //tuple{vector<sprite>,delay}
+    auto v = _s[_status]; // tuple{vector<sprite>,delay}
     _frameTime += elapsedTime;
     if (_frameTime >= std::get<1>(v.at(_frameIndex)))
     {

@@ -12,7 +12,7 @@ Camera::Camera()
 
 void Camera::event(SDL_Event &event)
 {
-    Point<float> player_pos = _character->pos - Point<float>{_viewport.w / 2, _viewport.h / 2};
+    Point<float> player_pos = _character->_pos - Point<float>{_viewport.w / 2, _viewport.h / 2};
     Point<float> camera_pos{_viewport.x, _viewport.y};
 
     _viewport.x = player_pos.a;
