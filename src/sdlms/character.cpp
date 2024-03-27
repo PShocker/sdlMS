@@ -58,8 +58,8 @@ void Character::draw()
         it._rect.y += _pos.b;
         it.draw();
     }
-    SDL_RenderDrawPoint(_renderer, _pos.x(), _pos.y());
 }
+
 void Character::update(int elapsedTime)
 {
     auto v = _s[_status]; // tuple{vector<sprite>,delay}

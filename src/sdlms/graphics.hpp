@@ -40,11 +40,11 @@ public:
 	SDL_Renderer *getRenderer() const;
 
 public:
-	// static const int SCREEN_WIDTH = 1366;
-	// static const int SCREEN_HEIGHT = 768;
+	static const int SCREEN_WIDTH = 1366;
+	static const int SCREEN_HEIGHT = 768;
 
-	static const int SCREEN_WIDTH = 800;
-	static const int SCREEN_HEIGHT = 600;
+	// static const int SCREEN_WIDTH = 800;
+	// static const int SCREEN_HEIGHT = 600;
 
 private:
 	SDL_Window *_window;
