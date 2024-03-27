@@ -12,6 +12,7 @@
 #include "sdlms/graphics.hpp"
 #include "sdlms/camera.hpp"
 #include "sdlms/minimap.hpp"
+#include "sdlms/foothold.hpp"
 
 class Map : public Currenton<Map>
 {
@@ -28,6 +29,7 @@ public:
     std::vector<BackGrd> _backgrd;
     std::vector<Portal> _portal;
     std::tuple<std::vector<uint8_t>, int> _sound; // pcm流,采样率
+    std::vector<FootHold> _foothold;
 };
 
 #endif

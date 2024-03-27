@@ -2,7 +2,6 @@
 
 #include "sdlms/map.hpp"
 #include "sdlms/camera.hpp"
-#include "map.hpp"
 
 Map::Map()
 {
@@ -31,7 +30,13 @@ void Map::draw()
     {
         it.draw(true);
     }
+    // 绘制传送门
     for (auto &it : _portal)
+    {
+        it.draw();
+    }
+    // 绘制平台
+    for (auto &it : _foothold)
     {
         it.draw();
     }
