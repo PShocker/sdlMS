@@ -14,16 +14,22 @@ Sprite::Sprite(const std::vector<uint8_t> &raw_data,
         format = SDL_PIXELFORMAT_ARGB4444;
         _texture = SDL_CreateTexture(Graphics::current()->getRenderer(), format, SDL_TEXTUREACCESS_STATIC, rect.w, rect.h);
         SDL_UpdateTexture(_texture, NULL, raw_data.data(), rect.w * sizeof(Uint16));
+        SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
         break;
     case 2:
         format = SDL_PIXELFORMAT_ARGB8888;
         _texture = SDL_CreateTexture(Graphics::current()->getRenderer(), format, SDL_TEXTUREACCESS_STATIC, rect.w, rect.h);
         SDL_UpdateTexture(_texture, NULL, raw_data.data(), rect.w * sizeof(Uint32));
+        SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
+        break;
+    case 513:
+        format = SDL_PIXELFORMAT_RGB565;
+        _texture = SDL_CreateTexture(Graphics::current()->getRenderer(), format, SDL_TEXTUREACCESS_STATIC, rect.w, rect.h);
+        SDL_UpdateTexture(_texture, NULL, raw_data.data(), rect.w * sizeof(Uint16));
         break;
     default:
         break;
     }
-    SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
 }
 
 Sprite::Sprite(SDL_Texture *texture, SDL_FRect rect, int flip) : _texture(texture), _rect(rect), _flip(flip)
