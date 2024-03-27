@@ -3,12 +3,12 @@
 #include "sdlms/graphics.hpp"
 #include <SDL2/SDL.h>
 #include <string>
+#include <charconv>
 
 namespace util
 {
     MapUtil::MapUtil()
     {
-        _renderer = Graphics::current()->getRenderer();
         _sprite_util = SpriteUtil::current();
         _map_node = WzUtil::current()->Map->get_root();
     }
@@ -241,6 +241,47 @@ namespace util
             }
         }
         return v_portal;
+    }
+
+    std::vector<FootHold> MapUtil::load_foothold(int mapId)
+    {
+        return load_foothold(load_node(mapId));
+    }
+
+    std::vector<FootHold> MapUtil::load_foothold(wz::Node *node)
+    {
+
+        std::vector<FootHold> v_foothold;
+
+        node = node->get_child(u"foothold");
+        if (node != nullptr)
+        {
+            for (auto it : node->get_children())
+            {
+                auto page = std::stoi(std::string{it.first.begin(), it.first.end()});
+                for (auto _it : it.second[0]->get_children())
+                {
+                    auto zmass = std::stoi(std::string{_it.first.begin(), _it.first.end()});
+                    for (auto __it : _it.second[0]->get_children())
+                    {
+                        auto id = std::stoi(std::string{__it.first.begin(), __it.first.end()});
+                        auto foothold = __it.second[0];
+
+                        auto next = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"next"))->get();
+                        auto prev = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"prev"))->get();
+                        auto x1 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"x1"))->get();
+                        auto x2 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"x2"))->get();
+                        auto y1 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"y1"))->get();
+                        auto y2 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"y2"))->get();
+
+                        FootHold f(Point(x1, y1), Point(x2, y2), page, zmass, id, prev, next);
+
+                        v_foothold.push_back(f);
+                    }
+                }
+            }
+        }
+        return v_foothold;
     }
 
     std::optional<Sprite> MapUtil::load_minimap(int mapId)

@@ -44,6 +44,7 @@ int Main::run(int argc, char **argv)
     _map->_obj = _map_util->load_obj(mapId);
     _map->_backgrd = _map_util->load_backgrd(mapId);
     _map->_portal = _map_util->load_portal(mapId);
+    _map->_foothold = _map_util->load_foothold(mapId);
 
     _map->_sound = _ffmpeg_util->decodeAudioToPCM(_sound_util->load_sound(mapId));
 
