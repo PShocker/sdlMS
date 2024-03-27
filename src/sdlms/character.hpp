@@ -8,6 +8,7 @@
 #include <SDL2/SDL.h>
 #include "sdlms/dynamicsprite.hpp"
 #include "sdlms/input.hpp"
+#include "sdlms/graphics.hpp"
 
 #include "template/currenton.hpp"
 #include "template/point.hpp"
@@ -66,13 +67,14 @@ public:
     std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> _s;
     Type _status = WALK1;
     std::vector<Sprite> _v;
-    Point<float> pos = {0, 0};
+    Point<float> _pos = {0, 0};
     int _frameIndex = 0;
     int _frameTime = 0;
     bool _direct=true;
 
 private:
     Input *_input;
+    SDL_Renderer *_renderer;
 };
 
 #endif

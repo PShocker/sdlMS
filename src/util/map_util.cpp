@@ -3,7 +3,6 @@
 #include "sdlms/graphics.hpp"
 #include <SDL2/SDL.h>
 #include <string>
-#include <charconv>
 
 namespace util
 {
