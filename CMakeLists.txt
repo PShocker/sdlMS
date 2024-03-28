@@ -3,9 +3,12 @@ project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
 
+
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s")
+    # 启用lto -flto=auto
+    # 把 MINGW-根目录\libexec\gcc\x86_64-w64-mingw32\13.2.0 下的 liblto_plugin.dll,复制到 MINGW-根目录\lib\bfd-plugins
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -funroll-loops -flto=auto -fstrict-aliasing -finline-functions")
         if(WIN32)
             set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
             message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
