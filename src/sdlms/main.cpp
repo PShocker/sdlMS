@@ -51,7 +51,7 @@ int Main::run(int argc, char **argv)
     _sound->load(_map->_sound);
     _cursor->load();
 
-    _character->_s=_character_util->load();
+    _character->_s = _character_util->load();
 
     unsigned int frameStart;
     unsigned int frameTime;
@@ -62,9 +62,11 @@ int Main::run(int argc, char **argv)
         if (_input->loop() < 0)
         {
             break;
-        } 
-        _map->update(frameStart - frameTime);
-        _character->update(frameStart - frameTime);
+        }
+        auto elapsedTime = frameStart - frameTime;
+
+        _map->update(elapsedTime);
+        _character->update(elapsedTime);
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();
