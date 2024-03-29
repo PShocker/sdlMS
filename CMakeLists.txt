@@ -10,7 +10,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     # 把 MINGW-根目录\libexec\gcc\x86_64-w64-mingw32\13.2.0 下的 liblto_plugin.dll,复制到 MINGW-根目录\lib\bfd-plugins
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s -flto=auto")
         if(WIN32)
-            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
+        # 对本机cpu生成特定优化代码,可能存在兼容性问题
+            set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
             message("CMAKE_CXX_FLAGS: ${CMAKE_CXX_FLAGS}")
         endif()
     endif()
