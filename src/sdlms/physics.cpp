@@ -31,11 +31,11 @@ void Physics::update(int elapsedTime)
     {
         // 垂直方向有力,默认质量为1
         _character->_vacc = _character->_vforce;
-        auto _y = _character->_pos.y() + _character->_vspeed * elapsedTime + 0.5 * _character->_vacc * elapsedTime * elapsedTime;
+        auto _y = _character->_pos.b + _character->_vspeed * elapsedTime + 0.5 * _character->_vacc * elapsedTime * elapsedTime;
         _character->_vspeed += elapsedTime * _character->_vacc;
-        if (_character->_vspeed >= 1)
+        if (_character->_vspeed >= 10)
         {
-            _character->_vspeed = 1;
+            _character->_vspeed = 10;
         }
 
         _character->_pos.b = _y;
