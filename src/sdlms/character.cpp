@@ -43,7 +43,7 @@ void Character::event(SDL_Event &event)
         _frameIndex = 0;
         _frameTime = 0;
     }
-    _vforce = -10;
+    _vforce = 10;
 
     return;
 }

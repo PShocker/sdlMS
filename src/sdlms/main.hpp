@@ -44,6 +44,7 @@ private:
     std::unique_ptr<MiniMap> _minimap;
     std::unique_ptr<StatusBar> _statusbar;
     std::unique_ptr<Sound> _sound;
+    std::unique_ptr<Physics> _physics;
     std::unique_ptr<FfmpegUtil> _ffmpeg_util;
     std::unique_ptr<FreeTypeUtil> _freetype_util;
     std::unique_ptr<StringUtil> _string_util;
