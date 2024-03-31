@@ -13,7 +13,7 @@ class Physics
 
 public:
     Physics();
-    void update();
+    void update(int elapsedTime);
 
 
 private:
