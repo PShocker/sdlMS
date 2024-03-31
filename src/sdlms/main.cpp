@@ -35,6 +35,7 @@ int Main::run(int argc, char **argv)
     _cursor->_s = _cursor_util->load();
 
     _sound.reset(new Sound());
+    _physics.reset(new Physics());
 
     _minimap->_s = _minimap_util->load_minimap(mapId);
     _statusbar->_s = _statusbar_util->load_statusbar();
@@ -67,6 +68,7 @@ int Main::run(int argc, char **argv)
 
         _map->update(elapsedTime);
         _character->update(elapsedTime);
+        _physics->update(elapsedTime);
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();
