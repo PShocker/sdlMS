@@ -67,10 +67,17 @@ public:
     std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> _s;
     Type _status = WALK1;
     std::vector<Sprite> _v;
-    Point<float> _pos = {0, 0};
     int _frameIndex = 0;
     int _frameTime = 0;
-    bool _direct=true;
+    bool _direct = true;
+
+    Point<float> _pos = {0, 0};
+    float _hspeed = 0.0;
+    float _vspeed = 0.0;
+    float _hforce = 0.0;
+    float _vforce = 0.0;
+    float _hacc = 0.0;
+    float _vacc = 0.0;
 
 private:
     Input *_input;
