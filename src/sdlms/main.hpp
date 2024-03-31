@@ -22,7 +22,7 @@
 #include "sdlms/cursor.hpp"
 #include "sdlms/minimap.hpp"
 #include "sdlms/statusbar.hpp"
-
+#include "sdlms/physics.hpp"
 
 using namespace util;
 
