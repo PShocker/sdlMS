@@ -1,6 +1,7 @@
 #include "sdlms/physics.hpp"
 #include <ranges>
 #include <utility>
+#include <algorithm>
 
 Physics::Physics()
 {
@@ -26,20 +27,37 @@ void Physics::update(int elapsedTime)
     //     }
 
     // }
-    elapsedTime = elapsedTime / 1000.0;
-    if (_character->_vforce != 0.0)
-    {
-        // 垂直方向有力,默认质量为1
-        _character->_vacc = _character->_vforce;
-        auto _y = _character->_pos.b + _character->_vspeed * elapsedTime + 0.5 * _character->_vacc * elapsedTime * elapsedTime;
-        _character->_vspeed += elapsedTime * _character->_vacc;
-        if (_character->_vspeed >= 10)
-        {
-            _character->_vspeed = 10;
-        }
+    float _elapsedTime = elapsedTime / 1000.0;
 
-        _character->_pos.b = _y;
+    // 垂直方向有力,默认质量为1
+    _character->_hacc = _character->_hforce;
+    _character->_vacc = _character->_vforce;
+
+    auto _hspeed = _character->_hspeed + _elapsedTime * _character->_hacc;
+    auto _vspeed = _character->_vspeed + _elapsedTime * _character->_vacc;
+
+    Point<float> new_pos = _character->_pos + Point<float>{(_character->_hspeed + _hspeed) / 2 * _elapsedTime,
+                                                           (_character->_vspeed + _vspeed) / 2 * _elapsedTime};
+
+    _character->_hspeed += _elapsedTime * _character->_hacc;
+    _character->_vspeed += _elapsedTime * _character->_vacc;
+
+    _character->_pos = new_pos;
+    if (_character->_vspeed >= 60)
+    {
+        _character->_vspeed = 60;
     }
 
     return;
+}
+
+// 判断线段是否相交
+template <typename T>
+inline std::optional<Point<T>> Physics::segmentsIntersection(std::pair<const Point<T> &, const Point<T> &> a, std::pair<const Point<T> &, const Point<T> &> b)
+{
+    // auto crossProduct = [](Point<T> a, Point<T> b) = >
+    // {
+
+    // }
+    return std::optional<Point<T>>();
 }
