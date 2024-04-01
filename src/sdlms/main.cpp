@@ -54,21 +54,23 @@ int Main::run(int argc, char **argv)
 
     _character->_s = _character_util->load();
 
-    unsigned int frameStart;
-    unsigned int frameTime;
+    unsigned int frameStart, frameTime;
+    frameStart = frameTime = SDL_GetTicks();
 
     while (true)
     {
         frameStart = SDL_GetTicks(); // 获取当前帧开始的时间
+        auto elapsedTime = frameStart - frameTime;
+        
+        _map->update(elapsedTime);
+        _character->update(elapsedTime);
+        _physics->update(elapsedTime);
+
         if (_input->loop() < 0)
         {
             break;
         }
-        auto elapsedTime = frameStart - frameTime;
 
-        _map->update(elapsedTime);
-        _character->update(elapsedTime);
-        _physics->update(elapsedTime);
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();

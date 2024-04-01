@@ -14,6 +14,8 @@ void Character::event(SDL_Event &event)
 
     _status = Type::STAND1;
 
+    _hforce = 0;
+
     if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
     {
         // _pos.a -= 3;
