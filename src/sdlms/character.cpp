@@ -19,14 +19,14 @@ void Character::event(SDL_Event &event)
     if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
     {
         // _pos.a -= 3;
-        _hforce -= 10;
+        _hforce -= 100;
         _status = Type::WALK1;
         _direct = true;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
     {
         // _pos.a += 3;
-        _hforce += 10;
+        _hforce += 100;
         _status = Type::WALK1;
         _direct = false;
     }

@@ -1,8 +1,8 @@
 #include "sdlms/main.hpp"
 #include <SDL2/SDL.h>
 
-const int FPS = 100;
-const int FRAME_DELAY = 1000 / FPS;
+const unsigned int FPS = 100;
+const unsigned int FRAME_DELAY = 1000 / FPS;
 
 int Main::run(int argc, char **argv)
 {
@@ -60,8 +60,8 @@ int Main::run(int argc, char **argv)
     while (true)
     {
         frameStart = SDL_GetTicks(); // 获取当前帧开始的时间
-        auto elapsedTime = frameStart - frameTime;
-        
+        auto elapsedTime = std::max(frameStart - frameTime, FRAME_DELAY);
+
         _map->update(elapsedTime);
         _character->update(elapsedTime);
         _physics->update(elapsedTime);
