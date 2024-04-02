@@ -24,7 +24,7 @@ private:
                                                  std::pair<const Point<T> &, const Point<T> &> b);
 
 private:
-    std::map<std::pair<int, int>, FootHold *> _fh;
+    FootHold _fh;
 
 private:
     Character *_character;
@@ -32,4 +32,3 @@ private:
 };
 
 #endif
-

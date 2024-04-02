@@ -1,5 +1,8 @@
 #include "sdlms/foothold.hpp"
-#include "foothold.hpp"
+
+FootHold::FootHold()
+{
+}
 
 FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int id, int prev, int next) : _a(a),
                                                                                                           _b(b),
