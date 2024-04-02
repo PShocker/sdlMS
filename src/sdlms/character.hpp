@@ -78,6 +78,7 @@ public:
     float _vforce = 0.0;
     float _hacc = 0.0;
     float _vacc = 0.0;
+    bool _ground = false;
 
 private:
     Input *_input;

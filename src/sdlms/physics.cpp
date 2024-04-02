@@ -23,6 +23,14 @@ void Physics::update(int elapsedTime)
     Point<float> new_pos = _character->_pos + Point<float>{(_character->_hspeed + _hspeed) / 2 * _elapsedTime,
                                                            (_character->_vspeed + _vspeed) / 2 * _elapsedTime};
 
+    _character->_hspeed += _elapsedTime * _character->_hacc;
+    _character->_vspeed += _elapsedTime * _character->_vacc;
+
+    if (_character->_vspeed >= 60)
+    {
+        _character->_vspeed = 60;
+    }
+
     for (auto it : _map->_foothold)
     {
         Point<float> p1 = {(float)it._a.x(), (float)it._a.y()};
@@ -36,21 +44,13 @@ void Physics::update(int elapsedTime)
         if (r.has_value())
         {
             // 修改坐标为交点
-            _character->_pos = r.value();
+            printf("segmentsIntersection");
 
-            _character->_hspeed += _elapsedTime * _character->_hacc;
+            _character->_pos = r.value();
             return;
         }
     }
-
-    _character->_hspeed += _elapsedTime * _character->_hacc;
-    _character->_vspeed += _elapsedTime * _character->_vacc;
-
     _character->_pos = new_pos;
-    if (_character->_vspeed >= 60)
-    {
-        _character->_vspeed = 60;
-    }
 
     return;
 }

@@ -9,8 +9,8 @@ FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int 
                                                                                                           _prev(prev), _next(next)
 {
     _len = b.distance(a);
-    _uvx = (b.x() - a.x()) / _len;
-    _uvy = (b.y() - a.y()) / _len;
+    _uvx = (float)(b.x() - a.x()) / _len;
+    _uvy = (float)(b.y() - a.y()) / _len;
 
     if (a.x() == b.x())
     {
@@ -25,8 +25,8 @@ FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int 
     else
     {
         // 斜坡
-        _k = (b.y() - a.y()) / (b.x() - a.x() * 1.0);
-        _c = (a.y() * b.x() - b.y() * a.x()) / (b.x() - a.x() * 1.0);
+        _k = (float)(b.y() - a.y()) / (b.x() - a.x() * 1.0);
+        _c = (float)(a.y() * b.x() - b.y() * a.x()) / (b.x() - a.x() * 1.0);
     }
 
     _camera = Camera::current();

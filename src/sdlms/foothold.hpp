@@ -26,9 +26,9 @@ public:
     int _prev;
     int _next;
 
-    int _len;
-    int _uvx; // sinx
-    int _uvy; // siny
+    float _len;
+    float _uvx; // sinx
+    float _uvy; // siny
               /*
             fh.len =  sqrt((x2-x1)^2 + (y2-y1)^2)
             fh.uvx = (fh.x2 - fh.x1) / fh.len
