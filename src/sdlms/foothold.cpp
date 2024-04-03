@@ -18,7 +18,14 @@ FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int 
     if (a.x() == b.x())
     {
         // 墙面
-        _type = WALL;
+        if (a.y() > b.y())
+        {
+            _type = WALL;
+        }
+        else
+        {
+            _type = EDGE;
+        }
     }
     else if (a.y() == b.y())
     {
@@ -28,8 +35,9 @@ FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int 
     else
     {
         // 斜坡
-        _k = (float)(b.y() - a.y()) / (b.x() - a.x() * 1.0);
-        _c = (float)(a.y() * b.x() - b.y() * a.x()) / (b.x() - a.x() * 1.0);
+        _k = ((float)b.y() - (float)a.y()) / ((float)b.x() - (float)a.x());
+        _intercept = a.y() - _k * a.x();
+        _type = SLOPE;
     }
 
     _camera = Camera::current();
@@ -54,9 +62,10 @@ std::optional<float> FootHold::get_x(float y)
         case FLOOR:
             return std::nullopt;
         case WALL:
+        case EDGE:
             return _a.x();
         case SLOPE:
-            return (y - _c) / _k;
+            return (y - _intercept) / _k;
         default:
             break;
         }
@@ -74,9 +83,10 @@ std::optional<float> FootHold::get_y(float x)
         case FLOOR:
             return _a.y();
         case WALL:
+        case EDGE:
             return std::nullopt;
         case SLOPE:
-            return _k * x + _c;
+            return _k * x + _intercept;
         default:
             break;
         }

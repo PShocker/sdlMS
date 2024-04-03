@@ -60,7 +60,7 @@ public:
         EDGE,
     };
     float _k;
-    float _c;
+    float _intercept;
     Type _type;
 
 private:
