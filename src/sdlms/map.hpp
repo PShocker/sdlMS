@@ -29,7 +29,7 @@ public:
     std::vector<BackGrd> _backgrd;
     std::vector<Portal> _portal;
     std::tuple<std::vector<uint8_t>, int> _sound; // pcm流,采样率
-    std::vector<FootHold> _foothold;
+    std::unordered_map<int, FootHold> _foothold;
 };
 
 #endif

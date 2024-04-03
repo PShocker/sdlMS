@@ -2,6 +2,7 @@
 #define HEADER_SDLMS_FOOTHOLD
 
 #include <SDL2/SDL.h>
+#include <optional>
 
 #include "sdlms/graphics.hpp"
 #include "sdlms/camera.hpp"
@@ -15,8 +16,8 @@ public:
     FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int id, int prev, int next);
 
     void draw();
-    float get_x(float y);
-    float get_y(float x);
+    std::optional<float> get_x(float y);
+    std::optional<float> get_y(float x);
 
 public:
     Point<int32_t> _a;
@@ -55,9 +56,8 @@ public:
     {
         FLOOR,
         WALL,
-        SLOPE
-        // MOUSEOVER,
-        // KEYFOCUSED,
+        SLOPE,
+        EDGE,
     };
     float _k;
     float _c;
