@@ -38,38 +38,35 @@ void Physics::update(int elapsedTime)
         auto y = _fh.get_y(x);
         if (!y.has_value())
         {
-            // 人物移动后x不在fh,切换fh,重写算出新的y坐标
-            if (x < _fh._a.x() && x < _fh._b.x())
+            FootHold fh = _fh;
+            while (x < fh._a.x() && x < fh._b.x())
             {
-                // 切换到左边fh
-                if (fhs[_fh._prev]._type == FootHold::WALL)
-                {
-                    // 墙面或者悬崖
-                    // 撞墙
-                    x = fhs[_fh._prev].get_x(0).value();
-                    //
-                }
-                else
-                {
-                    // 平地或者斜坡,切换fh,重写计算y值
-                    _fh = fhs[_fh._prev];
-                    y = _fh.get_y(x).value();
-                }
+                fh = fhs[fh._prev];
             }
-            if (x > _fh._a.x() && x > _fh._b.x())
+            while (x > fh._a.x() && x > fh._b.x())
             {
-                // 切换到右边fh
-                if (fhs[_fh._next]._type == FootHold::WALL)
-                {
-                    // 撞墙
-                    x = fhs[_fh._next].get_x(0).value();
-                }
-                else
-                {
-                    // 平地或者斜坡,切换fh,重写计算y值
-                    _fh = fhs[_fh._next];
-                    y = _fh.get_y(x).value();
-                }
+                fh = fhs[fh._next];
+            }
+            // 切换到右边fh
+            if (fh._type == FootHold::WALL)
+            {
+                // 撞墙
+                _character->_hspeed = 0.0f;
+                x = _character->_pos.x();
+                y = _character->_pos.y();
+            }
+            else if (fh._type == FootHold::EDGE)
+            {
+                // 悬崖
+                _character->_vspeed = 0.0f;
+                _character->_ground = false;
+                y = _character->_pos.y();
+            }
+            else
+            {
+                // 平地或者斜坡,切换fh,重写计算y值
+                _fh = fh;
+                y = _fh.get_y(x).value();
             }
         }
         _character->_pos.set_y(y.value());
