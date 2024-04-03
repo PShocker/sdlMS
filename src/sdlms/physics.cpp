@@ -42,10 +42,18 @@ void Physics::update(int elapsedTime)
             while (x < fh._a.x() && x < fh._b.x())
             {
                 fh = fhs[fh._prev];
+                if (fh._type == FootHold::WALL)
+                {
+                    break;
+                }
             }
             while (x > fh._a.x() && x > fh._b.x())
             {
                 fh = fhs[fh._next];
+                if (fh._type == FootHold::WALL)
+                {
+                    break;
+                }
             }
             // 切换到右边fh
             if (fh._type == FootHold::WALL)
