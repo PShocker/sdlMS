@@ -44,24 +44,42 @@ void FootHold::draw()
                        _b.y() - _camera->_viewport.y);
 }
 
-float FootHold::get_x(float y)
+std::optional<float> FootHold::get_x(float y)
 {
-    return 0.0f;
+    // 根据x坐标计算出斜线的y坐标,判断x在fh的范围内
+    if (y == std::clamp(y, (float)_a.y(), (float)_b.y()))
+    {
+        switch (_type)
+        {
+        case FLOOR:
+            return std::nullopt;
+        case WALL:
+            return _a.x();
+        case SLOPE:
+            return (y - _c) / _k;
+        default:
+            break;
+        }
+    }
+    return std::nullopt;
 }
 
-float FootHold::get_y(float x)
+std::optional<float> FootHold::get_y(float x)
 {
-    // 根据x坐标计算出斜线的y坐标
-    switch (_type)
+    // 根据x坐标计算出斜线的y坐标,判断x在fh的范围内
+    if (x == std::clamp(x, (float)_a.x(), (float)_b.x()))
     {
-    case FLOOR:
-        return _a.y();
-    case WALL:
-        return 0.0f;
-    case SLOPE:
-        return _k * x + _c;
-    default:
-        break;
+        switch (_type)
+        {
+        case FLOOR:
+            return _a.y();
+        case WALL:
+            return std::nullopt;
+        case SLOPE:
+            return _k * x + _c;
+        default:
+            break;
+        }
     }
-    return 0.0f;
+    return std::nullopt;
 }

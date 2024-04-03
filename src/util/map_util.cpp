@@ -242,15 +242,15 @@ namespace util
         return v_portal;
     }
 
-    std::vector<FootHold> MapUtil::load_foothold(int mapId)
+    std::unordered_map<int, FootHold> MapUtil::load_foothold(int mapId)
     {
         return load_foothold(load_node(mapId));
     }
 
-    std::vector<FootHold> MapUtil::load_foothold(wz::Node *node)
+    std::unordered_map<int, FootHold> MapUtil::load_foothold(wz::Node *node)
     {
 
-        std::vector<FootHold> v_foothold;
+        std::unordered_map<int, FootHold> m_foothold;
 
         node = node->get_child(u"foothold");
         if (node != nullptr)
@@ -275,12 +275,12 @@ namespace util
 
                         FootHold f(Point(x1, y1), Point(x2, y2), page, zmass, id, prev, next);
 
-                        v_foothold.push_back(f);
+                        m_foothold.emplace(id, f);
                     }
                 }
             }
         }
-        return v_foothold;
+        return m_foothold;
     }
 
     std::optional<Sprite> MapUtil::load_minimap(int mapId)

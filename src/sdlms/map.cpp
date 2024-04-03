@@ -36,7 +36,7 @@ void Map::draw()
         it.draw();
     }
     // 绘制平台
-    for (auto &it : _foothold)
+    for (auto [_, it] : _foothold)
     {
         it.draw();
     }

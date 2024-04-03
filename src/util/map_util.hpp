@@ -29,7 +29,7 @@ namespace util
         std::vector<Portal> load_portal(int mapId);
         std::optional<Sprite> load_minimap(int mapId);
         std::optional<Sprite> load_mark(int mapId);
-        std::vector<FootHold> load_foothold(int mapId);
+        std::unordered_map<int, FootHold> load_foothold(int mapId);
         wz::Node *load_node(int mapId);
 
     private:
@@ -43,7 +43,7 @@ namespace util
         std::vector<Obj> load_obj(wz::Node *node, int i);
         std::vector<BackGrd> load_backgrd(wz::Node *node);
         std::vector<Portal> load_portal(wz::Node *node);
-        std::vector<FootHold> load_foothold(wz::Node *node);
+        std::unordered_map<int, FootHold> load_foothold(wz::Node *node);
     };
 }
 

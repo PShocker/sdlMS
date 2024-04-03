@@ -11,6 +11,8 @@ Physics::Physics()
 
 void Physics::update(int elapsedTime)
 {
+    auto fhs = _map->_foothold;
+
     float _elapsedTime = elapsedTime / 1000.0;
 
     // 垂直方向有力,默认质量为1
@@ -29,17 +31,55 @@ void Physics::update(int elapsedTime)
     _character->_vspeed = std::min(_character->_vspeed, 200.0f);
     _character->_hspeed = std::clamp(_character->_hspeed, -240.0f, 240.0f);
 
-    //地面碰撞检测
+    // 地面碰撞检测
     if (_character->_ground == true)
     {
-        _character->_pos.a = new_pos.a;
-        _character->_pos.b = _fh.get_y(_character->_pos.a);
+        auto x = new_pos.x();
+        auto y = _fh.get_y(x);
+        if (!y.has_value())
+        {
+            // 人物移动后x不在fh,切换fh,重写算出新的y坐标
+            if (x < _fh._a.x() && x < _fh._b.x())
+            {
+                // 切换到左边fh
+                if (fhs[_fh._prev]._type == FootHold::WALL)
+                {
+                    // 墙面或者悬崖
+                    // 撞墙
+                    x = fhs[_fh._prev].get_x(0).value();
+                    //
+                }
+                else
+                {
+                    // 平地或者斜坡,切换fh,重写计算y值
+                    _fh = fhs[_fh._prev];
+                    y = _fh.get_y(x).value();
+                }
+            }
+            if (x > _fh._a.x() && x > _fh._b.x())
+            {
+                // 切换到右边fh
+                if (fhs[_fh._next]._type == FootHold::WALL)
+                {
+                    // 撞墙
+                    x = fhs[_fh._next].get_x(0).value();
+                }
+                else
+                {
+                    // 平地或者斜坡,切换fh,重写计算y值
+                    _fh = fhs[_fh._next];
+                    y = _fh.get_y(x).value();
+                }
+            }
+        }
+        _character->_pos.set_y(y.value());
+        _character->_pos.set_x(x);
         return;
     }
     else
     {
-        //空中碰撞检测
-        for (auto it : _map->_foothold)
+        // 空中碰撞检测
+        for (auto [id, it] : fhs)
         {
             Point<float> p1 = {(float)it._a.x(), (float)it._a.y()};
             Point<float> p2 = {(float)it._b.x(), (float)it._b.y()};
