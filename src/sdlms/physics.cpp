@@ -42,6 +42,10 @@ void Physics::update(int elapsedTime)
             FootHold fh = _fh;
             while (x < fh._a.x() && x < fh._b.x())
             {
+                if (fh._prev == 0)
+                {
+                    break;
+                }
                 fh = fhs[fh._prev];
                 if (fh._type == FootHold::WALL)
                 {
@@ -50,32 +54,46 @@ void Physics::update(int elapsedTime)
             }
             while (x > fh._a.x() && x > fh._b.x())
             {
+                if (fh._next == 0)
+                {
+                    break;
+                }
                 fh = fhs[fh._next];
                 if (fh._type == FootHold::WALL)
                 {
                     break;
                 }
             }
-            // 切换到右边fh
+            // 切换fh
             if (fh._type == FootHold::WALL)
             {
-                // 撞墙
-                _character->_hspeed = 0.0f;
-                x = _character->_pos.x();
                 y = _character->_pos.y();
-            }
-            else if (fh._type == FootHold::EDGE)
-            {
-                // 悬崖
-                _character->_vspeed = 0.0f;
-                _character->_ground = false;
-                y = _character->_pos.y();
+                if (y >= fh._a.y() && y >= fh._b.y())
+                {
+                    _character->_vspeed = 0.0f;
+                    _character->_ground = false;
+                }
+                else
+                {
+                    // 撞墙
+                    _character->_hspeed = 0.0f;
+                    x = _character->_pos.x();
+                }
             }
             else
             {
                 // 平地或者斜坡,切换fh,重写计算y值
                 _fh = fh;
-                y = _fh.get_y(x).value();
+                if (_fh.get_y(x).has_value())
+                {
+                    y = _fh.get_y(x).value();
+                }
+                else
+                {
+                    _character->_vspeed = 0.0f;
+                    _character->_ground = false;
+                    y = _character->_pos.y();
+                }
             }
         }
         _character->_pos.set_y(y.value());
@@ -98,11 +116,14 @@ void Physics::update(int elapsedTime)
             if (r.has_value())
             {
                 // 修改坐标为交点
-                _character->_pos = r.value();
+                auto intersect_pos = r.value();
+                // _character->_pos =
                 if (it._type == FootHold::WALL)
                 {
                     // 从空中撞到墙
                     _character->_hspeed = 0.0f;
+                    intersect_pos.set_x(_character->_pos.x());
+                    intersect_pos.set_y(new_pos.y());
                 }
                 else
                 {
@@ -111,7 +132,7 @@ void Physics::update(int elapsedTime)
                     _character->_vspeed = 0.0f;
                     _fh = it;
                 }
-
+                _character->_pos = intersect_pos;
                 return;
             }
         }
