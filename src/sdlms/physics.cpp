@@ -38,6 +38,7 @@ void Physics::update(int elapsedTime)
         auto y = _fh.get_y(x);
         if (!y.has_value())
         {
+            // 寻找下一个fh
             FootHold fh = _fh;
             while (x < fh._a.x() && x < fh._b.x())
             {
