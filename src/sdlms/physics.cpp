@@ -68,10 +68,11 @@ void Physics::update(int elapsedTime)
             if (fh._type == FootHold::WALL)
             {
                 y = _character->_pos.y();
-                if (y >= fh._a.y() && y >= fh._b.y())
+                if (y <= fh._a.y() && y <= fh._b.y())
                 {
                     _character->_vspeed = 0.0f;
                     _character->_ground = false;
+                    x = new_pos.x();
                 }
                 else
                 {
