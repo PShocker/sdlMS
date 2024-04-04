@@ -28,7 +28,7 @@ void Physics::update(int elapsedTime)
     _character->_hspeed += _elapsedTime * _character->_hacc;
     _character->_vspeed += _elapsedTime * _character->_vacc;
 
-    _character->_vspeed = std::min(_character->_vspeed, 320.0f);
+    _character->_vspeed = std::min(_character->_vspeed, 1200.0f);
     _character->_hspeed = std::clamp(_character->_hspeed, -240.0f, 240.0f);
 
     // 判断是否有向上的速度,起跳,弹簧
@@ -111,41 +111,51 @@ void Physics::update(int elapsedTime)
         // 判断上升还是下降
         auto raise = new_pos.y() < _character->_pos.y() ? true : false;
 
-        // 空中碰撞检测,上升仅仅与WALL碰撞
-        for (auto [id, it] : fhs)
+        for (const auto &[id, it] : fhs | std::views::filter([](const auto &pair)
+                                                             {
+                                                                 return pair.second._type == FootHold::WALL; // 先处理与墙的碰撞
+                                                             }))
         {
-            if (raise && it._type != FootHold::WALL)
-            {
-                continue;
-            }
-
             Point<float> p1 = {(float)it._a.x(), (float)it._a.y()};
             Point<float> p2 = {(float)it._b.x(), (float)it._b.y()};
 
             std::pair<const Point<float> &, const Point<float> &> l1(_character->_pos, new_pos);
             std::pair<const Point<float> &, const Point<float> &> l2(p1, p2);
 
-            // 判断fh与人物是否相交
             auto r = segmentsIntersection(l1, l2);
             if (r.has_value())
             {
                 // 修改坐标为交点
                 auto intersect_pos = r.value();
-                if (it._type == FootHold::WALL)
+                // 从空中撞到墙
+                _character->_hspeed = 0.0f;
+                intersect_pos.set_x(_character->_pos.x());
+                intersect_pos.set_y(new_pos.y());
+                new_pos = intersect_pos;
+            }
+        }
+        if (raise == false)
+        {
+            for (const auto &[id, it] : fhs | std::views::filter([](const auto &pair)
+                                                                 {
+                                                                     return pair.second._type != FootHold::WALL; // 后处理与墙面,斜坡碰撞
+                                                                 }))
+            {
+                Point<float> p1 = {(float)it._a.x(), (float)it._a.y()};
+                Point<float> p2 = {(float)it._b.x(), (float)it._b.y()};
+
+                std::pair<const Point<float> &, const Point<float> &> l1(_character->_pos, new_pos);
+                std::pair<const Point<float> &, const Point<float> &> l2(p1, p2);
+
+                auto r = segmentsIntersection(l1, l2);
+                if (r.has_value())
                 {
-                    // 从空中撞到墙
-                    _character->_hspeed = 0.0f;
-                    intersect_pos.set_x(_character->_pos.x());
-                    intersect_pos.set_y(new_pos.y());
-                }
-                else
-                {
-                    // 撞到地板或者斜坡
+                    auto intersect_pos = r.value();
                     _character->_ground = true;
                     _character->_vspeed = 0.0f;
                     _fh = it;
+                    new_pos = intersect_pos;
                 }
-                new_pos = intersect_pos;
             }
         }
         _character->_pos = new_pos;
