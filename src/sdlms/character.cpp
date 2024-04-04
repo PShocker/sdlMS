@@ -69,7 +69,7 @@ void Character::event(SDL_Event &event)
         _frameIndex = 0;
         _frameTime = 0;
     }
-    if (_ground == true)
+    if (_ground == true && _hspeed != 0)
     {
         // 地面摩擦力
         if (_hspeed > 0)
