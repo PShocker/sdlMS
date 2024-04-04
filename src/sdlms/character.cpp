@@ -59,7 +59,7 @@ void Character::event(SDL_Event &event)
     {
         if (_ground == true)
         {
-            _vforce += -10000;
+            _vforce += -14000;
         }
         _status = Type::JUMP;
     }
@@ -72,7 +72,7 @@ void Character::event(SDL_Event &event)
         _frameIndex = 0;
         _frameTime = 0;
     }
-    _vforce += 200;
+    _vforce += 900;
 
     return;
 }
