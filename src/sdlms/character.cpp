@@ -21,7 +21,7 @@ void Character::event(SDL_Event &event)
     {
         if (_ground == true)
         {
-            _hforce -= 1000;
+            _hforce -= 1400;
             _status = Type::WALK1;
         }
         else
@@ -32,10 +32,9 @@ void Character::event(SDL_Event &event)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
     {
-        // _pos.a += 3;
         if (_ground == true)
         {
-            _hforce += 1000;
+            _hforce += 1400;
             _status = Type::WALK1;
         }
         else
@@ -47,19 +46,17 @@ void Character::event(SDL_Event &event)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
     {
-        // _pos.b -= 3;
         _status = Type::WALK1;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
     {
-        // _pos.b += 3;
         _status = Type::WALK1;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_LALT) == true)
     {
         if (_ground == true)
         {
-            _vforce += -14000;
+            _vspeed = -555;
         }
         _status = Type::JUMP;
     }
@@ -72,7 +69,22 @@ void Character::event(SDL_Event &event)
         _frameIndex = 0;
         _frameTime = 0;
     }
-    _vforce += 900;
+    if (_ground == true)
+    {
+        // 地面摩擦力
+        if (_hspeed > 0)
+        {
+            // 摩擦力向左
+            _hforce -= 800;
+        }
+        else
+        {
+            _hforce += 800;
+        }
+    }
+
+    // 重力
+    _vforce += 2000;
 
     return;
 }
