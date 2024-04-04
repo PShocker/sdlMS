@@ -15,19 +15,34 @@ void Character::event(SDL_Event &event)
     _status = Type::STAND1;
 
     _hforce = 0;
+    _vforce = 0;
 
     if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
     {
-        // _pos.a -= 3;
-        _hforce -= 300;
-        _status = Type::WALK1;
+        if (_ground == true)
+        {
+            _hforce -= 1000;
+            _status = Type::WALK1;
+        }
+        else
+        {
+            _hforce -= 10;
+        }
         _direct = true;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
     {
         // _pos.a += 3;
-        _hforce += 300;
-        _status = Type::WALK1;
+        if (_ground == true)
+        {
+            _hforce += 1000;
+            _status = Type::WALK1;
+        }
+        else
+        {
+            _hforce += 10;
+        }
+
         _direct = false;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
@@ -40,12 +55,24 @@ void Character::event(SDL_Event &event)
         // _pos.b += 3;
         _status = Type::WALK1;
     }
+    if (_input->isKeyHeld(SDL_SCANCODE_LALT) == true)
+    {
+        if (_ground == true)
+        {
+            _vforce += -10000;
+        }
+        _status = Type::JUMP;
+    }
+    if (_ground != true)
+    {
+        _status = Type::JUMP;
+    }
     if (status != _status)
     {
         _frameIndex = 0;
         _frameTime = 0;
     }
-    _vforce = 300;
+    _vforce += 200;
 
     return;
 }

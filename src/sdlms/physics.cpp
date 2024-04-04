@@ -28,8 +28,14 @@ void Physics::update(int elapsedTime)
     _character->_hspeed += _elapsedTime * _character->_hacc;
     _character->_vspeed += _elapsedTime * _character->_vacc;
 
-    _character->_vspeed = std::min(_character->_vspeed, 200.0f);
+    _character->_vspeed = std::min(_character->_vspeed, 320.0f);
     _character->_hspeed = std::clamp(_character->_hspeed, -240.0f, 240.0f);
+
+    // 判断是否有向上的速度,起跳,弹簧
+    if (_character->_ground == true && new_pos.y() < _character->_pos.y())
+    {
+        _character->_ground = false;
+    }
 
     // 地面碰撞检测
     if (_character->_ground == true)
@@ -70,7 +76,6 @@ void Physics::update(int elapsedTime)
                 y = _character->_pos.y();
                 if (y <= fh._a.y() && y <= fh._b.y())
                 {
-                    _character->_vspeed = 0.0f;
                     _character->_ground = false;
                     x = new_pos.x();
                 }
@@ -91,21 +96,29 @@ void Physics::update(int elapsedTime)
                 }
                 else
                 {
-                    _character->_vspeed = 0.0f;
                     _character->_ground = false;
                     y = _character->_pos.y();
                 }
             }
         }
+        _character->_vspeed = 0.0f;
         _character->_pos.set_y(y.value());
         _character->_pos.set_x(x);
         return;
     }
-    else
+    else // 空中碰撞检测
     {
-        // 空中碰撞检测
+        // 判断上升还是下降
+        auto raise = new_pos.y() < _character->_pos.y() ? true : false;
+
+        // 空中碰撞检测,上升仅仅与WALL碰撞
         for (auto [id, it] : fhs)
         {
+            if (raise && it._type != FootHold::WALL)
+            {
+                continue;
+            }
+
             Point<float> p1 = {(float)it._a.x(), (float)it._a.y()};
             Point<float> p2 = {(float)it._b.x(), (float)it._b.y()};
 
@@ -118,7 +131,6 @@ void Physics::update(int elapsedTime)
             {
                 // 修改坐标为交点
                 auto intersect_pos = r.value();
-                // _character->_pos =
                 if (it._type == FootHold::WALL)
                 {
                     // 从空中撞到墙
@@ -133,8 +145,7 @@ void Physics::update(int elapsedTime)
                     _character->_vspeed = 0.0f;
                     _fh = it;
                 }
-                _character->_pos = intersect_pos;
-                return;
+                new_pos = intersect_pos;
             }
         }
         _character->_pos = new_pos;

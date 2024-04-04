@@ -57,7 +57,6 @@ public:
         FLOOR,
         WALL,
         SLOPE,
-        EDGE,
     };
     float _k;
     float _intercept;
