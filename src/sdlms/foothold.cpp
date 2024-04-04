@@ -17,15 +17,7 @@ FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int 
 
     if (a.x() == b.x())
     {
-        // 墙面
-        if (a.y() > b.y())
-        {
-            _type = WALL;
-        }
-        else
-        {
-            _type = EDGE;
-        }
+        _type = WALL;
     }
     else if (a.y() == b.y())
     {
@@ -62,7 +54,6 @@ std::optional<float> FootHold::get_x(float y)
         case FLOOR:
             return std::nullopt;
         case WALL:
-        case EDGE:
             return _a.x();
         case SLOPE:
             return (y - _intercept) / _k;
@@ -83,7 +74,6 @@ std::optional<float> FootHold::get_y(float x)
         case FLOOR:
             return _a.y();
         case WALL:
-        case EDGE:
             return std::nullopt;
         case SLOPE:
             return _k * x + _intercept;
