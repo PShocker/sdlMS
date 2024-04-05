@@ -154,7 +154,7 @@ namespace util
                     v.push_back(coat);
                 }
 
-                auto _pants = _character_node->find_from_path(u"Pants/01062040.img/" + type + u"/pants");
+                auto _pants = _character_node->find_from_path(u"Pants/01060005.img/" + type + u"/pants");
                 if (_pants != nullptr)
                 {
                     auto _pants_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_pants->find_from_path(u"map/navel"))->get();
