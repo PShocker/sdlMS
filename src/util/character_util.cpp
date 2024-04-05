@@ -90,7 +90,7 @@ namespace util
         }
     }
 
-    std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>,int>>> CharacterUtil::load()
+    std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> CharacterUtil::load()
     {
         std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> _s;
 
@@ -170,6 +170,31 @@ namespace util
                     v.push_back(arm);
                 }
 
+                auto _lHand = body_node->find_from_path(type + u"/lHand");
+                if (_lHand != nullptr)
+                {
+                    if (_lHand->find_from_path(u"map/handMove") != nullptr)
+                    {
+                        auto _lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/handMove"))->get();
+                        Sprite lHand = _sprite_util->load_sprite(_lHand, c - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
+                        v.push_back(lHand);
+                    }
+                    else
+                    {
+                        auto _lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/navel"))->get();
+                        Sprite lHand = _sprite_util->load_sprite(_lHand, a - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
+                        v.push_back(lHand);
+                    }
+                }
+
+                auto _rHand = body_node->find_from_path(type + u"/rHand");
+                if (_rHand != nullptr)
+                {
+                    auto _rHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_rHand->find_from_path(u"map/navel"))->get();
+                    Sprite rHand = _sprite_util->load_sprite(_rHand, a - Point<int32_t>(_rHand_pos.x, _rHand_pos.y));
+                    v.push_back(rHand);
+                }
+
                 auto _coat_arm = _character_node->find_from_path(u"Coat/01040041.img/" + type + u"/mailArm");
                 if (_coat_arm != nullptr)
                 {
@@ -190,7 +215,7 @@ namespace util
 
                 _v.push_back({v, delay});
             }
-            _s.emplace(i,_v);
+            _s.emplace(i, _v);
         }
         return _s;
     }
