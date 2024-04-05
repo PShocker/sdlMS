@@ -17,6 +17,45 @@ void Physics::update(int elapsedTime)
 
     // 垂直方向有力,默认质量为1
     _character->_hacc = _character->_hforce;
+    if (_character->_ground == true)
+    {
+        // 摩擦力
+        if (std::abs(_character->_hacc) < 800) // 合力小于摩擦力
+        {
+            if (_character->_hspeed == 0.0)
+            {
+                // 合力没有超过静摩擦力,且人物速度为0,则无加速度
+                _character->_hacc = 0;
+            }
+            else
+            {
+                if (_character->_hspeed > 0.0)
+                {
+                    // 摩擦力左
+                    _character->_hacc -= 800;
+                    _character->_hacc = std::max(-_character->_hspeed / _elapsedTime, _character->_hacc);
+                }
+                else
+                {
+                    // 摩擦力右
+                    _character->_hacc += 800;
+                    _character->_hacc = std::min(-_character->_hspeed / _elapsedTime, _character->_hacc);
+                }
+            }
+        }
+        else // 合力大于摩擦力
+        {
+            if (_character->_hacc > 0)
+            {
+                _character->_hacc -= 800;
+            }
+            else
+            {
+                _character->_hacc += 800;
+            }
+        }
+    }
+
     _character->_vacc = _character->_vforce;
 
     auto _hspeed = _character->_hspeed + _elapsedTime * _character->_hacc;
@@ -29,7 +68,7 @@ void Physics::update(int elapsedTime)
     _character->_vspeed += _elapsedTime * _character->_vacc;
 
     _character->_vspeed = std::min(_character->_vspeed, 1200.0f);
-    _character->_hspeed = std::clamp(_character->_hspeed, -125.0f, 125.0f);
+    _character->_hspeed = std::clamp(_character->_hspeed, -150.0f, 150.0f);
 
     // 判断是否有向上的速度,起跳,弹簧
     if (_character->_ground == true && new_pos.y() < _character->_pos.y())
