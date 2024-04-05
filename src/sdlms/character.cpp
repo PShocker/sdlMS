@@ -50,7 +50,7 @@ void Character::event(SDL_Event &event)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
     {
-        _status = Type::WALK1;
+        _status = Type::ALERT;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_LALT) == true)
     {
