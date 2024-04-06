@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <vector>
 #include <map>
+#include <bitset>
 
 #include <SDL2/SDL.h>
 #include "sdlms/dynamicsprite.hpp"
@@ -79,6 +80,7 @@ public:
     float _hacc = 0.0;
     float _vacc = 0.0;
     bool _ground = false;
+    std::bitset<8> _physic_status;
 
 private:
     Input *_input;
