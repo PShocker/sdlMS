@@ -40,6 +40,11 @@ void Map::draw()
     {
         it.draw();
     }
+    // 绘制梯子
+    for (auto [_, it] : _rope)
+    {
+        it.draw();
+    }
 }
 
 void Map::update(int elapsedTime)

@@ -7,7 +7,8 @@ const unsigned int FRAME_DELAY = 1000 / FPS;
 int Main::run(int argc, char **argv)
 {
     // int mapId = 10000;
-    int mapId = 105040300;
+    // int mapId = 105040300;
+    int mapId = 101000000;
     // int mapId = 222020111;
 
     _graphics.reset(new Graphics());
@@ -47,6 +48,7 @@ int Main::run(int argc, char **argv)
     _map->_backgrd = _map_util->load_backgrd(mapId);
     _map->_portal = _map_util->load_portal(mapId);
     _map->_foothold = _map_util->load_foothold(mapId);
+    _map->_rope = _map_util->load_rope(mapId);
 
     _map->_sound = _ffmpeg_util->decodeAudioToPCM(_sound_util->load_sound(mapId));
 
