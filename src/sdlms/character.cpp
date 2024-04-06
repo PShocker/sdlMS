@@ -13,7 +13,7 @@ void Character::event(SDL_Event &event)
     auto status = _status;
 
     _status = Type::STAND1;
-    _physic_status[CLIMB] == false;
+    _physic_status[CLIMB] = false;
 
     _hforce = 0;
     _vforce = 0;
