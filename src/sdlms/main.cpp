@@ -65,14 +65,15 @@ int Main::run(int argc, char **argv)
         frameStart = SDL_GetTicks(); // 获取当前帧开始的时间
         auto elapsedTime = std::max(frameStart - frameTime, FRAME_DELAY);
 
-        _map->update(elapsedTime);
-        _character->update(elapsedTime);
-        _physics->update(elapsedTime);
-
         if (_input->loop() < 0)
         {
             break;
         }
+
+        _map->update(elapsedTime);
+        _physics->update(elapsedTime);
+        _character->update(elapsedTime);
+        
 
         // 更新屏幕
         Graphics::current()->clear();

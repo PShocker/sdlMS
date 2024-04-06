@@ -47,7 +47,7 @@ void Character::event(SDL_Event &event)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
     {
-        _physic_status[CLIMB] == true;
+        _physic_status[CLIMB] = true;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
     {

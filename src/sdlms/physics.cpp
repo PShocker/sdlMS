@@ -11,6 +11,17 @@ Physics::Physics()
 
 void Physics::update(int elapsedTime)
 {
+    if (_character->_physic_status[Character::PHYSIC_STATUS::CLIMB] == true)
+    {
+        if (_character->_status != Character::Type::ROPE)
+        {
+            _character->_status = Character::Type::ROPE;
+            _character->_frameIndex = 0;
+            _character->_frameTime = 0;
+        }
+        return;
+    }
+
     auto fhs = _map->_foothold;
 
     float _elapsedTime = elapsedTime / 1000.0;
