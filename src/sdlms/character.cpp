@@ -19,7 +19,7 @@ void Character::event(SDL_Event &event)
 
     if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
     {
-        if (_ground == true)
+        if (_physic_status[GROUND] == true)
         {
             _hforce -= 1400;
             _status = Type::WALK1;
@@ -32,7 +32,7 @@ void Character::event(SDL_Event &event)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
     {
-        if (_ground == true)
+        if (_physic_status[GROUND] == true)
         {
             _hforce += 1400;
             _status = Type::WALK1;
@@ -54,13 +54,13 @@ void Character::event(SDL_Event &event)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_LALT) == true)
     {
-        if (_ground == true)
+        if (_physic_status[GROUND] == true)
         {
             _vspeed = -555;
         }
         _status = Type::JUMP;
     }
-    if (_ground != true)
+    if (_physic_status[GROUND] != true)
     {
         _status = Type::JUMP;
     }
@@ -71,7 +71,7 @@ void Character::event(SDL_Event &event)
     }
     // 重力
     _vforce += 2000;
-
+    
     return;
 }
 
