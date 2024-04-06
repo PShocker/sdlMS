@@ -13,6 +13,7 @@ void Character::event(SDL_Event &event)
     auto status = _status;
 
     _status = Type::STAND1;
+    _physic_status[CLIMB] == false;
 
     _hforce = 0;
     _vforce = 0;
@@ -46,7 +47,7 @@ void Character::event(SDL_Event &event)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
     {
-        _status = Type::WALK1;
+        _physic_status[CLIMB] == true;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
     {
@@ -71,7 +72,7 @@ void Character::event(SDL_Event &event)
     }
     // 重力
     _vforce += 2000;
-    
+
     return;
 }
 
