@@ -134,7 +134,7 @@ namespace util
                     v.push_back(pants);
                 }
 
-                                auto _head = head_node->find_from_path(type + u"/head");
+                auto _head = head_node->find_from_path(type + u"/head");
                 if (_head != nullptr)
                 {
                     Sprite head = _sprite_util->load_sprite(_head, d);
