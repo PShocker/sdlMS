@@ -13,9 +13,9 @@ void Physics::update(int elapsedTime)
 {
     if (_character->_physic_status[Character::PHYSIC_STATUS::CLIMB] == true)
     {
-        if (_character->_status != Character::Type::ROPE)
+        if (_character->_status != Character::Type::LADDER)
         {
-            _character->_status = Character::Type::ROPE;
+            _character->_status = Character::Type::LADDER;
             _character->_frameIndex = 0;
             _character->_frameTime = 0;
         }
