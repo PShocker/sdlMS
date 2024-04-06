@@ -17,7 +17,7 @@ void Physics::update(int elapsedTime)
 
     // 垂直方向有力,默认质量为1
     _character->_hacc = _character->_hforce;
-    if (_character->_ground == true)
+    if (_character->_physic_status[Character::PHYSIC_STATUS::GROUND] == true)
     {
         // 摩擦力
         if (std::abs(_character->_hacc) < 800) // 合力小于摩擦力
@@ -71,13 +71,13 @@ void Physics::update(int elapsedTime)
     _character->_hspeed = std::clamp(_character->_hspeed, -150.0f, 150.0f);
 
     // 判断是否有向上的速度,起跳,弹簧
-    if (_character->_ground == true && new_pos.y() < _character->_pos.y())
+    if (_character->_physic_status[Character::PHYSIC_STATUS::GROUND] == true && new_pos.y() < _character->_pos.y())
     {
-        _character->_ground = false;
+        _character->_physic_status[Character::PHYSIC_STATUS::GROUND] = false;
     }
 
     // 地面碰撞检测
-    if (_character->_ground == true)
+    if (_character->_physic_status[Character::PHYSIC_STATUS::GROUND] == true)
     {
         auto x = new_pos.x();
         auto y = _fh.get_y(x);
@@ -115,7 +115,7 @@ void Physics::update(int elapsedTime)
                 y = _character->_pos.y();
                 if (y <= fh._a.y() && y <= fh._b.y())
                 {
-                    _character->_ground = false;
+                    _character->_physic_status[Character::PHYSIC_STATUS::GROUND] = false;
                     x = new_pos.x();
                 }
                 else
@@ -135,7 +135,7 @@ void Physics::update(int elapsedTime)
                 }
                 else
                 {
-                    _character->_ground = false;
+                    _character->_physic_status[Character::PHYSIC_STATUS::GROUND] = false;
                     y = _character->_pos.y();
                 }
             }
@@ -190,7 +190,7 @@ void Physics::update(int elapsedTime)
                 if (r.has_value())
                 {
                     auto intersect_pos = r.value();
-                    _character->_ground = true;
+                    _character->_physic_status[Character::PHYSIC_STATUS::GROUND] = true;
                     _character->_vspeed = 0.0f;
                     _fh = it;
                     new_pos = intersect_pos;

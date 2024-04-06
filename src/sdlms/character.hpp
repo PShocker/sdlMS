@@ -66,7 +66,7 @@ public:
 
 public:
     std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> _s;
-    Type _status = WALK1;
+    Type _status = Type::WALK1;
     std::vector<Sprite> _v;
     int _frameIndex = 0;
     int _frameTime = 0;
@@ -79,7 +79,12 @@ public:
     float _vforce = 0.0;
     float _hacc = 0.0;
     float _vacc = 0.0;
-    bool _ground = false;
+    enum PHYSIC_STATUS : uint8_t
+    {
+        GROUND,
+        CLIMB,
+        CLIMBING
+    };
     std::bitset<8> _physic_status;
 
 private:
