@@ -41,7 +41,7 @@ void Map::draw()
         it.draw();
     }
     // 绘制梯子
-    for (auto [_, it] : _rope)
+    for (auto [_, it] : _ladderRope)
     {
         it.draw();
     }

@@ -13,7 +13,7 @@
 #include "sdlms/camera.hpp"
 #include "sdlms/minimap.hpp"
 #include "sdlms/foothold.hpp"
-#include "sdlms/rope.hpp"
+#include "sdlms/ladderRope.hpp"
 
 class Map : public Currenton<Map>
 {
@@ -31,7 +31,7 @@ public:
     std::vector<Portal> _portal;
     std::tuple<std::vector<uint8_t>, int> _sound; // pcm流,采样率
     std::unordered_map<int, FootHold> _foothold;
-    std::unordered_map<int, Rope> _rope;
+    std::unordered_map<int, LadderRope> _ladderRope;
 };
 
 #endif

@@ -283,15 +283,15 @@ namespace util
         return m_foothold;
     }
 
-    std::unordered_map<int, Rope> MapUtil::load_rope(int mapId)
+    std::unordered_map<int, LadderRope> MapUtil::load_ladderRope(int mapId)
     {
-        return load_rope(load_node(mapId));
+        return load_ladderRope(load_node(mapId));
     }
 
-    std::unordered_map<int, Rope> MapUtil::load_rope(wz::Node *node)
+    std::unordered_map<int, LadderRope> MapUtil::load_ladderRope(wz::Node *node)
     {
 
-        std::unordered_map<int, Rope> m_rope;
+        std::unordered_map<int, LadderRope> m_ladderrope;
 
         node = node->get_child(u"ladderRope");
         if (node != nullptr)
@@ -308,12 +308,12 @@ namespace util
                 auto y2 = dynamic_cast<wz::Property<int> *>(rope->get_child(u"y2"))->get();
                 auto page = dynamic_cast<wz::Property<int> *>(rope->get_child(u"page"))->get();
 
-                Rope r(id, l, uf, x, y1, y2, page);
+                LadderRope r(id, l, uf, x, y1, y2, page);
 
-                m_rope.emplace(x, r);
+                m_ladderrope.emplace(x, r);
             }
         }
-        return m_rope;
+        return m_ladderrope;
     }
 
     std::optional<Sprite> MapUtil::load_minimap(int mapId)
