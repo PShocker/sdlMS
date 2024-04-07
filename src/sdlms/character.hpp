@@ -63,6 +63,7 @@ public:
     void event(SDL_Event &event);
     void draw();
     void update(int elapsedTime);
+    void switch_type(Type type);
 
 public:
     std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> _s;
@@ -79,11 +80,6 @@ public:
     float _vforce = 0.0;
     float _hacc = 0.0;
     float _vacc = 0.0;
-    
-
-private:
-    Input *_input;
-    SDL_Renderer *_renderer;
 };
 
 #endif
