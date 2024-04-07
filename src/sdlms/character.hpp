@@ -79,13 +79,7 @@ public:
     float _vforce = 0.0;
     float _hacc = 0.0;
     float _vacc = 0.0;
-    enum PHYSIC_STATUS : uint8_t
-    {
-        GROUND,
-        CLIMB,
-        CLIMBING
-    };
-    std::bitset<8> _physic_status;
+    
 
 private:
     Input *_input;

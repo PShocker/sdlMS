@@ -7,28 +7,120 @@ Physics::Physics()
 {
     _map = Map::current();
     _character = Character::current();
+    _input = Input::current();
 }
 
 void Physics::update(int elapsedTime)
 {
-    if (_character->_physic_status[Character::PHYSIC_STATUS::CLIMB] == true)
+    float _elapsedTime = elapsedTime / 1000.0;
+
+    _character->_hforce = 0;
+    _character->_vforce = 2000;
+
+    if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
     {
-        if (_character->_status != Character::Type::LADDER)
+        if (_physic_status[GROUND] == true)
         {
-            _character->_status = Character::Type::LADDER;
-            _character->_frameIndex = 0;
-            _character->_frameTime = 0;
+            _character->_hforce -= 1400;
         }
+        else
+        {
+            _character->_hforce -= 10;
+        }
+        _character->_direct = true;
+    }
+    if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
+    {
+        if (_physic_status[GROUND] == true)
+        {
+            _character->_hforce += 1400;
+            // _status = Type::WALK1;
+        }
+        else
+        {
+            _character->_hforce += 10;
+        }
+
+        _character->_direct = false;
+    }
+    if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
+    {
+        if (_physic_status[PHYSIC_STATUS::CLIMB] == true)
+        {
+            // 在梯子上且按住上键
+            _character->_vspeed = -100;
+            auto y = _character->_pos.y() + _character->_vspeed * _elapsedTime;
+            if (y >= std::max(_lp._y1, _lp._y2))
+            {
+                y = std::max(_lp._y1, _lp._y2);
+                _physic_status[PHYSIC_STATUS::CLIMB] = false;
+            }
+
+            _character->_pos.set_y(y);
+            _character->_vspeed = 0;
+            return;
+        }
+        else
+        {
+            // 按住上方向键,判断是否有梯子或者绳子可以爬
+            auto lps = _map->_ladderRope;
+            auto lp = std::ranges::find_if(lps, [this](const auto &pair)
+                                           { return std::abs(this->_character->_pos.x() - pair.first) < 10; });
+
+            // 如果找到符合条件的元素，则输出
+            if (lp != lps.end())
+            {
+                _character->_pos.set_x(lp->first);
+                // 判断爬的是梯子还是绳子
+                if (lp->second._l == 1)
+                {
+                    // 梯子
+                    if (_character->_status != Character::Type::LADDER)
+                    {
+                        _character->_status = Character::Type::LADDER;
+                        _character->_frameIndex = 0;
+                        _character->_frameTime = 0;
+                    }
+                }
+                else
+                {
+                    // 绳子
+                    if (_character->_status != Character::Type::ROPE)
+                    {
+                        _character->_status = Character::Type::ROPE;
+                        _character->_frameIndex = 0;
+                        _character->_frameTime = 0;
+                    }
+                }
+                _lp = lp->second;
+                _physic_status[PHYSIC_STATUS::CLIMB] = true;
+                _physic_status[PHYSIC_STATUS::GROUND] = false;
+                return;
+            }
+        }
+    }
+
+    if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
+    {
+        // _status = Type::PRONE;
+    }
+    if (_input->isKeyHeld(SDL_SCANCODE_LALT) == true)
+    {
+        if (_physic_status[GROUND] == true)
+        {
+            _character->_vspeed = -555;
+        }
+    }
+    if (_physic_status[PHYSIC_STATUS::CLIMB] == true)
+    {
         return;
     }
 
     auto fhs = _map->_foothold;
 
-    float _elapsedTime = elapsedTime / 1000.0;
-
     // 垂直方向有力,默认质量为1
     _character->_hacc = _character->_hforce;
-    if (_character->_physic_status[Character::PHYSIC_STATUS::GROUND] == true)
+    if (_physic_status[PHYSIC_STATUS::GROUND] == true)
     {
         // 摩擦力
         if (std::abs(_character->_hacc) < 800) // 合力小于摩擦力
@@ -82,13 +174,13 @@ void Physics::update(int elapsedTime)
     _character->_hspeed = std::clamp(_character->_hspeed, -150.0f, 150.0f);
 
     // 判断是否有向上的速度,起跳,弹簧
-    if (_character->_physic_status[Character::PHYSIC_STATUS::GROUND] == true && new_pos.y() < _character->_pos.y())
+    if (_physic_status[PHYSIC_STATUS::GROUND] == true && new_pos.y() < _character->_pos.y())
     {
-        _character->_physic_status[Character::PHYSIC_STATUS::GROUND] = false;
+        _physic_status[PHYSIC_STATUS::GROUND] = false;
     }
 
     // 地面碰撞检测
-    if (_character->_physic_status[Character::PHYSIC_STATUS::GROUND] == true)
+    if (_physic_status[PHYSIC_STATUS::GROUND] == true)
     {
         auto x = new_pos.x();
         auto y = _fh.get_y(x);
@@ -126,7 +218,7 @@ void Physics::update(int elapsedTime)
                 y = _character->_pos.y();
                 if (y <= fh._a.y() && y <= fh._b.y())
                 {
-                    _character->_physic_status[Character::PHYSIC_STATUS::GROUND] = false;
+                    _physic_status[PHYSIC_STATUS::GROUND] = false;
                     x = new_pos.x();
                 }
                 else
@@ -146,7 +238,7 @@ void Physics::update(int elapsedTime)
                 }
                 else
                 {
-                    _character->_physic_status[Character::PHYSIC_STATUS::GROUND] = false;
+                    _physic_status[PHYSIC_STATUS::GROUND] = false;
                     y = _character->_pos.y();
                 }
             }
@@ -202,7 +294,7 @@ void Physics::update(int elapsedTime)
                 if (r.has_value())
                 {
                     auto intersect_pos = r.value();
-                    _character->_physic_status[Character::PHYSIC_STATUS::GROUND] = true;
+                    _physic_status[PHYSIC_STATUS::GROUND] = true;
                     _character->_vspeed = 0.0f;
                     _fh = it;
                     new_pos = intersect_pos;
