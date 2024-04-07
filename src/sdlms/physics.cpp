@@ -58,33 +58,26 @@ void Physics::update(int elapsedTime)
                     y = std::min(_lp._y1, _lp._y2);
                     _character->_hspeed = 0;
                     auto fhs = _map->_foothold;
-                    for (const auto &[id, it] : fhs | std::views::filter([](const auto &pair)
-                                                                         {
-                                                                             return pair.second._type != FootHold::WALL; // 后处理与墙面,斜坡碰撞
-                                                                         }))
+                    for (auto &[id, it] : fhs | std::views::filter([](const auto &pair)
+                                                                   {
+                                                                       return pair.second._type != FootHold::WALL; // 后处理与墙面,斜坡碰撞
+                                                                   }))
                     {
 
                         if (_character->_pos.x() != std::clamp(_character->_pos.x(), (float)it._a.x(), (float)it._b.x()))
                         {
                             continue;
                         }
-
-                        Point<float> p1 = {(float)it._a.x(), (float)it._a.y()};
-                        Point<float> p2 = {(float)it._b.x(), (float)it._b.y()};
-
-                        std::pair<const Point<float> &, const Point<float> &> l1(_character->_pos,
-                                                                                 Point<float>{_character->_pos.x(), y - 5});
-                        std::pair<const Point<float> &, const Point<float> &> l2(p1, p2);
-
-                        auto r = segmentsIntersection(l1, l2);
-                        SDL_Log("%f %f", _character->_pos.y(), y - 5);
-                        SDL_Log("%f %f", p1.y(), p2.y());
-                        SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
-                        if (r.has_value())
+                        if (_character->_pos.y() < std::min(it._a.y(), it._b.y()))
                         {
-                            // 修改坐标为交点
-                            auto intersect_pos = r.value();
-                            y = intersect_pos.y();
+                            continue;
+                        }
+
+                        auto r = it.get_y(_character->_pos.x());
+                        if (r.has_value() && std::abs(r.value() - y) <= 5)
+                        {
+                            // 修改坐标
+                            y = r.value();
                             _fh = it;
                             _physic_status[PHYSIC_STATUS::GROUND] = true;
                             _physic_status[PHYSIC_STATUS::CLIMB] = false;
@@ -153,13 +146,14 @@ void Physics::update(int elapsedTime)
 
             _character->_pos.set_y(y);
             _character->_vspeed = 0;
+            return;
         }
-        else
+        else if (_physic_status[PHYSIC_STATUS::GROUND] == true)
         {
             _character->_hspeed = 0;
             _character->switch_type(Character::Type::PRONE);
+            return;
         }
-        return;
     }
     if (_input->isKeyHeld(SDL_SCANCODE_LALT) == true)
     {
