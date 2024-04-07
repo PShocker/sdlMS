@@ -77,6 +77,9 @@ void Physics::update(int elapsedTime)
                         std::pair<const Point<float> &, const Point<float> &> l2(p1, p2);
 
                         auto r = segmentsIntersection(l1, l2);
+                        SDL_Log("%f %f", _character->_pos.y(), y - 5);
+                        SDL_Log("%f %f", p1.y(), p2.y());
+                        SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_INFO);
                         if (r.has_value())
                         {
                             // 修改坐标为交点
