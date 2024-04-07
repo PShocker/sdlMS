@@ -6,11 +6,11 @@
 #include "sdlms/graphics.hpp"
 #include "sdlms/camera.hpp"
 
-class Rope
+class LadderRope
 {
 public:
-    Rope();
-    Rope(int id, int l, int uf, int x, int y1, int y2, int page);
+    LadderRope();
+    LadderRope(int id, int l, int uf, int x, int y1, int y2, int page);
     void draw();
 
 public:

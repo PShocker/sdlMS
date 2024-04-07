@@ -166,6 +166,7 @@ void Physics::update(int elapsedTime)
                                                                  return pair.second._type == FootHold::WALL; // 先处理与墙的碰撞
                                                              }))
         {
+            printf("pair.second._type == FootHold::WALL");
             Point<float> p1 = {(float)it._a.x(), (float)it._a.y()};
             Point<float> p2 = {(float)it._b.x(), (float)it._b.y()};
 
