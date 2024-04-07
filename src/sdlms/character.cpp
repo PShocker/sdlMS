@@ -2,79 +2,79 @@
 
 Character::Character()
 {
-    _input = Input::current();
-    _input->event(std::bind(&event, this, std::placeholders::_1));
+    // _input = Input::current();
+    // _input->event(std::bind(&event, this, std::placeholders::_1));
 
-    _renderer = Graphics::current()->getRenderer();
+    // _renderer = Graphics::current()->getRenderer();
 }
 
-void Character::event(SDL_Event &event)
-{
-    auto status = _status;
+// void Character::event(SDL_Event &event)
+// {
+//     auto status = _status;
 
-    _status = Type::STAND1;
-    _physic_status[CLIMB] = false;
+//     _status = Type::STAND1;
+//     _physic_status[CLIMB] = false;
 
-    _hforce = 0;
-    _vforce = 0;
+//     _hforce = 0;
+//     _vforce = 0;
 
-    if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
-    {
-        if (_physic_status[GROUND] == true)
-        {
-            _hforce -= 1400;
-            _status = Type::WALK1;
-        }
-        else
-        {
-            _hforce -= 10;
-        }
-        _direct = true;
-    }
-    if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
-    {
-        if (_physic_status[GROUND] == true)
-        {
-            _hforce += 1400;
-            _status = Type::WALK1;
-        }
-        else
-        {
-            _hforce += 10;
-        }
+//     if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
+//     {
+//         if (_physic_status[GROUND] == true)
+//         {
+//             _hforce -= 1400;
+//             _status = Type::WALK1;
+//         }
+//         else
+//         {
+//             _hforce -= 10;
+//         }
+//         _direct = true;
+//     }
+//     if (_input->isKeyHeld(SDL_SCANCODE_RIGHT) == true)
+//     {
+//         if (_physic_status[GROUND] == true)
+//         {
+//             _hforce += 1400;
+//             _status = Type::WALK1;
+//         }
+//         else
+//         {
+//             _hforce += 10;
+//         }
 
-        _direct = false;
-    }
-    if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
-    {
-        _physic_status[CLIMB] = true;
-    }
-    if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
-    {
-        _status = Type::PRONE;
-    }
-    if (_input->isKeyHeld(SDL_SCANCODE_LALT) == true)
-    {
-        if (_physic_status[GROUND] == true)
-        {
-            _vspeed = -555;
-        }
-        _status = Type::JUMP;
-    }
-    if (_physic_status[GROUND] != true)
-    {
-        _status = Type::JUMP;
-    }
-    if (status != _status)
-    {
-        _frameIndex = 0;
-        _frameTime = 0;
-    }
-    // 重力
-    _vforce += 2000;
+//         _direct = false;
+//     }
+//     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
+//     {
+//         _physic_status[CLIMB] = true;
+//     }
+//     if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
+//     {
+//         _status = Type::PRONE;
+//     }
+//     if (_input->isKeyHeld(SDL_SCANCODE_LALT) == true)
+//     {
+//         if (_physic_status[GROUND] == true)
+//         {
+//             _vspeed = -555;
+//         }
+//         _status = Type::JUMP;
+//     }
+//     if (_physic_status[GROUND] != true)
+//     {
+//         _status = Type::JUMP;
+//     }
+//     if (status != _status)
+//     {
+//         _frameIndex = 0;
+//         _frameTime = 0;
+//     }
+//     // 重力
+//     _vforce += 2000;
 
-    return;
-}
+//     return;
+// }
 
 void Character::draw()
 {

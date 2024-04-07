@@ -3,10 +3,12 @@
 
 #include <map>
 #include <optional>
+#include <SDL2/SDL.h>
 
 #include "sdlms/character.hpp"
 #include "sdlms/foothold.hpp"
 #include "sdlms/map.hpp"
+#include "sdlms/input.hpp"
 #include "template/point.hpp"
 
 // 实现人物或怪物的物理效果
@@ -25,8 +27,16 @@ private:
 
 private:
     FootHold _fh;
+    LadderRope _lp;
+    enum PHYSIC_STATUS : uint8_t
+    {
+        GROUND,
+        CLIMB,
+    };
+    std::bitset<8> _physic_status;
 
 private:
+    Input *_input;
     Character *_character;
     Map *_map;
 };
