@@ -232,6 +232,7 @@ void Physics::update(int elapsedTime)
     _character->_hacc = _character->_hforce;
     if (_physic_status[PHYSIC_STATUS::GROUND] == true)
     {
+        _character->_animate = true;
         // 摩擦力
         if (std::abs(_character->_hacc) < 800) // 合力小于摩擦力
         {
