@@ -36,15 +36,15 @@ void Map::draw()
         it.draw();
     }
     // 绘制平台
-    for (auto [_, it] : _foothold)
-    {
-        it.draw();
-    }
-    // 绘制梯子
-    for (auto [_, it] : _ladderRope)
-    {
-        it.draw();
-    }
+    // for (auto [_, it] : _foothold)
+    // {
+    //     it.draw();
+    // }
+    // // 绘制梯子
+    // for (auto [_, it] : _ladderRope)
+    // {
+    //     it.draw();
+    // }
 }
 
 void Map::update(int elapsedTime)
