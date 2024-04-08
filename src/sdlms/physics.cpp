@@ -109,11 +109,11 @@ void Physics::update(int elapsedTime)
             // 按住上方向键,判断是否有梯子或者绳子可以爬
             auto lps = _map->_ladderRope;
             auto lp = std::ranges::find_if(lps, [this](const auto &pair)
-                                           { return std::abs(this->_character->_pos.x() - pair.first) < 10; });
+                                           { return (std::abs(this->_character->_pos.x() - pair.first) < 10) &&
+                                                    (this->_character->_pos.y() == std::clamp(this->_character->_pos.y(), (float)pair.second._y1, (float)pair.second._y2)); });
 
             // 如果找到符合条件的元素，则输出
-            if (lp != lps.end() &&
-                (this->_character->_pos.y() == std::clamp(this->_character->_pos.y(), (float)lp->second._y1, (float)lp->second._y2)))
+            if (lp != lps.end())
             {
                 _character->_pos.set_x(lp->first);
                 // 判断爬的是梯子还是绳子
@@ -164,11 +164,11 @@ void Physics::update(int elapsedTime)
             // 按住下方向键,判断是否有梯子或者绳子可以爬
             auto lps = _map->_ladderRope;
             auto lp = std::ranges::find_if(lps, [this](const auto &pair)
-                                           { return std::abs(this->_character->_pos.x() - pair.first) < 10; });
+                                           { return (std::abs(this->_character->_pos.x() - pair.first) < 10) &&
+                                                    (this->_character->_pos.y() >= std::min((float)pair.second._y1, (float)pair.second._y2) - 5); });
 
             // 如果找到符合条件的元素，则输出
-            if (lp != lps.end() &&
-                (this->_character->_pos.y() >= std::min((float)lp->second._y1, (float)lp->second._y2) - 5))
+            if (lp != lps.end())
             {
                 _character->_pos.set_x(lp->first);
                 _character->_pos.set_y(std::min((float)lp->second._y1, (float)lp->second._y2));
