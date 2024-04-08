@@ -310,7 +310,7 @@ namespace util
 
                 LadderRope r(id, l, uf, x, y1, y2, page);
 
-                m_ladderrope.emplace(x, r);
+                m_ladderrope.emplace(id, r);
             }
         }
         return m_ladderrope;
