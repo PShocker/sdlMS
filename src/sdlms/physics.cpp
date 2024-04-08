@@ -430,7 +430,7 @@ void Physics::update(int elapsedTime)
                     auto intersect_pos = r.value();
                     _physic_status[PHYSIC_STATUS::GROUND] = true;
                     _character->_vspeed = 0.0f;
-                    _character->_hspeed /= 2;
+                    // _character->_hspeed /= 2;
                     _fh = it;
                     new_pos = intersect_pos;
                 }
