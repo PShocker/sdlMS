@@ -60,10 +60,10 @@ public:
 
 public:
     Character();
-    void event(SDL_Event &event);
     void draw();
     void update(int elapsedTime);
     void switch_type(Type type);
+    void switch_animate();
 
 public:
     std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>, int>>> _s;
@@ -72,6 +72,7 @@ public:
     int _frameIndex = 0;
     int _frameTime = 0;
     bool _direct = true;
+    bool _animate = true;
 
     Point<float> _pos = {0, 0};
     float _hspeed = 0.0;
