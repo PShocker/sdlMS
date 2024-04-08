@@ -89,11 +89,13 @@ namespace util
 
             auto animatedsprite = _sprite_util->load_animated_sprite(_map_node->find_from_path(url), x, y, flip);
 
-            Obj o(animatedsprite, i, z, url);
+            auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
+
+            Obj o(id, animatedsprite, i, z, url);
             obj.push_back(o);
         }
         std::ranges::sort(obj, [](const Obj a, const Obj b)
-                          { return a._z < b._z; });
+                          { return a._z == b._z ? (a._id < b._id) : (a._z < b._z); });
         return obj;
     }
 
