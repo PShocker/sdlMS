@@ -12,11 +12,13 @@
 class Obj : public AnimatedSprite
 {
 public:
-    Obj(AnimatedSprite animatedsprite,
+    Obj(int id,
+        AnimatedSprite animatedsprite,
         int layer, int z,
         std::u16string url);
 
 public:
+    int _id;
     int _layer;
     int _z;
 
