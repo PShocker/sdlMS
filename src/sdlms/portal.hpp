@@ -19,6 +19,8 @@ public:
            int type, int tm,
            std::u16string url);
     static void draws(std::vector<Portal> portal);
+    static void updates(std::vector<Portal> &portals, int elapsedTime);
+
 
     void event(const SDL_Event &event);
 

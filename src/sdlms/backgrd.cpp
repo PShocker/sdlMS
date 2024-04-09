@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <ranges>
 #include "sdlms/backgrd.hpp"
+#include "backgrd.hpp"
 
 BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> dynamicsprite,
                  int id, int type,
@@ -148,6 +149,14 @@ void BackGrd::update(int elapsedTime)
     }
 }
 
+void BackGrd::updates(std::vector<BackGrd> &backgrd, int elapsedTime)
+{
+    for (auto &it : backgrd)
+    {
+        it.update(elapsedTime);
+    }
+    
+}
 void BackGrd::drawbackgrounds(std::vector<BackGrd> backgrd)
 {
     // 绘制背景
