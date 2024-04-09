@@ -24,29 +24,32 @@ void Map::draw()
     Portal::draws(_portal);
 
     // 绘制平台
-    FootHold::draws(_foothold);
+    // FootHold::draws(_foothold);
     // 绘制梯子
-    LadderRope::draws(_ladderRope);
+    // LadderRope::draws(_ladderRope);
 }
 
 void Map::update(int elapsedTime)
 {
-    for (auto &it : _backgrd)
-    {
-        it.update(elapsedTime);
-    }
+    // for (auto &it : _backgrd)
+    // {
+    //     it.update(elapsedTime);
+    // }
+    BackGrd::updates(_backgrd, elapsedTime);
     for (size_t i = 0; i < 8; i++)
     {
-        for (auto &it : _obj[i])
-        {
-            // 更新帧状态
-            it.update(elapsedTime);
-        }
+        // for (auto &it : _obj[i])
+        // {
+        //     // 更新帧状态
+        //     it.update(elapsedTime);
+        // }
+        Obj::updates(_obj[i], elapsedTime);
     }
-    for (auto &it : _portal)
-    {
-        it.update(elapsedTime);
-    }
+    // for (auto &it : _portal)
+    // {
+    //     it.update(elapsedTime);
+    // }
+    Portal::updates(_portal, elapsedTime);
 }
 
 void Map::event(const SDL_Event &event)

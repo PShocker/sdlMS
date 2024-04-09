@@ -1,4 +1,5 @@
 #include "sdlms/portal.hpp"
+#include "portal.hpp"
 
 Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
                int type, int tm,
@@ -24,6 +25,13 @@ void Portal::draws(std::vector<Portal> portal)
     }
 }
 
+void Portal::updates(std::vector<Portal> &portals, int elapsedTime)
+{
+    for (auto &it : portals)
+    {
+        it.update(elapsedTime);
+    }
+}
 void Portal::event(const SDL_Event &event)
 {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)
