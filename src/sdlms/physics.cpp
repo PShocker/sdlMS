@@ -52,7 +52,7 @@ void Physics::update(int elapsedTime)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
     {
-        if (_physic_status[PHYSIC_STATUS::CLIMB] == true)
+        if (_physic_status[PHYSIC_STATUS::CLIMB] == true && _input->isKeyHeld(SDL_SCANCODE_DOWN) == false)
         {
             // 在梯子上且按住上键
             _character->_animate = true;
