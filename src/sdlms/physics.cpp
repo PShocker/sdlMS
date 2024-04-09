@@ -23,7 +23,7 @@ void Physics::update(int elapsedTime)
         _character->_animate = false;
     }
 
-    if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true)
+    if (_input->isKeyHeld(SDL_SCANCODE_LEFT) == true && _input->isKeyHeld(SDL_SCANCODE_RIGHT) == false)
     {
         if (_physic_status[GROUND] == true)
         {
@@ -234,15 +234,16 @@ void Physics::update(int elapsedTime)
 
     // 垂直方向有力,默认质量为1
     _character->_hacc = _character->_hforce;
-    if (_physic_status[PHYSIC_STATUS::GROUND] == true)
+    if (_physic_status[PHYSIC_STATUS::GROUND] == true && _input->isKeyHeld(SDL_SCANCODE_LALT) == false)
     {
         _character->_animate = true;
         // 摩擦力
         if (std::abs(_character->_hacc) < 800) // 合力小于摩擦力
         {
-            if (_character->_hspeed == 0.0)
+            if (std::abs(_character->_hspeed) <= 10)
             {
                 // 合力没有超过静摩擦力,且人物速度为0,则无加速度
+                _character->_hspeed = 0.0;
                 _character->_hacc = 0;
             }
             else
@@ -297,7 +298,7 @@ void Physics::update(int elapsedTime)
     // 地面碰撞检测
     if (_physic_status[PHYSIC_STATUS::GROUND] == true)
     {
-        if (_character->_hforce == 0)
+        if (!(_input->isKeyHeld(SDL_SCANCODE_LEFT) || _input->isKeyHeld(SDL_SCANCODE_RIGHT)))
         {
             _character->switch_type(Character::Type::STAND1);
         }
@@ -437,6 +438,7 @@ void Physics::update(int elapsedTime)
                     _character->_vspeed = 0.0f;
                     // _character->_hspeed /= 2;
                     _character->_layer = _fh._page;
+                    _character->switch_type(Character::Type::STAND1);
                     new_pos = intersect_pos;
                 }
             }

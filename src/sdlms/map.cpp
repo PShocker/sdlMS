@@ -31,24 +31,11 @@ void Map::draw()
 
 void Map::update(int elapsedTime)
 {
-    // for (auto &it : _backgrd)
-    // {
-    //     it.update(elapsedTime);
-    // }
     BackGrd::updates(_backgrd, elapsedTime);
     for (size_t i = 0; i < 8; i++)
     {
-        // for (auto &it : _obj[i])
-        // {
-        //     // 更新帧状态
-        //     it.update(elapsedTime);
-        // }
         Obj::updates(_obj[i], elapsedTime);
     }
-    // for (auto &it : _portal)
-    // {
-    //     it.update(elapsedTime);
-    // }
     Portal::updates(_portal, elapsedTime);
 }
 
