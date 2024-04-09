@@ -24,7 +24,7 @@ private:
   // 相机最小移动距离，若小于此距离，则移动这个最小距离的长度
   const float CAMERA_MIN_MOVE_DISTANCE = 0.1;
   // 每帧逼近剩余距离的百分比
-  const float CAMERA_MOVE_INTERPOLATE = 0.05;
+  const float CAMERA_MOVE_INTERPOLATE = 0.3;
 
 private:
   Camera(const Camera &) = delete;
