@@ -90,7 +90,6 @@ void Physics::update(int elapsedTime)
                             _physic_status[PHYSIC_STATUS::GROUND] = true;
                             _physic_status[PHYSIC_STATUS::CLIMB] = false;
                             _character->_layer = _fh._page;
-                            _character->switch_type(Character::Type::STAND1);
                             break;
                         }
                     }
@@ -442,8 +441,11 @@ void Physics::update(int elapsedTime)
                     _physic_status[PHYSIC_STATUS::GROUND] = true;
                     _character->_vspeed = 0.0f;
                     // _character->_hspeed /= 2;
+                    if (_input->isKeyHeld(SDL_SCANCODE_LALT) == false)
+                    {
+                        _character->switch_type(Character::Type::STAND1);
+                    }
                     _character->_layer = _fh._page;
-                    _character->switch_type(Character::Type::STAND1);
                     new_pos = intersect_pos;
                 }
             }
