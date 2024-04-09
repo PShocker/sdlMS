@@ -21,8 +21,9 @@ public:
             int cx, int cy,
             int ani,
             std::u16string url);
-    void draw(bool front);
     void update(int elapsedTime);
+    static void drawbackgrounds(std::vector<BackGrd> backgrd);
+    static void drawforegrounds(std::vector<BackGrd> backgrd);
 
 public:
     int _id;

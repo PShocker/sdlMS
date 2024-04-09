@@ -52,7 +52,7 @@ void Physics::update(int elapsedTime)
     }
     if (_input->isKeyHeld(SDL_SCANCODE_UP) == true)
     {
-        if (_physic_status[PHYSIC_STATUS::CLIMB] == true && _input->isKeyHeld(SDL_SCANCODE_DOWN) == false)
+        if (_physic_status[PHYSIC_STATUS::CLIMB] == true)
         {
             // 在梯子上且按住上键
             _character->_animate = true;
@@ -89,6 +89,7 @@ void Physics::update(int elapsedTime)
                             _fh = it;
                             _physic_status[PHYSIC_STATUS::GROUND] = true;
                             _physic_status[PHYSIC_STATUS::CLIMB] = false;
+                            _character->_layer = _fh._page;
                             _character->switch_type(Character::Type::STAND1);
                             break;
                         }
@@ -130,6 +131,7 @@ void Physics::update(int elapsedTime)
                 }
                 _character->_animate = false;
                 _lp = lp->second;
+                _character->_layer = _lp._page;
                 _physic_status[PHYSIC_STATUS::CLIMB] = true;
                 _physic_status[PHYSIC_STATUS::GROUND] = false;
                 return;
@@ -137,7 +139,7 @@ void Physics::update(int elapsedTime)
         }
     }
 
-    if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true)
+    if (_input->isKeyHeld(SDL_SCANCODE_DOWN) == true && _input->isKeyHeld(SDL_SCANCODE_UP) == false)
     {
         if (_physic_status[PHYSIC_STATUS::CLIMB] == true)
         {
@@ -186,6 +188,7 @@ void Physics::update(int elapsedTime)
                 }
                 _character->_animate = false;
                 _lp = lp->second;
+                _character->_layer = _lp._page;
                 _physic_status[PHYSIC_STATUS::CLIMB] = true;
                 _physic_status[PHYSIC_STATUS::GROUND] = false;
                 return;
@@ -202,7 +205,7 @@ void Physics::update(int elapsedTime)
     {
         if (_physic_status[GROUND] == true)
         {
-            _character->_vspeed = -655;
+            _character->_vspeed = -555;
         }
         if (_physic_status[PHYSIC_STATUS::CLIMB] == true &&
             (_input->isKeyHeld(SDL_SCANCODE_RIGHT) || _input->isKeyHeld(SDL_SCANCODE_LEFT)))
@@ -283,7 +286,7 @@ void Physics::update(int elapsedTime)
     _character->_vspeed += _elapsedTime * _character->_vacc;
 
     _character->_vspeed = std::min(_character->_vspeed, 1200.0f);
-    _character->_hspeed = std::clamp(_character->_hspeed, -180.0f, 180.0f);
+    _character->_hspeed = std::clamp(_character->_hspeed, -125.0f, 125.0f);
 
     // 判断是否有向上的速度,起跳,弹簧
     if (_physic_status[PHYSIC_STATUS::GROUND] == true && new_pos.y() < _character->_pos.y())
@@ -429,10 +432,11 @@ void Physics::update(int elapsedTime)
                 if (r.has_value())
                 {
                     auto intersect_pos = r.value();
+                    _fh = it;
                     _physic_status[PHYSIC_STATUS::GROUND] = true;
                     _character->_vspeed = 0.0f;
                     // _character->_hspeed /= 2;
-                    _fh = it;
+                    _character->_layer = _fh._page;
                     new_pos = intersect_pos;
                 }
             }

@@ -10,41 +10,23 @@ Map::Map()
 void Map::draw()
 {
     // 绘制背景
-    for (auto &it : _backgrd)
-    {
-        it.draw(false);
-    }
+    BackGrd::drawbackgrounds(_backgrd);
     for (size_t i = 0; i < 8; i++)
     {
-        for (auto &it : _obj[i])
-        {
-            it.draw();
-        }
-        for (auto &it : _tile[i])
-        {
-            it.draw();
-        }
+        Obj::draws(_obj[i]);
+        Tile::draws(_tile[i]);
+        Character::current()->draw(i);
     }
     // 绘制前景
-    for (auto &it : _backgrd)
-    {
-        it.draw(true);
-    }
+    BackGrd::drawforegrounds(_backgrd);
+
     // 绘制传送门
-    for (auto &it : _portal)
-    {
-        it.draw();
-    }
+    Portal::draws(_portal);
+
     // 绘制平台
-    // for (auto [_, it] : _foothold)
-    // {
-    //     it.draw();
-    // }
-    // // 绘制梯子
-    // for (auto [_, it] : _ladderRope)
-    // {
-    //     it.draw();
-    // }
+    FootHold::draws(_foothold);
+    // 绘制梯子
+    LadderRope::draws(_ladderRope);
 }
 
 void Map::update(int elapsedTime)

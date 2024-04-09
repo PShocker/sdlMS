@@ -18,7 +18,7 @@ public:
     Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
            int type, int tm,
            std::u16string url);
-    void draw();
+    static void draws(std::vector<Portal> portal);
 
     void event(const SDL_Event &event);
 

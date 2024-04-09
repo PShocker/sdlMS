@@ -12,14 +12,18 @@ Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
     // _input->event(std::bind(&event, this, std::placeholders::_1));
 }
 
-void Portal::draw()
+void Portal::draws(std::vector<Portal> portal)
 {
     // 只绘制GAME类型的传送门
-    if (_type == Type::GAME)
+    for (auto &it : portal)
     {
-        DynamicSprite::draw();
+        if (it._type == Type::GAME)
+        {
+            it.draw();
+        }
     }
 }
+
 void Portal::event(const SDL_Event &event)
 {
     if (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT)

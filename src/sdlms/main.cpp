@@ -74,13 +74,11 @@ int Main::run(int argc, char **argv)
         _physics->update(elapsedTime);
         _character->update(elapsedTime);
         
-
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();
         _minimap->draw();
         _statusbar->draw();
-        _character->draw();
         Graphics::current()->flip();
         frameTime = SDL_GetTicks();
         if (frameTime - frameStart < FRAME_DELAY)

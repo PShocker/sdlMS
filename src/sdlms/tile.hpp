@@ -7,16 +7,14 @@
 #include "sdlms/camera.hpp"
 #include "sdlms/sprite.hpp"
 
-class Tile
+class Tile : public Sprite
 {
 public:
     Tile(Sprite sprite, int layer, int z);
 
-    void draw();
-
+    static void draws(std::vector<Tile> tiles);
 
 public:
-    Sprite _sprite;
     int _layer;
     int _z;
 };
