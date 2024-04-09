@@ -245,6 +245,15 @@ void Physics::update(int elapsedTime)
                 // 合力没有超过静摩擦力,且人物速度为0,则无加速度
                 _character->_hspeed = 0.0;
                 _character->_hacc = 0;
+                if (!(_input->isKeyHeld(SDL_SCANCODE_LEFT) || _input->isKeyHeld(SDL_SCANCODE_RIGHT)))
+                {
+                    // 人物在地面上
+                    _character->switch_type(Character::Type::STAND1);
+                    if (_character->_hacc == 0.0)
+                    {
+                        return;
+                    }
+                }
             }
             else
             {
@@ -298,10 +307,6 @@ void Physics::update(int elapsedTime)
     // 地面碰撞检测
     if (_physic_status[PHYSIC_STATUS::GROUND] == true)
     {
-        if (!(_input->isKeyHeld(SDL_SCANCODE_LEFT) || _input->isKeyHeld(SDL_SCANCODE_RIGHT)))
-        {
-            _character->switch_type(Character::Type::STAND1);
-        }
 
         auto x = new_pos.x();
         auto y = _fh.get_y(x);
