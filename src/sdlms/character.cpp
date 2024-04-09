@@ -4,18 +4,21 @@ Character::Character()
 {
 }
 
-void Character::draw()
+void Character::draw(int layer)
 {
-    for (auto it : _v)
+    if (layer == _layer)
     {
-        if (_direct == false)
+        for (auto it : _v)
         {
-            it._flip = 1;
-            it._rect.x = -it._rect.x - it._rect.w;
+            if (_direct == false)
+            {
+                it._flip = 1;
+                it._rect.x = -it._rect.x - it._rect.w;
+            }
+            it._rect.x += _pos.a;
+            it._rect.y += _pos.b;
+            it.draw();
         }
-        it._rect.x += _pos.a;
-        it._rect.y += _pos.b;
-        it.draw();
     }
 }
 

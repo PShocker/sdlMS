@@ -14,6 +14,7 @@
 #include "sdlms/minimap.hpp"
 #include "sdlms/foothold.hpp"
 #include "sdlms/ladderRope.hpp"
+#include "sdlms/character.hpp"
 
 class Map : public Currenton<Map>
 {

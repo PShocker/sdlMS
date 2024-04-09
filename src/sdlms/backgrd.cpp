@@ -1,4 +1,7 @@
 #include <cmath>
+#include <vector>
+#include <algorithm>
+#include <ranges>
 #include "sdlms/backgrd.hpp"
 
 BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> dynamicsprite,
@@ -145,22 +148,29 @@ void BackGrd::update(int elapsedTime)
     }
 }
 
-void BackGrd::draw(bool front)
+void BackGrd::drawbackgrounds(std::vector<BackGrd> backgrd)
 {
-    if (front == true && _front != 0)
+    // 绘制背景
+    auto _backgrd = backgrd | std::views::filter([](BackGrd b)
+                                                 { return b._front == 0; });
+    for (auto &it : _backgrd)
     {
-        // 绘制前景
-        for (auto &it : _backgrds)
+        for (auto &_it : it._backgrds)
         {
-            it.draw();
+            _it.draw();
         }
     }
-    else if (front == false && _front == 0)
+}
+void BackGrd::drawforegrounds(std::vector<BackGrd> backgrd)
+{
+    // 绘制前景
+    auto _backgrd = backgrd | std::views::filter([](BackGrd b)
+                                                 { return b._front != 0; });
+    for (auto &it : _backgrd)
     {
-        // 绘制背景
-        for (auto &it : _backgrds)
+        for (auto &_it : it._backgrds)
         {
-            it.draw();
+            _it.draw();
         }
     }
 }

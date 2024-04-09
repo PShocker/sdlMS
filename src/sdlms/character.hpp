@@ -60,7 +60,7 @@ public:
 
 public:
     Character();
-    void draw();
+    void draw(int layer);
     void update(int elapsedTime);
     void switch_type(Type type);
     void switch_animate();
@@ -81,6 +81,8 @@ public:
     float _vforce = 0.0;
     float _hacc = 0.0;
     float _vacc = 0.0;
+
+    int _layer;
 };
 
 #endif

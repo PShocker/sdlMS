@@ -9,3 +9,11 @@ Obj::Obj(int id,
                                       _url(url)
 {
 }
+
+void Obj::draws(std::vector<Obj> objs)
+{
+    for (auto &it : objs)
+    {
+        it.draw();
+    }
+}
