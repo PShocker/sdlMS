@@ -1,14 +1,14 @@
 #include "sdlms/main.hpp"
 #include <SDL2/SDL.h>
 
-const unsigned int FPS = 100;
+const unsigned int FPS = 60;
 const unsigned int FRAME_DELAY = 1000 / FPS;
 
 int Main::run(int argc, char **argv)
 {
     // int mapId = 10000;
-    int mapId = 105040300;
-    // int mapId = 101000000;
+    // int mapId = 105040300;
+    int mapId = 101000000;
     // int mapId = 222020111;
 
     _graphics.reset(new Graphics());

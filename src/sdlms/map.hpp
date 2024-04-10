@@ -23,8 +23,6 @@ public:
     void draw();
     void update(int elapsedTime);
 
-    void event(const SDL_Event &ev);
-
 public:
     std::array<std::vector<Tile>, 8> _tile;
     std::array<std::vector<Obj>, 8> _obj;

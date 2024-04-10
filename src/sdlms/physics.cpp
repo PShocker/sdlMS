@@ -382,7 +382,7 @@ void Physics::update(int elapsedTime)
                                                                  return (pair.second._type == FootHold::WALL); // 先处理与墙的碰撞
                                                              }))
         {
-            if (it._disable == true)
+            if (it._disable == true || _character->_layer != it._page)
             {
                 continue;
             }

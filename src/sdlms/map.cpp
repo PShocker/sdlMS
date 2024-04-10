@@ -24,7 +24,7 @@ void Map::draw()
     Portal::draws(_portal);
 
     // 绘制平台
-    FootHold::draws(_foothold);
+    // FootHold::draws(_foothold);
     // 绘制梯子
     // LadderRope::draws(_ladderRope);
 }
@@ -37,12 +37,4 @@ void Map::update(int elapsedTime)
         Obj::updates(_obj[i], elapsedTime);
     }
     Portal::updates(_portal, elapsedTime);
-}
-
-void Map::event(const SDL_Event &event)
-{
-    for (auto &it : _portal)
-    {
-        it.event(event);
-    }
 }
