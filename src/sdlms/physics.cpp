@@ -236,23 +236,21 @@ void Physics::update(int elapsedTime)
     if (_physic_status[PHYSIC_STATUS::GROUND] == true && _input->isKeyHeld(SDL_SCANCODE_LALT) == false)
     {
         _character->_animate = true;
+
+        if (!(_input->isKeyHeld(SDL_SCANCODE_LEFT) || _input->isKeyHeld(SDL_SCANCODE_RIGHT)))
+        {
+            // 人物在地面上
+            _character->switch_type(Character::Type::STAND1);
+        }
+
         // 摩擦力
         if (std::abs(_character->_hacc) < 800) // 合力小于摩擦力
         {
-            if (std::abs(_character->_hspeed) <= 10)
+            if (std::abs(_character->_hspeed) <= 15)
             {
                 // 合力没有超过静摩擦力,且人物速度为0,则无加速度
                 _character->_hspeed = 0.0;
                 _character->_hacc = 0;
-                if (!(_input->isKeyHeld(SDL_SCANCODE_LEFT) || _input->isKeyHeld(SDL_SCANCODE_RIGHT)))
-                {
-                    // 人物在地面上
-                    _character->switch_type(Character::Type::STAND1);
-                    if (_character->_hacc == 0.0)
-                    {
-                        return;
-                    }
-                }
             }
             else
             {
