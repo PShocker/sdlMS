@@ -1,3 +1,6 @@
 [submodule "wzlibcpp"]
 	path = wzlibcpp
 	url = https://github.com/PShocker/wzlibcpp.git
+[submodule "freetype"]
+	path = freetype
+	url = https://github.com/freetype/freetype.git
