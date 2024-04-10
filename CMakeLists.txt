@@ -20,9 +20,7 @@ endif()
 # sdl2 is install here
 set(SDL2_DIR "C:/Users/Shocker/Desktop/SDL2-2.28.5/cmake")
 
-set(FREETYPE_INCLUDE_DIRS "C:/Users/Shocker/Desktop/freetype/include")
-set(FREETYPE_LIBRARIES "C:/Users/Shocker/Desktop/freetype/lib")
-
+add_subdirectory(freetype)
 
 set(FFMPEG_INCLUDE "C:/Users/Shocker/Desktop/FFMPEG/include")
 set(FFMPEG_LIB "C:/Users/Shocker/Desktop/FFMPEG/lib")
