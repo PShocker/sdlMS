@@ -27,6 +27,7 @@ public:
     int _id;
     int _prev;
     int _next;
+    bool _disable=false;
 
     float _len;
     float _uvx; // sinx

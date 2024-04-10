@@ -379,9 +379,14 @@ void Physics::update(int elapsedTime)
 
         for (const auto &[id, it] : fhs | std::views::filter([](const auto &pair)
                                                              {
-                                                                 return pair.second._type == FootHold::WALL; // 先处理与墙的碰撞
+                                                                 return (pair.second._type == FootHold::WALL); // 先处理与墙的碰撞
                                                              }))
         {
+            if (it._disable == true)
+            {
+                continue;
+            }
+
             if (std::min(_character->_pos.x(), new_pos.x()) > std::max(it._a.x(), it._b.x()))
             {
                 continue;
@@ -407,6 +412,7 @@ void Physics::update(int elapsedTime)
                 intersect_pos.set_x(_character->_pos.x());
                 intersect_pos.set_y(new_pos.y());
                 new_pos = intersect_pos;
+                break;
             }
         }
         if (raise == false)
@@ -445,6 +451,7 @@ void Physics::update(int elapsedTime)
                     }
                     _character->_layer = _fh._page;
                     new_pos = intersect_pos;
+                    break;
                 }
             }
         }

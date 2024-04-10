@@ -18,6 +18,20 @@ FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int 
     if (a.x() == b.x())
     {
         _type = WALL;
+        if (a.y() < b.y())
+        {
+            if (next == 0)
+            {
+                _disable = true;
+            }
+        }
+        else if (a.y() > b.y())
+        {
+            if (prev == 0)
+            {
+                _disable = true;
+            }
+        }
     }
     else if (a.y() == b.y())
     {
