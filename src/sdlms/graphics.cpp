@@ -15,8 +15,6 @@ Graphics::Graphics()
 		_window = SDL_CreateWindow("sdlMS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 		// 创建渲染器
 		_renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
-		//禁用垂直同步
-		SDL_GL_SetSwapInterval(0);
 	}
 }
 
