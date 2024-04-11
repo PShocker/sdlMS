@@ -70,9 +70,10 @@ int Main::run(int argc, char **argv)
             break;
         }
 
-        _map->update(elapsedTime);
+        
         _physics->update(elapsedTime);
         _character->update(elapsedTime);
+        _map->update(elapsedTime);
         
         // 更新屏幕
         Graphics::current()->clear();
