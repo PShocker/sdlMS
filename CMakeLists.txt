@@ -55,8 +55,6 @@ file(GLOB SOURCE_FILES src/**/*.cpp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
-
 # executable is ahead of `target_link...`
 add_executable(sdlMS src/main.cpp ${SOURCE_FILES})
 # 包含 SDL2 头文件目录
