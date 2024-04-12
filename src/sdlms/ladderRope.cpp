@@ -9,9 +9,9 @@ LadderRope::LadderRope(int id, int l, int uf, int x, int y1, int y2, int page) :
     _camera = Camera::current();
     _renderer = Graphics::current()->getRenderer();
 }
-void LadderRope::draws(std::unordered_map<int, LadderRope> r)
+void LadderRope::draws(std::unordered_map<int, LadderRope> &r)
 {
-    for (auto [_, it] : r)
+    for (auto &[_, it] : r)
     {
         SDL_RenderDrawLine(it._renderer,
                            it._x - it._camera->_viewport.x,

@@ -15,7 +15,7 @@ public:
     FootHold();
     FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int id, int prev, int next);
 
-    static void draws(std::unordered_map<int, FootHold> foothold);
+    static void draws(std::unordered_map<int, FootHold> &foothold);
     std::optional<float> get_x(float y);
     std::optional<float> get_y(float x);
 
@@ -27,7 +27,7 @@ public:
     int _id;
     int _prev;
     int _next;
-    bool _disable=false;
+    bool _disable = false;
 
     float _len;
     float _uvx; // sinx
