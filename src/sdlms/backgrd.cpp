@@ -163,7 +163,7 @@ void BackGrd::drawbackgrounds(std::vector<BackGrd> backgrd)
     auto _backgrd = backgrd | std::views::filter([](BackGrd b)
                                                  { return b._front == 0; });
     for (auto &it : _backgrd)
-    {
+    {   
         for (auto &_it : it._backgrds)
         {
             _it.draw();

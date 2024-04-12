@@ -14,7 +14,7 @@ namespace util
 		WzUtil();
 
 	public:
-		const std::string filename_prefix = "C:/Users/Shocker/Desktop/sdlMS/data/";
+		const std::string filename_prefix = "../data/";
 		wz::File *Base;
 		wz::File *Character;
 		wz::File *Effect;
