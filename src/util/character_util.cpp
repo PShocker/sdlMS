@@ -118,7 +118,7 @@ namespace util
                     body_node->find_from_path(type + u"/body"));
                 v.push_back(body);
 
-                auto _coat = _character_node->find_from_path(u"Coat/01040041.img/" + type + u"/mail");
+                auto _coat = _character_node->find_from_path(u"Coat/01049000.img/" + type + u"/mail");
                 if (_coat != nullptr)
                 {
                     auto _coat_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat->find_from_path(u"map/navel"))->get();
@@ -126,7 +126,7 @@ namespace util
                     v.push_back(coat);
                 }
 
-                auto _pants = _character_node->find_from_path(u"Pants/01060005.img/" + type + u"/pants");
+                auto _pants = _character_node->find_from_path(u"Pants/01062083.img/" + type + u"/pants");
                 if (_pants != nullptr)
                 {
                     auto _pants_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_pants->find_from_path(u"map/navel"))->get();
@@ -166,22 +166,6 @@ namespace util
                     }
                 }
 
-                auto _arm = body_node->find_from_path(type + u"/arm");
-                if (_arm != nullptr)
-                {
-                    auto _arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_arm->find_from_path(u"map/hand"))->get();
-                    Sprite arm = _sprite_util->load_sprite(_arm, b - Point<int32_t>(_arm_pos.x, _arm_pos.y));
-                    v.push_back(arm);
-                }
-
-                auto _coat_arm = _character_node->find_from_path(u"Coat/01040041.img/" + type + u"/mailArm");
-                if (_coat_arm != nullptr)
-                {
-                    auto _coat_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat_arm->find_from_path(u"map/navel"))->get();
-                    Sprite coat_arm = _sprite_util->load_sprite(_coat_arm, a - Point<int32_t>(_coat_arm_pos.x, _coat_arm_pos.y));
-                    v.push_back(coat_arm);
-                }
-
                 auto _shoes = _character_node->find_from_path(u"Shoes/01070009.img/" + type + u"/shoes");
                 if (_shoes != nullptr)
                 {
@@ -205,6 +189,22 @@ namespace util
                         Sprite weapon = _sprite_util->load_sprite(_weapon, a - Point<int32_t>(_weapon_pos.x, _weapon_pos.y));
                         v.push_back(weapon);
                     }
+                }
+
+                auto _arm = body_node->find_from_path(type + u"/arm");
+                if (_arm != nullptr)
+                {
+                    auto _arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_arm->find_from_path(u"map/hand"))->get();
+                    Sprite arm = _sprite_util->load_sprite(_arm, b - Point<int32_t>(_arm_pos.x, _arm_pos.y));
+                    v.push_back(arm);
+                }
+
+                auto _coat_arm = _character_node->find_from_path(u"Coat/01049000.img/" + type + u"/mailArm");
+                if (_coat_arm != nullptr)
+                {
+                    auto _coat_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat_arm->find_from_path(u"map/navel"))->get();
+                    Sprite coat_arm = _sprite_util->load_sprite(_coat_arm, a - Point<int32_t>(_coat_arm_pos.x, _coat_arm_pos.y));
+                    v.push_back(coat_arm);
                 }
 
                 auto _hand = body_node->find_from_path(type + u"/hand");
