@@ -146,21 +146,6 @@ namespace util
                 Sprite face = _sprite_util->load_sprite(_face, e - Point<int32_t>(_face_pos.x, _face_pos.y));
                 v.push_back(face);
 
-                // auto _hair = _character_node->find_from_path(u"Hair/00030000.img/" + type + u"/hair");
-                // if (_hair != nullptr)
-                // {
-                //     auto _hair_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hair->find_from_path(u"map/brow"))->get();
-                //     Sprite hair = _sprite_util->load_sprite(_hair, f - Point<int32_t>(_hair_pos.x, _hair_pos.y));
-                //     v.push_back(hair);
-                // }
-
-                // auto _hair_over_head = _character_node->find_from_path(u"Hair/00030000.img/" + type + u"/hairOverHead");
-                // if (_hair_over_head != nullptr)
-                // {
-                //     auto _hair_over_head_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hair_over_head->find_from_path(u"map/brow"))->get();
-                //     Sprite hair_over_head = _sprite_util->load_sprite(_hair_over_head, f - Point<int32_t>(_hair_over_head_pos.x, _hair_over_head_pos.y));
-                //     v.push_back(hair_over_head);
-                // }
                 auto hairs = _character_node->find_from_path(u"Hair/00030000.img/" + type);
                 if (hairs != nullptr)
                 {
@@ -228,6 +213,31 @@ namespace util
                     auto _shoes_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_shoes->find_from_path(u"map/navel"))->get();
                     Sprite shoes = _sprite_util->load_sprite(_shoes, a - Point<int32_t>(_shoes_pos.x, _shoes_pos.y));
                     v.push_back(shoes);
+                }
+
+                auto _weapon = _character_node->find_from_path(u"Weapon/01402034.img/" + type + u"/weapon");
+                if (_weapon != nullptr)
+                {
+                    if (_weapon->find_from_path(u"map/hand") != nullptr)
+                    {
+                        auto _weapon_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_weapon->find_from_path(u"map/hand"))->get();
+                        Sprite weapon = _sprite_util->load_sprite(_weapon, b - Point<int32_t>(_weapon_pos.x, _weapon_pos.y));
+                        v.push_back(weapon);
+                    }
+                    else
+                    {
+                        auto _weapon_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_weapon->find_from_path(u"map/navel"))->get();
+                        Sprite weapon = _sprite_util->load_sprite(_weapon, a - Point<int32_t>(_weapon_pos.x, _weapon_pos.y));
+                        v.push_back(weapon);
+                    }
+                }
+
+                auto _hand = body_node->find_from_path(type + u"/hand");
+                if (_hand != nullptr)
+                {
+                    auto _hand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hand->find_from_path(u"map/navel"))->get();
+                    Sprite hand = _sprite_util->load_sprite(_hand, a - Point<int32_t>(_hand_pos.x, _hand_pos.y));
+                    v.push_back(hand);
                 }
 
                 auto delay = stance_delays[i][no];
