@@ -51,11 +51,11 @@ link_directories(
 
 file(GLOB SOURCE_FILES src/**/*.cpp)
 
-# set(CMAKE_EXE_LINKER_FLAGS "-static")
-
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libgcc -static-libstdc++")
 
 # executable is ahead of `target_link...`
 add_executable(sdlMS src/main.cpp ${SOURCE_FILES})
@@ -71,4 +71,3 @@ target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5)
 target_link_libraries(sdlMS PRIVATE freetype)
 # 链接 Windows平台库(FFMPEG)
 target_link_libraries(sdlMS PRIVATE bcrypt ws2_32 Secur32 Strmiids)
-

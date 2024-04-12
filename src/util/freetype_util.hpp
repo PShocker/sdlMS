@@ -21,7 +21,7 @@ namespace util
         std::tuple<SDL_Texture *, int, int> load_str(const std::u16string &s);
 
     public:
-        const std::string filename_prefix = "C:/Users/Shocker/Desktop/sdlMS/font/";
+        const std::string filename_prefix = "C:/Windows/Fonts";
         FT_Library *_library;
         FT_Face *_face;
 
