@@ -15,7 +15,7 @@ namespace util
         FT_Init_FreeType(_library);
         // 加载字体文件
         _face = new FT_Face{};
-        FT_New_Face(*_library, (filename_prefix + "/simsun.ttc").c_str(), 0, _face);
+        FT_New_Face(*_library, (filename_prefix + "/simhei.ttf").c_str(), 0, _face);
         // 设置字体大小
         int fontSize = 16;
         // FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 72, 72);
