@@ -166,31 +166,6 @@ namespace util
                     }
                 }
 
-                auto _lHand = body_node->find_from_path(type + u"/lHand");
-                if (_lHand != nullptr)
-                {
-                    if (_lHand->find_from_path(u"map/handMove") != nullptr)
-                    {
-                        auto _lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/handMove"))->get();
-                        Sprite lHand = _sprite_util->load_sprite(_lHand, c - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
-                        v.push_back(lHand);
-                    }
-                    else
-                    {
-                        auto _lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/navel"))->get();
-                        Sprite lHand = _sprite_util->load_sprite(_lHand, a - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
-                        v.push_back(lHand);
-                    }
-                }
-
-                auto _rHand = body_node->find_from_path(type + u"/rHand");
-                if (_rHand != nullptr)
-                {
-                    auto _rHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_rHand->find_from_path(u"map/navel"))->get();
-                    Sprite rHand = _sprite_util->load_sprite(_rHand, a - Point<int32_t>(_rHand_pos.x, _rHand_pos.y));
-                    v.push_back(rHand);
-                }
-
                 auto _arm = body_node->find_from_path(type + u"/arm");
                 if (_arm != nullptr)
                 {
@@ -238,6 +213,31 @@ namespace util
                     auto _hand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hand->find_from_path(u"map/navel"))->get();
                     Sprite hand = _sprite_util->load_sprite(_hand, a - Point<int32_t>(_hand_pos.x, _hand_pos.y));
                     v.push_back(hand);
+                }
+
+                auto _lHand = body_node->find_from_path(type + u"/lHand");
+                if (_lHand != nullptr)
+                {
+                    if (_lHand->find_from_path(u"map/handMove") != nullptr)
+                    {
+                        auto _lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/handMove"))->get();
+                        Sprite lHand = _sprite_util->load_sprite(_lHand, c - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
+                        v.push_back(lHand);
+                    }
+                    else
+                    {
+                        auto _lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/navel"))->get();
+                        Sprite lHand = _sprite_util->load_sprite(_lHand, a - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
+                        v.push_back(lHand);
+                    }
+                }
+
+                auto _rHand = body_node->find_from_path(type + u"/rHand");
+                if (_rHand != nullptr)
+                {
+                    auto _rHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_rHand->find_from_path(u"map/navel"))->get();
+                    Sprite rHand = _sprite_util->load_sprite(_rHand, a - Point<int32_t>(_rHand_pos.x, _rHand_pos.y));
+                    v.push_back(rHand);
                 }
 
                 auto delay = stance_delays[i][no];

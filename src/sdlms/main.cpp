@@ -8,7 +8,7 @@ int Main::run(int argc, char **argv)
 {
     // int mapId = 10000;
     // int mapId = 105040300;
-    int mapId = 104040000;
+    int mapId = 103000003;
     // int mapId = 222020111;
 
     _graphics.reset(new Graphics());
