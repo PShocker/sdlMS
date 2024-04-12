@@ -166,7 +166,7 @@ void BackGrd::drawbackgrounds(std::vector<BackGrd>& backgrd)
     {   
         for (auto &_it : it._backgrds)
         {
-            // _it.draw();
+            _it.draw();
         }
     }
 }
@@ -179,7 +179,7 @@ void BackGrd::drawforegrounds(std::vector<BackGrd>& backgrd)
     {
         for (auto &_it : it._backgrds)
         {
-            // _it.draw();
+            _it.draw();
         }
     }
 }
