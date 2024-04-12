@@ -240,7 +240,7 @@ void Physics::update(int elapsedTime)
         if (!(_input->isKeyHeld(SDL_SCANCODE_LEFT) || _input->isKeyHeld(SDL_SCANCODE_RIGHT)))
         {
             // 人物在地面上
-            _character->switch_type(Character::Type::STAND1);
+            _character->switch_type(Character::Type::STAND2);
         }
 
         // 摩擦力
@@ -447,7 +447,7 @@ void Physics::update(int elapsedTime)
                     // _character->_hspeed /= 2;
                     if (_input->isKeyHeld(SDL_SCANCODE_LALT) == false)
                     {
-                        _character->switch_type(Character::Type::STAND1);
+                        _character->switch_type(Character::Type::STAND2);
                     }
                     _character->_layer = _fh._page;
                     new_pos = intersect_pos;
