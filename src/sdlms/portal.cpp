@@ -13,7 +13,7 @@ Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
     // _input->event(std::bind(&event, this, std::placeholders::_1));
 }
 
-void Portal::draws(std::vector<Portal> portal)
+void Portal::draws(std::vector<Portal> &portal)
 {
     // 只绘制GAME类型的传送门
     for (auto &it : portal)

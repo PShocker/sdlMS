@@ -11,7 +11,7 @@ Obj::Obj(int id,
 {
 }
 
-void Obj::draws(std::vector<Obj> objs)
+void Obj::draws(std::vector<Obj> &objs)
 {
     for (auto &it : objs)
     {
