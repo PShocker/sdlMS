@@ -16,7 +16,7 @@ public:
         AnimatedSprite animatedsprite,
         int layer, int z,
         std::u16string url);
-    static void draws(std::vector<Obj> objs);
+    static void draws(std::vector<Obj> &objs);
     static void updates(std::vector<Obj> &objs, int elapsedTime);
 
 public:

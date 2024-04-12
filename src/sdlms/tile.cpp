@@ -6,7 +6,7 @@ Tile::Tile(Sprite sprite, int layer, int z) : Sprite(sprite),
 {
 }
 
-void Tile::draws(std::vector<Tile> tiles)
+void Tile::draws(std::vector<Tile> &tiles)
 {
     for (auto &it : tiles)
     {

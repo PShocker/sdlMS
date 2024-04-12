@@ -23,8 +23,8 @@ public:
             std::u16string url);
     void update(int elapsedTime);
     static void updates(std::vector<BackGrd> &backgrd, int elapsedTime);
-    static void drawbackgrounds(std::vector<BackGrd> backgrd);
-    static void drawforegrounds(std::vector<BackGrd> backgrd);
+    static void drawbackgrounds(std::vector<BackGrd> &backgrd);
+    static void drawforegrounds(std::vector<BackGrd> &backgrd);
 
 public:
     int _id;

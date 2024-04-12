@@ -12,7 +12,7 @@ class Tile : public Sprite
 public:
     Tile(Sprite sprite, int layer, int z);
 
-    static void draws(std::vector<Tile> tiles);
+    static void draws(std::vector<Tile> &tiles);
 
 public:
     int _layer;
