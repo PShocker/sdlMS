@@ -113,6 +113,10 @@ namespace util
             for (auto it : node->get_children())
             {
                 auto bS = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"bS"))->get();
+                if (bS == u"")
+                {
+                    break;
+                }
                 auto ani = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"ani"))->get();
 
                 auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
