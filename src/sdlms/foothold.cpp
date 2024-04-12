@@ -49,9 +49,9 @@ FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int 
     _camera = Camera::current();
     _renderer = Graphics::current()->getRenderer();
 }
-void FootHold::draws(std::unordered_map<int, FootHold> foothold)
+void FootHold::draws(std::unordered_map<int, FootHold> &foothold)
 {
-    for (auto [_, it] : foothold)
+    for (auto &[_, it] : foothold)
     {
         SDL_RenderDrawLine(it._renderer,
                            it._a.x() - it._camera->_viewport.x,
