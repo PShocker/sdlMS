@@ -166,7 +166,7 @@ namespace util
                     }
                 }
 
-                auto _shoes = _character_node->find_from_path(u"Shoes/01070009.img/" + type + u"/shoes");
+                auto _shoes = _character_node->find_from_path(u"Shoes/01072073.img/" + type + u"/shoes");
                 if (_shoes != nullptr)
                 {
                     auto _shoes_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_shoes->find_from_path(u"map/navel"))->get();
