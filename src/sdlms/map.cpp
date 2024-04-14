@@ -18,7 +18,7 @@ void Map::draw()
         Character::current()->draw(i);
     }
     // 绘制前景
-    BackGrd::drawforegrounds(_backgrd.second);
+    BackGrd::drawbackgrounds(_backgrd.second);
 
     // 绘制传送门
     Portal::draws(_portal);
@@ -31,7 +31,8 @@ void Map::draw()
 
 void Map::update(int elapsedTime)
 {
-    BackGrd::updates(_backgrd, elapsedTime);
+    BackGrd::updates(_backgrd.first, elapsedTime);  // 更新背景
+    BackGrd::updates(_backgrd.second, elapsedTime); // 更新前景
     for (size_t i = 0; i < 8; i++)
     {
         Obj::updates(_obj[i], elapsedTime);
