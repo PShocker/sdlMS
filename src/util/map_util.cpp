@@ -182,6 +182,7 @@ namespace util
         {
             v_back_backgrd.push_back(it);
         }
+
         std::vector<BackGrd> v_fore_backgrd;
         for (auto it : fore_backgrd)
         {
