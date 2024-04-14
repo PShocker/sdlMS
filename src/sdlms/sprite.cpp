@@ -2,9 +2,10 @@
 #include "sdlms/camera.hpp"
 #include "sdlms/graphics.hpp"
 
-Sprite::Sprite(const std::vector<uint8_t> &raw_data,
+Sprite::Sprite(std::u16string url,
+               const std::vector<uint8_t> &raw_data,
                SDL_FRect rect,
-               unsigned int format, int flip) : _rect(rect),
+               unsigned int format, int flip) : _url(url), _rect(rect),
                                                 _format(format), _flip(flip),
                                                 _raw_data(raw_data)
 {

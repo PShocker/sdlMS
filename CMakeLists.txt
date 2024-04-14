@@ -27,7 +27,6 @@ set(FFMPEG_LIB "C:/Users/Shocker/Desktop/FFMPEG/lib")
 
 add_subdirectory(SDL)
 
-
 add_subdirectory(wzlibcpp)
 
 include_directories(
