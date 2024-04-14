@@ -31,21 +31,21 @@ namespace util
 		UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
 
 		// Base->parse();
-		Character->parse();
+		Character->parse(u"Character");
 		// Effect->parse();
 		// Etc->parse();
 		// Item->parse();
 		// List->parse();
-		Map->parse();
+		Map->parse(u"Map");
 		// Mob->parse();
 		// Morph->parse();
 		// Npc->parse();
 		// Quest->parse();
 		// Reactor->parse();
 		// Skill->parse();
-		Sound->parse();
-		String->parse();
+		Sound->parse(u"Sound");
+		String->parse(u"String");
 		// TamingMob->parse();
-		UI->parse();
+		UI->parse(u"UI");
 	}
 }
