@@ -27,6 +27,8 @@ public:
 
     std::u16string _url;
 
+    static inline std::map<std::u16string, SDL_Texture *> texture_map;
+
     // std::map<std::u16string, std::any> _others;
 };
 #endif

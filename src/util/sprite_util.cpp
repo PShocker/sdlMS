@@ -29,7 +29,7 @@ namespace util
 
         SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-        Sprite sprite(u"", raw_data, rect, (int)format, flip);
+        Sprite sprite(node->path, raw_data, rect, (int)format, flip);
 
         return sprite;
     }
