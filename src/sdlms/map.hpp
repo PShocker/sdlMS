@@ -26,7 +26,7 @@ public:
 public:
     std::array<std::vector<Tile>, 8> _tile;
     std::array<std::vector<Obj>, 8> _obj;
-    std::vector<BackGrd> _backgrd;
+    std::pair<std::vector<BackGrd>, std::vector<BackGrd>> _backgrd; //背景和前景
     std::vector<Portal> _portal;
     std::tuple<std::vector<uint8_t>, int> _sound; // pcm流,采样率
     std::unordered_map<int, FootHold> _foothold;

@@ -10,7 +10,7 @@ Map::Map()
 void Map::draw()
 {
     // 绘制背景
-    BackGrd::drawbackgrounds(_backgrd);
+    BackGrd::drawbackgrounds(_backgrd.first);
     for (size_t i = 0; i < 8; i++)
     {
         Obj::draws(_obj[i]);
@@ -18,7 +18,7 @@ void Map::draw()
         Character::current()->draw(i);
     }
     // 绘制前景
-    BackGrd::drawforegrounds(_backgrd);
+    BackGrd::drawforegrounds(_backgrd.second);
 
     // 绘制传送门
     Portal::draws(_portal);

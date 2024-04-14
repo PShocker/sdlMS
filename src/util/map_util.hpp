@@ -26,7 +26,7 @@ namespace util
     public:
         std::array<std::vector<Tile>, 8> load_tile(int mapId);
         std::array<std::vector<Obj>, 8> load_obj(int mapId);
-        std::vector<BackGrd> load_backgrd(int mapId);
+        std::pair<std::vector<BackGrd>, std::vector<BackGrd>> load_backgrd(int mapId);
         std::vector<Portal> load_portal(int mapId);
         std::optional<Sprite> load_minimap(int mapId);
         std::optional<Sprite> load_mark(int mapId);
@@ -43,7 +43,7 @@ namespace util
     private:
         std::vector<Tile> load_tile(wz::Node *node, int i);
         std::vector<Obj> load_obj(wz::Node *node, int i);
-        std::vector<BackGrd> load_backgrd(wz::Node *node);
+        std::pair<std::vector<BackGrd>, std::vector<BackGrd>> load_backgrd(wz::Node *node);
         std::vector<Portal> load_portal(wz::Node *node);
         std::unordered_map<int, FootHold> load_foothold(wz::Node *node);
         std::unordered_map<int, LadderRope> load_ladderRope(wz::Node *node);
