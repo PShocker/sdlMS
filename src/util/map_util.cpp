@@ -99,12 +99,12 @@ namespace util
         return obj;
     }
 
-    std::vector<BackGrd> MapUtil::load_backgrd(int mapId)
+    std::pair<std::vector<BackGrd>, std::vector<BackGrd>> MapUtil::load_backgrd(int mapId)
     {
         return load_backgrd(load_node(mapId));
     }
 
-    std::vector<BackGrd> MapUtil::load_backgrd(wz::Node *node)
+    std::pair<std::vector<BackGrd>, std::vector<BackGrd>> MapUtil::load_backgrd(wz::Node *node)
     {
         std::vector<BackGrd> v_backgrd;
         node = node->get_child(u"back");
@@ -172,8 +172,22 @@ namespace util
             }
         }
         std::ranges::sort(v_backgrd, [](const BackGrd a, const BackGrd b)
-                          { return a._id + a._front * 1024 < b._id + b._front * 1024; });
-        return v_backgrd;
+                          { return a._id < b._id; });
+        auto back_backgrd = v_backgrd | std::views::filter([](BackGrd b)
+                                                           { return b._front == 0; });
+        auto fore_backgrd = v_backgrd | std::views::filter([](BackGrd b)
+                                                           { return b._front == 1; });
+        std::vector<BackGrd> v_back_backgrd;
+        for (auto it : back_backgrd)
+        {
+            v_back_backgrd.push_back(it);
+        }
+        std::vector<BackGrd> v_fore_backgrd;
+        for (auto it : fore_backgrd)
+        {
+            v_fore_backgrd.push_back(it);
+        }
+        return {v_back_backgrd, v_fore_backgrd};
     }
 
     std::vector<Portal> MapUtil::load_portal(int mapId)

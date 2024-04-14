@@ -149,33 +149,32 @@ void BackGrd::update(int elapsedTime)
     }
 }
 
-void BackGrd::updates(std::vector<BackGrd> &backgrd, int elapsedTime)
+void BackGrd::updates(std::pair<std::vector<BackGrd>, std::vector<BackGrd>> &backgrd, int elapsedTime)
 {
-    for (auto &it : backgrd)
+    for (auto &it : backgrd.first)
     {
         it.update(elapsedTime);
     }
-    
+    for (auto &it : backgrd.second)
+    {
+        it.update(elapsedTime);
+    }
 }
-void BackGrd::drawbackgrounds(std::vector<BackGrd>& backgrd)
+void BackGrd::drawbackgrounds(std::vector<BackGrd> &backgrd)
 {
     // 绘制背景
-    auto _backgrd = backgrd | std::views::filter([](BackGrd b)
-                                                 { return b._front == 0; });
-    for (auto &it : _backgrd)
-    {   
+    for (auto &it : backgrd)
+    {
         for (auto &_it : it._backgrds)
         {
             _it.draw();
         }
     }
 }
-void BackGrd::drawforegrounds(std::vector<BackGrd>& backgrd)
+void BackGrd::drawforegrounds(std::vector<BackGrd> &backgrd)
 {
     // 绘制前景
-    auto _backgrd = backgrd | std::views::filter([](BackGrd b)
-                                                 { return b._front != 0; });
-    for (auto &it : _backgrd)
+    for (auto &it : backgrd)
     {
         for (auto &_it : it._backgrds)
         {
