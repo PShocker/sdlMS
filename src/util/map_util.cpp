@@ -173,18 +173,17 @@ namespace util
         }
         std::ranges::sort(v_backgrd, [](const BackGrd a, const BackGrd b)
                           { return a._id < b._id; });
-        auto back_backgrd = v_backgrd | std::views::filter([](BackGrd b)
-                                                           { return b._front == 0; });
-        auto fore_backgrd = v_backgrd | std::views::filter([](BackGrd b)
-                                                           { return b._front == 1; });
+
         std::vector<BackGrd> v_back_backgrd;
-        for (auto it : back_backgrd)
+        for (auto it : v_backgrd | std::views::filter([](BackGrd b)
+                                                      { return b._front == 0; }))
         {
             v_back_backgrd.push_back(it);
         }
 
         std::vector<BackGrd> v_fore_backgrd;
-        for (auto it : fore_backgrd)
+        for (auto it : v_backgrd | std::views::filter([](BackGrd b)
+                                                      { return b._front == 1; }))
         {
             v_fore_backgrd.push_back(it);
         }
