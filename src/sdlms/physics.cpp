@@ -246,7 +246,7 @@ void Physics::update(int elapsedTime)
         // 摩擦力
         if (std::abs(_character->_hacc) < 800) // 合力小于摩擦力
         {
-            if (std::abs(_character->_hspeed) <= 15)
+            if (std::abs(_character->_hspeed) <= 1.0)
             {
                 // 合力没有超过静摩擦力,且人物速度为0,则无加速度
                 _character->_hspeed = 0.0;
