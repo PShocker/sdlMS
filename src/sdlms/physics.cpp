@@ -283,7 +283,7 @@ void Physics::update(int elapsedTime)
     _character->_hspeed += _elapsedTime * _character->_hacc;
     _character->_vspeed += _elapsedTime * _character->_vacc;
 
-    _character->_vspeed = std::min(_character->_vspeed, 1200.0f);
+    _character->_vspeed = std::min(_character->_vspeed, 670.0f);
     _character->_hspeed = std::clamp(_character->_hspeed, -125.0f, 125.0f);
 
     // 判断是否有向上的速度,起跳,弹簧
