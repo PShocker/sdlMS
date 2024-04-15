@@ -82,7 +82,7 @@ public:
     float _hacc = 0.0;
     float _vacc = 0.0;
 
-    int _layer;
+    int _layer = 7;
 };
 
 #endif
