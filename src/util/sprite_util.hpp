@@ -6,6 +6,7 @@
 #include "wz/Property.hpp"
 
 #include "template/currenton.hpp"
+#include "template/point.hpp"
 
 #include "sdlms/sprite.hpp"
 #include "sdlms/animatedsprite.hpp"

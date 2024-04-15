@@ -49,6 +49,7 @@ int Main::run(int argc, char **argv)
     _map->_portal = _map_util->load_portal(mapId);
     _map->_foothold = _map_util->load_foothold(mapId);
     _map->_ladderRope = _map_util->load_ladderRope(mapId);
+    _map->_border = _map_util->load_border(mapId);
 
     _map->_sound = _ffmpeg_util->decodeAudioToPCM(_sound_util->load_sound(mapId));
 
@@ -69,12 +70,11 @@ int Main::run(int argc, char **argv)
         {
             break;
         }
-
-        
+        _map->update(elapsedTime);
         _physics->update(elapsedTime);
         _character->update(elapsedTime);
-        _map->update(elapsedTime);
-        
+        _camera->update(elapsedTime);
+
         // 更新屏幕
         Graphics::current()->clear();
         _map->draw();
