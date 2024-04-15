@@ -35,13 +35,14 @@ void Camera::update(int elapsedTime)
         _viewport.x = Right - _viewport.w;
     }
 
-    if (_viewport.y < Top)
-    {
-        _viewport.y = Top;
-    }
     else if (_viewport.y + _viewport.h > Bottom)
     {
         _viewport.y = Bottom - _viewport.h;
     }
+    else if (_viewport.y < Top)
+    {
+        _viewport.y = Top;
+    }
+
     return;
 }
