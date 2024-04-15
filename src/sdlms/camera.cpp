@@ -39,10 +39,6 @@ void Camera::update(int elapsedTime)
     {
         _viewport.y = Bottom - _viewport.h;
     }
-    else if (_viewport.y < Top)
-    {
-        _viewport.y = Top;
-    }
 
     return;
 }
