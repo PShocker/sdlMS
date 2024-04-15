@@ -5,8 +5,6 @@
 #include <vector>
 #include <string>
 
-#include "sdlms/graphics.hpp"
-#include "sdlms/camera.hpp"
 #include "sdlms/animatedsprite.hpp"
 
 class Obj : public AnimatedSprite
@@ -25,9 +23,5 @@ public:
     int _z;
 
     std::u16string _url;
-
-private:
-    Camera *_camera;
-    Graphics *_graphics;
 };
 #endif

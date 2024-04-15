@@ -8,7 +8,6 @@
 
 #include "sdlms/animatedsprite.hpp"
 #include "sdlms/sprite.hpp"
-#include "sdlms/camera.hpp"
 #include "sdlms/dynamicsprite.hpp"
 #include "sdlms/input.hpp"
 
@@ -46,7 +45,6 @@ public:
     Event _event = NORMAL;
 
 private:
-    Camera *_camera;
     Input *_input;
 };
 #endif

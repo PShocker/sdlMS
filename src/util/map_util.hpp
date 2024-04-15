@@ -32,6 +32,7 @@ namespace util
         std::optional<Sprite> load_mark(int mapId);
         std::unordered_map<int, FootHold> load_foothold(int mapId);
         std::unordered_map<int, LadderRope> load_ladderRope(int mapId);
+        std::tuple<int, int, int, int> load_border(int mapId);
         wz::Node *load_node(int mapId);
 
     private:
@@ -47,6 +48,8 @@ namespace util
         std::vector<Portal> load_portal(wz::Node *node);
         std::unordered_map<int, FootHold> load_foothold(wz::Node *node);
         std::unordered_map<int, LadderRope> load_ladderRope(wz::Node *node);
+        std::tuple<int, int, int, int> load_border(wz::Node *node);
+
     };
 }
 

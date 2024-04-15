@@ -2,8 +2,6 @@
 
 EventSprite::EventSprite(std::unordered_map<Event, DynamicSprite> eventsprite) : _eventsprite(eventsprite)
 {
-    _camera = Camera::current();
-
     _input = Input::current();
     _input->event(std::bind(&event, this, std::placeholders::_1));
 }

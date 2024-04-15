@@ -1,34 +1,53 @@
 #include "sdlms/camera.hpp"
+#include "sdlms/map.hpp"
 
 Camera::Camera()
 {
     _viewport = SDL_FRect{0, 0, Graphics::SCREEN_WIDTH, Graphics::SCREEN_HEIGHT};
-
-    _input = Input::current();
-    _input->event(std::bind(&event, this, std::placeholders::_1));
-
     _character = Character::current();
 }
 
-void Camera::event(SDL_Event &event)
+void Camera::update(int elapsedTime)
 {
     Point<float> player_pos = _character->_pos - Point<float>{_viewport.w / 2, _viewport.h / 2};
     Point<float> camera_pos{_viewport.x, _viewport.y};
 
-    // _viewport.x = player_pos.a;
-    // _viewport.y = player_pos.b;
+    int VWIDTH = _viewport.w;
+    int VHEIGHT = _viewport.h;
 
-    if (camera_pos.distance(player_pos) < CAMERA_MIN_MOVE_DISTANCE)
+    double next_x = _viewport.x;
+    double hdelta = VWIDTH / 2 - player_pos.x() - next_x;
+
+    if (std::abs(hdelta) >= 5.0)
+        next_x += hdelta * (12.0 / VWIDTH);
+
+    double next_y = _viewport.y;
+    double vdelta = VHEIGHT / 2 - player_pos.y() - next_y;
+
+    if (std::abs(vdelta) >= 5.0)
+        next_y += vdelta * (12.0 / VHEIGHT);
+
+    auto [Left, Right, Top, Bottom] = Map::current()->_border;
+
+    if (next_x < Left)
     {
-        _viewport.x = player_pos.a;
-        _viewport.y = player_pos.b;
+        next_x = Left;
     }
-    else
+    else if (next_x + VWIDTH > Right)
     {
-        // 相机下一帧位置
-        auto camera_next_pos = camera_pos + (player_pos - camera_pos) * CAMERA_MOVE_INTERPOLATE;
-        _viewport.x = camera_next_pos.a;
-        _viewport.y = camera_next_pos.b;
+        next_x = Right - VWIDTH;
     }
+
+    if (next_y < Top)
+    {
+        next_y = Top;
+    }
+    else if (next_y + VHEIGHT > Bottom)
+    {
+        next_y = Bottom - VHEIGHT;
+    }
+    _viewport.x = next_x;
+    _viewport.y = next_y;
+
     return;
 }
