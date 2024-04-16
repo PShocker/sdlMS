@@ -20,7 +20,7 @@ void Camera::update(int elapsedTime)
     }
 
     auto vdelta = player_pos.y() - camera_pos.y();
-    if (std::abs(vdelta) >= 5.0)
+    if (std::abs(vdelta) > 5.0)
     {
         _viewport.y += vdelta * (elapsedTime / 1000.0);
         _viewport.y = std::clamp(_viewport.y, player_pos.y() - 5, player_pos.y() + 5);
