@@ -13,18 +13,10 @@ void Camera::update(int elapsedTime)
     Point<float> camera_pos{_viewport.x, _viewport.y};
 
     auto hdelta = player_pos.x() - camera_pos.x();
-    if (std::abs(hdelta) > 5.0)
-    {
-        // _viewport.x += hdelta * (12.0 / _viewport.w);
-        _viewport.x = std::clamp(_viewport.x, player_pos.x() - 5, player_pos.x() + 5);
-    }
+    _viewport.x = std::clamp(player_pos.x(), player_pos.x() - 5, player_pos.x() + 5);
 
     auto vdelta = player_pos.y() - camera_pos.y();
-    if (std::abs(vdelta) > 5.0)
-    {
-        // _viewport.y += vdelta * (12.0 / _viewport.h);
-        _viewport.y = std::clamp(_viewport.y, player_pos.y() - 5, player_pos.y() + 5);
-    }
+    _viewport.y = std::clamp(_viewport.y, player_pos.y() - 5, player_pos.y() + 5);
 
     auto [Left, Right, Top, Bottom] = Map::current()->_border;
 
