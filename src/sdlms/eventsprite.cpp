@@ -3,7 +3,7 @@
 EventSprite::EventSprite(std::unordered_map<Event, DynamicSprite> eventsprite) : _eventsprite(eventsprite)
 {
     _input = Input::current();
-    _input->event(std::bind(&event, this, std::placeholders::_1));
+    _input->event(std::bind(&EventSprite::event, this, std::placeholders::_1));
 }
 
 void EventSprite::event(SDL_Event &event)

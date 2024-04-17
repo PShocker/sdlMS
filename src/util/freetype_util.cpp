@@ -51,11 +51,11 @@ namespace util
 
             auto bitmap = glyph_slot->bitmap;
             // 默认底部对齐
-            SDL_Rect charRect = {offsetX, (height - glyph_slot->bitmap.rows), (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+            SDL_Rect charRect = {offsetX, (int)(height - glyph_slot->bitmap.rows), (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
             // 特殊符号居中
-            if (c==u'<'||c==u'>')
+            if (c == u'<' || c == u'>')
             {
-                charRect.y=(height - glyph_slot->bitmap.rows)/2;
+                charRect.y = (height - glyph_slot->bitmap.rows) / 2;
             }
             // 转换为ARGB8888格式
             unsigned char *argbData = new unsigned char[bitmap.width * bitmap.rows * 4];
@@ -64,16 +64,16 @@ namespace util
                 for (int x = 0; x < bitmap.width; x++)
                 {
                     char value = bitmap.buffer[y * bitmap.width + x];
-                    argbData[(y * bitmap.width + x) * 4] = 255;         // B
-                    argbData[(y * bitmap.width + x) * 4 + 1] = 255;     // G
-                    argbData[(y * bitmap.width + x) * 4 + 2] = 255;     // R
+                    argbData[(y * bitmap.width + x) * 4] = 255;       // B
+                    argbData[(y * bitmap.width + x) * 4 + 1] = 255;   // G
+                    argbData[(y * bitmap.width + x) * 4 + 2] = 255;   // R
                     argbData[(y * bitmap.width + x) * 4 + 3] = value; // A
                 }
             }
 
             SDL_UpdateTexture(texture, &charRect, argbData, bitmap.width * sizeof(Uint32));
 
-            delete argbData;
+            delete[] argbData;
             offsetX += glyph_slot->bitmap.width;
         }
 
