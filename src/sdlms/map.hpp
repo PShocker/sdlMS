@@ -14,6 +14,7 @@
 #include "sdlms/foothold.hpp"
 #include "sdlms/ladderRope.hpp"
 #include "sdlms/character.hpp"
+#include "sdlms/npc.hpp"
 
 class Map : public Currenton<Map>
 {
@@ -30,6 +31,7 @@ public:
     std::tuple<std::vector<uint8_t>, int> _sound; // pcm流,采样率
     std::unordered_map<int, FootHold> _foothold;
     std::unordered_map<int, LadderRope> _ladderRope;
+    std::vector<Npc> _npc;
 
     std::tuple<int, int, int, int> _border; // 摄像机范围
 
