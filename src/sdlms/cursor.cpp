@@ -3,7 +3,7 @@
 Cursor::Cursor()
 {
     _input = Input::current();
-    _input->event(std::bind(&event, this, std::placeholders::_1));
+    _input->event(std::bind(&Cursor::event, this, std::placeholders::_1));
 }
 
 void Cursor::event(SDL_Event &event)
