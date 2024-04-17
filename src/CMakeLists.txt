@@ -34,10 +34,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated-declarations")
 add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
 # 将 SDL2 库链接到可执行文件中
 target_link_libraries(sdlMS PRIVATE SDL2-static SDL2main)
-# 包含 SDL2 头文件目录
-target_include_directories(sdlMS PRIVATE ${SDL2_INCLUDE_DIRS})
-# 链接 SDL2 库
-target_link_libraries(sdlMS PRIVATE ${SDL2_STATIC_LIBRARIES} wzlib)
+# 链接 wzlib 库
+target_link_libraries(sdlMS PRIVATE wzlib)
 # 链接 FFMPEG库
 target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
 # 链接 FFMPEG依赖库,wzlib里面已经包含了zlib库
