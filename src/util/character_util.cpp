@@ -118,7 +118,7 @@ namespace util
                     body_node->find_from_path(type + u"/body"));
                 v.push_back(body);
 
-                auto _coat = _character_node->find_from_path(u"Coat/01049000.img/" + type + u"/mail");
+                auto _coat = _character_node->find_from_path(u"Coat/01040002.img/" + type + u"/mail");
                 if (_coat != nullptr)
                 {
                     auto _coat_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat->find_from_path(u"map/navel"))->get();
@@ -126,7 +126,7 @@ namespace util
                     v.push_back(coat);
                 }
 
-                auto _pants = _character_node->find_from_path(u"Pants/01062083.img/" + type + u"/pants");
+                auto _pants = _character_node->find_from_path(u"Pants/01060002.img/" + type + u"/pants");
                 if (_pants != nullptr)
                 {
                     auto _pants_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_pants->find_from_path(u"map/navel"))->get();
@@ -166,7 +166,7 @@ namespace util
                     }
                 }
 
-                auto _shoes = _character_node->find_from_path(u"Shoes/01072073.img/" + type + u"/shoes");
+                auto _shoes = _character_node->find_from_path(u"Shoes/01070002.img/" + type + u"/shoes");
                 if (_shoes != nullptr)
                 {
                     auto _shoes_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_shoes->find_from_path(u"map/navel"))->get();
@@ -174,7 +174,7 @@ namespace util
                     v.push_back(shoes);
                 }
 
-                auto _weapon = _character_node->find_from_path(u"Weapon/01402034.img/" + type + u"/weapon");
+                auto _weapon = _character_node->find_from_path(u"Weapon/01402037.img/" + type + u"/weapon");
                 if (_weapon != nullptr)
                 {
                     if (_weapon->find_from_path(u"map/hand") != nullptr)
@@ -199,7 +199,7 @@ namespace util
                     v.push_back(arm);
                 }
 
-                auto _coat_arm = _character_node->find_from_path(u"Coat/01049000.img/" + type + u"/mailArm");
+                auto _coat_arm = _character_node->find_from_path(u"Coat/01040002.img/" + type + u"/mailArm");
                 if (_coat_arm != nullptr)
                 {
                     auto _coat_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat_arm->find_from_path(u"map/navel"))->get();
