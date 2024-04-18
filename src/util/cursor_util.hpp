@@ -21,7 +21,7 @@ namespace util
     {
     public:
         CursorUtil();
-        std::unordered_map<Cursor::Event, DynamicSprite> load();
+        EventSprite *load();
 
     private:
         SpriteUtil *_sprite_util;

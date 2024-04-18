@@ -39,7 +39,7 @@ namespace util
 		Map->parse(u"Map");
 		// Mob->parse();
 		// Morph->parse();
-		// Npc->parse();
+		Npc->parse(u"Npc");
 		// Quest->parse();
 		// Reactor->parse();
 		// Skill->parse();

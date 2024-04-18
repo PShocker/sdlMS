@@ -16,7 +16,7 @@ class Cursor : public Currenton<Cursor>
 {
 
 public:
-    enum Event
+    enum Event : uint8_t
     {
         NORMAL,
         PRESSED,
@@ -25,7 +25,7 @@ public:
         // KEYFOCUSED,
     };
 
-    static inline const std::map<std::u16string, Event> EventMap = {
+    static inline const std::map<std::u16string, uint8_t> EventMap = {
         {u"0", NORMAL},
         {u"12", PRESSED},
         // {u"disabled", DISABLED},
@@ -39,7 +39,7 @@ public:
     void event(SDL_Event &event);
 
 public:
-    std::unordered_map<Event, DynamicSprite> _s;
+    EventSprite* _s;
     Event _event = NORMAL;
 
 private:
@@ -47,7 +47,7 @@ private:
     Input *_input;
 
 private:
-    std::unordered_map<Event, std::vector<SDL_Cursor *>> _c;
+    std::unordered_map<uint8_t, std::vector<SDL_Cursor *>> _c;
 };
 
 #endif

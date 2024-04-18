@@ -34,7 +34,7 @@ namespace util
         std::unordered_map<int, FootHold> load_foothold(int mapId);
         std::unordered_map<int, LadderRope> load_ladderRope(int mapId);
         std::tuple<int, int, int, int> load_border(int mapId);
-        std::vector<Npc> load_npc(int mapId);
+        std::array<std::vector<Npc>, 8> load_npc(int mapId);
 
         wz::Node *load_node(int mapId);
 
@@ -53,7 +53,7 @@ namespace util
         std::unordered_map<int, FootHold> load_foothold(wz::Node *node);
         std::unordered_map<int, LadderRope> load_ladderRope(wz::Node *node);
         std::tuple<int, int, int, int> load_border(wz::Node *node);
-        std::vector<Npc> load_npc(wz::Node *node);
+        std::array<std::vector<Npc>, 8> load_npc(wz::Node *node);
     };
 }
 

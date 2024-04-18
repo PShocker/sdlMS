@@ -7,7 +7,7 @@
 #include <memory>
 
 #include "sdlms/sprite.hpp"
-#include "sdlms/uisprite.hpp"
+#include "sdlms/ui.hpp"
 #include "template/currenton.hpp"
 
 class StatusBar : public Currenton<StatusBar>
@@ -17,7 +17,7 @@ public:
 
 public:
     std::vector<Sprite> _s;
-    std::vector<UISprite *> _e;
+    std::vector<UI *> _e;
 };
 
 #endif

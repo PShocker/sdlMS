@@ -11,31 +11,34 @@
 class Npc : public EventSprite
 {
 public:
-    enum Event
+    enum Event : uint8_t
     {
         STAND,
         SHY,
-        // DISABLED,
-        // MOUSEOVER,
-        // KEYFOCUSED,
+        HAND,
+        WINK,
+        EYE,
+        SAY,
     };
 
-    static inline const std::map<std::u16string, Event> EventMap = {
+    static inline const std::map<std::u16string, uint8_t> EventMap = {
         {u"stand", STAND},
         {u"shy", SHY},
-        // {u"disabled", DISABLED},
-        // {u"mouseOver", MOUSEOVER},
-        // {u"keyfocused", KEYFOCUSED},
+        {u"hand", HAND},
+        {u"wink", WINK},
+        {u"eye", EYE},
+        {u"say", SAY},
     };
 
 public:
-    Npc(std::unordered_map<Event, DynamicSprite> eventsprite, int fh);
-
+    Npc(EventSprite eventsprite, int fh);
+    void draw();
+    void update(int elapsedTime);
     static void draws(std::vector<Npc> &npcs);
+    static void updates(std::vector<Npc> &npcs, int elapsedTime);
 
 public:
-    std::unordered_map<Event, DynamicSprite> _eventsprite;
-    Event _event = STAND;
+    uint8_t _event = STAND;
     int _fh;
 };
 #endif

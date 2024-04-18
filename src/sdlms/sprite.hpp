@@ -10,7 +10,7 @@
 class Sprite
 {
 public:
-    Sprite(std::u16string url, const std::vector<uint8_t> &raw_data, SDL_FRect rect, unsigned int format, int flip = SDL_FLIP_NONE);
+    Sprite(std::u16string url, const std::vector<uint8_t> &raw_data, SDL_FRect rect, unsigned int format, int flip = SDL_FLIP_NONE, int delay = 0);
     Sprite(SDL_Texture *texture, SDL_FRect rect, int flip);
 
     void draw();
@@ -24,6 +24,7 @@ public:
     std::vector<uint8_t> _raw_data;
     unsigned int _format;
     int _flip;
+    int _delay;
 
     std::u16string _url;
 

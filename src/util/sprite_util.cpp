@@ -29,7 +29,15 @@ namespace util
 
         SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-        Sprite sprite(node->path, raw_data, rect, (int)format, flip);
+        auto delay = 0;
+        auto d = dynamic_cast<wz::Property<int> *>(node->get_child(u"delay"));
+
+        if (d != nullptr)
+        {
+            delay = d->get();
+        }
+
+        Sprite sprite(node->path, raw_data, rect, (int)format, flip, delay);
 
         return sprite;
     }

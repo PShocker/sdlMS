@@ -1,12 +1,12 @@
-#include "sdlms/uisprite.hpp"
+#include "sdlms/ui.hpp"
 
-UISprite::UISprite(EventSprite eventsprite) : EventSprite(eventsprite)
+UI::UI(EventSprite eventsprite) : EventSprite(eventsprite)
 {
     _input = Input::current();
-    _input->event(std::bind(&UISprite::event, this, std::placeholders::_1));
+    _input->event(std::bind(&UI::event, this, std::placeholders::_1));
 }
 
-void UISprite::event(SDL_Event &event)
+void UI::event(SDL_Event &event)
 {
     if (_input->isMouseHeld(SDL_BUTTON_LEFT))
     {
@@ -50,15 +50,15 @@ void UISprite::event(SDL_Event &event)
         }
     }
 }
-void UISprite::draw()
+void UI::draw()
 {
     _eventsprite.at(_event).draw();
 }
-void UISprite::_draw()
+void UI::_draw()
 {
     _eventsprite.at(_event)._draw();
 }
-SDL_FRect UISprite::rect()
+SDL_FRect UI::rect()
 {
     return _eventsprite.at(_event).rect();
 }
