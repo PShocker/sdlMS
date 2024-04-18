@@ -14,6 +14,7 @@
 #include "sdlms/portal.hpp"
 #include "sdlms/foothold.hpp"
 #include "sdlms/ladderRope.hpp"
+#include "sdlms/npc.hpp"
 
 // 地图加载的类,用来加载地图上的资源
 namespace util
@@ -33,6 +34,8 @@ namespace util
         std::unordered_map<int, FootHold> load_foothold(int mapId);
         std::unordered_map<int, LadderRope> load_ladderRope(int mapId);
         std::tuple<int, int, int, int> load_border(int mapId);
+        std::vector<Npc> load_npc(int mapId);
+
         wz::Node *load_node(int mapId);
 
     private:
@@ -40,6 +43,7 @@ namespace util
 
     private:
         wz::Node *_map_node;
+        wz::Node *_npc_node;
 
     private:
         std::vector<Tile> load_tile(wz::Node *node, int i);
@@ -49,7 +53,7 @@ namespace util
         std::unordered_map<int, FootHold> load_foothold(wz::Node *node);
         std::unordered_map<int, LadderRope> load_ladderRope(wz::Node *node);
         std::tuple<int, int, int, int> load_border(wz::Node *node);
-
+        std::vector<Npc> load_npc(wz::Node *node);
     };
 }
 

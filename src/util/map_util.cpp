@@ -11,6 +11,7 @@ namespace util
     {
         _sprite_util = SpriteUtil::current();
         _map_node = WzUtil::current()->Map->get_root();
+        _npc_node = WzUtil::current()->Npc->get_root();
     }
 
     std::array<std::vector<Tile>, 8> MapUtil::load_tile(int mapId)
@@ -425,4 +426,50 @@ namespace util
         std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + s + ".img";
         return _map_node->find_from_path(path);
     }
+
+    std::vector<Npc> MapUtil::load_npc(int mapId)
+    {
+        return load_npc(load_node(mapId));
+    }
+
+    std::vector<Npc> MapUtil::load_npc(wz::Node *node)
+    {
+
+        std::vector<Npc> v_npc;
+
+        node = node->get_child(u"life");
+        if (node != nullptr)
+        {
+            for (auto it : node->get_children())
+            {
+                auto type = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"type"))->get();
+
+                if (type == u"n")
+                {
+                    auto npc_id = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"id"))->get();
+                    auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
+                    auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
+
+                    auto npc_node = _npc_node->find_from_path(npc_id + u".img");
+                    if (npc_node != nullptr)
+                    {
+                        std::unordered_map<std::u16string, AnimatedSprite> map;
+                        for (auto it : node->get_children())
+                        {
+                            if (it.first == u"info")
+                            {
+                                continue;
+                            }
+                            auto animatedsprite = _sprite_util->load_event_sprite(it.second[0], x, y);
+                            // auto dynamicsprite = DynamicSprite(animatedsprite);
+                            // map.emplace(it.first,dynamicsprite);
+                            // map[it.first] = animatedsprite;
+                        }
+                    }
+                }
+            }
+        }
+        return v_npc;
+    }
+
 }
