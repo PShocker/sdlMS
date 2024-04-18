@@ -14,26 +14,8 @@
 class EventSprite
 {
 public:
-    enum Event
-    {
-        NORMAL,
-        PRESSED,
-        DISABLED,
-        MOUSEOVER,
-        KEYFOCUSED,
-    };
-
-    static inline const std::map<std::u16string, Event> EventMap = {
-        {u"normal", NORMAL},
-        {u"pressed", PRESSED},
-        {u"disabled", DISABLED},
-        {u"mouseOver", MOUSEOVER},
-        {u"keyfocused", KEYFOCUSED},
-    };
-
-public:
-    EventSprite(std::unordered_map<Event, DynamicSprite> eventsprite);
-    void event(SDL_Event &event);
+    EventSprite(std::unordered_map<uint8_t, DynamicSprite> eventsprite);
+    virtual ~EventSprite();
 
     void draw();
     void _draw();
@@ -41,10 +23,6 @@ public:
     SDL_FRect rect();
 
 public:
-    std::unordered_map<Event, DynamicSprite> _eventsprite;
-    Event _event = NORMAL;
-
-private:
-    Input *_input;
+    std::unordered_map<uint8_t, DynamicSprite> _eventsprite;
 };
 #endif

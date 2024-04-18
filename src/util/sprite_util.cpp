@@ -81,11 +81,11 @@ namespace util
         return AnimatedSprite(v_sprite, v_delay, v_sprite.size(), v_a);
     }
 
-    EventSprite *SpriteUtil::load_event_sprite(wz::Node *node, int x, int y)
+    EventSprite *SpriteUtil::load_event_sprite(std::map<std::u16string, uint8_t> event_map, wz::Node *node, int x, int y)
     {
-        std::unordered_map<EventSprite::Event, DynamicSprite> eventsprite;
+        std::unordered_map<uint8_t, DynamicSprite> eventsprite;
 
-        auto func = [this, x, y, &eventsprite](std::u16string str, EventSprite::Event event, wz::Node *node) -> void
+        auto func = [this, x, y, &eventsprite](std::u16string str, uint8_t event, wz::Node *node) -> void
         {
             node = node->find_from_path(str);
             if (node != nullptr)
@@ -96,7 +96,7 @@ namespace util
             }
         };
 
-        for (auto &it : EventSprite::EventMap)
+        for (auto &it : event_map)
         {
             func(it.first, it.second, node);
         }
