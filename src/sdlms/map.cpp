@@ -11,10 +11,12 @@ void Map::draw()
 {
     // 绘制背景
     BackGrd::drawbackgrounds(_backgrd.first);
+
     for (size_t i = 0; i < 8; i++)
     {
         Obj::draws(_obj[i]);
         Tile::draws(_tile[i]);
+        Npc::draws(_npc[i]);
         Character::current()->draw(i);
     }
     // 绘制前景
@@ -36,6 +38,7 @@ void Map::update(int elapsedTime)
     for (size_t i = 0; i < 8; i++)
     {
         Obj::updates(_obj[i], elapsedTime);
+        Npc::updates(_npc[i], elapsedTime);
     }
     Portal::updates(_portal, elapsedTime);
 }

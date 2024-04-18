@@ -12,7 +12,7 @@
 
 #include "sdlms/sprite.hpp"
 #include "sdlms/eventsprite.hpp"
-#include "sdlms/uisprite.hpp"
+#include "sdlms/ui.hpp"
 
 namespace util
 {
@@ -21,7 +21,7 @@ namespace util
     public:
         StatusBarUtil();
         std::vector<Sprite> load_statusbar();
-        std::vector<UISprite*> load_button();
+        std::vector<UI*> load_button();
 
     private:
         SDL_Renderer *_renderer;

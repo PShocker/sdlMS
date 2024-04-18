@@ -28,7 +28,7 @@ void Cursor::event(SDL_Event &event)
 
 void Cursor::load()
 {
-    for (auto &it : _s)
+    for (auto &it : _s->_eventsprite)
     {
         std::vector<SDL_Cursor *> v;
         auto dynamicsprite = it.second._dynamicsprite;

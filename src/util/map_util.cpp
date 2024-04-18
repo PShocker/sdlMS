@@ -427,15 +427,16 @@ namespace util
         return _map_node->find_from_path(path);
     }
 
-    std::vector<Npc> MapUtil::load_npc(int mapId)
+    std::array<std::vector<Npc>, 8> MapUtil::load_npc(int mapId)
     {
+
         return load_npc(load_node(mapId));
     }
 
-    std::vector<Npc> MapUtil::load_npc(wz::Node *node)
+    std::array<std::vector<Npc>, 8> MapUtil::load_npc(wz::Node *node)
     {
-
-        std::vector<Npc> v_npc;
+        std::array<std::vector<Npc>, 8> v_npc;
+        auto fhs = load_foothold(node);
 
         node = node->get_child(u"life");
         if (node != nullptr)
@@ -448,23 +449,16 @@ namespace util
                 {
                     auto npc_id = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"id"))->get();
                     auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
-                    auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
+                    auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"cy"))->get();
+                    auto fh = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"fh"))->get();
+                    // 从fh获取layer
+                    auto layer = fhs.at(fh)._page;
 
                     auto npc_node = _npc_node->find_from_path(npc_id + u".img");
                     if (npc_node != nullptr)
                     {
-                        std::unordered_map<std::u16string, AnimatedSprite> map;
-                        for (auto it : node->get_children())
-                        {
-                            if (it.first == u"info")
-                            {
-                                continue;
-                            }
-                            auto animatedsprite = _sprite_util->load_event_sprite(it.second[0], x, y);
-                            // auto dynamicsprite = DynamicSprite(animatedsprite);
-                            // map.emplace(it.first,dynamicsprite);
-                            // map[it.first] = animatedsprite;
-                        }
+                        auto animatedsprite = _sprite_util->load_event_sprite(Npc::EventMap, npc_node, x, y);
+                        v_npc[layer].push_back(Npc(*animatedsprite, fh));
                     }
                 }
             }

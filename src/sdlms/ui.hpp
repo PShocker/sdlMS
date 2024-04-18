@@ -1,5 +1,5 @@
-#ifndef HEADER_SDLMS_UISPRITE
-#define HEADER_SDLMS_UISPRITE
+#ifndef HEADER_SDLMS_UI
+#define HEADER_SDLMS_UI
 
 #include <SDL2/SDL.h>
 
@@ -7,7 +7,7 @@
 #include "sdlms/camera.hpp"
 #include "sdlms/eventsprite.hpp"
 
-class UISprite : public EventSprite
+class UI : public EventSprite
 {
 public:
     enum Event : uint8_t
@@ -27,7 +27,7 @@ public:
         {u"keyfocused", KEYFOCUSED},
     };
 
-    UISprite(EventSprite eventsprite);
+    UI(EventSprite eventsprite);
     void draw();
     void _draw();
     SDL_FRect rect();
