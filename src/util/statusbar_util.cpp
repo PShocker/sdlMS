@@ -5,7 +5,7 @@
 
 #include "wz/Property.hpp"
 
-#include "sdlms/graphics.hpp"
+#include "sdlms/uisprite.hpp"
 
 namespace util
 {
@@ -18,7 +18,6 @@ namespace util
 
         _ui_node = WzUtil::current()->UI->get_root();
     }
-
 
     std::vector<Sprite> StatusBarUtil::load_statusbar()
     {
@@ -58,27 +57,28 @@ namespace util
         return v_s;
     }
 
-    std::vector<EventSprite *> StatusBarUtil::load_event_sprite()
+    std::vector<UISprite *> StatusBarUtil::load_event_sprite()
     {
-        std::vector<EventSprite *> v_s;
+        std::vector<UISprite *> v_s;
 
         auto StatusBar = _ui_node->find_from_path(u"StatusBar.img");
 
-        auto BtShop = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtShop"), 590, Graphics::SCREEN_HEIGHT - 18);
+        auto BtShop = _sprite_util->load_event_sprite(UISprite::EventMap, StatusBar->find_from_path(u"BtShop"), 590, Graphics::SCREEN_HEIGHT - 18);
 
-        v_s.push_back(BtShop);
+        v_s.push_back(new UISprite(BtShop));
 
-        auto BtMenu = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtMenu"), 635, Graphics::SCREEN_HEIGHT - 18);
+        auto BtMenu = _sprite_util->load_event_sprite(UISprite::EventMap, StatusBar->find_from_path(u"BtMenu"), 635, Graphics::SCREEN_HEIGHT - 18);
 
         v_s.push_back(BtMenu);
 
-        auto BtChat = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtChat"), 680, Graphics::SCREEN_HEIGHT - 18);
+        auto BtChat = _sprite_util->load_event_sprite(UISprite::EventMap, StatusBar->find_from_path(u"BtChat"), 680, Graphics::SCREEN_HEIGHT - 18);
 
         v_s.push_back(BtChat);
 
-        auto BtNPT = _sprite_util->load_event_sprite(StatusBar->find_from_path(u"BtNPT"), 725, Graphics::SCREEN_HEIGHT - 18);
+        auto BtNPT = _sprite_util->load_event_sprite(UISprite::EventMap, StatusBar->find_from_path(u"BtNPT"), 725, Graphics::SCREEN_HEIGHT - 18);
 
         v_s.push_back(BtNPT);
+
         return v_s;
     }
 }
