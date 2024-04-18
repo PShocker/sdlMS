@@ -6,8 +6,9 @@
 #include "sdlms/graphics.hpp"
 #include "sdlms/camera.hpp"
 #include "sdlms/sprite.hpp"
+#include "sdlms/eventsprite.hpp"
 
-class Npc
+class Npc : public EventSprite
 {
 public:
     enum Event

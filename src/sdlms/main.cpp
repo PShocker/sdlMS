@@ -41,7 +41,7 @@ int Main::run(int argc, char **argv)
 
     _minimap->_s = _minimap_util->load_minimap(mapId);
     _statusbar->_s = _statusbar_util->load_statusbar();
-    _statusbar->_e = _statusbar_util->load_event_sprite();
+    _statusbar->_e = _statusbar_util->load_button();
 
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);

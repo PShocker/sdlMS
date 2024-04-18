@@ -5,8 +5,6 @@
 
 #include "wz/Property.hpp"
 
-#include "sdlms/uisprite.hpp"
-
 namespace util
 {
     StatusBarUtil::StatusBarUtil()
@@ -57,7 +55,7 @@ namespace util
         return v_s;
     }
 
-    std::vector<UISprite *> StatusBarUtil::load_event_sprite()
+    std::vector<UISprite *> StatusBarUtil::load_button()
     {
         std::vector<UISprite *> v_s;
 
@@ -65,19 +63,19 @@ namespace util
 
         auto BtShop = _sprite_util->load_event_sprite(UISprite::EventMap, StatusBar->find_from_path(u"BtShop"), 590, Graphics::SCREEN_HEIGHT - 18);
 
-        v_s.push_back(new UISprite(BtShop));
+        v_s.push_back(new UISprite(*BtShop));
 
         auto BtMenu = _sprite_util->load_event_sprite(UISprite::EventMap, StatusBar->find_from_path(u"BtMenu"), 635, Graphics::SCREEN_HEIGHT - 18);
 
-        v_s.push_back(BtMenu);
+        v_s.push_back(new UISprite(*BtMenu));
 
         auto BtChat = _sprite_util->load_event_sprite(UISprite::EventMap, StatusBar->find_from_path(u"BtChat"), 680, Graphics::SCREEN_HEIGHT - 18);
 
-        v_s.push_back(BtChat);
+        v_s.push_back(new UISprite(*BtChat));
 
         auto BtNPT = _sprite_util->load_event_sprite(UISprite::EventMap, StatusBar->find_from_path(u"BtNPT"), 725, Graphics::SCREEN_HEIGHT - 18);
 
-        v_s.push_back(BtNPT);
+        v_s.push_back(new UISprite(*BtNPT));
 
         return v_s;
     }

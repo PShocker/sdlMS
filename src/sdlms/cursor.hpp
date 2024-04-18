@@ -10,6 +10,7 @@
 #include "sdlms/dynamicsprite.hpp"
 #include "sdlms/input.hpp"
 #include "sdlms/camera.hpp"
+#include "sdlms/eventsprite.hpp"
 
 class Cursor : public Currenton<Cursor>
 {
