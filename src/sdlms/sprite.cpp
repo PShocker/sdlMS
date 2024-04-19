@@ -5,9 +5,11 @@
 Sprite::Sprite(std::u16string url,
                const std::vector<uint8_t> &raw_data,
                SDL_FRect rect,
-               unsigned int format, int flip, int delay) : _url(url), _rect(rect),
-                                                           _format(format), _flip(flip),
-                                                           _raw_data(raw_data), _delay(delay)
+               unsigned int format, int flip,
+               int delay, int a0, int a1) : _url(url), _rect(rect),
+                                            _format(format), _flip(flip),
+                                            _raw_data(raw_data),
+                                            _delay(delay), _a0(a0), _a1(a1)
 {
     if (texture_map.contains(url))
     {

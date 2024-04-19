@@ -32,11 +32,11 @@ void DynamicSprite::_draw()
     }
 }
 
-void DynamicSprite::update(int elapsedTime)
+[[maybe_unused]] bool DynamicSprite::update(int elapsedTime)
 {
     if (std::holds_alternative<AnimatedSprite>(_dynamicsprite))
     {
-        std::get<AnimatedSprite>(_dynamicsprite).update(elapsedTime);
+        return std::get<AnimatedSprite>(_dynamicsprite).update(elapsedTime);
     }
 }
 

@@ -1,50 +1,68 @@
 #include "sdlms/animatedsprite.hpp"
+#include <ranges>
+#include <algorithm>
 
 AnimatedSprite::AnimatedSprite(std::vector<Sprite> sprite,
-                               std::vector<int> delay,
-                               int frameSize, std::vector<std::tuple<int, int>> a) : _sprite(sprite),
-                                                                                     _delay(delay),
-                                                                                     _frameIndex(0),
-                                                                                     _frameTime(0),
-                                                                                     _frameSize(frameSize),
-                                                                                     _a(a)
+                               int frameSize, bool zigzag) : _sprite(sprite),
+                                                             _frameIndex(0),
+                                                             _frameTime(0),
+                                                             _frameSize(frameSize),
+                                                             _zigzag(zigzag)
 {
 }
 
-void AnimatedSprite::update(int elapsedTime)
+bool AnimatedSprite::update(int elapsedTime)
 {
-    if (_frameSize != 1)
+    _frameTime += elapsedTime;
+    // 判断时间是否超过sprite时间
+    if (_frameTime >= _sprite[_frameIndex]._delay)
     {
-        _frameTime += elapsedTime;
-        if (_frameTime >= _delay[_frameIndex])
+        // 判断是否是最后1帧
+        if (_frameIndex == _frameSize - 1)
         {
-            if (_frameIndex == _frameSize - 1)
+            // 如果zigzag存在,说明动画是1-2-3-2-1形式的倒放
+            if (_zigzag)
             {
-                _frameIndex = 0;
+                // 反转vector,形成倒放效果
+                std::ranges::reverse(_sprite);
+                // 切换到倒数第二帧
+                _frameIndex = 1;
             }
             else
             {
-                _frameIndex += 1;
+                // 如果zigzag不存在,直接从头开始
+                _frameIndex = 0;
             }
-            // 切换下一帧
-            _frameTime = 0;
+            // 表示一个循环结束,该值会EventSprite会使用
+            return true;
         }
-        auto a0 = std::get<0>(_a[_frameIndex]);
-        auto a1 = std::get<1>(_a[_frameIndex]);
+        else
+        {
+            _frameIndex += 1;
+        }
+        // 切换下一帧
+        _frameTime = 0;
+    }
+    else
+    {
+        // 透明度处理
+        auto a0 = _sprite[_frameIndex]._a0;
+        auto a1 = _sprite[_frameIndex]._a1;
         if (a0 != a1)
         {
             auto alpha = 255;
             if (a0 <= a1)
             {
-                alpha = (float)a0 + (float)(a1 - a0) / (float)_delay[_frameIndex] * (float)_frameTime;
+                alpha = (float)a0 + (float)(a1 - a0) / (float)_sprite[_frameIndex]._delay * (float)_frameTime;
             }
             else
             {
-                alpha = (float)a0 - (float)(a0 - a1) / (float)_delay[_frameIndex] * (float)_frameTime;
+                alpha = (float)a0 - (float)(a0 - a1) / (float)_sprite[_frameIndex]._delay * (float)_frameTime;
             }
             SDL_SetTextureAlphaMod(_sprite[_frameIndex]._texture, alpha);
         }
     }
+    return false;
 }
 
 void AnimatedSprite::draw()

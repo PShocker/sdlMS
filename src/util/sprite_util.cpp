@@ -29,7 +29,7 @@ namespace util
 
         SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
-        auto delay = 0;
+        auto delay = 100;
         auto d = dynamic_cast<wz::Property<int> *>(node->get_child(u"delay"));
 
         if (d != nullptr)
@@ -37,7 +37,15 @@ namespace util
             delay = d->get();
         }
 
-        Sprite sprite(node->path, raw_data, rect, (int)format, flip, delay);
+        auto a0 = 255;
+        auto a1 = 255;
+        if (canvas->get_child(u"a0") != NULL && canvas->get_child(u"a1") != NULL)
+        {
+            a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
+            a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
+        }
+
+        Sprite sprite(node->path, raw_data, rect, (int)format, flip, delay, a0, a1);
 
         return sprite;
     }
@@ -50,8 +58,6 @@ namespace util
     AnimatedSprite SpriteUtil::load_animated_sprite(wz::Node *node, int x, int y, int flip)
     {
         std::vector<Sprite> v_sprite;
-        std::vector<int> v_delay;
-        std::vector<std::tuple<int, int>> v_a;
         for (auto it : node->get_children())
         {
             wz::Property<wz::WzCanvas> *canvas;
@@ -68,25 +74,12 @@ namespace util
             {
                 continue;
             }
-            auto delay = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"delay"));
-            v_delay.push_back(delay == nullptr ? 100 : delay->get());
-
-            auto a0 = 255;
-            auto a1 = 255;
-
-            if (canvas->get_child(u"a0") != NULL && canvas->get_child(u"a1") != NULL)
-            {
-                a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
-                a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
-            }
-
-            v_a.push_back(std::tuple<int, int>(a0, a1));
 
             Sprite sprite = load_sprite(canvas, x, y, flip);
 
             v_sprite.push_back(sprite);
         }
-        return AnimatedSprite(v_sprite, v_delay, v_sprite.size(), v_a);
+        return AnimatedSprite(v_sprite, v_sprite.size());
     }
 
     EventSprite *SpriteUtil::load_event_sprite(std::map<std::u16string, uint8_t> event_map, wz::Node *node, int x, int y)
