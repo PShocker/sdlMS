@@ -466,11 +466,15 @@ namespace util
                         auto animatedsprite = _sprite_util->load_event_sprite(Npc::EventMap, npc_node, x, y);
 
                         auto npc = Npc(*animatedsprite, fh);
-                        npc._name = _freetype_util->load_str(name,18);
-                        npc._func = _freetype_util->load_str(func,18);
+                        npc._name = _freetype_util->load_str(name, 15, 0, 255, 255, true, 0, 0, 0, 255 * 0.7);
+                        npc._func = _freetype_util->load_str(func, 15, 0, 255, 255, true, 0, 0, 0, 255 * 0.7);
 
-                        npc._name._rect.x = x;
-                        npc._name._rect.y = y;
+                        npc._name._rect.x = x - npc._name._rect.w / 2;
+                        npc._name._rect.y = y + 4;
+
+                        npc._func._rect.x = x - npc._func._rect.w / 2;
+                        npc._func._rect.y = y + 20;
+
                         v_npc[layer].push_back(npc);
                     }
                 }
