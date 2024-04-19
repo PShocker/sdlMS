@@ -2,6 +2,7 @@
 #define HEADER_SDLMS_NPC
 
 #include <SDL2/SDL.h>
+#include <random>
 
 #include "sdlms/graphics.hpp"
 #include "sdlms/camera.hpp"
@@ -40,5 +41,10 @@ public:
 public:
     uint8_t _event = STAND;
     int _fh;
+
+private:
+    std::default_random_engine _gen;
+    std::uniform_int_distribution<uint8_t> _dist;
+    std::vector<uint8_t> _v_event;
 };
 #endif

@@ -12,11 +12,10 @@ class AnimatedSprite
 {
 public:
     AnimatedSprite(std::vector<Sprite> sprite,
-                   std::vector<int> delay,
                    int frameSize,
-                   std::vector<std::tuple<int, int>> a);
+                   bool zigzag = false);
 
-    void update(int elapsedTime);
+    bool update(int elapsedTime);
     void draw();
     void _draw();
     SDL_FRect rect();
@@ -25,11 +24,9 @@ public:
 
 public:
     std::vector<Sprite> _sprite;
-    std::vector<int> _delay;
     int _frameIndex;
     int _frameTime;
     int _frameSize;
-
-    std::vector<std::tuple<int, int>> _a;
+    bool _zigzag;
 };
 #endif

@@ -13,7 +13,7 @@ public:
     ~DynamicSprite();
     void draw();
     void _draw();
-    void update(int elapsedTime);
+    [[maybe_unused]] bool update(int elapsedTime);
 
     SDL_FRect rect();
     Sprite sprite();
