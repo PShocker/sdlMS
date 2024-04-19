@@ -13,6 +13,7 @@ AnimatedSprite::AnimatedSprite(std::vector<Sprite> sprite,
 
 bool AnimatedSprite::update(int elapsedTime)
 {
+    bool end = false;
     _frameTime += elapsedTime;
     // 判断时间是否超过sprite时间
     if (_frameTime >= _sprite[_frameIndex]._delay)
@@ -33,8 +34,8 @@ bool AnimatedSprite::update(int elapsedTime)
                 // 如果zigzag不存在,直接从头开始
                 _frameIndex = 0;
             }
+            end = true;
             // 表示一个循环结束,该值会EventSprite会使用
-            return true;
         }
         else
         {
@@ -62,7 +63,7 @@ bool AnimatedSprite::update(int elapsedTime)
             SDL_SetTextureAlphaMod(_sprite[_frameIndex]._texture, alpha);
         }
     }
-    return false;
+    return end;
 }
 
 void AnimatedSprite::draw()

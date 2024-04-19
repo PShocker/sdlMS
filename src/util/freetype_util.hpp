@@ -19,10 +19,11 @@ namespace util
     {
     public:
         FreeTypeUtil();
-        Sprite load_str(const std::u16string &s, int fontSize = 16);
+        Sprite load_str(const std::u16string &s, int fontSize = 16, int b0 = 255, int g0 = 255, int r0 = 255,
+                        bool back = false, int b1 = 0, int g1 = 0, int r1 = 0, int a1 = 255);
 
     public:
-        const std::string filename_prefix = "C:/Windows/Fonts";
+        const std::string filename_prefix = "../font";
         FT_Library *_library;
         FT_Face *_face;
 
