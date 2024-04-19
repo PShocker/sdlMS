@@ -38,6 +38,10 @@ void DynamicSprite::_draw()
     {
         return std::get<AnimatedSprite>(_dynamicsprite).update(elapsedTime);
     }
+    else if (std::holds_alternative<Sprite>(_dynamicsprite))
+    {
+        return false;
+    }
 }
 
 SDL_FRect DynamicSprite::rect()

@@ -275,6 +275,11 @@ void Physics::update(int elapsedTime)
     _character->_vacc = _character->_vforce;
 
     auto _hspeed = _character->_hspeed + _elapsedTime * _character->_hacc;
+    if (std::abs(_hspeed) < 10)
+    {
+        _hspeed = 0;
+    }
+
     auto _vspeed = _character->_vspeed + _elapsedTime * _character->_vacc;
 
     Point<float> new_pos = _character->_pos + Point<float>{(_character->_hspeed + _hspeed) / 2 * _elapsedTime,

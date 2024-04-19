@@ -10,6 +10,9 @@ namespace util
     MapUtil::MapUtil()
     {
         _sprite_util = SpriteUtil::current();
+        _string_util = StringUtil::current();
+        _freetype_util = FreeTypeUtil::current();
+
         _map_node = WzUtil::current()->Map->get_root();
         _npc_node = WzUtil::current()->Npc->get_root();
     }
@@ -453,12 +456,22 @@ namespace util
                     auto fh = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"fh"))->get();
                     // 从fh获取layer
                     auto layer = fhs.at(fh)._page;
-
                     auto npc_node = _npc_node->find_from_path(npc_id + u".img");
+
                     if (npc_node != nullptr)
                     {
+                        auto npc_info = _string_util->load_npc_info(npc_id);
+                        auto name = npc_info[u"name"];
+                        auto func = npc_info[u"func"];
                         auto animatedsprite = _sprite_util->load_event_sprite(Npc::EventMap, npc_node, x, y);
-                        v_npc[layer].push_back(Npc(*animatedsprite, fh));
+
+                        auto npc = Npc(*animatedsprite, fh);
+                        npc._name = _freetype_util->load_str(name,18);
+                        npc._func = _freetype_util->load_str(func,18);
+
+                        npc._name._rect.x = x;
+                        npc._name._rect.y = y;
+                        v_npc[layer].push_back(npc);
                     }
                 }
             }

@@ -18,10 +18,10 @@ int Main::run(int argc, char **argv)
 
     _wz_util.reset(new WzUtil());
     _sprite_util.reset(new SpriteUtil());
-    _map_util.reset(new MapUtil());
     _sound_util.reset(new SoundUtil());
     _string_util.reset(new StringUtil());
     _freetype_util.reset(new FreeTypeUtil());
+    _map_util.reset(new MapUtil());
     _cursor_util.reset(new CursorUtil());
     _character_util.reset(new CharacterUtil());
     _statusbar_util.reset(new StatusBarUtil());

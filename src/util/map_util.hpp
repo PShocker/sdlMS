@@ -7,6 +7,9 @@
 
 #include "template/currenton.hpp"
 #include "util/sprite_util.hpp"
+#include "util/string_util.hpp"
+#include "util/freetype_util.hpp"
+
 
 #include "sdlms/tile.hpp"
 #include "sdlms/obj.hpp"
@@ -40,6 +43,8 @@ namespace util
 
     private:
         SpriteUtil *_sprite_util;
+        StringUtil *_string_util;
+        FreeTypeUtil *_freetype_util;
 
     private:
         wz::Node *_map_node;
