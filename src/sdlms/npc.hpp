@@ -42,6 +42,9 @@ public:
     uint8_t _event = STAND;
     int _fh;
 
+    Sprite _name;
+    Sprite _func;
+    
 private:
     std::default_random_engine _gen;
     std::uniform_int_distribution<uint8_t> _dist;

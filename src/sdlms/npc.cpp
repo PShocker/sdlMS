@@ -16,6 +16,7 @@ Npc::Npc(EventSprite eventsprite, int fh) : EventSprite(eventsprite),
 void Npc::draw()
 {
     _eventsprite.at(_event).draw();
+    _name.draw();
 }
 
 void Npc::update(int elapsedTime)
@@ -24,7 +25,7 @@ void Npc::update(int elapsedTime)
     if (end)
     {
         // 状态切换
-        _event=_v_event[_dist(_gen)];
+        _event = _v_event[_dist(_gen)];
     }
 }
 

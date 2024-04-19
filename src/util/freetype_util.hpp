@@ -10,6 +10,7 @@
 #include <SDL2/SDL.h>
 
 #include "template/currenton.hpp"
+#include "sdlms/sprite.hpp"
 
 // 加载字体
 namespace util
@@ -18,7 +19,7 @@ namespace util
     {
     public:
         FreeTypeUtil();
-        std::tuple<SDL_Texture *, int, int> load_str(const std::u16string &s);
+        Sprite load_str(const std::u16string &s, int fontSize = 16);
 
     public:
         const std::string filename_prefix = "C:/Windows/Fonts";

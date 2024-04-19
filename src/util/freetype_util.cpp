@@ -22,8 +22,10 @@ namespace util
         FT_Set_Pixel_Sizes(*_face, 0, fontSize);
     }
 
-    std::tuple<SDL_Texture *, int, int> FreeTypeUtil::load_str(const std::u16string &s)
+    Sprite FreeTypeUtil::load_str(const std::u16string &s, int fontSize)
     {
+        FT_Set_Pixel_Sizes(*_face, 0, fontSize);
+
         FT_GlyphSlot glyph_slot = (*_face)->glyph;
 
         // 计算每个字符的位置和大小
@@ -81,7 +83,7 @@ namespace util
 
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-        return {texture, width, height};
-        // return {texture, width * 0.48, height * 0.48};
+        SDL_FRect rect{0, 0, (float)width, (float)height};
+        return Sprite(texture, rect);
     }
 }

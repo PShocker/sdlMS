@@ -28,7 +28,10 @@ namespace util
         if (o_minimap.has_value() == true)
         {
             auto minimap = o_minimap.value();
-            auto [mapName, streetName] = _string_util->load_map_name(mapId);
+            auto map = _string_util->load_map_info(mapId);
+
+            auto mapName = map[u"mapName"];
+            auto streetName = map[u"streetName"];
 
             SDL_Point t_offset = {52, 25};
 
@@ -36,7 +39,7 @@ namespace util
 
             auto t_down = _freetype_util->load_str(mapName);
 
-            int width = std::max((int)minimap._rect.w, std::max((int)std::get<1>(t_up) + (int)t_offset.x, (int)std::get<1>(t_down) + (int)t_offset.x));
+            int width = std::max({(int)minimap._rect.w, (int)t_up._rect.w + (int)t_offset.x, (int)t_down._rect.w + (int)t_offset.x});
             int height = minimap._rect.h;
 
             auto node = _ui_node->find_from_path(u"UIWindow.img/MiniMap/MaxMap");
@@ -114,9 +117,13 @@ namespace util
             minimap._rect.y = 72;
             v_s.push_back(minimap);
 
-            v_s.push_back(Sprite(std::get<0>(t_up), SDL_FRect{(float)t_offset.x, (float)t_offset.y, (float)std::get<1>(t_up), (float)std::get<2>(t_up)}, SDL_FLIP_NONE));
+            t_up._rect.x = t_offset.x;
+            t_up._rect.y = t_offset.y;
+            v_s.push_back(t_up);
 
-            v_s.push_back(Sprite(std::get<0>(t_down), SDL_FRect{(float)t_offset.x, (float)t_offset.y + (float)std::get<2>(t_up), (float)std::get<1>(t_down), (float)std::get<2>(t_down)}, SDL_FLIP_NONE));
+            t_down._rect.x = t_offset.x;
+            t_down._rect.y = t_offset.y+t_up._rect.h;
+            v_s.push_back(t_down);
 
             auto o_mark = _map_util->load_mark(mapId);
             if (o_mark.has_value())

@@ -9,28 +9,60 @@ namespace util
     StringUtil::StringUtil()
     {
         wz::Node *root = WzUtil::current()->String->get_root();
-        auto node = root->find_from_path(u"Map.img");
-        for (auto &area : node->get_children())
-        {
-            for (auto &maps : area.second)
+        { // 解析地图String
+            auto node = root->find_from_path(u"Map.img");
+            for (auto &area : node->get_children())
             {
-                for (auto &ids : maps->get_children())
+                for (auto &maps : area.second)
                 {
-                    auto id_str = ids.first;
-                    auto id = std::stoi(std::string{id_str.begin(), id_str.end()});
+                    for (auto &ids : maps->get_children())
+                    {
+                        std::map<std::u16string, std::u16string> m;
 
-                    auto mapName = dynamic_cast<wz::Property<wz::wzstring> *>(ids.second[0]->find_from_path(u"mapName"));
-                    auto streetName = dynamic_cast<wz::Property<wz::wzstring> *>(ids.second[0]->find_from_path(u"streetName"));
+                        auto id_str = ids.first;
+                        auto id = std::stoi(std::string{id_str.begin(), id_str.end()});
 
-                    std::tuple<std::u16string, std::u16string> tuple(mapName == nullptr ? u"" : mapName->get(),
-                                                                     streetName == nullptr ? u"" : streetName->get());
-                    _stringMap.insert(std::make_pair(id, tuple));
+                        std::u16string mapName = u"";
+                        std::u16string streetName = u"";
+                        if (dynamic_cast<wz::Property<wz::wzstring> *>(ids.second[0]->find_from_path(u"mapName")) != nullptr)
+                        {
+                            mapName = dynamic_cast<wz::Property<wz::wzstring> *>(ids.second[0]->find_from_path(u"mapName"))->get();
+                        }
+                        if (dynamic_cast<wz::Property<wz::wzstring> *>(ids.second[0]->find_from_path(u"streetName")) != nullptr)
+                        {
+                            streetName = dynamic_cast<wz::Property<wz::wzstring> *>(ids.second[0]->find_from_path(u"streetName"))->get();
+                        }
+                        m.emplace(u"mapName", mapName);
+                        m.emplace(u"streetName", streetName);
+
+                        _stringMap.emplace(id, m);
+                    }
                 }
+            }
+        }
+        {
+            // 解析npc
+            auto node = root->find_from_path(u"Npc.img");
+            for (auto &_npc : node->get_children())
+            {
+                auto id_str = _npc.first;
+                std::map<std::u16string, std::u16string> m;
+                for (auto &npc : _npc.second[0]->get_children())
+                {
+                    auto val = dynamic_cast<wz::Property<wz::wzstring> *>(npc.second[0])->get();
+                    m.emplace(npc.first,val);
+                }
+                _npcMap.emplace(id_str, m);
             }
         }
     }
 
-    std::tuple<std::u16string, std::u16string> StringUtil::load_map_name(int mapId){
+    std::map<std::u16string, std::u16string> StringUtil::load_map_info(int mapId)
+    {
         return _stringMap[mapId];
+    }
+    std::map<std::u16string, std::u16string> StringUtil::load_npc_info(std::u16string npcId)
+    {
+        return _npcMap[npcId];
     }
 }
