@@ -35,9 +35,9 @@ namespace util
 
             SDL_Point t_offset = {52, 25};
 
-            auto t_up = _freetype_util->load_str(streetName);
+            auto t_up = _freetype_util->load_map_str(streetName);
 
-            auto t_down = _freetype_util->load_str(mapName);
+            auto t_down = _freetype_util->load_map_str(mapName);
 
             int width = std::max({(int)minimap._rect.w, (int)t_up._rect.w + (int)t_offset.x, (int)t_down._rect.w + (int)t_offset.x});
             int height = minimap._rect.h;
