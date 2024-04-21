@@ -15,7 +15,9 @@ namespace util
         FT_Init_FreeType(_library);
         // 加载字体文件
         _face = new FT_Face{};
-        FT_New_Face(*_library, (filename_prefix + "DroidSansFallbackFull.ttf").c_str(), 0, _face);
+        FT_New_Face(*_library, (filename_prefix + "simsun.ttc").c_str(), 0, _face);
+
+        FT_Select_Charmap(*_face, FT_ENCODING_UNICODE);
         // 设置字体大小
         int fontSize = 18;
         // FT_Set_Char_Size(*_face, fontSize * 64, fontSize * 64, 72, 72);
@@ -37,9 +39,7 @@ namespace util
 
             FT_Load_Glyph(*_face, index, FT_LOAD_DEFAULT);
 
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
-
-            width += glyph_slot->bitmap.width;
+            width += glyph_slot->advance.x >> 6;
             height = glyph_slot->bitmap.rows > height ? glyph_slot->bitmap.rows : height;
         }
 
@@ -53,11 +53,11 @@ namespace util
 
             FT_Load_Glyph(*_face, index, FT_LOAD_DEFAULT);
 
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
+            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_MONO);
 
             auto bitmap = glyph_slot->bitmap;
             // 默认底部对齐
-            SDL_Rect charRect = {offsetX, (int)(height - glyph_slot->bitmap.rows)/2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+            SDL_Rect charRect = {offsetX, (int)(height - glyph_slot->bitmap.rows) / 2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
             // 特殊符号居中
             if (c == u'<' || c == u'>')
             {
@@ -69,18 +69,30 @@ namespace util
             {
                 for (int x = 0; x < bitmap.width; x++)
                 {
-                    char value = bitmap.buffer[y * bitmap.width + x];
-                    argbData[(y * bitmap.width + x) * 4] = 255;       // B
-                    argbData[(y * bitmap.width + x) * 4 + 1] = 255;   // G
-                    argbData[(y * bitmap.width + x) * 4 + 2] = 255;   // R
-                    argbData[(y * bitmap.width + x) * 4 + 3] = value; // A
+                    // char value = bitmap.buffer[y * bitmap.width + x];
+                    unsigned char value = bitmap.buffer[y * bitmap.pitch + (x >> 3)] & (0x80 >> (x & 7));
+
+                    if (value == 0)
+                    {
+                        argbData[(y * bitmap.width + x) * 4] = 0;     // B
+                        argbData[(y * bitmap.width + x) * 4 + 1] = 0; // G
+                        argbData[(y * bitmap.width + x) * 4 + 2] = 0; // R
+                        argbData[(y * bitmap.width + x) * 4 + 3] = 0; // A
+                    }
+                    else
+                    {
+                        argbData[(y * bitmap.width + x) * 4] = 255;     // B
+                        argbData[(y * bitmap.width + x) * 4 + 1] = 255; // G
+                        argbData[(y * bitmap.width + x) * 4 + 2] = 255; // R
+                        argbData[(y * bitmap.width + x) * 4 + 3] = 255; // A
+                    }
                 }
             }
 
             SDL_UpdateTexture(texture, &charRect, argbData, bitmap.width * sizeof(Uint32));
 
             delete[] argbData;
-            offsetX += glyph_slot->bitmap.width;
+            offsetX += glyph_slot->advance.x >> 6;
         }
 
         // 创建SDL纹理并将位图数据复制到纹理中
@@ -138,11 +150,11 @@ namespace util
 
             FT_Load_Glyph(*_face, index, FT_LOAD_DEFAULT);
 
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
+            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_MONO);
 
             auto bitmap = glyph_slot->bitmap;
             // 默认顶部对齐
-            SDL_Rect charRect = {offsetX, (int)(height - glyph_slot->bitmap.rows)/2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+            SDL_Rect charRect = {offsetX, (int)(height - glyph_slot->bitmap.rows) / 2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
             // 特殊符号居中
             if (c == u'<' || c == u'>')
             {
@@ -154,8 +166,8 @@ namespace util
             {
                 for (int x = 0; x < bitmap.width; x++)
                 {
-                    unsigned char value = bitmap.buffer[y * bitmap.width + x];
-                    // unsigned char value = bitmap.buffer[y * bitmap.pitch + (x >> 3)] & (0x80 >> (x & 7));
+                    // unsigned char value = bitmap.buffer[y * bitmap.width + x];
+                    unsigned char value = bitmap.buffer[y * bitmap.pitch + (x >> 3)] & (0x80 >> (x & 7));
                     if (value == 0)
                     {
                         argbData[(y * bitmap.width + x) * 4] = 0;             // B
@@ -168,7 +180,7 @@ namespace util
                         argbData[(y * bitmap.width + x) * 4] = 0;       // B
                         argbData[(y * bitmap.width + x) * 4 + 1] = 255; // G
                         argbData[(y * bitmap.width + x) * 4 + 2] = 255; // R
-                        argbData[(y * bitmap.width + x) * 4 + 3] = value; // A
+                        argbData[(y * bitmap.width + x) * 4 + 3] = 255; // A
                     }
                 }
             }
