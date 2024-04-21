@@ -15,13 +15,13 @@ void Camera::update(int elapsedTime)
     int hdelta = player_pos.x() - camera_pos.x();
     if (std::abs(hdelta) > 5)
     {
-        _viewport.x += hdelta * (12.0 / _viewport.w);
+        _viewport.x += hdelta * (24.0 / _viewport.w);
     }
 
     int vdelta = player_pos.y() - camera_pos.y();
     if (std::abs(vdelta) > 5)
     {
-        _viewport.y += vdelta * (12.0 / _viewport.h);
+        _viewport.y += vdelta * (24.0 / _viewport.h);
     }
 
     auto [Left, Right, Top, Bottom] = Map::current()->_border;
