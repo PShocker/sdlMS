@@ -122,7 +122,7 @@ namespace util
             v_s.push_back(t_up);
 
             t_down._rect.x = t_offset.x;
-            t_down._rect.y = t_offset.y+t_up._rect.h;
+            t_down._rect.y = t_offset.y + t_up._rect.h + 4;
             v_s.push_back(t_down);
 
             auto o_mark = _map_util->load_mark(mapId);

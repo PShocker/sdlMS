@@ -7,7 +7,7 @@ const unsigned int FRAME_DELAY = 1000 / FPS;
 int Main::run(int argc, char **argv)
 {
     // int mapId = 10000;
-    int mapId = 101000000;
+    int mapId = 104000000;
     // int mapId = 105040300;
     // int mapId = 104040000;
     // int mapId = 222020111;
