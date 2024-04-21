@@ -27,6 +27,7 @@ public:
 
 	int loop();
 	void event(std::function<void(SDL_Event &event)> func);
+	void check();
 
 private:
 	std::map<SDL_Scancode, bool> _heldKeys;

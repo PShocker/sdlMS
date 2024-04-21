@@ -30,16 +30,24 @@ namespace util
         SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
 
         auto delay = 100;
-        auto d = dynamic_cast<wz::Property<int> *>(node->get_child(u"delay"));
 
+        auto d = node->get_child(u"delay");
         if (d != nullptr)
         {
-            delay = d->get();
+            if (d->type == wz::Type::String)
+            {
+                auto delay_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"delay"))->get();
+                delay = std::stoi(std::string{delay_str.begin(), delay_str.end()});
+            }
+            else if (d->type == wz::Type::Int)
+            {
+                delay = dynamic_cast<wz::Property<int> *>(node->get_child(u"delay"))->get();
+            }
         }
 
         auto a0 = 255;
         auto a1 = 255;
-        if (canvas->get_child(u"a0") != NULL && canvas->get_child(u"a1") != NULL)
+        if (canvas->get_child(u"a0") != nullptr && canvas->get_child(u"a1") != nullptr)
         {
             a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
             a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
@@ -58,17 +66,25 @@ namespace util
     AnimatedSprite SpriteUtil::load_animated_sprite(wz::Node *node, int x, int y, int flip)
     {
         std::vector<Sprite> v_sprite;
-        for (auto it : node->get_children())
+
+        // 从第0帧顺序读
+        for (int i = 0; i < node->children_count(); i++)
         {
-            wz::Property<wz::WzCanvas> *canvas;
-            if (it.second[0]->type == wz::Type::UOL)
+            auto it = node->get_child(std::to_string(i));
+            if (it == nullptr)
             {
-                auto uol = dynamic_cast<wz::Property<wz::WzUOL> *>(it.second[0]);
+                // 如果发现没读取到,说明已经读完,则退出读取
+                break;
+            }
+            wz::Property<wz::WzCanvas> *canvas;
+            if (it->type == wz::Type::UOL)
+            {
+                auto uol = dynamic_cast<wz::Property<wz::WzUOL> *>(it);
                 canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(uol->get_uol());
             }
-            else if (it.second[0]->type == wz::Type::Canvas)
+            else if (it->type == wz::Type::Canvas)
             {
-                canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it.second[0]);
+                canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it);
             }
             else
             {
@@ -79,7 +95,7 @@ namespace util
 
             v_sprite.push_back(sprite);
         }
-        return AnimatedSprite(v_sprite, v_sprite.size());
+        return AnimatedSprite(v_sprite);
     }
 
     EventSprite *SpriteUtil::load_event_sprite(std::map<std::u16string, uint8_t> event_map, wz::Node *node, int x, int y)

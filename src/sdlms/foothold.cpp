@@ -17,33 +17,23 @@ FootHold::FootHold(Point<int32_t> a, Point<int32_t> b, int page, int zmass, int 
 
     if (a.x() == b.x())
     {
-        _type = WALL;
-        if (a.y() < b.y())
+        _type = VERTICAL;
+        if (next == 0 || prev == 0)
         {
-            if (next == 0)
-            {
-                _disable = true;
-            }
-        }
-        else if (a.y() > b.y())
-        {
-            if (prev == 0)
-            {
-                _disable = true;
-            }
+            _disable = true;
         }
     }
     else if (a.y() == b.y())
     {
         // 地板
-        _type = FLOOR;
+        _type = HORIZONTAL;
     }
     else
     {
         // 斜坡
         _k = ((float)b.y() - (float)a.y()) / ((float)b.x() - (float)a.x());
         _intercept = a.y() - _k * a.x();
-        _type = SLOPE;
+        _type = BIAS;
     }
 
     _camera = Camera::current();
@@ -68,11 +58,11 @@ std::optional<float> FootHold::get_x(float y)
     {
         switch (_type)
         {
-        case FLOOR:
+        case HORIZONTAL:
             return std::nullopt;
-        case WALL:
+        case VERTICAL:
             return _a.x();
-        case SLOPE:
+        case BIAS:
             return (y - _intercept) / _k;
         default:
             break;
@@ -88,11 +78,11 @@ std::optional<float> FootHold::get_y(float x)
     {
         switch (_type)
         {
-        case FLOOR:
+        case HORIZONTAL:
             return _a.y();
-        case WALL:
+        case VERTICAL:
             return std::nullopt;
-        case SLOPE:
+        case BIAS:
             return _k * x + _intercept;
         default:
             break;

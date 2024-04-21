@@ -3,11 +3,11 @@
 #include <algorithm>
 
 AnimatedSprite::AnimatedSprite(std::vector<Sprite> sprite,
-                               int frameSize, bool zigzag) : _sprite(sprite),
-                                                             _frameIndex(0),
-                                                             _frameTime(0),
-                                                             _frameSize(frameSize),
-                                                             _zigzag(zigzag)
+                               bool zigzag) : _sprite(sprite),
+                                              _frameIndex(0),
+                                              _frameTime(0),
+                                              _frameSize(sprite.size()),
+                                              _zigzag(zigzag)
 {
 }
 
@@ -41,28 +41,26 @@ bool AnimatedSprite::update(int elapsedTime)
         {
             _frameIndex += 1;
         }
-        // 切换下一帧
         _frameTime = 0;
     }
-    else
+
+    // 透明度处理
+    auto a0 = _sprite[_frameIndex]._a0;
+    auto a1 = _sprite[_frameIndex]._a1;
+    if (a0 != a1)
     {
-        // 透明度处理
-        auto a0 = _sprite[_frameIndex]._a0;
-        auto a1 = _sprite[_frameIndex]._a1;
-        if (a0 != a1)
+        auto alpha = 255;
+        if (a0 <= a1)
         {
-            auto alpha = 255;
-            if (a0 <= a1)
-            {
-                alpha = (float)a0 + (float)(a1 - a0) / (float)_sprite[_frameIndex]._delay * (float)_frameTime;
-            }
-            else
-            {
-                alpha = (float)a0 - (float)(a0 - a1) / (float)_sprite[_frameIndex]._delay * (float)_frameTime;
-            }
-            SDL_SetTextureAlphaMod(_sprite[_frameIndex]._texture, alpha);
+            alpha = (float)a0 + (float)(a1 - a0) / (float)_sprite[_frameIndex]._delay * (float)_frameTime;
         }
+        else
+        {
+            alpha = (float)a0 - (float)(a0 - a1) / (float)_sprite[_frameIndex]._delay * (float)_frameTime;
+        }
+        SDL_SetTextureAlphaMod(_sprite[_frameIndex]._texture, alpha);
     }
+
     return end;
 }
 

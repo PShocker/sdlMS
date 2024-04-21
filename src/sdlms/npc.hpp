@@ -32,19 +32,20 @@ public:
     };
 
 public:
-    Npc(EventSprite eventsprite, int fh);
+    Npc(EventSprite eventsprite, std::u16string id, int fh);
     void draw();
     void update(int elapsedTime);
     static void draws(std::vector<Npc> &npcs);
     static void updates(std::vector<Npc> &npcs, int elapsedTime);
 
 public:
+    std::u16string _id;
     uint8_t _event = STAND;
     int _fh;
 
     Sprite _name;
     Sprite _func;
-    
+
 private:
     std::default_random_engine _gen;
     std::uniform_int_distribution<uint8_t> _dist;

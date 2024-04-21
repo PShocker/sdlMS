@@ -1,4 +1,5 @@
 #include "sdlms/input.hpp"
+#include "input.hpp"
 
 /* Input class
  * Keeps track of keyboard state
@@ -115,4 +116,19 @@ int Input::loop()
 void Input::event(std::function<void(SDL_Event &event)> func)
 {
 	_listeners.push_back(func);
+}
+
+void Input::check()
+{
+	// 解决按键冲突
+	if (isKeyHeld(SDL_SCANCODE_RIGHT))
+	{
+		// 按住右键,则左键无效
+		this->_heldKeys[SDL_SCANCODE_LEFT] = false;
+	}
+	if (isKeyHeld(SDL_SCANCODE_UP))
+	{
+		// 按住上键,则下键无效
+		this->_heldKeys[SDL_SCANCODE_DOWN] = false;
+	}
 }

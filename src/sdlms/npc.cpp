@@ -1,9 +1,10 @@
 #include "sdlms/npc.hpp"
 
-Npc::Npc(EventSprite eventsprite, int fh) : EventSprite(eventsprite),
-                                            _fh(fh),
-                                            _gen(std::random_device()()),
-                                            _dist(0, 0)
+Npc::Npc(EventSprite eventsprite, std::u16string id, int fh) : EventSprite(eventsprite),
+                                                               _id(id),
+                                                               _fh(fh),
+                                                               _gen(std::random_device()()),
+                                                               _dist(0, 0)
 
 {
     for (const auto &[event, _] : eventsprite._eventsprite)

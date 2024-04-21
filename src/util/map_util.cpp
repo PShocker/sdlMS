@@ -299,8 +299,10 @@ namespace util
                         auto y2 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"y2"))->get();
 
                         FootHold f(Point(x1, y1), Point(x2, y2), page, zmass, id, prev, next);
-
-                        m_foothold.emplace(id, f);
+                        if (f._disable != true)
+                        {
+                            m_foothold.emplace(id, f);
+                        }
                     }
                 }
             }
@@ -465,7 +467,7 @@ namespace util
                         auto func = npc_info[u"func"];
                         auto animatedsprite = _sprite_util->load_event_sprite(Npc::EventMap, npc_node, x, y);
 
-                        auto npc = Npc(*animatedsprite, fh);
+                        auto npc = Npc(*animatedsprite,npc_id, fh);
                         npc._name = _freetype_util->load_npc_str(name, 14);
                         npc._func = _freetype_util->load_npc_str(func, 14);
 
