@@ -18,6 +18,11 @@ class Physics
 public:
     Physics();
     void update(int elapsedTime);
+    inline void move_ground(float elapsedTime);
+    inline void move_ladderope(float elapsedTime);
+    inline bool move_ladderope();
+    inline void move_air(float elapsedTime);
+    inline void direct();
 
 private:
     // 判断两条线段是否相交，并求出交点
@@ -32,8 +37,9 @@ private:
     {
         GROUND,
         CLIMB,
+        AIR,
     };
-    std::bitset<8> _physic_status;
+    uint8_t _physic_status = AIR;
 
 private:
     Input *_input;

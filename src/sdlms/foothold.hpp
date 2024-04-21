@@ -55,9 +55,9 @@ public:
                 */
     enum Type
     {
-        FLOOR,
-        WALL,
-        SLOPE,
+        HORIZONTAL, // 水平
+        VERTICAL,   // 垂直
+        BIAS,       // 斜面
     };
     float _k;
     float _intercept;

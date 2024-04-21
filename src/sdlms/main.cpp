@@ -1,7 +1,7 @@
 #include "sdlms/main.hpp"
 #include <SDL2/SDL.h>
 
-const unsigned int FPS = 120;
+const unsigned int FPS = 60;
 const unsigned int FRAME_DELAY = 1000 / FPS;
 
 int Main::run(int argc, char **argv)
@@ -38,7 +38,6 @@ int Main::run(int argc, char **argv)
     _cursor->_s = _cursor_util->load();
 
     _sound.reset(new Sound());
-    _physics.reset(new Physics());
 
     _minimap->_s = _minimap_util->load_minimap(mapId);
     _statusbar->_s = _statusbar_util->load_statusbar();
@@ -52,6 +51,8 @@ int Main::run(int argc, char **argv)
     _map->_ladderRope = _map_util->load_ladderRope(mapId);
     _map->_border = _map_util->load_border(mapId);
     _map->_npc = _map_util->load_npc(mapId);
+
+    _physics.reset(new Physics());
 
     _map->_sound = _ffmpeg_util->decodeAudioToPCM(_sound_util->load_sound(mapId));
 

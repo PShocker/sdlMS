@@ -11,9 +11,7 @@
 class AnimatedSprite
 {
 public:
-    AnimatedSprite(std::vector<Sprite> sprite,
-                   int frameSize,
-                   bool zigzag = false);
+    AnimatedSprite(std::vector<Sprite> sprite, bool zigzag = false);
 
     bool update(int elapsedTime);
     void draw();
