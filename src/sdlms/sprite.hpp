@@ -6,6 +6,7 @@
 #include <map>
 #include <string>
 #include <any>
+#include "template/point.hpp"
 
 class Sprite
 {
@@ -13,12 +14,12 @@ public:
     Sprite(std::u16string url, const std::vector<uint8_t> &raw_data, SDL_FRect rect,
            unsigned int format, int flip = SDL_FLIP_NONE,
            int delay = 0, int a0 = 0, int a1 = 0);
-    Sprite(SDL_Texture *texture, SDL_FRect rect, int flip= SDL_FLIP_NONE);
+    Sprite(SDL_Texture *texture, SDL_FRect rect, int flip = SDL_FLIP_NONE);
     Sprite(){};
 
-
     void draw();
-    void _draw();
+    void draw(Point<float> position);
+    void draw_static();
 
     SDL_FRect rect();
 

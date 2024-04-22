@@ -12,7 +12,7 @@ public:
     DynamicSprite(std::variant<Sprite, AnimatedSprite> dynamicsprite);
     ~DynamicSprite();
     void draw();
-    void _draw();
+    void draw_static();
     [[maybe_unused]] bool update(int elapsedTime);
 
     SDL_FRect rect();

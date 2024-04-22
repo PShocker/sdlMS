@@ -18,7 +18,7 @@ public:
     virtual ~EventSprite();
 
     void draw();
-    void _draw();
+    void draw_static();
     void update(int elapsedTime);
     SDL_FRect rect();
 

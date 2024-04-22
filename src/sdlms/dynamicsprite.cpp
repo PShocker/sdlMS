@@ -20,15 +20,15 @@ void DynamicSprite::draw()
     }
 }
 
-void DynamicSprite::_draw()
+void DynamicSprite::draw_static()
 {
     if (std::holds_alternative<Sprite>(_dynamicsprite))
     {
-        std::get<Sprite>(_dynamicsprite)._draw();
+        std::get<Sprite>(_dynamicsprite).draw_static();
     }
     else if (std::holds_alternative<AnimatedSprite>(_dynamicsprite))
     {
-        std::get<AnimatedSprite>(_dynamicsprite)._draw();
+        std::get<AnimatedSprite>(_dynamicsprite).draw_static();
     }
 }
 

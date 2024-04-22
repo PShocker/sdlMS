@@ -19,6 +19,8 @@ void Npc::draw()
     _eventsprite.at(_event).draw();
     _name.draw();
     _func.draw();
+
+    f.draw({_eventsprite.at(_event).rect().x, _eventsprite.at(_event).rect().y}, 100, 100);
 }
 
 void Npc::update(int elapsedTime)
