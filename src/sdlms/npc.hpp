@@ -8,6 +8,7 @@
 #include "sdlms/camera.hpp"
 #include "sdlms/sprite.hpp"
 #include "sdlms/eventsprite.hpp"
+#include "sdlms/frame.hpp"
 
 class Npc : public EventSprite
 {
@@ -45,6 +46,7 @@ public:
 
     Sprite _name;
     Sprite _func;
+    Frame f;
 
 private:
     std::default_random_engine _gen;

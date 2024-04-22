@@ -15,7 +15,7 @@ public:
 
     bool update(int elapsedTime);
     void draw();
-    void _draw();
+    void draw_static();
     SDL_FRect rect();
     Sprite sprite();
     Sprite sprite(int index);

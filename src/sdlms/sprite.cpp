@@ -1,6 +1,7 @@
 #include "sdlms/sprite.hpp"
 #include "sdlms/camera.hpp"
 #include "sdlms/graphics.hpp"
+#include "sprite.hpp"
 
 Sprite::Sprite(std::u16string url,
                const std::vector<uint8_t> &raw_data,
@@ -105,7 +106,26 @@ void Sprite::draw()
     }
 }
 
-void Sprite::_draw()
+//
+void Sprite::draw(Point<float> position)
+{
+    auto camera = Camera::current();
+    auto graphics = Graphics::current();
+    auto fr = rect();
+    fr.x = fr.x - camera->_viewport.x + position.x();
+    fr.y = fr.y - camera->_viewport.y + position.y();
+    if (_flip > 0) // 翻转
+    {
+        graphics->blitSurfaceEx(_texture, NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);
+    }
+    else
+    {
+        graphics->blitSurface(_texture, NULL, &fr);
+    }
+}
+
+// 不随静态移动的精灵图
+void Sprite::draw_static()
 {
     auto camera = Camera::current();
     auto graphics = Graphics::current();

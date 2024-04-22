@@ -29,7 +29,7 @@ public:
 
     UI(EventSprite eventsprite);
     void draw();
-    void _draw();
+    void draw_static();
     SDL_FRect rect();
     void event(SDL_Event &event);
 

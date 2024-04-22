@@ -54,9 +54,9 @@ void UI::draw()
 {
     _eventsprite.at(_event).draw();
 }
-void UI::_draw()
+void UI::draw_static()
 {
-    _eventsprite.at(_event)._draw();
+    _eventsprite.at(_event).draw_static();
 }
 SDL_FRect UI::rect()
 {

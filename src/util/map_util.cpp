@@ -462,9 +462,9 @@ namespace util
 
                     if (npc_node != nullptr)
                     {
-                        auto id_pos=npc_id.find_first_not_of(u'0');
-                        //去掉npc_id中前缀的0
-                        npc_id=npc_id.substr(id_pos);
+                        auto id_pos = npc_id.find_first_not_of(u'0');
+                        // 去掉npc_id中前缀的0
+                        npc_id = npc_id.substr(id_pos);
                         auto npc_info = _string_util->load_npc_info(npc_id);
                         auto name = npc_info[u"name"];
                         auto func = npc_info[u"func"];
@@ -479,6 +479,8 @@ namespace util
 
                         npc._func._rect.x = x - npc._func._rect.w / 2;
                         npc._func._rect.y = y + 20;
+                        auto ballon = WzUtil::current()->UI->get_root()->find_from_path(u"ChatBalloon.img/0");
+                        npc.f = Frame(ballon);
 
                         v_npc[layer].push_back(npc);
                     }

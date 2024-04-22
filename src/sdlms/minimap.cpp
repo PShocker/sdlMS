@@ -5,6 +5,6 @@ void MiniMap::draw()
 {
     for (auto &it : _s)
     {
-        it._draw();
+        it.draw_static();
     }
 }

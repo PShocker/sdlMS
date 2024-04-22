@@ -69,9 +69,9 @@ void AnimatedSprite::draw()
     _sprite[_frameIndex].draw();
 }
 
-void AnimatedSprite::_draw()
+void AnimatedSprite::draw_static()
 {
-    _sprite[_frameIndex]._draw();
+    _sprite[_frameIndex].draw_static();
 }
 
 SDL_FRect AnimatedSprite::rect()

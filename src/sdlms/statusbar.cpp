@@ -4,10 +4,10 @@ void StatusBar::draw()
 {
     for (auto &it : _s)
     {
-        it._draw();
+        it.draw_static();
     }
     for (auto &it : _e)
     {
-        it->_draw();
+        it->draw_static();
     }
 }
