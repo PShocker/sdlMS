@@ -18,13 +18,13 @@ public:
     Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
            int type, int tm,
            std::u16string url);
-    static void draws(std::vector<Portal> &portal);
-    static void updates(std::vector<Portal> &portals, int elapsedTime);
+    static void draws();
+    static void updates(int elapsedTime);
 
     void event(const SDL_Event &event);
 
-    std::vector<Portal> load_portal(int mapId);
-    std::vector<Portal> load_portal(wz::Node *node);
+    static void load_portal(int mapId);
+    static inline std::vector<Portal> _portal;
 
 public:
     int _type;

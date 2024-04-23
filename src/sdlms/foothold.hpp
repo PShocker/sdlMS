@@ -20,7 +20,7 @@ public:
     std::optional<float> get_y(float x);
 
     static std::unordered_map<int, FootHold> load_foothold(int mapId);
-    static std::unordered_map<int, FootHold> load_foothold(wz::Node *node);
+    static inline std::unordered_map<int, FootHold> _foothold;
 
 public:
     Point<int32_t> _a;

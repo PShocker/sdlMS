@@ -14,10 +14,10 @@ Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
     // _input->event(std::bind(&event, this, std::placeholders::_1));
 }
 
-void Portal::draws(std::vector<Portal> &portal)
+void Portal::draws()
 {
     // 只绘制GAME类型的传送门
-    for (auto &it : portal)
+    for (auto &it : _portal)
     {
         if (it._type == Type::GAME)
         {
@@ -26,9 +26,9 @@ void Portal::draws(std::vector<Portal> &portal)
     }
 }
 
-void Portal::updates(std::vector<Portal> &portals, int elapsedTime)
+void Portal::updates(int elapsedTime)
 {
-    for (auto &it : portals)
+    for (auto &it : _portal)
     {
         it.update(elapsedTime);
     }
@@ -49,20 +49,14 @@ void Portal::event(const SDL_Event &event)
     }
 }
 
-std::vector<Portal> Portal::load_portal(int mapId)
+void Portal::load_portal(int mapId)
 {
-    return load_portal(util::MapUtil::current()->load_map_node(mapId));
-}
-
-std::vector<Portal> Portal::load_portal(wz::Node *node)
-{
-
-    std::vector<Portal> v_portal;
+    auto node = util::MapUtil::current()->load_map_node(mapId);
 
     node = node->get_child(u"portal");
 
     auto _map_node = util::WzUtil::current()->Map->get_root();
-    
+
     if (node != nullptr)
     {
         constexpr const char16_t *pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
@@ -92,7 +86,7 @@ std::vector<Portal> Portal::load_portal(wz::Node *node)
 
                         Portal portal(sprite, Portal::Type::EDITOR, tm, url);
 
-                        v_portal.push_back(portal);
+                        _portal.push_back(portal);
                     }
 
                     {
@@ -113,7 +107,7 @@ std::vector<Portal> Portal::load_portal(wz::Node *node)
                                 auto animatedsprite = AnimatedSprite::load_animated_sprite(_map_node->find_from_path(url), x, y);
 
                                 Portal portal(animatedsprite, Portal::Type::GAME, tm, url);
-                                v_portal.push_back(portal);
+                                _portal.push_back(portal);
                             }
                         }
                     }
@@ -121,5 +115,4 @@ std::vector<Portal> Portal::load_portal(wz::Node *node)
             }
         }
     }
-    return v_portal;
 }

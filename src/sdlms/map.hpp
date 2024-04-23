@@ -22,6 +22,7 @@ public:
     Map();
     void draw();
     void update(int elapsedTime);
+    void init(int mapId);
 
 public:
     std::array<std::vector<Tile>, 8> _tile;

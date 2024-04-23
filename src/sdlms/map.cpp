@@ -3,6 +3,7 @@
 #include "sdlms/map.hpp"
 #include "sdlms/camera.hpp"
 #include "util/wz_util.hpp"
+#include "util/map_util.hpp"
 
 Map::Map()
 {
@@ -11,20 +12,20 @@ Map::Map()
 void Map::draw()
 {
     // 绘制背景
-    BackGrd::drawbackgrounds(_backgrd.first);
+    BackGrd::drawbackgrounds();
 
     for (size_t i = 0; i < 8; i++)
     {
-        Obj::draws(_obj[i]);
-        Tile::draws(_tile[i]);
-        Npc::draws(_npc[i]);
+        Obj::draws(i);
+        Tile::draws(i);
+        Npc::draws(i);
         Character::current()->draw(i);
     }
     // 绘制前景
-    BackGrd::drawbackgrounds(_backgrd.second);
+    BackGrd::drawforegrounds();
 
     // 绘制传送门
-    Portal::draws(_portal);
+    Portal::draws();
 
     // 绘制平台
     // FootHold::draws(_foothold);
@@ -34,13 +35,23 @@ void Map::draw()
 
 void Map::update(int elapsedTime)
 {
-    BackGrd::updates(_backgrd.first, elapsedTime);  // 更新背景
-    BackGrd::updates(_backgrd.second, elapsedTime); // 更新前景
+    BackGrd::updates(elapsedTime);
     for (size_t i = 0; i < 8; i++)
     {
-        Obj::updates(_obj[i], elapsedTime);
-        Npc::updates(_npc[i], elapsedTime);
+        Obj::updates(i, elapsedTime);
+        Npc::updates(i, elapsedTime);
     }
-    Portal::updates(_portal, elapsedTime);
+    Portal::updates(elapsedTime);
 }
 
+void Map::init(int mapId)
+{
+    Obj::load_obj(mapId);
+    Tile::load_tile(mapId);
+    BackGrd::load_backgrd(mapId);
+    Npc::load_npc(mapId);
+    Portal::load_portal(mapId);
+    FootHold::load_foothold(mapId);
+    LadderRope::load_ladderRope(mapId);
+    _border = util::MapUtil::current()->load_border(mapId);
+}

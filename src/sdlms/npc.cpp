@@ -23,7 +23,7 @@ void Npc::draw()
     _name.draw();
     _func.draw();
 
-    f.draw({_eventsprite.at(_event).rect().x, _eventsprite.at(_event).rect().y}, 100, 100);
+    frame.draw({_eventsprite.at(_event).rect().x, _eventsprite.at(_event).rect().y}, 100, 100);
 }
 
 void Npc::update(int elapsedTime)
@@ -36,32 +36,27 @@ void Npc::update(int elapsedTime)
     }
 }
 
-void Npc::updates(std::vector<Npc> &npcs, int elapsedTime)
+void Npc::updates(int i, int elapsedTime)
 {
-    for (auto &it : npcs)
+    for (auto &it : _npc[i])
     {
         // 更新帧状态
         it.update(elapsedTime);
     }
 }
 
-void Npc::draws(std::vector<Npc> &npcs)
+void Npc::draws(int i)
 {
-    for (auto &it : npcs)
+    for (auto &it : _npc[i])
     {
         it.draw();
     }
 }
 
-std::array<std::vector<Npc>, 8> Npc::load_npc(int mapId)
+void Npc::load_npc(int mapId)
 {
-    return load_npc(util::MapUtil::current()->load_map_node(mapId));
-}
-
-std::array<std::vector<Npc>, 8> Npc::load_npc(wz::Node *node)
-{
-    std::array<std::vector<Npc>, 8> v_npc;
-    auto fhs = FootHold::load_foothold(node);
+    auto node = util::MapUtil::current()->load_map_node(mapId);
+    auto fhs = FootHold::load_foothold(mapId);
 
     node = node->get_child(u"life");
     if (node != nullptr)
@@ -100,12 +95,10 @@ std::array<std::vector<Npc>, 8> Npc::load_npc(wz::Node *node)
                     npc._func._rect.x = x - npc._func._rect.w / 2;
                     npc._func._rect.y = y + 20;
                     auto ballon = util::WzUtil::current()->UI->get_root()->find_from_path(u"ChatBalloon.img/0");
-                    npc.f = Frame(ballon);
-
-                    v_npc[layer].push_back(npc);
+                    npc.frame = Frame(ballon);
+                    _npc[layer].push_back(npc);
                 }
             }
         }
     }
-    return v_npc;
 }
