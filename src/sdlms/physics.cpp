@@ -13,7 +13,7 @@ Physics::Physics()
 
 void Physics::move_ground(float elapsedTime)
 {
-    auto fhs = _map->_foothold;
+    auto fhs = FootHold::_foothold;
 
     auto friction = 800;
     if (_input->isKeyHeld(SDL_SCANCODE_UP) || _input->isKeyHeld(SDL_SCANCODE_DOWN))
@@ -229,7 +229,7 @@ void Physics::move_ladderope(float elapsedTime)
 
 bool Physics::move_ladderope()
 {
-    auto lps = _map->_ladderRope;
+    auto lps = LadderRope::_ladderRope;
     std::unordered_map<int, LadderRope>::iterator lp;
 
     auto y = _character->_pos.y();
@@ -283,7 +283,7 @@ void Physics::move_air(float elapsedTime)
         }
     }
 
-    auto fhs = _map->_foothold;
+    auto fhs = FootHold::_foothold;
 
     _character->switch_type(Character::Type::JUMP);
 

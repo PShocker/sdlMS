@@ -27,37 +27,11 @@ namespace util
         MapUtil();
 
     public:
-        std::array<std::vector<Tile>, 8> load_tile(int mapId);
-        std::array<std::vector<Obj>, 8> load_obj(int mapId);
-        std::pair<std::vector<BackGrd>, std::vector<BackGrd>> load_backgrd(int mapId);
-        std::vector<Portal> load_portal(int mapId);
-        std::optional<Sprite> load_minimap(int mapId);
-        std::optional<Sprite> load_mark(int mapId);
-        std::unordered_map<int, FootHold> load_foothold(int mapId);
-        std::unordered_map<int, LadderRope> load_ladderRope(int mapId);
         std::tuple<int, int, int, int> load_border(int mapId);
-        std::array<std::vector<Npc>, 8> load_npc(int mapId);
-
-        wz::Node *load_node(int mapId);
         wz::Node *load_map_node(int mapId);
 
     private:
-        StringUtil *_string_util;
-        FreeTypeUtil *_freetype_util;
-
-    private:
-        wz::Node *_map_node;
-        wz::Node *_npc_node;
-
-    private:
-        std::vector<Tile> load_tile(wz::Node *node, int i);
-        std::vector<Obj> load_obj(wz::Node *node, int i);
-        std::pair<std::vector<BackGrd>, std::vector<BackGrd>> load_backgrd(wz::Node *node);
-        std::vector<Portal> load_portal(wz::Node *node);
-        std::unordered_map<int, FootHold> load_foothold(wz::Node *node);
-        std::unordered_map<int, LadderRope> load_ladderRope(wz::Node *node);
         std::tuple<int, int, int, int> load_border(wz::Node *node);
-        std::array<std::vector<Npc>, 8> load_npc(wz::Node *node);
     };
 }
 
