@@ -28,7 +28,7 @@ void Map::draw()
     Portal::draws();
 
     // 绘制平台
-    // FootHold::draws(_foothold);
+    FootHold::draws();
     // 绘制梯子
     // LadderRope::draws(_ladderRope);
 }

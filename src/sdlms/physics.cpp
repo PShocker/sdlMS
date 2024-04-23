@@ -112,7 +112,7 @@ void Physics::move_ground(float elapsedTime)
         }
         if (fh._type == FootHold::VERTICAL)
         {
-            if (y > std::min(fh._a.y(), fh._a.y()))
+            if (y > std::min(fh._a.y(), fh._b.y()))
             {
                 // 撞墙,人物x不变
                 x = _character->_pos.x();
@@ -145,7 +145,7 @@ void Physics::move_ground(float elapsedTime)
         if (fh._type == FootHold::VERTICAL)
         {
             // 撞墙
-            if (y > std::min(fh._a.y(), fh._a.y()))
+            if (y > std::min(fh._a.y(), fh._b.y()))
             {
                 x = _character->_pos.x();
                 _hspeed = 0;
