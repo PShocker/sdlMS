@@ -124,7 +124,25 @@ void Sprite::draw(Point<float> position)
     }
 }
 
-// 不随静态移动的精灵图
+// 不随摄像机移动的精灵图
+void Sprite::draw_static(Point<float> position)
+{
+    auto camera = Camera::current();
+    auto graphics = Graphics::current();
+    auto fr = rect();
+    fr.x = fr.x + position.x();
+    fr.y = fr.y + position.y();
+    if (_flip > 0) // 翻转
+    {
+        graphics->blitSurfaceEx(_texture, NULL, &fr, 0, 0, SDL_FLIP_HORIZONTAL);
+    }
+    else
+    {
+        graphics->blitSurface(_texture, NULL, &fr);
+    }
+}
+
+// 不随摄像机移动的精灵图
 void Sprite::draw_static()
 {
     auto camera = Camera::current();
@@ -143,4 +161,66 @@ void Sprite::draw_static()
 SDL_FRect Sprite::rect()
 {
     return _rect;
+}
+
+Sprite Sprite::load_sprite(wz::Node *node, int x, int y, int flip)
+{
+
+    if (node->type == wz::Type::UOL)
+    {
+        node = dynamic_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
+    }
+
+    auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node);
+    auto raw_data = canvas->get_raw_data();
+    auto height = canvas->get().height;
+    auto width = canvas->get().width;
+
+    auto format = canvas->get().format + canvas->get().format2;
+
+    auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
+
+    auto ox = 0;
+    auto oy = 0;
+
+    if (o != nullptr)
+    {
+        ox = o->get().x;
+        oy = o->get().y;
+    }
+
+    SDL_FRect rect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+
+    auto delay = 100;
+
+    auto d = node->get_child(u"delay");
+    if (d != nullptr)
+    {
+        if (d->type == wz::Type::String)
+        {
+            auto delay_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"delay"))->get();
+            delay = std::stoi(std::string{delay_str.begin(), delay_str.end()});
+        }
+        else if (d->type == wz::Type::Int)
+        {
+            delay = dynamic_cast<wz::Property<int> *>(node->get_child(u"delay"))->get();
+        }
+    }
+
+    auto a0 = 255;
+    auto a1 = 255;
+    if (canvas->get_child(u"a0") != nullptr && canvas->get_child(u"a1") != nullptr)
+    {
+        a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
+        a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
+    }
+
+    Sprite sprite(node->path, raw_data, rect, (int)format, flip, delay, a0, a1);
+
+    return sprite;
+}
+
+Sprite Sprite::load_sprite(wz::Node *node, Point<int32_t> p, int flip)
+{
+    return load_sprite(node, p.x(), p.y(), flip);
 }

@@ -16,6 +16,8 @@ public:
         std::u16string url);
     static void draws(std::vector<Obj> &objs);
     static void updates(std::vector<Obj> &objs, int elapsedTime);
+    std::array<std::vector<Obj>, 8> load_obj(int mapId);
+    std::vector<Obj> load_obj(wz::Node *node, int i);
 
 public:
     int _id;

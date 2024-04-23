@@ -10,8 +10,6 @@
 #include "template/currenton.hpp"
 #include "template/point.hpp"
 
-#include "util/sprite_util.hpp"
-
 #include "sdlms/character.hpp"
 
 namespace util
@@ -21,9 +19,6 @@ namespace util
     public:
         CharacterUtil();
         std::unordered_map<uint8_t, std::vector<std::tuple<std::vector<Sprite>,int>>> load();
-
-    private:
-        SpriteUtil *_sprite_util;
 
     private:
         wz::Node *_character_node;

@@ -12,7 +12,6 @@ namespace util
     MiniMapUtil::MiniMapUtil()
     {
         _renderer = Graphics::current()->getRenderer();
-        _sprite_util = SpriteUtil::current();
         _freetype_util = FreeTypeUtil::current();
         _string_util = StringUtil::current();
         _map_util = MapUtil::current();
@@ -43,23 +42,23 @@ namespace util
             int height = minimap._rect.h;
 
             auto node = _ui_node->find_from_path(u"UIWindow.img/MiniMap/MaxMap");
-            auto nw = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"nw")));
+            auto nw = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"nw")));
             v_s.push_back(nw);
 
-            auto ne = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"ne")));
+            auto ne = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"ne")));
             ne._rect.x = width + 6;
             v_s.push_back(ne);
 
-            auto sw = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw")));
+            auto sw = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw")));
             sw._rect.y = height + 72;
             v_s.push_back(sw);
 
-            auto se = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se")));
+            auto se = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se")));
             se._rect.x = width + 6;
             se._rect.y = height + 72;
             v_s.push_back(se);
 
-            auto n = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n")));
+            auto n = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n")));
 
             for (size_t x = 6; x <= width + 6; x++)
             {
@@ -67,7 +66,7 @@ namespace util
                 v_s.push_back(Sprite(n._texture, rect, n._flip));
             }
 
-            auto s = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s")));
+            auto s = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s")));
 
             s._rect.x = 6;
             s._rect.y = height + 72;
@@ -78,7 +77,7 @@ namespace util
                 v_s.push_back(Sprite(s._texture, rect, s._flip));
             }
 
-            auto w = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w")));
+            auto w = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w")));
 
             w._rect.x = 0;
             w._rect.y = 0;
@@ -89,7 +88,7 @@ namespace util
                 v_s.push_back(Sprite(w._texture, rect, w._flip));
             }
 
-            auto e = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e")));
+            auto e = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e")));
 
             e._rect.x = width + 6;
             e._rect.y = 0;
@@ -135,7 +134,7 @@ namespace util
                 v_s.push_back(mark);
             }
 
-            auto title = _sprite_util->load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_parent()->find_from_path(u"title")));
+            auto title = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_parent()->find_from_path(u"title")));
             title._rect.x = 7;
             title._rect.y = 5;
 

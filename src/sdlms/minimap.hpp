@@ -5,17 +5,27 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <optional>
 
-#include "sdlms/sprite.hpp"
+#include "sdlms/frame.hpp"
 #include "template/currenton.hpp"
 
 class MiniMap : public Currenton<MiniMap>
 {
 public:
+    MiniMap(){};
+    MiniMap(int mapId);
     void draw();
+    std::optional<Sprite> load_minimap_mark(int mapId);
 
 public:
-    std::vector<Sprite> _s;
+    Frame _frame;
+    Sprite _canvas;
+    Sprite _mapName;
+    Sprite _streetName;
+    Sprite _mask;
+    std::optional<Sprite> _mark;
+    Sprite _title;
 };
 
 #endif

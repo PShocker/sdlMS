@@ -7,7 +7,7 @@
 #include "sdlms/camera.hpp"
 #include "sdlms/eventsprite.hpp"
 
-class UI : public EventSprite
+class Button : public EventSprite
 {
 public:
     enum Event : uint8_t
@@ -27,7 +27,9 @@ public:
         {u"keyfocused", KEYFOCUSED},
     };
 
-    UI(EventSprite eventsprite);
+    Button(){};
+    Button(EventSprite eventsprite, std::u16string event_key);
+    ~Button();
     void draw();
     void draw_static();
     SDL_FRect rect();
@@ -35,6 +37,7 @@ public:
 
 public:
     int _event = NORMAL;
+    std::u16string _event_key;
 
 private:
     Input *_input;

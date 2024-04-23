@@ -9,7 +9,6 @@ namespace util
 {
     MapUtil::MapUtil()
     {
-        _sprite_util = SpriteUtil::current();
         _string_util = StringUtil::current();
         _freetype_util = FreeTypeUtil::current();
 
@@ -47,7 +46,7 @@ namespace util
 
                 auto tn = _map_node->find_from_path(url);
 
-                Sprite sprite = _sprite_util->load_sprite(tn, x, y);
+                Sprite sprite = Sprite::load_sprite(tn, x, y);
 
                 auto z = dynamic_cast<wz::Property<int> *>(tn->get_child(u"z"))->get();
 
@@ -92,7 +91,7 @@ namespace util
 
             auto flip = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
 
-            auto animatedsprite = _sprite_util->load_animated_sprite(_map_node->find_from_path(url), x, y, flip);
+            auto animatedsprite = AnimatedSprite::load_animated_sprite(_map_node->find_from_path(url), x, y, flip);
 
             auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
 
@@ -151,7 +150,7 @@ namespace util
                     auto back = _map_node->find_from_path(url);
                     if (back != nullptr)
                     {
-                        Sprite sprite = _sprite_util->load_sprite(back, x, y, flip);
+                        Sprite sprite = Sprite::load_sprite(back, x, y, flip);
 
                         cx = cx == 0 ? sprite._rect.w : cx;
                         cy = cy == 0 ? sprite._rect.h : cy;
@@ -166,7 +165,7 @@ namespace util
                 {
                     auto no_str = std::to_string(no);
                     auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-                    auto animatedsprite = _sprite_util->load_animated_sprite(_map_node->find_from_path(url), x, y, flip);
+                    auto animatedsprite = AnimatedSprite::load_animated_sprite(_map_node->find_from_path(url), x, y, flip);
                     BackGrd backgrd(animatedsprite, id, type, front, rx, ry, cx, cy, ani, url);
                     v_backgrd.push_back(backgrd);
                     break;
@@ -231,7 +230,7 @@ namespace util
 
                             auto pn = _map_node->find_from_path(url);
 
-                            Sprite sprite = _sprite_util->load_sprite(pn, x, y);
+                            Sprite sprite = Sprite::load_sprite(pn, x, y);
 
                             Portal portal(sprite, Portal::Type::EDITOR, tm, url);
 
@@ -253,7 +252,7 @@ namespace util
                                 else
                                 {
                                     // 普通的传送门,通常为pv
-                                    auto animatedsprite = _sprite_util->load_animated_sprite(_map_node->find_from_path(url), x, y);
+                                    auto animatedsprite = AnimatedSprite::load_animated_sprite(_map_node->find_from_path(url), x, y);
 
                                     Portal portal(animatedsprite, Portal::Type::GAME, tm, url);
                                     v_portal.push_back(portal);
@@ -398,7 +397,7 @@ namespace util
         auto minimap = node->find_from_path(u"miniMap/canvas");
         if (minimap != nullptr)
         {
-            optional = _sprite_util->load_sprite(minimap);
+            optional = Sprite::load_sprite(minimap);
         }
         return optional;
     }
@@ -415,13 +414,24 @@ namespace util
             auto mark = _map_node->find_from_path(url);
             if (mark != NULL)
             {
-                optional = _sprite_util->load_sprite(mark);
+                optional = Sprite::load_sprite(mark);
             }
         }
         return optional;
     }
 
     wz::Node *MapUtil::load_node(int mapId)
+    {
+        auto s = std::to_string(mapId);
+        if (s.size() < 9)
+        {
+            s.insert(0, 9 - s.size(), '0');
+        }
+        std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + s + ".img";
+        return _map_node->find_from_path(path);
+    }
+
+    wz::Node *MapUtil::load_map_node(int mapId)
     {
         auto s = std::to_string(mapId);
         if (s.size() < 9)
@@ -468,9 +478,9 @@ namespace util
                         auto npc_info = _string_util->load_npc_info(npc_id);
                         auto name = npc_info[u"name"];
                         auto func = npc_info[u"func"];
-                        auto animatedsprite = _sprite_util->load_event_sprite(Npc::EventMap, npc_node, x, y);
+                        auto eventsprite = EventSprite::load_event_sprite(Npc::EventMap, npc_node, x, y);
 
-                        auto npc = Npc(*animatedsprite, npc_id, fh);
+                        auto npc = Npc(eventsprite, npc_id, fh);
                         npc._name = _freetype_util->load_npc_str(name, 14);
                         npc._func = _freetype_util->load_npc_str(func, 14);
 

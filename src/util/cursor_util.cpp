@@ -8,15 +8,13 @@ namespace util
     CursorUtil::CursorUtil()
     {
         _ui_node = WzUtil::current()->UI->get_root();
-
-        _sprite_util = SpriteUtil::current();
     }
 
-    EventSprite *CursorUtil::load()
+    EventSprite CursorUtil::load()
     {
         auto node = _ui_node->find_from_path(u"Basic.img/Cursor");
 
-        auto eventsprite = _sprite_util->load_event_sprite(Cursor::EventMap, node);
+        auto eventsprite = EventSprite::load_event_sprite(Cursor::EventMap, node);
 
         return eventsprite;
     }

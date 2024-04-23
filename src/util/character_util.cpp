@@ -6,9 +6,6 @@ namespace util
     CharacterUtil::CharacterUtil()
     {
         _character_node = WzUtil::current()->Character->get_root();
-
-        _sprite_util = SpriteUtil::current();
-
         {
             auto body_node = _character_node->find_from_path(u"00002000.img");
             auto head_node = _character_node->find_from_path(u"00012000.img");
@@ -114,7 +111,7 @@ namespace util
 
                 auto type = _type_map.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
 
-                Sprite body = _sprite_util->load_sprite(
+                Sprite body = Sprite::load_sprite(
                     body_node->find_from_path(type + u"/body"));
                 v.push_back(body);
 
@@ -122,7 +119,7 @@ namespace util
                 if (_coat != nullptr)
                 {
                     auto _coat_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat->find_from_path(u"map/navel"))->get();
-                    Sprite coat = _sprite_util->load_sprite(_coat, a - Point<int32_t>(_coat_pos.x, _coat_pos.y));
+                    Sprite coat = Sprite::load_sprite(_coat, a - Point<int32_t>(_coat_pos.x, _coat_pos.y));
                     v.push_back(coat);
                 }
 
@@ -130,20 +127,20 @@ namespace util
                 if (_pants != nullptr)
                 {
                     auto _pants_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_pants->find_from_path(u"map/navel"))->get();
-                    Sprite pants = _sprite_util->load_sprite(_pants, a - Point<int32_t>(_pants_pos.x, _pants_pos.y));
+                    Sprite pants = Sprite::load_sprite(_pants, a - Point<int32_t>(_pants_pos.x, _pants_pos.y));
                     v.push_back(pants);
                 }
 
                 auto _head = head_node->find_from_path(type + u"/head");
                 if (_head != nullptr)
                 {
-                    Sprite head = _sprite_util->load_sprite(_head, d);
+                    Sprite head = Sprite::load_sprite(_head, d);
                     v.push_back(head);
                 }
 
                 auto _face = _character_node->find_from_path(u"Face/00020000.img/default/face");
                 auto _face_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_face->find_from_path(u"map/brow"))->get();
-                Sprite face = _sprite_util->load_sprite(_face, e - Point<int32_t>(_face_pos.x, _face_pos.y));
+                Sprite face = Sprite::load_sprite(_face, e - Point<int32_t>(_face_pos.x, _face_pos.y));
                 v.push_back(face);
 
                 auto hairs = _character_node->find_from_path(u"Hair/00030000.img/" + type);
@@ -161,7 +158,7 @@ namespace util
                             _hair = _hair->find_from_path(u"0");
                         }
                         auto _hair_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hair->find_from_path(u"map/brow"))->get();
-                        Sprite hair = _sprite_util->load_sprite(_hair, f - Point<int32_t>(_hair_pos.x, _hair_pos.y));
+                        Sprite hair = Sprite::load_sprite(_hair, f - Point<int32_t>(_hair_pos.x, _hair_pos.y));
                         v.push_back(hair);
                     }
                 }
@@ -170,7 +167,7 @@ namespace util
                 if (_shoes != nullptr)
                 {
                     auto _shoes_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_shoes->find_from_path(u"map/navel"))->get();
-                    Sprite shoes = _sprite_util->load_sprite(_shoes, a - Point<int32_t>(_shoes_pos.x, _shoes_pos.y));
+                    Sprite shoes = Sprite::load_sprite(_shoes, a - Point<int32_t>(_shoes_pos.x, _shoes_pos.y));
                     v.push_back(shoes);
                 }
 
@@ -180,13 +177,13 @@ namespace util
                     if (_weapon->find_from_path(u"map/hand") != nullptr)
                     {
                         auto _weapon_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_weapon->find_from_path(u"map/hand"))->get();
-                        Sprite weapon = _sprite_util->load_sprite(_weapon, b - Point<int32_t>(_weapon_pos.x, _weapon_pos.y));
+                        Sprite weapon = Sprite::load_sprite(_weapon, b - Point<int32_t>(_weapon_pos.x, _weapon_pos.y));
                         v.push_back(weapon);
                     }
                     else
                     {
                         auto _weapon_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_weapon->find_from_path(u"map/navel"))->get();
-                        Sprite weapon = _sprite_util->load_sprite(_weapon, a - Point<int32_t>(_weapon_pos.x, _weapon_pos.y));
+                        Sprite weapon = Sprite::load_sprite(_weapon, a - Point<int32_t>(_weapon_pos.x, _weapon_pos.y));
                         v.push_back(weapon);
                     }
                 }
@@ -195,7 +192,7 @@ namespace util
                 if (_arm != nullptr)
                 {
                     auto _arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_arm->find_from_path(u"map/hand"))->get();
-                    Sprite arm = _sprite_util->load_sprite(_arm, b - Point<int32_t>(_arm_pos.x, _arm_pos.y));
+                    Sprite arm = Sprite::load_sprite(_arm, b - Point<int32_t>(_arm_pos.x, _arm_pos.y));
                     v.push_back(arm);
                 }
 
@@ -203,7 +200,7 @@ namespace util
                 if (_coat_arm != nullptr)
                 {
                     auto _coat_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_coat_arm->find_from_path(u"map/navel"))->get();
-                    Sprite coat_arm = _sprite_util->load_sprite(_coat_arm, a - Point<int32_t>(_coat_arm_pos.x, _coat_arm_pos.y));
+                    Sprite coat_arm = Sprite::load_sprite(_coat_arm, a - Point<int32_t>(_coat_arm_pos.x, _coat_arm_pos.y));
                     v.push_back(coat_arm);
                 }
 
@@ -211,7 +208,7 @@ namespace util
                 if (_hand != nullptr)
                 {
                     auto _hand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hand->find_from_path(u"map/navel"))->get();
-                    Sprite hand = _sprite_util->load_sprite(_hand, a - Point<int32_t>(_hand_pos.x, _hand_pos.y));
+                    Sprite hand = Sprite::load_sprite(_hand, a - Point<int32_t>(_hand_pos.x, _hand_pos.y));
                     v.push_back(hand);
                 }
 
@@ -221,13 +218,13 @@ namespace util
                     if (_lHand->find_from_path(u"map/handMove") != nullptr)
                     {
                         auto _lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/handMove"))->get();
-                        Sprite lHand = _sprite_util->load_sprite(_lHand, c - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
+                        Sprite lHand = Sprite::load_sprite(_lHand, c - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
                         v.push_back(lHand);
                     }
                     else
                     {
                         auto _lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/navel"))->get();
-                        Sprite lHand = _sprite_util->load_sprite(_lHand, a - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
+                        Sprite lHand = Sprite::load_sprite(_lHand, a - Point<int32_t>(_lHand_pos.x, _lHand_pos.y));
                         v.push_back(lHand);
                     }
                 }
@@ -236,7 +233,7 @@ namespace util
                 if (_rHand != nullptr)
                 {
                     auto _rHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_rHand->find_from_path(u"map/navel"))->get();
-                    Sprite rHand = _sprite_util->load_sprite(_rHand, a - Point<int32_t>(_rHand_pos.x, _rHand_pos.y));
+                    Sprite rHand = Sprite::load_sprite(_rHand, a - Point<int32_t>(_rHand_pos.x, _rHand_pos.y));
                     v.push_back(rHand);
                 }
 

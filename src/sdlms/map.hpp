@@ -36,6 +36,7 @@ public:
     std::tuple<int, int, int, int> _border; // 摄像机范围
 
     std::u16string bgm;
+    
 };
 
 #endif

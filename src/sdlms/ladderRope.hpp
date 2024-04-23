@@ -11,6 +11,8 @@ class LadderRope
 public:
     LadderRope();
     LadderRope(int id, int l, int uf, int x, int y1, int y2, int page);
+    std::unordered_map<int, LadderRope> load_ladderRope(int mapId);
+    std::unordered_map<int, LadderRope> load_ladderRope(wz::Node *node);
     static void draws(std::unordered_map<int, LadderRope> &r);
 
 public:

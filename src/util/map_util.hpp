@@ -6,7 +6,6 @@
 #include "wz/Property.hpp"
 
 #include "template/currenton.hpp"
-#include "util/sprite_util.hpp"
 #include "util/string_util.hpp"
 #include "util/freetype_util.hpp"
 
@@ -40,9 +39,9 @@ namespace util
         std::array<std::vector<Npc>, 8> load_npc(int mapId);
 
         wz::Node *load_node(int mapId);
+        wz::Node *load_map_node(int mapId);
 
     private:
-        SpriteUtil *_sprite_util;
         StringUtil *_string_util;
         FreeTypeUtil *_freetype_util;
 

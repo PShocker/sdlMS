@@ -2,6 +2,7 @@
 
 #include "sdlms/map.hpp"
 #include "sdlms/camera.hpp"
+#include "util/wz_util.hpp"
 
 Map::Map()
 {
@@ -42,3 +43,4 @@ void Map::update(int elapsedTime)
     }
     Portal::updates(_portal, elapsedTime);
 }
+

@@ -88,3 +88,37 @@ Sprite AnimatedSprite::sprite(int i)
 {
     return _sprite[i];
 }
+AnimatedSprite AnimatedSprite::load_animated_sprite(wz::Node *node, int x, int y, int flip)
+{
+    std::vector<Sprite> v_sprite;
+
+    // 从第0帧顺序读
+    for (int i = 0; i < node->children_count(); i++)
+    {
+        auto it = node->get_child(std::to_string(i));
+        if (it == nullptr)
+        {
+            // 如果发现没读取到,说明已经读完,则退出读取
+            break;
+        }
+        wz::Property<wz::WzCanvas> *canvas;
+        if (it->type == wz::Type::UOL)
+        {
+            auto uol = dynamic_cast<wz::Property<wz::WzUOL> *>(it);
+            canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(uol->get_uol());
+        }
+        else if (it->type == wz::Type::Canvas)
+        {
+            canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it);
+        }
+        else
+        {
+            continue;
+        }
+
+        Sprite sprite = Sprite::load_sprite(canvas, x, y, flip);
+
+        v_sprite.push_back(sprite);
+    }
+    return AnimatedSprite(v_sprite);
+}

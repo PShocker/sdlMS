@@ -23,6 +23,9 @@ public:
 
     void event(const SDL_Event &event);
 
+    std::vector<Portal> load_portal(int mapId);
+    std::vector<Portal> load_portal(wz::Node *node);
+
 public:
     int _type;
     int _tm;

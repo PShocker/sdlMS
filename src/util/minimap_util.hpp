@@ -6,7 +6,6 @@
 
 #include "template/currenton.hpp"
 #include "util/map_util.hpp"
-#include "util/sprite_util.hpp"
 #include "util/freetype_util.hpp"
 #include "util/string_util.hpp"
 
@@ -23,7 +22,6 @@ namespace util
 
     private:
         SDL_Renderer *_renderer;
-        SpriteUtil *_sprite_util;
         FreeTypeUtil *_freetype_util;
         StringUtil *_string_util;
         MapUtil *_map_util;

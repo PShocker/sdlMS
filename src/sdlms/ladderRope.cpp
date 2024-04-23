@@ -1,4 +1,7 @@
 #include "sdlms/ladderRope.hpp"
+#include "util/map_util.hpp"
+#include "sdlms/foothold.hpp"
+#include "util/wz_util.hpp"
 
 LadderRope::LadderRope()
 {
@@ -19,4 +22,35 @@ void LadderRope::draws(std::unordered_map<int, LadderRope> &r)
                            it._x - it._camera->_viewport.x,
                            it._y2 - it._camera->_viewport.y);
     }
+}
+std::unordered_map<int, LadderRope> LadderRope::load_ladderRope(int mapId)
+{
+    return load_ladderRope(util::MapUtil::current()->load_map_node(mapId));
+}
+
+std::unordered_map<int, LadderRope> LadderRope::load_ladderRope(wz::Node *node)
+{
+    std::unordered_map<int, LadderRope> m_ladderrope;
+
+    node = node->get_child(u"ladderRope");
+    if (node != nullptr)
+    {
+        for (auto it : node->get_children())
+        {
+            auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
+            auto rope = it.second[0];
+
+            auto l = dynamic_cast<wz::Property<int> *>(rope->get_child(u"l"))->get();
+            auto uf = dynamic_cast<wz::Property<int> *>(rope->get_child(u"uf"))->get();
+            auto x = dynamic_cast<wz::Property<int> *>(rope->get_child(u"x"))->get();
+            auto y1 = dynamic_cast<wz::Property<int> *>(rope->get_child(u"y1"))->get();
+            auto y2 = dynamic_cast<wz::Property<int> *>(rope->get_child(u"y2"))->get();
+            auto page = dynamic_cast<wz::Property<int> *>(rope->get_child(u"page"))->get();
+
+            LadderRope r(id, l, uf, x, y1, y2, page);
+
+            m_ladderrope.emplace(id, r);
+        }
+    }
+    return m_ladderrope;
 }
