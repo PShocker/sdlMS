@@ -23,7 +23,6 @@ int Main::run(int argc, char **argv)
     _map_util.reset(new MapUtil());
     _cursor_util.reset(new CursorUtil());
     _character_util.reset(new CharacterUtil());
-    _minimap_util.reset(new MiniMapUtil());
 
     _input.reset(new Input());
     _map.reset(new Map());
@@ -37,14 +36,6 @@ int Main::run(int argc, char **argv)
 
     _sound.reset(new Sound());
 
-    _map->_tile = _map_util->load_tile(mapId);
-    _map->_obj = _map_util->load_obj(mapId);
-    _map->_backgrd = _map_util->load_backgrd(mapId);
-    _map->_portal = _map_util->load_portal(mapId);
-    _map->_foothold = _map_util->load_foothold(mapId);
-    _map->_ladderRope = _map_util->load_ladderRope(mapId);
-    _map->_border = _map_util->load_border(mapId);
-    _map->_npc = _map_util->load_npc(mapId);
     _map->init(mapId);
 
     _physics.reset(new Physics());

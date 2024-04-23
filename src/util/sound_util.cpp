@@ -6,7 +6,7 @@ namespace util
 {
     std::vector<u8> SoundUtil::load_sound(int mapId)
     {
-        auto node = MapUtil::current()->load_node(mapId);
+        auto node = MapUtil::current()->load_map_node(mapId);
         node = node->find_from_path("info/bgm");
         if (node != nullptr)
         {

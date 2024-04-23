@@ -25,19 +25,11 @@ public:
     void init(int mapId);
 
 public:
-    std::array<std::vector<Tile>, 8> _tile;
-    std::array<std::vector<Obj>, 8> _obj;
-    std::pair<std::vector<BackGrd>, std::vector<BackGrd>> _backgrd; // 背景和前景
-    std::vector<Portal> _portal;
     std::tuple<std::vector<uint8_t>, int> _sound; // pcm流,采样率
-    std::unordered_map<int, FootHold> _foothold;
-    std::unordered_map<int, LadderRope> _ladderRope;
-    std::array<std::vector<Npc>, 8> _npc;
 
     std::tuple<int, int, int, int> _border; // 摄像机范围
 
     std::u16string bgm;
-    
 };
 
 #endif

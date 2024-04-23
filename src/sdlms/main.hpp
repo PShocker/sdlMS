@@ -10,7 +10,6 @@
 #include "util/string_util.hpp"
 #include "util/cursor_util.hpp"
 #include "util/character_util.hpp"
-#include "util/minimap_util.hpp"
 
 #include "sdlms/camera.hpp"
 #include "sdlms/graphics.hpp"
@@ -49,7 +48,6 @@ private:
     std::unique_ptr<Cursor> _cursor;
     std::unique_ptr<Character> _character;
     std::unique_ptr<CharacterUtil> _character_util;
-    std::unique_ptr<MiniMapUtil> _minimap_util;
     
 };
 #endif
