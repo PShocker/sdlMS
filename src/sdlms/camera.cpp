@@ -12,9 +12,9 @@ void Camera::update(int elapsedTime)
     Point<float> player_pos = _character->_pos - Point<float>{_viewport.w / 2, _viewport.h / 2};
     Point<float> camera_pos{_viewport.x, _viewport.y};
 
-    _viewport.x = std::clamp(_viewport.x, player_pos.x() - 5, player_pos.x() + 5);
+    _viewport.x = player_pos.x();
 
-    _viewport.y = std::clamp(_viewport.y, player_pos.y() - 5, player_pos.y() + 5);
+    _viewport.y = player_pos.y();
 
     auto [Left, Right, Top, Bottom] = Map::current()->_border;
 
@@ -27,10 +27,9 @@ void Camera::update(int elapsedTime)
         _viewport.x = Right - _viewport.w;
     }
 
-    else if (_viewport.y + _viewport.h > Bottom)
+    if (_viewport.y + _viewport.h > Bottom)
     {
         _viewport.y = Bottom - _viewport.h;
     }
-
     return;
 }
