@@ -150,17 +150,21 @@ void BackGrd::update(int elapsedTime)
     }
 }
 
-void BackGrd::updates(std::vector<BackGrd> &backgrd, int elapsedTime)
+void BackGrd::updates(int elapsedTime)
 {
-    for (auto &it : backgrd)
+    for (auto &it : _backgrd.first)
+    {
+        it.update(elapsedTime);
+    }
+    for (auto &it : _backgrd.second)
     {
         it.update(elapsedTime);
     }
 }
-void BackGrd::drawbackgrounds(std::vector<BackGrd> &backgrd)
+void BackGrd::drawbackgrounds()
 {
-    // 绘制背景和前景
-    for (auto &it : backgrd)
+    // 绘制背景
+    for (auto &it : _backgrd.first)
     {
         for (auto &_it : it._backgrds)
         {
@@ -169,13 +173,21 @@ void BackGrd::drawbackgrounds(std::vector<BackGrd> &backgrd)
     }
 }
 
-std::pair<std::vector<BackGrd>, std::vector<BackGrd>> BackGrd::load_backgrd(int mapId)
+void BackGrd::drawforegrounds()
 {
-    return load_backgrd(util::MapUtil::current()->load_map_node(mapId));
+    // 绘制背景
+    for (auto &it : _backgrd.second)
+    {
+        for (auto &_it : it._backgrds)
+        {
+            _it.draw();
+        }
+    }
 }
 
-std::pair<std::vector<BackGrd>, std::vector<BackGrd>> BackGrd::load_backgrd(wz::Node *node)
+void BackGrd::load_backgrd(int mapId)
 {
+    auto node = util::MapUtil::current()->load_map_node(mapId);
     std::vector<BackGrd> v_backgrd;
     node = node->get_child(u"back");
 
@@ -260,5 +272,5 @@ std::pair<std::vector<BackGrd>, std::vector<BackGrd>> BackGrd::load_backgrd(wz::
     {
         v_fore_backgrd.push_back(it);
     }
-    return {v_back_backgrd, v_fore_backgrd};
+    _backgrd= {v_back_backgrd, v_fore_backgrd};
 }

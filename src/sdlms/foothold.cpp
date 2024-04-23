@@ -94,12 +94,7 @@ std::optional<float> FootHold::get_y(float x)
 
 std::unordered_map<int, FootHold> FootHold::load_foothold(int mapId)
 {
-    return load_foothold(util::MapUtil::current()->load_map_node(mapId));
-}
-
-std::unordered_map<int, FootHold> FootHold::load_foothold(wz::Node *node)
-{
-    std::unordered_map<int, FootHold> m_foothold;
+    auto node = util::MapUtil::current()->load_map_node(mapId);
 
     node = node->get_child(u"foothold");
     if (node != nullptr)
@@ -125,11 +120,11 @@ std::unordered_map<int, FootHold> FootHold::load_foothold(wz::Node *node)
                     FootHold f(Point(x1, y1), Point(x2, y2), page, zmass, id, prev, next);
                     if (f._disable != true)
                     {
-                        m_foothold.emplace(id, f);
+                        _foothold.emplace(id, f);
                     }
                 }
             }
         }
     }
-    return m_foothold;
+    return _foothold;
 }

@@ -490,7 +490,7 @@ namespace util
                         npc._func._rect.x = x - npc._func._rect.w / 2;
                         npc._func._rect.y = y + 20;
                         auto ballon = WzUtil::current()->UI->get_root()->find_from_path(u"ChatBalloon.img/0");
-                        npc.f = Frame(ballon);
+                        npc.frame = Frame(ballon);
 
                         v_npc[layer].push_back(npc);
                     }

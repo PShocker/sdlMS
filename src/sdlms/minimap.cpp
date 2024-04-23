@@ -15,7 +15,7 @@ MiniMap::MiniMap(int mapId)
     auto minimap = node->find_from_path(u"miniMap/canvas");
     if (minimap != nullptr)
     {
-        auto _minimap = Sprite::load_sprite(minimap);
+        _canvas = Sprite::load_sprite(minimap);
 
         auto map = _string_util->load_map_info(mapId);
 
@@ -34,11 +34,61 @@ MiniMap::MiniMap(int mapId)
         _mapName._rect.x = t_offset.x;
         _mapName._rect.y = t_offset.y + _streetName._rect.h + 4;
 
-        int width = std::max({(int)_minimap._rect.w, (int)_streetName._rect.w + (int)t_offset.x, (int)_mapName._rect.w + (int)t_offset.x});
-        int height = _minimap._rect.h;
+        int width = std::max({(int)_canvas._rect.w, (int)_streetName._rect.w + (int)t_offset.x, (int)_mapName._rect.w + (int)t_offset.x});
+        int height = _canvas._rect.h;
+
+        _canvas._rect.x = std::max((float)(width - _canvas._rect.w) / 2, (float)6);
+        _canvas._rect.y = 72;
 
         auto node = _ui_node->find_from_path(u"UIWindow.img/MiniMap/MaxMap");
-        _frame = Frame(node);
+
+        _nw = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"nw")));
+        _ne = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"ne")));
+        _ne._rect.x = width + 6;
+        _sw = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw")));
+        _sw._rect.y = height + 72;
+        _se = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se")));
+        _se._rect.x = width + 6;
+        _se._rect.y = height + 72;
+
+        auto n = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n")));
+        for (size_t x = 6; x <= width + 6; x++)
+        {
+            SDL_FRect rect{(float)x, n._rect.y, n._rect.w, n._rect.h};
+            _n.push_back(Sprite(n._texture, rect, n._flip));
+        }
+
+        auto s = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s")));
+
+        s._rect.x = 6;
+        s._rect.y = height + 72;
+
+        for (size_t x = 6; x <= width + 6; x++)
+        {
+            SDL_FRect rect{(float)x, s._rect.y, s._rect.w, s._rect.h};
+            _s.push_back(Sprite(s._texture, rect, s._flip));
+        }
+
+        auto w = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w")));
+
+        w._rect.x = 0;
+        w._rect.y = 0;
+
+        for (size_t y = 72; y < height + 72; y++)
+        {
+            SDL_FRect rect{w._rect.x, (float)y, w._rect.w, w._rect.h};
+            _w.push_back(Sprite(w._texture, rect, w._flip));
+        }
+
+        auto e = Sprite::load_sprite(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e")));
+        e._rect.x = width + 6;
+        e._rect.y = 0;
+
+        for (size_t y = 72; y < height + 72; y++)
+        {
+            SDL_FRect rect{e._rect.x, (float)y, e._rect.w, e._rect.h};
+            _e.push_back(Sprite(e._texture, rect, e._flip));
+        }
 
         // // 创建需要填充的矩形
         SDL_FRect rect = {6, 72, (float)width, (float)height};
@@ -67,10 +117,6 @@ MiniMap::MiniMap(int mapId)
     }
 }
 
-void MiniMap::draw()
-{
-    _frame.draw_static({36, 72}, _mask.rect().w, 72);
-}
 std::optional<Sprite> MiniMap::load_minimap_mark(int mapId)
 {
     std::optional<Sprite> optional;
@@ -89,4 +135,37 @@ std::optional<Sprite> MiniMap::load_minimap_mark(int mapId)
         }
     }
     return optional;
+}
+
+void MiniMap::draw()
+{
+    _nw.draw_static();
+    _ne.draw_static();
+    _sw.draw_static();
+    _se.draw_static();
+    for (auto &it : _n)
+    {
+        it.draw_static();
+    }
+    for (auto &it : _s)
+    {
+        it.draw_static();
+    }
+    for (auto &it : _w)
+    {
+        it.draw_static();
+    }
+    for (auto &it : _e)
+    {
+        it.draw_static();
+    }
+    _mask.draw_static();
+    _canvas.draw_static();
+    _streetName.draw_static();
+    _mapName.draw_static();
+    if (_mark.has_value())
+    {
+        _mark.value().draw_static();
+    }
+    _title.draw_static();
 }

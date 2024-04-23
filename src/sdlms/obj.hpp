@@ -14,16 +14,16 @@ public:
         AnimatedSprite animatedsprite,
         int layer, int z,
         std::u16string url);
-    static void draws(std::vector<Obj> &objs);
-    static void updates(std::vector<Obj> &objs, int elapsedTime);
-    std::array<std::vector<Obj>, 8> load_obj(int mapId);
-    std::vector<Obj> load_obj(wz::Node *node, int i);
+    static void draws(int i);
+    static void updates(int i, int elapsedTime);
+
+    static void load_obj(int mapId);
+    static inline std::array<std::vector<Obj>, 8> _obj;
 
 public:
     int _id;
     int _layer;
     int _z;
-
     std::u16string _url;
 };
 #endif

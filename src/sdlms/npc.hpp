@@ -37,11 +37,10 @@ public:
     void draw();
     void update(int elapsedTime);
 
-    std::array<std::vector<Npc>, 8> load_npc(int mapId);
-    std::array<std::vector<Npc>, 8> load_npc(wz::Node *node);
-    
-    static void draws(std::vector<Npc> &npcs);
-    static void updates(std::vector<Npc> &npcs, int elapsedTime);
+    static void draws(int i);
+    static void updates(int i, int elapsedTime);
+    static void load_npc(int mapId);
+    static inline std::array<std::vector<Npc>, 8> _npc;
 
 public:
     std::u16string _id;
@@ -50,7 +49,7 @@ public:
 
     Sprite _name;
     Sprite _func;
-    Frame f;
+    Frame frame;
 
 private:
     std::default_random_engine _gen;

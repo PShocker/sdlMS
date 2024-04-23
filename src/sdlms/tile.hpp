@@ -11,10 +11,10 @@ class Tile : public Sprite
 {
 public:
     Tile(Sprite sprite, int layer, int z);
-    std::array<std::vector<Tile>, 8> load_tile(int mapId);
-    std::vector<Tile> load_tile(wz::Node *node, int i);
 
-    static void draws(std::vector<Tile> &tiles);
+    static void draws(int i);
+    static void load_tile(int mapId);
+    static inline std::array<std::vector<Tile>, 8> _tile;
 
 public:
     int _layer;

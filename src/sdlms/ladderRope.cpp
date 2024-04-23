@@ -23,14 +23,9 @@ void LadderRope::draws(std::unordered_map<int, LadderRope> &r)
                            it._y2 - it._camera->_viewport.y);
     }
 }
-std::unordered_map<int, LadderRope> LadderRope::load_ladderRope(int mapId)
+void LadderRope::load_ladderRope(int mapId)
 {
-    return load_ladderRope(util::MapUtil::current()->load_map_node(mapId));
-}
-
-std::unordered_map<int, LadderRope> LadderRope::load_ladderRope(wz::Node *node)
-{
-    std::unordered_map<int, LadderRope> m_ladderrope;
+    auto node=util::MapUtil::current()->load_map_node(mapId);
 
     node = node->get_child(u"ladderRope");
     if (node != nullptr)
@@ -49,8 +44,7 @@ std::unordered_map<int, LadderRope> LadderRope::load_ladderRope(wz::Node *node)
 
             LadderRope r(id, l, uf, x, y1, y2, page);
 
-            m_ladderrope.emplace(id, r);
+            _ladderRope.emplace(id, r);
         }
     }
-    return m_ladderrope;
 }
