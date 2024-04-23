@@ -24,6 +24,8 @@ public:
     void update(int elapsedTime);
     static void updates(std::vector<BackGrd> &backgrd, int elapsedTime);
     static void drawbackgrounds(std::vector<BackGrd> &backgrd);
+    std::pair<std::vector<BackGrd>, std::vector<BackGrd>> load_backgrd(int mapId);
+    std::pair<std::vector<BackGrd>, std::vector<BackGrd>> load_backgrd(wz::Node *node);
 
 public:
     int _id;

@@ -10,6 +10,7 @@ public:
     Frame(){};
     Frame(wz::Node *node);
     void draw(Point<float> position, int16_t rwidth, int16_t rheight);
+    void draw_static(Point<float> position, int16_t rwidth, int16_t rheight);
 
 public:
     Sprite center;

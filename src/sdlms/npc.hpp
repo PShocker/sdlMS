@@ -36,6 +36,10 @@ public:
     Npc(EventSprite eventsprite, std::u16string id, int fh);
     void draw();
     void update(int elapsedTime);
+
+    std::array<std::vector<Npc>, 8> load_npc(int mapId);
+    std::array<std::vector<Npc>, 8> load_npc(wz::Node *node);
+    
     static void draws(std::vector<Npc> &npcs);
     static void updates(std::vector<Npc> &npcs, int elapsedTime);
 

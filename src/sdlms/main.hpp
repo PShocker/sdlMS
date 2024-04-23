@@ -8,10 +8,8 @@
 #include "util/ffmpeg_util.hpp"
 #include "util/freetype_util.hpp"
 #include "util/string_util.hpp"
-#include "util/sprite_util.hpp"
 #include "util/cursor_util.hpp"
 #include "util/character_util.hpp"
-#include "util/statusbar_util.hpp"
 #include "util/minimap_util.hpp"
 
 #include "sdlms/camera.hpp"
@@ -36,7 +34,6 @@ private:
     std::unique_ptr<WzUtil> _wz_util;
     std::unique_ptr<MapUtil> _map_util;
     std::unique_ptr<SoundUtil> _sound_util;
-    std::unique_ptr<SpriteUtil> _sprite_util;
     std::unique_ptr<Camera> _camera;
     std::unique_ptr<Graphics> _graphics;
     std::unique_ptr<Input> _input;
@@ -52,7 +49,6 @@ private:
     std::unique_ptr<Cursor> _cursor;
     std::unique_ptr<Character> _character;
     std::unique_ptr<CharacterUtil> _character_util;
-    std::unique_ptr<StatusBarUtil> _statusbar_util;
     std::unique_ptr<MiniMapUtil> _minimap_util;
     
 };

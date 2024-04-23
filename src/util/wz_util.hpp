@@ -34,5 +34,6 @@ namespace util
 		wz::File *UI;
 
 	}; // namespace WzFiles
+
 }
 #endif

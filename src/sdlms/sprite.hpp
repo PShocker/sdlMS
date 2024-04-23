@@ -7,6 +7,7 @@
 #include <string>
 #include <any>
 #include "template/point.hpp"
+#include "wz/Property.hpp"
 
 class Sprite
 {
@@ -20,8 +21,14 @@ public:
     void draw();
     void draw(Point<float> position);
     void draw_static();
+    void draw_static(Point<float> position);
 
     SDL_FRect rect();
+
+public:
+    // 从wz中加载sprite
+    static Sprite load_sprite(wz::Node *node, int x = 0, int y = 0, int flip = SDL_FLIP_NONE);
+    static Sprite load_sprite(wz::Node *node, Point<int32_t> p, int flip = SDL_FLIP_NONE);
 
 public:
     SDL_Texture *_texture;

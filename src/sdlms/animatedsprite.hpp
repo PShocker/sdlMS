@@ -21,6 +21,9 @@ public:
     Sprite sprite(int index);
 
 public:
+    static AnimatedSprite load_animated_sprite(wz::Node *node, int x = 0, int y = 0, int flip = SDL_FLIP_NONE);
+
+public:
     std::vector<Sprite> _sprite;
     int _frameIndex;
     int _frameTime;

@@ -3,7 +3,8 @@
 #include <algorithm>
 #include <ranges>
 #include "sdlms/backgrd.hpp"
-#include "backgrd.hpp"
+#include "util/map_util.hpp"
+#include "util/wz_util.hpp"
 
 BackGrd::BackGrd(std::variant<Sprite, AnimatedSprite> dynamicsprite,
                  int id, int type,
@@ -166,4 +167,98 @@ void BackGrd::drawbackgrounds(std::vector<BackGrd> &backgrd)
             _it.draw();
         }
     }
+}
+
+std::pair<std::vector<BackGrd>, std::vector<BackGrd>> BackGrd::load_backgrd(int mapId)
+{
+    return load_backgrd(util::MapUtil::current()->load_map_node(mapId));
+}
+
+std::pair<std::vector<BackGrd>, std::vector<BackGrd>> BackGrd::load_backgrd(wz::Node *node)
+{
+    std::vector<BackGrd> v_backgrd;
+    node = node->get_child(u"back");
+
+    auto _map_node = util::WzUtil::current()->Map->get_root();
+
+    if (node != nullptr)
+    {
+        for (auto it : node->get_children())
+        {
+            auto bS = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"bS"))->get();
+            if (bS == u"")
+            {
+                break;
+            }
+            auto ani = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"ani"))->get();
+
+            auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
+            auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
+
+            auto cx = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"cx"))->get();
+            auto cy = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"cy"))->get();
+
+            auto rx = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"rx"))->get();
+            auto ry = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"ry"))->get();
+
+            auto type = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"type"))->get();
+
+            auto no = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"no"))->get();
+
+            auto front = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"front"))->get();
+
+            auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
+            auto flip = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"f"))->get();
+
+            switch (ani)
+            {
+            case 0:
+            {
+                auto no_str = std::to_string(no);
+                auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
+                auto back = _map_node->find_from_path(url);
+                if (back != nullptr)
+                {
+                    Sprite sprite = Sprite::load_sprite(back, x, y, flip);
+
+                    cx = cx == 0 ? sprite._rect.w : cx;
+                    cy = cy == 0 ? sprite._rect.h : cy;
+
+                    BackGrd backgrd(sprite, id, type, front, rx, ry, cx, cy, ani, url);
+
+                    v_backgrd.push_back(backgrd);
+                    break;
+                }
+            }
+            case 1:
+            {
+                auto no_str = std::to_string(no);
+                auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + std::u16string{no_str.begin(), no_str.end()};
+                auto animatedsprite = AnimatedSprite::load_animated_sprite(_map_node->find_from_path(url), x, y, flip);
+                BackGrd backgrd(animatedsprite, id, type, front, rx, ry, cx, cy, ani, url);
+                v_backgrd.push_back(backgrd);
+                break;
+            }
+            default:
+                break;
+            }
+        }
+    }
+    std::ranges::sort(v_backgrd, [](const BackGrd a, const BackGrd b)
+                      { return a._id < b._id; });
+
+    std::vector<BackGrd> v_back_backgrd;
+    for (auto it : v_backgrd | std::views::filter([](BackGrd b)
+                                                  { return b._front == 0; }))
+    {
+        v_back_backgrd.push_back(it);
+    }
+
+    std::vector<BackGrd> v_fore_backgrd;
+    for (auto it : v_backgrd | std::views::filter([](BackGrd b)
+                                                  { return b._front == 1; }))
+    {
+        v_fore_backgrd.push_back(it);
+    }
+    return {v_back_backgrd, v_fore_backgrd};
 }

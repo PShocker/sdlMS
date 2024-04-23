@@ -39,7 +39,7 @@ public:
     void event(SDL_Event &event);
 
 public:
-    EventSprite* _s;
+    EventSprite _s;
     Event _event = NORMAL;
 
 private:

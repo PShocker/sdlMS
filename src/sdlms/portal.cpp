@@ -1,5 +1,6 @@
 #include "sdlms/portal.hpp"
-#include "portal.hpp"
+#include "util/wz_util.hpp"
+#include "util/map_util.hpp"
 
 Portal::Portal(std::variant<Sprite, AnimatedSprite> dynamicsprite,
                int type, int tm,
@@ -46,4 +47,79 @@ void Portal::event(const SDL_Event &event)
             }
         }
     }
+}
+
+std::vector<Portal> Portal::load_portal(int mapId)
+{
+    return load_portal(util::MapUtil::current()->load_map_node(mapId));
+}
+
+std::vector<Portal> Portal::load_portal(wz::Node *node)
+{
+
+    std::vector<Portal> v_portal;
+
+    node = node->get_child(u"portal");
+
+    auto _map_node = util::WzUtil::current()->Map->get_root();
+    
+    if (node != nullptr)
+    {
+        constexpr const char16_t *pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
+                                               u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
+                                               u"pci", u"pcig", u"pshg"};
+        for (auto it : node->get_children())
+        {
+            if (it.second[0]->get_child(u"pt") != nullptr)
+            {
+                auto pt = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"pt"))->get();
+                auto tm = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"tm"))->get();
+
+                if (pt < 0 || pt >= sizeof(pt_list))
+                {
+                    continue;
+                }
+                else
+                {
+                    auto x = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"x"))->get();
+                    auto y = dynamic_cast<wz::Property<int> *>(it.second[0]->get_child(u"y"))->get();
+                    {
+                        auto url = u"MapHelper.img/portal/editor/" + std::basic_string<char16_t>(pt_list[pt]);
+
+                        auto pn = _map_node->find_from_path(url);
+
+                        Sprite sprite = Sprite::load_sprite(pn, x, y);
+
+                        Portal portal(sprite, Portal::Type::EDITOR, tm, url);
+
+                        v_portal.push_back(portal);
+                    }
+
+                    {
+                        if (pt == 7)
+                        {
+                            pt = 2;
+                        }
+                        auto url = u"MapHelper.img/portal/game/" + std::basic_string<char16_t>(pt_list[pt]);
+                        if (_map_node->find_from_path(url) != NULL)
+                        {
+                            if (_map_node->find_from_path(url + u"/default") != NULL)
+                            {
+                                // 三段式传送门
+                            }
+                            else
+                            {
+                                // 普通的传送门,通常为pv
+                                auto animatedsprite = AnimatedSprite::load_animated_sprite(_map_node->find_from_path(url), x, y);
+
+                                Portal portal(animatedsprite, Portal::Type::GAME, tm, url);
+                                v_portal.push_back(portal);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return v_portal;
 }

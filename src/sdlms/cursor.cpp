@@ -3,7 +3,7 @@
 Cursor::Cursor()
 {
     _input = Input::current();
-    _input->event(std::bind(&Cursor::event, this, std::placeholders::_1));
+    _input->event(u"Cursor", std::bind(&Cursor::event, this, std::placeholders::_1));
 }
 
 void Cursor::event(SDL_Event &event)
@@ -28,7 +28,7 @@ void Cursor::event(SDL_Event &event)
 
 void Cursor::load()
 {
-    for (auto &it : _s->_eventsprite)
+    for (auto &it : _s._eventsprite)
     {
         std::vector<SDL_Cursor *> v;
         auto dynamicsprite = it.second._dynamicsprite;

@@ -8,7 +8,6 @@
 #include "wz/Property.hpp"
 
 #include "template/currenton.hpp"
-#include "util/sprite_util.hpp"
 
 #include "sdlms/cursor.hpp"
 
@@ -21,10 +20,7 @@ namespace util
     {
     public:
         CursorUtil();
-        EventSprite *load();
-
-    private:
-        SpriteUtil *_sprite_util;
+        EventSprite load();
 
     private:
         wz::Node *_ui_node;

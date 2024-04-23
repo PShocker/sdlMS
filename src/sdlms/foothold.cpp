@@ -1,4 +1,5 @@
 #include "sdlms/foothold.hpp"
+#include "util/map_util.hpp"
 
 FootHold::FootHold()
 {
@@ -89,4 +90,46 @@ std::optional<float> FootHold::get_y(float x)
         }
     }
     return std::nullopt;
+}
+
+std::unordered_map<int, FootHold> FootHold::load_foothold(int mapId)
+{
+    return load_foothold(util::MapUtil::current()->load_map_node(mapId));
+}
+
+std::unordered_map<int, FootHold> FootHold::load_foothold(wz::Node *node)
+{
+    std::unordered_map<int, FootHold> m_foothold;
+
+    node = node->get_child(u"foothold");
+    if (node != nullptr)
+    {
+        for (auto it : node->get_children())
+        {
+            auto page = std::stoi(std::string{it.first.begin(), it.first.end()});
+            for (auto _it : it.second[0]->get_children())
+            {
+                auto zmass = std::stoi(std::string{_it.first.begin(), _it.first.end()});
+                for (auto __it : _it.second[0]->get_children())
+                {
+                    auto id = std::stoi(std::string{__it.first.begin(), __it.first.end()});
+                    auto foothold = __it.second[0];
+
+                    auto next = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"next"))->get();
+                    auto prev = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"prev"))->get();
+                    auto x1 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"x1"))->get();
+                    auto x2 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"x2"))->get();
+                    auto y1 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"y1"))->get();
+                    auto y2 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"y2"))->get();
+
+                    FootHold f(Point(x1, y1), Point(x2, y2), page, zmass, id, prev, next);
+                    if (f._disable != true)
+                    {
+                        m_foothold.emplace(id, f);
+                    }
+                }
+            }
+        }
+    }
+    return m_foothold;
 }

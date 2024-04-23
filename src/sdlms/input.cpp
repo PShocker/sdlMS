@@ -105,7 +105,7 @@ int Input::loop()
 		}
 	}
 
-	for (auto &listener : _listeners)
+	for (auto &[_, listener] : _listeners)
 	{
 		listener(event);
 	}
@@ -113,9 +113,14 @@ int Input::loop()
 	return 0;
 }
 
-void Input::event(std::function<void(SDL_Event &event)> func)
+void Input::event(std::u16string key, std::function<void(SDL_Event &event)> func)
 {
-	_listeners.push_back(func);
+	_listeners[key] = func;
+}
+
+void Input::remove_event(std::u16string key)
+{
+	_listeners.erase(key);
 }
 
 void Input::check()

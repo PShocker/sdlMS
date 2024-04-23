@@ -17,14 +17,12 @@ int Main::run(int argc, char **argv)
     _ffmpeg_util.reset(new FfmpegUtil());
 
     _wz_util.reset(new WzUtil());
-    _sprite_util.reset(new SpriteUtil());
     _sound_util.reset(new SoundUtil());
     _string_util.reset(new StringUtil());
     _freetype_util.reset(new FreeTypeUtil());
     _map_util.reset(new MapUtil());
     _cursor_util.reset(new CursorUtil());
     _character_util.reset(new CharacterUtil());
-    _statusbar_util.reset(new StatusBarUtil());
     _minimap_util.reset(new MiniMapUtil());
 
     _input.reset(new Input());
@@ -32,16 +30,12 @@ int Main::run(int argc, char **argv)
     _character.reset(new Character());
     _camera.reset(new Camera());
     _cursor.reset(new Cursor());
-    _minimap.reset(new MiniMap());
+    _minimap.reset(new MiniMap(mapId));
     _statusbar.reset(new StatusBar());
 
     _cursor->_s = _cursor_util->load();
 
     _sound.reset(new Sound());
-
-    _minimap->_s = _minimap_util->load_minimap(mapId);
-    _statusbar->_s = _statusbar_util->load_statusbar();
-    _statusbar->_e = _statusbar_util->load_button();
 
     _map->_tile = _map_util->load_tile(mapId);
     _map->_obj = _map_util->load_obj(mapId);

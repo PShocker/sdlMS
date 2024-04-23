@@ -19,6 +19,9 @@ public:
     std::optional<float> get_x(float y);
     std::optional<float> get_y(float x);
 
+    static std::unordered_map<int, FootHold> load_foothold(int mapId);
+    static std::unordered_map<int, FootHold> load_foothold(wz::Node *node);
+
 public:
     Point<int32_t> _a;
     Point<int32_t> _b;
