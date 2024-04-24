@@ -1,9 +1,21 @@
 #include "sdlms/button.hpp"
+#include "button.hpp"
 
-Button::Button(EventSprite eventsprite, std::u16string event_key) : EventSprite(eventsprite), _event_key(event_key)
+Button::Button(EventSprite eventsprite, std::u16string event_key) : _es(eventsprite), _event_key(event_key)
 {
     _input = Input::current();
-    _input->event(event_key,std::bind(&Button::event, this, std::placeholders::_1));
+    _input->event(event_key, std::bind(&Button::event, this, std::placeholders::_1));
+}
+
+Button &Button::operator=(Button &&other) noexcept
+{
+    _input = Input::current();
+    _input->event(other._event_key, std::bind(&Button::event, this, std::placeholders::_1));
+
+    _es = std::move(other._es);
+    _event_key = std::move(other._event_key);
+
+    return *this;
 }
 
 Button::~Button()
@@ -18,7 +30,7 @@ void Button::event(SDL_Event &event)
         int x = event.motion.x;
         int y = event.motion.y;
         SDL_FPoint p{(float)x, (float)y};
-        auto rf = _eventsprite.at(_event).rect();
+        auto rf = _es.rect(_event);
         if (SDL_PointInFRect(&p, &rf))
         {
             _event = Event::PRESSED;
@@ -29,7 +41,7 @@ void Button::event(SDL_Event &event)
         int x = event.motion.x;
         int y = event.motion.y;
         SDL_FPoint p{(float)x, (float)y};
-        auto rf = _eventsprite.at(_event).rect();
+        auto rf = _es.rect(_event);
         if (SDL_PointInFRect(&p, &rf))
         {
             _event = Event::MOUSEOVER;
@@ -44,7 +56,7 @@ void Button::event(SDL_Event &event)
         int x = event.motion.x;
         int y = event.motion.y;
         SDL_FPoint p{(float)x, (float)y};
-        auto rf = _eventsprite.at(_event).rect();
+        auto rf = _es.rect(_event);
         if (SDL_PointInFRect(&p, &rf))
         {
             _event = Event::MOUSEOVER;
@@ -57,13 +69,13 @@ void Button::event(SDL_Event &event)
 }
 void Button::draw()
 {
-    _eventsprite.at(_event).draw();
+    _es.draw(_event);
 }
 void Button::draw_static()
 {
-    _eventsprite.at(_event).draw_static();
+    _es.draw_static(_event);
 }
 SDL_FRect Button::rect()
 {
-    return _eventsprite.at(_event).rect();
+    return _es.rect(_event);
 }

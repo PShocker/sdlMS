@@ -42,7 +42,7 @@ int Main::run(int argc, char **argv)
 
     _map->_sound = _ffmpeg_util->decodeAudioToPCM(_sound_util->load_sound(mapId));
 
-    _sound->load(_map->_sound);
+    // _sound->load(_map->_sound);
     _cursor->load();
 
     _character->_s = _character_util->load();

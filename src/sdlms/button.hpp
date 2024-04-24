@@ -7,7 +7,7 @@
 #include "sdlms/camera.hpp"
 #include "sdlms/eventsprite.hpp"
 
-class Button : public EventSprite
+class Button
 {
 public:
     enum Event : uint8_t
@@ -29,6 +29,7 @@ public:
 
     Button(){};
     Button(EventSprite eventsprite, std::u16string event_key);
+    Button& operator=(Button&& other) noexcept;
     ~Button();
     void draw();
     void draw_static();
@@ -36,6 +37,7 @@ public:
     void event(SDL_Event &event);
 
 public:
+    EventSprite _es;
     int _event = NORMAL;
     std::u16string _event_key;
 

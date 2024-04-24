@@ -34,14 +34,14 @@ StatusBar::StatusBar()
         auto _BtShop = StatusBar->find_from_path(u"BtShop");
         BtShop = std::move(Button(EventSprite::load_event_sprite(Button::EventMap, _BtShop, 590, Graphics::SCREEN_HEIGHT - 18), _BtShop->path));
 
-        auto _BtMenu = StatusBar->find_from_path(u"BtMenu");
-        BtMenu = Button(EventSprite::load_event_sprite(Button::EventMap, _BtMenu, 635, Graphics::SCREEN_HEIGHT - 18), _BtMenu->path);
+        // auto _BtMenu = StatusBar->find_from_path(u"BtMenu");
+        // BtMenu = std::move(Button(EventSprite::load_event_sprite(Button::EventMap, _BtMenu, 635, Graphics::SCREEN_HEIGHT - 18), _BtMenu->path));
 
-        auto _BtChat = StatusBar->find_from_path(u"BtChat");
-        BtChat = Button(EventSprite::load_event_sprite(Button::EventMap, _BtChat, 680, Graphics::SCREEN_HEIGHT - 18), _BtChat->path);
+        // auto _BtChat = StatusBar->find_from_path(u"BtChat");
+        // BtChat = std::move(Button(EventSprite::load_event_sprite(Button::EventMap, _BtChat, 680, Graphics::SCREEN_HEIGHT - 18), _BtChat->path));
 
-        auto _BtNPT = StatusBar->find_from_path(u"BtNPT");
-        BtNPT = Button(EventSprite::load_event_sprite(Button::EventMap, _BtNPT, 725, Graphics::SCREEN_HEIGHT - 18), _BtNPT->path);
+        // auto _BtNPT = StatusBar->find_from_path(u"BtNPT");
+        // BtNPT = std::move(Button(EventSprite::load_event_sprite(Button::EventMap, _BtNPT, 725, Graphics::SCREEN_HEIGHT - 18), _BtNPT->path));
     }
 }
 
@@ -56,7 +56,7 @@ void StatusBar::draw()
     quickSlot.draw_static();
 
     BtShop.draw_static();
-    BtMenu.draw_static();
-    BtChat.draw_static();
-    BtNPT.draw_static();
+    // BtMenu.draw_static();
+    // BtChat.draw_static();
+    // BtNPT.draw_static();
 }
