@@ -8,6 +8,26 @@ EventSprite::~EventSprite()
 {
 }
 
+void EventSprite::draw(uint8_t i)
+{
+    _eventsprite.at(i).draw();
+}
+
+void EventSprite::draw_static(uint8_t i)
+{
+    _eventsprite.at(i).draw_static();
+}
+
+bool EventSprite::update(uint8_t i, int elapsedTime)
+{
+    return _eventsprite.at(i).update(elapsedTime);
+}
+
+SDL_FRect EventSprite::rect(uint8_t i)
+{
+    return _eventsprite.at(i).rect();
+}
+
 EventSprite EventSprite::load_event_sprite(std::map<std::u16string, uint8_t> event_map, wz::Node *node, int x, int y)
 {
     std::unordered_map<uint8_t, DynamicSprite> eventsprite;

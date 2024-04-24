@@ -10,7 +10,7 @@
 #include "sdlms/eventsprite.hpp"
 #include "sdlms/frame.hpp"
 
-class Npc : public EventSprite
+class Npc
 {
 public:
     enum Event : uint8_t
@@ -43,6 +43,7 @@ public:
     static inline std::array<std::vector<Npc>, 8> _npc;
 
 public:
+    EventSprite _es;
     std::u16string _id;
     uint8_t _event = STAND;
     int _fh;

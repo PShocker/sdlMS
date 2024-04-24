@@ -3,7 +3,7 @@
 #include "sdlms/foothold.hpp"
 #include "util/wz_util.hpp"
 
-Npc::Npc(EventSprite eventsprite, std::u16string id, int fh) : EventSprite(eventsprite),
+Npc::Npc(EventSprite eventsprite, std::u16string id, int fh) : _es(eventsprite),
                                                                _id(id),
                                                                _fh(fh),
                                                                _gen(std::random_device()()),
@@ -19,16 +19,17 @@ Npc::Npc(EventSprite eventsprite, std::u16string id, int fh) : EventSprite(event
 
 void Npc::draw()
 {
-    _eventsprite.at(_event).draw();
+    _es.draw(_event);
     _name.draw();
     _func.draw();
 
-    frame.draw({_eventsprite.at(_event).rect().x, _eventsprite.at(_event).rect().y}, 100, 100);
+    // frame.draw({_eventsprite.at(_event).rect().x, _eventsprite.at(_event).rect().y}, 100, 100);
 }
 
 void Npc::update(int elapsedTime)
 {
-    auto end = _eventsprite.at(_event).update(elapsedTime);
+    // auto end = _eventsprite.at(_event).update(elapsedTime);
+    auto end = _es.update(_event, elapsedTime);
     if (end)
     {
         // 状态切换

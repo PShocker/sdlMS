@@ -18,10 +18,10 @@ public:
     EventSprite(std::unordered_map<uint8_t, DynamicSprite> eventsprite);
     virtual ~EventSprite();
 
-    void draw();
-    void draw_static();
-    void update(int elapsedTime);
-    SDL_FRect rect();
+    void draw(uint8_t i);
+    void draw_static(uint8_t i);
+    bool update(uint8_t i, int elapsedTime);
+    SDL_FRect rect(uint8_t i);
 
 public:
     static EventSprite load_event_sprite(std::map<std::u16string, uint8_t> event_map, wz::Node *node, int x = 0, int y = 0);
