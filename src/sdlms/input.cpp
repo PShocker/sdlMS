@@ -120,7 +120,10 @@ void Input::event(std::u16string key, std::function<void(SDL_Event &event)> func
 
 void Input::remove_event(std::u16string key)
 {
-	_listeners.erase(key);
+	if (_listeners.contains(key))
+	{
+		_listeners.erase(key);
+	}
 }
 
 void Input::check()
