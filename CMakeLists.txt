@@ -29,4 +29,4 @@ add_subdirectory(wzlibcpp)
 
 add_subdirectory(freetype)
 
-add_subdirectory(src)
+add_subdirectory(sdlms)
