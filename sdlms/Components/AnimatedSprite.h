@@ -4,13 +4,13 @@
 #include <vector>
 #include <string>
 
-#include "Sprite.hpp"
+#include "Sprite.h"
 #include "wz/Property.hpp"
 
 class AnimatedSprite : public Component
 {
 public:
-    AnimatedSprite(wz::Node *node, int x = 0, int y = 0, int flip = SDL_FLIP_NONE);
+    AnimatedSprite(wz::Node *node);
 
     bool update(int elapsedTime);
 

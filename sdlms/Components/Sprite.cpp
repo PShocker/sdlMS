@@ -1,7 +1,7 @@
-#include "Sprite.hpp"
+#include "Sprite.h"
 #include "Core/Window.h"
 
-Sprite::Sprite(wz::Node *node, int x, int y, int flip)
+Sprite::Sprite(wz::Node *node)
 {
 
     if (node->type == wz::Type::UOL)
@@ -13,8 +13,8 @@ Sprite::Sprite(wz::Node *node, int x, int y, int flip)
     auto height = canvas->get().height;
     auto width = canvas->get().width;
 
-    raw_data = canvas->get_raw_data();
-    format = canvas->get().format + canvas->get().format2;
+    auto raw_data = canvas->get_raw_data();
+    auto format = canvas->get().format + canvas->get().format2;
 
     auto o = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"origin"));
 
@@ -26,8 +26,7 @@ Sprite::Sprite(wz::Node *node, int x, int y, int flip)
         ox = o->get().x;
         oy = o->get().y;
     }
-
-    rect = SDL_FRect{(float)x - ox, (float)y - oy, (float)width, (float)height};
+    origin = {ox, oy};
 
     delay = 100;
 
@@ -70,8 +69,8 @@ Sprite::Sprite(wz::Node *node, int x, int y, int flip)
         {
             pixel = raw_data;
             format = SDL_PIXELFORMAT_ARGB4444;
-            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, rect.w, rect.h);
-            SDL_UpdateTexture(texture, NULL, pixel.data(), rect.w * sizeof(Uint16));
+            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
+            SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
             break;
         }
@@ -79,19 +78,19 @@ Sprite::Sprite(wz::Node *node, int x, int y, int flip)
         {
             pixel = raw_data;
             format = SDL_PIXELFORMAT_ARGB8888;
-            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, rect.w, rect.h);
-            SDL_UpdateTexture(texture, NULL, pixel.data(), rect.w * sizeof(Uint32));
+            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
+            SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint32));
             SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
             break;
         }
         case 517: // rgb565压缩缩略图
         {
-            pixel.resize(rect.w * rect.h * 2, 0);
+            pixel.resize(width * height * 2, 0);
             int lineIndex = 0;
-            for (int j0 = 0, j1 = rect.h / 16; j0 < j1; j0++)
+            for (int j0 = 0, j1 = height / 16; j0 < j1; j0++)
             {
                 int dstIndex = lineIndex;
-                for (int i0 = 0, i1 = rect.w / 16; i0 < i1; i0++)
+                for (int i0 = 0, i1 = width / 16; i0 < i1; i0++)
                 {
                     int idx = (i0 + j0 * i1) * 2;
                     unsigned char b0 = raw_data[idx];
@@ -104,18 +103,18 @@ Sprite::Sprite(wz::Node *node, int x, int y, int flip)
                 }
                 for (int k = 1; k < 16; k++)
                 {
-                    for (int m = 0; m < rect.w * 2; m++)
+                    for (int m = 0; m < width * 2; m++)
                     {
                         pixel[dstIndex + m] = pixel[lineIndex + m];
                     }
-                    dstIndex += rect.w * 2;
+                    dstIndex += width * 2;
                 }
-                lineIndex += rect.w * 32;
+                lineIndex += width * 32;
             }
 
             format = SDL_PIXELFORMAT_RGB565;
-            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, rect.w, rect.h);
-            SDL_UpdateTexture(texture, NULL, pixel.data(), rect.w * sizeof(Uint16));
+            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
+            SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
             break;
         }
         default:
@@ -127,10 +126,6 @@ Sprite::Sprite(wz::Node *node, int x, int y, int flip)
     }
 }
 
-Sprite::Sprite(wz::Node *node, Point<int32_t> p, int flip) : Sprite(node, p.x(), p.y(), flip)
-{
-}
-
-Sprite::Sprite(SDL_Texture *texture, SDL_FRect rect, int flip) : texture(texture), rect(rect), flip(flip)
+Sprite::Sprite(SDL_Texture *texture) : texture(texture)
 {
 }
