@@ -1,6 +1,7 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include "Core/World.h"
+#include "Entities/Tile.h"
 
 int main(int argc, char *argv[])
 {

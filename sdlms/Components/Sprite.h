@@ -11,20 +11,19 @@
 class Sprite : public Component
 {
 public:
-    Sprite(wz::Node *node, Point<int32_t> p, int flip = SDL_FLIP_NONE);
-    Sprite(wz::Node *node, int x = 0, int y = 0, int flip = SDL_FLIP_NONE);
-    Sprite(SDL_Texture *texture, SDL_FRect rect, int flip = SDL_FLIP_NONE);
+    Sprite(wz::Node *node);
+    Sprite(SDL_Texture *texture);
     Sprite(){};
 
 public:
     SDL_Texture *texture;
-    SDL_FRect rect;
-    std::vector<uint8_t> raw_data;
-    unsigned int format;
-    int flip;
+    int width;
+    int height;
+
     int delay;
     int a0;
     int a1;
+    Point<int> origin;
 
     std::u16string url;
 

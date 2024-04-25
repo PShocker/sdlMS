@@ -1,5 +1,4 @@
-#ifndef HEADER_TEMPLATE_POINT
-#define HEADER_TEMPLATE_POINT
+#pragma once
 
 #include <cmath>
 #include <string>
@@ -184,5 +183,3 @@ private:
     T a;
     T b;
 };
-
-#endif

@@ -1,8 +1,8 @@
-#include "Animatedsprite.hpp"
+#include "Animatedsprite.h"
 #include <ranges>
 #include <algorithm>
 
-AnimatedSprite::AnimatedSprite(wz::Node *node, int x, int y, int flip)
+AnimatedSprite::AnimatedSprite(wz::Node *node)
 {
     // 从第0帧顺序读
     for (int i = 0; i < node->children_count(); i++)
@@ -28,7 +28,7 @@ AnimatedSprite::AnimatedSprite(wz::Node *node, int x, int y, int flip)
             continue;
         }
 
-        Sprite *sprite = new Sprite(canvas, x, y, flip);
+        Sprite *sprite = new Sprite(canvas);
 
         sprites.push_back(sprite);
     }
