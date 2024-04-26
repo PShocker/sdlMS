@@ -2,6 +2,19 @@
 #include <ranges>
 #include <algorithm>
 
+AnimatedSprite *AnimatedSprite::load_animatedsprite(wz::Node *node)
+{
+    // 从map缓存中获取对象
+    if (animatedsprite_map.contains(node))
+    {
+        return animatedsprite_map[node];
+    }
+    else
+    {
+        return new AnimatedSprite(node);
+    }
+}
+
 AnimatedSprite::AnimatedSprite(wz::Node *node)
 {
     // 从第0帧顺序读
@@ -28,11 +41,13 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
             continue;
         }
 
-        Sprite *sprite = new Sprite(canvas);
+        Sprite *sprite = Sprite::load_sprite(canvas);
 
         sprites.push_back(sprite);
     }
     frame_size = sprites.size();
+
+    animatedsprite_map[node] = this;
 }
 
 bool AnimatedSprite::update(int elapsedTime)

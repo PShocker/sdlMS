@@ -4,16 +4,25 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "Core/Point.h"
 #include "wz/Property.hpp"
 #include "Component.h"
 
 class Sprite : public Component
 {
 public:
+    static Sprite *load_sprite(wz::Node *node);
+    static inline std::map<wz::Node *, Sprite *> sprite_map;
+
+private:
     Sprite(wz::Node *node);
     Sprite(SDL_Texture *texture);
     Sprite(){};
+
+public:
+    const auto get_width() { return width; }
+    const auto get_height() { return height; }
+    const auto get_origin() { return origin; }
+    SDL_Texture *get_texture() { return texture; }
 
 public:
     SDL_Texture *texture;
@@ -23,9 +32,5 @@ public:
     int delay;
     int a0;
     int a1;
-    Point<int> origin;
-
-    std::u16string url;
-
-    static inline std::map<std::u16string, SDL_Texture *> texture_map;
+    SDL_Point origin;
 };

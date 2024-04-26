@@ -3,7 +3,6 @@
 #include <SDL2/SDL_video.h>
 #include <SDL2/SDL_render.h>
 
-#include "Core/Point.h"
 
 class Window {
 private:
@@ -24,7 +23,7 @@ public:
 
 	static const char* get_title();
 
-	static Point<int> get_mouse_position();
+	static SDL_Point get_mouse_position();
 
 	static void clear();
 	static void update();

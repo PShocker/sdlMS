@@ -6,5 +6,5 @@
 class Tile : public Entity
 {
 public:
-    Tile(wz::Node *node);
+    Tile(wz::Node *node, std::u16string ts);
 };
