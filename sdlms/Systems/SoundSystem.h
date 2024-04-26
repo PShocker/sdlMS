@@ -8,5 +8,5 @@ public:
 	void run(World &world) override;
 
 private:
-	void play_sound(Sound *sou, World &world);
+	static int play_sound(void *sou);
 };

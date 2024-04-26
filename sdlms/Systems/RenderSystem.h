@@ -3,11 +3,11 @@
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
 
-
-class RenderSystem : public System {
+class RenderSystem : public System
+{
 public:
-	void run(World& world) override;
+	void run(World &world) override;
 
 private:
-	void render_sprite(Sprite* spr, Transform* tr, World& world);
+	void render_sprite(Transform *tr, Sprite *spr, World &world);
 };

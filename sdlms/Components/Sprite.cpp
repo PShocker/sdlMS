@@ -22,8 +22,8 @@ Sprite::Sprite(wz::Node *node)
     }
 
     auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node);
-    auto height = canvas->get().height;
-    auto width = canvas->get().width;
+    height = canvas->get().height;
+    width = canvas->get().width;
 
     auto raw_data = canvas->get_raw_data();
     auto format = canvas->get().format + canvas->get().format2;

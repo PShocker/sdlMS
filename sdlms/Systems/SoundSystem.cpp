@@ -7,53 +7,57 @@ void SoundSystem::run(World &world)
 	{
 		for (auto *sou : world.get_components<Sound>())
 		{
-			play_sound(sou, world);
+			if (!sou->get_play())
+			{
+				play_sound(sou);
+				// SDL_CreateThread(SoundSystem::play_sound, "AudioThread", (void *)sou);
+				sou->set_play(true);
+			}
 		}
 	}
 }
 
-void SoundSystem::play_sound(Sound *sou, World &world)
+int SoundSystem::play_sound(void *sou)
 {
-	auto data = sou->get_pcm_data();
-	unsigned int data_size = data.size();
+	Sound *sound = (Sound *)sou;
+
+	auto data = sound->get_pcm_data();
+	unsigned int data_size = data->size();
 
 	SDL_AudioSpec spec;
-	spec.freq = sou->get_freq();
+	spec.freq = sound->get_freq();
 	spec.format = AUDIO_S16SYS;
 	spec.channels = 2;
 	spec.silence = 0;
 	spec.samples = 1024;
 	spec.callback = [](void *udata, Uint8 *stream, int len) -> void
 	{
-		auto sou = static_cast<Sound *>(udata);
+		auto sou = (Sound *)(udata);
 		auto data = sou->get_pcm_data();
 		auto offset = sou->get_offset();
+		len = std::min((unsigned int)data->size() - offset, (unsigned int)len);
 
-		len = std::min((unsigned int)data.size() - offset, (unsigned int)len);
-
-		memcpy(stream, data.data() + offset, len);
-
+		SDL_memcpy(stream, data->data() + offset, len);
 		offset += len;
-
-		sou->set_offset(offset);
 		// 如果到达数据末尾，则重置播放位置以循环播放
-		if (offset >= data.size())
+		if (offset >= data->size())
 		{
 			if (sou->get_delay() == -1)
 			{
 				SDL_PauseAudio(1);
 			}
-			sou->set_offset(0);
+			offset = 0;
 		}
+		sou->set_offset(offset);
 	};
 	spec.userdata = sou;
 
 	// open audio devcie
 	if (SDL_OpenAudio(&spec, NULL))
 	{
-		return;
+		return -1;
 	}
 	// play audio
 	SDL_PauseAudio(0);
-	return;
+	return 0;
 }

@@ -9,8 +9,8 @@ class Scene
 public:
     Scene(World *world);
     void load_map(int mapId);
-
-    Sound* load_bgm(wz::Node *node);
+    void load_tile(wz::Node *node);
+    void load_bgm(wz::Node *node);
 
 private:
     wz::Node *load_map_node(int mapId);
