@@ -47,9 +47,9 @@ const char *Window::get_title()
 	return window_title;
 }
 
-Point<int> Window::get_mouse_position()
+SDL_Point Window::get_mouse_position()
 {
-	return Point<int>{mouse_x, mouse_y};
+	return {mouse_x, mouse_y};
 }
 
 void Window::clear()

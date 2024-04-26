@@ -1,9 +1,21 @@
 #include "Sprite.h"
 #include "Core/Window.h"
 
+Sprite *Sprite::load_sprite(wz::Node *node)
+{
+    // 从map缓存中获取对象
+    if (sprite_map.contains(node))
+    {
+        return sprite_map[node];
+    }
+    else
+    {
+        return new Sprite(node);
+    }
+}
+
 Sprite::Sprite(wz::Node *node)
 {
-
     if (node->type == wz::Type::UOL)
     {
         node = dynamic_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
@@ -51,79 +63,70 @@ Sprite::Sprite(wz::Node *node)
         a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
     }
 
-    url = node->path;
+    auto url = node->path;
+    // 图片原始数据,部分格式需要转换
+    std::vector<uint8_t> pixel;
 
-    if (texture_map.contains(url))
+    switch (format)
     {
-        // 从缓存中获取
-        texture = texture_map[url];
+    case 1:
+    {
+        pixel = raw_data;
+        format = SDL_PIXELFORMAT_ARGB4444;
+        texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
+        SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        break;
     }
-    else
+    case 2:
     {
-        // 图片原始数据,部分格式需要转换
-        std::vector<uint8_t> pixel;
-
-        switch (format)
+        pixel = raw_data;
+        format = SDL_PIXELFORMAT_ARGB8888;
+        texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
+        SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint32));
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        break;
+    }
+    case 517: // rgb565压缩缩略图
+    {
+        pixel.resize(width * height * 2, 0);
+        int lineIndex = 0;
+        for (int j0 = 0, j1 = height / 16; j0 < j1; j0++)
         {
-        case 1:
-        {
-            pixel = raw_data;
-            format = SDL_PIXELFORMAT_ARGB4444;
-            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
-            SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
-            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-            break;
-        }
-        case 2:
-        {
-            pixel = raw_data;
-            format = SDL_PIXELFORMAT_ARGB8888;
-            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
-            SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint32));
-            SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-            break;
-        }
-        case 517: // rgb565压缩缩略图
-        {
-            pixel.resize(width * height * 2, 0);
-            int lineIndex = 0;
-            for (int j0 = 0, j1 = height / 16; j0 < j1; j0++)
+            int dstIndex = lineIndex;
+            for (int i0 = 0, i1 = width / 16; i0 < i1; i0++)
             {
-                int dstIndex = lineIndex;
-                for (int i0 = 0, i1 = width / 16; i0 < i1; i0++)
+                int idx = (i0 + j0 * i1) * 2;
+                unsigned char b0 = raw_data[idx];
+                unsigned char b1 = raw_data[idx + 1];
+                for (int k = 0; k < 16; k++)
                 {
-                    int idx = (i0 + j0 * i1) * 2;
-                    unsigned char b0 = raw_data[idx];
-                    unsigned char b1 = raw_data[idx + 1];
-                    for (int k = 0; k < 16; k++)
-                    {
-                        pixel[dstIndex++] = b0;
-                        pixel[dstIndex++] = b1;
-                    }
+                    pixel[dstIndex++] = b0;
+                    pixel[dstIndex++] = b1;
                 }
-                for (int k = 1; k < 16; k++)
-                {
-                    for (int m = 0; m < width * 2; m++)
-                    {
-                        pixel[dstIndex + m] = pixel[lineIndex + m];
-                    }
-                    dstIndex += width * 2;
-                }
-                lineIndex += width * 32;
             }
+            for (int k = 1; k < 16; k++)
+            {
+                for (int m = 0; m < width * 2; m++)
+                {
+                    pixel[dstIndex + m] = pixel[lineIndex + m];
+                }
+                dstIndex += width * 2;
+            }
+            lineIndex += width * 32;
+        }
 
-            format = SDL_PIXELFORMAT_RGB565;
-            texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
-            SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
-            break;
-        }
-        default:
-        {
-            break;
-        }
-        }
-        texture_map[url] = texture;
+        format = SDL_PIXELFORMAT_RGB565;
+        texture = SDL_CreateTexture(Window::get_renderer(), format, SDL_TEXTUREACCESS_STATIC, width, height);
+        SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
+        break;
     }
+    default:
+    {
+        break;
+    }
+    }
+    sprite_map[node] = this;
 }
 
 Sprite::Sprite(SDL_Texture *texture) : texture(texture)

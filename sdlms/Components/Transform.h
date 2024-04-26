@@ -1,24 +1,25 @@
 #pragma once
 
 #include "Components/Component.h"
-#include "Core/Point.h"
 
-class Transform : public Component {
+class Transform : public Component
+{
 private:
-	Point<float> position;
+	SDL_FPoint position;
 	float rotation;
 	int flip;
-
+	unsigned z; // 根据z值渲染
 
 public:
 	Transform();
+	Transform(float x, float y);
 	~Transform();
 
-	Point<float> get_position() const;
+	SDL_FPoint get_position() const;
 	float get_rotation() const;
+	int get_flip() const;
 
-	void set_position(const Point<float>& value);
-	void set_rotation(const float& value);
-
-	Transform* get_parent() const;
+	void set_position(const SDL_FPoint &value);
+	void set_rotation(const float &value);
+	void set_flip(const int value);
 };

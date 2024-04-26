@@ -32,6 +32,13 @@ void World::add_system(System *sys)
 	DEBUG_PRINT("Added a new system (%s)", typeid(*sys).name());
 }
 
+void World::add_resource(std::type_index type, Resource *r)
+{
+	resource_map[type] = r;
+
+	DEBUG_PRINT("Added a new system (%s)", typeid(*sys).name());
+}
+
 void World::destroy_entity(Entity *ent, bool destroy_components, bool remove_from_list)
 {
 	DEBUG_PRINT("Destroying entity ID %lu", ent->get_id());
