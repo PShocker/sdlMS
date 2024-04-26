@@ -64,13 +64,13 @@ public:
 	template <typename C>
 	bool components_exist_of_type()
 	{
-		return component_map.find(typeid(C)) != component_map.end();
+		return component_map.contains(typeid(C));
 	}
 
 	template <typename C>
 	const std::vector<C *> &get_components()
 	{
-		return *reinterpret_cast<std::vector<C *> *>(&component_map.at(typeid(C)));
+		return *reinterpret_cast<std::vector<C *> *>(&component_map[typeid(C)]);
 	}
 
 	template <typename C>

@@ -7,16 +7,16 @@
 
 void RenderSystem::run(World &world)
 {
-	if (world.components_exist_of_type<Tile>())
+	if (world.components_exist_of_type<Transform>())
 	{
-		for (auto *spr : world.get_components<Sprite>())
+		for (auto *tr : world.get_components<Transform>())
 		{
-			render_sprite(spr, spr->get_owner_component<Transform>(), world);
+			render_sprite(tr, tr->get_owner_component<Sprite>(), world);
 		}
 	}
 }
 
-void RenderSystem::render_sprite(Sprite *spr, Transform *tr, World &world)
+void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
 {
 	if (tr)
 	{
@@ -28,8 +28,8 @@ void RenderSystem::render_sprite(Sprite *spr, Transform *tr, World &world)
 		auto x = tr->get_position().x;
 		auto y = tr->get_position().y;
 
-		const SDL_FRect pos_rect{(float)x, (float)y, (float)width, (float)heihgt};
 		const SDL_FPoint origin{(float)spr->get_origin().x, (float)spr->get_origin().y};
+		const SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
 
 		SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
 	}

@@ -14,15 +14,16 @@ int main(int argc, char *argv[])
     Wz *wz = new Wz("./data/"); // wz文件路径
     world.add_resource(typeid(Wz), wz);
 
-    Window::create_window("sdlMS", 640, 480);
+    Window::create_window("sdlMS", 1280, 800);
 
     Scene *scene = new Scene(&world);
-    scene->load_map(10000);
+    scene->load_map(100000000);
 
     RenderSystem rsys{};
     world.add_system(&rsys);
 
-    Sound *sou = Sound::load_sound(nullptr);
+    SoundSystem sous{};
+    world.add_system(&sous);
 
     while (!world.is_game_quit())
     {
@@ -34,6 +35,8 @@ int main(int argc, char *argv[])
         world.process_systems();
 
         Window::update();
+
+        SDL_Delay(16); // 控制帧率
     }
     return 0;
 }
