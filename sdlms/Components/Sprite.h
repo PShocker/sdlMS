@@ -33,4 +33,6 @@ public:
     int a0;
     int a1;
     SDL_Point origin;
+
+    int z;
 };

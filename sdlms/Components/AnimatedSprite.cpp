@@ -2,7 +2,7 @@
 #include <ranges>
 #include <algorithm>
 
-AnimatedSprite *AnimatedSprite::load_animatedsprite(wz::Node *node)
+AnimatedSprite *AnimatedSprite::load_animated_sprite(wz::Node *node)
 {
     // 从map缓存中获取对象
     if (animatedsprite_map.contains(node))
@@ -45,20 +45,22 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
 
         sprites.push_back(sprite);
     }
-    frame_size = sprites.size();
+    anim_size = sprites.size();
+    anim_index = 0;
+    anim_time = 0;
 
     animatedsprite_map[node] = this;
 }
 
-bool AnimatedSprite::update(int elapsedTime)
+bool AnimatedSprite::update(int delta_time)
 {
     bool end = false;
-    frame_time += elapsedTime;
+    anim_time += delta_time;
     // 判断时间是否超过sprite时间
-    if (frame_time >= sprites[frame_index]->delay)
+    if (anim_time >= sprites[anim_index]->delay)
     {
         // 判断是否是最后1帧
-        if (frame_index == frame_size - 1)
+        if (anim_index == anim_size - 1)
         {
             // 如果zigzag存在,说明动画是1-2-3-2-1形式的倒放
             if (z)
@@ -66,39 +68,53 @@ bool AnimatedSprite::update(int elapsedTime)
                 // 反转vector,形成倒放效果
                 std::ranges::reverse(sprites);
                 // 切换到倒数第二帧
-                frame_index = 1;
+                anim_index = 1;
             }
             else
             {
                 // 如果zigzag不存在,直接从头开始
-                frame_index = 0;
+                anim_index = 0;
             }
             end = true;
             // 表示一个循环结束,该值会EventSprite会使用
         }
         else
         {
-            frame_index += 1;
+            anim_index += 1;
         }
-        frame_time = 0;
+        anim_time = 0;
     }
 
     // 透明度处理
-    auto a0 = sprites[frame_index]->a0;
-    auto a1 = sprites[frame_index]->a1;
+    auto a0 = sprites[anim_index]->a0;
+    auto a1 = sprites[anim_index]->a1;
     if (a0 != a1)
     {
         auto alpha = 255;
         if (a0 <= a1)
         {
-            alpha = (float)a0 + (float)(a1 - a0) / (float)sprites[frame_index]->delay * (float)frame_time;
+            alpha = (float)a0 + (float)(a1 - a0) / (float)sprites[anim_index]->delay * (float)anim_time;
         }
         else
         {
-            alpha = (float)a0 - (float)(a0 - a1) / (float)sprites[frame_index]->delay * (float)frame_time;
+            alpha = (float)a0 - (float)(a0 - a1) / (float)sprites[anim_index]->delay * (float)anim_time;
         }
-        SDL_SetTextureAlphaMod(sprites[frame_index]->texture, alpha);
+        SDL_SetTextureAlphaMod(sprites[anim_index]->texture, alpha);
     }
 
     return end;
+}
+
+void AnimatedSprite::advance_anim()
+{
+    if (anim_index == anim_size - 1 && z)
+    {
+
+        std::ranges::reverse(sprites);
+        anim_index = 1;
+    }
+    else
+    {
+        anim_index = (anim_index + 1) % anim_size;
+    }
 }

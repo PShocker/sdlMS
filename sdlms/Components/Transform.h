@@ -8,7 +8,6 @@ private:
 	SDL_FPoint position;
 	float rotation;
 	int flip;
-	unsigned z; // 根据z值渲染
 
 public:
 	Transform();

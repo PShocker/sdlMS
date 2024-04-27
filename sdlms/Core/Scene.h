@@ -9,6 +9,7 @@ class Scene
 public:
     Scene(World *world);
     void load_map(int mapId);
+    void load_obj(wz::Node *node);
     void load_tile(wz::Node *node);
     void load_bgm(wz::Node *node);
 

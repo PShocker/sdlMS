@@ -6,6 +6,8 @@
 #include "Resource/Resource.h"
 
 #include <unordered_map>
+#include <map>
+
 #include <typeinfo>
 #include <typeindex>
 #include <cstdint>
@@ -26,14 +28,14 @@ private:
 	};
 
 	std::vector<Entity *> entity_list;
-	std::unordered_map<std::type_index, std::vector<Component *>> component_map;
+	std::unordered_map<std::type_index, std::multimap<int, Component *>> component_map;
 	std::vector<System *> system_list;
 
 	SDL_Event event_handler;
 
 	std::uint64_t dt_now;
 	std::uint64_t dt_last;
-	double delta_time_;
+	int delta_time_;
 
 	Window *window;
 
@@ -48,6 +50,7 @@ public:
 	void add_entity(Entity *ent);
 
 	void add_component(Component *comp);
+	void add_component(Component *comp, int index);
 
 	void add_system(System *system);
 
@@ -68,9 +71,9 @@ public:
 	}
 
 	template <typename C>
-	const std::vector<C *> &get_components()
+	const std::multimap<int, C *> &get_components()
 	{
-		return *reinterpret_cast<std::vector<C *> *>(&component_map[typeid(C)]);
+		return *reinterpret_cast<std::multimap<int, C *> *>(&component_map[typeid(C)]);
 	}
 
 	template <typename C>
@@ -85,7 +88,7 @@ public:
 
 	void process_systems();
 
-	double delta_time() const;
+	int delta_time() const;
 
 	Window *get_window() const;
 	void set_window(Window *value);

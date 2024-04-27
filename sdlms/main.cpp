@@ -4,6 +4,7 @@
 #include "Entities/Tile.h"
 #include "Systems/RenderSystem.h"
 #include "Systems/SoundSystem.h"
+#include "Systems/UpdateSystem.h"
 #include "Components/Sound.h"
 #include "Core/Scene.h"
 #include "Resource/Wz.h"
@@ -19,6 +20,9 @@ int main(int argc, char *argv[])
     Scene *scene = new Scene(&world);
     scene->load_map(100000000);
 
+    UpdateSystem upd{};
+    world.add_system(&upd);
+
     RenderSystem rsys{};
     world.add_system(&rsys);
 
@@ -27,6 +31,7 @@ int main(int argc, char *argv[])
 
     while (!world.is_game_quit())
     {
+
         world.poll_events();
         world.tick_delta_time();
 
@@ -36,7 +41,7 @@ int main(int argc, char *argv[])
 
         Window::update();
 
-        SDL_Delay(16); // 控制帧率
+        SDL_Delay(20); // 控制帧率
     }
     return 0;
 }
