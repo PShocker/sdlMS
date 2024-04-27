@@ -24,5 +24,14 @@ Obj::Obj(wz::Node *node, int id, int layer, World *world)
     add_component(t);
     add_component(aspr);
     world->add_component(t, 30000 * layer + z * 10 + id);
+
+    for (const auto &[key, value] : world->get_components<AnimatedSprite>())
+    {
+        if (value == aspr)
+        {
+            //避免重复添加到world,因为一个anisprite只需要一次更新
+            return;
+        }
+    }
     world->add_component(aspr);
 }
