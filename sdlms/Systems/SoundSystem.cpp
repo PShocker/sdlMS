@@ -5,7 +5,7 @@ void SoundSystem::run(World &world)
 {
 	if (world.components_exist_of_type<Sound>())
 	{
-		for (auto *sou : world.get_components<Sound>())
+		for (auto &[index, sou] : world.get_components<Sound>())
 		{
 			if (!sou->get_play())
 			{

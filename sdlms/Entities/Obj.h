@@ -4,8 +4,8 @@
 #include "wz/Property.hpp"
 #include "Core/World.h"
 
-class Tile : public Entity
+class Obj : public Entity
 {
 public:
-    Tile(wz::Node *node, std::u16string ts,int layer, World *world);
+    Obj(wz::Node *node,int id,int layer, World *world);
 };

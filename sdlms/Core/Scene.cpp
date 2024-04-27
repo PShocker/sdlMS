@@ -1,5 +1,6 @@
 #include "Scene.h"
 #include "Entities/Tile.h"
+#include "Entities/Obj.h"
 #include "Resource/Wz.h"
 
 Scene::Scene(World *world)
@@ -12,21 +13,35 @@ void Scene::load_map(int mapId)
     auto node = load_map_node(mapId);
     load_bgm(node);
     load_tile(node);
+    load_obj(node);
 }
 
-void Scene::load_tile(wz::Node *node)
+void Scene::load_obj(wz::Node *node)
 {
     auto _node = node;
     for (size_t i = 0; i < 8; i++)
     {
         node = _node->get_child(std::to_string(i));
-        auto tS = node->get_child(u"info")->get_child(u"tS");
+
+        for (auto it : node->get_child(u"obj")->get_children())
+        {
+            Obj *obj = new Obj(it.second[0], std::stoi(std::string{it.first.begin(), it.first.end()}), i, world);
+            // world->add_entity(obj);
+        }
+    }
+}
+
+void Scene::load_tile(wz::Node *node)
+{
+    for (size_t i = 0; i < 8; i++)
+    {
+        auto tS = node->get_child(std::to_string(i))->get_child(u"info")->get_child(u"tS");
 
         if (tS != nullptr)
         {
-            for (auto it : node->get_child(u"tile")->get_children())
+            for (auto it : node->get_child(std::to_string(i))->get_child(u"tile")->get_children())
             {
-                Tile *tile = new Tile(it.second[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), world);
+                Tile *tile = new Tile(it.second[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, world);
                 world->add_entity(tile);
             }
         }

@@ -9,9 +9,16 @@ void RenderSystem::run(World &world)
 {
 	if (world.components_exist_of_type<Transform>())
 	{
-		for (auto *tr : world.get_components<Transform>())
+		for (auto &[index, tr] : world.get_components<Transform>())
 		{
-			render_sprite(tr, tr->get_owner_component<Sprite>(), world);
+			if (tr->get_owner_component<Sprite>() != nullptr)
+			{
+				render_sprite(tr, tr->get_owner_component<Sprite>(), world);
+			}
+			else
+			{
+				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
+			}
 		}
 	}
 }
@@ -32,5 +39,14 @@ void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
 		const SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
 
 		SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
+	}
+}
+
+void RenderSystem::render_animated_sprite(Transform *tr, AnimatedSprite *aspr, World &world)
+{
+	if (tr)
+	{
+		auto spr = aspr->sprites[aspr->anim_index];
+		render_sprite(tr, spr, world);
 	}
 }

@@ -7,7 +7,7 @@
 
 unsigned long World::EntityCounter = 0;
 
-World::World() : dt_now{SDL_GetPerformanceCounter()}, dt_last{0}, delta_time_{0}, quit{false} {}
+World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time_{0}, quit{false} {}
 World::~World() {}
 
 void World::add_entity(Entity *ent)
@@ -20,7 +20,17 @@ void World::add_entity(Entity *ent)
 
 void World::add_component(Component *comp)
 {
-	component_map[typeid(*comp)].push_back(comp);
+	// component_map[typeid(*comp)][component_map[typeid(*comp)].size()] = comp;
+	component_map[typeid(*comp)].insert({component_map[typeid(*comp)].size(), comp});
+
+	DEBUG_PRINT("Added a new component (%s)", typeid(*comp).name());
+}
+
+void World::add_component(Component *comp, int index)
+{
+
+	// component_map[typeid(*comp)][index] = comp;
+	component_map[typeid(*comp)].insert({index, comp});
 
 	DEBUG_PRINT("Added a new component (%s)", typeid(*comp).name());
 }
@@ -57,20 +67,20 @@ void World::destroy_entity(Entity *ent, bool destroy_components, bool remove_fro
 
 void World::destroy_component(Component *comp, bool remove_from_map)
 {
-	auto &target_vec = component_map[typeid(*comp)];
-	for (size_t i = 0; i < target_vec.size(); i++)
+	auto &target_map = component_map[typeid(*comp)];
+
+	for (auto it = target_map.begin(); it != target_map.end();)
 	{
-		auto current_comp = target_vec[i];
-		if (current_comp == comp)
+		if (it->second == comp)
 		{
-			DEBUG_PRINT("Destroying entity ID %lu's component (%s)", comp->get_owner()->get_id(), typeid(*current_comp).name());
-
-			if (remove_from_map)
-				target_vec.erase(std::remove(target_vec.begin(), target_vec.end(), current_comp));
-
-			delete current_comp;
+			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+		}
+		else
+		{
+			++it;
 		}
 	}
+	delete comp;
 }
 
 void World::poll_events()
@@ -117,8 +127,8 @@ void World::poll_events()
 void World::tick_delta_time()
 {
 	dt_last = dt_now;
-	dt_now = SDL_GetPerformanceCounter();
-	delta_time_ = ((dt_now - dt_last) * 1000 / static_cast<double>(SDL_GetPerformanceFrequency())) * 0.001;
+	dt_now = SDL_GetTicks();
+	delta_time_ = dt_now - dt_last;
 }
 
 void World::process_systems()
@@ -130,7 +140,7 @@ void World::process_systems()
 	}
 }
 
-double World::delta_time() const
+int World::delta_time() const
 {
 	return delta_time_;
 }
@@ -162,7 +172,7 @@ void World::cleanup()
 
 	for (auto &pair : component_map)
 	{
-		for (Component *comp : pair.second)
+		for (auto &[index, comp] : pair.second)
 			destroy_component(comp, false);
 	}
 
