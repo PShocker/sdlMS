@@ -52,58 +52,6 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
     animatedsprite_map[node] = this;
 }
 
-bool AnimatedSprite::update(int delta_time)
-{
-    bool end = false;
-    anim_time += delta_time;
-    // 判断时间是否超过sprite时间
-    if (anim_time >= sprites[anim_index]->delay)
-    {
-        // 判断是否是最后1帧
-        if (anim_index == anim_size - 1)
-        {
-            // 如果zigzag存在,说明动画是1-2-3-2-1形式的倒放
-            if (z)
-            {
-                // 反转vector,形成倒放效果
-                std::ranges::reverse(sprites);
-                // 切换到倒数第二帧
-                anim_index = 1;
-            }
-            else
-            {
-                // 如果zigzag不存在,直接从头开始
-                anim_index = 0;
-            }
-            end = true;
-            // 表示一个循环结束,该值会EventSprite会使用
-        }
-        else
-        {
-            anim_index += 1;
-        }
-        anim_time = 0;
-    }
-
-    // 透明度处理
-    auto a0 = sprites[anim_index]->a0;
-    auto a1 = sprites[anim_index]->a1;
-    if (a0 != a1)
-    {
-        auto alpha = 255;
-        if (a0 <= a1)
-        {
-            alpha = (float)a0 + (float)(a1 - a0) / (float)sprites[anim_index]->delay * (float)anim_time;
-        }
-        else
-        {
-            alpha = (float)a0 - (float)(a0 - a1) / (float)sprites[anim_index]->delay * (float)anim_time;
-        }
-        SDL_SetTextureAlphaMod(sprites[anim_index]->texture, alpha);
-    }
-
-    return end;
-}
 
 void AnimatedSprite::advance_anim()
 {
