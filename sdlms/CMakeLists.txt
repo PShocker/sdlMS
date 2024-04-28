@@ -3,8 +3,8 @@ project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(FFMPEG_INCLUDE "C:/Users/Shocker/Desktop/FFMPEG/include")
-set(FFMPEG_LIB "C:/Users/Shocker/Desktop/FFMPEG/lib")
+set(FFMPEG_INCLUDE "C:/FFMPEG/include")
+set(FFMPEG_LIB "C:/FFMPEG/lib")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
