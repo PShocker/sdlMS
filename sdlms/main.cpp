@@ -12,7 +12,7 @@
 int main(int argc, char *argv[])
 {
     World world;
-    Wz *wz = new Wz("./data/"); // wz文件路径
+    Wz *wz = new Wz("./Data/"); // wz文件路径
     world.add_resource(typeid(Wz), wz);
 
     Window::create_window("sdlMS", 1280, 800);
