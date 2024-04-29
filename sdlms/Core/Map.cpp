@@ -1,22 +1,24 @@
-#include "Scene.h"
+#include "Map.h"
 #include "Entities/Tile.h"
 #include "Entities/Obj.h"
+#include "Entities/BackGround.h"
 #include "Resource/Wz.h"
 
-Scene::Scene(World *world)
+Map::Map(World *world)
 {
     this->world = world;
 }
 
-void Scene::load_map(int mapId)
+void Map::load_map(int mapId)
 {
     auto node = load_map_node(mapId);
     load_bgm(node);
     load_tile(node);
     load_obj(node);
+    load_background(node);
 }
 
-void Scene::load_obj(wz::Node *node)
+void Map::load_obj(wz::Node *node)
 {
     auto _node = node;
     for (size_t i = 0; i < 8; i++)
@@ -26,12 +28,12 @@ void Scene::load_obj(wz::Node *node)
         for (auto it : node->get_child(u"obj")->get_children())
         {
             Obj *obj = new Obj(it.second[0], std::stoi(std::string{it.first.begin(), it.first.end()}), i, world);
-            // world->add_entity(obj);
+            world->add_entity(obj);
         }
     }
 }
 
-void Scene::load_tile(wz::Node *node)
+void Map::load_tile(wz::Node *node)
 {
     for (size_t i = 0; i < 8; i++)
     {
@@ -48,7 +50,19 @@ void Scene::load_tile(wz::Node *node)
     }
 }
 
-void Scene::load_bgm(wz::Node *node)
+void Map::load_background(wz::Node *node)
+{
+    node = node->get_child(u"back");
+    if (node != nullptr)
+    {
+        for (auto it : node->get_children())
+        {
+            BackGround *bac = new BackGround(it.second[0], std::stoi(std::string{it.first.begin(), it.first.end()}), world);
+        }
+    }
+}
+
+void Map::load_bgm(wz::Node *node)
 {
     node = node->find_from_path("info/bgm");
     if (node != nullptr)
@@ -63,7 +77,7 @@ void Scene::load_bgm(wz::Node *node)
     return;
 }
 
-wz::Node *Scene::load_map_node(int mapId)
+wz::Node *Map::load_map_node(int mapId)
 {
     auto node = world->get_resource<Wz>().Map->get_root();
     auto s = std::to_string(mapId);

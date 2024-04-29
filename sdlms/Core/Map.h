@@ -4,13 +4,15 @@
 #include "Components/Sound.h"
 
 // Scene在这里相当于map,用于加载地图中各种组件
-class Scene
+class Map
 {
 public:
-    Scene(World *world);
+    Map(World *world);
     void load_map(int mapId);
     void load_obj(wz::Node *node);
     void load_tile(wz::Node *node);
+    void load_background(wz::Node *node);
+
     void load_bgm(wz::Node *node);
 
 private:

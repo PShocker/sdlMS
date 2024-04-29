@@ -6,7 +6,7 @@
 #include "Systems/SoundSystem.h"
 #include "Systems/UpdateSystem.h"
 #include "Components/Sound.h"
-#include "Core/Scene.h"
+#include "Core/Map.h"
 #include "Resource/Wz.h"
 
 int main(int argc, char *argv[])
@@ -17,7 +17,7 @@ int main(int argc, char *argv[])
 
     Window::create_window("sdlMS", 1280, 800);
 
-    Scene *scene = new Scene(&world);
+    Map *scene = new Map(&world);
     scene->load_map(100000000);
 
     UpdateSystem upd{};

@@ -5,9 +5,10 @@
 
 class BackGround : public Entity
 {
+public:
     BackGround(wz::Node *node, int id, World *world);
 
-    enum 
+    enum
     {
         NORMAL,
         HTILED,
