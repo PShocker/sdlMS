@@ -69,7 +69,10 @@ void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world
 	}
 
 	SDL_FPoint point = tr->get_position();
-	SDL_FRect viewprot = {0, 0, 1280, 800};
+	SDL_FRect viewprot = {0, 0, 1200, 768};
+
+	point.x += viewprot.x + viewprot.w / 2;
+	point.y += viewprot.y + viewprot.h / 2;
 
 	int cx = 0;
 	int cy = 0;

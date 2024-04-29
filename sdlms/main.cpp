@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
     Wz *wz = new Wz("./Data/"); // wz文件路径
     world.add_resource(typeid(Wz), wz);
 
-    Window::create_window("sdlMS", 1280, 800);
+    Window::create_window("sdlMS", 1200, 768);
 
     Map *scene = new Map(&world);
     scene->load_map(100000000);
