@@ -3,6 +3,8 @@
 #include "Components/Sprite.h"
 #include "Components/AnimatedSprite.h"
 #include "Components/HVTile.h"
+#include "Components/HVMove.h"
+#include "Components/Transform.h"
 
 BackGround::BackGround(wz::Node *node, int id, World *world)
 {
@@ -32,33 +34,49 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
 
     auto no_str = std::to_string(no);
 
+    HVTile *hvt = nullptr;
+    HVMove *hvm = nullptr;
+
+    Transform *t = new Transform{(float)x, (float)y};
+    add_component(t);
+
     switch (type)
     {
     case HTILED:
     case HMOVEA:
-        auto hvtile = new HVTile(cx, -1);
+        hvt = new HVTile(cx, std::nullopt);
         break;
     case VTILED:
     case VMOVEA:
-        auto hvtile = new HVTile(-1, cy);
+        hvt = new HVTile(std::nullopt, cy);
         break;
     case TILED:
     case HMOVEB:
     case VMOVEB:
-        auto hvtile = new HVTile(cx, cy);
+        hvt = new HVTile(cx, cy);
         break;
     }
-    // switch (_type)
-    // {
-    // case HMOVEA:
-    // case HMOVEB:
-    //     hspeed = 1;
-    //     break;
-    // case VMOVEA:
-    // case VMOVEB:
-    //     vspeed = 1;
-    //     break;
-    // }
+    switch (type)
+    {
+    case HMOVEA:
+    case HMOVEB:
+        hvm = new HVMove(rx, 0);
+        break;
+    case VMOVEA:
+    case VMOVEB:
+        hvm = new HVMove(0, ry);
+        break;
+    }
+
+    if (hvt != nullptr)
+    {
+        add_component(hvt);
+    }
+    if (hvm != nullptr)
+    {
+        add_component(hvm);
+        world->add_component(hvm);
+    }
 
     switch (ani)
     {
@@ -66,12 +84,17 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
     {
         auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
         Sprite *spr = Sprite::load_sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
+        add_component(spr);
+        world->add_component(t, id + 1000);
         break;
     }
     case 1:
     {
         auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + std::u16string{no_str.begin(), no_str.end()};
         AnimatedSprite *aspr = AnimatedSprite::load_animated_sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
+        add_component(aspr);
+        world->add_component(t, id + 1000);
+        world->add_unique_component(aspr);
         break;
     }
     default:

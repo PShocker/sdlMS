@@ -1,5 +1,5 @@
 #include "HVTile.h"
 
-HVTile::HVTile(int cx, int cy) : cx(cx), cy(cy)
+HVTile::HVTile(std::optional<int> cx, std::optional<int> cy) : cx(cx), cy(cy)
 {
 }

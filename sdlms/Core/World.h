@@ -51,6 +51,7 @@ public:
 
 	void add_component(Component *comp);
 	void add_component(Component *comp, int index);
+	void add_unique_component(Component *comp);
 
 	void add_system(System *system);
 

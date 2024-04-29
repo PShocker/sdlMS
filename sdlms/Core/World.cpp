@@ -20,7 +20,6 @@ void World::add_entity(Entity *ent)
 
 void World::add_component(Component *comp)
 {
-	// component_map[typeid(*comp)][component_map[typeid(*comp)].size()] = comp;
 	component_map[typeid(*comp)].insert({component_map[typeid(*comp)].size(), comp});
 
 	DEBUG_PRINT("Added a new component (%s)", typeid(*comp).name());
@@ -28,11 +27,22 @@ void World::add_component(Component *comp)
 
 void World::add_component(Component *comp, int index)
 {
-
-	// component_map[typeid(*comp)][index] = comp;
 	component_map[typeid(*comp)].insert({index, comp});
 
 	DEBUG_PRINT("Added a new component (%s)", typeid(*comp).name());
+}
+
+void World::add_unique_component(Component *comp)
+{
+	for (const auto &[key, value] : component_map[typeid(*comp)])
+	{
+		if (value == comp)
+		{
+			// 避免重复添加到world
+			return;
+		}
+	}
+	add_component(comp);
 }
 
 void World::add_system(System *sys)
