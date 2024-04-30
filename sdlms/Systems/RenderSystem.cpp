@@ -2,6 +2,7 @@
 
 #include "Core/World.h"
 #include "Core/ECSSystem.h"
+#include "Components/Camera.h"
 
 void RenderSystem::run(World &world)
 {
@@ -38,9 +39,19 @@ void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
 		auto y = tr->get_position().y;
 
 		const SDL_FPoint origin{(float)spr->get_origin().x, (float)spr->get_origin().y};
-		const SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
-
-		SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
+		if (tr->get_camera())
+		{
+			// 跟随摄像机的sprite
+			const SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
+			SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
+		}
+		else
+		{
+			// 不随摄像机移动
+			auto camera = world.get_components<Camera>().find(0)->second;
+			const SDL_FRect pos_rect{(float)x - origin.x - camera->get_rect().x, (float)y - origin.y - camera->get_rect().y, (float)width, (float)heihgt};
+			SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
+		}
 	}
 }
 
@@ -69,7 +80,8 @@ void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world
 	}
 
 	SDL_FPoint point = tr->get_position();
-	SDL_FRect viewprot = {0, 0, 1280, 800};
+	
+	auto viewprot = world.get_components<Camera>().find(0)->second->get_rect();
 
 	int cx = 0;
 	int cy = 0;

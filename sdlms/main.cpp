@@ -6,6 +6,7 @@
 #include "Systems/SoundSystem.h"
 #include "Systems/UpdateSystem.h"
 #include "Components/Sound.h"
+#include "Components/Camera.h"
 #include "Core/Map.h"
 #include "Resource/Wz.h"
 
@@ -17,8 +18,11 @@ int main(int argc, char *argv[])
 
     Window::create_window("sdlMS", 1280, 800);
 
-    Map *scene = new Map(&world);
-    scene->load_map(100000000);
+    Map *map = new Map(&world);
+    map->load_map(100000000);
+
+    Camera *camera = new Camera(0, 0, 1280, 800);
+    world.add_component(camera, 0);
 
     UpdateSystem upd{};
     world.add_system(&upd);
