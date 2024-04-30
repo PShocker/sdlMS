@@ -1,7 +1,7 @@
 #include "Transform.h"
 
 Transform::Transform() : position{SDL_FPoint(0, 0)}, rotation{0}, flip{0} {}
-Transform::Transform(float x, float y) : position{SDL_FPoint(x, y)}, rotation{0}, flip{0} {}
+Transform::Transform(float x, float y, bool camera) : position{SDL_FPoint(x, y)}, rotation{0}, flip{0}, camera(camera) {}
 Transform::~Transform() {}
 
 float Transform::get_rotation() const
