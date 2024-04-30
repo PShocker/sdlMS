@@ -18,8 +18,8 @@ public:
     void set_anim_time(const int val) { anim_time = val; }
     constexpr auto get_anim_delay() { return sprites[anim_index]->delay; }
     constexpr auto get_anim_time() { return anim_time; }
-    constexpr auto get_anim_width() { return sprites[anim_index]->get_width(); }
-    constexpr auto get_anim_height() { return sprites[anim_index]->get_height(); }
+    auto get_anim_width() { return sprites[anim_index]->get_width(); }
+    auto get_anim_height() { return sprites[anim_index]->get_height(); }
     void advance_anim();
 
 private:
