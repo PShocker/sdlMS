@@ -17,6 +17,13 @@ void UpdateSystem::run(World &world)
 			update_hvmove(hvm, hvm->get_owner_component<Transform>(), world);
 		}
 	}
+	if (world.components_exist_of_type<Avatar>())
+	{
+		for (auto &[index, ava] : world.get_components<Avatar>())
+		{
+			update_avatar(ava, ava->get_owner_component<Transform>(), world);
+		}
+	}
 }
 
 bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
@@ -39,4 +46,16 @@ void UpdateSystem::update_hvmove(HVMove *hvm, Transform *tr, World &world)
 	p.y += hvm->get_ry() * 5 * world.delta_time() / 1000.0;
 	tr->set_position(p);
 	return;
+}
+
+void UpdateSystem::update_avatar(Avatar *ava, Transform *tr, World &world)
+{
+	auto delta_time = world.delta_time();
+	auto delay = ava->stance_delays[ava->act][ava->act_index];
+	ava->act_time += delta_time;
+	if (ava->act_time >= delay)
+	{
+		ava->act_index = (ava->act_index + 1) % ava->stance_delays[ava->act].size();
+		ava->act_time = 0;
+	}
 }

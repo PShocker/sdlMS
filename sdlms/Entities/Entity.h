@@ -13,7 +13,7 @@ private:
 
 public:
 	Entity();
-	~Entity();
+	virtual ~Entity();
 
 	unsigned long get_id() const;
 	void set_id(unsigned long value);

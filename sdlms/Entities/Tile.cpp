@@ -2,6 +2,8 @@
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
 #include "Resource/Wz.h"
+#include <format>
+#include <string>
 
 Tile::Tile(wz::Node *node, std::u16string ts, int layer, World *world)
 {

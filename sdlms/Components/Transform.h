@@ -12,6 +12,7 @@ private:
 
 public:
 	Transform();
+	Transform(SDL_FPoint p, bool camera = false);
 	Transform(float x, float y, bool camera = false);
 	~Transform();
 

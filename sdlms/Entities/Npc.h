@@ -7,5 +7,5 @@
 class Npc : public Entity
 {
 public:
-    Npc(wz::Node *node, std::u16string ts,int layer, World *world);
+    Npc(wz::Node *node, World *world);
 };

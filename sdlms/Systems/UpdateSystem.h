@@ -3,6 +3,7 @@
 #include "Components/AnimatedSprite.h"
 #include "Components/Transform.h"
 #include "Components/HVMove.h"
+#include "Components/Avatar.h"
 
 class UpdateSystem : public System
 {
@@ -12,4 +13,5 @@ public:
 private:
 	bool update_animated_sprite(AnimatedSprite *aspr, World &world);
 	void update_hvmove(HVMove *hvm, Transform *tr, World &world);
+	void update_avatar(Avatar *hvm, Transform *tr, World &world);
 };

@@ -29,7 +29,7 @@ Wz::Wz(const std::string filename_prefix)
     UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
 
     // Base->parse();
-    // Character->parse(u"Character");
+    Character->parse(u"Character");
     // Effect->parse();
     // Etc->parse();
     // Item->parse();
@@ -37,12 +37,12 @@ Wz::Wz(const std::string filename_prefix)
     Map->parse(u"Map");
     // Mob->parse();
     // Morph->parse();
-    // Npc->parse(u"Npc");
+    Npc->parse(u"Npc");
     // Quest->parse();
     // Reactor->parse();
     // Skill->parse();
     Sound->parse(u"Sound");
-    // String->parse(u"String");
+    String->parse(u"String");
     // TamingMob->parse();
     // UI->parse(u"UI");
 }

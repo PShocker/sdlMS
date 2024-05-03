@@ -4,7 +4,7 @@ class Resource
 {
 public:
     Resource(){};
-    ~Resource(){};
+    virtual ~Resource(){};
 
 private:
     unsigned long id;
