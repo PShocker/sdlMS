@@ -5,14 +5,26 @@
 
 #include <algorithm>
 
+SDL_FPoint operator+(const SDL_FPoint &a, const SDL_FPoint &b)
+{
+	return {a.x + b.x, a.y + b.y};
+}
+
+// 重载 SDL_Point 的减法运算符
+SDL_FPoint operator-(const SDL_FPoint &a, const SDL_FPoint &b)
+{
+	return {a.x - b.x, a.y - b.y};
+}
+
 unsigned long World::EntityCounter = 0;
 
 World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time_{0}, quit{false} {}
 World::~World() {}
 
-void World::add_entity(Entity *ent)
+void World::add_entity(Entity *ent, int index)
 {
-	entity_list.push_back(ent);
+	entity_map[typeid(*ent)].insert({index, ent});
+	auto s = typeid(*ent).name();
 	ent->set_id(EntityCounter++);
 
 	DEBUG_PRINT("Added a new entity (ID %lu)", EntityCounter - 1);
@@ -21,6 +33,7 @@ void World::add_entity(Entity *ent)
 void World::add_component(Component *comp)
 {
 	component_map[typeid(*comp)].insert({component_map[typeid(*comp)].size(), comp});
+	auto s = typeid(*comp).name();
 
 	DEBUG_PRINT("Added a new component (%s)", typeid(*comp).name());
 }
@@ -52,14 +65,14 @@ void World::add_system(System *sys)
 	DEBUG_PRINT("Added a new system (%s)", typeid(*sys).name());
 }
 
-void World::add_resource(std::type_index type, Resource *r)
+void World::add_resource(Resource *r)
 {
-	resource_map[type] = r;
+	resource_map[typeid(*r)] = r;
 
 	DEBUG_PRINT("Added a new system (%s)", typeid(*sys).name());
 }
 
-void World::destroy_entity(Entity *ent, bool destroy_components, bool remove_from_list)
+void World::destroy_entity(Entity *ent, bool destroy_components, bool remove)
 {
 	DEBUG_PRINT("Destroying entity ID %lu", ent->get_id());
 
@@ -69,8 +82,8 @@ void World::destroy_entity(Entity *ent, bool destroy_components, bool remove_fro
 			destroy_component(pair.second);
 	}
 
-	if (remove_from_list)
-		entity_list.erase(std::remove(entity_list.begin(), entity_list.end(), ent));
+	if (remove)
+		entity_map.erase(typeid(*ent));
 
 	delete ent;
 }
@@ -186,6 +199,13 @@ void World::cleanup()
 			destroy_component(comp, false);
 	}
 
-	for (Entity *ent : entity_list)
-		destroy_entity(ent, false, false);
+	// for (Entity *ent : entity_map)
+	// 	destroy_entity(ent, false, false);
+	for (auto &[key, val] : entity_map)
+	{
+		for (auto &[_, ent] : val)
+		{
+			destroy_entity(ent, false, false);
+		}
+	}
 }

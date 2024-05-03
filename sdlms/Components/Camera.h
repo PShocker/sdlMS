@@ -2,13 +2,24 @@
 #include "Component.h"
 #include <SDL2/SDL.h>
 
-// 表示左右运动的属性
+//
 class Camera : public Component
 {
 public:
     Camera(float x, float y, float w, float h);
-    constexpr auto get_rect() { return rect; }
+    constexpr auto get_x() { return x; }
+    constexpr auto get_y() { return y; }
+    constexpr auto get_w() { return w; }
+    constexpr auto get_h() { return h; }
+
+    void set_x(const int val) { x = val; }
+    void set_y(const int val) { y = val; }
+    void set_w(const int val) { w = val; }
+    void set_h(const int val) { h = val; }
 
 private:
-    SDL_FRect rect;
+    float x;
+    float y;
+    float w;
+    float h;
 };

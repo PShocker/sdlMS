@@ -2,6 +2,8 @@
 #include "Entities/Tile.h"
 #include "Entities/Obj.h"
 #include "Entities/BackGround.h"
+#include "Entities/FootHold.h"
+#include "Entities/Npc.h"
 #include "Resource/Wz.h"
 
 Map::Map(World *world)
@@ -16,6 +18,10 @@ void Map::load_map(int mapId)
     load_tile(node);
     load_obj(node);
     load_background(node);
+    load_foothold(node);
+    load_life(node);
+    // load_string(mapId);
+    
 }
 
 void Map::load_obj(wz::Node *node)
@@ -28,7 +34,7 @@ void Map::load_obj(wz::Node *node)
         for (auto it : node->get_child(u"obj")->get_children())
         {
             Obj *obj = new Obj(it.second[0], std::stoi(std::string{it.first.begin(), it.first.end()}), i, world);
-            world->add_entity(obj);
+            // world->add_entity(obj);
         }
     }
 }
@@ -44,7 +50,7 @@ void Map::load_tile(wz::Node *node)
             for (auto it : node->get_child(std::to_string(i))->get_child(u"tile")->get_children())
             {
                 Tile *tile = new Tile(it.second[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, world);
-                world->add_entity(tile);
+                // world->add_entity(tile);
             }
         }
     }
@@ -58,6 +64,56 @@ void Map::load_background(wz::Node *node)
         for (auto it : node->get_children())
         {
             BackGround *bac = new BackGround(it.second[0], std::stoi(std::string{it.first.begin(), it.first.end()}), world);
+        }
+    }
+}
+
+void Map::load_string(int mapId)
+{
+    auto node = world->get_resource<Wz>().String->get_root()->find_from_path("Map.img");
+    for (auto &[key, val] : node->get_children())
+    {
+        if (val[0]->get_child(std::to_string(mapId)) != nullptr)
+        {
+
+            printf("");
+        }
+    }
+}
+
+void Map::load_foothold(wz::Node *node)
+{
+    node = node->get_child(u"foothold");
+    if (node != nullptr)
+    {
+        for (auto it : node->get_children())
+        {
+            auto page = std::stoi(std::string{it.first.begin(), it.first.end()});
+            for (auto _it : it.second[0]->get_children())
+            {
+                auto zmass = std::stoi(std::string{_it.first.begin(), _it.first.end()});
+                for (auto __it : _it.second[0]->get_children())
+                {
+                    FootHold *f = new FootHold(__it.second[0], std::stoi(std::string{__it.first.begin(), __it.first.end()}), page, zmass, world);
+                }
+            }
+        }
+    }
+}
+
+void Map::load_life(wz::Node *node)
+{
+    node = node->get_child(u"life");
+    if (node != nullptr)
+    {
+        for (auto it : node->get_children())
+        {
+            auto type = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"type"))->get();
+
+            if (type == u"n")
+            {
+                auto npc = new Npc(it.second[0], world);
+            }
         }
     }
 }

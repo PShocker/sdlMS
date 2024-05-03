@@ -1,31 +1,35 @@
 #include "Npc.h"
+#include "FootHold.h"
+
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
+#include "Components/AnimatedSprite.h"
 #include "Resource/Wz.h"
 
-Npc::Npc(wz::Node *node, std::u16string ts, int layer, World *world)
+Npc::Npc(wz::Node *node, World *world)
 {
     if (node != nullptr)
     {
-        // auto id_pos = npc_id.find_first_not_of(u'0');
-        // // 去掉npc_id中前缀的0
-        // npc_id = npc_id.substr(id_pos);
-        // auto npc_info = util::StringUtil::current()->load_npc_info(npc_id);
-        // auto name = npc_info[u"name"];
-        // auto func = npc_info[u"func"];
-        // auto eventsprite = EventSprite::load_event_sprite(Npc::EventMap, npc_node, x, y);
+        auto npc_id = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"id"))->get();
+        auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
+        auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"cy"))->get();
+        auto fh = dynamic_cast<wz::Property<int> *>(node->get_child(u"fh"))->get();
+        // 从fh获取layer
+        auto layer = world->get_entitys<FootHold>().find(fh)->second->get_page();
+        auto xm = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
 
-        // auto npc = Npc(eventsprite, npc_id, fh);
-        // npc._name = util::FreeTypeUtil::current()->load_npc_str(name, 14);
-        // npc._func = util::FreeTypeUtil::current()->load_npc_str(func, 14);
-
-        // npc._name._rect.x = x - npc._name._rect.w / 2;
-        // npc._name._rect.y = y + 4;
-
-        // npc._func._rect.x = x - npc._func._rect.w / 2;
-        // npc._func._rect.y = y + 20;
-        // auto ballon = util::WzUtil::current()->UI->get_root()->find_from_path(u"ChatBalloon.img/0");
-        // npc.frame = Frame(ballon);
-        // _npc[layer].push_back(npc);
+        node = world->get_resource<Wz>().Npc->get_root()->find_from_path(npc_id + u".img");
+        for (auto &[name, val] : node->get_children())
+        {
+            if (name != u"info")
+            {
+                auto aspr = AnimatedSprite::load_animated_sprite(val[0]);
+                Transform *t = new Transform{(float)x, (float)y};
+                add_component(t);
+                add_component(aspr);
+                world->add_component(t, 30000 * layer + 3000);
+                world->add_unique_component(aspr);
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@
 #include "Components/AnimatedSprite.h"
 #include "Components/Transform.h"
 #include "Components/HVTile.h"
+#include "Components/Avatar.h"
 
 class RenderSystem : public System
 {
@@ -14,4 +15,5 @@ private:
 	void render_sprite(Transform *tr, Sprite *spr, World &world);
 	void render_animated_sprite(Transform *tr, AnimatedSprite *aspr, World &world);
 	void render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world);
+	void render_avatar_sprite(Transform *tr, Avatar *ava, World &world);
 };

@@ -63,7 +63,14 @@ Sprite::Sprite(wz::Node *node)
         a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
     }
 
-    z = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"z"))->get();
+    z = 0;
+    if (canvas->get_child(u"z") != nullptr)
+    {
+        if (canvas->get_child(u"z")->type == wz::Type::Int)
+        {
+            z = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"z"))->get();
+        }
+    }
 
     auto url = node->path;
     // 图片原始数据,部分格式需要转换

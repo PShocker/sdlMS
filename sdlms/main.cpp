@@ -1,28 +1,33 @@
 #include <SDL2/SDL.h>
 #include <stdio.h>
 #include "Core/World.h"
-#include "Entities/Tile.h"
 #include "Systems/RenderSystem.h"
 #include "Systems/SoundSystem.h"
 #include "Systems/UpdateSystem.h"
+#include "Systems/CameraSystem.h"
+#include "Systems/PhysicSystem.h"
+#include "Systems/PlayerSystem.h"
 #include "Components/Sound.h"
 #include "Components/Camera.h"
+#include "Components/Player.h"
+#include "Components/Physic/Normal.h"
+#include "Entities/Character.h"
 #include "Core/Map.h"
 #include "Resource/Wz.h"
+
+int width = 1480;
+int height = 800;
 
 int main(int argc, char *argv[])
 {
     World world;
     Wz *wz = new Wz("./Data/"); // wz文件路径
-    world.add_resource(typeid(Wz), wz);
+    world.add_resource(wz);
 
-    Window::create_window("sdlMS", 1280, 800);
+    Window::create_window("sdlMS", width, height);
 
     Map *map = new Map(&world);
     map->load_map(100000000);
-
-    Camera *camera = new Camera(0, 0, 1280, 800);
-    world.add_component(camera, 0);
 
     UpdateSystem upd{};
     world.add_system(&upd);
@@ -32,6 +37,29 @@ int main(int argc, char *argv[])
 
     SoundSystem sous{};
     world.add_system(&sous);
+
+    CameraSystem cams{};
+    world.add_system(&cams);
+
+    PhysicSystem phys{};
+    world.add_system(&phys);
+
+    PlayerSystem plas{};
+    world.add_system(&plas);
+
+    Character *cha = new Character(&world);
+    Transform *t = new Transform{(float)100, (float)100};
+    Camera *camera = new Camera(0, 0, width, height);
+    Normal *nor = new Normal();
+    Player *pla = new Player();
+    cha->add_component(t);
+    cha->add_component(camera);
+    cha->add_component(nor);
+    cha->add_component(pla);
+    world.add_component(t, 3000000);
+    world.add_component(camera, 0);
+    world.add_component(nor);
+    world.add_component(pla);
 
     while (!world.is_game_quit())
     {
