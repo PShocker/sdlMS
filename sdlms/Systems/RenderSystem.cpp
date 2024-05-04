@@ -252,5 +252,13 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 		set_tran(t, spr);
 		render_sprite(tran, spr, world);
 	}
+	{
+		auto [t, spr] = ava->lHand[act][act_index];
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
+	}
 	delete tran;
 }

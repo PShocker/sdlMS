@@ -274,6 +274,34 @@ void Avatar::add_hand()
 
 void Avatar::add_lHand()
 {
+    auto body_node = chara_node->find_from_path(u"00002000.img");
+
+    for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+    {
+        for (uint8_t no = 0; no < body_positions[i].size(); no++)
+        {
+            auto no_str = std::to_string(no);
+            auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
+            if (body_node->find_from_path(type + u"/lHand") != nullptr)
+            {
+                auto _lHand = body_node->find_from_path(type + u"/lHand");
+                if (_lHand->find_from_path(u"map/handMove") != nullptr)
+                {
+                    auto lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/handMove"))->get();
+                    Sprite *sprite = Sprite::load_sprite(_lHand);
+                    Transform *f = new Transform(hand_positions[i][no] - SDL_FPoint{(float)lHand_pos.x, (float)lHand_pos.y});
+                    lHand[i][no] = {f, sprite};
+                }
+                else
+                {
+                    auto lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/navel"))->get();
+                    Sprite *sprite = Sprite::load_sprite(_lHand);
+                    Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)lHand_pos.x, (float)lHand_pos.y});
+                    lHand[i][no] = {f, sprite};
+                }
+            }
+        }
+    }
 }
 
 void Avatar::add_rHand()
