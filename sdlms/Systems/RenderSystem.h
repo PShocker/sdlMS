@@ -4,6 +4,7 @@
 #include "Components/AnimatedSprite.h"
 #include "Components/Transform.h"
 #include "Components/HVTile.h"
+#include "Components/HVMove.h"
 #include "Components/Avatar.h"
 
 class RenderSystem : public System

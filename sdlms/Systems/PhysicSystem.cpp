@@ -16,12 +16,28 @@ void PhysicSystem::run(World &world)
 void PhysicSystem::update_nor(Normal *nor, World &world)
 {
 	auto tr = nor->get_owner_component<Transform>();
-	auto delta_time = world.delta_time() / 1000.0;
+	float delta_time = world.delta_time() / 1000.0;
+	auto friction = 800;
 	// 计算出不同状态的速度
 	switch (nor->type)
 	{
 	case Normal::GROUND:
+		// 地面移动判断
+		//  摩擦力
+		if (nor->hspeed > 0)
+		{
+			nor->hforce -= friction;
+			nor->hforce = std::max(-nor->hspeed / delta_time, nor->hforce);
+		}
+		else if (nor->hspeed < 0)
+		{
+			nor->hforce += friction;
+			nor->hforce = std::min(-nor->hspeed / delta_time, nor->hforce);
+		}
+		
 		nor->hspeed += delta_time * nor->hforce;
+		nor->hspeed = std::clamp(nor->hspeed, -125.0f, 125.0f);
+
 		break;
 	case Normal::AIR:
 		// 默认重力为2000
@@ -50,7 +66,7 @@ void PhysicSystem::update_nor(Normal *nor, World &world)
 								pos.x == std::clamp(pos.x, x1, x2);
 
 			// 判断y碰撞
-			bool is_collide_y = tr->get_position().y < std::min(y1, y2) && pos.y > std::max(y1, y2);
+			bool is_collide_y = tr->get_position().y <= std::min(y1, y2) && pos.y >= std::max(y1, y2);
 
 			if (is_collide_x && is_collide_y)
 			{

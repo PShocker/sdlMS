@@ -20,7 +20,6 @@ void Window::create_window(const char *title, unsigned int width, unsigned int h
 		ECS_PRINT_ERROR("Failed to create SDL window (%s)", SDL_GetError());
 		std::abort();
 	}
-
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
 	window_title = title;

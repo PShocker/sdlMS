@@ -70,39 +70,70 @@ void RenderSystem::render_animated_sprite(Transform *tr, AnimatedSprite *aspr, W
 
 void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world)
 {
-	auto spr_w = 0;
-	auto spr_h = 0;
-	if (tr->get_owner_component<Sprite>() != nullptr)
-	{
-		spr_w = tr->get_owner_component<Sprite>()->get_width();
-		spr_h = tr->get_owner_component<Sprite>()->get_height();
-	}
-	else
-	{
-		spr_w = tr->get_owner_component<AnimatedSprite>()->get_anim_width();
-		spr_h = tr->get_owner_component<AnimatedSprite>()->get_anim_height();
-	}
-
-	SDL_FPoint point = tr->get_position();
 	auto viewprot_x = world.get_components<Camera>().find(0)->second->get_x();
 	auto viewprot_y = world.get_components<Camera>().find(0)->second->get_y();
 	auto viewprot_w = world.get_components<Camera>().find(0)->second->get_w();
 	auto viewprot_h = world.get_components<Camera>().find(0)->second->get_h();
 
-	point.x += viewprot_x + viewprot_w / 2;
-	point.y += viewprot_y + viewprot_h / 2;
+	auto spr_w = 0;
+	auto spr_h = 0;
 
-	int cx = 0;
-	int cy = 0;
+	float spr_ox = 0;
+	float spr_oy = 0;
+	if (tr->get_owner_component<Sprite>() != nullptr)
+	{
+		spr_w = tr->get_owner_component<Sprite>()->get_width();
+		spr_h = tr->get_owner_component<Sprite>()->get_height();
+		spr_ox = tr->get_owner_component<Sprite>()->get_origin().x;
+		spr_oy = tr->get_owner_component<Sprite>()->get_origin().y;
+	}
+	else
+	{
+		spr_w = tr->get_owner_component<AnimatedSprite>()->get_anim_width();
+		spr_h = tr->get_owner_component<AnimatedSprite>()->get_anim_height();
+		spr_ox = tr->get_owner_component<AnimatedSprite>()->get_current_sprite()->get_origin().x;
+		spr_oy = tr->get_owner_component<AnimatedSprite>()->get_current_sprite()->get_origin().y;
+	}
+	auto hvm = tr->get_owner_component<HVMove>();
+
+	int rx = hvm->get_rx();
+	int ry = hvm->get_ry();
+
+	int cx = hvt->get_cx();
+	int cy = hvt->get_cy();
+	if (cx == 0)
+	{
+		cx = spr_w;
+	}
+	if (cy == 0)
+	{
+		cy = spr_h;
+	}
+	if (hvm->get_hspeed())
+	{
+		hvm->offset_x = fmodf(hvm->offset_x + rx * 5 * world.delta_time() / 1000.0, cx);
+	}
+	else
+	{
+		hvm->offset_x = (viewprot_x + viewprot_w / 2) * (rx + 100) / 100.0;
+	}
+	if (hvm->get_vspeed())
+	{
+		hvm->offset_y = fmodf(hvm->offset_y + ry * 5 * world.delta_time() / 1000.0, cy);
+	}
+	else
+	{
+		hvm->offset_y = (viewprot_y + viewprot_h / 2) * (ry + 100) / 100.0;
+	}
+
+	SDL_FPoint point = tr->get_position() - SDL_FPoint{spr_ox, spr_oy};
+
+	point.x += hvm->offset_x;
+	point.y += hvm->offset_y;
 
 	auto tile_cnt_x = 1;
-	if (hvt->get_cx().has_value())
+	if (hvt->htile && cx > 0)
 	{
-		cx = hvt->get_cx().value();
-		if (cx == 0)
-		{
-			cx = spr_w;
-		}
 		auto tile_start_right = int(point.x + spr_w - viewprot_x) % cx;
 		if (tile_start_right <= 0)
 		{
@@ -123,13 +154,8 @@ void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world
 	}
 
 	auto tile_cnt_y = 1;
-	if (hvt->get_cy().has_value())
+	if (hvt->vtile && cy > 0)
 	{
-		cy = hvt->get_cy().value();
-		if (cy == 0)
-		{
-			cy = spr_h;
-		}
 		auto tile_start_bottom = int(point.y + spr_h - viewprot_y) % cy;
 		if (tile_start_bottom <= 0)
 		{
@@ -153,7 +179,7 @@ void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world
 	{
 		for (int j = 0; j < tile_cnt_x; j++)
 		{
-			Transform *t = new Transform{(float)point.x + j * cx, (float)point.y + i * cy};
+			Transform *t = new Transform{(float)point.x + j * cx + spr_ox, (float)point.y + i * cy + spr_oy};
 			if (tr->get_owner_component<Sprite>() != nullptr)
 			{
 				render_sprite(t, tr->get_owner_component<Sprite>(), world);
@@ -209,7 +235,6 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 		render_sprite(tran, spr, world);
 	}
 	{
-		// tran->set_position(chara_pos + SDL_FPoint{t->get_position().x + spr->get_width(), t->get_position().y});
 		auto [t, spr] = ava->face[act][act_index];
 		set_tran(t, spr);
 		render_sprite(tran, spr, world);

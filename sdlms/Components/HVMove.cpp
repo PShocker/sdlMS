@@ -1,5 +1,5 @@
 #include "HVMove.h"
 
-HVMove::HVMove(int rx, int ry) : rx(rx), ry(ry)
+HVMove::HVMove(int rx, int ry, bool hspeed, bool vspeed) : rx(rx), ry(ry), hspeed(hspeed), vspeed(vspeed)
 {
 }
