@@ -12,6 +12,8 @@ Character::Character(World *world)
     ava->add_pants(u"01060002");
     ava->add_face(u"00020000");
     ava->add_hairs(u"00030000");
+    ava->add_lHand();
+    ava->add_rHand();
 
     add_component(ava);
     world->add_component(ava);
