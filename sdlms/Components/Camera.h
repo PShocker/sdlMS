@@ -12,10 +12,10 @@ public:
     constexpr auto get_w() { return w; }
     constexpr auto get_h() { return h; }
 
-    void set_x(const int val) { x = val; }
-    void set_y(const int val) { y = val; }
-    void set_w(const int val) { w = val; }
-    void set_h(const int val) { h = val; }
+    void set_x(const float val) { x = val; }
+    void set_y(const float val) { y = val; }
+    void set_w(const float val) { w = val; }
+    void set_h(const float val) { h = val; }
 
 private:
     float x;

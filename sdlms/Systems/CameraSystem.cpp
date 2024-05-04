@@ -12,6 +12,6 @@ void CameraSystem::run(World &world)
 
 void CameraSystem::update_camera(Camera *cam, Transform *tr, World &world)
 {
-	cam->set_x(tr->get_position().x-cam->get_w()/2);
-	cam->set_y(tr->get_position().y-cam->get_h()/2);
+	cam->set_x(tr->get_position().x - cam->get_w() / 2);
+	cam->set_y(tr->get_position().y - cam->get_h() / 2);
 }

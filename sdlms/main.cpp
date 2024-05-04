@@ -15,8 +15,8 @@
 #include "Core/Map.h"
 #include "Resource/Wz.h"
 
-int width = 1480;
-int height = 800;
+int width = 1466;
+int height = 728;
 
 int main(int argc, char *argv[])
 {
@@ -32,23 +32,23 @@ int main(int argc, char *argv[])
     UpdateSystem upd{};
     world.add_system(&upd);
 
-    RenderSystem rsys{};
-    world.add_system(&rsys);
-
     SoundSystem sous{};
     world.add_system(&sous);
 
     CameraSystem cams{};
     world.add_system(&cams);
 
-    PhysicSystem phys{};
-    world.add_system(&phys);
-
     PlayerSystem plas{};
     world.add_system(&plas);
 
+    PhysicSystem phys{};
+    world.add_system(&phys);
+
+    RenderSystem rsys{};
+    world.add_system(&rsys);
+
     Character *cha = new Character(&world);
-    Transform *t = new Transform{(float)100, (float)100};
+    Transform *t = new Transform{(float)0, (float)0};
     Camera *camera = new Camera(0, 0, width, height);
     Normal *nor = new Normal();
     Player *pla = new Player();
