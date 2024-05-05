@@ -52,6 +52,7 @@ public:
 	World();
 	~World();
 
+	void add_entity(Entity *ent);
 	void add_entity(Entity *ent, int index);
 
 	void add_component(Component *comp);

@@ -21,7 +21,6 @@ void Map::load_map(int mapId)
     load_foothold(node);
     load_life(node);
     // load_string(mapId);
-    
 }
 
 void Map::load_obj(wz::Node *node)
@@ -113,6 +112,7 @@ void Map::load_life(wz::Node *node)
             if (type == u"n")
             {
                 auto npc = new Npc(it.second[0], world);
+                world->add_entity(npc);
             }
         }
     }

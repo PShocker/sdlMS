@@ -34,7 +34,7 @@ void PhysicSystem::update_nor(Normal *nor, World &world)
 			nor->hforce += friction;
 			nor->hforce = std::min(-nor->hspeed / delta_time, nor->hforce);
 		}
-		
+
 		nor->hspeed += delta_time * nor->hforce;
 		nor->hspeed = std::clamp(nor->hspeed, -125.0f, 125.0f);
 
@@ -58,19 +58,11 @@ void PhysicSystem::update_nor(Normal *nor, World &world)
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
 			auto ri = fh->get_component<RigidLine>();
-			auto [x1, y1] = ri->get_m();
-			auto [x2, y2] = ri->get_n();
+			auto collide = intersect(tr->get_position(), pos, ri->get_m(), ri->get_n());
 
-			// 判断x碰撞
-			bool is_collide_x = tr->get_position().x == std::clamp(tr->get_position().x, x1, x2) &&
-								pos.x == std::clamp(pos.x, x1, x2);
-
-			// 判断y碰撞
-			bool is_collide_y = tr->get_position().y <= std::min(y1, y2) && pos.y >= std::max(y1, y2);
-
-			if (is_collide_x && is_collide_y)
+			if (collide.has_value())
 			{
-				pos.y = ri->get_y(pos.x).value();
+				pos = collide.value();
 				nor->vspeed = 0;
 				nor->type = Normal::GROUND;
 				break;
@@ -78,4 +70,32 @@ void PhysicSystem::update_nor(Normal *nor, World &world)
 		}
 	}
 	tr->set_position(pos);
+}
+
+std::optional<SDL_FPoint> PhysicSystem::intersect(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3, SDL_FPoint p4)
+{
+	std::optional<SDL_FPoint> p;
+	// 快速排斥实验
+	if ((p1.x > p2.x ? p1.x : p2.x) < (p3.x < p4.x ? p3.x : p4.x) ||
+		(p1.y > p2.y ? p1.y : p2.y) < (p3.y < p4.y ? p3.y : p4.y) ||
+		(p3.x > p4.x ? p3.x : p4.x) < (p1.x < p2.x ? p1.x : p2.x) ||
+		(p3.y > p4.y ? p3.y : p4.y) < (p1.y < p2.y ? p1.y : p2.y))
+	{
+		return p;
+	}
+	// 跨立实验
+	if ((((p1.x - p3.x) * (p4.y - p3.y) - (p1.y - p3.y) * (p4.x - p3.x)) *
+		 ((p2.x - p3.x) * (p4.y - p3.y) - (p2.y - p3.y) * (p4.x - p3.x))) > 0 ||
+		(((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x)) *
+		 ((p4.x - p1.x) * (p2.y - p1.y) - (p4.y - p1.y) * (p2.x - p1.x))) > 0)
+	{
+		return p;
+	}
+
+	auto x = ((p1.y - p3.y) * (p2.x - p1.x) * (p4.x - p3.x) + p3.x * (p4.y - p3.y) * (p2.x - p1.x) - p1.x * (p2.y - p1.y) * (p4.x - p3.x)) / ((p4.x - p3.x) * (p1.y - p2.y) - (p2.x - p1.x) * (p3.y - p4.y));
+	auto y = (p2.y * (p1.x - p2.x) * (p4.y - p3.y) + (p4.x - p2.x) * (p4.y - p3.y) * (p1.y - p2.y) - p4.y * (p3.x - p4.x) * (p2.y - p1.y)) / ((p1.x - p2.x) * (p4.y - p3.y) - (p2.y - p1.y) * (p3.x - p4.x));
+
+	p = {x, y};
+
+	return p;
 }
