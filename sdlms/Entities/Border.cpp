@@ -1,4 +1,6 @@
 #include "Border.h"
+#include "FootHold.h"
+#include "Components/RigidLine.h"
 
 Border::Border(wz::Node *node, World *world)
 {
@@ -14,28 +16,21 @@ Border::Border(wz::Node *node, World *world)
     else
     {
         // 从fh计算出来
-        node = node->get_child(u"foothold");
-        if (node != nullptr)
+        for (auto &[id, fh] : world->get_entitys<FootHold>())
         {
-            int Left, Right, Top, Bottom;
-            for (auto it : node->get_children())
-            {
-                for (auto _it : it.second[0]->get_children())
-                {
-                    for (auto __it : _it.second[0]->get_children())
-                    {
-                        auto foothold = __it.second[0];
-                        auto x1 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"x1"))->get();
-                        auto x2 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"x2"))->get();
-                        auto y1 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"y1"))->get();
-                        auto y2 = dynamic_cast<wz::Property<int> *>(foothold->get_child(u"y2"))->get();
-                        left = std::min({left, x1, x2}) + 25;
-                        right = std::max({right, x1, x2}) - 25;
-                        top = std::min({top, y1, y2}) - 300;
-                        bottom = std::max({bottom, y1, y2}) + 100;
-                    }
-                }
-            }
+            auto ri = fh->get_component<RigidLine>();
+            auto x1 = ri->get_m().x;
+            auto y1 = ri->get_m().y;
+            auto x2 = ri->get_n().x;
+            auto y2 = ri->get_n().y;
+            left = std::min({left, x1, x2});
+            right = std::max({right, x1, x2});
+            top = std::min({top, y1, y2});
+            bottom = std::max({bottom, y1, y2});
         }
+        left += 25;
+        right -= 25;
+        top -= 300;
+        bottom += 100;
     }
 }
