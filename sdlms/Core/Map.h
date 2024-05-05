@@ -15,7 +15,9 @@ public:
     void load_string(int mapId);
     void load_foothold(wz::Node *node);
     void load_life(wz::Node *node);
+    void load_border(wz::Node *node);
     void load_bgm(wz::Node *node);
+    
 
 private:
     wz::Node *load_map_node(int mapId);

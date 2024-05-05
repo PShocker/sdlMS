@@ -21,6 +21,7 @@ void Map::load_map(int mapId)
     load_background(node);
     load_foothold(node);
     load_life(node);
+    load_border(node);
     // load_string(mapId);
 }
 
@@ -117,6 +118,12 @@ void Map::load_life(wz::Node *node)
             }
         }
     }
+}
+
+void Map::load_border(wz::Node *node)
+{
+    auto border = new Border(node, world);
+    world->add_entity(border);
 }
 
 void Map::load_bgm(wz::Node *node)

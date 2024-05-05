@@ -6,6 +6,11 @@ class Border : public Entity
 {
 public:
     Border(wz::Node *node, World *world);
+    constexpr auto get_left() { return left; }
+    constexpr auto get_right() { return right; }
+    constexpr auto get_top() { return top; }
+    constexpr auto get_bottom() { return bottom; }
+
 
 private:
     float left = 0;
