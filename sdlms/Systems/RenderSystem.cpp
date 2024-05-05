@@ -33,11 +33,20 @@ void RenderSystem::run(World &world)
 	{
 		for (auto &[index, npc] : world.get_entitys<Npc>())
 		{
-			if (npc->name != nullptr)
+			if (npc->get_name() != nullptr)
 			{
 				Transform *t = new Transform(npc->get_component<Transform>()->get_position());
-				t->set_position(t->get_position() - SDL_FPoint{(float)npc->name->get_width() / 2, 0});
-				render_sprite(t, npc->name, world);
+				t->set_position(t->get_position() + SDL_FPoint{-(float)npc->get_name()->get_width() / 2, 4});
+				render_mask(t, npc->get_name(), world, 2, 2);
+				render_sprite(t, npc->get_name(), world);
+				delete t;
+			}
+			if (npc->get_func() != nullptr)
+			{
+				Transform *t = new Transform(npc->get_component<Transform>()->get_position());
+				t->set_position(t->get_position() + SDL_FPoint{-(float)npc->get_func()->get_width() / 2, 20});
+				render_mask(t, npc->get_func(), world, 2, 2);
+				render_sprite(t, npc->get_func(), world);
 				delete t;
 			}
 		}
@@ -275,4 +284,30 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 		}
 	}
 	delete tran;
+}
+
+void RenderSystem::render_mask(Transform *tr, Sprite *spr, World &world, float pad_x, float pad_y)
+{
+	if (tr)
+	{
+		auto renderer = Window::get_renderer();
+		auto camera = world.get_components<Camera>().find(0)->second;
+
+		auto x = tr->get_position().x;
+		auto y = tr->get_position().y;
+		if (tr->get_camera())
+		{
+			SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 178);
+			SDL_FRect rect = {x - pad_x, y - pad_y, (float)spr->get_width() + 2 * pad_x, (float)spr->get_height() + 2 * pad_y};
+			SDL_RenderFillRectF(renderer, &rect); // 绘制带透明度的矩形
+		}
+		else
+		{
+			SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+			SDL_SetRenderDrawColor(renderer, 0, 0, 0, 178);
+			SDL_FRect rect = {x - camera->get_x() - pad_x, y - camera->get_y() - pad_y, (float)spr->get_width() + 2 * pad_x, (float)spr->get_height() + 2 * pad_y};
+			SDL_RenderFillRectF(renderer, &rect); // 绘制带透明度的矩形
+		}
+	}
 }
