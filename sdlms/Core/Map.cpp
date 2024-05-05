@@ -4,6 +4,7 @@
 #include "Entities/BackGround.h"
 #include "Entities/FootHold.h"
 #include "Entities/Npc.h"
+#include "Entities/Border.h"
 #include "Resource/Wz.h"
 
 Map::Map(World *world)

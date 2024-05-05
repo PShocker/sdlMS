@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     FreeType::init();
 
     Map *map = new Map(&world);
-    map->load_map(101000000);
+    map->load_map(103000000);
 
     SoundSystem sous{};
     world.add_system(&sous);

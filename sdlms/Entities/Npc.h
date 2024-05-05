@@ -9,8 +9,11 @@ class Npc : public Entity
 {
 public:
     Npc(wz::Node *node, World *world);
+    constexpr auto get_name() { return name; }
+    constexpr auto get_func() { return func; }
 
+private:
     std::unordered_map<std::u16string, std::u16string> str_map;
-    Sprite* name=nullptr;
-    Sprite* func=nullptr;
+    Sprite *name = nullptr;
+    Sprite *func = nullptr;
 };
