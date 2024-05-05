@@ -13,6 +13,7 @@
 #include "Components/Physic/Normal.h"
 #include "Entities/Character.h"
 #include "Core/Map.h"
+#include "Core/FreeType.h"
 #include "Resource/Wz.h"
 
 int width = 1466;
@@ -26,23 +27,25 @@ int main(int argc, char *argv[])
 
     Window::create_window("sdlMS", width, height);
 
-    Map *map = new Map(&world);
-    map->load_map(100000000);
+    FreeType::init();
 
-    UpdateSystem upd{};
-    world.add_system(&upd);
+    Map *map = new Map(&world);
+    map->load_map(101000000);
 
     SoundSystem sous{};
     world.add_system(&sous);
-
-    CameraSystem cams{};
-    world.add_system(&cams);
 
     PlayerSystem plas{};
     world.add_system(&plas);
 
     PhysicSystem phys{};
     world.add_system(&phys);
+
+    CameraSystem cams{};
+    world.add_system(&cams);
+
+    UpdateSystem upd{};
+    world.add_system(&upd);
 
     RenderSystem rsys{};
     world.add_system(&rsys);

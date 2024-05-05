@@ -28,6 +28,22 @@ bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
 		aspr->advance_anim();
 		aspr->set_anim_time(0);
 	}
+	// 透明度处理
+	auto a0 = aspr->get_current_sprite()->a0;
+	auto a1 = aspr->get_current_sprite()->a1;
+	if (a0 != a1)
+	{
+		auto alpha = 255;
+		if (a0 <= a1)
+		{
+			alpha = (float)a0 + (float)(a1 - a0) / (float)aspr->get_current_sprite()->delay * (float)aspr->get_anim_time();
+		}
+		else
+		{
+			alpha = (float)a0 - (float)(a0 - a1) / (float)aspr->get_current_sprite()->delay * (float)aspr->get_anim_time();
+		}
+		SDL_SetTextureAlphaMod(aspr->get_current_sprite()->texture, alpha);
+	}
 	return true;
 }
 

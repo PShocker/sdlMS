@@ -3,6 +3,7 @@
 #include "Core/World.h"
 #include "Core/ECSSystem.h"
 #include "Components/Camera.h"
+#include "Entities/Npc.h"
 
 void RenderSystem::run(World &world)
 {
@@ -25,6 +26,19 @@ void RenderSystem::run(World &world)
 			else
 			{
 				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
+			}
+		}
+	}
+	if (world.entity_exist_of_type<Npc>())
+	{
+		for (auto &[index, npc] : world.get_entitys<Npc>())
+		{
+			if (npc->name != nullptr)
+			{
+				Transform *t = new Transform(npc->get_component<Transform>()->get_position());
+				t->set_position(t->get_position() - SDL_FPoint{(float)npc->name->get_width() / 2, 0});
+				render_sprite(t, npc->name, world);
+				delete t;
 			}
 		}
 	}

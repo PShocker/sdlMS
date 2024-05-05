@@ -138,6 +138,6 @@ Sprite::Sprite(wz::Node *node)
     sprite_map[node] = this;
 }
 
-Sprite::Sprite(SDL_Texture *texture) : texture(texture)
+Sprite::Sprite(SDL_Texture *texture, int width, int height) : texture(texture), width(width), height(height)
 {
 }

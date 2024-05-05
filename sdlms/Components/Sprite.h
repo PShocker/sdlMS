@@ -10,12 +10,12 @@
 class Sprite : public Component
 {
 public:
+    Sprite(SDL_Texture *texture, int width, int height);
     static Sprite *load_sprite(wz::Node *node);
     static inline std::map<wz::Node *, Sprite *> sprite_map;
 
 private:
     Sprite(wz::Node *node);
-    Sprite(SDL_Texture *texture);
     Sprite(){};
 
 public:
@@ -29,10 +29,10 @@ public:
     int width;
     int height;
 
-    int delay;
-    int a0;
-    int a1;
-    SDL_Point origin;
+    int delay = 0;
+    int a0 = 255;
+    int a1 = 255;
+    SDL_Point origin = {0, 0};
 
     int z;
 };

@@ -12,8 +12,8 @@ private:
 
 public:
 	Transform();
-	Transform(SDL_FPoint p, bool camera = false);
-	Transform(float x, float y, bool camera = false);
+	Transform(SDL_FPoint p, int flip = 0, bool camera = false);
+	Transform(float x, float y, int flip = 0, bool camera = false);
 	~Transform();
 
 	SDL_FPoint get_position() const;

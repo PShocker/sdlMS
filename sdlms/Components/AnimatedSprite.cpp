@@ -57,7 +57,6 @@ void AnimatedSprite::advance_anim()
 {
     if (anim_index == anim_size - 1 && z)
     {
-
         std::ranges::reverse(sprites);
         anim_index = 1;
     }

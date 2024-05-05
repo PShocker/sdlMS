@@ -21,10 +21,17 @@ unsigned long World::EntityCounter = 0;
 World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time_{0}, quit{false} {}
 World::~World() {}
 
+void World::add_entity(Entity *ent)
+{
+	entity_map[typeid(*ent)].insert({entity_map[typeid(*ent)].size(), ent});
+	ent->set_id(EntityCounter++);
+
+	DEBUG_PRINT("Added a new entity (ID %lu)", EntityCounter - 1);
+}
+
 void World::add_entity(Entity *ent, int index)
 {
 	entity_map[typeid(*ent)].insert({index, ent});
-	auto s = typeid(*ent).name();
 	ent->set_id(EntityCounter++);
 
 	DEBUG_PRINT("Added a new entity (ID %lu)", EntityCounter - 1);

@@ -3,8 +3,8 @@
 
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
-#include "Components/AnimatedSprite.h"
 #include "Resource/Wz.h"
+#include "Core/FreeType.h"
 
 Npc::Npc(wz::Node *node, World *world)
 {
@@ -29,6 +29,23 @@ Npc::Npc(wz::Node *node, World *world)
                 add_component(aspr);
                 world->add_component(t, 30000 * layer + 3000);
                 world->add_unique_component(aspr);
+            }
+        }
+        // 从string.wz获取信息
+        node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Npc.img/" + npc_id.substr(npc_id.find_first_not_of(u'0')));
+        if (node != nullptr)
+        {
+            for (auto &[key, val] : node->get_children())
+            {
+                str_map[key] = dynamic_cast<wz::Property<wz::wzstring> *>(val[0])->get();
+            }
+            if (str_map.contains(u"name"))
+            {
+                name = FreeType::str(str_map[u"name"]);
+            }
+            if (str_map.contains(u"func"))
+            {
+                func = FreeType::str(str_map[u"func"]);
             }
         }
     }
