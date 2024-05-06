@@ -35,35 +35,17 @@ void PhysicSystem::update_nor(Normal *nor, World &world)
 		walk(tr, nor, world, delta_time);
 		break;
 	case Normal::Air:
+		// 首先判断是否爬梯子
+		if (want_climb(tr, nor, world))
+		{
+			return;
+		}
 		fall(tr, nor, delta_time, world);
 		break;
 	case Normal::Climb:
-		climb(tr, nor);
+		climb(tr, nor, delta_time);
 		break;
 	}
-
-	// auto d_x = nor->hspeed * delta_time;
-	// auto d_y = nor->vspeed * delta_time;
-
-	// auto new_pos = tr->get_position() + SDL_FPoint{(float)d_x, (float)d_y};
-
-	// if (nor->vspeed > 0)
-	// {
-	// 	for (auto &[id, fh] : world.get_entitys<FootHold>())
-	// 	{
-	// 		auto ri = fh->get_component<RigidLine>();
-	// 		auto collide = intersect(tr->get_position(), new_pos, ri->get_m(), ri->get_n());
-
-	// 		if (collide.has_value())
-	// 		{
-	// 			new_pos = collide.value();
-	// 			nor->vspeed = 0;
-	// 			nor->type = Normal::Ground;
-	// 			break;
-	// 		}
-	// 	}
-	// }
-	// tr->set_position(new_pos);
 }
 
 bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
@@ -77,16 +59,16 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 			auto cl = lr->get_component<CrawlLine>();
 
 			// 判断x坐标是否在梯子范围内
-			if (pos.x = std::clamp(pos.x,
-								   std::min(cl->get_m().x, cl->get_n().x) - 10,
-								   std::max(cl->get_m().x, cl->get_n().x) + 10))
+			if (pos.x == std::clamp(pos.x,
+									cl->get_min_x() - 5,
+									cl->get_max_x() + 5))
 			{
 				if (nor->want_climb == Normal::Up)
 				{
 					// 向上爬
 					if (pos.y == std::clamp(pos.y,
-											std::min(cl->get_m().y, cl->get_n().y),
-											std::max(cl->get_m().y, cl->get_n().y) + 5))
+											cl->get_min_y(),
+											cl->get_max_y() + 5))
 					{
 						// 垂直的线
 						lad = lr;
@@ -96,9 +78,10 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 				else if (nor->want_climb == Normal::Down && nor->type == Normal::Ground)
 				{
 					// 向下爬
-					if (std::min(cl->get_m().y, cl->get_n().y) - pos.x <= 5)
+					if (pos.y < cl->get_min_y() && pos.y >= cl->get_min_y() - 5)
 					{
 						lad = lr;
+						tr->set_y(cl->get_min_y());
 						break;
 					}
 				}
@@ -108,7 +91,8 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 		{
 			// 爬到了梯子上
 			auto cl = lad->get_component<CrawlLine>();
-			tr->set_position(SDL_FPoint{cl->get_m().x, cl->get_min_y()});
+
+			tr->set_x(cl->get_m().x);
 
 			if (nor->get_owner_component<Avatar>() != nullptr)
 			{
@@ -138,6 +122,13 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 
 void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_time)
 {
+
+	if (nor->get_owner_component<Avatar>() != nullptr)
+	{
+		auto ava = nor->get_owner_component<Avatar>();
+		ava->animate = true;
+	}
+
 	auto friction = 800;
 
 	if (nor->hspeed > 0)
@@ -163,19 +154,18 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	auto x = d_x + tr->get_position().x;
 	auto y = tr->get_position().y;
 
-	auto fh = tr->get_owner()->get_entity<FootHold>();
 	auto fhs = world.get_entitys<FootHold>();
-	auto rl = fh->get_component<RigidLine>();
+	auto foo = tr->get_owner()->get_entity<FootHold>();
+	auto rl = foo->get_component<RigidLine>();
 
 	// 切换fh
 	// 往左走
 	while (x < rl->get_min_x())
 	{
-		fh = tr->get_owner()->get_entity<FootHold>();
-		rl = fh->get_component<RigidLine>();
-		if (fhs.contains(fh->prev))
+		FootHold *fh = nullptr;
+		if (fhs.contains(foo->prev))
 		{
-			fh = fhs.find(fh->prev)->second;
+			fh = fhs.find(foo->prev)->second;
 		}
 		else
 		{
@@ -183,6 +173,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			nor->type = Normal::Air;
 			break;
 		}
+		rl = fh->get_component<RigidLine>();
 		if (!rl->line->get_k().has_value())
 		{
 			if (y > rl->get_min_y())
@@ -199,18 +190,16 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 				break;
 			}
 		}
-		tr->get_owner()->add_entity(fh);
+		foo = fh;
 	}
 
 	// 往右走
 	while (x > rl->get_max_x())
 	{
-		fh = tr->get_owner()->get_entity<FootHold>();
-		rl = fh->get_component<RigidLine>();
-
-		if (fhs.contains(fh->next))
+		FootHold *fh = nullptr;
+		if (fhs.contains(foo->next))
 		{
-			fh = fhs.find(fh->next)->second;
+			fh = fhs.find(foo->next)->second;
 		}
 		else
 		{
@@ -218,6 +207,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			nor->type = Normal::Air;
 			break;
 		}
+		rl = fh->get_component<RigidLine>();
 		if (!rl->line->get_k().has_value())
 		{
 			// 撞墙
@@ -235,8 +225,10 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 				break;
 			}
 		}
-		tr->get_owner()->add_entity(fh);
+		foo = fh;
 	}
+
+	nor->get_owner()->add_entity(foo);
 
 	if (rl->line->get_y(x).has_value())
 	{
@@ -251,6 +243,12 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 
 void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &world)
 {
+	if (nor->get_owner_component<Avatar>() != nullptr)
+	{
+		auto ava = nor->get_owner_component<Avatar>();
+		ava->animate = true;
+		ava->switch_act(Avatar::ACTION::JUMP);
+	}
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;
 	nor->vspeed = std::min(nor->vspeed, 670.0f);
@@ -280,21 +278,41 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	tr->set_position(new_pos);
 }
 
-void PhysicSystem::climb(Transform *tr, Normal *nor)
+void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 {
-	nor->hspeed = 0;
 	// 判断是否脱离梯子
-	auto cl = tr->get_owner_component<CrawlLine>();
-	if (tr->get_position().y < cl->get_min_y())
+	auto cl = nor->get_owner()->get_entity<LadderRope>()->get_component<CrawlLine>();
+
+	auto d_y = nor->vspeed * delta_time;
+	auto y = d_y + tr->get_position().y;
+	if (y < cl->get_min_y())
 	{
 		tr->set_y(cl->get_min_y() - 5);
 		nor->type = Normal::Air;
 		nor->vspeed = 0;
 	}
-	if (tr->get_position().y > cl->get_max_y())
+	else if (y > cl->get_max_y())
 	{
+		tr->set_y(cl->get_max_y());
 		nor->type = Normal::Air;
 		nor->vspeed = 0;
+	}
+	else
+	{
+		if (nor->get_owner_component<Avatar>() != nullptr)
+		{
+			auto ava = nor->get_owner_component<Avatar>();
+			if (nor->vspeed != 0)
+			{
+				ava->animate = true;
+			}
+			else
+			{
+				ava->animate = false;
+			}
+		}
+
+		tr->set_y(y);
 	}
 }
 
