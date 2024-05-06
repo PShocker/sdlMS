@@ -1,6 +1,7 @@
 #pragma once
 #include "../Component.h"
 
+// 正常物理状态,非水下,飞翔
 class Normal : public Component
 {
 public:
@@ -15,9 +16,17 @@ public:
     float vacc = 0.0;
     enum : uint8_t
     {
-        GROUND,
-        AIR,
-        CLIMB,
+        Ground,
+        Air,
+        Climb,
     };
-    uint8_t type = AIR;
+    uint8_t type = Air;
+
+    enum : uint8_t
+    {
+        None,
+        Up,
+        Down,
+    };
+    uint8_t want_climb = None; // 是否有爬梯子或绳子的倾向
 };

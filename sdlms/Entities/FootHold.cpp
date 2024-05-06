@@ -15,5 +15,4 @@ FootHold::FootHold(wz::Node *node, int id, int page, int zmass, World *world) : 
     RigidLine *r = new RigidLine{{(float)x1, (float)y1}, {(float)x2, (float)y2}};
     add_component(r);
     world->add_component(r, id);
-    world->add_entity(this, id);
 }

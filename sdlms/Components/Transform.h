@@ -24,4 +24,6 @@ public:
 	void set_position(const SDL_FPoint &value);
 	void set_rotation(const float &value);
 	void set_flip(const int value);
+	void set_x(const float value) { position.x = value; };
+	void set_y(const float value) { position.y = value; };
 };
