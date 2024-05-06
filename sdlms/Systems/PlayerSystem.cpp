@@ -17,6 +17,7 @@ void PlayerSystem::update_pla(Player *pla, World &world)
 {
     auto nor = pla->get_owner_component<Normal>();
     auto ava = pla->get_owner_component<Avatar>();
+    nor->want_climb = Normal::None;
 
     switch (nor->type)
     {
@@ -62,9 +63,18 @@ void PlayerSystem::update_pla(Player *pla, World &world)
         {
             ava->direct = true;
         }
+        if (Input::is_key_held(SDLK_UP))
+        {
+            nor->want_climb = Normal::Up;
+        }
+        else if (Input::is_key_held(SDLK_DOWN))
+        {
+            nor->want_climb = Normal::Down;
+        }
         break;
     case Normal::Climb:
         nor->hspeed = 0;
+        nor->vspeed = 0;
         if (Input::is_key_held(SDLK_RIGHT))
         {
             ava->direct = false;
@@ -75,7 +85,7 @@ void PlayerSystem::update_pla(Player *pla, World &world)
             ava->direct = true;
             nor->hspeed = -100;
         }
-        if (Input::is_key_held(SDLK_LALT) && nor->hspeed != 0)
+        if (Input::is_key_held(SDLK_LALT) &&!Input::is_key_held(SDLK_UP)&& nor->hspeed != 0)
         {
             nor->vspeed = -300;
             nor->type = Normal::Air;
