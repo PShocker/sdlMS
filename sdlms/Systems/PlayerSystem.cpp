@@ -20,7 +20,7 @@ void PlayerSystem::update_pla(Player *pla, World &world)
 
     switch (nor->type)
     {
-    case Normal::GROUND:
+    case Normal::Ground:
         if (Input::is_key_held(SDLK_RIGHT))
         {
             nor->hforce = 1400;
@@ -40,12 +40,20 @@ void PlayerSystem::update_pla(Player *pla, World &world)
         }
         if (Input::is_key_held(SDLK_LALT))
         {
-            nor->type = Normal::AIR;
+            nor->type = Normal::Air;
             nor->vspeed = -555;
             ava->switch_act(Avatar::ACTION::JUMP);
         }
+        if (Input::is_key_held(SDLK_UP))
+        {
+            nor->want_climb = Normal::Up;
+        }
+        else if (Input::is_key_held(SDLK_DOWN))
+        {
+            nor->want_climb = Normal::Down;
+        }
         break;
-    case Normal::AIR:
+    case Normal::Air:
         if (Input::is_key_held(SDLK_RIGHT))
         {
             ava->direct = false;
@@ -55,9 +63,32 @@ void PlayerSystem::update_pla(Player *pla, World &world)
             ava->direct = true;
         }
         break;
-    case Normal::CLIMB:
-
+    case Normal::Climb:
+        nor->hspeed = 0;
+        if (Input::is_key_held(SDLK_RIGHT))
+        {
+            ava->direct = false;
+            nor->hspeed = 100;
+        }
+        else if (Input::is_key_held(SDLK_LEFT))
+        {
+            ava->direct = true;
+            nor->hspeed = -100;
+        }
+        if (Input::is_key_held(SDLK_LALT) && nor->hspeed != 0)
+        {
+            nor->vspeed = -300;
+            nor->type = Normal::Air;
+            break;
+        }
+        if (Input::is_key_held(SDLK_UP))
+        {
+            nor->vspeed = -100;
+        }
+        else if (Input::is_key_held(SDLK_DOWN))
+        {
+            nor->vspeed = 100;
+        }
         break;
     }
-    // int x1 = Input::is_key_held(SDLK_RIGHT) || Input::is_key_held(SDLK_d); // ? 1 : 0;
 }

@@ -5,6 +5,7 @@
 #include "Entities/FootHold.h"
 #include "Entities/Npc.h"
 #include "Entities/Border.h"
+#include "Entities/LadderRope.h"
 #include "Resource/Wz.h"
 
 Map::Map(World *world)
@@ -22,6 +23,7 @@ void Map::load_map(int mapId)
     load_foothold(node);
     load_life(node);
     load_border(node);
+    load_ladderRope(node);
     // load_string(mapId);
 }
 
@@ -95,7 +97,9 @@ void Map::load_foothold(wz::Node *node)
                 auto zmass = std::stoi(std::string{_it.first.begin(), _it.first.end()});
                 for (auto __it : _it.second[0]->get_children())
                 {
-                    FootHold *f = new FootHold(__it.second[0], std::stoi(std::string{__it.first.begin(), __it.first.end()}), page, zmass, world);
+                    auto id = std::stoi(std::string{__it.first.begin(), __it.first.end()});
+                    FootHold *f = new FootHold(__it.second[0], id, page, zmass, world);
+                    world->add_entity(f, id);
                 }
             }
         }
@@ -124,6 +128,20 @@ void Map::load_border(wz::Node *node)
 {
     auto border = new Border(node, world);
     world->add_entity(border);
+}
+
+void Map::load_ladderRope(wz::Node *node)
+{
+    node = node->get_child(u"ladderRope");
+    if (node != nullptr)
+    {
+        for (auto it : node->get_children())
+        {
+            auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
+            auto lad = new LadderRope(it.second[0], id, world);
+            world->add_entity(lad, id);
+        }
+    }
 }
 
 void Map::load_bgm(wz::Node *node)

@@ -6,10 +6,12 @@
 
 class Component;
 
-class Entity {
+class Entity
+{
 private:
 	unsigned long id;
-	std::unordered_map<std::type_index, Component*> component_refs;
+	std::unordered_map<std::type_index, Component *> component_refs;
+	std::unordered_map<std::type_index, Entity *> entity_refs;
 
 public:
 	Entity();
@@ -19,21 +21,37 @@ public:
 	void set_id(unsigned long value);
 
 	template <typename C>
-	void add_component(C* comp) {
+	void add_component(C *comp)
+	{
 		component_refs[typeid(C)] = comp;
 		comp->set_owner(this);
 	}
 
 	template <typename C>
-	C* get_component();
+	C *get_component();
 
-	const std::unordered_map<std::type_index, Component*>& get_components();
+	template <typename C>
+	void add_entity(C *ent)
+	{
+		entity_refs[typeid(C)] = ent;
+	}
+
+	template <typename C>
+	C *get_entity();
+
+	const std::unordered_map<std::type_index, Component *> &get_components();
 };
-
 
 #include "Components/Component.h"
 
 template <typename C>
-C* Entity::get_component() {
-	return static_cast<C*>(component_refs[typeid(C)]);
+C *Entity::get_component()
+{
+	return static_cast<C *>(component_refs[typeid(C)]);
+}
+
+template <typename C>
+inline C *Entity::get_entity()
+{
+	return static_cast<C *>(entity_refs[typeid(C)]);
 }

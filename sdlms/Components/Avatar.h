@@ -192,6 +192,7 @@ public:
     int act_index = 0;
     int act_time = 0;
     bool direct = true;
+    bool animate = true;
 
 public:
     void add_body();

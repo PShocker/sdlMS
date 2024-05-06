@@ -11,7 +11,7 @@ public:
 public:
     constexpr auto get_page() { return page; }
 
-private:
+public:
     // fh的附加属性
     int id;
     int page;

@@ -49,12 +49,15 @@ bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
 
 void UpdateSystem::update_avatar(Avatar *ava, Transform *tr, World &world)
 {
-	auto delta_time = world.delta_time();
-	auto delay = ava->stance_delays[ava->act][ava->act_index];
-	ava->act_time += delta_time;
-	if (ava->act_time >= delay)
+	if (ava->animate)
 	{
-		ava->act_index = (ava->act_index + 1) % ava->stance_delays[ava->act].size();
-		ava->act_time = 0;
+		auto delta_time = world.delta_time();
+		auto delay = ava->stance_delays[ava->act][ava->act_index];
+		ava->act_time += delta_time;
+		if (ava->act_time >= delay)
+		{
+			ava->act_index = (ava->act_index + 1) % ava->stance_delays[ava->act].size();
+			ava->act_time = 0;
+		}
 	}
 }
