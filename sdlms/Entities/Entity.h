@@ -28,6 +28,14 @@ public:
 	}
 
 	template <typename C>
+	void del_component()
+	{
+		C *comp = static_cast<C *>(component_refs[typeid(C)]);
+		component_refs.erase(typeid(C));
+		comp->set_owner(nullptr);
+	}
+
+	template <typename C>
 	C *get_component();
 
 	template <typename C>

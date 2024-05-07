@@ -23,7 +23,7 @@ void RenderSystem::run(World &world)
 			{
 				render_sprite(tr, tr->get_owner_component<Sprite>(), world);
 			}
-			else
+			else if (tr->get_owner_component<AnimatedSprite>() != nullptr)
 			{
 				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
 			}
@@ -239,35 +239,53 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 	};
 	{
 		auto [t, spr] = ava->body[act][act_index];
-		set_tran(t, spr);
-		render_sprite(tran, spr, world);
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
 	}
 	{
 		auto [t, spr] = ava->coat[act][act_index];
-		set_tran(t, spr);
-		render_sprite(tran, spr, world);
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
 	}
 	{
 		auto [t, spr] = ava->pants[act][act_index];
-		set_tran(t, spr);
-		render_sprite(tran, spr, world);
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
 	}
 	{
 		auto [t, spr] = ava->head[act][act_index];
-		set_tran(t, spr);
-		render_sprite(tran, spr, world);
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
 	}
 	{
 		auto [t, spr] = ava->face[act][act_index];
-		set_tran(t, spr);
-		render_sprite(tran, spr, world);
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
 	}
 	{
 		auto &v = ava->hairs[act][act_index];
 		for (auto &[t, spr] : v)
 		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
+			if (t != nullptr && spr != nullptr)
+			{
+				set_tran(t, spr);
+				render_sprite(tran, spr, world);
+			}
 		}
 	}
 	{

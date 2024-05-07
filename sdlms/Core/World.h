@@ -17,9 +17,11 @@
 #include <SDL2/SDL.h>
 
 // 重载 SDL_Point 的加法运算符
-SDL_FPoint operator+(const SDL_FPoint &a, const SDL_FPoint &b);
+SDL_FPoint operator+(const SDL_FPoint &m, const SDL_FPoint &n);
 // 重载 SDL_Point 的减法运算符
-SDL_FPoint operator-(const SDL_FPoint &a, const SDL_FPoint &b);
+SDL_FPoint operator-(const SDL_FPoint &m, const SDL_FPoint &n);
+
+double distance(const SDL_FPoint &m, const SDL_FPoint &n);
 
 class World
 {
@@ -65,7 +67,7 @@ public:
 
 	void destroy_entity(Entity *ent, bool destroy_components = true, bool remove_from_list = true);
 
-	void destroy_component(Component *comp, bool remove_from_map = true);
+	void destroy_component(Component *comp, bool delete_component = true);
 
 	inline const auto &get_entity_map() const { return entity_map; }
 	inline const auto &get_component_map() const { return component_map; }

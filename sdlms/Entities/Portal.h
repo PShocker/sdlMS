@@ -3,15 +3,13 @@
 #include "Entity.h"
 #include "wz/Property.hpp"
 #include "Core/World.h"
+#include "Components/AnimatedSprite.h"
+
 
 class Portal : public Entity
 {
 public:
-    Portal(wz::Node *node, std::u16string pn, int pt, int pm, std::u16string tn, World *world);
+    Portal(wz::Node *node, World *world);
 
-private:
-    std::u16string pn;
-    int pt;
-    int pm;
-    std::u16string tn;
+    std::unordered_map<std::u16string, AnimatedSprite *> aspr_map;
 };

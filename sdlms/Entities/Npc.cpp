@@ -24,13 +24,17 @@ Npc::Npc(wz::Node *node, World *world)
             if (name != u"info")
             {
                 auto aspr = AnimatedSprite::load_animated_sprite(val[0]);
-                Transform *t = new Transform{(float)x, (float)y};
-                add_component(t);
-                add_component(aspr);
-                world->add_component(t, 30000 * layer + 3000);
-                world->add_unique_component(aspr);
+                aspr_map[name] = aspr;
             }
         }
+
+        Transform *t = new Transform{(float)x, (float)y};
+        auto aspr = aspr_map.begin()->second;
+        add_component(t);
+        add_component(aspr);
+        world->add_component(t, 30000 * layer + 3000);
+        world->add_unique_component(aspr);
+
         // 从string.wz获取信息
         node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Npc.img/" + npc_id.substr(npc_id.find_first_not_of(u'0')));
         if (node != nullptr)

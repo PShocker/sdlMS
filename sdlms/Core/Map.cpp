@@ -6,6 +6,7 @@
 #include "Entities/Npc.h"
 #include "Entities/Border.h"
 #include "Entities/LadderRope.h"
+#include "Entities/Portal.h"
 #include "Resource/Wz.h"
 
 Map::Map(World *world)
@@ -24,6 +25,7 @@ void Map::load_map(int mapId)
     load_life(node);
     load_border(node);
     load_ladderRope(node);
+    load_portal(node);
     // load_string(mapId);
 }
 
@@ -140,6 +142,19 @@ void Map::load_ladderRope(wz::Node *node)
             auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
             auto lad = new LadderRope(it.second[0], id, world);
             world->add_entity(lad, id);
+        }
+    }
+}
+
+void Map::load_portal(wz::Node *node)
+{
+    node = node->get_child(u"portal");
+    if (node != nullptr)
+    {
+        for (auto &[key, val] : node->get_children())
+        {
+            Portal *por = new Portal(val[0], world);
+            world->add_entity(por);
         }
     }
 }

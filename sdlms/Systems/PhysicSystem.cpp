@@ -1,3 +1,7 @@
+#include <ranges>
+#include <utility>
+#include <algorithm>
+
 #include "PhysicSystem.h"
 #include "Entities/FootHold.h"
 #include "Entities/LadderRope.h"
@@ -31,7 +35,6 @@ void PhysicSystem::update_nor(Normal *nor, World &world)
 			return;
 		}
 		// 地面移动判断
-		//  摩擦力
 		walk(tr, nor, world, delta_time);
 		break;
 	case Normal::Air:
@@ -40,9 +43,11 @@ void PhysicSystem::update_nor(Normal *nor, World &world)
 		{
 			return;
 		}
+		// 跳跃
 		fall(tr, nor, delta_time, world);
 		break;
 	case Normal::Climb:
+		// 爬梯子
 		climb(tr, nor, delta_time);
 		break;
 	}
@@ -258,20 +263,59 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 
 	auto new_pos = tr->get_position() + SDL_FPoint{(float)d_x, (float)d_y};
 
+	// 下落
 	if (nor->vspeed > 0)
 	{
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
 			auto rl = fh->get_component<RigidLine>();
 			auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
-
 			if (collide.has_value())
 			{
-				new_pos = collide.value();
+				new_pos = tr->get_position();
 				nor->vspeed = 0;
 				nor->type = Normal::Ground;
 				nor->get_owner()->add_entity(fh);
+				// 修改人物z值
+				world.destroy_component(tr, false);
+				world.add_component(tr, fh->page * 30000 + 4000);
 				break;
+			}
+		}
+	}
+	else if (nor->vspeed <= 0)
+	{
+		// 上升
+		// 跳跃时只用考虑是否撞墙
+		for (auto &[id, fh] : world.get_entitys<FootHold>())
+		{
+			auto rl = fh->get_component<RigidLine>();
+			if (rl->get_n().x < rl->get_m().x && rl->get_n().y == rl->get_m().y)
+			{
+				// 天花板
+				auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
+				if (collide.has_value())
+				{
+					new_pos = tr->get_position();
+					nor->hspeed = 0;
+					nor->vspeed = 0;
+					break;
+				}
+			}
+			if (!rl->get_line()->get_k().has_value())
+			{
+				// k值不存在,则为墙面,默认与所有墙面碰撞
+				auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
+				if (collide.has_value())
+				{
+					new_pos.x = tr->get_position().x;
+					nor->hspeed = 0;
+					break;
+				}
+			}
+			else
+			{
+				continue;
 			}
 		}
 	}
@@ -311,11 +355,10 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 				ava->animate = false;
 			}
 		}
-
 		tr->set_y(y);
 	}
 }
-
+// 线段相交法判断碰撞
 std::optional<SDL_FPoint> PhysicSystem::intersect(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3, SDL_FPoint p4)
 {
 	std::optional<SDL_FPoint> p;
