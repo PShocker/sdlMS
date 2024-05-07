@@ -5,15 +5,21 @@
 
 #include <algorithm>
 
-SDL_FPoint operator+(const SDL_FPoint &a, const SDL_FPoint &b)
+SDL_FPoint operator+(const SDL_FPoint &m, const SDL_FPoint &n)
 {
-	return {a.x + b.x, a.y + b.y};
+	return {m.x + n.x, m.y + n.y};
 }
 
 // 重载 SDL_Point 的减法运算符
-SDL_FPoint operator-(const SDL_FPoint &a, const SDL_FPoint &b)
+SDL_FPoint operator-(const SDL_FPoint &m, const SDL_FPoint &n)
 {
-	return {a.x - b.x, a.y - b.y};
+	return {m.x - n.x, m.y - n.y};
+}
+
+double distance(const SDL_FPoint& m, const SDL_FPoint& n) {
+    int dx = n.x - m.x;
+    int dy = n.y - m.y;
+    return std::sqrt(dx * dx + dy * dy);
 }
 
 unsigned long World::EntityCounter = 0;
@@ -95,7 +101,7 @@ void World::destroy_entity(Entity *ent, bool destroy_components, bool remove)
 	delete ent;
 }
 
-void World::destroy_component(Component *comp, bool remove_from_map)
+void World::destroy_component(Component *comp, bool delete_component)
 {
 	auto &target_map = component_map[typeid(*comp)];
 
@@ -110,7 +116,10 @@ void World::destroy_component(Component *comp, bool remove_from_map)
 			++it;
 		}
 	}
-	delete comp;
+	if (delete_component)
+	{
+		delete comp;
+	}
 }
 
 void World::poll_events()

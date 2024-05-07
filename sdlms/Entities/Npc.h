@@ -13,6 +13,8 @@ public:
     constexpr auto get_func() { return func; }
 
 private:
+    std::unordered_map<std::u16string, AnimatedSprite *> aspr_map;
+
     std::unordered_map<std::u16string, std::u16string> str_map;
     Sprite *name = nullptr;
     Sprite *func = nullptr;

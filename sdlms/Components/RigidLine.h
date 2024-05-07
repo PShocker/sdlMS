@@ -12,6 +12,7 @@ public:
     constexpr auto get_max_x() { return line->get_max_x(); }
     constexpr auto get_min_y() { return line->get_min_y(); }
     constexpr auto get_max_y() { return line->get_max_y(); }
+    constexpr auto get_line() { return line; }
 
 public:
     Line *line;
