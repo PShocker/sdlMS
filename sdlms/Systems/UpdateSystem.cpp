@@ -85,39 +85,25 @@ void UpdateSystem::update_portal(Portal *por, Transform *tr, World &world)
 {
 	auto tran = por->get_component<Transform>(); // 传送门坐标
 	auto aspr = por->get_component<AnimatedSprite>();
+	auto dis = distance(tran->get_position(), tr->get_position());
 
-	// 根据人物离传送门的距离来判断显示哪种状态
-	if (distance(tran->get_position(), tr->get_position()) <= 10 && aspr != por->aspr_map[u"portalStart"])
+	if (dis < 400 && aspr != por->aspr_map[u"portalContinue"])
 	{
-		// 从world删除aspr,避免更新它的动画
-		world.destroy_component(aspr, false);
-		aspr = por->aspr_map[u"portalStart"];
-		por->add_component(aspr);
-		world.add_unique_component(aspr);
-	}
-	else if (distance(tran->get_position(), tr->get_position()) <= 30 && aspr != por->aspr_map[u"portalContinue"])
-	{
-		// 从world删除aspr,避免更新它的动画
-		world.destroy_component(aspr, false);
 		aspr = por->aspr_map[u"portalContinue"];
 		por->add_component(aspr);
 		world.add_unique_component(aspr);
 	}
-	else if (distance(tran->get_position(), tr->get_position()) <= 60 && aspr != por->aspr_map[u"portalExit"])
+	if (400 <= dis && dis < 600 && aspr != por->aspr_map[u"portalExit"])
 	{
-		// 从world删除aspr,避免更新它的动画
-		world.destroy_component(aspr, false);
-		// 显示start状态
-		auto aspr = por->aspr_map[u"portalExit"];
+		aspr = por->aspr_map[u"portalExit"];
 		por->add_component(aspr);
 		world.add_unique_component(aspr);
 	}
-	else if (distance(tran->get_position(), tr->get_position()) > 60)
+	if (dis >= 600)
 	{
 		// 距离太远,直接隐藏
 		if (aspr != nullptr)
 		{
-			world.destroy_component(aspr, false);
 			por->del_component<AnimatedSprite>();
 		}
 	}

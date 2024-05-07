@@ -42,7 +42,7 @@ void PlayerSystem::update_pla(Player *pla, World &world)
         if (Input::is_key_held(SDLK_LALT))
         {
             nor->type = Normal::Air;
-            nor->vspeed = -555;
+            nor->vspeed = -655;
             ava->switch_act(Avatar::ACTION::JUMP);
         }
         if (Input::is_key_held(SDLK_UP))
@@ -85,10 +85,11 @@ void PlayerSystem::update_pla(Player *pla, World &world)
             ava->direct = true;
             nor->hspeed = -100;
         }
-        if (Input::is_key_held(SDLK_LALT) &&!Input::is_key_held(SDLK_UP)&& nor->hspeed != 0)
+        if (Input::is_key_held(SDLK_LALT) && !Input::is_key_held(SDLK_UP) && nor->hspeed != 0)
         {
             nor->vspeed = -300;
             nor->type = Normal::Air;
+            ava->switch_act(Avatar::ACTION::JUMP);
             break;
         }
         if (Input::is_key_held(SDLK_UP))

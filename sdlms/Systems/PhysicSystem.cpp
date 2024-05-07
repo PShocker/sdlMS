@@ -115,6 +115,10 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 				}
 				ava->animate = false;
 			}
+			// 修改人物z值
+			world.destroy_component(tr, false);
+			world.add_component(tr, lad->page * 30000 + 4000);
+
 			nor->get_owner()->add_entity(lad);
 			nor->vspeed = 0;
 			nor->hspeed = 0;
@@ -176,6 +180,11 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		{
 			// 从fh掉落
 			nor->type = Normal::Air;
+			if (nor->get_owner_component<Avatar>() != nullptr)
+			{
+				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+			}
+			nor->vspeed = 0;
 			break;
 		}
 		rl = fh->get_component<RigidLine>();
@@ -192,6 +201,11 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			{
 				// 从fh掉落
 				nor->type = Normal::Air;
+				if (nor->get_owner_component<Avatar>() != nullptr)
+				{
+					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				}
+				nor->vspeed = 0;
 				break;
 			}
 		}
@@ -210,6 +224,11 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		{
 			// 从fh掉落
 			nor->type = Normal::Air;
+			if (nor->get_owner_component<Avatar>() != nullptr)
+			{
+				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+			}
+			nor->vspeed = 0;
 			break;
 		}
 		rl = fh->get_component<RigidLine>();
@@ -227,6 +246,11 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			{
 				// 从fh掉落
 				nor->type = Normal::Air;
+				if (nor->get_owner_component<Avatar>() != nullptr)
+				{
+					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				}
+				nor->vspeed = 0;
 				break;
 			}
 		}
@@ -248,12 +272,6 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 
 void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &world)
 {
-	if (nor->get_owner_component<Avatar>() != nullptr)
-	{
-		auto ava = nor->get_owner_component<Avatar>();
-		ava->animate = true;
-		ava->switch_act(Avatar::ACTION::JUMP);
-	}
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;
 	nor->vspeed = std::min(nor->vspeed, 670.0f);
@@ -273,12 +291,19 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			if (collide.has_value())
 			{
 				new_pos = tr->get_position();
-				nor->vspeed = 0;
-				nor->type = Normal::Ground;
-				nor->get_owner()->add_entity(fh);
-				// 修改人物z值
-				world.destroy_component(tr, false);
-				world.add_component(tr, fh->page * 30000 + 4000);
+				if (!rl->get_line()->get_k().has_value())
+				{
+					// 撞墙
+					nor->hspeed = 0;
+				}
+				else
+				{
+					nor->type = Normal::Ground;
+					nor->get_owner()->add_entity(fh);
+					// 修改人物z值
+					world.destroy_component(tr, false);
+					world.add_component(tr, fh->page * 30000 + 4000);
+				}
 				break;
 			}
 		}
@@ -333,12 +358,20 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 	{
 		tr->set_y(cl->get_min_y() - 5);
 		nor->type = Normal::Air;
+		if (nor->get_owner_component<Avatar>() != nullptr)
+		{
+			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+		}
 		nor->vspeed = 0;
 	}
 	else if (y > cl->get_max_y())
 	{
 		tr->set_y(cl->get_max_y());
 		nor->type = Normal::Air;
+		if (nor->get_owner_component<Avatar>() != nullptr)
+		{
+			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+		}
 		nor->vspeed = 0;
 	}
 	else
