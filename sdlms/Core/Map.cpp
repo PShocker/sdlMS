@@ -8,6 +8,7 @@
 #include "Entities/LadderRope.h"
 #include "Entities/Portal.h"
 #include "Resource/Wz.h"
+#include "Components/RigidLine.h"
 
 Map::Map(World *world)
 {
@@ -103,6 +104,22 @@ void Map::load_foothold(wz::Node *node)
                     FootHold *f = new FootHold(__it.second[0], id, page, zmass, world);
                     world->add_entity(f, id);
                 }
+            }
+        }
+        // 去掉无效的墙
+        auto fhs = world->get_entitys<FootHold>();
+        for (auto &[id, fh] : fhs)
+        {
+            // world->destroy_entity();
+            auto rl = fh->get_component<RigidLine>();
+            if (!rl->get_line()->get_k().has_value())
+            {
+                // 通过k值判断是否是墙面
+                // if (fhs.contains(fh->prev) == false || fhs.contains(fh->next) == false)
+                // {
+                //     fhs.erase(id);
+                //     continue;
+                // }
             }
         }
     }

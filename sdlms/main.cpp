@@ -16,8 +16,8 @@
 #include "Core/FreeType.h"
 #include "Resource/Wz.h"
 
-int width = 1000;
-int height = 600;
+int width = 1366;
+int height = 768;
 
 int main(int argc, char *argv[])
 {
@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 
         Window::update();
 
-        SDL_Delay(20); // 控制帧率
+        // SDL_Delay(20); // 控制帧率
     }
     return 0;
 }
