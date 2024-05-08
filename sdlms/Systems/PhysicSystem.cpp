@@ -65,8 +65,8 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 
 			// 判断x坐标是否在梯子范围内
 			if (pos.x == std::clamp(pos.x,
-									cl->get_min_x() - 5,
-									cl->get_max_x() + 5))
+									cl->get_min_x() - 10,
+									cl->get_max_x() + 10))
 			{
 				if (nor->want_climb == Normal::Up)
 				{

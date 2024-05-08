@@ -106,20 +106,29 @@ void Map::load_foothold(wz::Node *node)
                 }
             }
         }
-        // 去掉无效的墙
-        auto fhs = world->get_entitys<FootHold>();
-        for (auto &[id, fh] : fhs)
+        // 去掉无效的墙,可能是wz文件的bug
+        auto &fhs = world->get_entitys<FootHold>();
+        while (true)
         {
-            // world->destroy_entity();
-            auto rl = fh->get_component<RigidLine>();
-            if (!rl->get_line()->get_k().has_value())
+            auto size = fhs.size();
+            for (auto it = fhs.begin(); it != fhs.end();)
             {
-                // 通过k值判断是否是墙面
-                // if (fhs.contains(fh->prev) == false || fhs.contains(fh->next) == false)
-                // {
-                //     fhs.erase(id);
-                //     continue;
-                // }
+                auto fh = it->second;
+                auto rl = fh->get_component<RigidLine>();
+                if (!rl->get_line()->get_k().has_value()) // 通过k值判断是否是墙面
+                {
+                    if (fhs.contains(fh->prev) == false || fhs.contains(fh->next) == false)
+                    {
+                        it = fhs.erase(it);
+                        continue;
+                    }
+                }
+                ++it;
+            }
+            if (size == fhs.size())
+            {
+                // 当数量相等时,意味着已经去掉所有无效的墙
+                break;
             }
         }
     }

@@ -42,7 +42,7 @@ void PlayerSystem::update_pla(Player *pla, World &world)
         if (Input::is_key_held(SDLK_LALT))
         {
             nor->type = Normal::Air;
-            nor->vspeed = -655;
+            nor->vspeed = -555;
             ava->switch_act(Avatar::ACTION::JUMP);
         }
         if (Input::is_key_held(SDLK_UP))
