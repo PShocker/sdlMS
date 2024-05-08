@@ -28,7 +28,7 @@ public:
 	}
 
 	template <typename C>
-	void del_component()
+	void remove_component()
 	{
 		C *comp = static_cast<C *>(component_refs[typeid(C)]);
 		component_refs.erase(typeid(C));
@@ -42,6 +42,11 @@ public:
 	void add_entity(C *ent)
 	{
 		entity_refs[typeid(C)] = ent;
+	}
+	template <typename C>
+	void remove_entity()
+	{
+		entity_refs.erase(typeid(C));
 	}
 
 	template <typename C>

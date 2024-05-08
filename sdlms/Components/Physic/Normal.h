@@ -29,4 +29,6 @@ public:
         Down,
     };
     uint8_t want_climb = None; // 是否有爬梯子或绳子的倾向
+    bool want_prone = false;   // 是否有趴下的倾向
+    bool want_fall = false;   // 是否有下跳的倾向
 };

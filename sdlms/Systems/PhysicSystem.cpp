@@ -9,6 +9,7 @@
 #include "Components/RigidLine.h"
 #include "Components/CrawlLine.h"
 #include "Components/Avatar.h"
+#include "Components/Task.h"
 
 void PhysicSystem::run(World &world)
 {
@@ -34,6 +35,15 @@ void PhysicSystem::update_nor(Normal *nor, World &world)
 		{
 			return;
 		}
+		if (want_fall(tr, nor, world))
+		{
+			return;
+		}
+		if (want_prone(tr, nor, world))
+		{
+			return;
+		}
+
 		// 地面移动判断
 		walk(tr, nor, world, delta_time);
 		break;
@@ -129,16 +139,57 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 	return false;
 }
 
+bool PhysicSystem::want_prone(Transform *tr, Normal *nor, World &world)
+{
+	if (nor->want_prone)
+	{
+		if (nor->get_owner_component<Avatar>() != nullptr)
+		{
+			auto ava = nor->get_owner_component<Avatar>();
+			ava->switch_act(Avatar::ACTION::PRONE);
+		}
+		nor->hspeed = 0;
+		return true;
+	}
+	return false;
+}
+
+bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
+{
+	if (nor->want_fall)
+	{
+		auto foo = tr->get_owner()->get_entity<FootHold>();
+		world.remove_entity(foo);
+		world.add_entity(foo, -foo->id);
+
+		// 添加定时任务到world
+		auto callback = [](Entity *ent, World &world) -> void
+		{
+			auto foo = (FootHold *)ent;
+			world.remove_entity(foo);
+			world.add_entity(foo, foo->id);
+			return;
+		};
+		Task *tas = new Task(callback, 200);
+		foo->add_component(tas);
+		world.add_component(tas);
+
+		// 从fh掉落
+		nor->type = Normal::Air;
+		tr->get_owner()->remove_entity<FootHold>();
+		if (nor->get_owner_component<Avatar>() != nullptr)
+		{
+			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+		}
+		nor->vspeed = -150;
+		return true;
+	}
+	return false;
+}
+
 void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_time)
 {
-
-	if (nor->get_owner_component<Avatar>() != nullptr)
-	{
-		auto ava = nor->get_owner_component<Avatar>();
-		ava->animate = true;
-	}
-
-	auto friction = 800;
+	constexpr auto friction = 800;
 
 	if (nor->hspeed > 0)
 	{
@@ -286,18 +337,24 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	{
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
+			if (id < 0)
+			{
+				// id<0表示下跳时的fh
+				continue;
+			}
 			auto rl = fh->get_component<RigidLine>();
 			auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
 			if (collide.has_value())
 			{
-				new_pos = tr->get_position();
 				if (!rl->get_line()->get_k().has_value())
 				{
 					// 撞墙
+					new_pos = tr->get_position();
 					nor->hspeed = 0;
 				}
 				else
 				{
+					new_pos = collide.value();
 					nor->type = Normal::Ground;
 					nor->get_owner()->add_entity(fh);
 					// 修改人物z值

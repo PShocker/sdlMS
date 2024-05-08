@@ -93,6 +93,22 @@ void World::destroy_entity(Entity *ent, bool destroy_components, bool remove)
 	delete ent;
 }
 
+void World::remove_entity(Entity *ent)
+{
+	auto &target_map = entity_map[typeid(*ent)];
+	for (auto it = target_map.begin(); it != target_map.end();)
+	{
+		if (it->second == ent)
+		{
+			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+		}
+		else
+		{
+			++it;
+		}
+	}
+}
+
 void World::destroy_component(Component *comp, bool delete_component)
 {
 	auto &target_map = component_map[typeid(*comp)];

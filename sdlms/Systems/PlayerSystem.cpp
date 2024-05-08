@@ -18,6 +18,8 @@ void PlayerSystem::update_pla(Player *pla, World &world)
     auto nor = pla->get_owner_component<Normal>();
     auto ava = pla->get_owner_component<Avatar>();
     nor->want_climb = Normal::None;
+    nor->want_prone = false;
+    nor->want_fall = false;
 
     switch (nor->type)
     {
@@ -39,12 +41,6 @@ void PlayerSystem::update_pla(Player *pla, World &world)
             nor->hforce = 0;
             ava->switch_act(Avatar::ACTION::STAND1);
         }
-        if (Input::is_key_held(SDLK_LALT))
-        {
-            nor->type = Normal::Air;
-            nor->vspeed = -555;
-            ava->switch_act(Avatar::ACTION::JUMP);
-        }
         if (Input::is_key_held(SDLK_UP))
         {
             nor->want_climb = Normal::Up;
@@ -52,7 +48,19 @@ void PlayerSystem::update_pla(Player *pla, World &world)
         else if (Input::is_key_held(SDLK_DOWN))
         {
             nor->want_climb = Normal::Down;
+            nor->want_prone = true;
         }
+        if (Input::is_key_held(SDLK_LALT) && Input::is_key_held(SDLK_DOWN))
+        {
+            nor->want_fall = true;
+        }
+        else if (Input::is_key_held(SDLK_LALT))
+        {
+            nor->type = Normal::Air;
+            nor->vspeed = -555;
+            ava->switch_act(Avatar::ACTION::JUMP);
+        }
+
         break;
     case Normal::Air:
         if (Input::is_key_held(SDLK_RIGHT))
@@ -89,6 +97,7 @@ void PlayerSystem::update_pla(Player *pla, World &world)
         {
             nor->vspeed = -300;
             nor->type = Normal::Air;
+            ava->animate = true;
             ava->switch_act(Avatar::ACTION::JUMP);
             break;
         }

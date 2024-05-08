@@ -12,6 +12,8 @@ public:
 private:
 	void update_nor(Normal *nor, World &world);
 	bool want_climb(Transform *tr, Normal *nor, World &world);
+	bool want_prone(Transform *tr, Normal *nor, World &world);
+	bool want_fall(Transform *tr, Normal *nor, World &world);
 	void walk(Transform *tr,Normal *nor, World &world, float delta_time);
 	void fall(Transform *tr, Normal *nor, float delta_time, World &world);
 	void climb(Transform *tr, Normal *nor,float delta_time);
