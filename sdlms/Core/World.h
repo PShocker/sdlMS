@@ -80,7 +80,7 @@ public:
 	}
 
 	template <typename C>
-	const std::multimap<int, C *> &get_components()
+	std::multimap<int, C *> &get_components()
 	{
 		return *reinterpret_cast<std::multimap<int, C *> *>(&component_map[typeid(C)]);
 	}
@@ -92,13 +92,13 @@ public:
 	}
 
 	template <typename C>
-	const std::multimap<int, C *> &get_entitys()
+	std::multimap<int, C *> &get_entitys()
 	{
 		return *reinterpret_cast<std::multimap<int, C *> *>(&entity_map[typeid(C)]);
 	}
 
 	template <typename C>
-	const C &get_resource()
+	C &get_resource()
 	{
 		return *reinterpret_cast<C *>(resource_map.at(typeid(C)));
 	}

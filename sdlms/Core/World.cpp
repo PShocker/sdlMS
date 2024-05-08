@@ -16,45 +16,37 @@ SDL_FPoint operator-(const SDL_FPoint &m, const SDL_FPoint &n)
 	return {m.x - n.x, m.y - n.y};
 }
 
-double distance(const SDL_FPoint& m, const SDL_FPoint& n) {
-    int dx = n.x - m.x;
-    int dy = n.y - m.y;
-    return std::sqrt(dx * dx + dy * dy);
+double distance(const SDL_FPoint &m, const SDL_FPoint &n)
+{
+	int dx = n.x - m.x;
+	int dy = n.y - m.y;
+	return std::sqrt(dx * dx + dy * dy);
 }
-
-unsigned long World::EntityCounter = 0;
 
 World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time_{0}, quit{false} {}
 World::~World() {}
 
 void World::add_entity(Entity *ent)
 {
-	entity_map[typeid(*ent)].insert({entity_map[typeid(*ent)].size(), ent});
-	ent->set_id(EntityCounter++);
-
-	DEBUG_PRINT("Added a new entity (ID %lu)", EntityCounter - 1);
+	auto index = entity_map[typeid(*ent)].size();
+	add_entity(ent, index);
 }
 
 void World::add_entity(Entity *ent, int index)
 {
 	entity_map[typeid(*ent)].insert({index, ent});
-	ent->set_id(EntityCounter++);
-
-	DEBUG_PRINT("Added a new entity (ID %lu)", EntityCounter - 1);
+	ent->set_id(index);
 }
 
 void World::add_component(Component *comp)
 {
-	component_map[typeid(*comp)].insert({component_map[typeid(*comp)].size(), comp});
-	auto s = typeid(*comp).name();
-
-	DEBUG_PRINT("Added a new component (%s)", typeid(*comp).name());
+	auto index = component_map[typeid(*comp)].size();
+	add_component(comp, index);
 }
 
 void World::add_component(Component *comp, int index)
 {
 	component_map[typeid(*comp)].insert({index, comp});
-
 	DEBUG_PRINT("Added a new component (%s)", typeid(*comp).name());
 }
 
