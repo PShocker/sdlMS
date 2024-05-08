@@ -45,21 +45,21 @@ Portal::Portal(wz::Node *node, World *world)
                         {
                             auto aspr = AnimatedSprite::load_animated_sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalStart"));
                             aspr_map[u"portalStart"] = aspr;
+                            world->add_unique_component(aspr);
                         }
                         {
                             auto aspr = AnimatedSprite::load_animated_sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalContinue"));
                             aspr_map[u"portalContinue"] = aspr;
+                            world->add_unique_component(aspr);
                         }
                         {
                             auto aspr = AnimatedSprite::load_animated_sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalExit"));
                             aspr_map[u"portalExit"] = aspr;
+                            world->add_unique_component(aspr);
                         }
                         Transform *t = new Transform{(float)x, (float)y};
-                        auto aspr = aspr_map[u"portalStart"];
                         add_component(t);
-                        add_component(aspr);
                         world->add_component(t, 99999999);
-                        world->add_unique_component(aspr);
                     }
                     else
                     {

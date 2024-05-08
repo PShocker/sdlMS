@@ -67,6 +67,8 @@ public:
 
 	void destroy_entity(Entity *ent, bool destroy_components = true, bool remove_from_list = true);
 
+	void remove_entity(Entity *ent);
+
 	void destroy_component(Component *comp, bool delete_component = true);
 
 	inline const auto &get_entity_map() const { return entity_map; }

@@ -34,6 +34,23 @@ void UpdateSystem::run(World &world)
 			}
 		}
 	}
+	if (world.components_exist_of_type<Task>())
+	{
+		auto &tasks = world.get_components<Task>();
+		for (auto it = tasks.begin(); it != tasks.end();)
+		{
+			auto tas = it->second;
+			if (update_task(tas, world))
+			{
+				it = tasks.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+				delete tas;
+			}
+			else
+			{
+				++it;
+			}
+		}
+	}
 }
 
 bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
@@ -91,20 +108,30 @@ void UpdateSystem::update_portal(Portal *por, Transform *tr, World &world)
 	{
 		aspr = por->aspr_map[u"portalContinue"];
 		por->add_component(aspr);
-		world.add_unique_component(aspr);
 	}
 	if (400 <= dis && dis < 600 && aspr != por->aspr_map[u"portalExit"])
 	{
 		aspr = por->aspr_map[u"portalExit"];
 		por->add_component(aspr);
-		world.add_unique_component(aspr);
 	}
 	if (dis >= 600)
 	{
 		// 距离太远,直接隐藏
 		if (aspr != nullptr)
 		{
-			por->del_component<AnimatedSprite>();
+			por->remove_component<AnimatedSprite>();
 		}
 	}
+}
+
+bool UpdateSystem::update_task(Task *tas, World &world)
+{
+	auto delta_time = world.delta_time();
+	tas->delay -= delta_time;
+	if (tas->delay <= 0)
+	{
+		tas->func(tas->get_owner(), world);
+		return true;
+	}
+	return false;
 }
