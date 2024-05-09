@@ -8,12 +8,12 @@ void PlayerSystem::run(World &world)
     {
         for (auto &[index, pla] : world.get_components<Player>())
         {
-            update_pla(pla, world);
+            update_player(pla, world);
         }
     }
 }
 
-void PlayerSystem::update_pla(Player *pla, World &world)
+void PlayerSystem::update_player(Player *pla, World &world)
 {
     auto nor = pla->get_owner_component<Normal>();
     auto ava = pla->get_owner_component<Avatar>();

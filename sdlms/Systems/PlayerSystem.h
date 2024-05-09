@@ -10,5 +10,5 @@ public:
 	void run(World &world) override;
 
 private:
-	void update_pla(Player *nor, World &world);
+	void update_player(Player *nor, World &world);
 };

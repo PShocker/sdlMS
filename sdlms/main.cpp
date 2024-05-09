@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
     Transform *t = new Transform{(float)0, (float)0};
     Camera *camera = new Camera(0, 0, width, height);
     Normal *nor = new Normal();
-    Player *pla = new Player(); //玩家控制的角色
+    Player *pla = new Player(); // 玩家控制的角色
     cha->add_component(t);
     cha->add_component(camera);
     cha->add_component(nor);
@@ -75,8 +75,6 @@ int main(int argc, char *argv[])
         world.process_systems();
 
         Window::update();
-
-        // SDL_Delay(20); // 控制帧率
     }
     return 0;
 }

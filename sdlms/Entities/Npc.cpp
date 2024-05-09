@@ -19,6 +19,12 @@ Npc::Npc(wz::Node *node, World *world)
         auto xm = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
 
         node = world->get_resource<Wz>().Npc->get_root()->find_from_path(npc_id + u".img");
+        // 排除npc link
+        while (node->find_from_path(u"info/link") != nullptr)
+        {
+            auto link = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/link"))->get();
+            node = world->get_resource<Wz>().Npc->get_root()->find_from_path(link + u".img");
+        }
         for (auto &[name, val] : node->get_children())
         {
             if (name != u"info")
@@ -29,7 +35,7 @@ Npc::Npc(wz::Node *node, World *world)
         }
         if (aspr_map.size() > 0)
         {
-            //默认显示npc第一个状态
+            // 默认显示npc第一个状态
             Transform *t = new Transform{(float)x, (float)y};
             auto aspr = aspr_map.begin()->second;
             add_component(t);

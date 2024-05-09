@@ -18,12 +18,12 @@ void PhysicSystem::run(World &world)
 	{
 		for (auto &[index, nor] : world.get_components<Normal>())
 		{
-			update_nor(nor, world);
+			update_normal(nor, world);
 		}
 	}
 }
 
-void PhysicSystem::update_nor(Normal *nor, World &world)
+void PhysicSystem::update_normal(Normal *nor, World &world)
 {
 	auto tr = nor->get_owner_component<Transform>();
 	float delta_time = world.delta_time() / 1000.0;
@@ -81,24 +81,40 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 			{
 				if (nor->want_climb == Normal::Up)
 				{
-					// 向上爬
-					if (pos.y == std::clamp(pos.y,
-											cl->get_min_y(),
-											cl->get_max_y() + 5))
+					if (nor->type == Normal::Ground)
 					{
-						// 垂直的线
-						lad = lr;
-						break;
+						// 地面向上爬
+						if (pos.y > cl->get_max_y() && pos.y <= cl->get_max_y() + 5)
+						{
+							// 垂直的线
+							lad = lr;
+							break;
+						}
+					}
+					else if (nor->type == Normal::Air)
+					{
+						// 空中向上爬
+						if (pos.y == std::clamp(pos.y,
+												cl->get_min_y(),
+												cl->get_max_y()))
+						{
+							// 垂直的线
+							lad = lr;
+							break;
+						}
 					}
 				}
-				else if (nor->want_climb == Normal::Down && nor->type == Normal::Ground)
+				else if (nor->want_climb == Normal::Down)
 				{
-					// 向下爬
-					if (pos.y < cl->get_min_y() && pos.y >= cl->get_min_y() - 5)
+					if (nor->type == Normal::Ground)
 					{
-						lad = lr;
-						tr->set_y(cl->get_min_y());
-						break;
+						// 向下爬
+						if (pos.y < cl->get_min_y() && pos.y >= cl->get_min_y() - 5)
+						{
+							lad = lr;
+							tr->set_y(cl->get_min_y());
+							break;
+						}
 					}
 				}
 			}
@@ -182,7 +198,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 		{
 			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
 		}
-		nor->vspeed = -220;
+		nor->vspeed = -250;
 		// 修改人物z值
 		world.destroy_component(tr, false);
 		world.add_component(tr, 7 * 30000 + 4000);
