@@ -6,6 +6,7 @@
 #include "Components/HVTile.h"
 #include "Components/HVMove.h"
 #include "Components/Avatar.h"
+#include "Entities/Npc.h"
 
 class RenderSystem : public System
 {
@@ -18,4 +19,5 @@ private:
 	void render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world);
 	void render_avatar_sprite(Transform *tr, Avatar *ava, World &world);
 	void render_mask(Transform *tr, Sprite *spr, World &world, float pad_x = 0, float pad_y = 0);
+	void render_npc_info(Npc *npc, World &world);
 };

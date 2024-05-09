@@ -3,7 +3,6 @@
 #include "Core/World.h"
 #include "Core/ECSSystem.h"
 #include "Components/Camera.h"
-#include "Entities/Npc.h"
 
 void RenderSystem::run(World &world)
 {
@@ -27,27 +26,10 @@ void RenderSystem::run(World &world)
 			{
 				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
 			}
-		}
-	}
-	if (world.entity_exist_of_type<Npc>())
-	{
-		for (auto &[index, npc] : world.get_entitys<Npc>())
-		{
-			if (npc->get_name() != nullptr)
+			// 渲染npc名字
+			if (tr->get_owner<Npc>()!=nullptr)
 			{
-				Transform *t = new Transform(npc->get_component<Transform>()->get_position());
-				t->set_position(t->get_position() + SDL_FPoint{-(float)npc->get_name()->get_width() / 2, 4});
-				render_mask(t, npc->get_name(), world, 2, 2);
-				render_sprite(t, npc->get_name(), world);
-				delete t;
-			}
-			if (npc->get_func() != nullptr)
-			{
-				Transform *t = new Transform(npc->get_component<Transform>()->get_position());
-				t->set_position(t->get_position() + SDL_FPoint{-(float)npc->get_func()->get_width() / 2, 20});
-				render_mask(t, npc->get_func(), world, 2, 2);
-				render_sprite(t, npc->get_func(), world);
-				delete t;
+				render_npc_info(tr->get_owner<Npc>(), world);
 			}
 		}
 	}
@@ -330,5 +312,25 @@ void RenderSystem::render_mask(Transform *tr, Sprite *spr, World &world, float p
 			SDL_FRect rect = {x - camera->get_x() - pad_x, y - camera->get_y() - pad_y, (float)spr->get_width() + 2 * pad_x, (float)spr->get_height() + 2 * pad_y};
 			SDL_RenderFillRectF(renderer, &rect); // 绘制带透明度的矩形
 		}
+	}
+}
+
+void RenderSystem::render_npc_info(Npc *npc, World &world)
+{
+	if (npc->get_name() != nullptr)
+	{
+		Transform *t = new Transform(npc->get_component<Transform>()->get_position());
+		t->set_position(t->get_position() + SDL_FPoint{-(float)npc->get_name()->get_width() / 2, 4});
+		render_mask(t, npc->get_name(), world, 2, 2);
+		render_sprite(t, npc->get_name(), world);
+		delete t;
+	}
+	if (npc->get_func() != nullptr)
+	{
+		Transform *t = new Transform(npc->get_component<Transform>()->get_position());
+		t->set_position(t->get_position() + SDL_FPoint{-(float)npc->get_func()->get_width() / 2, 20});
+		render_mask(t, npc->get_func(), world, 2, 2);
+		render_sprite(t, npc->get_func(), world);
+		delete t;
 	}
 }
