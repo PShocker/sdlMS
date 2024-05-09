@@ -10,7 +10,7 @@ public:
 	void run(World &world) override;
 
 private:
-	void update_nor(Normal *nor, World &world);
+	void update_normal(Normal *nor, World &world);
 	bool want_climb(Transform *tr, Normal *nor, World &world);
 	bool want_prone(Transform *tr, Normal *nor, World &world);
 	bool want_fall(Transform *tr, Normal *nor, World &world);

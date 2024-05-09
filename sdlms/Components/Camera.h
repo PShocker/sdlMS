@@ -6,7 +6,7 @@
 class Camera : public Component
 {
 public:
-    Camera(float x, float y, float w, float h);
+    Camera(int x, int y, float w, float h);
     constexpr auto get_x() { return x; }
     constexpr auto get_y() { return y; }
     constexpr auto get_w() { return w; }
@@ -18,8 +18,8 @@ public:
     void set_h(const float val) { h = val; }
 
 private:
-    float x;
-    float y;
+    int x;
+    int y;
     float w;
     float h;
 };
