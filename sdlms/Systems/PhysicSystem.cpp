@@ -183,6 +183,9 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
 		}
 		nor->vspeed = -200;
+		// 修改人物z值
+		world.destroy_component(tr, false);
+		world.add_component(tr, 7 * 30000 + 4000);
 		return true;
 	}
 	return false;
