@@ -10,26 +10,33 @@
 
 class Entity;
 
-class Component {
+class Component
+{
 public:
 	Component();
 	virtual ~Component();
 
 protected:
-	Entity* owner;
+	Entity *owner;
 
 public:
-	Entity* get_owner() const;
-	void set_owner(Entity* value);
+	Entity *get_owner() const;
+	void set_owner(Entity *value);
 
 	template <typename C>
-	C* get_owner_component();
-};
+	C *get_owner()
+	{
+		return dynamic_cast<C *>(owner);
+	}
 
+	template <typename C>
+	C *get_owner_component();
+};
 
 #include "Entities/Entity.h"
 
 template <typename C>
-C* Component::get_owner_component() {
-	return static_cast<C*>(owner->get_component<C>());
+C *Component::get_owner_component()
+{
+	return static_cast<C *>(owner->get_component<C>());
 }

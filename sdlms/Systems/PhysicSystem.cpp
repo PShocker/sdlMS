@@ -10,6 +10,7 @@
 #include "Components/CrawlLine.h"
 #include "Components/Avatar.h"
 #include "Components/Task.h"
+#include "Components/Player.h"
 
 void PhysicSystem::run(World &world)
 {
@@ -170,7 +171,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 			world.add_entity(foo, foo->id);
 			return;
 		};
-		Task *tas = new Task(callback, 200);
+		Task *tas = new Task(callback, 300);
 		foo->add_component(tas);
 		world.add_component(tas);
 
@@ -181,7 +182,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 		{
 			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
 		}
-		nor->vspeed = -150;
+		nor->vspeed = -200;
 		return true;
 	}
 	return false;
@@ -205,111 +206,77 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	nor->hspeed += delta_time * nor->hforce;
 	nor->hspeed = std::clamp(nor->hspeed, -125.0f, 125.0f);
 
-	if (std::abs(nor->hspeed) < 0.1)
-	{
-		// 如果速度太小,则直接设置0,避免浮点数精度问题
-		nor->hspeed = 0;
-	}
 	auto d_x = nor->hspeed * delta_time;
 	auto x = d_x + tr->get_position().x;
 	auto y = tr->get_position().y;
 
-	auto fhs = world.get_entitys<FootHold>();
+	auto &fhs = world.get_entitys<FootHold>();
 	auto foo = tr->get_owner()->get_entity<FootHold>();
 	auto rl = foo->get_component<RigidLine>();
 
-	// 切换fh
+	// 人物在fh移动的函数
+	auto walk_fh = [&fhs, &foo, &nor, &rl, &x, &y, &tr](int next_fh) -> bool
+	{
+		FootHold *fh = nullptr; // 走到下一个fh
+		if (fhs.contains(next_fh))
+		{
+			fh = fhs.find(next_fh)->second;
+		}
+		else
+		{
+			// 从fh掉落
+			nor->type = Normal::Air;
+			if (nor->get_owner_component<Avatar>() != nullptr)
+			{
+				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+			}
+			nor->vspeed = 0;
+			return false;
+		}
+		rl = fh->get_component<RigidLine>();
+		if (!rl->line->get_k().has_value())
+		{
+			if (y > rl->get_min_y())
+			{
+				// 撞墙,人物x不变
+				x = tr->get_position().x;
+				nor->hspeed = 0;
+				return false;
+			}
+			else
+			{
+				// 从fh掉落
+				nor->type = Normal::Air;
+				if (nor->get_owner_component<Avatar>() != nullptr)
+				{
+					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				}
+				nor->vspeed = 0;
+				return false;
+			}
+		}
+		foo = fh;
+		return true;
+	};
 	// 往左走
 	while (x < rl->get_min_x())
 	{
-		FootHold *fh = nullptr;
-		if (fhs.contains(foo->prev))
+		int next_fh = std::abs(foo->prev);
+		if (walk_fh(next_fh) == false)
 		{
-			fh = fhs.find(foo->prev)->second;
-		}
-		else
-		{
-			// 从fh掉落
-			nor->type = Normal::Air;
-			if (nor->get_owner_component<Avatar>() != nullptr)
-			{
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-			}
-			nor->vspeed = 0;
 			break;
 		}
-		rl = fh->get_component<RigidLine>();
-		if (!rl->line->get_k().has_value())
-		{
-			if (y > rl->get_min_y())
-			{
-				// 撞墙,人物x不变
-				x = tr->get_position().x;
-				nor->hspeed = 0;
-				break;
-			}
-			else
-			{
-				// 从fh掉落
-				nor->type = Normal::Air;
-				if (nor->get_owner_component<Avatar>() != nullptr)
-				{
-					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-				}
-				nor->vspeed = 0;
-				break;
-			}
-		}
-		foo = fh;
 	}
-
 	// 往右走
 	while (x > rl->get_max_x())
 	{
-		FootHold *fh = nullptr;
-		if (fhs.contains(foo->next))
+		int next_fh = std::abs(foo->next);
+		if (walk_fh(next_fh) == false)
 		{
-			fh = fhs.find(foo->next)->second;
-		}
-		else
-		{
-			// 从fh掉落
-			nor->type = Normal::Air;
-			if (nor->get_owner_component<Avatar>() != nullptr)
-			{
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-			}
-			nor->vspeed = 0;
 			break;
 		}
-		rl = fh->get_component<RigidLine>();
-		if (!rl->line->get_k().has_value())
-		{
-			// 撞墙
-			if (y > rl->get_min_y())
-			{
-				// 撞墙,人物x不变
-				x = tr->get_position().x;
-				nor->hspeed = 0;
-				break;
-			}
-			else
-			{
-				// 从fh掉落
-				nor->type = Normal::Air;
-				if (nor->get_owner_component<Avatar>() != nullptr)
-				{
-					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-				}
-				nor->vspeed = 0;
-				break;
-			}
-		}
-		foo = fh;
 	}
-
 	nor->get_owner()->add_entity(foo);
-
 	if (rl->line->get_y(x).has_value())
 	{
 		tr->set_y(rl->line->get_y(x).value());
@@ -337,9 +304,9 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	{
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
-			if (id < 0)
+			if (id < 0 && nor->get_owner_component<Player>() != nullptr)
 			{
-				// id<0表示下跳时的fh
+				// id<0表示下跳时的fh,需要排除玩家本身
 				continue;
 			}
 			auto rl = fh->get_component<RigidLine>();
