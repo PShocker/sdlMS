@@ -15,7 +15,7 @@ Line::Line(SDL_FPoint m, SDL_FPoint n) : m(m), n(n)
 
 std::optional<float> Line::get_y(float x)
 {
-    if (x == std::clamp(x, (float)m.x, (float)n.x))
+    if (x >= get_min_x() && x <= get_max_x())
     {
         if (k.has_value())
         {

@@ -18,6 +18,13 @@ void UpdateSystem::run(World &world)
 			update_avatar(ava, ava->get_owner_component<Transform>(), world);
 		}
 	}
+	if (world.components_exist_of_type<Video>())
+	{
+		for (auto &[index, vid] : world.get_components<Video>())
+		{
+			update_video(vid, world);
+		}
+	}
 	// 更新三段式传送门状态
 	if (world.entity_exist_of_type<Portal>())
 	{
@@ -34,6 +41,7 @@ void UpdateSystem::run(World &world)
 			}
 		}
 	}
+	// 定时任务
 	if (world.components_exist_of_type<Task>())
 	{
 		auto &tasks = world.get_components<Task>();
@@ -134,4 +142,29 @@ bool UpdateSystem::update_task(Task *tas, World &world)
 		return true;
 	}
 	return false;
+}
+
+void UpdateSystem::update_video(Video *vid, World &world)
+{
+	// 解码并显示视频帧
+	AVPacket packet;
+	AVFrame *frame = av_frame_alloc();
+	AVFrame *frame_yuv = av_frame_alloc();
+	if (av_read_frame(vid->formatContext, &packet) >= 0)
+	{
+		if (packet.stream_index == vid->videoStreamIndex)
+		{
+			avcodec_send_packet(vid->codecContext, &packet);
+			if (avcodec_receive_frame(vid->codecContext, frame) == 0)
+			{
+				sws_scale_frame(vid->swsContext, frame_yuv, frame);
+				SDL_UpdateYUVTexture(vid->texture, NULL,
+									 frame_yuv->data[0], frame_yuv->linesize[0],
+									 frame_yuv->data[1], frame_yuv->linesize[1],
+									 frame_yuv->data[2], frame_yuv->linesize[2]);
+			}
+		}
+	}
+	av_frame_free(&frame_yuv);
+	av_frame_free(&frame);
 }

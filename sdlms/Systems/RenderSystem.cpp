@@ -27,12 +27,19 @@ void RenderSystem::run(World &world)
 				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
 			}
 			// 渲染npc名字
-			if (tr->get_owner<Npc>()!=nullptr)
+			if (tr->get_owner<Npc>() != nullptr)
 			{
 				render_npc_info(tr->get_owner<Npc>(), world);
 			}
 		}
 	}
+	// if (world.components_exist_of_type<Video>())
+	// {
+	// 	for (auto &[index, vid] : world.get_components<Video>())
+	// 	{
+	// 		render_video(vid, world);
+	// 	}
+	// }
 }
 
 void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
@@ -333,4 +340,10 @@ void RenderSystem::render_npc_info(Npc *npc, World &world)
 		render_sprite(t, npc->get_func(), world);
 		delete t;
 	}
+}
+
+void RenderSystem::render_video(Video *vid, World &world)
+{
+	SDL_Rect rect = {0, 0, vid->width, vid->height};
+	SDL_RenderCopy(Window::get_renderer(), vid->texture, NULL, &rect);
 }

@@ -6,6 +6,7 @@
 #include "Components/Avatar.h"
 #include "Components/Player.h"
 #include "Components/Task.h"
+#include "Components/Video.h"
 
 #include "Entities/Portal.h"
 
@@ -20,4 +21,5 @@ private:
 	void update_avatar(Avatar *hvm, Transform *tr, World &world);
 	void update_portal(Portal *por, Transform *tr, World &world); // 三段式传送门
 	bool update_task(Task *tas,World &world); // 三段式传送门
+	void update_video(Video *vid,World &world); // 三段式传送门
 };
