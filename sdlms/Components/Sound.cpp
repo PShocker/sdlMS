@@ -123,16 +123,16 @@ Sound::Sound(wz::Node *node)
         int inSampleRate = codecContext->sample_rate;
         // 输出采样率
         int outSampleRate = inSampleRate;
-        // 输入声道布局
-        uint64_t in_ch_layout = codecContext->channel_layout;
-        // 输出声道布局
-        uint64_t out_ch_layout = AV_CH_LAYOUT_STEREO;
-        swr_alloc_set_opts(swrContext, out_ch_layout, outFormat, outSampleRate,
-                           in_ch_layout, inFormat, inSampleRate, 0, NULL);
 
-        swr_init(swrContext);
+        swr_alloc_set_opts2(&swrContext, &codecContext->ch_layout, outFormat, outSampleRate,
+                            &codecContext->ch_layout, inFormat, inSampleRate, 0, NULL);
 
-        int outChannelCount = av_get_channel_layout_nb_channels(out_ch_layout);
+        if (swr_init(swrContext) < 0)
+        {
+            return;
+        }
+
+        int outChannelCount = codecContext->ch_layout.nb_channels;
 
         uint8_t *out_buffer = (uint8_t *)av_malloc(2 * outSampleRate);
         while (av_read_frame(formatContext, packet) >= 0)

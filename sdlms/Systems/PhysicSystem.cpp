@@ -75,9 +75,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 			auto cl = lr->get_component<CrawlLine>();
 
 			// 判断x坐标是否在梯子范围内
-			if (pos.x == std::clamp(pos.x,
-									cl->get_min_x() - 10,
-									cl->get_max_x() + 10))
+			if (pos.x >= cl->get_min_x() - 10 && pos.x <= cl->get_max_x() + 10)
 			{
 				if (nor->want_climb == Normal::Up)
 				{
@@ -94,9 +92,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 					else if (nor->type == Normal::Air)
 					{
 						// 空中向上爬
-						if (pos.y == std::clamp(pos.y,
-												cl->get_min_y(),
-												cl->get_max_y()))
+						if (pos.y > cl->get_min_y() && pos.y < cl->get_max_y())
 						{
 							// 垂直的线
 							lad = lr;

@@ -4,7 +4,7 @@
 class Wz : public Resource
 {
 public:
-    Wz(const std::string filename_prefix);
+    Wz(const std::string &filename_prefix);
 
 public:
     wz::File *Base;

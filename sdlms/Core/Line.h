@@ -21,6 +21,6 @@ protected:
     SDL_FPoint n;
 
 protected:
-    std::optional<float> k = std::nullopt;
+    std::optional<float> k = std::nullopt; // 斜率,若k值不存在,可以判断是否是墙面
     std::optional<float> intercept = std::nullopt;
 };

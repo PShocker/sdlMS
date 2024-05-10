@@ -11,13 +11,14 @@
 #include "Components/Camera.h"
 #include "Components/Player.h"
 #include "Components/Physic/Normal.h"
+#include "Components/Video.h"
 #include "Entities/Character.h"
 #include "Core/Map.h"
 #include "Core/FreeType.h"
 #include "Resource/Wz.h"
 
-int width = 800;
-int height = 600;
+int width = 1025;
+int height = 520;
 
 int main(int argc, char *argv[])
 {
@@ -63,6 +64,9 @@ int main(int argc, char *argv[])
     world.add_component(camera, 0);
     world.add_component(nor);
     world.add_component(pla);
+
+    Video *vid = Video::load_video("a.mp4",width,height);
+    world.add_component(vid);
 
     while (!world.is_game_quit())
     {

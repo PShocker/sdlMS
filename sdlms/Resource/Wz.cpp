@@ -6,7 +6,7 @@
         U8(A), U8(B), U8(C), U8(D) \
     }
 
-Wz::Wz(const std::string filename_prefix)
+Wz::Wz(const std::string &filename_prefix)
 {
     const auto iv = IV4(0xb9, 0x7d, 0x63, 0xe9);
     // 默认全部加载
