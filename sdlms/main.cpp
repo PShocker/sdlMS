@@ -65,8 +65,11 @@ int main(int argc, char *argv[])
     world.add_component(nor);
     world.add_component(pla);
 
-    Video *vid = Video::load_video("a.mp4",width,height);
-    world.add_component(vid);
+    Video *vid = Video::load_video("a.mp4", 100, 100);
+    if (vid != nullptr)
+    {
+        world.add_component(vid);
+    }
 
     while (!world.is_game_quit())
     {
