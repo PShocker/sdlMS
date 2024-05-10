@@ -17,8 +17,8 @@
 #include "Core/FreeType.h"
 #include "Resource/Wz.h"
 
-int width = 1025;
-int height = 520;
+int width = 800;
+int height = 600;
 
 int main(int argc, char *argv[])
 {
