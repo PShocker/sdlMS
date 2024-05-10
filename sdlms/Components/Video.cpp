@@ -1,5 +1,6 @@
 #include "Video.h"
 #include "Core/Window.h"
+#include <thread>
 
 Video *Video::load_video(const std::string &url, int width, int height)
 {
@@ -35,6 +36,9 @@ Video *Video::load_video(const std::string &url, int width, int height)
     {
         return nullptr;
     }
+    // 设置解码线程
+    codecContext->thread_count = std::thread::hardware_concurrency();
+    
     if (avcodec_open2(codecContext, codec, nullptr) < 0)
     {
         return nullptr;

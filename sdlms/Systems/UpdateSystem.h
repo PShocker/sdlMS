@@ -21,5 +21,5 @@ private:
 	void update_avatar(Avatar *hvm, Transform *tr, World &world);
 	void update_portal(Portal *por, Transform *tr, World &world); // 三段式传送门
 	bool update_task(Task *tas,World &world); // 三段式传送门
-	void update_video(Video *vid,World &world); // 三段式传送门
+	static int update_video(void *vid); // 三段式传送门
 };

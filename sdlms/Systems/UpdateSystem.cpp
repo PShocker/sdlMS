@@ -22,7 +22,8 @@ void UpdateSystem::run(World &world)
 	{
 		for (auto &[index, vid] : world.get_components<Video>())
 		{
-			update_video(vid, world);
+			// SDL_CreateThread(UpdateSystem::update_video, "decodeThread", (void *)vid);
+			update_video(vid);
 		}
 	}
 	// 更新三段式传送门状态
@@ -144,24 +145,28 @@ bool UpdateSystem::update_task(Task *tas, World &world)
 	return false;
 }
 
-void UpdateSystem::update_video(Video *vid, World &world)
+int UpdateSystem::update_video(void *vid)
 {
 	// 解码并显示视频帧
+	Video *video = (Video *)vid;
 	AVPacket packet;
 	AVFrame *frame = av_frame_alloc();
-	if (av_read_frame(vid->formatContext, &packet) >= 0)
+	while (av_read_frame(video->formatContext, &packet) >= 0)
 	{
-		if (packet.stream_index == vid->videoStreamIndex)
+		if (packet.stream_index == video->videoStreamIndex)
 		{
-			avcodec_send_packet(vid->codecContext, &packet);
-			if (avcodec_receive_frame(vid->codecContext, frame) == 0)
+			avcodec_send_packet(video->codecContext, &packet);
+			if (avcodec_receive_frame(video->codecContext, frame) == 0)
 			{
-				SDL_UpdateYUVTexture(vid->texture, NULL,
+				SDL_UpdateYUVTexture(video->texture, NULL,
 									 frame->data[0], frame->linesize[0],
 									 frame->data[1], frame->linesize[1],
 									 frame->data[2], frame->linesize[2]);
+				break;
 			}
 		}
+		av_packet_unref(&packet);
 	}
 	av_frame_free(&frame);
+	return 0;
 }
