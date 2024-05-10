@@ -33,13 +33,13 @@ void RenderSystem::run(World &world)
 			}
 		}
 	}
-	// if (world.components_exist_of_type<Video>())
-	// {
-	// 	for (auto &[index, vid] : world.get_components<Video>())
-	// 	{
-	// 		render_video(vid, world);
-	// 	}
-	// }
+	if (world.components_exist_of_type<Video>())
+	{
+		for (auto &[index, vid] : world.get_components<Video>())
+		{
+			render_video(vid, world);
+		}
+	}
 }
 
 void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
