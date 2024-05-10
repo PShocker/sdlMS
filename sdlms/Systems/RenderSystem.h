@@ -21,5 +21,5 @@ private:
 	void render_avatar_sprite(Transform *tr, Avatar *ava, World &world);
 	void render_mask(Transform *tr, Sprite *spr, World &world, float pad_x = 0, float pad_y = 0);
 	void render_npc_info(Npc *npc, World &world);
-	void render_video(Video *vid, World &world);
+	void render_video(Transform *tr,Video *vid, World &world);
 };

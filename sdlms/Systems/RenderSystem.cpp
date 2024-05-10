@@ -26,18 +26,15 @@ void RenderSystem::run(World &world)
 			{
 				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
 			}
+			else if (tr->get_owner_component<Video>() != nullptr)
+			{
+				render_video(tr, tr->get_owner_component<Video>(), world);
+			}
 			// 渲染npc名字
 			if (tr->get_owner<Npc>() != nullptr)
 			{
 				render_npc_info(tr->get_owner<Npc>(), world);
 			}
-		}
-	}
-	if (world.components_exist_of_type<Video>())
-	{
-		for (auto &[index, vid] : world.get_components<Video>())
-		{
-			render_video(vid, world);
 		}
 	}
 }
@@ -342,8 +339,16 @@ void RenderSystem::render_npc_info(Npc *npc, World &world)
 	}
 }
 
-void RenderSystem::render_video(Video *vid, World &world)
+void RenderSystem::render_video(Transform *tr, Video *vid, World &world)
 {
-	SDL_Rect rect = {0, 0, vid->width, vid->height};
-	SDL_RenderCopy(Window::get_renderer(), vid->texture, NULL, &rect);
+	auto camera = world.get_components<Camera>().find(0)->second;
+
+	auto width = (float)vid->width;
+	auto heihgt = (float)vid->height;
+
+	auto x = tr->get_position().x;
+	auto y = tr->get_position().y;
+
+	SDL_FRect rect = {x - camera->get_x(), y - camera->get_y(), width, heihgt};
+	SDL_RenderCopyF(Window::get_renderer(), vid->texture, NULL, &rect);
 }
