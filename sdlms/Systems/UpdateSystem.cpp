@@ -149,7 +149,6 @@ void UpdateSystem::update_video(Video *vid, World &world)
 	// 解码并显示视频帧
 	AVPacket packet;
 	AVFrame *frame = av_frame_alloc();
-	AVFrame *frame_yuv = av_frame_alloc();
 	if (av_read_frame(vid->formatContext, &packet) >= 0)
 	{
 		if (packet.stream_index == vid->videoStreamIndex)
@@ -157,14 +156,12 @@ void UpdateSystem::update_video(Video *vid, World &world)
 			avcodec_send_packet(vid->codecContext, &packet);
 			if (avcodec_receive_frame(vid->codecContext, frame) == 0)
 			{
-				sws_scale_frame(vid->swsContext, frame_yuv, frame);
 				SDL_UpdateYUVTexture(vid->texture, NULL,
-									 frame_yuv->data[0], frame_yuv->linesize[0],
-									 frame_yuv->data[1], frame_yuv->linesize[1],
-									 frame_yuv->data[2], frame_yuv->linesize[2]);
+									 frame->data[0], frame->linesize[0],
+									 frame->data[1], frame->linesize[1],
+									 frame->data[2], frame->linesize[2]);
 			}
 		}
 	}
-	av_frame_free(&frame_yuv);
 	av_frame_free(&frame);
 }

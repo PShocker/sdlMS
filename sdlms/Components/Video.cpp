@@ -41,7 +41,7 @@ Video *Video::load_video(const std::string &url, int width, int height)
     }
 
     struct SwsContext *swsContext = sws_getContext(codecContext->width, codecContext->height, codecContext->pix_fmt,
-                                                   width, height, AV_PIX_FMT_YUV420P,
+                                                   codecContext->width, codecContext->height, AV_PIX_FMT_YUV420P,
                                                    SWS_BICUBIC, NULL, NULL, NULL);
 
     return new Video(formatContext, codecContext, videoStreamIndex, swsContext, width, height);
@@ -56,5 +56,5 @@ Video::Video(AVFormatContext *formatContext, AVCodecContext *codecContext, int v
 
 {
     texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_YV12, SDL_TEXTUREACCESS_STREAMING,
-                                width, height);
+                                codecContext->width, codecContext->height);
 }
