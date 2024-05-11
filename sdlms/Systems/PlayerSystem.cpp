@@ -17,37 +17,49 @@ void PlayerSystem::update_player(Player *pla, World &world)
 {
     auto nor = pla->get_owner_component<Normal>();
     auto ava = pla->get_owner_component<Avatar>();
-    nor->want_climb = Normal::None;
+    auto tr = pla->get_owner_component<Transform>();
+
+    nor->vkey = Normal::None;
+    nor->hkey = Normal::None;
     nor->want_prone = false;
     nor->want_fall = false;
+    nor->want_stand = false;
+    nor->want_jump = false;
 
     switch (nor->type)
     {
     case Normal::Ground:
-        if (Input::is_key_held(SDLK_RIGHT))
+        if (Input::is_key_held(SDLK_RIGHT)) // flip(1)
         {
-            nor->hforce = 1400;
-            ava->direct = false;
-            ava->switch_act(Avatar::ACTION::WALK1);
+            nor->hkey = Normal::Right;
+            // nor->hforce = 1400;
+            // tr->set_flip(1);
+            // if (ava != nullptr)
+            // {
+            //     ava->switch_act(Avatar::ACTION::WALK1);
+            // }
         }
-        else if (Input::is_key_held(SDLK_LEFT))
+        else if (Input::is_key_held(SDLK_LEFT)) // flip(0)
         {
-            nor->hforce = -1400;
-            ava->direct = true;
-            ava->switch_act(Avatar::ACTION::WALK1);
+            nor->hkey = Normal::Left;
+            // nor->hforce = -1400;
+            // tr->set_flip(0);
+            // if (ava != nullptr)
+            // {
+            //     ava->switch_act(Avatar::ACTION::WALK1);
+            // }
         }
         else
         {
-            nor->hforce = 0;
-            ava->switch_act(Avatar::ACTION::STAND1);
+            nor->want_stand = true;
         }
         if (Input::is_key_held(SDLK_UP))
         {
-            nor->want_climb = Normal::Up;
+            nor->vkey = Normal::Up;
         }
         else if (Input::is_key_held(SDLK_DOWN))
         {
-            nor->want_climb = Normal::Down;
+            nor->vkey = Normal::Down;
             nor->want_prone = true;
         }
         if (Input::is_key_held(SDLK_LALT) && Input::is_key_held(SDLK_DOWN))
@@ -56,58 +68,52 @@ void PlayerSystem::update_player(Player *pla, World &world)
         }
         else if (Input::is_key_held(SDLK_LALT))
         {
-            nor->type = Normal::Air;
-            nor->vspeed = -555;
-            ava->switch_act(Avatar::ACTION::JUMP);
+            nor->want_jump = true;
         }
-
         break;
     case Normal::Air:
         if (Input::is_key_held(SDLK_RIGHT))
         {
-            ava->direct = false;
+            nor->hkey = Normal::Right;
         }
         else if (Input::is_key_held(SDLK_LEFT))
         {
-            ava->direct = true;
+            nor->hkey = Normal::Left;
         }
         if (Input::is_key_held(SDLK_UP))
         {
-            nor->want_climb = Normal::Up;
+            nor->vkey = Normal::Up;
         }
         else if (Input::is_key_held(SDLK_DOWN))
         {
-            nor->want_climb = Normal::Down;
+            nor->vkey = Normal::Down;
         }
         break;
     case Normal::Climb:
-        nor->hspeed = 0;
-        nor->vspeed = 0;
         if (Input::is_key_held(SDLK_RIGHT))
         {
-            ava->direct = false;
-            nor->hspeed = 100;
+            // tr->set_flip(1);
+            // nor->hspeed = 100;
+            nor->hkey = Normal::Right;
         }
         else if (Input::is_key_held(SDLK_LEFT))
         {
-            ava->direct = true;
-            nor->hspeed = -100;
+            // tr->set_flip(0);
+            // nor->hspeed = -100;
+            nor->hkey = Normal::Left;
         }
-        if (Input::is_key_held(SDLK_LALT) && !Input::is_key_held(SDLK_UP) && nor->hspeed != 0)
+        if (Input::is_key_held(SDLK_LALT) && !Input::is_key_held(SDLK_UP) && (Input::is_key_held(SDLK_LEFT) || Input::is_key_held(SDLK_RIGHT)))
         {
-            nor->vspeed = -300;
-            nor->type = Normal::Air;
-            ava->animate = true;
-            ava->switch_act(Avatar::ACTION::JUMP);
+            nor->want_jump = true;
             break;
         }
         if (Input::is_key_held(SDLK_UP))
         {
-            nor->vspeed = -100;
+            nor->vkey = Normal::Up;
         }
         else if (Input::is_key_held(SDLK_DOWN))
         {
-            nor->vspeed = 100;
+            nor->vkey = Normal::Down;
         }
         break;
     }

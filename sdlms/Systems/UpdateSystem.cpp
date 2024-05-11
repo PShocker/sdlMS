@@ -8,7 +8,10 @@ void UpdateSystem::run(World &world)
 	{
 		for (auto &[index, aspr] : world.get_components<AnimatedSprite>())
 		{
-			update_animated_sprite(aspr, world);
+			if (aspr->get_owner() != nullptr)
+			{
+				update_animated_sprite(aspr, world);
+			}
 		}
 	}
 	if (world.components_exist_of_type<Avatar>())

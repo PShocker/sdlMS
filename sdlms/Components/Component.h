@@ -17,7 +17,7 @@ public:
 	virtual ~Component();
 
 protected:
-	Entity *owner;
+	Entity *owner = nullptr;
 
 public:
 	Entity *get_owner() const;

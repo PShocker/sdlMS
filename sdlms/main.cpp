@@ -13,6 +13,7 @@
 #include "Components/Physic/Normal.h"
 #include "Components/Video.h"
 #include "Entities/Character.h"
+#include "Entities/Mob.h"
 #include "Core/Map.h"
 #include "Core/FreeType.h"
 #include "Resource/Wz.h"
@@ -56,14 +57,24 @@ int main(int argc, char *argv[])
     Camera *camera = new Camera(0, 0, width, height);
     Normal *nor = new Normal();
     Player *pla = new Player(); // 玩家控制的角色
-    cha->add_component(t);
-    cha->add_component(camera);
-    cha->add_component(nor);
-    cha->add_component(pla);
+    // cha->add_component(t);
+    // cha->add_component(camera);
+    // cha->add_component(nor);
+    // cha->add_component(pla);
+    // world.add_component(t, 3000000);
+    // world.add_component(camera, 0);
+    // world.add_component(nor);
+    // world.add_component(pla);
+    Mob* mob=new Mob(&world);
+    mob->add_component(t);
+    mob->add_component(nor);
+    mob->add_component(pla);
+    mob->add_component(camera);
     world.add_component(t, 3000000);
     world.add_component(camera, 0);
     world.add_component(nor);
     world.add_component(pla);
+
 
     Video *vid = Video::load_video("a.mp4", 244, 184);
     if (vid != nullptr)

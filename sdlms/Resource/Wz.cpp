@@ -35,7 +35,7 @@ Wz::Wz(const std::string &filename_prefix)
     // Item->parse();
     // List->parse();
     Map->parse(u"Map");
-    // Mob->parse();
+    Mob->parse(u"Mob");
     // Morph->parse();
     Npc->parse(u"Npc");
     // Quest->parse();
