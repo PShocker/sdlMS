@@ -16,10 +16,9 @@ Npc::Npc(wz::Node *node, World *world)
         auto fh = dynamic_cast<wz::Property<int> *>(node->get_child(u"fh"))->get();
         // 从fh获取layer
         auto layer = world->get_entitys<FootHold>().find(fh)->second->get_page();
-        auto xm = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
 
         node = world->get_resource<Wz>().Npc->get_root()->find_from_path(npc_id + u".img");
-        // 排除npc link
+        // 排除 link
         while (node->find_from_path(u"info/link") != nullptr)
         {
             auto link = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/link"))->get();
@@ -29,8 +28,9 @@ Npc::Npc(wz::Node *node, World *world)
         {
             if (name != u"info")
             {
-                auto aspr = AnimatedSprite::load_animated_sprite(val[0]);
+                auto aspr = new AnimatedSprite(val[0]);
                 aspr_map[name] = aspr;
+                world->add_component(aspr);
             }
         }
         if (aspr_map.size() > 0)
@@ -41,7 +41,6 @@ Npc::Npc(wz::Node *node, World *world)
             add_component(t);
             add_component(aspr);
             world->add_component(t, 30000 * layer + 3000);
-            world->add_unique_component(aspr);
         }
         // 从string.wz获取信息
         node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Npc.img/" + npc_id.substr(npc_id.find_first_not_of(u'0')));

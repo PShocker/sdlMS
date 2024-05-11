@@ -188,10 +188,9 @@ public:
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> hand[ACTION::LENGTH];
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> lHand[ACTION::LENGTH];
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> rHand[ACTION::LENGTH];
-    uint8_t act = ACTION::STAND1;
+    uint8_t act = ACTION::JUMP;
     int act_index = 0;
     int act_time = 0;
-    bool direct = true;
     bool animate = true;
 
 public:

@@ -6,6 +6,7 @@
 #include "Entities/FootHold.h"
 #include "Entities/LadderRope.h"
 #include "Entities/Character.h"
+#include "Entities/Mob.h"
 #include "Components/RigidLine.h"
 #include "Components/CrawlLine.h"
 #include "Components/Avatar.h"
@@ -40,7 +41,15 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		{
 			return;
 		}
-		if (want_prone(tr, nor, world))
+		if (want_prone(nor, world))
+		{
+			return;
+		}
+		if (want_stand(nor, world))
+		{
+			return;
+		}
+		if (want_jump(tr, nor, world))
 		{
 			return;
 		}
@@ -54,11 +63,15 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		{
 			return;
 		}
-		// 跳跃
+		// 空中
 		fall(tr, nor, delta_time, world);
 		break;
 	case Normal::Climb:
 		// 爬梯子
+		if (want_jump(tr, nor, world))
+		{
+			return;
+		}
 		climb(tr, nor, delta_time);
 		break;
 	}
@@ -152,7 +165,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 	return false;
 }
 
-bool PhysicSystem::want_prone(Transform *tr, Normal *nor, World &world)
+bool PhysicSystem::want_prone(Normal *nor, World &world)
 {
 	if (nor->want_prone)
 	{
@@ -194,7 +207,11 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 		{
 			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
 		}
-		nor->vspeed = -250;
+		else if (nor->get_owner<Mob>() != nullptr)
+		{
+			nor->get_owner<Mob>()->switch_act(u"jump");
+		}
+		nor->vspeed = -240;
 		// 修改人物z值
 		world.destroy_component(tr, false);
 		world.add_component(tr, 7 * 30000 + 4000);
@@ -203,9 +220,79 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 	return false;
 }
 
+bool PhysicSystem::want_stand(Normal *nor, World &world)
+{
+	if (nor->want_stand)
+	{
+		// 还需要进行alert状态判断
+		if (nor->get_owner_component<Avatar>() != nullptr)
+		{
+			auto ava = nor->get_owner_component<Avatar>();
+			ava->switch_act(Avatar::ACTION::STAND1);
+		}
+		return true;
+	}
+	return false;
+}
+
+bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
+{
+	if (nor->hkey == Normal::Right)
+	{
+		nor->hspeed = 100;
+		tr->set_flip(1);
+	}
+	else if (nor->hkey == Normal::Left)
+	{
+		nor->hspeed = -100;
+		tr->set_flip(0);
+	}
+
+	if (nor->type == Normal::Ground)
+	{
+		nor->type = Normal::Air;
+		nor->vspeed = -555;
+	}
+	else if (nor->type == Normal::Climb)
+	{
+		nor->vspeed = -300;
+		nor->type = Normal::Air;
+	}
+	if (nor->get_owner_component<Avatar>() != nullptr)
+	{
+		// 修改纸娃娃状态
+		nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+	}
+	else if (nor->get_owner<Mob>() != nullptr)
+	{
+		nor->get_owner<Mob>()->switch_act(u"jump");
+	}
+	return true;
+}
+
 void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_time)
 {
-	constexpr auto friction = 800;
+
+	if (nor->hkey == Normal::Right)
+	{
+		nor->hforce = 1400;
+		tr->set_flip(1);
+	}
+	else if (nor->hkey == Normal::Left)
+	{
+		nor->hforce = -1400;
+		tr->set_flip(0);
+	}
+	if (nor->get_owner_component<Avatar>() != nullptr)
+	{
+		nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::WALK1);
+	}
+	else if (nor->get_owner<Mob>() != nullptr)
+	{
+		nor->get_owner<Mob>()->switch_act(u"move");
+	}
+
+	constexpr auto friction = 800; // 摩擦力
 
 	if (nor->hspeed > 0)
 	{
@@ -336,8 +423,18 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				}
 				else
 				{
+					// 落地
 					new_pos = collide.value();
 					nor->type = Normal::Ground;
+					if (nor->get_owner_component<Avatar>() != nullptr)
+					{
+						// 修改纸娃娃状态
+						nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::STAND1);
+					}
+					else if (nor->get_owner<Mob>() != nullptr)
+					{
+						nor->get_owner<Mob>()->switch_act(u"stand");
+					}
 					nor->get_owner()->add_entity(fh);
 					// 修改人物z值
 					world.destroy_component(tr, false);
@@ -388,6 +485,15 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 
 void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 {
+	if (nor->vkey = Normal::Up)
+	{
+		nor->vspeed = -100;
+	}
+	else if (nor->vkey = Normal::Down)
+	{
+		nor->vspeed = 100;
+	}
+
 	// 判断是否脱离梯子
 	auto cl = nor->get_owner()->get_entity<LadderRope>()->get_component<CrawlLine>();
 

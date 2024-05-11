@@ -204,13 +204,14 @@ void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world
 
 void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world)
 {
-	auto chara_pos = tr->get_position();
 	auto act = ava->act;
 	auto act_index = ava->act_index;
 	auto tran = new Transform();
-	auto set_tran = [chara_pos, &tran, ava](Transform *t, Sprite *spr)
+	auto set_tran = [&tr, &tran, ava](Transform *t, Sprite *spr)
 	{
-		if (ava->direct)
+		auto chara_pos = tr->get_position();
+		auto flip = tr->get_flip();
+		if (flip == 0)
 		{
 			tran->set_flip(0);
 			tran->set_position(chara_pos + t->get_position());

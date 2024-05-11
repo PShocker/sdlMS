@@ -17,12 +17,12 @@ Obj::Obj(wz::Node *node, int id, int layer, World *world)
 
     auto flip = dynamic_cast<wz::Property<int> *>(node->get_child(u"f"))->get();
 
-    auto aspr = AnimatedSprite::load_animated_sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
+    auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
 
     Transform *t = new Transform{(float)x, (float)y, flip};
 
     add_component(t);
     add_component(aspr);
     world->add_component(t, 30000 * layer + z * 100 + id);
-    world->add_unique_component(aspr);
+    world->add_component(aspr);
 }

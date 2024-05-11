@@ -34,5 +34,5 @@ public:
     int a1 = 255;
     SDL_Point origin = {0, 0};
 
-    int z;
+    int z = 0;
 };

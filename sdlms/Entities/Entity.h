@@ -9,7 +9,7 @@ class Component;
 class Entity
 {
 private:
-	unsigned long id;
+	unsigned long id = 0;
 	std::unordered_map<std::type_index, Component *> component_refs;
 	std::unordered_map<std::type_index, Entity *> entity_refs;
 
@@ -21,10 +21,13 @@ public:
 	void set_id(unsigned long value);
 
 	template <typename C>
-	void add_component(C *comp)
+	void add_component(C *comp, bool owner = true) // false表示comp是被ent公用,并无准确的owner,比如sprite
 	{
 		component_refs[typeid(C)] = comp;
-		comp->set_owner(this);
+		if (owner)
+		{
+			comp->set_owner(this);
+		}
 	}
 
 	template <typename C>
