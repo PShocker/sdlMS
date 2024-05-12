@@ -31,9 +31,6 @@ public:
         Right,
     };
     uint8_t vkey = None; // 上下按键
-    bool want_prone = false;   // 是否有趴下的倾向
-    bool want_fall = false;    // 是否有下跳的倾向
-    bool want_stand = false;   // 是否有stand的倾向
-    bool want_jump = false;    // 是否有jump的倾向
     uint8_t hkey = None;    // 左右按键
+    bool lalt=false;
 };

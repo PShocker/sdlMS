@@ -28,6 +28,17 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 {
 	auto tr = nor->get_owner_component<Transform>();
 	float delta_time = world.delta_time() / 1000.0;
+
+	// 首先修改人物朝向
+	if (nor->hkey == Normal::Right)
+	{
+		tr->set_flip(1);
+	}
+	else if (nor->hkey == Normal::Left)
+	{
+		tr->set_flip(0);
+	}
+
 	// 计算出不同状态的速度
 	switch (nor->type)
 	{
@@ -45,17 +56,16 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		{
 			return;
 		}
-		if (want_stand(nor, world))
-		{
-			return;
-		}
 		if (want_jump(tr, nor, world))
 		{
 			return;
 		}
-
 		// 地面移动判断
 		walk(tr, nor, world, delta_time);
+		if (want_stand(nor, world))
+		{
+			return;
+		}
 		break;
 	case Normal::Air:
 		// 首先判断是否爬梯子
@@ -79,7 +89,7 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 
 bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 {
-	if (nor->want_climb)
+	if (nor->vkey != Normal::None)
 	{
 		auto pos = tr->get_position();
 		LadderRope *lad = nullptr;
@@ -90,7 +100,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 			// 判断x坐标是否在梯子范围内
 			if (pos.x >= cl->get_min_x() - 10 && pos.x <= cl->get_max_x() + 10)
 			{
-				if (nor->want_climb == Normal::Up)
+				if (nor->vkey == Normal::Up)
 				{
 					if (nor->type == Normal::Ground)
 					{
@@ -113,7 +123,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 						}
 					}
 				}
-				else if (nor->want_climb == Normal::Down)
+				else if (nor->vkey == Normal::Down)
 				{
 					if (nor->type == Normal::Ground)
 					{
@@ -167,7 +177,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 
 bool PhysicSystem::want_prone(Normal *nor, World &world)
 {
-	if (nor->want_prone)
+	if (nor->vkey == Normal::Down)
 	{
 		if (nor->get_owner_component<Avatar>() != nullptr)
 		{
@@ -182,7 +192,7 @@ bool PhysicSystem::want_prone(Normal *nor, World &world)
 
 bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 {
-	if (nor->want_fall)
+	if (nor->vkey == Normal::Down && nor->lalt)
 	{
 		auto foo = tr->get_owner()->get_entity<FootHold>();
 		world.remove_entity(foo);
@@ -196,7 +206,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 			world.add_entity(foo, foo->id);
 			return;
 		};
-		Task *tas = new Task(callback, 300);
+		Task *tas = new Task(callback, 400);
 		foo->add_component(tas);
 		world.add_component(tas);
 
@@ -211,7 +221,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 		{
 			nor->get_owner<Mob>()->switch_act(u"jump");
 		}
-		nor->vspeed = -240;
+		nor->vspeed = -140;
 		// 修改人物z值
 		world.destroy_component(tr, false);
 		world.add_component(tr, 7 * 30000 + 4000);
@@ -222,13 +232,17 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 
 bool PhysicSystem::want_stand(Normal *nor, World &world)
 {
-	if (nor->want_stand)
+	if (nor->hkey == Normal::None)
 	{
 		// 还需要进行alert状态判断
 		if (nor->get_owner_component<Avatar>() != nullptr)
 		{
 			auto ava = nor->get_owner_component<Avatar>();
 			ava->switch_act(Avatar::ACTION::STAND1);
+		}
+		else if (nor->get_owner<Mob>() != nullptr)
+		{
+			nor->get_owner<Mob>()->switch_act(u"stand");
 		}
 		return true;
 	}
@@ -237,59 +251,78 @@ bool PhysicSystem::want_stand(Normal *nor, World &world)
 
 bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 {
-	if (nor->hkey == Normal::Right)
+	if (nor->lalt)
 	{
-		nor->hspeed = 100;
-		tr->set_flip(1);
-	}
-	else if (nor->hkey == Normal::Left)
-	{
-		nor->hspeed = -100;
-		tr->set_flip(0);
-	}
+		if (nor->type == Normal::Ground)
+		{
+			nor->type = Normal::Air;
+			nor->vspeed = -555;
 
-	if (nor->type == Normal::Ground)
-	{
-		nor->type = Normal::Air;
-		nor->vspeed = -555;
+			if (nor->get_owner_component<Avatar>() != nullptr)
+			{
+				// 修改纸娃娃状态
+				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+			}
+			else if (nor->get_owner<Mob>() != nullptr)
+			{
+				nor->get_owner<Mob>()->switch_act(u"jump");
+			}
+			return true;
+		}
+		else if (nor->type == Normal::Climb && (nor->hkey == Normal::Right || nor->hkey == Normal::Left) && !nor->vkey == Normal::Up)
+		{
+			nor->vspeed = -300;
+			nor->type = Normal::Air;
+			if (nor->hkey == Normal::Right)
+			{
+				nor->hspeed = 100;
+			}
+			else if (nor->hkey == Normal::Left)
+			{
+				nor->hspeed = -100;
+			}
+
+			if (nor->get_owner_component<Avatar>() != nullptr)
+			{
+				// 修改纸娃娃状态
+				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner_component<Avatar>()->animate = true;
+			}
+			else if (nor->get_owner<Mob>() != nullptr)
+			{
+				nor->get_owner<Mob>()->switch_act(u"jump");
+			}
+			return true;
+		}
 	}
-	else if (nor->type == Normal::Climb)
-	{
-		nor->vspeed = -300;
-		nor->type = Normal::Air;
-	}
-	if (nor->get_owner_component<Avatar>() != nullptr)
-	{
-		// 修改纸娃娃状态
-		nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-	}
-	else if (nor->get_owner<Mob>() != nullptr)
-	{
-		nor->get_owner<Mob>()->switch_act(u"jump");
-	}
-	return true;
+	return false;
 }
 
 void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_time)
 {
 
-	if (nor->hkey == Normal::Right)
+	if (nor->hkey != Normal::None)
 	{
-		nor->hforce = 1400;
-		tr->set_flip(1);
-	}
-	else if (nor->hkey == Normal::Left)
-	{
-		nor->hforce = -1400;
-		tr->set_flip(0);
-	}
-	if (nor->get_owner_component<Avatar>() != nullptr)
-	{
-		nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::WALK1);
-	}
-	else if (nor->get_owner<Mob>() != nullptr)
-	{
-		nor->get_owner<Mob>()->switch_act(u"move");
+		if (nor->hkey == Normal::Right)
+		{
+			nor->hforce = 1400;
+		}
+		else if (nor->hkey == Normal::Left)
+		{
+			nor->hforce = -1400;
+		}
+		else
+		{
+			nor->hforce = 0;
+		}
+		if (nor->get_owner_component<Avatar>() != nullptr)
+		{
+			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::WALK1);
+		}
+		else if (nor->get_owner<Mob>() != nullptr)
+		{
+			nor->get_owner<Mob>()->switch_act(u"move");
+		}
 	}
 
 	constexpr auto friction = 800; // 摩擦力
@@ -485,13 +518,17 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 
 void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 {
-	if (nor->vkey = Normal::Up)
+	if (nor->vkey == Normal::Up)
 	{
 		nor->vspeed = -100;
 	}
-	else if (nor->vkey = Normal::Down)
+	else if (nor->vkey == Normal::Down)
 	{
 		nor->vspeed = 100;
+	}
+	else
+	{
+		nor->vspeed = 0;
 	}
 
 	// 判断是否脱离梯子

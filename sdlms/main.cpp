@@ -32,7 +32,7 @@ int main(int argc, char *argv[])
     FreeType::init();
 
     Map *map = new Map(&world);
-    map->load_map(102000000);
+    map->load_map(104040000);
 
     SoundSystem sous{};
     world.add_system(&sous);
@@ -53,7 +53,7 @@ int main(int argc, char *argv[])
     world.add_system(&rsys);
 
     Character *cha = new Character(&world);
-    Transform *t = new Transform{(float)2042, (float)1546};
+    Transform *t = new Transform{(float)0, (float)0};
     Camera *camera = new Camera(0, 0, width, height);
     Normal *nor = new Normal();
     Player *pla = new Player(); // 玩家控制的角色
@@ -76,16 +76,16 @@ int main(int argc, char *argv[])
     world.add_component(pla);
 
 
-    Video *vid = Video::load_video("a.mp4", 244, 184);
-    if (vid != nullptr)
-    {
-        Entity *ent = new Entity();
-        Transform *t = new Transform{(float)2052, (float)1658};
-        ent->add_component(vid);
-        ent->add_component(t);
-        world.add_component(t,123000);
-        world.add_component(vid);
-    }
+    // Video *vid = Video::load_video("a.mp4", 244, 184);
+    // if (vid != nullptr)
+    // {
+    //     Entity *ent = new Entity();
+    //     Transform *t = new Transform{(float)2052, (float)1658};
+    //     ent->add_component(vid);
+    //     ent->add_component(t);
+    //     world.add_component(t,123000);
+    //     world.add_component(vid);
+    // }
 
     while (!world.is_game_quit())
     {
