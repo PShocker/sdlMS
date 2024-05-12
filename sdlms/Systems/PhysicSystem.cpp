@@ -475,7 +475,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					}
 					else
 					{
-						nor->hspeed = 0;
+						nor->hspeed /= 3;
 					}
 					nor->get_owner()->add_entity(fh);
 					// 修改人物z值
