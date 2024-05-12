@@ -58,7 +58,7 @@ Mob::Mob(wz::Node *node, World *world)
 // 测试
 Mob::Mob(World *world)
 {
-    std::u16string mob_id = u"3110101";
+    std::u16string mob_id = u"1210102";
     auto node = world->get_resource<Wz>().Mob->get_root()->find_from_path(mob_id + u".img");
     // 排除 link
     while (node->find_from_path(u"info/link") != nullptr)
@@ -99,7 +99,6 @@ void Mob::switch_act(const std::u16string &a)
             aspr->set_anim_index(0);
             aspr->set_anim_time(0);
             act = a;
-
             remove_component<AnimatedSprite>();
             add_component(aspr);
         }
