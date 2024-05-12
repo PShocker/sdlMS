@@ -311,10 +311,6 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		{
 			nor->hforce = -1400;
 		}
-		else
-		{
-			nor->hforce = 0;
-		}
 		if (nor->get_owner_component<Avatar>() != nullptr)
 		{
 			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::WALK1);
@@ -323,6 +319,10 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		{
 			nor->get_owner<Mob>()->switch_act(u"move");
 		}
+	}
+	else
+	{
+		nor->hforce = 0;
 	}
 
 	constexpr auto friction = 800; // 摩擦力
