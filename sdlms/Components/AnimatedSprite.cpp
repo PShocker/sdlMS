@@ -28,8 +28,8 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
             continue;
         }
 
-        Sprite *sprite = Sprite::load_sprite(canvas);
-        
+        Sprite *sprite = new Sprite(canvas);
+
         sprites.push_back(sprite);
     }
     anim_size = sprites.size();
@@ -37,6 +37,13 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
     anim_time = 0;
 }
 
+AnimatedSprite::~AnimatedSprite()
+{
+    for (auto &spr : sprites)
+    {
+        delete spr;
+    }
+}
 
 void AnimatedSprite::advance_anim()
 {

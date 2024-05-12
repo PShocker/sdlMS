@@ -81,7 +81,7 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
     case 0:
     {
         auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-        Sprite *spr = Sprite::load_sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
+        Sprite *spr = new Sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
         add_component(spr);
         world->add_component(t, id - 1000);
         break;

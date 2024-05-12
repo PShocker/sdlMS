@@ -77,19 +77,34 @@ void World::add_resource(Resource *r)
 	DEBUG_PRINT("Added a new system (%s)", typeid(*sys).name());
 }
 
-void World::destroy_entity(Entity *ent, bool destroy_components, bool remove)
+void World::destroy_entity(Entity *ent, bool destroy_components)
 {
-	DEBUG_PRINT("Destroying entity ID %lu", ent->get_id());
-
 	if (destroy_components)
 	{
-		for (auto &pair : ent->get_components())
-			destroy_component(pair.second);
+		for (auto &[key, val] : ent->get_components())
+		{
+			if (val != nullptr)
+			{
+				destroy_component(val);
+			}
+		}
 	}
-
-	if (remove)
+	auto &target_map = entity_map[typeid(*ent)];
+	for (auto it = target_map.begin(); it != target_map.end();)
+	{
+		if (it->second == ent)
+		{
+			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+		}
+		else
+		{
+			++it;
+		}
+	}
+	if (target_map.size() == 0)
+	{
 		entity_map.erase(typeid(*ent));
-
+	}
 	delete ent;
 }
 
@@ -229,7 +244,7 @@ void World::cleanup()
 	{
 		for (auto &[_, ent] : val)
 		{
-			destroy_entity(ent, false, false);
+			destroy_entity(ent, false);
 		}
 	}
 }

@@ -7,11 +7,14 @@
 #include "Entities/LadderRope.h"
 #include "Entities/Character.h"
 #include "Entities/Mob.h"
+#include "Entities/Portal.h"
 #include "Components/RigidLine.h"
 #include "Components/CrawlLine.h"
 #include "Components/Avatar.h"
 #include "Components/Task.h"
 #include "Components/Player.h"
+
+#include "Core/Map.h"
 
 void PhysicSystem::run(World &world)
 {
@@ -43,7 +46,12 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 	switch (nor->type)
 	{
 	case Normal::Ground:
-		// 首先判断是否爬梯子
+		// 判断是否进传送门
+		if (want_portal(tr, nor, world))
+		{
+			return;
+		}
+		// 判断是否爬梯子
 		if (want_climb(tr, nor, world))
 		{
 			return;
@@ -293,6 +301,47 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 				nor->get_owner<Mob>()->switch_act(u"jump");
 			}
 			return true;
+		}
+	}
+	return false;
+}
+
+bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
+{
+	if (tr->get_owner_component<Player>() != nullptr)
+	{
+		if (nor->vkey == Normal::Up)
+		{
+			for (auto &[id, por] : world.get_entitys<Portal>())
+			{
+				auto pla_pos = tr->get_position();
+				auto por_pos = por->get_component<Transform>();
+				auto por_spr = por->get_component<AnimatedSprite>();
+				Sprite *spr = nullptr;
+				if (por->get_component<Sprite>() != nullptr)
+				{
+					spr = por->get_component<Sprite>();
+				}
+				else if (por->get_component<AnimatedSprite>() != nullptr)
+				{
+					spr = por->get_component<AnimatedSprite>()->get_current_sprite();
+				}
+				if (spr != nullptr)
+				{
+					auto rect = SDL_FRect{por_pos->get_position().x - spr->origin.x,
+										  por_pos->get_position().y - spr->origin.y,
+										  (float)spr->get_width(),
+										  (float)spr->get_height()};
+					if (SDL_PointInFRect(&pla_pos, &rect))
+					{
+						// return portal(por->tm);
+						// 切换地图
+						Map::load_map(por->tm, &world);
+						nor->type=Normal::Air;
+						return true;
+					}
+				}
+			}
 		}
 	}
 	return false;
@@ -582,6 +631,7 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 		tr->set_y(y);
 	}
 }
+
 // 线段相交法判断碰撞
 std::optional<SDL_FPoint> PhysicSystem::intersect(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3, SDL_FPoint p4)
 {

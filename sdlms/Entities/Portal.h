@@ -12,4 +12,5 @@ public:
     Portal(wz::Node *node, World *world);
 
     std::unordered_map<std::u16string, AnimatedSprite *> aspr_map;
+    int tm=0;
 };
