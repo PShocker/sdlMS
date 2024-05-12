@@ -468,6 +468,15 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					{
 						nor->get_owner<Mob>()->switch_act(u"stand");
 					}
+					// 修改速度
+					if ((nor->hkey == Normal::Right && nor->hspeed > 0) || (nor->hkey == Normal::Left && nor->hspeed < 0))
+					{
+						nor->hspeed /= 2;
+					}
+					else
+					{
+						nor->hspeed = 0;
+					}
 					nor->get_owner()->add_entity(fh);
 					// 修改人物z值
 					world.destroy_component(tr, false);
