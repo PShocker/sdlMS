@@ -11,6 +11,7 @@ class AnimatedSprite : public Component
 {
 public:
     AnimatedSprite(wz::Node *node);
+    ~AnimatedSprite();
     void add_anim_time(const int val) { anim_time += val; }
     void set_anim_time(const int val) { anim_time = val; }
     constexpr auto get_anim_delay() { return sprites[anim_index]->delay; }

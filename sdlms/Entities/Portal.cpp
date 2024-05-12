@@ -12,7 +12,7 @@ Portal::Portal(wz::Node *node, World *world)
     {
 
         auto pt = dynamic_cast<wz::Property<int> *>(node->get_child(u"pt"))->get();
-        auto tm = dynamic_cast<wz::Property<int> *>(node->get_child(u"tm"))->get();
+        tm = dynamic_cast<wz::Property<int> *>(node->get_child(u"tm"))->get();
 
         if (pt < 0 || pt >= sizeof(pt_list))
         {
@@ -25,7 +25,7 @@ Portal::Portal(wz::Node *node, World *world)
             {
                 // auto url = u"MapHelper.img/portal/editor/" + std::basic_string<char16_t>(pt_list[pt]);
                 // auto pn = world->get_resource<Wz>().Map->get_root()->find_from_path(url);
-                // Sprite *spr = Sprite::load_sprite(pn);
+                // Sprite *spr = new Sprite(pn);
                 // Transform *t = new Transform{(float)x, (float)y};
                 // add_component(t);
                 // add_component(spr);

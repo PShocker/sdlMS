@@ -9,43 +9,42 @@
 #include "Entities/Portal.h"
 #include "Resource/Wz.h"
 #include "Components/RigidLine.h"
+#include "Components/Transform.h"
+#include "Components/HVTile.h"
+#include "Components/HVMove.h"
 
-Map::Map(World *world)
+void Map::load_map(int map_id, World *world)
 {
-    this->world = world;
-}
-
-void Map::load_map(int mapId)
-{
-    auto node = load_map_node(mapId);
-    load_bgm(node);
-    load_tile(node);
-    load_obj(node);
-    load_background(node);
-    load_foothold(node);
-    load_life(node);
-    load_border(node);
-    load_ladderRope(node);
-    load_portal(node);
+    clean(world);
+    auto node = load_map_node(map_id, world);
+    load_tile(node, world);
+    load_obj(node, world);
+    load_background(node, world);
+    load_foothold(node, world);
+    load_life(node, world);
+    load_border(node, world);
+    load_ladderRope(node, world);
+    load_portal(node, world);
+    load_bgm(node, world);
     // load_string(mapId);
 }
 
-void Map::load_obj(wz::Node *node)
+void Map::load_obj(wz::Node *node, World *world)
 {
     auto _node = node;
     for (size_t i = 0; i < 8; i++)
     {
         node = _node->get_child(std::to_string(i));
 
-        for (auto it : node->get_child(u"obj")->get_children())
+        for (auto &[key, val] : node->get_child(u"obj")->get_children())
         {
-            Obj *obj = new Obj(it.second[0], std::stoi(std::string{it.first.begin(), it.first.end()}), i, world);
-            // world->add_entity(obj);
+            Obj *obj = new Obj(val[0], std::stoi(std::string{key.begin(), key.end()}), i, world);
+            world->add_entity(obj);
         }
     }
 }
 
-void Map::load_tile(wz::Node *node)
+void Map::load_tile(wz::Node *node, World *world)
 {
     for (size_t i = 0; i < 8; i++)
     {
@@ -53,28 +52,29 @@ void Map::load_tile(wz::Node *node)
 
         if (tS != nullptr)
         {
-            for (auto it : node->get_child(std::to_string(i))->get_child(u"tile")->get_children())
+            for (auto &[key, val] : node->get_child(std::to_string(i))->get_child(u"tile")->get_children())
             {
-                Tile *tile = new Tile(it.second[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, world);
-                // world->add_entity(tile);
+                Tile *tile = new Tile(val[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, world);
+                world->add_entity(tile);
             }
         }
     }
 }
 
-void Map::load_background(wz::Node *node)
+void Map::load_background(wz::Node *node, World *world)
 {
     node = node->get_child(u"back");
     if (node != nullptr)
     {
-        for (auto it : node->get_children())
+        for (auto &[key, val] : node->get_children())
         {
-            BackGround *bac = new BackGround(it.second[0], std::stoi(std::string{it.first.begin(), it.first.end()}), world);
+            BackGround *bac = new BackGround(val[0], std::stoi(std::string{key.begin(), key.end()}), world);
+            world->add_entity(bac);
         }
     }
 }
 
-void Map::load_string(int mapId)
+void Map::load_string(int mapId, World *world)
 {
     auto node = world->get_resource<Wz>().String->get_root()->find_from_path("Map.img");
     for (auto &[key, val] : node->get_children())
@@ -87,7 +87,7 @@ void Map::load_string(int mapId)
     }
 }
 
-void Map::load_foothold(wz::Node *node)
+void Map::load_foothold(wz::Node *node, World *world)
 {
     node = node->get_child(u"foothold");
     if (node != nullptr)
@@ -134,31 +134,30 @@ void Map::load_foothold(wz::Node *node)
     }
 }
 
-void Map::load_life(wz::Node *node)
+void Map::load_life(wz::Node *node, World *world)
 {
     node = node->get_child(u"life");
     if (node != nullptr)
     {
-        for (auto it : node->get_children())
+        for (auto &[key, val] : node->get_children())
         {
-            auto type = dynamic_cast<wz::Property<wz::wzstring> *>(it.second[0]->get_child(u"type"))->get();
-
+            auto type = dynamic_cast<wz::Property<wz::wzstring> *>(val[0]->get_child(u"type"))->get();
             if (type == u"n")
             {
-                auto npc = new Npc(it.second[0], world);
+                auto npc = new Npc(val[0], world);
                 world->add_entity(npc);
             }
         }
     }
 }
 
-void Map::load_border(wz::Node *node)
+void Map::load_border(wz::Node *node, World *world)
 {
     auto border = new Border(node, world);
     world->add_entity(border);
 }
 
-void Map::load_ladderRope(wz::Node *node)
+void Map::load_ladderRope(wz::Node *node, World *world)
 {
     node = node->get_child(u"ladderRope");
     if (node != nullptr)
@@ -172,7 +171,7 @@ void Map::load_ladderRope(wz::Node *node)
     }
 }
 
-void Map::load_portal(wz::Node *node)
+void Map::load_portal(wz::Node *node, World *world)
 {
     node = node->get_child(u"portal");
     if (node != nullptr)
@@ -185,22 +184,32 @@ void Map::load_portal(wz::Node *node)
     }
 }
 
-void Map::load_bgm(wz::Node *node)
+void Map::load_bgm(wz::Node *node, World *world)
 {
     node = node->find_from_path("info/bgm");
     if (node != nullptr)
     {
         auto url = dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
         url.insert(url.find('/'), u".img");
-        auto wz = world->get_resource<Wz>();
-        auto node = wz.Sound->get_root();
-        node = node->find_from_path(url);
+        node = world->get_resource<Wz>().Sound->get_root()->find_from_path(url);
         world->add_component(Sound::load_sound(node));
     }
     return;
 }
 
-wz::Node *Map::load_map_node(int mapId)
+void Map::clean(World *world)
+{
+    world->destroy_entity<Tile>();
+    world->destroy_entity<Obj>();
+    world->destroy_entity<BackGround>();
+    world->destroy_entity<FootHold>();
+    world->destroy_entity<Npc>();
+    world->destroy_entity<Border>();
+    world->destroy_entity<LadderRope>();
+    world->destroy_entity<Portal>();
+}
+
+wz::Node *Map::load_map_node(int mapId, World *world)
 {
     auto node = world->get_resource<Wz>().Map->get_root();
     auto s = std::to_string(mapId);

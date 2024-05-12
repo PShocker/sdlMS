@@ -65,7 +65,25 @@ public:
 
 	void add_resource(Resource *r);
 
-	void destroy_entity(Entity *ent, bool destroy_components = true, bool remove_from_list = true);
+	void destroy_entity(Entity *ent, bool destroy_components = true);
+
+	template <typename C>
+	void destroy_entity()
+	{
+		auto &target_map = get_entitys<C>();
+		for (auto it = target_map.begin(); it != target_map.end();)
+		{
+			for (auto &[key, val] : it->second->get_components())
+			{
+				if (val != nullptr)
+				{
+					destroy_component(val);
+				}
+			}
+			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+		}
+		entity_map.erase(typeid(C));
+	};
 
 	void remove_entity(Entity *ent);
 

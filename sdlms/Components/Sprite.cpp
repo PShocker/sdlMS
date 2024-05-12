@@ -1,19 +1,6 @@
 #include "Sprite.h"
 #include "Core/Window.h"
 
-Sprite *Sprite::load_sprite(wz::Node *node)
-{
-    // 从map缓存中获取对象
-    if (sprite_map.contains(node))
-    {
-        return sprite_map[node];
-    }
-    else
-    {
-        return new Sprite(node);
-    }
-}
-
 Sprite::Sprite(wz::Node *node)
 {
     if (node->type == wz::Type::UOL)
@@ -135,7 +122,11 @@ Sprite::Sprite(wz::Node *node)
         break;
     }
     }
-    sprite_map[node] = this;
+}
+
+Sprite::~Sprite()
+{
+    SDL_DestroyTexture(texture);
 }
 
 Sprite::Sprite(SDL_Texture *texture, int width, int height) : texture(texture), width(width), height(height)

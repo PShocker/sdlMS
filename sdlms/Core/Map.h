@@ -7,21 +7,20 @@
 class Map
 {
 public:
-    Map(World *world);
-    void load_map(int mapId);
-    void load_obj(wz::Node *node);
-    void load_tile(wz::Node *node);
-    void load_background(wz::Node *node);
-    void load_string(int mapId);
-    void load_foothold(wz::Node *node);
-    void load_life(wz::Node *node);
-    void load_border(wz::Node *node);
-    void load_ladderRope(wz::Node *node);
-    void load_portal(wz::Node *node);
+    static void load_map(int map_id,World *world);
+    static void load_obj(wz::Node *node,World *world);
+    static void load_tile(wz::Node *node,World *world);
+    static void load_background(wz::Node *node,World *world);
+    static void load_string(int mapId,World *world);
+    static void load_foothold(wz::Node *node,World *world);
+    static void load_life(wz::Node *node,World *world);
+    static void load_border(wz::Node *node,World *world);
+    static void load_ladderRope(wz::Node *node,World *world);
+    static void load_portal(wz::Node *node,World *world);
 
-    void load_bgm(wz::Node *node);
+    static void load_bgm(wz::Node *node,World *world);
+    static void clean(World *world);
 
 private:
-    wz::Node *load_map_node(int mapId);
-    World *world;
+    static wz::Node *load_map_node(int mapId,World *world);
 };

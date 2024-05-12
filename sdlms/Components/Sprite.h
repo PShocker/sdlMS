@@ -11,11 +11,10 @@ class Sprite : public Component
 {
 public:
     Sprite(SDL_Texture *texture, int width, int height);
-    static Sprite *load_sprite(wz::Node *node);
-    static inline std::map<wz::Node *, Sprite *> sprite_map;
+    Sprite(wz::Node *node);
+    ~Sprite();
 
 private:
-    Sprite(wz::Node *node);
     Sprite(){};
 
 public:
