@@ -10,12 +10,11 @@
 #include "Resource/Wz.h"
 #include "Components/RigidLine.h"
 #include "Components/Transform.h"
-#include "Components/HVTile.h"
-#include "Components/HVMove.h"
 
 void Map::load_map(int map_id, World *world)
 {
-    clean(world);
+
+    clean_up(world);
     auto node = load_map_node(map_id, world);
     load_tile(node, world);
     load_obj(node, world);
@@ -199,7 +198,7 @@ void Map::load_bgm(wz::Node *node, World *world)
     return;
 }
 
-void Map::clean(World *world)
+void Map::clean_up(World *world)
 {
     world->clear_entity<Tile>();
     world->clear_entity<Obj>();

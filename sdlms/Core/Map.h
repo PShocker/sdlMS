@@ -19,7 +19,7 @@ public:
     static void load_portal(wz::Node *node,World *world);
 
     static void load_bgm(wz::Node *node,World *world);
-    static void clean(World *world);
+    static void clean_up(World *world);
 
 private:
     static wz::Node *load_map_node(int mapId,World *world);

@@ -13,6 +13,7 @@
 #include "Components/Avatar.h"
 #include "Components/Task.h"
 #include "Components/Player.h"
+#include "Components/Camera.h"
 
 #include "Core/Map.h"
 
@@ -317,6 +318,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 				auto pla_pos = tr->get_position();
 				auto por_pos = por->get_component<Transform>();
 				auto por_spr = por->get_component<AnimatedSprite>();
+				auto tn = por->tn;
 				Sprite *spr = nullptr;
 				if (por->get_component<Sprite>() != nullptr)
 				{
@@ -340,9 +342,13 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 						// 切换人物坐标
 						for (auto &[id, p] : world.get_entitys<Portal>())
 						{
-							if (por->tn == p->pn)
+							if (tn == p->pn)
 							{
-								tr->set_position(p->get_component<Transform>()->get_position());
+								tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -100});
+								// 调整相机位置
+								auto camera = world.get_components<Camera>().find(0)->second;
+								camera->set_x(tr->get_position().x - camera->get_w() / 2);
+								camera->set_y(tr->get_position().y - camera->get_h() / 2);
 								break;
 							}
 						}

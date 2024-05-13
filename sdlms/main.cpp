@@ -31,8 +31,6 @@ int main(int argc, char *argv[])
 
     FreeType::init();
 
-    Map::load_map(104030000,&world);
-
     SoundSystem sous{};
     world.add_system(&sous);
 
@@ -64,7 +62,7 @@ int main(int argc, char *argv[])
     // world.add_component(camera, 0);
     // world.add_component(nor);
     // world.add_component(pla);
-    Mob* mob=new Mob(&world);
+    Mob *mob = new Mob(&world);
     mob->add_component(t);
     mob->add_component(nor);
     mob->add_component(pla);
@@ -74,6 +72,7 @@ int main(int argc, char *argv[])
     world.add_component(nor);
     world.add_component(pla);
 
+    Map::load_map(104040000, &world);
 
     // Video *vid = Video::load_video("a.mp4", 244, 184);
     // if (vid != nullptr)
