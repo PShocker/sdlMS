@@ -67,13 +67,11 @@ Sound::Sound(wz::Node *node)
         if (avformat_open_input(&formatContext, nullptr, nullptr, nullptr) != 0)
         {
             // 处理打开文件失败的情况
-            // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return;
         }
         if (avformat_find_stream_info(formatContext, nullptr) < 0)
         {
             // 处理找不到音频流信息的情况
-            // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return;
         }
 
@@ -83,7 +81,6 @@ Sound::Sound(wz::Node *node)
         {
             // 打开音频解码器并分配解码上下文
             // 处理找不到音频流的情况
-            // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return;
         }
         AVCodecParameters *codecParameters = formatContext->streams[audioStreamIndex]->codecpar;
@@ -92,19 +89,16 @@ Sound::Sound(wz::Node *node)
         if (!codecContext)
         {
             // 处理无法分配解码上下文的情况
-            // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return;
         }
         if (avcodec_parameters_to_context(codecContext, codecParameters) < 0)
         {
             // 处理无法设置解码器参数的情况
-            // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return;
         }
         if (avcodec_open2(codecContext, codec, nullptr) < 0)
         {
             // 处理无法打开解码器的情况
-            // 返回空的std::vector作为错误处理示例，请根据实际情况进行修改
             return;
         }
 

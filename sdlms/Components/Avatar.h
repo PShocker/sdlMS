@@ -9,6 +9,7 @@ class Avatar : public Component
 {
 public:
     Avatar(){};
+    ~Avatar();
 
 public:
     enum ACTION : uint8_t

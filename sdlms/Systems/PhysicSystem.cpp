@@ -337,7 +337,16 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 						// return portal(por->tm);
 						// 切换地图
 						Map::load_map(por->tm, &world);
-						nor->type=Normal::Air;
+						// 切换人物坐标
+						for (auto &[id, p] : world.get_entitys<Portal>())
+						{
+							if (por->tn == p->pn)
+							{
+								tr->set_position(p->get_component<Transform>()->get_position());
+								break;
+							}
+						}
+						nor->type = Normal::Air;
 						return true;
 					}
 				}

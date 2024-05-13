@@ -307,3 +307,58 @@ void Avatar::add_lHand()
 void Avatar::add_rHand()
 {
 }
+
+Avatar::~Avatar()
+{
+    auto del_func = [](std::pair<Transform *, Sprite *> &pai) -> void
+    {
+        auto &[tr, spr] = pai;
+        delete tr;
+        delete spr;
+    };
+    for (auto &it : body)
+    {
+        for (auto &[key, val] : it)
+        {
+            del_func(val);
+        }
+    }
+    for (auto &it : coat)
+    {
+        for (auto &[key, val] : it)
+        {
+            del_func(val);
+        }
+    }
+    for (auto &it : pants)
+    {
+        for (auto &[key, val] : it)
+        {
+            del_func(val);
+        }
+    }
+    for (auto &it : head)
+    {
+        for (auto &[key, val] : it)
+        {
+            del_func(val);
+        }
+    }
+    for (auto &it : face)
+    {
+        for (auto &[key, val] : it)
+        {
+            del_func(val);
+        }
+    }
+    for (auto &it : hairs)
+    {
+        for (auto &[key, val] : it)
+        {
+            for (auto &pai : val)
+            {
+                del_func(pai);
+            }
+        }
+    }
+}

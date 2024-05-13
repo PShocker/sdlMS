@@ -10,30 +10,33 @@ void RenderSystem::run(World &world)
 	{
 		for (auto &[index, tr] : world.get_components<Transform>())
 		{
-			if (tr->get_owner_component<HVTile>() != nullptr)
+			if (tr->get_owner() != nullptr)
 			{
-				render_hvtile_sprite(tr, tr->get_owner_component<HVTile>(), world);
-			}
-			else if (tr->get_owner_component<Avatar>() != nullptr)
-			{
-				render_avatar_sprite(tr, tr->get_owner_component<Avatar>(), world);
-			}
-			else if (tr->get_owner_component<Sprite>() != nullptr)
-			{
-				render_sprite(tr, tr->get_owner_component<Sprite>(), world);
-			}
-			else if (tr->get_owner_component<AnimatedSprite>() != nullptr)
-			{
-				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
-			}
-			else if (tr->get_owner_component<Video>() != nullptr)
-			{
-				render_video(tr, tr->get_owner_component<Video>(), world);
-			}
-			// 渲染npc名字
-			if (tr->get_owner<Npc>() != nullptr)
-			{
-				render_npc_info(tr->get_owner<Npc>(), world);
+				if (tr->get_owner_component<HVTile>() != nullptr)
+				{
+					render_hvtile_sprite(tr, tr->get_owner_component<HVTile>(), world);
+				}
+				else if (tr->get_owner_component<Avatar>() != nullptr)
+				{
+					render_avatar_sprite(tr, tr->get_owner_component<Avatar>(), world);
+				}
+				else if (tr->get_owner_component<Sprite>() != nullptr)
+				{
+					render_sprite(tr, tr->get_owner_component<Sprite>(), world);
+				}
+				else if (tr->get_owner_component<AnimatedSprite>() != nullptr)
+				{
+					render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
+				}
+				else if (tr->get_owner_component<Video>() != nullptr)
+				{
+					render_video(tr, tr->get_owner_component<Video>(), world);
+				}
+				// 渲染npc名字
+				if (tr->get_owner<Npc>() != nullptr)
+				{
+					render_npc_info(tr->get_owner<Npc>(), world);
+				}
 			}
 		}
 	}

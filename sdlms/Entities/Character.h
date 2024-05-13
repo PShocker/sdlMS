@@ -6,4 +6,5 @@ class Character : public Entity
 {
 public:
     Character(World *world);
+    ~Character();
 };

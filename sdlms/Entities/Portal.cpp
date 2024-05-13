@@ -13,6 +13,8 @@ Portal::Portal(wz::Node *node, World *world)
 
         auto pt = dynamic_cast<wz::Property<int> *>(node->get_child(u"pt"))->get();
         tm = dynamic_cast<wz::Property<int> *>(node->get_child(u"tm"))->get();
+        pn = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"pn"))->get();
+        tn = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"tn"))->get();
 
         if (pt < 0 || pt >= sizeof(pt_list))
         {
@@ -74,5 +76,28 @@ Portal::Portal(wz::Node *node, World *world)
                 }
             }
         }
+    }
+}
+
+Portal::~Portal()
+{
+    auto world = World::get_world();
+
+    for (auto &[key, val] : aspr_map)
+    {
+        auto aspr = val;
+        world->destroy_component(aspr, false);
+        delete aspr;
+    }
+    auto spr = get_component<Sprite>();
+    if (spr != nullptr)
+    {
+        delete spr;
+    }
+    auto t = get_component<Transform>();
+    if (t != nullptr)
+    {
+        world->destroy_component(t, false);
+        delete t;
     }
 }

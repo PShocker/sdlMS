@@ -119,6 +119,7 @@ void Map::load_foothold(wz::Node *node, World *world)
                 {
                     if (fhs.contains(fh->prev) == false || fhs.contains(fh->next) == false)
                     {
+                        delete fh;
                         it = fhs.erase(it);
                         continue;
                     }
@@ -192,21 +193,22 @@ void Map::load_bgm(wz::Node *node, World *world)
         auto url = dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
         url.insert(url.find('/'), u".img");
         node = world->get_resource<Wz>().Sound->get_root()->find_from_path(url);
-        world->add_component(Sound::load_sound(node));
+        auto sou = Sound::load_sound(node);
+        world->add_unique_component(sou);
     }
     return;
 }
 
 void Map::clean(World *world)
 {
-    world->destroy_entity<Tile>();
-    world->destroy_entity<Obj>();
-    world->destroy_entity<BackGround>();
-    world->destroy_entity<FootHold>();
-    world->destroy_entity<Npc>();
-    world->destroy_entity<Border>();
-    world->destroy_entity<LadderRope>();
-    world->destroy_entity<Portal>();
+    world->clear_entity<Tile>();
+    world->clear_entity<Obj>();
+    world->clear_entity<BackGround>();
+    world->clear_entity<FootHold>();
+    world->clear_entity<Npc>();
+    world->clear_entity<Border>();
+    world->clear_entity<LadderRope>();
+    world->clear_entity<Portal>();
 }
 
 wz::Node *Map::load_map_node(int mapId, World *world)

@@ -10,6 +10,7 @@ class Mob : public Entity
 public:
     Mob(wz::Node *node, World *world);
     Mob(World *world);
+    ~Mob();
 
     void switch_act(const std::u16string &a);
 

@@ -4,3 +4,8 @@ CrawlLine::CrawlLine(SDL_FPoint m, SDL_FPoint n)
 {
     line = new Line(m, n);
 }
+
+CrawlLine::~CrawlLine()
+{
+    delete line;
+}

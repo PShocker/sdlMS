@@ -21,21 +21,22 @@ public:
 	void set_id(unsigned long value);
 
 	template <typename C>
-	void add_component(C *comp, bool owner = true) // false表示comp是被ent公用,并无准确的owner,比如sprite
+	void add_component(C *comp)
 	{
+		remove_component<C>();
 		component_refs[typeid(C)] = comp;
-		if (owner)
-		{
-			comp->set_owner(this);
-		}
+		comp->set_owner(this);
 	}
 
 	template <typename C>
 	void remove_component()
 	{
-		C *comp = static_cast<C *>(component_refs[typeid(C)]);
-		component_refs.erase(typeid(C));
-		comp->set_owner(nullptr);
+		if (component_refs.contains(typeid(C)))
+		{
+			C *comp = static_cast<C *>(component_refs[typeid(C)]);
+			component_refs.erase(typeid(C));
+			comp->set_owner(nullptr);
+		}
 	}
 
 	template <typename C>

@@ -7,6 +7,7 @@ class LadderRope : public Entity
 {
 public:
     LadderRope(wz::Node *node, int id, World *world);
+    ~LadderRope();
 
 public:
     // lr的附加属性
