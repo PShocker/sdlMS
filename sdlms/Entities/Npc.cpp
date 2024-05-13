@@ -61,3 +61,26 @@ Npc::Npc(wz::Node *node, World *world)
         }
     }
 }
+
+Npc::~Npc()
+{
+    auto world = World::get_world();
+
+    for (auto &[key, val] : aspr_map)
+    {
+        auto aspr = val;
+        world->destroy_component(aspr, false);
+        delete aspr;
+    }
+    if (name != nullptr)
+    {
+        delete name;
+    }
+    if (func != nullptr)
+    {
+        delete func;
+    }
+    auto t = get_component<Transform>();
+    world->destroy_component(t, false);
+    delete t;
+}

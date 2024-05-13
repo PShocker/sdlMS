@@ -37,14 +37,6 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
     anim_time = 0;
 }
 
-AnimatedSprite::~AnimatedSprite()
-{
-    for (auto &spr : sprites)
-    {
-        delete spr;
-    }
-}
-
 void AnimatedSprite::advance_anim()
 {
     if (anim_index == anim_size - 1 && z)
@@ -55,5 +47,13 @@ void AnimatedSprite::advance_anim()
     else
     {
         anim_index = (anim_index + 1) % anim_size;
+    }
+}
+
+AnimatedSprite::~AnimatedSprite()
+{
+    for (auto &spr : sprites)
+    {
+        delete spr;
     }
 }

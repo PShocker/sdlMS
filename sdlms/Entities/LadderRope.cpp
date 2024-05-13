@@ -14,3 +14,9 @@ LadderRope::LadderRope(wz::Node *node, int id, World *world) : id(id)
     auto *c = new CrawlLine{{(float)x, (float)y1}, {(float)x, (float)y2}};
     add_component(c);
 }
+
+LadderRope::~LadderRope()
+{
+    auto c = get_component<CrawlLine>();
+    delete c;
+}

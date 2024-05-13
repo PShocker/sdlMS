@@ -7,6 +7,7 @@ class CrawlLine : public Component
 {
 public:
     CrawlLine(SDL_FPoint m, SDL_FPoint n);
+    ~CrawlLine();
     constexpr auto get_m() { return line->get_m(); }
     constexpr auto get_n() { return line->get_n(); }
     constexpr auto get_min_x() { return line->get_min_x(); }

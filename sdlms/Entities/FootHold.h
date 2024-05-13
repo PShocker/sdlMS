@@ -7,6 +7,7 @@ class FootHold : public Entity
 {
 public:
     FootHold(wz::Node *node, int id, int page, int zmass, World *world);
+    ~FootHold();
 
 public:
     constexpr auto get_page() { return page; }

@@ -23,7 +23,10 @@ double distance(const SDL_FPoint &m, const SDL_FPoint &n)
 	return std::sqrt(dx * dx + dy * dy);
 }
 
-World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time_{0}, quit{false} {}
+World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time_{0}, quit{false}
+{
+	world = this;
+}
 World::~World() {}
 
 void World::add_entity(Entity *ent)

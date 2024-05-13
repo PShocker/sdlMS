@@ -99,8 +99,26 @@ void Mob::switch_act(const std::u16string &a)
             aspr->set_anim_index(0);
             aspr->set_anim_time(0);
             act = a;
-            remove_component<AnimatedSprite>();
             add_component(aspr);
         }
     }
+}
+
+Mob::~Mob()
+{
+    auto world = World::get_world();
+    
+    for (auto &[key, val] : aspr_map)
+    {
+        auto aspr = val;
+        world->destroy_component(aspr, false);
+        delete aspr;
+    }
+    if (name != nullptr)
+    {
+        delete name;
+    }
+    auto t = get_component<Transform>();
+    world->destroy_component(t, false);
+    delete t;
 }

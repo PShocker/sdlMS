@@ -18,8 +18,8 @@
 #include "Core/FreeType.h"
 #include "Resource/Wz.h"
 
-int width = 1366;
-int height = 768;
+int width = 800;
+int height = 600;
 
 int main(int argc, char *argv[])
 {
@@ -31,8 +31,7 @@ int main(int argc, char *argv[])
 
     FreeType::init();
 
-
-    Map::load_map(104040000,&world);
+    Map::load_map(104030000,&world);
 
     SoundSystem sous{};
     world.add_system(&sous);

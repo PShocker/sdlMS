@@ -9,6 +9,7 @@ class Npc : public Entity
 {
 public:
     Npc(wz::Node *node, World *world);
+    ~Npc();
     constexpr auto get_name() { return name; }
     constexpr auto get_func() { return func; }
 

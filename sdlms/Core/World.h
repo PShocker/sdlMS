@@ -50,9 +50,16 @@ private:
 
 	std::unordered_map<std::type_index, Resource *> resource_map;
 
+	static inline World *world = nullptr;
+
 public:
 	World();
 	~World();
+
+	static World *get_world()
+	{
+		return world;
+	};
 
 	void add_entity(Entity *ent);
 	void add_entity(Entity *ent, int index);
@@ -68,20 +75,14 @@ public:
 	void destroy_entity(Entity *ent, bool destroy_components = true);
 
 	template <typename C>
-	void destroy_entity()
+	void clear_entity()
 	{
-		auto &target_map = get_entitys<C>();
-		for (auto it = target_map.begin(); it != target_map.end();)
+		auto &target_map = *reinterpret_cast<std::multimap<int, C *> *>(&entity_map[typeid(C)]);
+		for (auto &[key, val] : target_map)
 		{
-			for (auto &[key, val] : it->second->get_components())
-			{
-				if (val != nullptr)
-				{
-					destroy_component(val);
-				}
-			}
-			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+			delete val;
 		}
+		target_map.clear();
 		entity_map.erase(typeid(C));
 	};
 

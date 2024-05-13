@@ -18,3 +18,11 @@ Character::Character(World *world)
     add_component(ava);
     world->add_component(ava);
 }
+
+Character::~Character()
+{
+    auto world = World::get_world();
+    auto ava = get_component<Avatar>();
+    world->destroy_component(ava, false);
+    delete ava;
+}

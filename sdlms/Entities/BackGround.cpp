@@ -99,3 +99,29 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
         break;
     }
 }
+
+BackGround::~BackGround()
+{
+    auto world = World::get_world();
+    if (get_component<Sprite>() != nullptr)
+    {
+        auto spr = get_component<Sprite>();
+        delete spr;
+    }
+    else
+    {
+        auto aspr = get_component<AnimatedSprite>();
+        world->destroy_component(aspr, false);
+        delete aspr;
+    }
+
+    auto hvt = get_component<HVTile>();
+    delete hvt;
+
+    auto hvm = get_component<HVMove>();
+    delete hvm;
+
+    auto t = get_component<Transform>();
+    world->destroy_component(t, false);
+    delete t;
+}

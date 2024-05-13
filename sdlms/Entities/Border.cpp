@@ -34,3 +34,7 @@ Border::Border(wz::Node *node, World *world)
         bottom += 100;
     }
 }
+
+Border::~Border()
+{
+}
