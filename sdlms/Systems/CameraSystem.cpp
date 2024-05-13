@@ -13,11 +13,6 @@ void CameraSystem::run(World &world)
 
 void CameraSystem::update_camera(Camera *cam, Transform *tr, World &world)
 {
-	auto border = world.get_entitys<Border>().find(0)->second;
-	float left = border->get_left();
-	float right = border->get_right();
-	float top = border->get_top();
-	float bottom = border->get_bottom();
 
 	auto hdelta = tr->get_position().x - cam->get_w() / 2 - cam->get_x();
 	if (std::abs(hdelta) >= 5.0)
@@ -31,17 +26,26 @@ void CameraSystem::update_camera(Camera *cam, Transform *tr, World &world)
 		cam->set_y(cam->get_y() + vdelta * (12.0 / cam->get_h()));
 	}
 
-	if (cam->get_x() < left)
+	if (world.get_entity_map().contains(typeid(Border)))
 	{
-		cam->set_x(left);
-	}
-	else if (cam->get_x() + cam->get_w() > right)
-	{
-		cam->set_x(right - cam->get_w());
-	}
+		auto border = world.get_entitys<Border>().find(0)->second;
+		float left = border->get_left();
+		float right = border->get_right();
+		float top = border->get_top();
+		float bottom = border->get_bottom();
 
-	if (cam->get_y() + cam->get_h() > bottom)
-	{
-		cam->set_y(bottom - cam->get_h());
+		if (cam->get_x() < left)
+		{
+			cam->set_x(left);
+		}
+		else if (cam->get_x() + cam->get_w() > right)
+		{
+			cam->set_x(right - cam->get_w());
+		}
+
+		if (cam->get_y() + cam->get_h() > bottom)
+		{
+			cam->set_y(bottom - cam->get_h());
+		}
 	}
 }

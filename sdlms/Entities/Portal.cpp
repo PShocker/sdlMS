@@ -83,17 +83,31 @@ Portal::~Portal()
 {
     auto world = World::get_world();
 
-    for (auto &[key, val] : aspr_map)
+    if (aspr_map.size() > 0)
     {
-        auto aspr = val;
-        world->destroy_component(aspr, false);
-        delete aspr;
+        for (auto &[key, val] : aspr_map)
+        {
+            auto aspr = val;
+            world->destroy_component(aspr, false);
+            delete aspr;
+        }
     }
+    else if (get_component<AnimatedSprite>() != nullptr)
+    {
+        auto aspr = get_component<AnimatedSprite>();
+        if (aspr != nullptr)
+        {
+            world->destroy_component(aspr, false);
+            delete aspr;
+        }
+    }
+
     auto spr = get_component<Sprite>();
     if (spr != nullptr)
     {
         delete spr;
     }
+
     auto t = get_component<Transform>();
     if (t != nullptr)
     {

@@ -26,10 +26,12 @@ Tile::Tile(wz::Node *node, std::u16string ts, int layer, World *world)
 Tile::~Tile()
 {
     auto world = World::get_world();
-    
-    auto spr = get_component<Sprite>();
-    delete spr;
 
+    if (get_component<Sprite>() != nullptr)
+    {
+        auto spr = get_component<Sprite>();
+        delete spr;
+    }
     auto t = get_component<Transform>();
     world->destroy_component(t, false);
     delete t;

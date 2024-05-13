@@ -25,7 +25,10 @@ public:
 	{
 		remove_component<C>();
 		component_refs[typeid(C)] = comp;
-		comp->set_owner(this);
+		if (comp != nullptr)
+		{
+			comp->set_owner(this);
+		}
 	}
 
 	template <typename C>
@@ -34,9 +37,9 @@ public:
 		if (component_refs.contains(typeid(C)))
 		{
 			C *comp = static_cast<C *>(component_refs[typeid(C)]);
-			component_refs.erase(typeid(C));
 			comp->set_owner(nullptr);
 		}
+		component_refs.erase(typeid(C));
 	}
 
 	template <typename C>
@@ -64,11 +67,25 @@ public:
 template <typename C>
 C *Entity::get_component()
 {
-	return static_cast<C *>(component_refs[typeid(C)]);
+	if (component_refs.contains(typeid(C)))
+	{
+		return static_cast<C *>(component_refs[typeid(C)]);
+	}
+	else
+	{
+		return nullptr;
+	}
 }
 
 template <typename C>
 inline C *Entity::get_entity()
 {
-	return static_cast<C *>(entity_refs[typeid(C)]);
+	if (entity_refs.contains(typeid(C)))
+	{
+		return static_cast<C *>(entity_refs[typeid(C)]);
+	}
+	else
+	{
+		return nullptr;
+	}
 }

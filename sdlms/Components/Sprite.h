@@ -24,9 +24,9 @@ public:
     SDL_Texture *get_texture() { return texture; }
 
 public:
-    SDL_Texture *texture;
-    int width;
-    int height;
+    SDL_Texture *texture = nullptr;
+    int width = 0;
+    int height = 0;
 
     int delay = 0;
     int a0 = 255;
