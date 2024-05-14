@@ -2,7 +2,7 @@
 #include "Core/Window.h"
 #include <thread>
 
-Video *Video::load_video(const std::string &url, int width, int height)
+Video *Video::load(const std::string &url, int width, int height)
 {
     if (!inited)
     {

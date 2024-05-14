@@ -20,8 +20,14 @@ private:
 public:
     const auto get_width() { return width; }
     const auto get_height() { return height; }
-    const auto get_origin() { return origin; }
     SDL_Texture *get_texture() { return texture; }
+
+    const auto get_delay() { return delay; }
+    const auto get_a0() { return a0; }
+    const auto get_a1() { return a1; }
+    const auto get_origin() { return origin; }
+
+    const auto get_z() { return z; }
 
 public:
     SDL_Texture *texture = nullptr;

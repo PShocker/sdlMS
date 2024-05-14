@@ -279,6 +279,22 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 		}
 	}
 	{
+		auto [t, spr] = ava->shoes[act][act_index];
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
+	}
+	{
+		auto [t, spr] = ava->weapon[act][act_index];
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
+	}
+	{
 		auto [t, spr] = ava->arm[act][act_index];
 		if (t != nullptr && spr != nullptr)
 		{
@@ -287,7 +303,31 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 		}
 	}
 	{
+		auto [t, spr] = ava->coat_arm[act][act_index];
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
+	}
+	{
+		auto [t, spr] = ava->hand[act][act_index];
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
+	}
+	{
 		auto [t, spr] = ava->lHand[act][act_index];
+		if (t != nullptr && spr != nullptr)
+		{
+			set_tran(t, spr);
+			render_sprite(tran, spr, world);
+		}
+	}
+	{
+		auto [t, spr] = ava->rHand[act][act_index];
 		if (t != nullptr && spr != nullptr)
 		{
 			set_tran(t, spr);

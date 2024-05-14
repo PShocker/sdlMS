@@ -23,6 +23,7 @@ void PlayerSystem::update_player(Player *pla, World &world)
     nor->hkey = Normal::None;
     nor->lalt = false;
 
+    //判断是否有h或v方向输入
     if (Input::is_key_held(SDLK_RIGHT))
     {
         nor->hkey = Normal::Right;

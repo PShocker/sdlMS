@@ -179,6 +179,7 @@ public:
 public:
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> body[ACTION::LENGTH];
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> coat[ACTION::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> coat_arm[ACTION::LENGTH];
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> pants[ACTION::LENGTH];
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> head[ACTION::LENGTH];
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> face[ACTION::LENGTH];
@@ -196,14 +197,15 @@ public:
 
 public:
     void add_body();
-    void add_coat(std::u16string val);
-    void add_pants(std::u16string val);
+    void add_coat(const std::u16string &val);
+    void add_pants(const std::u16string &val);
     void add_head();
-    void add_face(std::u16string val);
-    void add_hairs(std::u16string val);
-    void add_shoes(std::u16string val);
-    void add_weapon(std::u16string val);
+    void add_face(const std::u16string &val);
+    void add_hairs(const std::u16string &val);
+    void add_shoes(const std::u16string &val);
+    void add_weapon(const std::u16string &val);
     void add_arm();
+    void add_coat_arm(const std::u16string &val);
     void add_hand();
     void add_lHand();
     void add_rHand();

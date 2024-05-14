@@ -8,7 +8,7 @@ extern "C"
 #include <libswresample/swresample.h>
 }
 
-Sound *Sound::load_sound(wz::Node *node)
+Sound *Sound::load(wz::Node *node)
 {
     // 从map缓存中获取对象
     if (sound_map.contains(node))
