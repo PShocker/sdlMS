@@ -42,7 +42,6 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 	{
 		tr->set_flip(0);
 	}
-
 	// 计算出不同状态的速度
 	switch (nor->type)
 	{
@@ -57,14 +56,17 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		{
 			return;
 		}
+		// 下跳
 		if (want_fall(tr, nor, world))
 		{
 			return;
 		}
+		// 趴
 		if (want_prone(nor, world))
 		{
 			return;
 		}
+		// 跳
 		if (want_jump(tr, nor, world))
 		{
 			return;
@@ -338,7 +340,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					{
 						// return portal(por->tm);
 						// 切换地图
-						Map::load_map(por->tm, &world);
+						Map::load(por->tm, &world);
 						// 切换人物坐标
 						for (auto &[id, p] : world.get_entitys<Portal>())
 						{
@@ -489,6 +491,16 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 
 void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &world)
 {
+
+	if (nor->hkey == Normal::Right)
+	{
+		nor->hspeed += 0.5;
+	}
+	else if (nor->hkey == Normal::Left)
+	{
+		nor->hspeed -= 0.5;
+	}
+
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;
 	nor->vspeed = std::min(nor->vspeed, 670.0f);
@@ -515,7 +527,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				if (!rl->get_line()->get_k().has_value())
 				{
 					// 撞墙
-					new_pos = tr->get_position();
+					new_pos.x = tr->get_position().x;
 					nor->hspeed = 0;
 				}
 				else
@@ -605,19 +617,31 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 	}
 
 	// 判断是否脱离梯子
-	auto cl = nor->get_owner()->get_entity<LadderRope>()->get_component<CrawlLine>();
+	auto lr = nor->get_owner()->get_entity<LadderRope>();
+	auto cl = lr->get_component<CrawlLine>();
 
 	auto d_y = nor->vspeed * delta_time;
 	auto y = d_y + tr->get_position().y;
 	if (y < cl->get_min_y())
 	{
-		tr->set_y(cl->get_min_y() - 5);
-		nor->type = Normal::Air;
-		if (nor->get_owner_component<Avatar>() != nullptr)
+		if (lr->uf == 1)
 		{
-			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+			tr->set_y(cl->get_min_y() - 5);
+			nor->type = Normal::Air;
+			if (nor->get_owner_component<Avatar>() != nullptr)
+			{
+				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+			}
+			nor->vspeed = 0;
 		}
-		nor->vspeed = 0;
+		else
+		{
+			// 绳子顶端封住
+			if (nor->get_owner_component<Avatar>() != nullptr)
+			{
+				auto ava = nor->get_owner_component<Avatar>()->animate = false;
+			}
+		}
 	}
 	else if (y > cl->get_max_y())
 	{

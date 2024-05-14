@@ -5,7 +5,7 @@
 class Sound : public Component
 {
 public:
-    static Sound *load_sound(wz::Node *node);
+    static Sound *load(wz::Node *node);
     static inline std::map<wz::Node *, Sound *> sound_map;
 
 private:

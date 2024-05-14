@@ -7,7 +7,7 @@
 class Map
 {
 public:
-    static void load_map(int map_id,World *world);
+    static void load(int map_id,World *world);
     static void load_obj(wz::Node *node,World *world);
     static void load_tile(wz::Node *node,World *world);
     static void load_background(wz::Node *node,World *world);

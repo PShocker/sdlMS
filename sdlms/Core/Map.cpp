@@ -11,7 +11,7 @@
 #include "Components/RigidLine.h"
 #include "Components/Transform.h"
 
-void Map::load_map(int map_id, World *world)
+void Map::load(int map_id, World *world)
 {
 
     clean_up(world);
@@ -192,7 +192,7 @@ void Map::load_bgm(wz::Node *node, World *world)
         auto url = dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
         url.insert(url.find('/'), u".img");
         node = world->get_resource<Wz>().Sound->get_root()->find_from_path(url);
-        auto sou = Sound::load_sound(node);
+        auto sou = Sound::load(node);
         world->add_unique_component(sou);
     }
     return;

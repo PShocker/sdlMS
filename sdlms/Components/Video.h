@@ -13,7 +13,7 @@ extern "C"
 class Video : public Component
 {
 public:
-    static Video *load_video(const std::string &url, int width, int height);
+    static Video *load(const std::string &url, int width, int height);
     static inline bool inited = false;
 
 public:
