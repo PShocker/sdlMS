@@ -415,7 +415,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	auto rl = foo->get_component<RigidLine>();
 
 	// 人物在fh移动的函数
-	auto walk_fh = [&fhs, &foo, &nor, &rl, &x, &y, &tr](int next_fh) -> bool
+	auto walk_fh = [&fhs, &foo, &nor, &x, &y, &tr](int next_fh) -> bool
 	{
 		FootHold *fh = nullptr; // 走到下一个fh
 		if (fhs.contains(next_fh))
@@ -433,7 +433,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			nor->vspeed = 0;
 			return false;
 		}
-		rl = fh->get_component<RigidLine>();
+		auto rl = fh->get_component<RigidLine>();
 		if (!rl->line->get_k().has_value())
 		{
 			if (y == rl->get_max_y())
@@ -470,7 +470,6 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	// 往右走
 	while (x > rl->get_max_x())
 	{
-		auto m = rl->get_max_x();
 		int next_fh = std::abs(foo->next);
 		if (walk_fh(next_fh) == false)
 		{

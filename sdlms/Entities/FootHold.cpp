@@ -4,11 +4,6 @@
 
 FootHold::FootHold(wz::Node *node, int id, int page, int zmass, World *world) : id(id), page(page), zmass(zmass)
 {
-    if (id == 119)
-    {
-        printf("123");
-    }
-
     next = dynamic_cast<wz::Property<int> *>(node->get_child(u"next"))->get();
     prev = dynamic_cast<wz::Property<int> *>(node->get_child(u"prev"))->get();
     auto x1 = dynamic_cast<wz::Property<int> *>(node->get_child(u"x1"))->get();
