@@ -11,7 +11,6 @@
 #include "Components/RigidLine.h"
 #include "Components/CrawlLine.h"
 #include "Components/Avatar.h"
-#include "Components/Task.h"
 #include "Components/Player.h"
 #include "Components/Camera.h"
 
@@ -210,16 +209,16 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 		world.add_entity(foo, -foo->id);
 
 		// 添加定时任务到world
-		auto callback = [](Entity *ent, World &world) -> void
+		auto callback = [](Uint32 interval, void *param) -> Uint32
 		{
-			auto foo = (FootHold *)ent;
-			world.remove_entity(foo);
-			world.add_entity(foo, foo->id);
-			return;
+			auto world = World::get_world();
+			auto foo = (FootHold *)param;
+			world->remove_entity(foo);
+			world->add_entity(foo, foo->id);
+			return 0;
 		};
-		Task *tas = new Task(callback, 400);
-		foo->add_component(tas);
-		world.add_component(tas);
+
+		SDL_TimerID timerID = SDL_AddTimer(200, callback, foo); // 定时器
 
 		// 从fh掉落
 		nor->type = Normal::Air;
@@ -437,7 +436,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		rl = fh->get_component<RigidLine>();
 		if (!rl->line->get_k().has_value())
 		{
-			if (y > rl->get_min_y())
+			if (y == rl->get_max_y())
 			{
 				// 撞墙,人物x不变
 				x = tr->get_position().x;
@@ -471,6 +470,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	// 往右走
 	while (x > rl->get_max_x())
 	{
+		auto m = rl->get_max_x();
 		int next_fh = std::abs(foo->next);
 		if (walk_fh(next_fh) == false)
 		{
@@ -526,9 +526,13 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			{
 				if (!rl->get_line()->get_k().has_value())
 				{
-					// 撞墙
-					new_pos.x = tr->get_position().x;
-					nor->hspeed = 0;
+					// k值不存在,则为墙面,判断墙面碰撞方向
+					if ((nor->hspeed > 0 && rl->get_m().y > rl->get_n().y) || (nor->hspeed < 0 && rl->get_m().y < rl->get_n().y))
+					{
+						new_pos.x = tr->get_position().x;
+						new_pos.y = std::min(rl->get_max_y(), new_pos.y);
+						nor->hspeed = 0;
+					}
 				}
 				else
 				{
@@ -583,13 +587,16 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			}
 			if (!rl->get_line()->get_k().has_value())
 			{
-				// k值不存在,则为墙面,默认与所有墙面碰撞
-				auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
-				if (collide.has_value())
+				// k值不存在,则为墙面,判断墙面碰撞方向
+				if ((nor->hspeed > 0 && rl->get_m().y > rl->get_n().y) || (nor->hspeed < 0 && rl->get_m().y < rl->get_n().y))
 				{
-					new_pos.x = tr->get_position().x;
-					nor->hspeed = 0;
-					break;
+					auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
+					if (collide.has_value())
+					{
+						new_pos.x = tr->get_position().x;
+						nor->hspeed = 0;
+						break;
+					}
 				}
 			}
 			else
