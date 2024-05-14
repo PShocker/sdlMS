@@ -18,11 +18,11 @@ Border::Border(wz::Node *node, World *world)
         // 从fh计算出来
         for (auto &[id, fh] : world->get_entitys<FootHold>())
         {
-            auto ri = fh->get_component<RigidLine>();
-            auto x1 = ri->get_m().x;
-            auto y1 = ri->get_m().y;
-            auto x2 = ri->get_n().x;
-            auto y2 = ri->get_n().y;
+            auto rl = fh->get_component<RigidLine>();
+            auto x1 = rl->get_m().x;
+            auto y1 = rl->get_m().y;
+            auto x2 = rl->get_n().x;
+            auto y2 = rl->get_n().y;
             left = std::min({left, x1, x2});
             right = std::max({right, x1, x2});
             top = std::min({top, y1, y2});
