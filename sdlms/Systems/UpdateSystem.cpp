@@ -45,24 +45,6 @@ void UpdateSystem::run(World &world)
 			}
 		}
 	}
-	// 定时任务
-	if (world.components_exist_of_type<Task>())
-	{
-		auto &tasks = world.get_components<Task>();
-		for (auto it = tasks.begin(); it != tasks.end();)
-		{
-			auto tas = it->second;
-			if (update_task(tas, world))
-			{
-				it = tasks.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
-				delete tas;
-			}
-			else
-			{
-				++it;
-			}
-		}
-	}
 }
 
 bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
@@ -134,18 +116,6 @@ void UpdateSystem::update_portal(Portal *por, Transform *tr, World &world)
 			por->remove_component<AnimatedSprite>();
 		}
 	}
-}
-
-bool UpdateSystem::update_task(Task *tas, World &world)
-{
-	auto delta_time = world.delta_time();
-	tas->delay -= delta_time;
-	if (tas->delay <= 0)
-	{
-		tas->func(tas->get_owner(), world);
-		return true;
-	}
-	return false;
 }
 
 int UpdateSystem::update_video(void *vid)

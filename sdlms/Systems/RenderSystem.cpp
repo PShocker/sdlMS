@@ -40,6 +40,10 @@ void RenderSystem::run(World &world)
 			}
 		}
 	}
+	for (auto &[key, val] : world.get_entitys<FootHold>())
+	{
+		render_fh(val, world);
+	}
 }
 
 void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
@@ -395,4 +399,16 @@ void RenderSystem::render_video(Transform *tr, Video *vid, World &world)
 
 	SDL_FRect rect = {x - camera->get_x(), y - camera->get_y(), width, heihgt};
 	SDL_RenderCopyF(Window::get_renderer(), vid->texture, NULL, &rect);
+}
+
+void RenderSystem::render_fh(FootHold *fh, World &world)
+{
+	auto rl = fh->get_component<RigidLine>();
+	auto camera = world.get_components<Camera>().find(0)->second;
+
+	SDL_RenderDrawLine(Window::get_renderer(),
+					   rl->get_m().x - camera->get_x(),
+					   rl->get_m().y - camera->get_y(),
+					   rl->get_n().x - camera->get_x(),
+					   rl->get_n().y - camera->get_y());
 }
