@@ -20,20 +20,20 @@ FootHold::FootHold(wz::Node *node, int id, int page, int zmass, World *world) : 
 FootHold::~FootHold()
 {
     // 摧毁fh,需要删除fh关联到ent的map
-    auto world = World::get_world();
-    if (world->components_exist_of_type<Normal>())
-    {
-        // 删除所有nor的ent关联到fh的map
-        for (auto &[key, val] : world->get_components<Normal>())
-        {
-            auto nor = val;
-            if (nor->get_owner()->get_entity<FootHold>() == this)
-            {
-                nor->get_owner()->remove_entity<FootHold>();
-                nor->type = Normal::Air;
-            }
-        }
-    }
+    // auto world = World::get_world();
+    // if (world->components_exist_of_type<Normal>())
+    // {
+    //     // 删除所有nor的ent关联到fh的map
+    //     for (auto &[key, val] : world->get_components<Normal>())
+    //     {
+    //         auto nor = val;
+    //         if (nor->get_owner()->get_entity<FootHold>() == this)
+    //         {
+    //             nor->get_owner()->remove_entity<FootHold>();
+    //             nor->type = Normal::Air;
+    //         }
+    //     }
+    // }
     auto r = get_component<RigidLine>();
     delete r;
 }
