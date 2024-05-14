@@ -1,7 +1,7 @@
 #include "Avatar.h"
 #include "Resource/Wz.h"
 
-Avatar *Avatar::load_avatar(wz::Node *character_node)
+Avatar *Avatar::load(wz::Node *character_node)
 {
     if (!inited)
     {
@@ -469,6 +469,20 @@ Avatar::~Avatar()
             {
                 del_func(pai);
             }
+        }
+    }
+    for (auto &it : coat_arm)
+    {
+        for (auto &[key, val] : it)
+        {
+            del_func(val);
+        }
+    }
+    for (auto &it : weapon)
+    {
+        for (auto &[key, val] : it)
+        {
+            del_func(val);
         }
     }
 }
