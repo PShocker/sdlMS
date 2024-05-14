@@ -4,7 +4,7 @@
 
 Character::Character(World *world)
 {
-    auto ava = Avatar::load_avatar(world->get_resource<Wz>().Character->get_root());
+    auto ava = Avatar::load(world->get_resource<Wz>().Character->get_root());
     ava->add_head();
     ava->add_body();
     ava->add_arm();

@@ -209,7 +209,7 @@ public:
     void add_hand();
     void add_lHand();
     void add_rHand();
-    static Avatar *load_avatar(wz::Node *character_node);
+    static Avatar *load(wz::Node *character_node);
     static inline bool inited = false;
     static void init(wz::Node *character_node);
     void switch_act(uint8_t a);
