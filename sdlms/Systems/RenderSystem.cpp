@@ -40,10 +40,10 @@ void RenderSystem::run(World &world)
 			}
 		}
 	}
-	for (auto &[key, val] : world.get_entitys<FootHold>())
-	{
-		render_fh(val, world);
-	}
+	// for (auto &[key, val] : world.get_entitys<FootHold>())
+	// {
+	// 	render_fh(val, world);
+	// }
 }
 
 void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)

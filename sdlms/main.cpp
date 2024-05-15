@@ -78,7 +78,7 @@ int main(int argc, char *argv[])
     // if (vid != nullptr)
     // {
     //     Entity *ent = new Entity();
-    //     Transform *t = new Transform{(float)2052, (float)1658};
+    //     Transform *t = new Transform{(float)244, (float)184};
     //     ent->add_component(vid);
     //     ent->add_component(t);
     //     world.add_component(t,123000);

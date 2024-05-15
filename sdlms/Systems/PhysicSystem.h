@@ -15,9 +15,9 @@ private:
 	bool want_prone(Normal *nor, World &world);
 	bool want_fall(Transform *tr, Normal *nor, World &world);
 	bool want_stand(Normal *nor, World &world);
-	bool want_jump(Transform *tr,Normal *nor, World &world);
-	bool want_portal(Transform *tr,Normal *nor,World &world);
-	void walk(Transform *tr,Normal *nor, World &world, float delta_time);
+	bool want_jump(Transform *tr, Normal *nor, World &world);
+	bool want_portal(Transform *tr, Normal *nor, World &world);
+	bool walk(Transform *tr, Normal *nor, World &world, float delta_time);
 	void fall(Transform *tr, Normal *nor, float delta_time, World &world);
 	void climb(Transform *tr, Normal *nor,float delta_time);
 	inline std::optional<SDL_FPoint> intersect(SDL_FPoint p1,
