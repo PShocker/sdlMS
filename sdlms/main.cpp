@@ -84,6 +84,7 @@ int main(int argc, char *argv[])
     //     world.add_component(t,123000);
     //     world.add_component(vid);
     // }
+    world.tick_delta_time();
 
     while (!world.is_game_quit())
     {

@@ -9,12 +9,14 @@
 void Window::create_window(const char *title, unsigned int width, unsigned int height, unsigned int pixel_scale_h, unsigned int pixel_scale_v)
 {
 	int result = SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
+	[[unlikely]]
 	if (result < 0)
 	{
 		ECS_PRINT_ERROR("Failed to initialize SDL (%s)", SDL_GetError());
 		std::abort();
 	}
 	window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, SDL_WINDOW_SHOWN);
+	[[unlikely]]
 	if (!window)
 	{
 		ECS_PRINT_ERROR("Failed to create SDL window (%s)", SDL_GetError());

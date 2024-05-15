@@ -91,44 +91,16 @@ void Map::load_foothold(wz::Node *node, World *world)
     node = node->get_child(u"foothold");
     if (node != nullptr)
     {
-        for (auto it : node->get_children())
+        for (auto &[page, val] : node->get_children())
         {
-            auto page = std::stoi(std::string{it.first.begin(), it.first.end()});
-            for (auto _it : it.second[0]->get_children())
+            for (auto &[zmass, val] : val[0]->get_children())
             {
-                auto zmass = std::stoi(std::string{_it.first.begin(), _it.first.end()});
-                for (auto __it : _it.second[0]->get_children())
+                for (auto &[key, val] : val[0]->get_children())
                 {
-                    auto id = std::stoi(std::string{__it.first.begin(), __it.first.end()});
-                    FootHold *f = new FootHold(__it.second[0], id, page, zmass, world);
+                    auto id = std::stoi(std::string{key.begin(), key.end()});
+                    FootHold *f = new FootHold(val[0], id, std::stoi(std::string{page.begin(), page.end()}), std::stoi(std::string{zmass.begin(), zmass.end()}), world);
                     world->add_entity(f, id);
                 }
-            }
-        }
-        // 去掉无效的墙,可能是wz文件的bug
-        auto &fhs = world->get_entitys<FootHold>();
-        while (true)
-        {
-            auto size = fhs.size();
-            for (auto it = fhs.begin(); it != fhs.end();)
-            {
-                auto fh = it->second;
-                auto rl = fh->get_component<RigidLine>();
-                if (!rl->get_line()->get_k().has_value()) // 通过k值判断是否是墙面
-                {
-                    if (fhs.contains(fh->prev) == false || fhs.contains(fh->next) == false)
-                    {
-                        delete fh;
-                        it = fhs.erase(it);
-                        continue;
-                    }
-                }
-                ++it;
-            }
-            if (size == fhs.size())
-            {
-                // 当数量相等时,意味着已经去掉所有无效的墙
-                break;
             }
         }
     }

@@ -86,6 +86,8 @@ void RenderSystem::render_animated_sprite(Transform *tr, AnimatedSprite *aspr, W
 
 void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world)
 {
+	auto delta_time=world.get_delta_time();
+
 	auto viewprot_x = world.get_components<Camera>().find(0)->second->get_x();
 	auto viewprot_y = world.get_components<Camera>().find(0)->second->get_y();
 	auto viewprot_w = world.get_components<Camera>().find(0)->second->get_w();
@@ -127,7 +129,7 @@ void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world
 	}
 	if (hvm->get_hspeed())
 	{
-		hvm->offset_x = fmodf(hvm->offset_x + rx * 5 * world.delta_time() / 1000.0, cx);
+		hvm->offset_x = fmodf(hvm->offset_x + rx * 5 * delta_time / 1000.0, cx);
 	}
 	else
 	{
@@ -135,7 +137,7 @@ void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world
 	}
 	if (hvm->get_vspeed())
 	{
-		hvm->offset_y = fmodf(hvm->offset_y + ry * 5 * world.delta_time() / 1000.0, cy);
+		hvm->offset_y = fmodf(hvm->offset_y + ry * 5 * delta_time / 1000.0, cy);
 	}
 	else
 	{

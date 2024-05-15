@@ -50,7 +50,7 @@ void UpdateSystem::run(World &world)
 bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
 {
 	bool end = false;
-	auto delta_time = world.delta_time();
+	auto delta_time = world.get_delta_time();
 	aspr->add_anim_time(delta_time);
 	if (aspr->get_anim_time() >= aspr->get_anim_delay())
 	{
@@ -61,6 +61,7 @@ bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
 	// 透明度处理
 	auto a0 = aspr->get_current_sprite()->a0;
 	auto a1 = aspr->get_current_sprite()->a1;
+	[[unlikely]]
 	if (a0 != a1)
 	{
 		auto alpha = 255;
@@ -79,9 +80,10 @@ bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
 
 void UpdateSystem::update_avatar(Avatar *ava, Transform *tr, World &world)
 {
+	[[likely]]
 	if (ava->animate)
 	{
-		auto delta_time = world.delta_time();
+		auto delta_time = world.get_delta_time();
 		auto delay = ava->stance_delays[ava->act][ava->act_index];
 		ava->act_time += delta_time;
 		if (ava->act_time >= delay)

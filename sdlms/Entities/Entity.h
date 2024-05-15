@@ -67,6 +67,7 @@ public:
 template <typename C>
 C *Entity::get_component()
 {
+	[[likely]]
 	if (component_refs.contains(typeid(C)))
 	{
 		return static_cast<C *>(component_refs[typeid(C)]);
