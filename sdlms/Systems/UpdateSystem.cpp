@@ -137,6 +137,7 @@ int UpdateSystem::update_video(void *vid)
 									 frame->data[0], frame->linesize[0],
 									 frame->data[1], frame->linesize[1],
 									 frame->data[2], frame->linesize[2]);
+				av_packet_unref(&packet);
 				break;
 			}
 		}

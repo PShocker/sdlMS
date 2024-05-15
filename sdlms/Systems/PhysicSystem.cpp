@@ -77,7 +77,10 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 			return;
 		}
 		// 地面移动判断
-		walk(tr, nor, world, delta_time);
+		if (!walk(tr, nor, world, delta_time))
+		{
+			return;
+		}
 		[[likely]]
 		if (want_stand(nor, world))
 		{
@@ -361,6 +364,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 						}
 						nor->type = Normal::Air;
 						nor->vspeed = 0;
+						nor->hspeed = 0;
 						return true;
 					}
 				}
@@ -370,7 +374,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 	return false;
 }
 
-void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_time)
+bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_time)
 {
 	if (nor->hkey != Normal::None)
 	{
@@ -438,6 +442,8 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
 			}
 			nor->vspeed = 0;
+			tr->set_y(y);
+			tr->set_x(x);
 			return false;
 		}
 		auto rl = fh->get_component<RigidLine>();
@@ -445,8 +451,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		{
 			if (y == rl->get_max_y())
 			{
-				// 撞墙,人物x不变
-				x = tr->get_position().x;
+				// 撞墙
 				nor->hspeed = 0;
 				return false;
 			}
@@ -459,6 +464,8 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
 				}
 				nor->vspeed = 0;
+				tr->set_y(y);
+				tr->set_x(x);
 				return false;
 			}
 		}
@@ -471,7 +478,8 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		int next_fh = std::abs(foo->prev);
 		if (walk_fh(next_fh) == false)
 		{
-			break;
+			// 从fh掉落,撞墙
+			return false;
 		}
 		rl = foo->get_component<RigidLine>();
 	}
@@ -481,31 +489,27 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		int next_fh = std::abs(foo->next);
 		if (walk_fh(next_fh) == false)
 		{
-			break;
+			// 从fh掉落,撞墙
+			return false;
 		}
 		rl = foo->get_component<RigidLine>();
 	}
+	// 地面上
 	nor->get_owner()->add_entity(foo);
-	if (rl->line->get_y(x).has_value())
-	{
-		tr->set_y(rl->line->get_y(x).value());
-	}
-	else
-	{
-		tr->set_y(y);
-	}
+	tr->set_y(rl->line->get_y(x).value());
 	tr->set_x(x);
+	return true;
 }
 
 void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &world)
 {
 	if (nor->hkey == Normal::Right)
 	{
-		nor->hspeed += 0.5;
+		nor->hspeed += 1;
 	}
 	else if (nor->hkey == Normal::Left)
 	{
-		nor->hspeed -= 0.5;
+		nor->hspeed -= 1;
 	}
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;
@@ -550,7 +554,8 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				else
 				{
 					// 落地
-					new_pos = collide.value();
+					new_pos.x = std::clamp(collide.value().x, rl->get_min_x(), rl->get_max_x());
+					new_pos.y = rl->get_line()->get_y(new_pos.x).value();
 					nor->type = Normal::Ground;
 					if (nor->get_owner_component<Avatar>() != nullptr)
 					{
@@ -574,8 +579,8 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					// 修改人物z值
 					world.destroy_component(tr, false);
 					world.add_component(tr, fh->page * 30000 + 4000);
+					break;
 				}
-				break;
 			}
 		}
 	}
@@ -694,14 +699,13 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 // 线段相交法判断碰撞
 std::optional<SDL_FPoint> PhysicSystem::intersect(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3, SDL_FPoint p4)
 {
-	std::optional<SDL_FPoint> p;
 	// 快速排斥实验
 	if ((p1.x > p2.x ? p1.x : p2.x) < (p3.x < p4.x ? p3.x : p4.x) ||
 		(p1.y > p2.y ? p1.y : p2.y) < (p3.y < p4.y ? p3.y : p4.y) ||
 		(p3.x > p4.x ? p3.x : p4.x) < (p1.x < p2.x ? p1.x : p2.x) ||
 		(p3.y > p4.y ? p3.y : p4.y) < (p1.y < p2.y ? p1.y : p2.y))
 	{
-		return p;
+		return std::nullopt;
 	}
 	// 跨立实验
 	if ((((p1.x - p3.x) * (p4.y - p3.y) - (p1.y - p3.y) * (p4.x - p3.x)) *
@@ -709,13 +713,11 @@ std::optional<SDL_FPoint> PhysicSystem::intersect(SDL_FPoint p1, SDL_FPoint p2, 
 		(((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x)) *
 		 ((p4.x - p1.x) * (p2.y - p1.y) - (p4.y - p1.y) * (p2.x - p1.x))) > 0)
 	{
-		return p;
+		return std::nullopt;
 	}
 
 	auto x = ((p1.y - p3.y) * (p2.x - p1.x) * (p4.x - p3.x) + p3.x * (p4.y - p3.y) * (p2.x - p1.x) - p1.x * (p2.y - p1.y) * (p4.x - p3.x)) / ((p4.x - p3.x) * (p1.y - p2.y) - (p2.x - p1.x) * (p3.y - p4.y));
 	auto y = (p2.y * (p1.x - p2.x) * (p4.y - p3.y) + (p4.x - p2.x) * (p4.y - p3.y) * (p1.y - p2.y) - p4.y * (p3.x - p4.x) * (p2.y - p1.y)) / ((p1.x - p2.x) * (p4.y - p3.y) - (p2.y - p1.y) * (p3.x - p4.x));
 
-	p = {x, y};
-
-	return p;
+	return SDL_FPoint{x, y};
 }
