@@ -42,7 +42,7 @@ private:
 
 	std::uint64_t dt_now;
 	std::uint64_t dt_last;
-	int delta_time_;
+	int delta_time;
 
 	Window *window;
 
@@ -130,7 +130,8 @@ public:
 
 	void process_systems();
 
-	int delta_time() const;
+	int get_delta_time() const;
+	void set_delta_time(int value);
 
 	Window *get_window() const;
 	void set_window(Window *value);

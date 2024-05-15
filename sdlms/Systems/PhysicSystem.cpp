@@ -30,7 +30,7 @@ void PhysicSystem::run(World &world)
 void PhysicSystem::update_normal(Normal *nor, World &world)
 {
 	auto tr = nor->get_owner_component<Transform>();
-	float delta_time = world.delta_time() / 1000.0;
+	float delta_time = world.get_delta_time() / 1000.0;
 
 	// 首先修改人物朝向
 	if (nor->hkey == Normal::Right)
@@ -44,6 +44,7 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 	// 计算出不同状态的速度
 	switch (nor->type)
 	{
+	[[likely]]
 	case Normal::Ground:
 		// 判断是否进传送门
 		if (want_portal(tr, nor, world))
@@ -217,7 +218,6 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 			world->add_entity(foo, foo->id);
 			return 0;
 		};
-
 		SDL_TimerID timerID = SDL_AddTimer(200, callback, foo); // 定时器
 
 		// 从fh掉落
@@ -242,6 +242,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 
 bool PhysicSystem::want_stand(Normal *nor, World &world)
 {
+	[[likely]]
 	if (nor->hkey == Normal::None)
 	{
 		// 还需要进行alert状态判断
@@ -261,6 +262,7 @@ bool PhysicSystem::want_stand(Normal *nor, World &world)
 
 bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 {
+	[[unlikely]]
 	if (nor->lalt)
 	{
 		if (nor->type == Normal::Ground)
@@ -337,15 +339,15 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 										  (float)spr->get_height()};
 					if (SDL_PointInFRect(&pla_pos, &rect))
 					{
-						// return portal(por->tm);
 						// 切换地图
 						Map::load(por->tm, &world);
+						world.tick_delta_time();
 						// 切换人物坐标
 						for (auto &[id, p] : world.get_entitys<Portal>())
 						{
 							if (tn == p->pn)
 							{
-								tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -100});
+								tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -50});
 								// 调整相机位置
 								auto camera = world.get_components<Camera>().find(0)->second;
 								camera->set_x(tr->get_position().x - camera->get_w() / 2);
@@ -354,6 +356,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 							}
 						}
 						nor->type = Normal::Air;
+						nor->vspeed = 0;
 						return true;
 					}
 				}
@@ -418,6 +421,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	auto walk_fh = [&fhs, &foo, &nor, &x, &y, &tr](int next_fh) -> bool
 	{
 		FootHold *fh = nullptr; // 走到下一个fh
+		[[likely]]
 		if (fhs.contains(next_fh))
 		{
 			fh = fhs.find(next_fh)->second;
@@ -466,6 +470,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		{
 			break;
 		}
+		rl = foo->get_component<RigidLine>();
 	}
 	// 往右走
 	while (x > rl->get_max_x())
@@ -475,6 +480,7 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		{
 			break;
 		}
+		rl = foo->get_component<RigidLine>();
 	}
 	nor->get_owner()->add_entity(foo);
 	if (rl->line->get_y(x).has_value())
@@ -490,7 +496,6 @@ void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 
 void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &world)
 {
-
 	if (nor->hkey == Normal::Right)
 	{
 		nor->hspeed += 0.5;
@@ -499,7 +504,6 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	{
 		nor->hspeed -= 0.5;
 	}
-
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;
 	nor->vspeed = std::min(nor->vspeed, 670.0f);
@@ -508,6 +512,9 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	auto d_y = nor->vspeed * delta_time;
 
 	auto new_pos = tr->get_position() + SDL_FPoint{(float)d_x, (float)d_y};
+
+	// 人物之前的fh
+	auto foo = tr->get_owner()->get_entity<FootHold>();
 
 	// 下落
 	if (nor->vspeed > 0)
@@ -525,12 +532,16 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			{
 				if (!rl->get_line()->get_k().has_value())
 				{
-					// k值不存在,则为墙面,判断墙面碰撞方向
-					if ((nor->hspeed > 0 && rl->get_m().y > rl->get_n().y) || (nor->hspeed < 0 && rl->get_m().y < rl->get_n().y))
+					// k值不存在,则为墙面,且必须和同一级的墙碰撞
+					if (foo == nullptr || foo->get_page() == fh->get_page())
 					{
-						new_pos.x = tr->get_position().x;
-						new_pos.y = std::min(rl->get_max_y(), new_pos.y);
-						nor->hspeed = 0;
+						// 判断墙面碰撞方向
+						if ((nor->hspeed > 0 && rl->get_m().y > rl->get_n().y) || (nor->hspeed < 0 && rl->get_m().y < rl->get_n().y))
+						{
+							new_pos.x = tr->get_position().x;
+							new_pos.y = std::min(rl->get_max_y(), new_pos.y);
+							nor->hspeed = 0;
+						}
 					}
 				}
 				else
@@ -586,21 +597,21 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			}
 			if (!rl->get_line()->get_k().has_value())
 			{
-				// k值不存在,则为墙面,判断墙面碰撞方向
-				if ((nor->hspeed > 0 && rl->get_m().y > rl->get_n().y) || (nor->hspeed < 0 && rl->get_m().y < rl->get_n().y))
+				// k值不存在,则为墙面,且必须和同一级的墙碰撞
+				if (foo == nullptr || foo->get_page() == fh->get_page())
 				{
-					auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
-					if (collide.has_value())
+					// 判断墙面碰撞方向
+					if ((nor->hspeed > 0 && rl->get_m().y > rl->get_n().y) || (nor->hspeed < 0 && rl->get_m().y < rl->get_n().y))
 					{
-						new_pos.x = tr->get_position().x;
-						nor->hspeed = 0;
-						break;
+						auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
+						if (collide.has_value())
+						{
+							new_pos.x = tr->get_position().x;
+							nor->hspeed = 0;
+							break;
+						}
 					}
 				}
-			}
-			else
-			{
-				continue;
 			}
 		}
 	}

@@ -15,6 +15,7 @@ public:
     constexpr auto get_max_y() { return std::max(m.y, n.y); }
     constexpr auto get_k() { return k; }
     std::optional<float> get_y(float x);
+    std::optional<float> get_x(float y);
 
 protected:
     SDL_FPoint m;

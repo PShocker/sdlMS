@@ -23,7 +23,7 @@ double distance(const SDL_FPoint &m, const SDL_FPoint &n)
 	return std::sqrt(dx * dx + dy * dy);
 }
 
-World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time_{0}, quit{false}
+World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time{0}, quit{false}
 {
 	world = this;
 }
@@ -57,6 +57,7 @@ void World::add_unique_component(Component *comp)
 {
 	for (const auto &[key, value] : component_map[typeid(*comp)])
 	{
+		[[unlikely]]
 		if (value == comp)
 		{
 			// 避免重复添加到world
@@ -86,15 +87,17 @@ void World::destroy_entity(Entity *ent, bool destroy_components)
 	{
 		for (auto &[key, val] : ent->get_components())
 		{
+			[[likely]]
 			if (val != nullptr)
 			{
-				destroy_component(val);
+				destroy_component(val, false);
 			}
 		}
 	}
 	auto &target_map = entity_map[typeid(*ent)];
 	for (auto it = target_map.begin(); it != target_map.end();)
 	{
+		[[unlikely]]
 		if (it->second == ent)
 		{
 			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
@@ -116,6 +119,7 @@ void World::remove_entity(Entity *ent)
 	auto &target_map = entity_map[typeid(*ent)];
 	for (auto it = target_map.begin(); it != target_map.end();)
 	{
+		[[unlikely]]
 		if (it->second == ent)
 		{
 			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
@@ -133,6 +137,7 @@ void World::destroy_component(Component *comp, bool delete_component)
 
 	for (auto it = target_map.begin(); it != target_map.end();)
 	{
+		[[unlikely]]
 		if (it->second == comp)
 		{
 			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
@@ -193,7 +198,7 @@ void World::tick_delta_time()
 {
 	dt_last = dt_now;
 	dt_now = SDL_GetTicks();
-	delta_time_ = dt_now - dt_last;
+	delta_time = dt_now - dt_last;
 }
 
 void World::process_systems()
@@ -205,9 +210,14 @@ void World::process_systems()
 	}
 }
 
-int World::delta_time() const
+int World::get_delta_time() const
 {
-	return delta_time_;
+	return delta_time;
+}
+
+void World::set_delta_time(int value)
+{
+	delta_time = value;
 }
 
 Window *World::get_window() const
@@ -245,7 +255,7 @@ void World::cleanup()
 	// 	destroy_entity(ent, false, false);
 	for (auto &[key, val] : entity_map)
 	{
-		for (auto &[_, ent] : val)
+		for (auto &[id, ent] : val)
 		{
 			destroy_entity(ent, false);
 		}

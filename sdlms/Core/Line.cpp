@@ -15,11 +15,27 @@ Line::Line(SDL_FPoint m, SDL_FPoint n) : m(m), n(n)
 
 std::optional<float> Line::get_y(float x)
 {
+    [[likely]]
     if (x >= get_min_x() && x <= get_max_x())
     {
+        [[likely]]
         if (k.has_value())
         {
             return k.value() * x + intercept.value();
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<float> Line::get_x(float y)
+{
+    [[likely]]
+    if (y >= get_min_y() && y <= get_max_y())
+    {
+        [[likely]]
+        if (k.has_value())
+        {
+            return (y - intercept.value()) / k.value();
         }
     }
     return std::nullopt;

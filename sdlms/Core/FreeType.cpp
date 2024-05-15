@@ -49,6 +49,7 @@ Sprite *FreeType::str(const std::u16string &s, int font_size, SDL_Renderer *rend
             for (int x = 0; x < bitmap.width; x++)
             {
                 unsigned char value = bitmap.buffer[y * bitmap.pitch + (x >> 3)] & (0x80 >> (x & 7));
+                [[likely]]
                 if (value == 0)
                 {
                     argb_data[(y * bitmap.width + x) * 4] = 0;     // B
