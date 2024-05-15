@@ -47,32 +47,38 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 	[[likely]]
 	case Normal::Ground:
 		// 判断是否进传送门
+		[[unlikely]]
 		if (want_portal(tr, nor, world))
 		{
 			return;
 		}
 		// 判断是否爬梯子
+		[[unlikely]]
 		if (want_climb(tr, nor, world))
 		{
 			return;
 		}
 		// 下跳
+		[[unlikely]]
 		if (want_fall(tr, nor, world))
 		{
 			return;
 		}
 		// 趴
+		[[unlikely]]
 		if (want_prone(nor, world))
 		{
 			return;
 		}
 		// 跳
+		[[unlikely]]
 		if (want_jump(tr, nor, world))
 		{
 			return;
 		}
 		// 地面移动判断
 		walk(tr, nor, world, delta_time);
+		[[likely]]
 		if (want_stand(nor, world))
 		{
 			return;
@@ -242,7 +248,6 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 
 bool PhysicSystem::want_stand(Normal *nor, World &world)
 {
-	[[likely]]
 	if (nor->hkey == Normal::None)
 	{
 		// 还需要进行alert状态判断
@@ -262,7 +267,6 @@ bool PhysicSystem::want_stand(Normal *nor, World &world)
 
 bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 {
-	[[unlikely]]
 	if (nor->lalt)
 	{
 		if (nor->type == Normal::Ground)
@@ -368,7 +372,6 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 
 void PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_time)
 {
-
 	if (nor->hkey != Normal::None)
 	{
 		if (nor->hkey == Normal::Right)
