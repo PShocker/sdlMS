@@ -77,6 +77,7 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 			return;
 		}
 		// 地面移动判断
+		[[unlikely]]
 		if (!walk(tr, nor, world, delta_time))
 		{
 			return;
@@ -89,6 +90,7 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		break;
 	case Normal::Air:
 		// 首先判断是否爬梯子
+		[[unlikely]]
 		if (want_climb(tr, nor, world))
 		{
 			return;
@@ -98,6 +100,7 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		break;
 	case Normal::Climb:
 		// 爬梯子
+		[[unlikely]]
 		if (want_jump(tr, nor, world))
 		{
 			return;
