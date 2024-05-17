@@ -1,4 +1,4 @@
-#include "Animatedsprite.h"
+#include "AnimatedSprite.h"
 #include <ranges>
 #include <algorithm>
 
