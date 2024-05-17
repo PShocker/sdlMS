@@ -18,8 +18,33 @@
 #include "Core/FreeType.h"
 #include "Resource/Wz.h"
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 int width = 800;
 int height = 600;
+
+void main_loop()
+{
+    World *world = World::get_world();
+    [[unlikely]]
+    if (world->is_game_quit())
+    {
+#ifdef __EMSCRIPTEN__
+        emscripten_cancel_main_loop(); /* this should "kill" the app. */
+#else
+        exit(0);
+#endif
+    }
+    world->poll_events();
+    world->tick_delta_time();
+
+    Window::clear();
+
+    world->process_systems();
+    Window::update();
+}
 
 int main(int argc, char *argv[])
 {
@@ -86,16 +111,13 @@ int main(int argc, char *argv[])
     // }
     world.tick_delta_time();
 
-    while (!world.is_game_quit())
+#ifdef __EMSCRIPTEN__
+    emscripten_set_main_loop(main_loop, 0, 1);
+#else
+    while (true)
     {
-        world.poll_events();
-        world.tick_delta_time();
-
-        Window::clear();
-
-        world.process_systems();
-
-        Window::update();
+        main_loop();
     }
+#endif
     return 0;
 }
