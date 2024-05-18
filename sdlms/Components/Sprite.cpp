@@ -126,6 +126,7 @@ Sprite::Sprite(wz::Node *node)
 
 Sprite::~Sprite()
 {
+    [[likely]]
     if (texture != nullptr)
     {
         SDL_DestroyTexture(texture);

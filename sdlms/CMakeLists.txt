@@ -49,8 +49,8 @@ if(("${compiler_name}" STREQUAL "em++") OR ("${compiler_name}" STREQUAL "em++.ba
         "--preload-file ${CMAKE_SOURCE_DIR}/build/Data@Data/"
         # 可以添加其他Emscripten链接器选项
     )
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sALLOW_MEMORY_GROWTH -sSTACK_SIZE=6291456")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sALLOW_MEMORY_GROWTH -sSTACK_SIZE=6291456")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sALLOW_MEMORY_GROWTH -sSTACK_SIZE=6291456 -g")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sALLOW_MEMORY_GROWTH -sSTACK_SIZE=6291456 -g")
 else()
 # 链接 Windows平台库(FFMPEG)
     target_link_libraries(sdlMS PRIVATE bcrypt ws2_32 Secur32 Strmiids)

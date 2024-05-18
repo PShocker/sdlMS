@@ -560,18 +560,6 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					new_pos.x = std::clamp(collide.value().x, rl->get_min_x(), rl->get_max_x());
 					new_pos.y = rl->get_line()->get_y(new_pos.x).value();
 					nor->type = Normal::Ground;
-					if (nor->lalt == false)
-					{
-						if (nor->get_owner_component<Avatar>() != nullptr)
-						{
-							// 修改纸娃娃状态
-							nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::STAND1);
-						}
-						else if (nor->get_owner<Mob>() != nullptr)
-						{
-							nor->get_owner<Mob>()->switch_act(u"stand");
-						}
-					}
 					// 修改速度
 					if ((nor->hkey == Normal::Right && nor->hspeed > 0) || (nor->hkey == Normal::Left && nor->hspeed < 0))
 					{

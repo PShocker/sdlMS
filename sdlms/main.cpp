@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     // world.add_component(nor);
     // world.add_component(pla);
 
-    Map::load(104030000, &world);
+    Map::load(102000000, &world);
 
     // Video *vid = Video::load("a.mp4", 244, 184);
     // if (vid != nullptr)
