@@ -49,7 +49,7 @@ void main_loop()
 int main(int argc, char *argv[])
 {
     World world;
-    Wz *wz = new Wz("./Data/"); // wz文件路径
+    Wz *wz = new Wz("Data/"); // wz文件路径
     world.add_resource(wz);
 
     Window::create_window("sdlMS", width, height);
@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
     // world.add_component(nor);
     // world.add_component(pla);
 
-    Map::load(100000000, &world);
+    Map::load(104030000, &world);
 
     // Video *vid = Video::load("a.mp4", 244, 184);
     // if (vid != nullptr)
