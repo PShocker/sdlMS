@@ -2,10 +2,21 @@
 
 资源文件进QQ群760717877下载
 
-资源路径修改 
+新建build目录
 
-main.cpp
+资源Data放进build目录 
+
+MinGW编译
 ```
-Wz *wz = new Wz("./Data/"); // wz文件路径
+cd build
+cmake ..
+make -j8
 ```
-持续更新中...
+
+emscripten编译
+```
+cd build
+emcmake cmake ..
+emmake make -j8
+python -m http.server 8500
+```
