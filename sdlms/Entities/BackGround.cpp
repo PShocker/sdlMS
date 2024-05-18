@@ -13,7 +13,12 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
     {
         return;
     }
-    auto ani = dynamic_cast<wz::Property<int> *>(node->get_child(u"ani"))->get();
+
+
+    auto ani_node_child = node->get_child(u"ani");
+    auto ani = ani_node_child ? dynamic_cast<wz::Property<int> *>(ani_node_child)->get() : 0;
+
+
 
     auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
     auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"y"))->get();
@@ -28,9 +33,11 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
 
     auto no = dynamic_cast<wz::Property<int> *>(node->get_child(u"no"))->get();
 
-    auto front = dynamic_cast<wz::Property<int> *>(node->get_child(u"front"))->get();
+    auto front_node = node->get_child(u"front");
+    auto front = front_node ? dynamic_cast<wz::Property<int> *>(front_node)->get() : -1;
 
-    auto flip = dynamic_cast<wz::Property<int> *>(node->get_child(u"f"))->get();
+    auto flip_node = node->get_child(u"f");
+    auto flip = flip_node ? dynamic_cast<wz::Property<int> *>(flip_node)->get() : -1;
 
     auto no_str = std::to_string(no);
 
