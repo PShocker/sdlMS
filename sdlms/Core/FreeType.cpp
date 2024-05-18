@@ -6,7 +6,11 @@ void FreeType::init()
     FT_Init_FreeType(library);
     // 加载字体文件
     face = new FT_Face{};
+#ifdef __EMSCRIPTEN__
+    FT_New_Face(*library, "Data/simsun.ttc", 0, face);
+#else
     FT_New_Face(*library, "C:/Windows/Fonts/simsun.ttc", 0, face);
+#endif
     FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
     // 设置字体大小18
     FT_Set_Pixel_Sizes(*face, 0, 18);
