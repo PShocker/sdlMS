@@ -291,7 +291,7 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 			}
 			return true;
 		}
-		else if (nor->type == Normal::Climb && (nor->hkey == Normal::Right || nor->hkey == Normal::Left) && !nor->vkey == Normal::Up)
+		else if (nor->type == Normal::Climb && (nor->hkey == Normal::Right || nor->hkey == Normal::Left) && (nor->vkey != Normal::Up))
 		{
 			nor->vspeed = -300;
 			nor->type = Normal::Air;
