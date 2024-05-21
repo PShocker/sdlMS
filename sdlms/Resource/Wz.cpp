@@ -1,12 +1,15 @@
 #include "Wz.h"
 #include <SDL2/SDL.h>
-#include "Core/File.h"
 
 #ifdef __ANDROID__
 #define USE_BUF
 #endif
 
 // #define USE_BUF
+
+#ifdef USE_BUF
+#include "Core/File.h"
+#endif
 
 #define U8 static_cast<u8>
 #define IV4(A, B, C, D)            \
