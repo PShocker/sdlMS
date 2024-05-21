@@ -1,6 +1,6 @@
 #include "FreeType.h"
 #ifdef __ANDROID__
-#include "Core/Android.h"
+#include "Core/File.h"
 #endif
 
 void FreeType::init()
@@ -12,7 +12,7 @@ void FreeType::init()
 #ifdef __EMSCRIPTEN__
     FT_New_Face(*library, "Data/simsun.ttc", 0, face);
 #elif defined __ANDROID__
-    FT_New_Memory_Face(*library, Android::get_file_buffer("simsun.ttc"), Android::get_file_size("simsun.ttc"), 0, face);
+    FT_New_Memory_Face(*library, File::buffer("simsun.ttc"), File::size("simsun.ttc"), 0, face);
 #elif defined __WIN32__
     FT_New_Face(*library, "C:/Windows/Fonts/simsun.ttc", 0, face);
 #endif

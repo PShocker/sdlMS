@@ -1,6 +1,7 @@
 #include "File.h"
 
 #ifdef __ANDROID__
+#include <android/asset_manager.h>
 unsigned char *File::buffer(const char *path)
 {
     SDL_RWops *rw = SDL_RWFromFile(path, "rb");
