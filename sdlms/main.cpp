@@ -22,6 +22,10 @@
 #include <emscripten.h>
 #endif
 
+#ifdef __ANDROID__
+#include "SDL_main.h"
+#endif
+
 int width = 800;
 int height = 600;
 

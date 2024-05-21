@@ -1,4 +1,6 @@
 #include "Wz.h"
+#include <SDL2/SDL.h>
+#include "Core/Android.h"
 
 #define U8 static_cast<u8>
 #define IV4(A, B, C, D)            \
@@ -10,8 +12,16 @@ Wz::Wz(const std::string &filename_prefix)
 {
     const auto iv = IV4(0xb9, 0x7d, 0x63, 0xe9);
     // 默认全部加载
+#ifdef __ANDROID__
+    Character = (new wz::File(iv, Android::get_file_buffer("Character.wz"),Android::get_file_size("Character.wz")));
+    Map = (new wz::File(iv, Android::get_file_buffer("Map.wz"),Android::get_file_size("Map.wz")));
+    Mob = (new wz::File(iv, Android::get_file_buffer("Mob.wz"),Android::get_file_size("Mob.wz")));
+    Npc = (new wz::File(iv, Android::get_file_buffer("Npc.wz"),Android::get_file_size("Npc.wz")));
+    Sound = (new wz::File(iv, Android::get_file_buffer("Sound.wz"),Android::get_file_size("Sound.wz")));
+    String = (new wz::File(iv, Android::get_file_buffer("String.wz"),Android::get_file_size("String.wz")));
+#else
     // Base = (new wz::File(iv, (std::string(filename_prefix) + std::string("Base.wz")).c_str()));
-    Character = (new wz::File(iv, (std::string(filename_prefix) + std::string("Character.wz")).c_str()));
+     Character = (new wz::File(iv, (std::string(filename_prefix) + std::string("Character.wz")).c_str()));
     // Effect = (new wz::File(iv, (std::string(filename_prefix) + std::string("Effect.wz")).c_str()));
     // Etc = (new wz::File(iv, (std::string(filename_prefix) + std::string("Etc.wz")).c_str()));
     // Item = (new wz::File(iv, (std::string(filename_prefix) + std::string("Item.wz")).c_str()));
@@ -27,7 +37,7 @@ Wz::Wz(const std::string &filename_prefix)
     String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
     // TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
     // UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
-
+#endif
     // Base->parse();
     Character->parse(u"Character");
     // Effect->parse();
