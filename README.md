@@ -6,14 +6,14 @@
 
 资源Data放进build目录 
 
-MinGW编译
+**MinGW编译**
 ```
 cd build
 cmake ..
 make -j8
 ```
 
-emscripten编译
+**emscripten编译**
 ```
 cd build
 emcmake cmake ..
@@ -22,7 +22,9 @@ python -m http.server 8500
 ```
 emscripten编译zlib可能会有问题,如果出现打不开的情况需要重新编译一次
 
-Android编译(Android Studio)
+
+**Android编译(Android Studio)**
+
 把SDL文件夹的android-project提取出来,然后把项目放到里
 ```
 android-project\app\jni
