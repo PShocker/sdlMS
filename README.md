@@ -25,20 +25,29 @@ emscripten编译zlib可能会有问题,如果出现打不开的情况需要重�
 
 **Android编译(Android Studio)**
 
-把SDL文件夹的android-project提取出来,然后把项目放到里
-```
-android-project\app\jni
-```
+把SDL文件夹的android-project提取出来,然后把项目放到里,**还要把资源文件放进assets目录里**
 
 ```
 └── android-project
     ├── app
-    │   └── jni
-    │       ├── freetype
-    │       ├── SDL
-    │       ├── sdlms 
-    │       ├── wzlibcpp
-    │       ├── CMakeLists.txt
+    │   ├── jni
+    │   │   ├── freetype
+    │   │   ├── SDL
+    │   │   ├── sdlms 
+    │   │   ├── wzlibcpp
+    │   │   ├── CMakeLists.txt
+    │   │   ├── CMakeLists.txt
+    │   │   
+    │   │──src   
+    │   │   └── main
+    │   │        └── assets
+    │   │            ├── Character.wz
+    │   │            ├── Map.wz
+    │   │            ├── Mob.wz
+    │   │            ├── Npc.wz
+    │   │            ├── simsun.ttc
+    │   │            ├── Sound.wz
+    │   │            ├── String.wz
 ```
 修改```android-project\app\build.gradle```去掉mk编译,使用cmake编译,并且使用```c++_shared``` 
 ```
