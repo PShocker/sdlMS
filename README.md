@@ -22,8 +22,6 @@ python -m http.server 8500
 ```
 emscripten编译zlib可能会有问题,如果出现打不开的情况需要重新编译一次
 
-
-
 **Android编译(Android Studio)**
 
 把SDL文件夹的```android-project```提取出来,然后放到项目里,**还要把资源文件放进assets目录里**
