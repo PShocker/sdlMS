@@ -53,7 +53,11 @@ void main_loop()
 int main(int argc, char *argv[])
 {
     World world;
+#ifdef __ANDROID__
+    Wz *wz = new Wz(""); // wz文件路径
+#else
     Wz *wz = new Wz("Data/"); // wz文件路径
+#endif
     world.add_resource(wz);
 
     Window::create_window("sdlMS", width, height);
