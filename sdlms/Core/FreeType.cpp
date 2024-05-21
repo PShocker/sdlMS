@@ -1,4 +1,7 @@
 #include "FreeType.h"
+#ifdef __ANDROID__
+#include "Core/Android.h"
+#endif
 
 void FreeType::init()
 {
@@ -8,7 +11,9 @@ void FreeType::init()
     face = new FT_Face{};
 #ifdef __EMSCRIPTEN__
     FT_New_Face(*library, "Data/simsun.ttc", 0, face);
-#else
+#elif defined __ANDROID__
+    FT_New_Memory_Face(*library, Android::get_file_buffer("simsun.ttc"), Android::get_file_size("simsun.ttc"), 0, face);
+#elif defined __WIN32__
     FT_New_Face(*library, "C:/Windows/Fonts/simsun.ttc", 0, face);
 #endif
     FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
@@ -17,8 +22,10 @@ void FreeType::init()
     return;
 }
 
-Sprite *FreeType::str(const std::u16string &s, int font_size, SDL_Renderer *renderer)
+Sprite *FreeType::str(const std::u16string &s, int font_size)
 {
+    SDL_Renderer *renderer = Window::get_renderer();
+
     FT_Set_Pixel_Sizes(*face, 0, font_size);
     FT_GlyphSlot glyph_slot = (*face)->glyph;
     // 计算每个字符的位置和大小

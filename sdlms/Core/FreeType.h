@@ -14,5 +14,5 @@ public:
     static void init();
     static inline FT_Library *library;
     static inline FT_Face *face;
-    static Sprite *str(const std::u16string &s, int font_size = 12, SDL_Renderer *renderer = Window::get_renderer());
+    static Sprite *str(const std::u16string &s, int font_size = 12);
 };
