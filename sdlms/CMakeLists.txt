@@ -3,8 +3,8 @@ project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(FFMPEG_INCLUDE "C:/FFMPEG-ANDROID/arm64-v8a/include")
-set(FFMPEG_LIB "C:/FFMPEG-ANDROID/arm64-v8a/lib")
+set(FFMPEG_INCLUDE "C:/FFMPEG-WEB/include")
+set(FFMPEG_LIB "C:/FFMPEG-WEB/lib")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -62,8 +62,8 @@ if(EMSCRIPTEN)
             "--preload-file ${CMAKE_SOURCE_DIR}/build/Data@Data/"
             # 可以添加其他Emscripten链接器选项
     )
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sALLOW_MEMORY_GROWTH -sSTACK_SIZE=6291456 -g -sUSE_ZLIB")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sALLOW_MEMORY_GROWTH -sSTACK_SIZE=6291456 -g -sUSE_ZLIB")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sALLOW_MEMORY_GROWTH -g -sUSE_ZLIB")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sALLOW_MEMORY_GROWTH -g -sUSE_ZLIB")
     set_target_properties(sdlMS PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     )
