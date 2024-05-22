@@ -1,23 +1,5 @@
 #include "File.h"
 
-#ifdef __ANDROID__
-#include <android/asset_manager.h>
-unsigned char *File::buffer(const char *path)
-{
-    SDL_RWops *rw = SDL_RWFromFile(path, "rb");
-    auto asset = (AAsset *)rw->hidden.androidio.asset;
-    unsigned char *buff = (unsigned char *)AAsset_getBuffer(asset);
-    return buff;
-}
-
-unsigned int File::size(const char *path)
-{
-    SDL_RWops *rw = SDL_RWFromFile(path, "rb");
-    auto asset = (AAsset *)rw->hidden.androidio.asset;
-    int length = AAsset_getLength(asset);
-    return length;
-}
-#else
 unsigned char *File::buffer(const char *path)
 {
     SDL_RWops *rw = SDL_RWFromFile(path, "rb");
@@ -70,4 +52,3 @@ unsigned int File::size(const char *path)
     SDL_RWclose(rw);
     return size;
 }
-#endif
