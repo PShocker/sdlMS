@@ -51,10 +51,10 @@ emscripten编译zlib可能会有问题,如果出现打不开的情况需要重�
 修改```android-project\app\build.gradle```去掉mk编译,使用cmake编译,并且使用```c++_shared``` 
 ```
 externalNativeBuild {
-//    ndkBuild {
-//        arguments "APP_PLATFORM=android-21"
-//        abiFilters 'arm64-v8a'
-//    }
+//  ndkBuild {
+//      arguments "APP_PLATFORM=android-21"
+//      abiFilters 'arm64-v8a'
+//  }
     cmake {
         arguments "-DANDROID_APP_PLATFORM=android-21", "-DANDROID_STL=c++_shared"
         // abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
@@ -64,9 +64,9 @@ externalNativeBuild {
 ```
 ```
 externalNativeBuild {
-    ndkBuild {
-        path 'jni/Android.mk'
-    }
+//  ndkBuild {
+//      path 'jni/Android.mk'
+//  }
     cmake {
         path 'jni/CMakeLists.txt'
     }
