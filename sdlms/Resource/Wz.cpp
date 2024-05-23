@@ -1,5 +1,4 @@
 #include "Wz.h"
-#include <SDL2/SDL.h>
 
 #ifdef __ANDROID__
 #define USE_BUF
