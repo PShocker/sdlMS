@@ -1,7 +1,6 @@
 #include "World.h"
 #include "Input.h"
 #include "ECSSystem.h"
-#include <SDL2/SDL_timer.h>
 
 #include <algorithm>
 
@@ -250,12 +249,9 @@ void World::clean_up()
 		for (auto &[index, comp] : pair.second)
 		{
 			destroy_component(comp, true);
-			comp = nullptr;
 		}
 	}
-
-	// for (Entity *ent : entity_map)
-	// 	destroy_entity(ent, false, false);
+	
 	for (auto &[key, val] : entity_map)
 	{
 		for (auto &[id, ent] : val)
