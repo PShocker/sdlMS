@@ -25,7 +25,7 @@ void Map::load(int map_id, World *world)
     load_ladderRope(node, world);
     load_portal(node, world);
     load_bgm(node, world);
-    // load_string(mapId);
+    // load_string(map_id);
 }
 
 void Map::load_obj(wz::Node *node, World *world)
@@ -73,12 +73,12 @@ void Map::load_background(wz::Node *node, World *world)
     }
 }
 
-void Map::load_string(int mapId, World *world)
+void Map::load_string(int map_id, World *world)
 {
     auto node = world->get_resource<Wz>().String->get_root()->find_from_path("Map.img");
     for (auto &[key, val] : node->get_children())
     {
-        if (val[0]->get_child(std::to_string(mapId)) != nullptr)
+        if (val[0]->get_child(std::to_string(map_id)) != nullptr)
         {
 
             printf("");
@@ -182,14 +182,14 @@ void Map::clean_up(World *world)
     world->clear_entity<Portal>();
 }
 
-wz::Node *Map::load_map_node(int mapId, World *world)
+wz::Node *Map::load_map_node(int map_id, World *world)
 {
     auto node = world->get_resource<Wz>().Map->get_root();
-    auto s = std::to_string(mapId);
+    auto s = std::to_string(map_id);
     if (s.size() < 9)
     {
         s.insert(0, 9 - s.size(), '0');
     }
-    std::string path = "Map/Map" + std::to_string(mapId / 100000000) + "/" + s + ".img";
+    std::string path = "Map/Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
     return node->find_from_path(path);
 }

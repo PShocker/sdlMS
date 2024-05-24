@@ -138,5 +138,5 @@ public:
 
 	bool is_game_quit() const;
 
-	void cleanup();
+	void clean_up();
 };

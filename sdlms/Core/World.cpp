@@ -90,7 +90,7 @@ void World::destroy_entity(Entity *ent, bool destroy_components)
 			[[likely]]
 			if (val != nullptr)
 			{
-				destroy_component(val, false);
+				destroy_component(val, true);
 			}
 		}
 	}
@@ -235,7 +235,7 @@ bool World::is_game_quit() const
 	return quit;
 }
 
-void World::cleanup()
+void World::clean_up()
 {
 #ifdef ECS_DEBUG
 	size_t ccount = 0;
@@ -248,7 +248,10 @@ void World::cleanup()
 	for (auto &pair : component_map)
 	{
 		for (auto &[index, comp] : pair.second)
-			destroy_component(comp, false);
+		{
+			destroy_component(comp, true);
+			comp = nullptr;
+		}
 	}
 
 	// for (Entity *ent : entity_map)
@@ -257,7 +260,7 @@ void World::cleanup()
 	{
 		for (auto &[id, ent] : val)
 		{
-			destroy_entity(ent, false);
+			destroy_entity(ent, true);
 		}
 	}
 }
