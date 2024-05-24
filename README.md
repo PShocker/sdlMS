@@ -72,8 +72,7 @@ externalNativeBuild {
     }
 }
 ```
-配置ndk路径
-build.gradle指定ndk版本
+修改```android-project\app\build.gradle```指定ndk版本
 ```
 android {
     ndkVersion "26.3.11579264" // e.g.,  ndkVersion "21.3.6528147"
