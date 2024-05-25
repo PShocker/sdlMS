@@ -29,22 +29,6 @@ void UpdateSystem::run(World &world)
 			update_video(vid);
 		}
 	}
-	// 更新三段式传送门状态
-	if (world.entity_exist_of_type<Portal>())
-	{
-		for (auto &[index, por] : world.get_entitys<Portal>())
-		{
-			if (por->aspr_map.size() == 3)
-			{
-				if (world.components_exist_of_type<Player>())
-				{
-					auto player = world.get_components<Player>().begin()->second;
-					auto tr = player->get_owner_component<Transform>();
-					update_portal(por, tr, world);
-				}
-			}
-		}
-	}
 }
 
 bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
@@ -90,32 +74,6 @@ void UpdateSystem::update_avatar(Avatar *ava, Transform *tr, World &world)
 		{
 			ava->act_index = (ava->act_index + 1) % ava->stance_delays[ava->act].size();
 			ava->act_time = 0;
-		}
-	}
-}
-
-void UpdateSystem::update_portal(Portal *por, Transform *tr, World &world)
-{
-	auto tran = por->get_component<Transform>(); // 传送门坐标
-	auto aspr = por->get_component<AnimatedSprite>();
-	auto dis = distance(tran->get_position(), tr->get_position());
-
-	if (dis < 400 && aspr != por->aspr_map[u"portalContinue"])
-	{
-		aspr = por->aspr_map[u"portalContinue"];
-		por->add_component(aspr);
-	}
-	if (400 <= dis && dis < 600 && aspr != por->aspr_map[u"portalExit"])
-	{
-		aspr = por->aspr_map[u"portalExit"];
-		por->add_component(aspr);
-	}
-	if (dis >= 600)
-	{
-		// 距离太远,直接隐藏
-		if (aspr != nullptr)
-		{
-			por->remove_component<AnimatedSprite>();
 		}
 	}
 }
