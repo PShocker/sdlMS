@@ -188,7 +188,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 			world.destroy_component(tr, false);
 			world.add_component(tr, lad->page * 30000 + 4000);
 
-			nor->get_owner()->add_entity(lad);
+			nor->get_owner()->add_entity(lad, 0);
 			nor->vspeed = 0;
 			nor->hspeed = 0;
 			nor->type = Normal::Climb;
@@ -217,7 +217,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 {
 	if (nor->vkey == Normal::Down && nor->lalt)
 	{
-		auto foo = tr->get_owner()->get_entity<FootHold>();
+		auto foo = tr->get_owner()->get_entity<FootHold>(0);
 		world.remove_entity(foo);
 		world.add_entity(foo, -foo->id);
 
@@ -234,7 +234,6 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 
 		// 从fh掉落
 		nor->type = Normal::Air;
-		tr->get_owner()->remove_entity<FootHold>();
 		if (nor->get_owner_component<Avatar>() != nullptr)
 		{
 			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
@@ -424,7 +423,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	auto y = tr->get_position().y;
 
 	auto &fhs = world.get_entitys<FootHold>();
-	auto foo = tr->get_owner()->get_entity<FootHold>();
+	auto foo = tr->get_owner()->get_entity<FootHold>(0);
 	auto rl = foo->get_component<RigidLine>();
 
 	// 人物在fh移动的函数
@@ -498,7 +497,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		rl = foo->get_component<RigidLine>();
 	}
 	// 地面上
-	nor->get_owner()->add_entity(foo);
+	nor->get_owner()->add_entity(foo, 0);
 	tr->set_y(rl->line->get_y(x).value());
 	tr->set_x(x);
 	return true;
@@ -524,7 +523,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	auto new_pos = tr->get_position() + SDL_FPoint{(float)d_x, (float)d_y};
 
 	// 人物之前的fh
-	auto foo = tr->get_owner()->get_entity<FootHold>();
+	auto foo = tr->get_owner()->get_entity<FootHold>(0);
 
 	// 下落
 	if (nor->vspeed > 0)
@@ -569,7 +568,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					{
 						nor->hspeed /= 3;
 					}
-					nor->get_owner()->add_entity(fh);
+					nor->get_owner()->add_entity(fh, 0);
 					// 修改人物z值
 					world.destroy_component(tr, false);
 					world.add_component(tr, fh->page * 30000 + 4000);
@@ -636,7 +635,7 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 	}
 
 	// 判断是否脱离梯子
-	auto lr = nor->get_owner()->get_entity<LadderRope>();
+	auto lr = nor->get_owner()->get_entity<LadderRope>(0);
 	auto cl = lr->get_component<CrawlLine>();
 
 	auto d_y = nor->vspeed * delta_time;

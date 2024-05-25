@@ -7,6 +7,7 @@
 #include "Systems/CameraSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/PlayerSystem.h"
+#include "Systems/EntitySystem.h"
 #include "Components/Sound.h"
 #include "Components/Camera.h"
 #include "Components/Player.h"
@@ -64,23 +65,19 @@ int main(int argc, char *argv[])
 
     FreeType::init();
 
-    SoundSystem sous{};
-    world.add_system(&sous);
+    world.add_system(new SoundSystem());
 
-    PlayerSystem plas{};
-    world.add_system(&plas);
+    world.add_system(new PlayerSystem());
 
-    PhysicSystem phys{};
-    world.add_system(&phys);
+    world.add_system(new PhysicSystem());
 
-    CameraSystem cams{};
-    world.add_system(&cams);
+    world.add_system(new CameraSystem());
 
-    UpdateSystem upd{};
-    world.add_system(&upd);
+    world.add_system(new UpdateSystem());
 
-    RenderSystem rsys{};
-    world.add_system(&rsys);
+    world.add_system(new EntitySystem());
+
+    world.add_system(new RenderSystem());
 
     Character *cha = new Character(&world);
     Transform *t = new Transform{(float)0, (float)0};

@@ -1,10 +1,11 @@
 #include "Npc.h"
 #include "FootHold.h"
+#include "NameTag.h"
+#include "String.h"
 
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
 #include "Resource/Wz.h"
-#include "Core/FreeType.h"
 
 Npc::Npc(wz::Node *node, World *world)
 {
@@ -49,14 +50,24 @@ Npc::Npc(wz::Node *node, World *world)
             for (auto &[key, val] : node->get_children())
             {
                 str_map[key] = dynamic_cast<wz::Property<wz::wzstring> *>(val[0])->get();
-            }
-            if (str_map.contains(u"name"))
-            {
-                name = FreeType::str(str_map[u"name"]);
-            }
-            if (str_map.contains(u"func"))
-            {
-                func = FreeType::str(str_map[u"func"]);
+                if (key == u"name" || key == u"func")
+                {
+                    auto str = new String(str_map[key]);
+                    add_entity(str);
+
+                    auto spr = str->get_component<Sprite>();
+
+                    Transform *str_tr = new Transform();
+                    str->add_component(str_tr);
+                    world->add_component(str_tr, 30000 * layer + 3000 + 1);
+
+                    auto tag = new NameTag(spr->width + 4, spr->height + 4);
+
+                    Transform *tag_tr = new Transform();
+                    tag->add_component(tag_tr);
+                    world->add_component(tag_tr, 30000 * layer + 3000);
+                    add_entity(tag);
+                }
             }
         }
     }
@@ -72,14 +83,23 @@ Npc::~Npc()
         world->destroy_component(aspr, false);
         delete aspr;
     }
-    if (name != nullptr)
+
+    for (auto &[key, val] : get_entity<String>())
     {
-        delete name;
+        auto t = val->get_component<Transform>();
+        world->destroy_component(t, false);
+        delete t;
+        delete val;
     }
-    if (func != nullptr)
+
+    for (auto &[key, val] : get_entity<NameTag>())
     {
-        delete func;
+        auto t = val->get_component<Transform>();
+        world->destroy_component(t, false);
+        delete t;
+        delete val;
     }
+
     auto t = get_component<Transform>();
     world->destroy_component(t, false);
     delete t;
