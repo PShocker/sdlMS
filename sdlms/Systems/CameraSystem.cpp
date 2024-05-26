@@ -26,7 +26,7 @@ void CameraSystem::update_camera(Camera *cam, Transform *tr, World &world)
 		cam->set_y(cam->get_y() + vdelta * (12.0 / cam->get_h()));
 	}
 
-	if (world.get_entity_map().contains(typeid(Border)))
+	if (world.entity_exist_of_type<Border>())
 	{
 		auto border = world.get_entitys<Border>().find(0)->second;
 		float left = border->get_left();

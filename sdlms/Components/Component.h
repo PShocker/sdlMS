@@ -15,11 +15,22 @@ class Component
 public:
 	Component();
 	virtual ~Component();
+	int id = 0;
 
 protected:
 	Entity *owner = nullptr;
 
 public:
+	int get_id() const
+	{
+		return id;
+	};
+
+	void set_id(int value)
+	{
+		id = value;
+	};
+
 	Entity *get_owner() const;
 	void set_owner(Entity *value);
 
