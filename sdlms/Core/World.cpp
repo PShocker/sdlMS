@@ -49,7 +49,7 @@ void World::add_component(Component *comp)
 void World::add_component(Component *comp, int index)
 {
 	component_map[typeid(*comp)].insert({index, comp});
-	DEBUG_PRINT("Added a new component (%s)", typeid(*comp).name());
+	comp->set_id(index);
 }
 
 void World::add_unique_component(Component *comp)
@@ -132,23 +132,25 @@ void World::remove_entity(Entity *ent)
 
 void World::destroy_component(Component *comp, bool delete_component)
 {
-	auto &target_map = component_map[typeid(*comp)];
-
-	for (auto it = target_map.begin(); it != target_map.end();)
+	if (comp != nullptr)
 	{
-		[[unlikely]]
-		if (it->second == comp)
+		auto &target_map = component_map[typeid(*comp)];
+		for (auto it = target_map.begin(); it != target_map.end();)
 		{
-			it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+			[[unlikely]]
+			if (it->second == comp)
+			{
+				it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+			}
+			else
+			{
+				++it;
+			}
 		}
-		else
+		if (delete_component)
 		{
-			++it;
+			delete comp;
 		}
-	}
-	if (delete_component)
-	{
-		delete comp;
 	}
 }
 
@@ -251,7 +253,7 @@ void World::clean_up()
 			destroy_component(comp, true);
 		}
 	}
-	
+
 	for (auto &[key, val] : entity_map)
 	{
 		for (auto &[id, ent] : val)

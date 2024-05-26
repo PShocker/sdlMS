@@ -5,6 +5,7 @@
 
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
+#include "Components/RelativeTransform.h"
 #include "Resource/Wz.h"
 
 Npc::Npc(wz::Node *node, World *world)
@@ -34,19 +35,20 @@ Npc::Npc(wz::Node *node, World *world)
                 world->add_component(aspr);
             }
         }
+        // 默认显示npc第一个状态
+        Transform *tr = new Transform{(float)x, (float)y};
         if (aspr_map.size() > 0)
         {
-            // 默认显示npc第一个状态
-            Transform *t = new Transform{(float)x, (float)y};
             auto aspr = aspr_map.begin()->second;
-            add_component(t);
+            add_component(tr);
             add_component(aspr);
-            world->add_component(t, 30000 * layer + 3000);
+            world->add_component(tr, 30000 * layer + 3000);
         }
         // 从string.wz获取信息
         node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Npc.img/" + npc_id.substr(npc_id.find_first_not_of(u'0')));
         if (node != nullptr)
         {
+            int i = 0;
             for (auto &[key, val] : node->get_children())
             {
                 str_map[key] = dynamic_cast<wz::Property<wz::wzstring> *>(val[0])->get();
@@ -54,19 +56,23 @@ Npc::Npc(wz::Node *node, World *world)
                 {
                     auto str = new String(str_map[key]);
                     add_entity(str);
-
                     auto spr = str->get_component<Sprite>();
+                    {
+                        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), (float)(8 + (spr->get_height() + 2) * i)});
+                        str->add_component(rtr);
+                        str->add_component(new Transform());
+                        world->add_component(rtr, 1);
+                    }
 
-                    Transform *str_tr = new Transform();
-                    str->add_component(str_tr);
-                    world->add_component(str_tr, 30000 * layer + 3000 + 1);
-
-                    auto tag = new NameTag(spr->width + 4, spr->height + 4);
-
-                    Transform *tag_tr = new Transform();
-                    tag->add_component(tag_tr);
-                    world->add_component(tag_tr, 30000 * layer + 3000);
-                    add_entity(tag);
+                    {
+                        auto nam = new NameTag(spr->width + 4, spr->height + 6);
+                        add_entity(nam);
+                        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), (float)(6 + spr->get_height() * i)});
+                        nam->add_component(rtr);
+                        nam->add_component(new Transform());
+                        world->add_component(rtr, 0);
+                    }
+                    i++;
                 }
             }
         }
@@ -87,16 +93,22 @@ Npc::~Npc()
     for (auto &[key, val] : get_entity<String>())
     {
         auto t = val->get_component<Transform>();
+        auto rtr = val->get_component<RelativeTransform>();
         world->destroy_component(t, false);
+        world->destroy_component(rtr, false);
         delete t;
+        delete rtr;
         delete val;
     }
 
     for (auto &[key, val] : get_entity<NameTag>())
     {
         auto t = val->get_component<Transform>();
+        auto rtr = val->get_component<RelativeTransform>();
         world->destroy_component(t, false);
+        world->destroy_component(rtr, false);
         delete t;
+        delete rtr;
         delete val;
     }
 

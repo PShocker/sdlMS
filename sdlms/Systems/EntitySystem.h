@@ -11,5 +11,4 @@ public:
 
 private:
 	void update_portal(Portal *por, World &world);
-	void update_npc(Npc *npc, World &world);
 };
