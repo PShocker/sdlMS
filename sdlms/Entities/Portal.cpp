@@ -2,6 +2,7 @@
 #include "Resource/Wz.h"
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
+#include "Components/DistanceSprite.h"
 
 Portal::Portal(wz::Node *node, World *world)
 {
@@ -44,18 +45,24 @@ Portal::Portal(wz::Node *node, World *world)
                 {
                     if (world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default") != NULL)
                     {
+                        auto disspr = new DistanceSprite();
+                        add_component(disspr);
+                        world->add_component(disspr);
                         {
                             auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalStart"));
+                            disspr->add(std::nullopt, std::nullopt, aspr);
                             aspr_map[u"portalStart"] = aspr;
                             world->add_component(aspr);
                         }
                         {
                             auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalContinue"));
+                            disspr->add(SDL_FPoint{-100, 100}, SDL_FPoint{-50, 50}, aspr);
                             aspr_map[u"portalContinue"] = aspr;
                             world->add_component(aspr);
                         }
                         {
                             auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalExit"));
+                            disspr->add(SDL_FPoint{-150, 150}, SDL_FPoint{-100, 100}, aspr);
                             aspr_map[u"portalExit"] = aspr;
                             world->add_component(aspr);
                         }
@@ -113,5 +120,12 @@ Portal::~Portal()
     {
         world->destroy_component(t, false);
         delete t;
+    }
+
+    auto disspr = get_component<DistanceSprite>();
+    if (disspr != nullptr)
+    {
+        world->destroy_component(disspr, false);
+        delete disspr;
     }
 }

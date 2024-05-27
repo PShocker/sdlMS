@@ -15,13 +15,6 @@ SDL_FPoint operator-(const SDL_FPoint &m, const SDL_FPoint &n)
 	return {m.x - n.x, m.y - n.y};
 }
 
-double distance(const SDL_FPoint &m, const SDL_FPoint &n)
-{
-	int dx = n.x - m.x;
-	int dy = n.y - m.y;
-	return std::sqrt(dx * dx + dy * dy);
-}
-
 World::World() : dt_now{SDL_GetTicks()}, dt_last{0}, delta_time{0}, quit{false}
 {
 	world = this;
@@ -135,12 +128,12 @@ void World::destroy_component(Component *comp, bool delete_component)
 	if (comp != nullptr)
 	{
 		auto &target_map = component_map[typeid(*comp)];
-		for (auto it = target_map.begin(); it != target_map.end();)
+
+		for (auto it = target_map.equal_range(comp->get_id()).first; it != target_map.equal_range(comp->get_id()).second;)
 		{
-			[[unlikely]]
 			if (it->second == comp)
 			{
-				it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+				it = target_map.erase(it);
 			}
 			else
 			{
