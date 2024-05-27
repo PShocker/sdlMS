@@ -35,14 +35,16 @@ Npc::Npc(wz::Node *node, World *world)
                 world->add_component(aspr);
             }
         }
-        // 默认显示npc第一个状态
+        
         Transform *tr = new Transform{(float)x, (float)y};
+        add_component(tr);
+        world->add_component(tr, 30000 * layer + 3000);
+
         if (aspr_map.size() > 0)
         {
+            // 默认显示npc第一个状态
             auto aspr = aspr_map.begin()->second;
-            add_component(tr);
             add_component(aspr);
-            world->add_component(tr, 30000 * layer + 3000);
         }
         // 从string.wz获取信息
         node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Npc.img/" + npc_id.substr(npc_id.find_first_not_of(u'0')));
