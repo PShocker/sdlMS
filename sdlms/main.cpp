@@ -7,7 +7,7 @@
 #include "Systems/CameraSystem.h"
 #include "Systems/PhysicSystem.h"
 #include "Systems/PlayerSystem.h"
-#include "Systems/EntitySystem.h"
+#include "Systems/SpriteSystem.h"
 #include "Systems/TransformSystem.h"
 #include "Components/Sound.h"
 #include "Components/Camera.h"
@@ -76,8 +76,8 @@ int main(int argc, char *argv[])
 
     world.add_system(new UpdateSystem());
 
-    world.add_system(new EntitySystem());
-    
+    world.add_system(new SpriteSystem());
+
     world.add_system(new TransformSystem());
 
     world.add_system(new RenderSystem());

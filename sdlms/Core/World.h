@@ -21,8 +21,6 @@ SDL_FPoint operator+(const SDL_FPoint &m, const SDL_FPoint &n);
 // 重载 SDL_Point 的减法运算符
 SDL_FPoint operator-(const SDL_FPoint &m, const SDL_FPoint &n);
 
-double distance(const SDL_FPoint &m, const SDL_FPoint &n);
-
 class World
 {
 private:
