@@ -230,7 +230,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 			world->add_entity(foo, foo->id);
 			return 0;
 		};
-		SDL_TimerID timerID = SDL_AddTimer(200, callback, foo); // 定时器
+		SDL_TimerID timerID = SDL_AddTimer(400, callback, foo); // 定时器
 
 		// 从fh掉落
 		nor->type = Normal::Air;
