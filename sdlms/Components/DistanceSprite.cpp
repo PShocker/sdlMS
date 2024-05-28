@@ -8,7 +8,9 @@ DistanceSprite::~DistanceSprite()
 {
 }
 
-void DistanceSprite::add(std::optional<SDL_FPoint> m, std::optional<SDL_FPoint> n, std::variant<Sprite *, AnimatedSprite *> disspr)
+void DistanceSprite::add(std::optional<SDL_FPoint> h, std::optional<SDL_FPoint> v, std::optional<std::variant<Sprite *, AnimatedSprite *>> disspr)
 {
-    list.push_back({m, n, disspr});
+    hs.push_back(h);
+    vs.push_back(v);
+    dissprs.push_back(disspr);
 }
