@@ -49,12 +49,6 @@ Portal::Portal(wz::Node *node, World *world)
                         add_component(disspr);
                         world->add_component(disspr);
                         {
-                            auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalStart"));
-                            disspr->add(std::nullopt, std::nullopt, aspr);
-                            aspr_map[u"portalStart"] = aspr;
-                            world->add_component(aspr);
-                        }
-                        {
                             auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalContinue"));
                             disspr->add(SDL_FPoint{-100, 100}, SDL_FPoint{-50, 50}, aspr);
                             aspr_map[u"portalContinue"] = aspr;
@@ -64,6 +58,12 @@ Portal::Portal(wz::Node *node, World *world)
                             auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalExit"));
                             disspr->add(SDL_FPoint{-150, 150}, SDL_FPoint{-100, 100}, aspr);
                             aspr_map[u"portalExit"] = aspr;
+                            world->add_component(aspr);
+                        }
+                        {
+                            auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url + u"/default/portalStart"));
+                            disspr->add(std::nullopt, std::nullopt, std::nullopt);
+                            aspr_map[u"portalStart"] = aspr;
                             world->add_component(aspr);
                         }
                         Transform *t = new Transform{(float)x, (float)y};
