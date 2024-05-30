@@ -25,6 +25,7 @@ void Map::load(int map_id, World *world)
     load_ladderRope(node, world);
     load_portal(node, world);
     load_bgm(node, world);
+    set_map_id(map_id);
     // load_string(map_id);
 }
 
@@ -192,4 +193,15 @@ wz::Node *Map::load_map_node(int map_id, World *world)
     }
     std::string path = "Map/Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
     return node->find_from_path(path);
+}
+
+uint32_t Map::map_id = 0;
+uint32_t Map::get_map_id()
+{
+    return map_id;
+}
+
+void Map::set_map_id(uint32_t id)
+{
+    map_id = id;
 }

@@ -6,6 +6,8 @@
 class CameraSystem : public System
 {
 public:
+	const int LIMIT_X = 400;
+	const int LIMIT_Y = 120;
 	void run(World &world) override;
 
 private:
