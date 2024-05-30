@@ -1,5 +1,6 @@
 #include "CameraSystem.h"
 #include "Entities/Border.h"
+#include "Core/MathHelper.h"
 #include <SDL2/SDL.h>
 
 void CameraSystem::run(World &world)
@@ -14,17 +15,32 @@ void CameraSystem::run(World &world)
 void CameraSystem::update_camera(Camera *cam, Transform *tr, World &world)
 {
 
+	MathHelper helper;
 	auto hdelta = tr->get_position().x - cam->get_w() / 2 - cam->get_x();
-	if (std::abs(hdelta) >= 5.0)
+	float next_x = 0;
+	float next_y = 0;
+
+	if (std::abs(hdelta) >= LIMIT_X)
 	{
-		cam->set_x(cam->get_x() + hdelta * (12.0 / cam->get_w()));
+		next_x = helper.Lerp<float>(cam->get_x(), tr->get_position().x - cam->get_w() / 2, world.get_delta_time() * 6 / 1000.f);
+		//cam->set_x(cam->get_x() + hdelta * (12.0 / cam->get_w()));
+	}
+	 else {
+		next_x = helper.Lerp<float>(cam->get_x(), tr->get_position().x - cam->get_w() / 2, world.get_delta_time() * 2 / 1000.f);
 	}
 
 	auto vdelta = tr->get_position().y - cam->get_h() / 2 - cam->get_y();
-	if (std::abs(vdelta) >= 5.0)
+	if (std::abs(vdelta) >= LIMIT_Y)
 	{
-		cam->set_y(cam->get_y() + vdelta * (12.0 / cam->get_h()));
+		next_y = helper.Lerp<float>(cam->get_y(), tr->get_position().y - cam->get_h() / 2, world.get_delta_time() * 6 / 1000.f);
+		//cam->set_y(cam->get_y() + vdelta * (12.0 / cam->get_h()));
+	} 
+	else {
+		next_y = helper.Lerp<float>(cam->get_y(), tr->get_position().y - cam->get_h() / 2, world.get_delta_time() * 2 / 1000.f);
 	}
+
+	cam->set_x(next_x);
+	cam->set_y(next_y);
 
 	if (world.entity_exist_of_type<Border>())
 	{

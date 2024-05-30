@@ -349,19 +349,35 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					if (SDL_PointInFRect(&pla_pos, &rect))
 					{
 						// 切换地图
-						Map::load(por->tm, &world);
-						world.tick_delta_time();
-						// 切换人物坐标
-						for (auto &[id, p] : world.get_entitys<Portal>())
+						if (por->tm != Map::get_map_id())
 						{
-							if (tn == p->pn)
+							Map::load(por->tm, &world);
+							world.tick_delta_time();
+							// 切换人物坐标
+							for (auto &[id, p] : world.get_entitys<Portal>())
 							{
-								tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -50});
-								// 调整相机位置
-								auto camera = world.get_components<Camera>().find(0)->second;
-								camera->set_x(tr->get_position().x - camera->get_w() / 2);
-								camera->set_y(tr->get_position().y - camera->get_h() / 2);
-								break;
+								if (tn == p->pn)
+								{
+									tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -20});
+									// 调整相机位置
+									auto camera = world.get_components<Camera>().find(0)->second;
+									camera->set_x(tr->get_position().x - camera->get_w() / 2);
+									camera->set_y(tr->get_position().y - camera->get_h() / 2);
+									break;
+								}
+							}
+						} 
+						else 
+						{
+							world.tick_delta_time();
+							// 切换人物坐标
+							for (auto &[id, p] : world.get_entitys<Portal>())
+							{
+								if (tn == p->pn)
+								{
+									tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -20});
+									break;
+								}
 							}
 						}
 						nor->type = Normal::Air;
