@@ -20,7 +20,11 @@ public:
 
     static void load_bgm(wz::Node *node,World *world);
     static void clean_up(World *world);
+    static uint32_t get_map_id();
+    static void set_map_id(uint32_t id);
+
 
 private:
     static wz::Node *load_map_node(int map_id,World *world);
+    static uint32_t map_id;
 };
