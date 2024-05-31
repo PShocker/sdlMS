@@ -195,7 +195,7 @@ wz::Node *Map::load_map_node(int map_id, World *world)
     return node->find_from_path(path);
 }
 
-uint32_t Map::map_id = 0;
+
 uint32_t Map::get_map_id()
 {
     return map_id;

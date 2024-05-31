@@ -366,10 +366,9 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 									break;
 								}
 							}
-						} 
-						else 
+						}
+						else
 						{
-							world.tick_delta_time();
 							// 切换人物坐标
 							for (auto &[id, p] : world.get_entitys<Portal>())
 							{
