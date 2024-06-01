@@ -20,9 +20,7 @@ void PlayerSystem::update_player(Player *pla, World &world)
     auto tr = pla->get_owner_component<Transform>();
 
     nor->vkey = Normal::None;
-    nor->vkey_once = Normal::None;
     nor->hkey = Normal::None;
-    nor->hkey_once = Normal::None;
     nor->lalt = false;
 
     // 判断是否有h或v方向输入
@@ -45,10 +43,5 @@ void PlayerSystem::update_player(Player *pla, World &world)
     if (Input::is_key_held(SDLK_LALT))
     {
         nor->lalt = true;
-    }
-
-    if (Input::is_key_pressed(SDLK_UP))
-    {
-        nor->vkey_once = Normal::Up;
     }
 }

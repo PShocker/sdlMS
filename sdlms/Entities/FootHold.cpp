@@ -2,7 +2,7 @@
 #include "Components/RigidLine.h"
 #include "Components/Physic/Normal.h"
 
-FootHold::FootHold(wz::Node *node, int id, int page, int zmass, World *world) : id(id), page(page), zmass(zmass)
+FootHold::FootHold(wz::Node *node, int page, int zmass, World *world) : page(page), zmass(zmass)
 {
     next = dynamic_cast<wz::Property<int> *>(node->get_child(u"next"))->get();
     prev = dynamic_cast<wz::Property<int> *>(node->get_child(u"prev"))->get();

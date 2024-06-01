@@ -9,7 +9,7 @@ class Component;
 class Entity
 {
 private:
-	unsigned long id = 0;
+	int id = 0;
 	std::unordered_map<std::type_index, Component *> component_refs;
 	std::unordered_map<std::type_index, std::unordered_map<int, Entity *>> entity_refs;
 
@@ -17,8 +17,8 @@ public:
 	Entity();
 	virtual ~Entity();
 
-	unsigned long get_id() const;
-	void set_id(unsigned long value);
+	int get_id() const;
+	void set_id(int value);
 
 	template <typename C>
 	void add_component(C *comp)

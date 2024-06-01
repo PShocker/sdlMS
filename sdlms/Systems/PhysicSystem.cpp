@@ -219,7 +219,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 	{
 		auto foo = tr->get_owner()->get_entity<FootHold>(0);
 		world.remove_entity(foo);
-		world.add_entity(foo, -foo->id);
+		world.add_entity(foo, -foo->get_id());
 
 		// 添加定时任务到world
 		auto callback = [](Uint32 interval, void *param) -> Uint32
@@ -227,10 +227,10 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 			auto world = World::get_world();
 			auto foo = (FootHold *)param;
 			world->remove_entity(foo);
-			world->add_entity(foo, foo->id);
+			world->add_entity(foo, -foo->get_id());
 			return 0;
 		};
-		SDL_TimerID timerID = SDL_AddTimer(400, callback, foo); // 定时器
+		SDL_AddTimer(400, callback, foo); // 定时器
 
 		// 从fh掉落
 		nor->type = Normal::Air;
@@ -323,14 +323,19 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 {
 	if (tr->get_owner_component<Player>() != nullptr)
 	{
-		if (nor->vkey_once == Normal::Up)
+		if (nor->vkey == Normal::Up)
 		{
+			Portal *p = nullptr;
 			for (auto &[id, por] : world.get_entitys<Portal>())
 			{
+				if (id < 0 && nor->get_owner_component<Player>() != nullptr)
+				{
+					// id<0表示冷却的por
+					continue;
+				}
 				auto pla_pos = tr->get_position();
 				auto por_pos = por->get_component<Transform>();
 				auto por_spr = por->get_component<AnimatedSprite>();
-				auto tn = por->tn;
 				Sprite *spr = nullptr;
 				if (por->get_component<Sprite>() != nullptr)
 				{
@@ -348,43 +353,74 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 										  (float)spr->get_height()};
 					if (SDL_PointInFRect(&pla_pos, &rect))
 					{
-						// 切换地图
-						if (por->tm != Map::get_map_id())
-						{
-							Map::load(por->tm, &world);
-							world.tick_delta_time();
-							// 切换人物坐标
-							for (auto &[id, p] : world.get_entitys<Portal>())
-							{
-								if (tn == p->pn)
-								{
-									tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -20});
-									// 调整相机位置
-									auto camera = world.get_components<Camera>().find(0)->second;
-									camera->set_x(tr->get_position().x - camera->get_w() / 2);
-									camera->set_y(tr->get_position().y - camera->get_h() / 2);
-									break;
-								}
-							}
-						}
-						else
-						{
-							// 切换人物坐标
-							for (auto &[id, p] : world.get_entitys<Portal>())
-							{
-								if (tn == p->pn)
-								{
-									tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -5});
-									break;
-								}
-							}
-						}
-						nor->type = Normal::Air;
-						nor->vspeed = 0;
-						nor->hspeed = 0;
-						return true;
+						p = por;
+						break;
 					}
 				}
+			}
+			if (p != nullptr)
+			{
+				// 切换地图
+				auto tn = p->tn;
+				if (p->tm != Map::get_map_id())
+				{
+					// 切换地图
+					Map::load(p->tm, &world);
+					world.tick_delta_time();
+					// 切换人物坐标
+					for (auto &[id, por] : world.get_entitys<Portal>())
+					{
+						if (tn == por->pn)
+						{
+							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -20});
+							// 调整相机位置
+							auto camera = world.get_components<Camera>().find(0)->second;
+							camera->set_x(tr->get_position().x - camera->get_w() / 2);
+							camera->set_y(tr->get_position().y - camera->get_h() / 2);
+							break;
+						}
+					}
+				}
+				else
+				{
+					// 切换人物坐标
+					for (auto &[id, por] : world.get_entitys<Portal>())
+					{
+						if (tn == por->pn)
+						{
+							p = por;
+							break;
+						}
+					}
+					tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -5});
+					// 设置传送门冷却
+					world.remove_entity(p);
+					world.add_entity(p, -p->get_id());
+					// 添加定时任务到world
+					auto callback = [](Uint32 interval, void *param) -> Uint32
+					{
+						auto world = World::get_world();
+						auto por = (Portal *)param;
+						world->remove_entity(por);
+						world->add_entity(por, -por->get_id());
+						return 0;
+					};
+					SDL_AddTimer(600, callback, p); // 定时器
+				}
+
+				nor->type = Normal::Air;
+				if (nor->get_owner_component<Avatar>() != nullptr)
+				{
+					// 修改纸娃娃状态
+					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				}
+				else if (nor->get_owner<Mob>() != nullptr)
+				{
+					nor->get_owner<Mob>()->switch_act(u"jump");
+				}
+				nor->vspeed = 0;
+				nor->hspeed = 0;
+				return true;
 			}
 		}
 	}

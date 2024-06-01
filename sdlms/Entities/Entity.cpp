@@ -4,12 +4,12 @@ Entity::Entity() {}
 
 Entity::~Entity() {}
 
-unsigned long Entity::get_id() const
+int Entity::get_id() const
 {
 	return id;
 }
 
-void Entity::set_id(unsigned long value)
+void Entity::set_id(int value)
 {
 	id = value;
 }
