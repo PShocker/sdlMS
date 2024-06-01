@@ -17,13 +17,13 @@ void CameraSystem::update_camera(Camera *cam, Transform *tr, World &world)
 	auto h_next_x = tr->get_position().x - cam->get_w() / 2; // 人物移动后新的摄像机坐标
 	auto h_delta = h_next_x - h_prev_x;						 // 新的摄像机坐标与旧的摄像机坐标差值
 
-	cam->set_x(std::lerp(h_prev_x, h_next_x, std::abs(h_delta) / 3000.0f));
+	cam->set_x(std::lerp(h_prev_x, h_next_x, std::abs(h_delta) / 6000.0f));
 
 	auto v_prev_y = cam->get_y();							 // 上一帧摄像机坐标
 	auto v_next_y = tr->get_position().y - cam->get_h() / 2; // 人物移动后新的摄像机坐标
 	auto v_delta = v_next_y - v_prev_y;						 // 新的摄像机坐标与旧的摄像机坐标差值
 
-	cam->set_y(std::lerp(v_prev_y, v_next_y, std::abs(v_delta) / 3000.0f));
+	cam->set_y(std::lerp(v_prev_y, v_next_y, std::abs(v_delta) / 6000.0f));
 
 	if (world.entity_exist_of_type<Border>())
 	{
