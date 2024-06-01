@@ -2,7 +2,7 @@
 #include "Components/CrawlLine.h"
 #include "Components/Physic/Normal.h"
 
-LadderRope::LadderRope(wz::Node *node, int id, World *world) : id(id)
+LadderRope::LadderRope(wz::Node *node, World *world)
 {
     l = dynamic_cast<wz::Property<int> *>(node->get_child(u"l"))->get();
     uf = dynamic_cast<wz::Property<int> *>(node->get_child(u"uf"))->get();

@@ -6,7 +6,7 @@
 class FootHold : public Entity
 {
 public:
-    FootHold(wz::Node *node, int id, int page, int zmass, World *world);
+    FootHold(wz::Node *node,int page, int zmass, World *world);
     ~FootHold();
 
 public:
@@ -14,7 +14,6 @@ public:
 
 public:
     // fh的附加属性
-    int id;
     int page;
     int zmass;
     int prev;

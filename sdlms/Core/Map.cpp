@@ -99,7 +99,8 @@ void Map::load_foothold(wz::Node *node, World *world)
                 for (auto &[key, val] : val[0]->get_children())
                 {
                     auto id = std::stoi(std::string{key.begin(), key.end()});
-                    FootHold *f = new FootHold(val[0], id, std::stoi(std::string{page.begin(), page.end()}), std::stoi(std::string{zmass.begin(), zmass.end()}), world);
+                    FootHold *f = new FootHold(val[0], std::stoi(std::string{page.begin(), page.end()}), std::stoi(std::string{zmass.begin(), zmass.end()}), world);
+                    f->set_id(id);
                     world->add_entity(f, id);
                 }
             }
@@ -138,7 +139,8 @@ void Map::load_ladderRope(wz::Node *node, World *world)
         for (auto it : node->get_children())
         {
             auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
-            auto lad = new LadderRope(it.second[0], id, world);
+            auto lad = new LadderRope(it.second[0], world);
+            lad->set_id(id);
             world->add_entity(lad, id);
         }
     }
@@ -151,8 +153,10 @@ void Map::load_portal(wz::Node *node, World *world)
     {
         for (auto &[key, val] : node->get_children())
         {
+            auto id = std::stoi(std::string{key.begin(), key.end()});
             Portal *por = new Portal(val[0], world);
-            world->add_entity(por);
+            por->set_id(id);
+            world->add_entity(por, id);
         }
     }
 }

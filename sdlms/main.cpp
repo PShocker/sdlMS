@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     world.add_system(new RenderSystem());
 
     Character *cha = new Character(&world);
-    Transform *t = new Transform{(float)0, (float)0};
+    Transform *t = new Transform{2500, 1700};
     Camera *camera = new Camera(0, 0, width, height);
     Normal *nor = new Normal();
     Player *pla = new Player(); // 玩家控制的角色
