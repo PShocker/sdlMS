@@ -372,7 +372,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					{
 						if (tn == por->pn)
 						{
-							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -20});
+							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -50});
 							// 调整相机位置
 							auto camera = world.get_components<Camera>().find(0)->second;
 							camera->set_x(tr->get_position().x - camera->get_w() / 2);
@@ -407,6 +407,10 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					};
 					SDL_AddTimer(600, callback, p); // 定时器
 				}
+
+				// 修改人物z值
+				world.destroy_component(tr, false);
+				world.add_component(tr, 7 * 30000 + 4000);
 
 				nor->type = Normal::Air;
 				if (nor->get_owner_component<Avatar>() != nullptr)
