@@ -333,7 +333,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					// id<0表示冷却的por
 					continue;
 				}
-				auto pla_pos = tr->get_position();
+				auto pla_pos = tr->get_position() + SDL_FPoint{0, -5};
 				auto por_pos = por->get_component<Transform>();
 				auto por_spr = por->get_component<AnimatedSprite>();
 				Sprite *spr = nullptr;
