@@ -323,7 +323,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 {
 	if (tr->get_owner_component<Player>() != nullptr)
 	{
-		if (nor->vkey == Normal::Up)
+		if (nor->vkey_once == Normal::Up)
 		{
 			for (auto &[id, por] : world.get_entitys<Portal>())
 			{
@@ -374,7 +374,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 							{
 								if (tn == p->pn)
 								{
-									tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -20});
+									tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -5});
 									break;
 								}
 							}
@@ -522,11 +522,11 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 {
 	if (nor->hkey == Normal::Right)
 	{
-		nor->hspeed += 1;
+		nor->hspeed += 0.25f;
 	}
 	else if (nor->hkey == Normal::Left)
 	{
-		nor->hspeed -= 1;
+		nor->hspeed -= 0.25f;
 	}
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;

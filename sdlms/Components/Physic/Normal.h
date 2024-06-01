@@ -30,7 +30,9 @@ public:
         Down,
         Right,
     };
-    uint8_t vkey = None; // 上下按键
-    uint8_t hkey = None;    // 左右按键
-    bool lalt=false;
+    uint8_t vkey = None;      // 上下按键
+    uint8_t vkey_once = None; // 上下按键
+    uint8_t hkey = None;      // 左右按键
+    uint8_t hkey_once = None; // 左右按键
+    bool lalt = false;
 };
