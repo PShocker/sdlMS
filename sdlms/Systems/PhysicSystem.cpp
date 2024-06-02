@@ -9,6 +9,7 @@
 #include "Entities/Mob.h"
 #include "Entities/Portal.h"
 #include "Entities/Border.h"
+#include "Entities/Timer.h"
 #include "Components/RigidLine.h"
 #include "Components/CrawlLine.h"
 #include "Components/Avatar.h"
@@ -235,12 +236,19 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 		auto callback = [](Uint32 interval, void *param) -> Uint32
 		{
 			auto world = World::get_world();
-			auto foo = (FootHold *)param;
+			auto timer = (Timer *)param;
+			auto foo = timer->get_entity<FootHold>(0);
 			world->remove_entity(foo);
 			world->add_entity(foo, -foo->get_id());
+			foo->remove_entity(timer);
+			delete timer;
 			return 0;
 		};
-		SDL_AddTimer(400, callback, foo); // 定时器
+
+		Timer *timer = new Timer();
+		timer->set_timer_id(SDL_AddTimer(400, callback, timer));
+		foo->add_entity(timer);
+		timer->add_entity(foo, 0);
 
 		// 从fh掉落
 		nor->type = Normal::Air;
@@ -335,8 +343,8 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 	{
 		if (nor->vkey == Normal::Up)
 		{
-			Portal *p = nullptr;
-			for (auto &[id, por] : world.get_entitys<Portal>())
+			Portal *por = nullptr;
+			for (auto &[id, p] : world.get_entitys<Portal>())
 			{
 				if (id < 0 && nor->get_owner_component<Player>() != nullptr)
 				{
@@ -344,16 +352,16 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					continue;
 				}
 				auto pla_pos = tr->get_position() + SDL_FPoint{0, -5};
-				auto por_pos = por->get_component<Transform>();
-				auto por_spr = por->get_component<AnimatedSprite>();
+				auto por_pos = p->get_component<Transform>();
+				auto por_spr = p->get_component<AnimatedSprite>();
 				Sprite *spr = nullptr;
-				if (por->get_component<Sprite>() != nullptr)
+				if (p->get_component<Sprite>() != nullptr)
 				{
-					spr = por->get_component<Sprite>();
+					spr = p->get_component<Sprite>();
 				}
-				else if (por->get_component<AnimatedSprite>() != nullptr)
+				else if (p->get_component<AnimatedSprite>() != nullptr)
 				{
-					spr = por->get_component<AnimatedSprite>()->get_current_sprite();
+					spr = p->get_component<AnimatedSprite>()->get_current_sprite();
 				}
 				if (spr != nullptr)
 				{
@@ -363,25 +371,26 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 										  (float)spr->get_height()};
 					if (SDL_PointInFRect(&pla_pos, &rect))
 					{
-						p = por;
+						por = p;
 						break;
 					}
 				}
 			}
-			if (p != nullptr)
+			if (por != nullptr)
 			{
 				// 切换地图
-				auto tn = p->tn;
-				if (p->tm != Map::get_map_id())
+				auto tn = por->tn;
+				if (por->tm != Map::get_map_id())
 				{
 					// 切换地图
-					Map::load(p->tm, &world);
+					Map::load(por->tm, &world);
 					world.tick_delta_time();
 					// 切换人物坐标
-					for (auto &[id, por] : world.get_entitys<Portal>())
+					for (auto &[id, p] : world.get_entitys<Portal>())
 					{
-						if (tn == por->pn)
+						if (tn == p->pn)
 						{
+							por = p;
 							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -50});
 							// 调整相机位置
 							auto camera = world.get_components<Camera>().find(0)->second;
@@ -394,29 +403,35 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 				else
 				{
 					// 切换人物坐标
-					for (auto &[id, por] : world.get_entitys<Portal>())
+					for (auto &[id, p] : world.get_entitys<Portal>())
 					{
-						if (tn == por->pn)
+						if (tn == p->pn)
 						{
-							p = por;
+							por = p;
+							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -5});
 							break;
 						}
 					}
-					tr->set_position(p->get_component<Transform>()->get_position() + SDL_FPoint{0, -5});
-					// 设置传送门冷却
-					world.remove_entity(p);
-					world.add_entity(p, -p->get_id());
-					// 添加定时任务到world
-					auto callback = [](Uint32 interval, void *param) -> Uint32
-					{
-						auto world = World::get_world();
-						auto por = (Portal *)param;
-						world->remove_entity(por);
-						world->add_entity(por, -por->get_id());
-						return 0;
-					};
-					SDL_AddTimer(600, callback, p); // 定时器
 				}
+				// 设置传送门冷却
+				world.remove_entity(por);
+				world.add_entity(por, -por->get_id());
+				// 添加定时任务到world
+				auto callback = [](Uint32 interval, void *param) -> Uint32
+				{
+					auto world = World::get_world();
+					auto timer = (Timer *)param;
+					auto por = timer->get_entity<Portal>(0);
+					world->remove_entity(por);
+					world->add_entity(por, -por->get_id());
+					por->remove_entity(timer);
+					delete timer;
+					return 0;
+				};
+				Timer *timer = new Timer();
+				timer->set_timer_id(SDL_AddTimer(800, callback, timer));
+				por->add_entity(timer);
+				timer->add_entity(por, 0);
 
 				// 修改人物z值
 				world.destroy_component(tr, false);

@@ -1,6 +1,7 @@
 #include "FootHold.h"
 #include "Components/RigidLine.h"
 #include "Components/Physic/Normal.h"
+#include "Timer.h"
 
 FootHold::FootHold(wz::Node *node, int page, int zmass, World *world) : page(page), zmass(zmass)
 {
@@ -19,4 +20,10 @@ FootHold::~FootHold()
 {
     auto r = get_component<RigidLine>();
     delete r;
+
+    for (auto &[key, val] : get_entity<Timer>())
+    {
+        SDL_RemoveTimer(val->get_timer_id());
+        delete val;
+    }
 }
