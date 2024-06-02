@@ -3,6 +3,7 @@
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
 #include "Components/DistanceSprite.h"
+#include "Timer.h"
 
 Portal::Portal(wz::Node *node, World *world)
 {
@@ -127,5 +128,11 @@ Portal::~Portal()
     {
         world->destroy_component(disspr, false);
         delete disspr;
+    }
+
+    for (auto &[key, val] : get_entity<Timer>())
+    {
+        SDL_RemoveTimer(val->get_timer_id());
+        delete val;
     }
 }
