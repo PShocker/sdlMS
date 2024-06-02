@@ -45,7 +45,7 @@ public:
 	template <typename C>
 	C *get_component();
 
-	void add_entity(Entity *ent);
+	int add_entity(Entity *ent);
 	void add_entity(Entity *ent, int index);
 
 	template <typename C>
@@ -53,6 +53,8 @@ public:
 	{
 		entity_refs[typeid(C)].erase(index);
 	}
+	
+	void remove_entity(Entity *ent);
 
 	template <typename C>
 	C *get_entity(int index)
