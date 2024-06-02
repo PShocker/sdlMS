@@ -8,6 +8,7 @@
 #include "Entities/Character.h"
 #include "Entities/Mob.h"
 #include "Entities/Portal.h"
+#include "Entities/Border.h"
 #include "Entities/Timer.h"
 #include "Components/RigidLine.h"
 #include "Components/CrawlLine.h"
@@ -108,6 +109,15 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		}
 		climb(tr, nor, delta_time);
 		break;
+	}
+
+	if (world.entity_exist_of_type<Border>())
+	{
+		auto border = world.get_entitys<Border>().find(0)->second;
+		float pos_x = std::clamp(tr->get_position().x, border->get_left(), border->get_right());
+		float pos_y = std::clamp(tr->get_position().y, border->get_top(), border->get_bottom());
+		tr->set_x(pos_x);
+		tr->set_y(pos_y);
 	}
 }
 
