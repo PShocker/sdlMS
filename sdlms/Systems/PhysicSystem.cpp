@@ -52,42 +52,42 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		[[unlikely]]
 		if (want_portal(tr, nor, world))
 		{
-			return;
+			break;
 		}
 		// 判断是否爬梯子
 		[[unlikely]]
 		if (want_climb(tr, nor, world))
 		{
-			return;
+			break;
 		}
 		// 下跳
 		[[unlikely]]
 		if (want_fall(tr, nor, world))
 		{
-			return;
+			break;
 		}
 		// 趴
 		[[unlikely]]
 		if (want_prone(nor, world))
 		{
-			return;
+			break;
 		}
 		// 跳
 		[[unlikely]]
 		if (want_jump(tr, nor, world))
 		{
-			return;
+			break;
 		}
 		// 地面移动判断
 		[[unlikely]]
 		if (!walk(tr, nor, world, delta_time))
 		{
-			return;
+			break;
 		}
 		[[likely]]
 		if (want_stand(nor, world))
 		{
-			return;
+			break;
 		}
 		break;
 	case Normal::Air:
@@ -95,7 +95,7 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		[[unlikely]]
 		if (want_climb(tr, nor, world))
 		{
-			return;
+			break;
 		}
 		// 空中
 		fall(tr, nor, delta_time, world);
@@ -105,12 +105,12 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		[[unlikely]]
 		if (want_jump(tr, nor, world))
 		{
-			return;
+			break;
 		}
 		climb(tr, nor, delta_time);
 		break;
 	}
-
+	// 限制人物移动范围
 	if (world.entity_exist_of_type<Border>())
 	{
 		auto border = world.get_entitys<Border>().find(0)->second;
