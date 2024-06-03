@@ -19,7 +19,7 @@ Obj::Obj(wz::Node *node, int id, int layer, World *world)
 
     auto aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
 
-    Transform *t = new Transform{(float)x, (float)y, flip};
+    Transform *t = new Transform((float)x, (float)y, flip);
 
     add_component(t);
     add_component(aspr);

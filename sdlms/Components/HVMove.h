@@ -18,8 +18,8 @@ public:
 public:
     int rx;
     int ry;
-    float offset_x;
-    float offset_y;
+    float offset_x = 0;
+    float offset_y = 0;
     bool hspeed = false;
     bool vspeed = false;
 };

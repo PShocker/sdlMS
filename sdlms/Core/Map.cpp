@@ -38,7 +38,8 @@ void Map::load_obj(wz::Node *node, World *world)
 
         for (auto &[key, val] : node->get_child(u"obj")->get_children())
         {
-            Obj *obj = new Obj(val[0], std::stoi(std::string{key.begin(), key.end()}), i, world);
+            auto id = std::stoi(std::string{key.begin(), key.end()});
+            Obj *obj = new Obj(val[0], id, i, world);
             world->add_entity(obj);
         }
     }
@@ -68,7 +69,8 @@ void Map::load_background(wz::Node *node, World *world)
     {
         for (auto &[key, val] : node->get_children())
         {
-            BackGround *bac = new BackGround(val[0], std::stoi(std::string{key.begin(), key.end()}), world);
+            auto id = std::stoi(std::string{key.begin(), key.end()});
+            BackGround *bac = new BackGround(val[0], id, world);
             world->add_entity(bac);
         }
     }

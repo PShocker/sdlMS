@@ -41,7 +41,7 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
     HVTile *hvt = nullptr;
     HVMove *hvm = nullptr;
 
-    Transform *t = new Transform{(float)x, (float)y};
+    Transform *t = new Transform((float)x, (float)y, flip);
     add_component(t);
 
     switch (type)
@@ -79,6 +79,11 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
     }
     add_component(hvt);
     add_component(hvm);
+
+    if (front == 1)
+    {
+        id = 9999999;
+    }
 
     switch (ani)
     {
