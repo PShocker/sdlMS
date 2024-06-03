@@ -56,13 +56,13 @@ void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
 		const SDL_FPoint origin{(float)spr->get_origin().x, (float)spr->get_origin().y};
 		if (tr->get_camera())
 		{
-			// 跟随摄像机的sprite
+			// 显示坐标为绝对坐标,与摄像机无关,通常为ui
 			const SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
 			SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
 		}
 		else
 		{
-			// 不随摄像机移动
+			// 显示坐标与摄像机坐标相关
 			auto camera = world.get_components<Camera>().find(0)->second;
 			const SDL_FRect pos_rect{(float)x - origin.x - camera->get_x(), (float)y - origin.y - camera->get_y(), (float)width, (float)heihgt};
 			SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
@@ -81,7 +81,7 @@ void RenderSystem::render_animated_sprite(Transform *tr, AnimatedSprite *aspr, W
 
 void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world)
 {
-	auto delta_time=world.get_delta_time();
+	auto delta_time = world.get_delta_time();
 
 	auto viewprot_x = world.get_components<Camera>().find(0)->second->get_x();
 	auto viewprot_y = world.get_components<Camera>().find(0)->second->get_y();
@@ -192,7 +192,7 @@ void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world
 	{
 		for (int j = 0; j < tile_cnt_x; j++)
 		{
-			Transform *t = new Transform{(float)point.x + j * cx + spr_ox, (float)point.y + i * cy + spr_oy};
+			Transform *t = new Transform((float)point.x + j * cx + spr_ox, (float)point.y + i * cy + spr_oy, tr->get_flip());
 			if (tr->get_owner_component<Sprite>() != nullptr)
 			{
 				render_sprite(t, tr->get_owner_component<Sprite>(), world);
