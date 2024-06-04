@@ -141,7 +141,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 						// 地面向上爬
 						if (pos.y > cl->get_max_y() && pos.y <= cl->get_max_y() + 5)
 						{
-							// 垂直的线
+							// 爬到梯子
 							lad = lr;
 							break;
 						}
@@ -151,7 +151,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 						// 空中向上爬
 						if (pos.y > cl->get_min_y() && pos.y < cl->get_max_y())
 						{
-							// 垂直的线
+							// 爬到梯子
 							lad = lr;
 							break;
 						}
@@ -165,7 +165,6 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 						if (pos.y < cl->get_min_y() && pos.y >= cl->get_min_y() - 5)
 						{
 							lad = lr;
-							tr->set_y(cl->get_min_y());
 							break;
 						}
 					}
@@ -178,6 +177,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 			auto cl = lad->get_component<CrawlLine>();
 
 			tr->set_x(cl->get_m().x);
+			tr->set_y(std::clamp(tr->get_position().y, cl->get_min_y(), cl->get_max_y()));
 
 			if (nor->get_owner_component<Avatar>() != nullptr)
 			{
