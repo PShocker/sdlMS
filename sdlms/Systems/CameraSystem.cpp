@@ -41,10 +41,19 @@ void CameraSystem::update_camera(Camera *cam, Transform *tr, World &world)
 		{
 			cam->set_x(right - cam->get_w());
 		}
-
 		if (cam->get_y() + cam->get_h() > bottom)
 		{
 			cam->set_y(bottom - cam->get_h());
+		}
+		if (right - left < cam->get_w())
+		{
+			// 如果地图宽度小于摄像机宽度,地图居中显示
+			cam->set_x(left - (cam->get_w() - (right - left)) / 2);
+		}
+		if (bottom - top < cam->get_h())
+		{
+			// 如果地图高度小于摄像机宽度,地图居中显示
+			cam->set_y(top - (cam->get_h() - (bottom - top)) / 2);
 		}
 	}
 }
