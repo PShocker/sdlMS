@@ -45,6 +45,21 @@ if(WIN32)
     )
 endif()
 
+if(LINUX)
+    add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
+    # 将 SDL2 库链接到可执行文件中
+    target_link_libraries(sdlMS PRIVATE SDL2-static SDL2main)
+    # 链接 wzlib 库
+    target_link_libraries(sdlMS PRIVATE wzlib)
+    # 链接 FFMPEG库
+    target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
+    # freetype
+    target_link_libraries(sdlMS PRIVATE freetype)
+    set_target_properties(sdlMS PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
+    )
+endif()
+
 # 设置 Emscripten 编译选项
 if(EMSCRIPTEN)
     add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
