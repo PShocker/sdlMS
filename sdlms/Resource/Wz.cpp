@@ -1,12 +1,12 @@
 #include "Wz.h"
 
 #ifdef __ANDROID__
-#define USE_BUF
+#define __USE_BUF__
 #endif
 
 // #define USE_BUF
 
-#ifdef USE_BUF
+#ifdef __USE_BUF__
 #include "Core/File.h"
 #endif
 
@@ -20,7 +20,7 @@ Wz::Wz(const std::string &filename_prefix)
 {
     const auto iv = IV4(0xb9, 0x7d, 0x63, 0xe9);
     // 默认全部加载
-#ifdef USE_BUF
+#ifdef __USE_BUF__
     Character = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("Character.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("Character.wz")).c_str())));
     Map = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("Map.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("Map.wz")).c_str())));
     Mob = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("Mob.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("Mob.wz")).c_str())));

@@ -1,5 +1,5 @@
 #include "LadderRope.h"
-#include "Components/CrawlLine.h"
+#include "Components/Line.h"
 #include "Components/Physic/Normal.h"
 
 LadderRope::LadderRope(wz::Node *node, World *world)
@@ -12,12 +12,12 @@ LadderRope::LadderRope(wz::Node *node, World *world)
     auto y1 = dynamic_cast<wz::Property<int> *>(node->get_child(u"y1"))->get();
     auto y2 = dynamic_cast<wz::Property<int> *>(node->get_child(u"y2"))->get();
 
-    auto *c = new CrawlLine{{(float)x, (float)y1}, {(float)x, (float)y2}};
+    auto *c = new Line{{(float)x, (float)y1}, {(float)x, (float)y2}};
     add_component(c);
 }
 
 LadderRope::~LadderRope()
 {
-    auto c = get_component<CrawlLine>();
+    auto c = get_component<Line>();
     delete c;
 }

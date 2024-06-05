@@ -1,5 +1,10 @@
 #include "FreeType.h"
+
 #ifdef __ANDROID__
+#define __USE_BUF__
+#endif
+
+#ifdef __USE_BUF__
 #include "Core/File.h"
 #endif
 
@@ -9,9 +14,7 @@ void FreeType::init()
     FT_Init_FreeType(library);
     // 加载字体文件
     face = new FT_Face{};
-#ifdef __EMSCRIPTEN__
-    FT_New_Face(*library, "Data/simsun.ttc", 0, face);
-#elif defined __ANDROID__
+#ifdef __USE_BUF__
     FT_New_Memory_Face(*library, File::buffer("simsun.ttc"), File::size("simsun.ttc"), 0, face);
 #elif defined __WIN32__
     FT_New_Face(*library, "C:/Windows/Fonts/simsun.ttc", 0, face);

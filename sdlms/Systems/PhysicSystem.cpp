@@ -10,8 +10,7 @@
 #include "Entities/Portal.h"
 #include "Entities/Border.h"
 #include "Entities/Timer.h"
-#include "Components/RigidLine.h"
-#include "Components/CrawlLine.h"
+#include "Components/Line.h"
 #include "Components/Avatar.h"
 #include "Components/Player.h"
 #include "Components/Camera.h"
@@ -129,7 +128,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 		LadderRope *lad = nullptr;
 		for (auto &[id, lr] : world.get_entitys<LadderRope>())
 		{
-			auto cl = lr->get_component<CrawlLine>();
+			auto cl = lr->get_component<Line>();
 
 			// 判断x坐标是否在梯子范围内
 			if (pos.x >= cl->get_min_x() - 10 && pos.x <= cl->get_max_x() + 10)
@@ -174,7 +173,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 		if (lad != nullptr)
 		{
 			// 爬到了梯子上
-			auto cl = lad->get_component<CrawlLine>();
+			auto cl = lad->get_component<Line>();
 
 			tr->set_x(cl->get_m().x);
 			tr->set_y(std::clamp(tr->get_position().y, cl->get_min_y(), cl->get_max_y()));
@@ -504,7 +503,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 
 	auto &fhs = world.get_entitys<FootHold>();
 	auto foo = tr->get_owner()->get_entity<FootHold>(0);
-	auto rl = foo->get_component<RigidLine>();
+	auto rl = foo->get_component<Line>();
 
 	// 人物在fh移动的函数
 	auto walk_fh = [&fhs, &foo, &nor, &x, &y, &tr](int next_fh) -> bool
@@ -528,8 +527,8 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			tr->set_x(x);
 			return false;
 		}
-		auto rl = fh->get_component<RigidLine>();
-		if (!rl->line->get_k().has_value())
+		auto rl = fh->get_component<Line>();
+		if (!rl->get_k().has_value())
 		{
 			if (y == rl->get_max_y())
 			{
@@ -563,7 +562,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			// 从fh掉落,撞墙
 			return false;
 		}
-		rl = foo->get_component<RigidLine>();
+		rl = foo->get_component<Line>();
 	}
 	// 往右走
 	while (x > rl->get_max_x())
@@ -574,11 +573,11 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			// 从fh掉落,撞墙
 			return false;
 		}
-		rl = foo->get_component<RigidLine>();
+		rl = foo->get_component<Line>();
 	}
 	// 地面上
 	nor->get_owner()->add_entity(foo, 0);
-	tr->set_y(rl->line->get_y(x).value());
+	tr->set_y(rl->get_y(x).value());
 	tr->set_x(x);
 	return true;
 }
@@ -615,11 +614,11 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				// id<0表示下跳时的fh,需要排除玩家本身
 				continue;
 			}
-			auto rl = fh->get_component<RigidLine>();
+			auto rl = fh->get_component<Line>();
 			auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
 			if (collide.has_value())
 			{
-				if (!rl->get_line()->get_k().has_value())
+				if (!rl->get_k().has_value())
 				{
 					// k值不存在,则为墙面,且必须和同一级的墙碰撞
 					if (foo == nullptr || foo->get_page() == fh->get_page())
@@ -637,7 +636,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				{
 					// 落地
 					new_pos.x = std::clamp(collide.value().x, rl->get_min_x(), rl->get_max_x());
-					new_pos.y = rl->get_line()->get_y(new_pos.x).value();
+					new_pos.y = rl->get_y(new_pos.x).value();
 					nor->type = Normal::Ground;
 					// 修改速度
 					if ((nor->hkey == Normal::Right && nor->hspeed > 0) || (nor->hkey == Normal::Left && nor->hspeed < 0))
@@ -663,7 +662,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 		// 跳跃时只用考虑是否撞墙
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
-			auto rl = fh->get_component<RigidLine>();
+			auto rl = fh->get_component<Line>();
 			if (rl->get_n().x < rl->get_m().x && rl->get_n().y == rl->get_m().y)
 			{
 				// 天花板
@@ -676,7 +675,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					break;
 				}
 			}
-			if (!rl->get_line()->get_k().has_value())
+			if (!rl->get_k().has_value())
 			{
 				// k值不存在,则为墙面,且必须和同一级的墙碰撞
 				if (foo == nullptr || foo->get_page() == fh->get_page())
@@ -716,7 +715,7 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 
 	// 判断是否脱离梯子
 	auto lr = nor->get_owner()->get_entity<LadderRope>(0);
-	auto cl = lr->get_component<CrawlLine>();
+	auto cl = lr->get_component<Line>();
 
 	auto d_y = nor->vspeed * delta_time;
 	auto y = d_y + tr->get_position().y;
