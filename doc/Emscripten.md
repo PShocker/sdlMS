@@ -1,4 +1,8 @@
 **emscripten编译**
+
+配置emscripten环境
+https://emscripten.org/docs/getting_started/downloads.html
+
 ```
 cd build
 emcmake cmake ..
