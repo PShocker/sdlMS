@@ -1,5 +1,8 @@
 **Android编译(Android Studio)**
-把SDL文件夹的```android-project```提取出来,然后把项目放到```android-project\app\jni```里,**还要把资源文件放进assets目录里**
+
+把根目录SDL文件夹的```android-project```提取出来,然后把项目放到```android-project\app\jni```
+
+还要把资源文件放进assets目录里
 
 ```
 └── android-project
