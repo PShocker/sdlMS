@@ -1,12 +1,13 @@
 #include "Avatar.h"
 #include "Resource/Wz.h"
 
-Avatar *Avatar::load(wz::Node *character_node)
+Avatar *Avatar::load()
 {
+    [[unlikely]]
     if (!inited)
     {
         inited = true;
-        chara_node = character_node;
+        character_node = World::get_world()->get_resource<Wz>().Character->get_root();
         init(character_node);
     }
     return new Avatar();
@@ -105,10 +106,9 @@ void Avatar::switch_act(uint8_t a)
     }
 }
 
-void Avatar::add_body()
+void Avatar::add_body(const std::u16string &val)
 {
-    auto body_node = chara_node->find_from_path(u"00002000.img");
-
+    auto body_node = character_node->find_from_path(val + u".img");
     for (uint8_t i = 0; i < ACTION::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)
@@ -124,7 +124,7 @@ void Avatar::add_body()
 
 void Avatar::add_coat(const std::u16string &val)
 {
-    auto coat_node = chara_node->find_from_path(u"Coat/" + val + u".img");
+    auto coat_node = character_node->find_from_path(u"Coat/" + val + u".img");
     if (coat_node != nullptr)
     {
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
@@ -147,7 +147,7 @@ void Avatar::add_coat(const std::u16string &val)
 
 void Avatar::add_pants(const std::u16string &val)
 {
-    auto pants_node = chara_node->find_from_path(u"Pants/" + val + u".img");
+    auto pants_node = character_node->find_from_path(u"Pants/" + val + u".img");
     if (pants_node != nullptr)
     {
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
@@ -168,10 +168,9 @@ void Avatar::add_pants(const std::u16string &val)
     }
 }
 
-void Avatar::add_head()
+void Avatar::add_head(const std::u16string &val)
 {
-    auto head_node = chara_node->find_from_path(u"00012000.img");
-
+    auto head_node = character_node->find_from_path(val + u".img");
     for (uint8_t i = 0; i < ACTION::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)
@@ -190,7 +189,7 @@ void Avatar::add_head()
 
 void Avatar::add_face(const std::u16string &val)
 {
-    auto face_node = chara_node->find_from_path(u"Face/" + val + u".img/default/face");
+    auto face_node = character_node->find_from_path(u"Face/" + val + u".img/default/face");
     if (face_node != nullptr)
     {
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
@@ -214,7 +213,7 @@ void Avatar::add_hairs(const std::u16string &val)
         {
             auto no_str = std::to_string(no);
             auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-            auto hairs_node = chara_node->find_from_path(u"Hair/" + val + u".img/" + type);
+            auto hairs_node = character_node->find_from_path(u"Hair/" + val + u".img/" + type);
             if (hairs_node != nullptr)
             {
                 for (auto it : hairs_node->get_children())
@@ -240,7 +239,7 @@ void Avatar::add_hairs(const std::u16string &val)
 
 void Avatar::add_shoes(const std::u16string &val)
 {
-    auto shoes_node = chara_node->find_from_path(u"Shoes/" + val + u".img");
+    auto shoes_node = character_node->find_from_path(u"Shoes/" + val + u".img");
     if (shoes_node != nullptr)
     {
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
@@ -263,7 +262,7 @@ void Avatar::add_shoes(const std::u16string &val)
 
 void Avatar::add_weapon(const std::u16string &val)
 {
-    auto weapon_node = chara_node->find_from_path(u"Weapon/" + val + u".img");
+    auto weapon_node = character_node->find_from_path(u"Weapon/" + val + u".img");
     if (weapon_node != nullptr)
     {
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
@@ -294,10 +293,9 @@ void Avatar::add_weapon(const std::u16string &val)
     }
 }
 
-void Avatar::add_arm()
+void Avatar::add_arm(const std::u16string &val)
 {
-    auto body_node = chara_node->find_from_path(u"00002000.img");
-
+    auto body_node = character_node->find_from_path(val + u".img");
     for (uint8_t i = 0; i < ACTION::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)
@@ -317,7 +315,7 @@ void Avatar::add_arm()
 
 void Avatar::add_coat_arm(const std::u16string &val)
 {
-    auto coat_arm_node = chara_node->find_from_path(u"Coat/" + val + u".img");
+    auto coat_arm_node = character_node->find_from_path(u"Coat/" + val + u".img");
     if (coat_arm_node != nullptr)
     {
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
@@ -338,9 +336,9 @@ void Avatar::add_coat_arm(const std::u16string &val)
     }
 }
 
-void Avatar::add_hand()
+void Avatar::add_hand(const std::u16string &val)
 {
-    auto body_node = chara_node->find_from_path(u"00002000.img");
+    auto body_node = character_node->find_from_path(val + u".img");
     for (uint8_t i = 0; i < ACTION::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)
@@ -362,10 +360,9 @@ void Avatar::add_hand()
     }
 }
 
-void Avatar::add_lHand()
+void Avatar::add_lHand(const std::u16string &val)
 {
-    auto body_node = chara_node->find_from_path(u"00002000.img");
-
+    auto body_node = character_node->find_from_path(val + u".img");
     for (uint8_t i = 0; i < ACTION::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)
@@ -394,9 +391,9 @@ void Avatar::add_lHand()
     }
 }
 
-void Avatar::add_rHand()
+void Avatar::add_rHand(const std::u16string &val)
 {
-    auto body_node = chara_node->find_from_path(u"00002000.img");
+    auto body_node = character_node->find_from_path(val + u".img");
     for (uint8_t i = 0; i < ACTION::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)

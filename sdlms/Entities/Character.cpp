@@ -4,21 +4,21 @@
 
 Character::Character(World *world)
 {
-    auto ava = Avatar::load(world->get_resource<Wz>().Character->get_root());
-    ava->add_head();
-    ava->add_body();
-    ava->add_arm();
-    ava->add_coat(u"01040002");
-    ava->add_coat_arm(u"01040002");
-    ava->add_pants(u"01060002");
+    auto ava = Avatar::load();
+    ava->add_head(u"00012006");
+    ava->add_body(u"00002006");
+    ava->add_arm(u"00002006");
+    ava->add_coat(u"01040036");
+    ava->add_coat_arm(u"01040036");
+    ava->add_pants(u"01060026");
     ava->add_face(u"00020000");
     ava->add_hairs(u"00030000");
-    ava->add_shoes(u"01070002");
-    ava->add_weapon(u"01442028");
+    // ava->add_shoes(u"01070002");
+    // ava->add_weapon(u"01442028");
 
-    ava->add_hand();
-    ava->add_lHand();
-    ava->add_rHand();
+    ava->add_hand(u"00002006");
+    ava->add_lHand(u"00002006");
+    ava->add_rHand(u"00002006");
 
     add_component(ava);
     world->add_component(ava);

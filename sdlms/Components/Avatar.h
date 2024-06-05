@@ -174,7 +174,7 @@ public:
 
     // std::unordered_map<std::string, std::unordered_map<uint8_t, BodyAction>> body_actions;
     static inline std::unordered_map<std::string, std::vector<int32_t>> attack_delays;
-    static inline wz::Node *chara_node;
+    static inline wz::Node *character_node;
 
 public:
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> body[ACTION::LENGTH];
@@ -196,20 +196,20 @@ public:
     bool animate = true;
 
 public:
-    void add_body();
+    void add_body(const std::u16string &val);
     void add_coat(const std::u16string &val);
     void add_pants(const std::u16string &val);
-    void add_head();
+    void add_head(const std::u16string &val);
     void add_face(const std::u16string &val);
     void add_hairs(const std::u16string &val);
     void add_shoes(const std::u16string &val);
     void add_weapon(const std::u16string &val);
-    void add_arm();
+    void add_arm(const std::u16string &val);
     void add_coat_arm(const std::u16string &val);
-    void add_hand();
-    void add_lHand();
-    void add_rHand();
-    static Avatar *load(wz::Node *character_node);
+    void add_hand(const std::u16string &val);
+    void add_lHand(const std::u16string &val);
+    void add_rHand(const std::u16string &val);
+    static Avatar *load();
     static inline bool inited = false;
     static void init(wz::Node *character_node);
     void switch_act(uint8_t a);
