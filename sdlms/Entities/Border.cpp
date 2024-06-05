@@ -1,6 +1,6 @@
 #include "Border.h"
 #include "FootHold.h"
-#include "Components/RigidLine.h"
+#include "Components/Line.h"
 
 Border::Border(wz::Node *node, World *world)
 {
@@ -20,7 +20,7 @@ Border::Border(wz::Node *node, World *world)
             // 从fh计算出来
             for (auto &[id, fh] : world->get_entitys<FootHold>())
             {
-                auto rl = fh->get_component<RigidLine>();
+                auto rl = fh->get_component<Line>();
                 auto x1 = rl->get_m().x;
                 auto y1 = rl->get_m().y;
                 auto x2 = rl->get_n().x;

@@ -9,7 +9,7 @@
 #include "Components/Video.h"
 #include "Entities/Npc.h"
 #include "Entities/FootHold.h"
-#include "Components/RigidLine.h"
+#include "Components/Line.h"
 
 class RenderSystem : public System
 {

@@ -1,9 +1,9 @@
 #pragma once
-#include <SDL2/SDL.h>
+#include "Component.h"
 #include <optional>
 
 // 线
-class Line
+class Line : public Component
 {
 public:
     Line(SDL_FPoint m, SDL_FPoint n);
@@ -17,11 +17,11 @@ public:
     std::optional<float> get_y(float x);
     std::optional<float> get_x(float y);
 
-protected:
+private:
     SDL_FPoint m;
     SDL_FPoint n;
 
-protected:
+private:
     std::optional<float> k = std::nullopt; // 斜率,若k值不存在,可以判断是否是墙面
     std::optional<float> intercept = std::nullopt;
 };

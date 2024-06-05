@@ -8,7 +8,7 @@
 #include "Entities/LadderRope.h"
 #include "Entities/Portal.h"
 #include "Resource/Wz.h"
-#include "Components/RigidLine.h"
+#include "Components/Line.h"
 #include "Components/Transform.h"
 
 void Map::load(int map_id, World *world)

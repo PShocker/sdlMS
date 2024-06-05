@@ -354,7 +354,7 @@ void RenderSystem::render_video(Transform *tr, Video *vid, World &world)
 
 void RenderSystem::render_fh(FootHold *fh, World &world)
 {
-	auto rl = fh->get_component<RigidLine>();
+	auto rl = fh->get_component<Line>();
 	auto camera = world.get_components<Camera>().find(0)->second;
 
 	SDL_RenderDrawLine(Window::get_renderer(),
