@@ -6,14 +6,10 @@
 
 资源Data放进build目录 
 
-**Windows编译**
-[](doc/Windows.md)
+**[Windows编译](doc/Windows.md)**
 
-**Linux编译**
-[](doc/Linux.md)
+**[Linux编译](doc/Linux.md)**
 
-**Emscripten编译(WEB)**
-[](doc/Emscripten.md)
+**[Emscripten编译(WEB)](doc/Emscripten.md)**
 
-**Android编译(Android Studio)**
-[](doc/Android.md)
+**[Android编译(Android Studio)](doc/Android.md)**
