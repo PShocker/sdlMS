@@ -4,8 +4,6 @@
 #define __USE_BUF__
 #endif
 
-// #define USE_BUF
-
 #ifdef __USE_BUF__
 #include "Core/File.h"
 #endif
