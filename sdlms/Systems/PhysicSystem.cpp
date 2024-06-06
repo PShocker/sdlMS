@@ -607,14 +607,6 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				continue;
 			}
 			auto line = fh->get_component<Line>();
-			// 快速判断与fh碰撞
-			if (std::fmax(tr->get_position().x, new_pos.x) < line->get_min_x() ||
-				std::fmin(tr->get_position().x, new_pos.x) > line->get_max_x() ||
-				std::fmax(tr->get_position().y, new_pos.y) < line->get_min_y() ||
-				std::fmin(tr->get_position().y, new_pos.y) > line->get_max_y())
-			{
-				continue;
-			}
 			auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 			if (collide.has_value())
 			{
@@ -663,14 +655,6 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
 			auto line = fh->get_component<Line>();
-			// 快速判断与fh碰撞
-			if (std::fmax(tr->get_position().x, new_pos.x) < line->get_min_x() ||
-				std::fmin(tr->get_position().x, new_pos.x) > line->get_max_x() ||
-				std::fmax(tr->get_position().y, new_pos.y) < line->get_min_y() ||
-				std::fmin(tr->get_position().y, new_pos.y) > line->get_max_y())
-			{
-				continue;
-			}
 			if (line->get_n().x < line->get_m().x && line->get_n().y == line->get_m().y)
 			{
 				// 天花板
