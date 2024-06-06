@@ -3,8 +3,8 @@ project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(FFMPEG_INCLUDE "C:/FFMPEG/include")
-set(FFMPEG_LIB "C:/FFMPEG/lib")
+set(FFMPEG_INCLUDE "C:/FFMPEG-WIN/include")
+set(FFMPEG_LIB "C:/FFMPEG-WIN/lib")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -74,7 +74,7 @@ if(EMSCRIPTEN)
 
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     set_target_properties(sdlMS PROPERTIES LINK_FLAGS
-            "--preload-file ${CMAKE_SOURCE_DIR}/build/Data@Data/"
+            "--preload-file ${CMAKE_SOURCE_DIR}/build/Data/@Data/"
             # 可以添加其他Emscripten链接器选项
     )
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sALLOW_MEMORY_GROWTH -g -sUSE_ZLIB")
