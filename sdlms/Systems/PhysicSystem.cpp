@@ -109,15 +109,7 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		climb(tr, nor, delta_time);
 		break;
 	}
-	// 限制人物移动范围
-	if (world.entity_exist_of_type<Border>())
-	{
-		auto border = world.get_entitys<Border>().find(0)->second;
-		float pos_x = std::clamp(tr->get_position().x, border->get_left(), border->get_right());
-		float pos_y = std::clamp(tr->get_position().y, border->get_top(), border->get_bottom());
-		tr->set_x(pos_x);
-		tr->set_y(pos_y);
-	}
+	limit(tr, world);
 }
 
 bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
@@ -128,17 +120,17 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 		LadderRope *lad = nullptr;
 		for (auto &[id, lr] : world.get_entitys<LadderRope>())
 		{
-			auto cl = lr->get_component<Line>();
+			auto line = lr->get_component<Line>();
 
 			// 判断x坐标是否在梯子范围内
-			if (pos.x >= cl->get_min_x() - 10 && pos.x <= cl->get_max_x() + 10)
+			if (pos.x >= line->get_min_x() - 10 && pos.x <= line->get_max_x() + 10)
 			{
 				if (nor->vkey == Normal::Up)
 				{
 					if (nor->type == Normal::Ground)
 					{
 						// 地面向上爬
-						if (pos.y > cl->get_max_y() && pos.y <= cl->get_max_y() + 5)
+						if (pos.y > line->get_max_y() && pos.y <= line->get_max_y() + 5)
 						{
 							// 爬到梯子
 							lad = lr;
@@ -148,7 +140,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 					else if (nor->type == Normal::Air)
 					{
 						// 空中向上爬
-						if (pos.y > cl->get_min_y() && pos.y < cl->get_max_y())
+						if (pos.y > line->get_min_y() && pos.y < line->get_max_y())
 						{
 							// 爬到梯子
 							lad = lr;
@@ -161,7 +153,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 					if (nor->type == Normal::Ground)
 					{
 						// 向下爬
-						if (pos.y < cl->get_min_y() && pos.y >= cl->get_min_y() - 5)
+						if (pos.y < line->get_min_y() && pos.y >= line->get_min_y() - 5)
 						{
 							lad = lr;
 							break;
@@ -173,10 +165,10 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 		if (lad != nullptr)
 		{
 			// 爬到了梯子上
-			auto cl = lad->get_component<Line>();
+			auto line = lad->get_component<Line>();
 
-			tr->set_x(cl->get_m().x);
-			tr->set_y(std::clamp(tr->get_position().y, cl->get_min_y(), cl->get_max_y()));
+			tr->set_x(line->get_m().x);
+			tr->set_y(std::clamp(tr->get_position().y, line->get_min_y(), line->get_max_y()));
 
 			if (nor->get_owner_component<Avatar>() != nullptr)
 			{
@@ -503,7 +495,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 
 	auto &fhs = world.get_entitys<FootHold>();
 	auto foo = tr->get_owner()->get_entity<FootHold>(0);
-	auto rl = foo->get_component<Line>();
+	auto line = foo->get_component<Line>();
 
 	// 人物在fh移动的函数
 	auto walk_fh = [&fhs, &foo, &nor, &x, &y, &tr](int next_fh) -> bool
@@ -527,10 +519,10 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			tr->set_x(x);
 			return false;
 		}
-		auto rl = fh->get_component<Line>();
-		if (!rl->get_k().has_value())
+		auto line = fh->get_component<Line>();
+		if (!line->get_k().has_value())
 		{
-			if (y == rl->get_max_y())
+			if (y == line->get_max_y())
 			{
 				// 撞墙
 				nor->hspeed = 0;
@@ -554,7 +546,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		return true;
 	};
 	// 往左走
-	while (x < rl->get_min_x())
+	while (x < line->get_min_x())
 	{
 		int next_fh = std::abs(foo->prev);
 		if (walk_fh(next_fh) == false)
@@ -562,10 +554,10 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			// 从fh掉落,撞墙
 			return false;
 		}
-		rl = foo->get_component<Line>();
+		line = foo->get_component<Line>();
 	}
 	// 往右走
-	while (x > rl->get_max_x())
+	while (x > line->get_max_x())
 	{
 		int next_fh = std::abs(foo->next);
 		if (walk_fh(next_fh) == false)
@@ -573,11 +565,11 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			// 从fh掉落,撞墙
 			return false;
 		}
-		rl = foo->get_component<Line>();
+		line = foo->get_component<Line>();
 	}
 	// 地面上
 	nor->get_owner()->add_entity(foo, 0);
-	tr->set_y(rl->get_y(x).value());
+	tr->set_y(line->get_y(x).value());
 	tr->set_x(x);
 	return true;
 }
@@ -614,20 +606,28 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				// id<0表示下跳时的fh,需要排除玩家本身
 				continue;
 			}
-			auto rl = fh->get_component<Line>();
-			auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
+			auto line = fh->get_component<Line>();
+			// 快速判断与fh碰撞
+			if (std::fmax(tr->get_position().x, new_pos.x) < line->get_min_x() ||
+				std::fmin(tr->get_position().x, new_pos.x) > line->get_max_x() ||
+				std::fmax(tr->get_position().y, new_pos.y) < line->get_min_y() ||
+				std::fmin(tr->get_position().y, new_pos.y) > line->get_max_y())
+			{
+				continue;
+			}
+			auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 			if (collide.has_value())
 			{
-				if (!rl->get_k().has_value())
+				if (!line->get_k().has_value())
 				{
 					// k值不存在,则为墙面,且必须和同一级的墙碰撞
 					if (foo == nullptr || foo->get_page() == fh->get_page())
 					{
 						// 判断墙面碰撞方向
-						if ((nor->hspeed > 0 && rl->get_m().y > rl->get_n().y) || (nor->hspeed < 0 && rl->get_m().y < rl->get_n().y))
+						if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y))
 						{
 							new_pos.x = tr->get_position().x;
-							new_pos.y = std::min(rl->get_max_y(), new_pos.y);
+							new_pos.y = std::min(line->get_max_y(), new_pos.y);
 							nor->hspeed = 0;
 						}
 					}
@@ -635,8 +635,8 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				else
 				{
 					// 落地
-					new_pos.x = std::clamp(collide.value().x, rl->get_min_x(), rl->get_max_x());
-					new_pos.y = rl->get_y(new_pos.x).value();
+					new_pos.x = std::clamp(collide.value().x, line->get_min_x(), line->get_max_x());
+					new_pos.y = line->get_y(new_pos.x).value();
 					nor->type = Normal::Ground;
 					// 修改速度
 					if ((nor->hkey == Normal::Right && nor->hspeed > 0) || (nor->hkey == Normal::Left && nor->hspeed < 0))
@@ -662,11 +662,19 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 		// 跳跃时只用考虑是否撞墙
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
-			auto rl = fh->get_component<Line>();
-			if (rl->get_n().x < rl->get_m().x && rl->get_n().y == rl->get_m().y)
+			auto line = fh->get_component<Line>();
+			// 快速判断与fh碰撞
+			if (std::fmax(tr->get_position().x, new_pos.x) < line->get_min_x() ||
+				std::fmin(tr->get_position().x, new_pos.x) > line->get_max_x() ||
+				std::fmax(tr->get_position().y, new_pos.y) < line->get_min_y() ||
+				std::fmin(tr->get_position().y, new_pos.y) > line->get_max_y())
+			{
+				continue;
+			}
+			if (line->get_n().x < line->get_m().x && line->get_n().y == line->get_m().y)
 			{
 				// 天花板
-				auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
+				auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 				if (collide.has_value())
 				{
 					new_pos = tr->get_position();
@@ -675,15 +683,15 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					break;
 				}
 			}
-			if (!rl->get_k().has_value())
+			if (!line->get_k().has_value())
 			{
 				// k值不存在,则为墙面,且必须和同一级的墙碰撞
 				if (foo == nullptr || foo->get_page() == fh->get_page())
 				{
 					// 判断墙面碰撞方向
-					if ((nor->hspeed > 0 && rl->get_m().y > rl->get_n().y) || (nor->hspeed < 0 && rl->get_m().y < rl->get_n().y))
+					if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y))
 					{
-						auto collide = intersect(tr->get_position(), new_pos, rl->get_m(), rl->get_n());
+						auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 						if (collide.has_value())
 						{
 							new_pos.x = tr->get_position().x;
@@ -715,15 +723,15 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 
 	// 判断是否脱离梯子
 	auto lr = nor->get_owner()->get_entity<LadderRope>(0);
-	auto cl = lr->get_component<Line>();
+	auto line = lr->get_component<Line>();
 
 	auto d_y = nor->vspeed * delta_time;
 	auto y = d_y + tr->get_position().y;
-	if (y < cl->get_min_y())
+	if (y < line->get_min_y())
 	{
 		if (lr->uf == 1)
 		{
-			tr->set_y(cl->get_min_y() - 5);
+			tr->set_y(line->get_min_y() - 5);
 			nor->type = Normal::Air;
 			if (nor->get_owner_component<Avatar>() != nullptr)
 			{
@@ -740,9 +748,9 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 			}
 		}
 	}
-	else if (y > cl->get_max_y())
+	else if (y > line->get_max_y())
 	{
-		tr->set_y(cl->get_max_y());
+		tr->set_y(line->get_max_y());
 		nor->type = Normal::Air;
 		if (nor->get_owner_component<Avatar>() != nullptr)
 		{
@@ -765,6 +773,19 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 			}
 		}
 		tr->set_y(y);
+	}
+}
+
+// 限制移动范围
+void PhysicSystem::limit(Transform *tr, World &world)
+{
+	if (world.entity_exist_of_type<Border>())
+	{
+		auto border = world.get_entitys<Border>().find(0)->second;
+		float pos_x = std::clamp(tr->get_position().x, border->get_left(), border->get_right());
+		float pos_y = std::clamp(tr->get_position().y, border->get_top(), border->get_bottom());
+		tr->set_x(pos_x);
+		tr->set_y(pos_y);
 	}
 }
 
