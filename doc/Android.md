@@ -1,4 +1,4 @@
-**Android编译(Android Studio)**
+**Android编译(Android Studio Iguana | 2023.2.1 Patch 1)**
 
 把根目录SDL文件夹的```android-project```提取出来,然后把项目放到```android-project\app\jni```
 
