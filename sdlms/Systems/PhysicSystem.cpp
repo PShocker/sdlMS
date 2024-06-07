@@ -219,43 +219,52 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 {
 	if (nor->vkey == Normal::Down && nor->lalt)
 	{
-		auto foo = tr->get_owner()->get_entity<FootHold>(0);
-		world.remove_entity(foo);
-		world.add_entity(foo, -foo->get_id());
-
-		// 添加定时任务到world
-		auto callback = [](Uint32 interval, void *param) -> Uint32
+		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
-			auto world = World::get_world();
-			auto timer = (Timer *)param;
-			auto foo = timer->get_entity<FootHold>(0);
-			world->remove_entity(foo);
-			world->add_entity(foo, -foo->get_id());
-			foo->remove_entity(timer);
-			delete timer;
-			return 0;
-		};
+			auto line = fh->get_component<Line>();
+			if (line->get_y(tr->get_position().x).has_value() &&
+				line->get_y(tr->get_position().x) > tr->get_position().y)
+			{
+				// 找到了可下跳的fh
+				auto foo = tr->get_owner()->get_entity<FootHold>(0);
+				world.remove_entity(foo);
+				world.add_entity(foo, -foo->get_id());
 
-		Timer *timer = new Timer();
-		timer->set_timer_id(SDL_AddTimer(400, callback, timer));
-		foo->add_entity(timer);
-		timer->add_entity(foo, 0);
+				// 添加定时任务到world
+				auto callback = [](Uint32 interval, void *param) -> Uint32
+				{
+					auto world = World::get_world();
+					auto timer = (Timer *)param;
+					auto foo = timer->get_entity<FootHold>(0);
+					world->remove_entity(foo);
+					world->add_entity(foo, -foo->get_id());
+					foo->remove_entity(timer);
+					delete timer;
+					return 0;
+				};
 
-		// 从fh掉落
-		nor->type = Normal::Air;
-		if (nor->get_owner_component<Avatar>() != nullptr)
-		{
-			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				Timer *timer = new Timer();
+				timer->set_timer_id(SDL_AddTimer(400, callback, timer));
+				foo->add_entity(timer);
+				timer->add_entity(foo, 0);
+
+				// 从fh掉落
+				nor->type = Normal::Air;
+				if (nor->get_owner_component<Avatar>() != nullptr)
+				{
+					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				}
+				else if (nor->get_owner<Mob>() != nullptr)
+				{
+					nor->get_owner<Mob>()->switch_act(u"jump");
+				}
+				nor->vspeed = -140;
+				// 修改人物z值
+				world.destroy_component(tr, false);
+				world.add_component(tr, 7 * 30000 + 4000);
+				return true;
+			}
 		}
-		else if (nor->get_owner<Mob>() != nullptr)
-		{
-			nor->get_owner<Mob>()->switch_act(u"jump");
-		}
-		nor->vspeed = -140;
-		// 修改人物z值
-		world.destroy_component(tr, false);
-		world.add_component(tr, 7 * 30000 + 4000);
-		return true;
 	}
 	return false;
 }
@@ -763,13 +772,24 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 // 限制移动范围
 void PhysicSystem::limit(Transform *tr, World &world)
 {
+	// 地图空气墙
 	if (world.entity_exist_of_type<Border>())
 	{
 		auto border = world.get_entitys<Border>().find(0)->second;
-		float pos_x = std::clamp(tr->get_position().x, border->get_left(), border->get_right());
+		float pos_x = std::clamp(tr->get_position().x, border->get_left() + 5, border->get_right() - 5);
+		if (pos_x != tr->get_position().x)
+		{
+			// 水平方向撞墙
+			tr->set_x(pos_x);
+			tr->get_owner_component<Normal>()->hspeed = 0;
+		}
+
 		float pos_y = std::clamp(tr->get_position().y, border->get_top(), border->get_bottom());
-		tr->set_x(pos_x);
-		tr->set_y(pos_y);
+		if (pos_y != tr->get_position().y)
+		{
+			tr->set_y(pos_y);
+			tr->get_owner_component<Normal>()->vspeed = 0;
+		}
 	}
 }
 
