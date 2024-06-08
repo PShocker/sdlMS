@@ -28,32 +28,39 @@ void CameraSystem::update_camera(Camera *cam, Transform *tr, World &world)
 	if (world.entity_exist_of_type<Border>())
 	{
 		auto border = world.get_entitys<Border>().find(0)->second;
-		float left = border->get_left();
-		float right = border->get_right();
-		float top = border->get_top();
-		float bottom = border->get_bottom();
+		auto left = border->get_left();
+		auto right = border->get_right();
+		auto top = border->get_top();
+		auto bottom = border->get_bottom();
 
-		if (cam->get_x() < left)
+		if (left.has_value() && cam->get_x() < left.value())
 		{
-			cam->set_x(left);
+			cam->set_x(left.value());
 		}
-		else if (cam->get_x() + cam->get_w() > right)
+		else if (right.has_value() && cam->get_x() + cam->get_w() > right.value())
 		{
-			cam->set_x(right - cam->get_w());
+			cam->set_x(right.value() - cam->get_w());
 		}
-		if (cam->get_y() + cam->get_h() > bottom)
+		if (bottom.has_value() && cam->get_y() + cam->get_h() > bottom.value())
 		{
-			cam->set_y(bottom - cam->get_h());
+			cam->set_y(bottom.value() - cam->get_h());
 		}
-		if (right - left < cam->get_w())
+
+		if (right.has_value() && left.has_value())
 		{
-			// 如果地图宽度小于摄像机宽度,地图居中显示
-			cam->set_x(left - (cam->get_w() - (right - left)) / 2);
+			if (right.value() - left.value() < cam->get_w())
+			{
+				// 如果地图宽度小于摄像机宽度,地图居中显示
+				cam->set_x(left.value() - (cam->get_w() - (right.value() - left.value())) / 2);
+			}
 		}
-		if (bottom - top < cam->get_h())
+		if (bottom.has_value() && top.has_value())
 		{
-			// 如果地图高度小于摄像机宽度,地图居中显示
-			cam->set_y(top - (cam->get_h() - (bottom - top)) / 2);
+			if (bottom.value() - top.value() < cam->get_h())
+			{
+				// 如果地图高度小于摄像机高度,地图居中显示
+				cam->set_y(top.value() - (cam->get_h() - (bottom.value() - top.value())) / 2);
+			}
 		}
 	}
 }

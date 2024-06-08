@@ -1,6 +1,7 @@
 #pragma once
 #include "Entity.h"
 #include "wz/Property.hpp"
+#include <optional>
 
 class Border : public Entity
 {
@@ -12,10 +13,9 @@ public:
     constexpr auto get_top() { return top; }
     constexpr auto get_bottom() { return bottom; }
 
-
 private:
-    float left = 0;
-    float right = 0;
-    float top = 0;
-    float bottom = 0;
+    std::optional<float> left = std::nullopt;
+    std::optional<float> right = std::nullopt;
+    std::optional<float> top = std::nullopt;
+    std::optional<float> bottom = std::nullopt;
 };
