@@ -3,8 +3,8 @@ project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(FFMPEG_INCLUDE "C:/FFMPEG-WIN/include")
-set(FFMPEG_LIB "C:/FFMPEG-WIN/lib")
+set(FFMPEG_INCLUDE "/usr/local/include")
+set(FFMPEG_LIB "/usr/local/lib")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -95,4 +95,49 @@ if(ANDROID)
     target_link_libraries(main avformat avdevice avcodec avutil swscale avfilter swresample -Wl,-Bsymbolic)
     # freetype
     target_link_libraries(main freetype)
+endif()
+
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+
+    set(CMAKE_VERBOSE_MAKEFILE ON)
+    # Find packages
+    find_library(COREMEDIA_FRAMEWORK CoreMedia)
+    find_library(VIDEOTOOLBOX_FRAMEWORK VideoToolbox)
+    find_library(SECURITY_FRAMEWORK Security)
+
+    # Check if frameworks were found
+    if(NOT COREMEDIA_FRAMEWORK)
+        message(FATAL_ERROR "CoreMedia framework not found")
+    endif()
+    if(NOT VIDEOTOOLBOX_FRAMEWORK)
+        message(FATAL_ERROR "VideoToolbox framework not found")
+    endif()
+    if(NOT SECURITY_FRAMEWORK)
+        message(FATAL_ERROR "Security framework not found")
+    endif()
+
+    add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
+
+    # 将 SDL2 库链接到可执行文件中
+    target_link_libraries(sdlMS PRIVATE SDL2-static SDL2main)
+
+    # 链接 wzlib 库
+    target_link_libraries(sdlMS PRIVATE wzlib)
+    # 链接 FFMPEG库
+    target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
+    # freetype
+    target_link_libraries(sdlMS PRIVATE freetype)
+
+    # Link frameworks
+    target_link_libraries(${PROJECT_NAME}
+        PRIVATE
+        ${COREMEDIA_FRAMEWORK}
+        ${VIDEOTOOLBOX_FRAMEWORK}
+        ${SECURITY_FRAMEWORK}
+    )
+
+    set_target_properties(sdlMS PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    )
+
 endif()
