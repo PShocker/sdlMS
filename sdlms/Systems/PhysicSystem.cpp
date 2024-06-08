@@ -588,11 +588,11 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 {
 	if (nor->hkey == Normal::Right)
 	{
-		nor->hspeed += 0.25f;
+		nor->hspeed += 0.3f;
 	}
 	else if (nor->hkey == Normal::Left)
 	{
-		nor->hspeed -= 0.25f;
+		nor->hspeed -= 0.3f;
 	}
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;
@@ -777,7 +777,7 @@ void PhysicSystem::limit(Transform *tr, World &world)
 	if (world.entity_exist_of_type<Border>())
 	{
 		auto border = world.get_entitys<Border>().find(0)->second;
-		float pos_x = std::clamp(tr->get_position().x, border->get_left() + 5, border->get_right() - 5);
+		float pos_x = std::clamp(tr->get_position().x, border->get_left().value() + 5, border->get_right().value() - 5);
 		if (pos_x != tr->get_position().x)
 		{
 			// 水平方向撞墙
@@ -785,7 +785,7 @@ void PhysicSystem::limit(Transform *tr, World &world)
 			tr->get_owner_component<Normal>()->hspeed = 0;
 		}
 
-		float pos_y = std::clamp(tr->get_position().y, border->get_top(), border->get_bottom());
+		float pos_y = std::clamp(tr->get_position().y, border->get_top().value(), border->get_bottom().value());
 		if (pos_y != tr->get_position().y)
 		{
 			tr->set_y(pos_y);

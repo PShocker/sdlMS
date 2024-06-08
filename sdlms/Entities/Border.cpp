@@ -25,23 +25,31 @@ Border::Border(wz::Node *node, World *world)
                 auto y1 = rl->get_m().y;
                 auto x2 = rl->get_n().x;
                 auto y2 = rl->get_n().y;
-                left = std::min({left, x1, x2});
-                right = std::max({right, x1, x2});
-                top = std::min({top, y1, y2});
-                bottom = std::max({bottom, y1, y2});
+                if (!left.has_value())
+                {
+                    left = std::min({x1, x2});
+                }
+                left = std::min({left.value(), x1, x2});
+                if (!right.has_value())
+                {
+                    right = std::max({x1, x2});
+                }
+                right = std::max({right.value(), x1, x2});
+                if (!top.has_value())
+                {
+                    top = std::min({y1, y2});
+                }
+                top = std::min({top.value(), y1, y2});
+                if (!bottom.has_value())
+                {
+                    bottom = std::max({y1, y2});
+                }
+                bottom = std::max({bottom.value(), y1, y2});
             }
-            left += 25;
-            right -= 25;
-            top -= 300;
-            bottom += 100;
-        }
-        else
-        {
-            // 该地图不存在fh
-            left = -10000;
-            right = 10000;
-            top = -10000;
-            bottom = 10000;
+            left = left.value() + 25;
+            right = right.value() - 25;
+            top = top.value() - 300;
+            bottom = bottom.value() + 100;
         }
     }
 }
