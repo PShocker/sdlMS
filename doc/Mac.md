@@ -1,6 +1,6 @@
 **Mac编译**
 
-确保你的clang支持c++20
+**确保你的clang支持c++20**
 
 一、编译FFMPEG静态库
 访问[FFMPEG官方网站](https://ffmpeg.org/download.html),下载xz源码包,或者进群下载.
