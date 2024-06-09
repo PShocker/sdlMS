@@ -2,6 +2,11 @@
 
 资源文件进QQ群760717877下载
 
+快速拉取本项目
+```
+git clone --recurse-submodules https://github.com/PShocker/sdlMS.git --depth 1
+```
+
 新建build目录
 
 资源Data放进build目录 
@@ -13,3 +18,7 @@
 **[Emscripten编译(WEB)](doc/Emscripten.md)**
 
 **[Android编译(Android Studio)](doc/Android.md)**
+
+**[Mac编译](doc/Mac.md)**
+
+编译前需要保证FFMPEG目录正确.

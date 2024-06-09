@@ -97,24 +97,11 @@ if(ANDROID)
     target_link_libraries(main freetype)
 endif()
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-
-    set(CMAKE_VERBOSE_MAKEFILE ON)
+if (APPLE)
     # Find packages
     find_library(COREMEDIA_FRAMEWORK CoreMedia)
     find_library(VIDEOTOOLBOX_FRAMEWORK VideoToolbox)
     find_library(SECURITY_FRAMEWORK Security)
-
-    # Check if frameworks were found
-    if(NOT COREMEDIA_FRAMEWORK)
-        message(FATAL_ERROR "CoreMedia framework not found")
-    endif()
-    if(NOT VIDEOTOOLBOX_FRAMEWORK)
-        message(FATAL_ERROR "VideoToolbox framework not found")
-    endif()
-    if(NOT SECURITY_FRAMEWORK)
-        message(FATAL_ERROR "Security framework not found")
-    endif()
 
     add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
 
@@ -129,7 +116,8 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(sdlMS PRIVATE freetype)
 
     # Link frameworks
-    target_link_libraries(${PROJECT_NAME}
+    target_link_libraries(
+        sdlMS
         PRIVATE
         ${COREMEDIA_FRAMEWORK}
         ${VIDEOTOOLBOX_FRAMEWORK}
@@ -139,5 +127,4 @@ if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     set_target_properties(sdlMS PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     )
-
 endif()
