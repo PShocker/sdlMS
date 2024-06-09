@@ -4,16 +4,16 @@
 一、编译FFMPEG静态库
 访问[FFMPEG官方网站](https://ffmpeg.org/download.html),下载xz源码包,或者进群下载.
 
-解压
+1.解压
 ```bash
 tar xvf ffmpeg-7.0.tar.xz
 cd ffmpeg-7.0 
 ```
-配置FFMPEG编译选项
+2.配置FFMPEG编译选项
 ```
 ./configure --enable-static --disable-shared --disable-ffmpeg --disable-ffplay --disable-debug --disable-doc --disable-asm --prefix=/usr/local
 ```
-编译和安装
+3.编译和安装
 ```
 make
 make install
