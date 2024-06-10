@@ -24,6 +24,8 @@ void Window::create_window(const char *title, unsigned int width, unsigned int h
 	}
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
+	SDL_RenderSetLogicalSize(renderer, width, height);
+
 	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
 
 	window_title = title;
