@@ -772,22 +772,39 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 // 限制移动范围
 void PhysicSystem::limit(Transform *tr, World &world)
 {
+	tr->set_x((int)tr->get_position().x);
+	tr->set_y((int)tr->get_position().y);
 	// 地图空气墙
 	if (world.entity_exist_of_type<Border>())
 	{
 		auto border = world.get_entitys<Border>().find(0)->second;
-		float pos_x = std::clamp(tr->get_position().x, border->get_left().value() + 5, border->get_right().value() - 5);
-		if (pos_x != tr->get_position().x)
+		auto left = border->get_left();
+		auto right = border->get_right();
+		auto top = border->get_left();
+		auto bottom = border->get_bottom();
+
+		if (left.has_value() && tr->get_position().x < left.value() + 5)
 		{
 			// 水平方向撞墙
-			tr->set_x(pos_x);
+			tr->set_x(left.value() + 5);
 			tr->get_owner_component<Normal>()->hspeed = 0;
 		}
-
-		float pos_y = std::clamp(tr->get_position().y, border->get_top().value(), border->get_bottom().value());
-		if (pos_y != tr->get_position().y)
+		else if (right.has_value() && tr->get_position().x > right.value() - 5)
 		{
-			tr->set_y(pos_y);
+			// 水平方向撞墙
+			tr->set_x(right.value() - 5);
+			tr->get_owner_component<Normal>()->hspeed = 0;
+		}
+		if (top.has_value() && tr->get_position().y < top.value())
+		{
+			// 水平方向撞墙
+			tr->set_y(top.value());
+			tr->get_owner_component<Normal>()->vspeed = 0;
+		}
+		else if (bottom.has_value() && tr->get_position().y > bottom.value())
+		{
+			// 水平方向撞墙
+			tr->set_y(bottom.value());
 			tr->get_owner_component<Normal>()->vspeed = 0;
 		}
 	}
