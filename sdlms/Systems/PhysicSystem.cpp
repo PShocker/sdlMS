@@ -772,8 +772,6 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 // 限制移动范围
 void PhysicSystem::limit(Transform *tr, World &world)
 {
-	tr->set_x((int)tr->get_position().x);
-	tr->set_y((int)tr->get_position().y);
 	// 地图空气墙
 	if (world.entity_exist_of_type<Border>())
 	{
