@@ -24,10 +24,6 @@
 #include <emscripten.h>
 #endif
 
-#ifdef __ANDROID__
-#include "SDL_main.h"
-#endif
-
 int width = 800;
 int height = 600;
 
@@ -56,15 +52,15 @@ int main(int argc, char *argv[])
 {
     World world;
 #ifdef __ANDROID__
-    Wz *wz = new Wz(""); // wz文件路径
+    Wz *wz = new Wz("/sdcard/Data/"); // wz文件路径
+    FreeType::init("/sdcard/Data/");
 #else
-    Wz *wz = new Wz("Data/"); // wz文件路径
+    Wz *wz = new Wz("./Data/");
+    FreeType::init("./Data/");
 #endif
     world.add_resource(wz);
 
     Window::create_window("sdlMS", width, height);
-
-    FreeType::init();
 
     world.add_system(new SoundSystem());
 
@@ -83,7 +79,7 @@ int main(int argc, char *argv[])
     world.add_system(new RenderSystem());
 
     Character *cha = new Character(&world);
-    Transform *t = new Transform{2500, 1700};
+    Transform *t = new Transform(2500, 1700);
     Camera *camera = new Camera(0, 0, width, height);
     Normal *nor = new Normal();
     Player *pla = new Player(); // 玩家控制的角色

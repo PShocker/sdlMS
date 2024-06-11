@@ -11,7 +11,7 @@
 class FreeType
 {
 public:
-    static void init();
+    static void init(const std::string &filename_prefix="");
     static inline FT_Library *library;
     static inline FT_Face *face;
     static Sprite *str(const std::u16string &s, int font_size = 12);
