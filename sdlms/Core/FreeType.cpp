@@ -1,25 +1,15 @@
 #include "FreeType.h"
 
-#ifdef __ANDROID__
-#define __USE_BUF__
-#endif
-
-#ifdef __USE_BUF__
-#include "Core/File.h"
-#endif
-
-void FreeType::init()
+void FreeType::init(const std::string &filename_prefix)
 {
     library = new FT_Library{};
     FT_Init_FreeType(library);
     // 加载字体文件
     face = new FT_Face{};
-#ifdef __USE_BUF__
-    FT_New_Memory_Face(*library, File::buffer("simsun.ttc"), File::size("simsun.ttc"), 0, face);
-#elif defined __WIN32__
+#ifdef __WIN32__
     FT_New_Face(*library, "C:/Windows/Fonts/simsun.ttc", 0, face);
 #else
-    FT_New_Face(*library, "./Data/simsun.ttc", 0, face);
+    FT_New_Face(*library, (filename_prefix + "simsun.ttc").c_str(), 0, face);
 #endif
     FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
     // 设置字体大小18
