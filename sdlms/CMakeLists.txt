@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.19.2)
-project(sdlMS)
-
-set(CMAKE_CXX_STANDARD 20)
 
 set(FFMPEG_INCLUDE "/usr/local/include")
 set(FFMPEG_LIB "/usr/local/lib")
@@ -14,6 +10,7 @@ include_directories(
     ${FFMPEG_INCLUDE}
 )
 
+set(wzlibcpp ${PROJECT_SOURCE_DIR}/3rdparty/wzlibcpp)
 include_directories(
     ${wzlibcpp}
     ${wzlibcpp}/include
