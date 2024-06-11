@@ -1,8 +1,7 @@
 cmake_minimum_required(VERSION 3.19.2)
-project(main)
+project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
-
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -20,13 +19,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     endif()
 endif()
 
-
-
-add_subdirectory(SDL)
-
-set(wzlibcpp ${CMAKE_CURRENT_SOURCE_DIR}/wzlibcpp)
-add_subdirectory(wzlibcpp)
-
-add_subdirectory(freetype)
+add_subdirectory(3rdparty)
 
 add_subdirectory(sdlms)

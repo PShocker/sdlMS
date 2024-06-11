@@ -1,10 +1,10 @@
 [submodule "wzlibcpp"]
-	path = wzlibcpp
+	path = 3rdparty/wzlibcpp
 	url = https://github.com/PShocker/wzlibcpp.git
 [submodule "freetype"]
-	path = freetype
+	path = 3rdparty/freetype
 	url = https://github.com/freetype/freetype.git
 [submodule "SDL"]
-	path = SDL
+	path = 3rdparty/SDL
 	url = https://github.com/libsdl-org/SDL.git
-	branch = SDL2
+	branch = release-2.30.x
