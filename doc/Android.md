@@ -52,24 +52,21 @@ AndroidManifest.xml配置读取sdcard权限
 
 修改```android-project\app\src\main\java\org\libsdl\app\SDLActivity.java```申请读取文件权限(安卓11以上)
 ```java
+private void requestManageExternalStoragePermission() {
+    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+    intent.setData(Uri.parse("package:" + getPackageName()));
+    startActivityForResult(intent, 0);
+}
+// Setup
 @Override
 protected void onCreate(Bundle savedInstanceState) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        // 申请读取文件权限
         if (!Environment.isExternalStorageManager()) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).setData(Uri.parse("package:" + this.getPackageName()));
-            startActivity(intent);
+            requestManageExternalStoragePermission();
         }
     }
-    Log.v(TAG, "Device: " + Build.DEVICE);
-    Log.v(TAG, "Model: " + Build.MODEL);
-    Log.v(TAG, "onCreate()");
-    ...... 
-    }
+    ......
+}
 ```
-
-**资源文件放进/sdcard/Data/**
-
-**资源文件放进/sdcard/Data/**
 
 **资源文件放进/sdcard/Data/**
