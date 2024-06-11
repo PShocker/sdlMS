@@ -778,7 +778,7 @@ void PhysicSystem::limit(Transform *tr, World &world)
 		auto border = world.get_entitys<Border>().find(0)->second;
 		auto left = border->get_left();
 		auto right = border->get_right();
-		auto top = border->get_left();
+		auto top = border->get_top();
 		auto bottom = border->get_bottom();
 
 		if (left.has_value() && tr->get_position().x < left.value() + 5)
