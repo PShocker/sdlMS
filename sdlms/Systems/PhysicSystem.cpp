@@ -729,6 +729,7 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 			if (nor->get_owner_component<Avatar>() != nullptr)
 			{
 				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner_component<Avatar>()->animate = true;
 			}
 			nor->vspeed = 0;
 		}
@@ -737,7 +738,7 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 			// 绳子顶端封住
 			if (nor->get_owner_component<Avatar>() != nullptr)
 			{
-				auto ava = nor->get_owner_component<Avatar>()->animate = false;
+				nor->get_owner_component<Avatar>()->animate = false;
 			}
 		}
 	}
@@ -748,6 +749,7 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 		if (nor->get_owner_component<Avatar>() != nullptr)
 		{
 			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+			nor->get_owner_component<Avatar>()->animate = true;
 		}
 		nor->vspeed = 0;
 	}
@@ -755,14 +757,13 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 	{
 		if (nor->get_owner_component<Avatar>() != nullptr)
 		{
-			auto ava = nor->get_owner_component<Avatar>();
 			if (nor->vspeed != 0)
 			{
-				ava->animate = true;
+				nor->get_owner_component<Avatar>()->animate = true;
 			}
 			else
 			{
-				ava->animate = false;
+				nor->get_owner_component<Avatar>()->animate = false;
 			}
 		}
 		tr->set_y(y);
