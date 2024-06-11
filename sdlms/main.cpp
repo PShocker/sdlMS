@@ -78,19 +78,20 @@ int main(int argc, char *argv[])
 
     world.add_system(new RenderSystem());
 
-    Character *cha = new Character(&world);
-    Transform *t = new Transform(2500, 1700);
     Camera *camera = new Camera(0, 0, width, height);
+
+    Character *cha = new Character(&world, {2500, 1700});
     Normal *nor = new Normal();
     Player *pla = new Player(); // 玩家控制的角色
-    cha->add_component(t);
+
     cha->add_component(camera);
     cha->add_component(nor);
     cha->add_component(pla);
-    world.add_component(t, 3000000);
+
     world.add_component(camera, 0);
     world.add_component(nor);
     world.add_component(pla);
+
     // Mob *mob = new Mob(&world);
     // mob->add_component(t);
     // mob->add_component(nor);

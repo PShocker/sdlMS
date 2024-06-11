@@ -1,8 +1,13 @@
 #include "Character.h"
+#include "NameTag.h"
+#include "String.h"
+
 #include "Components/Avatar.h"
+#include "Components/Transform.h"
+#include "Components/RelativeTransform.h"
 #include "Resource/Wz.h"
 
-Character::Character(World *world)
+Character::Character(World *world, SDL_FPoint p)
 {
     auto ava = Avatar::load();
     ava->add_head(u"00012006");
@@ -22,6 +27,28 @@ Character::Character(World *world)
 
     add_component(ava);
     world->add_component(ava);
+
+    Transform *tr = new Transform(p);
+    add_component(tr);
+    world->add_component(tr, 3000000);
+
+    auto str = new String(u"逆向萌新");
+    add_entity(str);
+    auto spr = str->get_component<Sprite>();
+    {
+        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), (float)9});
+        str->add_component(rtr);
+        str->add_component(new Transform());
+        world->add_component(rtr, 1);
+    }
+    {
+        auto nam = new NameTag(spr->width + 4, spr->height + 6);
+        add_entity(nam);
+        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), (float)6});
+        nam->add_component(rtr);
+        nam->add_component(new Transform());
+        world->add_component(rtr, 0);
+    }
 }
 
 Character::~Character()

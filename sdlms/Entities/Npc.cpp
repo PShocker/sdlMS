@@ -64,7 +64,6 @@ Npc::Npc(wz::Node *node, World *world)
                         str->add_component(new Transform());
                         world->add_component(rtr, 1);
                     }
-
                     {
                         auto nam = new NameTag(spr->width + 4, spr->height + 6);
                         add_entity(nam);
