@@ -800,13 +800,13 @@ void PhysicSystem::limit(Transform *tr, World &world)
 		}
 		if (top.has_value() && tr->get_position().y < top.value())
 		{
-			// 水平方向撞墙
+			// 竖直方向撞墙
 			tr->set_y(top.value());
 			tr->get_owner_component<Normal>()->vspeed = 0;
 		}
 		else if (bottom.has_value() && tr->get_position().y > bottom.value())
 		{
-			// 水平方向撞墙
+			// 竖直方向撞墙
 			tr->set_y(bottom.value());
 			tr->get_owner_component<Normal>()->vspeed = 0;
 		}
