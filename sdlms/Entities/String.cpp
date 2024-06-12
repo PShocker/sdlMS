@@ -1,8 +1,9 @@
 #include "String.h"
 
-String::String(const std::u16string &s, int font_size)
+String::String(const std::u16string &s, SDL_Color color, int size)
 {
-    auto str = FreeType::str(s);
+    FreeType::size(size);
+    auto str = FreeType::str(s, color);
     add_component(str);
 }
 

@@ -17,11 +17,15 @@ void FreeType::init(const std::string &filename_prefix)
     return;
 }
 
-Sprite *FreeType::str(const std::u16string &s, int font_size)
+void FreeType::size(int size)
+{
+    FT_Set_Pixel_Sizes(*face, 0, size);
+}
+
+Sprite *FreeType::str(const std::u16string &s, SDL_Color color)
 {
     SDL_Renderer *renderer = Window::get_renderer();
 
-    FT_Set_Pixel_Sizes(*face, 0, font_size);
     FT_GlyphSlot glyph_slot = (*face)->glyph;
     // 计算每个字符的位置和大小
     int width = 0;
@@ -65,10 +69,10 @@ Sprite *FreeType::str(const std::u16string &s, int font_size)
                 }
                 else
                 {
-                    argb_data[(y * bitmap.width + x) * 4] = 0;       // B
-                    argb_data[(y * bitmap.width + x) * 4 + 1] = 255; // G
-                    argb_data[(y * bitmap.width + x) * 4 + 2] = 255; // R
-                    argb_data[(y * bitmap.width + x) * 4 + 3] = 255; // A
+                    argb_data[(y * bitmap.width + x) * 4] = color.b;     // B
+                    argb_data[(y * bitmap.width + x) * 4 + 1] = color.g; // G
+                    argb_data[(y * bitmap.width + x) * 4 + 2] = color.r; // R
+                    argb_data[(y * bitmap.width + x) * 4 + 3] = color.a; // A
                 }
             }
         }
