@@ -9,6 +9,6 @@
 class String : public Entity
 {
 public:
-    String(const std::u16string &s, int font_size=12);
+    String(const std::u16string &s, SDL_Color color = {255, 255, 255, 255}, int size = 12);
     ~String();
 };

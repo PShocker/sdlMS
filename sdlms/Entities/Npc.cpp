@@ -55,7 +55,7 @@ Npc::Npc(wz::Node *node, World *world)
                 str_map[key] = dynamic_cast<wz::Property<wz::wzstring> *>(val[0])->get();
                 if (key == u"name" || key == u"func")
                 {
-                    auto str = new String(str_map[key]);
+                    auto str = new String(str_map[key], {255, 255, 0, 255});
                     add_entity(str);
                     auto spr = str->get_component<Sprite>();
                     {
