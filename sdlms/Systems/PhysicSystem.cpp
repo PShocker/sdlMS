@@ -208,6 +208,10 @@ bool PhysicSystem::want_prone(Normal *nor, World &world)
 			auto ava = nor->get_owner_component<Avatar>();
 			ava->switch_act(Avatar::ACTION::PRONE);
 		}
+		else if (nor->get_owner<Mob>() != nullptr)
+		{
+			nor->get_owner<Mob>()->switch_act(u"stand");
+		}
 		nor->hspeed = 0;
 		return true;
 	}

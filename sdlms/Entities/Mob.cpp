@@ -56,7 +56,7 @@ Mob::Mob(wz::Node *node, World *world)
 }
 
 // 测试
-Mob::Mob(World *world)
+Mob::Mob(World *world, SDL_FPoint p)
 {
     std::u16string mob_id = u"1210102";
     auto node = world->get_resource<Wz>().Mob->get_root()->find_from_path(mob_id + u".img");
@@ -78,15 +78,9 @@ Mob::Mob(World *world)
     act = u"jump";
     add_component(aspr_map[act]);
 
-    // 从string.wz获取信息
-    node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Mob.img/" + mob_id.substr(mob_id.find_first_not_of(u'0')));
-    if (node != nullptr)
-    {
-        if (node->get_child(u"name") != nullptr)
-        {
-            name = FreeType::str(dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get());
-        }
-    }
+    Transform *tr = new Transform(p);
+    add_component(tr);
+    world->add_component(tr, 3000000);
 }
 
 void Mob::switch_act(const std::u16string &a)
@@ -107,7 +101,7 @@ void Mob::switch_act(const std::u16string &a)
 Mob::~Mob()
 {
     auto world = World::get_world();
-    
+
     for (auto &[key, val] : aspr_map)
     {
         auto aspr = val;

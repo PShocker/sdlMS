@@ -5,9 +5,9 @@
 class Transform : public Component
 {
 private:
-	SDL_FPoint position;
-	float rotation;
-	int flip;
+	SDL_FPoint position = {0, 0};
+	float rotation = 0;
+	int flip = 0;
 	bool camera = false;
 
 public:
