@@ -93,13 +93,13 @@ int main(int argc, char *argv[])
         world.add_component(pla);
     }
     {
-        Mob *mob = new Mob(&world, {2500, 1700});
-        Normal *nor = new Normal();
-        mob->add_component(nor);
+        // Mob *mob = new Mob(&world, {2500, 1700});
+        // Normal *nor = new Normal();
+        // mob->add_component(nor);
         // mob->add_component(pla);
         // mob->add_component(camera);
         // world.add_component(camera, 0);
-        world.add_component(nor);
+        // world.add_component(nor);
         // world.add_component(pla);
     }
     Map::load(102000000, &world);
