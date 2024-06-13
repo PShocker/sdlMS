@@ -17,7 +17,7 @@ Mob::Mob(wz::Node *node, World *world)
     {
         auto mob_id = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"id"))->get();
         auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
-        auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"cy"))->get();
+        auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"cy"))->get() - 1;
         auto fh = dynamic_cast<wz::Property<int> *>(node->get_child(u"fh"))->get();
         // 从fh获取layer
         auto layer = world->get_entitys<FootHold>().find(fh)->second->get_page();
