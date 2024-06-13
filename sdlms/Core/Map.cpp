@@ -4,6 +4,7 @@
 #include "Entities/BackGround.h"
 #include "Entities/FootHold.h"
 #include "Entities/Npc.h"
+#include "Entities/Mob.h"
 #include "Entities/Border.h"
 #include "Entities/LadderRope.h"
 #include "Entities/Portal.h"
@@ -123,6 +124,11 @@ void Map::load_life(wz::Node *node, World *world)
                 auto npc = new Npc(val[0], world);
                 world->add_entity(npc);
             }
+            else if (type == u"m")
+            {
+                auto mob = new Mob(val[0], world);
+                world->add_entity(mob);
+            }
         }
     }
 }
@@ -184,6 +190,7 @@ void Map::clean_up(World *world)
     world->clear_entity<BackGround>();
     world->clear_entity<FootHold>();
     world->clear_entity<Npc>();
+    world->clear_entity<Mob>();
     world->clear_entity<Border>();
     world->clear_entity<LadderRope>();
     world->clear_entity<Portal>();

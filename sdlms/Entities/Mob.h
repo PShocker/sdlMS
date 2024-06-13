@@ -16,6 +16,6 @@ public:
 
 private:
     std::unordered_map<std::u16string, AnimatedSprite *> aspr_map;
+    std::unordered_map<std::u16string, std::u16string> str_map;
     std::u16string act = u"jump";
-    Sprite *name = nullptr;
 };

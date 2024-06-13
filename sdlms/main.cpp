@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     Camera *camera = new Camera(0, 0, width, height);
     Player *pla = new Player(); // 玩家控制的角色
     {
-        Character *cha = new Character(&world, {2500, 1700});
+        Character *cha = new Character(&world, {0, 0});
         Normal *nor = new Normal();
 
         cha->add_component(camera);
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         // world.add_component(nor);
         // world.add_component(pla);
     }
-    Map::load(102000000, &world);
+    Map::load(104040000, &world);
 
     // Video *vid = Video::load("a.mp4", 244, 184);
     // if (vid != nullptr)
