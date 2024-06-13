@@ -43,7 +43,6 @@ void main_loop()
     world->tick_delta_time();
 
     Window::clear();
-
     world->process_systems();
     Window::update();
 }
@@ -92,16 +91,16 @@ int main(int argc, char *argv[])
         world.add_component(nor);
         world.add_component(pla);
     }
-    {
-        // Mob *mob = new Mob(&world, {2500, 1700});
-        // Normal *nor = new Normal();
-        // mob->add_component(nor);
-        // mob->add_component(pla);
-        // mob->add_component(camera);
-        // world.add_component(camera, 0);
-        // world.add_component(nor);
-        // world.add_component(pla);
-    }
+    // {
+    //     Mob *mob = new Mob(&world, {0, 0});
+    //     Normal *nor = new Normal();
+    //     mob->add_component(nor);
+    //     mob->add_component(pla);
+    //     mob->add_component(camera);
+    //     world.add_component(camera, 0);
+    //     world.add_component(nor);
+    //     world.add_component(pla);
+    // }
     Map::load(104040000, &world);
 
     // Video *vid = Video::load("a.mp4", 244, 184);
