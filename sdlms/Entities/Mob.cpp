@@ -44,7 +44,7 @@ Mob::Mob(wz::Node *node, World *world)
 
         if (aspr_map.size() > 0)
         {
-            // 默认显示npc第一个状态
+            // 默认显示mob第一个状态
             auto aspr = aspr_map.begin()->second;
             add_component(aspr);
         }
@@ -57,31 +57,23 @@ Mob::Mob(wz::Node *node, World *world)
         node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Mob.img/" + mob_id.substr(mob_id.find_first_not_of(u'0')));
         if (node != nullptr)
         {
-            int i = 0;
-            for (auto &[key, val] : node->get_children())
+            auto name = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get();
+            auto str = new String(name, {255, 255, 255, 255}, 12);
+            add_entity(str);
+            auto spr = str->get_component<Sprite>();
             {
-                str_map[key] = dynamic_cast<wz::Property<wz::wzstring> *>(val[0])->get();
-                if (key == u"name" || key == u"func")
-                {
-                    auto str = new String(str_map[key], {255, 255, 255, 255}, 12);
-                    add_entity(str);
-                    auto spr = str->get_component<Sprite>();
-                    {
-                        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), (float)(9 + (spr->get_height() + 6) * i)});
-                        str->add_component(rtr);
-                        str->add_component(new Transform());
-                        world->add_component(rtr, 1);
-                    }
-                    {
-                        auto nam = new NameTag(spr->width + 4, spr->height + 6);
-                        add_entity(nam);
-                        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), (float)(6 + (spr->get_height() + 6) * i)});
-                        nam->add_component(rtr);
-                        nam->add_component(new Transform());
-                        world->add_component(rtr, 0);
-                    }
-                    i++;
-                }
+                auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), 9});
+                str->add_component(rtr);
+                str->add_component(new Transform());
+                world->add_component(rtr, 1);
+            }
+            {
+                auto nam = new NameTag(spr->width + 4, spr->height + 6);
+                add_entity(nam);
+                auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), 6});
+                nam->add_component(rtr);
+                nam->add_component(new Transform());
+                world->add_component(rtr, 0);
             }
         }
     }
@@ -166,4 +158,8 @@ Mob::~Mob()
     auto t = get_component<Transform>();
     world->destroy_component(t, false);
     delete t;
+
+    auto nor = get_component<Normal>();
+    world->destroy_component(nor, false);
+    delete nor;
 }
