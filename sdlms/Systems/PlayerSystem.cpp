@@ -1,6 +1,7 @@
 #include "PlayerSystem.h"
 #include "Core/Input.h"
 #include "Components/Avatar.h"
+#include "SDL_keycode.h"
 
 void PlayerSystem::run(World &world)
 {
@@ -22,7 +23,8 @@ void PlayerSystem::update_player(Player *pla, World &world)
     nor->vkey = Normal::None;
     nor->hkey = Normal::None;
     nor->lalt = false;
-
+    nor->lctrl = false;
+    
     // 判断是否有h或v方向输入
     if (Input::is_key_held(SDLK_RIGHT))
     {
@@ -43,5 +45,9 @@ void PlayerSystem::update_player(Player *pla, World &world)
     if (Input::is_key_held(SDLK_LALT))
     {
         nor->lalt = true;
+    }
+    if (Input::is_key_held(SDLK_LCTRL))
+    {
+        nor->lctrl = true;
     }
 }
