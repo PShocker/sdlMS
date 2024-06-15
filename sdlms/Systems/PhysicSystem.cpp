@@ -76,6 +76,12 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		{
 			break;
 		}
+		// 攻击
+		[[unlikely]]
+		if (want_attack(tr, nor, world))
+		{
+			break;
+		}
 		// 地面移动判断
 		[[unlikely]]
 		if (!walk(tr, nor, world, delta_time))
@@ -337,6 +343,50 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 			}
 			return true;
 		}
+	}
+	return false;
+}
+
+bool PhysicSystem::want_attack(Transform *tr, Normal *nor, World &world)
+{
+	if (nor->lctrl)
+	{
+		if (nor->get_owner<Character>() != nullptr)
+		{
+			// 生成0到5之间的随机数
+			// int randomNum = std::rand() % 6;
+			int randomNum = 4;
+			auto ava = nor->get_owner_component<Avatar>();
+			// ava->switch_act(Avatar::ACTION::STABO1);
+			switch (randomNum) {
+				case 0: 
+					ava->switch_act(Avatar::ACTION::STABO1);
+					break;
+				case 1: 
+					ava->switch_act(Avatar::ACTION::STABO2);
+					break;
+				case 2:
+					ava->switch_act(Avatar::ACTION::STABOF);
+					break;
+				case 3:
+					ava->switch_act(Avatar::ACTION::STABT1);
+					break;
+				case 4:
+					ava->switch_act(Avatar::ACTION::STABT2);
+					break;
+				case 5:
+					ava->switch_act(Avatar::ACTION::STABTF);
+					break;
+				default:
+					ava->switch_act(Avatar::ACTION::STABO1);
+					break;
+			}
+		}
+		else if (nor->get_owner<Mob>() != nullptr)
+		{
+			nor->get_owner<Mob>()->switch_act(u"attack");
+		}
+		return true;
 	}
 	return false;
 }

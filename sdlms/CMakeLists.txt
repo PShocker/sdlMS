@@ -1,6 +1,6 @@
 
-set(FFMPEG_INCLUDE "/usr/local/include")
-set(FFMPEG_LIB "/usr/local/lib")
+set(FFMPEG_INCLUDE "D:\\VScode\\Maplestory\\FFMPEG\\include")
+set(FFMPEG_LIB "D:\\VScode\\Maplestory\\FFMPEG\\lib")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
