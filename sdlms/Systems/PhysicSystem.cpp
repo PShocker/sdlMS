@@ -534,6 +534,11 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	else
 	{
 		nor->hforce = 0;
+		// 如果没有左右的输入并且速度为0,则可以直接return提高性能
+		if (nor->hspeed == 0)
+		{
+			return true;
+		}
 	}
 
 	constexpr auto friction = 800; // 摩擦力
