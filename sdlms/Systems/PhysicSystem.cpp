@@ -550,7 +550,12 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	}
 
 	nor->hspeed += delta_time * nor->hforce;
-	nor->hspeed = std::clamp(nor->hspeed, -125.0f, 125.0f);
+	if (nor->hspeed_limit.has_value())
+	{
+		auto min = nor->hspeed_limit.value().x;
+		auto max = nor->hspeed_limit.value().y;
+		nor->hspeed = std::clamp(nor->hspeed, min, max);
+	}
 
 	auto d_x = nor->hspeed * delta_time;
 	auto x = d_x + tr->get_position().x;
@@ -657,7 +662,12 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	}
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;
-	nor->vspeed = std::min(nor->vspeed, 670.0f);
+	if (nor->vspeed_limit.has_value())
+	{
+		auto min = nor->vspeed_limit.value().x;
+		auto max = nor->vspeed_limit.value().y;
+		nor->vspeed = std::clamp(nor->vspeed, min, max);
+	}
 
 	auto d_x = nor->hspeed * delta_time;
 	auto d_y = nor->vspeed * delta_time;
