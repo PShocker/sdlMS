@@ -84,17 +84,17 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                     add_entity(str);
                     auto spr = str->get_component<Sprite>();
                     {
-                        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), (float)(9 + (spr->get_height() + 6) * i)});
-                        str->add_component(rtr);
-                        str->add_component(new Transform());
-                        world->add_component(rtr, 1);
-                    }
-                    {
                         auto nam = new NameTag(spr->width + 4, spr->height + 6);
                         add_entity(nam);
                         auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), (float)(6 + (spr->get_height() + 6) * i)});
                         nam->add_component(rtr);
                         nam->add_component(new Transform());
+                        world->add_component(rtr, 0);
+                    }
+                    {
+                        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), (float)(9 + (spr->get_height() + 6) * i)});
+                        str->add_component(rtr);
+                        str->add_component(new Transform());
                         world->add_component(rtr, 0);
                     }
                     i++;
