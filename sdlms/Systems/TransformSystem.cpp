@@ -32,7 +32,7 @@ void TransformSystem::update_relative_tr(int index, RelativeTransform *rtr, Worl
 
 void TransformSystem::update_limit_tr(LimitTransform *ltr, World &world)
 {
-    auto tr = ltr->get_tr();
+    auto &tr = ltr->get_tr();
     if (ltr->get_h().has_value())
     {
         // 如果水平方向存在范围
