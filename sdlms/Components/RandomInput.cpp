@@ -1,5 +1,6 @@
 #include "RandomInput.h"
 
-RandomInput::RandomInput(int count) : count(count)
+RandomInput::RandomInput(int val)
 {
+    count = std::rand() % val + 100;
 }

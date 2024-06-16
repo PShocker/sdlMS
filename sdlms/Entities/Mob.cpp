@@ -32,25 +32,11 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
             auto link = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/link"))->get();
             node = world->get_resource<Wz>().Npc->get_root()->find_from_path(link + u".img");
         }
-        for (auto &[name, val] : node->get_children())
-        {
-            if (name != u"info")
-            {
-                auto aspr = new AnimatedSprite(val[0]);
-                aspr_map[name] = aspr;
-                world->add_component(aspr);
-            }
-        }
+
         Transform *tr = new Transform((float)x, (float)y);
         add_component(tr);
         world->add_component(tr, 30000 * layer + 3000 + id);
 
-        if (aspr_map.size() > 0)
-        {
-            // 默认显示mob第一个状态
-            auto aspr = aspr_map.begin()->second;
-            add_component(aspr);
-        }
         // 添加物理组件
         Normal *nor = new Normal();
         nor->type = Normal::Ground;
@@ -67,6 +53,28 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
         LimitTransform *ltr = new LimitTransform(tr, SDL_FPoint{(float)rx0, (float)rx1}, std::nullopt);
         add_component(ltr);
         world->add_component(ltr);
+
+        for (auto &[name, val] : node->get_children())
+        {
+            if (name == u"info")
+            {
+                // 获取mob基础属性
+                auto speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"speed"))->get();
+                nor->hspeed_limit = {-1 * (float)(speed + 100) / 100 * 125, (float)(speed + 100) / 100 * 125};
+            }
+            else
+            {
+                auto aspr = new AnimatedSprite(val[0]);
+                aspr_map[name] = aspr;
+                world->add_component(aspr);
+            }
+        }
+        if (aspr_map.size() > 0)
+        {
+            // 默认显示mob第一个状态
+            auto aspr = aspr_map.begin()->second;
+            add_component(aspr);
+        }
 
         // 从string.wz获取信息
         node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Mob.img/" + mob_id.substr(mob_id.find_first_not_of(u'0')));
