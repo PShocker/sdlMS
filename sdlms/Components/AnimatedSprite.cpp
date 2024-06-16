@@ -32,6 +32,12 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
 
         sprites.push_back(sprite);
     }
+    if (node->get_child(u"zigzag") != nullptr)
+    {
+        // 如果存在zigzag属性,则认为属于zigzag动画
+        z = true;
+    }
+
     anim_size = sprites.size();
     anim_index = 0;
     anim_time = 0;
