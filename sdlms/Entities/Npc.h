@@ -8,7 +8,7 @@
 class Npc : public Entity
 {
 public:
-    Npc(wz::Node *node, World *world);
+    Npc(wz::Node *node, int id, int rx0, int rx1, World *world);
     ~Npc();
 
 private:

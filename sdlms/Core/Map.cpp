@@ -119,14 +119,19 @@ void Map::load_life(wz::Node *node, World *world)
         for (auto &[key, val] : node->get_children())
         {
             auto type = dynamic_cast<wz::Property<wz::wzstring> *>(val[0]->get_child(u"type"))->get();
+            auto id = std::stoi(std::string{key.begin(), key.end()});
             if (type == u"n")
             {
-                auto npc = new Npc(val[0], world);
+                auto rx0 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx0"))->get();
+                auto rx1 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx1"))->get();
+                auto npc = new Npc(val[0], id, rx0, rx1, world);
                 world->add_entity(npc);
             }
             else if (type == u"m")
             {
-                auto mob = new Mob(val[0], world);
+                auto rx0 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx0"))->get();
+                auto rx1 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx1"))->get();
+                auto mob = new Mob(val[0], id, rx0, rx1, world);
                 world->add_entity(mob);
             }
         }

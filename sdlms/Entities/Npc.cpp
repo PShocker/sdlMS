@@ -6,18 +6,23 @@
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
 #include "Components/RelativeTransform.h"
+#include "Components/RandomInput.h"
+#include "Components/LimitTransform.h"
+#include "Components/Line.h"
+#include "Components/Physic/Normal.h"
 #include "Resource/Wz.h"
 
-Npc::Npc(wz::Node *node, World *world)
+Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
 {
     if (node != nullptr)
     {
         auto npc_id = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"id"))->get();
         auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
-        auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"cy"))->get();
         auto fh = dynamic_cast<wz::Property<int> *>(node->get_child(u"fh"))->get();
-        // 从fh获取layer
-        auto layer = world->get_entitys<FootHold>().find(fh)->second->get_page();
+        auto foo = world->get_entitys<FootHold>().find(fh)->second;
+        // 从fh获取y,layer
+        auto y = foo->get_component<Line>()->get_y(x).value();
+        auto layer = foo->get_page();
 
         node = world->get_resource<Wz>().Npc->get_root()->find_from_path(npc_id + u".img");
         // 排除 link
@@ -37,13 +42,33 @@ Npc::Npc(wz::Node *node, World *world)
         }
         Transform *tr = new Transform{(float)x, (float)y};
         add_component(tr);
-        world->add_component(tr, 30000 * layer + 3000);
+        world->add_component(tr, 30000 * layer + 3000 + id);
 
         if (aspr_map.size() > 0)
         {
             // 默认显示npc第一个状态
             auto aspr = aspr_map.begin()->second;
             add_component(aspr);
+        }
+
+        // 添加物理组件
+        if (aspr_map.contains(u"move"))
+        {
+            Normal *nor = new Normal();
+            nor->type = Normal::Ground;
+            add_entity(foo, 0);
+            add_component(nor);
+            world->add_component(nor);
+
+            // 添加自动移动组件
+            RandomInput *ran = new RandomInput();
+            add_component(ran);
+            world->add_component(ran);
+
+            // 添加移动范围
+            LimitTransform *ltr = new LimitTransform(tr, SDL_FPoint{(float)rx0, (float)rx1}, std::nullopt);
+            add_component(ltr);
+            world->add_component(ltr);
         }
         // 从string.wz获取信息
         node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Npc.img/" + npc_id.substr(npc_id.find_first_not_of(u'0')));
@@ -115,4 +140,25 @@ Npc::~Npc()
     auto t = get_component<Transform>();
     world->destroy_component(t, false);
     delete t;
+
+    auto nor = get_component<Normal>();
+    if (nor != nullptr)
+    {
+        world->destroy_component(nor, false);
+        delete nor;
+    }
+
+    auto ran = get_component<RandomInput>();
+    if (ran != nullptr)
+    {
+        world->destroy_component(ran, false);
+        delete ran;
+    }
+
+    auto ltr = get_component<LimitTransform>();
+    if (ltr != nullptr)
+    {
+        world->destroy_component(ltr, false);
+        delete ltr;
+    }
 }

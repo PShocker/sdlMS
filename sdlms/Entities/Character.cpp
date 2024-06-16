@@ -4,8 +4,11 @@
 
 #include "Components/Avatar.h"
 #include "Components/Transform.h"
+#include "Components/LimitTransform.h"
 #include "Components/RelativeTransform.h"
 #include "Resource/Wz.h"
+
+#include <optional>
 
 Character::Character(World *world, SDL_FPoint p)
 {
@@ -31,6 +34,11 @@ Character::Character(World *world, SDL_FPoint p)
     Transform *tr = new Transform(p);
     add_component(tr);
     world->add_component(tr, 3000000);
+
+    // 限制人物移动范围
+    LimitTransform *ltr = new LimitTransform(tr, std::nullopt, std::nullopt);
+    add_component(ltr);
+    world->add_component(ltr);
 
     auto str = new String(u"逆向萌新");
     add_entity(str);

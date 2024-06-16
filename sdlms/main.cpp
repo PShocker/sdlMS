@@ -3,10 +3,10 @@
 #include "Core/World.h"
 #include "Systems/RenderSystem.h"
 #include "Systems/SoundSystem.h"
-#include "Systems/UpdateSystem.h"
+#include "Systems/DeltaTimeSystem.h"
 #include "Systems/CameraSystem.h"
 #include "Systems/PhysicSystem.h"
-#include "Systems/PlayerSystem.h"
+#include "Systems/InputSystem.h"
 #include "Systems/SpriteSystem.h"
 #include "Systems/TransformSystem.h"
 #include "Components/Sound.h"
@@ -63,13 +63,13 @@ int main(int argc, char *argv[])
 
     world.add_system(new SoundSystem());
 
-    world.add_system(new PlayerSystem());
+    world.add_system(new InputSystem());
 
     world.add_system(new PhysicSystem());
 
     world.add_system(new CameraSystem());
 
-    world.add_system(new UpdateSystem());
+    world.add_system(new DeltaTimeSystem());
 
     world.add_system(new SpriteSystem());
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
     //     world.add_component(pla);
     // }
     // Map::load(104040000, &world);
-    Map::load(100040000, &world);
+    Map::load(104040000, &world);
 
     // Video *vid = Video::load("a.mp4", 244, 184);
     // if (vid != nullptr)

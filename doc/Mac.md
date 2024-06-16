@@ -2,9 +2,12 @@
 
 **确保你的clang支持c++20**
 
-一、编译FFMPEG静态库
+一、安装FFMPEG
 访问[FFMPEG官方网站](https://ffmpeg.org/download.html),下载xz源码包,或者进群下载.
-
+或者使用brew安装
+```
+brew install ffmpeg
+```
 1.解压
 ```bash
 tar xvf ffmpeg-7.0.tar.xz

@@ -1,7 +1,7 @@
 #pragma once
 #include "Component.h"
 #include <optional>
-
+#include <cmath>
 // 线
 class Line : public Component
 {
