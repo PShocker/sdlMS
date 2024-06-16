@@ -126,11 +126,7 @@ Sprite::Sprite(wz::Node *node)
 
 Sprite::~Sprite()
 {
-    [[likely]]
-    if (texture != nullptr)
-    {
-        SDL_DestroyTexture(texture);
-    }
+    SDL_DestroyTexture(texture);
 }
 
 Sprite::Sprite(SDL_Texture *texture, int width, int height) : texture(texture), width(width), height(height)

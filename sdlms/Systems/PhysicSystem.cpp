@@ -6,8 +6,8 @@
 #include "Entities/LadderRope.h"
 #include "Entities/Character.h"
 #include "Entities/Mob.h"
+#include "Entities/Npc.h"
 #include "Entities/Portal.h"
-#include "Entities/Border.h"
 #include "Entities/Timer.h"
 #include "Components/Line.h"
 #include "Components/Avatar.h"
@@ -114,7 +114,6 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		climb(tr, nor, delta_time);
 		break;
 	}
-	limit(tr, world);
 }
 
 bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
@@ -358,28 +357,29 @@ bool PhysicSystem::want_attack(Transform *tr, Normal *nor, World &world)
 			int randomNum = 4;
 			auto ava = nor->get_owner_component<Avatar>();
 			// ava->switch_act(Avatar::ACTION::STABO1);
-			switch (randomNum) {
-				case 0: 
-					ava->switch_act(Avatar::ACTION::STABO1);
-					break;
-				case 1: 
-					ava->switch_act(Avatar::ACTION::STABO2);
-					break;
-				case 2:
-					ava->switch_act(Avatar::ACTION::STABOF);
-					break;
-				case 3:
-					ava->switch_act(Avatar::ACTION::STABT1);
-					break;
-				case 4:
-					ava->switch_act(Avatar::ACTION::STABT2);
-					break;
-				case 5:
-					ava->switch_act(Avatar::ACTION::STABTF);
-					break;
-				default:
-					ava->switch_act(Avatar::ACTION::STABO1);
-					break;
+			switch (randomNum)
+			{
+			case 0:
+				ava->switch_act(Avatar::ACTION::STABO1);
+				break;
+			case 1:
+				ava->switch_act(Avatar::ACTION::STABO2);
+				break;
+			case 2:
+				ava->switch_act(Avatar::ACTION::STABOF);
+				break;
+			case 3:
+				ava->switch_act(Avatar::ACTION::STABT1);
+				break;
+			case 4:
+				ava->switch_act(Avatar::ACTION::STABT2);
+				break;
+			case 5:
+				ava->switch_act(Avatar::ACTION::STABTF);
+				break;
+			default:
+				ava->switch_act(Avatar::ACTION::STABO1);
+				break;
 			}
 		}
 		else if (nor->get_owner<Mob>() != nullptr)
@@ -715,11 +715,17 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					world.destroy_component(tr, false);
 					if (nor->get_owner<Character>() != nullptr)
 					{
-						world.add_component(tr, fh->page * 30000 + 4100);
+						world.add_component(tr, fh->page * 30000 + 6000);
 					}
 					else if (nor->get_owner<Mob>() != nullptr)
 					{
-						world.add_component(tr, fh->page * 30000 + 4000);
+						auto load_id = tr->get_id() % 1000;
+						world.add_component(tr, fh->page * 30000 + 4000 + load_id);
+					}
+					else if (nor->get_owner<Npc>() != nullptr)
+					{
+						auto load_id = tr->get_id() % 1000;
+						world.add_component(tr, fh->page * 30000 + 5000 + load_id);
 					}
 					break;
 				}
@@ -836,45 +842,6 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 			}
 		}
 		tr->set_y(y);
-	}
-}
-
-// 限制移动范围
-void PhysicSystem::limit(Transform *tr, World &world)
-{
-	// 地图空气墙
-	if (world.entity_exist_of_type<Border>())
-	{
-		auto border = world.get_entitys<Border>().find(0)->second;
-		auto left = border->get_left();
-		auto right = border->get_right();
-		auto top = border->get_top();
-		auto bottom = border->get_bottom();
-
-		if (left.has_value() && tr->get_position().x < left.value() + 5)
-		{
-			// 水平方向撞墙
-			tr->set_x(left.value() + 5);
-			tr->get_owner_component<Normal>()->hspeed = 0;
-		}
-		else if (right.has_value() && tr->get_position().x > right.value() - 5)
-		{
-			// 水平方向撞墙
-			tr->set_x(right.value() - 5);
-			tr->get_owner_component<Normal>()->hspeed = 0;
-		}
-		if (top.has_value() && tr->get_position().y < top.value())
-		{
-			// 竖直方向撞墙
-			tr->set_y(top.value());
-			tr->get_owner_component<Normal>()->vspeed = 0;
-		}
-		else if (bottom.has_value() && tr->get_position().y > bottom.value())
-		{
-			// 竖直方向撞墙
-			tr->set_y(bottom.value());
-			tr->get_owner_component<Normal>()->vspeed = 0;
-		}
 	}
 }
 

@@ -4,16 +4,17 @@
 NameTag::NameTag(int width, int height)
 {
     auto renderer = Window::get_renderer();
-    auto texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, width, height);
-    // 设置渲染目标为纹理
-    SDL_SetRenderTarget(renderer, texture);
+    Uint8 alpha = 178;
+    Uint32 color = (alpha << 24) | (0 << 16) | (0 << 8) | 0; // ARGB格式，这里设置为纯黑色，透明度为178
+    std::vector<Uint32> pixel(width * height);
+    for (int i = 0; i < width * height; ++i)
+    {
+        pixel[i] = color;
+    }
+    auto texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
+    SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint32));
     SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-    // 填充纹理为黑色
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 178); // 黑色
-    SDL_RenderClear(renderer);
-    // 恢复默认渲染目标
-    SDL_SetRenderTarget(renderer, NULL);
-    
+
     Sprite *spr = new Sprite(texture, width, height);
     add_component(spr);
 }

@@ -1,8 +1,8 @@
-#include "UpdateSystem.h"
+#include "DeltaTimeSystem.h"
 
 #include <SDL2/SDL.h>
 
-void UpdateSystem::run(World &world)
+void DeltaTimeSystem::run(World &world)
 {
 	if (world.components_exist_of_type<AnimatedSprite>())
 	{
@@ -18,20 +18,13 @@ void UpdateSystem::run(World &world)
 	{
 		for (auto &[index, ava] : world.get_components<Avatar>())
 		{
-			update_avatar(ava, ava->get_owner_component<Transform>(), world);
+			update_avatar(ava, world);
 		}
 	}
-	if (world.components_exist_of_type<Video>())
-	{
-		for (auto &[index, vid] : world.get_components<Video>())
-		{
-			// SDL_CreateThread(UpdateSystem::update_video, "decodeThread", (void *)vid);
-			update_video(vid);
-		}
-	}
+	
 }
 
-bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
+bool DeltaTimeSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
 {
 	bool end = false;
 	auto delta_time = world.get_delta_time();
@@ -62,7 +55,7 @@ bool UpdateSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
 	return end;
 }
 
-void UpdateSystem::update_avatar(Avatar *ava, Transform *tr, World &world)
+void DeltaTimeSystem::update_avatar(Avatar *ava,World &world)
 {
 	[[likely]]
 	if (ava->animate)
@@ -78,29 +71,4 @@ void UpdateSystem::update_avatar(Avatar *ava, Transform *tr, World &world)
 	}
 }
 
-int UpdateSystem::update_video(void *vid)
-{
-	// 解码并显示视频帧
-	Video *video = (Video *)vid;
-	AVPacket packet;
-	AVFrame *frame = av_frame_alloc();
-	while (av_read_frame(video->formatContext, &packet) >= 0)
-	{
-		if (packet.stream_index == video->videoStreamIndex)
-		{
-			avcodec_send_packet(video->codecContext, &packet);
-			if (avcodec_receive_frame(video->codecContext, frame) == 0)
-			{
-				SDL_UpdateYUVTexture(video->texture, NULL,
-									 frame->data[0], frame->linesize[0],
-									 frame->data[1], frame->linesize[1],
-									 frame->data[2], frame->linesize[2]);
-				av_packet_unref(&packet);
-				break;
-			}
-		}
-		av_packet_unref(&packet);
-	}
-	av_frame_free(&frame);
-	return 0;
-}
+

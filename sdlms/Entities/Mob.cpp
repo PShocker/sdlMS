@@ -7,20 +7,23 @@
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
 #include "Components/RelativeTransform.h"
+#include "Components/RandomInput.h"
+#include "Components/LimitTransform.h"
+#include "Components/Line.h"
+#include "Components/Physic/Normal.h"
 #include "Resource/Wz.h"
 
-#include "Components/Physic/Normal.h"
-
-Mob::Mob(wz::Node *node, World *world)
+Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
 {
     if (node != nullptr)
     {
         auto mob_id = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"id"))->get();
         auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
-        auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"cy"))->get() - 1;
         auto fh = dynamic_cast<wz::Property<int> *>(node->get_child(u"fh"))->get();
-        // 从fh获取layer
-        auto layer = world->get_entitys<FootHold>().find(fh)->second->get_page();
+        auto foo = world->get_entitys<FootHold>().find(fh)->second;
+        // 从fh获取y,layer
+        auto y = foo->get_component<Line>()->get_y(x).value();
+        auto layer = foo->get_page();
 
         node = world->get_resource<Wz>().Mob->get_root()->find_from_path(mob_id + u".img");
         // 排除 link
@@ -40,7 +43,7 @@ Mob::Mob(wz::Node *node, World *world)
         }
         Transform *tr = new Transform((float)x, (float)y);
         add_component(tr);
-        world->add_component(tr, 30000 * layer + 3000);
+        world->add_component(tr, 30000 * layer + 3000 + id);
 
         if (aspr_map.size() > 0)
         {
@@ -50,8 +53,20 @@ Mob::Mob(wz::Node *node, World *world)
         }
         // 添加物理组件
         Normal *nor = new Normal();
+        nor->type = Normal::Ground;
+        add_entity(foo, 0);
         add_component(nor);
         world->add_component(nor);
+
+        // 添加自动移动组件
+        RandomInput *ran = new RandomInput();
+        add_component(ran);
+        world->add_component(ran);
+
+        // 添加移动范围
+        LimitTransform *ltr = new LimitTransform(tr, SDL_FPoint{(float)rx0, (float)rx1}, std::nullopt);
+        add_component(ltr);
+        world->add_component(ltr);
 
         // 从string.wz获取信息
         node = world->get_resource<Wz>().String->get_root()->find_from_path(u"Mob.img/" + mob_id.substr(mob_id.find_first_not_of(u'0')));
@@ -160,6 +175,23 @@ Mob::~Mob()
     delete t;
 
     auto nor = get_component<Normal>();
-    world->destroy_component(nor, false);
-    delete nor;
+    if (nor != nullptr)
+    {
+        world->destroy_component(nor, false);
+        delete nor;
+    }
+
+    auto ran = get_component<RandomInput>();
+    if (ran != nullptr)
+    {
+        world->destroy_component(ran, false);
+        delete ran;
+    }
+
+    auto ltr = get_component<LimitTransform>();
+    if (ltr != nullptr)
+    {
+        world->destroy_component(ltr, false);
+        delete ltr;
+    }
 }

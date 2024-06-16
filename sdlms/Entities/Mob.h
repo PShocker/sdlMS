@@ -8,7 +8,7 @@
 class Mob : public Entity
 {
 public:
-    Mob(wz::Node *node, World *world);
+    Mob(wz::Node *node, int id, int rx0, int rx1, World *world);
     Mob(World *world, SDL_FPoint p);
     ~Mob();
 
