@@ -231,7 +231,8 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 		{
 			auto line = fh->get_component<Line>();
 			if (line->get_y(tr->get_position().x).has_value() &&
-				line->get_y(tr->get_position().x) > tr->get_position().y &&
+				line->get_y(tr->get_position().x).value() < tr->get_position().y + 600 &&
+				line->get_y(tr->get_position().x).value() > tr->get_position().y &&
 				fh != tr->get_owner()->get_entity<FootHold>(0))
 			{
 				// 找到了可下跳的fh
