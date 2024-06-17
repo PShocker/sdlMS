@@ -23,14 +23,14 @@ Obj::Obj(wz::Node *node, int id, int layer, World *world)
 
     add_component(t);
     add_component(aspr);
-    world->add_component(t, 30000 * layer + z * 100 + id);
+    world->add_component(t, layer * 300000 + z * 100 + id);
     world->add_component(aspr);
 }
 
 Obj::~Obj()
 {
     auto world = World::get_world();
-    
+
     auto aspr = get_component<AnimatedSprite>();
     world->destroy_component(aspr, false);
     delete aspr;

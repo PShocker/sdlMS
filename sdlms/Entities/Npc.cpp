@@ -42,7 +42,7 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
         }
         Transform *tr = new Transform{(float)x, (float)y};
         add_component(tr);
-        world->add_component(tr, 30000 * layer + 3000 + id);
+        world->add_component(tr, layer * 300000 + id + 20000);
 
         if (aspr_map.size() > 0)
         {
