@@ -184,6 +184,23 @@ void World::poll_events()
 			Input::process_input_event(Input::EventType::MouseReleased, event_handler);
 		}
 		break;
+
+		#if defined(_WIN32) || defined(_WIN64)
+		case SDL_EventType::SDL_WINDOWEVENT:
+		{
+			if (event_handler.window.event == SDL_WINDOWEVENT_FOCUS_LOST)
+			{
+				SDL_PauseAudio(1);
+			}
+			else if (event_handler.window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+			{
+				SDL_PauseAudio(0);	
+			}
+		}
+		break;
+		#endif
+
+
 		}
 	}
 }
