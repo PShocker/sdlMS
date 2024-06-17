@@ -14,6 +14,6 @@ public:
 	void run(World &world) override;
 
 private:
-	bool update_animated_sprite(AnimatedSprite *aspr, World &world);
-	void update_avatar(Avatar *hvm, World &world);
+	bool update_animated_sprite(AnimatedSprite *aspr, int delta_time, World &world);
+	void update_avatar(Avatar *hvm, int delta_time, World &world);
 };

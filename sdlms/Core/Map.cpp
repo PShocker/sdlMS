@@ -56,7 +56,8 @@ void Map::load_tile(wz::Node *node, World *world)
         {
             for (auto &[key, val] : node->get_child(std::to_string(i))->get_child(u"tile")->get_children())
             {
-                Tile *tile = new Tile(val[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, world);
+                auto id = std::stoi(std::string{key.begin(), key.end()});
+                Tile *tile = new Tile(val[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, id, world);
                 world->add_entity(tile);
             }
         }

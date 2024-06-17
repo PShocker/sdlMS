@@ -7,6 +7,6 @@
 class Tile : public Entity
 {
 public:
-    Tile(wz::Node *node, std::u16string ts,int layer, World *world);
+    Tile(wz::Node *node, std::u16string ts, int layer, int id, World *world);
     ~Tile();
 };
