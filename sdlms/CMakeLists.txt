@@ -1,6 +1,6 @@
 
-set(FFMPEG_INCLUDE "D:\\VScode\\Maplestory\\FFMPEG\\include")
-set(FFMPEG_LIB "D:\\VScode\\Maplestory\\FFMPEG\\lib")
+set(FFMPEG_INCLUDE "E:\\mygame\\Maple\\sdlMS2\\FFMPEG\\include")
+set(FFMPEG_LIB "E:\\mygame\\Maple\\sdlMS2\\FFMPEG\\lib")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -36,7 +36,14 @@ if(WIN32)
     # 链接 Windows平台库(FFMPEG)
     target_link_libraries(sdlMS PRIVATE bcrypt ws2_32 Secur32 Strmiids)
     # 链接 FFMPEG依赖库,wzlib里面已经包含了zlib库
-    target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        # 使用微软编译器
+        add_definitions(-DNOMINMAX)
+    else()
+        # 使用 Mingw 编译器
+        target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5)
+    endif()
+    
     set_target_properties(sdlMS PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     )
