@@ -192,7 +192,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 			}
 			// 修改人物z值
 			world.destroy_component(tr, false);
-			world.add_component(tr, lad->page * 30000 + 4000);
+			world.add_component(tr, lad->page * 300000 + 40000);
 
 			nor->get_owner()->add_entity(lad, 0);
 			nor->vspeed = 0;
@@ -271,7 +271,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 				nor->vspeed = -140;
 				// 修改人物z值
 				world.destroy_component(tr, false);
-				world.add_component(tr, 7 * 30000 + 4000);
+				world.add_component(tr, 7 * 300000 + 40000);
 				return true;
 			}
 		}
@@ -490,7 +490,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 
 				// 修改人物z值
 				world.destroy_component(tr, false);
-				world.add_component(tr, 7 * 30000 + 4000);
+				world.add_component(tr, 7 * 300000 + 40000);
 
 				nor->type = Normal::Air;
 				if (nor->get_owner<Character>() != nullptr)
@@ -731,17 +731,17 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					world.destroy_component(tr, false);
 					if (nor->get_owner<Character>() != nullptr)
 					{
-						world.add_component(tr, fh->page * 30000 + 6000);
+						world.add_component(tr, fh->page * 300000 + 40000);
 					}
 					else if (nor->get_owner<Mob>() != nullptr)
 					{
 						auto load_id = tr->get_id() % 1000;
-						world.add_component(tr, fh->page * 30000 + 4000 + load_id);
+						world.add_component(tr, fh->page * 300000 + load_id + 30000);
 					}
 					else if (nor->get_owner<Npc>() != nullptr)
 					{
 						auto load_id = tr->get_id() % 1000;
-						world.add_component(tr, fh->page * 30000 + 5000 + load_id);
+						world.add_component(tr, fh->page * 300000 + load_id + 20000);
 					}
 					break;
 				}

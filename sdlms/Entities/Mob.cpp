@@ -35,7 +35,7 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
 
         Transform *tr = new Transform((float)x, (float)y);
         add_component(tr);
-        world->add_component(tr, 30000 * layer + 3000 + id);
+        world->add_component(tr, layer * 300000 + id + 30000);
 
         // 添加物理组件
         Normal *nor = new Normal();
