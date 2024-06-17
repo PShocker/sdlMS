@@ -18,4 +18,5 @@ public:
     int zmass;
     int prev;
     int next;
+    bool find_below;
 };

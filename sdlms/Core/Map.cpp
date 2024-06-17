@@ -108,6 +108,30 @@ void Map::load_foothold(wz::Node *node, World *world)
                 }
             }
         }
+
+        //find each foothold's below
+        auto footholds = world->get_entitys<FootHold>();
+        for (auto &[key, val] : footholds)
+        {
+            auto line1 = val->get_component<Line>();
+            if(line1->get_min_x() == line1->get_max_x())
+                continue;
+            for (auto &it : footholds)
+            {
+                if (it.second == val)
+                    continue;
+                auto line2 = it.second->get_component<Line>();
+                if ((line2->get_min_x() < line1->get_max_x() 
+                && line2->get_max_x() > line1->get_min_x()) 
+                && line2->get_max_y() > line1->get_max_y() 
+                )
+                {
+                   val->find_below = true;
+                   break;
+                }
+            }
+        }
+
     }
 }
 
