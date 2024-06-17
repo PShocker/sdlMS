@@ -4,13 +4,15 @@
 
 void DeltaTimeSystem::run(World &world)
 {
+	auto delta_time = world.get_delta_time();
+
 	if (world.components_exist_of_type<AnimatedSprite>())
 	{
 		for (auto &[index, aspr] : world.get_components<AnimatedSprite>())
 		{
 			if (aspr->get_owner() != nullptr)
 			{
-				update_animated_sprite(aspr, world);
+				update_animated_sprite(aspr, delta_time, world);
 			}
 		}
 	}
@@ -18,16 +20,14 @@ void DeltaTimeSystem::run(World &world)
 	{
 		for (auto &[index, ava] : world.get_components<Avatar>())
 		{
-			update_avatar(ava, world);
+			update_avatar(ava, delta_time, world);
 		}
 	}
-	
 }
 
-bool DeltaTimeSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
+bool DeltaTimeSystem::update_animated_sprite(AnimatedSprite *aspr, int delta_time, World &world)
 {
 	bool end = false;
-	auto delta_time = world.get_delta_time();
 	aspr->add_anim_time(delta_time);
 	if (aspr->get_anim_time() >= aspr->get_anim_delay())
 	{
@@ -55,12 +55,11 @@ bool DeltaTimeSystem::update_animated_sprite(AnimatedSprite *aspr, World &world)
 	return end;
 }
 
-void DeltaTimeSystem::update_avatar(Avatar *ava,World &world)
+void DeltaTimeSystem::update_avatar(Avatar *ava, int delta_time, World &world)
 {
 	[[likely]]
 	if (ava->animate)
 	{
-		auto delta_time = world.get_delta_time();
 		auto delay = ava->stance_delays[ava->act][ava->act_index];
 		ava->act_time += delta_time;
 		if (ava->act_time >= delay)
@@ -70,5 +69,3 @@ void DeltaTimeSystem::update_avatar(Avatar *ava,World &world)
 		}
 	}
 }
-
-
