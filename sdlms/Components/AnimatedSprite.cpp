@@ -1,6 +1,4 @@
 #include "AnimatedSprite.h"
-#include <ranges>
-#include <algorithm>
 
 AnimatedSprite::AnimatedSprite(wz::Node *node)
 {
@@ -41,19 +39,6 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
     anim_size = sprites.size();
     anim_index = 0;
     anim_time = 0;
-}
-
-void AnimatedSprite::advance_anim()
-{
-    if (anim_index == anim_size - 1 && z)
-    {
-        std::ranges::reverse(sprites);
-        anim_index = 1;
-    }
-    else
-    {
-        anim_index = (anim_index + 1) % anim_size;
-    }
 }
 
 AnimatedSprite::~AnimatedSprite()

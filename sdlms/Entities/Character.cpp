@@ -59,6 +59,35 @@ Character::Character(World *world, SDL_FPoint p)
     }
 }
 
+void Character::switch_act(uint8_t action)
+{
+    auto ava = get_component<Avatar>();
+    if (action != ava->act)
+    {
+        ava->act_index = 0;
+        ava->act_time = 0;
+        ava->act = action;
+    }
+}
+
+void Character::stop_animate()
+{
+    [[likely]]
+    if (get_component<Avatar>() != nullptr)
+    {
+        get_component<Avatar>()->animate = false;
+    }
+}
+
+void Character::start_animate()
+{
+    [[likely]]
+    if (get_component<Avatar>() != nullptr)
+    {
+        get_component<Avatar>()->animate = true;
+    }
+}
+
 Character::~Character()
 {
     auto world = World::get_world();

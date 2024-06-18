@@ -176,19 +176,19 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 
 			if (nor->get_owner<Character>() != nullptr)
 			{
-				auto ava = nor->get_owner_component<Avatar>();
+				auto cha = nor->get_owner<Character>();
 				// 判断爬的是梯子还是绳子
 				if (lad->l == 1)
 				{
 					// 梯子
-					ava->switch_act(Avatar::ACTION::LADDER);
+					cha->switch_act(Avatar::ACTION::LADDER);
 				}
 				else
 				{
 					// 绳子
-					ava->switch_act(Avatar::ACTION::ROPE);
+					cha->switch_act(Avatar::ACTION::ROPE);
 				}
-				ava->animate = false;
+				cha->stop_animate();
 			}
 			// 修改人物z值
 			world.destroy_component(tr, false);
@@ -210,8 +210,7 @@ bool PhysicSystem::want_prone(Normal *nor, World &world)
 	{
 		if (nor->get_owner<Character>() != nullptr)
 		{
-			auto ava = nor->get_owner_component<Avatar>();
-			ava->switch_act(Avatar::ACTION::PRONE);
+			nor->get_owner<Character>()->switch_act(Avatar::ACTION::PRONE);
 		}
 		else if (nor->get_owner<Mob>() != nullptr)
 		{
@@ -262,7 +261,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 				nor->type = Normal::Air;
 				if (nor->get_owner<Character>() != nullptr)
 				{
-					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+					nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
 				}
 				else if (nor->get_owner<Mob>() != nullptr)
 				{
@@ -286,8 +285,7 @@ bool PhysicSystem::want_stand(Normal *nor, World &world)
 		// 还需要进行alert状态判断
 		if (nor->get_owner<Character>() != nullptr)
 		{
-			auto ava = nor->get_owner_component<Avatar>();
-			ava->switch_act(Avatar::ACTION::STAND1);
+			nor->get_owner<Character>()->switch_act(Avatar::ACTION::STAND1);
 		}
 		else if (nor->get_owner<Mob>() != nullptr)
 		{
@@ -309,8 +307,7 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 
 			if (nor->get_owner<Character>() != nullptr)
 			{
-				// 修改纸娃娃状态
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
 			}
 			else if (nor->get_owner<Mob>() != nullptr)
 			{
@@ -334,8 +331,8 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 			if (nor->get_owner<Character>() != nullptr)
 			{
 				// 修改纸娃娃状态
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-				nor->get_owner_component<Avatar>()->animate = true;
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->start_animate();
 			}
 			else if (nor->get_owner<Mob>() != nullptr)
 			{
@@ -356,30 +353,30 @@ bool PhysicSystem::want_attack(Transform *tr, Normal *nor, World &world)
 			// 生成0到5之间的随机数
 			// int randomNum = std::rand() % 6;
 			int randomNum = 4;
-			auto ava = nor->get_owner_component<Avatar>();
+			auto cha = nor->get_owner<Character>();
 			// ava->switch_act(Avatar::ACTION::STABO1);
 			switch (randomNum)
 			{
 			case 0:
-				ava->switch_act(Avatar::ACTION::STABO1);
+				cha->switch_act(Avatar::ACTION::STABO1);
 				break;
 			case 1:
-				ava->switch_act(Avatar::ACTION::STABO2);
+				cha->switch_act(Avatar::ACTION::STABO2);
 				break;
 			case 2:
-				ava->switch_act(Avatar::ACTION::STABOF);
+				cha->switch_act(Avatar::ACTION::STABOF);
 				break;
 			case 3:
-				ava->switch_act(Avatar::ACTION::STABT1);
+				cha->switch_act(Avatar::ACTION::STABT1);
 				break;
 			case 4:
-				ava->switch_act(Avatar::ACTION::STABT2);
+				cha->switch_act(Avatar::ACTION::STABT2);
 				break;
 			case 5:
-				ava->switch_act(Avatar::ACTION::STABTF);
+				cha->switch_act(Avatar::ACTION::STABTF);
 				break;
 			default:
-				ava->switch_act(Avatar::ACTION::STABO1);
+				cha->switch_act(Avatar::ACTION::STABO1);
 				break;
 			}
 		}
@@ -496,7 +493,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 				if (nor->get_owner<Character>() != nullptr)
 				{
 					// 修改纸娃娃状态
-					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+					nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
 				}
 				else if (nor->get_owner<Mob>() != nullptr)
 				{
@@ -525,7 +522,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		}
 		if (nor->get_owner<Character>() != nullptr)
 		{
-			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::WALK1);
+			nor->get_owner<Character>()->switch_act(Avatar::ACTION::WALK1);
 		}
 		else if (nor->get_owner<Mob>() != nullptr)
 		{
@@ -586,7 +583,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			nor->type = Normal::Air;
 			if (nor->get_owner<Character>() != nullptr)
 			{
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
 			}
 			else if (nor->get_owner<Mob>() != nullptr)
 			{
@@ -612,7 +609,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 				nor->type = Normal::Air;
 				if (nor->get_owner<Character>() != nullptr)
 				{
-					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+					nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
 				}
 				else if (nor->get_owner<Mob>() != nullptr)
 				{
@@ -819,8 +816,8 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 			nor->type = Normal::Air;
 			if (nor->get_owner<Character>() != nullptr)
 			{
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-				nor->get_owner_component<Avatar>()->animate = true;
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->start_animate();
 			}
 			nor->vspeed = 0;
 		}
@@ -829,7 +826,7 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 			// 绳子顶端封住
 			if (nor->get_owner<Character>() != nullptr)
 			{
-				nor->get_owner_component<Avatar>()->animate = false;
+				nor->get_owner<Character>()->stop_animate();
 			}
 		}
 	}
@@ -839,8 +836,8 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 		nor->type = Normal::Air;
 		if (nor->get_owner<Character>() != nullptr)
 		{
-			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-			nor->get_owner_component<Avatar>()->animate = true;
+			nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+			nor->get_owner<Character>()->start_animate();
 		}
 		nor->vspeed = 0;
 	}
@@ -850,11 +847,11 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 		{
 			if (nor->vspeed != 0)
 			{
-				nor->get_owner_component<Avatar>()->animate = true;
+				nor->get_owner<Character>()->start_animate();
 			}
 			else
 			{
-				nor->get_owner_component<Avatar>()->animate = false;
+				nor->get_owner<Character>()->stop_animate();
 			}
 		}
 		tr->set_y(y);
