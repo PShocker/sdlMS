@@ -46,8 +46,25 @@ Sprite::Sprite(wz::Node *node)
     a1 = 255;
     if (canvas->get_child(u"a0") != nullptr && canvas->get_child(u"a1") != nullptr)
     {
-        a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
-        a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
+        if (canvas->get_child(u"a0")->type == wz::Type::Int)
+        {
+
+            a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
+        }
+        else
+        {
+            auto a0_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"a0"))->get();
+            a0 = std::stoi(std::string{a0_str.begin(), a0_str.end()});
+        }
+        if (canvas->get_child(u"a1")->type == wz::Type::Int)
+        {
+            a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
+        }
+        else
+        {
+            auto a1_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"a1"))->get();
+            a1 = std::stoi(std::string{a1_str.begin(), a1_str.end()});
+        }
     }
 
     z = 0;
