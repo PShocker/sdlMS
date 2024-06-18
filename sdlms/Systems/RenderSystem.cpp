@@ -74,7 +74,7 @@ void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
 
 void RenderSystem::render_animated_sprite(Transform *tr, AnimatedSprite *aspr, World &world)
 {
-	auto spr = aspr->sprites[aspr->anim_index];
+	auto spr = aspr->get_current_sprite();
 	render_sprite(tr, spr, world);
 }
 

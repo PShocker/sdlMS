@@ -12,7 +12,9 @@ public:
     Mob(World *world, SDL_FPoint p);
     ~Mob();
 
-    void switch_act(const std::u16string &a);
+    void switch_act(const std::u16string &action);
+    void stop_animate();
+    void start_animate();
 
 private:
     std::unordered_map<std::u16string, AnimatedSprite *> aspr_map;

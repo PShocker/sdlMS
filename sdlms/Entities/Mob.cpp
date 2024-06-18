@@ -130,19 +130,29 @@ Mob::Mob(World *world, SDL_FPoint p)
     world->add_component(tr, 3000000);
 }
 
-void Mob::switch_act(const std::u16string &a)
+void Mob::switch_act(const std::u16string &action)
 {
-    if (a != act)
+    if (action != act)
     {
-        if (aspr_map.contains(a))
+        if (aspr_map.contains(action))
         {
-            auto aspr = aspr_map[a];
+            auto aspr = aspr_map[action];
             aspr->set_anim_index(0);
             aspr->set_anim_time(0);
-            act = a;
+            act = action;
             add_component(aspr);
         }
     }
+}
+
+void Mob::start_animate()
+{
+    get_component<AnimatedSprite>()->set_animate(true);
+}
+
+void Mob::stop_animate()
+{
+    get_component<AnimatedSprite>()->set_animate(false);
 }
 
 Mob::~Mob()

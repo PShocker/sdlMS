@@ -1,5 +1,6 @@
 #include "DeltaTimeSystem.h"
-
+#include <ranges>
+#include <algorithm>
 #include <SDL2/SDL.h>
 
 void DeltaTimeSystem::run(World &world)
@@ -28,29 +29,41 @@ void DeltaTimeSystem::run(World &world)
 bool DeltaTimeSystem::update_animated_sprite(AnimatedSprite *aspr, int delta_time, World &world)
 {
 	bool end = false;
-	aspr->add_anim_time(delta_time);
-	if (aspr->get_anim_time() >= aspr->get_anim_delay())
+	[[likely]]
+	if (aspr->get_animate())
 	{
-		aspr->advance_anim();
-		aspr->set_anim_time(0);
-		end = true;
-	}
-	// 透明度处理
-	auto a0 = aspr->get_current_sprite()->a0;
-	auto a1 = aspr->get_current_sprite()->a1;
-	[[unlikely]]
-	if (a0 != a1)
-	{
-		auto alpha = 255;
-		if (a0 <= a1)
+		aspr->add_anim_time(delta_time);
+		if (aspr->get_anim_time() >= aspr->get_anim_delay())
 		{
-			alpha = (float)a0 + (float)(a1 - a0) / (float)aspr->get_current_sprite()->delay * (float)aspr->get_anim_time();
+			if (aspr->get_anim_index() == aspr->get_anim_size() - 1 && aspr->get_zigzag())
+			{
+				std::ranges::reverse(aspr->get_sprites());
+				aspr->set_anim_index(1);
+			}
+			else
+			{
+				aspr->set_anim_index((aspr->get_anim_index() + 1) % aspr->get_anim_size());
+			}
+			aspr->set_anim_time(0);
+			end = true;
 		}
-		else
+		// 透明度处理
+		auto a0 = aspr->get_current_sprite()->a0;
+		auto a1 = aspr->get_current_sprite()->a1;
+		[[unlikely]]
+		if (a0 != a1)
 		{
-			alpha = (float)a0 - (float)(a0 - a1) / (float)aspr->get_current_sprite()->delay * (float)aspr->get_anim_time();
+			auto alpha = 255;
+			if (a0 <= a1)
+			{
+				alpha = (float)a0 + (float)(a1 - a0) / (float)aspr->get_current_sprite()->delay * (float)aspr->get_anim_time();
+			}
+			else
+			{
+				alpha = (float)a0 - (float)(a0 - a1) / (float)aspr->get_current_sprite()->delay * (float)aspr->get_anim_time();
+			}
+			SDL_SetTextureAlphaMod(aspr->get_current_sprite()->texture, alpha);
 		}
-		SDL_SetTextureAlphaMod(aspr->get_current_sprite()->texture, alpha);
 	}
 	return end;
 }

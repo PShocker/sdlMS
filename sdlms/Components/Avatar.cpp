@@ -96,16 +96,6 @@ void Avatar::init(wz::Node *character_node)
     }
 }
 
-void Avatar::switch_act(uint8_t a)
-{
-    if (a != act)
-    {
-        act_index = 0;
-        act_time = 0;
-        act = a;
-    }
-}
-
 void Avatar::add_body(const std::u16string &val)
 {
     auto body_node = character_node->find_from_path(val + u".img");

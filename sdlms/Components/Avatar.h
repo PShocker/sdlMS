@@ -212,5 +212,4 @@ public:
     static Avatar *load();
     static inline bool inited = false;
     static void init(wz::Node *character_node);
-    void switch_act(uint8_t a);
 };
