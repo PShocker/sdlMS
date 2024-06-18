@@ -36,111 +36,6 @@
 #include "Configuration.h"
 #include "Core/EntityBuilder/EB_Cursor.h"
 
-namespace ms
-{
-    Error init()
-    {
-        /* if (Error error = Singleton<Session>::get().init())
-            return error; */
-
-        UI::get().init();
-
-        return Error::NONE;
-    }
-
-    void update()
-    {
-        UI::get().update();
-    }
-
-    void draw(float alpha)
-    {
-        UI::get().draw(alpha);
-    }
-
-    bool running()
-    {
-        return UI::get().not_quitted();
-    }
-
-    void loop()
-    {
-        Timer::get().start();
-
-        int64_t timestep = Constants::TIMESTEP * 1000;
-        int64_t accumulator = timestep;
-
-        int64_t period = 0;
-        int32_t samples = 0;
-
-        bool show_fps = Configuration::get().get_show_fps();
-
-        while (running())
-        {
-            int64_t elapsed = Timer::get().stop();
-
-            // Update game with constant timestep as many times as possible.
-            for (accumulator += elapsed; accumulator >= timestep; accumulator -= timestep)
-                update();
-
-            // Draw the game. Interpolate to account for remaining time.
-            float alpha = static_cast<float>(accumulator) / timestep;
-            draw(alpha);
-
-            if (show_fps)
-            {
-                if (samples < 100)
-                {
-                    period += elapsed;
-                    samples++;
-                }
-                else if (period)
-                {
-                    int64_t fps = (samples * 1000000) / period;
-
-                    std::cout << "FPS: " << fps << std::endl;
-
-                    period = 0;
-                    samples = 0;
-                }
-
-
-
-            }
-        }
-    }
-
-    void start()
-    {
-        // Initialize and check for errors
-        if (Error error = init())
-        {
-            const char *message = error.get_message();
-            const char *args = error.get_args();
-            bool can_retry = error.can_retry();
-
-            std::cout << "Error: " << message << std::endl;
-
-            if (args && args[0])
-                std::cout << "Message: " << args << std::endl;
-
-            if (can_retry)
-                std::cout << "Enter 'retry' to try again." << std::endl;
-
-            std::string command;
-            std::cin >> command;
-
-            if (can_retry && command == "retry")
-                start();
-        }
-        else
-        {
-            loop();
-        }
-    }
-
-}
-
 int width = 800;
 int height = 600;
 
@@ -173,7 +68,7 @@ int main(int argc, char *argv[])
 #else
     Wz *wz = new Wz("./Data/");
     FreeType::init("./Data/");
-    SDL_ShowCursor(SDL_DISABLE);
+    
 #endif
     world.add_resource(wz);
 
@@ -214,6 +109,8 @@ int main(int argc, char *argv[])
 
     Entity* cursor = EB_Cursor::BuildEntity(&world);
     world.add_entity(cursor);
+
+    SDL_ShowCursor(SDL_DISABLE);
 #endif
    
     // {
