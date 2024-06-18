@@ -72,20 +72,12 @@ void Character::switch_act(uint8_t action)
 
 void Character::stop_animate()
 {
-    [[likely]]
-    if (get_component<Avatar>() != nullptr)
-    {
-        get_component<Avatar>()->animate = false;
-    }
+    get_component<Avatar>()->animate = false;
 }
 
 void Character::start_animate()
 {
-    [[likely]]
-    if (get_component<Avatar>() != nullptr)
-    {
-        get_component<Avatar>()->animate = true;
-    }
+    get_component<Avatar>()->animate = true;
 }
 
 Character::~Character()
