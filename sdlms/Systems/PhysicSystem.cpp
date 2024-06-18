@@ -291,6 +291,10 @@ bool PhysicSystem::want_stand(Normal *nor, World &world)
 		{
 			nor->get_owner<Mob>()->switch_act(u"stand");
 		}
+		else if (nor->get_owner<Npc>() != nullptr)
+		{
+			nor->get_owner<Npc>()->switch_act(u"stand");
+		}
 		return true;
 	}
 	return false;
@@ -403,7 +407,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					// id<0表示冷却的por
 					continue;
 				}
-				auto pla_pos = tr->get_position() + SDL_FPoint{0, -5};
+				auto pla_pos = tr->get_position();
 				auto por_pos = p->get_component<Transform>();
 				auto por_spr = p->get_component<AnimatedSprite>();
 				Sprite *spr = nullptr;
@@ -417,18 +421,17 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 				}
 				if (spr != nullptr)
 				{
-					auto rect = SDL_FRect{por_pos->get_position().x - spr->origin.x,
-										  por_pos->get_position().y - spr->origin.y,
-										  (float)spr->get_width(),
-										  (float)spr->get_height()};
-					if (SDL_PointInFRect(&pla_pos, &rect))
+					auto por_x = por_pos->get_position().x - spr->origin.x;
+					auto por_y = por_pos->get_position().y - spr->origin.y;
+					if (pla_pos.x == std::clamp(pla_pos.x, por_x + 5, por_x + spr->get_width()) &&
+						pla_pos.y == std::clamp(pla_pos.y, por_y + spr->get_height() - 10, por_y + spr->get_height() + 10))
 					{
 						por = p;
 						break;
 					}
 				}
 			}
-			if (por != nullptr)
+			if (por != nullptr && por->tm != 999999999)
 			{
 				// 切换地图
 				auto tn = por->tn;
@@ -443,7 +446,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 						if (tn == p->pn)
 						{
 							por = p;
-							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -50});
+							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -10});
 							// 调整相机位置
 							auto camera = world.get_components<Camera>().find(0)->second;
 							camera->set_x(tr->get_position().x - camera->get_w() / 2);
@@ -527,6 +530,10 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		else if (nor->get_owner<Mob>() != nullptr)
 		{
 			nor->get_owner<Mob>()->switch_act(u"move");
+		}
+		else if (nor->get_owner<Npc>() != nullptr)
+		{
+			nor->get_owner<Npc>()->switch_act(u"move");
 		}
 	}
 	else
@@ -752,7 +759,11 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
 			auto line = fh->get_component<Line>();
-			if (line->get_n().x < line->get_m().x && line->get_n().y == line->get_m().y)
+			if (line->get_n().y == line->get_m().y &&
+				line->get_n().x < line->get_m().x &&
+				tr->get_position().y > line->get_m().y &&
+				(fh->zmass == 0 ||
+				 fh->zmass == foo->zmass))
 			{
 				// 天花板
 				auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());

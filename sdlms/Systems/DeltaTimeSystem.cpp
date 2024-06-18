@@ -64,6 +64,10 @@ bool DeltaTimeSystem::update_animated_sprite(AnimatedSprite *aspr, int delta_tim
 			}
 			SDL_SetTextureAlphaMod(aspr->get_current_sprite()->texture, alpha);
 		}
+		else
+		{
+			SDL_SetTextureAlphaMod(aspr->get_current_sprite()->texture, a0);
+		}
 	}
 	return end;
 }

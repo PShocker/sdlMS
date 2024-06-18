@@ -18,13 +18,13 @@ void RenderSystem::run(World &world)
 			{
 				render_avatar_sprite(tr, tr->get_owner_component<Avatar>(), world);
 			}
-			else if (tr->get_owner_component<Sprite>() != nullptr)
-			{
-				render_sprite(tr, tr->get_owner_component<Sprite>(), world);
-			}
 			else if (tr->get_owner_component<AnimatedSprite>() != nullptr)
 			{
 				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
+			}
+			else if (tr->get_owner_component<Sprite>() != nullptr)
+			{
+				render_sprite(tr, tr->get_owner_component<Sprite>(), world);
 			}
 			else if (tr->get_owner_component<Video>() != nullptr)
 			{

@@ -47,6 +47,7 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
         if (aspr_map.size() > 0)
         {
             // 默认显示npc第一个状态
+            act = aspr_map.begin()->first;
             auto aspr = aspr_map.begin()->second;
             add_component(aspr);
         }
@@ -102,6 +103,31 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
             }
         }
     }
+}
+
+void Npc::switch_act(const std::u16string &action)
+{
+    if (action != act)
+    {
+        if (aspr_map.contains(action))
+        {
+            auto aspr = aspr_map[action];
+            aspr->set_anim_index(0);
+            aspr->set_anim_time(0);
+            act = action;
+            add_component(aspr);
+        }
+    }
+}
+
+void Npc::start_animate()
+{
+    get_component<AnimatedSprite>()->set_animate(true);
+}
+
+void Npc::stop_animate()
+{
+    get_component<AnimatedSprite>()->set_animate(false);
 }
 
 Npc::~Npc()

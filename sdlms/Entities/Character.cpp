@@ -22,7 +22,7 @@ Character::Character(World *world, SDL_FPoint p)
     ava->add_face(u"00020000");
     ava->add_hairs(u"00030000");
     ava->add_shoes(u"01070002");
-    ava->add_weapon(u"01442028");
+    ava->add_weapon(u"01302009");
 
     ava->add_hand(u"00002006");
     ava->add_lHand(u"00002006");
