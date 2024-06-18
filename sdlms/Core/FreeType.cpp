@@ -1,25 +1,15 @@
 #include "FreeType.h"
 
-#ifdef __ANDROID__
-#define __USE_BUF__
-#endif
-
-#ifdef __USE_BUF__
-#include "Core/File.h"
-#endif
-
-void FreeType::init()
+void FreeType::init(const std::string &filename_prefix)
 {
     library = new FT_Library{};
     FT_Init_FreeType(library);
     // 加载字体文件
     face = new FT_Face{};
-#ifdef __USE_BUF__
-    FT_New_Memory_Face(*library, File::buffer("simsun.ttc"), File::size("simsun.ttc"), 0, face);
-#elif defined __WIN32__
+#ifdef __WIN32__
     FT_New_Face(*library, "C:/Windows/Fonts/simsun.ttc", 0, face);
 #else
-    FT_New_Face(*library, "Data/simsun.ttc", 0, face);
+    FT_New_Face(*library, (filename_prefix + "simsun.ttc").c_str(), 0, face);
 #endif
     FT_Select_Charmap(*face, FT_ENCODING_UNICODE);
     // 设置字体大小18
@@ -27,11 +17,15 @@ void FreeType::init()
     return;
 }
 
-Sprite *FreeType::str(const std::u16string &s, int font_size)
+void FreeType::size(int size)
+{
+    FT_Set_Pixel_Sizes(*face, 0, size);
+}
+
+Sprite *FreeType::str(const std::u16string &s, SDL_Color color)
 {
     SDL_Renderer *renderer = Window::get_renderer();
 
-    FT_Set_Pixel_Sizes(*face, 0, font_size);
     FT_GlyphSlot glyph_slot = (*face)->glyph;
     // 计算每个字符的位置和大小
     int width = 0;
@@ -75,10 +69,10 @@ Sprite *FreeType::str(const std::u16string &s, int font_size)
                 }
                 else
                 {
-                    argb_data[(y * bitmap.width + x) * 4] = 0;       // B
-                    argb_data[(y * bitmap.width + x) * 4 + 1] = 255; // G
-                    argb_data[(y * bitmap.width + x) * 4 + 2] = 255; // R
-                    argb_data[(y * bitmap.width + x) * 4 + 3] = 255; // A
+                    argb_data[(y * bitmap.width + x) * 4] = color.b;     // B
+                    argb_data[(y * bitmap.width + x) * 4 + 1] = color.g; // G
+                    argb_data[(y * bitmap.width + x) * 4 + 2] = color.r; // R
+                    argb_data[(y * bitmap.width + x) * 4 + 3] = color.a; // A
                 }
             }
         }

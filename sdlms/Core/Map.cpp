@@ -4,6 +4,7 @@
 #include "Entities/BackGround.h"
 #include "Entities/FootHold.h"
 #include "Entities/Npc.h"
+#include "Entities/Mob.h"
 #include "Entities/Border.h"
 #include "Entities/LadderRope.h"
 #include "Entities/Portal.h"
@@ -55,7 +56,8 @@ void Map::load_tile(wz::Node *node, World *world)
         {
             for (auto &[key, val] : node->get_child(std::to_string(i))->get_child(u"tile")->get_children())
             {
-                Tile *tile = new Tile(val[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, world);
+                auto id = std::stoi(std::string{key.begin(), key.end()});
+                Tile *tile = new Tile(val[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, id, world);
                 world->add_entity(tile);
             }
         }
@@ -118,10 +120,20 @@ void Map::load_life(wz::Node *node, World *world)
         for (auto &[key, val] : node->get_children())
         {
             auto type = dynamic_cast<wz::Property<wz::wzstring> *>(val[0]->get_child(u"type"))->get();
+            auto id = std::stoi(std::string{key.begin(), key.end()});
             if (type == u"n")
             {
-                auto npc = new Npc(val[0], world);
+                auto rx0 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx0"))->get();
+                auto rx1 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx1"))->get();
+                auto npc = new Npc(val[0], id, rx0, rx1, world);
                 world->add_entity(npc);
+            }
+            else if (type == u"m")
+            {
+                auto rx0 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx0"))->get();
+                auto rx1 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx1"))->get();
+                auto mob = new Mob(val[0], id, rx0, rx1, world);
+                world->add_entity(mob);
             }
         }
     }
@@ -184,6 +196,7 @@ void Map::clean_up(World *world)
     world->clear_entity<BackGround>();
     world->clear_entity<FootHold>();
     world->clear_entity<Npc>();
+    world->clear_entity<Mob>();
     world->clear_entity<Border>();
     world->clear_entity<LadderRope>();
     world->clear_entity<Portal>();

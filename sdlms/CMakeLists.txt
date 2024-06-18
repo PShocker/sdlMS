@@ -3,8 +3,8 @@ project(sdlMS)
 
 set(CMAKE_CXX_STANDARD 20)
 
-set(FFMPEG_INCLUDE "C:/FFMPEG-WIN/include")
-set(FFMPEG_LIB "C:/FFMPEG-WIN/lib")
+set(FFMPEG_INCLUDE "C:/FFMPEG/include")
+set(FFMPEG_LIB "C:/FFMPEG/lib")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -14,6 +14,7 @@ include_directories(
     ${FFMPEG_INCLUDE}
 )
 
+set(wzlibcpp ${PROJECT_SOURCE_DIR}/3rdparty/wzlibcpp)
 include_directories(
     ${wzlibcpp}
     ${wzlibcpp}/include
@@ -24,7 +25,7 @@ link_directories(
     ${FFMPEG_LIB}
 )
 
-file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/**/*.cpp)
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 if(WIN32)
     add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
@@ -39,7 +40,14 @@ if(WIN32)
     # 链接 Windows平台库(FFMPEG)
     target_link_libraries(sdlMS PRIVATE bcrypt ws2_32 Secur32 Strmiids)
     # 链接 FFMPEG依赖库,wzlib里面已经包含了zlib库
-    target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5)
+    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+        # 使用微软编译器
+        add_definitions(-DNOMINMAX)
+    else()
+        # 使用 Mingw 编译器
+        target_link_libraries(sdlMS PRIVATE bz2-1 iconv-2 lzma-5)
+    endif()
+    
     set_target_properties(sdlMS PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     )
@@ -95,4 +103,36 @@ if(ANDROID)
     target_link_libraries(main avformat avdevice avcodec avutil swscale avfilter swresample -Wl,-Bsymbolic)
     # freetype
     target_link_libraries(main freetype)
+endif()
+
+if (APPLE)
+    # Find packages
+    find_library(COREMEDIA_FRAMEWORK CoreMedia)
+    find_library(VIDEOTOOLBOX_FRAMEWORK VideoToolbox)
+    find_library(SECURITY_FRAMEWORK Security)
+
+    add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
+
+    # 将 SDL2 库链接到可执行文件中
+    target_link_libraries(sdlMS PRIVATE SDL2-static SDL2main)
+
+    # 链接 wzlib 库
+    target_link_libraries(sdlMS PRIVATE wzlib)
+    # 链接 FFMPEG库
+    target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
+    # freetype
+    target_link_libraries(sdlMS PRIVATE freetype)
+
+    # Link frameworks
+    target_link_libraries(
+        sdlMS
+        PRIVATE
+        ${COREMEDIA_FRAMEWORK}
+        ${VIDEOTOOLBOX_FRAMEWORK}
+        ${SECURITY_FRAMEWORK}
+    )
+
+    set_target_properties(sdlMS PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    )
 endif()

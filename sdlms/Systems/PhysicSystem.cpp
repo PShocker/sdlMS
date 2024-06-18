@@ -1,4 +1,3 @@
-#include <ranges>
 #include <utility>
 #include <algorithm>
 
@@ -7,8 +6,8 @@
 #include "Entities/LadderRope.h"
 #include "Entities/Character.h"
 #include "Entities/Mob.h"
+#include "Entities/Npc.h"
 #include "Entities/Portal.h"
-#include "Entities/Border.h"
 #include "Entities/Timer.h"
 #include "Components/Line.h"
 #include "Components/Avatar.h"
@@ -77,6 +76,12 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		{
 			break;
 		}
+		// 攻击
+		[[unlikely]]
+		if (want_attack(tr, nor, world))
+		{
+			break;
+		}
 		// 地面移动判断
 		[[unlikely]]
 		if (!walk(tr, nor, world, delta_time))
@@ -109,7 +114,6 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		climb(tr, nor, delta_time);
 		break;
 	}
-	limit(tr, world);
 }
 
 bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
@@ -170,25 +174,25 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 			tr->set_x(line->get_m().x);
 			tr->set_y(std::clamp(tr->get_position().y, line->get_min_y(), line->get_max_y()));
 
-			if (nor->get_owner_component<Avatar>() != nullptr)
+			if (nor->get_owner<Character>() != nullptr)
 			{
-				auto ava = nor->get_owner_component<Avatar>();
+				auto cha = nor->get_owner<Character>();
 				// 判断爬的是梯子还是绳子
 				if (lad->l == 1)
 				{
 					// 梯子
-					ava->switch_act(Avatar::ACTION::LADDER);
+					cha->switch_act(Avatar::ACTION::LADDER);
 				}
 				else
 				{
 					// 绳子
-					ava->switch_act(Avatar::ACTION::ROPE);
+					cha->switch_act(Avatar::ACTION::ROPE);
 				}
-				ava->animate = false;
+				cha->stop_animate();
 			}
 			// 修改人物z值
 			world.destroy_component(tr, false);
-			world.add_component(tr, lad->page * 30000 + 4000);
+			world.add_component(tr, lad->page * 300000 + 40000);
 
 			nor->get_owner()->add_entity(lad, 0);
 			nor->vspeed = 0;
@@ -204,10 +208,13 @@ bool PhysicSystem::want_prone(Normal *nor, World &world)
 {
 	if (nor->vkey == Normal::Down)
 	{
-		if (nor->get_owner_component<Avatar>() != nullptr)
+		if (nor->get_owner<Character>() != nullptr)
 		{
-			auto ava = nor->get_owner_component<Avatar>();
-			ava->switch_act(Avatar::ACTION::PRONE);
+			nor->get_owner<Character>()->switch_act(Avatar::ACTION::PRONE);
+		}
+		else if (nor->get_owner<Mob>() != nullptr)
+		{
+			nor->get_owner<Mob>()->switch_act(u"stand");
 		}
 		nor->hspeed = 0;
 		return true;
@@ -219,43 +226,54 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 {
 	if (nor->vkey == Normal::Down && nor->lalt)
 	{
-		auto foo = tr->get_owner()->get_entity<FootHold>(0);
-		world.remove_entity(foo);
-		world.add_entity(foo, -foo->get_id());
-
-		// 添加定时任务到world
-		auto callback = [](Uint32 interval, void *param) -> Uint32
+		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
-			auto world = World::get_world();
-			auto timer = (Timer *)param;
-			auto foo = timer->get_entity<FootHold>(0);
-			world->remove_entity(foo);
-			world->add_entity(foo, -foo->get_id());
-			foo->remove_entity(timer);
-			delete timer;
-			return 0;
-		};
+			auto line = fh->get_component<Line>();
+			if (line->get_y(tr->get_position().x).has_value() &&
+				line->get_y(tr->get_position().x).value() < tr->get_position().y + 600 &&
+				line->get_y(tr->get_position().x).value() > tr->get_position().y &&
+				fh != tr->get_owner()->get_entity<FootHold>(0))
+			{
+				// 找到了可下跳的fh
+				auto foo = tr->get_owner()->get_entity<FootHold>(0);
+				world.remove_entity(foo);
+				world.add_entity(foo, -foo->get_id());
 
-		Timer *timer = new Timer();
-		timer->set_timer_id(SDL_AddTimer(400, callback, timer));
-		foo->add_entity(timer);
-		timer->add_entity(foo, 0);
+				// 添加定时任务到world
+				auto callback = [](Uint32 interval, void *param) -> Uint32
+				{
+					auto world = World::get_world();
+					auto timer = (Timer *)param;
+					auto foo = timer->get_entity<FootHold>(0);
+					world->remove_entity(foo);
+					world->add_entity(foo, -foo->get_id());
+					foo->remove_entity(timer);
+					delete timer;
+					return 0;
+				};
 
-		// 从fh掉落
-		nor->type = Normal::Air;
-		if (nor->get_owner_component<Avatar>() != nullptr)
-		{
-			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				Timer *timer = new Timer();
+				timer->set_timer_id(SDL_AddTimer(400, callback, timer));
+				foo->add_entity(timer);
+				timer->add_entity(foo, 0);
+
+				// 从fh掉落
+				nor->type = Normal::Air;
+				if (nor->get_owner<Character>() != nullptr)
+				{
+					nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+				}
+				else if (nor->get_owner<Mob>() != nullptr)
+				{
+					nor->get_owner<Mob>()->switch_act(u"jump");
+				}
+				nor->vspeed = -140;
+				// 修改人物z值
+				world.destroy_component(tr, false);
+				world.add_component(tr, 7 * 300000 + 40000);
+				return true;
+			}
 		}
-		else if (nor->get_owner<Mob>() != nullptr)
-		{
-			nor->get_owner<Mob>()->switch_act(u"jump");
-		}
-		nor->vspeed = -140;
-		// 修改人物z值
-		world.destroy_component(tr, false);
-		world.add_component(tr, 7 * 30000 + 4000);
-		return true;
 	}
 	return false;
 }
@@ -265,10 +283,9 @@ bool PhysicSystem::want_stand(Normal *nor, World &world)
 	if (nor->hkey == Normal::None)
 	{
 		// 还需要进行alert状态判断
-		if (nor->get_owner_component<Avatar>() != nullptr)
+		if (nor->get_owner<Character>() != nullptr)
 		{
-			auto ava = nor->get_owner_component<Avatar>();
-			ava->switch_act(Avatar::ACTION::STAND1);
+			nor->get_owner<Character>()->switch_act(Avatar::ACTION::STAND1);
 		}
 		else if (nor->get_owner<Mob>() != nullptr)
 		{
@@ -288,10 +305,9 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 			nor->type = Normal::Air;
 			nor->vspeed = -555;
 
-			if (nor->get_owner_component<Avatar>() != nullptr)
+			if (nor->get_owner<Character>() != nullptr)
 			{
-				// 修改纸娃娃状态
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
 			}
 			else if (nor->get_owner<Mob>() != nullptr)
 			{
@@ -312,11 +328,11 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 				nor->hspeed = -100;
 			}
 
-			if (nor->get_owner_component<Avatar>() != nullptr)
+			if (nor->get_owner<Character>() != nullptr)
 			{
 				// 修改纸娃娃状态
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
-				nor->get_owner_component<Avatar>()->animate = true;
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->start_animate();
 			}
 			else if (nor->get_owner<Mob>() != nullptr)
 			{
@@ -324,6 +340,51 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 			}
 			return true;
 		}
+	}
+	return false;
+}
+
+bool PhysicSystem::want_attack(Transform *tr, Normal *nor, World &world)
+{
+	if (nor->lctrl)
+	{
+		if (nor->get_owner<Character>() != nullptr)
+		{
+			// 生成0到5之间的随机数
+			// int randomNum = std::rand() % 6;
+			int randomNum = 4;
+			auto cha = nor->get_owner<Character>();
+			// ava->switch_act(Avatar::ACTION::STABO1);
+			switch (randomNum)
+			{
+			case 0:
+				cha->switch_act(Avatar::ACTION::STABO1);
+				break;
+			case 1:
+				cha->switch_act(Avatar::ACTION::STABO2);
+				break;
+			case 2:
+				cha->switch_act(Avatar::ACTION::STABOF);
+				break;
+			case 3:
+				cha->switch_act(Avatar::ACTION::STABT1);
+				break;
+			case 4:
+				cha->switch_act(Avatar::ACTION::STABT2);
+				break;
+			case 5:
+				cha->switch_act(Avatar::ACTION::STABTF);
+				break;
+			default:
+				cha->switch_act(Avatar::ACTION::STABO1);
+				break;
+			}
+		}
+		else if (nor->get_owner<Mob>() != nullptr)
+		{
+			nor->get_owner<Mob>()->switch_act(u"attack");
+		}
+		return true;
 	}
 	return false;
 }
@@ -426,13 +487,13 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 
 				// 修改人物z值
 				world.destroy_component(tr, false);
-				world.add_component(tr, 7 * 30000 + 4000);
+				world.add_component(tr, 7 * 300000 + 40000);
 
 				nor->type = Normal::Air;
-				if (nor->get_owner_component<Avatar>() != nullptr)
+				if (nor->get_owner<Character>() != nullptr)
 				{
 					// 修改纸娃娃状态
-					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+					nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
 				}
 				else if (nor->get_owner<Mob>() != nullptr)
 				{
@@ -459,9 +520,9 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		{
 			nor->hforce = -1400;
 		}
-		if (nor->get_owner_component<Avatar>() != nullptr)
+		if (nor->get_owner<Character>() != nullptr)
 		{
-			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::WALK1);
+			nor->get_owner<Character>()->switch_act(Avatar::ACTION::WALK1);
 		}
 		else if (nor->get_owner<Mob>() != nullptr)
 		{
@@ -471,6 +532,11 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	else
 	{
 		nor->hforce = 0;
+		// 如果没有左右的输入并且速度为0,则可以直接return提高性能
+		if (nor->hspeed == 0)
+		{
+			return true;
+		}
 	}
 
 	constexpr auto friction = 800; // 摩擦力
@@ -487,7 +553,12 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 	}
 
 	nor->hspeed += delta_time * nor->hforce;
-	nor->hspeed = std::clamp(nor->hspeed, -125.0f, 125.0f);
+	if (nor->hspeed_limit.has_value())
+	{
+		auto min = nor->hspeed_limit.value().x;
+		auto max = nor->hspeed_limit.value().y;
+		nor->hspeed = std::clamp(nor->hspeed, min, max);
+	}
 
 	auto d_x = nor->hspeed * delta_time;
 	auto x = d_x + tr->get_position().x;
@@ -508,11 +579,15 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		}
 		else
 		{
-			// 从fh掉落
+			// 悬崖边掉落
 			nor->type = Normal::Air;
-			if (nor->get_owner_component<Avatar>() != nullptr)
+			if (nor->get_owner<Character>() != nullptr)
 			{
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+			}
+			else if (nor->get_owner<Mob>() != nullptr)
+			{
+				nor->get_owner<Mob>()->switch_act(u"jump");
 			}
 			nor->vspeed = 0;
 			tr->set_y(y);
@@ -530,11 +605,15 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			}
 			else
 			{
-				// 从fh掉落
+				// 楼梯上掉落
 				nor->type = Normal::Air;
-				if (nor->get_owner_component<Avatar>() != nullptr)
+				if (nor->get_owner<Character>() != nullptr)
 				{
-					nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+					nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+				}
+				else if (nor->get_owner<Mob>() != nullptr)
+				{
+					nor->get_owner<Mob>()->switch_act(u"jump");
 				}
 				nor->vspeed = 0;
 				tr->set_y(y);
@@ -578,15 +657,20 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 {
 	if (nor->hkey == Normal::Right)
 	{
-		nor->hspeed += 0.25f;
+		nor->hspeed += 0.3f;
 	}
 	else if (nor->hkey == Normal::Left)
 	{
-		nor->hspeed -= 0.25f;
+		nor->hspeed -= 0.3f;
 	}
 	// 默认重力为2000
 	nor->vspeed += delta_time * 2000;
-	nor->vspeed = std::min(nor->vspeed, 670.0f);
+	if (nor->vspeed_limit.has_value())
+	{
+		auto min = nor->vspeed_limit.value().x;
+		auto max = nor->vspeed_limit.value().y;
+		nor->vspeed = std::clamp(nor->vspeed, min, max);
+	}
 
 	auto d_x = nor->hspeed * delta_time;
 	auto d_y = nor->vspeed * delta_time;
@@ -607,14 +691,6 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				continue;
 			}
 			auto line = fh->get_component<Line>();
-			// 快速判断与fh碰撞
-			if (std::fmax(tr->get_position().x, new_pos.x) < line->get_min_x() ||
-				std::fmin(tr->get_position().x, new_pos.x) > line->get_max_x() ||
-				std::fmax(tr->get_position().y, new_pos.y) < line->get_min_y() ||
-				std::fmin(tr->get_position().y, new_pos.y) > line->get_max_y())
-			{
-				continue;
-			}
 			auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 			if (collide.has_value())
 			{
@@ -650,7 +726,20 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 					nor->get_owner()->add_entity(fh, 0);
 					// 修改人物z值
 					world.destroy_component(tr, false);
-					world.add_component(tr, fh->page * 30000 + 4000);
+					if (nor->get_owner<Character>() != nullptr)
+					{
+						world.add_component(tr, fh->page * 300000 + 40000);
+					}
+					else if (nor->get_owner<Mob>() != nullptr)
+					{
+						auto load_id = tr->get_id() % 1000;
+						world.add_component(tr, fh->page * 300000 + load_id + 30000);
+					}
+					else if (nor->get_owner<Npc>() != nullptr)
+					{
+						auto load_id = tr->get_id() % 1000;
+						world.add_component(tr, fh->page * 300000 + load_id + 20000);
+					}
 					break;
 				}
 			}
@@ -663,14 +752,6 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 		for (auto &[id, fh] : world.get_entitys<FootHold>())
 		{
 			auto line = fh->get_component<Line>();
-			// 快速判断与fh碰撞
-			if (std::fmax(tr->get_position().x, new_pos.x) < line->get_min_x() ||
-				std::fmin(tr->get_position().x, new_pos.x) > line->get_max_x() ||
-				std::fmax(tr->get_position().y, new_pos.y) < line->get_min_y() ||
-				std::fmin(tr->get_position().y, new_pos.y) > line->get_max_y())
-			{
-				continue;
-			}
 			if (line->get_n().x < line->get_m().x && line->get_n().y == line->get_m().y)
 			{
 				// 天花板
@@ -733,18 +814,19 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 		{
 			tr->set_y(line->get_min_y() - 5);
 			nor->type = Normal::Air;
-			if (nor->get_owner_component<Avatar>() != nullptr)
+			if (nor->get_owner<Character>() != nullptr)
 			{
-				nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+				nor->get_owner<Character>()->start_animate();
 			}
 			nor->vspeed = 0;
 		}
 		else
 		{
 			// 绳子顶端封住
-			if (nor->get_owner_component<Avatar>() != nullptr)
+			if (nor->get_owner<Character>() != nullptr)
 			{
-				auto ava = nor->get_owner_component<Avatar>()->animate = false;
+				nor->get_owner<Character>()->stop_animate();
 			}
 		}
 	}
@@ -752,40 +834,27 @@ void PhysicSystem::climb(Transform *tr, Normal *nor, float delta_time)
 	{
 		tr->set_y(line->get_max_y());
 		nor->type = Normal::Air;
-		if (nor->get_owner_component<Avatar>() != nullptr)
+		if (nor->get_owner<Character>() != nullptr)
 		{
-			nor->get_owner_component<Avatar>()->switch_act(Avatar::ACTION::JUMP);
+			nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+			nor->get_owner<Character>()->start_animate();
 		}
 		nor->vspeed = 0;
 	}
 	else
 	{
-		if (nor->get_owner_component<Avatar>() != nullptr)
+		if (nor->get_owner<Character>() != nullptr)
 		{
-			auto ava = nor->get_owner_component<Avatar>();
 			if (nor->vspeed != 0)
 			{
-				ava->animate = true;
+				nor->get_owner<Character>()->start_animate();
 			}
 			else
 			{
-				ava->animate = false;
+				nor->get_owner<Character>()->stop_animate();
 			}
 		}
 		tr->set_y(y);
-	}
-}
-
-// 限制移动范围
-void PhysicSystem::limit(Transform *tr, World &world)
-{
-	if (world.entity_exist_of_type<Border>())
-	{
-		auto border = world.get_entitys<Border>().find(0)->second;
-		float pos_x = std::clamp(tr->get_position().x, border->get_left(), border->get_right());
-		float pos_y = std::clamp(tr->get_position().y, border->get_top(), border->get_bottom());
-		tr->set_x(pos_x);
-		tr->set_y(pos_y);
 	}
 }
 

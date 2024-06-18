@@ -8,14 +8,12 @@
 
 #include "Entities/Portal.h"
 
-
-class UpdateSystem : public System
+class DeltaTimeSystem : public System
 {
 public:
 	void run(World &world) override;
 
 private:
-	bool update_animated_sprite(AnimatedSprite *aspr, World &world);
-	void update_avatar(Avatar *hvm, Transform *tr, World &world);
-	static int update_video(void *vid); //视频
+	bool update_animated_sprite(AnimatedSprite *aspr, int delta_time, World &world);
+	void update_avatar(Avatar *hvm, int delta_time, World &world);
 };

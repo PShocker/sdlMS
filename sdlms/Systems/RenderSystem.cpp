@@ -10,28 +10,25 @@ void RenderSystem::run(World &world)
 	{
 		for (auto &[index, tr] : world.get_components<Transform>())
 		{
-			if (tr->get_owner() != nullptr)
+			if (tr->get_owner_component<HVTile>() != nullptr)
 			{
-				if (tr->get_owner_component<HVTile>() != nullptr)
-				{
-					render_hvtile_sprite(tr, tr->get_owner_component<HVTile>(), world);
-				}
-				else if (tr->get_owner_component<Avatar>() != nullptr)
-				{
-					render_avatar_sprite(tr, tr->get_owner_component<Avatar>(), world);
-				}
-				else if (tr->get_owner_component<Sprite>() != nullptr)
-				{
-					render_sprite(tr, tr->get_owner_component<Sprite>(), world);
-				}
-				else if (tr->get_owner_component<AnimatedSprite>() != nullptr)
-				{
-					render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
-				}
-				else if (tr->get_owner_component<Video>() != nullptr)
-				{
-					render_video(tr, tr->get_owner_component<Video>(), world);
-				}
+				render_hvtile_sprite(tr, tr->get_owner_component<HVTile>(), world);
+			}
+			else if (tr->get_owner_component<Avatar>() != nullptr)
+			{
+				render_avatar_sprite(tr, tr->get_owner_component<Avatar>(), world);
+			}
+			else if (tr->get_owner_component<Sprite>() != nullptr)
+			{
+				render_sprite(tr, tr->get_owner_component<Sprite>(), world);
+			}
+			else if (tr->get_owner_component<AnimatedSprite>() != nullptr)
+			{
+				render_animated_sprite(tr, tr->get_owner_component<AnimatedSprite>(), world);
+			}
+			else if (tr->get_owner_component<Video>() != nullptr)
+			{
+				render_video(tr, tr->get_owner_component<Video>(), world);
 			}
 		}
 	}
@@ -43,40 +40,42 @@ void RenderSystem::run(World &world)
 
 void RenderSystem::render_sprite(Transform *tr, Sprite *spr, World &world)
 {
-	if (tr)
+	float rot = tr->get_rotation();
+
+	auto width = spr->get_width();
+	auto heihgt = spr->get_height();
+
+	auto x = tr->get_position().x;
+	auto y = tr->get_position().y;
+
+	const SDL_FPoint origin{(float)spr->get_origin().x, (float)spr->get_origin().y};
+	if (tr->get_camera())
 	{
-		float rot = tr->get_rotation();
-
-		auto width = spr->get_width();
-		auto heihgt = spr->get_height();
-
-		auto x = tr->get_position().x;
-		auto y = tr->get_position().y;
-
-		const SDL_FPoint origin{(float)spr->get_origin().x, (float)spr->get_origin().y};
-		if (tr->get_camera())
+		// 显示坐标为绝对坐标,与摄像机无关,通常为ui
+		SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
+		SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
+	}
+	else
+	{
+		// 显示坐标与摄像机坐标相关
+		auto camera = world.get_components<Camera>().find(0)->second;
+		SDL_FRect pos_rect;
+		if (tr->get_flip() == 0)
 		{
-			// 显示坐标为绝对坐标,与摄像机无关,通常为ui
-			const SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
-			SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
+			pos_rect = {(float)x - origin.x - camera->get_x(), (float)y - origin.y - camera->get_y(), (float)width, (float)heihgt};
 		}
-		else
+		else if (tr->get_flip() == 1)
 		{
-			// 显示坐标与摄像机坐标相关
-			auto camera = world.get_components<Camera>().find(0)->second;
-			const SDL_FRect pos_rect{(float)x - origin.x - camera->get_x(), (float)y - origin.y - camera->get_y(), (float)width, (float)heihgt};
-			SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
+			pos_rect = {(float)x - (spr->get_width() - origin.x) - camera->get_x(), (float)y - origin.y - camera->get_y(), (float)width, (float)heihgt};
 		}
+		SDL_RenderCopyExF(Window::get_renderer(), spr->get_texture(), nullptr, &pos_rect, rot, &origin, (SDL_RendererFlip)tr->get_flip());
 	}
 }
 
 void RenderSystem::render_animated_sprite(Transform *tr, AnimatedSprite *aspr, World &world)
 {
-	if (tr)
-	{
-		auto spr = aspr->sprites[aspr->anim_index];
-		render_sprite(tr, spr, world);
-	}
+	auto spr = aspr->get_current_sprite();
+	render_sprite(tr, spr, world);
 }
 
 void RenderSystem::render_hvtile_sprite(Transform *tr, HVTile *hvt, World &world)
@@ -223,7 +222,7 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 		else
 		{
 			tran->set_flip(1);
-			auto x = -t->get_position().x - spr->get_width() + 2 * spr->get_origin().x;
+			auto x = -t->get_position().x;
 			auto y = t->get_position().y;
 			tran->set_position(chara_pos + SDL_FPoint{x, y});
 		}

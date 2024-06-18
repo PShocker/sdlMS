@@ -1,6 +1,4 @@
 #include "AnimatedSprite.h"
-#include <ranges>
-#include <algorithm>
 
 AnimatedSprite::AnimatedSprite(wz::Node *node)
 {
@@ -32,22 +30,15 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
 
         sprites.push_back(sprite);
     }
+    if (node->get_child(u"zigzag") != nullptr)
+    {
+        // 如果存在zigzag属性,则认为属于zigzag动画
+        z = true;
+    }
+
     anim_size = sprites.size();
     anim_index = 0;
     anim_time = 0;
-}
-
-void AnimatedSprite::advance_anim()
-{
-    if (anim_index == anim_size - 1 && z)
-    {
-        std::ranges::reverse(sprites);
-        anim_index = 1;
-    }
-    else
-    {
-        anim_index = (anim_index + 1) % anim_size;
-    }
 }
 
 AnimatedSprite::~AnimatedSprite()

@@ -1,8 +1,6 @@
-**Android编译(Android Studio)**
+**Android编译(Android Studio Iguana | 2023.2.1 Patch 1)**
 
 把根目录SDL文件夹的```android-project```提取出来,然后把项目放到```android-project\app\jni```
-
-还要把资源文件放进assets目录里
 
 ```
 └── android-project
@@ -12,20 +10,9 @@
     │   │   ├── SDL
     │   │   ├── sdlms 
     │   │   ├── wzlibcpp
-    │   │   └── CMakeLists.txt
-    │   │   
-    │   │   
-    │   │──src   
-    │   │   └── main
-    │   │        └── assets
-    │   │            ├── Character.wz
-    │   │            ├── Map.wz
-    │   │            ├── Mob.wz
-    │   │            ├── Npc.wz
-    │   │            ├── simsun.ttc
-    │   │            ├── Sound.wz
-    │   │            └── String.wz
+    │   │   └── CMakeLists.txt(替换)
 ```
+
 修改```android-project\app\build.gradle```去掉mk编译,使用cmake编译,并且使用```c++_shared``` 
 ```
 externalNativeBuild {
@@ -56,12 +43,30 @@ android {
     ndkVersion "26.3.11579264" // e.g.,  ndkVersion "21.3.6528147"
 }
 ```
-或者配置ndk路径
-```android-project\local.properties```
+
+AndroidManifest.xml配置读取sdcard权限
 ```
-ndk.dir=C\:\\Users\\Shocker\\AppData\\Local\\Android\\Sdk\\ndk\\android-ndk-r27-beta1
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"/>
 ```
-调整jvm内存大小```gradle.properties```
+
+修改```android-project\app\src\main\java\org\libsdl\app\SDLActivity.java```申请读取文件权限(安卓11以上)
+```java
+private void requestManageExternalStoragePermission() {
+    Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
+    intent.setData(Uri.parse("package:" + getPackageName()));
+    startActivityForResult(intent, 0);
+}
+// Setup
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        if (!Environment.isExternalStorageManager()) {
+            requestManageExternalStoragePermission();
+        }
+    }
+    ......
+}
 ```
-org.gradle.jvmargs=-Xmx4096m
-```
+
+**资源文件放进/sdcard/Data/**

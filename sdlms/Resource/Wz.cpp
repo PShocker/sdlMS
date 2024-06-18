@@ -1,13 +1,5 @@
 #include "Wz.h"
 
-#ifdef __ANDROID__
-#define __USE_BUF__
-#endif
-
-#ifdef __USE_BUF__
-#include "Core/File.h"
-#endif
-
 #define U8 static_cast<u8>
 #define IV4(A, B, C, D)            \
     {                              \
@@ -18,14 +10,6 @@ Wz::Wz(const std::string &filename_prefix)
 {
     const auto iv = IV4(0xb9, 0x7d, 0x63, 0xe9);
     // 默认全部加载
-#ifdef __USE_BUF__
-    Character = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("Character.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("Character.wz")).c_str())));
-    Map = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("Map.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("Map.wz")).c_str())));
-    Mob = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("Mob.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("Mob.wz")).c_str())));
-    Npc = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("Npc.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("Npc.wz")).c_str())));
-    Sound = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("Sound.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("Sound.wz")).c_str())));
-    String = (new wz::File(iv, File::buffer((std::string(filename_prefix) + std::string("String.wz")).c_str()), File::size((std::string(filename_prefix) + std::string("String.wz")).c_str())));
-#else
     // Base = (new wz::File(iv, (std::string(filename_prefix) + std::string("Base.wz")).c_str()));
     Character = (new wz::File(iv, (std::string(filename_prefix) + std::string("Character.wz")).c_str()));
     // Effect = (new wz::File(iv, (std::string(filename_prefix) + std::string("Effect.wz")).c_str()));
@@ -42,7 +26,7 @@ Wz::Wz(const std::string &filename_prefix)
     Sound = (new wz::File(iv, (std::string(filename_prefix) + std::string("Sound.wz")).c_str()));
     String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
     // TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
-    // UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
+    UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
 #endif
     // Base->parse();
     Character->parse(u"Character");
@@ -60,5 +44,5 @@ Wz::Wz(const std::string &filename_prefix)
     Sound->parse(u"Sound");
     String->parse(u"String");
     // TamingMob->parse();
-    // UI->parse(u"UI");
+    UI->parse(u"UI");
 }
