@@ -28,10 +28,10 @@ Portal::Portal(wz::Node *node, World *world)
             auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"y"))->get();
             {
                 
-                auto url = u"MapHelper.img/portal/editor/" + std::basic_string<char16_t>(pt_list[pt]);
-                auto pn = world->get_resource<Wz>().Map->get_root()->find_from_path(url);
-                Sprite *spr = new Sprite(pn);
-                add_component(spr);
+                // auto url = u"MapHelper.img/portal/editor/" + std::basic_string<char16_t>(pt_list[pt]);
+                // auto pn = world->get_resource<Wz>().Map->get_root()->find_from_path(url);
+                // Sprite *spr = new Sprite(pn);
+                // add_component(spr);
                 Transform *t = new Transform{(float)x, (float)y};
                 add_component(t);
                 world->add_component(t, 99999999);

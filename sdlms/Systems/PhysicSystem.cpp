@@ -409,26 +409,14 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 				}
 				auto pla_pos = tr->get_position();
 				auto por_pos = p->get_component<Transform>();
-				auto por_spr = p->get_component<AnimatedSprite>();
-				Sprite *spr = nullptr;
-				if (p->get_component<Sprite>() != nullptr)
+
+				auto por_x = por_pos->get_position().x;
+				auto por_y = por_pos->get_position().y;
+				if (pla_pos.x == std::clamp(pla_pos.x, por_x - 20, por_x + 20) &&
+					pla_pos.y == std::clamp(pla_pos.y, por_y - 50, por_y + 50))
 				{
-					spr = p->get_component<Sprite>();
-				}
-				else if (p->get_component<AnimatedSprite>() != nullptr)
-				{
-					spr = p->get_component<AnimatedSprite>()->get_current_sprite();
-				}
-				if (spr != nullptr)
-				{
-					auto por_x = por_pos->get_position().x - spr->origin.x;
-					auto por_y = por_pos->get_position().y - spr->origin.y;
-					if (pla_pos.x == std::clamp(pla_pos.x, por_x + 5, por_x + spr->get_width()) &&
-						pla_pos.y == std::clamp(pla_pos.y, por_y + spr->get_height() - 10, por_y + spr->get_height() + 10))
-					{
-						por = p;
-						break;
-					}
+					por = p;
+					break;
 				}
 			}
 			if (por != nullptr && por->tm != 999999999)
@@ -761,9 +749,9 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			auto line = fh->get_component<Line>();
 			if (line->get_n().y == line->get_m().y &&
 				line->get_n().x < line->get_m().x &&
-				tr->get_position().y > line->get_m().y &&
 				(fh->zmass == 0 ||
-				 fh->zmass == foo->zmass))
+				 (foo != nullptr &&
+				  fh->zmass == foo->zmass)))
 			{
 				// 天花板
 				auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
