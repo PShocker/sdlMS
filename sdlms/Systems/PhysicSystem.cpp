@@ -407,6 +407,11 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					// id<0表示冷却的por
 					continue;
 				}
+				if (p->tm == 999999999)
+				{
+					// 屏蔽脚本传送门
+					continue;
+				}
 				auto pla_pos = tr->get_position();
 				auto por_pos = p->get_component<Transform>();
 
@@ -419,7 +424,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					break;
 				}
 			}
-			if (por != nullptr && por->tm != 999999999)
+			if (por != nullptr)
 			{
 				// 切换地图
 				auto tn = por->tn;
