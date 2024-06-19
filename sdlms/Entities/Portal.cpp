@@ -13,7 +13,7 @@ Portal::Portal(wz::Node *node, World *world)
     if (node->get_child(u"pt") != nullptr)
     {
 
-        auto pt = dynamic_cast<wz::Property<int> *>(node->get_child(u"pt"))->get();
+        pt = dynamic_cast<wz::Property<int> *>(node->get_child(u"pt"))->get();
         tm = dynamic_cast<wz::Property<int> *>(node->get_child(u"tm"))->get();
         pn = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"pn"))->get();
         tn = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"tn"))->get();

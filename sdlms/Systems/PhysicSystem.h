@@ -8,10 +8,7 @@
 class PhysicSystem : public System
 {
 public:
-	PhysicSystem(){
-		// 初始化随机数种子
-		std::srand(std::time(nullptr));
-	};
+	PhysicSystem(){};
 	~PhysicSystem() = default;
 	void run(World &world) override;
 

@@ -30,7 +30,7 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
         while (node->find_from_path(u"info/link") != nullptr)
         {
             auto link = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/link"))->get();
-            node = world->get_resource<Wz>().Npc->get_root()->find_from_path(link + u".img");
+            node = world->get_resource<Wz>().Mob->get_root()->find_from_path(link + u".img");
         }
 
         Transform *tr = new Transform((float)x, (float)y);
