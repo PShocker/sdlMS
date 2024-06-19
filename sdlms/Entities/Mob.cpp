@@ -59,7 +59,11 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
             if (name == u"info")
             {
                 // 获取mob基础属性
-                auto speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"speed"))->get();
+                auto speed = 0;
+                if (val[0]->get_child(u"speed") != nullptr)
+                {
+                    speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"speed"))->get();
+                }
                 nor->hspeed_limit = {-1 * (float)(speed + 100) / 100 * 125, (float)(speed + 100) / 100 * 125};
             }
             else

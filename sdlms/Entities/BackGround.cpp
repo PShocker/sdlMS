@@ -14,8 +14,11 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
         return;
     }
 
-    auto ani_node_child = node->get_child(u"ani");
-    auto ani = ani_node_child ? dynamic_cast<wz::Property<int> *>(ani_node_child)->get() : 0;
+    auto ani = 0;
+    if (node->get_child(u"ani") != nullptr)
+    {
+        ani = dynamic_cast<wz::Property<int> *>(node->get_child(u"ani"))->get();
+    }
 
     auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
     auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"y"))->get();
@@ -88,9 +91,9 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
 
     if (front == 1)
     {
-        id = 9999999;
+        id = 99999999 + id;
     }
-
+    
     switch (ani)
     {
     case 0:
