@@ -95,7 +95,13 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		}
 		break;
 	case Normal::Air:
-		// 首先判断是否爬梯子
+		// 判断是否进传送门
+		[[unlikely]]
+		if (want_portal(tr, nor, world))
+		{
+			break;
+		}
+		// 判断是否爬梯子
 		[[unlikely]]
 		if (want_climb(tr, nor, world))
 		{
@@ -105,6 +111,12 @@ void PhysicSystem::update_normal(Normal *nor, World &world)
 		fall(tr, nor, delta_time, world);
 		break;
 	case Normal::Climb:
+		// 是否进传送门
+		[[unlikely]]
+		if (want_portal(tr, nor, world))
+		{
+			break;
+		}
 		// 爬梯子
 		[[unlikely]]
 		if (want_jump(tr, nor, world))
@@ -397,24 +409,19 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 {
 	if (tr->get_owner_component<Player>() != nullptr)
 	{
-		if (nor->vkey == Normal::Up)
+		Portal *por = nullptr;
+		// 先判断接触式传送门
+		for (auto &[id, p] : world.get_entitys<Portal>())
 		{
-			Portal *por = nullptr;
-			for (auto &[id, p] : world.get_entitys<Portal>())
+			if (p->tm == 999999999 || id < 0)
 			{
-				if (id < 0 && nor->get_owner_component<Player>() != nullptr)
-				{
-					// id<0表示冷却的por
-					continue;
-				}
-				if (p->tm == 999999999)
-				{
-					// 屏蔽脚本传送门
-					continue;
-				}
+				// 屏蔽脚本传送门和冷却中的传送门
+				continue;
+			}
+			if (p->pt == 3 || nor->vkey == Normal::Up)
+			{
 				auto pla_pos = tr->get_position();
 				auto por_pos = p->get_component<Transform>();
-
 				auto por_x = por_pos->get_position().x;
 				auto por_y = por_pos->get_position().y;
 				if (pla_pos.x == std::clamp(pla_pos.x, por_x - 20, por_x + 20) &&
@@ -424,81 +431,81 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 					break;
 				}
 			}
-			if (por != nullptr)
+		}
+		if (por != nullptr)
+		{
+			// 切换地图
+			auto tn = por->tn;
+			if (por->tm != Map::get_map_id())
 			{
 				// 切换地图
-				auto tn = por->tn;
-				if (por->tm != Map::get_map_id())
+				Map::load(por->tm, &world);
+				world.tick_delta_time();
+				// 切换人物坐标
+				for (auto &[id, p] : world.get_entitys<Portal>())
 				{
-					// 切换地图
-					Map::load(por->tm, &world);
-					world.tick_delta_time();
-					// 切换人物坐标
-					for (auto &[id, p] : world.get_entitys<Portal>())
+					if (tn == p->pn)
 					{
-						if (tn == p->pn)
-						{
-							por = p;
-							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -10});
-							// 调整相机位置
-							auto camera = world.get_components<Camera>().find(0)->second;
-							camera->set_x(tr->get_position().x - camera->get_w() / 2);
-							camera->set_y(tr->get_position().y - camera->get_h() / 2);
-							break;
-						}
+						por = p;
+						tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -10});
+						// 调整相机位置
+						auto camera = world.get_components<Camera>().find(0)->second;
+						camera->set_x(tr->get_position().x - camera->get_w() / 2);
+						camera->set_y(tr->get_position().y - camera->get_h() / 2);
+						break;
 					}
 				}
-				else
-				{
-					// 切换人物坐标
-					for (auto &[id, p] : world.get_entitys<Portal>())
-					{
-						if (tn == p->pn)
-						{
-							por = p;
-							tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -5});
-							break;
-						}
-					}
-				}
-				// 设置传送门冷却
-				world.remove_entity(por);
-				world.add_entity(por, -por->get_id());
-				// 添加定时任务到world
-				auto callback = [](Uint32 interval, void *param) -> Uint32
-				{
-					auto world = World::get_world();
-					auto timer = (Timer *)param;
-					auto por = timer->get_entity<Portal>(0);
-					world->remove_entity(por);
-					world->add_entity(por, -por->get_id());
-					por->remove_entity(timer);
-					delete timer;
-					return 0;
-				};
-				Timer *timer = new Timer();
-				timer->set_timer_id(SDL_AddTimer(800, callback, timer));
-				por->add_entity(timer);
-				timer->add_entity(por, 0);
-
-				// 修改人物z值
-				world.destroy_component(tr, false);
-				world.add_component(tr, 7 * 300000 + 40000);
-
-				nor->type = Normal::Air;
-				if (nor->get_owner<Character>() != nullptr)
-				{
-					// 修改纸娃娃状态
-					nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
-				}
-				else if (nor->get_owner<Mob>() != nullptr)
-				{
-					nor->get_owner<Mob>()->switch_act(u"jump");
-				}
-				nor->vspeed = 0;
-				nor->hspeed = 0;
-				return true;
 			}
+			else
+			{
+				// 切换人物坐标
+				for (auto &[id, p] : world.get_entitys<Portal>())
+				{
+					if (tn == p->pn)
+					{
+						por = p;
+						tr->set_position(por->get_component<Transform>()->get_position() + SDL_FPoint{0, -5});
+						break;
+					}
+				}
+			}
+			// 设置传送门冷却
+			world.remove_entity(por);
+			world.add_entity(por, -por->get_id());
+			// 添加定时任务到world
+			auto callback = [](Uint32 interval, void *param) -> Uint32
+			{
+				auto world = World::get_world();
+				auto timer = (Timer *)param;
+				auto por = timer->get_entity<Portal>(0);
+				world->remove_entity(por);
+				world->add_entity(por, -por->get_id());
+				por->remove_entity(timer);
+				delete timer;
+				return 0;
+			};
+			Timer *timer = new Timer();
+			timer->set_timer_id(SDL_AddTimer(800, callback, timer));
+			por->add_entity(timer);
+			timer->add_entity(por, 0);
+
+			// 修改人物z值
+			world.destroy_component(tr, false);
+			world.add_component(tr, 7 * 300000 + 40000);
+
+			nor->type = Normal::Air;
+			if (nor->get_owner<Character>() != nullptr)
+			{
+				// 修改纸娃娃状态
+				nor->get_owner<Character>()->switch_act(Avatar::ACTION::JUMP);
+			}
+			else if (nor->get_owner<Mob>() != nullptr)
+			{
+				nor->get_owner<Mob>()->switch_act(u"jump");
+			}
+			nor->vspeed = 0;
+			nor->hspeed = 0;
+			return true;
 		}
 	}
 	return false;
