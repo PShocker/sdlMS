@@ -279,7 +279,8 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 				{
 					nor->get_owner<Mob>()->switch_act(u"jump");
 				}
-				nor->vspeed = -140;
+				nor->vspeed = -150;
+				nor->hspeed = 0;
 				// 修改人物z值
 				world.destroy_component(tr, false);
 				world.add_component(tr, 7 * 300000 + 40000);

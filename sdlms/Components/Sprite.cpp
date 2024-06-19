@@ -76,7 +76,6 @@ Sprite::Sprite(wz::Node *node)
         }
     }
 
-    auto url = node->path;
     // 图片原始数据,部分格式需要转换
     std::vector<uint8_t> pixel;
 
