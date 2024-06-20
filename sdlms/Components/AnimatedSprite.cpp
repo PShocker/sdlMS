@@ -1,6 +1,6 @@
 #include "AnimatedSprite.h"
 
-AnimatedSprite::AnimatedSprite(wz::Node *node)
+AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
 {
     // 从第0帧顺序读
     for (int i = 0; i < node->children_count(); i++)
@@ -26,7 +26,7 @@ AnimatedSprite::AnimatedSprite(wz::Node *node)
             continue;
         }
 
-        Sprite *sprite = new Sprite(canvas);
+        Sprite *sprite = new Sprite(canvas, alpha);
 
         sprites.push_back(sprite);
     }

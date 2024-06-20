@@ -1,7 +1,7 @@
 #include "Sprite.h"
 #include "Core/Window.h"
 
-Sprite::Sprite(wz::Node *node)
+Sprite::Sprite(wz::Node *node, int alpha)
 {
     if (node->type == wz::Type::UOL)
     {
@@ -42,8 +42,6 @@ Sprite::Sprite(wz::Node *node)
         }
     }
 
-    a0 = 255;
-    a1 = 255;
     if (canvas->get_child(u"a0") != nullptr && canvas->get_child(u"a1") != nullptr)
     {
         if (canvas->get_child(u"a0")->type == wz::Type::Int)
@@ -66,6 +64,8 @@ Sprite::Sprite(wz::Node *node)
             a1 = std::stoi(std::string{a1_str.begin(), a1_str.end()});
         }
     }
+    a0 = a0 * ((float)alpha / 255);
+    a1 = a1 * ((float)alpha / 255);
 
     z = 0;
     if (canvas->get_child(u"z") != nullptr)

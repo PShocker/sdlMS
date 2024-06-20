@@ -1,7 +1,5 @@
 #pragma once
 
-#include <SDL2/SDL_surface.h>
-
 #include <unordered_map>
 #include <typeinfo>
 #include <typeindex>

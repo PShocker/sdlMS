@@ -18,7 +18,7 @@ private:
     bool z = false;      // ziazag
 
 public:
-    AnimatedSprite(wz::Node *node);
+    AnimatedSprite(wz::Node *node, int alpha = 255);
     ~AnimatedSprite();
     void add_anim_time(const int val) { anim_time += val; }
 
