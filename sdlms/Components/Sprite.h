@@ -11,7 +11,7 @@ class Sprite : public Component
 {
 public:
     Sprite(SDL_Texture *texture, int width, int height);
-    Sprite(wz::Node *node);
+    Sprite(wz::Node *node, int alpha = 255);
     ~Sprite();
 
 private:

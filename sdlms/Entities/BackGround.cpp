@@ -45,6 +45,12 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
         flip = dynamic_cast<wz::Property<int> *>(node->get_child(u"f"))->get();
     }
 
+    auto a = 255;
+    if (node->get_child(u"a") != nullptr)
+    {
+        a = dynamic_cast<wz::Property<int> *>(node->get_child(u"a"))->get();
+    }
+
     auto no_str = std::to_string(no);
 
     HVTile *hvt = nullptr;
@@ -93,13 +99,13 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
     {
         id = 99999999 + id;
     }
-    
+
     switch (ani)
     {
     case 0:
     {
         auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-        Sprite *spr = new Sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
+        Sprite *spr = new Sprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url), a);
         add_component(spr);
         world->add_component(t, id - 1000);
         break;
@@ -107,7 +113,7 @@ BackGround::BackGround(wz::Node *node, int id, World *world)
     case 1:
     {
         auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-        AnimatedSprite *aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url));
+        AnimatedSprite *aspr = new AnimatedSprite(world->get_resource<Wz>().Map->get_root()->find_from_path(url), a);
         add_component(aspr);
         world->add_component(t, id - 1000);
         world->add_component(aspr);
