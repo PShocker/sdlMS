@@ -29,9 +29,14 @@ public:
 		id = value;
 	};
 
-	Entity *get_owner() const;
-	void set_owner(Entity *value);
-
+	Entity *get_owner()
+	{
+		return owner;
+	};
+	void set_owner(Entity *value)
+	{
+		owner = value;
+	};
 	template <typename C>
 	C *get_owner()
 	{

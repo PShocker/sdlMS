@@ -17,8 +17,14 @@ public:
 	Entity();
 	virtual ~Entity();
 
-	int get_id() const;
-	void set_id(int value);
+	int get_id()
+	{
+		return id;
+	};
+	void set_id(int value)
+	{
+		id = value;
+	};
 
 	template <typename C>
 	void add_component(C *comp)
@@ -45,16 +51,40 @@ public:
 	template <typename C>
 	C *get_component();
 
-	int add_entity(Entity *ent);
-	void add_entity(Entity *ent, int index);
+	int add_entity(Entity *ent)
+	{
+		auto index = entity_refs[typeid(*ent)].size();
+		add_entity(ent, index);
+		return index;
+	};
+
+	void add_entity(Entity *ent, int index)
+	{
+		entity_refs[typeid(*ent)][index] = ent;
+	};
 
 	template <typename C>
 	void remove_entity(int index)
 	{
 		entity_refs[typeid(C)].erase(index);
 	}
-	
-	void remove_entity(Entity *ent);
+
+	void remove_entity(Entity *ent)
+	{
+		auto &target_map = entity_refs[typeid(*ent)];
+		for (auto it = target_map.begin(); it != target_map.end();)
+		{
+			[[unlikely]]
+			if (it->second == ent)
+			{
+				it = target_map.erase(it); // 删除匹配值的元素，并返回指向下一个元素的迭代器
+			}
+			else
+			{
+				++it;
+			}
+		}
+	};
 
 	template <typename C>
 	C *get_entity(int index)
@@ -75,7 +105,10 @@ public:
 		return *reinterpret_cast<std::unordered_map<int, C *> *>(&entity_refs[typeid(C)]);
 	}
 
-	const std::unordered_map<std::type_index, Component *> &get_components();
+	const std::unordered_map<std::type_index, Component *> &get_components()
+	{
+		return component_refs;
+	};
 };
 
 #include "Components/Component.h"
