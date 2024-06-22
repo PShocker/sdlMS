@@ -67,13 +67,13 @@ int main(int argc, char *argv[])
 
     world.add_system(new PhysicSystem());
 
-    world.add_system(new CameraSystem());
-
     world.add_system(new DeltaTimeSystem());
 
     world.add_system(new SpriteSystem());
 
     world.add_system(new TransformSystem());
+
+    world.add_system(new CameraSystem());
 
     world.add_system(new RenderSystem());
 

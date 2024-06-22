@@ -5,18 +5,18 @@
 
 void TransformSystem::run(World &world)
 {
-    if (world.components_exist_of_type<RelativeTransform>())
-    {
-        for (auto &[index, rtr] : world.get_components<RelativeTransform>())
-        {
-            update_relative_tr(index, rtr, world);
-        }
-    }
     if (world.components_exist_of_type<LimitTransform>())
     {
         for (auto &[index, ltr] : world.get_components<LimitTransform>())
         {
             update_limit_tr(ltr, world);
+        }
+    }
+    if (world.components_exist_of_type<RelativeTransform>())
+    {
+        for (auto &[index, rtr] : world.get_components<RelativeTransform>())
+        {
+            update_relative_tr(index, rtr, world);
         }
     }
 }
@@ -51,13 +51,13 @@ void TransformSystem::update_limit_tr(LimitTransform *ltr, World &world)
             auto border = world.get_entitys<Border>().find(0)->second;
             auto left = border->get_left();
             auto right = border->get_right();
-            if (left.has_value() && tr->get_position().x < left.value() + 5)
+            if (left.has_value() && tr->get_position().x <= left.value() + 10)
             {
                 // 水平方向撞墙
                 tr->set_x(left.value() + 10);
                 tr->get_owner_component<Normal>()->hspeed = 0;
             }
-            else if (right.has_value() && tr->get_position().x > right.value() - 5)
+            else if (right.has_value() && tr->get_position().x >= right.value() - 10)
             {
                 // 水平方向撞墙
                 tr->set_x(right.value() - 10);
