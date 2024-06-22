@@ -334,15 +334,15 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 		}
 		else if (nor->type == Normal::Climb && (nor->hkey == Normal::Right || nor->hkey == Normal::Left) && (nor->vkey != Normal::Up))
 		{
-			nor->vspeed = -300;
+			nor->vspeed = -310;
 			nor->type = Normal::Air;
 			if (nor->hkey == Normal::Right)
 			{
-				nor->hspeed = 100;
+				nor->hspeed = 120;
 			}
 			else if (nor->hkey == Normal::Left)
 			{
-				nor->hspeed = -100;
+				nor->hspeed = -120;
 			}
 
 			if (nor->get_owner<Character>() != nullptr)
@@ -605,7 +605,7 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 		auto line = fh->get_component<Line>();
 		if (!line->get_k().has_value())
 		{
-			if (y == line->get_max_y())
+			if (y == std::clamp(y, line->get_max_y() - 1, line->get_max_y() + 1))
 			{
 				// 撞墙
 				nor->hspeed = 0;

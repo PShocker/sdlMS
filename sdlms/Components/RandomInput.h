@@ -9,7 +9,7 @@ private:
     unsigned int tick = 0;
 
 public:
-    RandomInput(int val = 100);
+    RandomInput(int val = 60);
     auto get_count() { return count; };
     auto get_tick() { return tick; };
     void set_count(const unsigned int value) { count = value; };
