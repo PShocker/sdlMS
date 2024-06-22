@@ -230,11 +230,14 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 	};
 	auto render_avatar = [this, &set_tran, &tran, &act, &act_index, &world](std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> part[Avatar::ACTION::LENGTH])
 	{
-		auto [t, spr] = part[act][act_index];
-		if (t != nullptr && spr != nullptr)
+		if (part[act].size() > 0)
 		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
+			auto [t, spr] = part[act][act_index];
+			if (t != nullptr && spr != nullptr)
+			{
+				set_tran(t, spr);
+				render_sprite(tran, spr, world);
+			}
 		}
 	};
 	render_avatar(ava->backTamingMobMid);
