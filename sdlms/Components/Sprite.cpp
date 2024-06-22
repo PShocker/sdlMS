@@ -67,12 +67,15 @@ Sprite::Sprite(wz::Node *node, int alpha)
     a0 = a0 * ((float)alpha / 255);
     a1 = a1 * ((float)alpha / 255);
 
-    z = 0;
     if (canvas->get_child(u"z") != nullptr)
     {
         if (canvas->get_child(u"z")->type == wz::Type::Int)
         {
             z = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"z"))->get();
+        }
+        else if (canvas->get_child(u"z")->type == wz::Type::String)
+        {
+            z = dynamic_cast<wz::Property<wz::wzstring> *>(canvas->get_child(u"z"))->get();
         }
     }
 

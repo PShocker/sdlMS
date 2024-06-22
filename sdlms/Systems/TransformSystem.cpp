@@ -54,13 +54,13 @@ void TransformSystem::update_limit_tr(LimitTransform *ltr, World &world)
             if (left.has_value() && tr->get_position().x < left.value() + 5)
             {
                 // 水平方向撞墙
-                tr->set_x(left.value() + 5);
+                tr->set_x(left.value() + 10);
                 tr->get_owner_component<Normal>()->hspeed = 0;
             }
             else if (right.has_value() && tr->get_position().x > right.value() - 5)
             {
                 // 水平方向撞墙
-                tr->set_x(right.value() - 5);
+                tr->set_x(right.value() - 10);
                 tr->get_owner_component<Normal>()->hspeed = 0;
             }
         }

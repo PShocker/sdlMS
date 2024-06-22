@@ -3,6 +3,7 @@
 #include "Core/World.h"
 #include "Core/ECSSystem.h"
 #include "Components/Camera.h"
+#include "Components/Avatar.h"
 
 void RenderSystem::run(World &world)
 {
@@ -227,113 +228,144 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 			tran->set_position(chara_pos + SDL_FPoint{x, y});
 		}
 	};
+	auto render_avatar = [this, &set_tran, &tran, &act, &act_index, &world](std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> part[Avatar::ACTION::LENGTH])
 	{
-		auto [t, spr] = ava->body[act][act_index];
+		auto [t, spr] = part[act][act_index];
 		if (t != nullptr && spr != nullptr)
 		{
 			set_tran(t, spr);
 			render_sprite(tran, spr, world);
 		}
-	}
+	};
+	render_avatar(ava->backTamingMobMid);
+	render_avatar(ava->backMobEquipUnderSaddle);
+	render_avatar(ava->backSaddle);
+	render_avatar(ava->backMobEquipMid);
+	render_avatar(ava->backTamingMobFront);
+	render_avatar(ava->backMobEquipFront);
+	render_avatar(ava->mobEquipRear);
+	render_avatar(ava->tamingMobRear);
+	render_avatar(ava->saddleRear);
+	render_avatar(ava->characterEnd);
+	render_avatar(ava->backWeapon);
+	render_avatar(ava->backHairBelowHead);
+	render_avatar(ava->backShieldBelowBody);
+	render_avatar(ava->backMailChestAccessory);
+	render_avatar(ava->backCapAccessory);
+	render_avatar(ava->backAccessoryFace);
+	render_avatar(ava->backAccessoryEar);
+	render_avatar(ava->backBody);
+	render_avatar(ava->backGlove);
+	render_avatar(ava->backGloveWrist);
+	render_avatar(ava->backWeaponOverGlove);
+	render_avatar(ava->backMailChestBelowPants);
+	render_avatar(ava->backPantsBelowShoes);
+	render_avatar(ava->backShoesBelowPants);
+	render_avatar(ava->backPants);
+	render_avatar(ava->backShoes);
+	render_avatar(ava->backPantsOverShoesBelowMailChest);
+	render_avatar(ava->backMailChest);
+	render_avatar(ava->backPantsOverMailChest);
+	render_avatar(ava->backMailChestOverPants);
+	render_avatar(ava->backHead);
+	render_avatar(ava->backAccessoryFaceOverHead);
+	render_avatar(ava->backCape);
+	render_avatar(ava->backHairBelowCap);
+	render_avatar(ava->backHairBelowCapNarrow);
+	render_avatar(ava->backHairBelowCapWide);
+	render_avatar(ava->backWeaponOverHead);
+	render_avatar(ava->backCap);
+	render_avatar(ava->backHair);
+	render_avatar(ava->backCapOverHair);
+	render_avatar(ava->backShield);
+	render_avatar(ava->backWeaponOverShield);
+	render_avatar(ava->backWing);
+	render_avatar(ava->backHairOverCape);
+	render_avatar(ava->weaponBelowBody);
+	render_avatar(ava->hairBelowBody);
+	render_avatar(ava->capeBelowBody);
+	render_avatar(ava->shieldBelowBody);
+	render_avatar(ava->capAccessoryBelowBody);
+	render_avatar(ava->gloveBelowBody);
+	render_avatar(ava->gloveWristBelowBody);
+	render_avatar(ava->body);
+	render_avatar(ava->gloveOverBody);
+	render_avatar(ava->mailChestBelowPants);
+	render_avatar(ava->pantsBelowShoes);
+	render_avatar(ava->shoes);
+	render_avatar(ava->pants);
+	render_avatar(ava->mailChestOverPants);
+	render_avatar(ava->shoesOverPants);
+	render_avatar(ava->pantsOverShoesBelowMailChest);
+	render_avatar(ava->shoesTop);
+	render_avatar(ava->mailChest);
+	render_avatar(ava->pantsOverMailChest);
+	render_avatar(ava->mailChestOverHighest);
+	render_avatar(ava->gloveWristOverBody);
+	render_avatar(ava->mailChestTop);
+	render_avatar(ava->weaponOverBody);
+	render_avatar(ava->armBelowHead);
+	render_avatar(ava->mailArmBelowHead);
+	render_avatar(ava->armBelowHeadOverMailChest);
+	render_avatar(ava->gloveBelowHead);
+	render_avatar(ava->mailArmBelowHeadOverMailChest);
+	render_avatar(ava->gloveWristBelowHead);
+	render_avatar(ava->weaponOverArmBelowHead);
+	render_avatar(ava->shield);
+	render_avatar(ava->weapon);
+	render_avatar(ava->arm);
+	render_avatar(ava->hand);
+	render_avatar(ava->glove);
+	render_avatar(ava->mailArm);
+	render_avatar(ava->gloveWrist);
+	render_avatar(ava->cape);
+	render_avatar(ava->head);
+	render_avatar(ava->hairShade);
+	render_avatar(ava->accessoryFaceBelowFace);
+	if (ava->show_face[ava->act][ava->act_index] == true)
 	{
-		auto [t, spr] = ava->coat[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
+		render_avatar(ava->face);
 	}
-	{
-		auto [t, spr] = ava->pants[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto [t, spr] = ava->head[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto [t, spr] = ava->face[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto &v = ava->hairs[act][act_index];
-		for (auto &[t, spr] : v)
-		{
-			if (t != nullptr && spr != nullptr)
-			{
-				set_tran(t, spr);
-				render_sprite(tran, spr, world);
-			}
-		}
-	}
-	{
-		auto [t, spr] = ava->shoes[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto [t, spr] = ava->weapon[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto [t, spr] = ava->arm[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto [t, spr] = ava->coat_arm[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto [t, spr] = ava->hand[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto [t, spr] = ava->lHand[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
-	{
-		auto [t, spr] = ava->rHand[act][act_index];
-		if (t != nullptr && spr != nullptr)
-		{
-			set_tran(t, spr);
-			render_sprite(tran, spr, world);
-		}
-	}
+	render_avatar(ava->accessoryFaceOverFaceBelowCap);
+	render_avatar(ava->capBelowAccessory);
+	render_avatar(ava->accessoryEar);
+	render_avatar(ava->capAccessoryBelowAccFace);
+	render_avatar(ava->accessoryFace);
+	render_avatar(ava->accessoryEyeShadow);
+	render_avatar(ava->accessoryEye);
+	render_avatar(ava->hair);
+	render_avatar(ava->cap);
+	render_avatar(ava->capAccessory);
+	render_avatar(ava->accessoryEyeOverCap);
+	render_avatar(ava->hairOverHead);
+	render_avatar(ava->capOverHair);
+	render_avatar(ava->weaponBelowArm);
+	render_avatar(ava->armOverHairBelowWeapon);
+	render_avatar(ava->mailArmOverHairBelowWeapon);
+	render_avatar(ava->armOverHair);
+	render_avatar(ava->gloveBelowMailArm);
+	render_avatar(ava->mailArmOverHair);
+	render_avatar(ava->gloveWristBelowMailArm);
+	render_avatar(ava->weaponOverArm);
+	render_avatar(ava->handBelowWeapon);
+	render_avatar(ava->gloveBelowWeapon);
+	render_avatar(ava->gloveWristBelowWeapon);
+	render_avatar(ava->shieldOverHair);
+	render_avatar(ava->weaponOverHand);
+	render_avatar(ava->handOverHair);
+	render_avatar(ava->gloveOverHair);
+	render_avatar(ava->gloveWristOverHair);
+	render_avatar(ava->weaponOverGlove);
+	render_avatar(ava->capeOverHead);
+	render_avatar(ava->weaponWristOverGlove);
+	render_avatar(ava->emotionOverBody);
+	render_avatar(ava->characterStart);
+	render_avatar(ava->tamingMobMid);
+	render_avatar(ava->mobEquipUnderSaddle);
+	render_avatar(ava->saddleFront);
+	render_avatar(ava->mobEquipMid);
+	render_avatar(ava->tamingMobFront);
+	render_avatar(ava->mobEquipFront);
 	delete tran;
 }
 

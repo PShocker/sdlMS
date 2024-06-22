@@ -28,7 +28,7 @@ Wz::Wz(const std::string &filename_prefix)
     // TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
     // UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
 
-    // Base->parse();
+    // Base->parse(u"Base");
     Character->parse(u"Character");
     // Effect->parse();
     // Etc->parse();
