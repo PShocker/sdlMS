@@ -369,7 +369,7 @@ bool PhysicSystem::want_attack(Transform *tr, Normal *nor, World &world)
 		{
 			// 生成0到5之间的随机数
 			// int randomNum = std::rand() % 6;
-			int randomNum = 4;
+			int randomNum = 0;
 			auto cha = nor->get_owner<Character>();
 			// ava->switch_act(Avatar::ACTION::STABO1);
 			switch (randomNum)

@@ -4,6 +4,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <any>
 #include "wz/Property.hpp"
 #include "Component.h"
 
@@ -39,5 +40,5 @@ public:
     int a1 = 255;
     SDL_Point origin = {0, 0};
 
-    int z = 0;
+    std::any z = 0;
 };

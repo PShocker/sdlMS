@@ -7,14 +7,14 @@ Avatar *Avatar::load()
     if (!inited)
     {
         inited = true;
-        character_node = World::get_world()->get_resource<Wz>().Character->get_root();
-        init(character_node);
+        init();
     }
     return new Avatar();
 }
 
-void Avatar::init(wz::Node *character_node)
+void Avatar::init()
 {
+    character_node = World::get_world()->get_resource<Wz>().Character->get_root();
     {
         auto body_node = character_node->find_from_path(u"00002000.img");
         auto head_node = character_node->find_from_path(u"00012000.img");
@@ -40,6 +40,14 @@ void Avatar::init(wz::Node *character_node)
                         delay = dynamic_cast<wz::Property<int> *>(delay_node)->get();
                     }
                     stance_delays[type][frame] = delay;
+
+                    auto face_node = frame_node->get_child(u"face");
+                    auto face = true;
+                    if (face_node != nullptr)
+                    {
+                        face = dynamic_cast<wz::Property<unsigned short> *>(face_node)->get();
+                    }
+                    show_face[type][frame] = face;
 
                     std::unordered_map<Layer, std::unordered_map<std::u16string, SDL_FPoint>> body_shift_map;
 
@@ -105,9 +113,78 @@ void Avatar::add_body(const std::u16string &val)
         {
             auto no_str = std::to_string(no);
             auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-            Sprite *sprite = new Sprite(body_node->find_from_path(type + u"/body"));
-            Transform *f = new Transform();
-            body[i][no] = {f, sprite};
+            {
+                Sprite *sprite = new Sprite(body_node->find_from_path(type + u"/body"));
+                Transform *f = new Transform();
+                auto z = std::any_cast<std::u16string>(sprite->get_z());
+                auto part = *zmap[z];
+                part[i][no] = {f, sprite};
+            }
+            {
+                if (body_node->find_from_path(type + u"/arm") != nullptr)
+                {
+                    auto arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(body_node->find_from_path(type + u"/arm/map/hand"))->get();
+                    Sprite *sprite = new Sprite(body_node->find_from_path(type + u"/arm"));
+                    Transform *f = new Transform(arm_positions[i][no] - SDL_FPoint{(float)arm_pos.x, (float)arm_pos.y});
+                    auto z = std::any_cast<std::u16string>(sprite->get_z());
+                    auto part = *zmap[z];
+                    part[i][no] = {f, sprite};
+                }
+            }
+            {
+                if (body_node->find_from_path(type + u"/hand") != nullptr)
+                {
+                    auto hand = body_node->find_from_path(type + u"/hand");
+                    if (body_node->find_from_path(type + u"/hand/map/navel") != nullptr)
+                    {
+                        auto hand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(hand->find_from_path(u"map/navel"))->get();
+                        Sprite *sprite = new Sprite(hand);
+                        Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)hand_pos.x, (float)hand_pos.y});
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
+                    }
+                }
+            }
+            {
+                if (body_node->find_from_path(type + u"/lHand") != nullptr)
+                {
+                    auto lHand = body_node->find_from_path(type + u"/lHand");
+                    if (lHand->find_from_path(u"map/handMove") != nullptr)
+                    {
+                        auto lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(lHand->find_from_path(u"map/handMove"))->get();
+                        Sprite *sprite = new Sprite(lHand);
+                        Transform *f = new Transform(hand_positions[i][no] - SDL_FPoint{(float)lHand_pos.x, (float)lHand_pos.y});
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
+                    }
+                    else
+                    {
+                        auto lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(lHand->find_from_path(u"map/navel"))->get();
+                        Sprite *sprite = new Sprite(lHand);
+                        Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)lHand_pos.x, (float)lHand_pos.y});
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
+                    }
+                }
+            }
+            {
+                if (body_node->find_from_path(type + u"/rHand") != nullptr)
+                {
+                    auto rHand = body_node->find_from_path(type + u"/rHand");
+                    if (rHand->find_from_path(u"map/navel") != nullptr)
+                    {
+                        auto rHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(rHand->find_from_path(u"map/navel"))->get();
+                        Sprite *sprite = new Sprite(rHand);
+                        Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)rHand_pos.x, (float)rHand_pos.y});
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
+                    }
+                }
+            }
         }
     }
 }
@@ -123,12 +200,27 @@ void Avatar::add_coat(const std::u16string &val)
             {
                 auto no_str = std::to_string(no);
                 auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-                if (coat_node->find_from_path(type + u"/mail") != nullptr)
                 {
-                    auto coat_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(coat_node->find_from_path(type + u"/mail/map/navel"))->get();
-                    Sprite *sprite = new Sprite(coat_node->find_from_path(type + u"/mail"));
-                    Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)coat_pos.x, (float)coat_pos.y});
-                    coat[i][no] = {f, sprite};
+                    if (coat_node->find_from_path(type + u"/mail") != nullptr)
+                    {
+                        auto coat_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(coat_node->find_from_path(type + u"/mail/map/navel"))->get();
+                        Sprite *sprite = new Sprite(coat_node->find_from_path(type + u"/mail"));
+                        Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)coat_pos.x, (float)coat_pos.y});
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
+                    }
+                }
+                {
+                    if (coat_node->find_from_path(type + u"/mailArm") != nullptr)
+                    {
+                        auto mail_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(coat_node->find_from_path(type + u"/mailArm/map/navel"))->get();
+                        Sprite *sprite = new Sprite(coat_node->find_from_path(type + u"/mailArm"));
+                        Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)mail_arm_pos.x, (float)mail_arm_pos.y});
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
+                    }
                 }
             }
         }
@@ -171,7 +263,9 @@ void Avatar::add_head(const std::u16string &val)
             {
                 Sprite *sprite = new Sprite(head_node->find_from_path(type + u"/head"));
                 Transform *f = new Transform(head_positions[i][no]);
-                head[i][no] = {f, sprite};
+                auto z = std::any_cast<std::u16string>(sprite->get_z());
+                auto part = *zmap[z];
+                part[i][no] = {f, sprite};
             }
         }
     }
@@ -189,7 +283,9 @@ void Avatar::add_face(const std::u16string &val)
                 auto face_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(face_node->find_from_path(u"map/brow"))->get();
                 Sprite *sprite = new Sprite(face_node);
                 Transform *f = new Transform(face_positions[i][no] - SDL_FPoint{(float)face_pos.x, (float)face_pos.y});
-                face[i][no] = {f, sprite};
+                auto z = std::any_cast<std::u16string>(sprite->get_z());
+                auto part = *zmap[z];
+                part[i][no] = {f, sprite};
             }
         }
     }
@@ -208,19 +304,21 @@ void Avatar::add_hairs(const std::u16string &val)
             {
                 for (auto it : hairs_node->get_children())
                 {
-                    auto hair = it.second[0];
-                    if (hair->type == wz::Type::UOL)
+                    auto hairs = it.second[0];
+                    if (hairs->type == wz::Type::UOL)
                     {
-                        hair = dynamic_cast<wz::Property<wz::WzUOL> *>(hair)->get_uol();
+                        hairs = dynamic_cast<wz::Property<wz::WzUOL> *>(hairs)->get_uol();
                     }
                     if (it.first == u"hairShade")
                     {
-                        hair = hair->find_from_path(u"0");
+                        hairs = hairs->find_from_path(u"0");
                     }
-                    auto hair_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(hair->find_from_path(u"map/brow"))->get();
-                    Sprite *sprite = new Sprite(hair);
+                    auto hair_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(hairs->find_from_path(u"map/brow"))->get();
+                    Sprite *sprite = new Sprite(hairs);
                     Transform *f = new Transform(face_positions[i][no] - SDL_FPoint{(float)hair_pos.x, (float)hair_pos.y});
-                    hairs[i][no].push_back({f, sprite});
+                    auto z = std::any_cast<std::u16string>(sprite->get_z());
+                    auto part = *zmap[z];
+                    part[i][no] = {f, sprite};
                 }
             }
         }
@@ -243,7 +341,9 @@ void Avatar::add_shoes(const std::u16string &val)
                     auto shoes_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(shoes_node->find_from_path(type + u"/shoes/map/navel"))->get();
                     Sprite *sprite = new Sprite(shoes_node->find_from_path(type + u"/shoes"));
                     Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)shoes_pos.x, (float)shoes_pos.y});
-                    shoes[i][no] = {f, sprite};
+                    auto z = std::any_cast<std::u16string>(sprite->get_z());
+                    auto part = *zmap[z];
+                    part[i][no] = {f, sprite};
                 }
             }
         }
@@ -268,137 +368,19 @@ void Avatar::add_weapon(const std::u16string &val)
                         auto weapon_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(weapon_node->find_from_path(type + u"/weapon/map/hand"))->get();
                         Sprite *sprite = new Sprite(weapon_node->find_from_path(type + u"/weapon"));
                         Transform *f = new Transform(arm_positions[i][no] - SDL_FPoint{(float)weapon_pos.x, (float)weapon_pos.y});
-                        weapon[i][no] = {f, sprite};
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
                     }
                     else
                     {
                         auto weapon_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(weapon_node->find_from_path(type + u"/weapon/map/navel"))->get();
                         Sprite *sprite = new Sprite(weapon_node->find_from_path(type + u"/weapon"));
                         Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)weapon_pos.x, (float)weapon_pos.y});
-                        weapon[i][no] = {f, sprite};
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
                     }
-                }
-            }
-        }
-    }
-}
-
-void Avatar::add_arm(const std::u16string &val)
-{
-    auto body_node = character_node->find_from_path(val + u".img");
-    for (uint8_t i = 0; i < ACTION::LENGTH; i++)
-    {
-        for (uint8_t no = 0; no < body_positions[i].size(); no++)
-        {
-            auto no_str = std::to_string(no);
-            auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-            if (body_node->find_from_path(type + u"/arm") != nullptr)
-            {
-                auto arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(body_node->find_from_path(type + u"/arm/map/hand"))->get();
-                Sprite *sprite = new Sprite(body_node->find_from_path(type + u"/arm"));
-                Transform *f = new Transform(arm_positions[i][no] - SDL_FPoint{(float)arm_pos.x, (float)arm_pos.y});
-                arm[i][no] = {f, sprite};
-            }
-        }
-    }
-}
-
-void Avatar::add_coat_arm(const std::u16string &val)
-{
-    auto coat_arm_node = character_node->find_from_path(u"Coat/" + val + u".img");
-    if (coat_arm_node != nullptr)
-    {
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
-        {
-            for (uint8_t no = 0; no < body_positions[i].size(); no++)
-            {
-                auto no_str = std::to_string(no);
-                auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-                if (coat_arm_node->find_from_path(type + u"/mailArm") != nullptr)
-                {
-                    auto coat_arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(coat_arm_node->find_from_path(type + u"/mailArm/map/navel"))->get();
-                    Sprite *sprite = new Sprite(coat_arm_node->find_from_path(type + u"/mailArm"));
-                    Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)coat_arm_pos.x, (float)coat_arm_pos.y});
-                    coat_arm[i][no] = {f, sprite};
-                }
-            }
-        }
-    }
-}
-
-void Avatar::add_hand(const std::u16string &val)
-{
-    auto body_node = character_node->find_from_path(val + u".img");
-    for (uint8_t i = 0; i < ACTION::LENGTH; i++)
-    {
-        for (uint8_t no = 0; no < body_positions[i].size(); no++)
-        {
-            auto no_str = std::to_string(no);
-            auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-            if (body_node->find_from_path(type + u"/hand") != nullptr)
-            {
-                auto _hand = body_node->find_from_path(type + u"/hand");
-                if (_hand->find_from_path(u"map/navel") != nullptr)
-                {
-                    auto hand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_hand->find_from_path(u"map/navel"))->get();
-                    Sprite *sprite = new Sprite(_hand);
-                    Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)hand_pos.x, (float)hand_pos.y});
-                    hand[i][no] = {f, sprite};
-                }
-            }
-        }
-    }
-}
-
-void Avatar::add_lHand(const std::u16string &val)
-{
-    auto body_node = character_node->find_from_path(val + u".img");
-    for (uint8_t i = 0; i < ACTION::LENGTH; i++)
-    {
-        for (uint8_t no = 0; no < body_positions[i].size(); no++)
-        {
-            auto no_str = std::to_string(no);
-            auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-            if (body_node->find_from_path(type + u"/lHand") != nullptr)
-            {
-                auto _lHand = body_node->find_from_path(type + u"/lHand");
-                if (_lHand->find_from_path(u"map/handMove") != nullptr)
-                {
-                    auto lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/handMove"))->get();
-                    Sprite *sprite = new Sprite(_lHand);
-                    Transform *f = new Transform(hand_positions[i][no] - SDL_FPoint{(float)lHand_pos.x, (float)lHand_pos.y});
-                    lHand[i][no] = {f, sprite};
-                }
-                else
-                {
-                    auto lHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_lHand->find_from_path(u"map/navel"))->get();
-                    Sprite *sprite = new Sprite(_lHand);
-                    Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)lHand_pos.x, (float)lHand_pos.y});
-                    lHand[i][no] = {f, sprite};
-                }
-            }
-        }
-    }
-}
-
-void Avatar::add_rHand(const std::u16string &val)
-{
-    auto body_node = character_node->find_from_path(val + u".img");
-    for (uint8_t i = 0; i < ACTION::LENGTH; i++)
-    {
-        for (uint8_t no = 0; no < body_positions[i].size(); no++)
-        {
-            auto no_str = std::to_string(no);
-            auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-            if (body_node->find_from_path(type + u"/rHand") != nullptr)
-            {
-                auto _rHand = body_node->find_from_path(type + u"/rHand");
-                if (_rHand->find_from_path(u"map/navel") != nullptr)
-                {
-                    auto rHand_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(_rHand->find_from_path(u"map/navel"))->get();
-                    Sprite *sprite = new Sprite(_rHand);
-                    Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)rHand_pos.x, (float)rHand_pos.y});
-                    rHand[i][no] = {f, sprite};
                 }
             }
         }
@@ -414,58 +396,6 @@ Avatar::~Avatar()
         delete spr;
     };
     for (auto &it : body)
-    {
-        for (auto &[key, val] : it)
-        {
-            del_func(val);
-        }
-    }
-    for (auto &it : coat)
-    {
-        for (auto &[key, val] : it)
-        {
-            del_func(val);
-        }
-    }
-    for (auto &it : pants)
-    {
-        for (auto &[key, val] : it)
-        {
-            del_func(val);
-        }
-    }
-    for (auto &it : head)
-    {
-        for (auto &[key, val] : it)
-        {
-            del_func(val);
-        }
-    }
-    for (auto &it : face)
-    {
-        for (auto &[key, val] : it)
-        {
-            del_func(val);
-        }
-    }
-    for (auto &it : hairs)
-    {
-        for (auto &[key, val] : it)
-        {
-            for (auto &pai : val)
-            {
-                del_func(pai);
-            }
-        }
-    }
-    for (auto &it : coat_arm)
-    {
-        for (auto &[key, val] : it)
-        {
-            del_func(val);
-        }
-    }
-    for (auto &it : weapon)
     {
         for (auto &[key, val] : it)
         {

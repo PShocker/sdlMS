@@ -20,7 +20,7 @@ Tile::Tile(wz::Node *node, std::u16string ts, int layer, int id, World *world)
     Transform *t = new Transform{(float)x, (float)y};
     add_component(t);
     add_component(spr);
-    world->add_component(t, layer * 300000 + spr->z * 1000 + id + 10000);
+    world->add_component(t, layer * 300000 + std::any_cast<int>(spr->z) * 1000 + id + 10000);
 }
 
 Tile::~Tile()

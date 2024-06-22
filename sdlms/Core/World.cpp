@@ -29,7 +29,7 @@ void World::add_entity(Entity *ent)
 
 void World::add_entity(Entity *ent, int index)
 {
-	entity_map[typeid(*ent)].insert({index, ent});
+	entity_map[typeid(*ent)].emplace(index, ent);
 	ent->set_id(index);
 }
 
@@ -41,7 +41,7 @@ void World::add_component(Component *comp)
 
 void World::add_component(Component *comp, int index)
 {
-	component_map[typeid(*comp)].insert({index, comp});
+	component_map[typeid(*comp)].emplace(index, comp);
 	comp->set_id(index);
 }
 

@@ -49,7 +49,7 @@ Border::Border(wz::Node *node, World *world)
             left = left.value() + 25;
             right = right.value() - 25;
             top = top.value() - 300;
-            bottom = bottom.value();
+            bottom = bottom.value() + 100;
         }
     }
 }
