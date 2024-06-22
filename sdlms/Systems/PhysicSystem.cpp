@@ -710,7 +710,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 						// 判断墙面碰撞方向
 						if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y))
 						{
-							new_pos.x = tr->get_position().x;
+							new_pos.x = (int)tr->get_position().x;
 							new_pos.y = std::min(line->get_max_y(), new_pos.y);
 							nor->hspeed = 0;
 						}
