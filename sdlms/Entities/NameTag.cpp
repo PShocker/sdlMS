@@ -1,8 +1,11 @@
 #include "NameTag.h"
 #include "Components/Sprite.h"
+#include "Resource/Wz.h"
 
 NameTag::NameTag(int width, int height)
 {
+    width += 4;
+    height += 6;
     auto renderer = Window::get_renderer();
     Uint8 alpha = 178;
     Uint32 color = (alpha << 24) | (0 << 16) | (0 << 8) | 0; // ARGB格式，这里设置为纯黑色，透明度为178
@@ -17,6 +20,23 @@ NameTag::NameTag(int width, int height)
 
     Sprite *spr = new Sprite(texture, width, height);
     add_component(spr);
+}
+
+NameTag::NameTag(int width, int height, const std::u16string &val)
+{
+    Sprite *spr = Sprite::load(World::get_world()->get_resource<Wz>().UI->get_root()->find_from_path(u"NameTag.img/" + val),
+                               width, height, Sprite::NameTag);
+    add_component(spr);
+}
+
+int NameTag::get_width()
+{
+    return get_component<Sprite>()->get_width();
+}
+
+int NameTag::get_height()
+{
+    return get_component<Sprite>()->get_height();
 }
 
 NameTag::~NameTag()

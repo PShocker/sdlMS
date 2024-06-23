@@ -89,9 +89,9 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
             add_entity(str);
             auto spr = str->get_component<Sprite>();
             {
-                auto nam = new NameTag(spr->width + 4, spr->height + 6);
+                auto nam = new NameTag(spr->width, spr->height, u"13");
                 add_entity(nam);
-                auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), 6});
+                auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-nam->get_width() / 2), 6});
                 nam->add_component(rtr);
                 nam->add_component(new Transform());
                 world->add_component(rtr, 0);
@@ -109,7 +109,7 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
 // 测试
 Mob::Mob(World *world, SDL_FPoint p)
 {
-    std::u16string mob_id = u"1210102";
+    const std::u16string mob_id = u"1210102";
     auto node = world->get_resource<Wz>().Mob->get_root()->find_from_path(mob_id + u".img");
     // 排除 link
     while (node->find_from_path(u"info/link") != nullptr)

@@ -5,7 +5,7 @@
 #include <format>
 #include <string>
 
-Tile::Tile(wz::Node *node, std::u16string ts, int layer, int id, World *world)
+Tile::Tile(wz::Node *node, const std::u16string &ts, int layer, int id, World *world)
 {
     auto u = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"u"))->get();
     auto no = dynamic_cast<wz::Property<int> *>(node->get_child(u"no"))->get();

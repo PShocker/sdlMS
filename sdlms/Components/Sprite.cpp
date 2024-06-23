@@ -143,6 +143,57 @@ Sprite::Sprite(wz::Node *node, int alpha)
     }
 }
 
+Sprite *Sprite::load(wz::Node *node, int width, int height, uint8_t type)
+{
+    switch (type)
+    {
+    case NameTag:
+    {
+        auto w_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w"));
+        auto w_height = w_canvas->get().height;
+        auto w_width = w_canvas->get().width;
+        auto w_raw_data = w_canvas->get_raw_data();
+
+        auto c_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c"));
+        auto c_height = c_canvas->get().height;
+        auto c_width = c_canvas->get().width;
+        auto c_raw_data = c_canvas->get_raw_data();
+
+        auto e_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e"));
+        auto e_height = e_canvas->get().height;
+        auto e_width = e_canvas->get().width;
+        auto e_raw_data = e_canvas->get_raw_data();
+
+        width = width + w_width + e_width;
+        height = std::max({height, w_height, c_height, e_height});
+
+        auto texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
+
+        SDL_Rect rect{0, 0, w_width, w_height};
+        SDL_UpdateTexture(texture, &rect, w_raw_data.data(), w_width * sizeof(Uint16));
+
+        for (int i = 0; i <= (width - w_width - e_width) / c_width; i++)
+        {
+            rect = {w_width + i * c_width, 0, c_width, c_height};
+            SDL_UpdateTexture(texture, &rect, c_raw_data.data(), c_width * sizeof(Uint16));
+        }
+
+        rect = {width - e_width, 0, e_width, e_height};
+        SDL_UpdateTexture(texture, &rect, e_raw_data.data(), e_width * sizeof(Uint16));
+
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+
+        return new Sprite(texture, width, height);
+    }
+
+    break;
+
+    default:
+        break;
+    }
+    return nullptr;
+}
+
 Sprite::Sprite(SDL_Texture *texture, int width, int height) : texture(texture), width(width), height(height)
 {
 }

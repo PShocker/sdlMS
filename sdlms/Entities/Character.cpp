@@ -22,7 +22,6 @@ Character::Character(World *world, SDL_FPoint p)
     ava->add_shoes(u"01070002");
     ava->add_weapon(u"01302009");
 
-
     add_component(ava);
     world->add_component(ava);
 
@@ -39,9 +38,9 @@ Character::Character(World *world, SDL_FPoint p)
     add_entity(str);
     auto spr = str->get_component<Sprite>();
     {
-        auto nam = new NameTag(spr->width + 4, spr->height + 6);
+        auto nam = new NameTag(spr->width, spr->height, u"13");
         add_entity(nam);
-        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), (float)6});
+        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-nam->get_width() / 2), (float)6});
         nam->add_component(rtr);
         nam->add_component(new Transform());
         world->add_component(rtr, 0);
