@@ -140,6 +140,10 @@ void World::destroy_component(Component *comp, bool delete_component)
 				++it;
 			}
 		}
+		if (target_map.size() == 0)
+		{
+			component_map.erase(typeid(*comp));
+		}
 		if (delete_component)
 		{
 			delete comp;
