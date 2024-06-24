@@ -143,7 +143,7 @@ Sprite::Sprite(wz::Node *node, int alpha)
     }
 }
 
-Sprite *Sprite::load(wz::Node *node, int width, int height, uint8_t type)
+Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
 {
     switch (type)
     {
@@ -183,15 +183,14 @@ Sprite *Sprite::load(wz::Node *node, int width, int height, uint8_t type)
 
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
-        return new Sprite(texture, width, height);
+        this->texture = texture;
+        this->width = width;
+        this->height = height;
     }
-
     break;
-
     default:
         break;
     }
-    return nullptr;
 }
 
 Sprite::Sprite(SDL_Texture *texture, int width, int height) : texture(texture), width(width), height(height)

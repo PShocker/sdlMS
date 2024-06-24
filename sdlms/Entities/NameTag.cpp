@@ -24,8 +24,8 @@ NameTag::NameTag(int width, int height)
 
 NameTag::NameTag(int width, int height, const std::u16string &val)
 {
-    Sprite *spr = Sprite::load(World::get_world()->get_resource<Wz>().UI->get_root()->find_from_path(u"NameTag.img/" + val),
-                               width, height, Sprite::NameTag);
+    Sprite *spr = new Sprite(World::get_world()->get_resource<Wz>().UI->get_root()->find_from_path(u"NameTag.img/" + val),
+                             width, height, Sprite::NameTag);
     add_component(spr);
 }
 
