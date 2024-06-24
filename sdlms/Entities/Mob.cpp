@@ -89,7 +89,7 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
             add_entity(str);
             auto spr = str->get_component<Sprite>();
             {
-                auto nam = new NameTag(spr->width, spr->height, u"13");
+                auto nam = new NameTag(spr->width, spr->height, u"18");
                 add_entity(nam);
                 auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-nam->get_width() / 2), 6});
                 nam->add_component(rtr);
