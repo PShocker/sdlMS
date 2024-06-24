@@ -12,9 +12,9 @@ class Sprite : public Component
 {
 public:
     Sprite(SDL_Texture *texture, int width, int height);
+    Sprite(wz::Node *node, int width, int height, uint8_t type);
     Sprite(wz::Node *node, int alpha = 255);
     ~Sprite();
-    static Sprite *load(wz::Node *node, int width, int height, uint8_t type);
 
     enum Type : uint8_t
     {
