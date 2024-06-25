@@ -9,9 +9,6 @@ String::String(const std::u16string &s, SDL_Color color, int size)
 
 String::~String()
 {
-    if (get_component<Sprite>() != nullptr)
-    {
-        auto spr = get_component<Sprite>();
-        delete spr;
-    }
+    auto spr = get_component<Sprite>();
+    delete spr;
 }

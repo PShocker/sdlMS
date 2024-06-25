@@ -43,9 +43,6 @@ int NameTag::get_height()
 
 NameTag::~NameTag()
 {
-    if (get_component<Sprite>() != nullptr)
-    {
-        auto spr = get_component<Sprite>();
-        delete spr;
-    }
+    auto spr = get_component<Sprite>();
+    delete spr;
 }
