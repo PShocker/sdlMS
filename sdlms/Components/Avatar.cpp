@@ -1,5 +1,6 @@
 #include "Avatar.h"
 #include "Resource/Wz.h"
+#include <ranges>
 
 Avatar *Avatar::load()
 {
@@ -232,6 +233,7 @@ void Avatar::add_cap(const std::u16string &val)
     auto cap_node = character_node->find_from_path(u"Cap/" + val + u".img");
     if (cap_node != nullptr)
     {
+        cap_vslot.clear();
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
@@ -256,6 +258,11 @@ void Avatar::add_cap(const std::u16string &val)
                     }
                 }
             }
+        }
+        auto vslot = dynamic_cast<wz::Property<wz::wzstring> *>(cap_node->find_from_path(u"info/vslot"))->get();
+        for (size_t i = 0; i < vslot.size(); i += 2)
+        {
+            cap_vslot.emplace(vslot.substr(i, 2));
         }
     }
 }
