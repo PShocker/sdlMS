@@ -1,6 +1,7 @@
 #pragma once
 
 #include <utility> // 包含 std::pair 头文件
+#include <unordered_set>
 #include "Transform.h"
 #include "Sprite.h"
 #include "wz/Property.hpp"
@@ -433,6 +434,7 @@ public:
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> backMobEquipUnderSaddle[ACTION::LENGTH];
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> backTamingMobMid[ACTION::LENGTH];
     std::unordered_map<std::u16string, std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> (*)[ACTION::LENGTH]> zmap;
+    std::unordered_set<std::u16string> cap_vslot;
 
     uint8_t act = ACTION::JUMP;
     int act_index = 0;

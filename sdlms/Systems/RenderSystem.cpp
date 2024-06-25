@@ -251,7 +251,10 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 	render_avatar(ava->saddleRear);
 	render_avatar(ava->characterEnd);
 	render_avatar(ava->backWeapon);
-	render_avatar(ava->backHairBelowHead);
+	if (!ava->cap_vslot.contains(u"Hf"))
+	{
+		render_avatar(ava->backHairBelowHead);
+	}
 	render_avatar(ava->backShieldBelowBody);
 	render_avatar(ava->backMailChestAccessory);
 	render_avatar(ava->backCapAccessory);
@@ -273,9 +276,18 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 	render_avatar(ava->backHead);
 	render_avatar(ava->backAccessoryFaceOverHead);
 	render_avatar(ava->backCape);
-	render_avatar(ava->backHairBelowCap);
-	render_avatar(ava->backHairBelowCapNarrow);
-	render_avatar(ava->backHairBelowCapWide);
+	if (!ava->cap_vslot.contains(u"H6"))
+	{
+		render_avatar(ava->backHairBelowCap);
+	}
+	if (!ava->cap_vslot.contains(u"H5"))
+	{
+		render_avatar(ava->backHairBelowCapNarrow);
+	}
+	if (!ava->cap_vslot.contains(u"H4"))
+	{
+		render_avatar(ava->backHairBelowCapWide);
+	}
 	render_avatar(ava->backWeaponOverHead);
 	render_avatar(ava->backCap);
 	render_avatar(ava->backHair);
@@ -285,7 +297,10 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 	render_avatar(ava->backWing);
 	render_avatar(ava->backHairOverCape);
 	render_avatar(ava->weaponBelowBody);
-	render_avatar(ava->hairBelowBody);
+	if (!ava->cap_vslot.contains(u"Hb"))
+	{
+		render_avatar(ava->hairBelowBody);
+	}
 	render_avatar(ava->capeBelowBody);
 	render_avatar(ava->shieldBelowBody);
 	render_avatar(ava->capAccessoryBelowBody);
@@ -323,7 +338,10 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 	render_avatar(ava->gloveWrist);
 	render_avatar(ava->cape);
 	render_avatar(ava->head);
-	render_avatar(ava->hairShade);
+	if (!ava->cap_vslot.contains(u"Hs"))
+	{
+		render_avatar(ava->hairShade);
+	}
 	render_avatar(ava->accessoryFaceBelowFace);
 	if (ava->show_face[ava->act][ava->act_index] == true)
 	{
@@ -336,11 +354,17 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 	render_avatar(ava->accessoryFace);
 	render_avatar(ava->accessoryEyeShadow);
 	render_avatar(ava->accessoryEye);
-	render_avatar(ava->hair);
+	if (!ava->cap_vslot.contains(u"H2"))
+	{
+		render_avatar(ava->hair);
+	}
 	render_avatar(ava->cap);
 	render_avatar(ava->capAccessory);
 	render_avatar(ava->accessoryEyeOverCap);
-	render_avatar(ava->hairOverHead);
+	if (!ava->cap_vslot.contains(u"H1"))
+	{
+		render_avatar(ava->hairOverHead);
+	}
 	render_avatar(ava->capOverHair);
 	render_avatar(ava->weaponBelowArm);
 	render_avatar(ava->armOverHairBelowWeapon);
