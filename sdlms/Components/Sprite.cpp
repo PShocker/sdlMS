@@ -143,7 +143,7 @@ Sprite::Sprite(wz::Node *node, int alpha)
     }
 }
 
-Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
+Sprite::Sprite(wz::Node *node, int w, int h, uint8_t type)
 {
     switch (type)
     {
@@ -164,10 +164,9 @@ Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
         auto e_width = e_canvas->get().width;
         auto e_raw_data = e_canvas->get_raw_data();
 
-        width = width + w_width + e_width;
-        height = std::max({height, w_height, c_height, e_height});
-
-        auto texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
+        width = w + w_width + e_width;
+        height = std::max(h, w_height);
+        texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
 
         SDL_Rect rect{0, 0, w_width, w_height};
         SDL_UpdateTexture(texture, &rect, w_raw_data.data(), w_width * sizeof(Uint16));
@@ -177,23 +176,22 @@ Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
             rect = {w_width + i * c_width, 0, c_width, c_height};
             SDL_UpdateTexture(texture, &rect, c_raw_data.data(), c_width * sizeof(Uint16));
         }
-
         rect = {width - e_width, 0, e_width, e_height};
         SDL_UpdateTexture(texture, &rect, e_raw_data.data(), e_width * sizeof(Uint16));
-
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-
-        this->texture = texture;
-        this->width = width;
-        this->height = height;
+        break;
     }
-    break;
+    case ChatBallon:
+    {
+
+        break;
+    }
     default:
         break;
     }
 }
 
-Sprite::Sprite(SDL_Texture *texture, int width, int height) : texture(texture), width(width), height(height)
+Sprite::Sprite(SDL_Texture *texture, int w, int h) : texture(texture), width(w), height(h)
 {
 }
 

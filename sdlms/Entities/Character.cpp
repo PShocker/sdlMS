@@ -19,6 +19,7 @@ Character::Character(World *world, SDL_FPoint p)
     ava->add_pants(u"01060026");
     ava->add_face(u"00020000");
     ava->add_hairs(u"00030000");
+    ava->add_cap(u"01000016");
     ava->add_shoes(u"01070002");
     ava->add_weapon(u"01302009");
 
@@ -37,20 +38,18 @@ Character::Character(World *world, SDL_FPoint p)
     auto str = new String(u"逆向萌新");
     add_entity(str);
     auto spr = str->get_component<Sprite>();
-    {
-        auto nam = new NameTag(spr->width, spr->height, u"13");
-        add_entity(nam);
-        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-nam->get_width() / 2), (float)6});
-        nam->add_component(rtr);
-        nam->add_component(new Transform());
-        world->add_component(rtr, 0);
-    }
-    {
-        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), (float)9});
-        str->add_component(rtr);
-        str->add_component(new Transform());
-        world->add_component(rtr, 0);
-    }
+
+    auto nam = new NameTag(spr->width, spr->height, u"13");
+    add_entity(nam);
+    auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-nam->get_width() / 2), (float)6});
+    nam->add_component(rtr);
+    nam->add_component(new Transform());
+    world->add_component(rtr, 0);
+
+    rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), (float)6 + (nam->get_height() - spr->height) / 2});
+    str->add_component(rtr);
+    str->add_component(new Transform());
+    world->add_component(rtr, 0);
 }
 
 void Character::switch_act(uint8_t action)

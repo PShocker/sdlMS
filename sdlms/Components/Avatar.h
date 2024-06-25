@@ -442,6 +442,7 @@ public:
 public:
     void add_body(const std::u16string &val);
     void add_coat(const std::u16string &val);
+    void add_cap(const std::u16string &val);
     void add_pants(const std::u16string &val);
     void add_head(const std::u16string &val);
     void add_face(const std::u16string &val);

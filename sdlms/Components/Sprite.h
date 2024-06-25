@@ -11,14 +11,15 @@
 class Sprite : public Component
 {
 public:
-    Sprite(SDL_Texture *texture, int width, int height);
-    Sprite(wz::Node *node, int width, int height, uint8_t type);
+    Sprite(SDL_Texture *texture, int w, int h);
+    Sprite(wz::Node *node, int w, int h, uint8_t type);
     Sprite(wz::Node *node, int alpha = 255);
     ~Sprite();
 
     enum Type : uint8_t
     {
         NameTag,
+        ChatBallon,
     };
 
 private:
