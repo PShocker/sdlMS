@@ -290,7 +290,10 @@ void RenderSystem::render_avatar_sprite(Transform *tr, Avatar *ava, World &world
 	}
 	render_avatar(ava->backWeaponOverHead);
 	render_avatar(ava->backCap);
-	render_avatar(ava->backHair);
+	if (!ava->cap_vslot.contains(u"H1"))
+	{
+		render_avatar(ava->backHair);
+	}
 	render_avatar(ava->backCapOverHair);
 	render_avatar(ava->backShield);
 	render_avatar(ava->backWeaponOverShield);
