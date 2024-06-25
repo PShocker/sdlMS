@@ -227,6 +227,39 @@ void Avatar::add_coat(const std::u16string &val)
     }
 }
 
+void Avatar::add_cap(const std::u16string &val)
+{
+    auto cap_node = character_node->find_from_path(u"Cap/" + val + u".img");
+    if (cap_node != nullptr)
+    {
+        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        {
+            for (uint8_t no = 0; no < body_positions[i].size(); no++)
+            {
+                auto no_str = std::to_string(no);
+                auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
+                if (cap_node->find_from_path(type) != nullptr)
+                {
+                    for (auto it : cap_node->find_from_path(type)->get_children())
+                    {
+                        auto cap = it.second[0];
+                        if (cap->type == wz::Type::UOL)
+                        {
+                            cap = dynamic_cast<wz::Property<wz::WzUOL> *>(cap)->get_uol();
+                        }
+                        auto cap_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(cap->find_from_path(u"map/brow"))->get();
+                        Sprite *sprite = new Sprite(cap);
+                        Transform *f = new Transform(face_positions[i][no] - SDL_FPoint{(float)cap_pos.x, (float)cap_pos.y});
+                        auto z = std::any_cast<std::u16string>(sprite->get_z());
+                        auto part = *zmap[z];
+                        part[i][no] = {f, sprite};
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Avatar::add_pants(const std::u16string &val)
 {
     auto pants_node = character_node->find_from_path(u"Pants/" + val + u".img");
@@ -243,7 +276,9 @@ void Avatar::add_pants(const std::u16string &val)
                     auto pants_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(pants_node->find_from_path(type + u"/pants/map/navel"))->get();
                     Sprite *sprite = new Sprite(pants_node->find_from_path(type + u"/pants"));
                     Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)pants_pos.x, (float)pants_pos.y});
-                    pants[i][no] = {f, sprite};
+                    auto z = std::any_cast<std::u16string>(sprite->get_z());
+                    auto part = *zmap[z];
+                    part[i][no] = {f, sprite};
                 }
             }
         }
