@@ -19,9 +19,10 @@ Character::Character(World *world, SDL_FPoint p)
     ava->add_pants(u"01060026");
     ava->add_face(u"00020000");
     ava->add_hairs(u"00030000");
-    ava->add_cap(u"01002357");
+    ava->add_cap(u"01000016");
     ava->add_shoes(u"01070002");
     ava->add_weapon(u"01302009");
+    ava->add_shield(u"01092030");
 
     add_component(ava);
     world->add_component(ava);

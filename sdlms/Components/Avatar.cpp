@@ -429,6 +429,31 @@ void Avatar::add_weapon(const std::u16string &val)
     }
 }
 
+void Avatar::add_shield(const std::u16string &val)
+{
+    auto shield_node = character_node->find_from_path(u"Shield/" + val + u".img");
+    if (shield_node != nullptr)
+    {
+        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        {
+            for (uint8_t no = 0; no < body_positions[i].size(); no++)
+            {
+                auto no_str = std::to_string(no);
+                auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
+                if (shield_node->find_from_path(type + u"/shield") != nullptr)
+                {
+                    auto shield_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(shield_node->find_from_path(type + u"/shield/map/navel"))->get();
+                    Sprite *sprite = new Sprite(shield_node->find_from_path(type + u"/shield"));
+                    Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)shield_pos.x, (float)shield_pos.y});
+                    auto z = std::any_cast<std::u16string>(sprite->get_z());
+                    auto part = *zmap[z];
+                    part[i][no] = {f, sprite};
+                }
+            }
+        }
+    }
+}
+
 Avatar::~Avatar()
 {
     auto del_func = [](std::pair<Transform *, Sprite *> &pai) -> void
