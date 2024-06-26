@@ -181,6 +181,9 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 		if (lad != nullptr)
 		{
 			// 爬到了梯子上
+			auto foo = tr->get_owner()->get_entity<FootHold>(0);
+			foo->zmass = 0;
+
 			auto line = lad->get_component<Line>();
 
 			tr->set_x(line->get_m().x);
@@ -338,11 +341,11 @@ bool PhysicSystem::want_jump(Transform *tr, Normal *nor, World &world)
 			nor->type = Normal::Air;
 			if (nor->hkey == Normal::Right)
 			{
-				nor->hspeed = 120;
+				nor->hspeed = 140;
 			}
 			else if (nor->hkey == Normal::Left)
 			{
-				nor->hspeed = -120;
+				nor->hspeed = -140;
 			}
 
 			if (nor->get_owner<Character>() != nullptr)
@@ -704,8 +707,8 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			{
 				if (!line->get_k().has_value())
 				{
-					// k值不存在,则为墙面,且必须和同一级的墙碰撞
-					if (foo == nullptr || foo->get_page() == fh->get_page())
+					// k值不存在,则为墙面,且必须和同一级的墙碰撞,并且不是边缘墙
+					if (foo == nullptr || foo->zmass == fh->zmass && !(fh->prev == 0 || fh->next == 0))
 					{
 						// 判断墙面碰撞方向
 						if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y))
@@ -778,8 +781,8 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			}
 			if (!line->get_k().has_value())
 			{
-				// k值不存在,则为墙面,且必须和同一级的墙碰撞
-				if (foo == nullptr || foo->get_page() == fh->get_page())
+				// k值不存在,则为墙面,且必须和同一级的墙碰撞,并且不是边缘墙
+				if (foo == nullptr || foo->zmass == fh->zmass && !(fh->prev == 0 || fh->next == 0))
 				{
 					// 判断墙面碰撞方向
 					if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y))

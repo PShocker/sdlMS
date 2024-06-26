@@ -451,6 +451,8 @@ public:
     void add_hairs(const std::u16string &val);
     void add_shoes(const std::u16string &val);
     void add_weapon(const std::u16string &val);
+    void add_shield(const std::u16string &val);
+
     static Avatar *load();
     static inline bool inited = false;
     static void init();
