@@ -708,10 +708,10 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				if (!line->get_k().has_value())
 				{
 					// k值不存在,则为墙面,且必须和同一级的墙碰撞,并且不是边缘墙
-					if (foo == nullptr || foo->zmass == fh->zmass && !(fh->prev == 0 || fh->next == 0))
+					if (foo == nullptr || foo->zmass == fh->zmass)
 					{
 						// 判断墙面碰撞方向
-						if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y))
+						if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y && fh->prev != 0) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y && fh->next != 0))
 						{
 							new_pos.x = (int)tr->get_position().x;
 							new_pos.y = std::min(line->get_max_y(), new_pos.y);
@@ -782,10 +782,10 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			if (!line->get_k().has_value())
 			{
 				// k值不存在,则为墙面,且必须和同一级的墙碰撞,并且不是边缘墙
-				if (foo == nullptr || foo->zmass == fh->zmass && !(fh->prev == 0 || fh->next == 0))
+				if (foo == nullptr || foo->zmass == fh->zmass)
 				{
 					// 判断墙面碰撞方向
-					if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y))
+					if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y && fh->prev != 0) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y && fh->next != 0))
 					{
 						auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 						if (collide.has_value())

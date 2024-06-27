@@ -150,16 +150,17 @@ Sprite::Sprite(wz::Node *node, int w, int h, uint8_t type)
     case NameTag:
     {
         auto w_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w"));
+        auto e_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e"));
+        auto c_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c"));
+
         auto w_height = w_canvas->get().height;
         auto w_width = w_canvas->get().width;
         auto w_raw_data = w_canvas->get_raw_data();
 
-        auto c_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c"));
         auto c_height = c_canvas->get().height;
         auto c_width = c_canvas->get().width;
         auto c_raw_data = c_canvas->get_raw_data();
 
-        auto e_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e"));
         auto e_height = e_canvas->get().height;
         auto e_width = e_canvas->get().width;
         auto e_raw_data = e_canvas->get_raw_data();
@@ -183,6 +184,15 @@ Sprite::Sprite(wz::Node *node, int w, int h, uint8_t type)
     }
     case ChatBallon:
     {
+        auto c = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c"));
+        auto e = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e"));
+        auto ne = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"ne"));
+        auto n = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n"));
+        auto nw = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"nw"));
+        auto w = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w"));
+        auto sw = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw"));
+        auto s = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s"));
+        auto se = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se"));
 
         break;
     }
