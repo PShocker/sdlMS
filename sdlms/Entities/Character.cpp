@@ -53,7 +53,7 @@ Character::Character(World *world, SDL_FPoint p)
     str->add_component(new Transform());
     world->add_component(rtr, 0);
 
-    auto bal = new ChatBalloon(100, 112, u"npc");
+    auto bal = new ChatBalloon(100, 112, u"0");
     add_entity(bal);
     rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-200});
     bal->add_component(rtr);
