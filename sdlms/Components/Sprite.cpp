@@ -143,43 +143,33 @@ Sprite::Sprite(wz::Node *node, int alpha)
     }
 }
 
-Sprite::Sprite(wz::Node *node, int w, int h, uint8_t type)
+Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
 {
     switch (type)
     {
     case NameTag:
     {
-        auto w_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w"));
-        auto e_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e"));
-        auto c_canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c"));
+        auto w = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w"));
+        auto e = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e"));
+        auto c = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c"));
 
-        auto w_height = w_canvas->get().height;
-        auto w_width = w_canvas->get().width;
-        auto w_raw_data = w_canvas->get_raw_data();
-
-        auto c_height = c_canvas->get().height;
-        auto c_width = c_canvas->get().width;
-        auto c_raw_data = c_canvas->get_raw_data();
-
-        auto e_height = e_canvas->get().height;
-        auto e_width = e_canvas->get().width;
-        auto e_raw_data = e_canvas->get_raw_data();
-
-        width = w + w_width + e_width;
-        height = std::max(h, w_height);
+        width = width + w->get().width + e->get().width;
+        height = std::max(height, w->get().height);
         texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
 
-        SDL_Rect rect{0, 0, w_width, w_height};
-        SDL_UpdateTexture(texture, &rect, w_raw_data.data(), w_width * sizeof(Uint16));
+        SDL_Rect rect{0, 0, w->get().width, w->get().height};
+        SDL_UpdateTexture(texture, &rect, w->get_raw_data().data(), w->get().width * sizeof(Uint16));
 
-        for (int i = 0; i <= (width - w_width - e_width) / c_width; i++)
+        for (int i = 0; i <= (width - w->get().width - e->get().width) / c->get().width; i++)
         {
-            rect = {w_width + i * c_width, 0, c_width, c_height};
-            SDL_UpdateTexture(texture, &rect, c_raw_data.data(), c_width * sizeof(Uint16));
+            rect = {w->get().width + i * c->get().width, 0, c->get().width, c->get().height};
+            SDL_UpdateTexture(texture, &rect, c->get_raw_data().data(), c->get().width * sizeof(Uint16));
         }
-        rect = {width - e_width, 0, e_width, e_height};
-        SDL_UpdateTexture(texture, &rect, e_raw_data.data(), e_width * sizeof(Uint16));
+        rect = {width - e->get().width, 0, e->get().width, e->get().height};
+        SDL_UpdateTexture(texture, &rect, e->get_raw_data().data(), e->get().width * sizeof(Uint16));
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        this->width = width;
+        this->height = height;
         break;
     }
     case ChatBallon:
@@ -193,7 +183,56 @@ Sprite::Sprite(wz::Node *node, int w, int h, uint8_t type)
         auto sw = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw"));
         auto s = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s"));
         auto se = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se"));
+        auto arrow = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"arrow"));
 
+        texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height + arrow->get().height);
+        SDL_Rect rect;
+
+        for (int x = 0; x < width; x += n->get().width)
+        {
+            for (int y = 0; y <= height - c->get().height; y += w->get().height)
+            {
+                rect = {x, y, c->get().width, c->get().height};
+                SDL_UpdateTexture(texture, &rect, c->get_raw_data().data(), c->get().width * sizeof(Uint16));
+            }
+        }
+
+        for (int i = 0; i <= width; i += n->get().width)
+        {
+            rect = {i, 0, n->get().width, n->get().height};
+            SDL_UpdateTexture(texture, &rect, n->get_raw_data().data(), n->get().width * sizeof(Uint16));
+
+            rect = {i, height - s->get().height, n->get().width, s->get().height};
+            SDL_UpdateTexture(texture, &rect, s->get_raw_data().data(), n->get().width * sizeof(Uint16));
+        }
+
+        for (int i = 0; i <= height - w->get().height; i += w->get().height)
+        {
+            rect = {0, i, w->get().width, w->get().height};
+            SDL_UpdateTexture(texture, &rect, w->get_raw_data().data(), w->get().width * sizeof(Uint16));
+
+            rect = {width - e->get().width, i, e->get().width, e->get().height};
+            SDL_UpdateTexture(texture, &rect, e->get_raw_data().data(), e->get().width * sizeof(Uint16));
+        }
+
+        rect = {0, 0, nw->get().width, nw->get().height};
+        SDL_UpdateTexture(texture, &rect, nw->get_raw_data().data(), nw->get().width * sizeof(Uint16));
+
+        rect = {0, height - sw->get().height, sw->get().width, sw->get().height};
+        SDL_UpdateTexture(texture, &rect, sw->get_raw_data().data(), sw->get().width * sizeof(Uint16));
+
+        rect = {width - ne->get().width, 0, ne->get().width, ne->get().height};
+        SDL_UpdateTexture(texture, &rect, ne->get_raw_data().data(), ne->get().width * sizeof(Uint16));
+
+        rect = {width - se->get().width, height - se->get().height, se->get().width, se->get().height};
+        SDL_UpdateTexture(texture, &rect, se->get_raw_data().data(), se->get().width * sizeof(Uint16));
+
+        rect = {width / 2 - arrow->get().width / 2, height - arrow->get().height + 7, arrow->get().width, arrow->get().height};
+        SDL_UpdateTexture(texture, &rect, arrow->get_raw_data().data(), arrow->get().width * sizeof(Uint16));
+
+        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+        this->width = width;
+        this->height = height;
         break;
     }
     default:

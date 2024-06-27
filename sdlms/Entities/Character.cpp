@@ -1,6 +1,7 @@
 #include "Character.h"
 #include "NameTag.h"
 #include "String.h"
+#include "ChatBalloon.h"
 
 #include "Components/Avatar.h"
 #include "Components/Transform.h"
@@ -50,6 +51,13 @@ Character::Character(World *world, SDL_FPoint p)
     rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2), (float)6 + (nam->get_height() - spr->height) / 2});
     str->add_component(rtr);
     str->add_component(new Transform());
+    world->add_component(rtr, 0);
+
+    auto bal = new ChatBalloon(100, 112, u"npc");
+    add_entity(bal);
+    rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-200});
+    bal->add_component(rtr);
+    bal->add_component(new Transform());
     world->add_component(rtr, 0);
 }
 
