@@ -2,6 +2,8 @@
 #include "FootHold.h"
 #include "NameTag.h"
 #include "String.h"
+#include "ChatBalloon.h"
+#include "Timer.h"
 
 #include "Components/Sprite.h"
 #include "Components/Transform.h"
@@ -102,6 +104,26 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                 }
             }
         }
+        // 添加聊天气泡
+        auto bal = new ChatBalloon(100, 56, u"8");
+        add_entity(bal);
+        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-150});
+        bal->add_component(rtr);
+        bal->add_component(new Transform());
+        world->add_component(rtr, 0);
+
+        // auto callback = [](Uint32 interval, void *param) -> Uint32
+        // {
+        //     auto world = World::get_world();
+        //     auto timer = (Timer *)param;
+        //     auto bal = timer->get_entity<ChatBalloon>(0);
+        //     auto tr = bal->get_component<Transform>();
+        //     return 2000;
+        // };
+        // Timer *timer = new Timer();
+        // timer->set_timer_id(SDL_AddTimer(2000, callback, timer));
+        // add_entity(timer);
+        // timer->add_entity(bal, 0);
     }
 }
 
@@ -153,6 +175,17 @@ Npc::~Npc()
     }
 
     for (auto &[key, val] : get_entity<NameTag>())
+    {
+        auto t = val->get_component<Transform>();
+        auto rtr = val->get_component<RelativeTransform>();
+        world->destroy_component(t, false);
+        world->destroy_component(rtr, false);
+        delete t;
+        delete rtr;
+        delete val;
+    }
+
+    for (auto &[key, val] : get_entity<ChatBalloon>())
     {
         auto t = val->get_component<Transform>();
         auto rtr = val->get_component<RelativeTransform>();
