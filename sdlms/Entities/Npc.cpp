@@ -228,4 +228,10 @@ Npc::~Npc()
         world->destroy_component(ltr, false);
         delete ltr;
     }
+
+    for (auto &[key, val] : get_entity<Timer>())
+    {
+        SDL_RemoveTimer(val->get_timer_id());
+        delete val;
+    }
 }
