@@ -102,6 +102,17 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                     }
                     i++;
                 }
+                else
+                {
+                    auto str = new String(str_map[key], {255, 255, 0, 255});
+                    add_entity(str);
+                    auto spr = str->get_component<Sprite>();
+                    auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), (float)(-150)});
+                    str->add_component(rtr);
+                    str->add_component(new Transform());
+                    world->add_component(rtr, 0);
+                    break;
+                }
             }
         }
         // 添加聊天气泡
