@@ -104,10 +104,41 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                 }
                 else
                 {
-                    auto str = new String(str_map[key], {255, 255, 0, 255});
+                    auto str = new String(str_map[key], {88, 0, 0, 255}, 8, 13);
+
+
+                    // 添加聊天气泡
+                    auto bal = new ChatBalloon(str->get_width(), str->get_height(), u"npc");
+                    add_entity(bal);
+                    auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-150});
+                    bal->add_component(rtr);
+                    bal->add_component(new Transform());
+                    world->add_component(rtr, 0);
+
+                    auto callback = [](Uint32 interval, void *param) -> Uint32
+                    {
+                        auto world = World::get_world();
+                        auto timer = (Timer *)param;
+                        auto bal = timer->get_entity<ChatBalloon>(0);
+                        auto spr = bal->get_component<Sprite>();
+                        if (spr == nullptr)
+                        {
+                            bal->add_component(bal->spr);
+                        }
+                        else
+                        {
+                            bal->remove_component<Sprite>();
+                        }
+                        return 2000;
+                    };
+                    Timer *timer = new Timer();
+                    timer->set_timer_id(SDL_AddTimer(2000, callback, timer));
+                    add_entity(timer);
+                    timer->add_entity(bal, 0);
+
                     add_entity(str);
                     auto spr = str->get_component<Sprite>();
-                    auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-spr->get_width() / 2 + 2), (float)(-150)});
+                    rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2 + 2), (float)(-146)});
                     str->add_component(rtr);
                     str->add_component(new Transform());
                     world->add_component(rtr, 0);
@@ -115,34 +146,6 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                 }
             }
         }
-        // 添加聊天气泡
-        auto bal = new ChatBalloon(100, 56, u"8");
-        add_entity(bal);
-        auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-150});
-        bal->add_component(rtr);
-        bal->add_component(new Transform());
-        world->add_component(rtr, 0);
-
-        auto callback = [](Uint32 interval, void *param) -> Uint32
-        {
-            auto world = World::get_world();
-            auto timer = (Timer *)param;
-            auto bal = timer->get_entity<ChatBalloon>(0);
-            auto spr = bal->get_component<Sprite>();
-            if (spr == nullptr)
-            {
-                bal->add_component(bal->spr);
-            }
-            else
-            {
-                bal->remove_component<Sprite>();
-            }
-            return 2000;
-        };
-        Timer *timer = new Timer();
-        timer->set_timer_id(SDL_AddTimer(2000, callback, timer));
-        add_entity(timer);
-        timer->add_entity(bal, 0);
     }
 }
 

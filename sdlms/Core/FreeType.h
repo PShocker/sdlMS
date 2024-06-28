@@ -11,5 +11,5 @@ public:
     static void size(int size);
     static inline FT_Library *library;
     static inline FT_Face *face;
-    static Sprite *str(const std::u16string &s, SDL_Color color = {255, 255, 255, 255});
+    static Sprite *str(const std::u16string &s, SDL_Color color = {255, 255, 255, 255}, int w = 0);
 };
