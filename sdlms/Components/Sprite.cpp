@@ -185,7 +185,7 @@ Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
         auto se = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se"));
         auto arrow = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"arrow"));
 
-        texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height + 6);
+        texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height + 7);
         SDL_Rect rect;
 
         for (int x = 0; x < width; x += n->get().width)
@@ -227,7 +227,7 @@ Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
         rect = {width - se->get().width, height - se->get().height, se->get().width, se->get().height};
         SDL_UpdateTexture(texture, &rect, se->get_raw_data().data(), se->get().width * sizeof(Uint16));
 
-        rect = {width / 2 - arrow->get().width / 2, height - arrow->get().height + 6, arrow->get().width - 1, arrow->get().height};
+        rect = {width / 2 - arrow->get().width / 2, height - arrow->get().height + 7, arrow->get().width - 1, arrow->get().height};
         SDL_UpdateTexture(texture, &rect, arrow->get_raw_data().data() + 2, arrow->get().width * sizeof(Uint16));
 
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
