@@ -112,18 +112,26 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
         bal->add_component(new Transform());
         world->add_component(rtr, 0);
 
-        // auto callback = [](Uint32 interval, void *param) -> Uint32
-        // {
-        //     auto world = World::get_world();
-        //     auto timer = (Timer *)param;
-        //     auto bal = timer->get_entity<ChatBalloon>(0);
-        //     auto tr = bal->get_component<Transform>();
-        //     return 2000;
-        // };
-        // Timer *timer = new Timer();
-        // timer->set_timer_id(SDL_AddTimer(2000, callback, timer));
-        // add_entity(timer);
-        // timer->add_entity(bal, 0);
+        auto callback = [](Uint32 interval, void *param) -> Uint32
+        {
+            auto world = World::get_world();
+            auto timer = (Timer *)param;
+            auto bal = timer->get_entity<ChatBalloon>(0);
+            auto spr = bal->get_component<Sprite>();
+            if (spr == nullptr)
+            {
+                bal->add_component(bal->spr);
+            }
+            else
+            {
+                bal->remove_component<Sprite>();
+            }
+            return 2000;
+        };
+        Timer *timer = new Timer();
+        timer->set_timer_id(SDL_AddTimer(2000, callback, timer));
+        add_entity(timer);
+        timer->add_entity(bal, 0);
     }
 }
 
