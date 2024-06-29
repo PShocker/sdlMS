@@ -3,8 +3,8 @@
 String::String(const std::u16string &s, SDL_Color color, int w, int size)
 {
     FreeType::size(size);
-    auto str = FreeType::str(s, color, w);
-    add_component(str);
+    spr = FreeType::str(s, color, w);
+    add_component(spr);
 }
 
 int String::get_width()
@@ -19,6 +19,5 @@ int String::get_height()
 
 String::~String()
 {
-    auto spr = get_component<Sprite>();
     delete spr;
 }

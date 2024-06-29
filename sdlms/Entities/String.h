@@ -13,4 +13,7 @@ public:
     int get_width();
     int get_height();
     ~String();
+
+public:
+    Sprite *spr;
 };
