@@ -33,11 +33,12 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
             auto link = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/link"))->get();
             node = world->get_resource<Wz>().Npc->get_root()->find_from_path(link + u".img");
         }
+        AnimatedSprite *aspr = nullptr;
         for (auto &[name, val] : node->get_children())
         {
             if (name != u"info")
             {
-                auto aspr = new AnimatedSprite(val[0]);
+                aspr = new AnimatedSprite(val[0]);
                 aspr_map[name] = aspr;
                 world->add_component(aspr);
             }
@@ -105,12 +106,13 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                 else
                 {
                     auto str = new String(str_map[key], {88, 0, 0, 255}, 8, 13);
-
+                    add_entity(str);
 
                     // 添加聊天气泡
-                    auto bal = new ChatBalloon(str->get_width(), str->get_height(), u"npc");
+                    auto bal = new ChatBalloon(str->get_width(), str->get_height(), u"0");
+                    bal->add_entity(str);
                     add_entity(bal);
-                    auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-150});
+                    auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-160});
                     bal->add_component(rtr);
                     bal->add_component(new Transform());
                     world->add_component(rtr, 0);
@@ -120,14 +122,28 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                         auto world = World::get_world();
                         auto timer = (Timer *)param;
                         auto bal = timer->get_entity<ChatBalloon>(0);
-                        auto spr = bal->get_component<Sprite>();
-                        if (spr == nullptr)
                         {
-                            bal->add_component(bal->spr);
+                            auto spr = bal->get_component<Sprite>();
+                            if (spr == nullptr)
+                            {
+                                bal->add_component(bal->spr);
+                            }
+                            else
+                            {
+                                bal->remove_component<Sprite>();
+                            }
                         }
-                        else
+                        auto str = bal->get_entity<String>(0);
                         {
-                            bal->remove_component<Sprite>();
+                            auto spr = str->get_component<Sprite>();
+                            if (spr == nullptr)
+                            {
+                                str->add_component(str->spr);
+                            }
+                            else
+                            {
+                                str->remove_component<Sprite>();
+                            }
                         }
                         return 2000;
                     };
@@ -136,9 +152,7 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                     add_entity(timer);
                     timer->add_entity(bal, 0);
 
-                    add_entity(str);
-                    auto spr = str->get_component<Sprite>();
-                    rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2 + 2), (float)(-146)});
+                    rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2 + 8), (float)(-154)});
                     str->add_component(rtr);
                     str->add_component(new Transform());
                     world->add_component(rtr, 0);

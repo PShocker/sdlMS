@@ -185,16 +185,31 @@ Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
         auto se = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se"));
         auto arrow = dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"arrow"));
 
-        texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height + 7);
+        width += nw->get().width + ne->get().width;
+
+        height += nw->get().height + sw->get().height;
+        auto line = std::ceil((float)height / (float)c->get().height);
+        height = line * c->get().height;
+
+        texture = SDL_CreateTexture(Window::get_renderer(), SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height + 8);
         SDL_Rect rect;
 
-        for (int x = 0; x < width; x += n->get().width)
+        for (int x = 0; x <= width; x += c->get().width)
         {
-            for (int y = 0; y <= height - c->get().height; y += w->get().height)
+            for (int y = 0; y <= height - c->get().height; y += c->get().height)
             {
                 rect = {x, y, c->get().width, c->get().height};
                 SDL_UpdateTexture(texture, &rect, c->get_raw_data().data(), c->get().width * sizeof(Uint16));
             }
+        }
+
+        for (int i = nw->get().height; i <= height - w->get().height; i += w->get().height)
+        {
+            rect = {0, i, w->get().width, w->get().height};
+            SDL_UpdateTexture(texture, &rect, w->get_raw_data().data(), w->get().width * sizeof(Uint16));
+
+            rect = {width - e->get().width, i, e->get().width, e->get().height};
+            SDL_UpdateTexture(texture, &rect, e->get_raw_data().data(), e->get().width * sizeof(Uint16));
         }
 
         for (int i = 0; i <= width; i += n->get().width)
@@ -206,14 +221,17 @@ Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
             SDL_UpdateTexture(texture, &rect, s->get_raw_data().data(), s->get().width * sizeof(Uint16));
         }
 
-        for (int i = 0; i <= height - w->get().height; i += w->get().height)
-        {
-            rect = {0, i, w->get().width, w->get().height};
-            SDL_UpdateTexture(texture, &rect, w->get_raw_data().data(), w->get().width * sizeof(Uint16));
+        rect = {0, nw->get().height, w->get().width, w->get().height};
+        SDL_UpdateTexture(texture, &rect, w->get_raw_data().data(), w->get().width * sizeof(Uint16));
 
-            rect = {width - e->get().width, i, e->get().width, e->get().height};
-            SDL_UpdateTexture(texture, &rect, e->get_raw_data().data(), e->get().width * sizeof(Uint16));
-        }
+        rect = {0, height - sw->get().height - w->get().height, w->get().width, w->get().height};
+        SDL_UpdateTexture(texture, &rect, w->get_raw_data().data(), w->get().width * sizeof(Uint16));
+
+        rect = {width - e->get().width, nw->get().height, e->get().width, e->get().height};
+        SDL_UpdateTexture(texture, &rect, e->get_raw_data().data(), e->get().width * sizeof(Uint16));
+
+        rect = {width - e->get().width, height - sw->get().height - e->get().height, e->get().width, e->get().height};
+        SDL_UpdateTexture(texture, &rect, e->get_raw_data().data(), e->get().width * sizeof(Uint16));
 
         rect = {0, 0, nw->get().width, nw->get().height};
         SDL_UpdateTexture(texture, &rect, nw->get_raw_data().data(), nw->get().width * sizeof(Uint16));
@@ -227,7 +245,7 @@ Sprite::Sprite(wz::Node *node, int width, int height, uint8_t type)
         rect = {width - se->get().width, height - se->get().height, se->get().width, se->get().height};
         SDL_UpdateTexture(texture, &rect, se->get_raw_data().data(), se->get().width * sizeof(Uint16));
 
-        rect = {width / 2 - arrow->get().width / 2, height - arrow->get().height + 7, arrow->get().width - 1, arrow->get().height};
+        rect = {width / 2 - arrow->get().width / 2, height - arrow->get().height + 8, arrow->get().width - 1, arrow->get().height};
         SDL_UpdateTexture(texture, &rect, arrow->get_raw_data().data() + 2, arrow->get().width * sizeof(Uint16));
 
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);

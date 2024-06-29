@@ -95,6 +95,8 @@ Sprite *FreeType::str(const std::u16string &s, SDL_Color color, int w)
         auto line = std::ceil((float)length / (float)w);
         int offsetX = 0;
         int offsetY = 0;
+        height += 6;
+        width += 6;
         SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height * line);
         for (int i = 0; i < s.length(); i++)
         {
