@@ -103,7 +103,7 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                     }
                     i++;
                 }
-                else
+                else if (get_entity<ChatBalloon>(0) == nullptr)
                 {
                     auto str = new String(str_map[key], {88, 0, 0, 255}, 8, 13);
                     add_entity(str);
@@ -156,7 +156,6 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                     str->add_component(rtr);
                     str->add_component(new Transform());
                     world->add_component(rtr, 0);
-                    break;
                 }
             }
         }
