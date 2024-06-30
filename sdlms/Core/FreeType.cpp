@@ -107,7 +107,7 @@ Sprite *FreeType::str(const std::u16string &s, SDL_Color color, int w)
                 offsetX = 0;
             }
             offsetY = (l - 1) * height;
-            auto c = s[i];
+            auto &c = s[i];
             auto index = FT_Get_Char_Index(*face, c);
             FT_Load_Glyph(*face, index, FT_LOAD_DEFAULT);
             FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_MONO);

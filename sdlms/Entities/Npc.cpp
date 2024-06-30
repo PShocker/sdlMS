@@ -112,7 +112,7 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                     auto bal = new ChatBalloon(str->get_width(), str->get_height(), u"0");
                     bal->add_entity(str);
                     add_entity(bal);
-                    auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-160});
+                    auto rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2), (float)-aspr->get_anim_height() - (aspr->get_current_sprite()->origin.y - aspr->get_anim_height()) - (float)bal->get_height()});
                     bal->add_component(rtr);
                     bal->add_component(new Transform());
                     world->add_component(rtr, 0);
@@ -152,7 +152,7 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                     add_entity(timer);
                     timer->add_entity(bal, 0);
 
-                    rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2 + 8), (float)(-154)});
+                    rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2 + 8), (float)-aspr->get_anim_height() - (aspr->get_current_sprite()->origin.y - aspr->get_anim_height()) - (float)bal->get_height() + 6});
                     str->add_component(rtr);
                     str->add_component(new Transform());
                     world->add_component(rtr, 0);
