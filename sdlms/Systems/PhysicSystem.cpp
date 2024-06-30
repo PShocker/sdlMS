@@ -693,7 +693,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 
 	auto &fhs = world.get_entitys<FootHold>();
 
-	auto collide_wall = [&fhs](Line *line, FootHold *fh, float hspeed) -> std::optional<float>
+	auto collide_wall = [&fhs, &tr](Line *line, FootHold *fh, float hspeed) -> std::optional<float>
 	{
 		if (hspeed > 0 && line->get_m().y > line->get_n().y)
 		{
@@ -703,7 +703,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				auto l = fh->get_component<Line>();
 				if (l->get_k().has_value())
 				{
-					return l->get_min_y();
+					return l->get_y((int)tr->get_position().x);
 				}
 			}
 		}
@@ -715,7 +715,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				auto l = fh->get_component<Line>();
 				if (l->get_k().has_value())
 				{
-					return l->get_min_y();
+					return l->get_y((int)tr->get_position().x);
 				}
 			}
 		}
