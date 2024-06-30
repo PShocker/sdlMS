@@ -692,6 +692,35 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	auto foo = tr->get_owner()->get_entity<FootHold>(0);
 
 	auto &fhs = world.get_entitys<FootHold>();
+
+	auto collide_wall = [&fhs](Line *line, FootHold *fh, float hspeed) -> std::optional<float>
+	{
+		if (hspeed > 0 && line->get_m().y > line->get_n().y)
+		{
+			while (fhs.contains(fh->prev))
+			{
+				fh = fhs.find(fh->prev)->second;
+				auto l = fh->get_component<Line>();
+				if (l->get_k().has_value())
+				{
+					return l->get_min_y();
+				}
+			}
+		}
+		else if (hspeed < 0 && line->get_m().y < line->get_n().y)
+		{
+			while (fhs.contains(fh->next))
+			{
+				fh = fhs.find(fh->next)->second;
+				auto l = fh->get_component<Line>();
+				if (l->get_k().has_value())
+				{
+					return l->get_min_y();
+				}
+			}
+		}
+		return std::nullopt;
+	};
 	// 下落
 	if (nor->vspeed > 0)
 	{
@@ -709,11 +738,10 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				if (!line->get_k().has_value())
 				{
 					// 判断墙面碰撞方向
-					if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y && (fh->prev != 0 && fhs.find(fh->prev)->second->get_component<Line>()->get_k().has_value())) ||
-						(nor->hspeed < 0 && line->get_m().y < line->get_n().y && (fh->next != 0 && fhs.find(fh->next)->second->get_component<Line>()->get_k().has_value())))
+					if (auto y = collide_wall(line, fh, nor->hspeed); y.has_value())
 					{
 						new_pos.x = (int)tr->get_position().x;
-						new_pos.y = std::min(line->get_max_y(), new_pos.y);
+						new_pos.y = std::min(y.value(), new_pos.y);
 						nor->hspeed = 0;
 					}
 				}
@@ -780,8 +808,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			if (!line->get_k().has_value())
 			{
 				// 判断墙面碰撞方向
-				if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y && (fh->prev != 0 && fhs.find(fh->prev)->second->get_component<Line>()->get_k().has_value())) ||
-					(nor->hspeed < 0 && line->get_m().y < line->get_n().y && (fh->next != 0 && fhs.find(fh->next)->second->get_component<Line>()->get_k().has_value())))
+				if (collide_wall(line, fh, nor->hspeed).has_value())
 				{
 					auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 					if (collide.has_value())
