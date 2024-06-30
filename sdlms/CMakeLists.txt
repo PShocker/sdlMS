@@ -1,6 +1,10 @@
+cmake_minimum_required(VERSION 3.19.2)
+project(sdlMS)
 
-set(FFMPEG_INCLUDE "E:\\mygame\\Maple\\sdlMS2\\FFMPEG\\include")
-set(FFMPEG_LIB "E:\\mygame\\Maple\\sdlMS2\\FFMPEG\\lib")
+set(CMAKE_CXX_STANDARD 20)
+
+set(FFMPEG_INCLUDE "C:/FFMPEG/include")
+set(FFMPEG_LIB "C:/FFMPEG/lib")
 
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}
@@ -21,7 +25,7 @@ link_directories(
     ${FFMPEG_LIB}
 )
 
-file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/**/*.cpp)
+file(GLOB_RECURSE SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 
 if(WIN32)
     add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
