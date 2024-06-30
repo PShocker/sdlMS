@@ -156,7 +156,7 @@ bool PhysicSystem::want_climb(Transform *tr, Normal *nor, World &world)
 					else if (nor->type == Normal::Air)
 					{
 						// 空中向上爬
-						if (pos.y > line->get_min_y() && pos.y < line->get_max_y())
+						if (pos.y > line->get_min_y() && pos.y < line->get_max_y() + 5)
 						{
 							// 爬到梯子
 							lad = lr;
@@ -691,10 +691,11 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	// 人物之前的fh
 	auto foo = tr->get_owner()->get_entity<FootHold>(0);
 
+	auto &fhs = world.get_entitys<FootHold>();
 	// 下落
 	if (nor->vspeed > 0)
 	{
-		for (auto &[id, fh] : world.get_entitys<FootHold>())
+		for (auto &[id, fh] : fhs)
 		{
 			if (id < 0 && nor->get_owner_component<Player>() != nullptr)
 			{
@@ -707,16 +708,13 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			{
 				if (!line->get_k().has_value())
 				{
-					// k值不存在,则为墙面,且必须和同一级的墙碰撞,并且不是边缘墙
-					if (foo == nullptr || foo->zmass == fh->zmass)
+					// 判断墙面碰撞方向
+					if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y && (fh->prev != 0 && fhs.find(fh->prev)->second->get_component<Line>()->get_k().has_value())) ||
+						(nor->hspeed < 0 && line->get_m().y < line->get_n().y && (fh->next != 0 && fhs.find(fh->next)->second->get_component<Line>()->get_k().has_value())))
 					{
-						// 判断墙面碰撞方向
-						if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y && fh->prev != 0) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y && fh->next != 0))
-						{
-							new_pos.x = (int)tr->get_position().x;
-							new_pos.y = std::min(line->get_max_y(), new_pos.y);
-							nor->hspeed = 0;
-						}
+						new_pos.x = (int)tr->get_position().x;
+						new_pos.y = std::min(line->get_max_y(), new_pos.y);
+						nor->hspeed = 0;
 					}
 				}
 				else
@@ -760,7 +758,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 	{
 		// 上升
 		// 跳跃时只用考虑是否撞墙
-		for (auto &[id, fh] : world.get_entitys<FootHold>())
+		for (auto &[id, fh] : fhs)
 		{
 			auto line = fh->get_component<Line>();
 			if (line->get_n().y == line->get_m().y &&
@@ -781,19 +779,16 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 			}
 			if (!line->get_k().has_value())
 			{
-				// k值不存在,则为墙面,且必须和同一级的墙碰撞,并且不是边缘墙
-				if (foo == nullptr || foo->zmass == fh->zmass)
+				// 判断墙面碰撞方向
+				if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y && (fh->prev != 0 && fhs.find(fh->prev)->second->get_component<Line>()->get_k().has_value())) ||
+					(nor->hspeed < 0 && line->get_m().y < line->get_n().y && (fh->next != 0 && fhs.find(fh->next)->second->get_component<Line>()->get_k().has_value())))
 				{
-					// 判断墙面碰撞方向
-					if ((nor->hspeed > 0 && line->get_m().y > line->get_n().y && fh->prev != 0) || (nor->hspeed < 0 && line->get_m().y < line->get_n().y && fh->next != 0))
+					auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
+					if (collide.has_value())
 					{
-						auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
-						if (collide.has_value())
-						{
-							new_pos.x = tr->get_position().x;
-							nor->hspeed = 0;
-							break;
-						}
+						new_pos.x = tr->get_position().x;
+						nor->hspeed = 0;
+						break;
 					}
 				}
 			}

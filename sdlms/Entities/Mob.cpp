@@ -85,7 +85,7 @@ Mob::Mob(wz::Node *node, int id, int rx0, int rx1, World *world)
         if (node != nullptr)
         {
             auto name = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get();
-            auto str = new String(name, {255, 255, 255, 255}, 12);
+            auto str = new String(name, {255, 255, 255, 255}, 0, 12);
             add_entity(str);
             auto spr = str->get_component<Sprite>();
 
