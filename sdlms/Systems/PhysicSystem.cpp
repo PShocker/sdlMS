@@ -610,6 +610,15 @@ bool PhysicSystem::walk(Transform *tr, Normal *nor, World &world, float delta_ti
 			if (y == std::clamp(y, line->get_max_y() - 1, line->get_max_y() + 1))
 			{
 				// 撞墙
+				if (nor->hspeed < 0)
+				{
+					tr->set_x(line->get_m().x + 0.1);
+				}
+				else
+				{
+					tr->set_x(line->get_m().x - 0.1);
+				}
+				tr->set_y(foo->get_component<Line>()->get_y(tr->get_position().x).value());
 				nor->hspeed = 0;
 				return false;
 			}
@@ -692,7 +701,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 
 	auto &fhs = world.get_entitys<FootHold>();
 
-	auto collide_wall = [&fhs](Line *line, FootHold *fh, float hspeed) -> std::optional<float>
+	auto collide_wall = [&fhs](Line *line, FootHold *fh, float hspeed) -> bool
 	{
 		if (hspeed > 0 && line->get_m().y > line->get_n().y)
 		{
@@ -702,7 +711,7 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				auto l = fh->get_component<Line>();
 				if (l->get_k().has_value())
 				{
-					return l->get_y(l->get_max_x());
+					return true;
 				}
 			}
 		}
@@ -714,11 +723,11 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				auto l = fh->get_component<Line>();
 				if (l->get_k().has_value())
 				{
-					return l->get_y(l->get_min_x());
+					return true;
 				}
 			}
 		}
-		return std::nullopt;
+		return false;
 	};
 	// 下落
 	if (nor->vspeed > 0)
@@ -737,10 +746,16 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				if (!line->get_k().has_value())
 				{
 					// 判断墙面碰撞方向
-					if (auto y = collide_wall(line, fh, nor->hspeed); y.has_value())
+					if (collide_wall(line, fh, nor->hspeed) == true)
 					{
-						new_pos.x = (int)tr->get_position().x;
-						new_pos.y = std::min(y.value(), new_pos.y);
+						if (nor->hspeed < 0)
+						{
+							new_pos.x = line->get_m().x + 0.1;
+						}
+						else
+						{
+							new_pos.x = line->get_m().x - 0.1;
+						}
 						nor->hspeed = 0;
 					}
 				}
@@ -798,7 +813,8 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 				if (collide.has_value())
 				{
-					new_pos = tr->get_position();
+					new_pos = collide.value();
+					new_pos.y += 0.1;
 					nor->hspeed = 0;
 					nor->vspeed = 0;
 					break;
@@ -809,9 +825,16 @@ void PhysicSystem::fall(Transform *tr, Normal *nor, float delta_time, World &wor
 				auto collide = intersect(tr->get_position(), new_pos, line->get_m(), line->get_n());
 				if (collide.has_value())
 				{
-					if (collide_wall(line, fh, nor->hspeed).has_value())
+					if (collide_wall(line, fh, nor->hspeed) == true)
 					{
-						new_pos.x = (int)tr->get_position().x;
+						if (nor->hspeed < 0)
+						{
+							new_pos.x = line->get_m().x + 0.1;
+						}
+						else
+						{
+							new_pos.x = line->get_m().x - 0.1;
+						}
 						nor->hspeed = 0;
 						break;
 					}
