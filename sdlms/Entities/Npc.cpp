@@ -145,11 +145,11 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                                 str->remove_component<Sprite>();
                             }
                         }
-                        return 2000;
+                        return 1;
                     };
-                    Timer *timer = new Timer();
-                    timer->set_timer_id(SDL_AddTimer(2000, callback, timer));
+                    Timer *timer = new Timer(callback, 1);
                     add_entity(timer);
+                    world->add_entity(timer);
                     timer->add_entity(bal, 0);
 
                     rtr = new RelativeTransform(tr, SDL_FPoint{(float)(-bal->get_width() / 2 + 8), (float)-aspr->get_anim_height() - (aspr->get_current_sprite()->origin.y - aspr->get_anim_height()) - (float)bal->get_height() + 6});
@@ -258,7 +258,7 @@ Npc::~Npc()
 
     for (auto &[key, val] : get_entity<Timer>())
     {
-        SDL_RemoveTimer(val->get_timer_id());
+        world->remove_entity(val);
         delete val;
     }
 }

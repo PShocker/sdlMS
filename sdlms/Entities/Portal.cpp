@@ -127,7 +127,7 @@ Portal::~Portal()
 
     for (auto &[key, val] : get_entity<Timer>())
     {
-        SDL_RemoveTimer(val->get_timer_id());
+        world->remove_entity(val);
         delete val;
     }
 }

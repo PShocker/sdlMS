@@ -1,14 +1,14 @@
 #pragma once
 #include "Entity.h"
+#include <functional>
 
 class Timer : public Entity
 {
 public:
-    Timer(){};
-    Timer(SDL_TimerID timer_id);
-    void set_timer_id(SDL_TimerID value) { timer_id = value; };
-    constexpr auto get_timer_id() { return timer_id; }
+    Timer(const std::function<Uint32(Uint32, void *)> &callback, int time);
 
-private:
-    SDL_TimerID timer_id;
+public:
+    int time = 0;
+    std::function<Uint32(Uint32, void *)> callback;
+
 };
