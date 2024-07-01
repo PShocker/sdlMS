@@ -487,7 +487,7 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 				delete timer;
 				return 0;
 			};
-			Timer *timer = new Timer(callback, 8000);
+			Timer *timer = new Timer(callback, 800);
 			world.add_entity(timer);
 
 			por->add_entity(timer);
