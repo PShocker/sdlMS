@@ -107,6 +107,7 @@ void DeltaTimeSystem::update_timer(int delta_time, World &world)
 			else
 			{
 				it = target_map.erase(it);
+				continue;
 			}
 		}
 		++it;

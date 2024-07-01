@@ -145,9 +145,9 @@ Npc::Npc(wz::Node *node, int id, int rx0, int rx1, World *world)
                                 str->remove_component<Sprite>();
                             }
                         }
-                        return 1;
+                        return 2000;
                     };
-                    Timer *timer = new Timer(callback, 1);
+                    Timer *timer = new Timer(callback, 2000);
                     add_entity(timer);
                     world->add_entity(timer);
                     timer->add_entity(bal, 0);
