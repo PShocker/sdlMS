@@ -267,8 +267,7 @@ bool PhysicSystem::want_fall(Transform *tr, Normal *nor, World &world)
 					return 0;
 				};
 
-				Timer *timer = new Timer();
-				timer->set_timer_id(SDL_AddTimer(400, callback, timer));
+				Timer *timer = new Timer(callback, 400);
 				foo->add_entity(timer);
 				timer->add_entity(foo, 0);
 
@@ -488,8 +487,8 @@ bool PhysicSystem::want_portal(Transform *tr, Normal *nor, World &world)
 				delete timer;
 				return 0;
 			};
-			Timer *timer = new Timer();
-			timer->set_timer_id(SDL_AddTimer(800, callback, timer));
+			Timer *timer = new Timer(callback, 800);
+
 			por->add_entity(timer);
 			timer->add_entity(por, 0);
 

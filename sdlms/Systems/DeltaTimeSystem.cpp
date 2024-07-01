@@ -24,6 +24,10 @@ void DeltaTimeSystem::run(World &world)
 			update_avatar(ava, delta_time, world);
 		}
 	}
+	if (world.entity_exist_of_type<Timer>())
+	{
+		update_timer(delta_time, world);
+	}
 }
 
 bool DeltaTimeSystem::update_animated_sprite(AnimatedSprite *aspr, int delta_time, World &world)
@@ -84,5 +88,27 @@ void DeltaTimeSystem::update_avatar(Avatar *ava, int delta_time, World &world)
 			ava->act_index = (ava->act_index + 1) % ava->stance_delays[ava->act].size();
 			ava->act_time = 0;
 		}
+	}
+}
+
+void DeltaTimeSystem::update_timer(int delta_time, World &world)
+{
+	auto &target_map = world.get_entitys<Timer>();
+	for (auto it = target_map.begin(); it != target_map.end();)
+	{
+		it->second->time -= delta_time;
+		if (it->second->time <= 0)
+		{
+			auto time = it->second->callback(0, it->second);
+			if (time > 0)
+			{
+				it->second->time = time;
+			}
+			else
+			{
+				it = target_map.erase(it);
+			}
+		}
+		++it;
 	}
 }

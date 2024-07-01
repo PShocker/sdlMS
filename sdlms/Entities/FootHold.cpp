@@ -18,12 +18,14 @@ FootHold::FootHold(wz::Node *node, int page, int zmass, World *world) : page(pag
 
 FootHold::~FootHold()
 {
+    auto world = World::get_world();
+
     auto r = get_component<Line>();
     delete r;
 
     for (auto &[key, val] : get_entity<Timer>())
     {
-        SDL_RemoveTimer(val->get_timer_id());
+        world->remove_entity(val);
         delete val;
     }
 }

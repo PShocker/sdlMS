@@ -6,7 +6,7 @@
 #include "Components/Avatar.h"
 #include "Components/Video.h"
 
-#include "Entities/Portal.h"
+#include "Entities/Timer.h"
 
 class DeltaTimeSystem : public System
 {
@@ -16,4 +16,5 @@ public:
 private:
 	bool update_animated_sprite(AnimatedSprite *aspr, int delta_time, World &world);
 	void update_avatar(Avatar *hvm, int delta_time, World &world);
+	void update_timer(int delta_time, World &world);
 };
