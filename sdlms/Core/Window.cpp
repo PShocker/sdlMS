@@ -8,7 +8,7 @@
 
 void Window::create_window(const char *title, unsigned int width, unsigned int height, unsigned int pixel_scale_h, unsigned int pixel_scale_v)
 {
-	int result = SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_TIMER);
+	int result = SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
 	[[unlikely]]
 	if (result < 0)
 	{
