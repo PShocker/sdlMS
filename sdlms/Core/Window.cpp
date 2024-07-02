@@ -26,8 +26,6 @@ void Window::create_window(const char *title, unsigned int width, unsigned int h
 
 	SDL_RenderSetLogicalSize(renderer, width, height);
 
-	SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "nearest");
-
 	window_title = title;
 }
 
