@@ -12,10 +12,10 @@ struct Window
 
     static inline const char *window_title;
 
-    static inline unsigned int dt_now;
-	static inline unsigned int dt_last;
-	static inline int delta_time;
-	static inline bool quit;
+    static inline unsigned int dt_now = 0;
+    static inline unsigned int dt_last = 0;
+    static inline int delta_time = 0;
+    static inline bool quit;
 
     static void create_window(const char *title, unsigned int width, unsigned int height);
     static void destroy_window();

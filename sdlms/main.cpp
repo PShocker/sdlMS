@@ -2,9 +2,12 @@
 #include <SDL3/SDL_main.h>
 #include "Core/Window.h"
 #include "Resource/Wz.h"
+#include "Core/Map.h"
+#include "Systems/Render.h"
+#include "Core/Camera.h"
 
-int width = 800;
-int height = 600;
+int width = 1920;
+int height = 1080;
 
 void main_loop()
 {
@@ -18,16 +21,26 @@ void main_loop()
     }
     Window::poll_events();
     Window::tick_delta_time();
-
     Window::clear();
+
+    Render::run();
+
     Window::update();
 }
 
 int main(int argc, char *argv[])
 {
+    Camera::y = -500;
+    
+    Camera::w = width;
+    Camera::h = height;
+
     Wz::init("./Data/");
-    // SDL_CreateTexture()
     Window::create_window("sdlMS", width, height);
+
+    // SDL_CreateTexture()
+    Map::load(100000000);
+
     while (true)
     {
         main_loop();

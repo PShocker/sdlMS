@@ -8,16 +8,15 @@ include_directories(
 
 file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/**/*.cpp)
 
+add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
+target_link_libraries(sdlMS PRIVATE SDL3::SDL3)
+target_link_libraries(sdlMS PRIVATE wzlib)
+# target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
+target_link_libraries(sdlMS PRIVATE freetype)
+target_link_libraries(sdlMS PRIVATE EnTT)
+
+
 if(WIN32)
-    add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
-    # 将 SDL2 库链接到可执行文件中
-    target_link_libraries(sdlMS PRIVATE SDL3::SDL3)
-    # 链接 wzlib 库
-    target_link_libraries(sdlMS PRIVATE wzlib)
-    # 链接 FFMPEG库
-    # target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
-    # freetype
-    target_link_libraries(sdlMS PRIVATE freetype)
     # 链接 Windows平台库(FFMPEG)
     # target_link_libraries(sdlMS PRIVATE bcrypt ws2_32 Secur32 Strmiids)
     # 链接 FFMPEG依赖库,wzlib里面已经包含了zlib库
@@ -35,15 +34,6 @@ if(WIN32)
 endif()
 
 if(LINUX)
-    add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
-    # 将 SDL2 库链接到可执行文件中
-    target_link_libraries(sdlMS PRIVATE SDL2-static SDL2main)
-    # 链接 wzlib 库
-    target_link_libraries(sdlMS PRIVATE wzlib)
-    # 链接 FFMPEG库
-    target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
-    # freetype
-    target_link_libraries(sdlMS PRIVATE freetype)
     set_target_properties(sdlMS PROPERTIES
             RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
     )
@@ -51,16 +41,6 @@ endif()
 
 # 设置 Emscripten 编译选项
 if(EMSCRIPTEN)
-    add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
-    # 将 SDL2 库链接到可执行文件中
-    target_link_libraries(sdlMS PRIVATE SDL2-static SDL2main)
-    # 链接 wzlib 库
-    target_link_libraries(sdlMS PRIVATE wzlib)
-    # 链接 FFMPEG库
-    target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
-    # freetype
-    target_link_libraries(sdlMS PRIVATE freetype)
-
     set(CMAKE_EXECUTABLE_SUFFIX ".html")
     set_target_properties(sdlMS PROPERTIES LINK_FLAGS
             "--preload-file ${CMAKE_SOURCE_DIR}/build/Data/@Data/"
@@ -91,18 +71,6 @@ if (APPLE)
     find_library(COREMEDIA_FRAMEWORK CoreMedia)
     find_library(VIDEOTOOLBOX_FRAMEWORK VideoToolbox)
     find_library(SECURITY_FRAMEWORK Security)
-
-    add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
-
-    # 将 SDL2 库链接到可执行文件中
-    target_link_libraries(sdlMS PRIVATE SDL2-static SDL2main)
-
-    # 链接 wzlib 库
-    target_link_libraries(sdlMS PRIVATE wzlib)
-    # 链接 FFMPEG库
-    target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
-    # freetype
-    target_link_libraries(sdlMS PRIVATE freetype)
 
     # Link frameworks
     target_link_libraries(

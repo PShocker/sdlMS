@@ -7,9 +7,10 @@ struct Transform
 	float rotation = 0;
 	int flip = 0;
 	bool camera = false;
+	int z = 0;
 
-	Transform()=default;
-	Transform(SDL_FPoint p, int flip = 0, bool camera = false);
-	Transform(float x, float y, int flip = 0, bool camera = false);
-	~Transform()=default;
+	Transform() = default;
+	Transform(SDL_FPoint p, int z, int flip = 0, bool camera = false);
+	Transform(float x, float y, int z, int flip = 0, bool camera = false);
+	~Transform() = default;
 };

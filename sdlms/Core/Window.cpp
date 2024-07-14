@@ -55,6 +55,9 @@ void Window::poll_events()
 
 void Window::tick_delta_time()
 {
+    dt_last = dt_now;
+    dt_now = SDL_GetTicks();
+    delta_time = dt_now - dt_last;
 }
 
 void Window::clear()
