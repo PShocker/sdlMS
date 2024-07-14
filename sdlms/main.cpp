@@ -5,6 +5,7 @@
 #include "Core/Map.h"
 #include "Systems/Render.h"
 #include "Core/Camera.h"
+#include "Systems/Animate.h"
 
 int width = 1920;
 int height = 1080;
@@ -24,6 +25,7 @@ void main_loop()
     Window::clear();
 
     Render::run();
+    Animate::run();
 
     Window::update();
 }
