@@ -1,8 +1,16 @@
-#include "Render.h"
+module;
+
 #include "../Core/World.h"
 #include "../Core/Window.h"
 #include "../Core/Camera.h"
 #include "../Common/Point.h"
+
+#include "../Components/Sprite.h"
+#include "../Components/Transform.h"
+#include "../Components/AnimatedSprite.h"
+#include "../Components/BackSprite.h"
+
+module systems:render;
 
 void Render::run()
 {

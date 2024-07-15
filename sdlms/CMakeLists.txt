@@ -6,14 +6,37 @@ include_directories(
     ${wzlibcpp}/mio/include
 )
 
-file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/**/*.cpp)
 
-add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
+file(GLOB_RECURSE
+        systems_cpp
+        CONFIGURE_DEPENDS
+        Systems/*.cpp
+)
+
+file(GLOB_RECURSE
+        systems_cppm
+        CONFIGURE_DEPENDS
+        Systems/*.cppm
+)
+
+add_library(mod
+        ${systems_cpp}
+)
+
+target_sources(mod
+        PUBLIC
+        FILE_SET core_cxx_modules TYPE CXX_MODULES FILES
+        ${systems_cppm}
+)
+
+
+add_executable(sdlMS main.cpp)
 target_link_libraries(sdlMS PRIVATE SDL3::SDL3)
 target_link_libraries(sdlMS PRIVATE wzlib)
-# target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
+# # target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
 target_link_libraries(sdlMS PRIVATE freetype)
 target_link_libraries(sdlMS PRIVATE EnTT)
+target_link_libraries(sdlMS PRIVATE mod)
 
 
 if(WIN32)

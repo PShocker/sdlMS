@@ -1,8 +1,15 @@
-#include "Animate.h"
+module;
+
 #include "../Core/World.h"
 #include "../Core/Window.h"
-
 #include <SDL3/SDL.h>
+
+#include "../Components/Sprite.h"
+#include "../Components/Transform.h"
+#include "../Components/AnimatedSprite.h"
+#include "../Components/BackSprite.h"
+
+module systems:animate;
 
 void Animate::run()
 {

@@ -1,10 +1,13 @@
-#pragma once
+module;
+
 #include "../Components/Sprite.h"
 #include "../Components/Transform.h"
 #include "../Components/AnimatedSprite.h"
 #include "../Components/BackSprite.h"
 
-struct Render
+export module systems:animate;
+
+export struct Render
 {
 	static void run();
 	static void render_sprite(Transform *tr, Sprite *spr);
