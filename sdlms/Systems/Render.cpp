@@ -20,7 +20,7 @@ void Render::run()
         }
         else if (auto bspr = World::registry.try_get<BackSprite>(ent))
         {
-            render_back_sprite(tr,bspr);
+            render_back_sprite(tr, bspr);
         }
     }
 }
@@ -95,17 +95,21 @@ void Render::render_back_sprite(Transform *tr, BackSprite *bspr)
     spr_ox = spr->origin.x;
     spr_oy = spr->origin.y;
 
-    if (bspr->cx == 0)
+    int cx = bspr->cx;
+    int cy = bspr->cy;
+
+    if (cx == 0)
     {
-        bspr->cx = spr_w;
+        cx = spr_w;
     }
-    if (bspr->cy == 0)
+    if (cy == 0)
     {
-        bspr->cy = spr_h;
+        cy = spr_h;
     }
+
     if (bspr->hspeed)
     {
-        bspr->offset_x = fmodf(bspr->offset_x + bspr->rx * 5 * delta_time / 1000.0, bspr->cx);
+        bspr->offset_x = fmodf(bspr->offset_x + bspr->rx * 5 * delta_time / 1000.0, cx);
     }
     else
     {
@@ -113,7 +117,7 @@ void Render::render_back_sprite(Transform *tr, BackSprite *bspr)
     }
     if (bspr->vspeed)
     {
-        bspr->offset_y = fmodf(bspr->offset_y + bspr->ry * 5 * delta_time / 1000.0, bspr->cy);
+        bspr->offset_y = fmodf(bspr->offset_y + bspr->ry * 5 * delta_time / 1000.0, cy);
     }
     else
     {
@@ -126,12 +130,12 @@ void Render::render_back_sprite(Transform *tr, BackSprite *bspr)
     point.y += bspr->offset_y;
 
     auto tile_cnt_x = 1;
-    if (bspr->htile && bspr->cx > 0)
+    if (bspr->htile && cx > 0)
     {
-        auto tile_start_right = int(point.x + spr_w - viewprot_x) % bspr->cx;
+        auto tile_start_right = int(point.x + spr_w - viewprot_x) % cx;
         if (tile_start_right <= 0)
         {
-            tile_start_right = tile_start_right + bspr->cx;
+            tile_start_right = tile_start_right + cx;
         }
         tile_start_right = tile_start_right + viewprot_x;
 
@@ -142,18 +146,18 @@ void Render::render_back_sprite(Transform *tr, BackSprite *bspr)
         }
         else
         {
-            tile_cnt_x = ceil((viewprot_x + viewprot_w - tile_start_left) / float(bspr->cx));
+            tile_cnt_x = ceil((viewprot_x + viewprot_w - tile_start_left) / float(cx));
             point.x = tile_start_left;
         }
     }
 
     auto tile_cnt_y = 1;
-    if (bspr->vtile && bspr->cy > 0)
+    if (bspr->vtile && cy > 0)
     {
-        auto tile_start_bottom = int(point.y + spr_h - viewprot_y) % bspr->cy;
+        auto tile_start_bottom = int(point.y + spr_h - viewprot_y) % cy;
         if (tile_start_bottom <= 0)
         {
-            tile_start_bottom = tile_start_bottom + bspr->cy;
+            tile_start_bottom = tile_start_bottom + cy;
         }
         tile_start_bottom = tile_start_bottom + viewprot_y;
 
@@ -164,18 +168,19 @@ void Render::render_back_sprite(Transform *tr, BackSprite *bspr)
         }
         else
         {
-            tile_cnt_y = ceil((viewprot_y + viewprot_h - tile_start_top) / float(bspr->cy));
+            tile_cnt_y = ceil((viewprot_y + viewprot_h - tile_start_top) / float(cy));
             point.y = tile_start_top;
         }
     }
 
+    Transform *t = new Transform(0, 0, tr->flip);
     for (int i = 0; i < tile_cnt_y; i++)
     {
         for (int j = 0; j < tile_cnt_x; j++)
         {
-            Transform *t = new Transform((float)point.x + j * bspr->cx + spr_ox, (float)point.y + i * bspr->cy + spr_oy, tr->flip);
+            t->position = {(float)point.x + j * cx + spr_ox, (float)point.y + i * cy + spr_oy};
             render_sprite(t, spr);
-            delete t;
         }
     }
+    delete t;
 }
