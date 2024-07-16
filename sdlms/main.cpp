@@ -4,8 +4,8 @@ import systems;
 import core;
 import resources;
 
-int width = 100;
-int height = 100;
+int width = 800;
+int height = 600;
 
 void main_loop()
 {
@@ -29,7 +29,8 @@ void main_loop()
 
 int main(int argc, char *argv[])
 {
-    Camera::y = -500;
+    Camera::x = -700;
+    Camera::y = -100;
     
     Camera::w = width;
     Camera::h = height;

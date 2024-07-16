@@ -18,11 +18,7 @@ void load_portal(wz::Node *node, int id)
 
     auto pt = dynamic_cast<wz::Property<int> *>(node->get_child(u"pt"))->get();
 
-    if (pt < 0 || pt >= sizeof(pt_list))
-    {
-        return;
-    }
-    else
+    if (!(pt < 0 || pt >= sizeof(pt_list)))
     {
         auto ent = World::registry.create();
 
@@ -40,5 +36,17 @@ void load_portal(wz::Node *node, int id)
             pt = 2;
         }
         auto url = u"MapHelper.img/portal/game/" + pt_list[pt];
+        if (auto portal = Wz::Map->get_root()->find_from_path(url))
+        {
+            if (portal->get_child(u"default") != nullptr)
+            {
+                // 三段式传送门
+            }
+            else
+            {
+                // 普通的传送门,通常为pv
+                World::registry.emplace<AnimatedSprite>(ent, portal);
+            }
+        }
     }
 }
