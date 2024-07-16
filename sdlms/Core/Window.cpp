@@ -1,6 +1,9 @@
-#include "Window.h"
-#include "Input.h"
+module;
+
 #include <cstdlib>
+#include <SDL3/SDL.h>
+
+module core;
 
 void Window::create_window(const char *title, unsigned int width, unsigned int height)
 {

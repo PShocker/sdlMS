@@ -1,2 +1,3 @@
-#include "Camera.h"
+module;
 
+module core;

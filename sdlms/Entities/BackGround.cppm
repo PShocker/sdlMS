@@ -1,7 +1,10 @@
-#pragma once
+module;
+
 #include "wz/Property.hpp"
 
-struct BackGround
+export module entities:background;
+
+export struct BackGround
 {
     const static inline unsigned int z_index = -10000;
 

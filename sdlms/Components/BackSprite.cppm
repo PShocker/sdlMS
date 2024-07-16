@@ -1,15 +1,16 @@
-#pragma once
+module;
 
 #include <SDL3/SDL.h>
 #include <vector>
 #include <string>
 #include <variant>
+export module components:backsprite;
 
-#include "Sprite.h"
-#include "AnimatedSprite.h"
-#include "wz/Property.hpp"
+import :sprite;
+import :animatedsprite;
+import resources;
 
-struct BackSprite
+export struct BackSprite
 {
     std::variant<Sprite *, AnimatedSprite *> spr;
     // 平铺间隔

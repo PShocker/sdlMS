@@ -1,9 +1,12 @@
-#include "BackGround.h"
-#include "../Core/World.h"
-#include "../Components/Transform.h"
-#include "../Components/AnimatedSprite.h"
-#include "../Resource/Wz.h"
-#include "../Components/BackSprite.h"
+module;
+
+#include "wz/Property.hpp"
+
+module entities;
+
+import components;
+import resources;
+import core;
 
 void BackGround::load(wz::Node *node, int id)
 {

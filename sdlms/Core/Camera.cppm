@@ -1,6 +1,6 @@
-#pragma once
+export module core:camera;
 
-struct Camera
+export struct Camera
 {
     static inline int x=0;
     static inline int y=0;

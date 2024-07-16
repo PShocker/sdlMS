@@ -1,10 +1,12 @@
-#include "Obj.h"
+module;
 
-#include "../Core/World.h"
-#include "../Components/Sprite.h"
-#include "../Components/AnimatedSprite.h"
-#include "../Components/Transform.h"
-#include "../Resource/Wz.h"
+#include "wz/Property.hpp"
+
+module entities;
+
+import components;
+import resources;
+import core;
 
 void Obj::load(wz::Node *node, int id, int layer)
 {

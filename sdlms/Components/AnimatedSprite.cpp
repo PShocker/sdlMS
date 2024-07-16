@@ -1,4 +1,10 @@
-#include "AnimatedSprite.h"
+module;
+
+#include <cassert>
+#include <vector>
+#include "wz/Property.hpp"
+
+module components;
 
 AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
 {

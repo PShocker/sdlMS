@@ -1,7 +1,8 @@
-#pragma once
+module;
 #include <SDL3/SDL.h>
 
 #include <unordered_set>
+export module core:input;
 
 struct Input
 {

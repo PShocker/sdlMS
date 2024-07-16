@@ -1,10 +1,12 @@
-#include "Map.h"
-#include "World.h"
-#include "../Resource/Wz.h"
-#include "../Entities/Tile.h"
-#include "../Entities/Obj.h"
-#include "../Components/Transform.h"
-#include "../Entities/BackGround.h"
+module;
+
+#include <string>
+#include "wz/Property.hpp"
+
+module core;
+
+import resources;
+import entities;
 
 void Map::load(int map_id)
 {
@@ -12,7 +14,7 @@ void Map::load(int map_id)
     load_tile(node);
     load_obj(node);
     load_background(node);
-    sort();
+    World::sort();
 }
 
 void Map::load_obj(wz::Node *node)
@@ -70,10 +72,4 @@ wz::Node *Map::load_map_node(int map_id)
     }
     std::string path = "Map/Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
     return node->find_from_path(path);
-}
-
-void Map::sort()
-{
-    World::registry.sort<Transform>([](const Transform &m, const Transform &n)
-                                    { return m.z < n.z; });
 }

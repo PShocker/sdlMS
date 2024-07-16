@@ -1,16 +1,14 @@
 module;
 
-#include "../Core/World.h"
-#include "../Core/Window.h"
-#include "../Core/Camera.h"
-#include "../Common/Point.h"
+#include <SDL3/SDL.h>
+#include <math.h>
+#include "entt/entt.hpp"
 
-#include "../Components/Sprite.h"
-#include "../Components/Transform.h"
-#include "../Components/AnimatedSprite.h"
-#include "../Components/BackSprite.h"
+module systems;
 
-module systems:render;
+import core;
+import commons;
+import components;
 
 void Render::run()
 {

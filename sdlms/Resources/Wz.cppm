@@ -1,7 +1,10 @@
-#pragma once
+module;
+
 #include <wz/File.hpp>
 
-struct Wz
+export module resources:wz;
+
+export struct Wz
 {
     static inline wz::File *Base;
     static inline wz::File *Character;

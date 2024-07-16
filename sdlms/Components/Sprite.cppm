@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <SDL3/SDL.h>
 #include <vector>
@@ -7,7 +7,9 @@
 #include <any>
 #include "wz/Property.hpp"
 
-struct Sprite
+export module components:sprite;
+
+export struct Sprite
 {
     SDL_Texture *texture = nullptr;
     int width = 0;

@@ -1,13 +1,14 @@
-#pragma once
-
+module;
 #include <SDL3/SDL.h>
 #include <vector>
 #include <string>
-
-#include "Sprite.h"
 #include "wz/Property.hpp"
 
-struct AnimatedSprite
+export module components:animatedsprite;
+
+import :sprite;
+
+export struct AnimatedSprite
 {
     std::vector<Sprite *> sprites;
     int anim_index=0;

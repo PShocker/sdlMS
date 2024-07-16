@@ -1,8 +1,13 @@
-#include "Tile.h"
-#include "../Core/World.h"
-#include "../Components/Sprite.h"
-#include "../Components/Transform.h"
-#include "../Resource/Wz.h"
+module;
+
+#include "wz/Property.hpp"
+#include <any>
+
+module entities;
+
+import components;
+import resources;
+import core;
 
 void Tile::load(wz::Node *node, const std::u16string &ts, int layer, int id)
 {

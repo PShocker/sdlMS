@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.19.2)
+cmake_minimum_required(VERSION 3.28)
 project(sdlMS)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 
 # Add compile information for LSP
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

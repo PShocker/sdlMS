@@ -1,5 +1,11 @@
-#include "Sprite.h"
-#include "../Core/Window.h"
+module;
+
+#include "wz/Property.hpp"
+#include <SDL3/SDL.h>
+
+module components;
+
+import core;
 
 Sprite::Sprite(wz::Node *node, int alpha)
 {

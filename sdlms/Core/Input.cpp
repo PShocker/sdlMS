@@ -1,4 +1,8 @@
-#include "Input.h"
+module;
+
+#include <SDL3/SDL.h>
+
+module core;
 
 void Input::process_input_event(int type, const SDL_Event &event)
 {

@@ -1,4 +1,8 @@
-#include "Point.h"
+module;
+
+#include <SDL3/SDL.h>
+
+module commons;
 
 SDL_FPoint operator+(const SDL_FPoint &m, const SDL_FPoint &n)
 {

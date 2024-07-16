@@ -1,7 +1,10 @@
-#pragma once
+module;
+
 #include <SDL3/SDL.h>
 
-struct Transform
+export module components:transform;
+
+export struct Transform
 {
 	SDL_FPoint position = {0, 0};
 	float rotation = 0;

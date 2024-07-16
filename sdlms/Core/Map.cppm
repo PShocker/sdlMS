@@ -1,9 +1,11 @@
-#pragma once
+module;
 
 #include "wz/Property.hpp"
 
+export module core:map;
+
 // 用于加载地图中各种组件
-struct Map
+export struct Map
 {
     static void load(int map_id);
     static void load_obj(wz::Node *node);
@@ -22,5 +24,4 @@ struct Map
     static inline uint32_t map_id = 0;
 
     static wz::Node *load_map_node(int map_id);
-    static void sort();
 };

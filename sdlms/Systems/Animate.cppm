@@ -1,12 +1,8 @@
-
 module;
 
-#include "../Components/Sprite.h"
-#include "../Components/Transform.h"
-#include "../Components/AnimatedSprite.h"
-#include "../Components/BackSprite.h"
-
 export module systems:animate;
+
+import components;
 
 export struct Animate
 {

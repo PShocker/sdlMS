@@ -1,8 +1,10 @@
-#pragma once
+module;
 
 #include <SDL3/SDL.h>
 
-struct Window
+export module core:window;
+
+export struct Window
 {
     static inline SDL_Window *window;
     static inline SDL_Renderer *renderer;
