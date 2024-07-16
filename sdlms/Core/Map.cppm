@@ -16,7 +16,7 @@ export struct Map
     static void load_life(wz::Node *node);
     static void load_border(wz::Node *node);
     static void load_ladderRope(wz::Node *node);
-    static void load_portal(wz::Node *node);
+    static void load_portals(wz::Node *node);
 
     static void load_bgm(wz::Node *node);
     static void clean_up();

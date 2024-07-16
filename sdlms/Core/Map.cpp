@@ -14,6 +14,7 @@ void Map::load(int map_id)
     load_tiles(node);
     load_objs(node);
     load_backgrounds(node);
+    load_portals(node);
     World::sort();
 }
 
@@ -58,6 +59,19 @@ void Map::load_backgrounds(wz::Node *node)
         {
             auto id = std::stoi(std::string{key.begin(), key.end()});
             load_background(val[0], id);
+        }
+    }
+}
+
+void Map::load_portals(wz::Node *node)
+{
+    node = node->get_child(u"portal");
+    if (node != nullptr)
+    {
+        for (auto &[key, val] : node->get_children())
+        {
+            auto id = std::stoi(std::string{key.begin(), key.end()});
+            load_portal(val[0], id);
         }
     }
 }
