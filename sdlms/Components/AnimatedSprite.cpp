@@ -1,6 +1,5 @@
 module;
 
-#include <cassert>
 #include <vector>
 #include "wz/Property.hpp"
 

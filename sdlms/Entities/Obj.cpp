@@ -8,8 +8,10 @@ import components;
 import resources;
 import core;
 
-void Obj::load(wz::Node *node, int id, int layer)
+void load_obj(wz::Node *node, int id, int layer)
 {
+    const int z_index = 0;
+
     auto ent = World::registry.create();
 
     auto oS = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"oS"))->get();

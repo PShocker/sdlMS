@@ -24,7 +24,7 @@ void Render::run()
         {
             render_animated_sprite(tr, aspr);
         }
-        else if (auto bspr = World::registry.try_get<BackSprite>(ent))
+        else if (auto bspr = World::registry.try_get<BackGround>(ent))
         {
             render_back_sprite(tr, bspr);
         }
@@ -70,7 +70,7 @@ void Render::render_animated_sprite(Transform *tr, AnimatedSprite *aspr)
     render_sprite(tr, spr);
 }
 
-void Render::render_back_sprite(Transform *tr, BackSprite *bspr)
+void Render::render_back_sprite(Transform *tr, BackGround *bspr)
 {
     auto delta_time = Window::delta_time;
 

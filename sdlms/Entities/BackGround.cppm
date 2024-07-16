@@ -4,11 +4,9 @@ module;
 
 export module entities:background;
 
-export struct BackGround
+export
 {
-    const static inline unsigned int z_index = -10000;
-
-    static void load(wz::Node *node, int id);
+    void load_background(wz::Node * node, int id);
     enum
     {
         NORMAL,

@@ -8,8 +8,10 @@ import components;
 import resources;
 import core;
 
-void BackGround::load(wz::Node *node, int id)
+void load_background(wz::Node *node, int id)
 {
+    const int z_index = -10000;
+
     auto ent = World::registry.create();
 
     auto bS = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"bS"))->get();
@@ -68,7 +70,7 @@ void BackGround::load(wz::Node *node, int id)
         World::registry.emplace<Transform>(ent, x, y, id + z_index);
     }
 
-    auto &bspr = World::registry.emplace<BackSprite>(ent);
+    auto &bspr = World::registry.emplace<BackGround>(ent);
     bspr.cx = cx;
     bspr.cy = cy;
     bspr.rx = rx;

@@ -1,16 +1,13 @@
 module;
 
-#include <SDL3/SDL.h>
-#include <vector>
-#include <string>
 #include <variant>
-export module components:backsprite;
+
+export module components:background;
 
 import :sprite;
 import :animatedsprite;
-import resources;
 
-export struct BackSprite
+export struct BackGround
 {
     std::variant<Sprite *, AnimatedSprite *> spr;
     // 平铺间隔
@@ -28,5 +25,5 @@ export struct BackSprite
     bool hspeed = false;
     bool vspeed = false;
 
-    BackSprite()=default;
+    BackGround()=default;
 };

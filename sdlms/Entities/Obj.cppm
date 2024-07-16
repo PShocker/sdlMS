@@ -4,8 +4,7 @@ module;
 
 export module entities:obj;
 
-export struct Obj
+export
 {
-    const static inline unsigned int z_index = 0;
-    static void load(wz::Node *node, int id, int layer);
+    void load_obj(wz::Node * node, int id, int layer);
 };

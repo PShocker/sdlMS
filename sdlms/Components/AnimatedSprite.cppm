@@ -1,5 +1,4 @@
 module;
-#include <SDL3/SDL.h>
 #include <vector>
 #include <string>
 #include "wz/Property.hpp"

@@ -11,13 +11,13 @@ import entities;
 void Map::load(int map_id)
 {
     auto node = load_map_node(map_id);
-    load_tile(node);
-    load_obj(node);
-    load_background(node);
+    load_tiles(node);
+    load_objs(node);
+    load_backgrounds(node);
     World::sort();
 }
 
-void Map::load_obj(wz::Node *node)
+void Map::load_objs(wz::Node *node)
 {
     auto _node = node;
     for (size_t i = 0; i < 8; i++)
@@ -27,12 +27,12 @@ void Map::load_obj(wz::Node *node)
         for (auto &[key, val] : node->get_child(u"obj")->get_children())
         {
             auto id = std::stoi(std::string{key.begin(), key.end()});
-            Obj::load(val[0], id, i);
+            load_obj(val[0], id, i);
         }
     }
 }
 
-void Map::load_tile(wz::Node *node)
+void Map::load_tiles(wz::Node *node)
 {
     for (size_t i = 0; i < 8; i++)
     {
@@ -43,13 +43,13 @@ void Map::load_tile(wz::Node *node)
             for (auto &[key, val] : node->get_child(std::to_string(i))->get_child(u"tile")->get_children())
             {
                 auto id = std::stoi(std::string{key.begin(), key.end()});
-                Tile::load(val[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, id);
+                load_tile(val[0], dynamic_cast<wz::Property<wz::wzstring> *>(tS)->get(), i, id);
             }
         }
     }
 }
 
-void Map::load_background(wz::Node *node)
+void Map::load_backgrounds(wz::Node *node)
 {
     node = node->get_child(u"back");
     if (node != nullptr)
@@ -57,7 +57,7 @@ void Map::load_background(wz::Node *node)
         for (auto &[key, val] : node->get_children())
         {
             auto id = std::stoi(std::string{key.begin(), key.end()});
-            BackGround::load(val[0], id);
+            load_background(val[0], id);
         }
     }
 }

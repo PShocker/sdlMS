@@ -8,9 +8,9 @@ export module core:map;
 export struct Map
 {
     static void load(int map_id);
-    static void load_obj(wz::Node *node);
-    static void load_tile(wz::Node *node);
-    static void load_background(wz::Node *node);
+    static void load_objs(wz::Node *node);
+    static void load_tiles(wz::Node *node);
+    static void load_backgrounds(wz::Node *node);
     static void load_string(int map_id);
     static void load_foothold(wz::Node *node);
     static void load_life(wz::Node *node);

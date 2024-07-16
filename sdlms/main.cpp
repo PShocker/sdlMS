@@ -37,7 +37,6 @@ int main(int argc, char *argv[])
     Wz::init("./Data/");
     Window::create_window("sdlMS", width, height);
 
-    // SDL_CreateTexture()
     Map::load(100000000);
 
     while (true)

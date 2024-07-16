@@ -4,8 +4,7 @@ module;
 
 export module entities:tile;
 
-export struct Tile
+export
 {
-    const static inline unsigned int z_index = 10000;
-    static void load(wz::Node *node, const std::u16string &ts, int layer, int id);
+    void load_tile(wz::Node * node, const std::u16string &ts, int layer, int id);
 };

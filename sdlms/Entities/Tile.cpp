@@ -9,8 +9,10 @@ import components;
 import resources;
 import core;
 
-void Tile::load(wz::Node *node, const std::u16string &ts, int layer, int id)
+void load_tile(wz::Node *node, const std::u16string &ts, int layer, int id)
 {
+    const int z_index = 10000;
+
     auto ent = World::registry.create();
 
     auto u = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"u"))->get();
