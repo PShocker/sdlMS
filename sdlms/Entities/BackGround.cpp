@@ -12,32 +12,25 @@ void load_background(wz::Node *node, int id)
 {
     const int z_index = -10000;
 
-    auto ent = World::registry.create();
-
     auto bS = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"bS"))->get();
     if (bS == u"")
     {
         return;
     }
 
-    auto ani = 0;
-    if (node->get_child(u"ani") != nullptr)
-    {
-        ani = dynamic_cast<wz::Property<int> *>(node->get_child(u"ani"))->get();
-    }
+    auto ent = World::registry.create();
 
-    auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
-    auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"y"))->get();
+    auto &bspr = World::registry.emplace<BackGround>(ent);
+    auto &tr = World::registry.emplace<Transform>(ent);
 
-    auto cx = dynamic_cast<wz::Property<int> *>(node->get_child(u"cx"))->get();
-    auto cy = dynamic_cast<wz::Property<int> *>(node->get_child(u"cy"))->get();
+    tr.position.x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
+    tr.position.y = dynamic_cast<wz::Property<int> *>(node->get_child(u"y"))->get();
 
-    auto rx = dynamic_cast<wz::Property<int> *>(node->get_child(u"rx"))->get();
-    auto ry = dynamic_cast<wz::Property<int> *>(node->get_child(u"ry"))->get();
+    bspr.cx = dynamic_cast<wz::Property<int> *>(node->get_child(u"cx"))->get();
+    bspr.cy = dynamic_cast<wz::Property<int> *>(node->get_child(u"cy"))->get();
 
-    auto type = dynamic_cast<wz::Property<int> *>(node->get_child(u"type"))->get();
-
-    auto no = dynamic_cast<wz::Property<int> *>(node->get_child(u"no"))->get();
+    bspr.rx = dynamic_cast<wz::Property<int> *>(node->get_child(u"rx"))->get();
+    bspr.ry = dynamic_cast<wz::Property<int> *>(node->get_child(u"ry"))->get();
 
     auto front = 0;
     if (node->get_child(u"front") != nullptr)
@@ -57,24 +50,18 @@ void load_background(wz::Node *node, int id)
         a = dynamic_cast<wz::Property<int> *>(node->get_child(u"a"))->get();
     }
 
-    auto no_str = std::to_string(no);
-
     if (front == 1)
     {
         // 前景
-        World::registry.emplace<Transform>(ent, x, y, 99999999 + id + z_index);
+        tr.z = 99999999 + id + z_index;
     }
     else
     {
         // 背景
-        World::registry.emplace<Transform>(ent, x, y, id + z_index);
+        tr.z = id + z_index;
     }
 
-    auto &bspr = World::registry.emplace<BackGround>(ent);
-    bspr.cx = cx;
-    bspr.cy = cy;
-    bspr.rx = rx;
-    bspr.ry = ry;
+    auto type = dynamic_cast<wz::Property<int> *>(node->get_child(u"type"))->get();
 
     switch (type)
     {
@@ -117,20 +104,27 @@ void load_background(wz::Node *node, int id)
         break;
     }
 
+    auto ani = 0;
+    if (node->get_child(u"ani") != nullptr)
+    {
+        ani = dynamic_cast<wz::Property<int> *>(node->get_child(u"ani"))->get();
+    }
+
+    auto no = dynamic_cast<wz::Property<int> *>(node->get_child(u"no"))->get();
+    auto no_str = std::to_string(no);
+
     switch (ani)
     {
     case 0:
     {
         auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-        Sprite *spr = new Sprite(Wz::Map->get_root()->find_from_path(url), a);
-        bspr.spr = spr;
+        bspr.spr = new Sprite(Wz::Map->get_root()->find_from_path(url), a);
         break;
     }
     case 1:
     {
         auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-        AnimatedSprite *aspr = new AnimatedSprite(Wz::Map->get_root()->find_from_path(url), a);
-        bspr.spr = aspr;
+        bspr.spr = new AnimatedSprite(Wz::Map->get_root()->find_from_path(url), a);
         break;
     }
     default:

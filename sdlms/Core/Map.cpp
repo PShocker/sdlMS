@@ -15,6 +15,7 @@ void Map::load(int map_id)
     load_objs(node);
     load_backgrounds(node);
     load_portals(node);
+    load_footholds(node);
     World::sort();
 }
 
@@ -59,6 +60,25 @@ void Map::load_backgrounds(wz::Node *node)
         {
             auto id = std::stoi(std::string{key.begin(), key.end()});
             load_background(val[0], id);
+        }
+    }
+}
+
+void Map::load_footholds(wz::Node *node)
+{
+    node = node->get_child(u"foothold");
+    if (node != nullptr)
+    {
+        for (auto &[page, val] : node->get_children())
+        {
+            for (auto &[zmass, val] : val[0]->get_children())
+            {
+                for (auto &[key, val] : val[0]->get_children())
+                {
+                    auto id = std::stoi(std::string{key.begin(), key.end()});
+                    load_foothold(val[0], std::stoi(std::string{page.begin(), page.end()}), std::stoi(std::string{zmass.begin(), zmass.end()}), id);
+                }
+            }
         }
     }
 }

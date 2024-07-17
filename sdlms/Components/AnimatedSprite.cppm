@@ -1,6 +1,5 @@
 module;
 #include <vector>
-#include <string>
 #include "wz/Property.hpp"
 
 export module components:animatedsprite;
