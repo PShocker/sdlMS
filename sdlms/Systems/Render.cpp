@@ -179,14 +179,14 @@ void Render::render_back_sprite(Transform *tr, BackGround *bspr)
         }
     }
 
-    Transform *t = new Transform(0, 0, tr->flip);
+    Transform t(0, 0, 0, tr->flip);
+
     for (int i = 0; i < tile_cnt_y; i++)
     {
         for (int j = 0; j < tile_cnt_x; j++)
         {
-            t->position = {(float)point.x + j * cx + spr_ox, (float)point.y + i * cy + spr_oy};
-            render_sprite(t, spr);
+            t.position = {(float)point.x + j * cx + spr_ox, (float)point.y + i * cy + spr_oy};
+            render_sprite(&t, spr);
         }
     }
-    delete t;
 }

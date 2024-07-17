@@ -4,8 +4,8 @@ import systems;
 import core;
 import resources;
 
-int width = 100;
-int height = 100;
+int width = 1920;
+int height = 1080;
 
 void main_loop()
 {
