@@ -95,7 +95,6 @@ Sprite::Sprite(wz::Node *node, int alpha)
         pixel = raw_data;
         texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
         SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
-        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
         break;
     }
     case 2:
@@ -103,7 +102,6 @@ Sprite::Sprite(wz::Node *node, int alpha)
         pixel = raw_data;
         texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
         SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint32));
-        SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
         break;
     }
     case 517: // rgb565压缩缩略图
