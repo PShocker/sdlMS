@@ -43,6 +43,7 @@ void load_background(wz::Node *node, int id)
     {
         flip = dynamic_cast<wz::Property<int> *>(node->get_child(u"f"))->get();
     }
+    tr.flip = flip;
 
     auto a = 255;
     if (node->get_child(u"a") != nullptr)
