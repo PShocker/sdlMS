@@ -15,6 +15,11 @@ export struct FootHold
     int x2;
     int y2;
 
+    int l;
+    int r;
+    int t;
+    int b;
+
     static inline std::unordered_map<int, FootHold *> fhs;
     FootHold() = default;
 };

@@ -20,5 +20,10 @@ void load_foothold(wz::Node *node, int page, int zmass, int id)
     fh.y1 = dynamic_cast<wz::Property<int> *>(node->get_child(u"y1"))->get();
     fh.y2 = dynamic_cast<wz::Property<int> *>(node->get_child(u"y2"))->get();
 
+    fh.l = std::min(fh.x1, fh.x2);
+    fh.r = std::max(fh.x1, fh.x2);
+    fh.t = std::min(fh.y1, fh.y2);
+    fh.b = std::max(fh.y1, fh.y2);
+
     FootHold::fhs[id] = &fh;
 }
