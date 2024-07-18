@@ -25,5 +25,12 @@ void load_foothold(wz::Node *node, int page, int zmass, int id)
     fh.t = std::min(fh.y1, fh.y2);
     fh.b = std::max(fh.y1, fh.y2);
 
+    if (fh.x1 != fh.x2)
+    {
+        // 斜线
+        fh.k = ((float)fh.y2 - (float)fh.y1) / ((float)fh.x2 - (float)fh.x1);
+        fh.intercept = fh.y1 - fh.k.value() * fh.x1;
+    }
+
     FootHold::fhs[id] = &fh;
 }

@@ -1,10 +1,9 @@
 module;
 #include <SDL3/SDL.h>
-
 #include <unordered_set>
 export module core:input;
 
-struct Input
+export struct Input
 {
 
     static inline std::unordered_set<SDL_Keycode> pressed_keys;

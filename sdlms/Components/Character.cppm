@@ -308,5 +308,28 @@ export struct Character
     int action_time = 0;
     bool animate = true;
 
-    Character() = default;
+    void add_body(const std::u16string &val);
+    void add_coat(const std::u16string &val);
+    void add_cap(const std::u16string &val);
+    void add_pants(const std::u16string &val);
+    void add_head(const std::u16string &val);
+    void add_face(const std::u16string &val);
+    void add_hairs(const std::u16string &val);
+    void add_shoes(const std::u16string &val);
+    void add_weapon(const std::u16string &val);
+    void add_shield(const std::u16string &val);
+
+    Character();
+    static void init();
+
+    // 状态机
+    struct Status
+    {
+        static const int NONE = 0;
+        static const int JUMP = 1;
+        static const int CLIMB = 2;
+        static const int ATTACK = 3;
+        static const int ALERT = 4;
+    };
+    int status = Status::JUMP;
 };

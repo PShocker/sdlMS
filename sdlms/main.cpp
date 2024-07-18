@@ -3,9 +3,11 @@
 import systems;
 import core;
 import resources;
+import components;
+import entities;
 
-int width = 1920;
-int height = 1080;
+int width = 100;
+int height = 100;
 
 void main_loop()
 {
@@ -21,24 +23,28 @@ void main_loop()
     Window::tick_delta_time();
     Window::clear();
 
-    Render::run();
-    Animate::run();
+    render_run();
+    animate_run();
 
     Window::update();
 }
 
 int main(int argc, char *argv[])
 {
-    Camera::x = -700;
-    Camera::y = -100;
-    
+    Camera::x = 0;
+    Camera::y = 0;
+
     Camera::w = width;
     Camera::h = height;
 
     Wz::init("./Data/");
+    Character::init();
     Window::create_window("sdlMS", width, height);
 
+    load_character(30, 60);
+
     Map::load(100000000);
+
 
     while (true)
     {

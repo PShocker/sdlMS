@@ -8,7 +8,7 @@ module systems;
 import components;
 import core;
 
-void Animate::run()
+void animate_run()
 {
     auto view = World::registry.view<AnimatedSprite>();
     for (auto &ent : view)
@@ -18,7 +18,7 @@ void Animate::run()
     }
 }
 
-void Animate::animate_sprite(AnimatedSprite *aspr)
+void animate_sprite(AnimatedSprite *aspr)
 {
     if (aspr->animate)
     {

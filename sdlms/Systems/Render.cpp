@@ -10,7 +10,7 @@ import core;
 import commons;
 import components;
 
-void Render::run()
+void render_run()
 {
     auto view = World::registry.view<Transform>();
     for (auto &ent : view)
@@ -28,10 +28,14 @@ void Render::run()
         {
             render_back_sprite(tr, bspr);
         }
+        else if (auto cha = World::registry.try_get<Character>(ent))
+        {
+            render_character(tr, cha);
+        }
     }
 }
 
-void Render::render_sprite(Transform *tr, Sprite *spr)
+void render_sprite(Transform *tr, Sprite *spr)
 {
     float rot = tr->rotation;
 
@@ -64,13 +68,13 @@ void Render::render_sprite(Transform *tr, Sprite *spr)
     }
 }
 
-void Render::render_animated_sprite(Transform *tr, AnimatedSprite *aspr)
+void render_animated_sprite(Transform *tr, AnimatedSprite *aspr)
 {
     auto spr = aspr->sprites[aspr->anim_index];
     render_sprite(tr, spr);
 }
 
-void Render::render_back_sprite(Transform *tr, BackGround *bspr)
+void render_back_sprite(Transform *tr, BackGround *bspr)
 {
     auto delta_time = Window::delta_time;
 
@@ -189,4 +193,198 @@ void Render::render_back_sprite(Transform *tr, BackGround *bspr)
             render_sprite(&t, spr);
         }
     }
+}
+
+void render_character(Transform *tr, Character *cha)
+{
+    auto action = cha->action;
+    auto action_index = cha->action_index;
+
+    Transform tran(0, 0, 0, 0);
+
+    auto set_tran = [&tr, &tran](Transform *t, Sprite *spr)
+    {
+        auto chara_pos = tr->position;
+        auto flip = tr->flip;
+        if (flip == 0)
+        {
+            tran.flip = 0;
+            tran.position = chara_pos + t->position;
+        }
+        else
+        {
+            tran.flip = 1;
+            auto x = -t->position.x;
+            auto y = t->position.y;
+            tran.position = chara_pos + SDL_FPoint{x, y};
+        }
+    };
+    auto render_avatar = [&set_tran, &tran, &action, &action_index](std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> part[Character::ACTION::LENGTH])
+    {
+        if (part[action].size() > 0)
+        {
+            auto [t, spr] = part[action][action_index];
+            if (t != nullptr && spr != nullptr)
+            {
+                set_tran(t, spr);
+                render_sprite(&tran, spr);
+            }
+        }
+    };
+    render_avatar(cha->backTamingMobMid);
+    render_avatar(cha->backMobEquipUnderSaddle);
+    render_avatar(cha->backSaddle);
+    render_avatar(cha->backMobEquipMid);
+    render_avatar(cha->backTamingMobFront);
+    render_avatar(cha->backMobEquipFront);
+    render_avatar(cha->mobEquipRear);
+    render_avatar(cha->tamingMobRear);
+    render_avatar(cha->saddleRear);
+    render_avatar(cha->characterEnd);
+    render_avatar(cha->backWeapon);
+    if (!cha->cap_vslot.contains(u"Hf"))
+    {
+        render_avatar(cha->backHairBelowHead);
+    }
+    render_avatar(cha->backShieldBelowBody);
+    render_avatar(cha->backMailChestAccessory);
+    render_avatar(cha->backCapAccessory);
+    render_avatar(cha->backAccessoryFace);
+    render_avatar(cha->backAccessoryEar);
+    render_avatar(cha->backBody);
+    render_avatar(cha->backGlove);
+    render_avatar(cha->backGloveWrist);
+    render_avatar(cha->backWeaponOverGlove);
+    render_avatar(cha->backMailChestBelowPants);
+    render_avatar(cha->backPantsBelowShoes);
+    render_avatar(cha->backShoesBelowPants);
+    render_avatar(cha->backPants);
+    render_avatar(cha->backShoes);
+    render_avatar(cha->backPantsOverShoesBelowMailChest);
+    render_avatar(cha->backMailChest);
+    render_avatar(cha->backPantsOverMailChest);
+    render_avatar(cha->backMailChestOverPants);
+    render_avatar(cha->backHead);
+    render_avatar(cha->backAccessoryFaceOverHead);
+    render_avatar(cha->backCape);
+    if (!cha->cap_vslot.contains(u"H6"))
+    {
+        render_avatar(cha->backHairBelowCap);
+    }
+    if (!cha->cap_vslot.contains(u"H5"))
+    {
+        render_avatar(cha->backHairBelowCapNarrow);
+    }
+    if (!cha->cap_vslot.contains(u"H4"))
+    {
+        render_avatar(cha->backHairBelowCapWide);
+    }
+    render_avatar(cha->backWeaponOverHead);
+    render_avatar(cha->backCap);
+    if (!cha->cap_vslot.contains(u"H1"))
+    {
+        render_avatar(cha->backHair);
+    }
+    render_avatar(cha->backCapOverHair);
+    render_avatar(cha->backShield);
+    render_avatar(cha->backWeaponOverShield);
+    render_avatar(cha->backWing);
+    render_avatar(cha->backHairOverCape);
+    render_avatar(cha->weaponBelowBody);
+    if (!cha->cap_vslot.contains(u"Hb"))
+    {
+        render_avatar(cha->hairBelowBody);
+    }
+    render_avatar(cha->capeBelowBody);
+    render_avatar(cha->shieldBelowBody);
+    render_avatar(cha->capAccessoryBelowBody);
+    render_avatar(cha->gloveBelowBody);
+    render_avatar(cha->gloveWristBelowBody);
+    render_avatar(cha->body);
+    render_avatar(cha->gloveOverBody);
+    render_avatar(cha->mailChestBelowPants);
+    render_avatar(cha->pantsBelowShoes);
+    render_avatar(cha->shoes);
+    render_avatar(cha->pants);
+    render_avatar(cha->mailChestOverPants);
+    render_avatar(cha->shoesOverPants);
+    render_avatar(cha->pantsOverShoesBelowMailChest);
+    render_avatar(cha->shoesTop);
+    render_avatar(cha->mailChest);
+    render_avatar(cha->pantsOverMailChest);
+    render_avatar(cha->mailChestOverHighest);
+    render_avatar(cha->gloveWristOverBody);
+    render_avatar(cha->mailChestTop);
+    render_avatar(cha->weaponOverBody);
+    render_avatar(cha->armBelowHead);
+    render_avatar(cha->mailArmBelowHead);
+    render_avatar(cha->armBelowHeadOverMailChest);
+    render_avatar(cha->gloveBelowHead);
+    render_avatar(cha->mailArmBelowHeadOverMailChest);
+    render_avatar(cha->gloveWristBelowHead);
+    render_avatar(cha->weaponOverArmBelowHead);
+    render_avatar(cha->shield);
+    render_avatar(cha->weapon);
+    render_avatar(cha->arm);
+    render_avatar(cha->hand);
+    render_avatar(cha->glove);
+    render_avatar(cha->mailArm);
+    render_avatar(cha->gloveWrist);
+    render_avatar(cha->cape);
+    render_avatar(cha->head);
+    if (!cha->cap_vslot.contains(u"Hs"))
+    {
+        render_avatar(cha->hairShade);
+    }
+    render_avatar(cha->accessoryFaceBelowFace);
+    if (cha->show_face[cha->action][cha->action_index] == true)
+    {
+        render_avatar(cha->face);
+    }
+    render_avatar(cha->accessoryFaceOverFaceBelowCap);
+    render_avatar(cha->capBelowAccessory);
+    render_avatar(cha->accessoryEar);
+    render_avatar(cha->capAccessoryBelowAccFace);
+    render_avatar(cha->accessoryFace);
+    render_avatar(cha->accessoryEyeShadow);
+    render_avatar(cha->accessoryEye);
+    if (!cha->cap_vslot.contains(u"H2"))
+    {
+        render_avatar(cha->hair);
+    }
+    render_avatar(cha->cap);
+    render_avatar(cha->capAccessory);
+    render_avatar(cha->accessoryEyeOverCap);
+    if (!cha->cap_vslot.contains(u"H1"))
+    {
+        render_avatar(cha->hairOverHead);
+    }
+    render_avatar(cha->capOverHair);
+    render_avatar(cha->weaponBelowArm);
+    render_avatar(cha->armOverHairBelowWeapon);
+    render_avatar(cha->mailArmOverHairBelowWeapon);
+    render_avatar(cha->armOverHair);
+    render_avatar(cha->gloveBelowMailArm);
+    render_avatar(cha->mailArmOverHair);
+    render_avatar(cha->gloveWristBelowMailArm);
+    render_avatar(cha->weaponOverArm);
+    render_avatar(cha->handBelowWeapon);
+    render_avatar(cha->gloveBelowWeapon);
+    render_avatar(cha->gloveWristBelowWeapon);
+    render_avatar(cha->shieldOverHair);
+    render_avatar(cha->weaponOverHand);
+    render_avatar(cha->handOverHair);
+    render_avatar(cha->gloveOverHair);
+    render_avatar(cha->gloveWristOverHair);
+    render_avatar(cha->weaponOverGlove);
+    render_avatar(cha->capeOverHead);
+    render_avatar(cha->weaponWristOverGlove);
+    render_avatar(cha->emotionOverBody);
+    render_avatar(cha->characterStart);
+    render_avatar(cha->tamingMobMid);
+    render_avatar(cha->mobEquipUnderSaddle);
+    render_avatar(cha->saddleFront);
+    render_avatar(cha->mobEquipMid);
+    render_avatar(cha->tamingMobFront);
+    render_avatar(cha->mobEquipFront);
 }
