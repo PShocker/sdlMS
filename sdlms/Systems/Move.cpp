@@ -2,12 +2,13 @@ module;
 
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
+#include <optional>
 
 module systems;
 
 import components;
-import core;
 import commons;
+import core;
 
 void move_run()
 {
@@ -19,12 +20,13 @@ void move_run()
         {
             auto tr = World::registry.try_get<Transform>(ent);
             auto cha = World::registry.try_get<Character>(ent);
-            move_player(mv, tr, cha);
+            auto foo = World::registry.try_get<FootHold>(ent);
+            move_player(mv, tr, cha, foo);
         }
     }
 }
 
-void move_player(Move *mv, Transform *tr, Character *cha)
+void move_player(Move *mv, Transform *tr, Character *cha, FootHold *foo)
 {
     move_play_flip(tr);
     switch (cha->status)
@@ -36,6 +38,7 @@ void move_player(Move *mv, Transform *tr, Character *cha)
     break;
     case Character::Status::JUMP:
     {
+        move_play_fall(mv, tr, foo);
     }
     break;
     default:
@@ -59,7 +62,7 @@ void move_play_walk(Move *mv, Transform *tr)
 {
 }
 
-void move_play_fall(Move *mv, Transform *tr)
+void move_play_fall(Move *mv, Transform *tr, FootHold *foo)
 {
     if (Input::is_key_held(SDLK_RIGHT))
     {
@@ -74,11 +77,13 @@ void move_play_fall(Move *mv, Transform *tr)
 
     // 默认重力为2000
     mv->vspeed += delta_time * 2000;
-    if (mv->vspeed_limit.has_value())
+    if (mv->vspeed_min.has_value())
     {
-        auto min = mv->vspeed_limit.value().x;
-        auto max = mv->vspeed_limit.value().y;
-        mv->vspeed = std::clamp(mv->vspeed, min, max);
+        mv->vspeed = std::fmin(mv->vspeed, mv->vspeed_min.value());
+    }
+    if (mv->vspeed_max.has_value())
+    {
+        mv->vspeed = std::fmax(mv->vspeed, mv->vspeed_max.value());
     }
 
     auto d_x = mv->hspeed * delta_time;
@@ -114,4 +119,103 @@ void move_play_fall(Move *mv, Transform *tr)
         }
         return false;
     };
+
+    // 下落
+    if (mv->vspeed >= 0)
+    {
+        auto view = World::registry.view<FootHold>();
+        for (auto &ent : view)
+        {
+            auto fh = &view.get<FootHold>(ent);
+            auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
+            if (collide.has_value())
+            {
+                if (!fh->k.has_value())
+                {
+                    // 判断墙面碰撞方向
+                    if (collide_wall(fh, mv->hspeed))
+                    {
+                        new_pos.x = tr->position.x;
+                        mv->hspeed = 0;
+                    }
+                }
+                else
+                {
+                    // 落地
+                    new_pos.x = std::clamp((float)collide.value().x, (float)fh->l, (float)fh->r);
+                    new_pos.y = fh->get_y(new_pos.x).value();
+                    break;
+                }
+            }
+        }
+    }
+    else if (mv->vspeed < 0)
+    {
+        auto view = World::registry.view<FootHold>();
+        for (auto &ent : view)
+        {
+            auto fh = &view.get<FootHold>(ent);
+            if (!fh->k.has_value())
+            {
+                // 墙
+                auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
+                if (collide.has_value())
+                {
+                    if (collide_wall(fh, mv->hspeed))
+                    {
+                        new_pos.x = tr->position.x;
+                        mv->hspeed = 0;
+                    }
+                }
+            }
+            else
+            {
+                if (fh->k == 0 &&
+                    fh->x2 < fh->x1 &&
+                    (fh->zmass == 0 ||
+                     (foo != nullptr &&
+                      fh->zmass == foo->zmass)))
+                {
+                    // top floor
+                    auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
+                    if (collide.has_value())
+                    {
+                        if (collide_wall(fh, mv->hspeed))
+                        {
+                            new_pos.y = tr->position.y;
+                            mv->hspeed = 0;
+                            mv->vspeed = 0;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    tr->position = new_pos;
+}
+
+inline std::optional<SDL_FPoint> intersect(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3, SDL_FPoint p4)
+{
+
+    // 快速排斥实验
+    if ((p1.x > p2.x ? p1.x : p2.x) < (p3.x < p4.x ? p3.x : p4.x) ||
+        (p1.y > p2.y ? p1.y : p2.y) < (p3.y < p4.y ? p3.y : p4.y) ||
+        (p3.x > p4.x ? p3.x : p4.x) < (p1.x < p2.x ? p1.x : p2.x) ||
+        (p3.y > p4.y ? p3.y : p4.y) < (p1.y < p2.y ? p1.y : p2.y))
+    {
+        return std::nullopt;
+    }
+    // 跨立实验
+    if ((((p1.x - p3.x) * (p4.y - p3.y) - (p1.y - p3.y) * (p4.x - p3.x)) *
+         ((p2.x - p3.x) * (p4.y - p3.y) - (p2.y - p3.y) * (p4.x - p3.x))) > 0 ||
+        (((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x)) *
+         ((p4.x - p1.x) * (p2.y - p1.y) - (p4.y - p1.y) * (p2.x - p1.x))) > 0)
+    {
+        return std::nullopt;
+    }
+
+    auto x = ((p1.y - p3.y) * (p2.x - p1.x) * (p4.x - p3.x) + p3.x * (p4.y - p3.y) * (p2.x - p1.x) - p1.x * (p2.y - p1.y) * (p4.x - p3.x)) / ((p4.x - p3.x) * (p1.y - p2.y) - (p2.x - p1.x) * (p3.y - p4.y));
+    auto y = (p2.y * (p1.x - p2.x) * (p4.y - p3.y) + (p4.x - p2.x) * (p4.y - p3.y) * (p1.y - p2.y) - p4.y * (p3.x - p4.x) * (p2.y - p1.y)) / ((p1.x - p2.x) * (p4.y - p3.y) - (p2.y - p1.y) * (p3.x - p4.x));
+
+    return SDL_FPoint{x, y};
 }

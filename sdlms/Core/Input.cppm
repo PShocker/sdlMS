@@ -5,7 +5,6 @@ export module core:input;
 
 export struct Input
 {
-
     static inline std::unordered_set<SDL_Keycode> pressed_keys;
     static inline std::unordered_set<SDL_Keycode> pressed_keys_momentary;
     static inline std::unordered_set<SDL_Keycode> released_keys_momentary;

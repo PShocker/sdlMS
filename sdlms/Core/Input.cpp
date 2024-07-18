@@ -4,6 +4,11 @@ module;
 
 module core;
 
+bool Input::is_key_held(SDL_Keycode key)
+{
+    return pressed_keys.contains(key);
+}
+
 void Input::process_input_event(int type, const SDL_Event &event)
 {
     switch (type)

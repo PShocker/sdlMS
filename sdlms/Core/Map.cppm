@@ -23,5 +23,12 @@ export struct Map
 
     static inline uint32_t map_id = 0;
 
+    struct Border
+    {
+        static optional<int> l;
+        static optional<int> r;
+        static optional<int> t;
+        static optional<int> b;
+    };
     static wz::Node *load_map_node(int map_id);
 };

@@ -6,8 +6,8 @@ import resources;
 import components;
 import entities;
 
-int width = 100;
-int height = 100;
+int width = 1920;
+int height = 1080;
 
 void main_loop()
 {
@@ -25,7 +25,9 @@ void main_loop()
 
     render_run();
     animate_run();
-
+    move_run();
+    camera_run();
+    
     Window::update();
 }
 
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
 
     Map::load(100000000);
 
-
+    Window::tick_delta_time();
     while (true)
     {
         main_loop();
