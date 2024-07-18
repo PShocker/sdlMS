@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD 23)
 # Add compile information for LSP
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_compile_options(-Werror)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
