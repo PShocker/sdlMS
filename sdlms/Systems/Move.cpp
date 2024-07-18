@@ -20,8 +20,7 @@ void move_run()
         {
             auto tr = World::registry.try_get<Transform>(ent);
             auto cha = World::registry.try_get<Character>(ent);
-            auto foo = World::registry.try_get<FootHold>(ent);
-            move_player(mv, tr, cha, foo);
+            move_player(mv, tr, cha, mv->foo);
         }
     }
 }
@@ -34,11 +33,18 @@ void move_player(Move *mv, Transform *tr, Character *cha, FootHold *foo)
     case Character::Status::NONE:
     {
         // normal status,can walk or jump
+        if (!move_play_walk(mv, tr, foo))
+        {
+            cha->status = Character::Status::JUMP;
+        }
     }
     break;
     case Character::Status::JUMP:
     {
-        move_play_fall(mv, tr, foo);
+        if (!move_play_fall(mv, tr, foo))
+        {
+            cha->status = Character::Status::NONE;
+        }
     }
     break;
     default:
@@ -58,11 +64,122 @@ void move_play_flip(Transform *tr)
     }
 }
 
-void move_play_walk(Move *mv, Transform *tr)
+bool move_play_walk(Move *mv, Transform *tr, FootHold *foo)
 {
+    if (Input::is_key_held(SDLK_RIGHT))
+    {
+        mv->hforce = 1400;
+    }
+    else if (Input::is_key_held(SDLK_LEFT))
+    {
+        mv->hforce = -1400;
+    }
+    else
+    {
+        mv->hforce = 0;
+        // 如果没有左右的输入并且速度为0,则可以直接return提高性能
+        if (mv->hspeed == 0)
+        {
+            return true;
+        }
+    }
+    auto delta_time = (float)Window::delta_time / 1000;
+
+    constexpr auto friction = 800; // 摩擦力
+
+    if (mv->hspeed > 0)
+    {
+        mv->hforce -= friction;
+        mv->hforce = std::max(-mv->hspeed / delta_time, mv->hforce);
+    }
+    else if (mv->hspeed < 0)
+    {
+        mv->hforce += friction;
+        mv->hforce = std::min(-mv->hspeed / delta_time, mv->hforce);
+    }
+
+    mv->hspeed += delta_time * mv->hforce;
+
+    if (mv->hspeed_min.has_value())
+    {
+        mv->hspeed = std::fmax(mv->hspeed, mv->hspeed_min.value());
+    }
+    if (mv->hspeed_max.has_value())
+    {
+        mv->hspeed = std::fmin(mv->hspeed, mv->hspeed_max.value());
+    }
+
+    auto d_x = mv->hspeed * delta_time;
+    auto x = d_x + tr->position.x;
+    auto y = tr->position.y;
+
+    auto &fhs = FootHold::fhs;
+
+    // 人物在fh移动的函数
+    auto walk_fh = [&fhs, &foo, &x, &y, &tr, &mv](int next_fh) -> bool
+    {
+        FootHold *fh = nullptr; // 走到下一个fh
+        if (fhs.contains(next_fh))
+        {
+            fh = fhs.find(next_fh)->second;
+        }
+        else
+        {
+            mv->vspeed = 0;
+            tr->position.y = y;
+            tr->position.x = x;
+            return false;
+        }
+        if (!fh->k.has_value())
+        {
+            if (y == std::clamp(y, (float)fh->b - 1, (float)fh->b + 1))
+            {
+                // 撞墙
+                x = tr->position.x;
+                tr->position.y = foo->get_y(tr->position.x).value();
+                mv->hspeed = 0;
+                return false;
+            }
+            else
+            {
+                // 楼梯上掉落
+                mv->vspeed = 0;
+                tr->position.y = y;
+                tr->position.x = x;
+                return false;
+            }
+        }
+        foo = fh;
+        return true;
+    };
+
+    // 往左走
+    while (x < foo->l)
+    {
+        int next_fh = std::abs(foo->prev);
+        if (walk_fh(next_fh) == false)
+        {
+            // 从fh掉落,撞墙
+            return false;
+        }
+    }
+    // 往右走
+    while (x > foo->r)
+    {
+        int next_fh = std::abs(foo->next);
+        if (walk_fh(next_fh) == false)
+        {
+            // 从fh掉落,撞墙
+            return false;
+        }
+    }
+    // 地面上
+    tr->position.x = x;
+    tr->position.y = foo->get_y(x).value();
+    return true;
 }
 
-void move_play_fall(Move *mv, Transform *tr, FootHold *foo)
+bool move_play_fall(Move *mv, Transform *tr, FootHold *foo)
 {
     if (Input::is_key_held(SDLK_RIGHT))
     {
@@ -73,17 +190,17 @@ void move_play_fall(Move *mv, Transform *tr, FootHold *foo)
         mv->hspeed -= 0.3f;
     }
 
-    auto delta_time = Window::delta_time;
+    auto delta_time = (float)Window::delta_time / 1000;
 
     // 默认重力为2000
     mv->vspeed += delta_time * 2000;
     if (mv->vspeed_min.has_value())
     {
-        mv->vspeed = std::fmin(mv->vspeed, mv->vspeed_min.value());
+        mv->vspeed = std::fmax(mv->vspeed, mv->vspeed_min.value());
     }
     if (mv->vspeed_max.has_value())
     {
-        mv->vspeed = std::fmax(mv->vspeed, mv->vspeed_max.value());
+        mv->vspeed = std::fmin(mv->vspeed, mv->vspeed_max.value());
     }
 
     auto d_x = mv->hspeed * delta_time;
@@ -144,7 +261,9 @@ void move_play_fall(Move *mv, Transform *tr, FootHold *foo)
                     // 落地
                     new_pos.x = std::clamp((float)collide.value().x, (float)fh->l, (float)fh->r);
                     new_pos.y = fh->get_y(new_pos.x).value();
-                    break;
+                    mv->foo = fh;
+                    tr->position = new_pos;
+                    return false;
                 }
             }
         }
@@ -192,6 +311,7 @@ void move_play_fall(Move *mv, Transform *tr, FootHold *foo)
         }
     }
     tr->position = new_pos;
+    return true;
 }
 
 inline std::optional<SDL_FPoint> intersect(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3, SDL_FPoint p4)

@@ -4,12 +4,13 @@ module;
 #include <SDL3/SDL.h>
 
 export module components:move;
+import :foothold;
 
 export struct Move
 {
     float hspeed = 0.0;
-    std::optional<float> hspeed_min = -125.0f;
-    std::optional<float> hspeed_max = 125.0f;
+    std::optional<float> hspeed_min = -333.0f;
+    std::optional<float> hspeed_max = 333.0f;
     float vspeed = 0.0;
     std::optional<float> vspeed_min = -5000.0f;
     std::optional<float> vspeed_max = 670.0f;
@@ -28,6 +29,8 @@ export struct Move
     };
 
     uint8_t area = LAND;
+
+    FootHold *foo = nullptr;
 
     Move() = default;
 };

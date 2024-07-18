@@ -6,8 +6,8 @@ import resources;
 import components;
 import entities;
 
-int width = 1920;
-int height = 1080;
+int width = 800;
+int height = 600;
 
 void main_loop()
 {
