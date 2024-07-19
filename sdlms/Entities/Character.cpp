@@ -10,15 +10,13 @@ import resources;
 
 void load_character(float x, float y)
 {
-    auto ent = World::registry.create();
-    
-    World::registry.emplace<Transform>(ent, x, y, 999999999);
+    Player::ent = World::registry.create();
 
-    World::registry.emplace<Player>(ent);
+    World::registry.emplace<Transform>(Player::ent, x, y, 999999999);
 
-    World::registry.emplace<Move>(ent);
+    World::registry.emplace<Move>(Player::ent);
 
-    auto &cha = World::registry.emplace<Character>(ent);
+    auto &cha = World::registry.emplace<Character>(Player::ent);
 
     cha.add_head(u"00012000");
     cha.add_body(u"00002000");

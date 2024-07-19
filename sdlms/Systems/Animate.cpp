@@ -10,11 +10,21 @@ import core;
 
 void animate_run()
 {
-    auto view = World::registry.view<AnimatedSprite>();
-    for (auto &ent : view)
     {
-        auto aspr = &view.get<AnimatedSprite>(ent);
-        animate_sprite(aspr);
+        auto view = World::registry.view<AnimatedSprite>();
+        for (auto &ent : view)
+        {
+            auto aspr = &view.get<AnimatedSprite>(ent);
+            animate_sprite(aspr);
+        }
+    }
+    {
+        auto view = World::registry.view<Character>();
+        for (auto &ent : view)
+        {
+            auto cha = &view.get<Character>(ent);
+            animate_character(cha);
+        }
     }
 }
 
@@ -59,6 +69,21 @@ void animate_sprite(AnimatedSprite *aspr)
         else
         {
             SDL_SetTextureAlphaMod(aspr->sprites[aspr->anim_index]->texture, a0);
+        }
+    }
+}
+
+void animate_character(Character *cha)
+{
+    if (cha->animate)
+    {
+        auto delta_time = Window::delta_time;
+        auto delay = cha->stance_delays[cha->action][cha->action_index];
+        cha->action_time += delta_time;
+        if (cha->action_time >= delay)
+        {
+            cha->action_index = (cha->action_index + 1) % cha->stance_delays[cha->action].size();
+            cha->action_time = 0;
         }
     }
 }

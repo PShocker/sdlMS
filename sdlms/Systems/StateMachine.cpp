@@ -10,41 +10,42 @@ import components;
 import commons;
 import core;
 
-void move_run()
+void statemachine_run()
 {
-    auto view = World::registry.view<Move>();
-    for (auto &ent : view)
+    auto ent = Player::ent;
+    if (World::registry.valid(ent))
     {
-        auto mv = &view.get<Move>(ent);
-        if (World::registry.any_of<Player>(ent))
-        {
-            auto tr = World::registry.try_get<Transform>(ent);
-            auto cha = World::registry.try_get<Character>(ent);
-            move_player(mv, tr, cha, mv->foo);
-        }
+        auto mv = World::registry.try_get<Move>(ent);
+        auto tr = World::registry.try_get<Transform>(ent);
+        auto cha = World::registry.try_get<Character>(ent);
+        player_statemachine(mv, tr, cha, mv->foo, ent);
     }
 }
 
-void move_player(Move *mv, Transform *tr, Character *cha, FootHold *foo)
+void player_statemachine(Move *mv, Transform *tr, Character *cha, FootHold *foo, entt::entity ent)
 {
-    move_play_flip(tr);
-    switch (cha->status)
+    switch (cha->state)
     {
-    case Character::Status::NONE:
+    case Character::State::STAND:
     {
-        // normal status,can walk or jump
-        if (!move_play_walk(mv, tr, foo))
-        {
-            cha->status = Character::Status::JUMP;
-        }
+        player_action(cha, Character::ACTION::STAND1);
+        player_flip(tr);
+        cha->state = player_walk(mv, tr, foo);
     }
     break;
-    case Character::Status::JUMP:
+    case Character::State::WALK:
     {
-        if (!move_play_fall(mv, tr, foo))
-        {
-            cha->status = Character::Status::NONE;
-        }
+        // normal status,can walk or jump
+        player_action(cha, Character::ACTION::WALK1);
+        player_flip(tr);
+        cha->state = player_walk(mv, tr, foo);
+    }
+    break;
+    case Character::State::JUMP:
+    {
+        player_action(cha, Character::ACTION::JUMP);
+        player_flip(tr);
+        cha->state = player_fall(mv, tr, foo, ent);
     }
     break;
     default:
@@ -52,7 +53,7 @@ void move_player(Move *mv, Transform *tr, Character *cha, FootHold *foo)
     }
 }
 
-void move_play_flip(Transform *tr)
+void player_flip(Transform *tr)
 {
     if (Input::is_key_held(SDLK_RIGHT))
     {
@@ -64,8 +65,10 @@ void move_play_flip(Transform *tr)
     }
 }
 
-bool move_play_walk(Move *mv, Transform *tr, FootHold *foo)
+int player_walk(Move *mv, Transform *tr, FootHold *foo)
 {
+    auto state = Character::State::WALK;
+
     if (Input::is_key_held(SDLK_RIGHT))
     {
         mv->hforce = 1400;
@@ -76,11 +79,13 @@ bool move_play_walk(Move *mv, Transform *tr, FootHold *foo)
     }
     else
     {
+        state = Character::State::STAND;
+
         mv->hforce = 0;
         // 如果没有左右的输入并且速度为0,则可以直接return提高性能
         if (mv->hspeed == 0)
         {
-            return true;
+            return state;
         }
     }
     auto delta_time = (float)Window::delta_time / 1000;
@@ -116,7 +121,7 @@ bool move_play_walk(Move *mv, Transform *tr, FootHold *foo)
     auto &fhs = FootHold::fhs;
 
     // 人物在fh移动的函数
-    auto walk_fh = [&fhs, &foo, &x, &y, &tr, &mv](int next_fh) -> bool
+    auto walk_fh = [&fhs, &foo, &x, &y, &tr, &mv, &state](int next_fh) -> bool
     {
         FootHold *fh = nullptr; // 走到下一个fh
         if (fhs.contains(next_fh))
@@ -138,7 +143,7 @@ bool move_play_walk(Move *mv, Transform *tr, FootHold *foo)
                 x = tr->position.x;
                 tr->position.y = foo->get_y(tr->position.x).value();
                 mv->hspeed = 0;
-                return false;
+                return true;
             }
             else
             {
@@ -146,6 +151,8 @@ bool move_play_walk(Move *mv, Transform *tr, FootHold *foo)
                 mv->vspeed = 0;
                 tr->position.y = y;
                 tr->position.x = x;
+
+                state = Character::State::JUMP;
                 return false;
             }
         }
@@ -159,8 +166,7 @@ bool move_play_walk(Move *mv, Transform *tr, FootHold *foo)
         int next_fh = std::abs(foo->prev);
         if (walk_fh(next_fh) == false)
         {
-            // 从fh掉落,撞墙
-            return false;
+            return state;
         }
     }
     // 往右走
@@ -169,25 +175,32 @@ bool move_play_walk(Move *mv, Transform *tr, FootHold *foo)
         int next_fh = std::abs(foo->next);
         if (walk_fh(next_fh) == false)
         {
-            // 从fh掉落,撞墙
-            return false;
+            return state;
         }
     }
     // 地面上
     tr->position.x = x;
     tr->position.y = foo->get_y(x).value();
-    return true;
+    return state;
 }
 
-bool move_play_fall(Move *mv, Transform *tr, FootHold *foo)
+int player_fall(Move *mv, Transform *tr, FootHold *foo, entt::entity ent)
 {
+    auto state = Character::State::JUMP;
+
     if (Input::is_key_held(SDLK_RIGHT))
     {
         mv->hspeed += 0.3f;
+        state = Character::State::WALK;
     }
     else if (Input::is_key_held(SDLK_LEFT))
     {
         mv->hspeed -= 0.3f;
+        state = Character::State::WALK;
+    }
+    else
+    {
+        state = Character::State::STAND;
     }
 
     auto delta_time = (float)Window::delta_time / 1000;
@@ -263,7 +276,8 @@ bool move_play_fall(Move *mv, Transform *tr, FootHold *foo)
                     new_pos.y = fh->get_y(new_pos.x).value();
                     mv->foo = fh;
                     tr->position = new_pos;
-                    return false;
+                    World::registry.replace<Transform>(ent, 0.0f, 0.0f, 1);
+                    return state;
                 }
             }
         }
@@ -311,7 +325,17 @@ bool move_play_fall(Move *mv, Transform *tr, FootHold *foo)
         }
     }
     tr->position = new_pos;
-    return true;
+    return Character::State::JUMP;
+}
+
+void player_action(Character *cha, int action)
+{
+    if (action != cha->action)
+    {
+        cha->action_index = 0;
+        cha->action_time = 0;
+        cha->action = action;
+    }
 }
 
 inline std::optional<SDL_FPoint> intersect(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3, SDL_FPoint p4)

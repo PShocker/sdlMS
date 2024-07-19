@@ -323,13 +323,14 @@ export struct Character
     static void init();
 
     // 状态机
-    struct Status
+    struct State
     {
-        static const int NONE = 0;
-        static const int JUMP = 1;
-        static const int CLIMB = 2;
-        static const int ATTACK = 3;
-        static const int ALERT = 4;
+        static const int STAND = 0;
+        static const int WALK = 1;
+        static const int JUMP = 2;
+        static const int CLIMB = 3;
+        static const int ATTACK = 4;
+        static const int ALERT = 5;
     };
-    int status = Status::JUMP;
+    int state = State::JUMP;
 };

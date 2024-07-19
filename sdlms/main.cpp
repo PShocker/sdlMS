@@ -23,11 +23,11 @@ void main_loop()
     Window::tick_delta_time();
     Window::clear();
 
-    render_run();
     animate_run();
-    move_run();
+    statemachine_run();
     camera_run();
-    
+    render_run();
+
     Window::update();
 }
 
@@ -41,11 +41,12 @@ int main(int argc, char *argv[])
 
     Wz::init("./Data/");
     Character::init();
+    World::init();
     Window::create_window("sdlMS", width, height);
 
-    load_character(30, 60);
-
     Map::load(100000000);
+
+    load_character(30, 60);
 
     Window::tick_delta_time();
     while (true)

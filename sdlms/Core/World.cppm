@@ -4,15 +4,12 @@ module;
 
 export module core:world;
 
-import components;
+void Transform_construct(entt::registry& registry, entt::entity entity);
 
 export struct World
 {
    static inline entt::registry registry;
 
-   static inline void sort()
-   {
-      registry.sort<Transform>([](const Transform &m, const Transform &n)
-                               { return m.z < n.z; });
-   }
+   static void init();
 };
+
