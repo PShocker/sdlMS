@@ -7,10 +7,10 @@ module entities;
 import components;
 import resources;
 import core;
+import commons;
 
 void load_background(wz::Node *node, int id)
 {
-    const int z_index = -10000;
 
     auto bS = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"bS"))->get();
     if (bS == u"")
@@ -54,12 +54,12 @@ void load_background(wz::Node *node, int id)
     if (front == 1)
     {
         // 前景
-        tr.z = 99999999 + id + z_index;
+        tr.z = 99999999 + id;
     }
     else
     {
         // 背景
-        tr.z = id + z_index;
+        tr.z = id + BACKGROUND_Z;
     }
 
     auto type = dynamic_cast<wz::Property<int> *>(node->get_child(u"type"))->get();

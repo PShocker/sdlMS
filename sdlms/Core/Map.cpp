@@ -16,6 +16,8 @@ void Map::load(int map_id)
     load_backgrounds(node);
     load_portals(node);
     load_footholds(node);
+
+    World::zindex();
 }
 
 void Map::load_objs(wz::Node *node)

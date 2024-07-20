@@ -82,7 +82,15 @@ void animate_character(Character *cha)
         cha->action_time += delta_time;
         if (cha->action_time >= delay)
         {
-            cha->action_index = (cha->action_index + 1) % cha->stance_delays[cha->action].size();
+            if (cha->action_index == cha->stance_delays[cha->action].size() - 1)
+            {
+                cha->action_index = 0;
+                cha->animated = true;
+            }
+            else
+            {
+                cha->action_index += 1;
+            }
             cha->action_time = 0;
         }
     }

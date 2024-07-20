@@ -8,11 +8,10 @@ module entities;
 import components;
 import resources;
 import core;
+import commons;
 
 void load_tile(wz::Node *node, const std::u16string &ts, int layer, int id)
 {
-    const int z_index = 10000;
-
     auto ent = World::registry.create();
 
     auto u = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"u"))->get();
@@ -25,5 +24,5 @@ void load_tile(wz::Node *node, const std::u16string &ts, int layer, int id)
     auto url = u"Tile/" + ts + u".img/" + u + u"/" + std::u16string{no_str.begin(), no_str.end()};
 
     auto spr = World::registry.emplace<Sprite>(ent, Wz::Map->get_root()->find_from_path(url));
-    World::registry.emplace<Transform>(ent, x, y, layer * 3000000 + std::any_cast<int>(spr.z) * 1000 + id + z_index);
+    World::registry.emplace<Transform>(ent, x, y, layer * LAYER_Z + std::any_cast<int>(spr.z) * 1000 + id + TILE_Z);
 }

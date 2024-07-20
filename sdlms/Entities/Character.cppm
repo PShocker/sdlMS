@@ -6,5 +6,3 @@ export
 {
     void load_character(float x, float y);
 };
-
-

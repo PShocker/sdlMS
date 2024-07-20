@@ -13,6 +13,10 @@ void load_foothold(wz::Node *node, int page, int zmass, int id)
     auto ent = World::registry.create();
 
     auto &fh = World::registry.emplace<FootHold>(ent);
+
+    fh.page = page;
+    fh.zmass = zmass;
+
     fh.next = dynamic_cast<wz::Property<int> *>(node->get_child(u"next"))->get();
     fh.prev = dynamic_cast<wz::Property<int> *>(node->get_child(u"prev"))->get();
     fh.x1 = dynamic_cast<wz::Property<int> *>(node->get_child(u"x1"))->get();

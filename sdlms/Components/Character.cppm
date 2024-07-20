@@ -307,6 +307,9 @@ export struct Character
     int action_index = 0;
     int action_time = 0;
     bool animate = true;
+    
+    //use for attck and checkout wheather attack has finished
+    bool animated = false;
 
     void add_body(const std::u16string &val);
     void add_coat(const std::u16string &val);
