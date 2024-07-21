@@ -192,7 +192,7 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     // 往左走
     while (x < mv->foo->l)
     {
-        int next_fh = std::abs(mv->foo->prev);
+        int next_fh = mv->foo->prev;
         if (walk_fh(next_fh) == false)
         {
             return state;
@@ -201,7 +201,7 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     // 往右走
     while (x > mv->foo->r)
     {
-        int next_fh = std::abs(mv->foo->next);
+        int next_fh = mv->foo->next;
         if (walk_fh(next_fh) == false)
         {
             return state;
@@ -301,7 +301,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
                     new_pos.x = std::clamp((float)collide.value().x, (float)fh->l, (float)fh->r);
                     new_pos.y = fh->get_y(new_pos.x).value();
                     mv->foo = fh;
-                    mv->hspeed = 0;
+                    mv->hspeed /= 2;
                     tr->position = new_pos;
                     // switch z
                     if (mv->page != fh->page)
@@ -346,8 +346,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
                 if (fh->k == 0 &&
                     fh->x2 < fh->x1 &&
                     (fh->zmass == 0 ||
-                     (mv->foo != nullptr &&
-                      fh->zmass == mv->foo->zmass)))
+                     fh->zmass == mv->zmass))
                 {
                     // top floor
                     auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
@@ -372,9 +371,13 @@ int player_jump(Move *mv, Transform *tr, int state)
 {
     if (Input::is_key_held(SDLK_LALT))
     {
-        mv->vspeed = -555;
-
-        mv->foo = nullptr;
+        if (mv->foo)
+        {
+            mv->vspeed = -555;
+            mv->page = mv->foo->page;
+            mv->zmass = mv->foo->zmass;
+            mv->foo = nullptr;
+        }
         state = Character::State::JUMP;
     }
     return state;
@@ -420,6 +423,7 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
                 cha->state = Character::State::STAND;
                 return false;
             }
+            mv->hspeed = 0;
         }
     }
     else
@@ -443,10 +447,13 @@ bool player_attack_afterimage(entt::entity *ent)
 
 void player_border_limit(Move *mv, Transform *tr)
 {
-    tr->position.x = std::clamp(tr->position.x, mv->rx0.value(), mv->rx1.value());
-    if (mv->foo)
+    if (tr->position.x < mv->rx0.value() || tr->position.x > mv->rx1.value())
     {
-        tr->position.y = mv->foo->get_y(tr->position.x).value();
+        tr->position.x = std::clamp(tr->position.x, mv->rx0.value(), mv->rx1.value());
+        if (mv->foo)
+        {
+            tr->position.y = mv->foo->get_y(tr->position.x).value();
+        }
     }
 }
 
