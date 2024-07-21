@@ -450,6 +450,7 @@ void player_border_limit(Move *mv, Transform *tr)
     if (tr->position.x < mv->rx0.value() || tr->position.x > mv->rx1.value())
     {
         tr->position.x = std::clamp(tr->position.x, mv->rx0.value(), mv->rx1.value());
+        mv->hspeed = 0;
         if (mv->foo)
         {
             tr->position.y = mv->foo->get_y(tr->position.x).value();
