@@ -4,6 +4,7 @@ module;
 
 export module components:move;
 import :foothold;
+import core;
 
 export struct Move
 {
@@ -18,8 +19,11 @@ export struct Move
     float hacc = 0.0;
     float vacc = 0.0;
 
-    std::optional<float> rx0;
-    std::optional<float> rx1;
+    std::optional<float> rx0 = Map::Border::l;
+    std::optional<float> rx1 = Map::Border::r;
+
+    int page = 0;
+    int zmass = 0;
 
     enum AREA : uint8_t
     {

@@ -44,10 +44,9 @@ int main(int argc, char *argv[])
     Character::init();
     AfterImage::init();
 
-    load_character(0, 0);
-
     Map::load(100000000);
-
+    
+    load_character(0, 0);
 
     Window::tick_delta_time();
     while (true)

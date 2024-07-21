@@ -25,10 +25,10 @@ export struct Map
 
     struct Border
     {
-        static optional<int> l;
-        static optional<int> r;
-        static optional<int> t;
-        static optional<int> b;
+        static inline optional<int> l = std::nullopt;
+        static inline optional<int> r = std::nullopt;
+        static inline optional<int> t = std::nullopt;
+        static inline optional<int> b = std::nullopt;
     };
     static wz::Node *load_map_node(int map_id);
 };

@@ -2,11 +2,13 @@ module;
 
 #include <string>
 #include "wz/Property.hpp"
+#include "entt/entt.hpp"
 
 module core;
 
 import resources;
 import entities;
+import components;
 
 void Map::load(int map_id)
 {
@@ -16,7 +18,7 @@ void Map::load(int map_id)
     load_backgrounds(node);
     load_portals(node);
     load_footholds(node);
-
+    load_border(node);
     World::zindex();
 }
 
@@ -81,6 +83,68 @@ void Map::load_footholds(wz::Node *node)
                 }
             }
         }
+    }
+}
+
+void Map::load_border(wz::Node *node)
+{
+    if (node->find_from_path(u"info/VRLeft") != nullptr)
+    {
+        // 优先从mapinfo获取边界
+        node = node->find_from_path(u"info");
+        Border::l = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRLeft"))->get();
+        Border::r = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRRight"))->get();
+        Border::t = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRTop"))->get();
+        Border::b = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRBottom"))->get();
+    }
+    else
+    {
+        auto view = World::registry.view<FootHold>();
+        for (auto &ent : view)
+        {
+            auto fh = &view.get<FootHold>(ent);
+            auto l = fh->l;
+            auto r = fh->r;
+            auto t = fh->t;
+            auto b = fh->b;
+
+            if (!Border::l.has_value())
+            {
+                Border::l = l;
+            }
+            else
+            {
+                Border::l = std::min(Border::l.value(), l);
+            }
+            if (!Border::r.has_value())
+            {
+                Border::r = r;
+            }
+            else
+            {
+                Border::r = std::max(Border::r.value(), r);
+            }
+            if (!Border::t.has_value())
+            {
+                Border::t = t;
+            }
+            else
+            {
+                Border::t = std::min(Border::t.value(), t);
+            }
+            if (!Border::b.has_value())
+            {
+                Border::b = b;
+            }
+            else
+            {
+                Border::b = std::max(Border::b.value(), b);
+            }
+        }
+        Border::l = Border::l.value() + 25;
+        Border::r = Border::r.value() - 25;
+        Border::t = Border::t.value() - 300;
+        Border::b = Border::b.value() + 100;
     }
 }
 

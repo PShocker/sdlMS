@@ -27,13 +27,12 @@ void player_statemachine(entt::entity *ent, float delta_time)
     auto cha = World::registry.try_get<Character>(*ent);
     auto state = cha->state;
 
-    auto foo = mv->foo;
     switch (cha->state)
     {
     case Character::State::STAND:
     {
         player_flip(tr);
-        cha->state = player_walk(mv, tr, foo, delta_time);
+        cha->state = player_walk(mv, tr, delta_time);
         cha->state = player_jump(mv, tr, cha->state);
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
@@ -42,7 +41,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     {
         // normal status,can walk or jump
         player_flip(tr);
-        cha->state = player_walk(mv, tr, foo, delta_time);
+        cha->state = player_walk(mv, tr, delta_time);
         cha->state = player_jump(mv, tr, cha->state);
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
@@ -50,7 +49,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     case Character::State::JUMP:
     {
         player_flip(tr);
-        if (!player_fall(mv, tr, foo, ent, delta_time))
+        if (!player_fall(mv, tr, ent, delta_time))
         {
             cha->state = Character::State::STAND;
             player_statemachine(ent, 0);
@@ -60,7 +59,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     break;
     case Character::State::ATTACK:
     {
-        if (!player_attacking(mv, cha, tr, foo, ent, delta_time))
+        if (!player_attacking(mv, cha, tr, ent, delta_time))
         {
             player_statemachine(ent, 0);
         }
@@ -69,6 +68,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     default:
         break;
     }
+    player_border_limit(mv, tr);
     player_action(cha, state, cha->state);
 }
 
@@ -84,7 +84,7 @@ void player_flip(Transform *tr)
     }
 }
 
-int player_walk(Move *mv, Transform *tr, FootHold *foo, float delta_time)
+int player_walk(Move *mv, Transform *tr, float delta_time)
 {
     auto state = Character::State::WALK;
 
@@ -139,7 +139,7 @@ int player_walk(Move *mv, Transform *tr, FootHold *foo, float delta_time)
     auto &fhs = FootHold::fhs;
 
     // 人物在fh移动的函数
-    auto walk_fh = [&fhs, &foo, &x, &y, &tr, &mv, &state](int next_fh) -> bool
+    auto walk_fh = [&fhs, &x, &y, &tr, &mv, &state](int next_fh) -> bool
     {
         FootHold *fh = nullptr; // 走到下一个fh
         if (fhs.contains(next_fh))
@@ -169,7 +169,7 @@ int player_walk(Move *mv, Transform *tr, FootHold *foo, float delta_time)
                 {
                     tr->position.x = fh->x1 - 0.1;
                 }
-                tr->position.y = foo->get_y(tr->position.x).value();
+                tr->position.y = mv->foo->get_y(tr->position.x).value();
                 mv->hspeed = 0;
                 return false;
             }
@@ -185,23 +185,23 @@ int player_walk(Move *mv, Transform *tr, FootHold *foo, float delta_time)
                 return false;
             }
         }
-        foo = fh;
+        mv->foo = fh;
         return true;
     };
 
     // 往左走
-    while (x < foo->l)
+    while (x < mv->foo->l)
     {
-        int next_fh = std::abs(foo->prev);
+        int next_fh = std::abs(mv->foo->prev);
         if (walk_fh(next_fh) == false)
         {
             return state;
         }
     }
     // 往右走
-    while (x > foo->r)
+    while (x > mv->foo->r)
     {
-        int next_fh = std::abs(foo->next);
+        int next_fh = std::abs(mv->foo->next);
         if (walk_fh(next_fh) == false)
         {
             return state;
@@ -209,11 +209,11 @@ int player_walk(Move *mv, Transform *tr, FootHold *foo, float delta_time)
     }
     // 地面上
     tr->position.x = x;
-    tr->position.y = foo->get_y(x).value();
+    tr->position.y = mv->foo->get_y(x).value();
     return state;
 }
 
-bool player_fall(Move *mv, Transform *tr, FootHold *foo, entt::entity *ent, float delta_time)
+bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
 {
     if (Input::is_key_held(SDLK_RIGHT))
     {
@@ -304,9 +304,10 @@ bool player_fall(Move *mv, Transform *tr, FootHold *foo, entt::entity *ent, floa
                     mv->hspeed = 0;
                     tr->position = new_pos;
                     // switch z
-                    if ((foo != nullptr && foo->page != fh->page) || foo == nullptr)
+                    if (mv->page != fh->page)
                     {
                         tr->z = fh->page * LAYER_Z + CHARACTER_Z;
+                        mv->page = fh->page;
                         World::zindex();
                     }
                     return false;
@@ -345,8 +346,8 @@ bool player_fall(Move *mv, Transform *tr, FootHold *foo, entt::entity *ent, floa
                 if (fh->k == 0 &&
                     fh->x2 < fh->x1 &&
                     (fh->zmass == 0 ||
-                     (foo != nullptr &&
-                      fh->zmass == foo->zmass)))
+                     (mv->foo != nullptr &&
+                      fh->zmass == mv->foo->zmass)))
                 {
                     // top floor
                     auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
@@ -396,11 +397,11 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
     return state;
 }
 
-bool player_attacking(Move *mv, Character *cha, Transform *tr, FootHold *foo, entt::entity *ent, float delta_time)
+bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time)
 {
     if (mv->foo == nullptr)
     {
-        if (player_fall(mv, tr, foo, ent, delta_time))
+        if (player_fall(mv, tr, ent, delta_time))
         {
             // 空中
             if (cha->animated)
@@ -438,6 +439,15 @@ bool player_attack_afterimage(entt::entity *ent)
 {
     World::registry.emplace_or_replace<AfterImage>(*ent);
     return true;
+}
+
+void player_border_limit(Move *mv, Transform *tr)
+{
+    tr->position.x = std::clamp(tr->position.x, mv->rx0.value(), mv->rx1.value());
+    if (mv->foo)
+    {
+        tr->position.y = mv->foo->get_y(tr->position.x).value();
+    }
 }
 
 void player_action(Character *cha, int state, int new_state)
