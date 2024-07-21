@@ -251,10 +251,10 @@ void Character::add_body(const std::u16string &val)
             {
                 if (body_node->find_from_path(type + u"/arm") != nullptr)
                 {
-                    auto arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(body_node->find_from_path(type + u"/arm/map/hand"))->get();
+                    auto arm_pos = dynamic_cast<wz::Property<wz::WzVec2D> *>(body_node->find_from_path(type + u"/arm/map/navel"))->get();
                     Sprite *sprite = new Sprite(body_node->find_from_path(type + u"/arm"));
                     SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
-                    Transform *f = new Transform(arm_positions[i][no] - SDL_FPoint{(float)arm_pos.x, (float)arm_pos.y});
+                    Transform *f = new Transform(body_positions[i][no] - SDL_FPoint{(float)arm_pos.x, (float)arm_pos.y});
                     auto z = std::any_cast<std::u16string>(sprite->z);
                     auto part = *zmap[z];
                     part[i][no] = {f, sprite};

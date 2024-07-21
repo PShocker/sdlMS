@@ -301,13 +301,15 @@ export struct Character
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> backMobEquipUnderSaddle[ACTION::LENGTH];
     std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> backTamingMobMid[ACTION::LENGTH];
     std::unordered_map<std::u16string, std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> (*)[ACTION::LENGTH]> zmap;
+
     std::unordered_set<std::u16string> cap_vslot;
+
 
     uint8_t action = ACTION::JUMP;
     int action_index = 0;
     int action_time = 0;
     bool animate = true;
-    
+
     //use for attck and checkout wheather attack has finished
     bool animated = false;
 

@@ -15,58 +15,61 @@ void statemachine_run()
 {
     if (auto ent = Player::ent; World::registry.valid(ent))
     {
-        player_statemachine(&ent);
+        auto delta_time = (float)Window::delta_time / 1000;
+        player_statemachine(&ent, delta_time);
     }
 }
 
-void player_statemachine(entt::entity *ent)
+void player_statemachine(entt::entity *ent, float delta_time)
 {
     auto mv = World::registry.try_get<Move>(*ent);
     auto tr = World::registry.try_get<Transform>(*ent);
     auto cha = World::registry.try_get<Character>(*ent);
+    auto state = cha->state;
+
     auto foo = mv->foo;
     switch (cha->state)
     {
     case Character::State::STAND:
     {
         player_flip(tr);
-        cha->state = player_walk(mv, tr, foo);
+        cha->state = player_walk(mv, tr, foo, delta_time);
         cha->state = player_jump(mv, tr, cha->state);
-        cha->state = player_attack(mv, cha, tr, cha->state);
+        cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
     case Character::State::WALK:
     {
         // normal status,can walk or jump
         player_flip(tr);
-        cha->state = player_walk(mv, tr, foo);
+        cha->state = player_walk(mv, tr, foo, delta_time);
         cha->state = player_jump(mv, tr, cha->state);
-        cha->state = player_attack(mv, cha, tr, cha->state);
+        cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
     case Character::State::JUMP:
     {
         player_flip(tr);
-        if (!player_fall(mv, tr, foo, ent))
+        if (!player_fall(mv, tr, foo, ent, delta_time))
         {
             cha->state = Character::State::STAND;
-            player_statemachine(ent);
+            player_statemachine(ent, 0);
         }
-        cha->state = player_attack(mv, cha, tr, cha->state);
+        cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
     case Character::State::ATTACK:
     {
-        if (!player_attacking(mv, cha, tr, foo, ent))
+        if (!player_attacking(mv, cha, tr, foo, ent, delta_time))
         {
-            player_statemachine(ent);
+            player_statemachine(ent, 0);
         }
     }
     break;
     default:
         break;
     }
-    player_action(cha, cha->state);
+    player_action(cha, state, cha->state);
 }
 
 void player_flip(Transform *tr)
@@ -81,7 +84,7 @@ void player_flip(Transform *tr)
     }
 }
 
-int player_walk(Move *mv, Transform *tr, FootHold *foo)
+int player_walk(Move *mv, Transform *tr, FootHold *foo, float delta_time)
 {
     auto state = Character::State::WALK;
 
@@ -104,7 +107,6 @@ int player_walk(Move *mv, Transform *tr, FootHold *foo)
             return state;
         }
     }
-    auto delta_time = (float)Window::delta_time / 1000;
 
     constexpr auto friction = 800; // 摩擦力
 
@@ -211,7 +213,7 @@ int player_walk(Move *mv, Transform *tr, FootHold *foo)
     return state;
 }
 
-bool player_fall(Move *mv, Transform *tr, FootHold *foo, entt::entity *ent)
+bool player_fall(Move *mv, Transform *tr, FootHold *foo, entt::entity *ent, float delta_time)
 {
     if (Input::is_key_held(SDLK_RIGHT))
     {
@@ -221,8 +223,6 @@ bool player_fall(Move *mv, Transform *tr, FootHold *foo, entt::entity *ent)
     {
         mv->hspeed -= 0.3f;
     }
-
-    auto delta_time = (float)Window::delta_time / 1000;
 
     // 默认重力为2000
     mv->vspeed += delta_time * 2000;
@@ -379,7 +379,7 @@ int player_jump(Move *mv, Transform *tr, int state)
     return state;
 }
 
-int player_attack(Move *mv, Character *cha, Transform *tr, int state)
+int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
 {
     if (Input::is_key_held(SDLK_LCTRL))
     {
@@ -387,17 +387,20 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state)
         {
             mv->hspeed = 0;
         }
+        // add afterimg
+        player_attack_afterimage(ent);
+
         state = Character::State::ATTACK;
         cha->animated = false;
     }
     return state;
 }
 
-bool player_attacking(Move *mv, Character *cha, Transform *tr, FootHold *foo, entt::entity *ent)
+bool player_attacking(Move *mv, Character *cha, Transform *tr, FootHold *foo, entt::entity *ent, float delta_time)
 {
     if (mv->foo == nullptr)
     {
-        if (player_fall(mv, tr, foo, ent))
+        if (player_fall(mv, tr, foo, ent, delta_time))
         {
             // 空中
             if (cha->animated)
@@ -431,27 +434,49 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, FootHold *foo, en
     return true;
 }
 
-void player_action(Character *cha, int action)
+bool player_attack_afterimage(entt::entity *ent)
 {
-    switch (action)
+    World::registry.emplace_or_replace<AfterImage>(*ent);
+    return true;
+}
+
+void player_action(Character *cha, int state, int new_state)
+{
+    if (state != new_state)
     {
-    case Character::State::STAND:
-        action = Character::ACTION::STAND1;
+        int action = new_state;
+        switch (action)
+        {
+        case Character::State::STAND:
+            action = Character::ACTION::STAND1;
+            break;
+        case Character::State::WALK:
+            action = Character::ACTION::WALK1;
+            break;
+        case Character::State::JUMP:
+            action = Character::ACTION::JUMP;
+            break;
+        case Character::State::ATTACK:
+        {
+            int random = std::rand() % 3;
+            switch (random)
+            {
+            case 0:
+                action = Character::ACTION::SWINGO1;
+                break;
+            case 1:
+                action = Character::ACTION::SWINGO2;
+                break;
+            case 2:
+                action = Character::ACTION::SWINGO3;
+                break;
+            default:
+                break;
+            }
+        }
         break;
-    case Character::State::WALK:
-        action = Character::ACTION::WALK1;
-        break;
-    case Character::State::JUMP:
-        action = Character::ACTION::JUMP;
-        break;
-    case Character::State::ATTACK:
-        action = Character::ACTION::STABO1;
-        break;
-    default:
-        break;
-    }
-    if (action != cha->action)
-    {
+        }
+
         cha->action_index = 0;
         cha->action_time = 0;
         cha->action = action;

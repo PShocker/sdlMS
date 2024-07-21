@@ -10,3 +10,4 @@ export import :character;
 export import :foothold;
 export import :sound;
 export import :move;
+export import :afterimage;

@@ -26,6 +26,6 @@ void load_character(float x, float y)
     cha.add_hairs(u"00030000");
     // cha.add_cap(u"01000016");
     cha.add_shoes(u"01070002");
-    cha.add_weapon(u"01302032");
+    cha.add_weapon(u"01302060");
     // cha.add_shield(u"01092030");
 }

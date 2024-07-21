@@ -31,6 +31,10 @@ void render_run()
         else if (auto cha = World::registry.try_get<Character>(ent))
         {
             render_character(tr, cha);
+            if (auto aim = World::registry.try_get<AfterImage>(ent))
+            {
+                render_afterimage(tr, aim, cha);
+            }
         }
     }
 }
@@ -195,39 +199,39 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
     }
 }
 
-void render_character(Transform *tr, Character *cha)
+void render_character(const Transform *tr, Character *cha)
 {
     auto action = cha->action;
     auto action_index = cha->action_index;
 
-    Transform tran(0, 0, 0, 0);
+    Transform transfrom(0, 0, 0, 0);
 
-    auto set_tran = [&tr, &tran](Transform *t, Sprite *spr)
+    auto set_transform = [&tr, &transfrom](Transform *t, Sprite *spr)
     {
         auto chara_pos = tr->position;
         auto flip = tr->flip;
         if (flip == 0)
         {
-            tran.flip = 0;
-            tran.position = chara_pos + t->position;
+            transfrom.flip = 0;
+            transfrom.position = chara_pos + t->position;
         }
         else
         {
-            tran.flip = 1;
+            transfrom.flip = 1;
             auto x = -t->position.x;
             auto y = t->position.y;
-            tran.position = chara_pos + SDL_FPoint{x, y};
+            transfrom.position = chara_pos + SDL_FPoint{x, y};
         }
     };
-    auto render_avatar = [&set_tran, &tran, &action, &action_index](std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> part[Character::ACTION::LENGTH])
+    auto render_avatar = [&set_transform, &transfrom, &action, &action_index](std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> part[Character::ACTION::LENGTH])
     {
         if (part[action].size() > 0)
         {
             auto [t, spr] = part[action][action_index];
             if (t != nullptr && spr != nullptr)
             {
-                set_tran(t, spr);
-                render_sprite(&tran, spr);
+                set_transform(t, spr);
+                render_sprite(&transfrom, spr);
             }
         }
     };
@@ -337,7 +341,7 @@ void render_character(Transform *tr, Character *cha)
         render_avatar(cha->hairShade);
     }
     render_avatar(cha->accessoryFaceBelowFace);
-    if (cha->show_face[cha->action][cha->action_index] == true)
+    if (cha->show_face[action][action_index] == true)
     {
         render_avatar(cha->face);
     }
@@ -387,4 +391,14 @@ void render_character(Transform *tr, Character *cha)
     render_avatar(cha->mobEquipMid);
     render_avatar(cha->tamingMobFront);
     render_avatar(cha->mobEquipFront);
+}
+
+void render_afterimage(Transform *tr, AfterImage *aim, Character *cha)
+{
+    if (aim->animate == true && aim->animated == false)
+    {
+        auto action = cha->action;
+        auto aspr = std::get<1>(aim->swordOS[u"0"][action]);
+        render_animated_sprite(tr, aspr);
+    }
 }

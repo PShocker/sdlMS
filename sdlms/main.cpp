@@ -40,8 +40,9 @@ int main(int argc, char *argv[])
     Camera::h = height;
 
     Wz::init("./Data/");
-    Character::init();
     Window::create_window("sdlMS", width, height);
+    Character::init();
+    AfterImage::init();
 
     load_character(0, 0);
 
