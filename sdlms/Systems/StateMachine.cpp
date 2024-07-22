@@ -43,7 +43,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
             break;
         }
         cha->state = player_walk(mv, tr, delta_time);
-        if (player_jump(mv, tr))
+        if (player_jump(mv, cha, tr))
         {
             cha->state = Character::State::JUMP;
         }
@@ -65,7 +65,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
             break;
         }
         cha->state = player_walk(mv, tr, delta_time);
-        if (player_jump(mv, tr))
+        if (player_jump(mv, cha, tr))
         {
             cha->state = Character::State::JUMP;
         }
@@ -98,12 +98,13 @@ void player_statemachine(entt::entity *ent, float delta_time)
     break;
     case Character::State::CLIMB:
     {
-        cha->state = player_climbing(cha, mv, tr, ent, delta_time);
-        if (player_jump(mv, tr))
+        player_flip(tr);
+        if (player_jump(mv, cha, tr))
         {
             cha->state = Character::State::JUMP;
             break;
         }
+        cha->state = player_climbing(cha, mv, tr, ent, delta_time);
     }
     break;
     case Character::State::PRONE:
@@ -417,7 +418,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
     return true;
 }
 
-bool player_jump(Move *mv, Transform *tr)
+bool player_jump(Move *mv, Character *cha, Transform *tr)
 {
     if (Input::is_key_held(SDLK_LALT))
     {
@@ -432,21 +433,21 @@ bool player_jump(Move *mv, Transform *tr)
         }
         else if (mv->lr)
         {
-            if (!Input::is_key_held(SDLK_UP))
+            if (!Input::is_key_held(SDLK_UP) && (Input::is_key_held(SDLK_RIGHT) || Input::is_key_held(SDLK_LEFT)))
             {
+                cha->animate = true;
+
                 mv->vspeed = -310;
                 mv->lr = nullptr;
-
                 if (Input::is_key_held(SDLK_RIGHT))
                 {
                     mv->hspeed = 140;
-                    return true;
                 }
                 else if (Input::is_key_held(SDLK_LEFT))
                 {
                     mv->hspeed = -140;
-                    return true;
                 }
+                return true;
             }
         }
     }
@@ -525,31 +526,44 @@ bool player_climb(Move *mv, Transform *tr, int state)
             auto lr = &view.get<LadderRope>(e);
 
             // 判断x坐标是否在梯子范围内
-            if (tr->position.x >= lr->x - 10 && tr->position.x <= lr->x + 10)
+            if (tr->position.x >= lr->x - 15 && tr->position.x <= lr->x + 15)
             {
                 int t = 0;
                 int b = lr->b + 5;
                 if (mv->foo)
                 {
-                    t = lr->b;
+                    if (Input::is_key_held(SDLK_DOWN))
+                    {
+                        t = lr->t - 10;
+                        b = lr->t;
+                    }
+                    else
+                    {
+                        t = lr->b;
+                    }
                 }
                 else
                 {
                     t = lr->t;
                 }
-                if (tr->position.y > t && tr->position.y <= b)
+                if (!(mv->foo == nullptr && Input::is_key_held(SDLK_DOWN)))
                 {
-                    // 爬到梯子
-                    mv->lr = lr;
-                    mv->zmass = 0;
-                    mv->hspeed = 0;
-                    mv->vspeed = 0;
+                    if (tr->position.y >= t && tr->position.y <= b)
+                    {
+                        // 爬到梯子
+                        mv->lr = lr;
+                        mv->zmass = 0;
+                        mv->hspeed = 0;
+                        mv->vspeed = 0;
+                        mv->foo = nullptr;
 
-                    tr->position.x = lr->x;
-                    tr->position.y = std::clamp(tr->position.y, (float)lr->t, (float)lr->b);
+                        tr->position.x = lr->x;
+                        tr->position.y = std::clamp(tr->position.y, (float)lr->t, (float)lr->b);
 
-                    World::zsort = true;
-                    return true;
+                        tr->z = lr->page * LAYER_Z + CHARACTER_Z;
+                        World::zsort = true;
+                        return true;
+                    }
                 }
             }
         }
@@ -560,14 +574,14 @@ bool player_climb(Move *mv, Transform *tr, int state)
 int player_climbing(Character *cha, Move *mv, Transform *tr, entt::entity *ent, float delta_time)
 {
     auto state = Character::State::CLIMB;
-    if (Input::is_key_held(SDLK_UP))
-    {
-        mv->vspeed = -100;
-        cha->animate = true;
-    }
-    else if (Input::is_key_held(SDLK_DOWN))
+    if (Input::is_key_held(SDLK_DOWN))
     {
         mv->vspeed = 100;
+        cha->animate = true;
+    }
+    else if (Input::is_key_held(SDLK_UP))
+    {
+        mv->vspeed = -100;
         cha->animate = true;
     }
     else

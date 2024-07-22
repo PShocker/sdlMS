@@ -42,6 +42,7 @@ void animate_run()
 
 bool animate_sprite(AnimatedSprite *aspr)
 {
+    bool r = true;
     if (aspr->animate)
     {
         auto delta_time = Window::delta_time;
@@ -61,7 +62,7 @@ bool animate_sprite(AnimatedSprite *aspr)
                     aspr->anim_index = 0;
                 }
                 aspr->anim_time = 0;
-                return false;
+                r = false;
             }
             else
             {
@@ -72,7 +73,6 @@ bool animate_sprite(AnimatedSprite *aspr)
         // 透明度处理
         auto a0 = aspr->sprites[aspr->anim_index]->a0;
         auto a1 = aspr->sprites[aspr->anim_index]->a1;
-        [[unlikely]]
         if (a0 != a1)
         {
             auto alpha = 255;
@@ -91,7 +91,7 @@ bool animate_sprite(AnimatedSprite *aspr)
             SDL_SetTextureAlphaMod(aspr->sprites[aspr->anim_index]->texture, a0);
         }
     }
-    return true;
+    return r;
 }
 
 void animate_character(Character *cha)
