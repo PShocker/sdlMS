@@ -28,4 +28,6 @@ void load_character(float x, float y)
     cha.add_shoes(u"01070002");
     cha.add_weapon(u"01302060");
     // cha.add_shield(u"01092030");
+
+    World::zsort = true;
 }

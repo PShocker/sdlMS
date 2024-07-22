@@ -10,7 +10,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         # 启用lto -flto=auto
-        # 把 MINGW-根目录\libexec\gcc\x86_64-w64-mingw32\13.2.0 下的 liblto_plugin.dll,复制到 MINGW-根目录\lib\bfd-plugins
         # 去掉调试符号
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -s")
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -march=native")

@@ -32,8 +32,21 @@ void player_statemachine(entt::entity *ent, float delta_time)
     case Character::State::STAND:
     {
         player_flip(tr);
+        if (player_climb(mv, tr, cha->state))
+        {
+            cha->state = Character::State::CLIMB;
+            break;
+        }
+        if (player_prone(mv, tr, cha->state))
+        {
+            cha->state = Character::State::PRONE;
+            break;
+        }
         cha->state = player_walk(mv, tr, delta_time);
-        cha->state = player_jump(mv, tr, cha->state);
+        if (player_jump(mv, tr))
+        {
+            cha->state = Character::State::JUMP;
+        }
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
@@ -41,8 +54,21 @@ void player_statemachine(entt::entity *ent, float delta_time)
     {
         // normal status,can walk or jump
         player_flip(tr);
+        if (player_climb(mv, tr, cha->state))
+        {
+            cha->state = Character::State::CLIMB;
+            break;
+        }
+        if (player_prone(mv, tr, cha->state))
+        {
+            cha->state = Character::State::PRONE;
+            break;
+        }
         cha->state = player_walk(mv, tr, delta_time);
-        cha->state = player_jump(mv, tr, cha->state);
+        if (player_jump(mv, tr))
+        {
+            cha->state = Character::State::JUMP;
+        }
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
@@ -53,6 +79,11 @@ void player_statemachine(entt::entity *ent, float delta_time)
         {
             cha->state = Character::State::STAND;
             player_statemachine(ent, 0);
+        }
+        if (player_climb(mv, tr, cha->state))
+        {
+            cha->state = Character::State::CLIMB;
+            break;
         }
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
@@ -65,11 +96,30 @@ void player_statemachine(entt::entity *ent, float delta_time)
         }
     }
     break;
+    case Character::State::CLIMB:
+    {
+        cha->state = player_climbing(cha, mv, tr, ent, delta_time);
+        if (player_jump(mv, tr))
+        {
+            cha->state = Character::State::JUMP;
+            break;
+        }
+    }
+    break;
+    case Character::State::PRONE:
+    {
+        if (!player_proning())
+        {
+            cha->state = Character::State::STAND;
+            player_statemachine(ent, 0);
+        }
+    }
+    break;
     default:
         break;
     }
     player_border_limit(mv, tr);
-    player_action(cha, state, cha->state);
+    player_action(cha, state, cha->state, mv);
 }
 
 void player_flip(Transform *tr)
@@ -308,7 +358,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
                     {
                         tr->z = fh->page * LAYER_Z + CHARACTER_Z;
                         mv->page = fh->page;
-                        World::zindex();
+                        World::zsort = true;
                     }
                     return false;
                 }
@@ -367,7 +417,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
     return true;
 }
 
-int player_jump(Move *mv, Transform *tr, int state)
+bool player_jump(Move *mv, Transform *tr)
 {
     if (Input::is_key_held(SDLK_LALT))
     {
@@ -377,10 +427,30 @@ int player_jump(Move *mv, Transform *tr, int state)
             mv->page = mv->foo->page;
             mv->zmass = mv->foo->zmass;
             mv->foo = nullptr;
+            mv->lr = nullptr;
+            return true;
         }
-        state = Character::State::JUMP;
+        else if (mv->lr)
+        {
+            if (!Input::is_key_held(SDLK_UP))
+            {
+                mv->vspeed = -310;
+                mv->lr = nullptr;
+
+                if (Input::is_key_held(SDLK_RIGHT))
+                {
+                    mv->hspeed = 140;
+                    return true;
+                }
+                else if (Input::is_key_held(SDLK_LEFT))
+                {
+                    mv->hspeed = -140;
+                    return true;
+                }
+            }
+        }
     }
-    return state;
+    return false;
 }
 
 int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
@@ -445,6 +515,120 @@ bool player_attack_afterimage(entt::entity *ent)
     return true;
 }
 
+bool player_climb(Move *mv, Transform *tr, int state)
+{
+    if (Input::is_key_held(SDLK_UP) || Input::is_key_held(SDLK_DOWN))
+    {
+        auto view = World::registry.view<LadderRope>();
+        for (auto &e : view)
+        {
+            auto lr = &view.get<LadderRope>(e);
+
+            // 判断x坐标是否在梯子范围内
+            if (tr->position.x >= lr->x - 10 && tr->position.x <= lr->x + 10)
+            {
+                int t = 0;
+                int b = lr->b + 5;
+                if (mv->foo)
+                {
+                    t = lr->b;
+                }
+                else
+                {
+                    t = lr->t;
+                }
+                if (tr->position.y > t && tr->position.y <= b)
+                {
+                    // 爬到梯子
+                    mv->lr = lr;
+                    mv->zmass = 0;
+                    mv->hspeed = 0;
+                    mv->vspeed = 0;
+
+                    tr->position.x = lr->x;
+                    tr->position.y = std::clamp(tr->position.y, (float)lr->t, (float)lr->b);
+
+                    World::zsort = true;
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+int player_climbing(Character *cha, Move *mv, Transform *tr, entt::entity *ent, float delta_time)
+{
+    auto state = Character::State::CLIMB;
+    if (Input::is_key_held(SDLK_UP))
+    {
+        mv->vspeed = -100;
+        cha->animate = true;
+    }
+    else if (Input::is_key_held(SDLK_DOWN))
+    {
+        mv->vspeed = 100;
+        cha->animate = true;
+    }
+    else
+    {
+        mv->vspeed = 0;
+        cha->animate = false;
+    }
+
+    auto d_y = mv->vspeed * delta_time;
+    auto y = d_y + tr->position.y;
+
+    if (y >= mv->lr->t && y <= mv->lr->b)
+    {
+        tr->position.y = y;
+    }
+    else if (y < mv->lr->t)
+    {
+        if (mv->lr->uf == 1)
+        {
+            tr->position.y = mv->lr->t - 5;
+            mv->vspeed = 0;
+            state = Character::State::JUMP;
+            cha->animate = true;
+        }
+        else
+        {
+            cha->animate = false;
+        }
+    }
+    else if (y > mv->lr->b)
+    {
+        tr->position.y = mv->lr->b;
+        mv->vspeed = 0;
+        state = Character::State::JUMP;
+        cha->animate = true;
+    }
+    return state;
+}
+
+bool player_prone(Move *mv, Transform *tr, int state)
+{
+    if (Input::is_key_held(SDLK_DOWN))
+    {
+        if (mv->foo)
+        {
+            mv->hspeed = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool player_proning()
+{
+    if (Input::is_key_held(SDLK_DOWN))
+    {
+        return true;
+    }
+    return false;
+}
+
 void player_border_limit(Move *mv, Transform *tr)
 {
     if (tr->position.x < mv->rx0.value() || tr->position.x > mv->rx1.value())
@@ -458,7 +642,7 @@ void player_border_limit(Move *mv, Transform *tr)
     }
 }
 
-void player_action(Character *cha, int state, int new_state)
+void player_action(Character *cha, int state, int new_state, Move *mv)
 {
     if (state != new_state)
     {
@@ -493,6 +677,22 @@ void player_action(Character *cha, int state, int new_state)
             }
         }
         break;
+        case Character::State::CLIMB:
+        {
+            switch (mv->lr->l)
+            {
+            case 1:
+                action = Character::ACTION::LADDER;
+                break;
+            default:
+                action = Character::ACTION::ROPE;
+                break;
+            }
+        }
+        break;
+        case Character::State::PRONE:
+            action = Character::ACTION::PRONE;
+            break;
         }
 
         cha->action_index = 0;

@@ -19,7 +19,8 @@ void Map::load(int map_id)
     load_portals(node);
     load_footholds(node);
     load_border(node);
-    World::zindex();
+    load_ladderRopes(node);
+    World::zsort = true;
 }
 
 void Map::load_objs(wz::Node *node)
@@ -145,6 +146,19 @@ void Map::load_border(wz::Node *node)
         Border::r = Border::r.value() - 25;
         Border::t = Border::t.value() - 300;
         Border::b = Border::b.value() + 100;
+    }
+}
+
+void Map::load_ladderRopes(wz::Node *node)
+{
+    node = node->get_child(u"ladderRope");
+    if (node != nullptr)
+    {
+        for (auto it : node->get_children())
+        {
+            auto id = std::stoi(std::string{it.first.begin(), it.first.end()});
+            load_ladderRope(it.second[0], id);
+        }
     }
 }
 

@@ -6,5 +6,5 @@ export module entities:ladderrope;
 
 export
 {
-    void load_ladderrope(wz::Node *node,int id);
+    void load_ladderRope(wz::Node *node,int id);
 };

@@ -78,6 +78,18 @@ file(GLOB_RECURSE
         Commons/*.cppm
 )
 
+file(GLOB_RECURSE
+        ui_cpp
+        CONFIGURE_DEPENDS
+        UI/*.cpp
+)
+
+file(GLOB_RECURSE
+        ui_cppm
+        CONFIGURE_DEPENDS
+        UI/*.cppm
+)
+
 add_library(mod
         ${systems_cpp}
         ${entities_cpp}
@@ -85,6 +97,7 @@ add_library(mod
         ${components_cpp}
         ${core_cpp}
         ${commons_cpp}
+        ${ui_cpp}
 )
 
 target_sources(mod
@@ -96,6 +109,7 @@ target_sources(mod
         ${components_cppm}
         ${core_cppm}
         ${commons_cppm}
+        ${ui_cppm}
        
 )
 

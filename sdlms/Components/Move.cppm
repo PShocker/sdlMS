@@ -4,6 +4,7 @@ module;
 
 export module components:move;
 import :foothold;
+import :ladderrope;
 import core;
 
 export struct Move
@@ -34,6 +35,7 @@ export struct Move
     uint8_t area = LAND;
 
     FootHold *foo = nullptr;
+    LadderRope *lr = nullptr;
 
     Move() = default;
 };

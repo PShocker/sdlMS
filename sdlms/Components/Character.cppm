@@ -336,6 +336,7 @@ export struct Character
         static const int CLIMB = 3;
         static const int ATTACK = 4;
         static const int ALERT = 5;
+        static const int PRONE = 6;
     };
     int state = State::JUMP;
 };

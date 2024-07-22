@@ -8,6 +8,5 @@ export struct World
 {
    static inline entt::registry registry;
 
-   static void zindex();
+   static inline bool zsort = false;
 };
-

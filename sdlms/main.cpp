@@ -5,6 +5,7 @@ import core;
 import resources;
 import components;
 import entities;
+import ui;
 
 int width = 800;
 int height = 600;
@@ -26,6 +27,7 @@ void main_loop()
     animate_run();
     statemachine_run();
     camera_run();
+    world_run();
     render_run();
 
     Window::update();
@@ -43,8 +45,9 @@ int main(int argc, char *argv[])
     Window::create_window("sdlMS", width, height);
     Character::init();
     AfterImage::init();
+    Cursor::init();
 
-    Map::load(100000000);
+    Map::load(105040300);
     
     load_character(0, 0);
 

@@ -8,3 +8,4 @@ export import :tile;
 export import :portal;
 export import :foothold;
 export import :character;
+export import :ladderrope;
