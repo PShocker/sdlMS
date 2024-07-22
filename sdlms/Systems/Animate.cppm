@@ -11,3 +11,4 @@ export void animate_run();
 bool animate_sprite(AnimatedSprite *aspr);
 void animate_character(Character *cha);
 void animate_afterimage(AfterImage *aim, Character *cha);
+void animate_skill(Skill* ski);

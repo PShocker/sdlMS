@@ -513,6 +513,7 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
 bool player_attack_afterimage(entt::entity *ent)
 {
     World::registry.emplace_or_replace<AfterImage>(*ent);
+    World::registry.emplace_or_replace<Skill>(*ent, u"1311001");
     return true;
 }
 

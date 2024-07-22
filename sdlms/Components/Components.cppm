@@ -12,3 +12,4 @@ export import :sound;
 export import :move;
 export import :afterimage;
 export import :ladderrope;
+export import :skill;

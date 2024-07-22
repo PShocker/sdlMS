@@ -38,6 +38,14 @@ void animate_run()
             }
         }
     }
+    {
+        auto view = World::registry.view<Skill>();
+        for (auto &ent : view)
+        {
+            auto ski = &view.get<Skill>(ent);
+            animate_skill(ski);
+        }
+    }
 }
 
 bool animate_sprite(AnimatedSprite *aspr)
@@ -128,6 +136,21 @@ void animate_afterimage(AfterImage *aim, Character *cha)
         if (animate_sprite(aspr) == false)
         {
             aim->animated = true;
+        }
+    }
+}
+
+void animate_skill(Skill *ski)
+{
+    for (int i = 0; i < ski->animated.size(); i++)
+    {
+        if (ski->animated[i] == false)
+        {
+            auto aspr = ski->skill_map[ski->id][i];
+            if (animate_sprite(aspr) == false)
+            {
+                ski->animated[i] = true;
+            }
         }
     }
 }

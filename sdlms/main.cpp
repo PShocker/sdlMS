@@ -45,6 +45,7 @@ int main(int argc, char *argv[])
     Window::create_window("sdlMS", width, height);
     Character::init();
     AfterImage::init();
+    Skill::init();
     Cursor::init();
 
     Map::load(105040300);

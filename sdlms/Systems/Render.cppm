@@ -11,3 +11,4 @@ void render_animated_sprite(Transform *tr, AnimatedSprite *aspr);
 void render_back_sprite(Transform *tr, BackGround *bspr);
 void render_character(const Transform *tr, Character *cha);
 void render_afterimage(Transform *tr, AfterImage *aim, Character *cha);
+void render_skill(Transform *tr, Skill *ski);

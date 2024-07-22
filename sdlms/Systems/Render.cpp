@@ -35,6 +35,10 @@ void render_run()
             {
                 render_afterimage(tr, aim, cha);
             }
+            if (auto ski = World::registry.try_get<Skill>(ent))
+            {
+                render_skill(tr, ski);
+            }
         }
     }
 }
@@ -400,5 +404,17 @@ void render_afterimage(Transform *tr, AfterImage *aim, Character *cha)
         auto action = cha->action;
         auto aspr = std::get<1>(aim->swordOS[u"0"][action]);
         render_animated_sprite(tr, aspr);
+    }
+}
+
+void render_skill(Transform *tr, Skill *ski)
+{
+    for (int i = 0; i < ski->animated.size(); i++)
+    {
+        if (ski->animated[i] == false)
+        {
+            auto aspr = ski->skill_map[ski->id][i];
+            render_animated_sprite(tr, aspr);
+        }
     }
 }

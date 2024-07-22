@@ -25,7 +25,7 @@ void Wz::init(const std::string &filename_prefix)
     Npc = (new wz::File(iv, (std::string(filename_prefix) + std::string("Npc.wz")).c_str()));
     // Quest = (new wz::File(iv, (std::string(filename_prefix) + std::string("Quest.wz")).c_str()));
     // Reactor = (new wz::File(iv, (std::string(filename_prefix) + std::string("Reactor.wz")).c_str()));
-    // Skill = (new wz::File(iv, (std::string(filename_prefix) + std::string("Skill.wz")).c_str()));
+    Skill = (new wz::File(iv, (std::string(filename_prefix) + std::string("Skill.wz")).c_str()));
     Sound = (new wz::File(iv, (std::string(filename_prefix) + std::string("Sound.wz")).c_str()));
     String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
     // TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
@@ -43,7 +43,7 @@ void Wz::init(const std::string &filename_prefix)
     Npc->parse(u"Npc");
     // Quest->parse();
     // Reactor->parse();
-    // Skill->parse();
+    Skill->parse(u"Sound");
     Sound->parse(u"Sound");
     String->parse(u"String");
     // TamingMob->parse();
