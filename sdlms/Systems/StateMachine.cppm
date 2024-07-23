@@ -17,6 +17,7 @@ int player_walk(Move *mv, Transform *tr, float delta_time);
 
 bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time);
 bool player_jump(Move *mv, Character *cha, Transform *tr, int state);
+bool player_down_jump(Move *mv, Transform *tr);
 
 int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent);
 bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time);

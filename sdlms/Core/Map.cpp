@@ -21,6 +21,7 @@ void Map::load(int map_id)
     load_border(node);
     load_ladderRopes(node);
     World::zsort = true;
+    id = map_id;
 }
 
 void Map::load_objs(wz::Node *node)

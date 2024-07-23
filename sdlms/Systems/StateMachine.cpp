@@ -109,6 +109,11 @@ void player_statemachine(entt::entity *ent, float delta_time)
     break;
     case Character::State::PRONE:
     {
+        if (player_jump(mv, cha, tr, cha->state))
+        {
+            cha->state = Character::State::JUMP;
+            break;
+        }
         if (!player_proning())
         {
             cha->state = Character::State::STAND;
@@ -320,8 +325,9 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
         return false;
     };
 
+    auto down_jump = std::get<2>(Player::CoolDown::foothold);
     // 下落
-    if (mv->vspeed >= 0)
+    if (mv->vspeed >= 0 && !down_jump)
     {
         auto view = World::registry.view<FootHold>();
         for (auto &e : view)
@@ -426,12 +432,16 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
         {
             if (state == Character::State::PRONE)
             {
-                mv->vspeed = -100;
-                mv->page = mv->foo->page;
-                mv->zmass = mv->foo->zmass;
-                mv->foo = nullptr;
-                mv->lr = nullptr;
-                
+                if (player_down_jump(mv, tr))
+                {
+                    mv->vspeed = -100;
+                    mv->page = mv->foo->page;
+                    mv->zmass = mv->foo->zmass;
+                    mv->foo = nullptr;
+                    mv->lr = nullptr;
+                    std::get<2>(Player::CoolDown::foothold) = true;
+                    return true;
+                }
             }
             else
             {
@@ -461,6 +471,23 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 }
                 return true;
             }
+        }
+    }
+    return false;
+}
+
+bool player_down_jump(Move *mv, Transform *tr)
+{
+    auto view = World::registry.view<FootHold>();
+    for (auto &e : view)
+    {
+        auto fh = &view.get<FootHold>(e);
+        if (fh->get_y(tr->position.x).has_value() &&
+            fh->get_y(tr->position.x).value() < tr->position.y + 600 &&
+            fh->get_y(tr->position.x).value() > tr->position.y &&
+            fh != mv->foo)
+        {
+            return true;
         }
     }
     return false;

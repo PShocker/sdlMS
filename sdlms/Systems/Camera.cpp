@@ -9,8 +9,7 @@ import components;
 
 void camera_run()
 {
-    auto ent = Player::ent;
-    if (World::registry.valid(ent))
+    if (auto ent = Player::ent; World::registry.valid(ent))
     {
         auto tr = World::registry.try_get<Transform>(ent);
 

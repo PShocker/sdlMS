@@ -35,6 +35,13 @@ void load_portal(wz::Node *node, int id)
         {
             pt = 2;
         }
+
+        auto &por = World::registry.emplace<Portal>(ent);
+        por.tm = tm;
+        por.pt = pt;
+        por.pn = pn;
+        por.tn = tn;
+
         auto url = u"MapHelper.img/portal/game/" + pt_list[pt];
         if (auto portal = Wz::Map->get_root()->find_from_path(url))
         {

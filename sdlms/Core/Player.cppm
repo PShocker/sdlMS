@@ -10,7 +10,7 @@ export struct Player
 
     struct CoolDown
     {
-        static inline std::tuple<int, const int, bool> foothold = {0, 400, false};
+        static inline std::tuple<int, const int, bool> foothold = {0, 120, false};
         static inline std::tuple<int, const int, bool> portal = {0, 400, false};
     };
 };

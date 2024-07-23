@@ -21,7 +21,7 @@ export struct Map
     static void load_bgm(wz::Node *node);
     static void clean_up();
 
-    static inline uint32_t map_id = 0;
+    static inline uint32_t id = 0;
 
     struct Border
     {

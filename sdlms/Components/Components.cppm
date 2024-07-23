@@ -15,3 +15,4 @@ export import :move;
 export import :afterimage;
 export import :ladderrope;
 export import :skill;
+export import :portal;

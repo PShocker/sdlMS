@@ -24,11 +24,14 @@ void main_loop()
     Window::tick_delta_time();
     Window::clear();
 
+    cooldown_run();
     animate_run();
     statemachine_run();
+    portal_run();
     camera_run();
     world_run();
     render_run();
+    
 
     Window::update();
 }
@@ -48,8 +51,8 @@ int main(int argc, char *argv[])
     Skill::init();
     Cursor::init();
 
-    Map::load(105040300);
-    
+    Map::load(100000000);
+
     load_character(0, 0);
 
     Window::tick_delta_time();
