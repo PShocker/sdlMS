@@ -9,10 +9,10 @@ import components;
 
 void world_run()
 {
-    world_sort();
+    world_sort_zindex();
 }
 
-void world_sort()
+void world_sort_zindex()
 {
     if (World::zsort)
     {

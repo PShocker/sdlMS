@@ -43,7 +43,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
             break;
         }
         cha->state = player_walk(mv, tr, delta_time);
-        if (player_jump(mv, cha, tr))
+        if (player_jump(mv, cha, tr, cha->state))
         {
             cha->state = Character::State::JUMP;
         }
@@ -65,7 +65,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
             break;
         }
         cha->state = player_walk(mv, tr, delta_time);
-        if (player_jump(mv, cha, tr))
+        if (player_jump(mv, cha, tr, cha->state))
         {
             cha->state = Character::State::JUMP;
         }
@@ -99,7 +99,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     case Character::State::CLIMB:
     {
         player_flip(tr);
-        if (player_jump(mv, cha, tr))
+        if (player_jump(mv, cha, tr, cha->state))
         {
             cha->state = Character::State::JUMP;
             break;
@@ -418,18 +418,30 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
     return true;
 }
 
-bool player_jump(Move *mv, Character *cha, Transform *tr)
+bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
 {
     if (Input::is_key_held(SDLK_LALT))
     {
         if (mv->foo)
         {
-            mv->vspeed = -555;
-            mv->page = mv->foo->page;
-            mv->zmass = mv->foo->zmass;
-            mv->foo = nullptr;
-            mv->lr = nullptr;
-            return true;
+            if (state == Character::State::PRONE)
+            {
+                mv->vspeed = -100;
+                mv->page = mv->foo->page;
+                mv->zmass = mv->foo->zmass;
+                mv->foo = nullptr;
+                mv->lr = nullptr;
+                
+            }
+            else
+            {
+                mv->vspeed = -555;
+                mv->page = mv->foo->page;
+                mv->zmass = mv->foo->zmass;
+                mv->foo = nullptr;
+                mv->lr = nullptr;
+                return true;
+            }
         }
         else if (mv->lr)
         {
