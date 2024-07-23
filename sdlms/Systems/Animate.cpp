@@ -11,11 +11,11 @@ import core;
 void animate_run()
 {
     {
-        auto view = World::registry.view<AnimatedSprite>();
+        auto view = World::registry.view<Animated>();
         for (auto &ent : view)
         {
-            auto aspr = &view.get<AnimatedSprite>(ent);
-            animate_sprite(aspr);
+            auto a = &view.get<Animated>(ent);
+            animate_sprite(a);
         }
     }
     {
@@ -48,55 +48,48 @@ void animate_run()
     }
 }
 
-bool animate_sprite(AnimatedSprite *aspr)
+bool animate_sprite(Animated *a)
 {
     bool r = true;
-    if (aspr->animate)
+    if (a->animate)
     {
         auto delta_time = Window::delta_time;
-        aspr->anim_time += delta_time;
-        if (aspr->anim_time >= aspr->sprites[aspr->anim_index]->delay)
+        a->anim_time += delta_time;
+        if (a->anim_time >= a->aspr->sprites[a->anim_index]->delay)
         {
-            if (aspr->anim_index == aspr->anim_size - 1)
+            if (a->anim_index == a->anim_size - 1)
             {
-                if (aspr->z)
+                if (a->aspr->z)
                 {
-                    // 复杂度为O(n),需要重构
-                    std::ranges::reverse(aspr->sprites);
-                    aspr->anim_index = 1;
+                    a->z = true;
                 }
                 else
                 {
-                    aspr->anim_index = 0;
+                    a->anim_index = 0;
                 }
-                aspr->anim_time = 0;
+                a->anim_time = 0;
                 r = false;
             }
             else
             {
-                aspr->anim_index += 1;
-                aspr->anim_time = 0;
+                a->anim_index += 1;
+                a->anim_time = 0;
             }
         }
         // 透明度处理
-        auto a0 = aspr->sprites[aspr->anim_index]->a0;
-        auto a1 = aspr->sprites[aspr->anim_index]->a1;
+        auto a0 = a->aspr->sprites[a->anim_index]->a0;
+        auto a1 = a->aspr->sprites[a->anim_index]->a1;
+        a->alpha = a0;
         if (a0 != a1)
         {
-            auto alpha = 255;
             if (a0 <= a1)
             {
-                alpha = (float)a0 + (float)(a1 - a0) / (float)aspr->sprites[aspr->anim_index]->delay * (float)aspr->anim_time;
+                a->alpha = (float)a0 + (float)(a1 - a0) / (float)a->aspr->sprites[a->anim_index]->delay * (float)a->anim_time;
             }
             else
             {
-                alpha = (float)a0 - (float)(a0 - a1) / (float)aspr->sprites[aspr->anim_index]->delay * (float)aspr->anim_time;
+                a->alpha = (float)a0 - (float)(a0 - a1) / (float)a->aspr->sprites[a->anim_index]->delay * (float)a->anim_time;
             }
-            SDL_SetTextureAlphaMod(aspr->sprites[aspr->anim_index]->texture, alpha);
-        }
-        else
-        {
-            SDL_SetTextureAlphaMod(aspr->sprites[aspr->anim_index]->texture, a0);
         }
     }
     return r;

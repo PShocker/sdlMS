@@ -142,3 +142,17 @@ Sprite::Sprite(wz::Node *node, int alpha)
     }
     }
 }
+
+Sprite *load_sprite(wz::Node *node, int alpha)
+{
+    if (sprite_cache.contains(node))
+    {
+        return sprite_cache[node];
+    }
+    else
+    {
+        Sprite *spr = new Sprite(node, alpha);
+        sprite_cache[node] = spr;
+        return spr;
+    }
+}

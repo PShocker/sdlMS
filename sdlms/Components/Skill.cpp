@@ -18,15 +18,13 @@ void Skill::init()
     }
     else
     {
-        auto aspr = new AnimatedSprite(node->get_child(u"effect"));
-        skill_map[id].push_back(aspr);
+        skill_map[id].push_back(new Animated(node->get_child(u"effect")));
         for (int i = 0;; i++)
         {
             auto e = "effect" + std::to_string(i);
             if (node->get_child(e))
             {
-                auto aspr = new AnimatedSprite(node->get_child(e));
-                skill_map[id].push_back(aspr);
+                skill_map[id].push_back(new Animated(node->get_child(e)));
             }
             else
             {

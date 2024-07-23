@@ -16,13 +16,14 @@ void render_run()
     for (auto &ent : view)
     {
         auto tr = &view.get<Transform>(ent);
-        if (auto spr = World::registry.try_get<Sprite>(ent))
+        if (auto sspr = World::registry.try_get<StaticSprite>(ent))
         {
+            auto spr = sspr->spr;
             render_sprite(tr, spr);
         }
-        else if (auto aspr = World::registry.try_get<AnimatedSprite>(ent))
+        else if (auto a = World::registry.try_get<Animated>(ent))
         {
-            render_animated_sprite(tr, aspr);
+            render_animated_sprite(tr, a);
         }
         else if (auto bspr = World::registry.try_get<BackGround>(ent))
         {
@@ -76,9 +77,10 @@ void render_sprite(Transform *tr, Sprite *spr)
     }
 }
 
-void render_animated_sprite(Transform *tr, AnimatedSprite *aspr)
+void render_animated_sprite(Transform *tr, Animated *a)
 {
-    auto spr = aspr->sprites[aspr->anim_index];
+    auto spr = a->aspr->sprites[a->anim_index];
+    SDL_SetTextureAlphaMod(spr->texture, a->alpha);
     render_sprite(tr, spr);
 }
 
@@ -105,8 +107,8 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
     }
     else
     {
-        auto aspr = std::get<AnimatedSprite *>(bspr->spr);
-        spr = aspr->sprites[aspr->anim_index];
+        auto a = std::get<Animated *>(bspr->spr);
+        spr = a->aspr->sprites[a->anim_index];
     }
     spr_w = spr->width;
     spr_h = spr->height;

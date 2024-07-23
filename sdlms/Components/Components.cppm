@@ -3,7 +3,9 @@ module;
 export module components;
 
 export import :sprite;
+export import :staticsprite;
 export import :animatedsprite;
+export import :animated;
 export import :transform;
 export import :background;
 export import :character;

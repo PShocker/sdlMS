@@ -25,6 +25,6 @@ void load_obj(wz::Node *node, int id, int layer)
 
     auto flip = dynamic_cast<wz::Property<int> *>(node->get_child(u"f"))->get();
 
-    World::registry.emplace<AnimatedSprite>(ent, Wz::Map->get_root()->find_from_path(url));
-    World::registry.emplace<Transform>(ent, x, y, layer * LAYER_Z + z * 100 + id + OBJ_Z, flip);
+    World::registry.emplace<Animated>(ent, Wz::Map->get_root()->find_from_path(url));
+    World::registry.emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + z * 100 + id + OBJ_Z, flip);
 }

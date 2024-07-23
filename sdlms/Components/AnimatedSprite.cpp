@@ -30,15 +30,25 @@ AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
         {
             continue;
         }
-        sprites.push_back(new Sprite(canvas, alpha));
+        sprites.push_back(load_sprite(canvas, alpha));
     }
     if (node->get_child(u"zigzag") != nullptr)
     {
         // 如果存在zigzag属性,则认为属于zigzag动画
         z = true;
     }
+}
 
-    anim_size = sprites.size();
-    anim_index = 0;
-    anim_time = 0;
+AnimatedSprite *load_animatedsprite(wz::Node *node, int alpha)
+{
+    if (animatedsprited_cache.contains(node))
+    {
+        return animatedsprited_cache[node];
+    }
+    else
+    {
+        AnimatedSprite *aspr = new AnimatedSprite(node, alpha);
+        animatedsprited_cache[node] = aspr;
+        return aspr;
+    }
 }

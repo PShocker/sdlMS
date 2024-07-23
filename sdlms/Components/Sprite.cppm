@@ -6,6 +6,8 @@ module;
 
 export module components:sprite;
 
+// 这个无法当作组件,因为实体销毁时候会销毁这个组件,使缓存被清掉.
+// 如果需要Sprite组件,可以使用StaticSprite
 export struct Sprite
 {
     SDL_Texture *texture = nullptr;
@@ -17,7 +19,9 @@ export struct Sprite
     SDL_Point origin = {0, 0};
     std::any z = 0;
 
-    Sprite(SDL_Texture *texture, int w, int h);
-    Sprite(wz::Node *node, int width, int height, uint8_t type);
     Sprite(wz::Node *node, int alpha = 255);
 };
+
+export Sprite *load_sprite(wz::Node *node, int alpha = 255);
+
+static std::unordered_map<wz::Node *, Sprite *> sprite_cache;

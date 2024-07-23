@@ -4,11 +4,11 @@ module;
 
 export module components:skill;
 
-import :animatedsprite;
+import :animated;
 
 export struct Skill
 {
-    static inline std::unordered_map<std::u16string, std::vector<AnimatedSprite *>> skill_map;
+    static inline std::unordered_map<std::u16string, std::vector<Animated *>> skill_map;
 
     std::vector<bool> animated;
     std::u16string id;

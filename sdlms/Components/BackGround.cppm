@@ -5,11 +5,11 @@ module;
 export module components:background;
 
 import :sprite;
-import :animatedsprite;
+import :animated;
 
 export struct BackGround
 {
-    std::variant<Sprite *, AnimatedSprite *> spr;
+    std::variant<Sprite *, Animated *> spr;
     // 平铺间隔
     int cx = 0;
     int cy = 0;
@@ -17,7 +17,7 @@ export struct BackGround
     bool htile = false;
     bool vtile = false;
 
-    //平移属性
+    // 平移属性
     int rx = 0;
     int ry = 0;
     float offset_x = 0.0f;
@@ -25,5 +25,5 @@ export struct BackGround
     bool hspeed = false;
     bool vspeed = false;
 
-    BackGround()=default;
+    BackGround() = default;
 };

@@ -9,11 +9,12 @@ import :sprite;
 export struct AnimatedSprite
 {
     std::vector<Sprite *> sprites;
-    int anim_index=0;
-    int anim_time=0;
-    int anim_size=0;
-    bool animate = true; // 是否播放动画,特殊情况,冰冻状态下会暂停动画
-    bool z = false;      // ziazag
+
+    bool z = false; // ziazag
 
     AnimatedSprite(wz::Node *node, int alpha = 255);
 };
+
+export AnimatedSprite *load_animatedsprite(wz::Node *node, int alpha = 255);
+
+static std::unordered_map<wz::Node *, AnimatedSprite *> animatedsprited_cache;

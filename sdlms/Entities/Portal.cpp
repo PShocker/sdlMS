@@ -45,7 +45,7 @@ void load_portal(wz::Node *node, int id)
             else
             {
                 // 普通的传送门,通常为pv
-                World::registry.emplace<AnimatedSprite>(ent, portal);
+                World::registry.emplace<Animated>(ent, portal);
             }
         }
     }
