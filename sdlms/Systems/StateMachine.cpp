@@ -365,7 +365,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
                     {
                         tr->z = fh->page * LAYER_Z + CHARACTER_Z;
                         mv->page = fh->page;
-                        World::zsort = true;
+                        World::zindex = true;
                     }
                     return false;
                 }
@@ -601,7 +601,7 @@ bool player_climb(Move *mv, Transform *tr, int state)
                         tr->position.y = std::clamp(tr->position.y, (float)lr->t, (float)lr->b);
 
                         tr->z = lr->page * LAYER_Z + CHARACTER_Z;
-                        World::zsort = true;
+                        World::zindex = true;
                         return true;
                     }
                 }

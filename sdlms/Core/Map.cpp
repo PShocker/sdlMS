@@ -10,7 +10,7 @@ import resources;
 import entities;
 import components;
 
-void Map::load(int map_id)
+void Map::load(int map_id, entt::registry *registry)
 {
     auto node = load_map_node(map_id);
     load_tiles(node);
@@ -20,7 +20,7 @@ void Map::load(int map_id)
     load_footholds(node);
     load_border(node);
     load_ladderRopes(node);
-    World::zsort = true;
+    World::zindex = true;
     id = map_id;
 }
 

@@ -1,12 +1,25 @@
 module;
 
 #include "entt/entt.hpp"
-
+// #include <unordered_map>
+#include <string>
 export module core:world;
 
 export struct World
 {
-   static inline entt::registry registry;
+   // diff map have own registery
+   // std::unordered_map<uint32_t, entt::registry *> registrys;
+   // // current registry
+   // static inline entt::registry *registry;
+   static inline entt::registry *registry;
 
-   static inline bool zsort = false;
+   static inline bool zindex = false;
+
+   struct TransPort
+   {
+      static inline uint32_t id = 0;
+      static inline std::u16string tn = u"sp";
+   };
+
+   static void load_map(int id);
 };

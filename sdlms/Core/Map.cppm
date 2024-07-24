@@ -1,5 +1,6 @@
 module;
 
+#include "entt/entt.hpp"
 #include "wz/Property.hpp"
 
 export module core:map;
@@ -7,7 +8,7 @@ export module core:map;
 // 用于加载地图中各种组件
 export struct Map
 {
-    static void load(int map_id);
+    static void load(int map_id, entt::registry *registry);
     static void load_objs(wz::Node *node);
     static void load_tiles(wz::Node *node);
     static void load_backgrounds(wz::Node *node);

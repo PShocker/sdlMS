@@ -29,8 +29,6 @@ void load_portal(wz::Node *node, int id)
         auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
         auto y = dynamic_cast<wz::Property<int> *>(node->get_child(u"y"))->get();
 
-        World::registry.emplace<Transform>(ent, x, y, id + z_index);
-
         if (pt == 7)
         {
             pt = 2;
@@ -41,6 +39,10 @@ void load_portal(wz::Node *node, int id)
         por.pt = pt;
         por.pn = pn;
         por.tn = tn;
+
+        Portal::pors[pn] = &por;
+
+        por.tr = &World::registry.emplace<Transform>(ent, x, y, id + z_index);
 
         auto url = u"MapHelper.img/portal/game/" + pt_list[pt];
         if (auto portal = Wz::Map->get_root()->find_from_path(url))
