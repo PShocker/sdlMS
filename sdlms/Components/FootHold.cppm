@@ -6,10 +6,11 @@ export module components:foothold;
 
 export struct FootHold
 {
+    int id;
     int page;
     int zmass;
-    int prev;
-    int next;
+    FootHold *prev;
+    FootHold *next;
 
     int x1;
     int y1;
@@ -24,12 +25,8 @@ export struct FootHold
     std::optional<float> k = std::nullopt; // 斜率,若k值不存在,可以判断是否是墙面
     std::optional<float> intercept = std::nullopt;
 
-    static inline std::unordered_map<int, FootHold *> fhs;
-    static inline std::unordered_map<int, std::unordered_map<int, FootHold *>> fhs_cache;
-
     std::optional<float> get_x(float y);
     std::optional<float> get_y(float x);
 
     FootHold() = default;
 };
-

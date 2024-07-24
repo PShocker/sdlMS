@@ -4,7 +4,7 @@ module;
 
 module core;
 
-entt::registry* World::load_map(int id)
+entt::registry *World::load_map(int id)
 {
     auto r = registry;
     if (!registrys.contains(id))
@@ -18,6 +18,7 @@ entt::registry* World::load_map(int id)
     {
         // 地图已经加载
         registry = &registrys[id];
+        Map::id = id;
     }
     return r;
 }

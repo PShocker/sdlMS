@@ -39,16 +39,15 @@ void player_portal(entt::entity *ent)
                     {
                         // need to change map
                         World::TransPort::id = por->tm;
-                        World::TransPort::tn = por->tn;
+                        World::TransPort::tn = std::get<std::u16string>(por->tn);
                     }
                     else
                     {
-                        if (Portal::pors.contains(por->tn))
-                        {
-                            auto p_tr = Portal::pors[por->tn];
-                            tr->position.x = p_tr.x;
-                            tr->position.y = p_tr.y - 5;
-                        }
+                        auto position = std::get<SDL_FPoint>(por->tn);
+                        tr->position.x = position.x;
+                        tr->position.y = position.y - 5;
+                        auto cha = World::registry->try_get<Character>(Player::ent);
+                        cha->state = Character::State::JUMP;
                     }
                     break;
                 }

@@ -1,6 +1,7 @@
 module;
 
 #include "wz/Property.hpp"
+#include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 
 module entities;
@@ -41,8 +42,6 @@ void load_portal(wz::Node *node, int id)
         por.pn = pn;
         por.tn = tn;
 
-        Portal::pors[pn] = SDL_FPoint{(float)x, (float)y};
-
         World::registry->emplace<Transform>(ent, x, y, id + z_index);
 
         auto url = u"MapHelper.img/portal/game/" + pt_list[pt];
@@ -57,6 +56,31 @@ void load_portal(wz::Node *node, int id)
                 // 普通的传送门,通常为pv
                 World::registry->emplace<Animated>(ent, portal);
             }
+        }
+    }
+}
+
+void fix_portal()
+{
+    std::unordered_map<std::u16string, SDL_FPoint> pors;
+
+    auto view = World::registry->view<Portal>();
+    for (auto &e : view)
+    {
+        auto por = &view.get<Portal>(e);
+        if (por->tm == Map::id)
+        {
+            auto tr = World::registry->try_get<Transform>(e);
+            pors[por->pn] = SDL_FPoint{tr->position.x, tr->position.y};
+        }
+    }
+    for (auto &e : view)
+    {
+        auto por = &view.get<Portal>(e);
+        if (por->tm == Map::id)
+        {
+            auto por = &view.get<Portal>(e);
+            por->tn = pors[std::get<std::u16string>(por->tn)];
         }
     }
 }

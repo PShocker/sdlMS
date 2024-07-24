@@ -212,29 +212,29 @@ void render_character(const Transform *tr, Character *cha)
 
     Transform transfrom(0, 0, 0, 0);
 
-    auto set_transform = [&tr, &transfrom](Transform *t, Sprite *spr)
+    auto set_transform = [&tr, &transfrom](Transform &t, Sprite *spr)
     {
         auto chara_pos = tr->position;
         auto flip = tr->flip;
         if (flip == 0)
         {
             transfrom.flip = 0;
-            transfrom.position = chara_pos + t->position;
+            transfrom.position = chara_pos + t.position;
         }
         else
         {
             transfrom.flip = 1;
-            auto x = -t->position.x;
-            auto y = t->position.y;
+            auto x = -t.position.x;
+            auto y = t.position.y;
             transfrom.position = chara_pos + SDL_FPoint{x, y};
         }
     };
-    auto render_avatar = [&set_transform, &transfrom, &action, &action_index](std::unordered_map<uint8_t, std::pair<Transform *, Sprite *>> part[Character::ACTION::LENGTH])
+    auto render_avatar = [&set_transform, &transfrom, &action, &action_index](std::unordered_map<uint8_t, std::pair<Transform, Sprite *>> part[Character::ACTION::LENGTH])
     {
         if (part[action].size() > 0)
         {
             auto [t, spr] = part[action][action_index];
-            if (t != nullptr && spr != nullptr)
+            if (spr != nullptr)
             {
                 set_transform(t, spr);
                 render_sprite(&transfrom, spr);

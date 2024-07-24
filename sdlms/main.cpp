@@ -27,9 +27,9 @@ void main_loop()
     cooldown_run();
     animate_run();
     statemachine_run();
+    world_run();
     portal_run();
     camera_run();
-    world_run();
     render_run();
 
     Window::update();

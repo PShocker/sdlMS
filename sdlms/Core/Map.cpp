@@ -12,9 +12,7 @@ import components;
 
 void Map::load(int map_id)
 {
-    FootHold::fhs.clear();
-    Portal::pors.clear();
-
+    id = map_id;
     auto node = load_map_node(map_id);
     load_tiles(node);
     load_objs(node);
@@ -24,7 +22,6 @@ void Map::load(int map_id)
     load_border(node);
     load_ladderRopes(node);
     World::zindex = true;
-    id = map_id;
 }
 
 void Map::load_objs(wz::Node *node)
@@ -88,7 +85,7 @@ void Map::load_footholds(wz::Node *node, int map_id)
                 }
             }
         }
-        FootHold::fhs_cache[map_id] = FootHold::fhs;
+        fix_foothold();
     }
 }
 
@@ -177,7 +174,7 @@ void Map::load_portals(wz::Node *node, int map_id)
             auto id = std::stoi(std::string{key.begin(), key.end()});
             load_portal(val[0], id);
         }
-        Portal::pors_cache[map_id] = Portal::pors;
+        fix_portal();
     }
 }
 

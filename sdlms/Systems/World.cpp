@@ -29,17 +29,18 @@ void world_transport()
     if (World::TransPort::id != 0)
     {
         auto r = World::load_map(World::TransPort::id);
-        FootHold::fhs = FootHold::fhs_cache[World::TransPort::id];
-        Portal::pors = Portal::pors_cache[World::TransPort::id];
         r->destroy(Player::ent);
-
-       
-        auto tr = Portal::pors[World::TransPort::tn];
-
-        load_character(tr.x, tr.y - 10);
-
-        camera_refresh();
-
-        World::TransPort::id = 0;
+        auto view = World::registry->view<Portal>();
+        for (auto &e : view)
+        {
+            auto por = &view.get<Portal>(e);
+            if (por->pn == World::TransPort::tn)
+            {
+                auto tr = World::registry->try_get<Transform>(e);
+                load_character(tr->position.x, tr->position.y - 10);
+                camera_refresh();
+                World::TransPort::id = 0;
+            }
+        }
     }
 }

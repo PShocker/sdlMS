@@ -192,15 +192,13 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     auto x = d_x + tr->position.x;
     auto y = tr->position.y;
 
-    auto &fhs = FootHold::fhs;
-
     // 人物在fh移动的函数
-    auto walk_fh = [&fhs, &x, &y, &tr, &mv, &state](int next_fh) -> bool
+    auto walk_fh = [&x, &y, &tr, &mv, &state](FootHold* next_fh) -> bool
     {
         FootHold *fh = nullptr; // 走到下一个fh
-        if (fhs.contains(next_fh))
+        if (next_fh)
         {
-            fh = fhs.find(next_fh)->second;
+            fh = next_fh;
         }
         else
         {
@@ -248,8 +246,8 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     // 往左走
     while (x < mv->foo->l)
     {
-        int next_fh = mv->foo->prev;
-        if (walk_fh(next_fh) == false)
+        auto prev_fh = mv->foo->prev;
+        if (walk_fh(prev_fh) == false)
         {
             return state;
         }
@@ -257,7 +255,7 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     // 往右走
     while (x > mv->foo->r)
     {
-        int next_fh = mv->foo->next;
+        auto next_fh = mv->foo->next;
         if (walk_fh(next_fh) == false)
         {
             return state;
@@ -296,15 +294,13 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
 
     auto new_pos = tr->position + SDL_FPoint{(float)d_x, (float)d_y};
 
-    auto &fhs = FootHold::fhs;
-
-    auto collide_wall = [&fhs](FootHold *fh, float hspeed) -> bool
+    auto collide_wall = [](FootHold *fh, float hspeed) -> bool
     {
         if (hspeed > 0 && fh->y1 > fh->y2)
         {
-            while (fhs.contains(fh->prev))
+            while (fh->prev)
             {
-                fh = fhs.find(fh->prev)->second;
+                fh = fh->prev;
                 if (fh->k.has_value())
                 {
                     return true;
@@ -313,9 +309,9 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
         }
         else if (hspeed < 0 && fh->y1 < fh->y2)
         {
-            while (fhs.contains(fh->next))
+            while (fh->next)
             {
-                fh = fhs.find(fh->next)->second;
+                fh = fh->next;
                 if (fh->k.has_value())
                 {
                     return true;
