@@ -18,10 +18,10 @@ void load_background(wz::Node *node, int id)
         return;
     }
 
-    auto ent = World::registry.create();
+    auto ent = World::registry->create();
 
-    auto &bspr = World::registry.emplace<BackGround>(ent);
-    auto &tr = World::registry.emplace<Transform>(ent);
+    auto &bspr = World::registry->emplace<BackGround>(ent);
+    auto &tr = World::registry->emplace<Transform>(ent);
 
     tr.position.x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
     tr.position.y = dynamic_cast<wz::Property<int> *>(node->get_child(u"y"))->get();

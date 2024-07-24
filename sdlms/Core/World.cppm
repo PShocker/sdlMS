@@ -9,8 +9,8 @@ export struct World
 {
    // diff map have own registery
    static inline std::unordered_map<uint32_t, entt::registry> registrys;
-   // // current registry
-   static inline entt::registry registry;
+   // current registry
+   static inline entt::registry* registry;
 
    static inline bool zindex = false;
 
@@ -20,5 +20,5 @@ export struct World
       static inline std::u16string tn = u"sp";
    };
 
-   static void load_map(int id);
+   static entt::registry* load_map(int id);
 };

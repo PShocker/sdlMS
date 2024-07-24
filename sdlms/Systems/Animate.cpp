@@ -11,7 +11,7 @@ import core;
 void animate_run()
 {
     {
-        auto view = World::registry.view<Animated>();
+        auto view = World::registry->view<Animated>();
         for (auto &ent : view)
         {
             auto a = &view.get<Animated>(ent);
@@ -19,7 +19,7 @@ void animate_run()
         }
     }
     {
-        auto view = World::registry.view<Character>();
+        auto view = World::registry->view<Character>();
         for (auto &ent : view)
         {
             auto cha = &view.get<Character>(ent);
@@ -27,19 +27,19 @@ void animate_run()
         }
     }
     {
-        auto view = World::registry.view<AfterImage>();
+        auto view = World::registry->view<AfterImage>();
         for (auto &ent : view)
         {
             auto aim = &view.get<AfterImage>(ent);
             if (aim->animated == false)
             {
-                auto cha = World::registry.try_get<Character>(ent);
+                auto cha = World::registry->try_get<Character>(ent);
                 animate_afterimage(aim, cha);
             }
         }
     }
     {
-        auto view = World::registry.view<Skill>();
+        auto view = World::registry->view<Skill>();
         for (auto &ent : view)
         {
             auto ski = &view.get<Skill>(ent);

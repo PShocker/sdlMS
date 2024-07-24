@@ -17,7 +17,5 @@ export struct LadderRope
     int t;
     int b;
 
-    static inline std::unordered_map<int, LadderRope *> lrs;
-
     LadderRope() = default;
 };

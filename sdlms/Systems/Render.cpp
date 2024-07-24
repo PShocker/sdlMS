@@ -12,31 +12,31 @@ import components;
 
 void render_run()
 {
-    auto view = World::registry.view<Transform>();
+    auto view = World::registry->view<Transform>();
     for (auto &ent : view)
     {
         auto tr = &view.get<Transform>(ent);
-        if (auto sspr = World::registry.try_get<StaticSprite>(ent))
+        if (auto sspr = World::registry->try_get<StaticSprite>(ent))
         {
             auto spr = sspr->spr;
             render_sprite(tr, spr);
         }
-        else if (auto a = World::registry.try_get<Animated>(ent))
+        else if (auto a = World::registry->try_get<Animated>(ent))
         {
             render_animated_sprite(tr, a);
         }
-        else if (auto bspr = World::registry.try_get<BackGround>(ent))
+        else if (auto bspr = World::registry->try_get<BackGround>(ent))
         {
             render_back_sprite(tr, bspr);
         }
-        else if (auto cha = World::registry.try_get<Character>(ent))
+        else if (auto cha = World::registry->try_get<Character>(ent))
         {
             render_character(tr, cha);
-            if (auto aim = World::registry.try_get<AfterImage>(ent))
+            if (auto aim = World::registry->try_get<AfterImage>(ent))
             {
                 render_afterimage(tr, aim, cha);
             }
-            if (auto ski = World::registry.try_get<Skill>(ent))
+            if (auto ski = World::registry->try_get<Skill>(ent))
             {
                 render_skill(tr, ski);
             }

@@ -25,6 +25,7 @@ export struct FootHold
     std::optional<float> intercept = std::nullopt;
 
     static inline std::unordered_map<int, FootHold *> fhs;
+    static inline std::unordered_map<int, std::unordered_map<int, FootHold *>> fhs_cache;
 
     std::optional<float> get_x(float y);
     std::optional<float> get_y(float x);

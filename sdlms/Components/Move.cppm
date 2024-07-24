@@ -5,7 +5,6 @@ module;
 export module components:move;
 import :foothold;
 import :ladderrope;
-import core;
 
 export struct Move
 {
@@ -20,8 +19,8 @@ export struct Move
     float hacc = 0.0;
     float vacc = 0.0;
 
-    std::optional<float> rx0 = Map::Border::l;
-    std::optional<float> rx1 = Map::Border::r;
+    std::optional<float> rx0 = std::nullopt;
+    std::optional<float> rx1 = std::nullopt;
 
     int page = 0;
     int zmass = 0;

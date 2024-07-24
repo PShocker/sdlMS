@@ -4,14 +4,20 @@ module;
 
 module core;
 
-void World::load_map(int id)
+entt::registry* World::load_map(int id)
 {
-    if (registrys.contains(id))
+    auto r = registry;
+    if (!registrys.contains(id))
     {
-        registry = registrys[id];
+        // 未加载过地图
+        registrys[id] = entt::registry{};
+        registry = &registrys[id];
+        Map::load(id);
     }
     else
     {
-        registrys[id] = entt::registry{};
+        // 地图已经加载
+        registry = &registrys[id];
     }
+    return r;
 }

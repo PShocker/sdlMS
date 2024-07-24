@@ -1,6 +1,8 @@
 module;
 #include <string>
 #include <unordered_map>
+#include <SDL3/SDL.h>
+
 export module components:portal;
 
 import :transform;
@@ -12,10 +14,9 @@ export struct Portal
     std::u16string pn;
     std::u16string tn;
 
-    Transform *tr = nullptr;
-
     // key:tn , value:portal
-    static inline std::unordered_map<std::u16string, Portal *> pors;
+    static inline std::unordered_map<std::u16string, SDL_FPoint> pors;
+    static inline std::unordered_map<int, std::unordered_map<std::u16string, SDL_FPoint>> pors_cache;
 
     Portal() = default;
 };

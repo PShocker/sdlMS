@@ -10,9 +10,9 @@ import core;
 
 void load_foothold(wz::Node *node, int page, int zmass, int id)
 {
-    auto ent = World::registry.create();
+    auto ent = World::registry->create();
 
-    auto &fh = World::registry.emplace_or_replace<FootHold>(ent);
+    auto &fh = World::registry->emplace_or_replace<FootHold>(ent);
 
     fh.page = page;
     fh.zmass = zmass;
@@ -35,6 +35,5 @@ void load_foothold(wz::Node *node, int page, int zmass, int id)
         fh.k = ((float)fh.y2 - (float)fh.y1) / ((float)fh.x2 - (float)fh.x1);
         fh.intercept = fh.y1 - fh.k.value() * fh.x1;
     }
-
     FootHold::fhs[id] = &fh;
 }

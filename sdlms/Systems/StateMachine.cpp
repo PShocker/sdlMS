@@ -13,7 +13,7 @@ import entities;
 
 void statemachine_run()
 {
-    if (auto ent = Player::ent; World::registry.valid(ent))
+    if (auto ent = Player::ent; World::registry->valid(ent))
     {
         auto delta_time = (float)Window::delta_time / 1000;
         player_statemachine(&ent, delta_time);
@@ -22,9 +22,9 @@ void statemachine_run()
 
 void player_statemachine(entt::entity *ent, float delta_time)
 {
-    auto mv = World::registry.try_get<Move>(*ent);
-    auto tr = World::registry.try_get<Transform>(*ent);
-    auto cha = World::registry.try_get<Character>(*ent);
+    auto mv = World::registry->try_get<Move>(*ent);
+    auto tr = World::registry->try_get<Transform>(*ent);
+    auto cha = World::registry->try_get<Character>(*ent);
     auto state = cha->state;
 
     switch (cha->state)
@@ -325,11 +325,11 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
         return false;
     };
 
-    auto down_jump = std::get<2>(Player::CoolDown::foothold);
+    auto down_jump = Player::CoolDowns::foothold.start;
     // 下落
     if (mv->vspeed >= 0 && !down_jump)
     {
-        auto view = World::registry.view<FootHold>();
+        auto view = World::registry->view<FootHold>();
         for (auto &e : view)
         {
             auto fh = &view.get<FootHold>(e);
@@ -374,7 +374,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
     }
     else if (mv->vspeed < 0)
     {
-        auto view = World::registry.view<FootHold>();
+        auto view = World::registry->view<FootHold>();
         for (auto &ent : view)
         {
             auto fh = &view.get<FootHold>(ent);
@@ -439,7 +439,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->zmass = mv->foo->zmass;
                     mv->foo = nullptr;
                     mv->lr = nullptr;
-                    std::get<2>(Player::CoolDown::foothold) = true;
+                    Player::CoolDowns::foothold.start = true;
                     return true;
                 }
             }
@@ -478,7 +478,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
 
 bool player_down_jump(Move *mv, Transform *tr)
 {
-    auto view = World::registry.view<FootHold>();
+    auto view = World::registry->view<FootHold>();
     for (auto &e : view)
     {
         auto fh = &view.get<FootHold>(e);
@@ -551,8 +551,8 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
 
 bool player_attack_afterimage(entt::entity *ent)
 {
-    World::registry.emplace_or_replace<AfterImage>(*ent);
-    World::registry.emplace_or_replace<Skill>(*ent, u"1311001");
+    World::registry->emplace_or_replace<AfterImage>(*ent);
+    World::registry->emplace_or_replace<Skill>(*ent, u"1311001");
     return true;
 }
 
@@ -560,7 +560,7 @@ bool player_climb(Move *mv, Transform *tr, int state)
 {
     if (Input::is_key_held(SDLK_UP) || Input::is_key_held(SDLK_DOWN))
     {
-        auto view = World::registry.view<LadderRope>();
+        auto view = World::registry->view<LadderRope>();
         for (auto &e : view)
         {
             auto lr = &view.get<LadderRope>(e);
@@ -685,9 +685,16 @@ bool player_proning()
 
 void player_border_limit(Move *mv, Transform *tr)
 {
-    if (tr->position.x < mv->rx0.value() || tr->position.x > mv->rx1.value())
+    auto rx0 = mv->rx0;
+    auto rx1 = mv->rx1;
+    if (!(rx0.has_value() && rx1.has_value()))
     {
-        tr->position.x = std::clamp(tr->position.x, mv->rx0.value(), mv->rx1.value());
+        rx0 = Map::Border::l;
+        rx1 = Map::Border::r;
+    }
+    if (tr->position.x < rx0.value() || tr->position.x > rx1.value())
+    {
+        tr->position.x = std::clamp(tr->position.x, rx0.value(), rx1.value());
         mv->hspeed = 0;
         if (mv->foo)
         {

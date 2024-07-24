@@ -9,17 +9,16 @@ import components;
 
 void cooldown_run()
 {
-    auto ent = Player::ent;
-    if (World::registry.valid(ent))
+    if (auto ent = Player::ent; World::registry->valid(ent))
     {
-        if (std::get<2>(Player::CoolDown::foothold))
+        if (Player::CoolDowns::foothold.start)
         {
             auto delta_time = Window::delta_time;
-            std::get<0>(Player::CoolDown::foothold) += delta_time;
-            if (std::get<0>(Player::CoolDown::foothold) >= std::get<1>(Player::CoolDown::foothold))
+            Player::CoolDowns::foothold.current += delta_time;
+            if (Player::CoolDowns::foothold.current >= Player::CoolDowns::foothold.delay)
             {
-                std::get<0>(Player::CoolDown::foothold) = 0;
-                std::get<2>(Player::CoolDown::foothold) = false;
+                Player::CoolDowns::foothold.current = 0;
+                Player::CoolDowns::foothold.start = false;
             }
         }
     }

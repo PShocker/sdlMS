@@ -31,7 +31,6 @@ void main_loop()
     camera_run();
     world_run();
     render_run();
-    
 
     Window::update();
 }
@@ -51,7 +50,7 @@ int main(int argc, char *argv[])
     Skill::init();
     Cursor::init();
 
-    Map::load(100000000);
+    World::load_map(100000000);
 
     load_character(0, 0);
 

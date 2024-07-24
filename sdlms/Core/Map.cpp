@@ -10,14 +10,17 @@ import resources;
 import entities;
 import components;
 
-void Map::load(int map_id, entt::registry *registry)
+void Map::load(int map_id)
 {
+    FootHold::fhs.clear();
+    Portal::pors.clear();
+
     auto node = load_map_node(map_id);
     load_tiles(node);
     load_objs(node);
     load_backgrounds(node);
-    load_portals(node);
-    load_footholds(node);
+    load_portals(node, map_id);
+    load_footholds(node, map_id);
     load_border(node);
     load_ladderRopes(node);
     World::zindex = true;
@@ -69,7 +72,7 @@ void Map::load_backgrounds(wz::Node *node)
     }
 }
 
-void Map::load_footholds(wz::Node *node)
+void Map::load_footholds(wz::Node *node, int map_id)
 {
     node = node->get_child(u"foothold");
     if (node != nullptr)
@@ -85,6 +88,7 @@ void Map::load_footholds(wz::Node *node)
                 }
             }
         }
+        FootHold::fhs_cache[map_id] = FootHold::fhs;
     }
 }
 
@@ -101,7 +105,7 @@ void Map::load_border(wz::Node *node)
     }
     else
     {
-        auto view = World::registry.view<FootHold>();
+        auto view = World::registry->view<FootHold>();
         for (auto &ent : view)
         {
             auto fh = &view.get<FootHold>(ent);
@@ -163,7 +167,7 @@ void Map::load_ladderRopes(wz::Node *node)
     }
 }
 
-void Map::load_portals(wz::Node *node)
+void Map::load_portals(wz::Node *node, int map_id)
 {
     node = node->get_child(u"portal");
     if (node != nullptr)
@@ -173,6 +177,7 @@ void Map::load_portals(wz::Node *node)
             auto id = std::stoi(std::string{key.begin(), key.end()});
             load_portal(val[0], id);
         }
+        Portal::pors_cache[map_id] = Portal::pors;
     }
 }
 

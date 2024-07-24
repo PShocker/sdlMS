@@ -12,7 +12,7 @@ import commons;
 
 void load_tile(wz::Node *node, const std::u16string &ts, int layer, int id)
 {
-    auto ent = World::registry.create();
+    auto ent = World::registry->create();
 
     auto u = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"u"))->get();
     auto no = dynamic_cast<wz::Property<int> *>(node->get_child(u"no"))->get();
@@ -23,6 +23,6 @@ void load_tile(wz::Node *node, const std::u16string &ts, int layer, int id)
 
     auto url = u"Tile/" + ts + u".img/" + u + u"/" + std::u16string{no_str.begin(), no_str.end()};
 
-    auto &sspr = World::registry.emplace<StaticSprite>(ent, Wz::Map->get_root()->find_from_path(url));
-    World::registry.emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + std::any_cast<int>(sspr.spr->z) * 1000 + id + TILE_Z);
+    auto &sspr = World::registry->emplace<StaticSprite>(ent, Wz::Map->get_root()->find_from_path(url));
+    World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + std::any_cast<int>(sspr.spr->z) * 1000 + id + TILE_Z);
 }

@@ -1,6 +1,7 @@
 module;
 
 #include "wz/Property.hpp"
+#include <SDL3/SDL.h>
 
 module entities;
 
@@ -20,7 +21,7 @@ void load_portal(wz::Node *node, int id)
 
     if (!(pt < 0 || pt >= sizeof(pt_list)))
     {
-        auto ent = World::registry.create();
+        auto ent = World::registry->create();
 
         auto tm = dynamic_cast<wz::Property<int> *>(node->get_child(u"tm"))->get();
         auto pn = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"pn"))->get();
@@ -34,15 +35,15 @@ void load_portal(wz::Node *node, int id)
             pt = 2;
         }
 
-        auto &por = World::registry.emplace<Portal>(ent);
+        auto &por = World::registry->emplace<Portal>(ent);
         por.tm = tm;
         por.pt = pt;
         por.pn = pn;
         por.tn = tn;
 
-        Portal::pors[pn] = &por;
+        Portal::pors[pn] = SDL_FPoint{(float)x, (float)y};
 
-        por.tr = &World::registry.emplace<Transform>(ent, x, y, id + z_index);
+        World::registry->emplace<Transform>(ent, x, y, id + z_index);
 
         auto url = u"MapHelper.img/portal/game/" + pt_list[pt];
         if (auto portal = Wz::Map->get_root()->find_from_path(url))
@@ -54,7 +55,7 @@ void load_portal(wz::Node *node, int id)
             else
             {
                 // 普通的传送门,通常为pv
-                World::registry.emplace<Animated>(ent, portal);
+                World::registry->emplace<Animated>(ent, portal);
             }
         }
     }
