@@ -1,17 +1,16 @@
 module;
 
 #include "entt/entt.hpp"
-// #include <unordered_map>
+#include <unordered_map>
 #include <string>
 export module core:world;
 
 export struct World
 {
    // diff map have own registery
-   // std::unordered_map<uint32_t, entt::registry *> registrys;
+   static inline std::unordered_map<uint32_t, entt::registry> registrys;
    // // current registry
-   // static inline entt::registry *registry;
-   static inline entt::registry *registry;
+   static inline entt::registry registry;
 
    static inline bool zindex = false;
 
