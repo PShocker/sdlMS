@@ -21,6 +21,7 @@ void Map::load(int map_id)
     load_footholds(node, map_id);
     load_border(node);
     load_ladderRopes(node);
+    load_lifes(node);
     World::zindex = true;
 }
 
@@ -86,6 +87,29 @@ void Map::load_footholds(wz::Node *node, int map_id)
             }
         }
         fix_foothold();
+    }
+}
+
+void Map::load_lifes(wz::Node *node)
+{
+    node = node->get_child(u"life");
+    if (node != nullptr)
+    {
+        for (auto &[key, val] : node->get_children())
+        {
+            auto type = dynamic_cast<wz::Property<wz::wzstring> *>(val[0]->get_child(u"type"))->get();
+            if (type == u"n")
+            {
+                load_npc(val[0]);
+            }
+            else if (type == u"m")
+            {
+                // auto rx0 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx0"))->get();
+                // auto rx1 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx1"))->get();
+                // auto mob = new Mob(val[0], id, rx0, rx1, world);
+                // world->add_entity(mob);
+            }
+        }
     }
 }
 

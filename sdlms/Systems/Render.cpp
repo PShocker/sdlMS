@@ -33,6 +33,10 @@ void render_run()
         {
             render_portal(tr, por);
         }
+        else if (auto npc = World::registry->try_get<Npc>(ent))
+        {
+            render_npc(tr, npc);
+        }
         else if (auto cha = World::registry->try_get<Character>(ent))
         {
             render_character(tr, cha);
@@ -445,4 +449,9 @@ void render_portal(Transform *tr, Portal *por)
             }
         }
     }
+}
+
+void render_npc(Transform *tr, Npc *npc)
+{
+    render_animated_sprite(tr, npc->a[npc->index]);
 }

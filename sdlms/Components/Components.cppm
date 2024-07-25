@@ -17,3 +17,5 @@ export import :ladderrope;
 export import :skill;
 export import :portal;
 export import :border;
+export import :npc;
+

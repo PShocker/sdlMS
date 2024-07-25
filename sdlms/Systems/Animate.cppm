@@ -13,3 +13,4 @@ void animate_character(Character *cha);
 void animate_afterimage(AfterImage *aim, Character *cha);
 void animate_skill(Skill* ski);
 void animate_portal(Portal* por);
+void animate_npc(Npc* npc);

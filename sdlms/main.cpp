@@ -7,8 +7,8 @@ import components;
 import entities;
 import ui;
 
-int width = 1920;
-int height = 1080;
+int width = 800;
+int height = 600;
 
 void main_loop()
 {

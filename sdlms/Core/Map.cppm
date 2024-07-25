@@ -14,7 +14,7 @@ export struct Map
     static void load_backgrounds(wz::Node *node);
     static void load_string(int map_id);
     static void load_footholds(wz::Node *node, int map_id);
-    static void load_life(wz::Node *node);
+    static void load_lifes(wz::Node *node);
     static void load_borders(wz::Node *node);
     static void load_ladderRopes(wz::Node *node);
     static void load_portals(wz::Node *node, int map_id);

@@ -10,3 +10,4 @@ export import :foothold;
 export import :character;
 export import :ladderrope;
 export import :border;
+export import :npc;

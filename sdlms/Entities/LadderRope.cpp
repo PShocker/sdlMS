@@ -1,6 +1,7 @@
 module;
 
 #include "wz/Property.hpp"
+#include "entt/entt.hpp"
 
 module entities;
 

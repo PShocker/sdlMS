@@ -41,8 +41,8 @@ void load_foothold(wz::Node *node, int page, int zmass, int id)
 
 void fix_foothold()
 {
-    std::unordered_map<int, FootHold *> fhs;
-
+    fhs.clear();
+    
     auto view = World::registry->view<FootHold>();
     for (auto &e : view)
     {
