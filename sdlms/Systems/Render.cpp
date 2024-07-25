@@ -237,7 +237,7 @@ void render_character(const Transform *tr, Character *cha)
     {
         if (part[action].size() > 0)
         {
-            auto [t, spr] = part[action][action_index];
+            auto &[t, spr] = part[action][action_index];
             if (spr != nullptr)
             {
                 set_transform(t, spr);
