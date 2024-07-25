@@ -29,6 +29,10 @@ void render_run()
         {
             render_back_sprite(tr, bspr);
         }
+        else if (auto por = World::registry->try_get<Portal>(ent))
+        {
+            render_portal(tr, por);
+        }
         else if (auto cha = World::registry->try_get<Character>(ent))
         {
             render_character(tr, cha);
@@ -417,6 +421,28 @@ void render_skill(Transform *tr, Skill *ski)
         {
             auto aspr = ski->skill_map[ski->id][i];
             render_animated_sprite(tr, aspr);
+        }
+    }
+}
+
+void render_portal(Transform *tr, Portal *por)
+{
+    // 渲染三段式传送门
+    if (por->a.size() > 0)
+    {
+        if (auto ent = Player::ent; World::registry->valid(ent))
+        {
+            auto player_tr = World::registry->try_get<Transform>(ent);
+            auto d_x = std::abs(player_tr->position.x - tr->position.x);
+            auto d_y = std::abs(player_tr->position.y - tr->position.y);
+            if (d_x <= 100 && d_y <= 100)
+            {
+                render_animated_sprite(tr, por->a[0]);
+            }
+            else if (d_x <= 150 && d_y <= 150)
+            {
+                render_animated_sprite(tr, por->a[1]);
+            }
         }
     }
 }

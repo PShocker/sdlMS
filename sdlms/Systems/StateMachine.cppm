@@ -32,6 +32,13 @@ bool player_proning();
 void player_border_limit(Move *mv, Transform *tr);
 void player_action(Character *cha, int state, int new_state, Move *mv);
 
+void player_portal(entt::entity *ent);
+
+export int player_foothold_cooldown = 0;
+export int player_portal_cooldown = 0;
+
+void player_cooldown(int delta_time);
+
 std::optional<SDL_FPoint> intersect(SDL_FPoint p1,
                                     SDL_FPoint p2,
                                     SDL_FPoint p3,

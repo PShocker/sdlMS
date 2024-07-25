@@ -50,6 +50,9 @@ void load_portal(wz::Node *node, int id)
             if (portal->get_child(u"default") != nullptr)
             {
                 // 三段式传送门
+                por.a.push_back(new Animated(portal->find_from_path(u"default/portalContinue")));
+                por.a.push_back(new Animated(portal->find_from_path(u"default/portalExit")));
+                por.a.push_back(new Animated(portal->find_from_path(u"default/portalStart")));
             }
             else
             {
@@ -83,4 +86,28 @@ void fix_portal()
             por->tn = pors[std::get<std::u16string>(por->tn)];
         }
     }
+}
+
+SDL_FPoint recent_portal(float x, float y)
+{
+    std::map<unsigned long, SDL_FPoint> p;
+
+    auto view = World::registry->view<Portal>();
+    for (auto &e : view)
+    {
+        auto por = &view.get<Portal>(e);
+        if (por->pn == u"sp")
+        {
+            auto tr = World::registry->try_get<Transform>(e);
+            auto d_x = tr->position.x - x;
+            auto d_y = tr->position.y - y;
+            p[d_x * d_x + d_y * d_y] = SDL_FPoint{tr->position.x, tr->position.y};
+        }
+    }
+    if (p.begin() != p.end())
+    {
+        x = p.begin()->second.x;
+        y = p.begin()->second.y;
+    }
+    return SDL_FPoint{x, y};
 }

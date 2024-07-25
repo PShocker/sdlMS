@@ -7,3 +7,5 @@ import components;
 export void camera_run();
 
 export void camera_refresh();
+
+void camera_limit();

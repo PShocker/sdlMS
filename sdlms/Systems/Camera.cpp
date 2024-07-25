@@ -25,6 +25,7 @@ void camera_run()
 
         Camera::y = std::lerp(v_prev_y, v_next_y, std::abs(v_delta) / 6000.0f);
     }
+    camera_limit();
 }
 
 void camera_refresh()
@@ -37,5 +38,45 @@ void camera_refresh()
 
         Camera::x = h_next_x;
         Camera::y = v_next_y;
+    }
+    camera_limit();
+}
+
+void camera_limit()
+{
+    auto border = World::registry->ctx().get<Border>();
+    auto l = border.l;
+    auto r = border.r;
+    auto t = border.t;
+    auto b = border.b;
+
+    if (l.has_value() && Camera::x < l.value())
+    {
+        Camera::x = l.value();
+    }
+    else if (r.has_value() && Camera::x + Camera::w > r.value())
+    {
+        Camera::x = r.value() - Camera::w;
+    }
+    if (b.has_value() && Camera::y + Camera::h > b.value())
+    {
+        Camera::y = b.value() - Camera::h;
+    }
+
+    if (r.has_value() && l.has_value())
+    {
+        if (r.value() - l.value() < Camera::w)
+        {
+            // 如果地图宽度小于摄像机宽度,地图居中显示
+            Camera::x = l.value() - (Camera::w - (r.value() - l.value())) / 2;
+        }
+    }
+    if (b.has_value() && t.has_value())
+    {
+        if (b.value() - t.value() < Camera::h)
+        {
+            // 如果地图高度小于摄像机高度,地图居中显示
+            Camera::y = t.value() - (Camera::h - (b.value() - t.value())) / 2;
+        }
     }
 }

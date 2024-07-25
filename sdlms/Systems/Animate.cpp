@@ -46,6 +46,17 @@ void animate_run()
             animate_skill(ski);
         }
     }
+    {
+        auto view = World::registry->view<Portal>();
+        for (auto &ent : view)
+        {
+            auto por = &view.get<Portal>(ent);
+            if (por->a.size() > 0)
+            {
+                animate_portal(por);
+            }
+        }
+    }
 }
 
 bool animate_sprite(Animated *a)
@@ -145,5 +156,14 @@ void animate_skill(Skill *ski)
                 ski->animated[i] = true;
             }
         }
+    }
+}
+
+void animate_portal(Portal *por)
+{
+    // 更新三段式传送门,这里简单的更新三段式传送门的所有状态
+    for (auto a : por->a)
+    {
+        animate_sprite(a);
     }
 }

@@ -7,8 +7,8 @@ import components;
 import entities;
 import ui;
 
-int width = 800;
-int height = 600;
+int width = 1920;
+int height = 1080;
 
 void main_loop()
 {
@@ -28,7 +28,6 @@ void main_loop()
     animate_run();
     statemachine_run();
     world_run();
-    portal_run();
     camera_run();
     render_run();
 
@@ -52,7 +51,9 @@ int main(int argc, char *argv[])
 
     World::load_map(100000000);
 
-    load_character(0, 0);
+    auto ent = load_character();
+    World::registry->emplace<Transform>(*ent, recent_portal(0, 0), 99999999);
+    World::registry->emplace<Move>(*ent);
 
     Window::tick_delta_time();
     while (true)

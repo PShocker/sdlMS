@@ -8,13 +8,9 @@ import components;
 import core;
 import resources;
 
-void load_character(float x, float y)
+entt::entity* load_character()
 {
     Player::ent = World::registry->create();
-
-    World::registry->emplace<Transform>(Player::ent, x, y, 99999999);
-
-    World::registry->emplace<Move>(Player::ent);
 
     auto cha = &World::registry->emplace<Character>(Player::ent);
 
@@ -30,4 +26,5 @@ void load_character(float x, float y)
     // cha.add_shield(u"01092030");
 
     World::zindex = true;
+    return &Player::ent;
 }

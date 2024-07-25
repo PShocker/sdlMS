@@ -12,3 +12,4 @@ bool animate_sprite(Animated *a);
 void animate_character(Character *cha);
 void animate_afterimage(AfterImage *aim, Character *cha);
 void animate_skill(Skill* ski);
+void animate_portal(Portal* por);

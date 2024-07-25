@@ -15,8 +15,8 @@ void statemachine_run()
 {
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
-        auto delta_time = (float)Window::delta_time / 1000;
-        player_statemachine(&ent, delta_time);
+        player_cooldown(Window::delta_time);
+        player_statemachine(&ent, (float)Window::delta_time / 1000);
     }
 }
 
@@ -124,6 +124,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     default:
         break;
     }
+    player_portal(ent);
     player_border_limit(mv, tr);
     player_action(cha, state, cha->state, mv);
 }
@@ -193,7 +194,7 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     auto y = tr->position.y;
 
     // 人物在fh移动的函数
-    auto walk_fh = [&x, &y, &tr, &mv, &state](FootHold* next_fh) -> bool
+    auto walk_fh = [&x, &y, &tr, &mv, &state](FootHold *next_fh) -> bool
     {
         FootHold *fh = nullptr; // 走到下一个fh
         if (next_fh)
@@ -321,9 +322,8 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
         return false;
     };
 
-    auto down_jump = Player::CoolDowns::foothold.start;
     // 下落
-    if (mv->vspeed >= 0 && !down_jump)
+    if (mv->vspeed >= 0 && player_foothold_cooldown <= 0)
     {
         auto view = World::registry->view<FootHold>();
         for (auto &e : view)
@@ -435,7 +435,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->zmass = mv->foo->zmass;
                     mv->foo = nullptr;
                     mv->lr = nullptr;
-                    Player::CoolDowns::foothold.start = true;
+                    player_foothold_cooldown = 120;
                     return true;
                 }
             }
@@ -685,8 +685,8 @@ void player_border_limit(Move *mv, Transform *tr)
     auto rx1 = mv->rx1;
     if (!(rx0.has_value() && rx1.has_value()))
     {
-        rx0 = Map::Border::l;
-        rx1 = Map::Border::r;
+        rx0 = World::registry->ctx().get<Border>().l;
+        rx1 = World::registry->ctx().get<Border>().r;
     }
     if (tr->position.x < rx0.value() || tr->position.x > rx1.value())
     {
@@ -755,6 +755,61 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         cha->action_index = 0;
         cha->action_time = 0;
         cha->action = action;
+    }
+}
+
+void player_cooldown(int delta_time)
+{
+    if (player_foothold_cooldown > 0)
+    {
+        player_foothold_cooldown -= delta_time;
+    }
+    if (player_portal_cooldown > 0)
+    {
+        player_portal_cooldown -= delta_time;
+    }
+}
+
+void player_portal(entt::entity *ent)
+{
+    if (player_portal_cooldown <= 0)
+    {
+        auto tr = World::registry->try_get<Transform>(*ent);
+        auto view = World::registry->view<Portal>();
+        for (auto &e : view)
+        {
+            auto por = &view.get<Portal>(e);
+            if (por->tm != 999999999)
+            {
+                if (por->pt == 3 || Input::is_key_held(SDLK_UP))
+                {
+                    auto player_pos = tr->position;
+                    auto por_tr = World::registry->try_get<Transform>(e);
+                    auto por_x = por_tr->position.x;
+                    auto por_y = por_tr->position.y;
+                    if (player_pos.x == std::clamp(player_pos.x, por_x - 20, por_x + 20) &&
+                        player_pos.y == std::clamp(player_pos.y, por_y - 50, por_y + 50))
+                    {
+                        if (por->tm != Map::id)
+                        {
+                            // need to change map
+                            World::TransPort::id = por->tm;
+                            World::TransPort::tn = std::get<std::u16string>(por->tn);
+                        }
+                        else
+                        {
+                            auto position = std::get<SDL_FPoint>(por->tn);
+                            tr->position.x = position.x;
+                            tr->position.y = position.y - 5;
+                            auto cha = World::registry->try_get<Character>(Player::ent);
+                            cha->state = Character::State::JUMP;
+                        }
+                        player_portal_cooldown = 800;
+                        break;
+                    }
+                }
+            }
+        }
     }
 }
 
