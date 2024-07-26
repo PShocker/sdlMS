@@ -33,25 +33,12 @@ void Window::poll_events()
 {
     SDL_Event event_handler;
 
-    Input::update_momentary_keys();
-
     while (SDL_PollEvent(&event_handler) != 0)
     {
-        switch (event_handler.type)
-        {
-        case SDL_EVENT_KEY_UP:
-        case SDL_EVENT_KEY_DOWN:
-        case SDL_EVENT_MOUSE_BUTTON_UP:
-        case SDL_EVENT_MOUSE_BUTTON_DOWN:
-        {
-            Input::process_input_event(event_handler.type, event_handler);
-        }
-        break;
-        case SDL_EVENT_QUIT:
+        if (event_handler.type == SDL_EVENT_QUIT)
         {
             quit = true;
-        }
-        break;
+            break;
         }
     }
 }

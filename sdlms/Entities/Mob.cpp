@@ -52,7 +52,9 @@ void load_mob(wz::Node *node)
             {
                 speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"speed"))->get();
             }
-            mv.hspeed = (float)(speed + 100) / 100 * 125;
+            mv.hspeed_min = -1 * (float)(speed + 100) / 100 * 125;
+            mv.hspeed_max = (float)(speed + 100) / 100 * 125;
+            mv.hspeed = mv.hspeed_max.value();
         }
     }
     mob.index = mob.a.begin()->first;

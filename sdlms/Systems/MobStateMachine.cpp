@@ -34,6 +34,7 @@ void mob_statemachine(entt::entity *ent, float delta_time)
     break;
     case Mob::State::MOVE:
     {
+        mob_flip(mv, tr);
         mob->state = mob_move(mob, mv, tr, state, delta_time);
     }
     break;
@@ -44,6 +45,18 @@ void mob_statemachine(entt::entity *ent, float delta_time)
     }
     mob_border_limit(mv, tr);
     mob_action(mob, mv, state, mob->state);
+}
+
+void mob_flip(Move *mv, Transform *tr)
+{
+    if (mv->hspeed > 0)
+    {
+        tr->flip = 1;
+    }
+    else if (mv->hspeed < 0)
+    {
+        tr->flip = 0;
+    }
 }
 
 int mob_stand(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
@@ -160,20 +173,24 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
         switch (action)
         {
         case Mob::State::STAND:
+        {
+            mob->tick = std::rand() % 100 + 10;
             mob->index = u"stand";
-            break;
+            mv->hspeed = 0;
+        }
+        break;
         case Mob::State::MOVE:
         {
-            mob->tick=200;
+            mob->tick = std::rand() % 100 + 90;
             mob->index = u"move";
             int random = std::rand() % 2;
             switch (random)
             {
             case 0:
-                mv->hspeed = std::abs(mv->hspeed);
+                mv->hspeed = mv->hspeed_min.value();
                 break;
             case 1:
-                mv->hspeed = -std::abs(mv->hspeed);
+                mv->hspeed = mv->hspeed_max.value();
                 break;
             }
         }

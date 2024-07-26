@@ -132,11 +132,11 @@ void player_statemachine(entt::entity *ent, float delta_time)
 
 void player_flip(Transform *tr)
 {
-    if (Input::is_key_held(SDLK_RIGHT))
+    if (Input::state[SDL_SCANCODE_RIGHT])
     {
         tr->flip = 1;
     }
-    else if (Input::is_key_held(SDLK_LEFT))
+    else if (Input::state[SDL_SCANCODE_LEFT])
     {
         tr->flip = 0;
     }
@@ -146,11 +146,11 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
 {
     auto state = Character::State::WALK;
 
-    if (Input::is_key_held(SDLK_RIGHT))
+    if (Input::state[SDL_SCANCODE_RIGHT])
     {
         mv->hforce = 1400;
     }
-    else if (Input::is_key_held(SDLK_LEFT))
+    else if (Input::state[SDL_SCANCODE_LEFT])
     {
         mv->hforce = -1400;
     }
@@ -271,11 +271,11 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
 
 bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
 {
-    if (Input::is_key_held(SDLK_RIGHT))
+    if (Input::state[SDL_SCANCODE_RIGHT])
     {
         mv->hspeed += 0.3f;
     }
-    else if (Input::is_key_held(SDLK_LEFT))
+    else if (Input::state[SDL_SCANCODE_LEFT])
     {
         mv->hspeed -= 0.3f;
     }
@@ -423,7 +423,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
 
 bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
 {
-    if (Input::is_key_held(SDLK_LALT))
+    if (Input::state[SDL_SCANCODE_LALT])
     {
         if (mv->foo)
         {
@@ -452,17 +452,17 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
         }
         else if (mv->lr)
         {
-            if (!Input::is_key_held(SDLK_UP) && (Input::is_key_held(SDLK_RIGHT) || Input::is_key_held(SDLK_LEFT)))
+            if (!Input::state[SDL_SCANCODE_UP]&& (Input::state[SDL_SCANCODE_RIGHT] || Input::state[SDL_SCANCODE_LEFT]))
             {
                 cha->animate = true;
 
                 mv->vspeed = -310;
                 mv->lr = nullptr;
-                if (Input::is_key_held(SDLK_RIGHT))
+                if (Input::state[SDL_SCANCODE_RIGHT])
                 {
                     mv->hspeed = 140;
                 }
-                else if (Input::is_key_held(SDLK_LEFT))
+                else if (Input::state[SDL_SCANCODE_LEFT])
                 {
                     mv->hspeed = -140;
                 }
@@ -492,7 +492,7 @@ bool player_down_jump(Move *mv, Transform *tr)
 
 int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
 {
-    if (Input::is_key_held(SDLK_LCTRL))
+    if (Input::state[SDL_SCANCODE_LCTRL])
     {
         if (state != Character::State::JUMP)
         {
@@ -555,7 +555,7 @@ bool player_attack_afterimage(entt::entity *ent)
 
 bool player_climb(Move *mv, Transform *tr, int state)
 {
-    if (Input::is_key_held(SDLK_UP) || Input::is_key_held(SDLK_DOWN))
+    if (Input::state[SDL_SCANCODE_UP]|| Input::state[SDL_SCANCODE_DOWN])
     {
         auto view = World::registry->view<LadderRope>();
         for (auto &e : view)
@@ -569,7 +569,7 @@ bool player_climb(Move *mv, Transform *tr, int state)
                 int b = lr->b + 5;
                 if (mv->foo)
                 {
-                    if (Input::is_key_held(SDLK_DOWN))
+                    if (Input::state[SDL_SCANCODE_DOWN])
                     {
                         t = lr->t - 10;
                         b = lr->t;
@@ -583,7 +583,7 @@ bool player_climb(Move *mv, Transform *tr, int state)
                 {
                     t = lr->t;
                 }
-                if (!(mv->foo == nullptr && Input::is_key_held(SDLK_DOWN)))
+                if (!(mv->foo == nullptr && Input::state[SDL_SCANCODE_DOWN]))
                 {
                     if (tr->position.y >= t && tr->position.y <= b)
                     {
@@ -611,12 +611,12 @@ bool player_climb(Move *mv, Transform *tr, int state)
 int player_climbing(Character *cha, Move *mv, Transform *tr, entt::entity *ent, float delta_time)
 {
     auto state = Character::State::CLIMB;
-    if (Input::is_key_held(SDLK_DOWN))
+    if (Input::state[SDL_SCANCODE_DOWN])
     {
         mv->vspeed = 100;
         cha->animate = true;
     }
-    else if (Input::is_key_held(SDLK_UP))
+    else if (Input::state[SDL_SCANCODE_UP])
     {
         mv->vspeed = -100;
         cha->animate = true;
@@ -660,7 +660,7 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, entt::entity *ent, 
 
 bool player_prone(Move *mv, Transform *tr, int state)
 {
-    if (Input::is_key_held(SDLK_DOWN))
+    if (Input::state[SDL_SCANCODE_DOWN])
     {
         if (mv->foo)
         {
@@ -673,7 +673,7 @@ bool player_prone(Move *mv, Transform *tr, int state)
 
 bool player_proning()
 {
-    if (Input::is_key_held(SDLK_DOWN))
+    if (Input::state[SDL_SCANCODE_DOWN])
     {
         return true;
     }
@@ -781,7 +781,7 @@ void player_portal(entt::entity *ent)
             auto por = &view.get<Portal>(e);
             if (por->tm != 999999999)
             {
-                if (por->pt == 3 || Input::is_key_held(SDLK_UP))
+                if (por->pt == 3 || Input::state[SDL_SCANCODE_UP])
                 {
                     auto player_pos = tr->position;
                     auto por_tr = World::registry->try_get<Transform>(e);
@@ -812,4 +812,3 @@ void player_portal(entt::entity *ent)
         }
     }
 }
-
