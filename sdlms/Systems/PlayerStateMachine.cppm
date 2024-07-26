@@ -4,11 +4,11 @@ module;
 #include <optional>
 #include "entt/entt.hpp"
 
-export module systems:statemachine;
+export module systems:playerstatemachine;
 
 import components;
 
-export void statemachine_run();
+export void player_statemachine_run();
 void player_statemachine(entt::entity *ent, float delta_time);
 
 void player_flip(Transform *tr);
@@ -38,8 +38,3 @@ export int player_foothold_cooldown = 0;
 export int player_portal_cooldown = 0;
 
 void player_cooldown(int delta_time);
-
-std::optional<SDL_FPoint> intersect(SDL_FPoint p1,
-                                    SDL_FPoint p2,
-                                    SDL_FPoint p3,
-                                    SDL_FPoint p4);

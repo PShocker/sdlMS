@@ -11,7 +11,7 @@ import commons;
 import core;
 import entities;
 
-void statemachine_run()
+void player_statemachine_run()
 {
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
@@ -109,6 +109,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     break;
     case Character::State::PRONE:
     {
+        player_flip(tr);
         if (player_jump(mv, cha, tr, cha->state))
         {
             cha->state = Character::State::JUMP;
@@ -751,7 +752,6 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             action = Character::ACTION::PRONE;
             break;
         }
-
         cha->action_index = 0;
         cha->action_time = 0;
         cha->action = action;
@@ -813,27 +813,3 @@ void player_portal(entt::entity *ent)
     }
 }
 
-inline std::optional<SDL_FPoint> intersect(SDL_FPoint p1, SDL_FPoint p2, SDL_FPoint p3, SDL_FPoint p4)
-{
-    // 快速排斥实验
-    if ((p1.x > p2.x ? p1.x : p2.x) < (p3.x < p4.x ? p3.x : p4.x) ||
-        (p1.y > p2.y ? p1.y : p2.y) < (p3.y < p4.y ? p3.y : p4.y) ||
-        (p3.x > p4.x ? p3.x : p4.x) < (p1.x < p2.x ? p1.x : p2.x) ||
-        (p3.y > p4.y ? p3.y : p4.y) < (p1.y < p2.y ? p1.y : p2.y))
-    {
-        return std::nullopt;
-    }
-    // 跨立实验
-    if ((((p1.x - p3.x) * (p4.y - p3.y) - (p1.y - p3.y) * (p4.x - p3.x)) *
-         ((p2.x - p3.x) * (p4.y - p3.y) - (p2.y - p3.y) * (p4.x - p3.x))) > 0 ||
-        (((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x)) *
-         ((p4.x - p1.x) * (p2.y - p1.y) - (p4.y - p1.y) * (p2.x - p1.x))) > 0)
-    {
-        return std::nullopt;
-    }
-
-    auto x = ((p1.y - p3.y) * (p2.x - p1.x) * (p4.x - p3.x) + p3.x * (p4.y - p3.y) * (p2.x - p1.x) - p1.x * (p2.y - p1.y) * (p4.x - p3.x)) / ((p4.x - p3.x) * (p1.y - p2.y) - (p2.x - p1.x) * (p3.y - p4.y));
-    auto y = (p2.y * (p1.x - p2.x) * (p4.y - p3.y) + (p4.x - p2.x) * (p4.y - p3.y) * (p1.y - p2.y) - p4.y * (p3.x - p4.x) * (p2.y - p1.y)) / ((p1.x - p2.x) * (p4.y - p3.y) - (p2.y - p1.y) * (p3.x - p4.x));
-
-    return SDL_FPoint{x, y};
-}

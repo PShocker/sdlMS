@@ -65,6 +65,14 @@ void animate_run()
             animate_npc(npc);
         }
     }
+    {
+        auto view = World::registry->view<Mob>();
+        for (auto &ent : view)
+        {
+            auto mob = &view.get<Mob>(ent);
+            animate_mob(mob);
+        }
+    }
 }
 
 bool animate_sprite(Animated *a)
@@ -76,11 +84,20 @@ bool animate_sprite(Animated *a)
         a->anim_time += delta_time;
         if (a->anim_time >= a->aspr->sprites[a->anim_index]->delay)
         {
-            if (a->anim_index == a->anim_size - 1)
+            if (a->anim_index + a->anim_step == a->anim_size || a->anim_index + a->anim_step < 0)
             {
                 if (a->aspr->z)
                 {
-                    a->z = true;
+                    if (a->anim_step == 1)
+                    {
+                        a->anim_index -= 1;
+                        a->anim_step = -1;
+                    }
+                    else
+                    {
+                        a->anim_index += 1;
+                        a->anim_step = 1;
+                    }
                 }
                 else
                 {
@@ -91,7 +108,7 @@ bool animate_sprite(Animated *a)
             }
             else
             {
-                a->anim_index += 1;
+                a->anim_index += a->anim_step;
                 a->anim_time = 0;
             }
         }
@@ -158,7 +175,7 @@ void animate_skill(Skill *ski)
     {
         if (ski->animated[i] == false)
         {
-            auto aspr = ski->skill_map[ski->id][i];
+            auto aspr = ski->effects[ski->id][i];
             if (animate_sprite(aspr) == false)
             {
                 ski->animated[i] = true;
@@ -170,9 +187,9 @@ void animate_skill(Skill *ski)
 void animate_portal(Portal *por)
 {
     // 更新三段式传送门,这里简单的更新三段式传送门的所有状态
-    for (auto a : por->a)
+    if (por->index >= 0)
     {
-        animate_sprite(a);
+        animate_sprite(por->a[por->index]);
     }
 }
 
@@ -192,4 +209,9 @@ void animate_npc(Npc *npc)
             npc->index = npc->a.begin()->first;
         }
     }
+}
+
+void animate_mob(Mob *mob)
+{
+    animate_sprite(mob->a[mob->index]);
 }

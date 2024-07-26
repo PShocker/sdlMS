@@ -14,3 +14,4 @@ void render_afterimage(Transform *tr, AfterImage *aim, Character *cha);
 void render_skill(Transform *tr, Skill *ski);
 void render_portal(Transform *tr, Portal *por);
 void render_npc(Transform *tr, Npc *npc);
+void render_mob(Transform *tr, Mob *mob);

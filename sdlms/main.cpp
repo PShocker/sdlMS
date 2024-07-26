@@ -1,4 +1,5 @@
 #include <process.h>
+#include "entt/entt.hpp"
 
 import systems;
 import core;
@@ -26,7 +27,8 @@ void main_loop()
 
     cooldown_run();
     animate_run();
-    statemachine_run();
+    player_statemachine_run();
+    mob_statemachine_run();
     world_run();
     camera_run();
     render_run();

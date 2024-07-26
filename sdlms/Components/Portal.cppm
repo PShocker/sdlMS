@@ -19,6 +19,8 @@ export struct Portal
 
     // 三段式传送门
     std::vector<Animated *> a;
+    // 三段式传送门下标
+    int index = -1;
 
     Portal() = default;
 };

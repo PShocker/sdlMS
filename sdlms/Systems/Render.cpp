@@ -37,6 +37,10 @@ void render_run()
         {
             render_npc(tr, npc);
         }
+        else if (auto mob = World::registry->try_get<Mob>(ent))
+        {
+            render_mob(tr, mob);
+        }
         else if (auto cha = World::registry->try_get<Character>(ent))
         {
             render_character(tr, cha);
@@ -423,7 +427,7 @@ void render_skill(Transform *tr, Skill *ski)
     {
         if (ski->animated[i] == false)
         {
-            auto aspr = ski->skill_map[ski->id][i];
+            auto aspr = ski->effects[ski->id][i];
             render_animated_sprite(tr, aspr);
         }
     }
@@ -441,11 +445,17 @@ void render_portal(Transform *tr, Portal *por)
             auto d_y = std::abs(player_tr->position.y - tr->position.y);
             if (d_x <= 100 && d_y <= 100)
             {
-                render_animated_sprite(tr, por->a[0]);
+                por->index = 0;
+                render_animated_sprite(tr, por->a[por->index]);
             }
             else if (d_x <= 150 && d_y <= 150)
             {
-                render_animated_sprite(tr, por->a[1]);
+                por->index = 1;
+                render_animated_sprite(tr, por->a[por->index]);
+            }
+            else
+            {
+                por->index = -1;
             }
         }
     }
@@ -454,4 +464,9 @@ void render_portal(Transform *tr, Portal *por)
 void render_npc(Transform *tr, Npc *npc)
 {
     render_animated_sprite(tr, npc->a[npc->index]);
+}
+
+void render_mob(Transform *tr, Mob *mob)
+{
+    render_animated_sprite(tr, mob->a[mob->index]);
 }

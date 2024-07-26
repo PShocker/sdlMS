@@ -18,4 +18,5 @@ export import :skill;
 export import :portal;
 export import :border;
 export import :npc;
+export import :mob;
 

@@ -104,10 +104,7 @@ void Map::load_lifes(wz::Node *node)
             }
             else if (type == u"m")
             {
-                // auto rx0 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx0"))->get();
-                // auto rx1 = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"rx1"))->get();
-                // auto mob = new Mob(val[0], id, rx0, rx1, world);
-                // world->add_entity(mob);
+                load_mob(val[0]);
             }
         }
     }

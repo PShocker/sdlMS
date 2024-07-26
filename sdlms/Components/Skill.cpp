@@ -18,13 +18,13 @@ void Skill::init()
     }
     else
     {
-        skill_map[id].push_back(new Animated(node->get_child(u"effect")));
+        effects[id].push_back(new Animated(node->get_child(u"effect")));
         for (int i = 0;; i++)
         {
             auto e = "effect" + std::to_string(i);
             if (node->get_child(e))
             {
-                skill_map[id].push_back(new Animated(node->get_child(e)));
+                effects[id].push_back(new Animated(node->get_child(e)));
             }
             else
             {
@@ -36,5 +36,5 @@ void Skill::init()
 
 Skill::Skill(const std::u16string &id) : id(id)
 {
-    animated.resize(skill_map[id].size(), false);
+    animated.resize(effects[id].size(), false);
 }
