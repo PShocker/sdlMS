@@ -164,6 +164,7 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
             break;
         case Mob::State::MOVE:
         {
+            mob->tick=200;
             mob->index = u"move";
             int random = std::rand() % 2;
             switch (random)
