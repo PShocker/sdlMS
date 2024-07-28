@@ -16,9 +16,9 @@ void render_run()
     for (auto &ent : view)
     {
         auto tr = &view.get<Transform>(ent);
-        if (auto sspr = World::registry->try_get<StaticSprite>(ent))
+        if (auto tspr = World::registry->try_get<TileSprite>(ent))
         {
-            auto spr = sspr->spr;
+            auto spr = tspr->spr;
             render_sprite(tr, spr);
         }
         else if (auto a = World::registry->try_get<Animated>(ent))
@@ -40,6 +40,13 @@ void render_run()
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
             render_mob(tr, mob);
+            if (auto hit = World::registry->try_get<HitEffect>(ent))
+            {
+                if (hit->effect.animate)
+                {
+                    render_hit(tr, hit);
+                }
+            }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
         {
@@ -48,9 +55,9 @@ void render_run()
             {
                 render_afterimage(tr, aim, cha);
             }
-            if (auto ski = World::registry->try_get<Skill>(ent))
+            if (auto pski = World::registry->try_get<PlayerSkill>(ent))
             {
-                render_skill(tr, ski);
+                render_skill(tr, pski);
             }
         }
     }
@@ -421,14 +428,14 @@ void render_afterimage(Transform *tr, AfterImage *aim, Character *cha)
     }
 }
 
-void render_skill(Transform *tr, Skill *ski)
+void render_skill(Transform *tr, PlayerSkill *pski)
 {
-    for (int i = 0; i < ski->animated.size(); i++)
+    for (int i = 0; i < pski->animated.size(); i++)
     {
-        if (ski->animated[i] == false)
+        if (pski->animated[i] == false)
         {
-            auto aspr = ski->effects[ski->id][i];
-            render_animated_sprite(tr, aspr);
+            auto &aspr = pski->effects[i];
+            render_animated_sprite(tr, &aspr);
         }
     }
 }
@@ -469,4 +476,9 @@ void render_npc(Transform *tr, Npc *npc)
 void render_mob(Transform *tr, Mob *mob)
 {
     render_animated_sprite(tr, mob->a[mob->index]);
+}
+
+void render_hit(Transform *tr, HitEffect *hit)
+{
+    render_animated_sprite(tr, &hit->effect);
 }

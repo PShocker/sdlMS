@@ -7,6 +7,11 @@ module components;
 
 AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
 {
+    if (node->type == wz::Type::UOL)
+    {
+        node = dynamic_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
+    }
+    
     // 从第0帧顺序读
     for (int i = 0; i < node->children_count(); i++)
     {

@@ -39,11 +39,11 @@ void animate_run()
         }
     }
     {
-        auto view = World::registry->view<Skill>();
+        auto view = World::registry->view<PlayerSkill>();
         for (auto &ent : view)
         {
-            auto ski = &view.get<Skill>(ent);
-            animate_skill(ski);
+            auto pski = &view.get<PlayerSkill>(ent);
+            animate_skill(pski);
         }
     }
     {
@@ -71,6 +71,17 @@ void animate_run()
         {
             auto mob = &view.get<Mob>(ent);
             animate_mob(mob);
+        }
+    }
+    {
+        auto view = World::registry->view<HitEffect>();
+        for (auto &ent : view)
+        {
+            auto hit = &view.get<HitEffect>(ent);
+            if (hit->effect.animate)
+            {
+                animate_hit(hit);
+            }
         }
     }
 }
@@ -169,16 +180,16 @@ void animate_afterimage(AfterImage *aim, Character *cha)
     }
 }
 
-void animate_skill(Skill *ski)
+void animate_skill(PlayerSkill *pski)
 {
-    for (int i = 0; i < ski->animated.size(); i++)
+    for (int i = 0; i < pski->animated.size(); i++)
     {
-        if (ski->animated[i] == false)
+        if (pski->animated[i] == false)
         {
-            auto aspr = ski->effects[ski->id][i];
-            if (animate_sprite(aspr) == false)
+            auto &aspr = pski->effects[i];
+            if (animate_sprite(&aspr) == false)
             {
-                ski->animated[i] = true;
+                pski->animated[i] = true;
             }
         }
     }
@@ -213,5 +224,16 @@ void animate_npc(Npc *npc)
 
 void animate_mob(Mob *mob)
 {
-    animate_sprite(mob->a[mob->index]);
+    if (!animate_sprite(mob->a[mob->index]) && mob->state == Mob::State::HIT)
+    {
+        mob->state = Mob::State::STAND;
+    }
+}
+
+void animate_hit(HitEffect *hit)
+{
+    if (!animate_sprite(&hit->effect))
+    {
+        hit->effect.animate = false;
+    }
 }

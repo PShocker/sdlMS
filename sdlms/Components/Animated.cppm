@@ -18,5 +18,6 @@ export struct Animated
     char anim_step = 1;
 
     Animated(wz::Node *node, int alpha = 255);
+    Animated(AnimatedSprite *aspr);
     Animated() = default;
 };

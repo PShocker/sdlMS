@@ -126,7 +126,6 @@ void player_statemachine(entt::entity *ent, float delta_time)
         break;
     }
     player_portal(ent);
-    player_border_limit(mv, tr);
     player_action(cha, state, cha->state, mv);
 }
 
@@ -192,6 +191,11 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
 
     auto d_x = mv->hspeed * delta_time;
     auto x = d_x + tr->position.x;
+    if (auto new_x = player_border_limit(mv, x); x != new_x)
+    {
+        x = new_x;
+        mv->hspeed = 0;
+    }
     auto y = tr->position.y;
 
     // 人物在fh移动的函数
@@ -295,6 +299,12 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
     auto d_y = mv->vspeed * delta_time;
 
     auto new_pos = tr->position + SDL_FPoint{(float)d_x, (float)d_y};
+
+    if (auto new_x = player_border_limit(mv, new_pos.x); new_pos.x != new_x)
+    {
+        new_pos.x = new_x;
+        mv->hspeed = 0;
+    }
 
     auto collide_wall = [](FootHold *fh, float hspeed) -> bool
     {
@@ -452,7 +462,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
         }
         else if (mv->lr)
         {
-            if (!Input::state[SDL_SCANCODE_UP]&& (Input::state[SDL_SCANCODE_RIGHT] || Input::state[SDL_SCANCODE_LEFT]))
+            if (!Input::state[SDL_SCANCODE_UP] && (Input::state[SDL_SCANCODE_RIGHT] || Input::state[SDL_SCANCODE_LEFT]))
             {
                 cha->animate = true;
 
@@ -549,13 +559,14 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
 bool player_attack_afterimage(entt::entity *ent)
 {
     World::registry->emplace_or_replace<AfterImage>(*ent);
-    World::registry->emplace_or_replace<Skill>(*ent, u"1311001");
+    auto pski = &World::registry->emplace_or_replace<PlayerSkill>(*ent, u"1311006");
+    World::registry->emplace_or_replace<Attack>(*ent, pski);
     return true;
 }
 
 bool player_climb(Move *mv, Transform *tr, int state)
 {
-    if (Input::state[SDL_SCANCODE_UP]|| Input::state[SDL_SCANCODE_DOWN])
+    if (Input::state[SDL_SCANCODE_UP] || Input::state[SDL_SCANCODE_DOWN])
     {
         auto view = World::registry->view<LadderRope>();
         for (auto &e : view)
@@ -680,7 +691,7 @@ bool player_proning()
     return false;
 }
 
-void player_border_limit(Move *mv, Transform *tr)
+float player_border_limit(Move *mv, float x)
 {
     auto rx0 = mv->rx0;
     auto rx1 = mv->rx1;
@@ -689,15 +700,11 @@ void player_border_limit(Move *mv, Transform *tr)
         rx0 = World::registry->ctx().get<Border>().l;
         rx1 = World::registry->ctx().get<Border>().r;
     }
-    if (tr->position.x < rx0.value() || tr->position.x > rx1.value())
+    if (x < rx0.value() || x > rx1.value())
     {
-        tr->position.x = std::clamp(tr->position.x, rx0.value(), rx1.value());
-        mv->hspeed = 0;
-        if (mv->foo)
-        {
-            tr->position.y = mv->foo->get_y(tr->position.x).value();
-        }
+        x = std::clamp(x, rx0.value(), rx1.value());
     }
+    return x;
 }
 
 void player_action(Character *cha, int state, int new_state, Move *mv)

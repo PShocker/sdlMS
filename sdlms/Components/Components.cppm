@@ -3,7 +3,7 @@ module;
 export module components;
 
 export import :sprite;
-export import :staticsprite;
+export import :tilesprite;
 export import :animatedsprite;
 export import :animated;
 export import :transform;
@@ -20,4 +20,5 @@ export import :border;
 export import :npc;
 export import :mob;
 export import :attack;
-
+export import :playerskill;
+export import :hiteffect;

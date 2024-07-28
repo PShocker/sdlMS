@@ -32,6 +32,8 @@ void main_loop()
     world_run();
     camera_run();
     render_run();
+    attack_run();
+
 
     Window::update();
 }
@@ -48,7 +50,6 @@ int main(int argc, char *argv[])
     Window::create_window("sdlMS", width, height);
     Character::init();
     AfterImage::init();
-    Skill::init();
     Cursor::init();
 
     World::load_map(100000000);

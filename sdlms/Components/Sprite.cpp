@@ -85,6 +85,23 @@ Sprite::Sprite(wz::Node *node, int alpha)
         }
     }
 
+    // mob
+    if (canvas->get_child(u"lt"))
+    {
+        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"lt"))->get();
+        lt = SDL_Point{v.x, v.y};
+    }
+    if (canvas->get_child(u"rb"))
+    {
+        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"rb"))->get();
+        rb = SDL_Point{v.x, v.y};
+    }
+    if (canvas->get_child(u"head"))
+    {
+        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"head"))->get();
+        head = SDL_Point{v.x, v.y};
+    }
+
     // 图片原始数据,部分格式需要转换
     std::vector<uint8_t> pixel;
 

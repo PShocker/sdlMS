@@ -3,11 +3,10 @@ module;
 #include <SDL3/SDL.h>
 #include <any>
 #include "wz/Property.hpp"
+#include <optional>
 
 export module components:sprite;
 
-// 这个无法当作组件,因为实体销毁时候会销毁这个组件,使缓存被清掉.
-// 如果需要Sprite组件,可以使用StaticSprite
 export struct Sprite
 {
     SDL_Texture *texture = nullptr;
@@ -18,6 +17,10 @@ export struct Sprite
     int a1 = 255;
     SDL_Point origin = {0, 0};
     std::any z = 0;
+
+    std::optional<SDL_Point> lt;
+    std::optional<SDL_Point> rb;
+    std::optional<SDL_Point> head;
 
     Sprite(wz::Node *node, int alpha = 255);
 };

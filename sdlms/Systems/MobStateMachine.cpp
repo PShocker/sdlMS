@@ -43,7 +43,6 @@ void mob_statemachine(entt::entity *ent, float delta_time)
     }
     break;
     }
-    mob_border_limit(mv, tr);
     mob_action(mob, mv, state, mob->state);
 }
 
@@ -86,6 +85,8 @@ int mob_move(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
     {
         auto d_x = mv->hspeed * delta_time;
         auto x = d_x + tr->position.x;
+        x = std::clamp(x, mv->rx0.value(), mv->rx1.value());
+
         auto y = tr->position.y;
         // 怪物在fh移动的函数
         auto walk_fh = [&x, &y, &tr, &mv, &state](FootHold *next_fh) -> bool
@@ -204,22 +205,24 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
     }
 }
 
-void mob_border_limit(Move *mv, Transform *tr)
+void mob_hit(Mob *mob, Transform *mob_tr, Transform *player_tr, Move *mv)
 {
-    auto rx0 = mv->rx0;
-    auto rx1 = mv->rx1;
-    if (!(rx0.has_value() && rx1.has_value()))
+    mob->state = Mob::State::HIT;
+    mob->index = u"hit1";
+
+    // 获取玩家位置,并让怪物转身和后退
+    auto player_x = player_tr->position.x;
+    auto mob_x = mob_tr->position.x;
+    if (mob_x < player_x)
     {
-        rx0 = World::registry->ctx().get<Border>().l;
-        rx1 = World::registry->ctx().get<Border>().r;
+        mob_tr->flip = 1;
+        mv->hspeed = mv->hspeed_min.value();
+        mob_move(mob, mv, mob_tr, mob->state, 0.15);
     }
-    if (tr->position.x < rx0.value() || tr->position.x > rx1.value())
+    else if (mob_x > player_x)
     {
-        tr->position.x = std::clamp(tr->position.x, rx0.value(), rx1.value());
-        mv->hspeed = 0;
-        if (mv->foo)
-        {
-            tr->position.y = mv->foo->get_y(tr->position.x).value();
-        }
+        mob_tr->flip = 0;
+        mv->hspeed = mv->hspeed_max.value();
+        mob_move(mob, mv, mob_tr, mob->state, 0.15);
     }
 }

@@ -5,7 +5,7 @@ module;
 
 export module components:skill;
 
-import :animated;
+import :animatedsprite;
 
 export struct Skill
 {
@@ -18,16 +18,19 @@ export struct Skill
         std::u16string action;
         SDL_FPoint lt;
         SDL_FPoint rb;
+
+        Info(wz::Node *node);
     };
 
-    static inline std::unordered_map<std::u16string, std::vector<Animated *>> effects;
-    std::vector<bool> animated;
-
-    int level = 30;
-    std::vector<Info> infos;
+    std::vector<AnimatedSprite *> effects;
+    std::vector<AnimatedSprite *> hits;
+    std::vector<Info *> infos;
     std::u16string id;
 
-    static void init();
     Skill(const std::u16string &id);
     Skill() = default;
 };
+
+export Skill *load_skill(const std::u16string &id);
+
+static std::unordered_map<std::u16string, Skill *> skill_cache;
