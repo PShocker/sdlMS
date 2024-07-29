@@ -9,6 +9,8 @@ module components;
 import :animatedsprite;
 import resources;
 
+static std::unordered_map<std::u16string, Skill*> skill_cache;
+
 Skill::Info::Info(wz::Node *node)
 {
     // mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();

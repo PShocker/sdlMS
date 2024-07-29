@@ -7,6 +7,8 @@ module components;
 
 import core;
 
+static std::unordered_map<wz::Node*, Sprite*> sprite_cache;
+
 Sprite::Sprite(wz::Node *node, int alpha)
 {
     if (node->type == wz::Type::UOL)

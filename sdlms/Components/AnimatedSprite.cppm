@@ -17,4 +17,4 @@ export struct AnimatedSprite
 
 export AnimatedSprite *load_animatedsprite(wz::Node *node, int alpha = 255);
 
-static std::unordered_map<wz::Node *, AnimatedSprite *> animatedsprited_cache;
+

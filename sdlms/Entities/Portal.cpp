@@ -3,6 +3,8 @@ module;
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
+#include <string>
+#include <variant>
 
 module entities;
 
@@ -10,7 +12,7 @@ import components;
 import resources;
 import core;
 
-constexpr const std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
+const std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
                                             u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
                                             u"pci", u"pcig", u"pshg"};
 

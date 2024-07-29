@@ -5,6 +5,10 @@ module;
 
 module components;
 
+import :sprite;
+
+static std::unordered_map<wz::Node*, AnimatedSprite*> animatedsprited_cache;
+
 AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
 {
     if (node->type == wz::Type::UOL)

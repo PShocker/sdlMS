@@ -3,6 +3,7 @@ module;
 #include <SDL3/SDL.h>
 #include <math.h>
 #include "entt/entt.hpp"
+#include <variant>
 
 module systems;
 

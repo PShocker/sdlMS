@@ -27,4 +27,4 @@ export struct Sprite
 
 export Sprite *load_sprite(wz::Node *node, int alpha = 255);
 
-static std::unordered_map<wz::Node *, Sprite *> sprite_cache;
+

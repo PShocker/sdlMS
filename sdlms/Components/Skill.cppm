@@ -33,4 +33,3 @@ export struct Skill
 
 export Skill *load_skill(const std::u16string &id);
 
-static std::unordered_map<std::u16string, Skill *> skill_cache;

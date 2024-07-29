@@ -1,6 +1,7 @@
 module;
 
 #include <unordered_map>
+#include <string>
 
 export module components:mob;
 
