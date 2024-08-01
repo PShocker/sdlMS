@@ -5,11 +5,11 @@ module;
 
 export module components:mob;
 
-import :animated;
+import :animatedsprite;
 
 export struct Mob
 {
-    std::unordered_map<std::u16string, Animated *> a;
+    std::unordered_map<std::u16string, AnimatedSprite *> a;
 
     std::u16string index;
 

@@ -15,7 +15,7 @@ export struct Attack
     int attackCount;
     int damage;
 
-    AnimatedSprite *hit;
+    AnimatedSpriteWarp *hit;
 
     std::optional<int> x = std::nullopt;
     std::optional<int> y = std::nullopt;

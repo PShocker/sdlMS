@@ -4,8 +4,8 @@ export module components;
 
 export import :sprite;
 export import :tilesprite;
-export import :animatedsprite;
 export import :animated;
+export import :animatedsprite;
 export import :transform;
 export import :background;
 export import :character;

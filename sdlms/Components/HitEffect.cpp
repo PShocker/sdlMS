@@ -1,8 +1,9 @@
 module;
 
 module components;
+import :animatedsprite;
 
-HitEffect::HitEffect(AnimatedSprite *aspr)
+HitEffect::HitEffect(AnimatedSpriteWarp *aspr)
 {
-    effect = Animated(aspr);
+    effect = new AnimatedSprite(aspr);
 }

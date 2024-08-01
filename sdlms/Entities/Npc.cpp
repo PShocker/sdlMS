@@ -39,9 +39,10 @@ void load_npc(wz::Node *node)
     {
         if (key != u"info")
         {
-            npc.a[key] = new Animated(val[0]);
+            npc.a[key] = new AnimatedSprite(val[0]);
         }
     }
     npc.index = npc.a.begin()->first;
+    World::registry->emplace<Animated>(ent);
     World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + NPC_Z);
 }

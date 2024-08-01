@@ -1,13 +1,12 @@
 module;
 
 export module components:hiteffect;
-import :animated;
+import :animatedsprite;
 import :animatedsprite;
 
 export struct HitEffect
 {
-    Animated effect;
-    HitEffect(AnimatedSprite* aspr);
+    AnimatedSprite* effect;
+    HitEffect(AnimatedSpriteWarp* aspr);
     HitEffect() = default;
 };
-

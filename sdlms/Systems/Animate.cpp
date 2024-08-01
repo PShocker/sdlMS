@@ -10,83 +10,52 @@ import core;
 
 void animate_run()
 {
+    auto view = World::registry->view<Animated>();
+    for (auto &ent : view)
     {
-        auto view = World::registry->view<Animated>();
-        for (auto &ent : view)
+        if (auto aspr = World::registry->try_get<AnimatedSprite>(ent))
         {
-            auto a = &view.get<Animated>(ent);
-            animate_sprite(a);
+            animate_sprite(aspr);
         }
-    }
-    {
-        auto view = World::registry->view<Character>();
-        for (auto &ent : view)
+        else if (auto por = World::registry->try_get<Portal>(ent))
         {
-            auto cha = &view.get<Character>(ent);
-            animate_character(cha);
+            animate_portal(por);
         }
-    }
-    {
-        auto view = World::registry->view<AfterImage>();
-        for (auto &ent : view)
+        else if (auto npc = World::registry->try_get<Npc>(ent))
         {
-            auto aim = &view.get<AfterImage>(ent);
-            if (aim->animated == false)
-            {
-                auto cha = World::registry->try_get<Character>(ent);
-                animate_afterimage(aim, cha);
-            }
-        }
-    }
-    {
-        auto view = World::registry->view<PlayerSkill>();
-        for (auto &ent : view)
-        {
-            auto pski = &view.get<PlayerSkill>(ent);
-            animate_skill(pski);
-        }
-    }
-    {
-        auto view = World::registry->view<Portal>();
-        for (auto &ent : view)
-        {
-            auto por = &view.get<Portal>(ent);
-            if (por->a.size() > 0)
-            {
-                animate_portal(por);
-            }
-        }
-    }
-    {
-        auto view = World::registry->view<Npc>();
-        for (auto &ent : view)
-        {
-            auto npc = &view.get<Npc>(ent);
             animate_npc(npc);
         }
-    }
-    {
-        auto view = World::registry->view<Mob>();
-        for (auto &ent : view)
+        else if (auto mob = World::registry->try_get<Mob>(ent))
         {
-            auto mob = &view.get<Mob>(ent);
             animate_mob(mob);
-        }
-    }
-    {
-        auto view = World::registry->view<HitEffect>();
-        for (auto &ent : view)
-        {
-            auto hit = &view.get<HitEffect>(ent);
-            if (hit->effect.animate)
+            if (auto hit = World::registry->try_get<HitEffect>(ent))
             {
-                animate_hit(hit);
+                if (hit->effect->animate)
+                {
+                    animate_hit(hit);
+                }
+            }
+        }
+        else if (auto cha = World::registry->try_get<Character>(ent))
+        {
+            animate_character(cha);
+            if (auto aft = World::registry->try_get<AfterImage>(ent))
+            {
+                if (aft->animated == false)
+                {
+                    auto cha = World::registry->try_get<Character>(ent);
+                    animate_afterimage(aft, cha);
+                }
+            }
+            if (auto pski = World::registry->try_get<PlayerSkill>(ent))
+            {
+                animate_skill(pski);
             }
         }
     }
 }
 
-bool animate_sprite(Animated *a)
+bool animate_sprite(AnimatedSprite *a)
 {
     bool r = true;
     if (a->animate)
@@ -186,8 +155,8 @@ void animate_skill(PlayerSkill *pski)
     {
         if (pski->animated[i] == false)
         {
-            auto &aspr = pski->effects[i];
-            if (animate_sprite(&aspr) == false)
+            auto aspr = pski->effects[i];
+            if (animate_sprite(aspr) == false)
             {
                 pski->animated[i] = true;
             }
@@ -232,8 +201,8 @@ void animate_mob(Mob *mob)
 
 void animate_hit(HitEffect *hit)
 {
-    if (!animate_sprite(&hit->effect))
+    if (!animate_sprite(hit->effect))
     {
-        hit->effect.animate = false;
+        hit->effect->animate = false;
     }
 }

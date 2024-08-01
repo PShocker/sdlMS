@@ -19,7 +19,7 @@ void AfterImage::init()
             {
                 auto action = Character::type_map.at(second);
                 int index = 0;
-                Animated *a = nullptr;
+                AnimatedSprite *a = nullptr;
                 SDL_FPoint lt;
                 SDL_FPoint rb;
                 for (auto &[third, val] : type[0]->get_children())
@@ -37,7 +37,7 @@ void AfterImage::init()
                     else
                     {
                         index = std::stoi(std::string{third.begin(), third.end()});
-                        a = new Animated(val[0]);
+                        a = new AnimatedSprite(val[0]);
                     }
                 }
                 swordOS[first][action] = {index, a, lt, rb};

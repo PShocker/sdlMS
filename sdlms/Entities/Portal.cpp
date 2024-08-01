@@ -13,8 +13,8 @@ import resources;
 import core;
 
 const std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
-                                            u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
-                                            u"pci", u"pcig", u"pshg"};
+                                  u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",
+                                  u"pci", u"pcig", u"pshg"};
 
 void load_portal(wz::Node *node, int id)
 {
@@ -52,15 +52,16 @@ void load_portal(wz::Node *node, int id)
             if (portal->get_child(u"default") != nullptr)
             {
                 // 三段式传送门
-                por.a.push_back(new Animated(portal->find_from_path(u"default/portalContinue")));
-                por.a.push_back(new Animated(portal->find_from_path(u"default/portalExit")));
-                por.a.push_back(new Animated(portal->find_from_path(u"default/portalStart")));
+                por.a.push_back(new AnimatedSprite(portal->find_from_path(u"default/portalContinue")));
+                por.a.push_back(new AnimatedSprite(portal->find_from_path(u"default/portalExit")));
+                por.a.push_back(new AnimatedSprite(portal->find_from_path(u"default/portalStart")));
             }
             else
             {
                 // 普通的传送门,通常为pv
-                World::registry->emplace<Animated>(ent, portal);
+                World::registry->emplace<AnimatedSprite>(ent, portal);
             }
+            World::registry->emplace<Animated>(ent);
         }
     }
 }

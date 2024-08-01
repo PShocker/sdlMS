@@ -9,7 +9,7 @@ import components;
 
 export struct Cursor
 {
-    static inline std::unordered_map<std::u16string, Animated *> cursor;
+    static inline std::unordered_map<std::u16string, AnimatedSprite *> cursor;
 
     static void init();
 };

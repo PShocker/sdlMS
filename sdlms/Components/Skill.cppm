@@ -22,14 +22,15 @@ export struct Skill
         Info(wz::Node *node);
     };
 
-    std::vector<AnimatedSprite *> effects;
-    std::vector<AnimatedSprite *> hits;
+    std::vector<AnimatedSpriteWarp *> effects;
+    std::vector<AnimatedSpriteWarp *> hits;
     std::vector<Info *> infos;
     std::u16string id;
 
     Skill(const std::u16string &id);
     Skill() = default;
+
+    static Skill *load(const std::u16string &id);
 };
 
 export Skill *load_skill(const std::u16string &id);
-

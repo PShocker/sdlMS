@@ -4,13 +4,13 @@ module;
 
 export module components:playerskill;
 import :skill;
-import :animated;
+import :animatedsprite;
 
 export struct PlayerSkill
 {
     Skill *ski = nullptr;
     std::vector<bool> animated;
-    std::vector<Animated> effects;
+    std::vector<AnimatedSprite *> effects;
     int level = 29;
 
     PlayerSkill(const std::u16string &id);

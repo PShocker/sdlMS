@@ -7,15 +7,29 @@ module components;
 
 import :sprite;
 
-static std::unordered_map<wz::Node*, AnimatedSprite*> animatedsprited_cache;
+static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
 
-AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
+AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha)
+{
+    if (cache.contains(node))
+    {
+        return cache[node];
+    }
+    else
+    {
+        AnimatedSpriteWarp *aspr = new AnimatedSpriteWarp(node, alpha);
+        cache[node] = aspr;
+        return aspr;
+    }
+}
+
+AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha)
 {
     if (node->type == wz::Type::UOL)
     {
         node = dynamic_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
     }
-    
+
     // 从第0帧顺序读
     for (int i = 0; i < node->children_count(); i++)
     {
@@ -48,16 +62,15 @@ AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
     }
 }
 
-AnimatedSprite *load_animatedsprite(wz::Node *node, int alpha)
+AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
 {
-    if (animatedsprited_cache.contains(node))
-    {
-        return animatedsprited_cache[node];
-    }
-    else
-    {
-        AnimatedSprite *aspr = new AnimatedSprite(node, alpha);
-        animatedsprited_cache[node] = aspr;
-        return aspr;
-    }
+    aspr = AnimatedSpriteWarp::load(node, alpha);
+    anim_size = aspr->sprites.size();
+    anim_index = 0;
+    anim_time = 0;
+}
+
+AnimatedSprite::AnimatedSprite(AnimatedSpriteWarp *aspr) : aspr(aspr)
+{
+    anim_size = aspr->sprites.size();
 }

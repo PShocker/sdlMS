@@ -22,7 +22,7 @@ void render_run()
             auto spr = tspr->spr;
             render_sprite(tr, spr);
         }
-        else if (auto a = World::registry->try_get<Animated>(ent))
+        else if (auto a = World::registry->try_get<AnimatedSprite>(ent))
         {
             render_animated_sprite(tr, a);
         }
@@ -43,7 +43,7 @@ void render_run()
             render_mob(tr, mob);
             if (auto hit = World::registry->try_get<HitEffect>(ent))
             {
-                if (hit->effect.animate)
+                if (hit->effect->animate)
                 {
                     render_hit(tr, hit);
                 }
@@ -97,7 +97,7 @@ void render_sprite(Transform *tr, Sprite *spr)
     }
 }
 
-void render_animated_sprite(Transform *tr, Animated *a)
+void render_animated_sprite(Transform *tr, AnimatedSprite *a)
 {
     auto spr = a->aspr->sprites[a->anim_index];
     SDL_SetTextureAlphaMod(spr->texture, a->alpha);
@@ -127,7 +127,7 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
     }
     else
     {
-        auto a = std::get<Animated *>(bspr->spr);
+        auto a = std::get<AnimatedSprite *>(bspr->spr);
         spr = a->aspr->sprites[a->anim_index];
     }
     spr_w = spr->width;
@@ -435,8 +435,8 @@ void render_skill(Transform *tr, PlayerSkill *pski)
     {
         if (pski->animated[i] == false)
         {
-            auto &aspr = pski->effects[i];
-            render_animated_sprite(tr, &aspr);
+            auto aspr = pski->effects[i];
+            render_animated_sprite(tr, aspr);
         }
     }
 }
@@ -481,5 +481,5 @@ void render_mob(Transform *tr, Mob *mob)
 
 void render_hit(Transform *tr, HitEffect *hit)
 {
-    render_animated_sprite(tr, &hit->effect);
+    render_animated_sprite(tr, hit->effect);
 }

@@ -8,7 +8,7 @@ import components;
 import core;
 import resources;
 
-entt::entity* load_character()
+entt::entity *load_character()
 {
     Player::ent = World::registry->create();
 
@@ -24,6 +24,8 @@ entt::entity* load_character()
     cha->add_shoes(u"01070002");
     cha->add_weapon(u"01302060");
     // cha.add_shield(u"01092030");
+
+    World::registry->emplace<Animated>(Player::ent);
 
     World::zindex = true;
     return &Player::ent;

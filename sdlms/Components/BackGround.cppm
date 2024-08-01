@@ -5,11 +5,11 @@ module;
 export module components:background;
 
 import :sprite;
-import :animated;
+import :animatedsprite;
 
 export struct BackGround
 {
-    std::variant<Sprite *, Animated *> spr;
+    std::variant<Sprite *, AnimatedSprite *> spr;
     // 平铺间隔
     int cx = 0;
     int cy = 0;

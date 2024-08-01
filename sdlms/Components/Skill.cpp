@@ -9,7 +9,7 @@ module components;
 import :animatedsprite;
 import resources;
 
-static std::unordered_map<std::u16string, Skill*> skill_cache;
+static std::unordered_map<std::u16string, Skill*> cache;
 
 Skill::Info::Info(wz::Node *node)
 {
@@ -34,13 +34,13 @@ Skill::Skill(const std::u16string &id) : id(id)
     auto node = Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id);
     if (node->get_child(u"effect"))
     {
-        effects.push_back(load_animatedsprite(node->get_child(u"effect")));
+        effects.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")));
         for (int i = 0;; i++)
         {
             auto e = "effect" + std::to_string(i);
             if (node->get_child(e))
             {
-                effects.push_back(load_animatedsprite(node->get_child(e)));
+                effects.push_back(AnimatedSpriteWarp::load(node->get_child(e)));
             }
             else
             {
@@ -50,7 +50,7 @@ Skill::Skill(const std::u16string &id) : id(id)
     }
     if (auto hit = node->get_child(u"hit"))
     {
-        hits.push_back(load_animatedsprite(hit->get_child(u"0")));
+        hits.push_back(AnimatedSpriteWarp::load(hit->get_child(u"0")));
     }
 
     auto level = node->get_child(u"level");
@@ -62,16 +62,16 @@ Skill::Skill(const std::u16string &id) : id(id)
     }
 }
 
-Skill *load_skill(const std::u16string &id)
+Skill *Skill::load(const std::u16string &id)
 {
-    if (skill_cache.contains(id))
+   if (cache.contains(id))
     {
-        return skill_cache[id];
+        return cache[id];
     }
     else
     {
         Skill *ski = new Skill(id);
-        skill_cache[id] = ski;
+        cache[id] = ski;
         return ski;
     }
 }
