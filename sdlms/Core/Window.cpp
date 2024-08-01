@@ -23,26 +23,6 @@ void Window::create_window(const char *title, unsigned int width, unsigned int h
     window_title = title;
 }
 
-void Window::destroy_window()
-{
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
-}
-
-void Window::poll_events()
-{
-    SDL_Event event_handler;
-
-    while (SDL_PollEvent(&event_handler) != 0)
-    {
-        if (event_handler.type == SDL_EVENT_QUIT)
-        {
-            quit = true;
-            break;
-        }
-    }
-}
-
 void Window::tick_delta_time()
 {
     dt_last = dt_now;

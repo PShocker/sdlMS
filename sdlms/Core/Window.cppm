@@ -20,9 +20,7 @@ export struct Window
     static inline bool quit;
 
     static void create_window(const char *title, unsigned int width, unsigned int height);
-    static void destroy_window();
 
-    static void poll_events();
     static void tick_delta_time();
 
     static void clear();
