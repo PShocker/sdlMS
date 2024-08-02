@@ -32,9 +32,6 @@ int SDL_AppIterate(void *appstate)
 
 int SDL_AppInit(void **appstate, int argc, char *argv[])
 {
-    Camera::x = 0;
-    Camera::y = 0;
-
     Camera::w = width;
     Camera::h = height;
 
@@ -62,4 +59,3 @@ void SDL_AppQuit(void *appstate)
 {
     SDL_Quit();
 }
-

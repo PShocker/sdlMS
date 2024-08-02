@@ -110,7 +110,6 @@ target_sources(mod
         ${core_cppm}
         ${commons_cppm}
         ${ui_cppm}
-       
 )
 
 add_executable(sdlMS main.cpp)
@@ -121,13 +120,17 @@ target_link_libraries(sdlMS PRIVATE freetype)
 target_link_libraries(sdlMS PRIVATE EnTT)
 target_link_libraries(sdlMS PRIVATE mod)
 
-
-set_target_properties(sdlMS PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
-    )
-
 if(WIN32)
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-        add_definitions(-DNOMINMAX)
-    endif()
+        if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+                add_definitions(-DNOMINMAX)
+        endif()
+
+        set_target_properties(sdlMS PROPERTIES
+                RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+endif()
+
+if(APPLE)
+        set_target_properties(sdlMS PROPERTIES
+                RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        )
 endif()
