@@ -10,5 +10,5 @@ HitEffect::HitEffect(AnimatedSpriteWarp *aspr)
 
 HitEffect::~HitEffect()
 {
-    delete effect;
+    // delete effect;
 }
