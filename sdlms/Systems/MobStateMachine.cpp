@@ -16,7 +16,10 @@ void mob_statemachine_run()
     {
         if (auto hit = World::registry->try_get<HitEffect>(ent))
         {
-            mob_hit(World::registry->try_get<Mob>(ent), World::registry->try_get<Transform>(ent), hit, World::registry->try_get<Move>(ent));
+            if (!hit->hit)
+            {
+                mob_hit(World::registry->try_get<Mob>(ent), World::registry->try_get<Transform>(ent), hit, World::registry->try_get<Move>(ent));
+            }
         }
         mob_statemachine(&ent, (float)Window::delta_time / 1000);
     }
@@ -229,4 +232,5 @@ void mob_hit(Mob *mob, Transform *tr, HitEffect *hit, Move *mv)
         mv->hspeed = mv->hspeed_max.value();
         mob_move(mob, mv, tr, mob->state, 0.15);
     }
+    hit->hit = true;
 }

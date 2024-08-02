@@ -12,6 +12,8 @@ export struct HitEffect
     float x;
     float y;
 
+    bool hit=false;
+
     HitEffect(AnimatedSpriteWarp *aspr);
     HitEffect() = default;
     ~HitEffect();

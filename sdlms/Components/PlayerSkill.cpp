@@ -15,7 +15,9 @@ PlayerSkill::PlayerSkill(const std::u16string &id)
 
 PlayerSkill::~PlayerSkill()
 {
-    for (auto it : effects){
-        delete it;
-    }
+    // for (auto &it : effects)
+    // {
+    //     delete it;
+    //     it = nullptr;
+    // }
 }

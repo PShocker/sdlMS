@@ -30,6 +30,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
 
     switch (cha->state)
     {
+    case Character::State::ALERT:
     case Character::State::STAND:
     {
         player_flip(tr);
@@ -156,17 +157,27 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     }
     else
     {
-        state = Character::State::STAND;
-
+        if (state == Character::State::WALK)
+        {
+            if (player_alert())
+            {
+                state = Character::State::ALERT;
+            }
+            else
+            {
+                state = Character::State::STAND;
+            }
+        }
         mv->hforce = 0;
         // 如果没有左右的输入并且速度为0,则可以直接return提高性能
         if (mv->hspeed == 0)
         {
+
             return state;
         }
     }
 
-    constexpr auto friction = 800; // 摩擦力
+    const auto friction = 800; // 摩擦力
 
     if (mv->hspeed > 0)
     {
@@ -513,7 +524,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         player_attack_afterimage(ent);
 
         state = Character::State::ATTACK;
-        player_alert_cooldown = 5000;
+        player_alert_cooldown = 4000;
         cha->animated = false;
     }
     return state;
@@ -561,7 +572,8 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
 bool player_attack_afterimage(entt::entity *ent)
 {
     World::registry->emplace_or_replace<AfterImage>(*ent);
-    auto pski = &World::registry->emplace<PlayerSkill>(*ent, u"1311006");
+    World::registry->remove<PlayerSkill>(Player::ent);
+    auto pski = &World::registry->emplace_or_replace<PlayerSkill>(*ent, u"1311006");
     World::registry->emplace_or_replace<Attack>(*ent, pski);
     return true;
 }
@@ -717,14 +729,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         switch (action)
         {
         case Character::State::STAND:
-            if (player_alert_cooldown > 0)
-            {
-                action = Character::ACTION::ALERT;
-            }
-            else
-            {
-                action = Character::ACTION::STAND1;
-            }
+            action = Character::ACTION::STAND1;
             break;
         case Character::State::WALK:
             action = Character::ACTION::WALK1;
@@ -767,6 +772,9 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         case Character::State::PRONE:
             action = Character::ACTION::PRONE;
             break;
+        case Character::State::ALERT:
+            action = Character::ACTION::ALERT;
+            break;
         }
         cha->action_index = 0;
         cha->action_time = 0;
@@ -788,6 +796,11 @@ void player_cooldown(int delta_time)
     {
         player_alert_cooldown -= delta_time;
     }
+}
+
+bool player_alert()
+{
+    return player_alert_cooldown > 0;
 }
 
 void player_portal(entt::entity *ent)
