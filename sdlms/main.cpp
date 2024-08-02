@@ -21,11 +21,11 @@ int SDL_AppIterate(void *appstate)
     cooldown_run();
     animate_run();
     player_statemachine_run();
+    attack_run();
     mob_statemachine_run();
     world_run();
     camera_run();
     render_run();
-    attack_run();
     Window::update();
     return SDL_APP_CONTINUE;
 }

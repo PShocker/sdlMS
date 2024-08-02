@@ -24,6 +24,6 @@ void load_tile(wz::Node *node, const std::u16string &ts, int layer, int id)
 
     auto url = u"Tile/" + ts + u".img/" + u + u"/" + std::u16string{no_str.begin(), no_str.end()};
 
-    auto &tspr = World::registry->emplace<TileSprite>(ent, Wz::Map->get_root()->find_from_path(url));
-    World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + std::any_cast<int>(tspr.spr->z) * 1000 + id + TILE_Z);
+    auto &spr = World::registry->emplace<Sprite>(ent, Wz::Map->get_root()->find_from_path(url));
+    World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + std::any_cast<int>(spr.spr->z) * 1000 + id + TILE_Z);
 }

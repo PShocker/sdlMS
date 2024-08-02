@@ -9,7 +9,7 @@ import :animatedsprite;
 
 export struct BackGround
 {
-    std::variant<Sprite *, AnimatedSprite *> spr;
+    std::variant<SpriteWarp *, AnimatedSprite *> spr;
     // 平铺间隔
     int cx = 0;
     int cy = 0;

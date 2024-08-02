@@ -7,7 +7,7 @@ module;
 
 export module components:sprite;
 
-export struct Sprite
+export struct SpriteWarp
 {
     SDL_Texture *texture = nullptr;
     int width = 0;
@@ -22,9 +22,16 @@ export struct Sprite
     std::optional<SDL_Point> rb;
     std::optional<SDL_Point> head;
 
-    Sprite(wz::Node *node, int alpha = 255);
+    static SpriteWarp *load(wz::Node *node, int alpha = 255);
+
+    SpriteWarp(wz::Node *node, int alpha = 255);
 };
 
-export Sprite *load_sprite(wz::Node *node, int alpha = 255);
 
+export struct Sprite
+{
+    SpriteWarp *spr = nullptr;
+    Sprite(wz::Node *node, int alpha = 255);
+    Sprite() = default;
+};
 

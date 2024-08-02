@@ -57,8 +57,9 @@ void attack_player(Attack *atk, Transform *player_tr)
             SDL_FRect intersection;
             if (SDL_GetRectIntersectionFloat(&mob_rect, &player_rect, &intersection))
             {
-                mob_hit(mob, mob_tr, player_tr, World::registry->try_get<Move>(ent));
-                World::registry->emplace_or_replace<HitEffect>(ent, atk->hit);
+                auto &hit=World::registry->emplace<HitEffect>(ent, atk->hit);
+                hit.x=player_tr->position.x;
+                hit.y=player_tr->position.y;
             }
         }
     }

@@ -30,9 +30,9 @@ void animate_run()
             animate_mob(mob);
             if (auto hit = World::registry->try_get<HitEffect>(ent))
             {
-                if (hit->effect->animate)
+                if (!animate_hit(hit))
                 {
-                    animate_hit(hit);
+                    World::registry->remove<HitEffect>(ent);
                 }
             }
         }
@@ -149,8 +149,9 @@ void animate_afterimage(AfterImage *aim, Character *cha)
     }
 }
 
-void animate_skill(PlayerSkill *pski)
+bool animate_skill(PlayerSkill *pski)
 {
+    bool r = false;
     for (int i = 0; i < pski->animated.size(); i++)
     {
         if (pski->animated[i] == false)
@@ -159,9 +160,11 @@ void animate_skill(PlayerSkill *pski)
             if (animate_sprite(aspr) == false)
             {
                 pski->animated[i] = true;
+                r = true;
             }
         }
     }
+    return r;
 }
 
 void animate_portal(Portal *por)
@@ -199,10 +202,12 @@ void animate_mob(Mob *mob)
     }
 }
 
-void animate_hit(HitEffect *hit)
+bool animate_hit(HitEffect *hit)
 {
     if (!animate_sprite(hit->effect))
     {
         hit->effect->animate = false;
+        return false;
     }
+    return true;
 }

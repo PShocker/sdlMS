@@ -120,7 +120,7 @@ void load_background(wz::Node *node, int id)
     case 0:
     {
         auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-        bspr.spr = load_sprite(Wz::Map->get_root()->find_from_path(url), a);
+        bspr.spr = SpriteWarp::load(Wz::Map->get_root()->find_from_path(url), a);
         break;
     }
     case 1:

@@ -53,7 +53,7 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha)
         {
             continue;
         }
-        sprites.push_back(load_sprite(canvas, alpha));
+        sprites.push_back(SpriteWarp::load(canvas, alpha));
     }
     if (node->get_child(u"zigzag") != nullptr)
     {

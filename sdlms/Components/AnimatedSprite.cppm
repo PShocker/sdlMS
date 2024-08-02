@@ -8,7 +8,7 @@ import :sprite;
 
 export struct AnimatedSpriteWarp
 {
-    std::vector<Sprite *> sprites;
+    std::vector<SpriteWarp *> sprites;
 
     bool z = false; // ziazag
 

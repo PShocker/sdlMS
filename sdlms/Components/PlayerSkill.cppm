@@ -15,4 +15,5 @@ export struct PlayerSkill
 
     PlayerSkill(const std::u16string &id);
     PlayerSkill() = default;
+    ~PlayerSkill();
 };

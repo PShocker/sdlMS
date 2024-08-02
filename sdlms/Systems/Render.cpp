@@ -17,10 +17,10 @@ void render_run()
     for (auto &ent : view)
     {
         auto tr = &view.get<Transform>(ent);
-        if (auto tspr = World::registry->try_get<TileSprite>(ent))
+        if (auto spr = World::registry->try_get<Sprite>(ent))
         {
-            auto spr = tspr->spr;
-            render_sprite(tr, spr);
+            auto sprw = spr->spr;
+            render_sprite(tr, sprw);
         }
         else if (auto a = World::registry->try_get<AnimatedSprite>(ent))
         {
@@ -64,22 +64,22 @@ void render_run()
     }
 }
 
-void render_sprite(Transform *tr, Sprite *spr)
+void render_sprite(Transform *tr, SpriteWarp *sprw)
 {
     float rot = tr->rotation;
 
-    auto width = spr->width;
-    auto heihgt = spr->height;
+    auto width = sprw->width;
+    auto heihgt = sprw->height;
 
     auto x = tr->position.x;
     auto y = tr->position.y;
 
-    const SDL_FPoint origin{(float)spr->origin.x, (float)spr->origin.y};
+    const SDL_FPoint origin{(float)sprw->origin.x, (float)sprw->origin.y};
     if (tr->camera == true)
     {
         // 显示坐标为绝对坐标,与摄像机无关,通常为ui
         SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
-        SDL_RenderTextureRotated(Window::renderer, spr->texture, nullptr, &pos_rect, rot, &origin, (SDL_FlipMode)tr->flip);
+        SDL_RenderTextureRotated(Window::renderer, sprw->texture, nullptr, &pos_rect, rot, &origin, (SDL_FlipMode)tr->flip);
     }
     else
     {
@@ -91,17 +91,17 @@ void render_sprite(Transform *tr, Sprite *spr)
         }
         else if (tr->flip == 1)
         {
-            pos_rect = {(float)x - (spr->width - origin.x) - Camera::x, (float)y - origin.y - Camera::y, (float)width, (float)heihgt};
+            pos_rect = {(float)x - (sprw->width - origin.x) - Camera::x, (float)y - origin.y - Camera::y, (float)width, (float)heihgt};
         }
-        SDL_RenderTextureRotated(Window::renderer, spr->texture, nullptr, &pos_rect, rot, &origin, (SDL_FlipMode)tr->flip);
+        SDL_RenderTextureRotated(Window::renderer, sprw->texture, nullptr, &pos_rect, rot, &origin, (SDL_FlipMode)tr->flip);
     }
 }
 
 void render_animated_sprite(Transform *tr, AnimatedSprite *a)
 {
-    auto spr = a->aspr->sprites[a->anim_index];
-    SDL_SetTextureAlphaMod(spr->texture, a->alpha);
-    render_sprite(tr, spr);
+    auto sprw = a->aspr->sprites[a->anim_index];
+    SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
+    render_sprite(tr, sprw);
 }
 
 void render_back_sprite(Transform *tr, BackGround *bspr)
@@ -119,11 +119,11 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
     float spr_ox = 0;
     float spr_oy = 0;
 
-    Sprite *spr = nullptr;
+    SpriteWarp *spr = nullptr;
 
-    if (std::holds_alternative<Sprite *>(bspr->spr))
+    if (std::holds_alternative<SpriteWarp *>(bspr->spr))
     {
-        spr = std::get<Sprite *>(bspr->spr);
+        spr = std::get<SpriteWarp *>(bspr->spr);
     }
     else
     {
@@ -232,7 +232,7 @@ void render_character(const Transform *tr, Character *cha)
 
     Transform transfrom(0, 0, 0, 0);
 
-    auto set_transform = [&tr, &transfrom](Transform &t, Sprite *spr)
+    auto set_transform = [&tr, &transfrom](Transform &t, SpriteWarp *spr)
     {
         auto chara_pos = tr->position;
         auto flip = tr->flip;
@@ -249,7 +249,7 @@ void render_character(const Transform *tr, Character *cha)
             transfrom.position = chara_pos + SDL_FPoint{x, y};
         }
     };
-    auto render_avatar = [&set_transform, &transfrom, &action, &action_index](std::unordered_map<uint8_t, std::pair<Transform, Sprite *>> part[Character::ACTION::LENGTH])
+    auto render_avatar = [&set_transform, &transfrom, &action, &action_index](std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> part[Character::ACTION::LENGTH])
     {
         if (part[action].size() > 0)
         {

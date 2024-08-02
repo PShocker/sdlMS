@@ -14,6 +14,10 @@ void mob_statemachine_run()
     auto view = World::registry->view<Mob>();
     for (auto ent : view)
     {
+        if (auto hit = World::registry->try_get<HitEffect>(ent))
+        {
+            mob_hit(World::registry->try_get<Mob>(ent), World::registry->try_get<Transform>(ent), hit, World::registry->try_get<Move>(ent));
+        }
         mob_statemachine(&ent, (float)Window::delta_time / 1000);
     }
 }
@@ -205,24 +209,24 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
     }
 }
 
-void mob_hit(Mob *mob, Transform *mob_tr, Transform *player_tr, Move *mv)
+void mob_hit(Mob *mob, Transform *tr, HitEffect *hit, Move *mv)
 {
     mob->state = Mob::State::HIT;
     mob->index = u"hit1";
 
     // 获取玩家位置,并让怪物转身和后退
-    auto player_x = player_tr->position.x;
-    auto mob_x = mob_tr->position.x;
-    if (mob_x < player_x)
+    auto hit_x = hit->x;
+    auto mob_x = tr->position.x;
+    if (mob_x < hit_x)
     {
-        mob_tr->flip = 1;
+        tr->flip = 1;
         mv->hspeed = mv->hspeed_min.value();
-        mob_move(mob, mv, mob_tr, mob->state, 0.15);
+        mob_move(mob, mv, tr, mob->state, 0.15);
     }
-    else if (mob_x > player_x)
+    else if (mob_x > hit_x)
     {
-        mob_tr->flip = 0;
+        tr->flip = 0;
         mv->hspeed = mv->hspeed_max.value();
-        mob_move(mob, mv, mob_tr, mob->state, 0.15);
+        mob_move(mob, mv, tr, mob->state, 0.15);
     }
 }

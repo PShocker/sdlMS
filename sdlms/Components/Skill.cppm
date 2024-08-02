@@ -32,5 +32,3 @@ export struct Skill
 
     static Skill *load(const std::u16string &id);
 };
-
-export Skill *load_skill(const std::u16string &id);

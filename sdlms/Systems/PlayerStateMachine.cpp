@@ -513,6 +513,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         player_attack_afterimage(ent);
 
         state = Character::State::ATTACK;
+        player_alert_cooldown = 5000;
         cha->animated = false;
     }
     return state;
@@ -560,7 +561,7 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
 bool player_attack_afterimage(entt::entity *ent)
 {
     World::registry->emplace_or_replace<AfterImage>(*ent);
-    auto pski = &World::registry->emplace_or_replace<PlayerSkill>(*ent, u"1311006");
+    auto pski = &World::registry->emplace<PlayerSkill>(*ent, u"1311006");
     World::registry->emplace_or_replace<Attack>(*ent, pski);
     return true;
 }
@@ -716,7 +717,14 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         switch (action)
         {
         case Character::State::STAND:
-            action = Character::ACTION::STAND1;
+            if (player_alert_cooldown > 0)
+            {
+                action = Character::ACTION::ALERT;
+            }
+            else
+            {
+                action = Character::ACTION::STAND1;
+            }
             break;
         case Character::State::WALK:
             action = Character::ACTION::WALK1;
@@ -775,6 +783,10 @@ void player_cooldown(int delta_time)
     if (player_portal_cooldown > 0)
     {
         player_portal_cooldown -= delta_time;
+    }
+    if (player_alert_cooldown > 0)
+    {
+        player_alert_cooldown -= delta_time;
     }
 }
 

@@ -12,3 +12,10 @@ PlayerSkill::PlayerSkill(const std::u16string &id)
     }
     animated.resize(ski->effects.size(), false);
 }
+
+PlayerSkill::~PlayerSkill()
+{
+    for (auto it : effects){
+        delete it;
+    }
+}
