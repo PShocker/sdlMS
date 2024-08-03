@@ -41,12 +41,9 @@ void render_run()
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
             render_mob(tr, mob);
-            if (auto hit = World::registry->try_get<HitEffect>(ent))
+            if (auto eff = World::registry->try_get<Effect>(ent))
             {
-                if (hit->effect->animate)
-                {
-                    render_hit(tr, hit);
-                }
+                render_effect(tr, eff);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
@@ -56,9 +53,9 @@ void render_run()
             {
                 render_afterimage(tr, aim, cha);
             }
-            if (auto pski = World::registry->try_get<PlayerSkill>(ent))
+            if (auto eff = World::registry->try_get<Effect>(ent))
             {
-                render_skill(tr, pski);
+                render_effect(tr, eff);
             }
         }
     }
@@ -429,15 +426,12 @@ void render_afterimage(Transform *tr, AfterImage *aim, Character *cha)
     }
 }
 
-void render_skill(Transform *tr, PlayerSkill *pski)
+void render_effect(Transform *tr, Effect *eff)
 {
-    for (int i = 0; i < pski->animated.size(); i++)
+    for (int i = 0; i < eff->effects.size(); i++)
     {
-        if (pski->animated[i] == false)
-        {
-            auto aspr = pski->effects[i];
-            render_animated_sprite(tr, aspr);
-        }
+        auto aspr = &eff->effects[i];
+        render_animated_sprite(tr, aspr);
     }
 }
 
@@ -477,9 +471,4 @@ void render_npc(Transform *tr, Npc *npc)
 void render_mob(Transform *tr, Mob *mob)
 {
     render_animated_sprite(tr, mob->a[mob->index]);
-}
-
-void render_hit(Transform *tr, HitEffect *hit)
-{
-    render_animated_sprite(tr, hit->effect);
 }

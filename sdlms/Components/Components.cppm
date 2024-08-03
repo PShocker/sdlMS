@@ -19,5 +19,5 @@ export import :border;
 export import :npc;
 export import :mob;
 export import :attack;
-export import :playerskill;
-export import :hiteffect;
+export import :hit;
+export import :effect;

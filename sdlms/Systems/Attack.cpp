@@ -39,11 +39,11 @@ void attack_player(Attack *atk, Transform *player_tr)
         {
             auto mob = &view.get<Mob>(ent);
             auto mob_tr = World::registry->try_get<Transform>(ent);
-            SDL_FRect mob_rect;
             auto animated = mob->a[mob->index];
             auto spr = animated->aspr->sprites[animated->anim_index];
             auto lt = spr->lt.value();
             auto rb = spr->rb.value();
+            SDL_FRect mob_rect;
             mob_rect.x = lt.x;
             mob_rect.y = lt.y;
             mob_rect.w = rb.x - lt.x;
@@ -57,9 +57,12 @@ void attack_player(Attack *atk, Transform *player_tr)
             SDL_FRect intersection;
             if (SDL_GetRectIntersectionFloat(&mob_rect, &player_rect, &intersection))
             {
-                auto &hit=World::registry->emplace_or_replace<HitEffect>(ent, atk->hit);
+                auto &hit=World::registry->emplace_or_replace<Hit>(ent);
                 hit.x=player_tr->position.x;
                 hit.y=player_tr->position.y;
+
+                auto eff = World::registry->try_get<Effect>(ent);
+                eff->effects.push_back(AnimatedSprite(atk->hit));
             }
         }
     }

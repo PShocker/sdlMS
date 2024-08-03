@@ -9,27 +9,34 @@ module components;
 import :animatedsprite;
 import resources;
 
-static std::unordered_map<std::u16string, Skill*> cache;
+static std::unordered_map<std::u16string, SkillWarp *> cache;
 
-Skill::Info::Info(wz::Node *node)
+SkillWarp::Info::Info(wz::Node *node)
 {
     // mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
     // damage = dynamic_cast<wz::Property<int> *>(node->get_child(u"damage"))->get();
     // attackCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"attackCount"))->get();
 
-    if (node->get_child(u"lt"))
+    if (node->get_child(u"lt") && node->get_child(u"rb"))
     {
-        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
-        lt = SDL_FPoint{(float)v.x, (float)v.y};
+        {
+            auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
+            lt = SDL_FPoint{(float)v.x, (float)v.y};
+        }
+        {
+            auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
+            rb = SDL_FPoint{(float)v.x, (float)v.y};
+        }
     }
-    if (node->get_child(u"rb"))
+    else if (node->get_child(u"range"))
     {
-        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
-        rb = SDL_FPoint{(float)v.x, (float)v.y};
+        auto r = dynamic_cast<wz::Property<int> *>(node->get_child(u"range"))->get();
+        lt = SDL_FPoint{(float)-r, (float)-50};
+        rb = SDL_FPoint{(float)0, (float)0};
     }
 }
 
-Skill::Skill(const std::u16string &id) : id(id)
+SkillWarp::SkillWarp(const std::u16string &id) : id(id)
 {
     auto node = Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id);
     if (node->get_child(u"effect"))
@@ -62,16 +69,21 @@ Skill::Skill(const std::u16string &id) : id(id)
     }
 }
 
-Skill *Skill::load(const std::u16string &id)
+SkillWarp *SkillWarp::load(const std::u16string &id)
 {
-   if (cache.contains(id))
+    if (cache.contains(id))
     {
         return cache[id];
     }
     else
     {
-        Skill *ski = new Skill(id);
+        SkillWarp *ski = new SkillWarp(id);
         cache[id] = ski;
         return ski;
     }
+}
+
+Skill::Skill(const std::u16string &id)
+{
+    ski = SkillWarp::load(id);
 }

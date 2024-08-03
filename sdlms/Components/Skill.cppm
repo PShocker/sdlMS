@@ -7,7 +7,7 @@ export module components:skill;
 
 import :animatedsprite;
 
-export struct Skill
+export struct SkillWarp
 {
     struct Info
     {
@@ -27,8 +27,16 @@ export struct Skill
     std::vector<Info *> infos;
     std::u16string id;
 
+    SkillWarp(const std::u16string &id);
+    SkillWarp() = default;
+
+    static SkillWarp *load(const std::u16string &id);
+};
+
+export struct Skill
+{
+    SkillWarp *ski = nullptr;
     Skill(const std::u16string &id);
     Skill() = default;
-
-    static Skill *load(const std::u16string &id);
 };
+

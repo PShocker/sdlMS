@@ -28,12 +28,9 @@ void animate_run()
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
             animate_mob(mob);
-            if (auto hit = World::registry->try_get<HitEffect>(ent))
+            if (auto eff = World::registry->try_get<Effect>(ent))
             {
-                if (!animate_hit(hit))
-                {
-                    World::registry->remove<HitEffect>(ent);
-                }
+                animate_effect(eff);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
@@ -47,9 +44,9 @@ void animate_run()
                     animate_afterimage(aft, cha);
                 }
             }
-            if (auto pski = World::registry->try_get<PlayerSkill>(ent))
+            if (auto eff = World::registry->try_get<Effect>(ent))
             {
-                animate_skill(pski);
+                animate_effect(eff);
             }
         }
     }
@@ -149,22 +146,21 @@ void animate_afterimage(AfterImage *aim, Character *cha)
     }
 }
 
-bool animate_skill(PlayerSkill *pski)
+void animate_effect(Effect *eff)
 {
-    bool r = false;
-    for (int i = 0; i < pski->animated.size(); i++)
+    for (auto it = eff->effects.begin(); it != eff->effects.end();)
     {
-        if (pski->animated[i] == false)
+        auto aspr = &(*it);
+        if (animate_sprite(aspr) == false)
         {
-            auto aspr = pski->effects[i];
-            if (animate_sprite(aspr) == false)
-            {
-                pski->animated[i] = true;
-                r = true;
-            }
+            it = eff->effects.erase(it);
+        }
+        else
+        {
+            ++it;
         }
     }
-    return r;
+    return;
 }
 
 void animate_portal(Portal *por)
@@ -200,14 +196,4 @@ void animate_mob(Mob *mob)
     {
         mob->state = Mob::State::STAND;
     }
-}
-
-bool animate_hit(HitEffect *hit)
-{
-    if (!animate_sprite(hit->effect))
-    {
-        hit->effect->animate = false;
-        return false;
-    }
-    return true;
 }

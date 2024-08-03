@@ -5,7 +5,6 @@ module;
 
 export module components:attack;
 
-import :playerskill;
 import :animatedsprite;
 
 export struct Attack
@@ -19,6 +18,4 @@ export struct Attack
 
     std::optional<int> x = std::nullopt;
     std::optional<int> y = std::nullopt;
-
-    Attack(PlayerSkill *pski);
 };

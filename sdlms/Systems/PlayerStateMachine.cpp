@@ -572,9 +572,20 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
 bool player_attack_afterimage(entt::entity *ent)
 {
     World::registry->emplace_or_replace<AfterImage>(*ent);
-    World::registry->remove<PlayerSkill>(Player::ent);
-    auto pski = &World::registry->emplace_or_replace<PlayerSkill>(*ent, u"1311006");
-    World::registry->emplace_or_replace<Attack>(*ent, pski);
+    auto eff = World::registry->try_get<Effect>(*ent);
+    Skill ski(u"1001005");
+    for (auto &it : ski.ski->effects)
+    {
+        eff->effects.push_back(AnimatedSprite(it));
+    }
+    auto &atk = World::registry->emplace_or_replace<Attack>(*ent);
+    auto lt = ski.ski->infos[19]->lt;
+    auto rb = ski.ski->infos[19]->rb;
+    atk.rect.x = lt.x;
+    atk.rect.y = lt.y;
+    atk.rect.w = rb.x - lt.x;
+    atk.rect.h = rb.y - lt.y;
+    atk.hit = ski.ski->hits[0];
     return true;
 }
 
