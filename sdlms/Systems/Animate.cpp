@@ -32,6 +32,13 @@ void animate_run()
             {
                 animate_effect(eff);
             }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                if (!animate_damage(dam))
+                {
+                    World::registry->remove<Damage>(ent);
+                }
+            }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
         {
@@ -196,4 +203,11 @@ void animate_mob(Mob *mob)
     {
         mob->state = Mob::State::STAND;
     }
+}
+
+bool animate_damage(Damage *dam)
+{
+    auto delta_time = Window::delta_time;
+    dam->alpha -= Window::delta_time / 4;
+    return dam->alpha > 0;
 }

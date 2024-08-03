@@ -481,10 +481,22 @@ void render_mob(Transform *tr, Mob *mob)
 
 void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
 {
-    Transform transfrom(tr->position + *head);
+    SDL_FPoint p = tr->position + *head;
     for (auto it : dam->damage)
     {
-        auto d = it % 10;
-        render_sprite(&transfrom, dam->sprs[d]);
+        int length = static_cast<int>(std::floor(std::log10(it)) + 1);
+        p.x -= length * 34 / 2;
+        int i = 0;
+        while (it > 0)
+        {
+            auto n = it % 10;
+            Transform transfrom(p);
+            transfrom.position.x += (length - i) * 34;
+            transfrom.position.y -= 25.5 - dam->alpha / 10;
+            SDL_SetTextureAlphaMod(dam->sprs[n]->texture, dam->alpha);
+            render_sprite(&transfrom, dam->sprs[n]);
+            it /= 10;
+            i++;
+        }
     }
 }
