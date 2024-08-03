@@ -15,7 +15,7 @@ void Wz::init(const std::string &filename_prefix)
     // 默认全部加载
     // Base = (new wz::File(iv, (std::string(filename_prefix) + std::string("Base.wz")).c_str()));
     Character = (new wz::File(iv, (std::string(filename_prefix) + std::string("Character.wz")).c_str()));
-    // Effect = (new wz::File(iv, (std::string(filename_prefix) + std::string("Effect.wz")).c_str()));
+    Effect = (new wz::File(iv, (std::string(filename_prefix) + std::string("Effect.wz")).c_str()));
     // Etc = (new wz::File(iv, (std::string(filename_prefix) + std::string("Etc.wz")).c_str()));
     // Item = (new wz::File(iv, (std::string(filename_prefix) + std::string("Item.wz")).c_str()));
     // List = (new wz::File(iv, (std::string(filename_prefix) + std::string("List.wz")).c_str()));
@@ -33,7 +33,7 @@ void Wz::init(const std::string &filename_prefix)
 
     // Base->parse(u"Base");
     Character->parse(u"Character");
-    // Effect->parse();
+    Effect->parse(u"Effect");
     // Etc->parse();
     // Item->parse();
     // List->parse();

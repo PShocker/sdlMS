@@ -1,5 +1,7 @@
 module;
 
+#include <SDL3/SDL.h>
+
 export module systems:render;
 
 import components;
@@ -15,3 +17,4 @@ void render_effect(Transform *tr, Effect *eff);
 void render_portal(Transform *tr, Portal *por);
 void render_npc(Transform *tr, Npc *npc);
 void render_mob(Transform *tr, Mob *mob);
+void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head);

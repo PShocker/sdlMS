@@ -115,7 +115,7 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
     if (canvas->get_child(u"head"))
     {
         auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"head"))->get();
-        head = SDL_Point{v.x, v.y};
+        head = SDL_FPoint{(float)v.x, (float)v.y};
     }
 
     // 图片原始数据,部分格式需要转换

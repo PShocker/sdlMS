@@ -39,6 +39,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     Window::create_window("sdlMS", width, height);
     Character::init();
     AfterImage::init();
+    Damage::init();
     Cursor::init();
 
     World::load_map(100000000);

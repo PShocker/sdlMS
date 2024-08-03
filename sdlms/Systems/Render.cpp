@@ -45,6 +45,12 @@ void render_run()
             {
                 render_effect(tr, eff);
             }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                auto *a = mob->a[mob->index];
+                auto sprw = a->aspr->sprites[a->anim_index];
+                render_damage(tr, dam, &sprw->head.value());
+            }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
         {
@@ -471,4 +477,14 @@ void render_npc(Transform *tr, Npc *npc)
 void render_mob(Transform *tr, Mob *mob)
 {
     render_animated_sprite(tr, mob->a[mob->index]);
+}
+
+void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
+{
+    Transform transfrom(tr->position + *head);
+    for (auto it : dam->damage)
+    {
+        auto d = it % 10;
+        render_sprite(&transfrom, dam->sprs[d]);
+    }
 }

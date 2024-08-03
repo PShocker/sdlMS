@@ -21,3 +21,4 @@ export import :mob;
 export import :attack;
 export import :hit;
 export import :effect;
+export import :damage;
