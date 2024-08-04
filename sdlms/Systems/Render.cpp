@@ -37,6 +37,17 @@ void render_run()
         else if (auto npc = World::registry->try_get<Npc>(ent))
         {
             render_npc(tr, npc);
+            if (auto eff = World::registry->try_get<Effect>(ent))
+            {
+                render_effect(tr, eff);
+            }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                auto animated = npc->a[npc->index];
+                auto spr = animated->aspr->sprites[animated->anim_index];
+                SDL_FPoint p{-(float)spr->origin.x, -(float)spr->origin.y};
+                render_damage(tr, dam, &p);
+            }
         }
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {

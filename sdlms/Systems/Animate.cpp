@@ -24,6 +24,17 @@ void animate_run()
         else if (auto npc = World::registry->try_get<Npc>(ent))
         {
             animate_npc(npc);
+            if (auto eff = World::registry->try_get<Effect>(ent))
+            {
+                animate_effect(eff);
+            }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                if (!animate_damage(dam))
+                {
+                    World::registry->remove<Damage>(ent);
+                }
+            }
         }
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
