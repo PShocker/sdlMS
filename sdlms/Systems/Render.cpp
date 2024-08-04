@@ -492,10 +492,11 @@ void render_mob(Transform *tr, Mob *mob)
 
 void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
 {
-    for (int m = 0; m < dam->damage.size(); m++)
+    for (auto it : dam->damage)
     {
+        auto &info = it;
         SDL_FPoint p = tr->position + *head;
-        auto [damage, alpha, index] = dam->damage[m];
+        auto &[damage, alpha, index] = info;
         int length = static_cast<int>(std::floor(std::log10(damage)) + 1);
         p.x -= length * 34 / 2;
         int i = 0;
