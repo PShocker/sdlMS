@@ -62,7 +62,7 @@ void attack_player(Attack *atk, Transform *player_tr)
                 hit.y = player_tr->position.y;
 
                 auto &dam = World::registry->emplace_or_replace<Damage>(ent);
-                dam.damage.push_back(123456);
+                dam.damage.push_back(std::rand() % 99 + 1);
 
                 auto eff = World::registry->try_get<Effect>(ent);
                 eff->effects.push_back(AnimatedSprite(atk->hit));
