@@ -11,6 +11,13 @@ export struct Damage
     static inline SpriteWarp *sprs[10];
     static void init();
 
-    int alpha = 255;
-    std::vector<int> damage;
+    struct Info
+    {
+        int damage;
+        int alpha;
+        int index;
+    };
+
+    // int alpha = 255;
+    std::vector<Info> damage;
 };

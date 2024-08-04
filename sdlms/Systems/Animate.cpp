@@ -30,10 +30,7 @@ void animate_run()
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
-                if (!animate_damage(dam))
-                {
-                    World::registry->remove<Damage>(ent);
-                }
+                animate_damage(dam);
             }
         }
         else if (auto mob = World::registry->try_get<Mob>(ent))
@@ -45,10 +42,7 @@ void animate_run()
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
-                if (!animate_damage(dam))
-                {
-                    World::registry->remove<Damage>(ent);
-                }
+                animate_damage(dam);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
@@ -216,9 +210,20 @@ void animate_mob(Mob *mob)
     }
 }
 
-bool animate_damage(Damage *dam)
+void animate_damage(Damage *dam)
 {
-    auto delta_time = Window::delta_time;
-    dam->alpha -= Window::delta_time / 4;
-    return dam->alpha > 0;
+    for (auto it = dam->damage.begin(); it != dam->damage.end();)
+    {
+        auto &info=it;
+        auto delta_time = Window::delta_time;
+        info->alpha -= Window::delta_time / 4;
+        if (info->alpha <= 0)
+        {
+            it = dam->damage.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }

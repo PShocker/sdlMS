@@ -60,6 +60,7 @@ void load_mob(wz::Node *node)
     mob.index = mob.a.begin()->first;
 
     World::registry->emplace<Effect>(ent);
+    World::registry->emplace<Damage>(ent);
     World::registry->emplace<Animated>(ent);
     World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + MOB_Z);
 }

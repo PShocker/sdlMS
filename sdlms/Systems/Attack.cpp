@@ -62,8 +62,8 @@ void attack_player(Attack *atk, Transform *player_tr)
                     hit.x = player_tr->position.x;
                     hit.y = player_tr->position.y;
 
-                    auto &dam = World::registry->emplace_or_replace<Damage>(ent);
-                    dam.damage.push_back(std::rand() % 99 + 1);
+                    auto dam = World::registry->try_get<Damage>(ent);
+                    dam->damage.push_back({std::rand() % 99 + 1, 255, (int)dam->damage.size()});
 
                     auto eff = World::registry->try_get<Effect>(ent);
                     eff->effects.push_back(AnimatedSprite(atk->hit));
@@ -90,8 +90,8 @@ void attack_player(Attack *atk, Transform *player_tr)
                     hit.x = player_tr->position.x;
                     hit.y = player_tr->position.y;
 
-                    auto &dam = World::registry->emplace_or_replace<Damage>(ent);
-                    dam.damage.push_back(std::rand() % 99 + 1);
+                    auto dam = World::registry->try_get<Damage>(ent);
+                    dam->damage.push_back({std::rand() % 99 + 1, 255, (int)dam->damage.size()});
 
                     auto eff = World::registry->try_get<Effect>(ent);
                     eff->effects.push_back(AnimatedSprite(atk->hit));

@@ -15,4 +15,4 @@ void animate_effect(Effect* eff);
 void animate_portal(Portal* por);
 void animate_npc(Npc* npc);
 void animate_mob(Mob* mob);
-bool animate_damage(Damage* dam);
+void animate_damage(Damage* dam);
