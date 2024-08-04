@@ -95,7 +95,6 @@ void player_statemachine(entt::entity *ent, float delta_time)
         if (!player_attacking(mv, cha, tr, ent, delta_time))
         {
             player_statemachine(ent, 0);
-            return;
         }
     }
     break;
