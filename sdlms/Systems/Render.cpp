@@ -496,19 +496,18 @@ void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
     {
         auto &info = it;
         SDL_FPoint p = tr->position + *head;
-        auto &[damage, alpha, index] = info;
-        int length = static_cast<int>(std::floor(std::log10(damage)) + 1);
+        int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
         p.x -= length * 34 / 2;
         int i = 0;
-        while (damage > 0)
+        while (info.damage > 0)
         {
-            auto n = damage % 10;
+            auto n = info.damage % 10;
             Transform transfrom(p);
             transfrom.position.x += (length - i) * 34;
-            transfrom.position.y -= 25.5 - alpha / 10 + index * 38;
-            SDL_SetTextureAlphaMod(dam->sprs[n]->texture, alpha);
+            transfrom.position.y -= 25.5 - info.alpha / 10 + info.index * 38;
+            SDL_SetTextureAlphaMod(dam->sprs[n]->texture, info.alpha);
             render_sprite(&transfrom, dam->sprs[n]);
-            damage /= 10;
+            info.damage /= 10;
             i++;
         }
     }
