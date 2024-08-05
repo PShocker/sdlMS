@@ -204,9 +204,19 @@ void animate_npc(Npc *npc)
 
 void animate_mob(Mob *mob)
 {
-    if (!animate_sprite(mob->a[mob->index]) && mob->state == Mob::State::HIT)
+    if (mob->state != Mob::State::REMOVE)
     {
-        mob->state = Mob::State::STAND;
+        if (!animate_sprite(mob->a[mob->index]))
+        {
+            if (mob->state == Mob::State::HIT)
+            {
+                mob->state = Mob::State::STAND;
+            }
+            else if (mob->state == Mob::State::DIE)
+            {
+                mob->state = Mob::State::REMOVE;
+            }
+        }
     }
 }
 
@@ -214,7 +224,7 @@ void animate_damage(Damage *dam)
 {
     for (auto it = dam->damage.begin(); it != dam->damage.end();)
     {
-        auto &info=it;
+        auto &info = it;
         auto delta_time = Window::delta_time;
         info->alpha -= Window::delta_time / 4;
         if (info->alpha <= 0)

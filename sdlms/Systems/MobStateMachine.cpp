@@ -14,9 +14,14 @@ void mob_statemachine_run()
     auto view = World::registry->view<Mob>();
     for (auto ent : view)
     {
+        auto mob = World::registry->try_get<Mob>(ent);
+        if (mob->state == Mob::State::REMOVE)
+        {
+            continue;
+        }
         if (auto hit = World::registry->try_get<Hit>(ent))
         {
-            mob_hit(World::registry->try_get<Mob>(ent), World::registry->try_get<Transform>(ent), hit, World::registry->try_get<Move>(ent));
+            mob_hit(&ent);
             World::registry->remove<Hit>(ent);
         }
         mob_statemachine(&ent, (float)Window::delta_time / 1000);
@@ -44,6 +49,10 @@ void mob_statemachine(entt::entity *ent, float delta_time)
     }
     break;
     case Mob::State::HIT:
+    {
+    }
+    break;
+    case Mob::State::DIE:
     {
     }
     break;
@@ -210,24 +219,40 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
     }
 }
 
-void mob_hit(Mob *mob, Transform *tr, Hit *hit, Move *mv)
+bool mob_hit(entt::entity *ent)
 {
-    mob->state = Mob::State::HIT;
-    mob->index = u"hit1";
+    auto mv = World::registry->try_get<Move>(*ent);
+    auto tr = World::registry->try_get<Transform>(*ent);
+    auto mob = World::registry->try_get<Mob>(*ent);
+    auto hit = World::registry->try_get<Hit>(*ent);
 
-    // 获取玩家位置,并让怪物转身和后退
-    auto hit_x = hit->x;
-    auto mob_x = tr->position.x;
-    if (mob_x < hit_x)
+    mob->hp -= hit->damage;
+    if (mob->hp > 0)
     {
-        tr->flip = 1;
-        mv->hspeed = mv->hspeed_min.value();
-        mob_move(mob, mv, tr, mob->state, 0.15);
+        mob->state = Mob::State::HIT;
+        mob->index = u"hit1";
+
+        // 获取玩家位置,并让怪物转身和后退
+        auto hit_x = hit->x;
+        auto mob_x = tr->position.x;
+        if (mob_x < hit_x)
+        {
+            tr->flip = 1;
+            mv->hspeed = mv->hspeed_min.value();
+            mob_move(mob, mv, tr, mob->state, 0.15);
+        }
+        else if (mob_x > hit_x)
+        {
+            tr->flip = 0;
+            mv->hspeed = mv->hspeed_max.value();
+            mob_move(mob, mv, tr, mob->state, 0.15);
+        }
     }
-    else if (mob_x > hit_x)
+    else
     {
-        tr->flip = 0;
-        mv->hspeed = mv->hspeed_max.value();
-        mob_move(mob, mv, tr, mob->state, 0.15);
+        mob->state = Mob::State::DIE;
+        mob->index = u"die1";
+        return false;
     }
+    return true;
 }

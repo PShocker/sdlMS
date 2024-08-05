@@ -51,16 +51,19 @@ void render_run()
         }
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
-            render_mob(tr, mob);
-            if (auto eff = World::registry->try_get<Effect>(ent))
+            if (mob->state != Mob::State::REMOVE)
             {
-                render_effect(tr, eff);
-            }
-            if (auto dam = World::registry->try_get<Damage>(ent))
-            {
-                auto *a = mob->a[mob->index];
-                auto sprw = a->aspr->sprites[a->anim_index];
-                render_damage(tr, dam, &sprw->head.value());
+                render_mob(tr, mob);
+                if (auto eff = World::registry->try_get<Effect>(ent))
+                {
+                    render_effect(tr, eff);
+                }
+                if (auto dam = World::registry->try_get<Damage>(ent))
+                {
+                    auto *a = mob->a[mob->index];
+                    auto sprw = a->aspr->sprites[a->anim_index];
+                    render_damage(tr, dam, &sprw->head.value());
+                }
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))

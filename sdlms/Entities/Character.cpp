@@ -27,6 +27,7 @@ entt::entity *load_character()
 
     World::registry->emplace<Animated>(Player::ent);
     World::registry->emplace<Effect>(Player::ent);
+    World::registry->emplace<Damage>(Player::ent);
 
     World::zindex = true;
     return &Player::ent;
