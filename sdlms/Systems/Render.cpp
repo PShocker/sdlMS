@@ -3,7 +3,6 @@ module;
 #include <SDL3/SDL.h>
 #include <math.h>
 #include "entt/entt.hpp"
-#include <variant>
 
 module systems;
 
@@ -43,10 +42,7 @@ void render_run()
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
-                auto animated = npc->a[npc->index];
-                auto spr = animated->aspr->sprites[animated->anim_index];
-                SDL_FPoint p{-(float)spr->origin.x, -(float)spr->origin.y};
-                render_damage(tr, dam, &p);
+                render_damage(tr, dam, dam->head);
             }
         }
         else if (auto mob = World::registry->try_get<Mob>(ent))
@@ -60,9 +56,7 @@ void render_run()
                 }
                 if (auto dam = World::registry->try_get<Damage>(ent))
                 {
-                    auto *a = mob->a[mob->index];
-                    auto sprw = a->aspr->sprites[a->anim_index];
-                    render_damage(tr, dam, &sprw->head.value());
+                    render_damage(tr, dam, dam->head);
                 }
             }
         }

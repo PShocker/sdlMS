@@ -133,6 +133,7 @@ void attack_mob(Attack *atk, Transform *tr, Mob *mob, SDL_FRect *atk_rect, SDL_F
 
         auto dam = World::registry->try_get<Damage>(*ent);
         dam->damage.push_back({damage, 255, (int)dam->damage.size()});
+        dam->head = &spr->head.value();
 
         auto eff = World::registry->try_get<Effect>(*ent);
         eff->effects.push_back(AnimatedSprite(atk->hit));
@@ -160,6 +161,7 @@ void attack_npc(Attack *atk, Transform *tr, Npc *npc, SDL_FRect *atk_rect, SDL_F
 
         auto dam = World::registry->try_get<Damage>(*ent);
         dam->damage.push_back({damage, 255, (int)dam->damage.size()});
+        dam->head = &spr->head.value();
 
         auto eff = World::registry->try_get<Effect>(*ent);
         eff->effects.push_back(AnimatedSprite(atk->hit));
