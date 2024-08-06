@@ -61,6 +61,7 @@ bool mob_collision(Mob *mob, Transform *m_tr)
         Attack atk;
         atk.damage = 100;
         atk.hit = nullptr;
+        atk.p = &m_tr->position;
         hit_effect(&atk, nullptr, &Player::ent, 1);
         return true;
     }

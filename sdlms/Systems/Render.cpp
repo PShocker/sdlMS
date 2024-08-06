@@ -550,7 +550,9 @@ void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a)
     if (p_tr->z < tr->z)
     {
         SDL_FRect r{tr->position.x - sprw->origin.x, tr->position.y - sprw->origin.y, (float)sprw->width, (float)sprw->height};
-        if (SDL_PointInRectFloat(&p_tr->position, &r))
+        SDL_FPoint p = p_tr->position;
+        p.y -= 5;
+        if (SDL_PointInRectFloat(&p, &r))
         {
             SDL_SetTextureAlphaMod(sprw->texture, a->alpha * 0.5);
         }
