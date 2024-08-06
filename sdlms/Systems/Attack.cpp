@@ -13,8 +13,7 @@ void attack_run()
     if (auto atk = World::registry->try_get<Attack>(Player::ent))
     {
         atk->damage = std::rand() % 99 + 1;
-        auto tr = World::registry->try_get<Transform>(Player::ent);
-        player_attack(atk, tr);
+        player_attack(atk);
         World::registry->remove<Attack>(Player::ent);
     }
     auto view = World::registry->view<Mob>();
@@ -28,140 +27,166 @@ void attack_run()
     }
 }
 
-void player_attack(Attack *atk, Transform *tr)
+void player_attack(Attack *atk)
 {
-    if (atk->x == std::nullopt && atk->y == std::nullopt)
+    auto view = World::registry->view<Damage>();
+    for (auto ent : view)
     {
-        auto atk_rect = atk->rect;
-        atk_rect.x += tr->position.x;
-        atk_rect.y += tr->position.y;
-        if (tr->flip == 1)
+        if (auto mob = World::registry->try_get<Mob>(ent))
         {
-            atk_rect.x += 2 * (tr->position.x - atk_rect.x) - atk_rect.w;
+            if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+            {
+                attack_mob(atk, mob, &ent);
+            }
         }
-        auto view = World::registry->view<Damage>();
-        for (auto ent : view)
+        else if (auto npc = World::registry->try_get<Npc>(ent))
         {
-            if (auto mob = World::registry->try_get<Mob>(ent))
-            {
-                if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
-                {
-                    attack_mob(atk, World::registry->try_get<Transform>(ent), mob, &atk_rect, &tr->position, &ent);
-                }
-            }
-            else if (auto npc = World::registry->try_get<Npc>(ent))
-            {
-                attack_npc(atk, World::registry->try_get<Transform>(ent), npc, &atk_rect, &tr->position, &ent);
-            }
+            attack_npc(atk, npc, &ent);
         }
     }
 }
 
-void mob_collision(Mob *mob, Transform *tr)
+void mob_collision(Mob *mob, Transform *m_tr)
 {
     auto animated = mob->a[mob->index];
-    auto spr = animated->aspr->sprites[animated->anim_index];
-    auto lt = spr->lt.value();
-    auto rb = spr->rb.value();
-    SDL_FRect rect;
-    rect.x = lt.x;
-    rect.y = lt.y;
-    rect.w = rb.x - lt.x;
-    rect.h = rb.y - lt.y;
-    rect.x += tr->position.x;
-    rect.y += tr->position.y;
-    if (tr->flip == 1)
+    auto sprw = animated->aspr->sprites[animated->anim_index];
+
+    if (collision(sprw, m_tr))
     {
-        rect.x += 2 * (tr->position.x - rect.x) - rect.w;
-    }
-
-    auto player_transform = World::registry->try_get<Transform>(Player::ent);
-    auto player_character = World::registry->try_get<Character>(Player::ent);
-
-    SDL_FRect rect1;
-    rect1.x = player_character->lt.x;
-    rect1.y = player_character->lt.y;
-    rect1.w = player_character->rb.x - player_character->lt.x;
-    rect1.h = player_character->rb.y - player_character->lt.y;
-    rect1.x += player_transform->position.x;
-    rect1.y += player_transform->position.y;
-    if (player_transform->flip == 1)
-    {
-        rect1.x += 2 * (player_transform->position.x - rect1.x) - rect1.w;
-    }
-    SDL_FRect intersection;
-    if (SDL_GetRectIntersectionFloat(&rect, &rect1, &intersection))
-    {
-        auto damage = mob->damage;
-
-        auto &hit = World::registry->emplace_or_replace<Hit>(Player::ent);
-        hit.x = tr->position.x;
-        hit.y = tr->position.y;
-        hit.damage = damage;
-
-        auto dam = World::registry->try_get<Damage>(Player::ent);
-        dam->damage.push_back({damage, 255, (int)dam->damage.size()});
+        Attack atk;
+        hit_effect(&atk, &Player::ent);
     }
 }
 
-void attack_mob(Attack *atk, Transform *tr, Mob *mob, SDL_FRect *atk_rect, SDL_FPoint *pos, entt::entity *ent)
+void attack_mob(Attack *atk, Mob *mob, entt::entity *ent)
 {
     auto animated = mob->a[mob->index];
-    auto spr = animated->aspr->sprites[animated->anim_index];
-    auto lt = spr->lt.value();
-    auto rb = spr->rb.value();
-    SDL_FRect rect;
-    rect.x = lt.x;
-    rect.y = lt.y;
-    rect.w = rb.x - lt.x;
-    rect.h = rb.y - lt.y;
-    rect.x += tr->position.x;
-    rect.y += tr->position.y;
-    if (tr->flip == 1)
+    auto m_spr = animated->aspr->sprites[animated->anim_index];
+
+    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+    auto m_tr = World::registry->try_get<Transform>(*ent);
+
+    if (collision(m_spr, m_tr, atk, p_tr))
     {
-        rect.x += 2 * (tr->position.x - rect.x) - rect.w;
-    }
-    SDL_FRect intersection;
-    if (SDL_GetRectIntersectionFloat(&rect, atk_rect, &intersection))
-    {
-        auto damage = std::max(atk->damage - mob->def, 1);
-
-        auto &hit = World::registry->emplace_or_replace<Hit>(*ent);
-        hit.x = pos->x;
-        hit.y = pos->y;
-        hit.damage = damage;
-
-        auto dam = World::registry->try_get<Damage>(*ent);
-        dam->damage.push_back({damage, 255, (int)dam->damage.size()});
-
-        auto eff = World::registry->try_get<Effect>(*ent);
-        eff->effects.push_back(AnimatedSprite(atk->hit));
+        hit_effect(atk, ent);
     }
 }
 
-void attack_npc(Attack *atk, Transform *tr, Npc *npc, SDL_FRect *atk_rect, SDL_FPoint *pos, entt::entity *ent)
+void attack_npc(Attack *atk, Npc *npc, entt::entity *ent)
 {
     auto animated = npc->a[npc->index];
-    auto spr = animated->aspr->sprites[animated->anim_index];
-    SDL_FRect rect;
-    rect.x = tr->position.x;
-    rect.y = tr->position.y;
-    rect.w = spr->width;
-    rect.h = spr->height;
-    SDL_FRect intersection;
-    if (SDL_GetRectIntersectionFloat(&rect, atk_rect, &intersection))
+    auto n_spr = animated->aspr->sprites[animated->anim_index];
+
+    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+    auto n_tr = World::registry->try_get<Transform>(*ent);
+
+    if (collision(n_spr, n_tr, atk, p_tr))
     {
-        auto damage = atk->damage;
-
-        auto &hit = World::registry->emplace_or_replace<Hit>(*ent);
-        hit.x = pos->x;
-        hit.y = pos->y;
-        hit.damage = damage;
-
-        auto dam = World::registry->try_get<Damage>(*ent);
-        dam->damage.push_back({damage, 255, (int)dam->damage.size()});
-
-        auto eff = World::registry->try_get<Effect>(*ent);
-        eff->effects.push_back(AnimatedSprite(atk->hit));
+        hit_effect(atk, ent);
     }
+}
+
+bool collision(SpriteWarp *m_spr, Transform *m_tr, Attack *atk, Transform *p_tr)
+{
+    auto lt = m_spr->lt;
+    auto rb = m_spr->rb;
+    SDL_FRect m;
+    if (lt.has_value() && rb.has_value())
+    {
+        m.x = lt.value().x;
+        m.y = lt.value().y;
+        m.w = rb.value().x - lt.value().x;
+        m.h = rb.value().y - lt.value().y;
+        m.x += m_tr->position.x;
+        m.y += m_tr->position.y;
+    }
+    else
+    {
+        m.x = m_tr->position.x;
+        m.y = m_tr->position.y;
+        m.w = m_spr->width;
+        m.h = m_spr->height;
+    }
+    if (m_tr->flip == 1)
+    {
+        m.x += 2 * (m_tr->position.x - m.x) - m.w;
+    }
+
+    SDL_FRect n = atk->rect;
+    n.x += p_tr->position.x;
+    n.y += p_tr->position.y;
+    if (p_tr->flip == 1)
+    {
+        n.x += 2 * (p_tr->position.x - n.x) - n.w;
+    }
+    SDL_FRect intersection;
+    if (SDL_GetRectIntersectionFloat(&m, &n, &intersection))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool collision(SpriteWarp *m_spr, Transform *m_tr)
+{
+    auto lt = m_spr->lt;
+    auto rb = m_spr->rb;
+    SDL_FRect m;
+    if (lt.has_value() && rb.has_value())
+    {
+        m.x = lt.value().x;
+        m.y = lt.value().y;
+        m.w = rb.value().x - lt.value().x;
+        m.h = rb.value().y - lt.value().y;
+        m.x += m_tr->position.x;
+        m.y += m_tr->position.y;
+    }
+    else
+    {
+        m.x = m_tr->position.x;
+        m.y = m_tr->position.y;
+        m.w = m_spr->width;
+        m.h = m_spr->height;
+    }
+    if (m_tr->flip == 1)
+    {
+        m.x += 2 * (m_tr->position.x - m.x) - m.w;
+    }
+
+    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+    auto p_cha = World::registry->try_get<Character>(Player::ent);
+
+    SDL_FRect n;
+    n.x = p_cha->lt.x;
+    n.y = p_cha->lt.y;
+    n.w = p_cha->rb.x - p_cha->lt.x;
+    n.h = p_cha->rb.y - p_cha->lt.y;
+    n.x += p_tr->position.x;
+    n.y += p_tr->position.y;
+    if (p_tr->flip == 1)
+    {
+        n.x += 2 * (p_tr->position.x - n.x) - n.w;
+    }
+    SDL_FRect intersection;
+    if (SDL_GetRectIntersectionFloat(&m, &n, &intersection))
+    {
+        return true;
+    }
+    return false;
+}
+
+void hit_effect(Attack *atk, entt::entity *ent)
+{
+    auto damage = atk->damage;
+
+    auto &hit = World::registry->emplace_or_replace<Hit>(*ent);
+    hit.x = atk->p->x;
+    hit.y = atk->p->y;
+    hit.damage = damage;
+
+    auto dam = World::registry->try_get<Damage>(*ent);
+    dam->damage.push_back({damage, 255, (int)dam->damage.size()});
+
+    auto eff = World::registry->try_get<Effect>(*ent);
+    eff->effects.push_back(AnimatedSprite(atk->hit));
 }

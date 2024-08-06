@@ -1,7 +1,6 @@
 module;
 
 #include <SDL3/SDL.h>
-#include <optional>
 
 export module components:attack;
 
@@ -16,6 +15,6 @@ export struct Attack
 
     AnimatedSpriteWarp *hit;
 
-    std::optional<int> x = std::nullopt;
-    std::optional<int> y = std::nullopt;
+    // 攻击源的坐标
+    SDL_FPoint *p;
 };

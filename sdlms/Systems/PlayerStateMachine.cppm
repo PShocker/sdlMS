@@ -41,3 +41,5 @@ export int player_alert_cooldown = 0;
 void player_cooldown(int delta_time);
 
 bool player_alert();
+
+bool player_hit();

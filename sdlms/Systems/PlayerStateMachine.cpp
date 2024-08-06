@@ -586,6 +586,7 @@ bool player_attack_afterimage(entt::entity *ent)
     atk.rect.w = rb.x - lt.x;
     atk.rect.h = rb.y - lt.y;
     atk.hit = ski.ski->hits[0];
+    atk.p = &World::registry->try_get<Transform>(Player::ent)->position;
     return true;
 }
 
@@ -812,6 +813,11 @@ void player_cooldown(int delta_time)
 bool player_alert()
 {
     return player_alert_cooldown > 0;
+}
+
+bool player_hit()
+{
+    return false;
 }
 
 void player_portal(entt::entity *ent)

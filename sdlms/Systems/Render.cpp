@@ -24,7 +24,7 @@ void render_run()
         }
         else if (auto a = World::registry->try_get<AnimatedSprite>(ent))
         {
-            render_animated_sprite(tr, a);
+            render_animated_sprite_alpha(tr, a);
         }
         else if (auto bspr = World::registry->try_get<BackGround>(ent))
         {
@@ -514,4 +514,27 @@ void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
             i++;
         }
     }
+}
+
+void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a)
+{
+    auto sprw = a->aspr->sprites[a->anim_index];
+    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+    if (p_tr->z < tr->z)
+    {
+        SDL_FRect r{tr->position.x - sprw->origin.x, tr->position.y - sprw->origin.y, (float)sprw->width, (float)sprw->height};
+        if (SDL_PointInRectFloat(&p_tr->position, &r))
+        {
+            SDL_SetTextureAlphaMod(sprw->texture, a->alpha * 0.5);
+        }
+        else
+        {
+            SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
+        }
+    }
+    else
+    {
+        SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
+    }
+    render_sprite(tr, sprw);
 }
