@@ -54,7 +54,8 @@ void mob_collision(Mob *mob, Transform *m_tr)
     if (collision(sprw, m_tr))
     {
         Attack atk;
-        hit_effect(&atk, &Player::ent);
+        const SDL_FPoint head{0, -10};
+        hit_effect(&atk, (SDL_FPoint *)&head, &Player::ent);
     }
 }
 
@@ -68,7 +69,7 @@ void attack_mob(Attack *atk, Mob *mob, entt::entity *ent)
 
     if (collision(m_spr, m_tr, atk, p_tr))
     {
-        hit_effect(atk, ent);
+        hit_effect(atk, &m_spr->head.value(), ent);
     }
 }
 
@@ -82,7 +83,7 @@ void attack_npc(Attack *atk, Npc *npc, entt::entity *ent)
 
     if (collision(n_spr, n_tr, atk, p_tr))
     {
-        hit_effect(atk, ent);
+        hit_effect(atk, &n_spr->head.value(), ent);
     }
 }
 
@@ -175,7 +176,7 @@ bool collision(SpriteWarp *m_spr, Transform *m_tr)
     return false;
 }
 
-void hit_effect(Attack *atk, entt::entity *ent)
+void hit_effect(Attack *atk, SDL_FPoint *head, entt::entity *ent)
 {
     auto damage = atk->damage;
 
@@ -186,6 +187,7 @@ void hit_effect(Attack *atk, entt::entity *ent)
 
     auto dam = World::registry->try_get<Damage>(*ent);
     dam->damage.push_back({damage, 255, (int)dam->damage.size()});
+    dam->head = head;
 
     auto eff = World::registry->try_get<Effect>(*ent);
     eff->effects.push_back(AnimatedSprite(atk->hit));

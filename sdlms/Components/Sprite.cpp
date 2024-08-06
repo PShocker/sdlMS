@@ -117,6 +117,10 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
         auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"head"))->get();
         head = SDL_FPoint{(float)v.x, (float)v.y};
     }
+    else
+    {
+        head = SDL_FPoint{(float)-ox, (float)-oy};
+    }
 
     // 图片原始数据,部分格式需要转换
     std::vector<uint8_t> pixel;

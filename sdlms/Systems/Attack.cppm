@@ -19,7 +19,7 @@ void attack_npc(Attack *atk, Npc *npc, entt::entity *ent);
 
 bool collision(SpriteWarp *m_spr, Transform *m_tr, Attack *n_atk, Transform *n_tr);
 
-//怪物与人物碰撞
+// 怪物与人物碰撞
 bool collision(SpriteWarp *m_spr, Transform *m_tr);
 
-void hit_effect(Attack *atk,entt::entity *ent);
+void hit_effect(Attack *atk, SDL_FPoint *head, entt::entity *ent);
