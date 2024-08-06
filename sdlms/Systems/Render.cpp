@@ -76,12 +76,6 @@ void render_run()
             {
                 render_damage(tr, dam, dam->head);
             }
-            // SDL_FRect rect;
-            // rect.x = cha->r.x + tr->position.x - Camera::x;
-            // rect.y = cha->r.y + tr->position.y - Camera::y;
-            // rect.w = cha->r.w;
-            // rect.h = cha->r.h;
-            // SDL_RenderFillRect(Window::renderer, &rect); // 绘制填充矩形
         }
     }
 }
