@@ -17,6 +17,11 @@ void player_statemachine_run()
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
         player_cooldown(Window::delta_time);
+        if (auto hit = World::registry->try_get<Hit>(ent))
+        {
+            player_hit(&ent);
+            World::registry->remove<Hit>(ent);
+        }
         player_statemachine(&ent, (float)Window::delta_time / 1000);
     }
 }
@@ -573,7 +578,7 @@ bool player_attack_afterimage(entt::entity *ent)
 {
     World::registry->emplace_or_replace<AfterImage>(*ent);
     auto eff = World::registry->try_get<Effect>(*ent);
-    Skill ski(u"1001005");
+    Skill ski(u"1311006");
     for (auto &it : ski.ski->effects)
     {
         eff->effects.push_back(AnimatedSprite(it));
@@ -808,6 +813,10 @@ void player_cooldown(int delta_time)
     {
         player_alert_cooldown -= delta_time;
     }
+    if (player_invincible_cooldown > 0)
+    {
+        player_invincible_cooldown -= delta_time;
+    }
 }
 
 bool player_alert()
@@ -815,8 +824,9 @@ bool player_alert()
     return player_alert_cooldown > 0;
 }
 
-bool player_hit()
+bool player_hit(entt::entity *ent)
 {
+    player_invincible_cooldown = 2000;
     return false;
 }
 

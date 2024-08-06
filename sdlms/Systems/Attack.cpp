@@ -16,13 +16,19 @@ void attack_run()
         player_attack(atk);
         World::registry->remove<Attack>(Player::ent);
     }
-    auto view = World::registry->view<Mob>();
-    for (auto &ent : view)
+    if (player_invincible_cooldown <= 0)
     {
-        auto mob = &view.get<Mob>(ent);
-        if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+        auto view = World::registry->view<Mob>();
+        for (auto &ent : view)
         {
-            mob_collision(mob, World::registry->try_get<Transform>(ent));
+            auto mob = &view.get<Mob>(ent);
+            if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+            {
+                if (mob_collision(mob, World::registry->try_get<Transform>(ent)))
+                {
+                    return;
+                }
+            }
         }
     }
 }
@@ -46,16 +52,19 @@ void player_attack(Attack *atk)
     }
 }
 
-void mob_collision(Mob *mob, Transform *m_tr)
+bool mob_collision(Mob *mob, Transform *m_tr)
 {
     auto animated = mob->a[mob->index];
     auto sprw = animated->aspr->sprites[animated->anim_index];
-
     if (collision(sprw, m_tr))
     {
         Attack atk;
-        hit_effect(&atk, nullptr, &Player::ent);
+        atk.damage = 100;
+        atk.hit = nullptr;
+        hit_effect(&atk, nullptr, &Player::ent, 1);
+        return true;
     }
+    return false;
 }
 
 void attack_mob(Attack *atk, Mob *mob, entt::entity *ent)
@@ -68,7 +77,7 @@ void attack_mob(Attack *atk, Mob *mob, entt::entity *ent)
 
     if (collision(m_spr, m_tr, atk, p_tr))
     {
-        hit_effect(atk, &m_spr->head.value(), ent);
+        hit_effect(atk, &m_spr->head.value(), ent, 0);
     }
 }
 
@@ -82,7 +91,7 @@ void attack_npc(Attack *atk, Npc *npc, entt::entity *ent)
 
     if (collision(n_spr, n_tr, atk, p_tr))
     {
-        hit_effect(atk, &n_spr->head.value(), ent);
+        hit_effect(atk, &n_spr->head.value(), ent, 0);
     }
 }
 
@@ -156,11 +165,7 @@ bool collision(SpriteWarp *m_spr, Transform *m_tr)
     auto p_tr = World::registry->try_get<Transform>(Player::ent);
     auto p_cha = World::registry->try_get<Character>(Player::ent);
 
-    SDL_FRect n;
-    n.x = p_cha->lt.x;
-    n.y = p_cha->lt.y;
-    n.w = p_cha->rb.x - p_cha->lt.x;
-    n.h = p_cha->rb.y - p_cha->lt.y;
+    SDL_FRect n = p_cha->r;
     n.x += p_tr->position.x;
     n.y += p_tr->position.y;
     if (p_tr->flip == 1)
@@ -175,7 +180,7 @@ bool collision(SpriteWarp *m_spr, Transform *m_tr)
     return false;
 }
 
-void hit_effect(Attack *atk, SDL_FPoint *head, entt::entity *ent)
+void hit_effect(Attack *atk, SDL_FPoint *head, entt::entity *ent, char type)
 {
     auto damage = atk->damage;
 
@@ -185,9 +190,12 @@ void hit_effect(Attack *atk, SDL_FPoint *head, entt::entity *ent)
     hit.damage = damage;
 
     auto dam = World::registry->try_get<Damage>(*ent);
-    dam->damage.push_back({damage, 255, (int)dam->damage.size()});
+    dam->damage.push_back({damage, 255, (int)dam->damage.size(), type});
     dam->head = head;
 
-    auto eff = World::registry->try_get<Effect>(*ent);
-    eff->effects.push_back(AnimatedSprite(atk->hit));
+    if (atk->hit)
+    {
+        auto eff = World::registry->try_get<Effect>(*ent);
+        eff->effects.push_back(AnimatedSprite(atk->hit));
+    }
 }

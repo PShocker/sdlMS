@@ -37,9 +37,10 @@ void player_portal(entt::entity *ent);
 export int player_foothold_cooldown = 0;
 export int player_portal_cooldown = 0;
 export int player_alert_cooldown = 0;
+export int player_invincible_cooldown = 0;
 
 void player_cooldown(int delta_time);
 
 bool player_alert();
 
-bool player_hit();
+bool player_hit(entt::entity *ent);

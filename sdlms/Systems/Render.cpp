@@ -72,6 +72,16 @@ void render_run()
             {
                 render_effect(tr, eff);
             }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                render_damage(tr, dam, dam->head);
+            }
+            // SDL_FRect rect;
+            // rect.x = cha->r.x + tr->position.x - Camera::x;
+            // rect.y = cha->r.y + tr->position.y - Camera::y;
+            // rect.w = cha->r.w;
+            // rect.h = cha->r.h;
+            // SDL_RenderFillRect(Window::renderer, &rect); // 绘制填充矩形
         }
     }
 }
@@ -498,6 +508,11 @@ void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
         {
             p = p + *head;
         }
+        else
+        {
+            p.x -= 10;
+            p.y -= 60;
+        }
         int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
         p.x -= length * 34 / 2;
         int i = 0;
@@ -507,8 +522,27 @@ void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
             Transform transfrom(p);
             transfrom.position.x += (length - i) * 34;
             transfrom.position.y -= 25.5 - info.alpha / 10 + info.index * 38;
-            SDL_SetTextureAlphaMod(dam->sprs[n]->texture, info.alpha);
-            render_sprite(&transfrom, dam->sprs[n]);
+            switch (info.type)
+            {
+            case 0:
+                SDL_SetTextureAlphaMod(dam->red[n]->texture, info.alpha);
+                render_sprite(&transfrom, dam->red[n]);
+                break;
+            case 1:
+                SDL_SetTextureAlphaMod(dam->violet[n]->texture, info.alpha);
+                render_sprite(&transfrom, dam->violet[n]);
+                break;
+            case 2:
+                SDL_SetTextureAlphaMod(dam->cri[n]->texture, info.alpha);
+                render_sprite(&transfrom, dam->cri[n]);
+                break;
+            case 3:
+                SDL_SetTextureAlphaMod(dam->blue[n]->texture, info.alpha);
+                render_sprite(&transfrom, dam->blue[n]);
+                break;
+            default:
+                break;
+            }
             info.damage /= 10;
             i++;
         }

@@ -329,8 +329,7 @@ export struct Character
     Character();
     static void init();
 
-    SDL_Point lt = {-20, 20};
-    SDL_Point rb = {20, 20};
+    SDL_FRect r{-20, -60, 30, 60};
 
     // 状态机
     struct State

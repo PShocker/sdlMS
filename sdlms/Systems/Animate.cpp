@@ -60,6 +60,10 @@ void animate_run()
             {
                 animate_effect(eff);
             }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                animate_damage(dam);
+            }
         }
     }
 }

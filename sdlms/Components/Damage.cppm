@@ -9,7 +9,10 @@ import :sprite;
 
 export struct Damage
 {
-    static inline SpriteWarp *sprs[10];
+    static inline SpriteWarp *red[10];
+    static inline SpriteWarp *violet[10];
+    static inline SpriteWarp *cri[10];
+    static inline SpriteWarp *blue[10];
     static void init();
 
     struct Info
@@ -17,6 +20,7 @@ export struct Damage
         int damage;
         int alpha;
         int index;
+        char type; // 0:red,1:violet,2:cri,3:blue
     };
 
     // int alpha = 255;
