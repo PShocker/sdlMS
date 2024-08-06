@@ -74,11 +74,8 @@ void fix_portal()
     for (auto &e : view)
     {
         auto por = &view.get<Portal>(e);
-        if (por->tm == Map::id)
-        {
-            auto tr = World::registry->try_get<Transform>(e);
-            pors[por->pn] = SDL_FPoint{tr->position.x, tr->position.y};
-        }
+        auto tr = World::registry->try_get<Transform>(e);
+        pors[por->pn] = SDL_FPoint{tr->position.x, tr->position.y};
     }
     for (auto &e : view)
     {
