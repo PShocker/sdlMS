@@ -493,7 +493,11 @@ void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
     for (auto it : dam->damage)
     {
         auto &info = it;
-        SDL_FPoint p = tr->position + *head;
+        SDL_FPoint p = tr->position;
+        if (head)
+        {
+            p = p + *head;
+        }
         int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
         p.x -= length * 34 / 2;
         int i = 0;

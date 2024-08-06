@@ -54,8 +54,7 @@ void mob_collision(Mob *mob, Transform *m_tr)
     if (collision(sprw, m_tr))
     {
         Attack atk;
-        const SDL_FPoint head{0, -10};
-        hit_effect(&atk, (SDL_FPoint *)&head, &Player::ent);
+        hit_effect(&atk, nullptr, &Player::ent);
     }
 }
 
