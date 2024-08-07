@@ -54,6 +54,11 @@ void player_statemachine(entt::entity *ent, float delta_time)
         {
             cha->state = Character::State::JUMP;
         }
+        if (player_skill(mv, cha, tr, cha->state, ent))
+        {
+            cha->state = Character::State::SKILL;
+            break;
+        }
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
@@ -76,6 +81,11 @@ void player_statemachine(entt::entity *ent, float delta_time)
         {
             cha->state = Character::State::JUMP;
         }
+        if (player_skill(mv, cha, tr, cha->state, ent))
+        {
+            cha->state = Character::State::SKILL;
+            break;
+        }
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
@@ -92,12 +102,25 @@ void player_statemachine(entt::entity *ent, float delta_time)
             cha->state = Character::State::CLIMB;
             break;
         }
+        if (player_skill(mv, cha, tr, cha->state, ent))
+        {
+            cha->state = Character::State::SKILL;
+            break;
+        }
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
     case Character::State::ATTACK:
     {
         if (!player_attacking(mv, cha, tr, ent, delta_time))
+        {
+            player_statemachine(ent, 0);
+        }
+    }
+    break;
+    case Character::State::SKILL:
+    {
+        if (!player_skilling(mv, cha, tr, ent, delta_time))
         {
             player_statemachine(ent, 0);
         }
@@ -526,7 +549,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             mv->hspeed = 0;
         }
         // add afterimg
-        player_attack_afterimage(ent);
+        World::registry->emplace_or_replace<AfterImage>(*ent);
 
         state = Character::State::ATTACK;
         player_alert_cooldown = 4000;
@@ -571,27 +594,6 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
             return false;
         }
     }
-    return true;
-}
-
-bool player_attack_afterimage(entt::entity *ent)
-{
-    World::registry->emplace_or_replace<AfterImage>(*ent);
-    auto eff = World::registry->try_get<Effect>(*ent);
-    Skill ski(u"1311006");
-    for (auto &it : ski.ski->effects)
-    {
-        eff->effects.push_back(AnimatedSprite(it));
-    }
-    auto &atk = World::registry->emplace_or_replace<Attack>(*ent);
-    auto lt = ski.ski->infos[19]->lt;
-    auto rb = ski.ski->infos[19]->rb;
-    atk.rect.x = lt.x;
-    atk.rect.y = lt.y;
-    atk.rect.w = rb.x - lt.x;
-    atk.rect.h = rb.y - lt.y;
-    atk.hit = ski.ski->hits[0];
-    atk.p = &World::registry->try_get<Transform>(Player::ent)->position;
     return true;
 }
 
@@ -754,6 +756,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         case Character::State::JUMP:
             action = Character::ACTION::JUMP;
             break;
+        case Character::State::SKILL:
         case Character::State::ATTACK:
         {
             int random = std::rand() % 3;
@@ -770,6 +773,11 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
                 break;
             default:
                 break;
+            }
+            if (auto aft = World::registry->try_get<AfterImage>(Player::ent))
+            {
+                aft->aspr = AnimatedSprite(AfterImage::swordOS[u"0"][action].asprw);
+                aft->info = AfterImage::swordOS[u"0"][action];
             }
         }
         break;
@@ -828,6 +836,43 @@ bool player_hit(entt::entity *ent)
 {
     player_invincible_cooldown = 2000;
     return false;
+}
+
+bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
+{
+    if (Input::state[SDL_SCANCODE_A])
+    {
+        if (state != Character::State::JUMP)
+        {
+            mv->hspeed = 0;
+        }
+        auto eff = World::registry->try_get<Effect>(*ent);
+        Skill ski(u"1311006");
+        for (auto &it : ski.ski->effects)
+        {
+            eff->effects.push_back(AnimatedSprite(it));
+        }
+        auto &atk = World::registry->emplace_or_replace<Attack>(*ent);
+        auto lt = ski.ski->infos[19]->lt;
+        auto rb = ski.ski->infos[19]->rb;
+        atk.rect.x = lt.x;
+        atk.rect.y = lt.y;
+        atk.rect.w = rb.x - lt.x;
+        atk.rect.h = rb.y - lt.y;
+        atk.hit = ski.ski->hits[0];
+        atk.p = &World::registry->try_get<Transform>(Player::ent)->position;
+
+        state = Character::State::SKILL;
+        // player_alert_cooldown = 4000;
+        cha->animated = false;
+        return true;
+    }
+    return false;
+}
+
+bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time)
+{
+    return player_attacking(mv, cha, tr, ent, delta_time);
 }
 
 void player_portal(entt::entity *ent)

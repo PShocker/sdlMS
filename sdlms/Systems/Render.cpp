@@ -435,13 +435,13 @@ void render_character(const Transform *tr, Character *cha)
     render_avatar(cha->mobEquipFront);
 }
 
-void render_afterimage(Transform *tr, AfterImage *aim, Character *cha)
+void render_afterimage(Transform *tr, AfterImage *aft, Character *cha)
 {
-    if (aim->animate == true && aim->animated == false)
+    if (aft->animate == true && aft->animated == false)
     {
         auto action = cha->action;
-        auto aspr = std::get<1>(aim->swordOS[u"0"][action]);
-        render_animated_sprite(tr, aspr);
+        auto aspr = aft->aspr;
+        render_animated_sprite(tr, &aspr);
     }
 }
 

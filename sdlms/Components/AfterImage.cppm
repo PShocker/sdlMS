@@ -11,12 +11,27 @@ import :character;
 
 export struct AfterImage
 {
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, std::tuple<uint8_t, AnimatedSprite *, SDL_FPoint, SDL_FPoint>>> swordOS;
+    struct Info
+    {
+        uint8_t index;
+        AnimatedSpriteWarp *asprw;
+        SDL_FPoint lt;
+        SDL_FPoint rb;
+    };
+
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> axe;
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> barehands;
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> bow;
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> crossBow;
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> gun;
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> swordOS;
 
     bool animated = false;
     bool animate = false;
+    bool hit = false;
 
-    AnimatedSprite *aspr = nullptr;
+    AnimatedSprite aspr;
+    Info info;
 
     static void init();
     AfterImage() = default;

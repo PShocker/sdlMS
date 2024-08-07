@@ -53,7 +53,7 @@ void animate_run()
                 if (aft->animated == false)
                 {
                     auto cha = World::registry->try_get<Character>(ent);
-                    animate_afterimage(aft, cha);
+                    animate_afterimage(aft, cha, ent);
                 }
             }
             if (auto eff = World::registry->try_get<Effect>(ent))
@@ -147,17 +147,31 @@ void animate_character(Character *cha)
     }
 }
 
-void animate_afterimage(AfterImage *aim, Character *cha)
+void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 {
     auto action = cha->action;
-    uint8_t index = std::get<0>(aim->swordOS[u"0"][action]);
-    auto aspr = std::get<1>(aim->swordOS[u"0"][action]);
-    if (cha->action_index == index || aim->animate == true)
+    auto &info = aft->swordOS[u"0"][action];
+    uint8_t index = info.index;
+    auto &aspr = aft->aspr;
+    if (cha->action_index == index || aft->animate == true)
     {
-        aim->animate = true;
-        if (animate_sprite(aspr) == false)
+        if (!aft->hit && ent == Player::ent)
         {
-            aim->animated = true;
+            auto &atk = World::registry->emplace_or_replace<Attack>(ent);
+            auto lt = aft->info.lt;
+            auto rb = aft->info.rb;
+            atk.rect.x = lt.x;
+            atk.rect.y = lt.y;
+            atk.rect.w = rb.x - lt.x;
+            atk.rect.h = rb.y - lt.y;
+            atk.hit = nullptr;
+            atk.p = &World::registry->try_get<Transform>(ent)->position;
+            aft->hit = true;
+        }
+        aft->animate = true;
+        if (animate_sprite(&aspr) == false)
+        {
+            aft->animated = true;
         }
     }
 }
