@@ -8,11 +8,15 @@ import components;
 import core;
 import resources;
 
-entt::entity *load_character()
+entt::entity *load_character(float x, float y, bool sp, entt::entity *ent)
 {
-    Player::ent = World::registry->create();
+    if (!ent)
+    {
+        auto e = World::registry->create();
+        ent = &e;
+    }
 
-    auto cha = &World::registry->emplace<Character>(Player::ent);
+    auto cha = &World::registry->emplace<Character>(*ent);
 
     cha->add_head(u"00012000");
     cha->add_body(u"00002000");
@@ -25,10 +29,18 @@ entt::entity *load_character()
     cha->add_weapon(u"01302060");
     // cha.add_shield(u"01092030");
 
-    World::registry->emplace<Animated>(Player::ent);
-    World::registry->emplace<Effect>(Player::ent);
-    World::registry->emplace<Damage>(Player::ent);
-
+    World::registry->emplace<Animated>(*ent);
+    World::registry->emplace<Effect>(*ent);
+    World::registry->emplace<Damage>(*ent);
+    if (sp)
+    {
+        World::registry->emplace<Transform>(*ent, recent_portal(x, y), 99999999);
+    }
+    else
+    {
+        World::registry->emplace<Transform>(*ent, x, y, 99999999);
+    }
+    World::registry->emplace<Move>(*ent);
     World::zindex = true;
-    return &Player::ent;
+    return ent;
 }

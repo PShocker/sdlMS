@@ -44,9 +44,9 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
 
     World::load_map(100000000);
 
-    auto ent = load_character();
-    World::registry->emplace<Transform>(*ent, recent_portal(0, 0), 99999999);
-    World::registry->emplace<Move>(*ent);
+    Player::ent = World::registry->create();
+    load_character(0, 0, true, &Player::ent);
+    load_character(0, 0, true, nullptr);
 
     return SDL_APP_CONTINUE;
 }

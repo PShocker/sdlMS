@@ -16,6 +16,8 @@ export struct AfterImage
     bool animated = false;
     bool animate = false;
 
+    AnimatedSprite *aspr = nullptr;
+
     static void init();
     AfterImage() = default;
 };

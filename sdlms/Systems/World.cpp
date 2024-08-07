@@ -37,9 +37,8 @@ void world_transport()
             if (por->pn == World::TransPort::tn)
             {
                 auto tr = World::registry->try_get<Transform>(e);
-                auto ent = load_character();
-                World::registry->emplace<Transform>(*ent, tr->position.x, tr->position.y - 10, 99999999);
-                World::registry->emplace<Move>(*ent);
+                Player::ent = World::registry->create();
+                load_character(tr->position.x, tr->position.y - 10, false, &Player::ent);
                 camera_refresh();
                 World::TransPort::id = 0;
                 return;
