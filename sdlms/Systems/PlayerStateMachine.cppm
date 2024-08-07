@@ -31,7 +31,7 @@ bool player_proning();
 float player_border_limit(Move *mv, float x);
 void player_action(Character *cha, int state, int new_state, Move *mv);
 
-void player_portal(entt::entity *ent);
+void player_portal(Move *mv, entt::entity *ent);
 
 export int player_foothold_cooldown = 0;
 export int player_portal_cooldown = 0;
@@ -46,4 +46,3 @@ bool player_hit(entt::entity *ent);
 
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent);
 bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time);
-

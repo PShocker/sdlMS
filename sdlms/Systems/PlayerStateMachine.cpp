@@ -155,7 +155,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     default:
         break;
     }
-    player_portal(ent);
+    player_portal(mv, ent);
     player_action(cha, state, cha->state, mv);
 }
 
@@ -875,7 +875,7 @@ bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent,
     return player_attacking(mv, cha, tr, ent, delta_time);
 }
 
-void player_portal(entt::entity *ent)
+void player_portal(Move *mv, entt::entity *ent)
 {
     if (player_portal_cooldown <= 0)
     {
@@ -909,6 +909,8 @@ void player_portal(entt::entity *ent)
                             auto cha = World::registry->try_get<Character>(Player::ent);
                             cha->state = Character::State::JUMP;
                         }
+                        mv->hspeed = 0;
+                        mv->vspeed = 0;
                         player_portal_cooldown = 800;
                         break;
                     }
