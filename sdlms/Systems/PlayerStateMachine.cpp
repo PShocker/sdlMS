@@ -19,8 +19,9 @@ void player_statemachine_run()
         player_cooldown(Window::delta_time);
         if (auto hit = World::registry->try_get<Hit>(ent))
         {
-            player_hit(&ent);
+            player_hit(hit, &ent);
             World::registry->remove<Hit>(ent);
+            return;
         }
         player_statemachine(&ent, (float)Window::delta_time / 1000);
     }
@@ -832,9 +833,43 @@ bool player_alert()
     return player_alert_cooldown > 0;
 }
 
-bool player_hit(entt::entity *ent)
+bool player_hit(Hit *hit, entt::entity *ent)
 {
     player_invincible_cooldown = 2000;
+
+    auto mv = World::registry->try_get<Move>(*ent);
+    auto tr = World::registry->try_get<Transform>(*ent);
+    auto cha = World::registry->try_get<Character>(*ent);
+
+    cha->hp -= hit->damage;
+    if (cha->hp > 0)
+    {
+        // 获取玩家位置,并让怪物转身和后退
+        auto hit_x = hit->x;
+        auto cha_x = tr->position.x;
+        if (cha_x < hit_x)
+        {
+            mv->hspeed = -110;
+            mv->vspeed = -320;
+            cha->state = Character::State::JUMP;
+            cha->action_index = 0;
+            cha->action_time = 0;
+            cha->action = Character::ACTION::JUMP;
+        }
+        else
+        {
+            mv->hspeed = 110;
+            mv->vspeed = -320;
+            cha->state = Character::State::JUMP;
+            cha->action_index = 0;
+            cha->action_time = 0;
+            cha->action = Character::ACTION::JUMP;
+        }
+    }
+    else
+    {
+        return false;
+    }
     return false;
 }
 

@@ -21,8 +21,9 @@ void mob_statemachine_run()
         }
         if (auto hit = World::registry->try_get<Hit>(ent))
         {
-            mob_hit(&ent);
+            mob_hit(hit, &ent);
             World::registry->remove<Hit>(ent);
+            continue;
         }
         mob_statemachine(&ent, (float)Window::delta_time / 1000);
     }
@@ -219,12 +220,11 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
     }
 }
 
-bool mob_hit(entt::entity *ent)
+bool mob_hit(Hit *hit, entt::entity *ent)
 {
     auto mv = World::registry->try_get<Move>(*ent);
     auto tr = World::registry->try_get<Transform>(*ent);
     auto mob = World::registry->try_get<Mob>(*ent);
-    auto hit = World::registry->try_get<Hit>(*ent);
 
     mob->hp -= hit->damage;
     if (mob->hp > 0)
