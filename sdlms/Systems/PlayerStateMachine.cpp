@@ -844,26 +844,32 @@ bool player_hit(Hit *hit, entt::entity *ent)
     cha->hp -= hit->damage;
     if (cha->hp > 0)
     {
+        if (mv->foo)
+        {
+            mv->vspeed = -320;
+        }
+        else
+        {
+            mv->vspeed = -120;
+        }
+        mv->foo = nullptr;
+        mv->lr = nullptr;
+
+        cha->state = Character::State::JUMP;
+        cha->action_index = 0;
+        cha->action_time = 0;
+        cha->action = Character::ACTION::JUMP;
+
         // 获取玩家位置,并让怪物转身和后退
         auto hit_x = hit->x;
         auto cha_x = tr->position.x;
         if (cha_x < hit_x)
         {
             mv->hspeed = -110;
-            mv->vspeed = -320;
-            cha->state = Character::State::JUMP;
-            cha->action_index = 0;
-            cha->action_time = 0;
-            cha->action = Character::ACTION::JUMP;
         }
         else
         {
             mv->hspeed = 110;
-            mv->vspeed = -320;
-            cha->state = Character::State::JUMP;
-            cha->action_index = 0;
-            cha->action_time = 0;
-            cha->action = Character::ACTION::JUMP;
         }
     }
     else
