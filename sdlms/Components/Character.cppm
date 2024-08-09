@@ -329,7 +329,7 @@ export struct Character
     Character();
     static void init();
 
-    SDL_FRect r{-20, -60, 30, 60};
+    SDL_FRect r{-20, -40, 30, 60};
 
     // 状态机
     struct State

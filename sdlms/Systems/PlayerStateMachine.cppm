@@ -36,13 +36,14 @@ void player_portal(Move *mv, entt::entity *ent);
 export int player_foothold_cooldown = 0;
 export int player_portal_cooldown = 0;
 export int player_alert_cooldown = 0;
+export int player_ladderrope_cooldown = 0;
 export int player_invincible_cooldown = 0;
 
 void player_cooldown(int delta_time);
 
 bool player_alert();
 
-bool player_hit(Hit* hit,entt::entity *ent);
+bool player_hit(Hit *hit, entt::entity *ent);
 
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent);
 bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time);

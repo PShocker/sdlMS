@@ -517,6 +517,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 {
                     mv->hspeed = -140;
                 }
+                player_ladderrope_cooldown = 80;
                 return true;
             }
         }
@@ -600,51 +601,54 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
 
 bool player_climb(Move *mv, Transform *tr, int state)
 {
-    if (Input::state[SDL_SCANCODE_UP] || Input::state[SDL_SCANCODE_DOWN])
+    if (player_ladderrope_cooldown <= 0)
     {
-        auto view = World::registry->view<LadderRope>();
-        for (auto &e : view)
+        if (Input::state[SDL_SCANCODE_UP] || Input::state[SDL_SCANCODE_DOWN])
         {
-            auto lr = &view.get<LadderRope>(e);
-
-            // 判断x坐标是否在梯子范围内
-            if (tr->position.x >= lr->x - 15 && tr->position.x <= lr->x + 15)
+            auto view = World::registry->view<LadderRope>();
+            for (auto &e : view)
             {
-                int t = 0;
-                int b = lr->b + 5;
-                if (mv->foo)
+                auto lr = &view.get<LadderRope>(e);
+
+                // 判断x坐标是否在梯子范围内
+                if (tr->position.x >= lr->x - 15 && tr->position.x <= lr->x + 15)
                 {
-                    if (Input::state[SDL_SCANCODE_DOWN])
+                    int t = 0;
+                    int b = lr->b + 5;
+                    if (mv->foo)
                     {
-                        t = lr->t - 10;
-                        b = lr->t;
+                        if (Input::state[SDL_SCANCODE_DOWN])
+                        {
+                            t = lr->t - 10;
+                            b = lr->t;
+                        }
+                        else
+                        {
+                            t = lr->b;
+                        }
                     }
                     else
                     {
-                        t = lr->b;
+                        t = lr->t;
                     }
-                }
-                else
-                {
-                    t = lr->t;
-                }
-                if (!(mv->foo == nullptr && Input::state[SDL_SCANCODE_DOWN]))
-                {
-                    if (tr->position.y >= t && tr->position.y <= b)
+                    if (!(mv->foo == nullptr && Input::state[SDL_SCANCODE_DOWN]))
                     {
-                        // 爬到梯子
-                        mv->lr = lr;
-                        mv->zmass = 0;
-                        mv->hspeed = 0;
-                        mv->vspeed = 0;
-                        mv->foo = nullptr;
+                        if (tr->position.y >= t && tr->position.y <= b)
+                        {
+                            // 爬到梯子
+                            mv->lr = lr;
+                            mv->zmass = 0;
+                            mv->hspeed = 0;
+                            mv->vspeed = 0;
+                            mv->foo = nullptr;
 
-                        tr->position.x = lr->x;
-                        tr->position.y = std::clamp(tr->position.y, (float)lr->t, (float)lr->b);
+                            tr->position.x = lr->x;
+                            tr->position.y = std::clamp(tr->position.y, (float)lr->t, (float)lr->b);
 
-                        tr->z = lr->page * LAYER_Z + CHARACTER_Z;
-                        World::zindex = true;
-                        return true;
+                            tr->z = lr->page * LAYER_Z + CHARACTER_Z;
+                            World::zindex = true;
+                            return true;
+                        }
                     }
                 }
             }
@@ -686,6 +690,7 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, entt::entity *ent, 
             tr->position.y = mv->lr->t - 5;
             mv->vspeed = 0;
             state = Character::State::JUMP;
+            player_ladderrope_cooldown = 80;
             cha->animate = true;
         }
         else
@@ -698,6 +703,7 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, entt::entity *ent, 
         tr->position.y = mv->lr->b;
         mv->vspeed = 0;
         state = Character::State::JUMP;
+        player_ladderrope_cooldown = 80;
         cha->animate = true;
     }
     return state;
@@ -826,6 +832,10 @@ void player_cooldown(int delta_time)
     {
         player_invincible_cooldown -= delta_time;
     }
+    if (player_ladderrope_cooldown > 0)
+    {
+        player_ladderrope_cooldown -= delta_time;
+    }
 }
 
 bool player_alert()
@@ -844,13 +854,24 @@ bool player_hit(Hit *hit, entt::entity *ent)
     cha->hp -= hit->damage;
     if (cha->hp > 0)
     {
-        if (mv->foo)
+        if (mv->foo || mv->lr)
         {
+            if (mv->lr)
+            {
+                player_ladderrope_cooldown = 200;
+            }
             mv->vspeed = -320;
-        }
-        else
-        {
-            mv->vspeed = -120;
+            // 获取玩家位置,并让怪物转身和后退
+            auto hit_x = hit->x;
+            auto cha_x = tr->position.x;
+            if (cha_x < hit_x)
+            {
+                mv->hspeed = -110;
+            }
+            else
+            {
+                mv->hspeed = 110;
+            }
         }
         mv->foo = nullptr;
         mv->lr = nullptr;
@@ -859,18 +880,6 @@ bool player_hit(Hit *hit, entt::entity *ent)
         cha->action_index = 0;
         cha->action_time = 0;
         cha->action = Character::ACTION::JUMP;
-
-        // 获取玩家位置,并让怪物转身和后退
-        auto hit_x = hit->x;
-        auto cha_x = tr->position.x;
-        if (cha_x < hit_x)
-        {
-            mv->hspeed = -110;
-        }
-        else
-        {
-            mv->hspeed = 110;
-        }
     }
     else
     {
