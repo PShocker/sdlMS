@@ -854,12 +854,8 @@ bool player_hit(Hit *hit, entt::entity *ent)
     cha->hp -= hit->damage;
     if (cha->hp > 0)
     {
-        if (mv->foo || mv->lr)
+        if (mv->foo)
         {
-            if (mv->lr)
-            {
-                player_ladderrope_cooldown = 200;
-            }
             mv->vspeed = -320;
             // 获取玩家位置,并让怪物转身和后退
             auto hit_x = hit->x;
@@ -874,12 +870,14 @@ bool player_hit(Hit *hit, entt::entity *ent)
             }
         }
         mv->foo = nullptr;
-        mv->lr = nullptr;
 
-        cha->state = Character::State::JUMP;
-        cha->action_index = 0;
-        cha->action_time = 0;
-        cha->action = Character::ACTION::JUMP;
+        if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT)
+        {
+            cha->state = Character::State::JUMP;
+            cha->action_index = 0;
+            cha->action_time = 0;
+            cha->action = Character::ACTION::JUMP;
+        }
     }
     else
     {
