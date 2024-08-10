@@ -273,6 +273,14 @@ void render_character(const Transform *tr, Character *cha)
             if (spr != nullptr)
             {
                 set_transform(t, spr);
+                if (player_invincible_cooldown > 0)
+                {
+                    SDL_SetTextureColorMod(spr->texture, 144, 144, 144); // 设置颜色调节为默认值
+                }
+                else
+                {
+                    SDL_SetTextureColorMod(spr->texture, 255, 255, 255); // 设置颜色调节为默认值
+                }
                 render_sprite(&transfrom, spr);
             }
         }
