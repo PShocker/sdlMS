@@ -164,7 +164,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             atk.rect.y = lt.y;
             atk.rect.w = rb.x - lt.x;
             atk.rect.h = rb.y - lt.y;
-            atk.hit = nullptr;
+            atk.hit = aft->hits[u"sword1"];
             atk.p = &World::registry->try_get<Transform>(ent)->position;
             aft->hit = true;
         }

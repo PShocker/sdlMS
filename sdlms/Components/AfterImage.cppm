@@ -26,6 +26,8 @@ export struct AfterImage
     static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> gun;
     static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> swordOS;
 
+    static inline std::unordered_map<std::u16string, AnimatedSpriteWarp *> hits;
+
     bool animated = false;
     bool animate = false;
     bool hit = false;

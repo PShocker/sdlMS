@@ -48,4 +48,9 @@ void AfterImage::init()
     };
     load(u"axe.img", axe);
     load(u"swordOS.img", swordOS);
+
+    auto node=afterimage->find_from_path(u"hit.img");
+    for (auto &[key, val] : node->get_children()){
+        hits[key]=AnimatedSpriteWarp::load(val[0]);
+    }
 }

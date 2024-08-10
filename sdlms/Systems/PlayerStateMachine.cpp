@@ -870,6 +870,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
             }
         }
         mv->foo = nullptr;
+        player_alert_cooldown = 4000;
 
         if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT)
         {
@@ -895,7 +896,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             mv->hspeed = 0;
         }
         auto eff = World::registry->try_get<Effect>(*ent);
-        Skill ski(u"1311006");
+        Skill ski(u"2201005");
         for (auto &it : ski.ski->effects)
         {
             eff->effects.push_back(AnimatedSprite(it));
