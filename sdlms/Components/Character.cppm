@@ -304,7 +304,7 @@ export struct Character
 
     std::unordered_set<std::u16string> cap_vslot;
 
-    int hp = 4000;
+    int hp = 400;
     int mp;
 
     uint8_t action = ACTION::JUMP;

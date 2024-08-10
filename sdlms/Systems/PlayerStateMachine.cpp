@@ -882,7 +882,10 @@ bool player_hit(Hit *hit, entt::entity *ent)
     }
     else
     {
-        return false;
+        cha->state = Character::State::DIE;
+        cha->action_index = 0;
+        cha->action_time = 0;
+        cha->action = Character::ACTION::DEAD;
     }
     return false;
 }
