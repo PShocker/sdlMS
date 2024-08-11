@@ -156,6 +156,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     case Character::State::DIE:
     {
         player_invincible_cooldown = 2000;
+        return;
     }
     break;
     default:

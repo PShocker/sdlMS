@@ -12,7 +12,6 @@ import commons;
 
 void load_background(wz::Node *node, int id)
 {
-
     auto bS = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"bS"))->get();
     if (bS == u"")
     {

@@ -10,12 +10,6 @@ import resources;
 
 entt::entity *load_character(float x, float y, bool sp, entt::entity *ent)
 {
-    if (!ent)
-    {
-        auto e = World::registry->create();
-        ent = &e;
-    }
-
     auto cha = &World::registry->emplace<Character>(*ent);
 
     cha->add_head(u"00012000");
