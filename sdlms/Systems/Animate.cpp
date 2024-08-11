@@ -2,6 +2,7 @@ module;
 
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
+#include <cmath>
 #include <numbers>
 
 module systems;
@@ -275,8 +276,8 @@ void animate_tomb(Tomb *tomb, Transform *tr)
 
     const float velocity = 0.05f; // 角速度
     const float radius = 10.0f;   // 半径
-    tr->position.x = tomb->l.position.x + radius * cos(tr->rotation);
-    tr->position.y = tomb->l.position.y - 10 + radius * sin(tr->rotation);
+    tr->position.x = tomb->l.position.x + radius * std::cos(tr->rotation);
+    tr->position.y = tomb->l.position.y - 10 + radius * std::sin(tr->rotation);
     tr->rotation += velocity;
     if (tr->rotation >= 2 * std::numbers::pi)
     {
