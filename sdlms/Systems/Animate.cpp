@@ -2,6 +2,7 @@ module;
 
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
+#include <numbers>
 
 module systems;
 
@@ -63,6 +64,11 @@ void animate_run()
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
                 animate_damage(dam);
+            }
+            if (auto tomb = World::registry->try_get<Tomb>(ent))
+            {
+                auto tr = World::registry->try_get<Transform>(ent);
+                animate_tomb(tomb, tr);
             }
         }
     }
@@ -253,5 +259,27 @@ void animate_damage(Damage *dam)
         {
             ++it;
         }
+    }
+}
+
+void animate_tomb(Tomb *tomb, Transform *tr)
+{
+    if (tomb->f.position.y < tomb->l.position.y)
+    {
+        tomb->f.position.y += 10;
+    }
+    if (tomb->aspr.anim_size != 1 && !animate_sprite(&tomb->aspr) && tomb->f.position.y >= tomb->l.position.y)
+    {
+        tomb->aspr = AnimatedSprite(tomb->land);
+    }
+
+    const float velocity = 0.05f; // 角速度
+    const float radius = 10.0f;   // 半径
+    tr->position.x = tomb->l.position.x + radius * cos(tr->rotation);
+    tr->position.y = tomb->l.position.y - 10 + radius * sin(tr->rotation);
+    tr->rotation += velocity;
+    if (tr->rotation >= 2 * std::numbers::pi)
+    {
+        tr->rotation -= 2 * std::numbers::pi; // 保持角度在 [0, 2π) 范围内
     }
 }

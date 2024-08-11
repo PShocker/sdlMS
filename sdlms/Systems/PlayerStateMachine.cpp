@@ -4,7 +4,6 @@ module;
 #include <SDL3/SDL.h>
 #include <optional>
 #include <variant>
-#include <numbers>
 
 module systems;
 
@@ -156,15 +155,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     break;
     case Character::State::DIE:
     {
-        const float velocity = 0.05f; // 角速度
-        const float radius = 10.0f;  // 半径
-        tr->position.x = 0 + radius * cos(tr->rotation);
-        tr->position.y = 0 + radius * sin(tr->rotation);
-        tr->rotation += velocity;
-        if (tr->rotation >= 2 * std::numbers::pi)
-        {
-            tr->rotation -= 2 * std::numbers::pi; // 保持角度在 [0, 2π) 范围内
-        }
+        player_invincible_cooldown = 2000;
     }
     break;
     default:
@@ -900,6 +891,36 @@ bool player_hit(Hit *hit, entt::entity *ent)
         cha->action_index = 0;
         cha->action_time = 0;
         cha->action = Character::ACTION::DEAD;
+
+        if (!mv->foo)
+        {
+            auto view = World::registry->view<FootHold>();
+            std::optional<float> y = std::nullopt;
+            for (auto &e : view)
+            {
+                auto fh = &view.get<FootHold>(e);
+                if (fh->get_y(tr->position.x).has_value() && fh->get_y(tr->position.x).value() > tr->position.y)
+                {
+                    if (!y.has_value())
+                    {
+                        y = (float)fh->get_y(tr->position.x).value();
+                    }
+                    else
+                    {
+                        y = std::min(y.value(), (float)fh->get_y(tr->position.x).value());
+                    }
+                }
+            }
+            if (y.has_value())
+            {
+                tr->position.y = y.value();
+            }
+        }
+
+        auto &tomb = World::registry->emplace_or_replace<Tomb>(*ent);
+        tomb.f.position = tr->position;
+        tomb.f.position.y -= 200;
+        tomb.l.position = tr->position;
     }
     return false;
 }

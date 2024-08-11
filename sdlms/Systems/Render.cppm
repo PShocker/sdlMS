@@ -19,3 +19,4 @@ void render_npc(Transform *tr, Npc *npc);
 void render_mob(Transform *tr, Mob *mob);
 void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head);
 void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a);
+void render_tomb(Tomb *tomb);

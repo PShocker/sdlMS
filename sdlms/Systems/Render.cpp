@@ -63,6 +63,10 @@ void render_run()
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
         {
+            if (auto tomb = World::registry->try_get<Tomb>(ent))
+            {
+                render_tomb(tomb);
+            }
             render_character(tr, cha);
             if (auto aim = World::registry->try_get<AfterImage>(ent))
             {
@@ -574,4 +578,9 @@ void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a)
         SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
     }
     render_sprite(tr, sprw);
+}
+
+void render_tomb(Tomb *tomb)
+{
+    render_animated_sprite(&tomb->f, &tomb->aspr);
 }

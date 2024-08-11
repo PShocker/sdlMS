@@ -39,6 +39,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     Window::create_window("sdlMS", width, height);
     Character::init();
     AfterImage::init();
+    Tomb::init();
     Damage::init();
     Cursor::init();
 
@@ -46,7 +47,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
 
     Player::ent = World::registry->create();
     load_character(0, 0, true, &Player::ent);
-    load_character(0, 0, true, nullptr);
+    load_character(-450, 260, false, nullptr);
 
     return SDL_APP_CONTINUE;
 }

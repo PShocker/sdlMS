@@ -38,16 +38,23 @@ void player_attack(Attack *atk)
     auto view = World::registry->view<Damage>();
     for (auto ent : view)
     {
-        if (auto mob = World::registry->try_get<Mob>(ent))
+        if (ent != Player::ent)
         {
-            if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+            if (auto mob = World::registry->try_get<Mob>(ent))
             {
-                attack_mob(atk, mob, &ent);
+                if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+                {
+                    attack_mob(atk, mob, &ent);
+                }
             }
-        }
-        else if (auto npc = World::registry->try_get<Npc>(ent))
-        {
-            attack_npc(atk, npc, &ent);
+            else if (auto npc = World::registry->try_get<Npc>(ent))
+            {
+                attack_npc(atk, npc, &ent);
+            }
+            else if (auto cha = World::registry->try_get<Character>(ent))
+            {
+                attack_cha(atk, cha, &ent);
+            }
         }
     }
 }
@@ -93,6 +100,17 @@ void attack_npc(Attack *atk, Npc *npc, entt::entity *ent)
     if (collision(n_spr, n_tr, atk, p_tr))
     {
         hit_effect(atk, &n_spr->head.value(), ent, 0);
+    }
+}
+
+void attack_cha(Attack *atk, Character *cha, entt::entity *ent)
+{
+    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+    auto n_tr = World::registry->try_get<Transform>(*ent);
+
+    if (collision(cha, n_tr, atk, p_tr))
+    {
+        hit_effect(atk, nullptr, ent, 0);
     }
 }
 
@@ -172,6 +190,31 @@ bool collision(SpriteWarp *m_spr, Transform *m_tr)
     if (p_tr->flip == 1)
     {
         n.x += 2 * (p_tr->position.x - n.x) - n.w;
+    }
+    SDL_FRect intersection;
+    if (SDL_GetRectIntersectionFloat(&m, &n, &intersection))
+    {
+        return true;
+    }
+    return false;
+}
+
+bool collision(Character *m_cha, Transform *m_tr, Attack *n_atk, Transform *n_tr)
+{
+    SDL_FRect m = m_cha->r;
+    m.x += m_tr->position.x;
+    m.y += m_tr->position.y;
+    if (m_tr->flip == 1)
+    {
+        m.x += 2 * (m_tr->position.x - m.x) - m.w;
+    }
+
+    SDL_FRect n = n_atk->rect;
+    n.x += n_tr->position.x;
+    n.y += n_tr->position.y;
+    if (n_tr->flip == 1)
+    {
+        n.x += 2 * (n_tr->position.x - n.x) - n.w;
     }
     SDL_FRect intersection;
     if (SDL_GetRectIntersectionFloat(&m, &n, &intersection))

@@ -22,3 +22,4 @@ export import :attack;
 export import :hit;
 export import :effect;
 export import :damage;
+export import :tomb;
