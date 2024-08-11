@@ -8,7 +8,7 @@ import components;
 import core;
 import resources;
 
-entt::entity *load_character(float x, float y, bool sp, entt::entity *ent)
+void load_character(float x, float y, bool sp, entt::entity *ent)
 {
     auto cha = &World::registry->emplace<Character>(*ent);
 
@@ -36,5 +36,5 @@ entt::entity *load_character(float x, float y, bool sp, entt::entity *ent)
     }
     World::registry->emplace<Move>(*ent);
     World::zindex = true;
-    return ent;
+    return;
 }
