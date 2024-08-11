@@ -4,6 +4,7 @@ module;
 #include <SDL3/SDL.h>
 #include <optional>
 #include <variant>
+#include <numbers>
 
 module systems;
 
@@ -150,6 +151,19 @@ void player_statemachine(entt::entity *ent, float delta_time)
         {
             cha->state = Character::State::STAND;
             player_statemachine(ent, 0);
+        }
+    }
+    break;
+    case Character::State::DIE:
+    {
+        const float velocity = 0.05f; // 角速度
+        const float radius = 10.0f;  // 半径
+        tr->position.x = 0 + radius * cos(tr->rotation);
+        tr->position.y = 0 + radius * sin(tr->rotation);
+        tr->rotation += velocity;
+        if (tr->rotation >= 2 * std::numbers::pi)
+        {
+            tr->rotation -= 2 * std::numbers::pi; // 保持角度在 [0, 2π) 范围内
         }
     }
     break;
