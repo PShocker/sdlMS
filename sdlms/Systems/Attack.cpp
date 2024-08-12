@@ -69,7 +69,7 @@ bool mob_collision(Mob *mob, Transform *m_tr)
         atk.damage = 100;
         atk.hit = nullptr;
         atk.p = &m_tr->position;
-        hit_effect(&atk, nullptr, &Player::ent, 1);
+        hit_effect(&atk, nullptr, &Player::ent, 1, atk.damage);
         return true;
     }
     return false;
@@ -85,14 +85,12 @@ void attack_mob(Attack *atk, Mob *mob, entt::entity *ent)
 
     if (collision(m_spr, m_tr, atk, p_tr))
     {
-        hit_effect(atk, &m_spr->head.value(), ent, 0);
+        hit_effect(atk, &m_spr->head.value(), ent, 0, atk->damage);
     }
 }
 
 void attack_npc(Attack *atk, Npc *npc, entt::entity *ent)
 {
-    atk->damage = 0;
-
     auto animated = npc->a[npc->index];
     auto n_spr = animated->aspr->sprites[animated->anim_index];
 
@@ -101,7 +99,7 @@ void attack_npc(Attack *atk, Npc *npc, entt::entity *ent)
 
     if (collision(n_spr, n_tr, atk, p_tr))
     {
-        hit_effect(atk, &n_spr->head.value(), ent, 0);
+        hit_effect(atk, &n_spr->head.value(), ent, 0, 0);
     }
 }
 
@@ -112,7 +110,7 @@ void attack_cha(Attack *atk, Character *cha, entt::entity *ent)
 
     if (collision(cha, n_tr, atk, p_tr))
     {
-        hit_effect(atk, nullptr, ent, 0);
+        hit_effect(atk, nullptr, ent, 0, atk->damage);
     }
 }
 
@@ -226,10 +224,8 @@ bool collision(Character *m_cha, Transform *m_tr, Attack *n_atk, Transform *n_tr
     return false;
 }
 
-void hit_effect(Attack *atk, SDL_FPoint *head, entt::entity *ent, char type)
+void hit_effect(Attack *atk, SDL_FPoint *head, entt::entity *ent, char type, int damage)
 {
-    auto damage = atk->damage;
-
     auto &hit = World::registry->emplace_or_replace<Hit>(*ent);
     hit.x = atk->p->x;
     hit.y = atk->p->y;
