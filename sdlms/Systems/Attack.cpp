@@ -91,6 +91,8 @@ void attack_mob(Attack *atk, Mob *mob, entt::entity *ent)
 
 void attack_npc(Attack *atk, Npc *npc, entt::entity *ent)
 {
+    atk->damage = 0;
+
     auto animated = npc->a[npc->index];
     auto n_spr = animated->aspr->sprites[animated->anim_index];
 
