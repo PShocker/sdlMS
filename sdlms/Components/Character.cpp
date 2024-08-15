@@ -3,6 +3,7 @@ module;
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
 #include <any>
+#include <tuple>
 
 module components;
 
@@ -155,7 +156,18 @@ void Character::init()
             {
                 if (frame_node->get_child(u"action") != nullptr)
                 {
-                    /* code */
+                    uint8_t type = type_map.at(dynamic_cast<wz::Property<wz::wzstring> *>(frame_node->get_child(u"action"))->get());
+                    uint8_t frame = 0;
+                    if (frame_node->get_child(u"frame"))
+                    {
+                        frame = dynamic_cast<wz::Property<int> *>(frame_node->get_child(u"frame"))->get();
+                    }
+                    int delay = 100;
+                    if (frame_node->get_child(u"delay"))
+                    {
+                        delay = dynamic_cast<wz::Property<int> *>(frame_node->get_child(u"delay"))->get();
+                    }
+                    body_actions[ststr][frame] = {type, frame, delay};
                 }
                 else
                 {

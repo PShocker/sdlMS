@@ -769,7 +769,6 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         case Character::State::JUMP:
             action = Character::ACTION::JUMP;
             break;
-        case Character::State::SKILL:
         case Character::State::ATTACK:
         {
             int random = std::rand() % 3;
@@ -813,10 +812,14 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         case Character::State::ALERT:
             action = Character::ACTION::ALERT;
             break;
+        case Character::State::SKILL:
+            cha->action_time = 0;
+            return;
         }
         cha->action_index = 0;
         cha->action_time = 0;
         cha->action = action;
+        cha->action_str = Character::type_map2.at(action);
     }
 }
 
@@ -935,7 +938,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             mv->hspeed = 0;
         }
         auto eff = World::registry->try_get<Effect>(*ent);
-        Skill ski(u"2201005");
+        Skill ski(u"2321008");
         for (auto &it : ski.ski->effects)
         {
             eff->effects.push_back(AnimatedSprite(it));
@@ -951,7 +954,8 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         atk.p = &World::registry->try_get<Transform>(Player::ent)->position;
 
         state = Character::State::SKILL;
-        // player_alert_cooldown = 4000;
+        player_alert_cooldown = 4000;
+        cha->action_str = ski.ski->action_str;
         cha->animated = false;
         return true;
     }

@@ -26,6 +26,7 @@ export struct SkillWarp
     std::vector<AnimatedSpriteWarp *> hits;
     std::vector<Info *> infos;
     std::u16string id;
+    std::u16string action_str;
 
     SkillWarp(const std::u16string &id);
     SkillWarp() = default;
@@ -39,4 +40,3 @@ export struct Skill
     Skill(const std::u16string &id);
     Skill() = default;
 };
-

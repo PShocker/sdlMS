@@ -136,20 +136,28 @@ void animate_character(Character *cha)
     if (cha->animate)
     {
         auto delta_time = Window::delta_time;
-        auto delay = cha->stance_delays[cha->action][cha->action_index];
-        cha->action_time += delta_time;
-        if (cha->action_time >= delay)
+        if (Character::type_map.contains(cha->action_str))
         {
-            if (cha->action_index == cha->stance_delays[cha->action].size() - 1)
+            auto delay = cha->stance_delays[cha->action][cha->action_index];
+            cha->action_time += delta_time;
+            if (cha->action_time >= delay)
             {
-                cha->action_index = 0;
-                cha->animated = true;
+                if (cha->action_index == cha->stance_delays[cha->action].size() - 1)
+                {
+                    cha->action_index = 0;
+                    cha->animated = true;
+                }
+                else
+                {
+                    cha->action_index += 1;
+                }
+                cha->action_time = 0;
             }
-            else
-            {
-                cha->action_index += 1;
-            }
-            cha->action_time = 0;
+        }
+        else
+        {
+            //action
+            int a=0;
         }
     }
 }

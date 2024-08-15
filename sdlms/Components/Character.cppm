@@ -2,6 +2,7 @@ module;
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
 #include <unordered_set>
+#include <tuple>
 
 export module components:character;
 
@@ -169,9 +170,8 @@ export struct Character
     static inline std::unordered_map<uint8_t, SDL_FPoint> face_positions[ACTION::LENGTH];
     static inline std::unordered_map<uint8_t, int32_t> stance_delays[ACTION::LENGTH];
 
-    // std::unordered_map<std::string, std::unordered_map<uint8_t, BodyAction>> body_actions;
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, std::tuple<uint8_t, uint8_t, int>>> body_actions;
     static inline std::unordered_map<uint8_t, bool> show_face[ACTION::LENGTH];
-    static inline std::unordered_map<std::string, std::vector<int32_t>> attack_delays;
     static inline wz::Node *character_node;
 
     std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipFront[ACTION::LENGTH];
@@ -311,6 +311,7 @@ export struct Character
     int action_index = 0;
     int action_time = 0;
     bool animate = true;
+    std::u16string action_str = u"jump";
 
     // use for attck and checkout wheather attack has finished
     bool animated = false;
