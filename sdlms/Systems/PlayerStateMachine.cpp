@@ -559,6 +559,16 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         // add afterimg
         World::registry->emplace_or_replace<AfterImage>(*ent);
 
+        auto &atk = World::registry->emplace_or_replace<Attack>(ent);
+        auto lt = aft->info.lt;
+        auto rb = aft->info.rb;
+        atk.rect.x = lt.x;
+        atk.rect.y = lt.y;
+        atk.rect.w = rb.x - lt.x;
+        atk.rect.h = rb.y - lt.y;
+        atk.hit = aft->hits[u"sword1"];
+        atk.p = &World::registry->try_get<Transform>(ent)->position;
+
         state = Character::State::ATTACK;
         player_alert_cooldown = 4000;
         cha->animated = false;
@@ -938,7 +948,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             mv->hspeed = 0;
         }
         auto eff = World::registry->try_get<Effect>(*ent);
-        Skill ski(u"2321008");
+        Skill ski(u"4211002");
         for (auto &it : ski.ski->effects)
         {
             eff->effects.push_back(AnimatedSprite(it));
@@ -954,8 +964,12 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         atk.p = &World::registry->try_get<Transform>(Player::ent)->position;
 
         state = Character::State::SKILL;
-        player_alert_cooldown = 4000;
-        cha->action_str = ski.ski->action_str;
+        // player_alert_cooldown = 4000;
+        if (ski.ski->action_str.has_value())
+        {
+            cha->action_str = ski.ski->action_str.value();
+            cha->action_frame = 0;
+        }
         cha->animated = false;
         return true;
     }

@@ -15,6 +15,8 @@ export struct Attack
 
     AnimatedSpriteWarp *hit;
 
+    bool finish = false;
+
     // 攻击源的坐标
     SDL_FPoint *p;
 };

@@ -170,7 +170,15 @@ export struct Character
     static inline std::unordered_map<uint8_t, SDL_FPoint> face_positions[ACTION::LENGTH];
     static inline std::unordered_map<uint8_t, int32_t> stance_delays[ACTION::LENGTH];
 
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, std::tuple<uint8_t, uint8_t, int>>> body_actions;
+    struct Action
+    {
+        uint8_t type;
+        uint8_t frame;
+        int delay;
+    };
+
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Action>>
+        body_actions;
     static inline std::unordered_map<uint8_t, bool> show_face[ACTION::LENGTH];
     static inline wz::Node *character_node;
 
@@ -312,6 +320,7 @@ export struct Character
     int action_time = 0;
     bool animate = true;
     std::u16string action_str = u"jump";
+    uint8_t action_frame = 0;
 
     // use for attck and checkout wheather attack has finished
     bool animated = false;

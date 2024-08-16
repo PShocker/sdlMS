@@ -2,6 +2,7 @@ module;
 
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
+#include <optional>
 
 export module components:skill;
 
@@ -26,7 +27,7 @@ export struct SkillWarp
     std::vector<AnimatedSpriteWarp *> hits;
     std::vector<Info *> infos;
     std::u16string id;
-    std::u16string action_str;
+    std::optional<std::u16string> action_str=std::nullopt;
 
     SkillWarp(const std::u16string &id);
     SkillWarp() = default;

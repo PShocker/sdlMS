@@ -30,7 +30,6 @@ export struct AfterImage
 
     bool animated = false;
     bool animate = false;
-    bool hit = false;
 
     AnimatedSprite aspr;
     Info info;

@@ -136,10 +136,10 @@ void animate_character(Character *cha)
     if (cha->animate)
     {
         auto delta_time = Window::delta_time;
+        cha->action_time += delta_time;
         if (Character::type_map.contains(cha->action_str))
         {
             auto delay = cha->stance_delays[cha->action][cha->action_index];
-            cha->action_time += delta_time;
             if (cha->action_time >= delay)
             {
                 if (cha->action_index == cha->stance_delays[cha->action].size() - 1)
@@ -156,8 +156,28 @@ void animate_character(Character *cha)
         }
         else
         {
-            //action
-            int a=0;
+            // action
+            auto delay = cha->body_actions[cha->action_str][cha->action_frame].delay;
+            if (cha->action_time >= std::abs(delay))
+            {
+                if (cha->action_frame == cha->body_actions[cha->action_str].size() - 1)
+                {
+                    cha->action_index = 0;
+                    cha->animated = true;
+                }
+                else
+                {
+                    cha->action = cha->body_actions[cha->action_str][cha->action_frame].type;
+                    cha->action_index = cha->body_actions[cha->action_str][cha->action_frame].frame;
+                    cha->action_frame += 1;
+                }
+                cha->action_time = 0;
+            }
+            else
+            {
+                cha->action = cha->body_actions[cha->action_str][cha->action_frame].type;
+                cha->action_index = cha->body_actions[cha->action_str][cha->action_frame].frame;
+            }
         }
     }
 }
@@ -170,7 +190,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
     auto &aspr = aft->aspr;
     if (cha->action_index == index || aft->animate == true)
     {
-        if (!aft->hit && ent == Player::ent)
+        if (ent == Player::ent)
         {
             auto &atk = World::registry->emplace_or_replace<Attack>(ent);
             auto lt = aft->info.lt;
@@ -181,7 +201,6 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             atk.rect.h = rb.y - lt.y;
             atk.hit = aft->hits[u"sword1"];
             atk.p = &World::registry->try_get<Transform>(ent)->position;
-            aft->hit = true;
         }
         aft->animate = true;
         if (animate_sprite(&aspr) == false)
