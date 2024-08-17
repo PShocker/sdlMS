@@ -890,7 +890,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
         mv->foo = nullptr;
         player_alert_cooldown = 4000;
 
-        if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT)
+        if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT || cha->state == Character::State::PRONE)
         {
             cha->state = Character::State::JUMP;
             cha->action_index = 0;

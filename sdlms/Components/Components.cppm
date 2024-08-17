@@ -23,3 +23,4 @@ export import :hit;
 export import :effect;
 export import :damage;
 export import :tomb;
+export import :trap;

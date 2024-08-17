@@ -13,6 +13,8 @@ void player_attack(AttackWarp *atk);
 
 bool mob_collision(Mob *mob, Transform *tr);
 
+bool trap_collision(Trap *trap, AnimatedSprite *aspr, Transform *tr);
+
 void attack_mob(AttackWarp *atk, Mob *mob, entt::entity *ent);
 
 void attack_npc(AttackWarp *atk, Npc *npc, entt::entity *ent);

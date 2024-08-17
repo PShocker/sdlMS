@@ -43,7 +43,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     Damage::init();
     Cursor::init();
 
-    World::load_map(100000000);
+    World::load_map(106010100);
 
     Player::ent = World::registry->create();
     load_character(0, 0, true, &Player::ent);

@@ -21,13 +21,26 @@ void attack_run()
     }
     if (player_invincible_cooldown <= 0)
     {
-        auto view = World::registry->view<Mob>();
-        for (auto &ent : view)
         {
-            auto mob = &view.get<Mob>(ent);
-            if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+            auto view = World::registry->view<Mob>();
+            for (auto &ent : view)
             {
-                if (mob_collision(mob, World::registry->try_get<Transform>(ent)))
+                auto mob = &view.get<Mob>(ent);
+                if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+                {
+                    if (mob_collision(mob, World::registry->try_get<Transform>(ent)))
+                    {
+                        return;
+                    }
+                }
+            }
+        }
+        {
+            auto view = World::registry->view<Trap>();
+            for (auto &ent : view)
+            {
+                auto trap = &view.get<Trap>(ent);
+                if (trap_collision(trap, World::registry->try_get<AnimatedSprite>(ent), World::registry->try_get<Transform>(ent)))
                 {
                     return;
                 }
@@ -73,6 +86,21 @@ bool mob_collision(Mob *mob, Transform *m_tr)
         atkw.damage = 100;
         atkw.hit = nullptr;
         atkw.p = &m_tr->position;
+        hit_effect(&atkw, nullptr, &Player::ent, 1, atkw.damage);
+        return true;
+    }
+    return false;
+}
+
+bool trap_collision(Trap *trap, AnimatedSprite *aspr, Transform *t_tr)
+{
+    auto sprw = aspr->aspr->sprites[aspr->anim_index];
+    if (collision(sprw, t_tr))
+    {
+        AttackWarp atkw;
+        atkw.damage = trap->damage;
+        atkw.hit = nullptr;
+        atkw.p = &t_tr->position;
         hit_effect(&atkw, nullptr, &Player::ent, 1, atkw.damage);
         return true;
     }
