@@ -16,4 +16,4 @@ void animate_portal(Portal *por);
 void animate_npc(Npc *npc);
 void animate_mob(Mob *mob);
 void animate_damage(Damage *dam);
-void animate_tomb(Tomb *tomb,Transform* tr);
+void animate_tomb(Tomb *tomb, Transform *tr);

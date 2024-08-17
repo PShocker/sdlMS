@@ -188,24 +188,27 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
     auto &info = aft->swordOS[u"0"][action];
     uint8_t index = info.index;
     auto &aspr = aft->aspr;
-    if (cha->action_index == index || aft->animate == true)
+    if (cha->action_index == index || aft->animate)
     {
-        if (ent == Player::ent)
-        {
-            auto &atk = World::registry->emplace_or_replace<Attack>(ent);
-            auto lt = aft->info.lt;
-            auto rb = aft->info.rb;
-            atk.rect.x = lt.x;
-            atk.rect.y = lt.y;
-            atk.rect.w = rb.x - lt.x;
-            atk.rect.h = rb.y - lt.y;
-            atk.hit = aft->hits[u"sword1"];
-            atk.p = &World::registry->try_get<Transform>(ent)->position;
-        }
         aft->animate = true;
         if (animate_sprite(&aspr) == false)
         {
             aft->animated = true;
+        }
+        if (ent == Player::ent && aft->hit == false)
+        {
+            auto atk = World::registry->try_get<Attack>(ent);
+            AttackWarp atkw;
+            auto lt = aft->info.lt;
+            auto rb = aft->info.rb;
+            atkw.rect.x = lt.x;
+            atkw.rect.y = lt.y;
+            atkw.rect.w = rb.x - lt.x;
+            atkw.rect.h = rb.y - lt.y;
+            atkw.hit = aft->hits[u"sword1"];
+            atkw.p = &World::registry->try_get<Transform>(ent)->position;
+            atk->atks.push_back(atkw);
+            aft->hit=true;
         }
     }
 }

@@ -1,12 +1,13 @@
 module;
 
 #include <SDL3/SDL.h>
+#include <vector>
 
 export module components:attack;
 
 import :animatedsprite;
 
-export struct Attack
+export struct AttackWarp
 {
     SDL_FRect rect;
     int mobCount;
@@ -19,4 +20,10 @@ export struct Attack
 
     // 攻击源的坐标
     SDL_FPoint *p;
+};
+
+export struct Attack
+{
+    std::vector<AttackWarp> atks;
+    Attack() = default;
 };

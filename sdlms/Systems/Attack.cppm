@@ -9,22 +9,22 @@ import components;
 
 export void attack_run();
 
-void player_attack(Attack *atk);
+void player_attack(AttackWarp *atk);
 
 bool mob_collision(Mob *mob, Transform *tr);
 
-void attack_mob(Attack *atk, Mob *mob, entt::entity *ent);
+void attack_mob(AttackWarp *atk, Mob *mob, entt::entity *ent);
 
-void attack_npc(Attack *atk, Npc *npc, entt::entity *ent);
+void attack_npc(AttackWarp *atk, Npc *npc, entt::entity *ent);
 
-void attack_cha(Attack *atk, Character *cha, entt::entity *ent);
+void attack_cha(AttackWarp *atk, Character *cha, entt::entity *ent);
 
-bool collision(SpriteWarp *m_spr, Transform *m_tr, Attack *n_atk, Transform *n_tr);
+bool collision(SpriteWarp *m_spr, Transform *m_tr, AttackWarp *n_atkw, Transform *n_tr);
 
 // 怪物与人物碰撞
 bool collision(SpriteWarp *m_spr, Transform *m_tr);
 
 // 人物与人物攻击判断
-bool collision(Character *m_cha, Transform *m_tr, Attack *n_atk, Transform *n_tr);
+bool collision(Character *m_cha, Transform *m_tr, AttackWarp *n_atk, Transform *n_tr);
 
-void hit_effect(Attack *atk, SDL_FPoint *head, entt::entity *ent, char type, int damage);
+void hit_effect(AttackWarp *atk, SDL_FPoint *head, entt::entity *ent, char type, int damage);

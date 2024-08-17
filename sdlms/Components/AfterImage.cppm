@@ -34,6 +34,8 @@ export struct AfterImage
     AnimatedSprite aspr;
     Info info;
 
+    bool hit = false;
+
     static void init();
     AfterImage() = default;
 };

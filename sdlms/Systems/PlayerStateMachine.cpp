@@ -559,15 +559,14 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         // add afterimg
         World::registry->emplace_or_replace<AfterImage>(*ent);
 
-        auto &atk = World::registry->emplace_or_replace<Attack>(ent);
-        auto lt = aft->info.lt;
-        auto rb = aft->info.rb;
-        atk.rect.x = lt.x;
-        atk.rect.y = lt.y;
-        atk.rect.w = rb.x - lt.x;
-        atk.rect.h = rb.y - lt.y;
-        atk.hit = aft->hits[u"sword1"];
-        atk.p = &World::registry->try_get<Transform>(ent)->position;
+        // auto lt = aft->info.lt;
+        // auto rb = aft->info.rb;
+        // atk.rect.x = lt.x;
+        // atk.rect.y = lt.y;
+        // atk.rect.w = rb.x - lt.x;
+        // atk.rect.h = rb.y - lt.y;
+        // atk.hit = aft->hits[u"sword1"];
+        // atk.p = &World::registry->try_get<Transform>(ent)->position;
 
         state = Character::State::ATTACK;
         player_alert_cooldown = 4000;
@@ -905,6 +904,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
         cha->action_index = 0;
         cha->action_time = 0;
         cha->action = Character::ACTION::DEAD;
+        cha->action_str = u"dead";
 
         if (!mv->foo)
         {
@@ -948,20 +948,22 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             mv->hspeed = 0;
         }
         auto eff = World::registry->try_get<Effect>(*ent);
-        Skill ski(u"4211002");
+        Skill ski(u"21120005");
         for (auto &it : ski.ski->effects)
         {
             eff->effects.push_back(AnimatedSprite(it));
         }
-        auto &atk = World::registry->emplace_or_replace<Attack>(*ent);
+        auto atk = World::registry->try_get<Attack>(*ent);
         auto lt = ski.ski->infos[19]->lt;
         auto rb = ski.ski->infos[19]->rb;
-        atk.rect.x = lt.x;
-        atk.rect.y = lt.y;
-        atk.rect.w = rb.x - lt.x;
-        atk.rect.h = rb.y - lt.y;
-        atk.hit = ski.ski->hits[0];
-        atk.p = &World::registry->try_get<Transform>(Player::ent)->position;
+        AttackWarp atkw;
+        atkw.rect.x = lt.x;
+        atkw.rect.y = lt.y;
+        atkw.rect.w = rb.x - lt.x;
+        atkw.rect.h = rb.y - lt.y;
+        atkw.hit = ski.ski->hits[0];
+        atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
+        atk->atks.push_back(atkw);
 
         state = Character::State::SKILL;
         // player_alert_cooldown = 4000;
