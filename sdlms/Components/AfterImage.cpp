@@ -54,13 +54,14 @@ void AfterImage::init()
     {
         hits[key] = AnimatedSpriteWarp::load(val[0]);
     }
+    
     node = Wz::Sound->get_root()->find_from_path(u"Weapon.img");
     for (auto &[key, val] : node->get_children())
     {
-        // for (auto &[k, v] : val)
-        // {
-        //     auto sou = SoundWarp::load(k);
-        //     sounds[key].push_back(sou);
-        // }
+        for (auto &[k, v] : val[0]->get_children())
+        {
+            auto sou = SoundWarp::load(v[0]);
+            sounds[key].push_back(sou);
+        }
     }
 }

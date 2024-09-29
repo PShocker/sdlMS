@@ -6,6 +6,7 @@ module;
 export module components:mob;
 
 import :animatedsprite;
+import :sound;
 
 export struct Mob
 {
@@ -32,4 +33,6 @@ export struct Mob
     int damage = 10;
 
     int state = State::MOVE;
+
+    std::unordered_map<std::u16string, SoundWarp *> sounds;
 };

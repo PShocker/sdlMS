@@ -151,9 +151,21 @@ void Map::load_bgm(wz::Node *node)
         auto url = dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
         url.insert(url.find('/'), u".img");
         node = Wz::Sound->get_root()->find_from_path(url);
-        Sound::sound_list[0] = SoundWarp::load(node);
+        auto souw = SoundWarp::load(node);
+        souw->circulate = true;
+        if (Sound::sound_list[0] != souw)
+        {
+            souw->offset = 0;
+            Sound::sound_list[0] = souw;
+        }
     }
     return;
+}
+
+void Map::load_bgm(int map_id)
+{
+    auto node = load_map_node(map_id);
+    load_bgm(node);
 }
 
 wz::Node *Map::load_map_node(int map_id)

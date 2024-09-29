@@ -20,6 +20,7 @@ export struct Map
     static void load_portals(wz::Node *node, int map_id);
 
     static void load_bgm(wz::Node *node);
+    static void load_bgm(int map_id);
     static void clean_up();
 
     static inline uint32_t id = 0;

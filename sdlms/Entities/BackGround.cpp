@@ -2,6 +2,7 @@ module;
 
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
+#include <SDL3/SDL.h>
 
 module entities;
 
@@ -120,6 +121,7 @@ void load_background(wz::Node *node, int id)
     {
         auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
         bspr.spr = SpriteWarp::load(Wz::Map->get_root()->find_from_path(url), a);
+        SDL_SetTextureScaleMode(std::get<SpriteWarp *>(bspr.spr)->texture, SDL_SCALEMODE_NEAREST);
         break;
     }
     case 1:

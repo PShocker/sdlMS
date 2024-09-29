@@ -23,6 +23,15 @@ void mob_statemachine_run()
         {
             mob_hit(hit, &ent);
             World::registry->remove<Hit>(ent);
+
+            // 怪物被攻击音效
+            if (Sound::sound_list[2] == nullptr)
+            {
+                auto souw = mob->sounds[u"Damage"];
+                souw->offset = 0;
+                Sound::sound_list[2] = souw;
+            }
+
             continue;
         }
         mob_statemachine(&ent, (float)Window::delta_time / 1000);

@@ -208,7 +208,12 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             atkw.hit = aft->hits[u"sword1"];
             atkw.p = &World::registry->try_get<Transform>(ent)->position;
             atk->atks.push_back(atkw);
-            aft->hit=true;
+            aft->hit = true;
+
+            // play sound
+            auto souw = AfterImage::sounds[u"swordS"][0];
+            souw->offset=0;
+            Sound::sound_list[1] = souw;
         }
     }
 }

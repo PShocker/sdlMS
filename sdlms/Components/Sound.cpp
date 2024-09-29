@@ -15,23 +15,56 @@ module components;
 
 static std::unordered_map<wz::Node *, SoundWarp *> cache;
 
+// 混合两个音频信号
+void mixAudio(uint8_t *audio1, uint8_t *audio2, uint8_t *output, int length)
+{
+    for (int i = 0; i < length; i++)
+    {
+        uint16_t mixedSample = (uint16_t)audio1[i] + (uint16_t)audio2[i];
+        // 限制输出范围
+        if (mixedSample > 65535)
+            mixedSample = 65535;
+        output[i] = (uint8_t)mixedSample;
+    }
+}
+
 static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astream, int additional_amount, int total_amount)
 {
-    auto sou = Sound::sound_list[0];
-    if (sou != nullptr)
+    if (additional_amount > 0)
     {
-        if (additional_amount > 0)
-        {
-            SDL_PutAudioStreamData(astream, sou->pcm_data.data() + sou->offset, additional_amount);
-            sou->offset += additional_amount;
-        }
+        Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
+        SDL_memset(data, 0, additional_amount);
 
-        // Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
-        // SDL_MixAudio(data, sou->pcm_data.data(), SDL_AUDIO_S16, additional_amount, 1);
-        // SDL_PutAudioStreamData(astream, sou->pcm_data.data(), total_amount * sizeof(float));
-        // SDL_stack_free(data);
-        // SDL_MixAudio(astream, sou->pcm_data.data(), additional_amount, SDL_AUDIO_S16, 1);
+        for (int i = 0; i < Sound::sound_list.size(); ++i)
+        {
+            auto souw = Sound::sound_list[i];
+            if (souw != nullptr)
+            {
+                auto amount = std::min((unsigned long long)additional_amount, souw->pcm_data.size() - souw->offset);
+                mixAudio(data, souw->pcm_data.data() + souw->offset, data, amount);
+                souw->offset += amount;
+                if (souw->offset >= souw->pcm_data.size())
+                {
+                    if (souw->circulate)
+                    {
+                        souw->offset = 0;
+                    }
+                    else
+                    {
+                        Sound::sound_list[i] = nullptr;
+                    }
+                }
+            }
+        }
+        SDL_PutAudioStreamData(astream, data, additional_amount);
+        SDL_stack_free(data);
     }
+
+    // Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
+    // SDL_MixAudio(data, sou->pcm_data.data(), SDL_AUDIO_S16, additional_amount, 1);
+    // SDL_PutAudioStreamData(astream, sou->pcm_data.data(), total_amount * sizeof(float));
+    // SDL_stack_free(data);
+    // SDL_MixAudio(astream, sou->pcm_data.data(), additional_amount, SDL_AUDIO_S16, 1);
 }
 
 bool Sound::init()
