@@ -19,7 +19,7 @@ void Window::create_window(const char *title, unsigned int width, unsigned int h
     }
     renderer = SDL_CreateRenderer(window, NULL);
     SDL_SetRenderVSync(renderer, 1);
-    SDL_SetRenderLogicalPresentation(renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX, SDL_SCALEMODE_NEAREST);
+    SDL_SetRenderLogicalPresentation(renderer, width, height, SDL_LOGICAL_PRESENTATION_LETTERBOX);
     window_title = title;
 }
 

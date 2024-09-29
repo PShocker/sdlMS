@@ -22,6 +22,7 @@ void Map::load(int map_id)
     load_border(node);
     load_ladderRopes(node);
     load_lifes(node);
+    load_bgm(node);
     World::zindex = true;
 }
 
@@ -140,6 +141,19 @@ void Map::load_portals(wz::Node *node, int map_id)
         }
         fix_portal();
     }
+}
+
+void Map::load_bgm(wz::Node *node)
+{
+    node = node->find_from_path("info/bgm");
+    if (node != nullptr)
+    {
+        auto url = dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
+        url.insert(url.find('/'), u".img");
+        node = Wz::Sound->get_root()->find_from_path(url);
+        Sound::sound_list[0] = SoundWarp::load(node);
+    }
+    return;
 }
 
 wz::Node *Map::load_map_node(int map_id)

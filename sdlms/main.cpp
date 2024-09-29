@@ -14,7 +14,7 @@ import ui;
 int width = 800;
 int height = 600;
 
-int SDL_AppIterate(void *appstate)
+SDL_AppResult SDL_AppIterate(void *appstate)
 {
     Window::tick_delta_time();
     Window::clear();
@@ -30,7 +30,7 @@ int SDL_AppIterate(void *appstate)
     return SDL_APP_CONTINUE;
 }
 
-int SDL_AppInit(void **appstate, int argc, char *argv[])
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
     Camera::w = width;
     Camera::h = height;
@@ -42,8 +42,9 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     Tomb::init();
     Damage::init();
     Cursor::init();
+    Sound::init();
 
-    World::load_map(102000000);
+    World::load_map(100000000);
 
     Player::ent = World::registry->create();
     load_character(0, 0, true, &Player::ent);
@@ -54,7 +55,7 @@ int SDL_AppInit(void **appstate, int argc, char *argv[])
     return SDL_APP_CONTINUE;
 }
 
-int SDL_AppEvent(void *appstate, const SDL_Event *event)
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event)
 {
     return (event->type == SDL_EVENT_QUIT) ? SDL_APP_SUCCESS : SDL_APP_CONTINUE;
 }

@@ -4,5 +4,5 @@ export module core:input;
 
 export struct Input
 {
-    static const inline Uint8 *state = SDL_GetKeyboardState(nullptr);
+    static const inline bool *state = SDL_GetKeyboardState(nullptr);
 };

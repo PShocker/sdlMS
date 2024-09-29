@@ -571,6 +571,14 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         state = Character::State::ATTACK;
         player_alert_cooldown = 4000;
         cha->animated = false;
+
+        for (unsigned char i = 0; i < Sound::sound_list.size(); ++i)
+        {
+            if (Sound::sound_list[i] == nullptr)
+            {
+                // Sound::sound_list[i] = SoundWarp::load(node);
+            }
+        }
     }
     return state;
 }

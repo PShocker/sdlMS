@@ -8,6 +8,7 @@ export module components:afterimage;
 
 import :animatedsprite;
 import :character;
+import :sound;
 
 export struct AfterImage
 {
@@ -27,6 +28,7 @@ export struct AfterImage
     static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> swordOS;
 
     static inline std::unordered_map<std::u16string, AnimatedSpriteWarp *> hits;
+    static inline std::unordered_map<std::u16string, std::vector<SoundWarp *>> sounds;
 
     bool animated = false;
     bool animate = false;

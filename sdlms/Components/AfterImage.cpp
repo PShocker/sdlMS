@@ -49,8 +49,18 @@ void AfterImage::init()
     load(u"axe.img", axe);
     load(u"swordOS.img", swordOS);
 
-    auto node=afterimage->find_from_path(u"hit.img");
-    for (auto &[key, val] : node->get_children()){
-        hits[key]=AnimatedSpriteWarp::load(val[0]);
+    auto node = afterimage->find_from_path(u"hit.img");
+    for (auto &[key, val] : node->get_children())
+    {
+        hits[key] = AnimatedSpriteWarp::load(val[0]);
+    }
+    node = Wz::Sound->get_root()->find_from_path(u"Weapon.img");
+    for (auto &[key, val] : node->get_children())
+    {
+        // for (auto &[k, v] : val)
+        // {
+        //     auto sou = SoundWarp::load(k);
+        //     sounds[key].push_back(sou);
+        // }
     }
 }

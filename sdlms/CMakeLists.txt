@@ -1,10 +1,11 @@
-
-
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/entt/src")
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/SDL/include")
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/wzlibcpp")
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/wzlibcpp/include")
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/wzlibcpp/mio/include")
+
+# ffmpeg
+include_directories("C:/ffmpeg-master-latest-win64-gpl-shared/include")
 
 file(GLOB_RECURSE
         systems_cpp
@@ -112,6 +113,8 @@ target_sources(mod
         ${ui_cppm}
 )
 
+link_directories("C:/ffmpeg-master-latest-win64-gpl-shared/lib")
+
 add_executable(sdlMS main.cpp)
 
 target_link_libraries(sdlMS PRIVATE SDL3::SDL3)
@@ -119,6 +122,8 @@ target_link_libraries(sdlMS PRIVATE wzlib)
 target_link_libraries(sdlMS PRIVATE freetype)
 target_link_libraries(sdlMS PRIVATE EnTT)
 target_link_libraries(sdlMS PRIVATE mod)
+
+target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
 
 if(WIN32)
         if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
