@@ -108,6 +108,10 @@ void player_statemachine(entt::entity *ent, float delta_time)
             cha->state = Character::State::SKILL;
             break;
         }
+        if (player_double_jump(mv, tr))
+        {
+            break;
+        }
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
@@ -814,6 +818,25 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             break;
         case Character::State::SKILL:
             cha->action_time = 0;
+            if (cha->action_str == u"")
+            {
+                // 从攻击动作随机选择一个
+                int random = std::rand() % 3;
+                switch (random)
+                {
+                case 0:
+                    action = Character::ACTION::SWINGO1;
+                    break;
+                case 1:
+                    action = Character::ACTION::SWINGO2;
+                    break;
+                case 2:
+                    action = Character::ACTION::SWINGO3;
+                    break;
+                default:
+                    break;
+                }
+            }
             return;
         }
         cha->action_index = 0;
@@ -939,7 +962,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             mv->hspeed = 0;
         }
         auto eff = World::registry->try_get<Effect>(*ent);
-        auto &ski = World::registry->emplace_or_replace<Skill>(*ent, u"21120005");
+        auto &ski = World::registry->emplace_or_replace<Skill>(*ent, u"2201005");
 
         for (auto &it : ski.ski->effects)
         {
@@ -956,6 +979,8 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         else
         {
             // 随机动作
+            cha->action_str = u"";
+            cha->action_frame = 0;
         }
         cha->animated = false;
 
@@ -1020,4 +1045,24 @@ void player_portal(Move *mv, entt::entity *ent)
             }
         }
     }
+}
+
+bool player_double_jump(Move *mv, Transform *tr)
+{
+    // 二段跳
+    if (Input::state[SDL_SCANCODE_LALT])
+    {
+        mv->vspeed = -100;
+        if (tr->flip == 1)
+        {
+            // 朝右
+            mv->hspeed += 100;
+        }
+        else
+        {
+            mv->hspeed -= 100;
+        }
+        return true;
+    }
+    return false;
 }

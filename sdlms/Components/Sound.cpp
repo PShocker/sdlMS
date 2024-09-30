@@ -16,15 +16,15 @@ module components;
 static std::unordered_map<wz::Node *, SoundWarp *> cache;
 
 // 混合两个音频信号
-void mixAudio(uint8_t *audio1, uint8_t *audio2, uint8_t *output, int length)
+void mixAudio(Uint8 *audio1, Uint8 *audio2, Uint8 *output, int length)
 {
     for (int i = 0; i < length; i++)
     {
-        uint16_t mixedSample = (uint16_t)audio1[i] + (uint16_t)audio2[i];
+        Uint8 mixedSample = audio1[i] + audio2[i];
         // 限制输出范围
-        if (mixedSample > 65535)
-            mixedSample = 65535;
-        output[i] = (uint8_t)mixedSample;
+        if (mixedSample > SDL_MAX_UINT8)
+            mixedSample = SDL_MAX_UINT8;
+        output[i] = mixedSample;
     }
 }
 
@@ -33,7 +33,7 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
     if (additional_amount > 0)
     {
         Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
-        SDL_memset(data, 0, additional_amount);
+        SDL_memset(data, 0, additional_amount * sizeof(Uint8));
 
         for (int i = 0; i < Sound::sound_list.size(); ++i)
         {

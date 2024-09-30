@@ -29,6 +29,6 @@ export struct Sound
         CharacterAttack,
         CharacterSkill,
         MobHit,
-        MobDie,
+        MobDie
     };
 };

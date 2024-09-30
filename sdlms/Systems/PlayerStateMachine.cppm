@@ -47,3 +47,7 @@ bool player_hit(Hit *hit, entt::entity *ent);
 
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent);
 bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time);
+
+bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent);
+
+bool player_double_jump(Move *mv, Transform *tr);

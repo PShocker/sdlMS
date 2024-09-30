@@ -141,6 +141,28 @@ void animate_character(Character *cha, entt::entity ent)
         {
             // 基础动作
             auto delay = cha->stance_delays[cha->action][cha->action_index];
+            if (auto ski = World::registry->try_get<Skill>(ent))
+            {
+                // 不包含特殊动作的技能动作,此时攻击帧需要从AfterImage获取
+                auto action = cha->action;
+                auto &info = AfterImage::swordOS[u"0"][action];
+                uint8_t index = info.index;
+                if (cha->action_index == index && ski->hit == false)
+                {
+                    auto atk = World::registry->try_get<Attack>(ent);
+                    auto lt = ski->ski->infos[19]->lt;
+                    auto rb = ski->ski->infos[19]->rb;
+                    AttackWarp atkw;
+                    atkw.rect.x = lt.x;
+                    atkw.rect.y = lt.y;
+                    atkw.rect.w = rb.x - lt.x;
+                    atkw.rect.h = rb.y - lt.y;
+                    atkw.hit = ski->ski->hits[0];
+                    atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
+                    atk->atks.push_back(atkw);
+                    ski->hit = true;
+                }
+            }
             if (cha->action_time >= delay)
             {
                 if (cha->action_index == cha->stance_delays[cha->action].size() - 1)
