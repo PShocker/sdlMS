@@ -153,10 +153,10 @@ void Map::load_bgm(wz::Node *node)
         node = Wz::Sound->get_root()->find_from_path(url);
         auto souw = SoundWarp::load(node);
         souw->circulate = true;
-        if (Sound::sound_list[0] != souw)
+        if (Sound::sound_list[Sound::Sound_Type::Bgm] != souw)
         {
             souw->offset = 0;
-            Sound::sound_list[0] = souw;
+            Sound::sound_list[Sound::Sound_Type::Bgm] = souw;
         }
     }
     return;

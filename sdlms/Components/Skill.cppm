@@ -7,6 +7,7 @@ module;
 export module components:skill;
 
 import :animatedsprite;
+import :sound;
 
 export struct SkillWarp
 {
@@ -27,7 +28,9 @@ export struct SkillWarp
     std::vector<AnimatedSpriteWarp *> hits;
     std::vector<Info *> infos;
     std::u16string id;
-    std::optional<std::u16string> action_str=std::nullopt;
+    std::optional<std::u16string> action_str = std::nullopt;
+
+    std::unordered_map<std::u16string, SoundWarp *> sounds;
 
     SkillWarp(const std::u16string &id);
     SkillWarp() = default;
@@ -40,4 +43,6 @@ export struct Skill
     SkillWarp *ski = nullptr;
     Skill(const std::u16string &id);
     Skill() = default;
+
+    bool hit = false;
 };

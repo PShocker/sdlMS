@@ -9,7 +9,7 @@ import components;
 export void animate_run();
 
 bool animate_sprite(AnimatedSprite *a);
-void animate_character(Character *cha);
+void animate_character(Character *cha, entt::entity ent);
 void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent);
 void animate_effect(Effect *eff);
 void animate_portal(Portal *por);

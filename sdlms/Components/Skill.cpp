@@ -71,6 +71,13 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
     {
         action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action")->get_child(u"0"))->get();
     }
+
+    node = Wz::Sound->get_root()->find_from_path(u"Skill.img/" + id);
+    for (auto &[key, val] : node->get_children())
+    {
+        auto sou = SoundWarp::load(val[0]);
+        sounds[key] = sou;
+    }
 }
 
 SkillWarp *SkillWarp::load(const std::u16string &id)

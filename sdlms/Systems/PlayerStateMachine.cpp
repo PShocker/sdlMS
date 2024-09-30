@@ -559,15 +559,6 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         // add afterimg
         World::registry->emplace_or_replace<AfterImage>(*ent);
 
-        // auto lt = aft->info.lt;
-        // auto rb = aft->info.rb;
-        // atk.rect.x = lt.x;
-        // atk.rect.y = lt.y;
-        // atk.rect.w = rb.x - lt.x;
-        // atk.rect.h = rb.y - lt.y;
-        // atk.hit = aft->hits[u"sword1"];
-        // atk.p = &World::registry->try_get<Transform>(ent)->position;
-
         state = Character::State::ATTACK;
         player_alert_cooldown = 4000;
         cha->animated = false;
@@ -948,31 +939,34 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             mv->hspeed = 0;
         }
         auto eff = World::registry->try_get<Effect>(*ent);
-        Skill ski(u"21120005");
+        auto &ski = World::registry->emplace_or_replace<Skill>(*ent, u"21120005");
+
         for (auto &it : ski.ski->effects)
         {
             eff->effects.push_back(AnimatedSprite(it));
         }
-        auto atk = World::registry->try_get<Attack>(*ent);
-        auto lt = ski.ski->infos[19]->lt;
-        auto rb = ski.ski->infos[19]->rb;
-        AttackWarp atkw;
-        atkw.rect.x = lt.x;
-        atkw.rect.y = lt.y;
-        atkw.rect.w = rb.x - lt.x;
-        atkw.rect.h = rb.y - lt.y;
-        atkw.hit = ski.ski->hits[0];
-        atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
-        atk->atks.push_back(atkw);
 
         state = Character::State::SKILL;
-        // player_alert_cooldown = 4000;
+        player_alert_cooldown = 4000;
         if (ski.ski->action_str.has_value())
         {
             cha->action_str = ski.ski->action_str.value();
             cha->action_frame = 0;
         }
+        else
+        {
+            // 随机动作
+        }
         cha->animated = false;
+
+        // 技能音效
+        if (Sound::sound_list[Sound::Sound_Type::CharacterSkill] == nullptr)
+        {
+            auto souw = ski.ski->sounds[u"Use"];
+            souw->offset = 0;
+            Sound::sound_list[Sound::Sound_Type::CharacterSkill] = souw;
+        }
+
         return true;
     }
     return false;

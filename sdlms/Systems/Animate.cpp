@@ -49,7 +49,7 @@ void animate_run()
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
         {
-            animate_character(cha);
+            animate_character(cha, ent);
             if (auto aft = World::registry->try_get<AfterImage>(ent))
             {
                 if (aft->animated == false)
@@ -131,7 +131,7 @@ bool animate_sprite(AnimatedSprite *a)
     return r;
 }
 
-void animate_character(Character *cha)
+void animate_character(Character *cha, entt::entity ent)
 {
     if (cha->animate)
     {
@@ -139,6 +139,7 @@ void animate_character(Character *cha)
         cha->action_time += delta_time;
         if (Character::type_map.contains(cha->action_str))
         {
+            // 基础动作
             auto delay = cha->stance_delays[cha->action][cha->action_index];
             if (cha->action_time >= delay)
             {
@@ -156,8 +157,30 @@ void animate_character(Character *cha)
         }
         else
         {
-            // action
-            auto delay = cha->body_actions[cha->action_str][cha->action_frame].delay;
+            // 技能动作
+            int delay = cha->body_actions[cha->action_str][cha->action_frame].delay;
+            if (delay < 0)
+            {
+                // 判断攻击帧
+                if (auto ski = World::registry->try_get<Skill>(ent))
+                {
+                    if (ski->hit == false)
+                    {
+                        auto atk = World::registry->try_get<Attack>(ent);
+                        auto lt = ski->ski->infos[19]->lt;
+                        auto rb = ski->ski->infos[19]->rb;
+                        AttackWarp atkw;
+                        atkw.rect.x = lt.x;
+                        atkw.rect.y = lt.y;
+                        atkw.rect.w = rb.x - lt.x;
+                        atkw.rect.h = rb.y - lt.y;
+                        atkw.hit = ski->ski->hits[0];
+                        atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
+                        atk->atks.push_back(atkw);
+                        ski->hit = true;
+                    }
+                }
+            }
             if (cha->action_time >= std::abs(delay))
             {
                 if (cha->action_frame == cha->body_actions[cha->action_str].size() - 1)
@@ -212,8 +235,8 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 
             // play sound
             auto souw = AfterImage::sounds[u"swordS"][0];
-            souw->offset=0;
-            Sound::sound_list[1] = souw;
+            souw->offset = 0;
+            Sound::sound_list[Sound::Sound_Type::CharacterAttack] = souw;
         }
     }
 }

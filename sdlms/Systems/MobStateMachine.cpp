@@ -23,15 +23,6 @@ void mob_statemachine_run()
         {
             mob_hit(hit, &ent);
             World::registry->remove<Hit>(ent);
-
-            // 怪物被攻击音效
-            if (Sound::sound_list[2] == nullptr)
-            {
-                auto souw = mob->sounds[u"Damage"];
-                souw->offset = 0;
-                Sound::sound_list[2] = souw;
-            }
-
             continue;
         }
         mob_statemachine(&ent, (float)Window::delta_time / 1000);
@@ -256,11 +247,27 @@ bool mob_hit(Hit *hit, entt::entity *ent)
             mv->hspeed = mv->hspeed_max.value();
             mob_move(mob, mv, tr, mob->state, 0.15);
         }
+
+        // 怪物被攻击音效
+        if (Sound::sound_list[Sound::Sound_Type::MobHit] == nullptr)
+        {
+            auto souw = mob->sounds[u"Damage"];
+            souw->offset = 0;
+            Sound::sound_list[Sound::Sound_Type::MobHit] = souw;
+        }
     }
     else
     {
         mob->state = Mob::State::DIE;
         mob->index = u"die1";
+
+        // 怪物死亡音效
+        if (Sound::sound_list[Sound::Sound_Type::MobDie] == nullptr)
+        {
+            auto souw = mob->sounds[u"Die"];
+            souw->offset = 0;
+            Sound::sound_list[Sound::Sound_Type::MobDie] = souw;
+        }
         return false;
     }
     return true;
