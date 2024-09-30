@@ -270,6 +270,6 @@ void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity *ent, char type
     if (atkw->hit)
     {
         auto eff = World::registry->try_get<Effect>(*ent);
-        eff->effects.push_back(AnimatedSprite(atkw->hit));
+        eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit)});
     }
 }

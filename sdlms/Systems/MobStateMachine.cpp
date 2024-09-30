@@ -249,7 +249,7 @@ bool mob_hit(Hit *hit, entt::entity *ent)
         }
 
         // 怪物被攻击音效
-        if (Sound::sound_list[Sound::Sound_Type::MobHit] == nullptr)
+        if (mob->sounds.contains(u"Damage"))
         {
             auto souw = mob->sounds[u"Damage"];
             souw->offset = 0;
@@ -262,7 +262,7 @@ bool mob_hit(Hit *hit, entt::entity *ent)
         mob->index = u"die1";
 
         // 怪物死亡音效
-        if (Sound::sound_list[Sound::Sound_Type::MobDie] == nullptr)
+        if (mob->sounds.contains(u"Die"))
         {
             auto souw = mob->sounds[u"Die"];
             souw->offset = 0;

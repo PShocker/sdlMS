@@ -32,6 +32,12 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 {
+    if (argc == 3)
+    {
+        width = SDL_atoi(argv[1]);
+        height = SDL_atoi(argv[2]);
+    }
+
     Camera::w = width;
     Camera::h = height;
 

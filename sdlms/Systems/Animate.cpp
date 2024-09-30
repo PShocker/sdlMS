@@ -267,9 +267,15 @@ void animate_effect(Effect *eff)
 {
     for (auto it = eff->effects.begin(); it != eff->effects.end();)
     {
-        auto aspr = &(*it);
+        // auto aspr = &(*it);
+        auto aspr = &(&(*it))->second;
         if (animate_sprite(aspr) == false)
         {
+            auto tr = (&(*it))->first;
+            if (tr != nullptr)
+            {
+                delete tr;
+            }
             it = eff->effects.erase(it);
         }
         else

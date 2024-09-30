@@ -461,8 +461,15 @@ void render_effect(Transform *tr, Effect *eff)
 {
     for (int i = 0; i < eff->effects.size(); i++)
     {
-        auto aspr = &eff->effects[i];
-        render_animated_sprite(tr, aspr);
+        auto &[e_tr, aspr] = eff->effects[i];
+        if (e_tr == nullptr)
+        {
+            render_animated_sprite(tr, &aspr);
+        }
+        else
+        {
+            render_animated_sprite(e_tr, &aspr);
+        }
     }
 }
 

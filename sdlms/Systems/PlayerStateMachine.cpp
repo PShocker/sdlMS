@@ -108,7 +108,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
             cha->state = Character::State::SKILL;
             break;
         }
-        if (player_double_jump(mv, tr))
+        if (player_double_jump(mv, tr, ent))
         {
             break;
         }
@@ -425,6 +425,7 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
                         mv->page = fh->page;
                         World::zindex = true;
                     }
+
                     return false;
                 }
             }
@@ -498,6 +499,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->foo = nullptr;
                     mv->lr = nullptr;
                     player_foothold_cooldown = 120;
+                    player_double_jump_cooldown = 300;
                     return true;
                 }
             }
@@ -508,6 +510,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 mv->zmass = mv->foo->zmass;
                 mv->foo = nullptr;
                 mv->lr = nullptr;
+                player_double_jump_cooldown = 200;
                 return true;
             }
         }
@@ -528,6 +531,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->hspeed = -140;
                 }
                 player_ladderrope_cooldown = 80;
+                player_double_jump_cooldown = 200;
                 return true;
             }
         }
@@ -836,6 +840,8 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
                 default:
                     break;
                 }
+                cha->action = action;
+                cha->action_str = Character::type_map2.at(action);
             }
             return;
         }
@@ -867,6 +873,10 @@ void player_cooldown(int delta_time)
     if (player_ladderrope_cooldown > 0)
     {
         player_ladderrope_cooldown -= delta_time;
+    }
+    if (player_double_jump_cooldown > 0)
+    {
+        player_double_jump_cooldown -= delta_time;
     }
 }
 
@@ -966,7 +976,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
 
         for (auto &it : ski.ski->effects)
         {
-            eff->effects.push_back(AnimatedSprite(it));
+            eff->effects.push_back({nullptr, AnimatedSprite(it)});
         }
 
         state = Character::State::SKILL;
@@ -985,12 +995,10 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         cha->animated = false;
 
         // 技能音效
-        if (Sound::sound_list[Sound::Sound_Type::CharacterSkill] == nullptr)
-        {
-            auto souw = ski.ski->sounds[u"Use"];
-            souw->offset = 0;
-            Sound::sound_list[Sound::Sound_Type::CharacterSkill] = souw;
-        }
+
+        auto souw = ski.ski->sounds[u"Use"];
+        souw->offset = 0;
+        Sound::sound_list[Sound::Sound_Type::CharacterSkill] = souw;
 
         return true;
     }
@@ -1047,21 +1055,32 @@ void player_portal(Move *mv, entt::entity *ent)
     }
 }
 
-bool player_double_jump(Move *mv, Transform *tr)
+bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
 {
     // 二段跳
-    if (Input::state[SDL_SCANCODE_LALT])
+    if (Input::state[SDL_SCANCODE_LALT] && player_double_jump_cooldown <= 0)
     {
-        mv->vspeed = -100;
+        mv->vspeed -= 300;
         if (tr->flip == 1)
         {
             // 朝右
-            mv->hspeed += 100;
+            mv->hspeed += 480;
         }
         else
         {
-            mv->hspeed -= 100;
+            mv->hspeed -= 480;
         }
+        // 添加effect
+        auto eff = World::registry->try_get<Effect>(*ent);
+        eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
+
+        // 技能音效
+        Skill ski(u"4111006");
+        auto souw = ski.ski->sounds[u"Use"];
+        souw->offset = 0;
+        Sound::sound_list[Sound::Sound_Type::CharacterSkill] = souw;
+
+        player_double_jump_cooldown = 10000;
         return true;
     }
     return false;

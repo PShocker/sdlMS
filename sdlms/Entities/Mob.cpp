@@ -60,12 +60,14 @@ void load_mob(wz::Node *node)
     mob.index = mob.a.begin()->first;
 
     node = Wz::Sound->get_root()->find_from_path(u"Mob.img/" + id);
-    for (auto &[key, val] : node->get_children())
+    if (node != nullptr)
     {
-        auto sou = SoundWarp::load(val[0]);
-        mob.sounds[key] = sou;
+        for (auto &[key, val] : node->get_children())
+        {
+            auto sou = SoundWarp::load(val[0]);
+            mob.sounds[key] = sou;
+        }
     }
-
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Damage>(ent);
     World::registry->emplace<Animated>(ent);
