@@ -161,8 +161,6 @@ SoundWarp::SoundWarp(wz::Node *node)
         return;
     }
 
-    // 解码并存储PCM数据
-    std::vector<uint8_t> pcmData;
     // 解码音频帧
     AVPacket *packet = av_packet_alloc();
     AVFrame *frame = av_frame_alloc();
@@ -208,7 +206,7 @@ SoundWarp::SoundWarp(wz::Node *node)
 
                 std::vector<uint8_t> out(out_buffer, out_buffer + size);
 
-                pcmData.insert(pcmData.end(), out.begin(), out.end());
+                pcm_data.insert(pcm_data.end(), out.begin(), out.end());
 
                 av_frame_unref(frame);
             }
@@ -224,8 +222,6 @@ SoundWarp::SoundWarp(wz::Node *node)
 
     avcodec_free_context(&codecContext);
     avformat_close_input(&formatContext);
-
-    pcm_data = pcmData;
 }
 
 SoundWarp *SoundWarp::load(wz::Node *node)

@@ -41,6 +41,7 @@ void world_transport()
                 load_character(tr->position.x, tr->position.y - 10, false, &Player::ent);
                 camera_refresh();
                 World::TransPort::id = 0;
+                Window::tick_delta_time();
                 return;
             }
         }
