@@ -139,6 +139,11 @@ void player_statemachine(entt::entity *ent, float delta_time)
             cha->state = Character::State::JUMP;
             break;
         }
+        if (player_skill(mv, cha, tr, cha->state, ent))
+        {
+            cha->state = Character::State::SKILL;
+            break;
+        }
         cha->state = player_climbing(cha, mv, tr, ent, delta_time);
     }
     break;
@@ -148,6 +153,11 @@ void player_statemachine(entt::entity *ent, float delta_time)
         if (player_jump(mv, cha, tr, cha->state))
         {
             cha->state = Character::State::JUMP;
+            break;
+        }
+        if (player_skill(mv, cha, tr, cha->state, ent))
+        {
+            cha->state = Character::State::SKILL;
             break;
         }
         if (!player_proning())
@@ -499,7 +509,8 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->foo = nullptr;
                     mv->lr = nullptr;
                     player_foothold_cooldown = 120;
-                    player_double_jump_cooldown = 300;
+                    SkillWarp::cooldowns[u"4111006"] = 250;
+
                     return true;
                 }
             }
@@ -510,7 +521,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 mv->zmass = mv->foo->zmass;
                 mv->foo = nullptr;
                 mv->lr = nullptr;
-                player_double_jump_cooldown = 200;
+                SkillWarp::cooldowns[u"4111006"] = 250;
                 return true;
             }
         }
@@ -531,7 +542,9 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->hspeed = -140;
                 }
                 player_ladderrope_cooldown = 80;
-                player_double_jump_cooldown = 200;
+
+                SkillWarp::cooldowns[u"4111006"] = 300;
+
                 return true;
             }
         }
@@ -874,10 +887,6 @@ void player_cooldown(int delta_time)
     {
         player_ladderrope_cooldown -= delta_time;
     }
-    if (player_double_jump_cooldown > 0)
-    {
-        player_double_jump_cooldown -= delta_time;
-    }
 }
 
 bool player_alert()
@@ -912,7 +921,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
             }
         }
         mv->foo = nullptr;
-        player_alert_cooldown = 4000;
+        player_alert_cooldown = 5000;
 
         if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT || cha->state == Character::State::PRONE)
         {
@@ -965,14 +974,147 @@ bool player_hit(Hit *hit, entt::entity *ent)
 
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
 {
-    if (Input::state[SDL_SCANCODE_A])
+    auto play_skill_sound = [](SkillWarp *souw) -> void
     {
+        // 技能音效
+        auto sound = souw->sounds[u"Use"];
+        sound->offset = 0;
+        Sound::sound_list[Sound::Sound_Type::CharacterSkill] = sound;
+    };
+
+    std::u16string id = u"";
+
+    if (Input::state[SDL_SCANCODE_A] && state != Character::State::CLIMB)
+    {
+        id = u"2201005";
         if (state != Character::State::JUMP)
         {
             mv->hspeed = 0;
         }
+    }
+    else if (Input::state[SDL_SCANCODE_SPACE] && SkillWarp::cooldowns[u"2201002"] <= 0)
+    {
+        // 快速移动
+        id = u"2201002";
+
+        // 添加effect
         auto eff = World::registry->try_get<Effect>(*ent);
-        auto &ski = World::registry->emplace_or_replace<Skill>(*ent, u"2201005");
+        eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+        eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+
+        auto x = tr->position.x;
+        auto y = tr->position.y;
+
+        if (Input::state[SDL_SCANCODE_RIGHT])
+        {
+            x += 300;
+        }
+        else if (Input::state[SDL_SCANCODE_LEFT])
+        {
+            x -= 300;
+        }
+        else if (Input::state[SDL_SCANCODE_DOWN])
+        {
+            y += 300;
+        }
+        else if (Input::state[SDL_SCANCODE_UP])
+        {
+            y -= 300;
+        }
+        if (x != tr->position.x)
+        {
+            if (!(state == Character::State::JUMP || state == Character::State::CLIMB))
+            {
+                // 地面快速移动
+                // 朝右移动
+                while (x > mv->foo->r)
+                {
+                    if (mv->foo->next != nullptr && mv->foo->next->k.has_value())
+                    {
+                        mv->foo = mv->foo->next;
+                    }
+                    else
+                    {
+                        x = mv->foo->r - 1;
+                        break;
+                    }
+                }
+                while (x < mv->foo->l)
+                {
+                    if (mv->foo->prev != nullptr && mv->foo->prev->k.has_value())
+                    {
+                        mv->foo = mv->foo->prev;
+                    }
+                    else
+                    {
+                        x = mv->foo->l + 1;
+                        break;
+                    }
+                }
+                y = mv->foo->get_y(x).value();
+            }
+            else
+            {
+                // 空中快速移动,只需要根据fh链表找
+                x = tr->position.x;
+                y = tr->position.y;
+                mv->hspeed = 0;
+                mv->vspeed = 0;
+            }
+        }
+        else if (y != tr->position.y)
+        {
+            bool find = false;
+            auto view = World::registry->view<FootHold>();
+            for (auto &e : view)
+            {
+                auto fh = &view.get<FootHold>(e);
+                if (fh->k.has_value() && fh != mv->foo)
+                {
+                    if (x >= fh->l && x <= fh->r)
+                    {
+                        auto pos_y = fh->get_y(x).value();
+                        if (pos_y == std::clamp(pos_y, std::min(y, tr->position.y), std::max(y, tr->position.y)))
+                        {
+                            mv->foo = fh;
+                            find = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (find)
+            {
+                y = mv->foo->get_y(x).value() - 5;
+                cha->state = Character::State::JUMP;
+            }
+            else
+            {
+                y = tr->position.y;
+            }
+            mv->hspeed = 0;
+            mv->vspeed = 0;
+        }
+        else
+        {
+            mv->hspeed = 0;
+            mv->vspeed = 0;
+        }
+
+        tr->position.x = x;
+        tr->position.y = y;
+        // 技能音效
+        play_skill_sound(SkillWarp::load(id));
+
+        SkillWarp::cooldowns[u"2201002"] = 500;
+        player_portal_cooldown = 600;
+
+        return false;
+    }
+    if (id != u"")
+    {
+        auto eff = World::registry->try_get<Effect>(*ent);
+        auto &ski = World::registry->emplace_or_replace<Skill>(*ent, id);
 
         for (auto &it : ski.ski->effects)
         {
@@ -995,11 +1137,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         cha->animated = false;
 
         // 技能音效
-
-        auto souw = ski.ski->sounds[u"Use"];
-        souw->offset = 0;
-        Sound::sound_list[Sound::Sound_Type::CharacterSkill] = souw;
-
+        play_skill_sound(ski.ski);
         return true;
     }
     return false;
@@ -1058,9 +1196,9 @@ void player_portal(Move *mv, entt::entity *ent)
 bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
 {
     // 二段跳
-    if (Input::state[SDL_SCANCODE_LALT] && player_double_jump_cooldown <= 0)
+    if (Input::state[SDL_SCANCODE_LALT] && SkillWarp::cooldowns[u"4111006"] <= 0)
     {
-        mv->vspeed -= 300;
+        mv->vspeed -= 420;
         if (tr->flip == 1)
         {
             // 朝右
@@ -1075,12 +1213,12 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
         eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
 
         // 技能音效
-        Skill ski(u"4111006");
-        auto souw = ski.ski->sounds[u"Use"];
+        auto ski = SkillWarp::load(u"4111006");
+        auto souw = ski->sounds[u"Use"];
         souw->offset = 0;
         Sound::sound_list[Sound::Sound_Type::CharacterSkill] = souw;
 
-        player_double_jump_cooldown = 10000;
+        SkillWarp::cooldowns[u"4111006"] = 10000;
         return true;
     }
     return false;
