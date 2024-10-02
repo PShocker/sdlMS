@@ -92,32 +92,19 @@ SoundWarp::SoundWarp(wz::Node *node)
     auto sound = dynamic_cast<wz::Property<wz::WzSound> *>(node);
     auto data = sound->get_raw_data();
 
-    struct buffer_data
-    {
-        uint8_t *ptr;
-        size_t size; ///< size left in the buffer
-    } bd{data.data(), data.size()};
+    unsigned char *buffer = static_cast<unsigned char *>(av_malloc(data.size()));
+    int buffer_size = data.size();
 
-    auto avio_ctx_buffer = av_malloc(0x1000);
+    memcpy(buffer, data.data(), data.size());
     AVIOContext *ioCtx = avio_alloc_context(
-        (uint8_t *)avio_ctx_buffer, 0x1000,
-        0, &bd,
-        [](void *opaque, uint8_t *buf, int buf_size) -> int
-        {
-            struct buffer_data *bd = (struct buffer_data *)opaque;
-            buf_size = FFMIN(buf_size, bd->size);
-
-            if (!buf_size)
-                return AVERROR_EOF;
-
-            /* copy internal buffer data to buf */
-            memcpy(buf, bd->ptr, buf_size);
-            bd->ptr += buf_size;
-            bd->size -= buf_size;
-
-            return buf_size;
-        },
-        NULL, NULL);
+        (uint8_t *)buffer, // 输入数据
+        buffer_size,       // 数据大小
+        0,                 // 读写模式（0表示只读）
+        NULL,              // 用户自定义数据
+        NULL,              // 读取函数（将使用内存数据）
+        NULL,              // 写入函数（未使用）
+        NULL               // 清理函数（未使用）
+    );
 
     // 打开输入文件并读取音频流信息
     AVFormatContext *formatContext = avformat_alloc_context();
@@ -175,15 +162,18 @@ SoundWarp::SoundWarp(wz::Node *node)
     // 输出采样率
     int outSampleRate = inSampleRate;
 
-    swr_alloc_set_opts2(&swrContext, &codecContext->ch_layout, outFormat, outSampleRate,
+    AVChannelLayout outChannel = {};
+    outChannel.nb_channels = 2;
+
+    int outChannelCount = outChannel.nb_channels;
+
+    swr_alloc_set_opts2(&swrContext, &outChannel, outFormat, outSampleRate,
                         &codecContext->ch_layout, inFormat, inSampleRate, 0, NULL);
 
     if (swr_init(swrContext) < 0)
     {
         return;
     }
-
-    int outChannelCount = codecContext->ch_layout.nb_channels;
 
     uint8_t *out_buffer = (uint8_t *)av_malloc(2 * outSampleRate);
     while (av_read_frame(formatContext, packet) >= 0)
@@ -197,7 +187,7 @@ SoundWarp::SoundWarp(wz::Node *node)
             }
             else if (error == 0)
             {
-                swr_convert(swrContext, &out_buffer, outSampleRate,
+                swr_convert(swrContext, &out_buffer, 2 * outSampleRate,
                             (const uint8_t **)frame->data,
                             frame->nb_samples);
                 int size = av_samples_get_buffer_size(NULL, outChannelCount,

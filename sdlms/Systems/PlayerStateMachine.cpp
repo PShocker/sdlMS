@@ -929,6 +929,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
             cha->action_index = 0;
             cha->action_time = 0;
             cha->action = Character::ACTION::JUMP;
+            cha->action_str = u"jump";
         }
     }
     else
@@ -1058,8 +1059,6 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
                 // 空中快速移动,只需要根据fh链表找
                 x = tr->position.x;
                 y = tr->position.y;
-                mv->hspeed = 0;
-                mv->vspeed = 0;
             }
         }
         else if (y != tr->position.y)
@@ -1092,14 +1091,9 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             {
                 y = tr->position.y;
             }
-            mv->hspeed = 0;
-            mv->vspeed = 0;
         }
-        else
-        {
-            mv->hspeed = 0;
-            mv->vspeed = 0;
-        }
+        mv->hspeed = 0;
+        mv->vspeed = 0;
 
         tr->position.x = x;
         tr->position.y = y;
