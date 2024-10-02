@@ -20,11 +20,16 @@ void mixAudio(Uint8 *audio1, Uint8 *audio2, Uint8 *output, int length)
 {
     for (int i = 0; i < length; i++)
     {
-        Uint8 mixedSample = audio1[i] + audio2[i];
-        // 限制输出范围
-        if (mixedSample > SDL_MAX_UINT8)
-            mixedSample = SDL_MAX_UINT8;
-        output[i] = mixedSample;
+        int16_t sample1 = reinterpret_cast<const int16_t *>(audio1)[i / 2];
+        int16_t sample2 = reinterpret_cast<const int16_t *>(audio2)[i / 2];
+        int32_t mixedSample = sample1 + sample2;
+        // 限制范围
+        if (mixedSample > INT16_MAX)
+            mixedSample = INT16_MAX;
+        if (mixedSample < INT16_MIN)
+            mixedSample = INT16_MIN;
+        // 存储混合结果
+        reinterpret_cast<int16_t *>(output)[i / 2] = static_cast<int16_t>(mixedSample);
     }
 }
 
