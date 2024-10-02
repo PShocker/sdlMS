@@ -180,12 +180,7 @@ SoundWarp::SoundWarp(wz::Node *node)
     {
         if ((avcodec_send_packet(codecContext, packet)) >= 0)
         {
-            auto error = avcodec_receive_frame(codecContext, frame);
-            if (error == AVERROR(EAGAIN) || error == AVERROR_EOF || error < 0)
-            {
-                return;
-            }
-            else if (error == 0)
+            if (avcodec_receive_frame(codecContext, frame) == 0)
             {
                 swr_convert(swrContext, &out_buffer, 2 * outSampleRate,
                             (const uint8_t **)frame->data,
@@ -194,9 +189,7 @@ SoundWarp::SoundWarp(wz::Node *node)
                                                       frame->nb_samples,
                                                       AV_SAMPLE_FMT_S16, 1);
 
-                std::vector<uint8_t> out(out_buffer, out_buffer + size);
-
-                pcm_data.insert(pcm_data.end(), out.begin(), out.end());
+                pcm_data.insert(pcm_data.end(), out_buffer, out_buffer + size);
 
                 av_frame_unref(frame);
             }
