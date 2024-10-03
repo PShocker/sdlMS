@@ -252,8 +252,9 @@ bool mob_hit(Hit *hit, entt::entity *ent)
         if (mob->sounds.contains(u"Damage"))
         {
             auto souw = mob->sounds[u"Damage"];
-            souw->offset = 0;
-            Sound::sound_list[Sound::Sound_Type::MobHit] = souw;
+            Sound sou;
+            sou.souw = souw;
+            Sound::sound_list.push_back(sou);
         }
     }
     else
@@ -265,8 +266,9 @@ bool mob_hit(Hit *hit, entt::entity *ent)
         if (mob->sounds.contains(u"Die"))
         {
             auto souw = mob->sounds[u"Die"];
-            souw->offset = 0;
-            Sound::sound_list[Sound::Sound_Type::MobDie] = souw;
+            Sound sou;
+            sou.souw = souw;
+            Sound::sound_list.push_back(sou);
         }
         return false;
     }

@@ -39,27 +39,29 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
     {
         Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
         SDL_memset(data, 0, additional_amount * sizeof(Uint8));
-
-        for (int i = 0; i < Sound::sound_list.size(); ++i)
+        for (auto it = Sound::sound_list.begin(); it != Sound::sound_list.end();)
         {
-            auto souw = Sound::sound_list[i];
+            auto sou = &(*it);
+            auto souw = sou->souw;
             if (souw != nullptr)
             {
-                auto amount = std::min((unsigned long long)additional_amount, souw->pcm_data.size() - souw->offset);
-                mixAudio(data, souw->pcm_data.data() + souw->offset, data, amount);
-                souw->offset += amount;
-                if (souw->offset >= souw->pcm_data.size())
+                auto amount = std::min((unsigned long long)additional_amount, souw->pcm_data.size() - sou->offset);
+                mixAudio(data, souw->pcm_data.data() + sou->offset, data, amount);
+                sou->offset += amount;
+                if (sou->offset >= souw->pcm_data.size())
                 {
-                    if (souw->circulate)
+                    if (sou->circulate)
                     {
-                        souw->offset = 0;
+                        sou->offset = 0;
                     }
                     else
                     {
-                        Sound::sound_list[i] = nullptr;
+                        it = Sound::sound_list.erase(it); // 删除当前元素并更新迭代器
+                        continue;
                     }
                 }
             }
+            ++it;
         }
         SDL_PutAudioStreamData(astream, data, additional_amount);
         SDL_stack_free(data);
@@ -220,13 +222,13 @@ SoundWarp *SoundWarp::load(wz::Node *node)
     }
     else
     {
-        SoundWarp *sou = new SoundWarp(node);
-        cache[node] = sou;
-        return sou;
+        SoundWarp *souw = new SoundWarp(node);
+        cache[node] = souw;
+        return souw;
     }
 }
 
 Sound::Sound(wz::Node *node)
 {
-    sou = SoundWarp::load(node);
+    souw = SoundWarp::load(node);
 }

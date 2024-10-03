@@ -144,7 +144,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
             cha->state = Character::State::SKILL;
             break;
         }
-        cha->state = player_climbing(cha, mv, tr, ent, delta_time);
+        cha->state = player_climbing(cha, mv, tr, cha->state, ent, delta_time);
     }
     break;
     case Character::State::PRONE:
@@ -684,9 +684,13 @@ bool player_climb(Move *mv, Transform *tr, int state)
     return false;
 }
 
-int player_climbing(Character *cha, Move *mv, Transform *tr, entt::entity *ent, float delta_time)
+int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::entity *ent, float delta_time)
 {
-    auto state = Character::State::CLIMB;
+    if (state == Character::State::JUMP)
+    {
+        return state;
+    }
+    state = Character::State::CLIMB;
     if (Input::state[SDL_SCANCODE_DOWN])
     {
         mv->vspeed = 100;
@@ -978,9 +982,9 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
     auto play_skill_sound = [](SkillWarp *souw) -> void
     {
         // 技能音效
-        auto sound = souw->sounds[u"Use"];
-        sound->offset = 0;
-        Sound::sound_list[Sound::Sound_Type::CharacterSkill] = sound;
+        Sound sou;
+        sou.souw = souw->sounds[u"Use"];
+        Sound::sound_list.push_back(sou);
     };
 
     std::u16string id = u"";
@@ -1086,6 +1090,10 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             {
                 y = mv->foo->get_y(x).value() - 5;
                 cha->state = Character::State::JUMP;
+                cha->action_index = 0;
+                cha->action_time = 0;
+                cha->action = Character::ACTION::JUMP;
+                cha->action_str = u"jump";
             }
             else
             {
@@ -1209,8 +1217,10 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
         // 技能音效
         auto ski = SkillWarp::load(u"4111006");
         auto souw = ski->sounds[u"Use"];
-        souw->offset = 0;
-        Sound::sound_list[Sound::Sound_Type::CharacterSkill] = souw;
+
+        Sound sou;
+        sou.souw = souw;
+        Sound::sound_list.push_back(sou);
 
         SkillWarp::cooldowns[u"4111006"] = 10000;
         return true;

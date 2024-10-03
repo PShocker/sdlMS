@@ -23,7 +23,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
 bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time);
 
 bool player_climb(Move *mv, Transform *tr, int state);
-int player_climbing(Character *cha, Move *mv, Transform *tr, entt::entity *ent, float delta_time);
+int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::entity *ent, float delta_time);
 
 bool player_prone(Move *mv, Transform *tr, int state);
 bool player_proning();

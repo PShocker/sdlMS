@@ -256,9 +256,9 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             aft->hit = true;
 
             // play sound
-            auto souw = AfterImage::sounds[u"swordS"][0];
-            souw->offset = 0;
-            Sound::sound_list[Sound::Sound_Type::CharacterAttack] = souw;
+            Sound sou;
+            sou.souw = AfterImage::sounds[u"swordS"][0];
+            Sound::sound_list.push_back(sou);
         }
     }
 }

@@ -34,5 +34,7 @@ export struct Mob
 
     int state = State::MOVE;
 
+    std::u16string id;
+
     std::unordered_map<std::u16string, SoundWarp *> sounds;
 };

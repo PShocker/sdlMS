@@ -25,6 +25,9 @@ void load_mob(wz::Node *node)
 
     auto &mob = World::registry->emplace<Mob>(ent);
     auto id = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"id"))->get();
+
+    mob.id = id;
+
     auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
 
     // 从fh获取y,layer

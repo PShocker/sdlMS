@@ -151,12 +151,27 @@ void Map::load_bgm(wz::Node *node)
         auto url = dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
         url.insert(url.find('/'), u".img");
         node = Wz::Sound->get_root()->find_from_path(url);
-        auto souw = SoundWarp::load(node);
-        souw->circulate = true;
-        if (Sound::sound_list[Sound::Sound_Type::Bgm] != souw)
+
+        Sound sou(node);
+        sou.circulate = true;
+        sou.bgm = true;
+        if (!Sound::sound_list.empty())
         {
-            souw->offset = 0;
-            Sound::sound_list[Sound::Sound_Type::Bgm] = souw;
+            auto first_sound = Sound::sound_list.front();
+            if (first_sound.souw != sou.souw)
+            {
+                if (first_sound.bgm == true)
+                {
+                    // 移除上一个图的bgm
+                    Sound::sound_list.pop_front();
+                    // 切换到本地图的bgm
+                    Sound::sound_list.push_front(sou);
+                }
+            }
+        }
+        else
+        {
+            Sound::sound_list.push_front(sou);
         }
     }
     return;
