@@ -145,7 +145,9 @@ void animate_character(Character *cha, entt::entity ent)
             {
                 // 不包含特殊动作的技能动作,此时攻击帧需要从AfterImage获取
                 auto action = cha->action;
-                auto &info = AfterImage::swordOS[u"0"][action];
+
+                auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
+                auto &info = AfterImage::afterimages[weaponinfo->afterImage][u"0"][action];
                 uint8_t index = info.index;
                 if (cha->action_index == index && ski->hit == false)
                 {
@@ -230,7 +232,8 @@ void animate_character(Character *cha, entt::entity ent)
 void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 {
     auto action = cha->action;
-    auto &info = aft->swordOS[u"0"][action];
+    auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
+    auto &info = AfterImage::afterimages[weaponinfo->afterImage][u"0"][action];
     uint8_t index = info.index;
     auto &aspr = aft->aspr;
     if (cha->action_index == index || aft->animate)
@@ -257,7 +260,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 
             // play sound
             Sound sou;
-            sou.souw = AfterImage::sounds[u"swordS"][0];
+            sou.souw = AfterImage::sounds[weaponinfo->sfx][0];
             Sound::sound_list.push_back(sou);
         }
     }

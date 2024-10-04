@@ -49,3 +49,5 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
 bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time);
 
 bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent);
+
+uint8_t player_attack_action();

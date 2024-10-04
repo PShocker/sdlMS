@@ -20,12 +20,7 @@ export struct AfterImage
         SDL_FPoint rb;
     };
 
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> axe;
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> barehands;
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> bow;
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> crossBow;
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> gun;
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> swordOS;
+    static inline std::unordered_map<std::u16string, std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>>> afterimages;
 
     static inline std::unordered_map<std::u16string, AnimatedSpriteWarp *> hits;
     static inline std::unordered_map<std::u16string, std::vector<SoundWarp *>> sounds;

@@ -786,35 +786,42 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         switch (action)
         {
         case Character::State::STAND:
-            action = Character::ACTION::STAND1;
-            break;
+        {
+            auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
+            if (weaponinfo != nullptr && weaponinfo->stand1 == false)
+            {
+                action = Character::ACTION::STAND2;
+            }
+            else
+            {
+                action = Character::ACTION::STAND1;
+            }
+        }
+        break;
         case Character::State::WALK:
-            action = Character::ACTION::WALK1;
-            break;
+        {
+            auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
+            if (weaponinfo != nullptr && weaponinfo->walk1 == false)
+            {
+                action = Character::ACTION::WALK2;
+            }
+            else
+            {
+                action = Character::ACTION::WALK1;
+            }
+        }
+        break;
         case Character::State::JUMP:
             action = Character::ACTION::JUMP;
             break;
         case Character::State::ATTACK:
         {
-            int random = std::rand() % 3;
-            switch (random)
-            {
-            case 0:
-                action = Character::ACTION::SWINGO1;
-                break;
-            case 1:
-                action = Character::ACTION::SWINGO2;
-                break;
-            case 2:
-                action = Character::ACTION::SWINGO3;
-                break;
-            default:
-                break;
-            }
+            action = player_attack_action();
             if (auto aft = World::registry->try_get<AfterImage>(Player::ent))
             {
-                aft->aspr = AnimatedSprite(AfterImage::swordOS[u"0"][action].asprw);
-                aft->info = AfterImage::swordOS[u"0"][action];
+                auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
+                aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][u"0"][action].asprw);
+                aft->info = AfterImage::afterimages[weaponinfo->afterImage][u"0"][action];
             }
         }
         break;
@@ -838,30 +845,13 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             action = Character::ACTION::ALERT;
             break;
         case Character::State::SKILL:
-            cha->action_time = 0;
             if (cha->action_str == u"")
             {
                 // 从攻击动作随机选择一个
-                int random = std::rand() % 3;
-                switch (random)
-                {
-                case 0:
-                    action = Character::ACTION::SWINGO1;
-                    break;
-                case 1:
-                    action = Character::ACTION::SWINGO2;
-                    break;
-                case 2:
-                    action = Character::ACTION::SWINGO3;
-                    break;
-                default:
-                    break;
-                }
-                cha->action = action;
-                cha->action_str = Character::type_map2.at(action);
+                action = player_attack_action();
             }
-            return;
         }
+        cha->action_frame = 0;
         cha->action_index = 0;
         cha->action_time = 0;
         cha->action = action;
@@ -1226,4 +1216,20 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
         return true;
     }
     return false;
+}
+
+uint8_t player_attack_action()
+{
+    uint8_t action;
+    int random = std::rand() % 2;
+    switch (random)
+    {
+    case 0:
+        action = Character::ACTION::STABT1;
+        break;
+    default:
+        action = Character::ACTION::STABT2;
+        break;
+    }
+    return action;
 }

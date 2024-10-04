@@ -24,3 +24,4 @@ export import :effect;
 export import :damage;
 export import :tomb;
 export import :trap;
+export import :weaponinfo;
