@@ -549,6 +549,8 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
 
                 SkillWarp::cooldowns[u"4111006"] = 300;
 
+                Sound::sound_list.push_back(Sound(u"Game.img/Jump"));
+
                 return true;
             }
         }
