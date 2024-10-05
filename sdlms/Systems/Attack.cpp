@@ -57,20 +57,33 @@ void player_attack(AttackWarp *atkw)
     {
         if (ent != Player::ent)
         {
+            if (atkw->mobCount <= 0)
+            {
+                break;
+            }
             if (auto mob = World::registry->try_get<Mob>(ent))
             {
                 if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
                 {
-                    attack_mob(atkw, mob, &ent);
+                    if (attack_mob(atkw, mob, &ent))
+                    {
+                        atkw->mobCount -= 1;
+                    }
                 }
             }
             else if (auto npc = World::registry->try_get<Npc>(ent))
             {
-                attack_npc(atkw, npc, &ent);
+                if (attack_npc(atkw, npc, &ent))
+                {
+                    atkw->mobCount -= 1;
+                }
             }
             else if (auto cha = World::registry->try_get<Character>(ent))
             {
-                attack_cha(atkw, cha, &ent);
+                if (attack_cha(atkw, cha, &ent))
+                {
+                    atkw->mobCount -= 1;
+                }
             }
         }
     }
@@ -107,7 +120,7 @@ bool trap_collision(Trap *trap, AnimatedSprite *aspr, Transform *t_tr)
     return false;
 }
 
-void attack_mob(AttackWarp *atkw, Mob *mob, entt::entity *ent)
+bool attack_mob(AttackWarp *atkw, Mob *mob, entt::entity *ent)
 {
     auto animated = mob->a[mob->index];
     auto m_spr = animated->aspr->sprites[animated->anim_index];
@@ -118,10 +131,12 @@ void attack_mob(AttackWarp *atkw, Mob *mob, entt::entity *ent)
     if (collision(m_spr, m_tr, atkw, p_tr))
     {
         hit_effect(atkw, &m_spr->head.value(), ent, 0, atkw->damage);
+        return true;
     }
+    return false;
 }
 
-void attack_npc(AttackWarp *atkw, Npc *npc, entt::entity *ent)
+bool attack_npc(AttackWarp *atkw, Npc *npc, entt::entity *ent)
 {
     auto animated = npc->a[npc->index];
     auto n_spr = animated->aspr->sprites[animated->anim_index];
@@ -132,10 +147,12 @@ void attack_npc(AttackWarp *atkw, Npc *npc, entt::entity *ent)
     if (collision(n_spr, n_tr, atkw, p_tr))
     {
         hit_effect(atkw, &n_spr->head.value(), ent, 0, 0);
+        return true;
     }
+    return false;
 }
 
-void attack_cha(AttackWarp *atkw, Character *cha, entt::entity *ent)
+bool attack_cha(AttackWarp *atkw, Character *cha, entt::entity *ent)
 {
     auto p_tr = World::registry->try_get<Transform>(Player::ent);
     auto n_tr = World::registry->try_get<Transform>(*ent);
@@ -143,7 +160,9 @@ void attack_cha(AttackWarp *atkw, Character *cha, entt::entity *ent)
     if (collision(cha, n_tr, atkw, p_tr))
     {
         hit_effect(atkw, nullptr, ent, 0, atkw->damage);
+        return true;
     }
+    return false;
 }
 
 bool collision(SpriteWarp *m_spr, Transform *m_tr, AttackWarp *atkw, Transform *p_tr)

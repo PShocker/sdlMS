@@ -46,4 +46,5 @@ export struct Skill
     Skill() = default;
 
     bool hit = false;
+    uint8_t level = 19;
 };

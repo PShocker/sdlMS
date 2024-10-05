@@ -43,7 +43,7 @@ void Wz::init(const std::string &filename_prefix)
     Npc->parse(u"Npc");
     // Quest->parse();
     // Reactor->parse();
-    Skill->parse(u"Sound");
+    Skill->parse(u"Skill");
     Sound->parse(u"Sound");
     String->parse(u"String");
     // TamingMob->parse();

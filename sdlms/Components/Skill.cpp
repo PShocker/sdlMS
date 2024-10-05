@@ -13,7 +13,11 @@ static std::unordered_map<std::u16string, SkillWarp *> cache;
 
 SkillWarp::Info::Info(wz::Node *node)
 {
-    // mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
+    if (node->get_child(u"mobCount"))
+    {
+        mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
+    }
+
     // damage = dynamic_cast<wz::Property<int> *>(node->get_child(u"damage"))->get();
     // attackCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"attackCount"))->get();
 

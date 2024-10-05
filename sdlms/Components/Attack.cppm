@@ -10,7 +10,7 @@ import :animatedsprite;
 export struct AttackWarp
 {
     SDL_FRect rect;
-    int mobCount;
+    int mobCount = 1;
     int attackCount;
     int damage;
 

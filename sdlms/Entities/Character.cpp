@@ -21,6 +21,8 @@ void load_character(float x, float y, bool sp, entt::entity *ent)
     // cha.add_cap(u"01000016");
     cha->add_shoes(u"01070002");
     cha->add_weapon(u"01432010");
+    World::registry->emplace<WeaponInfo>(*ent, u"01432010");
+
     // cha.add_shield(u"01092030");
 
     World::registry->emplace<Attack>(*ent);
@@ -36,7 +38,6 @@ void load_character(float x, float y, bool sp, entt::entity *ent)
         World::registry->emplace<Transform>(*ent, x, y, 99999999);
     }
     World::registry->emplace<Move>(*ent);
-    World::registry->emplace<WeaponInfo>(*ent, u"01432010");
     World::zindex = true;
     return;
 }

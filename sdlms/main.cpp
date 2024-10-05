@@ -55,8 +55,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Player::ent = World::registry->create();
     load_character(0, 0, true, &Player::ent);
 
-    auto e = World::registry->create();
-    load_character(-450, 260, false, &e);
+    // auto e = World::registry->create();
+    // load_character(-450, 260, false, &e);
 
     return SDL_APP_CONTINUE;
 }
