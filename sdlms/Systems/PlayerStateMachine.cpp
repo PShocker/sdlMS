@@ -1166,7 +1166,7 @@ void player_portal(Move *mv, entt::entity *ent)
                     auto por_x = por_tr->position.x;
                     auto por_y = por_tr->position.y;
                     if (player_pos.x == std::clamp(player_pos.x, por_x - 40, por_x + 40) &&
-                        player_pos.y == std::clamp(player_pos.y, por_y - 60, por_y + 60))
+                        player_pos.y == std::clamp(player_pos.y, por_y - 50, por_y + 50))
                     {
                         if (por->tm != Map::id)
                         {
@@ -1176,6 +1176,10 @@ void player_portal(Move *mv, entt::entity *ent)
                         }
                         else
                         {
+                            auto eff = World::registry->try_get<Effect>(*ent);
+                            eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+                            eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+
                             auto position = std::get<SDL_FPoint>(por->tn);
                             tr->position.x = position.x;
                             tr->position.y = position.y - 5;
