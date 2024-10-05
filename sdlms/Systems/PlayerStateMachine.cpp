@@ -21,7 +21,6 @@ void player_statemachine_run()
         {
             player_hit(hit, &ent);
             World::registry->remove<Hit>(ent);
-            return;
         }
         player_statemachine(&ent, (float)Window::delta_time / 1000);
     }
@@ -902,7 +901,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
         if (mv->foo)
         {
             mv->vspeed = -320;
-            // 获取玩家位置,并让怪物转身和后退
+
             auto hit_x = hit->x;
             auto cha_x = tr->position.x;
             if (cha_x < hit_x)
@@ -922,6 +921,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
             cha->state = Character::State::JUMP;
             cha->action_index = 0;
             cha->action_time = 0;
+            cha->action_frame = 0;
             cha->action = Character::ACTION::JUMP;
             cha->action_str = u"jump";
         }
@@ -931,6 +931,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
         cha->state = Character::State::DIE;
         cha->action_index = 0;
         cha->action_time = 0;
+        cha->action_frame = 0;
         cha->action = Character::ACTION::DEAD;
         cha->action_str = u"dead";
 
