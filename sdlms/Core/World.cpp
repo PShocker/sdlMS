@@ -23,5 +23,6 @@ entt::registry *World::load_map(int id)
         // 切换音乐
         Map::load_bgm(id);
     }
+    Window::tick_delta_time();
     return r;
 }

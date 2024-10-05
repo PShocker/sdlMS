@@ -30,6 +30,10 @@ void world_transport()
     {
         auto r = World::load_map(World::TransPort::id);
         r->destroy(Player::ent);
+        if (World::TransPort::tn == u"jumpSP")
+        {
+            World::TransPort::tn = u"sp";
+        }
         auto view = World::registry->view<Portal>();
         for (auto &e : view)
         {
@@ -41,7 +45,6 @@ void world_transport()
                 load_character(tr->position.x, tr->position.y - 10, false, &Player::ent);
                 camera_refresh();
                 World::TransPort::id = 0;
-                Window::tick_delta_time();
                 return;
             }
         }
