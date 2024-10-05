@@ -510,6 +510,8 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     player_foothold_cooldown = 120;
                     SkillWarp::cooldowns[u"4111006"] = 250;
 
+                    Sound::sound_list.push_back(Sound(u"Game.img/Jump"));
+
                     return true;
                 }
             }
@@ -521,6 +523,9 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 mv->foo = nullptr;
                 mv->lr = nullptr;
                 SkillWarp::cooldowns[u"4111006"] = 250;
+
+                Sound::sound_list.push_back(Sound(u"Game.img/Jump"));
+
                 return true;
             }
         }

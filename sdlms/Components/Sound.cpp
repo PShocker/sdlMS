@@ -12,6 +12,7 @@ extern "C"
 }
 
 module components;
+import resources;
 
 static std::unordered_map<wz::Node *, SoundWarp *> cache;
 
@@ -230,5 +231,11 @@ SoundWarp *SoundWarp::load(wz::Node *node)
 
 Sound::Sound(wz::Node *node)
 {
+    souw = SoundWarp::load(node);
+}
+
+Sound::Sound(const std::u16string &path)
+{
+    auto node = Wz::Sound->get_root()->find_from_path(path);
     souw = SoundWarp::load(node);
 }

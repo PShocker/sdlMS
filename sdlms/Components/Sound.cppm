@@ -17,6 +17,7 @@ export struct Sound
 {
     SoundWarp *souw = nullptr;
     Sound(wz::Node *node);
+    Sound(const std::u16string &path);
     Sound() = default;
 
     unsigned int offset = 0; // 记录当前播放的位置
