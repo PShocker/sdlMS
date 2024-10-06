@@ -381,15 +381,25 @@ void Character::add_cap(const std::u16string &val)
     if (cap_node != nullptr)
     {
         cap_vslot.clear();
+        auto vslot = dynamic_cast<wz::Property<wz::wzstring> *>(cap_node->find_from_path(u"info/vslot"))->get();
+        for (size_t i = 0; i < vslot.size(); i += 2)
+        {
+            cap_vslot.emplace(vslot.substr(i, 2));
+        }
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {
                 auto no_str = std::to_string(no);
                 auto type = type_map2.at(i) + u"/" + std::u16string{no_str.begin(), no_str.end()};
-                if (cap_node->find_from_path(type) != nullptr)
+                cap_node = character_node->find_from_path(u"Cap/" + val + u".img/" + type);
+                if (cap_node == nullptr)
                 {
-                    for (auto it : cap_node->find_from_path(type)->get_children())
+                    cap_node = character_node->find_from_path(u"Cap/" + val + u".img/default");
+                }
+                if (cap_node != nullptr)
+                {
+                    for (auto it : cap_node->get_children())
                     {
                         auto cap = it.second[0];
                         if (cap->type == wz::Type::UOL)
@@ -406,11 +416,6 @@ void Character::add_cap(const std::u16string &val)
                     }
                 }
             }
-        }
-        auto vslot = dynamic_cast<wz::Property<wz::wzstring> *>(cap_node->find_from_path(u"info/vslot"))->get();
-        for (size_t i = 0; i < vslot.size(); i += 2)
-        {
-            cap_vslot.emplace(vslot.substr(i, 2));
         }
     }
 }
