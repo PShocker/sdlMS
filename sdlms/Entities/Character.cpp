@@ -18,10 +18,11 @@ void load_character(float x, float y, bool sp, entt::entity *ent)
     cha->add_pants(u"01060002");
     cha->add_face(u"00020000");
     cha->add_hairs(u"00030000");
-    // cha.add_cap(u"01000016");
+    cha->add_cap(u"01002152");
     cha->add_shoes(u"01070002");
-    cha->add_weapon(u"01432010");
-    World::registry->emplace<WeaponInfo>(*ent, u"01432010");
+    cha->add_cape(u"01102053");
+    cha->add_weapon(u"01452023");
+    World::registry->emplace<WeaponInfo>(*ent, u"01452023");
 
     // cha.add_shield(u"01092030");
 

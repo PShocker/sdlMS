@@ -822,7 +822,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             break;
         case Character::State::ATTACK:
         {
-            action = player_attack_action();
+            action = player_attack_action(World::registry->try_get<WeaponInfo>(Player::ent));
             if (auto aft = World::registry->try_get<AfterImage>(Player::ent))
             {
                 auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
@@ -854,7 +854,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             if (cha->action_str == u"")
             {
                 // 从攻击动作随机选择一个
-                action = player_attack_action();
+                action = player_attack_action(World::registry->try_get<WeaponInfo>(Player::ent));
             }
         }
         cha->action_frame = 0;
@@ -1177,8 +1177,8 @@ void player_portal(Move *mv, entt::entity *ent)
                         else
                         {
                             auto eff = World::registry->try_get<Effect>(*ent);
-                            eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
-                            eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+                            eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
 
                             auto position = std::get<SDL_FPoint>(por->tn);
                             tr->position.x = position.x;
@@ -1230,18 +1230,9 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
     return false;
 }
 
-uint8_t player_attack_action()
+uint8_t player_attack_action(WeaponInfo *wea)
 {
-    uint8_t action;
-    int random = std::rand() % 2;
-    switch (random)
-    {
-    case 0:
-        action = Character::ACTION::STABT1;
-        break;
-    default:
-        action = Character::ACTION::STABT2;
-        break;
-    }
-    return action;
+    auto &v = wea->attack_stances[wea->attack];
+    int random = std::rand() % v.size();
+    return v[random];
 }

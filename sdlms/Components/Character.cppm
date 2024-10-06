@@ -13,6 +13,7 @@ export struct Character
 {
     enum ACTION : uint8_t
     {
+        NONE,
         ALERT,
         DEAD,
         FLY,
@@ -335,6 +336,7 @@ export struct Character
     void add_shoes(const std::u16string &val);
     void add_weapon(const std::u16string &val);
     void add_shield(const std::u16string &val);
+    void add_cape(const std::u16string &val);
 
     Character();
     static void init();

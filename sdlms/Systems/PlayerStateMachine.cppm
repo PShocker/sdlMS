@@ -50,4 +50,4 @@ bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent,
 
 bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent);
 
-uint8_t player_attack_action();
+uint8_t player_attack_action(WeaponInfo* wea);
