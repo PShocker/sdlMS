@@ -4,7 +4,7 @@ export module systems:move;
 
 import components;
 
-export float move_border_limit(Move *mv, float x);
+float move_border_limit(Move *mv, float x);
 
 export bool move_fall(Move *mv, Transform *tr, float delta_time, bool fall_collide = true);
 

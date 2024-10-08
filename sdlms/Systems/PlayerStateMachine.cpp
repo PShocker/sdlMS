@@ -534,22 +534,6 @@ bool player_proning()
     return false;
 }
 
-float player_border_limit(Move *mv, float x)
-{
-    auto rx0 = mv->rx0;
-    auto rx1 = mv->rx1;
-    if (!(rx0.has_value() && rx1.has_value()))
-    {
-        rx0 = World::registry->ctx().get<Border>().l;
-        rx1 = World::registry->ctx().get<Border>().r;
-    }
-    if (x < rx0.value() || x > rx1.value())
-    {
-        x = std::clamp(x, rx0.value(), rx1.value());
-    }
-    return x;
-}
-
 void player_action(Character *cha, int state, int new_state, Move *mv)
 {
     if (state != new_state)
@@ -621,6 +605,10 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             {
                 // 从攻击动作随机选择一个
                 action = player_attack_action(World::registry->try_get<WeaponInfo>(Player::ent));
+            }
+            else if (Character::type_map.contains(cha->action_str))
+            {
+                action = Character::type_map.at(cha->action_str);
             }
         }
         cha->action_frame = 0;
@@ -892,13 +880,11 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         if (ski.ski->action_str.has_value())
         {
             cha->action_str = ski.ski->action_str.value();
-            cha->action_frame = 0;
         }
         else
         {
             // 随机动作
             cha->action_str = u"";
-            cha->action_frame = 0;
         }
         cha->animated = false;
 

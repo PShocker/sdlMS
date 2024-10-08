@@ -28,7 +28,6 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::en
 bool player_prone(Move *mv, Transform *tr, int state);
 bool player_proning();
 
-float player_border_limit(Move *mv, float x);
 void player_action(Character *cha, int state, int new_state, Move *mv);
 
 void player_portal(Move *mv, entt::entity *ent);

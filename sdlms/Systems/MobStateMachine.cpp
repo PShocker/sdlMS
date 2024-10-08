@@ -209,10 +209,14 @@ bool mob_hit(Hit *hit, entt::entity *ent)
         }
 
         // 爆金币
-        load_drop(u"09000000", 1, tr->position.x, tr->position.y, tr->z);
-        World::zindex = true;
-
+        mob_drop(mob, tr);
         return false;
     }
     return true;
+}
+
+void mob_drop(Mob *mob, Transform *tr)
+{
+    load_drop(u"09000000", std::rand() % 200, tr->position.x, tr->position.y, tr->z);
+    World::zindex = true;
 }
