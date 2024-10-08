@@ -206,16 +206,13 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     }
     else
     {
-        if (state == Character::State::WALK)
+        if (player_alert())
         {
-            if (player_alert())
-            {
-                state = Character::State::ALERT;
-            }
-            else
-            {
-                state = Character::State::STAND;
-            }
+            state = Character::State::ALERT;
+        }
+        else
+        {
+            state = Character::State::STAND;
         }
         mv->hforce = 0;
         // 如果没有左右的输入并且速度为0,则可以直接return提高性能
@@ -226,14 +223,7 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     }
     if (move_move(mv, tr, 800, delta_time))
     {
-        if (state == Character::State::STAND)
-        {
-            return Character::State::STAND;
-        }
-        else
-        {
-            return Character::State::WALK;
-        }
+        return state;
     }
     else
     {

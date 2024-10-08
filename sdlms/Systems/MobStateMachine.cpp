@@ -219,4 +219,6 @@ void mob_drop(Mob *mob, Transform *tr)
 {
     load_drop(u"09000000", std::rand() % 200, tr->position.x, tr->position.y, tr->z);
     World::zindex = true;
+
+    Sound::sound_list.push_back(Sound(u"Game.img/DropItem"));
 }
