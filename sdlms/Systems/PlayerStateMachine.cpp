@@ -11,6 +11,7 @@ import components;
 import commons;
 import core;
 import entities;
+import :move;
 
 void player_statemachine_run()
 {
@@ -92,7 +93,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     case Character::State::JUMP:
     {
         player_flip(tr);
-        if (!player_fall(mv, tr, ent, delta_time))
+        if (!player_fall(mv, tr, delta_time))
         {
             cha->state = Character::State::STAND;
             player_statemachine(ent, 0);
@@ -220,120 +221,27 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
         // 如果没有左右的输入并且速度为0,则可以直接return提高性能
         if (mv->hspeed == 0)
         {
-
             return state;
         }
     }
-
-    const auto friction = 800; // 摩擦力
-
-    if (mv->hspeed > 0)
+    if (move_move(mv, tr, 800, delta_time))
     {
-        mv->hforce -= friction;
-        mv->hforce = std::max(-mv->hspeed / delta_time, mv->hforce);
-    }
-    else if (mv->hspeed < 0)
-    {
-        mv->hforce += friction;
-        mv->hforce = std::min(-mv->hspeed / delta_time, mv->hforce);
-    }
-
-    mv->hspeed += delta_time * mv->hforce;
-
-    if (mv->hspeed_min.has_value())
-    {
-        mv->hspeed = std::fmax(mv->hspeed, mv->hspeed_min.value());
-    }
-    if (mv->hspeed_max.has_value())
-    {
-        mv->hspeed = std::fmin(mv->hspeed, mv->hspeed_max.value());
-    }
-
-    auto d_x = mv->hspeed * delta_time;
-    auto x = d_x + tr->position.x;
-    if (auto new_x = player_border_limit(mv, x); x != new_x)
-    {
-        x = new_x;
-        mv->hspeed = 0;
-    }
-    auto y = tr->position.y;
-
-    // 人物在fh移动的函数
-    auto walk_fh = [&x, &y, &tr, &mv, &state](FootHold *next_fh) -> bool
-    {
-        FootHold *fh = nullptr; // 走到下一个fh
-        if (next_fh)
+        if (state == Character::State::STAND)
         {
-            fh = next_fh;
+            return Character::State::STAND;
         }
         else
         {
-            mv->vspeed = 0;
-            tr->position.y = y;
-            tr->position.x = x;
-
-            mv->foo = nullptr;
-            state = Character::State::JUMP;
-            return false;
-        }
-        if (!fh->k.has_value())
-        {
-            if (y == std::clamp(y, (float)fh->b - 1, (float)fh->b + 1))
-            {
-                // 撞墙
-                if (mv->hspeed < 0)
-                {
-                    tr->position.x = fh->x1 + 0.1;
-                }
-                else
-                {
-                    tr->position.x = fh->x1 - 0.1;
-                }
-                tr->position.y = mv->foo->get_y(tr->position.x).value();
-                mv->hspeed = 0;
-                return false;
-            }
-            else
-            {
-                // 楼梯上掉落
-                mv->vspeed = 0;
-                tr->position.y = y;
-                tr->position.x = x;
-
-                mv->foo = nullptr;
-                state = Character::State::JUMP;
-                return false;
-            }
-        }
-        mv->foo = fh;
-        return true;
-    };
-
-    // 往左走
-    while (x < mv->foo->l)
-    {
-        auto prev_fh = mv->foo->prev;
-        if (walk_fh(prev_fh) == false)
-        {
-            return state;
+            return Character::State::WALK;
         }
     }
-    // 往右走
-    while (x > mv->foo->r)
+    else
     {
-        auto next_fh = mv->foo->next;
-        if (walk_fh(next_fh) == false)
-        {
-            return state;
-        }
+        return Character::State::JUMP;
     }
-    // 地面上
-    tr->position.x = x;
-    tr->position.y = mv->foo->get_y(x).value();
-    return state;
 }
 
-bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
+bool player_fall(Move *mv, Transform *tr, float delta_time)
 {
     if (Input::state[SDL_SCANCODE_RIGHT])
     {
@@ -346,150 +254,8 @@ bool player_fall(Move *mv, Transform *tr, entt::entity *ent, float delta_time)
 
     // 默认重力为2000
     mv->vspeed += delta_time * 2000;
-    if (mv->vspeed_min.has_value())
-    {
-        mv->vspeed = std::fmax(mv->vspeed, mv->vspeed_min.value());
-    }
-    if (mv->vspeed_max.has_value())
-    {
-        mv->vspeed = std::fmin(mv->vspeed, mv->vspeed_max.value());
-    }
 
-    auto d_x = mv->hspeed * delta_time;
-    auto d_y = mv->vspeed * delta_time;
-
-    auto new_pos = tr->position + SDL_FPoint{(float)d_x, (float)d_y};
-
-    if (auto new_x = player_border_limit(mv, new_pos.x); new_pos.x != new_x)
-    {
-        new_pos.x = new_x;
-        mv->hspeed = 0;
-    }
-
-    auto collide_wall = [](FootHold *fh, float hspeed) -> bool
-    {
-        if (hspeed > 0 && fh->y1 > fh->y2)
-        {
-            while (fh->prev)
-            {
-                fh = fh->prev;
-                if (fh->k.has_value())
-                {
-                    return true;
-                }
-            }
-        }
-        else if (hspeed < 0 && fh->y1 < fh->y2)
-        {
-            while (fh->next)
-            {
-                fh = fh->next;
-                if (fh->k.has_value())
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-
-    // 下落
-    if (mv->vspeed >= 0 && player_foothold_cooldown <= 0)
-    {
-        auto view = World::registry->view<FootHold>();
-        for (auto &e : view)
-        {
-            auto fh = &view.get<FootHold>(e);
-            auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
-            if (collide.has_value())
-            {
-                if (!fh->k.has_value())
-                {
-                    // 判断墙面碰撞方向
-                    if (collide_wall(fh, mv->hspeed))
-                    {
-                        if (mv->hspeed < 0)
-                        {
-                            new_pos.x = fh->x1 + 0.1;
-                        }
-                        else
-                        {
-                            new_pos.x = fh->x1 - 0.1;
-                        }
-                        mv->hspeed = 0;
-                    }
-                }
-                else
-                {
-                    // 落地
-                    new_pos.x = std::clamp((float)collide.value().x, (float)fh->l, (float)fh->r);
-                    new_pos.y = fh->get_y(new_pos.x).value();
-                    mv->foo = fh;
-                    mv->hspeed /= 2;
-                    tr->position = new_pos;
-                    // switch z
-                    if (mv->page != fh->page)
-                    {
-                        tr->z = fh->page * LAYER_Z + CHARACTER_Z;
-                        mv->page = fh->page;
-                        World::zindex = true;
-                    }
-
-                    return false;
-                }
-            }
-        }
-    }
-    else if (mv->vspeed < 0)
-    {
-        auto view = World::registry->view<FootHold>();
-        for (auto &ent : view)
-        {
-            auto fh = &view.get<FootHold>(ent);
-            if (!fh->k.has_value())
-            {
-                // 墙
-                auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
-                if (collide.has_value())
-                {
-                    if (collide_wall(fh, mv->hspeed))
-                    {
-                        if (mv->hspeed < 0)
-                        {
-                            new_pos.x = fh->x1 + 0.1;
-                        }
-                        else
-                        {
-                            new_pos.x = fh->x1 - 0.1;
-                        }
-                        mv->hspeed = 0;
-                    }
-                }
-            }
-            else
-            {
-                if (fh->k == 0 &&
-                    fh->x2 < fh->x1 &&
-                    (fh->zmass == 0 ||
-                     fh->zmass == mv->zmass))
-                {
-                    // top floor
-                    auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
-                    if (collide.has_value())
-                    {
-                        if (collide_wall(fh, mv->hspeed))
-                        {
-                            new_pos.y = tr->position.y;
-                            mv->hspeed = 0;
-                            mv->vspeed = 0;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    tr->position = new_pos;
-    return true;
+    return move_fall(mv, tr, delta_time, player_foothold_cooldown <= 0);
 }
 
 bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
@@ -508,7 +274,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->foo = nullptr;
                     mv->lr = nullptr;
                     player_foothold_cooldown = 120;
-                    SkillWarp::cooldowns[u"4111006"] = 250;
+                    SkillWarp::cooldowns[u"4111006"] = 550;
 
                     Sound::sound_list.push_back(Sound(u"Game.img/Jump"));
 
@@ -597,7 +363,7 @@ bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent
 {
     if (mv->foo == nullptr)
     {
-        if (player_fall(mv, tr, ent, delta_time))
+        if (player_fall(mv, tr, delta_time))
         {
             // 空中
             if (cha->animated)

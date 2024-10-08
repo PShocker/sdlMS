@@ -25,3 +25,4 @@ export import :damage;
 export import :tomb;
 export import :trap;
 export import :weaponinfo;
+export import :drop;

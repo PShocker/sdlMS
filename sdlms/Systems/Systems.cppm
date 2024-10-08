@@ -10,3 +10,4 @@ export import :camera;
 export import :world;
 export import :cooldown;
 export import :attack;
+export import :drop;

@@ -23,6 +23,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     player_statemachine_run();
     attack_run();
     mob_statemachine_run();
+    drop_run();
     world_run();
     camera_run();
     render_run();
@@ -49,6 +50,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Damage::init();
     Cursor::init();
     Sound::init();
+    Drop::init();
 
     World::load_map(100000000);
 

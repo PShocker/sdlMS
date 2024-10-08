@@ -72,6 +72,10 @@ void animate_run()
                 animate_tomb(tomb, tr);
             }
         }
+        else if (auto dro = World::registry->try_get<Drop>(ent))
+        {
+            animate_drop(dro);
+        }
     }
 }
 
@@ -374,4 +378,9 @@ void animate_tomb(Tomb *tomb, Transform *tr)
     {
         tr->rotation -= 2 * std::numbers::pi; // 保持角度在 [0, 2π) 范围内
     }
+}
+
+void animate_drop(Drop *dro)
+{
+    animate_sprite(&dro->aspr);
 }

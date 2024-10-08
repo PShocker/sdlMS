@@ -17,7 +17,7 @@ void Wz::init(const std::string &filename_prefix)
     Character = (new wz::File(iv, (std::string(filename_prefix) + std::string("Character.wz")).c_str()));
     Effect = (new wz::File(iv, (std::string(filename_prefix) + std::string("Effect.wz")).c_str()));
     // Etc = (new wz::File(iv, (std::string(filename_prefix) + std::string("Etc.wz")).c_str()));
-    // Item = (new wz::File(iv, (std::string(filename_prefix) + std::string("Item.wz")).c_str()));
+    Item = (new wz::File(iv, (std::string(filename_prefix) + std::string("Item.wz")).c_str()));
     // List = (new wz::File(iv, (std::string(filename_prefix) + std::string("List.wz")).c_str()));
     Map = (new wz::File(iv, (std::string(filename_prefix) + std::string("Map.wz")).c_str()));
     Mob = (new wz::File(iv, (std::string(filename_prefix) + std::string("Mob.wz")).c_str()));
@@ -35,7 +35,7 @@ void Wz::init(const std::string &filename_prefix)
     Character->parse(u"Character");
     Effect->parse(u"Effect");
     // Etc->parse();
-    // Item->parse();
+    Item->parse(u"Item");
     // List->parse();
     Map->parse(u"Map");
     Mob->parse(u"Mob");

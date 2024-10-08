@@ -8,6 +8,7 @@ import components;
 import commons;
 import core;
 import entities;
+import :move;
 
 void mob_statemachine_run()
 {
@@ -98,71 +99,7 @@ int mob_move(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
     mob->tick -= delta_time;
     if (mob->tick > 0)
     {
-        auto d_x = mv->hspeed * delta_time;
-        auto x = d_x + tr->position.x;
-        x = std::clamp(x, mv->rx0.value(), mv->rx1.value());
-
-        auto y = tr->position.y;
-        // 怪物在fh移动的函数
-        auto walk_fh = [&x, &y, &tr, &mv, &state](FootHold *next_fh) -> bool
-        {
-            FootHold *fh = nullptr; // 走到下一个fh
-            if (next_fh)
-            {
-                fh = next_fh;
-            }
-            else
-            {
-                return false;
-            }
-            if (!fh->k.has_value())
-            {
-                if (y == std::clamp(y, (float)fh->b - 1, (float)fh->b + 1))
-                {
-                    // 撞墙
-                    if (mv->hspeed < 0)
-                    {
-                        tr->position.x = fh->x1 + 0.1;
-                    }
-                    else
-                    {
-                        tr->position.x = fh->x1 - 0.1;
-                    }
-                    tr->position.y = mv->foo->get_y(tr->position.x).value();
-                    mv->hspeed = 0;
-                    return false;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            mv->foo = fh;
-            return true;
-        };
-
-        // 往左走
-        while (x < mv->foo->l)
-        {
-            auto prev_fh = mv->foo->prev;
-            if (walk_fh(prev_fh) == false)
-            {
-                return state;
-            }
-        }
-        // 往右走
-        while (x > mv->foo->r)
-        {
-            auto next_fh = mv->foo->next;
-            if (walk_fh(next_fh) == false)
-            {
-                return state;
-            }
-        }
-        // 地面上
-        tr->position.x = x;
-        tr->position.y = mv->foo->get_y(x).value();
-        return state;
+        move_move(mv, tr, 0, delta_time);
     }
     else
     {
@@ -270,6 +207,11 @@ bool mob_hit(Hit *hit, entt::entity *ent)
             sou.souw = souw;
             Sound::sound_list.push_back(sou);
         }
+
+        // 爆金币
+        load_drop(u"09000000", 1, tr->position.x, tr->position.y, tr->z);
+        World::zindex = true;
+
         return false;
     }
     return true;

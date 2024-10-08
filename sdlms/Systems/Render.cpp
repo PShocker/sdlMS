@@ -81,6 +81,10 @@ void render_run()
                 render_damage(tr, dam, dam->head);
             }
         }
+        else if (auto dro = World::registry->try_get<Drop>(ent))
+        {
+            render_drop(tr, dro);
+        }
     }
 }
 
@@ -590,4 +594,9 @@ void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a)
 void render_tomb(Tomb *tomb)
 {
     render_animated_sprite(&tomb->f, &tomb->aspr);
+}
+
+void render_drop(Transform *tr, Drop *dro)
+{
+    render_animated_sprite(tr, &dro->aspr);
 }
