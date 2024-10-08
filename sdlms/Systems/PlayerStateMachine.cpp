@@ -225,6 +225,10 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     {
         return state;
     }
+    else if (mv->foo)
+    {
+        return Character::State::WALK;
+    }
     else
     {
         return Character::State::JUMP;

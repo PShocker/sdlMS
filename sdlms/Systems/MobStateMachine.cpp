@@ -50,6 +50,14 @@ void mob_statemachine(entt::entity *ent, float delta_time)
         mob->state = mob_move(mob, mv, tr, state, delta_time);
     }
     break;
+    case Mob::State::JUMP:
+    {
+        if (!mob_fall(mv, tr, delta_time))
+        {
+            mob->state = Mob::State::MOVE;
+        }
+    }
+    break;
     case Mob::State::HIT:
     {
     }
@@ -99,7 +107,10 @@ int mob_move(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
     mob->tick -= delta_time;
     if (mob->tick > 0)
     {
-        move_move(mv, tr, 0, delta_time);
+        if (!move_move(mv, tr, 0, delta_time))
+        {
+            state = Mob::State::JUMP;
+        }
     }
     else
     {
@@ -148,9 +159,19 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
             }
         }
         break;
+        case Mob::State::JUMP:
+        {
+            if (mob->a.contains(u"jump"))
+            {
+                mob->index = u"jump";
+            }
+        }
+        break;
         case Mob::State::HIT:
+        {
             mob->index = u"hit1";
-            break;
+        }
+        break;
         }
         mob->a[mob->index]->anim_index = 0;
         mob->a[mob->index]->anim_time = 0;
@@ -221,4 +242,12 @@ void mob_drop(Mob *mob, Transform *tr)
     World::zindex = true;
 
     Sound::sound_list.push_back(Sound(u"Game.img/DropItem"));
+}
+
+bool mob_fall(Move *mv, Transform *tr, float delta_time)
+{
+    // 默认重力为2000
+    mv->vspeed += delta_time * 2000;
+
+    return move_fall(mv, tr, delta_time);
 }
