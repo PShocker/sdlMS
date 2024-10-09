@@ -383,4 +383,5 @@ void animate_tomb(Tomb *tomb, Transform *tr)
 void animate_drop(Drop *dro)
 {
     animate_sprite(&dro->aspr);
+    dro->aspr.alpha = dro->alpha;
 }

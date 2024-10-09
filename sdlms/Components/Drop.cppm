@@ -15,6 +15,7 @@ export struct Drop
     bool land = false;
     bool pick = false;
     AnimatedSprite aspr;
+    int alpha = 255;
 
     enum MesoIcon
     {

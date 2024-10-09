@@ -28,10 +28,10 @@ void drop_run()
         }
         if (dro->pick == true)
         {
-            if (drop_pick(mv, tr, &dro->aspr, (float)Window::delta_time / 1000))
+            if (drop_pick(mv, tr, dro, (float)Window::delta_time / 1000))
             {
                 // 掉落物被捡起来,且完全透明,销毁
-                World::registry->destroy(ent);
+                // World::registry->destroy(ent);
             }
         }
     }
@@ -41,16 +41,16 @@ bool drop_fall(Move *mv, Transform *tr, float delta_time)
 {
     // 默认重力为2000
     mv->vspeed += delta_time * 2000;
-    return move_fall(mv, tr, DROP_Z, delta_time);
+    return move_fall(mv, tr, delta_time, DROP_Z);
 }
 
-bool drop_pick(Move *mv, Transform *tr, AnimatedSprite *aspr, float delta_time)
+bool drop_pick(Move *mv, Transform *tr, Drop *dro, float delta_time)
 {
     // 默认重力为2000
     mv->vspeed += delta_time * 2000;
-    move_fall(mv, tr, DROP_Z, delta_time);
-    aspr->alpha -= 1;
-    if (aspr->alpha <= 0)
+    move_fall(mv, tr, delta_time, DROP_Z);
+    dro->alpha -= 2;
+    if (dro->alpha <= 0)
     {
         return true;
     }

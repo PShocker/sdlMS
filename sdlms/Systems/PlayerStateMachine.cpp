@@ -38,35 +38,10 @@ void player_statemachine(entt::entity *ent, float delta_time)
     {
     case Character::State::ALERT:
     case Character::State::STAND:
-    {
-        player_flip(tr);
-        if (player_climb(mv, tr, cha->state))
-        {
-            cha->state = Character::State::CLIMB;
-            break;
-        }
-        if (player_prone(mv, tr, cha->state))
-        {
-            cha->state = Character::State::PRONE;
-            break;
-        }
-        cha->state = player_walk(mv, tr, delta_time);
-        if (player_jump(mv, cha, tr, cha->state))
-        {
-            cha->state = Character::State::JUMP;
-        }
-        if (player_skill(mv, cha, tr, cha->state, ent))
-        {
-            cha->state = Character::State::SKILL;
-            break;
-        }
-        cha->state = player_attack(mv, cha, tr, cha->state, ent);
-    }
-    break;
     case Character::State::WALK:
     {
-        // normal status,can walk or jump
         player_flip(tr);
+        player_pick_drop(cha, tr);
         if (player_climb(mv, tr, cha->state))
         {
             cha->state = Character::State::CLIMB;
@@ -997,8 +972,8 @@ bool player_pick_drop(Character *cha, Transform *tr)
                 auto dro_tr = World::registry->try_get<Transform>(ent);
                 auto dro_x = dro_tr->position.x;
                 auto dro_y = dro_tr->position.y;
-                if (player_pos.x == std::clamp(player_pos.x, dro_x - 10, dro_x + 10) &&
-                    player_pos.y == std::clamp(player_pos.y, dro_y - 10, dro_y + 10))
+                if (player_pos.x == std::clamp(player_pos.x, dro_x - 20, dro_x + 20) &&
+                    player_pos.y == std::clamp(player_pos.y, dro_y - 20, dro_y + 20))
                 {
                     // 捡起物品
                     dro->pick = true;
