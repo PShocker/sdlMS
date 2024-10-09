@@ -11,3 +11,4 @@ export import :world;
 export import :cooldown;
 export import :attack;
 export import :drop;
+export import :move;

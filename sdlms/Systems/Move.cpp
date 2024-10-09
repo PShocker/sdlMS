@@ -26,7 +26,7 @@ float move_border_limit(Move *mv, float x)
     return x;
 }
 
-bool move_fall(Move *mv, Transform *tr, float delta_time, bool fall_collide)
+bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall_collide)
 {
     if (mv->vspeed_min.has_value())
     {
@@ -48,7 +48,7 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, bool fall_collide)
         mv->hspeed = 0;
     }
 
-    auto collide_wall = [](FootHold *fh, float hspeed) -> bool
+    const auto collide_wall = [](FootHold *fh, float hspeed) -> bool
     {
         if (hspeed > 0 && fh->y1 > fh->y2)
         {
@@ -75,33 +75,35 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, bool fall_collide)
         return false;
     };
 
+    // 首先和墙面碰撞
+    for (auto &e : World::registry->view<WallFootHold>())
+    {
+        auto fh = World::registry->try_get<FootHold>(e);
+        auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
+        if (collide.has_value() && collide_wall(fh, mv->hspeed))
+        {
+            if (mv->hspeed < 0)
+            {
+                new_pos.x = fh->x1 + 0.1;
+            }
+            else
+            {
+                new_pos.x = fh->x1 - 0.1;
+            }
+            mv->hspeed = 0;
+        }
+    }
+
     // 下落
     if (mv->vspeed >= 0)
     {
-        auto view = World::registry->view<FootHold>();
-        for (auto &e : view)
+        if (fall_collide)
         {
-            auto fh = &view.get<FootHold>(e);
-            auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
-            if (collide.has_value())
+            for (auto &e : World::registry->view<FloorFootHold>())
             {
-                if (!fh->k.has_value())
-                {
-                    // 判断墙面碰撞方向
-                    if (collide_wall(fh, mv->hspeed))
-                    {
-                        if (mv->hspeed < 0)
-                        {
-                            new_pos.x = fh->x1 + 0.1;
-                        }
-                        else
-                        {
-                            new_pos.x = fh->x1 - 0.1;
-                        }
-                        mv->hspeed = 0;
-                    }
-                }
-                else if (fall_collide)
+                auto fh = World::registry->try_get<FootHold>(e);
+                auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
+                if (collide.has_value())
                 {
                     // 落地
                     new_pos.x = std::clamp((float)collide.value().x, (float)fh->l, (float)fh->r);
@@ -112,11 +114,10 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, bool fall_collide)
                     // switch z
                     if (mv->page != fh->page)
                     {
-                        tr->z = fh->page * LAYER_Z + CHARACTER_Z;
+                        tr->z = fh->page * LAYER_Z + z_index;
                         mv->page = fh->page;
                         World::zindex = true;
                     }
-
                     return false;
                 }
             }
@@ -124,47 +125,23 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, bool fall_collide)
     }
     else if (mv->vspeed < 0)
     {
-        auto view = World::registry->view<FootHold>();
-        for (auto &ent : view)
+        for (auto &e : World::registry->view<FloorFootHold>())
         {
-            auto fh = &view.get<FootHold>(ent);
-            if (!fh->k.has_value())
+            auto fh = World::registry->try_get<FootHold>(e);
+            if (fh->k == 0 &&
+                fh->x2 < fh->x1 &&
+                (fh->zmass == 0 ||
+                 fh->zmass == mv->zmass))
             {
-                // 墙
+                // top floor
                 auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
                 if (collide.has_value())
                 {
                     if (collide_wall(fh, mv->hspeed))
                     {
-                        if (mv->hspeed < 0)
-                        {
-                            new_pos.x = fh->x1 + 0.1;
-                        }
-                        else
-                        {
-                            new_pos.x = fh->x1 - 0.1;
-                        }
+                        new_pos.y = tr->position.y;
                         mv->hspeed = 0;
-                    }
-                }
-            }
-            else
-            {
-                if (fh->k == 0 &&
-                    fh->x2 < fh->x1 &&
-                    (fh->zmass == 0 ||
-                     fh->zmass == mv->zmass))
-                {
-                    // top floor
-                    auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
-                    if (collide.has_value())
-                    {
-                        if (collide_wall(fh, mv->hspeed))
-                        {
-                            new_pos.y = tr->position.y;
-                            mv->hspeed = 0;
-                            mv->vspeed = 0;
-                        }
+                        mv->vspeed = 0;
                     }
                 }
             }

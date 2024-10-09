@@ -30,3 +30,10 @@ export struct FootHold
 
     FootHold() = default;
 };
+
+export struct WallFootHold
+{
+};
+export struct FloorFootHold
+{
+};

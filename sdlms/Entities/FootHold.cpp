@@ -36,13 +36,18 @@ void load_foothold(wz::Node *node, int page, int zmass, int id)
         // 斜线
         fh.k = ((float)fh.y2 - (float)fh.y1) / ((float)fh.x2 - (float)fh.x1);
         fh.intercept = fh.y1 - fh.k.value() * fh.x1;
+        World::registry->emplace<FloorFootHold>(ent);
+    }
+    else
+    {
+        World::registry->emplace<WallFootHold>(ent);
     }
 }
 
 void fix_foothold()
 {
     fhs.clear();
-    
+
     auto view = World::registry->view<FootHold>();
     for (auto &e : view)
     {

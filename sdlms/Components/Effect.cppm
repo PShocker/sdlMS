@@ -2,6 +2,7 @@ module;
 
 #include <vector>
 #include <tuple>
+#include <string>
 
 export module components:effect;
 

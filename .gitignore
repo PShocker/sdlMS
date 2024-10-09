@@ -5,3 +5,4 @@ font
 ffmpeg
 .vs
 out
+*.pdb

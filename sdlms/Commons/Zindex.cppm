@@ -10,3 +10,4 @@ export const int TILE_Z = 100000;
 export const int NPC_Z = 200000;
 export const int MOB_Z = 300000;
 export const int CHARACTER_Z = 400000;
+export const int DROP_Z = 500000;

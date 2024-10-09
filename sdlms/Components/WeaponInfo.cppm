@@ -1,6 +1,8 @@
 module;
 
 #include <string>
+#include <vector>
+#include <array>
 
 export module components:weaponinfo;
 

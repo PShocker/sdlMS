@@ -13,6 +13,7 @@ export struct Drop
     uint64_t nums;
     int rotate;
     bool land = false;
+    bool pick = false;
     AnimatedSprite aspr;
 
     enum MesoIcon

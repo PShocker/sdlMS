@@ -238,7 +238,10 @@ bool mob_hit(Hit *hit, entt::entity *ent)
 
 void mob_drop(Mob *mob, Transform *tr)
 {
-    load_drop(u"09000000", std::rand() % 200, tr->position.x, tr->position.y, tr->z);
+    auto e = load_drop(u"09000000", std::rand() % 200, tr->position.x, tr->position.y, tr->z / LAYER_Z);
+    auto mv = World::registry->try_get<Move>(e);
+    mv->vspeed = -555;
+
     World::zindex = true;
 
     Sound::sound_list.push_back(Sound(u"Game.img/DropItem"));
@@ -249,5 +252,5 @@ bool mob_fall(Move *mv, Transform *tr, float delta_time)
     // 默认重力为2000
     mv->vspeed += delta_time * 2000;
 
-    return move_fall(mv, tr, delta_time);
+    return move_fall(mv, tr, MOB_Z, delta_time);
 }

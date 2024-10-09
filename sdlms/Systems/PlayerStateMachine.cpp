@@ -249,7 +249,7 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
     // 默认重力为2000
     mv->vspeed += delta_time * 2000;
 
-    return move_fall(mv, tr, delta_time, player_foothold_cooldown <= 0);
+    return move_fall(mv, tr, delta_time, CHARACTER_Z, player_foothold_cooldown <= 0);
 }
 
 bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
@@ -981,4 +981,36 @@ uint8_t player_attack_action(WeaponInfo *wea)
     auto &v = wea->attack_stances[wea->attack];
     int random = std::rand() % v.size();
     return v[random];
+}
+
+bool player_pick_drop(Character *cha, Transform *tr)
+{
+    if (Input::state[SDL_SCANCODE_Z])
+    {
+        // 捡起物品
+        for (auto &ent : World::registry->view<Drop>())
+        {
+            auto dro = World::registry->try_get<Drop>(ent);
+            if (dro->pick == false)
+            {
+                auto player_pos = tr->position;
+                auto dro_tr = World::registry->try_get<Transform>(ent);
+                auto dro_x = dro_tr->position.x;
+                auto dro_y = dro_tr->position.y;
+                if (player_pos.x == std::clamp(player_pos.x, dro_x - 10, dro_x + 10) &&
+                    player_pos.y == std::clamp(player_pos.y, dro_y - 10, dro_y + 10))
+                {
+                    // 捡起物品
+                    dro->pick = true;
+
+                    auto mv = World::registry->try_get<Move>(ent);
+                    mv->vspeed = -555;
+
+                    // 播放声音
+                    Sound::sound_list.push_back(Sound(u"Game.img/PickUpItem"));
+                }
+            }
+        }
+    }
+    return false;
 }
