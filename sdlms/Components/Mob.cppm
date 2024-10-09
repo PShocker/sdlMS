@@ -25,7 +25,7 @@ export struct Mob
         static const int JUMP = 5;
     };
     // STAND,MOVE状态下循环的持续时间
-    int tick = 200;
+    int tick = 500;
 
     int hp = 100;
     int mp;
