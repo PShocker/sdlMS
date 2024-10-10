@@ -541,7 +541,14 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             break;
         case Character::State::ATTACK:
         {
-            action = player_attack_action(World::registry->try_get<WeaponInfo>(Player::ent));
+            if (state == Character::State::PRONE)
+            {
+                action = Character::ACTION::PRONESTAB;
+            }
+            else
+            {
+                action = player_attack_action(World::registry->try_get<WeaponInfo>(Player::ent));
+            }
             if (auto aft = World::registry->try_get<AfterImage>(Player::ent))
             {
                 auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
@@ -966,20 +973,20 @@ bool player_pick_drop(Character *cha, Transform *tr)
         for (auto &ent : World::registry->view<Drop>())
         {
             auto dro = World::registry->try_get<Drop>(ent);
-            if (dro->pick == false)
+            if (dro->picker == nullptr)
             {
                 auto player_pos = tr->position;
                 auto dro_tr = World::registry->try_get<Transform>(ent);
                 auto dro_x = dro_tr->position.x;
                 auto dro_y = dro_tr->position.y;
-                if (player_pos.x == std::clamp(player_pos.x, dro_x - 20, dro_x + 20) &&
+                if (player_pos.x == std::clamp(player_pos.x, dro_x - 20, dro_x + 40) &&
                     player_pos.y == std::clamp(player_pos.y, dro_y - 20, dro_y + 20))
                 {
                     // 捡起物品
-                    dro->pick = true;
+                    dro->picker = &Player::ent;
 
                     auto mv = World::registry->try_get<Move>(ent);
-                    mv->vspeed = -555;
+                    mv->vspeed = -420;
 
                     // 播放声音
                     Sound::sound_list.push_back(Sound(u"Game.img/PickUpItem"));

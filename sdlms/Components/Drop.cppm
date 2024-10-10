@@ -2,6 +2,7 @@ module;
 
 #include <array>
 #include <string>
+#include "entt/entt.hpp"
 
 export module components:drop;
 
@@ -13,9 +14,11 @@ export struct Drop
     uint64_t nums;
     int rotate;
     bool land = false;
-    bool pick = false;
+    bool attract = false;
+    entt::entity *picker = nullptr;
+
     AnimatedSprite aspr;
-    int alpha = 255;
+    float alpha = 255;
 
     enum MesoIcon
     {
