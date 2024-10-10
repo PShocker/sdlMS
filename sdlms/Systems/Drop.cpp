@@ -64,7 +64,7 @@ bool drop_pick(Move *mv, Transform *tr, Drop *dro, float delta_time)
             dro->attract = true;
         }
     }
-    dro->alpha -= delta_time * 320;
+    dro->alpha -= delta_time * 610;
     if (dro->alpha <= 0)
     {
         dro->alpha = 0;
