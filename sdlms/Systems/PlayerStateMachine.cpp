@@ -139,7 +139,9 @@ void player_statemachine(entt::entity *ent, float delta_time)
         {
             cha->state = Character::State::STAND;
             player_statemachine(ent, 0);
+            break;
         }
+        cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
     case Character::State::DIE:
@@ -271,7 +273,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 cha->animate = true;
 
                 mv->vspeed = -310;
-                mv->lr = nullptr;
+
                 if (Input::state[SDL_SCANCODE_RIGHT])
                 {
                     mv->hspeed = 140;

@@ -50,19 +50,9 @@ void mob_statemachine(entt::entity *ent, float delta_time)
     }
     break;
     case Mob::State::JUMP:
-    {
-        if (!mob_fall(mv, tr, delta_time))
-        {
-            mob->state = Mob::State::MOVE;
-        }
-    }
-    break;
     case Mob::State::HIT:
     {
-        if (!mob_fall(mv, tr, delta_time))
-        {
-            mob->state = Mob::State::STAND;
-        }
+        mob_fall(mv, tr, delta_time);
     }
     break;
     case Mob::State::DIE:
@@ -224,7 +214,7 @@ bool mob_fall(Move *mv, Transform *tr, float delta_time)
     else
     {
         // 默认重力为2000
-        mv->vspeed += delta_time * 2000;
+        mv->vspeed += delta_time * 100;
         return move_fall(mv, tr, delta_time, MOB_Z);
     }
 }

@@ -48,8 +48,8 @@ bool drop_pick(Move *mv, Transform *tr, Drop *dro, float delta_time)
     // 默认重力为2000
     // 捡起物品有两阶段,分别为物品向上运动和吸引物品
     auto picker_tr = World::registry->try_get<Transform>(*dro->picker);
-    auto dx = picker_tr->position.x - tr->position.x;
-    mv->hspeed = dx / delta_time / 4;
+    auto dx = (picker_tr->position.x - 10) - tr->position.x;
+    mv->hspeed = dx / delta_time / 5;
 
     if (dro->attract)
     {

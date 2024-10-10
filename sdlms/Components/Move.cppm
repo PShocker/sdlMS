@@ -22,7 +22,7 @@ export struct Move
     std::optional<float> rx0 = std::nullopt;
     std::optional<float> rx1 = std::nullopt;
 
-    int page = 0;
+    int page = 8;
     int zmass = 0;
 
     enum AREA : uint8_t

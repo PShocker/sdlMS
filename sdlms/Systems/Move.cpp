@@ -112,8 +112,9 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
                     mv->hspeed /= 2;
                     tr->position = new_pos;
                     // switch z
-                    if (mv->page != fh->page)
+                    if (mv->page != fh->page || mv->lr != nullptr)
                     {
+                        mv->lr = nullptr;
                         tr->z = fh->page * LAYER_Z + z_index;
                         mv->page = fh->page;
                         World::zindex = true;
