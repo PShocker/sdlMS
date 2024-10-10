@@ -214,7 +214,7 @@ bool mob_fall(Move *mv, Transform *tr, float delta_time)
     else
     {
         // 默认重力为2000
-        mv->vspeed += delta_time * 100;
+        mv->vspeed += delta_time * 2000;
         return move_fall(mv, tr, delta_time, MOB_Z);
     }
 }
