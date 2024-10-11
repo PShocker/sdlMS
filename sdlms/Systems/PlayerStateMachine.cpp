@@ -637,7 +637,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
     cha->hp -= hit->damage;
     if (cha->hp > 0)
     {
-        if (mv->foo)
+        if (mv->foo && cha->action != Character::ACTION::PRONESTAB)
         {
             mv->vspeed = -320;
 
@@ -651,8 +651,9 @@ bool player_hit(Hit *hit, entt::entity *ent)
             {
                 mv->hspeed = 110;
             }
+            mv->foo = nullptr;
         }
-        mv->foo = nullptr;
+
         player_alert_cooldown = 5000;
 
         if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT || cha->state == Character::State::PRONE)
