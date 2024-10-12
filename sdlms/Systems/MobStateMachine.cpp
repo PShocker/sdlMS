@@ -52,7 +52,7 @@ void mob_statemachine(entt::entity *ent, float delta_time)
     case Mob::State::JUMP:
     case Mob::State::HIT:
     {
-        mob_fall(mv, tr, delta_time);
+        mob_fall(mob, mv, tr, delta_time);
     }
     break;
     case Mob::State::DIE:
@@ -205,7 +205,7 @@ void mob_drop(Mob *mob, Transform *tr)
     Sound::sound_list.push_back(Sound(u"Game.img/DropItem"));
 }
 
-bool mob_fall(Move *mv, Transform *tr, float delta_time)
+bool mob_fall(Mob *mob, Move *mv, Transform *tr, float delta_time)
 {
     if (mv->foo)
     {
@@ -215,7 +215,16 @@ bool mob_fall(Move *mv, Transform *tr, float delta_time)
     {
         // 默认重力为2000
         mv->vspeed += delta_time * 2000;
-        return move_fall(mv, tr, delta_time, MOB_Z);
+        if (move_fall(mv, tr, delta_time, MOB_Z))
+        {
+            return true;
+        }
+        else
+        {
+            // 落地
+            mob->tick = 0;
+            return false;
+        }
     }
 }
 

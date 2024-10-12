@@ -2,6 +2,7 @@ module;
 
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
+#include <SDL3/SDL.h>
 
 module entities;
 
@@ -46,6 +47,10 @@ void load_mob(wz::Node *node)
         if (key != u"info")
         {
             mob.a[key] = new AnimatedSprite(val[0]);
+            for (auto &sprs : mob.a[key]->aspr->sprites)
+            {
+                SDL_SetTextureScaleMode(sprs->texture, SDL_SCALEMODE_NEAREST);
+            }
         }
         else
         {
