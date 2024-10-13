@@ -78,7 +78,7 @@ void mob_flip(Move *mv, Transform *tr)
 
 int mob_move(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
 {
-    if (!move_move(mv, tr, 0, delta_time))
+    if (!move_move(mv, tr, 0, delta_time) && mv->foo == nullptr)
     {
         state = Mob::State::JUMP;
     }
