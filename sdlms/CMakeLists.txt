@@ -91,6 +91,17 @@ file(GLOB_RECURSE
         UI/*.cppm
 )
 
+file(GLOB_RECURSE
+        playerskill_cpp
+        CONFIGURE_DEPENDS
+        PlayerSkill/*.cpp
+)
+
+file(GLOB_RECURSE
+        playerskill_cppm
+        CONFIGURE_DEPENDS
+        PlayerSkill/*.cppm
+)
 add_library(mod
         ${systems_cpp}
         ${entities_cpp}
@@ -99,6 +110,7 @@ add_library(mod
         ${core_cpp}
         ${commons_cpp}
         ${ui_cpp}
+        ${playerskill_cpp}
 )
 
 target_sources(mod
@@ -111,6 +123,7 @@ target_sources(mod
         ${core_cppm}
         ${commons_cppm}
         ${ui_cppm}
+        ${playerskill_cppm}
 )
 
 link_directories("C:/ffmpeg-master-latest-win64-gpl-shared/lib")

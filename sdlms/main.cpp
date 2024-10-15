@@ -10,6 +10,7 @@ import resources;
 import components;
 import entities;
 import ui;
+import playerskill;
 
 int width = 800;
 int height = 600;
@@ -51,8 +52,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Cursor::init();
     Sound::init();
     Drop::init();
+    PlayerSkill::init();
 
-    World::load_map(211000000);
+    World::load_map(100000000);
 
     Player::ent = World::registry->create();
     load_character(0, 0, true, &Player::ent);

@@ -156,17 +156,12 @@ void animate_character(Character *cha, entt::entity ent)
                 if (cha->action_index == index && ski->hit == false)
                 {
                     auto atk = World::registry->try_get<Attack>(ent);
-                    auto lt = ski->ski->infos[ski->level]->lt;
-                    auto rb = ski->ski->infos[ski->level]->rb;
-                    AttackWarp atkw;
-                    atkw.rect.x = lt.x;
-                    atkw.rect.y = lt.y;
-                    atkw.rect.w = rb.x - lt.x;
-                    atkw.rect.h = rb.y - lt.y;
-                    atkw.hit = ski->ski->hits[0];
-                    atkw.mobCount = ski->ski->infos[ski->level]->mobCount;
-                    atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
-                    atk->atks.push_back(atkw);
+                    for (auto it = atk->atks.begin(); it != atk->atks.end(); it++)
+                    {
+                        auto atkw = &(*it);
+                        atkw->p = &World::registry->try_get<Transform>(Player::ent)->position;
+                        atkw->attack = true;
+                    }
                     ski->hit = true;
                 }
             }
@@ -196,17 +191,12 @@ void animate_character(Character *cha, entt::entity ent)
                     if (ski->hit == false)
                     {
                         auto atk = World::registry->try_get<Attack>(ent);
-                        auto lt = ski->ski->infos[ski->level]->lt;
-                        auto rb = ski->ski->infos[ski->level]->rb;
-                        AttackWarp atkw;
-                        atkw.rect.x = lt.x;
-                        atkw.rect.y = lt.y;
-                        atkw.rect.w = rb.x - lt.x;
-                        atkw.rect.h = rb.y - lt.y;
-                        atkw.hit = ski->ski->hits[0];
-                        atkw.mobCount = ski->ski->infos[ski->level]->mobCount;
-                        atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
-                        atk->atks.push_back(atkw);
+                        for (auto it = atk->atks.begin(); it != atk->atks.end(); it++)
+                        {
+                            auto atkw = &(*it);
+                            atkw->p = &World::registry->try_get<Transform>(Player::ent)->position;
+                            atkw->attack = true;
+                        }
                         ski->hit = true;
                     }
                 }

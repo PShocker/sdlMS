@@ -7,6 +7,7 @@ module systems;
 
 import core;
 import components;
+import commons;
 
 void attack_run()
 {
@@ -15,8 +16,13 @@ void attack_run()
         for (auto it = atk->atks.begin(); it != atk->atks.end();)
         {
             auto atkw = &(*it);
-            player_attack(atkw);
-            it = atk->atks.erase(it);
+            if (atkw->attack)
+            {
+                player_attack(atkw);
+                it = atk->atks.erase(it);
+                continue;
+            }
+            it++;
         }
     }
     if (player_invincible_cooldown <= 0)
@@ -51,7 +57,6 @@ void attack_run()
 
 void player_attack(AttackWarp *atkw)
 {
-    atkw->damage = 50;
     auto view = World::registry->view<Damage>();
     for (auto ent : view)
     {

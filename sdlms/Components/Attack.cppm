@@ -12,11 +12,11 @@ export struct AttackWarp
     SDL_FRect rect;
     int mobCount = 1;
     int attackCount;
-    int damage;
+    int damage = 1;
 
     AnimatedSpriteWarp *hit;
 
-    bool finish = false;
+    bool attack = false;
 
     // 攻击源的坐标
     SDL_FPoint *p;

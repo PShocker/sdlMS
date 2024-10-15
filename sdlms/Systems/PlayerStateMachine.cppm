@@ -32,12 +32,6 @@ void player_action(Character *cha, int state, int new_state, Move *mv);
 
 void player_portal(Move *mv, entt::entity *ent);
 
-export int player_foothold_cooldown = 0;
-export int player_portal_cooldown = 0;
-export int player_alert_cooldown = 0;
-export int player_ladderrope_cooldown = 0;
-export int player_invincible_cooldown = 0;
-
 void player_cooldown(int delta_time);
 
 bool player_alert();
