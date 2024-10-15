@@ -737,6 +737,10 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
     {
         id = u"4211006";
     }
+    else if (Input::state[SDL_SCANCODE_F])
+    {
+        id = u"4201005";
+    }
     if (id != u"" && SkillWarp::cooldowns[id] <= 0)
     {
         int skill_res = -1;
@@ -762,25 +766,25 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         }
         auto ski = &World::registry->emplace_or_replace<Skill>(*ent, id);
         // 技能效果
-        if (skill_res | PlayerSkill::SkillResult::EFF)
+        if (skill_res & PlayerSkill::SkillResult::EFF)
         {
             PlayerSkill::skill_effect(ski);
         }
 
         // 技能音效
-        if (skill_res | PlayerSkill::SkillResult::SOU)
+        if (skill_res & PlayerSkill::SkillResult::SOU)
         {
             PlayerSkill::skill_sound(ski->ski);
         }
 
         // 技能攻击
-        if (skill_res | PlayerSkill::SkillResult::ATK)
+        if (skill_res & PlayerSkill::SkillResult::ATK)
         {
             PlayerSkill::skill_attack(ski);
         }
 
         // 人物状态
-        if (skill_res | PlayerSkill::SkillResult::ACT)
+        if (skill_res & PlayerSkill::SkillResult::ACT)
         {
             PlayerSkill::skill_action(ski);
         }

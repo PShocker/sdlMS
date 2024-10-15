@@ -15,11 +15,11 @@ export struct SkillWarp
     {
         int mpCon;
         int damage;
-        int mobCount;
+        int mobCount = 1;
         int attackCount;
         std::u16string action;
-        SDL_FPoint lt;
-        SDL_FPoint rb;
+        SDL_FPoint lt = SDL_FPoint{-110, -32};
+        SDL_FPoint rb = SDL_FPoint{-40, -11};
 
         Info(wz::Node *node);
     };
