@@ -284,6 +284,7 @@ void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity *ent, char type
     auto hit = World::registry->try_get<Hit>(*ent);
     hit->x = atkw->p->x;
     hit->y = atkw->p->y;
+    hit->souw = atkw->souw;
     hit->count += count;
     hit->damage += damage * count;
 
@@ -296,7 +297,7 @@ void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity *ent, char type
         if (atkw->hit)
         {
             auto eff = World::registry->try_get<Effect>(*ent);
-            eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), i * 16});
+            eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), i * 180});
         }
     }
 }

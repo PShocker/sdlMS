@@ -7,7 +7,7 @@ import :sound;
 export struct Hit
 {
     int damage = 0;
-    int count = 1;
+    int count = 0;
 
     SoundWarp *souw = nullptr;
 

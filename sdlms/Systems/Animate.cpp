@@ -261,6 +261,7 @@ void animate_effect(Effect *eff)
         if (info->delay > 0)
         {
             info->delay -= Window::delta_time;
+            it++;
             continue;
         }
         auto aspr = &info->aspr;

@@ -136,19 +136,21 @@ bool mob_hit(Hit *hit, entt::entity *ent)
         auto mv = World::registry->try_get<Move>(*ent);
         auto tr = World::registry->try_get<Transform>(*ent);
         auto mob = World::registry->try_get<Mob>(*ent);
+        auto count = hit->count;
         mob->hp -= hit->damage;
         hit->damage = 0;
+        hit->count = 0;
 
-        for (int i = 0; i < hit->count; i++)
+        for (int i = 0; i < count; i++)
         {
             // 怪物被攻击音效
             if (hit->souw)
             {
-                Sound::push(hit->souw, i * 16);
+                Sound::push(hit->souw, i * 210);
             }
             else if (mob->sounds.contains(u"Damage"))
             {
-                Sound::push(mob->sounds[u"Damage"], i * 16);
+                Sound::push(mob->sounds[u"Damage"], i * 210);
             }
         }
 
@@ -182,7 +184,7 @@ bool mob_hit(Hit *hit, entt::entity *ent)
             // 怪物死亡音效
             if (mob->sounds.contains(u"Die"))
             {
-                Sound::push(mob->sounds[u"Die"]);
+                Sound::push(mob->sounds[u"Die"], 200);
             }
             // 爆金币
             mob_drop(mob, tr);

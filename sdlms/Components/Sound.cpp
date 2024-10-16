@@ -48,6 +48,7 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
             if (sou->delay > 0)
             {
                 sou->delay -= Window::delta_time;
+                ++it;
                 continue;
             }
             auto souw = sou->souw;
@@ -90,8 +91,6 @@ bool Sound::init()
     SDL_ResumeAudioStreamDevice(stream);
     return true;
 }
-
-
 
 SoundWarp::SoundWarp(wz::Node *node)
 {
