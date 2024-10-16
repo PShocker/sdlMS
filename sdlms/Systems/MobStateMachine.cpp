@@ -20,7 +20,10 @@ void mob_statemachine_run()
         {
             continue;
         }
-        mob_hit(World::registry->try_get<Hit>(ent), &ent);
+        if (mob_hit(World::registry->try_get<Hit>(ent), &ent))
+        {
+            continue;
+        }
         mob_statemachine(&ent, (float)Window::delta_time / 1000);
     }
 }

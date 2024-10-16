@@ -19,7 +19,10 @@ void player_statemachine_run()
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
         player_cooldown(Window::delta_time);
-        player_hit(World::registry->try_get<Hit>(ent), &ent);
+        if (player_hit(World::registry->try_get<Hit>(ent), &ent))
+        {
+            return;
+        }
         player_statemachine(&ent, (float)Window::delta_time / 1000);
     }
 }
@@ -428,6 +431,7 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::en
 {
     if (state == Character::State::JUMP)
     {
+        cha->animate = true;
         return state;
     }
     state = Character::State::CLIMB;
