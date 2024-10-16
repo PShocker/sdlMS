@@ -12,7 +12,7 @@ import core;
 void PlayerSkill::init()
 {
     PlayerSkill::Skills[u"2201002"] = skill_2201002;
-    PlayerSkill::Skills[u"4211006"] = skill_4211006;
+    // PlayerSkill::Skills[u"4211006"] = skill_4211006;
 }
 
 void PlayerSkill::skill_sound(SkillWarp *souw, int delay)
