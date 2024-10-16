@@ -19,11 +19,7 @@ void player_statemachine_run()
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
         player_cooldown(Window::delta_time);
-        if (auto hit = World::registry->try_get<Hit>(ent))
-        {
-            player_hit(hit, &ent);
-            World::registry->remove<Hit>(ent);
-        }
+        player_hit(World::registry->try_get<Hit>(ent), &ent);
         player_statemachine(&ent, (float)Window::delta_time / 1000);
     }
 }
@@ -637,84 +633,86 @@ bool player_alert()
 
 bool player_hit(Hit *hit, entt::entity *ent)
 {
-    player_invincible_cooldown = 2000;
-
-    auto mv = World::registry->try_get<Move>(*ent);
-    auto tr = World::registry->try_get<Transform>(*ent);
-    auto cha = World::registry->try_get<Character>(*ent);
-
-    cha->hp -= hit->damage;
-    if (cha->hp > 0)
+    if (hit->damage > 0)
     {
-        if (mv->foo && cha->action != Character::ACTION::PRONESTAB)
+        player_invincible_cooldown = 2000;
+        auto mv = World::registry->try_get<Move>(*ent);
+        auto tr = World::registry->try_get<Transform>(*ent);
+        auto cha = World::registry->try_get<Character>(*ent);
+        cha->hp -= hit->damage;
+        hit->damage = 0;
+        if (cha->hp > 0)
         {
-            mv->vspeed = -320;
-
-            auto hit_x = hit->x;
-            auto cha_x = tr->position.x;
-            if (cha_x < hit_x)
+            if (mv->foo && cha->action != Character::ACTION::PRONESTAB)
             {
-                mv->hspeed = -110;
+                mv->vspeed = -320;
+                auto hit_x = hit->x;
+                auto cha_x = tr->position.x;
+                if (cha_x < hit_x)
+                {
+                    mv->hspeed = -110;
+                }
+                else
+                {
+                    mv->hspeed = 110;
+                }
+                mv->foo = nullptr;
             }
-            else
+            player_alert_cooldown = 5000;
+            if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT || cha->state == Character::State::PRONE)
             {
-                mv->hspeed = 110;
+                cha->state = Character::State::JUMP;
+                cha->action_index = 0;
+                cha->action_time = 0;
+                cha->action_frame = 0;
+                cha->action = Character::ACTION::JUMP;
+                cha->action_str = u"jump";
             }
-            mv->foo = nullptr;
         }
-
-        player_alert_cooldown = 5000;
-
-        if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT || cha->state == Character::State::PRONE)
+        else
         {
-            cha->state = Character::State::JUMP;
+            cha->state = Character::State::DIE;
             cha->action_index = 0;
             cha->action_time = 0;
             cha->action_frame = 0;
-            cha->action = Character::ACTION::JUMP;
-            cha->action_str = u"jump";
+            cha->action = Character::ACTION::DEAD;
+            cha->action_str = u"dead";
+
+            if (!mv->foo)
+            {
+                auto view = World::registry->view<FootHold>();
+                std::optional<float> y = std::nullopt;
+                for (auto &e : view)
+                {
+                    auto fh = &view.get<FootHold>(e);
+                    if (fh->get_y(tr->position.x).has_value() && fh->get_y(tr->position.x).value() > tr->position.y)
+                    {
+                        if (!y.has_value())
+                        {
+                            y = (float)fh->get_y(tr->position.x).value();
+                        }
+                        else
+                        {
+                            y = std::min(y.value(), (float)fh->get_y(tr->position.x).value());
+                        }
+                    }
+                }
+                if (y.has_value())
+                {
+                    tr->position.y = y.value();
+                }
+            }
+            auto &tomb = World::registry->emplace_or_replace<Tomb>(*ent);
+            tomb.f.position = tr->position;
+            tomb.f.position.y -= 200;
+            tomb.l.position = tr->position;
         }
+        return true;
     }
     else
     {
-        cha->state = Character::State::DIE;
-        cha->action_index = 0;
-        cha->action_time = 0;
-        cha->action_frame = 0;
-        cha->action = Character::ACTION::DEAD;
-        cha->action_str = u"dead";
-
-        if (!mv->foo)
-        {
-            auto view = World::registry->view<FootHold>();
-            std::optional<float> y = std::nullopt;
-            for (auto &e : view)
-            {
-                auto fh = &view.get<FootHold>(e);
-                if (fh->get_y(tr->position.x).has_value() && fh->get_y(tr->position.x).value() > tr->position.y)
-                {
-                    if (!y.has_value())
-                    {
-                        y = (float)fh->get_y(tr->position.x).value();
-                    }
-                    else
-                    {
-                        y = std::min(y.value(), (float)fh->get_y(tr->position.x).value());
-                    }
-                }
-            }
-            if (y.has_value())
-            {
-                tr->position.y = y.value();
-            }
-        }
-
-        auto &tomb = World::registry->emplace_or_replace<Tomb>(*ent);
-        tomb.f.position = tr->position;
-        tomb.f.position.y -= 200;
-        tomb.l.position = tr->position;
+        return false;
     }
-    return false;
 }
 
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
@@ -870,9 +868,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
         auto ski = SkillWarp::load(u"4111006");
         auto souw = ski->sounds[u"Use"];
 
-        Sound sou;
-        sou.souw = souw;
-        Sound::sound_list.push_back(sou);
+        Sound::push(souw);
 
         SkillWarp::cooldowns[u"4111006"] = 10000;
         return true;

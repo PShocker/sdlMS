@@ -465,14 +465,17 @@ void render_effect(Transform *tr, Effect *eff)
 {
     for (int i = 0; i < eff->effects.size(); i++)
     {
-        auto &[e_tr, aspr] = eff->effects[i];
-        if (e_tr == nullptr)
+        auto &[e_tr, aspr, delay] = eff->effects[i];
+        if (delay <= 0)
         {
-            render_animated_sprite(tr, &aspr);
-        }
-        else
-        {
-            render_animated_sprite(e_tr, &aspr);
+            if (e_tr == nullptr)
+            {
+                render_animated_sprite(tr, &aspr);
+            }
+            else
+            {
+                render_animated_sprite(e_tr, &aspr);
+            }
         }
     }
 }

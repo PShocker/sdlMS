@@ -20,12 +20,7 @@ void mob_statemachine_run()
         {
             continue;
         }
-        if (auto hit = World::registry->try_get<Hit>(ent))
-        {
-            mob_hit(hit, &ent);
-            World::registry->remove<Hit>(ent);
-            continue;
-        }
+        mob_hit(World::registry->try_get<Hit>(ent), &ent);
         mob_statemachine(&ent, (float)Window::delta_time / 1000);
     }
 }
@@ -136,62 +131,65 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
 
 bool mob_hit(Hit *hit, entt::entity *ent)
 {
-    auto mv = World::registry->try_get<Move>(*ent);
-    auto tr = World::registry->try_get<Transform>(*ent);
-    auto mob = World::registry->try_get<Mob>(*ent);
-
-    mob->hp -= hit->damage;
-    if (mob->hp > 0)
+    if (hit->damage > 0)
     {
-        mob->state = Mob::State::HIT;
-        mob->index = u"hit1";
+        auto mv = World::registry->try_get<Move>(*ent);
+        auto tr = World::registry->try_get<Transform>(*ent);
+        auto mob = World::registry->try_get<Mob>(*ent);
+        mob->hp -= hit->damage;
+        hit->damage = 0;
 
-        // 获取玩家位置,并让怪物转身和后退
-        if (mv->foo)
+        for (int i = 0; i < hit->count; i++)
         {
-            auto hit_x = hit->x;
-            auto mob_x = tr->position.x;
-            if (mob_x < hit_x)
+            // 怪物被攻击音效
+            if (hit->souw)
             {
-                tr->flip = 1;
-                mv->hspeed = mv->hspeed_min.value();
+                Sound::push(hit->souw, i * 16);
             }
-            else if (mob_x > hit_x)
+            else if (mob->sounds.contains(u"Damage"))
             {
-                tr->flip = 0;
-                mv->hspeed = mv->hspeed_max.value();
+                Sound::push(mob->sounds[u"Damage"], i * 16);
             }
-            mob_move(mob, mv, tr, mob->state, 0.15);
         }
 
-        // 怪物被攻击音效
-        if (mob->sounds.contains(u"Damage"))
+        if (mob->hp > 0)
         {
-            auto souw = mob->sounds[u"Damage"];
-            Sound sou;
-            sou.souw = souw;
-            Sound::sound_list.push_back(sou);
+            mob->state = Mob::State::HIT;
+            mob->index = u"hit1";
+
+            // 获取玩家位置,并让怪物转身和后退
+            if (mv->foo)
+            {
+                auto hit_x = hit->x;
+                auto mob_x = tr->position.x;
+                if (mob_x < hit_x)
+                {
+                    tr->flip = 1;
+                    mv->hspeed = mv->hspeed_min.value();
+                }
+                else if (mob_x > hit_x)
+                {
+                    tr->flip = 0;
+                    mv->hspeed = mv->hspeed_max.value();
+                }
+                mob_move(mob, mv, tr, mob->state, 0.15);
+            }
+        }
+        else
+        {
+            mob->state = Mob::State::DIE;
+            mob->index = u"die1";
+            // 怪物死亡音效
+            if (mob->sounds.contains(u"Die"))
+            {
+                Sound::push(mob->sounds[u"Die"]);
+            }
+            // 爆金币
+            mob_drop(mob, tr);
+            return true;
         }
     }
-    else
-    {
-        mob->state = Mob::State::DIE;
-        mob->index = u"die1";
-
-        // 怪物死亡音效
-        if (mob->sounds.contains(u"Die"))
-        {
-            auto souw = mob->sounds[u"Die"];
-            Sound sou;
-            sou.souw = souw;
-            Sound::sound_list.push_back(sou);
-        }
-
-        // 爆金币
-        mob_drop(mob, tr);
-        return false;
-    }
-    return true;
+    return false;
 }
 
 void mob_drop(Mob *mob, Transform *tr)
@@ -230,7 +228,7 @@ bool mob_fall(Mob *mob, Move *mv, Transform *tr, float delta_time)
 
 int mob_active(Mob *mob, Move *mv, int state, float delta_time)
 {
-    if (!(state == Mob::State::DIE || state == Mob::State::REMOVE || mv->foo == nullptr))
+    if (!(state == Mob::State::HIT || state == Mob::State::DIE || state == Mob::State::REMOVE || mv->foo == nullptr))
     {
         mob->tick -= delta_time * 1000;
         if (mob->tick < 0)

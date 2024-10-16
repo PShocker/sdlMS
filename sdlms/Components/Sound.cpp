@@ -12,7 +12,9 @@ extern "C"
 }
 
 module components;
+
 import resources;
+import core;
 
 static std::unordered_map<wz::Node *, SoundWarp *> cache;
 
@@ -43,6 +45,11 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
         for (auto it = Sound::sound_list.begin(); it != Sound::sound_list.end();)
         {
             auto sou = &(*it);
+            if (sou->delay > 0)
+            {
+                sou->delay -= Window::delta_time;
+                continue;
+            }
             auto souw = sou->souw;
             if (souw != nullptr)
             {
@@ -67,12 +74,6 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
         SDL_PutAudioStreamData(astream, data, additional_amount);
         SDL_stack_free(data);
     }
-
-    // Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
-    // SDL_MixAudio(data, sou->pcm_data.data(), SDL_AUDIO_S16, additional_amount, 1);
-    // SDL_PutAudioStreamData(astream, sou->pcm_data.data(), total_amount * sizeof(float));
-    // SDL_stack_free(data);
-    // SDL_MixAudio(astream, sou->pcm_data.data(), additional_amount, SDL_AUDIO_S16, 1);
 }
 
 bool Sound::init()
@@ -89,6 +90,8 @@ bool Sound::init()
     SDL_ResumeAudioStreamDevice(stream);
     return true;
 }
+
+
 
 SoundWarp::SoundWarp(wz::Node *node)
 {
@@ -238,4 +241,12 @@ Sound::Sound(const std::u16string &path)
 {
     auto node = Wz::Sound->get_root()->find_from_path(path);
     souw = SoundWarp::load(node);
+}
+
+void Sound::push(SoundWarp *souw, int delay)
+{
+    Sound sou;
+    sou.delay = delay;
+    sou.souw = souw;
+    Sound::sound_list.push_back(sou);
 }

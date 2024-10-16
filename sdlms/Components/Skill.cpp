@@ -19,7 +19,10 @@ SkillWarp::Info::Info(wz::Node *node)
     }
 
     // damage = dynamic_cast<wz::Property<int> *>(node->get_child(u"damage"))->get();
-    // attackCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"attackCount"))->get();
+    if (node->get_child(u"attackCount"))
+    {
+        attackCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"attackCount"))->get();
+    }
 
     if (node->get_child(u"lt") && node->get_child(u"rb"))
     {

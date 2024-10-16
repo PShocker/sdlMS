@@ -11,7 +11,7 @@ export struct PlayerSkill
 {
     static void init();
 
-    static void skill_sound(SkillWarp *souw);
+    static void skill_sound(SkillWarp *souw, int delay = 0);
 
     static void skill_effect(Skill *ski);
 

@@ -242,22 +242,13 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
         if (ent == Player::ent && aft->hit == false)
         {
             auto atk = World::registry->try_get<Attack>(ent);
-            AttackWarp atkw;
-            auto lt = aft->info.lt;
-            auto rb = aft->info.rb;
-            atkw.rect.x = lt.x;
-            atkw.rect.y = lt.y;
-            atkw.rect.w = rb.x - lt.x;
-            atkw.rect.h = rb.y - lt.y;
-            atkw.hit = aft->hits[u"sword1"];
+            AttackWarp atkw(aft);
             atkw.p = &World::registry->try_get<Transform>(ent)->position;
+            atkw.attack = true;
             atk->atks.push_back(atkw);
             aft->hit = true;
-
             // play sound
-            Sound sou;
-            sou.souw = AfterImage::sounds[weaponinfo->sfx][0];
-            Sound::sound_list.push_back(sou);
+            Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
         }
     }
 }
@@ -266,11 +257,16 @@ void animate_effect(Effect *eff)
 {
     for (auto it = eff->effects.begin(); it != eff->effects.end();)
     {
-        // auto aspr = &(*it);
-        auto aspr = &(&(*it))->second;
+        auto info = &(*it);
+        if (info->delay > 0)
+        {
+            info->delay -= Window::delta_time;
+            continue;
+        }
+        auto aspr = &info->aspr;
         if (animate_sprite(aspr) == false)
         {
-            auto tr = (&(*it))->first;
+            auto tr = info->tr;
             if (tr != nullptr)
             {
                 delete tr;

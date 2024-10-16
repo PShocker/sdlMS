@@ -26,6 +26,7 @@ void load_character(float x, float y, bool sp, entt::entity *ent)
 
     // cha.add_shield(u"01092030");
 
+    World::registry->emplace<Hit>(*ent);
     World::registry->emplace<Attack>(*ent);
     World::registry->emplace<Animated>(*ent);
     World::registry->emplace<Effect>(*ent);

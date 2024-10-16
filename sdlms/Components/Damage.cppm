@@ -18,7 +18,7 @@ export struct Damage
     struct Info
     {
         int damage;
-        int alpha;
+        float alpha;
         int index;
         char type; // 0:red,1:violet,2:cri,3:blue
     };

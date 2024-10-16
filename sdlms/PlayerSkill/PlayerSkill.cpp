@@ -15,12 +15,10 @@ void PlayerSkill::init()
     PlayerSkill::Skills[u"4211006"] = skill_4211006;
 }
 
-void PlayerSkill::skill_sound(SkillWarp *souw)
+void PlayerSkill::skill_sound(SkillWarp *souw, int delay)
 {
     // 技能音效
-    Sound sou;
-    sou.souw = souw->sounds[u"Use"];
-    Sound::sound_list.push_back(sou);
+    Sound::push(souw->sounds[u"Use"], delay);
 }
 
 void PlayerSkill::skill_effect(Skill *ski)
@@ -56,15 +54,11 @@ void PlayerSkill::skill_attack(Skill *ski, int damage)
 {
     auto ent = Player::ent;
     auto atk = World::registry->try_get<Attack>(ent);
-    auto lt = ski->ski->infos[ski->level]->lt;
-    auto rb = ski->ski->infos[ski->level]->rb;
-    AttackWarp atkw;
-    atkw.rect.x = lt.x;
-    atkw.rect.y = lt.y;
-    atkw.rect.w = rb.x - lt.x;
-    atkw.rect.h = rb.y - lt.y;
-    atkw.hit = ski->ski->hits[0];
-    atkw.mobCount = ski->ski->infos[ski->level]->mobCount;
+    AttackWarp atkw(ski, 20);
     atkw.damage = damage;
+    if (ski->ski->sounds.contains(u"Hit"))
+    {
+        atkw.souw = ski->ski->sounds[u"Hit"];
+    }
     atk->atks.push_back(atkw);
 }

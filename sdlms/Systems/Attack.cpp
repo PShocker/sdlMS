@@ -57,8 +57,7 @@ void attack_run()
 
 void player_attack(AttackWarp *atkw)
 {
-    auto view = World::registry->view<Damage>();
-    for (auto ent : view)
+    for (auto ent : World::registry->view<Damage>())
     {
         if (ent != Player::ent)
         {
@@ -135,7 +134,7 @@ bool attack_mob(AttackWarp *atkw, Mob *mob, entt::entity *ent)
 
     if (collision(m_spr, m_tr, atkw, p_tr))
     {
-        hit_effect(atkw, &m_spr->head.value(), ent, 0, atkw->damage);
+        hit_effect(atkw, &m_spr->head.value(), ent, 0, atkw->damage, atkw->attackCount);
         return true;
     }
     return false;
@@ -280,20 +279,24 @@ bool collision(Character *m_cha, Transform *m_tr, AttackWarp *n_atkw, Transform 
     return false;
 }
 
-void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity *ent, char type, int damage)
+void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity *ent, char type, int damage, int count)
 {
-    auto &hit = World::registry->emplace_or_replace<Hit>(*ent);
-    hit.x = atkw->p->x;
-    hit.y = atkw->p->y;
-    hit.damage = damage;
+    auto hit = World::registry->try_get<Hit>(*ent);
+    hit->x = atkw->p->x;
+    hit->y = atkw->p->y;
+    hit->count += count;
+    hit->damage += damage * count;
 
-    auto dam = World::registry->try_get<Damage>(*ent);
-    dam->damage.push_back({damage, 255, (int)dam->damage.size(), type});
-    dam->head = head;
-
-    if (atkw->hit)
+    for (int i = 0; i < count; i++)
     {
-        auto eff = World::registry->try_get<Effect>(*ent);
-        eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit)});
+        auto dam = World::registry->try_get<Damage>(*ent);
+        dam->damage.push_back({damage, 255, (int)dam->damage.size(), type});
+        dam->head = head;
+
+        if (atkw->hit)
+        {
+            auto eff = World::registry->try_get<Effect>(*ent);
+            eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), i * 16});
+        }
     }
 }

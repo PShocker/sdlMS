@@ -16,7 +16,7 @@ export struct SkillWarp
         int mpCon;
         int damage;
         int mobCount = 1;
-        int attackCount;
+        int attackCount = 1;
         std::u16string action;
         SDL_FPoint lt = SDL_FPoint{-110, -32};
         SDL_FPoint rb = SDL_FPoint{-40, -11};
