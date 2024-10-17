@@ -895,7 +895,7 @@ bool player_pick_drop(Character *cha, Transform *tr)
         for (auto &ent : World::registry->view<Drop>())
         {
             auto dro = World::registry->try_get<Drop>(ent);
-            if (dro->picker == nullptr)
+            if (dro->picker == nullptr && dro->land == true)
             {
                 auto player_pos = tr->position;
                 auto dro_tr = World::registry->try_get<Transform>(ent);
@@ -908,7 +908,7 @@ bool player_pick_drop(Character *cha, Transform *tr)
                     dro->picker = &Player::ent;
 
                     auto mv = World::registry->try_get<Move>(ent);
-                    mv->vspeed = -420;
+                    mv->vspeed = -430;
 
                     // 播放声音
                     Sound::sound_list.push_back(Sound(u"Game.img/PickUpItem"));

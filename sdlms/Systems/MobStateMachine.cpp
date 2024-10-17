@@ -149,11 +149,11 @@ bool mob_hit(Hit *hit, entt::entity *ent)
             // 怪物被攻击音效
             if (hit->souw)
             {
-                Sound::push(hit->souw, i * 210);
+                Sound::push(hit->souw, i * 140);
             }
             else if (mob->sounds.contains(u"Damage"))
             {
-                Sound::push(mob->sounds[u"Damage"], i * 210);
+                Sound::push(mob->sounds[u"Damage"], i * 140);
             }
         }
 
