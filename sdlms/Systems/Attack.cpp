@@ -297,7 +297,7 @@ void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity *ent, char type
         if (atkw->hit)
         {
             auto eff = World::registry->try_get<Effect>(*ent);
-            eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), (int)Window::dt_now + i * 145});
+            eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), Window::dt_now + i * 145});
         }
     }
 }

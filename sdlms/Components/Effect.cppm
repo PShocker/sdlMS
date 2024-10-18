@@ -15,7 +15,7 @@ export struct Effect
     {
         Transform *tr;
         AnimatedSprite aspr;
-        int delay = Window::dt_now;
+        unsigned int delay = Window::dt_now;
     };
 
     std::vector<Info> effects;
