@@ -258,9 +258,8 @@ void animate_effect(Effect *eff)
     for (auto it = eff->effects.begin(); it != eff->effects.end();)
     {
         auto info = &(*it);
-        if (info->delay > 0)
+        if (info->delay > Window::dt_now)
         {
-            info->delay -= Window::delta_time;
             it++;
             continue;
         }

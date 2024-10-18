@@ -7,6 +7,7 @@ export module components:effect;
 
 import :animatedsprite;
 import :transform;
+import core;
 
 export struct Effect
 {
@@ -14,7 +15,7 @@ export struct Effect
     {
         Transform *tr;
         AnimatedSprite aspr;
-        int delay = 0;
+        int delay = Window::dt_now;
     };
 
     std::vector<Info> effects;

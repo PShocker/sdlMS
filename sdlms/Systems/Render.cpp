@@ -466,7 +466,7 @@ void render_effect(Transform *tr, Effect *eff)
     for (int i = 0; i < eff->effects.size(); i++)
     {
         auto &[e_tr, aspr, delay] = eff->effects[i];
-        if (delay <= 0)
+        if (delay <= Window::dt_now)
         {
             if (e_tr == nullptr)
             {

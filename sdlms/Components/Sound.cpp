@@ -45,7 +45,7 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
         for (auto it = Sound::sound_list.begin(); it != Sound::sound_list.end();)
         {
             auto sou = &(*it);
-            if (sou->delay > SDL_GetTicks())
+            if (sou->delay > Window::dt_now)
             {
                 ++it;
                 continue;
@@ -233,20 +233,20 @@ SoundWarp *SoundWarp::load(wz::Node *node)
 Sound::Sound(wz::Node *node)
 {
     souw = SoundWarp::load(node);
-    delay = SDL_GetTicks();
+    delay = Window::dt_now;
 }
 
 Sound::Sound(const std::u16string &path)
 {
     auto node = Wz::Sound->get_root()->find_from_path(path);
     souw = SoundWarp::load(node);
-    delay = SDL_GetTicks();
+    delay = Window::dt_now;
 }
 
 void Sound::push(SoundWarp *souw, int delay)
 {
     Sound sou;
-    sou.delay = delay + SDL_GetTicks();
+    sou.delay = delay + Window::dt_now;
     sou.souw = souw;
     Sound::sound_list.push_back(sou);
 }
