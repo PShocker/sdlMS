@@ -74,12 +74,15 @@ int skill_2201002()
                 }
                 // 找到floor
                 y = fh_y - 5;
-                cha->state = Character::State::JUMP;
-                cha->action_index = 0;
-                cha->action_time = 0;
-                cha->action = Character::ACTION::JUMP;
-                cha->action_str = u"jump";
-
+                mv->foo = nullptr;
+                if (!(cha->state == Character::State::ATTACK || cha->state == Character::State::SKILL))
+                {
+                    cha->state = Character::State::JUMP;
+                    cha->action_index = 0;
+                    cha->action_time = 0;
+                    cha->action = Character::ACTION::JUMP;
+                    cha->action_str = u"jump";
+                }
                 tr->position.x = x;
                 tr->position.y = y;
                 break;

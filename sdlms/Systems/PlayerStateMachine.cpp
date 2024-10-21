@@ -719,30 +719,32 @@ bool player_hit(Hit *hit, entt::entity *ent)
     }
 }
 
-bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
+bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent, std::u16string id)
 {
-    std::u16string id = u"";
+    if (id == u"")
+    {
+        if (Input::state[SDL_SCANCODE_A])
+        {
+            id = u"2201005";
+        }
+        else if (Input::state[SDL_SCANCODE_S])
+        {
+            id = u"1311006";
+        }
+        else if (Input::state[SDL_SCANCODE_SPACE])
+        {
+            id = u"2201002";
+        }
+        else if (Input::state[SDL_SCANCODE_D])
+        {
+            // id = u"4211006";
+        }
+        else if (Input::state[SDL_SCANCODE_F])
+        {
+            id = u"4201005";
+        }
+    }
 
-    if (Input::state[SDL_SCANCODE_A])
-    {
-        id = u"2201005";
-    }
-    else if (Input::state[SDL_SCANCODE_S])
-    {
-        id = u"1311006";
-    }
-    else if (Input::state[SDL_SCANCODE_SPACE])
-    {
-        id = u"2201002";
-    }
-    else if (Input::state[SDL_SCANCODE_D])
-    {
-        // id = u"4211006";
-    }
-    else if (Input::state[SDL_SCANCODE_F])
-    {
-        id = u"4201005";
-    }
     if (id != u"" && SkillWarp::cooldowns[id] <= 0)
     {
         int skill_res = -1;
@@ -797,6 +799,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
 
 bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time)
 {
+    player_quick_move(mv, cha, tr, cha->state, ent);
     return player_attacking(mv, cha, tr, ent, delta_time);
 }
 
@@ -917,4 +920,12 @@ bool player_pick_drop(Character *cha, Transform *tr)
         }
     }
     return false;
+}
+
+void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
+{
+    if (Input::state[SDL_SCANCODE_SPACE])
+    {
+        player_skill(mv, cha, tr, state, ent, u"2201002");
+    }
 }

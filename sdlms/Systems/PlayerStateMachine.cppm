@@ -38,7 +38,7 @@ bool player_alert();
 
 bool player_hit(Hit *hit, entt::entity *ent);
 
-bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent);
+bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent, std::u16string id = u"");
 bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time);
 
 bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent);
@@ -46,3 +46,5 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent);
 uint8_t player_attack_action(WeaponInfo *wea);
 
 bool player_pick_drop(Character *cha, Transform *tr);
+
+void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent);
