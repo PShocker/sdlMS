@@ -101,9 +101,21 @@ bool aicharacter_hit(Hit *hit, entt::entity *ent)
         auto mv = World::registry->try_get<Move>(*ent);
         auto tr = World::registry->try_get<Transform>(*ent);
         auto cha = World::registry->try_get<Character>(*ent);
+        auto count = hit->count;
         cha->hp -= hit->damage;
         cha->invincible_cooldown = 2000;
         hit->damage = 0;
+        hit->count = 0;
+
+        for (int i = 0; i < count; i++)
+        {
+            // 被攻击音效
+            if (hit->souw)
+            {
+                Sound::push(hit->souw, i * 140);
+            }
+        }
+
         if (cha->hp > 0)
         {
             if (mv->foo && cha->action != Character::ACTION::PRONESTAB)
