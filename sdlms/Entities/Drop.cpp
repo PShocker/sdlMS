@@ -45,7 +45,8 @@ entt::entity load_drop(const std::u16string &id, uint64_t nums, float x, float y
     auto &dro = World::registry->emplace<Drop>(ent);
     dro.aspr = AnimatedSprite(asprw);
 
-    World::registry->emplace<Move>(ent);
+    auto &mv = World::registry->emplace<Move>(ent);
+    mv.vspeed = -360;
 
     return ent;
 }

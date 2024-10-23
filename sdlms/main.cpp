@@ -24,6 +24,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     player_statemachine_run();
     attack_run();
     mob_statemachine_run();
+    aicharacter_statemachine_run();
     drop_run();
     world_run();
     camera_run();
@@ -59,8 +60,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Player::ent = World::registry->create();
     load_character(0, 0, true, &Player::ent);
 
-    // auto e = World::registry->create();
-    // load_character(-450, 260, false, &e);
+    for (size_t i = 0; i < 30; i++)
+    {
+        auto e = World::registry->create();
+        load_character(i * 200, 0, false, &e);
+        World::registry->emplace<AiCharacter>(e);
+    }
 
     return SDL_APP_CONTINUE;
 }

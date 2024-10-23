@@ -12,3 +12,4 @@ export import :cooldown;
 export import :attack;
 export import :drop;
 export import :move;
+export import :aicharacterstatemachine;

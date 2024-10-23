@@ -326,6 +326,8 @@ export struct Character
     // use for attck and checkout wheather attack has finished
     bool animated = false;
 
+    int invincible_cooldown = 0;
+
     void add_body(const std::u16string &val);
     void add_coat(const std::u16string &val);
     void add_cap(const std::u16string &val);

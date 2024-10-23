@@ -67,7 +67,16 @@ void render_run()
             {
                 render_tomb(tomb);
             }
-            render_character(tr, cha);
+            auto invincible_time = 0;
+            if (ent == Player::ent)
+            {
+                invincible_time = player_invincible_cooldown;
+            }
+            else
+            {
+                invincible_time = cha->invincible_cooldown;
+            }
+            render_character(tr, cha, invincible_time > 0);
             if (auto aim = World::registry->try_get<AfterImage>(ent))
             {
                 render_afterimage(tr, aim, cha);
@@ -249,7 +258,7 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
     }
 }
 
-void render_character(const Transform *tr, Character *cha)
+void render_character(const Transform *tr, Character *cha, bool invincible)
 {
     auto action = cha->action;
     auto action_index = cha->action_index;
@@ -273,7 +282,7 @@ void render_character(const Transform *tr, Character *cha)
             transfrom.position = chara_pos + SDL_FPoint{x, y};
         }
     };
-    auto render_avatar = [&set_transform, &transfrom, &action, &action_index](std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> part[Character::ACTION::LENGTH])
+    const auto render_avatar = [&set_transform, &transfrom, &action, &action_index, &invincible](std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> part[Character::ACTION::LENGTH])
     {
         if (part[action].size() > 0)
         {
@@ -281,7 +290,7 @@ void render_character(const Transform *tr, Character *cha)
             if (spr != nullptr)
             {
                 set_transform(t, spr);
-                if (player_invincible_cooldown > 0)
+                if (invincible)
                 {
                     SDL_SetTextureColorMod(spr->texture, 144, 144, 144); // 设置颜色调节为默认值
                 }

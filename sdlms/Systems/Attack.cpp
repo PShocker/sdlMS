@@ -84,7 +84,7 @@ void player_attack(AttackWarp *atkw)
             }
             else if (auto cha = World::registry->try_get<Character>(ent))
             {
-                if (attack_cha(atkw, cha, &ent))
+                if (cha->invincible_cooldown <= 0 && attack_cha(atkw, cha, &ent))
                 {
                     atkw->mobCount -= 1;
                 }
@@ -163,7 +163,7 @@ bool attack_cha(AttackWarp *atkw, Character *cha, entt::entity *ent)
 
     if (collision(cha, n_tr, atkw, p_tr))
     {
-        hit_effect(atkw, nullptr, ent, 0, atkw->damage);
+        hit_effect(atkw, nullptr, ent, 0, atkw->damage * 10, atkw->attackCount);
         return true;
     }
     return false;

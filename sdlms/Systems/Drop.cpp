@@ -39,7 +39,7 @@ void drop_run()
 
 bool drop_fall(Move *mv, Transform *tr, float delta_time)
 {
-    mv->vspeed += delta_time * 2000;
+    mv->vspeed += delta_time * 1000;
     return move_fall(mv, tr, delta_time, DROP_Z);
 }
 
