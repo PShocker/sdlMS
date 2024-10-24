@@ -8,5 +8,12 @@ export module entities:drop;
 
 export
 {
-    entt::entity load_drop(const std::u16string &id, uint64_t nums, float x, float y, int layer);
+    struct DropInfo
+    {
+        std::u16string id;
+        unsigned int nums;
+    };
+
+    void load_drops(std::vector<DropInfo> * drops, float x, float y, int layer);
 };
+

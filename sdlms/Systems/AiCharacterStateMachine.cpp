@@ -198,7 +198,9 @@ void aicharacter_cooldown(Character *cha, int delta_time)
 
 void aicharacter_drop(Character *cha, Transform *tr)
 {
-    auto e = load_drop(u"09000000", 9999999, tr->position.x, tr->position.y, tr->z / LAYER_Z);
+    std::vector<DropInfo> drops;
+    drops.push_back({{u"01382014", 1}});
+    load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
     World::zindex = true;
     Sound::sound_list.push_back(Sound(u"Game.img/DropItem"));
 }

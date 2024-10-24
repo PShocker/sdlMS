@@ -199,7 +199,8 @@ bool mob_hit(Hit *hit, entt::entity *ent)
 
 void mob_drop(Mob *mob, Transform *tr)
 {
-    auto e = load_drop(u"09000000", std::rand() % 200, tr->position.x, tr->position.y, tr->z / LAYER_Z);
+    std::vector<DropInfo> drops={{u"09000000", (unsigned int)std::rand() % 200}};
+    load_drops(&drops , tr->position.x, tr->position.y, tr->z / LAYER_Z);
     World::zindex = true;
     Sound::sound_list.push_back(Sound(u"Game.img/DropItem"));
 }

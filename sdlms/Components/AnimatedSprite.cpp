@@ -29,31 +29,39 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha)
     {
         node = dynamic_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
     }
-
-    // 从第0帧顺序读
-    for (int i = 0; i < node->children_count(); i++)
+    if (node->type == wz::Type::Canvas)
     {
-        auto it = node->get_child(std::to_string(i));
-        if (it == nullptr)
-        {
-            // 如果发现没读取到,说明已经读完,则退出读取
-            break;
-        }
-        wz::Property<wz::WzCanvas> *canvas;
-        if (it->type == wz::Type::UOL)
-        {
-            auto uol = dynamic_cast<wz::Property<wz::WzUOL> *>(it);
-            canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(uol->get_uol());
-        }
-        else if (it->type == wz::Type::Canvas)
-        {
-            canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it);
-        }
-        else
-        {
-            continue;
-        }
+        // 单帧动画图
+        auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node);
         sprites.push_back(SpriteWarp::load(canvas, alpha));
+    }
+    else
+    {
+        // 从第0帧顺序读
+        for (int i = 0; i < node->children_count(); i++)
+        {
+            auto it = node->get_child(std::to_string(i));
+            if (it == nullptr)
+            {
+                // 如果发现没读取到,说明已经读完,则退出读取
+                break;
+            }
+            wz::Property<wz::WzCanvas> *canvas;
+            if (it->type == wz::Type::UOL)
+            {
+                auto uol = dynamic_cast<wz::Property<wz::WzUOL> *>(it);
+                canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(uol->get_uol());
+            }
+            else if (it->type == wz::Type::Canvas)
+            {
+                canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(it);
+            }
+            else
+            {
+                continue;
+            }
+            sprites.push_back(SpriteWarp::load(canvas, alpha));
+        }
     }
     if (node->get_child(u"zigzag") != nullptr)
     {

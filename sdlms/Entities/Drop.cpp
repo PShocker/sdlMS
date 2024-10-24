@@ -11,42 +11,49 @@ import resources;
 import core;
 import commons;
 
-entt::entity load_drop(const std::u16string &id, uint64_t nums, float x, float y, int layer)
+void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
 {
-    AnimatedSpriteWarp *asprw = nullptr;
-    if (id == u"09000000")
+    for (int i = 0; i < drops->size(); i++)
     {
-        // 金币
-        if (nums < 49)
+        auto &id = drops->at(i).id;
+        auto &nums = drops->at(i).nums;
+        AnimatedSpriteWarp *asprw = nullptr;
+        if (id == u"09000000")
         {
-            asprw = Drop::mesoicons[Drop::MesoIcon::BRONZE];
-        }
-        else if (nums < 99)
-        {
-            asprw = Drop::mesoicons[Drop::MesoIcon::GOLD];
-        }
-        else if (nums < 999)
-        {
-            asprw = Drop::mesoicons[Drop::MesoIcon::BUNDLE];
+            // 金币
+            if (nums < 49)
+            {
+                asprw = Drop::mesoicons[Drop::MesoIcon::BRONZE];
+            }
+            else if (nums < 99)
+            {
+                asprw = Drop::mesoicons[Drop::MesoIcon::GOLD];
+            }
+            else if (nums < 999)
+            {
+                asprw = Drop::mesoicons[Drop::MesoIcon::BUNDLE];
+            }
+            else
+            {
+                asprw = Drop::mesoicons[Drop::MesoIcon::BAG];
+            }
         }
         else
         {
-            asprw = Drop::mesoicons[Drop::MesoIcon::BAG];
+            // 测试
+            asprw = asprw->load(Wz::Character->get_root()->find_from_path(u"Weapon/01382014.img/info/iconRaw"));
         }
+        auto ent = World::registry->create();
+
+        World::registry->emplace<Animated>(ent);
+        World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + DROP_Z);
+
+        auto &dro = World::registry->emplace<Drop>(ent);
+        dro.aspr = AnimatedSprite(asprw);
+
+        auto &mv = World::registry->emplace<Move>(ent);
+        mv.vspeed = -360;
+        mv.hspeed = 0;
     }
-    else
-    {
-    }
-    auto ent = World::registry->create();
-
-    World::registry->emplace<Animated>(ent);
-    World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + DROP_Z);
-
-    auto &dro = World::registry->emplace<Drop>(ent);
-    dro.aspr = AnimatedSprite(asprw);
-
-    auto &mv = World::registry->emplace<Move>(ent);
-    mv.vspeed = -360;
-
-    return ent;
+    return;
 }

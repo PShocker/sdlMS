@@ -13,3 +13,4 @@ export import :border;
 export import :npc;
 export import :mob;
 export import :drop;
+export import :aicharacter;

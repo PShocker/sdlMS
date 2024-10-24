@@ -63,8 +63,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     for (size_t i = 0; i < 30; i++)
     {
         auto e = World::registry->create();
-        load_character(i * 200, 0, false, &e);
-        World::registry->emplace<AiCharacter>(e);
+        load_aicharacter(i * 200, 0, false, &e);
     }
 
     return SDL_APP_CONTINUE;
