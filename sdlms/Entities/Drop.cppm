@@ -16,4 +16,3 @@ export
 
     void load_drops(std::vector<DropInfo> * drops, float x, float y, int layer);
 };
-

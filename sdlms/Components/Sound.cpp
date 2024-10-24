@@ -2,6 +2,7 @@ module;
 
 #include <SDL3/SDL.h>
 #include "wz/Property.hpp"
+#include <thread>
 
 extern "C"
 {
@@ -146,6 +147,9 @@ SoundWarp::SoundWarp(wz::Node *node)
         // 处理无法分配解码上下文的情况
         return;
     }
+    // 设置多线程解码
+    codecContext->thread_count = std::thread::hardware_concurrency();
+
     if (avcodec_parameters_to_context(codecContext, codecParameters) < 0)
     {
         // 处理无法设置解码器参数的情况
