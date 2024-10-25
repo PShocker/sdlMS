@@ -3,6 +3,7 @@ module;
 #include <SDL3/SDL.h>
 #include "wz/Property.hpp"
 #include <thread>
+#include <list>
 
 extern "C"
 {
@@ -18,6 +19,8 @@ import resources;
 import core;
 
 static std::unordered_map<wz::Node *, SoundWarp *> cache;
+static SDL_Mutex *sound_list_mutex = SDL_CreateMutex();
+static inline std::list<Sound> sound_list;
 
 // 混合两个音频信号
 void mixAudio(Uint8 *audio1, Uint8 *audio2, Uint8 *output, int length)
@@ -39,11 +42,12 @@ void mixAudio(Uint8 *audio1, Uint8 *audio2, Uint8 *output, int length)
 
 static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astream, int additional_amount, int total_amount)
 {
+    SDL_LockMutex(sound_list_mutex);
     if (additional_amount > 0)
     {
         Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
         SDL_memset(data, 0, additional_amount * sizeof(Uint8));
-        for (auto it = Sound::sound_list.begin(); it != Sound::sound_list.end();)
+        for (auto it = sound_list.begin(); it != sound_list.end();)
         {
             auto sou = &(*it);
             if (sou->delay > Window::dt_now)
@@ -65,7 +69,7 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
                     }
                     else
                     {
-                        it = Sound::sound_list.erase(it); // 删除当前元素并更新迭代器
+                        it = sound_list.erase(it); // 删除当前元素并更新迭代器
                         continue;
                     }
                 }
@@ -75,6 +79,7 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
         SDL_PutAudioStreamData(astream, data, additional_amount);
         SDL_stack_free(data);
     }
+    SDL_UnlockMutex(sound_list_mutex);
 }
 
 bool Sound::init()
@@ -247,10 +252,66 @@ Sound::Sound(const std::u16string &path)
     delay = Window::dt_now;
 }
 
-void Sound::push(SoundWarp *souw, int delay)
+void Sound::push(SoundWarp *souw, int delay, int pos)
 {
+    SDL_LockMutex(sound_list_mutex);
     Sound sou;
     sou.delay = delay + Window::dt_now;
     sou.souw = souw;
-    Sound::sound_list.push_back(sou);
+    if (pos == -1)
+    {
+        sound_list.push_back(sou);
+    }
+    else
+    {
+        auto it = sound_list.begin();
+        std::advance(it, pos); // 移动迭代器
+        // 插入元素
+        sound_list.insert(it, sou);
+    }
+    SDL_UnlockMutex(sound_list_mutex);
+}
+
+void Sound::push(Sound sou, int pos)
+{
+    SDL_LockMutex(sound_list_mutex);
+    if (pos == -1)
+    {
+        sound_list.push_back(sou);
+    }
+    else
+    {
+        auto it = sound_list.begin();
+        std::advance(it, pos); // 移动迭代器
+        // 插入元素
+        sound_list.insert(it, sou);
+    }
+    SDL_UnlockMutex(sound_list_mutex);
+}
+
+void Sound::remove(int pos)
+{
+    SDL_LockMutex(sound_list_mutex);
+    if (pos == 0)
+    {
+        pos = 1;
+    }
+    auto it = sound_list.begin();
+    std::advance(it, pos - 1); // 迭代器前进到第 pos 个元素
+    sound_list.erase(it);      // 删除该元素
+    SDL_UnlockMutex(sound_list_mutex);
+}
+
+Sound *Sound::at(int pos)
+{
+    SDL_LockMutex(sound_list_mutex);
+    Sound *r = nullptr;
+    if (pos < sound_list.size())
+    {
+        auto it = sound_list.begin();
+        std::advance(it, pos); // 迭代器前进到第 pos 个元素
+        r = &(*it);
+    }
+    SDL_UnlockMutex(sound_list_mutex);
+    return r;
 }

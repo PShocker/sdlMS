@@ -155,23 +155,22 @@ void Map::load_bgm(wz::Node *node)
         Sound sou(node);
         sou.circulate = true;
         sou.bgm = true;
-        if (!Sound::sound_list.empty())
+        if (auto first_sound = Sound::at(0))
         {
-            auto first_sound = Sound::sound_list.front();
-            if (first_sound.souw != sou.souw)
+            if (first_sound->souw != sou.souw)
             {
-                if (first_sound.bgm == true)
+                if (first_sound->bgm == true)
                 {
                     // 移除上一个图的bgm
-                    Sound::sound_list.pop_front();
+                    Sound::remove(0);
                     // 切换到本地图的bgm
-                    Sound::sound_list.push_front(sou);
+                    Sound::push(sou, 0);
                 }
             }
         }
         else
         {
-            Sound::sound_list.push_front(sou);
+            Sound::push(sou, 0);
         }
     }
     return;

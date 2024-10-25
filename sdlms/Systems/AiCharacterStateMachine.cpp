@@ -202,5 +202,5 @@ void aicharacter_drop(Character *cha, Transform *tr)
     drops.push_back({{u"01382014", 1}});
     load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
     World::zindex = true;
-    Sound::sound_list.push_back(Sound(u"Game.img/DropItem"));
+    Sound::push(Sound(u"Game.img/DropItem"));
 }

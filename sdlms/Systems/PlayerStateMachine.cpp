@@ -247,7 +247,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     player_foothold_cooldown = 120;
                     SkillWarp::cooldowns[u"4111006"] = 500;
 
-                    Sound::sound_list.push_back(Sound(u"Game.img/Jump"));
+                    Sound::push(Sound(u"Game.img/Jump"));
 
                     return true;
                 }
@@ -261,7 +261,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 mv->lr = nullptr;
                 SkillWarp::cooldowns[u"4111006"] = 200;
 
-                Sound::sound_list.push_back(Sound(u"Game.img/Jump"));
+                Sound::push(Sound(u"Game.img/Jump"));
 
                 return true;
             }
@@ -286,7 +286,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
 
                 SkillWarp::cooldowns[u"4111006"] = 300;
 
-                Sound::sound_list.push_back(Sound(u"Game.img/Jump"));
+                Sound::push(Sound(u"Game.img/Jump"));
 
                 return true;
             }
@@ -914,7 +914,7 @@ bool player_pick_drop(Character *cha, Transform *tr)
                     mv->vspeed = -430;
 
                     // 播放声音
-                    Sound::sound_list.push_back(Sound(u"Game.img/PickUpItem"));
+                    Sound::push(Sound(u"Game.img/PickUpItem"));
                 }
             }
         }

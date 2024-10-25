@@ -1,7 +1,6 @@
 module;
 
 #include "wz/Property.hpp"
-#include <list>
 
 export module components:sound;
 
@@ -26,6 +25,8 @@ export struct Sound
     bool bgm = false;        // 当前是否bgm
 
     static bool init();
-    static inline std::list<Sound> sound_list;
-    static void push(SoundWarp *souw, int delay = 0);
+    static void push(SoundWarp *souw, int delay = 0, int pos = -1);
+    static void push(Sound sou, int pos = -1);
+    static void remove(int pos);
+    static Sound *at(int pos);
 };
