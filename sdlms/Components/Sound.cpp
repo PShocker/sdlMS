@@ -19,8 +19,11 @@ import resources;
 import core;
 
 static std::unordered_map<wz::Node *, SoundWarp *> cache;
-static SDL_Mutex *sound_list_mutex = SDL_CreateMutex();
-static inline std::list<Sound> sound_list;
+
+// static SDL_Mutex *sound_list_mutex = SDL_CreateMutex();
+static SDL_Mutex *sound_list_mutex;
+
+static std::list<Sound> sound_list;
 
 // 混合两个音频信号
 void mixAudio(Uint8 *audio1, Uint8 *audio2, Uint8 *output, int length)
@@ -84,6 +87,8 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
 
 bool Sound::init()
 {
+    sound_list_mutex = SDL_CreateMutex();
+
     SDL_AudioSpec spec;
     spec.channels = 2;
     spec.format = SDL_AUDIO_S16;
