@@ -20,8 +20,7 @@ import core;
 
 static std::unordered_map<wz::Node *, SoundWarp *> cache;
 
-// static SDL_Mutex *sound_list_mutex = SDL_CreateMutex();
-static SDL_Mutex *sound_list_mutex;
+static SDL_Mutex *sound_list_mutex = SDL_CreateMutex();
 
 static std::list<Sound> sound_list;
 
@@ -87,8 +86,6 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
 
 bool Sound::init()
 {
-    sound_list_mutex = SDL_CreateMutex();
-
     SDL_AudioSpec spec;
     spec.channels = 2;
     spec.format = SDL_AUDIO_S16;
