@@ -61,32 +61,31 @@ void player_attack(AttackWarp *atkw)
     {
         if (ent != Player::ent)
         {
-            if (atkw->mobCount <= 0)
+            if (atkw->mobCount > 0)
             {
-                break;
-            }
-            if (auto mob = World::registry->try_get<Mob>(ent))
-            {
-                if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+                if (auto mob = World::registry->try_get<Mob>(ent))
                 {
-                    if (attack_mob(atkw, mob, &ent))
+                    if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+                    {
+                        if (attack_mob(atkw, mob, &ent))
+                        {
+                            atkw->mobCount -= 1;
+                        }
+                    }
+                }
+                else if (auto npc = World::registry->try_get<Npc>(ent))
+                {
+                    if (attack_npc(atkw, npc, &ent))
                     {
                         atkw->mobCount -= 1;
                     }
                 }
-            }
-            else if (auto npc = World::registry->try_get<Npc>(ent))
-            {
-                if (attack_npc(atkw, npc, &ent))
+                else if (auto cha = World::registry->try_get<Character>(ent))
                 {
-                    atkw->mobCount -= 1;
-                }
-            }
-            else if (auto cha = World::registry->try_get<Character>(ent))
-            {
-                if (cha->invincible_cooldown <= 0 && attack_cha(atkw, cha, &ent))
-                {
-                    atkw->mobCount -= 1;
+                    if (cha->invincible_cooldown <= 0 && attack_cha(atkw, cha, &ent))
+                    {
+                        atkw->mobCount -= 1;
+                    }
                 }
             }
         }

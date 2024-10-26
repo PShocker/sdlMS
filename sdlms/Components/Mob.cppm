@@ -26,6 +26,8 @@ export struct Mob
     };
     // STAND,MOVE状态下循环的持续时间
     int tick = 500;
+    // 复活时间
+    int revive = 0;
 
     int hp = 100;
     int mp;

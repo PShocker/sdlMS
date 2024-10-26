@@ -18,6 +18,7 @@ void mob_statemachine_run()
         auto mob = World::registry->try_get<Mob>(ent);
         if (mob->state == Mob::State::REMOVE)
         {
+            mob_revive(&ent, Window::delta_time);
             continue;
         }
         if (mob_hit(World::registry->try_get<Hit>(ent), &ent))
@@ -191,6 +192,9 @@ bool mob_hit(Hit *hit, entt::entity *ent)
             }
             // 爆金币
             mob_drop(mob, tr);
+
+            mob->revive = 3000;
+            mob->hp = 100;
             return true;
         }
     }
@@ -273,4 +277,24 @@ int mob_active(Mob *mob, Move *mv, int state, float delta_time)
     }
 
     return state;
+}
+
+bool mob_revive(entt::entity *ent, float delta_time)
+{
+    auto mv = World::registry->try_get<Move>(*ent);
+    auto tr = World::registry->try_get<Transform>(*ent);
+    auto mob = World::registry->try_get<Mob>(*ent);
+
+    mob->index = u"stand";
+    mob->a[mob->index]->anim_index = 0;
+    mob->a[mob->index]->anim_time = 0;
+
+    mob->revive -= delta_time;
+    if (mob->revive <= 0)
+    {
+        mob->state = Mob::State::STAND;
+        mv->hspeed = 0;
+        return true;
+    }
+    return false;
 }

@@ -48,17 +48,14 @@ void render_run()
         }
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
-            if (mob->state != Mob::State::REMOVE)
+            render_mob(tr, mob);
+            if (auto eff = World::registry->try_get<Effect>(ent))
             {
-                render_mob(tr, mob);
-                if (auto eff = World::registry->try_get<Effect>(ent))
-                {
-                    render_effect(tr, eff);
-                }
-                if (auto dam = World::registry->try_get<Damage>(ent))
-                {
-                    render_damage(tr, dam, dam->head);
-                }
+                render_effect(tr, eff);
+            }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                render_damage(tr, dam, dam->head);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
@@ -524,7 +521,16 @@ void render_npc(Transform *tr, Npc *npc)
 
 void render_mob(Transform *tr, Mob *mob)
 {
-    render_animated_sprite(tr, mob->a[mob->index]);
+    auto a = mob->a[mob->index];
+    if (mob->state == Mob::State::REMOVE)
+    {
+        a->alpha = (float)(3000 - mob->revive) / 3000 * 255;
+    }
+    else
+    {
+        a->alpha = 255;
+    }
+    render_animated_sprite(tr, a);
 }
 
 void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
