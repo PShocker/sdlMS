@@ -193,7 +193,7 @@ bool mob_hit(Hit *hit, entt::entity *ent)
             // 爆金币
             mob_drop(mob, tr);
 
-            mob->revive = 3000;
+            mob->revive = 5000 + Window::dt_now;
             mob->hp = 100;
             return true;
         }
@@ -285,15 +285,9 @@ bool mob_revive(entt::entity *ent, float delta_time)
     auto tr = World::registry->try_get<Transform>(*ent);
     auto mob = World::registry->try_get<Mob>(*ent);
 
-    mob->index = u"stand";
-    mob->a[mob->index]->anim_index = 0;
-    mob->a[mob->index]->anim_time = 0;
-
-    mob->revive -= delta_time;
-    if (mob->revive <= 0)
+    if (mob->revive <= Window::dt_now)
     {
         mob->state = Mob::State::STAND;
-        mv->hspeed = 0;
         return true;
     }
     return false;

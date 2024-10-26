@@ -524,7 +524,16 @@ void render_mob(Transform *tr, Mob *mob)
     auto a = mob->a[mob->index];
     if (mob->state == Mob::State::REMOVE)
     {
-        a->alpha = (float)(3000 - mob->revive) / 3000 * 255;
+        float alpha;
+        if (mob->revive - Window::dt_now < 800)
+        {
+            alpha = 1 - ((float)(mob->revive - Window::dt_now) / 800);
+        }
+        else
+        {
+            alpha = 0;
+        }
+        a->alpha = alpha * 255;
     }
     else
     {

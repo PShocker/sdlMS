@@ -321,6 +321,9 @@ void animate_mob(Mob *mob)
             else if (mob->state == Mob::State::DIE)
             {
                 mob->state = Mob::State::REMOVE;
+                mob->index = u"stand";
+                mob->a[mob->index]->anim_index = 0;
+                mob->a[mob->index]->anim_time = 0;
             }
         }
     }
