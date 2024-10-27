@@ -684,32 +684,24 @@ bool player_hit(Hit *hit, entt::entity *ent)
 
             if (!mv->foo)
             {
-                auto view = World::registry->view<FootHold>();
-                std::optional<float> y = std::nullopt;
-                for (auto &e : view)
+                float y = World::registry->ctx().get<Border>().b.value();
+                for (auto &e : World::registry->view<FloorFootHold>())
                 {
-                    auto fh = &view.get<FootHold>(e);
+                    auto fh = World::registry->try_get<FootHold>(e);
                     if (fh->get_y(tr->position.x).has_value() && fh->get_y(tr->position.x).value() > tr->position.y)
                     {
-                        if (!y.has_value())
-                        {
-                            y = (float)fh->get_y(tr->position.x).value();
-                        }
-                        else
-                        {
-                            y = std::min(y.value(), (float)fh->get_y(tr->position.x).value());
-                        }
+                        y = std::min(y, (float)fh->get_y(tr->position.x).value());
                     }
                 }
-                if (y.has_value())
-                {
-                    tr->position.y = y.value();
-                }
+                tr->position.y = y;
             }
+
             auto &tomb = World::registry->emplace_or_replace<Tomb>(*ent);
             tomb.f.position = tr->position;
             tomb.f.position.y -= 200;
             tomb.l.position = tr->position;
+
+            Sound::push(Sound(u"Game.img/Tombstone"), 180);
         }
         return true;
     }
