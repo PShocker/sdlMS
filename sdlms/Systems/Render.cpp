@@ -525,19 +525,15 @@ void render_mob(Transform *tr, Mob *mob)
     if (mob->state == Mob::State::REMOVE)
     {
         float alpha;
-        if (mob->revive - Window::dt_now < 800)
+        if (mob->revive - Window::dt_now < 900)
         {
-            alpha = 1 - ((float)(mob->revive - Window::dt_now) / 800);
+            alpha = 1 - ((float)(mob->revive - Window::dt_now) / 900);
         }
         else
         {
             alpha = 0;
         }
         a->alpha = alpha * 255;
-    }
-    else
-    {
-        a->alpha = 255;
     }
     render_animated_sprite(tr, a);
 }
