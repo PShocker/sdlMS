@@ -262,7 +262,7 @@ void render_character(const Transform *tr, Character *cha, bool invincible)
 
     Transform transfrom(0, 0, 0, 0);
 
-    auto set_transform = [&tr, &transfrom](Transform &t, SpriteWarp *spr)
+    const auto set_transform = [&tr, &transfrom](Transform &t, SpriteWarp *spr)
     {
         auto chara_pos = tr->position;
         auto flip = tr->flip;
@@ -621,5 +621,12 @@ void render_tomb(Tomb *tomb)
 
 void render_drop(Transform *tr, Drop *dro)
 {
-    render_animated_sprite(tr, &dro->aspr);
+    auto a = &dro->aspr;
+    float alpha = 1;
+    if (dro->destory - Window::dt_now < 900)
+    {
+        alpha = ((float)(dro->destory - Window::dt_now) / 900);
+    }
+    a->alpha = alpha * 255;
+    render_animated_sprite(tr, a);
 }

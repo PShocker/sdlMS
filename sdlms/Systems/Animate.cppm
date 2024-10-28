@@ -17,4 +17,4 @@ void animate_npc(Npc *npc);
 void animate_mob(Mob *mob);
 void animate_damage(Damage *dam);
 void animate_tomb(Tomb *tomb, Transform *tr);
-void animate_drop(Drop *dro);
+void animate_drop(Drop *dro, Transform *tr);

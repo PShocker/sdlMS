@@ -74,7 +74,7 @@ void animate_run()
         }
         else if (auto dro = World::registry->try_get<Drop>(ent))
         {
-            animate_drop(dro);
+            animate_drop(dro, World::registry->try_get<Transform>(ent));
         }
     }
 }
@@ -369,8 +369,19 @@ void animate_tomb(Tomb *tomb, Transform *tr)
     }
 }
 
-void animate_drop(Drop *dro)
+void animate_drop(Drop *dro, Transform *tr)
 {
+    if (dro->land == false && dro->picker == nullptr && dro->id != u"09000000")
+    {
+        tr->rotation += (float)Window::delta_time * 2;
+        if (tr->rotation >= 360)
+        {
+            tr->rotation = 0;
+        }
+    }
+    else
+    {
+        tr->rotation = 0;
+    }
     animate_sprite(&dro->aspr);
-    dro->aspr.alpha = dro->alpha;
 }

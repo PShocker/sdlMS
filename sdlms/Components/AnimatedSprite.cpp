@@ -62,11 +62,11 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha)
             }
             sprites.push_back(SpriteWarp::load(canvas, alpha));
         }
-    }
-    if (node->get_child(u"zigzag") != nullptr)
-    {
-        // 如果存在zigzag属性,则认为属于zigzag动画
-        z = true;
+        if (node->get_child(u"zigzag") != nullptr)
+        {
+            // 如果存在zigzag属性,则认为属于zigzag动画
+            z = true;
+        }
     }
 }
 

@@ -7,6 +7,7 @@ module;
 export module components:drop;
 
 import :animatedsprite;
+import core;
 
 export struct Drop
 {
@@ -18,7 +19,9 @@ export struct Drop
     entt::entity *picker = nullptr;
 
     AnimatedSprite aspr;
-    float alpha = 255;
+
+    // 摧毁时间
+    unsigned int destory = Window::dt_now + 10000;
 
     enum MesoIcon
     {

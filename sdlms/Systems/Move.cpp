@@ -50,29 +50,36 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
 
     const auto collide_wall = [](FootHold *fh, float hspeed) -> bool
     {
-        if (hspeed > 0 && fh->y1 > fh->y2)
+        if (fh->k.has_value() == false)
         {
-            while (fh->prev)
+            if (hspeed > 0 && fh->y1 > fh->y2)
             {
-                fh = fh->prev;
-                if (fh->k.has_value())
+                while (fh->prev)
                 {
-                    return true;
+                    fh = fh->prev;
+                    if (fh->k.has_value())
+                    {
+                        return true;
+                    }
                 }
             }
-        }
-        else if (hspeed < 0 && fh->y1 < fh->y2)
-        {
-            while (fh->next)
+            else if (hspeed < 0 && fh->y1 < fh->y2)
             {
-                fh = fh->next;
-                if (fh->k.has_value())
+                while (fh->next)
                 {
-                    return true;
+                    fh = fh->next;
+                    if (fh->k.has_value())
+                    {
+                        return true;
+                    }
                 }
             }
+            return false;
         }
-        return false;
+        else
+        {
+            return true;
+        }
     };
 
     // 首先和墙面碰撞
@@ -129,8 +136,7 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
         for (auto &e : World::registry->view<FloorFootHold>())
         {
             auto fh = World::registry->try_get<FootHold>(e);
-            if (fh->k == 0 &&
-                fh->x2 < fh->x1 &&
+            if (fh->x2 < fh->x1 &&
                 (fh->zmass == 0 ||
                  fh->zmass == mv->zmass))
             {
