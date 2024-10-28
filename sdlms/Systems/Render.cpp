@@ -643,7 +643,8 @@ void render_drop(Transform *tr, Drop *dro)
     auto sprw = a->aspr->sprites[a->anim_index];
     auto origin = SDL_FPoint{(float)sprw->width / 2, (float)sprw->height / 2};
 
-    Transform tran(tr->position.x, tr->position.y - (float)sprw->origin.y + (float)sprw->height / 2);
+    Transform tran(tr->position.x - (float)sprw->origin.x + (float)sprw->width / 2,
+                   tr->position.y - (float)sprw->origin.y + (float)sprw->height / 2);
     tran.rotation = tr->rotation;
     render_animated_sprite(&tran, a, &origin);
 }
