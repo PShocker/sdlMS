@@ -21,7 +21,7 @@ export struct Drop
     AnimatedSprite aspr;
 
     // 摧毁时间
-    unsigned int destory = Window::dt_now + 10000;
+    unsigned int destory = Window::dt_now + 20000;
 
     enum MesoIcon
     {

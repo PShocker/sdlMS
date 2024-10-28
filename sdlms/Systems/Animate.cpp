@@ -373,11 +373,7 @@ void animate_drop(Drop *dro, Transform *tr)
 {
     if (dro->land == false && dro->picker == nullptr && dro->id != u"09000000")
     {
-        tr->rotation += (float)Window::delta_time * 2;
-        if (tr->rotation >= 360)
-        {
-            tr->rotation = 0;
-        }
+        tr->rotation += (float)Window::delta_time;
     }
     else
     {

@@ -901,10 +901,10 @@ bool player_pick_drop(Character *cha, Transform *tr)
                 {
                     // 捡起物品
                     dro->picker = &Player::ent;
-                    dro->destory = Window::dt_now + 1000;
+                    dro->destory = Window::dt_now + 600;
 
                     auto mv = World::registry->try_get<Move>(ent);
-                    mv->vspeed = -580;
+                    mv->vspeed = -430;
 
                     // 播放声音
                     Sound::push(Sound(u"Game.img/PickUpItem"));

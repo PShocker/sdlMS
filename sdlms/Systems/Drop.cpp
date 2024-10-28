@@ -14,7 +14,7 @@ import :move;
 
 void drop_run()
 {
-    std::vector<entt::entity> destory;
+    static std::vector<entt::entity> destory;
     auto view = World::registry->view<Drop>();
     for (auto &ent : view)
     {
@@ -45,6 +45,7 @@ void drop_run()
     {
         World::registry->destroy(ent);
     }
+    destory.clear();
 }
 
 bool drop_fall(Move *mv, Transform *tr, float delta_time)
@@ -61,7 +62,7 @@ void drop_pick(Move *mv, Transform *tr, Drop *dro, float delta_time)
     auto picker_tr_x = picker_tr->position.x - 10;
     float dx = picker_tr_x - std::lerp(tr->position.x, picker_tr_x, 0.2);
 
-    mv->hspeed = dx / delta_time / 8;
+    mv->hspeed = dx / delta_time / 6;
 
     if (dro->attract)
     {

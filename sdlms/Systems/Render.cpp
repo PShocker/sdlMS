@@ -94,7 +94,7 @@ void render_run()
     }
 }
 
-void render_sprite(Transform *tr, SpriteWarp *sprw)
+void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *o)
 {
     float rot = tr->rotation;
 
@@ -104,7 +104,17 @@ void render_sprite(Transform *tr, SpriteWarp *sprw)
     auto x = tr->position.x;
     auto y = tr->position.y;
 
-    const SDL_FPoint origin{(float)sprw->origin.x, (float)sprw->origin.y};
+    SDL_FPoint origin;
+    if (o != nullptr)
+    {
+        origin = *o;
+    }
+    else
+    {
+        origin.x = (float)sprw->origin.x;
+        origin.y = (float)sprw->origin.y;
+    }
+
     if (tr->camera == true)
     {
         // 显示坐标为绝对坐标,与摄像机无关,通常为ui
@@ -127,11 +137,11 @@ void render_sprite(Transform *tr, SpriteWarp *sprw)
     }
 }
 
-void render_animated_sprite(Transform *tr, AnimatedSprite *a)
+void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *o)
 {
     auto sprw = a->aspr->sprites[a->anim_index];
     SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
-    render_sprite(tr, sprw);
+    render_sprite(tr, sprw, o);
 }
 
 void render_back_sprite(Transform *tr, BackGround *bspr)
@@ -622,11 +632,18 @@ void render_tomb(Tomb *tomb)
 void render_drop(Transform *tr, Drop *dro)
 {
     auto a = &dro->aspr;
+
     float alpha = 1;
     if (dro->destory - Window::dt_now < 900)
     {
         alpha = ((float)(dro->destory - Window::dt_now) / 900);
     }
     a->alpha = alpha * 255;
-    render_animated_sprite(tr, a);
+
+    auto sprw = a->aspr->sprites[a->anim_index];
+    auto origin = SDL_FPoint{(float)sprw->width / 2, (float)sprw->height / 2};
+
+    Transform tran(tr->position.x, tr->position.y - (float)sprw->origin.y + (float)sprw->height / 2);
+    tran.rotation = tr->rotation;
+    render_animated_sprite(&tran, a, &origin);
 }

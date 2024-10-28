@@ -41,6 +41,7 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
         else
         {
             // 测试
+            // asprw = asprw->load(Wz::Item->get_root()->find_from_path(u"Etc/0400.img/04000000/info/iconRaw"));
             asprw = asprw->load(Wz::Character->get_root()->find_from_path(u"Weapon/01382014.img/info/iconRaw"));
         }
         auto ent = World::registry->create();
@@ -49,10 +50,11 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
         World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + DROP_Z);
 
         auto &dro = World::registry->emplace<Drop>(ent);
+        dro.id = id;
         dro.aspr = AnimatedSprite(asprw);
 
         auto &mv = World::registry->emplace<Move>(ent);
-        mv.vspeed = -360;
+        mv.vspeed = -420;
         mv.hspeed = 0;
     }
     return;
