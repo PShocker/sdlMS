@@ -13,13 +13,12 @@ void attack_run()
 {
     if (auto atk = World::registry->try_get<Attack>(Player::ent))
     {
-        for (auto it = atk->atks.begin(); it != atk->atks.end();)
+        for (auto it = atk->atks.begin(); it != atk->atks.end(); it++)
         {
             auto atkw = &(*it);
             player_attack(atkw);
-            it = atk->atks.erase(it);
-            continue;
         }
+        atk->atks.clear();
     }
     if (player_invincible_cooldown <= 0)
     {
