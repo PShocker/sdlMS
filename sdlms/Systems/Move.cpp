@@ -192,7 +192,7 @@ bool move_move(Move *mv, Transform *tr, int friction, float delta_time)
     auto y = tr->position.y;
 
     // 人物在fh移动的函数
-    auto walk_fh = [&x, &y, &tr, &mv](FootHold *next_fh) -> bool
+    const auto walk_fh = [&x, &y, &tr, &mv](FootHold *next_fh) -> bool
     {
         FootHold *fh = nullptr; // 走到下一个fh
         if (next_fh)

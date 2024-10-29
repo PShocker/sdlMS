@@ -92,7 +92,7 @@ void player_statemachine(entt::entity *ent, float delta_time)
     break;
     case Character::State::ATTACK:
     {
-        if (!player_attacking(mv, cha, tr, ent, delta_time))
+        if (!player_animating(mv, cha, tr, ent, delta_time))
         {
             player_statemachine(ent, 0);
         }
@@ -330,7 +330,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
     return state;
 }
 
-bool player_attacking(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time)
+bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time)
 {
     if (mv->foo == nullptr)
     {
@@ -792,7 +792,12 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
 bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time)
 {
     player_quick_move(mv, cha, tr, cha->state, ent);
-    return player_attacking(mv, cha, tr, ent, delta_time);
+    if (!player_animating(mv, cha, tr, ent, delta_time))
+    {
+        World::registry->remove<Skill>(*ent);
+        return false;
+    }
+    return true;
 }
 
 void player_portal(Move *mv, entt::entity *ent)

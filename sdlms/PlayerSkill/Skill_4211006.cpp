@@ -15,7 +15,7 @@ int skill_4211006()
     Skill ski(u"4211006");
 
     auto ent = Player::ent;
-
+    
     PlayerSkill::skill_attack(&ski, 1);
 
     SkillWarp::cooldowns[u"4211006"] = 500;
