@@ -17,7 +17,7 @@ export struct PlayerSkill
 
     static void skill_action(Skill *ski);
 
-    static void skill_attack(Skill *ski, int damage = 50);
+    static void skill_attack(Skill *ski);
 
     static inline std::unordered_map<std::u16string, std::function<int()>> Skills;
 

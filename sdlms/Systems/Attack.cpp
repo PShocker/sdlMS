@@ -16,13 +16,9 @@ void attack_run()
         for (auto it = atk->atks.begin(); it != atk->atks.end();)
         {
             auto atkw = &(*it);
-            if (atkw->attack)
-            {
-                player_attack(atkw);
-                it = atk->atks.erase(it);
-                continue;
-            }
-            it++;
+            player_attack(atkw);
+            it = atk->atks.erase(it);
+            continue;
         }
     }
     if (player_invincible_cooldown <= 0)

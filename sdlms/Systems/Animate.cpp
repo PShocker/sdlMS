@@ -153,15 +153,13 @@ void animate_character(Character *cha, entt::entity ent)
                 auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
                 auto &info = AfterImage::afterimages[weaponinfo->afterImage][u"0"][action];
                 uint8_t index = info.index;
-                if (cha->action_index == index && ski->hit == false)
+                if (cha->action_index == index && ski->hit == false && ski->attack == true)
                 {
                     auto atk = World::registry->try_get<Attack>(ent);
-                    for (auto it = atk->atks.begin(); it != atk->atks.end(); it++)
-                    {
-                        auto atkw = &(*it);
-                        atkw->p = &World::registry->try_get<Transform>(Player::ent)->position;
-                        atkw->attack = true;
-                    }
+                    AttackWarp atkw(ski, 20);
+                    atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
+                    atkw.damage = 50;
+                    atk->atks.push_back(atkw);
                     ski->hit = true;
                 }
             }
@@ -188,15 +186,13 @@ void animate_character(Character *cha, entt::entity ent)
                 // 判断攻击帧
                 if (auto ski = World::registry->try_get<Skill>(ent))
                 {
-                    if (ski->hit == false)
+                    if (ski->hit == false && ski->attack == true)
                     {
                         auto atk = World::registry->try_get<Attack>(ent);
-                        for (auto it = atk->atks.begin(); it != atk->atks.end(); it++)
-                        {
-                            auto atkw = &(*it);
-                            atkw->p = &World::registry->try_get<Transform>(Player::ent)->position;
-                            atkw->attack = true;
-                        }
+                        AttackWarp atkw(ski, 20);
+                        atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
+                        atkw.damage = 50;
+                        atk->atks.push_back(atkw);
                         ski->hit = true;
                     }
                 }
@@ -244,7 +240,6 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             auto atk = World::registry->try_get<Attack>(ent);
             AttackWarp atkw(aft);
             atkw.p = &World::registry->try_get<Transform>(ent)->position;
-            atkw.attack = true;
             atk->atks.push_back(atkw);
             aft->hit = true;
             // play sound

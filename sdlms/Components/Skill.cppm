@@ -49,4 +49,6 @@ export struct Skill
 
     bool hit = false;
     uint8_t level = 19;
+    bool attack = false;
+    bool ball = false;
 };

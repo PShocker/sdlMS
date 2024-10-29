@@ -50,23 +50,14 @@ void PlayerSkill::skill_action(Skill *ski)
     cha->animated = false;
 }
 
-void PlayerSkill::skill_attack(Skill *ski, int damage)
+void PlayerSkill::skill_attack(Skill *ski)
 {
     if (ski->ski->ball != nullptr)
     {
-        // 弹道的技能
-        
+        ski->ball = true;
     }
     else
     {
-        auto ent = Player::ent;
-        auto atk = World::registry->try_get<Attack>(ent);
-        AttackWarp atkw(ski, 20);
-        atkw.damage = damage;
-        if (ski->ski->sounds.contains(u"Hit"))
-        {
-            atkw.souw = ski->ski->sounds[u"Hit"];
-        }
-        atk->atks.push_back(atkw);
+        ski->attack = true;
     }
 }

@@ -16,6 +16,10 @@ AttackWarp::AttackWarp(Skill *ski, int level)
     hit = ski->ski->hits[0];
     mobCount = ski->ski->infos[ski->level]->mobCount;
     attackCount = ski->ski->infos[ski->level]->attackCount;
+    if (ski->ski->sounds.contains(u"Hit"))
+    {
+        souw = ski->ski->sounds[u"Hit"];
+    }
 }
 
 AttackWarp::AttackWarp(AfterImage *aft)
