@@ -6,9 +6,8 @@ export module components:ball;
 
 export struct Ball
 {
-    entt::entity *target = nullptr;
-    entt::entity *owner = nullptr;
-    float rotation = 0;
+    entt::entity target;
+    entt::entity owner;
 
     Ball() = default;
 };

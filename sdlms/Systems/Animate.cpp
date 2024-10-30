@@ -166,7 +166,7 @@ void animate_character(Character *cha, entt::entity ent)
                     }
                     else if (ski->ball == true)
                     {
-                        load_ball(ski, World::registry->try_get<Transform>(ent), &ent);
+                        load_ball(ski, World::registry->try_get<Transform>(ent), ent);
                     }
                     ski->hit = true;
                 }
@@ -206,7 +206,7 @@ void animate_character(Character *cha, entt::entity ent)
                         }
                         else if (ski->ball == true)
                         {
-                            load_ball(ski, World::registry->try_get<Transform>(ent), &ent);
+                            load_ball(ski, World::registry->try_get<Transform>(ent), ent);
                         }
                         ski->hit = true;
                     }

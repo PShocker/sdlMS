@@ -8,5 +8,5 @@ import components;
 
 export
 {
-    void load_ball(Skill * ski, Transform * tran, entt::entity * owner);
+    void load_ball(Skill * ski, Transform * tran, entt::entity owner);
 };

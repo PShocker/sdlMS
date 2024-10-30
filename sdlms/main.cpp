@@ -26,6 +26,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     mob_statemachine_run();
     aicharacter_statemachine_run();
     drop_run();
+    ball_run();
     world_run();
     camera_run();
     render_run();

@@ -19,27 +19,28 @@ void ball_run()
     for (auto ent : view)
     {
         auto ball = World::registry->try_get<Ball>(ent);
-        if (ball->target == nullptr)
+        if (ball->target != entt::null && World::registry->valid(ball->target))
         {
-            ball_fall(ball, &ent, (float)Window::delta_time / 1000);
+            ball_target(&ent, ball, (float)Window::delta_time / 1000);
         }
         else
         {
+            ball_fall(&ent, ball, (float)Window::delta_time / 1000);
         }
     }
-    for (auto &ent : destory)
+    for (auto ent : destory)
     {
         World::registry->destroy(ent);
     }
     destory.clear();
 }
 
-bool ball_fall(Ball *ball, entt::entity *ent, float delta_time)
+bool ball_fall(entt::entity *ent, Ball *ball, float delta_time)
 {
     auto mv = World::registry->try_get<Move>(*ent);
     auto tr = World::registry->try_get<Transform>(*ent);
     // 飞行
-    move_fall(mv, tr, delta_time, 0);
+    move_fall(mv, tr, delta_time, 0, false);
     // 判断前方是否有怪物可以攻击
     // 如果有攻击目标,则改变运动轨迹
     auto ski = World::registry->try_get<Skill>(*ent);
@@ -47,14 +48,15 @@ bool ball_fall(Ball *ball, entt::entity *ent, float delta_time)
 
     for (auto e : World::registry->view<Damage>())
     {
-        if (mobCount > 0 && *ball->owner != e)
+        if (mobCount > 0 && ball->owner != e)
         {
             if (auto mob = World::registry->try_get<Mob>(e))
             {
                 if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
                 {
-                    if (ball_target_mob(ent, &e, mobCount > 1))
+                    if (ball_target_mob(ent, ball, &e, mobCount > 1))
                     {
+                        ball->target = e;
                         mobCount -= 1;
                     }
                 }
@@ -65,10 +67,10 @@ bool ball_fall(Ball *ball, entt::entity *ent, float delta_time)
     return false;
 }
 
-bool ball_target_mob(entt::entity *ball, entt::entity *target, bool multiple)
+bool ball_target_mob(entt::entity *src, Ball *ball, entt::entity *target, bool multiple)
 {
-    const SDL_FRect rect = {-110, -32, 70, 20};
-    auto n_tr = World::registry->try_get<Transform>(*ball);
+    const SDL_FRect rect = {0, 0, 80, 80};
+    auto n_tr = World::registry->try_get<Transform>(*src);
 
     auto mob = World::registry->try_get<Mob>(*target);
     auto animated = mob->a[mob->index];
@@ -77,8 +79,27 @@ bool ball_target_mob(entt::entity *ball, entt::entity *target, bool multiple)
 
     if (collision(m_spr->rect.value(), m_tr, rect, n_tr))
     {
-        
         return true;
     }
+    return false;
+}
+
+bool ball_target(entt::entity *src, Ball *ball, float delta_time)
+{
+    auto target = ball->target;
+    auto t_tr = World::registry->try_get<Transform>(target);
+    auto b_tr = World::registry->try_get<Transform>(*src);
+
+    auto mv = World::registry->try_get<Move>(*src);
+
+    b_tr->position = t_tr->position;
+    // float dx = t_tr->position.x - b_tr->position.x;
+    // mv->hspeed = dx * delta_time;
+
+    // auto dy = t_tr->position.y - b_tr->position.y;
+    // mv->vspeed = dy * delta_time;
+
+    // move_fall(mv, b_tr, delta_time, 0, false);
+
     return false;
 }
