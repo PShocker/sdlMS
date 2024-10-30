@@ -21,6 +21,7 @@ export struct SpriteWarp
     std::optional<SDL_Point> lt;
     std::optional<SDL_Point> rb;
     std::optional<SDL_FPoint> head;
+    std::optional<SDL_FRect> rect;
 
     static SpriteWarp *load(wz::Node *node, int alpha = 255);
 

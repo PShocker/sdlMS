@@ -112,6 +112,22 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
         auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"rb"))->get();
         rb = SDL_Point{v.x, v.y};
     }
+    if (lt.has_value() && rb.has_value())
+    {
+        auto x = lt.value().x;
+        auto y = lt.value().y;
+        auto w = rb.value().x - lt.value().x;
+        auto h = rb.value().y - lt.value().y;
+        rect = SDL_FRect{(float)x, (float)y, (float)w, (float)h};
+    }
+    else
+    {
+        auto x = 0;
+        auto y = 0;
+        auto w = width;
+        auto h = height;
+        rect = SDL_FRect{(float)x, (float)y, (float)w, (float)h};
+    }
     if (canvas->get_child(u"head"))
     {
         auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"head"))->get();

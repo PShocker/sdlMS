@@ -8,6 +8,7 @@ module systems;
 import core;
 import components;
 import commons;
+import :collision;
 
 void attack_run()
 {
@@ -91,7 +92,11 @@ bool mob_collision(Mob *mob, Transform *m_tr)
 {
     auto animated = mob->a[mob->index];
     auto sprw = animated->aspr->sprites[animated->anim_index];
-    if (collision(sprw, m_tr))
+
+    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+    auto p_cha = World::registry->try_get<Character>(Player::ent);
+
+    if (collision(sprw->rect.value(), m_tr, p_cha->r, p_tr))
     {
         AttackWarp atkw;
         atkw.damage = 100;
@@ -106,7 +111,11 @@ bool mob_collision(Mob *mob, Transform *m_tr)
 bool trap_collision(Trap *trap, AnimatedSprite *aspr, Transform *t_tr)
 {
     auto sprw = aspr->aspr->sprites[aspr->anim_index];
-    if (collision(sprw, t_tr))
+
+    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+    auto p_cha = World::registry->try_get<Character>(Player::ent);
+
+    if (collision(sprw->rect.value(), t_tr, p_cha->r, p_tr))
     {
         AttackWarp atkw;
         atkw.damage = trap->damage;
@@ -126,7 +135,7 @@ bool attack_mob(AttackWarp *atkw, Mob *mob, entt::entity *ent)
     auto p_tr = World::registry->try_get<Transform>(Player::ent);
     auto m_tr = World::registry->try_get<Transform>(*ent);
 
-    if (collision(m_spr, m_tr, atkw, p_tr))
+    if (collision(m_spr->rect.value(), m_tr, atkw->rect, p_tr))
     {
         hit_effect(atkw, &m_spr->head.value(), ent, 0, atkw->damage, atkw->attackCount);
         return true;
@@ -142,7 +151,7 @@ bool attack_npc(AttackWarp *atkw, Npc *npc, entt::entity *ent)
     auto p_tr = World::registry->try_get<Transform>(Player::ent);
     auto n_tr = World::registry->try_get<Transform>(*ent);
 
-    if (collision(n_spr, n_tr, atkw, p_tr))
+    if (collision(n_spr->rect.value(), n_tr, atkw->rect, p_tr))
     {
         hit_effect(atkw, &n_spr->head.value(), ent, 0, 0);
         return true;
@@ -155,7 +164,7 @@ bool attack_cha(AttackWarp *atkw, Character *cha, entt::entity *ent)
     auto p_tr = World::registry->try_get<Transform>(Player::ent);
     auto n_tr = World::registry->try_get<Transform>(*ent);
 
-    if (collision(cha, n_tr, atkw, p_tr))
+    if (collision(cha->r, n_tr, atkw->rect, p_tr))
     {
         hit_effect(atkw, nullptr, ent, 0, atkw->damage * 10, atkw->attackCount);
         return true;
@@ -163,115 +172,6 @@ bool attack_cha(AttackWarp *atkw, Character *cha, entt::entity *ent)
     return false;
 }
 
-bool collision(SpriteWarp *m_spr, Transform *m_tr, AttackWarp *atkw, Transform *p_tr)
-{
-    auto lt = m_spr->lt;
-    auto rb = m_spr->rb;
-    SDL_FRect m;
-    if (lt.has_value() && rb.has_value())
-    {
-        m.x = lt.value().x;
-        m.y = lt.value().y;
-        m.w = rb.value().x - lt.value().x;
-        m.h = rb.value().y - lt.value().y;
-        m.x += m_tr->position.x;
-        m.y += m_tr->position.y;
-    }
-    else
-    {
-        m.x = m_tr->position.x;
-        m.y = m_tr->position.y;
-        m.w = m_spr->width;
-        m.h = m_spr->height;
-    }
-    if (m_tr->flip == 1)
-    {
-        m.x += 2 * (m_tr->position.x - m.x) - m.w;
-    }
-
-    SDL_FRect n = atkw->rect;
-    n.x += p_tr->position.x;
-    n.y += p_tr->position.y;
-    if (p_tr->flip == 1)
-    {
-        n.x += 2 * (p_tr->position.x - n.x) - n.w;
-    }
-    SDL_FRect intersection;
-    if (SDL_GetRectIntersectionFloat(&m, &n, &intersection))
-    {
-        return true;
-    }
-    return false;
-}
-
-bool collision(SpriteWarp *m_spr, Transform *m_tr)
-{
-    auto lt = m_spr->lt;
-    auto rb = m_spr->rb;
-    SDL_FRect m;
-    if (lt.has_value() && rb.has_value())
-    {
-        m.x = lt.value().x;
-        m.y = lt.value().y;
-        m.w = rb.value().x - lt.value().x;
-        m.h = rb.value().y - lt.value().y;
-        m.x += m_tr->position.x;
-        m.y += m_tr->position.y;
-    }
-    else
-    {
-        m.x = m_tr->position.x;
-        m.y = m_tr->position.y;
-        m.w = m_spr->width;
-        m.h = m_spr->height;
-    }
-    if (m_tr->flip == 1)
-    {
-        m.x += 2 * (m_tr->position.x - m.x) - m.w;
-    }
-
-    auto p_tr = World::registry->try_get<Transform>(Player::ent);
-    auto p_cha = World::registry->try_get<Character>(Player::ent);
-
-    SDL_FRect n = p_cha->r;
-    n.x += p_tr->position.x;
-    n.y += p_tr->position.y;
-    if (p_tr->flip == 1)
-    {
-        n.x += 2 * (p_tr->position.x - n.x) - n.w;
-    }
-    SDL_FRect intersection;
-    if (SDL_GetRectIntersectionFloat(&m, &n, &intersection))
-    {
-        return true;
-    }
-    return false;
-}
-
-bool collision(Character *m_cha, Transform *m_tr, AttackWarp *n_atkw, Transform *n_tr)
-{
-    SDL_FRect m = m_cha->r;
-    m.x += m_tr->position.x;
-    m.y += m_tr->position.y;
-    if (m_tr->flip == 1)
-    {
-        m.x += 2 * (m_tr->position.x - m.x) - m.w;
-    }
-
-    SDL_FRect n = n_atkw->rect;
-    n.x += n_tr->position.x;
-    n.y += n_tr->position.y;
-    if (n_tr->flip == 1)
-    {
-        n.x += 2 * (n_tr->position.x - n.x) - n.w;
-    }
-    SDL_FRect intersection;
-    if (SDL_GetRectIntersectionFloat(&m, &n, &intersection))
-    {
-        return true;
-    }
-    return false;
-}
 
 void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity *ent, char type, int damage, int count)
 {

@@ -73,7 +73,7 @@ void render_run()
             {
                 invincible_time = cha->invincible_cooldown;
             }
-            render_character(tr, cha, invincible_time > 0);
+            render_character(tr, cha, invincible_time);
             if (auto aim = World::registry->try_get<AfterImage>(ent))
             {
                 render_afterimage(tr, aim, cha);
@@ -265,7 +265,7 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
     }
 }
 
-void render_character(const Transform *tr, Character *cha, bool invincible)
+void render_character(const Transform *tr, Character *cha, int invincible)
 {
     auto action = cha->action;
     auto action_index = cha->action_index;
@@ -297,9 +297,17 @@ void render_character(const Transform *tr, Character *cha, bool invincible)
             if (spr != nullptr)
             {
                 set_transform(t, spr);
-                if (invincible)
+                if (invincible > 0)
                 {
-                    SDL_SetTextureColorMod(spr->texture, 144, 144, 144); // 设置颜色调节为默认值
+                    auto time = invincible % 200;
+                    if (time > 100)
+                    {
+                        SDL_SetTextureColorMod(spr->texture, 128, 128, 128); // 设置颜色调节为默认值
+                    }
+                    else
+                    {
+                        SDL_SetTextureColorMod(spr->texture, 255, 255, 255); // 设置颜色调节为默认值
+                    }
                 }
                 else
                 {

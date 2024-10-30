@@ -729,7 +729,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         }
         else if (Input::state[SDL_SCANCODE_D])
         {
-            // id = u"4211006";
+            id = u"2101004";
         }
         else if (Input::state[SDL_SCANCODE_F])
         {

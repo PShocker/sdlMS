@@ -11,7 +11,7 @@ export void render_run();
 void render_sprite(Transform *tr, SpriteWarp *spr, SDL_FPoint *o = nullptr);
 void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *o = nullptr);
 void render_back_sprite(Transform *tr, BackGround *bspr);
-void render_character(const Transform *tr, Character *cha, bool invincible);
+void render_character(const Transform *tr, Character *cha, int invincible);
 void render_afterimage(Transform *tr, AfterImage *aft, Character *cha);
 void render_effect(Transform *tr, Effect *eff);
 void render_portal(Transform *tr, Portal *por);
