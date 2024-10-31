@@ -33,11 +33,11 @@ void load_ball(Skill *ski, Transform *tran, entt::entity owner)
     auto flip = tran->flip;
     if (flip)
     {
-        mv.hspeed = 500;
+        mv.hspeed = 400;
     }
     else
     {
-        mv.hspeed = -500;
+        mv.hspeed = -400;
     }
     World::zindex = true;
 }

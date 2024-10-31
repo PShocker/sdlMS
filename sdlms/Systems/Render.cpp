@@ -91,6 +91,12 @@ void render_run()
         {
             render_drop(tr, dro);
         }
+        if (auto ball = World::registry->try_get<Ball>(ent))
+        {
+            auto tr = World::registry->try_get<Transform>(ent);
+            const SDL_FRect rect = {tr->position.x - Camera::x - -10, tr->position.y - Camera::y - 5, 10, 10}; // 矩形位置和大小
+            SDL_RenderFillRect(Window::renderer, &rect);                                                        // 绘制矩形
+        }
     }
 }
 
@@ -655,4 +661,8 @@ void render_drop(Transform *tr, Drop *dro)
                    tr->position.y - (float)sprw->origin.y + (float)sprw->height / 2);
     tran.rotation = tr->rotation;
     render_animated_sprite(&tran, a, &origin);
+}
+
+void render_ball(Transform *tr, Drop *dro)
+{
 }
