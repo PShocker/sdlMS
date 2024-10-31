@@ -16,7 +16,7 @@ void drop_run()
 {
     static std::vector<entt::entity> destory;
     auto view = World::registry->view<Drop>();
-    for (auto &ent : view)
+    for (auto ent : view)
     {
         auto dro = &view.get<Drop>(ent);
         if (dro->destory > Window::dt_now)
@@ -30,7 +30,7 @@ void drop_run()
                     dro->land = true;
                 }
             }
-            if (dro->picker)
+            if (dro->picker != entt::null)
             {
                 drop_pick(mv, tr, dro, (float)Window::delta_time / 1000);
             }
@@ -41,7 +41,7 @@ void drop_run()
             World::zindex = true;
         }
     }
-    for (auto &ent : destory)
+    for (auto ent : destory)
     {
         World::registry->destroy(ent);
     }
@@ -58,7 +58,7 @@ void drop_pick(Move *mv, Transform *tr, Drop *dro, float delta_time)
 {
     // 默认重力为2000
     // 捡起物品有两阶段,分别为物品向上运动和吸引物品
-    auto picker_tr = World::registry->try_get<Transform>(*dro->picker);
+    auto picker_tr = World::registry->try_get<Transform>(dro->picker);
     auto picker_tr_x = picker_tr->position.x - 10;
     float dx = picker_tr_x - std::lerp(tr->position.x, picker_tr_x, 0.2);
 

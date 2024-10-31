@@ -18,22 +18,22 @@ void mob_statemachine_run()
         auto mob = World::registry->try_get<Mob>(ent);
         if (mob->state == Mob::State::REMOVE)
         {
-            mob_revive(&ent, Window::delta_time);
+            mob_revive(ent, Window::delta_time);
             continue;
         }
-        if (mob_hit(World::registry->try_get<Hit>(ent), &ent))
+        if (mob_hit(World::registry->try_get<Hit>(ent), ent))
         {
             continue;
         }
-        mob_statemachine(&ent, (float)Window::delta_time / 1000);
+        mob_statemachine(ent, (float)Window::delta_time / 1000);
     }
 }
 
-void mob_statemachine(entt::entity *ent, float delta_time)
+void mob_statemachine(entt::entity ent, float delta_time)
 {
-    auto mv = World::registry->try_get<Move>(*ent);
-    auto tr = World::registry->try_get<Transform>(*ent);
-    auto mob = World::registry->try_get<Mob>(*ent);
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    auto mob = World::registry->try_get<Mob>(ent);
 
     auto state = mob->state;
     switch (state)
@@ -133,13 +133,13 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
     }
 }
 
-bool mob_hit(Hit *hit, entt::entity *ent)
+bool mob_hit(Hit *hit, entt::entity ent)
 {
     if (hit->damage > 0)
     {
-        auto mv = World::registry->try_get<Move>(*ent);
-        auto tr = World::registry->try_get<Transform>(*ent);
-        auto mob = World::registry->try_get<Mob>(*ent);
+        auto mv = World::registry->try_get<Move>(ent);
+        auto tr = World::registry->try_get<Transform>(ent);
+        auto mob = World::registry->try_get<Mob>(ent);
         auto count = hit->count;
         mob->hp -= hit->damage;
         hit->damage = 0;
@@ -279,11 +279,11 @@ int mob_active(Mob *mob, Move *mv, int state, float delta_time)
     return state;
 }
 
-bool mob_revive(entt::entity *ent, float delta_time)
+bool mob_revive(entt::entity ent, float delta_time)
 {
-    auto mv = World::registry->try_get<Move>(*ent);
-    auto tr = World::registry->try_get<Transform>(*ent);
-    auto mob = World::registry->try_get<Mob>(*ent);
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    auto mob = World::registry->try_get<Mob>(ent);
 
     if (mob->revive <= Window::dt_now)
     {

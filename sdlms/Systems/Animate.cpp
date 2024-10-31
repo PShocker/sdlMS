@@ -14,7 +14,7 @@ import entities;
 void animate_run()
 {
     auto view = World::registry->view<Animated>();
-    for (auto &ent : view)
+    for (auto ent : view)
     {
         if (auto aspr = World::registry->try_get<AnimatedSprite>(ent))
         {
@@ -381,7 +381,7 @@ void animate_tomb(Tomb *tomb, Transform *tr)
 
 void animate_drop(Drop *dro, Transform *tr)
 {
-    if (dro->land == false && dro->picker == nullptr && dro->id != u"09000000")
+    if (dro->land == false && dro->picker == entt::null && dro->id != u"09000000")
     {
         tr->rotation += (float)Window::delta_time;
     }

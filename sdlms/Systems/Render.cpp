@@ -14,7 +14,7 @@ import components;
 void render_run()
 {
     auto view = World::registry->view<Transform>();
-    for (auto &ent : view)
+    for (auto ent : view)
     {
         auto tr = &view.get<Transform>(ent);
         if (auto spr = World::registry->try_get<Sprite>(ent))

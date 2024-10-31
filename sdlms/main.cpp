@@ -59,12 +59,12 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     World::load_map(100000000);
 
     Player::ent = World::registry->create();
-    load_character(0, 0, true, &Player::ent);
+    load_character(0, 0, true, Player::ent);
 
     for (size_t i = 0; i < 30; i++)
     {
         auto e = World::registry->create();
-        load_aicharacter(i * 200, 0, false, &e);
+        load_aicharacter(i * 200, 0, false, e);
     }
 
     return SDL_APP_CONTINUE;

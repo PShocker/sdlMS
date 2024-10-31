@@ -6,19 +6,16 @@ module;
 export module systems:attack;
 
 import components;
+import core;
 
 export void attack_run();
 
-void player_attack(AttackWarp *atk);
+void attacking(AttackWarp *atk);
 
-bool mob_collision(Mob *mob, Transform *tr);
+export void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity ent, char type, int damage, int count = 1);
 
-bool trap_collision(Trap *trap, AnimatedSprite *aspr, Transform *tr);
+export void hit_effect(AttackWarp *atkw, Mob *mob, entt::entity ent = Player::ent);
 
-bool attack_mob(AttackWarp *atk, Mob *mob, entt::entity *ent);
+export void hit_effect(AttackWarp *atkw, Npc *npc, entt::entity ent = Player::ent);
 
-bool attack_npc(AttackWarp *atk, Npc *npc, entt::entity *ent);
-
-bool attack_cha(AttackWarp *atk, Character *cha, entt::entity *ent);
-
-void hit_effect(AttackWarp *atk, SDL_FPoint *head, entt::entity *ent, char type, int damage, int count = 1);
+export void hit_effect(AttackWarp *atkw, Character *cha, entt::entity ent = Player::ent);

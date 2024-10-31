@@ -27,7 +27,7 @@ void load_border(wz::Node *node)
     else
     {
         auto view = World::registry->view<FootHold>();
-        for (auto &ent : view)
+        for (auto ent : view)
         {
             auto fh = &view.get<FootHold>(ent);
             if (!l.has_value())

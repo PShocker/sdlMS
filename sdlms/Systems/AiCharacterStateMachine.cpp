@@ -15,19 +15,19 @@ void aicharacter_statemachine_run()
     for (auto ent : view)
     {
         aicharacter_cooldown(World::registry->try_get<Character>(ent), Window::delta_time);
-        if (aicharacter_hit(World::registry->try_get<Hit>(ent), &ent))
+        if (aicharacter_hit(World::registry->try_get<Hit>(ent), ent))
         {
             return;
         }
-        aicharacter_statemachine(&ent, (float)Window::delta_time / 1000);
+        aicharacter_statemachine(ent, (float)Window::delta_time / 1000);
     }
 }
 
-void aicharacter_statemachine(entt::entity *ent, float delta_time)
+void aicharacter_statemachine(entt::entity ent, float delta_time)
 {
-    auto mv = World::registry->try_get<Move>(*ent);
-    auto tr = World::registry->try_get<Transform>(*ent);
-    auto cha = World::registry->try_get<Character>(*ent);
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;
 
     switch (cha->state)
@@ -58,7 +58,7 @@ bool aicharacter_fall(Move *mv, Transform *tr, float delta_time)
     return move_fall(mv, tr, delta_time, MOB_Z);
 }
 
-void aicharacter_action(Character *cha, int state, int new_state, Move *mv, entt::entity *ent)
+void aicharacter_action(Character *cha, int state, int new_state, Move *mv, entt::entity ent)
 {
     if (state != new_state)
     {
@@ -67,7 +67,7 @@ void aicharacter_action(Character *cha, int state, int new_state, Move *mv, entt
         {
         case Character::State::STAND:
         {
-            auto weaponinfo = World::registry->try_get<WeaponInfo>(*ent);
+            auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
             if (weaponinfo != nullptr && weaponinfo->stand1 == false)
             {
                 action = Character::ACTION::STAND2;
@@ -94,13 +94,13 @@ void aicharacter_action(Character *cha, int state, int new_state, Move *mv, entt
     }
 }
 
-bool aicharacter_hit(Hit *hit, entt::entity *ent)
+bool aicharacter_hit(Hit *hit, entt::entity ent)
 {
     if (hit->damage > 0)
     {
-        auto mv = World::registry->try_get<Move>(*ent);
-        auto tr = World::registry->try_get<Transform>(*ent);
-        auto cha = World::registry->try_get<Character>(*ent);
+        auto mv = World::registry->try_get<Move>(ent);
+        auto tr = World::registry->try_get<Transform>(ent);
+        auto cha = World::registry->try_get<Character>(ent);
         auto count = hit->count;
         cha->hp -= hit->damage;
         cha->invincible_cooldown = 2000;
@@ -166,7 +166,7 @@ bool aicharacter_hit(Hit *hit, entt::entity *ent)
                 tr->position.y = y;
             }
 
-            auto &tomb = World::registry->emplace_or_replace<Tomb>(*ent);
+            auto &tomb = World::registry->emplace_or_replace<Tomb>(ent);
             tomb.f.position = tr->position;
             tomb.f.position.y -= 200;
             tomb.l.position = tr->position;

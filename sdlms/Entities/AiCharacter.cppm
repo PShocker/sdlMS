@@ -8,5 +8,5 @@ import components;
 
 export
 {
-    void load_aicharacter(float x, float y, bool sp, entt::entity *ent);
+    void load_aicharacter(float x, float y, bool sp, entt::entity ent);
 };

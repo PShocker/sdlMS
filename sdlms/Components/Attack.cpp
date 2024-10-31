@@ -32,3 +32,17 @@ AttackWarp::AttackWarp(AfterImage *aft)
     rect.h = rb.y - lt.y;
     hit = aft->hits[u"sword1"];
 }
+
+AttackWarp::AttackWarp(Mob *mob, Transform *tr)
+{
+    damage = 100;
+    hit = nullptr;
+    p = &tr->position;
+}
+
+AttackWarp::AttackWarp(Trap *trap, Transform *tr)
+{
+    damage = trap->damage;
+    hit = nullptr;
+    p = &tr->position;
+}

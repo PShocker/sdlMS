@@ -9,6 +9,9 @@ import :animatedsprite;
 import :sound;
 import :skill;
 import :afterimage;
+import :mob;
+import :trap;
+import :transform;
 
 export struct AttackWarp
 {
@@ -28,6 +31,8 @@ export struct AttackWarp
     AttackWarp() = default;
     AttackWarp(Skill *ski, int level = 1);
     AttackWarp(AfterImage *aft);
+    AttackWarp(Mob *mob, Transform *tr);
+    AttackWarp(Trap *trap, Transform *tr);
 };
 
 export struct Attack

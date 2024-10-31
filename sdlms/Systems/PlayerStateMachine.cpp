@@ -19,19 +19,19 @@ void player_statemachine_run()
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
         player_cooldown(Window::delta_time);
-        if (player_hit(World::registry->try_get<Hit>(ent), &ent))
+        if (player_hit(World::registry->try_get<Hit>(ent), ent))
         {
             return;
         }
-        player_statemachine(&ent, (float)Window::delta_time / 1000);
+        player_statemachine(ent, (float)Window::delta_time / 1000);
     }
 }
 
-void player_statemachine(entt::entity *ent, float delta_time)
+void player_statemachine(entt::entity ent, float delta_time)
 {
-    auto mv = World::registry->try_get<Move>(*ent);
-    auto tr = World::registry->try_get<Transform>(*ent);
-    auto cha = World::registry->try_get<Character>(*ent);
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;
 
     switch (cha->state)
@@ -312,7 +312,7 @@ bool player_down_jump(Move *mv, Transform *tr)
     return false;
 }
 
-int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
+int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent)
 {
     if (Input::state[SDL_SCANCODE_LCTRL])
     {
@@ -321,7 +321,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             mv->hspeed = 0;
         }
         // add afterimg
-        World::registry->emplace_or_replace<AfterImage>(*ent);
+        World::registry->emplace_or_replace<AfterImage>(ent);
 
         state = Character::State::ATTACK;
         player_alert_cooldown = 4000;
@@ -330,7 +330,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
     return state;
 }
 
-bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time)
+bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity ent, float delta_time)
 {
     if (mv->foo == nullptr)
     {
@@ -427,7 +427,7 @@ bool player_climb(Move *mv, Transform *tr, int state)
     return false;
 }
 
-int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::entity *ent, float delta_time)
+int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::entity ent, float delta_time)
 {
     if (state == Character::State::JUMP)
     {
@@ -635,14 +635,14 @@ bool player_alert()
     return player_alert_cooldown > 0;
 }
 
-bool player_hit(Hit *hit, entt::entity *ent)
+bool player_hit(Hit *hit, entt::entity ent)
 {
     if (hit->damage > 0)
     {
         player_invincible_cooldown = 2000;
-        auto mv = World::registry->try_get<Move>(*ent);
-        auto tr = World::registry->try_get<Transform>(*ent);
-        auto cha = World::registry->try_get<Character>(*ent);
+        auto mv = World::registry->try_get<Move>(ent);
+        auto tr = World::registry->try_get<Transform>(ent);
+        auto cha = World::registry->try_get<Character>(ent);
         cha->hp -= hit->damage;
         hit->damage = 0;
         if (cha->hp > 0)
@@ -696,7 +696,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
                 tr->position.y = y;
             }
 
-            auto &tomb = World::registry->emplace_or_replace<Tomb>(*ent);
+            auto &tomb = World::registry->emplace_or_replace<Tomb>(ent);
             tomb.f.position = tr->position;
             tomb.f.position.y -= 200;
             tomb.l.position = tr->position;
@@ -711,7 +711,7 @@ bool player_hit(Hit *hit, entt::entity *ent)
     }
 }
 
-bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent, std::u16string id)
+bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent, std::u16string id)
 {
     if (id == u"")
     {
@@ -760,7 +760,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
                 mv->hspeed = 0;
             }
         }
-        auto ski = &World::registry->emplace_or_replace<Skill>(*ent, id);
+        auto ski = &World::registry->emplace_or_replace<Skill>(ent, id);
         // 技能效果
         if (skill_res & PlayerSkill::SkillResult::EFF)
         {
@@ -789,22 +789,22 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
     return false;
 }
 
-bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity *ent, float delta_time)
+bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity ent, float delta_time)
 {
     player_quick_move(mv, cha, tr, cha->state, ent);
     if (!player_animating(mv, cha, tr, ent, delta_time))
     {
-        World::registry->remove<Skill>(*ent);
+        World::registry->remove<Skill>(ent);
         return false;
     }
     return true;
 }
 
-void player_portal(Move *mv, entt::entity *ent)
+void player_portal(Move *mv, entt::entity ent)
 {
     if (player_portal_cooldown <= 0)
     {
-        auto tr = World::registry->try_get<Transform>(*ent);
+        auto tr = World::registry->try_get<Transform>(ent);
         auto view = World::registry->view<Portal>();
         for (auto &e : view)
         {
@@ -828,7 +828,7 @@ void player_portal(Move *mv, entt::entity *ent)
                         }
                         else
                         {
-                            auto eff = World::registry->try_get<Effect>(*ent);
+                            auto eff = World::registry->try_get<Effect>(ent);
                             eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
                             eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
 
@@ -849,7 +849,7 @@ void player_portal(Move *mv, entt::entity *ent)
     }
 }
 
-bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
+bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
 {
     // 二段跳
     if (Input::state[SDL_SCANCODE_LALT] && SkillWarp::cooldowns[u"4111006"] <= 0)
@@ -865,7 +865,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity *ent)
             mv->hspeed -= 480;
         }
         // 添加effect
-        auto eff = World::registry->try_get<Effect>(*ent);
+        auto eff = World::registry->try_get<Effect>(ent);
         eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
 
         // 技能音效
@@ -892,10 +892,10 @@ bool player_pick_drop(Character *cha, Transform *tr)
     if (Input::state[SDL_SCANCODE_Z])
     {
         // 捡起物品
-        for (auto &ent : World::registry->view<Drop>())
+        for (auto ent : World::registry->view<Drop>())
         {
             auto dro = World::registry->try_get<Drop>(ent);
-            if (dro->picker == nullptr && dro->land == true)
+            if (dro->picker == entt::null && dro->land == true)
             {
                 auto player_pos = tr->position;
                 auto dro_tr = World::registry->try_get<Transform>(ent);
@@ -905,7 +905,7 @@ bool player_pick_drop(Character *cha, Transform *tr)
                     player_pos.y == std::clamp(player_pos.y, dro_y - 20, dro_y + 20))
                 {
                     // 捡起物品
-                    dro->picker = &Player::ent;
+                    dro->picker = Player::ent;
                     dro->destory = Window::dt_now + 600;
 
                     auto mv = World::registry->try_get<Move>(ent);
@@ -920,7 +920,7 @@ bool player_pick_drop(Character *cha, Transform *tr)
     return false;
 }
 
-void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity *ent)
+void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent)
 {
     if (Input::state[SDL_SCANCODE_SPACE])
     {

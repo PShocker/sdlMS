@@ -16,7 +16,7 @@ export struct Drop
     int rotate;
     bool land = false;
     bool attract = false;
-    entt::entity *picker = nullptr;
+    entt::entity picker = entt::null;
 
     AnimatedSprite aspr;
 
