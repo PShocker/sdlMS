@@ -7,6 +7,7 @@ export module systems:collision;
 
 import components;
 import core;
+import commons;
 
 export bool collision(SDL_FRect m_rect, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr);
 
@@ -24,4 +25,10 @@ export bool collision(Mob *mob, Transform *m_tr, SDL_FRect n_rect, Transform *n_
 
 export bool collision(Npc *npc, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr);
 
-export bool collision(Character *cha, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr);
+export bool collision(Character *cha, Transform *c_tr, SDL_FRect n_rect, Transform *n_tr);
+
+export bool collision(Triangle t, Transform *t_tr, SDL_FRect n_rect, Transform *n_tr);
+
+export bool collision(Mob *mob, Transform *m_tr, Triangle t, Transform *n_tr);
+
+export bool collision(Character *cha, Transform *c_tr, Triangle t, Transform *n_tr);

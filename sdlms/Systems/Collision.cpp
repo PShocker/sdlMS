@@ -7,6 +7,7 @@ module systems;
 
 import components;
 import core;
+import commons;
 
 bool collision(SDL_FRect m_rect, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr)
 {
@@ -61,29 +62,63 @@ bool collision(Mob *mob, Transform *m_tr)
 
 bool collision(Trap *trap, AnimatedSprite *aspr, Transform *t_tr)
 {
-    auto sprw = aspr->aspr->sprites[aspr->anim_index];
-
     auto p_tr = World::registry->try_get<Transform>(Player::ent);
     auto p_cha = World::registry->try_get<Character>(Player::ent);
 
-    return collision(sprw->rect.value(), t_tr, p_cha->r, p_tr);
+    return collision(trap->rect(aspr), t_tr, p_cha->r, p_tr);
 }
 
 bool collision(Mob *mob, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr)
 {
-    auto animated = mob->a[mob->index];
-    auto m_spr = animated->aspr->sprites[animated->anim_index];
-    return collision(m_spr->rect.value(), m_tr, n_rect, n_tr);
+    return collision(mob->rect(), m_tr, n_rect, n_tr);
 }
 
 bool collision(Npc *npc, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr)
 {
-    auto animated = npc->a[npc->index];
-    auto n_spr = animated->aspr->sprites[animated->anim_index];
-    return collision(n_spr->rect.value(), m_tr, n_rect, n_tr);
+    return collision(npc->rect(), m_tr, n_rect, n_tr);
 }
 
-bool collision(Character *cha, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr)
+bool collision(Character *cha, Transform *c_tr, SDL_FRect n_rect, Transform *n_tr)
 {
-    return collision(cha->r, m_tr, n_rect, n_tr);
+    return collision(cha->r, c_tr, n_rect, n_tr);
+}
+
+bool collision(Triangle t, Transform *t_tr, SDL_FRect n_rect, Transform *n_tr)
+{
+    if (t_tr->flip)
+    {
+        t.vertex1.x = t_tr->position.x - t.vertex1.x;
+        t.vertex1.y = t_tr->position.y - t.vertex1.y;
+        t.vertex2.x = t_tr->position.x - t.vertex1.x;
+        t.vertex2.y = t_tr->position.y - t.vertex1.y;
+        t.vertex3.x = t_tr->position.x - t.vertex1.x;
+        t.vertex3.y = t_tr->position.y - t.vertex1.y;
+    }
+    else
+    {
+        t.vertex1.x += t_tr->position.x;
+        t.vertex1.y += t_tr->position.y;
+        t.vertex2.x += t_tr->position.x;
+        t.vertex2.y += t_tr->position.y;
+        t.vertex3.x += t_tr->position.x;
+        t.vertex3.y += t_tr->position.y;
+    }
+
+    n_rect.x += n_tr->position.x;
+    n_rect.y += n_tr->position.y;
+    if (n_tr->flip == 1)
+    {
+        n_rect.x += 2 * (n_tr->position.x - n_rect.x) - n_rect.w;
+    }
+    return RectIntersectTriangle(n_rect, t);
+}
+
+bool collision(Mob *mob, Transform *m_tr, Triangle t, Transform *n_tr)
+{
+    return collision(t, n_tr, mob->rect(), m_tr);
+}
+
+bool collision(Character *cha, Transform *c_tr, Triangle t, Transform *n_tr)
+{
+    return collision(t, n_tr, cha->r, c_tr);
 }

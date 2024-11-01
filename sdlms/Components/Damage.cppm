@@ -2,6 +2,7 @@ module;
 
 #include <vector>
 #include <SDL3/SDL.h>
+#include <optional>
 
 export module components:damage;
 
@@ -25,5 +26,5 @@ export struct Damage
 
     // int alpha = 255;
     std::vector<Info> damage;
-    SDL_FPoint *head;
+    std::optional<SDL_FPoint> head;
 };

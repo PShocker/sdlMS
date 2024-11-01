@@ -1,0 +1,58 @@
+module;
+
+#include "entt/entt.hpp"
+#include <SDL3/SDL.h>
+
+module systems;
+
+import components;
+import commons;
+import core;
+import entities;
+
+void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head, entt::entity ent,
+                char type, int damage, int count,
+                SDL_FPoint *p)
+{
+    auto hit = World::registry->try_get<Hit>(ent);
+    hit->x = atkw->p->x;
+    hit->y = atkw->p->y;
+    hit->souw = atkw->souw;
+    hit->count += count;
+    hit->damage += damage * count;
+
+    for (int i = 0; i < count; i++)
+    {
+        auto dam = World::registry->try_get<Damage>(ent);
+        dam->damage.push_back({damage, 255, (int)dam->damage.size(), type});
+        dam->head = head;
+
+        if (atkw->hit)
+        {
+            auto eff = World::registry->try_get<Effect>(ent);
+            if (p != nullptr)
+            {
+                eff->effects.push_back({new Transform(*p), AnimatedSprite(atkw->hit), Window::dt_now + i * 145});
+            }
+            else
+            {
+                eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), Window::dt_now + i * 145});
+            }
+        }
+    }
+}
+
+void hit_effect(AttackWarp *atkw, Mob *mob, entt::entity ent, SDL_FPoint *p)
+{
+    hit_effect(atkw, mob->head(), ent, 0, atkw->damage, atkw->attackCount, p);
+}
+
+void hit_effect(AttackWarp *atkw, Npc *npc, entt::entity ent, SDL_FPoint *p)
+{
+    hit_effect(atkw, npc->head(), ent, 0, 0, 0, p);
+}
+
+void hit_effect(AttackWarp *atkw, Character *cha, entt::entity ent, SDL_FPoint *p)
+{
+    hit_effect(atkw, std::nullopt, ent, 0, atkw->damage * 10, atkw->attackCount, p);
+}

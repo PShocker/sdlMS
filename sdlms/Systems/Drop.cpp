@@ -38,12 +38,12 @@ void drop_run()
         else
         {
             destory.push_back(ent);
-            World::zindex = true;
         }
     }
     for (auto ent : destory)
     {
         World::registry->destroy(ent);
+        World::zindex = true;
     }
     destory.clear();
 }

@@ -22,21 +22,25 @@ void ball_run()
         auto ball = World::registry->try_get<Ball>(ent);
         if (ball->target != entt::null && World::registry->valid(ball->target))
         {
-            if (ball_target(ent, ball, (float)Window::delta_time / 1000))
+            if (ball_track(ent, ball, (float)Window::delta_time / 1000))
             {
                 ball_hit(ent, ball->target);
                 destory.push_back(ent);
-                World::zindex = true;
             }
         }
-        else
+        else if (ball->p == std::nullopt)
         {
             ball_fall(ent, ball, (float)Window::delta_time / 1000);
+        }
+        else if (ball_move(ent, ball, (float)Window::delta_time / 1000))
+        {
+            destory.push_back(ent);
         }
     }
     for (auto ent : destory)
     {
         World::registry->destroy(ent);
+        World::zindex = true;
     }
     destory.clear();
 }
@@ -45,48 +49,44 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
-    // 飞行
-    move_fall(mv, tr, delta_time, 0, false);
-    // 判断前方是否有怪物可以攻击
-    // 如果有攻击目标,则改变运动轨迹
-    auto ski = World::registry->try_get<Skill>(ent);
-    auto mobCount = ski->ski->infos[ski->level]->mobCount;
-    const SDL_FRect rect = {-180, -80, 120, 160};
+    auto position = tr->position;
+    ball->p = position;
+
+    const Triangle tri = {
+        {-300, -90},
+        {-300, 120},
+        {0, -30},
+    };
 
     for (auto e : World::registry->view<Damage>())
     {
-        if (mobCount > 0 && ball->owner != e)
+        if (ball->owner != e)
         {
             if (auto mob = World::registry->try_get<Mob>(e))
             {
                 if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
                 {
                     auto m_tr = World::registry->try_get<Transform>(e);
-                    if (collision(mob, m_tr, rect, tr))
+                    if (collision(mob, m_tr, tri, tr))
                     {
                         ball->target = e;
-                        ball->p = m_tr->position;
-                        mobCount -= 1;
                     }
                 }
             }
             else if (auto cha = World::registry->try_get<Character>(e))
             {
                 auto c_tr = World::registry->try_get<Transform>(e);
-                if (collision(cha, c_tr, rect, tr))
+                if (cha->invincible_cooldown <= 0 && collision(cha, c_tr, tri, tr))
                 {
                     ball->target = e;
-                    ball->p = c_tr->position;
-                    mobCount -= 1;
                 }
             }
         }
     }
-
     return false;
 }
 
-bool ball_target(entt::entity src, Ball *ball, float delta_time)
+bool ball_track(entt::entity src, Ball *ball, float delta_time)
 {
     auto target = ball->target;
     auto t_tr = World::registry->try_get<Transform>(target);
@@ -94,39 +94,34 @@ bool ball_target(entt::entity src, Ball *ball, float delta_time)
 
     auto mv = World::registry->try_get<Move>(src);
 
-    float center_x = 0;
-    float center_y = 0;
+    SDL_FPoint t_position;
     SDL_FRect t_rect;
     if (auto mob = World::registry->try_get<Mob>(target))
     {
-        auto animated = mob->a[mob->index];
-        auto m_spr = animated->aspr->sprites[animated->anim_index];
-        if (t_tr->flip)
+        t_rect = mob->rect();
+        auto rect = mob->rect();
+        rect.x += t_tr->position.x;
+        rect.y += t_tr->position.y;
+        if (t_tr->flip == 1)
         {
-            center_x = -m_spr->rect.value().w / 2;
+            rect.x += 2 * (t_tr->position.x - rect.x) - rect.w;
         }
-        else
-        {
-            center_x = m_spr->rect.value().w / 2;
-        }
-        center_y = m_spr->rect.value().h / 2;
-        t_rect = m_spr->rect.value();
+        t_position = closestPointToRect(b_tr->position, rect);
     }
     else if (auto cha = World::registry->try_get<Character>(target))
     {
-        if (t_tr->flip)
-        {
-            center_x = -cha->r.w / 2;
-        }
-        else
-        {
-            center_x = cha->r.w / 2;
-        }
-        center_y = cha->r.h / 2;
         t_rect = cha->r;
+        auto rect = cha->r;
+        rect.x += t_tr->position.x;
+        rect.y += t_tr->position.y;
+        if (t_tr->flip == 1)
+        {
+            rect.x += 2 * (t_tr->position.x - rect.x) - rect.w;
+        }
+        t_position = closestPointToRect(b_tr->position, rect);
     }
 
-    float dx = (t_tr->position.x - center_x) - b_tr->position.x;
+    float dx = t_position.x - b_tr->position.x;
     if (dx < 0)
     {
         mv->hspeed = -std::abs(mv->hspeed);
@@ -136,20 +131,30 @@ bool ball_target(entt::entity src, Ball *ball, float delta_time)
         mv->hspeed = std::abs(mv->hspeed);
     }
 
-    auto target_y = t_tr->position.y - center_y;
-    float dy = target_y - b_tr->position.y;
+    float dy = t_tr->position.y - b_tr->position.y;
     // float dy = target_y - std::lerp(b_tr->position.y, target_y, 0.4);
-    mv->vspeed = dy / delta_time / std::abs(dx);
+    mv->vspeed = dy / delta_time / 10;
 
     move_fall(mv, b_tr, delta_time, 0, false);
 
     // 旋转
-    // b_tr->rotation = 90;
     b_tr->rotation = ball_rotation(ball, b_tr);
 
-    const SDL_FRect b_rect = {-10, -5, 10, 10};
+    const SDL_FRect b_rect = {0, 0, 10, 10};
 
     return collision(t_rect, t_tr, b_rect, b_tr);
+}
+
+bool ball_move(entt::entity ent, Ball *ball, float delta_time)
+{
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    move_fall(mv, tr, delta_time, 0, false);
+    if (ball->destory > Window::dt_now)
+    {
+        return false;
+    }
+    return true;
 }
 
 void ball_hit(entt::entity src, entt::entity target)
@@ -159,18 +164,18 @@ void ball_hit(entt::entity src, entt::entity target)
     atkw.p = &World::registry->try_get<Transform>(src)->position;
     if (auto mob = World::registry->try_get<Mob>(target))
     {
-        hit_effect(&atkw, mob, target);
+        hit_effect(&atkw, mob, target, atkw.p);
     }
     else if (auto cha = World::registry->try_get<Character>(target))
     {
-        hit_effect(&atkw, cha, target);
+        hit_effect(&atkw, cha, target, atkw.p);
     }
 }
 
 float ball_rotation(Ball *ball, Transform *tr)
 {
-    auto x1 = ball->p.x;
-    auto y1 = ball->p.y;
+    auto x1 = ball->p.value().x;
+    auto y1 = ball->p.value().y;
 
     auto x2 = tr->position.x;
     auto y2 = tr->position.y;

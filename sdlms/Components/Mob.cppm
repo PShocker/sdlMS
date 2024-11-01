@@ -2,6 +2,7 @@ module;
 
 #include <unordered_map>
 #include <string>
+#include <SDL3/SDL.h>
 
 export module components:mob;
 
@@ -40,4 +41,7 @@ export struct Mob
     std::u16string id;
 
     std::unordered_map<std::u16string, SoundWarp *> sounds;
+
+    SDL_FRect rect();
+    SDL_FPoint head();
 };

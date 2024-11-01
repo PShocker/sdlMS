@@ -2,6 +2,7 @@ module;
 
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
+#include <optional>
 
 module systems;
 
@@ -9,6 +10,7 @@ import core;
 import components;
 import commons;
 import :collision;
+import :hit;
 
 void attack_run()
 {
@@ -23,34 +25,13 @@ void attack_run()
     }
     if (player_invincible_cooldown <= 0)
     {
+        if (mob_attack())
         {
-            auto view = World::registry->view<Mob>();
-            for (auto ent : view)
-            {
-                auto mob = &view.get<Mob>(ent);
-                if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
-                {
-                    if (collision(mob, World::registry->try_get<Transform>(ent)))
-                    {
-                        AttackWarp atkw(mob, World::registry->try_get<Transform>(ent));
-                        hit_effect(&atkw, nullptr, Player::ent, 1, atkw.damage);
-                        return;
-                    }
-                }
-            }
+            return;
         }
+        else if (trap_attack())
         {
-            auto view = World::registry->view<Trap>();
-            for (auto ent : view)
-            {
-                auto trap = &view.get<Trap>(ent);
-                if (collision(trap, World::registry->try_get<AnimatedSprite>(ent), World::registry->try_get<Transform>(ent)))
-                {
-                    AttackWarp atkw(trap, World::registry->try_get<Transform>(ent));
-                    hit_effect(&atkw, nullptr, Player::ent, 1, atkw.damage);
-                    return;
-                }
-            }
+            return;
         }
     }
 }
@@ -95,44 +76,37 @@ void attacking(AttackWarp *atkw)
     }
 }
 
-void hit_effect(AttackWarp *atkw, SDL_FPoint *head, entt::entity ent, char type, int damage, int count)
+bool mob_attack()
 {
-    auto hit = World::registry->try_get<Hit>(ent);
-    hit->x = atkw->p->x;
-    hit->y = atkw->p->y;
-    hit->souw = atkw->souw;
-    hit->count += count;
-    hit->damage += damage * count;
-
-    for (int i = 0; i < count; i++)
+    auto view = World::registry->view<Mob>();
+    for (auto ent : view)
     {
-        auto dam = World::registry->try_get<Damage>(ent);
-        dam->damage.push_back({damage, 255, (int)dam->damage.size(), type});
-        dam->head = head;
-
-        if (atkw->hit)
+        auto mob = &view.get<Mob>(ent);
+        if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
         {
-            auto eff = World::registry->try_get<Effect>(ent);
-            eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), Window::dt_now + i * 145});
+            if (collision(mob, World::registry->try_get<Transform>(ent)))
+            {
+                AttackWarp atkw(mob, World::registry->try_get<Transform>(ent));
+                hit_effect(&atkw, std::nullopt, Player::ent, 1, atkw.damage);
+                return true;
+            }
         }
     }
+    return false;
 }
 
-void hit_effect(AttackWarp *atkw, Mob *mob, entt::entity ent)
+bool trap_attack()
 {
-    auto animated = mob->a[mob->index];
-    auto m_spr = animated->aspr->sprites[animated->anim_index];
-    hit_effect(atkw, &m_spr->head.value(), ent, 0, atkw->damage, atkw->attackCount);
-}
-
-void hit_effect(AttackWarp *atkw, Npc *npc, entt::entity ent)
-{
-    auto animated = npc->a[npc->index];
-    auto n_spr = animated->aspr->sprites[animated->anim_index];
-    hit_effect(atkw, &n_spr->head.value(), ent, 0, 0);
-}
-
-void hit_effect(AttackWarp *atkw, Character *cha, entt::entity ent)
-{
-    hit_effect(atkw, nullptr, ent, 0, atkw->damage * 10, atkw->attackCount);
+    auto view = World::registry->view<Trap>();
+    for (auto ent : view)
+    {
+        auto trap = &view.get<Trap>(ent);
+        if (collision(trap, World::registry->try_get<AnimatedSprite>(ent), World::registry->try_get<Transform>(ent)))
+        {
+            AttackWarp atkw(trap, World::registry->try_get<Transform>(ent));
+            hit_effect(&atkw, std::nullopt, Player::ent, 1, atkw.damage);
+            return true;
+        }
+    }
+    return false;
 }

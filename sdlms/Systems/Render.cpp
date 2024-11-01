@@ -4,6 +4,7 @@ module;
 #include <math.h>
 #include "entt/entt.hpp"
 #include <variant>
+#include <optional>
 
 module systems;
 
@@ -94,8 +95,8 @@ void render_run()
         if (auto ball = World::registry->try_get<Ball>(ent))
         {
             auto tr = World::registry->try_get<Transform>(ent);
-            const SDL_FRect rect = {tr->position.x - Camera::x - -10, tr->position.y - Camera::y - 5, 10, 10}; // 矩形位置和大小
-            SDL_RenderFillRect(Window::renderer, &rect);                                                        // 绘制矩形
+            const SDL_FRect rect = {tr->position.x - Camera::x, tr->position.y - Camera::y, 10, 10}; // 矩形位置和大小
+            SDL_RenderFillRect(Window::renderer, &rect);                                             // 绘制矩形
         }
     }
 }
@@ -562,15 +563,15 @@ void render_mob(Transform *tr, Mob *mob)
     render_animated_sprite(tr, a);
 }
 
-void render_damage(Transform *tr, Damage *dam, SDL_FPoint *head)
+void render_damage(Transform *tr, Damage *dam, std::optional<SDL_FPoint> head)
 {
     for (auto it : dam->damage)
     {
         auto &info = it;
         SDL_FPoint p = tr->position;
-        if (head)
+        if (head.has_value())
         {
-            p = p + *head;
+            p = p + head.value();
         }
         else
         {
