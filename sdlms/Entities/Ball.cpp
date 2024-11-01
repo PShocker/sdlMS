@@ -13,8 +13,9 @@ void load_ball(Skill *ski, Transform *tran, entt::entity owner)
     auto ent = World::registry->create();
     auto &tr = World::registry->emplace<Transform>(ent);
 
-    tr.position.x = tran->position.x;
     tr.position.y = tran->position.y - 30;
+    tr.position.x = tran->position.x;
+
     tr.flip = tran->flip;
     tr.z = tran->z - 1;
 
@@ -33,11 +34,11 @@ void load_ball(Skill *ski, Transform *tran, entt::entity owner)
     auto flip = tran->flip;
     if (flip)
     {
-        mv.hspeed = 400;
+        mv.hspeed = 550;
     }
     else
     {
-        mv.hspeed = -400;
+        mv.hspeed = -550;
     }
     World::zindex = true;
 }

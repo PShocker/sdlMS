@@ -22,4 +22,3 @@ void render_damage(Transform *tr, Damage *dam, std::optional<SDL_FPoint> head);
 void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a);
 void render_tomb(Tomb *tomb);
 void render_drop(Transform *tr, Drop *dro);
-void render_ball(Transform *tr, Drop *dro);

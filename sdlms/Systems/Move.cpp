@@ -26,7 +26,7 @@ float move_border_limit(Move *mv, float x)
     return x;
 }
 
-bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall_collide)
+bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall_collide, bool wall_collide)
 {
     if (mv->vspeed_min.has_value())
     {
@@ -82,22 +82,25 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
         }
     };
 
-    // 首先和墙面碰撞
-    for (auto &e : World::registry->view<WallFootHold>())
+    if (wall_collide)
     {
-        auto fh = World::registry->try_get<FootHold>(e);
-        auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
-        if (collide.has_value() && collide_wall(fh, mv->hspeed))
+        // 首先和墙面碰撞
+        for (auto &e : World::registry->view<WallFootHold>())
         {
-            if (mv->hspeed < 0)
+            auto fh = World::registry->try_get<FootHold>(e);
+            auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
+            if (collide.has_value() && collide_wall(fh, mv->hspeed))
             {
-                new_pos.x = fh->x1 + 0.1;
+                if (mv->hspeed < 0)
+                {
+                    new_pos.x = fh->x1 + 0.1;
+                }
+                else
+                {
+                    new_pos.x = fh->x1 - 0.1;
+                }
+                mv->hspeed = 0;
             }
-            else
-            {
-                new_pos.x = fh->x1 - 0.1;
-            }
-            mv->hspeed = 0;
         }
     }
 

@@ -89,10 +89,10 @@ bool collision(Triangle t, Transform *t_tr, SDL_FRect n_rect, Transform *n_tr)
     {
         t.vertex1.x = t_tr->position.x - t.vertex1.x;
         t.vertex1.y = t_tr->position.y - t.vertex1.y;
-        t.vertex2.x = t_tr->position.x - t.vertex1.x;
-        t.vertex2.y = t_tr->position.y - t.vertex1.y;
-        t.vertex3.x = t_tr->position.x - t.vertex1.x;
-        t.vertex3.y = t_tr->position.y - t.vertex1.y;
+        t.vertex2.x = t_tr->position.x - t.vertex2.x;
+        t.vertex2.y = t_tr->position.y - t.vertex2.y;
+        t.vertex3.x = t_tr->position.x - t.vertex3.x;
+        t.vertex3.y = t_tr->position.y - t.vertex3.y;
     }
     else
     {

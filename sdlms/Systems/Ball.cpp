@@ -53,8 +53,8 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
     ball->p = position;
 
     const Triangle tri = {
-        {-300, -90},
-        {-300, 120},
+        {-350, -60},
+        {-350, 90},
         {0, -30},
     };
 
@@ -131,18 +131,26 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
         mv->hspeed = std::abs(mv->hspeed);
     }
 
-    float dy = t_tr->position.y - b_tr->position.y;
-    // float dy = target_y - std::lerp(b_tr->position.y, target_y, 0.4);
-    mv->vspeed = dy / delta_time / 10;
+    float dy = t_position.y - b_tr->position.y;
+    if (dy < 0)
+    {
+        mv->vspeed = -std::abs(mv->hspeed) / std::abs(dx) * delta_time * 1200;
+    }
+    else if (dy > 0)
+    {
+        mv->vspeed = std::abs(mv->hspeed) / std::abs(dx) * delta_time * 1200;
+    }
 
-    move_fall(mv, b_tr, delta_time, 0, false);
+    move_fall(mv, b_tr, delta_time, 0, false, false);
 
     // 旋转
     b_tr->rotation = ball_rotation(ball, b_tr);
 
-    const SDL_FRect b_rect = {0, 0, 10, 10};
-
-    return collision(t_rect, t_tr, b_rect, b_tr);
+    if (std::abs(dx) < 10 && std::abs(dy) < 1)
+    {
+        return true;
+    }
+    return false;
 }
 
 bool ball_move(entt::entity ent, Ball *ball, float delta_time)
@@ -150,11 +158,11 @@ bool ball_move(entt::entity ent, Ball *ball, float delta_time)
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     move_fall(mv, tr, delta_time, 0, false);
-    if (ball->destory > Window::dt_now)
+    if (ball->destory < Window::dt_now || mv->hspeed == 0)
     {
-        return false;
+        return true;
     }
-    return true;
+    return false;
 }
 
 void ball_hit(entt::entity src, entt::entity target)
@@ -162,6 +170,7 @@ void ball_hit(entt::entity src, entt::entity target)
     auto ski = World::registry->try_get<Skill>(src);
     AttackWarp atkw(ski);
     atkw.p = &World::registry->try_get<Transform>(src)->position;
+    atkw.damage = 100;
     if (auto mob = World::registry->try_get<Mob>(target))
     {
         hit_effect(&atkw, mob, target, atkw.p);

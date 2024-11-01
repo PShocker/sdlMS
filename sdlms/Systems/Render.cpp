@@ -92,12 +92,6 @@ void render_run()
         {
             render_drop(tr, dro);
         }
-        if (auto ball = World::registry->try_get<Ball>(ent))
-        {
-            auto tr = World::registry->try_get<Transform>(ent);
-            const SDL_FRect rect = {tr->position.x - Camera::x, tr->position.y - Camera::y, 10, 10}; // 矩形位置和大小
-            SDL_RenderFillRect(Window::renderer, &rect);                                             // 绘制矩形
-        }
     }
 }
 
