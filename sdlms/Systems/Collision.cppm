@@ -32,3 +32,6 @@ export bool collision(Triangle t, Transform *t_tr, SDL_FRect n_rect, Transform *
 export bool collision(Mob *mob, Transform *m_tr, Triangle t, Transform *n_tr);
 
 export bool collision(Character *cha, Transform *c_tr, Triangle t, Transform *n_tr);
+
+export SDL_FRect real_rect(SDL_FRect rect, Transform *tr);
+

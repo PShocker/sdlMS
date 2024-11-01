@@ -24,7 +24,6 @@ void ball_run()
         {
             if (ball_track(ent, ball, (float)Window::delta_time / 1000))
             {
-                ball_hit(ent, ball->target);
                 destory.push_back(ent);
             }
         }
@@ -99,25 +98,13 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
     if (auto mob = World::registry->try_get<Mob>(target))
     {
         t_rect = mob->rect();
-        auto rect = mob->rect();
-        rect.x += t_tr->position.x;
-        rect.y += t_tr->position.y;
-        if (t_tr->flip == 1)
-        {
-            rect.x += 2 * (t_tr->position.x - rect.x) - rect.w;
-        }
+        auto rect = real_rect(t_rect, t_tr);
         t_position = closestPointToRect(b_tr->position, rect);
     }
     else if (auto cha = World::registry->try_get<Character>(target))
     {
         t_rect = cha->r;
-        auto rect = cha->r;
-        rect.x += t_tr->position.x;
-        rect.y += t_tr->position.y;
-        if (t_tr->flip == 1)
-        {
-            rect.x += 2 * (t_tr->position.x - rect.x) - rect.w;
-        }
+        auto rect = real_rect(t_rect, t_tr);
         t_position = closestPointToRect(b_tr->position, rect);
     }
 
@@ -141,13 +128,18 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
         mv->vspeed = std::abs(mv->hspeed) / std::abs(dx) * delta_time * 1200;
     }
 
-    move_fall(mv, b_tr, delta_time, 0, false, false);
+    move_fall(mv, b_tr, delta_time, 0, false, true);
+    if (mv->hspeed == 0)
+    {
+        return true;
+    }
 
     // 旋转
     b_tr->rotation = ball_rotation(ball, b_tr);
 
     if (std::abs(dx) < 10 && std::abs(dy) < 1)
     {
+        ball_hit(src, ball->target);
         return true;
     }
     return false;

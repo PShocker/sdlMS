@@ -16,7 +16,7 @@ export struct Ball
     std::optional<SDL_FPoint> p = std::nullopt;
 
     // 摧毁时间
-    unsigned int destory = Window::dt_now + 800;
+    unsigned int destory = Window::dt_now + 600;
 
     Ball() = default;
 };
