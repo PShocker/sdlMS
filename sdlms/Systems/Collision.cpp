@@ -8,6 +8,7 @@ module systems;
 import components;
 import core;
 import commons;
+import :rect;
 
 bool collision(SDL_FRect m_rect, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr)
 {
@@ -111,15 +112,4 @@ bool collision(Mob *mob, Transform *m_tr, Triangle t, Transform *n_tr)
 bool collision(Character *cha, Transform *c_tr, Triangle t, Transform *n_tr)
 {
     return collision(t, n_tr, cha->r, c_tr);
-}
-
-SDL_FRect real_rect(SDL_FRect rect, Transform *tr)
-{
-    rect.x += tr->position.x;
-    rect.y += tr->position.y;
-    if (tr->flip == 1)
-    {
-        rect.x += 2 * (tr->position.x - rect.x) - rect.w;
-    }
-    return rect;
 }

@@ -12,6 +12,7 @@ import commons;
 import core;
 import entities;
 import :move;
+import :rect;
 
 void ball_run()
 {
@@ -54,7 +55,7 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
     const Triangle tri = {
         {-350, -60},
         {-350, 90},
-        {0, -30},
+        {-15, -30},
     };
 
     for (auto e : World::registry->view<Damage>())

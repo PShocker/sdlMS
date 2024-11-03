@@ -16,3 +16,4 @@ export import :aicharacterstatemachine;
 export import :ball;
 export import :collision;
 export import :hit;
+export import :rect;
