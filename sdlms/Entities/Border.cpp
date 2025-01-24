@@ -1,12 +1,12 @@
-module;
+#include "Border.h"
 
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
 
-module entities;
-
-import core;
-import components;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
 void load_border(wz::Node *node)
 {

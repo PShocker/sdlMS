@@ -1,11 +1,8 @@
-module;
+#include "Damage.h"
+#include "Sprite.h"
 
 #include "wz/Property.hpp"
-
-module components;
-
-import :sprite;
-import resources;
+#include "Resources/Wz.h"
 
 void Damage::init()
 {

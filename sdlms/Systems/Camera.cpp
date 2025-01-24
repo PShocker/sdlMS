@@ -1,11 +1,7 @@
-module;
-
+#include "Camera.h"
+#include "Core/Core.h"
+#include "Components/Components.h"
 #include "entt/entt.hpp"
-
-module systems;
-
-import core;
-import components;
 
 void camera_run()
 {

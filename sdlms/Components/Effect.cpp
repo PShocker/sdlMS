@@ -1,9 +1,6 @@
-module;
-
+#include "Effect.h"
+#include "Resources/Wz.h"
 #include "wz/Property.hpp"
-
-module components;
-import resources;
 
 AnimatedSpriteWarp *Effect::load(const std::u16string &path)
 {

@@ -1,12 +1,11 @@
-module;
-
+#include "World.h"
+#include "Map.h"
+#include "Window.h"
+#include "Components/Components.h"
 #include "entt/entt.hpp"
 
-module core;
-
-entt::registry *World::load_map(int id)
+void World::load_map(int id)
 {
-    auto r = registry;
     if (!registrys.contains(id))
     {
         // 未加载过地图
@@ -24,5 +23,4 @@ entt::registry *World::load_map(int id)
         Map::load_bgm(id);
     }
     Window::tick_delta_time();
-    return r;
 }

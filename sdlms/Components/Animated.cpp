@@ -1,3 +1,1 @@
-module;
-
-module components;
+#include "Animated.h"

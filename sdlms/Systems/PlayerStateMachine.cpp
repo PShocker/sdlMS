@@ -1,18 +1,12 @@
-module;
-
+#include "PlayerStateMachine.h"
+#include "Move.h"
 #include "entt/entt.hpp"
+#include "Commons/Commons.h"
+#include "PlayerSkill/PlayerSkill.h"
+#include "Core/Core.h"
 #include <SDL3/SDL.h>
 #include <optional>
 #include <variant>
-
-module systems;
-
-import components;
-import commons;
-import core;
-import entities;
-import playerskill;
-import :move;
 
 void player_statemachine_run()
 {
@@ -146,7 +140,7 @@ void player_statemachine(entt::entity ent, float delta_time)
     break;
     case Character::State::DIE:
     {
-        player_invincible_cooldown = 2000;
+        cha->invincible_cooldown = 2000;
         return;
     }
     break;
@@ -620,9 +614,9 @@ void player_cooldown(int delta_time)
     {
         player_alert_cooldown -= delta_time;
     }
-    if (player_invincible_cooldown > 0)
+    if (World::registry->try_get<Character>(Player::ent)->invincible_cooldown > 0)
     {
-        player_invincible_cooldown -= delta_time;
+        World::registry->try_get<Character>(Player::ent)->invincible_cooldown -= delta_time;
     }
     if (player_ladderrope_cooldown > 0)
     {
@@ -639,7 +633,7 @@ bool player_hit(Hit *hit, entt::entity ent)
 {
     if (hit->damage > 0)
     {
-        player_invincible_cooldown = 2000;
+        World::registry->try_get<Character>(Player::ent)->invincible_cooldown = 2000;
         auto mv = World::registry->try_get<Move>(ent);
         auto tr = World::registry->try_get<Transform>(ent);
         auto cha = World::registry->try_get<Character>(ent);

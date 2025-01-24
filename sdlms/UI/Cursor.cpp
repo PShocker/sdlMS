@@ -1,18 +1,13 @@
-module;
-
+#include "Cursor.h"
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
-
-module ui;
-
-import resources;
+#include "Resources/Wz.h"
 
 void Cursor::init()
 {
     auto ui_node = Wz::UI->get_root();
 
     // auto node = ui_node->find_from_path(u"Basic.img/Cursor");
-
 
     // auto surface = SDL_CreateSurface(w, h, SDL_PIXELFORMAT_ARGB8888);
 

@@ -1,13 +1,14 @@
-module;
+#include "FootHold.h"
 
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
 
-module entities;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
-import components;
-import resources;
-import core;
+std::unordered_map<int, FootHold *> fhs;
 
 void load_foothold(wz::Node *node, int page, int zmass, int id)
 {

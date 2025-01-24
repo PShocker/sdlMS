@@ -1,9 +1,4 @@
-module;
-
-module components;
-
-import :skill;
-import :afterimage;
+#include "Attack.h"
 
 AttackWarp::AttackWarp(Skill *ski, int level)
 {

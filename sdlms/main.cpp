@@ -1,16 +1,14 @@
+#include "Systems/Systems.h"
+#include "Core/Core.h"
+#include "Entities/Entities.h"
+#include "PlayerSkill/PlayerSkill.h"
+#include "UI/UI.h"
+#include "Resources/Wz.h"
 #include "entt/entt.hpp"
 
 #define SDL_MAIN_USE_CALLBACKS 1
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
-
-import systems;
-import core;
-import resources;
-import components;
-import entities;
-import ui;
-import playerskill;
 
 int width = 800;
 int height = 600;
@@ -24,7 +22,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     attack_run();
     player_statemachine_run();
     mob_statemachine_run();
-    aicharacter_statemachine_run();
     drop_run();
     ball_run();
     world_run();
@@ -60,12 +57,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     Player::ent = World::registry->create();
     load_character(0, 0, true, Player::ent);
-
-    for (size_t i = 0; i < 30; i++)
-    {
-        auto e = World::registry->create();
-        load_aicharacter(i * 200, 0, false, e);
-    }
 
     return SDL_APP_CONTINUE;
 }

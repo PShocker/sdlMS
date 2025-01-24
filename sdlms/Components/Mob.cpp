@@ -1,8 +1,5 @@
-module;
-
+#include "Mob.h"
 #include <SDL3/SDL.h>
-
-module components;
 
 SDL_FRect Mob::rect()
 {

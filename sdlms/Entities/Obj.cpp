@@ -1,14 +1,10 @@
-module;
-
+#include "Obj.h"
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
-
-module entities;
-
-import components;
-import resources;
-import core;
-import commons;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
 void load_obj(wz::Node *node, int id, int layer)
 {

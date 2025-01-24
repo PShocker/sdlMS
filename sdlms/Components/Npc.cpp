@@ -1,8 +1,7 @@
-module;
+#include "Npc.h"
 
 #include <SDL3/SDL.h>
 
-module components;
 
 SDL_FRect Npc::rect()
 {

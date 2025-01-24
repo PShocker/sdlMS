@@ -1,13 +1,8 @@
-module;
-
+#include "PlayerSkill.h"
+#include "Core/Core.h"
+#include "Commons/Commons.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
-
-module playerskill;
-
-import components;
-import core;
-import commons;
 
 // 快速移动
 int skill_2201002()

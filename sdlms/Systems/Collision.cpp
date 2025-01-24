@@ -1,14 +1,8 @@
-module;
-
+#include "Collision.h"
+#include "Rect.h"
+#include "Core/Core.h"
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
-
-module systems;
-
-import components;
-import core;
-import commons;
-import :rect;
 
 bool collision(SDL_FRect m_rect, Transform *m_tr, SDL_FRect n_rect, Transform *n_tr)
 {
@@ -94,14 +88,8 @@ bool collision(Triangle t, Transform *t_tr, SDL_FRect n_rect, Transform *n_tr)
         t.vertex3.x += t_tr->position.x;
         t.vertex3.y += t_tr->position.y;
     }
-
-    n_rect.x += n_tr->position.x;
-    n_rect.y += n_tr->position.y;
-    if (n_tr->flip == 1)
-    {
-        n_rect.x += 2 * (n_tr->position.x - n_rect.x) - n_rect.w;
-    }
-    return RectIntersectTriangle(n_rect, t);
+    auto rect = real_rect(n_rect, n_tr);
+    return RectIntersectTriangle(rect, t);
 }
 
 bool collision(Mob *mob, Transform *m_tr, Triangle t, Transform *n_tr)

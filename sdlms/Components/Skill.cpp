@@ -1,13 +1,11 @@
-module;
+#include "Skill.h"
+#include "Sound.h"
 
 #include "wz/Property.hpp"
 #include <string>
 #include <SDL3/SDL.h>
 
-module components;
-
-import :animatedsprite;
-import resources;
+#include "Resources/Wz.h"
 
 static std::unordered_map<std::u16string, SkillWarp *> cache;
 

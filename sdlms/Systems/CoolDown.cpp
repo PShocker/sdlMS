@@ -1,11 +1,6 @@
-module;
-
+#include "CoolDown.h"
 #include "entt/entt.hpp"
-
-module systems;
-
-import core;
-import components;
+#include "Core/Core.h"
 
 void cooldown_run()
 {

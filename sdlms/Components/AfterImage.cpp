@@ -1,12 +1,10 @@
-module;
+#include "AfterImage.h"
+#include "Character.h"
 
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
 
-module components;
-
-import resources;
-import :character;
+#include "Resources/Wz.h"
 
 void AfterImage::init()
 {

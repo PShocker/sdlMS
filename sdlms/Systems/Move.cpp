@@ -1,14 +1,10 @@
-module;
+#include "Move.h"
+#include "Core/World.h"
+
+#include "Commons/Commons.h"
 
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
-
-module systems;
-
-import components;
-import commons;
-import core;
-import entities;
 
 float move_border_limit(Move *mv, float x)
 {

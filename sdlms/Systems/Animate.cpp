@@ -1,82 +1,81 @@
-module;
-
+#include "Animate.h"
+#include "Core/Core.h"
+#include "Entities/Entities.h"
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
 #include <cmath>
 #include <numbers>
 
-module systems;
-
-import components;
-import core;
-import entities;
-
 void animate_run()
 {
     auto view = World::registry->view<Animated>();
-    for (auto ent : view)
+
+    for (auto ent : World::registry->view<Animated, AnimatedSprite>())
     {
-        if (auto aspr = World::registry->try_get<AnimatedSprite>(ent))
+        auto aspr = World::registry->try_get<AnimatedSprite>(ent);
+        animate_sprite(aspr);
+    }
+    for (auto ent : World::registry->view<Animated, Portal>())
+    {
+        auto por = World::registry->try_get<Portal>(ent);
+        animate_portal(por);
+    }
+    for (auto ent : World::registry->view<Animated, Npc>())
+    {
+        auto npc = World::registry->try_get<Npc>(ent);
+        animate_npc(npc);
+        if (auto eff = World::registry->try_get<Effect>(ent))
         {
-            animate_sprite(aspr);
+            animate_effect(eff);
         }
-        else if (auto por = World::registry->try_get<Portal>(ent))
+        if (auto dam = World::registry->try_get<Damage>(ent))
         {
-            animate_portal(por);
+            animate_damage(dam);
         }
-        else if (auto npc = World::registry->try_get<Npc>(ent))
+    }
+    for (auto ent : World::registry->view<Animated, Mob>())
+    {
+        auto mob = World::registry->try_get<Mob>(ent);
+        animate_mob(mob);
+        if (auto eff = World::registry->try_get<Effect>(ent))
         {
-            animate_npc(npc);
-            if (auto eff = World::registry->try_get<Effect>(ent))
-            {
-                animate_effect(eff);
-            }
-            if (auto dam = World::registry->try_get<Damage>(ent))
-            {
-                animate_damage(dam);
-            }
+            animate_effect(eff);
         }
-        else if (auto mob = World::registry->try_get<Mob>(ent))
+        if (auto dam = World::registry->try_get<Damage>(ent))
         {
-            animate_mob(mob);
-            if (auto eff = World::registry->try_get<Effect>(ent))
-            {
-                animate_effect(eff);
-            }
-            if (auto dam = World::registry->try_get<Damage>(ent))
-            {
-                animate_damage(dam);
-            }
+            animate_damage(dam);
         }
-        else if (auto cha = World::registry->try_get<Character>(ent))
+    }
+    for (auto ent : World::registry->view<Animated, Character>())
+    {
+        auto cha = World::registry->try_get<Character>(ent);
+        animate_character(cha, ent);
+        if (auto aft = World::registry->try_get<AfterImage>(ent))
         {
-            animate_character(cha, ent);
-            if (auto aft = World::registry->try_get<AfterImage>(ent))
+            if (aft->animated == false)
             {
-                if (aft->animated == false)
-                {
-                    auto cha = World::registry->try_get<Character>(ent);
-                    animate_afterimage(aft, cha, ent);
-                }
-            }
-            if (auto eff = World::registry->try_get<Effect>(ent))
-            {
-                animate_effect(eff);
-            }
-            if (auto dam = World::registry->try_get<Damage>(ent))
-            {
-                animate_damage(dam);
-            }
-            if (auto tomb = World::registry->try_get<Tomb>(ent))
-            {
-                auto tr = World::registry->try_get<Transform>(ent);
-                animate_tomb(tomb, tr);
+                auto cha = World::registry->try_get<Character>(ent);
+                animate_afterimage(aft, cha, ent);
             }
         }
-        else if (auto dro = World::registry->try_get<Drop>(ent))
+        if (auto eff = World::registry->try_get<Effect>(ent))
         {
-            animate_drop(dro, World::registry->try_get<Transform>(ent));
+            animate_effect(eff);
         }
+        if (auto dam = World::registry->try_get<Damage>(ent))
+        {
+            animate_damage(dam);
+        }
+        if (auto tomb = World::registry->try_get<Tomb>(ent))
+        {
+            auto tr = World::registry->try_get<Transform>(ent);
+            animate_tomb(tomb, tr);
+        }
+    }
+    for (auto ent : World::registry->view<Animated, Drop>())
+    {
+        auto dro = World::registry->try_get<Drop>(ent);
+        animate_drop(dro, World::registry->try_get<Transform>(ent));
     }
 }
 

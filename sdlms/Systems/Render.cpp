@@ -1,16 +1,12 @@
-module;
+#include "Render.h"
+#include "entt/entt.hpp"
+#include "Commons/Commons.h"
+#include "Core/Core.h"
 
 #include <SDL3/SDL.h>
 #include <math.h>
-#include "entt/entt.hpp"
 #include <variant>
 #include <optional>
-
-module systems;
-
-import core;
-import commons;
-import components;
 
 void render_run()
 {
@@ -65,15 +61,7 @@ void render_run()
             {
                 render_tomb(tomb);
             }
-            auto invincible_time = 0;
-            if (ent == Player::ent)
-            {
-                invincible_time = player_invincible_cooldown;
-            }
-            else
-            {
-                invincible_time = cha->invincible_cooldown;
-            }
+            auto invincible_time = cha->invincible_cooldown;
             render_character(tr, cha, invincible_time);
             if (auto aim = World::registry->try_get<AfterImage>(ent))
             {

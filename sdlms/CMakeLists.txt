@@ -1,3 +1,4 @@
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/entt/src")
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/SDL/include")
 include_directories("${CMAKE_SOURCE_DIR}/3rdparty/wzlibcpp")
@@ -6,135 +7,18 @@ include_directories("${CMAKE_SOURCE_DIR}/3rdparty/wzlibcpp/mio/include")
 
 # ffmpeg
 include_directories("C:/ffmpeg-master-latest-win64-gpl-shared/include")
-
-file(GLOB_RECURSE
-        systems_cpp
-        CONFIGURE_DEPENDS
-        Systems/*.cpp
-)
-
-file(GLOB_RECURSE
-        systems_cppm
-        CONFIGURE_DEPENDS
-        Systems/*.cppm
-)
-
-file(GLOB_RECURSE
-        entities_cpp
-        CONFIGURE_DEPENDS
-        Entities/*.cpp
-)
-
-file(GLOB_RECURSE
-        entities_cppm
-        CONFIGURE_DEPENDS
-        Entities/*.cppm
-)
-
-file(GLOB_RECURSE
-        resources_cpp
-        CONFIGURE_DEPENDS
-        Resources/*.cpp
-)
-
-file(GLOB_RECURSE
-        resources_cppm
-        CONFIGURE_DEPENDS
-        Resources/*.cppm
-)
-
-file(GLOB_RECURSE
-        components_cpp
-        CONFIGURE_DEPENDS
-        Components/*.cpp
-)
-
-file(GLOB_RECURSE
-        components_cppm
-        CONFIGURE_DEPENDS
-        Components/*.cppm
-)
-
-file(GLOB_RECURSE
-        core_cpp
-        CONFIGURE_DEPENDS
-        Core/*.cpp
-)
-
-file(GLOB_RECURSE
-        core_cppm
-        CONFIGURE_DEPENDS
-        Core/*.cppm
-)
-
-file(GLOB_RECURSE
-        commons_cpp
-        CONFIGURE_DEPENDS
-        Commons/*.cpp
-)
-
-file(GLOB_RECURSE
-        commons_cppm
-        CONFIGURE_DEPENDS
-        Commons/*.cppm
-)
-
-file(GLOB_RECURSE
-        ui_cpp
-        CONFIGURE_DEPENDS
-        UI/*.cpp
-)
-
-file(GLOB_RECURSE
-        ui_cppm
-        CONFIGURE_DEPENDS
-        UI/*.cppm
-)
-
-file(GLOB_RECURSE
-        playerskill_cpp
-        CONFIGURE_DEPENDS
-        PlayerSkill/*.cpp
-)
-
-file(GLOB_RECURSE
-        playerskill_cppm
-        CONFIGURE_DEPENDS
-        PlayerSkill/*.cppm
-)
-add_library(mod
-        ${systems_cpp}
-        ${entities_cpp}
-        ${resources_cpp}
-        ${components_cpp}
-        ${core_cpp}
-        ${commons_cpp}
-        ${ui_cpp}
-        ${playerskill_cpp}
-)
-
-target_sources(mod
-        PUBLIC
-        FILE_SET core_cxx_modules TYPE CXX_MODULES FILES
-        ${systems_cppm}
-        ${entities_cppm}
-        ${resources_cppm}
-        ${components_cppm}
-        ${core_cppm}
-        ${commons_cppm}
-        ${ui_cppm}
-        ${playerskill_cppm}
-)
-
 link_directories("C:/ffmpeg-master-latest-win64-gpl-shared/lib")
 
-add_executable(sdlMS main.cpp)
+include_directories("C:/FFMPEG-WEB/include")
+link_directories("C:/FFMPEG-WEB/lib")
+
+file(GLOB SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/**/*.cpp)
+add_executable(sdlMS ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCE_FILES})
 
 target_link_libraries(sdlMS PRIVATE SDL3::SDL3)
 target_link_libraries(sdlMS PRIVATE wzlib)
 target_link_libraries(sdlMS PRIVATE freetype)
 target_link_libraries(sdlMS PRIVATE EnTT)
-target_link_libraries(sdlMS PRIVATE mod)
 
 target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
 
@@ -150,5 +34,24 @@ endif()
 if(APPLE)
         set_target_properties(sdlMS PROPERTIES
                 RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+        )
+endif()
+
+# 设置 Emscripten 编译选项
+if(EMSCRIPTEN)
+        set(CMAKE_EXECUTABLE_SUFFIX ".html")
+        set_target_properties(sdlMS PROPERTIES LINK_FLAGS
+                "--preload-file ${CMAKE_SOURCE_DIR}/build/Data/@Data/"
+
+                # 可以添加其他Emscripten链接器选项
+        )
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sALLOW_MEMORY_GROWTH -sUSE_ZLIB -sMAXIMUM_MEMORY=4294967296 -sSTACK_SIZE=256MB  -sINITIAL_MEMORY=512MB")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sALLOW_MEMORY_GROWTH -sUSE_ZLIB -sMAXIMUM_MEMORY=4294967296 -sSTACK_SIZE=256MB -sINITIAL_MEMORY=512MB")
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -flto")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -flto")
+        # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g4")
+        # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g4")
+        set_target_properties(sdlMS PROPERTIES
+                RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}
         )
 endif()

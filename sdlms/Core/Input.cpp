@@ -1,3 +1,1 @@
-module;
-
-module core;
+#include "Input.h"

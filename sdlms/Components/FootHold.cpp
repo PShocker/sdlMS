@@ -1,7 +1,5 @@
-module;
+#include "FootHold.h"
 #include <optional>
-
-module components;
 
 std::optional<float> FootHold::get_x(float y)
 {

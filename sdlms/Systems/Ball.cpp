@@ -1,18 +1,15 @@
-module;
-
+#include "Ball.h"
+#include "Rect.h"
+#include "Hit.h"
+#include "Move.h"
+#include "Collision.h"
+#include "Core/Core.h"
+#include "Commons/Commons.h"
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
 #include <vector>
 #include <numbers>
-
-module systems;
-
-import components;
-import commons;
-import core;
-import entities;
-import :move;
-import :rect;
+#include <cfloat>
 
 void ball_run()
 {
@@ -53,36 +50,44 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
     ball->p = position;
 
     const Triangle tri = {
-        {-350, -60},
-        {-350, 90},
-        {-15, -30},
+        {-350, -65},
+        {-350, 95},
+        {0, -30},
     };
-
-    for (auto e : World::registry->view<Damage>())
+    float min_distance = FLT_MAX;
+    entt::entity target = entt::null;
+    for (auto e : World::registry->view<Damage, Mob>())
     {
-        if (ball->owner != e)
+        auto mob = World::registry->try_get<Mob>(e);
+        if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
         {
-            if (auto mob = World::registry->try_get<Mob>(e))
+            auto m_tr = World::registry->try_get<Transform>(e);
+            if (collision(mob, m_tr, tri, tr))
             {
-                if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+                auto min_distance2 = distance(m_tr->position, position);
+                if (min_distance2 < min_distance)
                 {
-                    auto m_tr = World::registry->try_get<Transform>(e);
-                    if (collision(mob, m_tr, tri, tr))
-                    {
-                        ball->target = e;
-                    }
-                }
-            }
-            else if (auto cha = World::registry->try_get<Character>(e))
-            {
-                auto c_tr = World::registry->try_get<Transform>(e);
-                if (cha->invincible_cooldown <= 0 && collision(cha, c_tr, tri, tr))
-                {
-                    ball->target = e;
+                    target = e;
+                    min_distance = min_distance2;
                 }
             }
         }
     }
+    for (auto e : World::registry->view<Damage, Character>())
+    {
+        auto cha = World::registry->try_get<Character>(e);
+        auto c_tr = World::registry->try_get<Transform>(e);
+        if (cha->invincible_cooldown <= 0 && collision(cha, c_tr, tri, tr))
+        {
+            auto min_distance2 = distance(c_tr->position, position);
+            if (min_distance2 < min_distance)
+            {
+                target = e;
+                min_distance = min_distance2;
+            }
+        }
+    }
+    ball->target = target;
     return false;
 }
 

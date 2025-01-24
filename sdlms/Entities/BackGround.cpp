@@ -1,17 +1,14 @@
-module;
+#include "BackGround.h"
 
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 #include <variant>
 
-module entities;
-
-import components;
-import resources;
-import core;
-import commons;
-
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
 void load_background(wz::Node *node, int id)
 {

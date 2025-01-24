@@ -1,12 +1,10 @@
-module;
+#include "World.h"
+#include "Camera.h"
 
+#include "Core/Core.h"
+#include "Entities/Entities.h"
+#include "Components/Components.h"
 #include "entt/entt.hpp"
-
-module systems;
-
-import core;
-import components;
-import entities;
 
 void world_run()
 {
@@ -28,8 +26,8 @@ void world_transport()
 {
     if (World::TransPort::id != 0)
     {
-        auto r = World::load_map(World::TransPort::id);
-        r->destroy(Player::ent);
+        World::registry->destroy(Player::ent);
+        World::load_map(World::TransPort::id);
         if (World::TransPort::tn == u"jumpSP")
         {
             World::TransPort::tn = u"sp";

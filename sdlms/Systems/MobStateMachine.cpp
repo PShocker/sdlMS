@@ -1,14 +1,8 @@
-module;
-
-#include "entt/entt.hpp"
-
-module systems;
-
-import components;
-import commons;
-import core;
-import entities;
-import :move;
+#include "MobStateMachine.h"
+#include "Move.h"
+#include "Core/Core.h"
+#include "Commons/Commons.h"
+#include "Entities/Entities.h"
 
 void mob_statemachine_run()
 {

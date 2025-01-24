@@ -1,0 +1,8 @@
+#pragma once
+
+#include "Core/Window.h"
+#include "Core/World.h"
+#include "Core/Camera.h"
+#include "Core/Input.h"
+#include "Core/Player.h"
+#include "Core/Map.h"

@@ -1,12 +1,12 @@
-module;
+#include "Character.h"
+#include "Portal.h"
 
 #include "entt/entt.hpp"
 
-module entities;
-
-import components;
-import core;
-import resources;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
 void load_character(float x, float y, bool sp, entt::entity ent)
 {

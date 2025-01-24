@@ -1,16 +1,11 @@
-module;
+#include "Attack.h"
+#include "Collision.h"
+#include "Hit.h"
+#include "Core/Core.h"
 
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 #include <optional>
-
-module systems;
-
-import core;
-import components;
-import commons;
-import :collision;
-import :hit;
 
 void attack_run()
 {
@@ -23,54 +18,60 @@ void attack_run()
         }
         atk->atks.clear();
     }
-    if (player_invincible_cooldown <= 0)
+    if (auto cha = World::registry->try_get<Character>(Player::ent))
     {
-        if (mob_attack())
+        if (cha->invincible_cooldown <= 0)
         {
-            return;
-        }
-        else if (trap_attack())
-        {
-            return;
+            if (mob_attack())
+            {
+                return;
+            }
+            else if (trap_attack())
+            {
+                return;
+            }
         }
     }
 }
 
 void attacking(AttackWarp *atkw)
 {
-    for (auto ent : World::registry->view<Damage>())
+    for (auto ent : World::registry->view<Damage, Mob>())
     {
-        if (ent != Player::ent)
+        if (atkw->mobCount > 0)
         {
-            if (atkw->mobCount > 0)
+            auto mob = World::registry->try_get<Mob>(ent);
+            if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
             {
-                if (auto mob = World::registry->try_get<Mob>(ent))
+                if (collision(atkw, mob, World::registry->try_get<Transform>(ent)))
                 {
-                    if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
-                    {
-                        if (collision(atkw, mob, World::registry->try_get<Transform>(ent)))
-                        {
-                            hit_effect(atkw, mob, ent);
-                            atkw->mobCount -= 1;
-                        }
-                    }
+                    hit_effect(atkw, mob, ent, nullptr);
+                    atkw->mobCount -= 1;
                 }
-                else if (auto npc = World::registry->try_get<Npc>(ent))
-                {
-                    if (collision(atkw, npc, World::registry->try_get<Transform>(ent)))
-                    {
-                        hit_effect(atkw, npc, ent);
-                        atkw->mobCount -= 1;
-                    }
-                }
-                else if (auto cha = World::registry->try_get<Character>(ent))
-                {
-                    if (cha->invincible_cooldown <= 0 && collision(atkw, cha, World::registry->try_get<Transform>(ent)))
-                    {
-                        hit_effect(atkw, cha, ent);
-                        atkw->mobCount -= 1;
-                    }
-                }
+            }
+        }
+    }
+    for (auto ent : World::registry->view<Damage, Npc>())
+    {
+        if (atkw->mobCount > 0)
+        {
+            auto npc = World::registry->try_get<Npc>(ent);
+            if (collision(atkw, npc, World::registry->try_get<Transform>(ent)))
+            {
+                hit_effect(atkw, npc, ent, nullptr);
+                atkw->mobCount -= 1;
+            }
+        }
+    }
+    for (auto ent : World::registry->view<Damage, Character>())
+    {
+        if (atkw->mobCount > 0 && ent != Player::ent)
+        {
+            auto cha = World::registry->try_get<Character>(ent);
+            if (cha->invincible_cooldown <= 0 && collision(atkw, cha, World::registry->try_get<Transform>(ent)))
+            {
+                hit_effect(atkw, cha, ent, nullptr);
+                atkw->mobCount -= 1;
             }
         }
     }

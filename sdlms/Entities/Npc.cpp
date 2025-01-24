@@ -1,15 +1,11 @@
-module;
-
+#include "Npc.h"
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
-
-module entities;
-
-import core;
-import components;
-import :foothold;
-import resources;
-import commons;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
+#include "FootHold.h"
 
 void load_npc(wz::Node *node)
 {

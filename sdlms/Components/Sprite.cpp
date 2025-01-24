@@ -1,11 +1,9 @@
-module;
+#include "Sprite.h"
 
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
 
-module components;
-
-import core;
+#include "Core/Core.h"
 
 static std::unordered_map<wz::Node *, SpriteWarp *> cache;
 

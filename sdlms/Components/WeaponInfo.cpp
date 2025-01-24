@@ -1,11 +1,7 @@
-module;
+#include "WeaponInfo.h"
 
 #include <string>
 #include "wz/Property.hpp"
-
-module components;
-
-import :character;
 
 WeaponInfo::WeaponInfo(const std::u16string &id)
 {

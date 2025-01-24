@@ -1,14 +1,14 @@
-module;
+#include "Map.h"
+#include "World.h"
 
 #include <string>
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
 
-module core;
-
-import resources;
-import entities;
-import components;
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
+#include "Entities/Entities.h"
 
 void Map::load(int map_id)
 {

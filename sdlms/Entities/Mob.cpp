@@ -1,16 +1,12 @@
-module;
-
+#include "Mob.h"
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
-
-module entities;
-
-import core;
-import components;
-import :foothold;
-import resources;
-import commons;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
+#include "FootHold.h"
 
 void load_mob(wz::Node *node)
 {
@@ -65,7 +61,7 @@ void load_mob(wz::Node *node)
             mv.hspeed = mv.hspeed_max.value();
         }
     }
-    mob.index = mob.a.begin()->first;
+    mob.index = u"stand";
 
     node = Wz::Sound->get_root()->find_from_path(u"Mob.img/" + id);
     if (node != nullptr)

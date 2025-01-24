@@ -1,15 +1,13 @@
-module;
+#include "Drop.h"
 
 #include "wz/Property.hpp"
 #include <any>
 #include "entt/entt.hpp"
 
-module entities;
-
-import components;
-import resources;
-import core;
-import commons;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
 void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
 {

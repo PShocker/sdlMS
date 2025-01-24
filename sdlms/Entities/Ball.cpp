@@ -1,12 +1,11 @@
-module;
+#include "Ball.h"
 
 #include "entt/entt.hpp"
 
-module entities;
-
-import components;
-import resources;
-import core;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
 void load_ball(Skill *ski, Transform *tran, entt::entity owner)
 {
@@ -39,7 +38,7 @@ void load_ball(Skill *ski, Transform *tran, entt::entity owner)
     else
     {
         mv.hspeed = -550;
-        tr.position.x = tran->position.x - 30;
+        tr.position.x = tran->position.x;
     }
     World::zindex = true;
 }

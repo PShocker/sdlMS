@@ -1,14 +1,14 @@
-module;
+#include "Character.h"
+#include "Sprite.h"
+#include "Transform.h"
 
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
 #include <any>
 #include <tuple>
 
-module components;
-
-import resources;
-import commons;
+#include "Resources/Wz.h"
+#include "Commons/Commons.h"
 
 Character::Character()
 {

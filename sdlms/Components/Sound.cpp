@@ -1,4 +1,7 @@
-module;
+#include "Sound.h"
+
+#include "Core/Core.h"
+#include "Resources/Wz.h"
 
 #include <SDL3/SDL.h>
 #include "wz/Property.hpp"
@@ -13,16 +16,13 @@ extern "C"
 #include <libswresample/swresample.h>
 }
 
-module components;
-
-import resources;
-import core;
-
 static std::unordered_map<wz::Node *, SoundWarp *> cache;
 
 static SDL_Mutex *sound_list_mutex = SDL_CreateMutex();
 
 static std::list<Sound> sound_list;
+
+SDL_AudioStream *audio_stream;
 
 // 混合两个音频信号
 void mixAudio(Uint8 *audio1, Uint8 *audio2, Uint8 *output, int length)
@@ -60,7 +60,7 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
             auto souw = sou->souw;
             if (souw != nullptr)
             {
-                auto amount = std::min((unsigned long long)additional_amount, souw->pcm_data.size() - sou->offset);
+                auto amount = std::min((unsigned long long)additional_amount, (unsigned long long)souw->pcm_data.size() - (unsigned long long)sou->offset);
                 mixAudio(data, souw->pcm_data.data() + sou->offset, data, amount);
                 sou->offset += amount;
                 if (sou->offset >= souw->pcm_data.size())
@@ -90,12 +90,12 @@ bool Sound::init()
     spec.channels = 2;
     spec.format = SDL_AUDIO_S16;
     spec.freq = 22050;
-    auto stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, FeedTheAudioStreamMore, NULL);
-    if (!stream)
+    audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, FeedTheAudioStreamMore, NULL);
+    if (!audio_stream)
     {
         return false;
     }
-    SDL_ResumeAudioStreamDevice(stream);
+    SDL_ResumeAudioStreamDevice(audio_stream);
     return true;
 }
 

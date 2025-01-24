@@ -1,11 +1,6 @@
-module;
-
+#include "Rect.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
-
-module systems;
-
-import components;
 
 SDL_FRect real_rect(SDL_FRect rect, Transform *tr)
 {

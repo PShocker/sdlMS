@@ -1,13 +1,12 @@
-module;
+#include "LadderRope.h"
 
 #include "wz/Property.hpp"
 #include "entt/entt.hpp"
 
-module entities;
-
-import components;
-import resources;
-import core;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
 void load_ladderRope(wz::Node *node, int id)
 {

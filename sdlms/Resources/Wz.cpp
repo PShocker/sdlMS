@@ -1,8 +1,5 @@
-module;
-
+#include "Wz.h"
 #include <wz/File.hpp>
-
-module resources;
 
 #define U8 static_cast<u8>
 #define IV4(A, B, C, D) \

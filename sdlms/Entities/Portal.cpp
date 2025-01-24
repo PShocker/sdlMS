@@ -1,16 +1,12 @@
-module;
-
-#include "wz/Property.hpp"
+#include "Portal.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 #include <string>
 #include <variant>
-
-module entities;
-
-import components;
-import resources;
-import core;
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 
 const std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps",
                                   u"pgi", u"psi", u"pcs", u"ph", u"psh", u"pcj",

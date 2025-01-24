@@ -1,8 +1,5 @@
-module;
-
+#include "Triangle.h"
 #include <SDL3/SDL.h>
-
-module commons;
 
 bool RectIntersectTriangle(const SDL_FRect &rect, const Triangle &tri)
 {

@@ -1,10 +1,5 @@
-module;
-
+#include "Trap.h"
 #include <SDL3/SDL.h>
-
-module components;
-
-import :animatedsprite;
 
 Trap::Trap(int damage) : damage(damage) {}
 

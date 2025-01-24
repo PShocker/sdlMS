@@ -1,13 +1,7 @@
-module;
-
+#include "PlayerSkill.h"
+#include "Core/Core.h"
 #include <functional>
 #include "entt/entt.hpp"
-
-module playerskill;
-
-import components;
-import commons;
-import core;
 
 void PlayerSkill::init()
 {

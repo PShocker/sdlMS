@@ -1,11 +1,7 @@
-module;
+#include "AnimatedSprite.h"
 
 #include <vector>
 #include "wz/Property.hpp"
-
-module components;
-
-import :sprite;
 
 static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
 

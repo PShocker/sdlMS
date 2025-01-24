@@ -1,9 +1,5 @@
-module;
-
-module components;
-
-import :animatedsprite;
-import resources;
+#include "Tomb.h"
+#include "Resources/Wz.h"
 
 void Tomb::init()
 {

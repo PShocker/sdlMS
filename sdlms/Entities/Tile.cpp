@@ -1,15 +1,10 @@
-module;
-
-#include "wz/Property.hpp"
+#include "Tile.h"
+#include "Core/Core.h"
+#include "Components/Components.h"
+#include "Commons/Commons.h"
+#include "Resources/Wz.h"
 #include <any>
 #include "entt/entt.hpp"
-
-module entities;
-
-import components;
-import resources;
-import core;
-import commons;
 
 void load_tile(wz::Node *node, const std::u16string &ts, int layer, int id)
 {

@@ -1,16 +1,10 @@
-module;
-
+#include "Drop.h"
+#include "Move.h"
+#include "Core/Core.h"
+#include "Commons/Commons.h"
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
 #include <vector>
-
-module systems;
-
-import components;
-import commons;
-import core;
-import entities;
-import :move;
 
 void drop_run()
 {

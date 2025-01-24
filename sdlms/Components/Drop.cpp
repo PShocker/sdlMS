@@ -1,12 +1,8 @@
-module;
+#include "Drop.h"
+#include "Resources/Wz.h"
 
 #include <stdint.h>
 #include <string>
-
-module components;
-
-import :animatedsprite;
-import resources;
 
 void Drop::init()
 {
