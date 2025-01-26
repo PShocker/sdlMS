@@ -40,13 +40,15 @@ endif()
 # 设置 Emscripten 编译选项
 if(EMSCRIPTEN)
         set(CMAKE_EXECUTABLE_SUFFIX ".html")
-        set_target_properties(sdlMS PROPERTIES LINK_FLAGS
-                "--preload-file ${CMAKE_SOURCE_DIR}/build/Data/@Data/"
 
-                # 可以添加其他Emscripten链接器选项
-        )
-        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sALLOW_MEMORY_GROWTH -sUSE_ZLIB -sMAXIMUM_MEMORY=4294967296 -sSTACK_SIZE=256MB  -sINITIAL_MEMORY=512MB")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sALLOW_MEMORY_GROWTH -sUSE_ZLIB -sMAXIMUM_MEMORY=4294967296 -sSTACK_SIZE=256MB -sINITIAL_MEMORY=512MB")
+        # set_target_properties(sdlMS PROPERTIES LINK_FLAGS
+        # "--preload-file ${CMAKE_SOURCE_DIR}/build/Data/@Data/"
+
+        # # 可以添加其他Emscripten链接器选项
+        # )
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -sALLOW_MEMORY_GROWTH -sUSE_ZLIB -sMAXIMUM_MEMORY=4294967296 -sSTACK_SIZE=256MB  -sINITIAL_MEMORY=512MB -sFETCH=1 -sASYNCIFY=1")
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -sALLOW_MEMORY_GROWTH -sUSE_ZLIB -sMAXIMUM_MEMORY=4294967296 -sSTACK_SIZE=256MB -sINITIAL_MEMORY=512MB -sFETCH=1 -sASYNCIFY=1")
+
         set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -flto")
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -flto")
         # set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g4")

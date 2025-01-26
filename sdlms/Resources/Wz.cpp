@@ -1,15 +1,29 @@
 #include "Wz.h"
 #include <wz/File.hpp>
 
-#define U8 static_cast<u8>
-#define IV4(A, B, C, D) \
-    {                   \
-        U8(A), U8(B), U8(C), U8(D)}
-
 void Wz::init(const std::string &filename_prefix)
 {
     const auto iv = IV4(0xb9, 0x7d, 0x63, 0xe9);
     // 默认全部加载
+#ifdef __EMSCRIPTEN__
+    // Base = (new wz::File(iv, (std::string(filename_prefix) + std::string("Base.wz")).c_str()));
+    Character = new wz::Img();
+    Effect = new wz::Img();
+    // Etc = (new wz::File(iv, (std::string(filename_prefix) + std::string("Etc.wz")).c_str()));
+    Item = new wz::Img();
+    // List = (new wz::File(iv, (std::string(filename_prefix) + std::string("List.wz")).c_str()));
+    Map = new wz::Img();
+    Mob = new wz::Img();
+    // Morph = (new wz::File(iv, (std::string(filename_prefix) + std::string("Morph.wz")).c_str()));
+    Npc = new wz::Img();
+    // Quest = (new wz::File(iv, (std::string(filename_prefix) + std::string("Quest.wz")).c_str()));
+    // Reactor = (new wz::File(iv, (std::string(filename_prefix) + std::string("Reactor.wz")).c_str()));
+    Skill = new wz::Img();
+    Sound = new wz::Img();
+    // String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
+    // TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
+    // UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
+#else
     // Base = (new wz::File(iv, (std::string(filename_prefix) + std::string("Base.wz")).c_str()));
     Character = (new wz::File(iv, (std::string(filename_prefix) + std::string("Character.wz")).c_str()));
     Effect = (new wz::File(iv, (std::string(filename_prefix) + std::string("Effect.wz")).c_str()));
@@ -24,9 +38,10 @@ void Wz::init(const std::string &filename_prefix)
     // Reactor = (new wz::File(iv, (std::string(filename_prefix) + std::string("Reactor.wz")).c_str()));
     Skill = (new wz::File(iv, (std::string(filename_prefix) + std::string("Skill.wz")).c_str()));
     Sound = (new wz::File(iv, (std::string(filename_prefix) + std::string("Sound.wz")).c_str()));
-    String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
+    // String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
     // TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
-    UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
+    // UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
+#endif
 
     // Base->parse(u"Base");
     Character->parse(u"Character");
@@ -42,7 +57,7 @@ void Wz::init(const std::string &filename_prefix)
     // Reactor->parse();
     Skill->parse(u"Skill");
     Sound->parse(u"Sound");
-    String->parse(u"String");
+    // String->parse(u"String");
     // TamingMob->parse();
-    UI->parse(u"UI");
+    // UI->parse(u"UI");
 }

@@ -5,7 +5,7 @@
 
 void Cursor::init()
 {
-    auto ui_node = Wz::UI->get_root();
+    // auto ui_node = Wz::UI->get_root();
 
     // auto node = ui_node->find_from_path(u"Basic.img/Cursor");
 

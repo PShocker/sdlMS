@@ -10,8 +10,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-int width = 800;
-int height = 600;
+int width = 1366;
+int height = 768;
 
 SDL_AppResult SDL_AppIterate(void *appstate)
 {
@@ -53,7 +53,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Drop::init();
     PlayerSkill::init();
 
-    World::load_map(100000000);
+    World::load_map(104040000);
 
     Player::ent = World::registry->create();
     load_character(0, 0, true, Player::ent);
