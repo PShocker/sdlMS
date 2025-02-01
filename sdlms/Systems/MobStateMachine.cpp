@@ -286,6 +286,7 @@ bool mob_revive(entt::entity ent, float delta_time)
     }
     else if (mob->revive <= Window::dt_now + mob->revive_alpha_time + 100)
     {
+        mv->foo = mob->init_fh;
         tr->position.x = mob->init_x;
         tr->position.y = mob->init_y;
     }

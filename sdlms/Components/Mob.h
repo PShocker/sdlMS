@@ -2,6 +2,7 @@
 
 #include "AnimatedSprite.h"
 #include "Sound.h"
+#include "FootHold.h"
 
 #include <unordered_map>
 #include <string>
@@ -33,6 +34,7 @@ struct Mob
 
     float init_x;
     float init_y;
+    FootHold *init_fh;
 
     int hp = 100;
     int mp;

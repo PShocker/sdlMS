@@ -31,6 +31,7 @@ void load_mob(wz::Node *node)
     mob.id = id;
     mob.init_x = x;
     mob.init_y = y;
+    mob.init_fh = foo;
 
     node = Wz::Mob->get_root()->find_from_path(id + u".img");
     // 排除 link
