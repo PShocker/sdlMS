@@ -19,7 +19,7 @@ void Wz::init(const std::string &filename_prefix)
     Sound = (new wz::File(iv, (std::string(filename_prefix) + std::string("Sound.wz")).c_str()));
     // String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
     // TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
-    // UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
+    UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
 
     // Base->parse(u"Base");
     Character->parse(u"Character");
@@ -37,5 +37,5 @@ void Wz::init(const std::string &filename_prefix)
     Sound->parse(u"Sound");
     // String->parse(u"String");
     // TamingMob->parse();
-    // UI->parse(u"UI");
+    UI->parse(u"UI");
 }

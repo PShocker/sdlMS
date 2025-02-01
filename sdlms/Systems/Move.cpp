@@ -228,8 +228,15 @@ bool move_move(Move *mv, Transform *tr, int friction, float delta_time)
             {
                 // 楼梯上掉落
                 mv->vspeed = 0;
+                if (mv->hspeed < 0)
+                {
+                    tr->position.x = fh->x1 - 0.1;
+                }
+                else
+                {
+                    tr->position.x = fh->x1 + 0.1;
+                }
                 tr->position.y = y;
-                tr->position.x = x;
                 mv->foo = nullptr;
                 return false;
             }
