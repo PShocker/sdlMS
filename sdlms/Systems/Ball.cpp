@@ -52,7 +52,7 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
     const Triangle tri = {
         {-350, -65},
         {-350, 95},
-        {0, -30},
+        {0, -10},
     };
     float min_distance = FLT_MAX;
     entt::entity target = entt::null;
@@ -75,15 +75,18 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
     }
     for (auto e : World::registry->view<Damage, Character>())
     {
-        auto cha = World::registry->try_get<Character>(e);
-        auto c_tr = World::registry->try_get<Transform>(e);
-        if (cha->invincible_cooldown <= 0 && collision(cha, c_tr, tri, tr))
+        if (e != Player::ent)
         {
-            auto min_distance2 = distance(c_tr->position, position);
-            if (min_distance2 < min_distance)
+            auto cha = World::registry->try_get<Character>(e);
+            auto c_tr = World::registry->try_get<Transform>(e);
+            if (cha->invincible_cooldown <= 0 && collision(cha, c_tr, tri, tr))
             {
-                target = e;
-                min_distance = min_distance2;
+                auto min_distance2 = distance(c_tr->position, position);
+                if (min_distance2 < min_distance)
+                {
+                    target = e;
+                    min_distance = min_distance2;
+                }
             }
         }
     }

@@ -187,7 +187,7 @@ bool mob_hit(Hit *hit, entt::entity ent)
             // 爆金币
             mob_drop(mob, tr);
 
-            mob->revive = 5000 + Window::dt_now;
+            mob->revive = mob->revive_time + Window::dt_now;
             mob->hp = 100;
             return true;
         }
@@ -283,6 +283,11 @@ bool mob_revive(entt::entity ent, float delta_time)
     {
         mob->state = Mob::State::STAND;
         return true;
+    }
+    else if (mob->revive <= Window::dt_now + mob->revive_alpha_time + 100)
+    {
+        tr->position.x = mob->init_x;
+        tr->position.y = mob->init_y;
     }
     return false;
 }

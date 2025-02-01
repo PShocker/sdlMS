@@ -23,13 +23,14 @@ void load_mob(wz::Node *node)
     auto &mob = World::registry->emplace<Mob>(ent);
     auto id = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"id"))->get();
 
-    mob.id = id;
-
     auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
-
     // 从fh获取y,layer
     auto y = foo->get_y(x).value();
     auto layer = foo->page;
+
+    mob.id = id;
+    mob.init_x = x;
+    mob.init_y = y;
 
     node = Wz::Mob->get_root()->find_from_path(id + u".img");
     // 排除 link

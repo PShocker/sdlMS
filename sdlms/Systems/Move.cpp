@@ -219,6 +219,7 @@ bool move_move(Move *mv, Transform *tr, int friction, float delta_time)
                 {
                     tr->position.x = fh->x1 - 0.1;
                 }
+                tr->position.x = std::clamp(tr->position.x, (float)mv->foo->l, (float)mv->foo->r);
                 tr->position.y = mv->foo->get_y(tr->position.x).value();
                 mv->hspeed = 0;
                 return false;

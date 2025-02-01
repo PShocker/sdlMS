@@ -532,9 +532,9 @@ void render_mob(Transform *tr, Mob *mob)
     if (mob->state == Mob::State::REMOVE)
     {
         float alpha;
-        if (mob->revive - Window::dt_now < 900)
+        if (mob->revive - Window::dt_now < mob->revive_alpha_time)
         {
-            alpha = 1 - ((float)(mob->revive - Window::dt_now) / 900);
+            alpha = 1 - ((float)(mob->revive - Window::dt_now) / mob->revive_alpha_time);
         }
         else
         {

@@ -33,7 +33,7 @@ void load_ball(Skill *ski, Transform *tran, entt::entity owner)
     if (flip)
     {
         mv.hspeed = 550;
-        tr.position.x = tran->position.x + 30;
+        tr.position.x = tran->position.x;
     }
     else
     {
