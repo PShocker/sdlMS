@@ -708,7 +708,6 @@ bool player_hit(Hit *hit, entt::entity ent)
     }
     else if (hit->damage < 0)
     {
-        World::registry->try_get<Character>(Player::ent)->invincible_cooldown = 1;
         auto mv = World::registry->try_get<Move>(ent);
         auto tr = World::registry->try_get<Transform>(ent);
         auto cha = World::registry->try_get<Character>(ent);
