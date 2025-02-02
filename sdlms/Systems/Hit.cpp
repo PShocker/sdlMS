@@ -3,7 +3,6 @@
 #include <SDL3/SDL.h>
 #include "Core/Core.h"
 
-
 void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head, entt::entity ent,
                 char type, int damage, int count,
                 SDL_FPoint *p)
@@ -18,7 +17,7 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head, entt::entity e
     for (int i = 0; i < count; i++)
     {
         auto dam = World::registry->try_get<Damage>(ent);
-        dam->damage.push_back({damage, 255, (int)dam->damage.size(), type});
+        dam->damage.push_back({std::abs(damage), 255, (int)dam->damage.size(), type});
         dam->head = head;
 
         if (atkw->hit)

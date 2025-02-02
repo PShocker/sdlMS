@@ -50,8 +50,8 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
     ball->p = position;
 
     const Triangle tri = {
-        {-350, -65},
-        {-350, 95},
+        {-350, -75},
+        {-350, 105},
         {0, -10},
     };
     float min_distance = FLT_MAX;

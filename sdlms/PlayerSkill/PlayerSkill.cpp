@@ -6,6 +6,7 @@
 void PlayerSkill::init()
 {
     PlayerSkill::Skills[u"2201002"] = skill_2201002;
+    PlayerSkill::Skills[u"2301002"] = skill_2301002;
     // PlayerSkill::Skills[u"4211006"] = skill_4211006;
 }
 

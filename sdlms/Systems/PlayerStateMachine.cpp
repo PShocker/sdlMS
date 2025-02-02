@@ -326,7 +326,13 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
 
 bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity ent, float delta_time)
 {
-    if (mv->foo == nullptr)
+    if (mv->lr != nullptr && mv->hspeed == 0 && (cha->action == Character::ACTION::LADDER || cha->action == Character::ACTION::ROPE))
+    {
+        // 绳子或梯子上
+        cha->state = Character::State::CLIMB;
+        return true;
+    }
+    else if (mv->foo == nullptr)
     {
         if (player_fall(mv, tr, delta_time))
         {
@@ -549,8 +555,9 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             if (auto aft = World::registry->try_get<AfterImage>(Player::ent))
             {
                 auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
-                aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][u"0"][action].asprw);
-                aft->info = AfterImage::afterimages[weaponinfo->afterImage][u"0"][action];
+                auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
+                aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action].asprw);
+                aft->info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action];
             }
         }
         break;
@@ -699,6 +706,16 @@ bool player_hit(Hit *hit, entt::entity ent)
         }
         return true;
     }
+    else if (hit->damage < 0)
+    {
+        World::registry->try_get<Character>(Player::ent)->invincible_cooldown = 1;
+        auto mv = World::registry->try_get<Move>(ent);
+        auto tr = World::registry->try_get<Transform>(ent);
+        auto cha = World::registry->try_get<Character>(ent);
+        cha->hp -= hit->damage;
+        hit->damage = 0;
+        return false;
+    }
     else
     {
         return false;
@@ -733,10 +750,15 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         {
             id = u"2001004";
         }
+        else if (Input::state[SDL_SCANCODE_C])
+        {
+            id = u"2301002";
+        }
     }
 
     if (id != u"" && SkillWarp::cooldowns[id] <= 0)
     {
+        SkillWarp::cooldowns[id] = 200;
         int skill_res = -1;
         if (PlayerSkill::Skills.contains(id))
         {

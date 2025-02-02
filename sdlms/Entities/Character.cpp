@@ -21,10 +21,10 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     // cha->add_cap(u"01002152");
     // cha->add_shoes(u"01070002");
     // cha->add_cape(u"01102053");
-    cha->add_weapon(u"01372000");
-    World::registry->emplace<WeaponInfo>(ent, u"01372000");
-
-    // cha.add_shield(u"01092030");
+    cha->add_shield(u"01092029");
+    std::u16string weapon_id = u"01372007";
+    cha->add_weapon(weapon_id);
+    World::registry->emplace<WeaponInfo>(ent, weapon_id);
 
     World::registry->emplace<Hit>(ent);
     World::registry->emplace<Attack>(ent);

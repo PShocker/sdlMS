@@ -2,6 +2,7 @@
 
 #include <string>
 #include "wz/Property.hpp"
+#include "Components/Components.h"
 
 WeaponInfo::WeaponInfo(const std::u16string &id)
 {
@@ -37,5 +38,10 @@ WeaponInfo::WeaponInfo(const std::u16string &id)
         {
             attack = dynamic_cast<wz::Property<unsigned short> *>(info->get_child(u"attack"))->get();
         }
+        if (info->get_child(u"reqLevel") != nullptr)
+        {
+            reqLevel = dynamic_cast<wz::Property<int> *>(info->get_child(u"reqLevel"))->get();
+        }
+        AfterImage::load(afterImage, reqLevel);
     }
 }

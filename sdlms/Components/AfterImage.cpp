@@ -6,63 +6,74 @@
 
 #include "Resources/Wz.h"
 
-void AfterImage::init()
+std::u16string AfterImage::afterImage_index(int level)
 {
-    auto afterimage = Wz::Character->get_root()->find_from_path(u"Afterimage");
+    auto level_str = std::to_string(level / 10);
+    return std::u16string{level_str.begin(), level_str.end()};
+}
 
-    for (auto &[key, val] : afterimage->get_children())
+void AfterImage::load(std::u16string &type, int level)
+{
+    auto u16_level_str = afterImage_index(level);
+
+    auto afterimage_node = Wz::Character->get_root()->find_from_path(u"Afterimage");
+
+    if (!(afterimages.contains(type) && afterimages[type].contains(u16_level_str)))
     {
+        auto afterimage = afterimage_node->find_from_path(type + u".img/" + u16_level_str);
+
         std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> part;
-        auto node = afterimage->find_from_path(key);
-        for (auto &[first, level] : node->get_children())
+
+        for (auto &[second, type] : afterimage->get_children())
         {
-            if (first != u"charge")
+            if (Character::type_map.contains(second))
             {
-                for (auto &[second, type] : level[0]->get_children())
+                auto action = Character::type_map.at(second);
+                Info info;
+                for (auto &[third, act] : type[0]->get_children())
                 {
-                    if (Character::type_map.contains(second))
+                    if (third == u"lt")
                     {
-                        auto action = Character::type_map.at(second);
-                        Info info;
-                        for (auto &[third, act] : type[0]->get_children())
-                        {
-                            if (third == u"lt")
-                            {
-                                auto vec = dynamic_cast<wz::Property<wz::WzVec2D> *>(act[0])->get();
-                                info.lt = {(float)vec.x, (float)vec.y};
-                            }
-                            else if (third == u"rb")
-                            {
-                                auto vec = dynamic_cast<wz::Property<wz::WzVec2D> *>(act[0])->get();
-                                info.rb = {(float)vec.x, (float)vec.y};
-                            }
-                            else
-                            {
-                                info.index = std::stoi(std::string{third.begin(), third.end()});
-                                info.asprw = AnimatedSpriteWarp::load(act[0]);
-                            }
-                        }
-                        part[first][action] = info;
+                        auto vec = dynamic_cast<wz::Property<wz::WzVec2D> *>(act[0])->get();
+                        info.lt = {(float)vec.x, (float)vec.y};
+                    }
+                    else if (third == u"rb")
+                    {
+                        auto vec = dynamic_cast<wz::Property<wz::WzVec2D> *>(act[0])->get();
+                        info.rb = {(float)vec.x, (float)vec.y};
+                    }
+                    else
+                    {
+                        info.index = std::stoi(std::string{third.begin(), third.end()});
+                        info.asprw = AnimatedSpriteWarp::load(act[0]);
                     }
                 }
+                part[u16_level_str][action] = info;
             }
         }
-        afterimages[key.substr(0, key.length() - 4)] = part;
-    }
+        afterimages[type] = part;
 
-    auto node = afterimage->find_from_path(u"hit.img");
-    for (auto &[key, val] : node->get_children())
-    {
-        hits[key] = AnimatedSpriteWarp::load(val[0]);
-    }
-
-    node = Wz::Sound->get_root()->find_from_path(u"Weapon.img");
-    for (auto &[key, val] : node->get_children())
-    {
-        for (auto &[k, v] : val[0]->get_children())
+        if (!hits.contains(type + u"1"))
         {
-            auto sou = SoundWarp::load(v[0]);
-            sounds[key].push_back(sou);
+            auto node = afterimage_node->find_from_path(u"hit.img");
+            if (node->find_from_path(type + u"1") == nullptr)
+            {
+                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword1"));
+                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword2"));
+                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(u"swordF"));
+            }
+            else
+            {
+                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"1"));
+                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"2"));
+                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"F"));
+            }
+        }
+        if (!sounds.contains(type))
+        {
+            auto node = Wz::Sound->get_root()->find_from_path(u"Weapon.img/" + type + u"/Attack");
+            auto sou = SoundWarp::load(node);
+            sounds[type].push_back(sou);
         }
     }
 }

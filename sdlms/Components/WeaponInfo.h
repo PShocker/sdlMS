@@ -13,6 +13,7 @@ struct WeaponInfo
     bool stand1 = false;
     bool walk1 = false;
     int attack = 0;
+    int reqLevel = 0;
     WeaponInfo(const std::u16string &id);
 
     enum Attack

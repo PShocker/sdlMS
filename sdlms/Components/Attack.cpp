@@ -17,7 +17,7 @@ AttackWarp::AttackWarp(Skill *ski, int level)
     }
 }
 
-AttackWarp::AttackWarp(AfterImage *aft)
+AttackWarp::AttackWarp(AfterImage *aft, WeaponInfo *weaponinfo)
 {
     auto lt = aft->info.lt;
     auto rb = aft->info.rb;
@@ -25,7 +25,19 @@ AttackWarp::AttackWarp(AfterImage *aft)
     rect.y = lt.y;
     rect.w = rb.x - lt.x;
     rect.h = rb.y - lt.y;
-    hit = aft->hits[u"sword1"];
+    int random = std::rand() % 3;
+    switch (random)
+    {
+    case 0:
+        hit = aft->hits[weaponinfo->afterImage + u"1"];
+        break;
+    case 1:
+        hit = aft->hits[weaponinfo->afterImage + u"2"];
+        break;
+    case 2:
+        hit = aft->hits[weaponinfo->afterImage + u"F"];
+        break;
+    }
 }
 
 AttackWarp::AttackWarp(Mob *mob, Transform *tr)

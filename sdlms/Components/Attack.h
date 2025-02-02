@@ -7,6 +7,7 @@
 #include "AfterImage.h"
 #include "Transform.h"
 #include "Trap.h"
+#include "WeaponInfo.h"
 
 #include <SDL3/SDL.h>
 #include <vector>
@@ -28,7 +29,7 @@ struct AttackWarp
 
     AttackWarp() = default;
     AttackWarp(Skill *ski, int level = 1);
-    AttackWarp(AfterImage *aft);
+    AttackWarp(AfterImage *aft, WeaponInfo* weaponinfo);
     AttackWarp(Mob *mob, Transform *tr);
     AttackWarp(Trap *trap, Transform *tr);
 };

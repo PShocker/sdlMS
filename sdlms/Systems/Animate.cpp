@@ -149,9 +149,9 @@ void animate_character(Character *cha, entt::entity ent)
             {
                 // 不包含特殊动作的技能动作,此时攻击帧需要从AfterImage获取
                 auto action = cha->action;
-
                 auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-                auto &info = AfterImage::afterimages[weaponinfo->afterImage][u"0"][action];
+                auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
+                auto &info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action];
                 uint8_t index = info.index;
                 if (cha->action_index == index && ski->hit == false)
                 {
@@ -239,7 +239,8 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 {
     auto action = cha->action;
     auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-    auto &info = AfterImage::afterimages[weaponinfo->afterImage][u"0"][action];
+    auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
+    auto &info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action];
     uint8_t index = info.index;
     auto &aspr = aft->aspr;
     if (cha->action_index == index || aft->animate)
@@ -252,7 +253,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
         if (ent == Player::ent && aft->hit == false)
         {
             auto atk = World::registry->try_get<Attack>(ent);
-            AttackWarp atkw(aft);
+            AttackWarp atkw(aft,weaponinfo);
             atkw.p = &World::registry->try_get<Transform>(ent)->position;
             atk->atks.push_back(atkw);
             aft->hit = true;

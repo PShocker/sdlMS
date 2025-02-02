@@ -30,6 +30,7 @@ struct AfterImage
 
     bool hit = false;
 
-    static void init();
+    static std::u16string afterImage_index(int level);
+    static void load(std::u16string& type,int level);
     AfterImage() = default;
 };

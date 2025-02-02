@@ -25,6 +25,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     drop_run();
     ball_run();
     world_run();
+    ui_run();
     camera_run();
     render_run();
     Window::update();
@@ -45,7 +46,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Wz::init("./Data/");
     Window::create_window("sdlMS", width, height);
     Character::init();
-    AfterImage::init();
     Tomb::init();
     Damage::init();
     Cursor::init();
