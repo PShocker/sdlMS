@@ -1,6 +1,7 @@
 #include "Animate.h"
 #include "Core/Core.h"
 #include "Entities/Entities.h"
+#include "Commons/Commons.h"
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
 #include <cmath>
@@ -71,6 +72,7 @@ void animate_run()
             auto tr = World::registry->try_get<Transform>(ent);
             animate_tomb(tomb, tr);
         }
+        animate_face(cha);
     }
     for (auto ent : World::registry->view<Animated, Drop>())
     {
@@ -253,7 +255,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
         if (ent == Player::ent && aft->hit == false)
         {
             auto atk = World::registry->try_get<Attack>(ent);
-            AttackWarp atkw(aft,weaponinfo);
+            AttackWarp atkw(aft, weaponinfo);
             atkw.p = &World::registry->try_get<Transform>(ent)->position;
             atk->atks.push_back(atkw);
             aft->hit = true;
@@ -326,15 +328,31 @@ void animate_mob(Mob *mob)
         {
             if (mob->state == Mob::State::HIT)
             {
-                mob->state = Mob::State::STAND;
+                if (mob->a.contains(u"stand"))
+                {
+                    mob->state = Mob::State::STAND;
+                    mob->index = u"stand";
+                }
+                else if (mob->a.contains(u"fly"))
+                {
+                    mob->state = Mob::State::FLY;
+                    mob->index = u"fly";
+                }
             }
             else if (mob->state == Mob::State::DIE)
             {
                 mob->state = Mob::State::REMOVE;
-                mob->index = u"stand";
-                mob->a[mob->index]->anim_index = 0;
-                mob->a[mob->index]->anim_time = 0;
+                if (mob->a.contains(u"stand"))
+                {
+                    mob->index = u"stand";
+                }
+                else if (mob->a.contains(u"fly"))
+                {
+                    mob->index = u"fly";
+                }
             }
+            mob->a[mob->index]->anim_index = 0;
+            mob->a[mob->index]->anim_time = 0;
         }
     }
 }
@@ -390,4 +408,31 @@ void animate_drop(Drop *dro, Transform *tr)
         tr->rotation = 0;
     }
     animate_sprite(&dro->aspr);
+}
+
+void animate_face(Character *cha)
+{
+    if (cha->face_type != u"default" && cha->face_max_index >= 1)
+    {
+        cha->face_time -= Window::delta_time;
+        if (cha->face_time <= 0)
+        {
+            auto index = std::stoi(std::string{cha->face_index.begin(), cha->face_index.end()});
+            // 切换表情到下一帧
+            if (index < cha->face_max_index)
+            {
+                index += 1;
+                auto index_str = std::to_string(index);
+                cha->face_index = std::u16string{index_str.begin(), index_str.end()};
+                cha->add_face(cha->face_str, cha->face_type, cha->face_index);
+            }
+            else
+            {
+                cha->face_index = u"";
+                cha->face_type = u"default";
+                player_face_cooldown = 0;
+                cha->add_face(cha->face_str, cha->face_type, cha->face_index);
+            }
+        }
+    }
 }

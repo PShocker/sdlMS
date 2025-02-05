@@ -32,7 +32,7 @@ void player_portal(Move *mv, entt::entity ent);
 
 void player_cooldown(int delta_time);
 
-bool player_alert();
+void player_alert(Character *cha);
 
 bool player_hit(Hit *hit, entt::entity ent);
 
@@ -46,3 +46,5 @@ uint8_t player_attack_action(WeaponInfo *wea);
 bool player_pick_drop(Character *cha, Transform *tr);
 
 void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent);
+
+void player_face(Character *cha);

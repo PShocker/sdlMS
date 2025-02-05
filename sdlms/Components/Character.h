@@ -326,12 +326,18 @@ struct Character
 
     int invincible_cooldown = 0;
 
+    std::u16string face_str;
+    std::u16string face_type = u"default";
+    std::u16string face_index = u"";
+    unsigned int face_max_index = 0;
+    int face_time = 0;
+
     void add_body(const std::u16string &val);
     void add_coat(const std::u16string &val);
     void add_cap(const std::u16string &val);
     void add_pants(const std::u16string &val);
     void add_head(const std::u16string &val);
-    void add_face(const std::u16string &val);
+    void add_face(const std::u16string &val, const std::u16string type = u"default", const std::u16string index = u"");
     void add_hairs(const std::u16string &val);
     void add_shoes(const std::u16string &val);
     void add_weapon(const std::u16string &val);

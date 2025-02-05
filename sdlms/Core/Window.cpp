@@ -3,7 +3,6 @@
 #include <cstdlib>
 #include <SDL3/SDL.h>
 
-
 void Window::create_window(const char *title, unsigned int width, unsigned int height)
 {
     int result = SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
@@ -36,6 +35,6 @@ void Window::clear()
 
 void Window::update()
 {
-    SDL_GetMouseState(&mouse_x, &mouse_y);
+    mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
     SDL_RenderPresent(renderer);
 }

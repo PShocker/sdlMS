@@ -23,6 +23,7 @@ struct Mob
         static const int DIE = 3;
         static const int REMOVE = 4;
         static const int JUMP = 5;
+        static const int FLY = 6;
     };
     // STAND,MOVE状态下循环的持续时间
     int tick = 500;

@@ -477,11 +477,23 @@ void Character::add_head(const std::u16string &val)
     }
 }
 
-void Character::add_face(const std::u16string &val)
+void Character::add_face(const std::u16string &val, std::u16string type, const std::u16string index)
 {
-    auto face_node = character_node->find_from_path(u"Face/" + val + u".img/default/face");
+    face_str = val;
+    auto type_node = character_node->find_from_path(u"Face/" + val + u".img/" + type);
+    auto canvas_node = type_node;
+    if (index != u"")
+    {
+        canvas_node = type_node->find_from_path(index);
+    }
+    auto face_node = canvas_node->find_from_path(u"face");
     if (face_node != nullptr)
     {
+        if (canvas_node->get_child(u"delay") != nullptr)
+        {
+            face_time = dynamic_cast<wz::Property<int> *>(canvas_node->get_child(u"delay"))->get();
+        }
+        face_max_index = type_node->children_count() - 1;
         for (uint8_t i = 0; i < ACTION::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)

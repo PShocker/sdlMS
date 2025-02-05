@@ -9,6 +9,7 @@ struct Window
 
     static inline float mouse_x;
     static inline float mouse_y;
+    static inline SDL_MouseButtonFlags mouse_state;
 
     static inline const char *window_title;
 

@@ -15,3 +15,4 @@ void animate_mob(Mob *mob);
 void animate_damage(Damage *dam);
 void animate_tomb(Tomb *tomb, Transform *tr);
 void animate_drop(Drop *dro, Transform *tr);
+void animate_face(Character *cha);

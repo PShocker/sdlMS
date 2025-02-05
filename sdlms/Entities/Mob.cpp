@@ -63,7 +63,15 @@ void load_mob(wz::Node *node)
             mv.hspeed = mv.hspeed_max.value();
         }
     }
-    mob.index = u"stand";
+    if (mob.a.contains(u"stand"))
+    {
+        mob.index = u"stand";
+    }
+    else if (mob.a.contains(u"fly"))
+    {
+        mob.index = u"fly";
+        mob.state = Mob::State::FLY;
+    }
 
     node = Wz::Sound->get_root()->find_from_path(u"Mob.img/" + id);
     if (node != nullptr)

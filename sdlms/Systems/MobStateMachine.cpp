@@ -42,6 +42,12 @@ void mob_statemachine(entt::entity ent, float delta_time)
         mob->state = mob_move(mob, mv, tr, state, delta_time);
     }
     break;
+    case Mob::State::FLY:
+    {
+        mob_flip(mv, tr);
+        mob->state = mob_fly(mob, mv, tr, state, delta_time);
+    }
+    break;
     case Mob::State::JUMP:
     case Mob::State::HIT:
     {
@@ -75,6 +81,12 @@ int mob_move(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
     {
         state = Mob::State::JUMP;
     }
+    return state;
+}
+
+int mob_fly(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
+{
+    move_fall(mv, tr, delta_time, tr->z, false, false);
     return state;
 }
 
@@ -154,26 +166,22 @@ bool mob_hit(Hit *hit, entt::entity ent)
 
         if (mob->hp > 0)
         {
+            // 获取玩家位置,并让怪物转身和后退
+            if (mob->state == Mob::State::FLY)
+            {
+                mob_hit_move(hit, ent);
+                mob_fly(mob, mv, tr, mob->state, 0.15);
+            }
+            else
+            {
+                if (mv->foo)
+                {
+                    mob_hit_move(hit, ent);
+                    mob_move(mob, mv, tr, mob->state, 0.15);
+                }
+            }
             mob->state = Mob::State::HIT;
             mob->index = u"hit1";
-
-            // 获取玩家位置,并让怪物转身和后退
-            if (mv->foo)
-            {
-                auto hit_x = hit->x;
-                auto mob_x = tr->position.x;
-                if (mob_x < hit_x)
-                {
-                    tr->flip = 1;
-                    mv->hspeed = mv->hspeed_min.value();
-                }
-                else if (mob_x > hit_x)
-                {
-                    tr->flip = 0;
-                    mv->hspeed = mv->hspeed_max.value();
-                }
-                mob_move(mob, mv, tr, mob->state, 0.15);
-            }
         }
         else
         {
@@ -193,6 +201,26 @@ bool mob_hit(Hit *hit, entt::entity ent)
         }
     }
     return false;
+}
+
+void mob_hit_move(Hit *hit, entt::entity ent)
+{
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    auto mob = World::registry->try_get<Mob>(ent);
+    auto hit_x = hit->x;
+    auto mob_x = tr->position.x;
+    if (mob_x < hit_x)
+    {
+        tr->flip = 1;
+        mv->hspeed = mv->hspeed_min.value();
+    }
+    else if (mob_x > hit_x)
+    {
+        tr->flip = 0;
+        mv->hspeed = mv->hspeed_max.value();
+    }
+    return;
 }
 
 void mob_drop(Mob *mob, Transform *tr)
@@ -233,43 +261,64 @@ int mob_active(Mob *mob, Move *mv, int state, float delta_time)
         mob->tick -= delta_time * 1000;
         if (mob->tick < 0)
         {
-            if (mv->foo)
+            if (state == Mob::State::FLY)
             {
-                // 只有在地面才可以切换状态
-                //  怪物状态切换 STAND MOVE
+                mob->tick = std::rand() % 100 + 1300;
                 int random = std::rand() % 2;
                 switch (random)
                 {
                 case 0:
-                    state = Mob::State::STAND;
+                {
+                    mv->hspeed = mv->hspeed_min.value();
                     break;
+                }
                 case 1:
                 {
-                    if (state == Mob::State::MOVE)
+                    mv->hspeed = mv->hspeed_max.value();
+                    break;
+                }
+                }
+                state = Mob::State::FLY;
+            }
+            else
+            {
+                if (mv->foo)
+                {
+                    // 只有在地面才可以切换状态
+                    //  怪物状态切换 STAND MOVE
+                    int random = std::rand() % 2;
+                    switch (random)
                     {
-                        mob->tick = std::rand() % 100 + 1300;
-                        random = std::rand() % 2;
-                        switch (random)
+                    case 0:
+                        state = Mob::State::STAND;
+                        break;
+                    case 1:
+                    {
+                        if (state == Mob::State::MOVE)
                         {
-                        case 0:
-                            mv->hspeed = mv->hspeed_min.value();
-                            break;
-                        case 1:
-                            mv->hspeed = mv->hspeed_max.value();
-                            break;
+                            mob->tick = std::rand() % 100 + 1300;
+                            random = std::rand() % 2;
+                            switch (random)
+                            {
+                            case 0:
+                                mv->hspeed = mv->hspeed_min.value();
+                                break;
+                            case 1:
+                                mv->hspeed = mv->hspeed_max.value();
+                                break;
+                            }
+                        }
+                        else
+                        {
+                            state = Mob::State::MOVE;
                         }
                     }
-                    else
-                    {
-                        state = Mob::State::MOVE;
+                    break;
                     }
-                }
-                break;
                 }
             }
         }
     }
-
     return state;
 }
 
@@ -281,7 +330,14 @@ bool mob_revive(entt::entity ent, float delta_time)
 
     if (mob->revive <= Window::dt_now)
     {
-        mob->state = Mob::State::STAND;
+        if (mob->a.contains(u"fly"))
+        {
+            mob->state = Mob::State::FLY;
+        }
+        else
+        {
+            mob->state = Mob::State::STAND;
+        }
         return true;
     }
     else if (mob->revive <= Window::dt_now + mob->revive_alpha_time + 100)

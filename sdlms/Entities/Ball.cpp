@@ -33,12 +33,12 @@ void load_ball(Skill *ski, Transform *tran, entt::entity owner)
     if (flip)
     {
         mv.hspeed = 550;
-        tr.position.x = tran->position.x - 15;
+        tr.position.x = tran->position.x;
     }
     else
     {
         mv.hspeed = -550;
-        tr.position.x = tran->position.x + 10;
+        tr.position.x = tran->position.x;
     }
     World::zindex = true;
 }

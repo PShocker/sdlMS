@@ -24,7 +24,8 @@ struct PlayerSkill
         EFF = 1,
         SOU = 2,
         ATK = 4,
-        ACT = 8
+        ACT = 8,
+        ALERT = 16
     };
 };
 

@@ -148,6 +148,7 @@ void player_statemachine(entt::entity ent, float delta_time)
         break;
     }
     player_portal(mv, ent);
+    player_face(cha);
     player_action(cha, state, cha->state, mv);
 }
 
@@ -177,7 +178,7 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     }
     else
     {
-        if (player_alert())
+        if (player_alert_cooldown > 0)
         {
             state = Character::State::ALERT;
         }
@@ -629,11 +630,17 @@ void player_cooldown(int delta_time)
     {
         player_ladderrope_cooldown -= delta_time;
     }
+    player_face_cooldown -= delta_time;
 }
 
-bool player_alert()
+void player_alert(Character *cha)
 {
-    return player_alert_cooldown > 0;
+    player_alert_cooldown = 5000;
+    player_face_cooldown = 5000;
+    cha->face_type = u"hit";
+    cha->face_index = u"0";
+    cha->add_face(cha->face_str, cha->face_type, cha->face_index);
+    return;
 }
 
 bool player_hit(Hit *hit, entt::entity ent)
@@ -663,7 +670,8 @@ bool player_hit(Hit *hit, entt::entity ent)
                 }
                 mv->foo = nullptr;
             }
-            player_alert_cooldown = 5000;
+            // player_alert_cooldown = 5000;
+            player_alert(cha);
             if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT || cha->state == Character::State::PRONE)
             {
                 cha->state = Character::State::JUMP;
@@ -778,6 +786,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             {
                 mv->hspeed = 0;
             }
+            player_alert_cooldown = 4000;
         }
         auto ski = &World::registry->emplace_or_replace<Skill>(ent, id);
         // 技能效果
@@ -802,6 +811,11 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         if (skill_res & PlayerSkill::SkillResult::ACT)
         {
             PlayerSkill::skill_action(ski);
+        }
+        // 人物状态
+        if (skill_res & PlayerSkill::SkillResult::ALERT)
+        {
+            player_alert_cooldown = 4000;
         }
         return true;
     }
@@ -944,5 +958,44 @@ void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt:
     if (Input::state[SDL_SCANCODE_SPACE])
     {
         player_skill(mv, cha, tr, state, ent, u"2201002");
+    }
+}
+
+void player_face(Character *cha)
+{
+    if (Input::state[SDL_SCANCODE_F1])
+    {
+        // blink
+        cha->face_type = u"smile";
+        cha->face_index = u"0";
+        cha->face_time = 0;
+        player_face_cooldown = 2000;
+        cha->add_face(cha->face_str, cha->face_type, cha->face_index);
+    }
+    else if (Input::state[SDL_SCANCODE_F4])
+    {
+        // blink
+        cha->face_type = u"angry";
+        cha->face_index = u"0";
+        cha->face_time = 0;
+        player_face_cooldown = 2000;
+        cha->add_face(cha->face_str, cha->face_type, cha->face_index);
+    }
+    if (player_face_cooldown < 0 && player_face_cooldown > -2000 &&
+        !(cha->face_type == u"blink" || cha->face_type == u"default"))
+    {
+        cha->face_type = u"default";
+        cha->face_index = u"";
+        player_face_cooldown = 0;
+        cha->add_face(cha->face_str, cha->face_type, cha->face_index);
+    }
+    else if (player_face_cooldown <= -2000)
+    {
+        // blink
+        cha->face_type = u"blink";
+        cha->face_index = u"0";
+        cha->face_time = 0;
+        player_face_cooldown = 0;
+        cha->add_face(cha->face_str, cha->face_type, cha->face_index);
     }
 }
