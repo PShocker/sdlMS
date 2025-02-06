@@ -2,10 +2,12 @@
 #include "Core/Core.h"
 #include "Entities/Entities.h"
 #include "Commons/Commons.h"
+#include "Resources/Wz.h"
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
 #include <cmath>
 #include <numbers>
+#include <ranges>
 
 void animate_run()
 {
@@ -190,7 +192,7 @@ void animate_character(Character *cha, entt::entity ent)
         {
             // 技能动作
             int delay = cha->body_actions[cha->action_str][cha->action_frame].delay;
-            if (delay < 0)
+            if (delay > 0)
             {
                 // 判断攻击帧
                 if (auto ski = World::registry->try_get<Skill>(ent))
@@ -254,11 +256,25 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
         }
         if (ent == Player::ent && aft->hit == false)
         {
+            aft->hit = true;
+            if (std::ranges::contains(weaponinfo->attack_stances[weaponinfo->attack], action))
+            {
+                if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
+                {
+                    // 远程
+                    auto ball_path = u"Consume/0207.img/02070006/bullet";
+                    auto node = Wz::Item->get_root()->find_from_path(ball_path);
+                    load_ball(AnimatedSpriteWarp::load(node),
+                              World::registry->try_get<Transform>(ent), ent);
+                    // play sound
+                    Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
+                    return;
+                }
+            }
             auto atk = World::registry->try_get<Attack>(ent);
             AttackWarp atkw(aft, weaponinfo);
             atkw.p = &World::registry->try_get<Transform>(ent)->position;
             atk->atks.push_back(atkw);
-            aft->hit = true;
             // play sound
             Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
         }

@@ -7,6 +7,7 @@ void camera_run()
 {
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
+        camera_shake();
         auto tr = World::registry->try_get<Transform>(ent);
 
         auto h_prev_x = Camera::x;                      // 上一帧摄像机坐标
@@ -36,6 +37,9 @@ void camera_refresh()
         Camera::y = v_next_y;
     }
     camera_limit();
+    Camera::shake_strength = 0;
+    Camera::shake_duration = 0;
+    Camera::shake_delay = 0;
 }
 
 void camera_limit()
@@ -75,4 +79,30 @@ void camera_limit()
             Camera::y = t.value() - (Camera::h - (b.value() - t.value())) / 2;
         }
     }
+}
+
+void camera_shake()
+{
+    if (Camera::shake_delay > 0)
+    {
+        Camera::shake_delay -= Window::delta_time;
+    }
+    else if (Camera::shake_duration > 0)
+    {
+        Camera::shake_duration -= Window::delta_time;
+        if (Camera::shake_duration <= 0)
+        {
+            return;
+        }
+        // 每帧进行震动，随机移动相机位置
+        Camera::x += (rand() % 3 - 1) * Camera::shake_strength; // 随机抖动
+        Camera::y += (rand() % 3 - 1) * Camera::shake_strength; // 随机抖动
+    }
+}
+
+void camera_init_shake(float strength, int duration, int delay)
+{
+    Camera::shake_strength = strength;
+    Camera::shake_duration = duration;
+    Camera::shake_delay = delay;
 }

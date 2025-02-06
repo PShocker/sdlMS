@@ -27,6 +27,8 @@ int skill_2301002()
     }
     else
     {
-        return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU | PlayerSkill::SkillResult::ACT;
+        return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
+               PlayerSkill::SkillResult::ACT | PlayerSkill::SkillResult::ATK;
+        ;
     }
 }

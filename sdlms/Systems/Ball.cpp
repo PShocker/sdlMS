@@ -169,7 +169,11 @@ bool ball_move(entt::entity ent, Ball *ball, float delta_time)
 void ball_hit(entt::entity src, entt::entity target)
 {
     auto ski = World::registry->try_get<Skill>(src);
-    AttackWarp atkw(ski);
+    AttackWarp atkw;
+    if (ski != nullptr)
+    {
+        atkw = AttackWarp(ski);
+    }
     atkw.p = &World::registry->try_get<Transform>(src)->position;
     atkw.damage = 100;
     if (auto mob = World::registry->try_get<Mob>(target))

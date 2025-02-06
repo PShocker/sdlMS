@@ -12,7 +12,7 @@ std::u16string AfterImage::afterImage_index(int level)
     return std::u16string{level_str.begin(), level_str.end()};
 }
 
-void AfterImage::load(std::u16string &type, int level)
+void AfterImage::load(std::u16string &type, std::u16string &sfx, int level)
 {
     auto u16_level_str = afterImage_index(level);
 
@@ -69,11 +69,11 @@ void AfterImage::load(std::u16string &type, int level)
                 hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"F"));
             }
         }
-        if (!sounds.contains(type))
+        if (!sounds.contains(sfx))
         {
-            auto node = Wz::Sound->get_root()->find_from_path(u"Weapon.img/" + type + u"/Attack");
+            auto node = Wz::Sound->get_root()->find_from_path(u"Weapon.img/" + sfx + u"/Attack");
             auto sou = SoundWarp::load(node);
-            sounds[type].push_back(sou);
+            sounds[sfx].push_back(sou);
         }
     }
 }

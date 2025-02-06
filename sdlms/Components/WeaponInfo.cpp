@@ -42,6 +42,21 @@ WeaponInfo::WeaponInfo(const std::u16string &id)
         {
             reqLevel = dynamic_cast<wz::Property<int> *>(info->get_child(u"reqLevel"))->get();
         }
-        AfterImage::load(afterImage, reqLevel);
+        AfterImage::load(afterImage, sfx, reqLevel);
+    }
+}
+
+bool WeaponInfo::if_long_range_weapon(int attack)
+{
+    if (attack == WeaponInfo::Attack::BOW ||
+        attack == WeaponInfo::Attack::CROSSBOW ||
+        attack == WeaponInfo::Attack::CLAW ||
+        attack == WeaponInfo::Attack::GUN)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
     }
 }

@@ -14,22 +14,22 @@
 
 struct AttackWarp
 {
-    SDL_FRect rect;
+    SDL_FRect rect = {1, 1, 1, 1};
     int mobCount = 1;
     int attackCount = 1;
     int damage = 1;
 
-    AnimatedSpriteWarp *hit;
+    AnimatedSpriteWarp *hit = nullptr;
 
     // 攻击源的坐标
-    SDL_FPoint *p;
+    SDL_FPoint *p = nullptr;
 
     // 攻击后击中音效
     SoundWarp *souw = nullptr;
 
     AttackWarp() = default;
     AttackWarp(Skill *ski, int level = 1);
-    AttackWarp(AfterImage *aft, WeaponInfo* weaponinfo);
+    AttackWarp(AfterImage *aft, WeaponInfo *weaponinfo);
     AttackWarp(Mob *mob, Transform *tr);
     AttackWarp(Trap *trap, Transform *tr);
 };

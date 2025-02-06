@@ -32,3 +32,4 @@ struct PlayerSkill
 int skill_2201002();
 int skill_2301002();
 int skill_4211006();
+int skill_1311006();

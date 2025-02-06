@@ -16,6 +16,8 @@ struct WeaponInfo
     int reqLevel = 0;
     WeaponInfo(const std::u16string &id);
 
+    static bool if_long_range_weapon(int attack);
+
     enum Attack
     {
         NONE = 0,
@@ -30,7 +32,19 @@ struct WeaponInfo
         NUM_ATTACKS
     };
 
-    static inline const std::array<std::vector<Character::ACTION>, NUM_ATTACKS> attack_stances = {
+    static inline const std::array<std::vector<Character::ACTION>, Attack::NUM_ATTACKS> degen_stances = {
+        {{Character::ACTION::NONE},
+         {Character::ACTION::NONE},
+         {Character::ACTION::NONE},
+         {Character::ACTION::SWINGT1, Character::ACTION::SWINGT3},
+         {Character::ACTION::SWINGT1, Character::ACTION::STABT1},
+         {Character::ACTION::NONE},
+         {Character::ACTION::NONE},
+         {Character::ACTION::SWINGT1, Character::ACTION::STABT1},
+         {Character::ACTION::NONE},
+         {Character::ACTION::SWINGP1, Character::ACTION::STABT2}}};
+
+    static inline const std::array<std::vector<Character::ACTION>, Attack::NUM_ATTACKS> attack_stances = {
         {{Character::ACTION::NONE},
          {Character::ACTION::STABO1, Character::ACTION::STABO2, Character::ACTION::SWINGO1, Character::ACTION::SWINGO2, Character::ACTION::SWINGO3},
          {Character::ACTION::STABT1, Character::ACTION::SWINGP1},

@@ -31,6 +31,6 @@ struct AfterImage
     bool hit = false;
 
     static std::u16string afterImage_index(int level);
-    static void load(std::u16string& type,int level);
+    static void load(std::u16string &type, std::u16string &sfx, int level);
     AfterImage() = default;
 };

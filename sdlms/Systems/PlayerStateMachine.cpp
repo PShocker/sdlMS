@@ -915,9 +915,32 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
 
 uint8_t player_attack_action(WeaponInfo *wea)
 {
-    auto &v = wea->attack_stances[wea->attack];
-    int random = std::rand() % v.size();
-    return v[random];
+    uint8_t action = 0;
+    action = wea->attack_stances[wea->attack][std::rand() % wea->attack_stances[wea->attack].size()];
+    // 判断是远程武器?
+    if (WeaponInfo::if_long_range_weapon(wea->attack))
+    {
+        // 需要判断面前是否有怪物,否则切换到近战
+        for (auto ent : World::registry->view<Damage, Mob>())
+        {
+            auto mob = World::registry->try_get<Mob>(ent);
+            if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+            {
+                auto m_tr = World::registry->try_get<Transform>(ent);
+                auto p_tr = World::registry->try_get<Transform>(Player::ent);
+                if (std::abs(p_tr->position.y - m_tr->position.y) <= 5)
+                {
+                    if ((p_tr->flip == 1 && p_tr->position.x <= m_tr->position.x && (m_tr->position.x - p_tr->position.x) <= 5) ||
+                        (p_tr->flip == 0 && p_tr->position.x >= m_tr->position.x && (p_tr->position.x - m_tr->position.x) <= 5))
+                    {
+                        action = wea->degen_stances[wea->attack][std::rand() % wea->degen_stances.size()];
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return action;
 }
 
 bool player_pick_drop(Character *cha, Transform *tr)
