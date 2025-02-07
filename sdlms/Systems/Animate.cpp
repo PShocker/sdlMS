@@ -262,7 +262,15 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
                 if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
                 {
                     // 远程
-                    auto ball_path = u"Consume/0207.img/02070006/bullet";
+                    std::u16string ball_path;
+                    if (weaponinfo->attack == WeaponInfo::Attack::BOW)
+                    {
+                        ball_path = u"Consume/0207.img/02060001/bullet";
+                    }
+                    else if (weaponinfo->attack == WeaponInfo::Attack::CLAW)
+                    {
+                        ball_path = u"Consume/0207.img/02070006/bullet";
+                    }
                     auto node = Wz::Item->get_root()->find_from_path(ball_path);
                     load_ball(AnimatedSpriteWarp::load(node),
                               World::registry->try_get<Transform>(ent), ent);

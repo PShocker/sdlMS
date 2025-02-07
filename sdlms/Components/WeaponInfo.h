@@ -40,7 +40,7 @@ struct WeaponInfo
          {Character::ACTION::SWINGT1, Character::ACTION::STABT1},
          {Character::ACTION::NONE},
          {Character::ACTION::NONE},
-         {Character::ACTION::SWINGT1, Character::ACTION::STABT1},
+         {Character::ACTION::STABO1, Character::ACTION::STABO2},
          {Character::ACTION::NONE},
          {Character::ACTION::SWINGP1, Character::ACTION::STABT2}}};
 

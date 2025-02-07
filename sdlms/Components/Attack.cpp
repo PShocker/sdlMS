@@ -35,7 +35,8 @@ AttackWarp::AttackWarp(AfterImage *aft, WeaponInfo *weaponinfo)
         hit = aft->hits[weaponinfo->afterImage + u"2"];
         break;
     case 2:
-        hit = aft->hits[weaponinfo->afterImage + u"F"];
+        // hit = aft->hits[weaponinfo->afterImage + u"F"];
+        hit = aft->hits[weaponinfo->afterImage + u"2"];
         break;
     }
 }

@@ -90,10 +90,6 @@ void camera_shake()
     else if (Camera::shake_duration > 0)
     {
         Camera::shake_duration -= Window::delta_time;
-        if (Camera::shake_duration <= 0)
-        {
-            return;
-        }
         // 每帧进行震动，随机移动相机位置
         Camera::x += (rand() % 3 - 1) * Camera::shake_strength; // 随机抖动
         Camera::y += (rand() % 3 - 1) * Camera::shake_strength; // 随机抖动
