@@ -7,7 +7,6 @@ void camera_run()
 {
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
-        camera_shake();
         auto tr = World::registry->try_get<Transform>(ent);
 
         auto h_prev_x = Camera::x;                      // 上一帧摄像机坐标
@@ -23,6 +22,7 @@ void camera_run()
         Camera::y = std::lerp(v_prev_y, v_next_y, std::abs(v_delta) / 6000.0f);
     }
     camera_limit();
+    camera_shake();
 }
 
 void camera_refresh()
