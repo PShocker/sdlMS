@@ -171,11 +171,19 @@ void animate_character(Character *cha, entt::entity ent)
                     {
                         if (ski->ski->ball != nullptr)
                         {
-                            load_ball(ski->ski->ball, World::registry->try_get<Transform>(ent), ent);
+                            for (auto e : load_ball(ski->ski->ball, ent, ski->ball))
+                            {
+                                auto &s = World::registry->emplace<Skill>(e);
+                                s.atkw = ski->atkw;
+                            }
                         }
                         else
                         {
-                            load_ball(ski->ball);
+                            for (auto e : load_ball(ski->ball))
+                            {
+                                auto &s = World::registry->emplace<Skill>(e);
+                                s.atkw = ski->atkw;
+                            }
                         }
                     }
                     ski->hit = true;
@@ -218,11 +226,19 @@ void animate_character(Character *cha, entt::entity ent)
                         {
                             if (ski->ski->ball != nullptr)
                             {
-                                load_ball(ski->ski->ball, World::registry->try_get<Transform>(ent), ent);
+                                for (auto e : load_ball(ski->ski->ball, ent, ski->ball))
+                                {
+                                    auto &s = World::registry->emplace<Skill>(e);
+                                    s.atkw = ski->atkw;
+                                }
                             }
                             else
                             {
-                                load_ball(ski->ball);
+                                for (auto e : load_ball(ski->ball))
+                                {
+                                    auto &s = World::registry->emplace<Skill>(e);
+                                    s.atkw = ski->atkw;
+                                }
                             }
                         }
                         ski->hit = true;

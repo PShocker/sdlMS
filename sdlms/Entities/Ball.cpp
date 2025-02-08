@@ -7,7 +7,7 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-void load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity owner)
+entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity owner)
 {
     auto ent = World::registry->create();
     auto &tr = World::registry->emplace<Transform>(ent);
@@ -38,12 +38,14 @@ void load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity owner)
         tr.position.x = tran->position.x;
     }
     World::zindex = true;
+    return ent;
 }
 
-void load_ball(unsigned char num)
+std::vector<entt::entity> load_ball(unsigned char num)
 {
-    auto ent = Player::ent;
+    std::vector<entt::entity> e;
 
+    auto ent = Player::ent;
     auto tr = World::registry->try_get<Transform>(ent);
     auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
 
@@ -53,31 +55,29 @@ void load_ball(unsigned char num)
         ball_path = u"Consume/0207.img/02060001/bullet";
         auto node = Wz::Item->get_root()->find_from_path(ball_path);
         auto asprw = AnimatedSpriteWarp::load(node);
-        for (size_t i = 0; i < num; i++)
-        {
-            Transform t(tr->position, tr->z, tr->flip);
-            t.position.y = tr->position.x + i * 30;
-            load_ball(asprw, &t, ent);
-        }
+        return load_ball(asprw, ent, num);
     }
     else if (weaponinfo->attack == WeaponInfo::Attack::CLAW)
     {
-        ball_path = u"Consume/0207.img/02070006/bullet";
+        ball_path = u"Consume/0207.img/02070005/bullet";
         auto node = Wz::Item->get_root()->find_from_path(ball_path);
         auto asprw = AnimatedSpriteWarp::load(node);
-        for (size_t i = 0; i < num; i++)
-        {
-            Transform t(tr->position, tr->z, tr->flip);
-            auto flip = tr->flip;
-            if (flip)
-            {
-                t.position.x = tr->position.x + i * 80;
-            }
-            else
-            {
-                t.position.x = tr->position.x - i * 80;
-            }
-            load_ball(asprw, &t, ent);
-        }
+        return load_ball(asprw, ent, num);
     }
+    return e;
+}
+
+std::vector<entt::entity> load_ball(AnimatedSpriteWarp *asprw, entt::entity owner, unsigned char num)
+{
+    std::vector<entt::entity> e;
+    auto ent = owner;
+    auto tr = World::registry->try_get<Transform>(ent);
+    float step = 60 / (num + 1);
+    for (size_t i = 0; i < num; i++)
+    {
+        Transform t(tr->position, tr->z, tr->flip);
+        t.position.y = tr->position.y + 30 - step - i * step;
+        e.push_back(load_ball(asprw, &t, ent));
+    }
+    return e;
 }

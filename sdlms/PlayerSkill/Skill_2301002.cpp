@@ -8,10 +8,9 @@
 // 群体治愈
 int skill_2301002()
 {
-    auto ent = Player::ent;
-    auto mv = World::registry->try_get<Move>(ent);
-    auto tr = World::registry->try_get<Transform>(ent);
-    auto cha = World::registry->try_get<Character>(ent);
+    auto mv = World::registry->try_get<Move>(Player::ent);
+    auto tr = World::registry->try_get<Transform>(Player::ent);
+    auto cha = World::registry->try_get<Character>(Player::ent);
     auto state = cha->state;
 
     AttackWarp atkw;
@@ -21,14 +20,15 @@ int skill_2301002()
     hit_effect(&atkw, std::nullopt, Player::ent, 3, atkw.damage);
 
     SkillWarp::cooldowns[u"2301002"] = 1000;
-    if (mv->lr)
+
+    if (state == Character::State::CLIMB)
     {
         return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU;
     }
-    else
+    else if (state != Character::State::JUMP)
     {
-        return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
-               PlayerSkill::SkillResult::ACT | PlayerSkill::SkillResult::ATK;
-        ;
+        mv->hspeed = 0;
     }
+    return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
+           PlayerSkill::SkillResult::ACT | PlayerSkill::SkillResult::ATK;
 }

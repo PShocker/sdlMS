@@ -6,10 +6,19 @@
 int skill_4211006()
 {
     auto mv = World::registry->try_get<Move>(Player::ent);
-    if (mv->lr)
+    auto cha = World::registry->try_get<Character>(Player::ent);
+    auto state = cha->state;
+
+    // 通用攻击技能
+    if (state == Character::State::CLIMB)
     {
         return PlayerSkill::SkillResult::None;
     }
+    else if (state != Character::State::JUMP)
+    {
+        mv->hspeed = 0;
+    }
+
     auto ski = &World::registry->emplace_or_replace<Skill>(Player::ent, u"4211006");
 
     SkillWarp::cooldowns[u"4211006"] = 500;
@@ -37,7 +46,7 @@ int skill_4211006()
                         auto rb = ski->ski->infos[ski->level].rb;
                         auto hit = ski->ski->hits[0];
                         auto mobCount = ski->ski->infos[ski->level].mobCount;
-                        auto attackCount = ski->ski->infos[ski->level].attackCount;
+                        auto attackCount = 1;
                         SoundWarp *souw = nullptr;
                         if (ski->ski->sounds.contains(u"Hit"))
                         {
