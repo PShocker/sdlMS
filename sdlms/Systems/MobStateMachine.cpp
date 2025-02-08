@@ -15,7 +15,8 @@ void mob_statemachine_run()
             mob_revive(ent, Window::delta_time);
             continue;
         }
-        if (mob_hit(World::registry->try_get<Hit>(ent), ent))
+        if (mob->state != Mob::State::REMOVE && mob->state != Mob::State::DIE &&
+            mob_hit(World::registry->try_get<Hit>(ent), ent))
         {
             continue;
         }
@@ -141,11 +142,12 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
 
 bool mob_hit(Hit *hit, entt::entity ent)
 {
-    auto mob = World::registry->try_get<Mob>(ent);
-    if (hit->damage > 0 && mob->hp > 0)
+    if (hit->damage > 0)
     {
         auto mv = World::registry->try_get<Move>(ent);
         auto tr = World::registry->try_get<Transform>(ent);
+        auto mob = World::registry->try_get<Mob>(ent);
+
         auto count = hit->count;
         mob->hp -= hit->damage;
         hit->damage = 0;
@@ -345,7 +347,7 @@ bool mob_revive(entt::entity ent, float delta_time)
         hit->damage = 0;
         hit->count = 0;
         mob->hp = 100;
-        
+
         mv->foo = mob->init_fh;
         tr->position.x = mob->init_x;
         tr->position.y = mob->init_y;
