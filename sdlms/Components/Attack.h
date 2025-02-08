@@ -2,11 +2,7 @@
 
 #include "AnimatedSprite.h"
 #include "Sound.h"
-#include "Skill.h"
-#include "Mob.h"
-#include "AfterImage.h"
 #include "Transform.h"
-#include "Trap.h"
 #include "WeaponInfo.h"
 
 #include <SDL3/SDL.h>
@@ -28,10 +24,8 @@ struct AttackWarp
     SoundWarp *souw = nullptr;
 
     AttackWarp() = default;
-    AttackWarp(Skill *ski, int level = 1);
-    AttackWarp(AfterImage *aft, WeaponInfo *weaponinfo);
-    AttackWarp(Mob *mob, Transform *tr);
-    AttackWarp(Trap *trap, Transform *tr);
+    AttackWarp(SDL_FPoint &lt, SDL_FPoint &rb, AnimatedSpriteWarp *hit,
+               int mobCount = 1, int attackCount = 1, SoundWarp *souw = nullptr);
 };
 
 struct Attack

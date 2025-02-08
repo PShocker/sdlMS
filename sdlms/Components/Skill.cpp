@@ -69,7 +69,7 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
     for (int i = 1; i < level->children_count() + 1; i++)
     {
         auto it = level->get_child(std::to_string(i));
-        Info *info = new Info(it);
+        Info info(it);
         infos.push_back(info);
     }
     if (node->get_child(u"action"))

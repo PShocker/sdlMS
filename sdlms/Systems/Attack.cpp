@@ -85,9 +85,12 @@ bool mob_attack()
         auto mob = &view.get<Mob>(ent);
         if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
         {
-            if (collision(mob, World::registry->try_get<Transform>(ent)))
+            auto m_tr = World::registry->try_get<Transform>(ent);
+            if (collision(mob, m_tr))
             {
-                AttackWarp atkw(mob, World::registry->try_get<Transform>(ent));
+                AttackWarp atkw;
+                atkw.damage = 100;
+                atkw.p = &m_tr->position;
                 hit_effect(&atkw, std::nullopt, Player::ent, 1, atkw.damage);
                 return true;
             }
@@ -102,9 +105,12 @@ bool trap_attack()
     for (auto ent : view)
     {
         auto trap = &view.get<Trap>(ent);
-        if (collision(trap, World::registry->try_get<AnimatedSprite>(ent), World::registry->try_get<Transform>(ent)))
+        auto t_tr = World::registry->try_get<Transform>(ent);
+        if (collision(trap, World::registry->try_get<AnimatedSprite>(ent), t_tr))
         {
-            AttackWarp atkw(trap, World::registry->try_get<Transform>(ent));
+            AttackWarp atkw;
+            atkw.damage = trap->damage;
+            atkw.p = &t_tr->position;
             hit_effect(&atkw, std::nullopt, Player::ent, 1, atkw.damage);
             return true;
         }

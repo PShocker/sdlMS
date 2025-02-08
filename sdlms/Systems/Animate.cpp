@@ -162,14 +162,21 @@ void animate_character(Character *cha, entt::entity ent)
                     if (ski->attack == true)
                     {
                         auto atk = World::registry->try_get<Attack>(ent);
-                        AttackWarp atkw(ski, 20);
+                        auto atkw = ski->atkw.value();
                         atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
                         atkw.damage = 50;
                         atk->atks.push_back(atkw);
                     }
-                    else if (ski->ball == true)
+                    else if (ski->ball > 0)
                     {
-                        load_ball(ski, World::registry->try_get<Transform>(ent), ent);
+                        if (ski->ski->ball != nullptr)
+                        {
+                            load_ball(ski->ski->ball, World::registry->try_get<Transform>(ent), ent);
+                        }
+                        else
+                        {
+                            load_ball(ski->ball);
+                        }
                     }
                     ski->hit = true;
                 }
@@ -202,14 +209,21 @@ void animate_character(Character *cha, entt::entity ent)
                         if (ski->attack == true)
                         {
                             auto atk = World::registry->try_get<Attack>(ent);
-                            AttackWarp atkw(ski, 20);
+                            auto atkw = ski->atkw.value();
                             atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
                             atkw.damage = 50;
                             atk->atks.push_back(atkw);
                         }
-                        else if (ski->ball == true)
+                        else if (ski->ball > 0)
                         {
-                            load_ball(ski, World::registry->try_get<Transform>(ent), ent);
+                            if (ski->ski->ball != nullptr)
+                            {
+                                load_ball(ski->ski->ball, World::registry->try_get<Transform>(ent), ent);
+                            }
+                            else
+                            {
+                                load_ball(ski->ball);
+                            }
                         }
                         ski->hit = true;
                     }
@@ -262,25 +276,37 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
                 if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
                 {
                     // 远程
-                    std::u16string ball_path;
-                    if (weaponinfo->attack == WeaponInfo::Attack::BOW)
-                    {
-                        ball_path = u"Consume/0207.img/02060001/bullet";
-                    }
-                    else if (weaponinfo->attack == WeaponInfo::Attack::CLAW)
-                    {
-                        ball_path = u"Consume/0207.img/02070006/bullet";
-                    }
-                    auto node = Wz::Item->get_root()->find_from_path(ball_path);
-                    load_ball(AnimatedSpriteWarp::load(node),
-                              World::registry->try_get<Transform>(ent), ent);
+                    load_ball();
                     // play sound
                     Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
                     return;
                 }
             }
             auto atk = World::registry->try_get<Attack>(ent);
-            AttackWarp atkw(aft, weaponinfo);
+            AttackWarp atkw;
+            int random = std::rand() % 3;
+            switch (random)
+            {
+            case 0:
+            {
+                auto hit = aft->hits[weaponinfo->afterImage + u"1"];
+                atkw = AttackWarp(aft->info.lt, aft->info.rb, hit);
+            }
+            break;
+            case 1:
+            {
+                auto hit = aft->hits[weaponinfo->afterImage + u"2"];
+                atkw = AttackWarp(aft->info.lt, aft->info.rb, hit);
+            }
+            break;
+            case 2:
+            {
+                // hit = aft->hits[weaponinfo->afterImage + u"F"];
+                auto hit = aft->hits[weaponinfo->afterImage + u"2"];
+                atkw = AttackWarp(aft->info.lt, aft->info.rb, hit);
+            }
+            break;
+            }
             atkw.p = &World::registry->try_get<Transform>(ent)->position;
             atk->atks.push_back(atkw);
             // play sound

@@ -761,6 +761,14 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         {
             id = u"2301002";
         }
+        else if (Input::state[SDL_SCANCODE_V])
+        {
+            id = u"4001344";
+        }
+        else if (Input::state[SDL_SCANCODE_B])
+        {
+            id = u"4211006";
+        }
     }
 
     if (id != u"" && SkillWarp::cooldowns[id] <= 0)
@@ -788,7 +796,11 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             }
             player_alert_cooldown = 4000;
         }
-        auto ski = &World::registry->emplace_or_replace<Skill>(ent, id);
+        Skill *ski = World::registry->try_get<Skill>(ent);
+        if (ski == nullptr)
+        {
+            ski = &World::registry->emplace_or_replace<Skill>(ent, id);
+        }
         // 技能效果
         if (skill_res & PlayerSkill::SkillResult::EFF)
         {
@@ -917,8 +929,8 @@ uint8_t player_attack_action(WeaponInfo *wea)
 {
     uint8_t action = 0;
     action = wea->attack_stances[wea->attack][std::rand() % wea->attack_stances[wea->attack].size()];
-    // 判断是远程武器?
-    if (WeaponInfo::if_long_range_weapon(wea->attack))
+    // 判断是远程武器，且没有放技能
+    if (WeaponInfo::if_long_range_weapon(wea->attack) && !World::registry->all_of<Skill>(Player::ent))
     {
         // 需要判断面前是否有怪物,否则切换到近战
         for (auto ent : World::registry->view<Damage, Mob>())

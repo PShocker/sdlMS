@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Sound.h"
-
+#include "Attack.h"
 #include "AnimatedSprite.h"
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
@@ -24,7 +24,7 @@ struct SkillWarp
 
     std::vector<AnimatedSpriteWarp *> effects;
     std::vector<AnimatedSpriteWarp *> hits;
-    std::vector<Info *> infos;
+    std::vector<Info> infos;
     std::u16string id;
     std::optional<std::u16string> action_str = std::nullopt;
 
@@ -42,11 +42,13 @@ struct SkillWarp
 struct Skill
 {
     SkillWarp *ski = nullptr;
+    std::optional<AttackWarp> atkw = std::nullopt;
+
     Skill(const std::u16string &id);
     Skill() = default;
 
     bool hit = false;
     uint8_t level = 19;
     bool attack = false;
-    bool ball = false;
+    unsigned char ball = 0;
 };

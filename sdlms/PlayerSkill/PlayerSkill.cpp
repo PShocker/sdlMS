@@ -8,7 +8,8 @@ void PlayerSkill::init()
     PlayerSkill::Skills[u"1311006"] = skill_1311006;
     PlayerSkill::Skills[u"2201002"] = skill_2201002;
     PlayerSkill::Skills[u"2301002"] = skill_2301002;
-    // PlayerSkill::Skills[u"4211006"] = skill_4211006;
+    PlayerSkill::Skills[u"4001344"] = skill_4001344;
+    PlayerSkill::Skills[u"4211006"] = skill_4211006;
 }
 
 void PlayerSkill::skill_sound(SkillWarp *souw, int delay)
@@ -50,10 +51,38 @@ void PlayerSkill::skill_attack(Skill *ski)
 {
     if (ski->ski->ball != nullptr)
     {
-        ski->ball = true;
+        if (!ski->atkw.has_value())
+        {
+            auto lt = SDL_FPoint{0, 0};
+            auto rb = SDL_FPoint{0, 0};
+            auto hit = ski->ski->hits[0];
+            auto mobCount = 1;
+            auto attackCount = 1;
+            SoundWarp *souw = nullptr;
+            if (ski->ski->sounds.contains(u"Hit"))
+            {
+                souw = ski->ski->sounds[u"Hit"];
+            }
+            ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
+            ski->ball = 1;
+        }
     }
     else
     {
+        if (!ski->atkw.has_value())
+        {
+            auto lt = ski->ski->infos[ski->level].lt;
+            auto rb = ski->ski->infos[ski->level].rb;
+            auto hit = ski->ski->hits[0];
+            auto mobCount = ski->ski->infos[ski->level].mobCount;
+            auto attackCount = ski->ski->infos[ski->level].attackCount;
+            SoundWarp *souw = nullptr;
+            if (ski->ski->sounds.contains(u"Hit"))
+            {
+                souw = ski->ski->sounds[u"Hit"];
+            }
+            ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
+        }
         ski->attack = true;
     }
 }

@@ -146,7 +146,7 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
     // 旋转
     b_tr->rotation = ball_rotation(ball, b_tr);
 
-    if (std::abs(dx) < 10 && std::abs(dy) < 1)
+    if (std::abs(dx) < 10 && std::abs(dy) < 2)
     {
         ball_hit(src, ball->target);
         return true;
@@ -172,7 +172,7 @@ void ball_hit(entt::entity src, entt::entity target)
     AttackWarp atkw;
     if (ski != nullptr)
     {
-        atkw = AttackWarp(ski);
+        atkw = ski->atkw.value();
     }
     atkw.p = &World::registry->try_get<Transform>(src)->position;
     atkw.damage = 100;
