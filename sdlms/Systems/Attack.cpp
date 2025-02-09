@@ -70,7 +70,7 @@ void attacking(AttackWarp *atkw)
             auto cha = World::registry->try_get<Character>(ent);
             if (cha->invincible_cooldown <= 0 && collision(atkw, cha, World::registry->try_get<Transform>(ent)))
             {
-                hit_effect(atkw, cha, ent, nullptr);
+                hit_effect(atkw, ent, nullptr);
                 atkw->mobCount -= 1;
             }
         }

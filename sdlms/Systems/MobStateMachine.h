@@ -16,5 +16,6 @@ bool mob_hit(Hit *hit, entt::entity ent);
 void mob_hit_move(Hit *hit, entt::entity ent);
 void mob_drop(Mob *mob, Transform *tr);
 bool mob_fall(Mob *mob, Move *mv, Transform *tr, float delta_time);
-int mob_active(Mob *mob, Move *mv, int state, float delta_time);
+int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time);
 bool mob_revive(entt::entity ent, float delta_time);
+bool mob_attack(Mob *mob, Transform *tr);

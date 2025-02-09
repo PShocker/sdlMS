@@ -1,4 +1,6 @@
 #include "Animate.h"
+#include "Hit.h"
+#include "Ball.h"
 #include "Core/Core.h"
 #include "Entities/Entities.h"
 #include "Commons/Commons.h"
@@ -39,7 +41,7 @@ void animate_run()
     for (auto ent : World::registry->view<Animated, Mob>())
     {
         auto mob = World::registry->try_get<Mob>(ent);
-        animate_mob(mob);
+        animate_mob(mob, ent);
         if (auto eff = World::registry->try_get<Effect>(ent))
         {
             animate_effect(eff);
@@ -179,10 +181,27 @@ void animate_character(Character *cha, entt::entity ent)
                         }
                         else
                         {
-                            for (auto e : load_ball(ski->ball))
+                            entt::entity target = entt::null;
+                            std::vector<entt::entity> ents = load_ball(ski->ball);
+                            for (auto e : ents)
                             {
+                                auto ball = World::registry->try_get<Ball>(e);
+                                // 让ball聚集到一个怪物上
+                                if ((target == entt::null || !World::registry->valid(target)))
+                                {
+                                    target = ball_fall(e, ball);
+                                }
                                 auto &s = World::registry->emplace<Skill>(e);
                                 s.atkw = ski->atkw;
+                            }
+                            for (auto e : ents)
+                            {
+                                auto ball = World::registry->try_get<Ball>(e);
+                                ball->target = target;
+
+                                auto tr = World::registry->try_get<Transform>(e);
+                                auto position = tr->position;
+                                ball->p = position;
                             }
                         }
                     }
@@ -234,10 +253,27 @@ void animate_character(Character *cha, entt::entity ent)
                             }
                             else
                             {
-                                for (auto e : load_ball(ski->ball))
+                                entt::entity target = entt::null;
+                                std::vector<entt::entity> ents = load_ball(ski->ball);
+                                for (auto e : ents)
                                 {
+                                    auto ball = World::registry->try_get<Ball>(e);
+                                    // 让ball聚集到一个怪物上
+                                    if ((target == entt::null || !World::registry->valid(target)))
+                                    {
+                                        target = ball_fall(e, ball);
+                                    }
                                     auto &s = World::registry->emplace<Skill>(e);
                                     s.atkw = ski->atkw;
+                                }
+                                for (auto e : ents)
+                                {
+                                    auto ball = World::registry->try_get<Ball>(e);
+                                    ball->target = target;
+
+                                    auto tr = World::registry->try_get<Transform>(e);
+                                    auto position = tr->position;
+                                    ball->p = position;
                                 }
                             }
                         }
@@ -386,11 +422,11 @@ void animate_npc(Npc *npc)
     }
 }
 
-void animate_mob(Mob *mob)
+void animate_mob(Mob *mob, entt::entity ent)
 {
     if (mob->state != Mob::State::REMOVE)
     {
-        if (!animate_sprite(mob->a[mob->index]))
+        if (!animate_sprite(&mob->a[mob->index]))
         {
             if (mob->state == Mob::State::HIT)
             {
@@ -417,8 +453,33 @@ void animate_mob(Mob *mob)
                     mob->index = u"fly";
                 }
             }
-            mob->a[mob->index]->anim_index = 0;
-            mob->a[mob->index]->anim_time = 0;
+            else if (mob->state == Mob::State::ATTACK)
+            {
+                // 怪物攻击
+                if (World::registry->valid(mob->hit))
+                {
+                    auto h = World::registry->try_get<Hit>(mob->hit);
+                    auto c = World::registry->try_get<Character>(mob->hit);
+                    if (h->damage <= 0 && c->invincible_cooldown <= 0)
+                    {
+                        auto tr = World::registry->try_get<Transform>(ent);
+                        mob->atkw.p = &tr->position;
+                        hit_effect(&mob->atkw, mob->hit);
+                    }
+                }
+                if (mob->a.contains(u"stand"))
+                {
+                    mob->state = Mob::State::STAND;
+                    mob->index = u"stand";
+                }
+                else if (mob->a.contains(u"fly"))
+                {
+                    mob->state = Mob::State::FLY;
+                    mob->index = u"fly";
+                }
+            }
+            mob->a[mob->index].anim_index = 0;
+            mob->a[mob->index].anim_time = 0;
         }
     }
 }

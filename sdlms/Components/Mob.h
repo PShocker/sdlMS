@@ -3,6 +3,8 @@
 #include "AnimatedSprite.h"
 #include "Sound.h"
 #include "FootHold.h"
+#include "Attack.h"
+#include "entt/entt.hpp"
 
 #include <unordered_map>
 #include <string>
@@ -10,7 +12,7 @@
 
 struct Mob
 {
-    std::unordered_map<std::u16string, AnimatedSprite *> a;
+    std::unordered_map<std::u16string, AnimatedSprite> a;
 
     std::u16string index;
 
@@ -24,6 +26,7 @@ struct Mob
         static const int REMOVE = 4;
         static const int JUMP = 5;
         static const int FLY = 6;
+        static const int ATTACK = 7;
     };
     // STAND,MOVE状态下循环的持续时间
     int tick = 500;
@@ -48,6 +51,12 @@ struct Mob
     std::u16string id;
 
     std::unordered_map<std::u16string, SoundWarp *> sounds;
+
+    //仇恨目标
+    entt::entity hit = entt::null;
+
+    AnimatedSpriteWarp *atk = nullptr;
+    AttackWarp atkw;
 
     SDL_FRect rect();
     SDL_FPoint head();

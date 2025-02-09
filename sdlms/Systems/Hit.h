@@ -11,4 +11,4 @@ void hit_effect(AttackWarp *atkw, Mob *mob, entt::entity ent, SDL_FPoint *p = nu
 
 void hit_effect(AttackWarp *atkw, Npc *npc, entt::entity ent, SDL_FPoint *p = nullptr);
 
-void hit_effect(AttackWarp *atkw, Character *cha, entt::entity ent, SDL_FPoint *p = nullptr);
+void hit_effect(AttackWarp *atkw, entt::entity ent, SDL_FPoint *p = nullptr);

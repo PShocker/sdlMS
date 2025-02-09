@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Sound.h"
+#include "entt/entt.hpp"
+#include "Core/Player.h"
 
 struct Hit
 {
@@ -11,4 +13,6 @@ struct Hit
 
     float x;
     float y;
+
+    entt::entity owner = entt::null;
 };

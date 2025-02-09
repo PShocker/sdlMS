@@ -27,7 +27,7 @@ void ball_run()
         }
         else if (ball->p == std::nullopt)
         {
-            ball_fall(ent, ball, (float)Window::delta_time / 1000);
+            ball_fall(ent, ball);
         }
         else if (ball_move(ent, ball, (float)Window::delta_time / 1000))
         {
@@ -42,7 +42,7 @@ void ball_run()
     destory.clear();
 }
 
-bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
+entt::entity ball_fall(entt::entity ent, Ball *ball)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
@@ -50,9 +50,9 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
     ball->p = position;
 
     const Triangle tri = {
-        {-350, -75},
-        {-350, 105},
-        {0, -10},
+        {-350, -100},
+        {-350, 100},
+        {0, 0},
     };
     float min_distance = FLT_MAX;
     entt::entity target = entt::null;
@@ -91,7 +91,7 @@ bool ball_fall(entt::entity ent, Ball *ball, float delta_time)
         }
     }
     ball->target = target;
-    return false;
+    return target;
 }
 
 bool ball_track(entt::entity src, Ball *ball, float delta_time)
@@ -146,7 +146,7 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
     // 旋转
     b_tr->rotation = ball_rotation(ball, b_tr);
 
-    if (std::abs(dx) < 10 && std::abs(dy) < 5)
+    if (std::abs(dx) < 10 && std::abs(dy) < 8)
     {
         ball_hit(src, ball->target);
         return true;
@@ -175,14 +175,14 @@ void ball_hit(entt::entity src, entt::entity target)
         atkw = ski->atkw.value();
     }
     atkw.p = &World::registry->try_get<Transform>(src)->position;
-    atkw.damage = 100;
+    atkw.damage = 50;
     if (auto mob = World::registry->try_get<Mob>(target))
     {
         hit_effect(&atkw, mob, target, atkw.p);
     }
     else if (auto cha = World::registry->try_get<Character>(target))
     {
-        hit_effect(&atkw, cha, target, atkw.p);
+        hit_effect(&atkw, target, atkw.p);
     }
 }
 

@@ -645,9 +645,10 @@ void player_alert(Character *cha)
 
 bool player_hit(Hit *hit, entt::entity ent)
 {
-    if (hit->damage > 0)
+    auto cha = World::registry->try_get<Character>(ent);
+    if (hit->damage > 0 && cha->invincible_cooldown <= 0)
     {
-        World::registry->try_get<Character>(Player::ent)->invincible_cooldown = 2000;
+        cha->invincible_cooldown = 2000;
         auto mv = World::registry->try_get<Move>(ent);
         auto tr = World::registry->try_get<Transform>(ent);
         auto cha = World::registry->try_get<Character>(ent);
@@ -716,9 +717,6 @@ bool player_hit(Hit *hit, entt::entity ent)
     }
     else if (hit->damage < 0)
     {
-        auto mv = World::registry->try_get<Move>(ent);
-        auto tr = World::registry->try_get<Transform>(ent);
-        auto cha = World::registry->try_get<Character>(ent);
         cha->hp -= hit->damage;
         hit->damage = 0;
         return false;

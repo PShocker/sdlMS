@@ -10,7 +10,7 @@
 
 struct AttackWarp
 {
-    SDL_FRect rect = {1, 1, 1, 1};
+    SDL_FRect rect = {0, 0, 0, 0};
     int mobCount = 1;
     int attackCount = 1;
     int damage = 1;

@@ -7,12 +7,18 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head, entt::entity e
                 char type, int damage, int count,
                 SDL_FPoint *p)
 {
+    if (!World::registry->valid(ent))
+    {
+        return;
+    }
+    
     auto hit = World::registry->try_get<Hit>(ent);
     hit->x = atkw->p->x;
     hit->y = atkw->p->y;
     hit->souw = atkw->souw;
     hit->count += count;
     hit->damage += damage * count;
+    hit->owner = Player::ent;
 
     for (int i = 0; i < count; i++)
     {
@@ -45,7 +51,7 @@ void hit_effect(AttackWarp *atkw, Npc *npc, entt::entity ent, SDL_FPoint *p)
     hit_effect(atkw, npc->head(), ent, 2, 1, 1, p);
 }
 
-void hit_effect(AttackWarp *atkw, Character *cha, entt::entity ent, SDL_FPoint *p)
+void hit_effect(AttackWarp *atkw, entt::entity ent, SDL_FPoint *p)
 {
-    hit_effect(atkw, std::nullopt, ent, 0, atkw->damage * 10, atkw->attackCount, p);
+    hit_effect(atkw, std::nullopt, ent, 1, atkw->damage, atkw->attackCount, p);
 }

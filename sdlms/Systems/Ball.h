@@ -5,7 +5,7 @@
 
 void ball_run();
 
-bool ball_fall(entt::entity ent, Ball *ball, float delta_time);
+entt::entity ball_fall(entt::entity ent, Ball *ball);
 
 bool ball_track(entt::entity src, Ball *ball, float delta_time);
 

@@ -528,7 +528,7 @@ void render_npc(Transform *tr, Npc *npc)
 
 void render_mob(Transform *tr, Mob *mob)
 {
-    auto a = mob->a[mob->index];
+    auto a = &mob->a[mob->index];
     if (mob->state == Mob::State::REMOVE)
     {
         float alpha;
