@@ -17,7 +17,7 @@ int skill_2301002()
     atkw.damage = -1000;
     atkw.hit = nullptr;
     atkw.p = &tr->position;
-    hit_effect(&atkw, std::nullopt, Player::ent, 3, atkw.damage);
+    hit_effect(&atkw, std::nullopt, Player::ent, 3,nullptr);
 
     SkillWarp::cooldowns[u"2301002"] = 1000;
 

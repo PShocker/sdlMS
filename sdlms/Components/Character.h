@@ -347,7 +347,7 @@ struct Character
     Character();
     static void init();
 
-    SDL_FRect r{-20, -40, 30, 25};
+    SDL_FRect r{-20, -40, 30, 30};
 
     // 状态机
     struct State

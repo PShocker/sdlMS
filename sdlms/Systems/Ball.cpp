@@ -62,7 +62,7 @@ entt::entity ball_fall(entt::entity ent, Ball *ball)
         if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
         {
             auto m_tr = World::registry->try_get<Transform>(e);
-            if (collision(mob, m_tr, tri, tr))
+            if (collision(tri, tr, mob->rect(), m_tr))
             {
                 auto min_distance2 = distance(m_tr->position, position);
                 if (min_distance2 < min_distance)
@@ -79,7 +79,7 @@ entt::entity ball_fall(entt::entity ent, Ball *ball)
         {
             auto cha = World::registry->try_get<Character>(e);
             auto c_tr = World::registry->try_get<Transform>(e);
-            if (cha->invincible_cooldown <= 0 && collision(cha, c_tr, tri, tr))
+            if (cha->invincible_cooldown <= 0 && collision(tri, tr, cha->r, c_tr))
             {
                 auto min_distance2 = distance(c_tr->position, position);
                 if (min_distance2 < min_distance)
@@ -146,7 +146,7 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
     // 旋转
     b_tr->rotation = ball_rotation(ball, b_tr);
 
-    if (std::abs(dx) < 10 && std::abs(dy) < 8)
+    if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
     {
         ball_hit(src, ball->target);
         return true;
@@ -178,11 +178,11 @@ void ball_hit(entt::entity src, entt::entity target)
     atkw.damage = 50;
     if (auto mob = World::registry->try_get<Mob>(target))
     {
-        hit_effect(&atkw, mob, target, atkw.p);
+        hit_effect(&atkw, mob->head(), target, 0, atkw.p);
     }
     else if (auto cha = World::registry->try_get<Character>(target))
     {
-        hit_effect(&atkw, target, atkw.p);
+        hit_effect(&atkw, target, 1, atkw.p);
     }
 }
 

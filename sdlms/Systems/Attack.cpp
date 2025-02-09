@@ -43,9 +43,12 @@ void attacking(AttackWarp *atkw)
             auto mob = World::registry->try_get<Mob>(ent);
             if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
             {
-                if (collision(atkw, mob, World::registry->try_get<Transform>(ent)))
+                auto m_tr = World::registry->try_get<Transform>(ent);
+                auto p_tr = World::registry->try_get<Transform>(Player::ent);
+
+                if (collision(mob->rect(), m_tr, atkw->rect, p_tr))
                 {
-                    hit_effect(atkw, mob, ent, nullptr);
+                    hit_effect(atkw, mob->head(), ent, 0, nullptr);
                     atkw->mobCount -= 1;
                 }
             }
@@ -56,9 +59,12 @@ void attacking(AttackWarp *atkw)
         if (atkw->mobCount > 0)
         {
             auto npc = World::registry->try_get<Npc>(ent);
-            if (collision(atkw, npc, World::registry->try_get<Transform>(ent)))
+            auto n_tr = World::registry->try_get<Transform>(ent);
+            auto p_tr = World::registry->try_get<Transform>(Player::ent);
+
+            if (collision(npc->rect(), n_tr, atkw->rect, p_tr))
             {
-                hit_effect(atkw, npc, ent, nullptr);
+                hit_effect(atkw, npc->head(), ent, 2, nullptr);
                 atkw->mobCount -= 1;
             }
         }
@@ -68,9 +74,12 @@ void attacking(AttackWarp *atkw)
         if (atkw->mobCount > 0 && ent != Player::ent)
         {
             auto cha = World::registry->try_get<Character>(ent);
-            if (cha->invincible_cooldown <= 0 && collision(atkw, cha, World::registry->try_get<Transform>(ent)))
+            auto c_tr = World::registry->try_get<Transform>(ent);
+            auto p_tr = World::registry->try_get<Transform>(Player::ent);
+
+            if (cha->invincible_cooldown <= 0 && collision(cha->r, c_tr, atkw->rect, p_tr))
             {
-                hit_effect(atkw, ent, nullptr);
+                hit_effect(atkw, ent, 1, nullptr);
                 atkw->mobCount -= 1;
             }
         }
@@ -86,12 +95,15 @@ bool mob_attack()
         if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
         {
             auto m_tr = World::registry->try_get<Transform>(ent);
-            if (collision(mob, m_tr))
+            auto p_tr = World::registry->try_get<Transform>(Player::ent);
+            auto p_cha = World::registry->try_get<Character>(Player::ent);
+
+            if (collision(mob->rect(), m_tr, p_cha->r, p_tr))
             {
                 AttackWarp atkw;
                 atkw.damage = 100;
                 atkw.p = &m_tr->position;
-                hit_effect(&atkw, std::nullopt, Player::ent, 1, atkw.damage);
+                hit_effect(&atkw, std::nullopt, Player::ent, 1, nullptr);
                 return true;
             }
         }
@@ -106,12 +118,16 @@ bool trap_attack()
     {
         auto trap = &view.get<Trap>(ent);
         auto t_tr = World::registry->try_get<Transform>(ent);
-        if (collision(trap, World::registry->try_get<AnimatedSprite>(ent), t_tr))
+        auto p_tr = World::registry->try_get<Transform>(Player::ent);
+        auto p_cha = World::registry->try_get<Character>(Player::ent);
+
+        if (collision(trap->rect(World::registry->try_get<AnimatedSprite>(ent)),
+                      t_tr, p_cha->r, p_tr))
         {
             AttackWarp atkw;
             atkw.damage = trap->damage;
             atkw.p = &t_tr->position;
-            hit_effect(&atkw, std::nullopt, Player::ent, 1, atkw.damage);
+            hit_effect(&atkw, std::nullopt, Player::ent, 1, nullptr);
             return true;
         }
     }

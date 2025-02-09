@@ -464,7 +464,7 @@ void animate_mob(Mob *mob, entt::entity ent)
                     {
                         auto tr = World::registry->try_get<Transform>(ent);
                         mob->atkw.p = &tr->position;
-                        hit_effect(&mob->atkw, mob->hit);
+                        hit_effect(&mob->atkw, mob->hit, 1, nullptr);
                     }
                 }
                 if (mob->a.contains(u"stand"))
