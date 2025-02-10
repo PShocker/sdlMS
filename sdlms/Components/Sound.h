@@ -2,15 +2,19 @@
 
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
+#include <unordered_set>
 
 extern SDL_AudioStream *audio_stream;
 
 struct SoundWarp
 {
     std::vector<uint8_t> pcm_data;
+
+    static SoundWarp *load(wz::Node *node, bool caches = true);
+    static void clean_up();
+
     SoundWarp(wz::Node *node);
     SoundWarp() = default;
-    static SoundWarp *load(wz::Node *node);
 };
 
 struct Sound

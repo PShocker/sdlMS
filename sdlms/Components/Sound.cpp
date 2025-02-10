@@ -225,10 +225,16 @@ SoundWarp::SoundWarp(wz::Node *node)
 
     avcodec_free_context(&codecContext);
     avformat_close_input(&formatContext);
+    av_freep(&ioCtx->buffer);
+    avio_context_free(&ioCtx);
 }
 
-SoundWarp *SoundWarp::load(wz::Node *node)
+SoundWarp *SoundWarp::load(wz::Node *node, bool caches)
 {
+    if (caches == false)
+    {
+        return new SoundWarp(node);
+    }
     if (cache.contains(node))
     {
         return cache[node];
@@ -316,4 +322,16 @@ Sound *Sound::at(int pos)
     }
     SDL_UnlockMutex(sound_list_mutex);
     return r;
+}
+
+void SoundWarp::clean_up()
+{
+    SDL_LockMutex(sound_list_mutex);
+    for (auto &[key, val] : cache)
+    {
+        delete val;
+    }
+    cache.clear();
+    sound_list.clear();
+    SDL_UnlockMutex(sound_list_mutex);
 }

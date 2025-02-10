@@ -150,13 +150,13 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
 
     SpriteWarp *spr = nullptr;
 
-    if (std::holds_alternative<SpriteWarp *>(bspr->spr))
+    if (std::holds_alternative<Sprite>(bspr->spr))
     {
-        spr = std::get<SpriteWarp *>(bspr->spr);
+        spr = std::get<Sprite>(bspr->spr).spr;
     }
     else
     {
-        auto a = std::get<AnimatedSprite *>(bspr->spr);
+        auto a = &std::get<AnimatedSprite>(bspr->spr);
         spr = a->aspr->sprites[a->anim_index];
     }
     spr_w = spr->width;
@@ -506,12 +506,12 @@ void render_portal(Transform *tr, Portal *por)
             if (d_x <= 100 && d_y <= 100)
             {
                 por->index = 0;
-                render_animated_sprite(tr, por->a[por->index]);
+                render_animated_sprite(tr, &por->a[por->index]);
             }
             else if (d_x <= 150 && d_y <= 150)
             {
                 por->index = 1;
-                render_animated_sprite(tr, por->a[por->index]);
+                render_animated_sprite(tr, &por->a[por->index]);
             }
             else
             {

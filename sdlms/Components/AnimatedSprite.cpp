@@ -1,25 +1,29 @@
 #include "AnimatedSprite.h"
-
+#include "Core/Map.h"
 #include <vector>
 #include "wz/Property.hpp"
 
 static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
 
-AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha)
+AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool caches)
 {
+    if (caches == false)
+    {
+        return new AnimatedSpriteWarp(node, alpha, false);
+    }
     if (cache.contains(node))
     {
         return cache[node];
     }
     else
     {
-        AnimatedSpriteWarp *aspr = new AnimatedSpriteWarp(node, alpha);
-        cache[node] = aspr;
-        return aspr;
+        AnimatedSpriteWarp *asprw = new AnimatedSpriteWarp(node, alpha);
+        cache[node] = asprw;
+        return asprw;
     }
 }
 
-AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha)
+AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches)
 {
     if (node->type == wz::Type::UOL)
     {
@@ -56,7 +60,14 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha)
             {
                 continue;
             }
-            sprites.push_back(SpriteWarp::load(canvas, alpha));
+            if (caches)
+            {
+                sprites.push_back(SpriteWarp::load(canvas, alpha));
+            }
+            else
+            {
+                sprites.push_back(SpriteWarp::load(canvas, alpha, false));
+            }
         }
         if (node->get_child(u"zigzag") != nullptr)
         {
@@ -70,11 +81,18 @@ AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
 {
     aspr = AnimatedSpriteWarp::load(node, alpha);
     anim_size = aspr->sprites.size();
-    anim_index = 0;
-    anim_time = 0;
 }
 
 AnimatedSprite::AnimatedSprite(AnimatedSpriteWarp *aspr) : aspr(aspr)
 {
     anim_size = aspr->sprites.size();
+}
+
+void AnimatedSpriteWarp::clean_up()
+{
+    for (auto &[key, val] : cache)
+    {
+        delete val;
+    }
+    cache.clear();
 }

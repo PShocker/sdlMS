@@ -4,6 +4,7 @@
 #include <any>
 #include "wz/Property.hpp"
 #include <optional>
+#include <unordered_set>
 
 struct SpriteWarp
 {
@@ -21,7 +22,8 @@ struct SpriteWarp
     std::optional<SDL_FPoint> head;
     std::optional<SDL_FRect> rect;
 
-    static SpriteWarp *load(wz::Node *node, int alpha = 255);
+    static SpriteWarp *load(wz::Node *node, int alpha = 255, bool caches = true);
+    static void clean_up();
 
     SpriteWarp(wz::Node *node, int alpha = 255);
 };
@@ -30,5 +32,6 @@ struct Sprite
 {
     SpriteWarp *spr = nullptr;
     Sprite(wz::Node *node, int alpha = 255);
+    Sprite(SpriteWarp *spr);
     Sprite() = default;
 };

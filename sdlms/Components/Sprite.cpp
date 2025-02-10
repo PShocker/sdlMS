@@ -7,8 +7,12 @@
 
 static std::unordered_map<wz::Node *, SpriteWarp *> cache;
 
-SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha)
+SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha, bool caches)
 {
+    if (caches == false)
+    {
+        return new SpriteWarp(node, alpha);
+    }
     if (cache.contains(node))
     {
         return cache[node];
@@ -197,4 +201,18 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
 Sprite::Sprite(wz::Node *node, int alpha)
 {
     spr = SpriteWarp::load(node, alpha);
+}
+
+Sprite::Sprite(SpriteWarp *spr) : spr(spr)
+{
+}
+
+void SpriteWarp::clean_up()
+{
+    for (auto &[key, val] : cache)
+    {
+        SDL_DestroyTexture(val->texture);
+        delete val;
+    }
+    cache.clear();
 }

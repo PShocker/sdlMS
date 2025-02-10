@@ -6,7 +6,7 @@
 
 struct BackGround
 {
-    std::variant<SpriteWarp *, AnimatedSprite *> spr;
+    std::variant<Sprite, AnimatedSprite> spr;
     // 平铺间隔
     int cx = 0;
     int cy = 0;

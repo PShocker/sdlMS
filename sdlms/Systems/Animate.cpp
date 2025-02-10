@@ -400,7 +400,7 @@ void animate_portal(Portal *por)
     // 更新三段式传送门,这里简单的更新三段式传送门的所有状态
     if (por->index >= 0)
     {
-        animate_sprite(por->a[por->index]);
+        animate_sprite(&por->a[por->index]);
     }
 }
 

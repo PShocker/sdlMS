@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Sprite.h"
-
 #include <vector>
+#include <unordered_set>
 #include "wz/Property.hpp"
 
 struct AnimatedSpriteWarp
@@ -11,9 +11,10 @@ struct AnimatedSpriteWarp
 
     bool z = false; // ziazag
 
-    AnimatedSpriteWarp(wz::Node *node, int alpha = 255);
+    AnimatedSpriteWarp(wz::Node *node, int alpha = 255, bool caches = true);
 
-    static AnimatedSpriteWarp *load(wz::Node *node, int alpha = 255);
+    static AnimatedSpriteWarp *load(wz::Node *node, int alpha = 255, bool caches = true);
+    static void clean_up();
 };
 
 struct AnimatedSprite

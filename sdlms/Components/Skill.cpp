@@ -107,3 +107,12 @@ Skill::Skill(const std::u16string &id)
 {
     ski = SkillWarp::load(id);
 }
+
+void SkillWarp::clean_up()
+{
+    for (auto &[key, val] : cache)
+    {
+        delete val;
+    }
+    cache.clear();
+}
