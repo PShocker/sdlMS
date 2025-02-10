@@ -105,28 +105,40 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
     {
         if (fall_collide)
         {
+            int top_x;
+            int top_y = INT32_MAX;
+            FootHold *top_fh = nullptr;
             for (auto &e : World::registry->view<FloorFootHold>())
             {
                 auto fh = World::registry->try_get<FootHold>(e);
                 auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
                 if (collide.has_value())
                 {
-                    // 落地
-                    new_pos.x = std::clamp((float)collide.value().x, (float)fh->l, (float)fh->r);
-                    new_pos.y = fh->get_y(new_pos.x).value();
-                    mv->foo = fh;
-                    mv->hspeed /= 2;
-                    tr->position = new_pos;
-                    // switch z
-                    if (mv->page != fh->page || mv->lr != nullptr)
+                    if (collide.value().y < top_y)
                     {
-                        mv->lr = nullptr;
-                        tr->z = fh->page * LAYER_Z + z_index;
-                        mv->page = fh->page;
-                        World::zindex = true;
+                        top_x = collide.value().x;
+                        top_y = collide.value().y;
+                        top_fh = fh;
                     }
-                    return false;
                 }
+            }
+            if (top_fh != nullptr)
+            {
+                // 落地
+                new_pos.x = std::clamp((float)top_x, (float)top_fh->l, (float)top_fh->r);
+                new_pos.y = top_fh->get_y(new_pos.x).value();
+                mv->foo = top_fh;
+                mv->hspeed /= 2;
+                tr->position = new_pos;
+                // switch z
+                if (mv->page != top_fh->page || mv->lr != nullptr)
+                {
+                    mv->lr = nullptr;
+                    tr->z = top_fh->page * LAYER_Z + z_index;
+                    mv->page = top_fh->page;
+                    World::zindex = true;
+                }
+                return false;
             }
         }
     }

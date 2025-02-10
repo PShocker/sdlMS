@@ -325,11 +325,26 @@ Sound *Sound::at(int pos)
 void SoundWarp::clean_up()
 {
     SDL_LockMutex(sound_list_mutex);
-    for (auto &[key, val] : cache)
+    SoundWarp *bgm = nullptr;
+    Sound sou;
+    if (sound_list.size() > 0)
     {
-        delete val;
+        sou = sound_list.front();
+        bgm = sou.souw;
     }
-    cache.clear();
+    for (auto it = cache.begin(); it != cache.end();)
+    {
+        if (it->second != bgm)
+        {
+            delete it->second;
+            it = cache.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
     sound_list.clear();
+    sound_list.push_back(sou);
     SDL_UnlockMutex(sound_list_mutex);
 }
