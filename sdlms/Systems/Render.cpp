@@ -148,21 +148,22 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
     float spr_ox = 0;
     float spr_oy = 0;
 
-    SpriteWarp *spr = nullptr;
+    SpriteWarp *sprw = nullptr;
 
     if (std::holds_alternative<Sprite>(bspr->spr))
     {
-        spr = std::get<Sprite>(bspr->spr).spr;
+        sprw = std::get<Sprite>(bspr->spr).spr;
     }
     else
     {
         auto a = &std::get<AnimatedSprite>(bspr->spr);
-        spr = a->aspr->sprites[a->anim_index];
+        sprw = a->aspr->sprites[a->anim_index];
+        SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
     }
-    spr_w = spr->width;
-    spr_h = spr->height;
-    spr_ox = spr->origin.x;
-    spr_oy = spr->origin.y;
+    spr_w = sprw->width;
+    spr_h = sprw->height;
+    spr_ox = sprw->origin.x;
+    spr_oy = sprw->origin.y;
 
     int cx = bspr->cx;
     int cy = bspr->cy;
@@ -249,7 +250,7 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
         for (int j = 0; j < tile_cnt_x; j++)
         {
             t.position = {(float)point.x + j * cx + spr_ox, (float)point.y + i * cy + spr_oy};
-            render_sprite(&t, spr);
+            render_sprite(&t, sprw);
         }
     }
 }

@@ -15,6 +15,15 @@ void animate_run()
 {
     auto view = World::registry->view<Animated>();
 
+    for (auto ent : World::registry->view<BackGround>())
+    {
+        auto bspr = World::registry->try_get<BackGround>(ent);
+        if (std::holds_alternative<AnimatedSprite>(bspr->spr))
+        {
+            auto aspr = &std::get<AnimatedSprite>(bspr->spr);
+            animate_sprite(aspr);
+        }
+    }
     for (auto ent : World::registry->view<Animated, AnimatedSprite>())
     {
         auto aspr = World::registry->try_get<AnimatedSprite>(ent);
@@ -417,7 +426,11 @@ void animate_npc(Npc *npc)
         }
         else
         {
-            npc->index = npc->a.begin()->first;
+            auto index = npc->a.begin()->first;
+            if (index != u"shop")
+            {
+                npc->index = index;
+            }
         }
     }
 }

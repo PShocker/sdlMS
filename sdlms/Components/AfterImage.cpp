@@ -45,7 +45,7 @@ void AfterImage::load(std::u16string &type, std::u16string &sfx, int level)
                     else
                     {
                         info.index = std::stoi(std::string{third.begin(), third.end()});
-                        info.asprw = AnimatedSpriteWarp::load(act[0], false);
+                        info.asprw = AnimatedSpriteWarp::load(act[0], 255, false);
                     }
                 }
                 part[u16_level_str][action] = info;
@@ -58,15 +58,15 @@ void AfterImage::load(std::u16string &type, std::u16string &sfx, int level)
             auto node = afterimage_node->find_from_path(u"hit.img");
             if (node->find_from_path(type + u"1") == nullptr)
             {
-                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword1"), false);
-                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword2"), false);
-                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(u"swordF"), false);
+                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword1"), 255, false);
+                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword2"), 255, false);
+                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(u"swordF"), 255, false);
             }
             else
             {
-                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"1"), false);
-                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"2"), false);
-                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"F"), false);
+                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"1"), 255, false);
+                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"2"), 255, false);
+                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"F"), 255, false);
             }
         }
         if (!sounds.contains(sfx))

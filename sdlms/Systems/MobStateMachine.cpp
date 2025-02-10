@@ -78,9 +78,13 @@ void mob_flip(Move *mv, Transform *tr)
 
 int mob_move(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
 {
+    auto foo = mv->foo;
     if (!move_move(mv, tr, 0, delta_time) && mv->foo == nullptr)
     {
-        state = Mob::State::JUMP;
+        // 不让怪物掉落
+        mv->foo = foo;
+        tr->position.x = std::clamp(tr->position.x, (float)foo->l, (float)foo->r);
+        tr->position.y = foo->get_y(tr->position.x).value();
     }
     return state;
 }

@@ -39,7 +39,15 @@ void load_npc(wz::Node *node)
             npc.a[key] = new AnimatedSprite(asprw);
         }
     }
-    npc.index = npc.a.begin()->first;
+
+    if (npc.a.contains(u"stand"))
+    {
+        npc.index = u"stand";
+    }
+    else
+    {
+        npc.index = npc.a.begin()->first;
+    }
 
     World::registry->emplace<Hit>(ent);
     World::registry->emplace<Effect>(ent);

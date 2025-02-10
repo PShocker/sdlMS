@@ -89,7 +89,7 @@ bool Sound::init()
     SDL_AudioSpec spec;
     spec.channels = 2;
     spec.format = SDL_AUDIO_S16;
-    spec.freq = 22050;
+    spec.freq = 44100;
     audio_stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, FeedTheAudioStreamMore, NULL);
     if (!audio_stream)
     {
@@ -180,7 +180,7 @@ SoundWarp::SoundWarp(wz::Node *node)
     // 输入采样率
     int inSampleRate = codecContext->sample_rate;
     // 输出采样率
-    int outSampleRate = inSampleRate;
+    int outSampleRate = 44100;
 
     AVChannelLayout outChannel = {};
     outChannel.nb_channels = 2;
@@ -195,28 +195,26 @@ SoundWarp::SoundWarp(wz::Node *node)
         return;
     }
 
-    uint8_t *out_buffer = (uint8_t *)av_malloc(2 * outSampleRate);
+    // 分配输出缓冲区
+    uint8_t *output_data = (uint8_t *)av_malloc(outSampleRate);
     while (av_read_frame(formatContext, packet) >= 0)
     {
         if ((avcodec_send_packet(codecContext, packet)) >= 0)
         {
             if (avcodec_receive_frame(codecContext, frame) == 0)
             {
-                swr_convert(swrContext, &out_buffer, 2 * outSampleRate,
-                            (const uint8_t **)frame->data,
-                            frame->nb_samples);
-                int size = av_samples_get_buffer_size(NULL, outChannelCount,
-                                                      frame->nb_samples,
-                                                      AV_SAMPLE_FMT_S16, 1);
+                auto output_samples = swr_convert(swrContext, &output_data, outSampleRate,
+                                                  (const uint8_t **)frame->data,
+                                                  frame->nb_samples);
 
-                pcm_data.insert(pcm_data.end(), out_buffer, out_buffer + size);
-
+                pcm_data.insert(pcm_data.end(), output_data,
+                                output_data + output_samples * 2 * av_get_bytes_per_sample(AV_SAMPLE_FMT_S16));
                 av_frame_unref(frame);
             }
             av_packet_unref(packet);
         }
     }
-    av_freep(&out_buffer);
+    av_freep(&output_data);
 
     av_frame_free(&frame);
     av_packet_free(&packet);
