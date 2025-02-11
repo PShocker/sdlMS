@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Components/Components.h"
+#include <vector>
 
 struct WorldMap
 {
@@ -9,9 +10,9 @@ struct WorldMap
         int x;
         int y;
         int type;
-        int mapNo;
+        std::vector<int> mapNo;
 
-        Spot(int x, int y, int type, int mapNo) : x(x), y(y), type(type), mapNo(mapNo) {}
+        Spot(int x, int y, int type, std::vector<int> mapNo) : x(x), y(y), type(type), mapNo(mapNo) {}
     };
     static void show();
     static void hide();

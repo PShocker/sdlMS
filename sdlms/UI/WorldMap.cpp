@@ -19,31 +19,71 @@ void WorldMap::show()
     mapImage[1] = SpriteWarp::load(node->find_from_path(u"mapImage/1"));
     mapImage[2] = SpriteWarp::load(node->find_from_path(u"mapImage/2"));
 
-    // AnimatedSpriteWarp *curPos = AnimatedSpriteWarp::load(node->find_from_path(u"curPos"));
+    AnimatedSpriteWarp *curPos = AnimatedSpriteWarp::load(node->find_from_path(u"curPos"));
+    std::optional<int> curPos_x;
+    std::optional<int> curPos_y;
 
     // 默认是WorldMap010
     node = Wz::Map->get_root()->find_from_path(u"WorldMap/WorldMap010.img");
     auto BaseImg = SpriteWarp::load(node->find_from_path(u"BaseImg/0"));
 
-    auto &spr = World::registry->emplace<Sprite>(ent, BaseImg);
+    World::registry->emplace<Sprite>(ent, BaseImg);
     World::registry->emplace<Transform>(ent, WorldMap::x, WorldMap::y, UI_Z, 0, true);
 
     auto mapList = node->find_from_path(u"MapList");
     for (auto &[key, val] : mapList->get_children())
     {
-        auto ent = World::registry->create();
+        ent = World::registry->create();
         World::registry->emplace<WorldMap>(ent);
         auto spot = val[0]->get_child(u"spot");
         auto type = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"type"))->get();
         auto spot_v = dynamic_cast<wz::Property<wz::WzVec2D> *>(spot)->get();
         auto spot_x = spot_v.x;
         auto spot_y = spot_v.y;
-        auto mapNo = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"mapNo")->get_child(u"0"))->get();
+        std::vector<int> mapNo;
+        // 从第0帧顺序读
+        for (int i = 0; i < val[0]->get_child(u"mapNo")->children_count(); i++)
+        {
+            auto it = val[0]->get_child(u"mapNo")->get_child(std::to_string(i));
+            if (it == nullptr)
+            {
+                // 如果发现没读取到,说明已经读完,则退出读取
+                break;
+            }
+            int no = 0;
+            if (it->type == wz::Type::Int)
+            {
+
+                no = dynamic_cast<wz::Property<int> *>(it)->get();
+            }
+            else
+            {
+                auto no_str = dynamic_cast<wz::Property<wz::wzstring> *>(it)->get();
+                no = std::stoi(std::string{no_str.begin(), no_str.end()});
+            }
+            if (no == Map::id)
+            {
+                curPos_x = spot_x;
+                curPos_y = spot_y;
+            }
+            mapNo.push_back(no);
+        }
+
         World::registry->emplace<Spot>(ent, spot_x, spot_y, type, mapNo);
-        SpriteWarp *sprw = mapImage[type];
-        World::registry->emplace<Sprite>(ent, sprw);
+        World::registry->emplace<Sprite>(ent, mapImage[type]);
         World::registry->emplace<Transform>(ent, (float)spot_x + WorldMap::x, (float)spot_y + WorldMap::y, UI_Z + 1, 0, true);
     }
+    if (curPos_x.has_value() && curPos_y.has_value())
+    {
+        // 玩家所在的位置动画
+        ent = World::registry->create();
+        World::registry->emplace<WorldMap>(ent);
+        World::registry->emplace<Animated>(ent);
+        World::registry->emplace<AnimatedSprite>(ent, curPos);
+        World::registry->emplace<Transform>(ent, (float)curPos_x.value() + WorldMap::x,
+                                            (float)curPos_y.value() + WorldMap::y, UI_Z + 2, 0, true);
+    }
+
     WorldMap::open = true;
     World::zindex = true;
 }
@@ -53,7 +93,7 @@ void WorldMap::hide()
     // 销毁所有具有 WorldMap 组件的实体
     for (auto ent : World::registry->view<WorldMap>())
     {
-        World::registry->destroy(ent);
+        World::destory.push_back(ent);
     }
     WorldMap::open = false;
     World::zindex = true;
@@ -76,7 +116,8 @@ void WorldMap::click()
         if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
         {
             // switch map
-            World::TransPort::id = spot->mapNo;
+            World::TransPort::id = spot->mapNo[0];
+            World::TransPort::tn = u"sp";
             break;
         }
     }

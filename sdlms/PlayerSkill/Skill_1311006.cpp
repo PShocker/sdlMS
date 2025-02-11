@@ -21,7 +21,7 @@ int skill_1311006()
         mv->hspeed = 0;
     }
     // 龙咆哮需要震动摄像机
-    camera_init_shake(10, 120, 1060);
+    camera_init_shake(12, 120, 1060);
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ATK | PlayerSkill::SkillResult::ACT |
            PlayerSkill::SkillResult::ALERT;

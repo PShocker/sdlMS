@@ -11,10 +11,9 @@ void attack_run()
 {
     if (auto atk = World::registry->try_get<Attack>(Player::ent))
     {
-        for (auto it = atk->atks.begin(); it != atk->atks.end(); it++)
+        for (auto &it : atk->atks)
         {
-            auto atkw = &(*it);
-            attacking(atkw);
+            attacking(&it);
         }
         atk->atks.clear();
     }

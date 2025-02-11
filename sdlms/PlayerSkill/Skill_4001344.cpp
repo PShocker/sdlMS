@@ -31,7 +31,7 @@ int skill_4001344()
     {
         souw = ski->ski->sounds[u"Hit"];
     }
-    ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
+    ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw, 50);
     ski->ball = 2;
 
     SkillWarp::cooldowns[u"4001344"] = 500;

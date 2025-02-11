@@ -8,6 +8,7 @@
 
 void world_run()
 {
+    world_destory_ent();
     world_transport();
     world_sort_zindex();
 }
@@ -46,4 +47,13 @@ void world_transport()
             }
         }
     }
+}
+
+void world_destory_ent()
+{
+    for (auto ent : World::destory)
+    {
+        World::registry->destroy(ent);
+    }
+    World::destory.clear();
 }

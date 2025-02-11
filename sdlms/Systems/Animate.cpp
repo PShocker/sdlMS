@@ -175,7 +175,6 @@ void animate_character(Character *cha, entt::entity ent)
                         auto atk = World::registry->try_get<Attack>(ent);
                         auto atkw = ski->atkw.value();
                         atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
-                        atkw.damage = 50;
                         atk->atks.push_back(atkw);
                     }
                     else if (ski->ball > 0)
@@ -247,7 +246,6 @@ void animate_character(Character *cha, entt::entity ent)
                             auto atk = World::registry->try_get<Attack>(ent);
                             auto atkw = ski->atkw.value();
                             atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
-                            atkw.damage = 50;
                             atk->atks.push_back(atkw);
                         }
                         else if (ski->ball > 0)

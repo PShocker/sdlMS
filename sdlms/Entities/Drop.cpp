@@ -49,6 +49,7 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
 
         auto &dro = World::registry->emplace<Drop>(ent);
         dro.id = id;
+        dro.nums = nums;
         dro.aspr = AnimatedSprite(asprw);
 
         auto &mv = World::registry->emplace<Move>(ent);

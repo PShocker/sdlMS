@@ -9,4 +9,4 @@ const int NPC_Z = 200000;
 const int MOB_Z = 300000;
 const int CHARACTER_Z = 400000;
 const int DROP_Z = 500000;
-const int UI_Z = 30000000;
+const int UI_Z = 999999999;

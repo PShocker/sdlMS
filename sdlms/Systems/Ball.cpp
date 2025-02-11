@@ -13,7 +13,6 @@
 
 void ball_run()
 {
-    static std::vector<entt::entity> destory;
     auto view = World::registry->view<Ball>();
     for (auto ent : view)
     {
@@ -22,7 +21,8 @@ void ball_run()
         {
             if (ball_track(ent, ball, (float)Window::delta_time / 1000))
             {
-                destory.push_back(ent);
+                World::destory.push_back(ent);
+                World::zindex = true;
             }
         }
         else if (ball->p == std::nullopt)
@@ -31,15 +31,10 @@ void ball_run()
         }
         else if (ball_move(ent, ball, (float)Window::delta_time / 1000))
         {
-            destory.push_back(ent);
+            World::destory.push_back(ent);
+            World::zindex = true;
         }
     }
-    for (auto ent : destory)
-    {
-        World::registry->destroy(ent);
-        World::zindex = true;
-    }
-    destory.clear();
 }
 
 entt::entity ball_fall(entt::entity ent, Ball *ball)
@@ -175,7 +170,6 @@ void ball_hit(entt::entity src, entt::entity target)
         atkw = ski->atkw.value();
     }
     atkw.p = &World::registry->try_get<Transform>(src)->position;
-    atkw.damage = 50;
     if (auto mob = World::registry->try_get<Mob>(target))
     {
         hit_effect(&atkw, mob->head(), target, 0, atkw.p);

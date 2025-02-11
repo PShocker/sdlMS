@@ -31,15 +31,16 @@ int skill_4211006()
         {
             auto d_tr = World::registry->try_get<Transform>(ent);
             auto p_tr = World::registry->try_get<Transform>(Player::ent);
-            if (std::abs(p_tr->position.y - d_tr->position.y) <= 5)
+            if (std::abs(p_tr->position.y - d_tr->position.y) <= 10)
             {
                 if ((p_tr->flip == 1 && d_tr->position.x > p_tr->position.x && d_tr->position.x - p_tr->position.x < 200) ||
                     (p_tr->flip == 0 && d_tr->position.x < p_tr->position.x && p_tr->position.x - d_tr->position.x < 200))
                 {
-                    dr->destory = Window::dt_now;
+                    dr->destory = Window::dt_now + 700;
                     auto eff = World::registry->try_get<Effect>(Player::ent);
                     eff->effects.push_back({new Transform(d_tr->position.x, d_tr->position.y),
-                                            AnimatedSprite(ski->ski->hits[0])});
+                                            AnimatedSprite(ski->ski->hits[0]),
+                                            Window::dt_now + 700});
                     if (ski->attack == false)
                     {
                         auto lt = ski->ski->infos[ski->level].lt;
@@ -55,6 +56,7 @@ int skill_4211006()
                         ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
                         ski->attack = true;
                     }
+                    ski->atkw.value().damage += dr->nums;
                     continue;
                 }
             }

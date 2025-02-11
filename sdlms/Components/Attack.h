@@ -13,7 +13,7 @@ struct AttackWarp
     SDL_FRect rect = {0, 0, 0, 0};
     int mobCount = 1;
     int attackCount = 1;
-    int damage = 1;
+    int damage = 50;
 
     AnimatedSpriteWarp *hit = nullptr;
 
@@ -25,7 +25,8 @@ struct AttackWarp
 
     AttackWarp() = default;
     AttackWarp(SDL_FPoint &lt, SDL_FPoint &rb, AnimatedSpriteWarp *hit,
-               int mobCount = 1, int attackCount = 1, SoundWarp *souw = nullptr);
+               int mobCount = 1, int attackCount = 1,
+                SoundWarp *souw = nullptr, int damage = 50);
 };
 
 struct Attack

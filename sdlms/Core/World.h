@@ -13,6 +13,8 @@ struct World
 
    static inline bool zindex = false;
 
+   static inline std::vector<entt::entity> destory;
+
    struct TransPort
    {
       static inline uint32_t id = 0;

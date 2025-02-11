@@ -44,9 +44,10 @@ void mixAudio(Uint8 *audio1, Uint8 *audio2, Uint8 *output, int length)
 
 static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astream, int additional_amount, int total_amount)
 {
-    SDL_LockMutex(sound_list_mutex);
     if (additional_amount > 0)
     {
+        SDL_LockMutex(sound_list_mutex);
+        additional_amount = 8192;
         Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
         SDL_memset(data, 0, additional_amount * sizeof(Uint8));
         for (auto it = sound_list.begin(); it != sound_list.end();)
@@ -80,8 +81,8 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
         }
         SDL_PutAudioStreamData(astream, data, additional_amount);
         SDL_stack_free(data);
+        SDL_UnlockMutex(sound_list_mutex);
     }
-    SDL_UnlockMutex(sound_list_mutex);
 }
 
 bool Sound::init()
