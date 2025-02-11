@@ -26,7 +26,6 @@ void world_transport()
 {
     if (World::TransPort::id != 0)
     {
-        World::registry->destroy(Player::ent);
         World::load_map(World::TransPort::id);
         if (World::TransPort::tn == u"jumpSP")
         {
