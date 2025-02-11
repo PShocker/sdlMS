@@ -4,7 +4,6 @@
 #include <any>
 #include "wz/Property.hpp"
 #include <optional>
-#include <unordered_set>
 
 struct SpriteWarp
 {

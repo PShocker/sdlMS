@@ -4,6 +4,7 @@ bool right_mouse_press;
 
 void ui_run()
 {
+    WorldMap::run();
     // 检测左键是否被按住
     if (Window::mouse_state & SDL_BUTTON_LMASK)
     {
@@ -16,6 +17,8 @@ void ui_run()
         {
             // 播放点击的声音
             Sound::push(Sound(u"UI.img/BtMouseClick"));
+            // 触发点击事件
+            WorldMap::click();
         }
         left_mouse_press = false;
         SDL_SetCursor(Cursor::cursor[u"0"][0]);
