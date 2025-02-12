@@ -92,6 +92,19 @@ void animate_run()
         auto dro = World::registry->try_get<Drop>(ent);
         animate_drop(dro, World::registry->try_get<Transform>(ent));
     }
+    for (auto ent : World::registry->view<Animated, Reactor>())
+    {
+        auto r = World::registry->try_get<Reactor>(ent);
+        animate_reactor(r);
+        if (auto eff = World::registry->try_get<Effect>(ent))
+        {
+            animate_effect(eff);
+        }
+        if (auto dam = World::registry->try_get<Damage>(ent))
+        {
+            animate_damage(dam);
+        }
+    }
 }
 
 bool animate_sprite(AnimatedSprite *a)
@@ -572,5 +585,29 @@ void animate_face(Character *cha)
                 cha->add_face(cha->face_str, cha->face_type, cha->face_index);
             }
         }
+    }
+}
+
+void animate_reactor(Reactor *r)
+{
+    if (r->hit)
+    {
+        if (!animate_sprite(&r->a[r->index].hit))
+        {
+            // 切换状态
+            for (auto &e : r->a[r->index].event)
+            {
+                if (e.type == 0)
+                {
+                    r->index = e.state;
+                    break;
+                }
+            }
+            r->hit = false;
+        }
+    }
+    else
+    {
+        animate_sprite(&r->a[r->index].init);
     }
 }

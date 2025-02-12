@@ -33,11 +33,11 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     World::registry->emplace<Damage>(ent);
     if (sp)
     {
-        World::registry->emplace<Transform>(ent, recent_portal(x, y), 99999999);
+        World::registry->emplace<Transform>(ent, recent_portal(x, y), FRONT_BACKGROUND_Z);
     }
     else
     {
-        World::registry->emplace<Transform>(ent, x, y, 99999999);
+        World::registry->emplace<Transform>(ent, x, y, FRONT_BACKGROUND_Z);
     }
     World::registry->emplace<Move>(ent);
     World::zindex = true;

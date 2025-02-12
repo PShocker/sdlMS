@@ -12,3 +12,4 @@
 #include "Entities/Npc.h"
 #include "Entities/LadderRope.h"
 #include "Entities/Portal.h"
+#include "Entities/Reactor.h"

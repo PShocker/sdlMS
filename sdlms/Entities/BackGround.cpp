@@ -54,7 +54,7 @@ void load_background(wz::Node *node, int id)
     if (front == 1)
     {
         // 前景
-        tr.z = 99999999 + id;
+        tr.z = FRONT_BACKGROUND_Z + id;
     }
     else
     {

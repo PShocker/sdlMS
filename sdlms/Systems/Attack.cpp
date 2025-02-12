@@ -13,7 +13,7 @@ void attack_run()
     {
         for (auto &it : atk->atks)
         {
-            attacking(&it);
+            attack_iterator(&it);
         }
         atk->atks.clear();
     }
@@ -33,7 +33,15 @@ void attack_run()
     }
 }
 
-void attacking(AttackWarp *atkw)
+void attack_iterator(AttackWarp *atkw)
+{
+    attack_mob(atkw);
+    //  attack_npc(AttackWarp * atkw);
+    //  attack_character(AttackWarp * atkw);
+    attack_reactor(atkw);
+}
+
+void attack_mob(AttackWarp *atkw)
 {
     for (auto ent : World::registry->view<Damage, Mob>())
     {
@@ -53,6 +61,10 @@ void attacking(AttackWarp *atkw)
             }
         }
     }
+}
+
+void attack_npc(AttackWarp *atkw)
+{
     for (auto ent : World::registry->view<Damage, Npc>())
     {
         if (atkw->mobCount > 0)
@@ -68,6 +80,10 @@ void attacking(AttackWarp *atkw)
             }
         }
     }
+}
+
+void attack_character(AttackWarp *atkw)
+{
     for (auto ent : World::registry->view<Damage, Character>())
     {
         if (atkw->mobCount > 0 && ent != Player::ent)
@@ -80,6 +96,38 @@ void attacking(AttackWarp *atkw)
             {
                 hit_effect(atkw, ent, 1, nullptr);
                 atkw->mobCount -= 1;
+            }
+        }
+    }
+}
+
+void attack_reactor(AttackWarp *atkw)
+{
+    if (!World::registry->all_of<Skill>(Player::ent))
+    {
+        for (auto ent : World::registry->view<Damage, Reactor>())
+        {
+            if (atkw->mobCount > 0)
+            {
+                auto r = World::registry->try_get<Reactor>(ent);
+                if (r->hit == false)
+                {
+                    auto r_tr = World::registry->try_get<Transform>(ent);
+                    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+                    if (std::abs(p_tr->position.y - r_tr->position.y) <= 30)
+                    {
+                        if ((p_tr->flip == 1 && p_tr->position.x <= r_tr->position.x && (r_tr->position.x - p_tr->position.x) <= 95) ||
+                            (p_tr->flip == 0 && p_tr->position.x >= r_tr->position.x && (p_tr->position.x - r_tr->position.x) <= 95))
+                        {
+                            Sound::push(r->sounds[r->index]);
+                            atkw->damage = 1;
+                            hit_effect(atkw, r->head(), ent, 2, nullptr);
+                            atkw->mobCount -= 1;
+                            r->hit = true;
+                            return;
+                        }
+                    }
+                }
             }
         }
     }

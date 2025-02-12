@@ -944,7 +944,31 @@ uint8_t player_attack_action(WeaponInfo *wea)
                         (p_tr->flip == 0 && p_tr->position.x >= m_tr->position.x && (p_tr->position.x - m_tr->position.x) <= 95))
                     {
                         action = wea->degen_stances[wea->attack][std::rand() % wea->degen_stances[wea->attack].size()];
-                        break;
+                        return action;
+                    }
+                }
+            }
+        }
+        // 判断前面是否有触发器Reactor
+        for (auto ent : World::registry->view<Reactor>())
+        {
+            auto r = World::registry->try_get<Reactor>(ent);
+            // 判断是否有hit事件
+            for (auto &e : r->a[r->index].event)
+            {
+                if (e.type == 0)
+                {
+                    // 说明可以进行hit
+                    auto r_tr = World::registry->try_get<Transform>(ent);
+                    auto p_tr = World::registry->try_get<Transform>(Player::ent);
+                    if (std::abs(p_tr->position.y - r_tr->position.y) <= 30)
+                    {
+                        if ((p_tr->flip == 1 && p_tr->position.x <= r_tr->position.x && (r_tr->position.x - p_tr->position.x) <= 95) ||
+                            (p_tr->flip == 0 && p_tr->position.x >= r_tr->position.x && (p_tr->position.x - r_tr->position.x) <= 95))
+                        {
+                            action = wea->degen_stances[wea->attack][std::rand() % wea->degen_stances[wea->attack].size()];
+                            return action;
+                        }
                     }
                 }
             }

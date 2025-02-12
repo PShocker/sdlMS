@@ -18,6 +18,7 @@ struct Map
     static void load_borders(wz::Node *node);
     static void load_ladderRopes(wz::Node *node);
     static void load_portals(wz::Node *node, int map_id);
+    static void load_reactors(wz::Node *node);
 
     static void load_bgm(wz::Node *node);
     static void load_bgm(int map_id);

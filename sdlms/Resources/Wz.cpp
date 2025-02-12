@@ -14,7 +14,7 @@ void Wz::init(const std::string &filename_prefix)
     // Morph = (new wz::File(iv, (std::string(filename_prefix) + std::string("Morph.wz")).c_str()));
     Npc = (new wz::File(iv, (std::string(filename_prefix) + std::string("Npc.wz")).c_str()));
     // Quest = (new wz::File(iv, (std::string(filename_prefix) + std::string("Quest.wz")).c_str()));
-    // Reactor = (new wz::File(iv, (std::string(filename_prefix) + std::string("Reactor.wz")).c_str()));
+    Reactor = (new wz::File(iv, (std::string(filename_prefix) + std::string("Reactor.wz")).c_str()));
     Skill = (new wz::File(iv, (std::string(filename_prefix) + std::string("Skill.wz")).c_str()));
     Sound = (new wz::File(iv, (std::string(filename_prefix) + std::string("Sound.wz")).c_str()));
     // String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
@@ -32,7 +32,7 @@ void Wz::init(const std::string &filename_prefix)
     // Morph->parse();
     Npc->parse(u"Npc");
     // Quest->parse();
-    // Reactor->parse();
+    Reactor->parse(u"Reactor");
     Skill->parse(u"Skill");
     Sound->parse(u"Sound");
     // String->parse(u"String");

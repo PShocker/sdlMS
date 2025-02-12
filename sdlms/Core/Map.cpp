@@ -23,6 +23,7 @@ void Map::load(int map_id)
     load_border(node);
     load_ladderRopes(node);
     load_lifes(node);
+    load_reactors(node);
     load_bgm(node);
     World::zindex = true;
 }
@@ -141,6 +142,18 @@ void Map::load_portals(wz::Node *node, int map_id)
             load_portal(val[0], id);
         }
         fix_portal();
+    }
+}
+
+void Map::load_reactors(wz::Node *node)
+{
+    node = node->get_child(u"reactor");
+    if (node != nullptr)
+    {
+        for (auto &[key, val] : node->get_children())
+        {
+            load_reactor(val[0]);
+        }
     }
 }
 

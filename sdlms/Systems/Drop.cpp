@@ -8,7 +8,6 @@
 
 void drop_run()
 {
-    static std::vector<entt::entity> destory;
     auto view = World::registry->view<Drop>();
     for (auto ent : view)
     {
@@ -31,15 +30,10 @@ void drop_run()
         }
         else
         {
-            destory.push_back(ent);
+            World::destory.push_back(ent);
+            World::zindex = true;
         }
     }
-    for (auto ent : destory)
-    {
-        World::registry->destroy(ent);
-        World::zindex = true;
-    }
-    destory.clear();
 }
 
 bool drop_fall(Move *mv, Transform *tr, float delta_time)

@@ -80,6 +80,18 @@ void render_run()
         {
             render_drop(tr, dro);
         }
+        else if (auto r = World::registry->try_get<Reactor>(ent))
+        {
+            render_reactor(tr, r);
+            if (auto eff = World::registry->try_get<Effect>(ent))
+            {
+                render_effect(tr, eff);
+            }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                render_damage(tr, dam, dam->head);
+            }
+        }
     }
 }
 
@@ -647,6 +659,14 @@ void render_drop(Transform *tr, Drop *dro)
     render_animated_sprite(&tran, a, &origin);
 }
 
-void render_ball(Transform *tr, Drop *dro)
+void render_reactor(Transform *tr, Reactor *r)
 {
+    if (r->hit)
+    {
+        render_animated_sprite(tr, &r->a[r->index].hit);
+    }
+    else
+    {
+        render_animated_sprite(tr, &r->a[r->index].init);
+    }
 }

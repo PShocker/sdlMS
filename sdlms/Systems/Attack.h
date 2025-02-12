@@ -7,7 +7,15 @@
 
 void attack_run();
 
-void attacking(AttackWarp *atk);
+void attack_iterator(AttackWarp *atkw);
+
+void attack_mob(AttackWarp *atkw);
+
+void attack_npc(AttackWarp *atkw);
+
+void attack_character(AttackWarp *atkw);
+
+void attack_reactor(AttackWarp *atkw);
 
 bool mob_attack();
 
