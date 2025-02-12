@@ -47,7 +47,6 @@ static void SDLCALL FeedTheAudioStreamMore(void *userdata, SDL_AudioStream *astr
     if (additional_amount > 0)
     {
         SDL_LockMutex(sound_list_mutex);
-        additional_amount = 8192;
         Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
         SDL_memset(data, 0, additional_amount * sizeof(Uint8));
         for (auto it = sound_list.begin(); it != sound_list.end();)
