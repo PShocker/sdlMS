@@ -54,8 +54,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     PlayerSkill::init();
 
     // World::load_map(222020111);
-    World::load_map(100010000);
 
+    World::load_map(100010000);
     Player::ent = World::registry->create();
     load_character(0, 0, true, Player::ent);
 

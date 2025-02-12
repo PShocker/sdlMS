@@ -36,7 +36,7 @@ void load_npc(wz::Node *node)
         if (key != u"info")
         {
             auto asprw = AnimatedSpriteWarp::load(val[0]);
-            npc.a[key] = new AnimatedSprite(asprw);
+            npc.a[key] = AnimatedSprite(asprw);
         }
     }
 

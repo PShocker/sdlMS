@@ -413,7 +413,7 @@ void animate_portal(Portal *por)
 
 void animate_npc(Npc *npc)
 {
-    if (!animate_sprite(npc->a[npc->index]))
+    if (!animate_sprite(&npc->a[npc->index]))
     {
         // 切换npc状态
         auto it = npc->a.find(npc->index);

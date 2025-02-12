@@ -68,5 +68,6 @@ void load_border(wz::Node *node)
         t = t.value() - 300;
         b = b.value() + 100;
     }
+    World::registry->ctx().erase<Border>();
     World::registry->ctx().emplace<Border>(l, r, t, b);
 }

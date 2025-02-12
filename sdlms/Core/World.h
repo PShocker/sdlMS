@@ -9,7 +9,7 @@ struct World
    // diff map have own registery
    static inline std::unordered_map<uint32_t, entt::registry> registrys;
    // current registry
-   static inline entt::registry *registry;
+   static inline entt::registry *registry = new entt::registry{};
 
    static inline bool zindex = false;
 

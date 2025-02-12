@@ -27,13 +27,11 @@
 
 void World::load_map(int id)
 {
-    if (World::registry != nullptr)
+    if (Map::id != 0 && Map::load_mark(id) != Map::load_mark(Map::id))
     {
         Map::clean_up();
-        World::registry->clear();
-        delete World::registry;
     }
-    World::registry = new entt::registry{};
+    World::registry->clear();
     Map::load(id);
     Window::tick_delta_time();
 }

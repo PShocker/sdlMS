@@ -524,7 +524,7 @@ void render_portal(Transform *tr, Portal *por)
 
 void render_npc(Transform *tr, Npc *npc)
 {
-    render_animated_sprite(tr, npc->a[npc->index]);
+    render_animated_sprite(tr, &npc->a[npc->index]);
 }
 
 void render_mob(Transform *tr, Mob *mob)

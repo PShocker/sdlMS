@@ -183,6 +183,17 @@ void Map::load_bgm(int map_id)
     load_bgm(node);
 }
 
+std::u16string Map::load_mark(int map_id)
+{
+    auto node = load_map_node(map_id);
+    node = node->find_from_path("info/mapMark");
+    if (node != nullptr)
+    {
+        return dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
+    }
+    return u"";
+}
+
 wz::Node *Map::load_map_node(int map_id)
 {
     auto node = Wz::Map->get_root();
