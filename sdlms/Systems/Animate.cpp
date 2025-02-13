@@ -9,6 +9,7 @@
 #include "entt/entt.hpp"
 #include <cmath>
 #include <numbers>
+#include <algorithm>
 
 void animate_run()
 {
@@ -344,7 +345,8 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             aft->hit = true;
             if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
             {
-                if (weaponinfo->degen == false)
+                auto attack_stances = weaponinfo->attack_stances[weaponinfo->attack];
+                if (std::find(attack_stances.begin(), attack_stances.end(), action) != attack_stances.end())
                 {
                     // 远程
                     load_ball();

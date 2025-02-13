@@ -1,16 +1,18 @@
 #include "PlayerSkill.h"
 #include "entt/entt.hpp"
+#include "Resources/Wz.h"
 #include <SDL3/SDL.h>
 
 // 双飞镖
 int skill_4001344()
 {
     auto mv = World::registry->try_get<Move>(Player::ent);
+    auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
     auto cha = World::registry->try_get<Character>(Player::ent);
     auto state = cha->state;
 
     // 通用攻击技能
-    if (state == Character::State::CLIMB)
+    if (state == Character::State::CLIMB || weaponinfo->attack != WeaponInfo::CLAW)
     {
         return PlayerSkill::SkillResult::None;
     }
@@ -18,6 +20,10 @@ int skill_4001344()
     {
         mv->hspeed = 0;
     }
+
+    auto effect = Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001344/CharLevel/20/effect");
+    auto eff = World::registry->try_get<Effect>(Player::ent);
+    eff->effects.push_back({nullptr, AnimatedSprite(AnimatedSpriteWarp::load(effect))});
 
     auto ski = &World::registry->emplace_or_replace<Skill>(Player::ent, u"4001344");
 
@@ -36,6 +42,5 @@ int skill_4001344()
 
     SkillWarp::cooldowns[u"4001344"] = 500;
 
-    return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
-           PlayerSkill::SkillResult::ACT | PlayerSkill::SkillResult::ALERT;
+    return PlayerSkill::SkillResult::SOU | PlayerSkill::SkillResult::ACT | PlayerSkill::SkillResult::ALERT;
 }

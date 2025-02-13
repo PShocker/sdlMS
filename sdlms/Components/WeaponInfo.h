@@ -12,7 +12,6 @@ struct WeaponInfo
     std::u16string sfx;
     bool stand1 = false;
     bool walk1 = false;
-    bool degen = false;
     int attack = 0;
     int reqLevel = 0;
     WeaponInfo(const std::u16string &id);

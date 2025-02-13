@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AnimatedSprite.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 #include <optional>
@@ -11,6 +12,8 @@ struct Ball
     entt::entity owner = entt::null;
 
     std::optional<SDL_FPoint> p = std::nullopt;
+
+    AnimatedSpriteWarp *hit = nullptr;
 
     // 摧毁时间
     unsigned int destory = Window::dt_now + 600;

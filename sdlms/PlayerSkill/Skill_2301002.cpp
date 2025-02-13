@@ -30,5 +30,5 @@ int skill_2301002()
         mv->hspeed = 0;
     }
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
-           PlayerSkill::SkillResult::ACT | PlayerSkill::SkillResult::ATK;
+           PlayerSkill::SkillResult::ACT;
 }

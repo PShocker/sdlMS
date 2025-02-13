@@ -110,21 +110,25 @@ void attack_reactor(AttackWarp *atkw)
             if (atkw->mobCount > 0)
             {
                 auto r = World::registry->try_get<Reactor>(ent);
-                if (r->hit == false)
+
+                for (auto &e : r->a[r->index].event)
                 {
-                    auto r_tr = World::registry->try_get<Transform>(ent);
-                    auto p_tr = World::registry->try_get<Transform>(Player::ent);
-                    if (std::abs(p_tr->position.y - r_tr->position.y) <= 30)
+                    if (e.type == 0 && r->hit == false)
                     {
-                        if ((p_tr->flip == 1 && p_tr->position.x <= r_tr->position.x && (r_tr->position.x - p_tr->position.x) <= 95) ||
-                            (p_tr->flip == 0 && p_tr->position.x >= r_tr->position.x && (p_tr->position.x - r_tr->position.x) <= 95))
+                        // 说明可以进行hit
+                        auto r_tr = World::registry->try_get<Transform>(ent);
+                        auto p_tr = World::registry->try_get<Transform>(Player::ent);
+                        if (std::abs(p_tr->position.y - r_tr->position.y) <= 30)
                         {
-                            Sound::push(r->sounds[r->index]);
-                            atkw->damage = 1;
-                            hit_effect(atkw, r->head(), ent, 2, nullptr);
-                            atkw->mobCount -= 1;
-                            r->hit = true;
-                            return;
+                            if ((p_tr->flip == 1 && p_tr->position.x <= r_tr->position.x && (r_tr->position.x - p_tr->position.x) <= 95) ||
+                                (p_tr->flip == 0 && p_tr->position.x >= r_tr->position.x && (p_tr->position.x - r_tr->position.x) <= 95))
+                            {
+                                Sound::push(r->sounds[r->index]);
+                                atkw->damage = 1;
+                                hit_effect(atkw, r->head(), ent, 2, nullptr);
+                                r->hit = true;
+                                return;
+                            }
                         }
                     }
                 }

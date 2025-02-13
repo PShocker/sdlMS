@@ -143,7 +143,7 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
 
     if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
     {
-        ball_hit(src, ball->target);
+        ball_hit(src, ball, ball->target);
         return true;
     }
     return false;
@@ -161,13 +161,17 @@ bool ball_move(entt::entity ent, Ball *ball, float delta_time)
     return false;
 }
 
-void ball_hit(entt::entity src, entt::entity target)
+void ball_hit(entt::entity src, Ball *ball, entt::entity target)
 {
     auto ski = World::registry->try_get<Skill>(src);
     AttackWarp atkw;
     if (ski != nullptr)
     {
         atkw = ski->atkw.value();
+    }
+    if (atkw.hit == nullptr)
+    {
+        atkw.hit = ball->hit;
     }
     atkw.p = &World::registry->try_get<Transform>(src)->position;
     if (auto mob = World::registry->try_get<Mob>(target))
