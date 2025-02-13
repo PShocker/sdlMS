@@ -930,6 +930,7 @@ uint8_t player_attack_action(WeaponInfo *wea)
     // 判断是远程武器，且没有放技能
     if (WeaponInfo::if_long_range_weapon(wea->attack) && !World::registry->all_of<Skill>(Player::ent))
     {
+        wea->degen = false;
         // 需要判断面前是否有怪物,否则切换到近战
         for (auto ent : World::registry->view<Damage, Mob>())
         {
@@ -943,6 +944,7 @@ uint8_t player_attack_action(WeaponInfo *wea)
                     if ((p_tr->flip == 1 && p_tr->position.x <= m_tr->position.x && (m_tr->position.x - p_tr->position.x) <= 95) ||
                         (p_tr->flip == 0 && p_tr->position.x >= m_tr->position.x && (p_tr->position.x - m_tr->position.x) <= 95))
                     {
+                        wea->degen = true;
                         action = wea->degen_stances[wea->attack][std::rand() % wea->degen_stances[wea->attack].size()];
                         return action;
                     }
@@ -966,6 +968,7 @@ uint8_t player_attack_action(WeaponInfo *wea)
                         if ((p_tr->flip == 1 && p_tr->position.x <= r_tr->position.x && (r_tr->position.x - p_tr->position.x) <= 95) ||
                             (p_tr->flip == 0 && p_tr->position.x >= r_tr->position.x && (p_tr->position.x - r_tr->position.x) <= 95))
                         {
+                            wea->degen = true;
                             action = wea->degen_stances[wea->attack][std::rand() % wea->degen_stances[wea->attack].size()];
                             return action;
                         }

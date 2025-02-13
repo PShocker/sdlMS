@@ -9,7 +9,6 @@
 #include "entt/entt.hpp"
 #include <cmath>
 #include <numbers>
-#include <ranges>
 
 void animate_run()
 {
@@ -343,16 +342,13 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
         if (ent == Player::ent && aft->hit == false)
         {
             aft->hit = true;
-            if (std::ranges::contains(weaponinfo->attack_stances[weaponinfo->attack], action))
+            if (weaponinfo->degen == false)
             {
-                if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
-                {
-                    // 远程
-                    load_ball();
-                    // play sound
-                    Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
-                    return;
-                }
+                // 远程
+                load_ball();
+                // play sound
+                Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
+                return;
             }
             auto atk = World::registry->try_get<Attack>(ent);
             AttackWarp atkw;
