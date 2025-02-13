@@ -342,13 +342,16 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
         if (ent == Player::ent && aft->hit == false)
         {
             aft->hit = true;
-            if (weaponinfo->degen == false)
+            if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
             {
-                // 远程
-                load_ball();
-                // play sound
-                Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
-                return;
+                if (weaponinfo->degen == false)
+                {
+                    // 远程
+                    load_ball();
+                    // play sound
+                    Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
+                    return;
+                }
             }
             auto atk = World::registry->try_get<Attack>(ent);
             AttackWarp atkw;
