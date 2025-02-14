@@ -168,18 +168,29 @@ bool trap_attack()
     for (auto ent : view)
     {
         auto trap = &view.get<Trap>(ent);
-        auto t_tr = World::registry->try_get<Transform>(ent);
-        auto p_tr = World::registry->try_get<Transform>(Player::ent);
-        auto p_cha = World::registry->try_get<Character>(Player::ent);
-
-        if (collision(trap->rect(World::registry->try_get<AnimatedSprite>(ent)),
-                      t_tr, p_cha->r, p_tr))
+        auto aspr = World::registry->try_get<AnimatedSprite>(ent);
+        auto spr = aspr->aspr->sprites[aspr->anim_index];
+        if (spr->lt.has_value() && spr->rb.has_value())
         {
-            AttackWarp atkw;
-            atkw.damage = trap->damage;
-            atkw.p = &t_tr->position;
-            hit_effect(&atkw, std::nullopt, Player::ent, 1, nullptr);
-            return true;
+            auto x = spr->lt.value().x;
+            auto y = spr->lt.value().y;
+            auto w = spr->rb.value().x - spr->lt.value().x;
+            auto h = spr->rb.value().y - spr->lt.value().y;
+            auto rect = SDL_FRect{(float)x, (float)y, (float)w, (float)h};
+
+            auto t_tr = World::registry->try_get<Transform>(ent);
+            auto p_tr = World::registry->try_get<Transform>(Player::ent);
+            auto p_cha = World::registry->try_get<Character>(Player::ent);
+
+            if (collision(rect, t_tr,
+                          p_cha->r, p_tr))
+            {
+                AttackWarp atkw;
+                atkw.damage = trap->damage;
+                atkw.p = &t_tr->position;
+                hit_effect(&atkw, std::nullopt, Player::ent, 1, nullptr);
+                return true;
+            }
         }
     }
     return false;

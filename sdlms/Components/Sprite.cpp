@@ -65,12 +65,10 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
             delay = dynamic_cast<wz::Property<int> *>(node->get_child(u"delay"))->get();
         }
     }
-
-    if (canvas->get_child(u"a0") != nullptr && canvas->get_child(u"a1") != nullptr)
+    if (canvas->get_child(u"a0") != nullptr)
     {
         if (canvas->get_child(u"a0")->type == wz::Type::Int)
         {
-
             a0 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a0"))->get();
         }
         else
@@ -78,6 +76,10 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
             auto a0_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"a0"))->get();
             a0 = std::stoi(std::string{a0_str.begin(), a0_str.end()});
         }
+        a1 = a0;
+    }
+    if (canvas->get_child(u"a1") != nullptr)
+    {
         if (canvas->get_child(u"a1")->type == wz::Type::Int)
         {
             a1 = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"a1"))->get();
@@ -102,8 +104,6 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
             z = dynamic_cast<wz::Property<wz::wzstring> *>(canvas->get_child(u"z"))->get();
         }
     }
-
-    // mob
     if (canvas->get_child(u"lt"))
     {
         auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"lt"))->get();
