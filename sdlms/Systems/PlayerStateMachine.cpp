@@ -56,6 +56,11 @@ void player_statemachine(entt::entity ent, float delta_time)
             cha->state = Character::State::SKILL;
             break;
         }
+        if (player_sit(mv, cha->state))
+        {
+            cha->state = Character::State::SIT;
+            break;
+        }
         cha->state = player_attack(mv, cha, tr, cha->state, ent);
     }
     break;
@@ -142,6 +147,14 @@ void player_statemachine(entt::entity ent, float delta_time)
     {
         cha->invincible_cooldown = 2000;
         return;
+    }
+    break;
+    case Character::State::SIT:
+    {
+        if (!player_sit(mv, cha->state))
+        {
+            cha->state = Character::State::STAND;
+        }
     }
     break;
     default:
@@ -541,8 +554,10 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         }
         break;
         case Character::State::JUMP:
+        {
             action = Character::ACTION::JUMP;
-            break;
+        }
+        break;
         case Character::State::ATTACK:
         {
             if (state == Character::State::PRONE)
@@ -576,12 +591,17 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         }
         break;
         case Character::State::PRONE:
+        {
             action = Character::ACTION::PRONE;
-            break;
+        }
+        break;
         case Character::State::ALERT:
+        {
             action = Character::ACTION::ALERT;
-            break;
+        }
+        break;
         case Character::State::SKILL:
+        {
             if (cha->action_str == u"")
             {
                 // 从攻击动作随机选择一个
@@ -596,6 +616,13 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
                 // 特殊动作
                 action = -1;
             }
+        }
+        break;
+        case Character::State::SIT:
+        {
+            action = Character::ACTION::SIT;
+        }
+        break;
         }
         cha->action_frame = 0;
         cha->action_index = 0;
@@ -671,9 +698,10 @@ bool player_hit(Hit *hit, entt::entity ent)
                 }
                 mv->foo = nullptr;
             }
-            // player_alert_cooldown = 5000;
             player_alert(cha);
-            if (cha->state == Character::State::STAND || cha->state == Character::State::WALK || cha->state == Character::State::ALERT || cha->state == Character::State::PRONE)
+            if (cha->state == Character::State::STAND || cha->state == Character::State::WALK ||
+                cha->state == Character::State::ALERT || cha->state == Character::State::PRONE ||
+                cha->state == Character::State::SIT)
             {
                 cha->state = Character::State::JUMP;
                 cha->action_index = 0;
@@ -713,6 +741,7 @@ bool player_hit(Hit *hit, entt::entity ent)
 
             Sound::push(Sound(u"Game.img/Tombstone"), 180);
         }
+        World::registry->remove<Install>(Player::ent);
         return true;
     }
     else if (hit->damage < 0)
@@ -1062,4 +1091,42 @@ void player_face(Character *cha)
         player_face_cooldown = 0;
         cha->add_face(cha->face_str, cha->face_type, cha->face_index);
     }
+}
+
+bool player_sit(Move *mv, int state)
+{
+    static bool keyborard = true;
+    bool r = false;
+    if (Input::state[SDL_SCANCODE_X])
+    {
+        if (keyborard)
+        {
+            if (player_alert_cooldown <= 0 && state != Character::State::SIT && mv->foo)
+            {
+                r = true;
+                mv->hspeed = 0;
+                World::registry->emplace_or_replace<Install>(Player::ent, u"03010048");
+            }
+            keyborard = false;
+        }
+        else if (state == Character::State::SIT)
+        {
+            r = true;
+            mv->hspeed = 0;
+        }
+    }
+    else
+    {
+        if (state == Character::State::SIT)
+        {
+            r = true;
+            mv->hspeed = 0;
+        }
+        keyborard = true;
+    }
+    if (r == false)
+    {
+        World::registry->remove<Install>(Player::ent);
+    }
+    return r;
 }

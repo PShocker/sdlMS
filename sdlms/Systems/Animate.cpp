@@ -105,6 +105,11 @@ void animate_run()
             animate_damage(dam);
         }
     }
+    for (auto ent : World::registry->view<Install>())
+    {
+        auto i = World::registry->try_get<Install>(ent);
+        animate_install(i);
+    }
 }
 
 bool animate_sprite(AnimatedSprite *a)
@@ -613,4 +618,9 @@ void animate_reactor(Reactor *r)
     {
         animate_sprite(&r->a[r->index].init);
     }
+}
+
+void animate_install(Install *i)
+{
+    animate_sprite(&i->aspr);
 }

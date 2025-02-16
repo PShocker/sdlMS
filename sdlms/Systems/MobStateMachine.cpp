@@ -292,6 +292,8 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                 {
                     mv->rx0 = std::nullopt;
                     mv->rx1 = std::nullopt;
+                    mv->ry0 = std::nullopt;
+                    mv->ry1 = std::nullopt;
                     mob->tick = std::rand() % 100 + 300;
                     auto h_tr = World::registry->try_get<Transform>(mob->hit);
                     if (h_tr->position.x > tr->position.x)
@@ -328,12 +330,11 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                         break;
                     }
                     }
-                    auto y = mob->init_y;
-                    if (tr->position.y < y - 40)
+                    if (tr->position.y <= mv->ry0.value())
                     {
                         mv->vspeed = mv->hspeed_max.value();
                     }
-                    else if (tr->position.y > y + 40)
+                    else if (tr->position.y >= mv->ry1.value())
                     {
                         mv->vspeed = mv->hspeed_min.value();
                     }
@@ -442,6 +443,8 @@ bool mob_revive(entt::entity ent, float delta_time)
 
         mob->hp = 100;
         mob->hit = entt::null;
+        mv->ry0 = mob->init_y - 40;
+        mv->ry1 = mob->init_y + 40;
 
         mv->foo = mob->init_fh;
         tr->position.x = mob->init_x;

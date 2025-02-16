@@ -62,6 +62,10 @@ void render_run()
                 render_tomb(tomb);
             }
             auto invincible_time = cha->invincible_cooldown;
+            if (auto i = World::registry->try_get<Install>(ent))
+            {
+                render_install(tr, i);
+            }
             render_character(tr, cha, invincible_time);
             if (auto aim = World::registry->try_get<AfterImage>(ent))
             {
@@ -669,4 +673,13 @@ void render_reactor(Transform *tr, Reactor *r)
     {
         render_animated_sprite(tr, &r->a[r->index].init);
     }
+}
+
+void render_install(Transform *tr, Install *i)
+{
+    Transform tran(tr->position, 0, tr->flip);
+    auto aspr = i->aspr;
+    auto spr = aspr.aspr->sprites[aspr.anim_index];
+    tran.position.y -= (spr->height - spr->origin.y);
+    render_animated_sprite(&tran, &i->aspr);
 }

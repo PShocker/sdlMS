@@ -21,6 +21,9 @@ struct Move
     std::optional<float> rx0 = std::nullopt;
     std::optional<float> rx1 = std::nullopt;
 
+    std::optional<float> ry0 = std::nullopt;
+    std::optional<float> ry1 = std::nullopt;
+
     int page = 8;
     int zmass = 0;
 

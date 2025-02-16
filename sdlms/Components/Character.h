@@ -361,6 +361,7 @@ struct Character
         static const int PRONE = 6;
         static const int SKILL = 7;
         static const int DIE = 8;
+        static const int SIT = 9;
     };
     int state = State::JUMP;
 };

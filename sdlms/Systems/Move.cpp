@@ -6,7 +6,7 @@
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 
-float move_border_limit(Move *mv, float x)
+float move_border_limit_x(Move *mv, float x)
 {
     auto rx0 = mv->rx0;
     auto rx1 = mv->rx1;
@@ -20,6 +20,22 @@ float move_border_limit(Move *mv, float x)
         x = std::clamp(x, rx0.value(), rx1.value());
     }
     return x;
+}
+
+float move_border_limit_y(Move *mv, float y)
+{
+    auto ry0 = mv->ry0;
+    auto ry1 = mv->ry1;
+    if (!(ry0.has_value() && ry1.has_value()))
+    {
+        ry0 = World::registry->ctx().get<Border>().t;
+        ry1 = World::registry->ctx().get<Border>().b;
+    }
+    if (y < ry0.value() || y > ry1.value())
+    {
+        y = std::clamp(y, ry0.value(), ry1.value());
+    }
+    return y;
 }
 
 bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall_collide, bool wall_collide)
@@ -38,10 +54,15 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
 
     auto new_pos = tr->position + SDL_FPoint{(float)d_x, (float)d_y};
 
-    if (auto new_x = move_border_limit(mv, new_pos.x); new_pos.x != new_x)
+    if (auto new_x = move_border_limit_x(mv, new_pos.x); new_pos.x != new_x)
     {
         new_pos.x = new_x;
         mv->hspeed = 0;
+    }
+    if (auto new_y = move_border_limit_y(mv, new_pos.y); new_pos.y != new_y)
+    {
+        new_pos.y = new_y;
+        mv->vspeed = 0;
     }
 
     const auto collide_wall = [](FootHold *fh, float hspeed) -> bool
@@ -199,7 +220,7 @@ bool move_move(Move *mv, Transform *tr, int friction, float delta_time)
 
     auto d_x = mv->hspeed * delta_time;
     auto x = d_x + tr->position.x;
-    if (auto new_x = move_border_limit(mv, x); x != new_x)
+    if (auto new_x = move_border_limit_x(mv, x); x != new_x)
     {
         x = new_x;
         mv->hspeed = 0;

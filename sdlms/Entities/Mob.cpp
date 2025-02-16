@@ -71,6 +71,8 @@ void load_mob(wz::Node *node)
             else if (val[0]->get_child(u"flySpeed") != nullptr)
             {
                 speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"flySpeed"))->get() * 6;
+                mv.ry0 = mob.init_y - 40;
+                mv.ry1 = mob.init_y + 40;
             }
             mv.hspeed_min = -1 * (float)(speed + 100) / 100 * 125;
             mv.hspeed_max = (float)(speed + 100) / 100 * 125;
