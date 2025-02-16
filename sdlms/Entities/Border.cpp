@@ -19,8 +19,8 @@ void load_border(wz::Node *node)
     {
         // 优先从mapinfo获取边界
         node = node->find_from_path(u"info");
-        l = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRLeft"))->get();
-        r = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRRight"))->get();
+        l = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRLeft"))->get() + 5;
+        r = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRRight"))->get() - 5;
         t = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRTop"))->get();
         b = dynamic_cast<wz::Property<int> *>(node->get_child(u"VRBottom"))->get();
     }
