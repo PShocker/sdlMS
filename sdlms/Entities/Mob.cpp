@@ -74,7 +74,18 @@ void load_mob(wz::Node *node)
             }
             mv.hspeed_min = -1 * (float)(speed + 100) / 100 * 125;
             mv.hspeed_max = (float)(speed + 100) / 100 * 125;
-            mv.hspeed = mv.hspeed_max.value();
+            int random = std::rand() % 2;
+            switch (random)
+            {
+            case 0:
+                mv.hspeed = mv.hspeed_min.value();
+                mv.vspeed = mv.hspeed_min.value();
+                break;
+            case 1:
+                mv.hspeed = mv.hspeed_max.value();
+                mv.vspeed = mv.hspeed_max.value();
+                break;
+            }
         }
     }
     if (mob.a.contains(u"stand"))
@@ -106,10 +117,13 @@ void load_mob(wz::Node *node)
             link = link.substr(first_non_zero);
         }
         node = Wz::String->get_root()->find_from_path(u"MonsterBook.img/" + link + u"/reward");
-        for (auto &[key, val] : node->get_children())
+        if (node != nullptr)
         {
-            auto v = dynamic_cast<wz::Property<int> *>(val[0])->get();
-            d.push_back(v);
+            for (auto &[key, val] : node->get_children())
+            {
+                auto v = dynamic_cast<wz::Property<int> *>(val[0])->get();
+                d.push_back(v);
+            }
         }
         mob.drops[mob.id] = d;
     }
