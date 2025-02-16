@@ -243,11 +243,8 @@ void mob_drop(Mob *mob, Transform *tr)
     std::vector<DropInfo> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
     for (auto it : mob->drops[mob->id])
     {
-        if (std::rand() % 10 == 0)
-        {
-            auto id = std::to_string(it);
-            drops.push_back({std::u16string{id.begin(), id.end()}, 1});
-        }
+        auto id = std::to_string(it);
+        drops.push_back({std::u16string{id.begin(), id.end()}, 1});
     }
     load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
     World::zindex = true;
