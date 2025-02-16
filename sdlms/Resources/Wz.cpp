@@ -6,7 +6,7 @@ void Wz::init(const std::string &filename_prefix)
     // Base = (new wz::File(iv, (std::string(filename_prefix) + std::string("Base.wz")).c_str()));
     Character = (new wz::File(iv, (std::string(filename_prefix) + std::string("Character.wz")).c_str()));
     Effect = (new wz::File(iv, (std::string(filename_prefix) + std::string("Effect.wz")).c_str()));
-    // Etc = (new wz::File(iv, (std::string(filename_prefix) + std::string("Etc.wz")).c_str()));
+    Etc = (new wz::File(iv, (std::string(filename_prefix) + std::string("Etc.wz")).c_str()));
     Item = (new wz::File(iv, (std::string(filename_prefix) + std::string("Item.wz")).c_str()));
     // List = (new wz::File(iv, (std::string(filename_prefix) + std::string("List.wz")).c_str()));
     Map = (new wz::File(iv, (std::string(filename_prefix) + std::string("Map.wz")).c_str()));
@@ -17,14 +17,14 @@ void Wz::init(const std::string &filename_prefix)
     Reactor = (new wz::File(iv, (std::string(filename_prefix) + std::string("Reactor.wz")).c_str()));
     Skill = (new wz::File(iv, (std::string(filename_prefix) + std::string("Skill.wz")).c_str()));
     Sound = (new wz::File(iv, (std::string(filename_prefix) + std::string("Sound.wz")).c_str()));
-    // String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
+    String = (new wz::File(iv, (std::string(filename_prefix) + std::string("String.wz")).c_str()));
     // TamingMob = (new wz::File(iv, (std::string(filename_prefix) + std::string("TamingMob.wz")).c_str()));
     UI = (new wz::File(iv, (std::string(filename_prefix) + std::string("UI.wz")).c_str()));
 
     // Base->parse(u"Base");
     Character->parse(u"Character");
     Effect->parse(u"Effect");
-    // Etc->parse();
+    Etc->parse(u"Etc");
     Item->parse(u"Item");
     // List->parse();
     Map->parse(u"Map");
@@ -35,7 +35,7 @@ void Wz::init(const std::string &filename_prefix)
     Reactor->parse(u"Reactor");
     Skill->parse(u"Skill");
     Sound->parse(u"Sound");
-    // String->parse(u"String");
+    String->parse(u"String");
     // TamingMob->parse();
     UI->parse(u"UI");
 }

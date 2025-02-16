@@ -1003,6 +1003,7 @@ bool player_pick_drop(Character *cha, Transform *tr)
 
                     // 播放声音
                     Sound::push(Sound(u"Game.img/PickUpItem"));
+                    return true;
                 }
             }
         }
@@ -1022,7 +1023,14 @@ void player_face(Character *cha)
 {
     if (Input::state[SDL_SCANCODE_F1])
     {
-        // blink
+        cha->face_type = u"hit";
+        cha->face_index = u"0";
+        cha->face_time = 0;
+        player_face_cooldown = 2000;
+        cha->add_face(cha->face_str, cha->face_type, cha->face_index);
+    }
+    else if (Input::state[SDL_SCANCODE_F2])
+    {
         cha->face_type = u"smile";
         cha->face_index = u"0";
         cha->face_time = 0;
@@ -1031,7 +1039,6 @@ void player_face(Character *cha)
     }
     else if (Input::state[SDL_SCANCODE_F4])
     {
-        // blink
         cha->face_type = u"angry";
         cha->face_index = u"0";
         cha->face_time = 0;

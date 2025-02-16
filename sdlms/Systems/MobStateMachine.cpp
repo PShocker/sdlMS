@@ -241,6 +241,14 @@ void mob_hit_move(Hit *hit, entt::entity ent)
 void mob_drop(Mob *mob, Transform *tr)
 {
     std::vector<DropInfo> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
+    for (auto it : mob->drops[mob->id])
+    {
+        if (std::rand() % 10 == 0)
+        {
+            auto id = std::to_string(it);
+            drops.push_back({std::u16string{id.begin(), id.end()}, 1});
+        }
+    }
     load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
     World::zindex = true;
     Sound::push(Sound(u"Game.img/DropItem"));
@@ -285,7 +293,9 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
             {
                 if (World::registry->valid(mob->hit))
                 {
-                    mob->tick = std::rand() % 100 + 200;
+                    mv->rx0 = std::nullopt;
+                    mv->rx1 = std::nullopt;
+                    mob->tick = std::rand() % 100 + 300;
                     auto h_tr = World::registry->try_get<Transform>(mob->hit);
                     if (h_tr->position.x > tr->position.x)
                     {
@@ -295,10 +305,18 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                     {
                         mv->hspeed = mv->hspeed_min.value();
                     }
+                    if (h_tr->position.y > tr->position.y)
+                    {
+                        mv->vspeed = mv->hspeed_max.value();
+                    }
+                    else
+                    {
+                        mv->vspeed = mv->hspeed_min.value();
+                    }
                 }
                 else
                 {
-                    mob->tick = std::rand() % 100 + 1300;
+                    mob->tick = std::rand() % 100 + 200;
                     int random = std::rand() % 2;
                     switch (random)
                     {
@@ -312,6 +330,32 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                         mv->hspeed = mv->hspeed_max.value();
                         break;
                     }
+                    }
+                    auto y = mob->init_y;
+                    if (tr->position.y < y - 40)
+                    {
+                        mv->vspeed = mv->hspeed_max.value();
+                    }
+                    else if (tr->position.y > y + 40)
+                    {
+                        mv->vspeed = mv->hspeed_min.value();
+                    }
+                    else
+                    {
+                        random = std::rand() % 2;
+                        switch (random)
+                        {
+                        case 0:
+                        {
+                            mv->vspeed = mv->hspeed_min.value();
+                            break;
+                        }
+                        case 1:
+                        {
+                            mv->vspeed = mv->hspeed_max.value();
+                            break;
+                        }
+                        }
                     }
                 }
                 state = Mob::State::FLY;

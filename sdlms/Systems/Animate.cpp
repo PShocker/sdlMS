@@ -432,17 +432,18 @@ void animate_npc(Npc *npc)
         // 切换npc状态
         auto it = npc->a.find(npc->index);
         auto next = std::next(it);
+        auto index = npc->index;
         if (next != npc->a.end())
         {
-            npc->index = next->first;
+            index = next->first;
         }
         else
         {
-            auto index = npc->a.begin()->first;
-            if (index != u"shop")
-            {
-                npc->index = index;
-            }
+            index = npc->a.begin()->first;
+        }
+        if (index != u"shop")
+        {
+            npc->index = index;
         }
     }
 }
@@ -490,6 +491,7 @@ void animate_mob(Mob *mob, entt::entity ent)
                         auto tr = World::registry->try_get<Transform>(ent);
                         mob->atkw.p = &tr->position;
                         hit_effect(&mob->atkw, mob->hit, 1, nullptr);
+                        Sound::push(mob->sounds[u"Attack1"]);
                     }
                 }
                 if (mob->a.contains(u"stand"))

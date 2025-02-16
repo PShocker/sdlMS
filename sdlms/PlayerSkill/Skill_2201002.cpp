@@ -52,6 +52,11 @@ int skill_2201002()
                 if (y != tr->position.y)
                 {
                     // y轴快速移动
+                    if (fh->x2 < fh->x1)
+                    {
+                        // 排除天花板
+                        continue;
+                    }
                     auto y_min = std::min(tr->position.y, y);
                     auto y_max = std::max(tr->position.y, y);
                     if (fh_y <= y_min || fh_y >= y_max)

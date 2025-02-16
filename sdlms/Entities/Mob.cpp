@@ -33,11 +33,13 @@ void load_mob(wz::Node *node)
     mob.init_y = y;
     mob.init_fh = foo;
 
+    auto link = id;
+
     node = Wz::Mob->get_root()->find_from_path(id + u".img");
     // 排除 link
     while (node->find_from_path(u"info/link") != nullptr)
     {
-        auto link = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/link"))->get();
+        link = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/link"))->get();
         node = Wz::Mob->get_root()->find_from_path(link + u".img");
     }
     for (auto &[key, val] : node->get_children())
@@ -66,6 +68,10 @@ void load_mob(wz::Node *node)
             {
                 speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"speed"))->get();
             }
+            else if (val[0]->get_child(u"flySpeed") != nullptr)
+            {
+                speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"flySpeed"))->get() * 6;
+            }
             mv.hspeed_min = -1 * (float)(speed + 100) / 100 * 125;
             mv.hspeed_max = (float)(speed + 100) / 100 * 125;
             mv.hspeed = mv.hspeed_max.value();
@@ -90,6 +96,24 @@ void load_mob(wz::Node *node)
             mob.sounds[key] = sou;
         }
     }
+    if (!mob.drops.contains(mob.id))
+    {
+        std::vector<int> d;
+        size_t first_non_zero = link.find_first_not_of(u'0');
+        // 如果找到了非零字符，则从该位置开始截取字符串
+        if (first_non_zero != std::string::npos)
+        {
+            link = link.substr(first_non_zero);
+        }
+        node = Wz::String->get_root()->find_from_path(u"MonsterBook.img/" + link + u"/reward");
+        for (auto &[key, val] : node->get_children())
+        {
+            auto v = dynamic_cast<wz::Property<int> *>(val[0])->get();
+            d.push_back(v);
+        }
+        mob.drops[mob.id] = d;
+    }
+
     World::registry->emplace<Hit>(ent);
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Damage>(ent);

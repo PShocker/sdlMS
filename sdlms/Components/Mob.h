@@ -7,6 +7,7 @@
 #include "entt/entt.hpp"
 
 #include <unordered_map>
+#include <vector>
 #include <string>
 #include <SDL3/SDL.h>
 
@@ -51,8 +52,9 @@ struct Mob
     std::u16string id;
 
     std::unordered_map<std::u16string, SoundWarp *> sounds;
+    static inline std::unordered_map<std::u16string, std::vector<int>> drops;
 
-    //仇恨目标
+    // 仇恨目标
     entt::entity hit = entt::null;
 
     AnimatedSpriteWarp *atk = nullptr;

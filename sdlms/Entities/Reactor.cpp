@@ -12,12 +12,14 @@ void load_reactor(wz::Node *node)
 
     auto id = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"id"))->get();
     auto url = id + u".img";
+    auto link = id;
 
     if (auto r = Wz::Reactor->get_root()->find_from_path(url))
     {
-        if (auto link = r->find_from_path(u"info/link"))
+        if (r->find_from_path(u"info/link"))
         {
-            r = Wz::Reactor->get_root()->find_from_path(dynamic_cast<wz::Property<wz::wzstring> *>(link)->get() + u".img");
+            link = dynamic_cast<wz::Property<wz::wzstring> *>(r->find_from_path(u"info/link"))->get();
+            r = Wz::Reactor->get_root()->find_from_path(link + u".img");
         }
         auto reactor = &World::registry->emplace<Reactor>(ent);
 
@@ -77,13 +79,13 @@ void load_reactor(wz::Node *node)
         }
         World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + REACTOR_Z, f);
 
-        size_t first_non_zero = id.find_first_not_of(u'0');
+        size_t first_non_zero = link.find_first_not_of(u'0');
         // 如果找到了非零字符，则从该位置开始截取字符串
         if (first_non_zero != std::string::npos)
         {
-            id = id.substr(first_non_zero);
+            link = link.substr(first_non_zero);
         }
-        node = Wz::Sound->get_root()->find_from_path(u"Reactor.img/" + id);
+        node = Wz::Sound->get_root()->find_from_path(u"Reactor.img/" + link);
         if (node != nullptr)
         {
             for (auto &[key, val] : node->get_children())

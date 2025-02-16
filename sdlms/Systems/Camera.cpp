@@ -49,7 +49,14 @@ void camera_limit()
     auto r = border.r;
     auto t = border.t;
     auto b = border.b;
-
+    if (l.has_value())
+    {
+        l = l.value() - 25;
+    }
+    if (r.has_value())
+    {
+        r = r.value() + 25;
+    }
     if (l.has_value() && Camera::x < l.value())
     {
         Camera::x = l.value();

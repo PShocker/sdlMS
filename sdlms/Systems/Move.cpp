@@ -111,6 +111,10 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
             for (auto &e : World::registry->view<FloorFootHold>())
             {
                 auto fh = World::registry->try_get<FootHold>(e);
+                if (fh->x2 < fh->x1)
+                {
+                    continue;
+                }
                 auto collide = intersect(tr->position, new_pos, {(float)fh->x1, (float)fh->y1}, {(float)fh->x2, (float)fh->y2});
                 if (collide.has_value())
                 {

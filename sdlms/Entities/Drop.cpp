@@ -11,6 +11,8 @@
 
 void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
 {
+    float hspeed_min = 0;
+    float hspeed_max = 0;
     for (int i = 0; i < drops->size(); i++)
     {
         auto &id = drops->at(i).id;
@@ -38,9 +40,8 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
         }
         else
         {
-            // 测试
-            // asprw = asprw->load(Wz::Item->get_root()->find_from_path(u"Etc/0400.img/04000000/info/iconRaw"));
-            asprw = asprw->load(Wz::Character->get_root()->find_from_path(u"Weapon/01382014.img/info/iconRaw"));
+            auto node = Item::load(id);
+            asprw = AnimatedSpriteWarp::load(node->find_from_path(u"info/iconRaw"));
         }
         auto ent = World::registry->create();
 
@@ -55,6 +56,19 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
         auto &mv = World::registry->emplace<Move>(ent);
         mv.vspeed = -420;
         mv.hspeed = 0;
+        if (i >= 1)
+        {
+            if (i % 2 == 0)
+            {
+                hspeed_max += asprw->sprites[0]->width;
+                mv.hspeed = hspeed_max;
+            }
+            else
+            {
+                hspeed_min -= asprw->sprites[0]->width;
+                mv.hspeed = hspeed_min;
+            }
+        }
     }
     return;
 }

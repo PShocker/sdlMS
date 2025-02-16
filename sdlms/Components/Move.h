@@ -12,6 +12,7 @@ struct Move
     float vspeed = 0.0;
     std::optional<float> vspeed_min = -5000.0f;
     std::optional<float> vspeed_max = 670.0f;
+
     float hforce = 0.0;
     float vforce = 0.0;
     float hacc = 0.0;
