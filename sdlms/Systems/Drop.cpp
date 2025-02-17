@@ -21,11 +21,35 @@ void drop_run()
                 if (!drop_fall(mv, tr, (float)Window::delta_time / 1000))
                 {
                     dro->land = true;
+                    dro->land_y = tr->position.y;
+                    int random = std::rand() % 2;
+                    switch (random)
+                    {
+                    case 0:
+                        mv->vspeed = 4;
+                        break;
+                    case 1:
+                        mv->vspeed = -4;
+                        break;
+                    }
                 }
             }
-            if (dro->picker != entt::null)
+            else if (dro->picker != entt::null)
             {
                 drop_pick(mv, tr, dro, (float)Window::delta_time / 1000);
+            }
+            else
+            {
+                // 上下浮动
+                if (tr->position.y <= dro->land_y - 4)
+                {
+                    mv->vspeed = 4;
+                }
+                else if (tr->position.y >= dro->land_y + 4)
+                {
+                    mv->vspeed = -4;
+                }
+                tr->position.y += mv->vspeed * Window::delta_time / 1000;
             }
         }
         else

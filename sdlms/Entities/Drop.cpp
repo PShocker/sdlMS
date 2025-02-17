@@ -54,18 +54,18 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
         dro.aspr = AnimatedSprite(asprw);
 
         auto &mv = World::registry->emplace<Move>(ent);
-        mv.vspeed = -420;
+        mv.vspeed = -430;
         mv.hspeed = 0;
         if (i >= 1)
         {
             if (i % 2 == 0)
             {
-                hspeed_max += asprw->sprites[0]->width;
+                hspeed_max += asprw->sprites[0]->width * 1.2;
                 mv.hspeed = hspeed_max;
             }
             else
             {
-                hspeed_min -= asprw->sprites[0]->width;
+                hspeed_min -= asprw->sprites[0]->width * 1.2;
                 mv.hspeed = hspeed_min;
             }
         }

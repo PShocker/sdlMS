@@ -12,6 +12,7 @@ struct Drop
     uint64_t nums;
     int rotate;
     bool land = false;
+    float land_y;
     bool attract = false;
     entt::entity picker = entt::null;
 
