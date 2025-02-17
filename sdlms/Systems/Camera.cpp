@@ -44,18 +44,28 @@ void camera_refresh()
 
 void camera_limit()
 {
-    auto border = World::registry->ctx().get<Border>();
-    auto l = border.l;
-    auto r = border.r;
-    auto t = border.t;
-    auto b = border.b;
-    if (l.has_value())
+    std::optional<int> l = std::nullopt;
+    std::optional<int> r = std::nullopt;
+    std::optional<int> t = std::nullopt;
+    std::optional<int> b = std::nullopt;
+
+    if (Camera::l.has_value() &&
+        Camera::r.has_value() &&
+        Camera::t.has_value() &&
+        Camera::b.has_value())
     {
-        l = l.value() - 25;
+        l = Camera::l;
+        r = Camera::r;
+        t = Camera::t;
+        b = Camera::b;
     }
-    if (r.has_value())
+    else
     {
-        r = r.value() + 25;
+        auto border = World::registry->ctx().get<Border>();
+        l = border.l;
+        r = border.r;
+        t = border.t;
+        b = border.b;
     }
     if (l.has_value() && Camera::x < l.value())
     {

@@ -336,17 +336,7 @@ bool player_down_jump(Move *mv, Transform *tr)
             fh->x2 > fh->x1 &&
             fh != mv->foo)
         {
-            if (b.has_value())
-            {
-                if (fh->get_y(tr->position.x).value() <= b.value())
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                return true;
-            }
+            return true;
         }
     }
     return false;
