@@ -13,6 +13,9 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
 {
     float hspeed_min = 0;
     float hspeed_max = 0;
+
+    auto count = World::registry->view<Drop>().size();
+
     for (int i = 0; i < drops->size(); i++)
     {
         auto &id = drops->at(i).id;
@@ -46,7 +49,7 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
         auto ent = World::registry->create();
 
         World::registry->emplace<Animated>(ent);
-        World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + DROP_Z);
+        World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + DROP_Z + count + i);
 
         auto &dro = World::registry->emplace<Drop>(ent);
         dro.id = id;

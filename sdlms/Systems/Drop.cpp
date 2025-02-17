@@ -63,7 +63,7 @@ void drop_run()
 bool drop_fall(Move *mv, Transform *tr, float delta_time)
 {
     mv->vspeed += delta_time * 1000;
-    return move_fall(mv, tr, delta_time, DROP_Z);
+    return move_fall(mv, tr, delta_time, tr->z % LAYER_Z);
 }
 
 void drop_pick(Move *mv, Transform *tr, Drop *dro, float delta_time)
