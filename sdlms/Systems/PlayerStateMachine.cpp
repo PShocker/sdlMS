@@ -1,12 +1,12 @@
 #include "PlayerStateMachine.h"
 #include "Move.h"
+#include "Hit.h"
 #include "entt/entt.hpp"
 #include "Commons/Commons.h"
 #include "PlayerSkill/PlayerSkill.h"
 #include "Core/Core.h"
 #include <SDL3/SDL.h>
 #include <optional>
-#include <variant>
 
 void player_statemachine_run()
 {
@@ -230,11 +230,31 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
     {
         mv->hspeed -= 0.3f;
     }
-
     // 默认重力为2000
-    mv->vspeed += delta_time * 2000;
-
-    return move_fall(mv, tr, delta_time, CHARACTER_Z, player_foothold_cooldown <= 0);
+    auto vspeed = mv->vspeed + delta_time * 2000;
+    if (mv->vspeed <= 0 && vspeed > 0)
+    {
+        player_fall_y = tr->position.y;
+    }
+    mv->vspeed = vspeed;
+    auto r = move_fall(mv, tr, delta_time, CHARACTER_Z, player_foothold_cooldown <= 0);
+    if (r == false)
+    {
+        auto cha = World::registry->try_get<Character>(Player::ent);
+        if (cha->invincible_cooldown <= 0)
+        {
+            auto distance = tr->position.y - player_fall_y;
+            if (distance >= 600)
+            {
+                AttackWarp atkw;
+                atkw.damage = distance / 25;
+                atkw.hit = nullptr;
+                atkw.p = &tr->position;
+                hit_effect(&atkw, std::nullopt, Player::ent, 1, nullptr);
+            }
+        }
+    }
+    return r;
 }
 
 bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
@@ -703,6 +723,18 @@ bool player_hit(Hit *hit, entt::entity ent)
                 if (cha_x < hit_x)
                 {
                     mv->hspeed = -110;
+                }
+                else if (cha_x == hit_x)
+                {
+                    auto tr = World::registry->try_get<Transform>(ent);
+                    if (tr->flip)
+                    {
+                        mv->hspeed = 110;
+                    }
+                    else
+                    {
+                        mv->hspeed = -110;
+                    }
                 }
                 else
                 {

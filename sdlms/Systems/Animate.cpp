@@ -85,6 +85,10 @@ void animate_run()
             auto tr = World::registry->try_get<Transform>(ent);
             animate_tomb(tomb, tr);
         }
+        if (auto i = World::registry->try_get<Install>(ent))
+        {
+            animate_install(i);
+        }
         animate_face(cha);
     }
     for (auto ent : World::registry->view<Animated, Drop>())
@@ -104,11 +108,6 @@ void animate_run()
         {
             animate_damage(dam);
         }
-    }
-    for (auto ent : World::registry->view<Install>())
-    {
-        auto i = World::registry->try_get<Install>(ent);
-        animate_install(i);
     }
 }
 
