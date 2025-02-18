@@ -89,7 +89,7 @@ void Map::load_footholds(wz::Node *node, int map_id)
                 }
             }
         }
-        fix_foothold();
+        link_foothold();
     }
 }
 

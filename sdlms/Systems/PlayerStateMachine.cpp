@@ -325,18 +325,20 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
 
 bool player_down_jump(Move *mv, Transform *tr)
 {
-    auto b = World::registry->ctx().get<Border>().b;
-    auto view = World::registry->view<FootHold>();
-    for (auto &e : view)
+    if (mv->foo->forbidFallDown == false)
     {
-        auto fh = &view.get<FootHold>(e);
-        if (fh->get_y(tr->position.x).has_value() &&
-            fh->get_y(tr->position.x).value() < tr->position.y + 600 &&
-            fh->get_y(tr->position.x).value() > tr->position.y + 10 &&
-            fh->x2 > fh->x1 &&
-            fh != mv->foo)
+        auto view = World::registry->view<FootHold>();
+        for (auto &e : view)
         {
-            return true;
+            auto fh = &view.get<FootHold>(e);
+            if (fh->get_y(tr->position.x).has_value() &&
+                fh->get_y(tr->position.x).value() < tr->position.y + 600 &&
+                fh->get_y(tr->position.x).value() > tr->position.y + 10 &&
+                fh->x2 > fh->x1 &&
+                fh != mv->foo)
+            {
+                return true;
+            }
         }
     }
     return false;
