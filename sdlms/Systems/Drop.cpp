@@ -23,17 +23,17 @@ void drop_run()
                     dro->land = true;
                     dro->land_y = tr->position.y;
 
-                    mv->ry0 = dro->land_y - 4;
-                    mv->ry1 = dro->land_y + 4;
+                    mv->ry0 = dro->land_y - 2.5;
+                    mv->ry1 = dro->land_y + 2.5;
 
                     int random = std::rand() % 2;
                     switch (random)
                     {
                     case 0:
-                        mv->vspeed = 4;
+                        mv->vspeed = 3;
                         break;
                     case 1:
-                        mv->vspeed = -4;
+                        mv->vspeed = -3;
                         break;
                     }
                 }
@@ -48,13 +48,13 @@ void drop_run()
             else
             {
                 // 上下浮动
-                if (tr->position.y <= dro->land_y - 4)
+                if (tr->position.y <= mv->ry0)
                 {
-                    mv->vspeed = 4;
+                    mv->vspeed = 3;
                 }
-                else if (tr->position.y >= dro->land_y + 4)
+                else if (tr->position.y >= mv->ry1)
                 {
-                    mv->vspeed = -4;
+                    mv->vspeed = -3;
                 }
                 tr->position.y += mv->vspeed * Window::delta_time / 1000;
             }
