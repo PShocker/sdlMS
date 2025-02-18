@@ -11,15 +11,17 @@ void load_npc(wz::Node *node)
 {
     auto ent = World::registry->create();
 
+    auto fh = dynamic_cast<wz::Property<int> *>(node->get_child(u"fh"))->get();
+    auto foo = fhs[fh];
+
     auto &mv = World::registry->emplace<Move>(ent);
     mv.rx0 = dynamic_cast<wz::Property<int> *>(node->get_child(u"rx0"))->get();
     mv.rx1 = dynamic_cast<wz::Property<int> *>(node->get_child(u"rx1"))->get();
+    mv.foo = foo;
 
     auto &npc = World::registry->emplace<Npc>(ent);
     auto id = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"id"))->get();
     auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
-    auto fh = dynamic_cast<wz::Property<int> *>(node->get_child(u"fh"))->get();
-    auto foo = fhs[fh];
     // 从fh获取y,layer
     auto y = foo->get_y(x).value();
     auto layer = foo->page;
@@ -35,8 +37,11 @@ void load_npc(wz::Node *node)
     {
         if (key != u"info")
         {
-            auto asprw = AnimatedSpriteWarp::load(val[0]);
-            npc.a[key] = AnimatedSprite(asprw);
+            if (key != u"shop")
+            {
+                auto asprw = AnimatedSpriteWarp::load(val[0]);
+                npc.a[key] = AnimatedSprite(asprw);
+            }
         }
     }
 

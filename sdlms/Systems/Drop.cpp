@@ -22,6 +22,10 @@ void drop_run()
                 {
                     dro->land = true;
                     dro->land_y = tr->position.y;
+
+                    mv->ry0 = dro->land_y - 4;
+                    mv->ry1 = dro->land_y + 4;
+
                     int random = std::rand() % 2;
                     switch (random)
                     {
@@ -36,6 +40,9 @@ void drop_run()
             }
             else if (dro->picker != entt::null)
             {
+                mv->ry0 = std::nullopt;
+                mv->ry1 = std::nullopt;
+
                 drop_pick(mv, tr, dro, (float)Window::delta_time / 1000);
             }
             else

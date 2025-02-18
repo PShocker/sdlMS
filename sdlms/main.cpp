@@ -22,6 +22,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     attack_run();
     player_statemachine_run();
     mob_statemachine_run();
+    npc_statemachine_run();
     drop_run();
     ball_run();
     ui_run();

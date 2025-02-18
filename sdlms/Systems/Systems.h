@@ -7,6 +7,7 @@
 #include "CoolDown.h"
 #include "Drop.h"
 #include "Hit.h"
+#include "NpcStateMachine.h"
 #include "MobStateMachine.h"
 #include "PlayerStateMachine.h"
 #include "Render.h"

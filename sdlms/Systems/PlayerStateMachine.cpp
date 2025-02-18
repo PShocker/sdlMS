@@ -124,6 +124,7 @@ void player_statemachine(entt::entity ent, float delta_time)
     case Character::State::PRONE:
     {
         player_flip(tr);
+        player_pick_drop(cha, tr);
         if (player_jump(mv, cha, tr, cha->state))
         {
             cha->state = Character::State::JUMP;
@@ -151,6 +152,7 @@ void player_statemachine(entt::entity ent, float delta_time)
     break;
     case Character::State::SIT:
     {
+        player_pick_drop(cha, tr);
         if (!player_sit(mv, cha->state))
         {
             cha->state = Character::State::STAND;

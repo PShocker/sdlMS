@@ -37,7 +37,7 @@ void animate_run()
     for (auto ent : World::registry->view<Animated, Npc>())
     {
         auto npc = World::registry->try_get<Npc>(ent);
-        animate_npc(npc);
+        animate_npc(npc, ent);
         if (auto eff = World::registry->try_get<Effect>(ent))
         {
             animate_effect(eff);
@@ -429,14 +429,14 @@ void animate_portal(Portal *por)
     }
 }
 
-void animate_npc(Npc *npc)
+void animate_npc(Npc *npc, entt::entity ent)
 {
     if (!animate_sprite(&npc->a[npc->index]))
     {
         // 切换npc状态
         auto it = npc->a.find(npc->index);
-        auto next = std::next(it);
         auto index = npc->index;
+        auto next = std::next(it);
         if (next != npc->a.end())
         {
             index = next->first;
@@ -445,10 +445,24 @@ void animate_npc(Npc *npc)
         {
             index = npc->a.begin()->first;
         }
-        if (index != u"shop")
+        if (index == u"move")
         {
-            npc->index = index;
+            auto mv = World::registry->try_get<Move>(ent);
+            auto tr = World::registry->try_get<Transform>(ent);
+            int random = std::rand() % 2;
+            switch (random)
+            {
+            case 0:
+                mv->hspeed = -100;
+                tr->flip = 0;
+                break;
+            case 1:
+                mv->hspeed = 100;
+                tr->flip = 1;
+                break;
+            }
         }
+        npc->index = index;
     }
 }
 
