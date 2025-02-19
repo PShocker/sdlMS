@@ -947,6 +947,7 @@ void player_portal(Move *mv, entt::entity ent)
                             tr->position.y = position.y - 5;
                             auto cha = World::registry->try_get<Character>(Player::ent);
                             cha->state = Character::State::JUMP;
+                            Sound::push(Sound(u"Game.img/Portal"));
                         }
                         mv->hspeed = 0;
                         mv->vspeed = 0;
@@ -976,7 +977,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
         }
         // 添加effect
         auto eff = World::registry->try_get<Effect>(ent);
-        eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
+        eff->effects.push_back({new Transform(tr->position.x, tr->position.y, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
 
         // 技能音效
         auto ski = SkillWarp::load(u"4111006");

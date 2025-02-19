@@ -245,17 +245,17 @@ SoundWarp *SoundWarp::load(wz::Node *node, bool caches)
     }
 }
 
-Sound::Sound(wz::Node *node)
+Sound::Sound(wz::Node *node, int d)
 {
     souw = SoundWarp::load(node);
-    delay = Window::dt_now;
+    delay = Window::dt_now + d;
 }
 
-Sound::Sound(const std::u16string &path)
+Sound::Sound(const std::u16string &path, int d)
 {
     auto node = Wz::Sound->get_root()->find_from_path(path);
     souw = SoundWarp::load(node);
-    delay = Window::dt_now;
+    delay = Window::dt_now + d;
 }
 
 void Sound::push(SoundWarp *souw, int delay, int pos)

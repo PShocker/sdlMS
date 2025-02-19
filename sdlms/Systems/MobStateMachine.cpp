@@ -247,8 +247,8 @@ void mob_drop(Mob *mob, Transform *tr)
         drops.push_back({std::u16string{id.begin(), id.end()}, 1});
     }
     load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
+    Sound::push(Sound(u"Game.img/DropItem", 300));
     World::zindex = true;
-    Sound::push(Sound(u"Game.img/DropItem"));
 }
 
 bool mob_fall(Mob *mob, Move *mv, Transform *tr, float delta_time)
