@@ -7,13 +7,14 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity owner, AnimatedSpriteWarp *hit)
+entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity owner,
+                       AnimatedSpriteWarp *hit, int rotate)
 {
     auto ent = World::registry->create();
     auto &tr = World::registry->emplace<Transform>(ent);
 
     tr.position.y = tran->position.y - 30;
-
+    tr.rotation = rotate;
     tr.flip = tran->flip;
     tr.z = tran->z - 1;
 
@@ -70,7 +71,8 @@ std::vector<entt::entity> load_ball(unsigned char num)
     return e;
 }
 
-std::vector<entt::entity> load_ball(AnimatedSpriteWarp *asprw, entt::entity owner, unsigned char num, AnimatedSpriteWarp *hit)
+std::vector<entt::entity> load_ball(AnimatedSpriteWarp *asprw, entt::entity owner,
+                                    unsigned char num, AnimatedSpriteWarp *hit, int rotate)
 {
     std::vector<entt::entity> e;
     auto ent = owner;
@@ -80,7 +82,7 @@ std::vector<entt::entity> load_ball(AnimatedSpriteWarp *asprw, entt::entity owne
     {
         Transform t(tr->position, tr->z, tr->flip);
         t.position.y = tr->position.y + 30 - step - i * step;
-        e.push_back(load_ball(asprw, &t, ent, hit));
+        e.push_back(load_ball(asprw, &t, ent, hit, rotate));
     }
     return e;
 }

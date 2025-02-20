@@ -79,6 +79,10 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
     if (node->get_child(u"ball"))
     {
         ball = ball->load(node->get_child(u"ball"));
+        if (node->get_child(u"ball")->get_child(u"rotatePeriod"))
+        {
+            ball_rotate = dynamic_cast<wz::Property<int> *>(node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
+        }
     }
 
     node = Wz::Sound->get_root()->find_from_path(u"Skill.img/" + id);

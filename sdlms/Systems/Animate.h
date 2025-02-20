@@ -18,3 +18,4 @@ void animate_drop(Drop *dro, Transform *tr);
 void animate_face(Character *cha);
 void animate_reactor(Reactor *r);
 void animate_install(Install *i);
+void animate_ball(entt::entity ent);

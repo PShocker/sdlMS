@@ -55,7 +55,11 @@ void PlayerSkill::skill_attack(Skill *ski)
         {
             auto lt = SDL_FPoint{0, 0};
             auto rb = SDL_FPoint{0, 0};
-            auto hit = ski->ski->hits[0];
+            AnimatedSpriteWarp *hit = nullptr;
+            if (ski->ski->hits.size() > 0)
+            {
+                hit = ski->ski->hits[0];
+            }
             auto mobCount = 1;
             auto attackCount = 1;
             SoundWarp *souw = nullptr;
@@ -73,7 +77,11 @@ void PlayerSkill::skill_attack(Skill *ski)
         {
             auto lt = ski->ski->infos[ski->level].lt;
             auto rb = ski->ski->infos[ski->level].rb;
-            auto hit = ski->ski->hits[0];
+            AnimatedSpriteWarp *hit = nullptr;
+            if (ski->ski->hits.size() > 0)
+            {
+                hit = ski->ski->hits[0];
+            }
             auto mobCount = ski->ski->infos[ski->level].mobCount;
             auto attackCount = ski->ski->infos[ski->level].attackCount;
             SoundWarp *souw = nullptr;

@@ -13,8 +13,6 @@
 
 void animate_run()
 {
-    auto view = World::registry->view<Animated>();
-
     for (auto ent : World::registry->view<BackGround>())
     {
         auto bspr = World::registry->try_get<BackGround>(ent);
@@ -26,6 +24,10 @@ void animate_run()
     }
     for (auto ent : World::registry->view<Animated, AnimatedSprite>())
     {
+        if (World::registry->try_get<Ball>(ent))
+        {
+            animate_ball(ent);
+        }
         auto aspr = World::registry->try_get<AnimatedSprite>(ent);
         animate_sprite(aspr);
     }
@@ -198,7 +200,12 @@ void animate_character(Character *cha, entt::entity ent)
                     {
                         if (ski->ski->ball != nullptr)
                         {
-                            for (auto e : load_ball(ski->ski->ball, ent, ski->ball))
+                            auto rotate = 0;
+                            if (ski->ski->ball_rotate.has_value())
+                            {
+                                rotate = ski->ski->ball_rotate.value();
+                            }
+                            for (auto e : load_ball(ski->ski->ball, ent, ski->ball, nullptr, rotate))
                             {
                                 auto &s = World::registry->emplace<Skill>(e);
                                 s.atkw = ski->atkw;
@@ -269,7 +276,12 @@ void animate_character(Character *cha, entt::entity ent)
                         {
                             if (ski->ski->ball != nullptr)
                             {
-                                for (auto e : load_ball(ski->ski->ball, ent, ski->ball))
+                                auto rotate = 0;
+                                if (ski->ski->ball_rotate.has_value())
+                                {
+                                    rotate = ski->ski->ball_rotate.value();
+                                }
+                                for (auto e : load_ball(ski->ski->ball, ent, ski->ball, nullptr, rotate))
                                 {
                                     auto &s = World::registry->emplace<Skill>(e);
                                     s.atkw = ski->atkw;
@@ -636,4 +648,13 @@ void animate_reactor(Reactor *r)
 void animate_install(Install *i)
 {
     animate_sprite(&i->aspr);
+}
+
+void animate_ball(entt::entity ent)
+{
+    auto tr = World::registry->try_get<Transform>(ent);
+    if (tr->rotation != 0)
+    {
+        tr->rotation += (float)Window::delta_time * 2;
+    }
 }

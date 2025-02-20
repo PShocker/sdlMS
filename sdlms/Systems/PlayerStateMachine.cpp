@@ -147,6 +147,7 @@ void player_statemachine(entt::entity ent, float delta_time)
     case Character::State::DIE:
     {
         cha->invincible_cooldown = 2000;
+        player_face(cha);
         return;
     }
     break;
@@ -820,7 +821,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         }
         else if (Input::state[SDL_SCANCODE_G])
         {
-            id = u"2001004";
+            id = u"4111005";
         }
         else if (Input::state[SDL_SCANCODE_C])
         {

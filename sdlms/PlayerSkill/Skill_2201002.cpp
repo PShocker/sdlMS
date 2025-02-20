@@ -15,7 +15,7 @@ int skill_2201002()
 
     // 添加effect
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+    eff->effects.push_back({new Transform(tr->position.x, tr->position.y, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
     eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
 
     auto x = tr->position.x;
