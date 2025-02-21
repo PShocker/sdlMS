@@ -7,23 +7,39 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
+const std::unordered_set<std::u16string> track_skill =
+    {u"4111005"};
+
 entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity owner,
-                       AnimatedSpriteWarp *hit, int rotate)
+                       AnimatedSpriteWarp *hit, std::optional<int> rotate,
+                       Skill *ski)
 {
     auto ent = World::registry->create();
     auto &tr = World::registry->emplace<Transform>(ent);
 
     tr.position.y = tran->position.y - 30;
-    tr.rotation = rotate;
     tr.flip = tran->flip;
     tr.z = tran->z - 1;
 
     auto &ball = World::registry->emplace<Ball>(ent);
     ball.owner = owner;
     ball.hit = hit;
+    ball.rotate = rotate;
 
     World::registry->emplace<Animated>(ent);
     World::registry->emplace<AnimatedSprite>(ent, asprw);
+
+    if (ski != nullptr)
+    {
+        auto &s = World::registry->emplace<Skill>(ent);
+        s.atkw = ski->atkw;
+        if (track_skill.contains(ski->skiw->id))
+        {
+            // 这类技能不追踪怪物,水平直线移动,例如飞侠的多重飞镖
+            ball.track = false;
+            ball.track_hit = std::unordered_set<entt::entity>();
+        }
+    }
 
     auto &mv = World::registry->emplace<Move>(ent);
     mv.vspeed = 0;
@@ -43,7 +59,7 @@ entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity 
     return ent;
 }
 
-std::vector<entt::entity> load_ball(unsigned char num)
+std::vector<entt::entity> load_ball(unsigned char num, std::optional<int> rotate, Skill *ski)
 {
     std::vector<entt::entity> e;
 
@@ -58,7 +74,7 @@ std::vector<entt::entity> load_ball(unsigned char num)
         auto node = Wz::Item->get_root()->find_from_path(ball_path);
         auto asprw = AnimatedSpriteWarp::load(node);
         auto hit = Wz::Skill->get_root()->find_from_path(u"300.img/skill/3001005/CharLevel/10/hit/0");
-        return load_ball(asprw, ent, num, AnimatedSpriteWarp::load(hit));
+        return load_ball(asprw, ent, num, AnimatedSpriteWarp::load(hit), rotate, ski);
     }
     else if (weaponinfo->attack == WeaponInfo::Attack::CLAW)
     {
@@ -66,13 +82,15 @@ std::vector<entt::entity> load_ball(unsigned char num)
         auto node = Wz::Item->get_root()->find_from_path(ball_path);
         auto asprw = AnimatedSpriteWarp::load(node);
         auto hit = Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001344/CharLevel/20/hit/0");
-        return load_ball(asprw, ent, num, AnimatedSpriteWarp::load(hit));
+        return load_ball(asprw, ent, num, AnimatedSpriteWarp::load(hit), rotate, ski);
     }
     return e;
 }
 
 std::vector<entt::entity> load_ball(AnimatedSpriteWarp *asprw, entt::entity owner,
-                                    unsigned char num, AnimatedSpriteWarp *hit, int rotate)
+                                    unsigned char num, AnimatedSpriteWarp *hit,
+                                    std::optional<int> rotate,
+                                    Skill *ski)
 {
     std::vector<entt::entity> e;
     auto ent = owner;
@@ -82,7 +100,7 @@ std::vector<entt::entity> load_ball(AnimatedSpriteWarp *asprw, entt::entity owne
     {
         Transform t(tr->position, tr->z, tr->flip);
         t.position.y = tr->position.y + 30 - step - i * step;
-        e.push_back(load_ball(asprw, &t, ent, hit, rotate));
+        e.push_back(load_ball(asprw, &t, ent, hit, rotate, ski));
     }
     return e;
 }

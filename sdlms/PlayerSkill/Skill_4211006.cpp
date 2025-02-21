@@ -39,19 +39,19 @@ int skill_4211006()
                     dr->destory = Window::dt_now + 700;
                     auto eff = World::registry->try_get<Effect>(Player::ent);
                     eff->effects.push_back({new Transform(d_tr->position.x, d_tr->position.y),
-                                            AnimatedSprite(ski->ski->hits[0]),
+                                            AnimatedSprite(ski->skiw->hits[0]),
                                             Window::dt_now + 700});
                     if (ski->attack == false)
                     {
-                        auto lt = ski->ski->infos[ski->level].lt;
-                        auto rb = ski->ski->infos[ski->level].rb;
-                        auto hit = ski->ski->hits[0];
-                        auto mobCount = ski->ski->infos[ski->level].mobCount;
+                        auto lt = ski->skiw->infos[ski->level].lt;
+                        auto rb = ski->skiw->infos[ski->level].rb;
+                        auto hit = ski->skiw->hits[0];
+                        auto mobCount = ski->skiw->infos[ski->level].mobCount;
                         auto attackCount = 1;
                         SoundWarp *souw = nullptr;
-                        if (ski->ski->sounds.contains(u"Hit"))
+                        if (ski->skiw->sounds.contains(u"Hit"))
                         {
-                            souw = ski->ski->sounds[u"Hit"];
+                            souw = ski->skiw->sounds[u"Hit"];
                         }
                         ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
                         ski->attack = true;

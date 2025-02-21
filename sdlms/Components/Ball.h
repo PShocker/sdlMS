@@ -18,5 +18,11 @@ struct Ball
     // 摧毁时间
     unsigned int destory = Window::dt_now + 600;
 
+    std::optional<int> rotate = std::nullopt;
+
+    // 是否需要改变轨迹跟踪怪物
+    bool track = true;
+    std::optional<std::unordered_set<entt::entity>> track_hit = std::nullopt;
+
     Ball() = default;
 };

@@ -876,7 +876,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         // 技能音效
         if (skill_res & PlayerSkill::SkillResult::SOU)
         {
-            PlayerSkill::skill_sound(ski->ski);
+            PlayerSkill::skill_sound(ski->skiw);
         }
 
         // 技能攻击

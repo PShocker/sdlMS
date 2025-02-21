@@ -29,13 +29,13 @@ int skill_4001344()
 
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
-    auto hit = ski->ski->hits[0];
+    auto hit = ski->skiw->hits[0];
     auto mobCount = 1;
     auto attackCount = 1;
     SoundWarp *souw = nullptr;
-    if (ski->ski->sounds.contains(u"Hit"))
+    if (ski->skiw->sounds.contains(u"Hit"))
     {
-        souw = ski->ski->sounds[u"Hit"];
+        souw = ski->skiw->sounds[u"Hit"];
     }
     ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw, 50);
     ski->ball = 2;

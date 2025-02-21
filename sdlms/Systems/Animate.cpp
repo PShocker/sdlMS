@@ -24,9 +24,9 @@ void animate_run()
     }
     for (auto ent : World::registry->view<Animated, AnimatedSprite>())
     {
-        if (World::registry->try_get<Ball>(ent))
+        if (auto ball = World::registry->try_get<Ball>(ent))
         {
-            animate_ball(ent);
+            animate_ball(ball, ent);
         }
         auto aspr = World::registry->try_get<AnimatedSprite>(ent);
         animate_sprite(aspr);
@@ -198,23 +198,15 @@ void animate_character(Character *cha, entt::entity ent)
                     }
                     else if (ski->ball > 0)
                     {
-                        if (ski->ski->ball != nullptr)
+                        auto rotate = ski->skiw->rotatePeriod;
+                        if (ski->skiw->ball != nullptr)
                         {
-                            auto rotate = 0;
-                            if (ski->ski->ball_rotate.has_value())
-                            {
-                                rotate = ski->ski->ball_rotate.value();
-                            }
-                            for (auto e : load_ball(ski->ski->ball, ent, ski->ball, nullptr, rotate))
-                            {
-                                auto &s = World::registry->emplace<Skill>(e);
-                                s.atkw = ski->atkw;
-                            }
+                            load_ball(ski->skiw->ball, ent, ski->ball, nullptr, rotate, ski);
                         }
                         else
                         {
                             entt::entity target = entt::null;
-                            std::vector<entt::entity> ents = load_ball(ski->ball);
+                            std::vector<entt::entity> ents = load_ball(ski->ball, rotate, ski);
                             for (auto e : ents)
                             {
                                 auto ball = World::registry->try_get<Ball>(e);
@@ -223,8 +215,6 @@ void animate_character(Character *cha, entt::entity ent)
                                 {
                                     target = ball_fall(e, ball);
                                 }
-                                auto &s = World::registry->emplace<Skill>(e);
-                                s.atkw = ski->atkw;
                             }
                             for (auto e : ents)
                             {
@@ -274,23 +264,15 @@ void animate_character(Character *cha, entt::entity ent)
                         }
                         else if (ski->ball > 0)
                         {
-                            if (ski->ski->ball != nullptr)
+                            auto rotate = ski->skiw->rotatePeriod;
+                            if (ski->skiw->ball != nullptr)
                             {
-                                auto rotate = 0;
-                                if (ski->ski->ball_rotate.has_value())
-                                {
-                                    rotate = ski->ski->ball_rotate.value();
-                                }
-                                for (auto e : load_ball(ski->ski->ball, ent, ski->ball, nullptr, rotate))
-                                {
-                                    auto &s = World::registry->emplace<Skill>(e);
-                                    s.atkw = ski->atkw;
-                                }
+                                load_ball(ski->skiw->ball, ent, ski->ball, nullptr, rotate, ski);
                             }
                             else
                             {
                                 entt::entity target = entt::null;
-                                std::vector<entt::entity> ents = load_ball(ski->ball);
+                                std::vector<entt::entity> ents = load_ball(ski->ball, rotate, ski);
                                 for (auto e : ents)
                                 {
                                     auto ball = World::registry->try_get<Ball>(e);
@@ -299,8 +281,6 @@ void animate_character(Character *cha, entt::entity ent)
                                     {
                                         target = ball_fall(e, ball);
                                     }
-                                    auto &s = World::registry->emplace<Skill>(e);
-                                    s.atkw = ski->atkw;
                                 }
                                 for (auto e : ents)
                                 {
@@ -650,11 +630,11 @@ void animate_install(Install *i)
     animate_sprite(&i->aspr);
 }
 
-void animate_ball(entt::entity ent)
+void animate_ball(Ball *ball, entt::entity ent)
 {
-    auto tr = World::registry->try_get<Transform>(ent);
-    if (tr->rotation != 0)
+    if (ball->rotate.has_value())
     {
-        tr->rotation += (float)Window::delta_time * 2;
+        auto tr = World::registry->try_get<Transform>(ent);
+        tr->rotation += (float)Window::delta_time * ball->rotate.value() / 300;
     }
 }

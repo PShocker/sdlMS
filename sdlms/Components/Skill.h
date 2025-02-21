@@ -32,7 +32,7 @@ struct SkillWarp
     static inline std::unordered_map<std::u16string, int> cooldowns;
 
     AnimatedSpriteWarp *ball = nullptr;
-    std::optional<int> ball_rotate = std::nullopt;
+    std::optional<int> rotatePeriod = std::nullopt;
 
     SkillWarp(const std::u16string &id);
     SkillWarp() = default;
@@ -43,7 +43,7 @@ struct SkillWarp
 
 struct Skill
 {
-    SkillWarp *ski = nullptr;
+    SkillWarp *skiw = nullptr;
     std::optional<AttackWarp> atkw = std::nullopt;
 
     Skill(const std::u16string &id);

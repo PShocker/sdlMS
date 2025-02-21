@@ -78,10 +78,11 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
     }
     if (node->get_child(u"ball"))
     {
-        ball = ball->load(node->get_child(u"ball"));
-        if (node->get_child(u"ball")->get_child(u"rotatePeriod"))
+        node = node->get_child(u"ball");
+        ball = ball->load(node);
+        if (node->get_child(u"rotatePeriod"))
         {
-            ball_rotate = dynamic_cast<wz::Property<int> *>(node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
+            rotatePeriod = dynamic_cast<wz::Property<int> *>(node->get_child(u"rotatePeriod"))->get();
         }
     }
 
@@ -109,7 +110,7 @@ SkillWarp *SkillWarp::load(const std::u16string &id)
 
 Skill::Skill(const std::u16string &id)
 {
-    ski = SkillWarp::load(id);
+    skiw = SkillWarp::load(id);
 }
 
 void SkillWarp::clean_up()

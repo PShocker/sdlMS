@@ -23,7 +23,7 @@ void PlayerSkill::skill_effect(Skill *ski)
     auto ent = Player::ent;
     auto eff = World::registry->try_get<Effect>(ent);
 
-    for (auto &it : ski->ski->effects)
+    for (auto &it : ski->skiw->effects)
     {
         eff->effects.push_back({nullptr, AnimatedSprite(it)});
     }
@@ -35,9 +35,9 @@ void PlayerSkill::skill_action(Skill *ski)
     auto cha = World::registry->try_get<Character>(ent);
 
     cha->state = Character::State::SKILL;
-    if (ski->ski->action_str.has_value())
+    if (ski->skiw->action_str.has_value())
     {
-        cha->action_str = ski->ski->action_str.value();
+        cha->action_str = ski->skiw->action_str.value();
     }
     else
     {
@@ -49,48 +49,22 @@ void PlayerSkill::skill_action(Skill *ski)
 
 void PlayerSkill::skill_attack(Skill *ski)
 {
-    if (ski->ski->ball != nullptr)
+    if (!ski->atkw.has_value())
     {
-        if (!ski->atkw.has_value())
-        {
-            auto lt = SDL_FPoint{0, 0};
-            auto rb = SDL_FPoint{0, 0};
-            AnimatedSpriteWarp *hit = nullptr;
-            if (ski->ski->hits.size() > 0)
-            {
-                hit = ski->ski->hits[0];
-            }
-            auto mobCount = 1;
-            auto attackCount = 1;
-            SoundWarp *souw = nullptr;
-            if (ski->ski->sounds.contains(u"Hit"))
-            {
-                souw = ski->ski->sounds[u"Hit"];
-            }
-            ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
-            ski->ball = 1;
-        }
+        auto lt = (ski->skiw->ball != nullptr) ? SDL_FPoint{0, 0} : ski->skiw->infos[ski->level].lt;
+        auto rb = (ski->skiw->ball != nullptr) ? SDL_FPoint{0, 0} : ski->skiw->infos[ski->level].rb;
+        AnimatedSpriteWarp *hit = (ski->skiw->hits.size() > 0) ? ski->skiw->hits[0] : nullptr;
+        auto mobCount = ski->skiw->infos[ski->level].mobCount;
+        auto attackCount = ski->skiw->infos[ski->level].attackCount;
+        SoundWarp *souw = (ski->skiw->sounds.contains(u"Hit")) ? ski->skiw->sounds[u"Hit"] : nullptr;
+        ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
+    }
+    if (ski->skiw->ball != nullptr)
+    {
+        ski->ball = 1;
     }
     else
     {
-        if (!ski->atkw.has_value())
-        {
-            auto lt = ski->ski->infos[ski->level].lt;
-            auto rb = ski->ski->infos[ski->level].rb;
-            AnimatedSpriteWarp *hit = nullptr;
-            if (ski->ski->hits.size() > 0)
-            {
-                hit = ski->ski->hits[0];
-            }
-            auto mobCount = ski->ski->infos[ski->level].mobCount;
-            auto attackCount = ski->ski->infos[ski->level].attackCount;
-            SoundWarp *souw = nullptr;
-            if (ski->ski->sounds.contains(u"Hit"))
-            {
-                souw = ski->ski->sounds[u"Hit"];
-            }
-            ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
-        }
         ski->attack = true;
     }
 }
