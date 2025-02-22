@@ -569,48 +569,51 @@ void render_damage(Transform *tr, Damage *dam, std::optional<SDL_FPoint> head)
     for (auto it : dam->damage)
     {
         auto &info = it;
-        SDL_FPoint p = tr->position;
-        if (head.has_value())
+        if (info.delay < Window::dt_now)
         {
-            p = p + head.value();
-        }
-        else
-        {
-            p.x -= 10;
-            p.y -= 60;
-        }
-        int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
-        p.x -= length * 34 / 2;
-        int i = 0;
-        while (info.damage > 0)
-        {
-            auto n = info.damage % 10;
-            Transform transfrom(p);
-            transfrom.position.x += (length - i) * 34;
-            transfrom.position.y -= 25.5 - info.alpha / 10 + info.index * 38;
-            switch (info.type)
+            SDL_FPoint p = tr->position;
+            if (head.has_value())
             {
-            case 0:
-                SDL_SetTextureAlphaMod(dam->red[n]->texture, info.alpha);
-                render_sprite(&transfrom, dam->red[n]);
-                break;
-            case 1:
-                SDL_SetTextureAlphaMod(dam->violet[n]->texture, info.alpha);
-                render_sprite(&transfrom, dam->violet[n]);
-                break;
-            case 2:
-                SDL_SetTextureAlphaMod(dam->cri[n]->texture, info.alpha);
-                render_sprite(&transfrom, dam->cri[n]);
-                break;
-            case 3:
-                SDL_SetTextureAlphaMod(dam->blue[n]->texture, info.alpha);
-                render_sprite(&transfrom, dam->blue[n]);
-                break;
-            default:
-                break;
+                p = p + head.value();
             }
-            info.damage /= 10;
-            i++;
+            else
+            {
+                p.x -= 10;
+                p.y -= 60;
+            }
+            int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
+            p.x -= length * 34 / 2;
+            int i = 0;
+            while (info.damage > 0)
+            {
+                auto n = info.damage % 10;
+                Transform transfrom(p);
+                transfrom.position.x += (length - i) * 34 + info.x;
+                transfrom.position.y -= 25.5 - info.alpha / 10 + info.y;
+                switch (info.type)
+                {
+                case 0:
+                    SDL_SetTextureAlphaMod(dam->red[n]->texture, info.alpha);
+                    render_sprite(&transfrom, dam->red[n]);
+                    break;
+                case 1:
+                    SDL_SetTextureAlphaMod(dam->violet[n]->texture, info.alpha);
+                    render_sprite(&transfrom, dam->violet[n]);
+                    break;
+                case 2:
+                    SDL_SetTextureAlphaMod(dam->cri[n]->texture, info.alpha);
+                    render_sprite(&transfrom, dam->cri[n]);
+                    break;
+                case 3:
+                    SDL_SetTextureAlphaMod(dam->blue[n]->texture, info.alpha);
+                    render_sprite(&transfrom, dam->blue[n]);
+                    break;
+                default:
+                    break;
+                }
+                info.damage /= 10;
+                i++;
+            }
         }
     }
 }

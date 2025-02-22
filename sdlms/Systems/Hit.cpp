@@ -18,12 +18,17 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
     hit->damage += atkw->damage * atkw->attackCount;
     hit->owner = Player::ent;
 
+    auto dam = World::registry->try_get<Damage>(ent);
+    dam->head = head;
+    auto count = dam->damage.size();
+
     for (int i = 0; i < atkw->attackCount; i++)
     {
-        auto dam = World::registry->try_get<Damage>(ent);
-        dam->damage.push_back({std::abs(atkw->damage), 255, (int)dam->damage.size(), type});
-        dam->head = head;
-
+        dam->damage.push_back({std::abs(atkw->damage),
+                               255,
+                               type,
+                               Window::dt_now + (i + (int)count) * 64,
+                               (float)(std::rand() % 21 - 10), (float)(i + count) * 38});
         if (atkw->hit)
         {
             auto eff = World::registry->try_get<Effect>(ent);

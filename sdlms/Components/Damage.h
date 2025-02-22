@@ -18,8 +18,11 @@ struct Damage
     {
         int damage;
         float alpha;
-        int index;
         char type; // 0:red,1:violet,2:cri,3:blue
+
+        unsigned int delay;
+        float x;
+        float y;
     };
 
     std::vector<Info> damage;

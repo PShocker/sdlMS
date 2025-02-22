@@ -534,11 +534,18 @@ void animate_damage(Damage *dam)
     for (auto it = dam->damage.begin(); it != dam->damage.end();)
     {
         auto &info = it;
-        auto delta_time = Window::delta_time;
-        info->alpha -= (float)Window::delta_time * 0.4;
-        if (info->alpha <= 0)
+        if (info->delay <= Window::dt_now)
         {
-            it = dam->damage.erase(it);
+            auto delta_time = Window::delta_time;
+            info->alpha -= (float)Window::delta_time * 0.25;
+            if (info->alpha <= 0)
+            {
+                it = dam->damage.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
         }
         else
         {
