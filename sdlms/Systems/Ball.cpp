@@ -191,7 +191,15 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
         atkw->p = &World::registry->try_get<Transform>(src)->position;
         if (auto mob = World::registry->try_get<Mob>(target))
         {
-            hit_effect(atkw, mob->head(), target, 0, atkw->p);
+            if (mob->hp > 0 && mob->state != Mob::State::DIE)
+            {
+                hit_effect(atkw, std::nullopt, target, 0, atkw->p);
+            }
+            else
+            {
+                atkw->damage = 0;
+                hit_effect(atkw, std::nullopt, target, 0, atkw->p);
+            }
         }
         else if (auto cha = World::registry->try_get<Character>(target))
         {
