@@ -9,8 +9,10 @@
 
 void attack_run()
 {
-    if (auto atk = World::registry->try_get<Attack>(Player::ent))
+    auto view = World::registry->view<Attack>();
+    for (auto ent : view)
     {
+        auto atk = &view.get<Attack>(ent);
         for (auto &it : atk->atks)
         {
             attack_iterator(&it);

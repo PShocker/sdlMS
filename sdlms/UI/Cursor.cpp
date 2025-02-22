@@ -7,12 +7,13 @@
 void Cursor::init()
 {
     load(u"0");
+    load(u"1");
     load(u"12");
 
-    SDL_SetCursor(cursor[u"0"][0]);
+    Cursor::type = u"0";
 }
 
-void Cursor::load(std::u16string path)
+void Cursor::load(const std::u16string &path)
 {
     auto ui_node = Wz::UI->get_root();
 
@@ -30,9 +31,44 @@ void Cursor::load(std::u16string path)
         auto surface = SDL_CreateSurfaceFrom(width, height, SDL_PIXELFORMAT_ARGB4444,
                                              data, width * 2);
 
-        cursor[path].push_back(SDL_CreateColorCursor(surface, 0, 0));
+        int delay = 0;
+        if (val[0]->get_child(u"delay"))
+        {
+            delay = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"delay"))->get();
+        }
+
+        cursor[path].push_back({SDL_CreateColorCursor(surface, 0, 0), delay});
 
         SDL_DestroySurface(surface);
         SDL_free(data);
+    }
+}
+
+void Cursor::run()
+{
+    if (cursor[type].size() > 1)
+    {
+        auto delay = cursor[type][index].delay;
+        time += Window::delta_time;
+        if (time >= delay)
+        {
+            time = 0;
+            index++;
+            if (index >= cursor[type].size())
+            {
+                index = 0;
+            }
+            SDL_SetCursor(cursor[type][index].cursor);
+        }
+    }
+}
+
+void Cursor::action(const std::u16string &t)
+{
+    if (t != Cursor::type)
+    {
+        time = 0;
+        index = 0;
+        SDL_SetCursor(cursor[Cursor::type][index].cursor);
     }
 }

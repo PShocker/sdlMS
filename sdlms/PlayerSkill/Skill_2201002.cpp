@@ -5,9 +5,8 @@
 #include <SDL3/SDL.h>
 
 // 快速移动
-int skill_2201002()
+int skill_2201002(entt::entity ent)
 {
-    auto ent = Player::ent;
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     auto cha = World::registry->try_get<Character>(ent);

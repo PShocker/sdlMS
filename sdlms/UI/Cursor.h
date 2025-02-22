@@ -7,10 +7,23 @@
 
 struct Cursor
 {
-    static inline std::unordered_map<std::u16string, std::vector<SDL_Cursor *>> cursor;
+    struct Info
+    {
+        SDL_Cursor *cursor;
+        int delay;
+    };
+
+    static inline std::unordered_map<std::u16string, std::vector<Info>> cursor;
 
     static void init();
 
-    static void load(std::u16string path);
+    static void load(const std::u16string& path);
 
+    static void run();
+
+    static void action(const std::u16string& t);
+
+    static inline std::u16string type;
+    static inline int time = 0;
+    static inline int index = 0;
 };

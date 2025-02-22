@@ -12,7 +12,7 @@ std::u16string AfterImage::afterImage_index(int level)
     return std::u16string{level_str.begin(), level_str.end()};
 }
 
-void AfterImage::load(std::u16string &type, std::u16string &sfx, int level)
+void AfterImage::load(const std::u16string &type,const std::u16string &sfx, int level)
 {
     auto u16_level_str = afterImage_index(level);
 

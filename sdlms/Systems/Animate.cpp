@@ -193,7 +193,7 @@ void animate_character(Character *cha, entt::entity ent)
                     {
                         auto atk = World::registry->try_get<Attack>(ent);
                         auto atkw = ski->atkw.value();
-                        atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
+                        atkw.p = &World::registry->try_get<Transform>(ent)->position;
                         atk->atks.push_back(atkw);
                     }
                     else if (ski->ball > 0)
@@ -206,7 +206,7 @@ void animate_character(Character *cha, entt::entity ent)
                         else
                         {
                             entt::entity target = entt::null;
-                            std::vector<entt::entity> ents = load_ball(ski->ball, rotate, ski);
+                            std::vector<entt::entity> ents = load_ball(ski->ball, ent, rotate, ski);
                             for (auto e : ents)
                             {
                                 auto ball = World::registry->try_get<Ball>(e);
@@ -226,6 +226,10 @@ void animate_character(Character *cha, entt::entity ent)
                                 ball->p = position;
                             }
                         }
+                    }
+                    if (ski->call_back.has_value())
+                    {
+                        ski->call_back.value()(ent);
                     }
                     ski->hit = true;
                 }
@@ -259,7 +263,7 @@ void animate_character(Character *cha, entt::entity ent)
                         {
                             auto atk = World::registry->try_get<Attack>(ent);
                             auto atkw = ski->atkw.value();
-                            atkw.p = &World::registry->try_get<Transform>(Player::ent)->position;
+                            atkw.p = &World::registry->try_get<Transform>(ent)->position;
                             atk->atks.push_back(atkw);
                         }
                         else if (ski->ball > 0)
@@ -272,7 +276,7 @@ void animate_character(Character *cha, entt::entity ent)
                             else
                             {
                                 entt::entity target = entt::null;
-                                std::vector<entt::entity> ents = load_ball(ski->ball, rotate, ski);
+                                std::vector<entt::entity> ents = load_ball(ski->ball, ent, rotate, ski);
                                 for (auto e : ents)
                                 {
                                     auto ball = World::registry->try_get<Ball>(e);
@@ -292,6 +296,10 @@ void animate_character(Character *cha, entt::entity ent)
                                     ball->p = position;
                                 }
                             }
+                        }
+                        if (ski->call_back.has_value())
+                        {
+                            ski->call_back.value()(ent);
                         }
                         ski->hit = true;
                     }
@@ -336,7 +344,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
         {
             aft->animated = true;
         }
-        if (ent == Player::ent && aft->hit == false)
+        if (aft->hit == false)
         {
             aft->hit = true;
             if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
@@ -345,7 +353,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
                 if (std::find(attack_stances.begin(), attack_stances.end(), action) != attack_stances.end())
                 {
                     // 远程
-                    load_ball();
+                    load_ball(1, ent);
                     // play sound
                     Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
                     return;

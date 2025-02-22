@@ -22,7 +22,7 @@ void ball_run()
             // 这类型的ball不跟踪怪物,路径就是直线
             ball_no_track(ent, ball);
         }
-        if (ball->target != entt::null && World::registry->valid(ball->target) && ball->track)
+        if (ball->track && ball->target != entt::null && World::registry->valid(ball->target))
         {
             if (ball_track(ent, ball, (float)Window::delta_time / 1000))
             {
@@ -30,7 +30,7 @@ void ball_run()
                 World::zindex = true;
             }
         }
-        else if (ball->p == std::nullopt && ball->track)
+        else if (ball->track && ball->p == std::nullopt)
         {
             ball_fall(ent, ball);
         }
@@ -147,7 +147,7 @@ bool ball_no_track(entt::entity src, Ball *ball)
                 float dx;
                 float dy;
                 ball_distance(src, e, dx, dy);
-                if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
+                if (std::abs(dx) <= 15 && std::abs(dy) <= 15)
                 {
                     ball_hit(src, ball, e);
                     ball->track_hit.value().insert(e);

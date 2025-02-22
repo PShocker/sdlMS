@@ -21,6 +21,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     animate_run();
     attack_run();
     player_statemachine_run();
+    summon_statemachine_run();
     mob_statemachine_run();
     npc_statemachine_run();
     drop_run();
@@ -52,7 +53,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Cursor::init();
     Sound::init();
     Drop::init();
-    PlayerSkill::init();
 
     // World::load_map(222020111);
 

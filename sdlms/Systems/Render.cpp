@@ -61,11 +61,11 @@ void render_run()
             {
                 render_tomb(tomb);
             }
-            auto invincible_time = cha->invincible_cooldown;
             if (auto i = World::registry->try_get<Install>(ent))
             {
                 render_install(tr, i);
             }
+            auto invincible_time = cha->invincible_cooldown;
             render_character(tr, cha, invincible_time);
             if (auto aim = World::registry->try_get<AfterImage>(ent))
             {
@@ -275,6 +275,7 @@ void render_character(const Transform *tr, Character *cha, int invincible)
 {
     auto action = cha->action;
     auto action_index = cha->action_index;
+    auto alpha = cha->alpha;
 
     Transform transfrom(0, 0, 0, 0);
 
@@ -295,31 +296,32 @@ void render_character(const Transform *tr, Character *cha, int invincible)
             transfrom.position = chara_pos + SDL_FPoint{x, y};
         }
     };
-    const auto render_avatar = [&set_transform, &transfrom, &action, &action_index, &invincible](std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> part[Character::ACTION::LENGTH])
+    const auto render_avatar = [&set_transform, &transfrom, &action, &action_index, &invincible, &alpha](std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> part[Character::ACTION::LENGTH])
     {
         if (part[action].size() > 0)
         {
-            auto &[t, spr] = part[action][action_index];
-            if (spr != nullptr)
+            auto &[t, sprw] = part[action][action_index];
+            if (sprw != nullptr)
             {
-                set_transform(t, spr);
+                set_transform(t, sprw);
                 if (invincible > 0)
                 {
                     auto time = invincible % 200;
                     if (time > 100)
                     {
-                        SDL_SetTextureColorMod(spr->texture, 128, 128, 128); // 设置颜色调节为默认值
+                        SDL_SetTextureColorMod(sprw->texture, 128, 128, 128); // 设置颜色调节为默认值
                     }
                     else
                     {
-                        SDL_SetTextureColorMod(spr->texture, 255, 255, 255); // 设置颜色调节为默认值
+                        SDL_SetTextureColorMod(sprw->texture, 255, 255, 255); // 设置颜色调节为默认值
                     }
                 }
                 else
                 {
-                    SDL_SetTextureColorMod(spr->texture, 255, 255, 255); // 设置颜色调节为默认值
+                    SDL_SetTextureColorMod(sprw->texture, 255, 255, 255); // 设置颜色调节为默认值
                 }
-                render_sprite(&transfrom, spr);
+                SDL_SetTextureAlphaMod(sprw->texture, alpha);
+                render_sprite(&transfrom, sprw);
             }
         }
     };

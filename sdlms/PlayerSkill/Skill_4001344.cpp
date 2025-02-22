@@ -4,11 +4,11 @@
 #include <SDL3/SDL.h>
 
 // 双飞镖
-int skill_4001344()
+int skill_4001344(entt::entity ent)
 {
-    auto mv = World::registry->try_get<Move>(Player::ent);
-    auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
-    auto cha = World::registry->try_get<Character>(Player::ent);
+    auto mv = World::registry->try_get<Move>(ent);
+    auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
+    auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;
 
     // 通用攻击技能
@@ -16,16 +16,16 @@ int skill_4001344()
     {
         return PlayerSkill::SkillResult::None;
     }
-    else if (state != Character::State::JUMP)
+    else if (state != Character::State::JUMP && mv->foo != nullptr)
     {
         mv->hspeed = 0;
     }
 
     auto effect = Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001344/CharLevel/20/effect");
-    auto eff = World::registry->try_get<Effect>(Player::ent);
+    auto eff = World::registry->try_get<Effect>(ent);
     eff->effects.push_back({nullptr, AnimatedSprite(AnimatedSpriteWarp::load(effect))});
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(Player::ent, u"4001344");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4001344");
 
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};

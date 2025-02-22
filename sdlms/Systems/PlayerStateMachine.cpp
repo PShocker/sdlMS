@@ -371,7 +371,7 @@ bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity ent,
     {
         // 绳子或梯子上
         cha->state = Character::State::CLIMB;
-        return true;
+        return false;
     }
     else if (mv->foo == nullptr)
     {
@@ -823,6 +823,10 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         {
             id = u"4111005";
         }
+        else if (Input::state[SDL_SCANCODE_H])
+        {
+            id = u"4111002";
+        }
         else if (Input::state[SDL_SCANCODE_C])
         {
             id = u"2301002";
@@ -843,7 +847,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         int skill_res = -1;
         if (PlayerSkill::Skills.contains(id))
         {
-            skill_res = PlayerSkill::Skills[id]();
+            skill_res = PlayerSkill::Skills.at(id)(Player::ent);
             if (skill_res == -1)
             {
                 return false;
@@ -870,7 +874,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         // 技能效果
         if (skill_res & PlayerSkill::SkillResult::EFF)
         {
-            PlayerSkill::skill_effect(ski);
+            PlayerSkill::skill_effect(ski, Player::ent);
         }
 
         // 技能音效
@@ -888,7 +892,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         // 人物状态
         if (skill_res & PlayerSkill::SkillResult::ACT)
         {
-            PlayerSkill::skill_action(ski);
+            PlayerSkill::skill_action(ski, Player::ent);
         }
         // 人物状态
         if (skill_res & PlayerSkill::SkillResult::ALERT)

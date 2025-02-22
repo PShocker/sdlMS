@@ -4,12 +4,14 @@ bool right_mouse_press;
 
 void ui_run()
 {
+    auto type = Cursor::type;
+    Cursor::run();
     WorldMap::run();
     // 检测左键是否被按住
     if (Window::mouse_state & SDL_BUTTON_LMASK)
     {
         left_mouse_press = true;
-        SDL_SetCursor(Cursor::cursor[u"12"][0]);
+        Cursor::type = u"12";
     }
     else
     {
@@ -21,6 +23,14 @@ void ui_run()
             WorldMap::click();
         }
         left_mouse_press = false;
-        SDL_SetCursor(Cursor::cursor[u"0"][0]);
+        if (WorldMap::over())
+        {
+            Cursor::type = u"1";
+        }
+        else
+        {
+            Cursor::type = u"0";
+        }
     }
+    Cursor::action(type);
 }

@@ -3,10 +3,10 @@
 #include <SDL3/SDL.h>
 
 // 金钱炸弹
-int skill_4211006()
+int skill_4211006(entt::entity ent)
 {
-    auto mv = World::registry->try_get<Move>(Player::ent);
-    auto cha = World::registry->try_get<Character>(Player::ent);
+    auto mv = World::registry->try_get<Move>(ent);
+    auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;
 
     // 通用攻击技能
@@ -14,30 +14,30 @@ int skill_4211006()
     {
         return PlayerSkill::SkillResult::None;
     }
-    else if (state != Character::State::JUMP)
+    else if (state != Character::State::JUMP && mv->foo != nullptr)
     {
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(Player::ent, u"4211006");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4211006");
 
     SkillWarp::cooldowns[u"4211006"] = 500;
 
     auto view = World::registry->view<Drop>();
-    for (auto ent : view)
+    for (auto e : view)
     {
-        auto dr = &view.get<Drop>(ent);
+        auto dr = &view.get<Drop>(e);
         if (dr->id == u"09000000")
         {
-            auto d_tr = World::registry->try_get<Transform>(ent);
-            auto p_tr = World::registry->try_get<Transform>(Player::ent);
+            auto d_tr = World::registry->try_get<Transform>(e);
+            auto p_tr = World::registry->try_get<Transform>(ent);
             if (std::abs(p_tr->position.y - d_tr->position.y) <= 10)
             {
                 if ((p_tr->flip == 1 && d_tr->position.x > p_tr->position.x && d_tr->position.x - p_tr->position.x < 200) ||
                     (p_tr->flip == 0 && d_tr->position.x < p_tr->position.x && p_tr->position.x - d_tr->position.x < 200))
                 {
                     dr->destory = Window::dt_now + 700;
-                    auto eff = World::registry->try_get<Effect>(Player::ent);
+                    auto eff = World::registry->try_get<Effect>(ent);
                     eff->effects.push_back({new Transform(d_tr->position.x, d_tr->position.y),
                                             AnimatedSprite(ski->skiw->hits[0]),
                                             Window::dt_now + 700});

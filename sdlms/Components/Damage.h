@@ -22,7 +22,6 @@ struct Damage
         char type; // 0:red,1:violet,2:cri,3:blue
     };
 
-    // int alpha = 255;
     std::vector<Info> damage;
     std::optional<SDL_FPoint> head;
 };

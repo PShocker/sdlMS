@@ -7,7 +7,7 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-const std::unordered_set<std::u16string> track_skill =
+const std::unordered_set<std::u16string> track_no_skill =
     {u"4111005"};
 
 entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity owner,
@@ -19,7 +19,9 @@ entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity 
 
     tr.position.y = tran->position.y - 30;
     tr.flip = tran->flip;
-    tr.z = tran->z - 1;
+
+    auto count = World::registry->view<Ball>().size();
+    tr.z = tran->z - count - 1;
 
     auto &ball = World::registry->emplace<Ball>(ent);
     ball.owner = owner;
@@ -33,7 +35,7 @@ entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity 
     {
         auto &s = World::registry->emplace<Skill>(ent);
         s.atkw = ski->atkw;
-        if (track_skill.contains(ski->skiw->id))
+        if (track_no_skill.contains(ski->skiw->id))
         {
             // 这类技能不追踪怪物,水平直线移动,例如飞侠的多重飞镖
             ball.track = false;
@@ -59,11 +61,11 @@ entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity 
     return ent;
 }
 
-std::vector<entt::entity> load_ball(unsigned char num, std::optional<int> rotate, Skill *ski)
+std::vector<entt::entity> load_ball(unsigned char num, entt::entity owner, std::optional<int> rotate, Skill *ski)
 {
     std::vector<entt::entity> e;
 
-    auto ent = Player::ent;
+    auto ent = owner;
     auto tr = World::registry->try_get<Transform>(ent);
     auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
 

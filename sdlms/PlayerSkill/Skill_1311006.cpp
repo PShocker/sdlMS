@@ -3,9 +3,8 @@
 #include <SDL3/SDL.h>
 #include "Systems/Camera.h"
 // 龙咆哮
-int skill_1311006()
+int skill_1311006(entt::entity ent)
 {
-    auto ent = Player::ent;
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     auto cha = World::registry->try_get<Character>(ent);
@@ -16,7 +15,7 @@ int skill_1311006()
     {
         return PlayerSkill::SkillResult::None;
     }
-    else if (state != Character::State::JUMP)
+    else if (state != Character::State::JUMP && mv->foo != nullptr)
     {
         mv->hspeed = 0;
     }

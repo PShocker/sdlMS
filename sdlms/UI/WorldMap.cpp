@@ -127,6 +127,28 @@ void WorldMap::click()
     }
 }
 
+bool WorldMap::over()
+{
+    float mouse_x = Window::mouse_x;
+    float mouse_y = Window::mouse_y;
+    // 判断是否点击到spot
+    for (auto ent : World::registry->view<Spot>())
+    {
+        auto spot = World::registry->try_get<Spot>(ent);
+        auto spot_x = spot->x + WorldMap::x;
+        auto spot_y = spot->y + WorldMap::y;
+
+        auto dx = mouse_x - spot_x;
+        auto dy = mouse_y - spot_y;
+
+        if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 void WorldMap::run()
 {
     if (Input::state[SDL_SCANCODE_W])

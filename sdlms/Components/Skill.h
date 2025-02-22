@@ -4,8 +4,10 @@
 #include "Attack.h"
 #include "AnimatedSprite.h"
 #include "wz/Property.hpp"
+#include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 #include <optional>
+#include <functional>
 
 struct SkillWarp
 {
@@ -53,4 +55,6 @@ struct Skill
     uint8_t level = 19;
     bool attack = false;
     unsigned char ball = 0;
+
+    std::optional<std::function<void(entt::entity)>> call_back = std::nullopt;
 };

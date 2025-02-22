@@ -3,24 +3,14 @@
 #include <functional>
 #include "entt/entt.hpp"
 
-void PlayerSkill::init()
-{
-    PlayerSkill::Skills[u"1311006"] = skill_1311006;
-    PlayerSkill::Skills[u"2201002"] = skill_2201002;
-    PlayerSkill::Skills[u"2301002"] = skill_2301002;
-    PlayerSkill::Skills[u"4001344"] = skill_4001344;
-    PlayerSkill::Skills[u"4211006"] = skill_4211006;
-}
-
 void PlayerSkill::skill_sound(SkillWarp *souw, int delay)
 {
     // 技能音效
     Sound::push(souw->sounds[u"Use"], delay);
 }
 
-void PlayerSkill::skill_effect(Skill *ski)
+void PlayerSkill::skill_effect(Skill *ski, entt::entity ent)
 {
-    auto ent = Player::ent;
     auto eff = World::registry->try_get<Effect>(ent);
 
     for (auto &it : ski->skiw->effects)
@@ -29,9 +19,8 @@ void PlayerSkill::skill_effect(Skill *ski)
     }
 }
 
-void PlayerSkill::skill_action(Skill *ski)
+void PlayerSkill::skill_action(Skill *ski, entt::entity ent)
 {
-    auto ent = Player::ent;
     auto cha = World::registry->try_get<Character>(ent);
 
     cha->state = Character::State::SKILL;

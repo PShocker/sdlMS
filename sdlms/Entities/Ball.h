@@ -9,7 +9,7 @@ entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran,
                        std::optional<int> rotate = std::nullopt,
                        Skill *ski = nullptr);
 
-std::vector<entt::entity> load_ball(unsigned char num = 1, std::optional<int> rotate = std::nullopt,
+std::vector<entt::entity> load_ball(unsigned char num, entt::entity owner, std::optional<int> rotate = std::nullopt,
                                     Skill *ski = nullptr);
 
 std::vector<entt::entity> load_ball(AnimatedSpriteWarp *asprw, entt::entity owner,

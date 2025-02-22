@@ -26,4 +26,5 @@
 #include "Components/Animated.h"
 #include "Components/Reactor.h"
 #include "Components/Install.h"
+#include "Components/Summon.h"
 #include "Components/Test.h"
