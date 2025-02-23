@@ -1011,10 +1011,10 @@ uint8_t player_attack_action(WeaponInfo *wea)
             {
                 auto m_tr = World::registry->try_get<Transform>(ent);
                 auto p_tr = World::registry->try_get<Transform>(Player::ent);
-                if (std::abs(p_tr->position.y - m_tr->position.y) <= 5)
+                if (std::abs(p_tr->position.y - m_tr->position.y) <= 10)
                 {
-                    if ((p_tr->flip == 1 && p_tr->position.x <= m_tr->position.x && (m_tr->position.x - p_tr->position.x) <= 95) ||
-                        (p_tr->flip == 0 && p_tr->position.x >= m_tr->position.x && (p_tr->position.x - m_tr->position.x) <= 95))
+                    if ((p_tr->flip == 1 && p_tr->position.x <= m_tr->position.x && (m_tr->position.x - p_tr->position.x) <= 75) ||
+                        (p_tr->flip == 0 && p_tr->position.x >= m_tr->position.x && (p_tr->position.x - m_tr->position.x) <= 75))
                     {
                         action = wea->degen_stances[wea->attack][std::rand() % wea->degen_stances[wea->attack].size()];
                         return action;
@@ -1036,8 +1036,8 @@ uint8_t player_attack_action(WeaponInfo *wea)
                     auto p_tr = World::registry->try_get<Transform>(Player::ent);
                     if (std::abs(p_tr->position.y - r_tr->position.y) <= 30)
                     {
-                        if ((p_tr->flip == 1 && p_tr->position.x <= r_tr->position.x && (r_tr->position.x - p_tr->position.x) <= 95) ||
-                            (p_tr->flip == 0 && p_tr->position.x >= r_tr->position.x && (p_tr->position.x - r_tr->position.x) <= 95))
+                        if ((p_tr->flip == 1 && p_tr->position.x <= r_tr->position.x && (r_tr->position.x - p_tr->position.x) <= 75) ||
+                            (p_tr->flip == 0 && p_tr->position.x >= r_tr->position.x && (p_tr->position.x - r_tr->position.x) <= 75))
                         {
                             action = wea->degen_stances[wea->attack][std::rand() % wea->degen_stances[wea->attack].size()];
                             return action;
