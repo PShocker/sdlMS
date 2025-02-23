@@ -410,7 +410,7 @@ bool mob_jump(Mob *mob, Move *mv)
         if (fh == nullptr || fh->k.has_value() == false)
         {
             // 有概率起跳
-            int random = std::rand() % 25;
+            int random = std::rand() % 35;
             if (random == 0)
             {
                 mob->index = u"jump";
