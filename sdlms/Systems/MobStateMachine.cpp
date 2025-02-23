@@ -287,6 +287,8 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
             if (state == Mob::State::FLY)
             {
                 mob->tick = std::rand() % 100 + 200;
+                mob_set_hspeed(mob, mv, tr);
+                mob_set_vspeed(mob, mv, tr);
                 if (World::registry->valid(mob->hit))
                 {
                     mv->rx0 = std::nullopt;
@@ -305,8 +307,6 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                         mv->vspeed = mv->hspeed_min.value();
                     }
                 }
-                mob_set_hspeed(mob, mv, tr);
-                mob_set_vspeed(mob, mv, tr);
             }
             else if (mv->foo)
             {
