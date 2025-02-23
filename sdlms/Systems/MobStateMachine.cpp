@@ -35,12 +35,28 @@ void mob_statemachine(entt::entity ent, float delta_time)
     {
     case Mob::State::STAND:
     {
+        if (mob_attack(mob, tr))
+        {
+            mob->state = Mob::State::ATTACK;
+        }
     }
     break;
     case Mob::State::MOVE:
     {
         mob_flip(mv, tr);
-        mob->state = mob_move(mob, mv, tr, state, delta_time);
+        if (mob_attack(mob, tr))
+        {
+            mob->state = Mob::State::ATTACK;
+            break;
+        }
+        if (mob_jump(mob, mv))
+        {
+            mob->state = Mob::State::JUMP;
+        }
+        else
+        {
+            mob->state = mob_move(mob, mv, tr, state, delta_time);
+        }
     }
     break;
     case Mob::State::FLY:
@@ -61,7 +77,7 @@ void mob_statemachine(entt::entity ent, float delta_time)
     break;
     }
     mob->state = mob_active(mob, mv, tr, mob->state, delta_time);
-    mob_action(mob, mv, state, mob->state);
+    mob_action(mob, mv, tr, state, mob->state);
 }
 
 void mob_flip(Move *mv, Transform *tr)
@@ -95,7 +111,7 @@ int mob_fly(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
     return state;
 }
 
-void mob_action(Mob *mob, Move *mv, int state, int new_state)
+void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state)
 {
     if (state != new_state)
     {
@@ -111,21 +127,9 @@ void mob_action(Mob *mob, Move *mv, int state, int new_state)
         break;
         case Mob::State::MOVE:
         {
+            mob->tick = std::rand() % 100 + 2390;
             mob->index = u"move";
-            if (mob->hit == entt::null)
-            {
-                mob->tick = std::rand() % 100 + 2390;
-                int random = std::rand() % 2;
-                switch (random)
-                {
-                case 0:
-                    mv->hspeed = mv->hspeed_min.value();
-                    break;
-                case 1:
-                    mv->hspeed = mv->hspeed_max.value();
-                    break;
-                }
-            }
+            mob_set_hspeed(mob, mv, tr);
         }
         break;
         case Mob::State::JUMP:
@@ -188,14 +192,12 @@ bool mob_hit(Hit *hit, entt::entity ent)
                 mob_hit_move(hit, ent);
                 mob_fly(mob, mv, tr, mob->state, 0.15);
             }
-            else
+            else if (mv->foo)
             {
-                if (mv->foo)
-                {
-                    mob_hit_move(hit, ent);
-                    mob_move(mob, mv, tr, mob->state, 0.15);
-                }
+                mob_hit_move(hit, ent);
+                mob_move(mob, mv, tr, mob->state, 0.15);
             }
+            mob->tick = 0;
             mob->state = Mob::State::HIT;
             mob->index = u"hit1";
         }
@@ -282,54 +284,18 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
         mob->tick -= delta_time * 1000;
         if (mob->tick < 0)
         {
-            if (mob_attack(mob, tr))
+            if (state == Mob::State::FLY)
             {
-                state = Mob::State::ATTACK;
-            }
-            else if (state == Mob::State::FLY)
-            {
+                mob->tick = std::rand() % 100 + 200;
                 if (World::registry->valid(mob->hit))
                 {
                     mv->rx0 = std::nullopt;
                     mv->rx1 = std::nullopt;
                     mv->ry0 = std::nullopt;
                     mv->ry1 = std::nullopt;
-                    mob->tick = std::rand() % 100 + 300;
-                    auto h_tr = World::registry->try_get<Transform>(mob->hit);
-                    if (h_tr->position.x > tr->position.x)
-                    {
-                        mv->hspeed = mv->hspeed_max.value();
-                    }
-                    else
-                    {
-                        mv->hspeed = mv->hspeed_min.value();
-                    }
-                    if (h_tr->position.y > tr->position.y)
-                    {
-                        mv->vspeed = mv->hspeed_max.value();
-                    }
-                    else
-                    {
-                        mv->vspeed = mv->hspeed_min.value();
-                    }
                 }
                 else
                 {
-                    mob->tick = std::rand() % 100 + 200;
-                    int random = std::rand() % 2;
-                    switch (random)
-                    {
-                    case 0:
-                    {
-                        mv->hspeed = mv->hspeed_min.value();
-                        break;
-                    }
-                    case 1:
-                    {
-                        mv->hspeed = mv->hspeed_max.value();
-                        break;
-                    }
-                    }
                     if (tr->position.y <= mv->ry0.value())
                     {
                         mv->vspeed = mv->hspeed_max.value();
@@ -338,77 +304,34 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                     {
                         mv->vspeed = mv->hspeed_min.value();
                     }
-                    else
-                    {
-                        random = std::rand() % 2;
-                        switch (random)
-                        {
-                        case 0:
-                        {
-                            mv->vspeed = mv->hspeed_min.value();
-                            break;
-                        }
-                        case 1:
-                        {
-                            mv->vspeed = mv->hspeed_max.value();
-                            break;
-                        }
-                        }
-                    }
                 }
-                state = Mob::State::FLY;
+                mob_set_hspeed(mob, mv, tr);
+                mob_set_vspeed(mob, mv, tr);
             }
-            else
+            else if (mv->foo)
             {
-                if (mv->foo)
+                if (World::registry->valid(mob->hit))
                 {
-                    if (World::registry->valid(mob->hit))
+                    mob->tick = std::rand() % 100 + 200;
+                    mob_set_hspeed(mob, mv, tr);
+                    state = Mob::State::MOVE;
+                }
+                else
+                {
+                    // 只有在地面才可以切换状态
+                    //  怪物状态切换 STAND MOVE
+                    mob->tick = std::rand() % 100 + 240;
+                    int random = std::rand() % 2;
+                    switch (random)
                     {
-                        mob->tick = std::rand() % 100 + 200;
-                        auto h_tr = World::registry->try_get<Transform>(mob->hit);
-                        if (h_tr->position.x > tr->position.x)
-                        {
-                            mv->hspeed = mv->hspeed_max.value();
-                        }
-                        else
-                        {
-                            mv->hspeed = mv->hspeed_min.value();
-                        }
-                        state = Mob::State::MOVE;
-                    }
-                    else
-                    {
-                        // 只有在地面才可以切换状态
-                        //  怪物状态切换 STAND MOVE
-                        int random = std::rand() % 2;
-                        switch (random)
-                        {
-                        case 0:
-                            state = Mob::State::STAND;
-                            break;
-                        case 1:
-                        {
-                            if (state == Mob::State::MOVE)
-                            {
-                                mob->tick = std::rand() % 100 + 1300;
-                                random = std::rand() % 2;
-                                switch (random)
-                                {
-                                case 0:
-                                    mv->hspeed = mv->hspeed_min.value();
-                                    break;
-                                case 1:
-                                    mv->hspeed = mv->hspeed_max.value();
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                state = Mob::State::MOVE;
-                            }
-                        }
+                    case 0:
+                        state = Mob::State::STAND;
+                        mv->hspeed = 0;
                         break;
-                        }
+                    case 1:
+                        state = Mob::State::MOVE;
+                        mob_set_hspeed(mob, mv, tr);
+                        break;
                     }
                 }
             }
@@ -466,4 +389,106 @@ bool mob_attack(Mob *mob, Transform *tr)
         }
     }
     return false;
+}
+
+bool mob_jump(Mob *mob, Move *mv)
+{
+    if (mob->a.contains(u"jump"))
+    {
+        FootHold *fh = nullptr;
+        // 判断移动方向
+        if (mv->hspeed > 0)
+        {
+            // 向右移动
+            fh = mv->foo->next;
+        }
+        else
+        {
+            // 向左移动
+            fh = mv->foo->prev;
+        }
+        if (fh == nullptr || fh->k.has_value() == false)
+        {
+            // 有50%概率起跳
+            int random = std::rand() % 25;
+            if (random == 0)
+            {
+                mob->index = u"jump";
+                mob->state = Mob::State::JUMP;
+
+                mv->foo = nullptr;
+                mv->vspeed = -420;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void mob_set_hspeed(Mob *mob, Move *mv, Transform *tr)
+{
+    auto ent = mob->hit;
+    if (World::registry->valid(ent))
+    {
+        auto m_tr = tr;
+        auto h_tr = World::registry->try_get<Transform>(ent);
+        if (h_tr != nullptr)
+        {
+            mv->hspeed = (h_tr->position.x > m_tr->position.x)
+                             ? mv->hspeed_max.value()
+                             : mv->hspeed_min.value();
+        }
+    }
+    else
+    {
+        int random = std::rand() % 2;
+        switch (random)
+        {
+        case 0:
+        {
+            mv->hspeed = mv->hspeed_min.value();
+            break;
+        }
+        case 1:
+        {
+            mv->hspeed = mv->hspeed_max.value();
+            break;
+        }
+        }
+    }
+    return;
+}
+
+void mob_set_vspeed(Mob *mob, Move *mv, Transform *tr)
+{
+    auto ent = mob->hit;
+    if (World::registry->valid(ent))
+    {
+        auto m_tr = tr;
+        auto h_tr = World::registry->try_get<Transform>(ent);
+        if (h_tr != nullptr)
+        {
+            mv->vspeed = (h_tr->position.y > m_tr->position.y)
+                             ? mv->hspeed_max.value()
+                             : mv->hspeed_min.value();
+        }
+    }
+    else
+    {
+        int random = std::rand() % 2;
+        switch (random)
+        {
+        case 0:
+        {
+            mv->vspeed = mv->hspeed_min.value();
+            break;
+        }
+        case 1:
+        {
+            mv->vspeed = mv->hspeed_max.value();
+            break;
+        }
+        }
+    }
+    return;
 }
