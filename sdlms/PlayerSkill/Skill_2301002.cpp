@@ -23,7 +23,7 @@ int skill_2301002(entt::entity ent)
         hit_effect(&atkw, std::nullopt, ent, 3, nullptr);
     };
 
-    SkillWarp::cooldowns[u"2301002"] = 1000;
+    SkillWarp::cooldowns[u"2301002"] = 1500;
 
     if (state == Character::State::CLIMB)
     {
