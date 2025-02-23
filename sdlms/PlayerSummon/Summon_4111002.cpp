@@ -23,6 +23,7 @@ int summon_4111002(entt::entity ent)
         auto s_tr = World::registry->try_get<Transform>(ent);
         auto mv = World::registry->try_get<Move>(sum->owner);
         s_tr->flip = o_tr->flip;
+        s_tr->z = o_tr->z - 1;
 
         if (mv->lr != nullptr && mv->hspeed == 0 && (o_cha->action == Character::ACTION::LADDER || o_cha->action == Character::ACTION::ROPE))
         {

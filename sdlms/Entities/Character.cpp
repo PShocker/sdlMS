@@ -31,13 +31,16 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     World::registry->emplace<Animated>(ent);
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Damage>(ent);
+
+    auto count = World::registry->view<Character>().size();
+
     if (sp)
     {
-        World::registry->emplace<Transform>(ent, recent_portal(x, y), FRONT_BACKGROUND_Z);
+        World::registry->emplace<Transform>(ent, recent_portal(x, y), LAYER_Z * 8 + CHARACTER_Z - count);
     }
     else
     {
-        World::registry->emplace<Transform>(ent, x, y, FRONT_BACKGROUND_Z);
+        World::registry->emplace<Transform>(ent, x, y, LAYER_Z * 8 + CHARACTER_Z - count);
     }
     World::registry->emplace<Move>(ent);
     World::zindex = true;
