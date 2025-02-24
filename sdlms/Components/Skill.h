@@ -11,22 +11,9 @@
 
 struct SkillWarp
 {
-    struct Info
-    {
-        int mpCon;
-        int damage;
-        int mobCount = 1;
-        int attackCount = 1;
-        std::u16string action;
-        SDL_FPoint lt = SDL_FPoint{-110, -32};
-        SDL_FPoint rb = SDL_FPoint{-40, -11};
-
-        Info(wz::Node *node);
-    };
-
     std::vector<AnimatedSpriteWarp *> effects;
     std::vector<AnimatedSpriteWarp *> hits;
-    std::vector<Info> infos;
+    std::vector<wz::Node *> level;
     std::u16string id;
     std::optional<std::u16string> action_str = std::nullopt;
 
@@ -34,6 +21,7 @@ struct SkillWarp
     static inline std::unordered_map<std::u16string, int> cooldowns;
 
     wz::Node *ball = nullptr;
+    wz::Node *summon = nullptr;
 
     SkillWarp(const std::u16string &id);
     SkillWarp() = default;

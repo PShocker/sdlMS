@@ -111,6 +111,11 @@ void animate_run()
             animate_damage(dam);
         }
     }
+    for (auto ent : World::registry->view<Animated, Summon>(entt::exclude<Character>))
+    {
+        auto sum = World::registry->try_get<Summon>(ent);
+        animate_summon(sum, ent);
+    }
 }
 
 bool animate_sprite(AnimatedSprite *a)
@@ -659,5 +664,25 @@ void animate_ball(Ball *ball, entt::entity ent)
     {
         auto tr = World::registry->try_get<Transform>(ent);
         tr->rotation += (float)Window::delta_time * ball->rotate.value() / 300;
+    }
+}
+
+void animate_summon(Summon *sum, entt::entity ent)
+{
+    if (!animate_sprite(&sum->a[sum->index]))
+    {
+        if (sum->state == Summon::State::INIT)
+        {
+            if (sum->a.contains(u"stand"))
+            {
+                sum->state = Summon::State::STAND;
+                sum->index = u"stand";
+            }
+            else if (sum->a.contains(u"fly"))
+            {
+                sum->state = Summon::State::FLY;
+                sum->index = u"fly";
+            }
+        }
     }
 }

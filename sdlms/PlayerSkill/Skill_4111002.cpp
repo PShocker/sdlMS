@@ -18,7 +18,7 @@ int skill_4111002(entt::entity ent)
         for (auto e : World::registry->view<Summon, Character>())
         {
             auto sum = World::registry->try_get<Summon>(e);
-            if (sum->owner == ent)
+            if (sum->owner == ent && sum->id == u"4111002")
             {
                 sum->destory = Window::dt_now + 30000;
                 return;

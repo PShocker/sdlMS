@@ -13,3 +13,4 @@
 #include "Entities/LadderRope.h"
 #include "Entities/Portal.h"
 #include "Entities/Reactor.h"
+#include "Entities/Summon.h"

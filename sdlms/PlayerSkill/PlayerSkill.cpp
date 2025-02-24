@@ -40,11 +40,35 @@ void PlayerSkill::skill_attack(Skill *ski)
 {
     if (!ski->atkw.has_value())
     {
-        auto lt = (ski->skiw->ball != nullptr) ? SDL_FPoint{0, 0} : ski->skiw->infos[ski->level].lt;
-        auto rb = (ski->skiw->ball != nullptr) ? SDL_FPoint{0, 0} : ski->skiw->infos[ski->level].rb;
+        auto lt = SDL_FPoint{0, 0};
+        auto rb = SDL_FPoint{0, 0};
+        auto node = ski->skiw->level[ski->level];
+        if (ski->skiw->ball == nullptr)
+        {
+            if (node->get_child(u"lt") && node->get_child(u"rb"))
+            {
+                auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
+                lt = SDL_FPoint{(float)v.x, (float)v.y};
+                v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
+                rb = SDL_FPoint{(float)v.x, (float)v.y};
+            }
+            else
+            {
+                lt = SDL_FPoint{-110, -32};
+                rb = SDL_FPoint{-40, -11};
+            }
+        }
         AnimatedSpriteWarp *hit = (ski->skiw->hits.size() > 0) ? ski->skiw->hits[0] : nullptr;
-        auto mobCount = ski->skiw->infos[ski->level].mobCount;
-        auto attackCount = ski->skiw->infos[ski->level].attackCount;
+        auto mobCount = 1;
+        if (node->get_child(u"mobCount"))
+        {
+            mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
+        }
+        auto attackCount = 1;
+        if (node->get_child(u"attackCount"))
+        {
+            attackCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"attackCount"))->get();
+        }
         SoundWarp *souw = (ski->skiw->sounds.contains(u"Hit")) ? ski->skiw->sounds[u"Hit"] : nullptr;
         ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
     }

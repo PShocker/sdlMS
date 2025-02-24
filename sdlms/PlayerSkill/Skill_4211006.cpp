@@ -43,10 +43,13 @@ int skill_4211006(entt::entity ent)
                                             Window::dt_now + 700});
                     if (ski->attack == false)
                     {
-                        auto lt = ski->skiw->infos[ski->level].lt;
-                        auto rb = ski->skiw->infos[ski->level].rb;
+                        auto node = ski->skiw->level[ski->level];
+                        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
+                        auto lt = SDL_FPoint{(float)v.x, (float)v.y};
+                        v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
+                        auto rb = SDL_FPoint{(float)v.x, (float)v.y};
                         auto hit = ski->skiw->hits[0];
-                        auto mobCount = ski->skiw->infos[ski->level].mobCount;
+                        auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
                         auto attackCount = 1;
                         SoundWarp *souw = nullptr;
                         if (ski->skiw->sounds.contains(u"Hit"))

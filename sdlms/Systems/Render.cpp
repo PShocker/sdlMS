@@ -96,6 +96,10 @@ void render_run()
                 render_damage(tr, dam, dam->head);
             }
         }
+        else if (auto sum = World::registry->try_get<Summon>(ent))
+        {
+            render_summon(tr, sum);
+        }
     }
 }
 
@@ -687,4 +691,10 @@ void render_install(Transform *tr, Install *i)
     auto spr = aspr.aspr->sprites[aspr.anim_index];
     tran.position.y -= (spr->height - spr->origin.y);
     render_animated_sprite(&tran, &i->aspr);
+}
+
+void render_summon(Transform *tr, Summon *sum)
+{
+    auto a = &sum->a[sum->index];
+    render_animated_sprite(tr, a);
 }

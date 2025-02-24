@@ -6,6 +6,7 @@
 #include "Components/Components.h"
 
 int skill_2201002(entt::entity ent);
+int skill_2221005(entt::entity ent);
 int skill_2301002(entt::entity ent);
 int skill_4211006(entt::entity ent);
 int skill_1311006(entt::entity ent);
@@ -24,6 +25,7 @@ struct PlayerSkill
 
     static const inline std::unordered_map<std::u16string, std::function<int(entt::entity)>> Skills = {
         {u"2201002", skill_2201002},
+        {u"2221005", skill_2221005},
         {u"2301002", skill_2301002},
         {u"4211006", skill_4211006},
         {u"1311006", skill_1311006},

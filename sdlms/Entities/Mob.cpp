@@ -46,17 +46,14 @@ void load_mob(wz::Node *node)
     {
         if (key != u"info")
         {
-            auto asprw = AnimatedSpriteWarp::load(val[0]);
-            mob.a[key] = AnimatedSprite(asprw);
-
+            mob.a[key] = AnimatedSprite(val[0]);
             for (auto &sprs : mob.a[key].aspr->sprites)
             {
                 SDL_SetTextureScaleMode(sprs->texture, SDL_SCALEMODE_NEAREST);
             }
             if (key == u"attack1")
             {
-                asprw = AnimatedSpriteWarp::load(val[0]->find_from_path(u"info/hit"));
-                mob.atk = asprw;
+                mob.atk = AnimatedSpriteWarp::load(val[0]->find_from_path(u"info/hit"));
                 mob.atkw.hit = mob.atk;
             }
         }

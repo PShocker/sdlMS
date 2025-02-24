@@ -19,3 +19,4 @@ void animate_face(Character *cha);
 void animate_reactor(Reactor *r);
 void animate_install(Install *i);
 void animate_ball(Ball *ball, entt::entity ent);
+void animate_summon(Summon *sum, entt::entity ent);

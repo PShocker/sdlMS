@@ -9,7 +9,25 @@ struct Summon
     std::u16string id;
     entt::entity owner = entt::null;
 
-    AnimatedSpriteWarp *hit = nullptr;
+    std::unordered_map<std::u16string, AnimatedSprite> a;
+
+    std::u16string index;
+
+    AnimatedSpriteWarp *atk = nullptr;
+
+    // 状态机
+    struct State
+    {
+        static const int INIT = 0;
+        static const int STAND = 1;
+        static const int MOVE = 2;
+        static const int DIE = 3;
+        static const int FLY = 4;
+        static const int ATTACK = 5;
+    };
+
+    int state = State::INIT;
+
     // 摧毁时间
     unsigned int destory = Window::dt_now + 30000;
 };
