@@ -20,7 +20,7 @@ target_link_libraries(sdlMS PRIVATE wzlib)
 target_link_libraries(sdlMS PRIVATE freetype)
 target_link_libraries(sdlMS PRIVATE EnTT)
 
-target_link_libraries(sdlMS PRIVATE avformat avdevice avcodec avutil swscale avfilter swresample)
+target_link_libraries(sdlMS PRIVATE avformat avcodec avutil swscale swresample)
 
 if(WIN32)
         if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
