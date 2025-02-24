@@ -263,7 +263,7 @@ bool mob_fall(Mob *mob, Move *mv, Transform *tr, float delta_time)
     {
         // 默认重力为2000
         mv->vspeed += delta_time * 2000;
-        if (move_fall(mv, tr, delta_time, MOB_Z))
+        if (move_fall(mv, tr, delta_time, tr->z % LAYER_Z))
         {
             return true;
         }
@@ -366,9 +366,11 @@ bool mob_revive(entt::entity ent, float delta_time)
 
         mob->hp = 100;
         mob->hit = entt::null;
-        mv->ry0 = mob->init_y - 40;
-        mv->ry1 = mob->init_y + 40;
-
+        if (mob->a.contains(u"fly"))
+        {
+            mv->ry0 = mob->init_y - 40;
+            mv->ry1 = mob->init_y + 40;
+        }
         mv->foo = mob->init_fh;
         tr->position.x = mob->init_x;
         tr->position.y = mob->init_y;

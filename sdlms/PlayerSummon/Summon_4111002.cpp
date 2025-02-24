@@ -7,6 +7,11 @@ int summon_4111002(entt::entity ent)
     if (World::registry->valid(sum->owner))
     {
         auto o_cha = World::registry->try_get<Character>(sum->owner);
+        if (o_cha->state == Character::State::DIE)
+        {
+            sum->destory = Window::dt_now - 1;
+            return 0;
+        }
         auto s_cha = World::registry->try_get<Character>(ent);
 
         s_cha->state = o_cha->state;

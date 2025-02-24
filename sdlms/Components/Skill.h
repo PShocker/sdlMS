@@ -33,8 +33,7 @@ struct SkillWarp
     std::unordered_map<std::u16string, SoundWarp *> sounds;
     static inline std::unordered_map<std::u16string, int> cooldowns;
 
-    AnimatedSpriteWarp *ball = nullptr;
-    std::optional<int> rotatePeriod = std::nullopt;
+    wz::Node *ball = nullptr;
 
     SkillWarp(const std::u16string &id);
     SkillWarp() = default;

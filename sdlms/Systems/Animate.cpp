@@ -198,10 +198,14 @@ void animate_character(Character *cha, entt::entity ent)
                     }
                     else if (ski->ball > 0)
                     {
-                        auto rotate = ski->skiw->rotatePeriod;
+                        std::optional<int> rotate = std::nullopt;
+                        if (ski->skiw->ball && ski->skiw->ball->get_child(u"rotatePeriod"))
+                        {
+                            rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->ball->get_child(u"rotatePeriod"))->get();
+                        }
                         if (ski->skiw->ball != nullptr)
                         {
-                            load_ball(ski->skiw->ball, ent, ski->ball, nullptr, rotate, ski);
+                            load_ball(AnimatedSpriteWarp::load(ski->skiw->ball), ent, ski->ball, nullptr, rotate, ski);
                         }
                         else
                         {
@@ -268,10 +272,14 @@ void animate_character(Character *cha, entt::entity ent)
                         }
                         else if (ski->ball > 0)
                         {
-                            auto rotate = ski->skiw->rotatePeriod;
+                            std::optional<int> rotate = std::nullopt;
+                            if (ski->skiw->ball && ski->skiw->ball->get_child(u"rotatePeriod"))
+                            {
+                                rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->ball->get_child(u"rotatePeriod"))->get();
+                            }
                             if (ski->skiw->ball != nullptr)
                             {
-                                load_ball(ski->skiw->ball, ent, ski->ball, nullptr, rotate, ski);
+                                load_ball(AnimatedSpriteWarp::load(ski->skiw->ball), ent, ski->ball, nullptr, rotate, ski);
                             }
                             else
                             {
