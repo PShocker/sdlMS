@@ -26,7 +26,7 @@ int skill_4111002(entt::entity ent)
         }
         // 召唤分身
         auto e = World::registry->create();
-        load_character(0, 0, true, e);
+        load_character(0, 0, false, e);
         auto sum = &World::registry->emplace<Summon>(e);
         sum->id = u"4111002";
         sum->owner = ent;
