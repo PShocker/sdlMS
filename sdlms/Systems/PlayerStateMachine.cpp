@@ -847,6 +847,10 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         {
             id = u"2221005";
         }
+        else if (Input::state[SDL_SCANCODE_2])
+        {
+            id = u"2121005";
+        }
     }
 
     if (id != u"" && SkillWarp::cooldowns[id] <= 0)

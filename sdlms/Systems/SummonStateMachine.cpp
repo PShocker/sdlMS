@@ -24,7 +24,7 @@ void summon_statemachine_run()
         }
         else if (sum->a.contains(u"die"))
         {
-            summon_action(sum, sum->state, Summon::State::DIE);
+            sum->state = summon_action(sum, sum->state, Summon::State::DIE);
         }
         else
         {
@@ -102,8 +102,8 @@ entt::entity summon_attack(Transform *tr)
         if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
         {
             auto m_tr = World::registry->try_get<Transform>(ent);
-            if (std::abs(m_tr->position.x - tr->position.x) < 200 &&
-                std::abs(m_tr->position.y - tr->position.y) < 15)
+            if (std::abs(m_tr->position.x - tr->position.x) <= 200 &&
+                std::abs(m_tr->position.y - tr->position.y) <= 35)
             {
                 return ent;
             }
@@ -176,7 +176,7 @@ int summon_follow(Summon *sum, Move *mv, Transform *tr)
     return state;
 }
 
-void summon_action(Summon *sum, int state, int new_state)
+int summon_action(Summon *sum, int state, int new_state)
 {
     if (state != new_state)
     {
@@ -207,4 +207,5 @@ void summon_action(Summon *sum, int state, int new_state)
         sum->a[sum->index].anim_index = 0;
         sum->a[sum->index].anim_time = 0;
     }
+    return new_state;
 }

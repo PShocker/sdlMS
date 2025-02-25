@@ -27,11 +27,14 @@ int summon_4111002(entt::entity ent)
 
         auto o_tr = World::registry->try_get<Transform>(sum->owner);
         auto s_tr = World::registry->try_get<Transform>(ent);
-        auto mv = World::registry->try_get<Move>(sum->owner);
         s_tr->flip = o_tr->flip;
         s_tr->z = o_tr->z - 1;
 
-        if (mv->lr != nullptr && mv->hspeed == 0 && (o_cha->action == Character::ACTION::LADDER || o_cha->action == Character::ACTION::ROPE))
+        auto o_mv = World::registry->try_get<Move>(sum->owner);
+        auto s_mv = World::registry->try_get<Move>(ent);
+        s_mv->foo = o_mv->foo;
+
+        if (o_mv->lr != nullptr && o_mv->hspeed == 0 && (o_cha->action == Character::ACTION::LADDER || o_cha->action == Character::ACTION::ROPE))
         {
             s_tr->position.x = o_tr->position.x;
             s_tr->position.y = o_tr->position.y + 45;
