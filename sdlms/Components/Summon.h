@@ -14,6 +14,7 @@ struct Summon
     std::u16string index;
 
     AnimatedSpriteWarp *atk = nullptr;
+    AttackWarp atkw;
 
     // 状态机
     struct State
@@ -24,6 +25,7 @@ struct Summon
         static const int DIE = 3;
         static const int FLY = 4;
         static const int ATTACK = 5;
+        static const int REMOVE = 6;
     };
 
     int state = State::INIT;

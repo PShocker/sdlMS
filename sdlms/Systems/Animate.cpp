@@ -1,6 +1,7 @@
 #include "Animate.h"
 #include "Hit.h"
 #include "Ball.h"
+#include "SummonStateMachine.h"
 #include "Core/Core.h"
 #include "Entities/Entities.h"
 #include "Commons/Commons.h"
@@ -204,13 +205,13 @@ void animate_character(Character *cha, entt::entity ent)
                     else if (ski->ball > 0)
                     {
                         std::optional<int> rotate = std::nullopt;
-                        if (ski->skiw->ball && ski->skiw->ball->get_child(u"rotatePeriod"))
+                        if (ski->skiw->node->get_child(u"ball") && ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))
                         {
-                            rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->ball->get_child(u"rotatePeriod"))->get();
+                            rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
                         }
-                        if (ski->skiw->ball != nullptr)
+                        if (ski->skiw->node->get_child(u"ball") != nullptr)
                         {
-                            load_ball(AnimatedSpriteWarp::load(ski->skiw->ball), ent, ski->ball, nullptr, rotate, ski);
+                            load_ball(AnimatedSpriteWarp::load(ski->skiw->node->get_child(u"ball")), ent, ski->ball, nullptr, rotate, ski);
                         }
                         else
                         {
@@ -278,13 +279,13 @@ void animate_character(Character *cha, entt::entity ent)
                         else if (ski->ball > 0)
                         {
                             std::optional<int> rotate = std::nullopt;
-                            if (ski->skiw->ball && ski->skiw->ball->get_child(u"rotatePeriod"))
+                            if (ski->skiw->node->get_child(u"ball") && ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))
                             {
-                                rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->ball->get_child(u"rotatePeriod"))->get();
+                                rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
                             }
-                            if (ski->skiw->ball != nullptr)
+                            if (ski->skiw->node->get_child(u"ball") != nullptr)
                             {
-                                load_ball(AnimatedSpriteWarp::load(ski->skiw->ball), ent, ski->ball, nullptr, rotate, ski);
+                                load_ball(AnimatedSpriteWarp::load(ski->skiw->node->get_child(u"ball")), ent, ski->ball, nullptr, rotate, ski);
                             }
                             else
                             {
@@ -684,5 +685,33 @@ void animate_summon(Summon *sum, entt::entity ent)
                 sum->index = u"fly";
             }
         }
+        else if (sum->state == Summon::State::ATTACK)
+        {
+            // ATTACK
+            if (auto e = summon_attack(World::registry->try_get<Transform>(ent)); World::registry->valid(e))
+            {
+                auto tr = World::registry->try_get<Transform>(ent);
+                sum->atkw.p = &tr->position;
+                hit_effect(&sum->atkw, e, 0, nullptr);
+            }
+            if (sum->a.contains(u"stand"))
+            {
+                sum->state = Summon::State::STAND;
+                sum->index = u"stand";
+            }
+            else if (sum->a.contains(u"fly"))
+            {
+                sum->state = Summon::State::FLY;
+                sum->index = u"fly";
+            }
+        }
+        else if (sum->state == Summon::State::DIE)
+        {
+            World::destory.push_back(ent);
+            World::zindex = true;
+            return;
+        }
+        sum->a[sum->index].anim_index = 0;
+        sum->a[sum->index].anim_time = 0;
     }
 }

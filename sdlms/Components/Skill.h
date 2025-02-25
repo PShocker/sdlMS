@@ -20,8 +20,7 @@ struct SkillWarp
     std::unordered_map<std::u16string, SoundWarp *> sounds;
     static inline std::unordered_map<std::u16string, int> cooldowns;
 
-    wz::Node *ball = nullptr;
-    wz::Node *summon = nullptr;
+    wz::Node *node = nullptr;
 
     SkillWarp(const std::u16string &id);
     SkillWarp() = default;

@@ -43,7 +43,7 @@ void PlayerSkill::skill_attack(Skill *ski)
         auto lt = SDL_FPoint{0, 0};
         auto rb = SDL_FPoint{0, 0};
         auto node = ski->skiw->level[ski->level];
-        if (ski->skiw->ball == nullptr)
+        if (ski->skiw->node->get_child(u"ball") == nullptr)
         {
             if (node->get_child(u"lt") && node->get_child(u"rb"))
             {
@@ -72,7 +72,7 @@ void PlayerSkill::skill_attack(Skill *ski)
         SoundWarp *souw = (ski->skiw->sounds.contains(u"Hit")) ? ski->skiw->sounds[u"Hit"] : nullptr;
         ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
     }
-    if (ski->skiw->ball != nullptr)
+    if (ski->skiw->node->get_child(u"ball") != nullptr)
     {
         ski->ball = 1;
     }

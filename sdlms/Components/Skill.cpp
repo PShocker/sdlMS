@@ -11,7 +11,13 @@ static std::unordered_map<std::u16string, SkillWarp *> cache;
 
 SkillWarp::SkillWarp(const std::u16string &id) : id(id)
 {
-    auto node = Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id);
+    node = Wz::Sound->get_root()->find_from_path(u"Skill.img/" + id);
+    for (auto &[key, val] : node->get_children())
+    {
+        auto sou = SoundWarp::load(val[0]);
+        sounds[key] = sou;
+    }
+    node = Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id);
     if (node->get_child(u"effect"))
     {
         effects.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")));
@@ -44,15 +50,6 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
     if (node->get_child(u"action"))
     {
         action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action")->get_child(u"0"))->get();
-    }
-    ball = node->get_child(u"ball");
-    summon = node->get_child(u"summon");
-
-    node = Wz::Sound->get_root()->find_from_path(u"Skill.img/" + id);
-    for (auto &[key, val] : node->get_children())
-    {
-        auto sou = SoundWarp::load(val[0]);
-        sounds[key] = sou;
     }
 }
 
