@@ -116,6 +116,10 @@ void animate_run()
     {
         auto sum = World::registry->try_get<Summon>(ent);
         animate_summon(sum, ent);
+        if (auto eff = World::registry->try_get<Effect>(ent))
+        {
+            animate_effect(eff);
+        }
     }
 }
 
@@ -674,15 +678,15 @@ void animate_summon(Summon *sum, entt::entity ent)
     {
         if (sum->state == Summon::State::INIT)
         {
-            if (sum->a.contains(u"stand"))
-            {
-                sum->state = Summon::State::STAND;
-                sum->index = u"stand";
-            }
-            else if (sum->a.contains(u"fly"))
+            if (sum->a.contains(u"fly"))
             {
                 sum->state = Summon::State::FLY;
                 sum->index = u"fly";
+            }
+            else if (sum->a.contains(u"stand"))
+            {
+                sum->state = Summon::State::STAND;
+                sum->index = u"stand";
             }
         }
         else if (sum->state == Summon::State::ATTACK)
@@ -694,15 +698,15 @@ void animate_summon(Summon *sum, entt::entity ent)
                 sum->atkw.p = &tr->position;
                 hit_effect(&sum->atkw, e, 0, nullptr);
             }
-            if (sum->a.contains(u"stand"))
-            {
-                sum->state = Summon::State::STAND;
-                sum->index = u"stand";
-            }
-            else if (sum->a.contains(u"fly"))
+            if (sum->a.contains(u"fly"))
             {
                 sum->state = Summon::State::FLY;
                 sum->index = u"fly";
+            }
+            else if (sum->a.contains(u"stand"))
+            {
+                sum->state = Summon::State::STAND;
+                sum->index = u"stand";
             }
         }
         else if (sum->state == Summon::State::DIE)

@@ -99,6 +99,10 @@ void render_run()
         else if (auto sum = World::registry->try_get<Summon>(ent))
         {
             render_summon(tr, sum);
+            if (auto eff = World::registry->try_get<Effect>(ent))
+            {
+                render_effect(tr, eff);
+            }
         }
     }
 }

@@ -15,6 +15,10 @@ void load_summon(wz::Node *node, entt::entity ent, float x, float y, int z, cons
         {
             SDL_SetTextureScaleMode(sprs->texture, SDL_SCALEMODE_NEAREST);
         }
+        if (key == u"attack1")
+        {
+            sum->a[key].aspr->sprites[sum->a[key].aspr->sprites.size() - 1]->delay = 1;
+        }
     }
     sum->atk = AnimatedSpriteWarp::load(node->parent->find_from_path(u"hit/0"));
     sum->atkw.hit = sum->atk;

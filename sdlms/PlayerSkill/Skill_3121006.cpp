@@ -6,8 +6,8 @@
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 
-// 火魔兽
-int skill_2221005(entt::entity ent)
+// 火凤凰
+int skill_3121006(entt::entity ent)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto cha = World::registry->try_get<Character>(ent);
@@ -22,7 +22,7 @@ int skill_2221005(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2221005");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"3121006");
     auto call_back = [](entt::entity ent)
     {
         auto o_mv = World::registry->try_get<Move>(ent);
@@ -31,7 +31,7 @@ int skill_2221005(entt::entity ent)
             for (auto e : World::registry->view<Summon>())
             {
                 auto sum = World::registry->try_get<Summon>(e);
-                if (sum->owner == ent && sum->id == u"2221005")
+                if (sum->owner == ent && sum->id == u"3121006")
                 {
                     sum->destory = Window::dt_now + 30000;
                     return;
@@ -40,13 +40,14 @@ int skill_2221005(entt::entity ent)
             auto e = World::registry->create();
             auto tr = World::registry->try_get<Transform>(ent);
             Skill *ski = World::registry->try_get<Skill>(ent);
-            load_summon(ski->skiw->node->get_child(u"summon"), e, tr->position.x, tr->position.y, tr->z - 2, u"2221005", ent);
+            load_summon(ski->skiw->node->get_child(u"summon"), e, tr->position.x, tr->position.y, tr->z - 2, u"3121006", ent);
             World::registry->emplace<Effect>(e);
             auto s_mv = &World::registry->emplace<Move>(e);
-            s_mv->foo = o_mv->foo;
+            s_mv->hspeed_min = -250;
+            s_mv->hspeed_max = 250;
         }
     };
     ski->call_back = call_back;
-    SkillWarp::cooldowns[u"2221005"] = 1500;
+    SkillWarp::cooldowns[u"3121006"] = 1500;
     return PlayerSkill::SkillResult::SOU | PlayerSkill::SkillResult::ACT;
 }

@@ -24,22 +24,26 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
 
     for (int i = 0; i < atkw->attackCount; i++)
     {
-        dam->damage.push_back({std::abs(atkw->damage),
-                               255,
-                               type,
-                               Window::dt_now + (i + (int)count) * 64,
-                               (float)(std::rand() % 21 - 10), (float)(i + count) * 38});
-        if (atkw->hit)
+        Damage::Info info;
+        info.damage = std::abs(atkw->damage);
+        info.alpha = 255;
+        info.type = type;
+        info.delay = Window::dt_now + (i + (int)count) * 64;
+        info.x = (float)(std::rand() % 21 - 10);
+        info.y = (float)(i + count) * 38;
+        dam->damage.push_back(info);
+    }
+
+    if (atkw->hit)
+    {
+        auto eff = World::registry->try_get<Effect>(ent);
+        if (p != nullptr)
         {
-            auto eff = World::registry->try_get<Effect>(ent);
-            if (p != nullptr)
-            {
-                eff->effects.push_back({new Transform(*p), AnimatedSprite(atkw->hit), Window::dt_now + i * 145});
-            }
-            else
-            {
-                eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), Window::dt_now + i * 145});
-            }
+            eff->effects.push_back({new Transform(*p), AnimatedSprite(atkw->hit), Window::dt_now});
+        }
+        else
+        {
+            eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), Window::dt_now});
         }
     }
 }
