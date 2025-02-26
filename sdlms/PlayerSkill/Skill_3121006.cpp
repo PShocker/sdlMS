@@ -42,9 +42,7 @@ int skill_3121006(entt::entity ent)
             Skill *ski = World::registry->try_get<Skill>(ent);
             load_summon(ski->skiw->node->get_child(u"summon"), e, tr->position.x, tr->position.y, tr->z - 2, u"3121006", ent);
             World::registry->emplace<Effect>(e);
-            auto s_mv = &World::registry->emplace<Move>(e);
-            s_mv->hspeed_min = -250;
-            s_mv->hspeed_max = 250;
+            World::registry->emplace<Move>(e);
         }
     };
     ski->call_back = call_back;

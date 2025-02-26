@@ -34,7 +34,7 @@ struct Mob
 
     int revive;
     // 复活时间
-    int revive_time = 6000;
+    int revive_time = 10000;
     int revive_alpha_time = 900;
 
     float init_x;
