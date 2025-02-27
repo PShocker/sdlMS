@@ -67,6 +67,11 @@ void render_run()
             }
             auto invincible_time = cha->invincible_cooldown;
             render_character(tr, cha, invincible_time);
+            // SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 255);
+            // auto rect = cha->r;
+            // rect.x += tr->position.x - Camera::x;
+            // rect.y += tr->position.y - Camera::y;
+            // SDL_RenderFillRect(Window::renderer, &rect);
             if (auto aim = World::registry->try_get<AfterImage>(ent))
             {
                 render_afterimage(tr, aim, cha);
@@ -632,23 +637,86 @@ void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a)
     auto p_tr = World::registry->try_get<Transform>(Player::ent);
     if (p_tr->z < tr->z)
     {
-        SDL_FRect r{tr->position.x - sprw->origin.x, tr->position.y - sprw->origin.y, (float)sprw->width, (float)sprw->height};
-        SDL_FPoint p = p_tr->position;
-        p.y -= 45;
-        if (SDL_PointInRectFloat(&p, &r))
+        const SDL_FRect s_r{tr->position.x - sprw->origin.x, tr->position.y - sprw->origin.y,
+                            (float)sprw->width, (float)sprw->height};
+        SDL_FRect p_r = World::registry->try_get<Character>(Player::ent)->r;
+        p_r.x += p_tr->position.x;
+        p_r.y += p_tr->position.y;
+        // 如果物体遮挡了人物，绘制遮挡区域为半透明（黑色）
+        if (SDL_HasRectIntersectionFloat(&p_r, &s_r))
         {
-            SDL_SetTextureAlphaMod(sprw->texture, a->alpha * 0.5);
+            // 计算物体相对于自身的遮挡区域
+            SDL_FRect overlap;
+            SDL_GetRectIntersectionFloat(&p_r, &s_r, &overlap);
+            overlap.x -= s_r.x;
+            overlap.y -= s_r.y;
+            switch (sprw->texture->format)
+            {
+            case SDL_PIXELFORMAT_ARGB4444:
+            {
+                // 锁定纹理获取像素数据
+                void *pixels;
+                int pitch; // 每行字节数（ARGB4444格式下，pitch = width * 2）
+                if (SDL_LockTexture(sprw->texture, nullptr, &pixels, &pitch) != 0)
+                {
+                    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "锁定纹理失败: %s", SDL_GetError());
+                    return;
+                }
+                auto width = sprw->width;
+                auto height = sprw->height;
+                // 备份原始像素数据（16位数组）
+                Uint16 *backup = new Uint16[width * height];
+                memcpy(backup, pixels, width * height * sizeof(Uint16));
+
+                // 转换像素指针为16位类型（ARGB4444每个像素占2字节）
+                Uint16 *pixel_data = static_cast<Uint16 *>(pixels);
+
+                // 遍历目标区域修改Alpha通道
+                for (int y = overlap.y; y < overlap.y + overlap.h; ++y)
+                {
+                    for (int x = overlap.x; x < overlap.x + overlap.w; ++x)
+                    {
+                        // 计算一维索引（行优先）
+                        int index = y * width + x;
+                        // 提取ARGB分量（每个分量4位）
+                        Uint16 pixel = pixel_data[index];
+                        Uint8 a = (pixel >> 12) & 0x0F; // Alpha在高4位
+                        Uint8 r = (pixel >> 8) & 0x0F;  // Red
+                        Uint8 g = (pixel >> 4) & 0x0F;  // Green
+                        Uint8 b = pixel & 0x0F;         // Blue
+                        // 修改Alpha值（限制在4位范围内）
+                        a = 0 & 0x0F;
+                        // 重新打包为ARGB4444格式
+                        pixel_data[index] = (a << 12) | (r << 8) | (g << 4) | b;
+                    }
+                }
+                // 解锁纹理
+                SDL_UnlockTexture(sprw->texture);
+                render_sprite(tr, sprw);
+                if (SDL_LockTexture(sprw->texture, nullptr, &pixels, &pitch) == 0)
+                {
+                    // 将备份数据复制回纹理
+                    memcpy(pixels, backup, width * height * sizeof(Uint16));
+                    SDL_UnlockTexture(sprw->texture);
+                }
+                delete[] backup; // 释放备份内存
+            }
+            break;
+            default:
+                break;
+            }
         }
         else
         {
             SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
+            render_sprite(tr, sprw);
         }
     }
     else
     {
         SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
+        render_sprite(tr, sprw);
     }
-    render_sprite(tr, sprw);
 }
 
 void render_tomb(Tomb *tomb)

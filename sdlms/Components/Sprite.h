@@ -25,6 +25,7 @@ struct SpriteWarp
     static void clean_up();
 
     SpriteWarp(wz::Node *node, int alpha = 255);
+    SpriteWarp() = default;
 };
 
 struct Sprite
