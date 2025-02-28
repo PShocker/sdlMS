@@ -47,7 +47,7 @@ void load_mob(wz::Node *node)
         if (key != u"info")
         {
             mob.a[key] = AnimatedSprite(val[0]);
-            for (auto &sprs : mob.a[key].aspr->sprites)
+            for (auto &sprs : mob.a[key].asprw->sprites)
             {
                 SDL_SetTextureScaleMode(sprs->texture, SDL_SCALEMODE_NEAREST);
             }

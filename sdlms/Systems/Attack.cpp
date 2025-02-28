@@ -171,7 +171,7 @@ bool trap_attack()
     {
         auto trap = &view.get<Trap>(ent);
         auto aspr = World::registry->try_get<AnimatedSprite>(ent);
-        auto spr = aspr->aspr->sprites[aspr->anim_index];
+        auto spr = aspr->asprw->sprites[aspr->anim_index];
         if (spr->n->get_child(u"lt") && spr->n->get_child(u"rb"))
         {
             auto lt = dynamic_cast<wz::Property<wz::WzVec2D> *>(spr->n->get_child(u"lt"))->get();

@@ -130,11 +130,11 @@ bool animate_sprite(AnimatedSprite *a)
     {
         auto delta_time = Window::delta_time;
         a->anim_time += delta_time;
-        if (a->anim_time >= a->aspr->sprites[a->anim_index]->delay)
+        if (a->anim_time >= a->asprw->sprites[a->anim_index]->delay)
         {
             if (a->anim_index + a->anim_step == a->anim_size || a->anim_index + a->anim_step < 0)
             {
-                if (a->aspr->z)
+                if (a->asprw->z)
                 {
                     if (a->anim_step == 1)
                     {
@@ -161,18 +161,18 @@ bool animate_sprite(AnimatedSprite *a)
             }
         }
         // 透明度处理
-        auto a0 = a->aspr->sprites[a->anim_index]->a0;
-        auto a1 = a->aspr->sprites[a->anim_index]->a1;
+        auto a0 = a->asprw->sprites[a->anim_index]->a0;
+        auto a1 = a->asprw->sprites[a->anim_index]->a1;
         a->alpha = a0;
         if (a0 != a1)
         {
             if (a0 <= a1)
             {
-                a->alpha = (float)a0 + (float)(a1 - a0) / (float)a->aspr->sprites[a->anim_index]->delay * (float)a->anim_time;
+                a->alpha = (float)a0 + (float)(a1 - a0) / (float)a->asprw->sprites[a->anim_index]->delay * (float)a->anim_time;
             }
             else
             {
-                a->alpha = (float)a0 - (float)(a0 - a1) / (float)a->aspr->sprites[a->anim_index]->delay * (float)a->anim_time;
+                a->alpha = (float)a0 - (float)(a0 - a1) / (float)a->asprw->sprites[a->anim_index]->delay * (float)a->anim_time;
             }
         }
     }
@@ -354,6 +354,11 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
     auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
     auto &info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action];
     uint8_t index = info.index;
+    if (aft->aspr.asprw == nullptr)
+    {
+        aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action].asprw);
+        aft->hit = true;
+    }
     auto &aspr = aft->aspr;
     if (cha->action_index == index || aft->animate)
     {

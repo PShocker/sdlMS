@@ -7,11 +7,11 @@
 
 static std::unordered_map<wz::Node *, SpriteWarp *> cache;
 
-SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha, bool caches, SDL_TextureAccess access)
+SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha, bool caches)
 {
     if (caches == false)
     {
-        return new SpriteWarp(node, alpha, access);
+        return new SpriteWarp(node, alpha);
     }
     if (cache.contains(node))
     {
@@ -19,13 +19,13 @@ SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha, bool caches, SDL_Texture
     }
     else
     {
-        SpriteWarp *sprw = new SpriteWarp(node, alpha, access);
+        SpriteWarp *sprw = new SpriteWarp(node, alpha);
         cache[node] = sprw;
         return sprw;
     }
 }
 
-SpriteWarp::SpriteWarp(wz::Node *node, int alpha, SDL_TextureAccess access)
+SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
 {
     if (node->type == wz::Type::UOL)
     {
@@ -101,14 +101,14 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha, SDL_TextureAccess access)
     case 1:
     {
         pixel = raw_data;
-        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB4444, access, w, h);
+        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, w, h);
         SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint16));
         break;
     }
     case 2:
     {
         pixel = raw_data;
-        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888, access, w, h);
+        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, w, h);
         SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint32));
         break;
     }
@@ -140,7 +140,7 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha, SDL_TextureAccess access)
             }
             lineIndex += w * 32;
         }
-        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_RGB565, access, w, h);
+        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STATIC, w, h);
         SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint16));
         break;
     }
@@ -153,10 +153,10 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha, SDL_TextureAccess access)
 
 Sprite::Sprite(wz::Node *node, int alpha)
 {
-    spr = SpriteWarp::load(node, alpha);
+    sprw = SpriteWarp::load(node, alpha);
 }
 
-Sprite::Sprite(SpriteWarp *spr) : spr(spr)
+Sprite::Sprite(SpriteWarp *sprw) : sprw(sprw)
 {
 }
 

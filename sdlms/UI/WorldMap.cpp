@@ -13,12 +13,7 @@ void WorldMap::show()
     auto ent = World::registry->create();
     World::registry->emplace<WorldMap>(ent);
 
-    SpriteWarp *mapImage[3];
     auto node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap");
-    mapImage[0] = SpriteWarp::load(node->find_from_path(u"mapImage/0"));
-    mapImage[1] = SpriteWarp::load(node->find_from_path(u"mapImage/1"));
-    mapImage[2] = SpriteWarp::load(node->find_from_path(u"mapImage/2"));
-
     AnimatedSpriteWarp *curPos = AnimatedSpriteWarp::load(node->find_from_path(u"curPos"));
     std::optional<int> curPos_x;
     std::optional<int> curPos_y;
@@ -53,7 +48,6 @@ void WorldMap::show()
             int no = 0;
             if (it->type == wz::Type::Int)
             {
-
                 no = dynamic_cast<wz::Property<int> *>(it)->get();
             }
             else
@@ -70,7 +64,32 @@ void WorldMap::show()
         }
 
         World::registry->emplace<Spot>(ent, spot_x, spot_y, type, mapNo);
-        World::registry->emplace<Sprite>(ent, mapImage[type]);
+        node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap");
+        switch (type)
+        {
+        case 0:
+        {
+            World::registry->emplace<Sprite>(ent, SpriteWarp::load(node->find_from_path(u"mapImage/0")));
+        }
+        break;
+        case 1:
+        {
+            World::registry->emplace<Sprite>(ent, SpriteWarp::load(node->find_from_path(u"mapImage/1")));
+        }
+        break;
+        case 2:
+        {
+            World::registry->emplace<Sprite>(ent, SpriteWarp::load(node->find_from_path(u"mapImage/2")));
+        }
+        break;
+        case 3:
+        {
+            World::registry->emplace<Sprite>(ent, SpriteWarp::load(node->find_from_path(u"mapImage/3")));
+        }
+        break;
+        default:
+            break;
+        }
         World::registry->emplace<Transform>(ent, (float)spot_x + WorldMap::x, (float)spot_y + WorldMap::y, UI_Z + 1, 0, true);
     }
     if (curPos_x.has_value() && curPos_y.has_value())

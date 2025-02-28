@@ -5,11 +5,11 @@
 
 static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
 
-AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool caches, SDL_TextureAccess access)
+AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool caches)
 {
     if (caches == false)
     {
-        return new AnimatedSpriteWarp(node, alpha, false, access);
+        return new AnimatedSpriteWarp(node, alpha, false);
     }
     if (cache.contains(node))
     {
@@ -17,13 +17,13 @@ AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool cac
     }
     else
     {
-        AnimatedSpriteWarp *asprw = new AnimatedSpriteWarp(node, alpha, true, access);
+        AnimatedSpriteWarp *asprw = new AnimatedSpriteWarp(node, alpha, true);
         cache[node] = asprw;
         return asprw;
     }
 }
 
-AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches, SDL_TextureAccess access)
+AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches)
 {
     if (node->type == wz::Type::UOL)
     {
@@ -33,7 +33,7 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches, S
     {
         // 单帧动画图
         auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node);
-        sprites.push_back(SpriteWarp::load(canvas, alpha, caches, access));
+        sprites.push_back(SpriteWarp::load(canvas, alpha, caches));
     }
     else
     {
@@ -60,7 +60,7 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches, S
             {
                 continue;
             }
-            sprites.push_back(SpriteWarp::load(canvas, alpha, caches, access));
+            sprites.push_back(SpriteWarp::load(canvas, alpha, caches));
         }
     }
     if (node->get_child(u"zigzag") != nullptr)
@@ -72,13 +72,13 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches, S
 
 AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
 {
-    aspr = AnimatedSpriteWarp::load(node, alpha);
-    anim_size = aspr->sprites.size();
+    asprw = AnimatedSpriteWarp::load(node, alpha);
+    anim_size = asprw->sprites.size();
 }
 
-AnimatedSprite::AnimatedSprite(AnimatedSpriteWarp *aspr) : aspr(aspr)
+AnimatedSprite::AnimatedSprite(AnimatedSpriteWarp *asprw) : asprw(asprw)
 {
-    anim_size = aspr->sprites.size();
+    anim_size = asprw->sprites.size();
 }
 
 void AnimatedSpriteWarp::clean_up()

@@ -4,7 +4,7 @@
 SDL_FRect Mob::rect()
 {
     auto animated = &a[index];
-    auto m_spr = animated->aspr->sprites[animated->anim_index];
+    auto m_spr = animated->asprw->sprites[animated->anim_index];
     SDL_FRect m_rect;
     if (m_spr->n->get_child(u"lt") && m_spr->n->get_child(u"rb"))
     {
@@ -30,7 +30,7 @@ SDL_FRect Mob::rect()
 SDL_FPoint Mob::head()
 {
     auto animated = &a[index];
-    auto m_spr = animated->aspr->sprites[animated->anim_index];
+    auto m_spr = animated->asprw->sprites[animated->anim_index];
     SDL_FPoint m_head;
     if (m_spr->n->get_child(u"head"))
     {

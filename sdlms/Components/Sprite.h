@@ -14,18 +14,17 @@ struct SpriteWarp
     SDL_Point origin = {0, 0};
     wz::Node *n = nullptr;
 
-    static SpriteWarp *load(wz::Node *node, int alpha = 255,
-                            bool caches = true, SDL_TextureAccess access = SDL_TEXTUREACCESS_STATIC);
+    static SpriteWarp *load(wz::Node *node, int alpha = 255, bool caches = true);
     static void clean_up();
 
-    SpriteWarp(wz::Node *node, int alpha = 255, SDL_TextureAccess access = SDL_TEXTUREACCESS_STATIC);
+    SpriteWarp(wz::Node *node, int alpha = 255);
     SpriteWarp() = default;
 };
 
 struct Sprite
 {
-    SpriteWarp *spr = nullptr;
+    SpriteWarp *sprw = nullptr;
     Sprite(wz::Node *node, int alpha = 255);
-    Sprite(SpriteWarp *spr);
+    Sprite(SpriteWarp *sprw);
     Sprite() = default;
 };

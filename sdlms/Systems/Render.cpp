@@ -16,12 +16,12 @@ void render_run()
         auto tr = &view.get<Transform>(ent);
         if (auto spr = World::registry->try_get<Sprite>(ent))
         {
-            auto sprw = spr->spr;
+            auto sprw = spr->sprw;
             render_sprite(tr, sprw);
         }
         else if (auto a = World::registry->try_get<AnimatedSprite>(ent))
         {
-            render_animated_sprite_alpha(tr, a);
+            render_animated_sprite(tr, a);
         }
         else if (auto bspr = World::registry->try_get<BackGround>(ent))
         {
@@ -157,7 +157,7 @@ void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *o)
 
 void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *o)
 {
-    auto sprw = a->aspr->sprites[a->anim_index];
+    auto sprw = a->asprw->sprites[a->anim_index];
     SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
     render_sprite(tr, sprw, o);
 }
@@ -181,12 +181,12 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
 
     if (std::holds_alternative<Sprite>(bspr->spr))
     {
-        sprw = std::get<Sprite>(bspr->spr).spr;
+        sprw = std::get<Sprite>(bspr->spr).sprw;
     }
     else
     {
         auto a = &std::get<AnimatedSprite>(bspr->spr);
-        sprw = a->aspr->sprites[a->anim_index];
+        sprw = a->asprw->sprites[a->anim_index];
         SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
     }
     spr_w = sprw->texture->w;
@@ -631,88 +631,6 @@ void render_damage(Transform *tr, Damage *dam, std::optional<SDL_FPoint> head)
     }
 }
 
-void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a)
-{
-    auto sprw = a->aspr->sprites[a->anim_index];
-    auto p_tr = World::registry->try_get<Transform>(Player::ent);
-    if (p_tr->z < tr->z)
-    {
-        SDL_PropertiesID props = SDL_GetTextureProperties(sprw->texture);
-        SDL_TextureAccess access = (SDL_TextureAccess)SDL_GetNumberProperty(props, SDL_PROP_TEXTURE_ACCESS_NUMBER, sprw->texture->format);
-        if (access == SDL_TEXTUREACCESS_STREAMING)
-        {
-            const SDL_FRect s_r{tr->position.x - sprw->origin.x, tr->position.y - sprw->origin.y,
-                                (float)sprw->texture->w, (float)sprw->texture->h};
-            SDL_FRect p_r = World::registry->try_get<Character>(Player::ent)->r;
-            p_r.x += p_tr->position.x;
-            p_r.y += p_tr->position.y;
-            // 如果物体遮挡了人物，绘制遮挡区域为半透明
-            if (SDL_HasRectIntersectionFloat(&p_r, &s_r))
-            {
-                // 计算物体相对于自身的遮挡区域
-                SDL_FRect overlap;
-                SDL_GetRectIntersectionFloat(&p_r, &s_r, &overlap);
-                overlap.x -= s_r.x;
-                overlap.y -= s_r.y;
-                switch (sprw->texture->format)
-                {
-                case SDL_PIXELFORMAT_ARGB4444:
-                {
-                    // 锁定纹理获取像素数据
-                    void *pixels;
-                    int pitch; // 每行字节数（ARGB4444格式下，pitch = width * 2）
-                    if (SDL_LockTexture(sprw->texture, nullptr, &pixels, &pitch))
-                    {
-                        int width = sprw->texture->w;
-                        int height = sprw->texture->h;
-
-                        // 备份原始像素数据
-                        std::vector<Uint16> backup(width * height);
-                        memcpy(backup.data(), pixels, width * height * sizeof(Uint16));
-
-                        // 修改遮挡区域的像素数据
-                        Uint16 *pixel_data = static_cast<Uint16 *>(pixels);
-                        int start_x = static_cast<int>(overlap.x);
-                        int start_y = static_cast<int>(overlap.y);
-                        int end_x = start_x + static_cast<int>(overlap.w);
-                        int end_y = start_y + static_cast<int>(overlap.h);
-                        for (int y = start_y; y < end_y; ++y)
-                        {
-                            Uint16 *pixel_row = pixel_data + y * width + start_x;
-                            for (int x = start_x; x < end_x; ++x)
-                            {
-                                // 提取ARGB分量（每个分量4位）
-                                Uint16 pixel = *pixel_row;
-                                Uint8 a = (pixel >> 12) & 0x0F; // Alpha在高4位
-                                Uint8 r = (pixel >> 8) & 0x0F;  // Red
-                                Uint8 g = (pixel >> 4) & 0x0F;  // Green
-                                Uint8 b = pixel & 0x0F;         // Blue
-                                // 设置Alpha为128
-                                a = 128;
-                                // 重新打包为ARGB4444格式
-                                *pixel_row = (a << 12) | (r << 8) | (g << 4) | b;
-                                ++pixel_row;
-                            }
-                        }
-                        // 渲染修改后的纹理
-                        render_sprite(tr, sprw);
-                        // 恢复原始像素数据
-                        memcpy(pixels, backup.data(), width * height * sizeof(Uint16));
-                        SDL_UnlockTexture(sprw->texture);
-                        return;
-                    }
-                }
-                break;
-                default:
-                    break;
-                }
-            }
-        }
-    }
-    SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
-    render_sprite(tr, sprw);
-}
-
 void render_tomb(Tomb *tomb)
 {
     render_animated_sprite(&tomb->f, &tomb->aspr);
@@ -729,7 +647,7 @@ void render_drop(Transform *tr, Drop *dro)
     }
     a->alpha = alpha * 255;
 
-    auto sprw = a->aspr->sprites[a->anim_index];
+    auto sprw = a->asprw->sprites[a->anim_index];
     auto origin = SDL_FPoint{(float)sprw->texture->w / 2, (float)sprw->texture->h / 2};
 
     Transform tran(tr->position.x - (float)sprw->origin.x + (float)sprw->texture->w / 2,
@@ -754,7 +672,7 @@ void render_install(Transform *tr, Install *i)
 {
     Transform tran(tr->position, 0, tr->flip);
     auto aspr = i->aspr;
-    auto spr = aspr.aspr->sprites[aspr.anim_index];
+    auto spr = aspr.asprw->sprites[aspr.anim_index];
     tran.position.y -= (spr->texture->h - spr->origin.y);
     render_animated_sprite(&tran, &i->aspr);
 }

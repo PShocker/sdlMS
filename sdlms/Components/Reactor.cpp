@@ -3,7 +3,7 @@
 SDL_FRect Reactor::rect()
 {
     auto init = &a[index].init;
-    auto r_spr = init->aspr->sprites[init->anim_index];
+    auto r_spr = init->asprw->sprites[init->anim_index];
     SDL_FRect r_rect;
     if (r_spr->n->get_child(u"lt") && r_spr->n->get_child(u"rb"))
     {
@@ -29,7 +29,7 @@ SDL_FRect Reactor::rect()
 SDL_FPoint Reactor::head()
 {
     auto init = &a[index].init;
-    auto r_spr = init->aspr->sprites[init->anim_index];
+    auto r_spr = init->asprw->sprites[init->anim_index];
     SDL_FPoint r_head;
     if (r_spr->n->get_child(u"head"))
     {

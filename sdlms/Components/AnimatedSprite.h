@@ -11,11 +11,9 @@ struct AnimatedSpriteWarp
 
     bool z = false; // ziazag
 
-    AnimatedSpriteWarp(wz::Node *node, int alpha = 255, bool caches = true,
-                       SDL_TextureAccess access = SDL_TEXTUREACCESS_STATIC);
+    AnimatedSpriteWarp(wz::Node *node, int alpha = 255, bool caches = true);
 
-    static AnimatedSpriteWarp *load(wz::Node *node, int alpha = 255,
-                                    bool caches = true, SDL_TextureAccess access = SDL_TEXTUREACCESS_STATIC);
+    static AnimatedSpriteWarp *load(wz::Node *node, int alpha = 255,bool caches = true);
     static void clean_up();
 };
 
@@ -27,11 +25,11 @@ struct AnimatedSprite
     bool animate = true; // 是否播放
     int alpha = 255;     // 当前帧所对应的透明度
 
-    AnimatedSpriteWarp *aspr = nullptr;
+    AnimatedSpriteWarp *asprw = nullptr;
 
     char anim_step = 1;
 
     AnimatedSprite(wz::Node *node, int alpha = 255);
-    AnimatedSprite(AnimatedSpriteWarp *aspr);
+    AnimatedSprite(AnimatedSpriteWarp *asprw);
     AnimatedSprite() = default;
 };

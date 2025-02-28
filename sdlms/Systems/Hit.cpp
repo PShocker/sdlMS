@@ -29,7 +29,7 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
         info.alpha = 255;
         info.type = type;
         info.delay = Window::dt_now + (i + (int)count) * 64;
-        info.x = (float)(std::rand() % 21 - 10);
+        info.x = (float)(std::rand() % 11 - 5);
         info.y = (float)(i + count) * 38;
         dam->damage.push_back(info);
     }

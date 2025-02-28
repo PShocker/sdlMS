@@ -4,7 +4,7 @@
 SDL_FRect Npc::rect()
 {
     auto animated = &a[index];
-    auto n_spr = animated->aspr->sprites[animated->anim_index];
+    auto n_spr = animated->asprw->sprites[animated->anim_index];
     SDL_FRect n_rect;
     if (n_spr->n->get_child(u"lt") && n_spr->n->get_child(u"rb"))
     {
@@ -30,7 +30,7 @@ SDL_FRect Npc::rect()
 SDL_FPoint Npc::head()
 {
     auto animated = &a[index];
-    auto n_spr = animated->aspr->sprites[animated->anim_index];
+    auto n_spr = animated->asprw->sprites[animated->anim_index];
     SDL_FPoint n_head;
     if (n_spr->n->get_child(u"head"))
     {

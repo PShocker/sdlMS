@@ -52,6 +52,12 @@ void PlayerSkill::skill_attack(Skill *ski)
                 v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
                 rb = SDL_FPoint{(float)v.x, (float)v.y};
             }
+            else if (node->get_child(u"range"))
+            {
+                auto range = dynamic_cast<wz::Property<int> *>(node->get_child(u"range"))->get();
+                lt = SDL_FPoint{-(float)range, -60};
+                rb = SDL_FPoint{0, 0};
+            }
             else
             {
                 lt = SDL_FPoint{-110, -32};
