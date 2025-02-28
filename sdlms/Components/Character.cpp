@@ -257,7 +257,7 @@ void Character::add_body(const std::u16string &val)
                 SpriteWarp *sprite = SpriteWarp::load(body_node->find_from_path(type + u"/body"));
                 SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                 Transform f;
-                auto z = std::any_cast<std::u16string>(sprite->z);
+                auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                 auto part = *zmap[z];
                 part[i][no] = {f, sprite};
             }
@@ -268,7 +268,7 @@ void Character::add_body(const std::u16string &val)
                     SpriteWarp *sprite = SpriteWarp::load(body_node->find_from_path(type + u"/arm"));
                     SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                     Transform f(body_positions[i][no] - SDL_FPoint{(float)arm_pos.x, (float)arm_pos.y});
-                    auto z = std::any_cast<std::u16string>(sprite->z);
+                    auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                     auto part = *zmap[z];
                     part[i][no] = {f, sprite};
                 }
@@ -283,7 +283,7 @@ void Character::add_body(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(hand);
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(body_positions[i][no] - SDL_FPoint{(float)hand_pos.x, (float)hand_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -299,7 +299,7 @@ void Character::add_body(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(lHand);
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(hand_positions[i][no] - SDL_FPoint{(float)lHand_pos.x, (float)lHand_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -309,7 +309,7 @@ void Character::add_body(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(lHand);
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(body_positions[i][no] - SDL_FPoint{(float)lHand_pos.x, (float)lHand_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -325,7 +325,7 @@ void Character::add_body(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(rHand);
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(body_positions[i][no] - SDL_FPoint{(float)rHand_pos.x, (float)rHand_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -353,7 +353,7 @@ void Character::add_coat(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(coat_node->find_from_path(type + u"/mail"));
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(body_positions[i][no] - SDL_FPoint{(float)coat_pos.x, (float)coat_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -365,7 +365,7 @@ void Character::add_coat(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(coat_node->find_from_path(type + u"/mailArm"));
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(body_positions[i][no] - SDL_FPoint{(float)mail_arm_pos.x, (float)mail_arm_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -410,7 +410,7 @@ void Character::add_cap(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(cap);
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(face_positions[i][no] - SDL_FPoint{(float)cap_pos.x, (float)cap_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -437,7 +437,7 @@ void Character::add_pants(const std::u16string &val)
                     SpriteWarp *sprite = SpriteWarp::load(pants_node->find_from_path(type + u"/pants"));
                     SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                     Transform f(body_positions[i][no] - SDL_FPoint{(float)pants_pos.x, (float)pants_pos.y});
-                    auto z = std::any_cast<std::u16string>(sprite->z);
+                    auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                     auto part = *zmap[z];
                     part[i][no] = {f, sprite};
                 }
@@ -460,7 +460,7 @@ void Character::add_head(const std::u16string &val)
                 SpriteWarp *sprite = SpriteWarp::load(head_node->find_from_path(type + u"/head"));
                 SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                 Transform f(head_positions[i][no]);
-                auto z = std::any_cast<std::u16string>(sprite->z);
+                auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                 auto part = *zmap[z];
                 part[i][no] = {f, sprite};
             }
@@ -502,7 +502,7 @@ void Character::add_face(const std::u16string &val, std::u16string type, const s
                 SpriteWarp *sprite = SpriteWarp::load(face_node);
                 SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                 Transform f(face_positions[i][no] - SDL_FPoint{(float)face_pos.x, (float)face_pos.y});
-                auto z = std::any_cast<std::u16string>(sprite->z);
+                auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                 auto part = *zmap[z];
                 part[i][no] = {f, sprite};
             }
@@ -538,7 +538,7 @@ void Character::add_hairs(const std::u16string &val)
                 SpriteWarp *sprite = SpriteWarp::load(hairs);
                 SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                 Transform f(face_positions[i][no] - SDL_FPoint{(float)hair_pos.x, (float)hair_pos.y});
-                auto z = std::any_cast<std::u16string>(sprite->z);
+                auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                 auto part = *zmap[z];
                 part[i][no] = {f, sprite};
             }
@@ -563,7 +563,7 @@ void Character::add_shoes(const std::u16string &val)
                     SpriteWarp *sprite = SpriteWarp::load(shoes_node->find_from_path(type + u"/shoes"));
                     SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                     Transform f(body_positions[i][no] - SDL_FPoint{(float)shoes_pos.x, (float)shoes_pos.y});
-                    auto z = std::any_cast<std::u16string>(sprite->z);
+                    auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                     auto part = *zmap[z];
                     part[i][no] = {f, sprite};
                 }
@@ -591,7 +591,7 @@ void Character::add_weapon(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(weapon_node->find_from_path(type + u"/weapon"));
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(arm_positions[i][no] - SDL_FPoint{(float)weapon_pos.x, (float)weapon_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -601,7 +601,7 @@ void Character::add_weapon(const std::u16string &val)
                         SpriteWarp *sprite = SpriteWarp::load(weapon_node->find_from_path(type + u"/weapon"));
                         SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                         Transform f(body_positions[i][no] - SDL_FPoint{(float)weapon_pos.x, (float)weapon_pos.y});
-                        auto z = std::any_cast<std::u16string>(sprite->z);
+                        auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                         auto part = *zmap[z];
                         part[i][no] = {f, sprite};
                     }
@@ -628,7 +628,7 @@ void Character::add_shield(const std::u16string &val)
                     SpriteWarp *sprite = SpriteWarp::load(shield_node->find_from_path(type + u"/shield"));
                     SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                     Transform f(body_positions[i][no] - SDL_FPoint{(float)shield_pos.x, (float)shield_pos.y});
-                    auto z = std::any_cast<std::u16string>(sprite->z);
+                    auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                     auto part = *zmap[z];
                     part[i][no] = {f, sprite};
                 }
@@ -654,7 +654,7 @@ void Character::add_cape(const std::u16string &val)
                     SpriteWarp *sprite = SpriteWarp::load(cape_node->find_from_path(type + u"/cape"));
                     SDL_SetTextureScaleMode(sprite->texture, SDL_SCALEMODE_NEAREST);
                     Transform f(body_positions[i][no] - SDL_FPoint{(float)shield_pos.x, (float)shield_pos.y});
-                    auto z = std::any_cast<std::u16string>(sprite->z);
+                    auto z = dynamic_cast<wz::Property<wz::wzstring> *>(sprite->n->get_child(u"z"))->get();
                     auto part = *zmap[z];
                     part[i][no] = {f, sprite};
                 }

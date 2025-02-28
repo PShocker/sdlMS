@@ -116,8 +116,8 @@ void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *o)
 {
     float rot = tr->rotation;
 
-    auto width = sprw->width;
-    auto heihgt = sprw->height;
+    auto width = sprw->texture->w;
+    auto heihgt = sprw->texture->h;
 
     auto x = tr->position.x;
     auto y = tr->position.y;
@@ -149,7 +149,7 @@ void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *o)
         }
         else if (tr->flip == 1)
         {
-            pos_rect = {(float)x - (sprw->width - origin.x) - Camera::x, (float)y - origin.y - Camera::y, (float)width, (float)heihgt};
+            pos_rect = {(float)x - (width - origin.x) - Camera::x, (float)y - origin.y - Camera::y, (float)width, (float)heihgt};
         }
         SDL_RenderTextureRotated(Window::renderer, sprw->texture, nullptr, &pos_rect, rot, &origin, (SDL_FlipMode)tr->flip);
     }
@@ -189,8 +189,8 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
         sprw = a->aspr->sprites[a->anim_index];
         SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
     }
-    spr_w = sprw->width;
-    spr_h = sprw->height;
+    spr_w = sprw->texture->w;
+    spr_h = sprw->texture->h;
     spr_ox = sprw->origin.x;
     spr_oy = sprw->origin.y;
 
@@ -637,86 +637,80 @@ void render_animated_sprite_alpha(Transform *tr, AnimatedSprite *a)
     auto p_tr = World::registry->try_get<Transform>(Player::ent);
     if (p_tr->z < tr->z)
     {
-        const SDL_FRect s_r{tr->position.x - sprw->origin.x, tr->position.y - sprw->origin.y,
-                            (float)sprw->width, (float)sprw->height};
-        SDL_FRect p_r = World::registry->try_get<Character>(Player::ent)->r;
-        p_r.x += p_tr->position.x;
-        p_r.y += p_tr->position.y;
-        // 如果物体遮挡了人物，绘制遮挡区域为半透明（黑色）
-        if (SDL_HasRectIntersectionFloat(&p_r, &s_r))
+        SDL_PropertiesID props = SDL_GetTextureProperties(sprw->texture);
+        SDL_TextureAccess access = (SDL_TextureAccess)SDL_GetNumberProperty(props, SDL_PROP_TEXTURE_ACCESS_NUMBER, sprw->texture->format);
+        if (access == SDL_TEXTUREACCESS_STREAMING)
         {
-            // 计算物体相对于自身的遮挡区域
-            SDL_FRect overlap;
-            SDL_GetRectIntersectionFloat(&p_r, &s_r, &overlap);
-            overlap.x -= s_r.x;
-            overlap.y -= s_r.y;
-            switch (sprw->texture->format)
+            const SDL_FRect s_r{tr->position.x - sprw->origin.x, tr->position.y - sprw->origin.y,
+                                (float)sprw->texture->w, (float)sprw->texture->h};
+            SDL_FRect p_r = World::registry->try_get<Character>(Player::ent)->r;
+            p_r.x += p_tr->position.x;
+            p_r.y += p_tr->position.y;
+            // 如果物体遮挡了人物，绘制遮挡区域为半透明
+            if (SDL_HasRectIntersectionFloat(&p_r, &s_r))
             {
-            case SDL_PIXELFORMAT_ARGB4444:
-            {
-                // 锁定纹理获取像素数据
-                void *pixels;
-                int pitch; // 每行字节数（ARGB4444格式下，pitch = width * 2）
-                if (SDL_LockTexture(sprw->texture, nullptr, &pixels, &pitch) != 0)
+                // 计算物体相对于自身的遮挡区域
+                SDL_FRect overlap;
+                SDL_GetRectIntersectionFloat(&p_r, &s_r, &overlap);
+                overlap.x -= s_r.x;
+                overlap.y -= s_r.y;
+                switch (sprw->texture->format)
                 {
-                    SDL_LogError(SDL_LOG_CATEGORY_APPLICATION, "锁定纹理失败: %s", SDL_GetError());
-                    return;
-                }
-                auto width = sprw->width;
-                auto height = sprw->height;
-                // 备份原始像素数据（16位数组）
-                Uint16 *backup = new Uint16[width * height];
-                memcpy(backup, pixels, width * height * sizeof(Uint16));
-
-                // 转换像素指针为16位类型（ARGB4444每个像素占2字节）
-                Uint16 *pixel_data = static_cast<Uint16 *>(pixels);
-
-                // 遍历目标区域修改Alpha通道
-                for (int y = overlap.y; y < overlap.y + overlap.h; ++y)
+                case SDL_PIXELFORMAT_ARGB4444:
                 {
-                    for (int x = overlap.x; x < overlap.x + overlap.w; ++x)
+                    // 锁定纹理获取像素数据
+                    void *pixels;
+                    int pitch; // 每行字节数（ARGB4444格式下，pitch = width * 2）
+                    if (SDL_LockTexture(sprw->texture, nullptr, &pixels, &pitch))
                     {
-                        // 计算一维索引（行优先）
-                        int index = y * width + x;
-                        // 提取ARGB分量（每个分量4位）
-                        Uint16 pixel = pixel_data[index];
-                        Uint8 a = (pixel >> 12) & 0x0F; // Alpha在高4位
-                        Uint8 r = (pixel >> 8) & 0x0F;  // Red
-                        Uint8 g = (pixel >> 4) & 0x0F;  // Green
-                        Uint8 b = pixel & 0x0F;         // Blue
-                        // 修改Alpha值（限制在4位范围内）
-                        a = 0 & 0x0F;
-                        // 重新打包为ARGB4444格式
-                        pixel_data[index] = (a << 12) | (r << 8) | (g << 4) | b;
+                        int width = sprw->texture->w;
+                        int height = sprw->texture->h;
+
+                        // 备份原始像素数据
+                        std::vector<Uint16> backup(width * height);
+                        memcpy(backup.data(), pixels, width * height * sizeof(Uint16));
+
+                        // 修改遮挡区域的像素数据
+                        Uint16 *pixel_data = static_cast<Uint16 *>(pixels);
+                        int start_x = static_cast<int>(overlap.x);
+                        int start_y = static_cast<int>(overlap.y);
+                        int end_x = start_x + static_cast<int>(overlap.w);
+                        int end_y = start_y + static_cast<int>(overlap.h);
+                        for (int y = start_y; y < end_y; ++y)
+                        {
+                            Uint16 *pixel_row = pixel_data + y * width + start_x;
+                            for (int x = start_x; x < end_x; ++x)
+                            {
+                                // 提取ARGB分量（每个分量4位）
+                                Uint16 pixel = *pixel_row;
+                                Uint8 a = (pixel >> 12) & 0x0F; // Alpha在高4位
+                                Uint8 r = (pixel >> 8) & 0x0F;  // Red
+                                Uint8 g = (pixel >> 4) & 0x0F;  // Green
+                                Uint8 b = pixel & 0x0F;         // Blue
+                                // 设置Alpha为128
+                                a = 128;
+                                // 重新打包为ARGB4444格式
+                                *pixel_row = (a << 12) | (r << 8) | (g << 4) | b;
+                                ++pixel_row;
+                            }
+                        }
+                        // 渲染修改后的纹理
+                        render_sprite(tr, sprw);
+                        // 恢复原始像素数据
+                        memcpy(pixels, backup.data(), width * height * sizeof(Uint16));
+                        SDL_UnlockTexture(sprw->texture);
+                        return;
                     }
                 }
-                // 解锁纹理
-                SDL_UnlockTexture(sprw->texture);
-                render_sprite(tr, sprw);
-                if (SDL_LockTexture(sprw->texture, nullptr, &pixels, &pitch) == 0)
-                {
-                    // 将备份数据复制回纹理
-                    memcpy(pixels, backup, width * height * sizeof(Uint16));
-                    SDL_UnlockTexture(sprw->texture);
-                }
-                delete[] backup; // 释放备份内存
-            }
-            break;
-            default:
                 break;
+                default:
+                    break;
+                }
             }
         }
-        else
-        {
-            SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
-            render_sprite(tr, sprw);
-        }
     }
-    else
-    {
-        SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
-        render_sprite(tr, sprw);
-    }
+    SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
+    render_sprite(tr, sprw);
 }
 
 void render_tomb(Tomb *tomb)
@@ -736,10 +730,10 @@ void render_drop(Transform *tr, Drop *dro)
     a->alpha = alpha * 255;
 
     auto sprw = a->aspr->sprites[a->anim_index];
-    auto origin = SDL_FPoint{(float)sprw->width / 2, (float)sprw->height / 2};
+    auto origin = SDL_FPoint{(float)sprw->texture->w / 2, (float)sprw->texture->h / 2};
 
-    Transform tran(tr->position.x - (float)sprw->origin.x + (float)sprw->width / 2,
-                   tr->position.y - (float)sprw->origin.y + (float)sprw->height / 2);
+    Transform tran(tr->position.x - (float)sprw->origin.x + (float)sprw->texture->w / 2,
+                   tr->position.y - (float)sprw->origin.y + (float)sprw->texture->h / 2);
     tran.rotation = tr->rotation;
     render_animated_sprite(&tran, a, &origin);
 }
@@ -761,7 +755,7 @@ void render_install(Transform *tr, Install *i)
     Transform tran(tr->position, 0, tr->flip);
     auto aspr = i->aspr;
     auto spr = aspr.aspr->sprites[aspr.anim_index];
-    tran.position.y -= (spr->height - spr->origin.y);
+    tran.position.y -= (spr->texture->h - spr->origin.y);
     render_animated_sprite(&tran, &i->aspr);
 }
 

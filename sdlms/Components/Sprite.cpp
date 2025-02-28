@@ -7,11 +7,11 @@
 
 static std::unordered_map<wz::Node *, SpriteWarp *> cache;
 
-SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha, bool caches)
+SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha, bool caches, SDL_TextureAccess access)
 {
     if (caches == false)
     {
-        return new SpriteWarp(node, alpha);
+        return new SpriteWarp(node, alpha, access);
     }
     if (cache.contains(node))
     {
@@ -19,22 +19,23 @@ SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha, bool caches)
     }
     else
     {
-        SpriteWarp *sprw = new SpriteWarp(node, alpha);
+        SpriteWarp *sprw = new SpriteWarp(node, alpha, access);
         cache[node] = sprw;
         return sprw;
     }
 }
 
-SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
+SpriteWarp::SpriteWarp(wz::Node *node, int alpha, SDL_TextureAccess access)
 {
     if (node->type == wz::Type::UOL)
     {
         node = dynamic_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
     }
+    n = node;
 
     auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node);
-    height = canvas->get().height;
-    width = canvas->get().width;
+    auto h = canvas->get().height;
+    auto w = canvas->get().width;
 
     auto raw_data = canvas->get_raw_data();
     auto format = canvas->get().format + canvas->get().format2;
@@ -93,80 +94,32 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
     a0 = a0 * ((float)alpha / 255);
     a1 = a1 * ((float)alpha / 255);
 
-    if (canvas->get_child(u"z") != nullptr)
-    {
-        if (canvas->get_child(u"z")->type == wz::Type::Int)
-        {
-            z = dynamic_cast<wz::Property<int> *>(canvas->get_child(u"z"))->get();
-        }
-        else if (canvas->get_child(u"z")->type == wz::Type::String)
-        {
-            z = dynamic_cast<wz::Property<wz::wzstring> *>(canvas->get_child(u"z"))->get();
-        }
-    }
-    if (canvas->get_child(u"lt"))
-    {
-        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"lt"))->get();
-        lt = SDL_Point{v.x, v.y};
-    }
-    if (canvas->get_child(u"rb"))
-    {
-        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"rb"))->get();
-        rb = SDL_Point{v.x, v.y};
-    }
-    if (lt.has_value() && rb.has_value())
-    {
-        auto x = lt.value().x;
-        auto y = lt.value().y;
-        auto w = rb.value().x - lt.value().x;
-        auto h = rb.value().y - lt.value().y;
-        rect = SDL_FRect{(float)x, (float)y, (float)w, (float)h};
-    }
-    else
-    {
-        auto x = 0;
-        auto y = 0;
-        auto w = width;
-        auto h = height;
-        rect = SDL_FRect{(float)x, (float)y, (float)w, (float)h};
-    }
-    if (canvas->get_child(u"head"))
-    {
-        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(canvas->get_child(u"head"))->get();
-        head = SDL_FPoint{(float)v.x, (float)v.y};
-    }
-    else
-    {
-        head = SDL_FPoint{(float)-ox, (float)-oy};
-    }
-
     // 图片原始数据,部分格式需要转换
     std::vector<uint8_t> pixel;
-
     switch (format)
     {
     case 1:
     {
         pixel = raw_data;
-        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_STATIC, width, height);
-        SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
+        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB4444, access, w, h);
+        SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint16));
         break;
     }
     case 2:
     {
         pixel = raw_data;
-        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
-        SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint32));
+        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB8888, access, w, h);
+        SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint32));
         break;
     }
     case 517: // rgb565压缩缩略图
     {
-        pixel.resize(width * height * 2, 0);
+        pixel.resize(w * h * 2, 0);
         int lineIndex = 0;
-        for (int j0 = 0, j1 = height / 16; j0 < j1; j0++)
+        for (int j0 = 0, j1 = h / 16; j0 < j1; j0++)
         {
             int dstIndex = lineIndex;
-            for (int i0 = 0, i1 = width / 16; i0 < i1; i0++)
+            for (int i0 = 0, i1 = h / 16; i0 < i1; i0++)
             {
                 int idx = (i0 + j0 * i1) * 2;
                 unsigned char b0 = raw_data[idx];
@@ -179,16 +132,16 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
             }
             for (int k = 1; k < 16; k++)
             {
-                for (int m = 0; m < width * 2; m++)
+                for (int m = 0; m < w * 2; m++)
                 {
                     pixel[dstIndex + m] = pixel[lineIndex + m];
                 }
-                dstIndex += width * 2;
+                dstIndex += w * 2;
             }
-            lineIndex += width * 32;
+            lineIndex += w * 32;
         }
-        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_RGB565, SDL_TEXTUREACCESS_STATIC, width, height);
-        SDL_UpdateTexture(texture, NULL, pixel.data(), width * sizeof(Uint16));
+        texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_RGB565, access, w, h);
+        SDL_UpdateTexture(texture, NULL, pixel.data(), w * sizeof(Uint16));
         break;
     }
     default:

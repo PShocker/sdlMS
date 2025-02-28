@@ -5,11 +5,11 @@
 
 static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
 
-AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool caches)
+AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool caches, SDL_TextureAccess access)
 {
     if (caches == false)
     {
-        return new AnimatedSpriteWarp(node, alpha, false);
+        return new AnimatedSpriteWarp(node, alpha, false, access);
     }
     if (cache.contains(node))
     {
@@ -17,13 +17,13 @@ AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool cac
     }
     else
     {
-        AnimatedSpriteWarp *asprw = new AnimatedSpriteWarp(node, alpha);
+        AnimatedSpriteWarp *asprw = new AnimatedSpriteWarp(node, alpha, true, access);
         cache[node] = asprw;
         return asprw;
     }
 }
 
-AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches)
+AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches, SDL_TextureAccess access)
 {
     if (node->type == wz::Type::UOL)
     {
@@ -33,7 +33,7 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches)
     {
         // 单帧动画图
         auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node);
-        sprites.push_back(SpriteWarp::load(canvas, alpha));
+        sprites.push_back(SpriteWarp::load(canvas, alpha, caches, access));
     }
     else
     {
@@ -60,20 +60,13 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches)
             {
                 continue;
             }
-            if (caches)
-            {
-                sprites.push_back(SpriteWarp::load(canvas, alpha));
-            }
-            else
-            {
-                sprites.push_back(SpriteWarp::load(canvas, alpha, false));
-            }
+            sprites.push_back(SpriteWarp::load(canvas, alpha, caches, access));
         }
-        if (node->get_child(u"zigzag") != nullptr)
-        {
-            // 如果存在zigzag属性,则认为属于zigzag动画
-            z = true;
-        }
+    }
+    if (node->get_child(u"zigzag") != nullptr)
+    {
+        // 如果存在zigzag属性,则认为属于zigzag动画
+        z = true;
     }
 }
 

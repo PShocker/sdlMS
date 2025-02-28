@@ -172,12 +172,14 @@ bool trap_attack()
         auto trap = &view.get<Trap>(ent);
         auto aspr = World::registry->try_get<AnimatedSprite>(ent);
         auto spr = aspr->aspr->sprites[aspr->anim_index];
-        if (spr->lt.has_value() && spr->rb.has_value())
+        if (spr->n->get_child(u"lt") && spr->n->get_child(u"rb"))
         {
-            auto x = spr->lt.value().x;
-            auto y = spr->lt.value().y;
-            auto w = spr->rb.value().x - spr->lt.value().x;
-            auto h = spr->rb.value().y - spr->lt.value().y;
+            auto lt = dynamic_cast<wz::Property<wz::WzVec2D> *>(spr->n->get_child(u"lt"))->get();
+            auto rb = dynamic_cast<wz::Property<wz::WzVec2D> *>(spr->n->get_child(u"rb"))->get();
+            auto x = lt.x;
+            auto y = lt.y;
+            auto w = rb.x - lt.x;
+            auto h = rb.y - lt.y;
             auto rect = SDL_FRect{(float)x, (float)y, (float)w, (float)h};
 
             auto t_tr = World::registry->try_get<Transform>(ent);

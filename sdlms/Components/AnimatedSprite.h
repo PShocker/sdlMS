@@ -11,9 +11,11 @@ struct AnimatedSpriteWarp
 
     bool z = false; // ziazag
 
-    AnimatedSpriteWarp(wz::Node *node, int alpha = 255, bool caches = true);
+    AnimatedSpriteWarp(wz::Node *node, int alpha = 255, bool caches = true,
+                       SDL_TextureAccess access = SDL_TEXTUREACCESS_STATIC);
 
-    static AnimatedSpriteWarp *load(wz::Node *node, int alpha = 255, bool caches = true);
+    static AnimatedSpriteWarp *load(wz::Node *node, int alpha = 255,
+                                    bool caches = true, SDL_TextureAccess access = SDL_TEXTUREACCESS_STATIC);
     static void clean_up();
 };
 

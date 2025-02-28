@@ -63,12 +63,12 @@ void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
         {
             if (i % 2 == 0)
             {
-                hspeed_max += asprw->sprites[0]->width * 1.2;
+                hspeed_max += asprw->sprites[0]->texture->w * 1.2;
                 mv.hspeed = hspeed_max;
             }
             else
             {
-                hspeed_min -= asprw->sprites[0]->width * 1.2;
+                hspeed_min -= asprw->sprites[0]->texture->w * 1.2;
                 mv.hspeed = hspeed_min;
             }
         }
