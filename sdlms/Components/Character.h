@@ -347,7 +347,7 @@ struct Character
     Character();
     static void init();
 
-    SDL_FRect r{-20, -60, 30, 55};
+    SDL_FRect r{-20, -50, 30, 45};
     float alpha = 255;
 
     // 状态机

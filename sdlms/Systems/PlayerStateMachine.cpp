@@ -565,7 +565,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             {
                 action = Character::ACTION::STAND1;
             }
-            cha->r = SDL_FRect{-20, -60, 30, 55};
+            cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
         case Character::State::WALK:
@@ -579,13 +579,13 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             {
                 action = Character::ACTION::WALK1;
             }
-            cha->r = SDL_FRect{-20, -60, 30, 55};
+            cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
         case Character::State::JUMP:
         {
             action = Character::ACTION::JUMP;
-            cha->r = SDL_FRect{-20, -60, 30, 55};
+            cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
         case Character::State::ATTACK:
@@ -597,7 +597,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             else
             {
                 action = player_attack_action(World::registry->try_get<WeaponInfo>(Player::ent));
-                cha->r = SDL_FRect{-20, -60, 30, 55};
+                cha->r = SDL_FRect{-20, -50, 30, 45};
             }
             if (auto aft = World::registry->try_get<AfterImage>(Player::ent))
             {
@@ -619,7 +619,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
                 action = Character::ACTION::ROPE;
                 break;
             }
-            cha->r = SDL_FRect{-20, -60, 30, 55};
+            cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
         case Character::State::PRONE:
@@ -631,7 +631,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         case Character::State::ALERT:
         {
             action = Character::ACTION::ALERT;
-            cha->r = SDL_FRect{-20, -60, 30, 55};
+            cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
         case Character::State::SKILL:
@@ -650,13 +650,13 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
                 // 特殊动作
                 action = -1;
             }
-            cha->r = SDL_FRect{-20, -60, 30, 55};
+            cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
         case Character::State::SIT:
         {
             action = Character::ACTION::SIT;
-            cha->r = SDL_FRect{-20, -60, 30, 55};
+            cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
         }
@@ -753,7 +753,7 @@ bool player_hit(Hit *hit, entt::entity ent)
             {
                 if (cha->state == Character::State::PRONE)
                 {
-                    cha->r = SDL_FRect{-20, -60, 30, 55};
+                    cha->r = SDL_FRect{-20, -50, 30, 45};
                 }
                 cha->state = Character::State::JUMP;
                 cha->action_index = 0;
