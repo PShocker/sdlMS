@@ -127,7 +127,6 @@ int skill_2221006(entt::entity ent)
         };
 
         auto atkw = ski->atkw.value();
-        atkw.damage = 50;
 
         auto target = find_min_mob(ent, true);
         if (World::registry->valid(target))
@@ -149,7 +148,7 @@ int skill_2221006(entt::entity ent)
             hit.insert(target);
             while (true)
             {
-                // m是前一个怪物
+                // last是前一个怪物
                 auto last = target;
                 if (atkw.mobCount > 0)
                 {
