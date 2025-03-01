@@ -28,6 +28,11 @@ void PlayerSkill::skill_action(Skill *ski, entt::entity ent)
     {
         cha->action_str = ski->skiw->action_str.value();
     }
+    else if (auto action_str = ski->skiw->level[ski->level]->get_child(u"action"))
+    {
+        // 从level获取action
+        cha->action_str = dynamic_cast<wz::Property<wz::wzstring> *>(action_str)->get();
+    }
     else
     {
         // 随机动作
