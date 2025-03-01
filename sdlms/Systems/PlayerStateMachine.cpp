@@ -252,8 +252,8 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
                 AttackWarp atkw;
                 atkw.damage = distance / 25;
                 atkw.hit = nullptr;
-                atkw.p = &tr->position;
-                hit_effect(&atkw, std::nullopt, Player::ent, 1, nullptr);
+                atkw.p = tr->position;
+                hit_effect(&atkw, std::nullopt, Player::ent, 1, std::nullopt);
             }
         }
     }
@@ -830,7 +830,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         }
         else if (Input::state[SDL_SCANCODE_F])
         {
-            id = u"4201005";
+            id = u"2221006";
         }
         else if (Input::state[SDL_SCANCODE_G])
         {

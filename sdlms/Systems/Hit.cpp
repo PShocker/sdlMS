@@ -4,7 +4,7 @@
 #include "Core/Core.h"
 
 void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
-                entt::entity ent, char type, SDL_FPoint *p)
+                entt::entity ent, char type, std::optional<SDL_FPoint> p)
 {
     if (!World::registry->valid(ent))
     {
@@ -33,13 +33,14 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
         info.y = (float)(i + count) * 38;
         dam->damage.push_back(info);
     }
-    
+
     if (atkw->hit)
     {
         auto eff = World::registry->try_get<Effect>(ent);
-        if (p != nullptr)
+        if (p.has_value())
         {
-            eff->effects.push_back({new Transform(*p), AnimatedSprite(atkw->hit), Window::dt_now});
+            eff->effects.push_back({new Transform(p.value(), 0, World::registry->try_get<Transform>(ent)->flip),
+                                    AnimatedSprite(atkw->hit), Window::dt_now});
         }
         else
         {
@@ -48,7 +49,7 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
     }
 }
 
-void hit_effect(AttackWarp *atkw, entt::entity ent, char type, SDL_FPoint *p)
+void hit_effect(AttackWarp *atkw, entt::entity ent, char type, std::optional<SDL_FPoint> p)
 {
     hit_effect(atkw, std::nullopt, ent, type, p);
 }

@@ -203,7 +203,7 @@ void animate_character(Character *cha, entt::entity ent)
                     {
                         auto atk = World::registry->try_get<Attack>(ent);
                         auto atkw = ski->atkw.value();
-                        atkw.p = &World::registry->try_get<Transform>(ent)->position;
+                        atkw.p = World::registry->try_get<Transform>(ent)->position;
                         atk->atks.push_back(atkw);
                     }
                     else if (ski->ball > 0)
@@ -277,7 +277,7 @@ void animate_character(Character *cha, entt::entity ent)
                         {
                             auto atk = World::registry->try_get<Attack>(ent);
                             auto atkw = ski->atkw.value();
-                            atkw.p = &World::registry->try_get<Transform>(ent)->position;
+                            atkw.p = World::registry->try_get<Transform>(ent)->position;
                             atk->atks.push_back(atkw);
                         }
                         else if (ski->ball > 0)
@@ -407,7 +407,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             }
             break;
             }
-            atkw.p = &World::registry->try_get<Transform>(ent)->position;
+            atkw.p = World::registry->try_get<Transform>(ent)->position;
             atk->atks.push_back(atkw);
             // play sound
             Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
@@ -530,8 +530,8 @@ void animate_mob(Mob *mob, entt::entity ent)
                     if (h->damage <= 0 && c->invincible_cooldown <= 0)
                     {
                         auto tr = World::registry->try_get<Transform>(ent);
-                        mob->atkw.p = &tr->position;
-                        hit_effect(&mob->atkw, mob->hit, 1, nullptr);
+                        mob->atkw.p = tr->position;
+                        hit_effect(&mob->atkw, mob->hit, 1, std::nullopt);
                         Sound::push(mob->sounds[u"Attack1"]);
                     }
                 }
@@ -700,8 +700,8 @@ void animate_summon(Summon *sum, entt::entity ent)
             if (auto e = summon_attack(World::registry->try_get<Transform>(ent)); World::registry->valid(e))
             {
                 auto tr = World::registry->try_get<Transform>(ent);
-                sum->atkw.p = &tr->position;
-                hit_effect(&sum->atkw, e, 0, nullptr);
+                sum->atkw.p = tr->position;
+                hit_effect(&sum->atkw, e, 0, std::nullopt);
             }
             if (sum->a.contains(u"fly"))
             {

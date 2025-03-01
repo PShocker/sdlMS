@@ -188,7 +188,7 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
     }
     if (atkw->mobCount >= 1)
     {
-        atkw->p = &World::registry->try_get<Transform>(src)->position;
+        atkw->p = World::registry->try_get<Transform>(src)->position;
         if (auto mob = World::registry->try_get<Mob>(target))
         {
             hit_effect(atkw, std::nullopt, target, 0, atkw->p);

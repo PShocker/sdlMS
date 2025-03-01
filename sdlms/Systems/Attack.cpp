@@ -57,7 +57,7 @@ void attack_mob(AttackWarp *atkw)
 
                 if (collision(mob->rect(), m_tr, atkw->rect, p_tr))
                 {
-                    hit_effect(atkw, mob->head(), ent, 0, nullptr);
+                    hit_effect(atkw, mob->head(), ent, 0, std::nullopt);
                     atkw->mobCount -= 1;
                 }
             }
@@ -77,7 +77,7 @@ void attack_npc(AttackWarp *atkw)
 
             if (collision(npc->rect(), n_tr, atkw->rect, p_tr))
             {
-                hit_effect(atkw, npc->head(), ent, 2, nullptr);
+                hit_effect(atkw, npc->head(), ent, 2, std::nullopt);
                 atkw->mobCount -= 1;
             }
         }
@@ -96,7 +96,7 @@ void attack_character(AttackWarp *atkw)
 
             if (cha->invincible_cooldown <= 0 && collision(cha->r, c_tr, atkw->rect, p_tr))
             {
-                hit_effect(atkw, ent, 1, nullptr);
+                hit_effect(atkw, ent, 1, std::nullopt);
                 atkw->mobCount -= 1;
             }
         }
@@ -127,7 +127,7 @@ void attack_reactor(AttackWarp *atkw)
                             {
                                 Sound::push(r->sounds[r->index]);
                                 atkw->damage = 1;
-                                hit_effect(atkw, r->head(), ent, 2, nullptr);
+                                hit_effect(atkw, r->head(), ent, 2, std::nullopt);
                                 r->hit = true;
                                 return;
                             }
@@ -155,8 +155,8 @@ bool mob_attack()
             {
                 AttackWarp atkw;
                 atkw.damage = 100;
-                atkw.p = &m_tr->position;
-                hit_effect(&atkw, std::nullopt, Player::ent, 1, nullptr);
+                atkw.p = m_tr->position;
+                hit_effect(&atkw, std::nullopt, Player::ent, 1, std::nullopt);
                 return true;
             }
         }
@@ -191,8 +191,8 @@ bool trap_attack()
             {
                 AttackWarp atkw;
                 atkw.damage = trap->damage;
-                atkw.p = &t_tr->position;
-                hit_effect(&atkw, std::nullopt, Player::ent, 1, nullptr);
+                atkw.p = t_tr->position;
+                hit_effect(&atkw, std::nullopt, Player::ent, 1, std::nullopt);
                 return true;
             }
         }
