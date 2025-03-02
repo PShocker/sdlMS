@@ -67,6 +67,7 @@ void attack_reactor(AttackWarp *atkw)
 {
     if (!World::registry->all_of<Skill>(Player::ent))
     {
+        auto p_tr = World::registry->try_get<Transform>(Player::ent);
         for (auto ent : World::registry->view<Damage, Reactor>())
         {
             if (atkw->mobCount > 0)
@@ -79,8 +80,7 @@ void attack_reactor(AttackWarp *atkw)
                     {
                         // 说明可以进行hit
                         auto r_tr = World::registry->try_get<Transform>(ent);
-                        auto p_tr = World::registry->try_get<Transform>(Player::ent);
-                        if (std::abs(p_tr->position.y - r_tr->position.y) <= 30)
+                        if (std::abs(p_tr->position.y - r_tr->position.y) <= 50)
                         {
                             if ((p_tr->flip == 1 && p_tr->position.x <= r_tr->position.x && (r_tr->position.x - p_tr->position.x) <= 95) ||
                                 (p_tr->flip == 0 && p_tr->position.x >= r_tr->position.x && (p_tr->position.x - r_tr->position.x) <= 95))
