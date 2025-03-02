@@ -246,7 +246,7 @@ bool move_move(Move *mv, Transform *tr, float friction, float delta_time, bool f
         else
         {
             // 禁止掉落
-            tr->position.x = mv->hspeed < 0 ? mv->foo->l : mv->foo->r;
+            tr->position.x = mv->hspeed < 0 ? mv->foo->l + 0.1 : mv->foo->r - 0.1;
             tr->position.y = y;
             return false;
         }
@@ -273,7 +273,7 @@ bool move_move(Move *mv, Transform *tr, float friction, float delta_time, bool f
             else
             {
                 // 禁止掉落
-                tr->position.x = fh->x1;
+                tr->position.x = mv->hspeed < 0 ? fh->x1 + 0.1 : fh->x1 - 0.1;
                 tr->position.y = y;
                 return false;
             }
