@@ -17,3 +17,5 @@ std::vector<entt::entity> load_ball(AnimatedSpriteWarp *asprw, entt::entity owne
                                     AnimatedSpriteWarp *hit = nullptr,
                                     std::optional<int> rotate = std::nullopt,
                                     Skill *ski = nullptr);
+
+extern const std::unordered_set<std::u16string> track_no_skill;

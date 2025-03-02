@@ -110,7 +110,7 @@ int skill_2221006(entt::entity ent)
                         else
                         {
                             auto t_tr = World::registry->try_get<Transform>(ent);
-                            if (std::abs(t_tr->position.y - m_tr->position.y) <= 90 &&
+                            if (std::abs(t_tr->position.y - m_tr->position.y) <= 150 &&
                                 std::abs(t_tr->position.x - m_tr->position.x) <= 200)
                             {
                                 if (auto d = distance(m_tr->position, t_tr->position); d < dis)

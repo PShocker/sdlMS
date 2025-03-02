@@ -8,7 +8,9 @@
 #include "Resources/Wz.h"
 
 const std::unordered_set<std::u16string> track_no_skill =
-    {u"4111005"};
+    {
+        u"4111005",
+        u"2121003"};
 
 entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity owner,
                        AnimatedSpriteWarp *hit, std::optional<int> rotate,
@@ -33,7 +35,7 @@ entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity 
 
     if (ski != nullptr)
     {
-        auto &s = World::registry->emplace<Skill>(ent);
+        auto &s = World::registry->emplace<Skill>(ent, ski->skiw->id);
         s.atkw = ski->atkw;
         if (track_no_skill.contains(ski->skiw->id))
         {

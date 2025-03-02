@@ -33,7 +33,6 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
         info.y = (float)(i + count) * 38;
         dam->damage.push_back(info);
     }
-
     if (atkw->hit)
     {
         auto eff = World::registry->try_get<Effect>(ent);

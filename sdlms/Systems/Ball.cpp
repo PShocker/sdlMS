@@ -5,6 +5,7 @@
 #include "Collision.h"
 #include "Core/Core.h"
 #include "Commons/Commons.h"
+#include "Entities/Entities.h"
 #include <SDL3/SDL.h>
 #include "entt/entt.hpp"
 #include <vector>
@@ -65,23 +66,6 @@ entt::entity ball_fall(entt::entity ent, Ball *ball)
             if (collision(tri, tr, mob->rect(), m_tr))
             {
                 auto min_distance2 = distance(m_tr->position, position);
-                if (min_distance2 < min_distance)
-                {
-                    target = e;
-                    min_distance = min_distance2;
-                }
-            }
-        }
-    }
-    for (auto e : World::registry->view<Damage, Character>())
-    {
-        if (e != Player::ent)
-        {
-            auto cha = World::registry->try_get<Character>(e);
-            auto c_tr = World::registry->try_get<Transform>(e);
-            if (cha->invincible_cooldown <= 0 && collision(tri, tr, cha->r, c_tr))
-            {
-                auto min_distance2 = distance(c_tr->position, position);
                 if (min_distance2 < min_distance)
                 {
                     target = e;
@@ -191,11 +175,14 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
         atkw->p = World::registry->try_get<Transform>(src)->position;
         if (auto mob = World::registry->try_get<Mob>(target))
         {
-            hit_effect(atkw, std::nullopt, target, 0, atkw->p);
-        }
-        else if (auto cha = World::registry->try_get<Character>(target))
-        {
-            hit_effect(atkw, target, 1, atkw->p);
+            if (ski != nullptr && track_no_skill.contains(ski->skiw->id))
+            {
+                hit_effect(atkw, mob->head(), target, 0, std::nullopt);
+            }
+            else
+            {
+                hit_effect(atkw, mob->head(), target, 0, atkw->p);
+            }
         }
         atkw->mobCount--;
     }
