@@ -6,6 +6,12 @@
 #include "AnimatedSprite.h"
 #include "Core/Core.h"
 
+struct DropInfo
+{
+    std::u16string id;
+    unsigned int nums;
+};
+
 struct Drop
 {
     std::u16string id;

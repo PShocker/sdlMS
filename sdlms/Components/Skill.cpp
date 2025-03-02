@@ -49,7 +49,14 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
     }
     if (node->get_child(u"action"))
     {
-        action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action")->get_child(u"0"))->get();
+        if (node->get_child(u"action")->get_child(u"0"))
+        {
+            action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action")->get_child(u"0"))->get();
+        }
+        else
+        {
+            action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action"))->get();
+        }
     }
 }
 

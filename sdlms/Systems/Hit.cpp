@@ -47,6 +47,10 @@ void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
             eff->effects.push_back({nullptr, AnimatedSprite(atkw->hit), Window::dt_now});
         }
     }
+    if (atkw->call_back.has_value())
+    {
+        atkw->call_back.value()(ent);
+    }
 }
 
 void hit_effect(AttackWarp *atkw, entt::entity ent, char type, std::optional<SDL_FPoint> p)
