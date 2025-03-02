@@ -15,7 +15,7 @@ void attack_run()
         auto atk = &view.get<Attack>(ent);
         for (auto &it : atk->atks)
         {
-            attack_iterator(&it);
+            attack_iterator(&it, ent);
         }
         atk->atks.clear();
     }
@@ -35,16 +35,15 @@ void attack_run()
     }
 }
 
-void attack_iterator(AttackWarp *atkw)
+void attack_iterator(AttackWarp *atkw, entt::entity ent)
 {
-    attack_mob(atkw);
-    //  attack_npc(AttackWarp * atkw);
-    //  attack_character(AttackWarp * atkw);
+    attack_mob(atkw, ent);
     attack_reactor(atkw);
 }
 
-void attack_mob(AttackWarp *atkw)
+void attack_mob(AttackWarp *atkw, entt::entity ent)
 {
+    auto e_tr = World::registry->try_get<Transform>(ent);
     for (auto ent : World::registry->view<Damage, Mob>())
     {
         if (atkw->mobCount > 0)
@@ -53,51 +52,12 @@ void attack_mob(AttackWarp *atkw)
             if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
             {
                 auto m_tr = World::registry->try_get<Transform>(ent);
-                auto p_tr = World::registry->try_get<Transform>(Player::ent);
 
-                if (collision(mob->rect(), m_tr, atkw->rect, p_tr))
+                if (collision(mob->rect(), m_tr, atkw->rect, e_tr))
                 {
                     hit_effect(atkw, mob->head(), ent, 0, std::nullopt);
                     atkw->mobCount -= 1;
                 }
-            }
-        }
-    }
-}
-
-void attack_npc(AttackWarp *atkw)
-{
-    for (auto ent : World::registry->view<Damage, Npc>())
-    {
-        if (atkw->mobCount > 0)
-        {
-            auto npc = World::registry->try_get<Npc>(ent);
-            auto n_tr = World::registry->try_get<Transform>(ent);
-            auto p_tr = World::registry->try_get<Transform>(Player::ent);
-
-            if (collision(npc->rect(), n_tr, atkw->rect, p_tr))
-            {
-                hit_effect(atkw, npc->head(), ent, 2, std::nullopt);
-                atkw->mobCount -= 1;
-            }
-        }
-    }
-}
-
-void attack_character(AttackWarp *atkw)
-{
-    for (auto ent : World::registry->view<Damage, Character>())
-    {
-        if (atkw->mobCount > 0 && ent != Player::ent)
-        {
-            auto cha = World::registry->try_get<Character>(ent);
-            auto c_tr = World::registry->try_get<Transform>(ent);
-            auto p_tr = World::registry->try_get<Transform>(Player::ent);
-
-            if (cha->invincible_cooldown <= 0 && collision(cha->r, c_tr, atkw->rect, p_tr))
-            {
-                hit_effect(atkw, ent, 1, std::nullopt);
-                atkw->mobCount -= 1;
             }
         }
     }

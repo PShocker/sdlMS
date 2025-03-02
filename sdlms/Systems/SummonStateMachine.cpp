@@ -145,14 +145,7 @@ int summon_move(entt::entity ent, int state, float delta_time)
         {
             summon_set_hspeed(ent, e, 0, 1);
         }
-        auto foo = s_mv->foo;
-        if (!move_move(s_mv, s_tr, 0, delta_time) && s_mv->foo == nullptr)
-        {
-            // 不掉落
-            s_mv->foo = foo;
-            s_tr->position.x = std::clamp(s_tr->position.x, (float)foo->l, (float)foo->r);
-            s_tr->position.y = foo->get_y(s_tr->position.x).value();
-        }
+        move_move(s_mv, s_tr, 0, delta_time, false);
     }
     return state;
 }

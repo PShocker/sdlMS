@@ -23,13 +23,6 @@ void npc_statemachine(entt::entity ent, float delta_time)
 
 void npc_move(Move *mv, Transform *tr, float delta_time)
 {
-    auto foo = mv->foo;
-    if (!move_move(mv, tr, 0, delta_time) && mv->foo == nullptr)
-    {
-        // 不掉落
-        mv->foo = foo;
-        tr->position.x = std::clamp(tr->position.x, (float)foo->l, (float)foo->r);
-        tr->position.y = foo->get_y(tr->position.x).value();
-    }
+    move_move(mv, tr, 0, delta_time, false);
     return;
 }

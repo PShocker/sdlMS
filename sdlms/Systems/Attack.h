@@ -7,13 +7,9 @@
 
 void attack_run();
 
-void attack_iterator(AttackWarp *atkw);
+void attack_iterator(AttackWarp *atkw, entt::entity ent);
 
-void attack_mob(AttackWarp *atkw);
-
-void attack_npc(AttackWarp *atkw);
-
-void attack_character(AttackWarp *atkw);
+void attack_mob(AttackWarp *atkw, entt::entity ent);
 
 void attack_reactor(AttackWarp *atkw);
 

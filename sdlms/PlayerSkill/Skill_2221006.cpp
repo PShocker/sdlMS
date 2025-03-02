@@ -126,7 +126,7 @@ int skill_2221006(entt::entity ent)
             return target;
         };
 
-        auto atkw = ski->atkw.value();
+        auto atkw = &ski->atkw.value();
 
         auto target = find_min_mob(ent, true);
         if (World::registry->valid(target))
@@ -134,9 +134,9 @@ int skill_2221006(entt::entity ent)
             auto mob = World::registry->try_get<Mob>(target);
             auto t_tr = World::registry->try_get<Transform>(target);
             auto p_tr = World::registry->try_get<Transform>(ent);
-            atkw.p = p_tr->position;
-            hit_effect(&atkw, mob->head(), target, 0, mob->head() + t_tr->position);
-            atkw.mobCount -= 1;
+            atkw->p = p_tr->position;
+            hit_effect(atkw, mob->head(), target, 0, mob->head() + t_tr->position);
+            atkw->mobCount -= 1;
             if (p_tr->flip == 1)
             {
                 effect_func(p_tr->position + SDL_FPoint{30, -35}, t_tr->position + mob->head(), target);
@@ -150,7 +150,7 @@ int skill_2221006(entt::entity ent)
             {
                 // last是前一个怪物
                 auto last = target;
-                if (atkw.mobCount > 0)
+                if (atkw->mobCount > 0)
                 {
                     target = find_min_mob(last, false);
                     if (World::registry->valid(target))
@@ -158,9 +158,9 @@ int skill_2221006(entt::entity ent)
                         auto mob = World::registry->try_get<Mob>(target);
                         auto l_tr = World::registry->try_get<Transform>(last);
                         t_tr = World::registry->try_get<Transform>(target);
-                        atkw.p = l_tr->position;
-                        hit_effect(&atkw, mob->head(), target, 0, mob->head() + t_tr->position);
-                        atkw.mobCount -= 1;
+                        atkw->p = l_tr->position;
+                        hit_effect(atkw, mob->head(), target, 0, mob->head() + t_tr->position);
+                        atkw->mobCount -= 1;
                         effect_func(l_tr->position + World::registry->try_get<Mob>(last)->head(), t_tr->position + mob->head(), target);
                         hit.insert(target);
                     }
@@ -174,7 +174,6 @@ int skill_2221006(entt::entity ent)
                     break;
                 }
             }
-            Sound::push(atkw.souw);
         }
     };
 

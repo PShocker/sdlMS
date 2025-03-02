@@ -194,7 +194,7 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
     return true;
 }
 
-bool move_move(Move *mv, Transform *tr, int friction, float delta_time)
+bool move_move(Move *mv, Transform *tr, float friction, float delta_time, bool fall)
 {
     if (mv->hspeed > 0)
     {
@@ -228,14 +228,14 @@ bool move_move(Move *mv, Transform *tr, int friction, float delta_time)
     auto y = tr->position.y;
 
     // 人物在fh移动的函数
-    const auto walk_fh = [&x, &y, &tr, &mv](FootHold *next_fh) -> bool
+    const auto walk_fh = [&x, &y, &tr, &mv, &fall](FootHold *next_fh) -> bool
     {
         FootHold *fh = nullptr; // 走到下一个fh
         if (next_fh)
         {
             fh = next_fh;
         }
-        else
+        else if (fall)
         {
             mv->vspeed = 0;
             tr->position.y = y;
@@ -243,38 +243,38 @@ bool move_move(Move *mv, Transform *tr, int friction, float delta_time)
             mv->foo = nullptr;
             return false;
         }
+        else
+        {
+            // 禁止掉落
+            tr->position.x = mv->hspeed < 0 ? mv->foo->l : mv->foo->r;
+            tr->position.y = y;
+            return false;
+        }
         if (!fh->k.has_value())
         {
-            if (y == std::clamp(y, (float)fh->b - 1, (float)fh->b + 1))
+            if (y == std::clamp(y, (float)fh->b - 1, (float)fh->b + 1) || y >= (float)fh->b + 1)
             {
                 // 撞墙
-                if (mv->hspeed < 0)
-                {
-                    tr->position.x = fh->x1 + 0.1;
-                }
-                else
-                {
-                    tr->position.x = fh->x1 - 0.1;
-                }
+                tr->position.x = mv->hspeed < 0 ? fh->x1 + 0.1 : fh->x1 - 0.1;
                 tr->position.x = std::clamp(tr->position.x, (float)mv->foo->l, (float)mv->foo->r);
                 tr->position.y = mv->foo->get_y(tr->position.x).value();
                 mv->hspeed = 0;
                 return false;
             }
-            else
+            else if (fall)
             {
                 // 楼梯上掉落
                 mv->vspeed = 0;
-                if (mv->hspeed < 0)
-                {
-                    tr->position.x = fh->x1 - 0.1;
-                }
-                else
-                {
-                    tr->position.x = fh->x1 + 0.1;
-                }
+                tr->position.x = mv->hspeed < 0 ? fh->x1 - 0.1 : fh->x1 + 0.1;
                 tr->position.y = y;
                 mv->foo = nullptr;
+                return false;
+            }
+            else
+            {
+                // 禁止掉落
+                tr->position.x = fh->x1;
+                tr->position.y = y;
                 return false;
             }
         }
