@@ -57,11 +57,11 @@ entt::entity ball_fall(entt::entity ent, Ball *ball)
     for (auto e : World::registry->view<Damage, Mob>())
     {
         auto mob = World::registry->try_get<Mob>(e);
-        if (!mob || mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
+        if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
             continue;
 
         auto m_tr = World::registry->try_get<Transform>(e);
-        if (!m_tr || !collision(tri, tr, mob->rect(), m_tr))
+        if (!collision(tri, tr, mob->rect(), m_tr))
             continue;
 
         float min_distance2 = squared_distance(m_tr->position, tr->position);
@@ -86,8 +86,10 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
         return false;
 
     mv->hspeed = (dx < 0) ? -std::abs(mv->hspeed) : std::abs(mv->hspeed);
-    mv->vspeed = (dy < 0) ? std::abs(mv->hspeed) * dy / std::abs(dx)
-                          : std::abs(mv->hspeed) * dy / std::abs(dx);
+
+    mv->vspeed = std::abs(mv->hspeed) * dy / std::abs(dx);
+    mv->vspeed = mv->vspeed * 0.35;
+    mv->vspeed = std::clamp(mv->vspeed, -std::abs(mv->hspeed), std::abs(mv->hspeed));
 
     move_fall(mv, tr, delta_time, 0, false, true);
     if (mv->hspeed == 0)
@@ -99,7 +101,7 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
                                 : calculate_angle(tr->position, ball->p.value());
     }
 
-    if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
+    if (std::abs(dx) <= 15 && std::abs(dy) <= 20)
     {
         ball_hit(src, ball, ball->target);
         return true;
@@ -113,7 +115,7 @@ bool ball_no_track(entt::entity src, Ball *ball)
     for (auto e : World::registry->view<Damage, Mob>())
     {
         auto mob = World::registry->try_get<Mob>(e);
-        if (!mob || mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
+        if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
             continue;
 
         if (!ball->track_hit->contains(e))

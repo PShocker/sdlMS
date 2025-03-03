@@ -20,7 +20,7 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
     for (auto mob_entity : World::registry->view<Damage, Mob>())
     {
         auto mob = World::registry->try_get<Mob>(mob_entity);
-        if (!mob || mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
+        if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
         {
             continue; // 跳过无效或已死亡的怪物
         }
@@ -62,7 +62,7 @@ void attack_reactor(Attack *atk)
         auto reactor = World::registry->try_get<Reactor>(ent);
         auto reactor_transform = World::registry->try_get<Transform>(ent);
 
-        if (!reactor || !reactor_transform || reactor->hit)
+        if (!reactor_transform || reactor->hit)
         {
             continue;
         }

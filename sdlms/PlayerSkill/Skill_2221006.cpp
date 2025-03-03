@@ -22,7 +22,7 @@ entt::entity find_closest_attackable_mob(
             continue;
 
         const auto *mob = World::registry->try_get<Mob>(e);
-        if (!mob || mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
+        if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
             continue;
 
         const auto tr = World::registry->try_get<Transform>(e);
