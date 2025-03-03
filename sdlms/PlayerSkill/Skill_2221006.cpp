@@ -126,11 +126,10 @@ int skill_2221006(entt::entity ent)
             return;
 
         const auto *src_tr = World::registry->try_get<Transform>(src);
-        if (!src_tr)
-            return;
 
         std::unordered_set<entt::entity> hit_targets;
         const SDL_FPoint origin = src_tr->position;
+        atk->p = origin;
 
         // 第一目标搜索
         entt::entity target = find_closest_attackable_mob(
