@@ -1,15 +1,11 @@
 #include "Drop.h"
-
 #include "wz/Property.hpp"
-#include <any>
-#include "entt/entt.hpp"
-
 #include "Core/Core.h"
 #include "Components/Components.h"
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-void load_drops(std::vector<DropInfo> *drops, float x, float y, int layer)
+void load_drops(std::vector<Drop::Info> *drops, float x, float y, int layer)
 {
     float hspeed_min = 0;
     float hspeed_max = 0;

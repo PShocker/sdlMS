@@ -56,10 +56,10 @@ int skill_4211006(entt::entity ent)
                         {
                             souw = ski->skiw->sounds[u"Hit"];
                         }
-                        ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
+                        ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
                         ski->attack = true;
                     }
-                    ski->atkw.value().damage += dr->nums;
+                    ski->atk.value().damage += dr->nums;
                     continue;
                 }
             }

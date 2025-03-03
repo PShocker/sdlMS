@@ -10,7 +10,7 @@
 #include <SDL3/SDL.h>
 #include <vector>
 
-struct AttackWarp
+struct Attack
 {
     SDL_FRect rect = {0, 0, 0, 0};
     int mobCount = 1;
@@ -27,14 +27,8 @@ struct AttackWarp
 
     std::optional<std::function<void(entt::entity)>> call_back = std::nullopt;
 
-    AttackWarp() = default;
-    AttackWarp(SDL_FPoint &lt, SDL_FPoint &rb, AnimatedSpriteWarp *hit,
-               int mobCount = 1, int attackCount = 1,
-               SoundWarp *souw = nullptr, int damage = 50);
-};
-
-struct Attack
-{
-    std::vector<AttackWarp> atks;
     Attack() = default;
+    Attack(SDL_FPoint &lt, SDL_FPoint &rb, AnimatedSpriteWarp *hit,
+           int mobCount = 1, int attackCount = 1,
+           SoundWarp *souw = nullptr, int damage = 50);
 };

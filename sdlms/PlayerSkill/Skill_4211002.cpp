@@ -41,13 +41,13 @@ int skill_4211002(entt::entity ent)
     {
         souw = ski->skiw->sounds[u"Hit"];
     }
-    ski->atkw = AttackWarp(lt, rb, nullptr, mobCount, attackCount, souw, 50);
+    ski->atk = Attack(lt, rb, nullptr, mobCount, attackCount, souw, 50);
 
     auto call_back = [](entt::entity ent)
     {
         Skill *ski = World::registry->try_get<Skill>(ent);
-        auto atkw = &ski->atkw.value();
-        attack_mob(atkw, ent);
+        auto atk = &ski->atk.value();
+        attack_mob(atk, ent);
 
         auto o_tr = World::registry->try_get<Transform>(ent);
         auto o_mv = World::registry->try_get<Move>(ent);

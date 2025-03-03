@@ -13,8 +13,7 @@ struct Summon
 
     std::u16string index;
 
-    AnimatedSpriteWarp *atk = nullptr;
-    AttackWarp atkw;
+    Attack atk;
 
     // 状态机
     struct State

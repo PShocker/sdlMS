@@ -5,7 +5,7 @@
 
 #include "Components/Components.h"
 
-void hit_effect(AttackWarp *atkw, std::optional<SDL_FPoint> head,
+void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
                 entt::entity ent, char type, std::optional<SDL_FPoint> p);
 
-void hit_effect(AttackWarp *atkw, entt::entity ent, char type, std::optional<SDL_FPoint> p);
+void hit_effect(Attack *atk, entt::entity ent, char type, std::optional<SDL_FPoint> p);

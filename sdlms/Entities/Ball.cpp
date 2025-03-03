@@ -36,7 +36,7 @@ entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity 
     if (ski != nullptr)
     {
         auto &s = World::registry->emplace<Skill>(ent, ski->skiw->id);
-        s.atkw = ski->atkw;
+        s.atk = ski->atk;
         if (track_no_skill.contains(ski->skiw->id))
         {
             // 这类技能不追踪怪物,水平直线移动,例如飞侠的多重飞镖

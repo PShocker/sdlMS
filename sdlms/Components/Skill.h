@@ -32,7 +32,7 @@ struct SkillWarp
 struct Skill
 {
     SkillWarp *skiw = nullptr;
-    std::optional<AttackWarp> atkw = std::nullopt;
+    std::optional<Attack> atk = std::nullopt;
 
     Skill(const std::u16string &id);
     Skill() = default;

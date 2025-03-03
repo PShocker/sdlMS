@@ -57,8 +57,7 @@ struct Mob
     // 仇恨目标
     entt::entity hit = entt::null;
 
-    AnimatedSpriteWarp *atk = nullptr;
-    AttackWarp atkw;
+    Attack atk;
 
     SDL_FRect rect();
     SDL_FPoint head();

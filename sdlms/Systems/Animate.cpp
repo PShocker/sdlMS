@@ -1,6 +1,8 @@
 #include "Animate.h"
 #include "Hit.h"
 #include "Ball.h"
+#include "Collision.h"
+#include "Attack.h"
 #include "SummonStateMachine.h"
 #include "Core/Core.h"
 #include "Entities/Entities.h"
@@ -31,6 +33,10 @@ void animate_run()
         }
         auto aspr = World::registry->try_get<AnimatedSprite>(ent);
         animate_sprite(aspr);
+        if (auto trap = World::registry->try_get<Trap>(ent))
+        {
+            animate_trap(trap, ent);
+        }
     }
     for (auto ent : World::registry->view<Animated, Portal>())
     {
@@ -181,168 +187,118 @@ bool animate_sprite(AnimatedSprite *a)
 
 void animate_character(Character *cha, entt::entity ent)
 {
-    if (cha->animate)
-    {
-        auto delta_time = Window::delta_time;
-        cha->action_time += delta_time;
-        if (Character::type_map.contains(cha->action_str))
-        {
-            // 基础动作
-            auto delay = cha->stance_delays[cha->action][cha->action_index];
-            if (auto ski = World::registry->try_get<Skill>(ent))
-            {
-                // 不包含特殊动作的技能动作,此时攻击帧需要从AfterImage获取
-                auto action = cha->action;
-                auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-                auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
-                auto &info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action];
-                uint8_t index = info.index;
-                if (cha->action_index == index && ski->hit == false)
-                {
-                    if (ski->attack == true)
-                    {
-                        auto atk = World::registry->try_get<Attack>(ent);
-                        auto atkw = ski->atkw.value();
-                        atkw.p = World::registry->try_get<Transform>(ent)->position;
-                        atk->atks.push_back(atkw);
-                    }
-                    else if (ski->ball > 0)
-                    {
-                        std::optional<int> rotate = std::nullopt;
-                        if (ski->skiw->node->get_child(u"ball") && ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))
-                        {
-                            rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
-                        }
-                        if (ski->skiw->node->get_child(u"ball") != nullptr)
-                        {
-                            load_ball(AnimatedSpriteWarp::load(ski->skiw->node->get_child(u"ball")), ent, ski->ball, nullptr, rotate, ski);
-                        }
-                        else
-                        {
-                            entt::entity target = entt::null;
-                            std::vector<entt::entity> ents = load_ball(ski->ball, ent, rotate, ski);
-                            for (auto e : ents)
-                            {
-                                auto ball = World::registry->try_get<Ball>(e);
-                                // 让ball聚集到一个怪物上
-                                if ((target == entt::null || !World::registry->valid(target)))
-                                {
-                                    target = ball_fall(e, ball);
-                                }
-                            }
-                            for (auto e : ents)
-                            {
-                                auto ball = World::registry->try_get<Ball>(e);
-                                ball->target = target;
+    if (!cha->animate)
+        return;
 
-                                auto tr = World::registry->try_get<Transform>(e);
-                                auto position = tr->position;
-                                ball->p = position;
-                            }
-                        }
-                    }
-                    if (ski->call_back.has_value())
-                    {
-                        ski->call_back.value()(ent);
-                    }
-                    ski->hit = true;
-                }
-            }
-            if (cha->action_time >= delay)
+    auto delta_time = Window::delta_time;
+    cha->action_time += delta_time;
+
+    auto handle_skill_attack = [&](Skill *ski)
+    {
+        if (ski->hit)
+            return;
+
+        if (ski->attack)
+        {
+            auto atk = ski->atk.value();
+            atk.p = World::registry->try_get<Transform>(ent)->position;
+            attack_mob(&atk, ent);
+        }
+        else if (ski->ball > 0)
+        {
+            std::optional<int> rotate = std::nullopt;
+            if (ski->skiw->node->get_child(u"ball") && ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))
             {
-                if (cha->action_index == cha->stance_delays[cha->action].size() - 1)
+                rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
+            }
+            if (ski->skiw->node->get_child(u"ball") != nullptr)
+            {
+                load_ball(AnimatedSpriteWarp::load(ski->skiw->node->get_child(u"ball")), ent, ski->ball, nullptr, rotate, ski);
+            }
+            else
+            {
+                entt::entity target = entt::null;
+                std::vector<entt::entity> ents = load_ball(ski->ball, ent, rotate, ski);
+                for (auto e : ents)
                 {
-                    cha->action_index = 0;
-                    cha->animated = true;
+                    auto ball = World::registry->try_get<Ball>(e);
+                    if (target == entt::null || !World::registry->valid(target))
+                    {
+                        target = ball_fall(e, ball);
+                    }
                 }
-                else
+                for (auto e : ents)
                 {
-                    cha->action_index += 1;
+                    auto ball = World::registry->try_get<Ball>(e);
+                    ball->target = target;
+                    auto tr = World::registry->try_get<Transform>(e);
+                    ball->p = tr->position;
                 }
-                cha->action_time = 0;
             }
         }
-        else
+        if (ski->call_back.has_value())
         {
-            // 技能动作
-            int delay = cha->body_actions[cha->action_str][cha->action_frame].delay;
-            if (delay > 0)
-            {
-                // 判断攻击帧
-                if (auto ski = World::registry->try_get<Skill>(ent))
-                {
-                    if (ski->hit == false)
-                    {
-                        if (ski->attack == true)
-                        {
-                            auto atk = World::registry->try_get<Attack>(ent);
-                            auto atkw = ski->atkw.value();
-                            atkw.p = World::registry->try_get<Transform>(ent)->position;
-                            atk->atks.push_back(atkw);
-                        }
-                        else if (ski->ball > 0)
-                        {
-                            std::optional<int> rotate = std::nullopt;
-                            if (ski->skiw->node->get_child(u"ball") && ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))
-                            {
-                                rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
-                            }
-                            if (ski->skiw->node->get_child(u"ball") != nullptr)
-                            {
-                                load_ball(AnimatedSpriteWarp::load(ski->skiw->node->get_child(u"ball")), ent, ski->ball, nullptr, rotate, ski);
-                            }
-                            else
-                            {
-                                entt::entity target = entt::null;
-                                std::vector<entt::entity> ents = load_ball(ski->ball, ent, rotate, ski);
-                                for (auto e : ents)
-                                {
-                                    auto ball = World::registry->try_get<Ball>(e);
-                                    // 让ball聚集到一个怪物上
-                                    if ((target == entt::null || !World::registry->valid(target)))
-                                    {
-                                        target = ball_fall(e, ball);
-                                    }
-                                }
-                                for (auto e : ents)
-                                {
-                                    auto ball = World::registry->try_get<Ball>(e);
-                                    ball->target = target;
+            ski->call_back.value()(ent);
+        }
+        ski->hit = true;
+    };
 
-                                    auto tr = World::registry->try_get<Transform>(e);
-                                    auto position = tr->position;
-                                    ball->p = position;
-                                }
-                            }
-                        }
-                        if (ski->call_back.has_value())
-                        {
-                            ski->call_back.value()(ent);
-                        }
-                        ski->hit = true;
-                    }
-                }
-            }
-            if (cha->action_time >= std::abs(delay))
+    if (Character::type_map.contains(cha->action_str))
+    {
+        // 基础动作
+        auto delay = cha->stance_delays[cha->action][cha->action_index];
+        if (auto ski = World::registry->try_get<Skill>(ent))
+        {
+            auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
+            auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
+            auto &info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][cha->action];
+            if (cha->action_index == info.index)
             {
-                if (cha->action_frame == cha->body_actions[cha->action_str].size() - 1)
-                {
-                    cha->action_index = 0;
-                    cha->animated = true;
-                }
-                else
-                {
-                    cha->action = cha->body_actions[cha->action_str][cha->action_frame].type;
-                    cha->action_index = cha->body_actions[cha->action_str][cha->action_frame].frame;
-                    cha->action_frame += 1;
-                }
-                cha->action_time = 0;
+                handle_skill_attack(ski);
+            }
+        }
+        if (cha->action_time >= delay)
+        {
+            if (cha->action_index == cha->stance_delays[cha->action].size() - 1)
+            {
+                cha->action_index = 0;
+                cha->animated = true;
+            }
+            else
+            {
+                cha->action_index += 1;
+            }
+            cha->action_time = 0;
+        }
+    }
+    else
+    {
+        // 技能动作
+        int delay = cha->body_actions[cha->action_str][cha->action_frame].delay;
+        auto ski = World::registry->try_get<Skill>(ent);
+        if (delay > 0 && ski)
+        {
+            handle_skill_attack(ski);
+        }
+        if (cha->action_time >= std::abs(delay))
+        {
+            if (cha->action_frame == cha->body_actions[cha->action_str].size() - 1)
+            {
+                cha->action_index = 0;
+                cha->animated = true;
             }
             else
             {
                 cha->action = cha->body_actions[cha->action_str][cha->action_frame].type;
                 cha->action_index = cha->body_actions[cha->action_str][cha->action_frame].frame;
+                cha->action_frame += 1;
             }
+            cha->action_time = 0;
+        }
+        else
+        {
+            cha->action = cha->body_actions[cha->action_str][cha->action_frame].type;
+            cha->action_index = cha->body_actions[cha->action_str][cha->action_frame].frame;
         }
     }
 }
@@ -382,33 +338,36 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
                     return;
                 }
             }
-            auto atk = World::registry->try_get<Attack>(ent);
-            AttackWarp atkw;
+            Attack atk;
             int random = std::rand() % 3;
             switch (random)
             {
             case 0:
             {
                 auto hit = aft->hits[weaponinfo->afterImage + u"1"];
-                atkw = AttackWarp(aft->info.lt, aft->info.rb, hit);
+                atk = Attack(aft->info.lt, aft->info.rb, hit);
             }
             break;
             case 1:
             {
                 auto hit = aft->hits[weaponinfo->afterImage + u"2"];
-                atkw = AttackWarp(aft->info.lt, aft->info.rb, hit);
+                atk = Attack(aft->info.lt, aft->info.rb, hit);
             }
             break;
             case 2:
             {
                 // hit = aft->hits[weaponinfo->afterImage + u"F"];
                 auto hit = aft->hits[weaponinfo->afterImage + u"2"];
-                atkw = AttackWarp(aft->info.lt, aft->info.rb, hit);
+                atk = Attack(aft->info.lt, aft->info.rb, hit);
             }
             break;
             }
-            atkw.p = World::registry->try_get<Transform>(ent)->position;
-            atk->atks.push_back(atkw);
+            atk.p = World::registry->try_get<Transform>(ent)->position;
+            attack_mob(&atk, ent);
+            if (ent == Player::ent)
+            {
+                attack_reactor(&atk);
+            }
             // play sound
             Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
         }
@@ -530,8 +489,8 @@ void animate_mob(Mob *mob, entt::entity ent)
                     if (h->damage <= 0 && c->invincible_cooldown <= 0)
                     {
                         auto tr = World::registry->try_get<Transform>(ent);
-                        mob->atkw.p = tr->position;
-                        hit_effect(&mob->atkw, mob->hit, 1, std::nullopt);
+                        mob->atk.p = tr->position;
+                        hit_effect(&mob->atk, mob->hit, 1, std::nullopt);
                         Sound::push(mob->sounds[u"Attack1"]);
                     }
                 }
@@ -700,8 +659,8 @@ void animate_summon(Summon *sum, entt::entity ent)
             if (auto e = summon_attack(World::registry->try_get<Transform>(ent)); World::registry->valid(e))
             {
                 auto tr = World::registry->try_get<Transform>(ent);
-                sum->atkw.p = tr->position;
-                hit_effect(&sum->atkw, e, 0, std::nullopt);
+                sum->atk.p = tr->position;
+                hit_effect(&sum->atk, e, 0, std::nullopt);
             }
             if (sum->a.contains(u"fly"))
             {
@@ -722,5 +681,37 @@ void animate_summon(Summon *sum, entt::entity ent)
         }
         sum->a[sum->index].anim_index = 0;
         sum->a[sum->index].anim_time = 0;
+    }
+}
+
+void animate_trap(Trap *trap, entt::entity ent)
+{
+    auto p_cha = World::registry->try_get<Character>(Player::ent);
+    if (p_cha->invincible_cooldown <= 0)
+    {
+        auto aspr = World::registry->try_get<AnimatedSprite>(ent);
+        auto spr = aspr->asprw->sprites[aspr->anim_index];
+        if (spr->n->get_child(u"lt") && spr->n->get_child(u"rb"))
+        {
+            auto lt = dynamic_cast<wz::Property<wz::WzVec2D> *>(spr->n->get_child(u"lt"))->get();
+            auto rb = dynamic_cast<wz::Property<wz::WzVec2D> *>(spr->n->get_child(u"rb"))->get();
+            auto x = lt.x;
+            auto y = lt.y;
+            auto w = rb.x - lt.x;
+            auto h = rb.y - lt.y;
+            auto rect = SDL_FRect{(float)x, (float)y, (float)w, (float)h};
+
+            auto t_tr = World::registry->try_get<Transform>(ent);
+            auto p_tr = World::registry->try_get<Transform>(Player::ent);
+
+            if (collision(rect, t_tr,
+                          p_cha->r, p_tr))
+            {
+                Attack atk;
+                atk.damage = trap->damage;
+                atk.p = t_tr->position;
+                hit_effect(&atk, std::nullopt, Player::ent, 1, std::nullopt);
+            }
+        }
     }
 }

@@ -19,7 +19,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     Window::clear();
     cooldown_run();
     animate_run();
-    attack_run();
     player_statemachine_run();
     summon_statemachine_run();
     mob_statemachine_run();

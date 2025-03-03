@@ -37,7 +37,7 @@ int skill_4001344(entt::entity ent)
     {
         souw = ski->skiw->sounds[u"Hit"];
     }
-    ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw, 50);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
     ski->ball = 2;
 
     SkillWarp::cooldowns[u"4001344"] = 500;

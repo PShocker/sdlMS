@@ -51,11 +51,6 @@ void load_mob(wz::Node *node)
             {
                 SDL_SetTextureScaleMode(sprs->texture, SDL_SCALEMODE_NEAREST);
             }
-            if (key == u"attack1")
-            {
-                mob.atk = AnimatedSpriteWarp::load(val[0]->find_from_path(u"info/hit"));
-                mob.atkw.hit = mob.atk;
-            }
         }
         else
         {
@@ -86,6 +81,10 @@ void load_mob(wz::Node *node)
                 break;
             }
         }
+    }
+    if (node->find_from_path(u"attack1/info/hit"))
+    {
+        mob.atk.hit = AnimatedSpriteWarp::load(node->find_from_path(u"attack1/info/hit"));
     }
     if (mob.a.contains(u"stand"))
     {

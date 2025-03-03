@@ -43,7 +43,7 @@ void PlayerSkill::skill_action(Skill *ski, entt::entity ent)
 
 void PlayerSkill::skill_attack(Skill *ski)
 {
-    if (!ski->atkw.has_value())
+    if (!ski->atk.has_value())
     {
         auto lt = SDL_FPoint{0, 0};
         auto rb = SDL_FPoint{0, 0};
@@ -81,7 +81,7 @@ void PlayerSkill::skill_attack(Skill *ski)
             attackCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"attackCount"))->get();
         }
         SoundWarp *souw = (ski->skiw->sounds.contains(u"Hit")) ? ski->skiw->sounds[u"Hit"] : nullptr;
-        ski->atkw = AttackWarp(lt, rb, hit, mobCount, attackCount, souw);
+        ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
     }
     if (ski->skiw->node->get_child(u"ball") != nullptr)
     {

@@ -35,18 +35,18 @@ int skill_4201004(entt::entity ent)
     {
         souw = ski->skiw->sounds[u"Hit"];
     }
-    AttackWarp atkw(lt, rb, hit, mobCount, attackCount, souw, 10);
+    Attack atk(lt, rb, hit, mobCount, attackCount, souw, 10);
 
-    atkw.call_back = [](entt::entity ent)
+    atk.call_back = [](entt::entity ent)
     {
         auto tr = World::registry->try_get<Transform>(ent);
-        std::vector<DropInfo> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
+        std::vector<Drop::Info> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
         load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
         Sound::push(Sound(u"Game.img/DropItem", 200));
         World::zindex = true;
     };
 
-    ski->atkw = atkw;
+    ski->atk = atk;
 
     auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
     if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))

@@ -1,12 +1,12 @@
 #include "Attack.h"
 
-AttackWarp::AttackWarp(SDL_FPoint &lt, SDL_FPoint &rb,
-                       AnimatedSpriteWarp *hit,
-                       int mobCount, int attackCount,
-                       SoundWarp *souw, int damage) : hit(hit),
-                                                      mobCount(mobCount),
-                                                      attackCount(attackCount),
-                                                      souw(souw), damage(damage)
+Attack::Attack(SDL_FPoint &lt, SDL_FPoint &rb,
+               AnimatedSpriteWarp *hit,
+               int mobCount, int attackCount,
+               SoundWarp *souw, int damage) : hit(hit),
+                                              mobCount(mobCount),
+                                              attackCount(attackCount),
+                                              souw(souw), damage(damage)
 {
     rect.x = lt.x;
     rect.y = lt.y;

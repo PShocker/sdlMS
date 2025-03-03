@@ -1,5 +1,7 @@
 #include "MobStateMachine.h"
 #include "Move.h"
+#include "Hit.h"
+#include "Collision.h"
 #include "Core/Core.h"
 #include "Commons/Commons.h"
 #include "Entities/Entities.h"
@@ -9,6 +11,7 @@ void mob_statemachine_run()
     auto view = World::registry->view<Mob>();
     for (auto ent : view)
     {
+        mob_collision_attack(ent);
         auto mob = World::registry->try_get<Mob>(ent);
         if (mob->state == Mob::State::REMOVE)
         {
@@ -235,7 +238,7 @@ void mob_hit_move(Hit *hit, entt::entity ent)
 
 void mob_drop(Mob *mob, Transform *tr)
 {
-    std::vector<DropInfo> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
+    std::vector<Drop::Info> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
     for (auto it : mob->drops[mob->id])
     {
         auto id = std::to_string(it);
@@ -413,6 +416,28 @@ bool mob_jump(Mob *mob, Move *mv)
 
                 mv->foo = nullptr;
                 mv->vspeed = -420;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+bool mob_collision_attack(entt::entity ent)
+{
+    auto p_cha = World::registry->try_get<Character>(Player::ent);
+    if (p_cha->invincible_cooldown <= 0)
+    {
+        auto mob = World::registry->try_get<Mob>(ent);
+        if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
+        {
+            auto m_tr = World::registry->try_get<Transform>(ent);
+            auto p_tr = World::registry->try_get<Transform>(Player::ent);
+            if (collision(mob->rect(), m_tr, p_cha->r, p_tr))
+            {
+                Attack atk = mob->atk;
+                atk.p = m_tr->position;
+                hit_effect(&atk, std::nullopt, Player::ent, 1, std::nullopt);
                 return true;
             }
         }

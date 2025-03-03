@@ -20,5 +20,6 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time);
 bool mob_revive(entt::entity ent, float delta_time);
 bool mob_attack(Mob *mob, Transform *tr);
 bool mob_jump(Mob *mob, Move *mv);
+bool mob_collision_attack(entt::entity ent);
 void mob_set_hspeed(Mob *mob, Move *mv, Transform *tr);
 void mob_set_vspeed(Mob *mob, Move *mv, Transform *tr);

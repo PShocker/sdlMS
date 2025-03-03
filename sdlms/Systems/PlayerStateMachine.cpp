@@ -249,11 +249,11 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
             auto distance = tr->position.y - player_fall_y;
             if (distance >= 600)
             {
-                AttackWarp atkw;
-                atkw.damage = distance / 25;
-                atkw.hit = nullptr;
-                atkw.p = tr->position;
-                hit_effect(&atkw, std::nullopt, Player::ent, 1, std::nullopt);
+                Attack atk;
+                atk.damage = distance / 25;
+                atk.hit = nullptr;
+                atk.p = tr->position;
+                hit_effect(&atk, std::nullopt, Player::ent, 1, std::nullopt);
             }
         }
     }

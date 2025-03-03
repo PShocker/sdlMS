@@ -16,11 +16,11 @@ int skill_2301002(entt::entity ent)
     auto call_back = [](entt::entity ent)
     {
         auto tr = World::registry->try_get<Transform>(ent);
-        AttackWarp atkw;
-        atkw.damage = -1000;
-        atkw.hit = nullptr;
-        atkw.p = tr->position;
-        hit_effect(&atkw, std::nullopt, ent, 3, std::nullopt);
+        Attack atk;
+        atk.damage = -1000;
+        atk.hit = nullptr;
+        atk.p = tr->position;
+        hit_effect(&atk, std::nullopt, ent, 3, std::nullopt);
     };
 
     SkillWarp::cooldowns[u"2301002"] = 1500;
