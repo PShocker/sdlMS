@@ -711,6 +711,7 @@ void animate_trap(Trap *trap, entt::entity ent)
                 atk.damage = trap->damage;
                 atk.p = t_tr->position;
                 hit_effect(&atk, std::nullopt, Player::ent, 1, std::nullopt);
+                p_cha->invincible_cooldown = 1;
             }
         }
     }
