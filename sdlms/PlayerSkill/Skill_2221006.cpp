@@ -25,9 +25,7 @@ entt::entity find_closest_attackable_mob(
         if (!mob || mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
             continue;
 
-        const auto *tr = World::registry->try_get<Transform>(e);
-        if (!tr)
-            continue;
+        const auto tr = World::registry->try_get<Transform>(e);
 
         // 快速空间过滤
         const float dx = std::abs(tr->position.x - origin.x);
@@ -56,9 +54,7 @@ void generate_chain_effect(
     entt::entity target,
     Skill *ski)
 {
-    auto *eff = World::registry->try_get<Effect>(target);
-    if (!eff)
-        return;
+    auto eff = World::registry->try_get<Effect>(target);
 
     const float segment_length = 50.0f;
     float angle = calculate_angle(start, end);
@@ -151,8 +147,6 @@ int skill_2221006(entt::entity ent)
         {
             const auto mob = World::registry->try_get<Mob>(target);
             const auto target_tr = World::registry->try_get<Transform>(target);
-            if (!mob || !target_tr)
-                break;
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head();
