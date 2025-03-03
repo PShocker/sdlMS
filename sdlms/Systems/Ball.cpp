@@ -47,8 +47,6 @@ entt::entity ball_fall(entt::entity ent, Ball *ball)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
-    if (!mv || !tr)
-        return entt::null;
 
     ball->p = tr->position;
 
@@ -82,8 +80,6 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
 {
     auto mv = World::registry->try_get<Move>(src);
     auto tr = World::registry->try_get<Transform>(src);
-    if (!mv || !tr)
-        return false;
 
     float dx, dy;
     if (!ball_distance(src, ball->target, dx, dy))
@@ -138,8 +134,6 @@ bool ball_move(entt::entity src, Ball *ball, float delta_time)
 {
     auto mv = World::registry->try_get<Move>(src);
     auto tr = World::registry->try_get<Transform>(src);
-    if (!mv || !tr)
-        return false;
 
     move_fall(mv, tr, delta_time, 0, false);
     return (ball->destory < Window::dt_now || mv->hspeed == 0);
@@ -178,8 +172,6 @@ bool ball_distance(entt::entity src, entt::entity target, float &dx, float &dy)
 
     auto t_tr = World::registry->try_get<Transform>(target);
     auto b_tr = World::registry->try_get<Transform>(src);
-    if (!t_tr || !b_tr)
-        return false;
 
     SDL_FPoint t_position;
     if (auto mob = World::registry->try_get<Mob>(target))
