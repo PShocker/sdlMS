@@ -68,7 +68,7 @@ entt::entity ball_fall(entt::entity ent, Ball *ball)
         if (!m_tr || !collision(tri, tr, mob->rect(), m_tr))
             continue;
 
-        float min_distance2 = distance(m_tr->position, tr->position);
+        float min_distance2 = squared_distance(m_tr->position, tr->position);
         if (min_distance2 < min_distance)
         {
             target = e;
@@ -101,7 +101,7 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
 
     if (!ball->rotate)
     {
-        tr->rotation = ball_rotation(ball, tr);
+        tr->rotation = calculate_angle(tr->position, ball->p.value());
     }
 
     if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
@@ -201,28 +201,4 @@ bool ball_distance(entt::entity src, entt::entity target, float &dx, float &dy)
     dx = t_position.x - b_tr->position.x;
     dy = t_position.y - b_tr->position.y;
     return true;
-}
-
-float ball_rotation(Ball *ball, Transform *tr)
-{
-    if (!ball->p)
-        return 0.0f;
-
-    auto x1 = ball->p->x;
-    auto y1 = ball->p->y;
-    auto x2 = tr->position.x;
-    auto y2 = tr->position.y;
-
-    double dy = y2 - y1;
-    double dx = x2 - x1;
-
-    if (dx == 0)
-        return (dy > 0) ? 90.0f : 270.0f;
-
-    double angle_rad = std::atan(dy / dx);
-    double angle_deg = angle_rad * (180.0 / std::numbers::pi);
-    if (angle_deg < 0)
-        angle_deg += 360.0;
-
-    return static_cast<float>(angle_deg);
 }

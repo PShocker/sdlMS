@@ -5,31 +5,114 @@
 #include <SDL3/SDL.h>
 #include <numbers>
 
-// 链环闪电
+// 独立函数：寻找最近的可攻击怪物
+entt::entity find_closest_attackable_mob(
+    const SDL_FPoint &origin,
+    const std::unordered_set<entt::entity> &hit_entities,
+    float max_x_distance,
+    float max_y_distance)
+{
+    entt::entity closest_mob = entt::null;
+    float min_sq_dist = std::numeric_limits<float>::max();
+
+    for (auto e : World::registry->view<Damage, Mob>())
+    {
+        if (hit_entities.contains(e))
+            continue;
+
+        const auto *mob = World::registry->try_get<Mob>(e);
+        if (!mob || mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
+            continue;
+
+        const auto *tr = World::registry->try_get<Transform>(e);
+        if (!tr)
+            continue;
+
+        // 快速空间过滤
+        const float dx = std::abs(tr->position.x - origin.x);
+        const float dy = std::abs(tr->position.y - origin.y);
+        if (dx > max_x_distance || dy > max_y_distance)
+            continue;
+
+        // 计算平方距离
+        const float sq_dist = squared_distance(tr->position, origin);
+        if (sq_dist < min_sq_dist)
+        {
+            min_sq_dist = sq_dist;
+            closest_mob = e;
+        }
+    }
+
+    return closest_mob;
+}
+
+// 独立函数：生成链式特效
+void generate_chain_effect(
+    const SDL_FPoint &start,
+    const SDL_FPoint &end,
+    entt::entity target,
+    Skill *ski)
+{
+    auto *eff = World::registry->try_get<Effect>(target);
+    if (!eff)
+        return;
+
+    constexpr float segment_length = 50.0f;
+    const float angle = calculate_angle(start, end);
+    const float total_distance = distance(start, end);
+    const int segments = static_cast<int>(total_distance / segment_length);
+
+    const float dx_per_segment = (end.x - start.x) / segments;
+    const float dy_per_segment = (end.y - start.y) / segments;
+
+    static auto sprite_template = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"ball/0"));
+
+    for (int i = 0; i < segments; ++i)
+    {
+        auto tr = new Transform(
+            start.x + dx_per_segment * i,
+            start.y + dy_per_segment * i);
+        tr->rotation = angle;
+
+        eff->effects.push_back({tr,
+                                AnimatedSprite(sprite_template)}
+                               // 复制预加载的模板
+        );
+    }
+}
+
+// 链环闪电技能（优化后）
 int skill_2221006(entt::entity ent)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     auto cha = World::registry->try_get<Character>(ent);
-    auto state = cha->state;
+    if (!mv || !tr || !cha)
+        return PlayerSkill::SkillResult::None;
 
-    // 通用攻击技能
-    if (state == Character::State::CLIMB)
+    // 状态检查
+    if (cha->state == Character::State::CLIMB)
     {
         return PlayerSkill::SkillResult::None;
     }
-    else if (state != Character::State::JUMP && mv->foo != nullptr)
+    else if (cha->state != Character::State::JUMP && mv->foo)
     {
         mv->hspeed = 0;
     }
 
+    // 初始化技能
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2221006");
+    const auto *skiw = ski->skiw;
+    if (!skiw)
+        return PlayerSkill::SkillResult::None;
+
+    // 配置攻击参数
+    auto level_node = skiw->level[ski->level];
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
     auto hit = ski->skiw->hits[0];
     auto attackCount = 1;
-    auto node = ski->skiw->level[ski->level];
-    auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
+    const int mobCount = dynamic_cast<wz::Property<int> *>(level_node->get_child(u"mobCount"))->get();
     SoundWarp *souw = nullptr;
     if (ski->skiw->sounds.contains(u"Hit"))
     {
@@ -37,148 +120,61 @@ int skill_2221006(entt::entity ent)
     }
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
 
-    auto call_back = [](entt::entity ent)
+    // 回调函数（优化后）
+    ski->call_back = [](entt::entity src)
     {
-        Skill *ski = World::registry->try_get<Skill>(ent);
-        const auto effect_func = [&ski](SDL_FPoint m, SDL_FPoint n, entt::entity e)
-        {
-            auto l = m.x < n.x ? m : n;
-            auto r = m.x > n.x ? m : n;
-            double dy = r.y - l.y;
-            double dx = r.x - l.x;
-            float k = 0;
-            float angle;
-            // 避免除以零
-            if (dx == 0)
-            {
-                angle = (dy > 0) ? 90.0 : 270.0; // 垂直的情况
-            }
-            else
-            {
-                k = dy / dx;
-                // 计算夹角（弧度）
-                double angle_rad = std::atan(k);
-                // 转换为度
-                angle = angle_rad * (180.0 / std::numbers::pi);
-                if (angle < 0)
-                {
-                    angle += 360.0;
-                }
-            }
-            // 绘制攻击特效线
-            auto eff = World::registry->try_get<Effect>(e);
-            auto dis = distance(l, r);
-            const auto length = 50;
-            double a = length / sqrt(1 + k * k);
-            double b = k * a;
-            for (int i = 0; i < dis / length; i++)
-            {
-                auto tr = new Transform(l.x + i * a, l.y + i * b);
-                tr->rotation = angle;
-                eff->effects.push_back({tr, AnimatedSprite(AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"ball/0")))});
-            }
-        };
-        std::unordered_set<entt::entity> hit;
-        const auto find_min_mob = [&hit](entt::entity ent, bool player)
-        {
-            int dis = INT32_MAX;
-            entt::entity target = entt::null;
-            for (auto e : World::registry->view<Damage, Mob>())
-            {
-                if (!hit.contains(e))
-                {
-                    auto mob = World::registry->try_get<Mob>(e);
-                    if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
-                    {
-                        auto m_tr = World::registry->try_get<Transform>(e);
-                        if (player)
-                        {
-                            auto p_tr = World::registry->try_get<Transform>(ent);
-                            if (std::abs(p_tr->position.y - m_tr->position.y) <= 90)
-                            {
-                                if ((p_tr->flip == 1 && p_tr->position.x <= m_tr->position.x && (m_tr->position.x - p_tr->position.x) <= 500) ||
-                                    (p_tr->flip == 0 && p_tr->position.x >= m_tr->position.x && (p_tr->position.x - m_tr->position.x) <= 500))
-                                {
-                                    if (auto d = distance(m_tr->position, p_tr->position); d < dis)
-                                    {
-                                        target = e;
-                                        dis = d;
-                                    }
-                                }
-                            }
-                        }
-                        else
-                        {
-                            auto t_tr = World::registry->try_get<Transform>(ent);
-                            if (std::abs(t_tr->position.y - m_tr->position.y) <= 150 &&
-                                std::abs(t_tr->position.x - m_tr->position.x) <= 200)
-                            {
-                                if (auto d = distance(m_tr->position, t_tr->position); d < dis)
-                                {
-                                    target = e;
-                                    dis = d;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return target;
-        };
+        auto *ski = World::registry->try_get<Skill>(src);
+        auto *atk = ski ? &ski->atk.value() : nullptr;
+        if (!atk || atk->mobCount <= 0)
+            return;
 
-        auto atk = &ski->atk.value();
+        const auto *src_tr = World::registry->try_get<Transform>(src);
+        if (!src_tr)
+            return;
 
-        auto target = find_min_mob(ent, true);
-        if (World::registry->valid(target))
+        std::unordered_set<entt::entity> hit_targets;
+        const SDL_FPoint origin = src_tr->position;
+
+        // 第一目标搜索
+        entt::entity target = find_closest_attackable_mob(
+            origin,
+            hit_targets,
+            500.0f, // max_x_distance
+            90.0f   // max_y_distance
+        );
+
+        SDL_FPoint src_point = src_tr->position +
+                               (src_tr->flip ? SDL_FPoint{30, -35} : SDL_FPoint{-10, -35});
+        while (World::registry->valid(target) && atk->mobCount > 0)
         {
-            auto mob = World::registry->try_get<Mob>(target);
-            auto t_tr = World::registry->try_get<Transform>(target);
-            auto p_tr = World::registry->try_get<Transform>(ent);
-            atk->p = p_tr->position;
-            hit_effect(atk, mob->head(), target, 0, mob->head() + t_tr->position);
-            atk->mobCount -= 1;
-            if (p_tr->flip == 1)
-            {
-                effect_func(p_tr->position + SDL_FPoint{30, -35}, t_tr->position + mob->head(), target);
-            }
-            else
-            {
-                effect_func(p_tr->position + SDL_FPoint{-10, -35}, t_tr->position + mob->head(), target);
-            }
-            hit.insert(target);
-            while (true)
-            {
-                // last是前一个怪物
-                auto last = target;
-                if (atk->mobCount > 0)
-                {
-                    target = find_min_mob(last, false);
-                    if (World::registry->valid(target))
-                    {
-                        auto mob = World::registry->try_get<Mob>(target);
-                        auto l_tr = World::registry->try_get<Transform>(last);
-                        t_tr = World::registry->try_get<Transform>(target);
-                        atk->p = l_tr->position;
-                        hit_effect(atk, mob->head(), target, 0, mob->head() + t_tr->position);
-                        atk->mobCount -= 1;
-                        effect_func(l_tr->position + World::registry->try_get<Mob>(last)->head(), t_tr->position + mob->head(), target);
-                        hit.insert(target);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
+            const auto mob = World::registry->try_get<Mob>(target);
+            const auto target_tr = World::registry->try_get<Transform>(target);
+            if (!mob || !target_tr)
+                break;
+
+            // 执行攻击效果
+            const SDL_FPoint hit_point = target_tr->position + mob->head();
+            hit_effect(atk, mob->head(), target, 0, hit_point);
+
+            // 生成特效
+            generate_chain_effect(src_point, hit_point, target, ski);
+            src_point = hit_point;
+
+            hit_targets.insert(target);
+            atk->mobCount--;
+
+            // 寻找下一个目标
+            target = find_closest_attackable_mob(
+                target_tr->position,
+                hit_targets,
+                200.0f, // max_x_distance
+                150.0f  // max_y_distance
+            );
         }
     };
 
-    ski->call_back = call_back;
-
     return PlayerSkill::SkillResult::EFF |
-           PlayerSkill::SkillResult::SOU | PlayerSkill::SkillResult::ACT | PlayerSkill::SkillResult::ALERT;
+           PlayerSkill::SkillResult::SOU |
+           PlayerSkill::SkillResult::ACT |
+           PlayerSkill::SkillResult::ALERT;
 }
