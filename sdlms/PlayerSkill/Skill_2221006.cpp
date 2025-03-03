@@ -84,9 +84,6 @@ int skill_2221006(entt::entity ent)
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     auto cha = World::registry->try_get<Character>(ent);
-    if (!mv || !tr || !cha)
-        return PlayerSkill::SkillResult::None;
-
     // 状态检查
     if (cha->state == Character::State::CLIMB)
     {
@@ -100,8 +97,6 @@ int skill_2221006(entt::entity ent)
     // 初始化技能
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2221006");
     const auto *skiw = ski->skiw;
-    if (!skiw)
-        return PlayerSkill::SkillResult::None;
 
     // 配置攻击参数
     auto level_node = skiw->level[ski->level];
@@ -121,9 +116,7 @@ int skill_2221006(entt::entity ent)
     ski->call_back = [](entt::entity src)
     {
         auto *ski = World::registry->try_get<Skill>(src);
-        auto *atk = ski ? &ski->atk.value() : nullptr;
-        if (!atk || atk->mobCount <= 0)
-            return;
+        auto *atk = &ski->atk.value();
 
         const auto *src_tr = World::registry->try_get<Transform>(src);
 
