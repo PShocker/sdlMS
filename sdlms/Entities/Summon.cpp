@@ -21,7 +21,7 @@ void load_summon(wz::Node *node, entt::entity ent, float x, float y, int z, cons
         }
     }
 
-    sum->atk.hit = AnimatedSpriteWarp::load(node->parent->find_from_path(u"attack1/info/hit"));
+    sum->atk.hit = AnimatedSpriteWarp::load(node->parent->find_from_path(u"hit/0"));
 
     sum->index = u"summoned";
     sum->id = id;

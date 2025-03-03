@@ -808,84 +808,41 @@ bool player_hit(Hit *hit, entt::entity ent)
     }
 }
 
+const std::unordered_map<SDL_Scancode, std::u16string> skill_key_id = {
+    {SDL_SCANCODE_A, u"1001004"},
+    {SDL_SCANCODE_S, u"1311006"},
+    {SDL_SCANCODE_SPACE, u"2201002"},
+    {SDL_SCANCODE_F, u"2221006"},
+    {SDL_SCANCODE_Y, u"2121003"},
+    {SDL_SCANCODE_D, u"1001005"},
+    {SDL_SCANCODE_S, u"1311006"},
+    {SDL_SCANCODE_G, u"4111005"},
+    {SDL_SCANCODE_H, u"4111002"},
+    {SDL_SCANCODE_C, u"2301002"},
+    {SDL_SCANCODE_V, u"4001344"},
+    {SDL_SCANCODE_B, u"4211006"},
+    {SDL_SCANCODE_J, u"1311001"},
+    {SDL_SCANCODE_R, u"4211002"},
+    {SDL_SCANCODE_T, u"4201004"},
+    {SDL_SCANCODE_1, u"2221005"},
+    {SDL_SCANCODE_2, u"2121005"},
+    {SDL_SCANCODE_3, u"3121006"},
+};
+
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent, std::u16string id)
 {
     if (id == u"")
     {
-        if (Input::state[SDL_SCANCODE_A])
+        // 遍历映射表，检查是否有按键被按下
+        for (const auto &[key, value] : skill_key_id)
         {
-            id = u"1001004";
-        }
-        else if (Input::state[SDL_SCANCODE_S])
-        {
-            id = u"1311006";
-        }
-        else if (Input::state[SDL_SCANCODE_SPACE])
-        {
-            id = u"2201002";
-        }
-        else if (Input::state[SDL_SCANCODE_D])
-        {
-            id = u"1001005";
-        }
-        else if (Input::state[SDL_SCANCODE_F])
-        {
-            id = u"2221006";
-        }
-        else if (Input::state[SDL_SCANCODE_Y])
-        {
-            id = u"2121003";
-        }
-        else if (Input::state[SDL_SCANCODE_D])
-        {
-            id = u"1001005";
-        }
-        else if (Input::state[SDL_SCANCODE_G])
-        {
-            id = u"4111005";
-        }
-        else if (Input::state[SDL_SCANCODE_H])
-        {
-            id = u"4111002";
-        }
-        else if (Input::state[SDL_SCANCODE_C])
-        {
-            id = u"2301002";
-        }
-        else if (Input::state[SDL_SCANCODE_V])
-        {
-            id = u"4001344";
-        }
-        else if (Input::state[SDL_SCANCODE_B])
-        {
-            id = u"4211006";
-        }
-        else if (Input::state[SDL_SCANCODE_J])
-        {
-            id = u"1311001";
-        }
-        else if (Input::state[SDL_SCANCODE_R])
-        {
-            id = u"4211002";
-        }
-        else if (Input::state[SDL_SCANCODE_T])
-        {
-            id = u"4201004";
-        }
-        else if (Input::state[SDL_SCANCODE_1])
-        {
-            id = u"2221005";
-        }
-        else if (Input::state[SDL_SCANCODE_2])
-        {
-            id = u"2121005";
-        }
-        else if (Input::state[SDL_SCANCODE_3])
-        {
-            id = u"3121006";
+            if (Input::state[key])
+            {
+                id = value;
+                break; // 找到一个按键后即可退出
+            }
         }
     }
-
     if (id != u"" && SkillWarp::cooldowns[id] <= 0)
     {
         SkillWarp::cooldowns[id] = 200;

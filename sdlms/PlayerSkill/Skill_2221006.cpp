@@ -7,6 +7,7 @@
 
 // 独立函数：寻找最近的可攻击怪物
 entt::entity find_closest_attackable_mob(
+    int flip,
     const SDL_FPoint &origin,
     const std::unordered_set<entt::entity> &hit_entities,
     float max_x_distance,
@@ -33,6 +34,8 @@ entt::entity find_closest_attackable_mob(
         const float dy = std::abs(tr->position.y - origin.y);
         if (dx > max_x_distance || dy > max_y_distance)
             continue;
+        if ((flip == 1 && tr->position.x < origin.x) || (flip == 0 && tr->position.x > origin.x))
+            continue;
 
         // 计算平方距离
         const float sq_dist = squared_distance(tr->position, origin);
@@ -57,17 +60,17 @@ void generate_chain_effect(
     if (!eff)
         return;
 
-    constexpr float segment_length = 50.0f;
-    const float angle = calculate_angle(start, end);
-    const float total_distance = distance(start, end);
-    const int segments = static_cast<int>(total_distance / segment_length);
+    const float segment_length = 50.0f;
+    float angle = calculate_angle(start, end);
+    float total_distance = distance(start, end);
+    float segments = (total_distance / segment_length);
 
-    const float dx_per_segment = (end.x - start.x) / segments;
-    const float dy_per_segment = (end.y - start.y) / segments;
+    float dx_per_segment = (end.x - start.x) / segments;
+    float dy_per_segment = (end.y - start.y) / segments;
 
-    static auto sprite_template = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"ball/0"));
+    auto sprite_template = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"ball/0"));
 
-    for (int i = 0; i < segments; ++i)
+    for (float i = 0; i < segments; ++i)
     {
         auto tr = new Transform(
             start.x + dx_per_segment * i,
@@ -75,9 +78,7 @@ void generate_chain_effect(
         tr->rotation = angle;
 
         eff->effects.push_back({tr,
-                                AnimatedSprite(sprite_template)}
-                               // 复制预加载的模板
-        );
+                                AnimatedSprite(sprite_template)});
     }
 }
 
@@ -137,6 +138,7 @@ int skill_2221006(entt::entity ent)
 
         // 第一目标搜索
         entt::entity target = find_closest_attackable_mob(
+            src_tr->flip,
             origin,
             hit_targets,
             500.0f, // max_x_distance
@@ -165,10 +167,11 @@ int skill_2221006(entt::entity ent)
 
             // 寻找下一个目标
             target = find_closest_attackable_mob(
+                -1,
                 target_tr->position,
                 hit_targets,
                 200.0f, // max_x_distance
-                150.0f  // max_y_distance
+                200.0f  // max_y_distance
             );
         }
     };

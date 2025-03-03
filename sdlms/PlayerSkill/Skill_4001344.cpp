@@ -7,12 +7,11 @@
 int skill_4001344(entt::entity ent)
 {
     auto mv = World::registry->try_get<Move>(ent);
-    auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
     auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;
 
     // 通用攻击技能
-    if (state == Character::State::CLIMB || weaponinfo->attack != WeaponInfo::CLAW)
+    if (state == Character::State::CLIMB)
     {
         return PlayerSkill::SkillResult::None;
     }

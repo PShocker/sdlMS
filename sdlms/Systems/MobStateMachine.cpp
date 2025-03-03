@@ -437,7 +437,9 @@ bool mob_collision_attack(entt::entity ent)
             {
                 Attack atk = mob->atk;
                 atk.p = m_tr->position;
+                atk.hit = nullptr;
                 hit_effect(&atk, std::nullopt, Player::ent, 1, std::nullopt);
+                p_cha->invincible_cooldown = 1;
                 return true;
             }
         }

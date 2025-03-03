@@ -27,7 +27,8 @@ entt::entity load_ball(AnimatedSpriteWarp *asprw, Transform *tran, entt::entity 
 
     auto &ball = World::registry->emplace<Ball>(ent);
     ball.owner = owner;
-    ball.hit = hit;
+    ball.hit = hit == nullptr ? AnimatedSpriteWarp::load(Wz::Character->get_root()->find_from_path(u"Afterimage/hit.img/mace2"))
+                              : hit;
     ball.rotate = rotate;
 
     World::registry->emplace<Animated>(ent);
@@ -77,16 +78,14 @@ std::vector<entt::entity> load_ball(unsigned char num, entt::entity owner, std::
         ball_path = u"Consume/0206.img/02060001/bullet";
         auto node = Wz::Item->get_root()->find_from_path(ball_path);
         auto asprw = AnimatedSpriteWarp::load(node);
-        auto hit = Wz::Skill->get_root()->find_from_path(u"300.img/skill/3001005/CharLevel/10/hit/0");
-        return load_ball(asprw, ent, num, AnimatedSpriteWarp::load(hit), rotate, ski);
+        return load_ball(asprw, ent, num, nullptr, rotate, ski);
     }
     else if (weaponinfo->attack == WeaponInfo::Attack::CLAW)
     {
         ball_path = u"Consume/0207.img/02070005/bullet";
         auto node = Wz::Item->get_root()->find_from_path(ball_path);
         auto asprw = AnimatedSpriteWarp::load(node);
-        auto hit = Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001344/CharLevel/20/hit/0");
-        return load_ball(asprw, ent, num, AnimatedSpriteWarp::load(hit), rotate, ski);
+        return load_ball(asprw, ent, num, nullptr, rotate, ski);
     }
     return e;
 }

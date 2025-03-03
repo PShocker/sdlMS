@@ -18,14 +18,12 @@ void ball_run()
     for (auto ent : view)
     {
         auto ball = World::registry->try_get<Ball>(ent);
-        if (!ball)
-            continue;
-
-        if (!ball->track)
+        if (ball->track == false)
         {
+            // 这类型的ball不跟踪怪物,路径就是直线
             ball_no_track(ent, ball);
         }
-        else if (ball->track && ball->target != entt::null && World::registry->valid(ball->target))
+        if (ball->track && ball->target != entt::null && World::registry->valid(ball->target))
         {
             if (ball_track(ent, ball, (float)Window::delta_time / 1000))
             {
@@ -33,7 +31,7 @@ void ball_run()
                 World::zindex = true;
             }
         }
-        else if (ball->track && !ball->p)
+        else if (ball->track && ball->p == std::nullopt)
         {
             ball_fall(ent, ball);
         }
@@ -92,8 +90,8 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
         return false;
 
     mv->hspeed = (dx < 0) ? -std::abs(mv->hspeed) : std::abs(mv->hspeed);
-    mv->vspeed = (dy < 0) ? -std::abs(mv->hspeed) / std::abs(dx) * delta_time * 1200
-                          : std::abs(mv->hspeed) / std::abs(dx) * delta_time * 1200;
+    mv->vspeed = (dy < 0) ? std::abs(mv->hspeed) * dy / std::abs(dx)
+                          : std::abs(mv->hspeed) * dy / std::abs(dx);
 
     move_fall(mv, tr, delta_time, 0, false, true);
     if (mv->hspeed == 0)
@@ -101,7 +99,8 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
 
     if (!ball->rotate)
     {
-        tr->rotation = calculate_angle(tr->position, ball->p.value());
+        tr->rotation = tr->flip ? calculate_angle(ball->p.value(), tr->position)
+                                : calculate_angle(tr->position, ball->p.value());
     }
 
     if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
@@ -186,11 +185,6 @@ bool ball_distance(entt::entity src, entt::entity target, float &dx, float &dy)
     if (auto mob = World::registry->try_get<Mob>(target))
     {
         auto rect = real_rect(mob->rect(), t_tr);
-        t_position = closestPointToRect(b_tr->position, rect);
-    }
-    else if (auto cha = World::registry->try_get<Character>(target))
-    {
-        auto rect = real_rect(cha->r, t_tr);
         t_position = closestPointToRect(b_tr->position, rect);
     }
     else
