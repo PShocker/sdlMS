@@ -35,7 +35,7 @@ int skill_4211006(entt::entity ent)
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
-    ski->attack = true;
+    ski->atk.value().damage = 0;
 
     for (auto e : view)
     {
@@ -55,6 +55,7 @@ int skill_4211006(entt::entity ent)
                                             AnimatedSprite(ski->skiw->hits[0]),
                                             Window::dt_now + 700});
                     ski->atk.value().damage += dr->nums;
+                    ski->attack = true;
                     continue;
                 }
             }
