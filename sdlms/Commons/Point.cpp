@@ -64,5 +64,5 @@ float distance(const SDL_FPoint &m, const SDL_FPoint &n)
 {
     float dx = n.x - m.x;
     float dy = n.y - m.y;
-    return std::hypot(dx, dy); // 使用 std::hypot 代替 sqrt(dx * dx + dy * dy)
+    return std::sqrt(dx * dx + dy * dy);
 }

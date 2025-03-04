@@ -89,7 +89,7 @@ int skill_2221006(entt::entity ent)
         );
 
         SDL_FPoint src_point = src_tr->position +
-                               (src_tr->flip ? SDL_FPoint{30, -35} : SDL_FPoint{-10, -35});
+                               (src_tr->flip ? SDL_FPoint{30, -25} : SDL_FPoint{-30, -25});
         while (World::registry->valid(target) && atk->mobCount > 0)
         {
             const auto mob = World::registry->try_get<Mob>(target);
