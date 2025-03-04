@@ -21,7 +21,7 @@ void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
     hit->souw = atk->souw;
     hit->count += atk->attackCount;
     hit->damage += atk->damage * atk->attackCount;
-    hit->owner = src;
+    hit->owner = Player::ent;
 
     auto dam = World::registry->try_get<Damage>(target);
     dam->head = head;
