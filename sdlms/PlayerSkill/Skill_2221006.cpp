@@ -1,51 +1,10 @@
 #include "PlayerSkill.h"
 #include "Systems/Hit.h"
+#include "Common.h"
 #include "Commons/Commons.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 #include <numbers>
-
-// 独立函数：寻找最近的可攻击怪物
-entt::entity find_closest_attackable_mob(
-    int flip,
-    const SDL_FPoint &origin,
-    const std::unordered_set<entt::entity> &hit_entities,
-    float max_x_distance,
-    float max_y_distance)
-{
-    entt::entity closest_mob = entt::null;
-    float min_sq_dist = std::numeric_limits<float>::max();
-
-    for (auto e : World::registry->view<Damage, Mob>())
-    {
-        if (hit_entities.contains(e))
-            continue;
-
-        const auto *mob = World::registry->try_get<Mob>(e);
-        if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
-            continue;
-
-        const auto tr = World::registry->try_get<Transform>(e);
-
-        // 快速空间过滤
-        const float dx = std::abs(tr->position.x - origin.x);
-        const float dy = std::abs(tr->position.y - origin.y);
-        if (dx > max_x_distance || dy > max_y_distance)
-            continue;
-        if ((flip == 1 && tr->position.x < origin.x) || (flip == 0 && tr->position.x > origin.x))
-            continue;
-
-        // 计算平方距离
-        const float sq_dist = squared_distance(tr->position, origin);
-        if (sq_dist < min_sq_dist)
-        {
-            min_sq_dist = sq_dist;
-            closest_mob = e;
-        }
-    }
-
-    return closest_mob;
-}
 
 // 独立函数：生成链式特效
 void generate_chain_effect(
@@ -96,20 +55,16 @@ int skill_2221006(entt::entity ent)
 
     // 初始化技能
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2221006");
-    const auto *skiw = ski->skiw;
+    auto skiw = ski->skiw;
 
     // 配置攻击参数
     auto level_node = skiw->level[ski->level];
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
-    auto hit = ski->skiw->hits[0];
+    auto hit = skiw->hits[0];
     auto attackCount = 1;
     const int mobCount = dynamic_cast<wz::Property<int> *>(level_node->get_child(u"mobCount"))->get();
-    SoundWarp *souw = nullptr;
-    if (ski->skiw->sounds.contains(u"Hit"))
-    {
-        souw = ski->skiw->sounds[u"Hit"];
-    }
+    SoundWarp *souw = skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
 
     // 回调函数（优化后）
@@ -142,7 +97,7 @@ int skill_2221006(entt::entity ent)
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head();
-            hit_effect(atk, mob->head(), target, 0, hit_point);
+            hit_effect(atk, mob->head(), src, target, 0, hit_point);
 
             // 生成特效
             generate_chain_effect(src_point, hit_point, target, ski);

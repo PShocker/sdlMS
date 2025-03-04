@@ -30,20 +30,17 @@ int skill_4201004(entt::entity ent)
     auto hit = nullptr;
     auto mobCount = 12;
     auto attackCount = 1;
-    SoundWarp *souw = nullptr;
-    if (ski->skiw->sounds.contains(u"Hit"))
-    {
-        souw = ski->skiw->sounds[u"Hit"];
-    }
+    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     Attack atk(lt, rb, hit, mobCount, attackCount, souw, 10);
 
-    atk.call_back = [](entt::entity ent)
+    atk.call_back = [](entt::entity src, entt::entity target)
     {
-        auto tr = World::registry->try_get<Transform>(ent);
+        auto tr = World::registry->try_get<Transform>(target);
         std::vector<Drop::Info> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
         load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
         Sound::push(Sound(u"Game.img/DropItem", 200));
         World::zindex = true;
+        return true;
     };
 
     ski->atk = atk;

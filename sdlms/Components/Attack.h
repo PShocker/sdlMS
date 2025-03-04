@@ -25,7 +25,7 @@ struct Attack
     // 攻击后击中音效
     SoundWarp *souw = nullptr;
 
-    std::optional<std::function<void(entt::entity)>> call_back = std::nullopt;
+    std::optional<std::function<bool(entt::entity, entt::entity)>> call_back = std::nullopt;
 
     Attack() = default;
     Attack(SDL_FPoint &lt, SDL_FPoint &rb, AnimatedSpriteWarp *hit,

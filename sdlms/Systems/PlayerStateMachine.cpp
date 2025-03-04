@@ -253,7 +253,7 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
                 atk.damage = distance / 25;
                 atk.hit = nullptr;
                 atk.p = tr->position;
-                hit_effect(&atk, std::nullopt, Player::ent, 1, std::nullopt);
+                hit_effect(&atk, std::nullopt, Player::ent, Player::ent, 1, std::nullopt);
             }
         }
     }
@@ -827,6 +827,7 @@ const std::unordered_map<SDL_Scancode, std::u16string> skill_key_id = {
     {SDL_SCANCODE_1, u"2221005"},
     {SDL_SCANCODE_2, u"2121005"},
     {SDL_SCANCODE_3, u"3121006"},
+    {SDL_SCANCODE_4, u"3101005"},
 };
 
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent, std::u16string id)

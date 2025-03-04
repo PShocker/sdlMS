@@ -4,21 +4,26 @@
 #include "Core/Core.h"
 
 void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
-                entt::entity ent, char type, std::optional<SDL_FPoint> p)
+                entt::entity src, entt::entity target,
+                char type, std::optional<SDL_FPoint> p)
 {
-    if (!World::registry->valid(ent))
+    if (!World::registry->valid(target))
     {
         return;
     }
-    auto hit = World::registry->try_get<Hit>(ent);
+    if (atk->call_back.has_value() && !atk->call_back.value()(src, target))
+    {
+        return;
+    }
+    auto hit = World::registry->try_get<Hit>(target);
     hit->x = atk->p->x;
     hit->y = atk->p->y;
     hit->souw = atk->souw;
     hit->count += atk->attackCount;
     hit->damage += atk->damage * atk->attackCount;
-    hit->owner = Player::ent;
+    hit->owner = src;
 
-    auto dam = World::registry->try_get<Damage>(ent);
+    auto dam = World::registry->try_get<Damage>(target);
     dam->head = head;
     auto count = dam->damage.size();
 
@@ -35,10 +40,10 @@ void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
     }
     if (atk->hit)
     {
-        auto eff = World::registry->try_get<Effect>(ent);
+        auto eff = World::registry->try_get<Effect>(target);
         if (p.has_value())
         {
-            eff->effects.push_back({new Transform(p.value(), 0, World::registry->try_get<Transform>(ent)->flip),
+            eff->effects.push_back({new Transform(p.value(), 0, World::registry->try_get<Transform>(target)->flip),
                                     AnimatedSprite(atk->hit), Window::dt_now});
         }
         else
@@ -46,13 +51,10 @@ void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
             eff->effects.push_back({nullptr, AnimatedSprite(atk->hit), Window::dt_now});
         }
     }
-    if (atk->call_back.has_value())
-    {
-        atk->call_back.value()(ent);
-    }
 }
 
-void hit_effect(Attack *atk, entt::entity ent, char type, std::optional<SDL_FPoint> p)
+void hit_effect(Attack *atk, entt::entity src, entt::entity target,
+                char type, std::optional<SDL_FPoint> p)
 {
-    hit_effect(atk, std::nullopt, ent, type, p);
+    hit_effect(atk, std::nullopt, src, target, type, p);
 }

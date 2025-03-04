@@ -3,6 +3,7 @@
 #include "Hit.h"
 #include "Move.h"
 #include "Collision.h"
+#include "PlayerSkill/Common.h"
 #include "Core/Core.h"
 #include "Commons/Commons.h"
 #include "Entities/Entities.h"
@@ -47,33 +48,10 @@ entt::entity ball_fall(entt::entity ent, Ball *ball)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
-
     ball->p = tr->position;
-
     const Triangle tri = {{-350, -100}, {-350, 100}, {0, 0}};
-    float min_distance = FLT_MAX;
-    entt::entity target = entt::null;
-
-    for (auto e : World::registry->view<Damage, Mob>())
-    {
-        auto mob = World::registry->try_get<Mob>(e);
-        if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
-            continue;
-
-        auto m_tr = World::registry->try_get<Transform>(e);
-        if (!collision(tri, tr, mob->rect(), m_tr))
-            continue;
-
-        float min_distance2 = squared_distance(m_tr->position, tr->position);
-        if (min_distance2 < min_distance)
-        {
-            target = e;
-            min_distance = min_distance2;
-        }
-    }
-
-    ball->target = target;
-    return target;
+    ball->target = find_closest_attackable_mob(*tr, tri);
+    return ball->target;
 }
 
 bool ball_track(entt::entity src, Ball *ball, float delta_time)
@@ -156,11 +134,11 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
         {
             if (ski && track_no_skill.contains(ski->skiw->id))
             {
-                hit_effect(&atk, mob->head(), target, 0, std::nullopt); // 传递地址，保持原有行为
+                hit_effect(&atk, mob->head(), src, target, 0, std::nullopt); // 传递地址，保持原有行为
             }
             else
             {
-                hit_effect(&atk, mob->head(), target, 0, atk.p); // 传递地址，保持原有行为
+                hit_effect(&atk, mob->head(), src, target, 0, atk.p); // 传递地址，保持原有行为
             }
         }
         atk.mobCount--;

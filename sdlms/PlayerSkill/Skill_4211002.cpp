@@ -4,6 +4,7 @@
 #include "Systems/Hit.h"
 #include "Systems/Collision.h"
 #include "Systems/Attack.h"
+#include "Resources/Wz.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 
@@ -36,20 +37,18 @@ int skill_4211002(entt::entity ent)
     auto attackCount = 4;
     auto mobCount = 12;
 
-    SoundWarp *souw = nullptr;
-    if (ski->skiw->sounds.contains(u"Hit"))
-    {
-        souw = ski->skiw->sounds[u"Hit"];
-    }
+    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, nullptr, mobCount, attackCount, souw, 50);
 
     auto call_back = [](entt::entity ent)
     {
         Skill *ski = World::registry->try_get<Skill>(ent);
         auto atk = &ski->atk.value();
+        auto o_tr = World::registry->try_get<Transform>(ent);
+        atk->hit = o_tr->flip == 1 ? AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/1"))
+                                   : AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/0"));
         attack_mob(atk, ent);
 
-        auto o_tr = World::registry->try_get<Transform>(ent);
         auto o_mv = World::registry->try_get<Move>(ent);
         auto eff = World::registry->try_get<Effect>(ent);
         if (o_tr->flip == 1)

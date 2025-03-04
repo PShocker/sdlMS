@@ -12,10 +12,6 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
     }
     // 获取攻击者的 Transform 组件
     auto attack_transform = World::registry->try_get<Transform>(attack_entity);
-    if (!attack_transform)
-    {
-        return;
-    }
     // 遍历所有带有 Damage 和 Mob 组件的实体
     for (auto mob_entity : World::registry->view<Damage, Mob>())
     {
@@ -24,18 +20,13 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
         {
             continue; // 跳过无效或已死亡的怪物
         }
-
         // 获取怪物的 Transform 组件
         auto mob_transform = World::registry->try_get<Transform>(mob_entity);
-        if (!mob_transform)
-        {
-            continue;
-        }
         // 检查碰撞
         if (collision(mob->rect(), mob_transform, atk->rect, attack_transform))
         {
             // 触发攻击效果
-            hit_effect(atk, mob->head(), mob_entity, 0, std::nullopt);
+            hit_effect(atk, mob->head(), attack_entity, mob_entity, 0, std::nullopt);
             atk->mobCount -= 1;
             // 如果 mobCount 减到 0，提前退出
             if (atk->mobCount <= 0)
@@ -53,16 +44,12 @@ void attack_reactor(Attack *atk)
         return;
     }
     auto player_transform = World::registry->try_get<Transform>(Player::ent);
-    if (!player_transform)
-    {
-        return;
-    }
     for (auto ent : World::registry->view<Damage, Reactor>())
     {
         auto reactor = World::registry->try_get<Reactor>(ent);
         auto reactor_transform = World::registry->try_get<Transform>(ent);
 
-        if (!reactor_transform || reactor->hit)
+        if (reactor->hit)
         {
             continue;
         }
@@ -89,7 +76,7 @@ void attack_reactor(Attack *atk)
             {
                 Sound::push(reactor->sounds[reactor->index]);
                 atk->damage = 1;
-                hit_effect(atk, reactor->head(), ent, 2, std::nullopt);
+                hit_effect(atk, reactor->head(), Player::ent, ent, 2, std::nullopt);
                 reactor->hit = true;
                 return;
             }

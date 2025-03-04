@@ -425,21 +425,21 @@ bool mob_jump(Mob *mob, Move *mv)
 
 bool mob_collision_attack(entt::entity ent)
 {
-    auto p_cha = World::registry->try_get<Character>(Player::ent);
-    if (p_cha->invincible_cooldown <= 0)
+    auto player_character = World::registry->try_get<Character>(Player::ent);
+    if (player_character->invincible_cooldown <= 0)
     {
         auto mob = World::registry->try_get<Mob>(ent);
         if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
         {
-            auto m_tr = World::registry->try_get<Transform>(ent);
-            auto p_tr = World::registry->try_get<Transform>(Player::ent);
-            if (collision(mob->rect(), m_tr, p_cha->r, p_tr))
+            auto mob_transform = World::registry->try_get<Transform>(ent);
+            auto player_transform = World::registry->try_get<Transform>(Player::ent);
+            if (collision(mob->rect(), mob_transform, player_character->r, player_transform))
             {
                 Attack atk = mob->atk;
-                atk.p = m_tr->position;
+                atk.p = mob_transform->position;
                 atk.hit = nullptr;
-                hit_effect(&atk, std::nullopt, Player::ent, 1, std::nullopt);
-                p_cha->invincible_cooldown = 1;
+                hit_effect(&atk, std::nullopt, ent, Player::ent, 1, std::nullopt);
+                player_character->invincible_cooldown = 1;
                 return true;
             }
         }

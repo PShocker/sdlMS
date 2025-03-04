@@ -24,6 +24,19 @@ int skill_4211006(entt::entity ent)
     SkillWarp::cooldowns[u"4211006"] = 500;
 
     auto view = World::registry->view<Drop>();
+
+    auto node = ski->skiw->level[ski->level];
+    auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
+    auto lt = SDL_FPoint{(float)v.x, (float)v.y};
+    v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
+    auto rb = SDL_FPoint{(float)v.x, (float)v.y};
+    auto hit = ski->skiw->hits[0];
+    auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
+    auto attackCount = 1;
+    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
+    ski->attack = true;
+
     for (auto e : view)
     {
         auto dr = &view.get<Drop>(e);
@@ -41,24 +54,6 @@ int skill_4211006(entt::entity ent)
                     eff->effects.push_back({new Transform(d_tr->position.x, d_tr->position.y),
                                             AnimatedSprite(ski->skiw->hits[0]),
                                             Window::dt_now + 700});
-                    if (ski->attack == false)
-                    {
-                        auto node = ski->skiw->level[ski->level];
-                        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
-                        auto lt = SDL_FPoint{(float)v.x, (float)v.y};
-                        v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
-                        auto rb = SDL_FPoint{(float)v.x, (float)v.y};
-                        auto hit = ski->skiw->hits[0];
-                        auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
-                        auto attackCount = 1;
-                        SoundWarp *souw = nullptr;
-                        if (ski->skiw->sounds.contains(u"Hit"))
-                        {
-                            souw = ski->skiw->sounds[u"Hit"];
-                        }
-                        ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
-                        ski->attack = true;
-                    }
                     ski->atk.value().damage += dr->nums;
                     continue;
                 }

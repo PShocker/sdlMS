@@ -80,7 +80,7 @@ std::vector<entt::entity> load_ball(unsigned char num, entt::entity owner, std::
         auto asprw = AnimatedSpriteWarp::load(node);
         return load_ball(asprw, ent, num, nullptr, rotate, ski);
     }
-    else if (weaponinfo->attack == WeaponInfo::Attack::CLAW)
+    else
     {
         ball_path = u"Consume/0207.img/02070005/bullet";
         auto node = Wz::Item->get_root()->find_from_path(ball_path);
