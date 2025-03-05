@@ -70,8 +70,6 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
     mv->vspeed = std::clamp(mv->vspeed, -std::abs(mv->hspeed), std::abs(mv->hspeed));
 
     move_fall(mv, tr, delta_time, 0, false, true);
-    if (mv->hspeed == 0)
-        return true;
 
     if (!ball->rotate)
     {
@@ -84,7 +82,6 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
         ball_hit(src, ball, ball->target);
         return true;
     }
-
     return false;
 }
 
@@ -127,21 +124,17 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
     if (!atk.hit)
         atk.hit = ball->hit;
 
-    if (atk.mobCount >= 1)
+    atk.p = World::registry->try_get<Transform>(src)->position;
+    if (auto mob = World::registry->try_get<Mob>(target))
     {
-        atk.p = World::registry->try_get<Transform>(src)->position;
-        if (auto mob = World::registry->try_get<Mob>(target))
+        if (ski && track_no_skill.contains(ski->skiw->id))
         {
-            if (ski && track_no_skill.contains(ski->skiw->id))
-            {
-                hit_effect(&atk, mob->head(), src, target, 0, std::nullopt); // 传递地址，保持原有行为
-            }
-            else
-            {
-                hit_effect(&atk, mob->head(), src, target, 0, atk.p); // 传递地址，保持原有行为
-            }
+            hit_effect(&atk, mob->head(), src, target, 0, std::nullopt); // 传递地址，保持原有行为
         }
-        atk.mobCount--;
+        else
+        {
+            hit_effect(&atk, mob->head(), src, target, 0, atk.p); // 传递地址，保持原有行为
+        }
     }
 }
 
