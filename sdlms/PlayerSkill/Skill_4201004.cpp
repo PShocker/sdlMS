@@ -49,13 +49,12 @@ int skill_4201004(entt::entity ent)
     if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
     {
         auto action = weaponinfo->degen_stances[weaponinfo->attack][std::rand() % weaponinfo->degen_stances[weaponinfo->attack].size()];
-        cha->action_str = Character::type_map2.at(action);
+        ski->skiw->action_str = Character::type_map2.at(action);
     }
     else
     {
-        cha->action_str = u"";
+        ski->skiw->action_str = u"";
     }
-
     World::registry->emplace_or_replace<AfterImage>(ent);
 
     return PlayerSkill::SkillResult::EFF |
