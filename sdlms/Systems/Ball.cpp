@@ -124,17 +124,21 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
     if (!atk.hit)
         atk.hit = ball->hit;
 
-    atk.p = World::registry->try_get<Transform>(src)->position;
-    if (auto mob = World::registry->try_get<Mob>(target))
+    if (atk.mobCount >= 1)
     {
-        if (ski && track_no_skill.contains(ski->skiw->id))
+        atk.p = World::registry->try_get<Transform>(src)->position;
+        if (auto mob = World::registry->try_get<Mob>(target))
         {
-            hit_effect(&atk, mob->head(), src, target, 0, std::nullopt); // 传递地址，保持原有行为
+            if (ski && track_no_skill.contains(ski->skiw->id))
+            {
+                hit_effect(&atk, mob->head(), src, target, 0, std::nullopt); // 传递地址，保持原有行为
+            }
+            else
+            {
+                hit_effect(&atk, mob->head(), src, target, 0, atk.p); // 传递地址，保持原有行为
+            }
         }
-        else
-        {
-            hit_effect(&atk, mob->head(), src, target, 0, atk.p); // 传递地址，保持原有行为
-        }
+        atk.mobCount--;
     }
 }
 
