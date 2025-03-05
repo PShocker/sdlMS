@@ -1152,7 +1152,7 @@ bool player_sit(Move *mv, int state)
             {
                 r = true;
                 mv->hspeed = 0;
-                World::registry->emplace_or_replace<Install>(Player::ent, u"03010048");
+                World::registry->emplace_or_replace<Install>(Player::ent, u"03010000");
             }
             keyborard = false;
         }

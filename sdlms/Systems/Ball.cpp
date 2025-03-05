@@ -24,7 +24,7 @@ void ball_run()
             // 这类型的ball不跟踪怪物,路径就是直线
             ball_no_track(ent, ball);
         }
-        if (ball->track && ball->target != entt::null && World::registry->valid(ball->target))
+        if (ball->track && World::registry->valid(ball->target))
         {
             if (ball_track(ent, ball, (float)Window::delta_time / 1000))
             {
@@ -70,6 +70,10 @@ bool ball_track(entt::entity src, Ball *ball, float delta_time)
     mv->vspeed = std::clamp(mv->vspeed, -std::abs(mv->hspeed), std::abs(mv->hspeed));
 
     move_fall(mv, tr, delta_time, 0, false, true);
+    if (mv->hspeed == 0)
+    {
+        return true;
+    }
 
     if (!ball->rotate)
     {

@@ -71,7 +71,8 @@ int skill_3101005(entt::entity ent)
     };
     ski->ball = 1;
     ski->atk = atk;
-    ski->skiw->action_str = u"shoot1";
+
+    World::registry->emplace_or_replace<AfterImage>(ent);
 
     return PlayerSkill::SkillResult::EFF |
            PlayerSkill::SkillResult::SOU |
