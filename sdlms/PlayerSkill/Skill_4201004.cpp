@@ -55,12 +55,12 @@ int skill_4201004(entt::entity ent)
     {
         cha->action_str = u"";
     }
-    cha->state = Character::State::SKILL;
-    cha->animated = false;
+
     World::registry->emplace_or_replace<AfterImage>(ent);
 
     return PlayerSkill::SkillResult::EFF |
            PlayerSkill::SkillResult::SOU |
+           PlayerSkill::SkillResult::ACT |
            PlayerSkill::SkillResult::ATK |
            PlayerSkill::SkillResult::ALERT;
 }
