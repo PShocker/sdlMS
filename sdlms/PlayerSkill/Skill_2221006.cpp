@@ -63,7 +63,7 @@ int skill_2221006(entt::entity ent)
     auto rb = SDL_FPoint{0, 0};
     auto hit = skiw->hits[0];
     auto attackCount = 1;
-    const int mobCount = dynamic_cast<wz::Property<int> *>(level_node->get_child(u"mobCount"))->get();
+    auto mobCount = dynamic_cast<wz::Property<int> *>(level_node->get_child(u"mobCount"))->get();
     SoundWarp *souw = skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
 

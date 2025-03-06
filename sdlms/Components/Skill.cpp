@@ -36,61 +36,37 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
     {
         if (node->get_child(u"action")->type == wz::Type::String)
         {
-            action_str.push_back(dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action"))->get());
+            action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action"))->get();
         }
         else
         {
-            for (int i = 0;; i++)
-            {
-                if (auto str = node->get_child(u"action")->get_child(std::to_string(i)))
-                {
-                    action_str.push_back(dynamic_cast<wz::Property<wz::wzstring> *>(str)->get());
-                }
-                else
-                {
-                    break;
-                }
-            }
+            // 0,1分别代表单手武器,双手武器的特效,这里就取默认的0
+            action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"action/0"))->get();
         }
     }
     // 加载特效
-    if (action_str.size() > 1)
+    if (node->get_child(u"effect"))
     {
-        // 技能有多段特效，轻舞飞扬
-        for (int i = 0;; i++)
+        if (node->get_child(u"effect")->get_child(u"0")->type == wz::Type::Canvas)
         {
-            if (node->get_child(u"effect")->get_child(std::to_string(i)))
-            {
-                std::vector<AnimatedSpriteWarp *> effect;
-                effect.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")->get_child(std::to_string(i))));
-                effects.push_back(effect);
-            }
-            else
-            {
-                break;
-            }
+            effects.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")));
+        }
+        else
+        {
+            effects.push_back(AnimatedSpriteWarp::load(node->find_from_path(u"effect/0")));
         }
     }
-    else
+    for (int i = 0;; i++)
     {
-        std::vector<AnimatedSpriteWarp *> effect;
-        if (node->get_child(u"effect"))
+        auto e = "effect" + std::to_string(i);
+        if (node->get_child(e))
         {
-            effect.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")));
+            effects.push_back(AnimatedSpriteWarp::load(node->get_child(e)));
         }
-        for (int i = 0;; i++)
+        else
         {
-            auto e = "effect" + std::to_string(i);
-            if (node->get_child(e))
-            {
-                effect.push_back(AnimatedSpriteWarp::load(node->get_child(e)));
-            }
-            else
-            {
-                break;
-            }
+            break;
         }
-        effects.push_back(effect);
     }
 }
 

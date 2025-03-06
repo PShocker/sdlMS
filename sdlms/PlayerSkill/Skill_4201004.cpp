@@ -44,17 +44,16 @@ int skill_4201004(entt::entity ent)
     };
 
     ski->atk = atk;
-    ski->skiw->action_str.clear();
 
     auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
     if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
     {
         auto action = weaponinfo->degen_stances[weaponinfo->attack][std::rand() % weaponinfo->degen_stances[weaponinfo->attack].size()];
-        ski->skiw->action_str.push_back(Character::type_map2.at(action));
+        ski->skiw->action_str = Character::type_map2.at(action);
     }
     else
     {
-        ski->skiw->action_str.push_back(u"");
+        ski->skiw->action_str = u"";
     }
     World::registry->emplace_or_replace<AfterImage>(ent);
 

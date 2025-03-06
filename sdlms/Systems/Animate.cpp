@@ -191,12 +191,14 @@ void animate_character(Character *cha, entt::entity ent)
         return;
 
     auto delta_time = Window::delta_time;
+    auto action_time = cha->action_time;
     cha->action_time += delta_time;
 
-    auto handle_skill_attack = [&](Skill *ski)
+    const auto handle_skill_attack = [&](Skill *ski)
     {
         if (ski->hit)
             return;
+        ski->hit = true;
 
         if (ski->attack)
         {
@@ -240,7 +242,6 @@ void animate_character(Character *cha, entt::entity ent)
         {
             ski->call_back.value()(ent);
         }
-        ski->hit = true;
     };
 
     if (Character::type_map.contains(cha->action_str))
@@ -252,7 +253,7 @@ void animate_character(Character *cha, entt::entity ent)
             auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
             auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
             auto &info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][cha->action];
-            if (cha->action_index == info.index)
+            if (cha->action_index == info.index && action_time == 0)
             {
                 handle_skill_attack(ski);
             }
@@ -276,7 +277,7 @@ void animate_character(Character *cha, entt::entity ent)
         // 技能动作
         int delay = cha->body_actions[cha->action_str][cha->action_frame].delay;
         auto ski = World::registry->try_get<Skill>(ent);
-        if (delay > 0)
+        if (delay > 0 && action_time == 0)
         {
             handle_skill_attack(ski);
         }
@@ -284,34 +285,8 @@ void animate_character(Character *cha, entt::entity ent)
         {
             if (cha->action_frame == cha->body_actions[cha->action_str].size() - 1)
             {
-                // 此时需要判断是否是多帧动作技能
-                if (ski->action_index < (int)ski->skiw->action_str.size() - 1)
-                {
-                    // 切换到下一帧
-                    ski->action_index++;
-                    ski->hit = false;
-
-                    cha->action_frame = 0;
-                    cha->action_str = ski->skiw->action_str[ski->action_index];
-                    cha->action = cha->body_actions[cha->action_str][cha->action_frame].type;
-                    cha->action_index = cha->body_actions[cha->action_str][cha->action_frame].frame;
-
-                    // 特效
-                    if (ski->action_index < ski->skiw->effects.size())
-                    {
-                        auto eff = World::registry->try_get<Effect>(ent);
-                        auto effects = ski->skiw->effects[ski->action_index];
-                        for (auto &it : effects)
-                        {
-                            eff->effects.push_back({nullptr, AnimatedSprite(it)});
-                        }
-                    }
-                }
-                else
-                {
-                    cha->action_index = 0;
-                    cha->animated = true;
-                }
+                cha->action_index = 0;
+                cha->animated = true;
             }
             else
             {
