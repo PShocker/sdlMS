@@ -18,22 +18,6 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
         sounds[key] = sou;
     }
     node = Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id);
-    if (node->get_child(u"effect"))
-    {
-        effects.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")));
-        for (int i = 0;; i++)
-        {
-            auto e = "effect" + std::to_string(i);
-            if (node->get_child(e))
-            {
-                effects.push_back(AnimatedSpriteWarp::load(node->get_child(e)));
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
     if (auto hit = node->get_child(u"hit"))
     {
         hits.push_back(AnimatedSpriteWarp::load(hit->get_child(u"0")));
@@ -47,16 +31,66 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
         }
         level.push_back(it);
     }
+    // 加载动作
     if (node->get_child(u"action"))
     {
-        if (node->get_child(u"action")->get_child(u"0"))
+        if (node->get_child(u"action")->type == wz::Type::String)
         {
-            action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action")->get_child(u"0"))->get();
+            action_str.push_back(dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action"))->get());
         }
         else
         {
-            action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"action"))->get();
+            for (int i = 0;; i++)
+            {
+                if (auto str = node->get_child(u"action")->get_child(std::to_string(i)))
+                {
+                    action_str.push_back(dynamic_cast<wz::Property<wz::wzstring> *>(str)->get());
+                }
+                else
+                {
+                    break;
+                }
+            }
         }
+    }
+    // 加载特效
+    if (action_str.size() > 1)
+    {
+        // 技能有多段特效，轻舞飞扬
+        for (int i = 0;; i++)
+        {
+            if (node->get_child(u"effect")->get_child(std::to_string(i)))
+            {
+                std::vector<AnimatedSpriteWarp *> effect;
+                effect.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")->get_child(std::to_string(i))));
+                effects.push_back(effect);
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+    else
+    {
+        std::vector<AnimatedSpriteWarp *> effect;
+        if (node->get_child(u"effect"))
+        {
+            effect.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")));
+        }
+        for (int i = 0;; i++)
+        {
+            auto e = "effect" + std::to_string(i);
+            if (node->get_child(e))
+            {
+                effect.push_back(AnimatedSpriteWarp::load(node->get_child(e)));
+            }
+            else
+            {
+                break;
+            }
+        }
+        effects.push_back(effect);
     }
 }
 

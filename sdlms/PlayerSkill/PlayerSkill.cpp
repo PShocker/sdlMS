@@ -11,11 +11,14 @@ void PlayerSkill::skill_sound(SkillWarp *souw, int delay)
 
 void PlayerSkill::skill_effect(Skill *ski, entt::entity ent)
 {
-    auto eff = World::registry->try_get<Effect>(ent);
-
-    for (auto &it : ski->skiw->effects)
+    if (ski->skiw->effects.size() > 0)
     {
-        eff->effects.push_back({nullptr, AnimatedSprite(it)});
+        auto eff = World::registry->try_get<Effect>(ent);
+        auto effects = ski->skiw->effects[0];
+        for (auto &it : effects)
+        {
+            eff->effects.push_back({nullptr, AnimatedSprite(it)});
+        }
     }
 }
 
@@ -24,9 +27,9 @@ void PlayerSkill::skill_action(Skill *ski, entt::entity ent)
     auto cha = World::registry->try_get<Character>(ent);
 
     cha->state = Character::State::SKILL;
-    if (ski->skiw->action_str.has_value())
+    if (ski->skiw->action_str.size() > 0)
     {
-        cha->action_str = ski->skiw->action_str.value();
+        cha->action_str = ski->skiw->action_str[0];
     }
     else if (auto action_str = ski->skiw->level[ski->level]->get_child(u"action"))
     {

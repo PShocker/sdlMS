@@ -276,7 +276,7 @@ void animate_character(Character *cha, entt::entity ent)
         // 技能动作
         int delay = cha->body_actions[cha->action_str][cha->action_frame].delay;
         auto ski = World::registry->try_get<Skill>(ent);
-        if (delay > 0 && ski)
+        if (delay > 0)
         {
             handle_skill_attack(ski);
         }
@@ -284,8 +284,34 @@ void animate_character(Character *cha, entt::entity ent)
         {
             if (cha->action_frame == cha->body_actions[cha->action_str].size() - 1)
             {
-                cha->action_index = 0;
-                cha->animated = true;
+                // 此时需要判断是否是多帧动作技能
+                if (ski->action_index < (int)ski->skiw->action_str.size() - 1)
+                {
+                    // 切换到下一帧
+                    ski->action_index++;
+                    ski->hit = false;
+
+                    cha->action_frame = 0;
+                    cha->action_str = ski->skiw->action_str[ski->action_index];
+                    cha->action = cha->body_actions[cha->action_str][cha->action_frame].type;
+                    cha->action_index = cha->body_actions[cha->action_str][cha->action_frame].frame;
+
+                    // 特效
+                    if (ski->action_index < ski->skiw->effects.size())
+                    {
+                        auto eff = World::registry->try_get<Effect>(ent);
+                        auto effects = ski->skiw->effects[ski->action_index];
+                        for (auto &it : effects)
+                        {
+                            eff->effects.push_back({nullptr, AnimatedSprite(it)});
+                        }
+                    }
+                }
+                else
+                {
+                    cha->action_index = 0;
+                    cha->animated = true;
+                }
             }
             else
             {
