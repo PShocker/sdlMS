@@ -27,14 +27,14 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
         // 检查碰撞
         if (collision(mob->rect(), mob_transform, atk->rect, attack_transform))
         {
-            hit_effect(atk, mob->head(), attack_entity, mob_entity, 0, std::nullopt);
             // 触发攻击效果
             atk->mobCount -= 1;
             // 如果 mobCount 减到 0，提前退出
-            if (atk->mobCount <= 0)
+            if (atk->mobCount < 0)
             {
                 return;
             }
+            hit_effect(atk, mob->head(), attack_entity, mob_entity, 0, std::nullopt);
         }
     }
 }

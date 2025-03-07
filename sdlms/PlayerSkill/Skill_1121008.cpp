@@ -35,12 +35,16 @@ int skill_1121008(entt::entity ent)
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
 
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 20);
-    ski->atk.value().call_back = [](entt::entity src, entt::entity target)
+    ski->atk.value().call_back = [&atk = ski->atk](entt::entity src, entt::entity target)
     {
         auto *ski = World::registry->try_get<Skill>(src);
         // 设置hit为false,表示下一帧要继续触发攻击效果
         ski->hit = false;
         return true;
+    };
+    ski->call_back = [&atk = ski->atk, mobCount](entt::entity ent)
+    {
+        atk->mobCount = mobCount;
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

@@ -186,12 +186,12 @@ bool mob_hit(Hit *hit, entt::entity ent)
             if (mob->state == Mob::State::FLY)
             {
                 mob_hit_move(hit, ent);
-                mob_fly(mob, mv, tr, mob->state, 0.1);
+                mob_fly(mob, mv, tr, mob->state, 0.075);
             }
             else if (mv->foo)
             {
                 mob_hit_move(hit, ent);
-                mob_move(mob, mv, tr, mob->state, 0.1);
+                mob_move(mob, mv, tr, mob->state, 0.075);
             }
             mob->tick = 0;
             mob->state = Mob::State::HIT;

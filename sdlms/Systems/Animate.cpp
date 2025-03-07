@@ -517,7 +517,7 @@ void animate_damage(Damage *dam)
         if (info->delay <= Window::dt_now)
         {
             auto delta_time = Window::delta_time;
-            info->alpha -= (float)Window::delta_time * 0.35;
+            info->alpha -= (float)Window::delta_time * 0.28;
             if (info->alpha <= 0)
             {
                 it = dam->damage.erase(it);

@@ -24,7 +24,7 @@ int skill_4201005(entt::entity ent)
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4201005");
 
-    auto lt = SDL_FPoint{-110, -32};
+    auto lt = SDL_FPoint{-130, -32};
     auto rb = SDL_FPoint{-40, -11};
     // 对这个技能来说，每个动作段数为1，如果段数不足，则最后一个攻击帧补全不足的段数
     auto attackCount = 1;
@@ -65,6 +65,10 @@ int skill_4201005(entt::entity ent)
         // 设置hit为false，表示下一帧继续触发攻击效果
         ski->hit = false;
         return true;
+    };
+    ski->call_back = [&atk = ski->atk](entt::entity ent)
+    {
+        atk->mobCount = 1;
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

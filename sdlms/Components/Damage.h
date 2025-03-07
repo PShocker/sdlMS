@@ -2,9 +2,9 @@
 
 #include "Sprite.h"
 
-#include <vector>
 #include <SDL3/SDL.h>
 #include <optional>
+#include <list>
 
 struct Damage
 {
@@ -25,6 +25,7 @@ struct Damage
         float y;
     };
 
-    std::vector<Info> damage;
+    std::list<Info> damage;
     std::optional<SDL_FPoint> head;
+    char index = 0;
 };

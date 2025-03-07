@@ -25,7 +25,14 @@ void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
 
     auto dam = World::registry->try_get<Damage>(target);
     dam->head = head;
-    auto count = dam->damage.size();
+
+    if ((dam->damage.size() > 0 &&
+         dam->damage.front().alpha <= 64) ||
+        dam->damage.size() == 0)
+    {
+        dam->index = 0;
+    }
+    int count = dam->index;
 
     for (int i = 0; i < atk->attackCount; i++)
     {
@@ -36,7 +43,15 @@ void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
         info.delay = Window::dt_now + (i + (int)count) * 64;
         info.x = (float)(std::rand() % 11 - 5);
         info.y = (float)(i + count) * 38;
-        dam->damage.push_back(info);
+        if (count == 0)
+        {
+            dam->damage.push_front(info);
+        }
+        else
+        {
+            dam->damage.push_back(info);
+        }
+        dam->index++;
     }
     if (atk->hit)
     {
