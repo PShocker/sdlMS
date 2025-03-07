@@ -92,8 +92,7 @@ void fix_portal()
 
 SDL_FPoint recent_portal(float x, float y)
 {
-    std::map<unsigned long, SDL_FPoint> p;
-
+    float min_sq_dist = std::numeric_limits<float>::max();
     auto view = World::registry->view<Portal>();
     for (auto &e : view)
     {
@@ -101,15 +100,15 @@ SDL_FPoint recent_portal(float x, float y)
         if (por->pn == u"sp")
         {
             auto tr = World::registry->try_get<Transform>(e);
-            auto d_x = tr->position.x - x;
-            auto d_y = tr->position.y - y;
-            p[d_x * d_x + d_y * d_y] = SDL_FPoint{tr->position.x, tr->position.y};
+            // 计算平方距离
+            const float sq_dist = squared_distance(tr->position, SDL_FPoint{x, y});
+            if (sq_dist < min_sq_dist)
+            {
+                min_sq_dist = sq_dist;
+                x = tr->position.x;
+                y = tr->position.y;
+            }
         }
-    }
-    if (p.begin() != p.end())
-    {
-        x = p.begin()->second.x;
-        y = p.begin()->second.y;
     }
     return SDL_FPoint{x, y};
 }

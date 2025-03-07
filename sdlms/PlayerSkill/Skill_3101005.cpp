@@ -40,8 +40,8 @@ int skill_3101005(entt::entity ent)
 
     atk.call_back = [](entt::entity src, entt::entity target)
     {
-        auto *ski = World::registry->try_get<Skill>(src);
-        auto *atk = &ski->atk.value();
+        auto ski = World::registry->try_get<Skill>(src);
+        auto atk = &ski->atk.value();
         atk->call_back = std::nullopt;
         auto target_position = World::registry->try_get<Transform>(target)->position;
 

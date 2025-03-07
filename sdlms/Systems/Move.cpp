@@ -126,8 +126,8 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
     {
         if (fall_collide)
         {
-            int top_x;
-            int top_y = INT32_MAX;
+            float top_x;
+            float top_y = std::numeric_limits<float>::max();
             FootHold *top_fh = nullptr;
             for (auto &e : World::registry->view<FloorFootHold>())
             {
@@ -150,7 +150,7 @@ bool move_fall(Move *mv, Transform *tr, float delta_time, int z_index, bool fall
             if (top_fh != nullptr)
             {
                 // 落地
-                new_pos.x = std::clamp((float)top_x, (float)top_fh->l, (float)top_fh->r);
+                new_pos.x = std::clamp(top_x, (float)top_fh->l, (float)top_fh->r);
                 new_pos.y = top_fh->get_y(new_pos.x).value();
                 mv->foo = top_fh;
                 mv->hspeed /= 2;

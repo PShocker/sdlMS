@@ -40,7 +40,7 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
         }
         else
         {
-            // 0,1分别代表单手武器,双手武器的特效,这里就取默认的0
+            // 0,1分别代表单手武器,双手武器的动作,这里就取默认的0
             action_str = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"action/0"))->get();
         }
     }
@@ -53,6 +53,7 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
         }
         else
         {
+            // 默认选择单手武器的特效
             effects.push_back(AnimatedSpriteWarp::load(node->find_from_path(u"effect/0")));
         }
     }
