@@ -26,6 +26,7 @@ int skill_3101005(entt::entity ent)
     }
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"3101005");
+    ski->ball = 1;
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -36,9 +37,8 @@ int skill_3101005(entt::entity ent)
     auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    Attack atk(lt, rb, hit, mobCount, attackCount, souw);
-
-    atk.call_back = [](entt::entity src, entt::entity target)
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
+    ski->atk.value().call_back = [](entt::entity src, entt::entity target)
     {
         auto ski = World::registry->try_get<Skill>(src);
         auto atk = &ski->atk.value();
@@ -69,8 +69,6 @@ int skill_3101005(entt::entity ent)
         } while (World::registry->valid(target) && atk->mobCount > 0);
         return false;
     };
-    ski->ball = 1;
-    ski->atk = atk;
 
     World::registry->emplace_or_replace<AfterImage>(ent);
 

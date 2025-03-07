@@ -202,9 +202,7 @@ void animate_character(Character *cha, entt::entity ent)
 
         if (ski->attack)
         {
-            auto atk = ski->atk.value();
-            atk.p = World::registry->try_get<Transform>(ent)->position;
-            attack_mob(&atk, ent);
+            attack_mob(&ski->atk.value(), ent);
         }
         else if (ski->ball > 0)
         {
@@ -363,7 +361,6 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             }
             break;
             }
-            atk.p = World::registry->try_get<Transform>(ent)->position;
             attack_mob(&atk, ent);
             if (ent == Player::ent)
             {
@@ -687,8 +684,8 @@ void animate_summon(Summon *sum, entt::entity ent)
 
 void animate_trap(Trap *trap, entt::entity ent)
 {
-    auto p_cha = World::registry->try_get<Character>(Player::ent);
-    if (p_cha->invincible_cooldown <= 0)
+    auto player_character = World::registry->try_get<Character>(Player::ent);
+    if (player_character->invincible_cooldown <= 0)
     {
         auto aspr = World::registry->try_get<AnimatedSprite>(ent);
         auto spr = aspr->asprw->sprites[aspr->anim_index];
@@ -702,17 +699,17 @@ void animate_trap(Trap *trap, entt::entity ent)
             auto h = rb.y - lt.y;
             auto rect = SDL_FRect{(float)x, (float)y, (float)w, (float)h};
 
-            auto t_tr = World::registry->try_get<Transform>(ent);
-            auto p_tr = World::registry->try_get<Transform>(Player::ent);
+            auto trap_transform = World::registry->try_get<Transform>(ent);
+            auto player_transform = World::registry->try_get<Transform>(Player::ent);
 
-            if (collision(rect, t_tr,
-                          p_cha->r, p_tr))
+            if (collision(rect, trap_transform,
+                          player_character->r, player_transform))
             {
                 Attack atk;
                 atk.damage = trap->damage;
-                atk.p = t_tr->position;
+                atk.p = trap_transform->position;
                 hit_effect(&atk, std::nullopt, ent, Player::ent, 1, std::nullopt);
-                p_cha->invincible_cooldown = 1;
+                player_character->invincible_cooldown = 1;
             }
         }
     }

@@ -12,6 +12,8 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
     }
     // 获取攻击者的 Transform 组件
     auto attack_transform = World::registry->try_get<Transform>(attack_entity);
+    // 设置攻击源坐标
+    atk->p = attack_transform->position;
     // 遍历所有带有 Damage 和 Mob 组件的实体
     for (auto mob_entity : World::registry->view<Damage, Mob>())
     {
@@ -25,8 +27,8 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
         // 检查碰撞
         if (collision(mob->rect(), mob_transform, atk->rect, attack_transform))
         {
-            // 触发攻击效果
             hit_effect(atk, mob->head(), attack_entity, mob_entity, 0, std::nullopt);
+            // 触发攻击效果
             atk->mobCount -= 1;
             // 如果 mobCount 减到 0，提前退出
             if (atk->mobCount <= 0)

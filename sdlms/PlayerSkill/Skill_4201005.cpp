@@ -32,8 +32,8 @@ int skill_4201005(entt::entity ent)
     auto hit = ski->skiw->hits[0];
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
 
-    Attack atk(lt, rb, hit, mobCount, attackCount, souw, 10);
-    atk.call_back = [](entt::entity src, entt::entity target)
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
+    ski->atk.value().call_back = [&atk = ski->atk](entt::entity src, entt::entity target)
     {
         auto cha = World::registry->try_get<Character>(src);
         auto ski = World::registry->try_get<Skill>(src);
@@ -59,8 +59,6 @@ int skill_4201005(entt::entity ent)
             // 如果攻击次数大于攻击帧数
             if (current_frame == action_frame + attack_frame - 1)
             {
-                // 最后一帧，打出剩余的段数
-                auto atk = &ski->atk.value();
                 atk->attackCount = 1 - delta;
             }
         }
@@ -68,7 +66,6 @@ int skill_4201005(entt::entity ent)
         ski->hit = false;
         return true;
     };
-    ski->atk = atk;
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ATK | PlayerSkill::SkillResult::ACT |
