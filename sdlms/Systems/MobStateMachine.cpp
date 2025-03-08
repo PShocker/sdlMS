@@ -13,7 +13,7 @@ void mob_statemachine_run()
     {
         mob_collision_attack(ent);
         auto mob = World::registry->try_get<Mob>(ent);
-        if (mob->state == Mob::State::REMOVE)
+        if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
         {
             mob_revive(ent, Window::delta_time);
             continue;
@@ -75,6 +75,7 @@ void mob_statemachine(entt::entity ent, float delta_time)
     }
     break;
     case Mob::State::DIE:
+    case Mob::State::REMOVE:
     {
     }
     break;
@@ -154,74 +155,76 @@ void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state)
 
 bool mob_hit(Hit *hit, entt::entity ent)
 {
-    if (hit->damage > 0)
+    bool res = false;
+    for (int i = 0; i < hit->hits.size(); ++i)
     {
-        auto mv = World::registry->try_get<Move>(ent);
-        auto tr = World::registry->try_get<Transform>(ent);
-        auto mob = World::registry->try_get<Mob>(ent);
-
-        auto count = hit->count;
-        mob->hp -= hit->damage;
-        mob->hit = hit->owner;
-
-        hit->damage = 0;
-        hit->count = 0;
-
-        for (int i = 0; i < count; i++)
+        auto hitw = &hit->hits[i];
+        if (hitw->damage > 0)
         {
+            auto mv = World::registry->try_get<Move>(ent);
+            auto tr = World::registry->try_get<Transform>(ent);
+            auto mob = World::registry->try_get<Mob>(ent);
+
+            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, 0);
+            Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->p, tr->flip);
+
+            mob->hp -= hitw->damage;
+            mob->hit = hitw->owner;
+
             // 怪物被攻击音效
-            if (hit->souw)
+            if (hitw->souw)
             {
-                Sound::push(hit->souw, i * 140);
+                Sound::push(hitw->souw, i * 140);
             }
             else if (mob->sounds.contains(u"Damage"))
             {
                 Sound::push(mob->sounds[u"Damage"], i * 140);
             }
-        }
 
-        if (mob->hp > 0)
-        {
-            // 获取玩家位置,并让怪物转身和后退
-            if (mob->state == Mob::State::FLY)
+            if (mob->hp > 0)
             {
-                mob_hit_move(hit, ent);
-                mob_fly(mob, mv, tr, mob->state, 0.075);
+                // 获取玩家位置,并让怪物转身和后退
+                if (mob->state == Mob::State::FLY)
+                {
+                    mob_hit_move(hitw->x, ent);
+                    mob_fly(mob, mv, tr, mob->state, 0.075);
+                }
+                else if (mv->foo)
+                {
+                    mob_hit_move(hitw->x, ent);
+                    mob_move(mob, mv, tr, mob->state, 0.075);
+                }
+                mob->tick = 300;
+                mob->state = Mob::State::HIT;
+                mob->index = u"hit1";
             }
-            else if (mv->foo)
+            else if (mob->state != Mob::State::DIE)
             {
-                mob_hit_move(hit, ent);
-                mob_move(mob, mv, tr, mob->state, 0.075);
-            }
-            mob->tick = 300;
-            mob->state = Mob::State::HIT;
-            mob->index = u"hit1";
-        }
-        else
-        {
-            mob->state = Mob::State::DIE;
-            mob->index = u"die1";
-            // 怪物死亡音效
-            if (mob->sounds.contains(u"Die"))
-            {
-                Sound::push(mob->sounds[u"Die"], 200);
-            }
-            // 爆金币
-            mob_drop(mob, tr);
+                // 怪物死亡音效
+                if (mob->sounds.contains(u"Die"))
+                {
+                    Sound::push(mob->sounds[u"Die"], 200);
+                }
+                mob->state = Mob::State::DIE;
+                mob->index = u"die1";
 
-            mob->revive = mob->revive_time + Window::dt_now;
-            return true;
+                // 爆金币
+                mob_drop(mob, tr);
+                mob->revive = mob->revive_time + Window::dt_now;
+                res = true;
+            }
         }
     }
-    return false;
+    hit->hits.clear();
+    return res;
 }
 
-void mob_hit_move(Hit *hit, entt::entity ent)
+void mob_hit_move(float x, entt::entity ent)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     auto mob = World::registry->try_get<Mob>(ent);
-    auto hit_x = hit->x;
+    auto hit_x = x;
     auto mob_x = tr->position.x;
     if (mob_x < hit_x)
     {
@@ -342,6 +345,17 @@ bool mob_revive(entt::entity ent, float delta_time)
     auto tr = World::registry->try_get<Transform>(ent);
     auto mob = World::registry->try_get<Mob>(ent);
 
+    auto hit = World::registry->try_get<Hit>(ent);
+    for (auto &hitw : hit->hits)
+    {
+        if (hitw.damage > 0)
+        {
+            Damage::push(World::registry->try_get<Damage>(ent), hitw.damage, 0);
+            Effect::push(World::registry->try_get<Effect>(ent), hitw.asprw, hitw.p, tr->flip);
+        }
+    }
+    hit->hits.clear();
+
     if (mob->revive <= Window::dt_now)
     {
         if (mob->a.contains(u"fly"))
@@ -356,10 +370,6 @@ bool mob_revive(entt::entity ent, float delta_time)
     }
     else if (mob->revive <= Window::dt_now + mob->revive_alpha_time + 100)
     {
-        auto hit = World::registry->try_get<Hit>(ent);
-        hit->damage = 0;
-        hit->count = 0;
-
         mob->hp = 100;
         mob->hit = entt::null;
         if (mob->a.contains(u"fly"))
@@ -438,7 +448,7 @@ bool mob_collision_attack(entt::entity ent)
                 Attack atk = mob->atk;
                 atk.p = mob_transform->position;
                 atk.hit = nullptr;
-                hit_effect(&atk, std::nullopt, ent, Player::ent, 1, std::nullopt);
+                hit_hit(&atk, ent, Player::ent, 1, std::nullopt);
                 player_character->invincible_cooldown = 1;
                 return true;
             }

@@ -135,11 +135,11 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
         {
             if (ski && track_no_skill.contains(ski->skiw->id))
             {
-                hit_effect(atk, mob->head(), src, target, 0, std::nullopt); // 传递地址，保持原有行为
+                hit_hit(atk, src, target, 0, std::nullopt); // 传递地址，保持原有行为
             }
             else
             {
-                hit_effect(atk, mob->head(), src, target, 0, atk->p); // 传递地址，保持原有行为
+                hit_hit(atk, src, target, 0, atk->p); // 传递地址，保持原有行为
             }
         }
         atk->mobCount--;

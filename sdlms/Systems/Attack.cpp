@@ -34,7 +34,7 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
             {
                 return;
             }
-            hit_effect(atk, mob->head(), attack_entity, mob_entity, 0, std::nullopt);
+            hit_hit(atk, attack_entity, mob_entity, 0, std::nullopt);
         }
     }
 }
@@ -78,7 +78,7 @@ void attack_reactor(Attack *atk)
             {
                 Sound::push(reactor->sounds[reactor->index]);
                 atk->damage = 1;
-                hit_effect(atk, reactor->head(), Player::ent, ent, 2, std::nullopt);
+                hit_hit(atk, Player::ent, ent, 2, std::nullopt);
                 reactor->hit = true;
                 return;
             }

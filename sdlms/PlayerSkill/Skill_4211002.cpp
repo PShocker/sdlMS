@@ -33,12 +33,11 @@ int skill_4211002(entt::entity ent)
     auto lt = SDL_FPoint{(float)v.x, (float)v.y};
     v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
     auto rb = SDL_FPoint{(float)v.x, (float)v.y};
-    // 这个技能需要加强
-    auto attackCount = 4;
+    auto attackCount = 1;
     auto mobCount = 12;
 
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, nullptr, mobCount, attackCount, souw, 50);
+    ski->atk = Attack(lt, rb, nullptr, mobCount, attackCount, souw, 100);
 
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {

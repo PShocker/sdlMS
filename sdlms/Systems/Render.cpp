@@ -34,14 +34,6 @@ void render_run()
         else if (auto npc = World::registry->try_get<Npc>(ent))
         {
             render_npc(tr, npc);
-            if (auto eff = World::registry->try_get<Effect>(ent))
-            {
-                render_effect(tr, eff);
-            }
-            if (auto dam = World::registry->try_get<Damage>(ent))
-            {
-                render_damage(tr, dam, dam->head);
-            }
         }
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
@@ -52,7 +44,7 @@ void render_run()
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
-                render_damage(tr, dam, dam->head);
+                render_damage(tr, dam);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
@@ -82,7 +74,7 @@ void render_run()
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
-                render_damage(tr, dam, dam->head);
+                render_damage(tr, dam);
             }
         }
         else if (auto dro = World::registry->try_get<Drop>(ent))
@@ -98,7 +90,7 @@ void render_run()
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
-                render_damage(tr, dam, dam->head);
+                render_damage(tr, dam);
             }
         }
         else if (auto sum = World::registry->try_get<Summon>(ent))
@@ -577,17 +569,17 @@ void render_mob(Transform *tr, Mob *mob)
     render_animated_sprite(tr, a);
 }
 
-void render_damage(Transform *tr, Damage *dam, std::optional<SDL_FPoint> head)
+void render_damage(Transform *tr, Damage *dam)
 {
-    for (auto it : dam->damage)
+    for (auto it : dam->damage_list)
     {
         auto &info = it;
         if (info.delay < Window::dt_now)
         {
             SDL_FPoint p = tr->position;
-            if (head.has_value())
+            if (dam->head.has_value())
             {
-                p = p + head.value();
+                p = p + dam->head.value();
             }
             else
             {

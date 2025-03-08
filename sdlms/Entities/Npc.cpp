@@ -54,9 +54,6 @@ void load_npc(wz::Node *node)
         npc.index = npc.a.begin()->first;
     }
 
-    World::registry->emplace<Hit>(ent);
-    World::registry->emplace<Effect>(ent);
-    World::registry->emplace<Damage>(ent);
     World::registry->emplace<Animated>(ent);
     World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + NPC_Z);
 }

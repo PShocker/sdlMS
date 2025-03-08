@@ -128,7 +128,8 @@ void load_mob(wz::Node *node)
 
     World::registry->emplace<Hit>(ent);
     World::registry->emplace<Effect>(ent);
-    World::registry->emplace<Damage>(ent);
+    auto dam = &World::registry->emplace<Damage>(ent);
+    dam->head = mob.head();
     World::registry->emplace<Animated>(ent);
     auto count = World::registry->view<Mob>().size();
     World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + MOB_Z + count);

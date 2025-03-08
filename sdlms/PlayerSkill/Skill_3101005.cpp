@@ -53,7 +53,7 @@ int skill_3101005(entt::entity ent)
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head();
-            hit_effect(atk, mob->head(), src, target, 0, hit_point);
+            hit_hit(atk, src, target, 0, hit_point);
 
             hit_targets.insert(target);
             atk->mobCount--;

@@ -25,7 +25,9 @@ struct Damage
         float y;
     };
 
-    std::list<Info> damage;
+    std::list<Info> damage_list;
     std::optional<SDL_FPoint> head;
     char index = 0;
+
+    static void push(Damage *dam, int damage, char type);
 };

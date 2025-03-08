@@ -3,9 +3,9 @@
 #include <SDL3/SDL.h>
 #include "Core/Core.h"
 
-void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
-                entt::entity src, entt::entity target,
-                char type, std::optional<SDL_FPoint> p)
+void hit_hit(Attack *atk,
+             entt::entity src, entt::entity target,
+             char type, std::optional<SDL_FPoint> p)
 {
     if (!World::registry->valid(target))
     {
@@ -16,60 +16,19 @@ void hit_effect(Attack *atk, std::optional<SDL_FPoint> head,
         return;
     }
     auto hit = World::registry->try_get<Hit>(target);
-    hit->x = atk->p->x;
-    hit->y = atk->p->y;
-    hit->souw = atk->souw;
-    hit->count += atk->attackCount;
-    hit->damage += atk->damage * atk->attackCount;
-    hit->owner = Player::ent;
-
-    auto dam = World::registry->try_get<Damage>(target);
-    dam->head = head;
-
-    if ((dam->damage.size() > 0 &&
-         dam->damage.front().alpha <= 64) ||
-        dam->damage.size() == 0)
-    {
-        dam->index = 0;
-    }
-    int count = dam->index;
-
     for (int i = 0; i < atk->attackCount; i++)
     {
-        Damage::Info info;
-        info.damage = std::abs(atk->damage);
-        info.alpha = 255;
-        info.type = type;
-        info.delay = Window::dt_now + (i + (int)count) * 64;
-        info.x = (float)(std::rand() % 11 - 5);
-        info.y = (float)(i + count) * 38;
-        if (count == 0)
-        {
-            dam->damage.push_front(info);
-        }
-        else
-        {
-            dam->damage.push_back(info);
-        }
-        dam->index++;
+        HitWarp hitw;
+        hitw.p = p;
+        hitw.asprw = atk->hit;
+        hitw.x = atk->p->x;
+        hitw.y = atk->p->y;
+        hitw.souw = atk->souw;
+        // 生成0到1之间的随机浮动因子
+        double random_factor = (std::rand() % 101) / 100.0;
+        random_factor = hitw.range + (random_factor * 0.1);
+        hitw.damage = atk->damage * random_factor;
+        hitw.owner = Player::ent;
+        hit->hits.push_back(hitw);
     }
-    if (atk->hit)
-    {
-        auto eff = World::registry->try_get<Effect>(target);
-        if (p.has_value())
-        {
-            eff->effects.push_back({new Transform(p.value(), 0, World::registry->try_get<Transform>(target)->flip),
-                                    AnimatedSprite(atk->hit), Window::dt_now});
-        }
-        else
-        {
-            eff->effects.push_back({nullptr, AnimatedSprite(atk->hit), Window::dt_now});
-        }
-    }
-}
-
-void hit_effect(Attack *atk, entt::entity src, entt::entity target,
-                char type, std::optional<SDL_FPoint> p)
-{
-    hit_effect(atk, std::nullopt, src, target, type, p);
 }

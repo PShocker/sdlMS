@@ -4,7 +4,6 @@
 
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
-#include <any>
 #include <tuple>
 
 #include "Resources/Wz.h"
