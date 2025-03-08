@@ -346,12 +346,13 @@ bool mob_revive(entt::entity ent, float delta_time)
     auto mob = World::registry->try_get<Mob>(ent);
 
     auto hit = World::registry->try_get<Hit>(ent);
-    for (auto &hitw : hit->hits)
+    for (auto &it : hit->hits)
     {
-        if (hitw.damage > 0)
+        auto hitw = &it;
+        if (hitw->damage > 0)
         {
-            Damage::push(World::registry->try_get<Damage>(ent), hitw.damage, 0);
-            Effect::push(World::registry->try_get<Effect>(ent), hitw.asprw, hitw.p, tr->flip);
+            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, 0);
+            Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->p, tr->flip);
         }
     }
     hit->hits.clear();

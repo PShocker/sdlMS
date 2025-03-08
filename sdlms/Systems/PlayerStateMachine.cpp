@@ -710,9 +710,10 @@ bool player_hit(Hit *hit, entt::entity ent)
 {
     bool res = false;
     auto cha = World::registry->try_get<Character>(ent);
-    for (auto &hitw : hit->hits)
+    for (auto &it : hit->hits)
     {
-        if (hitw.damage > 0 && cha->invincible_cooldown <= 0)
+        auto hitw = &it;
+        if (hitw->damage > 0 && cha->invincible_cooldown <= 0)
         {
             cha->invincible_cooldown = 2000;
             World::registry->remove<Install>(Player::ent);
@@ -720,20 +721,20 @@ bool player_hit(Hit *hit, entt::entity ent)
             auto tr = World::registry->try_get<Transform>(ent);
             auto cha = World::registry->try_get<Character>(ent);
 
-            Damage::push(World::registry->try_get<Damage>(ent), hitw.damage, 1);
-            Effect::push(World::registry->try_get<Effect>(ent), hitw.asprw, hitw.p, tr->flip);
+            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, 1);
+            Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->p, tr->flip);
 
-            cha->hp -= hitw.damage;
+            cha->hp -= hitw->damage;
             if (cha->hp > 0)
             {
-                if (hitw.souw)
+                if (hitw->souw)
                 {
-                    Sound::push(hitw.souw);
+                    Sound::push(hitw->souw);
                 }
                 if (mv->foo && cha->action != Character::ACTION::PRONESTAB)
                 {
                     mv->vspeed = -320;
-                    auto hit_x = hitw.x;
+                    auto hit_x = hitw->x;
                     auto cha_x = tr->position.x;
                     if (cha_x < hit_x)
                     {
@@ -800,10 +801,10 @@ bool player_hit(Hit *hit, entt::entity ent)
             }
             res = true;
         }
-        else if (hitw.damage < 0)
+        else if (hitw->damage < 0)
         {
-            Damage::push(World::registry->try_get<Damage>(ent), hitw.damage, 3);
-            cha->hp -= hitw.damage;
+            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, 3);
+            cha->hp -= hitw->damage;
             res = false;
         }
         else
