@@ -13,7 +13,7 @@ int skill_4111002(entt::entity ent)
     auto state = cha->state;
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4111002");
-    auto call_back = [](entt::entity ent)
+    ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
         for (auto e : World::registry->view<Summon, Character>())
         {
@@ -36,14 +36,13 @@ int skill_4111002(entt::entity ent)
 
     if (state == Character::State::CLIMB)
     {
-        call_back(ent);
+        ski->call_back.value()(ent, 0, 0);
         return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU;
     }
     else if (state != Character::State::JUMP && mv->foo != nullptr)
     {
         mv->hspeed = 0;
     }
-    ski->call_back = call_back;
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ACT;
 }

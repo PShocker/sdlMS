@@ -826,6 +826,8 @@ const std::map<SDL_Scancode, std::u16string> skill_key_id = {
     {SDL_SCANCODE_T, u"4201004"},
     {SDL_SCANCODE_U, u"1121008"},
     {SDL_SCANCODE_I, u"4201005"},
+    {SDL_SCANCODE_N, u"4121007"},
+    {SDL_SCANCODE_M, u"1121006"},
     {SDL_SCANCODE_1, u"2221005"},
     {SDL_SCANCODE_2, u"2121005"},
     {SDL_SCANCODE_3, u"3121006"},

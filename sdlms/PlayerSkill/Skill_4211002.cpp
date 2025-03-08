@@ -40,9 +40,14 @@ int skill_4211002(entt::entity ent)
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, nullptr, mobCount, attackCount, souw, 50);
 
-    auto call_back = [](entt::entity ent)
+    ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
         Skill *ski = World::registry->try_get<Skill>(ent);
+        if (!(action_time == 0 && action_frame == 1))
+        {
+            return;
+        }
+
         auto atk = &ski->atk.value();
         auto o_tr = World::registry->try_get<Transform>(ent);
         atk->hit = o_tr->flip == 1 ? AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/1"))
@@ -82,7 +87,6 @@ int skill_4211002(entt::entity ent)
         eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect"))});
         eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect0"))});
     };
-    ski->call_back = call_back;
 
     return PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ACT |

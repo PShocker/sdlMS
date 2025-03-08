@@ -236,10 +236,6 @@ void animate_character(Character *cha, entt::entity ent)
                 }
             }
         }
-        if (ski->call_back.has_value())
-        {
-            ski->call_back.value()(ent);
-        }
     };
 
     if (Character::type_map.contains(cha->action_str))
@@ -254,6 +250,10 @@ void animate_character(Character *cha, entt::entity ent)
             if (cha->action_index == info.index && action_time == 0)
             {
                 handle_skill_attack(ski);
+            }
+            if (ski->call_back.has_value())
+            {
+                ski->call_back.value()(ent, cha->action_index, action_time);
             }
         }
         if (cha->action_time >= delay)
@@ -278,6 +278,10 @@ void animate_character(Character *cha, entt::entity ent)
         if (delay > 0 && action_time == 0)
         {
             handle_skill_attack(ski);
+        }
+        if (ski->call_back.has_value())
+        {
+            ski->call_back.value()(ent, cha->action_frame, action_time);
         }
         if (cha->action_time >= std::abs(delay))
         {

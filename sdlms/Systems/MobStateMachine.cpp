@@ -193,7 +193,7 @@ bool mob_hit(Hit *hit, entt::entity ent)
                 mob_hit_move(hit, ent);
                 mob_move(mob, mv, tr, mob->state, 0.075);
             }
-            mob->tick = 0;
+            mob->tick = 300;
             mob->state = Mob::State::HIT;
             mob->index = u"hit1";
         }

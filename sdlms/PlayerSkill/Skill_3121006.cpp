@@ -23,8 +23,13 @@ int skill_3121006(entt::entity ent)
     }
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"3121006");
-    auto call_back = [](entt::entity ent)
+    ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
+        if (!(action_time == 0 && action_frame == 0))
+        {
+            return;
+        }
+
         auto o_mv = World::registry->try_get<Move>(ent);
         if (o_mv->foo)
         {
@@ -45,7 +50,6 @@ int skill_3121006(entt::entity ent)
             World::registry->emplace<Move>(e);
         }
     };
-    ski->call_back = call_back;
     SkillWarp::cooldowns[u"3121006"] = 1500;
     return PlayerSkill::SkillResult::SOU | PlayerSkill::SkillResult::ACT;
 }

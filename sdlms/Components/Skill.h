@@ -42,5 +42,5 @@ struct Skill
     bool attack = false;
     unsigned char ball = 0;
 
-    std::optional<std::function<void(entt::entity)>> call_back = std::nullopt;
+    std::optional<std::function<void(entt::entity,int,int)>> call_back = std::nullopt;
 };

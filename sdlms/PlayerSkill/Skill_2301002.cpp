@@ -13,8 +13,12 @@ int skill_2301002(entt::entity ent)
     auto state = cha->state;
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2301002");
-    auto call_back = [](entt::entity ent)
+    ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
+        if (!(action_time == 0 && action_frame == 0))
+        {
+            return;
+        }
         auto tr = World::registry->try_get<Transform>(ent);
         Attack atk;
         atk.damage = -1000;
@@ -27,14 +31,13 @@ int skill_2301002(entt::entity ent)
 
     if (state == Character::State::CLIMB)
     {
-        call_back(ent);
+        ski->call_back.value()(ent, 0, 0);
         return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU;
     }
     else if (state != Character::State::JUMP && mv->foo != nullptr)
     {
         mv->hspeed = 0;
     }
-    ski->call_back = call_back;
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ACT;
 }

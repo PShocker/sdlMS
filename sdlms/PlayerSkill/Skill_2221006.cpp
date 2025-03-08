@@ -68,10 +68,14 @@ int skill_2221006(entt::entity ent)
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
 
     // 回调函数（优化后）
-    ski->call_back = [](entt::entity src)
+    ski->call_back = [](entt::entity src, int action_frame, int action_time)
     {
-        auto *ski = World::registry->try_get<Skill>(src);
-        auto *atk = &ski->atk.value();
+        if (!(action_time == 0 && action_frame == 1))
+        {
+            return;
+        }
+        auto ski = World::registry->try_get<Skill>(src);
+        auto atk = &ski->atk.value();
 
         const auto *src_tr = World::registry->try_get<Transform>(src);
 
