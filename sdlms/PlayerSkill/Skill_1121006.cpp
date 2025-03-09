@@ -58,7 +58,7 @@ int skill_1121006(entt::entity ent)
             if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
                 continue;
             auto m_tr = World::registry->try_get<Transform>(e);
-            if (std::abs(o_tr->position.y - m_tr->position.y) <= 10)
+            if (std::abs(o_tr->position.y - m_tr->position.y) <= 20)
             {
                 if ((o_tr->flip == 1 && o_tr->position.x <= m_tr->position.x && (m_tr->position.x - o_tr->position.x) <= 45) ||
                     (o_tr->flip == 0 && o_tr->position.x >= m_tr->position.x && (o_tr->position.x - m_tr->position.x) <= 45))
