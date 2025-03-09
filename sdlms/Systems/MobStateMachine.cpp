@@ -170,11 +170,11 @@ bool mob_hit(Hit *hit, entt::entity ent)
             for (int i = 0; i < hitw->count; i++)
             {
                 auto damage = hitw->damage;
-                hitw->damage = hitw->real_damage();
-                char type = hitw->damage > damage ? 2 : 0;
-                Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, type);
+                auto r_damage = hitw->real_damage();
+                char type = r_damage > damage ? 2 : 0;
+                Damage::push(World::registry->try_get<Damage>(ent), r_damage, type);
 
-                mob->hp -= hitw->damage;
+                mob->hp -= r_damage;
                 mob->hit = hitw->owner;
 
                 // 怪物被攻击音效

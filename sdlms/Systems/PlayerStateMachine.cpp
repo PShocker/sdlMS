@@ -725,10 +725,11 @@ bool player_hit(Hit *hit, entt::entity ent)
             Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->p, tr->flip);
             for (int i = 0; i < hitw->count; i++)
             {
-                hitw->damage = hitw->real_damage();
-                Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, 1);
+                auto r_damage = hitw->real_damage();
 
-                cha->hp -= hitw->damage;
+                Damage::push(World::registry->try_get<Damage>(ent), r_damage, 1);
+
+                cha->hp -= r_damage;
                 if (cha->hp > 0)
                 {
                     if (hitw->souw)
