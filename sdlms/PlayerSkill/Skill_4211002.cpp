@@ -33,7 +33,7 @@ int skill_4211002(entt::entity ent)
     auto lt = SDL_FPoint{(float)v.x, (float)v.y};
     v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"rb"))->get();
     auto rb = SDL_FPoint{(float)v.x, (float)v.y};
-    auto attackCount = 1;
+    auto attackCount = 4;
     auto mobCount = 12;
 
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];

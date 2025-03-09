@@ -7,6 +7,7 @@
 struct HitWarp
 {
     int damage = 0;
+    int count = 0;
     SoundWarp *souw = nullptr;
 
     float x;
@@ -17,6 +18,8 @@ struct HitWarp
     float range = 1;
     AnimatedSpriteWarp *asprw = nullptr;
     entt::entity owner = entt::null;
+
+    int real_damage();
 };
 
 struct Hit

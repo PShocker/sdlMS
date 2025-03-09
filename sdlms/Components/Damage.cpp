@@ -40,7 +40,7 @@ void Damage::init()
 void Damage::push(Damage *dam, int damage, char type)
 {
     if ((dam->damage_list.size() > 0 &&
-         dam->damage_list.front().alpha <= 64) ||
+         dam->damage_list.front().alpha <= 128) ||
         dam->damage_list.size() == 0)
     {
         dam->index = 0;

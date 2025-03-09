@@ -156,62 +156,69 @@ void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state)
 bool mob_hit(Hit *hit, entt::entity ent)
 {
     bool res = false;
-    for (int i = 0; i < hit->hits.size(); ++i)
+    for (auto &it : hit->hits)
     {
-        auto hitw = &hit->hits[i];
+        auto hitw = &it;
         if (hitw->damage > 0)
         {
             auto mv = World::registry->try_get<Move>(ent);
             auto tr = World::registry->try_get<Transform>(ent);
             auto mob = World::registry->try_get<Mob>(ent);
 
-            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, 0);
             Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->p, tr->flip);
 
-            mob->hp -= hitw->damage;
-            mob->hit = hitw->owner;
+            for (int i = 0; i < hitw->count; i++)
+            {
+                auto damage = hitw->damage;
+                hitw->damage = hitw->real_damage();
+                char type = hitw->damage > damage ? 2 : 0;
+                Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, type);
 
-            // 怪物被攻击音效
-            if (hitw->souw)
-            {
-                Sound::push(hitw->souw, i * 140);
-            }
-            else if (mob->sounds.contains(u"Damage"))
-            {
-                Sound::push(mob->sounds[u"Damage"], i * 140);
-            }
+                mob->hp -= hitw->damage;
+                mob->hit = hitw->owner;
 
-            if (mob->hp > 0)
-            {
-                // 获取玩家位置,并让怪物转身和后退
-                if (mob->state == Mob::State::FLY)
+                // 怪物被攻击音效
+                if (hitw->souw)
                 {
-                    mob_hit_move(hitw->x, ent);
-                    mob_fly(mob, mv, tr, mob->state, 0.075);
+                    Sound::push(hitw->souw, i * 140);
                 }
-                else if (mv->foo)
+                else if (mob->sounds.contains(u"Damage"))
                 {
-                    mob_hit_move(hitw->x, ent);
-                    mob_move(mob, mv, tr, mob->state, 0.075);
+                    Sound::push(mob->sounds[u"Damage"], i * 140);
                 }
-                mob->tick = 300;
-                mob->state = Mob::State::HIT;
-                mob->index = u"hit1";
-            }
-            else if (mob->state != Mob::State::DIE)
-            {
-                // 怪物死亡音效
-                if (mob->sounds.contains(u"Die"))
-                {
-                    Sound::push(mob->sounds[u"Die"], 200);
-                }
-                mob->state = Mob::State::DIE;
-                mob->index = u"die1";
 
-                // 爆金币
-                mob_drop(mob, tr);
-                mob->revive = mob->revive_time + Window::dt_now;
-                res = true;
+                if (mob->hp > 0)
+                {
+                    // 获取玩家位置,并让怪物转身和后退
+                    if (mob->state == Mob::State::FLY)
+                    {
+                        mob_hit_move(hitw->x, ent);
+                        mob_fly(mob, mv, tr, mob->state, 0.075);
+                    }
+                    else if (mv->foo)
+                    {
+                        mob_hit_move(hitw->x, ent);
+                        mob_move(mob, mv, tr, mob->state, 0.075);
+                    }
+                    mob->tick = 300;
+                    mob->state = Mob::State::HIT;
+                    mob->index = u"hit1";
+                }
+                else if (mob->state != Mob::State::DIE)
+                {
+                    // 怪物死亡音效
+                    if (mob->sounds.contains(u"Die"))
+                    {
+                        Sound::push(mob->sounds[u"Die"], 200);
+                    }
+                    mob->state = Mob::State::DIE;
+                    mob->index = u"die1";
+
+                    // 爆金币
+                    mob_drop(mob, tr);
+                    mob->revive = mob->revive_time + Window::dt_now;
+                    res = true;
+                }
             }
         }
     }
@@ -351,8 +358,14 @@ bool mob_revive(entt::entity ent, float delta_time)
         auto hitw = &it;
         if (hitw->damage > 0)
         {
-            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, 0);
             Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->p, tr->flip);
+            for (int i = 0; i < hitw->count; i++)
+            {
+                auto damage = hitw->damage;
+                hitw->damage = hitw->real_damage();
+                char type = hitw->damage > damage ? 2 : 0;
+                Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, type);
+            }
         }
     }
     hit->hits.clear();

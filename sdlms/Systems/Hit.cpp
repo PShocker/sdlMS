@@ -16,19 +16,14 @@ void hit_hit(Attack *atk,
         return;
     }
     auto hit = World::registry->try_get<Hit>(target);
-    for (int i = 0; i < atk->attackCount; i++)
-    {
-        HitWarp hitw;
-        hitw.p = p;
-        hitw.asprw = atk->hit;
-        hitw.x = atk->p->x;
-        hitw.y = atk->p->y;
-        hitw.souw = atk->souw;
-        // 生成0到1之间的随机浮动因子
-        double random_factor = (std::rand() % 101) / 100.0;
-        random_factor = hitw.range + (random_factor * 0.1);
-        hitw.damage = atk->damage * random_factor;
-        hitw.owner = Player::ent;
-        hit->hits.push_back(hitw);
-    }
+    HitWarp hitw;
+    hitw.count = atk->attackCount;
+    hitw.damage = atk->damage;
+    hitw.p = p;
+    hitw.asprw = atk->hit;
+    hitw.x = atk->p->x;
+    hitw.y = atk->p->y;
+    hitw.souw = atk->souw;
+    hitw.owner = Player::ent;
+    hit->hits.push_back(hitw);
 }
