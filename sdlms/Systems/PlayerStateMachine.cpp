@@ -772,7 +772,7 @@ bool player_hit(Hit *hit, entt::entity ent)
                         cha->action_str = u"jump";
                     }
                 }
-                else
+                else if (cha->state != Character::State::DIE)
                 {
                     cha->state = Character::State::DIE;
                     cha->action_index = 0;
@@ -801,7 +801,6 @@ bool player_hit(Hit *hit, entt::entity ent)
                     tomb.l.position = tr->position;
 
                     Sound::push(Sound(u"Game.img/Tombstone"), 180);
-                    break;
                 }
             }
         }
