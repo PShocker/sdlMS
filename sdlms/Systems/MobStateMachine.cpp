@@ -13,7 +13,7 @@ void mob_statemachine_run()
     {
         mob_collision_attack(ent);
         auto mob = World::registry->try_get<Mob>(ent);
-        if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
+        if (mob->state == Mob::State::REMOVE)
         {
             mob_revive(ent, Window::delta_time);
             continue;
@@ -352,24 +352,6 @@ bool mob_revive(entt::entity ent, float delta_time)
     auto tr = World::registry->try_get<Transform>(ent);
     auto mob = World::registry->try_get<Mob>(ent);
 
-    auto hit = World::registry->try_get<Hit>(ent);
-    for (auto &it : hit->hits)
-    {
-        auto hitw = &it;
-        if (hitw->damage > 0)
-        {
-            Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->p, tr->flip);
-            for (int i = 0; i < hitw->count; i++)
-            {
-                auto damage = hitw->damage;
-                hitw->damage = hitw->real_damage();
-                char type = hitw->damage > damage ? 2 : 0;
-                Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, type);
-            }
-        }
-    }
-    hit->hits.clear();
-
     if (mob->revive <= Window::dt_now)
     {
         if (mob->a.contains(u"fly"))
@@ -384,6 +366,9 @@ bool mob_revive(entt::entity ent, float delta_time)
     }
     else if (mob->revive <= Window::dt_now + mob->revive_alpha_time + 100)
     {
+        auto hit = World::registry->try_get<Hit>(ent);
+        hit->hits.clear();
+        
         mob->hp = 100;
         mob->hit = entt::null;
         if (mob->a.contains(u"fly"))
