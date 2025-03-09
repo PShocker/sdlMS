@@ -42,5 +42,6 @@ struct Skill
     bool attack = false;
     unsigned char ball = 0;
 
-    std::optional<std::function<void(entt::entity,int,int)>> call_back = std::nullopt;
+    std::unordered_set<entt::entity> hit_targets;
+    std::optional<std::function<void(entt::entity, int, int)>> call_back = std::nullopt;
 };

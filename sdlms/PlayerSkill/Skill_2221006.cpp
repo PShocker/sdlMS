@@ -79,7 +79,6 @@ int skill_2221006(entt::entity ent)
 
         const auto *src_tr = World::registry->try_get<Transform>(src);
 
-        std::unordered_set<entt::entity> hit_targets;
         const SDL_FPoint origin = src_tr->position;
         atk->p = origin;
 
@@ -87,7 +86,7 @@ int skill_2221006(entt::entity ent)
         entt::entity target = find_closest_attackable_mob(
             src_tr->flip,
             origin,
-            hit_targets,
+            ski->hit_targets,
             500.0f, // max_x_distance
             90.0f   // max_y_distance
         );
@@ -107,14 +106,14 @@ int skill_2221006(entt::entity ent)
             generate_chain_effect(src_point, hit_point, target, ski);
             src_point = hit_point;
 
-            hit_targets.insert(target);
+            ski->hit_targets.insert(target);
             atk->mobCount--;
 
             // 寻找下一个目标
             target = find_closest_attackable_mob(
                 -1,
                 target_tr->position,
-                hit_targets,
+                ski->hit_targets,
                 200.0f, // max_x_distance
                 200.0f  // max_y_distance
             );

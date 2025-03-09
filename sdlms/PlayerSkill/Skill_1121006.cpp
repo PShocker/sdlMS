@@ -36,6 +36,7 @@ int skill_1121006(entt::entity ent)
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 20);
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
+        auto ski = World::registry->try_get<Skill>(ent);
         auto o_mv = World::registry->try_get<Move>(ent);
         auto o_tr = World::registry->try_get<Transform>(ent);
         if (o_mv->foo)
@@ -62,9 +63,13 @@ int skill_1121006(entt::entity ent)
                 if ((o_tr->flip == 1 && o_tr->position.x <= m_tr->position.x && (m_tr->position.x - o_tr->position.x) <= 45) ||
                     (o_tr->flip == 0 && o_tr->position.x >= m_tr->position.x && (o_tr->position.x - m_tr->position.x) <= 45))
                 {
-                    Attack atk;
-                    atk.damage = 10;
-                    hit_hit(&atk, ent, e, 0, std::nullopt);
+                    if (!ski->hit_targets.contains(e))
+                    {
+                        Attack atk;
+                        atk.damage = 50;
+                        hit_hit(&atk, ent, e, 0, std::nullopt);
+                        ski->hit_targets.insert(e);
+                    }
                     auto call_back = [x = m_tr->position.x, flip = o_tr->flip](entt::entity ent)
                     {
                         auto m_mv = World::registry->try_get<Move>(ent);

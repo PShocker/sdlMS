@@ -45,7 +45,6 @@ int skill_3101005(entt::entity ent)
         atk->call_back = std::nullopt;
         auto target_position = World::registry->try_get<Transform>(target)->position;
 
-        std::unordered_set<entt::entity> hit_targets;
         do
         {
             const auto mob = World::registry->try_get<Mob>(target);
@@ -55,14 +54,14 @@ int skill_3101005(entt::entity ent)
             const SDL_FPoint hit_point = target_tr->position + mob->head();
             hit_hit(atk, src, target, 0, hit_point);
 
-            hit_targets.insert(target);
+            ski->hit_targets.insert(target);
             atk->mobCount--;
 
             // 寻找下一个目标
             target = find_closest_attackable_mob(
                 -1,
                 target_position,
-                hit_targets,
+                ski->hit_targets,
                 200.0f, // max_x_distance
                 150.0f  // max_y_distance
             );
