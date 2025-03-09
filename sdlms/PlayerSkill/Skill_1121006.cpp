@@ -71,9 +71,9 @@ int skill_1121006(entt::entity ent)
                         if (m_mv->foo)
                         {
                             auto m_tr = World::registry->try_get<Transform>(ent);
-                            m_mv->hspeed = flip == 1 ? 140 : -140;
+                            m_mv->hspeed = flip == 1 ? 145 : -145;
                             m_mv->hforce = flip == 1 ? 1400 : -1400;
-                            auto r = move_move(m_mv, m_tr, 800, 0.02, false);
+                            auto r = move_move(m_mv, m_tr, 800, 0.025, false);
                             m_mv->hforce = 0;
                             if (std::abs(m_tr->position.x - x) >= 200 || r == false || m_mv->hspeed == 0)
                             {
