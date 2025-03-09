@@ -57,6 +57,9 @@ struct Mob
     // 仇恨目标
     entt::entity hit = entt::null;
 
+    // 回调
+    std::list<std::function<std::pair<bool, bool>(entt::entity)>> call_back_list;
+
     Attack atk;
 
     SDL_FRect rect();

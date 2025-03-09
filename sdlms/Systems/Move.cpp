@@ -248,6 +248,7 @@ bool move_move(Move *mv, Transform *tr, float friction, float delta_time, bool f
             // 禁止掉落
             tr->position.x = mv->hspeed < 0 ? mv->foo->l + 0.1 : mv->foo->r - 0.1;
             tr->position.y = y;
+            mv->hspeed = 0;
             return false;
         }
         if (!fh->k.has_value())

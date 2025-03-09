@@ -23,7 +23,25 @@ void mob_statemachine_run()
         {
             continue;
         }
-        mob_statemachine(ent, (float)Window::delta_time / 1000);
+        bool res = true;
+        for (auto it = mob->call_back_list.begin(); it != mob->call_back_list.end();)
+        {
+            auto pair = (*it)(ent);
+            auto r = pair.first;
+            if (r)
+            {
+                it = mob->call_back_list.erase(it);
+            }
+            else
+            {
+                ++it;
+            }
+            res = pair.second;
+        }
+        if (res)
+        {
+            mob_statemachine(ent, (float)Window::delta_time / 1000);
+        }
     }
 }
 

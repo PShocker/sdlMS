@@ -2,6 +2,7 @@
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 #include "Systems/Move.h"
+#include "Systems/Hit.h"
 
 // 突进
 int skill_1121006(entt::entity ent)
@@ -36,17 +37,57 @@ int skill_1121006(entt::entity ent)
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
         auto o_mv = World::registry->try_get<Move>(ent);
+        auto o_tr = World::registry->try_get<Transform>(ent);
         if (o_mv->foo)
         {
-            auto o_tr = World::registry->try_get<Transform>(ent);
             o_mv->hspeed = o_tr->flip == 1 ? 100 : -100;
             o_mv->hforce = o_tr->flip == 1 ? 1400 : -1400;
             move_move(o_mv, o_tr, 800, 0.06, false);
             o_mv->hspeed = 0;
             auto o_cha = World::registry->try_get<Character>(ent);
-            if (o_cha->invincible_cooldown <= 100)
+            if (o_cha->invincible_cooldown <= 250)
             {
-                o_cha->invincible_cooldown = 100;
+                o_cha->invincible_cooldown = 250;
+            }
+        }
+        // 推动怪物
+        for (auto e : World::registry->view<Damage, Mob>())
+        {
+            const auto mob = World::registry->try_get<Mob>(e);
+            if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
+                continue;
+            auto m_tr = World::registry->try_get<Transform>(e);
+            if (std::abs(o_tr->position.y - m_tr->position.y) <= 10)
+            {
+                if ((o_tr->flip == 1 && o_tr->position.x <= m_tr->position.x && (m_tr->position.x - o_tr->position.x) <= 45) ||
+                    (o_tr->flip == 0 && o_tr->position.x >= m_tr->position.x && (o_tr->position.x - m_tr->position.x) <= 45))
+                {
+                    Attack atk;
+                    atk.damage = 10;
+                    hit_hit(&atk, ent, e, 0, std::nullopt);
+                    auto call_back = [x = m_tr->position.x, flip = o_tr->flip](entt::entity ent)
+                    {
+                        auto m_mv = World::registry->try_get<Move>(ent);
+                        if (m_mv->foo)
+                        {
+                            auto m_tr = World::registry->try_get<Transform>(ent);
+                            m_mv->hspeed = flip == 1 ? 140 : -140;
+                            m_mv->hforce = flip == 1 ? 1400 : -1400;
+                            auto r = move_move(m_mv, m_tr, 800, 0.02, false);
+                            m_mv->hforce = 0;
+                            if (std::abs(m_tr->position.x - x) >= 200 || r == false || m_mv->hspeed == 0)
+                            {
+                                return std::make_pair(true, true);
+                            }
+                            else
+                            {
+                                return std::make_pair(false, false);
+                            }
+                        }
+                        return std::make_pair(true, true);
+                    };
+                    mob->call_back_list.push_back(call_back);
+                }
             }
         }
     };
