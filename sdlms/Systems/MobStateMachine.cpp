@@ -36,7 +36,10 @@ void mob_statemachine_run()
             {
                 ++it;
             }
-            res = pair.second;
+            if (pair.second == false)
+            {
+                res = false;
+            }
         }
         if (res)
         {
