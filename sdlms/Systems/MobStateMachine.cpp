@@ -389,6 +389,9 @@ bool mob_revive(entt::entity ent, float delta_time)
         auto hit = World::registry->try_get<Hit>(ent);
         hit->hits.clear();
 
+        auto eff = World::registry->try_get<Effect>(ent);
+        eff->effect_list.clear();
+
         mob->hp = 100;
         mob->hit = entt::null;
         if (mob->a.contains(u"fly"))
