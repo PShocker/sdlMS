@@ -37,7 +37,7 @@ void Damage::init()
     }
 }
 
-void Damage::push(Damage *dam, int damage, char type)
+void Damage::push(Damage *dam, int damage, uint8_t type, SDL_FPoint point)
 {
     if ((dam->damage_list.size() > 0 &&
          dam->damage_list.front().alpha <= 128) ||
@@ -47,11 +47,12 @@ void Damage::push(Damage *dam, int damage, char type)
     }
     int count = dam->index;
     Damage::Info info;
+    info.point = point;
     info.damage = std::abs(damage);
     info.alpha = 255;
     info.type = type;
     info.delay = Window::dt_now + count * 60;
-    info.x = (float)(std::rand() % 11 - 5);
+    info.x = 0;
     info.y = (float)(count) * 38;
     if (count == 0)
     {

@@ -28,8 +28,5 @@ struct Reactor
 
     std::unordered_map<int, SoundWarp *> sounds;
 
-    SDL_FRect rect();
-    SDL_FPoint head();
-
     Reactor() = default;
 };

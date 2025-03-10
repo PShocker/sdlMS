@@ -27,7 +27,7 @@ SDL_FRect Mob::rect()
     return m_rect;
 }
 
-SDL_FPoint Mob::head()
+SDL_FPoint Mob::head(int flip)
 {
     auto animated = &a[index];
     auto m_spr = animated->asprw->sprites[animated->anim_index];
@@ -35,7 +35,14 @@ SDL_FPoint Mob::head()
     if (m_spr->n->get_child(u"head"))
     {
         auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(m_spr->n->get_child(u"head"))->get();
-        m_head = SDL_FPoint{(float)v.x, (float)v.y};
+        if (flip == 1)
+        {
+            m_head = SDL_FPoint{(float)-v.x, (float)v.y};
+        }
+        else
+        {
+            m_head = SDL_FPoint{(float)v.x, (float)v.y};
+        }
     }
     else
     {

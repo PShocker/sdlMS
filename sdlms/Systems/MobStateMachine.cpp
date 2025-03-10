@@ -92,7 +92,7 @@ void mob_statemachine(entt::entity ent, float delta_time)
     case Mob::State::JUMP:
     case Mob::State::HIT:
     {
-        mob_fall(mob, mv, tr, delta_time);
+        mob_fall(ent, delta_time);
     }
     break;
     case Mob::State::DIE:
@@ -177,22 +177,25 @@ void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state)
 bool mob_hit(Hit *hit, entt::entity ent)
 {
     bool res = false;
+
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    auto mob = World::registry->try_get<Mob>(ent);
+
+    auto damage_point = tr->position + mob->head(tr->flip);
+
     for (auto &it : hit->hits)
     {
         auto hitw = &it;
+
         if (hitw->damage > 0)
         {
-            auto mv = World::registry->try_get<Move>(ent);
-            auto tr = World::registry->try_get<Transform>(ent);
-            auto mob = World::registry->try_get<Mob>(ent);
-
             Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->p, tr->flip);
-
             for (int i = 0; i < hitw->count; i++)
             {
                 auto damage = hitw->real_damage();
-                char type = damage > hitw->damage ? 2 : 0;
-                Damage::push(World::registry->try_get<Damage>(ent), damage, type);
+                auto type = damage > hitw->damage ? Damage::Info::Type::Cri : Damage::Info::Type::Red;
+                Damage::push(World::registry->try_get<Damage>(ent), damage, type, damage_point);
 
                 mob->hp -= damage;
                 mob->hit = hitw->owner;
@@ -279,8 +282,12 @@ void mob_drop(Mob *mob, Transform *tr)
     World::zindex = true;
 }
 
-bool mob_fall(Mob *mob, Move *mv, Transform *tr, float delta_time)
+bool mob_fall(entt::entity ent, float delta_time)
 {
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    auto mob = World::registry->try_get<Mob>(ent);
+
     if (mv->foo)
     {
         return false;

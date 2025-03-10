@@ -2,6 +2,7 @@
 #include "Common.h"
 #include "Commons/Commons.h"
 #include "Systems/Hit.h"
+#include "Systems/MobStateMachine.h"
 #include "Components/Components.h"
 #include "Entities/Entities.h"
 #include "entt/entt.hpp"
@@ -51,14 +52,39 @@ int skill_3101005(entt::entity ent)
             const auto target_tr = World::registry->try_get<Transform>(target);
 
             // 执行攻击效果
-            const SDL_FPoint hit_point = target_tr->position + mob->head();
+            const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
             hit_hit(atk, src, target, 0, hit_point);
 
             // 晕眩效果,3秒
-            auto call_back = [time = Window::dt_now + 3000](entt::entity ent)
+            auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
+                              time = Window::dt_now + 3000](entt::entity ent)
             {
-                if (Window::dt_now <= time)
+                const auto mob = World::registry->try_get<Mob>(ent);
+
+                if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
                 {
+                    // 晕眩特效
+                    const auto mob_tr = World::registry->try_get<Transform>(ent);
+
+                    bool r = true;
+                    auto eff = World::registry->try_get<Effect>(ent);
+                    for (auto &it : eff->effect_list)
+                    {
+                        if (it.aspr.asprw == asprw)
+                        {
+                            r = false;
+                            break;
+                        }
+                    }
+                    if (r)
+                    {
+                        auto head = mob->head(mob_tr->flip);
+
+                        eff->effect_list.push_back({new Transform(mob_tr->position + SDL_FPoint{0, head.y - 5}),
+                                                    AnimatedSprite(asprw),
+                                                    Window::dt_now});
+                    }
+                    mob_fall(ent, Window::delta_time);
                     return std::make_pair(false, false);
                 }
                 else
@@ -67,15 +93,6 @@ int skill_3101005(entt::entity ent)
                 }
             };
             mob->call_back_list.push_back(call_back);
-
-            // 晕眩特效
-            auto eff = World::registry->try_get<Effect>(target);
-            for (int i = 0; i < 10; i++)
-            {
-                eff->effect_list.push_back({nullptr,
-                                            AnimatedSprite(ski->skiw->node->find_from_path(u"mob")),
-                                            Window::dt_now + i * 300});
-            }
 
             ski->hit_targets.insert(target);
             atk->mobCount--;

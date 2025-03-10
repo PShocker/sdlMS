@@ -11,7 +11,4 @@ struct Npc
     std::unordered_map<std::u16string, AnimatedSprite> a;
 
     std::u16string index;
-
-    SDL_FRect rect();
-    SDL_FPoint head();
 };

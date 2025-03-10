@@ -99,7 +99,8 @@ int skill_2221006(entt::entity ent)
             const auto target_tr = World::registry->try_get<Transform>(target);
 
             // 执行攻击效果
-            const SDL_FPoint hit_point = target_tr->position + mob->head();
+            const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip) +
+                                         SDL_FPoint{0, (float)mob->a[mob->index].asprw->sprites[mob->a[mob->index].anim_index]->texture->h / 2};
             hit_hit(atk, src, target, 0, hit_point);
 
             // 生成特效

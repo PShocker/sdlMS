@@ -18,16 +18,23 @@ struct Damage
     {
         int damage;
         float alpha;
-        char type; // 0:red,1:violet,2:cri,3:blue
+        enum Type : uint8_t
+        {
+            Red = 0,
+            Violet = 1,
+            Cri = 2,
+            Blue = 3
+        };
+        uint8_t type; // 0:red,1:violet,2:cri,3:blue
 
         unsigned int delay;
         float x;
         float y;
+        SDL_FPoint point;
     };
 
     std::list<Info> damage_list;
-    std::optional<SDL_FPoint> head;
     char index = 0;
 
-    static void push(Damage *dam, int damage, char type);
+    static void push(Damage *dam, int damage, uint8_t type, SDL_FPoint point);
 };

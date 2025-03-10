@@ -727,7 +727,8 @@ bool player_hit(Hit *hit, entt::entity ent)
             {
                 auto damage = hitw->real_damage();
 
-                Damage::push(World::registry->try_get<Damage>(ent), damage, 1);
+                Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Info::Type::Violet,
+                             tr->position + SDL_FPoint{-10, -60});
 
                 cha->hp -= damage;
                 if (cha->hp > 0)
@@ -807,7 +808,9 @@ bool player_hit(Hit *hit, entt::entity ent)
         }
         else if (hitw->damage < 0)
         {
-            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, 3);
+            auto tr = World::registry->try_get<Transform>(ent);
+            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, Damage::Info::Type::Blue,
+                         tr->position + SDL_FPoint{-10, -60});
             cha->hp -= hitw->damage;
             res = false;
         }

@@ -87,14 +87,6 @@ void render_run()
         else if (auto r = World::registry->try_get<Reactor>(ent))
         {
             render_reactor(tr, r);
-            if (auto eff = World::registry->try_get<Effect>(ent))
-            {
-                render_effect(tr, eff);
-            }
-            if (auto dam = World::registry->try_get<Damage>(ent))
-            {
-                render_damage(tr, dam);
-            }
         }
         else if (auto sum = World::registry->try_get<Summon>(ent))
         {
@@ -578,16 +570,7 @@ void render_damage(Transform *tr, Damage *dam)
         auto &info = it;
         if (info.delay < Window::dt_now)
         {
-            SDL_FPoint p = tr->position;
-            if (dam->head.has_value())
-            {
-                p = p + dam->head.value();
-            }
-            else
-            {
-                p.x -= 10;
-                p.y -= 60;
-            }
+            auto p = info.point;
             int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
             p.x -= length * 34 / 2;
             int i = 0;

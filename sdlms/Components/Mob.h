@@ -63,5 +63,5 @@ struct Mob
     Attack atk;
 
     SDL_FRect rect();
-    SDL_FPoint head();
+    SDL_FPoint head(int flip);
 };
