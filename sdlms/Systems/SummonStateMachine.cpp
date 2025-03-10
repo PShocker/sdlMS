@@ -191,7 +191,7 @@ int summon_follow(entt::entity ent)
                 s_tr->position = o_tr->position;
                 s_tr->z = o_tr->z - 2;
                 auto eff = World::registry->try_get<Effect>(ent);
-                eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+                eff->effect_list.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
                 return Summon::State::FLY;
             }
             else if (o_mv->foo != nullptr)
@@ -202,7 +202,7 @@ int summon_follow(entt::entity ent)
                 s_tr->position = o_tr->position;
                 s_tr->z = o_tr->z - 2;
                 auto eff = World::registry->try_get<Effect>(ent);
-                eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+                eff->effect_list.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
                 return Summon::State::STAND;
             }
         }

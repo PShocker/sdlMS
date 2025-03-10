@@ -54,6 +54,29 @@ int skill_3101005(entt::entity ent)
             const SDL_FPoint hit_point = target_tr->position + mob->head();
             hit_hit(atk, src, target, 0, hit_point);
 
+            // 晕眩效果,3秒
+            auto call_back = [time = Window::dt_now + 3000](entt::entity ent)
+            {
+                if (Window::dt_now <= time)
+                {
+                    return std::make_pair(false, false);
+                }
+                else
+                {
+                    return std::make_pair(true, true);
+                }
+            };
+            mob->call_back_list.push_back(call_back);
+
+            // 晕眩特效
+            auto eff = World::registry->try_get<Effect>(target);
+            for (int i = 0; i < 10; i++)
+            {
+                eff->effect_list.push_back({nullptr,
+                                            AnimatedSprite(ski->skiw->node->find_from_path(u"mob")),
+                                            Window::dt_now + i * 300});
+            }
+
             ski->hit_targets.insert(target);
             atk->mobCount--;
 

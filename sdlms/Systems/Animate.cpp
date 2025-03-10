@@ -370,7 +370,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 
 void animate_effect(Effect *eff)
 {
-    for (auto it = eff->effects.begin(); it != eff->effects.end();)
+    for (auto it = eff->effect_list.begin(); it != eff->effect_list.end();)
     {
         auto info = &(*it);
         if (info->delay > Window::dt_now)
@@ -386,7 +386,7 @@ void animate_effect(Effect *eff)
             {
                 delete tr;
             }
-            it = eff->effects.erase(it);
+            it = eff->effect_list.erase(it);
         }
         else
         {

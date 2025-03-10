@@ -500,18 +500,17 @@ void render_afterimage(Transform *tr, AfterImage *aft, Character *cha)
 
 void render_effect(Transform *tr, Effect *eff)
 {
-    for (int i = 0; i < eff->effects.size(); i++)
+    for (auto &val : eff->effect_list)
     {
-        auto &[e_tr, aspr, delay] = eff->effects[i];
-        if (delay <= Window::dt_now)
+        if (val.delay <= Window::dt_now)
         {
-            if (e_tr == nullptr)
+            if (val.tr == nullptr)
             {
-                render_animated_sprite(tr, &aspr);
+                render_animated_sprite(tr, &val.aspr);
             }
             else
             {
-                render_animated_sprite(e_tr, &aspr);
+                render_animated_sprite(val.tr, &val.aspr);
             }
         }
     }
