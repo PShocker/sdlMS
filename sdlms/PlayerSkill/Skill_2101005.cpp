@@ -1,5 +1,6 @@
 #include "PlayerSkill.h"
 #include "entt/entt.hpp"
+#include "Common.h"
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 #include "Systems/Hit.h"
@@ -51,26 +52,7 @@ int skill_2101005(entt::entity ent)
             if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
             {
                 // 中毒效果
-                const auto mob_tr = World::registry->try_get<Transform>(ent);
-
-                bool r = true;
-                auto eff = World::registry->try_get<Effect>(ent);
-                for (auto &it : eff->effect_list)
-                {
-                    if (it.aspr.asprw == asprw)
-                    {
-                        r = false;
-                        break;
-                    }
-                }
-                if (r)
-                {
-                    auto head = mob->head(mob_tr->flip);
-
-                    eff->effect_list.push_back({new Transform(mob_tr->position + SDL_FPoint{0, head.y - 5}),
-                                                AnimatedSprite(asprw),
-                                                Window::dt_now});
-                }
+                push_mob_special_effect(ent, asprw);
                 return std::make_pair(false, true);
             }
             else
