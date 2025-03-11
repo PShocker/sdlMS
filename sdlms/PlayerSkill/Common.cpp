@@ -88,7 +88,7 @@ void push_mob_special_effect(entt::entity ent, AnimatedSpriteWarp *asprw)
         const auto mob = World::registry->try_get<Mob>(ent);
         auto head = mob->head(mob_tr->flip);
 
-        eff->effect_list.push_back({new Transform(mob_tr->position + SDL_FPoint{0, head.y - 5}),
+        eff->effect_list.push_back({new Transform(mob_tr->position + SDL_FPoint{0, head.y - 10}),
                                     AnimatedSprite(asprw),
                                     Window::dt_now});
     }

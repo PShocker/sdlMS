@@ -31,24 +31,19 @@ int skill_2101005(entt::entity ent)
     auto mobCount = 1;
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
 
-    ski->atk.value().call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob"))](entt::entity src,
-                                                                                                             entt::entity target)
+    ski->atk.value().call_back = [hit, asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob"))](entt::entity src,
+                                                                                                                  entt::entity target)
     {
         const auto mob = World::registry->try_get<Mob>(target);
+        unsigned int time = Window::dt_now + 5000;
+
         auto call_back = [asprw,
-                          time = Window::dt_now + 5000](entt::entity ent)
+                          time](entt::entity ent)
         {
             const auto mob = World::registry->try_get<Mob>(ent);
-            for (int i = Window::dt_now; i < time; i = i + 1000)
-            {
-                Attack atk;
-                atk.damage = 10;
-                atk.hit = nullptr;
-                atk.src_point = std::nullopt;
-                hit_hit(&atk, Player::ent, ent, std::nullopt, i);
-            }
+
             if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
             {
                 // 中毒效果
@@ -60,6 +55,28 @@ int skill_2101005(entt::entity ent)
                 return std::make_pair(true, true);
             }
         };
+
+        for (int i = Window::dt_now + 1000; i < time; i += 1000)
+        {
+            const auto hit_call_back = [hit, i](entt::entity ent)
+            {
+                if (i <= Window::dt_now)
+                {
+                    Attack atk;
+                    atk.damage = 10;
+                    atk.hit = hit;
+                    atk.src_point = std::nullopt;
+                    hit_hit(&atk, Player::ent, ent, std::nullopt);
+                    return std::make_pair(true, true);
+                }
+                else
+                {
+                    return std::make_pair(false, true);
+                }
+            };
+            mob->call_back_list.push_back(hit_call_back);
+        }
+
         mob->call_back_list.push_back(call_back);
         return true;
     };

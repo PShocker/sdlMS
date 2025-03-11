@@ -182,70 +182,66 @@ bool mob_hit(Hit *hit, entt::entity ent)
     auto tr = World::registry->try_get<Transform>(ent);
     auto mob = World::registry->try_get<Mob>(ent);
 
-    auto damage_point = tr->position + mob->head(tr->flip);
+    auto head_point = mob->head(tr->flip);
+    auto damage_point = tr->position + SDL_FPoint{0, head_point.y};
 
-    for (auto it = hit->hit_list.begin(); it != hit->hit_list.end();)
+    for (auto &it : hit->hits)
     {
-        auto &hitw = it;
-        if (hitw->delay <= Window::dt_now)
+        auto hitw = &it;
+        if (hitw->damage > 0)
         {
-            if (hitw->damage > 0)
+            Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->hit_point, tr->flip);
+            for (int i = 0; i < hitw->count; i++)
             {
-                Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->hit_point, tr->flip);
-                for (int i = 0; i < hitw->count; i++)
+                auto damage = hitw->real_damage();
+                auto type = damage > hitw->damage ? Damage::Info::Type::Cri : Damage::Info::Type::Red;
+                Damage::push(World::registry->try_get<Damage>(ent), damage, type, damage_point);
+
+                mob->hp -= damage;
+                mob->hit = hitw->owner;
+
+                // 怪物被攻击音效
+                if (hitw->souw)
                 {
-                    auto damage = hitw->real_damage();
-                    auto type = damage > hitw->damage ? Damage::Info::Type::Cri : Damage::Info::Type::Red;
-                    Damage::push(World::registry->try_get<Damage>(ent), damage, type, damage_point);
+                    Sound::push(hitw->souw, i * 140);
+                }
+                else if (mob->sounds.contains(u"Damage"))
+                {
+                    Sound::push(mob->sounds[u"Damage"], i * 140);
+                }
 
-                    mob->hp -= damage;
-                    mob->hit = hitw->owner;
-
-                    // 怪物被攻击音效
-                    if (hitw->souw)
+                if (mob->hp > 0)
+                {
+                    if (mob_hit_move(hitw->src_point, ent))
                     {
-                        Sound::push(hitw->souw, i * 140);
-                    }
-                    else if (mob->sounds.contains(u"Damage"))
-                    {
-                        Sound::push(mob->sounds[u"Damage"], i * 140);
-                    }
-
-                    if (mob->hp > 0)
-                    {
-                        mob_hit_move(hitw->src_point, ent);
                         mob->tick = 300;
                         mob->state = Mob::State::HIT;
                         mob->index = u"hit1";
-                    }
-                    else if (mob->state != Mob::State::DIE)
+                    };
+                }
+                else if (mob->state != Mob::State::DIE)
+                {
+                    // 怪物死亡音效
+                    if (mob->sounds.contains(u"Die"))
                     {
-                        // 怪物死亡音效
-                        if (mob->sounds.contains(u"Die"))
-                        {
-                            Sound::push(mob->sounds[u"Die"], 200);
-                        }
-                        mob->state = Mob::State::DIE;
-                        mob->index = u"die1";
-
-                        // 爆金币
-                        mob_drop(mob, tr);
-                        mob->revive = mob->revive_time + Window::dt_now;
-                        res = true;
+                        Sound::push(mob->sounds[u"Die"], 200);
                     }
+                    mob->state = Mob::State::DIE;
+                    mob->index = u"die1";
+
+                    // 爆金币
+                    mob_drop(mob, tr);
+                    mob->revive = mob->revive_time + Window::dt_now;
+                    res = true;
                 }
             }
-            it = hit->hit_list.erase(it);
-        }
-        else
-        {
-            ++it;
         }
     }
+    hit->hits.clear();
     return res;
 }
 
-void mob_hit_move(std::optional<SDL_FPoint> &point, entt::entity ent)
+bool mob_hit_move(std::optional<SDL_FPoint> &point, entt::entity ent)
 {
     if (point.has_value())
     {
@@ -272,8 +268,9 @@ void mob_hit_move(std::optional<SDL_FPoint> &point, entt::entity ent)
         {
             mob_move(mob, mv, tr, mob->state, 0.075);
         }
+        return true;
     }
-    return;
+    return false;
 }
 
 void mob_drop(Mob *mob, Transform *tr)
@@ -400,8 +397,10 @@ bool mob_revive(entt::entity ent, float delta_time)
     }
     else if (mob->revive <= Window::dt_now + mob->revive_alpha_time + 100)
     {
+        mob->call_back_list.clear();
+
         auto hit = World::registry->try_get<Hit>(ent);
-        hit->hit_list.clear();
+        hit->hits.clear();
 
         auto eff = World::registry->try_get<Effect>(ent);
         eff->effect_list.clear();

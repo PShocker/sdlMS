@@ -572,7 +572,7 @@ void render_damage(Transform *tr, Damage *dam)
         {
             auto p = info.point;
             int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
-            p.x -= length * 34 / 2;
+            p.x = p.x - length * 34 + length * 8.5;
             int i = 0;
             while (info.damage > 0)
             {

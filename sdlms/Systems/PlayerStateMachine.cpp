@@ -710,122 +710,115 @@ bool player_hit(Hit *hit, entt::entity ent)
 {
     bool res = false;
     auto cha = World::registry->try_get<Character>(ent);
-    for (auto it = hit->hit_list.begin(); it != hit->hit_list.end();)
+    for (auto &it : hit->hits)
     {
-        auto &hitw = it;
-        if (hitw->delay <= Window::dt_now)
+        auto hitw = &it;
+        if (hitw->damage > 0 && cha->invincible_cooldown <= 0)
         {
-            if (hitw->damage > 0 && cha->invincible_cooldown <= 0)
+            res = true;
+            cha->invincible_cooldown = 2000;
+            World::registry->remove<Install>(Player::ent);
+            auto mv = World::registry->try_get<Move>(ent);
+            auto tr = World::registry->try_get<Transform>(ent);
+            auto cha = World::registry->try_get<Character>(ent);
+
+            Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->hit_point, tr->flip);
+            for (int i = 0; i < hitw->count; i++)
             {
-                res = true;
-                cha->invincible_cooldown = 2000;
-                World::registry->remove<Install>(Player::ent);
-                auto mv = World::registry->try_get<Move>(ent);
-                auto tr = World::registry->try_get<Transform>(ent);
-                auto cha = World::registry->try_get<Character>(ent);
+                auto damage = hitw->real_damage();
 
-                Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->hit_point, tr->flip);
-                for (int i = 0; i < hitw->count; i++)
+                Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Info::Type::Violet,
+                             tr->position + SDL_FPoint{20, -60});
+
+                cha->hp -= damage;
+                if (cha->hp > 0)
                 {
-                    auto damage = hitw->real_damage();
-
-                    Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Info::Type::Violet,
-                                 tr->position + SDL_FPoint{-10, -60});
-
-                    cha->hp -= damage;
-                    if (cha->hp > 0)
+                    if (hitw->souw)
                     {
-                        if (hitw->souw)
-                        {
-                            Sound::push(hitw->souw);
-                        }
-                        if (mv->foo && cha->action != Character::ACTION::PRONESTAB)
-                        {
-                            mv->vspeed = -320;
-                            auto hit_x = hitw->src_point.value().x;
-                            auto cha_x = tr->position.x;
-                            if (cha_x < hit_x)
-                            {
-                                mv->hspeed = -110;
-                            }
-                            else if (cha_x == hit_x)
-                            {
-                                mv->hspeed = tr->flip == 1 ? 110 : -110;
-                            }
-                            else
-                            {
-                                mv->hspeed = 110;
-                            }
-                            mv->foo = nullptr;
-                        }
-                        player_alert(cha);
-                        if (cha->state == Character::State::STAND || cha->state == Character::State::WALK ||
-                            cha->state == Character::State::ALERT || cha->state == Character::State::PRONE ||
-                            cha->state == Character::State::SIT)
-                        {
-                            if (cha->state == Character::State::PRONE)
-                            {
-                                cha->r = SDL_FRect{-20, -50, 30, 45};
-                            }
-                            cha->state = Character::State::JUMP;
-                            cha->action_index = 0;
-                            cha->action_time = 0;
-                            cha->action_frame = 0;
-                            cha->action = Character::ACTION::JUMP;
-                            cha->action_str = u"jump";
-                        }
+                        Sound::push(hitw->souw);
                     }
-                    else if (cha->state != Character::State::DIE)
+                    if (mv->foo && cha->action != Character::ACTION::PRONESTAB)
                     {
-                        cha->state = Character::State::DIE;
+                        mv->vspeed = -320;
+                        auto hit_x = hitw->src_point.value().x;
+                        auto cha_x = tr->position.x;
+                        if (cha_x < hit_x)
+                        {
+                            mv->hspeed = -110;
+                        }
+                        else if (cha_x == hit_x)
+                        {
+                            mv->hspeed = tr->flip == 1 ? 110 : -110;
+                        }
+                        else
+                        {
+                            mv->hspeed = 110;
+                        }
+                        mv->foo = nullptr;
+                    }
+                    player_alert(cha);
+                    if (cha->state == Character::State::STAND || cha->state == Character::State::WALK ||
+                        cha->state == Character::State::ALERT || cha->state == Character::State::PRONE ||
+                        cha->state == Character::State::SIT)
+                    {
+                        if (cha->state == Character::State::PRONE)
+                        {
+                            cha->r = SDL_FRect{-20, -50, 30, 45};
+                        }
+                        cha->state = Character::State::JUMP;
                         cha->action_index = 0;
                         cha->action_time = 0;
                         cha->action_frame = 0;
-                        cha->action = Character::ACTION::DEAD;
-                        cha->action_str = u"dead";
-
-                        if (!mv->foo)
-                        {
-                            float y = World::registry->ctx().get<Border>().b.value();
-                            for (auto &e : World::registry->view<FloorFootHold>())
-                            {
-                                auto fh = World::registry->try_get<FootHold>(e);
-                                if (fh->get_y(tr->position.x).has_value() && fh->get_y(tr->position.x).value() > tr->position.y)
-                                {
-                                    y = std::min(y, (float)fh->get_y(tr->position.x).value());
-                                }
-                            }
-                            tr->position.y = y;
-                        }
-
-                        auto &tomb = World::registry->emplace_or_replace<Tomb>(ent);
-                        tomb.f.position = tr->position;
-                        tomb.f.position.y -= 200;
-                        tomb.l.position = tr->position;
-
-                        Sound::push(Sound(u"Game.img/Tombstone"), 180);
+                        cha->action = Character::ACTION::JUMP;
+                        cha->action_str = u"jump";
                     }
                 }
+                else if (cha->state != Character::State::DIE)
+                {
+                    cha->state = Character::State::DIE;
+                    cha->action_index = 0;
+                    cha->action_time = 0;
+                    cha->action_frame = 0;
+                    cha->action = Character::ACTION::DEAD;
+                    cha->action_str = u"dead";
+
+                    if (!mv->foo)
+                    {
+                        float y = World::registry->ctx().get<Border>().b.value();
+                        for (auto &e : World::registry->view<FloorFootHold>())
+                        {
+                            auto fh = World::registry->try_get<FootHold>(e);
+                            if (fh->get_y(tr->position.x).has_value() && fh->get_y(tr->position.x).value() > tr->position.y)
+                            {
+                                y = std::min(y, (float)fh->get_y(tr->position.x).value());
+                            }
+                        }
+                        tr->position.y = y;
+                    }
+
+                    auto &tomb = World::registry->emplace_or_replace<Tomb>(ent);
+                    tomb.f.position = tr->position;
+                    tomb.f.position.y -= 200;
+                    tomb.l.position = tr->position;
+
+                    Sound::push(Sound(u"Game.img/Tombstone"), 180);
+                }
             }
-            else if (hitw->damage < 0)
-            {
-                auto tr = World::registry->try_get<Transform>(ent);
-                Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, Damage::Info::Type::Blue,
-                             tr->position + SDL_FPoint{-10, -60});
-                cha->hp -= hitw->damage;
-                res = false;
-            }
-            else
-            {
-                res = false;
-            }
-            it = hit->hit_list.erase(it);
+        }
+        else if (hitw->damage < 0)
+        {
+            auto tr = World::registry->try_get<Transform>(ent);
+            Damage::push(World::registry->try_get<Damage>(ent), hitw->damage, Damage::Info::Type::Blue,
+                         tr->position + SDL_FPoint{20, -60});
+            cha->hp -= hitw->damage;
+            res = false;
         }
         else
         {
-            ++it;
+            res = false;
         }
     }
+    hit->hits.clear();
     return res;
 }
 

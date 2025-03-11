@@ -38,7 +38,7 @@ int skill_3101005(entt::entity ent)
     auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
     ski->atk.value().call_back = [](entt::entity src, entt::entity target)
     {
         auto ski = World::registry->try_get<Skill>(src);

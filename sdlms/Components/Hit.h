@@ -19,12 +19,10 @@ struct HitWarp
     AnimatedSpriteWarp *asprw = nullptr;
     entt::entity owner = entt::null;
 
-    unsigned int delay = Window::dt_now;
-
     int real_damage();
 };
 
 struct Hit
 {
-    std::list<HitWarp> hit_list;
+    std::vector<HitWarp> hits;
 };
