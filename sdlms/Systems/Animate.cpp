@@ -483,9 +483,9 @@ void animate_mob(Mob *mob, entt::entity ent)
                     if (c->invincible_cooldown <= 0)
                     {
                         auto tr = World::registry->try_get<Transform>(ent);
-                        mob->atk.p = tr->position;
+                        mob->atk.src_point = tr->position;
                         mob->atk.souw = mob->sounds[u"Attack1"];
-                        hit_hit(&mob->atk, ent, mob->hit, 1, std::nullopt);
+                        hit_hit(&mob->atk, ent, mob->hit, std::nullopt);
                     }
                 }
                 if (mob->a.contains(u"stand"))
@@ -653,8 +653,8 @@ void animate_summon(Summon *sum, entt::entity ent)
             if (auto e = summon_attack(World::registry->try_get<Transform>(ent)); World::registry->valid(e))
             {
                 auto tr = World::registry->try_get<Transform>(ent);
-                sum->atk.p = tr->position;
-                hit_hit(&sum->atk, ent, e, 0, std::nullopt);
+                sum->atk.src_point = tr->position;
+                hit_hit(&sum->atk, ent, e, std::nullopt);
             }
             if (sum->a.contains(u"fly"))
             {
@@ -703,8 +703,8 @@ void animate_trap(Trap *trap, entt::entity ent)
             {
                 Attack atk;
                 atk.damage = trap->damage;
-                atk.p = trap_transform->position;
-                hit_hit(&atk, ent, Player::ent, 1, std::nullopt);
+                atk.src_point = trap_transform->position;
+                hit_hit(&atk, ent, Player::ent, std::nullopt);
                 player_character->invincible_cooldown = 1;
             }
         }

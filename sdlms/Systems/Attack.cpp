@@ -13,7 +13,7 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
     // 获取攻击者的 Transform 组件
     auto attack_transform = World::registry->try_get<Transform>(attack_entity);
     // 设置攻击源坐标
-    atk->p = attack_transform->position;
+    atk->src_point = attack_transform->position;
     // 遍历所有带有 Damage 和 Mob 组件的实体
     for (auto mob_entity : World::registry->view<Damage, Mob>())
     {
@@ -34,7 +34,7 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
             {
                 return;
             }
-            hit_hit(atk, attack_entity, mob_entity, 0, std::nullopt);
+            hit_hit(atk, attack_entity, mob_entity, std::nullopt);
         }
     }
 }
@@ -78,7 +78,7 @@ void attack_reactor(Attack *atk)
             {
                 Sound::push(reactor->sounds[reactor->index]);
                 atk->damage = 1;
-                hit_hit(atk, Player::ent, ent, 2, std::nullopt);
+                hit_hit(atk, Player::ent, ent, std::nullopt);
                 reactor->hit = true;
                 return;
             }

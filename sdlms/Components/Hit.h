@@ -3,6 +3,7 @@
 #include "Sound.h"
 #include "AnimatedSprite.h"
 #include "entt/entt.hpp"
+#include "Core/Window.h"
 
 struct HitWarp
 {
@@ -10,19 +11,20 @@ struct HitWarp
     int count = 0;
     SoundWarp *souw = nullptr;
 
-    float x;
-    float y;
+    std::optional<SDL_FPoint> src_point;
 
-    std::optional<SDL_FPoint> p;
+    std::optional<SDL_FPoint> hit_point;
 
     float range = 1;
     AnimatedSpriteWarp *asprw = nullptr;
     entt::entity owner = entt::null;
+
+    unsigned int delay = Window::dt_now;
 
     int real_damage();
 };
 
 struct Hit
 {
-    std::vector<HitWarp> hits;
+    std::list<HitWarp> hit_list;
 };

@@ -2,6 +2,7 @@
 #include "entt/entt.hpp"
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
+#include "Systems/Hit.h"
 #include <SDL3/SDL.h>
 
 // 毒雾术
@@ -39,6 +40,14 @@ int skill_2101005(entt::entity ent)
                           time = Window::dt_now + 5000](entt::entity ent)
         {
             const auto mob = World::registry->try_get<Mob>(ent);
+            for (int i = Window::dt_now; i < time; i = i + 1000)
+            {
+                Attack atk;
+                atk.damage = 10;
+                atk.hit = nullptr;
+                atk.src_point = std::nullopt;
+                hit_hit(&atk, Player::ent, ent, std::nullopt, i);
+            }
             if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
             {
                 // 中毒效果

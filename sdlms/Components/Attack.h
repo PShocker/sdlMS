@@ -20,7 +20,7 @@ struct Attack
     AnimatedSpriteWarp *hit = nullptr;
 
     // 攻击源的坐标
-    optional<SDL_FPoint> p = std::nullopt;
+    std::optional<SDL_FPoint> src_point = std::nullopt;
 
     // 攻击后击中音效
     SoundWarp *souw = nullptr;

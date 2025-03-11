@@ -23,8 +23,8 @@ int skill_2301002(entt::entity ent)
         Attack atk;
         atk.damage = -1000;
         atk.hit = nullptr;
-        atk.p = tr->position;
-        hit_hit(&atk, entt::null, ent, 3, std::nullopt);
+        atk.src_point = tr->position;
+        hit_hit(&atk, entt::null, ent, std::nullopt);
     };
 
     SkillWarp::cooldowns[u"2301002"] = 1500;

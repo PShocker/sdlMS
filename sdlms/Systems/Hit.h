@@ -7,4 +7,5 @@
 
 void hit_hit(Attack *atk, entt::entity src,
              entt::entity target,
-             char type, std::optional<SDL_FPoint> p);
+             std::optional<SDL_FPoint> p,
+             unsigned int delay = Window::dt_now);

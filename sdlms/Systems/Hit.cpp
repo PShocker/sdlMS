@@ -5,7 +5,8 @@
 
 void hit_hit(Attack *atk,
              entt::entity src, entt::entity target,
-             char type, std::optional<SDL_FPoint> p)
+             std::optional<SDL_FPoint> p,
+             unsigned int delay)
 {
     if (!World::registry->valid(target))
     {
@@ -19,11 +20,11 @@ void hit_hit(Attack *atk,
     HitWarp hitw;
     hitw.count = atk->attackCount;
     hitw.damage = atk->damage;
-    hitw.p = p;
+    hitw.hit_point = p;
     hitw.asprw = atk->hit;
-    hitw.x = atk->p->x;
-    hitw.y = atk->p->y;
+    hitw.src_point = atk->src_point;
     hitw.souw = atk->souw;
     hitw.owner = Player::ent;
-    hit->hits.push_back(hitw);
+    hitw.delay = delay;
+    hit->hit_list.push_back(hitw);
 }

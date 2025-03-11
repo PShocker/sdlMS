@@ -53,7 +53,7 @@ int skill_3101005(entt::entity ent)
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
-            hit_hit(atk, src, target, 0, hit_point);
+            hit_hit(atk, src, target, hit_point);
 
             // 晕眩效果,3秒
             auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
