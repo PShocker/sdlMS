@@ -7,5 +7,4 @@
 
 void hit_hit(Attack *atk, entt::entity src,
              entt::entity target,
-             std::optional<SDL_FPoint> p
-             );
+             std::optional<SDL_FPoint> p);
