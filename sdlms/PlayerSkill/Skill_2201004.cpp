@@ -32,10 +32,14 @@ int skill_2201004(entt::entity ent)
     auto hit = ski->skiw->hits[0];
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
 
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 30);
-    ski->atk.value().call_back = [](entt::entity src, entt::entity target)
+    ski->atk = Attack(lt, rb, nullptr, mobCount, attackCount, souw, 30);
+    ski->atk.value().call_back = [hit](entt::entity src, entt::entity target)
     {
         const auto mob = World::registry->try_get<Mob>(target);
+
+        const auto mob_tr = World::registry->try_get<Transform>(target);
+        auto eff = World::registry->try_get<Effect>(target);
+        eff->effect_list.push_back({new Transform(mob_tr->position + SDL_FPoint{0, -25}), hit});
 
         mob->call_backs.erase(u"2201004");
         // 冰冻效果,2秒
