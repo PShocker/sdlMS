@@ -38,16 +38,13 @@ void render_run()
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
             render_mob(tr, mob);
-            if (mob->state != Mob::State::REMOVE)
+            if (auto eff = World::registry->try_get<Effect>(ent))
             {
-                if (auto eff = World::registry->try_get<Effect>(ent))
-                {
-                    render_effect(tr, eff);
-                }
-                if (auto dam = World::registry->try_get<Damage>(ent))
-                {
-                    render_damage(tr, dam);
-                }
+                render_effect(tr, eff);
+            }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                render_damage(tr, dam);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
