@@ -560,6 +560,8 @@ void render_mob(Transform *tr, Mob *mob)
         }
         a->alpha = alpha * 255;
     }
+    auto sprw = a->asprw->sprites[a->anim_index];
+    SDL_SetTextureColorMod(sprw->texture, mob->mod.r, mob->mod.g, mob->mod.b); // 设置颜色调节为默认值
     render_animated_sprite(tr, a);
 }
 

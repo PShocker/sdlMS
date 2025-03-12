@@ -62,6 +62,8 @@ struct Mob
 
     Attack atk;
 
+    SDL_Color mod = {255, 255, 255, 255};
+
     SDL_FRect rect();
     SDL_FPoint head(int flip);
 };
