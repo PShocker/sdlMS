@@ -58,7 +58,7 @@ struct Mob
     entt::entity hit = entt::null;
 
     // 回调
-    std::list<std::function<std::pair<bool, bool>(entt::entity)>> call_back_list;
+    std::unordered_multimap<std::u16string, std::function<std::pair<bool, bool>(entt::entity)>> call_backs;
 
     Attack atk;
 

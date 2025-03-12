@@ -24,13 +24,15 @@ void mob_statemachine_run()
             continue;
         }
         bool res = true;
-        for (auto it = mob->call_back_list.begin(); it != mob->call_back_list.end();)
+        for (auto it = mob->call_backs.begin(); it != mob->call_backs.end();)
         {
-            auto pair = (*it)(ent);
+            const auto &key = it->first;   // 获取键
+            const auto &func = it->second; // 获取值，即一个函数对象
+            auto pair = (func)(ent);
             auto r = pair.first;
             if (r)
             {
-                it = mob->call_back_list.erase(it);
+                it = mob->call_backs.erase(it);
             }
             else
             {
@@ -397,7 +399,7 @@ bool mob_revive(entt::entity ent, float delta_time)
     }
     else if (mob->revive <= Window::dt_now + mob->revive_alpha_time + 100)
     {
-        mob->call_back_list.clear();
+        mob->call_backs.clear();
 
         auto hit = World::registry->try_get<Hit>(ent);
         hit->hits.clear();

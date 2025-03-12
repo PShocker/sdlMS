@@ -39,6 +39,8 @@ int skill_2101005(entt::entity ent)
         const auto mob = World::registry->try_get<Mob>(target);
         unsigned int time = Window::dt_now + 5000;
 
+        mob->call_backs.erase(u"2101005");
+
         auto call_back = [asprw,
                           time](entt::entity ent)
         {
@@ -55,6 +57,7 @@ int skill_2101005(entt::entity ent)
                 return std::make_pair(true, true);
             }
         };
+        mob->call_backs.emplace(u"2101005", call_back);
 
         for (int i = Window::dt_now + 1000; i < time; i += 1000)
         {
@@ -74,10 +77,8 @@ int skill_2101005(entt::entity ent)
                     return std::make_pair(false, true);
                 }
             };
-            mob->call_back_list.push_back(hit_call_back);
+            mob->call_backs.emplace(u"2101005", hit_call_back);
         }
-
-        mob->call_back_list.push_back(call_back);
         return true;
     };
     ski->ball = 1;

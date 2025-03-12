@@ -91,7 +91,7 @@ int skill_1121006(entt::entity ent)
                         }
                         return std::make_pair(true, true);
                     };
-                    mob->call_back_list.push_back(call_back);
+                    mob->call_backs.emplace(u"1121006", call_back);
                 }
             }
         }

@@ -51,6 +51,8 @@ int skill_3101005(entt::entity ent)
             const auto mob = World::registry->try_get<Mob>(target);
             const auto target_tr = World::registry->try_get<Transform>(target);
 
+            mob->call_backs.erase(u"3101005");
+
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
             hit_hit(atk, src, target, hit_point);
@@ -73,7 +75,7 @@ int skill_3101005(entt::entity ent)
                     return std::make_pair(true, true);
                 }
             };
-            mob->call_back_list.push_back(call_back);
+            mob->call_backs.emplace(u"3101005", call_back);
 
             ski->hit_targets.insert(target);
             atk->mobCount--;
