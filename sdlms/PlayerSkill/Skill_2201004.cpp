@@ -39,7 +39,7 @@ int skill_2201004(entt::entity ent)
 
         const auto mob_tr = World::registry->try_get<Transform>(target);
         auto eff = World::registry->try_get<Effect>(target);
-        eff->effect_list.push_back({new Transform(mob_tr->position + SDL_FPoint{0, -25}), hit});
+        eff->effects.push_back({new Transform(mob_tr->position + SDL_FPoint{0, -25}), hit});
 
         mob->call_backs.erase(u"2201004");
         // 冰冻效果,2秒
@@ -64,7 +64,6 @@ int skill_2201004(entt::entity ent)
             }
         };
         mob->call_backs.emplace(u"2201004", call_back);
-        return true;
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

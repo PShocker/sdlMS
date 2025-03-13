@@ -67,7 +67,7 @@ int skill_1121006(entt::entity ent)
                     {
                         Attack atk;
                         atk.damage = 50;
-                        attack_hit(&atk, ent, e, std::nullopt);
+                        attack_mob(&atk, ent, e, std::nullopt);
                         ski->hit_targets.insert(e);
                     }
                     auto call_back = [x = m_tr->position.x, flip = o_tr->flip](entt::entity ent)

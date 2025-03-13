@@ -38,10 +38,9 @@ int skill_1121008(entt::entity ent)
     ski->atk.value().call_back = [](entt::entity src, entt::entity target)
     {
         auto *ski = World::registry->try_get<Skill>(src);
-        // 设置hit为false,表示下一帧要继续触发攻击效果
         ski->hit = false;
-        return true;
     };
+
     ski->call_back = [&atk = ski->atk, mobCount](entt::entity ent, int action_frame, int action_time)
     {
         atk->mobCount = mobCount;

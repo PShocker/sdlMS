@@ -100,14 +100,6 @@ void animate_run()
     {
         auto r = World::registry->try_get<Reactor>(ent);
         animate_reactor(r);
-        if (auto eff = World::registry->try_get<Effect>(ent))
-        {
-            animate_effect(eff);
-        }
-        if (auto dam = World::registry->try_get<Damage>(ent))
-        {
-            animate_damage(dam);
-        }
     }
     for (auto ent : World::registry->view<Animated, Summon>(entt::exclude<Character>))
     {
@@ -483,7 +475,7 @@ void animate_mob(Mob *mob, entt::entity ent)
                         auto tr = World::registry->try_get<Transform>(ent);
                         mob->atk.src_point = tr->position;
                         mob->atk.souw = mob->sounds[u"Attack1"];
-                        attack_hit(&mob->atk, ent, mob->hit, std::nullopt);
+                        attack_player(&mob->atk, ent, mob->hit, std::nullopt);
                     }
                 }
                 if (mob->a.contains(u"stand"))
@@ -652,7 +644,7 @@ void animate_summon(Summon *sum, entt::entity ent)
             {
                 auto tr = World::registry->try_get<Transform>(ent);
                 sum->atk.src_point = tr->position;
-                attack_hit(&sum->atk, ent, e, std::nullopt);
+                attack_mob(&sum->atk, ent, e, std::nullopt);
             }
             if (sum->a.contains(u"fly"))
             {
@@ -700,10 +692,11 @@ void animate_trap(Trap *trap, entt::entity ent)
                           player_character->r, player_transform))
             {
                 Attack atk;
+                atk.min_damage=1;
+                atk.max_damage=1;
                 atk.damage = trap->damage;
                 atk.src_point = trap_transform->position;
-                attack_hit(&atk, ent, Player::ent, std::nullopt);
-                player_character->invincible_cooldown = 1;
+                attack_player(&atk, ent, Player::ent, std::nullopt);
             }
         }
     }

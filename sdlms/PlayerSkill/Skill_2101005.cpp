@@ -69,7 +69,7 @@ int skill_2101005(entt::entity ent)
                     atk.damage = 10;
                     atk.hit = hit;
                     atk.src_point = std::nullopt;
-                    attack_hit(&atk, Player::ent, ent, std::nullopt);
+                    attack_mob(&atk, Player::ent, ent, std::nullopt);
                     return std::make_pair(true, true);
                 }
                 else
@@ -79,7 +79,6 @@ int skill_2101005(entt::entity ent)
             };
             mob->call_backs.emplace(u"2101005", hit_call_back);
         }
-        return true;
     };
     ski->ball = 1;
 

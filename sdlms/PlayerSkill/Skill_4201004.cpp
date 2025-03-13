@@ -40,7 +40,6 @@ int skill_4201004(entt::entity ent)
         load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
         Sound::push(Sound(u"Game.img/DropItem", 200));
         World::zindex = true;
-        return true;
     };
 
     auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);

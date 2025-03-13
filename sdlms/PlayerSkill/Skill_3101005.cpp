@@ -44,11 +44,44 @@ int skill_3101005(entt::entity ent)
         auto ski = World::registry->try_get<Skill>(src);
         auto atk = &ski->atk.value();
         atk->call_back = std::nullopt;
+        atk->damage = 25;
 
-        
+        // 晕眩效果,3秒
+        const auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
+                                time = Window::dt_now + 3000](entt::entity ent)
+        {
+            const auto mob = World::registry->try_get<Mob>(ent);
+
+            if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
+            {
+                // 晕眩特效
+                push_mob_special_effect(ent, asprw);
+                mob_fall(ent, Window::delta_time);
+                return std::make_pair(false, false);
+            }
+            else
+            {
+                return std::make_pair(true, true);
+            }
+        };
+        const auto mob = World::registry->try_get<Mob>(target);
+
+        mob->call_backs.erase(u"3101005");
+        mob->call_backs.emplace(u"3101005", call_back);
+
+        ski->hit_targets.insert(target);
         auto target_position = World::registry->try_get<Transform>(target)->position;
 
-        do
+        // 寻找下一个目标
+        target = find_closest_attackable_mob(
+            -1,
+            target_position,
+            ski->hit_targets,
+            200.0f, // max_x_distance
+            150.0f  // max_y_distance
+        );
+
+        while (World::registry->valid(target) && atk->mobCount > 0)
         {
             const auto mob = World::registry->try_get<Mob>(target);
             const auto target_tr = World::registry->try_get<Transform>(target);
@@ -57,26 +90,8 @@ int skill_3101005(entt::entity ent)
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
-            attack_hit(atk, src, target, hit_point);
+            attack_mob(atk, src, target, hit_point);
 
-            // 晕眩效果,3秒
-            auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
-                              time = Window::dt_now + 3000](entt::entity ent)
-            {
-                const auto mob = World::registry->try_get<Mob>(ent);
-
-                if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
-                {
-                    // 晕眩特效
-                    push_mob_special_effect(ent, asprw);
-                    mob_fall(ent, Window::delta_time);
-                    return std::make_pair(false, false);
-                }
-                else
-                {
-                    return std::make_pair(true, true);
-                }
-            };
             mob->call_backs.emplace(u"3101005", call_back);
 
             ski->hit_targets.insert(target);
@@ -90,8 +105,7 @@ int skill_3101005(entt::entity ent)
                 200.0f, // max_x_distance
                 150.0f  // max_y_distance
             );
-        } while (World::registry->valid(target) && atk->mobCount > 0);
-        return false;
+        };
     };
 
     World::registry->emplace_or_replace<AfterImage>(ent);

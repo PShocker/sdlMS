@@ -239,8 +239,8 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
     auto r = move_fall(mv, tr, delta_time, CHARACTER_Z, player_foothold_cooldown <= 0);
     if (r == false)
     {
-        auto cha = World::registry->try_get<Character>(Player::ent);
-        if (cha->invincible_cooldown <= 0)
+        auto character = World::registry->try_get<Character>(Player::ent);
+        if (character->invincible_cooldown <= 0)
         {
             auto distance = tr->position.y - player_fall_y;
             if (distance >= 600)
@@ -249,7 +249,10 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
                 atk.damage = distance / 25;
                 atk.hit = nullptr;
                 atk.src_point = tr->position;
-                attack_hit(&atk, Player::ent, Player::ent, std::nullopt);
+                if (attack_player(&atk, Player::ent, Player::ent, std::nullopt))
+                {
+                    r = true;
+                }
             }
         }
     }

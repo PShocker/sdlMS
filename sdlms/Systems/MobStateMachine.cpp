@@ -186,7 +186,7 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
         for (int i = 0; i < atk->attackCount; i++)
         {
             auto r = generate_random(atk->min_damage, atk->max_damage);
-            auto damage = atk->damage * r;
+            int damage = atk->damage * r;
             auto type = damage > atk->damage ? Damage::Info::Type::Cri : Damage::Info::Type::Red;
             Damage::push(World::registry->try_get<Damage>(ent), damage, type, damage_point);
 
@@ -469,8 +469,7 @@ bool mob_collision_attack(entt::entity ent)
                 Attack atk = mob->atk;
                 atk.src_point = mob_transform->position;
                 atk.hit = nullptr;
-                attack_hit(&atk, ent, Player::ent, std::nullopt);
-                player_character->invincible_cooldown = 1;
+                attack_player(&atk, ent, Player::ent, std::nullopt);
                 return true;
             }
         }

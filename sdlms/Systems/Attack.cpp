@@ -35,7 +35,7 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
             {
                 return;
             }
-            attack_hit(atk, attack_entity, mob_entity, std::nullopt);
+            attack_mob(atk, attack_entity, mob_entity, std::nullopt);
         }
     }
 }
@@ -47,7 +47,7 @@ void attack_reactor(Attack *atk)
         return;
     }
     auto player_transform = World::registry->try_get<Transform>(Player::ent);
-    for (auto ent : World::registry->view<Damage, Reactor>())
+    for (auto ent : World::registry->view<Reactor>())
     {
         auto reactor = World::registry->try_get<Reactor>(ent);
         auto reactor_transform = World::registry->try_get<Transform>(ent);
@@ -78,8 +78,6 @@ void attack_reactor(Attack *atk)
                 (player_transform->flip == 0 && player_transform->position.x >= reactor_transform->position.x))
             {
                 Sound::push(reactor->sounds[reactor->index]);
-                atk->damage = 1;
-                attack_hit(atk, Player::ent, ent, std::nullopt);
                 reactor->hit = true;
                 return;
             }
@@ -87,18 +85,16 @@ void attack_reactor(Attack *atk)
     }
 }
 
-void attack_hit(Attack *atk,
-             entt::entity src, entt::entity target,
-             std::optional<SDL_FPoint> p)
+bool attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optional<SDL_FPoint> p)
 {
     if (!World::registry->valid(target))
     {
-        return;
+        return false;
     }
     bool r = false;
     if (auto mob = World::registry->try_get<Mob>(target))
     {
-        if (mob->state != Mob::State::REMOVE && mob->state != Mob::State::DIE)
+        if (mob->state != Mob::State::REMOVE)
         {
             if (mob_hit(atk, target, p))
             {
@@ -106,7 +102,24 @@ void attack_hit(Attack *atk,
             }
         }
     }
-    else if (auto character = World::registry->try_get<Character>(target))
+    if (r)
+    {
+        if (atk->call_back.has_value())
+        {
+            atk->call_back.value()(src, target);
+        }
+    }
+    return r;
+}
+
+bool attack_player(Attack *atk, entt::entity src, entt::entity target, std::optional<SDL_FPoint> p)
+{
+    if (!World::registry->valid(target))
+    {
+        return false;
+    }
+    bool r = false;
+    if (auto character = World::registry->try_get<Character>(target))
     {
         if (character->state != Character::State::DIE && character->invincible_cooldown <= 0)
         {
@@ -123,4 +136,5 @@ void attack_hit(Attack *atk,
             atk->call_back.value()(src, target);
         }
     }
+    return r;
 }
