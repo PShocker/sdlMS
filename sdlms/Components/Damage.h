@@ -18,6 +18,7 @@ struct Damage
     {
         int damage;
         float alpha;
+        
         enum Type : uint8_t
         {
             Red = 0,
@@ -33,7 +34,7 @@ struct Damage
         SDL_FPoint point;
     };
 
-    std::list<Info> damage_list;
+    std::list<Info> damages;
     char index = 0;
 
     static void push(Damage *dam, int damage, uint8_t type, SDL_FPoint point);

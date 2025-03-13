@@ -18,12 +18,14 @@ struct Attack
     int damage = 50;
 
     AnimatedSpriteWarp *hit = nullptr;
-
     // 攻击源的坐标
     std::optional<SDL_FPoint> src_point = std::nullopt;
-
     // 攻击后击中音效
     SoundWarp *souw = nullptr;
+
+    // 伤害浮动范围
+    float min_damage = 0.8;
+    float max_damage = 1.2;
 
     std::optional<std::function<bool(entt::entity, entt::entity)>> call_back = std::nullopt;
 

@@ -1,12 +1,12 @@
 #include "PlayerSkill.h"
 #include "Common.h"
 #include "Commons/Commons.h"
-#include "Systems/Hit.h"
 #include "Systems/MobStateMachine.h"
 #include "Components/Components.h"
 #include "Entities/Entities.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
+#include "Systems/Attack.h"
 
 // 爆炸箭
 int skill_3101005(entt::entity ent)
@@ -38,12 +38,14 @@ int skill_3101005(entt::entity ent)
     auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
     ski->atk.value().call_back = [](entt::entity src, entt::entity target)
     {
         auto ski = World::registry->try_get<Skill>(src);
         auto atk = &ski->atk.value();
         atk->call_back = std::nullopt;
+
+        
         auto target_position = World::registry->try_get<Transform>(target)->position;
 
         do
@@ -55,7 +57,7 @@ int skill_3101005(entt::entity ent)
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
-            hit_hit(atk, src, target, hit_point);
+            attack_hit(atk, src, target, hit_point);
 
             // 晕眩效果,3秒
             auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),

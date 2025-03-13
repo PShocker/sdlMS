@@ -126,7 +126,6 @@ void load_mob(wz::Node *node)
         mob.drops[mob.id] = d;
     }
 
-    World::registry->emplace<Hit>(ent);
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Damage>(ent);
     World::registry->emplace<Animated>(ent);

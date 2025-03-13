@@ -14,7 +14,6 @@
 #include "Components/Tomb.h"
 #include "Components/Drop.h"
 #include "Components/Move.h"
-#include "Components/Hit.h"
 #include "Components/WeaponInfo.h"
 #include "Components/Border.h"
 #include "Components/FootHold.h"

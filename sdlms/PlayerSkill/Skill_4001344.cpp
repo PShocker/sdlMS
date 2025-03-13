@@ -22,7 +22,7 @@ int skill_4001344(entt::entity ent)
 
     auto effect = Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001344/CharLevel/25/effect");
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effect_list.push_back({nullptr, AnimatedSprite(AnimatedSpriteWarp::load(effect))});
+    eff->effects.push_back({nullptr, AnimatedSprite(AnimatedSpriteWarp::load(effect))});
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4001344");
 

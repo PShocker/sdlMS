@@ -57,9 +57,6 @@ void load_reactor(wz::Node *node)
         auto reactorTime = dynamic_cast<wz::Property<int> *>(node->get_child(u"reactorTime"))->get();
         auto f = dynamic_cast<wz::Property<int> *>(node->get_child(u"f"))->get();
 
-        World::registry->emplace<Hit>(ent);
-        World::registry->emplace<Effect>(ent);
-        World::registry->emplace<Damage>(ent);
         World::registry->emplace<Animated>(ent);
         // 计算layer
         auto foo = fhs;

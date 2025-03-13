@@ -51,7 +51,7 @@ int skill_4211006(entt::entity ent)
                 {
                     dr->destory = Window::dt_now + 700;
                     auto eff = World::registry->try_get<Effect>(ent);
-                    eff->effect_list.push_back({new Transform(d_tr->position.x, d_tr->position.y),
+                    eff->effects.push_back({new Transform(d_tr->position.x, d_tr->position.y),
                                                 AnimatedSprite(ski->skiw->hits[0]),
                                                 Window::dt_now + 700});
                     ski->atk.value().damage += dr->nums;

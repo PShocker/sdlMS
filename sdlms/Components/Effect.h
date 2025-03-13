@@ -14,10 +14,10 @@ struct Effect
         unsigned int delay = Window::dt_now;
     };
 
-    std::list<Info> effect_list;
+    std::list<Info> effects;
     Effect() = default;
 
     static AnimatedSpriteWarp *load(const std::u16string &path);
 
-    static void push(Effect *eff, AnimatedSpriteWarp *asprw, std::optional<SDL_FPoint> &p, int flip);
+    static void push(Effect *eff, AnimatedSpriteWarp *asprw, std::optional<SDL_FPoint> p, int flip);
 };

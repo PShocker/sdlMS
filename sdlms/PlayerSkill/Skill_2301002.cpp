@@ -1,9 +1,9 @@
 #include "PlayerSkill.h"
 #include "Core/Core.h"
 #include "Commons/Commons.h"
-#include "Systems/Hit.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
+#include "Systems/Attack.h"
 
 // 群体治愈
 int skill_2301002(entt::entity ent)
@@ -24,7 +24,7 @@ int skill_2301002(entt::entity ent)
         atk.damage = -1000;
         atk.hit = nullptr;
         atk.src_point = tr->position;
-        hit_hit(&atk, entt::null, ent, std::nullopt);
+        attack_hit(&atk, entt::null, ent, std::nullopt);
     };
 
     SkillWarp::cooldowns[u"2301002"] = 1500;

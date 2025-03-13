@@ -495,7 +495,7 @@ void render_afterimage(Transform *tr, AfterImage *aft, Character *cha)
 
 void render_effect(Transform *tr, Effect *eff)
 {
-    for (auto &val : eff->effect_list)
+    for (auto &val : eff->effects)
     {
         if (val.delay <= Window::dt_now)
         {
@@ -565,7 +565,7 @@ void render_mob(Transform *tr, Mob *mob)
 
 void render_damage(Transform *tr, Damage *dam)
 {
-    for (auto it : dam->damage_list)
+    for (auto it : dam->damages)
     {
         auto &info = it;
         if (info.delay < Window::dt_now)

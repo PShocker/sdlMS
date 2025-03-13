@@ -15,7 +15,7 @@ void PlayerSkill::skill_effect(Skill *ski, entt::entity ent)
 
     for (auto &it : ski->skiw->effects)
     {
-        eff->effect_list.push_back({nullptr, AnimatedSprite(it)});
+        eff->effects.push_back({nullptr, AnimatedSprite(it)});
     }
 }
 

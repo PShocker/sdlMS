@@ -1,10 +1,10 @@
 #include "MobStateMachine.h"
 #include "Move.h"
-#include "Hit.h"
 #include "Collision.h"
 #include "Core/Core.h"
 #include "Commons/Commons.h"
 #include "Entities/Entities.h"
+#include "Systems/Attack.h"
 
 void mob_statemachine_run()
 {
@@ -16,11 +16,6 @@ void mob_statemachine_run()
         if (mob->state == Mob::State::REMOVE)
         {
             mob_revive(ent, Window::delta_time);
-            continue;
-        }
-        if (mob->state != Mob::State::REMOVE && mob->state != Mob::State::DIE &&
-            mob_hit(World::registry->try_get<Hit>(ent), ent))
-        {
             continue;
         }
         bool res = true;
@@ -176,10 +171,8 @@ void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state)
     }
 }
 
-bool mob_hit(Hit *hit, entt::entity ent)
+bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
 {
-    bool res = false;
-
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     auto mob = World::registry->try_get<Mob>(ent);
@@ -187,60 +180,54 @@ bool mob_hit(Hit *hit, entt::entity ent)
     auto head_point = mob->head(tr->flip);
     auto damage_point = tr->position + SDL_FPoint{0, head_point.y};
 
-    for (auto &it : hit->hits)
+    if (atk->damage > 0)
     {
-        auto hitw = &it;
-        if (hitw->damage > 0)
+        Effect::push(World::registry->try_get<Effect>(ent), atk->hit, hit_point, tr->flip);
+        for (int i = 0; i < atk->attackCount; i++)
         {
-            Effect::push(World::registry->try_get<Effect>(ent), hitw->asprw, hitw->hit_point, tr->flip);
-            for (int i = 0; i < hitw->count; i++)
+            auto r = generate_random(atk->min_damage, atk->max_damage);
+            auto damage = atk->damage * r;
+            auto type = damage > atk->damage ? Damage::Info::Type::Cri : Damage::Info::Type::Red;
+            Damage::push(World::registry->try_get<Damage>(ent), damage, type, damage_point);
+
+            mob->hp -= damage;
+            mob->hit = Player::ent;
+            // 怪物被攻击音效
+            if (atk->souw)
             {
-                auto damage = hitw->real_damage();
-                auto type = damage > hitw->damage ? Damage::Info::Type::Cri : Damage::Info::Type::Red;
-                Damage::push(World::registry->try_get<Damage>(ent), damage, type, damage_point);
+                Sound::push(atk->souw, i * 140);
+            }
+            else if (mob->sounds.contains(u"Damage"))
+            {
+                Sound::push(mob->sounds[u"Damage"], i * 140);
+            }
 
-                mob->hp -= damage;
-                mob->hit = hitw->owner;
+            if (mob->hp > 0)
+            {
+                if (mob_hit_move(atk->src_point, ent))
+                {
+                    mob->tick = 300;
+                    mob->state = Mob::State::HIT;
+                    mob->index = u"hit1";
+                };
+            }
+            else if (mob->state != Mob::State::DIE)
+            {
+                // 怪物死亡音效
+                if (mob->sounds.contains(u"Die"))
+                {
+                    Sound::push(mob->sounds[u"Die"], 200);
+                }
+                mob->state = Mob::State::DIE;
+                mob->index = u"die1";
 
-                // 怪物被攻击音效
-                if (hitw->souw)
-                {
-                    Sound::push(hitw->souw, i * 140);
-                }
-                else if (mob->sounds.contains(u"Damage"))
-                {
-                    Sound::push(mob->sounds[u"Damage"], i * 140);
-                }
-
-                if (mob->hp > 0)
-                {
-                    if (mob_hit_move(hitw->src_point, ent))
-                    {
-                        mob->tick = 300;
-                        mob->state = Mob::State::HIT;
-                        mob->index = u"hit1";
-                    };
-                }
-                else if (mob->state != Mob::State::DIE)
-                {
-                    // 怪物死亡音效
-                    if (mob->sounds.contains(u"Die"))
-                    {
-                        Sound::push(mob->sounds[u"Die"], 200);
-                    }
-                    mob->state = Mob::State::DIE;
-                    mob->index = u"die1";
-
-                    // 爆金币
-                    mob_drop(mob, tr);
-                    mob->revive = mob->revive_time + Window::dt_now;
-                    res = true;
-                }
+                // 爆金币
+                mob_drop(mob, tr);
+                mob->revive = mob->revive_time + Window::dt_now;
             }
         }
     }
-    hit->hits.clear();
-    return res;
+    return true;
 }
 
 bool mob_hit_move(std::optional<SDL_FPoint> &point, entt::entity ent)
@@ -401,11 +388,8 @@ bool mob_revive(entt::entity ent, float delta_time)
     {
         mob->call_backs.clear();
 
-        auto hit = World::registry->try_get<Hit>(ent);
-        hit->hits.clear();
-
         auto eff = World::registry->try_get<Effect>(ent);
-        eff->effect_list.clear();
+        eff->effects.clear();
 
         mob->hp = 100;
         mob->hit = entt::null;
@@ -485,7 +469,7 @@ bool mob_collision_attack(entt::entity ent)
                 Attack atk = mob->atk;
                 atk.src_point = mob_transform->position;
                 atk.hit = nullptr;
-                hit_hit(&atk, ent, Player::ent, std::nullopt);
+                attack_hit(&atk, ent, Player::ent, std::nullopt);
                 player_character->invincible_cooldown = 1;
                 return true;
             }

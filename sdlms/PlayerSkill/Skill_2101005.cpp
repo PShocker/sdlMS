@@ -3,8 +3,8 @@
 #include "Common.h"
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
-#include "Systems/Hit.h"
 #include <SDL3/SDL.h>
+#include "Systems/Attack.h"
 
 // 毒雾术
 int skill_2101005(entt::entity ent)
@@ -69,7 +69,7 @@ int skill_2101005(entt::entity ent)
                     atk.damage = 10;
                     atk.hit = hit;
                     atk.src_point = std::nullopt;
-                    hit_hit(&atk, Player::ent, ent, std::nullopt);
+                    attack_hit(&atk, Player::ent, ent, std::nullopt);
                     return std::make_pair(true, true);
                 }
                 else

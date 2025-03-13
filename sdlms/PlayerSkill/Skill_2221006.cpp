@@ -1,7 +1,7 @@
 #include "PlayerSkill.h"
-#include "Systems/Hit.h"
 #include "Common.h"
 #include "Commons/Commons.h"
+#include "Systems/Attack.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 #include <numbers>
@@ -32,7 +32,7 @@ void generate_chain_effect(
             start.y + dy_per_segment * i);
         tr->rotation = angle;
 
-        eff->effect_list.push_back({tr,
+        eff->effects.push_back({tr,
                                     AnimatedSprite(sprite_template)});
     }
 }
@@ -101,7 +101,7 @@ int skill_2221006(entt::entity ent)
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip) +
                                          SDL_FPoint{0, (float)mob->a[mob->index].asprw->sprites[mob->a[mob->index].anim_index]->texture->h / 2};
-            hit_hit(atk, src, target, hit_point);
+            attack_hit(atk, src, target, hit_point);
 
             // 生成特效
             generate_chain_effect(src_point, hit_point, target, ski);

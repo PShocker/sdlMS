@@ -39,9 +39,9 @@ void Damage::init()
 
 void Damage::push(Damage *dam, int damage, uint8_t type, SDL_FPoint point)
 {
-    if ((dam->damage_list.size() > 0 &&
-         dam->damage_list.front().alpha <= 128) ||
-        dam->damage_list.size() == 0)
+    if ((dam->damages.size() > 0 &&
+         dam->damages.front().alpha <= 128) ||
+        dam->damages.size() == 0)
     {
         dam->index = 0;
     }
@@ -56,11 +56,11 @@ void Damage::push(Damage *dam, int damage, uint8_t type, SDL_FPoint point)
     info.y = (float)(count) * 38;
     if (count == 0)
     {
-        dam->damage_list.push_front(info);
+        dam->damages.push_front(info);
     }
     else
     {
-        dam->damage_list.push_back(info);
+        dam->damages.push_back(info);
     }
     dam->index++;
 }

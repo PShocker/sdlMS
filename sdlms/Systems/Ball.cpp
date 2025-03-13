@@ -1,6 +1,5 @@
 #include "Ball.h"
 #include "Rect.h"
-#include "Hit.h"
 #include "Move.h"
 #include "Collision.h"
 #include "PlayerSkill/Common.h"
@@ -12,6 +11,7 @@
 #include <vector>
 #include <numbers>
 #include <cfloat>
+#include "Systems/Attack.h"
 
 void ball_run()
 {
@@ -135,11 +135,11 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
         {
             if (ski && track_no_skill.contains(ski->skiw->id))
             {
-                hit_hit(atk, src, target, std::nullopt); // 传递地址，保持原有行为
+                attack_hit(atk, src, target, std::nullopt); // 传递地址，保持原有行为
             }
             else
             {
-                hit_hit(atk, src, target, atk->src_point); // 传递地址，保持原有行为
+                attack_hit(atk, src, target, atk->src_point); // 传递地址，保持原有行为
             }
         }
         atk->mobCount--;

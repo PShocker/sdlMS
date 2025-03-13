@@ -26,7 +26,6 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     cha->add_weapon(weapon_id);
     World::registry->emplace<WeaponInfo>(ent, weapon_id);
 
-    World::registry->emplace<Hit>(ent);
     World::registry->emplace<Animated>(ent);
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Damage>(ent);

@@ -12,7 +12,7 @@ void mob_flip(Move *mv, Transform *tr);
 int mob_move(Mob *mob, Move *mv, Transform *tr, int state, float delta_time);
 int mob_fly(Mob *mob, Move *mv, Transform *tr, int state, float delta_time);
 void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state);
-bool mob_hit(Hit *hit, entt::entity ent);
+bool mob_hit(Attack *atk , entt::entity ent,std::optional<SDL_FPoint> hit_point);
 bool mob_hit_move(std::optional<SDL_FPoint> &point, entt::entity ent);
 void mob_drop(Mob *mob, Transform *tr);
 bool mob_fall(entt::entity ent, float delta_time);

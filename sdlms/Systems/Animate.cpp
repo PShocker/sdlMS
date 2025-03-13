@@ -1,5 +1,4 @@
 #include "Animate.h"
-#include "Hit.h"
 #include "Ball.h"
 #include "Collision.h"
 #include "Attack.h"
@@ -370,7 +369,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 
 void animate_effect(Effect *eff)
 {
-    for (auto it = eff->effect_list.begin(); it != eff->effect_list.end();)
+    for (auto it = eff->effects.begin(); it != eff->effects.end();)
     {
         auto info = &(*it);
         if (info->delay > Window::dt_now)
@@ -386,7 +385,7 @@ void animate_effect(Effect *eff)
             {
                 delete tr;
             }
-            it = eff->effect_list.erase(it);
+            it = eff->effects.erase(it);
         }
         else
         {
@@ -478,14 +477,13 @@ void animate_mob(Mob *mob, entt::entity ent)
                 // 怪物攻击
                 if (World::registry->valid(mob->hit))
                 {
-                    auto h = World::registry->try_get<Hit>(mob->hit);
-                    auto c = World::registry->try_get<Character>(mob->hit);
-                    if (c->invincible_cooldown <= 0)
+                    auto character = World::registry->try_get<Character>(mob->hit);
+                    if (character->invincible_cooldown <= 0)
                     {
                         auto tr = World::registry->try_get<Transform>(ent);
                         mob->atk.src_point = tr->position;
                         mob->atk.souw = mob->sounds[u"Attack1"];
-                        hit_hit(&mob->atk, ent, mob->hit, std::nullopt);
+                        attack_hit(&mob->atk, ent, mob->hit, std::nullopt);
                     }
                 }
                 if (mob->a.contains(u"stand"))
@@ -507,7 +505,7 @@ void animate_mob(Mob *mob, entt::entity ent)
 
 void animate_damage(Damage *dam)
 {
-    for (auto it = dam->damage_list.begin(); it != dam->damage_list.end();)
+    for (auto it = dam->damages.begin(); it != dam->damages.end();)
     {
         auto &info = it;
         if (info->delay <= Window::dt_now)
@@ -516,7 +514,7 @@ void animate_damage(Damage *dam)
             info->alpha -= (float)Window::delta_time * 0.28;
             if (info->alpha <= 0)
             {
-                it = dam->damage_list.erase(it);
+                it = dam->damages.erase(it);
             }
             else
             {
@@ -654,7 +652,7 @@ void animate_summon(Summon *sum, entt::entity ent)
             {
                 auto tr = World::registry->try_get<Transform>(ent);
                 sum->atk.src_point = tr->position;
-                hit_hit(&sum->atk, ent, e, std::nullopt);
+                attack_hit(&sum->atk, ent, e, std::nullopt);
             }
             if (sum->a.contains(u"fly"))
             {
@@ -704,7 +702,7 @@ void animate_trap(Trap *trap, entt::entity ent)
                 Attack atk;
                 atk.damage = trap->damage;
                 atk.src_point = trap_transform->position;
-                hit_hit(&atk, ent, Player::ent, std::nullopt);
+                attack_hit(&atk, ent, Player::ent, std::nullopt);
                 player_character->invincible_cooldown = 1;
             }
         }

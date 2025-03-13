@@ -1,7 +1,8 @@
 #include "Attack.h"
 #include "Collision.h"
-#include "Hit.h"
 #include "Core/Core.h"
+#include "Systems/MobStateMachine.h"
+#include "Systems/PlayerStateMachine.h"
 
 void attack_mob(Attack *atk, entt::entity attack_entity)
 {
@@ -34,7 +35,7 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
             {
                 return;
             }
-            hit_hit(atk, attack_entity, mob_entity, std::nullopt);
+            attack_hit(atk, attack_entity, mob_entity, std::nullopt);
         }
     }
 }
@@ -78,10 +79,48 @@ void attack_reactor(Attack *atk)
             {
                 Sound::push(reactor->sounds[reactor->index]);
                 atk->damage = 1;
-                hit_hit(atk, Player::ent, ent, std::nullopt);
+                attack_hit(atk, Player::ent, ent, std::nullopt);
                 reactor->hit = true;
                 return;
             }
+        }
+    }
+}
+
+void attack_hit(Attack *atk,
+             entt::entity src, entt::entity target,
+             std::optional<SDL_FPoint> p)
+{
+    if (!World::registry->valid(target))
+    {
+        return;
+    }
+    bool r = false;
+    if (auto mob = World::registry->try_get<Mob>(target))
+    {
+        if (mob->state != Mob::State::REMOVE && mob->state != Mob::State::DIE)
+        {
+            if (mob_hit(atk, target, p))
+            {
+                r = true;
+            }
+        }
+    }
+    else if (auto character = World::registry->try_get<Character>(target))
+    {
+        if (character->state != Character::State::DIE && character->invincible_cooldown <= 0)
+        {
+            if (player_hit(atk, Player::ent))
+            {
+                r = true;
+            }
+        }
+    }
+    if (r)
+    {
+        if (atk->call_back.has_value())
+        {
+            atk->call_back.value()(src, target);
         }
     }
 }
