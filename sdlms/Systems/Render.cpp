@@ -38,16 +38,13 @@ void render_run()
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
             render_mob(tr, mob);
-            if (mob->state != Mob::State::REMOVE)
+            if (auto eff = World::registry->try_get<Effect>(ent))
             {
-                if (auto eff = World::registry->try_get<Effect>(ent))
-                {
-                    render_effect(tr, eff);
-                }
-                if (auto dam = World::registry->try_get<Damage>(ent))
-                {
-                    render_damage(tr, dam);
-                }
+                render_effect(tr, eff);
+            }
+            if (auto dam = World::registry->try_get<Damage>(ent))
+            {
+                render_damage(tr, dam);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
@@ -560,6 +557,8 @@ void render_mob(Transform *tr, Mob *mob)
         }
         a->alpha = alpha * 255;
     }
+    auto sprw = a->asprw->sprites[a->anim_index];
+    SDL_SetTextureColorMod(sprw->texture, mob->mod.r, mob->mod.g, mob->mod.b); // 设置颜色调节为默认值
     render_animated_sprite(tr, a);
 }
 

@@ -811,7 +811,7 @@ bool player_hit(Attack *atk, entt::entity ent)
     return res;
 }
 const std::map<SDL_Scancode, std::u16string> skill_key_id = {
-    {SDL_SCANCODE_A, u"1001004"},
+    {SDL_SCANCODE_A, u"2201004"},
     {SDL_SCANCODE_S, u"1311006"},
     {SDL_SCANCODE_SPACE, u"2201002"},
     {SDL_SCANCODE_F, u"2221006"},
