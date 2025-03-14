@@ -97,6 +97,8 @@ int skill_1121006(entt::entity ent)
         }
     };
 
+    cha->invincible_cooldown = 250;
+
     return PlayerSkill::SkillResult::EFF |
            PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ACT |

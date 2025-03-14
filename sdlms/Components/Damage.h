@@ -13,8 +13,6 @@ struct Damage
     static inline SpriteWarp *cri[11];
     static inline SpriteWarp *blue[10];
 
-    static void init();
-
     struct Info
     {
         int damage;
@@ -37,6 +35,8 @@ struct Damage
 
     std::list<Info> damages;
     char index = 0;
+
+    static void init();
 
     static void push(Damage *dam, int damage, uint8_t type, SDL_FPoint point);
 };
