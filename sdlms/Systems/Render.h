@@ -22,3 +22,4 @@ void render_drop(Transform *tr, Drop *dro);
 void render_reactor(Transform *tr, Reactor *r);
 void render_install(Transform *tr, Install *i);
 void render_summon(Transform *tr, Summon *sum);
+void render_pet(Transform *tr, Pet *pet);

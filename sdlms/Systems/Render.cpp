@@ -93,6 +93,14 @@ void render_run()
                 render_effect(tr, eff);
             }
         }
+        else if (auto pet = World::registry->try_get<Pet>(ent))
+        {
+            render_pet(tr, pet);
+            if (auto eff = World::registry->try_get<Effect>(ent))
+            {
+                render_effect(tr, eff);
+            }
+        }
     }
 }
 
@@ -656,5 +664,11 @@ void render_install(Transform *tr, Install *i)
 void render_summon(Transform *tr, Summon *sum)
 {
     auto a = &sum->a[sum->index];
+    render_animated_sprite(tr, a);
+}
+
+void render_pet(Transform *tr, Pet *pet)
+{
+    auto a = &pet->a[pet->index];
     render_animated_sprite(tr, a);
 }

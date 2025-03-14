@@ -110,6 +110,15 @@ void animate_run()
             animate_effect(eff);
         }
     }
+    for (auto ent : World::registry->view<Animated, Pet>())
+    {
+        auto pet = World::registry->try_get<Pet>(ent);
+        animate_pet(pet, ent);
+        if (auto eff = World::registry->try_get<Effect>(ent))
+        {
+            animate_effect(eff);
+        }
+    }
 }
 
 bool animate_sprite(AnimatedSprite *a)
@@ -668,6 +677,11 @@ void animate_summon(Summon *sum, entt::entity ent)
     }
 }
 
+void animate_pet(Pet *pet, entt::entity ent)
+{
+    animate_sprite(&pet->a[pet->index]);
+}
+
 void animate_trap(Trap *trap, entt::entity ent)
 {
     auto player_character = World::registry->try_get<Character>(Player::ent);
@@ -692,8 +706,8 @@ void animate_trap(Trap *trap, entt::entity ent)
                           player_character->r, player_transform))
             {
                 Attack atk;
-                atk.min_damage=1;
-                atk.max_damage=1;
+                atk.min_damage = 1;
+                atk.max_damage = 1;
                 atk.damage = trap->damage;
                 atk.src_point = trap_transform->position;
                 attack_player(&atk, ent, Player::ent, std::nullopt);

@@ -33,6 +33,7 @@ int summon_4111002(entt::entity ent)
         auto o_mv = World::registry->try_get<Move>(sum->owner);
         auto s_mv = World::registry->try_get<Move>(ent);
         s_mv->foo = o_mv->foo;
+        s_mv->lr = o_mv->lr;
 
         if (o_mv->lr != nullptr && o_mv->hspeed == 0 && (o_cha->action == Character::ACTION::LADDER || o_cha->action == Character::ACTION::ROPE))
         {

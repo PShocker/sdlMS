@@ -9,9 +9,9 @@ void pet_statemachine(entt::entity ent, float delta_time);
 
 void pet_flip(Move *mv, Transform *tr);
 
-int pet_move(entt::entity ent, int state, float delta_time);
+bool pet_move(entt::entity ent, int state, float delta_time);
 bool pet_fall(entt::entity ent, float delta_time);
-bool pet_jump(Pet *pet, Move *mv);
+bool pet_jump(Pet *pet,Transform *tr, Move *mv);
 
 void pet_pick(entt::entity ent);
 int pet_follow(entt::entity ent);

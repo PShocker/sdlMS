@@ -29,8 +29,15 @@ void pet_statemachine(entt::entity ent, float delta_time)
         pet->state = pet_follow(ent);
         if (pet->state == Pet::State::STAND || pet->state == Pet::State::MOVE)
         {
-            pet_move(ent, state, delta_time);
-            if (pet_jump(pet, mv))
+            if (!pet_move(ent, state, delta_time))
+            {
+                if (mv->foo == nullptr)
+                {
+                    pet->state = Pet::State::JUMP;
+                    break;
+                }
+            }
+            if (pet_jump(pet, tr, mv))
             {
                 pet->state = Pet::State::JUMP;
             }
@@ -39,6 +46,7 @@ void pet_statemachine(entt::entity ent, float delta_time)
     break;
     case Pet::State::JUMP:
     {
+        pet_flip(mv, tr);
         if (!pet_fall(ent, delta_time))
         {
             pet->state = Pet::State::STAND;
@@ -69,12 +77,11 @@ void pet_flip(Move *mv, Transform *tr)
     }
 }
 
-int pet_move(entt::entity ent, int state, float delta_time)
+bool pet_move(entt::entity ent, int state, float delta_time)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
-    move_move(mv, tr, 800, delta_time, false);
-    return 0;
+    return move_move(mv, tr, 800, delta_time);
 }
 
 bool pet_fall(entt::entity ent, float delta_time)
@@ -89,6 +96,10 @@ bool pet_fall(entt::entity ent, float delta_time)
     {
         // 默认重力为2000
         mv->vspeed += delta_time * 2000;
+        // 往人物方向运动
+        auto pet = World::registry->try_get<Pet>(ent);
+        auto owner_tr = World::registry->try_get<Transform>(pet->owner);
+        mv->hspeed += owner_tr->position.x >= tr->position.x ? 0.3f : -0.3f;
         if (move_fall(mv, tr, delta_time, tr->z % LAYER_Z))
         {
             return true;
@@ -101,35 +112,39 @@ bool pet_fall(entt::entity ent, float delta_time)
     }
 }
 
-bool pet_jump(Pet *pet, Move *mv)
+bool pet_jump(Pet *pet, Transform *tr, Move *mv)
 {
-    if (mv->hspeed == 0)
+    if (mv->foo == nullptr)
     {
         return false;
     }
     FootHold *fh = nullptr;
     // 判断移动方向
-    if (mv->hspeed > 0)
+    if (mv->hforce > 0)
     {
         // 向右移动
         fh = mv->foo->next;
     }
-    else
+    else if (mv->hforce < 0)
     {
         // 向左移动
         fh = mv->foo->prev;
     }
-    if (fh == nullptr || fh->k.has_value() == false)
+    else
+    {
+        return false;
+    }
+    if (fh == nullptr || fh->k.has_value() == false && tr->position.y >= fh->b)
     {
         // 有概率起跳
-        int random = std::rand() % 20;
+        int random = std::rand() % 8;
         if (random == 0)
         {
             pet->index = u"jump";
             pet->state = Pet::State::JUMP;
 
             mv->foo = nullptr;
-            mv->vspeed = -420;
+            mv->vspeed = -600;
             return true;
         }
     }
@@ -152,25 +167,22 @@ int pet_follow(entt::entity ent)
             auto eff = World::registry->try_get<Effect>(ent);
             eff->effects.push_back({new Transform(pet_tr->position), AnimatedSprite(Effect::load(u"PetEff.img/" + pet->id + u"/warp"))});
             pet_tr->position = owner_tr->position;
-            pet_tr->z = owner_tr->z + 1;
-            eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"PetEff.img/Basic/Teleport"))});
+            pet_tr->z = owner_mv->lr->page * LAYER_Z + pet_tr->z % LAYER_Z;
+            World::zindex = true;
             return Pet::State::CLIMB;
         }
-        else if (pet_tr->z != owner_tr->z - 3 ||
-                 std::abs(owner_tr->position.x - pet_tr->position.x) >= 200 ||
-                 std::abs(owner_tr->position.y - pet_tr->position.y) >= 200)
+        else if (std::abs(owner_tr->position.y - pet_tr->position.y) >= 150 ||
+                 std::abs(owner_tr->position.x - pet_tr->position.x) >= 500)
         {
-            auto eff = World::registry->try_get<Effect>(ent);
-            eff->effects.push_back({new Transform(pet_tr->position), AnimatedSprite(Effect::load(u"PetEff.img/" + pet->id + u"/warp"))});
             pet_mv->foo = owner_mv->foo;
             pet_mv->vspeed = 0;
             pet_mv->hspeed = 0;
             pet_tr->position = owner_tr->position;
-            pet_tr->z = owner_tr->z - 3;
+            auto eff = World::registry->try_get<Effect>(ent);
             eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"PetEff.img/Basic/Teleport"))});
             return Pet::State::JUMP;
         }
-        if (std::abs(owner_tr->position.x - pet_tr->position.x) >= 100)
+        if (std::abs(owner_tr->position.x - pet_tr->position.x) >= 50)
         {
             pet_mv->hforce = owner_tr->position.x > pet_tr->position.x ? 1400 : -1400;
             return Pet::State::MOVE;
@@ -204,11 +216,9 @@ bool pet_climb(entt::entity ent)
             // 脱离绳索
             pet_mv->vspeed = owner_mv->vspeed;
             pet_mv->hspeed = owner_mv->hspeed;
-            auto eff = World::registry->try_get<Effect>(ent);
-            eff->effects.push_back({new Transform(pet_tr->position), AnimatedSprite(Effect::load(u"PetEff.img/" + pet->id + u"/warp"))});
+            pet_mv->hspeed += owner_tr->flip == 1 ? -50 : 50;
+            pet_mv->foo = nullptr;
             pet_tr->position = owner_tr->position;
-            pet_tr->z = owner_tr->z - 3;
-            eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"PetEff.img/Basic/Teleport"))});
             return false;
         }
     }
@@ -240,6 +250,11 @@ int pet_action(Pet *pet, int state, int new_state)
         case Pet::State::JUMP:
         {
             pet->index = u"jump";
+        }
+        break;
+        case Pet::State::CLIMB:
+        {
+            pet->index = u"hang";
         }
         break;
         }

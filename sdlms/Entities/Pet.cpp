@@ -15,6 +15,7 @@ entt::entity load_pet(const u16string id, entt::entity owner)
     pet->a[u"move"] = AnimatedSprite(node->get_child(u"move"));
     pet->a[u"jump"] = AnimatedSprite(node->get_child(u"jump"));
     pet->a[u"stand0"] = AnimatedSprite(node->get_child(u"stand0"));
+    pet->a[u"hang"] = AnimatedSprite(node->get_child(u"hang"));
 
     for (auto &[key, val] : pet->a)
     {
@@ -29,10 +30,13 @@ entt::entity load_pet(const u16string id, entt::entity owner)
     pet->owner = owner;
 
     World::registry->emplace<Effect>(ent);
-    World::registry->emplace<Move>(ent);
+    auto mv = &World::registry->emplace<Move>(ent);
+    mv->hspeed_max = 200;
+    mv->hspeed_min = -200;
     World::registry->emplace<Animated>(ent);
+    auto count = World::registry->view<Pet>().size();
     auto owner_tr = World::registry->try_get<Transform>(owner);
-    World::registry->emplace<Transform>(ent, owner_tr->position, owner_tr->z - 3);
+    World::registry->emplace<Transform>(ent, owner_tr->position, PET_Z - count);
     World::zindex = true;
 
     return ent;
