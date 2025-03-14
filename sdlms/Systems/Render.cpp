@@ -598,6 +598,11 @@ void render_damage(Transform *tr, Damage *dam)
                     render_sprite(&transfrom, dam->violet[n]);
                     break;
                 case 2:
+                    if (i == length - 1)
+                    {
+                        SDL_SetTextureAlphaMod(dam->cri[10]->texture, info.alpha);
+                        render_sprite(&transfrom, dam->cri[10]);
+                    }
                     SDL_SetTextureAlphaMod(dam->cri[n]->texture, info.alpha);
                     render_sprite(&transfrom, dam->cri[n]);
                     break;

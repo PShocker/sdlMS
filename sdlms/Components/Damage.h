@@ -10,15 +10,16 @@ struct Damage
 {
     static inline SpriteWarp *red[10];
     static inline SpriteWarp *violet[10];
-    static inline SpriteWarp *cri[10];
+    static inline SpriteWarp *cri[11];
     static inline SpriteWarp *blue[10];
+
     static void init();
 
     struct Info
     {
         int damage;
         float alpha;
-        
+
         enum Type : uint8_t
         {
             Red = 0,

@@ -27,6 +27,7 @@ void Damage::init()
         {
             cri[i] = SpriteWarp::load(node->get_child(std::to_string(i)), 255, false);
         }
+        cri[10] = SpriteWarp::load(node->get_child(u"effect"), 255, false);
     }
     {
         auto node = Wz::Effect->get_root()->find_from_path(u"BasicEff.img/NoBlue1");
