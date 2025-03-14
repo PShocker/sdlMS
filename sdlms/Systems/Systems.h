@@ -13,3 +13,4 @@
 #include "Render.h"
 #include "World.h"
 #include "UI.h"
+#include "PetStateMachine.h"

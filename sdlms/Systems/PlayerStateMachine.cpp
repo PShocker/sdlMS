@@ -1,5 +1,6 @@
 #include "PlayerStateMachine.h"
 #include "Move.h"
+#include "Pick.h"
 #include "entt/entt.hpp"
 #include "Commons/Commons.h"
 #include "PlayerSkill/PlayerSkill.h"
@@ -31,7 +32,7 @@ void player_statemachine(entt::entity ent, float delta_time)
     case Character::State::WALK:
     {
         player_flip(tr);
-        player_pick_drop(cha, tr);
+        player_pick_drop(ent);
         if (player_climb(mv, tr, cha->state))
         {
             cha->state = Character::State::CLIMB;
@@ -120,7 +121,7 @@ void player_statemachine(entt::entity ent, float delta_time)
     case Character::State::PRONE:
     {
         player_flip(tr);
-        player_pick_drop(cha, tr);
+        player_pick_drop(ent);
         if (player_jump(mv, cha, tr, cha->state))
         {
             cha->state = Character::State::JUMP;
@@ -149,7 +150,7 @@ void player_statemachine(entt::entity ent, float delta_time)
     break;
     case Character::State::SIT:
     {
-        player_pick_drop(cha, tr);
+        player_pick_drop(ent);
         if (!player_sit(mv, cha->state))
         {
             cha->state = Character::State::STAND;
@@ -366,7 +367,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
 
 bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity ent, float delta_time)
 {
-    if (mv->lr != nullptr && mv->hspeed == 0 && (cha->action == Character::ACTION::LADDER || cha->action == Character::ACTION::ROPE))
+    if (cha->action == Character::ACTION::LADDER || cha->action == Character::ACTION::ROPE)
     {
         // 绳子或梯子上
         cha->state = Character::State::CLIMB;
@@ -1063,36 +1064,12 @@ uint8_t player_attack_action(WeaponInfo *wea)
     return action;
 }
 
-bool player_pick_drop(Character *cha, Transform *tr)
+bool player_pick_drop(entt::entity ent)
 {
     if (Input::state[SDL_SCANCODE_Z])
     {
         // 捡起物品
-        for (auto ent : World::registry->view<Drop>())
-        {
-            auto dro = World::registry->try_get<Drop>(ent);
-            if (dro->picker == entt::null && dro->land == true)
-            {
-                auto player_pos = tr->position;
-                auto dro_tr = World::registry->try_get<Transform>(ent);
-                auto dro_x = dro_tr->position.x;
-                auto dro_y = dro_tr->position.y;
-                if (player_pos.x == std::clamp(player_pos.x, dro_x - 20, dro_x + 40) &&
-                    player_pos.y == std::clamp(player_pos.y, dro_y - 20, dro_y + 20))
-                {
-                    // 捡起物品
-                    dro->picker = Player::ent;
-                    dro->destory = Window::dt_now + 600;
-
-                    auto mv = World::registry->try_get<Move>(ent);
-                    mv->vspeed = -430;
-
-                    // 播放声音
-                    Sound::push(Sound(u"Game.img/PickUpItem"));
-                    return true;
-                }
-            }
-        }
+        pick_drop(ent);
     }
     return false;
 }

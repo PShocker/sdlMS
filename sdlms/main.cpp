@@ -1,7 +1,6 @@
 #include "Systems/Systems.h"
 #include "Core/Core.h"
 #include "Entities/Entities.h"
-#include "PlayerSkill/PlayerSkill.h"
 #include "UI/UI.h"
 #include "Resources/Wz.h"
 #include "entt/entt.hpp"
@@ -23,6 +22,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     summon_statemachine_run();
     mob_statemachine_run();
     npc_statemachine_run();
+    pet_statemachine_run();
     drop_run();
     ball_run();
     ui_run();

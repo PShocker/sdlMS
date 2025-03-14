@@ -5,8 +5,10 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-void load_summon(wz::Node *node, entt::entity ent, float x, float y, int z, const u16string &id, entt::entity owner)
+entt::entity load_summon(wz::Node *node, const u16string &id, entt::entity owner)
 {
+    auto ent = World::registry->create();
+
     auto sum = &World::registry->emplace<Summon>(ent);
     for (auto &[key, val] : node->get_children())
     {
@@ -27,7 +29,11 @@ void load_summon(wz::Node *node, entt::entity ent, float x, float y, int z, cons
     sum->id = id;
     sum->owner = owner;
 
+    World::registry->emplace<Effect>(ent);
+    World::registry->emplace<Move>(ent);
     World::registry->emplace<Animated>(ent);
-    World::registry->emplace<Transform>(ent, x, y, z);
+    auto owner_tr = World::registry->try_get<Transform>(owner);
+    World::registry->emplace<Transform>(ent, owner_tr->position, owner_tr->z - 2);
     World::zindex = true;
+    return ent;
 }

@@ -1,5 +1,6 @@
 #include "Character.h"
 #include "Portal.h"
+#include "Pet.h"
 
 #include "entt/entt.hpp"
 
@@ -42,5 +43,7 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     }
     World::registry->emplace<Move>(ent);
     World::zindex = true;
+
+    load_pet(u"5000015", ent);
     return;
 }

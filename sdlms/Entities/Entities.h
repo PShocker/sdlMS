@@ -14,3 +14,4 @@
 #include "Entities/Portal.h"
 #include "Entities/Reactor.h"
 #include "Entities/Summon.h"
+#include "Entities/Pet.h"

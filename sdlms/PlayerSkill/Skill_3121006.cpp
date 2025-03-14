@@ -29,8 +29,8 @@ int skill_3121006(entt::entity ent)
             return;
         }
 
-        auto o_mv = World::registry->try_get<Move>(ent);
-        if (o_mv->foo)
+        auto owner_mv = World::registry->try_get<Move>(ent);
+        if (owner_mv->foo)
         {
             for (auto e : World::registry->view<Summon>())
             {
@@ -41,12 +41,8 @@ int skill_3121006(entt::entity ent)
                     return;
                 }
             }
-            auto e = World::registry->create();
-            auto tr = World::registry->try_get<Transform>(ent);
             Skill *ski = World::registry->try_get<Skill>(ent);
-            load_summon(ski->skiw->node->get_child(u"summon"), e, tr->position.x, tr->position.y, tr->z - 2, u"3121006", ent);
-            World::registry->emplace<Effect>(e);
-            World::registry->emplace<Move>(e);
+            load_summon(ski->skiw->node->get_child(u"summon"), u"3121006", ent);
         }
     };
     SkillWarp::cooldowns[u"3121006"] = 1500;

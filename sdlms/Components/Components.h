@@ -26,4 +26,5 @@
 #include "Components/Reactor.h"
 #include "Components/Install.h"
 #include "Components/Summon.h"
+#include "Components/Pet.h"
 #include "Components/Test.h"

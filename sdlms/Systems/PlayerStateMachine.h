@@ -43,7 +43,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent);
 
 uint8_t player_attack_action(WeaponInfo *wea);
 
-bool player_pick_drop(Character *cha, Transform *tr);
+bool player_pick_drop(entt::entity ent);
 
 void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent);
 
