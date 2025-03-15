@@ -174,7 +174,7 @@ int pet_follow(entt::entity ent)
         else if (std::abs(owner_tr->position.y - pet_tr->position.y) >= 150 ||
                  std::abs(owner_tr->position.x - pet_tr->position.x) >= 700)
         {
-            pet_mv->foo = owner_mv->foo;
+            pet_mv->foo = nullptr;
             pet_mv->vspeed = 0;
             pet_mv->hspeed = 0;
             pet_tr->position = owner_tr->position;
