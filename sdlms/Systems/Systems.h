@@ -10,7 +10,7 @@
 #include "MobStateMachine.h"
 #include "PlayerStateMachine.h"
 #include "SummonStateMachine.h"
+#include "PetStateMachine.h"
 #include "Render.h"
 #include "World.h"
 #include "UI.h"
-#include "PetStateMachine.h"

@@ -43,7 +43,5 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     }
     World::registry->emplace<Move>(ent);
     World::zindex = true;
-
-    load_pet(u"5000000", ent);
     return;
 }

@@ -58,6 +58,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     World::load_map(1000000);
     Player::ent = World::registry->create();
     load_character(0, 0, true, Player::ent);
+    load_pet(u"5000000", Player::ent);
 
     return SDL_APP_CONTINUE;
 }

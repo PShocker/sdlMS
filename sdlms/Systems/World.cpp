@@ -41,6 +41,7 @@ void world_transport()
                 auto tr = World::registry->try_get<Transform>(e);
                 Player::ent = World::registry->create();
                 load_character(tr->position.x, tr->position.y - 10, false, Player::ent);
+                load_pet(u"5000000", Player::ent);
                 camera_refresh();
                 World::TransPort::id = 0;
                 return;
