@@ -172,7 +172,7 @@ int pet_follow(entt::entity ent)
             return Pet::State::CLIMB;
         }
         else if (std::abs(owner_tr->position.y - pet_tr->position.y) >= 150 ||
-                 std::abs(owner_tr->position.x - pet_tr->position.x) >= 500)
+                 std::abs(owner_tr->position.x - pet_tr->position.x) >= 700)
         {
             pet_mv->foo = owner_mv->foo;
             pet_mv->vspeed = 0;
@@ -210,6 +210,7 @@ bool pet_climb(entt::entity ent)
         if (character->action == Character::ACTION::LADDER || character->action == Character::ACTION::ROPE)
         {
             pet_tr->position = owner_tr->position;
+            pet_tr->flip = owner_tr->flip;
         }
         else
         {

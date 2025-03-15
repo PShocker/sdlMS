@@ -30,9 +30,7 @@ entt::entity load_pet(const u16string id, entt::entity owner)
     pet->owner = owner;
 
     World::registry->emplace<Effect>(ent);
-    auto mv = &World::registry->emplace<Move>(ent);
-    mv->hspeed_max = 200;
-    mv->hspeed_min = -200;
+    World::registry->emplace<Move>(ent);
     World::registry->emplace<Animated>(ent);
     auto count = World::registry->view<Pet>().size();
     auto owner_tr = World::registry->try_get<Transform>(owner);
