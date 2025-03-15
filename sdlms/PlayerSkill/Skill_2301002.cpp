@@ -27,14 +27,7 @@ int skill_2301002(entt::entity ent)
         attack_player(&atk, entt::null, ent, std::nullopt);
     };
 
-    SkillWarp::cooldowns[u"2301002"] = 1500;
-
-    if (state == Character::State::CLIMB)
-    {
-        ski->call_back.value()(ent, 0, 0);
-        return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU;
-    }
-    else if (state != Character::State::JUMP && mv->foo != nullptr)
+    if (state != Character::State::JUMP && mv->foo != nullptr)
     {
         mv->hspeed = 0;
     }

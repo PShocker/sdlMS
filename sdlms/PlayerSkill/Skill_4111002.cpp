@@ -32,14 +32,7 @@ int skill_4111002(entt::entity ent)
         sum->owner = ent;
     };
 
-    SkillWarp::cooldowns[u"4111002"] = 1000;
-
-    if (state == Character::State::CLIMB)
-    {
-        ski->call_back.value()(ent, 0, 0);
-        return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU;
-    }
-    else if (state != Character::State::JUMP && mv->foo != nullptr)
+    if (state != Character::State::JUMP && mv->foo != nullptr)
     {
         mv->hspeed = 0;
     }

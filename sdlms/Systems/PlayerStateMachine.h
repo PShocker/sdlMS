@@ -30,8 +30,6 @@ void player_action(Character *cha, int state, int new_state, Move *mv);
 
 void player_portal(Move *mv, entt::entity ent);
 
-void player_cooldown(int delta_time);
-
 void player_alert(Character *cha);
 
 bool player_hit(Attack *atk, entt::entity ent);

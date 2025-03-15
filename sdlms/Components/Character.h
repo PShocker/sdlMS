@@ -1,7 +1,7 @@
 #pragma once
 #include "Transform.h"
 #include "Sprite.h"
-
+#include "Core/Window.h"
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
 #include <unordered_set>
@@ -324,7 +324,7 @@ struct Character
     // use for attck and checkout wheather attack has finished
     bool animated = false;
 
-    int invincible_cooldown = 0;
+    unsigned int invincible_cooldown = Window::dt_now;
 
     std::u16string face_str;
     std::u16string face_type = u"default";

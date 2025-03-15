@@ -46,9 +46,9 @@ int skill_1121006(entt::entity ent)
             move_move(o_mv, o_tr, 800, 0.06, false);
             o_mv->hspeed = 0;
             auto o_cha = World::registry->try_get<Character>(ent);
-            if (o_cha->invincible_cooldown <= 250)
+            if (o_cha->invincible_cooldown <= Window::dt_now + 250)
             {
-                o_cha->invincible_cooldown = 250;
+                o_cha->invincible_cooldown = Window::dt_now + 250;
             }
         }
         // 推动怪物
@@ -97,7 +97,7 @@ int skill_1121006(entt::entity ent)
         }
     };
 
-    cha->invincible_cooldown = 250;
+    cha->invincible_cooldown = Window::dt_now + 250;
 
     return PlayerSkill::SkillResult::EFF |
            PlayerSkill::SkillResult::SOU |

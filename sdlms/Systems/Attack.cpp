@@ -15,6 +15,8 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
     auto attack_transform = World::registry->try_get<Transform>(attack_entity);
     // 设置攻击源坐标
     atk->src_point = attack_transform->position;
+    // 所有可攻击的怪物集合
+    std::map<float, entt::entity> mobs;
     // 遍历所有带有 Damage 和 Mob 组件的实体
     for (auto mob_entity : World::registry->view<Damage, Mob>())
     {
@@ -28,15 +30,19 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
         // 检查碰撞
         if (collision(mob->rect(), mob_transform, atk->rect, attack_transform))
         {
-            // 触发攻击效果
-            atk->mobCount -= 1;
-            // 如果 mobCount 减到 0，提前退出
-            if (atk->mobCount < 0)
-            {
-                return;
-            }
-            attack_mob(atk, attack_entity, mob_entity, std::nullopt);
+            mobs[squared_distance(attack_transform->position, mob_transform->position)] = mob_entity;
         }
+    }
+    for (auto &[key, val] : mobs)
+    {
+        // 触发攻击效果
+        atk->mobCount -= 1;
+        // 如果 mobCount 减到 0，提前退出
+        if (atk->mobCount < 0)
+        {
+            return;
+        }
+        attack_mob(atk, attack_entity, val, std::nullopt);
     }
 }
 
@@ -121,7 +127,7 @@ bool attack_player(Attack *atk, entt::entity src, entt::entity target, std::opti
     bool r = false;
     if (auto character = World::registry->try_get<Character>(target))
     {
-        if (character->state != Character::State::DIE && character->invincible_cooldown <= 0)
+        if (character->state != Character::State::DIE && character->invincible_cooldown <= Window::dt_now)
         {
             if (player_hit(atk, Player::ent))
             {

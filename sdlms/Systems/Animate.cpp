@@ -474,7 +474,7 @@ void animate_mob(Mob *mob, entt::entity ent)
                 if (World::registry->valid(mob->hit))
                 {
                     auto character = World::registry->try_get<Character>(mob->hit);
-                    if (character->invincible_cooldown <= 0)
+                    if (character->invincible_cooldown <= Window::dt_now)
                     {
                         auto tr = World::registry->try_get<Transform>(ent);
                         mob->atk.src_point = tr->position;
@@ -579,7 +579,7 @@ void animate_face(Character *cha)
             {
                 cha->face_index = u"";
                 cha->face_type = u"default";
-                player_face_cooldown = 0;
+                player_face_cooldown = Window::dt_now;
                 cha->add_face(cha->face_str, cha->face_type, cha->face_index);
             }
         }
@@ -680,7 +680,7 @@ void animate_pet(Pet *pet, entt::entity ent)
 void animate_trap(Trap *trap, entt::entity ent)
 {
     auto player_character = World::registry->try_get<Character>(Player::ent);
-    if (player_character->invincible_cooldown <= 0)
+    if (player_character->invincible_cooldown <= Window::dt_now)
     {
         auto aspr = World::registry->try_get<AnimatedSprite>(ent);
         auto spr = aspr->asprw->sprites[aspr->anim_index];

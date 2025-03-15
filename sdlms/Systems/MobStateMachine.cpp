@@ -457,7 +457,7 @@ bool mob_jump(Mob *mob, Move *mv)
 bool mob_collision_attack(entt::entity ent)
 {
     auto player_character = World::registry->try_get<Character>(Player::ent);
-    if (player_character->invincible_cooldown <= 0)
+    if (player_character->invincible_cooldown <= Window::dt_now)
     {
         auto mob = World::registry->try_get<Mob>(ent);
         if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))

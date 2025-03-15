@@ -57,7 +57,7 @@ void render_run()
             {
                 render_install(tr, i);
             }
-            auto invincible_time = cha->invincible_cooldown;
+            auto invincible_time = cha->invincible_cooldown - Window::dt_now;
             render_character(tr, cha, invincible_time);
             // SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 255);
             // auto rect = cha->r;

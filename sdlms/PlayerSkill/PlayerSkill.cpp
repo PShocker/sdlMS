@@ -1,3 +1,4 @@
+#include "Commons/Commons.h"
 #include "PlayerSkill.h"
 #include "Core/Core.h"
 #include <functional>
@@ -23,8 +24,13 @@ void PlayerSkill::skill_action(Skill *ski, entt::entity ent)
 {
     auto cha = World::registry->try_get<Character>(ent);
 
-    cha->state = Character::State::SKILL;
-    if (ski->skiw->action_str.has_value())
+    if (cha->state == Character::State::CLIMB)
+    {
+        // 绳子上,需要播放一遍动画
+        cha->animate = true;
+        player_climb_cooldown = Window::dt_now + 500;
+    }
+    else if (ski->skiw->action_str.has_value())
     {
         cha->action_str = ski->skiw->action_str.value();
     }
@@ -38,6 +44,7 @@ void PlayerSkill::skill_action(Skill *ski, entt::entity ent)
         // 随机动作
         cha->action_str = u"";
     }
+    cha->state = Character::State::SKILL;
     cha->animated = false;
 }
 

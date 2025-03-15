@@ -13,7 +13,6 @@ void player_statemachine_run()
 {
     if (auto ent = Player::ent; World::registry->valid(ent))
     {
-        player_cooldown(Window::delta_time);
         player_statemachine(ent, (float)Window::delta_time / 1000);
     }
 }
@@ -143,7 +142,7 @@ void player_statemachine(entt::entity ent, float delta_time)
     break;
     case Character::State::DIE:
     {
-        cha->invincible_cooldown = 2000;
+        cha->invincible_cooldown = Window::dt_now + 2000;
         player_face(cha);
         return;
     }
@@ -191,7 +190,7 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
     }
     else
     {
-        if (player_alert_cooldown > 0)
+        if (player_alert_cooldown > Window::dt_now)
         {
             state = Character::State::ALERT;
         }
@@ -237,11 +236,11 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
         player_fall_y = tr->position.y;
     }
     mv->vspeed = vspeed;
-    auto r = move_fall(mv, tr, delta_time, CHARACTER_Z, player_foothold_cooldown <= 0);
+    auto r = move_fall(mv, tr, delta_time, CHARACTER_Z, player_foothold_cooldown <= Window::dt_now);
     if (r == false)
     {
         auto character = World::registry->try_get<Character>(Player::ent);
-        if (character->invincible_cooldown <= 0)
+        if (character->invincible_cooldown <= Window::dt_now)
         {
             auto distance = tr->position.y - player_fall_y;
             if (distance >= 600)
@@ -275,7 +274,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->zmass = mv->foo->zmass;
                     mv->foo = nullptr;
                     mv->lr = nullptr;
-                    player_foothold_cooldown = 120;
+                    player_foothold_cooldown = Window::dt_now + 120;
                     SkillWarp::cooldowns[u"4111006"] = 500;
 
                     Sound::push(Sound(u"Game.img/Jump"));
@@ -313,7 +312,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 {
                     mv->hspeed = -140;
                 }
-                player_ladderrope_cooldown = 80;
+                player_ladderrope_cooldown = Window::dt_now + 80;
 
                 SkillWarp::cooldowns[u"4111006"] = 300;
 
@@ -359,7 +358,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         World::registry->emplace_or_replace<AfterImage>(ent);
 
         state = Character::State::ATTACK;
-        player_alert_cooldown = 4000;
+        player_alert_cooldown = Window::dt_now + 4000;
         cha->animated = false;
     }
     return state;
@@ -370,8 +369,15 @@ bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity ent,
     if (cha->action == Character::ACTION::LADDER || cha->action == Character::ACTION::ROPE)
     {
         // 绳子或梯子上
-        cha->state = Character::State::CLIMB;
-        return false;
+        if (player_climb_cooldown > Window::dt_now)
+        {
+            return true;
+        }
+        else
+        {
+            cha->state = Character::State::CLIMB;
+            return false;
+        }
     }
     else if (mv->foo == nullptr)
     {
@@ -412,7 +418,7 @@ bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity ent,
 
 bool player_climb(Move *mv, Transform *tr, int state)
 {
-    if (player_ladderrope_cooldown <= 0)
+    if (player_ladderrope_cooldown <= Window::dt_now)
     {
         if (Input::state[SDL_SCANCODE_UP] || Input::state[SDL_SCANCODE_DOWN])
         {
@@ -506,7 +512,7 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::en
             tr->position.y = mv->lr->t - 5;
             mv->vspeed = 0;
             state = Character::State::JUMP;
-            player_ladderrope_cooldown = 80;
+            player_ladderrope_cooldown = Window::dt_now + 80;
             cha->animate = true;
         }
         else
@@ -519,7 +525,7 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::en
         tr->position.y = mv->lr->b;
         mv->vspeed = 0;
         state = Character::State::JUMP;
-        player_ladderrope_cooldown = 80;
+        player_ladderrope_cooldown = Window::dt_now + 80;
         cha->animate = true;
     }
     return state;
@@ -671,35 +677,10 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
     }
 }
 
-void player_cooldown(int delta_time)
-{
-    if (player_foothold_cooldown > 0)
-    {
-        player_foothold_cooldown -= delta_time;
-    }
-    if (player_portal_cooldown > 0)
-    {
-        player_portal_cooldown -= delta_time;
-    }
-    if (player_alert_cooldown > 0)
-    {
-        player_alert_cooldown -= delta_time;
-    }
-    if (World::registry->try_get<Character>(Player::ent)->invincible_cooldown > 0)
-    {
-        World::registry->try_get<Character>(Player::ent)->invincible_cooldown -= delta_time;
-    }
-    if (player_ladderrope_cooldown > 0)
-    {
-        player_ladderrope_cooldown -= delta_time;
-    }
-    player_face_cooldown -= delta_time;
-}
-
 void player_alert(Character *cha)
 {
-    player_alert_cooldown = 5000;
-    player_face_cooldown = 5000;
+    player_alert_cooldown = Window::dt_now + 4000;
+    player_face_cooldown = Window::dt_now + 4000;
     cha->face_type = u"hit";
     cha->face_index = u"0";
     cha->add_face(cha->face_str, cha->face_type, cha->face_index);
@@ -715,9 +696,9 @@ bool player_hit(Attack *atk, entt::entity ent)
     auto tr = World::registry->try_get<Transform>(ent);
     auto cha = World::registry->try_get<Character>(ent);
 
-    if (atk->damage > 0 && character->invincible_cooldown <= 0)
+    if (atk->damage > 0 && character->invincible_cooldown <= Window::dt_now)
     {
-        character->invincible_cooldown = 2000;
+        character->invincible_cooldown = Window::dt_now + 2000;
         World::registry->remove<Install>(Player::ent);
 
         Effect::push(World::registry->try_get<Effect>(ent), atk->hit, std::nullopt, tr->flip);
@@ -817,11 +798,11 @@ bool player_hit(Attack *atk, entt::entity ent)
 
 const std::map<SDL_Scancode, std::u16string> skill_key_id = {
     {SDL_SCANCODE_A, u"2201004"},
-    {SDL_SCANCODE_S, u"1311006"},
+    {SDL_SCANCODE_S, u"2211002"},
     {SDL_SCANCODE_SPACE, u"2201002"},
     {SDL_SCANCODE_F, u"2221006"},
     {SDL_SCANCODE_Y, u"2121003"},
-    {SDL_SCANCODE_D, u"1001005"},
+    {SDL_SCANCODE_D, u"1001004"},
     {SDL_SCANCODE_S, u"1311006"},
     {SDL_SCANCODE_G, u"4111005"},
     {SDL_SCANCODE_H, u"4111002"},
@@ -879,7 +860,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             {
                 mv->hspeed = 0;
             }
-            player_alert_cooldown = 4000;
+            player_alert_cooldown = Window::dt_now + 4000;
         }
         Skill *ski = World::registry->try_get<Skill>(ent);
         if (ski == nullptr)
@@ -912,7 +893,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         // 人物状态
         if (skill_res & PlayerSkill::SkillResult::ALERT)
         {
-            player_alert_cooldown = 4000;
+            player_alert_cooldown = Window::dt_now + 4000;
         }
         return true;
     }
@@ -932,7 +913,7 @@ bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity ent, 
 
 void player_portal(Move *mv, entt::entity ent)
 {
-    if (player_portal_cooldown <= 0)
+    if (player_portal_cooldown <= Window::dt_now)
     {
         auto tr = World::registry->try_get<Transform>(ent);
         auto view = World::registry->view<Portal>();
@@ -971,7 +952,7 @@ void player_portal(Move *mv, entt::entity ent)
                         }
                         mv->hspeed = 0;
                         mv->vspeed = 0;
-                        player_portal_cooldown = 800;
+                        player_portal_cooldown = Window::dt_now + 800;
                         break;
                     }
                 }
@@ -1090,7 +1071,7 @@ void player_face(Character *cha)
         cha->face_type = u"hit";
         cha->face_index = u"0";
         cha->face_time = 0;
-        player_face_cooldown = 2000;
+        player_face_cooldown = Window::dt_now + 2000;
         cha->add_face(cha->face_str, cha->face_type, cha->face_index);
     }
     else if (Input::state[SDL_SCANCODE_F2])
@@ -1098,7 +1079,7 @@ void player_face(Character *cha)
         cha->face_type = u"smile";
         cha->face_index = u"0";
         cha->face_time = 0;
-        player_face_cooldown = 2000;
+        player_face_cooldown = Window::dt_now + 2000;
         cha->add_face(cha->face_str, cha->face_type, cha->face_index);
     }
     else if (Input::state[SDL_SCANCODE_F4])
@@ -1106,24 +1087,24 @@ void player_face(Character *cha)
         cha->face_type = u"angry";
         cha->face_index = u"0";
         cha->face_time = 0;
-        player_face_cooldown = 2000;
+        player_face_cooldown = Window::dt_now + 2000;
         cha->add_face(cha->face_str, cha->face_type, cha->face_index);
     }
-    if (player_face_cooldown < 0 && player_face_cooldown > -2000 &&
+    if (player_face_cooldown < Window::dt_now && player_face_cooldown > Window::dt_now - 2000 &&
         !(cha->face_type == u"blink" || cha->face_type == u"default"))
     {
         cha->face_type = u"default";
         cha->face_index = u"";
-        player_face_cooldown = 0;
+        player_face_cooldown = Window::dt_now;
         cha->add_face(cha->face_str, cha->face_type, cha->face_index);
     }
-    else if (player_face_cooldown <= -2000)
+    else if (player_face_cooldown <= Window::dt_now - 2000)
     {
         // blink
         cha->face_type = u"blink";
         cha->face_index = u"0";
         cha->face_time = 0;
-        player_face_cooldown = 0;
+        player_face_cooldown = Window::dt_now;
         cha->add_face(cha->face_str, cha->face_type, cha->face_index);
     }
 }
@@ -1136,7 +1117,7 @@ bool player_sit(Move *mv, int state)
     {
         if (keyborard)
         {
-            if (player_alert_cooldown <= 0 && state != Character::State::SIT && mv->foo)
+            if (player_alert_cooldown <= Window::dt_now && state != Character::State::SIT && mv->foo)
             {
                 r = true;
                 mv->hspeed = 0;

@@ -21,7 +21,7 @@ int summon_4111002(entt::entity ent)
         s_cha->action_index = o_cha->action_index;
         s_cha->action_frame = o_cha->action_frame;
         s_cha->action_time = o_cha->action_time;
-        s_cha->invincible_cooldown = 150;
+        s_cha->invincible_cooldown = Window::dt_now + 150;
 
         s_cha->alpha = (float)(sum->destory - Window::dt_now) / 30000 * 255;
 

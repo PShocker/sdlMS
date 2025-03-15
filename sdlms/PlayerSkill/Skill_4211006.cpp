@@ -23,8 +23,6 @@ int skill_4211006(entt::entity ent)
 
     SkillWarp::cooldowns[u"4211006"] = 500;
 
-    auto view = World::registry->view<Drop>();
-
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
     auto lt = SDL_FPoint{(float)v.x, (float)v.y};
@@ -37,6 +35,7 @@ int skill_4211006(entt::entity ent)
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
     ski->atk.value().damage = 0;
 
+    auto view = World::registry->view<Drop>();
     for (auto e : view)
     {
         auto dr = &view.get<Drop>(e);

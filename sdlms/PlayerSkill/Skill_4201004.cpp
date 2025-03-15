@@ -28,7 +28,7 @@ int skill_4201004(entt::entity ent)
     auto lt = SDL_FPoint{-110, -32};
     auto rb = SDL_FPoint{-40, -11};
     auto hit = nullptr;
-    auto mobCount = 12;
+    auto mobCount = 1;
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
