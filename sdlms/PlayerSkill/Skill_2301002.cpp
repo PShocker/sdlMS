@@ -24,7 +24,7 @@ int skill_2301002(entt::entity ent)
         atk.damage = -1000;
         atk.hit = nullptr;
         atk.src_point = tr->position;
-        attack_player(&atk, entt::null, ent, std::nullopt);
+        attack_character(&atk, entt::null, ent, std::nullopt);
     };
 
     if (state != Character::State::JUMP && mv->foo != nullptr)

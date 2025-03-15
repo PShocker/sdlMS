@@ -249,7 +249,7 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
                 atk.damage = distance / 25;
                 atk.hit = nullptr;
                 atk.src_point = tr->position;
-                if (attack_player(&atk, Player::ent, Player::ent, std::nullopt))
+                if (attack_character(&atk, Player::ent, Player::ent, std::nullopt))
                 {
                     r = true;
                 }

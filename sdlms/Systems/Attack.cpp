@@ -118,7 +118,7 @@ bool attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optiona
     return r;
 }
 
-bool attack_player(Attack *atk, entt::entity src, entt::entity target, std::optional<SDL_FPoint> p)
+bool attack_character(Attack *atk, entt::entity src, entt::entity target, std::optional<SDL_FPoint> p)
 {
     if (!World::registry->valid(target))
     {
@@ -127,9 +127,11 @@ bool attack_player(Attack *atk, entt::entity src, entt::entity target, std::opti
     bool r = false;
     if (auto character = World::registry->try_get<Character>(target))
     {
-        if (character->state != Character::State::DIE && character->invincible_cooldown <= Window::dt_now)
+        if (atk->damage < 0 ||
+            (character->invincible_cooldown <= Window::dt_now &&
+             character->state != Character::State::DIE))
         {
-            if (player_hit(atk, Player::ent))
+            if (player_hit(atk, target))
             {
                 r = true;
             }

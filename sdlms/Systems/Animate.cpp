@@ -479,7 +479,7 @@ void animate_mob(Mob *mob, entt::entity ent)
                         auto tr = World::registry->try_get<Transform>(ent);
                         mob->atk.src_point = tr->position;
                         mob->atk.souw = mob->sounds[u"Attack1"];
-                        attack_player(&mob->atk, ent, mob->hit, std::nullopt);
+                        attack_character(&mob->atk, ent, mob->hit, std::nullopt);
                     }
                 }
                 if (mob->a.contains(u"stand"))
@@ -506,8 +506,7 @@ void animate_damage(Damage *dam)
         auto &info = it;
         if (info->delay <= Window::dt_now)
         {
-            auto delta_time = Window::delta_time;
-            info->alpha -= (float)Window::delta_time * 0.28;
+            info->alpha = info->alpha - (float)Window::delta_time * 0.15 - (255 - info->alpha) * (float)Window::delta_time * 0.001;
             if (info->alpha <= 0)
             {
                 it = dam->damages.erase(it);
@@ -705,7 +704,7 @@ void animate_trap(Trap *trap, entt::entity ent)
                 atk.max_damage = 1;
                 atk.damage = trap->damage;
                 atk.src_point = trap_transform->position;
-                attack_player(&atk, ent, Player::ent, std::nullopt);
+                attack_character(&atk, ent, Player::ent, std::nullopt);
             }
         }
     }
