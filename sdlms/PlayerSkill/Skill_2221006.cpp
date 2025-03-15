@@ -27,10 +27,10 @@ void generate_chain_effect(
 
     for (float i = 0; i < segments; ++i)
     {
-        auto tr = new Transform(
+        Transform tr(
             start.x + dx_per_segment * i,
             start.y + dy_per_segment * i);
-        tr->rotation = angle;
+        tr.rotation = angle;
 
         eff->effects.push_back({tr,
                                 AnimatedSprite(sprite_template)});

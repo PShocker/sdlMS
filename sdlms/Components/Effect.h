@@ -9,7 +9,7 @@ struct Effect
 {
     struct Info
     {
-        Transform *tr;
+        std::optional<Transform> tr;
         AnimatedSprite aspr;
         unsigned int delay = Window::dt_now;
     };

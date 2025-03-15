@@ -504,13 +504,13 @@ void render_effect(Transform *tr, Effect *eff)
     {
         if (val.delay <= Window::dt_now)
         {
-            if (val.tr == nullptr)
+            if (val.tr == std::nullopt)
             {
                 render_animated_sprite(tr, &val.aspr);
             }
             else
             {
-                render_animated_sprite(val.tr, &val.aspr);
+                render_animated_sprite(&val.tr.value(), &val.aspr);
             }
         }
     }

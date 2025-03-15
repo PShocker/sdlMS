@@ -165,7 +165,7 @@ int pet_follow(entt::entity ent)
         if (character->action == Character::ACTION::LADDER || character->action == Character::ACTION::ROPE)
         {
             auto eff = World::registry->try_get<Effect>(ent);
-            eff->effects.push_back({new Transform(pet_tr->position), AnimatedSprite(Effect::load(u"PetEff.img/" + pet->id + u"/warp"))});
+            eff->effects.push_back({Transform(pet_tr->position), AnimatedSprite(Effect::load(u"PetEff.img/" + pet->id + u"/warp"))});
             pet_tr->position = owner_tr->position;
             pet_tr->z = owner_mv->lr->page * LAYER_Z + pet_tr->z % LAYER_Z;
             World::zindex = true;
@@ -179,7 +179,7 @@ int pet_follow(entt::entity ent)
             pet_mv->hspeed = 0;
             pet_tr->position = owner_tr->position;
             auto eff = World::registry->try_get<Effect>(ent);
-            eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"PetEff.img/Basic/Teleport"))});
+            eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"PetEff.img/Basic/Teleport"))});
             return Pet::State::JUMP;
         }
         if (std::abs(owner_tr->position.x - pet_tr->position.x) >= 50)

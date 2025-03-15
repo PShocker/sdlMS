@@ -959,8 +959,8 @@ void player_portal(Move *mv, entt::entity ent)
                         else
                         {
                             auto eff = World::registry->try_get<Effect>(ent);
-                            eff->effects.push_back({new Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
-                            eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.push_back({Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
 
                             auto position = std::get<SDL_FPoint>(por->tn);
                             tr->position.x = position.x;
@@ -997,7 +997,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
         }
         // 添加effect
         auto eff = World::registry->try_get<Effect>(ent);
-        eff->effects.push_back({new Transform(tr->position.x, tr->position.y, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
+        eff->effects.push_back({Transform(tr->position.x, tr->position.y, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
 
         // 技能音效
         auto ski = SkillWarp::load(u"4111006");

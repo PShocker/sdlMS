@@ -381,11 +381,6 @@ void animate_effect(Effect *eff)
         auto aspr = &info->aspr;
         if (animate_sprite(aspr) == false)
         {
-            auto tr = info->tr;
-            if (tr != nullptr)
-            {
-                delete tr;
-            }
             it = eff->effects.erase(it);
         }
         else

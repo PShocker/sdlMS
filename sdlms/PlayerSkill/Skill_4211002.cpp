@@ -58,15 +58,15 @@ int skill_4211002(entt::entity ent)
         {
             o_mv->hspeed = 125;
             o_mv->hforce = 1400;
-            eff->effects.push_back({new Transform(o_tr->position + SDL_FPoint{100, -35}, 0, o_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
+            eff->effects.push_back({Transform(o_tr->position + SDL_FPoint{100, -35}, 0, o_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
         }
         else
         {
             o_mv->hspeed = -125;
             o_mv->hforce = -1400;
-            eff->effects.push_back({new Transform(o_tr->position + SDL_FPoint{-100, -35}, 0, o_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
+            eff->effects.push_back({Transform(o_tr->position + SDL_FPoint{-100, -35}, 0, o_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
         }
-        eff->effects.push_back({new Transform(o_tr->position, 0, o_tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/remain"))});
+        eff->effects.push_back({Transform(o_tr->position, 0, o_tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/remain"))});
         if (o_mv->foo)
         {
             // 地面上
@@ -82,8 +82,8 @@ int skill_4211002(entt::entity ent)
             o_mv->hspeed = 0;
         }
         // 添加effect
-        eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect"))});
-        eff->effects.push_back({nullptr, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect0"))});
+        eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect"))});
+        eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect0"))});
     };
 
     return PlayerSkill::SkillResult::SOU |
