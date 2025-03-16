@@ -16,7 +16,7 @@ struct Buff
         std::optional<std::function<void(entt::entity)>> before_hit;
         std::optional<std::function<void(entt::entity)>> after_hit;
         // 持续时间
-        unsigned int duration = 30000;
+        unsigned int duration = 0;
         // 摧毁时间
         unsigned int destory = Window::dt_now + duration;
     };

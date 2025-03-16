@@ -184,6 +184,8 @@ int pet_follow(entt::entity ent)
         }
         if (std::abs(owner_tr->position.x - pet_tr->position.x) >= 50)
         {
+            pet_mv->hspeed_max = owner_mv->hspeed_max;
+            pet_mv->hspeed_min = owner_mv->hspeed_min;
             pet_mv->hforce = owner_tr->position.x > pet_tr->position.x ? 1400 : -1400;
             return Pet::State::MOVE;
         }

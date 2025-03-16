@@ -284,7 +284,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
             }
             else
             {
-                mv->vspeed = -555;
+                mv->vspeed = mv->vspeed_min.value() * 0.111;
                 mv->page = mv->foo->page;
                 mv->zmass = mv->foo->zmass;
                 mv->foo = nullptr;
@@ -815,6 +815,7 @@ const std::map<SDL_Scancode, std::u16string> skill_key_id = {
     {SDL_SCANCODE_N, u"4121007"},
     {SDL_SCANCODE_M, u"1121006"},
     {SDL_SCANCODE_Q, u"2101005"},
+    {SDL_SCANCODE_E, u"4101004"},
     {SDL_SCANCODE_1, u"2221005"},
     {SDL_SCANCODE_2, u"2121005"},
     {SDL_SCANCODE_3, u"3121006"},

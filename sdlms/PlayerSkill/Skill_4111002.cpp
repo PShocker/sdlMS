@@ -43,6 +43,7 @@ int skill_4111002(entt::entity ent)
 
         Buff::Info info;
         info.duration = duration;
+        info.destory = Window::dt_now + duration;
         buff->buffs.emplace(u"4111002", info);
     };
 

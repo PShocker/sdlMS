@@ -20,11 +20,10 @@ int skill_4001344(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto effect = Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001344/CharLevel/25/effect");
-    auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.push_back({std::nullopt, AnimatedSprite(AnimatedSpriteWarp::load(effect))});
-
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4001344");
+
+    auto eff = World::registry->try_get<Effect>(ent);
+    eff->effects.push_back({std::nullopt, AnimatedSprite(AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"CharLevel/25/effect")))});
 
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
