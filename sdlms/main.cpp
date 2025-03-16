@@ -23,6 +23,7 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     mob_statemachine_run();
     npc_statemachine_run();
     pet_statemachine_run();
+    buff_run();
     drop_run();
     ball_run();
     ui_run();

@@ -11,6 +11,7 @@
 #include "PlayerStateMachine.h"
 #include "SummonStateMachine.h"
 #include "PetStateMachine.h"
+#include "Buff.h"
 #include "Render.h"
 #include "World.h"
 #include "UI.h"

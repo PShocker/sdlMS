@@ -27,4 +27,5 @@
 #include "Components/Install.h"
 #include "Components/Summon.h"
 #include "Components/Pet.h"
+#include "Components/Buff.h"
 #include "Components/Test.h"

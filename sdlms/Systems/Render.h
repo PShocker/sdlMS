@@ -4,6 +4,7 @@
 #include <optional>
 
 #include "Components/Components.h"
+#include "UI/UI.h"
 
 void render_run();
 
@@ -23,3 +24,4 @@ void render_reactor(Transform *tr, Reactor *r);
 void render_install(Transform *tr, Install *i);
 void render_summon(Transform *tr, Summon *sum);
 void render_pet(Transform *tr, Pet *pet);
+void render_uibuff(Transform *tr, UIBuff *uib);

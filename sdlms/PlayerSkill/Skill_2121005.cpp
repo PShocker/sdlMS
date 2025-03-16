@@ -21,6 +21,9 @@ int skill_2121005(entt::entity ent)
         mv->hspeed = 0;
     }
 
+    // 持续时间
+    const unsigned int duration = 30000;
+
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2121005");
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
@@ -28,15 +31,18 @@ int skill_2121005(entt::entity ent)
         {
             return;
         }
+
+        auto buff = World::registry->try_get<Buff>(ent);
         auto owner_mv = World::registry->try_get<Move>(ent);
         if (owner_mv->foo)
         {
             for (auto e : World::registry->view<Summon>())
             {
                 auto sum = World::registry->try_get<Summon>(e);
-                if (sum->owner == ent && sum->id == u"2121005")
+                if (sum->state != Summon::State::DIE && sum->owner == ent && sum->id == u"2121005")
                 {
-                    sum->destory = Window::dt_now + 30000;
+                    sum->destory = Window::dt_now + duration;
+                    buff->buffs.at(u"2121005").destory = sum->destory;
                     return;
                 }
             }
@@ -44,6 +50,10 @@ int skill_2121005(entt::entity ent)
             auto e = load_summon(ski->skiw->node->get_child(u"summon"), u"2121005", ent);
             auto summon_mv = World::registry->try_get<Move>(e);
             summon_mv->foo = owner_mv->foo;
+
+            Buff::Info info;
+            info.duration = duration;
+            buff->buffs.emplace(u"2121005", info);
         }
     };
     SkillWarp::cooldowns[u"2121005"] = 1500;

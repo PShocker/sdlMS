@@ -18,6 +18,10 @@ void render_run()
         {
             auto sprw = spr->sprw;
             render_sprite(tr, sprw);
+            if (auto uib = World::registry->try_get<UIBuff>(ent))
+            {
+                render_uibuff(tr, uib);
+            }
         }
         else if (auto a = World::registry->try_get<AnimatedSprite>(ent))
         {
@@ -679,4 +683,20 @@ void render_pet(Transform *tr, Pet *pet)
 {
     auto a = &pet->a[pet->index];
     render_animated_sprite(tr, a);
+}
+
+void render_uibuff(Transform *tr, UIBuff *uib)
+{
+    if (uib->destory >= Window::dt_now)
+    {
+        SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 148);
+        auto d = uib->destory - Window::dt_now;
+        SDL_FRect rect;
+        rect.x = tr->position.x;
+        rect.y = tr->position.y - 32 + 32 * d / (float)uib->duration;
+        rect.w = 32;
+        rect.h = 32 * (1 - d / (float)uib->duration);
+        SDL_RenderFillRect(Window::renderer, &rect);
+    }
 }

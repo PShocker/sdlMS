@@ -7,6 +7,7 @@ void ui_run()
     auto type = Cursor::type;
     Cursor::run();
     WorldMap::run();
+    UIBuff::run();
     // 检测左键是否被按住
     if (Window::mouse_state & SDL_BUTTON_LMASK)
     {

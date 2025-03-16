@@ -44,6 +44,8 @@ void load_character(float x, float y, bool sp, entt::entity ent)
         World::registry->emplace<Transform>(ent, x, y, LAYER_Z * 8 + CHARACTER_Z - count);
     }
     World::registry->emplace<Move>(ent);
+    auto buff = &World::registry->emplace<Buff>(ent);
+    buff->owner = ent;
     World::zindex = true;
     return;
 }
