@@ -5,6 +5,7 @@
 #include "FootHold.h"
 #include "Attack.h"
 #include "entt/entt.hpp"
+#include "Core/Window.h"
 
 #include <unordered_map>
 #include <vector>
@@ -30,7 +31,7 @@ struct Mob
         static const int ATTACK = 7;
     };
     // STAND,MOVE状态下循环的持续时间
-    int tick = 500;
+    unsigned int tick = Window::dt_now + 500;
 
     int revive;
     // 复活时间

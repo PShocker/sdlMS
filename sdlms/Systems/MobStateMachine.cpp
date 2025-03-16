@@ -135,14 +135,14 @@ void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state)
         {
         case Mob::State::STAND:
         {
-            mob->tick = std::rand() % 100 + 2110;
+            mob->tick = std::rand() % 100 + 2110 + Window::dt_now;
             mob->index = u"stand";
             mv->hspeed = 0;
         }
         break;
         case Mob::State::MOVE:
         {
-            mob->tick = std::rand() % 100 + 2390;
+            mob->tick = std::rand() % 100 + 2390 + Window::dt_now;
             mob->index = u"move";
             mob_set_hspeed(mob, mv, tr);
         }
@@ -203,7 +203,7 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
             {
                 if (mob_hit_move(atk->src_point, ent))
                 {
-                    mob->tick = 300;
+                    mob->tick = Window::dt_now + 500;
                     mob->state = Mob::State::HIT;
                     mob->index = u"hit1";
                 };
@@ -293,7 +293,7 @@ bool mob_fall(entt::entity ent, float delta_time)
         else
         {
             // 落地
-            mob->tick = 0;
+            mob->tick = Window::dt_now;
             return false;
         }
     }
@@ -304,12 +304,11 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
     if (!(state == Mob::State::ATTACK || state == Mob::State::HIT || state == Mob::State::DIE ||
           state == Mob::State::REMOVE || mv->foo == nullptr))
     {
-        mob->tick -= delta_time * 1000;
-        if (mob->tick < 0)
+        if (mob->tick < Window::dt_now)
         {
             if (state == Mob::State::FLY)
             {
-                mob->tick = std::rand() % 100 + 200;
+                mob->tick = std::rand() % 100 + 200 + Window::dt_now;
                 mob_set_hspeed(mob, mv, tr);
                 mob_set_vspeed(mob, mv, tr);
                 if (World::registry->valid(mob->hit))
@@ -335,7 +334,7 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
             {
                 if (World::registry->valid(mob->hit))
                 {
-                    mob->tick = std::rand() % 100 + 200;
+                    mob->tick = std::rand() % 100 + 200 + Window::dt_now;
                     mob_set_hspeed(mob, mv, tr);
                     state = Mob::State::MOVE;
                 }
@@ -343,7 +342,7 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                 {
                     // 只有在地面才可以切换状态
                     //  怪物状态切换 STAND MOVE
-                    mob->tick = std::rand() % 100 + 240;
+                    mob->tick = std::rand() % 100 + 240 + Window::dt_now;
                     int random = std::rand() % 2;
                     switch (random)
                     {
