@@ -177,9 +177,6 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
     auto tr = World::registry->try_get<Transform>(ent);
     auto mob = World::registry->try_get<Mob>(ent);
 
-    auto head_point = mob->head(tr->flip);
-    auto damage_point = tr->position + SDL_FPoint{0, head_point.y};
-
     if (atk->damage > 0)
     {
         Effect::push(World::registry->try_get<Effect>(ent), atk->hit, hit_point, tr->flip);
@@ -188,7 +185,7 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
             auto r = generate_random(atk->min_damage, atk->max_damage);
             int damage = atk->damage * r;
             auto type = damage > atk->damage ? Damage::Info::Type::Cri : Damage::Info::Type::Red;
-            Damage::push(World::registry->try_get<Damage>(ent), damage, type, damage_point);
+            Damage::push(World::registry->try_get<Damage>(ent), damage, type, Window::dt_now + i * 60);
 
             mob->hp -= damage;
             mob->hit = Player::ent;

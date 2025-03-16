@@ -127,7 +127,9 @@ void load_mob(wz::Node *node)
     }
 
     World::registry->emplace<Effect>(ent);
-    World::registry->emplace<Damage>(ent);
+    auto damage = &World::registry->emplace<Damage>(ent);
+    damage->point = SDL_FPoint{0,
+                               (float)dynamic_cast<wz::Property<wz::WzVec2D> *>(mob.a[u"hit1"].asprw->sprites[0]->n->get_child(u"head"))->get().y};
     World::registry->emplace<Animated>(ent);
     auto count = World::registry->view<Mob>().size();
     World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + MOB_Z + count);

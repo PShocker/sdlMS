@@ -29,7 +29,9 @@ void load_character(float x, float y, bool sp, entt::entity ent)
 
     World::registry->emplace<Animated>(ent);
     World::registry->emplace<Effect>(ent);
-    World::registry->emplace<Damage>(ent);
+
+    auto damage = &World::registry->emplace<Damage>(ent);
+    damage->point = SDL_FPoint{-15, -60};
 
     auto count = World::registry->view<Character>().size();
 

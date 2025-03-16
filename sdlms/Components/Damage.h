@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Sprite.h"
-
+#include "Core/Window.h"
 #include <SDL3/SDL.h>
 #include <optional>
 #include <list>
@@ -30,13 +30,13 @@ struct Damage
         unsigned int delay;
         float x;
         float y;
-        SDL_FPoint point;
     };
 
     std::list<Info> damages;
     char index = 0;
+    SDL_FPoint point;
 
     static void init();
 
-    static void push(Damage *dam, int damage, uint8_t type, SDL_FPoint point);
+    static void push(Damage *dam, int damage, uint8_t type, unsigned int delay = Window::dt_now);
 };

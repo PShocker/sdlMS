@@ -707,8 +707,7 @@ bool player_hit(Attack *atk, entt::entity ent)
             auto r = generate_random(atk->min_damage, atk->max_damage);
             auto damage = atk->damage * r;
 
-            Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Info::Type::Violet,
-                         tr->position + SDL_FPoint{20, -60});
+            Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Info::Type::Violet);
 
             cha->hp -= damage;
             if (cha->hp > 0)
@@ -788,8 +787,7 @@ bool player_hit(Attack *atk, entt::entity ent)
     }
     else if (atk->damage < 0)
     {
-        Damage::push(World::registry->try_get<Damage>(ent), atk->damage, Damage::Info::Type::Blue,
-                     tr->position + SDL_FPoint{20, -60});
+        Damage::push(World::registry->try_get<Damage>(ent), atk->damage, Damage::Info::Type::Blue);
         character->hp -= atk->damage;
         res = true;
     }

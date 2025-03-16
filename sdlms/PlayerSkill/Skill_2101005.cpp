@@ -50,10 +50,12 @@ int skill_2101005(entt::entity ent)
             {
                 // 中毒效果
                 push_mob_special_effect(ent, asprw);
+                mob->mod = SDL_Color{136, 204, 0};
                 return std::make_pair(false, true);
             }
             else
             {
+                mob->mod = SDL_Color{255, 255, 255};
                 return std::make_pair(true, true);
             }
         };

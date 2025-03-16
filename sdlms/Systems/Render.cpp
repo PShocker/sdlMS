@@ -572,14 +572,17 @@ void render_mob(Transform *tr, Mob *mob)
 
 void render_damage(Transform *tr, Damage *dam)
 {
-    for (auto it : dam->damages)
+    auto d = dam->damages;
+    d.sort([](const auto &m, const auto &n)
+           { return m.alpha < n.alpha; });
+    for (auto it : d)
     {
         auto &info = it;
         if (info.delay < Window::dt_now)
         {
-            auto p = info.point;
+            auto p = dam->point + tr->position;
             int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
-            p.x = p.x - length * 34 + length * 8.5;
+            p.x = p.x - length * 17;
             int i = 0;
             while (info.damage > 0)
             {

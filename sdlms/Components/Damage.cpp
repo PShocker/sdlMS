@@ -38,21 +38,22 @@ void Damage::init()
     }
 }
 
-void Damage::push(Damage *dam, int damage, uint8_t type, SDL_FPoint point)
+void Damage::push(Damage *dam, int damage, uint8_t type, unsigned int delay)
 {
     if ((dam->damages.size() > 0 &&
-         dam->damages.front().alpha <= 128) ||
+         (dam->damages.front().alpha <= 200 ||
+          type == Damage::Info::Type::Violet ||
+          type == Damage::Info::Type::Blue)) ||
         dam->damages.size() == 0)
     {
         dam->index = 0;
     }
     int count = dam->index;
     Damage::Info info;
-    info.point = point;
     info.damage = std::abs(damage);
     info.alpha = 255;
     info.type = type;
-    info.delay = Window::dt_now + count * 60;
+    info.delay = delay;
     info.x = 0;
     info.y = (float)(count) * 38;
     if (count == 0)
