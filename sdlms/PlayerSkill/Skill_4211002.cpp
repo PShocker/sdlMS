@@ -67,6 +67,10 @@ int skill_4211002(entt::entity ent)
             eff->effects.push_back({Transform(o_tr->position + SDL_FPoint{-100, -35}, 0, o_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
         }
         eff->effects.push_back({Transform(o_tr->position, 0, o_tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/remain"))});
+        auto hspeed_min = o_mv->hspeed_min;
+        auto hspeed_max = o_mv->hspeed_max;
+        o_mv->hspeed_min = -125;
+        o_mv->hspeed_max = 125;
         if (o_mv->foo)
         {
             // 地面上
@@ -81,6 +85,8 @@ int skill_4211002(entt::entity ent)
             move_fall(o_mv, o_tr, 1.5, o_tr->z % LAYER_Z);
             o_mv->hspeed = 0;
         }
+        o_mv->hspeed_min = hspeed_min;
+        o_mv->hspeed_max = hspeed_max;
         // 添加effect
         eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect"))});
         eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect0"))});
