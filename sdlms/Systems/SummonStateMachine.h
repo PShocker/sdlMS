@@ -12,9 +12,11 @@ entt::entity summon_attack(Transform *tr);
 bool summon_attack_action(entt::entity ent, entt::entity target);
 
 int summon_move(entt::entity ent, int state, float delta_time);
+bool summon_fall(entt::entity ent, float delta_time);
 int summon_fly(entt::entity ent, int state, float delta_time);
 int summon_follow(entt::entity ent);
 int summon_action(Summon *sum, int state, int new_state);
+bool summon_jump(Summon *sum, Transform *tr, Move *mv);
 
 void summon_set_hspeed(entt::entity ent, entt::entity target, float distance, float speed = 1);
 void summon_set_vspeed(entt::entity ent, entt::entity target, float distance, float speed = 1);

@@ -57,6 +57,19 @@ void summon_statemachine(entt::entity ent, float delta_time)
         {
             break;
         }
+        if (summon_jump(sum, tr, mv))
+        {
+            sum->state = Summon::State::JUMP;
+        }
+    }
+    break;
+    case Summon::State::JUMP:
+    {
+        summon_flip(mv, tr);
+        if (!summon_fall(ent, delta_time))
+        {
+            sum->state = Summon::State::STAND;
+        }
     }
     break;
     case Summon::State::FLY:
@@ -150,6 +163,34 @@ int summon_move(entt::entity ent, int state, float delta_time)
     return state;
 }
 
+bool summon_fall(entt::entity ent, float delta_time)
+{
+    auto mv = World::registry->try_get<Move>(ent);
+    auto tr = World::registry->try_get<Transform>(ent);
+    if (mv->foo)
+    {
+        return false;
+    }
+    else
+    {
+        // 默认重力为2000
+        mv->vspeed += delta_time * 2000;
+        // 往人物方向运动
+        auto sum = World::registry->try_get<Summon>(ent);
+        auto owner_tr = World::registry->try_get<Transform>(sum->owner);
+        mv->hspeed += owner_tr->position.x >= tr->position.x ? 0.3f : -0.3f;
+        if (move_fall(mv, tr, delta_time, tr->z % LAYER_Z))
+        {
+            return true;
+        }
+        else
+        {
+            // 落地
+            return false;
+        }
+    }
+}
+
 int summon_fly(entt::entity ent, int state, float delta_time)
 {
     auto sum = World::registry->try_get<Summon>(ent);
@@ -180,7 +221,7 @@ int summon_follow(entt::entity ent)
         auto o_tr = World::registry->try_get<Transform>(sum->owner);
         // 如果距离过远,则瞬移到身边
         if (s_tr->z != o_tr->z - 2 ||
-            std::abs(o_tr->position.x - s_tr->position.x) >= 500 ||
+            std::abs(o_tr->position.x - s_tr->position.x) >= 400 ||
             std::abs(o_tr->position.y - s_tr->position.y) >= 300)
         {
             auto o_mv = World::registry->try_get<Move>(sum->owner);
@@ -259,6 +300,45 @@ int summon_action(Summon *sum, int state, int new_state)
         sum->a[sum->index].anim_time = 0;
     }
     return new_state;
+}
+
+bool summon_jump(Summon *sum, Transform *tr, Move *mv)
+{
+    if (mv->foo == nullptr)
+    {
+        return false;
+    }
+    FootHold *fh = nullptr;
+    // 判断移动方向
+    if (mv->hforce > 0)
+    {
+        // 向右移动
+        fh = mv->foo->next;
+    }
+    else if (mv->hforce < 0)
+    {
+        // 向左移动
+        fh = mv->foo->prev;
+    }
+    else
+    {
+        return false;
+    }
+    if (fh == nullptr || fh->k.has_value() == false && tr->position.y >= fh->b)
+    {
+        // 有概率起跳
+        int random = std::rand() % 8;
+        if (random == 0)
+        {
+            sum->index = u"jump";
+            sum->state = Summon::State::JUMP;
+
+            mv->foo = nullptr;
+            mv->vspeed = -600;
+            return true;
+        }
+    }
+    return false;
 }
 
 void summon_set_hspeed(entt::entity ent, entt::entity target, float distance, float speed)

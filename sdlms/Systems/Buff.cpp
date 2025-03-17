@@ -9,7 +9,7 @@ void buff_run()
         auto buff = World::registry->try_get<Buff>(ent);
         for (auto it = buff->buffs.begin(); it != buff->buffs.end();)
         {
-            if (it->second.destory < Window::dt_now)
+            if (it->second.destory < Window::dt_now || (it->second.duration == -1 && it->second.destory != 0))
             {
                 if (it->second.finish.has_value())
                 {
@@ -19,6 +19,10 @@ void buff_run()
             }
             else
             {
+                if (it->second.frame.has_value())
+                {
+                    it->second.frame.value()(buff->owner);
+                }
                 ++it;
             }
         }

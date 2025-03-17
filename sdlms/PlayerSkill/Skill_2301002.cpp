@@ -8,6 +8,11 @@
 // 群体治愈
 int skill_2301002(entt::entity ent)
 {
+    if (ent != Player::ent)
+    {
+        return PlayerSkill::SkillResult::None;
+    }
+
     auto mv = World::registry->try_get<Move>(ent);
     auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;

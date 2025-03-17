@@ -1,7 +1,6 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include <any>
 #include "wz/Property.hpp"
 #include <optional>
 

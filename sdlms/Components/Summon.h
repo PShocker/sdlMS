@@ -21,10 +21,11 @@ struct Summon
         static const int INIT = 0;
         static const int STAND = 1;
         static const int MOVE = 2;
-        static const int DIE = 3;
-        static const int FLY = 4;
-        static const int ATTACK = 5;
-        static const int REMOVE = 6;
+        static const int JUMP = 3;
+        static const int DIE = 4;
+        static const int FLY = 5;
+        static const int ATTACK = 6;
+        static const int REMOVE = 7;
     };
 
     int state = State::INIT;

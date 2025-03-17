@@ -12,7 +12,7 @@ int skill_2221005(entt::entity ent)
     auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;
 
-    if (mv->foo == nullptr)
+    if (mv->foo == nullptr || ent != Player::ent)
     {
         return PlayerSkill::SkillResult::None;
     }

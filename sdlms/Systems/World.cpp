@@ -32,19 +32,23 @@ void world_transport()
         {
             World::TransPort::tn = u"sp";
         }
-        auto view = World::registry->view<Portal>();
-        for (auto &e : view)
+
+        auto player_transform = World::registry->try_get<Transform>(Player::ent);
+        auto player_move = World::registry->try_get<Move>(Player::ent);
+        auto player_character = World::registry->try_get<Character>(Player::ent);
+
+        for (auto ent : World::registry->view<Portal>())
         {
-            auto por = &view.get<Portal>(e);
-            if (por->pn == World::TransPort::tn)
+            auto portal = World::registry->try_get<Portal>(ent);
+            if (portal->pn == World::TransPort::tn)
             {
-                auto tr = World::registry->try_get<Transform>(e);
-                Player::ent = World::registry->create();
-                load_character(tr->position.x, tr->position.y - 10, false, Player::ent);
-                load_pet(u"5000000", Player::ent);
+                auto portal_transform = World::registry->try_get<Transform>(ent);
+                player_transform->position = SDL_FPoint{portal_transform->position.x, portal_transform->position.y - 10};
+                player_move->foo = nullptr;
+                player_character->state = Character::State::JUMP;
                 camera_refresh();
                 World::TransPort::id = 0;
-                return;
+                break;
             }
         }
     }

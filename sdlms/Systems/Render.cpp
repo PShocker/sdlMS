@@ -687,7 +687,7 @@ void render_pet(Transform *tr, Pet *pet)
 
 void render_uibuff(Transform *tr, UIBuff *uib)
 {
-    if (uib->destory >= Window::dt_now)
+    if (uib->destory >= Window::dt_now && uib->duration != -1)
     {
         SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 148);
