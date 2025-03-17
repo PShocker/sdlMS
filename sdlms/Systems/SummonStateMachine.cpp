@@ -238,7 +238,7 @@ int summon_follow(entt::entity ent)
             summon_mv->vspeed = 0;
             summon_mv->hspeed = 0;
             summon_mv->foo = nullptr;
-            summon_tr->position = o_tr->position;
+            summon_tr->position = o_tr->position + SDL_FPoint{0, -5};
             auto eff = World::registry->try_get<Effect>(ent);
             eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
             if (sum->state == Summon::State::FLY)

@@ -185,7 +185,7 @@ int pet_follow(entt::entity ent)
             pet_mv->foo = nullptr;
             pet_mv->vspeed = 0;
             pet_mv->hspeed = 0;
-            pet_tr->position = owner_tr->position;
+            pet_tr->position = owner_tr->position + SDL_FPoint{0, -5};
             auto eff = World::registry->try_get<Effect>(ent);
             eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"PetEff.img/Basic/Teleport"))});
             return Pet::State::JUMP;
