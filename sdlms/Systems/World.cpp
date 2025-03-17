@@ -64,7 +64,10 @@ void world_destory_ent()
 {
     for (auto ent : World::destory)
     {
-        World::registry->destroy(ent);
+        if (World::registry->valid(ent))
+        {
+            World::registry->destroy(ent);
+        }
     }
     World::destory.clear();
 }
