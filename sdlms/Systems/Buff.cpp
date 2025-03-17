@@ -9,8 +9,13 @@ void buff_run()
         auto buff = World::registry->try_get<Buff>(ent);
         for (auto it = buff->buffs.begin(); it != buff->buffs.end();)
         {
-            if (it->second.destory < Window::dt_now || (it->second.duration == -1 && it->second.destory != 0))
+            if (it->second.destory < Window::dt_now)
             {
+                if (it->second.duration == -1 && it->second.destory == 0)
+                {
+                    ++it;
+                    continue;
+                }
                 if (it->second.finish.has_value())
                 {
                     it->second.finish.value()(buff->owner);

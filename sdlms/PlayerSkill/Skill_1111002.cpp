@@ -2,7 +2,7 @@
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
 
-//
+// 斗气
 int skill_1111002(entt::entity ent)
 {
     auto mv = World::registry->try_get<Move>(ent);
