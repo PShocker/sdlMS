@@ -16,21 +16,44 @@ void World::load_map(int id)
     // 获取实体存储容器并遍历
     for (auto ent : World::registry->storage<entt::entity>())
     {
-        if (ent == Player::ent)
+        if (ent == Player::ent || World::registry->all_of<Character, Summon>(ent))
         {
-            continue;
+            // 自己和自己的影分身
+            auto sum = World::registry->try_get<Summon>(ent);
+            if (ent == Player::ent || (sum != nullptr && sum->owner == Player::ent))
+            {
+                World::registry->remove<AfterImage>(ent);
+                World::registry->remove<Skill>(ent);
+                auto eff = World::registry->try_get<Effect>(ent);
+                eff->effects.clear();
+                continue;
+            }
         }
         // 跳过自己的召唤物
         else if (auto sum = World::registry->try_get<Summon>(ent))
         {
             if (sum->owner == Player::ent)
             {
+                if (sum->a.contains(u"fly"))
+                {
+                    sum->state = Summon::State::FLY;
+                    sum->index = u"fly";
+                }
+                else if (sum->a.contains(u"jump"))
+                {
+                    sum->state = Summon::State::JUMP;
+                    sum->index = u"jump";
+                }
+                sum->a[sum->index].anim_index = 0;
+                sum->a[sum->index].anim_time = 0;
+                World::registry->try_get<Transform>(ent)->position.x = std::numeric_limits<float>::max();
                 continue;
             }
         }
         // 跳过自己的宠物
         else if (auto pet = World::registry->try_get<Pet>(ent))
         {
+            World::registry->try_get<Transform>(ent)->position.x = std::numeric_limits<float>::max();
             continue;
         }
         // 跳过右上角UIBuff

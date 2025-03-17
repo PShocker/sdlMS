@@ -19,15 +19,15 @@ SDL_AppResult SDL_AppIterate(void *appstate)
     cooldown_run();
     animate_run();
     player_statemachine_run();
-    summon_statemachine_run();
     mob_statemachine_run();
     npc_statemachine_run();
-    pet_statemachine_run();
     buff_run();
     drop_run();
     ball_run();
     ui_run();
     world_run();
+    summon_statemachine_run();
+    pet_statemachine_run();
     camera_run();
     render_run();
     Window::update();

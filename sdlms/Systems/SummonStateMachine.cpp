@@ -52,20 +52,30 @@ void summon_statemachine(entt::entity ent, float delta_time)
     case Summon::State::MOVE:
     {
         summon_flip(mv, tr);
-        sum->state = summon_move(ent, state, delta_time);
-        if (summon_attack_action(ent, summon_attack(tr)))
+        sum->state = summon_follow(ent);
+        if (sum->state == Summon::State::STAND || sum->state == Summon::State::MOVE)
         {
-            break;
-        }
-        if (summon_jump(sum, tr, mv))
-        {
-            sum->state = Summon::State::JUMP;
+            if (summon_jump(sum, tr, mv))
+            {
+                sum->state = Summon::State::JUMP;
+                break;
+            }
+            if (summon_move(ent, state, delta_time))
+            {
+                sum->state = Summon::State::JUMP;
+                break;
+            }
+            if (summon_attack_action(ent, summon_attack(tr)))
+            {
+                break;
+            }
         }
     }
     break;
     case Summon::State::JUMP:
     {
         summon_flip(mv, tr);
+        sum->state = summon_follow(ent);
         if (!summon_fall(ent, delta_time))
         {
             sum->state = Summon::State::STAND;
@@ -75,7 +85,8 @@ void summon_statemachine(entt::entity ent, float delta_time)
     case Summon::State::FLY:
     {
         summon_flip(mv, tr);
-        sum->state = summon_fly(ent, state, delta_time);
+        summon_follow(ent);
+        summon_fly(ent, state, delta_time);
         if (summon_attack_action(ent, summon_attack(tr)))
         {
             break;
@@ -113,9 +124,9 @@ entt::entity summon_attack(Transform *tr)
         auto mob = World::registry->try_get<Mob>(ent);
         if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
         {
-            auto m_tr = World::registry->try_get<Transform>(ent);
-            if (std::abs(m_tr->position.x - tr->position.x) <= 350 &&
-                std::abs(m_tr->position.y - tr->position.y) <= 35)
+            auto mob_tr = World::registry->try_get<Transform>(ent);
+            if (std::abs(mob_tr->position.x - tr->position.x) <= 350 &&
+                std::abs(mob_tr->position.y - tr->position.y) <= 35)
             {
                 return ent;
             }
@@ -129,13 +140,13 @@ bool summon_attack_action(entt::entity ent, entt::entity target)
     if (World::registry->valid(target))
     {
         // 转向
-        auto m_tr = World::registry->try_get<Transform>(target);
-        auto s_tr = World::registry->try_get<Transform>(ent);
-        s_tr->flip = m_tr->position.x > s_tr->position.x ? 1 : 0;
+        auto mob_tr = World::registry->try_get<Transform>(target);
+        auto summon_tr = World::registry->try_get<Transform>(ent);
+        summon_tr->flip = mob_tr->position.x > summon_tr->position.x ? 1 : 0;
 
-        auto s_mv = World::registry->try_get<Move>(ent);
-        s_mv->hspeed = 0;
-        s_mv->vspeed = 0;
+        auto summon_mv = World::registry->try_get<Move>(ent);
+        summon_mv->hspeed = 0;
+        summon_mv->vspeed = 0;
 
         auto sum = World::registry->try_get<Summon>(ent);
         sum->state = Summon::State::ATTACK;
@@ -144,23 +155,22 @@ bool summon_attack_action(entt::entity ent, entt::entity target)
     return false;
 }
 
-int summon_move(entt::entity ent, int state, float delta_time)
+bool summon_move(entt::entity ent, int state, float delta_time)
 {
     auto sum = World::registry->try_get<Summon>(ent);
-    auto s_mv = World::registry->try_get<Move>(ent);
-    auto s_tr = World::registry->try_get<Transform>(ent);
+    auto summon_mv = World::registry->try_get<Move>(ent);
+    auto summon_tr = World::registry->try_get<Transform>(ent);
 
     if (World::registry->valid(sum->owner))
     {
         // 跟随玩家
-        state = summon_follow(ent);
         if (auto e = summon_attack(World::registry->try_get<Transform>(sum->owner)); World::registry->valid(e))
         {
             summon_set_hspeed(ent, e, 0, 1);
         }
-        move_move(s_mv, s_tr, 0, delta_time, false);
+        move_move(summon_mv, summon_tr, 0, delta_time);
     }
-    return state;
+    return summon_mv->foo == nullptr;
 }
 
 bool summon_fall(entt::entity ent, float delta_time)
@@ -178,7 +188,10 @@ bool summon_fall(entt::entity ent, float delta_time)
         // 往人物方向运动
         auto sum = World::registry->try_get<Summon>(ent);
         auto owner_tr = World::registry->try_get<Transform>(sum->owner);
-        mv->hspeed += owner_tr->position.x >= tr->position.x ? 0.3f : -0.3f;
+        if (std::abs(owner_tr->position.x - tr->position.x) > 5)
+        {
+            mv->hspeed += owner_tr->position.x >= tr->position.x ? 0.1f : -0.1f;
+        }
         if (move_fall(mv, tr, delta_time, tr->z % LAYER_Z))
         {
             return true;
@@ -191,71 +204,61 @@ bool summon_fall(entt::entity ent, float delta_time)
     }
 }
 
-int summon_fly(entt::entity ent, int state, float delta_time)
+void summon_fly(entt::entity ent, int state, float delta_time)
 {
     auto sum = World::registry->try_get<Summon>(ent);
-    auto s_mv = World::registry->try_get<Move>(ent);
-    auto s_tr = World::registry->try_get<Transform>(ent);
+    auto summon_mv = World::registry->try_get<Move>(ent);
+    auto summon_tr = World::registry->try_get<Transform>(ent);
     // 跟随玩家
     if (World::registry->valid(sum->owner))
     {
-        state = summon_follow(ent);
         if (auto e = summon_attack(World::registry->try_get<Transform>(sum->owner)); World::registry->valid(e))
         {
-            summon_set_hspeed(ent, e, 0, 0.4);
+            summon_set_hspeed(ent, e, 0, 1);
             summon_set_vspeed(ent, e, 0, 3);
         }
-        move_fall(s_mv, s_tr, delta_time, s_tr->z % LAYER_Z, false, false);
+        move_fall(summon_mv, summon_tr, delta_time, summon_tr->z % LAYER_Z, false, false);
     }
-    return state;
 }
 
 int summon_follow(entt::entity ent)
 {
     auto sum = World::registry->try_get<Summon>(ent);
-    auto s_mv = World::registry->try_get<Move>(ent);
-    auto s_tr = World::registry->try_get<Transform>(ent);
+    auto summon_mv = World::registry->try_get<Move>(ent);
+    auto summon_tr = World::registry->try_get<Transform>(ent);
     int state = sum->state;
     if (World::registry->valid(sum->owner))
     {
         auto o_tr = World::registry->try_get<Transform>(sum->owner);
         // 如果距离过远,则瞬移到身边
-        if (s_tr->z != o_tr->z - 2 ||
-            std::abs(o_tr->position.x - s_tr->position.x) >= 400 ||
-            std::abs(o_tr->position.y - s_tr->position.y) >= 300)
+        if (std::abs(o_tr->position.x - summon_tr->position.x) >= 600 ||
+            std::abs(o_tr->position.y - summon_tr->position.y) >= 300)
         {
             auto o_mv = World::registry->try_get<Move>(sum->owner);
+            summon_mv->vspeed = 0;
+            summon_mv->hspeed = 0;
+            summon_mv->foo = nullptr;
+            summon_tr->position = o_tr->position;
+            auto eff = World::registry->try_get<Effect>(ent);
+            eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
             if (sum->state == Summon::State::FLY)
             {
-                s_mv->vspeed = 0;
-                s_mv->hspeed = 0;
-                s_tr->position = o_tr->position;
-                s_tr->z = o_tr->z - 2;
-                auto eff = World::registry->try_get<Effect>(ent);
-                eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
                 return Summon::State::FLY;
             }
-            else if (o_mv->foo != nullptr)
+            else
             {
-                s_mv->foo = o_mv->foo;
-                s_mv->vspeed = 0;
-                s_mv->hspeed = 0;
-                s_tr->position = o_tr->position;
-                s_tr->z = o_tr->z - 2;
-                auto eff = World::registry->try_get<Effect>(ent);
-                eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
-                return Summon::State::STAND;
+                return Summon::State::JUMP;
             }
         }
         if (sum->state == Summon::State::FLY)
         {
-            summon_set_hspeed(ent, sum->owner, 70, 2);
+            summon_set_hspeed(ent, sum->owner, 70, 1);
             summon_set_vspeed(ent, sum->owner, 10, 3);
         }
-        else
+        else if (summon_mv->foo)
         {
             summon_set_hspeed(ent, sum->owner, 70, 1);
-            if (s_mv->hspeed == 0)
+            if (summon_mv->hspeed == 0)
             {
                 state = Summon::State::STAND;
             }
@@ -310,12 +313,12 @@ bool summon_jump(Summon *sum, Transform *tr, Move *mv)
     }
     FootHold *fh = nullptr;
     // 判断移动方向
-    if (mv->hforce > 0)
+    if (mv->hspeed > 0)
     {
         // 向右移动
         fh = mv->foo->next;
     }
-    else if (mv->hforce < 0)
+    else if (mv->hspeed < 0)
     {
         // 向左移动
         fh = mv->foo->prev;
@@ -343,36 +346,43 @@ bool summon_jump(Summon *sum, Transform *tr, Move *mv)
 
 void summon_set_hspeed(entt::entity ent, entt::entity target, float distance, float speed)
 {
-    auto t_tr = World::registry->try_get<Transform>(target);
-    auto s_tr = World::registry->try_get<Transform>(ent);
-    auto s_mv = World::registry->try_get<Move>(ent);
-    if (std::abs(t_tr->position.x - s_tr->position.x) >= distance)
+    auto target_tr = World::registry->try_get<Transform>(target);
+    auto summon_tr = World::registry->try_get<Transform>(ent);
+    auto summon_mv = World::registry->try_get<Move>(ent);
+    if (std::abs(target_tr->position.x - summon_tr->position.x) >= distance)
     {
-        if (t_tr->position.x > s_tr->position.x)
+        auto sum = World::registry->try_get<Summon>(ent);
+        auto owner_mv = World::registry->try_get<Move>(sum->owner);
+        speed = speed * std::abs(owner_mv->hspeed_max.value()) / 125.0f;
+        if (target_tr->position.x > summon_tr->position.x)
         {
-            s_mv->hspeed = (t_tr->position.x - s_tr->position.x - distance) * speed;
+            summon_mv->hspeed = (target_tr->position.x - summon_tr->position.x - distance) * speed;
+            summon_mv->hspeed = std::min(summon_mv->hspeed, owner_mv->hspeed_max.value());
         }
         else
         {
-            s_mv->hspeed = (t_tr->position.x - s_tr->position.x + distance) * speed;
+            summon_mv->hspeed = (target_tr->position.x - summon_tr->position.x + distance) * speed;
+            summon_mv->hspeed = std::max(summon_mv->hspeed, owner_mv->hspeed_min.value());
         }
+        summon_mv->hspeed_max = std::abs(summon_mv->hspeed);
+        summon_mv->hspeed_min = -std::abs(summon_mv->hspeed);
     }
 }
 
 void summon_set_vspeed(entt::entity ent, entt::entity target, float distance, float speed)
 {
-    auto t_tr = World::registry->try_get<Transform>(target);
-    auto s_tr = World::registry->try_get<Transform>(ent);
-    auto s_mv = World::registry->try_get<Move>(ent);
-    if (std::abs(t_tr->position.y - s_tr->position.y) >= distance)
+    auto target_tr = World::registry->try_get<Transform>(target);
+    auto summon_tr = World::registry->try_get<Transform>(ent);
+    auto summon_mv = World::registry->try_get<Move>(ent);
+    if (std::abs(target_tr->position.y - summon_tr->position.y) >= distance)
     {
-        if (t_tr->position.y > s_tr->position.y)
+        if (target_tr->position.y > summon_tr->position.y)
         {
-            s_mv->vspeed = (t_tr->position.y - s_tr->position.y - distance) * speed;
+            summon_mv->vspeed = (target_tr->position.y - summon_tr->position.y - distance) * speed;
         }
         else
         {
-            s_mv->vspeed = (t_tr->position.y - s_tr->position.y + distance) * speed;
+            summon_mv->vspeed = (target_tr->position.y - summon_tr->position.y + distance) * speed;
         }
     }
 }

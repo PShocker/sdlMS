@@ -47,6 +47,11 @@ void pet_statemachine(entt::entity ent, float delta_time)
     case Pet::State::JUMP:
     {
         pet_flip(mv, tr);
+        pet->state = pet_follow(ent);
+        if (pet->state != Pet::State::JUMP)
+        {
+            break;
+        }
         if (!pet_fall(ent, delta_time))
         {
             pet->state = Pet::State::STAND;
@@ -99,7 +104,10 @@ bool pet_fall(entt::entity ent, float delta_time)
         // 往人物方向运动
         auto pet = World::registry->try_get<Pet>(ent);
         auto owner_tr = World::registry->try_get<Transform>(pet->owner);
-        mv->hspeed += owner_tr->position.x >= tr->position.x ? 0.3f : -0.3f;
+        if (std::abs(owner_tr->position.x - tr->position.x) > 5)
+        {
+            mv->hspeed += owner_tr->position.x >= tr->position.x ? 0.1f : -0.1f;
+        }
         if (move_fall(mv, tr, delta_time, tr->z % LAYER_Z))
         {
             return true;
@@ -182,20 +190,23 @@ int pet_follow(entt::entity ent)
             eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"PetEff.img/Basic/Teleport"))});
             return Pet::State::JUMP;
         }
-        if (std::abs(owner_tr->position.x - pet_tr->position.x) >= 50)
+        if (pet_mv->foo)
         {
-            pet_mv->hspeed_max = owner_mv->hspeed_max;
-            pet_mv->hspeed_min = owner_mv->hspeed_min;
-            pet_mv->hforce = owner_tr->position.x > pet_tr->position.x ? 1400 : -1400;
-            return Pet::State::MOVE;
-        }
-        else
-        {
-            pet_mv->hforce = 0;
-            return Pet::State::STAND;
+            if (std::abs(owner_tr->position.x - pet_tr->position.x) >= 50)
+            {
+                pet_mv->hspeed_max = owner_mv->hspeed_max;
+                pet_mv->hspeed_min = owner_mv->hspeed_min;
+                pet_mv->hforce = owner_tr->position.x > pet_tr->position.x ? 1400 : -1400;
+                return Pet::State::MOVE;
+            }
+            else
+            {
+                pet_mv->hforce = 0;
+                return Pet::State::STAND;
+            }
         }
     }
-    return 0;
+    return Pet::State::JUMP;
 }
 
 bool pet_climb(entt::entity ent)
