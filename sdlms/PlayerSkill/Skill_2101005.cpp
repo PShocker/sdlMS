@@ -84,7 +84,7 @@ int skill_2101005(entt::entity ent)
     };
     ski->ball = 1;
 
-    SkillWarp::cooldowns[u"2101005"] = 500;
+    SkillWarp::cooldowns[u"2101005"] = Window::dt_now + 500;
 
     return PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::EFF |

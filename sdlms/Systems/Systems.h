@@ -4,7 +4,6 @@
 #include "Attack.h"
 #include "Ball.h"
 #include "Camera.h"
-#include "CoolDown.h"
 #include "Drop.h"
 #include "NpcStateMachine.h"
 #include "MobStateMachine.h"

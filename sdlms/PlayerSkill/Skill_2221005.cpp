@@ -56,6 +56,6 @@ int skill_2221005(entt::entity ent)
             buff->buffs.emplace(u"2221005", info);
         }
     };
-    SkillWarp::cooldowns[u"2221005"] = 1500;
+    SkillWarp::cooldowns[u"2221005"] = Window::dt_now + 1500;
     return PlayerSkill::SkillResult::SOU | PlayerSkill::SkillResult::ACT;
 }

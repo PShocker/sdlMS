@@ -16,7 +16,6 @@ SDL_AppResult SDL_AppIterate(void *appstate)
 {
     Window::tick_delta_time();
     Window::clear();
-    cooldown_run();
     animate_run();
     player_statemachine_run();
     mob_statemachine_run();

@@ -34,7 +34,7 @@ int skill_4001344(entt::entity ent)
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
     ski->ball = 2;
 
-    SkillWarp::cooldowns[u"4001344"] = 500;
+    SkillWarp::cooldowns[u"4001344"] = Window::dt_now + 500;
 
     World::registry->emplace_or_replace<AfterImage>(ent);
 

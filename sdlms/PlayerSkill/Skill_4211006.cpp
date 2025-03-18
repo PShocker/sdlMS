@@ -21,7 +21,7 @@ int skill_4211006(entt::entity ent)
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4211006");
 
-    SkillWarp::cooldowns[u"4211006"] = 500;
+    SkillWarp::cooldowns[u"4211006"] = Window::dt_now + 500;
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();

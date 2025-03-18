@@ -94,7 +94,7 @@ int skill_2201002(entt::entity ent)
     // 技能音效
     PlayerSkill::skill_sound(SkillWarp::load(u"2201002"));
 
-    SkillWarp::cooldowns[u"2201002"] = 500;
+    SkillWarp::cooldowns[u"2201002"] = Window::dt_now + 500;
     player_portal_cooldown = Window::dt_now + 600;
 
     return PlayerSkill::SkillResult::None;

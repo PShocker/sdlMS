@@ -274,11 +274,9 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->zmass = mv->foo->zmass;
                     mv->foo = nullptr;
                     mv->lr = nullptr;
+                    SkillWarp::cooldowns[u"4111006"] = Window::dt_now + 500;
                     player_foothold_cooldown = Window::dt_now + 120;
-                    SkillWarp::cooldowns[u"4111006"] = 500;
-
                     Sound::push(Sound(u"Game.img/Jump"));
-
                     return true;
                 }
             }
@@ -289,10 +287,8 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 mv->zmass = mv->foo->zmass;
                 mv->foo = nullptr;
                 mv->lr = nullptr;
-                SkillWarp::cooldowns[u"4111006"] = 200;
-
+                SkillWarp::cooldowns[u"4111006"] = Window::dt_now + 200;
                 Sound::push(Sound(u"Game.img/Jump"));
-
                 return true;
             }
         }
@@ -312,12 +308,9 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 {
                     mv->hspeed = -140;
                 }
+                SkillWarp::cooldowns[u"4111006"] = Window::dt_now + 300;
                 player_ladderrope_cooldown = Window::dt_now + 80;
-
-                SkillWarp::cooldowns[u"4111006"] = 300;
-
                 Sound::push(Sound(u"Game.img/Jump"));
-
                 return true;
             }
         }
@@ -836,9 +829,12 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             }
         }
     }
-    if (id != u"" && SkillWarp::cooldowns[id] <= 0)
+    if (id != u"")
     {
-        SkillWarp::cooldowns[id] = 200;
+        if (SkillWarp::cooldowns.contains(id) && SkillWarp::cooldowns[id] > Window::dt_now)
+        {
+            return false;
+        }
         int skill_res = -1;
         if (PlayerSkill::Skills.contains(id))
         {
@@ -963,8 +959,13 @@ void player_portal(Move *mv, entt::entity ent)
 bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
 {
     // 二段跳
-    if (Input::state[SDL_SCANCODE_LALT] && SkillWarp::cooldowns[u"4111006"] <= 0)
+    if (Input::state[SDL_SCANCODE_LALT])
     {
+        if (SkillWarp::cooldowns.contains(u"4111006") && SkillWarp::cooldowns[u"4111006"] > Window::dt_now)
+        {
+            return false;
+        }
+
         mv->vspeed -= 420;
         if (tr->flip == 1)
         {
@@ -984,8 +985,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
         auto souw = ski->sounds[u"Use"];
 
         Sound::push(souw);
-
-        SkillWarp::cooldowns[u"4111006"] = 10000;
+        SkillWarp::cooldowns[u"4111006"] = Window::dt_now + 500;
         return true;
     }
     return false;
