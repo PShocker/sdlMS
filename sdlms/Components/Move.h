@@ -24,7 +24,7 @@ struct Move
     std::optional<float> ry0 = std::nullopt;
     std::optional<float> ry1 = std::nullopt;
 
-    int page = 8;
+    int page = -1;
     int zmass = 0;
 
     enum AREA : uint8_t

@@ -49,6 +49,7 @@ void world_transport()
                 player_move->foo = nullptr;
                 player_move->vspeed = 0;
                 player_move->hspeed = 0;
+                player_move->page = -1;
                 player_character->state = Character::State::JUMP;
                 player_character->action = Character::ACTION::JUMP;
                 player_character->action_frame = 0;

@@ -29,7 +29,6 @@ int summon_4111002(entt::entity ent)
         auto s_tr = World::registry->try_get<Transform>(ent);
         s_tr->flip = o_tr->flip;
         s_tr->z = o_tr->z - 1;
-
         auto o_mv = World::registry->try_get<Move>(sum->owner);
         auto s_mv = World::registry->try_get<Move>(ent);
         s_mv->foo = o_mv->foo;
