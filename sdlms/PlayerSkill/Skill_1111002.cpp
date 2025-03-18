@@ -39,12 +39,14 @@ int skill_1111002(entt::entity ent)
 
                 if (!info.data.has_value())
                 {
-                    info.data = 1;
+                    info.data = std::map<int, SDL_FPoint>();
+                    auto val = std::any_cast<std::map<int, SDL_FPoint>>(info.data);
+                    val.emplace(1, SDL_FPoint{-10, -10});
                 }
                 else
                 {
-                    int val = std::any_cast<int>(info.data);
-                    info.data = val + 1;
+                    // int val = std::any_cast<int>(info.data);
+                    // info.data = val + 1;
                 }
             };
             info.frame = [](entt::entity src)
