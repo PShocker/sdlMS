@@ -586,13 +586,13 @@ void render_damage(Damage *dam)
         {
             auto p = info.point;
             int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
-            p.x = p.x - length * 15;
+            p.x = p.x - length * 14;
             int i = 0;
             while (info.damage > 0)
             {
                 auto n = info.damage % 10;
                 Transform transfrom(p);
-                transfrom.position.x += (length - i) * 30;
+                transfrom.position.x += (length - i) * 28;
                 transfrom.position.y -= 25.5 - info.alpha / 10;
                 switch (info.type)
                 {
@@ -687,7 +687,7 @@ void render_pet(Transform *tr, Pet *pet)
 
 void render_uibuff(Transform *tr, UIBuff *uib)
 {
-    if (uib->destory >= Window::dt_now && uib->duration != -1)
+    if (uib->destory >= Window::dt_now && uib->duration > 0)
     {
         SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 148);

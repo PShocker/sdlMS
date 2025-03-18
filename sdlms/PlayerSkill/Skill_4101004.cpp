@@ -44,9 +44,9 @@ int skill_4101004(entt::entity ent)
                 mv->hspeed_min.value() += 80;
                 mv->vspeed_min.value() += 888;
             };
-            info.start.value()(ent);
             info.destory = Window::dt_now + duration;
             buff->buffs.emplace(u"4101004", info);
+            info.start.value()(ent);
         }
     };
 

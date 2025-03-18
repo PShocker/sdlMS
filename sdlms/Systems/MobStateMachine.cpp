@@ -222,7 +222,7 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
             }
             Damage::push(World::registry->try_get<Damage>(ent), damage, type,
                          SDL_FPoint{tr->position.x,
-                                    (float)dynamic_cast<wz::Property<wz::WzVec2D> *>(mob->a[u"hit1"].asprw->sprites[0]->n->get_child(u"head"))->get().y},
+                                    tr->position.y + (float)dynamic_cast<wz::Property<wz::WzVec2D> *>(mob->a[u"hit1"].asprw->sprites[0]->n->get_child(u"head"))->get().y},
                          Window::dt_now + i * 60);
         }
     }

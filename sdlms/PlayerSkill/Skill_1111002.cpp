@@ -1,6 +1,8 @@
 #include "PlayerSkill.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
+#include <numbers>
+#include "Commons/Commons.h"
 
 // 斗气
 int skill_1111002(entt::entity ent)
@@ -11,7 +13,7 @@ int skill_1111002(entt::entity ent)
     auto state = cha->state;
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1111002");
-    ski->call_back = [](entt::entity ent, int action_frame, int action_time)
+    ski->call_back = [n = ski->skiw->node](entt::entity ent, int action_frame, int action_time)
     {
         if (!(action_time == 0 && action_frame == 0))
         {
@@ -19,7 +21,7 @@ int skill_1111002(entt::entity ent)
         }
 
         // 持续时间
-        const unsigned int duration = -1;
+        const unsigned int duration = 0;
 
         auto buff = World::registry->try_get<Buff>(ent);
         if (buff->buffs.contains(u"1111002"))
@@ -29,43 +31,97 @@ int skill_1111002(entt::entity ent)
         else
         {
             Buff::Info info;
-            info.after_attack = [](entt::entity src, entt::entity target)
+            const auto clear_effect = [n](entt::entity src)
             {
-                auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[u"1111002"];
-                // auto eff = World::registry->try_get<Effect>(ent);
-
-                // eff->effects.push_back({std::nullopt, AnimatedSprite(AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"CharLevel/25/effect")))});
-
-                if (!info.data.has_value())
+                auto eff = World::registry->try_get<Effect>(src);
+                for (auto it = eff->effects.begin(); it != eff->effects.end();)
                 {
-                    info.data = std::map<int, SDL_FPoint>();
-                    auto val = std::any_cast<std::map<int, SDL_FPoint>>(info.data);
-                    val.emplace(1, SDL_FPoint{-10, -10});
-                }
-                else
-                {
-                    // int val = std::any_cast<int>(info.data);
-                    // info.data = val + 1;
+                    auto info = &(*it);
+                    if (info->aspr.asprw->sprites[0]->n->get_parent() == n->find_from_path(u"state"))
+                    {
+                        it = eff->effects.erase(it);
+                    }
+                    else
+                    {
+                        it++;
+                    }
                 }
             };
-            info.frame = [](entt::entity src)
+            info.start = [n](entt::entity src)
             {
                 auto buff = World::registry->try_get<Buff>(src);
                 auto &info = buff->buffs[u"1111002"];
-                if (!info.data.has_value())
+                auto eff = World::registry->try_get<Effect>(src);
+                info.data = std::map<int, float>();
+                // 序号,角度
+                auto maps = std::any_cast<std::map<int, float>>(&info.data);
+                maps->emplace(0, 0);
+            };
+            info.after_attack = [n](entt::entity src, entt::entity target)
+            {
+                auto buff = World::registry->try_get<Buff>(src);
+                auto &info = buff->buffs[u"1111002"];
+                auto eff = World::registry->try_get<Effect>(src);
+                auto maps = std::any_cast<std::map<int, float>>(&info.data);
+                auto size = maps->size();
+                if (size < 6)
                 {
-                    info.data = 1;
+                    if (size == 1)
+                    {
+                        maps->emplace(1, 90);
+                    }
+                    else
+                    {
+                        auto angle = maps->at(size - 1);
+                        maps->emplace(size, angle + 72);
+                    }
                 }
-                else
+            };
+            info.frame = [n, clear_effect](entt::entity src)
+            {
+                clear_effect(src);
+                auto buff = World::registry->try_get<Buff>(src);
+                auto &info = buff->buffs[u"1111002"];
+                auto eff = World::registry->try_get<Effect>(src);
+                auto maps = std::any_cast<std::map<int, float>>(&info.data);
+                auto src_tr = World::registry->try_get<Transform>(src);
+                auto src_position = src_tr->position;
+                for (auto &[key, val] : *maps)
                 {
-                    int val = std::any_cast<int>(info.data);
-                    info.data = val + 1;
+                    const float ANGLE_INCREMENT = 2.5; // 角速度
+                    val += ANGLE_INCREMENT;
+                    if (val >= 360.0)
+                    {
+                        val -= 360.0; // 确保角度在 0~360 度之间
+                    }
+                    if (key > 0)
+                    {
+                        AnimatedSprite aspr(n->find_from_path("state/" + std::to_string(key)));
+                        aspr.animate = false;
+                        auto x = 42 * std::cos(val * std::numbers::pi / 180.0);      // 更新 x 坐标
+                        auto y = 42 * std::sin(val * std::numbers::pi / 180.0) - 30; // 更新 y 坐标
+                        Transform tr(src_position + SDL_FPoint{(float)x, (float)y});
+                        eff->effects.push_back({tr, aspr});
+                    }
+                    else
+                    {
+                        // key==0
+                        AnimatedSprite aspr(n->find_from_path(u"state/0"));
+                        aspr.animate = false;
+                        Transform tr(src_position + SDL_FPoint{0, -30});
+                        tr.rotation = val;
+                        eff->effects.push_back({tr, aspr});
+                    }
                 }
+            };
+            info.finish = [n, clear_effect](entt::entity src)
+            {
+                clear_effect(src);
             };
             info.duration = duration;
             info.destory = 0;
             buff->buffs.emplace(u"1111002", info);
+            info.start.value()(ent);
         }
     };
 

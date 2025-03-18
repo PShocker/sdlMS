@@ -114,6 +114,16 @@ bool attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optiona
         {
             atk->call_back.value()(src, target);
         }
+        if (auto buff = World::registry->try_get<Buff>(src))
+        {
+            for (auto &[key, val] : buff->buffs)
+            {
+                if (val.after_attack.has_value())
+                {
+                    val.after_attack.value()(src, target);
+                }
+            }
+        }
     }
     return r;
 }
