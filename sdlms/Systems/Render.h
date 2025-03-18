@@ -17,7 +17,7 @@ void render_effect(Transform *tr, Effect *eff);
 void render_portal(Transform *tr, Portal *por);
 void render_npc(Transform *tr, Npc *npc);
 void render_mob(Transform *tr, Mob *mob);
-void render_damage(Transform *tr, Damage *dam);
+void render_damage(Damage *dam);
 void render_tomb(Tomb *tomb);
 void render_drop(Transform *tr, Drop *dro);
 void render_reactor(Transform *tr, Reactor *r);

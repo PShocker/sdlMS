@@ -48,7 +48,7 @@ void render_run()
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
-                render_damage(tr, dam);
+                render_damage(dam);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
@@ -78,7 +78,7 @@ void render_run()
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
-                render_damage(tr, dam);
+                render_damage(dam);
             }
         }
         else if (auto dro = World::registry->try_get<Drop>(ent))
@@ -574,7 +574,7 @@ void render_mob(Transform *tr, Mob *mob)
     render_animated_sprite(tr, a);
 }
 
-void render_damage(Transform *tr, Damage *dam)
+void render_damage(Damage *dam)
 {
     auto d = dam->damages;
     d.sort([](const auto &m, const auto &n)
@@ -584,16 +584,16 @@ void render_damage(Transform *tr, Damage *dam)
         auto &info = it;
         if (info.delay < Window::dt_now)
         {
-            auto p = dam->point + tr->position;
+            auto p = info.point;
             int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
-            p.x = p.x - length * 17;
+            p.x = p.x - length * 15;
             int i = 0;
             while (info.damage > 0)
             {
                 auto n = info.damage % 10;
                 Transform transfrom(p);
-                transfrom.position.x += (length - i) * 34 + info.x;
-                transfrom.position.y -= 25.5 - info.alpha / 10 + info.y;
+                transfrom.position.x += (length - i) * 30;
+                transfrom.position.y -= 25.5 - info.alpha / 10;
                 switch (info.type)
                 {
                 case 0:

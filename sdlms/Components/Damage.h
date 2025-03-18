@@ -8,35 +8,32 @@
 
 struct Damage
 {
-    static inline SpriteWarp *red[10];
-    static inline SpriteWarp *violet[10];
-    static inline SpriteWarp *cri[11];
-    static inline SpriteWarp *blue[10];
+    enum Type : uint8_t
+    {
+        Red = 0,
+        Violet = 1,
+        Cri = 2,
+        Blue = 3
+    };
 
     struct Info
     {
         int damage;
         float alpha;
-
-        enum Type : uint8_t
-        {
-            Red = 0,
-            Violet = 1,
-            Cri = 2,
-            Blue = 3
-        };
         uint8_t type; // 0:red,1:violet,2:cri,3:blue
-
         unsigned int delay;
-        float x;
-        float y;
+        SDL_FPoint point;
     };
 
     std::list<Info> damages;
     char index = 0;
-    SDL_FPoint point;
+
+    static inline SpriteWarp *red[10];
+    static inline SpriteWarp *violet[10];
+    static inline SpriteWarp *cri[11];
+    static inline SpriteWarp *blue[10];
 
     static void init();
 
-    static void push(Damage *dam, int damage, uint8_t type, unsigned int delay = Window::dt_now);
+    static void push(Damage *dam, int damage, uint8_t type, SDL_FPoint point, unsigned int delay = Window::dt_now);
 };

@@ -184,9 +184,7 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
         {
             auto r = generate_random(atk->min_damage, atk->max_damage);
             int damage = atk->damage * r;
-            auto type = damage > atk->damage ? Damage::Info::Type::Cri : Damage::Info::Type::Red;
-            Damage::push(World::registry->try_get<Damage>(ent), damage, type, Window::dt_now + i * 60);
-
+            auto type = damage > atk->damage ? Damage::Type::Cri : Damage::Type::Red;
             mob->hp -= damage;
             mob->hit = Player::ent;
             // 怪物被攻击音效
@@ -222,6 +220,10 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
                 mob_drop(mob, tr);
                 mob->revive = mob->revive_time + Window::dt_now;
             }
+            Damage::push(World::registry->try_get<Damage>(ent), damage, type,
+                         SDL_FPoint{tr->position.x,
+                                    (float)dynamic_cast<wz::Property<wz::WzVec2D> *>(mob->a[u"hit1"].asprw->sprites[0]->n->get_child(u"head"))->get().y},
+                         Window::dt_now + i * 60);
         }
     }
     return true;

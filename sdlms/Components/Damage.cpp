@@ -38,12 +38,12 @@ void Damage::init()
     }
 }
 
-void Damage::push(Damage *dam, int damage, uint8_t type, unsigned int delay)
+void Damage::push(Damage *dam, int damage, uint8_t type, SDL_FPoint point, unsigned int delay)
 {
     if ((dam->damages.size() > 0 &&
          (dam->damages.front().alpha <= 200 ||
-          type == Damage::Info::Type::Violet ||
-          type == Damage::Info::Type::Blue)) ||
+          type == Damage::Type::Violet ||
+          type == Damage::Type::Blue)) ||
         dam->damages.size() == 0)
     {
         dam->index = 0;
@@ -54,8 +54,8 @@ void Damage::push(Damage *dam, int damage, uint8_t type, unsigned int delay)
     info.alpha = 255;
     info.type = type;
     info.delay = delay;
-    info.x = 0;
-    info.y = (float)(count) * 38;
+    info.point.x = point.x;
+    info.point.y = point.y + (float)(count) * 38;
     if (count == 0)
     {
         dam->damages.push_front(info);
