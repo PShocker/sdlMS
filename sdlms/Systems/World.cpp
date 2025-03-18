@@ -1,6 +1,7 @@
 #include "World.h"
 #include "Camera.h"
 
+#include "Commons/Commons.h"
 #include "Core/Core.h"
 #include "Entities/Entities.h"
 #include "Components/Components.h"
@@ -44,6 +45,7 @@ void world_transport()
             {
                 auto portal_transform = World::registry->try_get<Transform>(ent);
                 player_transform->position = SDL_FPoint{portal_transform->position.x, portal_transform->position.y - 10};
+                player_transform->z = LAYER_Z * 8 + player_transform->z % LAYER_Z;
                 player_move->foo = nullptr;
                 player_move->vspeed = 0;
                 player_move->hspeed = 0;
