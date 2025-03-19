@@ -24,11 +24,8 @@ int skill_2301002(entt::entity ent)
         {
             return;
         }
-        auto tr = World::registry->try_get<Transform>(ent);
         Attack atk;
         atk.damage = -1000;
-        atk.hit = nullptr;
-        atk.src_point = tr->position;
         attack_character(&atk, entt::null, ent, std::nullopt);
     };
 

@@ -120,7 +120,7 @@ bool attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optiona
             {
                 if (val.after_attack.has_value())
                 {
-                    val.after_attack.value()(src, target);
+                    val.after_attack.value()(atk, src, target);
                 }
             }
         }
@@ -141,6 +141,16 @@ bool attack_character(Attack *atk, entt::entity src, entt::entity target, std::o
             (character->invincible_cooldown <= Window::dt_now &&
              character->state != Character::State::DIE))
         {
+            if (auto buff = World::registry->try_get<Buff>(target))
+            {
+                for (auto &[key, val] : buff->buffs)
+                {
+                    if (val.before_attack.has_value())
+                    {
+                        val.before_attack.value()(atk, target);
+                    }
+                }
+            }
             if (player_hit(atk, target))
             {
                 r = true;

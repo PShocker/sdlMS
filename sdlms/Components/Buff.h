@@ -15,9 +15,9 @@ struct Buff
         std::optional<std::function<void(entt::entity)>> finish;
         std::optional<std::function<void(entt::entity)>> frame;
         std::optional<std::function<void(Attack *, entt::entity)>> before_attack;
-        std::optional<std::function<void(entt::entity, entt::entity)>> after_attack;
+        std::optional<std::function<void(Attack *, entt::entity, entt::entity)>> after_attack;
         std::optional<std::function<void(Attack *, entt::entity)>> before_hit;
-        std::optional<std::function<void(entt::entity, entt::entity)>> after_hit;
+        std::optional<std::function<void(Attack *, entt::entity, entt::entity)>> after_hit;
         // 持续时间
         unsigned int duration = 0;
         // 摧毁时间

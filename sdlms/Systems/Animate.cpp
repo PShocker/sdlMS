@@ -159,8 +159,18 @@ bool animate_sprite(AnimatedSprite *a)
             }
         }
         // 透明度处理
-        auto a0 = a->asprw->sprites[a->anim_index]->a0;
-        auto a1 = a->asprw->sprites[a->anim_index]->a1;
+        int a0;
+        int a1;
+        if (a->anim_step > 0)
+        {
+            a0 = a->asprw->sprites[a->anim_index]->a0;
+            a1 = a->asprw->sprites[a->anim_index]->a1;
+        }
+        else
+        {
+            a0 = a->asprw->sprites[a->anim_index]->a1;
+            a1 = a->asprw->sprites[a->anim_index]->a0;
+        }
         a->alpha = a0;
         if (a0 != a1)
         {
