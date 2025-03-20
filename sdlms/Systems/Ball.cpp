@@ -133,6 +133,7 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
         atk->src_point = World::registry->try_get<Transform>(src)->position;
         if (auto mob = World::registry->try_get<Mob>(target))
         {
+            atk->mobCount--;
             if (ski && track_no_skill.contains(ski->skiw->id))
             {
                 attack_mob(atk, src, target, std::nullopt); // 传递地址，保持原有行为
@@ -142,7 +143,6 @@ void ball_hit(entt::entity src, Ball *ball, entt::entity target)
                 attack_mob(atk, src, target, atk->src_point); // 传递地址，保持原有行为
             }
         }
-        atk->mobCount--;
     }
 
     if (!ski)

@@ -27,7 +27,7 @@ struct Attack
     float min_damage = 0.8;
     float max_damage = 1.2;
 
-    std::optional<std::function<void(entt::entity, entt::entity)>> call_back = std::nullopt;
+    std::optional<std::function<void(entt::entity, entt::entity, int)>> call_back = std::nullopt;
 
     Attack() = default;
     Attack(SDL_FPoint &lt, SDL_FPoint &rb, AnimatedSpriteWarp *hit,

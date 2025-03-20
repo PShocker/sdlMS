@@ -171,8 +171,10 @@ void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state)
     }
 }
 
-bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
+int mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
 {
+    int full_damage = 0;
+
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     auto mob = World::registry->try_get<Mob>(ent);
@@ -185,6 +187,9 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
             auto r = generate_random(atk->min_damage, atk->max_damage);
             int damage = atk->damage * r;
             auto type = damage > atk->damage ? Damage::Type::Cri : Damage::Type::Red;
+            // 一次攻击造成的伤害值
+            full_damage += damage;
+
             mob->hp -= damage;
             mob->hit = Player::ent;
             // 怪物被攻击音效
@@ -226,7 +231,7 @@ bool mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
                          Window::dt_now + i * 60);
         }
     }
-    return true;
+    return full_damage;
 }
 
 bool mob_hit_move(std::optional<SDL_FPoint> &point, entt::entity ent)

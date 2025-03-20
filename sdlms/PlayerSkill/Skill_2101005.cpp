@@ -33,8 +33,10 @@ int skill_2101005(entt::entity ent)
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
 
-    ski->atk.value().call_back = [hit, asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob"))](entt::entity src,
-                                                                                                                  entt::entity target)
+    ski->atk.value().call_back = [hit,
+                                  asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob"))](entt::entity src,
+                                                                                                             entt::entity target,
+                                                                                                             int full_damage)
     {
         const auto mob = World::registry->try_get<Mob>(target);
         unsigned int time = Window::dt_now + 5000;

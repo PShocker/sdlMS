@@ -39,7 +39,7 @@ int skill_3101005(entt::entity ent)
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
-    ski->atk.value().call_back = [](entt::entity src, entt::entity target)
+    ski->atk.value().call_back = [](entt::entity src, entt::entity target, int full_damage)
     {
         auto ski = World::registry->try_get<Skill>(src);
         auto atk = &ski->atk.value();
@@ -90,12 +90,12 @@ int skill_3101005(entt::entity ent)
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
+            atk->mobCount--;
             attack_mob(atk, src, target, hit_point);
 
             mob->call_backs.emplace(u"3101005", call_back);
 
             ski->hit_targets.insert(target);
-            atk->mobCount--;
 
             // 寻找下一个目标
             target = find_closest_attackable_mob(

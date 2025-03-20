@@ -32,15 +32,29 @@ int skill_21100005(entt::entity ent)
         else
         {
             Buff::Info info;
-            info.after_attack = [](Attack *atk, entt::entity src, entt::entity target)
+            info.start = [](entt::entity src)
             {
-                Attack attack;
-                attack.damage = -attack.damage * 0.1;
-                attack_character(&attack, entt::null, src, std::nullopt);
+                auto buff = World::registry->try_get<Buff>(src);
+                auto &info = buff->buffs[u"21100005"];
+                info.data = 0;
+            };
+            info.after_attack = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
+            {
+                auto buff = World::registry->try_get<Buff>(src);
+                auto &info = buff->buffs[u"21100005"];
+                info.data = std::any_cast<int>(info.data) + full_damage;
+                if (atk->mobCount == 0)
+                {
+                    Attack attack;
+                    attack.damage = -std::any_cast<int>(info.data);
+                    attack_character(&attack, entt::null, src, std::nullopt);
+                    info.data = 0;
+                }
             };
             info.duration = duration;
             info.destory = Window::dt_now + duration;
             buff->buffs.emplace(u"21100005", info);
+            info.start.value()(ent);
         }
     };
 

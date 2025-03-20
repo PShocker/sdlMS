@@ -33,7 +33,7 @@ int skill_4201004(entt::entity ent)
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
 
-    ski->atk.value().call_back = [](entt::entity src, entt::entity target)
+    ski->atk.value().call_back = [](entt::entity src, entt::entity target, int full_damage)
     {
         auto tr = World::registry->try_get<Transform>(target);
         std::vector<Drop::Info> drops = {{u"09000000", (unsigned int)std::rand() % 200}};

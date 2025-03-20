@@ -1,11 +1,12 @@
 #include "PlayerSkill.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
+#include "Systems/Camera.h"
+#include "Common.h"
 #include "Systems/MobStateMachine.h"
-#include "Commons/Commons.h"
 
-// 冰咆哮
-int skill_2211002(entt::entity ent)
+// 虎咆哮
+int skill_1111008(entt::entity ent)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
@@ -21,9 +22,10 @@ int skill_2211002(entt::entity ent)
     {
         mv->hspeed = 0;
     }
+    // 虎咆哮需要震动摄像机
+    camera_init_shake(12, 120, 1060);
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2211002");
-
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1111008");
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
     auto lt = SDL_FPoint{(float)v.x, (float)v.y};
@@ -34,36 +36,32 @@ int skill_2211002(entt::entity ent)
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 90);
-
     ski->atk.value().call_back = [](entt::entity src, entt::entity target, int full_damage)
     {
-        const auto mob = World::registry->try_get<Mob>(target);
+        auto ski = World::registry->try_get<Skill>(src);
 
-        const auto mob_tr = World::registry->try_get<Transform>(target);
-
-        mob->call_backs.erase(u"2211002");
-        // 冰冻效果,2秒
-        auto call_back = [time = Window::dt_now + 2000](entt::entity ent)
+        // 晕眩效果,3秒
+        const auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
+                                time = Window::dt_now + 3000](entt::entity ent)
         {
             const auto mob = World::registry->try_get<Mob>(ent);
+
             if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
             {
-                // 默认选择被攻击的第0帧
-                auto sprw = mob->a[u"hit1"].asprw->sprites[0];
-                mob->state = Mob::State::HIT;
-                mob->index = u"hit1";
-                mob->a[u"hit1"].anim_time = 0;
-                mob->mod = SDL_Color{90, 148, 247};
+                // 晕眩特效
+                push_mob_special_effect(ent, asprw);
                 mob_fall(ent, Window::delta_time);
                 return std::make_pair(false, false);
             }
             else
             {
-                mob->mod = SDL_Color{255, 255, 255};
                 return std::make_pair(true, true);
             }
         };
-        mob->call_backs.emplace(u"2211002", call_back);
+        const auto mob = World::registry->try_get<Mob>(target);
+
+        mob->call_backs.erase(u"1111008");
+        mob->call_backs.emplace(u"1111008", call_back);
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

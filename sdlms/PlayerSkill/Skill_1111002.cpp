@@ -57,11 +57,10 @@ int skill_1111002(entt::entity ent)
                 auto maps = std::any_cast<std::map<int, float>>(&info.data);
                 maps->emplace(0, 0);
             };
-            info.after_attack = [n](Attack *atk, entt::entity src, entt::entity target)
+            info.after_attack = [n](Attack *atk, entt::entity src, entt::entity target, int full_damage)
             {
                 auto buff = World::registry->try_get<Buff>(src);
                 auto &info = buff->buffs[u"1111002"];
-                auto eff = World::registry->try_get<Effect>(src);
                 auto maps = std::any_cast<std::map<int, float>>(&info.data);
                 auto size = maps->size();
                 if (size < 6)

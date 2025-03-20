@@ -9,10 +9,10 @@ void attack_mob(Attack *atk, entt::entity ent);
 
 void attack_reactor(Attack *atk);
 
-bool attack_mob(Attack *atk, entt::entity src,
-                entt::entity target,
-                std::optional<SDL_FPoint> p);
+int attack_mob(Attack *atk, entt::entity src,
+               entt::entity target,
+               std::optional<SDL_FPoint> p);
 
-bool attack_character(Attack *atk, entt::entity src,
-                      entt::entity target,
-                      std::optional<SDL_FPoint> p);
+int attack_character(Attack *atk, entt::entity src,
+                     entt::entity target,
+                     std::optional<SDL_FPoint> p);

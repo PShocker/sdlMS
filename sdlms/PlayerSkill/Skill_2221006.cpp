@@ -101,14 +101,29 @@ int skill_2221006(entt::entity ent)
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip) +
                                          SDL_FPoint{0, (float)mob->a[mob->index].asprw->sprites[mob->a[mob->index].anim_index]->texture->h / 2};
+
+            ski->hit_targets.insert(target);
+
+            if (find_closest_attackable_mob(
+                    -1,
+                    target_tr->position,
+                    ski->hit_targets,
+                    200.0f, // max_x_distance
+                    200.0f  // max_y_distance
+                    ) == entt::null)
+            {
+                // 说明周围已经没有其他mob了,直接把mobCount设置为1
+                atk->mobCount = 0;
+            }
+            else
+            {
+                atk->mobCount--;
+            }
             attack_mob(atk, src, target, hit_point);
 
             // 生成特效
             generate_chain_effect(src_point, hit_point, target, ski);
             src_point = hit_point;
-
-            ski->hit_targets.insert(target);
-            atk->mobCount--;
 
             // 寻找下一个目标
             target = find_closest_attackable_mob(

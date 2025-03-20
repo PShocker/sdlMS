@@ -680,25 +680,25 @@ void player_alert(Character *cha)
     return;
 }
 
-bool player_hit(Attack *atk, entt::entity ent)
+int player_hit(Attack *atk, entt::entity ent)
 {
-    bool res = false;
-    auto character = World::registry->try_get<Character>(ent);
+    int full_damage = 0;
 
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
     auto cha = World::registry->try_get<Character>(ent);
 
-    if (atk->damage > 0 && character->invincible_cooldown <= Window::dt_now)
+    if (atk->damage > 0 && cha->invincible_cooldown <= Window::dt_now)
     {
-        character->invincible_cooldown = Window::dt_now + 2000;
-        World::registry->remove<Install>(Player::ent);
+        cha->invincible_cooldown = Window::dt_now + 2000;
+        World::registry->remove<Install>(ent);
 
         Effect::push(World::registry->try_get<Effect>(ent), atk->hit, std::nullopt, tr->flip);
         for (int i = 0; i < atk->attackCount; i++)
         {
             auto r = generate_random(atk->min_damage, atk->max_damage);
             auto damage = atk->damage * r;
+            full_damage += damage;
 
             Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Type::Violet,
                          tr->position + SDL_FPoint{-15, -60}, Damage::Type::Violet);
@@ -777,20 +777,18 @@ bool player_hit(Attack *atk, entt::entity ent)
                 Sound::push(Sound(u"Game.img/Tombstone"), 180);
             }
         }
-        res = true;
     }
     else if (atk->damage < 0)
     {
         Damage::push(World::registry->try_get<Damage>(ent), atk->damage,
                      Damage::Type::Blue, tr->position + SDL_FPoint{-15, -60});
-        character->hp -= atk->damage;
-        res = true;
+        cha->hp -= atk->damage;
     }
-    return res;
+    return full_damage;
 }
 
 const std::map<SDL_Scancode, std::u16string> skill_key_id = {
-    {SDL_SCANCODE_A, u"2201004"},
+    {SDL_SCANCODE_A, u"14101006"},
     {SDL_SCANCODE_S, u"2211002"},
     {SDL_SCANCODE_SPACE, u"2201002"},
     {SDL_SCANCODE_F, u"2221006"},
@@ -811,6 +809,7 @@ const std::map<SDL_Scancode, std::u16string> skill_key_id = {
     {SDL_SCANCODE_M, u"1121006"},
     {SDL_SCANCODE_Q, u"1111002"},
     {SDL_SCANCODE_E, u"4101004"},
+    {SDL_SCANCODE_M, u"1101004"},
     {SDL_SCANCODE_1, u"2221005"},
     {SDL_SCANCODE_2, u"2121005"},
     {SDL_SCANCODE_3, u"3121006"},
