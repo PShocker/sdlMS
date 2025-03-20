@@ -32,48 +32,60 @@ int skill_1101004(entt::entity ent)
             info.duration = duration;
             info.start = [](entt::entity ent)
             {
-                // 遍历 map，将每个 value 改为原来的 0.8 倍
-                for (int i = 0; i < Character::stance_delays->size(); i++)
-                {
+                for (int i = 0; i < Character::ACTION::LENGTH; ++i)
+                { // 遍历数组中的每个 unordered_map
                     if (i == Character::ACTION::ALERT ||
-                        Character::ACTION::SIT ||
-                        Character::ACTION::STAND1 ||
-                        Character::ACTION::STAND2 ||
-                        Character::ACTION::LADDER ||
-                        Character::ACTION::ROPE ||
-                        Character::ACTION::DEAD ||
-                        Character::ACTION::WALK1 ||
-                        Character::ACTION::WALK2)
-                    {
+                        i == Character::ACTION::SIT ||
+                        i == Character::ACTION::STAND1 ||
+                        i == Character::ACTION::STAND2 ||
+                        i == Character::ACTION::LADDER ||
+                        i == Character::ACTION::ROPE ||
+                        i == Character::ACTION::DEAD ||
+                        i == Character::ACTION::WALK1 ||
+                        i == Character::ACTION::WALK2)
+                    { // 跳过
                         continue;
                     }
                     for (auto &pair : Character::stance_delays[i])
+                    {                       // 遍历 unordered_map 中的每个键值对
+                        pair.second *= 0.8; // 将 value 设为原来的 0.5 倍
+                    }
+                }
+                for (auto &outer_pair : Character::body_actions)
+                {
+                    for (auto &inner_pair : outer_pair.second)
                     {
-                        pair.second = pair.second * 0.8; // 转换回 int32_t
+                        inner_pair.second.delay *= 0.8;
                     }
                 }
             };
             info.finish = [](entt::entity ent)
             {
                 // 还原
-                // 遍历 map，将每个 value 改为原来的 0.8 倍
-                for (int i = 0; i < Character::stance_delays->size(); i++)
-                {
+                for (int i = 0; i < Character::ACTION::LENGTH; ++i)
+                { // 遍历数组中的每个 unordered_map
                     if (i == Character::ACTION::ALERT ||
-                        Character::ACTION::SIT ||
-                        Character::ACTION::STAND1 ||
-                        Character::ACTION::STAND2 ||
-                        Character::ACTION::LADDER ||
-                        Character::ACTION::ROPE ||
-                        Character::ACTION::DEAD ||
-                        Character::ACTION::WALK1 ||
-                        Character::ACTION::WALK2)
-                    {
+                        i == Character::ACTION::SIT ||
+                        i == Character::ACTION::STAND1 ||
+                        i == Character::ACTION::STAND2 ||
+                        i == Character::ACTION::LADDER ||
+                        i == Character::ACTION::ROPE ||
+                        i == Character::ACTION::DEAD ||
+                        i == Character::ACTION::WALK1 ||
+                        i == Character::ACTION::WALK2)
+                    { // 跳过
                         continue;
                     }
                     for (auto &pair : Character::stance_delays[i])
+                    {                        // 遍历 unordered_map 中的每个键值对
+                        pair.second *= 1.25; // 将 value 设为原来的 0.5 倍
+                    }
+                }
+                for (auto &outer_pair : Character::body_actions)
+                {
+                    for (auto &inner_pair : outer_pair.second)
                     {
-                        pair.second = pair.second * 1.25; // 转换回 int32_t
+                        inner_pair.second.delay *= 1.25;
                     }
                 }
             };

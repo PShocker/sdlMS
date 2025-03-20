@@ -34,6 +34,7 @@ int skill_21100005(entt::entity ent);
 int skill_14101006(entt::entity ent);
 int skill_1101004(entt::entity ent);
 int skill_1111008(entt::entity ent);
+int skill_4001003(entt::entity ent);
 
 struct PlayerSkill
 {
@@ -75,6 +76,7 @@ struct PlayerSkill
         {u"14101006", skill_14101006},
         {u"1101004", skill_1101004},
         {u"1111008", skill_1111008},
+        {u"4001003", skill_4001003},
     };
 
     enum SkillResult

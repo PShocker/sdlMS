@@ -52,9 +52,11 @@ void world_transport()
                 player_move->page = -1;
                 player_character->state = Character::State::JUMP;
                 player_character->action = Character::ACTION::JUMP;
+                player_character->action_str = u"jump";
                 player_character->action_frame = 0;
                 player_character->action_index = 0;
                 player_character->action_time = 0;
+                player_character->animate = true;
                 camera_refresh();
                 World::TransPort::id = 0;
                 break;

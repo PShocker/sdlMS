@@ -3,7 +3,7 @@
 #include <SDL3/SDL.h>
 #include "Systems/Attack.h"
 
-//
+// 吸血
 int skill_14101006(entt::entity ent)
 {
     auto mv = World::registry->try_get<Move>(ent);
@@ -41,6 +41,10 @@ int skill_14101006(entt::entity ent)
             // 说明是首次,用atk->rect.x来记录伤害量
             atk->rect.x = full_damage;
         }
+        else if (atk->mobCount == 0 && atk->rect.x == -400)
+        {
+            atk->rect.x = full_damage;
+        }
         else
         {
             atk->rect.x += full_damage;
@@ -52,6 +56,8 @@ int skill_14101006(entt::entity ent)
             attack_character(&attack, entt::null, src, std::nullopt);
         }
     };
+
+    Character::body_actions[u"vampire"][1].delay = 450;
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ATK | PlayerSkill::SkillResult::ACT |
