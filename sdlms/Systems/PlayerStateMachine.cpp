@@ -801,6 +801,7 @@ const std::map<SDL_Scancode, std::u16string> skill_key_id = {
     {SDL_SCANCODE_V, u"4001344"},
     {SDL_SCANCODE_B, u"4211006"},
     {SDL_SCANCODE_J, u"1311001"},
+    {SDL_SCANCODE_K, u"1111008"},
     {SDL_SCANCODE_R, u"4211002"},
     {SDL_SCANCODE_T, u"4201004"},
     {SDL_SCANCODE_U, u"1121008"},
@@ -938,8 +939,8 @@ void player_portal(Move *mv, entt::entity ent)
                         else
                         {
                             auto eff = World::registry->try_get<Effect>(ent);
-                            eff->effects.push_back({Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
-                            eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.emplace(u"", Effect::Info{Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.emplace(u"", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
 
                             auto position = std::get<SDL_FPoint>(por->tn);
                             tr->position.x = position.x;
@@ -981,7 +982,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
         }
         // 添加effect
         auto eff = World::registry->try_get<Effect>(ent);
-        eff->effects.push_back({Transform(tr->position.x, tr->position.y, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
+        eff->effects.emplace(u"4111006", Effect::Info{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
 
         // 技能音效
         auto ski = SkillWarp::load(u"4111006");

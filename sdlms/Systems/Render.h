@@ -13,7 +13,9 @@ void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *o = nu
 void render_back_sprite(Transform *tr, BackGround *bspr);
 void render_character(const Transform *tr, Character *cha, int invincible);
 void render_afterimage(Transform *tr, AfterImage *aft, Character *cha);
+void render_effect_front(Transform *tr, Effect *eff);
 void render_effect(Transform *tr, Effect *eff);
+void render_effect_back(Transform *tr, Effect *eff);
 void render_portal(Transform *tr, Portal *por);
 void render_npc(Transform *tr, Npc *npc);
 void render_mob(Transform *tr, Mob *mob);

@@ -26,6 +26,10 @@ int skill_1111008(entt::entity ent)
     camera_init_shake(12, 120, 1060);
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1111008");
+
+    auto eff = World::registry->try_get<Effect>(ent);
+    eff->effects.emplace(u"-1111008", Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
+
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
     auto lt = SDL_FPoint{(float)v.x, (float)v.y};
@@ -49,7 +53,7 @@ int skill_1111008(entt::entity ent)
             if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
             {
                 // 晕眩特效
-                push_mob_special_effect(ent, asprw);
+                push_mob_special_effect(ent, Effect::Dizzy, asprw);
                 mob_fall(ent, Window::delta_time);
                 return std::make_pair(false, false);
             }
@@ -64,7 +68,8 @@ int skill_1111008(entt::entity ent)
         mob->call_backs.emplace(u"1111008", call_back);
     };
 
-    return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
-           PlayerSkill::SkillResult::ATK | PlayerSkill::SkillResult::ACT |
+    return PlayerSkill::SkillResult::SOU |
+           PlayerSkill::SkillResult::ATK |
+           PlayerSkill::SkillResult::ACT |
            PlayerSkill::SkillResult::ALERT;
 }

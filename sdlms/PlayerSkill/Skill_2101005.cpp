@@ -51,7 +51,7 @@ int skill_2101005(entt::entity ent)
             if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
             {
                 // 中毒效果
-                push_mob_special_effect(ent, asprw);
+                push_mob_special_effect(ent, Effect::Poison, asprw);
                 mob->mod = SDL_Color{136, 204, 0};
                 return std::make_pair(false, true);
             }

@@ -14,8 +14,8 @@ int skill_2201002(entt::entity ent)
 
     // 添加effect
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.push_back({Transform(tr->position.x, tr->position.y, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
-    eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+    eff->effects.emplace(u"2201002", Effect::Info{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+    eff->effects.emplace(u"2201002", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
 
     auto x = tr->position.x;
     auto y = tr->position.y;

@@ -50,9 +50,9 @@ int skill_4211006(entt::entity ent)
                 {
                     dr->destory = Window::dt_now + 700;
                     auto eff = World::registry->try_get<Effect>(ent);
-                    eff->effects.push_back({Transform(d_tr->position.x, d_tr->position.y),
-                                            AnimatedSprite(ski->skiw->hits[0]),
-                                            Window::dt_now + 700});
+                    eff->effects.emplace(u"4211006", Effect::Info{Transform(d_tr->position),
+                                                                  AnimatedSprite(ski->skiw->hits[0]),
+                                                                  Window::dt_now + 700});
                     ski->atk.value().damage += dr->nums;
                     ski->attack = true;
                     continue;

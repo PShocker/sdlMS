@@ -39,7 +39,7 @@ int skill_2201004(entt::entity ent)
 
         const auto mob_tr = World::registry->try_get<Transform>(target);
         auto eff = World::registry->try_get<Effect>(target);
-        eff->effects.push_back({Transform(mob_tr->position + SDL_FPoint{0, -25}), hit});
+        eff->effects.emplace(u"2201004", Effect::Info{Transform(SDL_FPoint{0, -25}), hit, true});
 
         mob->call_backs.erase(u"2201004");
         // 冰冻效果,2秒

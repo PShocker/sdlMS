@@ -13,9 +13,13 @@ int skill_1111002(entt::entity ent)
     auto state = cha->state;
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1111002");
+
+    auto eff = World::registry->try_get<Effect>(ent);
+    eff->effects.emplace(u"", Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
+
     ski->call_back = [n = ski->skiw->node](entt::entity ent, int action_frame, int action_time)
     {
-        if (!(action_time == 0 && action_frame == 0))
+        if (!(action_time == 0 && action_frame == 1))
         {
             return;
         }
@@ -31,33 +35,16 @@ int skill_1111002(entt::entity ent)
         else
         {
             Buff::Info info;
-            const auto clear_effect = [n](entt::entity src)
-            {
-                auto eff = World::registry->try_get<Effect>(src);
-                for (auto it = eff->effects.begin(); it != eff->effects.end();)
-                {
-                    auto info = &(*it);
-                    if (info->aspr.asprw->sprites[0]->n->get_parent() == n->find_from_path(u"state"))
-                    {
-                        it = eff->effects.erase(it);
-                    }
-                    else
-                    {
-                        it++;
-                    }
-                }
-            };
-            info.start = [n](entt::entity src)
+            info.start = [](entt::entity src)
             {
                 auto buff = World::registry->try_get<Buff>(src);
                 auto &info = buff->buffs[u"1111002"];
-                auto eff = World::registry->try_get<Effect>(src);
                 info.data = std::map<int, float>();
                 // 序号,角度
                 auto maps = std::any_cast<std::map<int, float>>(&info.data);
                 maps->emplace(0, 0);
             };
-            info.after_attack = [n](Attack *atk, entt::entity src, entt::entity target, int full_damage)
+            info.after_attack = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
             {
                 auto buff = World::registry->try_get<Buff>(src);
                 auto &info = buff->buffs[u"1111002"];
@@ -76,12 +63,13 @@ int skill_1111002(entt::entity ent)
                     }
                 }
             };
-            info.frame = [n, clear_effect](entt::entity src)
+            info.frame = [n](entt::entity src)
             {
-                clear_effect(src);
+                auto eff = World::registry->try_get<Effect>(src);
+                eff->effects.erase(u"1111002");
+
                 auto buff = World::registry->try_get<Buff>(src);
                 auto &info = buff->buffs[u"1111002"];
-                auto eff = World::registry->try_get<Effect>(src);
                 auto maps = std::any_cast<std::map<int, float>>(&info.data);
                 auto src_tr = World::registry->try_get<Transform>(src);
                 auto src_position = src_tr->position;
@@ -100,7 +88,7 @@ int skill_1111002(entt::entity ent)
                         auto x = 42 * std::cos(val * std::numbers::pi / 180.0);      // 更新 x 坐标
                         auto y = 42 * std::sin(val * std::numbers::pi / 180.0) - 30; // 更新 y 坐标
                         Transform tr(src_position + SDL_FPoint{(float)x, (float)y});
-                        eff->effects.push_back({tr, aspr});
+                        eff->effects.emplace(u"1111002", Effect::Info{tr, aspr});
                     }
                     else
                     {
@@ -109,13 +97,14 @@ int skill_1111002(entt::entity ent)
                         aspr.animate = false;
                         Transform tr(src_position + SDL_FPoint{0, -30});
                         tr.rotation = val;
-                        eff->effects.push_back({tr, aspr});
+                        eff->effects.emplace(u"1111002", Effect::Info{tr, aspr});
                     }
                 }
             };
-            info.finish = [n, clear_effect](entt::entity src)
+            info.finish = [](entt::entity src)
             {
-                clear_effect(src);
+                auto eff = World::registry->try_get<Effect>(src);
+                eff->effects.erase(u"1111002");
             };
             info.duration = duration;
             info.destory = 0;
@@ -129,6 +118,6 @@ int skill_1111002(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
+    return PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ACT;
 }

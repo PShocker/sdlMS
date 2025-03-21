@@ -55,7 +55,7 @@ int skill_3101005(entt::entity ent)
             if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
             {
                 // 晕眩特效
-                push_mob_special_effect(ent, asprw);
+                push_mob_special_effect(ent, Effect::Dizzy, asprw);
                 mob_fall(ent, Window::delta_time);
                 return std::make_pair(false, false);
             }

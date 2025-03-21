@@ -229,18 +229,17 @@ int summon_follow(entt::entity ent)
     int state = sum->state;
     if (World::registry->valid(sum->owner))
     {
-        auto o_tr = World::registry->try_get<Transform>(sum->owner);
+        auto owner_tr = World::registry->try_get<Transform>(sum->owner);
         // 如果距离过远,则瞬移到身边
-        if (std::abs(o_tr->position.x - summon_tr->position.x) >= 600 ||
-            std::abs(o_tr->position.y - summon_tr->position.y) >= 300)
+        if (std::abs(owner_tr->position.x - summon_tr->position.x) >= 600 ||
+            std::abs(owner_tr->position.y - summon_tr->position.y) >= 300)
         {
-            auto o_mv = World::registry->try_get<Move>(sum->owner);
             summon_mv->vspeed = 0;
             summon_mv->hspeed = 0;
             summon_mv->foo = nullptr;
-            summon_tr->position = o_tr->position + SDL_FPoint{0, -5};
+            summon_tr->position = owner_tr->position + SDL_FPoint{0, -5};
             auto eff = World::registry->try_get<Effect>(ent);
-            eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+            eff->effects.emplace(u"", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
             if (sum->state == Summon::State::FLY)
             {
                 return Summon::State::FLY;

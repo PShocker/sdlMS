@@ -61,6 +61,10 @@ void render_run()
             {
                 render_install(tr, i);
             }
+            if (auto eff = World::registry->try_get<Effect>(ent))
+            {
+                render_effect_front(tr, eff);
+            }
             auto invincible_time = cha->invincible_cooldown - Window::dt_now;
             render_character(tr, cha, invincible_time);
             // SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 255);
@@ -74,7 +78,7 @@ void render_run()
             }
             if (auto eff = World::registry->try_get<Effect>(ent))
             {
-                render_effect(tr, eff);
+                render_effect_back(tr, eff);
             }
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
@@ -502,15 +506,73 @@ void render_afterimage(Transform *tr, AfterImage *aft, Character *cha)
     }
 }
 
+void render_effect_front(Transform *tr, Effect *eff)
+{
+    for (auto &[key, val] : eff->effects)
+    {
+        if (val.delay <= Window::dt_now)
+        {
+            if (key.size() > 0 && key.at(0) == u'-')
+            {
+                if (val.tr == std::nullopt)
+                {
+                    render_animated_sprite(tr, &val.aspr);
+                }
+                else if (val.follow)
+                {
+                    Transform tran(val.tr.value().position + tr->position, 0, tr->flip);
+                    render_animated_sprite(&tran, &val.aspr);
+                }
+                else
+                {
+                    render_animated_sprite(&val.tr.value(), &val.aspr);
+                }
+            }
+        }
+    }
+}
+
 void render_effect(Transform *tr, Effect *eff)
 {
-    for (auto &val : eff->effects)
+    for (auto &[key, val] : eff->effects)
     {
         if (val.delay <= Window::dt_now)
         {
             if (val.tr == std::nullopt)
             {
                 render_animated_sprite(tr, &val.aspr);
+            }
+            else if (val.follow)
+            {
+                Transform tran(val.tr.value().position + tr->position, 0, tr->flip);
+                render_animated_sprite(&tran, &val.aspr);
+            }
+            else
+            {
+                render_animated_sprite(&val.tr.value(), &val.aspr);
+            }
+        }
+    }
+}
+
+void render_effect_back(Transform *tr, Effect *eff)
+{
+    for (auto &[key, val] : eff->effects)
+    {
+        if (val.delay <= Window::dt_now)
+        {
+            if (key.size() > 0 && key.at(0) == u'-')
+            {
+                continue;
+            }
+            if (val.tr == std::nullopt)
+            {
+                render_animated_sprite(tr, &val.aspr);
+            }
+            else if (val.follow)
+            {
+                Transform tran(val.tr.value().position + tr->position, 0, tr->flip);
+                render_animated_sprite(&tran, &val.aspr);
             }
             else
             {

@@ -47,49 +47,52 @@ int skill_4211002(entt::entity ent)
         }
 
         auto atk = &ski->atk.value();
-        auto o_tr = World::registry->try_get<Transform>(ent);
-        atk->hit = o_tr->flip == 1 ? AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/1"))
-                                   : AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/0"));
+        auto owner_tr = World::registry->try_get<Transform>(ent);
+        atk->hit = owner_tr->flip == 1 ? AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/1"))
+                                       : AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/0"));
         attack_mob(atk, ent);
 
-        auto o_mv = World::registry->try_get<Move>(ent);
+        auto owner_mv = World::registry->try_get<Move>(ent);
         auto eff = World::registry->try_get<Effect>(ent);
-        if (o_tr->flip == 1)
+        if (owner_tr->flip == 1)
         {
-            o_mv->hspeed = 125;
-            o_mv->hforce = 1400;
-            eff->effects.push_back({Transform(o_tr->position + SDL_FPoint{100, -35}, 0, o_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
+            owner_mv->hspeed = 125;
+            owner_mv->hforce = 1400;
+            eff->effects.emplace(u"4211002",
+                                 Effect::Info{Transform(owner_tr->position + SDL_FPoint{100, -35}, 0, owner_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
         }
         else
         {
-            o_mv->hspeed = -125;
-            o_mv->hforce = -1400;
-            eff->effects.push_back({Transform(o_tr->position + SDL_FPoint{-100, -35}, 0, o_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
+            owner_mv->hspeed = -125;
+            owner_mv->hforce = -1400;
+            eff->effects.emplace(u"4211002",
+                                 Effect::Info{Transform(owner_tr->position + SDL_FPoint{-100, -35}, 0, owner_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
         }
-        eff->effects.push_back({Transform(o_tr->position, 0, o_tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/remain"))});
-        auto hspeed_min = o_mv->hspeed_min;
-        auto hspeed_max = o_mv->hspeed_max;
-        o_mv->hspeed_min = -125;
-        o_mv->hspeed_max = 125;
-        if (o_mv->foo)
+        eff->effects.emplace(u"4211002",
+                             Effect::Info{Transform(owner_tr->position, 0, owner_tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/remain"))});
+        auto hspeed_min = owner_mv->hspeed_min;
+        auto hspeed_max = owner_mv->hspeed_max;
+        owner_mv->hspeed_min = -125;
+        owner_mv->hspeed_max = 125;
+        if (owner_mv->foo)
         {
             // 地面上
-            move_move(o_mv, o_tr, 800, 1.5, false);
-            o_mv->hspeed = 0;
-            o_mv->hforce = 0;
+            move_move(owner_mv, owner_tr, 800, 1.5, false);
+            owner_mv->hspeed = 0;
+            owner_mv->hforce = 0;
         }
         else
         {
             // 空中
-            o_mv->vspeed = 0;
-            move_fall(o_mv, o_tr, 1.5, o_tr->z % LAYER_Z);
-            o_mv->hspeed = 0;
+            owner_mv->vspeed = 0;
+            move_fall(owner_mv, owner_tr, 1.5, owner_tr->z % LAYER_Z);
+            owner_mv->hspeed = 0;
         }
-        o_mv->hspeed_min = hspeed_min;
-        o_mv->hspeed_max = hspeed_max;
+        owner_mv->hspeed_min = hspeed_min;
+        owner_mv->hspeed_max = hspeed_max;
         // 添加effect
-        eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect"))});
-        eff->effects.push_back({std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect0"))});
+        eff->effects.emplace(u"4211002", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect"))});
+        eff->effects.emplace(u"4211002", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect0"))});
     };
 
     return PlayerSkill::SkillResult::SOU |

@@ -39,8 +39,8 @@ int skill_4201005(entt::entity ent)
         auto eff = World::registry->try_get<Effect>(target);
         for (int i = 0; i < attackCount - 1; ++i)
         {
-            eff->effects.push_back({std::nullopt,
-                                    AnimatedSprite(ski->skiw->hits[0]), Window::dt_now + i * 128});
+            eff->effects.emplace(u"4201005", Effect::Info{std::nullopt,
+                                                          AnimatedSprite(ski->skiw->hits[0]), Window::dt_now + i * 128});
         }
     };
 

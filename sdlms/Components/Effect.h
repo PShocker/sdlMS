@@ -7,14 +7,20 @@
 
 struct Effect
 {
+    static inline const std::u16string Dizzy = u"1";
+    static inline const std::u16string Poison = u"2";
+
     struct Info
     {
         std::optional<Transform> tr;
         AnimatedSprite aspr;
         unsigned int delay = Window::dt_now;
+        // 是否是相对的偏移，只有在tr有值的时候才有效
+        bool follow = false;
     };
 
-    std::list<Info> effects;
+    std::multimap<std::u16string, Info> effects;
+
     Effect() = default;
 
     static AnimatedSpriteWarp *load(const std::u16string &path);

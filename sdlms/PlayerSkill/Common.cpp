@@ -69,27 +69,18 @@ entt::entity find_closest_attackable_mob(Transform &origin, const Triangle &tri)
     return closest_mob;
 }
 
-void push_mob_special_effect(entt::entity ent, AnimatedSpriteWarp *asprw)
+void push_mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp *asprw)
 {
-    const auto mob_tr = World::registry->try_get<Transform>(ent);
-
-    bool r = true;
     auto eff = World::registry->try_get<Effect>(ent);
-    for (auto &it : eff->effects)
+    if (!eff->effects.contains(id))
     {
-        if (it.aspr.asprw == asprw)
-        {
-            r = false;
-            break;
-        }
-    }
-    if (r)
-    {
+        const auto mob_tr = World::registry->try_get<Transform>(ent);
         const auto mob = World::registry->try_get<Mob>(ent);
         auto head = mob->head(mob_tr->flip);
-
-        eff->effects.push_back({Transform(mob_tr->position + SDL_FPoint{0, head.y - 10}),
-                                AnimatedSprite(asprw),
-                                Window::dt_now});
+        Effect::Info info;
+        info.tr = Transform(SDL_FPoint{0, head.y - 10});
+        info.aspr = AnimatedSprite(asprw);
+        info.follow = true;
+        eff->effects.emplace(id, info);
     }
 }

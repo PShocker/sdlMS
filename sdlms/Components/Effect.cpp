@@ -12,14 +12,14 @@ void Effect::push(Effect *eff, AnimatedSpriteWarp *asprw, std::optional<SDL_FPoi
 {
     if (asprw)
     {
+        std::optional<Transform> tr = std::nullopt;
         if (p.has_value())
         {
-            eff->effects.push_back({Transform(p.value(), 0, flip),
-                                    AnimatedSprite(asprw), Window::dt_now});
+            tr = Transform(p.value());
         }
-        else
-        {
-            eff->effects.push_back({std::nullopt, AnimatedSprite(asprw), Window::dt_now});
-        }
+        Effect::Info info;
+        info.tr = tr;
+        info.aspr = AnimatedSprite(asprw);
+        eff->effects.emplace(u"", info);
     }
 }

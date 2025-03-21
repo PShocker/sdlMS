@@ -382,14 +382,12 @@ void animate_effect(Effect *eff)
 {
     for (auto it = eff->effects.begin(); it != eff->effects.end();)
     {
-        auto info = &(*it);
-        if (info->delay > Window::dt_now)
+        if (it->second.delay > Window::dt_now)
         {
             it++;
             continue;
         }
-        auto aspr = &info->aspr;
-        if (animate_sprite(aspr) == false)
+        if (animate_sprite(&it->second.aspr) == false)
         {
             it = eff->effects.erase(it);
         }
