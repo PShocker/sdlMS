@@ -11,14 +11,18 @@ void FreeType::init(const std::string &filename_prefix)
     return;
 }
 
-void FreeType::renderGlyphToTexture(SDL_Texture *texture, char16_t c, SDL_Color color, int offsetX, int offsetY, FT_GlyphSlot glyph_slot)
+void FreeType::renderGlyphToTexture(SDL_Texture *texture, char16_t c, SDL_Color color, int offsetX, int offsetY, int height, FT_GlyphSlot glyph_slot)
 {
     auto index = FT_Get_Char_Index(*face, c);
     FT_Load_Glyph(*face, index, FT_LOAD_DEFAULT);
     FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_MONO);
     auto bitmap = glyph_slot->bitmap;
 
-    SDL_Rect char_rect = {offsetX, offsetY, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+    SDL_Rect char_rect = {offsetX, offsetY + (int)(height - glyph_slot->bitmap.rows) / 2, (int)glyph_slot->bitmap.width, (int)glyph_slot->bitmap.rows};
+    if (c == u'\u3002' || c == u'\uFF0C' || c == u'\u002C')
+    {
+        char_rect.y = offsetY + height - glyph_slot->bitmap.rows * 2;
+    }
 
     std::vector<unsigned char> argb_data(bitmap.width * bitmap.rows * 4, 0);
     for (int y = 0; y < bitmap.rows; y++)
@@ -64,7 +68,6 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
         }
         height = std::max((int)glyph_slot->bitmap.rows, height);
     }
-    width += 4;
     if (w <= 0)
     {
         SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, width, height);
@@ -75,8 +78,8 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
         int offsetX = 0;
         for (auto &c : s)
         {
-            renderGlyphToTexture(texture, c, color, offsetX, 0, glyph_slot);
-            offsetX += 1 + (glyph_slot->advance.x >> 6);
+            renderGlyphToTexture(texture, c, color, offsetX, 0, height, glyph_slot);
+            offsetX += (glyph_slot->advance.x >> 6);
         }
         SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
@@ -102,8 +105,8 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
                 offsetX = 0;
             }
             offsetY = (l - 1) * height;
-            renderGlyphToTexture(texture, s[i], color, offsetX, offsetY, glyph_slot);
-            offsetX += 1 + (glyph_slot->advance.x >> 6);
+            renderGlyphToTexture(texture, s[i], color, offsetX, offsetY, height, glyph_slot);
+            offsetX += (glyph_slot->advance.x >> 6);
         }
         SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
         SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
