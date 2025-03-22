@@ -805,11 +805,11 @@ void render_nametag(Transform *tr, NameTag *nametag)
             SDL_FRect rect;
             rect.w = str_texture->w + 4;
             rect.h = str_texture->h + 6;
-            rect.x = tr->position.x - Camera::x - str_texture->w / 2;
+            rect.x = tr->position.x - Camera::x - rect.w / 2;
             rect.y = tr->position.y - Camera::y + h + i * 3;
             SDL_RenderFillRect(Window::renderer, &rect);
         }
-        auto pos_rect = SDL_FRect{4 + tr->position.x - Camera::x - str_texture->w / 2, (i + 1) * 3 + h + tr->position.y - Camera::y, (float)str_texture->w, (float)str_texture->h};
+        auto pos_rect = SDL_FRect{2 + tr->position.x - Camera::x - str_texture->w / 2, (i + 1) * 3 + h + tr->position.y - Camera::y, (float)str_texture->w, (float)str_texture->h};
         SDL_RenderTexture(Window::renderer, str_texture, nullptr, &pos_rect);
         h += str_texture->h;
     }
