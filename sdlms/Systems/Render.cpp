@@ -56,7 +56,14 @@ void render_run()
             }
             if (auto nametag = World::registry->try_get<NameTag>(ent))
             {
-                if (mob->state != Mob::State::REMOVE)
+                if (mob->state == Mob::State::REMOVE)
+                {
+                    if (mob->revive - Window::dt_now < mob->revive_alpha_time)
+                    {
+                        render_nametag(tr, nametag);
+                    }
+                }
+                else
                 {
                     render_nametag(tr, nametag);
                 }
