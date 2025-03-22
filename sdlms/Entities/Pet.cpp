@@ -29,6 +29,14 @@ entt::entity load_pet(const u16string id, entt::entity owner)
     pet->id = id;
     pet->owner = owner;
 
+    node = Wz::String->get_root()->find_from_path(u"Pet.img/" + pet->id.substr(pet->id.find_first_not_of(u'0')));
+    if (node != nullptr)
+    {
+        auto name = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get();
+        auto nametag = &World::registry->emplace<NameTag>(ent);
+        NameTag::push(nametag, name, SDL_Color{255, 255, 255, 255});
+    }
+
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Move>(ent);
     World::registry->emplace<Animated>(ent);

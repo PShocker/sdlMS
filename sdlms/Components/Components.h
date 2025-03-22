@@ -28,4 +28,5 @@
 #include "Components/Summon.h"
 #include "Components/Pet.h"
 #include "Components/Buff.h"
+#include "Components/NameTag.h"
 #include "Components/Test.h"

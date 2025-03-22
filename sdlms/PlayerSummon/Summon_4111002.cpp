@@ -6,63 +6,63 @@ int summon_4111002(entt::entity ent)
     auto sum = World::registry->try_get<Summon>(ent);
     if (World::registry->valid(sum->owner))
     {
-        auto o_cha = World::registry->try_get<Character>(sum->owner);
-        if (o_cha->state == Character::State::DIE)
+        auto owner_cha = World::registry->try_get<Character>(sum->owner);
+        if (owner_cha->state == Character::State::DIE)
         {
             World::destory.push_back(ent);
             World::zindex = true;
             return 0;
         }
-        auto s_cha = World::registry->try_get<Character>(ent);
+        auto summon_cha = World::registry->try_get<Character>(ent);
 
-        s_cha->state = o_cha->state;
-        s_cha->action = o_cha->action;
-        s_cha->action_str = o_cha->action_str;
-        s_cha->action_index = o_cha->action_index;
-        s_cha->action_frame = o_cha->action_frame;
-        s_cha->action_time = o_cha->action_time;
-        s_cha->invincible_cooldown = Window::dt_now + 150;
+        summon_cha->state = owner_cha->state;
+        summon_cha->action = owner_cha->action;
+        summon_cha->action_str = owner_cha->action_str;
+        summon_cha->action_index = owner_cha->action_index;
+        summon_cha->action_frame = owner_cha->action_frame;
+        summon_cha->action_time = owner_cha->action_time;
+        summon_cha->invincible_cooldown = Window::dt_now + 150;
 
-        s_cha->alpha = (float)(sum->destory - Window::dt_now) / 30000 * 255;
+        summon_cha->alpha = (float)(sum->destory - Window::dt_now) / 30000 * 255;
 
-        auto o_tr = World::registry->try_get<Transform>(sum->owner);
-        auto s_tr = World::registry->try_get<Transform>(ent);
-        s_tr->flip = o_tr->flip;
-        s_tr->z = o_tr->z - 1;
-        auto o_mv = World::registry->try_get<Move>(sum->owner);
-        auto s_mv = World::registry->try_get<Move>(ent);
-        s_mv->foo = o_mv->foo;
-        s_mv->lr = o_mv->lr;
+        auto owner_tr = World::registry->try_get<Transform>(sum->owner);
+        auto summon_tr = World::registry->try_get<Transform>(ent);
+        summon_tr->flip = owner_tr->flip;
+        summon_tr->z = owner_tr->z - 1;
+        auto owner_mv = World::registry->try_get<Move>(sum->owner);
+        auto summon_mv = World::registry->try_get<Move>(ent);
+        summon_mv->foo = owner_mv->foo;
+        summon_mv->lr = owner_mv->lr;
 
-        if (o_mv->lr != nullptr && o_mv->hspeed == 0 && (o_cha->action == Character::ACTION::LADDER || o_cha->action == Character::ACTION::ROPE))
+        if (owner_mv->lr != nullptr && owner_mv->hspeed == 0 && (owner_cha->action == Character::ACTION::LADDER || owner_cha->action == Character::ACTION::ROPE))
         {
-            s_tr->position.x = o_tr->position.x;
-            s_tr->position.y = o_tr->position.y + 45;
+            summon_tr->position.x = owner_tr->position.x;
+            summon_tr->position.y = owner_tr->position.y + 45;
         }
         else
         {
-            if (o_tr->flip)
+            if (owner_tr->flip)
             {
-                s_tr->position.x = o_tr->position.x - 45;
-                s_tr->position.y = o_tr->position.y;
+                summon_tr->position.x = owner_tr->position.x - 45;
+                summon_tr->position.y = owner_tr->position.y;
             }
             else
             {
-                s_tr->position.x = o_tr->position.x + 45;
-                s_tr->position.y = o_tr->position.y;
+                summon_tr->position.x = owner_tr->position.x + 45;
+                summon_tr->position.y = owner_tr->position.y;
             }
         }
-        Skill *o_ski = World::registry->try_get<Skill>(sum->owner);
-        if (o_ski != nullptr)
+        Skill *owner_ski = World::registry->try_get<Skill>(sum->owner);
+        if (owner_ski != nullptr)
         {
-            if (o_ski->skiw->id == u"4111002")
+            if (owner_ski->skiw->id == u"4111002")
             {
                 return 0;
             }
-            if (o_cha->action_index == 0 && o_cha->action_time == 0 && o_cha->action_frame == 0)
+            if (owner_cha->action_index == 0 && owner_cha->action_time == 0 && owner_cha->action_frame == 0)
             {
-                auto s_ski = &World::registry->emplace_or_replace<Skill>(ent, o_ski->skiw->id);
-                auto id = s_ski->skiw->id;
+                auto summon_ski = &World::registry->emplace_or_replace<Skill>(ent, owner_ski->skiw->id);
+                auto id = summon_ski->skiw->id;
                 int skill_res = -1;
                 if (PlayerSkill::Skills.contains(id))
                 {
@@ -75,12 +75,12 @@ int summon_4111002(entt::entity ent)
                 // 技能效果
                 if (skill_res & PlayerSkill::SkillResult::EFF)
                 {
-                    PlayerSkill::skill_effect(s_ski, ent);
+                    PlayerSkill::skill_effect(summon_ski, ent);
                 }
                 // 技能攻击
                 if (skill_res & PlayerSkill::SkillResult::ATK)
                 {
-                    PlayerSkill::skill_attack(s_ski);
+                    PlayerSkill::skill_attack(summon_ski);
                 }
             }
         }
@@ -88,15 +88,15 @@ int summon_4111002(entt::entity ent)
         {
             World::registry->remove<Skill>(ent);
         }
-        AfterImage *o_aft = World::registry->try_get<AfterImage>(sum->owner);
-        if (o_aft != nullptr)
+        AfterImage *owner_aft = World::registry->try_get<AfterImage>(sum->owner);
+        if (owner_aft != nullptr)
         {
-            if (o_cha->action_index == 0 && o_cha->action_time == 0 &&
-                o_cha->action_frame == 0 && o_aft->hit == false)
+            if (owner_cha->action_index == 0 && owner_cha->action_time == 0 &&
+                owner_cha->action_frame == 0 && owner_aft->hit == false)
             {
-                auto s_aft = &World::registry->emplace_or_replace<AfterImage>(ent);
-                s_aft->aspr = o_aft->aspr;
-                s_aft->info = o_aft->info;
+                auto summon_aft = &World::registry->emplace_or_replace<AfterImage>(ent);
+                summon_aft->aspr = owner_aft->aspr;
+                summon_aft->info = owner_aft->info;
             }
         }
     }

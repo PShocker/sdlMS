@@ -26,7 +26,9 @@ void load_npc(wz::Node *node)
     auto y = foo->get_y(x).value();
     auto layer = foo->page;
 
-    node = Wz::Npc->get_root()->find_from_path(id + u".img");
+    npc.id = id;
+
+    node = Wz::Npc->get_root()->find_from_path(npc.id + u".img");
     // 排除 link
     while (node->find_from_path(u"info/link") != nullptr)
     {
@@ -52,6 +54,22 @@ void load_npc(wz::Node *node)
     else
     {
         npc.index = npc.a.begin()->first;
+    }
+
+    node = Wz::String->get_root()->find_from_path(u"Npc.img/" + npc.id.substr(npc.id.find_first_not_of(u'0')));
+    if (node != nullptr)
+    {
+        auto nametag = &World::registry->emplace<NameTag>(ent);
+        if (node->get_child(u"name"))
+        {
+            auto name = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get();
+            NameTag::push(nametag, name, SDL_Color{255, 255, 255, 255});
+        }
+        if (node->get_child(u"func"))
+        {
+            auto func = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"func"))->get();
+            NameTag::push(nametag, func, SDL_Color{255, 255, 255, 255});
+        }
     }
 
     World::registry->emplace<Animated>(ent);

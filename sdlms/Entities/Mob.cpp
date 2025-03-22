@@ -126,6 +126,14 @@ void load_mob(wz::Node *node)
         mob.drops[mob.id] = d;
     }
 
+    node = Wz::String->get_root()->find_from_path(u"Mob.img/" + mob.id.substr(mob.id.find_first_not_of(u'0')));
+    if (node != nullptr)
+    {
+        auto name = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get();
+        auto nametag = &World::registry->emplace<NameTag>(ent);
+        NameTag::push(nametag, name, SDL_Color{255, 255, 255, 255});
+    }
+
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Damage>(ent);
     World::registry->emplace<Animated>(ent);

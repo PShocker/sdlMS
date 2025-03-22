@@ -60,6 +60,18 @@ void World::load_map(int id)
         {
             continue;
         }
+        //
+        if (auto nametag = World::registry->try_get<NameTag>(ent))
+        {
+            for (auto &it : nametag->nametags)
+            {
+                SDL_DestroyTexture(it.str_texture);
+                if (it.back_texture != nullptr)
+                {
+                    SDL_DestroyTexture(it.back_texture);
+                }
+            }
+        }
         World::registry->destroy(ent);
     }
     Map::load(id);

@@ -27,3 +27,4 @@ void render_install(Transform *tr, Install *i);
 void render_summon(Transform *tr, Summon *sum);
 void render_pet(Transform *tr, Pet *pet);
 void render_uibuff(Transform *tr, UIBuff *uib);
+void render_nametag(Transform *tr, NameTag *nametag);

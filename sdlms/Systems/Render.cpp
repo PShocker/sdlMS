@@ -38,6 +38,10 @@ void render_run()
         else if (auto npc = World::registry->try_get<Npc>(ent))
         {
             render_npc(tr, npc);
+            if (auto nametag = World::registry->try_get<NameTag>(ent))
+            {
+                render_nametag(tr, nametag);
+            }
         }
         else if (auto mob = World::registry->try_get<Mob>(ent))
         {
@@ -49,6 +53,10 @@ void render_run()
             if (auto dam = World::registry->try_get<Damage>(ent))
             {
                 render_damage(dam);
+            }
+            if (auto nametag = World::registry->try_get<NameTag>(ent))
+            {
+                render_nametag(tr, nametag);
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
@@ -84,6 +92,10 @@ void render_run()
             {
                 render_damage(dam);
             }
+            if (auto nametag = World::registry->try_get<NameTag>(ent))
+            {
+                render_nametag(tr, nametag);
+            }
         }
         else if (auto dro = World::registry->try_get<Drop>(ent))
         {
@@ -107,6 +119,10 @@ void render_run()
             if (auto eff = World::registry->try_get<Effect>(ent))
             {
                 render_effect(tr, eff);
+            }
+            if (auto nametag = World::registry->try_get<NameTag>(ent))
+            {
+                render_nametag(tr, nametag);
             }
         }
     }
@@ -760,5 +776,31 @@ void render_uibuff(Transform *tr, UIBuff *uib)
         rect.w = 32;
         rect.h = 32 * (1 - d / (float)uib->duration);
         SDL_RenderFillRect(Window::renderer, &rect);
+    }
+}
+
+void render_nametag(Transform *tr, NameTag *nametag)
+{
+    auto h = 0;
+    for (int i = 0; i < nametag->nametags.size(); i++)
+    {
+        auto str_texture = nametag->nametags[i].str_texture;
+
+        // 先渲染背景
+        auto back_texture = nametag->nametags[i].back_texture;
+        if (back_texture == nullptr)
+        {
+            SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
+            SDL_FRect rect;
+            rect.w = str_texture->w + 4;
+            rect.h = str_texture->h + 6;
+            rect.x = tr->position.x - Camera::x - rect.w / 2;
+            rect.y = tr->position.y - Camera::y + h + i * 3;
+            SDL_RenderFillRect(Window::renderer, &rect);
+        }
+        auto pos_rect = SDL_FRect{tr->position.x - Camera::x - str_texture->w / 2, (i + 1) * 3 + h + tr->position.y - Camera::y, (float)str_texture->w, (float)str_texture->h};
+        SDL_RenderTexture(Window::renderer, str_texture, nullptr, &pos_rect);
+        h += str_texture->h;
     }
 }

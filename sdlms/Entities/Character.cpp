@@ -44,6 +44,10 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     World::registry->emplace<Move>(ent);
     auto buff = &World::registry->emplace<Buff>(ent);
     buff->owner = ent;
+
+    auto nametag = &World::registry->emplace<NameTag>(ent);
+    NameTag::push(nametag, u"逆向萌新", SDL_Color{255, 255, 255, 255});
+
     World::zindex = true;
     return;
 }
