@@ -128,6 +128,13 @@ void render_run()
                 render_nametag(tr, nametag);
             }
         }
+        else if (auto chatballoon = World::registry->try_get<ChatBalloon>(ent))
+        {
+            if (auto npc = World::registry->try_get<Npc>(chatballoon->owner))
+            {
+                render_chatballoon(World::registry->try_get<Transform>(chatballoon->owner), npc, chatballoon);
+            }
+        }
     }
 }
 
@@ -802,8 +809,39 @@ void render_nametag(Transform *tr, NameTag *nametag)
             rect.y = tr->position.y - Camera::y + h + i * 3;
             SDL_RenderFillRect(Window::renderer, &rect);
         }
-        auto pos_rect = SDL_FRect{tr->position.x - Camera::x - str_texture->w / 2, (i + 1) * 3 + h + tr->position.y - Camera::y, (float)str_texture->w, (float)str_texture->h};
+        auto pos_rect = SDL_FRect{2 + tr->position.x - Camera::x - str_texture->w / 2, (i + 1) * 3 + h + tr->position.y - Camera::y, (float)str_texture->w, (float)str_texture->h};
         SDL_RenderTexture(Window::renderer, str_texture, nullptr, &pos_rect);
         h += str_texture->h;
+    }
+}
+
+void render_chatballoon(Transform *tr, Npc *npc, ChatBalloon *chatballoon)
+{
+    if (chatballoon->chatballoons.size() > 0)
+    {
+        auto &it = chatballoon->chatballoons[0];
+        if (it.delay <= Window::dt_now)
+        {
+            it.delay = Window::dt_now + std::rand() % 30000 + 2000;
+            it.show = !it.show;
+        }
+        if (it.show == false)
+        {
+            return;
+        }
+        auto str_texture = chatballoon->chatballoons[0].str_texture;
+        // 先渲染背景
+        auto back_texture = chatballoon->chatballoons[0].back_texture;
+
+        auto aspr = npc->a[npc->index];
+        auto sprw = aspr.asprw->sprites[aspr.anim_index];
+
+        float render_back_y = (float)-sprw->texture->h - (sprw->origin.y - sprw->texture->h) - (float)back_texture->h;
+
+        auto pos_rect = SDL_FRect{tr->position.x - Camera::x - back_texture->w / 2, tr->position.y - Camera::y + render_back_y, (float)back_texture->w, (float)back_texture->h};
+        SDL_RenderTexture(Window::renderer, back_texture, nullptr, &pos_rect);
+
+        pos_rect = SDL_FRect{tr->position.x - Camera::x - str_texture->w / 2, tr->position.y - Camera::y + render_back_y + 8, (float)str_texture->w, (float)str_texture->h};
+        SDL_RenderTexture(Window::renderer, str_texture, nullptr, &pos_rect);
     }
 }

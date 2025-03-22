@@ -34,7 +34,7 @@ entt::entity load_pet(const u16string id, entt::entity owner)
     {
         auto name = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get();
         auto nametag = &World::registry->emplace<NameTag>(ent);
-        NameTag::push(nametag, name, SDL_Color{255, 255, 255, 255});
+        NameTag::push(nametag, name, SDL_Color{255, 235, 0, 255});
     }
 
     World::registry->emplace<Effect>(ent);

@@ -28,3 +28,4 @@ void render_summon(Transform *tr, Summon *sum);
 void render_pet(Transform *tr, Pet *pet);
 void render_uibuff(Transform *tr, UIBuff *uib);
 void render_nametag(Transform *tr, NameTag *nametag);
+void render_chatballoon(Transform *tr, Npc *npc, ChatBalloon *chatballoon);

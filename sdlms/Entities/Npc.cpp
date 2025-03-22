@@ -6,6 +6,7 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 #include "FootHold.h"
+#include "ChatBalloon.h"
 
 void load_npc(wz::Node *node)
 {
@@ -63,13 +64,19 @@ void load_npc(wz::Node *node)
         if (node->get_child(u"name"))
         {
             auto name = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get();
-            NameTag::push(nametag, name, SDL_Color{255, 255, 255, 255});
+            NameTag::push(nametag, name, SDL_Color{255, 205, 0, 255});
         }
         if (node->get_child(u"func"))
         {
             auto func = dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"func"))->get();
-            NameTag::push(nametag, func, SDL_Color{255, 255, 255, 255});
+            NameTag::push(nametag, func, SDL_Color{255, 205, 0, 255});
         }
+        std::vector<std::u16string> strs;
+        if (node->get_child(u"n0"))
+        {
+            strs.push_back(dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"n0"))->get());
+        }
+        load_chatballoon(strs, SDL_Color{156, 91, 97, 255}, ent);
     }
 
     World::registry->emplace<Animated>(ent);

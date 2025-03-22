@@ -29,4 +29,5 @@
 #include "Components/Pet.h"
 #include "Components/Buff.h"
 #include "Components/NameTag.h"
+#include "Components/ChatBalloon.h"
 #include "Components/Test.h"

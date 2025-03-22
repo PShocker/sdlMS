@@ -72,6 +72,14 @@ void World::load_map(int id)
                 }
             }
         }
+        if (auto chatballoon = World::registry->try_get<ChatBalloon>(ent))
+        {
+            for (auto &it : chatballoon->chatballoons)
+            {
+                SDL_DestroyTexture(it.str_texture);
+                SDL_DestroyTexture(it.back_texture);
+            }
+        }
         World::registry->destroy(ent);
     }
     Map::load(id);
