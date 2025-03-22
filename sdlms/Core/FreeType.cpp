@@ -24,7 +24,7 @@ void FreeType::renderGlyphToTexture(SDL_Texture *texture, char16_t c, SDL_Color 
         char_rect.y = (offsetY - glyph_slot->bitmap.rows) / 2;
     }
 
-    std::vector<unsigned char> argb_data(bitmap.width * bitmap.rows * 4);
+    std::vector<unsigned char> argb_data(bitmap.width * bitmap.rows * 4, 0);
     for (int y = 0; y < bitmap.rows; y++)
     {
         for (int x = 0; x < bitmap.width; x++)
@@ -72,6 +72,10 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
     if (w <= 0)
     {
         SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height);
+        Uint32 *pixels = (Uint32 *)SDL_stack_alloc(Uint32, width * height * sizeof(Uint32));
+        SDL_memset(pixels, 0, width * height * sizeof(Uint32));
+        SDL_UpdateTexture(texture, NULL, pixels, width * sizeof(Uint32));
+        SDL_stack_free(pixels);
         int offsetX = 0;
         for (auto &c : s)
         {
@@ -91,6 +95,10 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
         height += 6;
         width += 12;
         SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, width, height * line);
+        Uint32 *pixels = (Uint32 *)SDL_stack_alloc(Uint32, width * height * sizeof(Uint32));
+        SDL_memset(pixels, 0, width * height * sizeof(Uint32));
+        SDL_UpdateTexture(texture, NULL, pixels, width * sizeof(Uint32));
+        SDL_stack_free(pixels);
         for (int i = 0; i < s.length(); i++)
         {
             auto l = i / w + 1;

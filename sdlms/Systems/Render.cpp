@@ -56,7 +56,10 @@ void render_run()
             }
             if (auto nametag = World::registry->try_get<NameTag>(ent))
             {
-                render_nametag(tr, nametag);
+                if (mob->state != Mob::State::REMOVE)
+                {
+                    render_nametag(tr, nametag);
+                }
             }
         }
         else if (auto cha = World::registry->try_get<Character>(ent))
