@@ -126,7 +126,6 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
             // 首先判断当前要渲染的字是否超过最大宽度
             auto index = FT_Get_Char_Index(*face, s[i]);
             FT_Load_Glyph(*face, index, FT_LOAD_DEFAULT);
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_MONO);
             if (offsetX + (glyph_slot->advance.x >> 6) > width)
             {
                 offsetY += height;
