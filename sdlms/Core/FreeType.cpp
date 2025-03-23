@@ -102,7 +102,6 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
             // 获取字符索引并加载字形
             auto index = FT_Get_Char_Index(*face, s[i]);
             FT_Load_Glyph(*face, index, FT_LOAD_DEFAULT);
-            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
             // 获取字符宽度
             int charWidth = glyph_slot->advance.x >> 6;
             // 换行逻辑：如果当前字符超出宽度，提前换行

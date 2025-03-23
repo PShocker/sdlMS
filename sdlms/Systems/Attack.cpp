@@ -163,6 +163,16 @@ int attack_character(Attack *atk, entt::entity src, entt::entity target, std::op
         {
             atk->call_back.value()(src, target, full_damage);
         }
+        if (auto buff = World::registry->try_get<Buff>(target))
+        {
+            for (auto &[key, val] : buff->buffs)
+            {
+                if (val.after_hit.has_value())
+                {
+                    val.after_hit.value()(atk, src, target, full_damage);
+                }
+            }
+        }
     }
     return full_damage;
 }
