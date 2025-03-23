@@ -179,7 +179,7 @@ int pet_follow(entt::entity ent)
             World::zindex = true;
             return Pet::State::CLIMB;
         }
-        else if (std::abs(owner_tr->position.y - pet_tr->position.y) >= 150 ||
+        else if (std::abs(owner_tr->position.y - pet_tr->position.y) >= 180 ||
                  std::abs(owner_tr->position.x - pet_tr->position.x) >= 700)
         {
             pet_mv->foo = nullptr;
