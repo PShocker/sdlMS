@@ -11,7 +11,7 @@ void FreeType::init(const std::string &filename_prefix)
     return;
 }
 
-void FreeType::renderGlyphToTexture(SDL_Texture *texture, char16_t c, SDL_Color color, int offsetX, int offsetY, int height, FT_GlyphSlot glyph_slot)
+void FreeType::renderGlyphToTexture(SDL_Texture *texture, char16_t c, SDL_Color color, int offsetX, int offsetY, int height, FT_GlyphSlot &glyph_slot)
 {
     auto index = FT_Get_Char_Index(*face, c);
     FT_Load_Glyph(*face, index, FT_LOAD_DEFAULT);
@@ -64,7 +64,7 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
         FT_Load_Glyph(*face, index, FT_LOAD_DEFAULT);
         if (w <= 0 || (w > 0 && i < w))
         {
-            width += 1 + (glyph_slot->advance.x >> 6);
+            width += (glyph_slot->advance.x >> 6);
         }
         height = std::max((int)glyph_slot->bitmap.rows, height);
     }
@@ -87,9 +87,34 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
     }
     else
     {
-        auto length = s.length();
-        auto line = ceil((float)length / (float)w);
+        // 计算高度
+        auto line = 1;
         int offsetX = 0;
+        for (int i = 0; i < s.length(); i++)
+        {
+            // 处理换行符
+            if (s[i] == '\n')
+            {
+                offsetX = 0;
+                line += 1;
+                continue;
+            }
+            // 获取字符索引并加载字形
+            auto index = FT_Get_Char_Index(*face, s[i]);
+            FT_Load_Glyph(*face, index, FT_LOAD_DEFAULT);
+            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_NORMAL);
+            // 获取字符宽度
+            int charWidth = glyph_slot->advance.x >> 6;
+            // 换行逻辑：如果当前字符超出宽度，提前换行
+            if (offsetX + charWidth > width)
+            {
+                offsetX = 0;
+                line += 1;
+            }
+            // 累加字符宽度
+            offsetX += charWidth;
+        }
+        offsetX = 0;
         int offsetY = 0;
         height += 6;
         SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_TARGET, width, height * line);
@@ -99,12 +124,15 @@ SDL_Texture *FreeType::load(const std::u16string &s, SDL_Color color, int w)
         SDL_SetRenderTarget(renderer, NULL);
         for (int i = 0; i < s.length(); i++)
         {
-            auto l = i / w + 1;
-            if (i % w == 0)
+            // 首先判断当前要渲染的字是否超过最大宽度
+            auto index = FT_Get_Char_Index(*face, s[i]);
+            FT_Load_Glyph(*face, index, FT_LOAD_DEFAULT);
+            FT_Render_Glyph(glyph_slot, FT_RENDER_MODE_MONO);
+            if (offsetX + (glyph_slot->advance.x >> 6) > width)
             {
+                offsetY += height;
                 offsetX = 0;
             }
-            offsetY = (l - 1) * height;
             renderGlyphToTexture(texture, s[i], color, offsetX, offsetY, height, glyph_slot);
             offsetX += (glyph_slot->advance.x >> 6);
         }
