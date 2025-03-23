@@ -40,6 +40,7 @@ int skill_1101007(entt::entity ent)
                 attack.src_point = World::registry->try_get<Transform>(target)->position;
                 attack.min_damage = 1;
                 attack.max_damage = 1;
+                attack.mobCount = 0;
                 attack_mob(&attack, target, src, std::nullopt);
             };
             info.duration = duration;
