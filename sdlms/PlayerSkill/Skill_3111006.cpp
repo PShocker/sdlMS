@@ -6,8 +6,8 @@
 #include "Systems/Ball.h"
 #include "Commons/Commons.h"
 
-// 三连环光击破
-int skill_4121007(entt::entity ent)
+// 箭扫射
+int skill_3111006(entt::entity ent)
 {
     auto mv = World::registry->try_get<Move>(ent);
     auto cha = World::registry->try_get<Character>(ent);
@@ -23,7 +23,7 @@ int skill_4121007(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4121007");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"3111006");
 
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
@@ -53,18 +53,19 @@ int skill_4121007(entt::entity ent)
                 auto time = vec->back();
                 if (Window::dt_now > time)
                 {
-                    auto point = SDL_FPoint{0, -30};
-                    point.y += std::rand() % 11;
+                    auto point = SDL_FPoint{0, -30 + (7 * (4 - (float)vec->size()))};
                     point = point + std::get<2>(*tuple);
-                    auto ball_ent = load_ball(ent, point, 900, ski);
-                    if (vec->size() == 3)
+                    auto ball_ent = load_ball(ent, point, 700, ski);
+                    auto ball = World::registry->try_get<Ball>(ball_ent);
+                    if (vec->size() == 4)
                     {
                         auto target = ball_fall(ball_ent);
                         std::get<0>(*tuple) = target;
                     }
                     else
                     {
-                        ball_target_point(ball_ent, std::get<0>(*tuple));
+                        auto mob_ent = std::get<0>(*tuple);
+                        ball_target_point(ball_ent, mob_ent);
                     }
                     vec->pop_back();
                 }
@@ -73,9 +74,10 @@ int skill_4121007(entt::entity ent)
         else
         {
             auto delay = cha->stance_delays[cha->action][cha->action_index];
-            auto interval = delay / 3;
+            auto interval = delay / 6;
             ski->data = std::tuple<entt::entity, std::vector<unsigned int>, SDL_FPoint>(entt::null, {
-                                                                                                        Window::dt_now + 2 * interval,
+                                                                                                        Window::dt_now + interval * 3,
+                                                                                                        Window::dt_now + interval * 2,
                                                                                                         Window::dt_now + interval,
                                                                                                         Window::dt_now,
                                                                                                     },
@@ -83,12 +85,12 @@ int skill_4121007(entt::entity ent)
         }
     };
 
-    SkillWarp::cooldowns[u"4121007"] = Window::dt_now + 500;
+    SkillWarp::cooldowns[u"3111006"] = Window::dt_now + 500;
 
     World::registry->emplace_or_replace<AfterImage>(ent);
 
     return PlayerSkill::SkillResult::SOU |
-           PlayerSkill::SkillResult::ACT |
            PlayerSkill::SkillResult::EFF |
+           PlayerSkill::SkillResult::ACT |
            PlayerSkill::SkillResult::ALERT;
 }

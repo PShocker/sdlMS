@@ -4,6 +4,7 @@
 #include <SDL3/SDL.h>
 #include "Entities/Ball.h"
 #include "Systems/Ball.h"
+#include "Commons/Commons.h"
 
 // 双飞镖
 int skill_4001344(entt::entity ent)
@@ -46,26 +47,27 @@ int skill_4001344(entt::entity ent)
         {
             return;
         }
-        else if (ski->data.has_value())
+        if (ski->data.has_value())
         {
-            auto pair = std::any_cast<std::pair<entt::entity, std::vector<unsigned int>>>(&ski->data);
-            auto vec = &pair->second;
+            auto tuple = std::any_cast<std::tuple<entt::entity, std::vector<unsigned int>, SDL_FPoint>>(&ski->data);
+            auto vec = &std::get<1>(*tuple);
             if (!vec->empty())
             {
                 auto time = vec->back();
                 if (Window::dt_now > time)
                 {
-                    auto e = load_ball(ent, SDL_FPoint{0, -30 + (float)((2 - vec->size()) * 10)}, 850, ski);
-                    auto ball = World::registry->try_get<Ball>(e);
-                    if (pair->first == entt::null)
+                    auto point = SDL_FPoint{0, -30};
+                    point.y += std::rand() % 11;
+                    point = point + std::get<2>(*tuple);
+                    auto ball_ent = load_ball(ent, point, 900, ski);
+                    if (vec->size() == 2)
                     {
-                        auto target = ball_fall(e, ball);
-                        pair->first = target;
+                        auto target = ball_fall(ball_ent);
+                        std::get<0>(*tuple) = target;
                     }
                     else
                     {
-                        ball->target = pair->first;
-                        ball->p = World::registry->try_get<Transform>(e)->position;
+                        ball_target_point(ball_ent, std::get<0>(*tuple));
                     }
                     vec->pop_back();
                 }
@@ -74,8 +76,12 @@ int skill_4001344(entt::entity ent)
         else
         {
             auto delay = cha->stance_delays[cha->action][cha->action_index];
-            auto interval = delay / 4;
-            ski->data = std::pair<entt::entity, std::vector<unsigned int>>(entt::null, {Window::dt_now + interval, Window::dt_now});
+            auto interval = delay / 2;
+            ski->data = std::tuple<entt::entity, std::vector<unsigned int>, SDL_FPoint>(entt::null, {
+                                                                                                        Window::dt_now + interval,
+                                                                                                        Window::dt_now,
+                                                                                                    },
+                                                                                        World::registry->try_get<Transform>(ent)->position);
         }
     };
 

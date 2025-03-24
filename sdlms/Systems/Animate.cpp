@@ -208,7 +208,7 @@ void animate_character(Character *cha, entt::entity ent)
         }
         else if (ski->ball)
         {
-            load_ball(ent, SDL_FPoint{0, -30}, 550, ski);
+            load_ball(ent, World::registry->try_get<Transform>(ent)->position + SDL_FPoint{0, -30}, 800, ski);
         }
     };
 
@@ -309,7 +309,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
                 if (std::find(attack_stances.begin(), attack_stances.end(), action) != attack_stances.end())
                 {
                     // 远程
-                    load_ball(ent, SDL_FPoint{0, -30}, 550);
+                    load_ball(ent, World::registry->try_get<Transform>(ent)->position + SDL_FPoint{0, -30}, 800);
                     // play sound
                     Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
                     return;

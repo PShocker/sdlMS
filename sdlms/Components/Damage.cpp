@@ -41,7 +41,7 @@ void Damage::init()
 void Damage::push(Damage *dam, int damage, uint8_t type, SDL_FPoint point, unsigned int delay)
 {
     if ((dam->damages.size() > 0 &&
-         dam->damages.front().alpha <= 240) ||
+         dam->damages.front().alpha <= 200) ||
         dam->damages.size() == 0)
     {
         dam->index = 0;

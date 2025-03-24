@@ -11,7 +11,9 @@ struct Ball
     entt::entity target = entt::null;
     entt::entity owner = entt::null;
 
-    std::optional<SDL_FPoint> p = std::nullopt;
+    std::optional<SDL_FPoint> target_point = std::nullopt;
+
+    std::optional<SDL_FPoint> point = std::nullopt;
 
     AnimatedSpriteWarp *hit = nullptr;
 

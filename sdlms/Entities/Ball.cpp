@@ -19,13 +19,14 @@ entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *s
     auto ent = World::registry->create();
     auto ent_tr = &World::registry->emplace<Transform>(ent);
 
-    ent_tr->position = owner_tr->position + point;
+    ent_tr->position = point;
     ent_tr->flip = owner_tr->flip;
 
     auto count = World::registry->view<Ball>().size();
     ent_tr->z = owner_tr->z - count - 1;
 
     auto ball = &World::registry->emplace<Ball>(ent);
+    ball->point = point;
     ball->owner = owner;
     ball->hit = AnimatedSpriteWarp::load(Wz::Character->get_root()->find_from_path(u"Afterimage/hit.img/mace2"));
     ball->destory = Window::dt_now + (350 / (float)speed * 1000);
@@ -62,7 +63,7 @@ entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *s
         }
         else
         {
-            ball_path = u"Consume/0207.img/02070005/bullet";
+            ball_path = u"Consume/0207.img/02070006/bullet";
         }
         asprw = AnimatedSpriteWarp::load(Wz::Item->get_root()->find_from_path(ball_path));
     }
