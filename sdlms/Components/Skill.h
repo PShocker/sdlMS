@@ -8,6 +8,7 @@
 #include <SDL3/SDL.h>
 #include <optional>
 #include <functional>
+#include <any>
 
 struct SkillWarp
 {
@@ -40,7 +41,10 @@ struct Skill
     bool hit = false;
     uint8_t level = 19;
     bool attack = false;
-    unsigned char ball = 0;
+    bool ball = false;
+
+    // 数据
+    std::any data;
 
     std::unordered_set<entt::entity> hit_targets;
     std::optional<std::function<void(entt::entity, int, int)>> call_back = std::nullopt;

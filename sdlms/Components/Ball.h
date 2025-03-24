@@ -16,7 +16,7 @@ struct Ball
     AnimatedSpriteWarp *hit = nullptr;
 
     // 摧毁时间
-    unsigned int destory = Window::dt_now + 600;
+    unsigned int destory = Window::dt_now;
 
     std::optional<int> rotate = std::nullopt;
 

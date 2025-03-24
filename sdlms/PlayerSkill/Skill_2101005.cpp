@@ -84,7 +84,7 @@ int skill_2101005(entt::entity ent)
             mob->call_backs.emplace(u"2101005", hit_call_back);
         }
     };
-    ski->ball = 1;
+    ski->ball = true;
 
     SkillWarp::cooldowns[u"2101005"] = Window::dt_now + 500;
 

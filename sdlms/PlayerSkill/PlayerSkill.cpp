@@ -92,7 +92,7 @@ void PlayerSkill::skill_attack(Skill *ski)
     }
     if (ski->skiw->node->get_child(u"ball") != nullptr)
     {
-        ski->ball = 1;
+        ski->ball = true;
     }
     else
     {

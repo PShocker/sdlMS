@@ -206,37 +206,9 @@ void animate_character(Character *cha, entt::entity ent)
         {
             attack_mob(&ski->atk.value(), ent);
         }
-        else if (ski->ball > 0)
+        else if (ski->ball)
         {
-            std::optional<int> rotate = std::nullopt;
-            if (ski->skiw->node->get_child(u"ball") && ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))
-            {
-                rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
-            }
-            if (ski->skiw->node->get_child(u"ball") != nullptr)
-            {
-                load_ball(AnimatedSpriteWarp::load(ski->skiw->node->get_child(u"ball")), ent, ski->ball, nullptr, rotate, ski);
-            }
-            else
-            {
-                entt::entity target = entt::null;
-                std::vector<entt::entity> ents = load_ball(ski->ball, ent, rotate, ski);
-                for (auto e : ents)
-                {
-                    auto ball = World::registry->try_get<Ball>(e);
-                    if (target == entt::null || !World::registry->valid(target))
-                    {
-                        target = ball_fall(e, ball);
-                    }
-                }
-                for (auto e : ents)
-                {
-                    auto ball = World::registry->try_get<Ball>(e);
-                    ball->target = target;
-                    auto tr = World::registry->try_get<Transform>(e);
-                    ball->p = tr->position;
-                }
-            }
+            load_ball(ent, SDL_FPoint{0, -30}, 550, ski);
         }
     };
 
@@ -248,8 +220,8 @@ void animate_character(Character *cha, entt::entity ent)
         {
             auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
             auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
-            auto &info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][cha->action];
-            if (cha->action_index == info.index && action_time == 0)
+            auto index = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][cha->action].index;
+            if (cha->action_index == index && action_time == 0)
             {
                 handle_skill_attack(ski);
             }
@@ -337,7 +309,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
                 if (std::find(attack_stances.begin(), attack_stances.end(), action) != attack_stances.end())
                 {
                     // 远程
-                    load_ball(1, ent);
+                    load_ball(ent, SDL_FPoint{0, -30}, 550);
                     // play sound
                     Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
                     return;

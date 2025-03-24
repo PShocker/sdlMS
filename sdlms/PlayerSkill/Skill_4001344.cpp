@@ -2,6 +2,8 @@
 #include "entt/entt.hpp"
 #include "Resources/Wz.h"
 #include <SDL3/SDL.h>
+#include "Entities/Ball.h"
+#include "Systems/Ball.h"
 
 // 双飞镖
 int skill_4001344(entt::entity ent)
@@ -32,7 +34,50 @@ int skill_4001344(entt::entity ent)
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
-    ski->ball = 2;
+
+    ski->call_back = [](entt::entity ent, int action_frame, int action_time)
+    {
+        auto ski = World::registry->try_get<Skill>(ent);
+        auto cha = World::registry->try_get<Character>(ent);
+        auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
+        auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
+        auto index = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][cha->action].index;
+        if (action_frame < index)
+        {
+            return;
+        }
+        else if (ski->data.has_value())
+        {
+            auto pair = std::any_cast<std::pair<entt::entity, std::vector<unsigned int>>>(&ski->data);
+            auto vec = &pair->second;
+            if (!vec->empty())
+            {
+                auto time = vec->back();
+                if (Window::dt_now > time)
+                {
+                    auto e = load_ball(ent, SDL_FPoint{0, -30 + (float)((2 - vec->size()) * 10)}, 850, ski);
+                    auto ball = World::registry->try_get<Ball>(e);
+                    if (pair->first == entt::null)
+                    {
+                        auto target = ball_fall(e, ball);
+                        pair->first = target;
+                    }
+                    else
+                    {
+                        ball->target = pair->first;
+                        ball->p = World::registry->try_get<Transform>(e)->position;
+                    }
+                    vec->pop_back();
+                }
+            }
+        }
+        else
+        {
+            auto delay = cha->stance_delays[cha->action][cha->action_index];
+            auto interval = delay / 4;
+            ski->data = std::pair<entt::entity, std::vector<unsigned int>>(entt::null, {Window::dt_now + interval, Window::dt_now});
+        }
+    };
 
     SkillWarp::cooldowns[u"4001344"] = Window::dt_now + 500;
 

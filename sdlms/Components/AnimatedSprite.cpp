@@ -7,6 +7,10 @@ static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
 
 AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool caches)
 {
+    if (node == nullptr)
+    {
+        return nullptr;
+    }
     if (caches == false)
     {
         return new AnimatedSpriteWarp(node, alpha, false);

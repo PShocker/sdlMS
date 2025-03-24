@@ -41,11 +41,7 @@ endif()
 if(EMSCRIPTEN)
         set(CMAKE_EXECUTABLE_SUFFIX ".html")
 
-        # set_target_properties(sdlMS PROPERTIES LINK_FLAGS
-        # "--preload-file ${CMAKE_SOURCE_DIR}/build/Data/@Data/"
-
-        # # 可以添加其他Emscripten链接器选项
-        # )
+        set_target_properties(sdlMS PROPERTIES LINK_FLAGS "--preload-file ${CMAKE_SOURCE_DIR}/build/Font/@Font/")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sALLOW_MEMORY_GROWTH -sUSE_ZLIB -sSTACK_SIZE=32MB")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sINITIAL_MEMORY=64MB")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -sFETCH=1")
