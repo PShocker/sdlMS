@@ -53,14 +53,7 @@ entt::entity ball_fall(entt::entity src)
     const Triangle tri = {{-350, -100}, {-350, 100}, {0, 0}};
 
     auto target = find_closest_attackable_mob(*tr, tri);
-    if (target != entt::null)
-    {
-        ball_target_point(src, target);
-    }
-    else
-    {
-        ball->target_point = SDL_FPoint{0, 0};
-    }
+    ball_target_point(src, target);
     return target;
 }
 
@@ -124,10 +117,13 @@ bool ball_no_track(entt::entity src)
 
 void ball_target_point(entt::entity src, entt::entity target)
 {
-    if (!World::registry->valid(src) || !World::registry->valid(target))
-        return;
-
     auto ball = World::registry->try_get<Ball>(src);
+    if (!World::registry->valid(src) || !World::registry->valid(target))
+    {
+        ball->target_point = SDL_FPoint{0, 0};
+        return;
+    }
+
     ball->target = target;
 
     auto target_tr = World::registry->try_get<Transform>(target);
