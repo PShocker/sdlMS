@@ -9,6 +9,7 @@ struct Effect
 {
     static inline const std::u16string Dizzy = u"1";
     static inline const std::u16string Poison = u"2";
+    static inline const std::u16string Flame = u"3";
 
     struct Info
     {

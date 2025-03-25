@@ -37,51 +37,51 @@ int skill_1121006(entt::entity ent)
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
         auto ski = World::registry->try_get<Skill>(ent);
-        auto o_mv = World::registry->try_get<Move>(ent);
-        auto o_tr = World::registry->try_get<Transform>(ent);
-        if (o_mv->foo)
+        auto owner_mv = World::registry->try_get<Move>(ent);
+        auto owner_tr = World::registry->try_get<Transform>(ent);
+        if (owner_mv->foo)
         {
-            o_mv->hspeed = o_tr->flip == 1 ? 100 : -100;
-            o_mv->hforce = o_tr->flip == 1 ? 1400 : -1400;
-            move_move(o_mv, o_tr, 800, 0.06, false);
-            o_mv->hspeed = 0;
-            auto o_cha = World::registry->try_get<Character>(ent);
-            if (o_cha->invincible_cooldown <= Window::dt_now + 250)
+            owner_mv->hspeed = owner_tr->flip == 1 ? 100 : -100;
+            owner_mv->hforce = owner_tr->flip == 1 ? 1400 : -1400;
+            move_move(owner_mv, owner_tr, 800, 0.06, false);
+            owner_mv->hspeed = 0;
+            auto owner_cha = World::registry->try_get<Character>(ent);
+            if (owner_cha->invincible_cooldown <= Window::dt_now + 250)
             {
-                o_cha->invincible_cooldown = Window::dt_now + 250;
+                owner_cha->invincible_cooldown = Window::dt_now + 250;
             }
         }
         // 推动怪物
-        for (auto e : World::registry->view<Damage, Mob>())
+        for (auto mob_ent : World::registry->view<Damage, Mob>())
         {
-            const auto mob = World::registry->try_get<Mob>(e);
+            const auto mob = World::registry->try_get<Mob>(mob_ent);
             if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
                 continue;
-            auto m_tr = World::registry->try_get<Transform>(e);
-            if (std::abs(o_tr->position.y - m_tr->position.y) <= 20)
+            auto m_tr = World::registry->try_get<Transform>(mob_ent);
+            if (std::abs(owner_tr->position.y - m_tr->position.y) <= 20)
             {
-                if ((o_tr->flip == 1 && o_tr->position.x <= m_tr->position.x && (m_tr->position.x - o_tr->position.x) <= 45) ||
-                    (o_tr->flip == 0 && o_tr->position.x >= m_tr->position.x && (o_tr->position.x - m_tr->position.x) <= 45))
+                if ((owner_tr->flip == 1 && owner_tr->position.x <= m_tr->position.x && (m_tr->position.x - owner_tr->position.x) <= 45) ||
+                    (owner_tr->flip == 0 && owner_tr->position.x >= m_tr->position.x && (owner_tr->position.x - m_tr->position.x) <= 45))
                 {
-                    if (!ski->hit_targets.contains(e))
+                    if (!ski->hit_targets.contains(mob_ent))
                     {
                         Attack atk;
                         atk.damage = 50;
                         atk.mobCount = 0;
-                        attack_mob(&atk, ent, e, std::nullopt);
-                        ski->hit_targets.insert(e);
+                        attack_mob(&atk, ent, mob_ent, std::nullopt);
+                        ski->hit_targets.insert(mob_ent);
                     }
-                    auto call_back = [x = m_tr->position.x, flip = o_tr->flip](entt::entity ent)
+                    auto call_back = [x = m_tr->position.x, flip = owner_tr->flip](entt::entity ent)
                     {
-                        auto m_mv = World::registry->try_get<Move>(ent);
-                        if (m_mv->foo)
+                        auto mob_mv = World::registry->try_get<Move>(ent);
+                        if (mob_mv->foo)
                         {
                             auto m_tr = World::registry->try_get<Transform>(ent);
-                            m_mv->hspeed = flip == 1 ? 145 : -145;
-                            m_mv->hforce = flip == 1 ? 1400 : -1400;
-                            auto r = move_move(m_mv, m_tr, 800, 0.025, false);
-                            m_mv->hforce = 0;
-                            if (std::abs(m_tr->position.x - x) >= 200 || r == false || m_mv->hspeed == 0)
+                            mob_mv->hspeed = flip == 1 ? 145 : -145;
+                            mob_mv->hforce = flip == 1 ? 1400 : -1400;
+                            auto r = move_move(mob_mv, m_tr, 800, 0.025, false);
+                            mob_mv->hforce = 0;
+                            if (std::abs(m_tr->position.x - x) >= 200 || r == false || mob_mv->hspeed == 0)
                             {
                                 return std::make_pair(true, true);
                             }

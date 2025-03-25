@@ -44,6 +44,18 @@ int skill_3001005(entt::entity ent)
         {
             return;
         }
+        auto point = SDL_FPoint{0, -30};
+        auto ball_ent_m = load_ball(ent, point, 700, ski);
+        auto ball_ent_n = load_ball(ent, point, 700, ski);
+
+        ball_fall(ball_ent_m);
+        ball_fall(ball_ent_n);
+
+        auto ball_m = World::registry->try_get<Ball>(ball_ent_m);
+        auto ball_n = World::registry->try_get<Ball>(ball_ent_n);
+
+        ball_m->target_point.value().y -= 10;
+        ball_n->target_point.value().y += 10;
     };
 
     SkillWarp::cooldowns[u"3001005"] = Window::dt_now + 500;
