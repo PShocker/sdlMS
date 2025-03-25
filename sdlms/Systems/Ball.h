@@ -13,8 +13,6 @@ bool ball_no_track(entt::entity src);
 
 void ball_target_point(entt::entity src, entt::entity target);
 
-bool ball_move(entt::entity src, float delta_time);
-
 void ball_hit(entt::entity src, entt::entity target);
 
 bool ball_collision(entt::entity src, entt::entity target);

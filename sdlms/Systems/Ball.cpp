@@ -24,7 +24,7 @@ void ball_run()
             // 这类型的ball不跟踪怪物,路径就是直线
             ball_no_track(ent);
         }
-        if (ball->track && World::registry->valid(ball->target))
+        if (ball->track && ball->target_point != std::nullopt)
         {
             if (ball_track(ent, (float)Window::delta_time / 1000))
             {
@@ -35,11 +35,6 @@ void ball_run()
         else if (ball->track && ball->target_point == std::nullopt)
         {
             ball_fall(ent);
-        }
-        else if (ball_move(ent, (float)Window::delta_time / 1000))
-        {
-            World::destory.push_back(ent);
-            World::zindex = true;
         }
     }
 }
@@ -60,37 +55,40 @@ entt::entity ball_fall(entt::entity src)
 bool ball_track(entt::entity src, float delta_time)
 {
     auto ball = World::registry->try_get<Ball>(src);
-    auto target = ball->target;
-
-    if (ball_collision(src, target))
-    {
-        ball_hit(src, target);
-        return true;
-    }
-
     auto mv = World::registry->try_get<Move>(src);
     auto tr = World::registry->try_get<Transform>(src);
 
-    auto target_tr = World::registry->try_get<Transform>(target);
-
-    auto dx = tr->position.x - (target_tr->position.x + ball->target_point.value().x);
-    auto dy = tr->position.y - (target_tr->position.y + ball->target_point.value().y);
-
+    float dx;
+    float dy;
+    auto target = ball->target;
+    if (World::registry->valid(target))
+    {
+        if (ball_collision(src, target))
+        {
+            ball_hit(src, target);
+            return true;
+        }
+        auto target_tr = World::registry->try_get<Transform>(target);
+        dx = tr->position.x - (target_tr->position.x + ball->target_point.value().x);
+        dy = tr->position.y - (target_tr->position.y + ball->target_point.value().y);
+    }
+    else
+    {
+        dx = tr->position.x - ball->target_point.value().x;
+        dy = tr->position.y - ball->target_point.value().y;
+    }
     mv->hspeed = (dx > 0) ? -std::abs(mv->hspeed) : std::abs(mv->hspeed);
-
     mv->vspeed = -std::abs(mv->hspeed) * dy / std::abs(dx);
-    mv->vspeed = mv->vspeed * 0.35;
-    mv->vspeed = std::clamp(mv->vspeed, -std::abs(mv->hspeed), std::abs(mv->hspeed));
+    mv->vspeed = std::clamp(mv->vspeed, -180.0f, 180.0f);
 
     tr->rotation = tr->flip ? calculate_angle(ball->point.value(), tr->position)
                             : calculate_angle(tr->position, ball->point.value());
 
     move_fall(mv, tr, delta_time, 0, false, true);
-    if (mv->hspeed == 0)
+    if (mv->hspeed == 0 || (!World::registry->valid(target) && ball->destory < Window::dt_now))
     {
         return true;
     }
-
     return false;
 }
 
@@ -120,7 +118,9 @@ void ball_target_point(entt::entity src, entt::entity target)
     auto ball = World::registry->try_get<Ball>(src);
     if (!World::registry->valid(src) || !World::registry->valid(target))
     {
-        ball->target_point = SDL_FPoint{0, 0};
+        auto ball_tr = World::registry->try_get<Transform>(src);
+        auto target_point = ball_tr->flip == 1 ? SDL_FPoint{350, 0} : SDL_FPoint{-350, 0};
+        ball->target_point = ball_tr->position + target_point;
         return;
     }
 
@@ -134,17 +134,6 @@ void ball_target_point(entt::entity src, entt::entity target)
         auto rect = real_rect(mob->rect(), target_tr);
         ball->target_point = closestPointToRect(ball_tr->position, rect) - target_tr->position;
     }
-}
-
-bool ball_move(entt::entity src, float delta_time)
-{
-    auto ball = World::registry->try_get<Ball>(src);
-
-    auto mv = World::registry->try_get<Move>(src);
-    auto tr = World::registry->try_get<Transform>(src);
-
-    move_fall(mv, tr, delta_time, 0, false);
-    return (ball->destory < Window::dt_now || mv->hspeed == 0);
 }
 
 void ball_hit(entt::entity src, entt::entity target)

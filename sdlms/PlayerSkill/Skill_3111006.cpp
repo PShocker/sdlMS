@@ -53,7 +53,7 @@ int skill_3111006(entt::entity ent)
                 auto time = vec->back();
                 if (Window::dt_now > time)
                 {
-                    auto point = SDL_FPoint{0, -30 + (7 * (4 - (float)vec->size()))};
+                    auto point = SDL_FPoint{0, -30};
                     point = point + std::get<2>(*tuple);
                     auto ball_ent = load_ball(ent, point, 700, ski);
                     auto ball = World::registry->try_get<Ball>(ball_ent);
@@ -66,6 +66,18 @@ int skill_3111006(entt::entity ent)
                     {
                         auto mob_ent = std::get<0>(*tuple);
                         ball_target_point(ball_ent, mob_ent);
+                    }
+                    if (ball->target != entt::null)
+                    {
+                        auto mob = World::registry->try_get<Mob>(ball->target);
+                        ball->target_point = SDL_FPoint{0, -(mob->rect().h / 4) * (float)vec->size()};
+                    }
+                    else
+                    {
+                        auto ball_tr = World::registry->try_get<Transform>(ball_ent);
+                        auto target_point = ball_tr->flip == 1 ? SDL_FPoint{350, 0} : SDL_FPoint{-350, 0};
+                        target_point.y = -36 + (4 - (float)vec->size()) * 18;
+                        ball->target_point = ball_tr->position + target_point;
                     }
                     vec->pop_back();
                 }
