@@ -817,6 +817,8 @@ const std::map<SDL_Scancode, std::u16string> skill_key_id = {
     {SDL_SCANCODE_5, u"2001002"},
     {SDL_SCANCODE_6, u"21100005"},
     {SDL_SCANCODE_O, u"3111006"},
+    {SDL_SCANCODE_P, u"3111003"},
+    {SDL_SCANCODE_L, u"2101004"},
 };
 
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent, std::u16string id)

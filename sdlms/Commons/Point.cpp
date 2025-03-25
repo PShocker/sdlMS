@@ -47,7 +47,10 @@ float calculate_angle(const SDL_FPoint &from, const SDL_FPoint &to)
     const float dx = to.x - from.x;
     const float dy = to.y - from.y;
     if (dx == 0.0f)
-        return (dy > 0) ? 90.0f : 270.0f;
+    {
+        return (dy > 0) ? 90.0f : (dy == 0) ? 0
+                                            : 270.0f;
+    }
     const float angle_rad = std::atan2(dy, dx);
     return static_cast<float>(angle_rad * (180.0 / std::numbers::pi));
 }

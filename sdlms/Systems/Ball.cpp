@@ -79,13 +79,15 @@ bool ball_track(entt::entity src, float delta_time)
     }
     mv->hspeed = (dx > 0) ? -std::abs(mv->hspeed) : std::abs(mv->hspeed);
     mv->vspeed = -std::abs(mv->hspeed) * dy / std::abs(dx);
-    mv->vspeed = std::clamp(mv->vspeed, -180.0f, 180.0f);
+    mv->vspeed = mv->vspeed * 0.5;
 
     tr->rotation = tr->flip ? calculate_angle(ball->point.value(), tr->position)
                             : calculate_angle(tr->position, ball->point.value());
 
     move_fall(mv, tr, delta_time, 0, false, true);
-    if (mv->hspeed == 0 || (!World::registry->valid(target) && ball->destory < Window::dt_now))
+    if (mv->hspeed == 0 ||
+        (!World::registry->valid(target) && std::abs(dx) <= 10) ||
+        (!World::registry->valid(target) && ball->destory <= Window::dt_now))
     {
         return true;
     }
