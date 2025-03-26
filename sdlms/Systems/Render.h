@@ -8,8 +8,10 @@
 
 void render_run();
 
-void render_sprite(Transform *tr, SpriteWarp *spr, SDL_FPoint *o = nullptr);
-void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *o = nullptr);
+void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip = 0, float rotation = 0, SDL_FPoint *origin = nullptr);
+void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *origin = nullptr);
+void render_animated_sprite(SDL_FPoint &p, AnimatedSprite *a);
+void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *origin = nullptr);
 void render_back_sprite(Transform *tr, BackGround *bspr);
 void render_character(const Transform *tr, Character *cha, int invincible);
 void render_afterimage(Transform *tr, AfterImage *aft, Character *cha);
@@ -26,6 +28,8 @@ void render_reactor(Transform *tr, Reactor *r);
 void render_install(Transform *tr, Install *i);
 void render_summon(Transform *tr, Summon *sum);
 void render_pet(Transform *tr, Pet *pet);
-void render_uibuff(Transform *tr, UIBuff *uib);
 void render_nametag(Transform *tr, NameTag *nametag);
 void render_chatballoon(Transform *tr, Npc *npc, ChatBalloon *chatballoon);
+void render_uibuff();
+void render_statusbar();
+void render_worldmap();

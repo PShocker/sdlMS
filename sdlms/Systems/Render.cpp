@@ -18,10 +18,6 @@ void render_run()
         {
             auto sprw = spr->sprw;
             render_sprite(tr, sprw);
-            if (auto uib = World::registry->try_get<UIBuff>(ent))
-            {
-                render_uibuff(tr, uib);
-            }
         }
         else if (auto a = World::registry->try_get<AnimatedSprite>(ent))
         {
@@ -143,56 +139,55 @@ void render_run()
             }
         }
     }
+    // 对于UI逻辑，需要单独处理渲染逻辑，不需要添加Transform组件排序
+    render_uibuff();
+    render_statusbar();
+    render_worldmap();
 }
 
-void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *o)
+void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SDL_FPoint *origin)
+{
+    auto width = sprw->texture->w;
+    auto heihgt = sprw->texture->h;
+    SDL_FPoint o{(float)sprw->origin.x, (float)sprw->origin.y};
+    origin = origin == nullptr ? &o : origin;
+
+    SDL_FRect pos_rect;
+
+    if (flip == 0)
+    {
+        pos_rect = {(float)p.x - origin->x, (float)p.y - origin->y, (float)width, (float)heihgt};
+    }
+    else if (flip == 1)
+    {
+        pos_rect = {(float)p.x - (width - origin->x), (float)p.y - origin->y, (float)width, (float)heihgt};
+    }
+    SDL_RenderTextureRotated(Window::renderer, sprw->texture, nullptr, &pos_rect, rotation, origin, (SDL_FlipMode)flip);
+}
+
+void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *origin)
 {
     float rot = tr->rotation;
 
     auto width = sprw->texture->w;
     auto heihgt = sprw->texture->h;
 
-    auto x = tr->position.x;
-    auto y = tr->position.y;
-
-    SDL_FPoint origin;
-    if (o != nullptr)
-    {
-        origin = *o;
-    }
-    else
-    {
-        origin.x = (float)sprw->origin.x;
-        origin.y = (float)sprw->origin.y;
-    }
-
-    if (tr->camera == true)
-    {
-        // 显示坐标为绝对坐标,与摄像机无关,通常为ui
-        SDL_FRect pos_rect{(float)x - origin.x, (float)y - origin.y, (float)width, (float)heihgt};
-        SDL_RenderTextureRotated(Window::renderer, sprw->texture, nullptr, &pos_rect, rot, &origin, (SDL_FlipMode)tr->flip);
-    }
-    else
-    {
-        // 显示坐标与摄像机坐标相关
-        SDL_FRect pos_rect;
-        if (tr->flip == 0)
-        {
-            pos_rect = {(float)x - origin.x - Camera::x, (float)y - origin.y - Camera::y, (float)width, (float)heihgt};
-        }
-        else if (tr->flip == 1)
-        {
-            pos_rect = {(float)x - (width - origin.x) - Camera::x, (float)y - origin.y - Camera::y, (float)width, (float)heihgt};
-        }
-        SDL_RenderTextureRotated(Window::renderer, sprw->texture, nullptr, &pos_rect, rot, &origin, (SDL_FlipMode)tr->flip);
-    }
+    SDL_FPoint position = tr->position - SDL_FPoint{(float)Camera::x, (float)Camera::y};
+    render_sprite(position, sprw, tr->flip, rot, origin);
 }
 
-void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *o)
+void render_animated_sprite(SDL_FPoint &p, AnimatedSprite *a)
 {
     auto sprw = a->asprw->sprites[a->anim_index];
     SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
-    render_sprite(tr, sprw, o);
+    render_sprite(p, sprw);
+}
+
+void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *origin)
+{
+    auto sprw = a->asprw->sprites[a->anim_index];
+    SDL_SetTextureAlphaMod(sprw->texture, a->alpha);
+    render_sprite(tr, sprw, origin);
 }
 
 void render_back_sprite(Transform *tr, BackGround *bspr)
@@ -780,19 +775,26 @@ void render_pet(Transform *tr, Pet *pet)
     render_animated_sprite(tr, a);
 }
 
-void render_uibuff(Transform *tr, UIBuff *uib)
+void render_uibuff()
 {
-    if (uib->destory >= Window::dt_now && uib->duration > 0)
+    for (auto ent : World::registry->view<UIBuff>())
     {
-        SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 148);
-        auto d = uib->destory - Window::dt_now;
-        SDL_FRect rect;
-        rect.x = tr->position.x;
-        rect.y = tr->position.y - 32 + 32 * d / (float)uib->duration;
-        rect.w = 32;
-        rect.h = 32 * (1 - d / (float)uib->duration);
-        SDL_RenderFillRect(Window::renderer, &rect);
+        auto uib = World::registry->try_get<UIBuff>(ent);
+        auto position = &uib->position;
+        auto sprw = World::registry->try_get<Sprite>(ent)->sprw;
+        render_sprite(*position, sprw);
+        if (uib->destory >= Window::dt_now && uib->duration > 0)
+        {
+            SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 148);
+            auto d = uib->destory - Window::dt_now;
+            SDL_FRect rect;
+            rect.x = position->x;
+            rect.y = position->y - 32 + 32 * d / (float)uib->duration;
+            rect.w = 32;
+            rect.h = 32 * (1 - d / (float)uib->duration);
+            SDL_RenderFillRect(Window::renderer, &rect);
+        }
     }
 }
 
@@ -850,5 +852,91 @@ void render_chatballoon(Transform *tr, Npc *npc, ChatBalloon *chatballoon)
 
         pos_rect = SDL_FRect{tr->position.x - Camera::x - str_texture->w / 2, tr->position.y - Camera::y + render_back_y + 8, (float)str_texture->w, (float)str_texture->h};
         SDL_RenderTexture(Window::renderer, str_texture, nullptr, &pos_rect);
+    }
+}
+
+void render_statusbar()
+{
+    // 渲染backgrnd
+    for (int i = 0;;)
+    {
+        if (i > Camera::w)
+        {
+            break;
+        }
+        auto pos_rect = SDL_FRect{(float)i, (float)Camera::h - StatusBar::backgrnd->h, (float)StatusBar::backgrnd->w, (float)StatusBar::backgrnd->h};
+        SDL_RenderTexture(Window::renderer, StatusBar::backgrnd, nullptr, &pos_rect);
+        i += StatusBar::backgrnd->w;
+    }
+    int x = 0;
+    auto pos_rect = SDL_FRect{(float)x, (float)Camera::h - StatusBar::backgrnd2->h, (float)StatusBar::backgrnd2->w, (float)StatusBar::backgrnd2->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, nullptr, &pos_rect);
+
+    auto aspr = StatusBar::BtShop[u"normal"];
+    x = StatusBar::backgrnd2->w + aspr.asprw->sprites[aspr.anim_index]->origin.x;
+    auto position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
+    render_animated_sprite(position, &aspr);
+
+    aspr = StatusBar::BtChat[u"normal"];
+    x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
+    position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
+    render_animated_sprite(position, &aspr);
+
+    aspr = StatusBar::BtNPT[u"normal"];
+    x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
+    position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
+    render_animated_sprite(position, &aspr);
+
+    aspr = StatusBar::BtMenu[u"normal"];
+    x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
+    position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
+    render_animated_sprite(position, &aspr);
+
+    aspr = StatusBar::BtShort[u"normal"];
+    x += aspr.asprw->sprites[aspr.anim_index]->texture->w / 2 + 2;
+    position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->texture->h};
+    render_animated_sprite(position, &aspr);
+
+    // 渲染quickSlot
+    // for (int i = Camera::w - StatusBar::quickSlot->w;;)
+    // {
+    //     if (i <= x)
+    //     {
+    //         break;
+    //     }
+    //     auto pos_rect = SDL_FRect{(float)i, (float)Camera::h - StatusBar::quickSlot->h, (float)StatusBar::quickSlot->w, (float)StatusBar::quickSlot->h};
+    //     if (i != Camera::w - StatusBar::quickSlot->w)
+    //     {
+    //         pos_rect.w += 10;
+    //     }
+    //     SDL_RenderTexture(Window::renderer, StatusBar::quickSlot, nullptr, &pos_rect);
+    //     i -= StatusBar::quickSlot->w - 10;
+    // }
+}
+
+void render_worldmap()
+{
+    for (auto ent : World::registry->view<WorldMap::BaseImg>())
+    {
+        auto worldmap = World::registry->try_get<WorldMap>(ent);
+        auto position = worldmap->position;
+        auto spr = World::registry->try_get<Sprite>(ent);
+        auto sprw = spr->sprw;
+        render_sprite(position, sprw);
+    }
+    for (auto ent : World::registry->view<WorldMap::Spot>())
+    {
+        auto worldmap = World::registry->try_get<WorldMap>(ent);
+        auto position = worldmap->position;
+        auto spr = World::registry->try_get<Sprite>(ent);
+        auto sprw = spr->sprw;
+        render_sprite(position, sprw);
+    }
+    for (auto ent : World::registry->view<WorldMap::CurPos>())
+    {
+        auto worldmap = World::registry->try_get<WorldMap>(ent);
+        auto position = worldmap->position;
+        auto a = World::registry->try_get<AnimatedSprite>(ent);
+        render_animated_sprite(position, a);
     }
 }

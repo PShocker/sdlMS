@@ -97,13 +97,13 @@ void attack_reactor(Attack *atk)
     }
 }
 
-int attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optional<SDL_FPoint> p)
+void attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optional<SDL_FPoint> p)
 {
     if (!World::registry->valid(target))
     {
-        return false;
+        return;
     }
-    int full_damage = 0;
+    optional<int> full_damage = std::nullopt;
     if (auto mob = World::registry->try_get<Mob>(target))
     {
         if (mob->state != Mob::State::REMOVE)
@@ -111,11 +111,11 @@ int attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optional
             full_damage = mob_hit(atk, target, p);
         }
     }
-    if (full_damage > 0)
+    if (full_damage.has_value())
     {
         if (atk->call_back.has_value())
         {
-            atk->call_back.value()(src, target, full_damage);
+            atk->call_back.value()(src, target, full_damage.value());
         }
         if (auto buff = World::registry->try_get<Buff>(src))
         {
@@ -123,12 +123,12 @@ int attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optional
             {
                 if (val.after_attack.has_value())
                 {
-                    val.after_attack.value()(atk, src, target, full_damage);
+                    val.after_attack.value()(atk, src, target, full_damage.value());
                 }
             }
         }
     }
-    return full_damage;
+    return;
 }
 
 int attack_character(Attack *atk, entt::entity src, entt::entity target, std::optional<SDL_FPoint> p)

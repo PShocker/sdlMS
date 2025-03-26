@@ -37,11 +37,12 @@ int skill_3101005(entt::entity ent)
     auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 0);
     ski->atk.value().call_back = [](entt::entity src, entt::entity target, int full_damage)
     {
         auto ski = World::registry->try_get<Skill>(src);
         auto atk = &ski->atk.value();
+        atk->damage = 50;
         atk->call_back = std::nullopt;
         // 晕眩效果,3秒
         const auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
@@ -61,7 +62,6 @@ int skill_3101005(entt::entity ent)
                 return std::make_pair(true, true);
             }
         };
-        bool first = false;
         auto target_position = World::registry->try_get<Transform>(target)->position;
         while (World::registry->valid(target) && atk->mobCount > 0)
         {
@@ -72,13 +72,8 @@ int skill_3101005(entt::entity ent)
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
-            if (first)
-            {
-                // 第一次进入循环不进行攻击,因为已经攻击过怪物
-                atk->mobCount--;
-                attack_mob(atk, src, target, hit_point);
-            }
-            first = true;
+            atk->mobCount--;
+            attack_mob(atk, src, target, hit_point);
             mob->call_backs.emplace(u"3101005", call_back);
             ski->hit_targets.insert(target);
             // 寻找下一个目标

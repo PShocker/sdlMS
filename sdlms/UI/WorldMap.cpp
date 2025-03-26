@@ -11,7 +11,8 @@ void WorldMap::show()
     WorldMap::y = Camera::h / 2;
 
     auto ent = World::registry->create();
-    World::registry->emplace<WorldMap>(ent);
+    auto worldmap = &World::registry->emplace<WorldMap>(ent);
+    World::registry->emplace<BaseImg>(ent);
 
     auto node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap");
     AnimatedSpriteWarp *curPos = AnimatedSpriteWarp::load(node->find_from_path(u"curPos"));
@@ -23,13 +24,13 @@ void WorldMap::show()
     auto BaseImg = SpriteWarp::load(node->find_from_path(u"BaseImg/0"));
 
     World::registry->emplace<Sprite>(ent, BaseImg);
-    World::registry->emplace<Transform>(ent, WorldMap::x, WorldMap::y, UI_Z, 0, true);
+    worldmap->position = SDL_FPoint{WorldMap::x, WorldMap::y};
 
     auto mapList = node->find_from_path(u"MapList");
     for (auto &[key, val] : mapList->get_children())
     {
         ent = World::registry->create();
-        World::registry->emplace<WorldMap>(ent);
+        auto worldmap = &World::registry->emplace<WorldMap>(ent);
         auto spot = val[0]->get_child(u"spot");
         auto type = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"type"))->get();
         auto spot_v = dynamic_cast<wz::Property<wz::WzVec2D> *>(spot)->get();
@@ -64,6 +65,7 @@ void WorldMap::show()
         }
 
         World::registry->emplace<Spot>(ent, spot_x, spot_y, type, mapNo);
+        worldmap->position = SDL_FPoint{(float)spot_x + WorldMap::x, (float)spot_y + WorldMap::y};
         node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap");
         switch (type)
         {
@@ -90,17 +92,17 @@ void WorldMap::show()
         default:
             break;
         }
-        World::registry->emplace<Transform>(ent, (float)spot_x + WorldMap::x, (float)spot_y + WorldMap::y, UI_Z + 1, 0, true);
     }
     if (curPos_x.has_value() && curPos_y.has_value())
     {
         // 玩家所在的位置动画
         ent = World::registry->create();
-        World::registry->emplace<WorldMap>(ent);
+        World::registry->emplace<CurPos>(ent);
+
+        auto worldmap = &World::registry->emplace<WorldMap>(ent);
         World::registry->emplace<Animated>(ent);
         World::registry->emplace<AnimatedSprite>(ent, curPos);
-        World::registry->emplace<Transform>(ent, (float)curPos_x.value() + WorldMap::x,
-                                            (float)curPos_y.value() + WorldMap::y, UI_Z + 2, 0, true);
+        worldmap->position = SDL_FPoint{(float)curPos_x.value() + WorldMap::x, (float)curPos_y.value() + WorldMap::y};
     }
 
     WorldMap::open = true;

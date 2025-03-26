@@ -22,7 +22,11 @@ void ball_run()
         if (ball->track == false)
         {
             // 这类型的ball不跟踪怪物,路径就是直线
-            ball_no_track(ent);
+            if (ball_no_track(ent, (float)Window::delta_time / 1000))
+            {
+                World::destory.push_back(ent);
+                World::zindex = true;
+            }
         }
         if (ball->track && ball->target_point != std::nullopt)
         {
@@ -94,9 +98,12 @@ bool ball_track(entt::entity src, float delta_time)
     return false;
 }
 
-bool ball_no_track(entt::entity src)
+bool ball_no_track(entt::entity src, float delta_time)
 {
     auto ball = World::registry->try_get<Ball>(src);
+    auto mv = World::registry->try_get<Move>(src);
+    auto tr = World::registry->try_get<Transform>(src);
+
     for (auto ent : World::registry->view<Damage, Mob>())
     {
         auto mob = World::registry->try_get<Mob>(ent);
@@ -111,6 +118,11 @@ bool ball_no_track(entt::entity src)
                 ball->track_hit->insert(ent);
             }
         }
+    }
+    move_fall(mv, tr, delta_time, 0, false, true);
+    if (mv->hspeed == 0 || ball->destory <= Window::dt_now)
+    {
+        return true;
     }
     return false;
 }
@@ -143,7 +155,8 @@ void ball_hit(entt::entity src, entt::entity target)
     auto ball = World::registry->try_get<Ball>(src);
 
     auto ski = World::registry->try_get<Skill>(src);
-    Attack *atk = (ski) ? &(ski->atk.value()) : new Attack();
+    Attack attack;
+    Attack *atk = (ski) ? &(ski->atk.value()) : &attack;
 
     if (!atk->hit)
         atk->hit = ball->hit;
@@ -164,9 +177,6 @@ void ball_hit(entt::entity src, entt::entity target)
             }
         }
     }
-
-    if (!ski)
-        delete atk;
 }
 
 bool ball_collision(entt::entity src, entt::entity target)

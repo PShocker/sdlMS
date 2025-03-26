@@ -13,4 +13,14 @@ struct StatusBar
     static inline SDL_Texture *backgrnd2;
     static inline SDL_Texture *quickSlot;
     static inline SDL_Texture *chatTarget;
+    static inline SDL_Texture *iconRed;
+    static inline SDL_Texture *iconBlue;
+    static inline SDL_Texture *iconMemo;
+    static inline SDL_Texture *chat;
+
+    static inline std::unordered_map<std::u16string, AnimatedSprite> BtShop;
+    static inline std::unordered_map<std::u16string, AnimatedSprite> BtChat;
+    static inline std::unordered_map<std::u16string, AnimatedSprite> BtNPT;
+    static inline std::unordered_map<std::u16string, AnimatedSprite> BtMenu;
+    static inline std::unordered_map<std::u16string, AnimatedSprite> BtShort;
 };

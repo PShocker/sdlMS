@@ -28,9 +28,9 @@ void UIBuff::run()
     int i = 0;
     for (auto &[key, val] : maps)
     {
-        auto tr = World::registry->try_get<Transform>(val);
-        tr->position.x = Camera::w - 32 - i * 32;
         auto uib = World::registry->try_get<UIBuff>(val);
+        auto position = &uib->position;
+        position->x = Camera::w - 32 - i * 32;
         uib->index = i;
         i++;
     }
@@ -49,8 +49,7 @@ void UIBuff::run()
             auto sprw = SpriteWarp::load(
                 Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id + u"/icon"));
             World::registry->emplace<Sprite>(ent, sprw);
-            World::registry->emplace<Transform>(ent, (float)Camera::w - 32 - i * 32,
-                                                (float)32, UI_Z + 1, 0, true);
+            uib->position = SDL_FPoint{(float)Camera::w - 32 - i * 32, (float)32};
             World::zindex = true;
             i++;
         }

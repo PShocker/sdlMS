@@ -13,4 +13,3 @@ const int CHARACTER_Z = 600000;
 const int PET_Z = 700000;
 const int DROP_Z = 800000;
 const int FRONT_BACKGROUND_Z = 99999999;
-const int UI_Z = 999999999;

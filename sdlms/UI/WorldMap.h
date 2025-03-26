@@ -5,6 +5,14 @@
 
 struct WorldMap
 {
+    struct BaseImg
+    {
+    };
+
+    struct CurPos
+    {
+    };
+
     struct Spot
     {
         int x;
@@ -19,6 +27,8 @@ struct WorldMap
     static void click();
     static bool over();
     static void run();
+
+    SDL_FPoint position;
 
     static inline bool open = false;
     static inline bool keyborard = true;

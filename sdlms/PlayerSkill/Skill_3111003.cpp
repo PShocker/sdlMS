@@ -37,15 +37,15 @@ int skill_3111003(entt::entity ent)
     auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 0);
     ski->atk.value().call_back = [mobCount](entt::entity src, entt::entity target, int full_damage)
     {
         auto ski = World::registry->try_get<Skill>(src);
         auto atk = &ski->atk.value();
+        atk->damage = 20;
         atk->call_back = std::nullopt;
 
         auto time = 3000;
-        bool first = false;
         auto target_position = World::registry->try_get<Transform>(target)->position;
         while (World::registry->valid(target) && atk->mobCount > 0)
         {
@@ -54,12 +54,8 @@ int skill_3111003(entt::entity ent)
 
             // 执行攻击效果
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
-            if (first)
-            {
-                atk->mobCount--;
-                attack_mob(atk, src, target, hit_point);
-            }
-            first = true;
+            atk->mobCount--;
+            attack_mob(atk, src, target, hit_point);
             mob->call_backs.erase(u"3111003");
             const auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"tile/0")),
                                     time = Window::dt_now + time](entt::entity ent)

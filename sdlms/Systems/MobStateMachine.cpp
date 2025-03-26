@@ -171,9 +171,9 @@ void mob_action(Mob *mob, Move *mv, Transform *tr, int state, int new_state)
     }
 }
 
-int mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
+optional<int> mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
 {
-    int full_damage = 0;
+    optional<int> full_damage = 0;
 
     auto mv = World::registry->try_get<Move>(ent);
     auto tr = World::registry->try_get<Transform>(ent);
@@ -188,7 +188,7 @@ int mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> hit_point)
             int damage = atk->damage * r;
             auto type = damage > atk->damage ? Damage::Type::Cri : Damage::Type::Red;
             // 一次攻击造成的伤害值
-            full_damage += damage;
+            full_damage.value() += damage;
 
             mob->hp -= damage;
             mob->hit = Player::ent;

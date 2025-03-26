@@ -9,7 +9,7 @@ entt::entity ball_fall(entt::entity ent);
 
 bool ball_track(entt::entity src, float delta_time);
 
-bool ball_no_track(entt::entity src);
+bool ball_no_track(entt::entity src, float delta_time);
 
 void ball_target_point(entt::entity src, entt::entity target);
 
