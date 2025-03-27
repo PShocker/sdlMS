@@ -168,10 +168,6 @@ void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SD
 void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *origin)
 {
     float rot = tr->rotation;
-
-    auto width = sprw->texture->w;
-    auto heihgt = sprw->texture->h;
-
     SDL_FPoint position = tr->position - SDL_FPoint{(float)Camera::x, (float)Camera::y};
     render_sprite(position, sprw, tr->flip, rot, origin);
 }
