@@ -6,7 +6,7 @@
 void ChatBalloon::push(ChatBalloon *chatballoon, std::u16string str, SDL_Color color, std::u16string type)
 {
     FreeType::size(15);
-    auto str_texture = FreeType::load(str, color, 9);
+    auto str_texture = FreeType::load(str, color, 140);
     auto back_texture = load_back_texture(str_texture);
     chatballoon->chatballoons.push_back({str_texture, back_texture});
 }
