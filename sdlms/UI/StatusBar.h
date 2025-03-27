@@ -18,6 +18,10 @@ struct StatusBar
     static inline SDL_Texture *iconMemo;
     static inline SDL_Texture *chat;
 
+    static inline SDL_Texture *graduation;
+    static inline SDL_Texture *bar;
+    static inline SDL_Texture *gray;
+
     static inline std::unordered_map<std::u16string, AnimatedSprite> BtShop;
     static inline std::unordered_map<std::u16string, AnimatedSprite> BtChat;
     static inline std::unordered_map<std::u16string, AnimatedSprite> BtNPT;

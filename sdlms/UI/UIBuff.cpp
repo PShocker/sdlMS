@@ -22,7 +22,6 @@ void UIBuff::run()
         else
         {
             World::destory.push_back(ent);
-            World::zindex = true;
         }
     }
     int i = 0;
@@ -50,7 +49,6 @@ void UIBuff::run()
                 Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id + u"/icon"));
             World::registry->emplace<Sprite>(ent, sprw);
             uib->position = SDL_FPoint{(float)Camera::w - 32 - i * 32, (float)32};
-            World::zindex = true;
             i++;
         }
     }

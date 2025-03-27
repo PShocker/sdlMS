@@ -106,7 +106,6 @@ void WorldMap::show()
     }
 
     WorldMap::open = true;
-    World::zindex = true;
 }
 
 void WorldMap::hide()
@@ -117,7 +116,6 @@ void WorldMap::hide()
         World::destory.push_back(ent);
     }
     WorldMap::open = false;
-    World::zindex = true;
 }
 
 void WorldMap::click()

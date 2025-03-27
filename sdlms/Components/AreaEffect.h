@@ -15,6 +15,8 @@ struct AreaEffect
 
     std::vector<Info> effects;
 
+    std::vector<AnimatedSprite> asprs;
+
     int x;
     int y;
 

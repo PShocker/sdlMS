@@ -854,7 +854,8 @@ void render_chatballoon(Transform *tr, Npc *npc, ChatBalloon *chatballoon)
 void render_statusbar()
 {
     // 渲染backgrnd
-    for (int i = 0;;)
+    float i = 0;
+    while (true)
     {
         if (i > Camera::w)
         {
@@ -867,6 +868,12 @@ void render_statusbar()
     int x = 0;
     auto pos_rect = SDL_FRect{(float)x, (float)Camera::h - StatusBar::backgrnd2->h, (float)StatusBar::backgrnd2->w, (float)StatusBar::backgrnd2->h};
     SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, nullptr, &pos_rect);
+
+    pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::bar->h - 3, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
+
+    pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::graduation->h - 3, (float)StatusBar::graduation->w, (float)StatusBar::graduation->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::graduation, nullptr, &pos_rect);
 
     auto aspr = StatusBar::BtShop[u"normal"];
     x = StatusBar::backgrnd2->w + aspr.asprw->sprites[aspr.anim_index]->origin.x;
@@ -893,21 +900,28 @@ void render_statusbar()
     position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->texture->h};
     render_animated_sprite(position, &aspr);
 
-    // 渲染quickSlot
-    // for (int i = Camera::w - StatusBar::quickSlot->w;;)
-    // {
-    //     if (i <= x)
-    //     {
-    //         break;
-    //     }
-    //     auto pos_rect = SDL_FRect{(float)i, (float)Camera::h - StatusBar::quickSlot->h, (float)StatusBar::quickSlot->w, (float)StatusBar::quickSlot->h};
-    //     if (i != Camera::w - StatusBar::quickSlot->w)
-    //     {
-    //         pos_rect.w += 10;
-    //     }
-    //     SDL_RenderTexture(Window::renderer, StatusBar::quickSlot, nullptr, &pos_rect);
-    //     i -= StatusBar::quickSlot->w - 10;
-    // }
+    auto right = 145;
+    auto length = StatusBar::quickSlot->w - right;
+    auto src_rect = SDL_FRect{(float)right, (float)0, (float)length, (float)StatusBar::quickSlot->h};
+    pos_rect = SDL_FRect{(float)Camera::w - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::quickSlot, &src_rect, &pos_rect);
+
+    auto middle = 110;
+    length = StatusBar::quickSlot->w - middle - length;
+    src_rect = SDL_FRect{(float)middle, (float)0, (float)length, (float)StatusBar::quickSlot->h};
+    i = (float)Camera::w - (StatusBar::quickSlot->w - right);
+    while (i >= x + 90)
+    {
+        pos_rect = SDL_FRect{(float)i - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
+        SDL_RenderTexture(Window::renderer, StatusBar::quickSlot, &src_rect, &pos_rect);
+        i = i - length;
+    }
+
+    auto letf = 6;
+    length = letf;
+    src_rect = SDL_FRect{(float)0, (float)0, (float)length, (float)StatusBar::quickSlot->h};
+    pos_rect = SDL_FRect{(float)i - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::quickSlot, &src_rect, &pos_rect);
 }
 
 void render_worldmap()
