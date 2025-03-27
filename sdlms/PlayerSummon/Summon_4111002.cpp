@@ -55,10 +55,6 @@ int summon_4111002(entt::entity ent)
         Skill *owner_ski = World::registry->try_get<Skill>(sum->owner);
         if (owner_ski != nullptr)
         {
-            if (owner_ski->skiw->id == u"4111002")
-            {
-                return 0;
-            }
             if (owner_cha->action_index == 0 && owner_cha->action_time == 0 && owner_cha->action_frame == 0)
             {
                 auto summon_ski = &World::registry->emplace_or_replace<Skill>(ent, owner_ski->skiw->id);

@@ -10,6 +10,15 @@ int skill_1101004(entt::entity ent)
     auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;
 
+    if (ent != Player::ent)
+    {
+        return PlayerSkill::SkillResult::None;
+    }
+    else if (state != Character::State::JUMP && mv->foo != nullptr)
+    {
+        mv->hspeed = 0;
+    }
+    
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1101004");
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
@@ -94,11 +103,6 @@ int skill_1101004(entt::entity ent)
             info.start.value()(ent);
         }
     };
-
-    if (state != Character::State::JUMP && mv->foo != nullptr)
-    {
-        mv->hspeed = 0;
-    }
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::ACT;
