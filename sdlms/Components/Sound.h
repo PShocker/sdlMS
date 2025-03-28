@@ -10,8 +10,7 @@ struct SoundWarp
 {
     std::vector<uint8_t> pcm_data;
 
-    static SoundWarp *load(wz::Node *node, bool caches = true);
-    static void clean_up();
+    static SoundWarp *load(wz::Node *node);
 
     SoundWarp(wz::Node *node);
     SoundWarp() = default;

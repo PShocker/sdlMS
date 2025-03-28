@@ -27,7 +27,6 @@ struct SkillWarp
     SkillWarp() = default;
 
     static SkillWarp *load(const std::u16string &id);
-    static void clean_up();
 };
 
 struct Skill

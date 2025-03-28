@@ -3,6 +3,67 @@
 #include "Resources/Wz.h"
 #include "Components/Components.h"
 
+void StatusBar::run()
+{
+    over();
+}
+
+void StatusBar::over()
+{
+    float mouse_x = Window::mouse_x;
+    float mouse_y = Window::mouse_y;
+
+    // 判断鼠标是否滑动到按钮附近
+    SDL_FRect rect = {0, 0, 43, 34};
+    SDL_FPoint point = {mouse_x, mouse_y};
+    rect.x = 570;
+    rect.y = Camera::h - 34;
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        StatusBar::BtShop.first = u"mouseOver";
+    }
+    else
+    {
+        StatusBar::BtShop.first = u"normal";
+    }
+    rect.x += 45;
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        StatusBar::BtChat.first = u"mouseOver";
+    }
+    else
+    {
+        StatusBar::BtChat.first = u"normal";
+    }
+    rect.x += 45;
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        StatusBar::BtNPT.first = u"mouseOver";
+    }
+    else
+    {
+        StatusBar::BtNPT.first = u"normal";
+    }
+    rect.x += 45;
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        StatusBar::BtMenu.first = u"mouseOver";
+    }
+    else
+    {
+        StatusBar::BtMenu.first = u"normal";
+    }
+    rect.x += 45;
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        StatusBar::BtShort.first = u"mouseOver";
+    }
+    else
+    {
+        StatusBar::BtShort.first = u"normal";
+    }
+}
+
 void StatusBar::init()
 {
     auto ui_node = Wz::UI->get_root();
@@ -16,28 +77,56 @@ void StatusBar::init()
     gray = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/gauge/gray")));
 
     auto node = ui_node->find_from_path(u"StatusBar.img/BtShop");
-    for (auto &[key, val] : node->get_children())
     {
-        BtShop[key] = AnimatedSprite(val[0]);
+        std::unordered_map<std::u16string, AnimatedSprite> a;
+        for (auto &[key, val] : node->get_children())
+        {
+            a[key] = AnimatedSprite(val[0]);
+            BtShop.first = key;
+        }
+        BtShop.second = a;
     }
     node = ui_node->find_from_path(u"StatusBar.img/BtChat");
-    for (auto &[key, val] : node->get_children())
     {
-        BtChat[key] = AnimatedSprite(val[0]);
+        std::unordered_map<std::u16string, AnimatedSprite> a;
+
+        for (auto &[key, val] : node->get_children())
+        {
+            a[key] = AnimatedSprite(val[0]);
+            BtChat.first = key;
+        }
+        BtChat.second = a;
     }
     node = ui_node->find_from_path(u"StatusBar.img/BtNPT");
-    for (auto &[key, val] : node->get_children())
     {
-        BtNPT[key] = AnimatedSprite(val[0]);
+        std::unordered_map<std::u16string, AnimatedSprite> a;
+        for (auto &[key, val] : node->get_children())
+        {
+            a[key] = AnimatedSprite(val[0]);
+            BtNPT.first = key;
+        }
+        BtNPT.second = a;
     }
+
     node = ui_node->find_from_path(u"StatusBar.img/BtMenu");
-    for (auto &[key, val] : node->get_children())
     {
-        BtMenu[key] = AnimatedSprite(val[0]);
+        std::unordered_map<std::u16string, AnimatedSprite> a;
+        for (auto &[key, val] : node->get_children())
+        {
+            a[key] = AnimatedSprite(val[0]);
+            BtMenu.first = key;
+        }
+        BtMenu.second = a;
     }
+
     node = ui_node->find_from_path(u"StatusBar.img/BtShort");
-    for (auto &[key, val] : node->get_children())
     {
-        BtShort[key] = AnimatedSprite(val[0]);
+        std::unordered_map<std::u16string, AnimatedSprite> a;
+        for (auto &[key, val] : node->get_children())
+        {
+            a[key] = AnimatedSprite(val[0]);
+            BtShort.first = key;
+        }
+        BtShort.second = a;
     }
 }

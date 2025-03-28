@@ -12,7 +12,7 @@ std::u16string AfterImage::afterImage_index(int level)
     return std::u16string{level_str.begin(), level_str.end()};
 }
 
-void AfterImage::load(const std::u16string &type,const std::u16string &sfx, int level)
+void AfterImage::load(const std::u16string &type, const std::u16string &sfx, int level)
 {
     auto u16_level_str = afterImage_index(level);
 
@@ -45,7 +45,7 @@ void AfterImage::load(const std::u16string &type,const std::u16string &sfx, int 
                     else
                     {
                         info.index = std::stoi(std::string{third.begin(), third.end()});
-                        info.asprw = AnimatedSpriteWarp::load(act[0], 255, false);
+                        info.asprw = AnimatedSpriteWarp::load(act[0], 255);
                     }
                 }
                 part[u16_level_str][action] = info;
@@ -58,21 +58,21 @@ void AfterImage::load(const std::u16string &type,const std::u16string &sfx, int 
             auto node = afterimage_node->find_from_path(u"hit.img");
             if (node->find_from_path(type + u"1") == nullptr)
             {
-                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword1"), 255, false);
-                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword2"), 255, false);
-                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(u"swordF"), 255, false);
+                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword1"), 255);
+                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(u"sword2"), 255);
+                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(u"swordF"), 255);
             }
             else
             {
-                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"1"), 255, false);
-                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"2"), 255, false);
-                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"F"), 255, false);
+                hits[type + u"1"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"1"), 255);
+                hits[type + u"2"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"2"), 255);
+                hits[type + u"F"] = AnimatedSpriteWarp::load(node->find_from_path(type + u"F"), 255);
             }
         }
         if (!sounds.contains(sfx))
         {
             auto node = Wz::Sound->get_root()->find_from_path(u"Weapon.img/" + sfx + u"/Attack");
-            auto sou = SoundWarp::load(node, false);
+            auto sou = SoundWarp::load(node);
             sounds[sfx].push_back(sou);
         }
     }

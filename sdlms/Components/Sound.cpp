@@ -227,12 +227,8 @@ SoundWarp::SoundWarp(wz::Node *node)
     avio_context_free(&ioCtx);
 }
 
-SoundWarp *SoundWarp::load(wz::Node *node, bool caches)
+SoundWarp *SoundWarp::load(wz::Node *node)
 {
-    if (caches == false)
-    {
-        return new SoundWarp(node);
-    }
     if (cache.contains(node))
     {
         return cache[node];
@@ -320,31 +316,4 @@ Sound *Sound::at(int pos)
     }
     SDL_UnlockMutex(sound_list_mutex);
     return r;
-}
-
-void SoundWarp::clean_up()
-{
-    SDL_LockMutex(sound_list_mutex);
-    SoundWarp *bgm = nullptr;
-    Sound sou;
-    if (sound_list.size() > 0)
-    {
-        sou = sound_list.front();
-        bgm = sou.souw;
-    }
-    for (auto it = cache.begin(); it != cache.end();)
-    {
-        if (it->second != bgm)
-        {
-            delete it->second;
-            it = cache.erase(it);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-    sound_list.clear();
-    sound_list.push_back(sou);
-    SDL_UnlockMutex(sound_list_mutex);
 }

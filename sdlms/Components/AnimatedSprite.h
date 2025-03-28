@@ -11,10 +11,9 @@ struct AnimatedSpriteWarp
 
     bool z = false; // ziazag
 
-    AnimatedSpriteWarp(wz::Node *node, int alpha = 255, bool caches = true);
+    AnimatedSpriteWarp(wz::Node *node, int alpha = 255);
 
-    static AnimatedSpriteWarp *load(wz::Node *node, int alpha = 255,bool caches = true);
-    static void clean_up();
+    static AnimatedSpriteWarp *load(wz::Node *node, int alpha = 255);
 };
 
 struct AnimatedSprite

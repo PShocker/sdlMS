@@ -1,5 +1,6 @@
 #include "ChatBalloon.h"
 #include "Core/FreeType.h"
+#include "Core/Texture.h"
 #include "Resources/Wz.h"
 #include "wz/Property.hpp"
 
@@ -32,11 +33,7 @@ SDL_Texture *ChatBalloon::load_back_texture(SDL_Texture *str_texture, std::u16st
     auto line = ceil((float)height / (float)c->get().height);
     height = line * c->get().height;
 
-    auto texture = SDL_CreateTexture(Window::renderer, SDL_PIXELFORMAT_ARGB4444, SDL_TEXTUREACCESS_TARGET, width, height + 8);
-    SDL_SetRenderTarget(Window::renderer, texture);
-    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 0);
-    SDL_RenderClear(Window::renderer);
-    SDL_SetRenderTarget(Window::renderer, NULL);
+    auto texture = Texture::createBlankTexture(SDL_PIXELFORMAT_ARGB4444, width, height + 8);
     SDL_Rect rect;
 
     for (int x = 0; x <= width; x += c->get().width)

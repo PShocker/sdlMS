@@ -67,3 +67,22 @@ SDL_Texture *Texture::load(wz::Property<wz::WzCanvas> *canvas)
     }
     return texture;
 }
+
+SDL_Texture *Texture::createBlankTexture(SDL_PixelFormat format, int width, int height)
+{
+
+    SDL_Renderer *renderer = Window::renderer;
+    SDL_Texture *texture = SDL_CreateTexture(renderer,
+                                             format,
+                                             SDL_TEXTUREACCESS_TARGET,
+                                             width, height);
+    SDL_SetRenderTarget(renderer, texture);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
+    SDL_SetRenderTarget(renderer, nullptr);
+
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
+
+    return texture;
+}

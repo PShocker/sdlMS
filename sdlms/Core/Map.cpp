@@ -218,11 +218,3 @@ wz::Node *Map::load_map_node(int map_id)
     std::string path = "Map/Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
     return node->find_from_path(path);
 }
-
-void Map::clean_up()
-{
-    SpriteWarp::clean_up();
-    AnimatedSpriteWarp::clean_up();
-    SoundWarp::clean_up();
-    SkillWarp::clean_up();
-}

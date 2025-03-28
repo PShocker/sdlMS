@@ -13,8 +13,7 @@ struct SpriteWarp
     SDL_Point origin = {0, 0};
     wz::Node *n = nullptr;
 
-    static SpriteWarp *load(wz::Node *node, int alpha = 255, bool caches = true);
-    static void clean_up();
+    static SpriteWarp *load(wz::Node *node, int alpha = 255);
 
     SpriteWarp(wz::Node *node, int alpha = 255);
     SpriteWarp() = default;

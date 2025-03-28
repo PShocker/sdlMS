@@ -7,12 +7,6 @@
 
 void World::load_map(int id)
 {
-    // if (Map::id != 0 && Map::load_mark(id) != Map::load_mark(Map::id))
-    // {
-    //     Map::clean_up();
-    // }
-    // World::registry->clear();
-    // 遍历并删除所有实体
     // 获取实体存储容器并遍历
     for (auto ent : World::registry->storage<entt::entity>())
     {

@@ -5,15 +5,11 @@
 
 static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
 
-AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool caches)
+AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha)
 {
     if (node == nullptr)
     {
         return nullptr;
-    }
-    if (caches == false)
-    {
-        return new AnimatedSpriteWarp(node, alpha, false);
     }
     if (cache.contains(node))
     {
@@ -21,13 +17,13 @@ AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha, bool cac
     }
     else
     {
-        AnimatedSpriteWarp *asprw = new AnimatedSpriteWarp(node, alpha, true);
+        AnimatedSpriteWarp *asprw = new AnimatedSpriteWarp(node, alpha);
         cache[node] = asprw;
         return asprw;
     }
 }
 
-AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches)
+AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha)
 {
     if (node->type == wz::Type::UOL)
     {
@@ -37,7 +33,7 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches)
     {
         // 单帧动画图
         auto canvas = dynamic_cast<wz::Property<wz::WzCanvas> *>(node);
-        sprites.push_back(SpriteWarp::load(canvas, alpha, caches));
+        sprites.push_back(SpriteWarp::load(canvas, alpha));
     }
     else
     {
@@ -64,7 +60,7 @@ AnimatedSpriteWarp::AnimatedSpriteWarp(wz::Node *node, int alpha, bool caches)
             {
                 continue;
             }
-            sprites.push_back(SpriteWarp::load(canvas, alpha, caches));
+            sprites.push_back(SpriteWarp::load(canvas, alpha));
         }
     }
     if (node->get_child(u"zigzag") != nullptr)
@@ -83,13 +79,4 @@ AnimatedSprite::AnimatedSprite(wz::Node *node, int alpha)
 AnimatedSprite::AnimatedSprite(AnimatedSpriteWarp *asprw) : asprw(asprw)
 {
     anim_size = asprw->sprites.size();
-}
-
-void AnimatedSpriteWarp::clean_up()
-{
-    for (auto &[key, val] : cache)
-    {
-        delete val;
-    }
-    cache.clear();
 }

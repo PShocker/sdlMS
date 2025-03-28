@@ -8,6 +8,8 @@
 
 struct StatusBar
 {
+    static void run();
+    static void over();
     static void init();
     static inline SDL_Texture *backgrnd;
     static inline SDL_Texture *backgrnd2;
@@ -22,9 +24,9 @@ struct StatusBar
     static inline SDL_Texture *bar;
     static inline SDL_Texture *gray;
 
-    static inline std::unordered_map<std::u16string, AnimatedSprite> BtShop;
-    static inline std::unordered_map<std::u16string, AnimatedSprite> BtChat;
-    static inline std::unordered_map<std::u16string, AnimatedSprite> BtNPT;
-    static inline std::unordered_map<std::u16string, AnimatedSprite> BtMenu;
-    static inline std::unordered_map<std::u16string, AnimatedSprite> BtShort;
+    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtShop;
+    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtChat;
+    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtNPT;
+    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtMenu;
+    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtShort;
 };

@@ -312,7 +312,9 @@ struct Character
     std::unordered_set<std::u16string> cap_vslot;
 
     int hp = 3000;
+    int max_hp = 3000;
     int mp;
+    int max_mp;
 
     uint8_t action = ACTION::JUMP;
     int action_index = 0;

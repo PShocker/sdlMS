@@ -11,7 +11,6 @@ struct FreeType
     static inline FT_Face *face = new FT_Face{};
 
     static void init(const std::string &filename_prefix);
-    static SDL_Texture *createBlankTexture(int width, int height);
     static void renderGlyphToTexture(SDL_Texture *texture, char16_t c,
                                      SDL_Color color, int offsetX, int offsetY);
     static SDL_Texture *load(const std::u16string &s, SDL_Color color, int w);

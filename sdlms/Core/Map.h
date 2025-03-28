@@ -25,8 +25,6 @@ struct Map
 
     static std::u16string load_mark(int map_id);
 
-    static void clean_up();
-
     static inline uint32_t id = 0;
 
     static wz::Node *load_map_node(int map_id);

@@ -1,4 +1,5 @@
 #include "FreeType.h"
+#include "Texture.h"
 #include <vector>
 #include <algorithm>
 
@@ -16,24 +17,6 @@ void FreeType::init(const std::string &filename_prefix)
 void FreeType::size(int size)
 {
     FT_Set_Pixel_Sizes(*face, 0, size);
-}
-
-SDL_Texture *FreeType::createBlankTexture(int width, int height)
-{
-    SDL_Renderer *renderer = Window::renderer;
-    SDL_Texture *texture = SDL_CreateTexture(renderer,
-                                             SDL_PIXELFORMAT_ARGB8888,
-                                             SDL_TEXTUREACCESS_TARGET,
-                                             width, height);
-    SDL_SetRenderTarget(renderer, texture);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
-    SDL_RenderClear(renderer);
-    SDL_SetRenderTarget(renderer, nullptr);
-
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
-
-    return texture;
 }
 
 void FreeType::renderGlyphToTexture(SDL_Texture *texture, char16_t c,
@@ -127,7 +110,7 @@ SDL_Texture *FreeType::load(const std::u16string &text, SDL_Color color, int max
     int total_height = line_height * line_count;
 
     // 2. 创建纹理
-    SDL_Texture *texture = createBlankTexture(total_width, total_height);
+    SDL_Texture *texture = Texture::createBlankTexture(SDL_PIXELFORMAT_ARGB8888, total_width, total_height);
 
     // 3. 渲染文本
     int current_x = 0;

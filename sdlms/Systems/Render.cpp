@@ -875,27 +875,27 @@ void render_statusbar()
     pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::graduation->h - 3, (float)StatusBar::graduation->w, (float)StatusBar::graduation->h};
     SDL_RenderTexture(Window::renderer, StatusBar::graduation, nullptr, &pos_rect);
 
-    auto aspr = StatusBar::BtShop[u"normal"];
+    auto aspr = StatusBar::BtShop.second.at(StatusBar::BtShop.first);
     x = StatusBar::backgrnd2->w + aspr.asprw->sprites[aspr.anim_index]->origin.x;
     auto position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
     render_animated_sprite(position, &aspr);
 
-    aspr = StatusBar::BtChat[u"normal"];
+    aspr = StatusBar::BtChat.second.at(StatusBar::BtChat.first);
     x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
     position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
     render_animated_sprite(position, &aspr);
 
-    aspr = StatusBar::BtNPT[u"normal"];
+    aspr = StatusBar::BtNPT.second.at(StatusBar::BtNPT.first);
     x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
     position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
     render_animated_sprite(position, &aspr);
 
-    aspr = StatusBar::BtMenu[u"normal"];
+    aspr = StatusBar::BtMenu.second.at(StatusBar::BtMenu.first);
     x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
     position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
     render_animated_sprite(position, &aspr);
 
-    aspr = StatusBar::BtShort[u"normal"];
+    aspr = StatusBar::BtShort.second.at(StatusBar::BtShort.first);
     x += aspr.asprw->sprites[aspr.anim_index]->texture->w / 2 + 2;
     position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->texture->h};
     render_animated_sprite(position, &aspr);
