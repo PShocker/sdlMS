@@ -131,8 +131,9 @@ void attack_mob(Attack *atk, entt::entity src, entt::entity target, std::optiona
     return;
 }
 
-int attack_character(Attack *atk, entt::entity src, entt::entity target, std::optional<SDL_FPoint> p)
+int attack_player(Attack *atk, entt::entity src, std::optional<SDL_FPoint> p)
 {
+    auto target = Player::ent;
     if (!World::registry->valid(target))
     {
         return false;
@@ -154,7 +155,7 @@ int attack_character(Attack *atk, entt::entity src, entt::entity target, std::op
                     }
                 }
             }
-            full_damage = player_hit(atk, target);
+            full_damage = player_hit(atk);
         }
     }
     if (full_damage > 0)

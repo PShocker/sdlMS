@@ -87,7 +87,7 @@ int skill_3111003(entt::entity ent)
                     if (i <= Window::dt_now)
                     {
                         Attack atk;
-                        atk.damage = 10;
+                        atk.damage = 5;
                         atk.src_point = std::nullopt;
                         attack_mob(&atk, Player::ent, ent, std::nullopt);
                         return std::make_pair(true, true);

@@ -459,7 +459,7 @@ void animate_mob(Mob *mob, entt::entity ent)
                         auto tr = World::registry->try_get<Transform>(ent);
                         mob->atk.src_point = tr->position;
                         mob->atk.souw = mob->sounds[u"Attack1"];
-                        attack_character(&mob->atk, ent, mob->hit, std::nullopt);
+                        attack_player(&mob->atk, ent, std::nullopt);
                     }
                 }
                 if (mob->a.contains(u"stand"))
@@ -684,7 +684,7 @@ void animate_trap(Trap *trap, entt::entity ent)
                 atk.max_damage = 1;
                 atk.damage = trap->damage;
                 atk.src_point = trap_transform->position;
-                attack_character(&atk, ent, Player::ent, std::nullopt);
+                attack_player(&atk, ent, std::nullopt);
             }
         }
     }

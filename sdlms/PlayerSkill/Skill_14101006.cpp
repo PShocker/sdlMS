@@ -53,7 +53,7 @@ int skill_14101006(entt::entity ent)
         {
             Attack attack;
             attack.damage = -atk->rect.x;
-            attack_character(&attack, entt::null, src, std::nullopt);
+            attack_player(&attack, entt::null, std::nullopt);
         }
     };
 

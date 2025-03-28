@@ -249,7 +249,7 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
                 atk.damage = distance / 25;
                 atk.hit = nullptr;
                 atk.src_point = tr->position;
-                if (attack_character(&atk, Player::ent, Player::ent, std::nullopt))
+                if (attack_player(&atk, Player::ent, std::nullopt))
                 {
                     r = true;
                 }
@@ -680,8 +680,10 @@ void player_alert(Character *cha)
     return;
 }
 
-int player_hit(Attack *atk, entt::entity ent)
+int player_hit(Attack *atk)
 {
+    auto ent = Player::ent;
+
     int full_damage = 0;
 
     auto mv = World::registry->try_get<Move>(ent);
@@ -703,8 +705,8 @@ int player_hit(Attack *atk, entt::entity ent)
             Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Type::Violet,
                          tr->position + SDL_FPoint{-15, -60}, Damage::Type::Violet);
 
-            cha->hp -= damage;
-            if (cha->hp > 0)
+            Player::hp -= damage;
+            if (Player::hp > 0)
             {
                 if (atk->souw)
                 {
@@ -782,7 +784,7 @@ int player_hit(Attack *atk, entt::entity ent)
     {
         Damage::push(World::registry->try_get<Damage>(ent), atk->damage,
                      Damage::Type::Blue, tr->position + SDL_FPoint{-15, -60});
-        cha->hp -= atk->damage;
+        Player::hp -= atk->damage;
     }
     return full_damage;
 }

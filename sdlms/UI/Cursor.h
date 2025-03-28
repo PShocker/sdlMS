@@ -17,11 +17,14 @@ struct Cursor
 
     static void init();
 
-    static void load(const std::u16string& path);
+    static void load(const std::u16string &path);
 
     static void run();
 
-    static void action(const std::u16string& t);
+    static void action(const std::u16string &t);
+
+    static inline bool left_mouse_press;
+    static inline bool right_mouse_press;
 
     static inline std::u16string type;
     static inline int time = 0;

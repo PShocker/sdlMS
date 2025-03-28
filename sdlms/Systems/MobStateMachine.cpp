@@ -472,7 +472,7 @@ bool mob_collision_attack(entt::entity ent)
                 Attack atk = mob->atk;
                 atk.src_point = mob_transform->position;
                 atk.hit = nullptr;
-                attack_character(&atk, ent, Player::ent, std::nullopt);
+                attack_player(&atk, ent, std::nullopt);
                 return true;
             }
         }

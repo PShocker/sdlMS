@@ -13,6 +13,4 @@ void attack_mob(Attack *atk, entt::entity src,
                 entt::entity target,
                 std::optional<SDL_FPoint> p);
 
-int attack_character(Attack *atk, entt::entity src,
-                     entt::entity target,
-                     std::optional<SDL_FPoint> p);
+int attack_player(Attack *atk, entt::entity src, std::optional<SDL_FPoint> p);

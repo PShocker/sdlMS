@@ -56,7 +56,7 @@ int skill_21100005(entt::entity ent)
                 {
                     Attack attack;
                     attack.damage = -std::any_cast<int>(info.data);
-                    attack_character(&attack, entt::null, src, std::nullopt);
+                    attack_player(&attack, entt::null, std::nullopt);
                     info.data = 0;
                 }
             };

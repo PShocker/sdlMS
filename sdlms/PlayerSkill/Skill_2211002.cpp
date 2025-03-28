@@ -33,7 +33,7 @@ int skill_2211002(entt::entity ent)
     auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 90);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 40);
 
     ski->atk.value().call_back = [](entt::entity src, entt::entity target, int full_damage)
     {

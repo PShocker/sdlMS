@@ -145,3 +145,9 @@ SDL_Texture *FreeType::load(const std::u16string &text, SDL_Color color, int max
 
     return texture;
 }
+
+SDL_Texture *FreeType::load(const std::string &s, SDL_Color color, int w)
+{
+    auto str = std::u16string{s.begin(), s.end()};
+    return load(str, color, w);
+}
