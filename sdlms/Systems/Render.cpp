@@ -878,9 +878,6 @@ void render_statusbar()
     pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::bar->h - 3, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
     render_texture_func(StatusBar::bar, nullptr, &pos_rect);
 
-    pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::graduation->h - 3, (float)StatusBar::graduation->w, (float)StatusBar::graduation->h};
-    render_texture_func(StatusBar::graduation, nullptr, &pos_rect);
-
     for (auto &[key, val] : StatusBar::position_map)
     {
         auto aspr = key->second.at(key->first);
@@ -1011,6 +1008,28 @@ void render_statusbar()
 
     x = 464;
     render_bar_digit(x, Player::exp, Player::max_exp);
+
+    // 渲染灰血条，蓝量，经验
+    auto render_percent = [&](float x, float percent)
+    {
+        auto length = (1 - percent) * 109;
+        pos_rect.y = Camera::h - 19;
+        pos_rect.x = x - length;
+        pos_rect.w = length;
+        pos_rect.h = StatusBar::gray->h;
+        render_texture_func(StatusBar::gray, nullptr, &pos_rect);
+    };
+
+    float hp_cur_percent = (float)Player::hp / Player::max_hp;
+    float mp_cur_percent = (float)Player::mp / Player::max_mp;
+    float exp_cur_percent = (float)Player::exp / Player::max_exp;
+
+    render_percent(322, hp_cur_percent);
+    render_percent(431, mp_cur_percent);
+    render_percent(554, exp_cur_percent);
+
+    pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::graduation->h - 3, (float)StatusBar::graduation->w, (float)StatusBar::graduation->h};
+    render_texture_func(StatusBar::graduation, nullptr, &pos_rect);
 }
 
 void render_worldmap()

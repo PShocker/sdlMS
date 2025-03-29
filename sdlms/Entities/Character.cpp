@@ -46,7 +46,7 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     buff->owner = ent;
 
     auto nametag = &World::registry->emplace<NameTag>(ent);
-    // NameTag::push(nametag, u"欢迎光临冒险岛ONLINE", SDL_Color{90, 148, 247, 255});
+    // NameTag::push(nametag, u"sdlMS", SDL_Color{90, 148, 247, 255});
     NameTag::push(nametag, Player::name, SDL_Color{90, 148, 247, 255});
 
     World::zindex = true;
