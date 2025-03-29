@@ -21,6 +21,7 @@ void ui_run()
             Sound::push(Sound(u"UI.img/BtMouseClick"));
             // 触发点击事件
             WorldMap::click();
+            StatusBar::click();
         }
         Cursor::left_mouse_press = false;
         if (WorldMap::over())

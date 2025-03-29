@@ -785,6 +785,7 @@ int player_hit(Attack *atk)
         Damage::push(World::registry->try_get<Damage>(ent), atk->damage,
                      Damage::Type::Blue, tr->position + SDL_FPoint{-15, -60});
         Player::hp -= atk->damage;
+        Player::hp = std::min(Player::hp, Player::max_hp);
     }
     return full_damage;
 }

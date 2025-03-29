@@ -853,114 +853,67 @@ void render_chatballoon(Transform *tr, Npc *npc, ChatBalloon *chatballoon)
 
 void render_statusbar()
 {
+    auto render_aspr_func = [](AnimatedSprite *aspr, SDL_FPoint *position)
+    {
+        aspr->alpha = StatusBar::alpha;
+        render_animated_sprite(*position, aspr);
+    };
+    auto render_texture_func = [](SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_rect)
+    {
+        SDL_SetTextureAlphaMod(texture, StatusBar::alpha);
+        SDL_RenderTexture(Window::renderer, texture, src_rect, pos_rect);
+    };
     // 渲染backgrnd
     float i = 0;
     while (i <= Camera::w)
     {
         auto pos_rect = SDL_FRect{(float)i, (float)Camera::h - StatusBar::backgrnd->h, (float)StatusBar::backgrnd->w, (float)StatusBar::backgrnd->h};
-        SDL_RenderTexture(Window::renderer, StatusBar::backgrnd, nullptr, &pos_rect);
+        render_texture_func(StatusBar::backgrnd, nullptr, &pos_rect);
         i += StatusBar::backgrnd->w;
     }
     int x = 0;
     auto pos_rect = SDL_FRect{(float)x, (float)Camera::h - StatusBar::backgrnd2->h, (float)StatusBar::backgrnd2->w, (float)StatusBar::backgrnd2->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, nullptr, &pos_rect);
+    render_texture_func(StatusBar::backgrnd2, nullptr, &pos_rect);
 
     pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::bar->h - 3, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
+    render_texture_func(StatusBar::bar, nullptr, &pos_rect);
 
     pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::graduation->h - 3, (float)StatusBar::graduation->w, (float)StatusBar::graduation->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::graduation, nullptr, &pos_rect);
+    render_texture_func(StatusBar::graduation, nullptr, &pos_rect);
 
-    auto aspr = StatusBar::BtShop.second.at(StatusBar::BtShop.first);
-    x = StatusBar::backgrnd2->w + aspr.asprw->sprites[aspr.anim_index]->origin.x;
-    auto position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
-    render_animated_sprite(position, &aspr);
+    for (auto &[key, val] : StatusBar::position_map)
+    {
+        auto aspr = key->second.at(key->first);
+        auto position = SDL_FPoint{(float)val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)Camera::h + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
+        render_aspr_func(&aspr, &position);
+    }
 
-    aspr = StatusBar::BtChat.second.at(StatusBar::BtChat.first);
-    x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
-    position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::BtNPT.second.at(StatusBar::BtNPT.first);
-    x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
-    position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::BtMenu.second.at(StatusBar::BtMenu.first);
-    x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
-    position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->origin.y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::BtShort.second.at(StatusBar::BtShort.first);
-    x += aspr.asprw->sprites[aspr.anim_index]->texture->w / 2 + 2;
-    position = SDL_FPoint{(float)x, (float)Camera::h - aspr.asprw->sprites[aspr.anim_index]->texture->h};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::BtClaim.second.at(StatusBar::BtClaim.first);
-    x = 570;
-    float y = Camera::h - 45 - aspr.asprw->sprites[aspr.anim_index]->texture->h;
-    position = SDL_FPoint{(float)x, (float)y};
-    render_animated_sprite(position, &aspr);
-
-    x += aspr.asprw->sprites[aspr.anim_index]->texture->w + 2;
+    x = 592;
+    float y = Camera::h - 64;
     auto src_rect = SDL_FRect{(float)21, (float)0, (float)21, (float)19};
     pos_rect = SDL_FRect{(float)x, (float)y, (float)21, (float)19};
-    SDL_RenderTexture(Window::renderer, StatusBar::box, &src_rect, &pos_rect);
-    x += 4;
-    y += 4;
+    render_texture_func(StatusBar::box, &src_rect, &pos_rect);
+
+    x = 596;
+    y = Camera::h - 60;
     pos_rect = SDL_FRect{(float)x, (float)y, (float)StatusBar::iconMemo->w, (float)StatusBar::iconMemo->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::iconMemo, nullptr, &pos_rect);
+    render_texture_func(StatusBar::iconMemo, nullptr, &pos_rect);
 
-    aspr = StatusBar::EquipKey.second.at(StatusBar::EquipKey.first);
-    x += 20;
-    y -= 4;
-    position = SDL_FPoint{(float)x, (float)y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::InvenKey.second.at(StatusBar::InvenKey.first);
-    x += 30;
-    position = SDL_FPoint{(float)x, (float)y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::StatKey.second.at(StatusBar::StatKey.first);
-    x += 30;
-    position = SDL_FPoint{(float)x, (float)y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::SkillKey.second.at(StatusBar::SkillKey.first);
-    x += 30;
-    position = SDL_FPoint{(float)x, (float)y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::KeySet.second.at(StatusBar::KeySet.first);
-    x += 30;
-    position = SDL_FPoint{(float)x, (float)y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::QuickSlot.second.at(StatusBar::QuickSlot.first);
-    x += 30;
-    position = SDL_FPoint{(float)x, (float)y};
-    render_animated_sprite(position, &aspr);
-
-    aspr = StatusBar::QuickSlotD.second.at(StatusBar::QuickSlotD.first);
-    x += 30;
-    position = SDL_FPoint{(float)x, (float)y};
-    render_animated_sprite(position, &aspr);
-
+    // 渲染技能栏
     auto right = 145;
     auto length = StatusBar::quickSlot->w - right;
     src_rect = SDL_FRect{(float)right, (float)0, (float)length, (float)StatusBar::quickSlot->h};
     pos_rect = SDL_FRect{(float)Camera::w - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::quickSlot, &src_rect, &pos_rect);
+    render_texture_func(StatusBar::quickSlot, &src_rect, &pos_rect);
 
     auto middle = 110;
     length = StatusBar::quickSlot->w - middle - length;
     src_rect = SDL_FRect{(float)middle, (float)0, (float)length, (float)StatusBar::quickSlot->h};
     i = (float)Camera::w - (StatusBar::quickSlot->w - right);
-    while (i >= x + 70)
+    while (i >= 866)
     {
         pos_rect = SDL_FRect{(float)i - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
-        SDL_RenderTexture(Window::renderer, StatusBar::quickSlot, &src_rect, &pos_rect);
+        render_texture_func(StatusBar::quickSlot, &src_rect, &pos_rect);
         i = i - length;
     }
 
@@ -968,7 +921,7 @@ void render_statusbar()
     length = letf;
     src_rect = SDL_FRect{(float)0, (float)0, (float)length, (float)StatusBar::quickSlot->h};
     pos_rect = SDL_FRect{(float)i - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::quickSlot, &src_rect, &pos_rect);
+    render_texture_func(StatusBar::quickSlot, &src_rect, &pos_rect);
 
     // 渲染等级
     auto l = Player::level;
@@ -981,7 +934,7 @@ void render_statusbar()
     while (l > 0)
     {
         int digit = l % 10;
-        SDL_RenderTexture(Window::renderer, StatusBar::LevelNo[digit], nullptr, &pos_rect);
+        render_texture_func(StatusBar::LevelNo[digit], nullptr, &pos_rect);
         pos_rect.x -= 13;
         l /= 10;
     }
@@ -990,28 +943,74 @@ void render_statusbar()
     pos_rect.y = Camera::h - 34;
     pos_rect.w = StatusBar::job->w;
     pos_rect.h = StatusBar::job->h;
-    SDL_RenderTexture(Window::renderer, StatusBar::job, nullptr, &pos_rect);
+    render_texture_func(StatusBar::job, nullptr, &pos_rect);
 
     pos_rect.y += StatusBar::job->h + 2;
     pos_rect.w = StatusBar::name->w;
     pos_rect.h = StatusBar::name->h;
-    SDL_RenderTexture(Window::renderer, StatusBar::name, nullptr, &pos_rect);
+    render_texture_func(StatusBar::name, nullptr, &pos_rect);
+
+    const auto render_bar_digit = [&](int x, int cur, int max)
+    {
+        pos_rect.x = x;
+        pos_rect.y = Camera::h - 31;
+        pos_rect.w = StatusBar::number[10]->w;
+        pos_rect.h = StatusBar::number[10]->h;
+        render_texture_func(StatusBar::number[10], nullptr, &pos_rect);
+
+        length = static_cast<int>(std::floor(std::log10(cur)) + 1);
+        x += length * 6 - 2;
+        pos_rect.x = x;
+        pos_rect.y = Camera::h - 30;
+        pos_rect.w = StatusBar::number[0]->w;
+        pos_rect.h = StatusBar::number[0]->h;
+        // 分解各位数字
+        while (cur > 0)
+        {
+            int digit = cur % 10;
+            render_texture_func(StatusBar::number[digit], nullptr, &pos_rect);
+            pos_rect.x -= 6;
+            cur /= 10;
+        }
+
+        x += 7;
+        pos_rect.x = x;
+        pos_rect.w = StatusBar::number[12]->w;
+        pos_rect.h = StatusBar::number[12]->h;
+        render_texture_func(StatusBar::number[12], nullptr, &pos_rect);
+
+        length = static_cast<int>(std::floor(std::log10(max)) + 1);
+        x += length * 6 + 2;
+        pos_rect.x = x;
+        pos_rect.y = Camera::h - 30;
+        pos_rect.w = StatusBar::number[0]->w;
+        pos_rect.h = StatusBar::number[0]->h;
+        // 分解各位数字
+        while (max > 0)
+        {
+            int digit = max % 10;
+            render_texture_func(StatusBar::number[digit], nullptr, &pos_rect);
+            pos_rect.x -= 6;
+            max /= 10;
+        }
+
+        x += 7;
+        pos_rect.x = x;
+        pos_rect.y = Camera::h - 31;
+        pos_rect.w = StatusBar::number[11]->w;
+        pos_rect.h = StatusBar::number[11]->h;
+        render_texture_func(StatusBar::number[11], nullptr, &pos_rect);
+    };
 
     // 渲染血量，蓝量，经验
-    auto hp = Player::hp;
-    length = static_cast<int>(std::floor(std::log10(hp)) + 1);
-    pos_rect.x = 232 + length * StatusBar::number[0]->w;
-    pos_rect.y = Camera::h - 38;
-    pos_rect.w = StatusBar::number[0]->w;
-    pos_rect.h = StatusBar::number[0]->h;
-    // 分解各位数字
-    while (hp > 0)
-    {
-        int digit = hp % 10;
-        SDL_RenderTexture(Window::renderer, StatusBar::number[digit], nullptr, &pos_rect);
-        pos_rect.x -= StatusBar::number[0]->w;
-        hp /= 10;
-    }
+    x = 236;
+    render_bar_digit(x, Player::hp, Player::max_hp);
+
+    x = 347;
+    render_bar_digit(x, Player::mp, Player::max_mp);
+
+    x = 464;
+    render_bar_digit(x, Player::exp, Player::max_exp);
 }
 
 void render_worldmap()

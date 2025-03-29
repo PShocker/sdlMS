@@ -2,15 +2,17 @@
 
 #include <string>
 #include <vector>
-#include <unordered_map>
+#include <map>
 #include "Components/Components.h"
 #include <SDL3/SDL.h>
+#include <functional>
 
 struct StatusBar
 {
     static void run();
     static void over();
     static void init();
+    static void click();
     static inline SDL_Texture *backgrnd;
     static inline SDL_Texture *backgrnd2;
     static inline SDL_Texture *quickSlot;
@@ -26,7 +28,7 @@ struct StatusBar
     static inline SDL_Texture *gray;
 
     static inline SDL_Texture *LevelNo[10];
-    static inline SDL_Texture *number[10];
+    static inline SDL_Texture *number[14];
 
     static inline SDL_Texture *job;
     static inline SDL_Texture *name;
@@ -45,4 +47,30 @@ struct StatusBar
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> KeySet;
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> QuickSlot;
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> QuickSlotD;
+
+    static const inline std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, SDL_FRect> position_map = {
+        {&BtShop, SDL_FRect{570.0, -34.0, 43.0, 34.0}},
+        {&BtChat, SDL_FRect{615.0, -34.0, 43.0, 34.0}},
+        {&BtNPT, SDL_FRect{660.0, -34.0, 43.0, 34.0}},
+        {&BtMenu, SDL_FRect{705.0, -34.0, 43.0, 34.0}},
+        {&BtShort, SDL_FRect{750.0, -34.0, 43.0, 34.0}},
+        {&BtClaim, SDL_FRect{570.0, -64.0, 20.0, 19.0}},
+        {&EquipKey, SDL_FRect{616.0, -64.0, 28.0, 20.0}},
+        {&InvenKey, SDL_FRect{646.0, -64.0, 28.0, 20.0}},
+        {&StatKey, SDL_FRect{676.0, -64.0, 28.0, 20.0}},
+        {&SkillKey, SDL_FRect{706.0, -64.0, 28.0, 20.0}},
+        {&KeySet, SDL_FRect{736.0, -64.0, 28.0, 20.0}},
+        {&QuickSlot, SDL_FRect{766.0, -64.0, 28.0, 20.0}},
+        {&QuickSlotD, SDL_FRect{796.0, -64.0, 28.0, 20.0}},
+    };
+
+    static void QuickSlot_func();
+    static void QuickSlotD_func();
+
+    static const inline std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, std::function<void()>> click_map = {
+        {&QuickSlot, QuickSlot_func},
+        {&QuickSlotD, QuickSlotD_func},
+    };
+
+    static inline int alpha = 255;
 };

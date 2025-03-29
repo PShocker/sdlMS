@@ -15,11 +15,8 @@ void StatusBar::over()
     float mouse_y = Window::mouse_y;
 
     // 判断鼠标是否滑动到按钮附近
-    SDL_FRect rect = {0, 0, 43, 34};
     SDL_FPoint point = {mouse_x, mouse_y};
-    rect.x = 570;
-    rect.y = Camera::h - 34;
-    auto over_func = [&rect, &point](std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> &pair)
+    auto over_func = [&point](SDL_FRect &rect, std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> &pair)
     {
         if (SDL_PointInRectFloat(&point, &rect))
         {
@@ -38,32 +35,12 @@ void StatusBar::over()
             pair.first = u"normal";
         }
     };
-    over_func(StatusBar::BtShop);
-    rect.x += 45;
-    over_func(StatusBar::BtChat);
-    rect.x += 45;
-    over_func(StatusBar::BtNPT);
-    rect.x += 45;
-    over_func(StatusBar::BtMenu);
-    rect.x += 45;
-    over_func(StatusBar::BtShort);
-    rect.x = 616;
-    rect.y = 704;
-    rect.w = 28;
-    rect.h = 20;
-    over_func(StatusBar::EquipKey);
-    rect.x += 30;
-    over_func(StatusBar::InvenKey);
-    rect.x += 30;
-    over_func(StatusBar::StatKey);
-    rect.x += 30;
-    over_func(StatusBar::SkillKey);
-    rect.x += 30;
-    over_func(StatusBar::KeySet);
-    rect.x += 30;
-    over_func(StatusBar::QuickSlot);
-    rect.x += 30;
-    over_func(StatusBar::QuickSlotD);
+    for (auto &[key, val] : StatusBar::position_map)
+    {
+        auto rect = val;
+        rect.y += Camera::h;
+        over_func(rect, *key);
+    }
 }
 
 void StatusBar::init()
@@ -118,9 +95,52 @@ void StatusBar::init()
     FreeType::size(12);
     job = FreeType::load(u"全职业精通", SDL_Color{255, 255, 255, 255}, 0);
 
-    FreeType::size(12);
+    node = ui_node->find_from_path(u"StatusBar.img/number");
     for (int i = 0; i < 10; i++)
     {
-        number[i] = FreeType::load(std::to_string(i), SDL_Color{255, 255, 255, 255}, 0);
+        number[i] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_child(std::to_string(i))));
     }
+    number[10] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"Lbracket")));
+    number[11] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"Rbracket")));
+    number[12] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"slash")));
+    number[13] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"percent")));
+}
+
+void StatusBar::click()
+{
+    float mouse_x = Window::mouse_x;
+    float mouse_y = Window::mouse_y;
+
+    // 判断鼠标是否滑动到按钮附近
+    SDL_FPoint point = {mouse_x, mouse_y};
+
+    auto click_func = [&point](SDL_FRect &rect, std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> &pair)
+    {
+        if (SDL_PointInRectFloat(&point, &rect))
+        {
+            if (StatusBar::click_map.contains(&pair))
+            {
+                auto func = StatusBar::click_map.at(&pair);
+                func();
+            }
+        }
+    };
+    for (auto &[key, val] : StatusBar::position_map)
+    {
+        auto rect = val;
+        rect.y += Camera::h;
+        click_func(rect, *key);
+    }
+}
+
+void StatusBar::QuickSlot_func()
+{
+    StatusBar::alpha += 20;
+    StatusBar::alpha = std::min(StatusBar::alpha, 255);
+}
+
+void StatusBar::QuickSlotD_func()
+{
+    StatusBar::alpha -= 20;
+    StatusBar::alpha = std::max(StatusBar::alpha, 40);
 }
