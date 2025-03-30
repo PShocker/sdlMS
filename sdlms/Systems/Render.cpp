@@ -822,7 +822,7 @@ void render_chatballoon()
         auto &it = chatballoon->chatballoons[0];
         if (it.delay <= Window::dt_now)
         {
-            it.delay = Window::dt_now + std::max(5000, std::rand() % 15000);
+            it.delay = Window::dt_now + 5000 + std::rand() % 15000;
             it.show = !it.show;
         }
         if (it.show == false)
