@@ -4,3 +4,4 @@
 #include "WorldMap.h"
 #include "UIBuff.h"
 #include "StatusBar.h"
+#include "KeyConfig.h"

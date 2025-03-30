@@ -1,5 +1,6 @@
 #include "StatusBar.h"
 #include "Cursor.h"
+#include "KeyConfig.h"
 #include "wz/Property.hpp"
 #include "Resources/Wz.h"
 #include "Components/Components.h"
@@ -137,10 +138,17 @@ void StatusBar::QuickSlot_func()
 {
     StatusBar::alpha += 20;
     StatusBar::alpha = std::min(StatusBar::alpha, 255);
+    KeyConfig::alpha = StatusBar::alpha;
 }
 
 void StatusBar::QuickSlotD_func()
 {
     StatusBar::alpha -= 20;
     StatusBar::alpha = std::max(StatusBar::alpha, 40);
+    KeyConfig::alpha = StatusBar::alpha;
+}
+
+void StatusBar::KeySet_func()
+{
+    KeyConfig::open = true;
 }

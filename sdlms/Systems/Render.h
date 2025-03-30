@@ -33,3 +33,7 @@ void render_chatballoon();
 void render_uibuff();
 void render_statusbar();
 void render_worldmap();
+void render_keyconfig();
+void render_spr_func(Sprite *spr, SDL_FPoint *position, int alpha);
+void render_aspr_func(AnimatedSprite *aspr, SDL_FPoint *position, int alpha);
+void render_texture_func(SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_rect,int alpha);
