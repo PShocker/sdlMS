@@ -37,13 +37,10 @@ void load_npc(wz::Node *node)
     }
     for (auto &[key, val] : node->get_children())
     {
-        if (key != u"info")
+        if (!(key == u"info" || key == u"shop" || key == u"act1"))
         {
-            if (key != u"shop")
-            {
-                auto asprw = AnimatedSpriteWarp::load(val[0]);
-                npc.a[key] = AnimatedSprite(asprw);
-            }
+            auto asprw = AnimatedSpriteWarp::load(val[0]);
+            npc.a[key] = AnimatedSprite(asprw);
         }
     }
 
