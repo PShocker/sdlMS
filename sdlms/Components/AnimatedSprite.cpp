@@ -3,14 +3,13 @@
 #include <vector>
 #include "wz/Property.hpp"
 
-static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
-
 AnimatedSpriteWarp *AnimatedSpriteWarp::load(wz::Node *node, int alpha)
 {
     if (node == nullptr)
     {
         return nullptr;
     }
+    static std::unordered_map<wz::Node *, AnimatedSpriteWarp *> cache;
     if (cache.contains(node))
     {
         return cache[node];

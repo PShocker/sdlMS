@@ -2,7 +2,7 @@
 
 #include "Components/Components.h"
 
-struct KeyConfig
+struct UIItem
 {
     static void run();
     static void show();
@@ -10,12 +10,12 @@ struct KeyConfig
     static void over();
     static void click();
 
-    static inline SDL_Texture *backgrnd;
+    static inline SDL_Texture * FullBackgrnd;
 
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtClose;
 
     static const inline std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, SDL_FRect> position_map = {
-        {&BtClose, SDL_FRect{608.0, 7.0, 12.0, 12.0}},
+        {&BtClose, SDL_FRect{584.0, 6.0, 12.0, 12.0}},
     };
 
     static void BtClose_func();

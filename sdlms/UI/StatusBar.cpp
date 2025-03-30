@@ -1,5 +1,7 @@
 #include "StatusBar.h"
 #include "KeyConfig.h"
+#include "UIItem.h"
+#include "UISkill.h"
 #include "Button.h"
 #include "wz/Property.hpp"
 #include "Resources/Wz.h"
@@ -87,6 +89,7 @@ void StatusBar::QuickSlot_func()
     StatusBar::alpha += 20;
     StatusBar::alpha = std::min(StatusBar::alpha, 255);
     KeyConfig::alpha = StatusBar::alpha;
+    UIItem::alpha = StatusBar::alpha;
 }
 
 void StatusBar::QuickSlotD_func()
@@ -94,9 +97,20 @@ void StatusBar::QuickSlotD_func()
     StatusBar::alpha -= 20;
     StatusBar::alpha = std::max(StatusBar::alpha, 40);
     KeyConfig::alpha = StatusBar::alpha;
+    UIItem::alpha = StatusBar::alpha;
 }
 
 void StatusBar::KeySet_func()
 {
     KeyConfig::show();
+}
+
+void StatusBar::InvenKey_func()
+{
+    UIItem::show();
+}
+
+void StatusBar::SkillKey_func()
+{
+    UISkill::show();
 }

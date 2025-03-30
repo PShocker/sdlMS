@@ -2,13 +2,11 @@
 
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
-
 #include "Core/Core.h"
-
-static std::unordered_map<wz::Node *, SpriteWarp *> cache;
 
 SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha)
 {
+    static std::unordered_map<wz::Node *, SpriteWarp *> cache;
     if (cache.contains(node))
     {
         return cache[node];

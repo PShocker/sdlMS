@@ -132,6 +132,8 @@ void render_run()
     render_statusbar();
     render_worldmap();
     render_keyconfig();
+    render_uiitem();
+    render_uiskill();
 }
 
 void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SDL_FPoint *origin)
@@ -1048,14 +1050,46 @@ void render_keyconfig()
 {
     if (KeyConfig::open)
     {
-        SDL_FPoint position = {(float)KeyConfig::x, (float)KeyConfig::y};
-        render_spr_func(&KeyConfig::backgrnd, &position, KeyConfig::alpha);
+        SDL_FRect rect = {(float)KeyConfig::x, (float)KeyConfig::y, (float)KeyConfig::backgrnd->w, (float)KeyConfig::backgrnd->h};
+        render_texture_func(KeyConfig::backgrnd, nullptr, &rect, KeyConfig::alpha);
 
         for (auto &[key, val] : KeyConfig::position_map)
         {
             auto aspr = key->second.at(key->first);
             auto position = SDL_FPoint{(float)KeyConfig::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)KeyConfig::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
             render_aspr_func(&aspr, &position, KeyConfig::alpha);
+        }
+    }
+}
+
+void render_uiitem()
+{
+    if (UIItem::open)
+    {
+        SDL_FRect rect = {(float)UIItem::x, (float)UIItem::y, (float)UIItem::FullBackgrnd->w, (float)UIItem::FullBackgrnd->h};
+        render_texture_func(UIItem::FullBackgrnd, nullptr, &rect, UIItem::alpha);
+
+        for (auto &[key, val] : UIItem::position_map)
+        {
+            auto aspr = key->second.at(key->first);
+            auto position = SDL_FPoint{(float)UIItem::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)UIItem::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
+            render_aspr_func(&aspr, &position, UIItem::alpha);
+        }
+    }
+}
+
+void render_uiskill()
+{
+    if (UISkill::open)
+    {
+        SDL_FRect rect = {(float)UISkill::x, (float)UISkill::y, (float)UISkill::backgrnd->w, (float)UISkill::backgrnd->h};
+        render_texture_func(UISkill::backgrnd, nullptr, &rect, UISkill::alpha);
+
+        for (auto &[key, val] : UISkill::position_map)
+        {
+            auto aspr = key->second.at(key->first);
+            auto position = SDL_FPoint{(float)UISkill::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)UISkill::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
+            render_aspr_func(&aspr, &position, UISkill::alpha);
         }
     }
 }

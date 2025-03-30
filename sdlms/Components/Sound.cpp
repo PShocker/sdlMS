@@ -16,12 +16,8 @@ extern "C"
 #include <libswresample/swresample.h>
 }
 
-static std::unordered_map<wz::Node *, SoundWarp *> cache;
-
 static SDL_Mutex *sound_list_mutex = SDL_CreateMutex();
-
 static std::list<Sound> sound_list;
-
 SDL_AudioStream *audio_stream;
 
 // 混合两个音频信号
@@ -229,6 +225,7 @@ SoundWarp::SoundWarp(wz::Node *node)
 
 SoundWarp *SoundWarp::load(wz::Node *node)
 {
+    static std::unordered_map<wz::Node *, SoundWarp *> cache;
     if (cache.contains(node))
     {
         return cache[node];

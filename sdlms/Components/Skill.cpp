@@ -1,13 +1,9 @@
 #include "Skill.h"
 #include "Sound.h"
-
 #include "wz/Property.hpp"
 #include <string>
 #include <SDL3/SDL.h>
-
 #include "Resources/Wz.h"
-
-static std::unordered_map<std::u16string, SkillWarp *> cache;
 
 SkillWarp::SkillWarp(const std::u16string &id) : id(id)
 {
@@ -73,6 +69,7 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
 
 SkillWarp *SkillWarp::load(const std::u16string &id)
 {
+    static std::unordered_map<std::u16string, SkillWarp *> cache;
     if (cache.contains(id))
     {
         return cache[id];

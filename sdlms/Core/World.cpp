@@ -77,6 +77,9 @@ void World::load_map(int id)
         World::registry->destroy(ent);
     }
     WorldMap::open = false;
+    UIItem::open = false;
+    KeyConfig::open = false;
+    UISkill::open = false;
 
     Map::load(id);
     Window::tick_delta_time();
