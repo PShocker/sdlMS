@@ -7,6 +7,7 @@ void ui_run()
     WorldMap::run();
     UIBuff::run();
     StatusBar::run();
+    KeyConfig::run();
     // 检测左键是否被按住
     if (Window::mouse_state & SDL_BUTTON_LMASK)
     {
@@ -22,6 +23,7 @@ void ui_run()
             // 触发点击事件
             WorldMap::click();
             StatusBar::click();
+            KeyConfig::click();
         }
         Cursor::left_mouse_press = false;
         if (WorldMap::over())

@@ -22,3 +22,4 @@ void animate_ball(Ball *ball, entt::entity ent);
 void animate_summon(Summon *sum, entt::entity ent);
 void animate_pet(Pet *pet, entt::entity ent);
 void animate_trap(Trap *trap, entt::entity ent);
+void animate_worldmap();

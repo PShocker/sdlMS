@@ -10,27 +10,15 @@ void WorldMap::show()
     WorldMap::x = Camera::w / 2;
     WorldMap::y = Camera::h / 2;
 
-    auto ent = World::registry->create();
-    auto worldmap = &World::registry->emplace<WorldMap>(ent);
-    World::registry->emplace<BaseImg>(ent);
-
     auto node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap");
-    AnimatedSpriteWarp *curPos = AnimatedSpriteWarp::load(node->find_from_path(u"curPos"));
-    std::optional<int> curPos_x;
-    std::optional<int> curPos_y;
-
     // 默认是WorldMap010
     node = Wz::Map->get_root()->find_from_path(u"WorldMap/WorldMap010.img");
-    auto BaseImg = SpriteWarp::load(node->find_from_path(u"BaseImg/0"));
-
-    World::registry->emplace<Sprite>(ent, BaseImg);
-    worldmap->position = SDL_FPoint{WorldMap::x, WorldMap::y};
+    WorldMap::baseimg.spr = Sprite(node->find_from_path(u"BaseImg/0"));
 
     auto mapList = node->find_from_path(u"MapList");
     for (auto &[key, val] : mapList->get_children())
     {
-        ent = World::registry->create();
-        auto worldmap = &World::registry->emplace<WorldMap>(ent);
+        Spot spt;
         auto spot = val[0]->get_child(u"spot");
         auto type = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"type"))->get();
         auto spot_v = dynamic_cast<wz::Property<wz::WzVec2D> *>(spot)->get();
@@ -58,111 +46,102 @@ void WorldMap::show()
             }
             if (no == Map::id)
             {
-                curPos_x = spot_x;
-                curPos_y = spot_y;
+                WorldMap::curpos.x = spot_x;
+                WorldMap::curpos.y = spot_y;
+                WorldMap::curpos.aspr = AnimatedSprite(Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap/curPos"));
             }
             mapNo.push_back(no);
         }
-
-        World::registry->emplace<Spot>(ent, spot_x, spot_y, type, mapNo);
-        worldmap->position = SDL_FPoint{(float)spot_x + WorldMap::x, (float)spot_y + WorldMap::y};
+        spt.x = spot_x;
+        spt.y = spot_y;
+        spt.mapNo = mapNo;
         node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap");
         switch (type)
         {
         case 0:
         {
-            World::registry->emplace<Sprite>(ent, SpriteWarp::load(node->find_from_path(u"mapImage/0")));
+            spt.spr = Sprite(node->find_from_path(u"mapImage/0"));
         }
         break;
         case 1:
         {
-            World::registry->emplace<Sprite>(ent, SpriteWarp::load(node->find_from_path(u"mapImage/1")));
+            spt.spr = Sprite(node->find_from_path(u"mapImage/1"));
         }
         break;
         case 2:
         {
-            World::registry->emplace<Sprite>(ent, SpriteWarp::load(node->find_from_path(u"mapImage/2")));
+            spt.spr = Sprite(node->find_from_path(u"mapImage/2"));
         }
         break;
         case 3:
         {
-            World::registry->emplace<Sprite>(ent, SpriteWarp::load(node->find_from_path(u"mapImage/3")));
+            spt.spr = Sprite(node->find_from_path(u"mapImage/3"));
         }
         break;
         default:
             break;
         }
+        WorldMap::spots.push_back(spt);
     }
-    if (curPos_x.has_value() && curPos_y.has_value())
-    {
-        // 玩家所在的位置动画
-        ent = World::registry->create();
-        World::registry->emplace<CurPos>(ent);
-
-        auto worldmap = &World::registry->emplace<WorldMap>(ent);
-        World::registry->emplace<Animated>(ent);
-        World::registry->emplace<AnimatedSprite>(ent, curPos);
-        worldmap->position = SDL_FPoint{(float)curPos_x.value() + WorldMap::x, (float)curPos_y.value() + WorldMap::y};
-    }
-
     WorldMap::open = true;
 }
 
 void WorldMap::hide()
 {
-    // 销毁所有具有 WorldMap 组件的实体
-    for (auto ent : World::registry->view<WorldMap>())
-    {
-        World::destory.push_back(ent);
-    }
     WorldMap::open = false;
 }
 
 void WorldMap::click()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-    // 判断是否点击到spot
-    for (auto ent : World::registry->view<Spot>())
+    if (WorldMap::open)
     {
-        auto spot = World::registry->try_get<Spot>(ent);
-        auto spot_x = spot->x + WorldMap::x;
-        auto spot_y = spot->y + WorldMap::y;
-
-        auto dx = mouse_x - spot_x;
-        auto dy = mouse_y - spot_y;
-
-        if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
+        float mouse_x = Window::mouse_x;
+        float mouse_y = Window::mouse_y;
+        // 判断是否点击到spot
+        for (auto &it : WorldMap::spots)
         {
-            // switch map
-            World::TransPort::id = spot->mapNo[0];
-            World::TransPort::tn = u"sp";
-            break;
+            auto spot = &it;
+            auto spot_x = spot->x + WorldMap::x;
+            auto spot_y = spot->y + WorldMap::y;
+
+            auto dx = mouse_x - spot_x;
+            auto dy = mouse_y - spot_y;
+
+            if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
+            {
+                // switch map
+                World::TransPort::id = spot->mapNo[0];
+                World::TransPort::tn = u"sp";
+                break;
+            }
         }
-    }
-    if (World::TransPort::id != 0)
-    {
-        WorldMap::hide();
+        if (World::TransPort::id != 0)
+        {
+            WorldMap::hide();
+        }
     }
 }
 
 bool WorldMap::over()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-    // 判断是否点击到spot
-    for (auto ent : World::registry->view<Spot>())
+    if (WorldMap::open)
     {
-        auto spot = World::registry->try_get<Spot>(ent);
-        auto spot_x = spot->x + WorldMap::x;
-        auto spot_y = spot->y + WorldMap::y;
-
-        auto dx = mouse_x - spot_x;
-        auto dy = mouse_y - spot_y;
-
-        if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
+        float mouse_x = Window::mouse_x;
+        float mouse_y = Window::mouse_y;
+        // 判断是否点击到spot
+        for (auto &it : WorldMap::spots)
         {
-            return true;
+            auto spot = &it;
+            auto spot_x = spot->x + WorldMap::x;
+            auto spot_y = spot->y + WorldMap::y;
+
+            auto dx = mouse_x - spot_x;
+            auto dy = mouse_y - spot_y;
+
+            if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
+            {
+                return true;
+            }
         }
     }
     return false;

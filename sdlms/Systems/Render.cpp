@@ -1023,28 +1023,24 @@ void render_statusbar()
 
 void render_worldmap()
 {
-    for (auto ent : World::registry->view<WorldMap::BaseImg>())
+    if (WorldMap::open)
     {
-        auto worldmap = World::registry->try_get<WorldMap>(ent);
-        auto position = worldmap->position;
-        auto spr = World::registry->try_get<Sprite>(ent);
-        auto sprw = spr->sprw;
+        auto position = SDL_FPoint{WorldMap::x, WorldMap::y};
+        auto sprw = WorldMap::baseimg.spr.sprw;
         render_sprite(position, sprw);
-    }
-    for (auto ent : World::registry->view<WorldMap::Spot>())
-    {
-        auto worldmap = World::registry->try_get<WorldMap>(ent);
-        auto position = worldmap->position;
-        auto spr = World::registry->try_get<Sprite>(ent);
-        auto sprw = spr->sprw;
-        render_sprite(position, sprw);
-    }
-    for (auto ent : World::registry->view<WorldMap::CurPos>())
-    {
-        auto worldmap = World::registry->try_get<WorldMap>(ent);
-        auto position = worldmap->position;
-        auto a = World::registry->try_get<AnimatedSprite>(ent);
-        render_animated_sprite(position, a);
+
+        for (auto &it : WorldMap::spots)
+        {
+            auto sprw = it.spr.sprw;
+            auto p = position + SDL_FPoint{(float)it.x, (float)it.y};
+            render_sprite(p, sprw);
+        }
+        if (WorldMap::curpos.x.has_value() && WorldMap::curpos.y.has_value())
+        {
+            auto aspr = WorldMap::curpos.aspr;
+            auto p = position + SDL_FPoint{(float)WorldMap::curpos.x.value(), (float)WorldMap::curpos.y.value()};
+            render_animated_sprite(p, &aspr);
+        }
     }
 }
 
@@ -1054,6 +1050,13 @@ void render_keyconfig()
     {
         SDL_FPoint position = {(float)KeyConfig::x, (float)KeyConfig::y};
         render_spr_func(&KeyConfig::backgrnd, &position, KeyConfig::alpha);
+
+        for (auto &[key, val] : KeyConfig::position_map)
+        {
+            auto aspr = key->second.at(key->first);
+            auto position = SDL_FPoint{(float)KeyConfig::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)KeyConfig::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
+            render_aspr_func(&aspr, &position, KeyConfig::alpha);
+        }
     }
 }
 

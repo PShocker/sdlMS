@@ -52,7 +52,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     Damage::init();
     Cursor::init();
     StatusBar::init();
-    KeyConfig::init();
     Sound::init();
     Drop::init();
 

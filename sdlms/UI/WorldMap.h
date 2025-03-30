@@ -7,20 +7,22 @@ struct WorldMap
 {
     struct BaseImg
     {
+        Sprite spr;
     };
 
     struct CurPos
     {
+        std::optional<int> x;
+        std::optional<int> y;
+        AnimatedSprite aspr;
     };
 
     struct Spot
     {
         int x;
         int y;
-        int type;
         std::vector<int> mapNo;
-
-        Spot(int x, int y, int type, std::vector<int> mapNo) : x(x), y(y), type(type), mapNo(mapNo) {}
+        Sprite spr;
     };
     static void show();
     static void hide();
@@ -28,7 +30,9 @@ struct WorldMap
     static bool over();
     static void run();
 
-    SDL_FPoint position;
+    static inline BaseImg baseimg;
+    static inline CurPos curpos;
+    static inline std::vector<Spot> spots;
 
     static inline bool open = false;
     static inline bool keyborard = true;

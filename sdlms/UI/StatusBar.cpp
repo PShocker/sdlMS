@@ -1,6 +1,6 @@
 #include "StatusBar.h"
-#include "Cursor.h"
 #include "KeyConfig.h"
+#include "Button.h"
 #include "wz/Property.hpp"
 #include "Resources/Wz.h"
 #include "Components/Components.h"
@@ -12,35 +12,11 @@ void StatusBar::run()
 
 void StatusBar::over()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
-    // 判断鼠标是否滑动到按钮附近
-    SDL_FPoint point = {mouse_x, mouse_y};
-    auto over_func = [&point](SDL_FRect &rect, std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> &pair)
-    {
-        if (SDL_PointInRectFloat(&point, &rect))
-        {
-            // 判断鼠标左键是否按下
-            if (Cursor::left_mouse_press)
-            {
-                pair.first = u"pressed";
-            }
-            else
-            {
-                pair.first = u"mouseOver";
-            }
-        }
-        else
-        {
-            pair.first = u"normal";
-        }
-    };
     for (auto &[key, val] : StatusBar::position_map)
     {
         auto rect = val;
         rect.y += Camera::h;
-        over_func(rect, *key);
+        Button::over(rect, *key);
     }
 }
 
@@ -59,30 +35,19 @@ void StatusBar::init()
     bar = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/gauge/bar")));
     gray = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/gauge/gray")));
 
-    auto load_func = [&ui_node](std::u16string path, std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> &pair)
-    {
-        auto node = ui_node->find_from_path(path);
-        std::unordered_map<std::u16string, AnimatedSprite> a;
-        for (auto &[key, val] : node->get_children())
-        {
-            a[key] = AnimatedSprite(val[0]);
-        }
-        pair.first = u"normal";
-        pair.second = a;
-    };
-    load_func(u"StatusBar.img/BtShop", BtShop);
-    load_func(u"StatusBar.img/BtChat", BtChat);
-    load_func(u"StatusBar.img/BtNPT", BtNPT);
-    load_func(u"StatusBar.img/BtMenu", BtMenu);
-    load_func(u"StatusBar.img/BtShort", BtShort);
-    load_func(u"StatusBar.img/BtClaim", BtClaim);
-    load_func(u"StatusBar.img/EquipKey", EquipKey);
-    load_func(u"StatusBar.img/InvenKey", InvenKey);
-    load_func(u"StatusBar.img/StatKey", StatKey);
-    load_func(u"StatusBar.img/SkillKey", SkillKey);
-    load_func(u"StatusBar.img/KeySet", KeySet);
-    load_func(u"StatusBar.img/QuickSlot", QuickSlot);
-    load_func(u"StatusBar.img/QuickSlotD", QuickSlotD);
+    Button::load(u"StatusBar.img/BtShop", BtShop);
+    Button::load(u"StatusBar.img/BtChat", BtChat);
+    Button::load(u"StatusBar.img/BtNPT", BtNPT);
+    Button::load(u"StatusBar.img/BtMenu", BtMenu);
+    Button::load(u"StatusBar.img/BtShort", BtShort);
+    Button::load(u"StatusBar.img/BtClaim", BtClaim);
+    Button::load(u"StatusBar.img/EquipKey", EquipKey);
+    Button::load(u"StatusBar.img/InvenKey", InvenKey);
+    Button::load(u"StatusBar.img/StatKey", StatKey);
+    Button::load(u"StatusBar.img/SkillKey", SkillKey);
+    Button::load(u"StatusBar.img/KeySet", KeySet);
+    Button::load(u"StatusBar.img/QuickSlot", QuickSlot);
+    Button::load(u"StatusBar.img/QuickSlotD", QuickSlotD);
 
     auto node = ui_node->find_from_path(u"Basic.img/LevelNo");
     for (int i = 0; i < 10; i++)
@@ -109,28 +74,11 @@ void StatusBar::init()
 
 void StatusBar::click()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
-    // 判断鼠标是否滑动到按钮附近
-    SDL_FPoint point = {mouse_x, mouse_y};
-
-    auto click_func = [&point](SDL_FRect &rect, std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> &pair)
-    {
-        if (SDL_PointInRectFloat(&point, &rect))
-        {
-            if (StatusBar::click_map.contains(&pair))
-            {
-                auto func = StatusBar::click_map.at(&pair);
-                func();
-            }
-        }
-    };
     for (auto &[key, val] : StatusBar::position_map)
     {
         auto rect = val;
         rect.y += Camera::h;
-        click_func(rect, *key);
+        Button::click(rect, *key, StatusBar::click_map);
     }
 }
 
@@ -150,5 +98,5 @@ void StatusBar::QuickSlotD_func()
 
 void StatusBar::KeySet_func()
 {
-    KeyConfig::open = true;
+    KeyConfig::show();
 }

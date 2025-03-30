@@ -12,6 +12,7 @@
 #include <cmath>
 #include <numbers>
 #include <algorithm>
+#include "UI/UI.h"
 
 void animate_run()
 {
@@ -119,6 +120,7 @@ void animate_run()
             animate_effect(eff);
         }
     }
+    animate_worldmap();
 }
 
 bool animate_sprite(AnimatedSprite *a)
@@ -687,5 +689,13 @@ void animate_trap(Trap *trap, entt::entity ent)
                 attack_player(&atk, ent, std::nullopt);
             }
         }
+    }
+}
+
+void animate_worldmap()
+{
+    if (WorldMap::curpos.x.has_value() && WorldMap::curpos.y.has_value())
+    {
+        animate_sprite(&WorldMap::curpos.aspr);
     }
 }
