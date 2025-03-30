@@ -46,10 +46,6 @@ void render_run()
             {
                 render_effect(tr, eff);
             }
-            if (auto dam = World::registry->try_get<Damage>(ent))
-            {
-                render_damage(dam);
-            }
             if (auto nametag = World::registry->try_get<NameTag>(ent))
             {
                 if (mob->state == Mob::State::REMOVE)
@@ -94,10 +90,6 @@ void render_run()
             {
                 render_effect_back(tr, eff);
             }
-            if (auto dam = World::registry->try_get<Damage>(ent))
-            {
-                render_damage(dam);
-            }
             if (auto nametag = World::registry->try_get<NameTag>(ent))
             {
                 render_nametag(tr, nametag);
@@ -131,14 +123,10 @@ void render_run()
                 render_nametag(tr, nametag);
             }
         }
-        else if (auto chatballoon = World::registry->try_get<ChatBalloon>(ent))
-        {
-            if (auto npc = World::registry->try_get<Npc>(chatballoon->owner))
-            {
-                render_chatballoon(World::registry->try_get<Transform>(chatballoon->owner), npc, chatballoon);
-            }
-        }
     }
+    // 对于和Layer无关的属性，需要单独处理渲染
+    render_damage();
+    render_chatballoon();
     // 对于UI逻辑，需要单独处理渲染逻辑，不需要添加Transform组件排序
     render_uibuff();
     render_statusbar();
@@ -660,54 +648,58 @@ void render_mob(Transform *tr, Mob *mob)
     render_animated_sprite(tr, a);
 }
 
-void render_damage(Damage *dam)
+void render_damage()
 {
-    auto d = dam->damages;
-    d.sort([](const auto &m, const auto &n)
-           { return m.alpha < n.alpha; });
-    for (auto it : d)
+    for (auto ent : World::registry->view<Damage>())
     {
-        auto &info = it;
-        if (info.delay < Window::dt_now)
+        auto dam = World::registry->try_get<Damage>(ent);
+        auto d = dam->damages;
+        d.sort([](const auto &m, const auto &n)
+               { return m.alpha < n.alpha; });
+        for (auto it : d)
         {
-            auto p = info.point;
-            int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
-            p.x = p.x - length * 14;
-            int i = 0;
-            while (info.damage > 0)
+            auto &info = it;
+            if (info.delay < Window::dt_now)
             {
-                auto n = info.damage % 10;
-                Transform transfrom(p);
-                transfrom.position.x += (length - i) * 28;
-                transfrom.position.y -= 25.5 - info.alpha / 10;
-                switch (info.type)
+                auto p = info.point;
+                int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
+                p.x = p.x - length * 14;
+                int i = 0;
+                while (info.damage > 0)
                 {
-                case 0:
-                    SDL_SetTextureAlphaMod(dam->red[n]->texture, info.alpha);
-                    render_sprite(&transfrom, dam->red[n]);
-                    break;
-                case 1:
-                    SDL_SetTextureAlphaMod(dam->violet[n]->texture, info.alpha);
-                    render_sprite(&transfrom, dam->violet[n]);
-                    break;
-                case 2:
-                    if (i == length - 1)
+                    auto n = info.damage % 10;
+                    Transform transfrom(p);
+                    transfrom.position.x += (length - i) * 28;
+                    transfrom.position.y -= 25.5 - info.alpha / 10;
+                    switch (info.type)
                     {
-                        SDL_SetTextureAlphaMod(dam->cri[10]->texture, info.alpha);
-                        render_sprite(&transfrom, dam->cri[10]);
+                    case 0:
+                        SDL_SetTextureAlphaMod(dam->red[n]->texture, info.alpha);
+                        render_sprite(&transfrom, dam->red[n]);
+                        break;
+                    case 1:
+                        SDL_SetTextureAlphaMod(dam->violet[n]->texture, info.alpha);
+                        render_sprite(&transfrom, dam->violet[n]);
+                        break;
+                    case 2:
+                        if (i == length - 1)
+                        {
+                            SDL_SetTextureAlphaMod(dam->cri[10]->texture, info.alpha);
+                            render_sprite(&transfrom, dam->cri[10]);
+                        }
+                        SDL_SetTextureAlphaMod(dam->cri[n]->texture, info.alpha);
+                        render_sprite(&transfrom, dam->cri[n]);
+                        break;
+                    case 3:
+                        SDL_SetTextureAlphaMod(dam->blue[n]->texture, info.alpha);
+                        render_sprite(&transfrom, dam->blue[n]);
+                        break;
+                    default:
+                        break;
                     }
-                    SDL_SetTextureAlphaMod(dam->cri[n]->texture, info.alpha);
-                    render_sprite(&transfrom, dam->cri[n]);
-                    break;
-                case 3:
-                    SDL_SetTextureAlphaMod(dam->blue[n]->texture, info.alpha);
-                    render_sprite(&transfrom, dam->blue[n]);
-                    break;
-                default:
-                    break;
+                    info.damage /= 10;
+                    i++;
                 }
-                info.damage /= 10;
-                i++;
             }
         }
     }
@@ -820,28 +812,34 @@ void render_nametag(Transform *tr, NameTag *nametag)
     }
 }
 
-void render_chatballoon(Transform *tr, Npc *npc, ChatBalloon *chatballoon)
+void render_chatballoon()
 {
-    if (chatballoon->chatballoons.size() > 0)
+    for (auto ent : World::registry->view<ChatBalloon>())
     {
+        auto chatballoon = World::registry->try_get<ChatBalloon>(ent);
+        auto tr = World::registry->try_get<Transform>(ent);
+
         auto &it = chatballoon->chatballoons[0];
         if (it.delay <= Window::dt_now)
         {
-            it.delay = Window::dt_now + std::rand() % 30000 + 2000;
+            it.delay = Window::dt_now + std::max(5000, std::rand() % 30000);
             it.show = !it.show;
         }
         if (it.show == false)
         {
-            return;
+            continue;
         }
         auto str_texture = chatballoon->chatballoons[0].str_texture;
         // 先渲染背景
         auto back_texture = chatballoon->chatballoons[0].back_texture;
 
-        auto aspr = npc->a[npc->index];
-        auto sprw = aspr.asprw->sprites[aspr.anim_index];
-
-        float render_back_y = (float)-sprw->texture->h - (sprw->origin.y - sprw->texture->h) - (float)back_texture->h;
+        float render_back_y = 0;
+        if (auto npc = World::registry->try_get<Npc>(ent))
+        {
+            auto aspr = npc->a[npc->index];
+            auto sprw = aspr.asprw->sprites[aspr.anim_index];
+            render_back_y = (float)-sprw->texture->h - (sprw->origin.y - sprw->texture->h) - (float)back_texture->h;
+        }
 
         auto pos_rect = SDL_FRect{tr->position.x - Camera::x - back_texture->w / 2, tr->position.y - Camera::y + render_back_y, (float)back_texture->w, (float)back_texture->h};
         SDL_RenderTexture(Window::renderer, back_texture, nullptr, &pos_rect);

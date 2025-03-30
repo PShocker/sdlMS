@@ -20,5 +20,4 @@ struct ChatBalloon
     static SDL_Texture *load_back_texture(SDL_Texture *str_texture, std::u16string type = u"0");
 
     std::vector<Info> chatballoons;
-    entt::entity owner = entt::null;
 };

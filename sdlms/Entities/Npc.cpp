@@ -6,7 +6,6 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 #include "FootHold.h"
-#include "ChatBalloon.h"
 
 void load_npc(wz::Node *node)
 {
@@ -76,7 +75,14 @@ void load_npc(wz::Node *node)
         {
             strs.push_back(dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"n0"))->get());
         }
-        load_chatballoon(strs, SDL_Color{156, 91, 97, 255}, ent);
+        if (!strs.empty())
+        {
+            auto chatballoon = &World::registry->emplace<ChatBalloon>(ent);
+            for (auto &str : strs)
+            {
+                ChatBalloon::push(chatballoon, str, SDL_Color{156, 91, 97, 255});
+            }
+        }
     }
 
     World::registry->emplace<Animated>(ent);
