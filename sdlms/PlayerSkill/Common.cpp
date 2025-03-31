@@ -102,6 +102,8 @@ std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any &data)
     }
     else
     {
+        auto eff = World::registry->try_get<Effect>(ent);
+        eff->effects.erase(Effect::Dizzy);
         return std::make_pair(true, true);
     }
 }
