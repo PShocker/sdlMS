@@ -69,6 +69,7 @@ struct StatusBar
     static void KeySet_func();
     static void InvenKey_func();
     static void SkillKey_func();
+    static void StatKey_func();
 
     static const inline std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, std::function<void()>> click_map = {
         {&QuickSlot, QuickSlot_func},
@@ -76,6 +77,7 @@ struct StatusBar
         {&KeySet, KeySet_func},
         {&InvenKey, InvenKey_func},
         {&SkillKey, SkillKey_func},
+        {&StatKey, StatKey_func},
     };
 
     static inline int alpha = 255;

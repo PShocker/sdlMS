@@ -20,4 +20,10 @@ entt::entity find_closest_attackable_mob(
 
 void mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp *asprw);
 
-std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any data);
+std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any &data);
+
+std::pair<bool, bool> poison_call_back(entt::entity ent, std::any &data);
+
+std::pair<bool, bool> flame_call_back(entt::entity ent, std::any &data);
+
+std::pair<bool, bool> frozen_call_back(entt::entity ent, std::any &data);

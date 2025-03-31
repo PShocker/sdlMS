@@ -1,0 +1,31 @@
+#pragma once
+
+#include "Components/Components.h"
+
+struct UIStat
+{
+    static void run();
+    static void show();
+    static void hide();
+    static void over();
+    static void click();
+
+    static inline SDL_Texture *backgrnd;
+
+    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtClose;
+
+    static const inline std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, SDL_FRect> position_map = {
+        {&BtClose, SDL_FRect{156.0, 6.0, 12.0, 12.0}},
+    };
+
+    static void BtClose_func();
+    static const inline std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, std::function<void()>> click_map = {
+        {&BtClose, BtClose_func},
+    };
+
+    static inline bool open = false;
+    static inline bool keyborard = true;
+    static inline float x = 0;
+    static inline float y = 0;
+    static inline int alpha = 255;
+};

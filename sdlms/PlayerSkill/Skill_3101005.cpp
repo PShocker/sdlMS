@@ -8,7 +8,7 @@
 #include <SDL3/SDL.h>
 #include "Systems/Attack.h"
 
-std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
+static std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
 {
     auto [atk, time] = std::any_cast<std::tuple<Attack, unsigned int>>(data);
     if (Window::dt_now >= time)
@@ -63,19 +63,14 @@ int skill_3101005(entt::entity ent)
         const auto *src_tr = World::registry->try_get<Transform>(src);
         atk->src_point = src_tr->position;
 
-        auto target_mob = World::registry->try_get<Mob>(src);
+        auto target_mob = World::registry->try_get<Mob>(target);
         target_mob->call_backs.erase(u"3101005");
         target_mob->call_backs.emplace(u"3101005", std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now)));
 
         auto target_position = World::registry->try_get<Transform>(target)->position;
-        while (World::registry->valid(target) && atk->mobCount > 0)
+        ski->hit_targets.insert(target);
+        while (atk->mobCount > 0)
         {
-            const auto mob = World::registry->try_get<Mob>(target);
-            const auto target_tr = World::registry->try_get<Transform>(target);
-
-            mob->call_backs.erase(u"3101005");
-            target_mob->call_backs.emplace(u"3101005", std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now)));
-            ski->hit_targets.insert(target);
             // 寻找下一个目标
             target = find_closest_attackable_mob(
                 -1,
@@ -84,6 +79,15 @@ int skill_3101005(entt::entity ent)
                 200.0f, // max_x_distance
                 150.0f  // max_y_distance
             );
+            if (target == entt::null)
+            {
+                break;
+            }
+            target_mob = World::registry->try_get<Mob>(target);
+            target_mob->call_backs.erase(u"3101005");
+            target_mob->call_backs.emplace(u"3101005", std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now + 150)));
+            ski->hit_targets.insert(target);
+            atk->mobCount--;
         };
     };
 

@@ -7,7 +7,7 @@
 #include <numbers>
 
 // 独立函数：生成链式特效
-void generate_chain_effect(
+static void generate_chain_effect(
     const SDL_FPoint &start,
     const SDL_FPoint &end,
     entt::entity target)
@@ -36,7 +36,7 @@ void generate_chain_effect(
     }
 }
 
-std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
+static std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
 {
     auto [src, atk, hit_targets, src_point, mobCount, time] = std::any_cast<std::tuple<entt::entity, Attack, std::unordered_set<entt::entity>, SDL_FPoint, int, unsigned int>>(data);
     if (Window::dt_now >= time)
@@ -46,7 +46,7 @@ std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
             -1,
             position,
             hit_targets,
-            200.0f, // max_x_distance
+            300.0f, // max_x_distance
             200.0f  // max_y_distance
         );
         if (target != entt::null && mobCount > 0)
@@ -59,7 +59,7 @@ std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
             hit_targets.insert(target);
             mobCount--;
             attack_mob(&atk, src, target, hit_point);
-            target_mob->call_backs.emplace(u"2221006", std::make_pair(mob_call_back, std::make_tuple(src, atk, hit_targets, hit_point, mobCount, Window::dt_now + 400)));
+            target_mob->call_backs.emplace(u"2221006", std::make_pair(mob_call_back, std::make_tuple(src, atk, hit_targets, hit_point, mobCount, Window::dt_now + 65)));
         }
         return std::make_pair(true, true);
     }

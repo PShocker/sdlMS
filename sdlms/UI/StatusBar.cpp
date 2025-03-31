@@ -2,6 +2,7 @@
 #include "KeyConfig.h"
 #include "UIItem.h"
 #include "UISkill.h"
+#include "UIStat.h"
 #include "Button.h"
 #include "wz/Property.hpp"
 #include "Resources/Wz.h"
@@ -113,4 +114,9 @@ void StatusBar::InvenKey_func()
 void StatusBar::SkillKey_func()
 {
     UISkill::show();
+}
+
+void StatusBar::StatKey_func()
+{
+    UIStat::show();
 }

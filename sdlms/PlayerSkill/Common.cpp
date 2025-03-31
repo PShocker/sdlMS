@@ -1,5 +1,6 @@
 #include "Common.h"
 #include "Systems/Collision.h"
+#include "Systems/Attack.h"
 #include "Systems/MobStateMachine.h"
 
 // 独立函数：寻找最近的可攻击怪物
@@ -86,7 +87,7 @@ void mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp 
     }
 }
 
-std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any data)
+std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any &data)
 {
     const auto mob = World::registry->try_get<Mob>(ent);
     auto time = std::any_cast<unsigned int>(data);
@@ -101,6 +102,85 @@ std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any data)
     }
     else
     {
+        return std::make_pair(true, true);
+    }
+}
+
+std::pair<bool, bool> poison_call_back(entt::entity ent, std::any &data)
+{
+    const auto mob = World::registry->try_get<Mob>(ent);
+    auto [time, atktime] = std::any_cast<std::tuple<unsigned int, unsigned int>>(data);
+    auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"2101005")->node->find_from_path(u"mob"));
+
+    if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
+    {
+        // 中毒特效
+        if (atktime < Window::dt_now)
+        {
+            Attack atk;
+            atk.damage = 10;
+            atk.src_point = std::nullopt;
+            attack_mob(&atk, Player::ent, ent, std::nullopt);
+            atktime += 1000;
+            std::get<1>(std::any_cast<std::tuple<unsigned int, unsigned int> &>(data)) = atktime;
+        }
+        mob_special_effect(ent, Effect::Dizzy, asprw);
+        mob->mod = SDL_Color{136, 204, 0};
+        return std::make_pair(false, true);
+    }
+    else
+    {
+        mob->mod = SDL_Color{255, 255, 255};
+        return std::make_pair(true, true);
+    }
+}
+
+std::pair<bool, bool> flame_call_back(entt::entity ent, std::any &data)
+{
+    const auto mob = World::registry->try_get<Mob>(ent);
+    auto [time, atktime] = std::any_cast<std::tuple<unsigned int, unsigned int>>(data);
+    auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"3111003")->node->find_from_path(u"tile/0"));
+    if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
+    {
+        // 中毒特效
+        if (atktime < Window::dt_now)
+        {
+            Attack atk;
+            atk.damage = 10;
+            atk.src_point = std::nullopt;
+            attack_mob(&atk, Player::ent, ent, std::nullopt);
+            auto &tuple = std::any_cast<std::tuple<unsigned int, unsigned int> &>(data);
+            std::get<1>(tuple) = Window::dt_now + 500;
+        }
+        mob_special_effect(ent, Effect::Flame, asprw);
+        mob->mod = SDL_Color{255, 100, 0};
+        return std::make_pair(false, true);
+    }
+    else
+    {
+        mob->mod = SDL_Color{255, 255, 255};
+        return std::make_pair(true, true);
+    }
+}
+
+std::pair<bool, bool> frozen_call_back(entt::entity ent, std::any &data)
+{
+    const auto mob = World::registry->try_get<Mob>(ent);
+    auto time = std::any_cast<unsigned int>(data);
+    if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
+    {
+        // 默认选择被攻击的第0帧
+        auto sprw = mob->a[u"hit1"].asprw->sprites[0];
+        mob->state = Mob::State::HIT;
+        mob->index = u"hit1";
+        mob->a[u"hit1"].anim_time = 0;
+        mob->mod = SDL_Color{90, 148, 247};
+        mob_fall(ent, Window::delta_time);
+        return std::make_pair(false, false);
+    }
+    else
+    {
+        mob->mod = SDL_Color{255, 255, 255};
         return std::make_pair(true, true);
     }
 }

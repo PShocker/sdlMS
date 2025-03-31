@@ -44,28 +44,11 @@ int skill_1111008(entt::entity ent)
     {
         auto ski = World::registry->try_get<Skill>(src);
 
-        // 晕眩效果,3秒
-        const auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
-                                time = Window::dt_now + 3000](entt::entity ent, std::any data)
-        {
-            const auto mob = World::registry->try_get<Mob>(ent);
-
-            if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
-            {
-                // 晕眩特效
-                push_mob_special_effect(ent, Effect::Dizzy, asprw);
-                mob_fall(ent, Window::delta_time);
-                return std::make_pair(false, false);
-            }
-            else
-            {
-                return std::make_pair(true, true);
-            }
-        };
+        // 晕眩效果,5秒
         const auto mob = World::registry->try_get<Mob>(target);
 
         mob->call_backs.erase(u"1111008");
-        mob->call_backs.emplace(u"1111008", std::make_pair(dizzy_call_back, std::any{}));
+        mob->call_backs.emplace(u"1111008", std::make_pair(dizzy_call_back, Window::dt_now + 5000));
     };
 
     return PlayerSkill::SkillResult::SOU |

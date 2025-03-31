@@ -7,3 +7,4 @@
 #include "KeyConfig.h"
 #include "UIItem.h"
 #include "UISkill.h"
+#include "UIStat.h"

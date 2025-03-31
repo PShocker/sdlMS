@@ -134,6 +134,7 @@ void render_run()
     render_keyconfig();
     render_uiitem();
     render_uiskill();
+    render_uistat();
 }
 
 void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SDL_FPoint *origin)
@@ -1090,6 +1091,22 @@ void render_uiskill()
             auto aspr = key->second.at(key->first);
             auto position = SDL_FPoint{(float)UISkill::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)UISkill::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
             render_aspr_func(&aspr, &position, UISkill::alpha);
+        }
+    }
+}
+
+void render_uistat()
+{
+    if (UIStat::open)
+    {
+        SDL_FRect rect = {(float)UIStat::x, (float)UIStat::y, (float)UIStat::backgrnd->w, (float)UIStat::backgrnd->h};
+        render_texture_func(UIStat::backgrnd, nullptr, &rect, UIStat::alpha);
+
+        for (auto &[key, val] : UIStat::position_map)
+        {
+            auto aspr = key->second.at(key->first);
+            auto position = SDL_FPoint{(float)UIStat::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)UIStat::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
+            render_aspr_func(&aspr, &position, UIStat::alpha);
         }
     }
 }
