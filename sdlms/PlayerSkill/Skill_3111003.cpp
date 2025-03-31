@@ -58,7 +58,7 @@ int skill_3111003(entt::entity ent)
             attack_mob(atk, src, target, hit_point);
             mob->call_backs.erase(u"3111003");
             const auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"tile/0")),
-                                    time = Window::dt_now + time](entt::entity ent)
+                                    time = Window::dt_now + time](entt::entity ent, std::any data)
             {
                 const auto mob = World::registry->try_get<Mob>(ent);
 
@@ -74,10 +74,10 @@ int skill_3111003(entt::entity ent)
                     return std::make_pair(true, true);
                 }
             };
-            mob->call_backs.emplace(u"3111003", call_back);
+            mob->call_backs.emplace(u"3111003", std::make_pair(call_back, std::any{}));
             for (int i = Window::dt_now + 500; i <= Window::dt_now + time; i += 500)
             {
-                const auto hit_call_back = [i](entt::entity ent)
+                const auto call_back = [i](entt::entity ent, std::any data)
                 {
                     const auto mob = World::registry->try_get<Mob>(ent);
                     if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
@@ -97,7 +97,7 @@ int skill_3111003(entt::entity ent)
                         return std::make_pair(false, true);
                     }
                 };
-                mob->call_backs.emplace(u"3111003", hit_call_back);
+                mob->call_backs.emplace(u"3111003", std::make_pair(call_back, std::any{}));
             }
 
             ski->hit_targets.insert(target);

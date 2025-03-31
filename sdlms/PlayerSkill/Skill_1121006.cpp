@@ -71,7 +71,7 @@ int skill_1121006(entt::entity ent)
                         attack_mob(&atk, ent, mob_ent, std::nullopt);
                         ski->hit_targets.insert(mob_ent);
                     }
-                    auto call_back = [x = m_tr->position.x, flip = owner_tr->flip](entt::entity ent)
+                    auto call_back = [x = m_tr->position.x, flip = owner_tr->flip](entt::entity ent, std::any data)
                     {
                         auto mob_mv = World::registry->try_get<Move>(ent);
                         if (mob_mv->foo)
@@ -92,7 +92,7 @@ int skill_1121006(entt::entity ent)
                         }
                         return std::make_pair(true, true);
                     };
-                    mob->call_backs.emplace(u"1121006", call_back);
+                    mob->call_backs.emplace(u"1121006", std::make_pair(call_back, std::any{}));
                 }
             }
         }

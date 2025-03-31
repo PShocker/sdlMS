@@ -21,9 +21,10 @@ void mob_statemachine_run()
         bool res = true;
         for (auto it = mob->call_backs.begin(); it != mob->call_backs.end();)
         {
-            const auto &key = it->first;   // 获取键
-            const auto &func = it->second; // 获取值，即一个函数对象
-            auto pair = (func)(ent);
+
+            const auto &key = it->first;     // 获取键
+            auto &[func, data] = it->second; // 获取值，即一个函数对象
+            auto pair = (func)(ent, data);
             auto r = pair.first;
             if (r)
             {

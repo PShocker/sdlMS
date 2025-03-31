@@ -1,5 +1,6 @@
 #include "Common.h"
 #include "Systems/Collision.h"
+#include "Systems/MobStateMachine.h"
 
 // 独立函数：寻找最近的可攻击怪物
 entt::entity find_closest_attackable_mob(
@@ -69,7 +70,7 @@ entt::entity find_closest_attackable_mob(Transform &origin, const Triangle &tri)
     return closest_mob;
 }
 
-void push_mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp *asprw)
+void mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp *asprw)
 {
     auto eff = World::registry->try_get<Effect>(ent);
     if (!eff->effects.contains(id))
@@ -82,5 +83,24 @@ void push_mob_special_effect(entt::entity ent, std::u16string id, AnimatedSprite
         info.aspr = AnimatedSprite(asprw);
         info.follow = true;
         eff->effects.emplace(id, info);
+    }
+}
+
+std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any data)
+{
+    const auto mob = World::registry->try_get<Mob>(ent);
+    auto time = std::any_cast<unsigned int>(data);
+    auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"3101005")->node->find_from_path(u"mob"));
+
+    if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
+    {
+        // 晕眩特效
+        mob_special_effect(ent, Effect::Dizzy, asprw);
+        mob_fall(ent, Window::delta_time);
+        return std::make_pair(false, false);
+    }
+    else
+    {
+        return std::make_pair(true, true);
     }
 }

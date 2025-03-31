@@ -11,6 +11,7 @@
 #include <vector>
 #include <string>
 #include <SDL3/SDL.h>
+#include <any>
 
 struct Mob
 {
@@ -59,7 +60,7 @@ struct Mob
     entt::entity hit = entt::null;
 
     // 回调
-    std::unordered_multimap<std::u16string, std::function<std::pair<bool, bool>(entt::entity)>> call_backs;
+    std::unordered_multimap<std::u16string, std::pair<std::function<std::pair<bool, bool>(entt::entity, std::any &)>, std::any>> call_backs;
 
     Attack atk;
 

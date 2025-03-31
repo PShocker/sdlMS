@@ -18,4 +18,6 @@ entt::entity find_closest_attackable_mob(
     Transform &origin,
     const Triangle &tri);
 
-void push_mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp *asprw);
+void mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp *asprw);
+
+std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any data);

@@ -46,7 +46,7 @@ int skill_1111008(entt::entity ent)
 
         // 晕眩效果,3秒
         const auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
-                                time = Window::dt_now + 3000](entt::entity ent)
+                                time = Window::dt_now + 3000](entt::entity ent, std::any data)
         {
             const auto mob = World::registry->try_get<Mob>(ent);
 
@@ -65,7 +65,7 @@ int skill_1111008(entt::entity ent)
         const auto mob = World::registry->try_get<Mob>(target);
 
         mob->call_backs.erase(u"1111008");
-        mob->call_backs.emplace(u"1111008", call_back);
+        mob->call_backs.emplace(u"1111008", std::make_pair(dizzy_call_back, std::any{}));
     };
 
     return PlayerSkill::SkillResult::SOU |

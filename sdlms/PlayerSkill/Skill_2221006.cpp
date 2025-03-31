@@ -10,8 +10,7 @@
 void generate_chain_effect(
     const SDL_FPoint &start,
     const SDL_FPoint &end,
-    entt::entity target,
-    Skill *ski)
+    entt::entity target)
 {
     auto eff = World::registry->try_get<Effect>(target);
 
@@ -23,7 +22,7 @@ void generate_chain_effect(
     float dx_per_segment = (end.x - start.x) / segments;
     float dy_per_segment = (end.y - start.y) / segments;
 
-    auto sprite_template = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"ball/0"));
+    auto sprite_template = AnimatedSpriteWarp::load(SkillWarp::load(u"2221006")->node->find_from_path(u"ball/0"));
 
     for (float i = 0; i < segments; ++i)
     {
@@ -35,6 +34,36 @@ void generate_chain_effect(
         eff->effects.emplace(u"", Effect::Info{tr,
                                                AnimatedSprite(sprite_template)});
     }
+}
+
+std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
+{
+    auto [src, atk, hit_targets, src_point, mobCount, time] = std::any_cast<std::tuple<entt::entity, Attack, std::unordered_set<entt::entity>, SDL_FPoint, int, unsigned int>>(data);
+    if (Window::dt_now >= time)
+    {
+        auto position = World::registry->try_get<Transform>(ent)->position;
+        auto target = find_closest_attackable_mob(
+            -1,
+            position,
+            hit_targets,
+            200.0f, // max_x_distance
+            200.0f  // max_y_distance
+        );
+        if (target != entt::null && mobCount > 0)
+        {
+            const auto target_tr = World::registry->try_get<Transform>(target);
+            const auto target_mob = World::registry->try_get<Mob>(target);
+            const SDL_FPoint hit_point = target_tr->position + target_mob->head(target_tr->flip) +
+                                         SDL_FPoint{0, (float)target_mob->a[target_mob->index].asprw->sprites[target_mob->a[target_mob->index].anim_index]->texture->h / 2};
+            generate_chain_effect(src_point, hit_point, target);
+            hit_targets.insert(target);
+            mobCount--;
+            attack_mob(&atk, src, target, hit_point);
+            target_mob->call_backs.emplace(u"2221006", std::make_pair(mob_call_back, std::make_tuple(src, atk, hit_targets, hit_point, mobCount, Window::dt_now + 400)));
+        }
+        return std::make_pair(true, true);
+    }
+    return std::make_pair(false, true);
 }
 
 // 链环闪电技能（优化后）
@@ -63,12 +92,12 @@ int skill_2221006(entt::entity ent)
     auto rb = SDL_FPoint{0, 0};
     auto hit = skiw->hits[0];
     auto attackCount = 1;
-    auto mobCount = dynamic_cast<wz::Property<int> *>(level_node->get_child(u"mobCount"))->get();
+    auto mobCount = 0;
     SoundWarp *souw = skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
 
     // 回调函数（优化后）
-    ski->call_back = [](entt::entity src, int action_frame, int action_time)
+    ski->call_back = [mobCount = dynamic_cast<wz::Property<int> *>(level_node->get_child(u"mobCount"))->get()](entt::entity src, int action_frame, int action_time)
     {
         if (!(action_time == 0 && action_frame == 1))
         {
@@ -78,61 +107,23 @@ int skill_2221006(entt::entity ent)
         auto atk = &ski->atk.value();
 
         const auto *src_tr = World::registry->try_get<Transform>(src);
-
-        const SDL_FPoint origin = src_tr->position;
-        atk->src_point = origin;
+        atk->src_point = src_tr->position;
 
         // 第一目标搜索
         entt::entity target = find_closest_attackable_mob(
             src_tr->flip,
-            origin,
+            src_tr->position,
             ski->hit_targets,
             500.0f, // max_x_distance
             90.0f   // max_y_distance
         );
 
-        SDL_FPoint src_point = src_tr->position +
-                               (src_tr->flip ? SDL_FPoint{30, -25} : SDL_FPoint{-30, -25});
-        while (World::registry->valid(target) && atk->mobCount > 0)
+        if (target != entt::null)
         {
-            const auto mob = World::registry->try_get<Mob>(target);
-            const auto target_tr = World::registry->try_get<Transform>(target);
-
-            // 执行攻击效果
-            const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip) +
-                                         SDL_FPoint{0, (float)mob->a[mob->index].asprw->sprites[mob->a[mob->index].anim_index]->texture->h / 2};
-
-            ski->hit_targets.insert(target);
-
-            if (find_closest_attackable_mob(
-                    -1,
-                    target_tr->position,
-                    ski->hit_targets,
-                    200.0f, // max_x_distance
-                    200.0f  // max_y_distance
-                    ) == entt::null)
-            {
-                // 说明周围已经没有其他mob了,直接把mobCount设置为1
-                atk->mobCount = 0;
-            }
-            else
-            {
-                atk->mobCount--;
-            }
-            attack_mob(atk, src, target, hit_point);
-
-            // 生成特效
-            generate_chain_effect(src_point, hit_point, target, ski);
-            src_point = hit_point;
-
-            // 寻找下一个目标
-            target = find_closest_attackable_mob(
-                -1,
-                target_tr->position,
-                ski->hit_targets,
-                200.0f, // max_x_distance
-                200.0f  // max_y_distance
-            );
+            SDL_FPoint src_point = src_tr->position +
+                                   (src_tr->flip ? SDL_FPoint{30, -25} : SDL_FPoint{-30, -25});
+            auto target_mob = World::registry->try_get<Mob>(target);
+            target_mob->call_backs.emplace(u"2221006", std::make_pair(mob_call_back, std::make_tuple(src, ski->atk.value(), ski->hit_targets, src_point, mobCount, Window::dt_now)));
         }
     };
 

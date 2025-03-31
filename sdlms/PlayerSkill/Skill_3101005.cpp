@@ -8,6 +8,21 @@
 #include <SDL3/SDL.h>
 #include "Systems/Attack.h"
 
+std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
+{
+    auto [atk, time] = std::any_cast<std::tuple<Attack, unsigned int>>(data);
+    if (Window::dt_now >= time)
+    {
+        auto mob = World::registry->try_get<Mob>(ent);
+        auto target_tr = World::registry->try_get<Transform>(ent);
+        const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
+        attack_mob(&atk, Player::ent, ent, hit_point);
+        mob->call_backs.emplace(u"3101005", std::make_pair(dizzy_call_back, Window::dt_now + 5000));
+        return std::make_pair(true, true);
+    }
+    return std::make_pair(false, true);
+}
+
 // 爆炸箭
 int skill_3101005(entt::entity ent)
 {
@@ -42,26 +57,16 @@ int skill_3101005(entt::entity ent)
     {
         auto ski = World::registry->try_get<Skill>(src);
         auto atk = &ski->atk.value();
-        atk->damage = 50;
         atk->call_back = std::nullopt;
-        // 晕眩效果,3秒
-        const auto call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"mob")),
-                                time = Window::dt_now + 3000](entt::entity ent)
-        {
-            const auto mob = World::registry->try_get<Mob>(ent);
+        atk->damage = 50;
 
-            if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
-            {
-                // 晕眩特效
-                push_mob_special_effect(ent, Effect::Dizzy, asprw);
-                mob_fall(ent, Window::delta_time);
-                return std::make_pair(false, false);
-            }
-            else
-            {
-                return std::make_pair(true, true);
-            }
-        };
+        const auto *src_tr = World::registry->try_get<Transform>(src);
+        atk->src_point = src_tr->position;
+
+        auto target_mob = World::registry->try_get<Mob>(src);
+        target_mob->call_backs.erase(u"3101005");
+        target_mob->call_backs.emplace(u"3101005", std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now)));
+
         auto target_position = World::registry->try_get<Transform>(target)->position;
         while (World::registry->valid(target) && atk->mobCount > 0)
         {
@@ -69,12 +74,7 @@ int skill_3101005(entt::entity ent)
             const auto target_tr = World::registry->try_get<Transform>(target);
 
             mob->call_backs.erase(u"3101005");
-
-            // 执行攻击效果
-            const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
-            atk->mobCount--;
-            attack_mob(atk, src, target, hit_point);
-            mob->call_backs.emplace(u"3101005", call_back);
+            target_mob->call_backs.emplace(u"3101005", std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now)));
             ski->hit_targets.insert(target);
             // 寻找下一个目标
             target = find_closest_attackable_mob(

@@ -43,7 +43,7 @@ int skill_2201004(entt::entity ent)
 
         mob->call_backs.erase(u"2201004");
         // 冰冻效果,2秒
-        auto call_back = [time = Window::dt_now + 2000](entt::entity ent)
+        auto call_back = [time = Window::dt_now + 2000](entt::entity ent, std::any data)
         {
             const auto mob = World::registry->try_get<Mob>(ent);
             if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
@@ -63,7 +63,7 @@ int skill_2201004(entt::entity ent)
                 return std::make_pair(true, true);
             }
         };
-        mob->call_backs.emplace(u"2201004", call_back);
+        mob->call_backs.emplace(u"2201004", std::make_pair(call_back, std::any{}));
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

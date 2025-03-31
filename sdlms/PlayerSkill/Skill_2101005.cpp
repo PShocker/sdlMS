@@ -43,7 +43,7 @@ int skill_2101005(entt::entity ent)
         mob->call_backs.erase(u"2101005");
 
         auto call_back = [asprw,
-                          time = Window::dt_now + time](entt::entity ent)
+                          time = Window::dt_now + time](entt::entity ent, std::any data)
         {
             const auto mob = World::registry->try_get<Mob>(ent);
 
@@ -60,11 +60,11 @@ int skill_2101005(entt::entity ent)
                 return std::make_pair(true, true);
             }
         };
-        mob->call_backs.emplace(u"2101005", call_back);
+        mob->call_backs.emplace(u"2101005", std::make_pair(call_back, std::any{}));
 
         for (int i = Window::dt_now + 1000; i < Window::dt_now + time; i += 1000)
         {
-            const auto hit_call_back = [i](entt::entity ent)
+            const auto call_back = [i](entt::entity ent, std::any data)
             {
                 const auto mob = World::registry->try_get<Mob>(ent);
                 if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
@@ -84,7 +84,7 @@ int skill_2101005(entt::entity ent)
                     return std::make_pair(false, true);
                 }
             };
-            mob->call_backs.emplace(u"2101005", hit_call_back);
+            mob->call_backs.emplace(u"2101005", std::make_pair(call_back, std::any{}));
         }
     };
 
