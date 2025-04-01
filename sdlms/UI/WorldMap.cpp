@@ -15,6 +15,7 @@ void WorldMap::show()
     node = Wz::Map->get_root()->find_from_path(u"WorldMap/WorldMap010.img");
     WorldMap::baseimg.spr = Sprite(node->find_from_path(u"BaseImg/0"));
 
+    WorldMap::spots.clear();
     auto mapList = node->find_from_path(u"MapList");
     for (auto &[key, val] : mapList->get_children())
     {
@@ -88,7 +89,6 @@ void WorldMap::show()
 
 void WorldMap::hide()
 {
-    WorldMap::spots.clear();
     WorldMap::open = false;
 }
 
