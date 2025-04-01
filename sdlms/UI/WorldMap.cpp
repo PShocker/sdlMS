@@ -88,6 +88,7 @@ void WorldMap::show()
 
 void WorldMap::hide()
 {
+    WorldMap::spots.clear();
     WorldMap::open = false;
 }
 
