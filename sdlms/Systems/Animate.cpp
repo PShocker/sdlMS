@@ -356,12 +356,17 @@ void animate_effect(Effect *eff)
 {
     for (auto it = eff->effects.begin(); it != eff->effects.end();)
     {
+        if (it->second.destory.has_value() && it->second.destory.value() <= Window::dt_now)
+        {
+            it = eff->effects.erase(it);
+            continue;
+        }
         if (it->second.delay > Window::dt_now)
         {
             it++;
             continue;
         }
-        if (animate_sprite(&it->second.aspr) == false)
+        if (animate_sprite(&it->second.aspr) == false && !it->second.destory.has_value())
         {
             it = eff->effects.erase(it);
         }

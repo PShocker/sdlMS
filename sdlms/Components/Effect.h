@@ -18,6 +18,8 @@ struct Effect
         unsigned int delay = Window::dt_now;
         // 是否是相对的偏移，只有在tr有值的时候才有效
         bool follow = false;
+        // 摧毁时间，如果该值存在，则循环播放到这个时间后销毁
+        std::optional<unsigned int> destory;
     };
 
     std::multimap<std::u16string, Info> effects;

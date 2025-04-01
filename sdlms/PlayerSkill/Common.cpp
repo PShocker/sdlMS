@@ -71,7 +71,7 @@ entt::entity find_closest_attackable_mob(Transform &origin, const Triangle &tri)
     return closest_mob;
 }
 
-void mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp *asprw)
+void mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp *asprw, unsigned int time)
 {
     auto eff = World::registry->try_get<Effect>(ent);
     if (!eff->effects.contains(id))
@@ -83,6 +83,7 @@ void mob_special_effect(entt::entity ent, std::u16string id, AnimatedSpriteWarp 
         info.tr = Transform(SDL_FPoint{0, head.y - 10});
         info.aspr = AnimatedSprite(asprw);
         info.follow = true;
+        info.destory = time;
         eff->effects.emplace(id, info);
     }
 }
@@ -91,12 +92,12 @@ std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any &data)
 {
     const auto mob = World::registry->try_get<Mob>(ent);
     auto time = std::any_cast<unsigned int>(data);
-    auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"3101005")->node->find_from_path(u"mob"));
 
     if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
     {
+        auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"3101005")->node->find_from_path(u"mob"));
         // 晕眩特效
-        mob_special_effect(ent, Effect::Dizzy, asprw);
+        mob_special_effect(ent, Effect::Dizzy, asprw, time);
         mob_fall(ent, Window::delta_time);
         return std::make_pair(false, false);
     }
@@ -112,11 +113,13 @@ std::pair<bool, bool> poison_call_back(entt::entity ent, std::any &data)
 {
     const auto mob = World::registry->try_get<Mob>(ent);
     auto [time, atktime] = std::any_cast<std::tuple<unsigned int, unsigned int>>(data);
-    auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"2101005")->node->find_from_path(u"mob"));
 
     if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
     {
         // 中毒特效
+        auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"2101005")->node->find_from_path(u"mob"));
+        mob_special_effect(ent, Effect::Poison, asprw, time);
+        mob->mod = SDL_Color{136, 204, 0};
         if (atktime < Window::dt_now)
         {
             Attack atk;
@@ -126,13 +129,13 @@ std::pair<bool, bool> poison_call_back(entt::entity ent, std::any &data)
             atktime += 1000;
             std::get<1>(std::any_cast<std::tuple<unsigned int, unsigned int> &>(data)) = atktime;
         }
-        mob_special_effect(ent, Effect::Dizzy, asprw);
-        mob->mod = SDL_Color{136, 204, 0};
         return std::make_pair(false, true);
     }
     else
     {
         mob->mod = SDL_Color{255, 255, 255};
+        auto eff = World::registry->try_get<Effect>(ent);
+        eff->effects.erase(Effect::Poison);
         return std::make_pair(true, true);
     }
 }
@@ -141,10 +144,13 @@ std::pair<bool, bool> flame_call_back(entt::entity ent, std::any &data)
 {
     const auto mob = World::registry->try_get<Mob>(ent);
     auto [time, atktime] = std::any_cast<std::tuple<unsigned int, unsigned int>>(data);
-    auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"3111003")->node->find_from_path(u"tile/0"));
+
     if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
     {
-        // 中毒特效
+        // 火焰特效
+        auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(u"3111003")->node->find_from_path(u"tile/0"));
+        mob_special_effect(ent, Effect::Flame, asprw, time);
+        mob->mod = SDL_Color{255, 100, 0};
         if (atktime < Window::dt_now)
         {
             Attack atk;
@@ -154,13 +160,13 @@ std::pair<bool, bool> flame_call_back(entt::entity ent, std::any &data)
             auto &tuple = std::any_cast<std::tuple<unsigned int, unsigned int> &>(data);
             std::get<1>(tuple) = Window::dt_now + 500;
         }
-        mob_special_effect(ent, Effect::Flame, asprw);
-        mob->mod = SDL_Color{255, 100, 0};
         return std::make_pair(false, true);
     }
     else
     {
         mob->mod = SDL_Color{255, 255, 255};
+        auto eff = World::registry->try_get<Effect>(ent);
+        eff->effects.erase(Effect::Flame);
         return std::make_pair(true, true);
     }
 }
@@ -169,6 +175,7 @@ std::pair<bool, bool> frozen_call_back(entt::entity ent, std::any &data)
 {
     const auto mob = World::registry->try_get<Mob>(ent);
     auto time = std::any_cast<unsigned int>(data);
+
     if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
     {
         // 默认选择被攻击的第0帧

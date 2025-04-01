@@ -59,7 +59,7 @@ static std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
             hit_targets.insert(target);
             mobCount--;
             attack_mob(&atk, src, target, hit_point);
-            target_mob->call_backs.emplace(u"2221006", std::make_pair(mob_call_back, std::make_tuple(src, atk, hit_targets, hit_point, mobCount, Window::dt_now + 65)));
+            target_mob->call_backs.emplace(u"2221006", std::make_pair(mob_call_back, std::make_tuple(src, atk, hit_targets, hit_point, mobCount, Window::dt_now + 70)));
         }
         return std::make_pair(true, true);
     }
