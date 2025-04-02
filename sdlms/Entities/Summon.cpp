@@ -32,26 +32,6 @@ entt::entity load_summon(wz::Node *node, const u16string &id, entt::entity owner
     sum->index = u"summoned";
     sum->id = id;
     sum->owner = owner;
-    if (node->parent->find_from_path(u"tile/2"))
-    {
-        sum->atk.call_back = [asprw = AnimatedSpriteWarp::load(node->parent->find_from_path(u"tile/2"))](entt::entity src, entt::entity target, int full_damage)
-        {
-            auto mv = World::registry->try_get<Move>(target);
-            auto eff = World::registry->try_get<Effect>(target);
-            if (mv->foo)
-            {
-                auto length = mv->foo->r - mv->foo->l;
-                for (int i = mv->foo->l; i >= mv->foo->l && i <= mv->foo->r; i += asprw->sprites[0]->texture->w)
-                {
-                    Effect::Info info;
-                    info.tr = Transform(SDL_FPoint{(float)i, (float)mv->foo->get_y(i).value()});
-                    info.aspr = AnimatedSprite(asprw);
-                    info.destory = Window::dt_now + 1200;
-                    eff->effects.emplace(u"", info);
-                }
-            }
-        };
-    }
 
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Move>(ent);

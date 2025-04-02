@@ -4,6 +4,7 @@
 #include "Entities/Entities.h"
 #include "entt/entt.hpp"
 #include <SDL3/SDL.h>
+#include "Common.h"
 
 // 火凤凰
 int skill_3121006(entt::entity ent)
@@ -47,8 +48,25 @@ int skill_3121006(entt::entity ent)
                 }
             }
             Skill *ski = World::registry->try_get<Skill>(ent);
-            load_summon(ski->skiw->node->get_child(u"summon"), u"3121006", ent);
-
+            auto sum_ent = load_summon(ski->skiw->node->get_child(u"summon"), u"3121006", ent);
+            auto sum = World::registry->try_get<Summon>(sum_ent);
+            sum->atk.call_back = [asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"tile/2"))](entt::entity src, entt::entity target, int full_damage)
+            {
+                auto tr = World::registry->try_get<Transform>(target);
+                auto eff = World::registry->try_get<Effect>(target);
+                for (int i = tr->position.x - 75; i <= tr->position.x + 75; i += asprw->sprites[0]->texture->w)
+                {
+                    Effect::Info info;
+                    info.tr = Transform(SDL_FPoint{(float)i, (float)tr->position.y});
+                    info.aspr = AnimatedSprite(asprw);
+                    info.destory = Window::dt_now + 100;
+                    eff->effects.emplace(u"", info);
+                }
+                const auto mob = World::registry->try_get<Mob>(target);
+                unsigned int time = 6000;
+                mob->call_backs.erase(u"3121006");
+                mob->call_backs.emplace(u"3121006", std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
+            };
             Buff::Info info;
             info.duration = duration;
             info.destory = Window::dt_now + duration;
