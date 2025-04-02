@@ -4,5 +4,18 @@
 #include "UI/UI.h"
 #include "Core/Window.h"
 #include "Components/Sound.h"
+#include <list>
+
+enum UIIndex
+{
+    UI_UIBuff,
+    UI_StatusBar,
+    UI_KeyConfig,
+    UI_UIItem,
+    UI_UISkill,
+    UI_UIStat,
+    UI_WorldMap,
+};
+extern std::list<UIIndex> ui_index;
 
 void ui_run();

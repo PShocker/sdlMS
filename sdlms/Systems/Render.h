@@ -8,10 +8,11 @@
 
 void render_run();
 
-void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip = 0, float rotation = 0, SDL_FPoint *origin = nullptr);
-void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *origin = nullptr);
-void render_animated_sprite(SDL_FPoint &p, AnimatedSprite *a);
-void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *origin = nullptr);
+void render_texture(SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_rect, int alpha);
+void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip = 0, float rotation = 0, SDL_FPoint *origin = nullptr, int alpha = 255);
+void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *origin = nullptr, int alpha = 255);
+void render_animated_sprite(SDL_FPoint &p, AnimatedSprite *a, int alpha = 255);
+void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *origin = nullptr, int alpha = 255);
 void render_back_sprite(Transform *tr, BackGround *bspr);
 void render_character(const Transform *tr, Character *cha, int invincible);
 void render_afterimage(Transform *tr, AfterImage *aft, Character *cha);
@@ -37,6 +38,4 @@ void render_keyconfig();
 void render_uiitem();
 void render_uiskill();
 void render_uistat();
-void render_spr_func(Sprite *spr, SDL_FPoint *position, int alpha);
-void render_aspr_func(AnimatedSprite *aspr, SDL_FPoint *position, int alpha);
-void render_texture_func(SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_rect, int alpha);
+void render_ui();

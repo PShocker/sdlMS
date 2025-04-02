@@ -1,9 +1,11 @@
 #include "UI.h"
 
+std::list<UIIndex> ui_index = {UIIndex::UI_UIBuff, UIIndex::UI_StatusBar};
+
 void ui_run()
 {
     auto type = Cursor::type;
-    Cursor::run();
+    Cursor::type = u"0";
     WorldMap::run();
     UIBuff::run();
     StatusBar::run();
@@ -32,14 +34,8 @@ void ui_run()
             UIStat::click();
         }
         Cursor::left_mouse_press = false;
-        if (WorldMap::over())
-        {
-            Cursor::type = u"1";
-        }
-        else
-        {
-            Cursor::type = u"0";
-        }
+        WorldMap::over();
     }
     Cursor::action(type);
+    Cursor::run();
 }

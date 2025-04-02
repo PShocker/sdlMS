@@ -1,6 +1,7 @@
 #include "UISkill.h"
 #include "Resources/Wz.h"
 #include "Button.h"
+#include "Systems/UI.h"
 
 void UISkill::run()
 {
@@ -17,11 +18,13 @@ void UISkill::show()
 
     Button::load(u"UIWindow.img/KeyConfig/BtClose", BtClose);
 
+    ui_index.push_back(UIIndex::UI_UISkill);
     UISkill::open = true;
 }
 
 void UISkill::hide()
 {
+    ui_index.remove(UIIndex::UI_UISkill);
     UISkill::open = false;
 }
 

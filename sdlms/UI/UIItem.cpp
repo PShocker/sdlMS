@@ -1,6 +1,7 @@
 #include "UIItem.h"
 #include "Resources/Wz.h"
 #include "Button.h"
+#include "Systems/UI.h"
 
 void UIItem::run()
 {
@@ -17,11 +18,13 @@ void UIItem::show()
 
     Button::load(u"UIWindow.img/KeyConfig/BtClose", BtClose);
 
+    ui_index.push_back(UIIndex::UI_UIItem);
     UIItem::open = true;
 }
 
 void UIItem::hide()
 {
+    ui_index.remove(UIIndex::UI_UIItem);
     UIItem::open = false;
 }
 

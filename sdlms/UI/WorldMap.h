@@ -27,7 +27,7 @@ struct WorldMap
     static void show();
     static void hide();
     static void click();
-    static bool over();
+    static void over();
     static void run();
 
     static inline BaseImg baseimg;

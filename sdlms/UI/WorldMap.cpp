@@ -4,6 +4,7 @@
 #include "Resources/Wz.h"
 #include "Components/Components.h"
 #include "Commons/Commons.h"
+#include "Systems/UI.h"
 
 void WorldMap::show()
 {
@@ -84,11 +85,14 @@ void WorldMap::show()
         }
         WorldMap::spots.push_back(spt);
     }
+
+    ui_index.push_back(UIIndex::UI_WorldMap);
     WorldMap::open = true;
 }
 
 void WorldMap::hide()
 {
+    ui_index.remove(UIIndex::UI_WorldMap);
     WorldMap::open = false;
 }
 
@@ -123,7 +127,7 @@ void WorldMap::click()
     }
 }
 
-bool WorldMap::over()
+void WorldMap::over()
 {
     if (WorldMap::open)
     {
@@ -141,11 +145,11 @@ bool WorldMap::over()
 
             if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
             {
-                return true;
+                Cursor::type = u"1";
             }
         }
     }
-    return false;
+    return;
 }
 
 void WorldMap::run()

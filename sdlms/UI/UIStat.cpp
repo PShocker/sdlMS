@@ -1,6 +1,7 @@
 #include "UIStat.h"
 #include "Resources/Wz.h"
 #include "Button.h"
+#include "Systems/UI.h"
 
 void UIStat::run()
 {
@@ -17,11 +18,13 @@ void UIStat::show()
 
     Button::load(u"UIWindow.img/KeyConfig/BtClose", BtClose);
 
+    ui_index.push_back(UIIndex::UI_UIStat);
     UIStat::open = true;
 }
 
 void UIStat::hide()
 {
+    ui_index.remove(UIIndex::UI_UIStat);
     UIStat::open = false;
 }
 

@@ -1,6 +1,7 @@
 #include "KeyConfig.h"
 #include "Resources/Wz.h"
 #include "Button.h"
+#include "Systems/UI.h"
 
 void KeyConfig::run()
 {
@@ -17,11 +18,13 @@ void KeyConfig::show()
 
     Button::load(u"UIWindow.img/KeyConfig/BtClose", BtClose);
 
+    ui_index.push_back(UIIndex::UI_KeyConfig);
     KeyConfig::open = true;
 }
 
 void KeyConfig::hide()
 {
+    ui_index.remove(UIIndex::UI_KeyConfig);
     KeyConfig::open = false;
 }
 
