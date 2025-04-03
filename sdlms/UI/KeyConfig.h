@@ -8,6 +8,7 @@ struct KeyConfig
     static void show();
     static void hide();
     static void over();
+    static bool mousein();
     static void click();
 
     static inline SDL_Texture *backgrnd;

@@ -20,4 +20,8 @@ extern std::list<UIIndex> ui_index;
 
 void ui_run();
 
-void ui_drag();
+bool ui_drag();
+
+void ui_sort();
+
+void ui_click();

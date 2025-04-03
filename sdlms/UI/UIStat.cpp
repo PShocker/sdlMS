@@ -39,6 +39,24 @@ void UIStat::over()
     }
 }
 
+bool UIStat::mousein()
+{
+    float mouse_x = Window::mouse_x;
+    float mouse_y = Window::mouse_y;
+
+    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FRect rect;
+    rect.x = UIStat::x;
+    rect.y = UIStat::y;
+    rect.w = UIStat::backgrnd->w;
+    rect.h = UIStat::backgrnd->h;
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        return true;
+    }
+    return false;
+}
+
 void UIStat::click()
 {
     for (auto &[key, val] : UIStat::position_map)

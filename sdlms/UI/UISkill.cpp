@@ -39,6 +39,24 @@ void UISkill::over()
     }
 }
 
+bool UISkill::mousein()
+{
+    float mouse_x = Window::mouse_x;
+    float mouse_y = Window::mouse_y;
+
+    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FRect rect;
+    rect.x = UISkill::x;
+    rect.y = UISkill::y;
+    rect.w = UISkill::backgrnd->w;
+    rect.h = UISkill::backgrnd->h;
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        return true;
+    }
+    return false;
+}
+
 void UISkill::click()
 {
     for (auto &[key, val] : UISkill::position_map)

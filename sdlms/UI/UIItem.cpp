@@ -39,6 +39,24 @@ void UIItem::over()
     }
 }
 
+bool UIItem::mousein()
+{
+    float mouse_x = Window::mouse_x;
+    float mouse_y = Window::mouse_y;
+
+    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FRect rect;
+    rect.x = UIItem::x;
+    rect.y = UIItem::y;
+    rect.w = UIItem::FullBackgrnd->w;
+    rect.h = UIItem::FullBackgrnd->h;
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        return true;
+    }
+    return false;
+}
+
 void UIItem::click()
 {
     for (auto &[key, val] : UIItem::position_map)

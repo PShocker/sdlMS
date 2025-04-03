@@ -8,9 +8,10 @@ struct UISkill
     static void show();
     static void hide();
     static void over();
+    static bool mousein();
     static void click();
 
-    static inline SDL_Texture * backgrnd;
+    static inline SDL_Texture *backgrnd;
 
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtClose;
 
