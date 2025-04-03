@@ -131,10 +131,10 @@ void render_run()
     render_ui();
 }
 
-void render_texture(SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_rect, int alpha)
+void render_texture(SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_rect, int alpha, int flip, float rotation, SDL_FPoint *origin)
 {
     SDL_SetTextureAlphaMod(texture, alpha);
-    SDL_RenderTexture(Window::renderer, texture, src_rect, pos_rect);
+    SDL_RenderTextureRotated(Window::renderer, texture, src_rect, pos_rect, rotation, origin, (SDL_FlipMode)flip);
 }
 
 void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SDL_FPoint *origin, int alpha)
@@ -143,9 +143,7 @@ void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SD
     auto heihgt = sprw->texture->h;
     SDL_FPoint o{(float)sprw->origin.x, (float)sprw->origin.y};
     origin = origin == nullptr ? &o : origin;
-
     SDL_FRect pos_rect;
-
     if (flip == 0)
     {
         pos_rect = {(float)p.x - origin->x, (float)p.y - origin->y, (float)width, (float)heihgt};
@@ -154,8 +152,7 @@ void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SD
     {
         pos_rect = {(float)p.x - (width - origin->x), (float)p.y - origin->y, (float)width, (float)heihgt};
     }
-    SDL_SetTextureAlphaMod(sprw->texture, alpha);
-    SDL_RenderTextureRotated(Window::renderer, sprw->texture, nullptr, &pos_rect, rotation, origin, (SDL_FlipMode)flip);
+    render_texture(sprw->texture, nullptr, &pos_rect, alpha, flip, rotation, origin);
 }
 
 void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *origin, int alpha)

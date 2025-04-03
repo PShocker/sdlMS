@@ -34,8 +34,35 @@ void ui_run()
             UIStat::click();
         }
         Cursor::left_mouse_press = false;
+        Cursor::drag = false;
         WorldMap::over();
     }
     Cursor::action(type);
     Cursor::run();
+}
+
+void ui_drag()
+{
+    static float x = 0;
+    static float y = 0;
+    auto index = ui_index.back();
+    if (index == UIIndex::UI_UIBuff || index == UIIndex::UI_StatusBar)
+    {
+        return;
+    }
+    switch (index)
+    {
+    case UIIndex::UI_KeyConfig:
+        break;
+    case UIIndex::UI_UIItem:
+        break;
+    case UIIndex::UI_UISkill:
+        break;
+    case UIIndex::UI_UIStat:
+        break;
+    case UIIndex::UI_WorldMap:
+        break;
+    default:
+        break;
+    }
 }

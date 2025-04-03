@@ -19,3 +19,5 @@ enum UIIndex
 extern std::list<UIIndex> ui_index;
 
 void ui_run();
+
+void ui_drag();

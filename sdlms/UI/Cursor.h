@@ -25,6 +25,7 @@ struct Cursor
 
     static inline bool left_mouse_press;
     static inline bool right_mouse_press;
+    static inline bool drag;
 
     static inline std::u16string type;
     static inline int time = 0;
