@@ -10,7 +10,6 @@
 
 void StatusBar::run()
 {
-    over();
 }
 
 void StatusBar::over()

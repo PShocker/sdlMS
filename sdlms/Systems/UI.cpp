@@ -8,18 +8,13 @@ void ui_run()
     Cursor::type = u"0";
     WorldMap::run();
     UIBuff::run();
-    StatusBar::run();
-    KeyConfig::run();
-    UIItem::run();
-    UISkill::run();
-    UIStat::run();
     // 检测左键是否被按住
     if (Window::mouse_state & SDL_BUTTON_LMASK)
     {
         Cursor::left_mouse_press = true;
         Cursor::type = u"12";
-        ui_sort();
         Cursor::drag = ui_drag();
+        ui_sort();
     }
     else
     {
@@ -32,8 +27,8 @@ void ui_run()
         }
         Cursor::left_mouse_press = false;
         Cursor::drag = false;
-        WorldMap::over();
     }
+    ui_over();
     Cursor::action(type);
     Cursor::run();
 }
@@ -114,7 +109,21 @@ bool ui_drag()
     }
     break;
     case UIIndex::UI_WorldMap:
-        break;
+    {
+        if (Cursor::drag)
+        {
+            WorldMap::x = Window::mouse_x - x;
+            WorldMap::y = Window::mouse_y - y;
+            return true;
+        }
+        else if (WorldMap::mousein())
+        {
+            x = Window::mouse_x - WorldMap::x;
+            y = Window::mouse_y - WorldMap::y;
+            return true;
+        }
+    }
+    break;
     default:
         break;
     }
@@ -169,6 +178,12 @@ void ui_sort()
         break;
         case UIIndex::UI_WorldMap:
         {
+            if (WorldMap::mousein())
+            {
+                auto it = --(rit.base());
+                ui_index.splice(ui_index.end(), ui_index, it);
+                return;
+            }
         }
         break;
         default:
@@ -220,11 +235,45 @@ void ui_click()
     break;
     case UIIndex::UI_WorldMap:
     {
-        WorldMap::click();
+        if (WorldMap::mousein())
+        {
+            WorldMap::click();
+            return;
+        }
     }
     break;
     default:
         break;
     }
     StatusBar::click();
+}
+
+void ui_over()
+{
+    for (auto it : ui_index)
+    {
+        switch (it)
+        {
+        case UIIndex::UI_StatusBar:
+            StatusBar::over();
+            break;
+        case UIIndex::UI_KeyConfig:
+            KeyConfig::over();
+            break;
+        case UIIndex::UI_UIItem:
+            UIItem::over();
+            break;
+        case UIIndex::UI_UISkill:
+            UISkill::over();
+            break;
+        case UIIndex::UI_UIStat:
+            UIStat::over();
+            break;
+        case UIIndex::UI_WorldMap:
+            WorldMap::over();
+            break;
+        default:
+            break;
+        }
+    }
 }

@@ -5,7 +5,6 @@
 
 void UIStat::run()
 {
-    over();
 }
 
 void UIStat::show()

@@ -5,7 +5,6 @@
 
 void KeyConfig::run()
 {
-    over();
 }
 
 void KeyConfig::show()

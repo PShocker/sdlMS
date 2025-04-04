@@ -5,7 +5,6 @@
 
 void UISkill::run()
 {
-    over();
 }
 
 void UISkill::show()

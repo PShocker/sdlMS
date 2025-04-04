@@ -699,7 +699,7 @@ void animate_trap(Trap *trap, entt::entity ent)
 
 void animate_worldmap()
 {
-    if (WorldMap::curpos.x.has_value() && WorldMap::curpos.y.has_value())
+    if (WorldMap::curpos.p.has_value())
     {
         animate_sprite(&WorldMap::curpos.aspr);
     }

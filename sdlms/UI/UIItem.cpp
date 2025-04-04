@@ -5,7 +5,6 @@
 
 void UIItem::run()
 {
-    over();
 }
 
 void UIItem::show()
