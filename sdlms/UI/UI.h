@@ -8,3 +8,4 @@
 #include "UIItem.h"
 #include "UISkill.h"
 #include "UIStat.h"
+#include "MiniMap.h"

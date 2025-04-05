@@ -1,0 +1,231 @@
+#include "MiniMap.h"
+#include "Core/Core.h"
+#include "Resources/Wz.h"
+#include "Button.h"
+#include "WorldMap.h"
+
+void MiniMap::init()
+{
+    auto node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/minimap");
+    MiniMap::user = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"user")));
+    MiniMap::npc = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"npc")));
+    MiniMap::portal = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"portal")));
+}
+
+void MiniMap::run()
+{
+}
+
+void MiniMap::show()
+{
+    load_canvas();
+    MiniMap::minimize = MiniMap::canvas == nullptr ? true : false;
+    load_mapremark();
+    load_backgrnd();
+
+    Button::load(u"UIWindow.img/MiniMap/BtMap", BtMap);
+    Button::load(u"Basic.img/BtMin2", BtMin2);
+}
+
+void MiniMap::hide()
+{
+    MiniMap::minimize = true;
+}
+
+void MiniMap::click()
+{
+    for (auto &[key, val] : MiniMap::position_map)
+    {
+        auto rect = val;
+        rect.x += MiniMap::x + MiniMap::backgrnd->w;
+        rect.y += MiniMap::y;
+        Button::click(rect, *key, MiniMap::click_map);
+    }
+}
+
+void MiniMap::over()
+{
+    for (auto &[key, val] : MiniMap::position_map)
+    {
+        auto rect = val;
+        rect.x += MiniMap::x + MiniMap::backgrnd->w;
+        rect.y += MiniMap::y;
+        Button::over(rect, *key);
+    }
+}
+
+bool MiniMap::mousein()
+{
+    float mouse_x = Window::mouse_x;
+    float mouse_y = Window::mouse_y;
+
+    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FRect rect;
+    rect.x = MiniMap::x;
+    rect.y = MiniMap::y;
+    rect.w = MiniMap::backgrnd->w;
+    if (MiniMap::minimize)
+    {
+        rect.h = 24;
+    }
+    else
+    {
+        rect.h = MiniMap::backgrnd->h;
+    }
+
+    if (SDL_PointInRectFloat(&point, &rect))
+    {
+        return true;
+    }
+    return false;
+}
+
+void MiniMap::load_canvas()
+{
+    auto node = Map::load_map_node(Map::id);
+    if (node->get_child(u"miniMap"))
+    {
+        MiniMap::width = dynamic_cast<wz::Property<int> *>(node->find_from_path(u"miniMap/width"))->get();
+        MiniMap::height = dynamic_cast<wz::Property<int> *>(node->find_from_path(u"miniMap/height"))->get();
+        MiniMap::canvas = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"miniMap/canvas")));
+        MiniMap::scale = std::pow(2, dynamic_cast<wz::Property<int> *>(node->find_from_path(u"miniMap/mag"))->get());
+        MiniMap::center = SDL_FPoint{(float)dynamic_cast<wz::Property<int> *>(node->find_from_path(u"miniMap/centerX"))->get(),
+                                     (float)dynamic_cast<wz::Property<int> *>(node->find_from_path(u"miniMap/centerY"))->get()};
+    }
+    else
+    {
+        MiniMap::canvas = nullptr;
+    }
+}
+
+void MiniMap::load_backgrnd()
+{
+    if (MiniMap::backgrnd)
+    {
+        SDL_DestroyTexture(MiniMap::backgrnd);
+    }
+    int width;
+    int height;
+    // 获取标题
+    auto streetName = FreeType::load(dynamic_cast<wz::Property<wz::wzstring> *>(Map::load_string_node(Map::id)->get_child(u"streetName"))->get(),
+                                     SDL_Color{255, 255, 255, 255}, 0, 14);
+    auto mapName = FreeType::load(dynamic_cast<wz::Property<wz::wzstring> *>(Map::load_string_node(Map::id)->get_child(u"mapName"))->get(),
+                                  SDL_Color{255, 255, 255, 255}, 0, 14);
+    if (canvas)
+    {
+        width = canvas->w + 12;
+        height = canvas->h + 87;
+        auto max_str_width = std::max(streetName->w, mapName->w);
+        if (max_str_width + 54 > width)
+        {
+            width = max_str_width + 54;
+        }
+    }
+    else
+    {
+        width = 120;
+        height = 38;
+    }
+    auto node = Wz::UI->get_root()->find_from_path(u"UIWindow.img/MiniMap");
+    auto title = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"title")));
+    node = node->find_from_path(u"MaxMap");
+    auto c = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"c")));
+    auto e = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"e")));
+    auto ne = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"ne")));
+    auto n = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"n")));
+    auto nw = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"nw")));
+    auto w = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"w")));
+    auto sw = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"sw")));
+    auto s = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"s")));
+    auto se = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"se")));
+
+    auto texture = Texture::createBlankTexture(SDL_PIXELFORMAT_ARGB4444, width, height);
+    SDL_SetRenderTarget(Window::renderer, texture);
+    SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 0);
+    SDL_FRect pos_rect;
+    // 先以c填充整个texture,然后在填充四周的边框,最后是四个边角
+    pos_rect = {(float)0, (float)0, (float)width, (float)height};
+    SDL_RenderTexture(Window::renderer, c, nullptr, &pos_rect);
+    // 竖着的两边
+    pos_rect = {(float)0, (float)0, (float)w->w, (float)height};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_RenderTexture(Window::renderer, w, nullptr, &pos_rect);
+
+    pos_rect = {(float)width - e->w, (float)0, (float)e->w, (float)height};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_RenderTexture(Window::renderer, e, nullptr, &pos_rect);
+    // 横着的两边
+    pos_rect = {(float)0, 0, (float)width, (float)n->h};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_RenderTexture(Window::renderer, n, nullptr, &pos_rect);
+
+    pos_rect = {(float)0, (float)height - s->h, (float)width, (float)s->h};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_RenderTexture(Window::renderer, s, nullptr, &pos_rect);
+    // 左上
+    pos_rect = {0, 0, (float)nw->w, (float)nw->h};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_RenderTexture(Window::renderer, nw, nullptr, &pos_rect);
+    // 左下
+    pos_rect = {0, (float)height - sw->h, (float)sw->w, (float)sw->h};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_RenderTexture(Window::renderer, sw, nullptr, &pos_rect);
+    // 右上
+    pos_rect = {(float)width - ne->w, 0, (float)ne->w, (float)ne->h};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_RenderTexture(Window::renderer, ne, nullptr, &pos_rect);
+    // 右下
+    pos_rect = {(float)width - se->w, (float)height - se->h, (float)se->w, (float)se->h};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_RenderTexture(Window::renderer, se, nullptr, &pos_rect);
+    // 标题
+    pos_rect.x = 6;
+    pos_rect.y = 5;
+    pos_rect.w = title->w;
+    pos_rect.h = title->h;
+    SDL_RenderTexture(Window::renderer, title, nullptr, &pos_rect);
+    // 地图图标
+    pos_rect = {(float)6, (float)24, (float)MiniMap::mapremark->w, (float)MiniMap::mapremark->h};
+    SDL_RenderTexture(Window::renderer, MiniMap::mapremark, nullptr, &pos_rect);
+    // 街道名称
+    pos_rect = {(float)48, (float)24, (float)streetName->w, (float)streetName->h};
+    SDL_RenderTexture(Window::renderer, streetName, nullptr, &pos_rect);
+    // 地图名称
+    pos_rect = {(float)48, (float)24 + streetName->h, (float)mapName->w, (float)mapName->h};
+    SDL_RenderTexture(Window::renderer, mapName, nullptr, &pos_rect);
+
+    SDL_SetRenderTarget(Window::renderer, nullptr);
+
+    SDL_DestroyTexture(streetName);
+    SDL_DestroyTexture(mapName);
+
+    MiniMap::backgrnd = texture;
+}
+
+void MiniMap::load_mapremark()
+{
+    auto node = Map::load_map_node(Map::id);
+    if (node->get_child(u"info"))
+    {
+        auto remark = node->find_from_path(u"info/mapMark");
+        if (remark)
+        {
+            auto remark_node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/mark/" + dynamic_cast<wz::Property<wz::wzstring> *>(remark)->get());
+            MiniMap::mapremark = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(remark_node));
+        }
+    }
+}
+
+void MiniMap::BtMap_func()
+{
+    WorldMap::show();
+}
+
+void MiniMap::BtMin2_func()
+{
+    if (MiniMap::canvas)
+    {
+        MiniMap::minimize = !MiniMap::minimize;
+    }
+}

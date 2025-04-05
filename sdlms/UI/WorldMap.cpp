@@ -29,9 +29,16 @@ void WorldMap::show(std::u16string path)
             WorldMap::links.push_back(maplink);
         }
     }
+    if (node->find_from_path(u"info/parentMap"))
+    {
+        parentMap = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/parentMap"))->get();
+    }
+    else
+    {
+        parentMap = u"WorldMap";
+    }
 
     WorldMap::baseimg.spr = Sprite(node->find_from_path(u"BaseImg/0"));
-
     auto mapList = node->find_from_path(u"MapList");
     for (auto &[key, val] : mapList->get_children())
     {
@@ -97,7 +104,8 @@ void WorldMap::show(std::u16string path)
         WorldMap::spots.push_back(spt);
     }
     WorldMap::load_backgrnd();
-    Button::load(u"UIWindow.img/KeyConfig/BtClose", BtClose);
+    Button::load(u"Basic.img/BtClose", BtClose);
+    Button::load(u"Basic.img/BtHide2", BtHide2);
 
     ui_index.push_back(UIIndex::UI_WorldMap);
     WorldMap::open = true;
@@ -119,19 +127,19 @@ void WorldMap::click()
         WorldMap::hide();
         return;
     }
-    if (WorldMap::cur_link.has_value())
+    if (WorldMap::cur_link)
     {
-        auto link = WorldMap::cur_link.value();
+        auto link = WorldMap::cur_link;
         WorldMap::hide();
-        WorldMap::show(link.linkMap);
+        WorldMap::show(link->linkMap);
         return;
     }
 
     for (auto &[key, val] : WorldMap::position_map)
     {
         auto rect = val;
-        rect.x += WorldMap::x - WorldMap::baseimg.spr.sprw->origin.x - 5 + WorldMap::backgrnd->w;
-        rect.y += WorldMap::y - WorldMap::baseimg.spr.sprw->origin.y - 4;
+        rect.x += WorldMap::x - WorldMap::baseimg.spr.sprw->origin.x - 6 + WorldMap::backgrnd->w;
+        rect.y += WorldMap::y - WorldMap::baseimg.spr.sprw->origin.y - 28;
         Button::click(rect, *key, WorldMap::click_map);
     }
 }
@@ -142,19 +150,12 @@ void WorldMap::over()
     {
         Cursor::type = u"1";
     }
-    if (auto link = mousein_maplink())
-    {
-        cur_link = *link;
-    }
-    else
-    {
-        cur_link = std::nullopt;
-    }
+    WorldMap::cur_link = mousein_maplink();
     for (auto &[key, val] : WorldMap::position_map)
     {
         auto rect = val;
-        rect.x += WorldMap::x - WorldMap::baseimg.spr.sprw->origin.x - 5 + WorldMap::backgrnd->w;
-        rect.y += WorldMap::y - WorldMap::baseimg.spr.sprw->origin.y - 4;
+        rect.x += WorldMap::x - WorldMap::baseimg.spr.sprw->origin.x - 6 + WorldMap::backgrnd->w;
+        rect.y += WorldMap::y - WorldMap::baseimg.spr.sprw->origin.y - 28;
         Button::over(rect, *key);
     }
     return;
@@ -191,8 +192,8 @@ bool WorldMap::mousein()
     SDL_FPoint point = {mouse_x, mouse_y};
     SDL_FRect rect;
     auto sprw = WorldMap::baseimg.spr.sprw;
-    rect.x = WorldMap::x - sprw->origin.x - 5;
-    rect.y = WorldMap::y - sprw->origin.y - 4;
+    rect.x = WorldMap::x - sprw->origin.x - 6;
+    rect.y = WorldMap::y - sprw->origin.y - 28;
     rect.w = WorldMap::backgrnd->w;
     rect.h = WorldMap::backgrnd->h;
     if (SDL_PointInRectFloat(&point, &rect))
@@ -249,8 +250,8 @@ void WorldMap::load_backgrnd()
     {
         SDL_DestroyTexture(WorldMap::backgrnd);
     }
-    auto width = WorldMap::baseimg.spr.sprw->texture->w + 10;
-    auto height = WorldMap::baseimg.spr.sprw->texture->h + 8;
+    auto width = WorldMap::baseimg.spr.sprw->texture->w + 12;
+    auto height = WorldMap::baseimg.spr.sprw->texture->h + 44;
     auto texture = Texture::createBlankTexture(SDL_PIXELFORMAT_ARGB4444,
                                                width,
                                                height);
@@ -273,7 +274,7 @@ void WorldMap::load_backgrnd()
     pos_rect.h = lt->h;
     SDL_RenderTexture(Window::renderer, lt, nullptr, &pos_rect);
     pos_rect.x = 7;
-    pos_rect.w = width - 7;
+    pos_rect.w = width - 14;
     pos_rect.h = t->h;
     SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
     pos_rect.x = width - 7;
@@ -283,12 +284,12 @@ void WorldMap::load_backgrnd()
     pos_rect.x = 0;
     pos_rect.y = 32;
     pos_rect.w = lm->w;
-    pos_rect.h = height - b->h;
+    pos_rect.h = height - b->h - 32;
     SDL_RenderTexture(Window::renderer, lm, nullptr, &pos_rect);
     pos_rect.x = width - 7;
     pos_rect.y = 32;
     pos_rect.w = rm->w;
-    pos_rect.h = height - b->h;
+    pos_rect.h = height - b->h - 32;
     SDL_RenderTexture(Window::renderer, rm, nullptr, &pos_rect);
     pos_rect.x = 0;
     pos_rect.y = height - b->h;
@@ -296,7 +297,7 @@ void WorldMap::load_backgrnd()
     pos_rect.h = lb->h;
     SDL_RenderTexture(Window::renderer, lb, nullptr, &pos_rect);
     pos_rect.x = 7;
-    pos_rect.w = width - 7;
+    pos_rect.w = width - 14;
     pos_rect.h = b->h;
     SDL_RenderTexture(Window::renderer, b, nullptr, &pos_rect);
     pos_rect.x = width - 7;
@@ -315,4 +316,10 @@ void WorldMap::load_backgrnd()
 void WorldMap::BtClose_func()
 {
     WorldMap::hide();
+}
+
+void WorldMap::BtHide2_func()
+{
+    WorldMap::hide();
+    WorldMap::show(parentMap);
 }

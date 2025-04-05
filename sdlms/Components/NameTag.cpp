@@ -3,7 +3,6 @@
 
 void NameTag::push(NameTag *nametag, std::u16string str, SDL_Color color, std::u16string type)
 {
-    FreeType::size(12);
-    auto str_texture = FreeType::load(str, color, 0);
+    auto str_texture = FreeType::load(str, color, 0, 12);
     nametag->nametags.push_back({str_texture, nullptr});
 }

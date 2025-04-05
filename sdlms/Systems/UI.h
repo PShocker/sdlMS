@@ -15,6 +15,7 @@ enum UIIndex
     UI_UISkill,
     UI_UIStat,
     UI_WorldMap,
+    UI_MiniMap,
 };
 extern std::list<UIIndex> ui_index;
 

@@ -1,6 +1,6 @@
 #include "UI.h"
 
-std::list<UIIndex> ui_index = {UIIndex::UI_UIBuff, UIIndex::UI_StatusBar};
+std::list<UIIndex> ui_index = {UIIndex::UI_UIBuff, UIIndex::UI_StatusBar, UIIndex::UI_MiniMap};
 
 void ui_run()
 {
@@ -124,6 +124,22 @@ bool ui_drag()
         }
     }
     break;
+    case UIIndex::UI_MiniMap:
+    {
+        if (Cursor::drag)
+        {
+            MiniMap::x = Window::mouse_x - x;
+            MiniMap::y = Window::mouse_y - y;
+            return true;
+        }
+        else if (MiniMap::mousein())
+        {
+            x = Window::mouse_x - MiniMap::x;
+            y = Window::mouse_y - MiniMap::y;
+            return true;
+        }
+    }
+    break;
     default:
         break;
     }
@@ -179,6 +195,16 @@ void ui_sort()
         case UIIndex::UI_WorldMap:
         {
             if (WorldMap::mousein())
+            {
+                auto it = --(rit.base());
+                ui_index.splice(ui_index.end(), ui_index, it);
+                return;
+            }
+        }
+        break;
+        case UIIndex::UI_MiniMap:
+        {
+            if (MiniMap::mousein())
             {
                 auto it = --(rit.base());
                 ui_index.splice(ui_index.end(), ui_index, it);
@@ -246,34 +272,32 @@ void ui_click()
         break;
     }
     StatusBar::click();
+    MiniMap::click();
 }
 
 void ui_over()
 {
-    for (auto it : ui_index)
+    auto index = ui_index.back();
+    switch (index)
     {
-        switch (it)
-        {
-        case UIIndex::UI_StatusBar:
-            StatusBar::over();
-            break;
-        case UIIndex::UI_KeyConfig:
-            KeyConfig::over();
-            break;
-        case UIIndex::UI_UIItem:
-            UIItem::over();
-            break;
-        case UIIndex::UI_UISkill:
-            UISkill::over();
-            break;
-        case UIIndex::UI_UIStat:
-            UIStat::over();
-            break;
-        case UIIndex::UI_WorldMap:
-            WorldMap::over();
-            break;
-        default:
-            break;
-        }
+    case UIIndex::UI_KeyConfig:
+        KeyConfig::over();
+        break;
+    case UIIndex::UI_UIItem:
+        UIItem::over();
+        break;
+    case UIIndex::UI_UISkill:
+        UISkill::over();
+        break;
+    case UIIndex::UI_UIStat:
+        UIStat::over();
+        break;
+    case UIIndex::UI_WorldMap:
+        WorldMap::over();
+        break;
+    default:
+        break;
     }
+    StatusBar::over();
+    MiniMap::over();
 }

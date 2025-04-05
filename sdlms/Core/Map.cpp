@@ -218,3 +218,58 @@ wz::Node *Map::load_map_node(int map_id)
     std::string path = "Map/Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
     return node->find_from_path(path);
 }
+
+wz::Node *Map::load_string_node(int map_id)
+{
+    std::u16string path;
+    if (700000000 <= map_id && map_id <= 782000001)
+    {
+        path = u"chinese";
+    }
+    else if (674030000 <= map_id && map_id <= 674030300 || 900000000 <= map_id && map_id <= 999999998)
+    {
+        path = u"etc";
+    }
+    else if (0 <= map_id && map_id <= 2000001)
+    {
+        path = u"maple";
+    }
+    else if (200000000 <= map_id && map_id <= 280090000)
+    {
+        path = u"ossyria";
+    }
+    else if (300000000 <= map_id && map_id <= 300030100)
+    {
+        path = u"elin";
+    }
+    else if (500000000 <= map_id && map_id <= 500020400)
+    {
+        path = u"thai";
+    }
+    else if (100000000 <= map_id && map_id <= 199000000)
+    {
+        path = u"victoria";
+    }
+    else if (680100000 <= map_id && map_id <= 682000901)
+    {
+        path = u"HalloweenGL";
+    }
+    else if (800000000 <= map_id && map_id <= 801030000)
+    {
+        path = u"jp";
+    }
+    else if (600000000 <= map_id && map_id <= 600020600)
+    {
+        path = u"MasteriaGL";
+    }
+    else if (540000000 <= map_id && map_id <= 551030002)
+    {
+        path = u"SG";
+    }
+    else if (677000000 <= map_id && map_id <= 677000013)
+    {
+        path = u"Episode1GL";
+    }
+    auto s = std::to_string(map_id);
+    return Wz::String->get_root()->find_from_path(u"Map.img/" + path + u"/" + std::u16string{s.begin(), s.end()});
+}

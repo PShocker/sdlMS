@@ -76,11 +76,13 @@ void World::load_map(int id)
         }
         World::registry->destroy(ent);
     }
-    WorldMap::open = false;
-    UIItem::open = false;
-    KeyConfig::open = false;
-    UISkill::open = false;
+    WorldMap::hide();
+    UIItem::hide();
+    KeyConfig::hide();
+    UISkill::hide();
 
     Map::load(id);
+    MiniMap::show();
+
     Window::tick_delta_time();
 }

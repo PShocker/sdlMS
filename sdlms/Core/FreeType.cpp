@@ -14,11 +14,6 @@ void FreeType::init(const std::string &filename_prefix)
     FT_Set_Pixel_Sizes(*face, 0, 18);
 }
 
-void FreeType::size(int size)
-{
-    FT_Set_Pixel_Sizes(*face, 0, size);
-}
-
 void FreeType::renderGlyphToTexture(SDL_Texture *texture, char16_t c,
                                     SDL_Color color, int offsetX, int offsetY)
 {
@@ -65,8 +60,11 @@ void FreeType::renderGlyphToTexture(SDL_Texture *texture, char16_t c,
     SDL_UpdateTexture(texture, &dstRect, pixels.data(), bitmap.width * 4);
 }
 
-SDL_Texture *FreeType::load(const std::u16string &text, SDL_Color color, int max_width)
+SDL_Texture *FreeType::load(const std::u16string &text, SDL_Color color, int max_width, int size)
 {
+    // 设置大小
+    FT_Set_Pixel_Sizes(*face, 0, size);
+
     // 1. 计算文本尺寸
     int line_height = (*face)->size->metrics.height >> 6;
     int current_line_width = 0;

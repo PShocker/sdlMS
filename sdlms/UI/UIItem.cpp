@@ -15,7 +15,7 @@ void UIItem::show()
     auto ui_node = Wz::UI->get_root();
     FullBackgrnd = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"UIWindow.img/Item/FullBackgrnd")));
 
-    Button::load(u"UIWindow.img/KeyConfig/BtClose", BtClose);
+    Button::load(u"Basic.img/BtClose", BtClose);
 
     ui_index.push_back(UIIndex::UI_UIItem);
     UIItem::open = true;

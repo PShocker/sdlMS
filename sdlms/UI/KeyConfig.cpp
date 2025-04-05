@@ -15,7 +15,7 @@ void KeyConfig::show()
     auto ui_node = Wz::UI->get_root();
     backgrnd = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"UIWindow.img/KeyConfig/backgrnd")));
 
-    Button::load(u"UIWindow.img/KeyConfig/BtClose", BtClose);
+    Button::load(u"Basic.img/BtClose", BtClose);
 
     ui_index.push_back(UIIndex::UI_KeyConfig);
     KeyConfig::open = true;

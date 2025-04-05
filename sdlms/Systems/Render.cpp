@@ -837,8 +837,8 @@ void render_chatballoon()
 
         auto pos_rect = SDL_FRect{tr->position.x - Camera::x - back_texture->w / 2, tr->position.y - Camera::y + render_back_y, (float)back_texture->w, (float)back_texture->h};
         SDL_RenderTexture(Window::renderer, back_texture, nullptr, &pos_rect);
-
-        pos_rect = SDL_FRect{tr->position.x - Camera::x - str_texture->w / 2, tr->position.y - Camera::y + render_back_y + 4, (float)str_texture->w, (float)str_texture->h};
+        // 文字的起始高度为渲染背景高度加上（背景高度减去文字高度/2）
+        pos_rect = SDL_FRect{tr->position.x - Camera::x - str_texture->w / 2, tr->position.y - Camera::y + render_back_y + (back_texture->h - 7 - str_texture->h) / 2, (float)str_texture->w, (float)str_texture->h};
         SDL_RenderTexture(Window::renderer, str_texture, nullptr, &pos_rect);
     }
 }
@@ -1016,14 +1016,20 @@ void render_statusbar()
 
 void render_worldmap()
 {
+
     auto sprw = WorldMap::baseimg.spr.sprw;
+    SDL_FRect pos_rect = {(float)WorldMap::x - sprw->origin.x - 6,
+                          (float)WorldMap::y - sprw->origin.y - 28,
+                          (float)WorldMap::backgrnd->w, (float)WorldMap::backgrnd->h};
+    render_texture(WorldMap::backgrnd, nullptr, &pos_rect, 255);
+
     auto position = SDL_FPoint{WorldMap::x, WorldMap::y};
     render_sprite(position, sprw);
 
-    if (WorldMap::cur_link.has_value())
+    if (WorldMap::cur_link)
     {
         SDL_FPoint p = position;
-        render_sprite(p, WorldMap::cur_link.value().spr.sprw);
+        render_sprite(p, WorldMap::cur_link->spr.sprw);
     }
 
     for (auto &it : WorldMap::spots)
@@ -1039,14 +1045,11 @@ void render_worldmap()
         render_animated_sprite(p, &aspr);
     }
 
-    SDL_FRect pos_rect = {(float)WorldMap::x - sprw->origin.x - 5, (float)WorldMap::y - sprw->origin.y - 4, (float)WorldMap::backgrnd->w, (float)WorldMap::backgrnd->h};
-    render_texture(WorldMap::backgrnd, nullptr, &pos_rect, 255);
-
     for (auto &[key, val] : WorldMap::position_map)
     {
         auto aspr = key->second.at(key->first);
-        auto position = SDL_FPoint{(float)WorldMap::x - sprw->origin.x - 5 + WorldMap::backgrnd->w + val.x,
-                                   (float)WorldMap::y - sprw->origin.y - 4 + val.y};
+        auto position = SDL_FPoint{(float)WorldMap::x - sprw->origin.x - 6 + WorldMap::backgrnd->w + val.x,
+                                   (float)WorldMap::y - sprw->origin.y - 28 + val.y};
         render_animated_sprite(position, &aspr, 255);
     }
 }
@@ -1103,6 +1106,58 @@ void render_uistat()
     }
 }
 
+void render_minimap()
+{
+    if (!MiniMap::minimize)
+    {
+        SDL_FRect pos_rect = {(float)MiniMap::x, (float)MiniMap::y, (float)MiniMap::backgrnd->w, (float)MiniMap::backgrnd->h};
+        render_texture(MiniMap::backgrnd, nullptr, &pos_rect, MiniMap::alpha);
+
+        pos_rect = {(float)MiniMap::x + (MiniMap::backgrnd->w - MiniMap::canvas->w) / 2, (float)MiniMap::y + 72, (float)MiniMap::canvas->w, (float)MiniMap::canvas->h};
+        render_texture(MiniMap::canvas, nullptr, &pos_rect, MiniMap::alpha);
+
+        // 绘制小地图人物，传送门，npc
+        const auto render_life = [&](SDL_FPoint &p, SDL_Texture *texture, int offset_x, int offset_y)
+        {
+            SDL_FPoint position = p + MiniMap::center;
+            position.x = position.x / MiniMap::scale;
+            position.y = position.y / MiniMap::scale;
+            pos_rect = {
+                MiniMap::x + (MiniMap::backgrnd->w - MiniMap::canvas->w) / 2 + position.x + offset_x,
+                MiniMap::y + 72 + position.y + offset_y,
+                (float)texture->w,
+                (float)texture->h};
+            render_texture(texture, nullptr, &pos_rect, MiniMap::alpha);
+        };
+        for (auto ent : World::registry->view<Npc>())
+        {
+            render_life(World::registry->try_get<Transform>(ent)->position, MiniMap::npc, -2, -4);
+        }
+        for (auto ent : World::registry->view<Portal>())
+        {
+            // 只渲染普通传送门
+            if (World::registry->all_of<AnimatedSprite>(ent))
+            {
+                render_life(World::registry->try_get<Transform>(ent)->position, MiniMap::portal, -2, -6);
+            }
+        }
+        render_life(World::registry->try_get<Transform>(Player::ent)->position, MiniMap::user, -2, -4);
+    }
+    else
+    {
+        // 最小化
+        SDL_FRect src_rect = {(float)0, (float)0, (float)MiniMap::backgrnd->w, (float)24};
+        SDL_FRect pos_rect = {(float)MiniMap::x, (float)MiniMap::y, (float)MiniMap::backgrnd->w, (float)24};
+        render_texture(MiniMap::backgrnd, &src_rect, &pos_rect, MiniMap::alpha);
+    }
+    for (auto &[key, val] : MiniMap::position_map)
+    {
+        auto aspr = key->second.at(key->first);
+        auto position = SDL_FPoint{(float)val.x + MiniMap::x + MiniMap::backgrnd->w, (float)val.y + MiniMap::y};
+        render_animated_sprite(position, &aspr, MiniMap::alpha);
+    }
+}
+
 void render_ui()
 {
     for (auto it : ui_index)
@@ -1129,6 +1184,9 @@ void render_ui()
             break;
         case UIIndex::UI_WorldMap:
             render_worldmap();
+            break;
+        case UIIndex::UI_MiniMap:
+            render_minimap();
             break;
         default:
             break;
