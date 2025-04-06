@@ -1094,13 +1094,15 @@ void render_uiitem()
     // 渲染物品
     for (int i = 0; i < 96; i++)
     {
-        auto texture = UIItem::infos[UIItem::active_tab][i].texture;
-        if (texture != nullptr)
+        auto sprw = UIItem::infos[UIItem::active_tab][i].sprw;
+        if (sprw != nullptr)
         {
+            auto page = i / 24;
             auto index = i % 4;
             auto line = i / 4;
-            pos_rect = {(float)UIItem::x + 4 + index * 32, (float)UIItem::y + 60 + line * 30, (float)texture->w, (float)texture->h};
-            render_texture(texture, nullptr, &pos_rect, UIItem::alpha);
+            line = line % 6;
+            SDL_FPoint p = {(float)UIItem::x + 8 + index * 36 + page * 148, (float)UIItem::y + 82 + line * 34};
+            render_sprite(p, sprw, 0, 0, nullptr, UIItem::alpha);
         }
     }
 

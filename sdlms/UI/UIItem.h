@@ -19,7 +19,7 @@ struct UIItem
     struct Info
     {
         std::u16string id;
-        SDL_Texture *texture;
+        SpriteWarp *sprw;
         int num;
     };
     static inline Info infos[5][96];

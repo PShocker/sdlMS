@@ -201,7 +201,7 @@ std::pair<int, int> UIItem::full(std::u16string info_id)
         auto i = load_info_index(info_id);
         for (int index = 0; index < 96; index++)
         {
-            if (infos[i][index].texture == nullptr)
+            if (infos[i][index].sprw == nullptr)
             {
                 return {i, index};
             }
@@ -218,7 +218,7 @@ void UIItem::push(std::u16string id, int num)
         infos_map[id] = std::make_pair(i, index);
         infos[i][index].id = id;
         infos[i][index].num += num;
-        infos[i][index].texture = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(Item::load(id)->find_from_path(u"info/icon")));
+        infos[i][index].sprw = SpriteWarp::load(Item::load(id)->find_from_path(u"info/icon"));
     }
     else
     {
