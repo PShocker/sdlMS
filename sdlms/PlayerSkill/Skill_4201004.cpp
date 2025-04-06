@@ -36,8 +36,8 @@ int skill_4201004(entt::entity ent)
     ski->atk.value().call_back = [](entt::entity src, entt::entity target, int full_damage)
     {
         auto tr = World::registry->try_get<Transform>(target);
-        std::vector<Drop::Info> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
-        load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
+        std::vector<std::pair<std::u16string, unsigned int>> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
+        load_drops(drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
         Sound::push(Sound(u"Game.img/DropItem", 200));
         World::zindex = true;
     };

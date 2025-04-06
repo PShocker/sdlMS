@@ -5,20 +5,27 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-void load_drops(std::vector<Drop::Info> *drops, float x, float y, int layer)
+void load_drops(std::vector<std::pair<std::u16string, unsigned int>> &drops, float x, float y, int layer)
 {
     float hspeed_min = 0;
     float hspeed_max = 0;
-
     auto count = World::registry->view<Drop>().size();
-
-    for (int i = 0; i < drops->size(); i++)
+    for (int i = 0; i < drops.size(); i++)
     {
-        auto &id = drops->at(i).id;
-        auto &nums = drops->at(i).nums;
-        AnimatedSpriteWarp *asprw = nullptr;
+        auto &[id, nums] = drops[i];
+        auto ent = World::registry->create();
+
+        World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + DROP_Z + count + i);
+        World::registry->emplace<Animated>(ent);
+
+        auto &dro = World::registry->emplace<Drop>(ent);
+        dro.id = id;
+        dro.nums = nums;
+
+        int texture_w = 0;
         if (id == u"09000000")
         {
+            AnimatedSpriteWarp *asprw;
             // 金币
             if (nums < 49)
             {
@@ -36,21 +43,16 @@ void load_drops(std::vector<Drop::Info> *drops, float x, float y, int layer)
             {
                 asprw = Drop::mesoicons[Drop::MesoIcon::BAG];
             }
+            texture_w = asprw->sprites[0]->texture->w;
+            dro.spr = AnimatedSprite(asprw);
         }
         else
         {
             auto node = Item::load(id);
-            asprw = AnimatedSpriteWarp::load(node->find_from_path(u"info/iconRaw"));
+            auto sprw = SpriteWarp::load(node->find_from_path(u"info/iconRaw"));
+            texture_w = sprw->texture->w;
+            dro.spr = Sprite(sprw);
         }
-        auto ent = World::registry->create();
-
-        World::registry->emplace<Animated>(ent);
-        World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + DROP_Z + count + i);
-
-        auto &dro = World::registry->emplace<Drop>(ent);
-        dro.id = id;
-        dro.nums = nums;
-        dro.aspr = AnimatedSprite(asprw);
 
         auto &mv = World::registry->emplace<Move>(ent);
         mv.vspeed = -430;
@@ -59,12 +61,12 @@ void load_drops(std::vector<Drop::Info> *drops, float x, float y, int layer)
         {
             if (i % 2 == 0)
             {
-                hspeed_max += asprw->sprites[0]->texture->w * 1.2;
+                hspeed_max += texture_w * 1.2;
                 mv.hspeed = hspeed_max;
             }
             else
             {
-                hspeed_min -= asprw->sprites[0]->texture->w * 1.2;
+                hspeed_min -= texture_w * 1.2;
                 mv.hspeed = hspeed_min;
             }
         }

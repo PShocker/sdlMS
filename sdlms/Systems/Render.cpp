@@ -706,22 +706,26 @@ void render_tomb(Tomb *tomb)
 
 void render_drop(Transform *tr, Drop *dro)
 {
-    auto a = &dro->aspr;
-
-    float alpha = 1;
+    float alpha = 255;
     if (dro->destory - Window::dt_now < 900)
     {
-        alpha = ((float)(dro->destory - Window::dt_now) / 900);
+        alpha = ((float)(dro->destory - Window::dt_now) / 900) * 255;
     }
-    a->alpha = alpha * 255;
-
-    auto sprw = a->asprw->sprites[a->anim_index];
+    SpriteWarp *sprw;
+    if (std::holds_alternative<Sprite>(dro->spr))
+    {
+        sprw = std::get<Sprite>(dro->spr).sprw;
+    }
+    else
+    {
+        auto a = &std::get<AnimatedSprite>(dro->spr);
+        sprw = a->asprw->sprites[a->anim_index];
+    }
     auto origin = SDL_FPoint{(float)sprw->texture->w / 2, (float)sprw->texture->h / 2};
-
     Transform tran(tr->position.x - (float)sprw->origin.x + (float)sprw->texture->w / 2,
                    tr->position.y - (float)sprw->origin.y + (float)sprw->texture->h / 2);
     tran.rotation = tr->rotation;
-    render_animated_sprite(&tran, a, &origin);
+    render_sprite(&tran, sprw, &origin, alpha);
 }
 
 void render_reactor(Transform *tr, Reactor *r)
@@ -1071,6 +1075,34 @@ void render_uiitem()
 {
     SDL_FRect pos_rect = {(float)UIItem::x, (float)UIItem::y, (float)UIItem::FullBackgrnd->w, (float)UIItem::FullBackgrnd->h};
     render_texture(UIItem::FullBackgrnd, nullptr, &pos_rect, UIItem::alpha);
+
+    // 渲染tab
+    for (int i = 0; i <= 4; i++)
+    {
+        SDL_Texture *texture;
+        if (i == UIItem::active_tab)
+        {
+            texture = UIItem::tabs[i];
+        }
+        else
+        {
+            texture = UIItem::tabs[i + 5];
+        }
+        pos_rect = {(float)UIItem::x + 4 + i * texture->w, (float)UIItem::y + 23, (float)texture->w, (float)texture->h};
+        render_texture(texture, nullptr, &pos_rect, UIItem::alpha);
+    }
+    // 渲染物品
+    for (int i = 0; i < 96; i++)
+    {
+        auto texture = UIItem::infos[UIItem::active_tab][i].texture;
+        if (texture != nullptr)
+        {
+            auto index = i % 4;
+            auto line = i / 4;
+            pos_rect = {(float)UIItem::x + 4 + index * 32, (float)UIItem::y + 60 + line * 30, (float)texture->w, (float)texture->h};
+            render_texture(texture, nullptr, &pos_rect, UIItem::alpha);
+        }
+    }
 
     for (auto &[key, val] : UIItem::position_map)
     {

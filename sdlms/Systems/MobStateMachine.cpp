@@ -269,13 +269,13 @@ bool mob_hit_move(std::optional<SDL_FPoint> &point, entt::entity ent)
 
 void mob_drop(Mob *mob, Transform *tr)
 {
-    std::vector<Drop::Info> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
+    std::vector<std::pair<std::u16string, unsigned int>> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
     for (auto it : mob->drops[mob->id])
     {
         auto id = std::to_string(it);
         drops.push_back({std::u16string{id.begin(), id.end()}, 1});
     }
-    load_drops(&drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
+    load_drops(drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
     Sound::push(Sound(u"Game.img/DropItem", 300));
     World::zindex = true;
 }

@@ -9,100 +9,14 @@
 
 void WorldMap::show(std::u16string path)
 {
-    WorldMap::links.clear();
-    WorldMap::spots.clear();
-    WorldMap::curpos.p = std::nullopt;
-
     WorldMap::x = Camera::w / 2;
     WorldMap::y = Camera::h / 2;
+    wz::Node *node = path == u"" ? load_worldmap_node(Map::id) : Wz::Map->get_root()->find_from_path(u"WorldMap/" + path + u".img");
 
-    auto node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap");
-    // 默认是WorldMap010
-    node = Wz::Map->get_root()->find_from_path(u"WorldMap/" + path + u".img");
-    if (node->find_from_path(u"MapLink"))
-    {
-        for (auto &[key, val] : node->find_from_path(u"MapLink")->get_children())
-        {
-            MapLink maplink;
-            maplink.spr = Sprite(val[0]->find_from_path(u"link/linkImg"));
-            maplink.linkMap = dynamic_cast<wz::Property<wz::wzstring> *>(val[0]->find_from_path(u"link/linkMap"))->get();
-            WorldMap::links.push_back(maplink);
-        }
-    }
-    if (node->find_from_path(u"info/parentMap"))
-    {
-        parentMap = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/parentMap"))->get();
-    }
-    else
-    {
-        parentMap = u"WorldMap";
-    }
+    load_link(node);
+    load_spot(node);
+    load_baseimg(node);
 
-    WorldMap::baseimg.spr = Sprite(node->find_from_path(u"BaseImg/0"));
-    auto mapList = node->find_from_path(u"MapList");
-    for (auto &[key, val] : mapList->get_children())
-    {
-        Spot spt;
-        auto spot = val[0]->get_child(u"spot");
-        auto type = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"type"))->get();
-        auto spot_v = dynamic_cast<wz::Property<wz::WzVec2D> *>(spot)->get();
-        spt.p = SDL_FPoint{(float)spot_v.x, (float)spot_v.y};
-        std::vector<int> mapNo;
-        // 从第0帧顺序读
-        for (int i = 0; i < val[0]->get_child(u"mapNo")->children_count(); i++)
-        {
-            auto it = val[0]->get_child(u"mapNo")->get_child(std::to_string(i));
-            if (it == nullptr)
-            {
-                // 如果发现没读取到,说明已经读完,则退出读取
-                break;
-            }
-            int no = 0;
-            if (it->type == wz::Type::Int)
-            {
-                no = dynamic_cast<wz::Property<int> *>(it)->get();
-            }
-            else
-            {
-                auto no_str = dynamic_cast<wz::Property<wz::wzstring> *>(it)->get();
-                no = std::stoi(std::string{no_str.begin(), no_str.end()});
-            }
-            if (no == Map::id)
-            {
-                WorldMap::curpos.p = spt.p;
-                WorldMap::curpos.aspr = AnimatedSprite(Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap/curPos"));
-            }
-            mapNo.push_back(no);
-        }
-        spt.mapNo = mapNo;
-        node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap");
-        switch (type)
-        {
-        case 0:
-        {
-            spt.spr = Sprite(node->find_from_path(u"mapImage/0"));
-        }
-        break;
-        case 1:
-        {
-            spt.spr = Sprite(node->find_from_path(u"mapImage/1"));
-        }
-        break;
-        case 2:
-        {
-            spt.spr = Sprite(node->find_from_path(u"mapImage/2"));
-        }
-        break;
-        case 3:
-        {
-            spt.spr = Sprite(node->find_from_path(u"mapImage/3"));
-        }
-        break;
-        default:
-            break;
-        }
-        WorldMap::spots.push_back(spt);
-    }
     WorldMap::load_backgrnd();
     Button::load(u"Basic.img/BtClose", BtClose);
     Button::load(u"Basic.img/BtHide2", BtHide2);
@@ -244,6 +158,11 @@ WorldMap::MapLink *WorldMap::mousein_maplink()
     return nullptr;
 }
 
+void WorldMap::load_baseimg(wz::Node *node)
+{
+    WorldMap::baseimg.spr = Sprite(node->find_from_path(u"BaseImg/0"));
+}
+
 void WorldMap::load_backgrnd()
 {
     if (WorldMap::backgrnd)
@@ -311,6 +230,107 @@ void WorldMap::load_backgrnd()
     SDL_RenderTexture(Window::renderer, title, nullptr, &pos_rect);
     SDL_SetRenderTarget(Window::renderer, nullptr);
     WorldMap::backgrnd = texture;
+}
+
+void WorldMap::load_spot(wz::Node *node)
+{
+    WorldMap::spots.clear();
+    WorldMap::curpos.p = std::nullopt;
+
+    for (auto &[key, val] : node->find_from_path(u"MapList")->get_children())
+    {
+        auto spot = val[0]->get_child(u"spot");
+        auto type = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"type"))->get();
+        auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(spot)->get();
+        Spot spt;
+        spt.p = SDL_FPoint{(float)v.x, (float)v.y};
+        std::vector<int> mapNo;
+        // 从第0帧顺序读
+        for (int i = 0; i < val[0]->get_child(u"mapNo")->children_count(); i++)
+        {
+            auto it = val[0]->get_child(u"mapNo")->get_child(std::to_string(i));
+            if (it == nullptr)
+            {
+                // 如果发现没读取到,说明已经读完,则退出读取
+                break;
+            }
+            int no = 0;
+            if (it->type == wz::Type::Int)
+            {
+                no = dynamic_cast<wz::Property<int> *>(it)->get();
+            }
+            else
+            {
+                auto no_str = dynamic_cast<wz::Property<wz::wzstring> *>(it)->get();
+                no = std::stoi(std::string{no_str.begin(), no_str.end()});
+            }
+            if (no == Map::id)
+            {
+                WorldMap::curpos.p = spt.p;
+                WorldMap::curpos.aspr = AnimatedSprite(Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap/curPos"));
+            }
+            mapNo.push_back(no);
+        }
+        spt.mapNo = mapNo;
+        switch (type)
+        {
+        case 0:
+        {
+            spt.spr = Sprite(Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap/mapImage/0"));
+        }
+        break;
+        case 1:
+        {
+            spt.spr = Sprite(Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap/mapImage/1"));
+        }
+        break;
+        case 2:
+        {
+            spt.spr = Sprite(Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap/mapImage/2"));
+        }
+        break;
+        case 3:
+        {
+            spt.spr = Sprite(Wz::Map->get_root()->find_from_path(u"MapHelper.img/worldMap/mapImage/3"));
+        }
+        break;
+        default:
+            break;
+        }
+        WorldMap::spots.push_back(spt);
+    }
+}
+
+void WorldMap::load_link(wz::Node *node)
+{
+    WorldMap::links.clear();
+    if (node->find_from_path(u"MapLink"))
+    {
+        for (auto &[key, val] : node->find_from_path(u"MapLink")->get_children())
+        {
+            MapLink maplink;
+            maplink.spr = Sprite(val[0]->find_from_path(u"link/linkImg"));
+            maplink.linkMap = dynamic_cast<wz::Property<wz::wzstring> *>(val[0]->find_from_path(u"link/linkMap"))->get();
+            WorldMap::links.push_back(maplink);
+        }
+    }
+}
+
+void WorldMap::load_parentmap(wz::Node *node)
+{
+    if (node->find_from_path(u"info/parentMap"))
+    {
+        parentMap = dynamic_cast<wz::Property<wz::wzstring> *>(node->find_from_path(u"info/parentMap"))->get();
+    }
+    else
+    {
+        parentMap = u"WorldMap";
+    }
+}
+
+wz::Node *WorldMap::load_worldmap_node(int map_id)
+{
+    return Wz::Map->get_root()->find_from_path(u"WorldMap/WorldMap.img");
 }
 
 void WorldMap::BtClose_func()

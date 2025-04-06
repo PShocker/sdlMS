@@ -28,7 +28,7 @@ struct WorldMap
         std::vector<int> mapNo;
         Sprite spr;
     };
-    static void show(std::u16string path = u"WorldMap010");
+    static void show(std::u16string path = u"");
     static void hide();
     static void click();
     static void over();
@@ -36,7 +36,12 @@ struct WorldMap
     static bool mousein();
     static Spot *mousein_maplist();
     static MapLink *mousein_maplink();
+    static void load_baseimg(wz::Node *node);
     static void load_backgrnd();
+    static void load_spot(wz::Node *node);
+    static void load_link(wz::Node *node);
+    static void load_parentmap(wz::Node *node);
+    static wz::Node *load_worldmap_node(int map_id);
 
     static inline BaseImg baseimg;
     static inline CurPos curpos;

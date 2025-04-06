@@ -37,19 +37,19 @@ void load_reactor(wz::Node *node)
             if (auto hit = it->find_from_path(u"hit"))
             {
                 info.hit = AnimatedSprite(hit);
-            }
-            std::vector<Reactor::Info::Event> event;
-            if (it->get_child(u"event"))
-            {
-                for (auto &[k, v] : it->get_child(u"event")->get_children())
+                std::vector<Reactor::Info::Event> event;
+                if (it->get_child(u"event"))
                 {
-                    auto type = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"type"))->get();
-                    auto state = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"state"))->get();
-                    event.push_back({type, state});
+                    for (auto &[k, v] : it->get_child(u"event")->get_children())
+                    {
+                        auto type = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"type"))->get();
+                        auto state = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"state"))->get();
+                        event.push_back({type, state});
+                    }
                 }
+                info.event = event;
+                reactor->a[i] = info;
             }
-            info.event = event;
-            reactor->a[i] = info;
         }
 
         auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();

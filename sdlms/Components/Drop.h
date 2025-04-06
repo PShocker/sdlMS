@@ -16,7 +16,7 @@ struct Drop
     bool attract = false;
     entt::entity picker = entt::null;
 
-    AnimatedSprite aspr;
+    std::variant<Sprite, AnimatedSprite> spr;
 
     // 摧毁时间
     unsigned int destory = Window::dt_now + 20000;
@@ -28,12 +28,6 @@ struct Drop
         BUNDLE,
         BAG,
         NUM_ICONS
-    };
-
-    struct Info
-    {
-        std::u16string id;
-        unsigned int nums;
     };
 
     Drop() = default;

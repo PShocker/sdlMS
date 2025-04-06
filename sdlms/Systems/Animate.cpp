@@ -542,7 +542,10 @@ void animate_drop(Drop *dro, Transform *tr)
     {
         tr->rotation = 0;
     }
-    animate_sprite(&dro->aspr);
+    if (std::holds_alternative<AnimatedSprite>(dro->spr))
+    {
+        animate_sprite(&std::get<AnimatedSprite>(dro->spr));
+    }
 }
 
 void animate_face(Character *cha)
