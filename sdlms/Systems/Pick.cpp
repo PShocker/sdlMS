@@ -21,20 +21,18 @@ entt::entity pick_drop(entt::entity owner)
                 owner_y == std::clamp(owner_y, dro_y - 20, dro_y + 20))
             {
                 // 捡起物品
-                dro->picker = owner;
-                dro->destory = Window::dt_now + 600;
-
-                auto mv = World::registry->try_get<Move>(drop_ent);
-                mv->vspeed = -430;
-
-                // 播放声音
-                Sound::push(Sound(u"Game.img/PickUpItem"));
                 if (UIItem::full(dro->id).first != -1)
                 {
-                    UIItem::push(dro->id, dro->nums);
-                }
+                    dro->picker = owner;
+                    dro->destory = Window::dt_now + 600;
 
-                return ent;
+                    auto mv = World::registry->try_get<Move>(drop_ent);
+                    mv->vspeed = -430;
+                    // 播放声音
+                    Sound::push(Sound(u"Game.img/PickUpItem"));
+                    UIItem::push(dro->id, dro->nums);
+                    return ent;
+                }
             }
         }
     }

@@ -2,7 +2,7 @@
 
 #include "Components/Components.h"
 
-struct UIItem
+struct UIEquip
 {
     static void run();
     static void show();
@@ -10,28 +10,13 @@ struct UIItem
     static void over();
     static bool mousein();
     static void click();
-    static void click_tab();
-    static void load_tab();
 
-    static inline SDL_Texture *FullBackgrnd;
-    static inline std::vector<SDL_Texture *> tabs;
-    static inline uint8_t active_tab = 0;
-    struct Info
-    {
-        std::u16string id;
-        SpriteWarp *sprw;
-        int num;
-    };
-    static inline Info infos[5][96];
-    static uint8_t load_info_index(std::u16string id);
-    static std::pair<int, int> full(std::u16string id);
-    static void push(std::u16string id, int num);
+    static inline SDL_Texture *backgrnd;
 
-    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>>
-        BtClose;
+    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtClose;
 
     static const inline std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, SDL_FRect> position_map = {
-        {&BtClose, SDL_FRect{584.0, 6.0, 12.0, 12.0}},
+        {&BtClose, SDL_FRect{156.0, 6.0, 12.0, 12.0}},
     };
 
     static void BtClose_func();

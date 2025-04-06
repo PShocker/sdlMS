@@ -86,14 +86,20 @@ void load_mob(wz::Node *node)
     {
         mob.atk.hit = AnimatedSpriteWarp::load(node->find_from_path(u"attack1/info/hit"));
     }
-    if (mob.a.contains(u"stand"))
+    if (mob.a.contains(u"move"))
     {
+        mob.state = Mob::State::STAND;
+        mob.index = u"stand";
+    }
+    else if (mob.a.contains(u"stand"))
+    {
+        mob.state = Mob::State::STAY;
         mob.index = u"stand";
     }
     else if (mob.a.contains(u"fly"))
     {
-        mob.index = u"fly";
         mob.state = Mob::State::FLY;
+        mob.index = u"fly";
     }
 
     node = Wz::Sound->get_root()->find_from_path(u"Mob.img/" + id);

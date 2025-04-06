@@ -140,6 +140,22 @@ bool ui_drag()
         }
     }
     break;
+    case UIIndex::UI_UIEquip:
+    {
+        if (Cursor::drag)
+        {
+            UIEquip::x = Window::mouse_x - x;
+            UIEquip::y = Window::mouse_y - y;
+            return true;
+        }
+        else if (UIEquip::mousein())
+        {
+            x = Window::mouse_x - UIEquip::x;
+            y = Window::mouse_y - UIEquip::y;
+            return true;
+        }
+    }
+    break;
     default:
         break;
     }
@@ -212,6 +228,16 @@ void ui_sort()
             }
         }
         break;
+        case UIIndex::UI_UIEquip:
+        {
+            if (UIEquip::mousein())
+            {
+                auto it = --(rit.base());
+                ui_index.splice(ui_index.end(), ui_index, it);
+                return;
+            }
+        }
+        break;
         default:
             break;
         }
@@ -268,6 +294,15 @@ void ui_click()
         }
     }
     break;
+    case UIIndex::UI_UIEquip:
+    {
+        if (UIEquip::mousein())
+        {
+            UIEquip::click();
+            return;
+        }
+    }
+    break;
     default:
         break;
     }
@@ -294,6 +329,9 @@ void ui_over()
         break;
     case UIIndex::UI_WorldMap:
         WorldMap::over();
+        break;
+    case UIIndex::UI_UIEquip:
+        UIEquip::over();
         break;
     default:
         break;

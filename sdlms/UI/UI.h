@@ -9,3 +9,4 @@
 #include "UISkill.h"
 #include "UIStat.h"
 #include "MiniMap.h"
+#include "UIEquip.h"

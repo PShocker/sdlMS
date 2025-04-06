@@ -1192,6 +1192,19 @@ void render_minimap()
     }
 }
 
+void render_uiequip()
+{
+    SDL_FRect pos_rect = {(float)UIEquip::x, (float)UIEquip::y, (float)UIEquip::backgrnd->w, (float)UIEquip::backgrnd->h};
+    render_texture(UIEquip::backgrnd, nullptr, &pos_rect, UIEquip::alpha);
+
+    for (auto &[key, val] : UIEquip::position_map)
+    {
+        auto aspr = key->second.at(key->first);
+        auto position = SDL_FPoint{(float)UIEquip::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)UIEquip::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
+        render_animated_sprite(position, &aspr, UIEquip::alpha);
+    }
+}
+
 void render_ui()
 {
     for (auto it : ui_index)
@@ -1221,6 +1234,9 @@ void render_ui()
             break;
         case UIIndex::UI_MiniMap:
             render_minimap();
+            break;
+        case UIIndex::UI_UIEquip:
+            render_uiequip();
             break;
         default:
             break;

@@ -80,6 +80,7 @@ void World::load_map(int id)
     UIItem::hide();
     KeyConfig::hide();
     UISkill::hide();
+    UIEquip::hide();
 
     Map::load(id);
     MiniMap::show();

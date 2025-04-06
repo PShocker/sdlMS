@@ -32,7 +32,7 @@ int skill_4201005(entt::entity ent)
     auto hit = ski->skiw->hits[0];
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
 
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 30);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 20);
     ski->atk.value().call_back = [attackCount](entt::entity src, entt::entity target, int full_damage)
     {
         auto ski = World::registry->try_get<Skill>(src);

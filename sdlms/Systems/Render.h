@@ -39,4 +39,5 @@ void render_uiitem();
 void render_uiskill();
 void render_uistat();
 void render_minimap();
+void render_uiequip();
 void render_ui();

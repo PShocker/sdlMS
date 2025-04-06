@@ -3,6 +3,7 @@
 #include "UIItem.h"
 #include "UISkill.h"
 #include "UIStat.h"
+#include "UIEquip.h"
 #include "Button.h"
 #include "wz/Property.hpp"
 #include "Resources/Wz.h"
@@ -116,4 +117,9 @@ void StatusBar::SkillKey_func()
 void StatusBar::StatKey_func()
 {
     UIStat::show();
+}
+
+void StatusBar::EquipKey_func()
+{
+    UIEquip::show();
 }

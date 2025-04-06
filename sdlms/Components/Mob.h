@@ -30,6 +30,7 @@ struct Mob
         static const int JUMP = 5;
         static const int FLY = 6;
         static const int ATTACK = 7;
+        static const int STAY = 8;
     };
     // STAND,MOVE状态下循环的持续时间
     unsigned int tick = Window::dt_now + 500;

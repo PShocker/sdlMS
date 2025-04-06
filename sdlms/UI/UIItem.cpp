@@ -149,9 +149,9 @@ void UIItem::load_tab()
     }
 }
 
-uint8_t UIItem::load_info_index(std::u16string info_id)
+uint8_t UIItem::load_info_index(std::u16string id)
 {
-    auto prefix = info_id[0];
+    auto prefix = id[0];
     switch (prefix)
     {
     case u'1':
@@ -186,28 +186,32 @@ uint8_t UIItem::load_info_index(std::u16string info_id)
 }
 
 // 用来判断背包是否有空位来加载物品，并返回原物品序号
-std::pair<int, int> UIItem::full(std::u16string info_id)
+std::pair<int, int> UIItem::full(std::u16string id)
 {
-    if (info_id == u"09000000")
+    static std::unordered_map<std::u16string, std::pair<uint8_t, uint8_t>> cache;
+    std::pair<int, int> r = {-1, -1};
+    if (id == u"09000000")
     {
         return {0, 0};
     }
-    if (infos_map.contains(info_id))
+    auto i = load_info_index(id);
+    if (i == 0 || !cache.contains(id))
     {
-        return infos_map.at(info_id);
-    }
-    else
-    {
-        auto i = load_info_index(info_id);
         for (int index = 0; index < 96; index++)
         {
             if (infos[i][index].sprw == nullptr)
             {
-                return {i, index};
+                r = {i, index};
+                break;
             }
         }
     }
-    return {-1, -1};
+    else
+    {
+        r = cache[id];
+    }
+    cache[id] = r;
+    return r;
 }
 
 void UIItem::push(std::u16string id, int num)
@@ -215,7 +219,6 @@ void UIItem::push(std::u16string id, int num)
     if (id != u"09000000")
     {
         auto [i, index] = full(id);
-        infos_map[id] = std::make_pair(i, index);
         infos[i][index].id = id;
         infos[i][index].num += num;
         infos[i][index].sprw = SpriteWarp::load(Item::load(id)->find_from_path(u"info/icon"));

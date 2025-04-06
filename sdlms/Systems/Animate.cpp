@@ -432,9 +432,14 @@ void animate_mob(Mob *mob, entt::entity ent)
         {
             if (mob->state == Mob::State::HIT)
             {
-                if (mob->a.contains(u"stand"))
+                if (mob->a.contains(u"move"))
                 {
                     mob->state = Mob::State::STAND;
+                    mob->index = u"stand";
+                }
+                else if (mob->a.contains(u"stand"))
+                {
+                    mob->state = Mob::State::STAY;
                     mob->index = u"stand";
                 }
                 else if (mob->a.contains(u"fly"))
@@ -446,7 +451,11 @@ void animate_mob(Mob *mob, entt::entity ent)
             else if (mob->state == Mob::State::DIE)
             {
                 mob->state = Mob::State::REMOVE;
-                if (mob->a.contains(u"stand"))
+                if (mob->a.contains(u"move"))
+                {
+                    mob->index = u"stand";
+                }
+                else if (mob->a.contains(u"stand"))
                 {
                     mob->index = u"stand";
                 }
@@ -460,18 +469,18 @@ void animate_mob(Mob *mob, entt::entity ent)
                 // 怪物攻击
                 if (World::registry->valid(mob->hit))
                 {
-                    auto character = World::registry->try_get<Character>(mob->hit);
-                    if (character->invincible_cooldown <= Window::dt_now)
-                    {
-                        auto tr = World::registry->try_get<Transform>(ent);
-                        mob->atk.src_point = tr->position;
-                        mob->atk.souw = mob->sounds[u"Attack1"];
-                        attack_player(&mob->atk, ent, std::nullopt);
-                    }
+                    mob->atk.src_point = World::registry->try_get<Transform>(ent)->position;
+                    mob->atk.souw = mob->sounds[u"Attack1"];
+                    attack_player(&mob->atk, ent, std::nullopt);
                 }
-                if (mob->a.contains(u"stand"))
+                if (mob->a.contains(u"move"))
                 {
                     mob->state = Mob::State::STAND;
+                    mob->index = u"stand";
+                }
+                else if (mob->a.contains(u"stand"))
+                {
+                    mob->state = Mob::State::STAY;
                     mob->index = u"stand";
                 }
                 else if (mob->a.contains(u"fly"))

@@ -31,7 +31,7 @@ int skill_4121007(entt::entity ent)
     auto mobCount = 1;
     auto attackCount = 1;
     SoundWarp *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 30);
 
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {

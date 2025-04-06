@@ -87,6 +87,11 @@ void mob_statemachine(entt::entity ent, float delta_time)
         mob->state = mob_fly(mob, mv, tr, state, delta_time);
     }
     break;
+    case Mob::State::STAY:
+    {
+        return;
+    }
+    break;
     case Mob::State::JUMP:
     case Mob::State::HIT:
     {
@@ -182,6 +187,7 @@ optional<int> mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> h
 
     if (atk->damage > 0)
     {
+        mob->hit = Player::ent;
         Effect::push(World::registry->try_get<Effect>(ent), atk->hit, hit_point, tr->flip);
         for (int i = 0; i < atk->attackCount; i++)
         {
@@ -192,7 +198,6 @@ optional<int> mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> h
             full_damage.value() += damage;
 
             mob->hp -= damage;
-            mob->hit = Player::ent;
             // 怪物被攻击音效
             if (atk->souw)
             {
@@ -202,17 +207,14 @@ optional<int> mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> h
             {
                 Sound::push(mob->sounds[u"Damage"], i * 140);
             }
-
-            if (mob->hp > 0)
-            {
-                if (mob_hit_move(atk->src_point, ent))
-                {
-                    mob->tick = Window::dt_now + 500;
-                    mob->state = Mob::State::HIT;
-                    mob->index = u"hit1";
-                };
-            }
-            else if (mob->state != Mob::State::DIE)
+            Damage::push(World::registry->try_get<Damage>(ent), damage, type,
+                         SDL_FPoint{tr->position.x,
+                                    tr->position.y + (float)dynamic_cast<wz::Property<wz::WzVec2D> *>(mob->a[u"hit1"].asprw->sprites[0]->n->get_child(u"head"))->get().y},
+                         Window::dt_now + i * 60);
+        }
+        if (mob->state != Mob::State::DIE)
+        {
+            if (mob->hp <= 0)
             {
                 // 怪物死亡音效
                 if (mob->sounds.contains(u"Die"))
@@ -226,10 +228,12 @@ optional<int> mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> h
                 mob_drop(mob, tr);
                 mob->revive = mob->revive_time + Window::dt_now;
             }
-            Damage::push(World::registry->try_get<Damage>(ent), damage, type,
-                         SDL_FPoint{tr->position.x,
-                                    tr->position.y + (float)dynamic_cast<wz::Property<wz::WzVec2D> *>(mob->a[u"hit1"].asprw->sprites[0]->n->get_child(u"head"))->get().y},
-                         Window::dt_now + i * 60);
+            else if (mob_hit_move(atk->src_point, ent))
+            {
+                mob->tick = Window::dt_now;
+                mob->state = Mob::State::HIT;
+                mob->index = u"hit1";
+            }
         }
     }
     return full_damage;
@@ -244,23 +248,18 @@ bool mob_hit_move(std::optional<SDL_FPoint> &point, entt::entity ent)
         auto mob = World::registry->try_get<Mob>(ent);
         auto hit_x = point.value().x;
         auto mob_x = tr->position.x;
-        if (mob_x < hit_x)
+        tr->flip = mob_x < hit_x ? 1 : 0;
+        mv->hspeed = mob_x < hit_x ? -125 : 125;
+        if (mob->a.contains(u"fly"))
         {
-            tr->flip = 1;
-            mv->hspeed = mv->hspeed_min.value();
-        }
-        else if (mob_x > hit_x)
-        {
-            tr->flip = 0;
-            mv->hspeed = mv->hspeed_max.value();
-        }
-        if (mob->state == Mob::State::FLY)
-        {
-            mob_fly(mob, mv, tr, mob->state, 0.075);
+            mv->vspeed = 0;
+            mob_fly(mob, mv, tr, mob->state, 0.13);
+            mv->hspeed = 0;
         }
         else if (mv->foo)
         {
-            mob_move(mob, mv, tr, mob->state, 0.075);
+            mob_move(mob, mv, tr, mob->state, 0.13);
+            mv->hspeed = 0;
         }
         return true;
     }
@@ -328,14 +327,7 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                 }
                 else
                 {
-                    if (tr->position.y <= mv->ry0.value())
-                    {
-                        mv->vspeed = mv->hspeed_max.value();
-                    }
-                    else if (tr->position.y >= mv->ry1.value())
-                    {
-                        mv->vspeed = mv->hspeed_min.value();
-                    }
+                    mv->vspeed = tr->position.y <= mv->ry0.value() ? mv->hspeed_max.value() : mv->hspeed_min.value();
                 }
             }
             else if (mv->foo)
@@ -378,22 +370,24 @@ bool mob_revive(entt::entity ent, float delta_time)
 
     if (mob->revive <= Window::dt_now)
     {
-        if (mob->a.contains(u"fly"))
+        if (mob->a.contains(u"move"))
+        {
+            mob->state = Mob::State::MOVE;
+        }
+        else if (mob->a.contains(u"stand"))
+        {
+            mob->state = Mob::State::STAY;
+        }
+        else if (mob->a.contains(u"fly"))
         {
             mob->state = Mob::State::FLY;
-        }
-        else
-        {
-            mob->state = Mob::State::STAND;
         }
         return true;
     }
     else if (mob->revive <= Window::dt_now + mob->revive_alpha_time + 100)
     {
+        World::registry->try_get<Effect>(ent)->effects.clear();
         mob->call_backs.clear();
-
-        auto eff = World::registry->try_get<Effect>(ent);
-        eff->effects.clear();
 
         mob->hp = 100;
         mob->hit = entt::null;
@@ -446,9 +440,6 @@ bool mob_jump(Mob *mob, Move *mv)
             int random = std::rand() % 35;
             if (random == 0)
             {
-                mob->index = u"jump";
-                mob->state = Mob::State::JUMP;
-
                 mv->foo = nullptr;
                 mv->vspeed = -420;
                 return true;
