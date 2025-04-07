@@ -17,11 +17,8 @@ void Button::load(std::u16string path, std::pair<std::u16string, std::unordered_
 
 void Button::over(SDL_FRect &rect, std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> &pair)
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
     // 判断鼠标是否滑动到按钮附近
-    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FPoint point = {Cursor::x, Cursor::y};
     if (SDL_PointInRectFloat(&point, &rect))
     {
         // 判断鼠标左键是否按下
@@ -42,9 +39,7 @@ void Button::over(SDL_FRect &rect, std::pair<std::u16string, std::unordered_map<
 
 void Button::click(SDL_FRect &rect, std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> &pair, std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, std::function<void()>> click_map)
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FPoint point = {Cursor::x, Cursor::y};
 
     if (SDL_PointInRectFloat(&point, &rect))
     {

@@ -10,3 +10,4 @@
 #include "UIStat.h"
 #include "MiniMap.h"
 #include "UIEquip.h"
+#include "ToolTip.h"

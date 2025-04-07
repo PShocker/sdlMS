@@ -62,7 +62,7 @@ void WorldMap::over()
 {
     if (mousein_maplist())
     {
-        Cursor::type = u"1";
+        Cursor::index = u"1";
     }
     WorldMap::cur_link = mousein_maplink();
     for (auto &[key, val] : WorldMap::position_map)
@@ -100,10 +100,7 @@ void WorldMap::run()
 
 bool WorldMap::mousein()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
-    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FPoint point = {Cursor::x, Cursor::y};
     SDL_FRect rect;
     auto sprw = WorldMap::baseimg.spr.sprw;
     rect.x = WorldMap::x - sprw->origin.x - 6;
@@ -119,8 +116,6 @@ bool WorldMap::mousein()
 
 WorldMap::Spot *WorldMap::mousein_maplist()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
     // 判断是否点击到spot
     for (auto &it : WorldMap::spots)
     {
@@ -128,8 +123,8 @@ WorldMap::Spot *WorldMap::mousein_maplist()
         auto spot_x = spot->p.x + WorldMap::x;
         auto spot_y = spot->p.y + WorldMap::y;
 
-        auto dx = mouse_x - spot_x;
-        auto dy = mouse_y - spot_y;
+        auto dx = Cursor::x - spot_x;
+        auto dy = Cursor::y - spot_y;
 
         if (std::abs(dx) <= 10 && std::abs(dy) <= 10)
         {
@@ -143,7 +138,7 @@ WorldMap::MapLink *WorldMap::mousein_maplink()
 {
     for (auto &it : WorldMap::links)
     {
-        SDL_FPoint point = {Window::mouse_x, Window::mouse_y};
+        SDL_FPoint point = {Cursor::x, Cursor::y};
         SDL_FRect rect;
         auto sprw = it.spr.sprw;
         rect.x = WorldMap::x - sprw->origin.x;

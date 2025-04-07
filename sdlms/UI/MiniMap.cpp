@@ -3,6 +3,9 @@
 #include "Resources/Wz.h"
 #include "Button.h"
 #include "WorldMap.h"
+#include "Cursor.h"
+#include "ToolTip.h"
+#include "Commons/Commons.h"
 
 void MiniMap::init()
 {
@@ -14,6 +17,53 @@ void MiniMap::init()
 
 void MiniMap::run()
 {
+    // NPC,PORTAL,USER
+    if (!MiniMap::minimize)
+    {
+        MiniMap::points.clear();
+        const auto load_points = [](SDL_FPoint &p, SDL_Texture *texture, entt::entity ent, int offset_x, int offset_y)
+        {
+            SDL_FPoint position = p + MiniMap::center;
+            position.x = position.x / MiniMap::scale;
+            position.y = position.y / MiniMap::scale;
+
+            position.x = MiniMap::x + (MiniMap::backgrnd->w - MiniMap::canvas->w) / 2 + position.x + offset_x;
+            position.y = MiniMap::y + 72 + position.y + offset_y;
+            SDL_FRect pos_rect = {
+                position.x,
+                position.y,
+                (float)texture->w,
+                (float)texture->h};
+
+            MiniMap::points.push_back({pos_rect, texture});
+            // 判断鼠标是否移动到点附近
+            SDL_FPoint point = {Cursor::x, Cursor::y};
+            SDL_FRect rect{position.x - 2, position.y - 2, (float)texture->w + 4, (float)texture->h + 4};
+            if (SDL_PointInRectFloat(&point, &rect))
+            {
+                if (auto nametag = World::registry->try_get<NameTag>(ent))
+                {
+                    auto texture = nametag->nametags[0].str_texture;
+                    pos_rect = {Cursor::x, Cursor::y, (float)texture->w, (float)texture->h};
+                    ToolTip::push(pos_rect, texture);
+                }
+            }
+        };
+        for (auto ent : World::registry->view<Npc>())
+        {
+            load_points(World::registry->try_get<Transform>(ent)->position, MiniMap::npc, ent, -2, -4);
+        }
+        for (auto ent : World::registry->view<Portal>())
+        {
+            auto por = World::registry->try_get<Portal>(ent);
+            // 只渲染普通传送门
+            if (por->a.size() == 1)
+            {
+                load_points(World::registry->try_get<Transform>(ent)->position, MiniMap::portal, ent, -2, -6);
+            }
+        }
+        load_points(World::registry->try_get<Transform>(Player::ent)->position, MiniMap::user, Player::ent, -2, -4);
+    }
 }
 
 void MiniMap::show()
@@ -56,10 +106,7 @@ void MiniMap::over()
 
 bool MiniMap::mousein()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
-    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FPoint point = {Cursor::x, Cursor::y};
     SDL_FRect rect;
     rect.x = MiniMap::x;
     rect.y = MiniMap::y;

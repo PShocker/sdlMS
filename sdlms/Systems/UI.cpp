@@ -4,15 +4,17 @@ std::list<UIIndex> ui_index = {UIIndex::UI_UIBuff, UIIndex::UI_StatusBar, UIInde
 
 void ui_run()
 {
-    auto type = Cursor::type;
-    Cursor::type = u"0";
+    auto index = Cursor::index;
+    Cursor::index = u"0";
+    ToolTip::run();
+    MiniMap::run();
     WorldMap::run();
     UIBuff::run();
     // 检测左键是否被按住
     if (Window::mouse_state & SDL_BUTTON_LMASK)
     {
         Cursor::left_mouse_press = true;
-        Cursor::type = u"12";
+        Cursor::index = u"12";
         Cursor::drag = ui_drag();
         ui_sort();
     }
@@ -29,7 +31,7 @@ void ui_run()
         Cursor::drag = false;
     }
     ui_over();
-    Cursor::action(type);
+    Cursor::action(index);
     Cursor::run();
 }
 
@@ -48,14 +50,14 @@ bool ui_drag()
     {
         if (Cursor::drag)
         {
-            KeyConfig::x = Window::mouse_x - x;
-            KeyConfig::y = Window::mouse_y - y;
+            KeyConfig::x = Cursor::x - x;
+            KeyConfig::y = Cursor::y - y;
             return true;
         }
         else if (KeyConfig::mousein())
         {
-            x = Window::mouse_x - KeyConfig::x;
-            y = Window::mouse_y - KeyConfig::y;
+            x = Cursor::x - KeyConfig::x;
+            y = Cursor::y - KeyConfig::y;
             return true;
         }
     }
@@ -64,14 +66,14 @@ bool ui_drag()
     {
         if (Cursor::drag)
         {
-            UIItem::x = Window::mouse_x - x;
-            UIItem::y = Window::mouse_y - y;
+            UIItem::x = Cursor::x - x;
+            UIItem::y = Cursor::y - y;
             return true;
         }
         else if (UIItem::mousein())
         {
-            x = Window::mouse_x - UIItem::x;
-            y = Window::mouse_y - UIItem::y;
+            x = Cursor::x - UIItem::x;
+            y = Cursor::y - UIItem::y;
             return true;
         }
     }
@@ -80,14 +82,14 @@ bool ui_drag()
     {
         if (Cursor::drag)
         {
-            UISkill::x = Window::mouse_x - x;
-            UISkill::y = Window::mouse_y - y;
+            UISkill::x = Cursor::x - x;
+            UISkill::y = Cursor::y - y;
             return true;
         }
         else if (UISkill::mousein())
         {
-            x = Window::mouse_x - UISkill::x;
-            y = Window::mouse_y - UISkill::y;
+            x = Cursor::x - UISkill::x;
+            y = Cursor::y - UISkill::y;
             return true;
         }
     }
@@ -96,14 +98,14 @@ bool ui_drag()
     {
         if (Cursor::drag)
         {
-            UIStat::x = Window::mouse_x - x;
-            UIStat::y = Window::mouse_y - y;
+            UIStat::x = Cursor::x - x;
+            UIStat::y = Cursor::y - y;
             return true;
         }
         else if (UIStat::mousein())
         {
-            x = Window::mouse_x - UIStat::x;
-            y = Window::mouse_y - UIStat::y;
+            x = Cursor::x - UIStat::x;
+            y = Cursor::y - UIStat::y;
             return true;
         }
     }
@@ -112,14 +114,14 @@ bool ui_drag()
     {
         if (Cursor::drag)
         {
-            WorldMap::x = Window::mouse_x - x;
-            WorldMap::y = Window::mouse_y - y;
+            WorldMap::x = Cursor::x - x;
+            WorldMap::y = Cursor::y - y;
             return true;
         }
         else if (WorldMap::mousein())
         {
-            x = Window::mouse_x - WorldMap::x;
-            y = Window::mouse_y - WorldMap::y;
+            x = Cursor::x - WorldMap::x;
+            y = Cursor::y - WorldMap::y;
             return true;
         }
     }
@@ -128,14 +130,14 @@ bool ui_drag()
     {
         if (Cursor::drag)
         {
-            MiniMap::x = Window::mouse_x - x;
-            MiniMap::y = Window::mouse_y - y;
+            MiniMap::x = Cursor::x - x;
+            MiniMap::y = Cursor::y - y;
             return true;
         }
         else if (MiniMap::mousein())
         {
-            x = Window::mouse_x - MiniMap::x;
-            y = Window::mouse_y - MiniMap::y;
+            x = Cursor::x - MiniMap::x;
+            y = Cursor::y - MiniMap::y;
             return true;
         }
     }
@@ -144,14 +146,14 @@ bool ui_drag()
     {
         if (Cursor::drag)
         {
-            UIEquip::x = Window::mouse_x - x;
-            UIEquip::y = Window::mouse_y - y;
+            UIEquip::x = Cursor::x - x;
+            UIEquip::y = Cursor::y - y;
             return true;
         }
         else if (UIEquip::mousein())
         {
-            x = Window::mouse_x - UIEquip::x;
-            y = Window::mouse_y - UIEquip::y;
+            x = Cursor::x - UIEquip::x;
+            y = Cursor::y - UIEquip::y;
             return true;
         }
     }

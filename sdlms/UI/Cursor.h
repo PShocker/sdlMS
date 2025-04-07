@@ -7,27 +7,18 @@
 
 struct Cursor
 {
-    struct Info
-    {
-        SDL_Cursor *cursor;
-        int delay;
-    };
-
-    static inline std::unordered_map<std::u16string, std::vector<Info>> cursor;
-
     static void init();
-
-    static void load(const std::u16string &path);
-
+    static void load();
     static void run();
+    static void action(const std::u16string &index);
 
-    static void action(const std::u16string &t);
+    static inline std::unordered_map<std::u16string, AnimatedSprite> a;
+    static inline std::u16string index = u"0";
 
     static inline bool left_mouse_press;
     static inline bool right_mouse_press;
     static inline bool drag;
 
-    static inline std::u16string type;
-    static inline int time = 0;
-    static inline int index = 0;
+    static inline float x = 0;
+    static inline float y = 0;
 };

@@ -40,10 +40,7 @@ void KeyConfig::over()
 
 bool KeyConfig::mousein()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
-    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FPoint point = {Cursor::x, Cursor::y};
     SDL_FRect rect;
     rect.x = KeyConfig::x;
     rect.y = KeyConfig::y;

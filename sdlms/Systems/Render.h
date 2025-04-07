@@ -40,4 +40,6 @@ void render_uiskill();
 void render_uistat();
 void render_minimap();
 void render_uiequip();
+void render_cursor();
+void render_tooltip();
 void render_ui();

@@ -133,6 +133,8 @@ void render_run()
     render_chatballoon();
     // 对于UI逻辑，需要单独处理渲染逻辑，不需要添加Transform组件排序
     render_ui();
+    render_cursor();
+    render_tooltip();
 }
 
 void render_texture(SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_rect, int alpha, int flip, float rotation, SDL_FPoint *origin)
@@ -1139,46 +1141,10 @@ void render_minimap()
         render_texture(MiniMap::canvas, nullptr, &pos_rect, MiniMap::alpha);
 
         // 绘制小地图人物，传送门，npc
-        const auto render_life = [&](SDL_FPoint &p, SDL_Texture *texture, entt::entity ent, int offset_x, int offset_y)
+        for (auto &[r, texture] : MiniMap::points)
         {
-            SDL_FPoint position = p + MiniMap::center;
-            position.x = position.x / MiniMap::scale;
-            position.y = position.y / MiniMap::scale;
-
-            position.x = MiniMap::x + (MiniMap::backgrnd->w - MiniMap::canvas->w) / 2 + position.x + offset_x;
-            position.y = MiniMap::y + 72 + position.y + offset_y;
-            pos_rect = {
-                position.x,
-                position.y,
-                (float)texture->w,
-                (float)texture->h};
-            render_texture(texture, nullptr, &pos_rect, MiniMap::alpha);
-            // 判断鼠标是否移动到点附近
-            SDL_FPoint point = {Window::mouse_x, Window::mouse_y};
-            SDL_FRect rect{position.x - 2, position.y - 2, (float)texture->w + 4, (float)texture->h + 4};
-            if (SDL_PointInRectFloat(&point, &rect))
-            {
-                if (auto nametag = World::registry->try_get<NameTag>(ent))
-                {
-                    Transform tran{position + SDL_FPoint{(float)Camera::x, (float)Camera::y}};
-                    render_nametag(&tran, nametag);
-                }
-            }
-        };
-        for (auto ent : World::registry->view<Npc>())
-        {
-            render_life(World::registry->try_get<Transform>(ent)->position, MiniMap::npc, ent, -2, -4);
+            render_texture(texture, nullptr, &r, MiniMap::alpha);
         }
-        for (auto ent : World::registry->view<Portal>())
-        {
-            auto por = World::registry->try_get<Portal>(ent);
-            // 只渲染普通传送门
-            if (por->a.size() == 1)
-            {
-                render_life(World::registry->try_get<Transform>(ent)->position, MiniMap::portal, ent, -2, -6);
-            }
-        }
-        render_life(World::registry->try_get<Transform>(Player::ent)->position, MiniMap::user, Player::ent, -2, -4);
     }
     else
     {
@@ -1205,6 +1171,30 @@ void render_uiequip()
         auto aspr = key->second.at(key->first);
         auto position = SDL_FPoint{(float)UIEquip::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)UIEquip::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
         render_animated_sprite(position, &aspr, UIEquip::alpha);
+    }
+}
+
+void render_cursor()
+{
+    SDL_FPoint p{Cursor::x, Cursor::y};
+    render_animated_sprite(p, &Cursor::a[Cursor::index]);
+}
+
+void render_tooltip()
+{
+    for (auto &[p, texture] : ToolTip::tooltips)
+    {
+        SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
+        SDL_FRect rect;
+        rect.w = texture->w + 4;
+        rect.h = texture->h + 4;
+        rect.x = p.x;
+        rect.y = p.y;
+        SDL_RenderFillRect(Window::renderer, &rect);
+
+        SDL_FRect pos_rect = {(float)p.x + 2, (float)p.y, (float)texture->w, (float)texture->h};
+        render_texture(texture, nullptr, &pos_rect, 255);
     }
 }
 

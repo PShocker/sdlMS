@@ -121,6 +121,7 @@ void animate_run()
         }
     }
     animate_worldmap();
+    animate_cursor();
 }
 
 bool animate_sprite(AnimatedSprite *a)
@@ -732,4 +733,9 @@ void animate_worldmap()
     {
         animate_sprite(&WorldMap::curpos.aspr);
     }
+}
+
+void animate_cursor()
+{
+    animate_sprite(&Cursor::a[Cursor::index]);
 }

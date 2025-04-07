@@ -40,10 +40,7 @@ void UIItem::over()
 
 bool UIItem::mousein()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
-    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FPoint point = {Cursor::x, Cursor::y};
     SDL_FRect rect;
     rect.x = UIItem::x;
     rect.y = UIItem::y;
@@ -70,10 +67,7 @@ void UIItem::click()
 
 void UIItem::click_tab()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
-    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FPoint point = {Cursor::x, Cursor::y};
     SDL_FRect rect;
     rect.x = UIItem::x + 4;
     rect.y = UIItem::y + 23;
@@ -81,7 +75,7 @@ void UIItem::click_tab()
     rect.h = UIItem::tabs[0]->h;
     if (SDL_PointInRectFloat(&point, &rect))
     {
-        UIItem::active_tab = (mouse_x - rect.x) / UIItem::tabs[0]->w;
+        UIItem::active_tab = (Cursor::x - rect.x) / UIItem::tabs[0]->w;
     }
 }
 

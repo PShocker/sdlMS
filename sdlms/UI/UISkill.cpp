@@ -40,10 +40,7 @@ void UISkill::over()
 
 bool UISkill::mousein()
 {
-    float mouse_x = Window::mouse_x;
-    float mouse_y = Window::mouse_y;
-
-    SDL_FPoint point = {mouse_x, mouse_y};
+    SDL_FPoint point = {Cursor::x, Cursor::y};
     SDL_FRect rect;
     rect.x = UISkill::x;
     rect.y = UISkill::y;
