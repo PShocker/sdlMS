@@ -38,8 +38,9 @@ void load_npc(wz::Node *node)
     for (auto &[key, val] : node->get_children())
     {
         if (key == u"stand" || key == u"move" || key == u"say" || key == u"hand" ||
-            key == u"eye" || key == u"arm" ||
-            key == u"eyebrows" || key == u"nose")
+            key == u"eye" || key == u"arm" || key == u"angry" ||
+            key == u"eyebrows" || key == u"nose" ||
+            key == u"hair" || key == u"smile" || key == u"alert" || key == u"blink")
         {
             npc.a[key] = AnimatedSprite(val[0]);
         }
