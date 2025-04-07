@@ -199,7 +199,7 @@ std::pair<int, int> UIItem::full(std::u16string id)
     {
         for (int index = 0; index < 96; index++)
         {
-            if (infos[i][index].sprw == nullptr)
+            if (items[i][index].sprw == nullptr)
             {
                 r = {i, index};
                 break;
@@ -219,9 +219,9 @@ void UIItem::push(std::u16string id, int num)
     if (id != u"09000000")
     {
         auto [i, index] = full(id);
-        infos[i][index].id = id;
-        infos[i][index].num += num;
-        infos[i][index].sprw = SpriteWarp::load(Item::load(id)->find_from_path(u"info/icon"));
+        items[i][index].id = id;
+        items[i][index].num += num;
+        items[i][index].sprw = SpriteWarp::load(Item::load(id)->find_from_path(u"info/icon"));
     }
     else
     {

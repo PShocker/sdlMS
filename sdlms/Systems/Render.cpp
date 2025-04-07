@@ -30,6 +30,10 @@ void render_run()
         else if (auto por = World::registry->try_get<Portal>(ent))
         {
             render_portal(tr, por);
+            if (auto nametag = World::registry->try_get<NameTag>(ent))
+            {
+                render_nametag(tr, nametag);
+            }
         }
         else if (auto npc = World::registry->try_get<Npc>(ent))
         {
@@ -596,28 +600,9 @@ void render_effect_back(Transform *tr, Effect *eff)
 void render_portal(Transform *tr, Portal *por)
 {
     // 渲染三段式传送门
-    if (por->a.size() > 0)
+    if (por->a.size() > 0 && por->index >= 0)
     {
-        if (auto ent = Player::ent; World::registry->valid(ent))
-        {
-            auto player_tr = World::registry->try_get<Transform>(ent);
-            auto d_x = std::abs(player_tr->position.x - tr->position.x);
-            auto d_y = std::abs(player_tr->position.y - tr->position.y);
-            if (d_x <= 100 && d_y <= 100)
-            {
-                por->index = 0;
-                render_animated_sprite(tr, &por->a[por->index]);
-            }
-            else if (d_x <= 150 && d_y <= 150)
-            {
-                por->index = 1;
-                render_animated_sprite(tr, &por->a[por->index]);
-            }
-            else
-            {
-                por->index = -1;
-            }
-        }
+        render_animated_sprite(tr, &por->a[por->index]);
     }
 }
 
@@ -800,11 +785,14 @@ void render_nametag(Transform *tr, NameTag *nametag)
             SDL_FRect rect;
             rect.w = str_texture->w + 4;
             rect.h = str_texture->h + 4;
-            rect.x = tr->position.x - Camera::x - rect.w / 2;
-            rect.y = tr->position.y - Camera::y + h + i * 2;
+            rect.x = tr->position.x - Camera::x - rect.w / 2 + nametag->offset_x;
+            rect.y = tr->position.y - Camera::y + h + i * 2 + nametag->offset_y;
             SDL_RenderFillRect(Window::renderer, &rect);
         }
-        auto pos_rect = SDL_FRect{tr->position.x - Camera::x - str_texture->w / 2, i * 2 + h + tr->position.y - Camera::y, (float)str_texture->w, (float)str_texture->h};
+        auto pos_rect = SDL_FRect{tr->position.x - Camera::x - str_texture->w / 2 + nametag->offset_x,
+                                  i * 2 + h + tr->position.y - Camera::y + nametag->offset_y,
+                                  (float)str_texture->w,
+                                  (float)str_texture->h};
         SDL_RenderTexture(Window::renderer, str_texture, nullptr, &pos_rect);
         h += str_texture->h;
     }
@@ -1094,7 +1082,7 @@ void render_uiitem()
     // 渲染物品
     for (int i = 0; i < 96; i++)
     {
-        auto sprw = UIItem::infos[UIItem::active_tab][i].sprw;
+        auto sprw = UIItem::items[UIItem::active_tab][i].sprw;
         if (sprw != nullptr)
         {
             auto page = i / 24;
@@ -1151,31 +1139,46 @@ void render_minimap()
         render_texture(MiniMap::canvas, nullptr, &pos_rect, MiniMap::alpha);
 
         // 绘制小地图人物，传送门，npc
-        const auto render_life = [&](SDL_FPoint &p, SDL_Texture *texture, int offset_x, int offset_y)
+        const auto render_life = [&](SDL_FPoint &p, SDL_Texture *texture, entt::entity ent, int offset_x, int offset_y)
         {
             SDL_FPoint position = p + MiniMap::center;
             position.x = position.x / MiniMap::scale;
             position.y = position.y / MiniMap::scale;
+
+            position.x = MiniMap::x + (MiniMap::backgrnd->w - MiniMap::canvas->w) / 2 + position.x + offset_x;
+            position.y = MiniMap::y + 72 + position.y + offset_y;
             pos_rect = {
-                MiniMap::x + (MiniMap::backgrnd->w - MiniMap::canvas->w) / 2 + position.x + offset_x,
-                MiniMap::y + 72 + position.y + offset_y,
+                position.x,
+                position.y,
                 (float)texture->w,
                 (float)texture->h};
             render_texture(texture, nullptr, &pos_rect, MiniMap::alpha);
+            // 判断鼠标是否移动到点附近
+            SDL_FPoint point = {Window::mouse_x, Window::mouse_y};
+            SDL_FRect rect{position.x - 2, position.y - 2, (float)texture->w + 4, (float)texture->h + 4};
+            if (SDL_PointInRectFloat(&point, &rect))
+            {
+                if (auto nametag = World::registry->try_get<NameTag>(ent))
+                {
+                    Transform tran{position + SDL_FPoint{(float)Camera::x, (float)Camera::y}};
+                    render_nametag(&tran, nametag);
+                }
+            }
         };
         for (auto ent : World::registry->view<Npc>())
         {
-            render_life(World::registry->try_get<Transform>(ent)->position, MiniMap::npc, -2, -4);
+            render_life(World::registry->try_get<Transform>(ent)->position, MiniMap::npc, ent, -2, -4);
         }
         for (auto ent : World::registry->view<Portal>())
         {
+            auto por = World::registry->try_get<Portal>(ent);
             // 只渲染普通传送门
-            if (World::registry->all_of<AnimatedSprite>(ent))
+            if (por->a.size() == 1)
             {
-                render_life(World::registry->try_get<Transform>(ent)->position, MiniMap::portal, -2, -6);
+                render_life(World::registry->try_get<Transform>(ent)->position, MiniMap::portal, ent, -2, -6);
             }
         }
-        render_life(World::registry->try_get<Transform>(Player::ent)->position, MiniMap::user, -2, -4);
+        render_life(World::registry->try_get<Transform>(Player::ent)->position, MiniMap::user, Player::ent, -2, -4);
     }
     else
     {

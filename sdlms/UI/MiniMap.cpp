@@ -107,9 +107,9 @@ void MiniMap::load_backgrnd()
     int width;
     int height;
     // 获取标题
-    auto streetName = FreeType::load(dynamic_cast<wz::Property<wz::wzstring> *>(Map::load_string_node(Map::id)->get_child(u"streetName"))->get(),
+    auto streetName = FreeType::load(Map::load_streetname(Map::id),
                                      SDL_Color{255, 255, 255, 255}, 0, 14);
-    auto mapName = FreeType::load(dynamic_cast<wz::Property<wz::wzstring> *>(Map::load_string_node(Map::id)->get_child(u"mapName"))->get(),
+    auto mapName = FreeType::load(Map::load_mapname(Map::id),
                                   SDL_Color{255, 255, 255, 255}, 0, 14);
     if (canvas)
     {

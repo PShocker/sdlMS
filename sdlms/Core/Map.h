@@ -22,7 +22,8 @@ struct Map
     static void load_bgm(wz::Node *node);
     static void load_bgm(int map_id);
 
-    static std::u16string load_mark(int map_id);
+    static std::u16string load_streetname(int map_id);
+    static std::u16string load_mapname(int map_id);
 
     static inline uint32_t id = 0;
 

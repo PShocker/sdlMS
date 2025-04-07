@@ -22,7 +22,7 @@ struct UIItem
         SpriteWarp *sprw;
         int num;
     };
-    static inline Info infos[5][96];
+    static inline Info items[5][96];
     static uint8_t load_info_index(std::u16string id);
     static std::pair<int, int> full(std::u16string id);
     static void push(std::u16string id, int num);

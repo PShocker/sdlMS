@@ -37,21 +37,14 @@ void load_npc(wz::Node *node)
     }
     for (auto &[key, val] : node->get_children())
     {
-        if (!(key == u"info" || key == u"shop" || key == u"act1"))
+        if (key == u"stand" || key == u"move" || key == u"say" || key == u"hand" ||
+            key == u"eye" || key == u"arm" ||
+            key == u"eyebrows" || key == u"nose")
         {
-            auto asprw = AnimatedSpriteWarp::load(val[0]);
-            npc.a[key] = AnimatedSprite(asprw);
+            npc.a[key] = AnimatedSprite(val[0]);
         }
     }
-
-    if (npc.a.contains(u"stand"))
-    {
-        npc.index = u"stand";
-    }
-    else
-    {
-        npc.index = npc.a.begin()->first;
-    }
+    npc.index = npc.a.begin()->first;
 
     node = Wz::String->get_root()->find_from_path(u"Npc.img/" + npc.id.substr(npc.id.find_first_not_of(u'0')));
     if (node != nullptr)

@@ -196,15 +196,16 @@ void Map::load_bgm(int map_id)
     load_bgm(node);
 }
 
-std::u16string Map::load_mark(int map_id)
+std::u16string Map::load_streetname(int map_id)
 {
-    auto node = load_map_node(map_id);
-    node = node->find_from_path("info/mapMark");
-    if (node != nullptr)
-    {
-        return dynamic_cast<wz::Property<wz::wzstring> *>(node)->get();
-    }
-    return u"";
+    auto node = Map::load_string_node(map_id);
+    return dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"streetName"))->get();
+}
+
+std::u16string Map::load_mapname(int map_id)
+{
+    auto node = Map::load_string_node(map_id);
+    return dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"mapName"))->get();
 }
 
 wz::Node *Map::load_map_node(int map_id)

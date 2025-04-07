@@ -14,8 +14,6 @@ const std::u16string pt_list[] = {u"sp", u"pi", u"pv", u"pc", u"pg", u"tp", u"ps
 
 void load_portal(wz::Node *node, int id)
 {
-    const int z_index = 900000000;
-
     auto pt = dynamic_cast<wz::Property<int> *>(node->get_child(u"pt"))->get();
 
     if (!(pt < 0 || pt >= sizeof(pt_list)))
@@ -40,7 +38,7 @@ void load_portal(wz::Node *node, int id)
         por.pn = pn;
         por.tn = tn;
 
-        World::registry->emplace<Transform>(ent, x, y, id + z_index);
+        World::registry->emplace<Transform>(ent, x, y, id + PORTAL_Z);
 
         auto url = u"MapHelper.img/portal/game/" + pt_list[pt];
         if (auto portal = Wz::Map->get_root()->find_from_path(url))
@@ -61,7 +59,13 @@ void load_portal(wz::Node *node, int id)
             {
                 // 普通的传送门,通常为pv
                 auto asprw = AnimatedSpriteWarp::load(portal);
-                World::registry->emplace<AnimatedSprite>(ent, asprw);
+                por.a.push_back(AnimatedSprite(asprw));
+                if (Map::load_string_node(tm))
+                {
+                    auto nametag = &World::registry->emplace<NameTag>(ent);
+                    nametag->offset_y = 4;
+                    NameTag::push(nametag, Map::load_mapname(tm), SDL_Color{255, 205, 0, 255});
+                }
             }
             World::registry->emplace<Animated>(ent);
         }

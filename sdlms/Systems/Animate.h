@@ -9,7 +9,7 @@ bool animate_sprite(AnimatedSprite *a);
 void animate_character(Character *cha, entt::entity ent);
 void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent);
 void animate_effect(Effect *eff);
-void animate_portal(Portal *por);
+void animate_portal(Portal *por,entt::entity ent);
 void animate_npc(Npc *npc, entt::entity ent);
 void animate_mob(Mob *mob, entt::entity ent);
 void animate_damage(Damage *dam);

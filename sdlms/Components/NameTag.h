@@ -11,6 +11,9 @@ struct NameTag
         SDL_Texture *back_texture;
     };
 
+    int offset_x = 0;
+    int offset_y = 0;
+
     static void push(NameTag *nametag, std::u16string str, SDL_Color color, std::u16string type = u"");
 
     std::vector<Info> nametags;

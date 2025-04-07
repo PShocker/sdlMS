@@ -41,7 +41,7 @@ void animate_run()
     for (auto ent : World::registry->view<Animated, Portal>())
     {
         auto por = World::registry->try_get<Portal>(ent);
-        animate_portal(por);
+        animate_portal(por, ent);
     }
     for (auto ent : World::registry->view<Animated, Npc>())
     {
@@ -378,9 +378,26 @@ void animate_effect(Effect *eff)
     return;
 }
 
-void animate_portal(Portal *por)
+void animate_portal(Portal *por, entt::entity ent)
 {
     // 更新三段式传送门,这里简单的更新三段式传送门的所有状态
+    if (por->a.size() == 3)
+    {
+        auto dis = squared_distance(World::registry->try_get<Transform>(ent)->position,
+                                    World::registry->try_get<Transform>(Player::ent)->position);
+        if (dis <= 10000)
+        {
+            por->index = 0;
+        }
+        else if (dis <= 22500)
+        {
+            por->index = 1;
+        }
+        else
+        {
+            por->index = -1;
+        }
+    }
     if (por->index >= 0)
     {
         animate_sprite(&por->a[por->index]);
