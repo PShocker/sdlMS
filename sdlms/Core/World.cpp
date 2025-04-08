@@ -84,6 +84,7 @@ void World::load_map(int id)
 
     Map::load(id);
     MiniMap::show();
+    ToolTip::show();
 
     Window::tick_delta_time();
 }

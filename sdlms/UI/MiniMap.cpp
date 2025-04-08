@@ -34,20 +34,7 @@ void MiniMap::run()
                 position.y,
                 (float)texture->w,
                 (float)texture->h};
-
-            MiniMap::points.push_back({pos_rect, texture});
-            // 判断鼠标是否移动到点附近
-            SDL_FPoint point = {Cursor::x, Cursor::y};
-            SDL_FRect rect{position.x - 2, position.y - 2, (float)texture->w + 4, (float)texture->h + 4};
-            if (SDL_PointInRectFloat(&point, &rect))
-            {
-                if (auto nametag = World::registry->try_get<NameTag>(ent))
-                {
-                    auto texture = nametag->nametags[0].str_texture;
-                    pos_rect = {Cursor::x, Cursor::y, (float)texture->w, (float)texture->h};
-                    ToolTip::push(pos_rect, texture);
-                }
-            }
+            MiniMap::points.push_back({pos_rect, texture, ent});
         };
         for (auto ent : World::registry->view<Npc>())
         {
@@ -101,6 +88,21 @@ void MiniMap::over()
         rect.x += MiniMap::x + MiniMap::backgrnd->w;
         rect.y += MiniMap::y;
         Button::over(rect, *key);
+    }
+    for (auto &[r, texture, ent] : MiniMap::points)
+    {
+        // 判断鼠标是否移动到点附近
+        SDL_FPoint point = {Cursor::x, Cursor::y};
+        SDL_FRect rect{r.x - 2, r.y - 3, (float)texture->w + 4, (float)texture->h + 6};
+        if (SDL_PointInRectFloat(&point, &rect))
+        {
+            if (auto nametag = World::registry->try_get<NameTag>(ent))
+            {
+                auto texture = nametag->nametags[0].str_texture;
+                SDL_FRect pos_rect = {Cursor::x, Cursor::y, (float)texture->w, (float)texture->h};
+                ToolTip::push(pos_rect, texture);
+            }
+        }
     }
 }
 

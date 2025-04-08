@@ -6,7 +6,7 @@
 #include "Components/Sound.h"
 #include <list>
 
-enum UIIndex
+enum UIIndex : uint8_t
 {
     UI_UIBuff,
     UI_StatusBar,
@@ -25,3 +25,4 @@ bool ui_drag();
 void ui_sort();
 void ui_click();
 void ui_over();
+int ui_mousein();

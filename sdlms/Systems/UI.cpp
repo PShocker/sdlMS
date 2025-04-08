@@ -305,11 +305,19 @@ void ui_click()
         }
     }
     break;
+    case UIIndex::UI_MiniMap:
+    {
+        if (MiniMap::mousein())
+        {
+            MiniMap::click();
+            return;
+        }
+    }
+    break;
     default:
         break;
     }
     StatusBar::click();
-    MiniMap::click();
 }
 
 void ui_over()
@@ -335,9 +343,85 @@ void ui_over()
     case UIIndex::UI_UIEquip:
         UIEquip::over();
         break;
+    case UIIndex::UI_MiniMap:
+        MiniMap::over();
+        break;
     default:
         break;
     }
-    StatusBar::over();
-    MiniMap::over();
+    auto mousein = ui_mousein();
+    if (mousein == -1)
+    {
+        StatusBar::over();
+        ToolTip::over();
+    }
+}
+
+int ui_mousein()
+{
+    for (auto rit = ui_index.rbegin(); rit != ui_index.rend(); ++rit)
+    {
+        switch (*rit)
+        {
+        case UIIndex::UI_KeyConfig:
+        {
+            if (KeyConfig::mousein())
+            {
+                return UIIndex::UI_KeyConfig;
+            }
+        }
+        break;
+        case UIIndex::UI_UIItem:
+        {
+            if (UIItem::mousein())
+            {
+                return UIIndex::UI_UIItem;
+            }
+        }
+        break;
+        case UIIndex::UI_UISkill:
+        {
+            if (UISkill::mousein())
+            {
+                return UIIndex::UI_UISkill;
+            }
+        }
+        break;
+        case UIIndex::UI_UIStat:
+        {
+            if (UIStat::mousein())
+            {
+                return UIIndex::UI_UIStat;
+            }
+        }
+        break;
+        case UIIndex::UI_WorldMap:
+        {
+            if (WorldMap::mousein())
+            {
+                return UIIndex::UI_WorldMap;
+            }
+        }
+        break;
+        case UIIndex::UI_MiniMap:
+        {
+            if (MiniMap::mousein())
+            {
+                return UIIndex::UI_MiniMap;
+            }
+        }
+        break;
+        case UIIndex::UI_UIEquip:
+        {
+            if (UIEquip::mousein())
+            {
+                return UIIndex::UI_UIEquip;
+            }
+        }
+        break;
+        default:
+            break;
+        }
+    }
+    return -1;
 }

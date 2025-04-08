@@ -9,7 +9,16 @@
 struct ToolTip
 {
     static void run();
+    static void show();
+    static void over();
+    static void load_maptooltip();
     static void push(SDL_FRect &r, SDL_Texture *texture);
 
-    static inline std::vector<std::pair<SDL_FRect, SDL_Texture *>> tooltips;
+    struct Info
+    {
+        SDL_FRect r;
+        SDL_Texture *texture;
+    };
+    static inline std::vector<Info> map_tooltips;
+    static inline std::vector<Info> tooltips;
 };

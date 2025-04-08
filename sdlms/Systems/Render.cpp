@@ -1141,7 +1141,7 @@ void render_minimap()
         render_texture(MiniMap::canvas, nullptr, &pos_rect, MiniMap::alpha);
 
         // 绘制小地图人物，传送门，npc
-        for (auto &[r, texture] : MiniMap::points)
+        for (auto &[r, texture, ent] : MiniMap::points)
         {
             render_texture(texture, nullptr, &r, MiniMap::alpha);
         }
@@ -1182,18 +1182,18 @@ void render_cursor()
 
 void render_tooltip()
 {
-    for (auto &[p, texture] : ToolTip::tooltips)
+    for (auto &[r, texture] : ToolTip::tooltips)
     {
         SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
         SDL_FRect rect;
         rect.w = texture->w + 4;
         rect.h = texture->h + 4;
-        rect.x = p.x;
-        rect.y = p.y;
+        rect.x = r.x;
+        rect.y = r.y;
         SDL_RenderFillRect(Window::renderer, &rect);
 
-        SDL_FRect pos_rect = {(float)p.x + 2, (float)p.y, (float)texture->w, (float)texture->h};
+        SDL_FRect pos_rect = {(float)r.x + 2, (float)r.y, (float)texture->w, (float)texture->h};
         render_texture(texture, nullptr, &pos_rect, 255);
     }
 }

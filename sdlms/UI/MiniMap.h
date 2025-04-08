@@ -29,7 +29,13 @@ struct MiniMap
     static inline SDL_Texture *npc;
     static inline SDL_Texture *portal;
 
-    static inline std::vector<std::pair<SDL_FRect, SDL_Texture *>> points;
+    struct Info
+    {
+        SDL_FRect r;
+        SDL_Texture *texture;
+        entt::entity ent;
+    };
+    static inline std::vector<Info> points;
 
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtMap;
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtMin2;
