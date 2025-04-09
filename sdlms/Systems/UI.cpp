@@ -343,9 +343,6 @@ void ui_over()
     case UIIndex::UI_UIEquip:
         UIEquip::over();
         break;
-    case UIIndex::UI_MiniMap:
-        MiniMap::over();
-        break;
     default:
         break;
     }
@@ -354,6 +351,10 @@ void ui_over()
     {
         StatusBar::over();
         ToolTip::over();
+    }
+    if (mousein == -1 || mousein == UIIndex::UI_MiniMap)
+    {
+        MiniMap::over();
     }
 }
 
