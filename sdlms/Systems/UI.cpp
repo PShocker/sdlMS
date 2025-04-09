@@ -322,39 +322,39 @@ void ui_click()
 
 void ui_over()
 {
-    auto index = ui_index.back();
-    switch (index)
-    {
-    case UIIndex::UI_KeyConfig:
-        KeyConfig::over();
-        break;
-    case UIIndex::UI_UIItem:
-        UIItem::over();
-        break;
-    case UIIndex::UI_UISkill:
-        UISkill::over();
-        break;
-    case UIIndex::UI_UIStat:
-        UIStat::over();
-        break;
-    case UIIndex::UI_WorldMap:
-        WorldMap::over();
-        break;
-    case UIIndex::UI_UIEquip:
-        UIEquip::over();
-        break;
-    default:
-        break;
-    }
     auto mousein = ui_mousein();
+    if (mousein == UIIndex::UI_KeyConfig)
+    {
+        KeyConfig::over();
+    }
+    if (mousein == UIIndex::UI_UIItem)
+    {
+        UIItem::over();
+    }
+    if (mousein == UIIndex::UI_UISkill)
+    {
+        UISkill::over();
+    }
+    if (mousein == UIIndex::UI_UIStat)
+    {
+        UIStat::over();
+    }
+    if (mousein == UIIndex::UI_WorldMap)
+    {
+        WorldMap::over();
+    }
+    if (mousein == UIIndex::UI_UIEquip)
+    {
+        UIEquip::over();
+    }
+    if (mousein == UIIndex::UI_MiniMap)
+    {
+        MiniMap::over();
+    }
     if (mousein == -1)
     {
         StatusBar::over();
         ToolTip::over();
-    }
-    if (mousein == -1 || mousein == UIIndex::UI_MiniMap)
-    {
-        MiniMap::over();
     }
 }
 
