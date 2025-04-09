@@ -9,6 +9,7 @@
 #include "Systems/InputSystem.h"
 #include "Systems/SpriteSystem.h"
 #include "Systems/TransformSystem.h"
+#include "Systems/S_Cursor.h"
 #include "Components/Sound.h"
 #include "Components/Camera.h"
 #include "Components/Player.h"
@@ -23,6 +24,17 @@
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
+
+#ifdef __ANDROID__
+#include "SDL_main.h"
+#endif
+
+#include "Net/Session.h"
+#include "IO/UI.h"
+#include "Timer.h"
+#include "Constants.h"
+#include "Configuration.h"
+#include "Core/EntityBuilder/EB_Cursor.h"
 
 int width = 800;
 int height = 600;
@@ -56,6 +68,7 @@ int main(int argc, char *argv[])
 #else
     Wz *wz = new Wz("./Data/");
     FreeType::init("./Data/");
+    
 #endif
     world.add_resource(wz);
 
@@ -76,6 +89,7 @@ int main(int argc, char *argv[])
     world.add_system(new CameraSystem());
 
     world.add_system(new RenderSystem());
+    world.add_system(new S_Cursor());
 
     Camera *camera = new Camera(0, 0, width, height);
     Player *pla = new Player(); // 玩家控制的角色
@@ -91,6 +105,14 @@ int main(int argc, char *argv[])
         world.add_component(nor);
         world.add_component(pla);
     }
+#ifndef __ANDROID__
+
+    Entity* cursor = EB_Cursor::BuildEntity(&world);
+    world.add_entity(cursor);
+
+    SDL_ShowCursor(SDL_DISABLE);
+#endif
+   
     // {
     //     Mob *mob = new Mob(&world, {0, 0});
     //     Normal *nor = new Normal();
