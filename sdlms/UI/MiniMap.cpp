@@ -157,9 +157,13 @@ void MiniMap::load_backgrnd()
     int height;
     // 获取标题
     auto streetName = FreeType::load(Map::load_streetname(Map::id),
-                                     SDL_Color{255, 255, 255, 255}, 0, 14);
+                                     SDL_Color{255, 255, 255, 255}, 0, 15);
+    auto streetName_fade = FreeType::load(Map::load_streetname(Map::id),
+                                          SDL_Color{0, 0, 0, 255}, 0, 15);
     auto mapName = FreeType::load(Map::load_mapname(Map::id),
-                                  SDL_Color{255, 255, 255, 255}, 0, 14);
+                                  SDL_Color{255, 255, 255, 255}, 0, 15);
+    auto mapName_fade = FreeType::load(Map::load_mapname(Map::id),
+                                       SDL_Color{0, 0, 0, 255}, 0, 15);
     if (canvas)
     {
         width = canvas->w + 12;
@@ -238,16 +242,24 @@ void MiniMap::load_backgrnd()
     pos_rect = {(float)6, (float)24, (float)MiniMap::mapremark->w, (float)MiniMap::mapremark->h};
     SDL_RenderTexture(Window::renderer, MiniMap::mapremark, nullptr, &pos_rect);
     // 街道名称
+    pos_rect = {(float)49, (float)25, (float)streetName->w, (float)streetName->h};
+    SDL_RenderTexture(Window::renderer, streetName_fade, nullptr, &pos_rect);
+
     pos_rect = {(float)48, (float)24, (float)streetName->w, (float)streetName->h};
     SDL_RenderTexture(Window::renderer, streetName, nullptr, &pos_rect);
     // 地图名称
+    pos_rect = {(float)49, (float)25 + streetName->h, (float)mapName->w, (float)mapName->h};
+    SDL_RenderTexture(Window::renderer, mapName_fade, nullptr, &pos_rect);
+
     pos_rect = {(float)48, (float)24 + streetName->h, (float)mapName->w, (float)mapName->h};
     SDL_RenderTexture(Window::renderer, mapName, nullptr, &pos_rect);
 
     SDL_SetRenderTarget(Window::renderer, nullptr);
 
     SDL_DestroyTexture(streetName);
+    SDL_DestroyTexture(streetName_fade);
     SDL_DestroyTexture(mapName);
+    SDL_DestroyTexture(mapName_fade);
 
     MiniMap::backgrnd = texture;
 }
@@ -257,11 +269,13 @@ void MiniMap::load_mapremark()
     auto node = Map::load_map_node(Map::id);
     if (node->get_child(u"info"))
     {
-        auto remark = node->find_from_path(u"info/mapMark");
-        if (remark)
+        if (auto remark = node->find_from_path(u"info/mapMark"))
         {
-            auto remark_node = Wz::Map->get_root()->find_from_path(u"MapHelper.img/mark/" + dynamic_cast<wz::Property<wz::wzstring> *>(remark)->get());
-            MiniMap::mapremark = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(remark_node));
+            auto remark_str = dynamic_cast<wz::Property<wz::wzstring> *>(remark)->get();
+            if (remark_str != u"None")
+            {
+                MiniMap::mapremark = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(Wz::Map->get_root()->find_from_path(u"MapHelper.img/mark/" + remark_str)));
+            }
         }
     }
 }

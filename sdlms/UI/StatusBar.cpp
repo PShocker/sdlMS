@@ -4,6 +4,7 @@
 #include "UISkill.h"
 #include "UIStat.h"
 #include "UIEquip.h"
+#include "MiniMap.h"
 #include "Button.h"
 #include "wz/Property.hpp"
 #include "Resources/Wz.h"
@@ -86,17 +87,19 @@ void StatusBar::click()
 void StatusBar::QuickSlot_func()
 {
     StatusBar::alpha += 20;
-    StatusBar::alpha = std::min(StatusBar::alpha, 255);
+    StatusBar::alpha = StatusBar::alpha > 255 ? 40 : StatusBar::alpha;
     KeyConfig::alpha = StatusBar::alpha;
     UIItem::alpha = StatusBar::alpha;
+    MiniMap::alpha = StatusBar::alpha;
 }
 
 void StatusBar::QuickSlotD_func()
 {
     StatusBar::alpha -= 20;
-    StatusBar::alpha = std::max(StatusBar::alpha, 40);
+    StatusBar::alpha = StatusBar::alpha < 40 ? 255 : StatusBar::alpha;
     KeyConfig::alpha = StatusBar::alpha;
     UIItem::alpha = StatusBar::alpha;
+    MiniMap::alpha = StatusBar::alpha;
 }
 
 void StatusBar::KeySet_func()
