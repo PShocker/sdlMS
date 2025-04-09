@@ -323,38 +323,33 @@ void ui_click()
 void ui_over()
 {
     auto mousein = ui_mousein();
-    if (mousein == UIIndex::UI_KeyConfig)
+    switch (mousein)
     {
+    case UIIndex::UI_KeyConfig:
         KeyConfig::over();
-    }
-    if (mousein == UIIndex::UI_UIItem)
-    {
+        break;
+    case UIIndex::UI_UIItem:
         UIItem::over();
-    }
-    if (mousein == UIIndex::UI_UISkill)
-    {
+        break;
+    case UIIndex::UI_UISkill:
         UISkill::over();
-    }
-    if (mousein == UIIndex::UI_UIStat)
-    {
+        break;
+    case UIIndex::UI_UIStat:
         UIStat::over();
-    }
-    if (mousein == UIIndex::UI_WorldMap)
-    {
+        break;
+    case UIIndex::UI_WorldMap:
         WorldMap::over();
-    }
-    if (mousein == UIIndex::UI_UIEquip)
-    {
+        break;
+    case UIIndex::UI_UIEquip:
         UIEquip::over();
-    }
-    if (mousein == UIIndex::UI_MiniMap)
-    {
+        break;
+    case UIIndex::UI_MiniMap:
         MiniMap::over();
-    }
-    if (mousein == -1)
-    {
+        break;
+    default:
         StatusBar::over();
         ToolTip::over();
+        break;
     }
 }
 
