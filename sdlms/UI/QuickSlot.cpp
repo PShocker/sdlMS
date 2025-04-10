@@ -26,7 +26,6 @@ void QuickSlot::init()
     else
     {
         // 中间的35是需要平铺的键位长度,左右6像素是左右边框
-        auto length = 35;
         auto tile_cnt_x = ((Camera::w - 824) - 12) / 35;
         QuickSlot::x = Camera::w - tile_cnt_x * 35 - 12;
         QuickSlot::y = Camera::h - QuickSlot::backgrnd->h;
