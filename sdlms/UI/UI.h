@@ -11,3 +11,5 @@
 #include "MiniMap.h"
 #include "UIEquip.h"
 #include "ToolTip.h"
+#include "GainTip.h"
+#include "QuickSlot.h"

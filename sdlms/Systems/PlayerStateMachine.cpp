@@ -601,9 +601,8 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             if (auto aft = World::registry->try_get<AfterImage>(Player::ent))
             {
                 auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
-                auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
-                aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action].asprw);
-                aft->info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action];
+                aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][action].asprw);
+                aft->info = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][action];
             }
         }
         break;

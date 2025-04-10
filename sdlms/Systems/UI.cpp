@@ -1,6 +1,6 @@
 #include "UI.h"
 
-std::list<UIIndex> ui_index = {UIIndex::UI_UIBuff, UIIndex::UI_StatusBar, UIIndex::UI_MiniMap};
+std::list<UIIndex> ui_index = {UIIndex::UI_UIBuff, UIIndex::UI_StatusBar, UIIndex::UI_QuickSlot, UIIndex::UI_MiniMap};
 
 void ui_run()
 {
@@ -10,6 +10,7 @@ void ui_run()
     MiniMap::run();
     WorldMap::run();
     UIBuff::run();
+    GainTip::run();
     // 检测左键是否被按住
     if (Window::mouse_state & SDL_BUTTON_LMASK)
     {

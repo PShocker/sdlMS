@@ -3,27 +3,15 @@
 
 #include "wz/Property.hpp"
 #include <SDL3/SDL.h>
-
 #include "Resources/Wz.h"
 
-std::u16string AfterImage::afterImage_index(int level)
+void AfterImage::load(const std::u16string &type, const std::u16string &sfx, const std::u16string &afterImage_index)
 {
-    auto level_str = std::to_string(level / 10);
-    return std::u16string{level_str.begin(), level_str.end()};
-}
-
-void AfterImage::load(const std::u16string &type, const std::u16string &sfx, int level)
-{
-    auto u16_level_str = afterImage_index(level);
-
     auto afterimage_node = Wz::Character->get_root()->find_from_path(u"Afterimage");
-
-    if (!(afterimages.contains(type) && afterimages[type].contains(u16_level_str)))
+    if (!(afterimages.contains(type) && afterimages[type].contains(afterImage_index)))
     {
-        auto afterimage = afterimage_node->find_from_path(type + u".img/" + u16_level_str);
-
+        auto afterimage = afterimage_node->find_from_path(type + u".img/" + afterImage_index);
         std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> part;
-
         for (auto &[second, type] : afterimage->get_children())
         {
             if (Character::type_map.contains(second))
@@ -48,7 +36,7 @@ void AfterImage::load(const std::u16string &type, const std::u16string &sfx, int
                         info.asprw = AnimatedSpriteWarp::load(act[0], 255);
                     }
                 }
-                part[u16_level_str][action] = info;
+                part[afterImage_index][action] = info;
             }
         }
         afterimages[type] = part;

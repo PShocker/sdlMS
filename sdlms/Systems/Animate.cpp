@@ -222,8 +222,7 @@ void animate_character(Character *cha, entt::entity ent)
         if (auto ski = World::registry->try_get<Skill>(ent))
         {
             auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-            auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
-            auto index = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][cha->action].index;
+            auto index = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][cha->action].index;
             if (cha->action_index == index && action_time == 0)
             {
                 handle_skill_attack(ski);
@@ -287,12 +286,11 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 {
     auto action = cha->action;
     auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-    auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
-    auto &info = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action];
+    auto &info = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][action];
     uint8_t index = info.index;
     if (aft->aspr.asprw == nullptr)
     {
-        aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][action].asprw);
+        aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][action].asprw);
         aft->hit = true;
     }
     auto &aspr = aft->aspr;

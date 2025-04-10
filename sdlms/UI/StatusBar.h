@@ -15,7 +15,6 @@ struct StatusBar
     static void click();
     static inline SDL_Texture *backgrnd;
     static inline SDL_Texture *backgrnd2;
-    static inline SDL_Texture *quickSlot;
     static inline SDL_Texture *chatTarget;
     static inline SDL_Texture *iconRed;
     static inline SDL_Texture *iconBlue;

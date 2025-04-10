@@ -5,6 +5,7 @@
 #include "Commons/Commons.h"
 #include "Entities/Entities.h"
 #include "Systems/Attack.h"
+#include "UI/GainTip.h"
 
 void mob_statemachine_run()
 {
@@ -223,6 +224,9 @@ optional<int> mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> h
                 }
                 mob->state = Mob::State::DIE;
                 mob->index = u"die1";
+
+                // 获取经验提示
+                GainTip::push(u"e", Window::dt_now);
 
                 // 爆金币
                 mob_drop(mob, tr);

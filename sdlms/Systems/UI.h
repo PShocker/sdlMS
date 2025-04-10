@@ -10,6 +10,7 @@ enum UIIndex : uint8_t
 {
     UI_UIBuff,
     UI_StatusBar,
+    UI_QuickSlot,
     UI_KeyConfig,
     UI_UIItem,
     UI_UISkill,

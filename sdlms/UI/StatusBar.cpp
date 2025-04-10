@@ -5,6 +5,7 @@
 #include "UIStat.h"
 #include "UIEquip.h"
 #include "MiniMap.h"
+#include "QuickSlot.h"
 #include "Button.h"
 #include "wz/Property.hpp"
 #include "Resources/Wz.h"
@@ -29,7 +30,6 @@ void StatusBar::init()
     auto ui_node = Wz::UI->get_root();
     backgrnd = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/base/backgrnd")));
     backgrnd2 = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/base/backgrnd2")));
-    quickSlot = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/base/quickSlot")));
     chatTarget = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/base/chatTarget")));
     iconMemo = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/base/iconMemo")));
     box = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/base/box")));
@@ -91,6 +91,7 @@ void StatusBar::QuickSlot_func()
     KeyConfig::alpha = StatusBar::alpha;
     UIItem::alpha = StatusBar::alpha;
     MiniMap::alpha = StatusBar::alpha;
+    QuickSlot::alpha = StatusBar::alpha;
 }
 
 void StatusBar::QuickSlotD_func()
@@ -100,6 +101,7 @@ void StatusBar::QuickSlotD_func()
     KeyConfig::alpha = StatusBar::alpha;
     UIItem::alpha = StatusBar::alpha;
     MiniMap::alpha = StatusBar::alpha;
+    QuickSlot::alpha = StatusBar::alpha;
 }
 
 void StatusBar::KeySet_func()

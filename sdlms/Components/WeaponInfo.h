@@ -14,6 +14,7 @@ struct WeaponInfo
     bool walk1 = false;
     int attack = 0;
     int reqLevel = 0;
+    std::u16string afterImage_index;
     WeaponInfo(const std::u16string &id);
 
     static bool if_long_range_weapon(int attack);

@@ -133,6 +133,7 @@ void render_run()
     render_damage();
     render_chatballoon();
     // 对于UI逻辑，需要单独处理渲染逻辑，不需要添加Transform组件排序
+    render_gaintip();
     render_ui();
     render_cursor();
     render_tooltip();
@@ -887,33 +888,9 @@ void render_statusbar()
     pos_rect = SDL_FRect{(float)x, (float)y, (float)StatusBar::iconMemo->w, (float)StatusBar::iconMemo->h};
     render_texture(StatusBar::iconMemo, nullptr, &pos_rect, StatusBar::alpha);
 
-    // 渲染技能栏
-    auto right = 145;
-    auto length = StatusBar::quickSlot->w - right;
-    src_rect = SDL_FRect{(float)right, (float)0, (float)length, (float)StatusBar::quickSlot->h};
-    pos_rect = SDL_FRect{(float)Camera::w - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
-    render_texture(StatusBar::quickSlot, &src_rect, &pos_rect, StatusBar::alpha);
-
-    auto middle = 110;
-    length = StatusBar::quickSlot->w - middle - length;
-    src_rect = SDL_FRect{(float)middle, (float)0, (float)length, (float)StatusBar::quickSlot->h};
-    i = (float)Camera::w - (StatusBar::quickSlot->w - right);
-    while (i >= 866)
-    {
-        pos_rect = SDL_FRect{(float)i - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
-        render_texture(StatusBar::quickSlot, &src_rect, &pos_rect, StatusBar::alpha);
-        i = i - length;
-    }
-
-    auto letf = 6;
-    length = letf;
-    src_rect = SDL_FRect{(float)0, (float)0, (float)length, (float)StatusBar::quickSlot->h};
-    pos_rect = SDL_FRect{(float)i - length, (float)Camera::h - StatusBar::quickSlot->h, (float)length, (float)StatusBar::quickSlot->h};
-    render_texture(StatusBar::quickSlot, &src_rect, &pos_rect, StatusBar::alpha);
-
     // 渲染等级
     auto l = Player::level;
-    length = static_cast<int>(std::floor(std::log10(l)) + 1);
+    auto length = static_cast<int>(std::floor(std::log10(l)) + 1);
     pos_rect.x = 22 + length * 13;
     pos_rect.y = Camera::h - 24;
     pos_rect.w = 11;
@@ -1213,6 +1190,29 @@ void render_tooltip()
     }
 }
 
+void render_gaintip()
+{
+    int h = 0;
+    for (auto rit = GainTip::gaintips.rbegin(); rit != GainTip::gaintips.rend(); ++rit)
+    {
+        auto &[texture, destory] = *rit;
+        SDL_FRect pos_rect;
+        pos_rect.w = texture->w;
+        pos_rect.h = texture->h;
+        pos_rect.x = Camera::w - texture->w - 4;
+        pos_rect.y = QuickSlot::y - h - 20;
+        render_texture(texture, nullptr, &pos_rect, (float)(destory - Window::dt_now) / 5000 * 255);
+        h += texture->h;
+    }
+}
+
+void render_quickslot()
+{
+    // 渲染技能栏
+    SDL_FRect pos_rect{(float)QuickSlot::x, (float)QuickSlot::y, (float)QuickSlot::w, (float)QuickSlot::h};
+    render_texture(QuickSlot::backgrnd2, nullptr, &pos_rect, QuickSlot::alpha);
+}
+
 void render_ui()
 {
     for (auto it : ui_index)
@@ -1245,6 +1245,9 @@ void render_ui()
             break;
         case UIIndex::UI_UIEquip:
             render_uiequip();
+            break;
+        case UIIndex::UI_QuickSlot:
+            render_quickslot();
             break;
         default:
             break;

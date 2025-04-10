@@ -41,8 +41,7 @@ int skill_4001344(entt::entity ent)
         auto ski = World::registry->try_get<Skill>(ent);
         auto cha = World::registry->try_get<Character>(ent);
         auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-        auto afterImage_index = AfterImage::afterImage_index(weaponinfo->reqLevel);
-        auto index = AfterImage::afterimages[weaponinfo->afterImage][afterImage_index][cha->action].index;
+        auto index = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][cha->action].index;
         if (action_frame < index)
         {
             return;
