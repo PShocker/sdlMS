@@ -19,6 +19,7 @@ void World::load_map(int id)
                 World::registry->remove<AfterImage>(ent);
                 World::registry->remove<Skill>(ent);
                 World::registry->try_get<Effect>(ent)->effects.clear();
+                World::registry->try_get<Damage>(ent)->damages.clear();
                 continue;
             }
         }
