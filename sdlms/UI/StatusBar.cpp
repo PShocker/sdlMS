@@ -87,7 +87,6 @@ void StatusBar::init()
     load_hp();
     load_mp();
     load_exp();
-    load_bar_graduation();
 }
 
 void StatusBar::click()
@@ -125,9 +124,6 @@ void StatusBar::load_backgrnd3()
 
     pos_rect = SDL_FRect{(float)596, (float)11, (float)StatusBar::iconMemo->w, (float)StatusBar::iconMemo->h};
     SDL_RenderTexture(Window::renderer, StatusBar::iconMemo, nullptr, &pos_rect);
-
-    pos_rect = SDL_FRect{(float)215, (float)37, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
 
     SDL_SetRenderTarget(Window::renderer, nullptr);
 }
@@ -170,12 +166,18 @@ void StatusBar::load_name()
     SDL_SetRenderTarget(Window::renderer, nullptr);
 }
 
+void StatusBar::load_bar()
+{
+    SDL_FRect pos_rect{(float)215, (float)37, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
+}
+
 void StatusBar::load_bar_digit(int x, int cur, int max)
 {
     SDL_SetRenderTarget(Window::renderer, backgrnd3);
 
     SDL_FRect pos_rect{(float)0, (float)0, (float)StatusBar::backgrnd2->w, (float)StatusBar::backgrnd2->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, nullptr, &pos_rect);
+    // SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, nullptr, &pos_rect);
 
     pos_rect = {(float)x, (float)40, (float)StatusBar::number[10]->w, (float)StatusBar::number[10]->h};
     SDL_RenderTexture(Window::renderer, StatusBar::number[10], nullptr, &pos_rect);
@@ -231,22 +233,25 @@ void StatusBar::load_bar_graduation()
 
     SDL_SetRenderTarget(Window::renderer, nullptr);
 }
-void StatusBar::load_hp()
+bool StatusBar::load_hp()
 {
+    bool r = false;
     static int last_hp;
     static int last_max_hp;
     if (last_hp != Player::hp || last_max_hp != Player::max_hp)
     {
         load_bar_digit(236, Player::hp, Player::max_hp);
         load_bar_fade(322, (float)Player::hp / Player::max_hp);
-        load_bar_graduation();
+        r = true;
     }
     last_hp = Player::hp;
     last_max_hp = Player::max_hp;
+    return r;
 }
 
-void StatusBar::load_mp()
+bool StatusBar::load_mp()
 {
+    bool r = false;
     static int last_mp;
     static int last_max_mp;
     if (last_mp != Player::mp || last_max_mp != Player::max_mp)
@@ -254,13 +259,16 @@ void StatusBar::load_mp()
         load_bar_digit(347, Player::mp, Player::max_mp);
         load_bar_fade(431, (float)Player::mp / Player::max_mp);
         load_bar_graduation();
+        r = true;
     }
     last_mp = Player::mp;
     last_max_mp = Player::max_mp;
+    return r;
 }
 
-void StatusBar::load_exp()
+bool StatusBar::load_exp()
 {
+    bool r = false;
     static int last_exp;
     static int last_max_exp;
     if (last_exp != Player::exp || last_max_exp != Player::max_exp)
@@ -268,9 +276,11 @@ void StatusBar::load_exp()
         load_bar_digit(464, Player::exp, Player::max_exp);
         load_bar_fade(554, (float)Player::exp / Player::max_exp);
         load_bar_graduation();
+        r = true;
     }
     last_exp = Player::exp;
     last_max_exp = Player::max_exp;
+    return r;
 }
 
 void StatusBar::QuickSlot_func()
