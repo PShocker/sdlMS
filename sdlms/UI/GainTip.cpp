@@ -10,29 +10,29 @@ static inline SDL_Texture *plus_cache;
 
 void GainTip::init()
 {
-    number_cache[0] = FreeType::load(u"0", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[1] = FreeType::load(u"1", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[2] = FreeType::load(u"2", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[3] = FreeType::load(u"3", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[4] = FreeType::load(u"4", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[5] = FreeType::load(u"5", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[6] = FreeType::load(u"6", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[7] = FreeType::load(u"7", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[8] = FreeType::load(u"8", SDL_Color{255, 255, 255, 255}, 0, 12);
-    number_cache[9] = FreeType::load(u"9", SDL_Color{255, 255, 255, 255}, 0, 12);
+    number_cache[0] = FreeType::load(u"0", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[1] = FreeType::load(u"1", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[2] = FreeType::load(u"2", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[3] = FreeType::load(u"3", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[4] = FreeType::load(u"4", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[5] = FreeType::load(u"5", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[6] = FreeType::load(u"6", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[7] = FreeType::load(u"7", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[8] = FreeType::load(u"8", SDL_Color{255, 255, 255, 255}, 0, 13);
+    number_cache[9] = FreeType::load(u"9", SDL_Color{255, 255, 255, 255}, 0, 13);
 
-    bracket_cache[0] = FreeType::load(u"(", SDL_Color{255, 255, 255, 255}, 0, 12);
-    bracket_cache[1] = FreeType::load(u")", SDL_Color{255, 255, 255, 255}, 0, 12);
+    bracket_cache[0] = FreeType::load(u"(", SDL_Color{255, 255, 255, 255}, 0, 13);
+    bracket_cache[1] = FreeType::load(u")", SDL_Color{255, 255, 255, 255}, 0, 13);
 
-    prefix_cache[0] = FreeType::load(u"得到经验值", SDL_Color{255, 255, 255, 255}, 0, 12);
-    prefix_cache[1] = FreeType::load(u"得到装备栏物品", SDL_Color{255, 255, 255, 255}, 0, 12);
-    prefix_cache[2] = FreeType::load(u"得到消耗栏物品", SDL_Color{255, 255, 255, 255}, 0, 12);
-    prefix_cache[3] = FreeType::load(u"得到设置栏物品", SDL_Color{255, 255, 255, 255}, 0, 12);
-    prefix_cache[4] = FreeType::load(u"得到其他栏物品", SDL_Color{255, 255, 255, 255}, 0, 12);
-    prefix_cache[5] = FreeType::load(u"得到特殊栏物品", SDL_Color{255, 255, 255, 255}, 0, 12);
-    prefix_cache[6] = FreeType::load(u"得到金币", SDL_Color{255, 255, 255, 255}, 0, 12);
+    prefix_cache[0] = FreeType::load(u"得到经验值", SDL_Color{255, 255, 255, 255}, 0, 13);
+    prefix_cache[1] = FreeType::load(u"得到装备栏物品", SDL_Color{255, 255, 255, 255}, 0, 13);
+    prefix_cache[2] = FreeType::load(u"得到消耗栏物品", SDL_Color{255, 255, 255, 255}, 0, 13);
+    prefix_cache[3] = FreeType::load(u"得到设置栏物品", SDL_Color{255, 255, 255, 255}, 0, 13);
+    prefix_cache[4] = FreeType::load(u"得到其他栏物品", SDL_Color{255, 255, 255, 255}, 0, 13);
+    prefix_cache[5] = FreeType::load(u"得到特殊栏物品", SDL_Color{255, 255, 255, 255}, 0, 13);
+    prefix_cache[6] = FreeType::load(u"得到金币", SDL_Color{255, 255, 255, 255}, 0, 13);
 
-    plus_cache = FreeType::load(u"+", SDL_Color{255, 255, 255, 255}, 0, 12);
+    plus_cache = FreeType::load(u"+", SDL_Color{255, 255, 255, 255}, 0, 13);
 }
 
 void GainTip::run()
@@ -59,7 +59,7 @@ void GainTip::push(const std::u16string &index, int num)
         auto prefix = index == u"e" ? prefix_cache[0] : prefix_cache[6];
         auto num_texture = load_num_texture(num);
         auto texture = Texture::createBlankTexture(SDL_PIXELFORMAT_ARGB8888,
-                                                   prefix->w + bracket_cache[0]->w + num_texture->w + bracket_cache[1]->w,
+                                                   prefix->w + bracket_cache[0]->w + plus_cache->w + num_texture->w + bracket_cache[1]->w,
                                                    prefix->h);
         SDL_SetRenderTarget(Window::renderer, texture);
         int i = 0;
@@ -80,7 +80,7 @@ void GainTip::push(const std::u16string &index, int num)
         SDL_SetRenderTarget(Window::renderer, nullptr);
 
         SDL_DestroyTexture(num_texture);
-        gaintips.push_back({texture, Window::dt_now + 8000});
+        gaintips.push_back({texture, Window::dt_now + 5000});
     }
     else
     {
@@ -89,16 +89,9 @@ void GainTip::push(const std::u16string &index, int num)
 
 SDL_Texture *GainTip::load_num_texture(int num)
 {
-    int length = 0;
-    int height = 0;
     // 分解各位数字
-    while (num > 0)
-    {
-        int digit = num % 10;
-        length += number_cache[digit]->w;
-        height = std::max(height, number_cache[digit]->h);
-        num /= 10;
-    }
+    auto length = static_cast<int>(std::floor(std::log10(num)) + 1) * number_cache[0]->w;
+    int height = number_cache[0]->h;
     auto texture = Texture::createBlankTexture(SDL_PIXELFORMAT_ARGB8888, length, height);
     SDL_SetRenderTarget(Window::renderer, texture);
     while (num > 0)
