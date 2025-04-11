@@ -25,7 +25,7 @@ void StatusBar::over()
     }
 }
 
-void StatusBar::init()
+void StatusBar::load()
 {
     auto ui_node = Wz::UI->get_root();
     backgrnd = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"StatusBar.img/base/backgrnd")));
@@ -74,6 +74,19 @@ void StatusBar::init()
     number[13] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"percent")));
 }
 
+void StatusBar::init()
+{
+    load();
+    load_backgrnd3();
+    load_level();
+    load_job();
+    load_name();
+    load_hp();
+    load_mp();
+    load_exp();
+    load_bar_graduation();
+}
+
 void StatusBar::click()
 {
     for (auto &[key, val] : StatusBar::position_map)
@@ -82,6 +95,169 @@ void StatusBar::click()
         rect.y += Camera::h;
         Button::click(rect, *key, StatusBar::click_map);
     }
+}
+
+void StatusBar::load_backgrnd3()
+{
+    // 提取渲染好背景backgrnd3
+    if (backgrnd3)
+    {
+        SDL_DestroyTexture(backgrnd3);
+    }
+    backgrnd3 = Texture::createBlankTexture(SDL_PIXELFORMAT_ARGB4444, Camera::w, backgrnd->h);
+    SDL_SetRenderTarget(Window::renderer, backgrnd3);
+    // 渲染backgrnd
+    SDL_FRect pos_rect{(float)0, (float)0, (float)StatusBar::backgrnd->w, (float)StatusBar::backgrnd->h};
+    for (float i = 0; i <= Camera::w; i += StatusBar::backgrnd->w)
+    {
+        pos_rect.x = i;
+        SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
+    }
+    pos_rect = SDL_FRect{(float)0, (float)0, (float)StatusBar::backgrnd2->w, (float)StatusBar::backgrnd2->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, nullptr, &pos_rect);
+
+    auto src_rect = SDL_FRect{(float)21, (float)0, (float)21, (float)19};
+    pos_rect = SDL_FRect{(float)592, (float)7, (float)21, (float)19};
+    SDL_RenderTexture(Window::renderer, StatusBar::box, &src_rect, &pos_rect);
+
+    pos_rect = SDL_FRect{(float)596, (float)11, (float)StatusBar::iconMemo->w, (float)StatusBar::iconMemo->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::iconMemo, nullptr, &pos_rect);
+
+    pos_rect = SDL_FRect{(float)215, (float)37, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
+
+    SDL_SetRenderTarget(Window::renderer, nullptr);
+}
+
+void StatusBar::load_level()
+{
+    SDL_SetRenderTarget(Window::renderer, backgrnd3);
+    // 渲染等级
+    auto l = Player::level;
+    auto length = static_cast<int>(std::floor(std::log10(l)) + 1);
+    SDL_FRect pos_rect{(float)22 + length * 13, (float)47, (float)11, (float)13};
+    // 分解各位数字
+    while (l > 0)
+    {
+        int digit = l % 10;
+        SDL_RenderTexture(Window::renderer, StatusBar::LevelNo[digit], nullptr, &pos_rect);
+        pos_rect.x -= 13;
+        l /= 10;
+    }
+    SDL_SetRenderTarget(Window::renderer, nullptr);
+}
+
+void StatusBar::load_job()
+{
+    SDL_SetRenderTarget(Window::renderer, backgrnd3);
+
+    SDL_FRect pos_rect{(float)87, (float)37, (float)StatusBar::job->w, (float)StatusBar::job->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::job, nullptr, &pos_rect);
+
+    SDL_SetRenderTarget(Window::renderer, nullptr);
+}
+
+void StatusBar::load_name()
+{
+    SDL_SetRenderTarget(Window::renderer, backgrnd3);
+
+    SDL_FRect pos_rect{(float)87, (float)StatusBar::job->h + 39, (float)StatusBar::name->w, (float)StatusBar::name->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::name, nullptr, &pos_rect);
+
+    SDL_SetRenderTarget(Window::renderer, nullptr);
+}
+
+void StatusBar::load_bar_digit(int x, int cur, int max)
+{
+    SDL_SetRenderTarget(Window::renderer, backgrnd3);
+    SDL_FRect pos_rect{(float)x, (float)40, (float)StatusBar::number[10]->w, (float)StatusBar::number[10]->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::number[10], nullptr, &pos_rect);
+
+    const auto load_num = [&](int x, int num)
+    {
+        auto length = static_cast<int>(std::floor(std::log10(num)) + 1);
+        x += length * 6 - 2;
+        SDL_FRect pos_rect{(float)x, (float)41, (float)StatusBar::number[0]->w, (float)StatusBar::number[0]->h};
+        // 分解各位数字
+        while (num > 0)
+        {
+            int digit = num % 10;
+            SDL_RenderTexture(Window::renderer, StatusBar::number[digit], nullptr, &pos_rect);
+            pos_rect.x -= 6;
+            num /= 10;
+        }
+        return x;
+    };
+    x = load_num(x, cur);
+
+    x += 7;
+    pos_rect = SDL_FRect{(float)x, (float)41, (float)StatusBar::number[12]->w, (float)StatusBar::number[12]->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::number[12], nullptr, &pos_rect);
+
+    x = load_num(x, max);
+    x += 7;
+    pos_rect = SDL_FRect{(float)x, (float)40, (float)StatusBar::number[11]->w, (float)StatusBar::number[11]->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::number[11], nullptr, &pos_rect);
+    SDL_SetRenderTarget(Window::renderer, nullptr);
+}
+
+void StatusBar::load_bar_fade(float x, float percent)
+{
+    SDL_SetRenderTarget(Window::renderer, backgrnd3);
+
+    auto length = (1 - percent) * 109;
+    SDL_FRect pos_rect{(float)x - length, (float)52, (float)length, (float)StatusBar::gray->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::gray, nullptr, &pos_rect);
+
+    SDL_SetRenderTarget(Window::renderer, nullptr);
+}
+
+void StatusBar::load_bar_graduation()
+{
+    SDL_SetRenderTarget(Window::renderer, backgrnd3);
+
+    SDL_FRect pos_rect{(float)215, (float)37, (float)StatusBar::graduation->w, (float)StatusBar::graduation->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::graduation, nullptr, &pos_rect);
+
+    SDL_SetRenderTarget(Window::renderer, nullptr);
+}
+void StatusBar::load_hp()
+{
+    static int last_hp;
+    static int last_max_hp;
+    if (last_hp != Player::hp || last_max_hp != Player::max_hp)
+    {
+        load_bar_digit(236, Player::hp, Player::max_hp);
+        load_bar_fade(322, (float)Player::hp / Player::max_hp);
+    }
+    last_hp = Player::hp;
+    last_max_hp = Player::max_hp;
+}
+
+void StatusBar::load_mp()
+{
+    static int last_mp;
+    static int last_max_mp;
+    if (last_mp != Player::mp || last_max_mp != Player::max_mp)
+    {
+        load_bar_digit(347, Player::mp, Player::max_mp);
+        load_bar_fade(431, (float)Player::mp / Player::max_mp);
+    }
+    last_mp = Player::mp;
+    last_max_mp = Player::max_mp;
+}
+
+void StatusBar::load_exp()
+{
+    static int last_exp;
+    static int last_max_exp;
+    if (last_exp != Player::exp || last_max_exp != Player::max_exp)
+    {
+        load_bar_digit(464, Player::exp, Player::max_exp);
+        load_bar_fade(554, (float)Player::exp / Player::max_exp);
+    }
+    last_exp = Player::exp;
+    last_max_exp = Player::max_exp;
 }
 
 void StatusBar::QuickSlot_func()

@@ -855,20 +855,9 @@ void render_chatballoon()
 
 void render_statusbar()
 {
-    // 渲染backgrnd
-    float i = 0;
-    while (i <= Camera::w)
-    {
-        auto pos_rect = SDL_FRect{(float)i, (float)Camera::h - StatusBar::backgrnd->h, (float)StatusBar::backgrnd->w, (float)StatusBar::backgrnd->h};
-        render_texture(StatusBar::backgrnd, nullptr, &pos_rect, StatusBar::alpha);
-        i += StatusBar::backgrnd->w;
-    }
-    int x = 0;
-    auto pos_rect = SDL_FRect{(float)x, (float)Camera::h - StatusBar::backgrnd2->h, (float)StatusBar::backgrnd2->w, (float)StatusBar::backgrnd2->h};
-    render_texture(StatusBar::backgrnd2, nullptr, &pos_rect, StatusBar::alpha);
-
-    pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::bar->h - 3, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
-    render_texture(StatusBar::bar, nullptr, &pos_rect, StatusBar::alpha);
+    // 渲染backgrnd3
+    SDL_FRect pos_rect{(float)0, (float)Camera::h - StatusBar::backgrnd3->h, (float)StatusBar::backgrnd3->w, (float)StatusBar::backgrnd3->h};
+    render_texture(StatusBar::backgrnd3, nullptr, &pos_rect, StatusBar::alpha);
 
     for (auto &[key, val] : StatusBar::position_map)
     {
@@ -876,128 +865,6 @@ void render_statusbar()
         auto position = SDL_FPoint{(float)val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)Camera::h + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
         render_animated_sprite(position, &aspr, StatusBar::alpha);
     }
-
-    x = 592;
-    float y = Camera::h - 64;
-    auto src_rect = SDL_FRect{(float)21, (float)0, (float)21, (float)19};
-    pos_rect = SDL_FRect{(float)x, (float)y, (float)21, (float)19};
-    render_texture(StatusBar::box, &src_rect, &pos_rect, StatusBar::alpha);
-
-    x = 596;
-    y = Camera::h - 60;
-    pos_rect = SDL_FRect{(float)x, (float)y, (float)StatusBar::iconMemo->w, (float)StatusBar::iconMemo->h};
-    render_texture(StatusBar::iconMemo, nullptr, &pos_rect, StatusBar::alpha);
-
-    // 渲染等级
-    auto l = Player::level;
-    auto length = static_cast<int>(std::floor(std::log10(l)) + 1);
-    pos_rect.x = 22 + length * 13;
-    pos_rect.y = Camera::h - 24;
-    pos_rect.w = 11;
-    pos_rect.h = 13;
-    // 分解各位数字
-    while (l > 0)
-    {
-        int digit = l % 10;
-        render_texture(StatusBar::LevelNo[digit], nullptr, &pos_rect, StatusBar::alpha);
-        pos_rect.x -= 13;
-        l /= 10;
-    }
-    // 渲染职业，名字
-    pos_rect.x = 87;
-    pos_rect.y = Camera::h - 34;
-    pos_rect.w = StatusBar::job->w;
-    pos_rect.h = StatusBar::job->h;
-    render_texture(StatusBar::job, nullptr, &pos_rect, StatusBar::alpha);
-
-    pos_rect.y += StatusBar::job->h + 2;
-    pos_rect.w = StatusBar::name->w;
-    pos_rect.h = StatusBar::name->h;
-    render_texture(StatusBar::name, nullptr, &pos_rect, StatusBar::alpha);
-
-    const auto render_bar_digit = [&](int x, int cur, int max)
-    {
-        pos_rect.x = x;
-        pos_rect.y = Camera::h - 31;
-        pos_rect.w = StatusBar::number[10]->w;
-        pos_rect.h = StatusBar::number[10]->h;
-        render_texture(StatusBar::number[10], nullptr, &pos_rect, StatusBar::alpha);
-
-        length = static_cast<int>(std::floor(std::log10(cur)) + 1);
-        x += length * 6 - 2;
-        pos_rect.x = x;
-        pos_rect.y = Camera::h - 30;
-        pos_rect.w = StatusBar::number[0]->w;
-        pos_rect.h = StatusBar::number[0]->h;
-        // 分解各位数字
-        while (cur > 0)
-        {
-            int digit = cur % 10;
-            render_texture(StatusBar::number[digit], nullptr, &pos_rect, StatusBar::alpha);
-            pos_rect.x -= 6;
-            cur /= 10;
-        }
-
-        x += 7;
-        pos_rect.x = x;
-        pos_rect.w = StatusBar::number[12]->w;
-        pos_rect.h = StatusBar::number[12]->h;
-        render_texture(StatusBar::number[12], nullptr, &pos_rect, StatusBar::alpha);
-
-        length = static_cast<int>(std::floor(std::log10(max)) + 1);
-        x += length * 6 + 2;
-        pos_rect.x = x;
-        pos_rect.y = Camera::h - 30;
-        pos_rect.w = StatusBar::number[0]->w;
-        pos_rect.h = StatusBar::number[0]->h;
-        // 分解各位数字
-        while (max > 0)
-        {
-            int digit = max % 10;
-            render_texture(StatusBar::number[digit], nullptr, &pos_rect, StatusBar::alpha);
-            pos_rect.x -= 6;
-            max /= 10;
-        }
-
-        x += 7;
-        pos_rect.x = x;
-        pos_rect.y = Camera::h - 31;
-        pos_rect.w = StatusBar::number[11]->w;
-        pos_rect.h = StatusBar::number[11]->h;
-        render_texture(StatusBar::number[11], nullptr, &pos_rect, StatusBar::alpha);
-    };
-
-    // 渲染血量，蓝量，经验
-    x = 236;
-    render_bar_digit(x, Player::hp, Player::max_hp);
-
-    x = 347;
-    render_bar_digit(x, Player::mp, Player::max_mp);
-
-    x = 464;
-    render_bar_digit(x, Player::exp, Player::max_exp);
-
-    // 渲染灰血条，蓝量，经验
-    auto render_percent = [&](float x, float percent)
-    {
-        auto length = (1 - percent) * 109;
-        pos_rect.y = Camera::h - 19;
-        pos_rect.x = x - length;
-        pos_rect.w = length;
-        pos_rect.h = StatusBar::gray->h;
-        render_texture(StatusBar::gray, nullptr, &pos_rect, StatusBar::alpha);
-    };
-
-    float hp_cur_percent = (float)Player::hp / Player::max_hp;
-    float mp_cur_percent = (float)Player::mp / Player::max_mp;
-    float exp_cur_percent = (float)Player::exp / Player::max_exp;
-
-    render_percent(322, hp_cur_percent);
-    render_percent(431, mp_cur_percent);
-    render_percent(554, exp_cur_percent);
-
-    pos_rect = SDL_FRect{(float)215, (float)Camera::h - (float)StatusBar::graduation->h - 3, (float)StatusBar::graduation->w, (float)StatusBar::graduation->h};
-    render_texture(StatusBar::graduation, nullptr, &pos_rect, StatusBar::alpha);
 }
 
 void render_worldmap()

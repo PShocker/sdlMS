@@ -54,6 +54,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
     StatusBar::init();
     QuickSlot::init();
     MiniMap::init();
+    GainTip::init();
     Sound::init();
     Drop::init();
 
