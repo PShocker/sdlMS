@@ -6,4 +6,4 @@
 
 entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *ski = nullptr);
 
-extern const std::unordered_set<std::u16string> track_no_skill;
+extern const std::unordered_set<int> track_no_skill;

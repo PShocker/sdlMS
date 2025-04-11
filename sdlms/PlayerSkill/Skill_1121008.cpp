@@ -22,7 +22,7 @@ int skill_1121008(entt::entity ent)
 
     auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1121008");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 1121008);
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();

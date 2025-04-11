@@ -26,7 +26,7 @@ struct Buff
         std::any data;
     };
 
-    std::unordered_map<std::u16string, Info> buffs;
+    std::unordered_map<int, Info> buffs;
     entt::entity owner = entt::null;
 
     Buff() = default;

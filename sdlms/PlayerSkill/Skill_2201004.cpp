@@ -23,7 +23,7 @@ int skill_2201004(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2201004");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 2201004);
 
     auto node = ski->skiw->level[ski->level];
     auto lt = SDL_FPoint{-180, -32};
@@ -40,9 +40,9 @@ int skill_2201004(entt::entity ent)
 
         const auto mob_tr = World::registry->try_get<Transform>(target);
         auto eff = World::registry->try_get<Effect>(target);
-        eff->effects.emplace(u"2201004", Effect::Info{Transform(SDL_FPoint{0, -25}), hit, Window::dt_now, true});
-        mob->call_backs.erase(u"2201004");
-        mob->call_backs.emplace(u"2201004", std::make_pair(frozen_call_back, Window::dt_now + 5000));
+        eff->effects.emplace(2201004, Effect::Info{Transform(SDL_FPoint{0, -25}), hit, Window::dt_now, true});
+        mob->call_backs.erase(2201004);
+        mob->call_backs.emplace(2201004, std::make_pair(frozen_call_back, Window::dt_now + 5000));
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

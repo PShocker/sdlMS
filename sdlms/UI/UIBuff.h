@@ -8,7 +8,7 @@
 
 struct UIBuff
 {
-    std::u16string id;
+    int id;
     SDL_FPoint position;
 
     static void run();

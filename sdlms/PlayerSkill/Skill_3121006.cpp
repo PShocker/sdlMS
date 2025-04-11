@@ -25,7 +25,7 @@ int skill_3121006(entt::entity ent)
     // 持续时间
     const unsigned int duration = 30000;
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"3121006");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 3121006);
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
         if (!(action_time == 0 && action_frame == 0))
@@ -40,15 +40,15 @@ int skill_3121006(entt::entity ent)
             for (auto e : World::registry->view<Summon>())
             {
                 auto sum = World::registry->try_get<Summon>(e);
-                if (sum->state != Summon::State::DIE && sum->owner == ent && sum->id == u"3121006")
+                if (sum->state != Summon::State::DIE && sum->owner == ent && sum->id == 3121006)
                 {
                     sum->destory = Window::dt_now + duration;
-                    buff->buffs.at(u"3121006").destory = sum->destory;
+                    buff->buffs.at(3121006).destory = sum->destory;
                     return;
                 }
             }
             Skill *ski = World::registry->try_get<Skill>(ent);
-            auto sum_ent = load_summon(ski->skiw->node->get_child(u"summon"), u"3121006", ent);
+            auto sum_ent = load_summon(ski->skiw->node->get_child(u"summon"), 3121006, ent);
             auto sum = World::registry->try_get<Summon>(sum_ent);
             sum->atk.call_back = [n = ski->skiw->node](entt::entity src, entt::entity target, int full_damage)
             {
@@ -75,20 +75,20 @@ int skill_3121006(entt::entity ent)
                     }
                     info.aspr = AnimatedSprite(asprw);
                     info.destory = Window::dt_now + 960;
-                    eff->effects.emplace(u"", info);
+                    eff->effects.emplace(0, info);
                     i += asprw->sprites[0]->texture->w;
                 }
                 const auto mob = World::registry->try_get<Mob>(target);
                 unsigned int time = 6000;
-                mob->call_backs.erase(u"3121006");
-                mob->call_backs.emplace(u"3121006", std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
+                mob->call_backs.erase(3121006);
+                mob->call_backs.emplace(3121006, std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
             };
             Buff::Info info;
             info.duration = duration;
             info.destory = Window::dt_now + duration;
-            buff->buffs.emplace(u"3121006", info);
+            buff->buffs.emplace(3121006, info);
         }
     };
-    SkillWarp::cooldowns[u"3121006"] = Window::dt_now + 1500;
+    SkillWarp::cooldowns[3121006] = Window::dt_now + 1500;
     return PlayerSkill::SkillResult::SOU | PlayerSkill::SkillResult::ACT;
 }

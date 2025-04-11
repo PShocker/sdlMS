@@ -14,8 +14,8 @@ int skill_2201002(entt::entity ent)
 
     // 添加effect
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.emplace(u"2201002", Effect::Info{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
-    eff->effects.emplace(u"2201002", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+    eff->effects.emplace(2201002, Effect::Info{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
+    eff->effects.emplace(2201002, Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Teleport"))});
 
     auto x = tr->position.x;
     auto y = tr->position.y;
@@ -92,9 +92,9 @@ int skill_2201002(entt::entity ent)
     mv->vspeed = 0;
 
     // 技能音效
-    PlayerSkill::skill_sound(SkillWarp::load(u"2201002"));
+    PlayerSkill::skill_sound(SkillWarp::load(2201002));
 
-    SkillWarp::cooldowns[u"2201002"] = Window::dt_now + 500;
+    SkillWarp::cooldowns[2201002] = Window::dt_now + 500;
     player_portal_cooldown = Window::dt_now + 600;
 
     return PlayerSkill::SkillResult::None;

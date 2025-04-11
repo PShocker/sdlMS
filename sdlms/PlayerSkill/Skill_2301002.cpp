@@ -21,7 +21,7 @@ int skill_2301002(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2301002");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 2301002);
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
         if (!(action_time == 0 && action_frame == 0))

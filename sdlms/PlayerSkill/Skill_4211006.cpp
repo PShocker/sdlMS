@@ -19,9 +19,9 @@ int skill_4211006(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4211006");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 4211006);
 
-    SkillWarp::cooldowns[u"4211006"] = Window::dt_now + 500;
+    SkillWarp::cooldowns[4211006] = Window::dt_now + 500;
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -50,7 +50,7 @@ int skill_4211006(entt::entity ent)
                 {
                     dr->destory = Window::dt_now + 700;
                     auto eff = World::registry->try_get<Effect>(ent);
-                    eff->effects.emplace(u"4211006", Effect::Info{Transform(d_tr->position),
+                    eff->effects.emplace(4211006, Effect::Info{Transform(d_tr->position),
                                                                   AnimatedSprite(ski->skiw->hits[0]),
                                                                   Window::dt_now + 700});
                     ski->atk.value().damage += dr->nums;

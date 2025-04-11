@@ -22,7 +22,7 @@ int skill_21100005(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"21100005");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 21100005);
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
         if (!(action_time == 0 && action_frame == 0))
@@ -34,9 +34,9 @@ int skill_21100005(entt::entity ent)
         const unsigned int duration = 60000;
 
         auto buff = World::registry->try_get<Buff>(ent);
-        if (buff->buffs.contains(u"21100005"))
+        if (buff->buffs.contains(21100005))
         {
-            buff->buffs.at(u"21100005").destory = Window::dt_now + duration;
+            buff->buffs.at(21100005).destory = Window::dt_now + duration;
         }
         else
         {
@@ -44,13 +44,13 @@ int skill_21100005(entt::entity ent)
             info.start = [](entt::entity src)
             {
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[u"21100005"];
+                auto &info = buff->buffs[21100005];
                 info.data = 0;
             };
             info.after_attack = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
             {
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[u"21100005"];
+                auto &info = buff->buffs[21100005];
                 info.data = std::any_cast<int>(info.data) + full_damage;
                 if (atk->mobCount == 0)
                 {
@@ -62,7 +62,7 @@ int skill_21100005(entt::entity ent)
             };
             info.duration = duration;
             info.destory = Window::dt_now + duration;
-            buff->buffs.emplace(u"21100005", info);
+            buff->buffs.emplace(21100005, info);
             info.start.value()(ent);
         }
     };

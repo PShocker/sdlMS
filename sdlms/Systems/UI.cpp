@@ -11,6 +11,7 @@ void ui_run()
     WorldMap::run();
     UIBuff::run();
     GainTip::run();
+    StatusBar::run();
     // 检测左键是否被按住
     if (Window::mouse_state & SDL_BUTTON_LMASK)
     {
@@ -421,4 +422,8 @@ int ui_mousein()
         }
     }
     return -1;
+}
+
+void ui_keyboard()
+{
 }

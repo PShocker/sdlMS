@@ -26,7 +26,7 @@ int skill_3111003(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"3111003");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 3111003);
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -56,8 +56,8 @@ int skill_3111003(entt::entity ent)
             const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
             atk->mobCount--;
             attack_mob(atk, src, target, hit_point);
-            mob->call_backs.erase(u"3111003");
-            mob->call_backs.emplace(u"3111003", std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
+            mob->call_backs.erase(3111003);
+            mob->call_backs.emplace(3111003, std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
 
             ski->hit_targets.insert(target);
             // 寻找下一个目标

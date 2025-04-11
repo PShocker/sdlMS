@@ -25,7 +25,7 @@ int skill_4211002(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4211002");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 4211002);
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -58,17 +58,17 @@ int skill_4211002(entt::entity ent)
         {
             owner_mv->hspeed = 125;
             owner_mv->hforce = 1400;
-            eff->effects.emplace(u"4211002",
+            eff->effects.emplace(4211002,
                                  Effect::Info{Transform(owner_tr->position + SDL_FPoint{100, -35}, 0, owner_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
         }
         else
         {
             owner_mv->hspeed = -125;
             owner_mv->hforce = -1400;
-            eff->effects.emplace(u"4211002",
+            eff->effects.emplace(4211002,
                                  Effect::Info{Transform(owner_tr->position + SDL_FPoint{-100, -35}, 0, owner_tr->flip), AnimatedSprite(ski->skiw->hits[0])});
         }
-        eff->effects.emplace(u"4211002",
+        eff->effects.emplace(4211002,
                              Effect::Info{Transform(owner_tr->position, 0, owner_tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/remain"))});
         auto hspeed_min = owner_mv->hspeed_min;
         auto hspeed_max = owner_mv->hspeed_max;
@@ -91,8 +91,8 @@ int skill_4211002(entt::entity ent)
         owner_mv->hspeed_min = hspeed_min;
         owner_mv->hspeed_max = hspeed_max;
         // 添加effect
-        eff->effects.emplace(u"4211002", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect"))});
-        eff->effects.emplace(u"4211002", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect0"))});
+        eff->effects.emplace(4211002, Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect"))});
+        eff->effects.emplace(4211002, Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Assaulter/effect0"))});
     };
 
     return PlayerSkill::SkillResult::SOU |

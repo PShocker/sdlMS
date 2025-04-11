@@ -22,7 +22,7 @@ static void generate_chain_effect(
     float dx_per_segment = (end.x - start.x) / segments;
     float dy_per_segment = (end.y - start.y) / segments;
 
-    auto sprite_template = AnimatedSpriteWarp::load(SkillWarp::load(u"2221006")->node->find_from_path(u"ball/0"));
+    auto sprite_template = AnimatedSpriteWarp::load(SkillWarp::load(2221006)->node->find_from_path(u"ball/0"));
 
     for (float i = 0; i < segments; ++i)
     {
@@ -31,8 +31,8 @@ static void generate_chain_effect(
             start.y + dy_per_segment * i);
         tr.rotation = angle;
 
-        eff->effects.emplace(u"", Effect::Info{tr,
-                                               AnimatedSprite(sprite_template)});
+        eff->effects.emplace(0, Effect::Info{tr,
+                                             AnimatedSprite(sprite_template)});
     }
 }
 
@@ -59,7 +59,7 @@ static std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
             hit_targets.insert(target);
             mobCount--;
             attack_mob(&atk, src, target, hit_point);
-            target_mob->call_backs.emplace(u"2221006", std::make_pair(mob_call_back, std::make_tuple(src, atk, hit_targets, hit_point, mobCount, Window::dt_now + 70)));
+            target_mob->call_backs.emplace(2221006, std::make_pair(mob_call_back, std::make_tuple(src, atk, hit_targets, hit_point, mobCount, Window::dt_now + 70)));
         }
         return std::make_pair(true, true);
     }
@@ -83,7 +83,7 @@ int skill_2221006(entt::entity ent)
     }
 
     // 初始化技能
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2221006");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 2221006);
     auto skiw = ski->skiw;
 
     // 配置攻击参数
@@ -123,7 +123,7 @@ int skill_2221006(entt::entity ent)
             SDL_FPoint src_point = src_tr->position +
                                    (src_tr->flip ? SDL_FPoint{30, -25} : SDL_FPoint{-30, -25});
             auto target_mob = World::registry->try_get<Mob>(target);
-            target_mob->call_backs.emplace(u"2221006", std::make_pair(mob_call_back, std::make_tuple(src, ski->atk.value(), ski->hit_targets, src_point, mobCount, Window::dt_now)));
+            target_mob->call_backs.emplace(2221006, std::make_pair(mob_call_back, std::make_tuple(src, ski->atk.value(), ski->hit_targets, src_point, mobCount, Window::dt_now)));
         }
     };
 

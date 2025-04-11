@@ -531,7 +531,7 @@ void render_effect_front(Transform *tr, Effect *eff)
     {
         if (val.delay <= Window::dt_now)
         {
-            if (key.size() > 0 && key.at(0) == u'-')
+            if (key < 0)
             {
                 if (val.tr == std::nullopt)
                 {
@@ -580,7 +580,7 @@ void render_effect_back(Transform *tr, Effect *eff)
     {
         if (val.delay <= Window::dt_now)
         {
-            if (key.size() > 0 && key.at(0) == u'-')
+            if (key < 0)
             {
                 continue;
             }

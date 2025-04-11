@@ -5,15 +5,18 @@
 #include <SDL3/SDL.h>
 #include "Resources/Wz.h"
 
-SkillWarp::SkillWarp(const std::u16string &id) : id(id)
+SkillWarp::SkillWarp(int id) : id(id)
 {
-    node = Wz::Sound->get_root()->find_from_path(u"Skill.img/" + id);
+    std::string str = std::to_string(id);
+    std::u16string id_str(str.begin(), str.end());
+
+    node = Wz::Sound->get_root()->find_from_path(u"Skill.img/" + id_str);
     for (auto &[key, val] : node->get_children())
     {
         auto sou = SoundWarp::load(val[0]);
         sounds[key] = sou;
     }
-    node = Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id);
+    node = Wz::Skill->get_root()->find_from_path(id_str.substr(0, id_str.length() - 4) + u".img/skill/" + id_str);
     if (auto hit = node->get_child(u"hit"))
     {
         hits.push_back(AnimatedSpriteWarp::load(hit->get_child(u"0")));
@@ -67,9 +70,9 @@ SkillWarp::SkillWarp(const std::u16string &id) : id(id)
     }
 }
 
-SkillWarp *SkillWarp::load(const std::u16string &id)
+SkillWarp *SkillWarp::load(int id)
 {
-    static std::unordered_map<std::u16string, SkillWarp *> cache;
+    static std::unordered_map<int, SkillWarp *> cache;
     if (cache.contains(id))
     {
         return cache[id];
@@ -82,7 +85,7 @@ SkillWarp *SkillWarp::load(const std::u16string &id)
     }
 }
 
-Skill::Skill(const std::u16string &id)
+Skill::Skill(int id)
 {
     skiw = SkillWarp::load(id);
 }

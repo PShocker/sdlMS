@@ -20,6 +20,6 @@ void Effect::push(Effect *eff, AnimatedSpriteWarp *asprw, std::optional<SDL_FPoi
         Effect::Info info;
         info.tr = tr;
         info.aspr = AnimatedSprite(asprw);
-        eff->effects.emplace(u"", info);
+        eff->effects.emplace(0, info);
     }
 }

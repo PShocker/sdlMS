@@ -9,8 +9,8 @@ int summon_4111002(entt::entity ent);
 
 struct PlayerSummon
 {
-    static const inline std::unordered_map<std::u16string, std::function<int(entt::entity)>> Summons = {
-        {u"4111002", summon_4111002},
+    static const inline std::unordered_map<int, std::function<int(entt::entity)>> Summons = {
+        {4111002, summon_4111002},
 
     };
 };

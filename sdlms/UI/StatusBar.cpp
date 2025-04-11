@@ -13,6 +13,9 @@
 
 void StatusBar::run()
 {
+    load_hp();
+    load_mp();
+    load_exp();
 }
 
 void StatusBar::over()
@@ -170,10 +173,14 @@ void StatusBar::load_name()
 void StatusBar::load_bar_digit(int x, int cur, int max)
 {
     SDL_SetRenderTarget(Window::renderer, backgrnd3);
-    SDL_FRect pos_rect{(float)x, (float)40, (float)StatusBar::number[10]->w, (float)StatusBar::number[10]->h};
+
+    SDL_FRect pos_rect{(float)0, (float)0, (float)StatusBar::backgrnd2->w, (float)StatusBar::backgrnd2->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, nullptr, &pos_rect);
+
+    pos_rect = {(float)x, (float)40, (float)StatusBar::number[10]->w, (float)StatusBar::number[10]->h};
     SDL_RenderTexture(Window::renderer, StatusBar::number[10], nullptr, &pos_rect);
 
-    const auto load_num = [&](int x, int num)
+    const auto load_num = [](int x, int num)
     {
         auto length = static_cast<int>(std::floor(std::log10(num)) + 1);
         x += length * 6 - 2;
@@ -205,8 +212,11 @@ void StatusBar::load_bar_fade(float x, float percent)
 {
     SDL_SetRenderTarget(Window::renderer, backgrnd3);
 
+    SDL_FRect pos_rect{(float)215, (float)37, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
+
     auto length = (1 - percent) * 109;
-    SDL_FRect pos_rect{(float)x - length, (float)52, (float)length, (float)StatusBar::gray->h};
+    pos_rect = {(float)x - length, (float)52, (float)length, (float)StatusBar::gray->h};
     SDL_RenderTexture(Window::renderer, StatusBar::gray, nullptr, &pos_rect);
 
     SDL_SetRenderTarget(Window::renderer, nullptr);
@@ -229,6 +239,7 @@ void StatusBar::load_hp()
     {
         load_bar_digit(236, Player::hp, Player::max_hp);
         load_bar_fade(322, (float)Player::hp / Player::max_hp);
+        load_bar_graduation();
     }
     last_hp = Player::hp;
     last_max_hp = Player::max_hp;
@@ -242,6 +253,7 @@ void StatusBar::load_mp()
     {
         load_bar_digit(347, Player::mp, Player::max_mp);
         load_bar_fade(431, (float)Player::mp / Player::max_mp);
+        load_bar_graduation();
     }
     last_mp = Player::mp;
     last_max_mp = Player::max_mp;
@@ -255,6 +267,7 @@ void StatusBar::load_exp()
     {
         load_bar_digit(464, Player::exp, Player::max_exp);
         load_bar_fade(554, (float)Player::exp / Player::max_exp);
+        load_bar_graduation();
     }
     last_exp = Player::exp;
     last_max_exp = Player::max_exp;

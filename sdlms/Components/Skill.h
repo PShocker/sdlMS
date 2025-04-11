@@ -12,21 +12,21 @@
 
 struct SkillWarp
 {
+    int id;
     std::vector<AnimatedSpriteWarp *> effects;
     std::vector<AnimatedSpriteWarp *> hits;
     std::vector<wz::Node *> level;
-    std::u16string id;
     std::optional<std::u16string> action_str = std::nullopt;
 
     std::unordered_map<std::u16string, SoundWarp *> sounds;
-    static inline std::unordered_map<std::u16string, int> cooldowns;
+    static inline std::unordered_map<int, int> cooldowns;
 
     wz::Node *node = nullptr;
 
-    SkillWarp(const std::u16string &id);
+    SkillWarp(int id);
     SkillWarp() = default;
 
-    static SkillWarp *load(const std::u16string &id);
+    static SkillWarp *load(int id);
 };
 
 struct Skill
@@ -34,7 +34,7 @@ struct Skill
     SkillWarp *skiw = nullptr;
     std::optional<Attack> atk = std::nullopt;
 
-    Skill(const std::u16string &id);
+    Skill(int id);
     Skill() = default;
 
     bool hit = false;

@@ -20,7 +20,7 @@ int skill_14101006(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"14101006");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 14101006);
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
     auto lt = SDL_FPoint{(float)v.x, (float)v.y};

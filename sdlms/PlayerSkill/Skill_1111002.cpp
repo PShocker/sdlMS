@@ -12,10 +12,10 @@ int skill_1111002(entt::entity ent)
     auto cha = World::registry->try_get<Character>(ent);
     auto state = cha->state;
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1111002");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 1111002);
 
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.emplace(u"", Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
+    eff->effects.emplace(0, Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
 
     ski->call_back = [n = ski->skiw->node](entt::entity ent, int action_frame, int action_time)
     {
@@ -28,9 +28,9 @@ int skill_1111002(entt::entity ent)
         const unsigned int duration = 0;
 
         auto buff = World::registry->try_get<Buff>(ent);
-        if (buff->buffs.contains(u"1111002"))
+        if (buff->buffs.contains(1111002))
         {
-            buff->buffs.at(u"1111002").destory = Window::dt_now;
+            buff->buffs.at(1111002).destory = Window::dt_now;
         }
         else
         {
@@ -38,7 +38,7 @@ int skill_1111002(entt::entity ent)
             info.start = [](entt::entity src)
             {
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[u"1111002"];
+                auto &info = buff->buffs[1111002];
                 info.data = std::map<int, float>();
                 // 序号,角度
                 auto maps = std::any_cast<std::map<int, float>>(&info.data);
@@ -47,7 +47,7 @@ int skill_1111002(entt::entity ent)
             info.after_attack = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
             {
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[u"1111002"];
+                auto &info = buff->buffs[1111002];
                 auto maps = std::any_cast<std::map<int, float>>(&info.data);
                 auto size = maps->size();
                 if (size < 6)
@@ -66,10 +66,10 @@ int skill_1111002(entt::entity ent)
             info.frame = [n](entt::entity src)
             {
                 auto eff = World::registry->try_get<Effect>(src);
-                eff->effects.erase(u"1111002");
+                eff->effects.erase(1111002);
 
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[u"1111002"];
+                auto &info = buff->buffs[1111002];
                 auto maps = std::any_cast<std::map<int, float>>(&info.data);
                 auto src_tr = World::registry->try_get<Transform>(src);
                 auto src_position = src_tr->position;
@@ -88,7 +88,7 @@ int skill_1111002(entt::entity ent)
                         auto x = 42 * std::cos(val * std::numbers::pi / 180.0);      // 更新 x 坐标
                         auto y = 42 * std::sin(val * std::numbers::pi / 180.0) - 30; // 更新 y 坐标
                         Transform tr(src_position + SDL_FPoint{(float)x, (float)y});
-                        eff->effects.emplace(u"1111002", Effect::Info{tr, aspr});
+                        eff->effects.emplace(1111002, Effect::Info{tr, aspr});
                     }
                     else
                     {
@@ -97,18 +97,18 @@ int skill_1111002(entt::entity ent)
                         aspr.animate = false;
                         Transform tr(src_position + SDL_FPoint{0, -30});
                         tr.rotation = val;
-                        eff->effects.emplace(u"1111002", Effect::Info{tr, aspr});
+                        eff->effects.emplace(1111002, Effect::Info{tr, aspr});
                     }
                 }
             };
             info.finish = [](entt::entity src)
             {
                 auto eff = World::registry->try_get<Effect>(src);
-                eff->effects.erase(u"1111002");
+                eff->effects.erase(1111002);
             };
             info.duration = duration;
             info.destory = 0;
-            buff->buffs.emplace(u"1111002", info);
+            buff->buffs.emplace(1111002, info);
             info.start.value()(ent);
         }
     };

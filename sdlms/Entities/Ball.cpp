@@ -7,10 +7,8 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-const std::unordered_set<std::u16string> track_no_skill =
-    {
-        u"4111005",
-        u"2121003"};
+const std::unordered_set<int> track_no_skill =
+    {4111005, 2121003};
 
 entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *ski)
 {

@@ -23,7 +23,7 @@ int skill_2211002(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2211002");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 2211002);
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -40,8 +40,8 @@ int skill_2211002(entt::entity ent)
     {
         const auto mob = World::registry->try_get<Mob>(target);
         const auto mob_tr = World::registry->try_get<Transform>(target);
-        mob->call_backs.erase(u"2211002");
-        mob->call_backs.emplace(u"2211002", std::make_pair(frozen_call_back, Window::dt_now + 5000));
+        mob->call_backs.erase(2211002);
+        mob->call_backs.emplace(2211002, std::make_pair(frozen_call_back, Window::dt_now + 5000));
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

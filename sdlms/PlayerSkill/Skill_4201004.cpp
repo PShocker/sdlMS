@@ -23,7 +23,7 @@ int skill_4201004(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4201004");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 4201004);
 
     auto lt = SDL_FPoint{-110, -32};
     auto rb = SDL_FPoint{-40, -11};

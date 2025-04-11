@@ -25,10 +25,10 @@ int skill_1111008(entt::entity ent)
     // 虎咆哮需要震动摄像机
     camera_init_shake(12, 120, 1060);
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1111008");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 1111008);
 
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.emplace(u"-1111008", Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
+    eff->effects.emplace(-1111008, Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -47,8 +47,8 @@ int skill_1111008(entt::entity ent)
         // 晕眩效果,5秒
         const auto mob = World::registry->try_get<Mob>(target);
 
-        mob->call_backs.erase(u"1111008");
-        mob->call_backs.emplace(u"1111008", std::make_pair(dizzy_call_back, Window::dt_now + 5000));
+        mob->call_backs.erase(1111008);
+        mob->call_backs.emplace(1111008, std::make_pair(dizzy_call_back, Window::dt_now + 5000));
     };
 
     return PlayerSkill::SkillResult::SOU |

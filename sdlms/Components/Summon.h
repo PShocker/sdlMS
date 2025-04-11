@@ -6,7 +6,7 @@
 
 struct Summon
 {
-    std::u16string id;
+    int id;
     entt::entity owner = entt::null;
 
     std::unordered_map<std::u16string, AnimatedSprite> a;

@@ -8,7 +8,7 @@
 void UIBuff::run()
 {
     auto buff = World::registry->try_get<Buff>(Player::ent);
-    std::unordered_set<std::u16string> sets;
+    std::unordered_set<int> sets;
     std::map<unsigned int, entt::entity> maps;
     for (auto ent : World::registry->view<UIBuff>())
     {
@@ -45,8 +45,7 @@ void UIBuff::run()
             uib->destory = val.destory;
             uib->duration = val.duration;
             uib->index = i;
-            auto sprw = SpriteWarp::load(
-                Wz::Skill->get_root()->find_from_path(id.substr(0, id.length() - 4) + u".img/skill/" + id + u"/icon"));
+            auto sprw = SpriteWarp::load(SkillWarp::load(id)->node->find_from_path(u"icon"));
             World::registry->emplace<Sprite>(ent, sprw);
             uib->position = SDL_FPoint{(float)Camera::w - 32 - i * 32, (float)32};
             i++;

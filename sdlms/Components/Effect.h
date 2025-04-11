@@ -7,9 +7,9 @@
 
 struct Effect
 {
-    static inline const std::u16string Dizzy = u"1";
-    static inline const std::u16string Poison = u"2";
-    static inline const std::u16string Flame = u"3";
+    static inline const int Dizzy = 1;
+    static inline const int Poison = 2;
+    static inline const int Flame = 3;
 
     struct Info
     {
@@ -22,7 +22,7 @@ struct Effect
         std::optional<unsigned int> destory;
     };
 
-    std::multimap<std::u16string, Info> effects;
+    std::multimap<int, Info> effects;
 
     Effect() = default;
 

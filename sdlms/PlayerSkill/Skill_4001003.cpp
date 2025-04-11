@@ -21,7 +21,7 @@ int skill_4001003(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4001003");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 4001003);
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
         if (!(action_time == 0 && action_frame == 0))
@@ -32,9 +32,9 @@ int skill_4001003(entt::entity ent)
         const unsigned int duration = 5000;
 
         auto buff = World::registry->try_get<Buff>(ent);
-        if (buff->buffs.contains(u"4001003"))
+        if (buff->buffs.contains(4001003))
         {
-            buff->buffs.at(u"4001003").destory = Window::dt_now + duration;
+            buff->buffs.at(4001003).destory = Window::dt_now + duration;
         }
         Buff::Info info;
         info.start = [](entt::entity src)
@@ -52,7 +52,7 @@ int skill_4001003(entt::entity ent)
         };
         info.duration = duration;
         info.destory = Window::dt_now + duration;
-        buff->buffs.emplace(u"4001003", info);
+        buff->buffs.emplace(4001003, info);
         info.start.value()(ent);
     };
 

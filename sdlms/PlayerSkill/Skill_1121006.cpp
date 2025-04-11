@@ -21,7 +21,7 @@ int skill_1121006(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"1121006");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 1121006);
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -92,7 +92,7 @@ int skill_1121006(entt::entity ent)
                         }
                         return std::make_pair(true, true);
                     };
-                    mob->call_backs.emplace(u"1121006", std::make_pair(call_back, std::any{}));
+                    mob->call_backs.emplace(1121006, std::make_pair(call_back, std::any{}));
                 }
             }
         }

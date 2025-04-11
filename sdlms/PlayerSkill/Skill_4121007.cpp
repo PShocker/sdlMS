@@ -23,7 +23,7 @@ int skill_4121007(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"4121007");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 4121007);
 
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
@@ -82,7 +82,7 @@ int skill_4121007(entt::entity ent)
         }
     };
 
-    SkillWarp::cooldowns[u"4121007"] = Window::dt_now + 500;
+    SkillWarp::cooldowns[4121007] = Window::dt_now + 500;
 
     World::registry->emplace_or_replace<AfterImage>(ent);
 

@@ -23,7 +23,7 @@ int skill_3001005(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"3001005");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 3001005);
 
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
@@ -57,7 +57,7 @@ int skill_3001005(entt::entity ent)
         ball_n->target_point.value().y += 10;
     };
 
-    SkillWarp::cooldowns[u"3001005"] = Window::dt_now + 500;
+    SkillWarp::cooldowns[3001005] = Window::dt_now + 500;
 
     World::registry->emplace_or_replace<AfterImage>(ent);
 

@@ -22,7 +22,7 @@ int skill_2101004(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"2101004");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 2101004);
 
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
@@ -39,11 +39,11 @@ int skill_2101004(entt::entity ent)
         const auto mob = World::registry->try_get<Mob>(target);
         unsigned int time = 6000;
 
-        mob->call_backs.erase(u"2101004");
-        mob->call_backs.emplace(u"2101004", std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
+        mob->call_backs.erase(2101004);
+        mob->call_backs.emplace(2101004, std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
     };
 
-    SkillWarp::cooldowns[u"2101004"] = Window::dt_now + 500;
+    SkillWarp::cooldowns[2101004] = Window::dt_now + 500;
 
     return PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::EFF |

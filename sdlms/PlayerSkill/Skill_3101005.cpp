@@ -17,7 +17,7 @@ static std::pair<bool, bool> mob_call_back(entt::entity ent, std::any data)
         auto target_tr = World::registry->try_get<Transform>(ent);
         const SDL_FPoint hit_point = target_tr->position + mob->head(target_tr->flip);
         attack_mob(&atk, Player::ent, ent, hit_point);
-        mob->call_backs.emplace(u"3101005", std::make_pair(dizzy_call_back, Window::dt_now + 5000));
+        mob->call_backs.emplace(3101005, std::make_pair(dizzy_call_back, Window::dt_now + 5000));
         return std::make_pair(true, true);
     }
     return std::make_pair(false, true);
@@ -41,7 +41,7 @@ int skill_3101005(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto ski = &World::registry->emplace_or_replace<Skill>(ent, u"3101005");
+    auto ski = &World::registry->emplace_or_replace<Skill>(ent, 3101005);
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -64,8 +64,8 @@ int skill_3101005(entt::entity ent)
         atk->src_point = src_tr->position;
 
         auto target_mob = World::registry->try_get<Mob>(target);
-        target_mob->call_backs.erase(u"3101005");
-        target_mob->call_backs.emplace(u"3101005", std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now)));
+        target_mob->call_backs.erase(3101005);
+        target_mob->call_backs.emplace(3101005, std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now)));
 
         auto target_position = World::registry->try_get<Transform>(target)->position;
         ski->hit_targets.insert(target);
@@ -84,8 +84,8 @@ int skill_3101005(entt::entity ent)
                 break;
             }
             target_mob = World::registry->try_get<Mob>(target);
-            target_mob->call_backs.erase(u"3101005");
-            target_mob->call_backs.emplace(u"3101005", std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now + 150)));
+            target_mob->call_backs.erase(3101005);
+            target_mob->call_backs.emplace(3101005, std::make_pair(mob_call_back, std::make_tuple(ski->atk.value(), Window::dt_now + 150)));
             ski->hit_targets.insert(target);
             atk->mobCount--;
         };

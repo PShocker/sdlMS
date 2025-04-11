@@ -5,7 +5,7 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-entt::entity load_summon(wz::Node *node, const u16string &id, entt::entity owner)
+entt::entity load_summon(wz::Node *node, int id, entt::entity owner)
 {
     auto ent = World::registry->create();
 

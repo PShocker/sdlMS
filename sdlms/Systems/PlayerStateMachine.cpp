@@ -274,7 +274,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->zmass = mv->foo->zmass;
                     mv->foo = nullptr;
                     mv->lr = nullptr;
-                    SkillWarp::cooldowns[u"4111006"] = Window::dt_now + 500;
+                    SkillWarp::cooldowns[4111006] = Window::dt_now + 500;
                     player_foothold_cooldown = Window::dt_now + 120;
                     Sound::push(Sound(u"Game.img/Jump"));
                     return true;
@@ -287,7 +287,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 mv->zmass = mv->foo->zmass;
                 mv->foo = nullptr;
                 mv->lr = nullptr;
-                SkillWarp::cooldowns[u"4111006"] = Window::dt_now + 200;
+                SkillWarp::cooldowns[4111006] = Window::dt_now + 200;
                 Sound::push(Sound(u"Game.img/Jump"));
                 return true;
             }
@@ -308,7 +308,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 {
                     mv->hspeed = -140;
                 }
-                SkillWarp::cooldowns[u"4111006"] = Window::dt_now + 300;
+                SkillWarp::cooldowns[4111006] = Window::dt_now + 300;
                 player_ladderrope_cooldown = Window::dt_now + 80;
                 Sound::push(Sound(u"Game.img/Jump"));
                 return true;
@@ -789,44 +789,44 @@ int player_hit(Attack *atk)
     return full_damage;
 }
 
-const std::map<SDL_Scancode, std::u16string> skill_key_id = {
-    {SDL_SCANCODE_A, u"14101006"},
-    {SDL_SCANCODE_S, u"2211002"},
-    {SDL_SCANCODE_SPACE, u"2201002"},
-    {SDL_SCANCODE_F, u"2221006"},
-    {SDL_SCANCODE_Y, u"1111008"},
-    {SDL_SCANCODE_D, u"1101004"},
-    {SDL_SCANCODE_S, u"1311006"},
-    {SDL_SCANCODE_G, u"4111005"},
-    {SDL_SCANCODE_H, u"4111002"},
-    {SDL_SCANCODE_C, u"4001003"},
-    {SDL_SCANCODE_V, u"4001344"},
-    {SDL_SCANCODE_B, u"4211006"},
-    {SDL_SCANCODE_J, u"1311001"},
-    {SDL_SCANCODE_K, u"1121006"},
-    {SDL_SCANCODE_R, u"4211002"},
-    {SDL_SCANCODE_T, u"4201004"},
-    {SDL_SCANCODE_U, u"1121008"},
-    {SDL_SCANCODE_I, u"4201005"},
-    {SDL_SCANCODE_N, u"4121007"},
-    {SDL_SCANCODE_Q, u"2201004"},
-    {SDL_SCANCODE_E, u"4101004"},
-    {SDL_SCANCODE_M, u"1101007"},
-    {SDL_SCANCODE_1, u"2221005"},
-    {SDL_SCANCODE_2, u"2121005"},
-    {SDL_SCANCODE_3, u"3121006"},
-    {SDL_SCANCODE_4, u"3101005"},
-    {SDL_SCANCODE_5, u"2001002"},
-    {SDL_SCANCODE_6, u"21100005"},
-    {SDL_SCANCODE_7, u"3221005"},
-    {SDL_SCANCODE_O, u"3111006"},
-    {SDL_SCANCODE_P, u"3111003"},
-    {SDL_SCANCODE_L, u"2101004"},
+const std::map<SDL_Scancode, int> skill_key_id = {
+    {SDL_SCANCODE_A, 14101006},
+    {SDL_SCANCODE_S, 2211002},
+    {SDL_SCANCODE_SPACE, 2201002},
+    {SDL_SCANCODE_F, 2221006},
+    {SDL_SCANCODE_Y, 1111008},
+    {SDL_SCANCODE_D, 1101004},
+    {SDL_SCANCODE_S, 1311006},
+    {SDL_SCANCODE_G, 4111005},
+    {SDL_SCANCODE_H, 4111002},
+    {SDL_SCANCODE_C, 4001003},
+    {SDL_SCANCODE_V, 4001344},
+    {SDL_SCANCODE_B, 4211006},
+    {SDL_SCANCODE_J, 1311001},
+    {SDL_SCANCODE_K, 1121006},
+    {SDL_SCANCODE_R, 4211002},
+    {SDL_SCANCODE_T, 4201004},
+    {SDL_SCANCODE_U, 1121008},
+    {SDL_SCANCODE_I, 4201005},
+    {SDL_SCANCODE_N, 4121007},
+    {SDL_SCANCODE_Q, 2201004},
+    {SDL_SCANCODE_E, 4101004},
+    {SDL_SCANCODE_M, 1101007},
+    {SDL_SCANCODE_1, 2221005},
+    {SDL_SCANCODE_2, 2121005},
+    {SDL_SCANCODE_3, 3121006},
+    {SDL_SCANCODE_4, 3101005},
+    {SDL_SCANCODE_5, 2001002},
+    {SDL_SCANCODE_6, 21100005},
+    {SDL_SCANCODE_7, 3221005},
+    {SDL_SCANCODE_O, 3111006},
+    {SDL_SCANCODE_P, 3111003},
+    {SDL_SCANCODE_L, 2101004},
 };
 
-bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent, std::u16string id)
+bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent, int id)
 {
-    if (id == u"")
+    if (id == 0)
     {
         // 遍历映射表，检查是否有按键被按下
         for (const auto &[key, value] : skill_key_id)
@@ -838,7 +838,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
             }
         }
     }
-    if (id != u"")
+    if (id != 0)
     {
         if (SkillWarp::cooldowns.contains(id) && SkillWarp::cooldowns[id] > Window::dt_now)
         {
@@ -944,8 +944,8 @@ void player_portal(Move *mv, entt::entity ent)
                         else
                         {
                             auto eff = World::registry->try_get<Effect>(ent);
-                            eff->effects.emplace(u"", Effect::Info{Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
-                            eff->effects.emplace(u"", Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.emplace(0, Effect::Info{Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.emplace(0, Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
 
                             auto position = std::get<SDL_FPoint>(por->tn);
                             tr->position.x = position.x;
@@ -970,7 +970,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
     // 二段跳
     if (Input::state[SDL_SCANCODE_LALT])
     {
-        if (SkillWarp::cooldowns.contains(u"4111006") && SkillWarp::cooldowns[u"4111006"] > Window::dt_now)
+        if (SkillWarp::cooldowns.contains(4111006) && SkillWarp::cooldowns[4111006] > Window::dt_now)
         {
             return false;
         }
@@ -987,14 +987,14 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
         }
         // 添加effect
         auto eff = World::registry->try_get<Effect>(ent);
-        eff->effects.emplace(u"4111006", Effect::Info{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
+        eff->effects.emplace(4111006, Effect::Info{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
 
         // 技能音效
-        auto ski = SkillWarp::load(u"4111006");
+        auto ski = SkillWarp::load(4111006);
         auto souw = ski->sounds[u"Use"];
 
         Sound::push(souw);
-        SkillWarp::cooldowns[u"4111006"] = Window::dt_now + 500;
+        SkillWarp::cooldowns[4111006] = Window::dt_now + 500;
         return true;
     }
     return false;
@@ -1068,7 +1068,7 @@ void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt:
 {
     if (Input::state[SDL_SCANCODE_SPACE])
     {
-        player_skill(mv, cha, tr, state, ent, u"2201002");
+        player_skill(mv, cha, tr, state, ent, 2201002);
     }
 }
 
@@ -1129,7 +1129,7 @@ bool player_sit(Move *mv, int state)
             {
                 r = true;
                 mv->hspeed = 0;
-                World::registry->emplace_or_replace<Install>(Player::ent, u"03010000");
+                World::registry->emplace_or_replace<Install>(Player::ent, 03010000);
             }
             keyborard = false;
         }
