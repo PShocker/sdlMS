@@ -8,15 +8,15 @@
 
 struct GainTip
 {
-    static void init();
-    static void run();
-    static void push(const std::u16string &id, int num);
-
-    struct Info
+    struct Wrap
     {
         SDL_Texture *texture;
         unsigned int destory;
     };
 
-    static inline std::list<Info> gaintips;
+    static void init();
+    static void run();
+    static void push(const std::u16string &id, int num);
+
+    static inline std::list<Wrap> gaintips;
 };

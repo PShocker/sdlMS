@@ -9,7 +9,7 @@
 
 struct Buff
 {
-    struct Info
+    struct Wrap
     {
         std::optional<std::function<void(entt::entity)>> start;
         std::optional<std::function<void(entt::entity)>> finish;
@@ -26,7 +26,7 @@ struct Buff
         std::any data;
     };
 
-    std::unordered_map<int, Info> buffs;
+    std::unordered_map<int, Wrap> buffs;
     entt::entity owner = entt::null;
 
     Buff() = default;

@@ -16,13 +16,13 @@ struct UIItem
     static inline SDL_Texture *FullBackgrnd;
     static inline std::vector<SDL_Texture *> tabs;
     static inline uint8_t active_tab = 0;
-    struct Info
+    struct Wrap
     {
         std::u16string id;
         SpriteWarp *sprw;
         int num;
     };
-    static inline Info items[5][96];
+    static inline Wrap items[5][96];
     static std::pair<int, int> full(std::u16string id);
     static void push(std::u16string id, int num);
 

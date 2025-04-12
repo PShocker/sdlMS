@@ -47,20 +47,13 @@ void Damage::push(Damage *dam, int damage, uint8_t type, SDL_FPoint point, unsig
         dam->index = 0;
     }
     int count = dam->index;
-    Damage::Info info;
-    info.damage = std::abs(damage);
-    info.alpha = 255;
-    info.type = type;
-    info.delay = delay;
-    info.point.x = point.x;
-    info.point.y = point.y - (float)(count) * 34;
     if (count == 0)
     {
-        dam->damages.push_front(info);
+        dam->damages.push_front({damage, 255, type, delay, SDL_FPoint{point.x, point.y - (float)(count) * 34}});
     }
     else
     {
-        dam->damages.push_back(info);
+        dam->damages.push_back({damage, 255, type, delay, SDL_FPoint{point.x, point.y - (float)(count) * 34}});
     }
     dam->index++;
 }

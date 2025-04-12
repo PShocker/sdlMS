@@ -8,21 +8,17 @@
 
 struct Reactor
 {
-    struct Info
+    struct Wrap
     {
-        struct Event
-        {
-            int type = -1;
-            int state = -1;
-        };
         AnimatedSprite init;
         AnimatedSprite hit;
-        std::vector<Event> event;
+        // type,state
+        std::vector<std::pair<int, int>> event;
     };
 
     std::u16string id;
     int reactorTime;
-    std::unordered_map<int, Info> a;
+    std::unordered_map<int, Wrap> a;
     int index = 0;
     bool hit = false;
 

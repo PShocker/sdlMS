@@ -15,7 +15,7 @@ int skill_1111002(entt::entity ent)
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, 1111002);
 
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.emplace(0, Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
+    eff->effects.emplace(0, Effect::Wrap{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
 
     ski->call_back = [n = ski->skiw->node](entt::entity ent, int action_frame, int action_time)
     {
@@ -34,21 +34,21 @@ int skill_1111002(entt::entity ent)
         }
         else
         {
-            Buff::Info info;
-            info.start = [](entt::entity src)
+            Buff::Wrap wrap;
+            wrap.start = [](entt::entity src)
             {
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[1111002];
-                info.data = std::map<int, float>();
+                auto &wrap = buff->buffs[1111002];
+                wrap.data = std::map<int, float>();
                 // 序号,角度
-                auto maps = std::any_cast<std::map<int, float>>(&info.data);
+                auto maps = std::any_cast<std::map<int, float>>(&wrap.data);
                 maps->emplace(0, 0);
             };
-            info.after_attack = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
+            wrap.after_attack = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
             {
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[1111002];
-                auto maps = std::any_cast<std::map<int, float>>(&info.data);
+                auto &wrap = buff->buffs[1111002];
+                auto maps = std::any_cast<std::map<int, float>>(&wrap.data);
                 auto size = maps->size();
                 if (size < 6)
                 {
@@ -63,14 +63,14 @@ int skill_1111002(entt::entity ent)
                     }
                 }
             };
-            info.frame = [n](entt::entity src)
+            wrap.frame = [n](entt::entity src)
             {
                 auto eff = World::registry->try_get<Effect>(src);
                 eff->effects.erase(1111002);
 
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[1111002];
-                auto maps = std::any_cast<std::map<int, float>>(&info.data);
+                auto &wrap = buff->buffs[1111002];
+                auto maps = std::any_cast<std::map<int, float>>(&wrap.data);
                 auto src_tr = World::registry->try_get<Transform>(src);
                 auto src_position = src_tr->position;
                 for (auto &[key, val] : *maps)
@@ -88,7 +88,7 @@ int skill_1111002(entt::entity ent)
                         auto x = 42 * std::cos(val * std::numbers::pi / 180.0);      // 更新 x 坐标
                         auto y = 42 * std::sin(val * std::numbers::pi / 180.0) - 30; // 更新 y 坐标
                         Transform tr(src_position + SDL_FPoint{(float)x, (float)y});
-                        eff->effects.emplace(1111002, Effect::Info{tr, aspr});
+                        eff->effects.emplace(1111002, Effect::Wrap{tr, aspr});
                     }
                     else
                     {
@@ -97,19 +97,19 @@ int skill_1111002(entt::entity ent)
                         aspr.animate = false;
                         Transform tr(src_position + SDL_FPoint{0, -30});
                         tr.rotation = val;
-                        eff->effects.emplace(1111002, Effect::Info{tr, aspr});
+                        eff->effects.emplace(1111002, Effect::Wrap{tr, aspr});
                     }
                 }
             };
-            info.finish = [](entt::entity src)
+            wrap.finish = [](entt::entity src)
             {
                 auto eff = World::registry->try_get<Effect>(src);
                 eff->effects.erase(1111002);
             };
-            info.duration = duration;
-            info.destory = 0;
-            buff->buffs.emplace(1111002, info);
-            info.start.value()(ent);
+            wrap.duration = duration;
+            wrap.destory = 0;
+            buff->buffs.emplace(1111002, wrap);
+            wrap.start.value()(ent);
         }
     };
 

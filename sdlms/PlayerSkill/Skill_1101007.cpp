@@ -39,8 +39,8 @@ int skill_1101007(entt::entity ent)
         }
         else
         {
-            Buff::Info info;
-            info.after_hit = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
+            Buff::Wrap wrap;
+            wrap.after_hit = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
             {
                 // 伤害反馈
                 Attack attack;
@@ -52,9 +52,9 @@ int skill_1101007(entt::entity ent)
                 attack.mobCount = 0;
                 attack_mob(&attack, target, src, std::nullopt);
             };
-            info.duration = duration;
-            info.destory = Window::dt_now + info.duration;
-            buff->buffs.emplace(1101007, info);
+            wrap.duration = duration;
+            wrap.destory = Window::dt_now + wrap.duration;
+            buff->buffs.emplace(1101007, wrap);
         }
     };
 

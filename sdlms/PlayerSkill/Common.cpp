@@ -79,12 +79,7 @@ void mob_special_effect(entt::entity ent, int id, AnimatedSpriteWarp *asprw, uns
         const auto mob_tr = World::registry->try_get<Transform>(ent);
         const auto mob = World::registry->try_get<Mob>(ent);
         auto head = mob->head(mob_tr->flip);
-        Effect::Info info;
-        info.tr = Transform(SDL_FPoint{0, head.y - 10});
-        info.aspr = AnimatedSprite(asprw);
-        info.follow = true;
-        info.destory = time;
-        eff->effects.emplace(id, info);
+        eff->effects.insert({id, {Transform(SDL_FPoint{0, head.y - 10}),AnimatedSprite(asprw),Window::dt_now,true,time}});
     }
 }
 

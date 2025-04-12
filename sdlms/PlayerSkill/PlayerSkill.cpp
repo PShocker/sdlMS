@@ -16,7 +16,7 @@ void PlayerSkill::skill_effect(Skill *ski, entt::entity ent)
 
     for (auto &it : ski->skiw->effects)
     {
-        eff->effects.emplace(ski->skiw->id, Effect::Info{std::nullopt, AnimatedSprite(it)});
+        eff->effects.emplace(ski->skiw->id, Effect::Wrap{std::nullopt, AnimatedSprite(it)});
     }
 }
 
@@ -90,12 +90,5 @@ void PlayerSkill::skill_attack(Skill *ski)
         SoundWarp *souw = (ski->skiw->sounds.contains(u"Hit")) ? ski->skiw->sounds[u"Hit"] : nullptr;
         ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
     }
-    if (ski->skiw->node->get_child(u"ball") != nullptr)
-    {
-        ski->ball = true;
-    }
-    else
-    {
-        ski->attack = true;
-    }
+    ski->attack = true;
 }

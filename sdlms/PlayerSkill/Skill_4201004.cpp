@@ -42,10 +42,10 @@ int skill_4201004(entt::entity ent)
         World::zindex = true;
     };
 
-    auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-    if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
+    auto weaponWrap = World::registry->try_get<WeaponWrap>(ent);
+    if (WeaponWrap::if_long_range_weapon(weaponWrap->attack))
     {
-        auto action = weaponinfo->degen_stances[weaponinfo->attack][std::rand() % weaponinfo->degen_stances[weaponinfo->attack].size()];
+        auto action = weaponWrap->degen_stances[weaponWrap->attack][std::rand() % weaponWrap->degen_stances[weaponWrap->attack].size()];
         ski->skiw->action_str = Character::type_map2.at(action);
     }
     else

@@ -40,30 +40,30 @@ int skill_21100005(entt::entity ent)
         }
         else
         {
-            Buff::Info info;
-            info.start = [](entt::entity src)
+            Buff::Wrap wrap;
+            wrap.start = [](entt::entity src)
             {
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[21100005];
-                info.data = 0;
+                auto &wrap = buff->buffs[21100005];
+                wrap.data = 0;
             };
-            info.after_attack = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
+            wrap.after_attack = [](Attack *atk, entt::entity src, entt::entity target, int full_damage)
             {
                 auto buff = World::registry->try_get<Buff>(src);
-                auto &info = buff->buffs[21100005];
-                info.data = std::any_cast<int>(info.data) + full_damage;
+                auto &wrap = buff->buffs[21100005];
+                wrap.data = std::any_cast<int>(wrap.data) + full_damage;
                 if (atk->mobCount == 0)
                 {
                     Attack attack;
-                    attack.damage = -std::any_cast<int>(info.data);
+                    attack.damage = -std::any_cast<int>(wrap.data);
                     attack_player(&attack, entt::null, std::nullopt);
-                    info.data = 0;
+                    wrap.data = 0;
                 }
             };
-            info.duration = duration;
-            info.destory = Window::dt_now + duration;
-            buff->buffs.emplace(21100005, info);
-            info.start.value()(ent);
+            wrap.duration = duration;
+            wrap.destory = Window::dt_now + duration;
+            buff->buffs.emplace(21100005, wrap);
+            wrap.start.value()(ent);
         }
     };
 

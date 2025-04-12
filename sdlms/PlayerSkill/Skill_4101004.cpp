@@ -37,25 +37,25 @@ int skill_4101004(entt::entity ent)
         }
         else
         {
-            Buff::Info info;
-            info.duration = duration;
-            info.start = [](entt::entity ent)
+            Buff::Wrap wrap;
+            wrap.duration = duration;
+            wrap.start = [](entt::entity ent)
             {
                 auto mv = World::registry->try_get<Move>(ent);
                 mv->hspeed_max.value() += 80;
                 mv->hspeed_min.value() -= 80;
                 mv->vspeed_min.value() -= 888;
             };
-            info.finish = [](entt::entity ent)
+            wrap.finish = [](entt::entity ent)
             {
                 auto mv = World::registry->try_get<Move>(ent);
                 mv->hspeed_max.value() -= 80;
                 mv->hspeed_min.value() += 80;
                 mv->vspeed_min.value() += 888;
             };
-            info.destory = Window::dt_now + duration;
-            buff->buffs.emplace(4101004, info);
-            info.start.value()(ent);
+            wrap.destory = Window::dt_now + duration;
+            buff->buffs.emplace(4101004, wrap);
+            wrap.start.value()(ent);
         }
     };
 

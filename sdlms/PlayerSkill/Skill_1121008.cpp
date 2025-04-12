@@ -20,7 +20,7 @@ int skill_1121008(entt::entity ent)
         mv->hspeed = 0;
     }
 
-    auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
+    auto weaponWrap = World::registry->try_get<WeaponWrap>(ent);
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, 1121008);
 

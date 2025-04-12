@@ -5,7 +5,7 @@
 
 struct NameTag
 {
-    struct Info
+    struct Wrap
     {
         SDL_Texture *str_texture;
         SDL_Texture *back_texture;
@@ -16,5 +16,5 @@ struct NameTag
 
     static void push(NameTag *nametag, std::u16string str, SDL_Color color, std::u16string type = u"");
 
-    std::vector<Info> nametags;
+    std::vector<Wrap> nametags;
 };

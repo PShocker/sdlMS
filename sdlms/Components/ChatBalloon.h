@@ -7,7 +7,7 @@
 
 struct ChatBalloon
 {
-    struct Info
+    struct Wrap
     {
         SDL_Texture *str_texture;
         SDL_Texture *back_texture;
@@ -19,5 +19,5 @@ struct ChatBalloon
 
     static SDL_Texture *load_back_texture(SDL_Texture *str_texture, std::u16string type = u"0");
 
-    std::vector<Info> chatballoons;
+    std::vector<Wrap> chatballoons;
 };

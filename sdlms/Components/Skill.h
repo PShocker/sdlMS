@@ -40,7 +40,6 @@ struct Skill
     bool hit = false;
     uint8_t level = 19;
     bool attack = false;
-    bool ball = false;
 
     // 数据
     std::any data;

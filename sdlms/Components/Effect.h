@@ -7,11 +7,7 @@
 
 struct Effect
 {
-    static inline const int Dizzy = 1;
-    static inline const int Poison = 2;
-    static inline const int Flame = 3;
-
-    struct Info
+    struct Wrap
     {
         std::optional<Transform> tr;
         AnimatedSprite aspr;
@@ -22,7 +18,11 @@ struct Effect
         std::optional<unsigned int> destory;
     };
 
-    std::multimap<int, Info> effects;
+    static inline const int Dizzy = 1;
+    static inline const int Poison = 2;
+    static inline const int Flame = 3;
+
+    std::multimap<int, Wrap> effects;
 
     Effect() = default;
 

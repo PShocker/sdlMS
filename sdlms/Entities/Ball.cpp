@@ -53,9 +53,9 @@ entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *s
     }
     if (asprw == nullptr)
     {
-        auto weaponinfo = World::registry->try_get<WeaponInfo>(owner);
+        auto weaponWrap = World::registry->try_get<WeaponWrap>(owner);
         std::u16string ball_path;
-        if (weaponinfo->attack == WeaponInfo::Attack::BOW)
+        if (weaponWrap->attack == WeaponWrap::Attack::BOW)
         {
             ball_path = u"Consume/0206.img/02060001/bullet";
         }

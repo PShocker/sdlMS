@@ -170,7 +170,7 @@ SoundWarp::SoundWarp(wz::Node *node)
 
     SwrContext *swrContext = swr_alloc();
     // 音频格式  输入的采样设置参数
-    AVSampleFormat inFormat = codecContext->sample_fmt;
+    AVSampleFormat Wraprmat = codecContext->sample_fmt;
     // 出入的采样格式
     AVSampleFormat outFormat = AV_SAMPLE_FMT_S16;
     // 输入采样率
@@ -184,7 +184,7 @@ SoundWarp::SoundWarp(wz::Node *node)
     int outChannelCount = outChannel.nb_channels;
 
     swr_alloc_set_opts2(&swrContext, &outChannel, outFormat, outSampleRate,
-                        &codecContext->ch_layout, inFormat, inSampleRate, 0, NULL);
+                        &codecContext->ch_layout, Wraprmat, inSampleRate, 0, NULL);
 
     if (swr_init(swrContext) < 0)
     {

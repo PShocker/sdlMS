@@ -50,10 +50,10 @@ int skill_2221005(entt::entity ent)
             auto summon_mv = World::registry->try_get<Move>(e);
             summon_mv->foo = owner_mv->foo;
 
-            Buff::Info info;
-            info.duration = duration;
-            info.destory = Window::dt_now + duration;
-            buff->buffs.emplace(2221005, info);
+            Buff::Wrap wrap;
+            wrap.duration = duration;
+            wrap.destory = Window::dt_now + duration;
+            buff->buffs.emplace(2221005, wrap);
         }
     };
     SkillWarp::cooldowns[2221005] = Window::dt_now + 1500;

@@ -50,10 +50,10 @@ int skill_4111002(entt::entity ent)
         sum->id = 4111002;
         sum->owner = ent;
 
-        Buff::Info info;
-        info.duration = duration;
-        info.destory = Window::dt_now + duration;
-        buff->buffs.emplace(4111002, info);
+        Buff::Wrap wrap;
+        wrap.duration = duration;
+        wrap.destory = Window::dt_now + duration;
+        buff->buffs.emplace(4111002, wrap);
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

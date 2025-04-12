@@ -9,7 +9,7 @@
 
 struct AfterImage
 {
-    struct Info
+    struct Wrap
     {
         uint8_t index;
         AnimatedSpriteWarp *asprw;
@@ -17,7 +17,7 @@ struct AfterImage
         SDL_FPoint rb;
     };
 
-    static inline std::unordered_map<std::u16string, std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>>> afterimages;
+    static inline std::unordered_map<std::u16string, std::unordered_map<std::u16string, std::unordered_map<uint8_t, Wrap>>> afterimages;
 
     static inline std::unordered_map<std::u16string, AnimatedSpriteWarp *> hits;
     static inline std::unordered_map<std::u16string, std::vector<SoundWarp *>> sounds;
@@ -26,7 +26,7 @@ struct AfterImage
     bool animate = false;
 
     AnimatedSprite aspr;
-    Info info;
+    Wrap wrap;
 
     bool hit = false;
 

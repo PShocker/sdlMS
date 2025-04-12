@@ -38,15 +38,15 @@ int skill_2001002(entt::entity ent)
         }
         else
         {
-            Buff::Info info;
-            info.before_attack = [](Attack *atk, entt::entity src)
+            Buff::Wrap wrap;
+            wrap.before_attack = [](Attack *atk, entt::entity src)
             {
                 atk->min_damage = 0.3;
                 atk->max_damage = 0.3;
             };
-            info.duration = duration;
-            info.destory = 0;
-            buff->buffs.emplace(2001002, info);
+            wrap.duration = duration;
+            wrap.destory = 0;
+            buff->buffs.emplace(2001002, wrap);
         }
     };
 

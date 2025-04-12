@@ -40,7 +40,7 @@ int skill_2201004(entt::entity ent)
 
         const auto mob_tr = World::registry->try_get<Transform>(target);
         auto eff = World::registry->try_get<Effect>(target);
-        eff->effects.emplace(2201004, Effect::Info{Transform(SDL_FPoint{0, -25}), hit, Window::dt_now, true});
+        eff->effects.emplace(2201004, Effect::Wrap{Transform(SDL_FPoint{0, -25}), hit, Window::dt_now, true});
         mob->call_backs.erase(2201004);
         mob->call_backs.emplace(2201004, std::make_pair(frozen_call_back, Window::dt_now + 5000));
     };

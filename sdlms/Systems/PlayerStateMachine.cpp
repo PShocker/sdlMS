@@ -555,8 +555,8 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         {
         case Character::State::STAND:
         {
-            auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
-            if (weaponinfo != nullptr && weaponinfo->stand1 == false)
+            auto weaponWrap = World::registry->try_get<WeaponWrap>(Player::ent);
+            if (weaponWrap != nullptr && weaponWrap->stand1 == false)
             {
                 action = Character::ACTION::STAND2;
             }
@@ -569,8 +569,8 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         break;
         case Character::State::WALK:
         {
-            auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
-            if (weaponinfo != nullptr && weaponinfo->walk1 == false)
+            auto weaponWrap = World::registry->try_get<WeaponWrap>(Player::ent);
+            if (weaponWrap != nullptr && weaponWrap->walk1 == false)
             {
                 action = Character::ACTION::WALK2;
             }
@@ -595,14 +595,14 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             }
             else
             {
-                action = player_attack_action(World::registry->try_get<WeaponInfo>(Player::ent));
+                action = player_attack_action(World::registry->try_get<WeaponWrap>(Player::ent));
                 cha->r = SDL_FRect{-20, -50, 30, 45};
             }
             if (auto aft = World::registry->try_get<AfterImage>(Player::ent))
             {
-                auto weaponinfo = World::registry->try_get<WeaponInfo>(Player::ent);
-                aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][action].asprw);
-                aft->info = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][action];
+                auto weaponWrap = World::registry->try_get<WeaponWrap>(Player::ent);
+                aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponWrap->afterImage][weaponWrap->afterImage_index][action].asprw);
+                aft->wrap = AfterImage::afterimages[weaponWrap->afterImage][weaponWrap->afterImage_index][action];
             }
         }
         break;
@@ -637,7 +637,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             if (cha->action_str == u"")
             {
                 // 从攻击动作随机选择一个
-                action = player_attack_action(World::registry->try_get<WeaponInfo>(Player::ent));
+                action = player_attack_action(World::registry->try_get<WeaponWrap>(Player::ent));
             }
             else if (Character::type_map.contains(cha->action_str))
             {
@@ -944,8 +944,8 @@ void player_portal(Move *mv, entt::entity ent)
                         else
                         {
                             auto eff = World::registry->try_get<Effect>(ent);
-                            eff->effects.emplace(0, Effect::Info{Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
-                            eff->effects.emplace(0, Effect::Info{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.emplace(0, Effect::Wrap{Transform(tr->position.x, tr->position.y), AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
+                            eff->effects.emplace(0, Effect::Wrap{std::nullopt, AnimatedSprite(Effect::load(u"BasicEff.img/Summoned"))});
 
                             auto position = std::get<SDL_FPoint>(por->tn);
                             tr->position.x = position.x;
@@ -987,7 +987,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
         }
         // 添加effect
         auto eff = World::registry->try_get<Effect>(ent);
-        eff->effects.emplace(4111006, Effect::Info{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
+        eff->effects.emplace(4111006, Effect::Wrap{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
 
         // 技能音效
         auto ski = SkillWarp::load(4111006);
@@ -1000,12 +1000,12 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
     return false;
 }
 
-uint8_t player_attack_action(WeaponInfo *wea)
+uint8_t player_attack_action(WeaponWrap *wea)
 {
     uint8_t action = 0;
     action = wea->attack_stances[wea->attack][std::rand() % wea->attack_stances[wea->attack].size()];
     // 判断是远程武器，且没有放技能
-    if (WeaponInfo::if_long_range_weapon(wea->attack) && !World::registry->all_of<Skill>(Player::ent))
+    if (WeaponWrap::if_long_range_weapon(wea->attack) && !World::registry->all_of<Skill>(Player::ent))
     {
         // 需要判断面前是否有怪物,否则切换到近战
         for (auto ent : World::registry->view<Damage, Mob>())
@@ -1033,7 +1033,7 @@ uint8_t player_attack_action(WeaponInfo *wea)
             // 判断是否有hit事件
             for (auto &e : r->a[r->index].event)
             {
-                if (e.type == 0)
+                if (e.first == 0)
                 {
                     // 说明可以进行hit
                     auto r_tr = World::registry->try_get<Transform>(ent);

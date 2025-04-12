@@ -37,8 +37,8 @@ int skill_3001005(entt::entity ent)
     {
         auto ski = World::registry->try_get<Skill>(ent);
         auto cha = World::registry->try_get<Character>(ent);
-        auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-        auto index = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][cha->action].index;
+        auto weaponWrap = World::registry->try_get<WeaponWrap>(ent);
+        auto index = AfterImage::afterimages[weaponWrap->afterImage][weaponWrap->afterImage_index][cha->action].index;
         if (!(action_frame == index && action_time == 0))
         {
             return;

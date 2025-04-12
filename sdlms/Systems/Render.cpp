@@ -646,41 +646,41 @@ void render_damage()
                { return m.alpha < n.alpha; });
         for (auto it : d)
         {
-            auto &info = it;
-            if (info.delay < Window::dt_now)
+            auto &wrap = it;
+            if (wrap.delay < Window::dt_now)
             {
-                auto p = info.point;
-                int length = static_cast<int>(std::floor(std::log10(info.damage)) + 1);
+                auto p = wrap.point;
+                int length = static_cast<int>(std::floor(std::log10(wrap.damage)) + 1);
                 p.x = p.x - length * 14;
                 int i = 0;
-                while (info.damage > 0)
+                while (wrap.damage > 0)
                 {
-                    auto n = info.damage % 10;
+                    auto n = wrap.damage % 10;
                     Transform transfrom(p);
                     transfrom.position.x += (length - i) * 28;
-                    transfrom.position.y -= 25.5 - info.alpha / 10;
-                    switch (info.type)
+                    transfrom.position.y -= 25.5 - wrap.alpha / 10;
+                    switch (wrap.type)
                     {
                     case 0:
-                        render_sprite(&transfrom, dam->red[n], nullptr, info.alpha);
+                        render_sprite(&transfrom, dam->red[n], nullptr, wrap.alpha);
                         break;
                     case 1:
-                        render_sprite(&transfrom, dam->violet[n], nullptr, info.alpha);
+                        render_sprite(&transfrom, dam->violet[n], nullptr, wrap.alpha);
                         break;
                     case 2:
                         if (i == length - 1)
                         {
-                            render_sprite(&transfrom, dam->cri[10], nullptr, info.alpha);
+                            render_sprite(&transfrom, dam->cri[10], nullptr, wrap.alpha);
                         }
-                        render_sprite(&transfrom, dam->cri[n], nullptr, info.alpha);
+                        render_sprite(&transfrom, dam->cri[n], nullptr, wrap.alpha);
                         break;
                     case 3:
-                        render_sprite(&transfrom, dam->blue[n], nullptr, info.alpha);
+                        render_sprite(&transfrom, dam->blue[n], nullptr, wrap.alpha);
                         break;
                     default:
                         break;
                     }
-                    info.damage /= 10;
+                    wrap.damage /= 10;
                     i++;
                 }
             }

@@ -26,7 +26,7 @@ int skill_4001344(entt::entity ent)
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, 4001344);
 
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.emplace(4001344, Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->node->find_from_path(u"CharLevel/25/effect"))});
+    eff->effects.emplace(4001344, Effect::Wrap{std::nullopt, AnimatedSprite(ski->skiw->node->find_from_path(u"CharLevel/25/effect"))});
 
     auto lt = SDL_FPoint{0, 0};
     auto rb = SDL_FPoint{0, 0};
@@ -40,8 +40,8 @@ int skill_4001344(entt::entity ent)
     {
         auto ski = World::registry->try_get<Skill>(ent);
         auto cha = World::registry->try_get<Character>(ent);
-        auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-        auto index = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][cha->action].index;
+        auto weaponWrap = World::registry->try_get<WeaponWrap>(ent);
+        auto index = AfterImage::afterimages[weaponWrap->afterImage][weaponWrap->afterImage_index][cha->action].index;
         if (action_frame < index)
         {
             return;

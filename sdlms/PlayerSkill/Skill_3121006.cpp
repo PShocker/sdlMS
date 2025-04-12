@@ -57,8 +57,8 @@ int skill_3121006(entt::entity ent)
 
                 for (int i = tr->position.x - 75; i <= tr->position.x + 75;)
                 {
-                    Effect::Info info;
-                    info.tr = Transform(SDL_FPoint{(float)i, (float)tr->position.y});
+                    Effect::Wrap wrap;
+                    wrap.tr = Transform(SDL_FPoint{(float)i, (float)tr->position.y});
                     AnimatedSpriteWarp *asprw;
                     int random = std::rand() % 3;
                     switch (random)
@@ -73,9 +73,9 @@ int skill_3121006(entt::entity ent)
                         asprw = AnimatedSpriteWarp::load(n->find_from_path(u"tile/2"));
                         break;
                     }
-                    info.aspr = AnimatedSprite(asprw);
-                    info.destory = Window::dt_now + 960;
-                    eff->effects.emplace(0, info);
+                    wrap.aspr = AnimatedSprite(asprw);
+                    wrap.destory = Window::dt_now + 960;
+                    eff->effects.emplace(0, wrap);
                     i += asprw->sprites[0]->texture->w;
                 }
                 const auto mob = World::registry->try_get<Mob>(target);
@@ -83,10 +83,10 @@ int skill_3121006(entt::entity ent)
                 mob->call_backs.erase(3121006);
                 mob->call_backs.emplace(3121006, std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
             };
-            Buff::Info info;
-            info.duration = duration;
-            info.destory = Window::dt_now + duration;
-            buff->buffs.emplace(3121006, info);
+            Buff::Wrap wrap;
+            wrap.duration = duration;
+            wrap.destory = Window::dt_now + duration;
+            buff->buffs.emplace(3121006, wrap);
         }
     };
     SkillWarp::cooldowns[3121006] = Window::dt_now + 1500;

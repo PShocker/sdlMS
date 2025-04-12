@@ -31,7 +31,7 @@ static void generate_chain_effect(
             start.y + dy_per_segment * i);
         tr.rotation = angle;
 
-        eff->effects.emplace(0, Effect::Info{tr,
+        eff->effects.emplace(0, Effect::Wrap{tr,
                                              AnimatedSprite(sprite_template)});
     }
 }

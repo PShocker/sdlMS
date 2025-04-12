@@ -11,32 +11,32 @@ void AfterImage::load(const std::u16string &type, const std::u16string &sfx, con
     if (!(afterimages.contains(type) && afterimages[type].contains(afterImage_index)))
     {
         auto afterimage = afterimage_node->find_from_path(type + u".img/" + afterImage_index);
-        std::unordered_map<std::u16string, std::unordered_map<uint8_t, Info>> part;
+        std::unordered_map<std::u16string, std::unordered_map<uint8_t, Wrap>> part;
         for (auto &[second, type] : afterimage->get_children())
         {
             if (Character::type_map.contains(second))
             {
                 auto action = Character::type_map.at(second);
-                Info info;
+                Wrap wrap;
                 for (auto &[third, act] : type[0]->get_children())
                 {
                     if (third == u"lt")
                     {
                         auto vec = dynamic_cast<wz::Property<wz::WzVec2D> *>(act[0])->get();
-                        info.lt = {(float)vec.x, (float)vec.y};
+                        wrap.lt = {(float)vec.x, (float)vec.y};
                     }
                     else if (third == u"rb")
                     {
                         auto vec = dynamic_cast<wz::Property<wz::WzVec2D> *>(act[0])->get();
-                        info.rb = {(float)vec.x, (float)vec.y};
+                        wrap.rb = {(float)vec.x, (float)vec.y};
                     }
                     else
                     {
-                        info.index = std::stoi(std::string{third.begin(), third.end()});
-                        info.asprw = AnimatedSpriteWarp::load(act[0], 255);
+                        wrap.index = std::stoi(std::string{third.begin(), third.end()});
+                        wrap.asprw = AnimatedSpriteWarp::load(act[0], 255);
                     }
                 }
-                part[afterImage_index][action] = info;
+                part[afterImage_index][action] = wrap;
             }
         }
         afterimages[type] = part;

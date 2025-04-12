@@ -6,7 +6,7 @@
 #include <vector>
 #include <array>
 
-struct WeaponInfo
+struct WeaponWrap
 {
     std::u16string afterImage;
     std::u16string sfx;
@@ -15,7 +15,7 @@ struct WeaponInfo
     int attack = 0;
     int reqLevel = 0;
     std::u16string afterImage_index;
-    WeaponInfo(const std::u16string &id);
+    WeaponWrap(const std::u16string &id);
 
     static bool if_long_range_weapon(int attack);
 

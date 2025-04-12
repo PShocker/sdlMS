@@ -18,11 +18,11 @@ struct SoundWarp
 
 struct Sound
 {
-    SoundWarp *souw = nullptr;
     Sound(wz::Node *node, int d = 0);
     Sound(const std::u16string &path, int d = 0);
     Sound() = default;
 
+    SoundWarp *souw = nullptr;
     unsigned int offset = 0; // 记录当前播放的位置
     unsigned int delay = 0;  // 记录当前播放是否延迟,数值表示延迟时间
     bool circulate = false;  // 当前是否循环

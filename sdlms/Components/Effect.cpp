@@ -17,9 +17,6 @@ void Effect::push(Effect *eff, AnimatedSpriteWarp *asprw, std::optional<SDL_FPoi
         {
             tr = Transform(p.value());
         }
-        Effect::Info info;
-        info.tr = tr;
-        info.aspr = AnimatedSprite(asprw);
-        eff->effects.emplace(0, info);
+        eff->effects.insert({0, {tr, AnimatedSprite(asprw)}});
     }
 }

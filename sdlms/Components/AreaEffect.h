@@ -7,13 +7,13 @@
 // 区域特效，通常是弓弩手的特效，例如箭雨
 struct AreaEffect
 {
-    struct Info
+    struct Wrap
     {
         AnimatedSprite aspr;
         Transform tr;
     };
 
-    std::vector<Info> effects;
+    std::vector<Wrap> effects;
 
     std::vector<AnimatedSprite> asprs;
 

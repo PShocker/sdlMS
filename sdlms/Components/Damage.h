@@ -16,7 +16,7 @@ struct Damage
         Blue = 3
     };
 
-    struct Info
+    struct Wrap
     {
         int damage;
         float alpha;
@@ -25,7 +25,7 @@ struct Damage
         SDL_FPoint point;
     };
 
-    std::list<Info> damages;
+    std::list<Wrap> damages;
     char index = 0;
 
     static inline SpriteWarp *red[10];

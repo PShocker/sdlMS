@@ -71,7 +71,7 @@ void attack_reactor(Attack *atk)
 
         for (auto &event : reactor->a[reactor->index].event)
         {
-            if (event.type != 0)
+            if (event.first != 0)
             {
                 continue;
             }

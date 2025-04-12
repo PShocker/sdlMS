@@ -28,7 +28,7 @@ int skill_1111008(entt::entity ent)
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, 1111008);
 
     auto eff = World::registry->try_get<Effect>(ent);
-    eff->effects.emplace(-1111008, Effect::Info{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
+    eff->effects.emplace(-1111008, Effect::Wrap{std::nullopt, AnimatedSprite(ski->skiw->effects[0])});
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();

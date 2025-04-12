@@ -36,24 +36,24 @@ int skill_4001003(entt::entity ent)
         {
             buff->buffs.at(4001003).destory = Window::dt_now + duration;
         }
-        Buff::Info info;
-        info.start = [](entt::entity src)
+        Buff::Wrap wrap;
+        wrap.start = [](entt::entity src)
         {
             auto cha = World::registry->try_get<Character>(src);
             cha->alpha = 128;
             cha->invincible_cooldown = Window::dt_now + 2000;
         };
-        info.frame = info.start;
-        info.finish = [](entt::entity src)
+        wrap.frame = wrap.start;
+        wrap.finish = [](entt::entity src)
         {
             auto cha = World::registry->try_get<Character>(src);
             cha->alpha = 255;
             cha->invincible_cooldown = Window::dt_now;
         };
-        info.duration = duration;
-        info.destory = Window::dt_now + duration;
-        buff->buffs.emplace(4001003, info);
-        info.start.value()(ent);
+        wrap.duration = duration;
+        wrap.destory = Window::dt_now + duration;
+        buff->buffs.emplace(4001003, wrap);
+        wrap.start.value()(ent);
     };
 
     return PlayerSkill::SkillResult::EFF | PlayerSkill::SkillResult::SOU |

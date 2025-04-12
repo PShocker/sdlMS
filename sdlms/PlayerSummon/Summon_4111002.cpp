@@ -92,7 +92,7 @@ int summon_4111002(entt::entity ent)
             {
                 auto summon_aft = &World::registry->emplace_or_replace<AfterImage>(ent);
                 summon_aft->aspr = owner_aft->aspr;
-                summon_aft->info = owner_aft->info;
+                summon_aft->wrap = owner_aft->wrap;
             }
         }
     }

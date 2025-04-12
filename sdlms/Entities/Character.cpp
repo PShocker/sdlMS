@@ -25,7 +25,7 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     // cha->add_shield(u"01092049");
     std::u16string weapon_id = u"01472030";
     cha->add_weapon(weapon_id);
-    World::registry->emplace<WeaponInfo>(ent, weapon_id);
+    World::registry->emplace<WeaponWrap>(ent, weapon_id);
 
     World::registry->emplace<Animated>(ent);
     World::registry->emplace<Effect>(ent);

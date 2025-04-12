@@ -29,15 +29,11 @@ void load_reactor(wz::Node *node)
             auto it = r->find_from_path(std::to_string(i));
             if (it == nullptr)
             {
-                // 如果发现没读取到,说明已经读完,则退出读取
                 break;
             }
-            Reactor::Info info;
-            info.init = AnimatedSprite(it);
             if (auto hit = it->find_from_path(u"hit"))
             {
-                info.hit = AnimatedSprite(hit);
-                std::vector<Reactor::Info::Event> event;
+                std::vector<std::pair<int, int>> event;
                 if (it->get_child(u"event"))
                 {
                     for (auto &[k, v] : it->get_child(u"event")->get_children())
@@ -47,8 +43,7 @@ void load_reactor(wz::Node *node)
                         event.push_back({type, state});
                     }
                 }
-                info.event = event;
-                reactor->a[i] = info;
+                reactor->a[i] = {AnimatedSprite(it), AnimatedSprite(hit), event};
             }
         }
 

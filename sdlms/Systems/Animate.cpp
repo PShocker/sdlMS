@@ -207,11 +207,14 @@ void animate_character(Character *cha, entt::entity ent)
 
         if (ski->attack)
         {
-            attack_mob(&ski->atk.value(), ent);
-        }
-        else if (ski->ball)
-        {
-            load_ball(ent, World::registry->try_get<Transform>(ent)->position + SDL_FPoint{0, -30}, 800, ski);
+            if (ski->skiw->node->get_child(u"ball") != nullptr)
+            {
+                load_ball(ent, World::registry->try_get<Transform>(ent)->position + SDL_FPoint{0, -30}, 800, ski);
+            }
+            else
+            {
+                attack_mob(&ski->atk.value(), ent);
+            }
         }
     };
 
@@ -221,8 +224,8 @@ void animate_character(Character *cha, entt::entity ent)
         auto delay = cha->stance_delays[cha->action][cha->action_index];
         if (auto ski = World::registry->try_get<Skill>(ent))
         {
-            auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-            auto index = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][cha->action].index;
+            auto weaponWrap = World::registry->try_get<WeaponWrap>(ent);
+            auto index = AfterImage::afterimages[weaponWrap->afterImage][weaponWrap->afterImage_index][cha->action].index;
             if (cha->action_index == index && action_time == 0)
             {
                 handle_skill_attack(ski);
@@ -285,12 +288,12 @@ void animate_character(Character *cha, entt::entity ent)
 void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
 {
     auto action = cha->action;
-    auto weaponinfo = World::registry->try_get<WeaponInfo>(ent);
-    auto &info = AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][action];
-    uint8_t index = info.index;
+    auto weaponWrap = World::registry->try_get<WeaponWrap>(ent);
+    auto &wrap = AfterImage::afterimages[weaponWrap->afterImage][weaponWrap->afterImage_index][action];
+    uint8_t index = wrap.index;
     if (aft->aspr.asprw == nullptr)
     {
-        aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponinfo->afterImage][weaponinfo->afterImage_index][action].asprw);
+        aft->aspr = AnimatedSprite(AfterImage::afterimages[weaponWrap->afterImage][weaponWrap->afterImage_index][action].asprw);
         aft->hit = true;
     }
     auto &aspr = aft->aspr;
@@ -304,15 +307,15 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
         if (aft->hit == false)
         {
             aft->hit = true;
-            if (WeaponInfo::if_long_range_weapon(weaponinfo->attack))
+            if (WeaponWrap::if_long_range_weapon(weaponWrap->attack))
             {
-                auto attack_stances = weaponinfo->attack_stances[weaponinfo->attack];
+                auto attack_stances = weaponWrap->attack_stances[weaponWrap->attack];
                 if (std::find(attack_stances.begin(), attack_stances.end(), action) != attack_stances.end())
                 {
                     // 远程
                     load_ball(ent, World::registry->try_get<Transform>(ent)->position + SDL_FPoint{0, -30}, 800);
                     // play sound
-                    Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
+                    Sound::push(AfterImage::sounds[weaponWrap->sfx][0]);
                     return;
                 }
             }
@@ -322,21 +325,21 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
             {
             case 0:
             {
-                auto hit = aft->hits[weaponinfo->afterImage + u"1"];
-                atk = Attack(aft->info.lt, aft->info.rb, hit);
+                auto hit = aft->hits[weaponWrap->afterImage + u"1"];
+                atk = Attack(aft->wrap.lt, aft->wrap.rb, hit);
             }
             break;
             case 1:
             {
-                auto hit = aft->hits[weaponinfo->afterImage + u"2"];
-                atk = Attack(aft->info.lt, aft->info.rb, hit);
+                auto hit = aft->hits[weaponWrap->afterImage + u"2"];
+                atk = Attack(aft->wrap.lt, aft->wrap.rb, hit);
             }
             break;
             case 2:
             {
-                // hit = aft->hits[weaponinfo->afterImage + u"F"];
-                auto hit = aft->hits[weaponinfo->afterImage + u"2"];
-                atk = Attack(aft->info.lt, aft->info.rb, hit);
+                // hit = aft->hits[weaponWrap->afterImage + u"F"];
+                auto hit = aft->hits[weaponWrap->afterImage + u"2"];
+                atk = Attack(aft->wrap.lt, aft->wrap.rb, hit);
             }
             break;
             }
@@ -346,7 +349,7 @@ void animate_afterimage(AfterImage *aft, Character *cha, entt::entity ent)
                 attack_reactor(&atk);
             }
             // play sound
-            Sound::push(AfterImage::sounds[weaponinfo->sfx][0]);
+            Sound::push(AfterImage::sounds[weaponWrap->sfx][0]);
         }
     }
 }
@@ -515,11 +518,11 @@ void animate_damage(Damage *dam)
 {
     for (auto it = dam->damages.begin(); it != dam->damages.end();)
     {
-        auto &info = it;
-        if (info->delay <= Window::dt_now)
+        auto &wrap = it;
+        if (wrap->delay <= Window::dt_now)
         {
-            info->alpha = info->alpha - (float)Window::delta_time * 0.15 - (255 - info->alpha) * (float)Window::delta_time * 0.001;
-            if (info->alpha <= 0)
+            wrap->alpha = wrap->alpha - (float)Window::delta_time * 0.15 - (255 - wrap->alpha) * (float)Window::delta_time * 0.001;
+            if (wrap->alpha <= 0)
             {
                 it = dam->damages.erase(it);
             }
@@ -609,9 +612,9 @@ void animate_reactor(Reactor *r)
             // 切换状态
             for (auto &e : r->a[r->index].event)
             {
-                if (e.type == 0)
+                if (e.first == 0)
                 {
-                    r->index = e.state;
+                    r->index = e.second;
                     break;
                 }
             }

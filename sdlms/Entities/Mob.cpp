@@ -54,7 +54,7 @@ void load_mob(wz::Node *node)
         }
         else
         {
-            // key = info
+            // key = Wrap
             auto speed = 0;
             if (val[0]->get_child(u"speed") != nullptr)
             {
