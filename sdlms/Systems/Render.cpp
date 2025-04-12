@@ -7,7 +7,6 @@
 #include <math.h>
 #include <variant>
 #include <optional>
-#include <numbers>
 
 void render_run()
 {
@@ -757,32 +756,33 @@ void render_uibuff()
         auto uib = World::registry->try_get<UIBuff>(ent);
         auto position = &uib->position;
         auto sprw = World::registry->try_get<Sprite>(ent)->sprw;
+        render_sprite(*position, sprw);
         if (uib->destory >= Window::dt_now && uib->duration > 0)
         {
             SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 148);
             auto d = uib->destory - Window::dt_now;
-            Uint8 alpha = 255;
-            if (d <= 10000)
+            SDL_FRect pos_rect;
+            pos_rect.x = position->x;
+            pos_rect.y = position->y - 32 + 32 * d / (float)uib->duration;
+            pos_rect.w = 32;
+            pos_rect.h = 32 * (1 - d / (float)uib->duration);
+            SDL_RenderFillRect(Window::renderer, &pos_rect);
+            // 渲染冷却时间
+            int num = d / 1000;
+            // 计算数字位数
+            int digits = num == 0 ? 1 : static_cast<int>(std::log10(num)) + 1;
+            // 从最高位开始遍历
+            int w = 0;
+            for (int i = digits - 1; i >= 0; --i)
             {
-                float progress = fmodf(d, 800) / 800;
-                alpha = (sinf(progress * 2 * std::numbers::pi) + 1) * 0.5f * 255;
-                render_sprite(*position, sprw, 0, 0, nullptr, alpha);
+                int divisor = static_cast<int>(std::pow(10, i));
+                int digit = (num / divisor) % 10;
+                pos_rect = {(float)position->x + w, (float)position->y - UIBuff::number_cache[digit]->h,
+                            (float)UIBuff::number_cache[digit]->w, (float)UIBuff::number_cache[digit]->h};
+                SDL_RenderTexture(Window::renderer, UIBuff::number_cache[digit], nullptr, &pos_rect);
+                w += UIBuff::number_cache[digit]->w;
             }
-            else
-            {
-                render_sprite(*position, sprw);
-            }
-            SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 148 * (float)alpha / 255);
-            SDL_FRect rect;
-            rect.x = position->x;
-            rect.y = position->y - 32 + 32 * d / (float)uib->duration;
-            rect.w = 32;
-            rect.h = 32 * (1 - d / (float)uib->duration);
-            SDL_RenderFillRect(Window::renderer, &rect);
-        }
-        else
-        {
-            render_sprite(*position, sprw);
         }
     }
 }

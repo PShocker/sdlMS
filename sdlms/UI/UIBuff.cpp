@@ -5,6 +5,21 @@
 #include "Components/Components.h"
 #include "Commons/Commons.h"
 
+void UIBuff::init()
+{
+    auto node = Wz::UI->get_root()->find_from_path(u"Basic.img/ItemNo");
+    number_cache[0] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"0")));
+    number_cache[1] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"1")));
+    number_cache[2] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"2")));
+    number_cache[3] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"3")));
+    number_cache[4] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"4")));
+    number_cache[5] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"5")));
+    number_cache[6] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"6")));
+    number_cache[7] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"7")));
+    number_cache[8] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"8")));
+    number_cache[9] = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(node->find_from_path(u"9")));
+}
+
 void UIBuff::run()
 {
     auto buff = World::registry->try_get<Buff>(Player::ent);

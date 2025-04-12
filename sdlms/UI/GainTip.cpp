@@ -3,11 +3,6 @@
 #include "Resources/Wz.h"
 #include "Core/Core.h"
 
-static inline SDL_Texture *prefix_cache[7];
-static inline SDL_Texture *bracket_cache[2];
-static inline SDL_Texture *number_cache[10];
-static inline SDL_Texture *plus_cache;
-
 void GainTip::init()
 {
     number_cache[0] = FreeType::load(u"0", SDL_Color{255, 255, 255, 255}, 0, 13);

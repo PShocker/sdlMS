@@ -29,7 +29,7 @@ int skill_4001003(entt::entity ent)
             return;
         }
         // 持续时间
-        const unsigned int duration = 5000;
+        const unsigned int duration = 25000;
 
         auto buff = World::registry->try_get<Buff>(ent);
         if (buff->buffs.contains(4001003))
