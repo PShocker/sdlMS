@@ -119,7 +119,7 @@ void summon_flip(Move *mv, Transform *tr)
 
 entt::entity summon_attack(Transform *tr)
 {
-    for (auto ent : World::registry->view<Damage, Mob>())
+    for (auto ent : World::registry->view<Mob>())
     {
         auto mob = World::registry->try_get<Mob>(ent);
         if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))

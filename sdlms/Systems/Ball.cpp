@@ -104,7 +104,7 @@ bool ball_no_track(entt::entity src, float delta_time)
     auto mv = World::registry->try_get<Move>(src);
     auto tr = World::registry->try_get<Transform>(src);
 
-    for (auto ent : World::registry->view<Damage, Mob>())
+    for (auto ent : World::registry->view<Mob>())
     {
         auto mob = World::registry->try_get<Mob>(ent);
         if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)

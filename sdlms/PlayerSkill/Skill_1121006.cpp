@@ -52,7 +52,7 @@ int skill_1121006(entt::entity ent)
             }
         }
         // 推动怪物
-        for (auto mob_ent : World::registry->view<Damage, Mob>())
+        for (auto mob_ent : World::registry->view<Mob>())
         {
             const auto mob = World::registry->try_get<Mob>(mob_ent);
             if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)

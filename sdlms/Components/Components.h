@@ -22,7 +22,6 @@
 #include "Components/Skill.h"
 #include "Components/Trap.h"
 #include "Components/Ball.h"
-#include "Components/Animated.h"
 #include "Components/Reactor.h"
 #include "Components/Install.h"
 #include "Components/Summon.h"

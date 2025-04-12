@@ -14,7 +14,7 @@ entt::entity find_closest_attackable_mob(
     entt::entity closest_mob = entt::null;
     float min_sq_dist = std::numeric_limits<float>::max();
 
-    for (auto e : World::registry->view<Damage, Mob>())
+    for (auto e : World::registry->view<Mob>())
     {
         if (hit_entities.contains(e))
             continue;
@@ -50,7 +50,7 @@ entt::entity find_closest_attackable_mob(Transform &origin, const Triangle &tri)
 
     float min_sq_dist = std::numeric_limits<float>::max();
 
-    for (auto e : World::registry->view<Damage, Mob>())
+    for (auto e : World::registry->view<Mob>())
     {
         auto mob = World::registry->try_get<Mob>(e);
         if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)
@@ -79,7 +79,7 @@ void mob_special_effect(entt::entity ent, int id, AnimatedSpriteWarp *asprw, uns
         const auto mob_tr = World::registry->try_get<Transform>(ent);
         const auto mob = World::registry->try_get<Mob>(ent);
         auto head = mob->head(mob_tr->flip);
-        eff->effects.insert({id, {Transform(SDL_FPoint{0, head.y - 10}),AnimatedSprite(asprw),Window::dt_now,true,time}});
+        eff->effects.insert({id, {Transform(SDL_FPoint{0, head.y - 10}), AnimatedSprite(asprw), Window::dt_now, true, time}});
     }
 }
 

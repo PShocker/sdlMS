@@ -35,7 +35,6 @@ entt::entity load_summon(wz::Node *node, int id, entt::entity owner)
 
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Move>(ent);
-    World::registry->emplace<Animated>(ent);
 
     auto owner_tr = World::registry->try_get<Transform>(owner);
     auto owner_mv = World::registry->try_get<Move>(owner);

@@ -67,7 +67,6 @@ void load_portal(wz::Node *node, int id)
                     NameTag::push(nametag, Map::load_mapname(tm), SDL_Color{255, 205, 0, 255});
                 }
             }
-            World::registry->emplace<Animated>(ent);
         }
     }
 }

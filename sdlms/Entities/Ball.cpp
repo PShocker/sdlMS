@@ -66,7 +66,6 @@ entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *s
         asprw = AnimatedSpriteWarp::load(Wz::Item->get_root()->find_from_path(ball_path));
     }
 
-    World::registry->emplace<Animated>(ent);
     World::registry->emplace<AnimatedSprite>(ent, asprw);
 
     auto ent_mv = &World::registry->emplace<Move>(ent);

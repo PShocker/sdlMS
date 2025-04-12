@@ -27,7 +27,6 @@ void load_obj(wz::Node *node, int id, int layer)
         World::registry->emplace<Trap>(ent, dynamic_cast<wz::Property<int> *>(d)->get());
     }
 
-    World::registry->emplace<Animated>(ent);
     auto asprw = AnimatedSpriteWarp::load(Wz::Map->get_root()->find_from_path(url), 255);
     World::registry->emplace<AnimatedSprite>(ent, asprw);
     World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + z * 100 + id + OBJ_Z, flip);

@@ -17,8 +17,8 @@ void attack_mob(Attack *atk, entt::entity attack_entity)
     atk->src_point = attack_transform->position;
     // 所有可攻击的怪物集合
     std::map<float, entt::entity> mobs;
-    // 遍历所有带有 Damage 和 Mob 组件的实体
-    for (auto mob_entity : World::registry->view<Damage, Mob>())
+    // 遍历所有 Mob 组件的实体
+    for (auto mob_entity : World::registry->view<Mob>())
     {
         auto mob = World::registry->try_get<Mob>(mob_entity);
         if (mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE)

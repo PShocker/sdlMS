@@ -25,7 +25,7 @@ void animate_run()
             animate_sprite(aspr);
         }
     }
-    for (auto ent : World::registry->view<Animated, AnimatedSprite>())
+    for (auto ent : World::registry->view<AnimatedSprite>())
     {
         if (auto ball = World::registry->try_get<Ball>(ent))
         {
@@ -38,17 +38,20 @@ void animate_run()
             animate_trap(trap, ent);
         }
     }
-    for (auto ent : World::registry->view<Animated, Portal>())
+    for (auto ent : World::registry->view<Portal>())
     {
         auto por = World::registry->try_get<Portal>(ent);
-        animate_portal(por, ent);
+        if (!por->a.empty())
+        {
+            animate_portal(por, ent);
+        }
     }
-    for (auto ent : World::registry->view<Animated, Npc>())
+    for (auto ent : World::registry->view<Npc>())
     {
         auto npc = World::registry->try_get<Npc>(ent);
         animate_npc(npc, ent);
     }
-    for (auto ent : World::registry->view<Animated, Mob>())
+    for (auto ent : World::registry->view<Mob>())
     {
         auto mob = World::registry->try_get<Mob>(ent);
         animate_mob(mob, ent);
@@ -61,7 +64,7 @@ void animate_run()
             animate_damage(dam);
         }
     }
-    for (auto ent : World::registry->view<Animated, Character>())
+    for (auto ent : World::registry->view<Character>())
     {
         auto cha = World::registry->try_get<Character>(ent);
         animate_character(cha, ent);
@@ -92,17 +95,17 @@ void animate_run()
         }
         animate_face(cha);
     }
-    for (auto ent : World::registry->view<Animated, Drop>())
+    for (auto ent : World::registry->view<Drop>())
     {
         auto dro = World::registry->try_get<Drop>(ent);
         animate_drop(dro, World::registry->try_get<Transform>(ent));
     }
-    for (auto ent : World::registry->view<Animated, Reactor>())
+    for (auto ent : World::registry->view<Reactor>())
     {
         auto r = World::registry->try_get<Reactor>(ent);
         animate_reactor(r);
     }
-    for (auto ent : World::registry->view<Animated, Summon>(entt::exclude<Character>))
+    for (auto ent : World::registry->view<Summon>(entt::exclude<Character>))
     {
         auto sum = World::registry->try_get<Summon>(ent);
         animate_summon(sum, ent);
@@ -111,7 +114,7 @@ void animate_run()
             animate_effect(eff);
         }
     }
-    for (auto ent : World::registry->view<Animated, Pet>())
+    for (auto ent : World::registry->view<Pet>())
     {
         auto pet = World::registry->try_get<Pet>(ent);
         animate_pet(pet, ent);

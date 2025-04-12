@@ -39,7 +39,6 @@ entt::entity load_pet(const u16string id, entt::entity owner)
 
     World::registry->emplace<Effect>(ent);
     World::registry->emplace<Move>(ent);
-    World::registry->emplace<Animated>(ent);
     auto count = World::registry->view<Pet>().size();
     auto owner_tr = World::registry->try_get<Transform>(owner);
     World::registry->emplace<Transform>(ent, owner_tr->position, LAYER_Z * 8 + PET_Z - count);

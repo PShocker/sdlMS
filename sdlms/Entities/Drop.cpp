@@ -16,7 +16,6 @@ void load_drops(std::vector<std::pair<std::u16string, unsigned int>> &drops, flo
         auto ent = World::registry->create();
 
         World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + DROP_Z + count + i);
-        World::registry->emplace<Animated>(ent);
 
         auto &dro = World::registry->emplace<Drop>(ent);
         dro.id = id;

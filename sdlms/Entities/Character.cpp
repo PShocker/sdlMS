@@ -26,10 +26,7 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     std::u16string weapon_id = u"01472030";
     cha->add_weapon(weapon_id);
     World::registry->emplace<WeaponWrap>(ent, weapon_id);
-
-    World::registry->emplace<Animated>(ent);
     World::registry->emplace<Effect>(ent);
-
     World::registry->emplace<Damage>(ent);
     auto count = World::registry->view<Character>().size();
 

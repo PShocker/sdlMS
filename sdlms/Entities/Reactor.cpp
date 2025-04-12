@@ -31,20 +31,22 @@ void load_reactor(wz::Node *node)
             {
                 break;
             }
-            if (auto hit = it->find_from_path(u"hit"))
+            AnimatedSprite hit;
+            if (it->find_from_path(u"hit"))
             {
-                std::vector<std::pair<int, int>> event;
-                if (it->get_child(u"event"))
-                {
-                    for (auto &[k, v] : it->get_child(u"event")->get_children())
-                    {
-                        auto type = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"type"))->get();
-                        auto state = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"state"))->get();
-                        event.push_back({type, state});
-                    }
-                }
-                reactor->a[i] = {AnimatedSprite(it), AnimatedSprite(hit), event};
+                hit = AnimatedSprite(it->find_from_path(u"hit"));
             }
+            std::vector<std::pair<int, int>> event;
+            if (it->get_child(u"event"))
+            {
+                for (auto &[k, v] : it->get_child(u"event")->get_children())
+                {
+                    auto type = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"type"))->get();
+                    auto state = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"state"))->get();
+                    event.push_back({type, state});
+                }
+            }
+            reactor->a[i] = {AnimatedSprite(it), hit, event};
         }
 
         auto x = dynamic_cast<wz::Property<int> *>(node->get_child(u"x"))->get();
@@ -52,7 +54,6 @@ void load_reactor(wz::Node *node)
         auto reactorTime = dynamic_cast<wz::Property<int> *>(node->get_child(u"reactorTime"))->get();
         auto f = dynamic_cast<wz::Property<int> *>(node->get_child(u"f"))->get();
 
-        World::registry->emplace<Animated>(ent);
         // 计算layer
         auto foo = fhs;
         int layer = 0;

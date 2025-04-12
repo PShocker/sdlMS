@@ -75,7 +75,5 @@ void load_npc(wz::Node *node)
             }
         }
     }
-
-    World::registry->emplace<Animated>(ent);
     World::registry->emplace<Transform>(ent, (float)x, (float)y, layer * LAYER_Z + NPC_Z);
 }

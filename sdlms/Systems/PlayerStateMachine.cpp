@@ -1008,7 +1008,7 @@ uint8_t player_attack_action(WeaponWrap *wea)
     if (WeaponWrap::if_long_range_weapon(wea->attack) && !World::registry->all_of<Skill>(Player::ent))
     {
         // 需要判断面前是否有怪物,否则切换到近战
-        for (auto ent : World::registry->view<Damage, Mob>())
+        for (auto ent : World::registry->view<Mob>())
         {
             auto mob = World::registry->try_get<Mob>(ent);
             if (!(mob->state == Mob::State::DIE || mob->state == Mob::State::REMOVE))
