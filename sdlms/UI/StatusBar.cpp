@@ -125,6 +125,10 @@ void StatusBar::load_backgrnd3()
     pos_rect = SDL_FRect{(float)596, (float)11, (float)StatusBar::iconMemo->w, (float)StatusBar::iconMemo->h};
     SDL_RenderTexture(Window::renderer, StatusBar::iconMemo, nullptr, &pos_rect);
 
+    pos_rect = SDL_FRect{(float)215, (float)37, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
+    SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
+    SDL_RenderTexture(Window::renderer, StatusBar::graduation, nullptr, &pos_rect);
+
     SDL_SetRenderTarget(Window::renderer, nullptr);
 }
 
@@ -175,9 +179,16 @@ void StatusBar::load_bar()
 void StatusBar::load_bar_digit(int x, int cur, int max)
 {
     SDL_SetRenderTarget(Window::renderer, backgrnd3);
+    SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 0);
 
-    SDL_FRect pos_rect{(float)0, (float)0, (float)StatusBar::backgrnd2->w, (float)StatusBar::backgrnd2->h};
-    // SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, nullptr, &pos_rect);
+    auto w = (static_cast<int>(std::floor(std::log10(cur)) + 1) + static_cast<int>(std::floor(std::log10(max)) + 1)) * 6 + 29;
+    auto h = 9;
+    SDL_FRect pos_rect{(float)x, (float)40, (float)w, (float)h};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_FRect src_rect{(float)x, (float)40, (float)w, (float)h};
+    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd, &src_rect, &pos_rect);
+    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, &src_rect, &pos_rect);
 
     pos_rect = {(float)x, (float)40, (float)StatusBar::number[10]->w, (float)StatusBar::number[10]->h};
     SDL_RenderTexture(Window::renderer, StatusBar::number[10], nullptr, &pos_rect);
@@ -202,7 +213,7 @@ void StatusBar::load_bar_digit(int x, int cur, int max)
     x += 7;
     pos_rect = SDL_FRect{(float)x, (float)41, (float)StatusBar::number[12]->w, (float)StatusBar::number[12]->h};
     SDL_RenderTexture(Window::renderer, StatusBar::number[12], nullptr, &pos_rect);
-
+    x += 4;
     x = load_num(x, max);
     x += 7;
     pos_rect = SDL_FRect{(float)x, (float)40, (float)StatusBar::number[11]->w, (float)StatusBar::number[11]->h};
@@ -210,77 +221,69 @@ void StatusBar::load_bar_digit(int x, int cur, int max)
     SDL_SetRenderTarget(Window::renderer, nullptr);
 }
 
-void StatusBar::load_bar_fade(float x, float percent)
+void StatusBar::load_bar_fade(float x, float percent, int w)
 {
     SDL_SetRenderTarget(Window::renderer, backgrnd3);
+    SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 0);
 
-    SDL_FRect pos_rect{(float)215, (float)37, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
-
+    auto h = 16;
+    SDL_FRect pos_rect{(float)x - w, (float)52, (float)w, (float)h};
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
+    SDL_FRect src_rect{(float)x - w, (float)52, (float)w, (float)h};
+    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd, &src_rect, &pos_rect);
+    SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, &src_rect, &pos_rect);
+    src_rect = {(float)x - 215 - w, (float)15, (float)w, (float)h};
+    SDL_RenderTexture(Window::renderer, StatusBar::bar, &src_rect, &pos_rect);
     auto length = (1 - percent) * 109;
     pos_rect = {(float)x - length, (float)52, (float)length, (float)StatusBar::gray->h};
     SDL_RenderTexture(Window::renderer, StatusBar::gray, nullptr, &pos_rect);
+    pos_rect = {(float)x - w, (float)52, (float)w, (float)h};
+    SDL_RenderTexture(Window::renderer, StatusBar::graduation, &src_rect, &pos_rect);
 
     SDL_SetRenderTarget(Window::renderer, nullptr);
 }
 
-void StatusBar::load_bar_graduation()
+void StatusBar::load_hp()
 {
-    SDL_SetRenderTarget(Window::renderer, backgrnd3);
-
-    SDL_FRect pos_rect{(float)215, (float)37, (float)StatusBar::graduation->w, (float)StatusBar::graduation->h};
-    SDL_RenderTexture(Window::renderer, StatusBar::graduation, nullptr, &pos_rect);
-
-    SDL_SetRenderTarget(Window::renderer, nullptr);
-}
-bool StatusBar::load_hp()
-{
-    bool r = false;
     static int last_hp;
     static int last_max_hp;
     if (last_hp != Player::hp || last_max_hp != Player::max_hp)
     {
         load_bar_digit(236, Player::hp, Player::max_hp);
-        load_bar_fade(322, (float)Player::hp / Player::max_hp);
-        r = true;
+        load_bar_fade(322, (float)Player::hp / Player::max_hp, 106);
     }
     last_hp = Player::hp;
     last_max_hp = Player::max_hp;
-    return r;
+    return;
 }
 
-bool StatusBar::load_mp()
+void StatusBar::load_mp()
 {
-    bool r = false;
     static int last_mp;
     static int last_max_mp;
     if (last_mp != Player::mp || last_max_mp != Player::max_mp)
     {
         load_bar_digit(347, Player::mp, Player::max_mp);
-        load_bar_fade(431, (float)Player::mp / Player::max_mp);
-        load_bar_graduation();
-        r = true;
+        load_bar_fade(431, (float)Player::mp / Player::max_mp, 107);
     }
     last_mp = Player::mp;
     last_max_mp = Player::max_mp;
-    return r;
+    return;
 }
 
-bool StatusBar::load_exp()
+void StatusBar::load_exp()
 {
-    bool r = false;
     static int last_exp;
     static int last_max_exp;
     if (last_exp != Player::exp || last_max_exp != Player::max_exp)
     {
         load_bar_digit(464, Player::exp, Player::max_exp);
-        load_bar_fade(554, (float)Player::exp / Player::max_exp);
-        load_bar_graduation();
-        r = true;
+        load_bar_fade(554, (float)Player::exp / Player::max_exp, 117);
     }
     last_exp = Player::exp;
     last_max_exp = Player::max_exp;
-    return r;
+    return;
 }
 
 void StatusBar::QuickSlot_func()

@@ -10,9 +10,7 @@ struct GainTip
 {
     static void init();
     static void run();
-    static void push(const std::u16string &index, int num);
-
-    static SDL_Texture *load_num_texture(int num);
+    static void push(const std::u16string &id, int num);
 
     struct Info
     {

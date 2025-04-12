@@ -1,5 +1,5 @@
 #include "Pick.h"
-#include "UI/UIItem.h"
+#include "UI/UI.h"
 
 entt::entity pick_drop(entt::entity owner)
 {
@@ -31,6 +31,7 @@ entt::entity pick_drop(entt::entity owner)
                     // 播放声音
                     Sound::push(Sound(u"Game.img/PickUpItem"));
                     UIItem::push(dro->id, dro->nums);
+                    GainTip::push(dro->id, dro->nums);
                     return ent;
                 }
             }

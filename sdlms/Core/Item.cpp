@@ -92,3 +92,102 @@ wz::Node *Item::load(std::u16string item_id)
     }
     return nullptr;
 }
+
+uint8_t Item::load_item_index(std::u16string item_id)
+{
+    auto prefix = item_id[0];
+    switch (prefix)
+    {
+    case u'1':
+    {
+        return 0;
+    }
+    break;
+    case u'2':
+    {
+        return 1;
+    }
+    break;
+    case u'3':
+    {
+        return 2;
+    }
+    break;
+    case u'4':
+    {
+        return 3;
+    }
+    break;
+    case u'5':
+    {
+        return 4;
+    }
+    break;
+    default:
+        break;
+    }
+    return 4;
+}
+
+wz::Node *Item::load_item_string(std::u16string item_id)
+{
+    auto node = Wz::String->get_root();
+    switch (load_item_index(item_id))
+    {
+    case 0:
+    {
+        // 装备类物品,需要细分类别
+        auto id = std::stoi(std::string{item_id.begin(), item_id.end()});
+        auto index = (id / 10000) - 100;
+        std::u16string type;
+        if (index < 15)
+        {
+            type = item_path[index];
+        }
+        else if (index >= 30 && index <= 70)
+        {
+            type = u"Weapon";
+        }
+        node = node->find_from_path(u"Eqp.img/Eqp/" + type + u"/" + item_id);
+    }
+    break;
+    case 1:
+    {
+        node = node->find_from_path(u"Consume.img/" + item_id);
+    }
+    break;
+    case 2:
+    {
+        node = node->find_from_path(u"Ins.img/" + item_id);
+    }
+    break;
+    case 3:
+    {
+        node = node->find_from_path(u"Etc.img/Etc/" + item_id);
+    }
+    break;
+    case 4:
+    {
+        // 特殊类物品
+        auto prefix_str = item_id.substr(0, 4);
+        if (prefix_str == u"0500")
+        {
+            node = node->find_from_path(u"Pet.img/" + item_id);
+        }
+        else
+        {
+            node = node->find_from_path(u"Cash.img/" + item_id);
+        }
+    }
+    break;
+    default:
+        break;
+    }
+    return node;
+}
+
+std::u16string Item::load_item_name(std::u16string item_id)
+{
+    auto node = load_item_string(item_id);
+    return dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"name"))->get();
+}

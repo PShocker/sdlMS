@@ -20,11 +20,10 @@ struct StatusBar
     static void load_name();
     static void load_bar();
     static void load_bar_digit(int x, int cur, int max);
-    static void load_bar_fade(float x, float percent);
-    static void load_bar_graduation();
-    static bool load_hp();
-    static bool load_mp();
-    static bool load_exp();
+    static void load_bar_fade(float x, float percent, int w);
+    static void load_hp();
+    static void load_mp();
+    static void load_exp();
     static inline SDL_Texture *backgrnd;
     static inline SDL_Texture *backgrnd2;
     static inline SDL_Texture *backgrnd3;

@@ -143,42 +143,6 @@ void UIItem::load_tab()
     }
 }
 
-uint8_t UIItem::load_info_index(std::u16string id)
-{
-    auto prefix = id[0];
-    switch (prefix)
-    {
-    case u'1':
-    {
-        return 0;
-    }
-    break;
-    case u'2':
-    {
-        return 1;
-    }
-    break;
-    case u'3':
-    {
-        return 2;
-    }
-    break;
-    case u'4':
-    {
-        return 3;
-    }
-    break;
-    case u'5':
-    {
-        return 4;
-    }
-    break;
-    default:
-        break;
-    }
-    return 4;
-}
-
 // 用来判断背包是否有空位来加载物品，并返回原物品序号
 std::pair<int, int> UIItem::full(std::u16string id)
 {
@@ -188,7 +152,7 @@ std::pair<int, int> UIItem::full(std::u16string id)
     {
         return {0, 0};
     }
-    auto i = load_info_index(id);
+    auto i = Item::load_item_index(id);
     if (i == 0 || !cache.contains(id))
     {
         for (int index = 0; index < 96; index++)
