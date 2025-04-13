@@ -23,8 +23,6 @@ int summon_4111002(entt::entity ent)
         summon_cha->action_time = owner_cha->action_time;
         summon_cha->invincible_cooldown = Window::dt_now + 150;
 
-        summon_cha->alpha = (float)(sum->destory - Window::dt_now) / 30000 * 255;
-
         auto owner_tr = World::registry->try_get<Transform>(sum->owner);
         auto summon_tr = World::registry->try_get<Transform>(ent);
         summon_tr->flip = owner_tr->flip;

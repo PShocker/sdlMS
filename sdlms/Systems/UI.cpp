@@ -160,6 +160,22 @@ bool ui_drag()
         }
     }
     break;
+    case UIIndex::UI_UINotice:
+    {
+        if (Cursor::drag)
+        {
+            UINotice::x = Cursor::x - x;
+            UINotice::y = Cursor::y - y;
+            return true;
+        }
+        else if (UINotice::mousein())
+        {
+            x = Cursor::x - UINotice::x;
+            y = Cursor::y - UINotice::y;
+            return true;
+        }
+    }
+    break;
     default:
         break;
     }
@@ -242,6 +258,16 @@ void ui_sort()
             }
         }
         break;
+        case UIIndex::UI_UINotice:
+        {
+            if (UINotice::mousein())
+            {
+                auto it = --(rit.base());
+                ui_index.splice(ui_index.end(), ui_index, it);
+                return;
+            }
+        }
+        break;
         default:
             break;
         }
@@ -316,6 +342,15 @@ void ui_click()
         }
     }
     break;
+    case UIIndex::UI_UINotice:
+    {
+        if (UINotice::mousein())
+        {
+            UINotice::click();
+            return;
+        }
+    }
+    break;
     default:
         break;
     }
@@ -347,6 +382,9 @@ void ui_over()
         break;
     case UIIndex::UI_MiniMap:
         MiniMap::over();
+        break;
+    case UIIndex::UI_UINotice:
+        UINotice::over();
         break;
     default:
         StatusBar::over();
@@ -414,6 +452,14 @@ int ui_mousein()
             if (UIEquip::mousein())
             {
                 return UIIndex::UI_UIEquip;
+            }
+        }
+        break;
+        case UIIndex::UI_UINotice:
+        {
+            if (UINotice::mousein())
+            {
+                return UIIndex::UI_UINotice;
             }
         }
         break;

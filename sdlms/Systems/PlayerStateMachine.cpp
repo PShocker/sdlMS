@@ -8,6 +8,7 @@
 #include <SDL3/SDL.h>
 #include <optional>
 #include "Systems/Attack.h"
+#include "UI/UI.h"
 
 void player_statemachine_run()
 {
@@ -755,6 +756,7 @@ int player_hit(Attack *atk)
                 cha->action_frame = 0;
                 cha->action = Character::ACTION::DEAD;
                 cha->action_str = u"dead";
+                Player::hp = 0;
 
                 if (!mv->foo)
                 {
@@ -776,6 +778,8 @@ int player_hit(Attack *atk)
                 tomb.l.position = tr->position;
 
                 Sound::push(Sound(u"Game.img/Tombstone"), 180);
+                // 弹出复活对话框
+                UINotice::show();
             }
         }
     }
@@ -1162,4 +1166,26 @@ bool player_sit(Move *mv, int state)
         World::registry->remove<Install>(Player::ent);
     }
     return r;
+}
+
+void player_refresh()
+{
+    auto tr = World::registry->try_get<Transform>(Player::ent);
+    auto mv = World::registry->try_get<Move>(Player::ent);
+    auto cha = World::registry->try_get<Character>(Player::ent);
+    tr->position = tr->position + SDL_FPoint{0, -5};
+    tr->z = LAYER_Z * 8 + tr->z % LAYER_Z;
+    mv->foo = nullptr;
+    mv->vspeed = 0;
+    mv->hspeed = 0;
+    mv->page = -1;
+    cha->state = Character::State::JUMP;
+    cha->action = Character::ACTION::JUMP;
+    cha->action_str = u"jump";
+    cha->action_frame = 0;
+    cha->action_index = 0;
+    cha->action_time = 0;
+    cha->invincible_cooldown = 0;
+    cha->animate = true;
+    World::registry->remove<Tomb>(Player::ent);
 }

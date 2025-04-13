@@ -1080,6 +1080,18 @@ void render_quickslot()
     render_texture(QuickSlot::backgrnd2, nullptr, &pos_rect, QuickSlot::alpha);
 }
 
+void render_uinotice()
+{
+    SDL_FRect pos_rect{(float)UINotice::x, (float)UINotice::y, (float)UINotice::backgrnd->w, (float)UINotice::backgrnd->h};
+    render_texture(UINotice::backgrnd, nullptr, &pos_rect, UINotice::alpha);
+    for (auto &[key, val] : UINotice::position_map)
+    {
+        auto aspr = key->second.at(key->first);
+        auto position = SDL_FPoint{(float)UINotice::x + val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)UINotice::y + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
+        render_animated_sprite(position, &aspr, UINotice::alpha);
+    }
+}
+
 void render_ui()
 {
     for (auto it : ui_index)
@@ -1115,6 +1127,9 @@ void render_ui()
             break;
         case UIIndex::UI_QuickSlot:
             render_quickslot();
+            break;
+        case UIIndex::UI_UINotice:
+            render_uinotice();
             break;
         default:
             break;

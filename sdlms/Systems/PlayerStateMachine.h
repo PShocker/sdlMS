@@ -27,24 +27,18 @@ bool player_prone(Move *mv, Transform *tr, int state);
 bool player_proning();
 
 void player_action(Character *cha, int state, int new_state, Move *mv);
-
 void player_portal(Move *mv, entt::entity ent);
-
 void player_alert(Character *cha);
-
 int player_hit(Attack *atk);
 
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent, int id = 0);
 bool player_skilling(Move *mv, Character *cha, Transform *tr, entt::entity ent, float delta_time);
 
 bool player_double_jump(Move *mv, Transform *tr, entt::entity ent);
-
 uint8_t player_attack_action(WeaponWrap *wea);
-
 bool player_pick_drop(entt::entity ent);
-
 void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent);
-
 void player_face(Character *cha);
-
 bool player_sit(Move *mv, int state);
+
+void player_refresh();

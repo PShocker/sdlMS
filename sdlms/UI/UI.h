@@ -13,3 +13,4 @@
 #include "ToolTip.h"
 #include "GainTip.h"
 #include "QuickSlot.h"
+#include "UINotice.h"

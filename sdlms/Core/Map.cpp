@@ -208,6 +208,17 @@ std::u16string Map::load_mapname(int map_id)
     return dynamic_cast<wz::Property<wz::wzstring> *>(node->get_child(u"mapName"))->get();
 }
 
+uint32_t Map::load_returnmap(int map_id)
+{
+    auto node = load_map_node(map_id);
+    node = node->find_from_path(u"info/returnMap");
+    if (node != nullptr)
+    {
+        return dynamic_cast<wz::Property<int> *>(node)->get();
+    }
+    return 0;
+}
+
 wz::Node *Map::load_map_node(int map_id)
 {
     auto node = Wz::Map->get_root();

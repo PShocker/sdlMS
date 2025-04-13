@@ -182,7 +182,7 @@ void StatusBar::load_bar_digit(int x, int cur, int max)
     SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_NONE);
     SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 0);
 
-    auto w = (static_cast<int>(std::floor(std::log10(cur)) + 1) + static_cast<int>(std::floor(std::log10(max)) + 1)) * 6 + 29;
+    auto w = 88;
     auto h = 9;
     SDL_FRect pos_rect{(float)x, (float)40, (float)w, (float)h};
     SDL_RenderFillRect(Window::renderer, &pos_rect);
@@ -196,15 +196,23 @@ void StatusBar::load_bar_digit(int x, int cur, int max)
     const auto load_num = [](int x, int num)
     {
         auto length = static_cast<int>(std::floor(std::log10(num)) + 1);
+        length = std::max(1, length);
         x += length * 6 - 2;
         SDL_FRect pos_rect{(float)x, (float)41, (float)StatusBar::number[0]->w, (float)StatusBar::number[0]->h};
         // 分解各位数字
-        while (num > 0)
+        if (num == 0)
         {
-            int digit = num % 10;
-            SDL_RenderTexture(Window::renderer, StatusBar::number[digit], nullptr, &pos_rect);
-            pos_rect.x -= 6;
-            num /= 10;
+            SDL_RenderTexture(Window::renderer, StatusBar::number[0], nullptr, &pos_rect);
+        }
+        else
+        {
+            while (num > 0)
+            {
+                int digit = num % 10;
+                SDL_RenderTexture(Window::renderer, StatusBar::number[digit], nullptr, &pos_rect);
+                pos_rect.x -= 6;
+                num /= 10;
+            }
         }
         return x;
     };
@@ -235,7 +243,7 @@ void StatusBar::load_bar_fade(float x, float percent, int w)
     SDL_RenderTexture(Window::renderer, StatusBar::backgrnd2, &src_rect, &pos_rect);
     src_rect = {(float)x - 215 - w, (float)15, (float)w, (float)h};
     SDL_RenderTexture(Window::renderer, StatusBar::bar, &src_rect, &pos_rect);
-    auto length = (1 - percent) * 109;
+    auto length = (1 - percent) * w;
     pos_rect = {(float)x - length, (float)52, (float)length, (float)StatusBar::gray->h};
     SDL_RenderTexture(Window::renderer, StatusBar::gray, nullptr, &pos_rect);
     pos_rect = {(float)x - w, (float)52, (float)w, (float)h};

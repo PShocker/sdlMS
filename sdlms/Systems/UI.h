@@ -18,6 +18,7 @@ enum UIIndex : uint8_t
     UI_WorldMap,
     UI_MiniMap,
     UI_UIEquip,
+    UI_UINotice,
 };
 extern std::list<UIIndex> ui_index;
 

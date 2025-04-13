@@ -24,6 +24,8 @@ struct Map
 
     static std::u16string load_streetname(int map_id);
     static std::u16string load_mapname(int map_id);
+    
+    static uint32_t load_returnmap(int map_id);
 
     static inline uint32_t id = 0;
 

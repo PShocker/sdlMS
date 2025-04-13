@@ -44,4 +44,5 @@ void render_cursor();
 void render_tooltip();
 void render_gaintip();
 void render_quickslot();
+void render_uinotice();
 void render_ui();
