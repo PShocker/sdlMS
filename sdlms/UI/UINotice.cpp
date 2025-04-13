@@ -66,7 +66,6 @@ void UINotice::BtOK2_func()
 {
     Player::hp = Player::max_hp;
     Player::mp = Player::max_mp;
-    player_refresh();
     World::TransPort::id = Map::load_returnmap(Map::id);
     World::TransPort::tn = u"sp";
     hide();
