@@ -20,6 +20,6 @@ struct Sprite
     };
     Wrap *sprw = nullptr;
     Sprite(wz::Node *node, int alpha = 255);
-    Sprite(Wrap* wrap);
+    Sprite(Wrap *wrap);
     Sprite() = default;
 };
