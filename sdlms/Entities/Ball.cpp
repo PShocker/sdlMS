@@ -57,13 +57,12 @@ entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *s
         std::u16string ball_path;
         if (weaponWrap->attack == WeaponWrap::Attack::BOW)
         {
-            ball_path = u"Consume/0206.img/02060001/bullet";
+            asprw = AnimatedSprite::Wrap::load(Skill(3201004).skiw->node->find_from_path(u"ball"));
         }
         else
         {
-            ball_path = u"Consume/0207.img/02070006/bullet";
+            asprw = AnimatedSprite::Wrap::load(Wz::Item->get_root()->find_from_path(u"Consume/0207.img/02070006/bullet"));
         }
-        asprw = AnimatedSprite::Wrap::load(Wz::Item->get_root()->find_from_path(ball_path));
     }
 
     World::registry->emplace<AnimatedSprite>(ent, asprw);

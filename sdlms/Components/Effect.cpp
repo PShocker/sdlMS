@@ -8,15 +8,15 @@ AnimatedSprite::Wrap *Effect::load(const std::u16string &path)
     return AnimatedSprite::Wrap::load(node);
 }
 
-void Effect::push(Effect *eff, AnimatedSprite::Wrap *asprw, std::optional<SDL_FPoint> p, int flip)
+void Effect::push(Effect *eff, AnimatedSprite::Wrap *asprw, std::optional<SDL_FPoint> position, int flip, bool target)
 {
     if (asprw)
     {
         std::optional<Transform> tr = std::nullopt;
-        if (p.has_value())
+        if (position.has_value())
         {
-            tr = Transform(p.value());
+            tr = Transform(position.value());
         }
-        eff->effects.insert({0, {tr, AnimatedSprite(asprw)}});
+        eff->effects.insert({0, {tr, AnimatedSprite(asprw), Window::dt_now, false, std::nullopt, target}});
     }
 }

@@ -26,9 +26,12 @@ Skill::Wrap::Wrap(int id) : id(id)
     std::u16string id_str(str.begin(), str.end());
 
     node = Wz::Sound->get_root()->find_from_path(u"Skill.img/" + id_str);
-    for (auto &[key, val] : node->get_children())
+    if (node != nullptr)
     {
-        sounds[key] = Sound::Wrap::load(val[0]);
+        for (auto &[key, val] : node->get_children())
+        {
+            sounds[key] = Sound::Wrap::load(val[0]);
+        }
     }
     node = Wz::Skill->get_root()->find_from_path(id_str.substr(0, id_str.length() - 4) + u".img/skill/" + id_str);
     if (auto hit = node->get_child(u"hit"))

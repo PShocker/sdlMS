@@ -564,8 +564,17 @@ void render_effect(Transform *tr, Effect *eff)
                 Transform tran(val.tr.value().position + tr->position, 0, tr->flip);
                 render_animated_sprite(&tran, &val.aspr);
             }
+            else if (val.target)
+            {
+                // 打击点特效
+                auto sprw = val.aspr.asprw->sprites[val.aspr.anim_index];
+                SDL_FPoint p{(float)sprw->origin.x - sprw->texture->w / 2, (float)sprw->origin.y - sprw->texture->h / 2};
+                Transform tran(val.tr.value().position + p, 0, tr->flip);
+                render_animated_sprite(&tran, &val.aspr);
+            }
             else
             {
+                // 固定位置特效
                 render_animated_sprite(&val.tr.value(), &val.aspr);
             }
         }

@@ -33,7 +33,7 @@ void AfterImage::load(const std::u16string &type, const std::u16string &sfx, con
                     else
                     {
                         wrap.index = std::stoi(std::string{third.begin(), third.end()});
-                        wrap.asprw = AnimatedSprite::Wrap::load(act[0], 255);
+                        wrap.asprw = AnimatedSprite::Wrap::load(act[0]);
                     }
                 }
                 part[afterImage_index][action] = wrap;
@@ -46,15 +46,15 @@ void AfterImage::load(const std::u16string &type, const std::u16string &sfx, con
             auto node = afterimage_node->find_from_path(u"hit.img");
             if (node->find_from_path(type + u"1") == nullptr)
             {
-                hits[type + u"1"] = AnimatedSprite::Wrap::load(node->find_from_path(u"sword1"), 255);
-                hits[type + u"2"] = AnimatedSprite::Wrap::load(node->find_from_path(u"sword2"), 255);
-                hits[type + u"F"] = AnimatedSprite::Wrap::load(node->find_from_path(u"swordF"), 255);
+                hits[type + u"1"] = AnimatedSprite::Wrap::load(node->find_from_path(u"sword1"));
+                hits[type + u"2"] = AnimatedSprite::Wrap::load(node->find_from_path(u"sword2"));
+                hits[type + u"F"] = AnimatedSprite::Wrap::load(node->find_from_path(u"swordF"));
             }
             else
             {
-                hits[type + u"1"] = AnimatedSprite::Wrap::load(node->find_from_path(type + u"1"), 255);
-                hits[type + u"2"] = AnimatedSprite::Wrap::load(node->find_from_path(type + u"2"), 255);
-                hits[type + u"F"] = AnimatedSprite::Wrap::load(node->find_from_path(type + u"F"), 255);
+                hits[type + u"1"] = AnimatedSprite::Wrap::load(node->find_from_path(type + u"1"));
+                hits[type + u"2"] = AnimatedSprite::Wrap::load(node->find_from_path(type + u"2"));
+                hits[type + u"F"] = AnimatedSprite::Wrap::load(node->find_from_path(type + u"F"));
             }
         }
         if (!sounds.contains(sfx))

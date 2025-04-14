@@ -31,7 +31,7 @@ int skill_3001005(entt::entity ent)
     auto mobCount = 1;
     auto attackCount = 1;
     Sound::Wrap *souw = ski->skiw->sounds[u"Hit"];
-    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
+    ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 80);
 
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
     {
@@ -43,7 +43,7 @@ int skill_3001005(entt::entity ent)
         {
             return;
         }
-        auto point = SDL_FPoint{0, -30};
+        auto point = World::registry->try_get<Transform>(ent)->position + SDL_FPoint{0, -30};
         auto ball_ent_m = load_ball(ent, point, 700, ski);
         auto ball_ent_n = load_ball(ent, point, 700, ski);
 
@@ -53,8 +53,8 @@ int skill_3001005(entt::entity ent)
         auto ball_m = World::registry->try_get<Ball>(ball_ent_m);
         auto ball_n = World::registry->try_get<Ball>(ball_ent_n);
 
-        ball_m->target_point.value().y -= 10;
-        ball_n->target_point.value().y += 10;
+        ball_m->target_point.value().y -= 7.5;
+        ball_n->target_point.value().y += 7.5;
     };
 
     Skill::cooldowns[3001005] = Window::dt_now + 500;

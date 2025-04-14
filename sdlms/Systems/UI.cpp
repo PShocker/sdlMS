@@ -509,6 +509,7 @@ void ui_keyboard()
                 }
             }
             Keyboard::press[key] = true;
+            Cursor::drag = false;
         }
         else
         {

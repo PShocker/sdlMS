@@ -23,7 +23,7 @@ void Keyboard::init()
     skill[SDL_SCANCODE_G] = 4111005;
     skill[SDL_SCANCODE_H] = 4111002;
     skill[SDL_SCANCODE_C] = 4001003;
-    skill[SDL_SCANCODE_V] = 4001344;
+    skill[SDL_SCANCODE_V] = 3001005;
     skill[SDL_SCANCODE_B] = 4211006;
     skill[SDL_SCANCODE_J] = 1311001;
     skill[SDL_SCANCODE_K] = 1121006;
@@ -41,7 +41,7 @@ void Keyboard::init()
     skill[SDL_SCANCODE_5] = 2001002;
     skill[SDL_SCANCODE_6] = 21100005;
     skill[SDL_SCANCODE_7] = 3221005;
-    skill[SDL_SCANCODE_O] = 3111006;
+    skill[SDL_SCANCODE_O] = 4201005;
     skill[SDL_SCANCODE_P] = 3111003;
     skill[SDL_SCANCODE_L] = 2101004;
 }

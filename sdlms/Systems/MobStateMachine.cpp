@@ -189,7 +189,14 @@ optional<int> mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> h
     if (atk->damage > 0)
     {
         mob->hit = Player::ent;
-        Effect::push(World::registry->try_get<Effect>(ent), atk->hit, hit_point, tr->flip);
+        if (hit_point.has_value())
+        {
+            Effect::push(World::registry->try_get<Effect>(ent), atk->hit, hit_point, tr->flip, true);
+        }
+        else
+        {
+            Effect::push(World::registry->try_get<Effect>(ent), atk->hit, hit_point, tr->flip, false);
+        }
         for (int i = 0; i < atk->attackCount; i++)
         {
             auto r = generate_random(atk->min_damage, atk->max_damage);
