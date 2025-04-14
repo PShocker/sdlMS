@@ -22,7 +22,7 @@ struct Reactor
     int index = 0;
     bool hit = false;
 
-    std::unordered_map<int, SoundWarp *> sounds;
+    std::unordered_map<int, Sound::Wrap *> sounds;
 
     Reactor() = default;
 };

@@ -45,7 +45,7 @@ int skill_1101007(entt::entity ent)
                 // 伤害反馈
                 Attack attack;
                 attack.damage = full_damage;
-                attack.hit = AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"112.img/skill/1121002/special"));
+                attack.hit = AnimatedSprite::Wrap::load(Wz::Skill->get_root()->find_from_path(u"112.img/skill/1121002/special"));
                 attack.src_point = World::registry->try_get<Transform>(target)->position;
                 attack.min_damage = 1;
                 attack.max_damage = 1;

@@ -84,7 +84,7 @@ void load_mob(wz::Node *node)
     }
     if (node->find_from_path(u"attack1/info/hit"))
     {
-        mob.atk.hit = AnimatedSpriteWarp::load(node->find_from_path(u"attack1/info/hit"));
+        mob.atk.hit = AnimatedSprite::Wrap::load(node->find_from_path(u"attack1/info/hit"));
     }
     if (mob.a.contains(u"move"))
     {
@@ -107,7 +107,7 @@ void load_mob(wz::Node *node)
     {
         for (auto &[key, val] : node->get_children())
         {
-            auto sou = SoundWarp::load(val[0]);
+            auto sou = Sound::Wrap::load(val[0]);
             mob.sounds[key] = sou;
         }
     }

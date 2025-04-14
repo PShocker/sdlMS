@@ -4,22 +4,22 @@
 #include <SDL3/SDL.h>
 #include "Core/Core.h"
 
-SpriteWarp *SpriteWarp::load(wz::Node *node, int alpha)
+Sprite::Wrap *Sprite::Wrap::load(wz::Node *node, int alpha)
 {
-    static std::unordered_map<wz::Node *, SpriteWarp *> cache;
+    static std::unordered_map<wz::Node *, Wrap *> cache;
     if (cache.contains(node))
     {
         return cache[node];
     }
     else
     {
-        SpriteWarp *sprw = new SpriteWarp(node, alpha);
-        cache[node] = sprw;
-        return sprw;
+        Wrap *wrap = new Wrap(node, alpha);
+        cache[node] = wrap;
+        return wrap;
     }
 }
 
-SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
+Sprite::Wrap::Wrap(wz::Node *node, int alpha)
 {
     if (node->type == wz::Type::UOL)
     {
@@ -88,9 +88,7 @@ SpriteWarp::SpriteWarp(wz::Node *node, int alpha)
 
 Sprite::Sprite(wz::Node *node, int alpha)
 {
-    sprw = SpriteWarp::load(node, alpha);
+    sprw = Wrap::load(node, alpha);
 }
 
-Sprite::Sprite(SpriteWarp *sprw) : sprw(sprw)
-{
-}
+Sprite::Sprite(Wrap *wrap) : sprw(wrap) {}

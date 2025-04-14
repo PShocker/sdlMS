@@ -179,7 +179,7 @@ void UIItem::push(std::u16string id, int num)
         auto [i, index] = full(id);
         items[i][index].id = id;
         items[i][index].num += num;
-        items[i][index].sprw = SpriteWarp::load(Item::load(id)->find_from_path(u"info/icon"));
+        items[i][index].sprw = Sprite::Wrap::load(Item::load(id)->find_from_path(u"info/icon"));
     }
     else
     {

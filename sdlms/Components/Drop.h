@@ -32,6 +32,6 @@ struct Drop
 
     Drop() = default;
 
-    static inline std::array<AnimatedSpriteWarp *, NUM_ICONS> mesoicons;
+    static inline std::array<AnimatedSprite::Wrap *, NUM_ICONS> mesoicons;
     static void init();
 };

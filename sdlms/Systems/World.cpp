@@ -38,6 +38,7 @@ void world_transport()
             auto portal = World::registry->try_get<Portal>(ent);
             if (portal->pn == World::TransPort::tn)
             {
+                World::registry->remove<Tomb>(Player::ent);
                 auto tr = World::registry->try_get<Transform>(Player::ent);
                 auto mv = World::registry->try_get<Move>(Player::ent);
                 auto cha = World::registry->try_get<Character>(Player::ent);
@@ -55,7 +56,6 @@ void world_transport()
                 cha->action_time = 0;
                 cha->invincible_cooldown = 0;
                 cha->animate = true;
-                World::registry->remove<Tomb>(Player::ent);
                 camera_refresh();
                 World::TransPort::id = 0;
                 break;

@@ -275,7 +275,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                     mv->zmass = mv->foo->zmass;
                     mv->foo = nullptr;
                     mv->lr = nullptr;
-                    SkillWarp::cooldowns[4111006] = Window::dt_now + 500;
+                    Skill::cooldowns[4111006] = Window::dt_now + 500;
                     player_foothold_cooldown = Window::dt_now + 120;
                     Sound::push(Sound(u"Game.img/Jump"));
                     return true;
@@ -288,7 +288,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 mv->zmass = mv->foo->zmass;
                 mv->foo = nullptr;
                 mv->lr = nullptr;
-                SkillWarp::cooldowns[4111006] = Window::dt_now + 200;
+                Skill::cooldowns[4111006] = Window::dt_now + 200;
                 Sound::push(Sound(u"Game.img/Jump"));
                 return true;
             }
@@ -309,7 +309,7 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
                 {
                     mv->hspeed = -140;
                 }
-                SkillWarp::cooldowns[4111006] = Window::dt_now + 300;
+                Skill::cooldowns[4111006] = Window::dt_now + 300;
                 player_ladderrope_cooldown = Window::dt_now + 80;
                 Sound::push(Sound(u"Game.img/Jump"));
                 return true;
@@ -809,7 +809,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
     }
     if (id != 0)
     {
-        if (SkillWarp::cooldowns.contains(id) && SkillWarp::cooldowns[id] > Window::dt_now)
+        if (Skill::cooldowns.contains(id) && Skill::cooldowns[id] > Window::dt_now)
         {
             return false;
         }
@@ -849,7 +849,7 @@ bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::enti
         // 技能音效
         if (skill_res & PlayerSkill::SkillResult::SOU)
         {
-            PlayerSkill::skill_sound(ski->skiw);
+            PlayerSkill::skill_sound(ski);
         }
 
         // 技能攻击
@@ -939,7 +939,7 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
     // 二段跳
     if (Input::state[Keyboard::action[Keyboard::Action::JUMP]])
     {
-        if (SkillWarp::cooldowns.contains(4111006) && SkillWarp::cooldowns[4111006] > Window::dt_now)
+        if (Skill::cooldowns.contains(4111006) && Skill::cooldowns[4111006] > Window::dt_now)
         {
             return false;
         }
@@ -959,11 +959,11 @@ bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
         eff->effects.emplace(4111006, Effect::Wrap{Transform(tr->position, 0, tr->flip), AnimatedSprite(Effect::load(u"BasicEff.img/Flying"))});
 
         // 技能音效
-        auto ski = SkillWarp::load(4111006);
+        auto ski = Skill::Wrap::load(4111006);
         auto souw = ski->sounds[u"Use"];
 
         Sound::push(souw);
-        SkillWarp::cooldowns[4111006] = Window::dt_now + 500;
+        Skill::cooldowns[4111006] = Window::dt_now + 500;
         return true;
     }
     return false;

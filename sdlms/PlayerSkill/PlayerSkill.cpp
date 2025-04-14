@@ -4,10 +4,10 @@
 #include <functional>
 #include "entt/entt.hpp"
 
-void PlayerSkill::skill_sound(SkillWarp *souw, int delay)
+void PlayerSkill::skill_sound(Skill *ski, int delay)
 {
     // 技能音效
-    Sound::push(souw->sounds[u"Use"], delay);
+    Sound::push(ski->skiw->sounds[u"Use"], delay);
 }
 
 void PlayerSkill::skill_effect(Skill *ski, entt::entity ent)
@@ -76,7 +76,7 @@ void PlayerSkill::skill_attack(Skill *ski)
                 rb = SDL_FPoint{-40, -11};
             }
         }
-        AnimatedSpriteWarp *hit = (ski->skiw->hits.size() > 0) ? ski->skiw->hits[0] : nullptr;
+        AnimatedSprite::Wrap *hit = (ski->skiw->hits.size() > 0) ? ski->skiw->hits[0] : nullptr;
         auto mobCount = 1;
         if (node->get_child(u"mobCount"))
         {
@@ -87,7 +87,7 @@ void PlayerSkill::skill_attack(Skill *ski)
         {
             attackCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"attackCount"))->get();
         }
-        SoundWarp *souw = (ski->skiw->sounds.contains(u"Hit")) ? ski->skiw->sounds[u"Hit"] : nullptr;
+        Sound::Wrap *souw = (ski->skiw->sounds.contains(u"Hit")) ? ski->skiw->sounds[u"Hit"] : nullptr;
         ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
     }
     ski->attack = true;

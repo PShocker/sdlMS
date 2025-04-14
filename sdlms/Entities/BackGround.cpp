@@ -119,7 +119,7 @@ void load_background(wz::Node *node, int id)
     case 0:
     {
         auto url = u"Back/" + bS + u".img/" + u"back" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-        auto spr = SpriteWarp::load(Wz::Map->get_root()->find_from_path(url), a);
+        auto spr = Sprite::Wrap::load(Wz::Map->get_root()->find_from_path(url), a);
         bspr.spr = Sprite(spr);
         SDL_SetTextureScaleMode(spr->texture, SDL_SCALEMODE_NEAREST);
         break;
@@ -127,7 +127,7 @@ void load_background(wz::Node *node, int id)
     case 1:
     {
         auto url = u"Back/" + bS + u".img/" + u"ani" + u"/" + std::u16string{no_str.begin(), no_str.end()};
-        auto asprw = AnimatedSpriteWarp::load(Wz::Map->get_root()->find_from_path(url), a);
+        auto asprw = AnimatedSprite::Wrap::load(Wz::Map->get_root()->find_from_path(url), a);
         bspr.spr = AnimatedSprite(asprw);
         break;
     }

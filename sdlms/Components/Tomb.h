@@ -5,8 +5,8 @@
 
 struct Tomb
 {
-    static inline AnimatedSpriteWarp *fall;
-    static inline AnimatedSpriteWarp *land;
+    static inline AnimatedSprite::Wrap *fall;
+    static inline AnimatedSprite::Wrap *land;
 
     Transform f;
     Transform l;

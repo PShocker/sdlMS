@@ -59,18 +59,18 @@ int skill_3121006(entt::entity ent)
                 {
                     Effect::Wrap wrap;
                     wrap.tr = Transform(SDL_FPoint{(float)i, (float)tr->position.y});
-                    AnimatedSpriteWarp *asprw;
+                    AnimatedSprite::Wrap *asprw;
                     int random = std::rand() % 3;
                     switch (random)
                     {
                     case 0:
-                        asprw = AnimatedSpriteWarp::load(n->find_from_path(u"tile/0"));
+                        asprw = AnimatedSprite::Wrap::load(n->find_from_path(u"tile/0"));
                         break;
                     case 1:
-                        asprw = AnimatedSpriteWarp::load(n->find_from_path(u"tile/1"));
+                        asprw = AnimatedSprite::Wrap::load(n->find_from_path(u"tile/1"));
                         break;
                     case 2:
-                        asprw = AnimatedSpriteWarp::load(n->find_from_path(u"tile/2"));
+                        asprw = AnimatedSprite::Wrap::load(n->find_from_path(u"tile/2"));
                         break;
                     }
                     wrap.aspr = AnimatedSprite(asprw);
@@ -89,6 +89,6 @@ int skill_3121006(entt::entity ent)
             buff->buffs.emplace(3121006, wrap);
         }
     };
-    SkillWarp::cooldowns[3121006] = Window::dt_now + 1500;
+    Skill::cooldowns[3121006] = Window::dt_now + 1500;
     return PlayerSkill::SkillResult::SOU | PlayerSkill::SkillResult::ACT;
 }

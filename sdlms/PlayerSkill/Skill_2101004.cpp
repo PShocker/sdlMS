@@ -29,7 +29,7 @@ int skill_2101004(entt::entity ent)
     auto hit = ski->skiw->hits[0];
     auto mobCount = 1;
     auto attackCount = 1;
-    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
+    Sound::Wrap *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
 
     ski->atk.value().call_back = [](entt::entity src,
@@ -43,7 +43,7 @@ int skill_2101004(entt::entity ent)
         mob->call_backs.emplace(2101004, std::make_pair(flame_call_back, std::make_tuple(Window::dt_now + time, Window::dt_now + 500)));
     };
 
-    SkillWarp::cooldowns[2101004] = Window::dt_now + 500;
+    Skill::cooldowns[2101004] = Window::dt_now + 500;
 
     return PlayerSkill::SkillResult::SOU |
            PlayerSkill::SkillResult::EFF |

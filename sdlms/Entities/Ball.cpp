@@ -26,10 +26,10 @@ entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *s
     auto ball = &World::registry->emplace<Ball>(ent);
     ball->point = point;
     ball->owner = owner;
-    ball->hit = AnimatedSpriteWarp::load(Wz::Character->get_root()->find_from_path(u"Afterimage/hit.img/mace2"));
+    ball->hit = AnimatedSprite::Wrap::load(Wz::Character->get_root()->find_from_path(u"Afterimage/hit.img/mace2"));
     ball->destory = Window::dt_now + (350 / (float)speed * 1000);
 
-    AnimatedSpriteWarp *asprw = nullptr;
+    AnimatedSprite::Wrap *asprw = nullptr;
     if (ski != nullptr)
     {
         // 给ball附加技能特效
@@ -49,7 +49,7 @@ entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *s
         {
             ball->rotate = dynamic_cast<wz::Property<int> *>(ski->skiw->node->get_child(u"ball")->get_child(u"rotatePeriod"))->get();
         }
-        asprw = AnimatedSpriteWarp::load(ski->skiw->node->find_from_path(u"ball"));
+        asprw = AnimatedSprite::Wrap::load(ski->skiw->node->find_from_path(u"ball"));
     }
     if (asprw == nullptr)
     {
@@ -63,7 +63,7 @@ entt::entity load_ball(entt::entity owner, SDL_FPoint point, int speed, Skill *s
         {
             ball_path = u"Consume/0207.img/02070006/bullet";
         }
-        asprw = AnimatedSpriteWarp::load(Wz::Item->get_root()->find_from_path(ball_path));
+        asprw = AnimatedSprite::Wrap::load(Wz::Item->get_root()->find_from_path(ball_path));
     }
 
     World::registry->emplace<AnimatedSprite>(ent, asprw);

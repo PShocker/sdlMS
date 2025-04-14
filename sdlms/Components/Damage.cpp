@@ -11,29 +11,29 @@ void Damage::init()
         auto node = Wz::Effect->get_root()->find_from_path(u"BasicEff.img/NoRed1");
         for (int i = 0; i < 10; i++)
         {
-            red[i] = SpriteWarp::load(node->get_child(std::to_string(i)), 255);
+            red[i] = Sprite::Wrap::load(node->get_child(std::to_string(i)));
         }
     }
     {
         auto node = Wz::Effect->get_root()->find_from_path(u"BasicEff.img/NoViolet1");
         for (int i = 0; i < 10; i++)
         {
-            violet[i] = SpriteWarp::load(node->get_child(std::to_string(i)), 255);
+            violet[i] = Sprite::Wrap::load(node->get_child(std::to_string(i)));
         }
     }
     {
         auto node = Wz::Effect->get_root()->find_from_path(u"BasicEff.img/NoCri1");
         for (int i = 0; i < 10; i++)
         {
-            cri[i] = SpriteWarp::load(node->get_child(std::to_string(i)), 255);
+            cri[i] = Sprite::Wrap::load(node->get_child(std::to_string(i)));
         }
-        cri[10] = SpriteWarp::load(node->get_child(u"effect"), 255);
+        cri[10] = Sprite::Wrap::load(node->get_child(u"effect"));
     }
     {
         auto node = Wz::Effect->get_root()->find_from_path(u"BasicEff.img/NoBlue1");
         for (int i = 0; i < 10; i++)
         {
-            blue[i] = SpriteWarp::load(node->get_child(std::to_string(i)), 255);
+            blue[i] = Sprite::Wrap::load(node->get_child(std::to_string(i)));
         }
     }
 }

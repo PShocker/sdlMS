@@ -2,13 +2,13 @@
 #include "Resources/Wz.h"
 #include "wz/Property.hpp"
 
-AnimatedSpriteWarp *Effect::load(const std::u16string &path)
+AnimatedSprite::Wrap *Effect::load(const std::u16string &path)
 {
     auto node = Wz::Effect->get_root()->find_from_path(path);
-    return AnimatedSpriteWarp::load(node);
+    return AnimatedSprite::Wrap::load(node);
 }
 
-void Effect::push(Effect *eff, AnimatedSpriteWarp *asprw, std::optional<SDL_FPoint> p, int flip)
+void Effect::push(Effect *eff, AnimatedSprite::Wrap *asprw, std::optional<SDL_FPoint> p, int flip)
 {
     if (asprw)
     {

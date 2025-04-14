@@ -24,7 +24,7 @@ void load_drops(std::vector<std::pair<std::u16string, unsigned int>> &drops, flo
         int texture_w = 0;
         if (id == u"09000000")
         {
-            AnimatedSpriteWarp *asprw;
+            AnimatedSprite::Wrap *asprw;
             // 金币
             if (nums < 49)
             {
@@ -48,7 +48,7 @@ void load_drops(std::vector<std::pair<std::u16string, unsigned int>> &drops, flo
         else
         {
             auto node = Item::load(id);
-            auto sprw = SpriteWarp::load(node->find_from_path(u"info/iconRaw"));
+            auto sprw = Sprite::Wrap::load(node->find_from_path(u"info/iconRaw"));
             texture_w = sprw->texture->w;
             dro.spr = Sprite(sprw);
         }

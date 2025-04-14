@@ -12,15 +12,15 @@ struct AfterImage
     struct Wrap
     {
         uint8_t index;
-        AnimatedSpriteWarp *asprw;
+        AnimatedSprite::Wrap *asprw;
         SDL_FPoint lt;
         SDL_FPoint rb;
     };
 
     static inline std::unordered_map<std::u16string, std::unordered_map<std::u16string, std::unordered_map<uint8_t, Wrap>>> afterimages;
 
-    static inline std::unordered_map<std::u16string, AnimatedSpriteWarp *> hits;
-    static inline std::unordered_map<std::u16string, std::vector<SoundWarp *>> sounds;
+    static inline std::unordered_map<std::u16string, AnimatedSprite::Wrap *> hits;
+    static inline std::unordered_map<std::u16string, std::vector<Sound::Wrap *>> sounds;
 
     bool animated = false;
     bool animate = false;
@@ -30,6 +30,6 @@ struct AfterImage
 
     bool hit = false;
 
-    static void load(const std::u16string &type, const std::u16string &sfx, const std::u16string& level);
+    static void load(const std::u16string &type, const std::u16string &sfx, const std::u16string &level);
     AfterImage() = default;
 };

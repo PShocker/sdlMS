@@ -60,7 +60,7 @@ void UIBuff::run()
             uib->destory = val.destory;
             uib->duration = val.duration;
             uib->index = i;
-            auto sprw = SpriteWarp::load(SkillWarp::load(id)->node->find_from_path(u"icon"));
+            auto sprw = Sprite::Wrap::load(Skill::Wrap::load(id)->node->find_from_path(u"icon"));
             World::registry->emplace<Sprite>(ent, sprw);
             uib->position = SDL_FPoint{(float)Camera::w - 32 - i * 32, (float)32};
             i++;

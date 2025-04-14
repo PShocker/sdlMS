@@ -92,9 +92,10 @@ int skill_2201002(entt::entity ent)
     mv->vspeed = 0;
 
     // 技能音效
-    PlayerSkill::skill_sound(SkillWarp::load(2201002));
+    auto ski = Skill(2201002);
+    PlayerSkill::skill_sound(&ski);
 
-    SkillWarp::cooldowns[2201002] = Window::dt_now + 500;
+    Skill::cooldowns[2201002] = Window::dt_now + 500;
     player_portal_cooldown = Window::dt_now + 600;
 
     return PlayerSkill::SkillResult::None;

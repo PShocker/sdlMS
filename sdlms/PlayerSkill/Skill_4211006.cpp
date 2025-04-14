@@ -21,7 +21,7 @@ int skill_4211006(entt::entity ent)
 
     auto ski = &World::registry->emplace_or_replace<Skill>(ent, 4211006);
 
-    SkillWarp::cooldowns[4211006] = Window::dt_now + 500;
+    Skill::cooldowns[4211006] = Window::dt_now + 500;
 
     auto node = ski->skiw->level[ski->level];
     auto v = dynamic_cast<wz::Property<wz::WzVec2D> *>(node->get_child(u"lt"))->get();
@@ -31,7 +31,7 @@ int skill_4211006(entt::entity ent)
     auto hit = ski->skiw->hits[0];
     auto mobCount = dynamic_cast<wz::Property<int> *>(node->get_child(u"mobCount"))->get();
     auto attackCount = 1;
-    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
+    Sound::Wrap *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw);
     ski->atk.value().damage = 0;
 

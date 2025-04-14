@@ -71,7 +71,7 @@ entt::entity find_closest_attackable_mob(Transform &origin, const Triangle &tri)
     return closest_mob;
 }
 
-void mob_special_effect(entt::entity ent, int id, AnimatedSpriteWarp *asprw, unsigned int time)
+void mob_special_effect(entt::entity ent, int id, AnimatedSprite::Wrap *asprw, unsigned int time)
 {
     auto eff = World::registry->try_get<Effect>(ent);
     if (!eff->effects.contains(id))
@@ -90,7 +90,7 @@ std::pair<bool, bool> dizzy_call_back(entt::entity ent, std::any &data)
 
     if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
     {
-        auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(3101005)->node->find_from_path(u"mob"));
+        auto asprw = AnimatedSprite::Wrap::load(Skill::Wrap::load(3101005)->node->find_from_path(u"mob"));
         // 晕眩特效
         mob_special_effect(ent, Effect::Dizzy, asprw, time);
         mob_fall(ent, Window::delta_time);
@@ -112,7 +112,7 @@ std::pair<bool, bool> poison_call_back(entt::entity ent, std::any &data)
     if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
     {
         // 中毒特效
-        auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(2101005)->node->find_from_path(u"mob"));
+        auto asprw = AnimatedSprite::Wrap::load(Skill::Wrap::load(2101005)->node->find_from_path(u"mob"));
         mob_special_effect(ent, Effect::Poison, asprw, time);
         mob->mod = SDL_Color{136, 204, 0};
         if (atktime < Window::dt_now)
@@ -143,7 +143,7 @@ std::pair<bool, bool> flame_call_back(entt::entity ent, std::any &data)
     if (Window::dt_now <= time && mob->state != Mob::State::DIE && mob->state != Mob::State::REMOVE)
     {
         // 火焰特效
-        auto asprw = AnimatedSpriteWarp::load(SkillWarp::load(3111003)->node->find_from_path(u"tile/0"));
+        auto asprw = AnimatedSprite::Wrap::load(Skill::Wrap::load(3111003)->node->find_from_path(u"tile/0"));
         mob_special_effect(ent, Effect::Flame, asprw, time);
         mob->mod = SDL_Color{255, 100, 0};
         if (atktime < Window::dt_now)

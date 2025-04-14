@@ -28,10 +28,10 @@ struct Damage
     std::list<Wrap> damages;
     char index = 0;
 
-    static inline SpriteWarp *red[10];
-    static inline SpriteWarp *violet[10];
-    static inline SpriteWarp *cri[11];
-    static inline SpriteWarp *blue[10];
+    static inline Sprite::Wrap *red[10];
+    static inline Sprite::Wrap *violet[10];
+    static inline Sprite::Wrap *cri[11];
+    static inline Sprite::Wrap *blue[10];
 
     static void init();
 

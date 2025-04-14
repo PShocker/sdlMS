@@ -27,7 +27,7 @@ entt::entity load_summon(wz::Node *node, int id, entt::entity owner)
         sum->a[u"jump"] = AnimatedSprite(node->find_from_path(u"move/0"));
     }
 
-    sum->atk.hit = AnimatedSpriteWarp::load(node->parent->find_from_path(u"hit/0"));
+    sum->atk.hit = AnimatedSprite::Wrap::load(node->parent->find_from_path(u"hit/0"));
 
     sum->index = u"summoned";
     sum->id = id;

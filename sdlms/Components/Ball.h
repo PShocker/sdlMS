@@ -15,7 +15,7 @@ struct Ball
 
     std::optional<SDL_FPoint> point = std::nullopt;
 
-    AnimatedSpriteWarp *hit = nullptr;
+    AnimatedSprite::Wrap *hit = nullptr;
 
     // 摧毁时间
     unsigned int destory = Window::dt_now;

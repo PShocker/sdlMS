@@ -46,19 +46,19 @@ void load_portal(wz::Node *node, int id)
             if (portal->get_child(u"default") != nullptr)
             {
                 // 三段式传送门
-                auto asprw = AnimatedSpriteWarp::load(portal->find_from_path(u"default/portalContinue"));
+                auto asprw = AnimatedSprite::Wrap::load(portal->find_from_path(u"default/portalContinue"));
                 por.a.push_back(AnimatedSprite(asprw));
 
-                asprw = AnimatedSpriteWarp::load(portal->find_from_path(u"default/portalExit"));
+                asprw = AnimatedSprite::Wrap::load(portal->find_from_path(u"default/portalExit"));
                 por.a.push_back(AnimatedSprite(asprw));
 
-                asprw = AnimatedSpriteWarp::load(portal->find_from_path(u"default/portalStart"));
+                asprw = AnimatedSprite::Wrap::load(portal->find_from_path(u"default/portalStart"));
                 por.a.push_back(AnimatedSprite(asprw));
             }
             else
             {
                 // 普通的传送门,通常为pv
-                auto asprw = AnimatedSpriteWarp::load(portal);
+                auto asprw = AnimatedSprite::Wrap::load(portal);
                 por.a.push_back(AnimatedSprite(asprw));
                 if (Map::load_string_node(tm))
                 {

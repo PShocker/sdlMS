@@ -16,8 +16,7 @@ void render_run()
         auto tr = &view.get<Transform>(ent);
         if (auto spr = World::registry->try_get<Sprite>(ent))
         {
-            auto sprw = spr->sprw;
-            render_sprite(tr, sprw);
+            render_sprite(tr, spr->sprw);
         }
         else if (auto a = World::registry->try_get<AnimatedSprite>(ent))
         {
@@ -144,7 +143,7 @@ void render_texture(SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_re
     SDL_RenderTextureRotated(Window::renderer, texture, src_rect, pos_rect, rotation, origin, (SDL_FlipMode)flip);
 }
 
-void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SDL_FPoint *origin, int alpha)
+void render_sprite(SDL_FPoint &p, Sprite::Wrap *sprw, int flip, float rotation, SDL_FPoint *origin, int alpha)
 {
     auto width = sprw->texture->w;
     auto heihgt = sprw->texture->h;
@@ -162,7 +161,7 @@ void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip, float rotation, SD
     render_texture(sprw->texture, nullptr, &pos_rect, alpha, flip, rotation, origin);
 }
 
-void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *origin, int alpha)
+void render_sprite(Transform *tr, Sprite::Wrap *sprw, SDL_FPoint *origin, int alpha)
 {
     float rot = tr->rotation;
     SDL_FPoint position = tr->position - SDL_FPoint{(float)Camera::x, (float)Camera::y};
@@ -196,7 +195,7 @@ void render_back_sprite(Transform *tr, BackGround *bspr)
     float spr_ox = 0;
     float spr_oy = 0;
 
-    SpriteWarp *sprw = nullptr;
+    Sprite::Wrap *sprw = nullptr;
     int alpha = 255;
     if (std::holds_alternative<Sprite>(bspr->spr))
     {
@@ -311,7 +310,7 @@ void render_character(const Transform *tr, Character *cha, int invincible)
 
     Transform transfrom(0, 0, 0, 0);
 
-    const auto set_transform = [&tr, &transfrom](Transform &t, SpriteWarp *spr)
+    const auto set_transform = [&tr, &transfrom](Transform &t, Sprite::Wrap *spr)
     {
         auto chara_pos = tr->position;
         auto flip = tr->flip;
@@ -328,7 +327,7 @@ void render_character(const Transform *tr, Character *cha, int invincible)
             transfrom.position = chara_pos + SDL_FPoint{x, y};
         }
     };
-    const auto render_avatar = [&set_transform, &transfrom, &action, &action_index, &invincible, &alpha](std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> part[Character::Action::LENGTH])
+    const auto render_avatar = [&set_transform, &transfrom, &action, &action_index, &invincible, &alpha](std::unordered_map<uint8_t, std::pair<Transform, Sprite::Wrap *>> part[Character::Action::LENGTH])
     {
         if (part[action].size() > 0)
         {
@@ -699,7 +698,7 @@ void render_drop(Transform *tr, Drop *dro)
     {
         alpha = ((float)(dro->destory - Window::dt_now) / 900) * 255;
     }
-    SpriteWarp *sprw;
+    Sprite::Wrap *sprw;
     if (std::holds_alternative<Sprite>(dro->spr))
     {
         sprw = std::get<Sprite>(dro->spr).sprw;
@@ -887,9 +886,8 @@ void render_worldmap()
 
     for (auto &it : WorldMap::spots)
     {
-        auto sprw = it.spr.sprw;
         auto p = position + it.p;
-        render_sprite(p, sprw);
+        render_sprite(p, it.spr.sprw);
     }
     if (WorldMap::curpos.p.has_value())
     {

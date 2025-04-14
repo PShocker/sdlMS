@@ -30,7 +30,7 @@ int skill_3001005(entt::entity ent)
     auto hit = ski->skiw->hits[0];
     auto mobCount = 1;
     auto attackCount = 1;
-    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
+    Sound::Wrap *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
 
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
@@ -57,7 +57,7 @@ int skill_3001005(entt::entity ent)
         ball_n->target_point.value().y += 10;
     };
 
-    SkillWarp::cooldowns[3001005] = Window::dt_now + 500;
+    Skill::cooldowns[3001005] = Window::dt_now + 500;
 
     World::registry->emplace_or_replace<AfterImage>(ent);
 

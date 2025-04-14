@@ -19,7 +19,7 @@ struct UIItem
     struct Wrap
     {
         std::u16string id;
-        SpriteWarp *sprw;
+        Sprite::Wrap *sprw;
         int num;
     };
     static inline Wrap items[5][96];

@@ -88,7 +88,7 @@ void load_reactor(wz::Node *node)
             {
                 if (val[0]->get_child(u"Hit"))
                 {
-                    auto sou = SoundWarp::load(val[0]->get_child(u"Hit"));
+                    auto sou = Sound::Wrap::load(val[0]->get_child(u"Hit"));
                     auto i = std::stoi(std::string{key.begin(), key.end()});
                     reactor->sounds[i] = sou;
                 }

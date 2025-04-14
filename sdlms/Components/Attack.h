@@ -17,11 +17,11 @@ struct Attack
     int attackCount = 1;
     int damage = 50;
 
-    AnimatedSpriteWarp *hit = nullptr;
+    AnimatedSprite::Wrap *hit = nullptr;
     // 攻击源的坐标
     std::optional<SDL_FPoint> src_point = std::nullopt;
     // 攻击后击中音效
-    SoundWarp *souw = nullptr;
+    Sound::Wrap *souw = nullptr;
 
     // 伤害浮动范围
     float min_damage = 0.8;
@@ -30,7 +30,7 @@ struct Attack
     std::optional<std::function<void(entt::entity, entt::entity, int)>> call_back = std::nullopt;
 
     Attack() = default;
-    Attack(SDL_FPoint &lt, SDL_FPoint &rb, AnimatedSpriteWarp *hit,
+    Attack(SDL_FPoint &lt, SDL_FPoint &rb, AnimatedSprite::Wrap *hit,
            int mobCount = 1, int attackCount = 1,
-           SoundWarp *souw = nullptr, int damage = 50);
+           Sound::Wrap *souw = nullptr, int damage = 50);
 };

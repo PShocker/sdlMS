@@ -9,8 +9,8 @@
 void render_run();
 
 void render_texture(SDL_Texture *texture, SDL_FRect *src_rect, SDL_FRect *pos_rect, int alpha, int flip = 0, float rotation = 0, SDL_FPoint *origin = nullptr);
-void render_sprite(SDL_FPoint &p, SpriteWarp *sprw, int flip = 0, float rotation = 0, SDL_FPoint *origin = nullptr, int alpha = 255);
-void render_sprite(Transform *tr, SpriteWarp *sprw, SDL_FPoint *origin = nullptr, int alpha = 255);
+void render_sprite(SDL_FPoint &p, Sprite::Wrap *sprw, int flip = 0, float rotation = 0, SDL_FPoint *origin = nullptr, int alpha = 255);
+void render_sprite(Transform *tr, Sprite::Wrap *sprw, SDL_FPoint *origin = nullptr, int alpha = 255);
 void render_animated_sprite(SDL_FPoint &p, AnimatedSprite *a, int alpha = 255);
 void render_animated_sprite(Transform *tr, AnimatedSprite *a, SDL_FPoint *origin = nullptr, int alpha = 255);
 void render_back_sprite(Transform *tr, BackGround *bspr);

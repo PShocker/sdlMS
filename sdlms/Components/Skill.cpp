@@ -5,7 +5,22 @@
 #include <SDL3/SDL.h>
 #include "Resources/Wz.h"
 
-SkillWarp::SkillWarp(int id) : id(id)
+Skill::Wrap *Skill::Wrap::load(int id)
+{
+    static std::unordered_map<int, Wrap *> cache;
+    if (cache.contains(id))
+    {
+        return cache[id];
+    }
+    else
+    {
+        Wrap *wrap = new Wrap(id);
+        cache[id] = wrap;
+        return wrap;
+    }
+}
+
+Skill::Wrap::Wrap(int id) : id(id)
 {
     std::string str = std::to_string(id);
     std::u16string id_str(str.begin(), str.end());
@@ -13,13 +28,12 @@ SkillWarp::SkillWarp(int id) : id(id)
     node = Wz::Sound->get_root()->find_from_path(u"Skill.img/" + id_str);
     for (auto &[key, val] : node->get_children())
     {
-        auto sou = SoundWarp::load(val[0]);
-        sounds[key] = sou;
+        sounds[key] = Sound::Wrap::load(val[0]);
     }
     node = Wz::Skill->get_root()->find_from_path(id_str.substr(0, id_str.length() - 4) + u".img/skill/" + id_str);
     if (auto hit = node->get_child(u"hit"))
     {
-        hits.push_back(AnimatedSpriteWarp::load(hit->get_child(u"0")));
+        hits.push_back(AnimatedSprite::Wrap::load(hit->get_child(u"0")));
     }
     for (int i = 1; i < node->get_child(u"level")->children_count() + 1; i++)
     {
@@ -48,12 +62,12 @@ SkillWarp::SkillWarp(int id) : id(id)
     {
         if (node->get_child(u"effect")->get_child(u"0")->type == wz::Type::Canvas)
         {
-            effects.push_back(AnimatedSpriteWarp::load(node->get_child(u"effect")));
+            effects.push_back(AnimatedSprite::Wrap::load(node->get_child(u"effect")));
         }
         else
         {
             // 默认选择单手武器的特效
-            effects.push_back(AnimatedSpriteWarp::load(node->find_from_path(u"effect/0")));
+            effects.push_back(AnimatedSprite::Wrap::load(node->find_from_path(u"effect/0")));
         }
     }
     for (int i = 0;; i++)
@@ -61,7 +75,7 @@ SkillWarp::SkillWarp(int id) : id(id)
         auto e = "effect" + std::to_string(i);
         if (node->get_child(e))
         {
-            effects.push_back(AnimatedSpriteWarp::load(node->get_child(e)));
+            effects.push_back(AnimatedSprite::Wrap::load(node->get_child(e)));
         }
         else
         {
@@ -70,22 +84,7 @@ SkillWarp::SkillWarp(int id) : id(id)
     }
 }
 
-SkillWarp *SkillWarp::load(int id)
-{
-    static std::unordered_map<int, SkillWarp *> cache;
-    if (cache.contains(id))
-    {
-        return cache[id];
-    }
-    else
-    {
-        SkillWarp *ski = new SkillWarp(id);
-        cache[id] = ski;
-        return ski;
-    }
-}
-
 Skill::Skill(int id)
 {
-    skiw = SkillWarp::load(id);
+    skiw = Wrap::load(id);
 }

@@ -26,7 +26,7 @@ struct Effect
 
     Effect() = default;
 
-    static AnimatedSpriteWarp *load(const std::u16string &path);
+    static AnimatedSprite::Wrap *load(const std::u16string &path);
 
-    static void push(Effect *eff, AnimatedSpriteWarp *asprw, std::optional<SDL_FPoint> p, int flip);
+    static void push(Effect *eff, AnimatedSprite::Wrap *asprw, std::optional<SDL_FPoint> p, int flip);
 };

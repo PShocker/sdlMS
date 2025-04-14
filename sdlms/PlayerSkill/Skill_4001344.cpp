@@ -33,7 +33,7 @@ int skill_4001344(entt::entity ent)
     auto hit = ski->skiw->hits[0];
     auto mobCount = 1;
     auto attackCount = 1;
-    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
+    Sound::Wrap *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
 
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
@@ -84,7 +84,7 @@ int skill_4001344(entt::entity ent)
         }
     };
 
-    SkillWarp::cooldowns[4001344] = Window::dt_now + 500;
+    Skill::cooldowns[4001344] = Window::dt_now + 500;
 
     World::registry->emplace_or_replace<AfterImage>(ent);
 

@@ -44,7 +44,7 @@ int skill_3221005(entt::entity ent);
 
 struct PlayerSkill
 {
-    static void skill_sound(SkillWarp *souw, int delay = 0);
+    static void skill_sound(Skill *ski, int delay = 0);
 
     static void skill_effect(Skill *ski, entt::entity ent);
 

@@ -10,28 +10,24 @@
 #include <functional>
 #include <any>
 
-struct SkillWarp
-{
-    int id;
-    std::vector<AnimatedSpriteWarp *> effects;
-    std::vector<AnimatedSpriteWarp *> hits;
-    std::vector<wz::Node *> level;
-    std::optional<std::u16string> action_str = std::nullopt;
-
-    std::unordered_map<std::u16string, SoundWarp *> sounds;
-    static inline std::unordered_map<int, int> cooldowns;
-
-    wz::Node *node = nullptr;
-
-    SkillWarp(int id);
-    SkillWarp() = default;
-
-    static SkillWarp *load(int id);
-};
-
 struct Skill
 {
-    SkillWarp *skiw = nullptr;
+    struct Wrap
+    {
+        int id;
+        std::vector<AnimatedSprite::Wrap *> effects;
+        std::vector<AnimatedSprite::Wrap *> hits;
+        std::vector<wz::Node *> level;
+        std::optional<std::u16string> action_str = std::nullopt;
+
+        std::unordered_map<std::u16string, Sound::Wrap *> sounds;
+
+        wz::Node *node = nullptr;
+
+        static Wrap *load(int id);
+        Wrap(int id);
+    };
+    Wrap *skiw = nullptr;
     std::optional<Attack> atk = std::nullopt;
 
     Skill(int id);
@@ -40,6 +36,8 @@ struct Skill
     bool hit = false;
     uint8_t level = 19;
     bool attack = false;
+
+    static inline std::unordered_map<int, int> cooldowns;
 
     // 数据
     std::any data;

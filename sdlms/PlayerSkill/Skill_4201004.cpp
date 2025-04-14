@@ -30,7 +30,7 @@ int skill_4201004(entt::entity ent)
     auto hit = nullptr;
     auto mobCount = 1;
     auto attackCount = 1;
-    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
+    Sound::Wrap *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 10);
 
     ski->atk.value().call_back = [](entt::entity src, entt::entity target, int full_damage)

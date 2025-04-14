@@ -35,7 +35,7 @@ int skill_4211002(entt::entity ent)
     auto attackCount = 4;
     auto mobCount = 12;
 
-    SoundWarp *souw = ski->skiw->sounds[u"Hit"];
+    Sound::Wrap *souw = ski->skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, nullptr, mobCount, attackCount, souw, 100);
 
     ski->call_back = [](entt::entity ent, int action_frame, int action_time)
@@ -48,8 +48,8 @@ int skill_4211002(entt::entity ent)
 
         auto atk = &ski->atk.value();
         auto owner_tr = World::registry->try_get<Transform>(ent);
-        atk->hit = owner_tr->flip == 1 ? AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/1"))
-                                       : AnimatedSpriteWarp::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/0"));
+        atk->hit = owner_tr->flip == 1 ? AnimatedSprite::Wrap::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/1"))
+                                       : AnimatedSprite::Wrap::load(Wz::Skill->get_root()->find_from_path(u"400.img/skill/4001334/hit/0"));
         attack_mob(atk, ent);
 
         auto owner_mv = World::registry->try_get<Move>(ent);

@@ -17,7 +17,7 @@ void load_tile(wz::Node *node, const std::u16string &ts, int layer, int id)
     auto no_str = std::to_string(no);
 
     auto url = u"Tile/" + ts + u".img/" + u + u"/" + std::u16string{no_str.begin(), no_str.end()};
-    auto sprw = SpriteWarp::load(Wz::Map->get_root()->find_from_path(url));
+    auto sprw = Sprite::Wrap::load(Wz::Map->get_root()->find_from_path(url));
 
     auto &spr = World::registry->emplace<Sprite>(ent, sprw);
     int z = 0;

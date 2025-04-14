@@ -22,7 +22,7 @@ static void generate_chain_effect(
     float dx_per_segment = (end.x - start.x) / segments;
     float dy_per_segment = (end.y - start.y) / segments;
 
-    auto sprite_template = AnimatedSpriteWarp::load(SkillWarp::load(2221006)->node->find_from_path(u"ball/0"));
+    auto sprite_template = AnimatedSprite::Wrap::load(Skill::Wrap::load(2221006)->node->find_from_path(u"ball/0"));
 
     for (float i = 0; i < segments; ++i)
     {
@@ -93,7 +93,7 @@ int skill_2221006(entt::entity ent)
     auto hit = skiw->hits[0];
     auto attackCount = 1;
     auto mobCount = 0;
-    SoundWarp *souw = skiw->sounds[u"Hit"];
+    Sound::Wrap *souw = skiw->sounds[u"Hit"];
     ski->atk = Attack(lt, rb, hit, mobCount, attackCount, souw, 50);
 
     // 回调函数（优化后）

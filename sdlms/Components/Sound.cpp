@@ -95,7 +95,22 @@ bool Sound::init()
     return true;
 }
 
-SoundWarp::SoundWarp(wz::Node *node)
+Sound::Wrap *Sound::Wrap::load(wz::Node *node)
+{
+    static std::unordered_map<wz::Node *, Wrap *> cache;
+    if (cache.contains(node))
+    {
+        return cache[node];
+    }
+    else
+    {
+        Wrap *wrap = new Wrap(node);
+        cache[node] = wrap;
+        return wrap;
+    }
+}
+
+Sound::Wrap::Wrap(wz::Node *node)
 {
     if (node->type == wz::Type::UOL)
     {
@@ -223,35 +238,20 @@ SoundWarp::SoundWarp(wz::Node *node)
     avio_context_free(&ioCtx);
 }
 
-SoundWarp *SoundWarp::load(wz::Node *node)
-{
-    static std::unordered_map<wz::Node *, SoundWarp *> cache;
-    if (cache.contains(node))
-    {
-        return cache[node];
-    }
-    else
-    {
-        SoundWarp *souw = new SoundWarp(node);
-        cache[node] = souw;
-        return souw;
-    }
-}
-
 Sound::Sound(wz::Node *node, int d)
 {
-    souw = SoundWarp::load(node);
+    souw = Sound::Wrap::load(node);
     delay = Window::dt_now + d;
 }
 
 Sound::Sound(const std::u16string &path, int d)
 {
     auto node = Wz::Sound->get_root()->find_from_path(path);
-    souw = SoundWarp::load(node);
+    souw = Sound::Wrap::load(node);
     delay = Window::dt_now + d;
 }
 
-void Sound::push(SoundWarp *souw, int delay, int pos)
+void Sound::push(Sound::Wrap *souw, int delay, int pos)
 {
     SDL_LockMutex(sound_list_mutex);
     Sound sou;
