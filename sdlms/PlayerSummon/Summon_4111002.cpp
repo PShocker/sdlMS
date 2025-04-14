@@ -17,6 +17,8 @@ int summon_4111002(entt::entity ent)
         summon_cha->action_time = owner_cha->action_time;
         summon_cha->invincible_cooldown = Window::dt_now + 150;
 
+        summon_cha->alpha = 178;
+
         auto owner_tr = World::registry->try_get<Transform>(sum->owner);
         auto summon_tr = World::registry->try_get<Transform>(ent);
         summon_tr->flip = owner_tr->flip;
@@ -26,7 +28,7 @@ int summon_4111002(entt::entity ent)
         summon_mv->foo = owner_mv->foo;
         summon_mv->lr = owner_mv->lr;
 
-        if (owner_mv->lr != nullptr && owner_mv->hspeed == 0 && (owner_cha->action == Character::ACTION::LADDER || owner_cha->action == Character::ACTION::ROPE))
+        if (owner_mv->lr != nullptr && owner_mv->hspeed == 0 && (owner_cha->action == Character::Action::LADDER || owner_cha->action == Character::Action::ROPE))
         {
             summon_tr->position.x = owner_tr->position.x;
             summon_tr->position.y = owner_tr->position.y + 45;

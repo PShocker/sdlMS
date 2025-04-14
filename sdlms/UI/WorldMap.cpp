@@ -75,29 +75,6 @@ void WorldMap::over()
     return;
 }
 
-void WorldMap::run()
-{
-    if (Input::state[SDL_SCANCODE_W])
-    {
-        if (keyborard)
-        {
-            if (!WorldMap::open)
-            {
-                WorldMap::show();
-            }
-            else
-            {
-                WorldMap::hide();
-            }
-            keyborard = false;
-        }
-    }
-    else
-    {
-        keyborard = true;
-    }
-}
-
 bool WorldMap::mousein()
 {
     SDL_FPoint point = {Cursor::x, Cursor::y};

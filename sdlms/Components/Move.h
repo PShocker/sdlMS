@@ -27,7 +27,7 @@ struct Move
     int page = -1;
     int zmass = 0;
 
-    enum AREA : uint8_t
+    enum Area : uint8_t
     {
         LAND,
         SWIM,

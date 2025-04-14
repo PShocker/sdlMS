@@ -246,7 +246,7 @@ void Character::init()
 void Character::add_body(const std::u16string &val)
 {
     auto body_node = character_node->find_from_path(val + u".img");
-    for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+    for (uint8_t i = 0; i < Action::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)
         {
@@ -339,7 +339,7 @@ void Character::add_coat(const std::u16string &val)
     auto coat_node = character_node->find_from_path(u"Coat/" + val + u".img");
     if (coat_node != nullptr)
     {
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        for (uint8_t i = 0; i < Action::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {
@@ -385,7 +385,7 @@ void Character::add_cap(const std::u16string &val)
         {
             cap_vslot.emplace(vslot.substr(i, 2));
         }
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        for (uint8_t i = 0; i < Action::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {
@@ -424,7 +424,7 @@ void Character::add_pants(const std::u16string &val)
     auto pants_node = character_node->find_from_path(u"Pants/" + val + u".img");
     if (pants_node != nullptr)
     {
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        for (uint8_t i = 0; i < Action::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {
@@ -448,7 +448,7 @@ void Character::add_pants(const std::u16string &val)
 void Character::add_head(const std::u16string &val)
 {
     auto head_node = character_node->find_from_path(val + u".img");
-    for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+    for (uint8_t i = 0; i < Action::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)
         {
@@ -493,7 +493,7 @@ void Character::add_face(const std::u16string &val, std::u16string type, const s
             face_time = dynamic_cast<wz::Property<int> *>(canvas_node->get_child(u"delay"))->get();
         }
         face_max_index = type_node->children_count() - 1;
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        for (uint8_t i = 0; i < Action::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {
@@ -511,7 +511,7 @@ void Character::add_face(const std::u16string &val, std::u16string type, const s
 
 void Character::add_hairs(const std::u16string &val)
 {
-    for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+    for (uint8_t i = 0; i < Action::LENGTH; i++)
     {
         for (uint8_t no = 0; no < body_positions[i].size(); no++)
         {
@@ -550,7 +550,7 @@ void Character::add_shoes(const std::u16string &val)
     auto shoes_node = character_node->find_from_path(u"Shoes/" + val + u".img");
     if (shoes_node != nullptr)
     {
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        for (uint8_t i = 0; i < Action::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {
@@ -576,7 +576,7 @@ void Character::add_weapon(const std::u16string &val)
     auto weapon_node = character_node->find_from_path(u"Weapon/" + val + u".img");
     if (weapon_node != nullptr)
     {
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        for (uint8_t i = 0; i < Action::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {
@@ -615,7 +615,7 @@ void Character::add_shield(const std::u16string &val)
     auto shield_node = character_node->find_from_path(u"Shield/" + val + u".img");
     if (shield_node != nullptr)
     {
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        for (uint8_t i = 0; i < Action::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {
@@ -641,7 +641,7 @@ void Character::add_cape(const std::u16string &val)
     auto cape_node = character_node->find_from_path(u"Cape/" + val + u".img");
     if (cape_node != nullptr)
     {
-        for (uint8_t i = 0; i < ACTION::LENGTH; i++)
+        for (uint8_t i = 0; i < Action::LENGTH; i++)
         {
             for (uint8_t no = 0; no < body_positions[i].size(); no++)
             {

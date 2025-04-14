@@ -38,8 +38,24 @@ void world_transport()
             auto portal = World::registry->try_get<Portal>(ent);
             if (portal->pn == World::TransPort::tn)
             {
-                player_refresh();
-                World::registry->try_get<Transform>(Player::ent)->position = World::registry->try_get<Transform>(ent)->position + SDL_FPoint{0, -10};
+                auto tr = World::registry->try_get<Transform>(Player::ent);
+                auto mv = World::registry->try_get<Move>(Player::ent);
+                auto cha = World::registry->try_get<Character>(Player::ent);
+                tr->position = World::registry->try_get<Transform>(ent)->position + SDL_FPoint{0, -10};
+                tr->z = LAYER_Z * 8 + tr->z % LAYER_Z;
+                mv->foo = nullptr;
+                mv->vspeed = 0;
+                mv->hspeed = 0;
+                mv->page = -1;
+                cha->state = Character::State::JUMP;
+                cha->action = Character::Action::JUMP;
+                cha->action_str = u"jump";
+                cha->action_frame = 0;
+                cha->action_index = 0;
+                cha->action_time = 0;
+                cha->invincible_cooldown = 0;
+                cha->animate = true;
+                World::registry->remove<Tomb>(Player::ent);
                 camera_refresh();
                 World::TransPort::id = 0;
                 break;

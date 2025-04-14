@@ -41,17 +41,17 @@ int skill_1101004(entt::entity ent)
             wrap.duration = duration;
             wrap.start = [](entt::entity ent)
             {
-                for (int i = 0; i < Character::ACTION::LENGTH; ++i)
+                for (int i = 0; i < Character::Action::LENGTH; ++i)
                 { // 遍历数组中的每个 unordered_map
-                    if (i == Character::ACTION::ALERT ||
-                        i == Character::ACTION::SIT ||
-                        i == Character::ACTION::STAND1 ||
-                        i == Character::ACTION::STAND2 ||
-                        i == Character::ACTION::LADDER ||
-                        i == Character::ACTION::ROPE ||
-                        i == Character::ACTION::DEAD ||
-                        i == Character::ACTION::WALK1 ||
-                        i == Character::ACTION::WALK2)
+                    if (i == Character::Action::ALERT ||
+                        i == Character::Action::SIT ||
+                        i == Character::Action::STAND1 ||
+                        i == Character::Action::STAND2 ||
+                        i == Character::Action::LADDER ||
+                        i == Character::Action::ROPE ||
+                        i == Character::Action::DEAD ||
+                        i == Character::Action::WALK1 ||
+                        i == Character::Action::WALK2)
                     { // 跳过
                         continue;
                     }
@@ -71,17 +71,17 @@ int skill_1101004(entt::entity ent)
             wrap.finish = [](entt::entity ent)
             {
                 // 还原
-                for (int i = 0; i < Character::ACTION::LENGTH; ++i)
+                for (int i = 0; i < Character::Action::LENGTH; ++i)
                 { // 遍历数组中的每个 unordered_map
-                    if (i == Character::ACTION::ALERT ||
-                        i == Character::ACTION::SIT ||
-                        i == Character::ACTION::STAND1 ||
-                        i == Character::ACTION::STAND2 ||
-                        i == Character::ACTION::LADDER ||
-                        i == Character::ACTION::ROPE ||
-                        i == Character::ACTION::DEAD ||
-                        i == Character::ACTION::WALK1 ||
-                        i == Character::ACTION::WALK2)
+                    if (i == Character::Action::ALERT ||
+                        i == Character::Action::SIT ||
+                        i == Character::Action::STAND1 ||
+                        i == Character::Action::STAND2 ||
+                        i == Character::Action::LADDER ||
+                        i == Character::Action::ROPE ||
+                        i == Character::Action::DEAD ||
+                        i == Character::Action::WALK1 ||
+                        i == Character::Action::WALK2)
                     { // 跳过
                         continue;
                     }

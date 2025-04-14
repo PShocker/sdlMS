@@ -328,7 +328,7 @@ void render_character(const Transform *tr, Character *cha, int invincible)
             transfrom.position = chara_pos + SDL_FPoint{x, y};
         }
     };
-    const auto render_avatar = [&set_transform, &transfrom, &action, &action_index, &invincible, &alpha](std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> part[Character::ACTION::LENGTH])
+    const auto render_avatar = [&set_transform, &transfrom, &action, &action_index, &invincible, &alpha](std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> part[Character::Action::LENGTH])
     {
         if (part[action].size() > 0)
         {
@@ -341,7 +341,7 @@ void render_character(const Transform *tr, Character *cha, int invincible)
                     auto time = invincible % 200;
                     if (time > 100)
                     {
-                        SDL_SetTextureColorMod(sprw->texture, 128, 128, 128); // 设置颜色调节为默认值
+                        SDL_SetTextureColorMod(sprw->texture, 128, 128, 128);
                     }
                     else
                     {

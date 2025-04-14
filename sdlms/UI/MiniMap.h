@@ -54,7 +54,6 @@ struct MiniMap
     };
 
     static inline bool minimize = false;
-    static inline bool keyborard = true;
     static inline float x = 0;
     static inline float y = 0;
     static inline int alpha = 255;

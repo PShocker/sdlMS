@@ -46,6 +46,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     FreeType::init("./Font/");
     Wz::init("./Data/");
+    Keyboard::init();
     Window::create_window("sdlMS", width, height);
     Character::init();
     Tomb::init();
@@ -63,7 +64,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[])
 
     World::load_map(1000000);
     Player::ent = World::registry->create();
-    load_character(0, 0, true, Player::ent);
+    load_character(0, 0, true, Player::name, Player::ent);
     load_pet(u"5000016", Player::ent);
 
     return SDL_APP_CONTINUE;

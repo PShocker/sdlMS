@@ -55,7 +55,7 @@ struct Mob
     std::u16string id;
 
     std::unordered_map<std::u16string, SoundWarp *> sounds;
-    static inline std::unordered_map<std::u16string, std::vector<int>> drops;
+    static inline std::unordered_map<std::u16string, std::vector<std::u16string>> drops;
 
     // 仇恨目标
     entt::entity hit = entt::null;

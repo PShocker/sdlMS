@@ -5,8 +5,8 @@
 
 struct Install
 {
-    int id;
+    std::u16string id;
     AnimatedSprite aspr;
 
-    Install(int id);
+    Install(const std::u16string &id);
 };

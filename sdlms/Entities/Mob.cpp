@@ -113,7 +113,7 @@ void load_mob(wz::Node *node)
     }
     if (!mob.drops.contains(mob.id))
     {
-        std::vector<int> d;
+        std::vector<std::u16string> drops;
         size_t first_non_zero = link.find_first_not_of(u'0');
         // 如果找到了非零字符，则从该位置开始截取字符串
         if (first_non_zero != std::string::npos)
@@ -125,11 +125,11 @@ void load_mob(wz::Node *node)
         {
             for (auto &[key, val] : node->get_children())
             {
-                auto v = dynamic_cast<wz::Property<int> *>(val[0])->get();
-                d.push_back(v);
+                std::string str = std::to_string(dynamic_cast<wz::Property<int> *>(val[0])->get());
+                drops.push_back(std::u16string(str.begin(), str.end()));
             }
         }
-        mob.drops[mob.id] = d;
+        mob.drops[mob.id] = drops;
     }
 
     node = Wz::String->get_root()->find_from_path(u"Mob.img/" + mob.id.substr(mob.id.find_first_not_of(u'0')));

@@ -9,7 +9,7 @@
 #include "Commons/Commons.h"
 #include "Resources/Wz.h"
 
-void load_character(float x, float y, bool sp, entt::entity ent)
+void load_character(float x, float y, bool sp, const std::u16string &name, entt::entity ent)
 {
     auto cha = &World::registry->emplace<Character>(ent);
 
@@ -42,9 +42,11 @@ void load_character(float x, float y, bool sp, entt::entity ent)
     auto buff = &World::registry->emplace<Buff>(ent);
     buff->owner = ent;
 
-    auto nametag = &World::registry->emplace<NameTag>(ent);
-    // NameTag::push(nametag, u"sdlMS", SDL_Color{90, 148, 247, 255});
-    NameTag::push(nametag, Player::name, SDL_Color{90, 148, 247, 255});
+    if (name.size() > 0)
+    {
+        auto nametag = &World::registry->emplace<NameTag>(ent);
+        NameTag::push(nametag, Player::name, SDL_Color{90, 148, 247, 255});
+    }
 
     World::zindex = true;
     return;

@@ -40,5 +40,3 @@ bool player_pick_drop(entt::entity ent);
 void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent);
 void player_face(Character *cha);
 bool player_sit(Move *mv, int state);
-
-void player_refresh();

@@ -275,8 +275,7 @@ void mob_drop(Mob *mob, Transform *tr)
     std::vector<std::pair<std::u16string, unsigned int>> drops = {{u"09000000", (unsigned int)std::rand() % 200}};
     for (auto it : mob->drops[mob->id])
     {
-        auto id = std::to_string(it);
-        drops.push_back({std::u16string{id.begin(), id.end()}, 1});
+        drops.push_back({it, 1});
     }
     load_drops(drops, tr->position.x, tr->position.y, tr->z / LAYER_Z);
     Sound::push(Sound(u"Game.img/DropItem", 300));

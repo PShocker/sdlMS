@@ -20,19 +20,19 @@ int skill_2201002(entt::entity ent)
     auto x = tr->position.x;
     auto y = tr->position.y;
 
-    if (Input::state[SDL_SCANCODE_RIGHT])
+    if (Input::state[Keyboard::action[Keyboard::Action::RIGHT]])
     {
         x += 200;
     }
-    else if (Input::state[SDL_SCANCODE_LEFT])
+    else if (Input::state[Keyboard::action[Keyboard::Action::LEFT]])
     {
         x -= 200;
     }
-    else if (Input::state[SDL_SCANCODE_DOWN])
+    else if (Input::state[Keyboard::action[Keyboard::Action::DOWN]])
     {
         y += 200;
     }
-    else if (Input::state[SDL_SCANCODE_UP])
+    else if (Input::state[Keyboard::action[Keyboard::Action::UP]])
     {
         y -= 200;
     }
@@ -79,7 +79,7 @@ int skill_2201002(entt::entity ent)
                     cha->state = Character::State::JUMP;
                     cha->action_index = 0;
                     cha->action_time = 0;
-                    cha->action = Character::ACTION::JUMP;
+                    cha->action = Character::Action::JUMP;
                     cha->action_str = u"jump";
                 }
                 tr->position.x = x;

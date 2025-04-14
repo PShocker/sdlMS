@@ -8,7 +8,6 @@ void ui_run()
     Cursor::index = u"0";
     ToolTip::run();
     MiniMap::run();
-    WorldMap::run();
     UIBuff::run();
     GainTip::run();
     StatusBar::run();
@@ -32,6 +31,7 @@ void ui_run()
         Cursor::left_mouse_press = false;
         Cursor::drag = false;
     }
+    ui_keyboard();
     ui_over();
     Cursor::action(index);
     Cursor::run();
@@ -472,4 +472,47 @@ int ui_mousein()
 
 void ui_keyboard()
 {
+    for (const auto &[key, value] : Keyboard::ui)
+    {
+        if (Input::state[key])
+        {
+            if (!Keyboard::press.contains(key) || Keyboard::press[key] == false)
+            {
+                switch (value)
+                {
+                case UIIndex::UI_WorldMap:
+                {
+                    if (!WorldMap::open)
+                    {
+                        WorldMap::show();
+                    }
+                    else
+                    {
+                        WorldMap::hide();
+                    }
+                }
+                break;
+                case UIIndex::UI_UIItem:
+                {
+                    if (!UIItem::open)
+                    {
+                        UIItem::show();
+                    }
+                    else
+                    {
+                        UIItem::hide();
+                    }
+                }
+                break;
+                default:
+                    break;
+                }
+            }
+            Keyboard::press[key] = true;
+        }
+        else
+        {
+            Keyboard::press[key] = false;
+        }
+    }
 }

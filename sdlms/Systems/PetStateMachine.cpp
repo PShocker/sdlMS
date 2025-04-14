@@ -170,7 +170,7 @@ int pet_follow(entt::entity ent)
         auto owner_tr = World::registry->try_get<Transform>(pet->owner);
         auto owner_mv = World::registry->try_get<Move>(pet->owner);
         auto character = World::registry->try_get<Character>(pet->owner);
-        if (character->action == Character::ACTION::LADDER || character->action == Character::ACTION::ROPE)
+        if (character->action == Character::Action::LADDER || character->action == Character::Action::ROPE)
         {
             auto eff = World::registry->try_get<Effect>(ent);
             eff->effects.emplace(0, Effect::Wrap{Transform(pet_tr->position), AnimatedSprite(Effect::load(u"PetEff.img/" + pet->id + u"/warp"))});
@@ -220,7 +220,7 @@ bool pet_climb(entt::entity ent)
         auto owner_mv = World::registry->try_get<Move>(pet->owner);
         auto character = World::registry->try_get<Character>(pet->owner);
 
-        if (character->action == Character::ACTION::LADDER || character->action == Character::ACTION::ROPE)
+        if (character->action == Character::Action::LADDER || character->action == Character::Action::ROPE)
         {
             pet_tr->position = owner_tr->position;
             pet_tr->flip = owner_tr->flip;

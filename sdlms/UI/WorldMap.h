@@ -32,7 +32,6 @@ struct WorldMap
     static void hide();
     static void click();
     static void over();
-    static void run();
     static bool mousein();
     static Spot *mousein_maplist();
     static MapLink *mousein_maplink();
@@ -67,7 +66,6 @@ struct WorldMap
     };
 
     static inline bool open = false;
-    static inline bool keyborard = true;
     static inline float x = 0;
     static inline float y = 0;
 };

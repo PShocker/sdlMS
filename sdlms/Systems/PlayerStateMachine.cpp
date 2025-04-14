@@ -167,11 +167,11 @@ void player_statemachine(entt::entity ent, float delta_time)
 
 void player_flip(Transform *tr)
 {
-    if (Input::state[SDL_SCANCODE_RIGHT])
+    if (Input::state[Keyboard::action[Keyboard::Action::RIGHT]])
     {
         tr->flip = 1;
     }
-    else if (Input::state[SDL_SCANCODE_LEFT])
+    else if (Input::state[Keyboard::action[Keyboard::Action::LEFT]])
     {
         tr->flip = 0;
     }
@@ -181,11 +181,11 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
 {
     auto state = Character::State::WALK;
 
-    if (Input::state[SDL_SCANCODE_RIGHT])
+    if (Input::state[Keyboard::action[Keyboard::Action::RIGHT]])
     {
         mv->hforce = 1400;
     }
-    else if (Input::state[SDL_SCANCODE_LEFT])
+    else if (Input::state[Keyboard::action[Keyboard::Action::LEFT]])
     {
         mv->hforce = -1400;
     }
@@ -222,11 +222,11 @@ int player_walk(Move *mv, Transform *tr, float delta_time)
 
 bool player_fall(Move *mv, Transform *tr, float delta_time)
 {
-    if (Input::state[SDL_SCANCODE_RIGHT])
+    if (Input::state[Keyboard::action[Keyboard::Action::RIGHT]])
     {
         mv->hspeed += 0.3f;
     }
-    else if (Input::state[SDL_SCANCODE_LEFT])
+    else if (Input::state[Keyboard::action[Keyboard::Action::LEFT]])
     {
         mv->hspeed -= 0.3f;
     }
@@ -262,7 +262,7 @@ bool player_fall(Move *mv, Transform *tr, float delta_time)
 
 bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
 {
-    if (Input::state[SDL_SCANCODE_LALT])
+    if (Input::state[Keyboard::action[Keyboard::Action::JUMP]])
     {
         if (mv->foo)
         {
@@ -295,17 +295,17 @@ bool player_jump(Move *mv, Character *cha, Transform *tr, int state)
         }
         else if (mv->lr)
         {
-            if (!Input::state[SDL_SCANCODE_UP] && (Input::state[SDL_SCANCODE_RIGHT] || Input::state[SDL_SCANCODE_LEFT]))
+            if (!Input::state[Keyboard::action[Keyboard::Action::UP]] && (Input::state[Keyboard::action[Keyboard::Action::RIGHT]] || Input::state[Keyboard::action[Keyboard::Action::LEFT]]))
             {
                 cha->animate = true;
 
                 mv->vspeed = -310;
 
-                if (Input::state[SDL_SCANCODE_RIGHT])
+                if (Input::state[Keyboard::action[Keyboard::Action::RIGHT]])
                 {
                     mv->hspeed = 140;
                 }
-                else if (Input::state[SDL_SCANCODE_LEFT])
+                else if (Input::state[Keyboard::action[Keyboard::Action::LEFT]])
                 {
                     mv->hspeed = -140;
                 }
@@ -342,7 +342,7 @@ bool player_down_jump(Move *mv, Transform *tr)
 
 int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent)
 {
-    if (Input::state[SDL_SCANCODE_LCTRL])
+    if (Input::state[Keyboard::action[Keyboard::Action::ATTACK]])
     {
         if (state != Character::State::JUMP)
         {
@@ -360,7 +360,7 @@ int player_attack(Move *mv, Character *cha, Transform *tr, int state, entt::enti
 
 bool player_animating(Move *mv, Character *cha, Transform *tr, entt::entity ent, float delta_time)
 {
-    if (cha->action == Character::ACTION::LADDER || cha->action == Character::ACTION::ROPE)
+    if (cha->action == Character::Action::LADDER || cha->action == Character::Action::ROPE)
     {
         // 绳子或梯子上
         if (player_climb_cooldown > Window::dt_now)
@@ -414,7 +414,7 @@ bool player_climb(Move *mv, Transform *tr, int state)
 {
     if (player_ladderrope_cooldown <= Window::dt_now)
     {
-        if (Input::state[SDL_SCANCODE_UP] || Input::state[SDL_SCANCODE_DOWN])
+        if (Input::state[Keyboard::action[Keyboard::Action::UP]] || Input::state[Keyboard::action[Keyboard::Action::DOWN]])
         {
             auto view = World::registry->view<LadderRope>();
             for (auto &e : view)
@@ -428,7 +428,7 @@ bool player_climb(Move *mv, Transform *tr, int state)
                     int b = lr->b + 5;
                     if (mv->foo)
                     {
-                        if (Input::state[SDL_SCANCODE_DOWN])
+                        if (Input::state[Keyboard::action[Keyboard::Action::DOWN]])
                         {
                             t = lr->t - 10;
                             b = lr->t;
@@ -442,7 +442,7 @@ bool player_climb(Move *mv, Transform *tr, int state)
                     {
                         t = lr->t;
                     }
-                    if (!(mv->foo == nullptr && Input::state[SDL_SCANCODE_DOWN]))
+                    if (!(mv->foo == nullptr && Input::state[Keyboard::action[Keyboard::Action::DOWN]]))
                     {
                         if (tr->position.y >= t && tr->position.y <= b)
                         {
@@ -476,12 +476,12 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::en
         return state;
     }
     state = Character::State::CLIMB;
-    if (Input::state[SDL_SCANCODE_DOWN])
+    if (Input::state[Keyboard::action[Keyboard::Action::DOWN]])
     {
         mv->vspeed = 100;
         cha->animate = true;
     }
-    else if (Input::state[SDL_SCANCODE_UP])
+    else if (Input::state[Keyboard::action[Keyboard::Action::UP]])
     {
         mv->vspeed = -100;
         cha->animate = true;
@@ -527,7 +527,7 @@ int player_climbing(Character *cha, Move *mv, Transform *tr, int state, entt::en
 
 bool player_prone(Move *mv, Transform *tr, int state)
 {
-    if (Input::state[SDL_SCANCODE_DOWN])
+    if (Input::state[Keyboard::action[Keyboard::Action::DOWN]])
     {
         if (mv->foo)
         {
@@ -540,7 +540,7 @@ bool player_prone(Move *mv, Transform *tr, int state)
 
 bool player_proning()
 {
-    if (Input::state[SDL_SCANCODE_DOWN])
+    if (Input::state[Keyboard::action[Keyboard::Action::DOWN]])
     {
         return true;
     }
@@ -559,11 +559,11 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             auto weaponWrap = World::registry->try_get<WeaponWrap>(Player::ent);
             if (weaponWrap != nullptr && weaponWrap->stand1 == false)
             {
-                action = Character::ACTION::STAND2;
+                action = Character::Action::STAND2;
             }
             else
             {
-                action = Character::ACTION::STAND1;
+                action = Character::Action::STAND1;
             }
             cha->r = SDL_FRect{-20, -50, 30, 45};
         }
@@ -573,18 +573,18 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             auto weaponWrap = World::registry->try_get<WeaponWrap>(Player::ent);
             if (weaponWrap != nullptr && weaponWrap->walk1 == false)
             {
-                action = Character::ACTION::WALK2;
+                action = Character::Action::WALK2;
             }
             else
             {
-                action = Character::ACTION::WALK1;
+                action = Character::Action::WALK1;
             }
             cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
         case Character::State::JUMP:
         {
-            action = Character::ACTION::JUMP;
+            action = Character::Action::JUMP;
             cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
@@ -592,7 +592,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         {
             if (state == Character::State::PRONE)
             {
-                action = Character::ACTION::PRONESTAB;
+                action = Character::Action::PRONESTAB;
             }
             else
             {
@@ -612,10 +612,10 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
             switch (mv->lr->l)
             {
             case 1:
-                action = Character::ACTION::LADDER;
+                action = Character::Action::LADDER;
                 break;
             default:
-                action = Character::ACTION::ROPE;
+                action = Character::Action::ROPE;
                 break;
             }
             cha->r = SDL_FRect{-20, -50, 30, 45};
@@ -623,13 +623,13 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         break;
         case Character::State::PRONE:
         {
-            action = Character::ACTION::PRONE;
+            action = Character::Action::PRONE;
             cha->r = SDL_FRect{-45, -30, 60, 25};
         }
         break;
         case Character::State::ALERT:
         {
-            action = Character::ACTION::ALERT;
+            action = Character::Action::ALERT;
             cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
@@ -654,7 +654,7 @@ void player_action(Character *cha, int state, int new_state, Move *mv)
         break;
         case Character::State::SIT:
         {
-            action = Character::ACTION::SIT;
+            action = Character::Action::SIT;
             cha->r = SDL_FRect{-20, -50, 30, 45};
         }
         break;
@@ -712,7 +712,7 @@ int player_hit(Attack *atk)
                 {
                     Sound::push(atk->souw);
                 }
-                if (mv->foo && cha->action != Character::ACTION::PRONESTAB)
+                if (mv->foo && cha->action != Character::Action::PRONESTAB)
                 {
                     mv->vspeed = -320;
                     auto hit_x = atk->src_point.value().x;
@@ -744,7 +744,7 @@ int player_hit(Attack *atk)
                     cha->action_index = 0;
                     cha->action_time = 0;
                     cha->action_frame = 0;
-                    cha->action = Character::ACTION::JUMP;
+                    cha->action = Character::Action::JUMP;
                     cha->action_str = u"jump";
                 }
             }
@@ -754,7 +754,7 @@ int player_hit(Attack *atk)
                 cha->action_index = 0;
                 cha->action_time = 0;
                 cha->action_frame = 0;
-                cha->action = Character::ACTION::DEAD;
+                cha->action = Character::Action::DEAD;
                 cha->action_str = u"dead";
                 Player::hp = 0;
 
@@ -793,47 +793,12 @@ int player_hit(Attack *atk)
     return full_damage;
 }
 
-const std::map<SDL_Scancode, int> skill_key_id = {
-    {SDL_SCANCODE_A, 14101006},
-    {SDL_SCANCODE_S, 2211002},
-    {SDL_SCANCODE_SPACE, 2201002},
-    {SDL_SCANCODE_F, 2221006},
-    {SDL_SCANCODE_Y, 1111008},
-    {SDL_SCANCODE_D, 1101004},
-    {SDL_SCANCODE_S, 1311006},
-    {SDL_SCANCODE_G, 4111005},
-    {SDL_SCANCODE_H, 4111002},
-    {SDL_SCANCODE_C, 4001003},
-    {SDL_SCANCODE_V, 4001344},
-    {SDL_SCANCODE_B, 4211006},
-    {SDL_SCANCODE_J, 1311001},
-    {SDL_SCANCODE_K, 1121006},
-    {SDL_SCANCODE_R, 4211002},
-    {SDL_SCANCODE_T, 4201004},
-    {SDL_SCANCODE_U, 1121008},
-    {SDL_SCANCODE_I, 4201005},
-    {SDL_SCANCODE_N, 4121007},
-    {SDL_SCANCODE_Q, 2201004},
-    {SDL_SCANCODE_E, 4101004},
-    {SDL_SCANCODE_M, 1101007},
-    {SDL_SCANCODE_1, 2221005},
-    {SDL_SCANCODE_2, 2121005},
-    {SDL_SCANCODE_3, 3121006},
-    {SDL_SCANCODE_4, 3101005},
-    {SDL_SCANCODE_5, 2001002},
-    {SDL_SCANCODE_6, 21100005},
-    {SDL_SCANCODE_7, 3221005},
-    {SDL_SCANCODE_O, 3111006},
-    {SDL_SCANCODE_P, 3111003},
-    {SDL_SCANCODE_L, 2101004},
-};
-
 bool player_skill(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent, int id)
 {
     if (id == 0)
     {
         // 遍历映射表，检查是否有按键被按下
-        for (const auto &[key, value] : skill_key_id)
+        for (const auto &[key, value] : Keyboard::skill)
         {
             if (Input::state[key])
             {
@@ -930,7 +895,7 @@ void player_portal(Move *mv, entt::entity ent)
             auto por = &view.get<Portal>(e);
             if (por->tm != 999999999)
             {
-                if (por->pt == 3 || Input::state[SDL_SCANCODE_UP])
+                if (por->pt == 3 || Input::state[Keyboard::action[Keyboard::Action::UP]])
                 {
                     auto player_pos = tr->position;
                     auto por_tr = World::registry->try_get<Transform>(e);
@@ -972,7 +937,7 @@ void player_portal(Move *mv, entt::entity ent)
 bool player_double_jump(Move *mv, Transform *tr, entt::entity ent)
 {
     // 二段跳
-    if (Input::state[SDL_SCANCODE_LALT])
+    if (Input::state[Keyboard::action[Keyboard::Action::JUMP]])
     {
         if (SkillWarp::cooldowns.contains(4111006) && SkillWarp::cooldowns[4111006] > Window::dt_now)
         {
@@ -1060,7 +1025,7 @@ uint8_t player_attack_action(WeaponWrap *wea)
 
 bool player_pick_drop(entt::entity ent)
 {
-    if (Input::state[SDL_SCANCODE_Z])
+    if (Input::state[Keyboard::action[Keyboard::Action::PICK]])
     {
         // 捡起物品
         pick_drop(ent);
@@ -1070,7 +1035,16 @@ bool player_pick_drop(entt::entity ent)
 
 void player_quick_move(Move *mv, Character *cha, Transform *tr, int state, entt::entity ent)
 {
-    if (Input::state[SDL_SCANCODE_SPACE])
+    // 获取瞬间移动的键位
+    int key_code = 0;
+    for (auto &[key, value] : Keyboard::skill)
+    {
+        if (value == 2201002)
+        {
+            key_code = key;
+        }
+    }
+    if (Input::state[key_code])
     {
         player_skill(mv, cha, tr, state, ent, 2201002);
     }
@@ -1125,7 +1099,7 @@ bool player_sit(Move *mv, int state)
 {
     static bool keyborard = true;
     bool r = false;
-    if (Input::state[SDL_SCANCODE_X])
+    if (Input::state[Keyboard::action[Keyboard::Action::SIT]])
     {
         if (keyborard)
         {
@@ -1133,7 +1107,7 @@ bool player_sit(Move *mv, int state)
             {
                 r = true;
                 mv->hspeed = 0;
-                World::registry->emplace_or_replace<Install>(Player::ent, 3010000);
+                World::registry->emplace_or_replace<Install>(Player::ent, u"03010000");
             }
             keyborard = false;
         }
@@ -1154,9 +1128,9 @@ bool player_sit(Move *mv, int state)
     }
     if (state == Character::State::SIT && keyborard == true)
     {
-        if (Input::state[SDL_SCANCODE_LALT] ||
-            Input::state[SDL_SCANCODE_LEFT] ||
-            Input::state[SDL_SCANCODE_RIGHT])
+        if (Input::state[Keyboard::action[Keyboard::Action::JUMP]] ||
+            Input::state[Keyboard::action[Keyboard::Action::LEFT]] ||
+            Input::state[Keyboard::action[Keyboard::Action::RIGHT]])
         {
             r = false;
         }
@@ -1166,26 +1140,4 @@ bool player_sit(Move *mv, int state)
         World::registry->remove<Install>(Player::ent);
     }
     return r;
-}
-
-void player_refresh()
-{
-    auto tr = World::registry->try_get<Transform>(Player::ent);
-    auto mv = World::registry->try_get<Move>(Player::ent);
-    auto cha = World::registry->try_get<Character>(Player::ent);
-    tr->position = tr->position + SDL_FPoint{0, -5};
-    tr->z = LAYER_Z * 8 + tr->z % LAYER_Z;
-    mv->foo = nullptr;
-    mv->vspeed = 0;
-    mv->hspeed = 0;
-    mv->page = -1;
-    cha->state = Character::State::JUMP;
-    cha->action = Character::ACTION::JUMP;
-    cha->action_str = u"jump";
-    cha->action_frame = 0;
-    cha->action_index = 0;
-    cha->action_time = 0;
-    cha->invincible_cooldown = 0;
-    cha->animate = true;
-    World::registry->remove<Tomb>(Player::ent);
 }

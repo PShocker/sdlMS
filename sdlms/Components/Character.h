@@ -9,7 +9,7 @@
 
 struct Character
 {
-    enum ACTION : uint8_t
+    enum Action : uint8_t
     {
         NONE,
         ALERT,
@@ -70,78 +70,78 @@ struct Character
     };
 
     static inline const std::unordered_map<std::u16string, uint8_t> type_map = {
-        {u"alert", ACTION::ALERT},
-        {u"dead", ACTION::DEAD},
-        {u"fly", ACTION::FLY},
-        {u"heal", ACTION::HEAL},
-        {u"jump", ACTION::JUMP},
-        {u"ladder", ACTION::LADDER},
-        {u"prone", ACTION::PRONE},
-        {u"proneStab", ACTION::PRONESTAB},
-        {u"rope", ACTION::ROPE},
-        {u"shot", ACTION::SHOT},
-        {u"shoot1", ACTION::SHOOT1},
-        {u"shoot2", ACTION::SHOOT2},
-        {u"shootF", ACTION::SHOOTF},
-        {u"sit", ACTION::SIT},
-        {u"stabO1", ACTION::STABO1},
-        {u"stabO2", ACTION::STABO2},
-        {u"stabOF", ACTION::STABOF},
-        {u"stabT1", ACTION::STABT1},
-        {u"stabT2", ACTION::STABT2},
-        {u"stabTF", ACTION::STABTF},
-        {u"stand1", ACTION::STAND1},
-        {u"stand2", ACTION::STAND2},
-        {u"swingO1", ACTION::SWINGO1},
-        {u"swingO2", ACTION::SWINGO2},
-        {u"swingO3", ACTION::SWINGO3},
-        {u"swingOF", ACTION::SWINGOF},
-        {u"swingP1", ACTION::SWINGP1},
-        {u"swingP2", ACTION::SWINGP2},
-        {u"swingPF", ACTION::SWINGPF},
-        {u"swingT1", ACTION::SWINGT1},
-        {u"swingT2", ACTION::SWINGT2},
-        {u"swingT3", ACTION::SWINGT3},
-        {u"swingTF", ACTION::SWINGTF},
-        {u"walk1", ACTION::WALK1},
-        {u"walk2", ACTION::WALK2}};
+        {u"alert", Action::ALERT},
+        {u"dead", Action::DEAD},
+        {u"fly", Action::FLY},
+        {u"heal", Action::HEAL},
+        {u"jump", Action::JUMP},
+        {u"ladder", Action::LADDER},
+        {u"prone", Action::PRONE},
+        {u"proneStab", Action::PRONESTAB},
+        {u"rope", Action::ROPE},
+        {u"shot", Action::SHOT},
+        {u"shoot1", Action::SHOOT1},
+        {u"shoot2", Action::SHOOT2},
+        {u"shootF", Action::SHOOTF},
+        {u"sit", Action::SIT},
+        {u"stabO1", Action::STABO1},
+        {u"stabO2", Action::STABO2},
+        {u"stabOF", Action::STABOF},
+        {u"stabT1", Action::STABT1},
+        {u"stabT2", Action::STABT2},
+        {u"stabTF", Action::STABTF},
+        {u"stand1", Action::STAND1},
+        {u"stand2", Action::STAND2},
+        {u"swingO1", Action::SWINGO1},
+        {u"swingO2", Action::SWINGO2},
+        {u"swingO3", Action::SWINGO3},
+        {u"swingOF", Action::SWINGOF},
+        {u"swingP1", Action::SWINGP1},
+        {u"swingP2", Action::SWINGP2},
+        {u"swingPF", Action::SWINGPF},
+        {u"swingT1", Action::SWINGT1},
+        {u"swingT2", Action::SWINGT2},
+        {u"swingT3", Action::SWINGT3},
+        {u"swingTF", Action::SWINGTF},
+        {u"walk1", Action::WALK1},
+        {u"walk2", Action::WALK2}};
 
     static inline const std::unordered_map<uint8_t, std::u16string> type_map2 = {
-        {ACTION::ALERT, u"alert"},
-        {ACTION::DEAD, u"dead"},
-        {ACTION::FLY, u"fly"},
-        {ACTION::HEAL, u"heal"},
-        {ACTION::JUMP, u"jump"},
-        {ACTION::LADDER, u"ladder"},
-        {ACTION::PRONE, u"prone"},
-        {ACTION::PRONESTAB, u"proneStab"},
-        {ACTION::ROPE, u"rope"},
-        {ACTION::SHOT, u"shot"},
-        {ACTION::SHOOT1, u"shoot1"},
-        {ACTION::SHOOT2, u"shoot2"},
-        {ACTION::SHOOTF, u"shootF"},
-        {ACTION::SIT, u"sit"},
-        {ACTION::STABO1, u"stabO1"},
-        {ACTION::STABO2, u"stabO2"},
-        {ACTION::STABOF, u"stabOF"},
-        {ACTION::STABT1, u"stabT1"},
-        {ACTION::STABT2, u"stabT2"},
-        {ACTION::STABTF, u"stabTF"},
-        {ACTION::STAND1, u"stand1"},
-        {ACTION::STAND2, u"stand2"},
-        {ACTION::SWINGO1, u"swingO1"},
-        {ACTION::SWINGO2, u"swingO2"},
-        {ACTION::SWINGO3, u"swingO3"},
-        {ACTION::SWINGOF, u"swingOF"},
-        {ACTION::SWINGP1, u"swingP1"},
-        {ACTION::SWINGP2, u"swingP2"},
-        {ACTION::SWINGPF, u"swingPF"},
-        {ACTION::SWINGT1, u"swingT1"},
-        {ACTION::SWINGT2, u"swingT2"},
-        {ACTION::SWINGT3, u"swingT3"},
-        {ACTION::SWINGTF, u"swingTF"},
-        {ACTION::WALK1, u"walk1"},
-        {ACTION::WALK2, u"walk2"}};
+        {Action::ALERT, u"alert"},
+        {Action::DEAD, u"dead"},
+        {Action::FLY, u"fly"},
+        {Action::HEAL, u"heal"},
+        {Action::JUMP, u"jump"},
+        {Action::LADDER, u"ladder"},
+        {Action::PRONE, u"prone"},
+        {Action::PRONESTAB, u"proneStab"},
+        {Action::ROPE, u"rope"},
+        {Action::SHOT, u"shot"},
+        {Action::SHOOT1, u"shoot1"},
+        {Action::SHOOT2, u"shoot2"},
+        {Action::SHOOTF, u"shootF"},
+        {Action::SIT, u"sit"},
+        {Action::STABO1, u"stabO1"},
+        {Action::STABO2, u"stabO2"},
+        {Action::STABOF, u"stabOF"},
+        {Action::STABT1, u"stabT1"},
+        {Action::STABT2, u"stabT2"},
+        {Action::STABTF, u"stabTF"},
+        {Action::STAND1, u"stand1"},
+        {Action::STAND2, u"stand2"},
+        {Action::SWINGO1, u"swingO1"},
+        {Action::SWINGO2, u"swingO2"},
+        {Action::SWINGO3, u"swingO3"},
+        {Action::SWINGOF, u"swingOF"},
+        {Action::SWINGP1, u"swingP1"},
+        {Action::SWINGP2, u"swingP2"},
+        {Action::SWINGPF, u"swingPF"},
+        {Action::SWINGT1, u"swingT1"},
+        {Action::SWINGT2, u"swingT2"},
+        {Action::SWINGT3, u"swingT3"},
+        {Action::SWINGTF, u"swingTF"},
+        {Action::WALK1, u"walk1"},
+        {Action::WALK2, u"walk2"}};
 
     static inline const std::unordered_map<std::u16string, Layer> layer_map =
         {
@@ -161,157 +161,157 @@ struct Character
             {u"humanEar", Layer::HUMAN_EAR},
             {u"lefEar", Layer::LEF_EAR}};
 
-    static inline std::unordered_map<uint8_t, SDL_FPoint> body_positions[ACTION::LENGTH];
-    static inline std::unordered_map<uint8_t, SDL_FPoint> arm_positions[ACTION::LENGTH];
-    static inline std::unordered_map<uint8_t, SDL_FPoint> hand_positions[ACTION::LENGTH];
-    static inline std::unordered_map<uint8_t, SDL_FPoint> head_positions[ACTION::LENGTH];
-    static inline std::unordered_map<uint8_t, SDL_FPoint> hair_positions[ACTION::LENGTH];
-    static inline std::unordered_map<uint8_t, SDL_FPoint> face_positions[ACTION::LENGTH];
-    static inline std::unordered_map<uint8_t, int32_t> stance_delays[ACTION::LENGTH];
+    static inline std::unordered_map<uint8_t, SDL_FPoint> body_positions[Action::LENGTH];
+    static inline std::unordered_map<uint8_t, SDL_FPoint> arm_positions[Action::LENGTH];
+    static inline std::unordered_map<uint8_t, SDL_FPoint> hand_positions[Action::LENGTH];
+    static inline std::unordered_map<uint8_t, SDL_FPoint> head_positions[Action::LENGTH];
+    static inline std::unordered_map<uint8_t, SDL_FPoint> hair_positions[Action::LENGTH];
+    static inline std::unordered_map<uint8_t, SDL_FPoint> face_positions[Action::LENGTH];
+    static inline std::unordered_map<uint8_t, int32_t> stance_delays[Action::LENGTH];
 
-    struct Action
+    struct Wrap
     {
         uint8_t type;
         uint8_t frame;
         int delay;
     };
 
-    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Action>>
+    static inline std::unordered_map<std::u16string, std::unordered_map<uint8_t, Wrap>>
         body_actions;
-    static inline std::unordered_map<uint8_t, bool> show_face[ACTION::LENGTH];
+    static inline std::unordered_map<uint8_t, bool> show_face[Action::LENGTH];
     static inline wz::Node *character_node;
 
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipFront[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> tamingMobFront[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipMid[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> saddleFront[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipUnderSaddle[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> tamingMobMid[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> characterStart[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> emotionOverBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponWristOverGlove[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capeOverHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverGlove[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristOverHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveOverHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> handOverHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverHand[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shieldOverHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristBelowWeapon[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveBelowWeapon[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> handBelowWeapon[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverArm[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristBelowMailArm[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArmOverHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveBelowMailArm[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> armOverHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArmOverHairBelowWeapon[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> armOverHairBelowWeapon[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponBelowArm[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capOverHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hairOverHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryEyeOverCap[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capAccessory[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> cap[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryEye[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryEyeShadow[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryFace[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capAccessoryBelowAccFace[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryEar[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capBelowAccessory[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryFaceOverFaceBelowCap[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> face[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryFaceBelowFace[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hairShade[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> head[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> cape[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWrist[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArm[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> glove[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hand[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> arm[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weapon[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shield[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverArmBelowHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristBelowHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArmBelowHeadOverMailChest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveBelowHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> armBelowHeadOverMailChest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArmBelowHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> armBelowHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChestTop[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristOverBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChestOverHighest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> pantsOverMailChest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shoesTop[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> pantsOverShoesBelowMailChest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shoesOverPants[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChestOverPants[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> pants[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shoes[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> pantsBelowShoes[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChestBelowPants[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveOverBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> body[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristBelowBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveBelowBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capAccessoryBelowBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shieldBelowBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capeBelowBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hairBelowBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponBelowBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairOverCape[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWing[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWeaponOverShield[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backShield[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backCapOverHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHair[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backCap[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWeaponOverHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairBelowCapWide[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairBelowCapNarrow[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairBelowCap[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backCape[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backAccessoryFaceOverHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMailChestOverPants[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backPantsOverMailChest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMailChest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backPantsOverShoesBelowMailChest[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backShoes[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backPants[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backShoesBelowPants[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backPantsBelowShoes[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMailChestBelowPants[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWeaponOverGlove[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backGloveWrist[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backGlove[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backAccessoryEar[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backAccessoryFace[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backCapAccessory[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMailChestAccessory[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backShieldBelowBody[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairBelowHead[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWeapon[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> characterEnd[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> saddleRear[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> tamingMobRear[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipRear[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMobEquipFront[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backTamingMobFront[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMobEquipMid[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backSaddle[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMobEquipUnderSaddle[ACTION::LENGTH];
-    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backTamingMobMid[ACTION::LENGTH];
-    std::unordered_map<std::u16string, std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> (*)[ACTION::LENGTH]> zmap;
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipFront[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> tamingMobFront[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipMid[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> saddleFront[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipUnderSaddle[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> tamingMobMid[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> characterStart[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> emotionOverBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponWristOverGlove[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capeOverHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverGlove[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristOverHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveOverHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> handOverHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverHand[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shieldOverHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristBelowWeapon[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveBelowWeapon[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> handBelowWeapon[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverArm[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristBelowMailArm[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArmOverHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveBelowMailArm[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> armOverHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArmOverHairBelowWeapon[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> armOverHairBelowWeapon[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponBelowArm[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capOverHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hairOverHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryEyeOverCap[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capAccessory[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> cap[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryEye[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryEyeShadow[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryFace[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capAccessoryBelowAccFace[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryEar[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capBelowAccessory[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryFaceOverFaceBelowCap[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> face[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> accessoryFaceBelowFace[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hairShade[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> head[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> cape[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWrist[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArm[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> glove[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hand[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> arm[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weapon[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shield[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverArmBelowHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristBelowHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArmBelowHeadOverMailChest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveBelowHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> armBelowHeadOverMailChest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailArmBelowHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> armBelowHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponOverBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChestTop[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristOverBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChestOverHighest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> pantsOverMailChest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shoesTop[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> pantsOverShoesBelowMailChest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shoesOverPants[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChestOverPants[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> pants[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shoes[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> pantsBelowShoes[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mailChestBelowPants[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveOverBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> body[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveWristBelowBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> gloveBelowBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capAccessoryBelowBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> shieldBelowBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> capeBelowBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> hairBelowBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> weaponBelowBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairOverCape[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWing[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWeaponOverShield[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backShield[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backCapOverHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHair[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backCap[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWeaponOverHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairBelowCapWide[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairBelowCapNarrow[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairBelowCap[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backCape[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backAccessoryFaceOverHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMailChestOverPants[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backPantsOverMailChest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMailChest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backPantsOverShoesBelowMailChest[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backShoes[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backPants[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backShoesBelowPants[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backPantsBelowShoes[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMailChestBelowPants[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWeaponOverGlove[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backGloveWrist[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backGlove[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backAccessoryEar[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backAccessoryFace[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backCapAccessory[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMailChestAccessory[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backShieldBelowBody[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backHairBelowHead[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backWeapon[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> characterEnd[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> saddleRear[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> tamingMobRear[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> mobEquipRear[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMobEquipFront[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backTamingMobFront[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMobEquipMid[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backSaddle[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backMobEquipUnderSaddle[Action::LENGTH];
+    std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> backTamingMobMid[Action::LENGTH];
+    std::unordered_map<std::u16string, std::unordered_map<uint8_t, std::pair<Transform, SpriteWarp *>> (*)[Action::LENGTH]> zmap;
 
     std::unordered_set<std::u16string> cap_vslot;
 
-    uint8_t action = ACTION::JUMP;
+    uint8_t action = Action::JUMP;
     int action_index = 0;
     int action_time = 0;
     bool animate = true;

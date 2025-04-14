@@ -33,27 +33,27 @@ struct WeaponWrap
         NUM_ATTACKS
     };
 
-    static inline const std::array<std::vector<Character::ACTION>, Attack::NUM_ATTACKS> degen_stances = {
-        {{Character::ACTION::NONE},
-         {Character::ACTION::NONE},
-         {Character::ACTION::NONE},
-         {Character::ACTION::SWINGT1, Character::ACTION::SWINGT3},
-         {Character::ACTION::SWINGT1, Character::ACTION::STABT1},
-         {Character::ACTION::NONE},
-         {Character::ACTION::NONE},
-         {Character::ACTION::STABO1, Character::ACTION::STABO2},
-         {Character::ACTION::NONE},
-         {Character::ACTION::SWINGP1, Character::ACTION::STABT2}}};
+    static inline const std::array<std::vector<Character::Action>, Attack::NUM_ATTACKS> degen_stances = {
+        {{Character::Action::NONE},
+         {Character::Action::NONE},
+         {Character::Action::NONE},
+         {Character::Action::SWINGT1, Character::Action::SWINGT3},
+         {Character::Action::SWINGT1, Character::Action::STABT1},
+         {Character::Action::NONE},
+         {Character::Action::NONE},
+         {Character::Action::STABO1, Character::Action::STABO2},
+         {Character::Action::NONE},
+         {Character::Action::SWINGP1, Character::Action::STABT2}}};
 
-    static inline const std::array<std::vector<Character::ACTION>, Attack::NUM_ATTACKS> attack_stances = {
-        {{Character::ACTION::NONE},
-         {Character::ACTION::STABO1, Character::ACTION::STABO2, Character::ACTION::SWINGO1, Character::ACTION::SWINGO2, Character::ACTION::SWINGO3},
-         {Character::ACTION::STABT1, Character::ACTION::SWINGP1},
-         {Character::ACTION::SHOOT1},
-         {Character::ACTION::SHOOT2},
-         {Character::ACTION::STABO1, Character::ACTION::STABO2, Character::ACTION::SWINGT1, Character::ACTION::SWINGT2, Character::ACTION::SWINGT3},
-         {Character::ACTION::SWINGO1, Character::ACTION::SWINGO2},
-         {Character::ACTION::SWINGO1, Character::ACTION::SWINGO2},
-         {Character::ACTION::NONE},
-         {Character::ACTION::SHOT}}};
+    static inline const std::array<std::vector<Character::Action>, Attack::NUM_ATTACKS> attack_stances = {
+        {{Character::Action::NONE},
+         {Character::Action::STABO1, Character::Action::STABO2, Character::Action::SWINGO1, Character::Action::SWINGO2, Character::Action::SWINGO3},
+         {Character::Action::STABT1, Character::Action::SWINGP1},
+         {Character::Action::SHOOT1},
+         {Character::Action::SHOOT2},
+         {Character::Action::STABO1, Character::Action::STABO2, Character::Action::SWINGT1, Character::Action::SWINGT2, Character::Action::SWINGT3},
+         {Character::Action::SWINGO1, Character::Action::SWINGO2},
+         {Character::Action::SWINGO1, Character::Action::SWINGO2},
+         {Character::Action::NONE},
+         {Character::Action::SHOT}}};
 };
