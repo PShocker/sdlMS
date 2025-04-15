@@ -54,31 +54,20 @@ void load_mob(wz::Node *node)
         }
         else
         {
-            // key = Wrap
             auto speed = 0;
             if (val[0]->get_child(u"speed") != nullptr)
             {
                 speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"speed"))->get();
+                mv.hspeed_min = -1 * (float)(speed + 100) / 100 * 125;
+                mv.hspeed_max = (float)(speed + 100) / 100 * 125;
             }
             else if (val[0]->get_child(u"flySpeed") != nullptr)
             {
-                speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"flySpeed"))->get() * 6;
-                mv.ry0 = mob.init_y - 40;
-                mv.ry1 = mob.init_y + 40;
-            }
-            mv.hspeed_min = -1 * (float)(speed + 100) / 100 * 125;
-            mv.hspeed_max = (float)(speed + 100) / 100 * 125;
-            int random = std::rand() % 2;
-            switch (random)
-            {
-            case 0:
-                mv.hspeed = mv.hspeed_min.value();
-                mv.vspeed = mv.hspeed_min.value();
-                break;
-            case 1:
-                mv.hspeed = mv.hspeed_max.value();
-                mv.vspeed = mv.hspeed_max.value();
-                break;
+                speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"flySpeed"))->get();
+                mv.hspeed_min = -1 * (float)(speed + 100) / 200 * 125;
+                mv.hspeed_max = (float)(speed + 100) / 200 * 125;
+                mv.ry0 = mob.init_y - 45;
+                mv.ry1 = mob.init_y + 45;
             }
         }
     }
