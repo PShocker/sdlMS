@@ -654,7 +654,7 @@ void render_damage()
         for (auto it : d)
         {
             auto &wrap = it;
-            if (wrap.delay < Window::dt_now)
+            if (wrap.delay <= Window::dt_now)
             {
                 auto p = wrap.point;
                 int length = static_cast<int>(std::floor(std::log10(wrap.damage)) + 1);

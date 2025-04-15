@@ -66,8 +66,8 @@ void load_mob(wz::Node *node)
                 speed = dynamic_cast<wz::Property<int> *>(val[0]->get_child(u"flySpeed"))->get();
                 mv.hspeed_min = -1 * (float)(speed + 100) / 200 * 125;
                 mv.hspeed_max = (float)(speed + 100) / 200 * 125;
-                mv.ry0 = mob.init_y - 45;
-                mv.ry1 = mob.init_y + 45;
+                mv.ry0 = mob.init_y - 20;
+                mv.ry1 = mob.init_y + 20;
             }
         }
     }

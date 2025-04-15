@@ -256,13 +256,22 @@ void StatusBar::load_hp()
 {
     static int last_hp;
     static int last_max_hp;
+    static float last_percent = (float)Player::hp / Player::max_hp;
     if (last_hp != Player::hp || last_max_hp != Player::max_hp)
     {
         load_bar_digit(236, Player::hp, Player::max_hp);
-        load_bar_fade(322, (float)Player::hp / Player::max_hp, 106);
+        last_hp = Player::hp;
+        last_max_hp = Player::max_hp;
     }
-    last_hp = Player::hp;
-    last_max_hp = Player::max_hp;
+    if ((float)Player::hp / Player::max_hp < last_percent)
+    {
+        last_percent = std::max(last_percent - (float)Window::delta_time / 2000, (float)Player::hp / Player::max_hp);
+    }
+    else if ((float)Player::hp / Player::max_hp > last_percent)
+    {
+        last_percent = std::min(last_percent + (float)Window::delta_time / 2000, (float)Player::hp / Player::max_hp);
+    }
+    load_bar_fade(322, last_percent, 106);
     return;
 }
 
@@ -270,13 +279,22 @@ void StatusBar::load_mp()
 {
     static int last_mp;
     static int last_max_mp;
+    static float last_percent = (float)Player::mp / Player::max_mp;
     if (last_mp != Player::mp || last_max_mp != Player::max_mp)
     {
         load_bar_digit(347, Player::mp, Player::max_mp);
-        load_bar_fade(431, (float)Player::mp / Player::max_mp, 107);
+        last_mp = Player::mp;
+        last_max_mp = Player::max_mp;
     }
-    last_mp = Player::mp;
-    last_max_mp = Player::max_mp;
+    if ((float)Player::mp / Player::max_mp < last_percent)
+    {
+        last_percent = std::max(last_percent - (float)Window::delta_time / 2000, (float)Player::mp / Player::max_mp);
+    }
+    else if ((float)Player::mp / Player::max_mp > last_percent)
+    {
+        last_percent = std::min(last_percent + (float)Window::delta_time / 2000, (float)Player::mp / Player::max_mp);
+    }
+    load_bar_fade(431, last_percent, 107);
     return;
 }
 
@@ -284,13 +302,22 @@ void StatusBar::load_exp()
 {
     static int last_exp;
     static int last_max_exp;
+    static float last_percent = (float)Player::exp / Player::max_exp;
     if (last_exp != Player::exp || last_max_exp != Player::max_exp)
     {
         load_bar_digit(464, Player::exp, Player::max_exp);
-        load_bar_fade(554, (float)Player::exp / Player::max_exp, 117);
+        last_exp = Player::exp;
+        last_max_exp = Player::max_exp;
     }
-    last_exp = Player::exp;
-    last_max_exp = Player::max_exp;
+    if ((float)Player::exp / Player::max_exp < last_percent)
+    {
+        last_percent = std::max(last_percent - (float)Window::delta_time / 2000, (float)Player::exp / Player::max_exp);
+    }
+    else if ((float)Player::exp / Player::max_exp > last_percent)
+    {
+        last_percent = std::min(last_percent + (float)Window::delta_time / 2000, (float)Player::exp / Player::max_exp);
+    }
+    load_bar_fade(554, last_percent, 117);
     return;
 }
 

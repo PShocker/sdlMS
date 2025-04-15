@@ -335,10 +335,6 @@ int mob_active(Mob *mob, Move *mv, Transform *tr, int state, float delta_time)
                     mv->ry0 = std::nullopt;
                     mv->ry1 = std::nullopt;
                 }
-                else
-                {
-                    mv->vspeed = tr->position.y <= mv->ry0.value() ? mv->hspeed_max.value() : mv->hspeed_min.value();
-                }
             }
             else if (mv->foo)
             {
@@ -472,6 +468,7 @@ bool mob_collision_attack(entt::entity ent)
             if (collision(mob->rect(), mob_transform, player_character->r, player_transform))
             {
                 Attack atk = mob->atk;
+                atk.damage = 800;
                 atk.src_point = mob_transform->position;
                 atk.hit = nullptr;
                 attack_player(&atk, ent, std::nullopt);

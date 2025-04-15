@@ -702,8 +702,7 @@ int player_hit(Attack *atk)
             auto damage = atk->damage * r;
             full_damage += damage;
 
-            Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Type::Violet,
-                         tr->position + SDL_FPoint{-15, -60}, Damage::Type::Violet);
+            Damage::push(World::registry->try_get<Damage>(ent), damage, Damage::Type::Violet, tr->position + SDL_FPoint{-15, -60});
 
             Player::hp -= damage;
             if (Player::hp > 0)
@@ -785,8 +784,7 @@ int player_hit(Attack *atk)
     }
     else if (atk->damage < 0)
     {
-        Damage::push(World::registry->try_get<Damage>(ent), atk->damage,
-                     Damage::Type::Blue, tr->position + SDL_FPoint{-15, -60});
+        Damage::push(World::registry->try_get<Damage>(ent), -atk->damage, Damage::Type::Blue, tr->position + SDL_FPoint{-15, -60});
         Player::hp -= atk->damage;
         Player::hp = std::min(Player::hp, Player::max_hp);
     }

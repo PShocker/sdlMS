@@ -41,8 +41,20 @@ int skill_2001002(entt::entity ent)
             Buff::Wrap wrap;
             wrap.before_attack = [](Attack *atk, entt::entity src)
             {
-                atk->min_damage = 0.3;
-                atk->max_damage = 0.3;
+                if (atk->damage < 0)
+                {
+                    return;
+                }
+                // 获取当前魔法值量,判断是否抵扣攻击值
+                auto damage = atk->damage * 0.7;
+                Player::mp -= damage;
+                if (Player::mp < 0)
+                {
+                    // mp值不够抵扣
+                    damage = damage + Player::mp;
+                    Player::mp = 0;
+                }
+                atk->damage -= damage;
             };
             wrap.duration = duration;
             wrap.destory = 0;
