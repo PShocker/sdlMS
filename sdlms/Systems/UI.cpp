@@ -387,10 +387,10 @@ void ui_over()
         UINotice::over();
         break;
     default:
-        StatusBar::over();
         ToolTip::over();
         break;
     }
+    StatusBar::over();
 }
 
 int ui_mousein()

@@ -85,8 +85,11 @@ void StatusBar::init()
     load_job();
     load_name();
     load_hp();
+    load_bar_fade(322, (float)Player::hp / Player::max_hp, 106);
     load_mp();
+    load_bar_fade(431, (float)Player::mp / Player::max_mp, 107);
     load_exp();
+    load_bar_fade(554, (float)Player::exp / Player::max_exp, 117);
 }
 
 void StatusBar::click()
@@ -271,7 +274,10 @@ void StatusBar::load_hp()
     {
         last_percent = std::min(last_percent + (float)Window::delta_time / 2000, (float)Player::hp / Player::max_hp);
     }
-    load_bar_fade(322, last_percent, 106);
+    if (last_percent != (float)Player::hp / Player::max_hp)
+    {
+        load_bar_fade(322, last_percent, 106);
+    }
     return;
 }
 
@@ -294,7 +300,10 @@ void StatusBar::load_mp()
     {
         last_percent = std::min(last_percent + (float)Window::delta_time / 2000, (float)Player::mp / Player::max_mp);
     }
-    load_bar_fade(431, last_percent, 107);
+    if (last_percent != (float)Player::mp / Player::max_mp)
+    {
+        load_bar_fade(431, last_percent, 107);
+    }
     return;
 }
 
@@ -317,7 +326,10 @@ void StatusBar::load_exp()
     {
         last_percent = std::min(last_percent + (float)Window::delta_time / 2000, (float)Player::exp / Player::max_exp);
     }
-    load_bar_fade(554, last_percent, 117);
+    if (last_percent != (float)Player::exp / Player::max_exp)
+    {
+        load_bar_fade(554, last_percent, 117);
+    }
     return;
 }
 
