@@ -124,7 +124,18 @@ WorldMap::MapLink *WorldMap::mousein_maplink()
         rect.h = sprw->texture->h;
         if (SDL_PointInRectFloat(&point, &rect))
         {
-            return &it;
+            auto raw_texture = RawTexture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(sprw->n));
+            // 默认是argb4444
+            auto w = (int)(Cursor::x - rect.x);
+            auto h = (int)(Cursor::y - rect.y);
+            // 计算偏移量
+            Uint16 *pixel_data = (Uint16 *)raw_texture->data();
+            Uint16 pixel = pixel_data[h * (sprw->texture->w / 2) + w];
+            Uint8 alpha = (pixel >> 12) & 0xF;
+            if (alpha > 0)
+            {
+                return &it;
+            }
         }
     }
     return nullptr;

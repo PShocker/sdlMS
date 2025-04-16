@@ -64,7 +64,7 @@ void StatusBar::load()
 
     name = FreeType::load(Player::name, SDL_Color{255, 255, 255, 255}, 0, 12);
 
-    job = FreeType::load(u"\u5168\u804C\u4E1A\u7CBE\u901A", SDL_Color{255, 255, 255, 255}, 0, 12);
+    job = FreeType::load(u"全职业精通", SDL_Color{255, 255, 255, 255}, 0, 12);
 
     node = ui_node->find_from_path(u"StatusBar.img/number");
     for (int i = 0; i < 10; i++)

@@ -24,6 +24,7 @@ target_link_libraries(sdlMS PRIVATE avformat avcodec avutil swscale swresample)
 
 if(WIN32)
         if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+                set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /utf-8")
                 add_definitions(-DNOMINMAX)
         endif()
 

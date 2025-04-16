@@ -13,5 +13,5 @@ struct Player
     static inline int exp = 70;
     static inline int max_exp = 100;
     static inline int level = 100;
-    static inline std::u16string name = u"\u9006\u5411\u840C\u65B0";
+    static inline std::u16string name = u"逆向萌新";
 };
