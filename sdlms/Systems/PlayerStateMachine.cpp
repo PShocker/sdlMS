@@ -776,7 +776,7 @@ int player_hit(Attack *atk)
                 tomb.f.position.y -= 200;
                 tomb.l.position = tr->position;
 
-                Sound::push(Sound(u"Game.img/Tombstone"), 180);
+                Sound::push(Sound(u"Game.img/Tombstone"));
                 // 弹出复活对话框
                 UINotice::show();
             }
