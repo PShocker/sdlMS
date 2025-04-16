@@ -130,7 +130,7 @@ WorldMap::MapLink *WorldMap::mousein_maplink()
             auto h = (int)(Cursor::y - rect.y);
             // 计算偏移量
             Uint16 *pixel_data = (Uint16 *)raw_texture->data();
-            Uint16 pitch = sprw->texture->w * sizeof(Uint16);
+            auto pitch = sprw->texture->w * sizeof(Uint16);
             Uint16 pixel = pixel_data[h * (pitch / 2) + w];
             Uint8 alpha = (pixel >> 12) & 0xF;
             if (alpha > 0)
