@@ -10,8 +10,7 @@ std::vector<u8> *RawTexture::load(wz::Property<wz::WzCanvas> *canvas)
     }
     else
     {
-        auto raw_data = canvas->get_raw_data();
-        cache[canvas] = raw_data;
+        cache[canvas] = canvas->get_raw_data();
         return &cache[canvas];
     }
 }

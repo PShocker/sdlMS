@@ -55,6 +55,7 @@ void StatusBar::load()
     Button::load(u"StatusBar.img/KeySet", KeySet);
     Button::load(u"StatusBar.img/QuickSlot", QuickSlot);
     Button::load(u"StatusBar.img/QuickSlotD", QuickSlotD);
+    Button::load(u"Basic.img/BtMax2", BtChatMax);
 
     auto node = ui_node->find_from_path(u"Basic.img/LevelNo");
     for (int i = 0; i < 10; i++)
@@ -90,6 +91,7 @@ void StatusBar::init()
     load_bar_fade(431, (float)Player::mp / Player::max_mp, 107);
     load_exp();
     load_bar_fade(554, (float)Player::exp / Player::max_exp, 117);
+    load_vscr();
 }
 
 void StatusBar::click()
@@ -131,6 +133,11 @@ void StatusBar::load_backgrnd3()
     pos_rect = SDL_FRect{(float)215, (float)37, (float)StatusBar::bar->w, (float)StatusBar::bar->h};
     SDL_RenderTexture(Window::renderer, StatusBar::bar, nullptr, &pos_rect);
     SDL_RenderTexture(Window::renderer, StatusBar::graduation, nullptr, &pos_rect);
+
+    pos_rect = SDL_FRect{(float)0, (float)6, (float)566, (float)24};
+    SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_NONE);
+    SDL_SetRenderDrawColor(Window::renderer, 136, 136, 136, 255);
+    SDL_RenderFillRect(Window::renderer, &pos_rect);
 
     SDL_SetRenderTarget(Window::renderer, nullptr);
 }
@@ -331,6 +338,29 @@ void StatusBar::load_exp()
         load_bar_fade(554, last_percent, 117);
     }
     return;
+}
+
+void StatusBar::load_vscr()
+{
+    auto ui_node = Wz::UI->get_root();
+    if (!chatOpen)
+    {
+        auto prev = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"Basic.img/VScr5/disabled/prev")));
+        auto next = Texture::load(dynamic_cast<wz::Property<wz::WzCanvas> *>(ui_node->find_from_path(u"Basic.img/VScr5/disabled/next")));
+        SDL_SetRenderTarget(Window::renderer, backgrnd3);
+        SDL_FRect pos_rect{(float)551, (float)5, (float)prev->w, (float)prev->h};
+        SDL_RenderTexture(Window::renderer, prev, nullptr, &pos_rect);
+        pos_rect = SDL_FRect{(float)551, (float)5 + prev->h, (float)next->w, (float)next->h};
+        SDL_RenderTexture(Window::renderer, next, nullptr, &pos_rect);
+        SDL_SetRenderTarget(Window::renderer, nullptr);
+    }
+    else
+    {
+    }
+    if (chats.empty())
+    {
+        chats.push_back(FreeType::load(u"欢迎来到冒险岛,现在开始你的旅程吧!", SDL_Color{255, 255, 255, 255}, 0, 12));
+    }
 }
 
 void StatusBar::QuickSlot_func()

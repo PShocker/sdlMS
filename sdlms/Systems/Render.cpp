@@ -866,12 +866,19 @@ void render_statusbar()
     // 渲染backgrnd3
     SDL_FRect pos_rect{(float)0, (float)Camera::h - StatusBar::backgrnd3->h, (float)StatusBar::backgrnd3->w, (float)StatusBar::backgrnd3->h};
     render_texture(StatusBar::backgrnd3, nullptr, &pos_rect, StatusBar::alpha);
-
+    // 渲染按钮
     for (auto &[key, val] : StatusBar::position_map)
     {
         auto aspr = key->second.at(key->first);
         auto position = SDL_FPoint{(float)val.x + aspr.asprw->sprites[aspr.anim_index]->origin.x, (float)Camera::h + val.y + aspr.asprw->sprites[aspr.anim_index]->origin.y};
         render_animated_sprite(position, &aspr, StatusBar::alpha);
+    }
+    // 聊天栏
+    if (!StatusBar::chatOpen)
+    {
+        auto texture = StatusBar::chats[0];
+        pos_rect = SDL_FRect{(float)6, (float)Camera::h - StatusBar::backgrnd3->h + (24 - texture->h), (float)texture->w, (float)texture->h};
+        render_texture(texture, nullptr, &pos_rect, StatusBar::alpha);
     }
 }
 

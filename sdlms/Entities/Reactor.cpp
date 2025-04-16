@@ -41,7 +41,7 @@ void load_reactor(wz::Node *node)
             {
                 for (auto &[k, v] : it->get_child(u"event")->get_children())
                 {
-                    if (v[0]->type == wz::Type::Directory)
+                    if (v[0]->type == wz::Type::SubProperty)
                     {
                         auto type = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"type"))->get();
                         auto state = dynamic_cast<wz::Property<int> *>(v[0]->get_child(u"state"))->get();

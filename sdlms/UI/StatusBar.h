@@ -24,6 +24,8 @@ struct StatusBar
     static void load_hp();
     static void load_mp();
     static void load_exp();
+    static void load_vscr();
+
     static inline SDL_Texture *backgrnd;
     static inline SDL_Texture *backgrnd2;
     static inline SDL_Texture *backgrnd3;
@@ -44,6 +46,9 @@ struct StatusBar
     static inline SDL_Texture *job;
     static inline SDL_Texture *name;
 
+    static inline bool chatOpen;
+    static inline std::vector<SDL_Texture *> chats;
+
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtShop;
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtChat;
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtNPT;
@@ -58,6 +63,7 @@ struct StatusBar
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> KeySet;
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> QuickSlot;
     static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> QuickSlotD;
+    static inline std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> BtChatMax;
 
     static const inline std::map<std::pair<std::u16string, std::unordered_map<std::u16string, AnimatedSprite>> *, SDL_FRect> position_map = {
         {&BtShop, SDL_FRect{570.0, -34.0, 43.0, 34.0}},
@@ -73,6 +79,7 @@ struct StatusBar
         {&KeySet, SDL_FRect{736.0, -64.0, 28.0, 20.0}},
         {&QuickSlot, SDL_FRect{766.0, -64.0, 28.0, 20.0}},
         {&QuickSlotD, SDL_FRect{796.0, -64.0, 28.0, 20.0}},
+        {&BtChatMax, SDL_FRect{536.0, -58.0, 12.0, 12.0}},
     };
 
     static void QuickSlot_func();
