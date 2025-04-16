@@ -749,6 +749,9 @@ int player_hit(Attack *atk)
             }
             else if (cha->state != Character::State::DIE)
             {
+                World::registry->remove<Skill>(ent);
+                World::registry->remove<AfterImage>(ent);
+
                 cha->state = Character::State::DIE;
                 cha->action_index = 0;
                 cha->action_time = 0;
