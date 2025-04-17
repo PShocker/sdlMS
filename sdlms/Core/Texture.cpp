@@ -85,13 +85,11 @@ SDL_Texture *Texture::createBlankTexture(SDL_PixelFormat format, int width, int 
                                              format,
                                              SDL_TEXTUREACCESS_TARGET,
                                              width, height);
+    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
     SDL_SetRenderTarget(renderer, texture);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderClear(renderer);
     SDL_SetRenderTarget(renderer, nullptr);
-
-    SDL_SetTextureScaleMode(texture, SDL_SCALEMODE_NEAREST);
-    SDL_SetTextureBlendMode(texture, SDL_BLENDMODE_BLEND);
 
     return texture;
 }

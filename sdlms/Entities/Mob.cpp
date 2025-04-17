@@ -115,7 +115,10 @@ void load_mob(wz::Node *node)
             for (auto &[key, val] : node->get_children())
             {
                 std::string str = std::to_string(dynamic_cast<wz::Property<int> *>(val[0])->get());
-                drops.push_back(std::u16string(str.begin(), str.end()));
+                auto ustr = std::u16string(str.begin(), str.end());
+                Item::load(ustr);
+                Item::load_item_string(ustr);
+                drops.push_back(ustr);
             }
         }
         mob.drops[mob.id] = drops;
