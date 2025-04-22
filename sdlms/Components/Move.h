@@ -27,14 +27,6 @@ struct Move
     int page = -1;
     int zmass = 0;
 
-    enum Area : uint8_t
-    {
-        LAND,
-        SWIM,
-    };
-
-    uint8_t area = LAND;
-
     FootHold *foo = nullptr;
     LadderRope *lr = nullptr;
 

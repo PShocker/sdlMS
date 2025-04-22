@@ -232,11 +232,11 @@ optional<int> mob_hit(Attack *atk, entt::entity ent, std::optional<SDL_FPoint> h
                 mob->state = Mob::State::DIE;
                 mob->index = u"die1";
 
+                // 爆金币
+                mob_drop(mob, tr);
                 // 获取经验提示
                 GainTip::push(u"e", Window::dt_now);
 
-                // 爆金币
-                mob_drop(mob, tr);
                 mob->revive = mob->revive_time + Window::dt_now;
             }
             else if (mob_hit_move(atk->src_point, ent))
