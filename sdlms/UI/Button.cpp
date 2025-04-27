@@ -47,6 +47,7 @@ void Button::click(SDL_FRect &rect, std::pair<std::u16string, std::unordered_map
         {
             auto func = click_map.at(&pair);
             func();
+            pair.first = u"normal";
         }
     }
 }
