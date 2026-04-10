@@ -1,0 +1,13 @@
+/.vs
+/Debug
+/Release
+/x64
+/build
+/.cache
+/.vscode
+
+
+*.sln
+*.vcproj
+*.vcxproj
+*.vcxproj.*
