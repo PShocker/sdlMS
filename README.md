@@ -4,7 +4,7 @@
 
 拉取项目
 ```
-git clone --recurse-submodules https://github.com/PShocker/sdlMS.git --depth 1 -b new
+git clone --recurse-submodules https://github.com/PShocker/sdlMS.git --depth 1 -b 2025
 ```
 
 新建build目录,进入
