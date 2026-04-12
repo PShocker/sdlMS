@@ -1,0 +1,20 @@
+include "Client.fbs";
+include "Server.fbs";
+
+// 联合体：包含所有消息类型
+union NetPayload {
+    ClientHeartbeat,
+    ClientInScene,
+    ClientOutScene,
+    ClientMove,
+    ServerHeartbeat,
+    ServerInScene,
+    ServerOutScene,
+    ServerMove,
+}
+// 统一的网络包（最外层包装）
+table NetPacket {
+    payload:NetPayload;          // 实际数据
+}
+
+root_type NetPacket;
