@@ -12,6 +12,9 @@ link_directories("C:/SDL3-3.4.0/lib/x64")
 include_directories("C:/libuv-1.x/include")
 link_directories("C:/libuv-1.x/build")
 
+include_directories("C:/Users/Shocker/Desktop/wzlib/include")
+link_directories("C:/Users/Shocker/Desktop/wzlib/build")
+
 include_directories("C:/flatbuffers/include")
 
 # ffmpeg

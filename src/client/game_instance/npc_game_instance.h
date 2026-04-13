@@ -1,7 +1,9 @@
 #pragma once
 
-#include "src/client/game/game_obj.h"
+#include "src/client/game/game_npc.h"
 #include <vector>
-class obj_game_instance {
-  static inline std::vector<game_obj> data;
+class npc_game_instance {
+public:
+  static void load(uint32_t map_id);
+  static inline std::vector<game_npc> data;
 };
