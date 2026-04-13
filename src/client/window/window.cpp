@@ -1,10 +1,10 @@
 #include "Window.h"
+#include <cstdint>
 #include <cstdlib>
 
-void Window::createWindow(const char *title, unsigned int width,
-                          unsigned int height) {
-  int result = SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
-  if (result < 0) {
+void Window::createWindow(const char *title, uint32_t width, uint32_t height) {
+  auto result = SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
+  if (result == false) {
     std::abort();
   }
   window = SDL_CreateWindow(title, width, height, 0);

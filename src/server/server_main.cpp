@@ -2,6 +2,7 @@
 #include "SDL3/SDL_timer.h"
 #include "request_handler.h"
 #include "src/common/request/client_request.h"
+#include <cstdint>
 #include <ctime>
 
 // 分配缓冲区回调
@@ -40,7 +41,7 @@ void server_main::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
   request_handler::handle_request(client_id, buf->base, nread);
 
   char sender_ip[17] = {0};
-  int sender_port = 0;
+  uint16_t sender_port = 0;
   if (addr) {
     uv_ip4_name((const struct sockaddr_in *)addr, sender_ip, 16);
     sender_port = ntohs(((const struct sockaddr_in *)addr)->sin_port);
@@ -81,7 +82,7 @@ void server_main::server_init() {
   }
   // 4. 获取系统实际分配的端口号
   struct sockaddr_in assigned_addr;
-  int namelen = sizeof(assigned_addr);
+  int32_t namelen = sizeof(assigned_addr);
   r = uv_udp_getsockname(&local_socket, (struct sockaddr *)&assigned_addr,
                          &namelen);
   if (r) {
