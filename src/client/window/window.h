@@ -17,9 +17,9 @@ public:
 
   static inline const char *windowTitle;
 
-  static inline unsigned int dtNow = 0;
-  static inline unsigned int dtLast = 0;
-  static inline int deltaTime = 0;
+  static inline uint64_t dtNow = 0;
+  static inline uint64_t dtLast = 0;
+  static inline uint64_t deltaTime = 0;
   static inline bool quit;
 
   static void createWindow(const char *title, uint32_t width, uint32_t height);

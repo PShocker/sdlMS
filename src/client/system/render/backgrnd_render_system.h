@@ -2,5 +2,5 @@
 
 class backgrnd_render_system {
 public:
-  static bool run();
+  static bool render();
 };

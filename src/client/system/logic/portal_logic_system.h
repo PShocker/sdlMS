@@ -1,6 +1,6 @@
 #pragma once
 
-class drop_logic_system{
+class portal_logic_system {
 public:
   static bool run();
 };
