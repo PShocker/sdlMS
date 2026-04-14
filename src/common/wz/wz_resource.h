@@ -1,4 +1,7 @@
 #pragma once
+#include "SDL3/SDL_render.h"
+#include <cstdint>
+#include <flat_map>
 #include <wz/Files.h>
 #include <wz/Node.h>
 
@@ -18,12 +21,17 @@ public:
   static inline wz::Files *sound;
   static inline wz::Files *string;
   static inline wz::Files *taming_mob;
-  static inline wz::Files *uI;
+  static inline wz::Files *ui;
 
   static inline void init();
-  static wz::Node *load_map_node();
+  static wz::Node *load_map_node(uint32_t map_id);
+  static SDL_Texture *load_texture(wz::Node *node);
 
 private:
   static void init_key();
   static void init_files();
+  static wz::Node *load_real_texture_node(wz::Node *node);
+  static SDL_Texture *load_node_texture(wz::Node *node);
+
+  static inline std::flat_map<wz::Node *, SDL_Texture *> texture_cache;
 };
