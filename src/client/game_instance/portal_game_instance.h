@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/client/game/game_portal.h"
+#include <flat_set>
 #include <vector>
 class portal_game_instance {
 public:

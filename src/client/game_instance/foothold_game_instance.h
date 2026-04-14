@@ -2,9 +2,9 @@
 
 #include "src/client/game/game_foothold.h"
 #include <cstdint>
-#include <vector>
+#include <flat_map>
 class foothold_game_instance {
 public:
   static void load(uint32_t map_id);
-  static inline std::vector<game_foothold> data;
+  static inline std::flat_map<int32_t, game_foothold> data;
 };

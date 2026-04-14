@@ -3,24 +3,21 @@
 #include <SDL3/SDL.h>
 #include <cstdint>
 
-class Window {
+class window {
 public:
-  static inline SDL_Window *window;
+  static inline SDL_Window *win;
   static inline SDL_Renderer *renderer;
 
-  static inline float mouseX;
-  static inline float mouseY;
+  static inline float mouse_x;
+  static inline float mouse_y;
 
-  static inline SDL_MouseButtonFlags prevMouseState;
-  static inline SDL_MouseButtonFlags mouseState;
-  static const inline bool *keyboardState = SDL_GetKeyboardState(nullptr);
+  static inline SDL_MouseButtonFlags pre_mouse_state;
+  static inline SDL_MouseButtonFlags mouse_state;
+  static const inline bool *keyboard_State = SDL_GetKeyboardState(nullptr);
 
-  static inline const char *windowTitle;
-
-  static inline uint64_t dtNow = 0;
-  static inline uint64_t dtLast = 0;
-  static inline uint64_t deltaTime = 0;
-  static inline bool quit;
+  static inline uint64_t dt_now = 0;
+  static inline uint64_t dt_last = 0;
+  static inline uint64_t delta_time = 0;
 
   static void createWindow(const char *title, uint32_t width, uint32_t height);
 

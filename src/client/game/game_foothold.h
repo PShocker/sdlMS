@@ -7,8 +7,8 @@ public:
   uint32_t id;
   uint32_t page;
   uint32_t zmass;
-  game_foothold *prev;
-  game_foothold *next;
+  int32_t prev;
+  int32_t next;
 
   int32_t x1;
   int32_t y1;

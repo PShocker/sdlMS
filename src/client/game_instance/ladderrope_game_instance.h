@@ -1,9 +1,9 @@
 #pragma once
 
-#include "src/client/game/game_mob.h"
+#include "src/client/game/game_ladderrope.h"
 #include <vector>
-class mob_game_instance {
+class ladderrope_game_instance {
 public:
   static void load(uint32_t map_id);
-  static inline std::vector<game_mob> data;
+  static inline std::vector<game_ladderrope> data;
 };
