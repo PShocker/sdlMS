@@ -1,9 +1,7 @@
 #pragma once
 
+#include "SDL3/SDL_rect.h"
 class camera_game_instance {
 public:
-  static inline int x;
-  static inline int y;
-  static inline int w;
-  static inline int h;
+  static inline SDL_FRect camera;
 };

@@ -1,9 +1,16 @@
 #pragma once
 
+#include "SDL3/SDL_rect.h"
 #include <cstdint>
+#include <string>
 class game_backgrnd {
-private:
-  std::variant<Sprite, AnimatedSprite> spr;
+public:
+  std::u16string path;
+  SDL_FPoint pos;
+
+  int8_t ani = 0;
+  uint32_t ani_index = 0;
+  uint32_t ani_time = 0;
   // 平铺间隔
   int32_t cx = 0;
   int32_t cy = 0;

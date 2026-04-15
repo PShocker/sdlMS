@@ -1,7 +1,9 @@
 #pragma once
 #include "SDL3/SDL_render.h"
+#include <any>
 #include <cstdint>
 #include <flat_map>
+#include <string>
 #include <wz/Files.h>
 #include <wz/Node.h>
 
@@ -30,7 +32,7 @@ public:
 private:
   static void init_key();
   static void init_files();
-  static wz::Node *load_real_texture_node(wz::Node *node);
+  static wz::Node *load_real_node_texture(wz::Node *node);
   static SDL_Texture *load_node_texture(wz::Node *node);
 
   static inline std::flat_map<wz::Node *, SDL_Texture *> texture_cache;
