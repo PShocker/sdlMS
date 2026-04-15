@@ -36,6 +36,11 @@ void portal_game_instance::load(uint32_t map_id) {
       if (g_portal.pt == 7) {
         g_portal.pt = 2;
       }
+
+      g_portal.path = u"MapHelper.img/portal/game/" + pt_list[pt];
+      
+      g_portal.path2 = u"/default";
+
       portal_game_instance::data.emplace_back(g_portal);
     }
   }

@@ -1,4 +1,5 @@
 #include "wz_resource.h"
+#include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/window/window.h"
 #include "wz/Files.h"
@@ -101,7 +102,7 @@ SDL_Texture *wz_resource::load_node_texture(wz::Node *node) {
   return texture;
 }
 
-wz::Node *wz_resource::load_real_texture_node(wz::Node *node) {
+wz::Node *wz_resource::load_real_node_texture(wz::Node *node) {
   auto outlink = node->get_child("_outlink");
   if (outlink != nullptr) {
     auto outlink2 = static_cast<wz::Property<std::u16string> *>(outlink)->get();
@@ -135,7 +136,7 @@ wz::Node *wz_resource::load_real_texture_node(wz::Node *node) {
 
 SDL_Texture *wz_resource::load_texture(wz::Node *node) {
   if (!texture_cache.contains(node)) {
-    auto real_node = load_real_texture_node(node);
+    auto real_node = load_real_node_texture(node);
     auto texture = load_node_texture(real_node);
     texture_cache[node] = texture;
   }

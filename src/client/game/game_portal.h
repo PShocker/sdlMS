@@ -10,6 +10,9 @@ public:
   std::u16string pn; // portal_name
   std::u16string tn; // portal_goal
 
+  std::u16string path;
+  std::u16string path2;
+
   SDL_FPoint pos;
   int64_t z;
   // 传送门

@@ -1,12 +1,17 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
+#include "game_chatballoon.h"
 #include "game_equip.h"
+#include "game_nametag.h"
 #include <cstdint>
 #include <optional>
 #include <string>
+#include <vector>
 class game_character {
 public:
+  std::u8string name;
+
   uint8_t action_type;
   uint8_t action_index = 0;
   uint8_t action_time = 0;
@@ -31,6 +36,10 @@ public:
   std::optional<game_equip> shoes;
 
   std::optional<game_equip> accessory;
+
+  std::vector<game_nametag> nametags;
+
+  std::optional<game_chatballoon> chatballoon;
 
   SDL_FPoint pos;
 };
