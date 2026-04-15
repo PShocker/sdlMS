@@ -16,6 +16,8 @@ public:
   uint8_t action_index = 0;
   uint8_t action_time = 0;
 
+  uint8_t alpha = 255;
+
   std::u16string body;
   std::u16string head;
 
