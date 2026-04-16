@@ -7,9 +7,6 @@
 class ui_minimap : public ui_base {
 public:
   uint32_t map_id;
-
   std::u16string map_name;
   std::u16string map_street;
-
-  void render() override;
 };
