@@ -1,7 +1,9 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
+#include "game_chatballoon.h"
 #include <cstdint>
+#include <optional>
 #include <string>
 class game_npc {
 public:
@@ -16,4 +18,6 @@ public:
 
   uint32_t ani_index = 0;
   uint32_t ani_time;
+
+  std::optional<game_chatballoon> chatballoon;
 };
