@@ -11,6 +11,5 @@ public:
 
   SDL_FPoint pos;
   SDL_Color color;
-  uint8_t size;
   uint64_t destory;
 };
