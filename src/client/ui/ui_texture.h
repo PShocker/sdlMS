@@ -5,6 +5,4 @@
 class ui_texture : public ui_base {
 public:
   std::u16string path;
-
-  void render() override;
 };

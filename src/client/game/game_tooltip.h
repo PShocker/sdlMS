@@ -3,8 +3,8 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class game_tomb {
+class game_tooltip {
 public:
   std::u16string path;
-  SDL_FPoint pos;
+  SDL_FRect r;
 };

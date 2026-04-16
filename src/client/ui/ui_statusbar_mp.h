@@ -6,6 +6,4 @@ public:
   uint32_t prev_mp;
   float prev_percent;
   bool alert;
-
-  void render() override;
 };

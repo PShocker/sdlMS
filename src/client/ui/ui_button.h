@@ -4,6 +4,4 @@
 #include "ui_base.h"
 class ui_button : public ui_base {
 public:
-  virtual void hover();
-  virtual void hover_leave();
 };
