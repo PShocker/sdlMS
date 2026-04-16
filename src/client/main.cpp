@@ -8,8 +8,8 @@
 #include <SDL3/SDL_main.h>
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
-  Window::tick();
-  Window::clear();
+  window::tick();
+  window::clear();
   return SDL_APP_CONTINUE;
 }
 

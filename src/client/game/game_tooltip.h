@@ -2,11 +2,9 @@
 
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
-
-class ui_base {
+#include <string>
+class game_tomb {
 public:
-  uint8_t alpha;
+  std::u16string path;
   SDL_FPoint pos;
-
-  virtual void render();
 };

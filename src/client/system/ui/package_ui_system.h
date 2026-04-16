@@ -6,5 +6,6 @@
 
 class package_ui_system {
 public:
+  package_ui_system();
   std::flat_multimap<uint8_t, ui_base> ui;
 };

@@ -31,11 +31,16 @@ void wz_resource::init() {
   init_files();
 }
 
-wz::Node *wz_resource::load_map_node(uint32_t map_id) {
+std::string wz_resource::load_map_path(uint32_t map_id) {
   auto s = std::to_string(map_id);
   if (s.size() < 9) {
     s.insert(0, 9 - s.size(), '0');
   }
+  return s;
+}
+
+wz::Node *wz_resource::load_map_node(uint32_t map_id) {
+  auto s = load_map_path(map_id);
   std::string path =
       "Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
   return map->find(path);
