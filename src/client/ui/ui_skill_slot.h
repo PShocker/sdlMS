@@ -1,8 +1,9 @@
 #pragma once
 
 #include "ui_base.h"
-class ui_skill_slot : ui_base {
+#include "ui_button.h"
+class ui_skill_slot : public ui_button {
 public:
-  void hover();
-  void hover_leave();
+  void hover() override;
+  void hover_leave() override;
 };

@@ -25,7 +25,8 @@ public:
   static inline wz::Files *taming_mob;
   static inline wz::Files *ui;
 
-  static inline void init();
+  static void init();
+  static std::string load_map_path(uint32_t map_id);
   static wz::Node *load_map_node(uint32_t map_id);
   static SDL_Texture *load_texture(wz::Node *node);
 
