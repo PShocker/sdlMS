@@ -31,7 +31,7 @@ public:
 
   static inline game_character self;
 
-  static inline std::flat_map<uint64_t, game_character> net_character;
+  static inline std::flat_map<uint64_t, game_character> others;
 
   static inline std::flat_map<std::u16string, character_extern_action>
       ex_action;

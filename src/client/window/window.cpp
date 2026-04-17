@@ -25,6 +25,6 @@ void window::clear() { SDL_RenderClear(renderer); }
 
 void window::update() {
   pre_mouse_state = mouse_state;
-  mouse_state = SDL_GetMouseState(&mouse_x, &mouse_y);
+  mouse_state = SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
   SDL_RenderPresent(renderer);
 }

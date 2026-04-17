@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL3/SDL_rect.h"
 #include <SDL3/SDL.h>
 #include <cstdint>
 
@@ -8,8 +9,7 @@ public:
   static inline SDL_Window *win;
   static inline SDL_Renderer *renderer;
 
-  static inline float mouse_x;
-  static inline float mouse_y;
+  static inline SDL_FPoint mouse_pos;
 
   static inline SDL_MouseButtonFlags pre_mouse_state;
   static inline SDL_MouseButtonFlags mouse_state;

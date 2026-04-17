@@ -1,10 +1,12 @@
 #pragma once
 
+#include "SDL3/SDL_events.h"
 #include "src/client/ui/ui_base.h"
 #include <cstdint>
 #include <flat_map>
 
 class worldmap_ui_system {
 public:
-  std::flat_multimap<uint8_t, ui_base> ui;
+  static void render();
+  static bool event(SDL_Event *event);
 };

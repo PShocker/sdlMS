@@ -1,15 +1,28 @@
 #pragma once
 
-#include "src/client/ui/ui_base.h"
-#include <cstdint>
-#include <flat_map>
+#include "SDL3/SDL_events.h"
+#include "SDL3/SDL_rect.h"
 
 class minimap_ui_system {
 public:
-  minimap_ui_system(uint32_t map_id);
-  std::flat_multimap<uint8_t, ui_base> ui;
+  static inline SDL_FPoint pos;
+  static inline bool max;
+  static inline bool disable;
+
+  static void load();
+  static void render();
+  static bool event(SDL_Event *event);
 
 private:
-  void load_minimap(uint32_t map_id);
-  void load_button();
+  static void render_backgrnd();
+  static void render_button();
+  static void render_name_text();
+  static void render_street_text();
+  static void render_canvas_life();
+  static void render_portal();
+  static void render_mark();
+  static void render_canvas();
+  static void render_mini();
+
+  static bool event_button(SDL_Event *event);
 };
