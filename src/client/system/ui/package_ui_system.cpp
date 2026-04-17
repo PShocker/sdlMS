@@ -1,6 +1,9 @@
 #include "package_ui_system.h"
 
-package_ui_system::package_ui_system(){
-    ui.clear();
-    
+void package_ui_system::render(){
+
+}
+
+bool package_ui_system::event(SDL_Event *event){
+    return false;
 }

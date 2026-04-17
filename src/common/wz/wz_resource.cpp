@@ -4,6 +4,7 @@
 #include "src/client/window/window.h"
 #include "wz/Files.h"
 #include "wz/Key.h"
+#include "wz/Node.h"
 #include "wz/Property.h"
 #include "wz/Types.h"
 #include "wz/Wz.h"
@@ -40,10 +41,13 @@ std::string wz_resource::load_map_path(uint32_t map_id) {
 }
 
 wz::Node *wz_resource::load_map_node(uint32_t map_id) {
-  auto s = load_map_path(map_id);
-  std::string path =
-      "Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
-  return map->find(path);
+  if (!map_node_cache.contains(map_id)) {
+    auto s = load_map_path(map_id);
+    std::string path =
+        "Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
+    map_node_cache[map_id] = map->find(path);
+  }
+  return map_node_cache.at(map_id);
 }
 
 SDL_Texture *wz_resource::load_node_texture(wz::Node *node) {

@@ -5,7 +5,7 @@
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
-#include <format>
+#include <optional>
 #include <string>
 
 void character_game_instance::init_character_bone() {
@@ -80,13 +80,39 @@ void character_game_instance::init_character_bone() {
   for (const auto &v : zmap) {
     if (tmp_bone_map.contains(v)) {
       auto map_node = tmp_bone_map.at(v);
+      std::optional<std::u16string> parent_bone;
+      std::optional<SDL_FPoint> parent_pos;
       for (auto [key, val] : *map_node->get_children()) {
         auto v = static_cast<wz::Property<wz::WzVec2D> *>(val[0])->get();
         if (bone_data.contains(key)) {
-
-        } else {
-          bone_data[key] =
+          parent_bone = key;
+          parent_pos =
               SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
+          break;
+        }
+      }
+      if (!parent_bone.has_value()) {
+        // 如果没有父节点，则直接声明子节点 body
+        for (auto [key, val] : *map_node->get_children()) {
+          auto v = static_cast<wz::Property<wz::WzVec2D> *>(val[0])->get();
+          SDL_FPoint pos{static_cast<float>(v.x), static_cast<float>(v.y)};
+          bone_data[key] = pos;
+        }
+      } else {
+        // 存在根节点
+        auto cur_pos =
+            SDL_FPoint{bone_data[parent_bone.value()].x - parent_pos.value().x,
+                       bone_data[parent_bone.value()].y - parent_pos.value().y};
+        for (auto [key, val] : *map_node->get_children()) {
+          // 声明子节点位置
+          if (!bone_data.contains(key)) {
+            auto v = static_cast<wz::Property<wz::WzVec2D> *>(val[0])->get();
+            SDL_FPoint pos{static_cast<float>(v.x), static_cast<float>(v.y)};
+            bone_data[key] = SDL_FPoint{
+                cur_pos.x - pos.x,
+                cur_pos.y - pos.y,
+            };
+          }
         }
       }
     }

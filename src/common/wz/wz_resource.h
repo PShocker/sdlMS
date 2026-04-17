@@ -37,4 +37,5 @@ private:
   static SDL_Texture *load_node_texture(wz::Node *node);
 
   static inline std::flat_map<wz::Node *, SDL_Texture *> texture_cache;
+  static inline std::flat_map<uint32_t, wz::Node *> map_node_cache;
 };
