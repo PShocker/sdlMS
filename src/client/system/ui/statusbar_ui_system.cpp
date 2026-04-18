@@ -15,16 +15,18 @@ void statusbar_ui_system::render_backgrnd() {
                         static_cast<float>(backgrnd->h)};
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 
-  auto backgrnd2 = wz_resource::load_texture(
+  static auto backgrnd2 = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/canvas:backgrnd1"));
   pos_rect = {base_x, base_y, static_cast<float>(backgrnd2->w),
               static_cast<float>(backgrnd2->h)};
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
-  auto gaugeLabel = wz_resource::load_texture(
+  static auto gaugeLabel = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/canvas:gaugeLabel"));
   pos_rect = {base_x, base_y, static_cast<float>(gaugeLabel->w),
               static_cast<float>(gaugeLabel->h)};
   SDL_RenderTexture(window::renderer, gaugeLabel, nullptr, &pos_rect);
 }
 
-void statusbar_ui_system::render() {}
+bool statusbar_ui_system::render() {
+    return true;
+}

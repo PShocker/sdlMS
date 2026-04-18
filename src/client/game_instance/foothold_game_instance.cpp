@@ -4,6 +4,7 @@
 
 void foothold_game_instance::load(uint32_t map_id) {
   data.clear();
+  
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_foothold_node = map_node->get_child(u"foothold");
   for (auto [page, val0] : *map_foothold_node->get_children()) {

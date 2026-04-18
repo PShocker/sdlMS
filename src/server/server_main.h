@@ -9,7 +9,6 @@
 #include <string>
 class server_main {
 public:
-  static inline flatbuffers::FlatBufferBuilder builder;
   static inline bool host = true;
   static inline sockaddr_in host_addr = {};
   static inline uint64_t host_heartbeat;

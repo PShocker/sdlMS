@@ -9,8 +9,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
-#include <cstdint>
-#include <flat_map>
+#include <array>
 
 void minimap_ui_system::render_backgrnd() {
   const auto width = 100;
@@ -65,12 +64,20 @@ void minimap_ui_system::render_backgrnd() {
 }
 
 void minimap_ui_system::render_button() {
-  static std::flat_map<wz::Node *, SDL_FPoint> buttons_pos = {
-      {wz_resource::ui->find(u"MiniMap.img/MinMap/BtMap"), {0, 0}},
-      {wz_resource::ui->find(u"MiniMap.img/MinMap/BtMin"), {50, 0}},
-      {wz_resource::ui->find(u"MiniMap.img/MinMap/BtMax"), {80, 0}},
+  const static std::array buttons_node = {
+      wz_resource::ui->find(u"MiniMap.img/MinMap/BtMap"),
+      wz_resource::ui->find(u"MiniMap.img/MinMap/BtMin"),
+      wz_resource::ui->find(u"MiniMap.img/MinMap/BtMax"),
   };
-  for (auto [k, v] : buttons_pos) {
+  const static std::array buttons_pos = {
+      SDL_FPoint{0, 0},
+      SDL_FPoint{50, 0},
+      SDL_FPoint{80, 0},
+  };
+
+  for (size_t i = 0; i < buttons_node.size(); ++i) {
+    auto k=buttons_node[i];
+    auto v=buttons_pos[i];
     auto mouse_over = wz_resource::load_texture(k->get_child(u"mouseOver"));
     auto normal = wz_resource::load_texture(k->get_child(u"normal"));
     auto pressed = wz_resource::load_texture(k->get_child(u"pressed"));
@@ -180,7 +187,7 @@ void minimap_ui_system::render_canvas() {
   SDL_RenderTexture(window::renderer, canvas_texture, nullptr, &pos_rect);
 }
 
-void minimap_ui_system::render() {
+bool minimap_ui_system::render() {
   if (!disable) {
     render_backgrnd();
     render_button();
@@ -188,6 +195,7 @@ void minimap_ui_system::render() {
   } else {
     render_mini();
   }
+  return true;
 }
 
 bool minimap_ui_system::event_button(SDL_Event *event) {

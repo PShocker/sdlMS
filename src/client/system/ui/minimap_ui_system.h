@@ -10,7 +10,7 @@ public:
   static inline bool disable;
 
   static void load();
-  static void render();
+  static bool render();
   static bool event(SDL_Event *event);
 
 private:

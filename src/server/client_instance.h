@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/common/flatbuffers/common.h"
 #include "uv.h"
 #include <cstdint>
 
@@ -10,5 +11,5 @@ public:
   bool scene_host;
   uint64_t scene;
   uint64_t heartbeat;
-  uv_timer_t heartbeat_timer;
+  fbs::PlayerT fbs_player;
 };

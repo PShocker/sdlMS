@@ -14,11 +14,15 @@ static void send_host(NetPayload type, CreateFunc func, Args &&...args) {
   server_main::builder.Clear();
 }
 
+void client_request::client_scene_request(bool come, uint32_t map_id) {
+  send_host(NetPayload_ClientScene, CreateClientScene, come, map_id);
+}
+
 void client_request::client_heartbeat_request() {
   send_host(NetPayload_ClientHeartbeat, CreateClientHeartbeat);
 }
 
-void client_request::client_move_request(float x1, float x2, float y1, float y2,
+void client_request::client_move_request(float x1, float y1, float x2, float y2,
                                          uint32_t time) {
-  send_host(NetPayload_ClientMove, CreateClientMove, x1, x2, y1, y2, time);
+  send_host(NetPayload_ClientMove, CreateClientMove, x1, y1, x2, y2, time);
 }

@@ -16,6 +16,8 @@ uint8_t reactor_game_instance::load_reactor_layer(SDL_FPoint pos) {
 }
 
 void reactor_game_instance::load(uint32_t map_id) {
+  data = {};
+
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_reactor_node = map_node->get_child(u"reactor");
   if (map_reactor_node != nullptr) {
