@@ -4,6 +4,8 @@
 #include "wz/Property.h"
 
 void npc_game_instance::load(uint32_t map_id) {
+  data = {};
+
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_life_node = map_node->get_child(u"life");
   for (auto [key, val] : *map_life_node->get_children()) {

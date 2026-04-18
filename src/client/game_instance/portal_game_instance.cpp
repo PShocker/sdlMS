@@ -9,6 +9,8 @@ const static std::u16string pt_list[] = {
     u"psi", u"pcs", u"ph", u"psh", u"pcj", u"pci", u"pcig", u"pshg"};
 
 void portal_game_instance::load(uint32_t map_id) {
+  data = {};
+
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_portal_node = map_node->get_child(u"portal");
   for (auto [key, val] : *map_portal_node->get_children()) {
@@ -38,7 +40,7 @@ void portal_game_instance::load(uint32_t map_id) {
       }
 
       g_portal.path = u"MapHelper.img/portal/game/" + pt_list[pt];
-      
+
       g_portal.path2 = u"/default";
 
       portal_game_instance::data.emplace_back(g_portal);

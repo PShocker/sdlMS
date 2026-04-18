@@ -5,6 +5,8 @@
 #include <string>
 
 void tile_game_instance::load(uint32_t map_id) {
+  data = {};
+
   auto map_node = wz_resource::load_map_node(map_id);
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {

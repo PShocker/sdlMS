@@ -1,0 +1,79 @@
+namespace fbs;      // 定义命名空间
+
+table LifeState{
+    x:float;
+    y:float;
+    action:string;
+    action_index:uint8;
+}
+
+table CharacterAppearance{
+    body:uint32;
+    head:uint32;
+
+    weapon:uint32;
+    cap:uint32;
+    cape:uint32;
+    coat:uint32;
+    glove:uint32;
+    pant:uint32;
+
+    shield:uint32;
+    longcoat:uint32;
+    shoes:uint32;
+
+    accessory:uint32;
+}
+
+table Character{
+    name:string;
+    state:LifeState;
+    appearance:CharacterAppearance;
+}
+
+table Player{
+    client_id:uint64;
+    character:Character;
+}
+
+table Movement{
+    x1:float;
+    y1:float;
+
+    x2:float;
+    y2:float;
+
+    time:uint32;
+    page:uint8;
+}
+
+table Mob{
+    mob_id:uint32;
+    summon:bool;
+    state:LifeState;
+}
+
+table DropEquip{
+    equip_id:uint32;
+
+    x:float;
+    y:float;
+
+    rotate:uint32;
+    h_speed:float;
+    v_speed:float;
+}
+
+
+table DropItem{
+    item_id:uint32;
+
+    x:float;
+    y:float;
+
+    num:uint32;
+    rotate:uint32;
+
+    h_speed:float;
+    v_speed:float;
+}

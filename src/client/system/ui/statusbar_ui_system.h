@@ -7,7 +7,7 @@
 
 class statusbar_ui_system {
 public:
-  static void render();
+  static bool render();
   static bool event(SDL_Event *event);
 private:
   static void render_backgrnd();

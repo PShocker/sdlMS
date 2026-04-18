@@ -1,7 +1,9 @@
-#include "window/window.h"
+#include "src/common/request/client_request.h"
 #include "src/server/server_main.h"
+#include "window/window.h"
 #include <cstdint>
 #include <cstdio>
+
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
@@ -24,6 +26,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   }
 
   SDL_HideCursor();
+
+  client_request::client_scene_request(true, 1000);
 
   return SDL_APP_CONTINUE;
 }

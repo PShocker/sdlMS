@@ -1,22 +1,24 @@
+include "common.fbs";
+
+namespace fbs;      // 定义命名空间
+
 table ServerHeartbeat {
 }
 
-table ServerInScene {
+table ServerScene {
     scene_host:uint64;
     scene_id:uint32;
-}
-
-table ServerOutScene {
-    client_id:uint64;
-}
-
-table ServerMove {
-    x1:float;
-    x2:float;
-
-    y1:float;
-    y2:float;
+    your_id:uint64;
     
-    time:uint32;
+    players:[Player];
+}
+
+table ServerCharacterMove {
+    movement:Movement;
     client_id:uint64;
+}
+
+table ServerMobMove {
+    mob_id:uint32;
+    movement:Movement;
 }

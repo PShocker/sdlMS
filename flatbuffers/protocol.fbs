@@ -1,16 +1,18 @@
 include "Client.fbs";
 include "Server.fbs";
 
+namespace fbs;      // 定义命名空间
+
 // 联合体：包含所有消息类型
 union NetPayload {
     ClientHeartbeat,
-    ClientInScene,
-    ClientOutScene,
-    ClientMove,
+    ClientScene,
+    ClientCharacterMove,
+    ClientMobMove,
     ServerHeartbeat,
-    ServerInScene,
-    ServerOutScene,
-    ServerMove,
+    ServerScene,
+    ServerCharacterMove,
+    ServerMobMove,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

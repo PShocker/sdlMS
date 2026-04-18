@@ -12,6 +12,8 @@ class game_character {
 public:
   std::u8string name;
 
+  int32_t fh;
+
   uint8_t action_type;
   uint8_t action_index = 0;
   uint8_t action_time = 0;

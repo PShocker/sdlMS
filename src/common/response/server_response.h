@@ -1,10 +1,16 @@
 #pragma once
 
+#include "src/common/flatbuffers/Server.h"
 #include <cstdint>
 class server_response {
 public:
   static void server_heartbeat_response(uint64_t client_id);
-  static void server_in_scene_response();
-  static void server_move_response(uint64_t client_id, float x1, float x2,
-                                   float y1, float y2, uint32_t time);
+
+  static void server_scene_response(uint64_t client_id,
+                                    fbs::ServerSceneT server_scene);
+  static void
+  server_character_move_response(uint64_t client_id,
+                                 fbs::ServerCharacterMoveT server_move);
+  static void server_mob_move_response(uint64_t client_id,
+                                       fbs::ServerMobMoveT server_move);
 };
