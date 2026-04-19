@@ -2,6 +2,7 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
@@ -23,9 +24,11 @@
 #include "src/client/system/logic/sound_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
 #include "src/client/system/render/character_render_system.h"
+#include "src/client/system/render/drop_render_system.h"
 #include "src/client/system/render/mob_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
+#include "src/client/system/render/portal_render_system.h"
 #include "src/client/system/render/reactor_render_system.h"
 #include "src/client/system/render/tile_render_system.h"
 #include "src/client/system/system.h"
@@ -51,7 +54,8 @@ bool scene_system_instance::render_game() {
     character_array[load_character_layer(character)].push_back(&character);
   }
   auto &self = character_game_instance::self;
-  character_array[load_character_layer(self)].push_back(&self);
+  auto self_layer = load_character_layer(self);
+  character_array[self_layer].push_back(&self);
   // 前景
   for (auto &f_backgrnd : backgrnd_game_instance::front | std::views::values) {
     backgrnd_render_system::render(f_backgrnd);
@@ -75,9 +79,13 @@ bool scene_system_instance::render_game() {
     for (auto &character : character_array[i]) {
       character_render_system::render(*character);
     }
-     for (auto &character : character_array[i]) {
-      character_render_system::render(*character);
+    for (auto &drop : drop_game_instance::data[i]) {
+      drop_render_system::render(drop);
     }
+  }
+  // 传送门
+  for (auto &portal : portal_game_instance::data) {
+    portal_render_system::render(portal);
   }
   //   后景
   for (auto &b_backgrnd : backgrnd_game_instance::back | std::views::values) {
@@ -87,6 +95,8 @@ bool scene_system_instance::render_game() {
 }
 
 void scene_system_instance::enter(uint32_t map_id) {
+  scene_system_instance::map_id = map_id;
+
   map_info_game_instance::load(map_id);
   foothold_game_instance::load(map_id);
   backgrnd_game_instance::load(map_id);

@@ -11,6 +11,8 @@
 #include "wz/Property.h"
 #include <array>
 
+void minimap_ui_system::render_mini() {}
+
 void minimap_ui_system::render_backgrnd() {
   const auto width = 100;
   const auto height = 100;
@@ -65,9 +67,9 @@ void minimap_ui_system::render_backgrnd() {
 
 void minimap_ui_system::render_button() {
   const static std::array buttons_node = {
-      wz_resource::ui->find(u"MiniMap.img/MinMap/BtMap"),
-      wz_resource::ui->find(u"MiniMap.img/MinMap/BtMin"),
-      wz_resource::ui->find(u"MiniMap.img/MinMap/BtMax"),
+      wz_resource::ui->find(u"MiniMap.img/BtMap"),
+      wz_resource::ui->find(u"MiniMap.img/BtMin"),
+      wz_resource::ui->find(u"MiniMap.img/BtMax"),
   };
   const static std::array buttons_pos = {
       SDL_FPoint{0, 0},
@@ -76,11 +78,11 @@ void minimap_ui_system::render_button() {
   };
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
-    auto k=buttons_node[i];
-    auto v=buttons_pos[i];
-    auto mouse_over = wz_resource::load_texture(k->get_child(u"mouseOver"));
-    auto normal = wz_resource::load_texture(k->get_child(u"normal"));
-    auto pressed = wz_resource::load_texture(k->get_child(u"pressed"));
+    auto k = buttons_node[i];
+    auto v = buttons_pos[i];
+    auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+    auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+    auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
     SDL_FRect pos_rect{pos.x + v.x, pos.y + v.y,
                        static_cast<float>(mouse_over->w),
                        static_cast<float>(mouse_over->h)};
@@ -198,8 +200,6 @@ bool minimap_ui_system::render() {
   return true;
 }
 
-bool minimap_ui_system::event_button(SDL_Event *event) {
-  
-}
+bool minimap_ui_system::event_button(SDL_Event *event) {}
 
 bool minimap_ui_system::event(SDL_Event *event) { return false; }

@@ -1,9 +1,11 @@
+#include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/system/system.h"
 #include "src/common/request/client_request.h"
+#include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
 #include "window/window.h"
 #include <cstdint>
 #include <cstdio>
-
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
@@ -12,11 +14,18 @@
 SDL_AppResult SDL_AppIterate(void *appstate) {
   window::tick();
   window::clear();
+  for (const auto &f : system::render_systems) {
+    if (f() == false) {
+      break;
+    }
+  }
+  window::update();
+  server_main::server_run();
   return SDL_APP_CONTINUE;
 }
 
-int32_t width = 800;
-int32_t height = 600;
+static int32_t width = 1200;
+static int32_t height = 800;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   if (argc == 3) {
@@ -24,10 +33,17 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   } else {
     server_main::server_init();
   }
+  window::create("sdlMS", width, height);
+  camera_game_instance::load(0, 0, width, height);
+
+  wz_resource::init();
 
   SDL_HideCursor();
 
-  client_request::client_scene_request(true, 1000);
+  client_request::client_scene_request({
+      .come = true,
+      .scene_id = 1000,
+  });
 
   return SDL_APP_CONTINUE;
 }

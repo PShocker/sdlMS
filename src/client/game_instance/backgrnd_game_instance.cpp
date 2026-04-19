@@ -3,7 +3,10 @@
 #include "src/client/game/game_backgrnd.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include "wz/Wz.h"
 #include <cstdlib>
+#include <string>
+
 void backgrnd_game_instance::load(uint32_t map_id) {
   front.clear();
   back.clear();
@@ -89,10 +92,18 @@ void backgrnd_game_instance::load(uint32_t map_id) {
         static_cast<wz::Property<int> *>(backgrnd_node->get_child(u"ani"))
             ->get();
 
-    auto no = static_cast<wz::Property<int> *>(backgrnd_node->get_child(u"no"))
-                  ->get();
-    auto no1 = std::to_string(no);
-    auto no2 = std::u16string{no1.begin(), no1.end()};
+    std::u16string no2;
+    if (backgrnd_node->get_child(u"no")->type == wz::Type::Int) {
+      auto no =
+          static_cast<wz::Property<int> *>(backgrnd_node->get_child(u"no"))
+              ->get();
+      auto no1 = std::to_string(no);
+      no2 = std::u16string{no1.begin(), no1.end()};
+    } else {
+      no2 = static_cast<wz::Property<std::u16string> *>(
+                backgrnd_node->get_child(u"no"))
+                ->get();
+    }
     switch (g_backgrnd.ani) {
     case 0: {
       g_backgrnd.path = u"Back/" + bs + u".img/back/" + no2;

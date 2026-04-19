@@ -12,6 +12,9 @@ void tile_game_instance::load(uint32_t map_id) {
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
     auto layer_node = map_node->get_child(i);
     auto tS = layer_node->get_child(u"info")->get_child(u"tS");
+    if (tS == nullptr) {
+      continue;
+    }
     auto tS2 = static_cast<wz::Property<std::u16string> *>(tS)->get();
     for (auto [key, val] : *layer_node->get_child(u"tile")->get_children()) {
       game_tile g_tile;

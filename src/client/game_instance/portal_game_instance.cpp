@@ -20,6 +20,7 @@ void portal_game_instance::load(uint32_t map_id) {
         static_cast<wz::Property<int> *>(portal_node->get_child(u"pt"))->get();
     if (!(pt < 0 || pt >= sizeof(pt_list))) {
       game_portal g_portal;
+      g_portal.pt = pt;
       g_portal.tm =
           static_cast<wz::Property<int> *>(portal_node->get_child(u"tm"))
               ->get();
@@ -35,11 +36,11 @@ void portal_game_instance::load(uint32_t map_id) {
           static_cast<wz::Property<int> *>(portal_node->get_child(u"y"))->get();
       g_portal.pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
 
-      if (g_portal.pt == 7) {
+      if (g_portal.pt == 7 || g_portal.pt == 0) {
         g_portal.pt = 2;
       }
 
-      g_portal.path = u"MapHelper.img/portal/game/" + pt_list[pt];
+      g_portal.path = u"MapHelper.img/portal/game/" + pt_list[g_portal.pt];
 
       g_portal.path2 = u"/default";
 

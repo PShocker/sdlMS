@@ -5,6 +5,7 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
+#include "wz/Property.h"
 #include <string>
 
 bool portal_render_system::render(game_portal &g_portal) {
@@ -31,8 +32,10 @@ bool portal_render_system::render(game_portal &g_portal) {
       std::to_string(g_portal.ani_index % texture_node->children_count());
   texture_node = portal_node->get_child(index);
   auto texture = wz_resource::load_texture(texture_node);
-  auto origin = std::any_cast<SDL_FPoint>(
-      wz_resource::load_attribute(texture_node, u"origin"));
+  auto v = static_cast<wz::Property<wz::WzVec2D> *>(
+               texture_node->get_child(u"origin"))
+               ->get();
+  auto origin = SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
 
   SDL_FRect pos_rect = {
       .x = portal_pos.x - origin.x,
@@ -46,4 +49,5 @@ bool portal_render_system::render(game_portal &g_portal) {
     pos_rect.y -= camera.y;
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
   }
+  return true;
 }

@@ -13,8 +13,8 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
               FLATBUFFERS_VERSION_REVISION == 19,
              "Non-compatible flatbuffers version included");
 
-#include "Client.h"
-#include "Server.h"
+#include "client.h"
+#include "server.h"
 
 namespace fbs {
 

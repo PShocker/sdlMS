@@ -1,8 +1,8 @@
-#include "Window.h"
+#include "window.h"
 #include <cstdint>
 #include <cstdlib>
 
-void window::createWindow(const char *title, uint32_t width, uint32_t height) {
+void window::create(const char *title, uint32_t width, uint32_t height) {
   auto result = SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
   if (result == false) {
     std::abort();
