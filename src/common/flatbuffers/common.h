@@ -15,6 +15,10 @@ static_assert(FLATBUFFERS_VERSION_MAJOR == 25 &&
 
 namespace fbs {
 
+struct LifeState;
+struct LifeStateBuilder;
+struct LifeStateT;
+
 struct CharacterAppearance;
 struct CharacterAppearanceBuilder;
 struct CharacterAppearanceT;
@@ -30,6 +34,132 @@ struct PlayerT;
 struct Movement;
 struct MovementBuilder;
 struct MovementT;
+
+struct Mob;
+struct MobBuilder;
+struct MobT;
+
+struct DropEquip;
+struct DropEquipBuilder;
+struct DropEquipT;
+
+struct DropItem;
+struct DropItemBuilder;
+struct DropItemT;
+
+struct LifeStateT : public ::flatbuffers::NativeTable {
+  typedef LifeState TableType;
+  float x = 0.0f;
+  float y = 0.0f;
+  std::string action{};
+  uint8_t action_index = 0;
+};
+
+struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef LifeStateT NativeTableType;
+  typedef LifeStateBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6,
+    VT_ACTION = 8,
+    VT_ACTION_INDEX = 10
+  };
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  const ::flatbuffers::String *action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
+  }
+  ::flatbuffers::String *mutable_action() {
+    return GetPointer<::flatbuffers::String *>(VT_ACTION);
+  }
+  uint8_t action_index() const {
+    return GetField<uint8_t>(VT_ACTION_INDEX, 0);
+  }
+  bool mutate_action_index(uint8_t _action_index = 0) {
+    return SetField<uint8_t>(VT_ACTION_INDEX, _action_index, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           VerifyOffset(verifier, VT_ACTION) &&
+           verifier.VerifyString(action()) &&
+           VerifyField<uint8_t>(verifier, VT_ACTION_INDEX, 1) &&
+           verifier.EndTable();
+  }
+  LifeStateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(LifeStateT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<LifeState> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct LifeStateBuilder {
+  typedef LifeState Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_x(float x) {
+    fbb_.AddElement<float>(LifeState::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(LifeState::VT_Y, y, 0.0f);
+  }
+  void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
+    fbb_.AddOffset(LifeState::VT_ACTION, action);
+  }
+  void add_action_index(uint8_t action_index) {
+    fbb_.AddElement<uint8_t>(LifeState::VT_ACTION_INDEX, action_index, 0);
+  }
+  explicit LifeStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<LifeState> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<LifeState>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<LifeState> CreateLifeState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    float x = 0.0f,
+    float y = 0.0f,
+    ::flatbuffers::Offset<::flatbuffers::String> action = 0,
+    uint8_t action_index = 0) {
+  LifeStateBuilder builder_(_fbb);
+  builder_.add_action(action);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_action_index(action_index);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    float x = 0.0f,
+    float y = 0.0f,
+    const char *action = nullptr,
+    uint8_t action_index = 0) {
+  auto action__ = action ? _fbb.CreateString(action) : 0;
+  return fbs::CreateLifeState(
+      _fbb,
+      x,
+      y,
+      action__,
+      action_index);
+}
+
+::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct CharacterAppearanceT : public ::flatbuffers::NativeTable {
   typedef CharacterAppearance TableType;
@@ -244,10 +374,7 @@ inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(
 struct CharacterT : public ::flatbuffers::NativeTable {
   typedef Character TableType;
   std::string name{};
-  float x = 0.0f;
-  float y = 0.0f;
-  std::string action{};
-  uint8_t action_index = 0;
+  std::unique_ptr<fbs::LifeStateT> state{};
   std::unique_ptr<fbs::CharacterAppearanceT> appearance{};
   CharacterT() = default;
   CharacterT(const CharacterT &o);
@@ -260,11 +387,8 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CharacterBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
-    VT_X = 6,
-    VT_Y = 8,
-    VT_ACTION = 10,
-    VT_ACTION_INDEX = 12,
-    VT_APPEARANCE = 14
+    VT_STATE = 6,
+    VT_APPEARANCE = 8
   };
   const ::flatbuffers::String *name() const {
     return GetPointer<const ::flatbuffers::String *>(VT_NAME);
@@ -272,29 +396,11 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::String *mutable_name() {
     return GetPointer<::flatbuffers::String *>(VT_NAME);
   }
-  float x() const {
-    return GetField<float>(VT_X, 0.0f);
+  const fbs::LifeState *state() const {
+    return GetPointer<const fbs::LifeState *>(VT_STATE);
   }
-  bool mutate_x(float _x = 0.0f) {
-    return SetField<float>(VT_X, _x, 0.0f);
-  }
-  float y() const {
-    return GetField<float>(VT_Y, 0.0f);
-  }
-  bool mutate_y(float _y = 0.0f) {
-    return SetField<float>(VT_Y, _y, 0.0f);
-  }
-  const ::flatbuffers::String *action() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
-  }
-  ::flatbuffers::String *mutable_action() {
-    return GetPointer<::flatbuffers::String *>(VT_ACTION);
-  }
-  uint8_t action_index() const {
-    return GetField<uint8_t>(VT_ACTION_INDEX, 0);
-  }
-  bool mutate_action_index(uint8_t _action_index = 0) {
-    return SetField<uint8_t>(VT_ACTION_INDEX, _action_index, 0);
+  fbs::LifeState *mutable_state() {
+    return GetPointer<fbs::LifeState *>(VT_STATE);
   }
   const fbs::CharacterAppearance *appearance() const {
     return GetPointer<const fbs::CharacterAppearance *>(VT_APPEARANCE);
@@ -307,11 +413,8 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyString(name()) &&
-           VerifyField<float>(verifier, VT_X, 4) &&
-           VerifyField<float>(verifier, VT_Y, 4) &&
-           VerifyOffset(verifier, VT_ACTION) &&
-           verifier.VerifyString(action()) &&
-           VerifyField<uint8_t>(verifier, VT_ACTION_INDEX, 1) &&
+           VerifyOffset(verifier, VT_STATE) &&
+           verifier.VerifyTable(state()) &&
            VerifyOffset(verifier, VT_APPEARANCE) &&
            verifier.VerifyTable(appearance()) &&
            verifier.EndTable();
@@ -328,17 +431,8 @@ struct CharacterBuilder {
   void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
     fbb_.AddOffset(Character::VT_NAME, name);
   }
-  void add_x(float x) {
-    fbb_.AddElement<float>(Character::VT_X, x, 0.0f);
-  }
-  void add_y(float y) {
-    fbb_.AddElement<float>(Character::VT_Y, y, 0.0f);
-  }
-  void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
-    fbb_.AddOffset(Character::VT_ACTION, action);
-  }
-  void add_action_index(uint8_t action_index) {
-    fbb_.AddElement<uint8_t>(Character::VT_ACTION_INDEX, action_index, 0);
+  void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
+    fbb_.AddOffset(Character::VT_STATE, state);
   }
   void add_appearance(::flatbuffers::Offset<fbs::CharacterAppearance> appearance) {
     fbb_.AddOffset(Character::VT_APPEARANCE, appearance);
@@ -357,38 +451,25 @@ struct CharacterBuilder {
 inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> name = 0,
-    float x = 0.0f,
-    float y = 0.0f,
-    ::flatbuffers::Offset<::flatbuffers::String> action = 0,
-    uint8_t action_index = 0,
+    ::flatbuffers::Offset<fbs::LifeState> state = 0,
     ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0) {
   CharacterBuilder builder_(_fbb);
   builder_.add_appearance(appearance);
-  builder_.add_action(action);
-  builder_.add_y(y);
-  builder_.add_x(x);
+  builder_.add_state(state);
   builder_.add_name(name);
-  builder_.add_action_index(action_index);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *name = nullptr,
-    float x = 0.0f,
-    float y = 0.0f,
-    const char *action = nullptr,
-    uint8_t action_index = 0,
+    ::flatbuffers::Offset<fbs::LifeState> state = 0,
     ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0) {
   auto name__ = name ? _fbb.CreateString(name) : 0;
-  auto action__ = action ? _fbb.CreateString(action) : 0;
   return fbs::CreateCharacter(
       _fbb,
       name__,
-      x,
-      y,
-      action__,
-      action_index,
+      state,
       appearance);
 }
 
@@ -595,6 +676,396 @@ inline ::flatbuffers::Offset<Movement> CreateMovement(
 
 ::flatbuffers::Offset<Movement> CreateMovement(::flatbuffers::FlatBufferBuilder &_fbb, const MovementT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct MobT : public ::flatbuffers::NativeTable {
+  typedef Mob TableType;
+  uint32_t mob_id = 0;
+  bool summon = false;
+  std::unique_ptr<fbs::LifeStateT> state{};
+  MobT() = default;
+  MobT(const MobT &o);
+  MobT(MobT&&) FLATBUFFERS_NOEXCEPT = default;
+  MobT &operator=(MobT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MobT NativeTableType;
+  typedef MobBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_ID = 4,
+    VT_SUMMON = 6,
+    VT_STATE = 8
+  };
+  uint32_t mob_id() const {
+    return GetField<uint32_t>(VT_MOB_ID, 0);
+  }
+  bool mutate_mob_id(uint32_t _mob_id = 0) {
+    return SetField<uint32_t>(VT_MOB_ID, _mob_id, 0);
+  }
+  bool summon() const {
+    return GetField<uint8_t>(VT_SUMMON, 0) != 0;
+  }
+  bool mutate_summon(bool _summon = 0) {
+    return SetField<uint8_t>(VT_SUMMON, static_cast<uint8_t>(_summon), 0);
+  }
+  const fbs::LifeState *state() const {
+    return GetPointer<const fbs::LifeState *>(VT_STATE);
+  }
+  fbs::LifeState *mutable_state() {
+    return GetPointer<fbs::LifeState *>(VT_STATE);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_SUMMON, 1) &&
+           VerifyOffset(verifier, VT_STATE) &&
+           verifier.VerifyTable(state()) &&
+           verifier.EndTable();
+  }
+  MobT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(MobT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Mob> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct MobBuilder {
+  typedef Mob Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_id(uint32_t mob_id) {
+    fbb_.AddElement<uint32_t>(Mob::VT_MOB_ID, mob_id, 0);
+  }
+  void add_summon(bool summon) {
+    fbb_.AddElement<uint8_t>(Mob::VT_SUMMON, static_cast<uint8_t>(summon), 0);
+  }
+  void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
+    fbb_.AddOffset(Mob::VT_STATE, state);
+  }
+  explicit MobBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Mob> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Mob>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Mob> CreateMob(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_id = 0,
+    bool summon = false,
+    ::flatbuffers::Offset<fbs::LifeState> state = 0) {
+  MobBuilder builder_(_fbb);
+  builder_.add_state(state);
+  builder_.add_mob_id(mob_id);
+  builder_.add_summon(summon);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct DropEquipT : public ::flatbuffers::NativeTable {
+  typedef DropEquip TableType;
+  uint32_t equip_id = 0;
+  float x = 0.0f;
+  float y = 0.0f;
+  uint32_t rotate = 0;
+  float h_speed = 0.0f;
+  float v_speed = 0.0f;
+};
+
+struct DropEquip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef DropEquipT NativeTableType;
+  typedef DropEquipBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EQUIP_ID = 4,
+    VT_X = 6,
+    VT_Y = 8,
+    VT_ROTATE = 10,
+    VT_H_SPEED = 12,
+    VT_V_SPEED = 14
+  };
+  uint32_t equip_id() const {
+    return GetField<uint32_t>(VT_EQUIP_ID, 0);
+  }
+  bool mutate_equip_id(uint32_t _equip_id = 0) {
+    return SetField<uint32_t>(VT_EQUIP_ID, _equip_id, 0);
+  }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  uint32_t rotate() const {
+    return GetField<uint32_t>(VT_ROTATE, 0);
+  }
+  bool mutate_rotate(uint32_t _rotate = 0) {
+    return SetField<uint32_t>(VT_ROTATE, _rotate, 0);
+  }
+  float h_speed() const {
+    return GetField<float>(VT_H_SPEED, 0.0f);
+  }
+  bool mutate_h_speed(float _h_speed = 0.0f) {
+    return SetField<float>(VT_H_SPEED, _h_speed, 0.0f);
+  }
+  float v_speed() const {
+    return GetField<float>(VT_V_SPEED, 0.0f);
+  }
+  bool mutate_v_speed(float _v_speed = 0.0f) {
+    return SetField<float>(VT_V_SPEED, _v_speed, 0.0f);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_EQUIP_ID, 4) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           VerifyField<uint32_t>(verifier, VT_ROTATE, 4) &&
+           VerifyField<float>(verifier, VT_H_SPEED, 4) &&
+           VerifyField<float>(verifier, VT_V_SPEED, 4) &&
+           verifier.EndTable();
+  }
+  DropEquipT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DropEquipT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<DropEquip> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DropEquipT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DropEquipBuilder {
+  typedef DropEquip Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_equip_id(uint32_t equip_id) {
+    fbb_.AddElement<uint32_t>(DropEquip::VT_EQUIP_ID, equip_id, 0);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(DropEquip::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(DropEquip::VT_Y, y, 0.0f);
+  }
+  void add_rotate(uint32_t rotate) {
+    fbb_.AddElement<uint32_t>(DropEquip::VT_ROTATE, rotate, 0);
+  }
+  void add_h_speed(float h_speed) {
+    fbb_.AddElement<float>(DropEquip::VT_H_SPEED, h_speed, 0.0f);
+  }
+  void add_v_speed(float v_speed) {
+    fbb_.AddElement<float>(DropEquip::VT_V_SPEED, v_speed, 0.0f);
+  }
+  explicit DropEquipBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<DropEquip> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<DropEquip>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<DropEquip> CreateDropEquip(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t equip_id = 0,
+    float x = 0.0f,
+    float y = 0.0f,
+    uint32_t rotate = 0,
+    float h_speed = 0.0f,
+    float v_speed = 0.0f) {
+  DropEquipBuilder builder_(_fbb);
+  builder_.add_v_speed(v_speed);
+  builder_.add_h_speed(h_speed);
+  builder_.add_rotate(rotate);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_equip_id(equip_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<DropEquip> CreateDropEquip(::flatbuffers::FlatBufferBuilder &_fbb, const DropEquipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct DropItemT : public ::flatbuffers::NativeTable {
+  typedef DropItem TableType;
+  uint32_t item_id = 0;
+  float x = 0.0f;
+  float y = 0.0f;
+  uint32_t num = 0;
+  uint32_t rotate = 0;
+  float h_speed = 0.0f;
+  float v_speed = 0.0f;
+};
+
+struct DropItem FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef DropItemT NativeTableType;
+  typedef DropItemBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ITEM_ID = 4,
+    VT_X = 6,
+    VT_Y = 8,
+    VT_NUM = 10,
+    VT_ROTATE = 12,
+    VT_H_SPEED = 14,
+    VT_V_SPEED = 16
+  };
+  uint32_t item_id() const {
+    return GetField<uint32_t>(VT_ITEM_ID, 0);
+  }
+  bool mutate_item_id(uint32_t _item_id = 0) {
+    return SetField<uint32_t>(VT_ITEM_ID, _item_id, 0);
+  }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  uint32_t num() const {
+    return GetField<uint32_t>(VT_NUM, 0);
+  }
+  bool mutate_num(uint32_t _num = 0) {
+    return SetField<uint32_t>(VT_NUM, _num, 0);
+  }
+  uint32_t rotate() const {
+    return GetField<uint32_t>(VT_ROTATE, 0);
+  }
+  bool mutate_rotate(uint32_t _rotate = 0) {
+    return SetField<uint32_t>(VT_ROTATE, _rotate, 0);
+  }
+  float h_speed() const {
+    return GetField<float>(VT_H_SPEED, 0.0f);
+  }
+  bool mutate_h_speed(float _h_speed = 0.0f) {
+    return SetField<float>(VT_H_SPEED, _h_speed, 0.0f);
+  }
+  float v_speed() const {
+    return GetField<float>(VT_V_SPEED, 0.0f);
+  }
+  bool mutate_v_speed(float _v_speed = 0.0f) {
+    return SetField<float>(VT_V_SPEED, _v_speed, 0.0f);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ITEM_ID, 4) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           VerifyField<uint32_t>(verifier, VT_NUM, 4) &&
+           VerifyField<uint32_t>(verifier, VT_ROTATE, 4) &&
+           VerifyField<float>(verifier, VT_H_SPEED, 4) &&
+           VerifyField<float>(verifier, VT_V_SPEED, 4) &&
+           verifier.EndTable();
+  }
+  DropItemT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DropItemT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<DropItem> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DropItemT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DropItemBuilder {
+  typedef DropItem Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_item_id(uint32_t item_id) {
+    fbb_.AddElement<uint32_t>(DropItem::VT_ITEM_ID, item_id, 0);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(DropItem::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(DropItem::VT_Y, y, 0.0f);
+  }
+  void add_num(uint32_t num) {
+    fbb_.AddElement<uint32_t>(DropItem::VT_NUM, num, 0);
+  }
+  void add_rotate(uint32_t rotate) {
+    fbb_.AddElement<uint32_t>(DropItem::VT_ROTATE, rotate, 0);
+  }
+  void add_h_speed(float h_speed) {
+    fbb_.AddElement<float>(DropItem::VT_H_SPEED, h_speed, 0.0f);
+  }
+  void add_v_speed(float v_speed) {
+    fbb_.AddElement<float>(DropItem::VT_V_SPEED, v_speed, 0.0f);
+  }
+  explicit DropItemBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<DropItem> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<DropItem>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<DropItem> CreateDropItem(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t item_id = 0,
+    float x = 0.0f,
+    float y = 0.0f,
+    uint32_t num = 0,
+    uint32_t rotate = 0,
+    float h_speed = 0.0f,
+    float v_speed = 0.0f) {
+  DropItemBuilder builder_(_fbb);
+  builder_.add_v_speed(v_speed);
+  builder_.add_h_speed(h_speed);
+  builder_.add_rotate(rotate);
+  builder_.add_num(num);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_item_id(item_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<DropItem> CreateDropItem(::flatbuffers::FlatBufferBuilder &_fbb, const DropItemT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+inline LifeStateT *LifeState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<LifeStateT>(new LifeStateT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void LifeState::UnPackTo(LifeStateT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+  { auto _e = action(); if (_e) _o->action = _e->str(); }
+  { auto _e = action_index(); _o->action_index = _e; }
+}
+
+inline ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return LifeState::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const LifeStateT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _x = _o->x;
+  auto _y = _o->y;
+  auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
+  auto _action_index = _o->action_index;
+  return fbs::CreateLifeState(
+      _fbb,
+      _x,
+      _y,
+      _action,
+      _action_index);
+}
+
 inline CharacterAppearanceT *CharacterAppearance::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<CharacterAppearanceT>(new CharacterAppearanceT());
   UnPackTo(_o.get(), _resolver);
@@ -656,19 +1127,13 @@ inline ::flatbuffers::Offset<CharacterAppearance> CharacterAppearance::Pack(::fl
 
 inline CharacterT::CharacterT(const CharacterT &o)
       : name(o.name),
-        x(o.x),
-        y(o.y),
-        action(o.action),
-        action_index(o.action_index),
+        state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
         appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr) {
 }
 
 inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(name, o.name);
-  std::swap(x, o.x);
-  std::swap(y, o.y);
-  std::swap(action, o.action);
-  std::swap(action_index, o.action_index);
+  std::swap(state, o.state);
   std::swap(appearance, o.appearance);
   return *this;
 }
@@ -683,10 +1148,7 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   (void)_o;
   (void)_resolver;
   { auto _e = name(); if (_e) _o->name = _e->str(); }
-  { auto _e = x(); _o->x = _e; }
-  { auto _e = y(); _o->y = _e; }
-  { auto _e = action(); if (_e) _o->action = _e->str(); }
-  { auto _e = action_index(); _o->action_index = _e; }
+  { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
   { auto _e = appearance(); if (_e) { if(_o->appearance) { _e->UnPackTo(_o->appearance.get(), _resolver); } else { _o->appearance = std::unique_ptr<fbs::CharacterAppearanceT>(_e->UnPack(_resolver)); } } else if (_o->appearance) { _o->appearance.reset(); } }
 }
 
@@ -699,18 +1161,12 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
-  auto _x = _o->x;
-  auto _y = _o->y;
-  auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
-  auto _action_index = _o->action_index;
+  auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
   auto _appearance = _o->appearance ? CreateCharacterAppearance(_fbb, _o->appearance.get(), _rehasher) : 0;
   return fbs::CreateCharacter(
       _fbb,
       _name,
-      _x,
-      _y,
-      _action,
-      _action_index,
+      _state,
       _appearance);
 }
 
@@ -793,6 +1249,136 @@ inline ::flatbuffers::Offset<Movement> Movement::Pack(::flatbuffers::FlatBufferB
       _y2,
       _time,
       _page);
+}
+
+inline MobT::MobT(const MobT &o)
+      : mob_id(o.mob_id),
+        summon(o.summon),
+        state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr) {
+}
+
+inline MobT &MobT::operator=(MobT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_id, o.mob_id);
+  std::swap(summon, o.summon);
+  std::swap(state, o.state);
+  return *this;
+}
+
+inline MobT *Mob::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<MobT>(new MobT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Mob::UnPackTo(MobT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_id(); _o->mob_id = _e; }
+  { auto _e = summon(); _o->summon = _e; }
+  { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
+}
+
+inline ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Mob::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MobT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_id = _o->mob_id;
+  auto _summon = _o->summon;
+  auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
+  return fbs::CreateMob(
+      _fbb,
+      _mob_id,
+      _summon,
+      _state);
+}
+
+inline DropEquipT *DropEquip::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<DropEquipT>(new DropEquipT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void DropEquip::UnPackTo(DropEquipT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = equip_id(); _o->equip_id = _e; }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+  { auto _e = rotate(); _o->rotate = _e; }
+  { auto _e = h_speed(); _o->h_speed = _e; }
+  { auto _e = v_speed(); _o->v_speed = _e; }
+}
+
+inline ::flatbuffers::Offset<DropEquip> CreateDropEquip(::flatbuffers::FlatBufferBuilder &_fbb, const DropEquipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return DropEquip::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<DropEquip> DropEquip::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DropEquipT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DropEquipT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _equip_id = _o->equip_id;
+  auto _x = _o->x;
+  auto _y = _o->y;
+  auto _rotate = _o->rotate;
+  auto _h_speed = _o->h_speed;
+  auto _v_speed = _o->v_speed;
+  return fbs::CreateDropEquip(
+      _fbb,
+      _equip_id,
+      _x,
+      _y,
+      _rotate,
+      _h_speed,
+      _v_speed);
+}
+
+inline DropItemT *DropItem::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<DropItemT>(new DropItemT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void DropItem::UnPackTo(DropItemT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = item_id(); _o->item_id = _e; }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+  { auto _e = num(); _o->num = _e; }
+  { auto _e = rotate(); _o->rotate = _e; }
+  { auto _e = h_speed(); _o->h_speed = _e; }
+  { auto _e = v_speed(); _o->v_speed = _e; }
+}
+
+inline ::flatbuffers::Offset<DropItem> CreateDropItem(::flatbuffers::FlatBufferBuilder &_fbb, const DropItemT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return DropItem::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<DropItem> DropItem::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DropItemT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DropItemT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _item_id = _o->item_id;
+  auto _x = _o->x;
+  auto _y = _o->y;
+  auto _num = _o->num;
+  auto _rotate = _o->rotate;
+  auto _h_speed = _o->h_speed;
+  auto _v_speed = _o->v_speed;
+  return fbs::CreateDropItem(
+      _fbb,
+      _item_id,
+      _x,
+      _y,
+      _num,
+      _rotate,
+      _h_speed,
+      _v_speed);
 }
 
 }  // namespace fbs

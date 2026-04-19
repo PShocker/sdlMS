@@ -25,6 +25,8 @@ void wz_resource::init_key() {
 
 void wz_resource::init_files() {
   character = new wz::Files("Character/Character");
+  map = new wz::Files("Map/Map");
+  ui = new wz::Files("UI/UI");
 }
 
 void wz_resource::init() {
@@ -44,7 +46,7 @@ wz::Node *wz_resource::load_map_node(uint32_t map_id) {
   if (!map_node_cache.contains(map_id)) {
     auto s = load_map_path(map_id);
     std::string path =
-        "Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
+        "Map/Map" + std::to_string(map_id / 100000000) + "/" + s + ".img";
     map_node_cache[map_id] = map->find(path);
   }
   return map_node_cache.at(map_id);

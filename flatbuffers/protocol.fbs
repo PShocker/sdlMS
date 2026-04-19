@@ -1,5 +1,5 @@
-include "Client.fbs";
-include "Server.fbs";
+include "client.fbs";
+include "server.fbs";
 
 namespace fbs;      // 定义命名空间
 

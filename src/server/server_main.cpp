@@ -18,6 +18,13 @@ uint64_t server_main::combine_ip_port(uint32_t ip, uint16_t port) {
   return ((uint64_t)ip << 32) | port;
 }
 
+// 分解uint64为IP和端口
+void server_main::split_ip_port(uint64_t combined, uint32_t &ip,
+                                uint16_t &port) {
+  ip = (uint32_t)(combined >> 32);      // 取高32位
+  port = (uint16_t)(combined & 0xFFFF); // 取低16位（注意是16位，不是32位）
+}
+
 // 接收回调：当收到数据时被调用
 void server_main::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
                           const struct sockaddr *addr, unsigned flags) {
@@ -92,7 +99,7 @@ void server_main::server_init() {
   local_port = ntohs(assigned_addr.sin_port);
 
   if (host_addr.sin_port == 0) {
-    host_addr = local_addr;
+    uv_ip4_addr("127.0.0.1", local_port, &host_addr);
   }
   if (!host) {
     // 连接到指定的远程地址
@@ -139,3 +146,18 @@ bool server_main::server_send(const uint8_t *data, size_t len,
   }
   return true;
 }
+
+bool server_main::server_send(const uint8_t *data, size_t len,
+                              uint64_t client_id) {
+  uint32_t ip;
+  uint16_t port;
+  split_ip_port(client_id, ip, port);
+  
+  sockaddr_in send_addr;
+  send_addr.sin_family = AF_INET;
+  send_addr.sin_port = htons(port);
+  send_addr.sin_addr.s_addr = ip;
+  return server_send(data, len, send_addr);
+}
+
+void server_main::server_run() { uv_run(loop, UV_RUN_NOWAIT); }

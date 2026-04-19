@@ -34,6 +34,9 @@ target_link_libraries(main PRIVATE avcodec avformat avutil swscale swresample)
 
 target_link_libraries(main PRIVATE uv)
 
+target_link_libraries(main PRIVATE wzlib)
+
+
 if (MSVC)
     add_compile_options(/WX)  # MSVC 的 "警告视为错误"
 else()

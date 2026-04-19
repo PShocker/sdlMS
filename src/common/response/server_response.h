@@ -1,6 +1,6 @@
 #pragma once
 
-#include "src/common/flatbuffers/Server.h"
+#include "src/common/flatbuffers/server.h"
 #include <cstdint>
 class server_response {
 public:
