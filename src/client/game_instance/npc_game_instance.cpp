@@ -1,7 +1,21 @@
 #include "npc_game_instance.h"
 #include "foothold_game_instance.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Node.h"
 #include "wz/Property.h"
+#include <array>
+#include <flat_set>
+#include <string>
+
+wz::Node *npc_game_instance::load_link_npc_node(const std::u16string &id) {
+  auto npc_node = wz_resource::npc->find(id + u".img");
+  while (npc_node->find(u"info/link")) {
+    auto link_node = npc_node->find(u"info/link");
+    auto link = static_cast<wz::Property<std::u16string> *>(link_node)->get();
+    npc_node = wz_resource::npc->find(link + u".img");
+  }
+  return npc_node;
+}
 
 void npc_game_instance::load(uint32_t map_id) {
   data = {};
@@ -18,18 +32,23 @@ void npc_game_instance::load(uint32_t map_id) {
     game_npc g_npc;
 
     auto npc_node = val[0];
-    auto fh =
+    g_npc.id =
+        static_cast<wz::Property<std::u16string> *>(npc_node->get_child(u"id"))
+            ->get();
+    g_npc.fh =
         static_cast<wz::Property<int> *>(npc_node->get_child(u"fh"))->get();
-    auto rx0 =
+    g_npc.rx0 =
         static_cast<wz::Property<int> *>(npc_node->get_child(u"rx0"))->get();
-    auto rx1 =
+    g_npc.rx1 =
         static_cast<wz::Property<int> *>(npc_node->get_child(u"rx1"))->get();
+    auto x = static_cast<wz::Property<int> *>(npc_node->get_child(u"x"))->get();
+    auto y = static_cast<wz::Property<int> *>(npc_node->get_child(u"y"))->get();
+    g_npc.pos = {static_cast<float>(x), static_cast<float>(y)};
 
-    g_npc.fh = fh;
-    g_npc.rx0 = rx0;
-    g_npc.rx1 = rx1;
+    // default action
+    g_npc.action = u"stand";
 
-    auto layer = foothold_game_instance::data.at(fh).page;
+    auto layer = foothold_game_instance::data.at(g_npc.fh).page;
     data[layer].push_back(g_npc);
   }
 }

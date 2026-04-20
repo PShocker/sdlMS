@@ -27,6 +27,8 @@ bool portal_render_system::render(game_portal &g_portal) {
     } else {
       return false;
     }
+  } else {
+    texture_node = portal_node;
   }
   auto index =
       std::to_string(g_portal.ani_index % texture_node->children_count());

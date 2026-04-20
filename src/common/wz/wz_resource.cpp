@@ -27,6 +27,8 @@ void wz_resource::init_files() {
   character = new wz::Files("Character/Character");
   map = new wz::Files("Map/Map");
   ui = new wz::Files("UI/UI");
+  mob = new wz::Files("Mob/Mob");
+  npc = new wz::Files("Npc/Npc");
 }
 
 void wz_resource::init() {

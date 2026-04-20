@@ -1,11 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
-#include "src/client/ui/ui_base.h"
-#include <cstdint>
-#include <flat_map>
-
-class package_ui_system {
+class equip_ui_system {
 public:
   static inline SDL_FPoint pos;
 

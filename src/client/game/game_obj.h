@@ -11,6 +11,8 @@ public:
   SDL_FPoint pos;
   int8_t flip;
 
+  uint8_t alpha = 255;
+
   uint32_t ani_index = 0;
   uint32_t ani_time;
 };

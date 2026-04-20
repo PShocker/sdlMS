@@ -7,23 +7,23 @@
 
 // 定义枚举类
 enum class input_type {
-  INPUT_ACTION,
-  INPUT_UI,
-  INPUT_ITEM,
-  INPUT_SKILL,
+  Action,
+  Ui,
+  Item,
+  Skill,
 };
 
 enum class action_type : uint32_t {
-  ACTION_UP,
-  ACTION_DOWN,
-  ACTION_LEFT,
-  ACTION_RIGHT,
-  ACTION_JUMP,
-  ACTION_ATTACK,
+  Up,
+  Down,
+  Left,
+  Right,
+  Jump,
+  Attack,
 };
 
 enum class ui_type : uint32_t {
-  UI_PACKAGE,
+  Package,
 };
 
 class game_input {

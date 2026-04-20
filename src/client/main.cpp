@@ -42,7 +42,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   client_request::client_scene_request({
       .come = true,
-      .scene_id = 1000,
+      .scene_id = 10002000,
   });
 
   return SDL_APP_CONTINUE;

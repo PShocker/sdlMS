@@ -36,7 +36,8 @@ void portal_game_instance::load(uint32_t map_id) {
           static_cast<wz::Property<int> *>(portal_node->get_child(u"y"))->get();
       g_portal.pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
 
-      if (g_portal.pt == 7 || g_portal.pt == 0) {
+      if (g_portal.pt == 7 || g_portal.pt == 6 || g_portal.pt == 0 ||
+          g_portal.pt == 1) {
         g_portal.pt = 2;
       }
 
