@@ -24,8 +24,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   return SDL_APP_CONTINUE;
 }
 
-static int32_t width = 1200;
-static int32_t height = 800;
+static int32_t width = 1600;
+static int32_t height = 900;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   if (argc == 3) {
@@ -34,7 +34,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     server_main::server_init();
   }
   window::create("sdlMS", width, height);
-  camera_game_instance::load(0, 0, width, height);
+  camera_game_instance::load(-600, -200, width, height);
 
   wz_resource::init();
 
@@ -42,7 +42,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   client_request::client_scene_request({
       .come = true,
-      .scene_id = 10002000,
+      .scene_id = 10001000,
   });
 
   return SDL_APP_CONTINUE;

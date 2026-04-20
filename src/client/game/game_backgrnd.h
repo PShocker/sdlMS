@@ -18,6 +18,8 @@ public:
   bool htile = false;
   bool vtile = false;
 
+  uint8_t flip;
+
   // 平移属性
   int32_t rx = 0;
   int32_t ry = 0;

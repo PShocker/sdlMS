@@ -72,24 +72,25 @@ bool backgrnd_render_system::render(game_backgrnd &g_backgrnd) {
     }
   }
 
-  if (cx == texture->w && cy == texture->h) {
-    SDL_FRect dstRect = {
-        (float)point.x,         // x 起始位置
-        (float)point.y,         // y 起始位置
-        (float)tile_cnt_x * cx, // 总宽度
-        (float)tile_cnt_y * cy  // 总高度
+  if (cx == texture->w && cy == texture->h && g_backgrnd.flip == 0) {
+    SDL_FRect dst_rect = {
+        (float)point.x - viewprot_x, // x 起始位置
+        (float)point.y - viewprot_y, // y 起始位置
+        (float)tile_cnt_x * cx,      // 总宽度
+        (float)tile_cnt_y * cy       // 总高度
     };
-    SDL_RenderTextureTiled(window::renderer, texture, nullptr, 1, &dstRect);
+    SDL_RenderTextureTiled(window::renderer, texture, nullptr, 1, &dst_rect);
   } else {
     for (int i = 0; i < tile_cnt_y; i++) {
       for (int j = 0; j < tile_cnt_x; j++) {
-        SDL_FRect dstRect = {
-            (float)point.x + j * cx, // x 起始位置
-            (float)point.y + i * cy, // y 起始位置
-            (float)texture->w,       // 总宽度
-            (float)texture->h        // 总高度
+        SDL_FRect dst_rect = {
+            (float)point.x + j * cx - viewprot_x, // x 起始位置
+            (float)point.y + i * cy - viewprot_y, // y 起始位置
+            (float)texture->w,                    // 总宽度
+            (float)texture->h                     // 总高度
         };
-        SDL_RenderTexture(window::renderer, texture, nullptr, &dstRect);
+        SDL_RenderTextureRotated(window::renderer, texture, nullptr, &dst_rect,
+                                 0, nullptr, (SDL_FlipMode)g_backgrnd.flip);
       }
     }
   }

@@ -56,9 +56,9 @@ bool scene_system_instance::render_game() {
   auto &self = character_game_instance::self;
   auto self_layer = load_character_layer(self);
   character_array[self_layer].push_back(&self);
-  // 前景
-  for (auto &f_backgrnd : backgrnd_game_instance::front | std::views::values) {
-    backgrnd_render_system::render(f_backgrnd);
+  //   后景
+  for (auto &b_backgrnd : backgrnd_game_instance::back | std::views::values) {
+    backgrnd_render_system::render(b_backgrnd);
   }
   for (uint8_t i = 0; i < 8; i++) {
     for (auto &obj : obj_game_instance::data[i] | std::views::values) {
@@ -87,10 +87,11 @@ bool scene_system_instance::render_game() {
   for (auto &portal : portal_game_instance::data) {
     portal_render_system::render(portal);
   }
-  //   后景
-  for (auto &b_backgrnd : backgrnd_game_instance::back | std::views::values) {
-    backgrnd_render_system::render(b_backgrnd);
+  // 前景
+  for (auto &f_backgrnd : backgrnd_game_instance::front | std::views::values) {
+    backgrnd_render_system::render(f_backgrnd);
   }
+
   return true;
 }
 
