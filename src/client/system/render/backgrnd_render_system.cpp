@@ -74,20 +74,20 @@ bool backgrnd_render_system::render(game_backgrnd &g_backgrnd) {
 
   if (cx == texture->w && cy == texture->h) {
     SDL_FRect dstRect = {
-        (float)point.x + origin.x,         // x 起始位置
-        (float)point.y + origin.y,         // y 起始位置
-        (float)tile_cnt_x * cx + origin.x, // 总宽度
-        (float)tile_cnt_y * cy + origin.y  // 总高度
+        (float)point.x,         // x 起始位置
+        (float)point.y,         // y 起始位置
+        (float)tile_cnt_x * cx, // 总宽度
+        (float)tile_cnt_y * cy  // 总高度
     };
     SDL_RenderTextureTiled(window::renderer, texture, nullptr, 1, &dstRect);
   } else {
     for (int i = 0; i < tile_cnt_y; i++) {
       for (int j = 0; j < tile_cnt_x; j++) {
         SDL_FRect dstRect = {
-            (float)point.x + j * cx + origin.x, // x 起始位置
-            (float)point.y + i * cy + origin.y, // y 起始位置
-            (float)texture->w,                  // 总宽度
-            (float)texture->h                   // 总高度
+            (float)point.x + j * cx, // x 起始位置
+            (float)point.y + i * cy, // y 起始位置
+            (float)texture->w,       // 总宽度
+            (float)texture->h        // 总高度
         };
         SDL_RenderTexture(window::renderer, texture, nullptr, &dstRect);
       }

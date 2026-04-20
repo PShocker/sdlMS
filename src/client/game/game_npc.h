@@ -7,7 +7,7 @@
 #include <string>
 class game_npc {
 public:
-  uint32_t id;
+  std::u16string id;
   int32_t rx0;
   int32_t rx1;
   int32_t fh;
@@ -16,8 +16,10 @@ public:
 
   std::u16string action;
 
+  uint8_t alpha = 255;
+
   uint32_t ani_index = 0;
-  uint32_t ani_time;
+  uint32_t ani_time = 0;
 
   std::optional<game_chatballoon> chatballoon;
 };

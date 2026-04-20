@@ -27,6 +27,4 @@ void statusbar_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, gaugeLabel, nullptr, &pos_rect);
 }
 
-bool statusbar_ui_system::render() {
-    return true;
-}
+bool statusbar_ui_system::render() { return true; }

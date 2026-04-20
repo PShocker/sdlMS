@@ -11,7 +11,7 @@ void window::create(const char *title, uint32_t width, uint32_t height) {
   if (!win) {
     std::abort();
   }
-  renderer = SDL_CreateRenderer(win, NULL);
+  renderer = SDL_CreateRenderer(win, SDL_GPU_RENDERER);
   SDL_SetRenderVSync(renderer, 1);
 }
 

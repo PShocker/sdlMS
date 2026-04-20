@@ -6,20 +6,20 @@ void keyboard_game_instance::reset() {
   data.clear();
 
   data[SDL_SCANCODE_UP] = {
-      .type = input_type::INPUT_ACTION,
-      .val = (uint32_t)action_type::ACTION_UP,
+      .type = input_type::Action,
+      .val = (uint32_t)action_type::Up,
   };
   data[SDL_SCANCODE_DOWN] = {
-      .type = input_type::INPUT_ACTION,
-      .val = (uint32_t)action_type::ACTION_DOWN,
+      .type = input_type::Action,
+      .val = (uint32_t)action_type::Down,
   };
   data[SDL_SCANCODE_LEFT] = {
-      .type = input_type::INPUT_ACTION,
-      .val = (uint32_t)action_type::ACTION_LEFT,
+      .type = input_type::Action,
+      .val = (uint32_t)action_type::Left,
   };
   data[SDL_SCANCODE_RIGHT] = {
-      .type = input_type::INPUT_ACTION,
-      .val = (uint32_t)action_type::ACTION_RIGHT,
+      .type = input_type::Action,
+      .val = (uint32_t)action_type::Right,
   };
 }
 
