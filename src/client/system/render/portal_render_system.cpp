@@ -9,6 +9,9 @@
 #include <string>
 
 bool portal_render_system::render(game_portal &g_portal) {
+  if (!(g_portal.pt == 1 || g_portal.pt == 2)) {
+    return true;
+  }
   auto path = g_portal.path + g_portal.path2;
 
   auto portal_node = wz_resource::map->find(path);
@@ -32,7 +35,7 @@ bool portal_render_system::render(game_portal &g_portal) {
   }
   auto index =
       std::to_string(g_portal.ani_index % texture_node->children_count());
-  texture_node = portal_node->get_child(index);
+  texture_node = texture_node->get_child(index);
   auto texture = wz_resource::load_texture(texture_node);
   auto v = static_cast<wz::Property<wz::WzVec2D> *>(
                texture_node->get_child(u"origin"))

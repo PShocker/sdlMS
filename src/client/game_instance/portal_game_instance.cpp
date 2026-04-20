@@ -5,7 +5,7 @@
 #include <string>
 
 const static std::u16string pt_list[] = {
-    u"sp",  u"pi",  u"pv", u"pc",  u"pg",  u"tp",  u"ps",   u"pgi",
+    u"sp",  u"ph",  u"pv", u"pc",  u"pg",  u"tp",  u"ps",   u"pgi",
     u"psi", u"pcs", u"ph", u"psh", u"pcj", u"pci", u"pcig", u"pshg"};
 
 void portal_game_instance::load(uint32_t map_id) {
@@ -36,8 +36,7 @@ void portal_game_instance::load(uint32_t map_id) {
           static_cast<wz::Property<int> *>(portal_node->get_child(u"y"))->get();
       g_portal.pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
 
-      if (g_portal.pt == 7 || g_portal.pt == 6 || g_portal.pt == 0 ||
-          g_portal.pt == 1) {
+      if (g_portal.pt == 7) {
         g_portal.pt = 2;
       }
 

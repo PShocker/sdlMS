@@ -118,9 +118,13 @@ void backgrnd_game_instance::load(uint32_t map_id) {
     }
     }
 
-    auto f =
+    g_backgrnd.flip =
         static_cast<wz::Property<int> *>(backgrnd_node->get_child(u"f"))->get();
-    if (f == 1) {
+
+    auto fnt =
+        static_cast<wz::Property<int> *>(backgrnd_node->get_child(u"front"))
+            ->get();
+    if (fnt == 1) {
       front.insert({id, g_backgrnd});
     } else {
       back.insert({id, g_backgrnd});

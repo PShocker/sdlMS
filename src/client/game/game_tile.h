@@ -9,5 +9,5 @@ public:
   int64_t z;
 
   std::u16string path;
-  uint8_t alpha;
+  uint8_t alpha = 255;
 };
