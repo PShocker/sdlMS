@@ -118,6 +118,18 @@ void backgrnd_game_instance::load(uint32_t map_id) {
     }
     }
 
+    SDL_Texture *texture;
+    auto back_node = wz_resource::map->find(g_backgrnd.path);
+    if (g_backgrnd.ani) {
+      auto index =
+          std::to_string(g_backgrnd.ani_index % back_node->children_count());
+      back_node = back_node->get_child(index);
+    }
+    texture = wz_resource::load_texture(back_node);
+
+    g_backgrnd.cx = g_backgrnd.cx == 0 ? texture->w : g_backgrnd.cx;
+    g_backgrnd.cy = g_backgrnd.cy == 0 ? texture->h : g_backgrnd.cy;
+
     g_backgrnd.flip =
         static_cast<wz::Property<int> *>(backgrnd_node->get_child(u"f"))->get();
 

@@ -8,7 +8,6 @@
 
 void obj_game_instance::load(uint32_t map_id) {
   data = {};
-
   auto map_node = wz_resource::load_map_node(map_id);
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
@@ -37,18 +36,18 @@ void obj_game_instance::load(uint32_t map_id) {
       auto z =
           static_cast<wz::Property<int> *>(obj_node->get_child(u"z"))->get();
 
-      auto zm =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"zM"))->get();
-
       g_obj.pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
 
       auto flip =
           static_cast<wz::Property<int> *>(obj_node->get_child(u"f"))->get();
 
       g_obj.flip = flip;
-      g_obj.z = z * 1024 + zm;
 
-      obj_game_instance::data[map_layer].insert({g_obj.z, g_obj});
+      auto load_z = std::stoi(std::string{key.begin(), key.end()});
+
+      g_obj.z = z * 100000 + load_z * 10;
+
+      obj_game_instance::data[map_layer].emplace(g_obj.z, g_obj);
     }
     map_layer++;
   }

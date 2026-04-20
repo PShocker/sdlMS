@@ -1,4 +1,5 @@
 #include "window.h"
+#include "SDL3/SDL_render.h"
 #include <cstdint>
 #include <cstdlib>
 
@@ -13,6 +14,7 @@ void window::create(const char *title, uint32_t width, uint32_t height) {
   }
   renderer = SDL_CreateRenderer(win, SDL_GPU_RENDERER);
   SDL_SetRenderVSync(renderer, 1);
+  SDL_SetDefaultTextureScaleMode(renderer, SDL_SCALEMODE_NEAREST);
 }
 
 void window::tick() {

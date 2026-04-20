@@ -24,9 +24,6 @@ bool backgrnd_render_system::render(game_backgrnd &g_backgrnd) {
   }
   texture = wz_resource::load_texture(back_node);
 
-  int32_t cx = g_backgrnd.cx == 0 ? texture->w : g_backgrnd.cx;
-  int32_t cy = g_backgrnd.cy == 0 ? texture->h : g_backgrnd.cy;
-
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(back_node->get_child(u"origin"))
           ->get();
@@ -36,6 +33,9 @@ bool backgrnd_render_system::render(game_backgrnd &g_backgrnd) {
 
   point.x += g_backgrnd.offset_x;
   point.y += g_backgrnd.offset_y;
+
+  auto cx = g_backgrnd.cx;
+  auto cy = g_backgrnd.cy;
 
   auto tile_cnt_x = 1;
   if (g_backgrnd.htile && cx > 0) {
