@@ -31,6 +31,9 @@ public:
 
   static inline game_character self;
 
+  static inline float hforce = 0.0;
+  static inline float vforce = 0.0;
+
   static inline std::flat_map<uint64_t, game_character> others;
 
   static inline std::flat_map<std::u16string, character_extern_action>

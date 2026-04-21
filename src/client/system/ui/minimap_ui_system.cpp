@@ -200,6 +200,6 @@ bool minimap_ui_system::render() {
   return true;
 }
 
-bool minimap_ui_system::event_button(SDL_Event *event) {}
+bool minimap_ui_system::event_button(SDL_Event *event) { return true; }
 
 bool minimap_ui_system::event(SDL_Event *event) { return false; }

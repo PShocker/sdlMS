@@ -58,22 +58,22 @@ void server_main::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
   free(buf->base); // 释放由 alloc_cb 分配的内存
 }
 
-void server_main::heartbeat_cb(uv_timer_t *handle) {
-  client_request::client_heartbeat_request();
-  auto now = SDL_GetTicks();
-  if (now - host_heartbeat > heartbeat_interval * 2000) {
-    // 服务器超时
-  }
-}
+// void server_main::heartbeat_cb(uv_timer_t *handle) {
+//   client_request::client_heartbeat_request();
+//   auto now = SDL_GetTicks();
+//   if (now - host_heartbeat > heartbeat_interval * 2000) {
+//     // 服务器超时
+//   }
+// }
 
-void server_main::server_init_heartbeat() {
-  // 初始化心跳
-  uv_timer_t interval_timer;
-  uv_timer_init(loop, &interval_timer);
-  // 启动：0ms后首次执行，之后每5000ms执行一次
-  uv_timer_start(&interval_timer, heartbeat_cb, 0, heartbeat_interval * 1000);
-  host_heartbeat = SDL_GetTicks();
-}
+// void server_main::server_init_heartbeat() {
+//   // 初始化心跳
+//   uv_timer_t interval_timer;
+//   uv_timer_init(loop, &interval_timer);
+//   // 启动：0ms后首次执行，之后每5000ms执行一次
+//   uv_timer_start(&interval_timer, heartbeat_cb, 0, heartbeat_interval * 1000);
+//   host_heartbeat = SDL_GetTicks();
+// }
 
 void server_main::server_init() {
   loop = uv_default_loop();

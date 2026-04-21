@@ -1,23 +1,13 @@
 #pragma once
 
-#include "client_instance.h"
 #include "flatbuffers/flatbuffer_builder.h"
 #include "uv.h"
 #include <cstdint>
-#include <flat_map>
-#include <flat_set>
 #include <string>
 class server_main {
 public:
   static inline bool host = true;
   static inline sockaddr_in host_addr = {};
-  static inline uint64_t host_heartbeat;
-
-  const static uint8_t heartbeat_interval = 5;
-
-  static inline std::flat_map<uint64_t, client_instance> clients;
-  static inline std::flat_map<uint32_t, std::flat_set<uint64_t>> scene_clients;
-  static inline std::flat_map<uint32_t, uint64_t> scene_host;
 
   static void server_init_heartbeat();
   static void server_init(const std::string &ip, uint32_t port);
@@ -29,9 +19,9 @@ public:
   static void server_run();
 
 private:
-  static inline uv_loop_t *loop = nullptr;
-  static inline uv_udp_t local_socket = {};
-  static inline uint32_t local_port = 0;
+  static inline uv_loop_t *loop;
+  static inline uv_udp_t local_socket;
+  static inline uint32_t local_port;
 
   static void heartbeat_cb(uv_timer_t *handle);
 

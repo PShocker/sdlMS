@@ -99,10 +99,10 @@ void scene_system_instance::enter(uint32_t map_id) {
   scene_system_instance::map_id = map_id;
 
   map_info_game_instance::load(map_id);
-  foothold_game_instance::load(map_id);
+  foothold_game_instance::data = foothold_game_instance::load(map_id);
   backgrnd_game_instance::load(map_id);
   ladderrope_game_instance::load(map_id);
-  mob_game_instance::load(map_id);
+  mob_game_instance::data = mob_game_instance::load(map_id);
   npc_game_instance::load(map_id);
   obj_game_instance::load(map_id);
   portal_game_instance::load(map_id);
