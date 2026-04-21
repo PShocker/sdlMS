@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
+#include <optional>
 class game_foothold {
 public:
   uint32_t id;
@@ -20,7 +21,8 @@ public:
   int32_t t;
   int32_t b;
 
-  bool wall;
-
   bool forbidFallDown = false;
+
+  std::optional<float> k = std::nullopt; // 斜率,若k值不存在,可以判断是否是墙面
+  std::optional<float> intercept = std::nullopt;
 };

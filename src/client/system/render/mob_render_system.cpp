@@ -15,9 +15,9 @@ bool mob_render_system::render(game_mob &g_mob) {
 
   auto texture = wz_resource::load_texture(mob_node);
 
-  auto v = static_cast<wz::Property<wz::WzVec2D> *>(
-               mob_node->get_child(u"origin"))
-               ->get();
+  auto v =
+      static_cast<wz::Property<wz::WzVec2D> *>(mob_node->get_child(u"origin"))
+          ->get();
   auto origin = SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
 
   SDL_FRect pos_rect = {
@@ -26,7 +26,7 @@ bool mob_render_system::render(game_mob &g_mob) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto camera = camera_game_instance::camera;
+  auto &camera = camera_game_instance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;

@@ -2,9 +2,10 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 
-std::flat_map<int32_t, game_foothold> foothold_game_instance::load(uint32_t map_id) {
+std::flat_map<int32_t, game_foothold>
+foothold_game_instance::load(uint32_t map_id) {
   std::flat_map<int32_t, game_foothold> data;
-  
+
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_foothold_node = map_node->get_child(u"foothold");
   for (auto [page, val0] : *map_foothold_node->get_children()) {
@@ -43,9 +44,11 @@ std::flat_map<int32_t, game_foothold> foothold_game_instance::load(uint32_t map_
         g_foothold.b = std::max(g_foothold.y1, g_foothold.y2);
 
         if (g_foothold.x1 != g_foothold.x2) {
-          g_foothold.wall = false;
-        } else {
-          g_foothold.wall = true;
+          // 斜线
+          g_foothold.k = ((float)g_foothold.y2 - (float)g_foothold.y1) /
+                         ((float)g_foothold.x2 - (float)g_foothold.x1);
+          g_foothold.intercept =
+              g_foothold.y1 - g_foothold.k.value() * g_foothold.x1;
         }
         data.emplace(g_foothold.id, g_foothold);
       }
