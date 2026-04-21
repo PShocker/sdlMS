@@ -14,14 +14,11 @@
 SDL_AppResult SDL_AppIterate(void *appstate) {
   window::tick();
   window::clear();
-  for (const auto &fn : system::logic_systems) {
-    if (fn() == false) {
-      break;
-    }
-  }
-  for (const auto &fn : system::render_systems) {
-    if (fn() == false) {
-      break;
+  for (auto &fns : {system::logic_systems, system::render_systems}) {
+    for (auto &fn : fns) {
+      if (fn() == false) {
+        break;
+      }
     }
   }
   window::update();
@@ -39,7 +36,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     server_main::server_init();
   }
   window::create("sdlMS", width, height);
-  camera_game_instance::load(0, -500, width, height);
+  camera_game_instance::load(-800, -300, width, height);
 
   wz_resource::init();
 
@@ -47,7 +44,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   client_request::client_scene_request({
       .come = true,
-      .scene_id = 10006000,
+      .scene_id = 10001000,
   });
 
   return SDL_APP_CONTINUE;

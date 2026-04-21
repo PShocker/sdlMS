@@ -19,7 +19,8 @@ void server_foothold_instance::load_server_fh(uint32_t map_id) {
         .r = v.r,
         .t = v.t,
         .b = v.b,
-        .wall = v.wall,
+        .k = v.k,
+        .intercept = v.intercept,
     };
     fhs.fhs[k] = m_fh;
   }

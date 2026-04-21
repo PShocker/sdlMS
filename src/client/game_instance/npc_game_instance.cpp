@@ -42,7 +42,9 @@ void npc_game_instance::load(uint32_t map_id) {
     g_npc.rx1 =
         static_cast<wz::Property<int> *>(npc_node->get_child(u"rx1"))->get();
     auto x = static_cast<wz::Property<int> *>(npc_node->get_child(u"x"))->get();
-    auto y = static_cast<wz::Property<int> *>(npc_node->get_child(u"y"))->get();
+
+    auto &fh = foothold_game_instance::data[g_npc.fh];
+    auto y = fh.k.value() * x + fh.intercept.value();
     g_npc.pos = {static_cast<float>(x), static_cast<float>(y)};
 
     // default action

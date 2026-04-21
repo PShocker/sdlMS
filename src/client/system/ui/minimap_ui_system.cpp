@@ -122,11 +122,11 @@ void minimap_ui_system::render_canvas_life() {
   const auto backgrnd_h = 100;
   auto canvas_texture =
       wz_resource::load_texture(minimap_node->get_child(u"canvas"));
-  auto npc_texture = wz_resource::load_texture(
+  static auto npc_texture = wz_resource::load_texture(
       wz_resource::map->find(u"MapHelper.img/minimap/npc"));
-  auto por_texture = wz_resource::load_texture(
+  static auto por_texture = wz_resource::load_texture(
       wz_resource::map->find(u"MapHelper.img/minimap/portal"));
-  auto user_texture = wz_resource::load_texture(
+  static auto user_texture = wz_resource::load_texture(
       wz_resource::map->find(u"MapHelper.img/minimap/user"));
   // render npc
   for (auto &npcs : npc_game_instance::data) {

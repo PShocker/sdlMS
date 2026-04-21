@@ -48,7 +48,7 @@ bool portal_render_system::render(game_portal &g_portal) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto camera = camera_game_instance::camera;
+  auto &camera = camera_game_instance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
