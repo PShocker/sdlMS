@@ -14,8 +14,8 @@ wz::Node *mob_game_instance::load_link_mob_node(const std::u16string &id) {
   return mob_node;
 }
 
-void mob_game_instance::load(uint32_t map_id) {
-  data = {};
+std::array<std::vector<game_mob>, 8> mob_game_instance::load(uint32_t map_id) {
+  std::array<std::vector<game_mob>, 8> data = {};
 
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_life_node = map_node->get_child(u"life");
@@ -58,4 +58,5 @@ void mob_game_instance::load(uint32_t map_id) {
     auto layer = foothold_game_instance::data.at(g_mob.fh).page;
     data[layer].push_back(g_mob);
   }
+  return data;
 }

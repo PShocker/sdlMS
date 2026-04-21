@@ -6,7 +6,6 @@ table ServerHeartbeat {
 }
 
 table ServerScene {
-    scene_host:uint64;
     scene_id:uint32;
     your_id:uint64;
     

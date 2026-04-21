@@ -2,32 +2,27 @@
 
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
+#include <optional>
 #include <string>
-
-enum class mob_type {
-  Stand,
-  Fly,
-};
-
-class game_mob {
+class server_mob {
 public:
   int32_t index;
   std::u16string id;
   int32_t rx0;
   int32_t rx1;
-  int32_t fh;
 
   SDL_FPoint pos;
+  std::optional<uint64_t> hate_id;
+  int64_t hp;
+  int64_t mp;
 
   std::u16string action;
 
-  uint8_t alpha = 255;
+  float hspeed = 0;
+  float vspeed = 0;
 
-  uint32_t ani_index = 0;
-  uint32_t ani_time;
+  float hforce = 0.0;
+  float vforce = 0.0;
 
-  mob_type type;
-
-  int64_t hp;
-  int64_t mp;
+  int64_t fh;
 };

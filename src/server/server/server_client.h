@@ -4,12 +4,12 @@
 #include "uv.h"
 #include <cstdint>
 
-class client_instance {
+class server_client {
 public:
   uint64_t id;
   sockaddr_in addr; // 客户端地址
-  bool scene_host;
-  uint64_t scene;
-  uint64_t heartbeat;
+  uint64_t map_id;
+
   fbs::PlayerT fbs_player;
+  uint64_t heartbeat;
 };
