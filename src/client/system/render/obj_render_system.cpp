@@ -4,13 +4,17 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include "wz/Wz.h"
 
 bool obj_render_system::render(game_obj &g_obj) {
   auto obj_node = wz_resource::map->find(g_obj.path);
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
+  if (obj_node->type == wz::Type::UOL) {
+    obj_node = static_cast<wz::Property<wz::WzUOL> *>(obj_node)->get_uol();
+  }
   auto texture = wz_resource::load_texture(obj_node);
-    auto v =
+  auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(obj_node->get_child(u"origin"))
           ->get();
   auto origin = SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};

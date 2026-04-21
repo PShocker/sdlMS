@@ -3,6 +3,7 @@
 #include "src/client/game/game_obj.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include "wz/Wz.h"
 #include <cstdint>
 #include <string>
 
@@ -46,6 +47,18 @@ void obj_game_instance::load(uint32_t map_id) {
       auto load_z = std::stoi(std::string{key.begin(), key.end()});
 
       g_obj.z = z * 100000 + load_z * 10;
+
+      obj_node = wz_resource::map->find(g_obj.path);
+      uint8_t canvas_count = 0;
+      for (auto [k, v] : *obj_node->get_children()) {
+        if (v[0]->type == wz::Type::UOL) {
+          v[0] = static_cast<wz::Property<wz::WzUOL> *>(v[0])->get_uol();
+        }
+        if (v[0]->type == wz::Type::Canvas) {
+          canvas_count++;
+        }
+      }
+      g_obj.ani_count = canvas_count;
 
       obj_game_instance::data[map_layer].emplace(g_obj.z, g_obj);
     }

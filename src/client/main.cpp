@@ -36,7 +36,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     server_main::server_init();
   }
   window::create("sdlMS", width, height);
-  camera_game_instance::load(-800, -300, width, height);
+  camera_game_instance::load(0, 0, width, height);
 
   wz_resource::init();
 
@@ -44,7 +44,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   client_request::client_scene_request({
       .come = true,
-      .scene_id = 10001000,
+      .scene_id = 10002000,
   });
 
   return SDL_APP_CONTINUE;
