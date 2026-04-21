@@ -20,6 +20,7 @@
 #include "src/client/system/logic/chatballoon_logic_system.h"
 #include "src/client/system/logic/drop_logic_system.h"
 #include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/portal_logic_system.h"
 #include "src/client/system/logic/sound_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
@@ -118,8 +119,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       camera_logic_system::run,      character_logic_system::run,
       chatballoon_logic_system::run, drop_logic_system::run,
       mob_logic_system::run,         portal_logic_system::run,
-      sound_logic_system::run,
-  };
+      sound_logic_system::run,       obj_logic_system::run};
   system::render_systems = {
       render_game,
       minimap_ui_system::render,
