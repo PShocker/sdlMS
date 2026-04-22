@@ -6,6 +6,8 @@ class scene_system_instance {
 public:
   static inline uint32_t map_id;
   static void enter(uint32_t map_id);
+  static void enter_prepare(uint32_t map_id);
+  static void exit_prepare();
 
 private:
   static bool render_game();

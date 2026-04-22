@@ -35,10 +35,13 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
+#include "src/common/flatbuffers/common.h"
+#include "src/common/request/client_request.h"
 #include <array>
 #include <cstdint>
 #include <cstdlib>
 #include <ranges>
+#include <utility>
 #include <vector>
 
 uint8_t
@@ -125,4 +128,22 @@ void scene_system_instance::enter(uint32_t map_id) {
       minimap_ui_system::render,
       statusbar_ui_system::render,
   };
+}
+
+void scene_system_instance::enter_prepare(uint32_t map_id) {
+  character_game_instance::load_self_character();
+  auto c = character_game_instance::load_fbs_character();
+
+  fbs::ClientSceneT client_scene;
+  client_scene.come = true;
+  client_scene.map_id = map_id;
+  client_scene.character = std::make_unique<fbs::CharacterT>(std::move(c));
+
+  client_request::client_scene_request(client_scene);
+}
+
+void scene_system_instance::exit_prepare() {
+  fbs::ClientSceneT client_scene;
+  client_scene.come = false;
+  client_request::client_scene_request(client_scene);
 }

@@ -27,7 +27,7 @@ enum NetPayload : uint8_t {
   NetPayload_ClientHeartbeat = 1,
   NetPayload_ClientScene = 2,
   NetPayload_ClientCharacterMove = 3,
-  NetPayload_ClientMobMove = 4,
+  NetPayload_ClientVisibleMob = 4,
   NetPayload_ServerHeartbeat = 5,
   NetPayload_ServerScene = 6,
   NetPayload_ServerCharacterMove = 7,
@@ -42,7 +42,7 @@ inline const NetPayload (&EnumValuesNetPayload())[9] {
     NetPayload_ClientHeartbeat,
     NetPayload_ClientScene,
     NetPayload_ClientCharacterMove,
-    NetPayload_ClientMobMove,
+    NetPayload_ClientVisibleMob,
     NetPayload_ServerHeartbeat,
     NetPayload_ServerScene,
     NetPayload_ServerCharacterMove,
@@ -57,7 +57,7 @@ inline const char * const *EnumNamesNetPayload() {
     "ClientHeartbeat",
     "ClientScene",
     "ClientCharacterMove",
-    "ClientMobMove",
+    "ClientVisibleMob",
     "ServerHeartbeat",
     "ServerScene",
     "ServerCharacterMove",
@@ -89,8 +89,8 @@ template<> struct NetPayloadTraits<fbs::ClientCharacterMove> {
   static const NetPayload enum_value = NetPayload_ClientCharacterMove;
 };
 
-template<> struct NetPayloadTraits<fbs::ClientMobMove> {
-  static const NetPayload enum_value = NetPayload_ClientMobMove;
+template<> struct NetPayloadTraits<fbs::ClientVisibleMob> {
+  static const NetPayload enum_value = NetPayload_ClientVisibleMob;
 };
 
 template<> struct NetPayloadTraits<fbs::ServerHeartbeat> {
@@ -125,8 +125,8 @@ template<> struct NetPayloadUnionTraits<fbs::ClientCharacterMoveT> {
   static const NetPayload enum_value = NetPayload_ClientCharacterMove;
 };
 
-template<> struct NetPayloadUnionTraits<fbs::ClientMobMoveT> {
-  static const NetPayload enum_value = NetPayload_ClientMobMove;
+template<> struct NetPayloadUnionTraits<fbs::ClientVisibleMobT> {
+  static const NetPayload enum_value = NetPayload_ClientVisibleMob;
 };
 
 template<> struct NetPayloadUnionTraits<fbs::ServerHeartbeatT> {
@@ -199,13 +199,13 @@ struct NetPayloadUnion {
     return type == NetPayload_ClientCharacterMove ?
       reinterpret_cast<const fbs::ClientCharacterMoveT *>(value) : nullptr;
   }
-  fbs::ClientMobMoveT *AsClientMobMove() {
-    return type == NetPayload_ClientMobMove ?
-      reinterpret_cast<fbs::ClientMobMoveT *>(value) : nullptr;
+  fbs::ClientVisibleMobT *AsClientVisibleMob() {
+    return type == NetPayload_ClientVisibleMob ?
+      reinterpret_cast<fbs::ClientVisibleMobT *>(value) : nullptr;
   }
-  const fbs::ClientMobMoveT *AsClientMobMove() const {
-    return type == NetPayload_ClientMobMove ?
-      reinterpret_cast<const fbs::ClientMobMoveT *>(value) : nullptr;
+  const fbs::ClientVisibleMobT *AsClientVisibleMob() const {
+    return type == NetPayload_ClientVisibleMob ?
+      reinterpret_cast<const fbs::ClientVisibleMobT *>(value) : nullptr;
   }
   fbs::ServerHeartbeatT *AsServerHeartbeat() {
     return type == NetPayload_ServerHeartbeat ?
@@ -274,8 +274,8 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ClientCharacterMove *payload_as_ClientCharacterMove() const {
     return payload_type() == fbs::NetPayload_ClientCharacterMove ? static_cast<const fbs::ClientCharacterMove *>(payload()) : nullptr;
   }
-  const fbs::ClientMobMove *payload_as_ClientMobMove() const {
-    return payload_type() == fbs::NetPayload_ClientMobMove ? static_cast<const fbs::ClientMobMove *>(payload()) : nullptr;
+  const fbs::ClientVisibleMob *payload_as_ClientVisibleMob() const {
+    return payload_type() == fbs::NetPayload_ClientVisibleMob ? static_cast<const fbs::ClientVisibleMob *>(payload()) : nullptr;
   }
   const fbs::ServerHeartbeat *payload_as_ServerHeartbeat() const {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<const fbs::ServerHeartbeat *>(payload()) : nullptr;
@@ -299,8 +299,8 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::ClientCharacterMove *mutable_payload_as_ClientCharacterMove() {
     return payload_type() == fbs::NetPayload_ClientCharacterMove ? static_cast<fbs::ClientCharacterMove *>(mutable_payload()) : nullptr;
   }
-  fbs::ClientMobMove *mutable_payload_as_ClientMobMove() {
-    return payload_type() == fbs::NetPayload_ClientMobMove ? static_cast<fbs::ClientMobMove *>(mutable_payload()) : nullptr;
+  fbs::ClientVisibleMob *mutable_payload_as_ClientVisibleMob() {
+    return payload_type() == fbs::NetPayload_ClientVisibleMob ? static_cast<fbs::ClientVisibleMob *>(mutable_payload()) : nullptr;
   }
   fbs::ServerHeartbeat *mutable_payload_as_ServerHeartbeat() {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<fbs::ServerHeartbeat *>(mutable_payload()) : nullptr;
@@ -354,12 +354,12 @@ template<> inline fbs::ClientCharacterMove *NetPacket::mutable_payload_as<fbs::C
   return mutable_payload_as_ClientCharacterMove();
 }
 
-template<> inline const fbs::ClientMobMove *NetPacket::payload_as<fbs::ClientMobMove>() const {
-  return payload_as_ClientMobMove();
+template<> inline const fbs::ClientVisibleMob *NetPacket::payload_as<fbs::ClientVisibleMob>() const {
+  return payload_as_ClientVisibleMob();
 }
 
-template<> inline fbs::ClientMobMove *NetPacket::mutable_payload_as<fbs::ClientMobMove>() {
-  return mutable_payload_as_ClientMobMove();
+template<> inline fbs::ClientVisibleMob *NetPacket::mutable_payload_as<fbs::ClientVisibleMob>() {
+  return mutable_payload_as_ClientVisibleMob();
 }
 
 template<> inline const fbs::ServerHeartbeat *NetPacket::payload_as<fbs::ServerHeartbeat>() const {
@@ -474,8 +474,8 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ClientCharacterMove *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case NetPayload_ClientMobMove: {
-      auto ptr = reinterpret_cast<const fbs::ClientMobMove *>(obj);
+    case NetPayload_ClientVisibleMob: {
+      auto ptr = reinterpret_cast<const fbs::ClientVisibleMob *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case NetPayload_ServerHeartbeat: {
@@ -526,8 +526,8 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ClientCharacterMove *>(obj);
       return ptr->UnPack(resolver);
     }
-    case NetPayload_ClientMobMove: {
-      auto ptr = reinterpret_cast<const fbs::ClientMobMove *>(obj);
+    case NetPayload_ClientVisibleMob: {
+      auto ptr = reinterpret_cast<const fbs::ClientVisibleMob *>(obj);
       return ptr->UnPack(resolver);
     }
     case NetPayload_ServerHeartbeat: {
@@ -565,9 +565,9 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ClientCharacterMoveT *>(value);
       return CreateClientCharacterMove(_fbb, ptr, _rehasher).Union();
     }
-    case NetPayload_ClientMobMove: {
-      auto ptr = reinterpret_cast<const fbs::ClientMobMoveT *>(value);
-      return CreateClientMobMove(_fbb, ptr, _rehasher).Union();
+    case NetPayload_ClientVisibleMob: {
+      auto ptr = reinterpret_cast<const fbs::ClientVisibleMobT *>(value);
+      return CreateClientVisibleMob(_fbb, ptr, _rehasher).Union();
     }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeatT *>(value);
@@ -603,8 +603,8 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
       value = new fbs::ClientCharacterMoveT(*reinterpret_cast<fbs::ClientCharacterMoveT *>(u.value));
       break;
     }
-    case NetPayload_ClientMobMove: {
-      value = new fbs::ClientMobMoveT(*reinterpret_cast<fbs::ClientMobMoveT *>(u.value));
+    case NetPayload_ClientVisibleMob: {
+      value = new fbs::ClientVisibleMobT(*reinterpret_cast<fbs::ClientVisibleMobT *>(u.value));
       break;
     }
     case NetPayload_ServerHeartbeat: {
@@ -645,8 +645,8 @@ inline void NetPayloadUnion::Reset() {
       delete ptr;
       break;
     }
-    case NetPayload_ClientMobMove: {
-      auto ptr = reinterpret_cast<fbs::ClientMobMoveT *>(value);
+    case NetPayload_ClientVisibleMob: {
+      auto ptr = reinterpret_cast<fbs::ClientVisibleMobT *>(value);
       delete ptr;
       break;
     }

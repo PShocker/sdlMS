@@ -11,7 +11,7 @@ enum class mob_type {
 
 class game_mob {
 public:
-  int32_t index;
+  uint32_t index;
   std::u16string id;
   int32_t rx0;
   int32_t rx1;

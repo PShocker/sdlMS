@@ -1,8 +1,10 @@
 #include "request_handler.h"
 #include "SDL3/SDL_timer.h"
+#include "server_instance/server_scene_instance.h"
 #include "server_system/server_heartbeat_system.h"
 #include "server_system_instance/server_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
+#include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/protocol.h"
 #include "src/common/response/server_response.h"
 #include "src/server/server_main.h"
@@ -25,23 +27,25 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
   }
   case NetPayload_ClientScene: {
     auto payload = packet->payload_as_ClientScene();
-    fbs::ServerSceneT r;
-    r.scene_host = client_id;
-    r.scene_id = payload->scene_id();
-    r.your_id = client_id;
-    server_response::server_scene_response(client_id, r);
+    fbs::ClientSceneT r;
+    payload->UnPackTo(&r);
+    server_scene_instance::handle_scene(client_id, r);
     break;
   }
-
+  case NetPayload_ClientVisibleMob: {
+    auto payload = packet->payload_as_ClientVisibleMob();
+    auto mob_ids = payload->mob_ids();
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
   }
   case NetPayload_ServerScene: {
     auto payload = packet->payload_as_ServerScene();
-    auto scene_id = payload->scene_id();
+    auto map_id = payload->map_id();
     server_system_instance::create_client_heartbeat();
-    scene_system_instance::enter(scene_id);
+    scene_system_instance::enter(map_id);
     break;
   }
 

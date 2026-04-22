@@ -6,7 +6,7 @@
 #include <string>
 class server_mob {
 public:
-  int32_t index;
+  uint32_t index;
   std::u16string id;
   int32_t rx0;
   int32_t rx1;
@@ -23,6 +23,8 @@ public:
 
   float hforce = 0.0;
   float vforce = 0.0;
+
+  bool visible = false;
 
   int64_t fh;
 };

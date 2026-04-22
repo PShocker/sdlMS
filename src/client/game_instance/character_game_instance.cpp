@@ -1,5 +1,6 @@
 #include "character_game_instance.h"
 #include "SDL3/SDL_rect.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
@@ -117,4 +118,57 @@ void character_game_instance::init_character_bone() {
       }
     }
   }
+}
+
+void character_game_instance::load_self_character() {
+  self.head=u"00012000";
+  self.body=u"00002000";
+}
+
+fbs::CharacterT character_game_instance::load_fbs_character() {
+  fbs::CharacterT c;
+
+  c.appearance = std::make_unique<fbs::CharacterAppearanceT>();
+  c.state = std::make_unique<fbs::LifeStateT>();
+
+  if (self.accessory.has_value()) {
+    c.appearance->accessory = self.accessory->id;
+  }
+  if (self.cap.has_value()) {
+    c.appearance->cap = self.cap->id;
+  }
+  if (self.cape.has_value()) {
+    c.appearance->cape = self.cape->id;
+  }
+  if (self.glove.has_value()) {
+    c.appearance->glove = self.glove->id;
+  }
+  if (self.coat.has_value()) {
+    c.appearance->coat = self.coat->id;
+  }
+  if (self.longcoat.has_value()) {
+    c.appearance->longcoat = self.longcoat->id;
+  }
+  if (self.pant.has_value()) {
+    c.appearance->pant = self.pant->id;
+  }
+  if (self.shield.has_value()) {
+    c.appearance->shield = self.shield->id;
+  }
+  if (self.weapon.has_value()) {
+    c.appearance->weapon = self.weapon->id;
+  }
+  if (self.shoes.has_value()) {
+    c.appearance->shoes = self.shoes->id;
+  }
+  c.appearance->head =
+      std::stoi(std::string{self.head.begin(), self.head.end()});
+  c.appearance->body =
+      std::stoi(std::string{self.body.begin(), self.body.end()});
+
+  c.state->action = self.action_type;
+  c.state->x = self.pos.x;
+  c.state->y = self.pos.y;
+
+  return c;
 }

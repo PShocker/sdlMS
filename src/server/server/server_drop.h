@@ -6,6 +6,7 @@
 #include <optional>
 class server_drop {
 public:
+  uint32_t index;
   uint32_t id;
   uint32_t num;
 
