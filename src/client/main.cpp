@@ -29,7 +29,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 }
 
 static int32_t width = 800;
-static int32_t height = 600;
+static int32_t height = 800;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   if (argc == 3) {
