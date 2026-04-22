@@ -5,6 +5,6 @@
 #include <flat_map>
 class server_party_instance {
 public:
-  static inline void create_party();
+  static inline void create();
   static inline std::flat_map<uint64_t, server_party> data;
 };
