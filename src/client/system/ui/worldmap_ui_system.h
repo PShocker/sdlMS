@@ -9,6 +9,10 @@
 class worldmap_ui_system {
 private:
   static void render_backgrnd();
+  static void render_map();
+  static void render_spot();
+
+  static void init_pos();
 
 public:
   static inline SDL_FPoint pos;
