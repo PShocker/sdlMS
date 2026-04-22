@@ -14,6 +14,8 @@ public:
   static inline SDL_FPoint pos;
   static inline std::u16string path;
 
+  static void toggle();
+
   static void open();
   static void close();
   static bool render();

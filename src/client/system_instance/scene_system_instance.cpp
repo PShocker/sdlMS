@@ -13,11 +13,13 @@
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
+#include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
 #include "src/client/system/logic/ball_logic_system.h"
 #include "src/client/system/logic/camera_logic_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/logic/chatballoon_logic_system.h"
+#include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/system/logic/drop_logic_system.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
@@ -25,6 +27,7 @@
 #include "src/client/system/logic/sound_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
 #include "src/client/system/render/character_render_system.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/drop_render_system.h"
 #include "src/client/system/render/mob_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
@@ -115,18 +118,21 @@ void scene_system_instance::enter(uint32_t map_id) {
   tooltip_game_instance::load(map_id);
 
   system::event_systems = {
-
+      keyboard_input_system::event,
   };
   system::logic_systems = {
       backgrnd_logic_system::run,    ball_logic_system::run,
       camera_logic_system::run,      character_logic_system::run,
       chatballoon_logic_system::run, drop_logic_system::run,
       mob_logic_system::run,         portal_logic_system::run,
-      sound_logic_system::run,       obj_logic_system::run};
+      sound_logic_system::run,       obj_logic_system::run,
+      cursor_logic_system::run,
+  };
   system::render_systems = {
       render_game,
       minimap_ui_system::render,
       statusbar_ui_system::render,
+      cursor_render_system::render,
   };
 }
 

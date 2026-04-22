@@ -6,23 +6,25 @@ void keyboard_game_instance::reset() {
   data.clear();
 
   data[SDL_SCANCODE_UP] = {
-      .type = input_type::Action,
-      .val = (uint32_t)action_type::Up,
+      .type = "action",
+      .val = "up",
   };
   data[SDL_SCANCODE_DOWN] = {
-      .type = input_type::Action,
-      .val = (uint32_t)action_type::Down,
+      .type = "action",
+      .val = "down",
   };
   data[SDL_SCANCODE_LEFT] = {
-      .type = input_type::Action,
-      .val = (uint32_t)action_type::Left,
+      .type = "action",
+      .val = "left",
   };
   data[SDL_SCANCODE_RIGHT] = {
-      .type = input_type::Action,
-      .val = (uint32_t)action_type::Right,
+      .type = "action",
+      .val = "right",
+  };
+  data[SDL_SCANCODE_W] = {
+      .type = "ui",
+      .val = "worldMap",
   };
 }
 
-void keyboard_game_instance::load() {
-    reset();
-}
+void keyboard_game_instance::load() { reset(); }

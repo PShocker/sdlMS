@@ -4,6 +4,7 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <algorithm>
 
 void worldmap_ui_system::render_backgrnd() {
   auto back_node = wz_resource::map->find(u"WorldMap/" + path + u"/BaseImg/0");
@@ -51,3 +52,12 @@ void worldmap_ui_system::close() {
 }
 
 bool worldmap_ui_system::event(SDL_Event *event) { return true; }
+
+void worldmap_ui_system::toggle() {
+  auto fn = &worldmap_ui_system::render;
+  if (std::ranges::contains(system::render_systems, fn)) {
+    close();
+  } else {
+    open();
+  }
+}

@@ -1,3 +1,4 @@
+#include "game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/common/request/client_request.h"
@@ -27,8 +28,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   return SDL_APP_CONTINUE;
 }
 
-static int32_t width = 1920;
-static int32_t height = 1080;
+static int32_t width = 800;
+static int32_t height = 600;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   if (argc == 3) {
@@ -38,6 +39,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   }
   window::create("sdlMS", width, height);
   camera_game_instance::load(0, 0, width, height);
+  keyboard_game_instance::load();
 
   wz_resource::init();
 
@@ -50,7 +52,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   auto r = (event->type == SDL_EVENT_QUIT) ? SDL_APP_SUCCESS : SDL_APP_CONTINUE;
-
+  for (auto &fn : system::event_systems) {
+    if (fn(event) == false) {
+      break;
+    }
+  }
   return r;
 }
 
