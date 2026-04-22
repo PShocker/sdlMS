@@ -39,6 +39,10 @@ struct Mob;
 struct MobBuilder;
 struct MobT;
 
+struct MobMovement;
+struct MobMovementBuilder;
+struct MobMovementT;
+
 struct DropEquip;
 struct DropEquipBuilder;
 struct DropEquipT;
@@ -765,14 +769,89 @@ inline ::flatbuffers::Offset<Mob> CreateMob(
 
 ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct MobMovementT : public ::flatbuffers::NativeTable {
+  typedef MobMovement TableType;
+  uint32_t mob_id = 0;
+  std::unique_ptr<fbs::MovementT> movement{};
+  MobMovementT() = default;
+  MobMovementT(const MobMovementT &o);
+  MobMovementT(MobMovementT&&) FLATBUFFERS_NOEXCEPT = default;
+  MobMovementT &operator=(MobMovementT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct MobMovement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MobMovementT NativeTableType;
+  typedef MobMovementBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_ID = 4,
+    VT_MOVEMENT = 6
+  };
+  uint32_t mob_id() const {
+    return GetField<uint32_t>(VT_MOB_ID, 0);
+  }
+  bool mutate_mob_id(uint32_t _mob_id = 0) {
+    return SetField<uint32_t>(VT_MOB_ID, _mob_id, 0);
+  }
+  const fbs::Movement *movement() const {
+    return GetPointer<const fbs::Movement *>(VT_MOVEMENT);
+  }
+  fbs::Movement *mutable_movement() {
+    return GetPointer<fbs::Movement *>(VT_MOVEMENT);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_ID, 4) &&
+           VerifyOffset(verifier, VT_MOVEMENT) &&
+           verifier.VerifyTable(movement()) &&
+           verifier.EndTable();
+  }
+  MobMovementT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(MobMovementT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<MobMovement> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobMovementT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct MobMovementBuilder {
+  typedef MobMovement Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_id(uint32_t mob_id) {
+    fbb_.AddElement<uint32_t>(MobMovement::VT_MOB_ID, mob_id, 0);
+  }
+  void add_movement(::flatbuffers::Offset<fbs::Movement> movement) {
+    fbb_.AddOffset(MobMovement::VT_MOVEMENT, movement);
+  }
+  explicit MobMovementBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MobMovement> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MobMovement>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MobMovement> CreateMobMovement(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_id = 0,
+    ::flatbuffers::Offset<fbs::Movement> movement = 0) {
+  MobMovementBuilder builder_(_fbb);
+  builder_.add_movement(movement);
+  builder_.add_mob_id(mob_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<MobMovement> CreateMobMovement(::flatbuffers::FlatBufferBuilder &_fbb, const MobMovementT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct DropEquipT : public ::flatbuffers::NativeTable {
   typedef DropEquip TableType;
   uint32_t equip_id = 0;
   float x = 0.0f;
   float y = 0.0f;
   uint32_t rotate = 0;
-  float h_speed = 0.0f;
-  float v_speed = 0.0f;
+  float hspeed = 0.0f;
+  float vspeed = 0.0f;
 };
 
 struct DropEquip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -783,8 +862,8 @@ struct DropEquip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_X = 6,
     VT_Y = 8,
     VT_ROTATE = 10,
-    VT_H_SPEED = 12,
-    VT_V_SPEED = 14
+    VT_HSPEED = 12,
+    VT_VSPEED = 14
   };
   uint32_t equip_id() const {
     return GetField<uint32_t>(VT_EQUIP_ID, 0);
@@ -810,17 +889,17 @@ struct DropEquip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_rotate(uint32_t _rotate = 0) {
     return SetField<uint32_t>(VT_ROTATE, _rotate, 0);
   }
-  float h_speed() const {
-    return GetField<float>(VT_H_SPEED, 0.0f);
+  float hspeed() const {
+    return GetField<float>(VT_HSPEED, 0.0f);
   }
-  bool mutate_h_speed(float _h_speed = 0.0f) {
-    return SetField<float>(VT_H_SPEED, _h_speed, 0.0f);
+  bool mutate_hspeed(float _hspeed = 0.0f) {
+    return SetField<float>(VT_HSPEED, _hspeed, 0.0f);
   }
-  float v_speed() const {
-    return GetField<float>(VT_V_SPEED, 0.0f);
+  float vspeed() const {
+    return GetField<float>(VT_VSPEED, 0.0f);
   }
-  bool mutate_v_speed(float _v_speed = 0.0f) {
-    return SetField<float>(VT_V_SPEED, _v_speed, 0.0f);
+  bool mutate_vspeed(float _vspeed = 0.0f) {
+    return SetField<float>(VT_VSPEED, _vspeed, 0.0f);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -829,8 +908,8 @@ struct DropEquip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_X, 4) &&
            VerifyField<float>(verifier, VT_Y, 4) &&
            VerifyField<uint32_t>(verifier, VT_ROTATE, 4) &&
-           VerifyField<float>(verifier, VT_H_SPEED, 4) &&
-           VerifyField<float>(verifier, VT_V_SPEED, 4) &&
+           VerifyField<float>(verifier, VT_HSPEED, 4) &&
+           VerifyField<float>(verifier, VT_VSPEED, 4) &&
            verifier.EndTable();
   }
   DropEquipT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -854,11 +933,11 @@ struct DropEquipBuilder {
   void add_rotate(uint32_t rotate) {
     fbb_.AddElement<uint32_t>(DropEquip::VT_ROTATE, rotate, 0);
   }
-  void add_h_speed(float h_speed) {
-    fbb_.AddElement<float>(DropEquip::VT_H_SPEED, h_speed, 0.0f);
+  void add_hspeed(float hspeed) {
+    fbb_.AddElement<float>(DropEquip::VT_HSPEED, hspeed, 0.0f);
   }
-  void add_v_speed(float v_speed) {
-    fbb_.AddElement<float>(DropEquip::VT_V_SPEED, v_speed, 0.0f);
+  void add_vspeed(float vspeed) {
+    fbb_.AddElement<float>(DropEquip::VT_VSPEED, vspeed, 0.0f);
   }
   explicit DropEquipBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -877,11 +956,11 @@ inline ::flatbuffers::Offset<DropEquip> CreateDropEquip(
     float x = 0.0f,
     float y = 0.0f,
     uint32_t rotate = 0,
-    float h_speed = 0.0f,
-    float v_speed = 0.0f) {
+    float hspeed = 0.0f,
+    float vspeed = 0.0f) {
   DropEquipBuilder builder_(_fbb);
-  builder_.add_v_speed(v_speed);
-  builder_.add_h_speed(h_speed);
+  builder_.add_vspeed(vspeed);
+  builder_.add_hspeed(hspeed);
   builder_.add_rotate(rotate);
   builder_.add_y(y);
   builder_.add_x(x);
@@ -898,8 +977,8 @@ struct DropItemT : public ::flatbuffers::NativeTable {
   float y = 0.0f;
   uint32_t num = 0;
   uint32_t rotate = 0;
-  float h_speed = 0.0f;
-  float v_speed = 0.0f;
+  float hspeed = 0.0f;
+  float vspeed = 0.0f;
 };
 
 struct DropItem FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -911,8 +990,8 @@ struct DropItem FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_Y = 8,
     VT_NUM = 10,
     VT_ROTATE = 12,
-    VT_H_SPEED = 14,
-    VT_V_SPEED = 16
+    VT_HSPEED = 14,
+    VT_VSPEED = 16
   };
   uint32_t item_id() const {
     return GetField<uint32_t>(VT_ITEM_ID, 0);
@@ -944,17 +1023,17 @@ struct DropItem FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_rotate(uint32_t _rotate = 0) {
     return SetField<uint32_t>(VT_ROTATE, _rotate, 0);
   }
-  float h_speed() const {
-    return GetField<float>(VT_H_SPEED, 0.0f);
+  float hspeed() const {
+    return GetField<float>(VT_HSPEED, 0.0f);
   }
-  bool mutate_h_speed(float _h_speed = 0.0f) {
-    return SetField<float>(VT_H_SPEED, _h_speed, 0.0f);
+  bool mutate_hspeed(float _hspeed = 0.0f) {
+    return SetField<float>(VT_HSPEED, _hspeed, 0.0f);
   }
-  float v_speed() const {
-    return GetField<float>(VT_V_SPEED, 0.0f);
+  float vspeed() const {
+    return GetField<float>(VT_VSPEED, 0.0f);
   }
-  bool mutate_v_speed(float _v_speed = 0.0f) {
-    return SetField<float>(VT_V_SPEED, _v_speed, 0.0f);
+  bool mutate_vspeed(float _vspeed = 0.0f) {
+    return SetField<float>(VT_VSPEED, _vspeed, 0.0f);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -964,8 +1043,8 @@ struct DropItem FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_Y, 4) &&
            VerifyField<uint32_t>(verifier, VT_NUM, 4) &&
            VerifyField<uint32_t>(verifier, VT_ROTATE, 4) &&
-           VerifyField<float>(verifier, VT_H_SPEED, 4) &&
-           VerifyField<float>(verifier, VT_V_SPEED, 4) &&
+           VerifyField<float>(verifier, VT_HSPEED, 4) &&
+           VerifyField<float>(verifier, VT_VSPEED, 4) &&
            verifier.EndTable();
   }
   DropItemT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -992,11 +1071,11 @@ struct DropItemBuilder {
   void add_rotate(uint32_t rotate) {
     fbb_.AddElement<uint32_t>(DropItem::VT_ROTATE, rotate, 0);
   }
-  void add_h_speed(float h_speed) {
-    fbb_.AddElement<float>(DropItem::VT_H_SPEED, h_speed, 0.0f);
+  void add_hspeed(float hspeed) {
+    fbb_.AddElement<float>(DropItem::VT_HSPEED, hspeed, 0.0f);
   }
-  void add_v_speed(float v_speed) {
-    fbb_.AddElement<float>(DropItem::VT_V_SPEED, v_speed, 0.0f);
+  void add_vspeed(float vspeed) {
+    fbb_.AddElement<float>(DropItem::VT_VSPEED, vspeed, 0.0f);
   }
   explicit DropItemBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1016,11 +1095,11 @@ inline ::flatbuffers::Offset<DropItem> CreateDropItem(
     float y = 0.0f,
     uint32_t num = 0,
     uint32_t rotate = 0,
-    float h_speed = 0.0f,
-    float v_speed = 0.0f) {
+    float hspeed = 0.0f,
+    float vspeed = 0.0f) {
   DropItemBuilder builder_(_fbb);
-  builder_.add_v_speed(v_speed);
-  builder_.add_h_speed(h_speed);
+  builder_.add_vspeed(vspeed);
+  builder_.add_hspeed(hspeed);
   builder_.add_rotate(rotate);
   builder_.add_num(num);
   builder_.add_y(y);
@@ -1296,6 +1375,46 @@ inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_f
       _state);
 }
 
+inline MobMovementT::MobMovementT(const MobMovementT &o)
+      : mob_id(o.mob_id),
+        movement((o.movement) ? new fbs::MovementT(*o.movement) : nullptr) {
+}
+
+inline MobMovementT &MobMovementT::operator=(MobMovementT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_id, o.mob_id);
+  std::swap(movement, o.movement);
+  return *this;
+}
+
+inline MobMovementT *MobMovement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<MobMovementT>(new MobMovementT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void MobMovement::UnPackTo(MobMovementT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_id(); _o->mob_id = _e; }
+  { auto _e = movement(); if (_e) { if(_o->movement) { _e->UnPackTo(_o->movement.get(), _resolver); } else { _o->movement = std::unique_ptr<fbs::MovementT>(_e->UnPack(_resolver)); } } else if (_o->movement) { _o->movement.reset(); } }
+}
+
+inline ::flatbuffers::Offset<MobMovement> CreateMobMovement(::flatbuffers::FlatBufferBuilder &_fbb, const MobMovementT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return MobMovement::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<MobMovement> MobMovement::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobMovementT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MobMovementT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_id = _o->mob_id;
+  auto _movement = _o->movement ? CreateMovement(_fbb, _o->movement.get(), _rehasher) : 0;
+  return fbs::CreateMobMovement(
+      _fbb,
+      _mob_id,
+      _movement);
+}
+
 inline DropEquipT *DropEquip::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<DropEquipT>(new DropEquipT());
   UnPackTo(_o.get(), _resolver);
@@ -1309,8 +1428,8 @@ inline void DropEquip::UnPackTo(DropEquipT *_o, const ::flatbuffers::resolver_fu
   { auto _e = x(); _o->x = _e; }
   { auto _e = y(); _o->y = _e; }
   { auto _e = rotate(); _o->rotate = _e; }
-  { auto _e = h_speed(); _o->h_speed = _e; }
-  { auto _e = v_speed(); _o->v_speed = _e; }
+  { auto _e = hspeed(); _o->hspeed = _e; }
+  { auto _e = vspeed(); _o->vspeed = _e; }
 }
 
 inline ::flatbuffers::Offset<DropEquip> CreateDropEquip(::flatbuffers::FlatBufferBuilder &_fbb, const DropEquipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1325,16 +1444,16 @@ inline ::flatbuffers::Offset<DropEquip> DropEquip::Pack(::flatbuffers::FlatBuffe
   auto _x = _o->x;
   auto _y = _o->y;
   auto _rotate = _o->rotate;
-  auto _h_speed = _o->h_speed;
-  auto _v_speed = _o->v_speed;
+  auto _hspeed = _o->hspeed;
+  auto _vspeed = _o->vspeed;
   return fbs::CreateDropEquip(
       _fbb,
       _equip_id,
       _x,
       _y,
       _rotate,
-      _h_speed,
-      _v_speed);
+      _hspeed,
+      _vspeed);
 }
 
 inline DropItemT *DropItem::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -1351,8 +1470,8 @@ inline void DropItem::UnPackTo(DropItemT *_o, const ::flatbuffers::resolver_func
   { auto _e = y(); _o->y = _e; }
   { auto _e = num(); _o->num = _e; }
   { auto _e = rotate(); _o->rotate = _e; }
-  { auto _e = h_speed(); _o->h_speed = _e; }
-  { auto _e = v_speed(); _o->v_speed = _e; }
+  { auto _e = hspeed(); _o->hspeed = _e; }
+  { auto _e = vspeed(); _o->vspeed = _e; }
 }
 
 inline ::flatbuffers::Offset<DropItem> CreateDropItem(::flatbuffers::FlatBufferBuilder &_fbb, const DropItemT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1368,8 +1487,8 @@ inline ::flatbuffers::Offset<DropItem> DropItem::Pack(::flatbuffers::FlatBufferB
   auto _y = _o->y;
   auto _num = _o->num;
   auto _rotate = _o->rotate;
-  auto _h_speed = _o->h_speed;
-  auto _v_speed = _o->v_speed;
+  auto _hspeed = _o->hspeed;
+  auto _vspeed = _o->vspeed;
   return fbs::CreateDropItem(
       _fbb,
       _item_id,
@@ -1377,8 +1496,8 @@ inline ::flatbuffers::Offset<DropItem> DropItem::Pack(::flatbuffers::FlatBufferB
       _y,
       _num,
       _rotate,
-      _h_speed,
-      _v_speed);
+      _hspeed,
+      _vspeed);
 }
 
 }  // namespace fbs

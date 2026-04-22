@@ -7,14 +7,14 @@ table ClientHeartbeat {
 
 table ClientScene {
     come:bool;
-    scene_id:uint32;
+    map_id:uint32;
+    character:Character;
 }
 
 table ClientCharacterMove {
     movement:Movement;
 }
 
-table ClientMobMove {
-    mob_id:uint32;
-    movement:Movement;
+table ClientVisibleMob{
+    mob_ids:[uint32];
 }

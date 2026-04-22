@@ -1,8 +1,9 @@
 #include "server_foothold_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 
-void server_foothold_instance::load_server_fh(uint32_t map_id) {
-  server_map_foothold fhs;
+std::flat_map<int32_t, server_foothold>
+server_foothold_instance::load_server_fh(uint32_t map_id) {
+  std::flat_map<int32_t, server_foothold> fhs;
   auto data = foothold_game_instance::load(map_id);
   for (auto [k, v] : data) {
     server_foothold m_fh{
@@ -22,7 +23,7 @@ void server_foothold_instance::load_server_fh(uint32_t map_id) {
         .k = v.k,
         .intercept = v.intercept,
     };
-    fhs.fhs[k] = m_fh;
+    fhs[k] = m_fh;
   }
-  map_fh[map_id] = fhs;
+  return fhs;
 }

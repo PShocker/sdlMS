@@ -53,6 +53,11 @@ table Mob{
     state:LifeState;
 }
 
+table MobMovement{
+    mob_id:uint32;
+    movement:Movement;
+}
+
 table DropEquip{
     equip_id:uint32;
 
@@ -60,8 +65,8 @@ table DropEquip{
     y:float;
 
     rotate:uint32;
-    h_speed:float;
-    v_speed:float;
+    hspeed:float;
+    vspeed:float;
 }
 
 
@@ -74,6 +79,6 @@ table DropItem{
     num:uint32;
     rotate:uint32;
 
-    h_speed:float;
-    v_speed:float;
+    hspeed:float;
+    vspeed:float;
 }

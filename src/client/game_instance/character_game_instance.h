@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
+#include "src/common/flatbuffers/common.h"
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -26,8 +27,10 @@ class character_game_instance {
 public:
   static void init_character_bone();
 
-  static void load_character();
-  static void add_character(uint32_t map_id);
+  static void load_self_character();
+  static void load_server_character(uint32_t map_id);
+
+  static fbs::CharacterT load_fbs_character();
 
   static inline game_character self;
 

@@ -3,6 +3,7 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
+#include "system_instance/scene_system_instance.h"
 #include "window/window.h"
 #include <cstdint>
 #include <cstdio>
@@ -42,10 +43,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   SDL_HideCursor();
 
-  client_request::client_scene_request({
-      .come = true,
-      .scene_id = 10002000,
-  });
+  scene_system_instance::enter_prepare(10002000);
 
   return SDL_APP_CONTINUE;
 }
@@ -57,6 +55,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
-  printf("exit");
+  scene_system_instance::exit_prepare();
   SDL_Quit();
 }
