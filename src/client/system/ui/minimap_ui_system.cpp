@@ -1,6 +1,7 @@
 #include "minimap_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
@@ -86,8 +87,9 @@ void minimap_ui_system::render_button() {
     SDL_FRect pos_rect{pos.x + v.x, pos.y + v.y,
                        static_cast<float>(mouse_over->w),
                        static_cast<float>(mouse_over->h)};
-    auto mouse_pos = window::mouse_pos;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    auto &mouse_pos = window::mouse_pos;
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
       } else {
@@ -199,6 +201,8 @@ bool minimap_ui_system::render() {
   }
   return true;
 }
+
+bool minimap_ui_system::cursor_in() { return true; }
 
 bool minimap_ui_system::event_button(SDL_Event *event) { return true; }
 

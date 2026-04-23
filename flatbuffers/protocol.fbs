@@ -8,7 +8,6 @@ union NetPayload {
     ClientHeartbeat,
     ClientScene,
     ClientCharacterMove,
-    ClientVisibleMob,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterMove,

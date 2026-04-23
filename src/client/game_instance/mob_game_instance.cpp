@@ -63,17 +63,3 @@ std::array<std::vector<game_mob>, 8> mob_game_instance::load(uint32_t map_id) {
   }
   return data;
 }
-
-std::vector<uint32_t> mob_game_instance::load_visible_mob() {
-  std::vector<uint32_t> r;
-  auto &camera = camera_game_instance::camera;
-  for (auto &mobs : data) {
-    for (auto &mob : mobs) {
-      auto &pos = mob.pos;
-      if (SDL_PointInRectFloat(&pos, &camera)) {
-        r.push_back(mob.index);
-      }
-    }
-  }
-  return r;
-}

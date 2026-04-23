@@ -24,7 +24,5 @@ public:
   float hforce = 0.0;
   float vforce = 0.0;
 
-  bool visible = false;
-
   int64_t fh;
 };

@@ -29,10 +29,6 @@ struct ClientCharacterMove;
 struct ClientCharacterMoveBuilder;
 struct ClientCharacterMoveT;
 
-struct ClientVisibleMob;
-struct ClientVisibleMobBuilder;
-struct ClientVisibleMobT;
-
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -223,72 +219,6 @@ inline ::flatbuffers::Offset<ClientCharacterMove> CreateClientCharacterMove(
 
 ::flatbuffers::Offset<ClientCharacterMove> CreateClientCharacterMove(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ClientVisibleMobT : public ::flatbuffers::NativeTable {
-  typedef ClientVisibleMob TableType;
-  std::vector<uint32_t> mob_ids{};
-};
-
-struct ClientVisibleMob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ClientVisibleMobT NativeTableType;
-  typedef ClientVisibleMobBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MOB_IDS = 4
-  };
-  const ::flatbuffers::Vector<uint32_t> *mob_ids() const {
-    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_MOB_IDS);
-  }
-  ::flatbuffers::Vector<uint32_t> *mutable_mob_ids() {
-    return GetPointer<::flatbuffers::Vector<uint32_t> *>(VT_MOB_IDS);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_MOB_IDS) &&
-           verifier.VerifyVector(mob_ids()) &&
-           verifier.EndTable();
-  }
-  ClientVisibleMobT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ClientVisibleMobT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ClientVisibleMob> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientVisibleMobT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-struct ClientVisibleMobBuilder {
-  typedef ClientVisibleMob Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_mob_ids(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> mob_ids) {
-    fbb_.AddOffset(ClientVisibleMob::VT_MOB_IDS, mob_ids);
-  }
-  explicit ClientVisibleMobBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<ClientVisibleMob> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ClientVisibleMob>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<ClientVisibleMob> CreateClientVisibleMob(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> mob_ids = 0) {
-  ClientVisibleMobBuilder builder_(_fbb);
-  builder_.add_mob_ids(mob_ids);
-  return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<ClientVisibleMob> CreateClientVisibleMobDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<uint32_t> *mob_ids = nullptr) {
-  auto mob_ids__ = mob_ids ? _fbb.CreateVector<uint32_t>(*mob_ids) : 0;
-  return fbs::CreateClientVisibleMob(
-      _fbb,
-      mob_ids__);
-}
-
-::flatbuffers::Offset<ClientVisibleMob> CreateClientVisibleMob(::flatbuffers::FlatBufferBuilder &_fbb, const ClientVisibleMobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -390,32 +320,6 @@ inline ::flatbuffers::Offset<ClientCharacterMove> ClientCharacterMove::Pack(::fl
   return fbs::CreateClientCharacterMove(
       _fbb,
       _movement);
-}
-
-inline ClientVisibleMobT *ClientVisibleMob::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ClientVisibleMobT>(new ClientVisibleMobT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void ClientVisibleMob::UnPackTo(ClientVisibleMobT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = mob_ids(); if (_e) { _o->mob_ids.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->mob_ids[_i] = _e->Get(_i); } } else { _o->mob_ids.resize(0); } }
-}
-
-inline ::flatbuffers::Offset<ClientVisibleMob> CreateClientVisibleMob(::flatbuffers::FlatBufferBuilder &_fbb, const ClientVisibleMobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ClientVisibleMob::Pack(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<ClientVisibleMob> ClientVisibleMob::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientVisibleMobT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientVisibleMobT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _mob_ids = _o->mob_ids.size() ? _fbb.CreateVector(_o->mob_ids) : 0;
-  return fbs::CreateClientVisibleMob(
-      _fbb,
-      _mob_ids);
 }
 
 }  // namespace fbs

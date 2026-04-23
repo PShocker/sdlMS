@@ -1,14 +1,8 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
-class equip_ui_system {
-private:
-  static void render_backgrnd();
-  static void render_equip();
-
+class keybinding_ui_system {
 public:
-  static inline SDL_FPoint pos;
-
   static void open();
   static void close();
 
@@ -16,5 +10,6 @@ public:
   static bool event(SDL_Event *event);
 
   static bool cursor_in();
+
   static void toggle();
 };
