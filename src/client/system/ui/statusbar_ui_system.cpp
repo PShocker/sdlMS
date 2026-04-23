@@ -1,6 +1,7 @@
 #include "statusbar_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -103,8 +104,10 @@ void statusbar_ui_system::render_button() {
     SDL_FRect pos_rect{base_x + v.x, base_y + v.y,
                        static_cast<float>(mouse_over->w),
                        static_cast<float>(mouse_over->h)};
-    auto mouse_pos = window::mouse_pos;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
       } else {
@@ -121,3 +124,5 @@ bool statusbar_ui_system::render() {
   render_button();
   return true;
 }
+
+bool statusbar_ui_system::cursor_in() { return true; }

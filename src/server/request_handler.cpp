@@ -32,11 +32,6 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_scene_instance::handle_scene(client_id, r);
     break;
   }
-  case NetPayload_ClientVisibleMob: {
-    auto payload = packet->payload_as_ClientVisibleMob();
-    auto mob_ids = payload->mob_ids();
-    break;
-  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;

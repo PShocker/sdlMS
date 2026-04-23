@@ -30,11 +30,6 @@ void client_request::client_scene_request(fbs::ClientSceneT client_scene) {
   send_to_host(client_scene);
 }
 
-void client_request::client_visible_mob_request(
-    fbs::ClientVisibleMobT client_visible_mob) {
-  send_to_host(client_visible_mob);
-}
-
 void client_request::client_character_move_request(
     fbs::ClientCharacterMoveT client_character_move) {
   send_to_host(client_character_move);

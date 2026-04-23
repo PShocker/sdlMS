@@ -14,7 +14,3 @@ table ClientScene {
 table ClientCharacterMove {
     movement:Movement;
 }
-
-table ClientVisibleMob{
-    mob_ids:[uint32];
-}

@@ -9,6 +9,8 @@ class statusbar_ui_system {
 public:
   static bool render();
   static bool event(SDL_Event *event);
+
+  static bool cursor_in();
 private:
   static void render_backgrnd();
   static void render_button();

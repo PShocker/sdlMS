@@ -33,11 +33,3 @@ server_mob_instance::load_mob(uint32_t map_id) {
   }
   return r;
 }
-
-void server_mob_instance::load_vsb_mob(uint32_t m_id,
-                                       std::vector<uint32_t> &mb_ids) {
-  auto &mobs = server_scene_instance::scenes[m_id].mobs;
-  for (auto m : mb_ids) {
-    mobs[m].visible = true;
-  }
-}
