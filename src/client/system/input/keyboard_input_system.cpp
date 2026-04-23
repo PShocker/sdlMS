@@ -15,6 +15,7 @@ bool keyboard_input_system::event(SDL_Event *event) {
         if (repeat == false) {
           if (g_input.type == "ui") {
             input_system::handle_ui_input(g_input);
+            return false;
           } else {
             input_system::handle_item_input(g_input);
           }

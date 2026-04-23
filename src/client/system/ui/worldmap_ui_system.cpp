@@ -135,7 +135,7 @@ SDL_FPoint worldmap_ui_system::load_wh() {
 }
 
 void worldmap_ui_system::open() {
-  worldmap_ui_system::path = u"WorldMap001.img";
+  worldmap_ui_system::path = u"WorldMap000.img";
 
   auto wh = worldmap_ui_system::load_wh();
   auto &camera = camera_game_instance::camera;
@@ -148,10 +148,12 @@ void worldmap_ui_system::open() {
 }
 
 void worldmap_ui_system::close() {
-  worldmap_ui_system::path.clear();
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
   std::erase(system::logic_systems, run);
+
+  event_drag_end();
+  path.clear();
 }
 
 bool worldmap_ui_system::event(SDL_Event *event) {
@@ -161,7 +163,7 @@ bool worldmap_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
         event_top();
-        event_drag(event);
+        event_drag_start(event);
         r = false;
       }
     }
@@ -169,12 +171,12 @@ bool worldmap_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      event_drag(event);
+      event_drag_end();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_drag(event);
+    event_drag_move(event);
     break;
   }
   default: {
@@ -210,29 +212,24 @@ void worldmap_ui_system::event_top() {
   system::logic_systems.push_back(run);
 }
 
-void worldmap_ui_system::event_drag(SDL_Event *event) {
-  static std::optional<SDL_FPoint> drag;
-  switch (event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      auto wh = load_wh();
-      SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 14};
-      if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-        drag = {pos.x - event->button.x, pos.y - event->button.y};
-      }
-    }
-    break;
+void worldmap_ui_system::event_drag_start(SDL_Event *event) {
+  auto wh = load_wh();
+  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 18};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    drag = {pos.x - event->button.x, pos.y - event->button.y};
   }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      drag = std::nullopt;
-    }
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      pos = {event->motion.x + drag->x, event->motion.y + drag->y};
-    }
-  }
+  return;
+}
+
+void worldmap_ui_system::event_drag_end() {
+  drag = std::nullopt;
+  return;
+}
+
+void worldmap_ui_system::event_drag_move(SDL_Event *event) {
+  if (drag.has_value()) {
+    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
   }
   return;
 }
