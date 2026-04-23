@@ -144,12 +144,14 @@ void worldmap_ui_system::open() {
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
   system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::logic_systems.push_back(run);
 }
 
 void worldmap_ui_system::close() {
   worldmap_ui_system::path.clear();
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
+  std::erase(system::logic_systems, run);
 }
 
 bool worldmap_ui_system::event(SDL_Event *event) {
@@ -201,9 +203,11 @@ void worldmap_ui_system::toggle() {
 void worldmap_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
+  std::erase(system::logic_systems, run);
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
   system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::logic_systems.push_back(run);
 }
 
 void worldmap_ui_system::event_drag(SDL_Event *event) {
@@ -232,3 +236,5 @@ void worldmap_ui_system::event_drag(SDL_Event *event) {
   }
   return;
 }
+
+bool worldmap_ui_system::run() { return true; }

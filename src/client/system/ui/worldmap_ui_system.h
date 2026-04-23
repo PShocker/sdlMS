@@ -2,7 +2,6 @@
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
-#include "src/client/ui/ui_base.h"
 #include <array>
 #include <cstdint>
 #include <flat_map>
@@ -17,6 +16,8 @@ private:
   static SDL_FPoint load_wh();
   static void event_top();
   static void event_drag(SDL_Event *event);
+
+  static bool run();
 
 public:
   static inline SDL_FPoint pos;
