@@ -119,6 +119,8 @@ void scene_system_instance::enter(uint32_t map_id) {
 
   system::event_systems = {
       keyboard_input_system::event,
+      statusbar_ui_system::event,
+      minimap_ui_system::event,
   };
   system::logic_systems = {
       backgrnd_logic_system::run,    ball_logic_system::run,
@@ -130,8 +132,8 @@ void scene_system_instance::enter(uint32_t map_id) {
   };
   system::render_systems = {
       render_game,
-      minimap_ui_system::render,
       statusbar_ui_system::render,
+      minimap_ui_system::render,
       cursor_render_system::render,
   };
 }

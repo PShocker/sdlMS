@@ -125,4 +125,8 @@ bool statusbar_ui_system::render() {
   return true;
 }
 
-bool statusbar_ui_system::cursor_in() { return true; }
+bool statusbar_ui_system::cursor_in() { return false; }
+
+bool statusbar_ui_system::event(SDL_Event *event) {
+  return true;
+}
