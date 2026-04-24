@@ -25,9 +25,12 @@ private:
   static void event_drag_end();
   static void event_drag_move(SDL_Event *event);
 
-  static SDL_FPoint load_canvas_point(SDL_FPoint point,int8_t ox,int8_t oy);
+  static SDL_FPoint load_canvas_point(SDL_FPoint point, int8_t ox, int8_t oy);
   static SDL_FPoint load_canvas_wh();
   static SDL_FPoint load_canvas_o();
+  static SDL_FRect load_canvas_viewport();
+
+  static SDL_FPoint load_wh();
 
   static inline std::optional<SDL_FPoint> drag;
 

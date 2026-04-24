@@ -11,6 +11,7 @@ private:
 
   static void event_button(SDL_Event *event);
 
+  static SDL_FPoint load_wh();
 public:
   static inline SDL_FPoint pos;
 

@@ -1,10 +1,10 @@
 #pragma once
 
 #include "src/server/server/server_foothold.h"
+#include "src/server/server/server_scene.h"
 #include <flat_map>
 
 class server_foothold_instance {
 public:
-  static std::flat_map<int32_t, server_foothold>
-  load_server_fh(uint32_t map_id);
+  static void load_fh(server_scene &s_scene);
 };

@@ -57,7 +57,7 @@ void worldmap_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, title, nullptr, &pos_rect);
 }
 
-static SDL_FPoint map_offset = {6, 30};
+static const SDL_FPoint map_offset = {6, 30};
 
 void worldmap_ui_system::render_spot() {
   struct worldmap_spot {
@@ -137,7 +137,7 @@ SDL_FPoint worldmap_ui_system::load_wh() {
 void worldmap_ui_system::open() {
   worldmap_ui_system::path = u"WorldMap000.img";
 
-  auto wh = worldmap_ui_system::load_wh();
+  auto wh = load_wh();
   auto &camera = camera_game_instance::camera;
   pos.x = (camera.w - wh.x) / 2;
   pos.y = (camera.h - wh.y) / 2;
@@ -194,7 +194,7 @@ bool worldmap_ui_system::cursor_in() {
 }
 
 void worldmap_ui_system::toggle() {
-  auto fn = &worldmap_ui_system::render;
+  auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
     close();
   } else {
@@ -230,6 +230,10 @@ void worldmap_ui_system::event_drag_end() {
 void worldmap_ui_system::event_drag_move(SDL_Event *event) {
   if (drag.has_value()) {
     pos = {event->motion.x + drag->x, event->motion.y + drag->y};
+    auto &camera = camera_game_instance::camera;
+    auto [w, h] = load_wh();
+    pos.x = std::clamp(pos.x, (float)0, camera.w - w);
+    pos.y = std::clamp(pos.y, (float)0, camera.h - h);
   }
   return;
 }

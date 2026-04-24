@@ -52,10 +52,8 @@ std::array<std::vector<game_mob>, 8> mob_game_instance::load(uint32_t map_id) {
     mob_node = wz_resource::mob->find(g_mob.id + u".img");
     if (mob_node->get_child(u"info")->get_child("flySpeed")) {
       g_mob.action = u"fly";
-      g_mob.type = mob_type::Fly;
     } else {
       g_mob.action = u"stand";
-      g_mob.type = mob_type::Stand;
     }
 
     auto layer = foothold_game_instance::data.at(g_mob.fh).page;
