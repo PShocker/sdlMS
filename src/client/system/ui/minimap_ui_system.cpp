@@ -14,14 +14,21 @@
 #include "wz/Property.h"
 #include <algorithm>
 #include <array>
+#include <cstddef>
 #include <cstdint>
 #include <flat_map>
 
 void minimap_ui_system::render_mini() {}
 
-static SDL_FPoint backgrnd_min_wh = {250, 165};
+static SDL_FPoint backgrnd_min_wh;
 
-static SDL_FPoint backgrnd_max_wh = {250, 220};
+static SDL_FPoint backgrnd_max_wh;
+
+SDL_Texture *minimap_ui_system::load_canvas_texture() {
+  auto map_node = wz_resource::load_map_node(scene_system_instance::map_id);
+  auto minimap_node = map_node->get_child(u"miniMap");
+  return wz_resource::load_texture(minimap_node->get_child(u"canvas"));
+}
 
 void minimap_ui_system::render_min_backgrnd() {
   static auto node = wz_resource::ui->find(u"MiniMap.img/MinMap");
@@ -152,30 +159,30 @@ void minimap_ui_system::render_button() {
       wz_resource::ui->find(u"MiniMap.img/BtMin"),
       wz_resource::ui->find(u"MiniMap.img/BtMax"),
   };
-  const static std::array buttons_pos = {
-      SDL_FPoint{0, 0},
-      SDL_FPoint{50, 0},
-      SDL_FPoint{80, 0},
+  const std::array buttons_rect = {
+      SDL_FRect{backgrnd_max_wh.x - 40, 6, 36, 12}, // CashShop
+      SDL_FRect{backgrnd_max_wh.x - 70, 6, 12, 12}, // Menu
+      SDL_FRect{backgrnd_max_wh.x - 56, 6, 12, 12}, // Shortcut
   };
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
-    auto v = buttons_pos[i];
-    auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-    auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-    auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-    SDL_FRect pos_rect{pos.x + v.x, pos.y + v.y,
-                       static_cast<float>(mouse_over->w),
-                       static_cast<float>(mouse_over->h)};
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
     auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
       } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
       SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
     }
   }
@@ -245,19 +252,35 @@ SDL_FPoint minimap_ui_system::load_canvas_wh() {
 
 SDL_FPoint minimap_ui_system::load_canvas_o() {
   SDL_FPoint r;
-  auto map_node = wz_resource::load_map_node(scene_system_instance::map_id);
-  auto minimap_node = map_node->get_child(u"miniMap");
-  auto canvas_texture =
-      wz_resource::load_texture(minimap_node->get_child(u"canvas"));
+  auto canvas_texture = load_canvas_texture();
+  auto canvas_wh = load_canvas_wh();
   if (max) {
     static auto node = wz_resource::ui->find(u"MiniMap.img/MaxMap");
     static auto nw = wz_resource::load_texture(node->get_child(u"nw"));
-    r.x = (backgrnd_max_wh.x - canvas_texture->w) / 2;
+    r.x = std::max((backgrnd_max_wh.x - canvas_texture->w) / 2, (float)nw->w);
+    r.y = std::max((backgrnd_max_wh.y - canvas_texture->h) / 2, (float)nw->h);
+  } else {
+    static auto node = wz_resource::ui->find(u"MiniMap.img/MinMap");
+    static auto nw = wz_resource::load_texture(node->get_child(u"nw"));
+    r.x = std::max((backgrnd_min_wh.x - canvas_texture->w) / 2, (float)nw->w);
+    r.y = std::max((backgrnd_min_wh.y - canvas_texture->h) / 2, (float)nw->h);
+  }
+  return r;
+}
+
+SDL_FPoint minimap_ui_system::load_canvas_lt() {
+  SDL_FPoint r;
+  auto canvas_texture = load_canvas_texture();
+  auto canvas_wh = load_canvas_wh();
+  if (max) {
+    static auto node = wz_resource::ui->find(u"MiniMap.img/MaxMap");
+    static auto nw = wz_resource::load_texture(node->get_child(u"nw"));
+    r.x = nw->w;
     r.y = nw->h;
   } else {
     static auto node = wz_resource::ui->find(u"MiniMap.img/MinMap");
     static auto nw = wz_resource::load_texture(node->get_child(u"nw"));
-    r.x = (backgrnd_min_wh.x - canvas_texture->w) / 2;
+    r.x = nw->w;
     r.y = nw->h;
   }
   return r;
@@ -267,31 +290,33 @@ SDL_FRect minimap_ui_system::load_canvas_viewport() {
   SDL_FRect viewport;
   auto &self = character_game_instance::self;
   // 获取人在小地图的偏移
-  auto self_pos = load_canvas_point(self.pos, 0, 0);
+  auto self_pos = load_canvas_point(self.pos, -2, -4);
   auto canvas_wh = load_canvas_wh();
-  viewport.w = canvas_wh.x;
-  viewport.h = canvas_wh.y;
-  viewport.x = self_pos.x - viewport.w / 2;
-  viewport.y = self_pos.y - viewport.h / 2;
+  auto canvas_texture = load_canvas_texture();
 
-  auto [t, l, b, r] =
-      map_info_game_instance::load_vr_border(scene_system_instance::map_id);
-  auto lt = load_canvas_point(SDL_FPoint{t, l}, 0, 0);
-  auto rb = load_canvas_point(SDL_FPoint{r, b}, 0, 0);
+  viewport.w = std::min((float)canvas_texture->w, canvas_wh.x);
+  viewport.h = std::min((float)canvas_texture->h, canvas_wh.y);
 
-  viewport.x = std::clamp(viewport.x, lt.x, rb.x);
-  viewport.y = std::clamp(viewport.y, lt.y, rb.y);
+  viewport.x = std::max(self_pos.x - viewport.w / 2, (float)0);
+  viewport.y = std::max(self_pos.y - viewport.h / 2, (float)0);
+
+  viewport.x = std::min(viewport.x, canvas_texture->w - viewport.w);
+  viewport.y = std::min(viewport.y, canvas_texture->h - viewport.h);
+
   return viewport;
 }
 
 void minimap_ui_system::render_canvas_life() {
-  auto map_node = wz_resource::load_map_node(scene_system_instance::map_id);
-  auto minimap_node = map_node->get_child(u"miniMap");
+  auto canvas_wh = load_canvas_wh();
+  auto canvas_lt = load_canvas_lt();
+  SDL_Rect clip_r = {static_cast<int>(pos.x + canvas_lt.x),
+                     static_cast<int>(pos.y + canvas_lt.y),
+                     static_cast<int>(canvas_wh.x),
+                     static_cast<int>(canvas_wh.y)};
+  SDL_SetRenderClipRect(window::renderer, &clip_r);
 
   const auto backgrnd_w = backgrnd_min_wh.x;
   const auto backgrnd_h = backgrnd_min_wh.y;
-  auto canvas_texture =
-      wz_resource::load_texture(minimap_node->get_child(u"canvas"));
   static auto npc_texture = wz_resource::load_texture(
       wz_resource::map->find(u"MapHelper.img/minimap/npc"));
   static auto por_texture = wz_resource::load_texture(
@@ -304,9 +329,7 @@ void minimap_ui_system::render_canvas_life() {
   for (auto &npcs : npc_game_instance::data) {
     for (auto &npc : npcs) {
       auto npc_pos = load_canvas_point(npc.pos, -2, -4);
-      SDL_FRect canvas_vp{canvas_viewport.x - 2, canvas_viewport.y - 4,
-                          canvas_viewport.w, canvas_viewport.h};
-      if (!SDL_PointInRectFloat(&npc_pos, &canvas_vp)) {
+      if (!SDL_PointInRectFloat(&npc_pos, &canvas_viewport)) {
         continue;
       }
       npc_pos.x = npc_pos.x - canvas_viewport.x;
@@ -324,6 +347,11 @@ void minimap_ui_system::render_canvas_life() {
       continue;
     }
     auto portal_pos = load_canvas_point(portal.pos, -2, -6);
+    if (!SDL_PointInRectFloat(&portal_pos, &canvas_viewport)) {
+      continue;
+    }
+    portal_pos.x = portal_pos.x - (canvas_viewport.x);
+    portal_pos.y = portal_pos.y - (canvas_viewport.y);
     SDL_FRect pos_rect = {
         pos.x + portal_pos.x + canvas_o.x - (float)por_texture->w / 2,
         pos.y + portal_pos.y + canvas_o.y - (float)por_texture->h / 2,
@@ -336,11 +364,15 @@ void minimap_ui_system::render_canvas_life() {
   // // render self
   auto &self = character_game_instance::self;
   auto self_pos = load_canvas_point(self.pos, -2, -4);
+  self_pos.x = self_pos.x - (canvas_viewport.x);
+  self_pos.y = self_pos.y - (canvas_viewport.y);
   SDL_FRect pos_rect = {
       pos.x + self_pos.x + canvas_o.x - (float)user_texture->w / 2,
       pos.y + self_pos.y + canvas_o.y - (float)user_texture->h / 2,
       (float)user_texture->w, (float)user_texture->h};
   SDL_RenderTexture(window::renderer, user_texture, nullptr, &pos_rect);
+
+  SDL_SetRenderClipRect(window::renderer, NULL);
 }
 
 void minimap_ui_system::render_mark() {
@@ -357,20 +389,17 @@ void minimap_ui_system::render_mark() {
 }
 
 void minimap_ui_system::render_canvas() {
-  auto map_node = wz_resource::load_map_node(scene_system_instance::map_id);
-  auto minimap_node = map_node->get_child(u"miniMap");
-  auto canvas_texture =
-      wz_resource::load_texture(minimap_node->get_child(u"canvas"));
-
+  auto canvas_texture = load_canvas_texture();
   auto canvas_viewport = load_canvas_viewport();
   SDL_FRect src_rect{canvas_viewport.x, canvas_viewport.y,
-                     static_cast<float>(canvas_texture->w),
-                     static_cast<float>(canvas_texture->h)};
+                     static_cast<float>(canvas_viewport.w),
+                     static_cast<float>(canvas_viewport.h)};
 
   auto canvas_o = load_canvas_o();
   SDL_FRect pos_rect{pos.x + canvas_o.x, pos.y + canvas_o.y,
-                     static_cast<float>(canvas_texture->w),
-                     static_cast<float>(canvas_texture->h)};
+                     static_cast<float>(canvas_viewport.w),
+                     static_cast<float>(canvas_viewport.h)};
+
   SDL_RenderTexture(window::renderer, canvas_texture, &src_rect, &pos_rect);
 }
 
@@ -391,7 +420,12 @@ bool minimap_ui_system::render() {
 }
 
 bool minimap_ui_system::cursor_in() {
-  SDL_FRect pos_rect = {pos.x, pos.y, backgrnd_min_wh.x, backgrnd_min_wh.y};
+  SDL_FRect pos_rect;
+  if (!max) {
+    pos_rect = {pos.x, pos.y, backgrnd_min_wh.x, backgrnd_min_wh.y};
+  } else {
+    pos_rect = {pos.x, pos.y, backgrnd_max_wh.x, backgrnd_max_wh.y};
+  }
   return SDL_PointInRectFloat(&window::mouse_pos, &pos_rect);
 }
 
@@ -467,4 +501,13 @@ bool minimap_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+void minimap_ui_system::load() {
+  auto texture = load_canvas_texture();
+  backgrnd_max_wh.x = std::clamp(texture->w, 200, 300);
+  backgrnd_min_wh.x = std::clamp(texture->w, 200, 300);
+
+  backgrnd_max_wh.y = std::clamp(texture->h, 220, 250);
+  backgrnd_min_wh.y = std::clamp(texture->h, 220, 250);
 }

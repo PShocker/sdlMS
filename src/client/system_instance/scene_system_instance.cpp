@@ -116,6 +116,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   reactor_game_instance::load(map_id);
   tile_game_instance::load(map_id);
   tooltip_game_instance::load(map_id);
+  minimap_ui_system::load();
 
   system::event_systems = {
       keyboard_input_system::event,

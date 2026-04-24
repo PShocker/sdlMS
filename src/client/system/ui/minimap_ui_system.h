@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include <cstdint>
 #include <optional>
 
@@ -28,7 +29,9 @@ private:
   static SDL_FPoint load_canvas_point(SDL_FPoint point, int8_t ox, int8_t oy);
   static SDL_FPoint load_canvas_wh();
   static SDL_FPoint load_canvas_o();
+  static SDL_FPoint load_canvas_lt();
   static SDL_FRect load_canvas_viewport();
+  static SDL_Texture *load_canvas_texture();
 
   static SDL_FPoint load_wh();
 
