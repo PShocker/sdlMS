@@ -1,6 +1,7 @@
 #include "package_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -58,18 +59,25 @@ void package_ui_system::render_tab() {
 
 bool package_ui_system::render() { return true; }
 
+SDL_FPoint package_ui_system::load_wh() { return {209, 289}; }
+
 void package_ui_system::open() {
-  system::render_systems.push_back(package_ui_system::render);
-  system::event_systems.push_back(package_ui_system::event);
+  auto wh = load_wh();
+  auto &camera = camera_game_instance::camera;
+  pos.x = (camera.w - wh.x) / 2;
+  pos.y = (camera.h - wh.y) / 2;
+
+  system::render_systems.insert(system::render_systems.end() - 1, render);
+  system::event_systems.insert(system::event_systems.end() - 1, event);
 }
 
 void package_ui_system::close() {
-  std::erase(system::render_systems, package_ui_system::render);
-  std::erase(system::event_systems, package_ui_system::event);
+  std::erase(system::render_systems, render);
+  std::erase(system::event_systems, event);
 }
 
 void package_ui_system::toggle() {
-  auto fn = &package_ui_system::render;
+  auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
     close();
   } else {
@@ -78,8 +86,7 @@ void package_ui_system::toggle() {
 }
 
 bool package_ui_system::cursor_in() {
-  const auto w = 209;
-  const auto h = 289;
+  auto [w, h] = load_wh();
   auto &mouse = window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);

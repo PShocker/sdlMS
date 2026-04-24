@@ -25,6 +25,10 @@ void keyboard_game_instance::reset() {
       .type = "ui",
       .val = "worldMap",
   };
+  data[SDL_SCANCODE_I] = {
+      .type = "ui",
+      .val = "package",
+  };
 }
 
 void keyboard_game_instance::load() { reset(); }

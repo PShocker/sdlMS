@@ -5,6 +5,7 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
+#include "src/server/server/server_scene.h"
 #include <ranges>
 #include <utility>
 
@@ -41,9 +42,12 @@ void server_scene_instance::reply_client(uint64_t client_id,
 void server_scene_instance::init_scene(uint64_t client_id,
                                        fbs::ClientSceneT client_scene) {
   //
-  if (!scenes.contains(client_scene.map_id)) {
-    auto r = server_mob_instance::load_mob(client_scene.map_id);
-    scenes[client_scene.map_id].mobs = r;
+  auto map_id = client_scene.map_id;
+  if (!scenes.contains(map_id)) {
+    server_scene s_scene;
+    s_scene.map_id = map_id;
+    server_mob_instance::load_mob(s_scene);
+    scenes[map_id] = s_scene;
   }
 }
 

@@ -4,11 +4,6 @@
 #include <cstdint>
 #include <string>
 
-enum class mob_type {
-  Stand,
-  Fly,
-};
-
 class game_mob {
 public:
   uint32_t index;
@@ -25,8 +20,6 @@ public:
 
   uint32_t ani_index = 0;
   uint32_t ani_time;
-
-  mob_type type;
 
   int64_t hp;
   int64_t mp;

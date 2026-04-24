@@ -8,28 +8,11 @@
 #include <flat_map>
 #include <optional>
 
-std::flat_map<uint32_t, server_mob>
-server_mob_instance::load_mob(uint32_t map_id) {
-  std::flat_map<uint32_t, server_mob> r;
-  auto data = mob_game_instance::load(map_id);
-  for (auto &v : data) {
-    for (auto &mob : v) {
-      server_mob m_mob{
-          .index = mob.index,
-          .id = mob.id,
-          .rx0 = mob.rx0,
-          .rx1 = mob.rx1,
-          .pos = mob.pos,
-          .hate_id = std::nullopt,
-          .hp = mob.hp,
-          .mp = mob.mp,
-          .action = mob.action,
-          .hspeed = 0,
-          .vspeed = 0,
-          .fh = mob.fh,
-      };
-      r[mob.index] = m_mob;
+void server_mob_instance::load_mob(server_scene &s_scene) {
+  auto mobs = mob_game_instance::load(s_scene.map_id);
+  for (auto ms : mobs) {
+    for (auto m : ms) {
+      s_scene.mobs[m.index] = server_mob{m};
     }
   }
-  return r;
 }

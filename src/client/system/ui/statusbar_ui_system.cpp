@@ -1,7 +1,9 @@
 #include "statusbar_ui_system.h"
 #include "SDL3/SDL_rect.h"
+#include "skill_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
@@ -76,18 +78,18 @@ void statusbar_ui_system::render_button() {
       QuickSlot,  // QuickSlot QuickSlotD
       ChatLogMin, // ChatLogMin ChatLogMax
   };
-  const static std::array buttons_pos = {
-      SDL_FPoint{578, 38}, // CashShop
-      SDL_FPoint{652, 38}, // Menu
-      SDL_FPoint{726, 38}, // Shortcut
-      SDL_FPoint{578, 11}, // Mailbox
-      SDL_FPoint{621, 10}, // Equip
-      SDL_FPoint{651, 10}, // Inven
-      SDL_FPoint{681, 10}, // Stat StatUp
-      SDL_FPoint{711, 10}, // Skill SkillUp
-      SDL_FPoint{741, 10}, // Key
-      SDL_FPoint{771, 10}, // QuickSlot QuickSlotD
-      SDL_FPoint{539, 14}, // ChatLogMin ChatLogMax
+  const static std::array buttons_rect = {
+      SDL_FRect{578, 38, 73, 34}, // CashShop
+      SDL_FRect{652, 38, 73, 34}, // Menu
+      SDL_FRect{726, 38, 73, 34}, // Shortcut
+      SDL_FRect{578, 11, 22, 19}, // Mailbox
+      SDL_FRect{621, 10, 28, 20}, // Equip
+      SDL_FRect{651, 10, 28, 20}, // Inven
+      SDL_FRect{681, 10, 28, 20}, // Stat StatUp
+      SDL_FRect{711, 10, 28, 20}, // Skill SkillUp
+      SDL_FRect{741, 10, 28, 20}, // Key
+      SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
+      SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
   };
 
   auto screen_w = camera_game_instance::camera.w;
@@ -97,23 +99,22 @@ void statusbar_ui_system::render_button() {
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
-    auto v = buttons_pos[i];
-    auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-    auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-    auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-    SDL_FRect pos_rect{base_x + v.x, base_y + v.y,
-                       static_cast<float>(mouse_over->w),
-                       static_cast<float>(mouse_over->h)};
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += base_x;
+    pos_rect.y += base_y;
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
       } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
       SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
     }
   }
@@ -125,8 +126,100 @@ bool statusbar_ui_system::render() {
   return true;
 }
 
-bool statusbar_ui_system::cursor_in() { return false; }
+SDL_FPoint statusbar_ui_system::load_wh() { return {808, 73}; }
+
+bool statusbar_ui_system::cursor_in() {
+  auto wh = load_wh();
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - wh.x) / 2;
+  auto base_y = (screen_h - wh.y);
+  SDL_FRect pos_rect = {base_x, base_y, wh.x, wh.y};
+  return SDL_PointInRectFloat(&window::mouse_pos, &pos_rect);
+}
+
+void statusbar_ui_system::event_button_cashshop() { return; }
+
+void statusbar_ui_system::event_button_menu() { return; }
+
+void statusbar_ui_system::event_button_shortcut() { return; }
+
+void statusbar_ui_system::event_button_mailbox() { return; }
+
+void statusbar_ui_system::event_button_equip() { return; }
+
+void statusbar_ui_system::event_button_inven() {
+  package_ui_system::toggle();
+  return;
+}
+
+void statusbar_ui_system::event_button_stat() { return; }
+
+void statusbar_ui_system::event_button_skill() {
+  skill_ui_system::toggle();
+  return;
+}
+
+void statusbar_ui_system::event_button_keybind() { return; }
+
+void statusbar_ui_system::event_button_quickslot() { return; }
+
+void statusbar_ui_system::event_button_chatlog() { return; }
+
+bool statusbar_ui_system::event_button(SDL_Event *event) {
+  const static std::array buttons_rect = {
+      SDL_FRect{578, 38, 73, 34}, // CashShop
+      SDL_FRect{652, 38, 73, 34}, // Menu
+      SDL_FRect{726, 38, 73, 34}, // Shortcut
+      SDL_FRect{578, 11, 22, 19}, // Mailbox
+      SDL_FRect{621, 10, 28, 20}, // Equip
+      SDL_FRect{651, 10, 28, 20}, // Inven
+      SDL_FRect{681, 10, 28, 20}, // Stat StatUp
+      SDL_FRect{711, 10, 28, 20}, // Skill SkillUp
+      SDL_FRect{741, 10, 28, 20}, // Key
+      SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
+      SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
+  };
+  const static std::array buttons_func = {
+      event_button_cashshop,  event_button_menu,    event_button_shortcut,
+      event_button_mailbox,   event_button_equip,   event_button_inven,
+      event_button_stat,      event_button_skill,   event_button_keybind,
+      event_button_quickslot, event_button_chatlog,
+  };
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto [w, h] = load_wh();
+  auto base_x = (screen_w - w) / 2;
+  auto base_y = (screen_h - h);
+
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += base_x;
+    pos_rect.y += base_y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      buttons_func[i]();
+      return true;
+    }
+  }
+  return false;
+}
 
 bool statusbar_ui_system::event(SDL_Event *event) {
-  return true;
+  bool r = true;
+  switch (event->type) {
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        event_button(event);
+        r = false;
+      }
+    }
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+
+  return r;
 }

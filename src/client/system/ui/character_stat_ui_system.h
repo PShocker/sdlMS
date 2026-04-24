@@ -1,16 +1,13 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
-#include <cstdint>
-#include <flat_map>
-
-class skill_ui_system {
+#include "SDL3/SDL_rect.h"
+#include <optional>
+class character_stat_ui_system {
 private:
   static void render_backgrnd();
-  static void render_map();
-  static void render_spot();
-
   static SDL_FPoint load_wh();
+
   static void event_top();
   static void event_drag_start(SDL_Event *event);
   static void event_drag_end();
@@ -20,13 +17,9 @@ private:
 
 public:
   static inline SDL_FPoint pos;
-
-  static bool cursor_in();
-
-  static void toggle();
+  static bool render();
 
   static void open();
   static void close();
-  static bool render();
   static bool event(SDL_Event *event);
 };
