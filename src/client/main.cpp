@@ -28,8 +28,13 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   return SDL_APP_CONTINUE;
 }
 
-static int32_t width = 800;
-static int32_t height = 800;
+// 逻辑分辨率
+static int32_t logic_w = 800;
+static int32_t logic_h = 600;
+
+// 窗口分辨率
+static int32_t window_w = 800;
+static int32_t window_h = 600;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   if (argc == 3) {
@@ -37,8 +42,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   } else {
     server_main::server_init();
   }
-  window::create("sdlMS", width, height);
-  camera_game_instance::load(0, 0, width, height);
+  window::create("sdlMS", logic_w, logic_h, window_w, window_h);
+  camera_game_instance::load(0, 0, logic_w, logic_h);
   keyboard_game_instance::load();
 
   wz_resource::init();

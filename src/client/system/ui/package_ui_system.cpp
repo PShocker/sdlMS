@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -20,12 +21,12 @@ void package_ui_system::render_backgrnd() {
 
 void package_ui_system::render_tab() {
   const static std::array tab_pos = {
-      SDL_FPoint{5, 24},   // CashShop
-      SDL_FPoint{38, 24},  // Menu
-      SDL_FPoint{71, 24},  // Shortcut
-      SDL_FPoint{104, 24}, // Mailbox
-      SDL_FPoint{137, 24}, // Equip
-      SDL_FPoint{170, 14}, // ChatLogMin ChatLogMax
+      SDL_FPoint{5, 24},   // 
+      SDL_FPoint{38, 24},  // 
+      SDL_FPoint{71, 24},  // 
+      SDL_FPoint{104, 24}, // 
+      SDL_FPoint{137, 24}, // 
+      SDL_FPoint{170, 24}, // 
   };
   const static auto tab_node = wz_resource::ui->find(u"Item.img/Tab");
   const static std::array active_texture = {
@@ -57,7 +58,11 @@ void package_ui_system::render_tab() {
   }
 }
 
-bool package_ui_system::render() { return true; }
+bool package_ui_system::render() {
+  render_backgrnd();
+  render_tab();
+  return true;
+}
 
 SDL_FPoint package_ui_system::load_wh() { return {209, 289}; }
 
@@ -76,6 +81,42 @@ void package_ui_system::close() {
   std::erase(system::event_systems, event);
 }
 
+void package_ui_system::event_top() {
+  std::erase(system::render_systems, render);
+  std::erase(system::event_systems, event);
+  std::erase(system::logic_systems, run);
+
+  system::render_systems.insert(system::render_systems.end() - 1, render);
+  system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::logic_systems.push_back(run);
+}
+
+void package_ui_system::event_drag_start(SDL_Event *event) {
+  auto wh = load_wh();
+  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 18};
+  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    drag = {pos.x - event->button.x, pos.y - event->button.y};
+  }
+  return;
+}
+
+void package_ui_system::event_drag_end() {
+  drag = std::nullopt;
+  return;
+}
+
+void package_ui_system::event_drag_move(SDL_Event *event) {
+  if (drag.has_value()) {
+    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
+    auto &camera = camera_game_instance::camera;
+    auto [w, h] = load_wh();
+    pos.x = std::clamp(pos.x, (float)0, camera.w - w);
+    pos.y = std::clamp(pos.y, (float)0, camera.h - h);
+  }
+  return;
+}
+
 void package_ui_system::toggle() {
   auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
@@ -92,4 +133,35 @@ bool package_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-bool package_ui_system::event(SDL_Event *event) { return false; }
+bool package_ui_system::event(SDL_Event *event) {
+  bool r = true;
+  switch (event->type) {
+  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        event_top();
+        event_drag_start(event);
+        r = false;
+      }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      event_drag_end();
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_MOTION: {
+    event_drag_move(event);
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+
+  return r;
+}
+
+bool package_ui_system::run() { return true; }

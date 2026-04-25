@@ -19,7 +19,8 @@ public:
   static inline uint64_t dt_last = 0;
   static inline int32_t delta_time = 0;
 
-  static void create(const char *title, uint32_t width, uint32_t height);
+  static void create(const char *title, uint32_t logic_w, uint32_t logic_h,
+                     uint32_t window_w, uint32_t window_h);
 
   static void tick();
 
