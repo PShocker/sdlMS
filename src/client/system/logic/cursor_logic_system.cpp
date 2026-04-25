@@ -3,6 +3,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/window/window.h"
@@ -41,6 +42,10 @@ void cursor_logic_system::run_cursor_ui() {
       }
     } else if (fn == equip_ui_system::render) {
       if (equip_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
+    } else if (fn == package_ui_system::render) {
+      if (package_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
     }
