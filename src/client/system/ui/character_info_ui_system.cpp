@@ -1,4 +1,5 @@
-#include "equip_ui_system.h"
+#include "character_info_ui_system.h"
+#include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/system.h"
@@ -6,26 +7,29 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 
-SDL_FPoint equip_ui_system::load_wh() { return {175, 289}; }
+SDL_FPoint character_info_ui_system::load_wh() { return SDL_FPoint{277, 183}; }
 
-void equip_ui_system::render_backgrnd() {
-  static auto backgrnd = wz_resource::load_texture(
-      wz_resource::ui->find(u"Equipment.img/backgrnd"));
+void character_info_ui_system::render_backgrnd() {
+  static auto backgrnd_top = wz_resource::load_texture(
+      wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd_top"));
+  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd_top->w),
+                     static_cast<float>(backgrnd_top->h)};
+  SDL_RenderTexture(window::renderer, backgrnd_top, nullptr, &pos_rect);
 
-  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
-                     static_cast<float>(backgrnd->h)};
-  SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+  static auto backgrnd_bottom = wz_resource::load_texture(
+      wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd_bottom"));
+  pos_rect = {pos.x, pos.y + backgrnd_top->h,
+              static_cast<float>(backgrnd_bottom->w),
+              static_cast<float>(backgrnd_bottom->h)};
+  SDL_RenderTexture(window::renderer, backgrnd_bottom, nullptr, &pos_rect);
 }
 
-void equip_ui_system::render_equip() {}
-
-bool equip_ui_system::render() {
+bool character_info_ui_system::render() {
   render_backgrnd();
-  render_equip();
   return true;
 }
 
-void equip_ui_system::open() {
+void character_info_ui_system::open() {
   auto wh = load_wh();
   auto &camera = camera_game_instance::camera;
   pos.x = (camera.w - wh.x) / 2;
@@ -35,28 +39,12 @@ void equip_ui_system::open() {
   system::event_systems.insert(system::event_systems.end() - 1, event);
 }
 
-void equip_ui_system::close() {
+void character_info_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
 }
 
-void equip_ui_system::toggle() {
-  auto fn = &render;
-  if (std::ranges::contains(system::render_systems, fn)) {
-    close();
-  } else {
-    open();
-  }
-}
-
-bool equip_ui_system::cursor_in() {
-  auto [w, h] = load_wh();
-  auto &mouse = window::mouse_pos;
-  SDL_FRect pos_rect{pos.x, pos.y, w, h};
-  return SDL_PointInRectFloat(&mouse, &pos_rect);
-}
-
-void equip_ui_system::event_top() {
+void character_info_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
 
@@ -64,7 +52,7 @@ void equip_ui_system::event_top() {
   system::event_systems.insert(system::event_systems.end() - 1, event);
 }
 
-void equip_ui_system::event_drag_start(SDL_Event *event) {
+void character_info_ui_system::event_drag_start(SDL_Event *event) {
   auto wh = load_wh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 18};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
@@ -74,12 +62,12 @@ void equip_ui_system::event_drag_start(SDL_Event *event) {
   return;
 }
 
-void equip_ui_system::event_drag_end() {
+void character_info_ui_system::event_drag_end() {
   drag = std::nullopt;
   return;
 }
 
-void equip_ui_system::event_drag_move(SDL_Event *event) {
+void character_info_ui_system::event_drag_move(SDL_Event *event) {
   if (drag.has_value()) {
     pos = {event->motion.x + drag->x, event->motion.y + drag->y};
     auto &camera = camera_game_instance::camera;
@@ -90,7 +78,23 @@ void equip_ui_system::event_drag_move(SDL_Event *event) {
   return;
 }
 
-bool equip_ui_system::event(SDL_Event *event) {
+void character_info_ui_system::toggle() {
+  auto fn = &render;
+  if (std::ranges::contains(system::render_systems, fn)) {
+    close();
+  } else {
+    open();
+  }
+}
+
+bool character_info_ui_system::cursor_in() {
+  auto [w, h] = load_wh();
+  auto &mouse = window::mouse_pos;
+  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  return SDL_PointInRectFloat(&mouse, &pos_rect);
+}
+
+bool character_info_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {

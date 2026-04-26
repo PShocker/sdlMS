@@ -21,12 +21,12 @@ void package_ui_system::render_backgrnd() {
 
 void package_ui_system::render_tab() {
   const static std::array tab_pos = {
-      SDL_FPoint{5, 24},   // 
-      SDL_FPoint{38, 24},  // 
-      SDL_FPoint{71, 24},  // 
-      SDL_FPoint{104, 24}, // 
-      SDL_FPoint{137, 24}, // 
-      SDL_FPoint{170, 24}, // 
+      SDL_FPoint{5, 24},   //
+      SDL_FPoint{38, 24},  //
+      SDL_FPoint{71, 24},  //
+      SDL_FPoint{104, 24}, //
+      SDL_FPoint{137, 24}, //
+      SDL_FPoint{170, 24}, //
   };
   const static auto tab_node = wz_resource::ui->find(u"Item.img/Tab");
   const static std::array active_texture = {
@@ -133,6 +133,25 @@ bool package_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
+void package_ui_system::event_tab(SDL_Event *event) {
+  const static std::array tab_rect = {
+      SDL_FRect{5, 24, 33, 19},   //
+      SDL_FRect{38, 24, 33, 19},  //
+      SDL_FRect{71, 24, 33, 19},  //
+      SDL_FRect{104, 24, 33, 19}, //
+      SDL_FRect{137, 24, 33, 19}, //
+      SDL_FRect{170, 24, 33, 19}, //
+  };
+  for (uint8_t i = 0; i < tab_rect.size(); i++) {
+    auto pos_rect = tab_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      active_tab = i;
+    }
+  }
+}
+
 bool package_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -148,6 +167,9 @@ bool package_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        event_tab(event);
+      }
       event_drag_end();
     }
     break;

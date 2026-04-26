@@ -160,9 +160,9 @@ void minimap_ui_system::render_button() {
       wz_resource::ui->find(u"MiniMap.img/BtMax"),
   };
   const std::array buttons_rect = {
-      SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12}, // 
+      SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12}, //
       SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12}, //
-      SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12}, // 
+      SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12}, //
   };
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
@@ -508,6 +508,6 @@ void minimap_ui_system::load() {
   backgrnd_max_wh.x = std::clamp(texture->w, 200, 300);
   backgrnd_min_wh.x = std::clamp(texture->w, 200, 300);
 
-  backgrnd_max_wh.y = std::clamp(texture->h, 220, 250);
-  backgrnd_min_wh.y = std::clamp(texture->h, 220, 250);
+  backgrnd_max_wh.y = std::clamp(texture->h, 180, 220);
+  backgrnd_min_wh.y = std::clamp(texture->h, 180, 220);
 }
