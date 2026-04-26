@@ -29,12 +29,12 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 }
 
 // 逻辑分辨率
-static int32_t logic_w = 1920;
-static int32_t logic_h = 1080;
+static int32_t logic_w = 1200;
+static int32_t logic_h = 800;
 
 // 窗口分辨率
-static int32_t window_w = 1920;
-static int32_t window_h = 1080;
+static int32_t window_w = 1200;
+static int32_t window_h = 800;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   if (argc == 3) {

@@ -3,6 +3,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
+#include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
@@ -61,6 +62,10 @@ void cursor_logic_system::run_cursor_ui() {
       }
     } else if (fn == skill_ui_system::render) {
       if (skill_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
+    } else if (fn == craft_ui_system::render) {
+      if (craft_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
     }

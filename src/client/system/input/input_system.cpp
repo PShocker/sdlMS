@@ -6,6 +6,7 @@
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
+#include "src/client/system/ui/craft_ui_system.h"
 #include <flat_map>
 #include <string>
 
@@ -18,6 +19,7 @@ void input_system::handle_ui_input(game_input &g_input) {
       {"keyBind", keybinding_ui_system::toggle},
       {"skill", skill_ui_system::toggle},
       {"equip", equip_ui_system::toggle},
+      {"craft", craft_ui_system::toggle},
   };
   fns.at(g_input.val)();
 }
