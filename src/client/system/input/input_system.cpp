@@ -1,5 +1,10 @@
 #include "input_system.h"
+#include "src/client/system/ui/character_info_ui_system.h"
+#include "src/client/system/ui/character_stat_ui_system.h"
+#include "src/client/system/ui/equip_ui_system.h"
+#include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include <flat_map>
 #include <string>
@@ -8,6 +13,11 @@ void input_system::handle_ui_input(game_input &g_input) {
   static const std::flat_map<std::string, void (*)()> fns = {
       {"worldMap", worldmap_ui_system::toggle},
       {"package", package_ui_system::toggle},
+      {"characterStat", character_stat_ui_system::toggle},
+      {"characterInfo", character_info_ui_system::toggle},
+      {"keyBind", keybinding_ui_system::toggle},
+      {"skill", skill_ui_system::toggle},
+      {"equip", equip_ui_system::toggle},
   };
   fns.at(g_input.val)();
 }

@@ -1,6 +1,7 @@
 #include "skill_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -8,7 +9,12 @@
 
 SDL_FPoint skill_ui_system::load_wh() { return {197, 371}; }
 
-bool skill_ui_system::cursor_in() { return true; }
+bool skill_ui_system::cursor_in() {
+  auto [w, h] = load_wh();
+  auto &mouse = window::mouse_pos;
+  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  return SDL_PointInRectFloat(&mouse, &pos_rect);
+}
 
 void skill_ui_system::open() {
 
@@ -75,7 +81,6 @@ bool skill_ui_system::render() {
   return true;
 }
 
-
 void skill_ui_system::toggle() {
   auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
@@ -86,5 +91,34 @@ void skill_ui_system::toggle() {
 }
 
 bool skill_ui_system::event(SDL_Event *event) {
-    return true;
+  bool r = true;
+  switch (event->type) {
+  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        event_top();
+        event_drag_start(event);
+        r = false;
+      }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+      }
+      event_drag_end();
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_MOTION: {
+    event_drag_move(event);
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+
+  return r;
 }
