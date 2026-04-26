@@ -1,4 +1,4 @@
-#include "package_ui_system.h"
+#include "craft_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -11,57 +11,54 @@
 #include <cstdlib>
 #include <string>
 
-void package_ui_system::render_backgrnd() {
-  static auto texture =
-      wz_resource::load_texture(wz_resource::ui->find(u"Item.img/backgrnd"));
+void craft_ui_system::render_backgrnd() {
+  static auto texture = wz_resource::load_texture(
+      wz_resource::ui->find(u"Crafting.img/backgrnd"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
                      static_cast<float>(texture->h)};
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void package_ui_system::render_tab() {
-  const static std::array tab_pos = {
-      SDL_FPoint{5, 24},   //
-      SDL_FPoint{38, 24},  //
-      SDL_FPoint{71, 24},  //
-      SDL_FPoint{104, 24}, //
-      SDL_FPoint{137, 24}, //
-      SDL_FPoint{170, 24}, //
+void craft_ui_system::render_tab() {
+  const static SDL_FPoint lt = {9, 23};
+  const static SDL_FPoint rb = {537, 44};
+  const static auto tab_node =
+      wz_resource::ui->find(u"Crafting.img/tab:category");
+  const static std::array selected_texture = {
+      wz_resource::load_texture(tab_node->find(u"selected/0")),
+      wz_resource::load_texture(tab_node->find(u"selected/1")),
+      wz_resource::load_texture(tab_node->find(u"selected/2")),
+      wz_resource::load_texture(tab_node->find(u"selected/3")),
+      wz_resource::load_texture(tab_node->find(u"selected/4")),
+      wz_resource::load_texture(tab_node->find(u"selected/5")),
   };
-  const static auto tab_node = wz_resource::ui->find(u"Item.img/Tab");
-  const static std::array active_texture = {
-      wz_resource::load_texture(tab_node->find(u"enabled/0")),
-      wz_resource::load_texture(tab_node->find(u"enabled/1")),
-      wz_resource::load_texture(tab_node->find(u"enabled/2")),
-      wz_resource::load_texture(tab_node->find(u"enabled/3")),
-      wz_resource::load_texture(tab_node->find(u"enabled/4")),
-      wz_resource::load_texture(tab_node->find(u"enabled/5")),
+  const static std::array normal_texture = {
+      wz_resource::load_texture(tab_node->find(u"normal/0")),
+      wz_resource::load_texture(tab_node->find(u"normal/1")),
+      wz_resource::load_texture(tab_node->find(u"normal/2")),
+      wz_resource::load_texture(tab_node->find(u"normal/3")),
+      wz_resource::load_texture(tab_node->find(u"normal/4")),
+      wz_resource::load_texture(tab_node->find(u"normal/5")),
   };
-  const static std::array disabled_texture = {
-      wz_resource::load_texture(tab_node->find(u"disabled/0")),
-      wz_resource::load_texture(tab_node->find(u"disabled/1")),
-      wz_resource::load_texture(tab_node->find(u"disabled/2")),
-      wz_resource::load_texture(tab_node->find(u"disabled/3")),
-      wz_resource::load_texture(tab_node->find(u"disabled/4")),
-      wz_resource::load_texture(tab_node->find(u"disabled/5")),
-  };
-  for (uint8_t i = 0; i < tab_pos.size(); i++) {
-    SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
-    SDL_FRect pos_rect{pos.x + tab_pos[i].x, pos.y + tab_pos[i].y,
+  for (uint8_t i = 0; i < selected_texture.size(); i++) {
+    SDL_Texture *t =
+        selected_tab == i ? selected_texture[i] : normal_texture[i];
+    SDL_FPoint tab_pos = {static_cast<float>(9 + i * 88), 23};
+    SDL_FRect pos_rect{pos.x + tab_pos.x, pos.y + tab_pos.y,
                        static_cast<float>(t->w), static_cast<float>(t->h)};
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
   }
 }
 
-bool package_ui_system::render() {
+bool craft_ui_system::render() {
   render_backgrnd();
   render_tab();
   return true;
 }
 
-SDL_FPoint package_ui_system::load_wh() { return {209, 289}; }
+SDL_FPoint craft_ui_system::load_wh() { return {545, 409}; }
 
-void package_ui_system::open() {
+void craft_ui_system::open() {
   auto wh = load_wh();
   auto &camera = camera_game_instance::camera;
   pos.x = (camera.w - wh.x) / 2;
@@ -71,22 +68,20 @@ void package_ui_system::open() {
   system::event_systems.insert(system::event_systems.end() - 1, event);
 }
 
-void package_ui_system::close() {
+void craft_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
 }
 
-void package_ui_system::event_top() {
+void craft_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
-  std::erase(system::logic_systems, run);
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
   system::event_systems.insert(system::event_systems.end() - 1, event);
-  system::logic_systems.push_back(run);
 }
 
-void package_ui_system::event_drag_start(SDL_Event *event) {
+void craft_ui_system::event_drag_start(SDL_Event *event) {
   auto wh = load_wh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 18};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
@@ -96,12 +91,12 @@ void package_ui_system::event_drag_start(SDL_Event *event) {
   return;
 }
 
-void package_ui_system::event_drag_end() {
+void craft_ui_system::event_drag_end() {
   drag = std::nullopt;
   return;
 }
 
-void package_ui_system::event_drag_move(SDL_Event *event) {
+void craft_ui_system::event_drag_move(SDL_Event *event) {
   if (drag.has_value()) {
     pos = {event->motion.x + drag->x, event->motion.y + drag->y};
     auto &camera = camera_game_instance::camera;
@@ -112,7 +107,7 @@ void package_ui_system::event_drag_move(SDL_Event *event) {
   return;
 }
 
-void package_ui_system::toggle() {
+void craft_ui_system::toggle() {
   auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
     close();
@@ -121,33 +116,26 @@ void package_ui_system::toggle() {
   }
 }
 
-bool package_ui_system::cursor_in() {
+bool craft_ui_system::cursor_in() {
   auto [w, h] = load_wh();
   auto &mouse = window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void package_ui_system::event_tab(SDL_Event *event) {
-  const static std::array tab_rect = {
-      SDL_FRect{5, 24, 33, 19},   //
-      SDL_FRect{38, 24, 33, 19},  //
-      SDL_FRect{71, 24, 33, 19},  //
-      SDL_FRect{104, 24, 33, 19}, //
-      SDL_FRect{137, 24, 33, 19}, //
-      SDL_FRect{170, 24, 33, 19}, //
-  };
-  for (uint8_t i = 0; i < tab_rect.size(); i++) {
-    auto pos_rect = tab_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+void craft_ui_system::event_tab(SDL_Event *event) {
+  const static SDL_FPoint lt = {9, 23};
+  const static SDL_FPoint rb = {537, 44};
+  for (uint8_t i = 0; i <= 5; i++) {
+    SDL_FPoint tab_pos = {static_cast<float>(9 + i * 88), 23};
+    SDL_FRect pos_rect{pos.x + tab_pos.x, pos.y + tab_pos.y, 88, 21};
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-      active_tab = i;
+      selected_tab = i;
     }
   }
 }
 
-bool package_ui_system::event(SDL_Event *event) {
+bool craft_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
@@ -181,4 +169,4 @@ bool package_ui_system::event(SDL_Event *event) {
   return r;
 }
 
-bool package_ui_system::run() { return true; }
+bool craft_ui_system::run() { return true; }
