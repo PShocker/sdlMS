@@ -103,7 +103,7 @@ void character_stat_ui_system::event_top() {
 
 void character_stat_ui_system::event_drag_start(SDL_Event *event) {
   auto wh = load_wh();
-  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 18};
+  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     drag = {pos.x - event->button.x, pos.y - event->button.y};

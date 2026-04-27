@@ -128,7 +128,7 @@ void statusbar_ui_system::render_quickSlot() {
     auto screen_h = camera_game_instance::camera.h;
     auto base_x = (screen_w - 808) / 2;
     auto base_y = (screen_h - 73);
-    SDL_FRect p{base_x + 808 - q->w, base_y - q->h, static_cast<float>(q->w),
+    SDL_FRect p{base_x + 654, base_y - 107, static_cast<float>(q->w),
                 static_cast<float>(q->h)};
     SDL_RenderTexture(window::renderer, q, nullptr, &p);
   }

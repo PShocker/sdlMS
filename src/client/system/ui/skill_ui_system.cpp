@@ -57,7 +57,7 @@ void skill_ui_system::event_top() {
 
 void skill_ui_system::event_drag_start(SDL_Event *event) {
   auto wh = load_wh();
-  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 18};
+  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     drag = {pos.x - event->button.x, pos.y - event->button.y};
@@ -117,16 +117,27 @@ void skill_ui_system::render_tab() {
 }
 
 void skill_ui_system::render_skill_entry() {
+
+  static auto entry = wz_resource::load_texture(
+      wz_resource::ui->find(u"Skill.img/entry/skill1"));
+
   const SDL_FPoint lt{8, 99};
   const SDL_FPoint rb{184, 334};
   const SDL_FPoint pos_icon{2, 2};
   const uint8_t max_scroll_num = 6;
+  const auto l =
+      (rb.y - lt.y - max_scroll_num * entry->h) / (max_scroll_num - 1);
   auto self_job = job_skill_game_instance::self_job;
   // 根据active_tab获取技能组
   auto skill_group = std::pow(10, active_tab);
-  auto skill_node =
-      wz_resource::skill->find(std::to_string(self_job) + ".img/skill");
+  auto skill_node = wz_resource::skill->find(std::to_string(self_job) + ".img");
 
+  auto book_texture = wz_resource::load_texture(skill_node->find(u"info/icon"));
+  SDL_FRect pos_rect{pos.x + 15, pos.y + 57, static_cast<float>(book_texture->w),
+                     static_cast<float>(book_texture->h)};
+  SDL_RenderTexture(window::renderer, book_texture, nullptr, &pos_rect);
+
+  skill_node = skill_node->get_child(u"skill");
   auto &mouse_pos = window::mouse_pos;
   // 判断按钮是否被遮挡
   auto cursor_in = cursor_game_instance::cursor_ui;
@@ -137,61 +148,64 @@ void skill_ui_system::render_skill_entry() {
       break;
     }
     // render backgrnd
-    static auto line =
-        wz_resource::load_texture(wz_resource::ui->find(u"Skill.img/line"));
-    static auto backgrnd = wz_resource::load_texture(
-        wz_resource::ui->find(u"Skill.img/entry/skill1"));
-    SDL_FRect pos_rect{pos.x + lt.x, pos.y + lt.y + i * backgrnd->h - 1,
-                       static_cast<float>(line->w),
-                       static_cast<float>(line->h)};
-    SDL_RenderTexture(window::renderer, line, nullptr, &pos_rect);
 
-    pos_rect = {pos.x + lt.x, pos.y + lt.y + i * backgrnd->h,
-                static_cast<float>(backgrnd->w),
-                static_cast<float>(backgrnd->h)};
-    SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+    // SDL_RenderTexture(window::renderer, line, nullptr, &pos_rect);
+
+    SDL_FRect pos_rect{pos.x + lt.x, pos.y + lt.y + i * entry->h + l * i,
+                       static_cast<float>(entry->w),
+                       static_cast<float>(entry->h)};
+    SDL_RenderTexture(window::renderer, entry, nullptr, &pos_rect);
 
     auto skl_id = std::string{k.begin(), k.end()};
     auto skl_id2 = std::stoi(skl_id);
 
+    SDL_Texture *ski_texture;
     if (self_skill_point.contains(skl_id2)) {
       if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+        ski_texture =
+            wz_resource::load_texture(v[0]->get_child(u"iconMouseOver"));
       } else {
+        ski_texture = wz_resource::load_texture(v[0]->get_child(u"icon"));
       }
     } else {
       // disable
+      ski_texture = wz_resource::load_texture(v[0]->get_child(u"iconDisabled"));
     }
+    pos_rect = {pos.x + lt.x + 2, pos.y + lt.y + i * entry->h + l * i + 2,
+                static_cast<float>(ski_texture->w),
+                static_cast<float>(ski_texture->h)};
+    SDL_RenderTexture(window::renderer, ski_texture, nullptr, &pos_rect);
     i++;
   }
 }
 
 void skill_ui_system::render_scroll() {
   static auto prev0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/prev0"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev0"));
   static auto prev1 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/prev1"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev1"));
   static auto prev2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/prev2"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev2"));
   static auto next0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/next0"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next0"));
   static auto next1 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/next1"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next1"));
   static auto next2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/next2"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next2"));
   static auto base0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/base"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/base"));
   static auto thumb0 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/thumb0"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb0"));
   static auto thumb1 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/thumb1"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb1"));
   static auto thumb2 = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/enabled/thumb2"));
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb2"));
   static auto prev = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/disabled/prev"));
+      wz_resource::ui->find(u"Basic.img/VScr4/disabled/prev"));
   static auto next = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/disabled/next"));
+      wz_resource::ui->find(u"Basic.img/VScr4/disabled/next"));
   static auto base = wz_resource::load_texture(
-      wz_resource::ui->find(u"Basic.img/VSr4/disabled/base"));
+      wz_resource::ui->find(u"Basic.img/VScr4/disabled/base"));
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   const uint8_t max_scroll_num = 6;
@@ -209,21 +223,46 @@ void skill_ui_system::render_scroll() {
     pos_rect = {pos.x + lt.x, pos.y + lt.y + prev->h,
                 static_cast<float>(base->w),
                 static_cast<float>(length - prev->h - next->h)};
-    SDL_RenderTextureTiled(window::renderer, next, nullptr, 1, &pos_rect);
+    SDL_RenderTextureTiled(window::renderer, base, nullptr, 1, &pos_rect);
   } else {
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
 
     SDL_FRect pos_rect{pos.x + lt.x, pos.y + lt.y, static_cast<float>(prev->w),
                        static_cast<float>(prev->h)};
+    SDL_Texture *pv;
+    SDL_Texture *nx;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) &&
         cursor_in == render) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
-
+        pv = prev1;
       } else {
+        pv = prev2;
       }
+    } else {
+      pv = prev0;
     }
-    SDL_RenderTexture(window::renderer, prev, nullptr, &pos_rect);
+    SDL_RenderTexture(window::renderer, pv, nullptr, &pos_rect);
+
+    pos_rect = {pos.x + lt.x, pos.y + lt.y + length - next->h,
+                static_cast<float>(next->w), static_cast<float>(next->h)};
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) &&
+        cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        nx = next1;
+      } else {
+        nx = next2;
+      }
+    } else {
+      nx = next0;
+    }
+    SDL_RenderTexture(window::renderer, nx, nullptr, &pos_rect);
+
+    pos_rect = {pos.x + lt.x, pos.y + lt.y + prev->h,
+                static_cast<float>(base->w),
+                static_cast<float>(length - prev->h - next->h)};
+    SDL_RenderTextureTiled(window::renderer, base0, nullptr, 1, &pos_rect);
+    // render
   }
   return;
 }
@@ -231,6 +270,8 @@ void skill_ui_system::render_scroll() {
 bool skill_ui_system::render() {
   render_backgrnd();
   render_skill_entry();
+  render_scroll();
+  render_tab();
   return true;
 }
 
