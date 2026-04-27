@@ -48,7 +48,8 @@ void package_ui_system::render_tab() {
   };
   for (uint8_t i = 0; i < tab_pos.size(); i++) {
     SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
-    SDL_FRect pos_rect{pos.x + tab_pos[i].x, pos.y + tab_pos[i].y,
+    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos[i].x)),
+                       static_cast<float>(int(pos.y + tab_pos[i].y)),
                        static_cast<float>(t->w), static_cast<float>(t->h)};
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
   }
