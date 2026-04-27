@@ -7,4 +7,5 @@
 class game_item {
 public:
   uint32_t id;
+  uint32_t num;
 };

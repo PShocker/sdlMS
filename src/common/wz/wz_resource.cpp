@@ -29,6 +29,7 @@ void wz_resource::init_files() {
   ui = new wz::Files("UI/UI");
   mob = new wz::Files("Mob/Mob");
   npc = new wz::Files("Npc/Npc");
+  skill = new wz::Files("Skill/Skill");
 }
 
 void wz_resource::init() {

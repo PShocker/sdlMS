@@ -5,8 +5,11 @@
 class receive_ui_system {
 private:
   static void render_backgrnd();
+  static void render_button();
 
-  static void event_button(SDL_Event *event);
+  static bool event_button(SDL_Event *event);
+  static void event_button_ok();
+
   static void event_tab(SDL_Event *event);
   static void event_top();
   static void event_drag_start(SDL_Event *event);

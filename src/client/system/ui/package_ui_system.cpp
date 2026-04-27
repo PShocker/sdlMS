@@ -3,6 +3,7 @@
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -50,6 +51,13 @@ void package_ui_system::render_tab() {
     SDL_FRect pos_rect{pos.x + tab_pos[i].x, pos.y + tab_pos[i].y,
                        static_cast<float>(t->w), static_cast<float>(t->h)};
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  }
+}
+
+void package_ui_system::render_items() {
+  if (active_tab == 0) {
+    const auto &equips = package_game_instance::equips;
+  } else {
   }
 }
 

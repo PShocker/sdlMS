@@ -8,6 +8,7 @@ class statusbar_ui_system {
 private:
   static void render_backgrnd();
   static void render_button();
+  static void render_quickSlot();
   static SDL_FPoint load_wh();
 
   static bool event_button(SDL_Event *event);
@@ -23,6 +24,9 @@ private:
   static void event_button_keybind();
   static void event_button_quickslot();
   static void event_button_chatlog();
+
+  static inline bool quickSlot=true;
+
 public:
   static bool render();
   static bool event(SDL_Event *event);

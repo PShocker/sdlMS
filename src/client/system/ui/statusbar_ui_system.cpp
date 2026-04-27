@@ -120,9 +120,24 @@ void statusbar_ui_system::render_button() {
   }
 }
 
+void statusbar_ui_system::render_quickSlot() {
+  if (quickSlot) {
+    static auto q = wz_resource::load_texture(
+        wz_resource::ui->find(u"QuickSlot.img/backgrnd"));
+    auto screen_w = camera_game_instance::camera.w;
+    auto screen_h = camera_game_instance::camera.h;
+    auto base_x = (screen_w - 808) / 2;
+    auto base_y = (screen_h - 73);
+    SDL_FRect p{base_x + 808 - q->w, base_y - q->h, static_cast<float>(q->w),
+                static_cast<float>(q->h)};
+    SDL_RenderTexture(window::renderer, q, nullptr, &p);
+  }
+}
+
 bool statusbar_ui_system::render() {
   render_backgrnd();
   render_button();
+  render_quickSlot();
   return true;
 }
 

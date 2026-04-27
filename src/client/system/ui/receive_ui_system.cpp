@@ -6,13 +6,42 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 
-
 void receive_ui_system::render_backgrnd() {
   static auto texture =
-      wz_resource::load_texture(wz_resource::ui->find(u"Item.img/backgrnd"));
+      wz_resource::load_texture(wz_resource::ui->find(u"Receice.img/back0"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
                      static_cast<float>(texture->h)};
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+}
+
+void receive_ui_system::render_button() {
+  const static std::array buttons_node = {
+      wz_resource::ui->find(u"Receice.img/button:ok"),
+  };
+  const std::array buttons_rect = {
+      SDL_FRect{119, 115, 47, 18}, //
+  };
+  for (size_t i = 0; i < buttons_node.size(); ++i) {
+    auto k = buttons_node[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
 }
 
 bool receive_ui_system::render() {
@@ -118,4 +147,31 @@ bool receive_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+void receive_ui_system::event_button_ok() { return; }
+
+bool receive_ui_system::event_button(SDL_Event *event) {
+  const static std::array buttons_rect = {
+      SDL_FRect{119, 115, 47, 18}, //
+  };
+  const static std::array buttons_func = {
+      event_button_ok,
+  };
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto [w, h] = load_wh();
+  auto base_x = (screen_w - w) / 2;
+  auto base_y = (screen_h - h);
+
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += base_x;
+    pos_rect.y += base_y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      buttons_func[i]();
+      return true;
+    }
+  }
+  return false;
 }
