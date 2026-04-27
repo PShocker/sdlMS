@@ -43,7 +43,7 @@ void craft_ui_system::render_tab() {
   for (uint8_t i = 0; i < selected_texture.size(); i++) {
     SDL_Texture *t =
         selected_tab == i ? selected_texture[i] : normal_texture[i];
-    SDL_FPoint tab_pos = {static_cast<float>(9 + i * 88), 23};
+    SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 88), lt.y};
     SDL_FRect pos_rect{pos.x + tab_pos.x, pos.y + tab_pos.y,
                        static_cast<float>(t->w), static_cast<float>(t->h)};
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
