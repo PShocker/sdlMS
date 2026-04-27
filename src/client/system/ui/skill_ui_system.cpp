@@ -110,7 +110,8 @@ void skill_ui_system::render_tab() {
   for (uint8_t i = 0; i < selected_texture.size(); i++) {
     SDL_Texture *t = active_tab == i ? selected_texture[i] : normal_texture[i];
     SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
-    SDL_FRect pos_rect{pos.x + tab_pos.x, pos.y + tab_pos.y,
+    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos.x)),
+                       static_cast<float>(int(pos.y + tab_pos.y)),
                        static_cast<float>(t->w), static_cast<float>(t->h)};
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
   }
@@ -133,7 +134,8 @@ void skill_ui_system::render_skill_entry() {
   auto skill_node = wz_resource::skill->find(std::to_string(self_job) + ".img");
 
   auto book_texture = wz_resource::load_texture(skill_node->find(u"info/icon"));
-  SDL_FRect pos_rect{pos.x + 15, pos.y + 57, static_cast<float>(book_texture->w),
+  SDL_FRect pos_rect{pos.x + 15, pos.y + 57,
+                     static_cast<float>(book_texture->w),
                      static_cast<float>(book_texture->h)};
   SDL_RenderTexture(window::renderer, book_texture, nullptr, &pos_rect);
 
