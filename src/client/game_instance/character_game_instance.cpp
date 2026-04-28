@@ -4,6 +4,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
+#include "wz/Wz.h"
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -84,7 +85,7 @@ void character_game_instance::init_character_bone() {
                                                 static_cast<uint8_t>(frame),
                                             .delay = delay,
                                             .move = move};
-        ex_action.insert({key, e_action});
+        extern_action.insert({key, e_action});
       }
     }
   }
@@ -142,8 +143,57 @@ void character_game_instance::init_character_bone() {
 }
 
 void character_game_instance::load_self_character() {
+  add_body(self, u"00002000");
   self.head = u"00012000";
-  self.body = u"00002000";
+}
+
+void character_game_instance::add_body(game_character &g,
+                                       const std::u16string &val) {
+  g.body = val;
+  if (!avatar_data.contains(val)) {
+    character_avatar_render &r = avatar_data[val];
+    auto character_node = wz_resource::character;
+    auto body_node = character_node->find(val + u".img");
+    for (auto [k, v] : *body_node->get_children()) {
+      if (k == u"info") {
+        continue;
+      }
+      r.data[k].resize(v[0]->children_count());
+      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
+        auto format2 = std::to_string(frame);
+        auto body_frame_node = v[0]->get_child(format2);
+        for (auto [key, val] : *body_frame_node->get_children()) {
+          auto part_node = val[0];
+          if (part_node->type == wz::Type::UOL) {
+            part_node =
+                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
+          }
+          if (part_node->type == wz::Type::Canvas) {
+            character_avatar c;
+            c.texture = wz_resource::load_texture(part_node);
+            c.z = static_cast<wz::Property<std::u16string> *>(
+                      part_node->get_child(u"z"))
+                      ->get();
+            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
+                           part_node->get_child(u"origin"))
+                           ->get();
+            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+            auto map_node = part_node->get_child(u"map");
+            for (auto [mk, mv] : *map_node->get_children()) {
+              if (bone_data.at(k).at(frame).bone_pos.contains(mk)) {
+                auto p = bone_data.at(k).at(frame).bone_pos.at(mk);
+                auto part_pos =
+                    static_cast<wz::Property<wz::WzVec2D> *>(mv[0])->get();
+                c.pos = {part_pos.x - p.x, part_pos.y - p.y};
+                r.data[k][frame].push_back(c);
+                break;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 fbs::CharacterT character_game_instance::load_fbs_character() {
