@@ -17,10 +17,16 @@ public:
   SDL_FPoint move;
 };
 
-struct character_avatar_render {
+struct character_avatar {
   SDL_Texture *texture;
   SDL_FPoint origin;
   SDL_FPoint pos;
+  std::u16string z;
+};
+
+struct character_avatar_render {
+  std::flat_map<std::u16string, std::vector<std::vector<character_avatar>>>
+      data;
 };
 
 class character_bone_data {
@@ -42,14 +48,29 @@ public:
   static inline float hforce = 0.0;
   static inline float vforce = 0.0;
 
+  static void add_body(game_character &g, const std::u16string &val);
+  static void add_coat(game_character &g, const std::u16string &val);
+  static void add_cap(game_character &g, const std::u16string &val);
+  static void add_pants(game_character &g, const std::u16string &val);
+  static void add_head(game_character &g, const std::u16string &val);
+  static void add_face(game_character &g, const std::u16string &val,
+                       const std::u16string &type, const std::u16string &i);
+  static void add_hairs(game_character &g, const std::u16string &val);
+  static void add_shoes(game_character &g, const std::u16string &val);
+  static void add_weapon(game_character &g, const std::u16string &val);
+  static void add_shield(game_character &g, const std::u16string &val);
+  static void add_cape(game_character &g, const std::u16string &val);
+
   static inline std::flat_map<uint64_t, game_character> others;
 
   static inline std::flat_map<std::u16string, character_extern_action>
-      ex_action;
+      extern_action;
 
-  static inline std::flat_map<std::u16string, std::vector<character_bone_data>> bone_data;
+  static inline std::flat_map<std::u16string, std::vector<character_bone_data>>
+      bone_data;
 
-  static inline std::flat_map<std::u16string, std::vector<character_bone_data>> bone_data;
+  static inline std::flat_map<std::u16string, character_avatar_render>
+      avatar_data;
 
   const static inline std::vector<std::u16string> zmap = {
       u"Bd",
