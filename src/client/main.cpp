@@ -1,3 +1,4 @@
+#include "game_instance/character_game_instance.h"
 #include "game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
@@ -37,6 +38,8 @@ static int32_t window_w = 1200;
 static int32_t window_h = 800;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
+  wz_resource::init();
+
   if (argc == 3) {
     server_main::server_init(argv[1], SDL_atoi(argv[2]));
   } else {
@@ -46,7 +49,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   camera_game_instance::load(0, 0, logic_w, logic_h);
   keyboard_game_instance::load();
 
-  wz_resource::init();
+  character_game_instance::init_character_bone();
 
   SDL_HideCursor();
 

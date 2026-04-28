@@ -1,13 +1,16 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "game_chatballoon.h"
 #include "game_equip.h"
 #include "game_nametag.h"
 #include <cstdint>
+#include <flat_map>
 #include <optional>
 #include <string>
 #include <vector>
+
 class game_character {
 public:
   std::u8string name;
