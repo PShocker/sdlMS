@@ -17,10 +17,15 @@ public:
   SDL_FPoint move;
 };
 
+struct character_avatar_render {
+  SDL_Texture *texture;
+  SDL_FPoint origin;
+  SDL_FPoint pos;
+};
+
 class character_bone_data {
 public:
-  std::u16string bone_name;
-  SDL_FPoint bone_pos;
+  std::flat_map<std::u16string, SDL_FPoint> bone_pos;
 };
 
 class character_game_instance {
@@ -42,7 +47,9 @@ public:
   static inline std::flat_map<std::u16string, character_extern_action>
       ex_action;
 
-  static inline std::flat_map<std::u16string, SDL_FPoint> bone_data;
+  static inline std::flat_map<std::u16string, std::vector<character_bone_data>> bone_data;
+
+  static inline std::flat_map<std::u16string, std::vector<character_bone_data>> bone_data;
 
   const static inline std::vector<std::u16string> zmap = {
       u"Bd",
