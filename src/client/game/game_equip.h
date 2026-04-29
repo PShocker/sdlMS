@@ -6,7 +6,7 @@
 #include <vector>
 class game_equip {
 public:
-  uint32_t id;
+  std::u16string id;
 
   std::vector<uint32_t> scroll;
   uint8_t upgrade;
