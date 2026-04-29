@@ -12,8 +12,10 @@ bool character_render_system::render(game_character &g_character) {
   auto &camera = camera_game_instance::camera;
   const auto &head = character_game_instance::avatar_data.at(g_character.head);
   const auto &body = character_game_instance::avatar_data.at(g_character.body);
+  const auto &hair = character_game_instance::avatar_data.at(g_character.hair);
   render_parts.push_back(&head);
   render_parts.push_back(&body);
+  render_parts.push_back(&hair);
   if (g_character.coat.has_value()) {
     const auto &coat =
         character_game_instance::avatar_data.at(g_character.coat->id);
@@ -35,9 +37,9 @@ bool character_render_system::render(game_character &g_character) {
     render_parts.push_back(&pant);
   }
   const std::u16string action = u"stand1";
-  const auto b = character_game_instance::face_data.at(g_character.face.id)
-                     .data.at(u"blink");
-  render_parts.push_back(&b);
+  const auto face = character_game_instance::face_data.at(g_character.face.id)
+                        .data.at(u"default");
+  render_parts.push_back(&face);
 
   for (const auto part : render_parts) {
     if (!part->data.contains(action)) {
