@@ -16,6 +16,7 @@ void keyboard_game_instance::reset() {
       {SDL_SCANCODE_L, {.type = "ui", .val = "characterInfo"}},
       {SDL_SCANCODE_E, {.type = "ui", .val = "equip"}},
       {SDL_SCANCODE_C, {.type = "ui", .val = "craft"}},
+      {SDL_SCANCODE_Q, {.type = "ui", .val = "quest"}},
   };
 }
 

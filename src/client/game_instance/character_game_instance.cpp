@@ -146,6 +146,8 @@ void character_game_instance::init_character_bone() {
 void character_game_instance::load_self_character() {
   add_body(self, u"00002000");
   add_head(self, u"00012000");
+  add_coat(self, u"01040002");
+  add_cap(self, u"01002000");
 }
 
 void character_game_instance::add_body(game_character &g,
@@ -231,6 +233,117 @@ void character_game_instance::add_head(game_character &g,
   }
 }
 
+void character_game_instance::add_coat(game_character &g,
+                                       const std::u16string &val) {
+  game_equip g_equip;
+  g_equip.id = val;
+  g.coat = g_equip;
+  if (!avatar_data.contains(val)) {
+    character_avatar_render &r = avatar_data[val];
+    auto character_node = wz_resource::character;
+    auto coat_node = character_node->find(u"Coat/" + val + u".img");
+    for (auto [k, v] : *coat_node->get_children()) {
+      if (k == u"info") {
+        continue;
+      }
+      if (!bone_data.contains(k)) {
+        continue;
+      }
+      r.data[k].resize(v[0]->children_count());
+      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
+        auto format2 = std::to_string(frame);
+        auto body_frame_node = v[0]->get_child(format2);
+        for (auto [bk, bv] : *body_frame_node->get_children()) {
+          auto part_node = bv[0];
+          if (part_node->type == wz::Type::UOL) {
+            part_node =
+                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
+          }
+          if (part_node->type == wz::Type::Canvas) {
+            character_avatar c;
+            c.texture = wz_resource::load_texture(part_node);
+            c.z = static_cast<wz::Property<std::u16string> *>(
+                      part_node->get_child(u"z"))
+                      ->get();
+            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
+                           part_node->get_child(u"origin"))
+                           ->get();
+            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+            auto map_node =
+                part_node->get_child(u"map")->get_children()->begin();
+            auto part_name = map_node->first;
+            auto part_val = map_node->second[0];
+            auto part_val_pos =
+                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
+            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
+
+            c.pos = {parent_pos.x - part_val_pos.x,
+                     parent_pos.y - part_val_pos.y};
+            r.data[k][frame].push_back(c);
+          }
+        }
+      }
+    }
+  }
+}
+
+void character_game_instance::add_cap(game_character &g,
+                                      const std::u16string &val) {
+  game_equip g_equip;
+  g_equip.id = val;
+  g.cap = g_equip;
+  if (!avatar_data.contains(val)) {
+    character_avatar_render &r = avatar_data[val];
+    auto character_node = wz_resource::character;
+    auto cap_node = character_node->find(u"Cap/" + val + u".img");
+    for (auto [k, v] : *cap_node->get_children()) {
+      if (k == u"info") {
+        continue;
+      }
+      if (!bone_data.contains(k)) {
+        continue;
+      }
+      r.data[k].resize(v[0]->children_count());
+      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
+        auto format2 = std::to_string(frame);
+        auto body_frame_node = v[0]->get_child(format2);
+        for (auto [bk, bv] : *body_frame_node->get_children()) {
+          auto part_node = bv[0];
+          if (part_node->type == wz::Type::UOL) {
+            part_node =
+                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
+          }
+          if (part_node->type == wz::Type::Canvas) {
+            character_avatar c;
+            c.texture = wz_resource::load_texture(part_node);
+            c.z = static_cast<wz::Property<std::u16string> *>(
+                      part_node->get_child(u"z"))
+                      ->get();
+            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
+                           part_node->get_child(u"origin"))
+                           ->get();
+            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+            auto map_node =
+                part_node->get_child(u"map")->get_children()->begin();
+            auto part_name = map_node->first;
+            auto part_val = map_node->second[0];
+            auto part_val_pos =
+                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
+            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
+
+            c.pos = {parent_pos.x - part_val_pos.x,
+                     parent_pos.y - part_val_pos.y};
+            r.data[k][frame].push_back(c);
+          }
+        }
+      }
+    }
+  }
+}
+
+void character_game_instance::add_pants(game_character &g,
+                                        const std::u16string &val) {}
+
 fbs::CharacterT character_game_instance::load_fbs_character() {
   fbs::CharacterT c;
 
@@ -238,34 +351,44 @@ fbs::CharacterT character_game_instance::load_fbs_character() {
   c.state = std::make_unique<fbs::LifeStateT>();
 
   if (self.accessory.has_value()) {
-    c.appearance->accessory = self.accessory->id;
+    auto id = self.accessory->id;
+    c.appearance->accessory = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.cap.has_value()) {
-    c.appearance->cap = self.cap->id;
+    auto id = self.cap->id;
+    c.appearance->cap = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.cape.has_value()) {
-    c.appearance->cape = self.cape->id;
+    auto id = self.cape->id;
+    c.appearance->cape = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.glove.has_value()) {
-    c.appearance->glove = self.glove->id;
+    auto id = self.glove->id;
+    c.appearance->glove = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.coat.has_value()) {
-    c.appearance->coat = self.coat->id;
+    auto id = self.coat->id;
+    c.appearance->coat = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.longcoat.has_value()) {
-    c.appearance->longcoat = self.longcoat->id;
+    auto id = self.longcoat->id;
+    c.appearance->longcoat = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.pant.has_value()) {
-    c.appearance->pant = self.pant->id;
+    auto id = self.pant->id;
+    c.appearance->pant = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.shield.has_value()) {
-    c.appearance->shield = self.shield->id;
+    auto id = self.shield->id;
+    c.appearance->shield = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.weapon.has_value()) {
-    c.appearance->weapon = self.weapon->id;
+    auto id = self.weapon->id;
+    c.appearance->weapon = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.shoes.has_value()) {
-    c.appearance->shoes = self.shoes->id;
+    auto id = self.shoes->id;
+    c.appearance->shoes = std::stoi(std::string{id.begin(), id.end()});
   }
   c.appearance->head =
       std::stoi(std::string{self.head.begin(), self.head.end()});
