@@ -147,10 +147,11 @@ void character_game_instance::load_self_character() {
   add_body(self, u"00002000");
   add_head(self, u"00012000");
   add_coat(self, u"01040002");
-  add_cap(self, u"01002003");
+  add_cap(self, u"01002097");
   add_weapon(self, u"01302000");
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
+  add_hair(self, u"00030000");
 }
 
 void character_game_instance::add_body(game_character &g,
@@ -453,6 +454,58 @@ void character_game_instance::add_weapon(game_character &g,
   }
 }
 
+void character_game_instance::add_hair(game_character &g,
+                                       const std::u16string &val) {
+  g.hair = val;
+  if (!avatar_data.contains(val)) {
+    character_avatar_render &r = avatar_data[val];
+    auto character_node = wz_resource::character;
+    auto hair_node = character_node->find(u"Hair/" + val + u".img");
+    for (auto [k, v] : *hair_node->get_children()) {
+      if (k == u"info") {
+        continue;
+      }
+      if (!bone_data.contains(k)) {
+        continue;
+      }
+      r.data[k].resize(v[0]->children_count());
+      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
+        auto format2 = std::to_string(frame);
+        auto body_frame_node = v[0]->get_child(format2);
+        for (auto [bk, bv] : *body_frame_node->get_children()) {
+          auto part_node = bv[0];
+          if (part_node->type == wz::Type::UOL) {
+            part_node =
+                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
+          }
+          if (part_node->type == wz::Type::Canvas) {
+            character_avatar c;
+            c.texture = wz_resource::load_texture(part_node);
+            c.z = static_cast<wz::Property<std::u16string> *>(
+                      part_node->get_child(u"z"))
+                      ->get();
+            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
+                           part_node->get_child(u"origin"))
+                           ->get();
+            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+            auto map_node =
+                part_node->get_child(u"map")->get_children()->begin();
+            auto part_name = map_node->first;
+            auto part_val = map_node->second[0];
+            auto part_val_pos =
+                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
+            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
+
+            c.pos = {parent_pos.x - part_val_pos.x,
+                     parent_pos.y - part_val_pos.y};
+            r.data[k][frame].push_back(c);
+          }
+        }
+      }
+    }
+  }
+}
+
 void character_game_instance::add_face(game_character &g,
                                        const std::u16string &val) {
   game_face g_face;
@@ -463,7 +516,6 @@ void character_game_instance::add_face(game_character &g,
     auto character_node = wz_resource::character;
     auto face_node = character_node->find(u"Face/" + val + u".img");
     for (auto [k, v] : *face_node->get_children()) {
-      auto v_node = v[0];
       if (k == u"info") {
         continue;
       }
@@ -475,22 +527,27 @@ void character_game_instance::add_face(game_character &g,
           }
           auto brow_pos = cbd.bone_pos.at(u"brow");
           std::vector<character_avatar> vc;
-          for (uint8_t frame = 0; frame < v_node->children_count(); frame++) {
+          for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
             auto format2 = std::to_string(frame);
             auto f_node = v[0]->get_child(format2);
-            if (f_node == nullptr) {
+            if (frame == 0 && v[0]->get_child(u"face")) {
+              // default
+              f_node = v[0]->get_child(u"face");
+            } else if (f_node == nullptr) {
               break;
+            } else {
+              f_node = f_node->get_child(u"face");
             }
             character_avatar c;
             auto f_brow = static_cast<wz::Property<wz::WzVec2D> *>(
-                              f_node->find(u"face/map/brow"))
+                              f_node->find(u"map/brow"))
                               ->get();
-            c.texture = wz_resource::load_texture(f_node->get_child(u"face"));
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      f_node->find(u"face/z"))
-                      ->get();
+            c.texture = wz_resource::load_texture(f_node);
+            c.z =
+                static_cast<wz::Property<std::u16string> *>(f_node->find(u"z"))
+                    ->get();
             auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           f_node->find(u"face/origin"))
+                           f_node->find(u"origin"))
                            ->get();
             c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
             c.pos = {brow_pos.x - f_brow.x, brow_pos.y - f_brow.y};

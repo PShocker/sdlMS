@@ -60,7 +60,7 @@ public:
   static void add_pants(game_character &g, const std::u16string &val);
   static void add_head(game_character &g, const std::u16string &val);
   static void add_face(game_character &g, const std::u16string &val);
-  static void add_hairs(game_character &g, const std::u16string &val);
+  static void add_hair(game_character &g, const std::u16string &val);
   static void add_shoes(game_character &g, const std::u16string &val);
   static void add_weapon(game_character &g, const std::u16string &val);
   static void add_shield(game_character &g, const std::u16string &val);
