@@ -32,6 +32,7 @@ struct character_avatar_render {
 class character_bone_data {
 public:
   std::flat_map<std::u16string, SDL_FPoint> bone_pos;
+  std::flat_map<std::u16string, SDL_FPoint> part_pos;
 };
 
 class character_game_instance {
@@ -66,6 +67,7 @@ public:
   static inline std::flat_map<std::u16string, character_extern_action>
       extern_action;
 
+  // action index
   static inline std::flat_map<std::u16string, std::vector<character_bone_data>>
       bone_data;
 
