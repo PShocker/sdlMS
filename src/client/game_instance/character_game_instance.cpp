@@ -9,6 +9,7 @@
 #include <flat_map>
 #include <flat_set>
 #include <optional>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -18,10 +19,15 @@ void character_game_instance::init_character_bone() {
   auto body_node = character_node->find(u"00002000.img");
   auto head_node = character_node->find(u"00012000.img");
 
-  struct tmp_bone_data {
-    std::flat_map<std::u16string, std::vector<wz::Node *>> bones;
+  struct tmp_bone {
+    std::u16string name;
+    wz::Node *node;
   };
-
+  struct tmp_bone_data {
+    // z node
+    std::flat_multimap<std::u16string, tmp_bone> bones;
+  };
+  // action index
   std::flat_map<std::u16string, std::vector<tmp_bone_data>> tmp_bone_map;
   for (auto [key, val] : *body_node->get_children()) {
     if (key == u"info") {
@@ -59,32 +65,28 @@ void character_game_instance::init_character_bone() {
                          part_node->get_child(u"z"))
                          ->get();
             auto map_node = part_node->get_child(u"map");
-            tmp_bone_map[key][frame].bones[z].push_back(map_node);
+            tmp_bone_map[key][frame].bones.insert({z, {k, part_node}});
           }
         }
       } else {
+        character_extern_action e_action;
         // 引用动作
-        auto action = static_cast<wz::Property<std::u16string> *>(
-                          body_frame_node->get_child(u"action"))
-                          ->get();
-        auto frame = static_cast<wz::Property<int> *>(
-                         body_frame_node->get_child(u"frame"))
-                         ->get();
-        auto delay = static_cast<wz::Property<int> *>(
-                         body_frame_node->get_child(u"delay"))
-                         ->get();
+        e_action.action = static_cast<wz::Property<std::u16string> *>(
+                              body_frame_node->get_child(u"action"))
+                              ->get();
+        e_action.frame = static_cast<wz::Property<int> *>(
+                             body_frame_node->get_child(u"frame"))
+                             ->get();
+        e_action.delay = static_cast<wz::Property<int> *>(
+                             body_frame_node->get_child(u"delay"))
+                             ->get();
         SDL_FPoint move = {0, 0};
         if (body_frame_node->get_child(u"move")) {
           auto v = static_cast<wz::Property<wz::WzVec2D> *>(
                        body_frame_node->get_child(u"move"))
                        ->get();
-          move = {static_cast<float>(v.x), static_cast<float>(v.y)};
+          e_action.move = {static_cast<float>(v.x), static_cast<float>(v.y)};
         }
-        character_extern_action e_action = {.action = action,
-                                            .frame =
-                                                static_cast<uint8_t>(frame),
-                                            .delay = delay,
-                                            .move = move};
         extern_action.insert({key, e_action});
       }
     }
@@ -92,48 +94,47 @@ void character_game_instance::init_character_bone() {
   for (const auto [k, v] : tmp_bone_map) {
     for (uint8_t i = 0; i < v.size(); i++) {
       const auto &tbd = v[i];
-      for (const auto &v : zmap) {
-        if (tbd.bones.contains(v)) {
-          for (uint8_t m = 0; m < tbd.bones.at(v).size(); m++) {
-            auto map_node = tbd.bones.at(v)[m];
-            std::optional<std::u16string> parent_bone;
-            std::optional<SDL_FPoint> parent_pos;
-            // 先找到是否有父节点
-            for (auto [key, val] : *map_node->get_children()) {
-              auto v = static_cast<wz::Property<wz::WzVec2D> *>(val[0])->get();
-              if (bone_data.contains(key)) {
-                parent_bone = key;
-                parent_pos = SDL_FPoint{static_cast<float>(v.x),
-                                        static_cast<float>(v.y)};
-                break;
-              }
+      for (const auto &zp : zmap) {
+        if (!tbd.bones.contains(zp)) {
+          continue;
+        }
+        // const auto &bones = tbd.bones.at(zp);
+        auto [beg, end] = tbd.bones.equal_range(zp);
+        for (auto it = beg; it != end; ++it) {
+          auto &bones = it->second;
+          // 构建骨骼
+          std::u16string parent_bone_name = u"";
+          for (auto [pk, pv] : *bones.node->get_child(u"map")->get_children()) {
+            if (bone_data[k][i].bone_pos.contains(pk)) {
+              parent_bone_name = pk;
             }
-            if (parent_bone.has_value()) {
-              // 存在父节点
-              auto pb = bone_data.at(k).at(i).bone_pos.at(parent_bone.value());
-              SDL_FPoint cur_pos{pb.x - parent_pos.value().x,
-                                 pb.y - parent_pos.value().y};
-              for (auto [key, val] : *map_node->get_children()) {
-                if (bone_data.contains(key)) {
-                  continue;
-                }
-                auto v =
-                    static_cast<wz::Property<wz::WzVec2D> *>(val[0])->get();
-                bone_data[k][i].bone_pos[key] = SDL_FPoint{
-                    cur_pos.x - v.x,
-                    cur_pos.y - v.y,
-                };
+          }
+          if (parent_bone_name == u"") {
+            // 无父节点
+            for (auto [pk, pv] :
+                 *bones.node->get_child(u"map")->get_children()) {
+              auto vec = static_cast<wz::Property<wz::WzVec2D> *>(pv[0])->get();
+              bone_data[k][i].bone_pos[pk] = {float(vec.x), float(vec.y)};
+            }
+            bone_data[k][i].part_pos[bones.name] = {0, 0};
+          } else {
+            // 有父节点
+            auto parent_bone_pos =
+                bone_data[k][i].bone_pos.at(parent_bone_name);
+            auto parent_vec = bones.node->find(u"map/" + parent_bone_name);
+            auto vec =
+                static_cast<wz::Property<wz::WzVec2D> *>(parent_vec)->get();
+            SDL_FPoint cur_pos{parent_bone_pos.x - vec.x,
+                               parent_bone_pos.y - vec.y};
+            bone_data[k][i].part_pos[bones.name] = cur_pos;
+            for (auto [pk, pv] :
+                 *bones.node->get_child(u"map")->get_children()) {
+              if (bone_data[k][i].bone_pos.contains(pk)) {
+                continue;
               }
-            } else {
-              // 没有父节点
-              for (auto [key, val] : *map_node->get_children()) {
-                auto v =
-                    static_cast<wz::Property<wz::WzVec2D> *>(val[0])->get();
-                bone_data[k][i].bone_pos[key] = SDL_FPoint{
-                    static_cast<float>(v.x),
-                    static_cast<float>(v.y),
-                };
-              }
+              auto vec = static_cast<wz::Property<wz::WzVec2D> *>(pv[0])->get();
+              bone_data[k][i].bone_pos[pk] = {float(cur_pos.x - vec.x),
+                                              float(cur_pos.y - vec.y)};
             }
           }
         }
@@ -144,7 +145,7 @@ void character_game_instance::init_character_bone() {
 
 void character_game_instance::load_self_character() {
   add_body(self, u"00002000");
-  self.head = u"00012000";
+  add_head(self, u"00012000");
 }
 
 void character_game_instance::add_body(game_character &g,
@@ -162,8 +163,8 @@ void character_game_instance::add_body(game_character &g,
       for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
         auto format2 = std::to_string(frame);
         auto body_frame_node = v[0]->get_child(format2);
-        for (auto [key, val] : *body_frame_node->get_children()) {
-          auto part_node = val[0];
+        for (auto [bk, bv] : *body_frame_node->get_children()) {
+          auto part_node = bv[0];
           if (part_node->type == wz::Type::UOL) {
             part_node =
                 static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
@@ -178,17 +179,51 @@ void character_game_instance::add_body(game_character &g,
                            part_node->get_child(u"origin"))
                            ->get();
             c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node = part_node->get_child(u"map");
-            for (auto [mk, mv] : *map_node->get_children()) {
-              if (bone_data.at(k).at(frame).bone_pos.contains(mk)) {
-                auto p = bone_data.at(k).at(frame).bone_pos.at(mk);
-                auto part_pos =
-                    static_cast<wz::Property<wz::WzVec2D> *>(mv[0])->get();
-                c.pos = {part_pos.x - p.x, part_pos.y - p.y};
-                r.data[k][frame].push_back(c);
-                break;
-              }
-            }
+            c.pos = bone_data[k][frame].part_pos.at(bk);
+            r.data[k][frame].push_back(c);
+          }
+        }
+      }
+    }
+  }
+}
+
+void character_game_instance::add_head(game_character &g,
+                                       const std::u16string &val) {
+  g.head = val;
+  if (!avatar_data.contains(val)) {
+    character_avatar_render &r = avatar_data[val];
+    auto character_node = wz_resource::character;
+    auto head_node = character_node->find(val + u".img");
+    for (auto [k, v] : *head_node->get_children()) {
+      if (k == u"info") {
+        continue;
+      }
+      if (!bone_data.contains(k)) {
+        continue;
+      }
+      r.data[k].resize(v[0]->children_count());
+      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
+        auto format2 = std::to_string(frame);
+        auto body_frame_node = v[0]->get_child(format2);
+        for (auto [bk, bv] : *body_frame_node->get_children()) {
+          auto part_node = bv[0];
+          if (part_node->type == wz::Type::UOL) {
+            part_node =
+                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
+          }
+          if (part_node->type == wz::Type::Canvas) {
+            character_avatar c;
+            c.texture = wz_resource::load_texture(part_node);
+            c.z = static_cast<wz::Property<std::u16string> *>(
+                      part_node->get_child(u"z"))
+                      ->get();
+            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
+                           part_node->get_child(u"origin"))
+                           ->get();
+            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+            c.pos = bone_data[k][frame].part_pos.at(bk);
+            r.data[k][frame].push_back(c);
           }
         }
       }
