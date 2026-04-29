@@ -29,6 +29,11 @@ struct character_avatar_render {
       data;
 };
 
+struct character_face_render {
+  // defalut ,stand0,0,0,0
+  std::flat_map<std::u16string, character_avatar_render> data;
+};
+
 class character_bone_data {
 public:
   std::flat_map<std::u16string, SDL_FPoint> bone_pos;
@@ -54,8 +59,7 @@ public:
   static void add_cap(game_character &g, const std::u16string &val);
   static void add_pants(game_character &g, const std::u16string &val);
   static void add_head(game_character &g, const std::u16string &val);
-  static void add_face(game_character &g, const std::u16string &val,
-                       const std::u16string &type, const std::u16string &i);
+  static void add_face(game_character &g, const std::u16string &val);
   static void add_hairs(game_character &g, const std::u16string &val);
   static void add_shoes(game_character &g, const std::u16string &val);
   static void add_weapon(game_character &g, const std::u16string &val);
@@ -73,6 +77,8 @@ public:
 
   static inline std::flat_map<std::u16string, character_avatar_render>
       avatar_data;
+
+  static inline std::flat_map<std::u16string, character_face_render> face_data;
 
   const static inline std::vector<std::u16string> zmap = {
       u"Bd",
@@ -230,4 +236,117 @@ public:
       u"mobEquipMid",
       u"tamingMobFront",
       u"mobEquipFront"};
+
+  const static inline std::vector<std::u16string> smap = {
+      u"accessoryEyeBelowFace",
+      u"backWeapon",
+      u"backHairBelowHead",
+      u"backShieldBelowBody",
+      u"backMailChestAccessory",
+      u"backCapAccessory",
+      u"backAccessoryFace",
+      u"backAccessoryEar",
+      u"backBody",
+      u"backGlove",
+      u"backGloveWrist",
+      u"backWeaponOverGlove",
+      u"backMailChestBelowPants",
+      u"backPantsBelowShoes",
+      u"backShoesBelowPants",
+      u"backPants",
+      u"backShoes",
+      u"backMailChest",
+      u"backPantsOverMailChest",
+      u"backMailChestOverPants",
+      u"backHead",
+      u"backAccessoryFaceOverHead",
+      u"backAccessoryOverHead",
+      u"backCape",
+      u"backHairBelowCap",
+      u"backHairBelowCapNarrow",
+      u"backHairBelowCapWide",
+      u"backWeaponOverHead",
+      u"backCap",
+      u"backHair",
+      u"backCapOverHair",
+      u"backShield",
+      u"backWeaponOverShield",
+      u"backWing",
+      u"backHairOverCape",
+      u"weaponBelowBody",
+      u"hairBelowBody",
+      u"capeBelowBody",
+      u"shieldBelowBody",
+      u"capAccessoryBelowBody",
+      u"gloveBelowBody",
+      u"gloveWristBelowBody",
+      u"body",
+      u"gloveOverBody",
+      u"mailChestBelowPants",
+      u"pantsBelowShoes",
+      u"shoes",
+      u"pants",
+      u"mailChestOverPants",
+      u"shoesOverPants",
+      u"mailChest",
+      u"shoesTop",
+      u"pantsOverMailChest",
+      u"mailChestOverHighest",
+      u"gloveWristOverBody",
+      u"mailChestTop",
+      u"weaponOverBody",
+      u"armBelowHead",
+      u"mailArmBelowHead",
+      u"armBelowHeadOverMailChest",
+      u"gloveBelowHead",
+      u"mailArmBelowHeadOverMailChest",
+      u"gloveWristBelowHead",
+      u"weaponOverArmBelowHead",
+      u"shield",
+      u"weapon",
+      u"arm",
+      u"hand",
+      u"glove",
+      u"mailArm",
+      u"gloveWrist",
+      u"cape",
+      u"head",
+      u"hairShade",
+      u"accessoryFaceBelowFace",
+      u"face",
+      u"accessoryFaceOverFaceBelowCap",
+      u"capBelowAccessory",
+      u"accessoryEar",
+      u"capAccessoryBelowAccFace",
+      u"accessoryFace",
+      u"accessoryEyeShadow",
+      u"accessoryEye",
+      u"hair",
+      u"cap",
+      u"capAccessory",
+      u"accessoryEyeOverCap",
+      u"hairOverHead",
+      u"accessoryOverHair",
+      u"accessoryEarOverHair",
+      u"capOverHair",
+      u"weaponBelowArm",
+      u"armOverHairBelowWeapon",
+      u"mailArmOverHairBelowWeapon",
+      u"armOverHair",
+      u"gloveBelowMailArm",
+      u"mailArmOverHair",
+      u"gloveWristBelowMailArm",
+      u"weaponOverArm",
+      u"handBelowWeapon",
+      u"gloveBelowWeapon",
+      u"gloveWristBelowWeapon",
+      u"shieldOverHair",
+      u"weaponOverHand",
+      u"handOverHair",
+      u"gloveOverHair",
+      u"gloveWristOverHair",
+      u"weaponOverGlove",
+      u"capeOverHead",
+      u"weaponWristOverGlove",
+  };
 };

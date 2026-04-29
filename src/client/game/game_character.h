@@ -4,6 +4,7 @@
 #include "SDL3/SDL_render.h"
 #include "game_chatballoon.h"
 #include "game_equip.h"
+#include "game_face.h"
 #include "game_nametag.h"
 #include <cstdint>
 #include <flat_map>
@@ -25,6 +26,9 @@ public:
 
   std::u16string body;
   std::u16string head;
+  std::u16string hair;
+
+  game_face face;
 
   std::optional<game_equip> weapon;
   std::optional<game_equip> cap;
