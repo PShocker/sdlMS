@@ -3,6 +3,8 @@
 #include "input_system.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include <cstdio>
+#include <flat_map>
+#include <string>
 
 bool keyboard_input_system::event(SDL_Event *event) {
   if (event->type == SDL_EVENT_KEY_DOWN) {
@@ -21,6 +23,9 @@ bool keyboard_input_system::event(SDL_Event *event) {
           }
         }
       } else {
+        if (g_input.type == "action") {
+          input_system::handle_action_input(g_input);
+        }
       }
     }
     printf("%d\n", scan_code);

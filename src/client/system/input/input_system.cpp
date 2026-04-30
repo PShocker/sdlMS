@@ -1,15 +1,17 @@
 #include "input_system.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
+#include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
-#include "src/client/system/ui/craft_ui_system.h"
 #include <flat_map>
 #include <string>
+
 
 void input_system::handle_ui_input(game_input &g_input) {
   static const std::flat_map<std::string, void (*)()> fns = {
@@ -31,4 +33,8 @@ void input_system::handle_item_input(game_input &g_input) {
       {"worldMap", worldmap_ui_system::toggle},
   };
   fns.at(g_input.val)();
+}
+
+void input_system::handle_action_input(game_input &g_input) {
+  character_logic_system::input_action(g_input);
 }
