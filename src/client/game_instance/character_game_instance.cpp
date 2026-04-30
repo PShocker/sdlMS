@@ -35,13 +35,26 @@ void character_game_instance::init_character_bone() {
     }
     auto action_node = val[0];
 
-    tmp_bone_map[key].resize(action_node->children_count());
-    bone_data[key].resize(action_node->children_count());
-
     for (uint8_t frame = 0; frame < action_node->children_count(); frame++) {
       auto format2 = std::to_string(frame);
       auto body_frame_node = action_node->get_child(format2);
       if (body_frame_node->get_child(u"action") == nullptr) {
+
+        tmp_bone_map[key].resize(action_node->children_count());
+        bone_data[key].resize(action_node->children_count());
+
+        if (body_frame_node->get_child(u"delay")) {
+          auto delay = static_cast<wz::Property<int> *>(
+                           body_frame_node->get_child(u"delay"))
+                           ->get();
+          bone_data[key][frame].delay = delay;
+        }
+
+        auto face = static_cast<wz::Property<int16_t> *>(
+                        body_frame_node->get_child(u"face"))
+                        ->get();
+        bone_data[key][frame].face = face;
+
         //  基础动作，身体
         auto format3 = std::u16string{format2.begin(), format2.end()};
         auto head_frame_node = head_node->find(key + u"/" + format3);
@@ -74,9 +87,6 @@ void character_game_instance::init_character_bone() {
         e_action.action = static_cast<wz::Property<std::u16string> *>(
                               body_frame_node->get_child(u"action"))
                               ->get();
-        e_action.frame = static_cast<wz::Property<int> *>(
-                             body_frame_node->get_child(u"frame"))
-                             ->get();
         e_action.delay = static_cast<wz::Property<int> *>(
                              body_frame_node->get_child(u"delay"))
                              ->get();
@@ -87,7 +97,7 @@ void character_game_instance::init_character_bone() {
                        ->get();
           e_action.move = {static_cast<float>(v.x), static_cast<float>(v.y)};
         }
-        extern_action.insert({key, e_action});
+        extern_action[key].push_back(e_action);
       }
     }
   }
@@ -152,6 +162,9 @@ void character_game_instance::load_self_character() {
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
+  self.action = u"stand1";
+  self.flip = 1;
+  self_state = state::STAND;
 }
 
 void character_game_instance::add_body(game_character &g,
@@ -611,7 +624,7 @@ fbs::CharacterT character_game_instance::load_fbs_character() {
   c.appearance->body =
       std::stoi(std::string{self.body.begin(), self.body.end()});
 
-  c.state->action = self.action_type;
+  c.state->action = std::string{self.action.begin(), self.action.end()};
   c.state->x = self.pos.x;
   c.state->y = self.pos.y;
 

@@ -12,7 +12,6 @@
 class character_extern_action {
 public:
   std::u16string action;
-  uint8_t frame;
   int32_t delay;
   SDL_FPoint move;
 };
@@ -38,6 +37,9 @@ class character_bone_data {
 public:
   std::flat_map<std::u16string, SDL_FPoint> bone_pos;
   std::flat_map<std::u16string, SDL_FPoint> part_pos;
+
+  uint32_t delay;
+  uint8_t face;
 };
 
 class character_game_instance {
@@ -51,8 +53,24 @@ public:
 
   static inline game_character self;
 
-  static inline float hforce = 0.0;
-  static inline float vforce = 0.0;
+  // stand(walk,alert) , swim(fly),sit,attack,prone
+  enum class state : uint8_t {
+    STAND,
+    WALK,
+    JUMP,
+    CLIMB,
+    ATTACK,
+    ALERT,
+    PRONE,
+    SKILL,
+    DIE,
+    SIT,
+    SWIM, //(FLY)
+  };
+  static inline state self_state;
+  static inline float self_hforce = 0.0;
+  static inline float self_vforce = 0.0;
+  static inline uint64_t self_alert_cooldown;
 
   static void add_body(game_character &g, const std::u16string &val);
   static void add_coat(game_character &g, const std::u16string &val);
@@ -68,7 +86,8 @@ public:
 
   static inline std::flat_map<uint64_t, game_character> others;
 
-  static inline std::flat_map<std::u16string, character_extern_action>
+  static inline std::flat_map<std::u16string,
+                              std::vector<character_extern_action>>
       extern_action;
 
   // action index

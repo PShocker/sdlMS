@@ -1,4 +1,6 @@
 #include "character_render_system.h"
+#include "SDL3/SDL_render.h"
+#include "SDL3/SDL_surface.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/window/window.h"
@@ -7,6 +9,8 @@
 #include <vector>
 
 bool character_render_system::render(game_character &g_character) {
+  auto &self = character_game_instance::self;
+
   std::flat_multimap<std::u16string, const character_avatar *> renders;
   std::vector<const character_avatar_render *> render_parts;
   auto &camera = camera_game_instance::camera;
@@ -36,7 +40,7 @@ bool character_render_system::render(game_character &g_character) {
         character_game_instance::avatar_data.at(g_character.pant->id);
     render_parts.push_back(&pant);
   }
-  const std::u16string action = u"stand1";
+  const std::u16string action = g_character.action;
   const auto face = character_game_instance::face_data.at(g_character.face.id)
                         .data.at(u"default");
   render_parts.push_back(&face);
@@ -64,7 +68,12 @@ bool character_render_system::render(game_character &g_character) {
             .w = static_cast<float>(texture->w),
             .h = static_cast<float>(texture->h),
         };
-        SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+        if (self.flip == 1) {
+          pos_rect.x = g_character.pos.x - avatar->pos.x;
+          pos_rect.x = (pos_rect.x - (texture->w - origin.x)) - camera.x;
+        }
+        SDL_RenderTextureRotated(window::renderer, texture, nullptr, &pos_rect,
+                                 0, nullptr, (SDL_FlipMode)self.flip);
       }
     }
   }
