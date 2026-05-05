@@ -49,7 +49,7 @@ bool character_render_system::render(game_character &g_character) {
     if (!part->data.contains(action)) {
       continue;
     }
-    const auto &pts = part->data.at(action)[0];
+    const auto &pts = part->data.at(action)[g_character.action_index];
     for (auto &pt : pts) {
       renders.insert({pt.z, &pt});
     }

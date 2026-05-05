@@ -162,7 +162,7 @@ void character_game_instance::load_self_character() {
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
-  self.action = u"stand1";
+  self.action = u"walk1";
   self.flip = 1;
 }
 
