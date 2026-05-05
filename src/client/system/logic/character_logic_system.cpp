@@ -25,27 +25,3 @@ bool character_logic_system::run() {
 
   return true;
 }
-
-void character_logic_system::input_action(game_input &g_input) {
-  auto &self = character_game_instance::self;
-  if (g_input.val == "left" || g_input.val == "right") {
-    //  左右
-    switch (character_game_instance::self_state) {
-    case character_game_instance::state::STAND:
-    case character_game_instance::state::WALK: {
-      if (g_input.val == "left") {
-        self.flip = 0;
-        character_game_instance::self_hforce = -1400;
-      } else {
-        self.flip = 1;
-        character_game_instance::self_hforce = 1400;
-      }
-      break;
-    }
-
-    default: {
-      break;
-    }
-    }
-  }
-}

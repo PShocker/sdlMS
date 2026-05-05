@@ -53,25 +53,6 @@ public:
 
   static inline game_character self;
 
-  // stand(walk,alert) , swim(fly),sit,attack,prone
-  enum class state : uint8_t {
-    STAND,
-    WALK,
-    JUMP,
-    CLIMB,
-    ATTACK,
-    ALERT,
-    PRONE,
-    SKILL,
-    DIE,
-    SIT,
-    SWIM, //(FLY)
-  };
-  static inline state self_state;
-  static inline float self_hforce = 0.0;
-  static inline float self_vforce = 0.0;
-  static inline uint64_t self_alert_cooldown;
-
   static void add_body(game_character &g, const std::u16string &val);
   static void add_coat(game_character &g, const std::u16string &val);
   static void add_cap(game_character &g, const std::u16string &val);
