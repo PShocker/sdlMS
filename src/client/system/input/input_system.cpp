@@ -12,7 +12,6 @@
 #include <flat_map>
 #include <string>
 
-
 void input_system::handle_ui_input(game_input &g_input) {
   static const std::flat_map<std::string, void (*)()> fns = {
       {"worldMap", worldmap_ui_system::toggle},
@@ -35,6 +34,18 @@ void input_system::handle_item_input(game_input &g_input) {
   fns.at(g_input.val)();
 }
 
-void input_system::handle_action_input(game_input &g_input) {
-  character_logic_system::input_action(g_input);
+void input_system::handle_action_input(game_input &g_input, bool press) {
+  if (press) {
+    character_logic_system::character_action_input.insert(g_input.val2);
+  } else {
+    character_logic_system::character_action_input.erase(g_input.val2);
+  }
+}
+
+void input_system::handle_skill_input(game_input &g_input, bool press) {
+  if (press) {
+    character_logic_system::character_skill_input.insert(g_input.val2);
+  } else {
+    character_logic_system::character_skill_input.erase(g_input.val2);
+  }
 }

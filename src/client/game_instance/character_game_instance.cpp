@@ -164,7 +164,6 @@ void character_game_instance::load_self_character() {
   add_hair(self, u"00030000");
   self.action = u"stand1";
   self.flip = 1;
-  self_state = state::STAND;
 }
 
 void character_game_instance::add_body(game_character &g,
