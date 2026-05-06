@@ -3,9 +3,11 @@
 #include "drop_logic_system.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/physic/physic.h"
 #include <cstdint>
 #include <flat_map>
 #include <string>
@@ -131,7 +133,12 @@ bool character_logic_system::run_walk(game_character &g_character) {
       return r;
     }
   }
-  // 
+  // 移动
+  auto delta_time = window::delta_time / 1000.0f;
+
+  physic::walk(g_character.pos, delta_time, self_hspeed, self_vspeed,
+               self_hforce, self_hspeed_min, self_hspeed_max, 800, true,
+               g_character.fh, {0, 0, 0, 0}, foothold_game_instance::data);
   return r;
 }
 
@@ -167,6 +174,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   case action_enum::walk:
     run_flip(g_character);
     run_pick(g_character);
+    run_walk(g_character);
     break;
   }
 }
