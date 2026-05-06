@@ -4,8 +4,8 @@
 #include <algorithm>
 
 bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
-                     int32_t current_fh, float hspeed, float vspeed,
-                     const std::flat_map<int32_t, game_foothold> &fhs) {
+                      int32_t &current_fh, float &hspeed, float &vspeed,
+                      const std::flat_map<int32_t, game_foothold> &fhs) {
   const game_foothold *n_fh = nullptr;
   if (next_fh != 0) {
     n_fh = &fhs.at(next_fh);
@@ -49,11 +49,10 @@ bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
   return true;
 }
 
-void physic::walk(SDL_FPoint &pos, float hspeed, float vspeed, float hforce,
-                  float hspeed_min, float hspeed_max, float friction, bool fall,
-                  int32_t current_fh, const SDL_FRect &border,
+bool physic::walk(SDL_FPoint &pos,float delta_time, float &hspeed, float &vspeed, float &hforce,
+                  float &hspeed_min, float &hspeed_max, float friction,
+                  bool fall, int32_t &current_fh, const SDL_FRect &border,
                   const std::flat_map<int32_t, game_foothold> &fhs) {
-  auto delta_time = window::delta_time;
   // 判断摩擦力方向
   if (hspeed > 0) {
     hforce -= friction;
@@ -65,6 +64,42 @@ void physic::walk(SDL_FPoint &pos, float hspeed, float vspeed, float hforce,
 
   hspeed += delta_time * hforce;
   hspeed = std::clamp(hspeed, hspeed_min, hspeed_max);
-  auto d_x = hspeed * delta_time;
-  auto p_x = d_x + pos.x;
+  pos.x = hspeed * delta_time + pos.x;
+
+  // 往左走
+  while (true) {
+    const auto &c_fh = fhs.at(current_fh);
+    if (pos.x >= c_fh.l) {
+      break;
+    }
+    auto prev_fh = c_fh.prev;
+    if (walk_fh(pos, true, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
+      return false;
+    }
+  }
+  // 往左走
+  while (true) {
+    const auto &c_fh = fhs.at(current_fh);
+    if (pos.x >= c_fh.l) {
+      break;
+    }
+    auto prev_fh = c_fh.prev;
+    if (walk_fh(pos, true, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
+      return false;
+    }
+  }
+  // 往右走
+  while (true) {
+    const auto &c_fh = fhs.at(current_fh);
+    if (pos.x <= c_fh.r) {
+      break;
+    }
+    auto next_fh = c_fh.next;
+    if (walk_fh(pos, true, next_fh, current_fh, hspeed, vspeed, fhs) == false) {
+      return false;
+    }
+  }
+  const auto &cur_fh = fhs.at(current_fh);
+  pos.y = cur_fh.k.value() * pos.x + cur_fh.intercept.value();
+  return true;
 }

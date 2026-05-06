@@ -36,16 +36,16 @@ void input_system::handle_item_input(game_input &g_input) {
 
 void input_system::handle_action_input(game_input &g_input, bool press) {
   if (press) {
-    character_logic_system::character_action_input.insert(g_input.val2);
+    character_logic_system::character_action_input.insert(g_input.val);
   } else {
-    character_logic_system::character_action_input.erase(g_input.val2);
+    character_logic_system::character_action_input.erase(g_input.val);
   }
 }
 
 void input_system::handle_skill_input(game_input &g_input, bool press) {
   if (press) {
-    character_logic_system::character_skill_input.insert(g_input.val2);
+    character_logic_system::character_skill_input.insert(g_input.val);
   } else {
-    character_logic_system::character_skill_input.erase(g_input.val2);
+    character_logic_system::character_skill_input.erase(g_input.val);
   }
 }

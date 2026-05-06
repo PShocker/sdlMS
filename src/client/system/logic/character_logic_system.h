@@ -36,11 +36,12 @@ public:
   static inline float self_hspeed = 0.0;
   static inline float self_vspeed = 0.0;
 
-  static inline float self_hspeed_min = 0.0;
-  static inline float self_vspeed_min = 0.0;
+  static inline float self_hspeed_min = -125.0f;
+  static inline float self_hspeed_max = 125.0f;
 
-  static inline float self_hspeed_max = 0.0;
-  static inline float self_vspeed_max = 0.0;
+
+  static inline float self_vspeed_min = -5000.0f;
+  static inline float self_vspeed_max = 670.0f;
 
   static inline uint64_t self_alert_cooldown;
 };
