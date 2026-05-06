@@ -8,6 +8,7 @@ void keyboard_game_instance::reset() {
       {SDL_SCANCODE_DOWN, {.type = "action", .val = "down"}},
       {SDL_SCANCODE_LEFT, {.type = "action", .val = "left"}},
       {SDL_SCANCODE_RIGHT, {.type = "action", .val = "right"}},
+      {SDL_SCANCODE_Z, {.type = "action", .val = "pick"}},
       {SDL_SCANCODE_W, {.type = "ui", .val = "worldMap"}},
       {SDL_SCANCODE_I, {.type = "ui", .val = "package"}},
       {SDL_SCANCODE_S, {.type = "ui", .val = "characterStat"}},
