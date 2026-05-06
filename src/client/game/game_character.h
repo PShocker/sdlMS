@@ -8,11 +8,13 @@
 #include "game_nametag.h"
 #include <cstdint>
 #include <flat_map>
+#include <flat_set>
 #include <optional>
 #include <string>
 #include <vector>
 
 class game_character {
+
 public:
   std::u8string name;
 
@@ -54,4 +56,9 @@ public:
   std::optional<game_chatballoon> chatballoon;
 
   SDL_FPoint pos;
+
+  enum class abnormal_state_type {
+    dizz,
+  };
+  std::flat_set<abnormal_state_type> abnormals;
 };

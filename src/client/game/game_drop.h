@@ -2,10 +2,13 @@
 
 #include "SDL3/SDL_rect.h"
 #include "game_equip.h"
+#include "game_pet.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_pet.h"
 #include <any>
 #include <cstdint>
 #include <optional>
+#include <variant>
 #include <vector>
 class game_drop {
 public:
@@ -23,7 +26,7 @@ public:
   float hspeed = 0;
   float vspeed = 0;
 
-  game_character *picker;
+  std::variant<game_character *, game_pet *> picker;
 
   std::optional<game_equip> equip;
 };
