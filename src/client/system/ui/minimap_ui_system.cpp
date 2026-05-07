@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <flat_map>
+#include <ranges>
 
 void minimap_ui_system::render_mini() {}
 
@@ -323,6 +324,8 @@ void minimap_ui_system::render_canvas_life() {
       wz_resource::map->find(u"MapHelper.img/minimap/portal"));
   static auto user_texture = wz_resource::load_texture(
       wz_resource::map->find(u"MapHelper.img/minimap/user"));
+  static auto other_texture = wz_resource::load_texture(
+      wz_resource::map->find(u"MapHelper.img/minimap/another"));
   // render npc
   auto canvas_o = load_canvas_o();
   auto canvas_viewport = load_canvas_viewport();
@@ -358,9 +361,21 @@ void minimap_ui_system::render_canvas_life() {
         (float)por_texture->w, (float)por_texture->h};
     SDL_RenderTexture(window::renderer, por_texture, nullptr, &pos_rect);
   }
-  // // render users
-  // // todo
-
+  // // render others
+  for (auto &other : character_game_instance::others | std::views::values) {
+    auto &o_character = other.g_character;
+    auto character_pos = load_canvas_point(o_character.pos, -2, -4);
+    if (!SDL_PointInRectFloat(&character_pos, &canvas_viewport)) {
+      continue;
+    }
+    character_pos.x = character_pos.x - (canvas_viewport.x);
+    character_pos.y = character_pos.y - (canvas_viewport.y);
+    SDL_FRect pos_rect = {
+        pos.x + character_pos.x + canvas_o.x - (float)other_texture->w / 2,
+        pos.y + character_pos.y + canvas_o.y - (float)other_texture->h / 2,
+        (float)other_texture->w, (float)other_texture->h};
+    SDL_RenderTexture(window::renderer, other_texture, nullptr, &pos_rect);
+  }
   // // render self
   auto &self = character_game_instance::self;
   auto self_pos = load_canvas_point(self.pos, -2, -4);
