@@ -24,18 +24,23 @@ static void send_to_client(uint64_t client_id, T &message_data) {
 }
 
 void server_response::server_heartbeat_response(uint64_t client_id) {
-  fbs::ServerHeartbeatT hb;
-  send_to_client(client_id, hb);
+  fbs::ServerHeartbeatT r;
+  send_to_client(client_id, r);
 }
 
 void server_response::server_scene_response(uint64_t client_id,
-                                            fbs::ServerSceneT server_scene) {
-  send_to_client(client_id, server_scene);
+                                            fbs::ServerSceneT r) {
+  send_to_client(client_id, r);
+}
+
+void server_response::server_character_in_response(uint64_t client_id,
+                                                   fbs::ServerCharacterInT r) {
+  send_to_client(client_id, r);
 }
 
 void server_response::server_character_move_response(
-    uint64_t client_id, fbs::ServerCharacterMoveT server_move) {
-  send_to_client(client_id, server_move);
+    uint64_t client_id, fbs::ServerCharacterMoveT r) {
+  send_to_client(client_id, r);
 }
 
 void server_response::server_mob_move_response(

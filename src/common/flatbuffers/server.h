@@ -29,6 +29,10 @@ struct ServerCharacterMove;
 struct ServerCharacterMoveBuilder;
 struct ServerCharacterMoveT;
 
+struct ServerCharacterIn;
+struct ServerCharacterInBuilder;
+struct ServerCharacterInT;
+
 struct ServerMobMove;
 struct ServerMobMoveBuilder;
 struct ServerMobMoveT;
@@ -270,6 +274,67 @@ inline ::flatbuffers::Offset<ServerCharacterMove> CreateServerCharacterMove(
 
 ::flatbuffers::Offset<ServerCharacterMove> CreateServerCharacterMove(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterInT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterIn TableType;
+  std::unique_ptr<fbs::PlayerT> player{};
+  ServerCharacterInT() = default;
+  ServerCharacterInT(const ServerCharacterInT &o);
+  ServerCharacterInT(ServerCharacterInT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterInT &operator=(ServerCharacterInT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacterIn FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterInT NativeTableType;
+  typedef ServerCharacterInBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PLAYER = 4
+  };
+  const fbs::Player *player() const {
+    return GetPointer<const fbs::Player *>(VT_PLAYER);
+  }
+  fbs::Player *mutable_player() {
+    return GetPointer<fbs::Player *>(VT_PLAYER);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PLAYER) &&
+           verifier.VerifyTable(player()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterInT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterInT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterIn> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterInT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterInBuilder {
+  typedef ServerCharacterIn Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_player(::flatbuffers::Offset<fbs::Player> player) {
+    fbb_.AddOffset(ServerCharacterIn::VT_PLAYER, player);
+  }
+  explicit ServerCharacterInBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterIn> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterIn>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterIn> CreateServerCharacterIn(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<fbs::Player> player = 0) {
+  ServerCharacterInBuilder builder_(_fbb);
+  builder_.add_player(player);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterIn> CreateServerCharacterIn(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterInT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct ServerMobMoveT : public ::flatbuffers::NativeTable {
   typedef ServerMobMove TableType;
   std::vector<std::unique_ptr<fbs::MobMovementT>> movement{};
@@ -454,6 +519,41 @@ inline ::flatbuffers::Offset<ServerCharacterMove> ServerCharacterMove::Pack(::fl
       _fbb,
       _movement,
       _client_id);
+}
+
+inline ServerCharacterInT::ServerCharacterInT(const ServerCharacterInT &o)
+      : player((o.player) ? new fbs::PlayerT(*o.player) : nullptr) {
+}
+
+inline ServerCharacterInT &ServerCharacterInT::operator=(ServerCharacterInT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(player, o.player);
+  return *this;
+}
+
+inline ServerCharacterInT *ServerCharacterIn::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterInT>(new ServerCharacterInT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterIn::UnPackTo(ServerCharacterInT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = player(); if (_e) { if(_o->player) { _e->UnPackTo(_o->player.get(), _resolver); } else { _o->player = std::unique_ptr<fbs::PlayerT>(_e->UnPack(_resolver)); } } else if (_o->player) { _o->player.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterIn> CreateServerCharacterIn(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterInT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterIn::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterIn> ServerCharacterIn::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterInT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterInT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _player = _o->player ? CreatePlayer(_fbb, _o->player.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacterIn(
+      _fbb,
+      _player);
 }
 
 inline ServerMobMoveT::ServerMobMoveT(const ServerMobMoveT &o) {

@@ -55,11 +55,18 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     character_game_instance::load_others_character(r.players);
     break;
   }
+  case NetPayload_ServerCharacterIn: {
+    auto payload = packet->payload_as_ServerCharacterIn();
+    fbs::ServerCharacterInT r;
+    payload->UnPackTo(&r);
+    character_game_instance::load_others_character(r.player);
+    break;
+  }
   case NetPayload_ServerCharacterMove: {
     auto payload = packet->payload_as_ServerCharacterMove();
     fbs::ServerCharacterMoveT r;
     payload->UnPackTo(&r);
-    // r.client_id
+    character_game_instance::server_character_move(r);
     break;
   }
   default:

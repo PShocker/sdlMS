@@ -9,7 +9,9 @@
 class server_scene_instance {
 private:
   static void save_client(uint64_t client_id, fbs::ClientSceneT client_scene);
-  static void send_scene_clients(uint64_t client_id, fbs::ClientSceneT client_scene);
+  static void send_scene_clients(uint64_t client_id,
+                                 fbs::ClientSceneT client_scene);
+  static void send_in_scene(uint64_t client_id, fbs::ClientSceneT client_scene);
   static void init_scene(uint64_t client_id, fbs::ClientSceneT client_scene);
 
 public:
