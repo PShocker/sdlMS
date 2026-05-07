@@ -7,9 +7,16 @@
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
+#include "src/common/request/client_request.h"
+#include <algorithm>
 #include <cstdint>
+#include <cstdlib>
 #include <flat_map>
+#include <flat_set>
+#include <ranges>
 #include <string>
 
 bool character_logic_system::run_action(game_character &g_character,
@@ -156,16 +163,42 @@ character_logic_system::load_pos_type(game_character &g_character) {
   return pos_type::land;
 }
 
+void character_logic_system::run_network_sync(game_character &g_character,
+                                              game_character &o_character) {
+  // 网络同步
+  if (o_character.pos.x != g_character.pos.x &&
+      o_character.pos.y != g_character.pos.y) {
+    fbs::ClientCharacterMoveT client_character_move;
+    fbs::MovementT m;
+    m.x1 = o_character.pos.x;
+    m.y1 = o_character.pos.y;
+
+    m.x2 = g_character.pos.x;
+    m.y2 = g_character.pos.y;
+
+    m.action =
+        std::string{g_character.action.begin(), g_character.action.end()};
+    m.fh = g_character.fh;
+    m.time = window::delta_time;
+
+    client_character_move.movement =
+        std::make_unique<fbs::MovementT>(std::move(m));
+
+    client_request::client_character_move_request(client_character_move);
+  }
+}
+
 void character_logic_system::run_state_machine(game_character &g_character) {
+  auto o_character = g_character;
   enum class action_enum {
     stand,
     alert,
     walk,
   };
   const static std::flat_map<std::u16string, action_enum> map_name = {
-      {u"stand0", action_enum::stand}, {u"stand1", action_enum::stand},
-      {u"alert", action_enum::alert},  {u"walk0", action_enum::walk},
-      {u"walk1", action_enum::walk},
+      {u"stand1", action_enum::stand}, {u"stand2", action_enum::stand},
+      {u"alert", action_enum::alert},  {u"walk1", action_enum::walk},
+      {u"walk2", action_enum::walk},
   };
   auto g_action = map_name.at(g_character.action);
   switch (g_action) {
@@ -177,10 +210,49 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     run_walk(g_character);
     break;
   }
+  run_network_sync(g_character, o_character);
+}
+
+void character_logic_system::run_others_movement() {
+  for (auto &c : character_game_instance::others | std::views::values) {
+    if (!c.movements.empty()) {
+      auto &mv = c.movements[0];
+      auto per = window::delta_time / (float)mv.time;
+      // 自动处理大小顺序
+      auto low = std::min(mv.x1, mv.x2);
+      auto high = std::max(mv.x1, mv.x2);
+      if (c.g_character.pos.x >= low && c.g_character.pos.x <= high) {
+        per += std::abs((c.g_character.pos.x - mv.x1) / (high - low));
+      } else {
+        per = 0.0f;
+      }
+      per = std::min(per, 1.0f);
+      auto per_x = mv.x1 + (mv.x2 - mv.x1) * per;
+      auto per_y = mv.y1 + (mv.y2 - mv.y1) * per;
+      c.g_character.pos.x = per_x;
+      c.g_character.pos.y = per_y;
+      if (per == 1.0f) {
+        c.movements.erase(c.movements.begin());
+      }
+    }
+  }
+}
+
+void character_logic_system::run_others_animate() {
+  for (auto &c : character_game_instance::others | std::views::values) {
+    auto &character = c.g_character;
+    run_animate(character);
+  }
+}
+
+void character_logic_system::run_others() {
+  run_others_movement();
+  run_others_animate();
 }
 
 // 人物状态机
 bool character_logic_system::run() {
+  run_others();
   run_animate(character_game_instance::self);
   run_state_machine(character_game_instance::self);
   return true;

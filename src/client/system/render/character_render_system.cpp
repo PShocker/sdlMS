@@ -9,8 +9,6 @@
 #include <vector>
 
 bool character_render_system::render(game_character &g_character) {
-  auto &self = character_game_instance::self;
-
   std::flat_multimap<std::u16string, const character_avatar *> renders;
   std::vector<const character_avatar_render *> render_parts;
   auto &camera = camera_game_instance::camera;
@@ -63,17 +61,23 @@ bool character_render_system::render(game_character &g_character) {
         auto texture = avatar->texture;
         auto origin = avatar->origin;
         SDL_FRect pos_rect = {
-            .x = g_character.pos.x + avatar->pos.x - origin.x - camera.x,
-            .y = g_character.pos.y + avatar->pos.y - origin.y - camera.y,
+            .x = g_character.pos.x + avatar->pos.x - origin.x,
+            .y = g_character.pos.y + avatar->pos.y - origin.y,
             .w = static_cast<float>(texture->w),
             .h = static_cast<float>(texture->h),
         };
-        if (self.flip == 1) {
+        if (g_character.flip == 1) {
           pos_rect.x = g_character.pos.x - avatar->pos.x;
-          pos_rect.x = (pos_rect.x - (texture->w - origin.x)) - camera.x;
+          pos_rect.x = (pos_rect.x - (texture->w - origin.x));
         }
-        SDL_RenderTextureRotated(window::renderer, texture, nullptr, &pos_rect,
-                                 0, nullptr, (SDL_FlipMode)self.flip);
+        auto &camera = camera_game_instance::camera;
+        if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+          pos_rect.x -= camera.x;
+          pos_rect.y -= camera.y;
+          SDL_RenderTextureRotated(window::renderer, texture, nullptr,
+                                   &pos_rect, 0, nullptr,
+                                   (SDL_FlipMode)g_character.flip);
+        }
       }
     }
   }

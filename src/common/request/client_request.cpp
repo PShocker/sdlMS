@@ -16,8 +16,8 @@ template <typename T> static void send_to_host(T &message_data) {
   flatbuffers::FlatBufferBuilder builder;
   auto packet_offset = fbs::NetPacket::Pack(builder, &packet);
   builder.Finish(packet_offset);
-  server_main::server_send(builder.GetBufferPointer(), builder.GetSize(),
-                           server_main::host_addr);
+  auto addr = server_main::host ? &server_main::host_addr : nullptr;
+  server_main::server_send(builder.GetBufferPointer(), builder.GetSize(), addr);
   builder.Clear();
 }
 

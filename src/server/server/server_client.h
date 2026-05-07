@@ -6,9 +6,9 @@
 
 class server_client {
 public:
-  uint64_t id;
+  uint64_t client_id;
   uint64_t map_id;
 
-  fbs::PlayerT f_player;
+  fbs::PlayerT fbs_player;
   uint64_t heartbeat;
 };

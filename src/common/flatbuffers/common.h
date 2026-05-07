@@ -57,6 +57,8 @@ struct LifeStateT : public ::flatbuffers::NativeTable {
   float y = 0.0f;
   std::string action{};
   uint8_t action_index = 0;
+  int32_t fh = 0;
+  bool flip = false;
 };
 
 struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -66,7 +68,9 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_X = 4,
     VT_Y = 6,
     VT_ACTION = 8,
-    VT_ACTION_INDEX = 10
+    VT_ACTION_INDEX = 10,
+    VT_FH = 12,
+    VT_FLIP = 14
   };
   float x() const {
     return GetField<float>(VT_X, 0.0f);
@@ -92,6 +96,18 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_action_index(uint8_t _action_index = 0) {
     return SetField<uint8_t>(VT_ACTION_INDEX, _action_index, 0);
   }
+  int32_t fh() const {
+    return GetField<int32_t>(VT_FH, 0);
+  }
+  bool mutate_fh(int32_t _fh = 0) {
+    return SetField<int32_t>(VT_FH, _fh, 0);
+  }
+  bool flip() const {
+    return GetField<uint8_t>(VT_FLIP, 0) != 0;
+  }
+  bool mutate_flip(bool _flip = 0) {
+    return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -100,6 +116,8 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_ACTION) &&
            verifier.VerifyString(action()) &&
            VerifyField<uint8_t>(verifier, VT_ACTION_INDEX, 1) &&
+           VerifyField<int32_t>(verifier, VT_FH, 4) &&
+           VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
            verifier.EndTable();
   }
   LifeStateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -123,6 +141,12 @@ struct LifeStateBuilder {
   void add_action_index(uint8_t action_index) {
     fbb_.AddElement<uint8_t>(LifeState::VT_ACTION_INDEX, action_index, 0);
   }
+  void add_fh(int32_t fh) {
+    fbb_.AddElement<int32_t>(LifeState::VT_FH, fh, 0);
+  }
+  void add_flip(bool flip) {
+    fbb_.AddElement<uint8_t>(LifeState::VT_FLIP, static_cast<uint8_t>(flip), 0);
+  }
   explicit LifeStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -139,11 +163,15 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeState(
     float x = 0.0f,
     float y = 0.0f,
     ::flatbuffers::Offset<::flatbuffers::String> action = 0,
-    uint8_t action_index = 0) {
+    uint8_t action_index = 0,
+    int32_t fh = 0,
+    bool flip = false) {
   LifeStateBuilder builder_(_fbb);
+  builder_.add_fh(fh);
   builder_.add_action(action);
   builder_.add_y(y);
   builder_.add_x(x);
+  builder_.add_flip(flip);
   builder_.add_action_index(action_index);
   return builder_.Finish();
 }
@@ -153,14 +181,18 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
     float x = 0.0f,
     float y = 0.0f,
     const char *action = nullptr,
-    uint8_t action_index = 0) {
+    uint8_t action_index = 0,
+    int32_t fh = 0,
+    bool flip = false) {
   auto action__ = action ? _fbb.CreateString(action) : 0;
   return fbs::CreateLifeState(
       _fbb,
       x,
       y,
       action__,
-      action_index);
+      action_index,
+      fh,
+      flip);
 }
 
 ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -169,6 +201,8 @@ struct CharacterAppearanceT : public ::flatbuffers::NativeTable {
   typedef CharacterAppearance TableType;
   uint32_t body = 0;
   uint32_t head = 0;
+  uint32_t face = 0;
+  uint32_t hair = 0;
   uint32_t weapon = 0;
   uint32_t cap = 0;
   uint32_t cape = 0;
@@ -187,16 +221,18 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_BODY = 4,
     VT_HEAD = 6,
-    VT_WEAPON = 8,
-    VT_CAP = 10,
-    VT_CAPE = 12,
-    VT_COAT = 14,
-    VT_GLOVE = 16,
-    VT_PANT = 18,
-    VT_SHIELD = 20,
-    VT_LONGCOAT = 22,
-    VT_SHOES = 24,
-    VT_ACCESSORY = 26
+    VT_FACE = 8,
+    VT_HAIR = 10,
+    VT_WEAPON = 12,
+    VT_CAP = 14,
+    VT_CAPE = 16,
+    VT_COAT = 18,
+    VT_GLOVE = 20,
+    VT_PANT = 22,
+    VT_SHIELD = 24,
+    VT_LONGCOAT = 26,
+    VT_SHOES = 28,
+    VT_ACCESSORY = 30
   };
   uint32_t body() const {
     return GetField<uint32_t>(VT_BODY, 0);
@@ -209,6 +245,18 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   }
   bool mutate_head(uint32_t _head = 0) {
     return SetField<uint32_t>(VT_HEAD, _head, 0);
+  }
+  uint32_t face() const {
+    return GetField<uint32_t>(VT_FACE, 0);
+  }
+  bool mutate_face(uint32_t _face = 0) {
+    return SetField<uint32_t>(VT_FACE, _face, 0);
+  }
+  uint32_t hair() const {
+    return GetField<uint32_t>(VT_HAIR, 0);
+  }
+  bool mutate_hair(uint32_t _hair = 0) {
+    return SetField<uint32_t>(VT_HAIR, _hair, 0);
   }
   uint32_t weapon() const {
     return GetField<uint32_t>(VT_WEAPON, 0);
@@ -275,6 +323,8 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_BODY, 4) &&
            VerifyField<uint32_t>(verifier, VT_HEAD, 4) &&
+           VerifyField<uint32_t>(verifier, VT_FACE, 4) &&
+           VerifyField<uint32_t>(verifier, VT_HAIR, 4) &&
            VerifyField<uint32_t>(verifier, VT_WEAPON, 4) &&
            VerifyField<uint32_t>(verifier, VT_CAP, 4) &&
            VerifyField<uint32_t>(verifier, VT_CAPE, 4) &&
@@ -301,6 +351,12 @@ struct CharacterAppearanceBuilder {
   }
   void add_head(uint32_t head) {
     fbb_.AddElement<uint32_t>(CharacterAppearance::VT_HEAD, head, 0);
+  }
+  void add_face(uint32_t face) {
+    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_FACE, face, 0);
+  }
+  void add_hair(uint32_t hair) {
+    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_HAIR, hair, 0);
   }
   void add_weapon(uint32_t weapon) {
     fbb_.AddElement<uint32_t>(CharacterAppearance::VT_WEAPON, weapon, 0);
@@ -347,6 +403,8 @@ inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t body = 0,
     uint32_t head = 0,
+    uint32_t face = 0,
+    uint32_t hair = 0,
     uint32_t weapon = 0,
     uint32_t cap = 0,
     uint32_t cape = 0,
@@ -368,6 +426,8 @@ inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(
   builder_.add_cape(cape);
   builder_.add_cap(cap);
   builder_.add_weapon(weapon);
+  builder_.add_hair(hair);
+  builder_.add_face(face);
   builder_.add_head(head);
   builder_.add_body(body);
   return builder_.Finish();
@@ -561,7 +621,9 @@ struct MovementT : public ::flatbuffers::NativeTable {
   float x2 = 0.0f;
   float y2 = 0.0f;
   uint32_t time = 0;
-  uint8_t page = 0;
+  int32_t fh = 0;
+  std::string action{};
+  bool flip = false;
 };
 
 struct Movement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -573,7 +635,9 @@ struct Movement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_X2 = 8,
     VT_Y2 = 10,
     VT_TIME = 12,
-    VT_PAGE = 14
+    VT_FH = 14,
+    VT_ACTION = 16,
+    VT_FLIP = 18
   };
   float x1() const {
     return GetField<float>(VT_X1, 0.0f);
@@ -605,11 +669,23 @@ struct Movement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_time(uint32_t _time = 0) {
     return SetField<uint32_t>(VT_TIME, _time, 0);
   }
-  uint8_t page() const {
-    return GetField<uint8_t>(VT_PAGE, 0);
+  int32_t fh() const {
+    return GetField<int32_t>(VT_FH, 0);
   }
-  bool mutate_page(uint8_t _page = 0) {
-    return SetField<uint8_t>(VT_PAGE, _page, 0);
+  bool mutate_fh(int32_t _fh = 0) {
+    return SetField<int32_t>(VT_FH, _fh, 0);
+  }
+  const ::flatbuffers::String *action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
+  }
+  ::flatbuffers::String *mutable_action() {
+    return GetPointer<::flatbuffers::String *>(VT_ACTION);
+  }
+  bool flip() const {
+    return GetField<uint8_t>(VT_FLIP, 0) != 0;
+  }
+  bool mutate_flip(bool _flip = 0) {
+    return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -619,7 +695,10 @@ struct Movement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_X2, 4) &&
            VerifyField<float>(verifier, VT_Y2, 4) &&
            VerifyField<uint32_t>(verifier, VT_TIME, 4) &&
-           VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
+           VerifyField<int32_t>(verifier, VT_FH, 4) &&
+           VerifyOffset(verifier, VT_ACTION) &&
+           verifier.VerifyString(action()) &&
+           VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
            verifier.EndTable();
   }
   MovementT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -646,8 +725,14 @@ struct MovementBuilder {
   void add_time(uint32_t time) {
     fbb_.AddElement<uint32_t>(Movement::VT_TIME, time, 0);
   }
-  void add_page(uint8_t page) {
-    fbb_.AddElement<uint8_t>(Movement::VT_PAGE, page, 0);
+  void add_fh(int32_t fh) {
+    fbb_.AddElement<int32_t>(Movement::VT_FH, fh, 0);
+  }
+  void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
+    fbb_.AddOffset(Movement::VT_ACTION, action);
+  }
+  void add_flip(bool flip) {
+    fbb_.AddElement<uint8_t>(Movement::VT_FLIP, static_cast<uint8_t>(flip), 0);
   }
   explicit MovementBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -667,15 +752,42 @@ inline ::flatbuffers::Offset<Movement> CreateMovement(
     float x2 = 0.0f,
     float y2 = 0.0f,
     uint32_t time = 0,
-    uint8_t page = 0) {
+    int32_t fh = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> action = 0,
+    bool flip = false) {
   MovementBuilder builder_(_fbb);
+  builder_.add_action(action);
+  builder_.add_fh(fh);
   builder_.add_time(time);
   builder_.add_y2(y2);
   builder_.add_x2(x2);
   builder_.add_y1(y1);
   builder_.add_x1(x1);
-  builder_.add_page(page);
+  builder_.add_flip(flip);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Movement> CreateMovementDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    float x1 = 0.0f,
+    float y1 = 0.0f,
+    float x2 = 0.0f,
+    float y2 = 0.0f,
+    uint32_t time = 0,
+    int32_t fh = 0,
+    const char *action = nullptr,
+    bool flip = false) {
+  auto action__ = action ? _fbb.CreateString(action) : 0;
+  return fbs::CreateMovement(
+      _fbb,
+      x1,
+      y1,
+      x2,
+      y2,
+      time,
+      fh,
+      action__,
+      flip);
 }
 
 ::flatbuffers::Offset<Movement> CreateMovement(::flatbuffers::FlatBufferBuilder &_fbb, const MovementT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1123,6 +1235,8 @@ inline void LifeState::UnPackTo(LifeStateT *_o, const ::flatbuffers::resolver_fu
   { auto _e = y(); _o->y = _e; }
   { auto _e = action(); if (_e) _o->action = _e->str(); }
   { auto _e = action_index(); _o->action_index = _e; }
+  { auto _e = fh(); _o->fh = _e; }
+  { auto _e = flip(); _o->flip = _e; }
 }
 
 inline ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1137,12 +1251,16 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
   auto _y = _o->y;
   auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
   auto _action_index = _o->action_index;
+  auto _fh = _o->fh;
+  auto _flip = _o->flip;
   return fbs::CreateLifeState(
       _fbb,
       _x,
       _y,
       _action,
-      _action_index);
+      _action_index,
+      _fh,
+      _flip);
 }
 
 inline CharacterAppearanceT *CharacterAppearance::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -1156,6 +1274,8 @@ inline void CharacterAppearance::UnPackTo(CharacterAppearanceT *_o, const ::flat
   (void)_resolver;
   { auto _e = body(); _o->body = _e; }
   { auto _e = head(); _o->head = _e; }
+  { auto _e = face(); _o->face = _e; }
+  { auto _e = hair(); _o->hair = _e; }
   { auto _e = weapon(); _o->weapon = _e; }
   { auto _e = cap(); _o->cap = _e; }
   { auto _e = cape(); _o->cape = _e; }
@@ -1178,6 +1298,8 @@ inline ::flatbuffers::Offset<CharacterAppearance> CharacterAppearance::Pack(::fl
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterAppearanceT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _body = _o->body;
   auto _head = _o->head;
+  auto _face = _o->face;
+  auto _hair = _o->hair;
   auto _weapon = _o->weapon;
   auto _cap = _o->cap;
   auto _cape = _o->cape;
@@ -1192,6 +1314,8 @@ inline ::flatbuffers::Offset<CharacterAppearance> CharacterAppearance::Pack(::fl
       _fbb,
       _body,
       _head,
+      _face,
+      _hair,
       _weapon,
       _cap,
       _cape,
@@ -1303,7 +1427,9 @@ inline void Movement::UnPackTo(MovementT *_o, const ::flatbuffers::resolver_func
   { auto _e = x2(); _o->x2 = _e; }
   { auto _e = y2(); _o->y2 = _e; }
   { auto _e = time(); _o->time = _e; }
-  { auto _e = page(); _o->page = _e; }
+  { auto _e = fh(); _o->fh = _e; }
+  { auto _e = action(); if (_e) _o->action = _e->str(); }
+  { auto _e = flip(); _o->flip = _e; }
 }
 
 inline ::flatbuffers::Offset<Movement> CreateMovement(::flatbuffers::FlatBufferBuilder &_fbb, const MovementT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1319,7 +1445,9 @@ inline ::flatbuffers::Offset<Movement> Movement::Pack(::flatbuffers::FlatBufferB
   auto _x2 = _o->x2;
   auto _y2 = _o->y2;
   auto _time = _o->time;
-  auto _page = _o->page;
+  auto _fh = _o->fh;
+  auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
+  auto _flip = _o->flip;
   return fbs::CreateMovement(
       _fbb,
       _x1,
@@ -1327,7 +1455,9 @@ inline ::flatbuffers::Offset<Movement> Movement::Pack(::flatbuffers::FlatBufferB
       _x2,
       _y2,
       _time,
-      _page);
+      _fh,
+      _action,
+      _flip);
 }
 
 inline MobT::MobT(const MobT &o)

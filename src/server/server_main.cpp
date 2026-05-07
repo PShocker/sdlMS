@@ -58,23 +58,6 @@ void server_main::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
   free(buf->base); // 释放由 alloc_cb 分配的内存
 }
 
-// void server_main::heartbeat_cb(uv_timer_t *handle) {
-//   client_request::client_heartbeat_request();
-//   auto now = SDL_GetTicks();
-//   if (now - host_heartbeat > heartbeat_interval * 2000) {
-//     // 服务器超时
-//   }
-// }
-
-// void server_main::server_init_heartbeat() {
-//   // 初始化心跳
-//   uv_timer_t interval_timer;
-//   uv_timer_init(loop, &interval_timer);
-//   // 启动：0ms后首次执行，之后每5000ms执行一次
-//   uv_timer_start(&interval_timer, heartbeat_cb, 0, heartbeat_interval * 1000);
-//   host_heartbeat = SDL_GetTicks();
-// }
-
 void server_main::server_init() {
   loop = uv_default_loop();
   // 1. 创建UDP句柄
@@ -121,7 +104,7 @@ void server_main::server_init(const std::string &ip, uint32_t port) {
 }
 
 bool server_main::server_send(const uint8_t *data, size_t len,
-                              sockaddr_in send_addr) {
+                              sockaddr_in *addr) {
   auto buffer = (uint8_t *)malloc(len);
   memcpy(buffer, data, len);
   uv_udp_send_t *send_req = (uv_udp_send_t *)malloc(sizeof(uv_udp_send_t));
@@ -130,15 +113,15 @@ bool server_main::server_send(const uint8_t *data, size_t len,
   uv_buf_t buf = uv_buf_init((char *)buffer, len);
 
   // 使用在 main 中初始化好的目标地址 send_addr
-  auto r = uv_udp_send(
-      send_req, &local_socket, &buf, 1, (const sockaddr *)&send_addr,
-      [](uv_udp_send_t *req, int status) {
-        if (status < 0) {
-          fprintf(stderr, "Send error: %s\n", uv_strerror(status));
-        }
-        free(req->data);
-        free(req); // 释放发送请求
-      });
+  auto r =
+      uv_udp_send(send_req, &local_socket, &buf, 1, (const sockaddr *)addr,
+                  [](uv_udp_send_t *req, int status) {
+                    if (status < 0) {
+                      fprintf(stderr, "Send error: %s\n", uv_strerror(status));
+                    }
+                    free(req->data);
+                    free(req); // 释放发送请求
+                  });
   if (r < 0) {
     fprintf(stderr, "uv_udp_send error: %s\n", uv_strerror(r));
     free(send_req);
@@ -152,12 +135,12 @@ bool server_main::server_send(const uint8_t *data, size_t len,
   uint32_t ip;
   uint16_t port;
   split_ip_port(client_id, ip, port);
-  
+
   sockaddr_in send_addr;
   send_addr.sin_family = AF_INET;
   send_addr.sin_port = htons(port);
   send_addr.sin_addr.s_addr = ip;
-  return server_send(data, len, send_addr);
+  return server_send(data, len, &send_addr);
 }
 
 void server_main::server_run() { uv_run(loop, UV_RUN_NOWAIT); }

@@ -3,6 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
 #include "src/common/flatbuffers/common.h"
+#include "src/common/flatbuffers/server.h"
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -33,6 +34,12 @@ struct character_face_render {
   std::flat_map<std::u16string, character_avatar_render> data;
 };
 
+struct character_other_data {
+  game_character g_character;
+  std::vector<fbs::MovementT> movements;
+};
+
+
 class character_bone_data {
 public:
   std::flat_map<std::u16string, SDL_FPoint> bone_pos;
@@ -47,9 +54,12 @@ public:
   static void init_character_bone();
 
   static void load_self_character();
-  static void load_server_character(uint32_t map_id);
+  static void
+  load_others_character(const std::vector<std::unique_ptr<fbs::PlayerT>> &v);
+  static fbs::CharacterT load_self_fbs_character();
 
-  static fbs::CharacterT load_fbs_character();
+  // network
+  static void server_character_move(const fbs::ServerCharacterMoveT &r);
 
   static inline game_character self;
 
@@ -65,7 +75,7 @@ public:
   static void add_shield(game_character &g, const std::u16string &val);
   static void add_cape(game_character &g, const std::u16string &val);
 
-  static inline std::flat_map<uint64_t, game_character> others;
+  static inline std::flat_map<uint64_t, character_other_data> others;
 
   static inline std::flat_map<std::u16string,
                               std::vector<character_extern_action>>

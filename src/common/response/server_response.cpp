@@ -34,7 +34,9 @@ void server_response::server_scene_response(uint64_t client_id,
 }
 
 void server_response::server_character_move_response(
-    uint64_t client_id, fbs::ServerCharacterMoveT server_move) {}
+    uint64_t client_id, fbs::ServerCharacterMoveT server_move) {
+  send_to_client(client_id, server_move);
+}
 
 void server_response::server_mob_move_response(
     uint64_t client_id, fbs::ServerMobMoveT server_move) {}
