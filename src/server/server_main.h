@@ -12,8 +12,7 @@ public:
   static void server_init_heartbeat();
   static void server_init(const std::string &ip, uint32_t port);
   static void server_init();
-  static bool server_send(const uint8_t *data, size_t len,
-                          sockaddr_in send_addr);
+  static bool server_send(const uint8_t *data, size_t len, sockaddr_in *addr);
   static bool server_send(const uint8_t *data, size_t len, uint64_t client_id);
 
   static void server_run();

@@ -3,13 +3,19 @@ namespace fbs;      // 定义命名空间
 table LifeState{
     x:float;
     y:float;
+
     action:string;
     action_index:uint8;
+
+    fh:int32;
+    flip:bool;
 }
 
 table CharacterAppearance{
     body:uint32;
     head:uint32;
+    face:uint32;
+    hair:uint32;
 
     weapon:uint32;
     cap:uint32;
@@ -44,7 +50,10 @@ table Movement{
     y2:float;
 
     time:uint32;
-    page:uint8;
+    fh:int32;
+
+    action:string;
+    flip:bool;
 }
 
 table Mob{

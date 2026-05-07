@@ -38,7 +38,7 @@ bool server_heartbeat_system::server_heartbeat() {
     if (current_time - c.heartbeat >=
         server_heartbeat_instance::heartbeat_interval * 2000) {
       // 掉线了,客户端退出到人物选择界面
-      exit_clients.push_back(c.id);
+      exit_clients.push_back(c.client_id);
     }
   }
   for (auto c : exit_clients) {

@@ -13,7 +13,7 @@ private:
     swim,
     fly,
   };
-
+  static void run_network_sync(game_character &g_character,game_character &o_character);
   static bool run_action(game_character &g_character,
                          const std::u16string &action);
   static void run_walk_action(game_character &g_character);
@@ -24,6 +24,10 @@ private:
   static bool run_walk(game_character &g_character);
   static void run_state_machine(game_character &g_character);
   static pos_type load_pos_type(game_character &g_character);
+
+  static void run_others_movement();
+  static void run_others_animate();
+  static void run_others();
 
 public:
   static bool run();

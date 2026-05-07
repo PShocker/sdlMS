@@ -57,8 +57,10 @@ scene_system_instance::load_character_layer(game_character &g_character) {
 
 bool scene_system_instance::render_game() {
   std::array<std::vector<game_character *>, 8> character_array;
-  for (auto &character : character_game_instance::others | std::views::values) {
-    character_array[load_character_layer(character)].push_back(&character);
+  for (auto &other_data :
+       character_game_instance::others | std::views::values) {
+    auto &g_character = other_data.g_character;
+    character_array[load_character_layer(g_character)].push_back(&g_character);
   }
   auto &self = character_game_instance::self;
   auto self_layer = load_character_layer(self);
@@ -141,7 +143,7 @@ void scene_system_instance::enter(uint32_t map_id) {
 
 void scene_system_instance::enter_prepare(uint32_t map_id) {
   character_game_instance::load_self_character();
-  auto c = character_game_instance::load_fbs_character();
+  auto c = character_game_instance::load_self_fbs_character();
 
   fbs::ClientSceneT client_scene;
   client_scene.come = true;

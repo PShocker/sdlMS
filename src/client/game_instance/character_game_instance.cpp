@@ -1,10 +1,12 @@
 #include "character_game_instance.h"
 #include "SDL3/SDL_rect.h"
+#include "src/client/game/game_character.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include "wz/Wz.h"
+#include <algorithm>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -166,6 +168,87 @@ void character_game_instance::load_self_character() {
   self.flip = 1;
   self.fh = 1;
   self.pos = {-900, 300};
+}
+
+void character_game_instance::load_others_character(
+    const std::vector<std::unique_ptr<fbs::PlayerT>> &v) {
+  for (const auto &c : v) {
+    game_character g_character;
+    const auto &appearance = c->character->appearance;
+
+    std::string tmp = std::format("{:08d}", appearance->body);
+    g_character.body = {tmp.begin(), tmp.end()};
+
+    tmp = std::format("{:08d}", appearance->head);
+    g_character.head = {tmp.begin(), tmp.end()};
+
+    tmp = std::format("{:08d}", appearance->face);
+    g_character.face.id = {tmp.begin(), tmp.end()};
+
+    tmp = std::format("{:08d}", appearance->hair);
+    g_character.hair = {tmp.begin(), tmp.end()};
+
+    if (appearance->weapon != 0) {
+      auto &weapon = g_character.weapon.emplace();
+      tmp = std::format("{:08d}", appearance->weapon);
+      weapon.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->cap != 0) {
+      auto &cap = g_character.cap.emplace();
+      tmp = std::format("{:08d}", appearance->cap);
+      cap.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->cape != 0) {
+      auto &cape = g_character.cape.emplace();
+      tmp = std::format("{:08d}", appearance->cape);
+      cape.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->coat != 0) {
+      auto &coat = g_character.coat.emplace();
+      tmp = std::format("{:08d}", appearance->coat);
+      coat.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->glove != 0) {
+      auto &glove = g_character.glove.emplace();
+      tmp = std::format("{:08d}", appearance->glove);
+      glove.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->pant != 0) {
+      auto &pant = g_character.pant.emplace();
+      tmp = std::format("{:08d}", appearance->pant);
+      pant.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->shield != 0) {
+      auto &shield = g_character.shield.emplace();
+      tmp = std::format("{:08d}", appearance->shield);
+      shield.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->longcoat != 0) {
+      auto &longcoat = g_character.longcoat.emplace();
+      tmp = std::format("{:08d}", appearance->longcoat);
+      longcoat.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->shoes != 0) {
+      auto &shoes = g_character.shoes.emplace();
+      tmp = std::format("{:08d}", appearance->shoes);
+      shoes.id = {tmp.begin(), tmp.end()};
+    }
+    if (appearance->accessory != 0) {
+      auto &accessory = g_character.accessory.emplace();
+      tmp = std::format("{:08d}", appearance->accessory);
+      accessory.id = {tmp.begin(), tmp.end()};
+    }
+    const auto &state = c->character->state;
+    g_character.pos = SDL_FPoint{
+        state->x,
+        state->y,
+    };
+    g_character.action =
+        std::u16string{state->action.begin(), state->action.end()};
+    g_character.action_index = state->action_index;
+    g_character.action_time = 0;
+    others.emplace(c->client_id, g_character);
+  }
 }
 
 void character_game_instance::add_body(game_character &g,
@@ -574,7 +657,7 @@ void character_game_instance::add_face(game_character &g,
   }
 }
 
-fbs::CharacterT character_game_instance::load_fbs_character() {
+fbs::CharacterT character_game_instance::load_self_fbs_character() {
   fbs::CharacterT c;
 
   c.appearance = std::make_unique<fbs::CharacterAppearanceT>();
@@ -625,9 +708,24 @@ fbs::CharacterT character_game_instance::load_fbs_character() {
   c.appearance->body =
       std::stoi(std::string{self.body.begin(), self.body.end()});
 
+  c.appearance->hair =
+      std::stoi(std::string{self.hair.begin(), self.hair.end()});
+
+  c.appearance->face =
+      std::stoi(std::string{self.face.id.begin(), self.face.id.end()});
+
   c.state->action = std::string{self.action.begin(), self.action.end()};
   c.state->x = self.pos.x;
   c.state->y = self.pos.y;
 
+  c.state->flip = self.flip;
+
   return c;
+}
+
+void character_game_instance::server_character_move(
+    const fbs::ServerCharacterMoveT &r) {
+  const auto &client_id = r.client_id;
+  const auto &movement = r.movement;
+  others.at(client_id).movements.push_back(*movement);
 }
