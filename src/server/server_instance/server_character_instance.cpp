@@ -20,13 +20,13 @@ void server_character_instance::send_character_move(
     uint64_t client_id, fbs::ClientCharacterMoveT m) {
   const auto &s_client = server_client_instance::clients.at(client_id);
   const auto client_map_id = s_client.map_id;
-  auto scene = server_scene_instance::scenes[client_map_id];
-  scene.clients.erase(client_id);
-  for (auto c : scene.clients | std::views::values) {
+  auto clients = server_scene_instance::scenes[client_map_id].clients;
+  clients.erase(client_id);
+  for (auto c : clients | std::views::values) {
     fbs::ServerCharacterMoveT t;
     t.client_id = client_id;
     t.movement = std::move(m.movement);
-    server_response::server_character_move_response(client_id, t);
+    server_response::server_character_move_response(c.client_id, t);
   }
 }
 

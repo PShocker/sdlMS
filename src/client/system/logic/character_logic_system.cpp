@@ -166,7 +166,7 @@ character_logic_system::load_pos_type(game_character &g_character) {
 void character_logic_system::run_network_sync(game_character &g_character,
                                               game_character &o_character) {
   // 网络同步
-  if (o_character.pos.x != g_character.pos.x &&
+  if (o_character.pos.x != g_character.pos.x ||
       o_character.pos.y != g_character.pos.y) {
     fbs::ClientCharacterMoveT client_character_move;
     fbs::MovementT m;
@@ -180,6 +180,7 @@ void character_logic_system::run_network_sync(game_character &g_character,
         std::string{g_character.action.begin(), g_character.action.end()};
     m.fh = g_character.fh;
     m.time = window::delta_time;
+    m.flip = g_character.flip;
 
     client_character_move.movement =
         std::make_unique<fbs::MovementT>(std::move(m));
@@ -234,6 +235,7 @@ void character_logic_system::run_others_movement() {
       if (per == 1.0f) {
         c.movements.erase(c.movements.begin());
       }
+      c.g_character.flip = mv.flip;
     }
   }
 }

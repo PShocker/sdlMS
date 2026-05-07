@@ -39,7 +39,6 @@ struct character_other_data {
   std::vector<fbs::MovementT> movements;
 };
 
-
 class character_bone_data {
 public:
   std::flat_map<std::u16string, SDL_FPoint> bone_pos;
@@ -56,6 +55,7 @@ public:
   static void load_self_character();
   static void
   load_others_character(const std::vector<std::unique_ptr<fbs::PlayerT>> &v);
+  static void load_others_character(const std::unique_ptr<fbs::PlayerT> &c);
   static fbs::CharacterT load_self_fbs_character();
 
   // network
