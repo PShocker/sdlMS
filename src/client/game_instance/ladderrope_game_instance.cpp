@@ -8,6 +8,8 @@ void ladderrope_game_instance::load(uint32_t map_id) {
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_ladder_node = map_node->get_child(u"ladderRope");
   for (auto [key, val] : *map_ladder_node->get_children()) {
+    auto id = std::stoi(std::string{key.begin(), key.end()});
+
     auto ladder_node = val[0];
     game_ladderrope g_ladderrope;
     g_ladderrope.l =
@@ -28,6 +30,6 @@ void ladderrope_game_instance::load(uint32_t map_id) {
     g_ladderrope.t = std::min(g_ladderrope.y1, g_ladderrope.y2);
     g_ladderrope.b = std::max(g_ladderrope.y1, g_ladderrope.y2);
 
-    data.push_back(g_ladderrope);
+    data.emplace(id, g_ladderrope);
   }
 }

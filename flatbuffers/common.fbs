@@ -7,7 +7,7 @@ table LifeState{
     action:string;
     action_index:uint8;
 
-    fh:int32;
+    page:uint8;
     flip:bool;
 }
 
@@ -50,7 +50,7 @@ table Movement{
     y2:float;
 
     time:uint32;
-    fh:int32;
+    page:uint8;
 
     action:string;
     flip:bool;

@@ -15,11 +15,11 @@ void window::create(const char *title, uint32_t logic_w, uint32_t logic_h,
     std::abort();
   }
   renderer = SDL_CreateRenderer(win, SDL_GPU_RENDERER);
-  SDL_SetRenderVSync(renderer, 1);
   SDL_SetDefaultTextureScaleMode(renderer, SDL_SCALEMODE_NEAREST);
   // 设置缩放,实际分辨率最好是窗口分辨率的整数倍
   auto logical_mode = SDL_LOGICAL_PRESENTATION_STRETCH;
   SDL_SetRenderLogicalPresentation(renderer, logic_w, logic_h, logical_mode);
+  SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, "60");
 }
 
 void window::tick() {

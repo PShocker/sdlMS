@@ -47,24 +47,15 @@
 #include <utility>
 #include <vector>
 
-uint8_t
-scene_system_instance::load_character_layer(game_character &g_character) {
-  auto fh = g_character.fh;
-  return foothold_game_instance::data.contains(fh)
-             ? foothold_game_instance::data.at(fh).page
-             : 7;
-}
-
 bool scene_system_instance::render_game() {
   std::array<std::vector<game_character *>, 8> character_array;
   for (auto &other_data :
        character_game_instance::others | std::views::values) {
     auto &g_character = other_data.g_character;
-    character_array[load_character_layer(g_character)].push_back(&g_character);
+    character_array[g_character.page].push_back(&g_character);
   }
   auto &self = character_game_instance::self;
-  auto self_layer = load_character_layer(self);
-  character_array[self_layer].push_back(&self);
+  character_array[self.page].push_back(&self);
   //   后景
   for (auto &b_backgrnd : backgrnd_game_instance::back | std::views::values) {
     backgrnd_render_system::render(b_backgrnd);

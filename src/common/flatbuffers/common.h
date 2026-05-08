@@ -57,7 +57,7 @@ struct LifeStateT : public ::flatbuffers::NativeTable {
   float y = 0.0f;
   std::string action{};
   uint8_t action_index = 0;
-  int32_t fh = 0;
+  uint8_t page = 0;
   bool flip = false;
 };
 
@@ -69,7 +69,7 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_Y = 6,
     VT_ACTION = 8,
     VT_ACTION_INDEX = 10,
-    VT_FH = 12,
+    VT_PAGE = 12,
     VT_FLIP = 14
   };
   float x() const {
@@ -96,11 +96,11 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_action_index(uint8_t _action_index = 0) {
     return SetField<uint8_t>(VT_ACTION_INDEX, _action_index, 0);
   }
-  int32_t fh() const {
-    return GetField<int32_t>(VT_FH, 0);
+  uint8_t page() const {
+    return GetField<uint8_t>(VT_PAGE, 0);
   }
-  bool mutate_fh(int32_t _fh = 0) {
-    return SetField<int32_t>(VT_FH, _fh, 0);
+  bool mutate_page(uint8_t _page = 0) {
+    return SetField<uint8_t>(VT_PAGE, _page, 0);
   }
   bool flip() const {
     return GetField<uint8_t>(VT_FLIP, 0) != 0;
@@ -116,7 +116,7 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_ACTION) &&
            verifier.VerifyString(action()) &&
            VerifyField<uint8_t>(verifier, VT_ACTION_INDEX, 1) &&
-           VerifyField<int32_t>(verifier, VT_FH, 4) &&
+           VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
            VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
            verifier.EndTable();
   }
@@ -141,8 +141,8 @@ struct LifeStateBuilder {
   void add_action_index(uint8_t action_index) {
     fbb_.AddElement<uint8_t>(LifeState::VT_ACTION_INDEX, action_index, 0);
   }
-  void add_fh(int32_t fh) {
-    fbb_.AddElement<int32_t>(LifeState::VT_FH, fh, 0);
+  void add_page(uint8_t page) {
+    fbb_.AddElement<uint8_t>(LifeState::VT_PAGE, page, 0);
   }
   void add_flip(bool flip) {
     fbb_.AddElement<uint8_t>(LifeState::VT_FLIP, static_cast<uint8_t>(flip), 0);
@@ -164,14 +164,14 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeState(
     float y = 0.0f,
     ::flatbuffers::Offset<::flatbuffers::String> action = 0,
     uint8_t action_index = 0,
-    int32_t fh = 0,
+    uint8_t page = 0,
     bool flip = false) {
   LifeStateBuilder builder_(_fbb);
-  builder_.add_fh(fh);
   builder_.add_action(action);
   builder_.add_y(y);
   builder_.add_x(x);
   builder_.add_flip(flip);
+  builder_.add_page(page);
   builder_.add_action_index(action_index);
   return builder_.Finish();
 }
@@ -182,7 +182,7 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
     float y = 0.0f,
     const char *action = nullptr,
     uint8_t action_index = 0,
-    int32_t fh = 0,
+    uint8_t page = 0,
     bool flip = false) {
   auto action__ = action ? _fbb.CreateString(action) : 0;
   return fbs::CreateLifeState(
@@ -191,7 +191,7 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
       y,
       action__,
       action_index,
-      fh,
+      page,
       flip);
 }
 
@@ -621,7 +621,7 @@ struct MovementT : public ::flatbuffers::NativeTable {
   float x2 = 0.0f;
   float y2 = 0.0f;
   uint32_t time = 0;
-  int32_t fh = 0;
+  uint8_t page = 0;
   std::string action{};
   bool flip = false;
 };
@@ -635,7 +635,7 @@ struct Movement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_X2 = 8,
     VT_Y2 = 10,
     VT_TIME = 12,
-    VT_FH = 14,
+    VT_PAGE = 14,
     VT_ACTION = 16,
     VT_FLIP = 18
   };
@@ -669,11 +669,11 @@ struct Movement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_time(uint32_t _time = 0) {
     return SetField<uint32_t>(VT_TIME, _time, 0);
   }
-  int32_t fh() const {
-    return GetField<int32_t>(VT_FH, 0);
+  uint8_t page() const {
+    return GetField<uint8_t>(VT_PAGE, 0);
   }
-  bool mutate_fh(int32_t _fh = 0) {
-    return SetField<int32_t>(VT_FH, _fh, 0);
+  bool mutate_page(uint8_t _page = 0) {
+    return SetField<uint8_t>(VT_PAGE, _page, 0);
   }
   const ::flatbuffers::String *action() const {
     return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
@@ -695,7 +695,7 @@ struct Movement FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_X2, 4) &&
            VerifyField<float>(verifier, VT_Y2, 4) &&
            VerifyField<uint32_t>(verifier, VT_TIME, 4) &&
-           VerifyField<int32_t>(verifier, VT_FH, 4) &&
+           VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
            VerifyOffset(verifier, VT_ACTION) &&
            verifier.VerifyString(action()) &&
            VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
@@ -725,8 +725,8 @@ struct MovementBuilder {
   void add_time(uint32_t time) {
     fbb_.AddElement<uint32_t>(Movement::VT_TIME, time, 0);
   }
-  void add_fh(int32_t fh) {
-    fbb_.AddElement<int32_t>(Movement::VT_FH, fh, 0);
+  void add_page(uint8_t page) {
+    fbb_.AddElement<uint8_t>(Movement::VT_PAGE, page, 0);
   }
   void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
     fbb_.AddOffset(Movement::VT_ACTION, action);
@@ -752,18 +752,18 @@ inline ::flatbuffers::Offset<Movement> CreateMovement(
     float x2 = 0.0f,
     float y2 = 0.0f,
     uint32_t time = 0,
-    int32_t fh = 0,
+    uint8_t page = 0,
     ::flatbuffers::Offset<::flatbuffers::String> action = 0,
     bool flip = false) {
   MovementBuilder builder_(_fbb);
   builder_.add_action(action);
-  builder_.add_fh(fh);
   builder_.add_time(time);
   builder_.add_y2(y2);
   builder_.add_x2(x2);
   builder_.add_y1(y1);
   builder_.add_x1(x1);
   builder_.add_flip(flip);
+  builder_.add_page(page);
   return builder_.Finish();
 }
 
@@ -774,7 +774,7 @@ inline ::flatbuffers::Offset<Movement> CreateMovementDirect(
     float x2 = 0.0f,
     float y2 = 0.0f,
     uint32_t time = 0,
-    int32_t fh = 0,
+    uint8_t page = 0,
     const char *action = nullptr,
     bool flip = false) {
   auto action__ = action ? _fbb.CreateString(action) : 0;
@@ -785,7 +785,7 @@ inline ::flatbuffers::Offset<Movement> CreateMovementDirect(
       x2,
       y2,
       time,
-      fh,
+      page,
       action__,
       flip);
 }
@@ -1235,7 +1235,7 @@ inline void LifeState::UnPackTo(LifeStateT *_o, const ::flatbuffers::resolver_fu
   { auto _e = y(); _o->y = _e; }
   { auto _e = action(); if (_e) _o->action = _e->str(); }
   { auto _e = action_index(); _o->action_index = _e; }
-  { auto _e = fh(); _o->fh = _e; }
+  { auto _e = page(); _o->page = _e; }
   { auto _e = flip(); _o->flip = _e; }
 }
 
@@ -1251,7 +1251,7 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
   auto _y = _o->y;
   auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
   auto _action_index = _o->action_index;
-  auto _fh = _o->fh;
+  auto _page = _o->page;
   auto _flip = _o->flip;
   return fbs::CreateLifeState(
       _fbb,
@@ -1259,7 +1259,7 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
       _y,
       _action,
       _action_index,
-      _fh,
+      _page,
       _flip);
 }
 
@@ -1427,7 +1427,7 @@ inline void Movement::UnPackTo(MovementT *_o, const ::flatbuffers::resolver_func
   { auto _e = x2(); _o->x2 = _e; }
   { auto _e = y2(); _o->y2 = _e; }
   { auto _e = time(); _o->time = _e; }
-  { auto _e = fh(); _o->fh = _e; }
+  { auto _e = page(); _o->page = _e; }
   { auto _e = action(); if (_e) _o->action = _e->str(); }
   { auto _e = flip(); _o->flip = _e; }
 }
@@ -1445,7 +1445,7 @@ inline ::flatbuffers::Offset<Movement> Movement::Pack(::flatbuffers::FlatBufferB
   auto _x2 = _o->x2;
   auto _y2 = _o->y2;
   auto _time = _o->time;
-  auto _fh = _o->fh;
+  auto _page = _o->page;
   auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
   auto _flip = _o->flip;
   return fbs::CreateMovement(
@@ -1455,7 +1455,7 @@ inline ::flatbuffers::Offset<Movement> Movement::Pack(::flatbuffers::FlatBufferB
       _x2,
       _y2,
       _time,
-      _fh,
+      _page,
       _action,
       _flip);
 }

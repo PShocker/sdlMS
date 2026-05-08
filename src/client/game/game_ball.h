@@ -13,5 +13,5 @@ private:
   int32_t rotate = 0;
   // 是否需要改变轨迹跟踪怪物
   bool track = true;
-  std::optional<std::unordered_set<entt::entity>> track_hit = std::nullopt;
+  // std::optional<std::unordered_set<entt::entity>> track_hit = std::nullopt;
 };

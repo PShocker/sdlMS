@@ -13,7 +13,8 @@ private:
     swim,
     fly,
   };
-  static void run_network_sync(game_character &g_character,game_character &o_character);
+  static void run_network_sync(game_character &g_character,
+                               game_character &o_character);
   static bool run_action(game_character &g_character,
                          const std::u16string &action);
   static void run_walk_action(game_character &g_character);
@@ -22,8 +23,20 @@ private:
   static bool run_flip(game_character &g_character);
   static void run_pick(game_character &g_character);
   static bool run_walk(game_character &g_character);
+  static bool run_jump(game_character &g_character);
+  static bool run_prone(game_character &g_character);
+  static bool run_climb(game_character &g_character);
+  static bool run_climbing(game_character &g_character);
   static void run_state_machine(game_character &g_character);
   static pos_type load_pos_type(game_character &g_character);
+  enum class action_enum {
+    stand,
+    alert,
+    walk,
+    prone,
+    jump,
+  };
+  static action_enum load_action_type(game_character &g_character);
 
   static void run_others_movement();
   static void run_others_animate();
@@ -34,6 +47,10 @@ public:
   static inline std::flat_set<std::string> character_action_input;
   static inline std::flat_set<std::string> character_skill_input;
 
+
+  int32_t fh; // foothold
+  int32_t lr; // ladderrope
+  
   static inline float self_hforce = 0.0;
   static inline float self_vforce = 0.0;
 
@@ -43,9 +60,9 @@ public:
   static inline float self_hspeed_min = -125.0f;
   static inline float self_hspeed_max = 125.0f;
 
-
   static inline float self_vspeed_min = -5000.0f;
   static inline float self_vspeed_max = 670.0f;
 
   static inline uint64_t self_alert_cooldown;
+  static inline uint64_t self_ladderrope_cooldown;
 };
