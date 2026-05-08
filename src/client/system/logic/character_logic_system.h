@@ -23,6 +23,7 @@ private:
   static bool run_flip(game_character &g_character);
   static void run_pick(game_character &g_character);
   static bool run_walk(game_character &g_character);
+  static bool run_fall(game_character &g_character);
   static bool run_jump(game_character &g_character);
   static bool run_prone(game_character &g_character);
   static bool run_climb(game_character &g_character);
@@ -47,10 +48,9 @@ public:
   static inline std::flat_set<std::string> character_action_input;
   static inline std::flat_set<std::string> character_skill_input;
 
+  static inline int32_t self_fh = 1; // foothold
+  static inline int32_t self_lr;     // ladderrope
 
-  int32_t fh; // foothold
-  int32_t lr; // ladderrope
-  
   static inline float self_hforce = 0.0;
   static inline float self_vforce = 0.0;
 
@@ -65,4 +65,5 @@ public:
 
   static inline uint64_t self_alert_cooldown;
   static inline uint64_t self_ladderrope_cooldown;
+  static inline float self_fall_min;
 };

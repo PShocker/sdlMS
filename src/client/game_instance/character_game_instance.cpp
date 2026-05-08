@@ -1,6 +1,7 @@
 #include "character_game_instance.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
@@ -164,9 +165,9 @@ void character_game_instance::load_self_character() {
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
+
   self.action = u"walk1";
   self.flip = 1;
-  self.fh = 1;
   self.pos = {-900, 300};
 }
 

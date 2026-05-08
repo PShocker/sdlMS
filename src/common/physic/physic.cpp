@@ -2,10 +2,11 @@
 #include "src/client/game/game_foothold.h"
 #include "src/client/window/window.h"
 #include <algorithm>
+#include <ranges>
 
 bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
-                      int32_t &current_fh, float &hspeed, float &vspeed,
-                      const std::flat_map<int32_t, game_foothold> &fhs) {
+                     int32_t &current_fh, float &hspeed, float &vspeed,
+                     const std::flat_map<int32_t, game_foothold> &fhs) {
   const game_foothold *n_fh = nullptr;
   if (next_fh != 0) {
     n_fh = &fhs.at(next_fh);
@@ -49,9 +50,10 @@ bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
   return true;
 }
 
-bool physic::walk(SDL_FPoint &pos,float delta_time, float &hspeed, float &vspeed, float &hforce,
-                  float &hspeed_min, float &hspeed_max, float friction,
-                  bool fall, int32_t &current_fh, const SDL_FRect &border,
+bool physic::walk(SDL_FPoint &pos, float delta_time, float &hspeed,
+                  float &vspeed, float &hforce, float hspeed_min,
+                  float hspeed_max, float friction, bool fall,
+                  int32_t &current_fh, const SDL_FRect &border,
                   const std::flat_map<int32_t, game_foothold> &fhs) {
   // 判断摩擦力方向
   if (hspeed > 0) {
@@ -102,4 +104,62 @@ bool physic::walk(SDL_FPoint &pos,float delta_time, float &hspeed, float &vspeed
   const auto &cur_fh = fhs.at(current_fh);
   pos.y = cur_fh.k.value() * pos.x + cur_fh.intercept.value();
   return true;
+}
+
+std::optional<SDL_FPoint> physic::fall_intersect(const SDL_FPoint &p1,
+                                                 const SDL_FPoint &p2,
+                                                 const SDL_FPoint &p3,
+                                                 const SDL_FPoint &p4) {
+  // 快速排斥实验
+  if ((p1.x > p2.x ? p1.x : p2.x) < (p3.x < p4.x ? p3.x : p4.x) ||
+      (p1.y > p2.y ? p1.y : p2.y) < (p3.y < p4.y ? p3.y : p4.y) ||
+      (p3.x > p4.x ? p3.x : p4.x) < (p1.x < p2.x ? p1.x : p2.x) ||
+      (p3.y > p4.y ? p3.y : p4.y) < (p1.y < p2.y ? p1.y : p2.y)) {
+    return std::nullopt;
+  }
+  // 跨立实验
+  if ((((p1.x - p3.x) * (p4.y - p3.y) - (p1.y - p3.y) * (p4.x - p3.x)) *
+       ((p2.x - p3.x) * (p4.y - p3.y) - (p2.y - p3.y) * (p4.x - p3.x))) > 0 ||
+      (((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x)) *
+       ((p4.x - p1.x) * (p2.y - p1.y) - (p4.y - p1.y) * (p2.x - p1.x))) > 0) {
+    return std::nullopt;
+  }
+
+  auto x = ((p1.y - p3.y) * (p2.x - p1.x) * (p4.x - p3.x) +
+            p3.x * (p4.y - p3.y) * (p2.x - p1.x) -
+            p1.x * (p2.y - p1.y) * (p4.x - p3.x)) /
+           ((p4.x - p3.x) * (p1.y - p2.y) - (p2.x - p1.x) * (p3.y - p4.y));
+  auto y = (p2.y * (p1.x - p2.x) * (p4.y - p3.y) +
+            (p4.x - p2.x) * (p4.y - p3.y) * (p1.y - p2.y) -
+            p4.y * (p3.x - p4.x) * (p2.y - p1.y)) /
+           ((p1.x - p2.x) * (p4.y - p3.y) - (p2.y - p1.y) * (p3.x - p4.x));
+
+  return SDL_FPoint{x, y};
+}
+
+bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
+                  float &vspeed, float vspeed_min, float vspeed_max,
+                  const SDL_FRect &border, bool fall_collide, bool wall_collide,
+                  const std::flat_map<int32_t, game_foothold> &fhs) {
+  vspeed = std::clamp(vspeed, vspeed_min, vspeed_max);
+  SDL_FPoint new_pos = pos;
+  new_pos.x += hspeed * delta_time;
+  new_pos.y += vspeed * delta_time;
+  for (auto &fh : fhs | std::views::values) {
+    if (fh.k.has_value()) {
+      if (vspeed >= 0) {
+        if (fall_collide) {
+          if (fh.x2 < fh.x1) {
+            continue;
+          }
+          auto collide =
+              fall_intersect(pos, new_pos, {(float)fh.x1, (float)fh.y1},
+                             {(float)fh.x2, (float)fh.y2});
+        }
+      } else {
+      }
+    } else {
+      // 墙面,竖着的
+    }
+  }
 }

@@ -144,8 +144,24 @@ bool character_logic_system::run_walk(game_character &g_character) {
 
   r = physic::walk(g_character.pos, delta_time, self_hspeed, self_vspeed,
                    self_hforce, self_hspeed_min, self_hspeed_max, 800, true,
-                   g_character.fh, {0, 0, 0, 0}, foothold_game_instance::data);
+                   self_fh, {0, 0, 0, 0}, foothold_game_instance::data);
   return r;
+}
+
+bool character_logic_system::run_fall(game_character &g_character) {
+  if (!g_character.abnormals.contains(
+          game_character::abnormal_state_type::dizz)) {
+    if (character_action_input.contains("left")) {
+      self_hspeed -= 0.03 * window::delta_time;
+    } else if (character_action_input.contains("right")) {
+      self_hspeed += 0.03 * window::delta_time;
+    }
+  }
+  auto vspeed = self_vspeed + window::delta_time * 2;
+  if (self_vspeed <= 0 && vspeed > 0) {
+    self_fall_min = g_character.pos.y;
+  }
+  self_vspeed = vspeed;
 }
 
 bool character_logic_system::run_prone(game_character &g_character) {
@@ -153,7 +169,7 @@ bool character_logic_system::run_prone(game_character &g_character) {
           game_character::abnormal_state_type::dizz)) {
     return false;
   }
-  if (g_character.fh == 0 || g_character.lr != 0) {
+  if (self_fh == 0 || self_lr != 0) {
     return false;
   }
   if (character_action_input.contains("down")) {
@@ -174,11 +190,14 @@ bool character_logic_system::run_jump(game_character &g_character) {
     case action_enum::stand:
     case action_enum::alert:
     case action_enum::walk: {
+      self_vspeed = self_vspeed_min * 0.1;
+      self_fh = 0;
+      self_lr = 0;
       break;
     }
     case action_enum::prone: {
       // 下跳
-      const auto &c_fh = foothold_game_instance::data.at(g_character.fh);
+      const auto &c_fh = foothold_game_instance::data.at(self_fh);
 
       break;
     }
@@ -222,7 +241,7 @@ bool character_logic_system::run_climbing(game_character &g_character) {
     run_action(g_character, u"jump");
     return false;
   }
-  if (g_character.lr != 0) {
+  if (self_lr != 0) {
     return false;
   }
   if (character_action_input.contains("up")) {
@@ -234,7 +253,7 @@ bool character_logic_system::run_climbing(game_character &g_character) {
   }
   g_character.action_animate = !(self_vspeed == 0);
   g_character.pos.y += self_vspeed * window::delta_time / 1000.0f;
-  auto c_lr = ladderrope_game_instance::data.at(g_character.lr);
+  auto c_lr = ladderrope_game_instance::data.at(self_lr);
   if (g_character.pos.y < c_lr.t) {
     if (c_lr.uf == 1) {
       g_character.action_animate = true;
@@ -321,7 +340,20 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     }
     if (!run_walk(g_character)) {
       break;
-    };
+    }
+    if (run_jump(g_character)) {
+    }
+    break;
+  }
+  case action_enum::prone: {
+    if (!run_prone(g_character)) {
+      run_stand_action(g_character);
+    }
+    break;
+  }
+  case action_enum::jump: {
+    run_flip(g_character);
+
     break;
   }
   default: {
