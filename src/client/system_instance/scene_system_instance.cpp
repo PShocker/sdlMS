@@ -11,6 +11,7 @@
 #include "src/client/game_instance/obj_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
+#include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
@@ -38,6 +39,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
+#include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include <array>
@@ -109,6 +111,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   reactor_game_instance::load(map_id);
   tile_game_instance::load(map_id);
   tooltip_game_instance::load(map_id);
+  seat_game_instance::load(map_id);
   minimap_ui_system::load();
 
   system::event_systems = {

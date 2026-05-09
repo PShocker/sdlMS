@@ -7,7 +7,7 @@
 #include <cstdint>
 
 uint8_t reactor_game_instance::load_reactor_layer(SDL_FPoint pos) {
-  for (auto [key, val] : foothold_game_instance::data) {
+  for (const auto &[key, val] : foothold_game_instance::data) {
     if (val.l <= pos.x && val.r >= pos.x && pos.y >= val.t && pos.y <= val.b) {
       return val.page;
     }

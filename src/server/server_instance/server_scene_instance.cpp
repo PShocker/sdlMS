@@ -21,7 +21,7 @@ void server_scene_instance::save_client(uint64_t client_id,
   s_client.fbs_player.character = std::move(client_scene.character);
 
   server_client_instance::clients[client_id] = s_client;
-  server_scene_instance::scenes[map_id].clients[client_id] = s_client;
+  server_scene_instance::scenes[map_id].clients.insert(client_id);
 }
 
 void server_scene_instance::send_scene_clients(uint64_t client_id,
@@ -32,8 +32,9 @@ void server_scene_instance::send_scene_clients(uint64_t client_id,
 
   auto scene = server_scene_instance::scenes[client_scene.map_id];
   scene.clients.erase(client_id);
-  for (const auto &c : scene.clients | std::views::values) {
-    auto player = std::make_unique<fbs::PlayerT>(c.fbs_player);
+  for (const auto &c : scene.clients) {
+    auto client = server_client_instance::clients.at(c);
+    auto player = std::make_unique<fbs::PlayerT>(client.fbs_player);
     r.players.push_back(std::move(player));
   }
 
@@ -51,8 +52,8 @@ void server_scene_instance::send_in_scene(uint64_t client_id,
 
   auto scene = server_scene_instance::scenes[client_scene.map_id];
   scene.clients.erase(client_id);
-  for (const auto &c : scene.clients | std::views::values) {
-    server_response::server_character_in_response(c.client_id, r);
+  for (const auto &c : scene.clients) {
+    server_response::server_character_in_response(c, r);
   }
 }
 

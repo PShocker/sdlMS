@@ -59,6 +59,8 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterIn();
     fbs::ServerCharacterInT r;
     payload->UnPackTo(&r);
+    // 用户加入，需要把action设置默认jump
+    r.player->character->state->action = "jump";
     character_game_instance::load_others_character(r.player);
     break;
   }

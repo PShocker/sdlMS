@@ -2,6 +2,7 @@
 #include "src/client/game/game_foothold.h"
 #include "src/client/window/window.h"
 #include <algorithm>
+#include <cstdlib>
 #include <ranges>
 
 bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
@@ -137,29 +138,106 @@ std::optional<SDL_FPoint> physic::fall_intersect(const SDL_FPoint &p1,
   return SDL_FPoint{x, y};
 }
 
+std::flat_map<float, physic::intersect_pos>
+physic::fall_intersect_pos(const SDL_FPoint &p1, const SDL_FPoint &p2,
+                           const std::flat_map<int32_t, game_foothold> &fhs) {
+  std::flat_map<float, physic::intersect_pos> r;
+  for (const auto &fh : fhs | std::views::values) {
+    auto collide = fall_intersect(p1, p2, {(float)fh.x1, (float)fh.y1},
+                                  {(float)fh.x2, (float)fh.y2});
+    if (collide.has_value()) {
+      physic::intersect_pos inter_pos;
+      inter_pos.fh = fh;
+      inter_pos.pos = collide.value();
+      r.emplace(inter_pos.pos.y, inter_pos);
+    }
+  }
+  return r;
+}
+
+bool physic::fall_collide_wall(
+    float hspeed, game_foothold fh,
+    const std::flat_map<int32_t, game_foothold> &fhs) {
+  bool r = false;
+  if (fh.k.has_value()) {
+    return true;
+  }
+  if (hspeed > 0 && fh.y1 > fh.y2) {
+    while (fh.prev != 0) {
+      fh = fhs.at(fh.prev);
+      if (fh.k.has_value()) {
+        return true;
+      }
+    }
+  } else if (hspeed < 0 && fh.y1 < fh.y2) {
+    while (fh.next != 0) {
+      fh = fhs.at(fh.next);
+      if (fh.k.has_value()) {
+        return true;
+      }
+    }
+  }
+  return r;
+}
+
 bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
-                  float &vspeed, float vspeed_min, float vspeed_max,
+                  float vspeed, float vspeed_min, float vspeed_max,
                   const SDL_FRect &border, bool fall_collide, bool wall_collide,
+                  int32_t &current_fh, uint8_t &page,
                   const std::flat_map<int32_t, game_foothold> &fhs) {
   vspeed = std::clamp(vspeed, vspeed_min, vspeed_max);
   SDL_FPoint new_pos = pos;
   new_pos.x += hspeed * delta_time;
   new_pos.y += vspeed * delta_time;
-  for (auto &fh : fhs | std::views::values) {
-    if (fh.k.has_value()) {
-      if (vspeed >= 0) {
-        if (fall_collide) {
-          if (fh.x2 < fh.x1) {
-            continue;
+  auto inter_pos = fall_intersect_pos(pos, new_pos, fhs);
+  pos = new_pos;
+  // 下落
+  if (vspeed >= 0) {
+    if (fall_collide) {
+      while (!inter_pos.empty()) {
+        auto first = *inter_pos.begin(); // 下落取y最小
+        const auto &collide_pos = first.second.pos;
+        const auto &fh = first.second.fh;
+        if (fh.x2 >= fh.x1) {
+          // 碰撞
+          if (fh.k.has_value()) {
+            // 落地
+            current_fh = fh.id;
+            hspeed = hspeed / 2;
+            page = fh.page;
+            pos = collide_pos;
+            return false;
+          } else {
+            // 撞墙
+            if (fall_collide_wall(hspeed, fh, fhs)) {
+              pos = collide_pos;
+              pos.x += hspeed < 0 ? 0.1 : -0.1;
+              hspeed = 0;
+              return true;
+            }
           }
-          auto collide =
-              fall_intersect(pos, new_pos, {(float)fh.x1, (float)fh.y1},
-                             {(float)fh.x2, (float)fh.y2});
         }
-      } else {
+        inter_pos.erase(inter_pos.begin());
       }
-    } else {
-      // 墙面,竖着的
+    }
+  } else {
+    // vspeed<0
+    // 只需要和天花板碰撞
+    while (!inter_pos.empty()) {
+      auto last = *inter_pos.rbegin(); // 上升取y最大
+      const auto &collide_pos = last.second.pos;
+      const auto &fh = last.second.fh;
+      const auto &c_fh = fhs.at(current_fh);
+      if (fh.x2 < fh.x1 && (fh.zmass == 0 || fh.zmass == c_fh.zmass)) {
+        if (fall_collide_wall(hspeed, fh, fhs)) {
+          hspeed = 0;
+          vspeed = 0;
+          pos.y = collide_pos.y;
+          return true;
+        }
+      }
+      inter_pos.erase(std::prev(inter_pos.end()));
     }
   }
+  return true;
 }

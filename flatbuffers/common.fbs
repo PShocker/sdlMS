@@ -53,6 +53,7 @@ table Movement{
     page:uint8;
 
     action:string;
+    action_animate:bool;
     flip:bool;
 }
 
@@ -65,29 +66,4 @@ table Mob{
 table MobMovement{
     mob_id:uint32;
     movement:Movement;
-}
-
-table DropEquip{
-    equip_id:uint32;
-
-    x:float;
-    y:float;
-
-    rotate:uint32;
-    hspeed:float;
-    vspeed:float;
-}
-
-
-table DropItem{
-    item_id:uint32;
-
-    x:float;
-    y:float;
-
-    num:uint32;
-    rotate:uint32;
-
-    hspeed:float;
-    vspeed:float;
 }

@@ -25,6 +25,8 @@ struct character_avatar {
 };
 
 struct character_avatar_render {
+  std::u16string islot;
+  std::u16string vslot;
   std::flat_map<std::u16string, std::vector<std::vector<character_avatar>>>
       data;
 };

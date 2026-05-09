@@ -19,6 +19,7 @@ private:
                          const std::u16string &action);
   static void run_walk_action(game_character &g_character);
   static void run_stand_action(game_character &g_character);
+  static void run_climb_action(game_character &g_character);
   static bool run_animate(game_character &g_character);
   static bool run_flip(game_character &g_character);
   static void run_pick(game_character &g_character);
@@ -28,6 +29,9 @@ private:
   static bool run_prone(game_character &g_character);
   static bool run_climb(game_character &g_character);
   static bool run_climbing(game_character &g_character);
+  static bool run_sit(game_character &g_character);
+  static bool run_sitting(game_character &g_character);
+  static void run_face(game_character &g_character);
   static void run_state_machine(game_character &g_character);
   static pos_type load_pos_type(game_character &g_character);
   enum class action_enum {
@@ -36,6 +40,8 @@ private:
     walk,
     prone,
     jump,
+    climb,
+    sit,
   };
   static action_enum load_action_type(game_character &g_character);
 
@@ -48,8 +54,8 @@ public:
   static inline std::flat_set<std::string> character_action_input;
   static inline std::flat_set<std::string> character_skill_input;
 
-  static inline int32_t self_fh = 1; // foothold
-  static inline int32_t self_lr;     // ladderrope
+  static inline int32_t self_fh; // foothold
+  static inline int32_t self_lr; // ladderrope
 
   static inline float self_hforce = 0.0;
   static inline float self_vforce = 0.0;
@@ -65,5 +71,9 @@ public:
 
   static inline uint64_t self_alert_cooldown;
   static inline uint64_t self_ladderrope_cooldown;
+  static inline uint64_t self_foothold_cooldown;
+  static inline uint64_t self_sit_cooldown;
+  static inline uint64_t self_face_cooldown;
+
   static inline float self_fall_min;
 };

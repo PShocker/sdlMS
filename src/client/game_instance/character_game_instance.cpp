@@ -166,9 +166,9 @@ void character_game_instance::load_self_character() {
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
 
-  self.action = u"walk1";
+  self.action = u"jump";
   self.flip = 1;
-  self.pos = {-900, 300};
+  self.pos = {0, 0};
 }
 
 void character_game_instance::load_others_character(

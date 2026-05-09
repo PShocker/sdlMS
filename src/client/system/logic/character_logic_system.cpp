@@ -6,6 +6,7 @@
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
+#include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -61,8 +62,21 @@ void character_logic_system::run_stand_action(game_character &g_character) {
   return;
 }
 
+void character_logic_system::run_climb_action(game_character &g_character) {
+  const auto &c_lr = ladderrope_game_instance::data.at(self_lr);
+  if (c_lr.l == 1) {
+    run_action(g_character, u"ladder");
+  } else {
+    run_action(g_character, u"rope");
+  }
+  return;
+}
+
 bool character_logic_system::run_animate(game_character &g_character) {
   bool r = false;
+  if (!g_character.action_animate) {
+    return r;
+  }
   auto delta = window::delta_time;
   uint32_t size = 0;
   g_character.action_time += delta;
@@ -157,11 +171,21 @@ bool character_logic_system::run_fall(game_character &g_character) {
       self_hspeed += 0.03 * window::delta_time;
     }
   }
-  auto vspeed = self_vspeed + window::delta_time * 2;
+  auto delta_time = window::delta_time / 1000.0;
+  auto vspeed = self_vspeed + delta_time * 2000;
   if (self_vspeed <= 0 && vspeed > 0) {
     self_fall_min = g_character.pos.y;
   }
   self_vspeed = vspeed;
+  auto fall_collide = self_foothold_cooldown <= window::dt_now;
+  bool r = physic::fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
+                        self_vspeed_min, self_vspeed_max, {0, 0, 0, 0},
+                        fall_collide, true, self_fh, g_character.page,
+                        foothold_game_instance::data);
+  if (!r) {
+    run_stand_action(g_character);
+  }
+  return r;
 }
 
 bool character_logic_system::run_prone(game_character &g_character) {
@@ -174,6 +198,8 @@ bool character_logic_system::run_prone(game_character &g_character) {
   }
   if (character_action_input.contains("down")) {
     run_action(g_character, u"prone");
+    self_hspeed = 0;
+    self_vspeed = 0;
     return true;
   }
   return false;
@@ -191,23 +217,58 @@ bool character_logic_system::run_jump(game_character &g_character) {
     case action_enum::alert:
     case action_enum::walk: {
       self_vspeed = self_vspeed_min * 0.1;
-      self_fh = 0;
-      self_lr = 0;
       break;
     }
     case action_enum::prone: {
       // 下跳
       const auto &c_fh = foothold_game_instance::data.at(self_fh);
-
+      if (!c_fh.forbidFallDown) {
+        for (auto &fh : foothold_game_instance::data | std::views::values) {
+          if (fh.x1 > fh.x2) {
+            continue;
+          }
+          const auto &pos = g_character.pos;
+          if (pos.x < fh.x1 || pos.x > fh.x2) {
+            continue;
+          }
+          if (fh.k.has_value()) {
+            auto y = fh.k.value() * pos.x + fh.intercept.value();
+            if (y >= pos.y + 10 && y <= pos.y + 600) {
+              self_vspeed = -100;
+              self_hspeed = 0;
+              self_foothold_cooldown = window::dt_now + 120;
+              run_action(g_character, u"jump");
+              return true;
+            }
+          }
+        }
+      }
       break;
     }
     case action_enum::jump: {
+      // double jump
+    }
+    case action_enum::climb: {
+      if (character_action_input.contains("up") ||
+          character_action_input.contains("down")) {
+        break;
+      }
+      if (character_action_input.contains("left") ||
+          character_action_input.contains("right")) {
+        self_hspeed = character_action_input.contains("left") ? -140 : 140;
+        g_character.action_animate = true;
+        self_vspeed = -310;
+      }
+      break;
+    }
+    default: {
       break;
     }
     }
     run_action(g_character, u"jump");
     return true;
   }
+  return false;
 }
 
 bool character_logic_system::run_climb(game_character &g_character) {
@@ -221,18 +282,37 @@ bool character_logic_system::run_climb(game_character &g_character) {
   if (character_action_input.contains("up") ||
       character_action_input.contains("down")) {
     auto &pos = g_character.pos;
-    for (const auto &lr : ladderrope_game_instance::data | std::views::values) {
+    for (const auto &[id, lr] : ladderrope_game_instance::data) {
       // 判断x坐标是否在梯子范围内
       if (pos.x >= lr.x - 15 && pos.x <= lr.x + 15) {
+        float y_min = lr.t;
+        float y_max = lr.b;
         if (character_action_input.contains("up")) {
           // 按上键
-
+          if (self_fh != 0) {
+            // 可爬范围为[b,b+5]
+            y_min = lr.b;
+            y_max = lr.b + 5;
+          }
         } else {
           // 按下键
+          if (self_fh != 0) {
+            y_min = lr.t - 10;
+            y_max = lr.t;
+          }
+        }
+
+        if (pos.y >= y_min && pos.y <= y_max) {
+          self_lr = id;
+          self_vspeed = 0;
+          self_hspeed = 0;
+          run_climb_action(g_character);
+          return true;
         }
       }
     }
   }
+  return false;
 }
 
 bool character_logic_system::run_climbing(game_character &g_character) {
@@ -260,7 +340,7 @@ bool character_logic_system::run_climbing(game_character &g_character) {
       g_character.pos.y = c_lr.t - 5;
       self_ladderrope_cooldown = window::dt_now + 80;
       self_vspeed = 0;
-      run_action(g_character, u"jump");
+      return false;
     } else {
       g_character.action_animate = false;
     }
@@ -269,10 +349,41 @@ bool character_logic_system::run_climbing(game_character &g_character) {
     g_character.action_animate = true;
     self_ladderrope_cooldown = window::dt_now + 80;
     self_vspeed = 0;
-    run_action(g_character, u"jump");
+    return false;
   }
 
   return true;
+}
+
+bool character_logic_system::run_sit(game_character &g_character) {
+  if (character_action_input.contains("sit")) {
+    if (self_sit_cooldown >= window::dt_now) {
+      for (const auto &seat_pos : seat_game_instance::data) {
+        if (std::abs(g_character.pos.x - seat_pos.x) <= 20 &&
+            std::abs(g_character.pos.y - seat_pos.y) <= 20) {
+          run_action(g_character, u"sit");
+          self_sit_cooldown = window::dt_now + 120;
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+bool character_logic_system::run_sitting(game_character &g_character) {
+  if (!character_action_input.empty()) {
+    if (self_sit_cooldown >= window::dt_now) {
+      run_stand_action(g_character);
+      self_sit_cooldown = window::dt_now + 120;
+      return false;
+    }
+  }
+  return true;
+}
+
+void character_logic_system::run_face(game_character &g_character) {
+  g_character.face;
 }
 
 character_logic_system::pos_type
@@ -291,11 +402,21 @@ character_logic_system::load_pos_type(game_character &g_character) {
 
 void character_logic_system::run_network_sync(game_character &g_character,
                                               game_character &o_character) {
+  bool send = false;
+  fbs::ClientCharacterMoveT client_character_move;
+  fbs::MovementT m;
   // 网络同步
   if (o_character.pos.x != g_character.pos.x ||
       o_character.pos.y != g_character.pos.y) {
-    fbs::ClientCharacterMoveT client_character_move;
-    fbs::MovementT m;
+    send = true;
+  }
+  if (o_character.action != g_character.action) {
+    send = true;
+  }
+  if (o_character.action_animate != g_character.action_animate) {
+    send = true;
+  }
+  if (send) {
     m.x1 = o_character.pos.x;
     m.y1 = o_character.pos.y;
 
@@ -304,10 +425,10 @@ void character_logic_system::run_network_sync(game_character &g_character,
 
     m.action =
         std::string{g_character.action.begin(), g_character.action.end()};
+    m.action_animate = g_character.action_animate;
     m.page = g_character.page;
     m.time = window::delta_time;
     m.flip = g_character.flip;
-
     client_character_move.movement =
         std::make_unique<fbs::MovementT>(std::move(m));
 
@@ -321,7 +442,8 @@ character_logic_system::load_action_type(game_character &g_character) {
       {u"stand1", action_enum::stand}, {u"stand2", action_enum::stand},
       {u"alert", action_enum::alert},  {u"walk1", action_enum::walk},
       {u"walk2", action_enum::walk},   {u"prone", action_enum::prone},
-      {u"jump", action_enum::jump},
+      {u"jump", action_enum::jump},    {u"ladder", action_enum::climb},
+      {u"rope", action_enum::climb},
   };
   return map_name.at(g_character.action);
 };
@@ -329,6 +451,7 @@ character_logic_system::load_action_type(game_character &g_character) {
 void character_logic_system::run_state_machine(game_character &g_character) {
   auto o_character = g_character;
   auto g_action = load_action_type(g_character);
+  run_face(g_character);
   switch (g_action) {
   case action_enum::stand:
   case action_enum::alert:
@@ -339,22 +462,38 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       break;
     }
     if (!run_walk(g_character)) {
+      run_action(g_character, u"jump");
       break;
     }
-    if (run_jump(g_character)) {
-    }
+    run_jump(g_character);
     break;
   }
   case action_enum::prone: {
     if (!run_prone(g_character)) {
       run_stand_action(g_character);
     }
+    run_jump(g_character);
     break;
   }
   case action_enum::jump: {
     run_flip(g_character);
-
+    if (!run_fall(g_character)) {
+      // 刚落地后，瞬间动作不一定是stand，需要再进行一次状态机
+      run_state_machine(g_character);
+    }
     break;
+  }
+  case action_enum::climb: {
+    run_flip(g_character);
+    if (!run_climbing(g_character)) {
+      run_action(g_character, u"jump");
+    }
+    break;
+  }
+  case action_enum::sit: {
+    if (!run_sitting(g_character)) {
+      run_state_machine(g_character);
+    }
   }
   default: {
     std::abort();
@@ -368,23 +507,35 @@ void character_logic_system::run_others_movement() {
     if (!c.movements.empty()) {
       auto &mv = c.movements[0];
       auto per = window::delta_time / (float)mv.time;
-      // 自动处理大小顺序
-      auto low = std::min(mv.x1, mv.x2);
-      auto high = std::max(mv.x1, mv.x2);
-      if (c.g_character.pos.x >= low && c.g_character.pos.x <= high) {
-        per += std::abs((c.g_character.pos.x - mv.x1) / (high - low));
-      } else {
-        per = 0.0f;
+
+      // 计算当前点在线段上的进度（基于 x 和 y）
+      float dx = mv.x2 - mv.x1;
+      float dy = mv.y2 - mv.y1;
+      float length_sq = dx * dx + dy * dy;
+
+      if (length_sq > 0) {
+        // 投影参数 t：当前点在线段上的位置（0=起点，1=终点）
+        float t = ((c.g_character.pos.x - mv.x1) * dx +
+                   (c.g_character.pos.y - mv.y1) * dy) /
+                  length_sq;
+        t = std::clamp(t, 0.0f, 1.0f);
+        per += t;
       }
+
       per = std::min(per, 1.0f);
+
       auto per_x = mv.x1 + (mv.x2 - mv.x1) * per;
       auto per_y = mv.y1 + (mv.y2 - mv.y1) * per;
       c.g_character.pos.x = per_x;
       c.g_character.pos.y = per_y;
+      c.g_character.flip = mv.flip;
+      c.g_character.action_animate = mv.action_animate;
+      c.g_character.page = mv.page;
+      auto action = std::u16string{mv.action.begin(), mv.action.end()};
+      run_action(c.g_character, action);
       if (per == 1.0f) {
         c.movements.erase(c.movements.begin());
       }
-      c.g_character.flip = mv.flip;
     }
   }
 }

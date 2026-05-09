@@ -15,6 +15,17 @@ private:
                                                   const SDL_FPoint &p2,
                                                   const SDL_FPoint &p3,
                                                   const SDL_FPoint &p4);
+  struct intersect_pos {
+    SDL_FPoint pos;
+    game_foothold fh;
+  };
+  static std::flat_map<float, intersect_pos>
+  fall_intersect_pos(const SDL_FPoint &p1, const SDL_FPoint &p2,
+                     const std::flat_map<int32_t, game_foothold> &fhs);
+
+  static bool
+  fall_collide_wall(float hspeed, game_foothold fh,
+                    const std::flat_map<int32_t, game_foothold> &fhs);
 
 public:
   static bool walk(SDL_FPoint &pos, float delta_time, float &hspeed,
@@ -24,8 +35,8 @@ public:
                    const std::flat_map<int32_t, game_foothold> &fhs);
 
   static bool fall(SDL_FPoint &pos, float delta_time, float &hspeed,
-                   float &vspeed, float vspeed_min, float vspeed_max,
+                   float vspeed, float vspeed_min, float vspeed_max,
                    const SDL_FRect &border, bool fall_collide,
-                   bool wall_collide,
+                   bool wall_collide, int32_t &current_fh, uint8_t &page,
                    const std::flat_map<int32_t, game_foothold> &fhs);
 };
