@@ -402,6 +402,17 @@ character_logic_system::load_pos_type(game_character &g_character) {
 
 void character_logic_system::run_network_sync(game_character &g_character,
                                               game_character &o_character) {
+
+  // 使用静态变量记录上次发送时间（毫秒）
+  static uint64_t last_send_time = 0;
+  static const uint64_t MIN_SEND_INTERVAL_MS =
+      1000 / 30; // 30帧对应的间隔毫秒数 ≈ 33ms
+  // 检查是否达到发送间隔
+  bool r = true;
+  if (window::dt_now - last_send_time < MIN_SEND_INTERVAL_MS) {
+    r = false;
+  }
+
   bool send = false;
   fbs::ClientCharacterMoveT client_character_move;
   fbs::MovementT m;
@@ -411,12 +422,14 @@ void character_logic_system::run_network_sync(game_character &g_character,
     send = true;
   }
   if (o_character.action != g_character.action) {
+    r = true;
     send = true;
   }
   if (o_character.action_animate != g_character.action_animate) {
+    r = true;
     send = true;
   }
-  if (send) {
+  if (send && r) {
     m.x1 = o_character.pos.x;
     m.y1 = o_character.pos.y;
 
@@ -433,6 +446,7 @@ void character_logic_system::run_network_sync(game_character &g_character,
         std::make_unique<fbs::MovementT>(std::move(m));
 
     client_request::client_character_move_request(client_character_move);
+    last_send_time = window::dt_now;
   }
 }
 
