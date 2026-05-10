@@ -265,6 +265,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
       break;
     }
     }
+    self_fh = 0;
     run_action(g_character, u"jump");
     return true;
   }
@@ -286,7 +287,7 @@ bool character_logic_system::run_climb(game_character &g_character) {
       // 判断x坐标是否在梯子范围内
       if (pos.x >= lr.x - 15 && pos.x <= lr.x + 15) {
         float y_min = lr.t;
-        float y_max = lr.b;
+        float y_max = lr.b + 5;
         if (character_action_input.contains("up")) {
           // 按上键
           if (self_fh != 0) {
@@ -306,6 +307,9 @@ bool character_logic_system::run_climb(game_character &g_character) {
           self_lr = id;
           self_vspeed = 0;
           self_hspeed = 0;
+          pos.x = lr.x;
+          pos.y = std::clamp(pos.y, (float)lr.t, (float)lr.b);
+          g_character.page = lr.page;
           run_climb_action(g_character);
           return true;
         }
@@ -319,9 +323,6 @@ bool character_logic_system::run_climbing(game_character &g_character) {
   if (g_character.abnormals.contains(
           game_character::abnormal_state_type::dizz)) {
     run_action(g_character, u"jump");
-    return false;
-  }
-  if (self_lr != 0) {
     return false;
   }
   if (character_action_input.contains("up")) {
@@ -340,6 +341,8 @@ bool character_logic_system::run_climbing(game_character &g_character) {
       g_character.pos.y = c_lr.t - 5;
       self_ladderrope_cooldown = window::dt_now + 80;
       self_vspeed = 0;
+      self_fh = 0;
+      self_lr = 0;
       return false;
     } else {
       g_character.action_animate = false;
@@ -349,6 +352,8 @@ bool character_logic_system::run_climbing(game_character &g_character) {
     g_character.action_animate = true;
     self_ladderrope_cooldown = window::dt_now + 80;
     self_vspeed = 0;
+    self_fh = 0;
+    self_lr = 0;
     return false;
   }
 
@@ -429,6 +434,10 @@ void character_logic_system::run_network_sync(game_character &g_character,
     r = true;
     send = true;
   }
+  if (o_character.flip != g_character.flip) {
+    r = true;
+    send = true;
+  }
   if (send && r) {
     m.x1 = o_character.pos.x;
     m.y1 = o_character.pos.y;
@@ -472,6 +481,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   case action_enum::walk: {
     run_flip(g_character);
     run_pick(g_character);
+    if (run_climb(g_character)) {
+      break;
+    }
     if (run_prone(g_character)) {
       break;
     }
@@ -483,8 +495,13 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     break;
   }
   case action_enum::prone: {
+    run_flip(g_character);
+    run_pick(g_character);
     if (!run_prone(g_character)) {
       run_stand_action(g_character);
+    }
+    if (run_climb(g_character)) {
+      break;
     }
     run_jump(g_character);
     break;
@@ -494,6 +511,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (!run_fall(g_character)) {
       // 刚落地后，瞬间动作不一定是stand，需要再进行一次状态机
       run_state_machine(g_character);
+    }
+    if (run_climb(g_character)) {
+      break;
     }
     break;
   }

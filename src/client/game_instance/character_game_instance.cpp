@@ -14,6 +14,7 @@
 #include <optional>
 #include <ranges>
 #include <string>
+#include <string_view>
 #include <vector>
 
 void character_game_instance::init_character_bone() {
@@ -249,6 +250,7 @@ void character_game_instance::load_others_character(
   g_character.action_index = state->action_index;
   g_character.action_time = 0;
   g_character.page = c->character->state->page;
+  g_character.flip = c->character->state->flip;
   others.emplace(c->client_id, g_character);
 }
 
@@ -259,6 +261,15 @@ void character_game_instance::load_others_character(
   }
 }
 
+std::flat_set<std::u16string>
+character_game_instance::split_vslot(const std::u16string &vslot) {
+  std::flat_set<std::u16string> result;
+  for (size_t i = 0; i < vslot.size(); i += 2) {
+    result.insert(vslot.substr(i, 2));
+  }
+  return result;
+}
+
 void character_game_instance::add_body(game_character &g,
                                        const std::u16string &val) {
   g.body = val;
@@ -266,6 +277,12 @@ void character_game_instance::add_body(game_character &g,
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
     auto body_node = character_node->find(val + u".img");
+    r.islot = static_cast<wz::Property<std::u16string> *>(
+                  body_node->find(u"info/islot"))
+                  ->get();
+    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
+                              body_node->find(u"info/vslot"))
+                              ->get());
     for (auto [k, v] : *body_node->get_children()) {
       if (k == u"info") {
         continue;
@@ -306,6 +323,12 @@ void character_game_instance::add_head(game_character &g,
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
     auto head_node = character_node->find(val + u".img");
+    r.islot = static_cast<wz::Property<std::u16string> *>(
+                  head_node->find(u"info/islot"))
+                  ->get();
+    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
+                              head_node->find(u"info/vslot"))
+                              ->get());
     for (auto [k, v] : *head_node->get_children()) {
       if (k == u"info") {
         continue;
@@ -351,6 +374,12 @@ void character_game_instance::add_coat(game_character &g,
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
     auto coat_node = character_node->find(u"Coat/" + val + u".img");
+    r.islot = static_cast<wz::Property<std::u16string> *>(
+                  coat_node->find(u"info/islot"))
+                  ->get();
+    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
+                              coat_node->find(u"info/vslot"))
+                              ->get());
     for (auto [k, v] : *coat_node->get_children()) {
       if (k == u"info") {
         continue;
@@ -405,6 +434,12 @@ void character_game_instance::add_cap(game_character &g,
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
     auto cap_node = character_node->find(u"Cap/" + val + u".img");
+    r.islot = static_cast<wz::Property<std::u16string> *>(
+                  cap_node->find(u"info/islot"))
+                  ->get();
+    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
+                              cap_node->find(u"info/vslot"))
+                              ->get());
     for (auto [k, v] : *cap_node->get_children()) {
       if (k == u"info") {
         continue;
@@ -456,10 +491,15 @@ void character_game_instance::add_pants(game_character &g,
   g_equip.id = val;
   g.pant = g_equip;
   if (!avatar_data.contains(val)) {
-
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
     auto pant_node = character_node->find(u"Pants/" + val + u".img");
+    r.islot = static_cast<wz::Property<std::u16string> *>(
+                  pant_node->find(u"info/islot"))
+                  ->get();
+    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
+                              pant_node->find(u"info/vslot"))
+                              ->get());
     for (auto [k, v] : *pant_node->get_children()) {
       if (k == u"info") {
         continue;
@@ -514,6 +554,12 @@ void character_game_instance::add_weapon(game_character &g,
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
     auto weapon_node = character_node->find(u"Weapon/" + val + u".img");
+    r.islot = static_cast<wz::Property<std::u16string> *>(
+                  weapon_node->find(u"info/islot"))
+                  ->get();
+    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
+                              weapon_node->find(u"info/vslot"))
+                              ->get());
     for (auto [k, v] : *weapon_node->get_children()) {
       if (k == u"info") {
         continue;
@@ -566,6 +612,12 @@ void character_game_instance::add_hair(game_character &g,
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
     auto hair_node = character_node->find(u"Hair/" + val + u".img");
+    r.islot = static_cast<wz::Property<std::u16string> *>(
+                  hair_node->find(u"info/islot"))
+                  ->get();
+    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
+                              hair_node->find(u"info/vslot"))
+                              ->get());
     for (auto [k, v] : *hair_node->get_children()) {
       if (k == u"info") {
         continue;
@@ -617,7 +669,6 @@ void character_game_instance::add_face(game_character &g,
   g_face.id = val;
   g.face = g_face;
   if (!face_data.contains(val)) {
-    auto &r = face_data[val];
     auto character_node = wz_resource::character;
     auto face_node = character_node->find(u"Face/" + val + u".img");
     for (auto [k, v] : *face_node->get_children()) {
@@ -659,6 +710,8 @@ void character_game_instance::add_face(game_character &g,
             vc.push_back(c);
           }
           f.data[k].data[bk].push_back(vc);
+          f.data[k].islot = u"Fc";
+          f.data[k].vslot = {u"Fc"}; // face只占用Fc
         }
       }
     }

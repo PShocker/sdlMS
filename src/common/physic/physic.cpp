@@ -227,8 +227,7 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
       auto last = *inter_pos.rbegin(); // 上升取y最大
       const auto &collide_pos = last.second.pos;
       const auto &fh = last.second.fh;
-      const auto &c_fh = fhs.at(current_fh);
-      if (fh.x2 < fh.x1 && (fh.zmass == 0 || fh.zmass == c_fh.zmass)) {
+      if (fh.x2 < fh.x1 && fh.zmass == 0) {
         if (fall_collide_wall(hspeed, fh, fhs)) {
           hspeed = 0;
           vspeed = 0;
