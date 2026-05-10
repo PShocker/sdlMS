@@ -6,6 +6,7 @@
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
+#include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -261,6 +262,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
         g_character.action_animate = true;
         self_vspeed = -310;
         self_lr = 0;
+        self_ladderrope_cooldown = window::dt_now + 120;
       } else {
         return false;
       }
@@ -392,8 +394,69 @@ bool character_logic_system::run_sitting(game_character &g_character) {
   return true;
 }
 
+bool character_logic_system::run_attack(game_character &g_character) {
+  if (g_character.abnormals.contains(
+          game_character::abnormal_state_type::dizz)) {
+    return false;
+  }
+  if (character_action_input.contains("attack")) {
+    auto g_action = load_action_type(g_character);
+    switch (g_action) {
+    case action_enum::stand:
+    case action_enum::alert:
+    case action_enum::walk: {
+    }
+    case action_enum::prone: {
+    }
+    case action_enum::jump: {
+    }
+    default: {
+      break;
+    }
+    }
+  }
+}
+
+bool character_logic_system::run_portal(game_character &g_character) {
+  if (g_character.abnormals.contains(
+          game_character::abnormal_state_type::dizz)) {
+    return false;
+  }
+  if (character_action_input.contains("up")) {
+    if (self_portal_cooldown <= window::dt_now) {
+      for (const auto &por : portal_game_instance::data | std::views::values) {
+        if (por.tm == 999999999) {
+          continue;
+        }
+        if (por.pt == 1) {
+          const auto &g_pos = g_character.pos;
+          const auto &p_pos = por.pos;
+          if (g_pos.x == std::clamp(g_pos.x, p_pos.x - 40, p_pos.x + 40) &&
+              g_pos.y == std::clamp(g_pos.y, p_pos.y - 50, p_pos.y + 50)) {
+            if (por.tm != scene_system_instance::map_id) {
+              // need to change map
+            } else {
+              // no change map
+              auto tn = portal_game_instance::data.at(por.tn);
+              g_character.pos = tn.pos;
+              g_character.pos.y -= 5;
+              self_hspeed = 0;
+              self_vspeed = 0;
+              self_fh = 0;
+              run_action(g_character, u"jump");
+              self_portal_cooldown = window::dt_now + 1200;
+              return true;
+            }
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
 void character_logic_system::run_face(game_character &g_character) {
-  g_character.face;
+  // g_character.face;
 }
 
 character_logic_system::pos_type
@@ -497,6 +560,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       break;
     }
     run_jump(g_character);
+    if (run_portal(g_character)) {
+      break;
+    }
     break;
   }
   case action_enum::prone: {

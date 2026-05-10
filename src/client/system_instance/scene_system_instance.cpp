@@ -87,7 +87,7 @@ bool scene_system_instance::render_game() {
     }
   }
   // 传送门
-  for (auto &portal : portal_game_instance::data) {
+  for (auto &portal : portal_game_instance::data | std::views::values) {
     portal_render_system::render(portal);
   }
   // 前景

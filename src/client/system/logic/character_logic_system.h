@@ -31,6 +31,8 @@ private:
   static bool run_climbing(game_character &g_character);
   static bool run_sit(game_character &g_character);
   static bool run_sitting(game_character &g_character);
+  static bool run_attack(game_character &g_character);
+  static bool run_portal(game_character &g_character);
   static void run_face(game_character &g_character);
   static void run_state_machine(game_character &g_character);
   static pos_type load_pos_type(game_character &g_character);
@@ -42,6 +44,8 @@ private:
     jump,
     climb,
     sit,
+    attack,
+    skill,
   };
   static action_enum load_action_type(game_character &g_character);
 
@@ -74,6 +78,7 @@ public:
   static inline uint64_t self_foothold_cooldown;
   static inline uint64_t self_sit_cooldown;
   static inline uint64_t self_face_cooldown;
+  static inline uint64_t self_portal_cooldown;
 
   static inline float self_fall_min;
 };

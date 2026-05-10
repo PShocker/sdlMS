@@ -345,7 +345,7 @@ void minimap_ui_system::render_canvas_life() {
     }
   }
   // render portal
-  for (auto &portal : portal_game_instance::data) {
+  for (auto &portal : portal_game_instance::data | std::views::values) {
     if (portal.pt != 2) {
       continue;
     }

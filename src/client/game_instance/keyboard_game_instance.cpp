@@ -9,6 +9,7 @@ void keyboard_game_instance::reset() {
       {SDL_SCANCODE_LEFT, {.type = "action", .val = "left"}},
       {SDL_SCANCODE_RIGHT, {.type = "action", .val = "right"}},
       {SDL_SCANCODE_LALT, {.type = "action", .val = "jump"}},
+      {SDL_SCANCODE_LALT, {.type = "action", .val = "attack"}},
       {SDL_SCANCODE_X, {.type = "action", .val = "sit"}},
       {SDL_SCANCODE_Z, {.type = "action", .val = "pick"}},
       {SDL_SCANCODE_W, {.type = "ui", .val = "worldMap"}},
