@@ -1,6 +1,7 @@
 #include "scene_system_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -113,6 +114,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   tooltip_game_instance::load(map_id);
   seat_game_instance::load(map_id);
   minimap_ui_system::load();
+  camera_game_instance::reset();
 
   system::event_systems = {
       keyboard_input_system::event,

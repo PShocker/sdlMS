@@ -161,7 +161,7 @@ void character_game_instance::load_self_character() {
   add_body(self, u"00002000");
   add_head(self, u"00012000");
   add_coat(self, u"01040002");
-  add_cap(self, u"01002097");
+  add_cap(self, u"01002088");
   add_weapon(self, u"01302000");
   add_pants(self, u"01060001");
   add_face(self, u"00020000");

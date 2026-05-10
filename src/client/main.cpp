@@ -53,7 +53,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   SDL_HideCursor();
 
-  scene_system_instance::enter_prepare(10002000);
+  scene_system_instance::enter_prepare(10001000);
 
   return SDL_APP_CONTINUE;
 }

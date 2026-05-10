@@ -21,30 +21,31 @@ bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
     pos.x = hspeed < 0 ? c_fh.l + 0.1 : c_fh.r - 0.1;
     hspeed = 0;
     vspeed = 0;
-    return false;
+    return true;
   }
   if (!n_fh->k.has_value()) {
     if (pos.y == std::clamp(pos.y, (float)n_fh->b - 1, (float)n_fh->b + 1) ||
         pos.y >= (float)n_fh->b + 1) {
       // 撞墙
       const auto &c_fh = fhs.at(current_fh);
-      pos.x = hspeed < 0 ? c_fh.x1 + 0.1 : c_fh.x1 - 0.1;
+      pos.x = hspeed < 0 ? pos.x + 0.1 : pos.x - 0.1;
       pos.x = std::clamp(pos.x, (float)c_fh.l, (float)c_fh.r);
       pos.y = c_fh.k.value() * pos.x + c_fh.intercept.value();
       hspeed = 0;
-      return false;
+      return true;
     } else if (fall) {
-      const auto &c_fh = fhs.at(current_fh);
       // 楼梯上掉落
       vspeed = 0;
-      pos.x = hspeed < 0 ? c_fh.x1 - 0.1 : c_fh.x1 + 0.1;
+      pos.x = hspeed < 0 ? pos.x - 0.1 : pos.x + 0.1;
       current_fh = 0;
       return false;
     } else {
       const auto &c_fh = fhs.at(current_fh);
       // 禁止掉落
-      pos.x = hspeed < 0 ? c_fh.x1 + 0.1 : c_fh.x1 - 0.1;
-      return false;
+      pos.x = hspeed < 0 ? pos.x - 0.1 : pos.x + 0.1;
+      pos.x = std::clamp(pos.x, (float)c_fh.l, (float)c_fh.r);
+      pos.y = c_fh.k.value() * pos.x + c_fh.intercept.value();
+      return true;
     }
   }
   current_fh = next_fh;
@@ -76,7 +77,7 @@ bool physic::walk(SDL_FPoint &pos, float delta_time, float &hspeed,
       break;
     }
     auto prev_fh = c_fh.prev;
-    if (walk_fh(pos, true, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
+    if (walk_fh(pos, fall, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
       return false;
     }
   }
@@ -87,7 +88,7 @@ bool physic::walk(SDL_FPoint &pos, float delta_time, float &hspeed,
       break;
     }
     auto prev_fh = c_fh.prev;
-    if (walk_fh(pos, true, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
+    if (walk_fh(pos, fall, prev_fh, current_fh, hspeed, vspeed, fhs) == false) {
       return false;
     }
   }
@@ -98,7 +99,7 @@ bool physic::walk(SDL_FPoint &pos, float delta_time, float &hspeed,
       break;
     }
     auto next_fh = c_fh.next;
-    if (walk_fh(pos, true, next_fh, current_fh, hspeed, vspeed, fhs) == false) {
+    if (walk_fh(pos, fall, next_fh, current_fh, hspeed, vspeed, fhs) == false) {
       return false;
     }
   }

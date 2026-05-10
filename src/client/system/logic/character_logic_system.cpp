@@ -216,7 +216,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
     case action_enum::stand:
     case action_enum::alert:
     case action_enum::walk: {
-      self_vspeed = self_vspeed_min * 0.1;
+      self_vspeed = self_vspeed_min * 0.115;
       break;
     }
     case action_enum::prone: {
@@ -243,6 +243,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
           }
         }
       }
+      return false;
       break;
     }
     case action_enum::jump: {
@@ -251,6 +252,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
     case action_enum::climb: {
       if (character_action_input.contains("up") ||
           character_action_input.contains("down")) {
+        return false;
         break;
       }
       if (character_action_input.contains("left") ||
@@ -258,6 +260,9 @@ bool character_logic_system::run_jump(game_character &g_character) {
         self_hspeed = character_action_input.contains("left") ? -140 : 140;
         g_character.action_animate = true;
         self_vspeed = -310;
+        self_lr = 0;
+      } else {
+        return false;
       }
       break;
     }
@@ -500,10 +505,12 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (!run_prone(g_character)) {
       run_stand_action(g_character);
     }
+    if (run_jump(g_character)) {
+      break;
+    }
     if (run_climb(g_character)) {
       break;
     }
-    run_jump(g_character);
     break;
   }
   case action_enum::jump: {
@@ -519,6 +526,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   }
   case action_enum::climb: {
     run_flip(g_character);
+    if (run_jump(g_character)) {
+      break;
+    }
     if (!run_climbing(g_character)) {
       run_action(g_character, u"jump");
     }
