@@ -28,8 +28,8 @@ bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
         pos.y >= (float)n_fh->b + 1) {
       // 撞墙
       const auto &c_fh = fhs.at(current_fh);
-      pos.x = hspeed < 0 ? pos.x + 0.1 : pos.x - 0.1;
       pos.x = std::clamp(pos.x, (float)c_fh.l, (float)c_fh.r);
+      pos.x = hspeed < 0 ? pos.x + 0.1 : pos.x - 0.1;
       pos.y = c_fh.k.value() * pos.x + c_fh.intercept.value();
       hspeed = 0;
       return true;
@@ -223,12 +223,20 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
     }
   } else {
     // vspeed<0
-    // 只需要和天花板碰撞
+    // 只需要和天花板,墙碰撞
     while (!inter_pos.empty()) {
       auto last = *inter_pos.rbegin(); // 上升取y最大
       const auto &collide_pos = last.second.pos;
       const auto &fh = last.second.fh;
-      if (fh.x2 < fh.x1 && fh.zmass == 0) {
+      if (!fh.k.has_value()) {
+        // 撞墙
+        if (fall_collide_wall(hspeed, fh, fhs)) {
+          pos = collide_pos;
+          pos.x += hspeed < 0 ? 0.1 : -0.1;
+          hspeed = 0;
+          return true;
+        }
+      } else if (fh.x2 < fh.x1 && fh.zmass == 0) {
         if (fall_collide_wall(hspeed, fh, fhs)) {
           hspeed = 0;
           vspeed = 0;
