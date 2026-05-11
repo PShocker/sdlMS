@@ -9,7 +9,8 @@ public:
 
   static void server_character_in_response(uint64_t client_id,
                                            fbs::ServerCharacterInT r);
-
+  static void server_character_out_response(uint64_t client_id,
+                                            fbs::ServerCharacterOutT r);
   static void server_character_move_response(uint64_t client_id,
                                              fbs::ServerCharacterMoveT r);
 

@@ -8,11 +8,6 @@
 #include <string>
 class character_logic_system {
 private:
-  enum class pos_type {
-    land,
-    swim,
-    fly,
-  };
   static void run_network_sync(game_character &g_character,
                                game_character &o_character);
   static bool run_action(game_character &g_character,
@@ -35,6 +30,11 @@ private:
   static bool run_portal(game_character &g_character);
   static void run_face(game_character &g_character);
   static void run_state_machine(game_character &g_character);
+  enum class pos_type {
+    land,
+    swim,
+    fly,
+  };
   static pos_type load_pos_type(game_character &g_character);
   enum class action_enum {
     stand,

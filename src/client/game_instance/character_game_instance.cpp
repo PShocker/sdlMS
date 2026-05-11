@@ -1,7 +1,10 @@
 #include "character_game_instance.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_portal.h"
+#include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
@@ -157,6 +160,30 @@ void character_game_instance::init_character_bone() {
   }
 }
 
+void character_game_instance::load_self_pos(const std::u16string &pn,
+                                            uint8_t index) {
+  game_portal *por;
+  auto portals =
+      portal_game_instance::load(scene_system_instance::prepare_map_id);
+  if (index == 0) {
+    // 只需要第一个元素，使用 find 更高效
+    auto it = portals.find(pn);
+    if (it != portals.end()) {
+      por = &it->second;
+    }
+  } else {
+    // 需要第 N 个元素（N>0）
+    auto [first, last] = portals.equal_range(pn);
+    if (std::distance(first, last) > index) {
+      auto it = std::ranges::next(first, index);
+      por = &it->second;
+    }
+  }
+  self.pos = por->pos;
+  self.pos.y -= 5;
+  self.action = u"jump";
+}
+
 void character_game_instance::load_self_character() {
   add_body(self, u"00002000");
   add_head(self, u"00012000");
@@ -166,10 +193,6 @@ void character_game_instance::load_self_character() {
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
-
-  self.action = u"jump";
-  self.flip = 1;
-  self.pos = {0, 0};
 }
 
 void character_game_instance::load_others_character(

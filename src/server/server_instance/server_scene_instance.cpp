@@ -2,6 +2,7 @@
 #include "SDL3/SDL_timer.h"
 #include "server_client_instance.h"
 #include "server_mob_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
@@ -13,10 +14,10 @@ void server_scene_instance::save_client(uint64_t client_id,
                                         fbs::ClientSceneT client_scene) {
   auto map_id = client_scene.map_id;
   server_client s_client;
-
+  
   s_client.client_id = client_id;
   s_client.map_id = map_id;
-  s_client.heartbeat = SDL_GetTicks();
+  s_client.heartbeat = window::dt_now;
   s_client.fbs_player.client_id = client_id;
   s_client.fbs_player.character = std::move(client_scene.character);
 

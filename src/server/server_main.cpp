@@ -1,6 +1,7 @@
 #include "server_main.h"
 #include "SDL3/SDL_timer.h"
 #include "request_handler.h"
+#include "server_system_instance/server_system_instance.h"
 #include "src/common/request/client_request.h"
 #include <cstdint>
 #include <ctime>
@@ -95,6 +96,8 @@ void server_main::server_init() {
     std::abort();
   }
   printf("Started receiving on port %d...\n", local_port);
+
+  server_system_instance::enter(host);
 }
 
 void server_main::server_init(const std::string &ip, uint32_t port) {
@@ -143,4 +146,7 @@ bool server_main::server_send(const uint8_t *data, size_t len,
   return server_send(data, len, &send_addr);
 }
 
-void server_main::server_run() { uv_run(loop, UV_RUN_NOWAIT); }
+bool server_main::run() {
+  uv_run(loop, UV_RUN_NOWAIT);
+  return true;
+}

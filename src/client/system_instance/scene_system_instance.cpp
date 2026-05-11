@@ -108,7 +108,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   mob_game_instance::data = mob_game_instance::load(map_id);
   npc_game_instance::load(map_id);
   obj_game_instance::load(map_id);
-  portal_game_instance::load(map_id);
+  portal_game_instance::data = portal_game_instance::load(map_id);
   reactor_game_instance::load(map_id);
   tile_game_instance::load(map_id);
   tooltip_game_instance::load(map_id);
@@ -137,8 +137,10 @@ void scene_system_instance::enter(uint32_t map_id) {
   };
 }
 
-void scene_system_instance::enter_prepare(uint32_t map_id) {
-  character_game_instance::load_self_character();
+void scene_system_instance::enter_prepare(uint32_t map_id,
+                                          const std::u16string &pn, uint8_t i) {
+  prepare_map_id = map_id;
+  character_game_instance::load_self_pos(pn, i);
   auto c = character_game_instance::load_self_fbs_character();
 
   fbs::ClientSceneT client_scene;

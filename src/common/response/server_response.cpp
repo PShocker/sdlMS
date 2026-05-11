@@ -38,6 +38,11 @@ void server_response::server_character_in_response(uint64_t client_id,
   send_to_client(client_id, r);
 }
 
+void server_response::server_character_out_response(
+    uint64_t client_id, fbs::ServerCharacterOutT r) {
+  send_to_client(client_id, r);
+}
+
 void server_response::server_character_move_response(
     uint64_t client_id, fbs::ServerCharacterMoveT r) {
   send_to_client(client_id, r);

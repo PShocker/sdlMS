@@ -370,7 +370,7 @@ bool character_logic_system::run_climbing(game_character &g_character) {
 bool character_logic_system::run_sit(game_character &g_character) {
   if (character_action_input.contains("sit")) {
     if (self_sit_cooldown >= window::dt_now) {
-      for (const auto &seat_pos : seat_game_instance::data) {
+      for (const auto &[seat_pos] : seat_game_instance::data) {
         if (std::abs(g_character.pos.x - seat_pos.x) <= 20 &&
             std::abs(g_character.pos.y - seat_pos.y) <= 20) {
           run_action(g_character, u"sit");
@@ -435,9 +435,10 @@ bool character_logic_system::run_portal(game_character &g_character) {
               g_pos.y == std::clamp(g_pos.y, p_pos.y - 50, p_pos.y + 50)) {
             if (por.tm != scene_system_instance::map_id) {
               // need to change map
+              scene_system_instance::enter_prepare(por.tm, por.tn, 0);
             } else {
               // no change map
-              auto tn = portal_game_instance::data.at(por.tn);
+              const auto &tn = portal_game_instance::data.find(por.tn)->second;
               g_character.pos = tn.pos;
               g_character.pos.y -= 5;
               self_hspeed = 0;

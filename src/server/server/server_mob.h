@@ -8,4 +8,10 @@
 class server_mob {
 public:
   game_mob mob;
+  uint64_t revive;//复活时间
+
+  float hspeed;
+  float vspeed;
+
+  float hforce=1400;
 };

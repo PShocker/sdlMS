@@ -25,7 +25,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
   }
   switch (packet->payload_type()) {
   case NetPayload_ClientHeartbeat: {
-    server_response::server_heartbeat_response(client_id);
+    server_heartbeat_system::receive_client_heartbeat(client_id);
     break;
   }
   case NetPayload_ClientScene: {
@@ -50,7 +50,6 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerScene();
     fbs::ServerSceneT r;
     payload->UnPackTo(&r);
-    server_system_instance::create_client_heartbeat();
     scene_system_instance::enter(r.map_id);
     character_game_instance::load_others_character(r.players);
     break;

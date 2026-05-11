@@ -5,6 +5,7 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
+#include "src/server/server_system/server_system.h"
 #include "system_instance/scene_system_instance.h"
 #include "window/window.h"
 #include <cstdint>
@@ -17,15 +18,19 @@
 SDL_AppResult SDL_AppIterate(void *appstate) {
   window::tick();
   window::clear();
-  for (auto &fns : {system::logic_systems, system::render_systems}) {
-    for (auto &fn : fns) {
+  for (const auto &fns : {system::logic_systems, system::render_systems}) {
+    for (const auto &fn : fns) {
       if (fn() == false) {
         break;
       }
     }
   }
   window::update();
-  server_main::server_run();
+  for (const auto &fn : server_system::server_systems) {
+    if (fn() == false) {
+      break;
+    }
+  }
   return SDL_APP_CONTINUE;
 }
 
@@ -50,10 +55,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   keyboard_game_instance::load();
 
   character_game_instance::init_character_bone();
+  character_game_instance::load_self_character();
 
   SDL_HideCursor();
 
-  scene_system_instance::enter_prepare(10001000);
+  scene_system_instance::enter_prepare(10001000, u"sp", 0);
 
   return SDL_APP_CONTINUE;
 }

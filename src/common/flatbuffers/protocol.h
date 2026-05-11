@@ -30,13 +30,14 @@ enum NetPayload : uint8_t {
   NetPayload_ServerHeartbeat = 4,
   NetPayload_ServerScene = 5,
   NetPayload_ServerCharacterIn = 6,
-  NetPayload_ServerCharacterMove = 7,
-  NetPayload_ServerMobMove = 8,
+  NetPayload_ServerCharacterOut = 7,
+  NetPayload_ServerCharacterMove = 8,
+  NetPayload_ServerMobMove = 9,
   NetPayload_MIN = NetPayload_NONE,
   NetPayload_MAX = NetPayload_ServerMobMove
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[9] {
+inline const NetPayload (&EnumValuesNetPayload())[10] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -45,6 +46,7 @@ inline const NetPayload (&EnumValuesNetPayload())[9] {
     NetPayload_ServerHeartbeat,
     NetPayload_ServerScene,
     NetPayload_ServerCharacterIn,
+    NetPayload_ServerCharacterOut,
     NetPayload_ServerCharacterMove,
     NetPayload_ServerMobMove
   };
@@ -52,7 +54,7 @@ inline const NetPayload (&EnumValuesNetPayload())[9] {
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[10] = {
+  static const char * const names[11] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -60,6 +62,7 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerHeartbeat",
     "ServerScene",
     "ServerCharacterIn",
+    "ServerCharacterOut",
     "ServerCharacterMove",
     "ServerMobMove",
     nullptr
@@ -101,6 +104,10 @@ template<> struct NetPayloadTraits<fbs::ServerCharacterIn> {
   static const NetPayload enum_value = NetPayload_ServerCharacterIn;
 };
 
+template<> struct NetPayloadTraits<fbs::ServerCharacterOut> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterOut;
+};
+
 template<> struct NetPayloadTraits<fbs::ServerCharacterMove> {
   static const NetPayload enum_value = NetPayload_ServerCharacterMove;
 };
@@ -135,6 +142,10 @@ template<> struct NetPayloadUnionTraits<fbs::ServerSceneT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerCharacterInT> {
   static const NetPayload enum_value = NetPayload_ServerCharacterIn;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerCharacterOutT> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterOut;
 };
 
 template<> struct NetPayloadUnionTraits<fbs::ServerCharacterMoveT> {
@@ -223,6 +234,14 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerCharacterIn ?
       reinterpret_cast<const fbs::ServerCharacterInT *>(value) : nullptr;
   }
+  fbs::ServerCharacterOutT *AsServerCharacterOut() {
+    return type == NetPayload_ServerCharacterOut ?
+      reinterpret_cast<fbs::ServerCharacterOutT *>(value) : nullptr;
+  }
+  const fbs::ServerCharacterOutT *AsServerCharacterOut() const {
+    return type == NetPayload_ServerCharacterOut ?
+      reinterpret_cast<const fbs::ServerCharacterOutT *>(value) : nullptr;
+  }
   fbs::ServerCharacterMoveT *AsServerCharacterMove() {
     return type == NetPayload_ServerCharacterMove ?
       reinterpret_cast<fbs::ServerCharacterMoveT *>(value) : nullptr;
@@ -283,6 +302,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerCharacterIn *payload_as_ServerCharacterIn() const {
     return payload_type() == fbs::NetPayload_ServerCharacterIn ? static_cast<const fbs::ServerCharacterIn *>(payload()) : nullptr;
   }
+  const fbs::ServerCharacterOut *payload_as_ServerCharacterOut() const {
+    return payload_type() == fbs::NetPayload_ServerCharacterOut ? static_cast<const fbs::ServerCharacterOut *>(payload()) : nullptr;
+  }
   const fbs::ServerCharacterMove *payload_as_ServerCharacterMove() const {
     return payload_type() == fbs::NetPayload_ServerCharacterMove ? static_cast<const fbs::ServerCharacterMove *>(payload()) : nullptr;
   }
@@ -307,6 +329,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerCharacterIn *mutable_payload_as_ServerCharacterIn() {
     return payload_type() == fbs::NetPayload_ServerCharacterIn ? static_cast<fbs::ServerCharacterIn *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerCharacterOut *mutable_payload_as_ServerCharacterOut() {
+    return payload_type() == fbs::NetPayload_ServerCharacterOut ? static_cast<fbs::ServerCharacterOut *>(mutable_payload()) : nullptr;
   }
   fbs::ServerCharacterMove *mutable_payload_as_ServerCharacterMove() {
     return payload_type() == fbs::NetPayload_ServerCharacterMove ? static_cast<fbs::ServerCharacterMove *>(mutable_payload()) : nullptr;
@@ -376,6 +401,14 @@ template<> inline const fbs::ServerCharacterIn *NetPacket::payload_as<fbs::Serve
 
 template<> inline fbs::ServerCharacterIn *NetPacket::mutable_payload_as<fbs::ServerCharacterIn>() {
   return mutable_payload_as_ServerCharacterIn();
+}
+
+template<> inline const fbs::ServerCharacterOut *NetPacket::payload_as<fbs::ServerCharacterOut>() const {
+  return payload_as_ServerCharacterOut();
+}
+
+template<> inline fbs::ServerCharacterOut *NetPacket::mutable_payload_as<fbs::ServerCharacterOut>() {
+  return mutable_payload_as_ServerCharacterOut();
 }
 
 template<> inline const fbs::ServerCharacterMove *NetPacket::payload_as<fbs::ServerCharacterMove>() const {
@@ -486,6 +519,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ServerCharacterIn *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ServerCharacterOut: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterOut *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case NetPayload_ServerCharacterMove: {
       auto ptr = reinterpret_cast<const fbs::ServerCharacterMove *>(obj);
       return verifier.VerifyTable(ptr);
@@ -538,6 +575,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerCharacterIn *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ServerCharacterOut: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterOut *>(obj);
+      return ptr->UnPack(resolver);
+    }
     case NetPayload_ServerCharacterMove: {
       auto ptr = reinterpret_cast<const fbs::ServerCharacterMove *>(obj);
       return ptr->UnPack(resolver);
@@ -577,6 +618,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerCharacterInT *>(value);
       return CreateServerCharacterIn(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ServerCharacterOut: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterOutT *>(value);
+      return CreateServerCharacterOut(_fbb, ptr, _rehasher).Union();
+    }
     case NetPayload_ServerCharacterMove: {
       auto ptr = reinterpret_cast<const fbs::ServerCharacterMoveT *>(value);
       return CreateServerCharacterMove(_fbb, ptr, _rehasher).Union();
@@ -613,6 +658,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ServerCharacterIn: {
       value = new fbs::ServerCharacterInT(*reinterpret_cast<fbs::ServerCharacterInT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerCharacterOut: {
+      value = new fbs::ServerCharacterOutT(*reinterpret_cast<fbs::ServerCharacterOutT *>(u.value));
       break;
     }
     case NetPayload_ServerCharacterMove: {
@@ -657,6 +706,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerCharacterIn: {
       auto ptr = reinterpret_cast<fbs::ServerCharacterInT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerCharacterOut: {
+      auto ptr = reinterpret_cast<fbs::ServerCharacterOutT *>(value);
       delete ptr;
       break;
     }

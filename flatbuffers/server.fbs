@@ -22,6 +22,10 @@ table ServerCharacterIn {
     player:Player;
 }
 
+table ServerCharacterOut {
+    client_id:uint64;
+}
+
 table ServerMobMove {
     movement:[MobMovement];
 }

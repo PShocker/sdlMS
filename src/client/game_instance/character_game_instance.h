@@ -57,6 +57,7 @@ private:
 public:
   static void init_character_bone();
 
+  static void load_self_pos(const std::u16string &pn, uint8_t index);
   static void load_self_character();
   static void
   load_others_character(const std::vector<std::unique_ptr<fbs::PlayerT>> &v);

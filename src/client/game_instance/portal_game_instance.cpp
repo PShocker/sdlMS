@@ -8,8 +8,9 @@ const static std::u16string pt_list[] = {
     u"sp",  u"ph",  u"pv", u"pc",  u"pg",  u"tp",  u"ps",   u"pgi",
     u"psi", u"pcs", u"ph", u"psh", u"pcj", u"pci", u"pcig", u"pshg"};
 
-void portal_game_instance::load(uint32_t map_id) {
-  data = {};
+std::flat_multimap<std::u16string, game_portal>
+portal_game_instance::load(uint32_t map_id) {
+  std::flat_multimap<std::u16string, game_portal> data;
 
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_portal_node = map_node->get_child(u"portal");
@@ -47,4 +48,5 @@ void portal_game_instance::load(uint32_t map_id) {
       portal_game_instance::data.emplace(g_portal.pn, g_portal);
     }
   }
+  return data;
 }
