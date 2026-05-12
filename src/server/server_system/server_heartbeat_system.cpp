@@ -20,8 +20,9 @@ bool server_heartbeat_system::run_client_heartbeat() {
   auto current_time = window::dt_now;
   auto server_hb_time = server_heartbeat_instance::host_heartbeat;
   // 先检查有没有掉线
-  if (current_time - server_hb_time >=
-      server_heartbeat_instance::heartbeat_interval * 2000) {
+  if (server_hb_time != 0 &&
+      (current_time - server_hb_time >=
+       server_heartbeat_instance::heartbeat_interval * 2000)) {
     // 掉线了,客户端退出到人物选择界面
     character_choose_system_instance::enter();
     return false;

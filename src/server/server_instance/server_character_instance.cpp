@@ -25,7 +25,7 @@ void server_character_instance::send_character_move(
   for (const auto &c : clients) {
     fbs::ServerCharacterMoveT t;
     t.client_id = client_id;
-    t.movement = std::move(m.movement);
+    t.movement = std::make_unique<fbs::MovementT>(*m.movement);
     server_response::server_character_move_response(c, t);
   }
 }

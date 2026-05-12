@@ -5,6 +5,7 @@
 #include "server_system_instance/server_system_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/protocol.h"
 #include "src/common/flatbuffers/server.h"
@@ -69,6 +70,12 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     payload->UnPackTo(&r);
     character_game_instance::server_character_move(r);
     break;
+  }
+  case NetPayload_ServerCharacterOut: {
+    auto payload = packet->payload_as_ServerCharacterOut();
+    fbs::ServerCharacterOutT r;
+    payload->UnPackTo(&r);
+    character_game_instance::exit_others_character(r.client_id);
   }
   default:
     break;

@@ -284,6 +284,10 @@ void character_game_instance::load_others_character(
   }
 }
 
+void character_game_instance::exit_others_character(uint64_t client_id) {
+  others.erase(client_id);
+}
+
 std::flat_set<std::u16string>
 character_game_instance::split_vslot(const std::u16string &vslot) {
   std::flat_set<std::u16string> result;

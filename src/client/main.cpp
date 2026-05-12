@@ -75,6 +75,5 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
-  scene_system_instance::exit_prepare();
   SDL_Quit();
 }

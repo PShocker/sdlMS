@@ -150,9 +150,3 @@ void scene_system_instance::enter_prepare(uint32_t map_id,
 
   client_request::client_scene_request(client_scene);
 }
-
-void scene_system_instance::exit_prepare() {
-  fbs::ClientSceneT client_scene;
-  client_scene.come = false;
-  client_request::client_scene_request(client_scene);
-}

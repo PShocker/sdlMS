@@ -45,7 +45,7 @@ portal_game_instance::load(uint32_t map_id) {
 
       g_portal.path2 = u"/default";
 
-      portal_game_instance::data.emplace(g_portal.pn, g_portal);
+      data.emplace(g_portal.pn, g_portal);
     }
   }
   return data;

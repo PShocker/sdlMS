@@ -62,6 +62,7 @@ public:
   static void
   load_others_character(const std::vector<std::unique_ptr<fbs::PlayerT>> &v);
   static void load_others_character(const std::unique_ptr<fbs::PlayerT> &c);
+  static void exit_others_character(uint64_t client_id);
   static fbs::CharacterT load_self_fbs_character();
 
   // network
