@@ -100,7 +100,7 @@ bool character_logic_system::run_animate(game_character &g_character) {
   }
   if (g_character.action_time >= delay) {
     g_character.action_index += 1;
-    r = g_character.action_index > size;
+    r = g_character.action_index >= size;
     g_character.action_index = g_character.action_index % size;
     g_character.action_time = 0;
   }
@@ -168,6 +168,9 @@ bool character_logic_system::run_walk(game_character &g_character) {
 }
 
 bool character_logic_system::run_fall(game_character &g_character) {
+  if (self_fh != 0) {
+    return false;
+  }
   if (!g_character.abnormals.contains(
           game_character::abnormal_state_type::dizz)) {
     if (character_action_input.contains("left")) {
@@ -447,7 +450,9 @@ bool character_logic_system::run_attack(game_character &g_character) {
     switch (g_action) {
     case action_enum::stand:
     case action_enum::alert:
-    case action_enum::walk:
+    case action_enum::walk: {
+      self_hspeed = 0;
+    }
     case action_enum::jump: {
       auto gen = random_game_instance::gen;
       bool shoot_weapon = shoot_weapons.contains(attack_type);
@@ -658,6 +663,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       run_stand_action(g_character);
       run_state_machine(g_character);
     }
+    if (run_attack(g_character)) {
+      break;
+    }
     if (run_climb(g_character)) {
       break;
     }
@@ -690,6 +698,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       }
       run_state_machine(g_character);
     }
+    break;
   }
   default: {
     std::abort();
