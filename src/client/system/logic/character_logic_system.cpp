@@ -3,10 +3,12 @@
 #include "drop_logic_system.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
+#include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -14,6 +16,7 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
 #include "src/common/request/client_request.h"
+#include "wz/Property.h"
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>
@@ -21,6 +24,7 @@
 #include <flat_set>
 #include <ranges>
 #include <string>
+#include <vector>
 
 bool character_logic_system::run_action(game_character &g_character,
                                         const std::u16string &action) {
@@ -183,9 +187,6 @@ bool character_logic_system::run_fall(game_character &g_character) {
                         self_vspeed_min, self_vspeed_max, {0, 0, 0, 0},
                         fall_collide, true, self_fh, g_character.page,
                         foothold_game_instance::data);
-  if (!r) {
-    run_stand_action(g_character);
-  }
   return r;
 }
 
@@ -399,22 +400,78 @@ bool character_logic_system::run_attack(game_character &g_character) {
           game_character::abnormal_state_type::dizz)) {
     return false;
   }
+  if (!g_character.weapon.has_value()) {
+    return false;
+  }
   if (character_action_input.contains("attack")) {
     auto g_action = load_action_type(g_character);
+    auto g_weapon = g_character.weapon->id;
+    auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
+    auto attack_type = static_cast<wz::Property<int16_t> *>(
+                           g_weapon_info->get_child(u"attack"))
+                           ->get();
+    enum weapon_type : uint8_t {
+      NONE = 0,
+      S1A1M1D = 1,
+      SPEAR = 2,
+      BOW = 3,
+      CROSSBOW = 4,
+      S2A2M2 = 5,
+      WAND = 6,
+      CLAW = 7,
+      GUN = 9,
+    };
+    static const std::flat_set<uint8_t> shoot_weapons = {
+        BOW, CROSSBOW, WAND, CLAW, GUN,
+    };
+    static const std::flat_map<weapon_type, std::vector<std::u16string>>
+        weapon_attack_action = {
+            {S1A1M1D,
+             {u"stabO1", u"stabO2", u"swingO1", u"swingO2", u"swingO3"}},
+            {SPEAR, {u"stabT1", u"swingP1"}},
+            {BOW, {u"shoot1"}},
+            {CROSSBOW, {u"shoot1"}},
+            {S2A2M2,
+             {u"stabO1", u"stabO2", u"swingT1", u"swingT2", u"swingT3"}},
+            {WAND, {u"swingO1", u"swingO2"}},
+            {CLAW, {u"swingO1", u"swingO2"}},
+            {GUN, {u"shot"}},
+        };
+    static const std::flat_map<weapon_type, std::vector<std::u16string>>
+        weapon_attack_action2 = {
+            {BOW, {u"swingT1", u"swingT3"}},
+            {CROSSBOW, {u"swingT1", u"stabT1"}},
+            {CLAW, {u"stabO1", u"stabO2"}},
+            {GUN, {u"swingP1", u"stabT2"}},
+        };
     switch (g_action) {
     case action_enum::stand:
     case action_enum::alert:
-    case action_enum::walk: {
+    case action_enum::walk:
+    case action_enum::jump: {
+      auto gen = random_game_instance::gen;
+      bool shoot_weapon = shoot_weapons.contains(attack_type);
+      if (shoot_weapon) {
+
+      } else {
+        const auto &actions = weapon_attack_action.at((weapon_type)attack_type);
+        std::uniform_int_distribution<> dis(0, actions.size() - 1);
+        auto selected = actions.at(dis(gen));
+        run_action(g_character, selected);
+      }
+      break;
     }
     case action_enum::prone: {
-    }
-    case action_enum::jump: {
+      run_action(g_character, u"proneStab");
+      break;
     }
     default: {
       break;
     }
     }
+    return true;
   }
+  return false;
 }
 
 bool character_logic_system::run_portal(game_character &g_character) {
@@ -531,11 +588,18 @@ void character_logic_system::run_network_sync(game_character &g_character,
 character_logic_system::action_enum
 character_logic_system::load_action_type(game_character &g_character) {
   const static std::flat_map<std::u16string, action_enum> map_name = {
-      {u"stand1", action_enum::stand}, {u"stand2", action_enum::stand},
-      {u"alert", action_enum::alert},  {u"walk1", action_enum::walk},
-      {u"walk2", action_enum::walk},   {u"prone", action_enum::prone},
-      {u"jump", action_enum::jump},    {u"ladder", action_enum::climb},
-      {u"rope", action_enum::climb},
+      {u"stand1", action_enum::stand},   {u"stand2", action_enum::stand},
+      {u"alert", action_enum::alert},    {u"walk1", action_enum::walk},
+      {u"walk2", action_enum::walk},     {u"prone", action_enum::prone},
+      {u"jump", action_enum::jump},      {u"ladder", action_enum::climb},
+      {u"rope", action_enum::climb},     {u"proneStab", action_enum::attack},
+      {u"stabO1", action_enum::attack},  {u"stabO2", action_enum::attack},
+      {u"swingO1", action_enum::attack}, {u"swingO2", action_enum::attack},
+      {u"swingO3", action_enum::attack}, {u"stabT1", action_enum::attack},
+      {u"swingP1", action_enum::attack}, {u"shoot1", action_enum::attack},
+      {u"swingT1", action_enum::attack}, {u"swingT2", action_enum::attack},
+      {u"swingT3", action_enum::attack}, {u"shot", action_enum::attack},
+      {u"stabT2", action_enum::attack},
   };
   return map_name.at(g_character.action);
 };
@@ -548,6 +612,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   case action_enum::stand:
   case action_enum::alert:
   case action_enum::walk: {
+    run_animate(g_character);
     run_flip(g_character);
     run_pick(g_character);
     if (run_climb(g_character)) {
@@ -564,6 +629,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (run_portal(g_character)) {
       break;
     }
+    if (run_attack(g_character)) {
+      break;
+    }
     break;
   }
   case action_enum::prone: {
@@ -578,12 +646,16 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (run_climb(g_character)) {
       break;
     }
+    if (run_attack(g_character)) {
+      break;
+    }
     break;
   }
   case action_enum::jump: {
     run_flip(g_character);
     if (!run_fall(g_character)) {
       // 刚落地后，瞬间动作不一定是stand，需要再进行一次状态机
+      run_stand_action(g_character);
       run_state_machine(g_character);
     }
     if (run_climb(g_character)) {
@@ -592,6 +664,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     break;
   }
   case action_enum::climb: {
+    run_animate(g_character);
     run_flip(g_character);
     if (run_jump(g_character)) {
       break;
@@ -603,6 +676,18 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   }
   case action_enum::sit: {
     if (!run_sitting(g_character)) {
+      run_state_machine(g_character);
+    }
+  }
+  case action_enum::attack: {
+    bool fall = run_fall(g_character);
+    if (run_animate(g_character)) {
+      if (!fall) {
+        // 落地
+        run_stand_action(g_character);
+      } else {
+        run_action(g_character, u"jump");
+      }
       run_state_machine(g_character);
     }
   }
@@ -666,7 +751,6 @@ void character_logic_system::run_others() {
 // 人物状态机
 bool character_logic_system::run() {
   run_others();
-  run_animate(character_game_instance::self);
   run_state_machine(character_game_instance::self);
   return true;
 }

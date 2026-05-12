@@ -27,6 +27,7 @@ private:
   static bool run_sit(game_character &g_character);
   static bool run_sitting(game_character &g_character);
   static bool run_attack(game_character &g_character);
+  static bool run_attacking(game_character &g_character);
   static bool run_portal(game_character &g_character);
   static void run_face(game_character &g_character);
   static void run_state_machine(game_character &g_character);
