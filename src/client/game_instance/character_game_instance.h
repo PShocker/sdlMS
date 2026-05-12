@@ -66,7 +66,7 @@ public:
   static fbs::CharacterT load_self_fbs_character();
 
   // network
-  static void server_character_move(const fbs::ServerCharacterMoveT &r);
+  static void other_character_move(const fbs::ServerCharacterMoveT &r);
 
   static inline game_character self;
 

@@ -68,7 +68,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterMove();
     fbs::ServerCharacterMoveT r;
     payload->UnPackTo(&r);
-    character_game_instance::server_character_move(r);
+    character_game_instance::other_character_move(r);
     break;
   }
   case NetPayload_ServerCharacterOut: {

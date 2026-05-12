@@ -811,7 +811,7 @@ fbs::CharacterT character_game_instance::load_self_fbs_character() {
   return c;
 }
 
-void character_game_instance::server_character_move(
+void character_game_instance::other_character_move(
     const fbs::ServerCharacterMoveT &r) {
   const auto &client_id = r.client_id;
   const auto &movement = r.movement;

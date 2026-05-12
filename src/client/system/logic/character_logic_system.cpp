@@ -241,6 +241,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
             if (y >= pos.y + 10 && y <= pos.y + 600) {
               self_vspeed = -100;
               self_hspeed = 0;
+              self_fh = 0;
               self_foothold_cooldown = window::dt_now + 120;
               run_action(g_character, u"jump");
               return true;
@@ -560,12 +561,10 @@ void character_logic_system::run_network_sync(game_character &g_character,
   if (o_character.action != g_character.action) {
     r = true;
     send = true;
-  }
-  if (o_character.action_animate != g_character.action_animate) {
+  } else if (o_character.action_animate != g_character.action_animate) {
     r = true;
     send = true;
-  }
-  if (o_character.flip != g_character.flip) {
+  } else if (o_character.flip != g_character.flip) {
     r = true;
     send = true;
   }
@@ -692,6 +691,8 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (run_animate(g_character)) {
       if (!fall) {
         // 落地
+        self_vspeed = 0;
+        self_hspeed = 0;
         run_stand_action(g_character);
       } else {
         run_action(g_character, u"jump");
@@ -737,7 +738,16 @@ void character_logic_system::run_others_movement() {
       c.g_character.action_animate = mv.action_animate;
       c.g_character.page = mv.page;
       auto action = std::u16string{mv.action.begin(), mv.action.end()};
-      run_action(c.g_character, action);
+      if (c.g_character.action == action) {
+        auto action = load_action_type(c.g_character);
+        if (action == action_enum::attack &&
+            c.g_character.action_time == UINT32_MAX) {
+          c.g_character.action_time = 0;
+          c.g_character.action_index = 0;
+        }
+      } else {
+        run_action(c.g_character, action);
+      }
       if (per == 1.0f) {
         c.movements.erase(c.movements.begin());
       }
@@ -747,8 +757,30 @@ void character_logic_system::run_others_movement() {
 
 void character_logic_system::run_others_animate() {
   for (auto &c : character_game_instance::others | std::views::values) {
-    auto &character = c.g_character;
-    run_animate(character);
+    auto &o_character = c.g_character;
+    auto o_action = load_action_type(o_character);
+    switch (o_action) {
+    case action_enum::stand:
+    case action_enum::alert:
+    case action_enum::walk:
+    case action_enum::climb: {
+      run_animate(o_character);
+    }
+
+    case action_enum::attack:
+    case action_enum::skill: {
+      auto action_index = o_character.action_index;
+      if (run_animate(o_character)) {
+        // 一次性动作,但是不知道后续是什么动作,保留动作
+        o_character.action_index = action_index;
+        o_character.action_time = UINT32_MAX;
+      }
+      break;
+    }
+    default: {
+      break;
+    }
+    }
   }
 }
 
