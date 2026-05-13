@@ -156,3 +156,8 @@ SDL_Texture *wz_resource::load_texture(wz::Node *node) {
   }
   return texture_cache.at(node);
 }
+
+SDL_FPoint wz_resource::load_fpoint(wz::Node *node) {
+  auto v = static_cast<wz::Property<wz::WzVec2D> *>(node)->get();
+  return SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
+}

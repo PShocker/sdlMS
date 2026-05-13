@@ -1,4 +1,5 @@
 #pragma once
+#include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include <any>
 #include <cstdint>
@@ -29,6 +30,7 @@ public:
   static std::string load_map_path(uint32_t map_id);
   static wz::Node *load_map_node(uint32_t map_id);
   static SDL_Texture *load_texture(wz::Node *node);
+  static SDL_FPoint load_fpoint(wz::Node *node);
 
 private:
   static void init_key();

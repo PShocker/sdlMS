@@ -565,31 +565,43 @@ void character_logic_system::run_network_flip_sync(
 
 void character_logic_system::run_network_movement_sync(
     game_character &g_character, game_character &o_character) {
-  static std::optional<ClientCharacterLogicT> t;
+  static std::optional<MovementT> last_movement;
+
+  if (last_movement.has_value()) {
+    ClientCharacterLogicT req;
+    req.payload.Set(last_movement.value());
+    client_request::character_logic_request(req);
+    last_movement = std::nullopt;
+    return;
+  }
 
   static uint64_t last_send_time = 0;
-  static const int32_t MIN_SEND_INTERVAL_MS =
-      1000 / 30; // 30帧对应的间隔毫秒数 ≈ 33ms
-  if (o_character.pos.x != g_character.pos.x ||
-      o_character.pos.y != g_character.pos.y || t.has_value()) {
-    t = std::make_optional<ClientCharacterLogicT>();
+  static const int32_t MIN_SEND_INTERVAL_MS = 33;
 
-    MovementT mv;
-    mv.x1 = o_character.pos.x;
-    mv.y1 = o_character.pos.y;
+  bool position_changed = (o_character.pos.x != g_character.pos.x ||
+                           o_character.pos.y != g_character.pos.y);
 
-    mv.x2 = g_character.pos.x;
-    mv.y2 = g_character.pos.y;
-    mv.page = g_character.page;
-    mv.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
-    t.value().payload.Set(mv);
+  if (!position_changed)
+    return;
 
-    // 检查是否达到发送间隔
-    if ((window::dt_now - last_send_time < MIN_SEND_INTERVAL_MS)) {
-      client_request::character_logic_request(t.value());
-      t = std::nullopt;
-    }
+  // 构造当前 movement
+  MovementT mv;
+  mv.x1 = o_character.pos.x;
+  mv.y1 = o_character.pos.y;
+  mv.x2 = g_character.pos.x;
+  mv.y2 = g_character.pos.y;
+  mv.page = g_character.page;
+  mv.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
+
+  // 节流：频率限制
+  if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
+    ClientCharacterLogicT req;
+    req.payload.Set(mv);
+    client_request::character_logic_request(req);
     last_send_time = window::dt_now;
+    last_movement = std::nullopt;
+  } else {
+    last_movement = mv;
   }
 }
 
@@ -756,6 +768,11 @@ void character_logic_system::run_others_logic() {
         break;
       }
       case fbs::CharacterLogicType_Flip: {
+        auto action_type = load_action_type(c.g_character);
+        if (action_type == action_enum::attack &&
+            c.g_character.action_time != UINT32_MAX) {
+          break;
+        }
         if (v.empty()) {
           break;
         }
@@ -765,6 +782,11 @@ void character_logic_system::run_others_logic() {
         break;
       }
       case fbs::CharacterLogicType_Action: {
+        auto action_type = load_action_type(c.g_character);
+        if (action_type == action_enum::attack &&
+            c.g_character.action_time != UINT32_MAX) {
+          break;
+        }
         if (v.empty()) {
           break;
         }

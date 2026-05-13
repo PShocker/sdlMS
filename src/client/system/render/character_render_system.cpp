@@ -1,15 +1,15 @@
 #include "character_render_system.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
+#include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/window/window.h"
+#include "wz/Property.h"
 #include <flat_map>
 #include <flat_set>
 #include <string>
 #include <vector>
-
-
 
 bool character_render_system::render_character(game_character &g_character) {
   std::flat_multimap<std::u16string, const character_avatar *> renders;
@@ -118,11 +118,36 @@ bool character_render_system::render_character(game_character &g_character) {
 }
 
 bool character_render_system::render_afterimage(game_character &g_character) {
-  
+  // 通常情况下,attack和skill都会有afterimag的渲染
+  auto r = afterimage_game_instance::load_data(g_character);
+  if (r.has_value()) {
+    auto texture = r.value().texture;
+    auto alpha = r.value().alpha;
+    auto origin = r.value().origin;
+    auto &camera = camera_game_instance::camera;
+    SDL_FRect pos_rect = {
+        .x = g_character.pos.x - origin.x,
+        .y = g_character.pos.y - origin.y,
+        .w = static_cast<float>(texture->w),
+        .h = static_cast<float>(texture->h),
+    };
+    if (g_character.flip == 1) {
+      pos_rect.x = g_character.pos.x;
+      pos_rect.x = (pos_rect.x - (texture->w - origin.x));
+    }
+    if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+      pos_rect.x -= camera.x;
+      pos_rect.y -= camera.y;
+      SDL_SetTextureAlphaMod(texture, alpha);
+      SDL_RenderTextureRotated(window::renderer, texture, nullptr, &pos_rect, 0,
+                               nullptr, (SDL_FlipMode)g_character.flip);
+    }
+  }
+  return true;
 }
 
 bool character_render_system::render(game_character &g_character) {
-  render_character(g_character);
   render_afterimage(g_character);
+  render_character(g_character);
   return true;
 }
