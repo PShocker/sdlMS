@@ -36,11 +36,11 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_scene_instance::handle_scene(client_id, r);
     break;
   }
-  case NetPayload_ClientCharacterMove: {
-    auto payload = packet->payload_as_ClientCharacterMove();
-    fbs::ClientCharacterMoveT r;
+  case NetPayload_ClientCharacterLogic: {
+    auto payload = packet->payload_as_ClientCharacterLogic();
+    fbs::ClientCharacterLogicT r;
     payload->UnPackTo(&r);
-    server_character_instance::handle_character_move(client_id, r);
+    server_character_instance::handle_logic(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {
@@ -64,11 +64,11 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     character_game_instance::load_others_character(r.player);
     break;
   }
-  case NetPayload_ServerCharacterMove: {
-    auto payload = packet->payload_as_ServerCharacterMove();
-    fbs::ServerCharacterMoveT r;
+  case NetPayload_ServerCharacterLogic: {
+    auto payload = packet->payload_as_ServerCharacterLogic();
+    fbs::ServerCharacterLogicT r;
     payload->UnPackTo(&r);
-    character_game_instance::other_character_move(r);
+    character_game_instance::other_character_logic(r);
     break;
   }
   case NetPayload_ServerCharacterOut: {

@@ -2,18 +2,16 @@
 
 #include "src/common/flatbuffers/server.h"
 #include <cstdint>
+
+using namespace fbs;
+
 class server_response {
 public:
-  static void server_heartbeat_response(uint64_t client_id);
-  static void server_scene_response(uint64_t client_id, fbs::ServerSceneT r);
+  static void heartbeat_response(uint64_t client_id);
+  static void scene_response(uint64_t client_id, ServerSceneT r);
 
-  static void server_character_in_response(uint64_t client_id,
-                                           fbs::ServerCharacterInT r);
-  static void server_character_out_response(uint64_t client_id,
-                                            fbs::ServerCharacterOutT r);
-  static void server_character_move_response(uint64_t client_id,
-                                             fbs::ServerCharacterMoveT r);
-
-  static void server_mob_move_response(uint64_t client_id,
-                                       fbs::ServerMobMoveT r);
+  static void character_in_response(uint64_t client_id, ServerCharacterInT r);
+  static void character_out_response(uint64_t client_id, ServerCharacterOutT r);
+  static void character_logic_response(uint64_t client_id,
+                                       ServerCharacterLogicT r);
 };

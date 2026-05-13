@@ -11,6 +11,6 @@ table ClientScene {
     character:Character;
 }
 
-table ClientCharacterMove {
-    movement:Movement;
+table ClientCharacterLogic {
+    payload:CharacterLogicType;
 }

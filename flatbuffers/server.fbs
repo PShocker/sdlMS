@@ -13,9 +13,8 @@ table ServerScene {
     mobs:[Mob];
 }
 
-table ServerCharacterMove {
-    movement:Movement;
-    client_id:uint64;
+table ServerCharacterLogic {
+    payload:CharacterLogic;
 }
 
 table ServerCharacterIn {
@@ -26,6 +25,6 @@ table ServerCharacterOut {
     client_id:uint64;
 }
 
-table ServerMobMove {
-    movement:[MobMovement];
+table ServerMobLogic {
+    payload:[MobLogic];
 }

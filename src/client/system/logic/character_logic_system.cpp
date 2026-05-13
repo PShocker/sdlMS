@@ -22,6 +22,7 @@
 #include <cstdlib>
 #include <flat_map>
 #include <flat_set>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <vector>
@@ -537,56 +538,66 @@ character_logic_system::load_pos_type(game_character &g_character) {
   return pos_type::land;
 }
 
-void character_logic_system::run_network_sync(game_character &g_character,
-                                              game_character &o_character) {
+void character_logic_system::run_network_action_sync(
+    game_character &g_character, game_character &o_character) {
+  if (o_character.action != g_character.action) {
+    ClientCharacterLogicT t;
+    ActionT a;
+    a.action =
+        std::string{g_character.action.begin(), g_character.action.end()};
+    a.action_animate = g_character.action_animate;
+    a.action_index = g_character.action_index;
+    t.payload.Set(a);
+    client_request::character_logic_request(t);
+  }
+}
 
-  // 使用静态变量记录上次发送时间（毫秒）
+void character_logic_system::run_network_flip_sync(
+    game_character &g_character, game_character &o_character) {
+  if (o_character.flip != g_character.flip) {
+    ClientCharacterLogicT t;
+    FlipT f;
+    f.flip = g_character.flip;
+    t.payload.Set(f);
+    client_request::character_logic_request(t);
+  }
+}
+
+void character_logic_system::run_network_movement_sync(
+    game_character &g_character, game_character &o_character) {
+  static std::optional<ClientCharacterLogicT> t;
+
   static uint64_t last_send_time = 0;
   static const int32_t MIN_SEND_INTERVAL_MS =
       1000 / 30; // 30帧对应的间隔毫秒数 ≈ 33ms
-  // 检查是否达到发送间隔
-  bool r = true;
-  if (window::dt_now - last_send_time < MIN_SEND_INTERVAL_MS) {
-    r = false;
-  }
-
-  bool send = false;
-  fbs::ClientCharacterMoveT client_character_move;
-  fbs::MovementT m;
-  // 网络同步
   if (o_character.pos.x != g_character.pos.x ||
-      o_character.pos.y != g_character.pos.y) {
-    send = true;
-  }
-  if (o_character.action != g_character.action) {
-    r = true;
-    send = true;
-  } else if (o_character.action_animate != g_character.action_animate) {
-    r = true;
-    send = true;
-  } else if (o_character.flip != g_character.flip) {
-    r = true;
-    send = true;
-  }
-  if (send && r) {
-    m.x1 = o_character.pos.x;
-    m.y1 = o_character.pos.y;
+      o_character.pos.y != g_character.pos.y || t.has_value()) {
+    t = std::make_optional<ClientCharacterLogicT>();
 
-    m.x2 = g_character.pos.x;
-    m.y2 = g_character.pos.y;
+    MovementT mv;
+    mv.x1 = o_character.pos.x;
+    mv.y1 = o_character.pos.y;
 
-    m.action =
-        std::string{g_character.action.begin(), g_character.action.end()};
-    m.action_animate = g_character.action_animate;
-    m.page = g_character.page;
-    m.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
-    m.flip = g_character.flip;
-    client_character_move.movement =
-        std::make_unique<fbs::MovementT>(std::move(m));
+    mv.x2 = g_character.pos.x;
+    mv.y2 = g_character.pos.y;
+    mv.page = g_character.page;
+    mv.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
+    t.value().payload.Set(mv);
 
-    client_request::client_character_move_request(client_character_move);
+    // 检查是否达到发送间隔
+    if ((window::dt_now - last_send_time < MIN_SEND_INTERVAL_MS)) {
+      client_request::character_logic_request(t.value());
+      t = std::nullopt;
+    }
     last_send_time = window::dt_now;
   }
+}
+
+void character_logic_system::run_network_sync(game_character &g_character,
+                                              game_character &o_character) {
+  run_network_movement_sync(g_character, o_character);
+  run_network_flip_sync(g_character, o_character);
+  run_network_action_sync(g_character, o_character);
 }
 
 character_logic_system::action_enum
@@ -708,48 +719,67 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   run_network_sync(g_character, o_character);
 }
 
-void character_logic_system::run_others_movement() {
+void character_logic_system::run_others_logic() {
   for (auto &c : character_game_instance::others | std::views::values) {
-    if (!c.movements.empty()) {
-      auto &mv = c.movements[0];
-      auto per = window::delta_time / (float)mv.time;
-
-      // 计算当前点在线段上的进度（基于 x 和 y）
-      float dx = mv.x2 - mv.x1;
-      float dy = mv.y2 - mv.y1;
-      float length_sq = dx * dx + dy * dy;
-
-      if (length_sq > 0) {
-        // 投影参数 t：当前点在线段上的位置（0=起点，1=终点）
-        float t = ((c.g_character.pos.x - mv.x1) * dx +
-                   (c.g_character.pos.y - mv.y1) * dy) /
-                  length_sq;
-        t = std::clamp(t, 0.0f, 1.0f);
-        per += t;
-      }
-
-      per = std::min(per, 1.0f);
-
-      auto per_x = mv.x1 + (mv.x2 - mv.x1) * per;
-      auto per_y = mv.y1 + (mv.y2 - mv.y1) * per;
-      c.g_character.pos.x = per_x;
-      c.g_character.pos.y = per_y;
-      c.g_character.flip = mv.flip;
-      c.g_character.action_animate = mv.action_animate;
-      c.g_character.page = mv.page;
-      auto action = std::u16string{mv.action.begin(), mv.action.end()};
-      if (c.g_character.action == action) {
-        auto action = load_action_type(c.g_character);
-        if (action == action_enum::attack &&
-            c.g_character.action_time == UINT32_MAX) {
-          c.g_character.action_time = 0;
-          c.g_character.action_index = 0;
+    for (const auto &[k, v] : c.logics) {
+      switch (k) {
+      case fbs::CharacterLogicType_Movement: {
+        if (v.empty()) {
+          break;
         }
-      } else {
-        run_action(c.g_character, action);
+        auto &l = v[0];
+        auto mv = *l.AsMovement();
+        auto per = window::delta_time / (float)mv.time;
+        // 计算当前点在线段上的进度（基于 x 和 y）
+        float dx = mv.x2 - mv.x1;
+        float dy = mv.y2 - mv.y1;
+        float length_sq = dx * dx + dy * dy;
+
+        if (length_sq > 0) {
+          // 投影参数 t：当前点在线段上的位置（0=起点，1=终点）
+          float t = ((c.g_character.pos.x - mv.x1) * dx +
+                     (c.g_character.pos.y - mv.y1) * dy) /
+                    length_sq;
+          t = std::clamp(t, 0.0f, 1.0f);
+          per += t;
+        }
+        per = std::min(per, 1.0f);
+
+        auto per_x = mv.x1 + (mv.x2 - mv.x1) * per;
+        auto per_y = mv.y1 + (mv.y2 - mv.y1) * per;
+        c.g_character.pos.x = per_x;
+        c.g_character.pos.y = per_y;
+        c.g_character.page = mv.page;
+        if (per == 1.0f) {
+          c.logics.erase(c.logics.begin());
+        }
+        break;
       }
-      if (per == 1.0f) {
-        c.movements.erase(c.movements.begin());
+      case fbs::CharacterLogicType_Flip: {
+        if (v.empty()) {
+          break;
+        }
+        auto f = *v.back().AsFlip();
+        c.g_character.flip = f.flip;
+        v.clear();
+        break;
+      }
+      case fbs::CharacterLogicType_Action: {
+        if (v.empty()) {
+          break;
+        }
+        auto a = *v.back().AsAction();
+        c.g_character.action = std::u16string{a.action.begin(), a.action.end()};
+        // c.g_character.action_index = a.action_index;
+        c.g_character.action_index = 0;
+        c.g_character.action_time = 0;
+        c.g_character.action_animate = a.action_animate;
+        v.clear();
+        break;
+      }
+      default: {
+        std::abort();
+      }
       }
     }
   }
@@ -757,23 +787,23 @@ void character_logic_system::run_others_movement() {
 
 void character_logic_system::run_others_animate() {
   for (auto &c : character_game_instance::others | std::views::values) {
-    auto &o_character = c.g_character;
-    auto o_action = load_action_type(o_character);
-    switch (o_action) {
+    auto &g_character = c.g_character;
+    auto g_action = load_action_type(g_character);
+    switch (g_action) {
     case action_enum::stand:
     case action_enum::alert:
     case action_enum::walk:
     case action_enum::climb: {
-      run_animate(o_character);
+      run_animate(g_character);
+      break;
     }
-
     case action_enum::attack:
     case action_enum::skill: {
-      auto action_index = o_character.action_index;
-      if (run_animate(o_character)) {
+      auto action_index = g_character.action_index;
+      if (run_animate(g_character)) {
         // 一次性动作,但是不知道后续是什么动作,保留动作
-        o_character.action_index = action_index;
-        o_character.action_time = UINT32_MAX;
+        g_character.action_index = action_index;
+        g_character.action_time = UINT32_MAX;
       }
       break;
     }
@@ -785,7 +815,7 @@ void character_logic_system::run_others_animate() {
 }
 
 void character_logic_system::run_others() {
-  run_others_movement();
+  run_others_logic();
   run_others_animate();
 }
 

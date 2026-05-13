@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 
+using namespace fbs;
+
 class character_extern_action {
 public:
   std::u16string action;
@@ -38,7 +40,8 @@ struct character_face_render {
 
 struct character_other_data {
   game_character g_character;
-  std::vector<fbs::MovementT> movements;
+  std::flat_map<CharacterLogicType, std::vector<CharacterLogicTypeUnion>>
+      logics;
 };
 
 class character_bone_data {
@@ -66,7 +69,7 @@ public:
   static fbs::CharacterT load_self_fbs_character();
 
   // network
-  static void other_character_move(const fbs::ServerCharacterMoveT &r);
+  static void other_character_logic(const fbs::ServerCharacterLogicT &r);
 
   static inline game_character self;
 

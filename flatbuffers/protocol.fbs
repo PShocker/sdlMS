@@ -7,13 +7,13 @@ namespace fbs;      // 定义命名空间
 union NetPayload {
     ClientHeartbeat,
     ClientScene,
-    ClientCharacterMove,
+    ClientCharacterLogic,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
     ServerCharacterOut,
-    ServerCharacterMove,
-    ServerMobMove,
+    ServerCharacterLogic,
+    ServerMobLogic,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

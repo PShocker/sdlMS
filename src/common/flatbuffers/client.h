@@ -25,9 +25,9 @@ struct ClientScene;
 struct ClientSceneBuilder;
 struct ClientSceneT;
 
-struct ClientCharacterMove;
-struct ClientCharacterMoveBuilder;
-struct ClientCharacterMoveT;
+struct ClientCharacterLogic;
+struct ClientCharacterLogicBuilder;
+struct ClientCharacterLogicT;
 
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
@@ -158,66 +158,116 @@ inline ::flatbuffers::Offset<ClientScene> CreateClientScene(
 
 ::flatbuffers::Offset<ClientScene> CreateClientScene(::flatbuffers::FlatBufferBuilder &_fbb, const ClientSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ClientCharacterMoveT : public ::flatbuffers::NativeTable {
-  typedef ClientCharacterMove TableType;
-  std::unique_ptr<fbs::MovementT> movement{};
-  ClientCharacterMoveT() = default;
-  ClientCharacterMoveT(const ClientCharacterMoveT &o);
-  ClientCharacterMoveT(ClientCharacterMoveT&&) FLATBUFFERS_NOEXCEPT = default;
-  ClientCharacterMoveT &operator=(ClientCharacterMoveT o) FLATBUFFERS_NOEXCEPT;
+struct ClientCharacterLogicT : public ::flatbuffers::NativeTable {
+  typedef ClientCharacterLogic TableType;
+  fbs::CharacterLogicTypeUnion payload{};
 };
 
-struct ClientCharacterMove FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ClientCharacterMoveT NativeTableType;
-  typedef ClientCharacterMoveBuilder Builder;
+struct ClientCharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientCharacterLogicT NativeTableType;
+  typedef ClientCharacterLogicBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MOVEMENT = 4
+    VT_PAYLOAD_TYPE = 4,
+    VT_PAYLOAD = 6
   };
-  const fbs::Movement *movement() const {
-    return GetPointer<const fbs::Movement *>(VT_MOVEMENT);
+  fbs::CharacterLogicType payload_type() const {
+    return static_cast<fbs::CharacterLogicType>(GetField<uint8_t>(VT_PAYLOAD_TYPE, 0));
   }
-  fbs::Movement *mutable_movement() {
-    return GetPointer<fbs::Movement *>(VT_MOVEMENT);
+  const void *payload() const {
+    return GetPointer<const void *>(VT_PAYLOAD);
+  }
+  template<typename T> const T *payload_as() const;
+  const fbs::Movement *payload_as_Movement() const {
+    return payload_type() == fbs::CharacterLogicType_Movement ? static_cast<const fbs::Movement *>(payload()) : nullptr;
+  }
+  const fbs::Flip *payload_as_Flip() const {
+    return payload_type() == fbs::CharacterLogicType_Flip ? static_cast<const fbs::Flip *>(payload()) : nullptr;
+  }
+  const fbs::Action *payload_as_Action() const {
+    return payload_type() == fbs::CharacterLogicType_Action ? static_cast<const fbs::Action *>(payload()) : nullptr;
+  }
+  template<typename T> T *mutable_payload_as();
+  fbs::Movement *mutable_payload_as_Movement() {
+    return payload_type() == fbs::CharacterLogicType_Movement ? static_cast<fbs::Movement *>(mutable_payload()) : nullptr;
+  }
+  fbs::Flip *mutable_payload_as_Flip() {
+    return payload_type() == fbs::CharacterLogicType_Flip ? static_cast<fbs::Flip *>(mutable_payload()) : nullptr;
+  }
+  fbs::Action *mutable_payload_as_Action() {
+    return payload_type() == fbs::CharacterLogicType_Action ? static_cast<fbs::Action *>(mutable_payload()) : nullptr;
+  }
+  void *mutable_payload() {
+    return GetPointer<void *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_MOVEMENT) &&
-           verifier.VerifyTable(movement()) &&
+           VerifyField<uint8_t>(verifier, VT_PAYLOAD_TYPE, 1) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           VerifyCharacterLogicType(verifier, payload(), payload_type()) &&
            verifier.EndTable();
   }
-  ClientCharacterMoveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ClientCharacterMoveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ClientCharacterMove> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterMoveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ClientCharacterLogicT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientCharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientCharacterLogic> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ClientCharacterMoveBuilder {
-  typedef ClientCharacterMove Table;
+template<> inline const fbs::Movement *ClientCharacterLogic::payload_as<fbs::Movement>() const {
+  return payload_as_Movement();
+}
+
+template<> inline fbs::Movement *ClientCharacterLogic::mutable_payload_as<fbs::Movement>() {
+  return mutable_payload_as_Movement();
+}
+
+template<> inline const fbs::Flip *ClientCharacterLogic::payload_as<fbs::Flip>() const {
+  return payload_as_Flip();
+}
+
+template<> inline fbs::Flip *ClientCharacterLogic::mutable_payload_as<fbs::Flip>() {
+  return mutable_payload_as_Flip();
+}
+
+template<> inline const fbs::Action *ClientCharacterLogic::payload_as<fbs::Action>() const {
+  return payload_as_Action();
+}
+
+template<> inline fbs::Action *ClientCharacterLogic::mutable_payload_as<fbs::Action>() {
+  return mutable_payload_as_Action();
+}
+
+struct ClientCharacterLogicBuilder {
+  typedef ClientCharacterLogic Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_movement(::flatbuffers::Offset<fbs::Movement> movement) {
-    fbb_.AddOffset(ClientCharacterMove::VT_MOVEMENT, movement);
+  void add_payload_type(fbs::CharacterLogicType payload_type) {
+    fbb_.AddElement<uint8_t>(ClientCharacterLogic::VT_PAYLOAD_TYPE, static_cast<uint8_t>(payload_type), 0);
   }
-  explicit ClientCharacterMoveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  void add_payload(::flatbuffers::Offset<void> payload) {
+    fbb_.AddOffset(ClientCharacterLogic::VT_PAYLOAD, payload);
+  }
+  explicit ClientCharacterLogicBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<ClientCharacterMove> Finish() {
+  ::flatbuffers::Offset<ClientCharacterLogic> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ClientCharacterMove>(end);
+    auto o = ::flatbuffers::Offset<ClientCharacterLogic>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<ClientCharacterMove> CreateClientCharacterMove(
+inline ::flatbuffers::Offset<ClientCharacterLogic> CreateClientCharacterLogic(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<fbs::Movement> movement = 0) {
-  ClientCharacterMoveBuilder builder_(_fbb);
-  builder_.add_movement(movement);
+    fbs::CharacterLogicType payload_type = fbs::CharacterLogicType_NONE,
+    ::flatbuffers::Offset<void> payload = 0) {
+  ClientCharacterLogicBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_payload_type(payload_type);
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<ClientCharacterMove> CreateClientCharacterMove(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+::flatbuffers::Offset<ClientCharacterLogic> CreateClientCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
@@ -287,39 +337,33 @@ inline ::flatbuffers::Offset<ClientScene> ClientScene::Pack(::flatbuffers::FlatB
       _character);
 }
 
-inline ClientCharacterMoveT::ClientCharacterMoveT(const ClientCharacterMoveT &o)
-      : movement((o.movement) ? new fbs::MovementT(*o.movement) : nullptr) {
-}
-
-inline ClientCharacterMoveT &ClientCharacterMoveT::operator=(ClientCharacterMoveT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(movement, o.movement);
-  return *this;
-}
-
-inline ClientCharacterMoveT *ClientCharacterMove::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ClientCharacterMoveT>(new ClientCharacterMoveT());
+inline ClientCharacterLogicT *ClientCharacterLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientCharacterLogicT>(new ClientCharacterLogicT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void ClientCharacterMove::UnPackTo(ClientCharacterMoveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+inline void ClientCharacterLogic::UnPackTo(ClientCharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = movement(); if (_e) { if(_o->movement) { _e->UnPackTo(_o->movement.get(), _resolver); } else { _o->movement = std::unique_ptr<fbs::MovementT>(_e->UnPack(_resolver)); } } else if (_o->movement) { _o->movement.reset(); } }
+  { auto _e = payload_type(); _o->payload.type = _e; }
+  { auto _e = payload(); if (_e) _o->payload.value = fbs::CharacterLogicTypeUnion::UnPack(_e, payload_type(), _resolver); }
 }
 
-inline ::flatbuffers::Offset<ClientCharacterMove> CreateClientCharacterMove(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ClientCharacterMove::Pack(_fbb, _o, _rehasher);
+inline ::flatbuffers::Offset<ClientCharacterLogic> CreateClientCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientCharacterLogic::Pack(_fbb, _o, _rehasher);
 }
 
-inline ::flatbuffers::Offset<ClientCharacterMove> ClientCharacterMove::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterMoveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+inline ::flatbuffers::Offset<ClientCharacterLogic> ClientCharacterLogic::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterMoveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _movement = _o->movement ? CreateMovement(_fbb, _o->movement.get(), _rehasher) : 0;
-  return fbs::CreateClientCharacterMove(
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload_type = _o->payload.type;
+  auto _payload = _o->payload.Pack(_fbb);
+  return fbs::CreateClientCharacterLogic(
       _fbb,
-      _movement);
+      _payload_type,
+      _payload);
 }
 
 }  // namespace fbs

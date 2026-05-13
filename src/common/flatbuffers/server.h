@@ -25,9 +25,9 @@ struct ServerScene;
 struct ServerSceneBuilder;
 struct ServerSceneT;
 
-struct ServerCharacterMove;
-struct ServerCharacterMoveBuilder;
-struct ServerCharacterMoveT;
+struct ServerCharacterLogic;
+struct ServerCharacterLogicBuilder;
+struct ServerCharacterLogicT;
 
 struct ServerCharacterIn;
 struct ServerCharacterInBuilder;
@@ -37,9 +37,9 @@ struct ServerCharacterOut;
 struct ServerCharacterOutBuilder;
 struct ServerCharacterOutT;
 
-struct ServerMobMove;
-struct ServerMobMoveBuilder;
-struct ServerMobMoveT;
+struct ServerMobLogic;
+struct ServerMobLogicBuilder;
+struct ServerMobLogicT;
 
 struct ServerHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ServerHeartbeat TableType;
@@ -203,80 +203,66 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
 
 ::flatbuffers::Offset<ServerScene> CreateServerScene(::flatbuffers::FlatBufferBuilder &_fbb, const ServerSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ServerCharacterMoveT : public ::flatbuffers::NativeTable {
-  typedef ServerCharacterMove TableType;
-  std::unique_ptr<fbs::MovementT> movement{};
-  uint64_t client_id = 0;
-  ServerCharacterMoveT() = default;
-  ServerCharacterMoveT(const ServerCharacterMoveT &o);
-  ServerCharacterMoveT(ServerCharacterMoveT&&) FLATBUFFERS_NOEXCEPT = default;
-  ServerCharacterMoveT &operator=(ServerCharacterMoveT o) FLATBUFFERS_NOEXCEPT;
+struct ServerCharacterLogicT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterLogic TableType;
+  std::unique_ptr<fbs::CharacterLogicT> payload{};
+  ServerCharacterLogicT() = default;
+  ServerCharacterLogicT(const ServerCharacterLogicT &o);
+  ServerCharacterLogicT(ServerCharacterLogicT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterLogicT &operator=(ServerCharacterLogicT o) FLATBUFFERS_NOEXCEPT;
 };
 
-struct ServerCharacterMove FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ServerCharacterMoveT NativeTableType;
-  typedef ServerCharacterMoveBuilder Builder;
+struct ServerCharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterLogicT NativeTableType;
+  typedef ServerCharacterLogicBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MOVEMENT = 4,
-    VT_CLIENT_ID = 6
+    VT_PAYLOAD = 4
   };
-  const fbs::Movement *movement() const {
-    return GetPointer<const fbs::Movement *>(VT_MOVEMENT);
+  const fbs::CharacterLogic *payload() const {
+    return GetPointer<const fbs::CharacterLogic *>(VT_PAYLOAD);
   }
-  fbs::Movement *mutable_movement() {
-    return GetPointer<fbs::Movement *>(VT_MOVEMENT);
-  }
-  uint64_t client_id() const {
-    return GetField<uint64_t>(VT_CLIENT_ID, 0);
-  }
-  bool mutate_client_id(uint64_t _client_id = 0) {
-    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  fbs::CharacterLogic *mutable_payload() {
+    return GetPointer<fbs::CharacterLogic *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_MOVEMENT) &&
-           verifier.VerifyTable(movement()) &&
-           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
            verifier.EndTable();
   }
-  ServerCharacterMoveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ServerCharacterMoveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ServerCharacterMove> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMoveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ServerCharacterLogicT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterLogic> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ServerCharacterMoveBuilder {
-  typedef ServerCharacterMove Table;
+struct ServerCharacterLogicBuilder {
+  typedef ServerCharacterLogic Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_movement(::flatbuffers::Offset<fbs::Movement> movement) {
-    fbb_.AddOffset(ServerCharacterMove::VT_MOVEMENT, movement);
+  void add_payload(::flatbuffers::Offset<fbs::CharacterLogic> payload) {
+    fbb_.AddOffset(ServerCharacterLogic::VT_PAYLOAD, payload);
   }
-  void add_client_id(uint64_t client_id) {
-    fbb_.AddElement<uint64_t>(ServerCharacterMove::VT_CLIENT_ID, client_id, 0);
-  }
-  explicit ServerCharacterMoveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit ServerCharacterLogicBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<ServerCharacterMove> Finish() {
+  ::flatbuffers::Offset<ServerCharacterLogic> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ServerCharacterMove>(end);
+    auto o = ::flatbuffers::Offset<ServerCharacterLogic>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<ServerCharacterMove> CreateServerCharacterMove(
+inline ::flatbuffers::Offset<ServerCharacterLogic> CreateServerCharacterLogic(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<fbs::Movement> movement = 0,
-    uint64_t client_id = 0) {
-  ServerCharacterMoveBuilder builder_(_fbb);
-  builder_.add_client_id(client_id);
-  builder_.add_movement(movement);
+    ::flatbuffers::Offset<fbs::CharacterLogic> payload = 0) {
+  ServerCharacterLogicBuilder builder_(_fbb);
+  builder_.add_payload(payload);
   return builder_.Finish();
 }
 
-::flatbuffers::Offset<ServerCharacterMove> CreateServerCharacterMove(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+::flatbuffers::Offset<ServerCharacterLogic> CreateServerCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct ServerCharacterInT : public ::flatbuffers::NativeTable {
   typedef ServerCharacterIn TableType;
@@ -395,76 +381,76 @@ inline ::flatbuffers::Offset<ServerCharacterOut> CreateServerCharacterOut(
 
 ::flatbuffers::Offset<ServerCharacterOut> CreateServerCharacterOut(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterOutT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ServerMobMoveT : public ::flatbuffers::NativeTable {
-  typedef ServerMobMove TableType;
-  std::vector<std::unique_ptr<fbs::MobMovementT>> movement{};
-  ServerMobMoveT() = default;
-  ServerMobMoveT(const ServerMobMoveT &o);
-  ServerMobMoveT(ServerMobMoveT&&) FLATBUFFERS_NOEXCEPT = default;
-  ServerMobMoveT &operator=(ServerMobMoveT o) FLATBUFFERS_NOEXCEPT;
+struct ServerMobLogicT : public ::flatbuffers::NativeTable {
+  typedef ServerMobLogic TableType;
+  std::vector<std::unique_ptr<fbs::MobLogicT>> payload{};
+  ServerMobLogicT() = default;
+  ServerMobLogicT(const ServerMobLogicT &o);
+  ServerMobLogicT(ServerMobLogicT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobLogicT &operator=(ServerMobLogicT o) FLATBUFFERS_NOEXCEPT;
 };
 
-struct ServerMobMove FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ServerMobMoveT NativeTableType;
-  typedef ServerMobMoveBuilder Builder;
+struct ServerMobLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobLogicT NativeTableType;
+  typedef ServerMobLogicBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MOVEMENT = 4
+    VT_PAYLOAD = 4
   };
-  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobMovement>> *movement() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobMovement>> *>(VT_MOVEMENT);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *>(VT_PAYLOAD);
   }
-  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobMovement>> *mutable_movement() {
-    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobMovement>> *>(VT_MOVEMENT);
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_MOVEMENT) &&
-           verifier.VerifyVector(movement()) &&
-           verifier.VerifyVectorOfTables(movement()) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
            verifier.EndTable();
   }
-  ServerMobMoveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ServerMobMoveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ServerMobMove> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobMoveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ServerMobLogicT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobLogic> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ServerMobMoveBuilder {
-  typedef ServerMobMove Table;
+struct ServerMobLogicBuilder {
+  typedef ServerMobLogic Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_movement(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobMovement>>> movement) {
-    fbb_.AddOffset(ServerMobMove::VT_MOVEMENT, movement);
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>>> payload) {
+    fbb_.AddOffset(ServerMobLogic::VT_PAYLOAD, payload);
   }
-  explicit ServerMobMoveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit ServerMobLogicBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<ServerMobMove> Finish() {
+  ::flatbuffers::Offset<ServerMobLogic> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ServerMobMove>(end);
+    auto o = ::flatbuffers::Offset<ServerMobLogic>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<ServerMobMove> CreateServerMobMove(
+inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogic(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobMovement>>> movement = 0) {
-  ServerMobMoveBuilder builder_(_fbb);
-  builder_.add_movement(movement);
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>>> payload = 0) {
+  ServerMobLogicBuilder builder_(_fbb);
+  builder_.add_payload(payload);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<ServerMobMove> CreateServerMobMoveDirect(
+inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogicDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<::flatbuffers::Offset<fbs::MobMovement>> *movement = nullptr) {
-  auto movement__ = movement ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobMovement>>(*movement) : 0;
-  return fbs::CreateServerMobMove(
+    const std::vector<::flatbuffers::Offset<fbs::MobLogic>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobLogic>>(*payload) : 0;
+  return fbs::CreateServerMobLogic(
       _fbb,
-      movement__);
+      payload__);
 }
 
-::flatbuffers::Offset<ServerMobMove> CreateServerMobMove(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
@@ -541,44 +527,39 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
       _mobs);
 }
 
-inline ServerCharacterMoveT::ServerCharacterMoveT(const ServerCharacterMoveT &o)
-      : movement((o.movement) ? new fbs::MovementT(*o.movement) : nullptr),
-        client_id(o.client_id) {
+inline ServerCharacterLogicT::ServerCharacterLogicT(const ServerCharacterLogicT &o)
+      : payload((o.payload) ? new fbs::CharacterLogicT(*o.payload) : nullptr) {
 }
 
-inline ServerCharacterMoveT &ServerCharacterMoveT::operator=(ServerCharacterMoveT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(movement, o.movement);
-  std::swap(client_id, o.client_id);
+inline ServerCharacterLogicT &ServerCharacterLogicT::operator=(ServerCharacterLogicT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
   return *this;
 }
 
-inline ServerCharacterMoveT *ServerCharacterMove::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ServerCharacterMoveT>(new ServerCharacterMoveT());
+inline ServerCharacterLogicT *ServerCharacterLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterLogicT>(new ServerCharacterLogicT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void ServerCharacterMove::UnPackTo(ServerCharacterMoveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+inline void ServerCharacterLogic::UnPackTo(ServerCharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = movement(); if (_e) { if(_o->movement) { _e->UnPackTo(_o->movement.get(), _resolver); } else { _o->movement = std::unique_ptr<fbs::MovementT>(_e->UnPack(_resolver)); } } else if (_o->movement) { _o->movement.reset(); } }
-  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::CharacterLogicT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
 }
 
-inline ::flatbuffers::Offset<ServerCharacterMove> CreateServerCharacterMove(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ServerCharacterMove::Pack(_fbb, _o, _rehasher);
+inline ::flatbuffers::Offset<ServerCharacterLogic> CreateServerCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterLogic::Pack(_fbb, _o, _rehasher);
 }
 
-inline ::flatbuffers::Offset<ServerCharacterMove> ServerCharacterMove::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMoveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+inline ::flatbuffers::Offset<ServerCharacterLogic> ServerCharacterLogic::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterMoveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _movement = _o->movement ? CreateMovement(_fbb, _o->movement.get(), _rehasher) : 0;
-  auto _client_id = _o->client_id;
-  return fbs::CreateServerCharacterMove(
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload = _o->payload ? CreateCharacterLogic(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacterLogic(
       _fbb,
-      _movement,
-      _client_id);
+      _payload);
 }
 
 inline ServerCharacterInT::ServerCharacterInT(const ServerCharacterInT &o)
@@ -642,40 +623,40 @@ inline ::flatbuffers::Offset<ServerCharacterOut> ServerCharacterOut::Pack(::flat
       _client_id);
 }
 
-inline ServerMobMoveT::ServerMobMoveT(const ServerMobMoveT &o) {
-  movement.reserve(o.movement.size());
-  for (const auto &movement_ : o.movement) { movement.emplace_back((movement_) ? new fbs::MobMovementT(*movement_) : nullptr); }
+inline ServerMobLogicT::ServerMobLogicT(const ServerMobLogicT &o) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::MobLogicT(*payload_) : nullptr); }
 }
 
-inline ServerMobMoveT &ServerMobMoveT::operator=(ServerMobMoveT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(movement, o.movement);
+inline ServerMobLogicT &ServerMobLogicT::operator=(ServerMobLogicT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
   return *this;
 }
 
-inline ServerMobMoveT *ServerMobMove::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ServerMobMoveT>(new ServerMobMoveT());
+inline ServerMobLogicT *ServerMobLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobLogicT>(new ServerMobLogicT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void ServerMobMove::UnPackTo(ServerMobMoveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+inline void ServerMobLogic::UnPackTo(ServerMobLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = movement(); if (_e) { _o->movement.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->movement[_i]) { _e->Get(_i)->UnPackTo(_o->movement[_i].get(), _resolver); } else { _o->movement[_i] = std::unique_ptr<fbs::MobMovementT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->movement.resize(0); } }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::MobLogicT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
 }
 
-inline ::flatbuffers::Offset<ServerMobMove> CreateServerMobMove(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobMoveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ServerMobMove::Pack(_fbb, _o, _rehasher);
+inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobLogic::Pack(_fbb, _o, _rehasher);
 }
 
-inline ::flatbuffers::Offset<ServerMobMove> ServerMobMove::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobMoveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+inline ::flatbuffers::Offset<ServerMobLogic> ServerMobLogic::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobMoveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _movement = _o->movement.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobMovement>> (_o->movement.size(), [](size_t i, _VectorArgs *__va) { return CreateMobMovement(*__va->__fbb, __va->__o->movement[i].get(), __va->__rehasher); }, &_va ) : 0;
-  return fbs::CreateServerMobMove(
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobLogic>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateMobLogic(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerMobLogic(
       _fbb,
-      _movement);
+      _payload);
 }
 
 }  // namespace fbs

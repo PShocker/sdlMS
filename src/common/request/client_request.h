@@ -2,10 +2,14 @@
 
 #include "src/common/flatbuffers/client.h"
 #include <cstdint>
+
+using namespace fbs;
+
 class client_request {
 public:
-  static void client_heartbeat_request();
-  static void client_scene_request(fbs::ClientSceneT client_scene);
-  static void client_character_move_request(
-      fbs::ClientCharacterMoveT client_character_move);
+  static void heartbeat_request();
+
+  static void scene_request(ClientSceneT client_scene);
+  
+  static void character_logic_request(ClientCharacterLogicT logic);
 };

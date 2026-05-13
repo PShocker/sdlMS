@@ -148,5 +148,5 @@ void scene_system_instance::enter_prepare(uint32_t map_id,
   client_scene.map_id = map_id;
   client_scene.character = std::make_unique<fbs::CharacterT>(std::move(c));
 
-  client_request::client_scene_request(client_scene);
+  client_request::scene_request(client_scene);
 }

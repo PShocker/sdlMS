@@ -2,13 +2,13 @@
 
 #include "src/common/flatbuffers/client.h"
 #include <cstdint>
+using namespace fbs;
+
 class server_character_instance {
 private:
-  static void save_character_state(uint64_t client_id,
-                                   fbs::ClientCharacterMoveT m);
-  static void send_character_move(uint64_t client_id,
-                                  fbs::ClientCharacterMoveT m);
+  static void save_state(uint64_t client_id, ClientCharacterLogicT &m);
+  static void send_logic(uint64_t client_id, CharacterLogicTypeUnion &m);
+
 public:
-  static void handle_character_move(uint64_t client_id,
-                                    fbs::ClientCharacterMoveT m);
+  static void handle_logic(uint64_t client_id, ClientCharacterLogicT &m);
 };

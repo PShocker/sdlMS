@@ -811,9 +811,11 @@ fbs::CharacterT character_game_instance::load_self_fbs_character() {
   return c;
 }
 
-void character_game_instance::other_character_move(
-    const fbs::ServerCharacterMoveT &r) {
-  const auto &client_id = r.client_id;
-  const auto &movement = r.movement;
-  others.at(client_id).movements.push_back(*movement);
+void character_game_instance::other_character_logic(
+    const fbs::ServerCharacterLogicT &r) {
+  const auto client_id = r.payload->client_id;
+  if (others.contains(client_id)) {
+    auto &v = others[client_id].logics[r.payload->payload.type];
+    v.push_back(r.payload->payload);
+  }
 }

@@ -33,7 +33,7 @@ bool server_heartbeat_system::run_client_heartbeat() {
   if (current_time - last_execution_time >=
       server_heartbeat_instance::heartbeat_interval * 1000) {
     // 执行你的代码
-    client_request::client_heartbeat_request();
+    client_request::heartbeat_request();
     // 更新最后执行时间
     last_execution_time = current_time;
   }
@@ -54,7 +54,7 @@ bool server_heartbeat_system::run_server_heartbeat() {
       for (const auto other : scenes.clients) {
         fbs::ServerCharacterOutT r;
         r.client_id = client.client_id;
-        server_response::server_character_out_response(other, r);
+        server_response::character_out_response(other, r);
       }
     } else {
       ++it;
@@ -68,7 +68,7 @@ void server_heartbeat_system::receive_client_heartbeat(uint64_t client_id) {
   if (server_client_instance::clients.contains(client_id)) {
     server_client_instance::clients.at(client_id).heartbeat = window::dt_now;
   }
-  server_response::server_heartbeat_response(client_id);
+  server_response::heartbeat_response(client_id);
 }
 
 void server_heartbeat_system::receive_server_heartbeat() {

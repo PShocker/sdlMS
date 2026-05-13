@@ -6,6 +6,7 @@ table LifeState{
 
     action:string;
     action_index:uint8;
+    action_animate:bool;
 
     page:uint8;
     flip:bool;
@@ -37,11 +38,6 @@ table Character{
     appearance:CharacterAppearance;
 }
 
-table Player{
-    client_id:uint64;
-    character:Character;
-}
-
 table Movement{
     x1:float;
     y1:float;
@@ -51,10 +47,21 @@ table Movement{
 
     time:uint32;
     page:uint8;
+}
 
-    action:string;
-    action_animate:bool;
+table Flip{
     flip:bool;
+}
+
+table Action{
+    action:string;
+    action_index:uint8;
+    action_animate:bool;
+}
+
+table Player{
+    client_id:uint64;
+    character:Character;
 }
 
 table Mob{
@@ -63,7 +70,24 @@ table Mob{
     state:LifeState;
 }
 
-table MobMovement{
+union CharacterLogicType {
+    Movement,
+    Flip,
+    Action,
+}
+
+union MobLogicType {
+    Movement,
+    Flip,
+    Action,
+}
+
+table CharacterLogic{
+    client_id:uint64;
+    payload:CharacterLogicType;
+}
+
+table MobLogic{
     mob_id:uint32;
-    movement:Movement;
+    payload:MobLogicType;
 }

@@ -8,6 +8,12 @@
 #include <string>
 class character_logic_system {
 private:
+  static void run_network_action_sync(game_character &g_character,
+                                      game_character &o_character);
+  static void run_network_flip_sync(game_character &g_character,
+                                    game_character &o_character);
+  static void run_network_movement_sync(game_character &g_character,
+                                        game_character &o_character);
   static void run_network_sync(game_character &g_character,
                                game_character &o_character);
   static bool run_action(game_character &g_character,
@@ -50,8 +56,8 @@ private:
   };
   static action_enum load_action_type(game_character &g_character);
 
-  static void run_others_movement();
   static void run_others_animate();
+  static void run_others_logic();
   static void run_others();
 
 public:
