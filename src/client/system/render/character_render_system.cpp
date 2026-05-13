@@ -9,7 +9,9 @@
 #include <string>
 #include <vector>
 
-bool character_render_system::render(game_character &g_character) {
+
+
+bool character_render_system::render_character(game_character &g_character) {
   std::flat_multimap<std::u16string, const character_avatar *> renders;
   std::flat_map<std::u16string, const character_avatar_render *> render_parts;
   auto &camera = camera_game_instance::camera;
@@ -113,4 +115,13 @@ bool character_render_system::render(game_character &g_character) {
     }
   }
   return true;
+}
+
+bool character_render_system::render_afterimage(game_character &g_character) {
+  
+}
+
+bool character_render_system::render(game_character &g_character) {
+  render_character(g_character);
+  render_afterimage(g_character);
 }
