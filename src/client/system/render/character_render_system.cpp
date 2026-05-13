@@ -124,4 +124,5 @@ bool character_render_system::render_afterimage(game_character &g_character) {
 bool character_render_system::render(game_character &g_character) {
   render_character(g_character);
   render_afterimage(g_character);
+  return true;
 }
