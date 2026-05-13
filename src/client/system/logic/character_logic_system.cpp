@@ -567,19 +567,17 @@ void character_logic_system::run_network_movement_sync(
     game_character &g_character, game_character &o_character) {
   static std::optional<MovementT> last_movement;
 
-  if (last_movement.has_value()) {
-    ClientCharacterLogicT req;
-    req.payload.Set(last_movement.value());
-    client_request::character_logic_request(req);
-    last_movement = std::nullopt;
-    return;
-  }
-
   static uint64_t last_send_time = 0;
   static const int32_t MIN_SEND_INTERVAL_MS = 33;
 
   bool position_changed = (o_character.pos.x != g_character.pos.x ||
                            o_character.pos.y != g_character.pos.y);
+
+  if (last_movement.has_value()) {
+    position_changed = true;
+    last_movement = std::nullopt;
+    last_send_time = window::dt_now - MIN_SEND_INTERVAL_MS;
+  }
 
   if (!position_changed)
     return;
@@ -769,8 +767,8 @@ void character_logic_system::run_others_logic() {
       }
       case fbs::CharacterLogicType_Flip: {
         auto action_type = load_action_type(c.g_character);
-        if (action_type == action_enum::attack &&
-            c.g_character.action_time != UINT32_MAX) {
+        auto animate = c.g_character.action_animate;
+        if (action_type == action_enum::attack && animate) {
           break;
         }
         if (v.empty()) {
@@ -783,8 +781,8 @@ void character_logic_system::run_others_logic() {
       }
       case fbs::CharacterLogicType_Action: {
         auto action_type = load_action_type(c.g_character);
-        if (action_type == action_enum::attack &&
-            c.g_character.action_time != UINT32_MAX) {
+        auto animate = c.g_character.action_animate;
+        if (action_type == action_enum::attack && animate) {
           break;
         }
         if (v.empty()) {
@@ -822,10 +820,14 @@ void character_logic_system::run_others_animate() {
     case action_enum::attack:
     case action_enum::skill: {
       auto action_index = g_character.action_index;
+      auto action_time = g_character.action_time;
       if (run_animate(g_character)) {
         // 一次性动作,但是不知道后续是什么动作,保留动作
         g_character.action_index = action_index;
-        g_character.action_time = UINT32_MAX;
+        g_character.action_time = action_time;
+        g_character.action_animate = false;
+      } else {
+        g_character.action_animate = true;
       }
       break;
     }
@@ -837,8 +839,8 @@ void character_logic_system::run_others_animate() {
 }
 
 void character_logic_system::run_others() {
-  run_others_logic();
   run_others_animate();
+  run_others_logic();
 }
 
 // 人物状态机
