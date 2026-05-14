@@ -21,5 +21,9 @@ public:
   uint32_t ani_index = 0;
   uint32_t ani_time = 0;
 
+  uint64_t duration;
+
   std::optional<game_chatballoon> chatballoon;
+  std::optional<float> hspeed;
+  std::optional<float> hforce;
 };

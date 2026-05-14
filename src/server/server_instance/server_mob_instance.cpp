@@ -8,11 +8,11 @@
 #include <flat_map>
 #include <optional>
 
-void server_mob_instance::load_mob(server_scene &s_scene) {
-  auto mobs = mob_game_instance::load(s_scene.map_id);
+void server_mob_instance::load_mob(server_scene &scene) {
+  auto mobs = mob_game_instance::load(scene.map_id);
   for (auto ms : mobs) {
     for (auto m : ms) {
-      s_scene.mobs[m.index] = server_mob{m};
+      scene.mobs[m.index] = server_mob{m};
     }
   }
 }

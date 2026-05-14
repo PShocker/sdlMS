@@ -1,10 +1,10 @@
 #include "npc_game_instance.h"
 #include "foothold_game_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <array>
-#include <flat_set>
 #include <string>
 
 wz::Node *npc_game_instance::load_link_npc_node(const std::u16string &id) {
@@ -49,6 +49,7 @@ void npc_game_instance::load(uint32_t map_id) {
 
     // default action
     g_npc.action = u"stand";
+    g_npc.duration = window::dt_now + 1000;
 
     auto layer = foothold_game_instance::data.at(g_npc.fh).page;
     data[layer].push_back(g_npc);

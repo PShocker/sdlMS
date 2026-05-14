@@ -6,5 +6,5 @@
 
 class server_foothold_instance {
 public:
-  static void load_fh(server_scene &s_scene);
+  static void load_fh(server_scene &scene);
 };

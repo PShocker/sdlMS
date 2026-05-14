@@ -476,6 +476,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       break;
     }
     }
+    self_alert_cooldown = window::dt_now + 5000;
     return true;
   }
   return false;

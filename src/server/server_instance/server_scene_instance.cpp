@@ -1,6 +1,7 @@
 #include "server_scene_instance.h"
 #include "SDL3/SDL_timer.h"
 #include "server_client_instance.h"
+#include "server_foothold_instance.h"
 #include "server_mob_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
@@ -65,10 +66,13 @@ void server_scene_instance::init_scene(uint64_t client_id,
   //
   auto map_id = client_scene.map_id;
   if (!scenes.contains(map_id)) {
-    server_scene s_scene;
-    s_scene.map_id = map_id;
-    server_mob_instance::load_mob(s_scene);
-    scenes[map_id] = s_scene;
+    server_scene scene;
+    scene.map_id = map_id;
+
+    server_mob_instance::load_mob(scene);
+    server_foothold_instance::load_fh(scene);
+
+    scenes[map_id] = scene;
   }
 }
 
