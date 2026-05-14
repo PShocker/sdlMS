@@ -14,4 +14,5 @@ public:
   static void character_out_response(uint64_t client_id, ServerCharacterOutT r);
   static void character_logic_response(uint64_t client_id,
                                        ServerCharacterLogicT r);
+  static void mob_logic_response(uint64_t client_id, ServerMobLogicT r);
 };

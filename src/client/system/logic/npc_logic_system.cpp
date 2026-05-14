@@ -31,8 +31,8 @@ bool npc_logic_system::run_animate(game_npc &g_npc) {
   return r;
 }
 
-bool npc_logic_system::run_action(game_npc &g_npc) {
-  if (g_npc.duration >= window::dt_now) {
+bool npc_logic_system::run_duration(game_npc &g_npc) {
+  if (g_npc.duration > window::dt_now) {
     return false;
   }
   auto npc_node = npc_game_instance::load_link_npc_node(g_npc.id);
@@ -91,7 +91,7 @@ bool npc_logic_system::run() {
       }
       }
       if (run_animate(g_npc)) {
-        run_action(g_npc);
+        run_duration(g_npc);
       }
     }
   }

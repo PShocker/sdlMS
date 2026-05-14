@@ -8,9 +8,6 @@ class game_mob {
 public:
   uint32_t index;
   std::u16string id;
-  int32_t rx0;
-  int32_t rx1;
-  int32_t fh;
 
   SDL_FPoint pos;
 
@@ -20,7 +17,13 @@ public:
 
   uint32_t ani_index = 0;
   uint32_t ani_time;
+  bool ani_animate = true;
 
   int64_t hp;
   int64_t mp;
+
+  int64_t max_hp;
+
+  uint8_t page;
+  bool flip;
 };

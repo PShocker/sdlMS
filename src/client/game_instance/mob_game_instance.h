@@ -10,8 +10,8 @@
 class mob_game_instance {
 public:
   static wz::Node *load_link_mob_node(const std::u16string &id);
-  static std::array<std::vector<game_mob>, 8> load(uint32_t map_id);
+  static void load(uint32_t map_id);
   static wz::Node *load_mob_info(const std::u16string &id);
 
-  static inline std::array<std::vector<game_mob>, 8> data;
+  static inline std::flat_map<int32_t, game_mob> data;
 };

@@ -17,11 +17,13 @@ wz::Node *mob_game_instance::load_link_mob_node(const std::u16string &id) {
   return mob_node;
 }
 
-std::array<std::vector<game_mob>, 8> mob_game_instance::load(uint32_t map_id) {
-  std::array<std::vector<game_mob>, 8> data = {};
+void mob_game_instance::load(uint32_t map_id) {
+  data = {};
 
   auto map_node = wz_resource::load_map_node(map_id);
   auto map_life_node = map_node->get_child(u"life");
+  auto fhs = foothold_game_instance::load(map_id);
+
   for (auto [key, val] : *map_life_node->get_children()) {
     auto type =
         static_cast<wz::Property<std::u16string> *>(val[0]->get_child(u"type"))
@@ -29,35 +31,12 @@ std::array<std::vector<game_mob>, 8> mob_game_instance::load(uint32_t map_id) {
     if (type == u"n") {
       continue;
     }
-
     game_mob g_mob;
-
     auto mob_node = val[0];
-
+    g_mob.index = std::stoi(std::string{key.begin(), key.end()});
     g_mob.id =
         static_cast<wz::Property<std::u16string> *>(mob_node->get_child(u"id"))
             ->get();
-    g_mob.fh =
-        static_cast<wz::Property<int> *>(mob_node->get_child(u"fh"))->get();
-    g_mob.rx0 =
-        static_cast<wz::Property<int> *>(mob_node->get_child(u"rx0"))->get();
-    g_mob.rx1 =
-        static_cast<wz::Property<int> *>(mob_node->get_child(u"rx1"))->get();
-
-    auto x = static_cast<wz::Property<int> *>(mob_node->get_child(u"x"))->get();
-    auto y = static_cast<wz::Property<int> *>(mob_node->get_child(u"y"))->get();
-    g_mob.pos = {static_cast<float>(x), static_cast<float>(y)};
-
-    // default action
-    mob_node = wz_resource::mob->find(g_mob.id + u".img");
-    if (mob_node->get_child(u"info")->get_child("flySpeed")) {
-      g_mob.action = u"fly";
-    } else {
-      g_mob.action = u"stand";
-    }
-
-    auto layer = foothold_game_instance::data.at(g_mob.fh).page;
-    data[layer].push_back(g_mob);
+    data[g_mob.index] = g_mob;
   }
-  return data;
 }

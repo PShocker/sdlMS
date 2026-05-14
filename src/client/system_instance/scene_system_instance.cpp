@@ -1,5 +1,6 @@
 #include "scene_system_instance.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_mob.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -59,6 +60,11 @@ bool scene_system_instance::render_game() {
   }
   auto &self = character_game_instance::self;
   character_array[self.page].push_back(&self);
+
+  std::array<std::vector<game_mob *>, 8> mob_array;
+  for (auto &mob : mob_game_instance::data | std::views::values) {
+    mob_array[mob.page].push_back(&mob);
+  }
   //   后景
   for (auto &b_backgrnd : backgrnd_game_instance::back | std::views::values) {
     backgrnd_render_system::render(b_backgrnd);
@@ -76,8 +82,8 @@ bool scene_system_instance::render_game() {
     for (auto &npc : npc_game_instance::data[i]) {
       npc_render_system::render(npc);
     }
-    for (auto &mob : mob_game_instance::data[i]) {
-      mob_render_system::render(mob);
+    for (auto &mob : mob_array[i]) {
+      mob_render_system::render(*mob);
     }
     for (auto &character : character_array[i]) {
       character_render_system::render(*character);
@@ -105,7 +111,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   foothold_game_instance::data = foothold_game_instance::load(map_id);
   backgrnd_game_instance::load(map_id);
   ladderrope_game_instance::load(map_id);
-  mob_game_instance::data = mob_game_instance::load(map_id);
+  mob_game_instance::load(map_id);
   npc_game_instance::load(map_id);
   obj_game_instance::load(map_id);
   portal_game_instance::data = portal_game_instance::load(map_id);
