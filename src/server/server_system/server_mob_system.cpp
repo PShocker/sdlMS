@@ -6,6 +6,7 @@
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
+#include <cstdint>
 #include <flat_map>
 #include <flat_set>
 #include <ranges>
@@ -35,6 +36,7 @@ void server_mob_system::run_network_movement_sync(server_mob &s_mob,
   mv.y2 = s_mob.pos.y;
   mv.page = s_mob.page;
   mv.time = std::min(window::delta_time, 33);
+  // mv.time = std::min(window::delta_time, (uint32_t)33);
   MobLogicT req;
   req.mob_index = s_mob.index;
   req.payload.Set(mv);
@@ -75,15 +77,14 @@ void server_mob_system::run_network_sync(server_mob &s_mob, server_mob &o_mob) {
 
 void server_mob_system::run_walk(server_mob &s_mob) {
   // 移动
-  auto delta_time = window::delta_time / 1000.0f;
   auto s_fhs = server_scene_instance::scenes.at(map_id).fhs;
   std::flat_map<int32_t, game_foothold> g_fhs;
   for (auto [key, value] : s_fhs) {
     g_fhs.emplace(key, std::move(value.fh)); // 移动避免拷贝s
   }
-  auto r = physic::walk(s_mob.pos, delta_time, s_mob.hspeed, s_mob.vspeed,
-                        s_mob.hforce, -100.0f, 100.0f, 0, false, s_mob.fh,
-                        {0, 0, 0, 0}, g_fhs);
+  auto r = physic::walk(s_mob.pos, delta_time / 1000.0f, s_mob.hspeed,
+                        s_mob.vspeed, s_mob.hforce, -80.0f, 80.0f, 0, false,
+                        s_mob.fh, {0, 0, 0, 0}, g_fhs);
 }
 
 void server_mob_system::run_duration(server_mob &s_mob) {
@@ -163,12 +164,26 @@ void server_mob_system::run_state_machine(server_mob &s_mob) {
   run_network_sync(s_mob, o_mob);
 }
 
+void server_mob_system::run_send() {
+  if (unique_logics.empty()) {
+    return;
+  }
+  ServerMobLogicT r;
+  r.payload = std::move(unique_logics);
+  auto &clients = server_scene_instance::scenes[map_id].clients;
+  for (auto client_id : clients) {
+    server_response::mob_logic_response(client_id, r);
+  }
+  unique_logics.clear();
+}
+
 bool server_mob_system::run() {
   // 怪物逻辑为30帧
   const int32_t MIN_FRAME_INTERVAL_MS = 33;
   static uint64_t last_frame_time = 0;
   // 节流：未达到帧间隔时直接返回
-  if (window::dt_now - last_frame_time < MIN_FRAME_INTERVAL_MS) {
+  delta_time = window::dt_now - last_frame_time;
+  if (delta_time < MIN_FRAME_INTERVAL_MS) {
     return true; // 跳过这一帧
   }
   last_frame_time = window::dt_now;
@@ -179,19 +194,10 @@ bool server_mob_system::run() {
       continue;
     }
     map_id = sc.map_id;
-    unique_logics.clear();
     for (auto &mob : sc.mobs | std::views::values) {
       run_state_machine(mob);
     }
-    if (unique_logics.empty()) {
-      continue;
-    }
-    ServerMobLogicT r;
-    r.payload = std::move(unique_logics);
-    auto &clients = server_scene_instance::scenes[map_id].clients;
-    for (auto client_id : clients) {
-      server_response::mob_logic_response(client_id, r);
-    }
+    run_send();
   }
   return true;
 }
