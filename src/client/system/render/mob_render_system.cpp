@@ -23,7 +23,7 @@ bool mob_render_system::render(game_mob &g_mob) {
   } else {
     frame_index = std::to_string(g_mob.ani_index);
   }
-  
+
   mob_node = action_node->get_child(frame_index);
 
   auto texture = wz_resource::load_texture(mob_node);
@@ -39,12 +39,17 @@ bool mob_render_system::render(game_mob &g_mob) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
+  if (g_mob.flip == 1) {
+    pos_rect.x = g_mob.pos.x;
+    pos_rect.x = (pos_rect.x - (texture->w - origin.x));
+  }
   auto &camera = camera_game_instance::camera;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_mob.alpha);
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTextureRotated(window::renderer, texture, nullptr, &pos_rect, 0,
+                             nullptr, (SDL_FlipMode)g_mob.flip);
   }
 
   return true;

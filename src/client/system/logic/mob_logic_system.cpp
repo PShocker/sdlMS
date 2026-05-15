@@ -4,6 +4,7 @@
 #include "src/client/window/window.h"
 #include "src/common/request/client_request.h"
 #include "wz/Property.h"
+#include "wz/Wz.h"
 #include <cstdint>
 #include <cstdlib>
 #include <ranges>
@@ -36,7 +37,13 @@ bool mob_logic_system::run_animate(game_mob &g_mob) {
   }
   if (auto canvas_node = node->get_child(frame_index)) {
     if (auto delay_node = canvas_node->get_child(u"delay")) {
-      delay = static_cast<wz::Property<int32_t> *>(delay_node)->get();
+      if (delay_node->type == wz::Type::String) {
+        auto delay2 =
+            static_cast<wz::Property<std::u16string> *>(delay_node)->get();
+        delay = std::stoi(std::string{delay2.begin(), delay2.end()});
+      } else {
+        delay = static_cast<wz::Property<int32_t> *>(delay_node)->get();
+      }
     }
   }
 
@@ -114,7 +121,9 @@ void mob_logic_system::run_logic() {
   }
 }
 
-void mob_logic_system::run_state_machine(game_mob &g_mob) {}
+void mob_logic_system::run_state_machine(game_mob &g_mob) {
+  run_animate(g_mob);
+}
 
 bool mob_logic_system::run() {
   for (auto &m : mob_game_instance::data | std::views::values) {

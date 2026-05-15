@@ -123,6 +123,8 @@ void server_mob_system::run_duration(server_mob &s_mob) {
     std::bernoulli_distribution dist(0.5); // 50% 概率为 true
     bool random_bool = dist(gen);
     s_mob.hforce = random_bool ? 1400 : -1400;
+    s_mob.flip = random_bool ? true : false;
+    s_mob.hspeed = 0;
     s_mob.duration = window::dt_now + 1000;
     break;
   }
