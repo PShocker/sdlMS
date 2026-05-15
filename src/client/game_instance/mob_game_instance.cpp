@@ -5,6 +5,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
+#include <string>
 #include <vector>
 
 wz::Node *mob_game_instance::load_link_mob_node(const std::u16string &id) {
@@ -37,6 +38,37 @@ void mob_game_instance::load(uint32_t map_id) {
     g_mob.id =
         static_cast<wz::Property<std::u16string> *>(mob_node->get_child(u"id"))
             ->get();
-    data[g_mob.index] = g_mob;
+    g_mob.ani_index = 0;
+    g_mob.ani_time = 0;
+    g_mob.ani_animate = true;
+
+    data[g_mob.index] = {g_mob, {}};
+  }
+}
+
+void mob_game_instance::load_server_mob(
+    const std::vector<std::unique_ptr<fbs::MobT>> &v) {
+  for (const auto &m : v) {
+    if (data.contains(m->mob_index)) {
+      auto &mob = data.at(m->mob_index).mob;
+      const auto &state = m->state;
+      mob.action = std::u16string{state->action.begin(), state->action.end()};
+      mob.page = state->page;
+      mob.flip = state->flip;
+      mob.pos.x = state->x;
+      mob.pos.y = state->y;
+    } else {
+      // summon mob
+    }
+  }
+}
+
+void mob_game_instance::server_mob_logic(
+    const std::vector<std::unique_ptr<MobLogicT>> &v) {
+  for (const auto &m : v) {
+    if (data.contains(m->mob_index)) {
+      auto &logics = data.at(m->mob_index).logics;
+      logics[m->payload.type].push_back(m->payload);
+    }
   }
 }

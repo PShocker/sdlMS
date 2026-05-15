@@ -815,7 +815,7 @@ void character_game_instance::other_character_logic(
     const fbs::ServerCharacterLogicT &r) {
   const auto client_id = r.payload->client_id;
   if (others.contains(client_id)) {
-    auto &v = others[client_id].logics[r.payload->payload.type];
-    v.push_back(r.payload->payload);
+    auto &logics = others[client_id].logics;
+    logics[r.payload->payload.type].push_back(r.payload->payload);
   }
 }

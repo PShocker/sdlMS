@@ -2,6 +2,7 @@
 #include "server_scene_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
 #include "wz/Property.h"
@@ -24,6 +25,7 @@ void server_mob_instance::load_mob(server_scene &scene) {
     }
     server_mob s_mob;
     auto mob_node = val[0];
+    s_mob.index = std::stoi(std::string{key.begin(), key.end()});
     s_mob.id =
         static_cast<wz::Property<std::u16string> *>(mob_node->get_child(u"id"))
             ->get();
@@ -48,6 +50,7 @@ void server_mob_instance::load_mob(server_scene &scene) {
       s_mob.action = u"stand";
       s_mob.type = server_mob::mob_type::stand;
     }
+    s_mob.duration = window::dt_now;
     data[s_mob.index] = s_mob;
   }
   scene.mobs = data;

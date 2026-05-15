@@ -51,7 +51,7 @@ void npc_game_instance::load(uint32_t map_id) {
     g_npc.action = u"stand";
     g_npc.duration = window::dt_now + 1000;
 
-    auto layer = foothold_game_instance::data.at(g_npc.fh).page;
-    data[layer].push_back(g_npc);
+    auto page = foothold_game_instance::data.at(g_npc.fh).page;
+    data[page].push_back(g_npc);
   }
 }

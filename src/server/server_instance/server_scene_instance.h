@@ -10,6 +10,7 @@ using namespace fbs;
 
 class server_scene_instance {
 private:
+  static void clean_client(uint64_t client_id);
   static void save_client(uint64_t client_id, ClientSceneT client_scene);
   static void send_scene_clients(uint64_t client_id, ClientSceneT client_scene);
   static void send_in_scene(uint64_t client_id, ClientSceneT client_scene);

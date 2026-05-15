@@ -4,14 +4,27 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <string>
 
 bool mob_render_system::render(game_mob &g_mob) {
   auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
 
   auto action_node = mob_node->get_child(g_mob.action);
 
-  auto index = std::to_string(g_mob.ani_index);
-  mob_node = action_node->get_child(index);
+  bool zigzag = action_node->get_child(u"zigzag") == nullptr ? false : true;
+  int32_t canvas_count = action_node->children_count();
+  if (zigzag) {
+    canvas_count -= 1;
+  }
+  std::string frame_index;
+  if (zigzag && g_mob.ani_index >= canvas_count) {
+    frame_index =
+        std::to_string(canvas_count - 2 - (g_mob.ani_index % canvas_count));
+  } else {
+    frame_index = std::to_string(g_mob.ani_index);
+  }
+  
+  mob_node = action_node->get_child(frame_index);
 
   auto texture = wz_resource::load_texture(mob_node);
 

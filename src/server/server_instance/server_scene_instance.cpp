@@ -9,9 +9,25 @@
 #include "src/common/response/server_response.h"
 #include "src/server/server/server_scene.h"
 #include <ranges>
+#include <string>
 #include <utility>
 
 using namespace fbs;
+
+void server_scene_instance::clean_client(uint64_t client_id) {
+  if (server_client_instance::clients.contains(client_id)) {
+    // 地图切换
+    auto map_id = server_client_instance::clients.at(client_id).map_id;
+    auto &scenes = server_scene_instance::scenes[map_id];
+    scenes.clients.erase(client_id);
+    for (const auto other : scenes.clients) {
+      fbs::ServerCharacterOutT r;
+      r.client_id = client_id;
+      server_response::character_out_response(other, r);
+    }
+    server_client_instance::clients.erase(client_id);
+  }
+}
 
 void server_scene_instance::save_client(uint64_t client_id,
                                         ClientSceneT client_scene) {
@@ -38,8 +54,18 @@ void server_scene_instance::send_scene_clients(uint64_t client_id,
   scene.clients.erase(client_id);
   for (const auto &c : scene.clients) {
     auto client = server_client_instance::clients.at(c);
-    auto player = std::make_unique<PlayerT>(client.player_t);
-    r.players.push_back(std::move(player));
+    r.players.push_back(std::make_unique<PlayerT>(client.player_t));
+  }
+  for (const auto &[k, m] : scene.mobs) {
+    auto &mobt = r.mobs.emplace_back(std::make_unique<MobT>());
+    mobt->mob_index = m.index;
+    mobt->mob_id = std::stoi(std::string{m.id.begin(), m.id.end()});
+    mobt->state = std::make_unique<LifeStateT>();
+    mobt->state->action = std::string{m.action.begin(), m.action.end()};
+    mobt->state->flip = m.flip;
+    mobt->state->page = m.page;
+    mobt->state->x = m.pos.x;
+    mobt->state->y = m.pos.y;
   }
 
   server_response::scene_response(client_id, r);
@@ -81,5 +107,6 @@ void server_scene_instance::handle_scene(uint64_t client_id,
   init_scene(client_id, client_scene);
   send_scene_clients(client_id, client_scene);
   send_in_scene(client_id, client_scene);
+  clean_client(client_id);
   save_client(client_id, client_scene);
 }

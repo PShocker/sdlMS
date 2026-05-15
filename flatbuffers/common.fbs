@@ -65,8 +65,8 @@ table Player{
 }
 
 table Mob{
+    mob_index:uint32;
     mob_id:uint32;
-    summon:bool;
     state:LifeState;
 }
 
@@ -88,6 +88,7 @@ table CharacterLogic{
 }
 
 table MobLogic{
+    mob_index:uint32;
     mob_id:uint32;
     payload:MobLogicType;
 }

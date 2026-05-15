@@ -4,6 +4,7 @@
 #include "server_system/server_heartbeat_system.h"
 #include "server_system_instance/server_system_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -53,6 +54,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     payload->UnPackTo(&r);
     scene_system_instance::enter(r.map_id);
     character_game_instance::load_others_character(r.players);
+    mob_game_instance::load_server_mob(r.mobs);
     break;
   }
   case NetPayload_ServerCharacterIn: {
@@ -76,6 +78,12 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterOutT r;
     payload->UnPackTo(&r);
     character_game_instance::exit_others_character(r.client_id);
+  }
+   case NetPayload_ServerMobLogic: {
+    auto payload = packet->payload_as_ServerMobLogic();
+    fbs::ServerMobLogicT r;
+    payload->UnPackTo(&r);
+    mob_game_instance::server_mob_logic(r.payload);
   }
   default:
     break;

@@ -1,11 +1,15 @@
 #include "server_mob_system.h"
+#include "src/client/game_instance/random_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/physic/physic.h"
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
+#include <flat_map>
+#include <flat_set>
 #include <ranges>
+#include <string>
 
 server_mob_system::action_enum
 server_mob_system::load_action_type(server_mob &s_mob) {
@@ -18,8 +22,8 @@ server_mob_system::load_action_type(server_mob &s_mob) {
 
 void server_mob_system::run_network_movement_sync(server_mob &s_mob,
                                                   server_mob &o_mob) {
-  bool position_changed = (o_mob.pos.x != s_mob.pos.x ||
-                           o_mob.pos.y != s_mob.pos.y);
+  bool position_changed =
+      (o_mob.pos.x != s_mob.pos.x || o_mob.pos.y != s_mob.pos.y);
   if (!position_changed)
     return;
 
@@ -32,7 +36,7 @@ void server_mob_system::run_network_movement_sync(server_mob &s_mob,
   mv.page = s_mob.page;
   mv.time = std::min(window::delta_time, 33);
   MobLogicT req;
-  req.mob_id = s_mob.index;
+  req.mob_index = s_mob.index;
   req.payload.Set(mv);
   unique_logics.push_back(std::make_unique<MobLogicT>(req));
 }
@@ -45,7 +49,7 @@ void server_mob_system::run_network_action_sync(server_mob &s_mob,
     a.action = std::string{s_mob.action.begin(), s_mob.action.end()};
     a.action_animate = true;
     a.action_index = 0;
-    req.mob_id = s_mob.index;
+    req.mob_index = s_mob.index;
     req.payload.Set(a);
     unique_logics.push_back(std::make_unique<MobLogicT>(req));
   }
@@ -57,7 +61,7 @@ void server_mob_system::run_network_flip_sync(server_mob &s_mob,
     MobLogicT req;
     FlipT f;
     f.flip = s_mob.flip;
-    req.mob_id = s_mob.index;
+    req.mob_index = s_mob.index;
     req.payload.Set(f);
     unique_logics.push_back(std::make_unique<MobLogicT>(req));
   }
@@ -70,22 +74,61 @@ void server_mob_system::run_network_sync(server_mob &s_mob, server_mob &o_mob) {
 }
 
 void server_mob_system::run_walk(server_mob &s_mob) {
-  // run_action(s_mob, u"move");
   // 移动
   auto delta_time = window::delta_time / 1000.0f;
   auto s_fhs = server_scene_instance::scenes.at(map_id).fhs;
   std::flat_map<int32_t, game_foothold> g_fhs;
   for (auto [key, value] : s_fhs) {
-    g_fhs.emplace(key, std::move(value.fh)); // 移动避免拷贝
+    g_fhs.emplace(key, std::move(value.fh)); // 移动避免拷贝s
   }
   auto r = physic::walk(s_mob.pos, delta_time, s_mob.hspeed, s_mob.vspeed,
-                        s_mob.hforce, -100.0f, 100.0f, 800, true, s_mob.fh,
+                        s_mob.hforce, -100.0f, 100.0f, 0, false, s_mob.fh,
                         {0, 0, 0, 0}, g_fhs);
 }
 
 void server_mob_system::run_duration(server_mob &s_mob) {
   if (s_mob.duration > window::dt_now) {
     return;
+  }
+  static const std::flat_map<action_enum, std::u16string> actions = {
+      {action_enum::stand, u"stand"},
+      {action_enum::move, u"move"},
+      {action_enum::fly, u"fly"},
+  };
+  std::flat_set<action_enum> actions2;
+  switch (s_mob.type) {
+  case server_mob::mob_type::stand: {
+    actions2 = {action_enum::stand, action_enum::move};
+    break;
+  }
+  case server_mob::mob_type::swim:
+  case server_mob::mob_type::fly: {
+    break;
+  }
+  }
+  auto &gen = random_game_instance::gen;
+  std::uniform_int_distribution<size_t> dist(0, actions2.size() - 1);
+  auto it = std::next(actions2.begin(), dist(gen));
+  action_enum selected = *it;
+  s_mob.action = actions.at(selected);
+  switch (selected) {
+  case action_enum::stand: {
+    s_mob.duration = window::dt_now + 500;
+    break;
+  }
+  case action_enum::jump: {
+    break;
+  }
+  case action_enum::move: {
+    std::bernoulli_distribution dist(0.5); // 50% 概率为 true
+    bool random_bool = dist(gen);
+    s_mob.hforce = random_bool ? 1400 : -1400;
+    s_mob.duration = window::dt_now + 1000;
+    break;
+  }
+  default: {
+    break;
+  }
   }
 }
 
@@ -100,6 +143,7 @@ void server_mob_system::run_state_machine(server_mob &s_mob) {
     break;
   }
   case action_enum::move: {
+    run_walk(s_mob);
     break;
   }
   case action_enum::hit: {

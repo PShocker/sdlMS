@@ -62,7 +62,8 @@ bool scene_system_instance::render_game() {
   character_array[self.page].push_back(&self);
 
   std::array<std::vector<game_mob *>, 8> mob_array;
-  for (auto &mob : mob_game_instance::data | std::views::values) {
+  for (auto &mob_data : mob_game_instance::data | std::views::values) {
+    auto &mob = mob_data.mob;
     mob_array[mob.page].push_back(&mob);
   }
   //   后景
