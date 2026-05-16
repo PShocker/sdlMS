@@ -40,7 +40,6 @@ character_logic_system::run_attack_check(game_character &g_character,
       .h = rb.y - lt.y,
   };
   for (const auto [k, v] : mob_game_instance::data) {
-
   }
   return v;
 }
@@ -131,12 +130,17 @@ bool character_logic_system::run_flip(game_character &g_character) {
           game_character::abnormal_state_type::dizz)) {
     return false;
   }
+  if (self_flip_cooldown > window::dt_now) {
+    return false;
+  }
   if (character_action_input.contains("left")) {
     g_character.flip = 0;
+    self_flip_cooldown = window::dt_now + 50;
     return true;
   }
   if (character_action_input.contains("right")) {
     g_character.flip = 1;
+    self_flip_cooldown = window::dt_now + 50;
     return true;
   }
   return false;
@@ -426,6 +430,9 @@ bool character_logic_system::run_attack(game_character &g_character) {
   if (!g_character.weapon.has_value()) {
     return false;
   }
+  if (self_attack_cooldown > window::dt_now) {
+    return false;
+  }
   if (character_action_input.contains("attack")) {
     auto g_action = load_action_type(g_character);
     auto g_weapon = g_character.weapon->id;
@@ -559,8 +566,26 @@ character_logic_system::load_pos_type(game_character &g_character) {
 
 void character_logic_system::run_network_action_sync(
     game_character &g_character, game_character &o_character) {
-  if (o_character.action != g_character.action ||
-      o_character.action_animate != g_character.action_animate) {
+
+  static bool last_action;
+  static uint64_t last_send_time = 0;
+  const int32_t MIN_SEND_INTERVAL_MS = 33;
+
+  bool action_changed =
+      (o_character.action != g_character.action ||
+       o_character.action_animate != g_character.action_animate);
+
+  if (last_action) {
+    action_changed = true;
+    last_action = false;
+    last_send_time = window::dt_now - MIN_SEND_INTERVAL_MS;
+  }
+
+  if (!action_changed)
+    return;
+
+  // 节流：频率限制
+  if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
     ClientCharacterLogicT t;
     ActionT a;
     a.action =
@@ -569,17 +594,40 @@ void character_logic_system::run_network_action_sync(
     a.action_index = g_character.action_index;
     t.payload.Set(a);
     client_request::character_logic_request(t);
+    last_send_time = window::dt_now;
+    last_action = false;
+  } else {
+    last_action = true;
   }
 }
 
 void character_logic_system::run_network_flip_sync(
     game_character &g_character, game_character &o_character) {
-  if (o_character.flip != g_character.flip) {
+  static bool last_flip;
+  static uint64_t last_send_time = 0;
+  const int32_t MIN_SEND_INTERVAL_MS = 33;
+
+  bool flip_changed = o_character.flip != g_character.flip;
+  if (last_flip) {
+    flip_changed = true;
+    last_flip = false;
+    last_send_time = window::dt_now - MIN_SEND_INTERVAL_MS;
+  }
+
+  if (!flip_changed)
+    return;
+
+  // 节流：频率限制
+  if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
     ClientCharacterLogicT t;
     FlipT f;
     f.flip = g_character.flip;
     t.payload.Set(f);
     client_request::character_logic_request(t);
+    last_send_time = window::dt_now;
+    last_flip = false;
+  } else {
+    last_flip = true;
   }
 }
 
@@ -588,7 +636,7 @@ void character_logic_system::run_network_movement_sync(
   static bool last_movement;
 
   static uint64_t last_send_time = 0;
-  static const int32_t MIN_SEND_INTERVAL_MS = 33;
+  const int32_t MIN_SEND_INTERVAL_MS = 33;
 
   bool position_changed = (o_character.pos.x != g_character.pos.x ||
                            o_character.pos.y != g_character.pos.y);
@@ -730,6 +778,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   case action_enum::attack: {
     bool fall = run_fall(g_character);
     if (run_animate(g_character)) {
+      // 冷却
+      self_flip_cooldown = window::dt_now + 33;
+      self_attack_cooldown = window::dt_now + 33;
       if (!fall) {
         // 落地
         self_vspeed = 0;
@@ -786,11 +837,6 @@ void character_logic_system::run_others_logic() {
         break;
       }
       case fbs::CharacterLogicType_Flip: {
-        auto action_type = load_action_type(c.g_character);
-        auto animate = c.g_character.action_animate;
-        if (action_type == action_enum::attack && animate) {
-          break;
-        }
         if (v.empty()) {
           break;
         }
@@ -800,20 +846,19 @@ void character_logic_system::run_others_logic() {
         break;
       }
       case fbs::CharacterLogicType_Action: {
-        auto action_type = load_action_type(c.g_character);
-        auto animate = c.g_character.action_animate;
-        if (action_type == action_enum::attack && animate) {
-          break;
-        }
+        // auto action_type = load_action_type(c.g_character);
+        // auto animate = c.g_character.action_animate;
+        // if (action_type == action_enum::attack && animate) {
+        //   break;
+        // }
         if (v.empty()) {
           break;
         }
         auto a = *v.back().AsAction();
         c.g_character.action = std::u16string{a.action.begin(), a.action.end()};
-        // c.g_character.action_index = a.action_index;
-        c.g_character.action_index = 0;
-        c.g_character.action_time = 0;
+        c.g_character.action_index = a.action_index;
         c.g_character.action_animate = a.action_animate;
+        c.g_character.action_time = 0;
         v.clear();
         break;
       }

@@ -91,6 +91,8 @@ public:
   static inline uint64_t self_sit_cooldown;
   static inline uint64_t self_face_cooldown;
   static inline uint64_t self_portal_cooldown;
+  static inline uint64_t self_flip_cooldown;
+  static inline uint64_t self_attack_cooldown;
 
   static inline float self_fall_min;
 };
