@@ -59,6 +59,21 @@ table Action{
     action_animate:bool;
 }
 
+table CharacterAttack{
+    mob_id:uint32;
+    time:uint64;
+    num:uint64;
+    skill:bool;
+}
+
+table CharacterSkill{
+    skill_id:uint32;
+    time:uint64;
+    mobs:[uint32];
+    players:[uint64];
+}
+
+
 table Player{
     client_id:uint64;
     character:Character;

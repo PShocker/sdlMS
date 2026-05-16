@@ -7,6 +7,7 @@
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
@@ -26,6 +27,23 @@
 #include <ranges>
 #include <string>
 #include <vector>
+
+std::vector<uint32_t>
+character_logic_system::run_attack_check(game_character &g_character,
+                                         SDL_FPoint &lt, SDL_FPoint &rb) {
+  std::vector<uint32_t> v;
+  auto &pos = g_character.pos;
+  SDL_FRect r = {
+      .x = pos.x + lt.x,
+      .y = pos.y + lt.y,
+      .w = rb.x - lt.x,
+      .h = rb.y - lt.y,
+  };
+  for (const auto [k, v] : mob_game_instance::data) {
+
+  }
+  return v;
+}
 
 bool character_logic_system::run_action(game_character &g_character,
                                         const std::u16string &action) {
@@ -456,7 +474,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       self_hspeed = 0;
     }
     case action_enum::jump: {
-      auto gen = random_game_instance::gen;
+      auto &gen = random_game_instance::gen;
       bool shoot_weapon = shoot_weapons.contains(attack_type);
       if (shoot_weapon) {
 
@@ -541,7 +559,8 @@ character_logic_system::load_pos_type(game_character &g_character) {
 
 void character_logic_system::run_network_action_sync(
     game_character &g_character, game_character &o_character) {
-  if (o_character.action != g_character.action) {
+  if (o_character.action != g_character.action ||
+      o_character.action_animate != g_character.action_animate) {
     ClientCharacterLogicT t;
     ActionT a;
     a.action =
@@ -566,7 +585,7 @@ void character_logic_system::run_network_flip_sync(
 
 void character_logic_system::run_network_movement_sync(
     game_character &g_character, game_character &o_character) {
-  static std::optional<MovementT> last_movement;
+  static bool last_movement;
 
   static uint64_t last_send_time = 0;
   static const int32_t MIN_SEND_INTERVAL_MS = 33;
@@ -574,9 +593,9 @@ void character_logic_system::run_network_movement_sync(
   bool position_changed = (o_character.pos.x != g_character.pos.x ||
                            o_character.pos.y != g_character.pos.y);
 
-  if (last_movement.has_value()) {
+  if (last_movement) {
     position_changed = true;
-    last_movement = std::nullopt;
+    last_movement = false;
     last_send_time = window::dt_now - MIN_SEND_INTERVAL_MS;
   }
 
@@ -598,9 +617,9 @@ void character_logic_system::run_network_movement_sync(
     req.payload.Set(mv);
     client_request::character_logic_request(req);
     last_send_time = window::dt_now;
-    last_movement = std::nullopt;
+    last_movement = false;
   } else {
-    last_movement = mv;
+    last_movement = true;
   }
 }
 

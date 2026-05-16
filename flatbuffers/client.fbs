@@ -14,3 +14,7 @@ table ClientScene {
 table ClientCharacterLogic {
     payload:CharacterLogicType;
 }
+
+table ClientCharacterAttack {
+    payload:CharacterAttack;
+}
