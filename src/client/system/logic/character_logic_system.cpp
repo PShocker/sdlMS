@@ -831,7 +831,7 @@ void character_logic_system::run_others_logic() {
         c.g_character.pos.x = per_x;
         c.g_character.pos.y = per_y;
         c.g_character.page = mv.page;
-        if (per == 1.0f) {
+        if (per >= 0.95f) {
           c.logics.erase(c.logics.begin());
         }
         break;
