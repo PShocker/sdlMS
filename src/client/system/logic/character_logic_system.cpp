@@ -846,11 +846,6 @@ void character_logic_system::run_others_logic() {
         break;
       }
       case fbs::CharacterLogicType_Action: {
-        // auto action_type = load_action_type(c.g_character);
-        // auto animate = c.g_character.action_animate;
-        // if (action_type == action_enum::attack && animate) {
-        //   break;
-        // }
         if (v.empty()) {
           break;
         }
