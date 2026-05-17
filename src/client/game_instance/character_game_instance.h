@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -60,16 +61,18 @@ private:
 public:
   static void init_character_bone();
 
-  static void load_self_pos(const std::u16string &pn, uint8_t index);
+  static void load_self_pos(std::optional<SDL_FPoint> &pos);
+  static SDL_FPoint load_self_pos(const std::u16string &pn, uint8_t index);
   static void load_self_character();
   static void
-  load_others_character(const std::vector<std::unique_ptr<fbs::PlayerT>> &v);
-  static void load_others_character(const std::unique_ptr<fbs::PlayerT> &c);
+  load_others_character(const std::vector<std::unique_ptr<PlayerT>> &v);
+  static void load_others_character(const std::unique_ptr<PlayerT> &c);
   static void exit_others_character(uint64_t client_id);
-  static fbs::CharacterT load_self_fbs_character();
+  static void clear_others();
+  static CharacterT load_self_fbs_character(const game_character &g);
 
   // network
-  static void other_character_logic(const fbs::ServerCharacterLogicT &r);
+  static void other_character_logic(const ServerCharacterLogicT &r);
 
   static inline game_character self;
 

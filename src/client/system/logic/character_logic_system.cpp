@@ -518,7 +518,7 @@ bool character_logic_system::run_portal(game_character &g_character) {
         if (por.tm == 999999999) {
           continue;
         }
-        if (por.pt == 1) {
+        if (por.pt == 1 || por.pt == 2) {
           const auto &g_pos = g_character.pos;
           const auto &p_pos = por.pos;
           if (g_pos.x == std::clamp(g_pos.x, p_pos.x - 40, p_pos.x + 40) &&
@@ -526,6 +526,7 @@ bool character_logic_system::run_portal(game_character &g_character) {
             if (por.tm != scene_system_instance::map_id) {
               // need to change map
               scene_system_instance::enter_prepare(por.tm, por.tn, 0);
+              self_portal_cooldown = window::dt_now + 1500;
             } else {
               // no change map
               const auto &tn = portal_game_instance::data.find(por.tn)->second;

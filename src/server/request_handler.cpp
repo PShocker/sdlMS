@@ -78,12 +78,14 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterOutT r;
     payload->UnPackTo(&r);
     character_game_instance::exit_others_character(r.client_id);
+    break;
   }
    case NetPayload_ServerMobLogic: {
     auto payload = packet->payload_as_ServerMobLogic();
     fbs::ServerMobLogicT r;
     payload->UnPackTo(&r);
     mob_game_instance::server_mob_logic(r.payload);
+    break;
   }
   default:
     break;

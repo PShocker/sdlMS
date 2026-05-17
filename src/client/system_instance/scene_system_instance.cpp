@@ -47,6 +47,7 @@
 #include <array>
 #include <cstdint>
 #include <cstdlib>
+#include <optional>
 #include <ranges>
 #include <utility>
 #include <vector>
@@ -121,6 +122,8 @@ void scene_system_instance::enter(uint32_t map_id) {
   tooltip_game_instance::load(map_id);
   seat_game_instance::load(map_id);
   minimap_ui_system::load();
+  character_game_instance::load_self_pos(prepare_pos);
+  character_game_instance::clear_others();
   camera_game_instance::reset();
 
   system::event_systems = {
@@ -146,9 +149,24 @@ void scene_system_instance::enter(uint32_t map_id) {
 
 void scene_system_instance::enter_prepare(uint32_t map_id,
                                           const std::u16string &pn, uint8_t i) {
-  prepare_map_id = map_id;
-  character_game_instance::load_self_pos(pn, i);
-  auto c = character_game_instance::load_self_fbs_character();
+  fbs::CharacterT c;
+  if (prepare_map_id == 0) {
+    prepare_map_id = map_id;
+    auto r = character_game_instance::load_self_pos(pn, i);
+    character_game_instance::self.pos = r;
+    character_game_instance::self.action = u"jump";
+    prepare_pos = std::nullopt;
+    const auto &self = character_game_instance::self;
+    c = character_game_instance::load_self_fbs_character(self);
+  } else {
+    prepare_map_id = map_id;
+    auto r = character_game_instance::load_self_pos(pn, i);
+    auto g = character_game_instance::self;
+    g.pos = r;
+    g.action = u"jump";
+    prepare_pos = r;
+    c = character_game_instance::load_self_fbs_character(g);
+  }
 
   fbs::ClientSceneT client_scene;
   client_scene.come = true;

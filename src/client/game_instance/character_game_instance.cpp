@@ -160,8 +160,18 @@ void character_game_instance::init_character_bone() {
   }
 }
 
-void character_game_instance::load_self_pos(const std::u16string &pn,
-                                            uint8_t index) {
+void character_game_instance::load_self_pos(std::optional<SDL_FPoint> &pos) {
+  if (pos.has_value()) {
+    self.pos = pos.value();
+    self.action = u"jump";
+  }
+  character_logic_system::self_fh = 0;
+  character_logic_system::self_lr = 0;
+}
+
+SDL_FPoint character_game_instance::load_self_pos(const std::u16string &pn,
+                                                  uint8_t index) {
+  SDL_FPoint r;
   game_portal *por;
   auto portals =
       portal_game_instance::load(scene_system_instance::prepare_map_id);
@@ -179,9 +189,9 @@ void character_game_instance::load_self_pos(const std::u16string &pn,
       por = &it->second;
     }
   }
-  self.pos = por->pos;
-  self.pos.y -= 5;
-  self.action = u"jump";
+  r = por->pos;
+  r.y -= 5;
+  return r;
 }
 
 void character_game_instance::load_self_character() {
@@ -283,6 +293,8 @@ void character_game_instance::load_others_character(
     load_others_character(c);
   }
 }
+
+void character_game_instance::clear_others() { others.clear(); }
 
 void character_game_instance::exit_others_character(uint64_t client_id) {
   others.erase(client_id);
@@ -745,68 +757,66 @@ void character_game_instance::add_face(game_character &g,
   }
 }
 
-fbs::CharacterT character_game_instance::load_self_fbs_character() {
+fbs::CharacterT
+character_game_instance::load_self_fbs_character(const game_character &g) {
   fbs::CharacterT c;
 
   c.appearance = std::make_unique<fbs::CharacterAppearanceT>();
   c.state = std::make_unique<fbs::LifeStateT>();
 
   if (self.accessory.has_value()) {
-    auto id = self.accessory->id;
+    auto id = g.accessory->id;
     c.appearance->accessory = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.cap.has_value()) {
-    auto id = self.cap->id;
+    auto id = g.cap->id;
     c.appearance->cap = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.cape.has_value()) {
-    auto id = self.cape->id;
+    auto id = g.cape->id;
     c.appearance->cape = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.glove.has_value()) {
-    auto id = self.glove->id;
+    auto id = g.glove->id;
     c.appearance->glove = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.coat.has_value()) {
-    auto id = self.coat->id;
+    auto id = g.coat->id;
     c.appearance->coat = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.longcoat.has_value()) {
-    auto id = self.longcoat->id;
+    auto id = g.longcoat->id;
     c.appearance->longcoat = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.pant.has_value()) {
-    auto id = self.pant->id;
+    auto id = g.pant->id;
     c.appearance->pant = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.shield.has_value()) {
-    auto id = self.shield->id;
+    auto id = g.shield->id;
     c.appearance->shield = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.weapon.has_value()) {
-    auto id = self.weapon->id;
+    auto id = g.weapon->id;
     c.appearance->weapon = std::stoi(std::string{id.begin(), id.end()});
   }
   if (self.shoes.has_value()) {
-    auto id = self.shoes->id;
+    auto id = g.shoes->id;
     c.appearance->shoes = std::stoi(std::string{id.begin(), id.end()});
   }
-  c.appearance->head =
-      std::stoi(std::string{self.head.begin(), self.head.end()});
-  c.appearance->body =
-      std::stoi(std::string{self.body.begin(), self.body.end()});
+  c.appearance->head = std::stoi(std::string{g.head.begin(), g.head.end()});
+  c.appearance->body = std::stoi(std::string{g.body.begin(), g.body.end()});
 
-  c.appearance->hair =
-      std::stoi(std::string{self.hair.begin(), self.hair.end()});
+  c.appearance->hair = std::stoi(std::string{g.hair.begin(), g.hair.end()});
 
   c.appearance->face =
-      std::stoi(std::string{self.face.id.begin(), self.face.id.end()});
+      std::stoi(std::string{g.face.id.begin(), g.face.id.end()});
 
-  c.state->action = std::string{self.action.begin(), self.action.end()};
-  c.state->x = self.pos.x;
-  c.state->y = self.pos.y;
+  c.state->action = std::string{g.action.begin(), g.action.end()};
+  c.state->x = g.pos.x;
+  c.state->y = g.pos.y;
 
-  c.state->flip = self.flip;
+  c.state->flip = g.flip;
 
   return c;
 }
