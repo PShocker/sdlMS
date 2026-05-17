@@ -84,7 +84,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerMobLogic();
     fbs::ServerMobLogicT r;
     payload->UnPackTo(&r);
-    mob_game_instance::server_mob_logic(r.payload);
+    mob_game_instance::server_mob_logic(r);
     break;
   }
   default:

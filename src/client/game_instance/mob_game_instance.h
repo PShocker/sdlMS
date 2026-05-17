@@ -2,6 +2,7 @@
 
 #include "src/client/game/game_mob.h"
 #include "src/common/flatbuffers/common.h"
+#include "src/common/flatbuffers/server.h"
 #include "wz/Node.h"
 #include <cstdint>
 #include <flat_map>
@@ -25,8 +26,7 @@ public:
 
   static void load_server_mob(const std::vector<std::unique_ptr<MobT>> &v);
 
-  static void
-  server_mob_logic(const std::vector<std::unique_ptr<MobLogicT>> &v);
+  static void server_mob_logic(const ServerMobLogicT &v);
 
   static inline std::flat_map<int32_t, mob_server_data> data;
 };

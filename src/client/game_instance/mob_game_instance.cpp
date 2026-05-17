@@ -2,6 +2,8 @@
 #include "foothold_game_instance.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/system_instance/scene_system_instance.h"
+#include "src/common/flatbuffers/server.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
@@ -63,9 +65,11 @@ void mob_game_instance::load_server_mob(
   }
 }
 
-void mob_game_instance::server_mob_logic(
-    const std::vector<std::unique_ptr<MobLogicT>> &v) {
-  for (const auto &m : v) {
+void mob_game_instance::server_mob_logic(const ServerMobLogicT &v) {
+  if (v.map_id != scene_system_instance::map_id) {
+    return;
+  }
+  for (const auto &m : v.payload) {
     if (data.contains(m->mob_index)) {
       auto &logics = data.at(m->mob_index).logics;
       logics[m->payload.type].push_back(m->payload);

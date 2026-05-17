@@ -26,5 +26,6 @@ table ServerCharacterOut {
 }
 
 table ServerMobLogic {
+    map_id:uint32;
     payload:[MobLogic];
 }

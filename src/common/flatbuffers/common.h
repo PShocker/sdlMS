@@ -39,6 +39,14 @@ struct Action;
 struct ActionBuilder;
 struct ActionT;
 
+struct CharacterAttack;
+struct CharacterAttackBuilder;
+struct CharacterAttackT;
+
+struct CharacterSkill;
+struct CharacterSkillBuilder;
+struct CharacterSkillT;
+
 struct Player;
 struct PlayerBuilder;
 struct PlayerT;
@@ -1097,6 +1105,220 @@ inline ::flatbuffers::Offset<Action> CreateActionDirect(
 
 ::flatbuffers::Offset<Action> CreateAction(::flatbuffers::FlatBufferBuilder &_fbb, const ActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct CharacterAttackT : public ::flatbuffers::NativeTable {
+  typedef CharacterAttack TableType;
+  uint32_t mob_id = 0;
+  uint64_t time = 0;
+  uint64_t num = 0;
+  bool skill = false;
+};
+
+struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterAttackT NativeTableType;
+  typedef CharacterAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_ID = 4,
+    VT_TIME = 6,
+    VT_NUM = 8,
+    VT_SKILL = 10
+  };
+  uint32_t mob_id() const {
+    return GetField<uint32_t>(VT_MOB_ID, 0);
+  }
+  bool mutate_mob_id(uint32_t _mob_id = 0) {
+    return SetField<uint32_t>(VT_MOB_ID, _mob_id, 0);
+  }
+  uint64_t time() const {
+    return GetField<uint64_t>(VT_TIME, 0);
+  }
+  bool mutate_time(uint64_t _time = 0) {
+    return SetField<uint64_t>(VT_TIME, _time, 0);
+  }
+  uint64_t num() const {
+    return GetField<uint64_t>(VT_NUM, 0);
+  }
+  bool mutate_num(uint64_t _num = 0) {
+    return SetField<uint64_t>(VT_NUM, _num, 0);
+  }
+  bool skill() const {
+    return GetField<uint8_t>(VT_SKILL, 0) != 0;
+  }
+  bool mutate_skill(bool _skill = 0) {
+    return SetField<uint8_t>(VT_SKILL, static_cast<uint8_t>(_skill), 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_ID, 4) &&
+           VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
+           VerifyField<uint64_t>(verifier, VT_NUM, 8) &&
+           VerifyField<uint8_t>(verifier, VT_SKILL, 1) &&
+           verifier.EndTable();
+  }
+  CharacterAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(CharacterAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<CharacterAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct CharacterAttackBuilder {
+  typedef CharacterAttack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_id(uint32_t mob_id) {
+    fbb_.AddElement<uint32_t>(CharacterAttack::VT_MOB_ID, mob_id, 0);
+  }
+  void add_time(uint64_t time) {
+    fbb_.AddElement<uint64_t>(CharacterAttack::VT_TIME, time, 0);
+  }
+  void add_num(uint64_t num) {
+    fbb_.AddElement<uint64_t>(CharacterAttack::VT_NUM, num, 0);
+  }
+  void add_skill(bool skill) {
+    fbb_.AddElement<uint8_t>(CharacterAttack::VT_SKILL, static_cast<uint8_t>(skill), 0);
+  }
+  explicit CharacterAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CharacterAttack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CharacterAttack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_id = 0,
+    uint64_t time = 0,
+    uint64_t num = 0,
+    bool skill = false) {
+  CharacterAttackBuilder builder_(_fbb);
+  builder_.add_num(num);
+  builder_.add_time(time);
+  builder_.add_mob_id(mob_id);
+  builder_.add_skill(skill);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct CharacterSkillT : public ::flatbuffers::NativeTable {
+  typedef CharacterSkill TableType;
+  uint32_t skill_id = 0;
+  uint64_t time = 0;
+  std::vector<uint32_t> mobs{};
+  std::vector<uint64_t> players{};
+};
+
+struct CharacterSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterSkillT NativeTableType;
+  typedef CharacterSkillBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SKILL_ID = 4,
+    VT_TIME = 6,
+    VT_MOBS = 8,
+    VT_PLAYERS = 10
+  };
+  uint32_t skill_id() const {
+    return GetField<uint32_t>(VT_SKILL_ID, 0);
+  }
+  bool mutate_skill_id(uint32_t _skill_id = 0) {
+    return SetField<uint32_t>(VT_SKILL_ID, _skill_id, 0);
+  }
+  uint64_t time() const {
+    return GetField<uint64_t>(VT_TIME, 0);
+  }
+  bool mutate_time(uint64_t _time = 0) {
+    return SetField<uint64_t>(VT_TIME, _time, 0);
+  }
+  const ::flatbuffers::Vector<uint32_t> *mobs() const {
+    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_MOBS);
+  }
+  ::flatbuffers::Vector<uint32_t> *mutable_mobs() {
+    return GetPointer<::flatbuffers::Vector<uint32_t> *>(VT_MOBS);
+  }
+  const ::flatbuffers::Vector<uint64_t> *players() const {
+    return GetPointer<const ::flatbuffers::Vector<uint64_t> *>(VT_PLAYERS);
+  }
+  ::flatbuffers::Vector<uint64_t> *mutable_players() {
+    return GetPointer<::flatbuffers::Vector<uint64_t> *>(VT_PLAYERS);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_SKILL_ID, 4) &&
+           VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
+           VerifyOffset(verifier, VT_MOBS) &&
+           verifier.VerifyVector(mobs()) &&
+           VerifyOffset(verifier, VT_PLAYERS) &&
+           verifier.VerifyVector(players()) &&
+           verifier.EndTable();
+  }
+  CharacterSkillT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(CharacterSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<CharacterSkill> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct CharacterSkillBuilder {
+  typedef CharacterSkill Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_skill_id(uint32_t skill_id) {
+    fbb_.AddElement<uint32_t>(CharacterSkill::VT_SKILL_ID, skill_id, 0);
+  }
+  void add_time(uint64_t time) {
+    fbb_.AddElement<uint64_t>(CharacterSkill::VT_TIME, time, 0);
+  }
+  void add_mobs(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> mobs) {
+    fbb_.AddOffset(CharacterSkill::VT_MOBS, mobs);
+  }
+  void add_players(::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> players) {
+    fbb_.AddOffset(CharacterSkill::VT_PLAYERS, players);
+  }
+  explicit CharacterSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CharacterSkill> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CharacterSkill>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CharacterSkill> CreateCharacterSkill(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t skill_id = 0,
+    uint64_t time = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> mobs = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> players = 0) {
+  CharacterSkillBuilder builder_(_fbb);
+  builder_.add_time(time);
+  builder_.add_players(players);
+  builder_.add_mobs(mobs);
+  builder_.add_skill_id(skill_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CharacterSkill> CreateCharacterSkillDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t skill_id = 0,
+    uint64_t time = 0,
+    const std::vector<uint32_t> *mobs = nullptr,
+    const std::vector<uint64_t> *players = nullptr) {
+  auto mobs__ = mobs ? _fbb.CreateVector<uint32_t>(*mobs) : 0;
+  auto players__ = players ? _fbb.CreateVector<uint64_t>(*players) : 0;
+  return fbs::CreateCharacterSkill(
+      _fbb,
+      skill_id,
+      time,
+      mobs__,
+      players__);
+}
+
+::flatbuffers::Offset<CharacterSkill> CreateCharacterSkill(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct PlayerT : public ::flatbuffers::NativeTable {
   typedef Player TableType;
   uint64_t client_id = 0;
@@ -1776,6 +1998,76 @@ inline ::flatbuffers::Offset<Action> Action::Pack(::flatbuffers::FlatBufferBuild
       _action,
       _action_index,
       _action_animate);
+}
+
+inline CharacterAttackT *CharacterAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<CharacterAttackT>(new CharacterAttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void CharacterAttack::UnPackTo(CharacterAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_id(); _o->mob_id = _e; }
+  { auto _e = time(); _o->time = _e; }
+  { auto _e = num(); _o->num = _e; }
+  { auto _e = skill(); _o->skill = _e; }
+}
+
+inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CharacterAttack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<CharacterAttack> CharacterAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_id = _o->mob_id;
+  auto _time = _o->time;
+  auto _num = _o->num;
+  auto _skill = _o->skill;
+  return fbs::CreateCharacterAttack(
+      _fbb,
+      _mob_id,
+      _time,
+      _num,
+      _skill);
+}
+
+inline CharacterSkillT *CharacterSkill::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<CharacterSkillT>(new CharacterSkillT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void CharacterSkill::UnPackTo(CharacterSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = skill_id(); _o->skill_id = _e; }
+  { auto _e = time(); _o->time = _e; }
+  { auto _e = mobs(); if (_e) { _o->mobs.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->mobs[_i] = _e->Get(_i); } } else { _o->mobs.resize(0); } }
+  { auto _e = players(); if (_e) { _o->players.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->players[_i] = _e->Get(_i); } } else { _o->players.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<CharacterSkill> CreateCharacterSkill(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CharacterSkill::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<CharacterSkill> CharacterSkill::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterSkillT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _skill_id = _o->skill_id;
+  auto _time = _o->time;
+  auto _mobs = _o->mobs.size() ? _fbb.CreateVector(_o->mobs) : 0;
+  auto _players = _o->players.size() ? _fbb.CreateVector(_o->players) : 0;
+  return fbs::CreateCharacterSkill(
+      _fbb,
+      _skill_id,
+      _time,
+      _mobs,
+      _players);
 }
 
 inline PlayerT::PlayerT(const PlayerT &o)

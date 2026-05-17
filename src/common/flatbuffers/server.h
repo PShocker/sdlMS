@@ -383,6 +383,7 @@ inline ::flatbuffers::Offset<ServerCharacterOut> CreateServerCharacterOut(
 
 struct ServerMobLogicT : public ::flatbuffers::NativeTable {
   typedef ServerMobLogic TableType;
+  uint32_t map_id = 0;
   std::vector<std::unique_ptr<fbs::MobLogicT>> payload{};
   ServerMobLogicT() = default;
   ServerMobLogicT(const ServerMobLogicT &o);
@@ -394,8 +395,15 @@ struct ServerMobLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ServerMobLogicT NativeTableType;
   typedef ServerMobLogicBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PAYLOAD = 4
+    VT_MAP_ID = 4,
+    VT_PAYLOAD = 6
   };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *payload() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *>(VT_PAYLOAD);
   }
@@ -405,6 +413,7 @@ struct ServerMobLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
            verifier.VerifyVectorOfTables(payload()) &&
@@ -419,6 +428,9 @@ struct ServerMobLogicBuilder {
   typedef ServerMobLogic Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ServerMobLogic::VT_MAP_ID, map_id, 0);
+  }
   void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>>> payload) {
     fbb_.AddOffset(ServerMobLogic::VT_PAYLOAD, payload);
   }
@@ -435,18 +447,22 @@ struct ServerMobLogicBuilder {
 
 inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogic(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>>> payload = 0) {
   ServerMobLogicBuilder builder_(_fbb);
   builder_.add_payload(payload);
+  builder_.add_map_id(map_id);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogicDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
     const std::vector<::flatbuffers::Offset<fbs::MobLogic>> *payload = nullptr) {
   auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobLogic>>(*payload) : 0;
   return fbs::CreateServerMobLogic(
       _fbb,
+      map_id,
       payload__);
 }
 
@@ -623,12 +639,14 @@ inline ::flatbuffers::Offset<ServerCharacterOut> ServerCharacterOut::Pack(::flat
       _client_id);
 }
 
-inline ServerMobLogicT::ServerMobLogicT(const ServerMobLogicT &o) {
+inline ServerMobLogicT::ServerMobLogicT(const ServerMobLogicT &o)
+      : map_id(o.map_id) {
   payload.reserve(o.payload.size());
   for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::MobLogicT(*payload_) : nullptr); }
 }
 
 inline ServerMobLogicT &ServerMobLogicT::operator=(ServerMobLogicT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(map_id, o.map_id);
   std::swap(payload, o.payload);
   return *this;
 }
@@ -642,6 +660,7 @@ inline ServerMobLogicT *ServerMobLogic::UnPack(const ::flatbuffers::resolver_fun
 inline void ServerMobLogic::UnPackTo(ServerMobLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::MobLogicT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
 }
 
@@ -653,9 +672,11 @@ inline ::flatbuffers::Offset<ServerMobLogic> ServerMobLogic::Pack(::flatbuffers:
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobLogic>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateMobLogic(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerMobLogic(
       _fbb,
+      _map_id,
       _payload);
 }
 

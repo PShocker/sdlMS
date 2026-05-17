@@ -169,6 +169,7 @@ void server_mob_system::run_send() {
     return;
   }
   ServerMobLogicT r;
+  r.map_id = map_id;
   r.payload = std::move(unique_logics);
   auto &clients = server_scene_instance::scenes[map_id].clients;
   for (auto client_id : clients) {

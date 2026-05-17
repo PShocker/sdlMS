@@ -29,6 +29,10 @@ struct ClientCharacterLogic;
 struct ClientCharacterLogicBuilder;
 struct ClientCharacterLogicT;
 
+struct ClientCharacterAttack;
+struct ClientCharacterAttackBuilder;
+struct ClientCharacterAttackT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -269,6 +273,67 @@ inline ::flatbuffers::Offset<ClientCharacterLogic> CreateClientCharacterLogic(
 
 ::flatbuffers::Offset<ClientCharacterLogic> CreateClientCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientCharacterAttackT : public ::flatbuffers::NativeTable {
+  typedef ClientCharacterAttack TableType;
+  std::unique_ptr<fbs::CharacterAttackT> payload{};
+  ClientCharacterAttackT() = default;
+  ClientCharacterAttackT(const ClientCharacterAttackT &o);
+  ClientCharacterAttackT(ClientCharacterAttackT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientCharacterAttackT &operator=(ClientCharacterAttackT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientCharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientCharacterAttackT NativeTableType;
+  typedef ClientCharacterAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PAYLOAD = 4
+  };
+  const fbs::CharacterAttack *payload() const {
+    return GetPointer<const fbs::CharacterAttack *>(VT_PAYLOAD);
+  }
+  fbs::CharacterAttack *mutable_payload() {
+    return GetPointer<fbs::CharacterAttack *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ClientCharacterAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientCharacterAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientCharacterAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientCharacterAttackBuilder {
+  typedef ClientCharacterAttack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_payload(::flatbuffers::Offset<fbs::CharacterAttack> payload) {
+    fbb_.AddOffset(ClientCharacterAttack::VT_PAYLOAD, payload);
+  }
+  explicit ClientCharacterAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientCharacterAttack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientCharacterAttack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<fbs::CharacterAttack> payload = 0) {
+  ClientCharacterAttackBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -363,6 +428,41 @@ inline ::flatbuffers::Offset<ClientCharacterLogic> ClientCharacterLogic::Pack(::
   return fbs::CreateClientCharacterLogic(
       _fbb,
       _payload_type,
+      _payload);
+}
+
+inline ClientCharacterAttackT::ClientCharacterAttackT(const ClientCharacterAttackT &o)
+      : payload((o.payload) ? new fbs::CharacterAttackT(*o.payload) : nullptr) {
+}
+
+inline ClientCharacterAttackT &ClientCharacterAttackT::operator=(ClientCharacterAttackT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ClientCharacterAttackT *ClientCharacterAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientCharacterAttackT>(new ClientCharacterAttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientCharacterAttack::UnPackTo(ClientCharacterAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::CharacterAttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientCharacterAttack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientCharacterAttack> ClientCharacterAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload = _o->payload ? CreateCharacterAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateClientCharacterAttack(
+      _fbb,
       _payload);
 }
 
