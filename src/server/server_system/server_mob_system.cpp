@@ -193,6 +193,9 @@ bool server_mob_system::run() {
     if (sc.mobs.empty()) {
       continue;
     }
+    if (sc.clients.empty()) {
+      continue;
+    }
     map_id = sc.map_id;
     for (auto &mob : sc.mobs | std::views::values) {
       run_state_machine(mob);
