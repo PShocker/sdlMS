@@ -1,6 +1,9 @@
 #include "afterimage_game_instance.h"
+#include "SDL3/SDL_rect.h"
 #include "character_game_instance.h"
+#include "effect_game_instance.h"
 #include "equip_game_instance.h"
+#include "src/client/game/game_effect.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
@@ -88,12 +91,17 @@ afterimage_game_instance::load_data(game_character &g_character) {
   return std::nullopt;
 }
 
-std::optional<afterimage_ltrb>
+std::optional<SDL_FRect>
 afterimage_game_instance::load_rect(game_character &g_character) {
   if (auto data = load_atf_node(g_character)) {
     auto lt = wz_resource::load_fpoint(data->get_child(u"lt"));
     auto rb = wz_resource::load_fpoint(data->get_child(u"rb"));
-    return afterimage_ltrb{lt, rb};
+    return SDL_FRect{
+        .x = lt.x,
+        .y = lt.y,
+        .w = rb.x - lt.x,
+        .h = rb.y - lt.y,
+    };
   }
   return std::nullopt;
 }
@@ -112,8 +120,23 @@ uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
     for (auto i = 0; i < index; i++) {
       time += bones[i].delay;
     }
-    auto now = std::chrono::system_clock::now().time_since_epoch().count();
+    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch())
+                   .count();
     time += now;
   }
   return time;
+}
+
+void afterimage_game_instance::add_afterimage(game_character &g_character,
+                                              int32_t mob_index,
+                                              SDL_FPoint atk_pos) {
+  game_effect e;
+  e.index = 0;
+  e.time = 0;
+  e.type = game_effect::effect_type::afterimage;
+  e.id = g_character.weapon->id;
+  e.delay = load_beat_time(g_character);
+  e.pos = atk_pos;
+  effect_game_instance::mob_back_effect[mob_index].emplace_back(e);
 }

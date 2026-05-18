@@ -32,6 +32,7 @@
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/drop_render_system.h"
+#include "src/client/system/render/effect_render_system.h"
 #include "src/client/system/render/mob_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
@@ -86,6 +87,7 @@ bool scene_system_instance::render_game() {
     }
     for (auto &mob : mob_array[i]) {
       mob_render_system::render(*mob);
+      effect_render_system::render_mob_back(*mob);
     }
     for (auto &character : character_array[i]) {
       character_render_system::render(*character);

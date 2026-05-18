@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL3/SDL_rect.h"
 #include "src/client/game/game_mob.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
@@ -18,16 +19,12 @@ struct mob_server_data {
   std::flat_map<MobLogicType, std::vector<MobLogicTypeUnion>> logics;
 };
 
-struct mob_ltrb {
-  SDL_FPoint lt;
-  SDL_FPoint rb;
-};
 
 class mob_game_instance {
 public:
   static wz::Node *load_mob_info(const std::u16string &id);
   static wz::Node *load_link_mob_node(const std::u16string &id);
-  static std::optional<mob_ltrb> load_mob_ltrb(const game_mob &g_mob);
+  static std::optional<SDL_FRect> load_mob_rect(const game_mob &g_mob);
 
   static void load(uint32_t map_id);
 

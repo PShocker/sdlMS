@@ -282,6 +282,7 @@ void character_game_instance::load_others_character(
       std::u16string{state->action.begin(), state->action.end()};
   g_character.action_index = state->action_index;
   g_character.action_time = 0;
+  g_character.action_animate = c->character->state->action_animate;
   g_character.page = c->character->state->page;
   g_character.flip = c->character->state->flip;
   others.emplace(c->client_id, g_character);

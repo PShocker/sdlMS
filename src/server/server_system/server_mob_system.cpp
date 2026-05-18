@@ -141,23 +141,36 @@ void server_mob_system::run_duration(server_mob &s_mob) {
   }
 }
 
+void server_mob_system::run_hit_action(server_mob &s_mob) {
+  s_mob.action = u"hit1";
+}
+
+void server_mob_system::run_move_action(server_mob &s_mob) {
+  s_mob.action = u"move";
+}
+
+void server_mob_system::run_stand_action(server_mob &s_mob) {
+  s_mob.action = u"stand";
+}
+
 bool server_mob_system::run_beat_back(server_mob &s_mob) {
   if (s_mob.beat_backs.empty()) {
     return false;
   }
-  const auto &end = s_mob.beat_backs.end();
-  auto time = end->first;
+  const auto &end = s_mob.beat_backs.rbegin();
   auto &beat_back = end->second;
-  auto current_time =
-      std::chrono::system_clock::now().time_since_epoch().count();
+  auto time = beat_back.beat_start_time;
+  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          std::chrono::system_clock::now().time_since_epoch())
+                          .count();
   if (time <= current_time) {
     if (beat_back.beat_time >= 0) {
       beat_back.beat_time -= delta_time;
-      s_mob.hforce = beat_back.left ? -1400 : 1400;
-      s_mob.action = u"hit1";
+      s_mob.hforce = beat_back.left ? 1400 : -1400;
+      s_mob.flip = beat_back.left ? false : true;
+      run_hit_action(s_mob);
       return true;
     } else {
-      s_mob.hforce = beat_back.left ? 1400 : -1400;
       s_mob.beat_backs.clear();
       return false;
     }
@@ -173,6 +186,7 @@ void server_mob_system::run_state_machine(server_mob &s_mob) {
     break;
   }
   case action_enum::stand: {
+    run_beat_back(s_mob);
     break;
   }
   case action_enum::move: {
@@ -181,10 +195,14 @@ void server_mob_system::run_state_machine(server_mob &s_mob) {
     break;
   }
   case action_enum::hit: {
-    auto r=run_beat_back(s_mob);
+    auto r = run_beat_back(s_mob);
     switch (s_mob.type) {
     case server_mob::mob_type::stand: {
       run_walk(s_mob);
+      if (!r) {
+        s_mob.duration = window::dt_now + 500;
+        run_stand_action(s_mob);
+      }
       break;
     }
     case server_mob::mob_type::swim:

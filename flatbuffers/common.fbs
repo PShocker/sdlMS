@@ -62,10 +62,12 @@ table Action{
 table Attack{
     time:uint64;
     num:uint64;
+    attack_x:float;
+    attack_y:float;
 }
 
 table CharacterAttack{
-    mob_id:uint32;
+    mob_index:uint32;
     attack:Attack;
     afterimage:bool;
     left:bool;

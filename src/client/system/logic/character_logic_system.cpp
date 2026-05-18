@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "drop_logic_system.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_mob.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
@@ -30,37 +31,39 @@
 #include <string>
 #include <vector>
 
-std::vector<uint32_t>
-character_logic_system::run_attack_mob_check(game_character &g_character,
-                                             SDL_FPoint &lt, SDL_FPoint &rb) {
-  std::vector<uint32_t> v;
-  std::flat_map<uint32_t, uint32_t> m;
-  auto &g_pos = g_character.pos;
-  SDL_FRect r = {
-      .x = g_pos.x + lt.x,
-      .y = g_pos.y + lt.y,
-      .w = rb.x - lt.x,
-      .h = rb.y - lt.y,
-  };
-  if (g_character.flip) {
-    r.x += 2 * (g_pos.x - r.x) - r.w;
+SDL_FRect character_logic_system::load_rect(SDL_FRect &rect, SDL_FPoint &pos,
+                                            bool flip) {
+  rect.x += pos.x;
+  rect.y += pos.y;
+  if (flip == 1) {
+    rect.x += 2 * (pos.x - rect.x) - rect.w;
   }
+  return rect;
+}
+
+std::vector<attack_data>
+character_logic_system::run_attack_mob_check(game_character &g_character) {
+  std::vector<attack_data> v;
+  std::flat_map<uint32_t, attack_data> m;
+  auto &g_pos = g_character.pos;
+  SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
+  g_r = load_rect(g_r, g_pos, g_character.flip);
   for (const auto [k, v] : mob_game_instance::data) {
-    const auto &m_pos = v.mob.pos;
-    auto [m_lt, m_rb] = mob_game_instance::load_mob_ltrb(v.mob).value();
-    SDL_FRect mob_r = {
-        .x = m_pos.x + m_lt.x,
-        .y = m_pos.y + m_lt.y,
-        .w = m_rb.x - m_lt.x,
-        .h = m_rb.y - m_lt.y,
-    };
-    if (v.mob.flip) {
-      mob_r.x += 2 * (m_pos.x - mob_r.x) - mob_r.w;
-    }
-    if (SDL_HasRectIntersectionFloat(&mob_r, &r)) {
+    auto &m_pos = v.mob.pos;
+    auto m_r = mob_game_instance::load_mob_rect(v.mob).value();
+    m_r = load_rect(m_r, m_pos, v.mob.flip);
+    if (SDL_HasRectIntersectionFloat(&m_r, &g_r)) {
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
                  (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
-      m[dis] = k;
+      SDL_FRect res;
+      SDL_GetRectIntersectionFloat(&m_r, &g_r, &res);
+      float attack_x = res.x + res.w / 2;
+      float attack_y = res.y + res.h / 2;
+      m[dis] = {
+          .mob = v.mob,
+          .attack_x = attack_x,
+          .attack_y = attack_y,
+      };
     }
   }
   v.append_range(m.values());
@@ -524,21 +527,26 @@ bool character_logic_system::run_attack(game_character &g_character) {
       break;
     }
     }
-    auto lrtb = afterimage_game_instance::load_rect(g_character);
-    auto [lr, tb] = lrtb.value();
-    auto atk_mobs = run_attack_mob_check(g_character, lr, tb);
+    auto atk_mobs = run_attack_mob_check(g_character);
     if (!atk_mobs.empty()) {
       auto atk_mob = atk_mobs[0];
       auto time = afterimage_game_instance::load_beat_time(g_character);
 
       ClientCharacterAttackT t;
       CharacterAttackT ct;
-      ct.mob_id = atk_mob;
+      ct.mob_index = atk_mob.mob.index;
       ct.attack = std::make_unique<AttackT>();
       ct.attack->num = 1;
       ct.attack->time = time;
+      ct.attack->attack_x = atk_mob.attack_x;
+      ct.attack->attack_y = atk_mob.attack_y;
       ct.afterimage = true;
+      ct.left = g_character.pos.x < atk_mob.mob.pos.x;
       t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
+
+      SDL_FPoint atk_pos{atk_mob.attack_x, atk_mob.attack_y};
+      afterimage_game_instance::add_afterimage(g_character, atk_mob.mob.index,
+                                               atk_pos);
       client_request::character_attack_request(t);
     }
     self_alert_cooldown = window::dt_now + 5000;

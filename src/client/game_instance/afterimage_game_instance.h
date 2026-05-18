@@ -14,10 +14,6 @@ struct afterimage_data {
   uint8_t alpha;
 };
 
-struct afterimage_ltrb {
-  SDL_FPoint lt;
-  SDL_FPoint rb;
-};
 class afterimage_game_instance {
 private:
   static wz::Node *load_atf_node_cache(const std::u16string &i);
@@ -25,6 +21,7 @@ private:
 
 public:
   static std::optional<afterimage_data> load_data(game_character &g_character);
-  static std::optional<afterimage_ltrb> load_rect(game_character &g_character);
+  static std::optional<SDL_FRect> load_rect(game_character &g_character);
   static uint64_t load_beat_time(game_character &g_character);
+  static void add_afterimage(game_character &g_character, int32_t mob_index,SDL_FPoint atk_pos);
 };

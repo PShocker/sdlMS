@@ -1,4 +1,5 @@
 #include "mob_game_instance.h"
+#include "SDL3/SDL_rect.h"
 #include "foothold_game_instance.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -21,8 +22,8 @@ wz::Node *mob_game_instance::load_link_mob_node(const std::u16string &id) {
   return mob_node;
 }
 
-std::optional<mob_ltrb>
-mob_game_instance::load_mob_ltrb(const game_mob &g_mob) {
+std::optional<SDL_FRect>
+mob_game_instance::load_mob_rect(const game_mob &g_mob) {
   auto mob_node = load_link_mob_node(g_mob.id);
   auto mob_action_node = mob_node->get_child(g_mob.action);
   bool zigzag = mob_action_node->get_child(u"zigzag") == nullptr ? false : true;
@@ -43,7 +44,12 @@ mob_game_instance::load_mob_ltrb(const game_mob &g_mob) {
   }
   auto lt = wz_resource::load_fpoint(texture_node->get_child(u"lt"));
   auto rb = wz_resource::load_fpoint(texture_node->get_child(u"rb"));
-  return mob_ltrb{lt, rb};
+  return SDL_FRect{
+      .x = lt.x,
+      .y = lt.y,
+      .w = rb.x - lt.x,
+      .h = rb.y - lt.y,
+  };
 }
 
 void mob_game_instance::load(uint32_t map_id) {

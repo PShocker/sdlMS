@@ -11,7 +11,7 @@
 
 struct mob_beat_back {
   uint64_t beat_start_time;
-  int32_t beat_time = 50;
+  int32_t beat_time;
   bool left;
 };
 

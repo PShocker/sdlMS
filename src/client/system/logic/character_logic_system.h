@@ -4,15 +4,23 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_input.h"
+#include "src/client/game/game_mob.h"
 #include <cstdint>
 #include <flat_set>
 #include <string>
 #include <vector>
+
+struct attack_data {
+  game_mob mob;
+  float attack_x;
+  float attack_y;
+};
+
 class character_logic_system {
 private:
-  static std::vector<uint32_t> run_attack_mob_check(game_character &g_character,
-                                                    SDL_FPoint &lt,
-                                                    SDL_FPoint &rb);
+  static SDL_FRect load_rect(SDL_FRect &rect, SDL_FPoint &pos, bool flip);
+  static std::vector<attack_data>
+  run_attack_mob_check(game_character &g_character);
 
   static void run_network_action_sync(game_character &g_character,
                                       game_character &o_character);

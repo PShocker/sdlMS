@@ -21,6 +21,9 @@ private:
     hit,
     remove, // 复活
   };
+  static void run_hit_action(server_mob &s_mob);
+  static void run_move_action(server_mob &s_mob);
+  static void run_stand_action(server_mob &s_mob);
   static action_enum load_action_type(server_mob &s_mob);
   static void run_walk(server_mob &s_mob);
   static void run_state_machine(server_mob &s_mob);
