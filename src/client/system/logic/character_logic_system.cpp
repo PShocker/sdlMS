@@ -57,8 +57,8 @@ character_logic_system::run_attack_mob_check(game_character &g_character) {
                  (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
       SDL_FRect res;
       SDL_GetRectIntersectionFloat(&m_r, &g_r, &res);
-      float attack_x = res.x + res.w / 2;
-      float attack_y = res.y + res.h / 2;
+      float attack_x = res.x + res.w / 2 - m_pos.x;
+      float attack_y = res.y + res.h / 2 - m_pos.y;
       m[dis] = {
           .mob = v.mob,
           .attack_x = attack_x,

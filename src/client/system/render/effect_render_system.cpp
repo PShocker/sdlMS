@@ -12,7 +12,7 @@ void effect_render_system::render_afterimage(SDL_FPoint pos,
   auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                           std::chrono::system_clock::now().time_since_epoch())
                           .count();
-  if (current_time<=g_effect.delay) {
+  if (current_time <= g_effect.delay) {
     return;
   }
   auto atk_pos = g_effect.pos.value();
@@ -23,8 +23,8 @@ void effect_render_system::render_afterimage(SDL_FPoint pos,
   auto texture = wz_resource::load_texture(texture_node);
   auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
-      .x = pos.x - origin.x,
-      .y = pos.y - origin.y,
+      .x = pos.x - origin.x + atk_pos.x,
+      .y = pos.y - origin.y + atk_pos.y,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
