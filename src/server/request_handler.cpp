@@ -1,5 +1,6 @@
 #include "request_handler.h"
 #include "SDL3/SDL_timer.h"
+#include "server_instance/server_mob_instance.h"
 #include "server_instance/server_scene_instance.h"
 #include "server_system/server_heartbeat_system.h"
 #include "server_system_instance/server_system_instance.h"
@@ -44,6 +45,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_character_instance::handle_logic(client_id, r);
     break;
   }
+  case NetPayload_ClientCharacterAttack: {
+    auto payload = packet->payload_as_ClientCharacterAttack();
+    fbs::ClientCharacterAttackT r;
+    payload->UnPackTo(&r);
+    server_mob_instance::handle_attack(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -80,7 +88,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     character_game_instance::exit_others_character(r.client_id);
     break;
   }
-   case NetPayload_ServerMobLogic: {
+  case NetPayload_ServerMobLogic: {
     auto payload = packet->payload_as_ServerMobLogic();
     fbs::ServerMobLogicT r;
     payload->UnPackTo(&r);

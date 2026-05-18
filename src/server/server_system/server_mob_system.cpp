@@ -6,6 +6,7 @@
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
+#include <chrono>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -17,6 +18,7 @@ server_mob_system::load_action_type(server_mob &s_mob) {
   const static std::flat_map<std::u16string, action_enum> map_name = {
       {u"stand", action_enum::stand},
       {u"move", action_enum::move},
+      {u"hit1", action_enum::hit},
   };
   return map_name.at(s_mob.action);
 }
@@ -35,8 +37,8 @@ void server_mob_system::run_network_movement_sync(server_mob &s_mob,
   mv.x2 = s_mob.pos.x;
   mv.y2 = s_mob.pos.y;
   mv.page = s_mob.page;
+  // 30帧补60帧
   mv.time = std::min(window::delta_time, 33);
-  // mv.time = std::min(window::delta_time, (uint32_t)33);
   MobLogicT req;
   req.mob_index = s_mob.index;
   req.payload.Set(mv);
@@ -91,6 +93,10 @@ void server_mob_system::run_duration(server_mob &s_mob) {
   if (s_mob.duration > window::dt_now) {
     return;
   }
+  auto action_type = load_action_type(s_mob);
+  if (action_type == action_enum::hit) {
+    return;
+  }
   static const std::flat_map<action_enum, std::u16string> actions = {
       {action_enum::stand, u"stand"},
       {action_enum::move, u"move"},
@@ -135,6 +141,30 @@ void server_mob_system::run_duration(server_mob &s_mob) {
   }
 }
 
+bool server_mob_system::run_beat_back(server_mob &s_mob) {
+  if (s_mob.beat_backs.empty()) {
+    return false;
+  }
+  const auto &end = s_mob.beat_backs.end();
+  auto time = end->first;
+  auto &beat_back = end->second;
+  auto current_time =
+      std::chrono::system_clock::now().time_since_epoch().count();
+  if (time <= current_time) {
+    if (beat_back.beat_time >= 0) {
+      beat_back.beat_time -= delta_time;
+      s_mob.hforce = beat_back.left ? -1400 : 1400;
+      s_mob.action = u"hit1";
+      return true;
+    } else {
+      s_mob.hforce = beat_back.left ? 1400 : -1400;
+      s_mob.beat_backs.clear();
+      return false;
+    }
+  }
+  return false;
+}
+
 void server_mob_system::run_state_machine(server_mob &s_mob) {
   auto o_mob = s_mob;
   auto m_action = load_action_type(s_mob);
@@ -146,10 +176,22 @@ void server_mob_system::run_state_machine(server_mob &s_mob) {
     break;
   }
   case action_enum::move: {
+    run_beat_back(s_mob);
     run_walk(s_mob);
     break;
   }
   case action_enum::hit: {
+    auto r=run_beat_back(s_mob);
+    switch (s_mob.type) {
+    case server_mob::mob_type::stand: {
+      run_walk(s_mob);
+      break;
+    }
+    case server_mob::mob_type::swim:
+    case server_mob::mob_type::fly: {
+      break;
+    }
+    }
     break;
   }
   case action_enum::jump: {

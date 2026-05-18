@@ -1,13 +1,17 @@
 #include "server_mob_instance.h"
+#include "server_client_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/server.h"
+#include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
+#include <memory>
 #include <optional>
 
 void server_mob_instance::load_mob(server_scene &scene) {
@@ -54,4 +58,30 @@ void server_mob_instance::load_mob(server_scene &scene) {
     data[s_mob.index] = s_mob;
   }
   scene.mobs = data;
+}
+
+void server_mob_instance::handle_attack(uint64_t client_id,
+                                        ClientCharacterAttackT &r) {
+  if (!server_client_instance::clients.contains(client_id)) {
+    return;
+  }
+  auto map_id = server_client_instance::clients.at(client_id).map_id;
+  auto &mobs = server_scene_instance::scenes.at(map_id).mobs;
+  for (const auto &a : r.payload) {
+    auto &mob = mobs.at(a->mob_id);
+    mob_beat_back mbb;
+    mbb.beat_start_time = a->attack->time;
+    mbb.left = a->left;
+    mob.beat_backs.emplace(mbb.beat_start_time, mbb);
+  }
+  // 转发
+  auto clients = server_scene_instance::scenes.at(map_id).clients;
+  clients.erase(client_id);
+  ServerCharacterAttackT t;
+  t.map_id = map_id;
+  t.payload = std::move(r.payload);
+  for (auto c : clients) {
+    t.client_id = client_id;
+    server_response::character_attack_response(c, t);
+  }
 }

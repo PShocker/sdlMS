@@ -51,3 +51,8 @@ void server_response::mob_logic_response(uint64_t client_id,
                                          ServerMobLogicT r) {
   send_to_client(client_id, r);
 }
+
+void server_response::character_attack_response(uint64_t client_id,
+                                                ServerCharacterAttackT r) {
+  send_to_client(client_id, r);
+}

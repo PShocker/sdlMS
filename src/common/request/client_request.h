@@ -10,6 +10,7 @@ public:
   static void heartbeat_request();
 
   static void scene_request(ClientSceneT client_scene);
-  
+
   static void character_logic_request(ClientCharacterLogicT logic);
+  static void character_attack_request(ClientCharacterAttackT atk);
 };

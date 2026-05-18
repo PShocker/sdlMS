@@ -26,4 +26,5 @@ private:
 public:
   static std::optional<afterimage_data> load_data(game_character &g_character);
   static std::optional<afterimage_ltrb> load_rect(game_character &g_character);
+  static uint64_t load_beat_time(game_character &g_character);
 };

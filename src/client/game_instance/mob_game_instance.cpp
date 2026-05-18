@@ -7,6 +7,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,31 @@ wz::Node *mob_game_instance::load_link_mob_node(const std::u16string &id) {
     mob_node = wz_resource::mob->find(link + u".img");
   }
   return mob_node;
+}
+
+std::optional<mob_ltrb>
+mob_game_instance::load_mob_ltrb(const game_mob &g_mob) {
+  auto mob_node = load_link_mob_node(g_mob.id);
+  auto mob_action_node = mob_node->get_child(g_mob.action);
+  bool zigzag = mob_action_node->get_child(u"zigzag") == nullptr ? false : true;
+  int32_t canvas_count = mob_action_node->children_count();
+  if (zigzag) {
+    canvas_count -= 1;
+  }
+  std::string frame_index;
+  if (zigzag && g_mob.ani_index >= canvas_count) {
+    frame_index =
+        std::to_string(canvas_count - 2 - (g_mob.ani_index % canvas_count));
+  } else {
+    frame_index = std::to_string(g_mob.ani_index);
+  }
+  auto texture_node = mob_action_node->get_child(frame_index);
+  if (texture_node->get_child(u"lt") == nullptr) {
+    return std::nullopt;
+  }
+  auto lt = wz_resource::load_fpoint(texture_node->get_child(u"lt"));
+  auto rb = wz_resource::load_fpoint(texture_node->get_child(u"rb"));
+  return mob_ltrb{lt, rb};
 }
 
 void mob_game_instance::load(uint32_t map_id) {

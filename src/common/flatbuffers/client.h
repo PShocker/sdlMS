@@ -275,7 +275,7 @@ inline ::flatbuffers::Offset<ClientCharacterLogic> CreateClientCharacterLogic(
 
 struct ClientCharacterAttackT : public ::flatbuffers::NativeTable {
   typedef ClientCharacterAttack TableType;
-  std::unique_ptr<fbs::CharacterAttackT> payload{};
+  std::vector<std::unique_ptr<fbs::CharacterAttackT>> payload{};
   ClientCharacterAttackT() = default;
   ClientCharacterAttackT(const ClientCharacterAttackT &o);
   ClientCharacterAttackT(ClientCharacterAttackT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -288,17 +288,18 @@ struct ClientCharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Ta
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_PAYLOAD = 4
   };
-  const fbs::CharacterAttack *payload() const {
-    return GetPointer<const fbs::CharacterAttack *>(VT_PAYLOAD);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>> *>(VT_PAYLOAD);
   }
-  fbs::CharacterAttack *mutable_payload() {
-    return GetPointer<fbs::CharacterAttack *>(VT_PAYLOAD);
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>> *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
-           verifier.VerifyTable(payload()) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
            verifier.EndTable();
   }
   ClientCharacterAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -310,7 +311,7 @@ struct ClientCharacterAttackBuilder {
   typedef ClientCharacterAttack Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_payload(::flatbuffers::Offset<fbs::CharacterAttack> payload) {
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>>> payload) {
     fbb_.AddOffset(ClientCharacterAttack::VT_PAYLOAD, payload);
   }
   explicit ClientCharacterAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
@@ -326,10 +327,19 @@ struct ClientCharacterAttackBuilder {
 
 inline ::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttack(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<fbs::CharacterAttack> payload = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>>> payload = 0) {
   ClientCharacterAttackBuilder builder_(_fbb);
   builder_.add_payload(payload);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttackDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<fbs::CharacterAttack>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterAttack>>(*payload) : 0;
+  return fbs::CreateClientCharacterAttack(
+      _fbb,
+      payload__);
 }
 
 ::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -431,8 +441,9 @@ inline ::flatbuffers::Offset<ClientCharacterLogic> ClientCharacterLogic::Pack(::
       _payload);
 }
 
-inline ClientCharacterAttackT::ClientCharacterAttackT(const ClientCharacterAttackT &o)
-      : payload((o.payload) ? new fbs::CharacterAttackT(*o.payload) : nullptr) {
+inline ClientCharacterAttackT::ClientCharacterAttackT(const ClientCharacterAttackT &o) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::CharacterAttackT(*payload_) : nullptr); }
 }
 
 inline ClientCharacterAttackT &ClientCharacterAttackT::operator=(ClientCharacterAttackT o) FLATBUFFERS_NOEXCEPT {
@@ -449,7 +460,7 @@ inline ClientCharacterAttackT *ClientCharacterAttack::UnPack(const ::flatbuffers
 inline void ClientCharacterAttack::UnPackTo(ClientCharacterAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::CharacterAttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::CharacterAttackT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -460,7 +471,7 @@ inline ::flatbuffers::Offset<ClientCharacterAttack> ClientCharacterAttack::Pack(
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _payload = _o->payload ? CreateCharacterAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterAttack>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterAttack(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateClientCharacterAttack(
       _fbb,
       _payload);

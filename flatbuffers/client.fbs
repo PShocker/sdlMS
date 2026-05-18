@@ -16,5 +16,5 @@ table ClientCharacterLogic {
 }
 
 table ClientCharacterAttack {
-    payload:CharacterAttack;
+    payload:[CharacterAttack];
 }

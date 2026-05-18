@@ -41,6 +41,10 @@ struct ServerMobLogic;
 struct ServerMobLogicBuilder;
 struct ServerMobLogicT;
 
+struct ServerCharacterAttack;
+struct ServerCharacterAttackBuilder;
+struct ServerCharacterAttackT;
+
 struct ServerHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ServerHeartbeat TableType;
 };
@@ -468,6 +472,109 @@ inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogicDirect(
 
 ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterAttackT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterAttack TableType;
+  uint64_t client_id = 0;
+  uint32_t map_id = 0;
+  std::vector<std::unique_ptr<fbs::CharacterAttackT>> payload{};
+  ServerCharacterAttackT() = default;
+  ServerCharacterAttackT(const ServerCharacterAttackT &o);
+  ServerCharacterAttackT(ServerCharacterAttackT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterAttackT &operator=(ServerCharacterAttackT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterAttackT NativeTableType;
+  typedef ServerCharacterAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_MAP_ID = 6,
+    VT_PAYLOAD = 8
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterAttackBuilder {
+  typedef ServerCharacterAttack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterAttack::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ServerCharacterAttack::VT_MAP_ID, map_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>>> payload) {
+    fbb_.AddOffset(ServerCharacterAttack::VT_PAYLOAD, payload);
+  }
+  explicit ServerCharacterAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterAttack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterAttack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterAttack> CreateServerCharacterAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    uint32_t map_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterAttack>>> payload = 0) {
+  ServerCharacterAttackBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerCharacterAttack> CreateServerCharacterAttackDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    uint32_t map_id = 0,
+    const std::vector<::flatbuffers::Offset<fbs::CharacterAttack>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterAttack>>(*payload) : 0;
+  return fbs::CreateServerCharacterAttack(
+      _fbb,
+      client_id,
+      map_id,
+      payload__);
+}
+
+::flatbuffers::Offset<ServerCharacterAttack> CreateServerCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -676,6 +783,52 @@ inline ::flatbuffers::Offset<ServerMobLogic> ServerMobLogic::Pack(::flatbuffers:
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobLogic>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateMobLogic(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerMobLogic(
       _fbb,
+      _map_id,
+      _payload);
+}
+
+inline ServerCharacterAttackT::ServerCharacterAttackT(const ServerCharacterAttackT &o)
+      : client_id(o.client_id),
+        map_id(o.map_id) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::CharacterAttackT(*payload_) : nullptr); }
+}
+
+inline ServerCharacterAttackT &ServerCharacterAttackT::operator=(ServerCharacterAttackT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(map_id, o.map_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerCharacterAttackT *ServerCharacterAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterAttackT>(new ServerCharacterAttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterAttack::UnPackTo(ServerCharacterAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::CharacterAttackT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterAttack> CreateServerCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterAttack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterAttack> ServerCharacterAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _map_id = _o->map_id;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterAttack>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterAttack(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerCharacterAttack(
+      _fbb,
+      _client_id,
       _map_id,
       _payload);
 }

@@ -33,3 +33,7 @@ void client_request::scene_request(ClientSceneT client_scene) {
 void client_request::character_logic_request(ClientCharacterLogicT logic) {
   send_to_host(logic);
 }
+
+void client_request::character_attack_request(ClientCharacterAttackT atk) {
+  send_to_host(atk);
+}

@@ -10,8 +10,9 @@
 #include <vector>
 class character_logic_system {
 private:
-  static std::vector<uint32_t> run_attack_check(game_character &g_character,
-                                                SDL_FPoint &lt, SDL_FPoint &rb);
+  static std::vector<uint32_t> run_attack_mob_check(game_character &g_character,
+                                                    SDL_FPoint &lt,
+                                                    SDL_FPoint &rb);
 
   static void run_network_action_sync(game_character &g_character,
                                       game_character &o_character);

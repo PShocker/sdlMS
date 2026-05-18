@@ -39,6 +39,10 @@ struct Action;
 struct ActionBuilder;
 struct ActionT;
 
+struct Attack;
+struct AttackBuilder;
+struct AttackT;
+
 struct CharacterAttack;
 struct CharacterAttackBuilder;
 struct CharacterAttackT;
@@ -1105,29 +1109,19 @@ inline ::flatbuffers::Offset<Action> CreateActionDirect(
 
 ::flatbuffers::Offset<Action> CreateAction(::flatbuffers::FlatBufferBuilder &_fbb, const ActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct CharacterAttackT : public ::flatbuffers::NativeTable {
-  typedef CharacterAttack TableType;
-  uint32_t mob_id = 0;
+struct AttackT : public ::flatbuffers::NativeTable {
+  typedef Attack TableType;
   uint64_t time = 0;
   uint64_t num = 0;
-  bool skill = false;
 };
 
-struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CharacterAttackT NativeTableType;
-  typedef CharacterAttackBuilder Builder;
+struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef AttackT NativeTableType;
+  typedef AttackBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MOB_ID = 4,
-    VT_TIME = 6,
-    VT_NUM = 8,
-    VT_SKILL = 10
+    VT_TIME = 4,
+    VT_NUM = 6
   };
-  uint32_t mob_id() const {
-    return GetField<uint32_t>(VT_MOB_ID, 0);
-  }
-  bool mutate_mob_id(uint32_t _mob_id = 0) {
-    return SetField<uint32_t>(VT_MOB_ID, _mob_id, 0);
-  }
   uint64_t time() const {
     return GetField<uint64_t>(VT_TIME, 0);
   }
@@ -1140,19 +1134,104 @@ struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_num(uint64_t _num = 0) {
     return SetField<uint64_t>(VT_NUM, _num, 0);
   }
-  bool skill() const {
-    return GetField<uint8_t>(VT_SKILL, 0) != 0;
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
+           VerifyField<uint64_t>(verifier, VT_NUM, 8) &&
+           verifier.EndTable();
   }
-  bool mutate_skill(bool _skill = 0) {
-    return SetField<uint8_t>(VT_SKILL, static_cast<uint8_t>(_skill), 0);
+  AttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(AttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Attack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const AttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct AttackBuilder {
+  typedef Attack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_time(uint64_t time) {
+    fbb_.AddElement<uint64_t>(Attack::VT_TIME, time, 0);
+  }
+  void add_num(uint64_t num) {
+    fbb_.AddElement<uint64_t>(Attack::VT_NUM, num, 0);
+  }
+  explicit AttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Attack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Attack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Attack> CreateAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t time = 0,
+    uint64_t num = 0) {
+  AttackBuilder builder_(_fbb);
+  builder_.add_num(num);
+  builder_.add_time(time);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Attack> CreateAttack(::flatbuffers::FlatBufferBuilder &_fbb, const AttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct CharacterAttackT : public ::flatbuffers::NativeTable {
+  typedef CharacterAttack TableType;
+  uint32_t mob_id = 0;
+  std::unique_ptr<fbs::AttackT> attack{};
+  bool afterimage = false;
+  bool left = false;
+  CharacterAttackT() = default;
+  CharacterAttackT(const CharacterAttackT &o);
+  CharacterAttackT(CharacterAttackT&&) FLATBUFFERS_NOEXCEPT = default;
+  CharacterAttackT &operator=(CharacterAttackT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterAttackT NativeTableType;
+  typedef CharacterAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_ID = 4,
+    VT_ATTACK = 6,
+    VT_AFTERIMAGE = 8,
+    VT_LEFT = 10
+  };
+  uint32_t mob_id() const {
+    return GetField<uint32_t>(VT_MOB_ID, 0);
+  }
+  bool mutate_mob_id(uint32_t _mob_id = 0) {
+    return SetField<uint32_t>(VT_MOB_ID, _mob_id, 0);
+  }
+  const fbs::Attack *attack() const {
+    return GetPointer<const fbs::Attack *>(VT_ATTACK);
+  }
+  fbs::Attack *mutable_attack() {
+    return GetPointer<fbs::Attack *>(VT_ATTACK);
+  }
+  bool afterimage() const {
+    return GetField<uint8_t>(VT_AFTERIMAGE, 0) != 0;
+  }
+  bool mutate_afterimage(bool _afterimage = 0) {
+    return SetField<uint8_t>(VT_AFTERIMAGE, static_cast<uint8_t>(_afterimage), 0);
+  }
+  bool left() const {
+    return GetField<uint8_t>(VT_LEFT, 0) != 0;
+  }
+  bool mutate_left(bool _left = 0) {
+    return SetField<uint8_t>(VT_LEFT, static_cast<uint8_t>(_left), 0);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_MOB_ID, 4) &&
-           VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
-           VerifyField<uint64_t>(verifier, VT_NUM, 8) &&
-           VerifyField<uint8_t>(verifier, VT_SKILL, 1) &&
+           VerifyOffset(verifier, VT_ATTACK) &&
+           verifier.VerifyTable(attack()) &&
+           VerifyField<uint8_t>(verifier, VT_AFTERIMAGE, 1) &&
+           VerifyField<uint8_t>(verifier, VT_LEFT, 1) &&
            verifier.EndTable();
   }
   CharacterAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1167,14 +1246,14 @@ struct CharacterAttackBuilder {
   void add_mob_id(uint32_t mob_id) {
     fbb_.AddElement<uint32_t>(CharacterAttack::VT_MOB_ID, mob_id, 0);
   }
-  void add_time(uint64_t time) {
-    fbb_.AddElement<uint64_t>(CharacterAttack::VT_TIME, time, 0);
+  void add_attack(::flatbuffers::Offset<fbs::Attack> attack) {
+    fbb_.AddOffset(CharacterAttack::VT_ATTACK, attack);
   }
-  void add_num(uint64_t num) {
-    fbb_.AddElement<uint64_t>(CharacterAttack::VT_NUM, num, 0);
+  void add_afterimage(bool afterimage) {
+    fbb_.AddElement<uint8_t>(CharacterAttack::VT_AFTERIMAGE, static_cast<uint8_t>(afterimage), 0);
   }
-  void add_skill(bool skill) {
-    fbb_.AddElement<uint8_t>(CharacterAttack::VT_SKILL, static_cast<uint8_t>(skill), 0);
+  void add_left(bool left) {
+    fbb_.AddElement<uint8_t>(CharacterAttack::VT_LEFT, static_cast<uint8_t>(left), 0);
   }
   explicit CharacterAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1190,14 +1269,14 @@ struct CharacterAttackBuilder {
 inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t mob_id = 0,
-    uint64_t time = 0,
-    uint64_t num = 0,
-    bool skill = false) {
+    ::flatbuffers::Offset<fbs::Attack> attack = 0,
+    bool afterimage = false,
+    bool left = false) {
   CharacterAttackBuilder builder_(_fbb);
-  builder_.add_num(num);
-  builder_.add_time(time);
+  builder_.add_attack(attack);
   builder_.add_mob_id(mob_id);
-  builder_.add_skill(skill);
+  builder_.add_left(left);
+  builder_.add_afterimage(afterimage);
   return builder_.Finish();
 }
 
@@ -1205,7 +1284,7 @@ inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(
 
 struct CharacterSkillT : public ::flatbuffers::NativeTable {
   typedef CharacterSkill TableType;
-  uint32_t skill_id = 0;
+  uint32_t ski_id = 0;
   uint64_t time = 0;
   std::vector<uint32_t> mobs{};
   std::vector<uint64_t> players{};
@@ -1215,16 +1294,16 @@ struct CharacterSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CharacterSkillT NativeTableType;
   typedef CharacterSkillBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_SKILL_ID = 4,
+    VT_SKI_ID = 4,
     VT_TIME = 6,
     VT_MOBS = 8,
     VT_PLAYERS = 10
   };
-  uint32_t skill_id() const {
-    return GetField<uint32_t>(VT_SKILL_ID, 0);
+  uint32_t ski_id() const {
+    return GetField<uint32_t>(VT_SKI_ID, 0);
   }
-  bool mutate_skill_id(uint32_t _skill_id = 0) {
-    return SetField<uint32_t>(VT_SKILL_ID, _skill_id, 0);
+  bool mutate_ski_id(uint32_t _ski_id = 0) {
+    return SetField<uint32_t>(VT_SKI_ID, _ski_id, 0);
   }
   uint64_t time() const {
     return GetField<uint64_t>(VT_TIME, 0);
@@ -1247,7 +1326,7 @@ struct CharacterSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_SKILL_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_SKI_ID, 4) &&
            VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
            VerifyOffset(verifier, VT_MOBS) &&
            verifier.VerifyVector(mobs()) &&
@@ -1264,8 +1343,8 @@ struct CharacterSkillBuilder {
   typedef CharacterSkill Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_skill_id(uint32_t skill_id) {
-    fbb_.AddElement<uint32_t>(CharacterSkill::VT_SKILL_ID, skill_id, 0);
+  void add_ski_id(uint32_t ski_id) {
+    fbb_.AddElement<uint32_t>(CharacterSkill::VT_SKI_ID, ski_id, 0);
   }
   void add_time(uint64_t time) {
     fbb_.AddElement<uint64_t>(CharacterSkill::VT_TIME, time, 0);
@@ -1289,7 +1368,7 @@ struct CharacterSkillBuilder {
 
 inline ::flatbuffers::Offset<CharacterSkill> CreateCharacterSkill(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t skill_id = 0,
+    uint32_t ski_id = 0,
     uint64_t time = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> mobs = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> players = 0) {
@@ -1297,13 +1376,13 @@ inline ::flatbuffers::Offset<CharacterSkill> CreateCharacterSkill(
   builder_.add_time(time);
   builder_.add_players(players);
   builder_.add_mobs(mobs);
-  builder_.add_skill_id(skill_id);
+  builder_.add_ski_id(ski_id);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<CharacterSkill> CreateCharacterSkillDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t skill_id = 0,
+    uint32_t ski_id = 0,
     uint64_t time = 0,
     const std::vector<uint32_t> *mobs = nullptr,
     const std::vector<uint64_t> *players = nullptr) {
@@ -1311,7 +1390,7 @@ inline ::flatbuffers::Offset<CharacterSkill> CreateCharacterSkillDirect(
   auto players__ = players ? _fbb.CreateVector<uint64_t>(*players) : 0;
   return fbs::CreateCharacterSkill(
       _fbb,
-      skill_id,
+      ski_id,
       time,
       mobs__,
       players__);
@@ -2000,6 +2079,50 @@ inline ::flatbuffers::Offset<Action> Action::Pack(::flatbuffers::FlatBufferBuild
       _action_animate);
 }
 
+inline AttackT *Attack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<AttackT>(new AttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Attack::UnPackTo(AttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = time(); _o->time = _e; }
+  { auto _e = num(); _o->num = _e; }
+}
+
+inline ::flatbuffers::Offset<Attack> CreateAttack(::flatbuffers::FlatBufferBuilder &_fbb, const AttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Attack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Attack> Attack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const AttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const AttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _time = _o->time;
+  auto _num = _o->num;
+  return fbs::CreateAttack(
+      _fbb,
+      _time,
+      _num);
+}
+
+inline CharacterAttackT::CharacterAttackT(const CharacterAttackT &o)
+      : mob_id(o.mob_id),
+        attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr),
+        afterimage(o.afterimage),
+        left(o.left) {
+}
+
+inline CharacterAttackT &CharacterAttackT::operator=(CharacterAttackT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_id, o.mob_id);
+  std::swap(attack, o.attack);
+  std::swap(afterimage, o.afterimage);
+  std::swap(left, o.left);
+  return *this;
+}
+
 inline CharacterAttackT *CharacterAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<CharacterAttackT>(new CharacterAttackT());
   UnPackTo(_o.get(), _resolver);
@@ -2010,9 +2133,9 @@ inline void CharacterAttack::UnPackTo(CharacterAttackT *_o, const ::flatbuffers:
   (void)_o;
   (void)_resolver;
   { auto _e = mob_id(); _o->mob_id = _e; }
-  { auto _e = time(); _o->time = _e; }
-  { auto _e = num(); _o->num = _e; }
-  { auto _e = skill(); _o->skill = _e; }
+  { auto _e = attack(); if (_e) { if(_o->attack) { _e->UnPackTo(_o->attack.get(), _resolver); } else { _o->attack = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->attack) { _o->attack.reset(); } }
+  { auto _e = afterimage(); _o->afterimage = _e; }
+  { auto _e = left(); _o->left = _e; }
 }
 
 inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2024,15 +2147,15 @@ inline ::flatbuffers::Offset<CharacterAttack> CharacterAttack::Pack(::flatbuffer
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _mob_id = _o->mob_id;
-  auto _time = _o->time;
-  auto _num = _o->num;
-  auto _skill = _o->skill;
+  auto _attack = _o->attack ? CreateAttack(_fbb, _o->attack.get(), _rehasher) : 0;
+  auto _afterimage = _o->afterimage;
+  auto _left = _o->left;
   return fbs::CreateCharacterAttack(
       _fbb,
       _mob_id,
-      _time,
-      _num,
-      _skill);
+      _attack,
+      _afterimage,
+      _left);
 }
 
 inline CharacterSkillT *CharacterSkill::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -2044,7 +2167,7 @@ inline CharacterSkillT *CharacterSkill::UnPack(const ::flatbuffers::resolver_fun
 inline void CharacterSkill::UnPackTo(CharacterSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = skill_id(); _o->skill_id = _e; }
+  { auto _e = ski_id(); _o->ski_id = _e; }
   { auto _e = time(); _o->time = _e; }
   { auto _e = mobs(); if (_e) { _o->mobs.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->mobs[_i] = _e->Get(_i); } } else { _o->mobs.resize(0); } }
   { auto _e = players(); if (_e) { _o->players.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->players[_i] = _e->Get(_i); } } else { _o->players.resize(0); } }
@@ -2058,13 +2181,13 @@ inline ::flatbuffers::Offset<CharacterSkill> CharacterSkill::Pack(::flatbuffers:
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterSkillT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _skill_id = _o->skill_id;
+  auto _ski_id = _o->ski_id;
   auto _time = _o->time;
   auto _mobs = _o->mobs.size() ? _fbb.CreateVector(_o->mobs) : 0;
   auto _players = _o->players.size() ? _fbb.CreateVector(_o->players) : 0;
   return fbs::CreateCharacterSkill(
       _fbb,
-      _skill_id,
+      _ski_id,
       _time,
       _mobs,
       _players);

@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "drop_logic_system.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -23,24 +24,46 @@
 #include <cstdlib>
 #include <flat_map>
 #include <flat_set>
+#include <memory>
 #include <optional>
 #include <ranges>
 #include <string>
 #include <vector>
 
 std::vector<uint32_t>
-character_logic_system::run_attack_check(game_character &g_character,
-                                         SDL_FPoint &lt, SDL_FPoint &rb) {
+character_logic_system::run_attack_mob_check(game_character &g_character,
+                                             SDL_FPoint &lt, SDL_FPoint &rb) {
   std::vector<uint32_t> v;
-  auto &pos = g_character.pos;
+  std::flat_map<uint32_t, uint32_t> m;
+  auto &g_pos = g_character.pos;
   SDL_FRect r = {
-      .x = pos.x + lt.x,
-      .y = pos.y + lt.y,
+      .x = g_pos.x + lt.x,
+      .y = g_pos.y + lt.y,
       .w = rb.x - lt.x,
       .h = rb.y - lt.y,
   };
-  for (const auto [k, v] : mob_game_instance::data) {
+  if (g_character.flip) {
+    r.x += 2 * (g_pos.x - r.x) - r.w;
   }
+  for (const auto [k, v] : mob_game_instance::data) {
+    const auto &m_pos = v.mob.pos;
+    auto [m_lt, m_rb] = mob_game_instance::load_mob_ltrb(v.mob).value();
+    SDL_FRect mob_r = {
+        .x = m_pos.x + m_lt.x,
+        .y = m_pos.y + m_lt.y,
+        .w = m_rb.x - m_lt.x,
+        .h = m_rb.y - m_lt.y,
+    };
+    if (v.mob.flip) {
+      mob_r.x += 2 * (m_pos.x - mob_r.x) - mob_r.w;
+    }
+    if (SDL_HasRectIntersectionFloat(&mob_r, &r)) {
+      auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
+                 (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
+      m[dis] = k;
+    }
+  }
+  v.append_range(m.values());
   return v;
 }
 
@@ -500,6 +523,23 @@ bool character_logic_system::run_attack(game_character &g_character) {
     default: {
       break;
     }
+    }
+    auto lrtb = afterimage_game_instance::load_rect(g_character);
+    auto [lr, tb] = lrtb.value();
+    auto atk_mobs = run_attack_mob_check(g_character, lr, tb);
+    if (!atk_mobs.empty()) {
+      auto atk_mob = atk_mobs[0];
+      auto time = afterimage_game_instance::load_beat_time(g_character);
+
+      ClientCharacterAttackT t;
+      CharacterAttackT ct;
+      ct.mob_id = atk_mob;
+      ct.attack = std::make_unique<AttackT>();
+      ct.attack->num = 1;
+      ct.attack->time = time;
+      ct.afterimage = true;
+      t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
+      client_request::character_attack_request(t);
     }
     self_alert_cooldown = window::dt_now + 5000;
     return true;

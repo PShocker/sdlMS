@@ -21,11 +21,11 @@ private:
     hit,
     remove, // 复活
   };
-  static bool run_action(server_mob &s_mob, const std::u16string &action);
   static action_enum load_action_type(server_mob &s_mob);
   static void run_walk(server_mob &s_mob);
   static void run_state_machine(server_mob &s_mob);
   static void run_duration(server_mob &s_mob);
+  static bool run_beat_back(server_mob &s_mob);
   static void run_send();
 
   static void run_network_action_sync(server_mob &s_mob, server_mob &o_mob);

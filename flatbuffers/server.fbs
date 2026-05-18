@@ -29,3 +29,9 @@ table ServerMobLogic {
     map_id:uint32;
     payload:[MobLogic];
 }
+
+table ServerCharacterAttack {
+    client_id:uint64;
+    map_id:uint32;
+    payload:[CharacterAttack];
+}

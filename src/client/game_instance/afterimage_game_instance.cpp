@@ -91,12 +91,29 @@ afterimage_game_instance::load_data(game_character &g_character) {
 std::optional<afterimage_ltrb>
 afterimage_game_instance::load_rect(game_character &g_character) {
   if (auto data = load_atf_node(g_character)) {
-    auto action_i = std::to_string(g_character.action_index);
-    if (data->get_child(action_i) && g_character.action_time == 0) {
-      auto lt = wz_resource::load_fpoint(data->get_child(u"lt"));
-      auto rb = wz_resource::load_fpoint(data->get_child(u"rb"));
-      return afterimage_ltrb{lt, rb};
-    }
+    auto lt = wz_resource::load_fpoint(data->get_child(u"lt"));
+    auto rb = wz_resource::load_fpoint(data->get_child(u"rb"));
+    return afterimage_ltrb{lt, rb};
   }
   return std::nullopt;
+}
+
+uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
+  uint64_t time = 0;
+  if (auto data = load_atf_node(g_character)) {
+    auto childs = *data->get_children();
+    childs.erase(u"lt");
+    childs.erase(u"rb");
+    auto it = childs.begin();
+    const auto &key = it->first;
+    auto index = std::stoi(std::string{key.begin(), key.end()});
+    const auto &bones =
+        character_game_instance::bone_data.at(g_character.action);
+    for (auto i = 0; i < index; i++) {
+      time += bones[i].delay;
+    }
+    auto now = std::chrono::system_clock::now().time_since_epoch().count();
+    time += now;
+  }
+  return time;
 }
