@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
+
 class game_effect {
 public:
   std::u16string id;

@@ -4,6 +4,7 @@
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include <array>
 #include <chrono>
 #include <string>
 
@@ -36,10 +37,61 @@ void effect_render_system::render_afterimage(SDL_FPoint pos,
   }
 }
 
+void effect_render_system::render_damage(SDL_FPoint pos,
+                                         game_effect &g_effect) {
+  static auto red0_n = wz_resource::effect->find(u"BasicEff.img/NoRed0");
+  const static std::array red0 = {
+      wz_resource::load_texture(red0_n->get_child(u"0")),
+      wz_resource::load_texture(red0_n->get_child(u"1")),
+      wz_resource::load_texture(red0_n->get_child(u"2")),
+      wz_resource::load_texture(red0_n->get_child(u"3")),
+      wz_resource::load_texture(red0_n->get_child(u"4")),
+      wz_resource::load_texture(red0_n->get_child(u"5")),
+      wz_resource::load_texture(red0_n->get_child(u"6")),
+      wz_resource::load_texture(red0_n->get_child(u"7")),
+      wz_resource::load_texture(red0_n->get_child(u"8")),
+      wz_resource::load_texture(red0_n->get_child(u"9")),
+  };
+
+  static auto red1_n = wz_resource::effect->find(u"BasicEff.img/NoRed1");
+  const static std::array red1 = {
+      wz_resource::load_texture(red1_n->get_child(u"0")),
+      wz_resource::load_texture(red1_n->get_child(u"1")),
+      wz_resource::load_texture(red1_n->get_child(u"2")),
+      wz_resource::load_texture(red1_n->get_child(u"3")),
+      wz_resource::load_texture(red1_n->get_child(u"4")),
+      wz_resource::load_texture(red1_n->get_child(u"5")),
+      wz_resource::load_texture(red1_n->get_child(u"6")),
+      wz_resource::load_texture(red1_n->get_child(u"7")),
+      wz_resource::load_texture(red1_n->get_child(u"8")),
+      wz_resource::load_texture(red1_n->get_child(u"9")),
+  };
+
+  static auto red2_n = wz_resource::effect->find(u"BasicEff.img/NoRed2");
+  const static std::array red2 = {
+      wz_resource::load_texture(red2_n->get_child(u"0")),
+      wz_resource::load_texture(red2_n->get_child(u"1")),
+      wz_resource::load_texture(red2_n->get_child(u"2")),
+      wz_resource::load_texture(red2_n->get_child(u"3")),
+      wz_resource::load_texture(red2_n->get_child(u"4")),
+      wz_resource::load_texture(red2_n->get_child(u"5")),
+      wz_resource::load_texture(red2_n->get_child(u"6")),
+      wz_resource::load_texture(red2_n->get_child(u"7")),
+      wz_resource::load_texture(red2_n->get_child(u"8")),
+      wz_resource::load_texture(red2_n->get_child(u"9")),
+  };
+  int32_t num = std::any_cast<int32_t>(g_effect.data);
+  
+}
+
 bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect) {
   switch (g_effect.type) {
   case game_effect::effect_type::afterimage: {
     render_afterimage(pos, g_effect);
+    break;
+  }
+  case game_effect::effect_type::damage: {
+    render_damage(pos, g_effect);
     break;
   }
   case game_effect::effect_type::custom: {
