@@ -12,6 +12,32 @@
 #include <optional>
 #include <string>
 
+std::u16string
+afterimage_game_instance::load_hit_type(game_character &g_character) {
+  auto g_weapon = g_character.weapon->id;
+  auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
+  auto attack_type =
+      static_cast<wz::Property<int16_t> *>(g_weapon_info->get_child(u"attack"))
+          ->get();
+  enum weapon_type : uint8_t {
+    NONE = 0,
+    S1A1M1D = 1,
+    SPEAR = 2,
+    BOW = 3,
+    CROSSBOW = 4,
+    S2A2M2 = 5,
+    WAND = 6,
+    CLAW = 7,
+    GUN = 9,
+  };
+  const std::flat_map<weapon_type, std::u16string> h = {
+      {S1A1M1D, u"sword1"},  {SPEAR, u"sword1"},  {BOW, u"sword1"},
+      {CROSSBOW, u"sword1"}, {S2A2M2, u"sword1"}, {WAND, u"sword1"},
+      {CLAW, u"sword1"},     {GUN, u"sword1"},
+  };
+  return h.at((weapon_type)attack_type);
+}
+
 wz::Node *
 afterimage_game_instance::load_atf_node_cache(const std::u16string &i) {
   static std::flat_map<std::u16string, wz::Node *> cache;
@@ -126,17 +152,4 @@ uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
     time += now;
   }
   return time;
-}
-
-void afterimage_game_instance::add_afterimage(game_character &g_character,
-                                              int32_t mob_index,
-                                              SDL_FPoint atk_pos) {
-  game_effect e;
-  e.index = 0;
-  e.time = 0;
-  e.type = game_effect::effect_type::afterimage;
-  e.id = g_character.weapon->id;
-  e.delay = load_beat_time(g_character);
-  e.pos = atk_pos;
-  effect_game_instance::mob_back_effect[mob_index].emplace_back(e);
 }

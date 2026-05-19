@@ -2,9 +2,11 @@
 #include "SDL3/SDL_rect.h"
 #include "drop_logic_system.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
@@ -545,8 +547,17 @@ bool character_logic_system::run_attack(game_character &g_character) {
       t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
 
       SDL_FPoint atk_pos{atk_mob.attack_x, atk_mob.attack_y};
-      afterimage_game_instance::add_afterimage(g_character, atk_mob.mob.index,
-                                               atk_pos);
+
+      game_effect e = {
+          .id = afterimage_game_instance::load_hit_type(g_character),
+          .index = 0,
+          .time = 0,
+          .delay = afterimage_game_instance::load_beat_time(g_character),
+          .type = game_effect::effect_type::afterimage,
+          .pos = atk_pos,
+          .z = false,
+      };
+      effect_game_instance::m_effect[atk_mob.mob.index].emplace_back(e);
       client_request::character_attack_request(t);
     }
     self_alert_cooldown = window::dt_now + 5000;

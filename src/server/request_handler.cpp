@@ -95,6 +95,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     mob_game_instance::server_mob_logic(r);
     break;
   }
+  case NetPayload_ServerCharacterAttack: {
+    auto payload = packet->payload_as_ServerCharacterAttack();
+    fbs::ServerCharacterAttackT r;
+    payload->UnPackTo(&r);
+    character_game_instance::other_character_attack(r);
+    break;
+  }
   default:
     break;
   }

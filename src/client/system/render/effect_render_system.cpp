@@ -16,7 +16,7 @@ void effect_render_system::render_afterimage(SDL_FPoint pos,
     return;
   }
   auto atk_pos = g_effect.pos.value();
-  std::u16string type = u"sword1";
+  std::u16string type = g_effect.id;
   auto hit_node = wz_resource::character->find(u"Afterimage/hit.img/" + type);
   auto index = std::to_string(g_effect.index);
   auto texture_node = hit_node->get_child(index);
@@ -42,12 +42,6 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect) {
     render_afterimage(pos, g_effect);
     break;
   }
-  case game_effect::effect_type::skill_use: {
-    break;
-  }
-  case game_effect::effect_type::skill_hit: {
-    break;
-  }
   case game_effect::effect_type::custom: {
     break;
   }
@@ -60,12 +54,14 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect) {
 }
 
 bool effect_render_system::render_mob_back(game_mob &g_mob) {
-  if (!effect_game_instance::mob_back_effect.contains(g_mob.index)) {
+  if (!effect_game_instance::m_effect.contains(g_mob.index)) {
     return false;
   }
-  auto &v = effect_game_instance::mob_back_effect.at(g_mob.index);
+  auto &v = effect_game_instance::m_effect.at(g_mob.index);
   for (auto &e : v) {
-    render(g_mob.pos, e);
+    if (e.z.has_value() && !e.z.value()) {
+      render(g_mob.pos, e);
+    }
   }
   return true;
 }

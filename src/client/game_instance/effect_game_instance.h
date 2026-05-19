@@ -9,13 +9,11 @@
 
 class effect_game_instance {
 public:
-  static inline std::flat_map<uint64_t, std::vector<game_effect>>
-      character_front_effect;
-  static inline std::flat_map<uint64_t, std::vector<game_effect>>
-      character_back_effect;
+  static inline std::flat_map<uint64_t, std::vector<game_effect>> c_effect;
 
-  static inline std::flat_map<int32_t, std::vector<game_effect>>
-      mob_back_effect;
+  static inline std::flat_map<int32_t, std::vector<game_effect>> m_effect;
 
   static inline std::array<std::vector<game_effect>, 8> data;
+
+  static void reset();
 };

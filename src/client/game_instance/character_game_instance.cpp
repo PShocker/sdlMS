@@ -1,7 +1,10 @@
 #include "character_game_instance.h"
 #include "SDL3/SDL_rect.h"
+#include "effect_game_instance.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_effect.h"
 #include "src/client/game/game_portal.h"
+#include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -164,6 +167,8 @@ void character_game_instance::load_self_pos(std::optional<SDL_FPoint> &pos) {
   if (pos.has_value()) {
     self.pos = pos.value();
     self.action = u"jump";
+    self.action_index = 0;
+    self.action_time = 0;
   }
   character_logic_system::self_fh = 0;
   character_logic_system::self_lr = 0;
@@ -828,5 +833,25 @@ void character_game_instance::other_character_logic(
   if (others.contains(client_id)) {
     auto &logics = others[client_id].logics;
     logics[r.payload->payload.type].push_back(r.payload->payload);
+  }
+}
+
+void character_game_instance::other_character_attack(
+    const ServerCharacterAttackT &r) {
+  const auto client_id = r.client_id;
+  if (others.contains(client_id)) {
+    auto g_character = others.at(client_id).g_character;
+    for (const auto &a : r.payload) {
+      game_effect e = {
+          .id = afterimage_game_instance::load_hit_type(g_character),
+          .index = 0,
+          .time = 0,
+          .delay = a->attack->time,
+          .type = game_effect::effect_type::afterimage,
+          .pos = SDL_FPoint{a->attack->attack_x, a->attack->attack_y},
+          .z = false,
+      };
+      effect_game_instance::m_effect[a->mob_index].emplace_back(e);
+    }
   }
 }

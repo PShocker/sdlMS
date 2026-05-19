@@ -5,6 +5,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
@@ -24,6 +25,7 @@
 #include "src/client/system/logic/chatballoon_logic_system.h"
 #include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/system/logic/drop_logic_system.h"
+#include "src/client/system/logic/effect_logic_system.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/portal_logic_system.h"
@@ -126,6 +128,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   minimap_ui_system::load();
   character_game_instance::load_self_pos(prepare_pos);
   character_game_instance::clear_others();
+  effect_game_instance::reset();
   camera_game_instance::reset();
 
   system::event_systems = {
@@ -139,7 +142,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       chatballoon_logic_system::run, drop_logic_system::run,
       mob_logic_system::run,         portal_logic_system::run,
       sound_logic_system::run,       obj_logic_system::run,
-      cursor_logic_system::run,
+      effect_logic_system::run,      cursor_logic_system::run,
   };
   system::render_systems = {
       render_game,

@@ -16,13 +16,13 @@ public:
 
   enum class effect_type {
     afterimage,
-    skill_use,
-    skill_hit,
+    damage,
+    normal,
     custom,
   };
   effect_type type;
 
   std::optional<SDL_FPoint> pos;
-  // custom
+  std::optional<bool> z;
   std::any data;
 };

@@ -153,7 +153,7 @@ void server_mob_system::run_stand_action(server_mob &s_mob) {
   s_mob.action = u"stand";
 }
 
-bool server_mob_system::run_beat_back(server_mob &s_mob) {
+bool server_mob_system::run_beat(server_mob &s_mob) {
   if (s_mob.beat_backs.empty()) {
     return false;
   }
@@ -186,16 +186,16 @@ void server_mob_system::run_state_machine(server_mob &s_mob) {
     break;
   }
   case action_enum::stand: {
-    run_beat_back(s_mob);
+    run_beat(s_mob);
     break;
   }
   case action_enum::move: {
-    run_beat_back(s_mob);
+    run_beat(s_mob);
     run_walk(s_mob);
     break;
   }
   case action_enum::hit: {
-    auto r = run_beat_back(s_mob);
+    auto r = run_beat(s_mob);
     switch (s_mob.type) {
     case server_mob::mob_type::stand: {
       run_walk(s_mob);
