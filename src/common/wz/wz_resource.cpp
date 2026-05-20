@@ -30,6 +30,7 @@ void wz_resource::init_files() {
   mob = new wz::Files("Mob/Mob");
   npc = new wz::Files("Npc/Npc");
   skill = new wz::Files("Skill/Skill");
+  effect = new wz::Files("Effect/Effect");
 }
 
 void wz_resource::init() {
@@ -117,6 +118,9 @@ SDL_Texture *wz_resource::load_node_texture(wz::Node *node) {
 }
 
 wz::Node *wz_resource::load_real_node_texture(wz::Node *node) {
+  if (node->type == wz::Type::UOL) {
+    node = static_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
+  }
   auto outlink = node->get_child("_outlink");
   if (outlink != nullptr) {
     auto outlink2 = static_cast<wz::Property<std::u16string> *>(outlink)->get();
@@ -158,6 +162,9 @@ SDL_Texture *wz_resource::load_texture(wz::Node *node) {
 }
 
 SDL_FPoint wz_resource::load_fpoint(wz::Node *node) {
+  if (node->type == wz::Type::UOL) {
+    node = static_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
+  }
   auto v = static_cast<wz::Property<wz::WzVec2D> *>(node)->get();
   return SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
 }

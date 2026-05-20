@@ -6,6 +6,7 @@
 #include "server_system/server_heartbeat_system.h"
 #include "server_system_instance/server_system_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -58,18 +59,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ClientCharacterSkill();
     fbs::ClientCharacterSkillT r;
     payload->UnPackTo(&r);
-    if (server_client_instance::clients.contains(client_id)) {
-      auto map_id = server_client_instance::clients.at(client_id).map_id;
-      auto scenes = server_scene_instance::scenes[map_id].clients;
-      scenes.erase(client_id);
-      ServerCharacterSkillT t;
-      t.client_id = client_id;
-      t.ski_id = r.ski_id;
-      t.payload = std::move(r.payload);
-      for (auto c : scenes) {
-        server_response::character_skill_response(c, t);
-      }
-    }
+    server_character_instance::handle_skill(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {
@@ -126,6 +116,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterSkill();
     fbs::ServerCharacterSkillT r;
     payload->UnPackTo(&r);
+    character_game_instance::other_character_skill(r);
     break;
   }
   default:

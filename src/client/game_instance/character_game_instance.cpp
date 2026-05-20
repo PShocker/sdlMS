@@ -203,7 +203,7 @@ void character_game_instance::load_self_character() {
   add_body(self, u"00002000");
   add_head(self, u"00012000");
   add_coat(self, u"01040002");
-  add_cap(self, u"01002088");
+  add_cap(self, u"01002005");
   add_weapon(self, u"01302000");
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
@@ -851,6 +851,6 @@ void character_game_instance::other_character_skill(
   if (others.contains(client_id)) {
     auto &g_character = others.at(client_id).g_character;
     effect_game_instance::load_character_skill(r.ski_id, r.payload,
-                                               g_character);
+                                               &g_character);
   }
 }

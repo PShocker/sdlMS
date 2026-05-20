@@ -479,10 +479,14 @@ bool character_logic_system::run_skill(game_character &g_character) {
       run_action(g_character, action4);
     }
     auto skill_level = job_skill_game_instance::load_self_skill_level(s_id2);
-    auto g_r = skill_game_instance::load_skill_rect(s_id2, skill_level);
     auto skill_type = skill_game_instance::load_skill_type(s_id2, skill_level);
+
+    ClientCharacterAttackT t;
+    ClientCharacterSkillT ckt;
+
     switch (skill_type) {
     case skill_game_instance::attack: {
+      auto g_r = skill_game_instance::load_skill_rect(s_id2, skill_level);
       auto atk_mobs = run_attack_mob_check(g_character, g_r);
       if (!atk_mobs.empty()) {
         auto skill_level_node =
@@ -493,15 +497,13 @@ bool character_logic_system::run_skill(game_character &g_character) {
         auto atk_count = static_cast<wz::Property<int32_t> *>(
                              skill_level_node->get_child(u"attackCount"))
                              ->get();
-
-        ClientCharacterAttackT t;
         for (uint32_t i = 0; i < atk_mobs.size() && i < atk_mob_count; i++) {
           auto delay = skill_game_instance::load_beat_time(g_character);
           CharacterAttackT ct;
           ct.mob_index = atk_mobs[i].mob.index;
           ct.attack = std::make_unique<AttackT>();
           ct.attack->num = 1;
-          ct.attack->delay = delay;
+          ct.attack->delay = delay + i * 60;
           ct.attack->x = atk_mobs[i].x;
           ct.attack->y = atk_mobs[i].y;
           ct.afterimage = false;
@@ -510,7 +512,6 @@ bool character_logic_system::run_skill(game_character &g_character) {
         }
         effect_game_instance::load_character_attack(t.payload, g_character);
         client_request::character_attack_request(t);
-        ClientCharacterSkillT ckt;
         ckt.ski_id = std::stoi(s_id);
         for (const auto &a : t.payload) {
           CharacterSkillT c;
@@ -520,9 +521,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
           c.y = a->attack->y;
           ckt.payload.push_back(std::make_unique<CharacterSkillT>(c));
         }
-        client_request::character_skill_request(ckt);
       }
-
       break;
     }
     case skill_game_instance::move: {
@@ -532,6 +531,9 @@ bool character_logic_system::run_skill(game_character &g_character) {
       break;
     }
     }
+    effect_game_instance::load_character_skill(std::stoi(s_id), ckt.payload,
+                                               &character_game_instance::self);
+    client_request::character_skill_request(ckt);
   }
   return true;
 }
@@ -860,6 +862,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       break;
     }
     if (run_attack(g_character)) {
+      break;
+    }
+    if (run_skill(g_character)) {
       break;
     }
     break;

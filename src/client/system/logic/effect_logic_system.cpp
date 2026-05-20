@@ -1,5 +1,6 @@
 #include "effect_logic_system.h"
 #include "src/client/game_instance/effect_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
@@ -35,6 +36,56 @@ bool effect_logic_system::run_afterimage(game_effect &g_effect) {
   return r;
 }
 
+bool effect_logic_system::run_skill_use(game_effect &g_effect) {
+  bool r = false;
+  auto ski_node = skill_game_instance::load_skill_node(g_effect.id);
+  ski_node = ski_node->get_child(u"effect");
+  auto index = std::to_string(g_effect.index);
+  auto texture_node = ski_node->get_child(index);
+  auto delay_node = texture_node->get_child(u"delay");
+  int32_t delay = 100;
+  if (delay_node) {
+    delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
+  }
+  g_effect.time += window::delta_time;
+  if (g_effect.time >= delay) {
+    g_effect.time = 0;
+    g_effect.index += 1;
+    auto count = ski_node->children_count();
+    r = g_effect.index >= count;
+    g_effect.index = g_effect.index % count;
+  }
+  return r;
+}
+
+bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
+  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                 std::chrono::system_clock::now().time_since_epoch())
+                 .count();
+  if (g_effect.delay >= now) {
+    return false;
+  }
+  bool r = false;
+  auto ski_node = skill_game_instance::load_skill_node(g_effect.id);
+  ski_node = ski_node->get_child(u"hit")->get_child(u"0");
+  auto index = std::to_string(g_effect.index);
+  auto texture_node = ski_node->get_child(index);
+  auto delay_node = texture_node->get_child(u"delay");
+  int32_t delay = 100;
+  if (delay_node) {
+    delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
+  }
+  g_effect.time += window::delta_time;
+  if (g_effect.time >= delay) {
+    g_effect.time = 0;
+    g_effect.index += 1;
+    auto count = ski_node->children_count();
+    r = g_effect.index >= count;
+    g_effect.index = g_effect.index % count;
+  }
+  return r;
+}
+
 void effect_logic_system::run_animate(std::vector<game_effect> &v) {
   for (auto it = v.begin(); it != v.end();) {
     bool remove = false;
@@ -44,6 +95,15 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
       remove = run_afterimage(g_effect);
       break;
     }
+    case game_effect::effect_type::skill_use: {
+      remove = run_skill_use(g_effect);
+      break;
+    }
+    case game_effect::effect_type::skill_hit: {
+      remove = run_skill_hit(g_effect);
+      break;
+    }
+
     case game_effect::effect_type::damage: {
       break;
     }
@@ -61,10 +121,10 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
 }
 
 bool effect_logic_system::run() {
-  for (auto &ce : effect_game_instance::effect | std::views::values) {
+  for (auto &ce : effect_game_instance::c_effect | std::views::values) {
     run_animate(ce);
   }
-  for (auto &me : effect_game_instance::effect2 | std::views::values) {
+  for (auto &me : effect_game_instance::m_effect | std::views::values) {
     run_animate(me);
   }
   for (auto &de : effect_game_instance::data) {

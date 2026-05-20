@@ -73,3 +73,19 @@ void server_character_instance::handle_logic(uint64_t client_id,
   send_logic(client_id, m.payload);
   save_state(client_id, m);
 }
+
+void server_character_instance::handle_skill(uint64_t client_id,
+                                             ClientCharacterSkillT &r) {
+  if (server_client_instance::clients.contains(client_id)) {
+    auto map_id = server_client_instance::clients.at(client_id).map_id;
+    auto scenes = server_scene_instance::scenes[map_id].clients;
+    scenes.erase(client_id);
+    ServerCharacterSkillT t;
+    t.client_id = client_id;
+    t.ski_id = r.ski_id;
+    t.payload = std::move(r.payload);
+    for (auto c : scenes) {
+      server_response::character_skill_response(c, t);
+    }
+  }
+}

@@ -85,7 +85,9 @@ bool scene_system_instance::render_game() {
       reactor_render_system::render(reactor);
     }
     for (auto &effect : effect_game_instance::data[i]) {
-      effect_render_system::render(effect.pos.value(), effect);
+      auto &pos = effect.pos.value();
+      auto &flip = effect.flip.value();
+      effect_render_system::render(pos, effect, flip);
     }
     for (auto &npc : npc_game_instance::data[i]) {
       npc_render_system::render(npc);
@@ -96,6 +98,7 @@ bool scene_system_instance::render_game() {
     }
     for (auto &character : character_array[i]) {
       character_render_system::render(*character);
+      effect_render_system::render_character_back(character);
     }
     for (auto &drop : drop_game_instance::data[i]) {
       drop_render_system::render(drop);
@@ -140,12 +143,12 @@ void scene_system_instance::enter(uint32_t map_id) {
       minimap_ui_system::event,
   };
   system::logic_systems = {
-      backgrnd_logic_system::run,    ball_logic_system::run,
-      camera_logic_system::run,      character_logic_system::run,
-      chatballoon_logic_system::run, drop_logic_system::run,
-      mob_logic_system::run,         portal_logic_system::run,
-      sound_logic_system::run,       obj_logic_system::run,
-      effect_logic_system::run,      cursor_logic_system::run,
+      backgrnd_logic_system::run,  ball_logic_system::run,
+      camera_logic_system::run,    effect_logic_system::run,
+      character_logic_system::run, chatballoon_logic_system::run,
+      drop_logic_system::run,      mob_logic_system::run,
+      portal_logic_system::run,    sound_logic_system::run,
+      obj_logic_system::run,       cursor_logic_system::run,
   };
   system::render_systems = {
       render_game,

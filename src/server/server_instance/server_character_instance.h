@@ -11,4 +11,5 @@ private:
 
 public:
   static void handle_logic(uint64_t client_id, ClientCharacterLogicT &m);
+  static void handle_skill(uint64_t client_id, ClientCharacterSkillT &r);
 };
