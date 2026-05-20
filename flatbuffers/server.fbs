@@ -32,6 +32,11 @@ table ServerMobLogic {
 
 table ServerCharacterAttack {
     client_id:uint64;
-    map_id:uint32;
     payload:[CharacterAttack];
+}
+
+table ServerCharacterSkill {
+    ski_id:uint32;
+    client_id:uint64;
+    payload:[CharacterSkill];
 }

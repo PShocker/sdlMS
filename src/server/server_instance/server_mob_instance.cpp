@@ -70,7 +70,7 @@ void server_mob_instance::handle_attack(uint64_t client_id,
   for (const auto &a : r.payload) {
     auto &mob = mobs.at(a->mob_index);
     mob_beat_back mbb;
-    mbb.beat_start_time = a->attack->time;
+    mbb.beat_start_time = a->attack->delay;
     mbb.left = a->left;
     mbb.beat_time = 300;
     mob.beat_backs.emplace(mbb.beat_start_time, mbb);
@@ -79,7 +79,6 @@ void server_mob_instance::handle_attack(uint64_t client_id,
   auto clients = server_scene_instance::scenes.at(map_id).clients;
   clients.erase(client_id);
   ServerCharacterAttackT t;
-  t.map_id = map_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
     t.client_id = client_id;

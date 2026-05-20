@@ -60,10 +60,10 @@ table Action{
 }
 
 table Attack{
-    time:uint64;
+    delay:uint64;
     num:uint64;
-    attack_x:float;
-    attack_y:float;
+    x:float;
+    y:float;
 }
 
 table CharacterAttack{
@@ -74,10 +74,11 @@ table CharacterAttack{
 }
 
 table CharacterSkill{
-    ski_id:uint32;
-    time:uint64;
-    mobs:[uint32];
-    players:[uint64];
+    delay:uint64;
+    mob:uint32;
+    player:uint64;
+    x:float;
+    y:float;
 }
 
 

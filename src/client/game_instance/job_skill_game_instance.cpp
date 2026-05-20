@@ -1,4 +1,5 @@
 #include "job_skill_game_instance.h"
+#include <cstdint>
 
 void job_skill_game_instance::load_job() { self_job = 130; }
 
@@ -11,4 +12,9 @@ void job_skill_game_instance::load() {
   load_job();
   load_skill_point();
   return;
+}
+
+uint8_t
+job_skill_game_instance::load_self_skill_level(const std::u16string &id) {
+  return 1;
 }

@@ -106,10 +106,10 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect) {
 }
 
 bool effect_render_system::render_mob_back(game_mob &g_mob) {
-  if (!effect_game_instance::m_effect.contains(g_mob.index)) {
+  if (!effect_game_instance::effect2.contains(g_mob.index)) {
     return false;
   }
-  auto &v = effect_game_instance::m_effect.at(g_mob.index);
+  auto &v = effect_game_instance::effect2.at(g_mob.index);
   for (auto &e : v) {
     if (e.z.has_value() && !e.z.value()) {
       render(g_mob.pos, e);

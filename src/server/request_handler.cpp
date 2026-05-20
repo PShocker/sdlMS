@@ -1,5 +1,6 @@
 #include "request_handler.h"
 #include "SDL3/SDL_timer.h"
+#include "server_instance/server_client_instance.h"
 #include "server_instance/server_mob_instance.h"
 #include "server_instance/server_scene_instance.h"
 #include "server_system/server_heartbeat_system.h"
@@ -14,6 +15,7 @@
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_main.h"
+#include <algorithm>
 #include <cstdio>
 #include <ctime>
 
@@ -50,6 +52,24 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ClientCharacterAttackT r;
     payload->UnPackTo(&r);
     server_mob_instance::handle_attack(client_id, r);
+    break;
+  }
+  case NetPayload_ClientCharacterSkill: {
+    auto payload = packet->payload_as_ClientCharacterSkill();
+    fbs::ClientCharacterSkillT r;
+    payload->UnPackTo(&r);
+    if (server_client_instance::clients.contains(client_id)) {
+      auto map_id = server_client_instance::clients.at(client_id).map_id;
+      auto scenes = server_scene_instance::scenes[map_id].clients;
+      scenes.erase(client_id);
+      ServerCharacterSkillT t;
+      t.client_id = client_id;
+      t.ski_id = r.ski_id;
+      t.payload = std::move(r.payload);
+      for (auto c : scenes) {
+        server_response::character_skill_response(c, t);
+      }
+    }
     break;
   }
   case NetPayload_ServerHeartbeat: {
@@ -100,6 +120,12 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterAttackT r;
     payload->UnPackTo(&r);
     character_game_instance::other_character_attack(r);
+    break;
+  }
+  case NetPayload_ServerCharacterSkill: {
+    auto payload = packet->payload_as_ServerCharacterSkill();
+    fbs::ServerCharacterSkillT r;
+    payload->UnPackTo(&r);
     break;
   }
   default:

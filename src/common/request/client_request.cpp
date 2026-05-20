@@ -37,3 +37,7 @@ void client_request::character_logic_request(ClientCharacterLogicT logic) {
 void client_request::character_attack_request(ClientCharacterAttackT atk) {
   send_to_host(atk);
 }
+
+void client_request::character_skill_request(ClientCharacterSkillT ski) {
+  send_to_host(ski);
+}

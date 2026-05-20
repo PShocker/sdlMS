@@ -16,4 +16,5 @@ public:
                                        ServerCharacterLogicT r);
   static void mob_logic_response(uint64_t client_id, ServerMobLogicT r);
   static void character_attack_response(uint64_t client_id, ServerCharacterAttackT r);
+  static void character_skill_response(uint64_t client_id, ServerCharacterSkillT r);
 };

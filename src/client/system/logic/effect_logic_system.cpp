@@ -47,9 +47,6 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
     case game_effect::effect_type::damage: {
       break;
     }
-    case game_effect::effect_type::normal: {
-      break;
-    }
     default: {
       break;
     }
@@ -64,10 +61,10 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
 }
 
 bool effect_logic_system::run() {
-  for (auto &ce : effect_game_instance::c_effect | std::views::values) {
+  for (auto &ce : effect_game_instance::effect | std::views::values) {
     run_animate(ce);
   }
-  for (auto &me : effect_game_instance::m_effect | std::views::values) {
+  for (auto &me : effect_game_instance::effect2 | std::views::values) {
     run_animate(me);
   }
   for (auto &de : effect_game_instance::data) {

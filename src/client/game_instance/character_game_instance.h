@@ -74,6 +74,7 @@ public:
   // network
   static void other_character_logic(const ServerCharacterLogicT &r);
   static void other_character_attack(const ServerCharacterAttackT &r);
+  static void other_character_skill(const ServerCharacterSkillT &r);
 
   static inline game_character self;
 

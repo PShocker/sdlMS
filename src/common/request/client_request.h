@@ -13,4 +13,5 @@ public:
 
   static void character_logic_request(ClientCharacterLogicT logic);
   static void character_attack_request(ClientCharacterAttackT atk);
+  static void character_skill_request(ClientCharacterSkillT ski);
 };

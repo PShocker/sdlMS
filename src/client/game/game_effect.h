@@ -18,7 +18,8 @@ public:
   enum class effect_type {
     afterimage,
     damage,
-    normal,
+    skill_use,
+    skill_hit,
     custom,
   };
   effect_type type;

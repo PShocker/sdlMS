@@ -10,17 +10,16 @@
 #include <string>
 #include <vector>
 
-struct attack_data {
-  game_mob mob;
-  float attack_x;
-  float attack_y;
-};
-
 class character_logic_system {
 private:
   static SDL_FRect load_rect(SDL_FRect &rect, SDL_FPoint &pos, bool flip);
+  struct attack_data {
+    game_mob mob;
+    float x;
+    float y;
+  };
   static std::vector<attack_data>
-  run_attack_mob_check(game_character &g_character);
+  run_attack_mob_check(game_character &g_character, SDL_FRect g_r);
 
   static void run_network_action_sync(game_character &g_character,
                                       game_character &o_character);
@@ -47,6 +46,7 @@ private:
   static bool run_sit(game_character &g_character);
   static bool run_sitting(game_character &g_character);
   static bool run_attack(game_character &g_character);
+  static bool run_skill(game_character &g_character);
   static bool run_attacking(game_character &g_character);
   static bool run_portal(game_character &g_character);
   static void run_face(game_character &g_character);

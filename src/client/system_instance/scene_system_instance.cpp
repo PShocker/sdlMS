@@ -84,6 +84,9 @@ bool scene_system_instance::render_game() {
     for (auto &reactor : reactor_game_instance::data[i]) {
       reactor_render_system::render(reactor);
     }
+    for (auto &effect : effect_game_instance::data[i]) {
+      effect_render_system::render(effect.pos.value(), effect);
+    }
     for (auto &npc : npc_game_instance::data[i]) {
       npc_render_system::render(npc);
     }

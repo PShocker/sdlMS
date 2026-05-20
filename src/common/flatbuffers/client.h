@@ -33,6 +33,10 @@ struct ClientCharacterAttack;
 struct ClientCharacterAttackBuilder;
 struct ClientCharacterAttackT;
 
+struct ClientCharacterSkill;
+struct ClientCharacterSkillBuilder;
+struct ClientCharacterSkillT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -344,6 +348,93 @@ inline ::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttackD
 
 ::flatbuffers::Offset<ClientCharacterAttack> CreateClientCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientCharacterSkillT : public ::flatbuffers::NativeTable {
+  typedef ClientCharacterSkill TableType;
+  uint32_t ski_id = 0;
+  std::vector<std::unique_ptr<fbs::CharacterSkillT>> payload{};
+  ClientCharacterSkillT() = default;
+  ClientCharacterSkillT(const ClientCharacterSkillT &o);
+  ClientCharacterSkillT(ClientCharacterSkillT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientCharacterSkillT &operator=(ClientCharacterSkillT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientCharacterSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientCharacterSkillT NativeTableType;
+  typedef ClientCharacterSkillBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SKI_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t ski_id() const {
+    return GetField<uint32_t>(VT_SKI_ID, 0);
+  }
+  bool mutate_ski_id(uint32_t _ski_id = 0) {
+    return SetField<uint32_t>(VT_SKI_ID, _ski_id, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_SKI_ID, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ClientCharacterSkillT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientCharacterSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientCharacterSkill> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientCharacterSkillBuilder {
+  typedef ClientCharacterSkill Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_ski_id(uint32_t ski_id) {
+    fbb_.AddElement<uint32_t>(ClientCharacterSkill::VT_SKI_ID, ski_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>>> payload) {
+    fbb_.AddOffset(ClientCharacterSkill::VT_PAYLOAD, payload);
+  }
+  explicit ClientCharacterSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientCharacterSkill> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientCharacterSkill>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientCharacterSkill> CreateClientCharacterSkill(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t ski_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>>> payload = 0) {
+  ClientCharacterSkillBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_ski_id(ski_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ClientCharacterSkill> CreateClientCharacterSkillDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t ski_id = 0,
+    const std::vector<::flatbuffers::Offset<fbs::CharacterSkill>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterSkill>>(*payload) : 0;
+  return fbs::CreateClientCharacterSkill(
+      _fbb,
+      ski_id,
+      payload__);
+}
+
+::flatbuffers::Offset<ClientCharacterSkill> CreateClientCharacterSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -474,6 +565,47 @@ inline ::flatbuffers::Offset<ClientCharacterAttack> ClientCharacterAttack::Pack(
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterAttack>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterAttack(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateClientCharacterAttack(
       _fbb,
+      _payload);
+}
+
+inline ClientCharacterSkillT::ClientCharacterSkillT(const ClientCharacterSkillT &o)
+      : ski_id(o.ski_id) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::CharacterSkillT(*payload_) : nullptr); }
+}
+
+inline ClientCharacterSkillT &ClientCharacterSkillT::operator=(ClientCharacterSkillT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(ski_id, o.ski_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ClientCharacterSkillT *ClientCharacterSkill::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientCharacterSkillT>(new ClientCharacterSkillT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientCharacterSkill::UnPackTo(ClientCharacterSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = ski_id(); _o->ski_id = _e; }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::CharacterSkillT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ClientCharacterSkill> CreateClientCharacterSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientCharacterSkill::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientCharacterSkill> ClientCharacterSkill::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterSkillT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _ski_id = _o->ski_id;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterSkill>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterSkill(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateClientCharacterSkill(
+      _fbb,
+      _ski_id,
       _payload);
 }
 

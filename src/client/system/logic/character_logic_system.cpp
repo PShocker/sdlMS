@@ -9,12 +9,14 @@
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -43,12 +45,12 @@ SDL_FRect character_logic_system::load_rect(SDL_FRect &rect, SDL_FPoint &pos,
   return rect;
 }
 
-std::vector<attack_data>
-character_logic_system::run_attack_mob_check(game_character &g_character) {
+std::vector<character_logic_system::attack_data>
+character_logic_system::run_attack_mob_check(game_character &g_character,
+                                             SDL_FRect g_r) {
   std::vector<attack_data> v;
   std::flat_map<uint32_t, attack_data> m;
   auto &g_pos = g_character.pos;
-  SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
   g_r = load_rect(g_r, g_pos, g_character.flip);
   for (const auto [k, v] : mob_game_instance::data) {
     auto &m_pos = v.mob.pos;
@@ -63,8 +65,8 @@ character_logic_system::run_attack_mob_check(game_character &g_character) {
       float attack_y = res.y + res.h / 2 - m_pos.y;
       m[dis] = {
           .mob = v.mob,
-          .attack_x = attack_x,
-          .attack_y = attack_y,
+          .x = attack_x,
+          .y = attack_y,
       };
     }
   }
@@ -450,6 +452,90 @@ bool character_logic_system::run_sitting(game_character &g_character) {
   return true;
 }
 
+bool character_logic_system::run_skill(game_character &g_character) {
+  if (g_character.abnormals.contains(
+          game_character::abnormal_state_type::dizz)) {
+    return false;
+  }
+  if (!g_character.weapon.has_value()) {
+    return false;
+  }
+  if (self_attack_cooldown > window::dt_now) {
+    return false;
+  }
+  if (!character_skill_input.empty()) {
+    const auto &s_id = *character_skill_input.begin();
+    std::u16string s_id2{s_id.begin(), s_id.end()};
+    auto skill_node = skill_game_instance::load_skill_node(s_id2);
+    if (auto action_node = skill_node->get_child(u"action")) {
+      auto action_count = action_node->children_count();
+      std::uniform_int_distribution<> dis(0, action_count - 1);
+      auto &gen = random_game_instance::gen;
+      auto action = dis(gen);
+      auto action2 = std::to_string(action);
+      auto action3 = action_node->get_child(action2);
+      auto action4 =
+          static_cast<wz::Property<std::u16string> *>(action3)->get();
+      run_action(g_character, action4);
+    }
+    auto skill_level = job_skill_game_instance::load_self_skill_level(s_id2);
+    auto g_r = skill_game_instance::load_skill_rect(s_id2, skill_level);
+    auto skill_type = skill_game_instance::load_skill_type(s_id2, skill_level);
+    switch (skill_type) {
+    case skill_game_instance::attack: {
+      auto atk_mobs = run_attack_mob_check(g_character, g_r);
+      if (!atk_mobs.empty()) {
+        auto skill_level_node =
+            skill_game_instance::load_skill_level_node(s_id2, skill_level);
+        auto atk_mob_count = static_cast<wz::Property<int32_t> *>(
+                                 skill_level_node->get_child(u"mobCount"))
+                                 ->get();
+        auto atk_count = static_cast<wz::Property<int32_t> *>(
+                             skill_level_node->get_child(u"attackCount"))
+                             ->get();
+
+        ClientCharacterAttackT t;
+        for (uint32_t i = 0; i < atk_mobs.size() && i < atk_mob_count; i++) {
+          auto delay = skill_game_instance::load_beat_time(g_character);
+          CharacterAttackT ct;
+          ct.mob_index = atk_mobs[i].mob.index;
+          ct.attack = std::make_unique<AttackT>();
+          ct.attack->num = 1;
+          ct.attack->delay = delay;
+          ct.attack->x = atk_mobs[i].x;
+          ct.attack->y = atk_mobs[i].y;
+          ct.afterimage = false;
+          ct.left = g_character.pos.x < atk_mobs[i].mob.pos.x;
+          t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
+        }
+        effect_game_instance::load_character_attack(t.payload, g_character);
+        client_request::character_attack_request(t);
+        ClientCharacterSkillT ckt;
+        ckt.ski_id = std::stoi(s_id);
+        for (const auto &a : t.payload) {
+          CharacterSkillT c;
+          c.delay = a->attack->delay;
+          c.mob = a->mob_index;
+          c.x = a->attack->x;
+          c.y = a->attack->y;
+          ckt.payload.push_back(std::make_unique<CharacterSkillT>(c));
+        }
+        client_request::character_skill_request(ckt);
+      }
+
+      break;
+    }
+    case skill_game_instance::move: {
+      break;
+    }
+    case skill_game_instance::buff: {
+      break;
+    }
+    }
+  }
+  return true;
+}
+
 bool character_logic_system::run_attack(game_character &g_character) {
   if (g_character.abnormals.contains(
           game_character::abnormal_state_type::dizz)) {
@@ -529,35 +615,26 @@ bool character_logic_system::run_attack(game_character &g_character) {
       break;
     }
     }
-    auto atk_mobs = run_attack_mob_check(g_character);
+    SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
+
+    auto atk_mobs = run_attack_mob_check(g_character, g_r);
     if (!atk_mobs.empty()) {
       auto atk_mob = atk_mobs[0];
-      auto time = afterimage_game_instance::load_beat_time(g_character);
+      auto delay = afterimage_game_instance::load_beat_time(g_character);
 
       ClientCharacterAttackT t;
       CharacterAttackT ct;
       ct.mob_index = atk_mob.mob.index;
       ct.attack = std::make_unique<AttackT>();
       ct.attack->num = 1;
-      ct.attack->time = time;
-      ct.attack->attack_x = atk_mob.attack_x;
-      ct.attack->attack_y = atk_mob.attack_y;
+      ct.attack->delay = delay;
+      ct.attack->x = atk_mob.x;
+      ct.attack->y = atk_mob.y;
       ct.afterimage = true;
       ct.left = g_character.pos.x < atk_mob.mob.pos.x;
       t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
 
-      SDL_FPoint atk_pos{atk_mob.attack_x, atk_mob.attack_y};
-
-      game_effect e = {
-          .id = afterimage_game_instance::load_hit_type(g_character),
-          .index = 0,
-          .time = 0,
-          .delay = afterimage_game_instance::load_beat_time(g_character),
-          .type = game_effect::effect_type::afterimage,
-          .pos = atk_pos,
-          .z = false,
-      };
-      effect_game_instance::m_effect[atk_mob.mob.index].emplace_back(e);
+      effect_game_instance::load_character_attack(t.payload, g_character);
       client_request::character_attack_request(t);
     }
     self_alert_cooldown = window::dt_now + 5000;

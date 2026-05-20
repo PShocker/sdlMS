@@ -840,18 +840,17 @@ void character_game_instance::other_character_attack(
     const ServerCharacterAttackT &r) {
   const auto client_id = r.client_id;
   if (others.contains(client_id)) {
-    auto g_character = others.at(client_id).g_character;
-    for (const auto &a : r.payload) {
-      game_effect e = {
-          .id = afterimage_game_instance::load_hit_type(g_character),
-          .index = 0,
-          .time = 0,
-          .delay = a->attack->time,
-          .type = game_effect::effect_type::afterimage,
-          .pos = SDL_FPoint{a->attack->attack_x, a->attack->attack_y},
-          .z = false,
-      };
-      effect_game_instance::m_effect[a->mob_index].emplace_back(e);
-    }
+    auto &g_character = others.at(client_id).g_character;
+    effect_game_instance::load_character_attack(r.payload, g_character);
+  }
+}
+
+void character_game_instance::other_character_skill(
+    const ServerCharacterSkillT &r) {
+  const auto client_id = r.client_id;
+  if (others.contains(client_id)) {
+    auto &g_character = others.at(client_id).g_character;
+    effect_game_instance::load_character_skill(r.ski_id, r.payload,
+                                               g_character);
   }
 }

@@ -18,3 +18,8 @@ table ClientCharacterLogic {
 table ClientCharacterAttack {
     payload:[CharacterAttack];
 }
+
+table ClientCharacterSkill {
+    ski_id:uint32;
+    payload:[CharacterSkill];
+}

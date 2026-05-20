@@ -56,3 +56,8 @@ void server_response::character_attack_response(uint64_t client_id,
                                                 ServerCharacterAttackT r) {
   send_to_client(client_id, r);
 }
+
+void server_response::character_skill_response(uint64_t client_id,
+                                              ServerCharacterSkillT r) {
+  send_to_client(client_id, r);
+}
