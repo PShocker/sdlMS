@@ -483,6 +483,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
 
     ClientCharacterAttackT t;
     ClientCharacterSkillT ckt;
+    ckt.ski_id = std::stoi(s_id);
 
     switch (skill_type) {
     case skill_game_instance::attack: {
@@ -512,7 +513,6 @@ bool character_logic_system::run_skill(game_character &g_character) {
         }
         effect_game_instance::load_character_attack(t.payload, g_character);
         client_request::character_attack_request(t);
-        ckt.ski_id = std::stoi(s_id);
         for (const auto &a : t.payload) {
           CharacterSkillT c;
           c.delay = a->attack->delay;
@@ -531,7 +531,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
       break;
     }
     }
-    effect_game_instance::load_character_skill(std::stoi(s_id), ckt.payload,
+    effect_game_instance::load_character_skill(ckt.ski_id, ckt.payload,
                                                &character_game_instance::self);
     client_request::character_skill_request(ckt);
   }
