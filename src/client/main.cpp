@@ -2,6 +2,7 @@
 #include "game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
@@ -44,6 +45,7 @@ static int32_t window_h = 600;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   wz_resource::init();
+  freetype::init();
 
   if (argc == 3) {
     server_main::server_init(argv[1], SDL_atoi(argv[2]));

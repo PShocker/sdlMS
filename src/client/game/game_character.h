@@ -17,8 +17,6 @@
 class game_character {
 
 public:
-  std::u8string name;
-
   uint8_t page;
 
   std::u16string action;

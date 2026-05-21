@@ -7,6 +7,7 @@
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "wz/Property.h"
 #include <flat_map>
 #include <flat_set>
@@ -155,8 +156,33 @@ bool character_render_system::render_afterimage(game_character &g_character) {
   return true;
 }
 
+void character_render_system::render_nametag(game_character &g_character) {
+  const auto &camera = camera_game_instance::camera;
+  for (auto &n : g_character.nametags) {
+    freetype::load_size(n.size);
+    auto w = freetype::load_w(n.text);
+    auto h = freetype::load_lh();
+    freetype::load_color(255, 255, 255, 255);
+    auto x = g_character.pos.x + n.pos.x;
+    auto y = g_character.pos.y + n.pos.y;
+    if (n.path == u"") {
+      SDL_SetRenderDrawBlendMode(window::renderer, SDL_BLENDMODE_BLEND);
+      SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 178);
+      SDL_FRect rect;
+      rect.w = w + 4;
+      rect.h = h + 4;
+      rect.x = (x - camera.x - rect.w / 2);
+      rect.y = (y - camera.y);
+      SDL_RenderFillRect(window::renderer, &rect);
+      freetype::draw_line(n.text, x - camera.x - w / 2, y - camera.y);
+    } else {
+    }
+  }
+}
+
 bool character_render_system::render(game_character &g_character) {
   render_afterimage(g_character);
   render_character(g_character);
+  render_nametag(g_character);
   return true;
 }

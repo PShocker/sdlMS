@@ -3,6 +3,7 @@
 #include "effect_game_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
+#include "src/client/game/game_nametag.h"
 #include "src/client/game/game_portal.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -21,7 +22,6 @@
 #include <optional>
 #include <ranges>
 #include <string>
-#include <string_view>
 #include <vector>
 
 void character_game_instance::init_character_bone() {
@@ -200,6 +200,15 @@ SDL_FPoint character_game_instance::load_self_pos(const std::u16string &pn,
   return r;
 }
 
+void character_game_instance::load_self_nametag() {
+  game_nametag nametag;
+  nametag.text = u"进击的蓝蘑菇";
+  nametag.path = u"";
+  nametag.pos = {0, 0};
+  nametag.size = 13;
+  self.nametags.push_back(nametag);
+}
+
 void character_game_instance::load_self_character() {
   add_body(self, u"00002000");
   add_head(self, u"00012000");
@@ -209,6 +218,7 @@ void character_game_instance::load_self_character() {
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
+  load_self_nametag();
 }
 
 void character_game_instance::load_others_character(

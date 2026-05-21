@@ -63,9 +63,12 @@ public:
 
   static void load_self_pos(std::optional<SDL_FPoint> &pos);
   static SDL_FPoint load_self_pos(const std::u16string &pn, uint8_t index);
+  static void load_self_nametag();
   static void load_self_character();
+
   static void
   load_others_character(const std::vector<std::unique_ptr<PlayerT>> &v);
+
   static void load_others_character(const std::unique_ptr<PlayerT> &c);
   static void exit_others_character(uint64_t client_id);
   static void clear_others();
@@ -78,7 +81,7 @@ public:
       uint32_t ski_id,
       const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
       game_character &g_character);
-      
+
   // network
   static void other_character_logic(const ServerCharacterLogicT &r);
   static void other_character_attack(const ServerCharacterAttackT &r);
