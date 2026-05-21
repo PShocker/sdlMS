@@ -540,8 +540,9 @@ bool character_logic_system::run_skill(game_character &g_character) {
     character_game_instance::load_character_skill(
         ckt.ski_id, ckt.payload, character_game_instance::self);
     client_request::character_skill_request(ckt);
+    return true;
   }
-  return true;
+  return false;
 }
 
 std::vector<character_logic_system::attack_data>
@@ -883,16 +884,16 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       run_action(g_character, u"jump");
       break;
     }
-    run_jump(g_character);
-    if (run_portal(g_character)) {
-      break;
-    }
     if (run_attack(g_character)) {
       break;
     }
     if (run_skill(g_character)) {
       break;
     }
+    if (run_portal(g_character)) {
+      break;
+    }
+    run_jump(g_character);
     break;
   }
   case action_enum::prone: {

@@ -203,7 +203,7 @@ SDL_FPoint character_game_instance::load_self_pos(const std::u16string &pn,
 void character_game_instance::load_self_nametag() {
   game_nametag nametag;
   nametag.text = u"进击的蓝蘑菇";
-  nametag.path = u"";
+  nametag.path = u"14";
   nametag.pos = {0, 0};
   nametag.size = 13;
   self.nametags.push_back(nametag);
