@@ -207,8 +207,8 @@ void character_render_system::render_nametag(game_character &g_character) {
         rect.w = texture_w->w;
         rect.h = texture_w->h;
         SDL_RenderTexture(window::renderer, texture_w, nullptr, &rect);
-        rect.x += texture_w->w;
-        rect.y = y - camera.y;
+        rect.x += (int)texture_w->w;
+        rect.y = (int)(y - camera.y);
         rect.w = result;
         rect.h = texture_c->h;
         SDL_RenderTextureTiled(window::renderer, texture_c, nullptr, 1, &rect);
