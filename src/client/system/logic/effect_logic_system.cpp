@@ -1,5 +1,7 @@
 #include "effect_logic_system.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -121,11 +123,12 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
 }
 
 bool effect_logic_system::run() {
-  for (auto &ce : effect_game_instance::c_effect | std::views::values) {
-    run_animate(ce);
+  run_animate(character_game_instance::self.effect);
+  for (auto &o : character_game_instance::others | std::views::values) {
+    run_animate(o.g_character.effect);
   }
-  for (auto &me : effect_game_instance::m_effect | std::views::values) {
-    run_animate(me);
+  for (auto &m : mob_game_instance::data | std::views::values) {
+    run_animate(m.mob.effect);
   }
   for (auto &de : effect_game_instance::data) {
     run_animate(de);

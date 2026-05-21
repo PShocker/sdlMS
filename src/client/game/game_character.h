@@ -6,6 +6,7 @@
 #include "game_equip.h"
 #include "game_face.h"
 #include "game_nametag.h"
+#include "src/client/game/game_effect.h"
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -62,4 +63,7 @@ public:
     dizz,
   };
   std::flat_set<abnormal_state_type> abnormals;
+
+  std::vector<game_effect> effect;
+  std::optional<std::u16string> skill;
 };

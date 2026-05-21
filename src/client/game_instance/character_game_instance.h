@@ -71,6 +71,14 @@ public:
   static void clear_others();
   static CharacterT load_self_fbs_character(const game_character &g);
 
+  static void load_character_attack(
+      const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,
+      game_character &g_character);
+  static void load_character_skill(
+      uint32_t ski_id,
+      const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
+      game_character &g_character);
+      
   // network
   static void other_character_logic(const ServerCharacterLogicT &r);
   static void other_character_attack(const ServerCharacterAttackT &r);

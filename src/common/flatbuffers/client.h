@@ -37,6 +37,10 @@ struct ClientCharacterSkill;
 struct ClientCharacterSkillBuilder;
 struct ClientCharacterSkillT;
 
+struct ClientCharacterBall;
+struct ClientCharacterBallBuilder;
+struct ClientCharacterBallT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -435,6 +439,77 @@ inline ::flatbuffers::Offset<ClientCharacterSkill> CreateClientCharacterSkillDir
 
 ::flatbuffers::Offset<ClientCharacterSkill> CreateClientCharacterSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientCharacterBallT : public ::flatbuffers::NativeTable {
+  typedef ClientCharacterBall TableType;
+  std::vector<std::unique_ptr<fbs::CharacterBallT>> payload{};
+  ClientCharacterBallT() = default;
+  ClientCharacterBallT(const ClientCharacterBallT &o);
+  ClientCharacterBallT(ClientCharacterBallT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientCharacterBallT &operator=(ClientCharacterBallT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientCharacterBall FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientCharacterBallT NativeTableType;
+  typedef ClientCharacterBallBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PAYLOAD = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ClientCharacterBallT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientCharacterBallT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientCharacterBall> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterBallT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientCharacterBallBuilder {
+  typedef ClientCharacterBall Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>>> payload) {
+    fbb_.AddOffset(ClientCharacterBall::VT_PAYLOAD, payload);
+  }
+  explicit ClientCharacterBallBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientCharacterBall> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientCharacterBall>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientCharacterBall> CreateClientCharacterBall(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>>> payload = 0) {
+  ClientCharacterBallBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ClientCharacterBall> CreateClientCharacterBallDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<fbs::CharacterBall>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterBall>>(*payload) : 0;
+  return fbs::CreateClientCharacterBall(
+      _fbb,
+      payload__);
+}
+
+::flatbuffers::Offset<ClientCharacterBall> CreateClientCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -606,6 +681,42 @@ inline ::flatbuffers::Offset<ClientCharacterSkill> ClientCharacterSkill::Pack(::
   return fbs::CreateClientCharacterSkill(
       _fbb,
       _ski_id,
+      _payload);
+}
+
+inline ClientCharacterBallT::ClientCharacterBallT(const ClientCharacterBallT &o) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::CharacterBallT(*payload_) : nullptr); }
+}
+
+inline ClientCharacterBallT &ClientCharacterBallT::operator=(ClientCharacterBallT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ClientCharacterBallT *ClientCharacterBall::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientCharacterBallT>(new ClientCharacterBallT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientCharacterBall::UnPackTo(ClientCharacterBallT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::CharacterBallT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ClientCharacterBall> CreateClientCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientCharacterBall::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientCharacterBall> ClientCharacterBall::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterBallT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterBallT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterBall>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterBall(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateClientCharacterBall(
+      _fbb,
       _payload);
 }
 

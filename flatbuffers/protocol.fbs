@@ -10,6 +10,7 @@ union NetPayload {
     ClientCharacterLogic,
     ClientCharacterAttack,
     ClientCharacterSkill,
+    ClientCharacterBall,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
@@ -17,6 +18,7 @@ union NetPayload {
     ServerCharacterLogic,
     ServerCharacterAttack,
     ServerCharacterSkill,
+    ServerCharacterBall,
     ServerMobLogic,
 }
 // 统一的网络包（最外层包装）

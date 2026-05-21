@@ -18,8 +18,11 @@ private:
     float x;
     float y;
   };
-  static std::vector<attack_data>
-  run_attack_mob_check(game_character &g_character, SDL_FRect g_r);
+  static std::vector<attack_data> run_attack_check(game_character &g_character,
+                                                   SDL_FRect g_r);
+
+  static std::vector<attack_data> run_shoot_check(game_character &g_character);
+  static std::vector<attack_data> run_shoot_check2(game_character &g_character);
 
   static void run_network_action_sync(game_character &g_character,
                                       game_character &o_character);
@@ -47,7 +50,6 @@ private:
   static bool run_sitting(game_character &g_character);
   static bool run_attack(game_character &g_character);
   static bool run_skill(game_character &g_character);
-  static bool run_attacking(game_character &g_character);
   static bool run_portal(game_character &g_character);
   static void run_face(game_character &g_character);
   static void run_state_machine(game_character &g_character);
@@ -57,6 +59,12 @@ private:
     fly,
   };
   static pos_type load_pos_type(game_character &g_character);
+
+  static void run_others_animate();
+  static void run_others_logic();
+  static void run_others();
+
+public:
   enum class action_enum {
     stand,
     alert,
@@ -69,12 +77,6 @@ private:
     skill,
   };
   static action_enum load_action_type(game_character &g_character);
-
-  static void run_others_animate();
-  static void run_others_logic();
-  static void run_others();
-
-public:
   static bool run();
   static inline std::flat_set<std::string> character_action_input;
   static inline std::flat_set<std::string> character_skill_input;

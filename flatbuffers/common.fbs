@@ -66,6 +66,22 @@ table Attack{
     y:float;
 }
 
+table CharacterBall{
+    delay:uint64;
+    pos_x:float;
+    pos_y:float;
+
+    ball_id:uint32;
+    ski_id:uint32;
+
+    speed:float;
+
+    mob_index:uint32;
+    attack:bool;
+    attack_x:float;
+    attack_y:float;
+}
+
 table CharacterAttack{
     mob_index:uint32;
     attack:Attack;

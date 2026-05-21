@@ -4,6 +4,8 @@
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/window/window.h"
 #include "wz/Property.h"
 #include <flat_map>
@@ -118,6 +120,13 @@ bool character_render_system::render_character(game_character &g_character) {
 }
 
 bool character_render_system::render_afterimage(game_character &g_character) {
+  // 如果是法杖，而且是技能状态，不显示
+  auto action_type = character_logic_system::load_action_type(g_character);
+  auto weapon_type = equip_game_instance::load_weapon_type(g_character);
+  if (action_type == character_logic_system::action_enum::skill &&
+      weapon_type == equip_game_instance::WAND) {
+    return false;
+  }
   // 通常情况下,attack和skill都会有afterimag的渲染
   auto r = afterimage_game_instance::load_data(g_character);
   if (r.has_value()) {

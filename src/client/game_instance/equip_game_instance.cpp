@@ -1,5 +1,6 @@
 #include "equip_game_instance.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Property.h"
 #include <flat_map>
 #include <string>
 
@@ -69,4 +70,17 @@ wz::Node *equip_game_instance::load_equip_info(const std::u16string &id) {
         wz_resource::character->find(equip_type + u"/" + id + u".img/info");
   }
   return cache[id];
+}
+
+equip_game_instance::weapon_type
+equip_game_instance::load_weapon_type(const game_character &g_character) {
+  if (!g_character.weapon.has_value()) {
+    return weapon_type::NONE;
+  }
+  auto g_weapon = g_character.weapon->id;
+  auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
+  auto attack_type =
+      static_cast<wz::Property<int16_t> *>(g_weapon_info->get_child(u"attack"))
+          ->get();
+  return (weapon_type)attack_type;
 }

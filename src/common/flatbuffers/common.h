@@ -43,6 +43,10 @@ struct Attack;
 struct AttackBuilder;
 struct AttackT;
 
+struct CharacterBall;
+struct CharacterBallBuilder;
+struct CharacterBallT;
+
 struct CharacterAttack;
 struct CharacterAttackBuilder;
 struct CharacterAttackT;
@@ -1207,6 +1211,188 @@ inline ::flatbuffers::Offset<Attack> CreateAttack(
 
 ::flatbuffers::Offset<Attack> CreateAttack(::flatbuffers::FlatBufferBuilder &_fbb, const AttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct CharacterBallT : public ::flatbuffers::NativeTable {
+  typedef CharacterBall TableType;
+  uint64_t delay = 0;
+  float pos_x = 0.0f;
+  float pos_y = 0.0f;
+  uint32_t ball_id = 0;
+  uint32_t ski_id = 0;
+  float speed = 0.0f;
+  uint32_t mob_index = 0;
+  bool attack = false;
+  float attack_x = 0.0f;
+  float attack_y = 0.0f;
+};
+
+struct CharacterBall FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterBallT NativeTableType;
+  typedef CharacterBallBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DELAY = 4,
+    VT_POS_X = 6,
+    VT_POS_Y = 8,
+    VT_BALL_ID = 10,
+    VT_SKI_ID = 12,
+    VT_SPEED = 14,
+    VT_MOB_INDEX = 16,
+    VT_ATTACK = 18,
+    VT_ATTACK_X = 20,
+    VT_ATTACK_Y = 22
+  };
+  uint64_t delay() const {
+    return GetField<uint64_t>(VT_DELAY, 0);
+  }
+  bool mutate_delay(uint64_t _delay = 0) {
+    return SetField<uint64_t>(VT_DELAY, _delay, 0);
+  }
+  float pos_x() const {
+    return GetField<float>(VT_POS_X, 0.0f);
+  }
+  bool mutate_pos_x(float _pos_x = 0.0f) {
+    return SetField<float>(VT_POS_X, _pos_x, 0.0f);
+  }
+  float pos_y() const {
+    return GetField<float>(VT_POS_Y, 0.0f);
+  }
+  bool mutate_pos_y(float _pos_y = 0.0f) {
+    return SetField<float>(VT_POS_Y, _pos_y, 0.0f);
+  }
+  uint32_t ball_id() const {
+    return GetField<uint32_t>(VT_BALL_ID, 0);
+  }
+  bool mutate_ball_id(uint32_t _ball_id = 0) {
+    return SetField<uint32_t>(VT_BALL_ID, _ball_id, 0);
+  }
+  uint32_t ski_id() const {
+    return GetField<uint32_t>(VT_SKI_ID, 0);
+  }
+  bool mutate_ski_id(uint32_t _ski_id = 0) {
+    return SetField<uint32_t>(VT_SKI_ID, _ski_id, 0);
+  }
+  float speed() const {
+    return GetField<float>(VT_SPEED, 0.0f);
+  }
+  bool mutate_speed(float _speed = 0.0f) {
+    return SetField<float>(VT_SPEED, _speed, 0.0f);
+  }
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  bool attack() const {
+    return GetField<uint8_t>(VT_ATTACK, 0) != 0;
+  }
+  bool mutate_attack(bool _attack = 0) {
+    return SetField<uint8_t>(VT_ATTACK, static_cast<uint8_t>(_attack), 0);
+  }
+  float attack_x() const {
+    return GetField<float>(VT_ATTACK_X, 0.0f);
+  }
+  bool mutate_attack_x(float _attack_x = 0.0f) {
+    return SetField<float>(VT_ATTACK_X, _attack_x, 0.0f);
+  }
+  float attack_y() const {
+    return GetField<float>(VT_ATTACK_Y, 0.0f);
+  }
+  bool mutate_attack_y(float _attack_y = 0.0f) {
+    return SetField<float>(VT_ATTACK_Y, _attack_y, 0.0f);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_DELAY, 8) &&
+           VerifyField<float>(verifier, VT_POS_X, 4) &&
+           VerifyField<float>(verifier, VT_POS_Y, 4) &&
+           VerifyField<uint32_t>(verifier, VT_BALL_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_SKI_ID, 4) &&
+           VerifyField<float>(verifier, VT_SPEED, 4) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyField<uint8_t>(verifier, VT_ATTACK, 1) &&
+           VerifyField<float>(verifier, VT_ATTACK_X, 4) &&
+           VerifyField<float>(verifier, VT_ATTACK_Y, 4) &&
+           verifier.EndTable();
+  }
+  CharacterBallT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(CharacterBallT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<CharacterBall> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterBallT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct CharacterBallBuilder {
+  typedef CharacterBall Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_delay(uint64_t delay) {
+    fbb_.AddElement<uint64_t>(CharacterBall::VT_DELAY, delay, 0);
+  }
+  void add_pos_x(float pos_x) {
+    fbb_.AddElement<float>(CharacterBall::VT_POS_X, pos_x, 0.0f);
+  }
+  void add_pos_y(float pos_y) {
+    fbb_.AddElement<float>(CharacterBall::VT_POS_Y, pos_y, 0.0f);
+  }
+  void add_ball_id(uint32_t ball_id) {
+    fbb_.AddElement<uint32_t>(CharacterBall::VT_BALL_ID, ball_id, 0);
+  }
+  void add_ski_id(uint32_t ski_id) {
+    fbb_.AddElement<uint32_t>(CharacterBall::VT_SKI_ID, ski_id, 0);
+  }
+  void add_speed(float speed) {
+    fbb_.AddElement<float>(CharacterBall::VT_SPEED, speed, 0.0f);
+  }
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(CharacterBall::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_attack(bool attack) {
+    fbb_.AddElement<uint8_t>(CharacterBall::VT_ATTACK, static_cast<uint8_t>(attack), 0);
+  }
+  void add_attack_x(float attack_x) {
+    fbb_.AddElement<float>(CharacterBall::VT_ATTACK_X, attack_x, 0.0f);
+  }
+  void add_attack_y(float attack_y) {
+    fbb_.AddElement<float>(CharacterBall::VT_ATTACK_Y, attack_y, 0.0f);
+  }
+  explicit CharacterBallBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CharacterBall> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CharacterBall>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CharacterBall> CreateCharacterBall(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t delay = 0,
+    float pos_x = 0.0f,
+    float pos_y = 0.0f,
+    uint32_t ball_id = 0,
+    uint32_t ski_id = 0,
+    float speed = 0.0f,
+    uint32_t mob_index = 0,
+    bool attack = false,
+    float attack_x = 0.0f,
+    float attack_y = 0.0f) {
+  CharacterBallBuilder builder_(_fbb);
+  builder_.add_delay(delay);
+  builder_.add_attack_y(attack_y);
+  builder_.add_attack_x(attack_x);
+  builder_.add_mob_index(mob_index);
+  builder_.add_speed(speed);
+  builder_.add_ski_id(ski_id);
+  builder_.add_ball_id(ball_id);
+  builder_.add_pos_y(pos_y);
+  builder_.add_pos_x(pos_x);
+  builder_.add_attack(attack);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<CharacterBall> CreateCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct CharacterAttackT : public ::flatbuffers::NativeTable {
   typedef CharacterAttack TableType;
   uint32_t mob_index = 0;
@@ -2136,6 +2322,59 @@ inline ::flatbuffers::Offset<Attack> Attack::Pack(::flatbuffers::FlatBufferBuild
       _num,
       _x,
       _y);
+}
+
+inline CharacterBallT *CharacterBall::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<CharacterBallT>(new CharacterBallT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void CharacterBall::UnPackTo(CharacterBallT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = delay(); _o->delay = _e; }
+  { auto _e = pos_x(); _o->pos_x = _e; }
+  { auto _e = pos_y(); _o->pos_y = _e; }
+  { auto _e = ball_id(); _o->ball_id = _e; }
+  { auto _e = ski_id(); _o->ski_id = _e; }
+  { auto _e = speed(); _o->speed = _e; }
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = attack(); _o->attack = _e; }
+  { auto _e = attack_x(); _o->attack_x = _e; }
+  { auto _e = attack_y(); _o->attack_y = _e; }
+}
+
+inline ::flatbuffers::Offset<CharacterBall> CreateCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CharacterBall::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<CharacterBall> CharacterBall::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterBallT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterBallT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _delay = _o->delay;
+  auto _pos_x = _o->pos_x;
+  auto _pos_y = _o->pos_y;
+  auto _ball_id = _o->ball_id;
+  auto _ski_id = _o->ski_id;
+  auto _speed = _o->speed;
+  auto _mob_index = _o->mob_index;
+  auto _attack = _o->attack;
+  auto _attack_x = _o->attack_x;
+  auto _attack_y = _o->attack_y;
+  return fbs::CreateCharacterBall(
+      _fbb,
+      _delay,
+      _pos_x,
+      _pos_y,
+      _ball_id,
+      _ski_id,
+      _speed,
+      _mob_index,
+      _attack,
+      _attack_x,
+      _attack_y);
 }
 
 inline CharacterAttackT::CharacterAttackT(const CharacterAttackT &o)

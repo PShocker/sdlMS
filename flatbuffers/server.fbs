@@ -40,3 +40,8 @@ table ServerCharacterSkill {
     client_id:uint64;
     payload:[CharacterSkill];
 }
+
+table ServerCharacterBall {
+    client_id:uint64;
+    payload:[CharacterBall];
+}

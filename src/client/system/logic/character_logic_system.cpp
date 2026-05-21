@@ -46,8 +46,8 @@ SDL_FRect character_logic_system::load_rect(SDL_FRect &rect, SDL_FPoint &pos,
 }
 
 std::vector<character_logic_system::attack_data>
-character_logic_system::run_attack_mob_check(game_character &g_character,
-                                             SDL_FRect g_r) {
+character_logic_system::run_attack_check(game_character &g_character,
+                                         SDL_FRect g_r) {
   std::vector<attack_data> v;
   std::flat_map<uint32_t, attack_data> m;
   auto &g_pos = g_character.pos;
@@ -71,6 +71,12 @@ character_logic_system::run_attack_mob_check(game_character &g_character,
     }
   }
   v.append_range(m.values());
+  return v;
+}
+
+std::vector<character_logic_system::attack_data>
+character_logic_system::run_shoot_check2(game_character &g_character) {
+  std::vector<attack_data> v;
   return v;
 }
 
@@ -488,7 +494,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
     switch (skill_type) {
     case skill_game_instance::attack: {
       auto g_r = skill_game_instance::load_skill_rect(s_id2, skill_level);
-      auto atk_mobs = run_attack_mob_check(g_character, g_r);
+      auto atk_mobs = run_attack_check(g_character, g_r);
       if (!atk_mobs.empty()) {
         auto skill_level_node =
             skill_game_instance::load_skill_level_node(s_id2, skill_level);
@@ -511,7 +517,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
           ct.left = g_character.pos.x < atk_mobs[i].mob.pos.x;
           t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
         }
-        effect_game_instance::load_character_attack(t.payload, g_character);
+        character_game_instance::load_character_attack(t.payload, g_character);
         client_request::character_attack_request(t);
         for (const auto &a : t.payload) {
           CharacterSkillT c;
@@ -531,11 +537,17 @@ bool character_logic_system::run_skill(game_character &g_character) {
       break;
     }
     }
-    effect_game_instance::load_character_skill(ckt.ski_id, ckt.payload,
-                                               &character_game_instance::self);
+    character_game_instance::load_character_skill(
+        ckt.ski_id, ckt.payload, character_game_instance::self);
     client_request::character_skill_request(ckt);
   }
   return true;
+}
+
+std::vector<character_logic_system::attack_data>
+character_logic_system::run_shoot_check(game_character &g_character) {
+  SDL_FRect r{-20, -20, 20, 20};
+  return run_attack_check(g_character, r);
 }
 
 bool character_logic_system::run_attack(game_character &g_character) {
@@ -553,42 +565,37 @@ bool character_logic_system::run_attack(game_character &g_character) {
     auto g_action = load_action_type(g_character);
     auto g_weapon = g_character.weapon->id;
     auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
-    auto attack_type = static_cast<wz::Property<int16_t> *>(
-                           g_weapon_info->get_child(u"attack"))
-                           ->get();
-    enum weapon_type : uint8_t {
-      NONE = 0,
-      S1A1M1D = 1,
-      SPEAR = 2,
-      BOW = 3,
-      CROSSBOW = 4,
-      S2A2M2 = 5,
-      WAND = 6,
-      CLAW = 7,
-      GUN = 9,
-    };
-    static const std::flat_set<uint8_t> shoot_weapons = {
-        BOW, CROSSBOW, WAND, CLAW, GUN,
-    };
-    static const std::flat_map<weapon_type, std::vector<std::u16string>>
-        weapon_attack_action = {
-            {S1A1M1D,
-             {u"stabO1", u"stabO2", u"swingO1", u"swingO2", u"swingO3"}},
-            {SPEAR, {u"stabT1", u"swingP1"}},
-            {BOW, {u"shoot1"}},
-            {CROSSBOW, {u"shoot1"}},
-            {S2A2M2,
-             {u"stabO1", u"stabO2", u"swingT1", u"swingT2", u"swingT3"}},
-            {WAND, {u"swingO1", u"swingO2"}},
-            {CLAW, {u"swingO1", u"swingO2"}},
-            {GUN, {u"shot"}},
+    auto weapon_type = equip_game_instance::load_weapon_type(g_character);
+    std::vector<character_logic_system::attack_data> atk_mobs;
+    bool shoot = false;
+    static const std::flat_set<equip_game_instance::weapon_type> shoot_weapons =
+        {
+            equip_game_instance::BOW,
+            equip_game_instance::CROSSBOW,
+            equip_game_instance::CLAW,
+            equip_game_instance::GUN,
         };
-    static const std::flat_map<weapon_type, std::vector<std::u16string>>
+    static const std::flat_map<equip_game_instance::weapon_type,
+                               std::vector<std::u16string>>
+        weapon_attack_action = {
+            {equip_game_instance::S1A1M1D,
+             {u"stabO1", u"stabO2", u"swingO1", u"swingO2", u"swingO3"}},
+            {equip_game_instance::SPEAR, {u"stabT1", u"swingP1"}},
+            {equip_game_instance::BOW, {u"shoot1"}},
+            {equip_game_instance::CROSSBOW, {u"shoot1"}},
+            {equip_game_instance::S2A2M2,
+             {u"stabO1", u"stabO2", u"swingT1", u"swingT2", u"swingT3"}},
+            {equip_game_instance::WAND, {u"swingO1", u"swingO2"}},
+            {equip_game_instance::CLAW, {u"swingO1", u"swingO2"}},
+            {equip_game_instance::GUN, {u"shot"}},
+        };
+    static const std::flat_map<equip_game_instance::weapon_type,
+                               std::vector<std::u16string>>
         weapon_attack_action2 = {
-            {BOW, {u"swingT1", u"swingT3"}},
-            {CROSSBOW, {u"swingT1", u"stabT1"}},
-            {CLAW, {u"stabO1", u"stabO2"}},
-            {GUN, {u"swingP1", u"stabT2"}},
+            {equip_game_instance::BOW, {u"swingT1", u"swingT3"}},
+            {equip_game_instance::CROSSBOW, {u"swingT1", u"stabT1"}},
+            {equip_game_instance::CLAW, {u"stabO1", u"stabO2"}},
+            {equip_game_instance::GUN, {u"swingP1", u"stabT2"}},
         };
     switch (g_action) {
     case action_enum::stand:
@@ -598,15 +605,22 @@ bool character_logic_system::run_attack(game_character &g_character) {
     }
     case action_enum::jump: {
       auto &gen = random_game_instance::gen;
-      bool shoot_weapon = shoot_weapons.contains(attack_type);
+      bool shoot_weapon = shoot_weapons.contains(weapon_type);
+      const std::vector<std::u16string> *actions;
       if (shoot_weapon) {
-
+        atk_mobs = run_shoot_check(g_character);
+        if (!atk_mobs.empty()) {
+          actions = &weapon_attack_action2.at(weapon_type);
+        } else {
+          shoot = true;
+          actions = &weapon_attack_action.at(weapon_type);
+        }
       } else {
-        const auto &actions = weapon_attack_action.at((weapon_type)attack_type);
-        std::uniform_int_distribution<> dis(0, actions.size() - 1);
-        auto selected = actions.at(dis(gen));
-        run_action(g_character, selected);
+        actions = &weapon_attack_action.at(weapon_type);
       }
+      std::uniform_int_distribution<> dis(0, actions->size() - 1);
+      auto selected = actions->at(dis(gen));
+      run_action(g_character, selected);
       break;
     }
     case action_enum::prone: {
@@ -618,12 +632,21 @@ bool character_logic_system::run_attack(game_character &g_character) {
     }
     }
     SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
-
-    auto atk_mobs = run_attack_mob_check(g_character, g_r);
+    if (atk_mobs.empty()) {
+      atk_mobs = run_attack_check(g_character, g_r);
+    }
     if (!atk_mobs.empty()) {
       auto atk_mob = atk_mobs[0];
-      auto delay = afterimage_game_instance::load_beat_time(g_character);
-
+      uint64_t delay;
+      if (!shoot) {
+        delay = afterimage_game_instance::load_beat_time(g_character);
+      } else {
+        // shoot
+        delay = afterimage_game_instance::load_beat_time(g_character);
+        float hspeed = 100.0f;
+        auto dx = atk_mob.mob.pos.x - g_character.pos.x;
+        delay += dx / hspeed;
+      }
       ClientCharacterAttackT t;
       CharacterAttackT ct;
       ct.mob_index = atk_mob.mob.index;
@@ -636,7 +659,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       ct.left = g_character.pos.x < atk_mob.mob.pos.x;
       t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
 
-      effect_game_instance::load_character_attack(t.payload, g_character);
+      character_game_instance::load_character_attack(t.payload, g_character);
       client_request::character_attack_request(t);
     }
     self_alert_cooldown = window::dt_now + 5000;
@@ -819,6 +842,9 @@ void character_logic_system::run_network_sync(game_character &g_character,
 
 character_logic_system::action_enum
 character_logic_system::load_action_type(game_character &g_character) {
+  if (g_character.skill.has_value()) {
+    return action_enum::skill;
+  }
   const static std::flat_map<std::u16string, action_enum> map_name = {
       {u"stand1", action_enum::stand},   {u"stand2", action_enum::stand},
       {u"alert", action_enum::alert},    {u"walk1", action_enum::walk},
@@ -917,6 +943,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       run_state_machine(g_character);
     }
   }
+  case action_enum::skill:
   case action_enum::attack: {
     bool fall = run_fall(g_character);
     if (run_animate(g_character)) {
@@ -931,6 +958,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       } else {
         run_action(g_character, u"jump");
       }
+      g_character.skill = std::nullopt;
       run_state_machine(g_character);
     }
     break;
@@ -1024,6 +1052,7 @@ void character_logic_system::run_others_animate() {
       auto action_index = g_character.action_index;
       auto action_time = g_character.action_time;
       if (run_animate(g_character)) {
+        g_character.skill = std::nullopt;
         // 一次性动作,但是不知道后续是什么动作,保留动作
         g_character.action_index = action_index;
         g_character.action_time = action_time;

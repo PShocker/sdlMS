@@ -14,28 +14,18 @@
 
 std::u16string
 afterimage_game_instance::load_hit_type(game_character &g_character) {
-  auto g_weapon = g_character.weapon->id;
-  auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
-  auto attack_type =
-      static_cast<wz::Property<int16_t> *>(g_weapon_info->get_child(u"attack"))
-          ->get();
-  enum weapon_type : uint8_t {
-    NONE = 0,
-    S1A1M1D = 1,
-    SPEAR = 2,
-    BOW = 3,
-    CROSSBOW = 4,
-    S2A2M2 = 5,
-    WAND = 6,
-    CLAW = 7,
-    GUN = 9,
+  auto weapon_type = equip_game_instance::load_weapon_type(g_character);
+  const std::flat_map<equip_game_instance::weapon_type, std::u16string> h = {
+      {equip_game_instance::S1A1M1D, u"sword1"},
+      {equip_game_instance::SPEAR, u"sword1"},
+      {equip_game_instance::BOW, u"sword1"},
+      {equip_game_instance::CROSSBOW, u"sword1"},
+      {equip_game_instance::S2A2M2, u"sword1"},
+      {equip_game_instance::WAND, u"sword1"},
+      {equip_game_instance::CLAW, u"sword1"},
+      {equip_game_instance::GUN, u"sword1"},
   };
-  const std::flat_map<weapon_type, std::u16string> h = {
-      {S1A1M1D, u"sword1"},  {SPEAR, u"sword1"},  {BOW, u"sword1"},
-      {CROSSBOW, u"sword1"}, {S2A2M2, u"sword1"}, {WAND, u"sword1"},
-      {CLAW, u"sword1"},     {GUN, u"sword1"},
-  };
-  return h.at((weapon_type)attack_type);
+  return h.at(weapon_type);
 }
 
 wz::Node *

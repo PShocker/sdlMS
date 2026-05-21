@@ -126,7 +126,8 @@ void effect_render_system::render_skill_hit(SDL_FPoint pos,
   auto texture_node = ski_node->get_child(index);
   auto texture = wz_resource::load_texture(texture_node);
   if (texture_node->type == wz::Type::UOL) {
-    texture_node = static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
+    texture_node =
+        static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
   }
   auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
@@ -179,10 +180,7 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
 }
 
 bool effect_render_system::render_mob_back(game_mob &g_mob) {
-  if (!effect_game_instance::m_effect.contains(g_mob.index)) {
-    return false;
-  }
-  auto &v = effect_game_instance::m_effect.at(g_mob.index);
+  auto &v = g_mob.effect;
   for (auto &e : v) {
     if (e.z.has_value() && !e.z.value()) {
       render(g_mob.pos, e, g_mob.flip);
@@ -192,10 +190,7 @@ bool effect_render_system::render_mob_back(game_mob &g_mob) {
 }
 
 bool effect_render_system::render_character_back(game_character *g_character) {
-  if (!effect_game_instance::c_effect.contains(g_character)) {
-    return false;
-  }
-  auto &v = effect_game_instance::c_effect.at(g_character);
+  auto &v = g_character->effect;
   for (auto &e : v) {
     if (e.z.has_value() && !e.z.value()) {
       render(g_character->pos, e, g_character->flip);

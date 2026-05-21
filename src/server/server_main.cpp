@@ -54,7 +54,7 @@ void server_main::on_recv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
     uv_ip4_name((const struct sockaddr_in *)addr, sender_ip, 16);
     sender_port = ntohs(((const struct sockaddr_in *)addr)->sin_port);
   }
-  printf("Received %ld bytes from %s:%d\n", nread, sender_ip, sender_port);
+  printf("Received %zd bytes from %s:%d\n", nread, sender_ip, sender_port);
 
   free(buf->base); // 释放由 alloc_cb 分配的内存
 }

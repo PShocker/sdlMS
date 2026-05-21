@@ -14,20 +14,6 @@ using namespace fbs;
 
 class effect_game_instance {
 public:
-  static inline std::flat_map<game_character *, std::vector<game_effect>>
-      c_effect; // character
-  static inline std::flat_map<int32_t, std::vector<game_effect>>
-      m_effect; // mob
-
   static inline std::array<std::vector<game_effect>, 8> data;
-
-  static void load_character_attack(
-      const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,
-      game_character &g_character);
-
-  static void load_character_skill(
-      uint32_t ski_id,
-      const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
-      game_character *g);
   static void reset();
 };

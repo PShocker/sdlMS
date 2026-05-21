@@ -1,8 +1,10 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
+#include "src/client/game/game_effect.h"
 #include <cstdint>
 #include <string>
+#include <vector>
 
 class game_mob {
 public:
@@ -26,4 +28,6 @@ public:
 
   uint8_t page;
   bool flip;
+
+  std::vector<game_effect> effect;
 };
