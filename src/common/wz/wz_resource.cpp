@@ -31,6 +31,7 @@ void wz_resource::init_files() {
   npc = new wz::Files("Npc/Npc");
   skill = new wz::Files("Skill/Skill");
   effect = new wz::Files("Effect/Effect");
+  string = new wz::Files("String/String");
 }
 
 void wz_resource::init() {

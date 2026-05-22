@@ -19,6 +19,7 @@ private:
   static void render_mark();
   static void render_canvas();
   static void render_mini();
+  static void render_name();
 
   static bool event_button(SDL_Event *event);
   static void event_top();

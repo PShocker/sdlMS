@@ -31,6 +31,11 @@ private:
   static inline uint8_t size;
   static inline SDL_Color color;
   static inline std::flat_map<freetype_cache_key, freetype_cache_value> cache;
+
+  static inline bool aligned;
+
+  static float load_char_w(const char16_t c);
+
   static float draw_char(float x, float y, char16_t c);
 
 public:
@@ -39,6 +44,8 @@ public:
   static void load_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
   static float load_w(const std::u16string &str);
   static float load_lh();
+  static float load_h(const std::u16string &str, float w);
+  static void load_aligned(bool r);
 
   static void draw_line(const std::u16string &str, float x, float y);
 };

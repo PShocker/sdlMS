@@ -6,10 +6,13 @@
 #include <string>
 class game_chatballoon {
 public:
-  std::u8string text;
+  std::u16string text;
   std::u16string path;
+
+  float w = 100.0f;
 
   SDL_FPoint pos;
   SDL_Color color;
   uint64_t destory;
+  uint32_t size = 13;
 };

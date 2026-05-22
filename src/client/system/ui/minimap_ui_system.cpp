@@ -9,6 +9,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
@@ -18,6 +19,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <ranges>
+#include <string>
 
 void minimap_ui_system::render_mini() {}
 
@@ -403,6 +405,55 @@ void minimap_ui_system::render_mark() {
   SDL_RenderTexture(window::renderer, mark_texture, nullptr, &pos_rect);
 }
 
+void minimap_ui_system::render_name() {
+  struct map_name {
+    std::u16string street_name;
+    std::u16string map_name;
+  };
+  auto map_id = scene_system_instance::map_id;
+  static std::flat_map<uint32_t, map_name> cache;
+  if (!cache.contains(map_id)) {
+    auto node = wz_resource::string->find(u"Map.img");
+    for (auto [k, v] : *node->get_children()) {
+      for (auto [k2, v2] : *v[0]->get_children()) {
+        auto id = std::stoi(std::string{k2.begin(), k2.end()});
+        map_name desc;
+        desc.street_name = static_cast<wz::Property<std::u16string> *>(
+                               v2[0]->get_child(u"streetName"))
+                               ->get();
+        desc.map_name = static_cast<wz::Property<std::u16string> *>(
+                            v2[0]->get_child(u"mapName"))
+                            ->get();
+        cache[id] = desc;
+      }
+    }
+  }
+  auto map_d = cache.at(map_id);
+  freetype::load_aligned(true);
+  freetype::load_size(14);
+  auto w = freetype::load_w(map_d.street_name);
+  auto h = freetype::load_lh();
+  freetype::load_color(0, 0, 0, 255);
+  auto x = pos.x + 49;
+  auto y = pos.y + 25;
+  freetype::draw_line(map_d.street_name, x, y);
+  x = pos.x + 48;
+  y = pos.y + 24;
+  freetype::load_color(255, 255, 255, 255);
+  freetype::draw_line(map_d.street_name, x, y);
+
+  freetype::load_color(0, 0, 0, 255);
+  x = pos.x + 49;
+  y += h;
+  freetype::draw_line(map_d.map_name, x, y);
+
+  x = pos.x + 48;
+  y -= 1;
+  freetype::load_color(255, 255, 255, 255);
+  freetype::draw_line(map_d.map_name, x, y);
+  freetype::load_aligned(false);
+}
+
 void minimap_ui_system::render_canvas() {
   auto canvas_texture = load_canvas_texture();
   auto canvas_viewport = load_canvas_viewport();
@@ -422,6 +473,8 @@ bool minimap_ui_system::render() {
   if (!disable) {
     if (max) {
       render_max_backgrnd();
+      render_mark();
+      render_name();
     } else {
       render_min_backgrnd();
     }
@@ -520,8 +573,8 @@ bool minimap_ui_system::event(SDL_Event *event) {
 
 void minimap_ui_system::load() {
   auto texture = load_canvas_texture();
-  backgrnd_max_wh.x = std::clamp(texture->w, 200, 300);
-  backgrnd_min_wh.x = std::clamp(texture->w, 200, 300);
+  backgrnd_max_wh.x = std::clamp(texture->w, 240, 300);
+  backgrnd_min_wh.x = std::clamp(texture->w, 240, 300);
 
   backgrnd_max_wh.y = std::clamp(texture->h, 180, 220);
   backgrnd_min_wh.y = std::clamp(texture->h, 180, 220);

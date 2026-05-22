@@ -1,5 +1,7 @@
 #include "freetype.h"
 #include "src/client/window/window.h"
+#include <cstdint>
+#include <flat_map>
 #include <string>
 
 void freetype::load_size(uint8_t i) {
@@ -21,15 +23,42 @@ void freetype::init() {
   return;
 }
 
+float freetype::load_char_w(const char16_t c) {
+  static std::flat_map<char16_t, float> cache;
+  if (!cache.contains(c)) {
+    FT_Load_Char(face, c, FT_LOAD_DEFAULT);
+    auto w = face->glyph->advance.x >> 6;
+    cache[c] = w;
+  }
+  return cache.at(c);
+}
+
 float freetype::load_w(const std::u16string &str) {
   float w = 0;
   for (auto c : str) {
-    FT_Load_Char(face, c, FT_LOAD_DEFAULT);
-    w += face->glyph->advance.x >> 6;
+    w += load_char_w(c);
   }
   return w;
 }
+
 float freetype::load_lh() { return face->size->metrics.height >> 6; }
+
+float freetype::load_h(const std::u16string &str, float w) {
+  uint32_t line = 1;
+  auto lineHeight = face->size->metrics.height >> 6;
+  float lineWidth = 0;
+  for (auto c : str) {
+    lineWidth += load_char_w(c);
+    if (lineWidth >= w) {
+      // 换行
+      line++;
+      lineWidth = 0;
+    }
+  }
+  return line * lineHeight;
+}
+
+void freetype::load_aligned(bool r) { aligned = r; }
 
 float freetype::draw_char(float x, float y, char16_t c) {
   SDL_Texture *texture = nullptr;
@@ -85,6 +114,10 @@ float freetype::draw_char(float x, float y, char16_t c) {
   auto posX = x + (advance - texture->w) / 2;
   SDL_FRect posRect{posX, posY, static_cast<float>(texture->w),
                     static_cast<float>(texture->h)};
+  if (aligned) {
+    posRect.x = (int)posRect.x;
+    posRect.y = (int)posRect.y;
+  }
   SDL_RenderTexture(window::renderer, texture, nullptr, &posRect);
   return advance;
 }
