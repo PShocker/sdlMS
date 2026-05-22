@@ -31,6 +31,7 @@ bool cursor_logic_system::run_default() {
 }
 
 void cursor_logic_system::run_cursor_ui() {
+  cursor_game_instance::cursor_ui = nullptr;
   for (auto &fn : system::render_systems) {
     if (fn == minimap_ui_system::render) {
       if (minimap_ui_system::cursor_in()) {

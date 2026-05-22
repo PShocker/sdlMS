@@ -13,6 +13,7 @@ public:
   int32_t fh;
 
   SDL_FPoint pos;
+  bool flip;
 
   std::u16string action;
 

@@ -12,7 +12,6 @@ public:
   float w = 100.0f;
 
   SDL_FPoint pos;
-  SDL_Color color;
   uint64_t destory;
   uint32_t size = 13;
 };
