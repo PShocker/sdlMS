@@ -8,11 +8,12 @@
 
 bool nametag_render_system::render(game_nametag &g_nametag, SDL_FPoint base) {
   const auto &camera = camera_game_instance::camera;
-
+  freetype::load_aligned(true);
   freetype::load_size(g_nametag.size);
   auto w = freetype::load_w(g_nametag.text);
   auto h = freetype::load_lh();
-  freetype::load_color(255, 255, 255, 255);
+  freetype::load_color(g_nametag.color.r, g_nametag.color.g, g_nametag.color.b,
+                       g_nametag.color.a);
   auto x = base.x + g_nametag.pos.x;
   auto y = base.y + g_nametag.pos.y;
   if (g_nametag.path == u"") {
@@ -76,5 +77,6 @@ bool nametag_render_system::render(game_nametag &g_nametag, SDL_FPoint base) {
       freetype::draw_line(g_nametag.text, rect.x - result, y - camera.y);
     }
   }
+  freetype::load_aligned(false);
   return true;
 }

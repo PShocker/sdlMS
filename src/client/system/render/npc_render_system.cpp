@@ -14,13 +14,13 @@ void npc_render_system::render_nametag(game_npc &g_npc) {
       g_npc.id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
   std::u16string result(view.begin(), view.end());
-  auto str_node = wz_resource::string->find(result);
+  auto str_node = wz_resource::string->find(u"Npc.img/" + result);
 
   if (auto name_node = str_node->get_child(u"name")) {
     auto name_str =
         static_cast<wz::Property<std::u16string> *>(name_node)->get();
     game_nametag n;
-    n.color = {255, 255, 255, 255};
+    n.color = {255, 205, 0, 255};
     n.path = u"";
     n.pos = {0, 0};
     n.size = 13;
@@ -32,9 +32,9 @@ void npc_render_system::render_nametag(game_npc &g_npc) {
     auto func_str =
         static_cast<wz::Property<std::u16string> *>(func_node)->get();
     game_nametag n;
-    n.color = {255, 255, 255, 255};
+    n.color = {255, 205, 0, 255};
     n.path = u"";
-    n.pos = {0, 20};
+    n.pos = {0, 18};
     n.size = 13;
     n.text = func_str;
     nametag_render_system::render(n, g_npc.pos);

@@ -1,14 +1,20 @@
 #include "portal_render_system.h"
 #include "SDL3/SDL_rect.h"
+#include "nametag_render_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/portal_game_instance.h"
+#include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
+#include <cstdint>
+#include <flat_map>
 #include <string>
 
-bool portal_render_system::render(game_portal &g_portal) {
+bool portal_render_system::render_portal(game_portal &g_portal) {
   if (!(g_portal.pt == 1 || g_portal.pt == 2)) {
     return true;
   }
@@ -54,5 +60,28 @@ bool portal_render_system::render(game_portal &g_portal) {
     pos_rect.y -= camera.y;
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
   }
+  return true;
+}
+
+void portal_render_system::render_nametag(game_portal &g_portal) {
+  if (g_portal.tm == scene_system_instance::map_id) {
+    return;
+  }
+  if (g_portal.tm == 999999999) {
+    return;
+  }
+  auto name = minimap_ui_system::load_map_name(g_portal.tm).map_name;
+  game_nametag n;
+  n.color = {255, 205, 0, 255};
+  n.path = u"";
+  n.pos = {0, 4};
+  n.size = 13;
+  n.text = name;
+  nametag_render_system::render(n, g_portal.pos);
+}
+
+bool portal_render_system::render(game_portal &g_portal) {
+  render_portal(g_portal);
+  render_nametag(g_portal);
   return true;
 }

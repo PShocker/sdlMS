@@ -5,6 +5,7 @@
 #include "SDL3/SDL_render.h"
 #include <cstdint>
 #include <optional>
+#include <string>
 
 class minimap_ui_system {
 
@@ -42,6 +43,12 @@ public:
   static inline SDL_FPoint pos = {5, 5};
   static inline bool max = true;
   static inline bool disable;
+
+  struct map_name {
+    std::u16string street_name;
+    std::u16string map_name;
+  };
+  static map_name load_map_name(uint32_t map_id);
 
   static void load();
   static bool render();

@@ -405,12 +405,7 @@ void minimap_ui_system::render_mark() {
   SDL_RenderTexture(window::renderer, mark_texture, nullptr, &pos_rect);
 }
 
-void minimap_ui_system::render_name() {
-  struct map_name {
-    std::u16string street_name;
-    std::u16string map_name;
-  };
-  auto map_id = scene_system_instance::map_id;
+minimap_ui_system::map_name minimap_ui_system::load_map_name(uint32_t map_id) {
   static std::flat_map<uint32_t, map_name> cache;
   if (!cache.contains(map_id)) {
     auto node = wz_resource::string->find(u"Map.img");
@@ -428,7 +423,12 @@ void minimap_ui_system::render_name() {
       }
     }
   }
-  auto map_d = cache.at(map_id);
+  return cache.at(map_id);
+}
+
+void minimap_ui_system::render_name() {
+  auto map_id = scene_system_instance::map_id;
+  auto map_d = load_map_name(map_id);
   freetype::load_aligned(true);
   freetype::load_size(14);
   auto w = freetype::load_w(map_d.street_name);
