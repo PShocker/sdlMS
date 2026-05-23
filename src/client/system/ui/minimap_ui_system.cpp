@@ -260,13 +260,17 @@ SDL_FPoint minimap_ui_system::load_canvas_o() {
   if (max) {
     static auto node = wz_resource::ui->find(u"MiniMap.img/MaxMap");
     static auto nw = wz_resource::load_texture(node->get_child(u"nw"));
-    r.x = std::max((backgrnd_max_wh.x - canvas_texture->w) / 2, (float)nw->w);
-    r.y = std::max((backgrnd_max_wh.y - canvas_texture->h) / 2, (float)nw->h);
+    r.x = nw->w;
+    r.x += std::max(0.0f, (canvas_wh.x - canvas_texture->w) / 2);
+    r.y = nw->h;
+    r.y += std::max(0.0f, (canvas_wh.y - canvas_texture->h) / 2);
   } else {
     static auto node = wz_resource::ui->find(u"MiniMap.img/MinMap");
     static auto nw = wz_resource::load_texture(node->get_child(u"nw"));
-    r.x = std::max((backgrnd_min_wh.x - canvas_texture->w) / 2, (float)nw->w);
-    r.y = std::max((backgrnd_min_wh.y - canvas_texture->h) / 2, (float)nw->h);
+    r.x = nw->w;
+    r.x += std::max(0.0f, (canvas_wh.x - canvas_texture->w) / 2);
+    r.y = nw->h;
+    r.y += std::max(0.0f, (canvas_wh.y - canvas_texture->h) / 2);
   }
   return r;
 }
@@ -572,10 +576,20 @@ bool minimap_ui_system::event(SDL_Event *event) {
 }
 
 void minimap_ui_system::load() {
-  auto texture = load_canvas_texture();
-  backgrnd_max_wh.x = std::clamp(texture->w, 240, 300);
-  backgrnd_min_wh.x = std::clamp(texture->w, 240, 300);
+  auto map_id = scene_system_instance::map_id;
+  auto map_name = load_map_name(map_id);
+  auto m_name = map_name.map_name;
+  auto s_name = map_name.street_name;
 
+  freetype::load_size(14);
+  auto m_w = freetype::load_w(m_name) + 53;
+  auto s_w = freetype::load_w(s_name) + 53;
+
+  auto w = std::max(m_w, s_w);
+  backgrnd_max_wh.x = std::max(w, 240.0f);
+  backgrnd_min_wh.x = std::max(w, 240.0f);
+
+  auto texture = load_canvas_texture();
   backgrnd_max_wh.y = std::clamp(texture->h, 180, 220);
   backgrnd_min_wh.y = std::clamp(texture->h, 180, 220);
 }

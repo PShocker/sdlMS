@@ -17,6 +17,7 @@
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
+#include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -35,12 +36,25 @@
 #include <string>
 #include <vector>
 
-SDL_FRect character_logic_system::load_rect(SDL_FRect &rect, SDL_FPoint &pos,
-                                            bool flip) {
-  rect.x += pos.x;
-  rect.y += pos.y;
-  if (flip == 1) {
-    rect.x += 2 * (pos.x - rect.x) - rect.w;
+SDL_FRect character_logic_system::load_rect(game_character &g_character) {
+  const auto stand_w = 44.0f;
+  const auto stand_h = 65.0f;
+  const auto prone_w = 46.0f;
+  const auto prone_h = 31.0f;
+  SDL_FRect rect;
+  if (g_character.action == u"prone" || g_character.action == u"proneStab") {
+    rect.x = g_character.pos.x - prone_w / 2;
+    rect.y = g_character.pos.y - prone_h;
+    rect.w = prone_w;
+    rect.h = prone_h;
+  } else {
+    rect.x = g_character.pos.x - stand_w / 2;
+    rect.y = g_character.pos.y - stand_h;
+    rect.w = stand_w;
+    rect.h = stand_h;
+  }
+  if (g_character.flip == 1) {
+    rect.x += 2 * (g_character.pos.x - rect.x) - rect.w;
   }
   return rect;
 }
@@ -51,11 +65,9 @@ character_logic_system::run_attack_check(game_character &g_character,
   std::vector<attack_data> v;
   std::flat_map<uint32_t, attack_data> m;
   auto &g_pos = g_character.pos;
-  g_r = load_rect(g_r, g_pos, g_character.flip);
   for (const auto [k, v] : mob_game_instance::data) {
     auto &m_pos = v.mob.pos;
-    auto m_r = mob_game_instance::load_mob_rect(v.mob).value();
-    m_r = load_rect(m_r, m_pos, v.mob.flip);
+    auto m_r = mob_logic_system::load_rect(v.mob).value();
     if (SDL_HasRectIntersectionFloat(&m_r, &g_r)) {
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
                  (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
@@ -220,9 +232,12 @@ bool character_logic_system::run_walk(game_character &g_character) {
   // 移动
   auto delta_time = window::delta_time / 1000.0f;
 
+  auto map_id = scene_system_instance::map_id;
+  auto border = map_info_game_instance::load_mr_border(map_id);
+
   r = physic::walk(g_character.pos, delta_time, self_hspeed, self_vspeed,
                    self_hforce, self_hspeed_min, self_hspeed_max, 800, true,
-                   self_fh, {0, 0, 0, 0}, foothold_game_instance::data);
+                   self_fh, border, foothold_game_instance::data);
   return r;
 }
 
@@ -233,9 +248,9 @@ bool character_logic_system::run_fall(game_character &g_character) {
   if (!g_character.abnormals.contains(
           game_character::abnormal_state_type::dizz)) {
     if (character_action_input.contains("left")) {
-      self_hspeed -= 0.03 * window::delta_time;
+      self_hspeed -= 0.1 * window::delta_time;
     } else if (character_action_input.contains("right")) {
-      self_hspeed += 0.03 * window::delta_time;
+      self_hspeed += 0.1 * window::delta_time;
     }
   }
   auto delta_time = window::delta_time / 1000.0;
@@ -245,10 +260,14 @@ bool character_logic_system::run_fall(game_character &g_character) {
   }
   self_vspeed = vspeed;
   auto fall_collide = self_foothold_cooldown <= window::dt_now;
-  bool r = physic::fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
-                        self_vspeed_min, self_vspeed_max, {0, 0, 0, 0},
-                        fall_collide, true, self_fh, g_character.page,
-                        foothold_game_instance::data);
+
+  auto map_id = scene_system_instance::map_id;
+  auto border = map_info_game_instance::load_mr_border(map_id);
+
+  bool r =
+      physic::fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
+                   self_vspeed_min, self_vspeed_max, border, fall_collide, true,
+                   self_fh, g_character.page, foothold_game_instance::data);
   return r;
 }
 
@@ -280,7 +299,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
     case action_enum::stand:
     case action_enum::alert:
     case action_enum::walk: {
-      self_vspeed = self_vspeed_min * 0.115;
+      self_vspeed = self_vspeed_min * 0.1;
       break;
     }
     case action_enum::prone: {
@@ -1002,7 +1021,7 @@ void character_logic_system::run_others_logic() {
         c.g_character.pos.x = per_x;
         c.g_character.pos.y = per_y;
         c.g_character.page = mv.page;
-        if (per >= 0.95f) {
+        if (per >= 1.0f) {
           c.logics.erase(c.logics.begin());
         }
         break;

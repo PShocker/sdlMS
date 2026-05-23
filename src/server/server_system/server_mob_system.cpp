@@ -1,4 +1,5 @@
 #include "server_mob_system.h"
+#include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
@@ -84,9 +85,14 @@ void server_mob_system::run_walk(server_mob &s_mob) {
   for (auto [key, value] : s_fhs) {
     g_fhs.emplace(key, std::move(value.fh)); // 移动避免拷贝s
   }
+
+  SDL_FRect border;
+  border.x = s_mob.rx0;
+  border.w = s_mob.rx1;
+
   auto r = physic::walk(s_mob.pos, delta_time / 1000.0f, s_mob.hspeed,
                         s_mob.vspeed, s_mob.hforce, -80.0f, 80.0f, 0, false,
-                        s_mob.fh, {0, 0, 0, 0}, g_fhs);
+                        s_mob.fh, border, g_fhs);
 }
 
 void server_mob_system::run_duration(server_mob &s_mob) {

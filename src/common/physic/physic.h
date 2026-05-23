@@ -31,12 +31,12 @@ public:
   static bool walk(SDL_FPoint &pos, float delta_time, float &hspeed,
                    float &vspeed, float &hforce, float hspeed_min,
                    float hspeed_max, float friction, bool fall,
-                   int32_t &current_fh, const SDL_FRect &border,
+                   int32_t &current_fh, std::optional<SDL_FRect> border,
                    const std::flat_map<int32_t, game_foothold> &fhs);
 
   static bool fall(SDL_FPoint &pos, float delta_time, float &hspeed,
-                   float vspeed, float vspeed_min, float vspeed_max,
-                   const SDL_FRect &border, bool fall_collide,
+                   float& vspeed, float vspeed_min, float vspeed_max,
+                   std::optional<SDL_FRect> border, bool fall_collide,
                    bool wall_collide, int32_t &current_fh, uint8_t &page,
                    const std::flat_map<int32_t, game_foothold> &fhs);
 };

@@ -1,12 +1,13 @@
 #include "mob_render_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <string>
 
-bool mob_render_system::render(game_mob &g_mob) {
+bool mob_render_system::render_mob(game_mob &g_mob) {
   auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
 
   auto action_node = mob_node->get_child(g_mob.action);
@@ -52,5 +53,15 @@ bool mob_render_system::render(game_mob &g_mob) {
                              nullptr, (SDL_FlipMode)g_mob.flip);
   }
 
+  return true;
+}
+
+bool mob_render_system::render(game_mob &g_mob) {
+  render_mob(g_mob);
+  // auto r = mob_logic_system::load_rect(g_mob).value();
+  // auto &camera = camera_game_instance::camera;
+  // r.x -= camera.x;
+  // r.y -= camera.y;
+  // SDL_RenderFillRect(window::renderer, &r);
   return true;
 }

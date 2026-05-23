@@ -30,11 +30,18 @@ bool npc_logic_system::run_animate(game_npc &g_npc) {
   if (delay_node != nullptr) {
     delay = static_cast<wz::Property<int> *>(delay_node)->get();
   }
+  auto child = *action_node->get_children();
+  int32_t canvas_count = 0;
+  for (auto [k, v] : child) {
+    if (u'0' <= k[0] && k[0] <= u'9') {
+      canvas_count++;
+    }
+  }
   if (g_npc.ani_time >= delay) {
     g_npc.ani_time = 0;
     g_npc.ani_index++;
-    r = g_npc.ani_index >= action_node->children_count();
-    g_npc.ani_index = g_npc.ani_index % action_node->children_count();
+    r = g_npc.ani_index >= canvas_count;
+    g_npc.ani_index = g_npc.ani_index % canvas_count;
   }
   return r;
 }
@@ -59,6 +66,7 @@ bool npc_logic_system::run_duration(game_npc &g_npc) {
     std::bernoulli_distribution dist(0.5); // 50% 概率为 true
     bool random_bool = dist(gen);
     g_npc.hforce = random_bool ? 1400 : -1400;
+    g_npc.hspeed = 0.0f;
   } else {
     g_npc.hforce = std::nullopt;
     g_npc.hspeed = std::nullopt;
@@ -93,15 +101,18 @@ bool npc_logic_system::run_chatballoon(game_npc &g_npc) {
 
     game_chatballoon c;
     c.destory = window::dt_now + random_number;
-    c.path = u"1";
+    // c.path = u"25";
+    // c.path = u"20";
+    c.path = u"0";
     c.pos = {0, 0};
-    c.size = 13;
+    c.size = 14;
+    c.color={156, 91, 97, 255};
 
     auto view =
         g_npc.id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
     std::u16string result(view.begin(), view.end());
-    auto str_node = wz_resource::string->find(result);
+    auto str_node = wz_resource::string->find(u"Npc.img/" + result);
     auto child = *str_node->get_children();
     std::vector<std::u16string> intersection;
 
@@ -110,12 +121,13 @@ bool npc_logic_system::run_chatballoon(game_npc &g_npc) {
         intersection.push_back(key);
       }
     }
-
-    std::uniform_int_distribution<int> dist2(0, intersection.size() - 1);
-    int random_number2 = dist2(gen);
-    str_node = child.at(intersection[random_number2])[0];
-    c.text = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    g_npc.chatballoon = c;
+    if (!intersection.empty()) {
+      std::uniform_int_distribution<int> dist2(0, intersection.size() - 1);
+      int random_number2 = dist2(gen);
+      str_node = child.at(intersection[random_number2])[0];
+      c.text = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+      g_npc.chatballoon = c;
+    }
   }
   return true;
 }
@@ -126,7 +138,7 @@ bool npc_logic_system::run_move(game_npc &g_npc) {
   float vspeed = 0;
   auto r = physic::walk(g_npc.pos, delta_time, g_npc.hspeed.value(), vspeed,
                         g_npc.hforce.value(), -100, 100, 800, false, g_npc.fh,
-                        {0, 0, 0, 0}, foothold_game_instance::data);
+                        std::nullopt, foothold_game_instance::data);
   return r;
 }
 

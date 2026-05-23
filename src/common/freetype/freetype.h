@@ -48,4 +48,5 @@ public:
   static void load_aligned(bool r);
 
   static void draw_line(const std::u16string &str, float x, float y);
+  static void draw_str(const std::u16string &str, float x, float y, float w);
 };

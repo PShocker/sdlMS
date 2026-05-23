@@ -25,6 +25,6 @@ public:
   uint64_t duration;
 
   std::optional<game_chatballoon> chatballoon;
-  std::optional<float> hspeed;
+  std::optional<float> hspeed = 100.0f;
   std::optional<float> hforce;
 };

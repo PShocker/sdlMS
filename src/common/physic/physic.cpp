@@ -55,7 +55,7 @@ bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
 bool physic::walk(SDL_FPoint &pos, float delta_time, float &hspeed,
                   float &vspeed, float &hforce, float hspeed_min,
                   float hspeed_max, float friction, bool fall,
-                  int32_t &current_fh, const SDL_FRect &border,
+                  int32_t &current_fh, std::optional<SDL_FRect> border,
                   const std::flat_map<int32_t, game_foothold> &fhs) {
   // 判断摩擦力方向
   if (hspeed > 0) {
@@ -69,6 +69,9 @@ bool physic::walk(SDL_FPoint &pos, float delta_time, float &hspeed,
   hspeed += delta_time * hforce;
   hspeed = std::clamp(hspeed, hspeed_min, hspeed_max);
   pos.x = hspeed * delta_time + pos.x;
+  if (border.has_value()) {
+    pos.x = std::clamp(pos.x, border->x, border->w);
+  }
 
   // 往左走
   while (true) {
@@ -182,9 +185,9 @@ bool physic::fall_collide_wall(
 }
 
 bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
-                  float vspeed, float vspeed_min, float vspeed_max,
-                  const SDL_FRect &border, bool fall_collide, bool wall_collide,
-                  int32_t &current_fh, uint8_t &page,
+                  float &vspeed, float vspeed_min, float vspeed_max,
+                  std::optional<SDL_FRect> border, bool fall_collide,
+                  bool wall_collide, int32_t &current_fh, uint8_t &page,
                   const std::flat_map<int32_t, game_foothold> &fhs) {
   vspeed = std::clamp(vspeed, vspeed_min, vspeed_max);
   SDL_FPoint new_pos = pos;
@@ -192,6 +195,10 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   new_pos.y += vspeed * delta_time;
   auto inter_pos = fall_intersect_pos(pos, new_pos, fhs);
   pos = new_pos;
+  if (border.has_value()) {
+    pos.x = std::clamp(pos.x, border->x, border->w);
+    pos.y = std::clamp(pos.y, border->y, border->h);
+  }
   // 下落
   if (vspeed >= 0) {
     if (fall_collide) {
@@ -205,6 +212,7 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
             // 落地
             current_fh = fh.id;
             hspeed = hspeed / 2;
+            vspeed = 0;
             page = fh.page;
             pos = collide_pos;
             return false;
@@ -231,7 +239,6 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
       if (!fh.k.has_value()) {
         // 撞墙
         if (fall_collide_wall(hspeed, fh, fhs)) {
-          pos = collide_pos;
           pos.x += hspeed < 0 ? 0.1 : -0.1;
           hspeed = 0;
           return true;

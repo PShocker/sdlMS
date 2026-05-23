@@ -5,6 +5,7 @@
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
+#include <optional>
 #include <string>
 
 wz::Node *map_info_game_instance::load(uint32_t map_id) {
@@ -22,6 +23,22 @@ SDL_FRect map_info_game_instance::load_vr_border(uint32_t map_id) {
       static_cast<wz::Property<int> *>(map_info->get_child(u"VRBottom"))->get();
   r.h =
       static_cast<wz::Property<int> *>(map_info->get_child(u"VRRight"))->get();
+  return r;
+}
+
+std::optional<SDL_FRect>
+map_info_game_instance::load_mr_border(uint32_t map_id) {
+  SDL_FRect r;
+  auto map_info = load(map_id);
+  if (!map_info->get_child(u"MRTop")) {
+    return std::nullopt;
+  }
+  r.x = static_cast<wz::Property<int> *>(map_info->get_child(u"MRLeft"))->get();
+  r.y = static_cast<wz::Property<int> *>(map_info->get_child(u"MRTop"))->get();
+  r.w =
+      static_cast<wz::Property<int> *>(map_info->get_child(u"MRRight"))->get();
+  r.h =
+      static_cast<wz::Property<int> *>(map_info->get_child(u"MRBottom"))->get();
   return r;
 }
 

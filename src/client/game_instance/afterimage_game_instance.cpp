@@ -112,12 +112,18 @@ afterimage_game_instance::load_rect(game_character &g_character) {
   if (auto data = load_atf_node(g_character)) {
     auto lt = wz_resource::load_fpoint(data->get_child(u"lt"));
     auto rb = wz_resource::load_fpoint(data->get_child(u"rb"));
-    return SDL_FRect{
+    SDL_FRect rect{
         .x = lt.x,
         .y = lt.y,
         .w = rb.x - lt.x,
         .h = rb.y - lt.y,
     };
+    rect.x += g_character.pos.x;
+    rect.y += g_character.pos.y;
+    if (g_character.flip == 1) {
+      rect.x += 2 * (g_character.pos.x - rect.x) - rect.w;
+    }
+    return rect;
   }
   return std::nullopt;
 }

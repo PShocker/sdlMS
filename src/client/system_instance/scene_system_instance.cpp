@@ -27,6 +27,7 @@
 #include "src/client/system/logic/drop_logic_system.h"
 #include "src/client/system/logic/effect_logic_system.h"
 #include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/logic/npc_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/portal_logic_system.h"
 #include "src/client/system/logic/sound_logic_system.h"
@@ -112,7 +113,11 @@ bool scene_system_instance::render_game() {
   for (auto &f_backgrnd : backgrnd_game_instance::front | std::views::values) {
     backgrnd_render_system::render(f_backgrnd);
   }
-
+  for (auto &npcs : npc_game_instance::data) {
+    for (auto &npc : npcs) {
+      npc_render_system::render_chatballoon(npc);
+    }
+  }
   return true;
 }
 
@@ -147,8 +152,9 @@ void scene_system_instance::enter(uint32_t map_id) {
       camera_logic_system::run,    effect_logic_system::run,
       character_logic_system::run, chatballoon_logic_system::run,
       drop_logic_system::run,      mob_logic_system::run,
-      portal_logic_system::run,    sound_logic_system::run,
-      obj_logic_system::run,       cursor_logic_system::run,
+      npc_logic_system::run,       portal_logic_system::run,
+      sound_logic_system::run,     obj_logic_system::run,
+      cursor_logic_system::run,
   };
   system::render_systems = {
       render_game,

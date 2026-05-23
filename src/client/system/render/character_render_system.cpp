@@ -113,6 +113,19 @@ bool character_render_system::render_character(game_character &g_character) {
         if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
           pos_rect.x -= camera.x;
           pos_rect.y -= camera.y;
+          if (&g_character == &character_game_instance::self) {
+            auto cooldown = character_logic_system::self_invincible_cooldown;
+            if (cooldown >= window::dt_now) {
+              auto delta = cooldown - window::dt_now;
+              bool dark = (delta % 200) > 100;
+              Uint8 color = dark ? 128 : 255;
+              SDL_SetTextureColorMod(texture, color, color, color);
+            } else {
+              SDL_SetTextureColorMod(texture, 255, 255, 255);
+            }
+          } else {
+            SDL_SetTextureColorMod(texture, 255, 255, 255);
+          }
           SDL_RenderTextureRotated(window::renderer, texture, nullptr,
                                    &pos_rect, 0, nullptr,
                                    (SDL_FlipMode)g_character.flip);
@@ -170,5 +183,10 @@ bool character_render_system::render(game_character &g_character) {
   render_afterimage(g_character);
   render_character(g_character);
   render_nametag(g_character);
+  // auto r = character_logic_system::load_rect(g_character);
+  // auto &camera = camera_game_instance::camera;
+  // r.x -= camera.x;
+  // r.y -= camera.y;
+  // SDL_RenderFillRect(window::renderer, &r);
   return true;
 }

@@ -1,12 +1,15 @@
 #include "npc_render_system.h"
+#include "SDL3/SDL_rect.h"
 #include "nametag_render_system.h"
 #include "src/client/game/game_nametag.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
+#include "src/client/system/render/chatballoon_render_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include "wz/Wz.h"
 #include <ranges>
 
 void npc_render_system::render_nametag(game_npc &g_npc) {
@@ -46,8 +49,24 @@ void npc_render_system::render_chatballoon(game_npc &g_npc) {
     return;
   }
   auto chatballoon = g_npc.chatballoon.value();
-  auto text_w = 100.0f;
-  auto text_h = freetype::load_h(chatballoon.text, text_w);
+  auto npc_node = npc_game_instance::load_link_npc_node(g_npc.id);
+  auto action_node = npc_node->get_child(g_npc.action);
+
+  auto index = std::to_string(g_npc.ani_index);
+  npc_node = action_node->get_child(index);
+  if (npc_node->type == wz::Type::UOL) {
+    npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
+  }
+
+  auto texture = wz_resource::load_texture(npc_node);
+  auto origin = wz_resource::load_fpoint(npc_node->get_child(u"origin"));
+  freetype::load_size(chatballoon.size);
+  auto h = freetype::load_h(chatballoon.text, chatballoon.w);
+  SDL_FPoint pos{
+      .x = g_npc.pos.x,
+      .y = g_npc.pos.y - origin.y - texture->h - h / 2,
+  };
+  chatballoon_render_system::render(chatballoon, pos);
 }
 
 bool npc_render_system::render_npc(game_npc &g_npc) {
@@ -56,6 +75,9 @@ bool npc_render_system::render_npc(game_npc &g_npc) {
 
   auto index = std::to_string(g_npc.ani_index);
   npc_node = action_node->get_child(index);
+  if (npc_node->type == wz::Type::UOL) {
+    npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
+  }
 
   auto texture = wz_resource::load_texture(npc_node);
   auto origin = wz_resource::load_fpoint(npc_node->get_child(u"origin"));
@@ -78,7 +100,6 @@ bool npc_render_system::render_npc(game_npc &g_npc) {
 
 bool npc_render_system::render(game_npc &g_npc) {
   render_npc(g_npc);
-  render_chatballoon(g_npc);
   render_nametag(g_npc);
   return true;
 }

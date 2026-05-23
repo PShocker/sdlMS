@@ -131,3 +131,16 @@ void freetype::draw_line(const std::u16string &str, float x, float y) {
     l += draw_char(l, t, c);
   }
 }
+
+void freetype::draw_str(const std::u16string &str, float x, float y, float w) {
+  auto l = x;
+  auto t = y;
+  auto lineHeight = face->size->metrics.height >> 6;
+  for (auto c : str) {
+    l += draw_char(l, t, c);
+    if (l >= x + w) {
+      t += lineHeight;
+      l = x;
+    }
+  }
+}

@@ -30,12 +30,20 @@ SDL_FRect skill_game_instance::load_skill_rect(const std::u16string &id,
   auto level_node = load_skill_level_node(id, l);
   auto lt = wz_resource::load_fpoint(level_node->get_child(u"lt"));
   auto rb = wz_resource::load_fpoint(level_node->get_child(u"rb"));
-  return SDL_FRect{
+  SDL_FRect rect{
       .x = lt.x,
       .y = lt.y,
       .w = rb.x - lt.x,
       .h = rb.y - lt.y,
   };
+  auto pos = character_game_instance::self.pos;
+  auto flip = character_game_instance::self.flip;
+  rect.x += pos.x;
+  rect.y += pos.y;
+  if (flip == 1) {
+    rect.x += 2 * (pos.x - rect.x) - rect.w;
+  }
+  return rect;
 }
 
 skill_game_instance::skill_type

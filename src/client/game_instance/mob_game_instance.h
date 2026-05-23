@@ -24,7 +24,6 @@ class mob_game_instance {
 public:
   static wz::Node *load_mob_info(const std::u16string &id);
   static wz::Node *load_link_mob_node(const std::u16string &id);
-  static std::optional<SDL_FRect> load_mob_rect(const game_mob &g_mob);
 
   static void load(uint32_t map_id);
 
