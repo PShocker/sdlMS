@@ -859,7 +859,7 @@ void character_game_instance::load_character_attack(
     // 伤害数字
     game_effect d = {
         .id = u"",
-        .index = 0,
+        .index = i,
         .time = 0,
         .delay = ct->attack->delay,
         .type = game_effect::effect_type::damage,

@@ -76,6 +76,4 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   return r;
 }
 
-void SDL_AppQuit(void *appstate, SDL_AppResult result) {
-  SDL_Quit();
-}
+void SDL_AppQuit(void *appstate, SDL_AppResult result) { SDL_Quit(); }

@@ -239,13 +239,13 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
       if (!fh.k.has_value()) {
         // 撞墙
         if (fall_collide_wall(hspeed, fh, fhs)) {
+          pos.x = fh.x1;
           pos.x += hspeed < 0 ? 0.1 : -0.1;
           hspeed = 0;
           return true;
         }
       } else if (fh.x2 < fh.x1 && fh.zmass == 0) {
         if (fall_collide_wall(hspeed, fh, fhs)) {
-          hspeed = 0;
           vspeed = 0;
           pos.y = collide_pos.y;
           return true;

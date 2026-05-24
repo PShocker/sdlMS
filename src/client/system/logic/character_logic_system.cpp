@@ -436,6 +436,7 @@ bool character_logic_system::run_climbing(game_character &g_character) {
       return false;
     } else {
       g_character.action_animate = false;
+      g_character.pos.y = c_lr.t;
     }
   } else if (g_character.pos.y > c_lr.b) {
     g_character.pos.y = c_lr.b;

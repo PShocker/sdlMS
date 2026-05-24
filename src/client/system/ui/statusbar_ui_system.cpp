@@ -2,10 +2,19 @@
 #include "SDL3/SDL_rect.h"
 #include "skill_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include <array>
+#include <cmath>
+#include <cstdint>
+#include <format>
+#include <string>
+
 
 void statusbar_ui_system::render_backgrnd() {
   static auto backgrnd = wz_resource::load_texture(
@@ -29,17 +38,220 @@ void statusbar_ui_system::render_backgrnd() {
               static_cast<float>(gaugeLabel->h)};
   SDL_RenderTexture(window::renderer, gaugeLabel, nullptr, &pos_rect);
 
+  static auto chatBackgrnd = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
+  pos_rect = {base_x + 7, base_y + 8, static_cast<float>(chatBackgrnd->w),
+              static_cast<float>(chatBackgrnd->h)};
+  SDL_RenderTexture(window::renderer, chatBackgrnd, nullptr, &pos_rect);
+}
+
+void statusbar_ui_system::render_gauge_text() {
+  static auto backgrnd = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/backgrnd2"));
+
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - backgrnd->w) / 2;
+  auto base_y = (screen_h - backgrnd->h);
+  static auto num_node = wz_resource::ui->find(u"StatusBar.img/gauge/number");
+  std::array<int32_t, 2> a = {character_logic_system::self_hp,
+                              character_logic_system::self_mp};
+  std::array<int32_t, 2> a2 = {character_logic_system::self_max_hp,
+                               character_logic_system::self_max_mp};
+  std::array<SDL_FPoint, 2> a3 = {
+      SDL_FPoint{245, 42},
+      SDL_FPoint{356, 42},
+  };
+  SDL_FRect pos_rect;
+  for (auto i : {0, 1}) {
+    auto l_bracket = wz_resource::load_texture(num_node->get_child(u"["));
+    auto r_bracket = wz_resource::load_texture(num_node->get_child(u"]"));
+    pos_rect = {base_x + a3[i].x, base_y + a3[i].y,
+                static_cast<float>(l_bracket->w),
+                static_cast<float>(l_bracket->h)};
+    SDL_RenderTexture(window::renderer, l_bracket, nullptr, &pos_rect);
+    int32_t w = 6;
+    auto num = std::to_string(a[i]);
+    for (auto c : num) {
+      pos_rect.x = base_x + w + a3[i].x;
+      auto texture =
+          wz_resource::load_texture(num_node->get_child(std::string{c}));
+      pos_rect.w = texture->w;
+      pos_rect.h = texture->h;
+      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+      w += 6;
+    }
+    auto texture = wz_resource::load_texture(num_node->get_child(u"slash"));
+    pos_rect.x = base_x + w + a3[i].x;
+    pos_rect.w = texture->w;
+    pos_rect.h = texture->h;
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    w += 6;
+
+    num = std::to_string(a2[i]);
+    for (auto c : num) {
+      pos_rect.x = base_x + w + a3[i].x;
+      auto texture =
+          wz_resource::load_texture(num_node->get_child(std::string{c}));
+      pos_rect.w = texture->w;
+      pos_rect.h = texture->h;
+      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+      w += 6;
+    }
+
+    pos_rect.x = base_x + w + a3[i].x;
+    pos_rect.w = r_bracket->w;
+    pos_rect.h = r_bracket->h;
+    SDL_RenderTexture(window::renderer, r_bracket, nullptr, &pos_rect);
+  }
+  SDL_FPoint a4{473, 42};
+  auto self_exp = character_logic_system::self_exp;
+  auto self_max_exp = character_logic_system::self_max_exp;
+  float self_exp_percent = (float)self_exp / self_max_exp;
+  auto num = std::to_string(self_exp);
+  int32_t w = 0;
+  for (auto c : num) {
+    pos_rect.x = base_x + w + a4.x;
+    auto texture =
+        wz_resource::load_texture(num_node->get_child(std::string{c}));
+    pos_rect.w = texture->w;
+    pos_rect.h = texture->h;
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    w += 6;
+  }
+  auto l_bracket = wz_resource::load_texture(num_node->get_child(u"["));
+  auto r_bracket = wz_resource::load_texture(num_node->get_child(u"]"));
+
+  pos_rect.x += 8;
+  SDL_RenderTexture(window::renderer, l_bracket, nullptr, &pos_rect);
+
+  auto exp_percent_num = std::format("{:.2f}", self_exp_percent * 100);
+  for (auto c : exp_percent_num) {
+    auto texture =
+        wz_resource::load_texture(num_node->get_child(std::string{c}));
+    pos_rect.x += 6;
+    pos_rect.w = texture->w;
+    pos_rect.h = texture->h;
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  }
+  auto percent_texture = wz_resource::load_texture(num_node->get_child(u"%"));
+  pos_rect.x += 6;
+  pos_rect.w = percent_texture->w;
+  pos_rect.h = percent_texture->h;
+  SDL_RenderTexture(window::renderer, percent_texture, nullptr, &pos_rect);
+
+  pos_rect.x += 8;
+  pos_rect.w = r_bracket->w;
+  pos_rect.h = r_bracket->h;
+  SDL_RenderTexture(window::renderer, r_bracket, nullptr, &pos_rect);
+}
+
+void statusbar_ui_system::render_character_stat() {
+  static auto backgrnd = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/backgrnd2"));
+
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - backgrnd->w) / 2;
+  auto base_y = (screen_h - backgrnd->h);
+
+  static auto gaugeHp = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeHp"));
+
+  static auto gray = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/gauge/canvas:gaugeBack"));
+
+  auto self_hp = character_logic_system::self_hp;
+  auto self_max_hp = character_logic_system::self_max_hp;
+  auto self_hp_percent = (float)self_hp / self_max_hp;
+  SDL_FRect pos_rect;
+  pos_rect = {
+      base_x + 224,
+      base_y + 56,
+      static_cast<float>(gaugeHp->w),
+      static_cast<float>(gray->h),
+  };
+  SDL_RenderTexture(window::renderer, gray, nullptr, &pos_rect);
+
+  SDL_FRect src_rect{
+      0,
+      0,
+      static_cast<float>(gaugeHp->w * self_hp_percent),
+      static_cast<float>(gaugeHp->h),
+  };
+  pos_rect = {
+      base_x + 224,
+      base_y + 56,
+      static_cast<float>(src_rect.w),
+      static_cast<float>(gaugeHp->h),
+  };
+  SDL_RenderTexture(window::renderer, gaugeHp, &src_rect, &pos_rect);
+
+  auto self_mp = character_logic_system::self_mp;
+  auto self_max_mp = character_logic_system::self_max_mp;
+  auto self_mp_percent = (float)self_mp / self_max_mp;
+  static auto gaugeMp = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeMp"));
+  pos_rect = {
+      base_x + 332,
+      base_y + 56,
+      static_cast<float>(gaugeMp->w),
+      static_cast<float>(gray->h),
+  };
+  SDL_RenderTexture(window::renderer, gray, nullptr, &pos_rect);
+
+  src_rect = {
+      0,
+      0,
+      static_cast<float>(gaugeMp->w * self_mp_percent),
+      static_cast<float>(gaugeMp->h),
+  };
+
+  pos_rect = {base_x + 332, base_y + 56, static_cast<float>(src_rect.w),
+              static_cast<float>(gaugeMp->h)};
+  SDL_RenderTexture(window::renderer, gaugeMp, &src_rect, &pos_rect);
+
+  static auto gaugeExp = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeExp"));
+  auto self_exp = character_logic_system::self_exp;
+  auto self_max_exp = character_logic_system::self_max_exp;
+  auto self_exp_percent = (float)self_exp / self_max_exp;
+
+  pos_rect = {
+      base_x + 445,
+      base_y + 56,
+      static_cast<float>(gaugeExp->w),
+      static_cast<float>(gray->h),
+  };
+  SDL_RenderTexture(window::renderer, gray, nullptr, &pos_rect);
+
+  src_rect = {
+      0,
+      0,
+      static_cast<float>(gaugeExp->w * self_exp_percent),
+      static_cast<float>(gaugeExp->h),
+  };
+
+  pos_rect = {base_x + 445, base_y + 56, static_cast<float>(src_rect.w),
+              static_cast<float>(gaugeExp->h)};
+  SDL_RenderTexture(window::renderer, gaugeExp, nullptr, &pos_rect);
+
   static auto gaugeCover = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/layer:gaugeCover"));
   pos_rect = {base_x + 223, base_y + 55, static_cast<float>(gaugeCover->w),
               static_cast<float>(gaugeCover->h)};
   SDL_RenderTexture(window::renderer, gaugeCover, nullptr, &pos_rect);
 
-  static auto chatBackgrnd = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
-  pos_rect = {base_x + 7, base_y + 8, static_cast<float>(chatBackgrnd->w),
-              static_cast<float>(chatBackgrnd->h)};
-  SDL_RenderTexture(window::renderer, chatBackgrnd, nullptr, &pos_rect);
+  // name
+  const auto &self = character_game_instance::self;
+  auto &self_name = self.nametags[0].text;
+  freetype::load_size(13);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::load_aligned(true);
+  freetype::draw_line(self_name, base_x + 88, base_y + 54);
+  freetype::load_aligned(false);
+
+  render_gauge_text();
 }
 
 void statusbar_ui_system::render_button() {
@@ -138,6 +350,7 @@ bool statusbar_ui_system::render() {
   render_backgrnd();
   render_button();
   render_quickSlot();
+  render_character_stat();
   return true;
 }
 

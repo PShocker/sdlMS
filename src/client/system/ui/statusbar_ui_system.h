@@ -6,9 +6,11 @@
 
 class statusbar_ui_system {
 private:
+  static void render_gauge_text();
   static void render_backgrnd();
   static void render_button();
   static void render_quickSlot();
+  static void render_character_stat();
   static SDL_FPoint load_wh();
 
   static bool event_button(SDL_Event *event);

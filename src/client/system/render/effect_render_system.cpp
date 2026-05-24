@@ -8,7 +8,9 @@
 #include "wz/Property.h"
 #include <array>
 #include <chrono>
+#include <cstdint>
 #include <string>
+#include <vector>
 
 void effect_render_system::render_afterimage(SDL_FPoint pos,
                                              game_effect &g_effect) {
@@ -41,48 +43,29 @@ void effect_render_system::render_afterimage(SDL_FPoint pos,
 
 void effect_render_system::render_damage(SDL_FPoint pos,
                                          game_effect &g_effect) {
-  static auto red0_n = wz_resource::effect->find(u"BasicEff.img/NoRed0");
-  const static std::array red0 = {
-      wz_resource::load_texture(red0_n->get_child(u"0")),
-      wz_resource::load_texture(red0_n->get_child(u"1")),
-      wz_resource::load_texture(red0_n->get_child(u"2")),
-      wz_resource::load_texture(red0_n->get_child(u"3")),
-      wz_resource::load_texture(red0_n->get_child(u"4")),
-      wz_resource::load_texture(red0_n->get_child(u"5")),
-      wz_resource::load_texture(red0_n->get_child(u"6")),
-      wz_resource::load_texture(red0_n->get_child(u"7")),
-      wz_resource::load_texture(red0_n->get_child(u"8")),
-      wz_resource::load_texture(red0_n->get_child(u"9")),
+  static auto red0 = wz_resource::effect->find(u"BasicEff.img/NoRed0");
+  enum damage_type {
+    n_0,
+    n_1,
+    n_2,
+    n_3,
+    n_4,
+    n_5,
+    n_6,
+    n_7,
+    n_8,
+    n_9,
+    miss,
+    guard,
+  };
+  const std::vector<std::u16string> damage_vector = {
+      u"0", u"1", u"2", u"3", u"4",    u"5",
+      u"6", u"7", u"8", u"9", u"Miss", u"guard",
   };
 
-  static auto red1_n = wz_resource::effect->find(u"BasicEff.img/NoRed1");
-  const static std::array red1 = {
-      wz_resource::load_texture(red1_n->get_child(u"0")),
-      wz_resource::load_texture(red1_n->get_child(u"1")),
-      wz_resource::load_texture(red1_n->get_child(u"2")),
-      wz_resource::load_texture(red1_n->get_child(u"3")),
-      wz_resource::load_texture(red1_n->get_child(u"4")),
-      wz_resource::load_texture(red1_n->get_child(u"5")),
-      wz_resource::load_texture(red1_n->get_child(u"6")),
-      wz_resource::load_texture(red1_n->get_child(u"7")),
-      wz_resource::load_texture(red1_n->get_child(u"8")),
-      wz_resource::load_texture(red1_n->get_child(u"9")),
-  };
-
-  static auto red2_n = wz_resource::effect->find(u"BasicEff.img/NoRed2");
-  const static std::array red2 = {
-      wz_resource::load_texture(red2_n->get_child(u"0")),
-      wz_resource::load_texture(red2_n->get_child(u"1")),
-      wz_resource::load_texture(red2_n->get_child(u"2")),
-      wz_resource::load_texture(red2_n->get_child(u"3")),
-      wz_resource::load_texture(red2_n->get_child(u"4")),
-      wz_resource::load_texture(red2_n->get_child(u"5")),
-      wz_resource::load_texture(red2_n->get_child(u"6")),
-      wz_resource::load_texture(red2_n->get_child(u"7")),
-      wz_resource::load_texture(red2_n->get_child(u"8")),
-      wz_resource::load_texture(red2_n->get_child(u"9")),
-  };
-  // int32_t num = std::any_cast<int32_t>(g_effect.data);
+  int32_t num = std::any_cast<int32_t>(g_effect.data);
+  int num_l = static_cast<int>(std::floor(std::log10(num)) + 1);
+  
 }
 
 void effect_render_system::render_skill_use(SDL_FPoint pos,
@@ -157,7 +140,7 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
     break;
   }
   case game_effect::effect_type::damage: {
-    // render_damage(pos, g_effect);
+    render_damage(pos, g_effect);
     break;
   }
   case game_effect::effect_type::skill_use: {
