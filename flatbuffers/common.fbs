@@ -64,22 +64,26 @@ table Attack{
     num:uint64;
     x:float;
     y:float;
+    type:uint8;
+}
+
+table Ball{
+    id:uint32;
+    delay:uint64;
+
+    x1:float;
+    y1:float;
+
+    x2:float;
+    y2:float;
+
+    speed:float;
 }
 
 table CharacterBall{
-    delay:uint64;
-    pos_x:float;
-    pos_y:float;
-
-    ball_id:uint32;
     ski_id:uint32;
-
-    speed:float;
-
     mob_index:uint32;
-    attack:bool;
-    attack_x:float;
-    attack_y:float;
+    ball:[Ball];
 }
 
 table CharacterAttack{
@@ -107,6 +111,11 @@ table Mob{
     mob_index:uint32;
     mob_id:uint32;
     state:LifeState;
+}
+
+table MobAttack{
+    client_id:uint64;
+    attack:Attack;
 }
 
 union CharacterLogicType {

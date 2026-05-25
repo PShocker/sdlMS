@@ -5,6 +5,8 @@
 #include <string>
 class game_tomb {
 public:
-  std::u16string path;
+  std::u16string ani_type;
+  uint8_t ani_index;
+  uint32_t ani_time;
   SDL_FPoint pos;
 };

@@ -179,6 +179,25 @@ void character_render_system::render_nametag(game_character &g_character) {
   }
 }
 
+void character_render_system::render_tomb(game_character &g_character) {
+  if (!g_character.tomb.has_value()) {
+    return;
+  }
+  auto tomb = g_character.tomb.value();
+  static auto tomb_node = wz_resource::effect->find(u"Tomb.img");
+  auto type = tomb.ani_type;
+  auto ani_node = tomb_node->get_child(type);
+  auto ani_index = std::to_string(tomb.ani_index);
+  auto texture = wz_resource::load_texture(ani_node->get_child(ani_index));
+  // auto origin=
+  SDL_FRect pos_rect = {
+      .x = g_character.pos.x + avatar->pos.x - origin.x,
+      .y = g_character.pos.y + avatar->pos.y - origin.y,
+      .w = static_cast<float>(texture->w),
+      .h = static_cast<float>(texture->h),
+  };
+}
+
 bool character_render_system::render(game_character &g_character) {
   render_afterimage(g_character);
   render_character(g_character);

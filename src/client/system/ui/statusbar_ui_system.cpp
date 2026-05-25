@@ -3,6 +3,7 @@
 #include "skill_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/package_ui_system.h"
@@ -14,7 +15,6 @@
 #include <cstdint>
 #include <format>
 #include <string>
-
 
 void statusbar_ui_system::render_backgrnd() {
   static auto backgrnd = wz_resource::load_texture(
@@ -54,10 +54,10 @@ void statusbar_ui_system::render_gauge_text() {
   auto base_x = (screen_w - backgrnd->w) / 2;
   auto base_y = (screen_h - backgrnd->h);
   static auto num_node = wz_resource::ui->find(u"StatusBar.img/gauge/number");
-  std::array<int32_t, 2> a = {character_logic_system::self_hp,
-                              character_logic_system::self_mp};
-  std::array<int32_t, 2> a2 = {character_logic_system::self_max_hp,
-                               character_logic_system::self_max_mp};
+  std::array<int32_t, 2> a = {character_stat_game_instance::hp_point,
+                              character_stat_game_instance::mp_point};
+  std::array<int32_t, 2> a2 = {character_stat_game_instance::hp_max_point,
+                               character_stat_game_instance::mp_max_point};
   std::array<SDL_FPoint, 2> a3 = {
       SDL_FPoint{245, 42},
       SDL_FPoint{356, 42},
@@ -105,8 +105,8 @@ void statusbar_ui_system::render_gauge_text() {
     SDL_RenderTexture(window::renderer, r_bracket, nullptr, &pos_rect);
   }
   SDL_FPoint a4{473, 42};
-  auto self_exp = character_logic_system::self_exp;
-  auto self_max_exp = character_logic_system::self_max_exp;
+  auto self_exp = character_stat_game_instance::exp_point;
+  auto self_max_exp = character_stat_game_instance::exp_max_point;
   float self_exp_percent = (float)self_exp / self_max_exp;
   auto num = std::to_string(self_exp);
   int32_t w = 0;
@@ -161,8 +161,8 @@ void statusbar_ui_system::render_character_stat() {
   static auto gray = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/canvas:gaugeBack"));
 
-  auto self_hp = character_logic_system::self_hp;
-  auto self_max_hp = character_logic_system::self_max_hp;
+  auto self_hp = character_stat_game_instance::hp_point;
+  auto self_max_hp = character_stat_game_instance::hp_max_point;
   auto self_hp_percent = (float)self_hp / self_max_hp;
   SDL_FRect pos_rect;
   pos_rect = {
@@ -187,8 +187,8 @@ void statusbar_ui_system::render_character_stat() {
   };
   SDL_RenderTexture(window::renderer, gaugeHp, &src_rect, &pos_rect);
 
-  auto self_mp = character_logic_system::self_mp;
-  auto self_max_mp = character_logic_system::self_max_mp;
+  auto self_mp = character_stat_game_instance::mp_point;
+  auto self_max_mp = character_stat_game_instance::mp_max_point;
   auto self_mp_percent = (float)self_mp / self_max_mp;
   static auto gaugeMp = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeMp"));
@@ -213,8 +213,8 @@ void statusbar_ui_system::render_character_stat() {
 
   static auto gaugeExp = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeExp"));
-  auto self_exp = character_logic_system::self_exp;
-  auto self_max_exp = character_logic_system::self_max_exp;
+  auto self_exp = character_stat_game_instance::exp_point;
+  auto self_max_exp = character_stat_game_instance::exp_max_point;
   auto self_exp_percent = (float)self_exp / self_max_exp;
 
   pos_rect = {
@@ -250,6 +250,22 @@ void statusbar_ui_system::render_character_stat() {
   freetype::load_aligned(true);
   freetype::draw_line(self_name, base_x + 88, base_y + 54);
   freetype::load_aligned(false);
+
+  // level
+  static auto lvNumber = wz_resource::ui->find(u"StatusBar.img/lvNumber");
+  auto level = character_stat_game_instance::level;
+  auto level_str = std::to_string(level);
+  pos_rect.x = base_x + 56;
+  pos_rect.y = base_y + 49;
+  int32_t w = 0;
+  for (auto c : level_str) {
+    auto t = wz_resource::load_texture(lvNumber->get_child(std::string{c}));
+    pos_rect.x += w;
+    pos_rect.w = t->w;
+    pos_rect.h = t->h;
+    SDL_RenderTexture(window::renderer, gaugeCover, nullptr, &pos_rect);
+    w += 13;
+  }
 
   render_gauge_text();
 }

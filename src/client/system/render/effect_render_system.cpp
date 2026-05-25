@@ -62,10 +62,27 @@ void effect_render_system::render_damage(SDL_FPoint pos,
       u"0", u"1", u"2", u"3", u"4",    u"5",
       u"6", u"7", u"8", u"9", u"Miss", u"guard",
   };
-
+  auto &camera = camera_game_instance::camera;
   int32_t num = std::any_cast<int32_t>(g_effect.data);
-  int num_l = static_cast<int>(std::floor(std::log10(num)) + 1);
-  
+  auto num_str = std::to_string(num);
+  uint32_t w = 0;
+  for (auto n : num_str) {
+    auto texture_node = red0->get_child(std::string{n});
+    auto texture = wz_resource::load_texture(texture_node);
+    auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
+    SDL_FRect pos_rect = {
+        .x = pos.x - origin.x + w,
+        .y = pos.y - origin.y,
+        .w = static_cast<float>(texture->w),
+        .h = static_cast<float>(texture->h),
+    };
+    if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+      pos_rect.x -= camera.x;
+      pos_rect.y -= camera.y;
+      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    }
+    w += texture->w;
+  }
 }
 
 void effect_render_system::render_skill_use(SDL_FPoint pos,

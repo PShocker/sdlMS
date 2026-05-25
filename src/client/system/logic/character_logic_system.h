@@ -66,6 +66,8 @@ public:
   static bool run_action(game_character &g_character,
                          const std::u16string &action);
 
+  static void run_die_action(game_character &g_character);
+
   static SDL_FRect load_rect(game_character &g_character);
   enum class action_enum {
     stand,
@@ -109,13 +111,4 @@ public:
   static inline uint64_t self_invincible_cooldown;
 
   static inline float self_fall_min;
-
-  // 人物属性
-  static inline int32_t self_max_hp = 1234;
-  static inline int32_t self_hp = 123;
-  static inline int32_t self_max_mp = 100;
-  static inline int32_t self_mp = 50;
-  static inline int32_t self_max_exp = 100;
-  static inline int32_t self_exp = 60;
-  static inline int32_t self_level;
 };

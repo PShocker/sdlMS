@@ -5,14 +5,14 @@ class character_stat_game_instance {
 public:
   static void load();
 
-  static inline float hspeed_max;
-  static inline float vspeed_min;
+  static inline uint32_t level;
 
-  static inline float hspeed;
-  static inline float vspeed;
-
-  static inline uint32_t hp_point;
-  static inline uint32_t mp_point;
+  static inline int32_t hp_point;
+  static inline int32_t hp_max_point;
+  static inline int32_t mp_point;
+  static inline int32_t mp_max_point;
+  static inline uint32_t exp_point;
+  static inline uint32_t exp_max_point;
 
   static inline uint32_t str_point;
   static inline uint32_t dex_point;

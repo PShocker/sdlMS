@@ -1101,3 +1101,9 @@ bool character_logic_system::run() {
   run_state_machine(character_game_instance::self);
   return true;
 }
+
+void character_logic_system::run_die_action(game_character &g_character) {
+  run_action(g_character, u"dead");
+  game_tomb t{.ani_type = u"fall", .pos = {0, -200}};
+  g_character.tomb = t;
+}

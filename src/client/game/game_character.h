@@ -6,6 +6,7 @@
 #include "game_equip.h"
 #include "game_face.h"
 #include "game_nametag.h"
+#include "game_tomb.h"
 #include "src/client/game/game_effect.h"
 #include <cstdint>
 #include <flat_map>
@@ -64,4 +65,5 @@ public:
 
   std::vector<game_effect> effect;
   std::optional<std::u16string> skill;
+  std::optional<game_tomb> tomb;
 };

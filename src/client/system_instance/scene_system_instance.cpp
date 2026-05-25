@@ -17,6 +17,7 @@
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
 #include "src/client/system/logic/ball_logic_system.h"
@@ -137,6 +138,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   tooltip_game_instance::load(map_id);
   seat_game_instance::load(map_id);
   minimap_ui_system::load();
+  character_stat_game_instance::load();
   character_game_instance::load_self_pos(prepare_pos);
   character_game_instance::clear_others();
   effect_game_instance::reset();

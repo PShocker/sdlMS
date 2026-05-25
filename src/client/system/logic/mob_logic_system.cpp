@@ -2,6 +2,7 @@
 #include "character_logic_system.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -15,6 +16,7 @@
 #include <flat_map>
 #include <ranges>
 #include <string>
+
 
 std::optional<SDL_FRect> mob_logic_system::load_rect(const game_mob &g_mob) {
   auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
@@ -113,6 +115,9 @@ void mob_logic_system::run_collision() {
       }
     } else {
       character_logic_system::self_vspeed -= speed;
+    }
+    character_stat_game_instance::hp_point -= 20;
+    if (character_stat_game_instance::hp_point <= 0) {
     }
     character_logic_system::run_network_sync(self, o_character);
   }
