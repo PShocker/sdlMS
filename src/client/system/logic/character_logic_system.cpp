@@ -878,7 +878,7 @@ character_logic_system::load_action_type(game_character &g_character) {
       {u"swingP1", action_enum::attack}, {u"shoot1", action_enum::attack},
       {u"swingT1", action_enum::attack}, {u"swingT2", action_enum::attack},
       {u"swingT3", action_enum::attack}, {u"shot", action_enum::attack},
-      {u"stabT2", action_enum::attack},
+      {u"stabT2", action_enum::attack},  {u"dead", action_enum::dead},
   };
   return map_name.at(g_character.action);
 };
@@ -982,6 +982,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       g_character.skill = std::nullopt;
       run_state_machine(g_character);
     }
+    break;
+  }
+  case action_enum::dead: {
     break;
   }
   default: {

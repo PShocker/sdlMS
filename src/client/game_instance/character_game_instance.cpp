@@ -385,10 +385,10 @@ void character_game_instance::add_head(game_character &g,
     r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
                               head_node->find(u"info/vslot"))
                               ->get());
-    for (auto [k, v] : *head_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
+    auto child = *head_node->get_children();
+    child.erase(u"info");
+    child[u"dead"] = {child[u"jump"].at(0)};
+    for (auto [k, v] : child) {
       if (!bone_data.contains(k)) {
         continue;
       }
@@ -496,10 +496,10 @@ void character_game_instance::add_cap(game_character &g,
     r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
                               cap_node->find(u"info/vslot"))
                               ->get());
-    for (auto [k, v] : *cap_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
+    auto child = *cap_node->get_children();
+    child.erase(u"info");
+    child[u"dead"] = {child[u"jump"].at(0)};
+    for (auto [k, v] : child) {
       if (!bone_data.contains(k)) {
         continue;
       }
@@ -674,10 +674,10 @@ void character_game_instance::add_hair(game_character &g,
     r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
                               hair_node->find(u"info/vslot"))
                               ->get());
-    for (auto [k, v] : *hair_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
+    auto child = *hair_node->get_children();
+    child.erase(u"info");
+    child[u"dead"] = {child[u"jump"].at(0)};
+    for (auto [k, v] : child) {
       if (!bone_data.contains(k)) {
         continue;
       }

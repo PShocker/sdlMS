@@ -79,6 +79,7 @@ public:
     sit,
     attack,
     skill,
+    dead,
   };
   static action_enum load_action_type(game_character &g_character);
   static bool run();

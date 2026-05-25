@@ -17,7 +17,6 @@
 #include <ranges>
 #include <string>
 
-
 std::optional<SDL_FRect> mob_logic_system::load_rect(const game_mob &g_mob) {
   auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
   auto mob_action_node = mob_node->get_child(g_mob.action);
@@ -57,8 +56,11 @@ void mob_logic_system::run_collision() {
   if (character_logic_system::self_invincible_cooldown >= window::dt_now) {
     return;
   }
-  std::flat_map<float, game_mob> mobs;
   auto &self = character_game_instance::self;
+  if (self.action == u"dead") {
+    return;
+  }
+  std::flat_map<float, game_mob> mobs;
   for (auto &m : mob_game_instance::data | std::views::values) {
     if (m.mob.hp <= 0) {
       continue;
@@ -116,8 +118,9 @@ void mob_logic_system::run_collision() {
     } else {
       character_logic_system::self_vspeed -= speed;
     }
-    character_stat_game_instance::hp_point -= 20;
+    character_stat_game_instance::hp_point -= 100;
     if (character_stat_game_instance::hp_point <= 0) {
+      character_logic_system::run_die_action(self);
     }
     character_logic_system::run_network_sync(self, o_character);
   }

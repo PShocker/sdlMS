@@ -190,12 +190,12 @@ void character_render_system::render_tomb(game_character &g_character) {
   auto ani_index = std::to_string(tomb.ani_index);
   auto texture = wz_resource::load_texture(ani_node->get_child(ani_index));
   // auto origin=
-  SDL_FRect pos_rect = {
-      .x = g_character.pos.x + avatar->pos.x - origin.x,
-      .y = g_character.pos.y + avatar->pos.y - origin.y,
-      .w = static_cast<float>(texture->w),
-      .h = static_cast<float>(texture->h),
-  };
+  // SDL_FRect pos_rect = {
+  //     .x = g_character.pos.x + avatar->pos.x - origin.x,
+  //     .y = g_character.pos.y + avatar->pos.y - origin.y,
+  //     .w = static_cast<float>(texture->w),
+  //     .h = static_cast<float>(texture->h),
+  // };
 }
 
 bool character_render_system::render(game_character &g_character) {
