@@ -1277,14 +1277,34 @@ inline ::flatbuffers::Offset<Attack> CreateAttack(
 
 struct DieT : public ::flatbuffers::NativeTable {
   typedef Die TableType;
+  float x = 0.0f;
+  float y = 0.0f;
 };
 
 struct Die FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef DieT NativeTableType;
   typedef DieBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_X = 4,
+    VT_Y = 6
+  };
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
            verifier.EndTable();
   }
   DieT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1296,6 +1316,12 @@ struct DieBuilder {
   typedef Die Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_x(float x) {
+    fbb_.AddElement<float>(Die::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(Die::VT_Y, y, 0.0f);
+  }
   explicit DieBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1308,8 +1334,12 @@ struct DieBuilder {
 };
 
 inline ::flatbuffers::Offset<Die> CreateDie(
-    ::flatbuffers::FlatBufferBuilder &_fbb) {
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    float x = 0.0f,
+    float y = 0.0f) {
   DieBuilder builder_(_fbb);
+  builder_.add_y(y);
+  builder_.add_x(x);
   return builder_.Finish();
 }
 
@@ -2604,6 +2634,8 @@ inline DieT *Die::UnPack(const ::flatbuffers::resolver_function_t *_resolver) co
 inline void Die::UnPackTo(DieT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
 }
 
 inline ::flatbuffers::Offset<Die> CreateDie(::flatbuffers::FlatBufferBuilder &_fbb, const DieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2614,8 +2646,12 @@ inline ::flatbuffers::Offset<Die> Die::Pack(::flatbuffers::FlatBufferBuilder &_f
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DieT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _x = _o->x;
+  auto _y = _o->y;
   return fbs::CreateDie(
-      _fbb);
+      _fbb,
+      _x,
+      _y);
 }
 
 inline BallT *Ball::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

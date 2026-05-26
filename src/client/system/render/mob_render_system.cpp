@@ -8,6 +8,10 @@
 #include <string>
 
 bool mob_render_system::render_mob(game_mob &g_mob) {
+  auto action_type = mob_logic_system::load_action_type(g_mob.action);
+  if (action_type == mob_logic_system::action_enum::revive) {
+    return false;
+  }
   auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
 
   auto action_node = mob_node->get_child(g_mob.action);

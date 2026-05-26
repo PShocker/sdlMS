@@ -17,6 +17,16 @@
 #include <ranges>
 #include <string>
 
+mob_logic_system::action_enum
+mob_logic_system::load_action_type(const std::u16string &action) {
+  const static std::flat_map<std::u16string, action_enum> map_name = {
+      {u"stand", action_enum::stand}, {u"move", action_enum::move},
+      {u"hit1", action_enum::hit},    {u"die1", action_enum::die},
+      {u"", action_enum::revive},
+  };
+  return map_name.at(action);
+}
+
 std::optional<SDL_FRect> mob_logic_system::load_rect(const game_mob &g_mob) {
   auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
   auto mob_action_node = mob_node->get_child(g_mob.action);
@@ -62,9 +72,11 @@ void mob_logic_system::run_collision() {
   }
   std::flat_map<float, game_mob> mobs;
   for (auto &m : mob_game_instance::data | std::views::values) {
-    if (m.mob.hp <= 0) {
+    auto action_type = load_action_type(m.mob.action);
+    if (action_type == action_enum::revive || action_type == action_enum::die) {
       continue;
     }
+
     auto m_r = load_rect(m.mob).value();
     auto c_r = character_logic_system::load_rect(self);
     if (SDL_HasRectIntersectionFloat(&m_r, &c_r)) {
@@ -118,7 +130,7 @@ void mob_logic_system::run_collision() {
     } else {
       character_logic_system::self_vspeed -= speed;
     }
-    character_stat_game_instance::hp_point -= 100;
+    character_stat_game_instance::hp_point -= 40;
     if (character_stat_game_instance::hp_point <= 0) {
       character_logic_system::run_die_action(self);
     }
@@ -171,6 +183,48 @@ bool mob_logic_system::run_animate(game_mob &g_mob) {
     g_mob.ani_time = 0;
   }
   return r;
+}
+
+void mob_logic_system::run_alpha(game_mob &g_mob) {
+  auto node =
+      mob_game_instance::load_link_mob_node(g_mob.id)->get_child(g_mob.action);
+  bool zigzag = node->get_child(u"zigzag") == nullptr ? false : true;
+  int32_t canvas_count = node->children_count();
+  if (zigzag) {
+    canvas_count -= 1;
+  }
+  std::string frame_index;
+  if (zigzag && g_mob.ani_index >= canvas_count) {
+    frame_index =
+        std::to_string(canvas_count - 2 - (g_mob.ani_index % canvas_count));
+  } else {
+    frame_index = std::to_string(g_mob.ani_index);
+  }
+
+  if (auto canvas_node = node->get_child(frame_index)) {
+    int32_t a0 = 255;
+    int32_t a1 = 255;
+    if (canvas_node->get_child(u"a0")) {
+      a0 = static_cast<wz::Property<int> *>(canvas_node->get_child(u"a0"))
+               ->get();
+    }
+    if (canvas_node->get_child(u"a1")) {
+      a1 = static_cast<wz::Property<int> *>(canvas_node->get_child(u"a1"))
+               ->get();
+    }
+    uint32_t delay = 100;
+    if (auto delay_node = canvas_node->get_child(u"delay")) {
+      if (delay_node->type == wz::Type::String) {
+        auto delay2 =
+            static_cast<wz::Property<std::u16string> *>(delay_node)->get();
+        delay = std::stoi(std::string{delay2.begin(), delay2.end()});
+      } else {
+        delay = static_cast<wz::Property<int32_t> *>(delay_node)->get();
+      }
+    }
+    float t = (float)g_mob.ani_time / (float)delay;
+    g_mob.alpha = a0 + (a1 - a0) * t;
+  }
 }
 
 void mob_logic_system::run_logic() {
@@ -237,8 +291,20 @@ void mob_logic_system::run_logic() {
   }
 }
 
+void mob_logic_system::run_revice(game_mob &g_mob) { g_mob.action = u""; }
+
 void mob_logic_system::run_state_machine(game_mob &g_mob) {
-  run_animate(g_mob);
+  auto action_type = load_action_type(g_mob.action);
+  if (action_type == action_enum::revive) {
+    return;
+  }
+  if (run_animate(g_mob)) {
+    if (action_type == action_enum::die) {
+      run_revice(g_mob);
+      return;
+    }
+  }
+  run_alpha(g_mob);
 }
 
 bool mob_logic_system::run() {

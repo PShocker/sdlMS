@@ -70,8 +70,14 @@ character_logic_system::run_attack_check(game_character &g_character,
   std::flat_map<uint32_t, attack_data> m;
   auto &g_pos = g_character.pos;
   for (const auto [k, v] : mob_game_instance::data) {
-    auto &m_pos = v.mob.pos;
-    auto m_r = mob_logic_system::load_rect(v.mob).value();
+    auto &mob = v.mob;
+    auto mob_action = mob_logic_system::load_action_type(mob.action);
+    if (mob_action == mob_logic_system::action_enum::revive ||
+        mob_action == mob_logic_system::action_enum::die) {
+      continue;
+    }
+    auto &m_pos = mob.pos;
+    auto m_r = mob_logic_system::load_rect(mob).value();
     if (SDL_HasRectIntersectionFloat(&m_r, &g_r)) {
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
                  (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
@@ -865,18 +871,18 @@ void character_logic_system::run_network_sync(game_character &g_character,
   run_network_action_sync(g_character, o_character);
 }
 
-void character_logic_system::run_network_die_sync() {
+void character_logic_system::run_network_die_sync(game_character &g_character) {
   DieT d;
+  d.x = g_character.pos.x;
+  d.y = g_character.pos.y;
   ClientCharacterLogicT req;
   req.payload.Set(d);
   client_request::character_logic_request(req);
+  return;
 }
 
 character_logic_system::action_enum
 character_logic_system::load_action_type(game_character &g_character) {
-  if (g_character.skill.has_value()) {
-    return action_enum::skill;
-  }
   const static std::flat_map<std::u16string, action_enum> map_name = {
       {u"stand1", action_enum::stand},   {u"stand2", action_enum::stand},
       {u"alert", action_enum::alert},    {u"walk1", action_enum::walk},
@@ -891,7 +897,14 @@ character_logic_system::load_action_type(game_character &g_character) {
       {u"swingT3", action_enum::attack}, {u"shot", action_enum::attack},
       {u"stabT2", action_enum::attack},  {u"dead", action_enum::dead},
   };
-  return map_name.at(g_character.action);
+  auto action = map_name.at(g_character.action);
+  if (action == action_enum::dead) {
+    return action;
+  }
+  if (g_character.skill.has_value()) {
+    return action_enum::skill;
+  }
+  return action;
 };
 
 void character_logic_system::run_tomb(game_character &g_character) {
@@ -1022,7 +1035,6 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     break;
   }
   case action_enum::dead: {
-    self_invincible_cooldown = window::dt_now + 2000;
     const float velocity = 0.05f; // 角速度
     const float radius = 10.0f;   // 半径
     auto &tomb = g_character.tomb.value();
@@ -1099,6 +1111,12 @@ void character_logic_system::run_others_logic() {
         break;
       }
       case fbs::CharacterLogicType_Die: {
+        if (v.empty()) {
+          break;
+        }
+        auto d = v[0].AsDie();
+        c.g_character.pos.x = d->x;
+        c.g_character.pos.y = d->y;
         c.g_character.action = u"dead";
         c.g_character.action_animate = true;
         c.g_character.action_index = 0;
@@ -1170,7 +1188,7 @@ bool character_logic_system::run() {
 
 void character_logic_system::run_die_action(game_character &g_character) {
   run_action(g_character, u"dead");
-  if (self_fh != 0) {
+  if (self_fh == 0 || self_lr == 0) {
     auto o_character = g_character;
     // 空中
     self_hspeed = 0;
@@ -1179,11 +1197,10 @@ void character_logic_system::run_die_action(game_character &g_character) {
     auto map_id = scene_system_instance::map_id;
     auto border = map_info_game_instance::load_mr_border(map_id);
 
-    float max_float = std::numeric_limits<float>::max();
+    float max_float = 10000;
     physic::fall(g_character.pos, max_float, self_hspeed, self_vspeed,
                  self_vspeed_min, self_vspeed_max, border, true, true, self_fh,
                  g_character.page, foothold_game_instance::data);
-    run_network_movement_sync(g_character, o_character);
   }
   game_tomb t{
       .ani_type = u"fall",
@@ -1192,7 +1209,12 @@ void character_logic_system::run_die_action(game_character &g_character) {
   };
   g_character.tomb = t;
 
-  run_network_die_sync();
+  self_invincible_cooldown = 0;
+  self_vspeed = 0;
+  self_hspeed = 0;
+  self_alert_cooldown = 0;
+
+  run_network_die_sync(g_character);
 
   revive_ui_system::toggle();
 }

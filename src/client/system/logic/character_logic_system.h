@@ -61,7 +61,7 @@ private:
   static void run_others();
 
 public:
-  static void run_network_die_sync();
+  static void run_network_die_sync(game_character &g_character);
 
   static void run_network_sync(game_character &g_character,
                                game_character &o_character);

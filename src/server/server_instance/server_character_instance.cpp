@@ -36,6 +36,9 @@ void server_character_instance::save_state(uint64_t client_id,
     character->state->action_animate = a->action_animate;
     break;
   }
+  case CharacterLogicType_Die: {
+    break;
+  }
   default: {
     std::abort();
     break;

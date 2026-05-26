@@ -11,7 +11,7 @@
 
 void revive_ui_system::render_backgrnd() {
   static auto texture =
-      wz_resource::load_texture(wz_resource::ui->find(u"Receice.img/back0"));
+      wz_resource::load_texture(wz_resource::ui->find(u"Revive.img/back0"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
                      static_cast<float>(texture->h)};
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
@@ -19,7 +19,7 @@ void revive_ui_system::render_backgrnd() {
 
 void revive_ui_system::render_button() {
   const static std::array buttons_node = {
-      wz_resource::ui->find(u"Receice.img/button:ok"),
+      wz_resource::ui->find(u"Revive.img/button:ok"),
   };
   const std::array buttons_rect = {
       SDL_FRect{119, 115, 47, 18}, //
@@ -49,10 +49,11 @@ void revive_ui_system::render_button() {
 
 bool revive_ui_system::render() {
   render_backgrnd();
+  render_button();
   return true;
 }
 
-SDL_FPoint revive_ui_system::load_wh() { return {209, 289}; }
+SDL_FPoint revive_ui_system::load_wh() { return {286, 146}; }
 
 void revive_ui_system::open() {
   auto wh = load_wh();
@@ -135,7 +136,7 @@ bool revive_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
-        r = event_button(event);
+        r = !event_button(event);
       }
       event_drag_end();
     }
@@ -173,13 +174,11 @@ bool revive_ui_system::event_button(SDL_Event *event) {
   auto screen_w = camera_game_instance::camera.w;
   auto screen_h = camera_game_instance::camera.h;
   auto [w, h] = load_wh();
-  auto base_x = (screen_w - w) / 2;
-  auto base_y = (screen_h - h);
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += base_x;
-    pos_rect.y += base_y;
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       buttons_func[i]();
       return true;

@@ -12,20 +12,11 @@ private:
   static inline uint32_t map_id = 0;
   static inline uint32_t delta_time = 0;
   static inline std::vector<std::unique_ptr<MobLogicT>> unique_logics;
-  enum class action_enum {
-    stand,
-    jump,
-    move,
-    swim,
-    fly,
-    hit,
-    die, 
-  };
+
   static void run_hit_action(server_mob &s_mob);
   static void run_move_action(server_mob &s_mob);
   static void run_stand_action(server_mob &s_mob);
   static void run_die_action(server_mob &s_mob);
-  static action_enum load_action_type(server_mob &s_mob);
   static void run_walk(server_mob &s_mob);
   static void run_state_machine(server_mob &s_mob);
   static void run_duration(server_mob &s_mob);

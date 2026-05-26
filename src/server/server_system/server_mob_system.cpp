@@ -1,6 +1,7 @@
 #include "server_mob_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/random_game_instance.h"
+#include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/physic/physic.h"
@@ -14,16 +15,6 @@
 #include <flat_set>
 #include <ranges>
 #include <string>
-
-server_mob_system::action_enum
-server_mob_system::load_action_type(server_mob &s_mob) {
-  const static std::flat_map<std::u16string, action_enum> map_name = {
-      {u"stand", action_enum::stand},
-      {u"move", action_enum::move},
-      {u"hit1", action_enum::hit},
-  };
-  return map_name.at(s_mob.action);
-}
 
 void server_mob_system::run_network_movement_sync(server_mob &s_mob,
                                                   server_mob &o_mob) {
@@ -97,26 +88,34 @@ void server_mob_system::run_walk(server_mob &s_mob) {
 }
 
 void server_mob_system::run_duration(server_mob &s_mob) {
+
   if (s_mob.duration > window::dt_now) {
     return;
   }
-  auto action_type = load_action_type(s_mob);
-  if (action_type == action_enum::hit || action_type == action_enum::die) {
+  auto action_type = mob_logic_system::load_action_type(s_mob.action);
+  if (action_type == mob_logic_system::action_enum::hit ||
+      action_type == mob_logic_system::action_enum::die) {
     return;
   }
-  static const std::flat_map<action_enum, std::u16string> actions = {
-      {action_enum::stand, u"stand"},
-      {action_enum::move, u"move"},
-      {action_enum::fly, u"fly"},
-  };
-  std::flat_set<action_enum> actions2;
+  static const std::flat_map<mob_logic_system::action_enum, std::u16string>
+      actions = {
+          {mob_logic_system::action_enum::stand, u"stand"},
+          {mob_logic_system::action_enum::move, u"move"},
+          {mob_logic_system::action_enum::fly, u"fly"},
+      };
+  std::flat_set<mob_logic_system::action_enum> actions2;
   switch (s_mob.type) {
   case server_mob::mob_type::stand: {
     if (s_mob.hate_id != 0) {
-      actions2 = {action_enum::move};
+      actions2 = {
+          mob_logic_system::action_enum::move,
+      };
 
     } else {
-      actions2 = {action_enum::stand, action_enum::move};
+      actions2 = {
+          mob_logic_system::action_enum::stand,
+          mob_logic_system::action_enum::move,
+      };
     }
     break;
   }
@@ -128,17 +127,17 @@ void server_mob_system::run_duration(server_mob &s_mob) {
   auto &gen = random_game_instance::gen;
   std::uniform_int_distribution<size_t> dist(0, actions2.size() - 1);
   auto it = std::next(actions2.begin(), dist(gen));
-  action_enum selected = *it;
+  auto selected = *it;
   s_mob.action = actions.at(selected);
   switch (selected) {
-  case action_enum::stand: {
+  case mob_logic_system::action_enum::stand: {
     s_mob.duration = window::dt_now + 500;
     break;
   }
-  case action_enum::jump: {
+  case mob_logic_system::action_enum::jump: {
     break;
   }
-  case action_enum::move: {
+  case mob_logic_system::action_enum::move: {
     bool left = false;
     const auto &clients = server_client_instance::clients;
     if (s_mob.hate_id != 0 && clients.contains(s_mob.hate_id)) {
@@ -229,29 +228,32 @@ void server_mob_system::run_hit(server_mob &s_mob) {
 
 void server_mob_system::run_state_machine(server_mob &s_mob) {
   auto o_mob = s_mob;
-  auto m_action = load_action_type(s_mob);
+  auto m_action = mob_logic_system::load_action_type(s_mob.action);
   switch (m_action) {
-  case action_enum::die: {
+  case mob_logic_system::action_enum::revive: {
     break;
   }
-  case action_enum::stand: {
+  case mob_logic_system::action_enum::die: {
+    break;
+  }
+  case mob_logic_system::action_enum::stand: {
     run_beat(s_mob);
     break;
   }
-  case action_enum::move: {
+  case mob_logic_system::action_enum::move: {
     run_beat(s_mob);
     run_walk(s_mob);
     break;
   }
-  case action_enum::hit: {
+  case mob_logic_system::action_enum::hit: {
     run_hit(s_mob);
     break;
   }
-  case action_enum::jump: {
+  case mob_logic_system::action_enum::jump: {
     break;
   }
-  case action_enum::swim:
-  case action_enum::fly: {
+  case mob_logic_system::action_enum::swim:
+  case mob_logic_system::action_enum::fly: {
     break;
   }
   }

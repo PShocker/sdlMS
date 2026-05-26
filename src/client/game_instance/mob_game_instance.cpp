@@ -3,6 +3,7 @@
 #include "foothold_game_instance.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/wz/wz_resource.h"
@@ -61,6 +62,11 @@ void mob_game_instance::load_server_mob(
       mob.flip = state->flip;
       mob.pos.x = state->x;
       mob.pos.y = state->y;
+
+      auto action_type = mob_logic_system::load_action_type(mob.action);
+      if (action_type == mob_logic_system::action_enum::die) {
+        mob_logic_system::run_revice(mob);
+      }
     } else {
       // summon mob
     }

@@ -68,6 +68,8 @@ table Attack{
 }
 
 table Die{
+    x:float;
+    y:float;
 }
 
 table Ball{
