@@ -1171,6 +1171,7 @@ bool character_logic_system::run() {
 void character_logic_system::run_die_action(game_character &g_character) {
   run_action(g_character, u"dead");
   if (self_fh != 0) {
+    auto o_character = g_character;
     // 空中
     self_hspeed = 0;
     self_vspeed = self_vspeed_max;
@@ -1182,6 +1183,7 @@ void character_logic_system::run_die_action(game_character &g_character) {
     physic::fall(g_character.pos, max_float, self_hspeed, self_vspeed,
                  self_vspeed_min, self_vspeed_max, border, true, true, self_fh,
                  g_character.page, foothold_game_instance::data);
+    run_network_movement_sync(g_character, o_character);
   }
   game_tomb t{
       .ani_type = u"fall",
