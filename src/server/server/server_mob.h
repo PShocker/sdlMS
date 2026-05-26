@@ -9,7 +9,8 @@
 #include <string>
 #include <vector>
 
-struct mob_beat_back {
+struct mob_beat {
+  uint64_t beat_id; // client_id
   uint64_t beat_start_time;
   int32_t beat_time;
   bool left;
@@ -44,7 +45,7 @@ public:
 
   uint64_t hate_id;
 
-  std::flat_map<uint64_t, mob_beat_back> beat_backs;
+  std::flat_map<uint64_t, mob_beat> beats;
 
   enum class mob_type {
     stand,

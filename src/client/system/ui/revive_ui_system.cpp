@@ -1,12 +1,15 @@
-#include "receive_ui_system.h"
+#include "revive_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/map_info_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 
-void receive_ui_system::render_backgrnd() {
+void revive_ui_system::render_backgrnd() {
   static auto texture =
       wz_resource::load_texture(wz_resource::ui->find(u"Receice.img/back0"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
@@ -14,7 +17,7 @@ void receive_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void receive_ui_system::render_button() {
+void revive_ui_system::render_button() {
   const static std::array buttons_node = {
       wz_resource::ui->find(u"Receice.img/button:ok"),
   };
@@ -44,14 +47,14 @@ void receive_ui_system::render_button() {
   }
 }
 
-bool receive_ui_system::render() {
+bool revive_ui_system::render() {
   render_backgrnd();
   return true;
 }
 
-SDL_FPoint receive_ui_system::load_wh() { return {209, 289}; }
+SDL_FPoint revive_ui_system::load_wh() { return {209, 289}; }
 
-void receive_ui_system::open() {
+void revive_ui_system::open() {
   auto wh = load_wh();
   auto &camera = camera_game_instance::camera;
   pos.x = (camera.w - wh.x) / 2;
@@ -61,12 +64,12 @@ void receive_ui_system::open() {
   system::event_systems.insert(system::event_systems.end() - 1, event);
 }
 
-void receive_ui_system::close() {
+void revive_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
 }
 
-void receive_ui_system::event_top() {
+void revive_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
 
@@ -74,7 +77,7 @@ void receive_ui_system::event_top() {
   system::event_systems.insert(system::event_systems.end() - 1, event);
 }
 
-void receive_ui_system::event_drag_start(SDL_Event *event) {
+void revive_ui_system::event_drag_start(SDL_Event *event) {
   auto wh = load_wh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
@@ -84,12 +87,12 @@ void receive_ui_system::event_drag_start(SDL_Event *event) {
   return;
 }
 
-void receive_ui_system::event_drag_end() {
+void revive_ui_system::event_drag_end() {
   drag = std::nullopt;
   return;
 }
 
-void receive_ui_system::event_drag_move(SDL_Event *event) {
+void revive_ui_system::event_drag_move(SDL_Event *event) {
   if (drag.has_value()) {
     pos = {event->motion.x + drag->x, event->motion.y + drag->y};
     auto &camera = camera_game_instance::camera;
@@ -100,7 +103,7 @@ void receive_ui_system::event_drag_move(SDL_Event *event) {
   return;
 }
 
-void receive_ui_system::toggle() {
+void revive_ui_system::toggle() {
   auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
     close();
@@ -109,14 +112,14 @@ void receive_ui_system::toggle() {
   }
 }
 
-bool receive_ui_system::cursor_in() {
+bool revive_ui_system::cursor_in() {
   auto [w, h] = load_wh();
   auto &mouse = window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-bool receive_ui_system::event(SDL_Event *event) {
+bool revive_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
@@ -132,6 +135,7 @@ bool receive_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        r = event_button(event);
       }
       event_drag_end();
     }
@@ -149,9 +153,17 @@ bool receive_ui_system::event(SDL_Event *event) {
   return r;
 }
 
-void receive_ui_system::event_button_ok() { return; }
+void revive_ui_system::event_button_ok() {
+  auto map_id = scene_system_instance::map_id;
+  auto r_map = map_info_game_instance::load_return_map(map_id);
 
-bool receive_ui_system::event_button(SDL_Event *event) {
+  scene_system_instance::enter_prepare(r_map, u"sp", 0);
+  character_logic_system::self_portal_cooldown = window::dt_now + 1500;
+  close();
+  return;
+}
+
+bool revive_ui_system::event_button(SDL_Event *event) {
   const static std::array buttons_rect = {
       SDL_FRect{119, 115, 47, 18}, //
   };

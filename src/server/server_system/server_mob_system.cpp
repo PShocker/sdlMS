@@ -5,6 +5,7 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/common/physic/physic.h"
 #include "src/common/response/server_response.h"
+#include "src/server/server_instance/server_client_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
 #include <chrono>
@@ -100,7 +101,7 @@ void server_mob_system::run_duration(server_mob &s_mob) {
     return;
   }
   auto action_type = load_action_type(s_mob);
-  if (action_type == action_enum::hit) {
+  if (action_type == action_enum::hit || action_type == action_enum::die) {
     return;
   }
   static const std::flat_map<action_enum, std::u16string> actions = {
@@ -111,7 +112,12 @@ void server_mob_system::run_duration(server_mob &s_mob) {
   std::flat_set<action_enum> actions2;
   switch (s_mob.type) {
   case server_mob::mob_type::stand: {
-    actions2 = {action_enum::stand, action_enum::move};
+    if (s_mob.hate_id != 0) {
+      actions2 = {action_enum::move};
+
+    } else {
+      actions2 = {action_enum::stand, action_enum::move};
+    }
     break;
   }
   case server_mob::mob_type::swim:
@@ -133,10 +139,18 @@ void server_mob_system::run_duration(server_mob &s_mob) {
     break;
   }
   case action_enum::move: {
-    std::bernoulli_distribution dist(0.5); // 50% 概率为 true
-    bool random_bool = dist(gen);
-    s_mob.hforce = random_bool ? 1400 : -1400;
-    s_mob.flip = random_bool ? true : false;
+    bool left = false;
+    const auto &clients = server_client_instance::clients;
+    if (s_mob.hate_id != 0 && clients.contains(s_mob.hate_id)) {
+      auto &g_character = clients.at(s_mob.hate_id).player_t.character;
+      auto &g_x = g_character->state->x;
+      left = g_x <= s_mob.pos.x;
+    } else {
+      std::bernoulli_distribution dist(0.5); // 50% 概率为 true
+      left = dist(gen);
+    }
+    s_mob.hforce = left ? -1400 : 1400;
+    s_mob.flip = left ? false : true;
     s_mob.hspeed = 0;
     s_mob.duration = window::dt_now + 1000;
     break;
@@ -159,36 +173,65 @@ void server_mob_system::run_stand_action(server_mob &s_mob) {
   s_mob.action = u"stand";
 }
 
+void server_mob_system::run_die_action(server_mob &s_mob) {
+  s_mob.action = u"die1";
+}
+
 bool server_mob_system::run_beat(server_mob &s_mob) {
-  if (s_mob.beat_backs.empty()) {
+  if (s_mob.beats.empty()) {
     return false;
   }
-  const auto &end = s_mob.beat_backs.rbegin();
-  auto &beat_back = end->second;
-  auto time = beat_back.beat_start_time;
+  const auto &begin = s_mob.beats.begin();
+  auto &beat = begin->second;
+  auto time = beat.beat_start_time;
   auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                           std::chrono::system_clock::now().time_since_epoch())
                           .count();
   if (time <= current_time) {
-    if (beat_back.beat_time >= 0) {
-      beat_back.beat_time -= delta_time;
-      s_mob.hforce = beat_back.left ? 1400 : -1400;
-      s_mob.flip = beat_back.left ? false : true;
-      run_hit_action(s_mob);
+    if (beat.beat_time >= 0) {
+      beat.beat_time -= delta_time;
+      s_mob.hforce = beat.left ? 1400 : -1400;
+      s_mob.flip = beat.left ? false : true;
+      if (s_mob.hp > 0) {
+        s_mob.hate_id = beat.beat_id;
+        run_hit_action(s_mob);
+      } else {
+        s_mob.hate_id = 0;
+        run_die_action(s_mob);
+      }
       return true;
     } else {
-      s_mob.beat_backs.clear();
+      s_mob.beats.clear();
       return false;
     }
   }
   return false;
 }
 
+void server_mob_system::run_hit(server_mob &s_mob) {
+  auto r = run_beat(s_mob);
+  switch (s_mob.type) {
+  case server_mob::mob_type::stand: {
+    run_walk(s_mob);
+    if (!r) {
+      s_mob.duration = window::dt_now + 500;
+      run_stand_action(s_mob);
+    }
+    break;
+  }
+  case server_mob::mob_type::swim:
+  case server_mob::mob_type::fly: {
+    break;
+  }
+  }
+  return;
+}
+
 void server_mob_system::run_state_machine(server_mob &s_mob) {
   auto o_mob = s_mob;
   auto m_action = load_action_type(s_mob);
   switch (m_action) {
-  case action_enum::remove: {
+  case action_enum::die: {
     break;
   }
   case action_enum::stand: {
@@ -201,21 +244,7 @@ void server_mob_system::run_state_machine(server_mob &s_mob) {
     break;
   }
   case action_enum::hit: {
-    auto r = run_beat(s_mob);
-    switch (s_mob.type) {
-    case server_mob::mob_type::stand: {
-      run_walk(s_mob);
-      if (!r) {
-        s_mob.duration = window::dt_now + 500;
-        run_stand_action(s_mob);
-      }
-      break;
-    }
-    case server_mob::mob_type::swim:
-    case server_mob::mob_type::fly: {
-      break;
-    }
-    }
+    run_hit(s_mob);
     break;
   }
   case action_enum::jump: {

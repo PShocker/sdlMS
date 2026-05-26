@@ -69,11 +69,12 @@ void server_mob_instance::handle_attack(uint64_t client_id,
   auto &mobs = server_scene_instance::scenes.at(map_id).mobs;
   for (const auto &a : r.payload) {
     auto &mob = mobs.at(a->mob_index);
-    mob_beat_back mbb;
+    mob_beat mbb;
+    mbb.beat_id = client_id;
     mbb.beat_start_time = a->attack->delay;
     mbb.left = a->left;
     mbb.beat_time = 300;
-    mob.beat_backs.emplace(mbb.beat_start_time, mbb);
+    mob.beats.emplace(mbb.beat_start_time, mbb);
   }
   // 转发
   auto clients = server_scene_instance::scenes.at(map_id).clients;

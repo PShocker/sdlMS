@@ -67,6 +67,9 @@ table Attack{
     type:uint8;
 }
 
+table Die{
+}
+
 table Ball{
     id:uint32;
     delay:uint64;
@@ -101,7 +104,6 @@ table CharacterSkill{
     y:float;
 }
 
-
 table Player{
     client_id:uint64;
     character:Character;
@@ -122,12 +124,14 @@ union CharacterLogicType {
     Movement,
     Flip,
     Action,
+    Die,
 }
 
 union MobLogicType {
     Movement,
     Flip,
     Action,
+    Die,
 }
 
 table CharacterLogic{

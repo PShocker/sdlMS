@@ -4,6 +4,7 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
+#include "src/client/game/game_tomb.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
@@ -18,12 +19,14 @@
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
 #include "src/common/request/client_request.h"
+#include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <algorithm>
 #include <cstdint>
@@ -31,6 +34,7 @@
 #include <flat_map>
 #include <flat_set>
 #include <memory>
+#include <numbers>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -861,6 +865,13 @@ void character_logic_system::run_network_sync(game_character &g_character,
   run_network_action_sync(g_character, o_character);
 }
 
+void character_logic_system::run_network_die_sync() {
+  DieT d;
+  ClientCharacterLogicT req;
+  req.payload.Set(d);
+  client_request::character_logic_request(req);
+}
+
 character_logic_system::action_enum
 character_logic_system::load_action_type(game_character &g_character) {
   if (g_character.skill.has_value()) {
@@ -882,6 +893,32 @@ character_logic_system::load_action_type(game_character &g_character) {
   };
   return map_name.at(g_character.action);
 };
+
+void character_logic_system::run_tomb(game_character &g_character) {
+  if (!g_character.tomb.has_value()) {
+    return;
+  }
+  auto &tomb = g_character.tomb.value();
+  tomb.pos.y += window::delta_time * 0.2;
+  tomb.pos.y = std::min(0.0f, tomb.pos.y);
+  tomb.ani_time += window::delta_time;
+  auto node = wz_resource::effect->find(u"Tomb.img/" + tomb.ani_type);
+  auto texture_node = node->get_child(std::to_string(tomb.ani_index));
+  auto delay =
+      static_cast<wz::Property<int> *>(texture_node->get_child(u"delay"))
+          ->get();
+  if (tomb.ani_time >= delay) {
+    tomb.ani_time = 0;
+    tomb.ani_index += 1;
+    if (tomb.ani_index >= node->children_count()) {
+      if (tomb.ani_type == u"fall") {
+        tomb.ani_type = u"land";
+      }
+      tomb.ani_index = 0;
+    }
+  }
+  return;
+}
 
 void character_logic_system::run_state_machine(game_character &g_character) {
   auto o_character = g_character;
@@ -985,6 +1022,16 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     break;
   }
   case action_enum::dead: {
+    self_invincible_cooldown = window::dt_now + 2000;
+    const float velocity = 0.05f; // 角速度
+    const float radius = 10.0f;   // 半径
+    auto &tomb = g_character.tomb.value();
+    g_character.pos.x = tomb.b.x + radius * std::cos(tomb.rotation);
+    g_character.pos.y = tomb.b.y - 10 + radius * std::sin(tomb.rotation);
+    tomb.rotation += velocity;
+    if (tomb.rotation >= 2 * std::numbers::pi) {
+      tomb.rotation -= 2 * std::numbers::pi; // 保持角度在 [0, 2π) 范围内
+    }
     break;
   }
   default: {
@@ -1051,6 +1098,22 @@ void character_logic_system::run_others_logic() {
         v.clear();
         break;
       }
+      case fbs::CharacterLogicType_Die: {
+        c.g_character.action = u"dead";
+        c.g_character.action_animate = true;
+        c.g_character.action_index = 0;
+        c.g_character.action_time = 0;
+        game_tomb t{
+            .ani_type = u"fall",
+            .ani_index = 0,
+            .ani_time = 0,
+            .pos = {0, -200},
+            .b = c.g_character.pos,
+        };
+        c.g_character.tomb = t;
+        v.clear();
+        break;
+      }
       default: {
         std::abort();
       }
@@ -1107,6 +1170,27 @@ bool character_logic_system::run() {
 
 void character_logic_system::run_die_action(game_character &g_character) {
   run_action(g_character, u"dead");
-  game_tomb t{.ani_type = u"fall", .pos = {0, -200}};
+  if (self_fh != 0) {
+    // 空中
+    self_hspeed = 0;
+    self_vspeed = self_vspeed_max;
+    //
+    auto map_id = scene_system_instance::map_id;
+    auto border = map_info_game_instance::load_mr_border(map_id);
+
+    float max_float = std::numeric_limits<float>::max();
+    physic::fall(g_character.pos, max_float, self_hspeed, self_vspeed,
+                 self_vspeed_min, self_vspeed_max, border, true, true, self_fh,
+                 g_character.page, foothold_game_instance::data);
+  }
+  game_tomb t{
+      .ani_type = u"fall",
+      .pos = {0, -200},
+      .b = g_character.pos,
+  };
   g_character.tomb = t;
+
+  run_network_die_sync();
+
+  revive_ui_system::toggle();
 }

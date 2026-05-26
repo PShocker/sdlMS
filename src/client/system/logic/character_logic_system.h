@@ -29,7 +29,6 @@ private:
                                     game_character &o_character);
   static void run_network_movement_sync(game_character &g_character,
                                         game_character &o_character);
-
   static void run_walk_action(game_character &g_character);
   static void run_stand_action(game_character &g_character);
   static void run_climb_action(game_character &g_character);
@@ -48,6 +47,7 @@ private:
   static bool run_skill(game_character &g_character);
   static bool run_portal(game_character &g_character);
   static void run_face(game_character &g_character);
+  static void run_tomb(game_character &g_character);
   static void run_state_machine(game_character &g_character);
   enum class pos_type {
     land,
@@ -61,6 +61,8 @@ private:
   static void run_others();
 
 public:
+  static void run_network_die_sync();
+
   static void run_network_sync(game_character &g_character,
                                game_character &o_character);
   static bool run_action(game_character &g_character,

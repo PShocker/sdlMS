@@ -70,3 +70,11 @@ std::vector<SDL_FPoint> map_info_game_instance::load_seat(uint32_t map_id) {
   }
   return cache.at(map_id);
 }
+
+uint32_t map_info_game_instance::load_return_map(uint32_t map_id) {
+  uint32_t r = 0;
+  auto map_info = load(map_id);
+  r = static_cast<wz::Property<int> *>(map_info->get_child(u"returnMap"))
+          ->get();
+  return r;
+}

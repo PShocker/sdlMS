@@ -2,7 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include <optional>
-class receive_ui_system {
+class revive_ui_system {
 private:
   static void render_backgrnd();
   static void render_button();

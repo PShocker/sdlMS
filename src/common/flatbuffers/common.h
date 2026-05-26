@@ -43,6 +43,14 @@ struct Attack;
 struct AttackBuilder;
 struct AttackT;
 
+struct Die;
+struct DieBuilder;
+struct DieT;
+
+struct Ball;
+struct BallBuilder;
+struct BallT;
+
 struct CharacterBall;
 struct CharacterBallBuilder;
 struct CharacterBallT;
@@ -63,6 +71,10 @@ struct Mob;
 struct MobBuilder;
 struct MobT;
 
+struct MobAttack;
+struct MobAttackBuilder;
+struct MobAttackT;
+
 struct CharacterLogic;
 struct CharacterLogicBuilder;
 struct CharacterLogicT;
@@ -76,33 +88,36 @@ enum CharacterLogicType : uint8_t {
   CharacterLogicType_Movement = 1,
   CharacterLogicType_Flip = 2,
   CharacterLogicType_Action = 3,
+  CharacterLogicType_Die = 4,
   CharacterLogicType_MIN = CharacterLogicType_NONE,
-  CharacterLogicType_MAX = CharacterLogicType_Action
+  CharacterLogicType_MAX = CharacterLogicType_Die
 };
 
-inline const CharacterLogicType (&EnumValuesCharacterLogicType())[4] {
+inline const CharacterLogicType (&EnumValuesCharacterLogicType())[5] {
   static const CharacterLogicType values[] = {
     CharacterLogicType_NONE,
     CharacterLogicType_Movement,
     CharacterLogicType_Flip,
-    CharacterLogicType_Action
+    CharacterLogicType_Action,
+    CharacterLogicType_Die
   };
   return values;
 }
 
 inline const char * const *EnumNamesCharacterLogicType() {
-  static const char * const names[5] = {
+  static const char * const names[6] = {
     "NONE",
     "Movement",
     "Flip",
     "Action",
+    "Die",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameCharacterLogicType(CharacterLogicType e) {
-  if (::flatbuffers::IsOutRange(e, CharacterLogicType_NONE, CharacterLogicType_Action)) return "";
+  if (::flatbuffers::IsOutRange(e, CharacterLogicType_NONE, CharacterLogicType_Die)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesCharacterLogicType()[index];
 }
@@ -123,6 +138,10 @@ template<> struct CharacterLogicTypeTraits<fbs::Action> {
   static const CharacterLogicType enum_value = CharacterLogicType_Action;
 };
 
+template<> struct CharacterLogicTypeTraits<fbs::Die> {
+  static const CharacterLogicType enum_value = CharacterLogicType_Die;
+};
+
 template<typename T> struct CharacterLogicTypeUnionTraits {
   static const CharacterLogicType enum_value = CharacterLogicType_NONE;
 };
@@ -137,6 +156,10 @@ template<> struct CharacterLogicTypeUnionTraits<fbs::FlipT> {
 
 template<> struct CharacterLogicTypeUnionTraits<fbs::ActionT> {
   static const CharacterLogicType enum_value = CharacterLogicType_Action;
+};
+
+template<> struct CharacterLogicTypeUnionTraits<fbs::DieT> {
+  static const CharacterLogicType enum_value = CharacterLogicType_Die;
 };
 
 struct CharacterLogicTypeUnion {
@@ -193,6 +216,14 @@ struct CharacterLogicTypeUnion {
     return type == CharacterLogicType_Action ?
       reinterpret_cast<const fbs::ActionT *>(value) : nullptr;
   }
+  fbs::DieT *AsDie() {
+    return type == CharacterLogicType_Die ?
+      reinterpret_cast<fbs::DieT *>(value) : nullptr;
+  }
+  const fbs::DieT *AsDie() const {
+    return type == CharacterLogicType_Die ?
+      reinterpret_cast<const fbs::DieT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -205,33 +236,36 @@ enum MobLogicType : uint8_t {
   MobLogicType_Movement = 1,
   MobLogicType_Flip = 2,
   MobLogicType_Action = 3,
+  MobLogicType_Die = 4,
   MobLogicType_MIN = MobLogicType_NONE,
-  MobLogicType_MAX = MobLogicType_Action
+  MobLogicType_MAX = MobLogicType_Die
 };
 
-inline const MobLogicType (&EnumValuesMobLogicType())[4] {
+inline const MobLogicType (&EnumValuesMobLogicType())[5] {
   static const MobLogicType values[] = {
     MobLogicType_NONE,
     MobLogicType_Movement,
     MobLogicType_Flip,
-    MobLogicType_Action
+    MobLogicType_Action,
+    MobLogicType_Die
   };
   return values;
 }
 
 inline const char * const *EnumNamesMobLogicType() {
-  static const char * const names[5] = {
+  static const char * const names[6] = {
     "NONE",
     "Movement",
     "Flip",
     "Action",
+    "Die",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMobLogicType(MobLogicType e) {
-  if (::flatbuffers::IsOutRange(e, MobLogicType_NONE, MobLogicType_Action)) return "";
+  if (::flatbuffers::IsOutRange(e, MobLogicType_NONE, MobLogicType_Die)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesMobLogicType()[index];
 }
@@ -252,6 +286,10 @@ template<> struct MobLogicTypeTraits<fbs::Action> {
   static const MobLogicType enum_value = MobLogicType_Action;
 };
 
+template<> struct MobLogicTypeTraits<fbs::Die> {
+  static const MobLogicType enum_value = MobLogicType_Die;
+};
+
 template<typename T> struct MobLogicTypeUnionTraits {
   static const MobLogicType enum_value = MobLogicType_NONE;
 };
@@ -266,6 +304,10 @@ template<> struct MobLogicTypeUnionTraits<fbs::FlipT> {
 
 template<> struct MobLogicTypeUnionTraits<fbs::ActionT> {
   static const MobLogicType enum_value = MobLogicType_Action;
+};
+
+template<> struct MobLogicTypeUnionTraits<fbs::DieT> {
+  static const MobLogicType enum_value = MobLogicType_Die;
 };
 
 struct MobLogicTypeUnion {
@@ -321,6 +363,14 @@ struct MobLogicTypeUnion {
   const fbs::ActionT *AsAction() const {
     return type == MobLogicType_Action ?
       reinterpret_cast<const fbs::ActionT *>(value) : nullptr;
+  }
+  fbs::DieT *AsDie() {
+    return type == MobLogicType_Die ?
+      reinterpret_cast<fbs::DieT *>(value) : nullptr;
+  }
+  const fbs::DieT *AsDie() const {
+    return type == MobLogicType_Die ?
+      reinterpret_cast<const fbs::DieT *>(value) : nullptr;
   }
 };
 
@@ -1225,64 +1275,104 @@ inline ::flatbuffers::Offset<Attack> CreateAttack(
 
 ::flatbuffers::Offset<Attack> CreateAttack(::flatbuffers::FlatBufferBuilder &_fbb, const AttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct CharacterBallT : public ::flatbuffers::NativeTable {
-  typedef CharacterBall TableType;
-  uint64_t delay = 0;
-  float pos_x = 0.0f;
-  float pos_y = 0.0f;
-  uint32_t ball_id = 0;
-  uint32_t ski_id = 0;
-  float speed = 0.0f;
-  uint32_t mob_index = 0;
-  bool attack = false;
-  float attack_x = 0.0f;
-  float attack_y = 0.0f;
+struct DieT : public ::flatbuffers::NativeTable {
+  typedef Die TableType;
 };
 
-struct CharacterBall FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CharacterBallT NativeTableType;
-  typedef CharacterBallBuilder Builder;
+struct Die FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef DieT NativeTableType;
+  typedef DieBuilder Builder;
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           verifier.EndTable();
+  }
+  DieT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DieT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Die> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DieT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DieBuilder {
+  typedef Die Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  explicit DieBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Die> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Die>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Die> CreateDie(
+    ::flatbuffers::FlatBufferBuilder &_fbb) {
+  DieBuilder builder_(_fbb);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Die> CreateDie(::flatbuffers::FlatBufferBuilder &_fbb, const DieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct BallT : public ::flatbuffers::NativeTable {
+  typedef Ball TableType;
+  uint32_t id = 0;
+  uint64_t delay = 0;
+  float x1 = 0.0f;
+  float y1 = 0.0f;
+  float x2 = 0.0f;
+  float y2 = 0.0f;
+  float speed = 0.0f;
+};
+
+struct Ball FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef BallT NativeTableType;
+  typedef BallBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_DELAY = 4,
-    VT_POS_X = 6,
-    VT_POS_Y = 8,
-    VT_BALL_ID = 10,
-    VT_SKI_ID = 12,
-    VT_SPEED = 14,
-    VT_MOB_INDEX = 16,
-    VT_ATTACK = 18,
-    VT_ATTACK_X = 20,
-    VT_ATTACK_Y = 22
+    VT_ID = 4,
+    VT_DELAY = 6,
+    VT_X1 = 8,
+    VT_Y1 = 10,
+    VT_X2 = 12,
+    VT_Y2 = 14,
+    VT_SPEED = 16
   };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  bool mutate_id(uint32_t _id = 0) {
+    return SetField<uint32_t>(VT_ID, _id, 0);
+  }
   uint64_t delay() const {
     return GetField<uint64_t>(VT_DELAY, 0);
   }
   bool mutate_delay(uint64_t _delay = 0) {
     return SetField<uint64_t>(VT_DELAY, _delay, 0);
   }
-  float pos_x() const {
-    return GetField<float>(VT_POS_X, 0.0f);
+  float x1() const {
+    return GetField<float>(VT_X1, 0.0f);
   }
-  bool mutate_pos_x(float _pos_x = 0.0f) {
-    return SetField<float>(VT_POS_X, _pos_x, 0.0f);
+  bool mutate_x1(float _x1 = 0.0f) {
+    return SetField<float>(VT_X1, _x1, 0.0f);
   }
-  float pos_y() const {
-    return GetField<float>(VT_POS_Y, 0.0f);
+  float y1() const {
+    return GetField<float>(VT_Y1, 0.0f);
   }
-  bool mutate_pos_y(float _pos_y = 0.0f) {
-    return SetField<float>(VT_POS_Y, _pos_y, 0.0f);
+  bool mutate_y1(float _y1 = 0.0f) {
+    return SetField<float>(VT_Y1, _y1, 0.0f);
   }
-  uint32_t ball_id() const {
-    return GetField<uint32_t>(VT_BALL_ID, 0);
+  float x2() const {
+    return GetField<float>(VT_X2, 0.0f);
   }
-  bool mutate_ball_id(uint32_t _ball_id = 0) {
-    return SetField<uint32_t>(VT_BALL_ID, _ball_id, 0);
+  bool mutate_x2(float _x2 = 0.0f) {
+    return SetField<float>(VT_X2, _x2, 0.0f);
   }
-  uint32_t ski_id() const {
-    return GetField<uint32_t>(VT_SKI_ID, 0);
+  float y2() const {
+    return GetField<float>(VT_Y2, 0.0f);
   }
-  bool mutate_ski_id(uint32_t _ski_id = 0) {
-    return SetField<uint32_t>(VT_SKI_ID, _ski_id, 0);
+  bool mutate_y2(float _y2 = 0.0f) {
+    return SetField<float>(VT_Y2, _y2, 0.0f);
   }
   float speed() const {
     return GetField<float>(VT_SPEED, 0.0f);
@@ -1290,43 +1380,126 @@ struct CharacterBall FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_speed(float _speed = 0.0f) {
     return SetField<float>(VT_SPEED, _speed, 0.0f);
   }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<uint64_t>(verifier, VT_DELAY, 8) &&
+           VerifyField<float>(verifier, VT_X1, 4) &&
+           VerifyField<float>(verifier, VT_Y1, 4) &&
+           VerifyField<float>(verifier, VT_X2, 4) &&
+           VerifyField<float>(verifier, VT_Y2, 4) &&
+           VerifyField<float>(verifier, VT_SPEED, 4) &&
+           verifier.EndTable();
+  }
+  BallT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(BallT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Ball> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BallT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct BallBuilder {
+  typedef Ball Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(Ball::VT_ID, id, 0);
+  }
+  void add_delay(uint64_t delay) {
+    fbb_.AddElement<uint64_t>(Ball::VT_DELAY, delay, 0);
+  }
+  void add_x1(float x1) {
+    fbb_.AddElement<float>(Ball::VT_X1, x1, 0.0f);
+  }
+  void add_y1(float y1) {
+    fbb_.AddElement<float>(Ball::VT_Y1, y1, 0.0f);
+  }
+  void add_x2(float x2) {
+    fbb_.AddElement<float>(Ball::VT_X2, x2, 0.0f);
+  }
+  void add_y2(float y2) {
+    fbb_.AddElement<float>(Ball::VT_Y2, y2, 0.0f);
+  }
+  void add_speed(float speed) {
+    fbb_.AddElement<float>(Ball::VT_SPEED, speed, 0.0f);
+  }
+  explicit BallBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Ball> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Ball>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Ball> CreateBall(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    uint64_t delay = 0,
+    float x1 = 0.0f,
+    float y1 = 0.0f,
+    float x2 = 0.0f,
+    float y2 = 0.0f,
+    float speed = 0.0f) {
+  BallBuilder builder_(_fbb);
+  builder_.add_delay(delay);
+  builder_.add_speed(speed);
+  builder_.add_y2(y2);
+  builder_.add_x2(x2);
+  builder_.add_y1(y1);
+  builder_.add_x1(x1);
+  builder_.add_id(id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Ball> CreateBall(::flatbuffers::FlatBufferBuilder &_fbb, const BallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct CharacterBallT : public ::flatbuffers::NativeTable {
+  typedef CharacterBall TableType;
+  uint32_t ski_id = 0;
+  uint32_t mob_index = 0;
+  std::vector<std::unique_ptr<fbs::BallT>> ball{};
+  CharacterBallT() = default;
+  CharacterBallT(const CharacterBallT &o);
+  CharacterBallT(CharacterBallT&&) FLATBUFFERS_NOEXCEPT = default;
+  CharacterBallT &operator=(CharacterBallT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct CharacterBall FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterBallT NativeTableType;
+  typedef CharacterBallBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SKI_ID = 4,
+    VT_MOB_INDEX = 6,
+    VT_BALL = 8
+  };
+  uint32_t ski_id() const {
+    return GetField<uint32_t>(VT_SKI_ID, 0);
+  }
+  bool mutate_ski_id(uint32_t _ski_id = 0) {
+    return SetField<uint32_t>(VT_SKI_ID, _ski_id, 0);
+  }
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
   }
   bool mutate_mob_index(uint32_t _mob_index = 0) {
     return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
   }
-  bool attack() const {
-    return GetField<uint8_t>(VT_ATTACK, 0) != 0;
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>> *ball() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>> *>(VT_BALL);
   }
-  bool mutate_attack(bool _attack = 0) {
-    return SetField<uint8_t>(VT_ATTACK, static_cast<uint8_t>(_attack), 0);
-  }
-  float attack_x() const {
-    return GetField<float>(VT_ATTACK_X, 0.0f);
-  }
-  bool mutate_attack_x(float _attack_x = 0.0f) {
-    return SetField<float>(VT_ATTACK_X, _attack_x, 0.0f);
-  }
-  float attack_y() const {
-    return GetField<float>(VT_ATTACK_Y, 0.0f);
-  }
-  bool mutate_attack_y(float _attack_y = 0.0f) {
-    return SetField<float>(VT_ATTACK_Y, _attack_y, 0.0f);
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>> *mutable_ball() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>> *>(VT_BALL);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint64_t>(verifier, VT_DELAY, 8) &&
-           VerifyField<float>(verifier, VT_POS_X, 4) &&
-           VerifyField<float>(verifier, VT_POS_Y, 4) &&
-           VerifyField<uint32_t>(verifier, VT_BALL_ID, 4) &&
            VerifyField<uint32_t>(verifier, VT_SKI_ID, 4) &&
-           VerifyField<float>(verifier, VT_SPEED, 4) &&
            VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
-           VerifyField<uint8_t>(verifier, VT_ATTACK, 1) &&
-           VerifyField<float>(verifier, VT_ATTACK_X, 4) &&
-           VerifyField<float>(verifier, VT_ATTACK_Y, 4) &&
+           VerifyOffset(verifier, VT_BALL) &&
+           verifier.VerifyVector(ball()) &&
+           verifier.VerifyVectorOfTables(ball()) &&
            verifier.EndTable();
   }
   CharacterBallT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1338,35 +1511,14 @@ struct CharacterBallBuilder {
   typedef CharacterBall Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_delay(uint64_t delay) {
-    fbb_.AddElement<uint64_t>(CharacterBall::VT_DELAY, delay, 0);
-  }
-  void add_pos_x(float pos_x) {
-    fbb_.AddElement<float>(CharacterBall::VT_POS_X, pos_x, 0.0f);
-  }
-  void add_pos_y(float pos_y) {
-    fbb_.AddElement<float>(CharacterBall::VT_POS_Y, pos_y, 0.0f);
-  }
-  void add_ball_id(uint32_t ball_id) {
-    fbb_.AddElement<uint32_t>(CharacterBall::VT_BALL_ID, ball_id, 0);
-  }
   void add_ski_id(uint32_t ski_id) {
     fbb_.AddElement<uint32_t>(CharacterBall::VT_SKI_ID, ski_id, 0);
-  }
-  void add_speed(float speed) {
-    fbb_.AddElement<float>(CharacterBall::VT_SPEED, speed, 0.0f);
   }
   void add_mob_index(uint32_t mob_index) {
     fbb_.AddElement<uint32_t>(CharacterBall::VT_MOB_INDEX, mob_index, 0);
   }
-  void add_attack(bool attack) {
-    fbb_.AddElement<uint8_t>(CharacterBall::VT_ATTACK, static_cast<uint8_t>(attack), 0);
-  }
-  void add_attack_x(float attack_x) {
-    fbb_.AddElement<float>(CharacterBall::VT_ATTACK_X, attack_x, 0.0f);
-  }
-  void add_attack_y(float attack_y) {
-    fbb_.AddElement<float>(CharacterBall::VT_ATTACK_Y, attack_y, 0.0f);
+  void add_ball(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>>> ball) {
+    fbb_.AddOffset(CharacterBall::VT_BALL, ball);
   }
   explicit CharacterBallBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1381,28 +1533,27 @@ struct CharacterBallBuilder {
 
 inline ::flatbuffers::Offset<CharacterBall> CreateCharacterBall(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t delay = 0,
-    float pos_x = 0.0f,
-    float pos_y = 0.0f,
-    uint32_t ball_id = 0,
     uint32_t ski_id = 0,
-    float speed = 0.0f,
     uint32_t mob_index = 0,
-    bool attack = false,
-    float attack_x = 0.0f,
-    float attack_y = 0.0f) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>>> ball = 0) {
   CharacterBallBuilder builder_(_fbb);
-  builder_.add_delay(delay);
-  builder_.add_attack_y(attack_y);
-  builder_.add_attack_x(attack_x);
+  builder_.add_ball(ball);
   builder_.add_mob_index(mob_index);
-  builder_.add_speed(speed);
   builder_.add_ski_id(ski_id);
-  builder_.add_ball_id(ball_id);
-  builder_.add_pos_y(pos_y);
-  builder_.add_pos_x(pos_x);
-  builder_.add_attack(attack);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CharacterBall> CreateCharacterBallDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t ski_id = 0,
+    uint32_t mob_index = 0,
+    const std::vector<::flatbuffers::Offset<fbs::Ball>> *ball = nullptr) {
+  auto ball__ = ball ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Ball>>(*ball) : 0;
+  return fbs::CreateCharacterBall(
+      _fbb,
+      ski_id,
+      mob_index,
+      ball__);
 }
 
 ::flatbuffers::Offset<CharacterBall> CreateCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1786,6 +1937,81 @@ inline ::flatbuffers::Offset<Mob> CreateMob(
 
 ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct MobAttackT : public ::flatbuffers::NativeTable {
+  typedef MobAttack TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::AttackT> attack{};
+  MobAttackT() = default;
+  MobAttackT(const MobAttackT &o);
+  MobAttackT(MobAttackT&&) FLATBUFFERS_NOEXCEPT = default;
+  MobAttackT &operator=(MobAttackT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct MobAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MobAttackT NativeTableType;
+  typedef MobAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_ATTACK = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Attack *attack() const {
+    return GetPointer<const fbs::Attack *>(VT_ATTACK);
+  }
+  fbs::Attack *mutable_attack() {
+    return GetPointer<fbs::Attack *>(VT_ATTACK);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_ATTACK) &&
+           verifier.VerifyTable(attack()) &&
+           verifier.EndTable();
+  }
+  MobAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(MobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<MobAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct MobAttackBuilder {
+  typedef MobAttack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(MobAttack::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_attack(::flatbuffers::Offset<fbs::Attack> attack) {
+    fbb_.AddOffset(MobAttack::VT_ATTACK, attack);
+  }
+  explicit MobAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MobAttack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MobAttack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MobAttack> CreateMobAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Attack> attack = 0) {
+  MobAttackBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_attack(attack);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<MobAttack> CreateMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct CharacterLogicT : public ::flatbuffers::NativeTable {
   typedef CharacterLogic TableType;
   uint64_t client_id = 0;
@@ -1822,6 +2048,9 @@ struct CharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::Action *payload_as_Action() const {
     return payload_type() == fbs::CharacterLogicType_Action ? static_cast<const fbs::Action *>(payload()) : nullptr;
   }
+  const fbs::Die *payload_as_Die() const {
+    return payload_type() == fbs::CharacterLogicType_Die ? static_cast<const fbs::Die *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::Movement *mutable_payload_as_Movement() {
     return payload_type() == fbs::CharacterLogicType_Movement ? static_cast<fbs::Movement *>(mutable_payload()) : nullptr;
@@ -1831,6 +2060,9 @@ struct CharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::Action *mutable_payload_as_Action() {
     return payload_type() == fbs::CharacterLogicType_Action ? static_cast<fbs::Action *>(mutable_payload()) : nullptr;
+  }
+  fbs::Die *mutable_payload_as_Die() {
+    return payload_type() == fbs::CharacterLogicType_Die ? static_cast<fbs::Die *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -1871,6 +2103,14 @@ template<> inline const fbs::Action *CharacterLogic::payload_as<fbs::Action>() c
 
 template<> inline fbs::Action *CharacterLogic::mutable_payload_as<fbs::Action>() {
   return mutable_payload_as_Action();
+}
+
+template<> inline const fbs::Die *CharacterLogic::payload_as<fbs::Die>() const {
+  return payload_as_Die();
+}
+
+template<> inline fbs::Die *CharacterLogic::mutable_payload_as<fbs::Die>() {
+  return mutable_payload_as_Die();
 }
 
 struct CharacterLogicBuilder {
@@ -1955,6 +2195,9 @@ struct MobLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::Action *payload_as_Action() const {
     return payload_type() == fbs::MobLogicType_Action ? static_cast<const fbs::Action *>(payload()) : nullptr;
   }
+  const fbs::Die *payload_as_Die() const {
+    return payload_type() == fbs::MobLogicType_Die ? static_cast<const fbs::Die *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::Movement *mutable_payload_as_Movement() {
     return payload_type() == fbs::MobLogicType_Movement ? static_cast<fbs::Movement *>(mutable_payload()) : nullptr;
@@ -1964,6 +2207,9 @@ struct MobLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::Action *mutable_payload_as_Action() {
     return payload_type() == fbs::MobLogicType_Action ? static_cast<fbs::Action *>(mutable_payload()) : nullptr;
+  }
+  fbs::Die *mutable_payload_as_Die() {
+    return payload_type() == fbs::MobLogicType_Die ? static_cast<fbs::Die *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -2005,6 +2251,14 @@ template<> inline const fbs::Action *MobLogic::payload_as<fbs::Action>() const {
 
 template<> inline fbs::Action *MobLogic::mutable_payload_as<fbs::Action>() {
   return mutable_payload_as_Action();
+}
+
+template<> inline const fbs::Die *MobLogic::payload_as<fbs::Die>() const {
+  return payload_as_Die();
+}
+
+template<> inline fbs::Die *MobLogic::mutable_payload_as<fbs::Die>() {
+  return mutable_payload_as_Die();
 }
 
 struct MobLogicBuilder {
@@ -2341,6 +2595,87 @@ inline ::flatbuffers::Offset<Attack> Attack::Pack(::flatbuffers::FlatBufferBuild
       _type);
 }
 
+inline DieT *Die::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<DieT>(new DieT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Die::UnPackTo(DieT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+}
+
+inline ::flatbuffers::Offset<Die> CreateDie(::flatbuffers::FlatBufferBuilder &_fbb, const DieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Die::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Die> Die::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DieT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DieT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  return fbs::CreateDie(
+      _fbb);
+}
+
+inline BallT *Ball::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<BallT>(new BallT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Ball::UnPackTo(BallT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = id(); _o->id = _e; }
+  { auto _e = delay(); _o->delay = _e; }
+  { auto _e = x1(); _o->x1 = _e; }
+  { auto _e = y1(); _o->y1 = _e; }
+  { auto _e = x2(); _o->x2 = _e; }
+  { auto _e = y2(); _o->y2 = _e; }
+  { auto _e = speed(); _o->speed = _e; }
+}
+
+inline ::flatbuffers::Offset<Ball> CreateBall(::flatbuffers::FlatBufferBuilder &_fbb, const BallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Ball::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Ball> Ball::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const BallT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BallT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _id = _o->id;
+  auto _delay = _o->delay;
+  auto _x1 = _o->x1;
+  auto _y1 = _o->y1;
+  auto _x2 = _o->x2;
+  auto _y2 = _o->y2;
+  auto _speed = _o->speed;
+  return fbs::CreateBall(
+      _fbb,
+      _id,
+      _delay,
+      _x1,
+      _y1,
+      _x2,
+      _y2,
+      _speed);
+}
+
+inline CharacterBallT::CharacterBallT(const CharacterBallT &o)
+      : ski_id(o.ski_id),
+        mob_index(o.mob_index) {
+  ball.reserve(o.ball.size());
+  for (const auto &ball_ : o.ball) { ball.emplace_back((ball_) ? new fbs::BallT(*ball_) : nullptr); }
+}
+
+inline CharacterBallT &CharacterBallT::operator=(CharacterBallT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(ski_id, o.ski_id);
+  std::swap(mob_index, o.mob_index);
+  std::swap(ball, o.ball);
+  return *this;
+}
+
 inline CharacterBallT *CharacterBall::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<CharacterBallT>(new CharacterBallT());
   UnPackTo(_o.get(), _resolver);
@@ -2350,16 +2685,9 @@ inline CharacterBallT *CharacterBall::UnPack(const ::flatbuffers::resolver_funct
 inline void CharacterBall::UnPackTo(CharacterBallT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = delay(); _o->delay = _e; }
-  { auto _e = pos_x(); _o->pos_x = _e; }
-  { auto _e = pos_y(); _o->pos_y = _e; }
-  { auto _e = ball_id(); _o->ball_id = _e; }
   { auto _e = ski_id(); _o->ski_id = _e; }
-  { auto _e = speed(); _o->speed = _e; }
   { auto _e = mob_index(); _o->mob_index = _e; }
-  { auto _e = attack(); _o->attack = _e; }
-  { auto _e = attack_x(); _o->attack_x = _e; }
-  { auto _e = attack_y(); _o->attack_y = _e; }
+  { auto _e = ball(); if (_e) { _o->ball.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->ball[_i]) { _e->Get(_i)->UnPackTo(_o->ball[_i].get(), _resolver); } else { _o->ball[_i] = std::unique_ptr<fbs::BallT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->ball.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<CharacterBall> CreateCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2370,28 +2698,14 @@ inline ::flatbuffers::Offset<CharacterBall> CharacterBall::Pack(::flatbuffers::F
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterBallT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _delay = _o->delay;
-  auto _pos_x = _o->pos_x;
-  auto _pos_y = _o->pos_y;
-  auto _ball_id = _o->ball_id;
   auto _ski_id = _o->ski_id;
-  auto _speed = _o->speed;
   auto _mob_index = _o->mob_index;
-  auto _attack = _o->attack;
-  auto _attack_x = _o->attack_x;
-  auto _attack_y = _o->attack_y;
+  auto _ball = _o->ball.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Ball>> (_o->ball.size(), [](size_t i, _VectorArgs *__va) { return CreateBall(*__va->__fbb, __va->__o->ball[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateCharacterBall(
       _fbb,
-      _delay,
-      _pos_x,
-      _pos_y,
-      _ball_id,
       _ski_id,
-      _speed,
       _mob_index,
-      _attack,
-      _attack_x,
-      _attack_y);
+      _ball);
 }
 
 inline CharacterAttackT::CharacterAttackT(const CharacterAttackT &o)
@@ -2567,6 +2881,46 @@ inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_f
       _state);
 }
 
+inline MobAttackT::MobAttackT(const MobAttackT &o)
+      : client_id(o.client_id),
+        attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr) {
+}
+
+inline MobAttackT &MobAttackT::operator=(MobAttackT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(attack, o.attack);
+  return *this;
+}
+
+inline MobAttackT *MobAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<MobAttackT>(new MobAttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void MobAttack::UnPackTo(MobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = attack(); if (_e) { if(_o->attack) { _e->UnPackTo(_o->attack.get(), _resolver); } else { _o->attack = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->attack) { _o->attack.reset(); } }
+}
+
+inline ::flatbuffers::Offset<MobAttack> CreateMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return MobAttack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<MobAttack> MobAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MobAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _attack = _o->attack ? CreateAttack(_fbb, _o->attack.get(), _rehasher) : 0;
+  return fbs::CreateMobAttack(
+      _fbb,
+      _client_id,
+      _attack);
+}
+
 inline CharacterLogicT *CharacterLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<CharacterLogicT>(new CharacterLogicT());
   UnPackTo(_o.get(), _resolver);
@@ -2652,6 +3006,10 @@ inline bool VerifyCharacterLogicType(::flatbuffers::VerifierTemplate<B> &verifie
       auto ptr = reinterpret_cast<const fbs::Action *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case CharacterLogicType_Die: {
+      auto ptr = reinterpret_cast<const fbs::Die *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -2684,6 +3042,10 @@ inline void *CharacterLogicTypeUnion::UnPack(const void *obj, CharacterLogicType
       auto ptr = reinterpret_cast<const fbs::Action *>(obj);
       return ptr->UnPack(resolver);
     }
+    case CharacterLogicType_Die: {
+      auto ptr = reinterpret_cast<const fbs::Die *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -2703,6 +3065,10 @@ inline ::flatbuffers::Offset<void> CharacterLogicTypeUnion::Pack(::flatbuffers::
       auto ptr = reinterpret_cast<const fbs::ActionT *>(value);
       return CreateAction(_fbb, ptr, _rehasher).Union();
     }
+    case CharacterLogicType_Die: {
+      auto ptr = reinterpret_cast<const fbs::DieT *>(value);
+      return CreateDie(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -2719,6 +3085,10 @@ inline CharacterLogicTypeUnion::CharacterLogicTypeUnion(const CharacterLogicType
     }
     case CharacterLogicType_Action: {
       value = new fbs::ActionT(*reinterpret_cast<fbs::ActionT *>(u.value));
+      break;
+    }
+    case CharacterLogicType_Die: {
+      value = new fbs::DieT(*reinterpret_cast<fbs::DieT *>(u.value));
       break;
     }
     default:
@@ -2740,6 +3110,11 @@ inline void CharacterLogicTypeUnion::Reset() {
     }
     case CharacterLogicType_Action: {
       auto ptr = reinterpret_cast<fbs::ActionT *>(value);
+      delete ptr;
+      break;
+    }
+    case CharacterLogicType_Die: {
+      auto ptr = reinterpret_cast<fbs::DieT *>(value);
       delete ptr;
       break;
     }
@@ -2765,6 +3140,10 @@ inline bool VerifyMobLogicType(::flatbuffers::VerifierTemplate<B> &verifier, con
     }
     case MobLogicType_Action: {
       auto ptr = reinterpret_cast<const fbs::Action *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MobLogicType_Die: {
+      auto ptr = reinterpret_cast<const fbs::Die *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;
@@ -2799,6 +3178,10 @@ inline void *MobLogicTypeUnion::UnPack(const void *obj, MobLogicType type, const
       auto ptr = reinterpret_cast<const fbs::Action *>(obj);
       return ptr->UnPack(resolver);
     }
+    case MobLogicType_Die: {
+      auto ptr = reinterpret_cast<const fbs::Die *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -2818,6 +3201,10 @@ inline ::flatbuffers::Offset<void> MobLogicTypeUnion::Pack(::flatbuffers::FlatBu
       auto ptr = reinterpret_cast<const fbs::ActionT *>(value);
       return CreateAction(_fbb, ptr, _rehasher).Union();
     }
+    case MobLogicType_Die: {
+      auto ptr = reinterpret_cast<const fbs::DieT *>(value);
+      return CreateDie(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -2834,6 +3221,10 @@ inline MobLogicTypeUnion::MobLogicTypeUnion(const MobLogicTypeUnion &u) : type(u
     }
     case MobLogicType_Action: {
       value = new fbs::ActionT(*reinterpret_cast<fbs::ActionT *>(u.value));
+      break;
+    }
+    case MobLogicType_Die: {
+      value = new fbs::DieT(*reinterpret_cast<fbs::DieT *>(u.value));
       break;
     }
     default:
@@ -2855,6 +3246,11 @@ inline void MobLogicTypeUnion::Reset() {
     }
     case MobLogicType_Action: {
       auto ptr = reinterpret_cast<fbs::ActionT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobLogicType_Die: {
+      auto ptr = reinterpret_cast<fbs::DieT *>(value);
       delete ptr;
       break;
     }

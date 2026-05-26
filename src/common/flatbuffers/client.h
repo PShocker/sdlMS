@@ -198,6 +198,9 @@ struct ClientCharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   const fbs::Action *payload_as_Action() const {
     return payload_type() == fbs::CharacterLogicType_Action ? static_cast<const fbs::Action *>(payload()) : nullptr;
   }
+  const fbs::Die *payload_as_Die() const {
+    return payload_type() == fbs::CharacterLogicType_Die ? static_cast<const fbs::Die *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::Movement *mutable_payload_as_Movement() {
     return payload_type() == fbs::CharacterLogicType_Movement ? static_cast<fbs::Movement *>(mutable_payload()) : nullptr;
@@ -207,6 +210,9 @@ struct ClientCharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   }
   fbs::Action *mutable_payload_as_Action() {
     return payload_type() == fbs::CharacterLogicType_Action ? static_cast<fbs::Action *>(mutable_payload()) : nullptr;
+  }
+  fbs::Die *mutable_payload_as_Die() {
+    return payload_type() == fbs::CharacterLogicType_Die ? static_cast<fbs::Die *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -246,6 +252,14 @@ template<> inline const fbs::Action *ClientCharacterLogic::payload_as<fbs::Actio
 
 template<> inline fbs::Action *ClientCharacterLogic::mutable_payload_as<fbs::Action>() {
   return mutable_payload_as_Action();
+}
+
+template<> inline const fbs::Die *ClientCharacterLogic::payload_as<fbs::Die>() const {
+  return payload_as_Die();
+}
+
+template<> inline fbs::Die *ClientCharacterLogic::mutable_payload_as<fbs::Die>() {
+  return mutable_payload_as_Die();
 }
 
 struct ClientCharacterLogicBuilder {

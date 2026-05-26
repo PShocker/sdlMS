@@ -19,16 +19,18 @@ private:
     swim,
     fly,
     hit,
-    remove, // 复活
+    die, 
   };
   static void run_hit_action(server_mob &s_mob);
   static void run_move_action(server_mob &s_mob);
   static void run_stand_action(server_mob &s_mob);
+  static void run_die_action(server_mob &s_mob);
   static action_enum load_action_type(server_mob &s_mob);
   static void run_walk(server_mob &s_mob);
   static void run_state_machine(server_mob &s_mob);
   static void run_duration(server_mob &s_mob);
   static bool run_beat(server_mob &s_mob);
+  static void run_hit(server_mob &s_mob);
   static void run_send();
 
   static void run_network_action_sync(server_mob &s_mob, server_mob &o_mob);
