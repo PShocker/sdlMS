@@ -912,11 +912,15 @@ void character_logic_system::run_tomb(game_character &g_character) {
     return;
   }
   auto &tomb = g_character.tomb.value();
-  tomb.pos.y += window::delta_time * 0.2;
-  tomb.pos.y = std::min(0.0f, tomb.pos.y);
+  tomb.pos.y += window::delta_time * 0.4;
+  tomb.pos.y = std::min(tomb.b.y, tomb.pos.y);
   tomb.ani_time += window::delta_time;
   auto node = wz_resource::effect->find(u"Tomb.img/" + tomb.ani_type);
   auto texture_node = node->get_child(std::to_string(tomb.ani_index));
+  if (texture_node->type == wz::Type::UOL) {
+    texture_node =
+        static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
+  }
   auto delay =
       static_cast<wz::Property<int> *>(texture_node->get_child(u"delay"))
           ->get();
@@ -929,6 +933,15 @@ void character_logic_system::run_tomb(game_character &g_character) {
       }
       tomb.ani_index = 0;
     }
+  }
+
+  const float velocity = 0.05f; // 角速度
+  const float radius = 10.0f;   // 半径
+  g_character.pos.x = tomb.b.x + radius * std::cos(tomb.rotation);
+  g_character.pos.y = tomb.b.y - 10 + radius * std::sin(tomb.rotation);
+  tomb.rotation += velocity;
+  if (tomb.rotation >= 2 * std::numbers::pi) {
+    tomb.rotation -= 2 * std::numbers::pi; // 保持角度在 [0, 2π) 范围内
   }
   return;
 }
@@ -1035,15 +1048,8 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     break;
   }
   case action_enum::dead: {
-    const float velocity = 0.05f; // 角速度
-    const float radius = 10.0f;   // 半径
-    auto &tomb = g_character.tomb.value();
-    g_character.pos.x = tomb.b.x + radius * std::cos(tomb.rotation);
-    g_character.pos.y = tomb.b.y - 10 + radius * std::sin(tomb.rotation);
-    tomb.rotation += velocity;
-    if (tomb.rotation >= 2 * std::numbers::pi) {
-      tomb.rotation -= 2 * std::numbers::pi; // 保持角度在 [0, 2π) 范围内
-    }
+    run_tomb(g_character);
+
     break;
   }
   default: {
@@ -1204,7 +1210,7 @@ void character_logic_system::run_die_action(game_character &g_character) {
   }
   game_tomb t{
       .ani_type = u"fall",
-      .pos = {0, -200},
+      .pos = {g_character.pos.x, g_character.pos.y - 200},
       .b = g_character.pos,
   };
   g_character.tomb = t;

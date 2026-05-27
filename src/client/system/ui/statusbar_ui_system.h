@@ -33,6 +33,7 @@ private:
   static inline bool quickSlot = true;
 
   static inline std::optional<std::u16string> chat;
+  static inline std::optional<std::u16string> chat_type;
 
 public:
   static bool render();

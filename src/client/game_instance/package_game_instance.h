@@ -6,11 +6,11 @@
 #include <optional>
 class package_game_instance {
 public:
-  static inline std::array<std::optional<game_equip>, 64> equips;
-  static inline std::array<std::optional<game_item>, 64> cosumes;
-  static inline std::array<std::optional<game_item>, 64> etc;
-  static inline std::array<std::optional<game_item>, 64> install;
-  static inline std::array<std::optional<game_item>, 64> cash;
+  static inline std::array<std::optional<game_equip>, 96> equips;
+  static inline std::array<std::optional<game_item>, 96> cosumes;
+  static inline std::array<std::optional<game_item>, 96> etc;
+  static inline std::array<std::optional<game_item>, 96> install;
+  static inline std::array<std::optional<game_item>, 96> cash;
 
   static void load();
 };

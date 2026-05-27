@@ -213,11 +213,12 @@ void skill_ui_system::render_scroll() {
 
   if (max_scroll_num >= load_skill_num()) {
     // disable
-    SDL_FRect pos_rect{pos.x + lt.x, pos.y + lt.y, static_cast<float>(prev->w),
+    SDL_FRect pos_rect{(int)pos.x + lt.x, (int)pos.y + lt.y,
+                       static_cast<float>(prev->w),
                        static_cast<float>(prev->h)};
     SDL_RenderTexture(window::renderer, prev, nullptr, &pos_rect);
 
-    pos_rect = {pos.x + lt.x, pos.y + lt.y + length - next->h,
+    pos_rect = {(int)pos.x + lt.x, (int)pos.y + lt.y + length - next->h,
                 static_cast<float>(next->w), static_cast<float>(next->h)};
     SDL_RenderTexture(window::renderer, next, nullptr, &pos_rect);
 
@@ -229,7 +230,8 @@ void skill_ui_system::render_scroll() {
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
 
-    SDL_FRect pos_rect{pos.x + lt.x, pos.y + lt.y, static_cast<float>(prev->w),
+    SDL_FRect pos_rect{(int)pos.x + lt.x, (int)pos.y + lt.y,
+                       static_cast<float>(prev->w),
                        static_cast<float>(prev->h)};
     SDL_Texture *pv;
     SDL_Texture *nx;
@@ -245,7 +247,7 @@ void skill_ui_system::render_scroll() {
     }
     SDL_RenderTexture(window::renderer, pv, nullptr, &pos_rect);
 
-    pos_rect = {pos.x + lt.x, pos.y + lt.y + length - next->h,
+    pos_rect = {(int)pos.x + lt.x, (int)pos.y + lt.y + length - next->h,
                 static_cast<float>(next->w), static_cast<float>(next->h)};
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) &&
         cursor_in == render) {

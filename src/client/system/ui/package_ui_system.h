@@ -6,6 +6,7 @@
 
 class package_ui_system {
 private:
+  static void render_scroll();
   static void render_backgrnd();
   static void render_tab();
   static void render_items();
@@ -20,6 +21,8 @@ private:
   static SDL_FPoint load_wh();
 
   static bool run();
+
+  static inline uint8_t page;
 
   static inline std::optional<SDL_FPoint> drag;
 

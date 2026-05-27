@@ -3,6 +3,7 @@
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -56,15 +57,139 @@ void package_ui_system::render_tab() {
 }
 
 void package_ui_system::render_items() {
+  SDL_FPoint slot_pos{8, 51};
+  const auto slot_space_x = 4;
+  const auto slot_space_y = 2;
   if (active_tab == 0) {
     const auto &equips = package_game_instance::equips;
+    for (uint8_t i = page * 5; i <= equips.size(); i++) {
+      auto row = i / 5 - page;
+      auto col = i % 5;
+
+      if (row >= 6) {
+        break;
+      }
+
+      auto id = equips[0]->id;
+      auto info = equip_game_instance::load_equip_info(id);
+      auto icon = wz_resource::load_texture(info->get_child(u"icon"));
+
+      SDL_FRect pos_rect{
+          static_cast<float>(
+              int(pos.x + slot_pos.x + col * 32 + col * slot_space_x)),
+          static_cast<float>(
+              int(pos.y + slot_pos.y + row * 32 + row * slot_space_y)),
+          static_cast<float>(icon->w),
+          static_cast<float>(icon->h),
+      };
+      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+    }
   } else {
   }
+}
+
+void package_ui_system::render_scroll() {
+  static auto prev0 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev0"));
+  static auto prev1 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev1"));
+  static auto prev2 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev2"));
+  static auto next0 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next0"));
+  static auto next1 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next1"));
+  static auto next2 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/next2"));
+  static auto base0 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/base"));
+  static auto thumb0 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb0"));
+  static auto thumb1 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb1"));
+  static auto thumb2 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/enabled/thumb2"));
+  static auto prev = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/disabled/prev"));
+  static auto next = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/disabled/next"));
+  static auto base = wz_resource::load_texture(
+      wz_resource::ui->find(u"Basic.img/VScr4/disabled/base"));
+  const SDL_FPoint lt{188, 51};
+  const uint32_t length = 202;
+  const uint8_t max_scroll_num = 6;
+
+  if (max_scroll_num >= 6) {
+    // disable
+    SDL_FRect pos_rect{(int)pos.x + lt.x, (int)pos.y + lt.y,
+                       static_cast<float>(prev->w),
+                       static_cast<float>(prev->h)};
+    SDL_RenderTexture(window::renderer, prev, nullptr, &pos_rect);
+
+    pos_rect = {
+        (int)pos.x + lt.x,
+        (int)pos.y + lt.y + length - next->h,
+        static_cast<float>(next->w),
+        static_cast<float>(next->h),
+    };
+    SDL_RenderTexture(window::renderer, next, nullptr, &pos_rect);
+
+    pos_rect = {
+        pos.x + lt.x,
+        pos.y + lt.y + prev->h,
+        static_cast<float>(base->w),
+        static_cast<float>(length - prev->h - next->h),
+    };
+    SDL_RenderTextureTiled(window::renderer, base, nullptr, 1, &pos_rect);
+  } else {
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+
+    SDL_FRect pos_rect{(int)pos.x + lt.x, (int)pos.y + lt.y,
+                       static_cast<float>(prev->w),
+                       static_cast<float>(prev->h)};
+    SDL_Texture *pv;
+    SDL_Texture *nx;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) &&
+        cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        pv = prev1;
+      } else {
+        pv = prev2;
+      }
+    } else {
+      pv = prev0;
+    }
+    SDL_RenderTexture(window::renderer, pv, nullptr, &pos_rect);
+
+    pos_rect = {pos.x + lt.x, pos.y + lt.y + length - next->h,
+                static_cast<float>(next->w), static_cast<float>(next->h)};
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) &&
+        cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        nx = next1;
+      } else {
+        nx = next2;
+      }
+    } else {
+      nx = next0;
+    }
+    SDL_RenderTexture(window::renderer, nx, nullptr, &pos_rect);
+
+    pos_rect = {pos.x + lt.x, pos.y + lt.y + prev->h,
+                static_cast<float>(base->w),
+                static_cast<float>(length - prev->h - next->h)};
+    SDL_RenderTextureTiled(window::renderer, base0, nullptr, 1, &pos_rect);
+    // render
+  }
+  return;
 }
 
 bool package_ui_system::render() {
   render_backgrnd();
   render_tab();
+  render_items();
+  render_scroll();
   return true;
 }
 

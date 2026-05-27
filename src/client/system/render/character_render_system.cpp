@@ -11,6 +11,7 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include "wz/Wz.h"
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -189,19 +190,29 @@ void character_render_system::render_tomb(game_character &g_character) {
   auto ani_node = tomb_node->get_child(type);
   auto ani_index = std::to_string(tomb.ani_index);
   auto texture_node = ani_node->get_child(ani_index);
+  if (texture_node->type == wz::Type::UOL) {
+    texture_node =
+        static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
+  }
   auto texture = wz_resource::load_texture(texture_node);
   auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
-      .x = g_character.pos.x - origin.x + tomb.pos.x,
-      .y = g_character.pos.y - origin.y + tomb.pos.y,
+      .x = tomb.pos.x - origin.x,
+      .y = tomb.pos.y - origin.y,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  auto &camera = camera_game_instance::camera;
+  if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+    pos_rect.x -= camera.x;
+    pos_rect.y -= camera.y;
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  }
 }
 
 bool character_render_system::render(game_character &g_character) {
   render_afterimage(g_character);
+  render_tomb(g_character);
   render_character(g_character);
   render_nametag(g_character);
   // auto r = character_logic_system::load_rect(g_character);

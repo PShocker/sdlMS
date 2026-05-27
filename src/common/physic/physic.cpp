@@ -2,6 +2,7 @@
 #include "src/client/game/game_foothold.h"
 #include "src/client/window/window.h"
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 #include <ranges>
 
@@ -115,31 +116,40 @@ std::optional<SDL_FPoint> physic::fall_intersect(const SDL_FPoint &p1,
                                                  const SDL_FPoint &p2,
                                                  const SDL_FPoint &p3,
                                                  const SDL_FPoint &p4) {
-  // 快速排斥实验
-  if ((p1.x > p2.x ? p1.x : p2.x) < (p3.x < p4.x ? p3.x : p4.x) ||
-      (p1.y > p2.y ? p1.y : p2.y) < (p3.y < p4.y ? p3.y : p4.y) ||
-      (p3.x > p4.x ? p3.x : p4.x) < (p1.x < p2.x ? p1.x : p2.x) ||
-      (p3.y > p4.y ? p3.y : p4.y) < (p1.y < p2.y ? p1.y : p2.y)) {
-    return std::nullopt;
-  }
-  // 跨立实验
-  if ((((p1.x - p3.x) * (p4.y - p3.y) - (p1.y - p3.y) * (p4.x - p3.x)) *
-       ((p2.x - p3.x) * (p4.y - p3.y) - (p2.y - p3.y) * (p4.x - p3.x))) > 0 ||
-      (((p3.x - p1.x) * (p2.y - p1.y) - (p3.y - p1.y) * (p2.x - p1.x)) *
-       ((p4.x - p1.x) * (p2.y - p1.y) - (p4.y - p1.y) * (p2.x - p1.x))) > 0) {
+  // 预计算差值（复用）
+  const float dx1 = p2.x - p1.x;
+  const float dy1 = p2.y - p1.y;
+  const float dx2 = p4.x - p3.x;
+  const float dy2 = p4.y - p3.y;
+
+  // 快速排斥（使用fmaxf/fminf，编译器会优化为内联）
+  if (fmaxf(p1.x, p2.x) < fminf(p3.x, p4.x) ||
+      fmaxf(p1.y, p2.y) < fminf(p3.y, p4.y) ||
+      fmaxf(p3.x, p4.x) < fminf(p1.x, p2.x) ||
+      fmaxf(p3.y, p4.y) < fminf(p1.y, p2.y)) {
     return std::nullopt;
   }
 
-  auto x = ((p1.y - p3.y) * (p2.x - p1.x) * (p4.x - p3.x) +
-            p3.x * (p4.y - p3.y) * (p2.x - p1.x) -
-            p1.x * (p2.y - p1.y) * (p4.x - p3.x)) /
-           ((p4.x - p3.x) * (p1.y - p2.y) - (p2.x - p1.x) * (p3.y - p4.y));
-  auto y = (p2.y * (p1.x - p2.x) * (p4.y - p3.y) +
-            (p4.x - p2.x) * (p4.y - p3.y) * (p1.y - p2.y) -
-            p4.y * (p3.x - p4.x) * (p2.y - p1.y)) /
-           ((p1.x - p2.x) * (p4.y - p3.y) - (p2.y - p1.y) * (p3.x - p4.x));
+  // 跨立实验（使用fma优化）
+  const float cross1 = (p1.x - p3.x) * dy2 - (p1.y - p3.y) * dx2;
+  const float cross2 = (p2.x - p3.x) * dy2 - (p2.y - p3.y) * dx2;
+  const float cross3 = (p3.x - p1.x) * dy1 - (p3.y - p1.y) * dx1;
+  const float cross4 = (p4.x - p1.x) * dy1 - (p4.y - p1.y) * dx1;
 
-  return SDL_FPoint{x, y};
+  if (cross1 * cross2 > 0 || cross3 * cross4 > 0) {
+    return std::nullopt;
+  }
+
+  // 计算交点（使用优化的公式）
+  const float denominator = dx1 * dy2 - dy1 * dx2;
+  if (denominator == 0)
+    return std::nullopt;
+
+  // 只用除法一次，其他都是乘加
+  const float t = ((p3.x - p1.x) * dy2 - (p3.y - p1.y) * dx2) / denominator;
+
+  // 直接返回（不需要clamp，理论上t已经在[0,1]内）
+  return SDL_FPoint{p1.x + t * dx1, p1.y + t * dy1};
 }
 
 std::flat_map<float, physic::intersect_pos>

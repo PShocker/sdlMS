@@ -164,7 +164,8 @@ void character_game_instance::init_character_bone() {
   }
 }
 
-void character_game_instance::load_self_pos(std::optional<SDL_FPoint> &pos) {
+void character_game_instance::load_self() {
+  const auto &pos = scene_system_instance::prepare_pos;
   if (pos.has_value()) {
     self.pos = pos.value();
     self.action = u"jump";
@@ -173,6 +174,8 @@ void character_game_instance::load_self_pos(std::optional<SDL_FPoint> &pos) {
   }
   character_logic_system::self_fh = 0;
   character_logic_system::self_lr = 0;
+
+  self.tomb=std::nullopt;
 }
 
 SDL_FPoint character_game_instance::load_self_pos(const std::u16string &pn,

@@ -61,7 +61,7 @@ private:
 public:
   static void init_character_bone();
 
-  static void load_self_pos(std::optional<SDL_FPoint> &pos);
+  static void load_self();
   static SDL_FPoint load_self_pos(const std::u16string &pn, uint8_t index);
   static void load_self_nametag();
   static void load_self_character();

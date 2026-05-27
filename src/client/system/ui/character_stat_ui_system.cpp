@@ -60,8 +60,8 @@ void character_stat_ui_system::render_text() {
   auto sub_job_texture =
       wz_resource::load_texture(job_sub_node->get_child(self_job));
   pos_rect = {
-      static_cast<float>((int)p.x + 61),
-      static_cast<float>((int)p.y + 67),
+      static_cast<float>((int)pos.x + 61),
+      static_cast<float>((int)pos.y + 67),
       static_cast<float>(sub_job_texture->w),
       static_cast<float>(sub_job_texture->h),
   };
@@ -96,7 +96,7 @@ void character_stat_ui_system::render_text() {
   freetype::draw_line(exp2, p.x, p.y);
 
   // fame
-  p = {pos.x + 60, pos.y + 133};
+  p = {pos.x + 60, pos.y + 151};
   auto fame = character_stat_game_instance::fame;
   auto fame1 = std::to_string(fame);
   auto fame2 = std::u16string{fame1.begin(), fame1.end()};
@@ -117,7 +117,7 @@ void character_stat_ui_system::render_text() {
   freetype::draw_line(dex2, p.x, p.y);
 
   // int
-  p = {pos.x + 60, pos.y + 193};
+  p = {pos.x + 60, pos.y + 211};
   auto in = character_stat_game_instance::int_point;
   auto in1 = std::to_string(in);
   auto in2 = std::u16string{in1.begin(), in1.end()};

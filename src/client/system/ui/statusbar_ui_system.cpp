@@ -42,12 +42,6 @@ void statusbar_ui_system::render_backgrnd() {
   pos_rect = {base_x + 223, base_y + 40, static_cast<float>(gaugeLabel->w),
               static_cast<float>(gaugeLabel->h)};
   SDL_RenderTexture(window::renderer, gaugeLabel, nullptr, &pos_rect);
-
-  static auto chatBackgrnd = wz_resource::load_texture(
-      wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
-  pos_rect = {base_x + 7, base_y + 8, static_cast<float>(chatBackgrnd->w),
-              static_cast<float>(chatBackgrnd->h)};
-  SDL_RenderTexture(window::renderer, chatBackgrnd, nullptr, &pos_rect);
 }
 
 void statusbar_ui_system::render_gauge_text() {
@@ -378,11 +372,64 @@ void statusbar_ui_system::render_quickSlot() {
 }
 
 void statusbar_ui_system::render_chat() {
-  
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
+  if (chat.has_value()) {
+    static auto TargetSelect =
+        wz_resource::ui->find(u"StatusBar.img/chat/button:ChatTargetSelect");
+    SDL_FRect pos_rect{6, 11, 80, 18};
+    pos_rect.x += base_x;
+    pos_rect.y += base_y;
+    auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed =
+            wz_resource::load_texture(TargetSelect->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over =
+            wz_resource::load_texture(TargetSelect->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(TargetSelect->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+    freetype::load_size(12);
+    freetype::load_aligned(true);
+    freetype::load_color(255, 255, 255, 255);
+    auto w = freetype::load_w(chat_type.value());
+    freetype::draw_line(chat_type.value(), pos_rect.x + 40 - w / 2, pos_rect.y);
+    freetype::load_aligned(false);
+
+    static auto chatbackgrnd1 = wz_resource::load_texture(
+        wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd1"));
+    pos_rect.x = base_x;
+    pos_rect.y = base_y - 71;
+    pos_rect.w = chatbackgrnd1->w;
+    pos_rect.h = 76;
+
+    SDL_RenderTexture(window::renderer, chatbackgrnd1, nullptr, &pos_rect);
+  } else {
+    static auto chatBackgrnd = wz_resource::load_texture(
+        wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
+    SDL_FRect pos_rect = {
+        base_x + 7,
+        base_y + 8,
+        static_cast<float>(chatBackgrnd->w),
+        static_cast<float>(chatBackgrnd->h),
+    };
+    SDL_RenderTexture(window::renderer, chatBackgrnd, nullptr, &pos_rect);
+  }
 }
 
 bool statusbar_ui_system::render() {
   render_backgrnd();
+  render_chat();
   render_button();
   render_quickSlot();
   render_character_stat();
@@ -482,13 +529,14 @@ bool statusbar_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_KEY_UP: {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
-      case SDL_SCANCODE_RETURN:{
-
-        break;
-      }
-      default:{
-        break;
-      }
+    case SDL_SCANCODE_RETURN: {
+      chat = u"";
+      chat_type = u"All";
+      break;
+    }
+    default: {
+      break;
+    }
     }
   }
   default: {

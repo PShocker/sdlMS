@@ -4,6 +4,7 @@
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -18,7 +19,6 @@
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
-#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
 #include "src/client/system/logic/ball_logic_system.h"
@@ -57,6 +57,7 @@
 #include <ranges>
 #include <utility>
 #include <vector>
+
 
 bool scene_system_instance::render_game() {
   std::array<std::vector<game_character *>, 8> character_array;
@@ -141,7 +142,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   minimap_ui_system::load();
   package_game_instance::load();
   character_stat_game_instance::load();
-  character_game_instance::load_self_pos(prepare_pos);
+  character_game_instance::load_self();
   character_game_instance::clear_others();
   effect_game_instance::reset();
   camera_game_instance::reset();
