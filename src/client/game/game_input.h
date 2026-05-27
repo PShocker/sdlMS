@@ -31,4 +31,6 @@ public:
   std::string type;
   std::string val;
   std::string val2;
+
+  auto operator<=>(const game_input &) const = default;
 };

@@ -6,6 +6,7 @@
 #include "src/client/game/game_input.h"
 #include "src/client/game/game_mob.h"
 #include <cstdint>
+#include <flat_map>
 #include <flat_set>
 #include <string>
 #include <vector>
@@ -87,6 +88,7 @@ public:
   static bool run();
   static inline std::flat_set<std::string> character_action_input;
   static inline std::flat_set<std::string> character_skill_input;
+  static inline std::flat_set<game_input> character_item_input;
 
   static inline int32_t self_fh; // foothold
   static inline int32_t self_lr; // ladderrope

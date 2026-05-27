@@ -24,14 +24,16 @@ void wz_resource::init_key() {
 }
 
 void wz_resource::init_files() {
-  character = new wz::Files("Character/Character");
-  map = new wz::Files("Map/Map");
-  ui = new wz::Files("UI/UI");
-  mob = new wz::Files("Mob/Mob");
-  npc = new wz::Files("Npc/Npc");
-  skill = new wz::Files("Skill/Skill");
-  effect = new wz::Files("Effect/Effect");
-  string = new wz::Files("String/String");
+  character = new wz::Files("Data/", "Character/Character");
+  map = new wz::Files("Data/", "Map/Map");
+  ui = new wz::Files("Data/", "UI/UI");
+  mob = new wz::Files("Data/", "Mob/Mob");
+  npc = new wz::Files("Data/", "Npc/Npc");
+  skill = new wz::Files("Data/", "Skill/Skill");
+  effect = new wz::Files("Data/", "Effect/Effect");
+  string = new wz::Files("Data/", "String/String");
+
+  string2 = new wz::File("Data/String2.wz");
 }
 
 void wz_resource::init() {

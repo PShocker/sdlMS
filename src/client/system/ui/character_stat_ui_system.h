@@ -7,6 +7,7 @@
 class character_stat_ui_system {
 private:
   static void render_backgrnd();
+  static void render_text();
   static SDL_FPoint load_wh();
 
   static void event_top();

@@ -192,8 +192,8 @@ void character_render_system::render_tomb(game_character &g_character) {
   auto texture = wz_resource::load_texture(texture_node);
   auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
-      .x = g_character.pos.x - origin.x,
-      .y = g_character.pos.y - origin.y,
+      .x = g_character.pos.x - origin.x + tomb.pos.x,
+      .y = g_character.pos.y - origin.y + tomb.pos.y,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };

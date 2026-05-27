@@ -12,6 +12,7 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
@@ -138,6 +139,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   tooltip_game_instance::load(map_id);
   seat_game_instance::load(map_id);
   minimap_ui_system::load();
+  package_game_instance::load();
   character_stat_game_instance::load();
   character_game_instance::load_self_pos(prepare_pos);
   character_game_instance::clear_others();

@@ -27,11 +27,12 @@ void input_system::handle_ui_input(game_input &g_input) {
   fns.at(g_input.val)();
 }
 
-void input_system::handle_item_input(game_input &g_input) {
-  static const std::flat_map<std::string, void (*)()> fns = {
-      {"worldMap", worldmap_ui_system::toggle},
-  };
-  fns.at(g_input.val)();
+void input_system::handle_item_input(game_input &g_input, bool press) {
+  if (press) {
+    character_logic_system::character_item_input.insert(g_input);
+  } else {
+    character_logic_system::character_item_input.erase(g_input);
+  }
 }
 
 void input_system::handle_action_input(game_input &g_input, bool press) {

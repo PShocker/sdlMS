@@ -14,6 +14,8 @@ public:
   static inline uint32_t exp_point;
   static inline uint32_t exp_point_max;
 
+  static inline uint32_t fame;
+
   static inline uint32_t str_point;
   static inline uint32_t dex_point;
   static inline uint32_t int_point;

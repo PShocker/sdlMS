@@ -16,7 +16,7 @@ bool keyboard_input_system::event(SDL_Event *event) {
   if (event->type == SDL_EVENT_KEY_DOWN) {
     if (repeat == false) {
       if (g_input.type == "item") {
-        input_system::handle_item_input(g_input);
+        input_system::handle_item_input(g_input, true);
       } else if (g_input.type == "ui") {
         input_system::handle_ui_input(g_input);
       } else if (g_input.type == "action") {
@@ -26,7 +26,9 @@ bool keyboard_input_system::event(SDL_Event *event) {
       }
     }
   } else if (event->type == SDL_EVENT_KEY_UP) {
-    if (g_input.type == "action") {
+    if (g_input.type == "item") {
+      input_system::handle_item_input(g_input, false);
+    } else if (g_input.type == "action") {
       input_system::handle_action_input(g_input, false);
     } else if (g_input.type == "skill") {
       input_system::handle_skill_input(g_input, false);

@@ -7,6 +7,7 @@
 #include "game_face.h"
 #include "game_nametag.h"
 #include "game_tomb.h"
+#include "game_install.h"
 #include "src/client/game/game_effect.h"
 #include <cstdint>
 #include <flat_map>
@@ -55,6 +56,8 @@ public:
   std::vector<game_nametag> nametags;
 
   std::optional<game_chatballoon> chatballoon;
+
+  std::optional<game_install> install;
 
   SDL_FPoint pos;
 

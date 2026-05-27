@@ -11,4 +11,6 @@ public:
   static inline std::array<std::optional<game_item>, 64> etc;
   static inline std::array<std::optional<game_item>, 64> install;
   static inline std::array<std::optional<game_item>, 64> cash;
+
+  static void load();
 };

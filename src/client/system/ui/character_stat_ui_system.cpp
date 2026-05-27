@@ -1,12 +1,17 @@
 #include "character_stat_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <cstdint>
+#include <string>
 
 SDL_FPoint character_stat_ui_system::load_wh() { return {185, 281}; }
 
@@ -27,8 +32,110 @@ void character_stat_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, backgrnd_detail, nullptr, &pos_rect);
 }
 
+void character_stat_ui_system::render_text() {
+  SDL_FPoint p{pos.x + 60, pos.y + 32};
+  // name
+  const auto &self = character_game_instance::self;
+  auto &self_name = self.nametags[0].text;
+  freetype::load_size(12);
+  freetype::load_aligned(true);
+  freetype::load_color(0, 0, 0, 255);
+  freetype::draw_line(self_name, p.x, p.y);
+  // job
+  auto self_job = job_skill_game_instance::self_job;
+  p = {pos.x + 61, pos.y + 55};
+  static auto job_node = wz_resource::ui->find(u"CharacterStat.img/Main/Job");
+  auto job_texture = wz_resource::load_texture(
+      job_node->find(u"main/" + std::u16string{self_job[0]}));
+  SDL_FRect pos_rect{static_cast<float>((int)p.x), static_cast<float>((int)p.y),
+                     static_cast<float>(job_texture->w),
+                     static_cast<float>(job_texture->h)};
+  SDL_RenderTexture(window::renderer, job_texture, nullptr, &pos_rect);
+
+  // sub job
+  auto job_sub_node = job_node->find(u"sub/" + std::u16string{self_job[0]});
+  if (self_job == u"000") {
+    self_job = u"0";
+  }
+  auto sub_job_texture =
+      wz_resource::load_texture(job_sub_node->get_child(self_job));
+  pos_rect = {
+      static_cast<float>((int)p.x + 61),
+      static_cast<float>((int)p.y + 67),
+      static_cast<float>(sub_job_texture->w),
+      static_cast<float>(sub_job_texture->h),
+  };
+  SDL_RenderTexture(window::renderer, sub_job_texture, nullptr, &pos_rect);
+
+  // level
+  p = {pos.x + 60, pos.y + 79};
+  auto level = character_stat_game_instance::level;
+  auto level1 = std::to_string(level);
+  auto level2 = std::u16string{level1.begin(), level1.end()};
+  freetype::draw_line(level2, p.x, p.y);
+
+  // hp
+  p = {pos.x + 60, pos.y + 97};
+  auto hp = character_stat_game_instance::hp_point;
+  auto hp1 = std::to_string(hp);
+  auto hp2 = std::u16string{hp1.begin(), hp1.end()};
+  freetype::draw_line(hp2, p.x, p.y);
+
+  // mp
+  p = {pos.x + 60, pos.y + 115};
+  auto mp = character_stat_game_instance::mp_point;
+  auto mp1 = std::to_string(mp);
+  auto mp2 = std::u16string{mp1.begin(), mp1.end()};
+  freetype::draw_line(mp2, p.x, p.y);
+
+  // exp
+  p = {pos.x + 60, pos.y + 133};
+  auto exp = character_stat_game_instance::exp_point;
+  auto exp1 = std::to_string(exp);
+  auto exp2 = std::u16string{exp1.begin(), exp1.end()};
+  freetype::draw_line(exp2, p.x, p.y);
+
+  // fame
+  p = {pos.x + 60, pos.y + 133};
+  auto fame = character_stat_game_instance::fame;
+  auto fame1 = std::to_string(fame);
+  auto fame2 = std::u16string{fame1.begin(), fame1.end()};
+  freetype::draw_line(fame2, p.x, p.y);
+
+  // str
+  p = {pos.x + 60, pos.y + 175};
+  auto str = character_stat_game_instance::str_point;
+  auto str1 = std::to_string(str);
+  auto str2 = std::u16string{str1.begin(), str1.end()};
+  freetype::draw_line(str2, p.x, p.y);
+
+  // dex
+  p = {pos.x + 60, pos.y + 193};
+  auto dex = character_stat_game_instance::dex_point;
+  auto dex1 = std::to_string(dex);
+  auto dex2 = std::u16string{dex1.begin(), dex1.end()};
+  freetype::draw_line(dex2, p.x, p.y);
+
+  // int
+  p = {pos.x + 60, pos.y + 193};
+  auto in = character_stat_game_instance::int_point;
+  auto in1 = std::to_string(in);
+  auto in2 = std::u16string{in1.begin(), in1.end()};
+  freetype::draw_line(in2, p.x, p.y);
+
+  // luk
+  p = {pos.x + 60, pos.y + 229};
+  auto luk = character_stat_game_instance::luk_point;
+  auto luk1 = std::to_string(luk);
+  auto luk2 = std::u16string{luk1.begin(), luk1.end()};
+  freetype::draw_line(luk2, p.x, p.y);
+
+  freetype::load_aligned(false);
+}
+
 bool character_stat_ui_system::render() {
   render_backgrnd();
+  render_text();
   return true;
 }
 

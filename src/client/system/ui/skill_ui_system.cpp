@@ -17,8 +17,7 @@ SDL_FPoint skill_ui_system::load_wh() { return {197, 371}; }
 
 uint8_t skill_ui_system::load_skill_num() {
   auto self_job = job_skill_game_instance::self_job;
-  auto skill_node =
-      wz_resource::skill->find(std::to_string(self_job) + ".img/skill");
+  auto skill_node = wz_resource::skill->find(self_job + u".img/skill");
   return skill_node->children_count();
 }
 
@@ -131,7 +130,7 @@ void skill_ui_system::render_skill_entry() {
   auto self_job = job_skill_game_instance::self_job;
   // 根据active_tab获取技能组
   auto skill_group = std::pow(10, active_tab);
-  auto skill_node = wz_resource::skill->find(std::to_string(self_job) + ".img");
+  auto skill_node = wz_resource::skill->find(self_job + u".img");
 
   auto book_texture = wz_resource::load_texture(skill_node->find(u"info/icon"));
   SDL_FRect pos_rect{pos.x + 15, pos.y + 57,

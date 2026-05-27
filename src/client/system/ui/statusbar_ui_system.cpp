@@ -1,15 +1,19 @@
 #include "statusbar_ui_system.h"
+#include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_scancode.h"
 #include "skill_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Property.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -246,13 +250,20 @@ void statusbar_ui_system::render_character_stat() {
               static_cast<float>(gaugeCover->h)};
   SDL_RenderTexture(window::renderer, gaugeCover, nullptr, &pos_rect);
 
+  // job
+  auto job_node = wz_resource::string2->get_root()->find(
+      u"JobName.img/" + job_skill_game_instance::self_job);
+  auto job_name = static_cast<wz::Property<std::u16string> *>(job_node)->get();
+  freetype::load_size(12);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::load_aligned(true);
+  freetype::draw_line(job_name, base_x + 90, base_y + 38);
   // name
   const auto &self = character_game_instance::self;
   auto &self_name = self.nametags[0].text;
-  freetype::load_size(13);
+  freetype::load_size(12);
   freetype::load_color(255, 255, 255, 255);
-  freetype::load_aligned(true);
-  freetype::draw_line(self_name, base_x + 88, base_y + 54);
+  freetype::draw_line(self_name, base_x + 88, base_y + 52);
   freetype::load_aligned(false);
 
   // level
@@ -366,6 +377,10 @@ void statusbar_ui_system::render_quickSlot() {
   }
 }
 
+void statusbar_ui_system::render_chat() {
+  
+}
+
 bool statusbar_ui_system::render() {
   render_backgrnd();
   render_button();
@@ -463,6 +478,18 @@ bool statusbar_ui_system::event(SDL_Event *event) {
       }
     }
     break;
+  }
+  case SDL_EVENT_KEY_UP: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+      case SDL_SCANCODE_RETURN:{
+
+        break;
+      }
+      default:{
+        break;
+      }
+    }
   }
   default: {
     break;

@@ -3,6 +3,8 @@
 #include "SDL3/SDL_events.h"
 #include <cstdint>
 #include <flat_map>
+#include <optional>
+#include <string>
 
 class statusbar_ui_system {
 private:
@@ -11,6 +13,7 @@ private:
   static void render_button();
   static void render_quickSlot();
   static void render_character_stat();
+  static void render_chat();
   static SDL_FPoint load_wh();
 
   static bool event_button(SDL_Event *event);
@@ -27,7 +30,9 @@ private:
   static void event_button_quickslot();
   static void event_button_chatlog();
 
-  static inline bool quickSlot=true;
+  static inline bool quickSlot = true;
+
+  static inline std::optional<std::u16string> chat;
 
 public:
   static bool render();
