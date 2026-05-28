@@ -28,7 +28,7 @@ void equip_ui_system::render_equip_texture(std::u16string &id,
   const SDL_FPoint lt{4, 45};
 
   auto info = equip_game_instance::load_equip_info(id);
-  auto icon = wz_resource::load_texture(info->get_child(u"iconRaw"));
+  auto icon = wz_resource::load_texture(info->get_child(u"icon"));
   auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
   auto y = (int)pos.y + slot.y + lt.y + (32 - icon->h) / 2;
   SDL_FRect pos_rect{
