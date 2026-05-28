@@ -1,5 +1,6 @@
 #include "equip_ui_system.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -9,6 +10,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
 #include <algorithm>
+#include <string>
 
 SDL_FPoint equip_ui_system::load_wh() { return {175, 289}; }
 
@@ -23,12 +25,15 @@ void equip_ui_system::render_backgrnd() {
 
 void equip_ui_system::render_equip_texture(std::u16string &id,
                                            SDL_FPoint slot) {
-  auto info = equip_game_instance::load_equip_info(id);
-  auto icon = wz_resource::load_texture(info->get_child(u"icon"));
+  const SDL_FPoint lt{4, 45};
 
+  auto info = equip_game_instance::load_equip_info(id);
+  auto icon = wz_resource::load_texture(info->get_child(u"iconRaw"));
+  auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
+  auto y = (int)pos.y + slot.y + lt.y + (32 - icon->h) / 2;
   SDL_FRect pos_rect{
-      pos.x + slot.x,
-      pos.y + slot.y,
+      x,
+      y,
       static_cast<float>(icon->w),
       static_cast<float>(icon->h),
   };
@@ -47,6 +52,10 @@ const static SDL_FPoint weapon_slot{101, 89};
 
 void equip_ui_system::render_equip() {
   const auto &self = character_game_instance::self;
+  if (self.cap.has_value()) {
+    auto id = self.cap->id;
+    render_equip_texture(id, cap_slot);
+  }
   if (self.accessory.has_value()) {
     auto id = self.accessory->id;
     render_equip_texture(id, earacc_slot);
@@ -194,8 +203,48 @@ void equip_ui_system::render_equip_info() {
   }
 }
 
+void equip_ui_system::render_tab() {
+  static auto node = wz_resource::ui->find(u"Equipment.img/tab:mainTab");
+  const SDL_FPoint lt{5, 26};
+  const SDL_FPoint rb{167, 42};
+  for (auto i : {0, 1}) {
+    SDL_Texture *texture;
+    if (active_tab == i) {
+      texture = wz_resource::load_texture(
+          node->get_child(u"selected")->get_child(std::to_string(i)));
+    } else {
+      texture = wz_resource::load_texture(
+          node->get_child(u"normal")->get_child(std::to_string(i)));
+    }
+    SDL_FRect pos_rect = {
+        int(pos.x) + lt.x + texture->w * i,
+        int(pos.y) + lt.y,
+        static_cast<float>(texture->w),
+        static_cast<float>(texture->h),
+    };
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  }
+}
+
+void equip_ui_system::render_backgrnd2() {
+  const SDL_FPoint lt{4, 45};
+  if (active_tab == 0) {
+    static auto t = wz_resource::ui->find(u"Equipment.img/equip/backgrnd");
+    static auto texture = wz_resource::load_texture(t);
+    SDL_FRect pos_rect = {
+        int(pos.x) + lt.x,
+        int(pos.y) + lt.y,
+        static_cast<float>(texture->w),
+        static_cast<float>(texture->h),
+    };
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  }
+}
+
 bool equip_ui_system::render() {
   render_backgrnd();
+  render_backgrnd2();
+  render_tab();
   render_equip();
   render_equip_info();
   return true;

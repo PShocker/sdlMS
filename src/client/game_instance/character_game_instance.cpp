@@ -217,10 +217,11 @@ void character_game_instance::load_self_character() {
   add_head(self, u"00012000");
   add_coat(self, u"01040002");
   add_cap(self, u"01002005");
-  add_weapon(self, u"01382004");
+  add_weapon(self, u"01372006");
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
+  add_shield(self, u"01092003");
   load_self_nametag();
 }
 
@@ -299,6 +300,16 @@ void character_game_instance::load_others_character(
   };
   g_character.action =
       std::u16string{state->action.begin(), state->action.end()};
+  if (g_character.action == u"dead") {
+    game_tomb t{
+        .ani_type = u"land",
+        .ani_index = 0,
+        .ani_time = 0,
+        .pos = {g_character.pos.x, g_character.pos.y},
+        .b = g_character.pos,
+    };
+    g_character.tomb = t;
+  }
   g_character.action_index = state->action_index;
   g_character.action_time = 0;
   g_character.action_animate = c->character->state->action_animate;
@@ -620,6 +631,66 @@ void character_game_instance::add_weapon(game_character &g,
                               weapon_node->find(u"info/vslot"))
                               ->get());
     for (auto [k, v] : *weapon_node->get_children()) {
+      if (k == u"info") {
+        continue;
+      }
+      if (!bone_data.contains(k)) {
+        continue;
+      }
+      r.data[k].resize(v[0]->children_count());
+      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
+        auto format2 = std::to_string(frame);
+        auto body_frame_node = v[0]->get_child(format2);
+        for (auto [bk, bv] : *body_frame_node->get_children()) {
+          auto part_node = bv[0];
+          if (part_node->type == wz::Type::UOL) {
+            part_node =
+                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
+          }
+          if (part_node->type == wz::Type::Canvas) {
+            character_avatar c;
+            c.texture = wz_resource::load_texture(part_node);
+            c.z = static_cast<wz::Property<std::u16string> *>(
+                      part_node->get_child(u"z"))
+                      ->get();
+            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
+                           part_node->get_child(u"origin"))
+                           ->get();
+            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+            auto map_node =
+                part_node->get_child(u"map")->get_children()->begin();
+            auto part_name = map_node->first;
+            auto part_val = map_node->second[0];
+            auto part_val_pos =
+                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
+            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
+
+            c.pos = {parent_pos.x - part_val_pos.x,
+                     parent_pos.y - part_val_pos.y};
+            r.data[k][frame].push_back(c);
+          }
+        }
+      }
+    }
+  }
+}
+
+void character_game_instance::add_shield(game_character &g,
+                                         const std::u16string &val) {
+  game_equip g_equip;
+  g_equip.id = val;
+  g.shield = g_equip;
+  if (!avatar_data.contains(val)) {
+    character_avatar_render &r = avatar_data[val];
+    auto character_node = wz_resource::character;
+    auto shield_node = character_node->find(u"Shield/" + val + u".img");
+    r.islot = static_cast<wz::Property<std::u16string> *>(
+                  shield_node->find(u"info/islot"))
+                  ->get();
+    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
+                              shield_node->find(u"info/vslot"))
+                              ->get());
+    for (auto [k, v] : *shield_node->get_children()) {
       if (k == u"info") {
         continue;
       }

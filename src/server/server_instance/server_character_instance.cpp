@@ -37,6 +37,12 @@ void server_character_instance::save_state(uint64_t client_id,
     break;
   }
   case CharacterLogicType_Die: {
+    const auto d = m.payload.AsDie();
+    character->state->x = d->x;
+    character->state->y = d->y;
+    character->state->action = "dead";
+    character->state->action_index = 0;
+    character->state->action_animate = true;
     break;
   }
   default: {

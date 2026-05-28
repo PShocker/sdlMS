@@ -43,6 +43,11 @@ bool character_render_system::render_character(game_character &g_character) {
         character_game_instance::avatar_data.at(g_character.weapon->id);
     render_parts.emplace(weapon.islot, &weapon);
   }
+  if (g_character.shield.has_value()) {
+    const auto &shield =
+        character_game_instance::avatar_data.at(g_character.shield->id);
+    render_parts.emplace(shield.islot, &shield);
+  }
   if (g_character.pant.has_value()) {
     const auto &pant =
         character_game_instance::avatar_data.at(g_character.pant->id);
