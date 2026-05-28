@@ -47,9 +47,8 @@ void server_character_instance::save_state(uint64_t client_id,
 }
 
 void server_character_instance::send_logic(uint64_t client_id,
-                                           CharacterLogicTypeUnion &logic) {
-  const auto &client = server_client_instance::clients.at(client_id);
-  const auto client_map_id = client.map_id;
+                                           ClientCharacterLogicT &m) {
+  const auto client_map_id = m.map_id;
   auto clients = server_scene_instance::scenes[client_map_id].clients;
 
   // 移除当前客户端，只发给其他客户端
@@ -60,7 +59,7 @@ void server_character_instance::send_logic(uint64_t client_id,
                            // 关键：将union设置到payload中
   CharacterLogicT t2;
   t2.client_id = client_id;
-  t2.payload = logic;
+  t2.payload = m.payload;
   t.payload = std::make_unique<CharacterLogicT>(t2);
   // 广播给其他所有客户端
   for (const auto c : clients) {
@@ -73,7 +72,7 @@ void server_character_instance::handle_logic(uint64_t client_id,
   if (!server_client_instance::clients.contains(client_id)) {
     return;
   }
-  send_logic(client_id, m.payload);
+  send_logic(client_id, m);
   save_state(client_id, m);
 }
 

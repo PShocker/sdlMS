@@ -12,6 +12,7 @@ table ClientScene {
 }
 
 table ClientCharacterLogic {
+    map_id:uint32;
     payload:CharacterLogicType;
 }
 

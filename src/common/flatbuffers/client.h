@@ -172,6 +172,7 @@ inline ::flatbuffers::Offset<ClientScene> CreateClientScene(
 
 struct ClientCharacterLogicT : public ::flatbuffers::NativeTable {
   typedef ClientCharacterLogic TableType;
+  uint32_t map_id = 0;
   fbs::CharacterLogicTypeUnion payload{};
 };
 
@@ -179,9 +180,16 @@ struct ClientCharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   typedef ClientCharacterLogicT NativeTableType;
   typedef ClientCharacterLogicBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PAYLOAD_TYPE = 4,
-    VT_PAYLOAD = 6
+    VT_MAP_ID = 4,
+    VT_PAYLOAD_TYPE = 6,
+    VT_PAYLOAD = 8
   };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
   fbs::CharacterLogicType payload_type() const {
     return static_cast<fbs::CharacterLogicType>(GetField<uint8_t>(VT_PAYLOAD_TYPE, 0));
   }
@@ -220,6 +228,7 @@ struct ClientCharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_PAYLOAD_TYPE, 1) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
            VerifyCharacterLogicType(verifier, payload(), payload_type()) &&
@@ -266,6 +275,9 @@ struct ClientCharacterLogicBuilder {
   typedef ClientCharacterLogic Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientCharacterLogic::VT_MAP_ID, map_id, 0);
+  }
   void add_payload_type(fbs::CharacterLogicType payload_type) {
     fbb_.AddElement<uint8_t>(ClientCharacterLogic::VT_PAYLOAD_TYPE, static_cast<uint8_t>(payload_type), 0);
   }
@@ -285,10 +297,12 @@ struct ClientCharacterLogicBuilder {
 
 inline ::flatbuffers::Offset<ClientCharacterLogic> CreateClientCharacterLogic(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
     fbs::CharacterLogicType payload_type = fbs::CharacterLogicType_NONE,
     ::flatbuffers::Offset<void> payload = 0) {
   ClientCharacterLogicBuilder builder_(_fbb);
   builder_.add_payload(payload);
+  builder_.add_map_id(map_id);
   builder_.add_payload_type(payload_type);
   return builder_.Finish();
 }
@@ -601,6 +615,7 @@ inline ClientCharacterLogicT *ClientCharacterLogic::UnPack(const ::flatbuffers::
 inline void ClientCharacterLogic::UnPackTo(ClientCharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = payload_type(); _o->payload.type = _e; }
   { auto _e = payload(); if (_e) _o->payload.value = fbs::CharacterLogicTypeUnion::UnPack(_e, payload_type(), _resolver); }
 }
@@ -613,10 +628,12 @@ inline ::flatbuffers::Offset<ClientCharacterLogic> ClientCharacterLogic::Pack(::
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
   auto _payload_type = _o->payload.type;
   auto _payload = _o->payload.Pack(_fbb);
   return fbs::CreateClientCharacterLogic(
       _fbb,
+      _map_id,
       _payload_type,
       _payload);
 }

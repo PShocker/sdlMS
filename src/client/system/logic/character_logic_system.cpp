@@ -779,14 +779,15 @@ void character_logic_system::run_network_action_sync(
 
   // 节流：频率限制
   if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
-    ClientCharacterLogicT t;
+    ClientCharacterLogicT req;
+    req.map_id = scene_system_instance::map_id;
     ActionT a;
     a.action =
         std::string{g_character.action.begin(), g_character.action.end()};
     a.action_animate = g_character.action_animate;
     a.action_index = g_character.action_index;
-    t.payload.Set(a);
-    client_request::character_logic_request(t);
+    req.payload.Set(a);
+    client_request::character_logic_request(req);
     last_send_time = window::dt_now;
     last_action = false;
   } else {
@@ -812,11 +813,12 @@ void character_logic_system::run_network_flip_sync(
 
   // 节流：频率限制
   if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
-    ClientCharacterLogicT t;
+    ClientCharacterLogicT req;
+    req.map_id = scene_system_instance::map_id;
     FlipT f;
     f.flip = g_character.flip;
-    t.payload.Set(f);
-    client_request::character_logic_request(t);
+    req.payload.Set(f);
+    client_request::character_logic_request(req);
     last_send_time = window::dt_now;
     last_flip = false;
   } else {
@@ -855,6 +857,7 @@ void character_logic_system::run_network_movement_sync(
   // 节流：频率限制
   if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
     ClientCharacterLogicT req;
+    req.map_id = scene_system_instance::map_id;
     req.payload.Set(mv);
     client_request::character_logic_request(req);
     last_send_time = window::dt_now;
@@ -876,6 +879,7 @@ void character_logic_system::run_network_die_sync(game_character &g_character) {
   d.x = g_character.pos.x;
   d.y = g_character.pos.y;
   ClientCharacterLogicT req;
+  req.map_id = scene_system_instance::map_id;
   req.payload.Set(d);
   client_request::character_logic_request(req);
   return;
@@ -1049,7 +1053,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   }
   case action_enum::dead: {
     run_tomb(g_character);
-
+    return;
     break;
   }
   default: {
@@ -1091,7 +1095,7 @@ void character_logic_system::run_others_logic() {
         c.g_character.pos.y = per_y;
         c.g_character.page = mv.page;
         if (per >= 1.0f) {
-          c.logics.erase(c.logics.begin());
+          v.erase(v.begin());
         }
         break;
       }
@@ -1131,7 +1135,7 @@ void character_logic_system::run_others_logic() {
             .ani_type = u"fall",
             .ani_index = 0,
             .ani_time = 0,
-            .pos = {0, -200},
+            .pos = {d->x, d->y - 300},
             .b = c.g_character.pos,
         };
         c.g_character.tomb = t;
@@ -1173,6 +1177,10 @@ void character_logic_system::run_others_animate() {
       }
       break;
     }
+    case action_enum::dead: {
+      run_tomb(g_character);
+      break;
+    }
     default: {
       break;
     }
@@ -1210,7 +1218,7 @@ void character_logic_system::run_die_action(game_character &g_character) {
   }
   game_tomb t{
       .ani_type = u"fall",
-      .pos = {g_character.pos.x, g_character.pos.y - 200},
+      .pos = {g_character.pos.x, g_character.pos.y - 300},
       .b = g_character.pos,
   };
   g_character.tomb = t;

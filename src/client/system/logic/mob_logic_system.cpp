@@ -133,8 +133,9 @@ void mob_logic_system::run_collision() {
     character_stat_game_instance::hp_point -= 40;
     if (character_stat_game_instance::hp_point <= 0) {
       character_logic_system::run_die_action(self);
+    } else {
+      character_logic_system::run_network_sync(self, o_character);
     }
-    character_logic_system::run_network_sync(self, o_character);
   }
 }
 
@@ -258,7 +259,7 @@ void mob_logic_system::run_logic() {
         m.mob.pos.y = per_y;
         m.mob.page = mv.page;
         if (per == 1.0f) {
-          m.logics.erase(m.logics.begin());
+          v.erase(v.begin());
         }
         break;
       }
