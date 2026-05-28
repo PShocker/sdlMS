@@ -58,7 +58,6 @@
 #include <utility>
 #include <vector>
 
-
 bool scene_system_instance::render_game() {
   std::array<std::vector<game_character *>, 8> character_array;
   for (auto &other_data :
@@ -89,9 +88,7 @@ bool scene_system_instance::render_game() {
       reactor_render_system::render(reactor);
     }
     for (auto &effect : effect_game_instance::data[i]) {
-      auto &pos = effect.pos.value();
-      auto &flip = effect.flip.value();
-      effect_render_system::render(pos, effect, flip);
+      effect_render_system::render(effect);
     }
     for (auto &npc : npc_game_instance::data[i]) {
       npc_render_system::render(npc);

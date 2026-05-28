@@ -137,7 +137,7 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
 
     // 箭头
     SDL_FPoint p_arrow{
-        r_x + r_w / 2 - texture_arrow->w / 2,
+        r_x + r_w / 2 - (float)texture_arrow->w / 2,
         r_y + texture_nw->h + result_h - (origin_nw.y - origin_n.y),
     };
     rect.x = (p_arrow.x);

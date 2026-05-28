@@ -16,6 +16,7 @@ private:
 
 public:
   static bool render(SDL_FPoint pos, game_effect &g_effect, bool flip);
+  static bool render(game_effect &g_effect);
   static bool render_mob_back(game_mob &g_mob);
   static bool render_character_back(game_character *g_character);
 };

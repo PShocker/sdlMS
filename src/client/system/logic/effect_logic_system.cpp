@@ -9,6 +9,26 @@
 #include <cstdint>
 #include <ranges>
 
+bool effect_logic_system::run_damage(game_effect &g_effect) {
+  bool r = false;
+  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          std::chrono::system_clock::now().time_since_epoch())
+                          .count();
+  if (g_effect.delay >= current_time) {
+    return r;
+  }
+  if (g_effect.z == false) {
+    auto &mobs = mob_game_instance::data;
+    auto &mob = mobs.at(g_effect.time).mob;
+    g_effect.pos = SDL_FPoint{
+        g_effect.pos->x + mob.pos.x,
+        g_effect.pos->y + mob.pos.y,
+    };
+    g_effect.z = true;
+  }
+  return r;
+}
+
 bool effect_logic_system::run_afterimage(game_effect &g_effect) {
   bool r = false;
   auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -107,6 +127,7 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
     }
 
     case game_effect::effect_type::damage: {
+      remove = run_damage(g_effect);
       break;
     }
     default: {

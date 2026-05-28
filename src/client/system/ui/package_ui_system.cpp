@@ -56,6 +56,16 @@ void package_ui_system::render_tab() {
   }
 }
 
+void package_ui_system::render_info() {
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  if (cursor_in == render) {
+    if (active_tab == 0) {
+
+    } else {
+    }
+  }
+}
+
 void package_ui_system::render_items() {
   SDL_FPoint slot_pos{8, 51};
   const auto slot_space_x = 4;

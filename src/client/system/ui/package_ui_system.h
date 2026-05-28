@@ -10,6 +10,7 @@ private:
   static void render_backgrnd();
   static void render_tab();
   static void render_items();
+  static void render_info();
 
   static void event_button(SDL_Event *event);
   static void event_tab(SDL_Event *event);

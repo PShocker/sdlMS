@@ -175,7 +175,7 @@ void character_game_instance::load_self() {
   character_logic_system::self_fh = 0;
   character_logic_system::self_lr = 0;
 
-  self.tomb=std::nullopt;
+  self.tomb = std::nullopt;
 }
 
 SDL_FPoint character_game_instance::load_self_pos(const std::u16string &pn,
@@ -844,9 +844,10 @@ character_game_instance::load_self_fbs_character(const game_character &g) {
 void character_game_instance::load_character_attack(
     const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,
     game_character &g_character) {
-  auto &mob = mob_game_instance::data;
+  auto &mobs = mob_game_instance::data;
   for (uint32_t i = 0; i < v.size(); i++) {
     auto &ct = v[i];
+    auto &mob = mobs[ct->mob_index].mob;
     if (ct->afterimage) {
       game_effect e = {
           .id = afterimage_game_instance::load_hit_type(g_character),
@@ -857,13 +858,13 @@ void character_game_instance::load_character_attack(
           .pos = SDL_FPoint{ct->attack->x, ct->attack->y},
           .z = false,
       };
-      mob[ct->mob_index].mob.effect.push_back(e);
+      mob.effect.push_back(e);
     }
     // 伤害数字
     game_effect d = {
         .id = u"",
         .index = i,
-        .time = 0,
+        .time = mob.index,
         .delay = ct->attack->delay,
         .type = game_effect::effect_type::damage,
         .pos = SDL_FPoint{ct->attack->x, ct->attack->y},

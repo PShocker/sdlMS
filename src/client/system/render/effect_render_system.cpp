@@ -43,6 +43,13 @@ void effect_render_system::render_afterimage(SDL_FPoint pos,
 
 void effect_render_system::render_damage(SDL_FPoint pos,
                                          game_effect &g_effect) {
+  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          std::chrono::system_clock::now().time_since_epoch())
+                          .count();
+  if (current_time <= g_effect.delay) {
+    return;
+  }
+  auto delta = 255 - (current_time - g_effect.delay);
   static auto red0 = wz_resource::effect->find(u"BasicEff.img/NoRed0");
   enum damage_type {
     n_0,
@@ -70,15 +77,18 @@ void effect_render_system::render_damage(SDL_FPoint pos,
     auto texture_node = red0->get_child(std::string{n});
     auto texture = wz_resource::load_texture(texture_node);
     auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
+    auto x = pos.x - origin.x + w;
+    auto y = pos.y - origin.y - g_effect.index * texture->h - (255 - delta);
     SDL_FRect pos_rect = {
-        .x = pos.x - origin.x + w,
-        .y = pos.y - origin.y,
+        .x = x,
+        .y = y,
         .w = static_cast<float>(texture->w),
         .h = static_cast<float>(texture->h),
     };
     if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
       pos_rect.x -= camera.x;
       pos_rect.y -= camera.y;
+      SDL_SetTextureAlphaMod(texture, delta);
       SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
     }
     w += texture->w;
@@ -196,5 +206,12 @@ bool effect_render_system::render_character_back(game_character *g_character) {
       render(g_character->pos, e, g_character->flip);
     }
   }
+  return true;
+}
+
+bool effect_render_system::render(game_effect &g_effect) {
+  const auto &pos = g_effect.pos.value();
+  const auto &flip = g_effect.flip.value();
+  effect_render_system::render(pos, g_effect, flip);
   return true;
 }

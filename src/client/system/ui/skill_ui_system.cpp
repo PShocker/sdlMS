@@ -7,6 +7,7 @@
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include "tooltip_ui_system.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -270,11 +271,17 @@ void skill_ui_system::render_scroll() {
   return;
 }
 
+void skill_ui_system::render_info() {
+  // tooltip_ui_system::render_skill(std::u16string id, uint8_t level, float x,
+  // float y)
+}
+
 bool skill_ui_system::render() {
   render_backgrnd();
   render_skill_entry();
   render_scroll();
   render_tab();
+  render_info();
   return true;
 }
 
