@@ -6,7 +6,7 @@
 
 void tooltip_ui_system::render_equip(game_equip &equip, float x, float y) {
   // backgrnd
-  static auto backgrnd_node = wz_resource::ui->find(u"UI/UIToolTip.img/Item");
+  static auto backgrnd_node = wz_resource::ui->find(u"UIToolTip.img/Item");
   static auto top =
       wz_resource::load_texture(backgrnd_node->find(u"Frame/top"));
   static auto line =
@@ -37,7 +37,7 @@ void tooltip_ui_system::render_skill(std::u16string id, uint8_t level, float x,
                                      float y) {
   // backgrnd
   static auto backgrnd_node =
-      wz_resource::ui->find(u"UI/UIToolTip.img/Skill/Frame");
+      wz_resource::ui->find(u"UIToolTip.img/Skill/Frame");
 
   auto texture_c = wz_resource::load_texture(backgrnd_node->get_child(u"c"));
   auto texture_e =
@@ -111,4 +111,42 @@ void tooltip_ui_system::render_skill(std::u16string id, uint8_t level, float x,
   rect.w = texture_se->w;
   rect.h = texture_se->h;
   SDL_RenderTexture(window::renderer, texture_se, nullptr, &rect);
+}
+
+void tooltip_ui_system::render_item(game_item &item, float x, float y) {
+  static auto node = wz_resource::string->find(u"Etc.img");
+  auto node2 = node->get_child(item.id);
+  auto name =
+      static_cast<wz::Property<std::u16string> *>(node2->get_child(u"name"))
+          ->get();
+  auto desc =
+      static_cast<wz::Property<std::u16string> *>(node2->get_child(u"desc"))
+          ->get();
+}
+
+void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {
+  // backgrnd
+  static auto backgrnd_node = wz_resource::ui->find(u"UIToolTip.img/Item");
+  static auto top =
+      wz_resource::load_texture(backgrnd_node->find(u"Frame/top"));
+  static auto line =
+      wz_resource::load_texture(backgrnd_node->find(u"Frame/line"));
+  static auto bottom =
+      wz_resource::load_texture(backgrnd_node->find(u"Frame/bottom"));
+  const auto h = 100;
+  SDL_FRect pos_rect{
+      x,
+      y,
+      static_cast<float>(top->w),
+      static_cast<float>(top->h),
+  };
+  SDL_RenderTexture(window::renderer, top, nullptr, &pos_rect);
+
+  pos_rect.y = y + h - bottom->h;
+  pos_rect.h = bottom->h;
+  SDL_RenderTexture(window::renderer, bottom, nullptr, &pos_rect);
+
+  pos_rect.y = y + top->h;
+  pos_rect.h = h - top->h - bottom->h;
+  SDL_RenderTexture(window::renderer, line, nullptr, &pos_rect);
 }

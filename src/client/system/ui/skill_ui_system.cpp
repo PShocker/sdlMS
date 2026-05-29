@@ -8,6 +8,7 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
+#include "wz/Property.h"
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -272,8 +273,8 @@ void skill_ui_system::render_scroll() {
 }
 
 void skill_ui_system::render_info() {
-  // tooltip_ui_system::render_skill(std::u16string id, uint8_t level, float x,
-  // float y)
+  tooltip_ui_system::render_skill(u"0001000", 1, 0, 0);
+  
 }
 
 bool skill_ui_system::render() {

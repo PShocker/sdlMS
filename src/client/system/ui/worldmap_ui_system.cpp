@@ -6,6 +6,7 @@
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include "tooltip_ui_system.h"
 #include "wz/Property.h"
 #include <algorithm>
 #include <cstdint>
@@ -95,6 +96,8 @@ void worldmap_ui_system::render_spot() {
   auto map_ox = (wh.x - 12) / 2;
   auto map_oy = (wh.y - 44) / 2;
 
+  auto &mouse_pos = window::mouse_pos;
+  uint32_t spot_info_id = 0;
   for (auto &spot : spots) {
     auto texture = map_img_array[spot.type];
     SDL_FRect pos_rect = {
@@ -104,6 +107,12 @@ void worldmap_ui_system::render_spot() {
                                (float)texture->h / 2)),
         static_cast<float>(texture->w), (float)texture->h};
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      spot_info_id = *spot.map_id.begin();
+    }
+  }
+  if (spot_info_id != 0) {
+    render_spot_info(spot_info_id, mouse_pos.x, mouse_pos.y);
   }
 }
 
@@ -113,6 +122,10 @@ void worldmap_ui_system::render_map() {
   SDL_FRect pos_rect = {pos.x + map_offset.x, pos.y + map_offset.y,
                         static_cast<float>(texture->w), (float)texture->h};
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+}
+
+void worldmap_ui_system::render_spot_info(uint32_t id, float x, float y) {
+  tooltip_ui_system::render_world_map_info(id, x, y);
 }
 
 bool worldmap_ui_system::render() {

@@ -34,5 +34,5 @@ bool keyboard_input_system::event(SDL_Event *event) {
       input_system::handle_skill_input(g_input, false);
     }
   }
-  return true;
+  return false;
 }

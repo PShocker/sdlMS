@@ -38,6 +38,12 @@ table Character{
     appearance:CharacterAppearance;
 }
 
+table CharacterState{
+    hp:uint32;
+    mp:uint32;
+    attack_speed:float;
+}
+
 table Movement{
     x1:float;
     y1:float;

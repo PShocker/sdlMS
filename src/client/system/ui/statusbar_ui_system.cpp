@@ -251,7 +251,7 @@ void statusbar_ui_system::render_character_stat() {
   freetype::load_size(12);
   freetype::load_color(255, 255, 255, 255);
   freetype::load_aligned(true);
-  freetype::draw_line(job_name, base_x + 90, base_y + 36);
+  freetype::draw_line(job_name, base_x + 88, base_y + 36);
   // name
   const auto &self = character_game_instance::self;
   auto &self_name = self.nametags[0].text;

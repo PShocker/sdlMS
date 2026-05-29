@@ -12,6 +12,7 @@ private:
   static void render_backgrnd();
   static void render_map();
   static void render_spot();
+  static void render_spot_info(uint32_t id, float x, float y);
 
   static SDL_FPoint load_wh();
   static void event_top();

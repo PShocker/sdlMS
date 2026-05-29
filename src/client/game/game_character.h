@@ -5,9 +5,9 @@
 #include "game_chatballoon.h"
 #include "game_equip.h"
 #include "game_face.h"
+#include "game_install.h"
 #include "game_nametag.h"
 #include "game_tomb.h"
-#include "game_install.h"
 #include "src/client/game/game_effect.h"
 #include <cstdint>
 #include <flat_map>
@@ -15,6 +15,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+
 
 class game_character {
 
@@ -69,4 +70,6 @@ public:
   std::vector<game_effect> effect;
   std::optional<std::u16string> skill;
   std::optional<game_tomb> tomb;
+
+  float attack_speed = 1.0f;
 };
