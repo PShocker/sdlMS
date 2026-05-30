@@ -12,6 +12,7 @@ public:
 
   uint32_t index = 0;
   uint32_t time = 0;
+  uint8_t alpha = 255;
 
   uint64_t delay;
 

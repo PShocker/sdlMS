@@ -96,12 +96,6 @@ character_logic_system::run_attack_check(game_character &g_character,
   return v;
 }
 
-std::vector<character_logic_system::attack_data>
-character_logic_system::run_shoot_check2(game_character &g_character) {
-  std::vector<attack_data> v;
-  return v;
-}
-
 bool character_logic_system::run_action(game_character &g_character,
                                         const std::u16string &action) {
   if (g_character.action == action) {
@@ -639,7 +633,6 @@ bool character_logic_system::run_attack(game_character &g_character) {
       bool shoot_weapon = shoot_weapons.contains(weapon_type);
       const std::vector<std::u16string> *actions;
       if (shoot_weapon) {
-        atk_mobs = run_shoot_check(g_character);
         if (!atk_mobs.empty()) {
           actions = &weapon_attack_action2.at(weapon_type);
         } else {
@@ -704,33 +697,32 @@ bool character_logic_system::run_portal(game_character &g_character) {
           game_character::abnormal_state_type::dizz)) {
     return false;
   }
-  if (character_action_input.contains("up")) {
-    if (self_portal_cooldown <= window::dt_now) {
-      for (const auto &por : portal_game_instance::data | std::views::values) {
-        if (por.tm == 999999999) {
-          continue;
-        }
-        if (por.pt == 1 || por.pt == 2) {
-          const auto &g_pos = g_character.pos;
-          const auto &p_pos = por.pos;
-          if (g_pos.x == std::clamp(g_pos.x, p_pos.x - 40, p_pos.x + 40) &&
-              g_pos.y == std::clamp(g_pos.y, p_pos.y - 50, p_pos.y + 50)) {
-            if (por.tm != scene_system_instance::map_id) {
-              // need to change map
-              scene_system_instance::enter_prepare(por.tm, por.tn, 0);
-              self_portal_cooldown = window::dt_now + 1500;
-            } else {
-              // no change map
-              const auto &tn = portal_game_instance::data.find(por.tn)->second;
-              g_character.pos = tn.pos;
-              g_character.pos.y -= 5;
-              self_hspeed = 0;
-              self_vspeed = 0;
-              self_fh = 0;
-              run_action(g_character, u"jump");
-              self_portal_cooldown = window::dt_now + 1200;
-              return true;
-            }
+  bool up = character_action_input.contains("up");
+  if (self_portal_cooldown <= window::dt_now) {
+    for (const auto &por : portal_game_instance::data | std::views::values) {
+      if (por.tm == 999999999) {
+        continue;
+      }
+      if ((por.pt == 1 || por.pt == 2 && up) || por.pt == 3) {
+        const auto &g_pos = g_character.pos;
+        const auto &p_pos = por.pos;
+        if (g_pos.x == std::clamp(g_pos.x, p_pos.x - 40, p_pos.x + 40) &&
+            g_pos.y == std::clamp(g_pos.y, p_pos.y - 50, p_pos.y + 50)) {
+          if (por.tm != scene_system_instance::map_id) {
+            // need to change map
+            scene_system_instance::enter_prepare(por.tm, por.tn, 0);
+            self_portal_cooldown = window::dt_now + 1500;
+          } else {
+            // no change map
+            const auto &tn = portal_game_instance::data.find(por.tn)->second;
+            g_character.pos = tn.pos;
+            g_character.pos.y -= 5;
+            self_hspeed = 0;
+            self_vspeed = 0;
+            self_fh = 0;
+            run_action(g_character, u"jump");
+            self_portal_cooldown = window::dt_now + 1200;
+            return true;
           }
         }
       }
@@ -998,6 +990,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (run_attack(g_character)) {
       break;
     }
+    if (run_portal(g_character)) {
+      break;
+    }
     break;
   }
   case action_enum::jump: {
@@ -1013,6 +1008,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (run_climb(g_character)) {
       break;
     }
+    if (run_portal(g_character)) {
+      break;
+    }
     break;
   }
   case action_enum::climb: {
@@ -1023,6 +1021,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     }
     if (!run_climbing(g_character)) {
       run_action(g_character, u"jump");
+    }
+    if (run_portal(g_character)) {
+      break;
     }
     break;
   }

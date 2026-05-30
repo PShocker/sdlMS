@@ -49,7 +49,9 @@ void effect_render_system::render_damage(SDL_FPoint pos,
   if (current_time <= g_effect.delay) {
     return;
   }
-  auto delta = 255 - (current_time - g_effect.delay);
+  if (g_effect.z == false) {
+    return;
+  }
   static auto red0 = wz_resource::effect->find(u"BasicEff.img/NoRed0");
   enum damage_type {
     n_0,
@@ -78,7 +80,8 @@ void effect_render_system::render_damage(SDL_FPoint pos,
     auto texture = wz_resource::load_texture(texture_node);
     auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
     auto x = pos.x - origin.x + w;
-    auto y = pos.y - origin.y - g_effect.index * texture->h - (255 - delta);
+    auto y = pos.y - origin.y - g_effect.index * texture->h -
+             (255 - g_effect.alpha) / 5;
     SDL_FRect pos_rect = {
         .x = x,
         .y = y,
@@ -88,7 +91,7 @@ void effect_render_system::render_damage(SDL_FPoint pos,
     if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
       pos_rect.x -= camera.x;
       pos_rect.y -= camera.y;
-      SDL_SetTextureAlphaMod(texture, delta);
+      SDL_SetTextureAlphaMod(texture, g_effect.alpha);
       SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
     }
     w += texture->w;

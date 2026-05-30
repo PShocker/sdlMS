@@ -20,9 +20,7 @@ private:
   };
   static std::vector<attack_data> run_attack_check(game_character &g_character,
                                                    SDL_FRect g_r);
-
   static std::vector<attack_data> run_shoot_check(game_character &g_character);
-  static std::vector<attack_data> run_shoot_check2(game_character &g_character);
 
   static void run_network_action_sync(game_character &g_character,
                                       game_character &o_character);

@@ -916,6 +916,7 @@ void character_game_instance::load_character_attack(
     const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,
     game_character &g_character) {
   auto &mobs = mob_game_instance::data;
+  std::flat_multiset<uint32_t> mob_hit;
   for (uint32_t i = 0; i < v.size(); i++) {
     auto &ct = v[i];
     auto &mob = mobs[ct->mob_index].mob;
@@ -934,15 +935,16 @@ void character_game_instance::load_character_attack(
     // 伤害数字
     game_effect d = {
         .id = u"",
-        .index = i,
+        .index = (uint32_t)mob_hit.count(mob.index),
         .time = mob.index,
         .delay = ct->attack->delay,
         .type = game_effect::effect_type::damage,
-        .pos = SDL_FPoint{ct->attack->x, ct->attack->y},
+        .pos = SDL_FPoint{ct->attack->x, ct->attack->y - 10},
         .z = false,
         .flip = false,
         .data = (int32_t)ct->attack->num,
     };
+    mob_hit.insert(mob.index);
     effect_game_instance::data[7].emplace_back(d);
   }
 }

@@ -26,6 +26,12 @@ bool effect_logic_system::run_damage(game_effect &g_effect) {
     };
     g_effect.z = true;
   }
+  int32_t a = g_effect.alpha - window::delta_time / 4;
+  if (a <= 0) {
+    r = true;
+  } else {
+    g_effect.alpha = a;
+  }
   return r;
 }
 
