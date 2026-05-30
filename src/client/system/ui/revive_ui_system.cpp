@@ -171,9 +171,6 @@ bool revive_ui_system::event_button(SDL_Event *event) {
   const static std::array buttons_func = {
       event_button_ok,
   };
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
-  auto [w, h] = load_wh();
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];

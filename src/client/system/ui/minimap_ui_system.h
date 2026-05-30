@@ -22,6 +22,11 @@ private:
   static void render_mini();
   static void render_name();
 
+
+  static void event_world_map();
+  static void event_min();
+  static void event_max();
+
   static bool event_button(SDL_Event *event);
   static void event_top();
   static void event_drag_start(SDL_Event *event);
@@ -47,6 +52,7 @@ public:
   struct map_name {
     std::u16string street_name;
     std::u16string map_name;
+    std::u16string map_desc = u"";
   };
   static map_name load_map_name(uint32_t map_id);
 

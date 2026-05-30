@@ -21,6 +21,9 @@ void backgrnd_game_instance::load(uint32_t map_id) {
     auto bs = static_cast<wz::Property<std::u16string> *>(
                   backgrnd_node->get_child(u"bS"))
                   ->get();
+    if (bs == u"") {
+      continue;
+    }
 
     auto x =
         static_cast<wz::Property<int> *>(backgrnd_node->get_child(u"x"))->get();

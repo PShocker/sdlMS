@@ -7,6 +7,9 @@
 #include <cstdint>
 #include <string>
 class tooltip_ui_system {
+private:
+  static void render_backgrnd(float x, float y, float w, float h);
+
 public:
   static void render_equip(game_equip &equip, float x, float y);
   static void render_item(game_item &item, float x, float y);

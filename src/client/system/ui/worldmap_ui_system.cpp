@@ -107,6 +107,10 @@ void worldmap_ui_system::render_spot() {
                                (float)texture->h / 2)),
         static_cast<float>(texture->w), (float)texture->h};
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    pos_rect.x -= 5;
+    pos_rect.y -= 5;
+    pos_rect.w += 5;
+    pos_rect.h += 5;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       spot_info_id = *spot.map_id.begin();
     }

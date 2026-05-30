@@ -1,5 +1,6 @@
 #include "minimap_ui_system.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -7,6 +8,7 @@
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -20,8 +22,44 @@
 #include <flat_map>
 #include <ranges>
 #include <string>
+#include <vector>
 
-void minimap_ui_system::render_mini() {}
+void minimap_ui_system::render_mini() {
+  static auto w =
+      wz_resource::load_texture(wz_resource::ui->find(u"MiniMap.img/Min/w"));
+  static auto c =
+      wz_resource::load_texture(wz_resource::ui->find(u"MiniMap.img/Min/c"));
+  static auto e =
+      wz_resource::load_texture(wz_resource::ui->find(u"MiniMap.img/Min/e"));
+  auto map_id = scene_system_instance::map_id;
+  auto map_name = load_map_name(map_id);
+  auto s1 = map_name.street_name;
+  auto s2 = map_name.map_name;
+  auto s = s1 + u":" + s2;
+  freetype::load_size(14);
+  freetype::load_aligned(true);
+  freetype::load_color(0, 0, 0, 255);
+  auto l = load_wh().x;
+  SDL_FRect pos_rect{
+      pos.x,
+      pos.y,
+      static_cast<float>(w->w),
+      static_cast<float>(w->h),
+  };
+  SDL_SetTextureAlphaMod(w, 162);
+  SDL_RenderTexture(window::renderer, w, nullptr, &pos_rect);
+
+  pos_rect.x += w->w;
+  pos_rect.w = l - w->w - e->w;
+  SDL_SetTextureAlphaMod(c, 162);
+  SDL_RenderTexture(window::renderer, c, nullptr, &pos_rect);
+  freetype::draw_line(s, pos_rect.x, pos_rect.y);
+
+  pos_rect.x = pos.x + l - e->w;
+  pos_rect.w = e->w;
+  SDL_SetTextureAlphaMod(e, 162);
+  SDL_RenderTexture(window::renderer, e, nullptr, &pos_rect);
+}
 
 static SDL_FPoint backgrnd_min_wh;
 
@@ -29,8 +67,10 @@ static SDL_FPoint backgrnd_max_wh;
 
 SDL_Texture *minimap_ui_system::load_canvas_texture() {
   auto map_node = wz_resource::load_map_node(scene_system_instance::map_id);
-  auto minimap_node = map_node->get_child(u"miniMap");
-  return wz_resource::load_texture(minimap_node->get_child(u"canvas"));
+  if (auto minimap_node = map_node->get_child(u"miniMap")) {
+    return wz_resource::load_texture(minimap_node->get_child(u"canvas"));
+  }
+  return nullptr;
 }
 
 void minimap_ui_system::render_min_backgrnd() {
@@ -157,16 +197,38 @@ void minimap_ui_system::render_max_backgrnd() {
 }
 
 void minimap_ui_system::render_button() {
-  const static std::array buttons_node = {
+  const static std::array buttons_nodes = {
       wz_resource::ui->find(u"MiniMap.img/BtMap"),
       wz_resource::ui->find(u"MiniMap.img/BtMin"),
       wz_resource::ui->find(u"MiniMap.img/BtMax"),
   };
-  const std::array buttons_rect = {
+  std::array buttons_rect = {
       SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12}, //
       SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12}, //
       SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12}, //
   };
+  std::vector<wz::Node *> buttons_node;
+  std::vector<bool> r = {true, true, true};
+  if (disable) {
+    buttons_node = {
+        buttons_nodes[1],
+        buttons_nodes[2],
+    };
+    auto wh = load_wh();
+    buttons_rect = {
+        SDL_FRect{wh.x - 34, 4, 12, 12}, //
+        SDL_FRect{wh.x - 20, 4, 12, 12}, //
+    };
+    if (load_canvas_texture() == nullptr) {
+      r = {false, false};
+    }
+  } else {
+    buttons_node = {
+        buttons_nodes[0],
+        buttons_nodes[1],
+        buttons_nodes[2],
+    };
+  }
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
@@ -176,7 +238,11 @@ void minimap_ui_system::render_button() {
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+    if (r[i] == false) {
+      auto normal = wz_resource::load_texture(k->find(u"disabled/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
+               cursor_in == render) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -423,6 +489,9 @@ minimap_ui_system::map_name minimap_ui_system::load_map_name(uint32_t map_id) {
         desc.map_name = static_cast<wz::Property<std::u16string> *>(
                             v2[0]->get_child(u"mapName"))
                             ->get();
+        if (auto d = v2[0]->get_child(u"mapDesc")) {
+          desc.map_desc = static_cast<wz::Property<std::u16string> *>(d)->get();
+        }
         cache[id] = desc;
       }
     }
@@ -482,18 +551,21 @@ bool minimap_ui_system::render() {
     } else {
       render_min_backgrnd();
     }
-    render_button();
     render_canvas();
     render_canvas_life();
   } else {
     render_mini();
   }
+  render_button();
   return true;
 }
 
 bool minimap_ui_system::cursor_in() {
   SDL_FRect pos_rect;
-  if (!max) {
+  if (disable) {
+    auto wh = load_wh();
+    pos_rect = {pos.x, pos.y, wh.x, wh.y};
+  } else if (!max) {
     pos_rect = {pos.x, pos.y, backgrnd_min_wh.x, backgrnd_min_wh.y};
   } else {
     pos_rect = {pos.x, pos.y, backgrnd_max_wh.x, backgrnd_max_wh.y};
@@ -501,7 +573,76 @@ bool minimap_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&window::mouse_pos, &pos_rect);
 }
 
-bool minimap_ui_system::event_button(SDL_Event *event) { return true; }
+void minimap_ui_system::event_world_map() {
+  worldmap_ui_system::toggle();
+  return;
+}
+
+void minimap_ui_system::event_min() {
+  if (max) {
+    max = false;
+    disable = false;
+  } else {
+    disable = true;
+  }
+  return;
+}
+
+void minimap_ui_system::event_max() {
+  if (disable) {
+    if (load_canvas_texture() == nullptr) {
+      return;
+    }
+    disable = false;
+    max = false;
+  } else {
+    max = true;
+  }
+  auto &camera = camera_game_instance::camera;
+  auto [w, h] = load_wh();
+  pos.x = std::clamp(pos.x, (float)0, camera.w - w);
+  pos.y = std::clamp(pos.y, (float)0, camera.h - h);
+  return;
+}
+
+bool minimap_ui_system::event_button(SDL_Event *event) {
+  std::vector<SDL_FRect> r;
+  std::vector<void (*)()> fns;
+  if (disable) {
+    auto wh = load_wh();
+    r = {
+        SDL_FRect{wh.x - 34, 4, 12, 12}, //
+        SDL_FRect{wh.x - 20, 4, 12, 12}, //
+    };
+    fns = {
+        event_min,
+        event_max,
+    };
+  } else {
+    r = {
+        SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12}, //
+        SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12}, //
+        SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12}, //
+    };
+    fns = {
+        event_world_map,
+        event_min,
+        event_max,
+    };
+  }
+
+  for (size_t i = 0; i < r.size(); ++i) {
+    auto pos_rect = r[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      fns[i]();
+      return true;
+    }
+  }
+
+  return false;
+}
 
 void minimap_ui_system::event_top() {
   std::erase(system::render_systems, render);
@@ -512,7 +653,8 @@ void minimap_ui_system::event_top() {
 }
 
 void minimap_ui_system::event_drag_start(SDL_Event *event) {
-  SDL_FRect pos_rect = {pos.x, pos.y, backgrnd_min_wh.x, 20};
+  auto w = load_wh().x;
+  SDL_FRect pos_rect = {pos.x, pos.y, w, 20};
   SDL_FPoint mouse_pos = {event->button.x, event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     drag = {pos.x - event->button.x, pos.y - event->button.y};
@@ -526,7 +668,16 @@ void minimap_ui_system::event_drag_end() {
 }
 
 SDL_FPoint minimap_ui_system::load_wh() {
-  if (max) {
+  if (disable) {
+    auto map_id = scene_system_instance::map_id;
+    auto map_name = load_map_name(map_id);
+    auto s1 = map_name.street_name;
+    auto s2 = map_name.map_name;
+    auto s = s1 + u":" + s2;
+    freetype::load_size(14);
+    SDL_FPoint r{freetype::load_w(s) + 72, 20};
+    return r;
+  } else if (max) {
     return backgrnd_max_wh;
   } else {
     return backgrnd_min_wh;
@@ -559,6 +710,9 @@ bool minimap_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        r = !event_button(event);
+      }
       event_drag_end();
     }
     break;
@@ -589,7 +743,13 @@ void minimap_ui_system::load() {
   backgrnd_max_wh.x = std::max(w, 240.0f);
   backgrnd_min_wh.x = std::max(w, 240.0f);
 
-  auto texture = load_canvas_texture();
-  backgrnd_max_wh.y = std::clamp(texture->h, 180, 220);
-  backgrnd_min_wh.y = std::clamp(texture->h, 180, 220);
+  if (auto texture = load_canvas_texture()) {
+    backgrnd_max_wh.y = std::clamp(texture->h, 180, 220);
+    backgrnd_min_wh.y = std::clamp(texture->h, 180, 220);
+    max = true;
+    disable = false;
+  } else {
+    max = false;
+    disable = true;
+  }
 }
