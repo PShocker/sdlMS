@@ -703,7 +703,7 @@ bool character_logic_system::run_portal(game_character &g_character) {
       if (por.tm == 999999999) {
         continue;
       }
-      if ((por.pt == 1 || por.pt == 2 && up) || por.pt == 3) {
+      if (((por.pt == 1 || por.pt == 2) && up) || por.pt == 3) {
         const auto &g_pos = g_character.pos;
         const auto &p_pos = por.pos;
         if (g_pos.x == std::clamp(g_pos.x, p_pos.x - 40, p_pos.x + 40) &&

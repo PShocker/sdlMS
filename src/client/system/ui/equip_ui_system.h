@@ -13,7 +13,13 @@ private:
   static void render_equip();
   static void render_equip_info();
   static void render_equip_texture(std::u16string &id, SDL_FPoint slot);
+  static void render_button();
+
   static SDL_FPoint load_wh();
+
+  static void event_close();
+
+  static bool event_button(SDL_Event *event);
   static void event_top();
   static void event_drag_start(SDL_Event *event);
   static void event_drag_end();

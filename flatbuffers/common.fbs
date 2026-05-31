@@ -33,7 +33,7 @@ table CharacterAppearance{
 }
 
 table Character{
-    name:string;
+    name:[uint16];
     state:LifeState;
     appearance:CharacterAppearance;
 }

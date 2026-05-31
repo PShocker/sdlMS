@@ -2,7 +2,10 @@
 #include "src/client/window/window.h"
 #include <cstdint>
 #include <flat_map>
+#include <ft2build.h>
 #include <string>
+#include FT_FREETYPE_H
+#include FT_SYNTHESIS_H // 这个宏对应 ftsynth.h
 
 void freetype::load_size(uint8_t i) {
   size = i;
@@ -60,6 +63,8 @@ float freetype::load_h(const std::u16string &str, float w) {
 
 void freetype::load_aligned(bool r) { aligned = r; }
 
+void freetype::load_bold(bool r) { bold = r; }
+
 float freetype::draw_char(float x, float y, char16_t c) {
   SDL_Texture *texture = nullptr;
   auto lineHeight = face->size->metrics.height >> 6;
@@ -72,6 +77,7 @@ float freetype::draw_char(float x, float y, char16_t c) {
       .g = color.g,
       .b = color.b,
       .a = color.a,
+      .bold = bold,
   };
   if (cache.contains(t)) {
     auto v = cache.at(t);
@@ -80,6 +86,9 @@ float freetype::draw_char(float x, float y, char16_t c) {
     texture = v.texture;
   } else {
     FT_Load_Char(face, c, FT_LOAD_RENDER | FT_LOAD_TARGET_MONO);
+    if (bold) {
+      FT_GlyphSlot_Embolden(face->glyph);
+    }
     auto *bitmap = &face->glyph->bitmap;
     advance = face->glyph->advance.x >> 6;
     bearingY = face->glyph->metrics.horiBearingY >> 6;

@@ -209,6 +209,7 @@ void character_game_instance::load_self_nametag() {
   nametag.path = u"14";
   nametag.pos = {0, 0};
   nametag.size = 13;
+  nametag.color = {255, 255, 255, 255};
   self.nametags.push_back(nametag);
 }
 
@@ -315,6 +316,15 @@ void character_game_instance::load_others_character(
   g_character.action_animate = c->character->state->action_animate;
   g_character.page = c->character->state->page;
   g_character.flip = c->character->state->flip;
+  game_nametag nametag;
+  nametag.path = u"";
+  nametag.pos = {0, 0};
+  nametag.size = 13;
+  nametag.color = {255, 255, 255, 255};
+  nametag.text =
+      std::u16string{c->character->name.begin(), c->character->name.end()};
+
+  g_character.nametags.push_back(nametag);
   others.emplace(c->client_id, g_character);
 }
 
@@ -908,6 +918,9 @@ character_game_instance::load_self_fbs_character(const game_character &g) {
   c.state->y = g.pos.y;
 
   c.state->flip = g.flip;
+
+  auto name = g.nametags[0].text;
+  c.name = std::vector<uint16_t>{name.begin(), name.end()};
 
   return c;
 }

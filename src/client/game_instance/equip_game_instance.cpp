@@ -2,7 +2,9 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <flat_map>
+#include <ranges>
 #include <string>
+
 
 std::u16string equip_game_instance::load_equip_type(const std::u16string &id) {
   const auto result = id.substr(1, 3);
@@ -83,4 +85,15 @@ equip_game_instance::load_weapon_type(const game_character &g_character) {
       static_cast<wz::Property<int16_t> *>(g_weapon_info->get_child(u"attack"))
           ->get();
   return (weapon_type)attack_type;
+}
+
+std::u16string equip_game_instance::load_equip_name(const std::u16string &id) {
+  static auto str_node = wz_resource::string->find(u"Eqp.img/ClassicWorld");
+  auto type = load_equip_type(id);
+
+  auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
+  std::u16string result(view.begin(), view.end());
+
+  auto str = str_node->get_child(type)->get_child(result)->get_child(u"name");
+  return static_cast<wz::Property<std::u16string> *>(str)->get();
 }

@@ -785,7 +785,7 @@ inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(
 
 struct CharacterT : public ::flatbuffers::NativeTable {
   typedef Character TableType;
-  std::string name{};
+  std::vector<uint16_t> name{};
   std::unique_ptr<fbs::LifeStateT> state{};
   std::unique_ptr<fbs::CharacterAppearanceT> appearance{};
   CharacterT() = default;
@@ -802,11 +802,11 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_STATE = 6,
     VT_APPEARANCE = 8
   };
-  const ::flatbuffers::String *name() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_NAME);
+  const ::flatbuffers::Vector<uint16_t> *name() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
   }
-  ::flatbuffers::String *mutable_name() {
-    return GetPointer<::flatbuffers::String *>(VT_NAME);
+  ::flatbuffers::Vector<uint16_t> *mutable_name() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_NAME);
   }
   const fbs::LifeState *state() const {
     return GetPointer<const fbs::LifeState *>(VT_STATE);
@@ -824,7 +824,7 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
-           verifier.VerifyString(name()) &&
+           verifier.VerifyVector(name()) &&
            VerifyOffset(verifier, VT_STATE) &&
            verifier.VerifyTable(state()) &&
            VerifyOffset(verifier, VT_APPEARANCE) &&
@@ -840,7 +840,7 @@ struct CharacterBuilder {
   typedef Character Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_name(::flatbuffers::Offset<::flatbuffers::String> name) {
+  void add_name(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name) {
     fbb_.AddOffset(Character::VT_NAME, name);
   }
   void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
@@ -862,7 +862,7 @@ struct CharacterBuilder {
 
 inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> name = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name = 0,
     ::flatbuffers::Offset<fbs::LifeState> state = 0,
     ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0) {
   CharacterBuilder builder_(_fbb);
@@ -874,10 +874,10 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
 
 inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *name = nullptr,
+    const std::vector<uint16_t> *name = nullptr,
     ::flatbuffers::Offset<fbs::LifeState> state = 0,
     ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0) {
-  auto name__ = name ? _fbb.CreateString(name) : 0;
+  auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   return fbs::CreateCharacter(
       _fbb,
       name__,
@@ -2539,7 +2539,7 @@ inline CharacterT *Character::UnPack(const ::flatbuffers::resolver_function_t *_
 inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = name(); if (_e) _o->name = _e->str(); }
+  { auto _e = name(); if (_e) { _o->name.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->name[_i] = _e->Get(_i); } } else { _o->name.resize(0); } }
   { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
   { auto _e = appearance(); if (_e) { if(_o->appearance) { _e->UnPackTo(_o->appearance.get(), _resolver); } else { _o->appearance = std::unique_ptr<fbs::CharacterAppearanceT>(_e->UnPack(_resolver)); } } else if (_o->appearance) { _o->appearance.reset(); } }
 }
@@ -2552,7 +2552,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _name = _o->name.empty() ? 0 : _fbb.CreateString(_o->name);
+  auto _name = _o->name.size() ? _fbb.CreateVector(_o->name) : 0;
   auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
   auto _appearance = _o->appearance ? CreateCharacterAppearance(_fbb, _o->appearance.get(), _rehasher) : 0;
   return fbs::CreateCharacter(

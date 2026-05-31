@@ -5,6 +5,7 @@
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -129,6 +130,72 @@ void character_stat_ui_system::render_text() {
   auto luk1 = std::to_string(luk);
   auto luk2 = std::u16string{luk1.begin(), luk1.end()};
   freetype::draw_line(luk2, p.x, p.y);
+
+  if (detail) {
+    auto dx = detail_rect.x + pos.x;
+    auto dy = detail_rect.y + pos.y;
+    // atk
+    p = {dx + 78, dy + 10};
+    auto min_atk = character_stat_game_instance::min_atk;
+    auto max_atk = character_stat_game_instance::max_atk;
+    auto s = std::to_string(min_atk) + " - " + std::to_string(max_atk);
+    auto s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // pdd
+    p = {dx + 78, dy + 28};
+    auto pdd = character_stat_game_instance::weapon_def;
+    s = std::to_string(pdd);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // mad
+    p = {dx + 78, dy + 46};
+    auto mad = character_stat_game_instance::magic;
+    s = std::to_string(mad);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // mdd
+    p = {dx + 78, dy + 62};
+    auto mdd = character_stat_game_instance::magic_def;
+    s = std::to_string(mdd);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // acc
+    p = {dx + 78, dy + 82};
+    auto acc = character_stat_game_instance::accuracy;
+    s = std::to_string(acc);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // eva
+    p = {dx + 78, dy + 100};
+    auto avoid = character_stat_game_instance::avoid;
+    s = std::to_string(avoid);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // crtr
+    p = {dx + 78, dy + 118};
+    auto crit_rate = character_stat_game_instance::crit_rate;
+    s = std::to_string(crit_rate);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // crtd
+    p = {dx + 78, dy + 136};
+    auto crit_damage = character_stat_game_instance::crit_damage;
+    s = std::to_string(crit_damage);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // spd
+    p = {dx + 78, dy + 154};
+    auto hspd = character_logic_system::self_hspeed_max;
+    s = std::to_string((int)hspd);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+    // spd
+    p = {dx + 78, dy + 172};
+    auto vspd = -character_logic_system::self_vspeed_min * 0.1;
+    s = std::to_string((int)vspd);
+    s2 = std::u16string{s.begin(), s.end()};
+    freetype::draw_line(s2, p.x, p.y);
+  }
 
   freetype::load_aligned(false);
 }

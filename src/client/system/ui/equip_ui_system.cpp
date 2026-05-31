@@ -91,17 +91,19 @@ void equip_ui_system::render_equip() {
 }
 
 void equip_ui_system::render_equip_info() {
+  const SDL_FPoint lt{4, 45};
   auto &self = character_game_instance::self;
   SDL_FRect pos_rect{
-      pos.x + cap_slot.x,
-      pos.y + cap_slot.y,
+      pos.x + cap_slot.x + lt.x,
+      pos.y + cap_slot.y + lt.y,
       32,
       32,
   };
   auto &mouse_pos = window::mouse_pos;
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.cap.has_value()) {
-      tooltip_ui_system::render_equip(self.cap.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.cap.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }
@@ -241,10 +243,45 @@ void equip_ui_system::render_backgrnd2() {
   }
 }
 
+void equip_ui_system::render_button() {
+  const static std::array buttons_nodes = {
+      wz_resource::ui->find(u"Basic.img/BtClose"),
+  };
+  auto wh = load_wh();
+  std::array buttons_rect = {
+      SDL_FRect{wh.x - 20, 7, 12, 12}, //
+  };
+
+  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
+    auto k = buttons_nodes[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
+    auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
+}
+
 bool equip_ui_system::render() {
   render_backgrnd();
   render_backgrnd2();
   render_tab();
+  render_button();
   render_equip();
   render_equip_info();
   return true;
@@ -315,6 +352,32 @@ void equip_ui_system::event_drag_move(SDL_Event *event) {
   return;
 }
 
+void equip_ui_system::event_close() { close(); }
+
+bool equip_ui_system::event_button(SDL_Event *event) {
+  std::vector<SDL_FRect> r;
+  std::vector<void (*)()> fns;
+  auto wh = load_wh();
+  r = {
+      SDL_FRect{wh.x - 20, 7, 12, 12}, //
+  };
+  fns = {
+      event_close,
+  };
+
+  for (size_t i = 0; i < r.size(); ++i) {
+    auto pos_rect = r[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      fns[i]();
+      return true;
+    }
+  }
+
+  return false;
+}
+
 bool equip_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -331,6 +394,7 @@ bool equip_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        r = !event_button(event);
       }
       event_drag_end();
     }

@@ -11,8 +11,11 @@ private:
   static void render_tab();
   static void render_items();
   static void render_info();
+  static void render_button();
 
-  static void event_button(SDL_Event *event);
+  static void event_close();
+
+  static bool event_button(SDL_Event *event);
   static void event_tab(SDL_Event *event);
   static void event_top();
   static void event_drag_start(SDL_Event *event);

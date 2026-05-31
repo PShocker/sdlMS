@@ -15,6 +15,7 @@ class freetype {
     uint8_t g;
     uint8_t b;
     uint8_t a;
+    bool bold;
 
     auto operator<=>(const freetype_cache_key &) const = default;
   };
@@ -33,6 +34,7 @@ private:
   static inline std::flat_map<freetype_cache_key, freetype_cache_value> cache;
 
   static inline bool aligned;
+  static inline bool bold;
 
   static float load_char_w(const char16_t c);
 
@@ -46,6 +48,7 @@ public:
   static float load_lh();
   static float load_h(const std::u16string &str, float w);
   static void load_aligned(bool r);
+  static void load_bold(bool r);
 
   static void draw_line(const std::u16string &str, float x, float y);
   static void draw_str(const std::u16string &str, float x, float y, float w);
