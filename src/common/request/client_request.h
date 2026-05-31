@@ -9,9 +9,11 @@ class client_request {
 public:
   static void heartbeat_request();
 
-  static void scene_request(ClientSceneT client_scene);
+  static void scene_request(ClientSceneT& client_scene);
 
-  static void character_logic_request(ClientCharacterLogicT logic);
-  static void character_attack_request(ClientCharacterAttackT atk);
-  static void character_skill_request(ClientCharacterSkillT ski);
+  static void character_logic_request(ClientCharacterLogicT& logic);
+  static void character_attack_request(ClientCharacterAttackT& atk);
+  static void character_skill_request(ClientCharacterSkillT& ski);
+
+  static void mob_attack_request(ClientMobAttackT& mt);
 };

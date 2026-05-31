@@ -27,6 +27,10 @@ struct Character;
 struct CharacterBuilder;
 struct CharacterT;
 
+struct CharacterState;
+struct CharacterStateBuilder;
+struct CharacterStateT;
+
 struct Movement;
 struct MovementBuilder;
 struct MovementT;
@@ -882,6 +886,90 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
 }
 
 ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct CharacterStateT : public ::flatbuffers::NativeTable {
+  typedef CharacterState TableType;
+  uint32_t hp = 0;
+  uint32_t mp = 0;
+  float attack_speed = 0.0f;
+};
+
+struct CharacterState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterStateT NativeTableType;
+  typedef CharacterStateBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_HP = 4,
+    VT_MP = 6,
+    VT_ATTACK_SPEED = 8
+  };
+  uint32_t hp() const {
+    return GetField<uint32_t>(VT_HP, 0);
+  }
+  bool mutate_hp(uint32_t _hp = 0) {
+    return SetField<uint32_t>(VT_HP, _hp, 0);
+  }
+  uint32_t mp() const {
+    return GetField<uint32_t>(VT_MP, 0);
+  }
+  bool mutate_mp(uint32_t _mp = 0) {
+    return SetField<uint32_t>(VT_MP, _mp, 0);
+  }
+  float attack_speed() const {
+    return GetField<float>(VT_ATTACK_SPEED, 0.0f);
+  }
+  bool mutate_attack_speed(float _attack_speed = 0.0f) {
+    return SetField<float>(VT_ATTACK_SPEED, _attack_speed, 0.0f);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_HP, 4) &&
+           VerifyField<uint32_t>(verifier, VT_MP, 4) &&
+           VerifyField<float>(verifier, VT_ATTACK_SPEED, 4) &&
+           verifier.EndTable();
+  }
+  CharacterStateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(CharacterStateT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<CharacterState> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct CharacterStateBuilder {
+  typedef CharacterState Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_hp(uint32_t hp) {
+    fbb_.AddElement<uint32_t>(CharacterState::VT_HP, hp, 0);
+  }
+  void add_mp(uint32_t mp) {
+    fbb_.AddElement<uint32_t>(CharacterState::VT_MP, mp, 0);
+  }
+  void add_attack_speed(float attack_speed) {
+    fbb_.AddElement<float>(CharacterState::VT_ATTACK_SPEED, attack_speed, 0.0f);
+  }
+  explicit CharacterStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CharacterState> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CharacterState>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CharacterState> CreateCharacterState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t hp = 0,
+    uint32_t mp = 0,
+    float attack_speed = 0.0f) {
+  CharacterStateBuilder builder_(_fbb);
+  builder_.add_attack_speed(attack_speed);
+  builder_.add_mp(mp);
+  builder_.add_hp(hp);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<CharacterState> CreateCharacterState(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct MovementT : public ::flatbuffers::NativeTable {
   typedef Movement TableType;
@@ -1969,7 +2057,6 @@ inline ::flatbuffers::Offset<Mob> CreateMob(
 
 struct MobAttackT : public ::flatbuffers::NativeTable {
   typedef MobAttack TableType;
-  uint64_t client_id = 0;
   std::unique_ptr<fbs::AttackT> attack{};
   MobAttackT() = default;
   MobAttackT(const MobAttackT &o);
@@ -1981,15 +2068,8 @@ struct MobAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef MobAttackT NativeTableType;
   typedef MobAttackBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_CLIENT_ID = 4,
-    VT_ATTACK = 6
+    VT_ATTACK = 4
   };
-  uint64_t client_id() const {
-    return GetField<uint64_t>(VT_CLIENT_ID, 0);
-  }
-  bool mutate_client_id(uint64_t _client_id = 0) {
-    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
-  }
   const fbs::Attack *attack() const {
     return GetPointer<const fbs::Attack *>(VT_ATTACK);
   }
@@ -1999,7 +2079,6 @@ struct MobAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
            VerifyOffset(verifier, VT_ATTACK) &&
            verifier.VerifyTable(attack()) &&
            verifier.EndTable();
@@ -2013,9 +2092,6 @@ struct MobAttackBuilder {
   typedef MobAttack Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_client_id(uint64_t client_id) {
-    fbb_.AddElement<uint64_t>(MobAttack::VT_CLIENT_ID, client_id, 0);
-  }
   void add_attack(::flatbuffers::Offset<fbs::Attack> attack) {
     fbb_.AddOffset(MobAttack::VT_ATTACK, attack);
   }
@@ -2032,10 +2108,8 @@ struct MobAttackBuilder {
 
 inline ::flatbuffers::Offset<MobAttack> CreateMobAttack(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t client_id = 0,
     ::flatbuffers::Offset<fbs::Attack> attack = 0) {
   MobAttackBuilder builder_(_fbb);
-  builder_.add_client_id(client_id);
   builder_.add_attack(attack);
   return builder_.Finish();
 }
@@ -2488,6 +2562,38 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
       _appearance);
 }
 
+inline CharacterStateT *CharacterState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<CharacterStateT>(new CharacterStateT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void CharacterState::UnPackTo(CharacterStateT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = hp(); _o->hp = _e; }
+  { auto _e = mp(); _o->mp = _e; }
+  { auto _e = attack_speed(); _o->attack_speed = _e; }
+}
+
+inline ::flatbuffers::Offset<CharacterState> CreateCharacterState(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CharacterState::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<CharacterState> CharacterState::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterStateT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _hp = _o->hp;
+  auto _mp = _o->mp;
+  auto _attack_speed = _o->attack_speed;
+  return fbs::CreateCharacterState(
+      _fbb,
+      _hp,
+      _mp,
+      _attack_speed);
+}
+
 inline MovementT *Movement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<MovementT>(new MovementT());
   UnPackTo(_o.get(), _resolver);
@@ -2918,12 +3024,10 @@ inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_f
 }
 
 inline MobAttackT::MobAttackT(const MobAttackT &o)
-      : client_id(o.client_id),
-        attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr) {
+      : attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr) {
 }
 
 inline MobAttackT &MobAttackT::operator=(MobAttackT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(client_id, o.client_id);
   std::swap(attack, o.attack);
   return *this;
 }
@@ -2937,7 +3041,6 @@ inline MobAttackT *MobAttack::UnPack(const ::flatbuffers::resolver_function_t *_
 inline void MobAttack::UnPackTo(MobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = client_id(); _o->client_id = _e; }
   { auto _e = attack(); if (_e) { if(_o->attack) { _e->UnPackTo(_o->attack.get(), _resolver); } else { _o->attack = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->attack) { _o->attack.reset(); } }
 }
 
@@ -2949,11 +3052,9 @@ inline ::flatbuffers::Offset<MobAttack> MobAttack::Pack(::flatbuffers::FlatBuffe
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MobAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _client_id = _o->client_id;
   auto _attack = _o->attack ? CreateAttack(_fbb, _o->attack.get(), _rehasher) : 0;
   return fbs::CreateMobAttack(
       _fbb,
-      _client_id,
       _attack);
 }
 

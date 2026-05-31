@@ -1,6 +1,8 @@
 #include "mob_game_instance.h"
 #include "SDL3/SDL_rect.h"
+#include "effect_game_instance.h"
 #include "foothold_game_instance.h"
+#include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
@@ -83,4 +85,28 @@ void mob_game_instance::server_mob_logic(const ServerMobLogicT &v) {
       logics[m->payload.type].push_back(m->payload);
     }
   }
+}
+
+void mob_game_instance::load_mob_attack(uint64_t client_id,
+                                        const MobAttackT *m) {
+  // 伤害数字
+  damage_data data = {
+      .num = m->attack->num,
+      .type = damage_data::red,
+  };
+  if (client_id == 0) {
+    data.type = damage_data::viole;
+  }
+  game_effect d = {
+      .id = u"",
+      .index = 0,
+      .time = 0,
+      .delay = m->attack->delay,
+      .type = game_effect::effect_type::damage,
+      .pos = SDL_FPoint{m->attack->x, m->attack->y - 10},
+      .z = true,
+      .flip = false,
+      .data = data,
+  };
+  effect_game_instance::data[7].emplace_back(d);
 }

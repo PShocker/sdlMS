@@ -52,7 +52,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ClientCharacterAttack();
     fbs::ClientCharacterAttackT r;
     payload->UnPackTo(&r);
-    server_mob_instance::handle_attack(client_id, r);
+    server_character_instance::handle_attack(client_id, r);
     break;
   }
   case NetPayload_ClientCharacterSkill: {
@@ -60,6 +60,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ClientCharacterSkillT r;
     payload->UnPackTo(&r);
     server_character_instance::handle_skill(client_id, r);
+    break;
+  }
+  case NetPayload_ClientMobAttack: {
+    auto payload = packet->payload_as_ClientMobAttack();
+    fbs::ClientMobAttackT r;
+    payload->UnPackTo(&r);
+    server_mob_instance::handle_attack(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {
@@ -117,6 +124,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterSkillT r;
     payload->UnPackTo(&r);
     character_game_instance::other_character_skill(r);
+    break;
+  }
+  case NetPayload_ServerMobAttack: {
+    auto payload = packet->payload_as_ServerMobAttack();
+    fbs::ServerMobAttackT r;
+    payload->UnPackTo(&r);
+    mob_game_instance::load_mob_attack(r.client_id, r.payload.get());
     break;
   }
   default:

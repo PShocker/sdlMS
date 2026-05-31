@@ -28,36 +28,41 @@ void server_response::heartbeat_response(uint64_t client_id) {
   send_to_client(client_id, r);
 }
 
-void server_response::scene_response(uint64_t client_id, ServerSceneT r) {
+void server_response::scene_response(uint64_t client_id, ServerSceneT &r) {
   send_to_client(client_id, r);
 }
 
 void server_response::character_in_response(uint64_t client_id,
-                                            ServerCharacterInT r) {
+                                            ServerCharacterInT &r) {
   send_to_client(client_id, r);
 }
 
 void server_response::character_out_response(uint64_t client_id,
-                                             ServerCharacterOutT r) {
+                                             ServerCharacterOutT &r) {
   send_to_client(client_id, r);
 }
 
 void server_response::character_logic_response(uint64_t client_id,
-                                               ServerCharacterLogicT r) {
+                                               ServerCharacterLogicT &r) {
   send_to_client(client_id, r);
 }
 
 void server_response::mob_logic_response(uint64_t client_id,
-                                         ServerMobLogicT r) {
+                                         ServerMobLogicT &r) {
   send_to_client(client_id, r);
 }
 
 void server_response::character_attack_response(uint64_t client_id,
-                                                ServerCharacterAttackT r) {
+                                                ServerCharacterAttackT &r) {
   send_to_client(client_id, r);
 }
 
 void server_response::character_skill_response(uint64_t client_id,
-                                              ServerCharacterSkillT r) {
+                                               ServerCharacterSkillT &r) {
+  send_to_client(client_id, r);
+}
+
+void server_response::mob_attack_response(uint64_t client_id,
+                                          ServerMobAttackT &r) {
   send_to_client(client_id, r);
 }

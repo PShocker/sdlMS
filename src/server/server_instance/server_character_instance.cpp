@@ -97,3 +97,31 @@ void server_character_instance::handle_skill(uint64_t client_id,
     }
   }
 }
+
+
+void server_character_instance::handle_attack(uint64_t client_id,
+                                        ClientCharacterAttackT &r) {
+  if (!server_client_instance::clients.contains(client_id)) {
+    return;
+  }
+  auto map_id = server_client_instance::clients.at(client_id).map_id;
+  auto &mobs = server_scene_instance::scenes.at(map_id).mobs;
+  for (const auto &a : r.payload) {
+    auto &mob = mobs.at(a->mob_index);
+    mob_beat mbb;
+    mbb.beat_id = client_id;
+    mbb.beat_start_time = a->attack->delay;
+    mbb.left = a->left;
+    mbb.beat_time = 300;
+    mob.beats.emplace(mbb.beat_start_time, mbb);
+  }
+  // 转发
+  auto clients = server_scene_instance::scenes.at(map_id).clients;
+  clients.erase(client_id);
+  ServerCharacterAttackT t;
+  t.payload = std::move(r.payload);
+  for (auto c : clients) {
+    t.client_id = client_id;
+    server_response::character_attack_response(c, t);
+  }
+}

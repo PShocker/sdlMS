@@ -28,3 +28,8 @@ table ClientCharacterSkill {
 table ClientCharacterBall {
     payload:[CharacterBall];
 }
+
+table ClientMobAttack {
+    map_id:uint32;
+    payload:MobAttack;
+}

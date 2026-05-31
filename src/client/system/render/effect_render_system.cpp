@@ -5,6 +5,7 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Node.h"
 #include "wz/Property.h"
 #include <array>
 #include <chrono>
@@ -43,16 +44,6 @@ void effect_render_system::render_afterimage(SDL_FPoint pos,
 
 void effect_render_system::render_damage(SDL_FPoint pos,
                                          game_effect &g_effect) {
-  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                          std::chrono::system_clock::now().time_since_epoch())
-                          .count();
-  if (current_time <= g_effect.delay) {
-    return;
-  }
-  if (g_effect.z == false) {
-    return;
-  }
-  static auto red0 = wz_resource::effect->find(u"BasicEff.img/NoRed0");
   enum damage_type {
     n_0,
     n_1,
@@ -67,16 +58,45 @@ void effect_render_system::render_damage(SDL_FPoint pos,
     miss,
     guard,
   };
+  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                          std::chrono::system_clock::now().time_since_epoch())
+                          .count();
+  if (current_time <= g_effect.delay) {
+    return;
+  }
+  if (g_effect.z == false) {
+    return;
+  }
+  static auto red = wz_resource::effect->find(u"BasicEff.img/NoRed0");
+  static auto viole = wz_resource::effect->find(u"BasicEff.img/NoViolet0");
+
   const std::vector<std::u16string> damage_vector = {
       u"0", u"1", u"2", u"3", u"4",    u"5",
       u"6", u"7", u"8", u"9", u"Miss", u"guard",
   };
   auto &camera = camera_game_instance::camera;
-  int32_t num = std::any_cast<int32_t>(g_effect.data);
-  auto num_str = std::to_string(num);
+  auto d_data = std::any_cast<damage_data>(g_effect.data);
+  auto num_str = std::to_string(d_data.num);
   uint32_t w = 0;
+  wz::Node *node;
+  switch (d_data.type) {
+  case damage_data::red: {
+    node = red;
+    break;
+  }
+  case damage_data::blue: {
+    break;
+  }
+  case damage_data::viole: {
+    node = viole;
+    break;
+  }
+  default: {
+    break;
+  }
+  }
   for (auto n : num_str) {
-    auto texture_node = red0->get_child(std::string{n});
+    auto texture_node = node->get_child(std::string{n});
     auto texture = wz_resource::load_texture(texture_node);
     auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
     auto x = pos.x - origin.x + w;
@@ -94,7 +114,7 @@ void effect_render_system::render_damage(SDL_FPoint pos,
       SDL_SetTextureAlphaMod(texture, g_effect.alpha);
       SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
     }
-    w += texture->w;
+    w += texture->w - 3;
   }
 }
 

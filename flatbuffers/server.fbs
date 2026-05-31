@@ -45,3 +45,8 @@ table ServerCharacterBall {
     client_id:uint64;
     payload:[CharacterBall];
 }
+
+table ServerMobAttack {
+    client_id:uint64;
+    payload:MobAttack;
+}

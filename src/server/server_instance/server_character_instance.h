@@ -10,6 +10,7 @@ private:
   static void send_logic(uint64_t client_id, ClientCharacterLogicT &m);
 
 public:
+  static void handle_attack(uint64_t client_id, ClientCharacterAttackT &r);
   static void handle_logic(uint64_t client_id, ClientCharacterLogicT &m);
   static void handle_skill(uint64_t client_id, ClientCharacterSkillT &r);
 };

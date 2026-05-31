@@ -41,6 +41,10 @@ struct ClientCharacterBall;
 struct ClientCharacterBallBuilder;
 struct ClientCharacterBallT;
 
+struct ClientMobAttack;
+struct ClientMobAttackBuilder;
+struct ClientMobAttackT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -538,6 +542,81 @@ inline ::flatbuffers::Offset<ClientCharacterBall> CreateClientCharacterBallDirec
 
 ::flatbuffers::Offset<ClientCharacterBall> CreateClientCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientMobAttackT : public ::flatbuffers::NativeTable {
+  typedef ClientMobAttack TableType;
+  uint32_t map_id = 0;
+  std::unique_ptr<fbs::MobAttackT> payload{};
+  ClientMobAttackT() = default;
+  ClientMobAttackT(const ClientMobAttackT &o);
+  ClientMobAttackT(ClientMobAttackT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientMobAttackT &operator=(ClientMobAttackT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientMobAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientMobAttackT NativeTableType;
+  typedef ClientMobAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MAP_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  const fbs::MobAttack *payload() const {
+    return GetPointer<const fbs::MobAttack *>(VT_PAYLOAD);
+  }
+  fbs::MobAttack *mutable_payload() {
+    return GetPointer<fbs::MobAttack *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ClientMobAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientMobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientMobAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientMobAttackBuilder {
+  typedef ClientMobAttack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientMobAttack::VT_MAP_ID, map_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::MobAttack> payload) {
+    fbb_.AddOffset(ClientMobAttack::VT_PAYLOAD, payload);
+  }
+  explicit ClientMobAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientMobAttack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientMobAttack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientMobAttack> CreateClientMobAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    ::flatbuffers::Offset<fbs::MobAttack> payload = 0) {
+  ClientMobAttackBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ClientMobAttack> CreateClientMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -748,6 +827,46 @@ inline ::flatbuffers::Offset<ClientCharacterBall> ClientCharacterBall::Pack(::fl
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterBall>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterBall(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateClientCharacterBall(
       _fbb,
+      _payload);
+}
+
+inline ClientMobAttackT::ClientMobAttackT(const ClientMobAttackT &o)
+      : map_id(o.map_id),
+        payload((o.payload) ? new fbs::MobAttackT(*o.payload) : nullptr) {
+}
+
+inline ClientMobAttackT &ClientMobAttackT::operator=(ClientMobAttackT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(map_id, o.map_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ClientMobAttackT *ClientMobAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientMobAttackT>(new ClientMobAttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientMobAttack::UnPackTo(ClientMobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::MobAttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ClientMobAttack> CreateClientMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientMobAttack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientMobAttack> ClientMobAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientMobAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
+  auto _payload = _o->payload ? CreateMobAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateClientMobAttack(
+      _fbb,
+      _map_id,
       _payload);
 }
 

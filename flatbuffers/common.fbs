@@ -124,7 +124,6 @@ table Mob{
 }
 
 table MobAttack{
-    client_id:uint64;
     attack:Attack;
 }
 

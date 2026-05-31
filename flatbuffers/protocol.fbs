@@ -11,6 +11,7 @@ union NetPayload {
     ClientCharacterAttack,
     ClientCharacterSkill,
     ClientCharacterBall,
+    ClientMobAttack,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
@@ -20,6 +21,7 @@ union NetPayload {
     ServerCharacterSkill,
     ServerCharacterBall,
     ServerMobLogic,
+    ServerMobAttack,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

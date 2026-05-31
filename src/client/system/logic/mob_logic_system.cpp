@@ -6,6 +6,8 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
@@ -16,6 +18,7 @@
 #include <flat_map>
 #include <ranges>
 #include <string>
+#include <utility>
 
 mob_logic_system::action_enum
 mob_logic_system::load_action_type(const std::u16string &action) {
@@ -136,6 +139,20 @@ void mob_logic_system::run_collision() {
     } else {
       character_logic_system::run_network_sync(self, o_character);
     }
+    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                   std::chrono::system_clock::now().time_since_epoch())
+                   .count();
+    MobAttackT mt;
+    mt.attack = std::make_unique<AttackT>();
+    mt.attack->delay = now;
+    mt.attack->num = 40;
+    mt.attack->x = self.pos.x;
+    mt.attack->y = self.pos.y - 30;
+    mob_game_instance::load_mob_attack(0, &mt);
+    ClientMobAttackT t;
+    t.map_id = scene_system_instance::map_id;
+    t.payload = std::make_unique<MobAttackT>(mt);
+    client_request::mob_attack_request(t);
   }
 }
 

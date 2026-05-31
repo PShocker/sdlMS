@@ -53,6 +53,10 @@ struct ServerCharacterBall;
 struct ServerCharacterBallBuilder;
 struct ServerCharacterBallT;
 
+struct ServerMobAttack;
+struct ServerMobAttackBuilder;
+struct ServerMobAttackT;
+
 struct ServerHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ServerHeartbeat TableType;
 };
@@ -757,6 +761,81 @@ inline ::flatbuffers::Offset<ServerCharacterBall> CreateServerCharacterBallDirec
 
 ::flatbuffers::Offset<ServerCharacterBall> CreateServerCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerMobAttackT : public ::flatbuffers::NativeTable {
+  typedef ServerMobAttack TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::MobAttackT> payload{};
+  ServerMobAttackT() = default;
+  ServerMobAttackT(const ServerMobAttackT &o);
+  ServerMobAttackT(ServerMobAttackT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobAttackT &operator=(ServerMobAttackT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobAttackT NativeTableType;
+  typedef ServerMobAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::MobAttack *payload() const {
+    return GetPointer<const fbs::MobAttack *>(VT_PAYLOAD);
+  }
+  fbs::MobAttack *mutable_payload() {
+    return GetPointer<fbs::MobAttack *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobAttackBuilder {
+  typedef ServerMobAttack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerMobAttack::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::MobAttack> payload) {
+    fbb_.AddOffset(ServerMobAttack::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobAttack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobAttack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobAttack> CreateServerMobAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::MobAttack> payload = 0) {
+  ServerMobAttackBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerMobAttack> CreateServerMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -1092,6 +1171,46 @@ inline ::flatbuffers::Offset<ServerCharacterBall> ServerCharacterBall::Pack(::fl
   auto _client_id = _o->client_id;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterBall>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterBall(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerCharacterBall(
+      _fbb,
+      _client_id,
+      _payload);
+}
+
+inline ServerMobAttackT::ServerMobAttackT(const ServerMobAttackT &o)
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::MobAttackT(*o.payload) : nullptr) {
+}
+
+inline ServerMobAttackT &ServerMobAttackT::operator=(ServerMobAttackT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerMobAttackT *ServerMobAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobAttackT>(new ServerMobAttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobAttack::UnPackTo(ServerMobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::MobAttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobAttack> CreateServerMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobAttack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobAttack> ServerMobAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateMobAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerMobAttack(
       _fbb,
       _client_id,
       _payload);

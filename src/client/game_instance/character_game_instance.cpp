@@ -933,6 +933,10 @@ void character_game_instance::load_character_attack(
       mob.effect.push_back(e);
     }
     // 伤害数字
+    damage_data data = {
+        .num = ct->attack->num,
+        .type = damage_data::red,
+    };
     game_effect d = {
         .id = u"",
         .index = (uint32_t)mob_hit.count(mob.index),
@@ -942,7 +946,7 @@ void character_game_instance::load_character_attack(
         .pos = SDL_FPoint{ct->attack->x, ct->attack->y - 10},
         .z = false,
         .flip = false,
-        .data = (int32_t)ct->attack->num,
+        .data = data,
     };
     mob_hit.insert(mob.index);
     effect_game_instance::data[7].emplace_back(d);

@@ -26,18 +26,22 @@ void client_request::heartbeat_request() {
   send_to_host(hb);
 }
 
-void client_request::scene_request(ClientSceneT client_scene) {
+void client_request::scene_request(ClientSceneT &client_scene) {
   send_to_host(client_scene);
 }
 
-void client_request::character_logic_request(ClientCharacterLogicT logic) {
+void client_request::character_logic_request(ClientCharacterLogicT &logic) {
   send_to_host(logic);
 }
 
-void client_request::character_attack_request(ClientCharacterAttackT atk) {
+void client_request::character_attack_request(ClientCharacterAttackT &atk) {
   send_to_host(atk);
 }
 
-void client_request::character_skill_request(ClientCharacterSkillT ski) {
+void client_request::character_skill_request(ClientCharacterSkillT &ski) {
   send_to_host(ski);
+}
+
+void client_request::mob_attack_request(ClientMobAttackT &mt) {
+  send_to_host(mt);
 }

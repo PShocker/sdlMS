@@ -19,7 +19,6 @@ struct mob_server_data {
   std::flat_map<MobLogicType, std::vector<MobLogicTypeUnion>> logics;
 };
 
-
 class mob_game_instance {
 public:
   static wz::Node *load_mob_info(const std::u16string &id);
@@ -28,6 +27,7 @@ public:
   static void load(uint32_t map_id);
 
   static void load_server_mob(const std::vector<std::unique_ptr<MobT>> &v);
+  static void load_mob_attack(uint64_t client_id, const MobAttackT *m);
 
   static void server_mob_logic(const ServerMobLogicT &v);
 

@@ -6,6 +6,16 @@
 #include <optional>
 #include <string>
 
+struct damage_data {
+  uint64_t num;
+  enum t {
+    red,
+    blue,
+    viole,
+  };
+  t type;
+};
+
 class game_effect {
 public:
   std::u16string id;

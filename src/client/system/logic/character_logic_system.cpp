@@ -533,7 +533,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
           CharacterAttackT ct;
           ct.mob_index = atk_mobs[i].mob.index;
           ct.attack = std::make_unique<AttackT>();
-          ct.attack->num = 1;
+          ct.attack->num = 40;
           ct.attack->delay = delay + i * 60;
           ct.attack->x = atk_mobs[i].x;
           ct.attack->y = atk_mobs[i].y;
