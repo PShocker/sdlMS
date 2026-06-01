@@ -595,32 +595,32 @@ bool character_logic_system::run_attack(game_character &g_character) {
     bool shoot = false;
     static const std::flat_set<equip_game_instance::weapon_type> shoot_weapons =
         {
-            equip_game_instance::BOW,
-            equip_game_instance::CROSSBOW,
-            equip_game_instance::CLAW,
-            equip_game_instance::GUN,
+            equip_game_instance::weapon_type::BOW,
+            equip_game_instance::weapon_type::CROSSBOW,
+            equip_game_instance::weapon_type::CLAW,
+            equip_game_instance::weapon_type::GUN,
         };
     static const std::flat_map<equip_game_instance::weapon_type,
                                std::vector<std::u16string>>
         weapon_attack_action = {
-            {equip_game_instance::S1A1M1D,
+            {equip_game_instance::weapon_type::S1A1M1D,
              {u"stabO1", u"stabO2", u"swingO1", u"swingO2", u"swingO3"}},
-            {equip_game_instance::SPEAR, {u"stabT1", u"swingP1"}},
-            {equip_game_instance::BOW, {u"shoot1"}},
-            {equip_game_instance::CROSSBOW, {u"shoot1"}},
-            {equip_game_instance::S2A2M2,
+            {equip_game_instance::weapon_type::SPEAR, {u"stabT1", u"swingP1"}},
+            {equip_game_instance::weapon_type::BOW, {u"shoot1"}},
+            {equip_game_instance::weapon_type::CROSSBOW, {u"shoot1"}},
+            {equip_game_instance::weapon_type::S2A2M2,
              {u"stabO1", u"stabO2", u"swingT1", u"swingT2", u"swingT3"}},
-            {equip_game_instance::WAND, {u"swingO1", u"swingO2"}},
-            {equip_game_instance::CLAW, {u"swingO1", u"swingO2"}},
-            {equip_game_instance::GUN, {u"shot"}},
+            {equip_game_instance::weapon_type::WAND, {u"swingO1", u"swingO2"}},
+            {equip_game_instance::weapon_type::CLAW, {u"swingO1", u"swingO2"}},
+            {equip_game_instance::weapon_type::GUN, {u"shot"}},
         };
     static const std::flat_map<equip_game_instance::weapon_type,
                                std::vector<std::u16string>>
         weapon_attack_action2 = {
-            {equip_game_instance::BOW, {u"swingT1", u"swingT3"}},
-            {equip_game_instance::CROSSBOW, {u"swingT1", u"stabT1"}},
-            {equip_game_instance::CLAW, {u"stabO1", u"stabO2"}},
-            {equip_game_instance::GUN, {u"swingP1", u"stabT2"}},
+            {equip_game_instance::weapon_type::BOW, {u"swingT1", u"swingT3"}},
+            {equip_game_instance::weapon_type::CROSSBOW, {u"swingT1", u"stabT1"}},
+            {equip_game_instance::weapon_type::CLAW, {u"stabO1", u"stabO2"}},
+            {equip_game_instance::weapon_type::GUN, {u"swingP1", u"stabT2"}},
         };
     switch (g_action) {
     case action_enum::stand:

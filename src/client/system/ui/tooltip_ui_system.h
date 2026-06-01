@@ -9,6 +9,7 @@
 class tooltip_ui_system {
 private:
   static void render_backgrnd(float x, float y, float w, float h);
+  static void render_equip_req(uint32_t req, uint32_t val, std::u16string path,float x, float y);
 
 public:
   static void render_equip(game_equip &equip, float x, float y);

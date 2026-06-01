@@ -100,10 +100,10 @@ void equip_ui_system::render_equip_info() {
       32,
   };
   auto &mouse_pos = window::mouse_pos;
+  SDL_FPoint m_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.cap.has_value()) {
-      tooltip_ui_system::render_equip(self.cap.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.cap.value(), m_pos.x, m_pos.y);
     }
     return;
   }
@@ -115,8 +115,7 @@ void equip_ui_system::render_equip_info() {
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.accessory.has_value()) {
-      tooltip_ui_system::render_equip(self.accessory.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.accessory.value(), m_pos.x, m_pos.y);
     }
     return;
   }
@@ -128,8 +127,7 @@ void equip_ui_system::render_equip_info() {
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.coat.has_value()) {
-      tooltip_ui_system::render_equip(self.coat.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.coat.value(), m_pos.x, m_pos.y);
     }
     return;
   }
@@ -141,8 +139,7 @@ void equip_ui_system::render_equip_info() {
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.pant.has_value()) {
-      tooltip_ui_system::render_equip(self.pant.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.pant.value(), m_pos.x, m_pos.y);
     }
     return;
   }
@@ -154,8 +151,7 @@ void equip_ui_system::render_equip_info() {
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.shoes.has_value()) {
-      tooltip_ui_system::render_equip(self.shoes.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.shoes.value(), m_pos.x, m_pos.y);
     }
     return;
   }
@@ -167,8 +163,7 @@ void equip_ui_system::render_equip_info() {
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.glove.has_value()) {
-      tooltip_ui_system::render_equip(self.glove.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.glove.value(), m_pos.x, m_pos.y);
     }
     return;
   }
@@ -180,8 +175,7 @@ void equip_ui_system::render_equip_info() {
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.cape.has_value()) {
-      tooltip_ui_system::render_equip(self.cape.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.cape.value(), m_pos.x, m_pos.y);
     }
     return;
   }
@@ -193,8 +187,7 @@ void equip_ui_system::render_equip_info() {
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.shield.has_value()) {
-      tooltip_ui_system::render_equip(self.shield.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.shield.value(), m_pos.x, m_pos.y);
     }
     return;
   }
@@ -206,8 +199,7 @@ void equip_ui_system::render_equip_info() {
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.weapon.has_value()) {
-      tooltip_ui_system::render_equip(self.weapon.value(), mouse_pos.x,
-                                      mouse_pos.y);
+      tooltip_ui_system::render_equip(self.weapon.value(), m_pos.x, m_pos.y);
     }
     return;
   }

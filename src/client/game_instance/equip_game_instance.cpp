@@ -2,9 +2,9 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <flat_map>
+#include <flat_set>
 #include <ranges>
 #include <string>
-
 
 std::u16string equip_game_instance::load_equip_type(const std::u16string &id) {
   const auto result = id.substr(1, 3);
@@ -96,4 +96,35 @@ std::u16string equip_game_instance::load_equip_name(const std::u16string &id) {
 
   auto str = str_node->get_child(type)->get_child(result)->get_child(u"name");
   return static_cast<wz::Property<std::u16string> *>(str)->get();
+}
+
+std::flat_set<equip_game_instance::job_type>
+equip_game_instance::load_equip_job(const std::u16string &id) {
+  std::flat_set<equip_game_instance::job_type> r;
+  auto equip_info = equip_game_instance::load_equip_info(id);
+  auto reqJob =
+      static_cast<wz::Property<int> *>(equip_info->get_child(u"reqJob"))->get();
+  if (reqJob == 0) {
+    r = {
+        equip_game_instance::job_type::BEGINNER,
+        equip_game_instance::job_type::WARRIOR,
+        equip_game_instance::job_type::MAGICIAN,
+        equip_game_instance::job_type::BOWMAN,
+        equip_game_instance::job_type::THIEF,
+    };
+  } else {
+    if (reqJob & 1) {
+      r.insert(equip_game_instance::job_type::WARRIOR);
+    }
+    if (reqJob & 2) {
+      r.insert(equip_game_instance::job_type::MAGICIAN);
+    }
+    if (reqJob & 4) {
+      r.insert(equip_game_instance::job_type::MAGICIAN);
+    }
+    if (reqJob & 8) {
+      r.insert(equip_game_instance::job_type::THIEF);
+    }
+  }
+  return r;
 }

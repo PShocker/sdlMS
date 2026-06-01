@@ -16,14 +16,14 @@ std::u16string
 afterimage_game_instance::load_hit_type(game_character &g_character) {
   auto weapon_type = equip_game_instance::load_weapon_type(g_character);
   const std::flat_map<equip_game_instance::weapon_type, std::u16string> h = {
-      {equip_game_instance::S1A1M1D, u"sword1"},
-      {equip_game_instance::SPEAR, u"sword1"},
-      {equip_game_instance::BOW, u"sword1"},
-      {equip_game_instance::CROSSBOW, u"sword1"},
-      {equip_game_instance::S2A2M2, u"sword1"},
-      {equip_game_instance::WAND, u"sword1"},
-      {equip_game_instance::CLAW, u"sword1"},
-      {equip_game_instance::GUN, u"sword1"},
+      {equip_game_instance::weapon_type::S1A1M1D, u"sword1"},
+      {equip_game_instance::weapon_type::SPEAR, u"sword1"},
+      {equip_game_instance::weapon_type::BOW, u"sword1"},
+      {equip_game_instance::weapon_type::CROSSBOW, u"sword1"},
+      {equip_game_instance::weapon_type::S2A2M2, u"sword1"},
+      {equip_game_instance::weapon_type::WAND, u"sword1"},
+      {equip_game_instance::weapon_type::CLAW, u"sword1"},
+      {equip_game_instance::weapon_type::GUN, u"sword1"},
   };
   return h.at(weapon_type);
 }
