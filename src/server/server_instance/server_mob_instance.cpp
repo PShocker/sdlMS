@@ -70,9 +70,9 @@ void server_mob_instance::handle_attack(uint64_t client_id,
   auto clients = server_scene_instance::scenes.at(map_id).clients;
   clients.erase(client_id);
   ServerMobAttackT t;
+  t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    t.client_id = client_id;
     server_response::mob_attack_response(c, t);
   }
 }

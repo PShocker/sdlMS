@@ -27,10 +27,6 @@ struct Character;
 struct CharacterBuilder;
 struct CharacterT;
 
-struct CharacterState;
-struct CharacterStateBuilder;
-struct CharacterStateT;
-
 struct Movement;
 struct MovementBuilder;
 struct MovementT;
@@ -86,6 +82,14 @@ struct CharacterLogicT;
 struct MobLogic;
 struct MobLogicBuilder;
 struct MobLogicT;
+
+struct CharacterChat;
+struct CharacterChatBuilder;
+struct CharacterChatT;
+
+struct CharacterStat;
+struct CharacterStatBuilder;
+struct CharacterStatT;
 
 enum CharacterLogicType : uint8_t {
   CharacterLogicType_NONE = 0,
@@ -886,90 +890,6 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
 }
 
 ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct CharacterStateT : public ::flatbuffers::NativeTable {
-  typedef CharacterState TableType;
-  uint32_t hp = 0;
-  uint32_t mp = 0;
-  float attack_speed = 0.0f;
-};
-
-struct CharacterState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CharacterStateT NativeTableType;
-  typedef CharacterStateBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_HP = 4,
-    VT_MP = 6,
-    VT_ATTACK_SPEED = 8
-  };
-  uint32_t hp() const {
-    return GetField<uint32_t>(VT_HP, 0);
-  }
-  bool mutate_hp(uint32_t _hp = 0) {
-    return SetField<uint32_t>(VT_HP, _hp, 0);
-  }
-  uint32_t mp() const {
-    return GetField<uint32_t>(VT_MP, 0);
-  }
-  bool mutate_mp(uint32_t _mp = 0) {
-    return SetField<uint32_t>(VT_MP, _mp, 0);
-  }
-  float attack_speed() const {
-    return GetField<float>(VT_ATTACK_SPEED, 0.0f);
-  }
-  bool mutate_attack_speed(float _attack_speed = 0.0f) {
-    return SetField<float>(VT_ATTACK_SPEED, _attack_speed, 0.0f);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_HP, 4) &&
-           VerifyField<uint32_t>(verifier, VT_MP, 4) &&
-           VerifyField<float>(verifier, VT_ATTACK_SPEED, 4) &&
-           verifier.EndTable();
-  }
-  CharacterStateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(CharacterStateT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<CharacterState> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-struct CharacterStateBuilder {
-  typedef CharacterState Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_hp(uint32_t hp) {
-    fbb_.AddElement<uint32_t>(CharacterState::VT_HP, hp, 0);
-  }
-  void add_mp(uint32_t mp) {
-    fbb_.AddElement<uint32_t>(CharacterState::VT_MP, mp, 0);
-  }
-  void add_attack_speed(float attack_speed) {
-    fbb_.AddElement<float>(CharacterState::VT_ATTACK_SPEED, attack_speed, 0.0f);
-  }
-  explicit CharacterStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<CharacterState> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<CharacterState>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<CharacterState> CreateCharacterState(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t hp = 0,
-    uint32_t mp = 0,
-    float attack_speed = 0.0f) {
-  CharacterStateBuilder builder_(_fbb);
-  builder_.add_attack_speed(attack_speed);
-  builder_.add_mp(mp);
-  builder_.add_hp(hp);
-  return builder_.Finish();
-}
-
-::flatbuffers::Offset<CharacterState> CreateCharacterState(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct MovementT : public ::flatbuffers::NativeTable {
   typedef Movement TableType;
@@ -2408,6 +2328,158 @@ inline ::flatbuffers::Offset<MobLogic> CreateMobLogic(
 
 ::flatbuffers::Offset<MobLogic> CreateMobLogic(::flatbuffers::FlatBufferBuilder &_fbb, const MobLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct CharacterChatT : public ::flatbuffers::NativeTable {
+  typedef CharacterChat TableType;
+  uint8_t type = 0;
+  std::vector<uint16_t> payload{};
+};
+
+struct CharacterChat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterChatT NativeTableType;
+  typedef CharacterChatBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TYPE = 4,
+    VT_PAYLOAD = 6
+  };
+  uint8_t type() const {
+    return GetField<uint8_t>(VT_TYPE, 0);
+  }
+  bool mutate_type(uint8_t _type = 0) {
+    return SetField<uint8_t>(VT_TYPE, _type, 0);
+  }
+  const ::flatbuffers::Vector<uint16_t> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.EndTable();
+  }
+  CharacterChatT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(CharacterChatT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<CharacterChat> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterChatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct CharacterChatBuilder {
+  typedef CharacterChat Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_type(uint8_t type) {
+    fbb_.AddElement<uint8_t>(CharacterChat::VT_TYPE, type, 0);
+  }
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> payload) {
+    fbb_.AddOffset(CharacterChat::VT_PAYLOAD, payload);
+  }
+  explicit CharacterChatBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CharacterChat> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CharacterChat>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CharacterChat> CreateCharacterChat(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t type = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> payload = 0) {
+  CharacterChatBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_type(type);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CharacterChat> CreateCharacterChatDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t type = 0,
+    const std::vector<uint16_t> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<uint16_t>(*payload) : 0;
+  return fbs::CreateCharacterChat(
+      _fbb,
+      type,
+      payload__);
+}
+
+::flatbuffers::Offset<CharacterChat> CreateCharacterChat(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterChatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct CharacterStatT : public ::flatbuffers::NativeTable {
+  typedef CharacterStat TableType;
+  uint8_t type = 0;
+  double val = 0.0;
+};
+
+struct CharacterStat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterStatT NativeTableType;
+  typedef CharacterStatBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TYPE = 4,
+    VT_VAL = 6
+  };
+  uint8_t type() const {
+    return GetField<uint8_t>(VT_TYPE, 0);
+  }
+  bool mutate_type(uint8_t _type = 0) {
+    return SetField<uint8_t>(VT_TYPE, _type, 0);
+  }
+  double val() const {
+    return GetField<double>(VT_VAL, 0.0);
+  }
+  bool mutate_val(double _val = 0.0) {
+    return SetField<double>(VT_VAL, _val, 0.0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
+           VerifyField<double>(verifier, VT_VAL, 8) &&
+           verifier.EndTable();
+  }
+  CharacterStatT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(CharacterStatT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<CharacterStat> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct CharacterStatBuilder {
+  typedef CharacterStat Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_type(uint8_t type) {
+    fbb_.AddElement<uint8_t>(CharacterStat::VT_TYPE, type, 0);
+  }
+  void add_val(double val) {
+    fbb_.AddElement<double>(CharacterStat::VT_VAL, val, 0.0);
+  }
+  explicit CharacterStatBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CharacterStat> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CharacterStat>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CharacterStat> CreateCharacterStat(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t type = 0,
+    double val = 0.0) {
+  CharacterStatBuilder builder_(_fbb);
+  builder_.add_val(val);
+  builder_.add_type(type);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<CharacterStat> CreateCharacterStat(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline LifeStateT *LifeState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<LifeStateT>(new LifeStateT());
   UnPackTo(_o.get(), _resolver);
@@ -2560,38 +2632,6 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
       _name,
       _state,
       _appearance);
-}
-
-inline CharacterStateT *CharacterState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<CharacterStateT>(new CharacterStateT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void CharacterState::UnPackTo(CharacterStateT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = hp(); _o->hp = _e; }
-  { auto _e = mp(); _o->mp = _e; }
-  { auto _e = attack_speed(); _o->attack_speed = _e; }
-}
-
-inline ::flatbuffers::Offset<CharacterState> CreateCharacterState(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CharacterState::Pack(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<CharacterState> CharacterState::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterStateT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _hp = _o->hp;
-  auto _mp = _o->mp;
-  auto _attack_speed = _o->attack_speed;
-  return fbs::CreateCharacterState(
-      _fbb,
-      _hp,
-      _mp,
-      _attack_speed);
 }
 
 inline MovementT *Movement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -3123,6 +3163,64 @@ inline ::flatbuffers::Offset<MobLogic> MobLogic::Pack(::flatbuffers::FlatBufferB
       _mob_id,
       _payload_type,
       _payload);
+}
+
+inline CharacterChatT *CharacterChat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<CharacterChatT>(new CharacterChatT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void CharacterChat::UnPackTo(CharacterChatT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = type(); _o->type = _e; }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i] = _e->Get(_i); } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<CharacterChat> CreateCharacterChat(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterChatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CharacterChat::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<CharacterChat> CharacterChat::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterChatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterChatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _type = _o->type;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector(_o->payload) : 0;
+  return fbs::CreateCharacterChat(
+      _fbb,
+      _type,
+      _payload);
+}
+
+inline CharacterStatT *CharacterStat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<CharacterStatT>(new CharacterStatT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void CharacterStat::UnPackTo(CharacterStatT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = type(); _o->type = _e; }
+  { auto _e = val(); _o->val = _e; }
+}
+
+inline ::flatbuffers::Offset<CharacterStat> CreateCharacterStat(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CharacterStat::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<CharacterStat> CharacterStat::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterStatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _type = _o->type;
+  auto _val = _o->val;
+  return fbs::CreateCharacterStat(
+      _fbb,
+      _type,
+      _val);
 }
 
 template <bool B>

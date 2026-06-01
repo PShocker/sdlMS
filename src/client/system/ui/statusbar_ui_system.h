@@ -16,6 +16,16 @@ private:
   static void render_chat();
   static SDL_FPoint load_wh();
 
+  static void event_chat();
+  static void event_chat_edit(const char *text);
+  static void event_chat_input(const char *text);
+  static void event_chat_del();
+
+  enum chat_type {
+    all,
+  };
+  static std::u16string load_chat_type_str();
+
   static bool event_button(SDL_Event *event);
   // button_func
   static void event_button_cashshop();
@@ -33,7 +43,8 @@ private:
   static inline bool quickSlot = true;
 
   static inline std::optional<std::u16string> chat;
-  static inline std::optional<std::u16string> chat_type;
+  static inline std::optional<std::u16string> chat2;
+  static inline std::optional<chat_type> chat_type;
 
 public:
   static bool render();

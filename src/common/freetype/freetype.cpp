@@ -153,3 +153,13 @@ void freetype::draw_str(const std::u16string &str, float x, float y, float w) {
     }
   }
 }
+
+std::u16string freetype::load_u16str(const char *text) {
+  size_t utf8Len = std::strlen(text);
+  char *utf16Data = SDL_iconv_string("UTF-16LE", "UTF-8", text, utf8Len);
+  // 直接构造，SDL已经添加了null终止符
+  auto u16Ptr = reinterpret_cast<const char16_t *>(utf16Data);
+  std::u16string result(u16Ptr); // 自动查找null终止符
+  SDL_free(utf16Data);
+  return result;
+}

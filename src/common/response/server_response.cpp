@@ -32,6 +32,11 @@ void server_response::scene_response(uint64_t client_id, ServerSceneT &r) {
   send_to_client(client_id, r);
 }
 
+void server_response::character_chat_response(uint64_t client_id,
+                                              ServerCharacterChatT &r) {
+  send_to_client(client_id, r);
+}
+
 void server_response::character_in_response(uint64_t client_id,
                                             ServerCharacterInT &r) {
   send_to_client(client_id, r);

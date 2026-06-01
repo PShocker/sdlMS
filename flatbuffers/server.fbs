@@ -50,3 +50,8 @@ table ServerMobAttack {
     client_id:uint64;
     payload:MobAttack;
 }
+
+table ServerCharacterChat {
+    client_id:uint64;
+    payload:CharacterChat;
+}

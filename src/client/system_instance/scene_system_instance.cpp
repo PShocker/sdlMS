@@ -95,11 +95,9 @@ bool scene_system_instance::render_game() {
     }
     for (auto &mob : mob_array[i]) {
       mob_render_system::render(*mob);
-      effect_render_system::render_mob_back(*mob);
     }
     for (auto &character : character_array[i]) {
       character_render_system::render(*character);
-      effect_render_system::render_character_back(character);
     }
     for (auto &drop : drop_game_instance::data[i]) {
       drop_render_system::render(drop);

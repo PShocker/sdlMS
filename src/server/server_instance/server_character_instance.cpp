@@ -98,9 +98,8 @@ void server_character_instance::handle_skill(uint64_t client_id,
   }
 }
 
-
 void server_character_instance::handle_attack(uint64_t client_id,
-                                        ClientCharacterAttackT &r) {
+                                              ClientCharacterAttackT &r) {
   if (!server_client_instance::clients.contains(client_id)) {
     return;
   }
@@ -119,9 +118,21 @@ void server_character_instance::handle_attack(uint64_t client_id,
   auto clients = server_scene_instance::scenes.at(map_id).clients;
   clients.erase(client_id);
   ServerCharacterAttackT t;
+  t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    t.client_id = client_id;
     server_response::character_attack_response(c, t);
+  }
+}
+
+void server_character_instance::handle_chat(uint64_t client_id,
+                                            ClientCharacterChatT &r) {
+  // 转发
+  auto clients = server_scene_instance::scenes.at(r.map_id).clients;
+  ServerCharacterChatT t;
+  t.client_id = client_id;
+  t.payload = std::move(r.payload);
+  for (auto c : clients) {
+    server_response::character_chat_response(c, t);
   }
 }

@@ -1,7 +1,9 @@
 #include "mob_render_system.h"
+#include "gauge_render_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/render/effect_render_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
@@ -60,8 +62,23 @@ bool mob_render_system::render_mob(game_mob &g_mob) {
   return true;
 }
 
+bool mob_render_system::render_gauge(game_mob &g_mob) {
+  if (g_mob.gauge.has_value()) {
+    auto pos = g_mob.pos;
+    pos.y -= 20;
+    gauge_render_system::render(pos, g_mob.gauge.value(), g_mob.hp);
+    return true;
+  }
+  return false;
+}
+
+bool mob_render_system::render_effect_back(game_mob &g_mob) {
+  return effect_render_system::render_mob_back(g_mob);
+}
+
 bool mob_render_system::render(game_mob &g_mob) {
   render_mob(g_mob);
+  render_effect_back(g_mob);
   // auto r = mob_logic_system::load_rect(g_mob).value();
   // auto &camera = camera_game_instance::camera;
   // r.x -= camera.x;

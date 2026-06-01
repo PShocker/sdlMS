@@ -10,7 +10,10 @@
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
@@ -402,8 +405,9 @@ void statusbar_ui_system::render_chat() {
     freetype::load_size(12);
     freetype::load_aligned(true);
     freetype::load_color(255, 255, 255, 255);
-    auto w = freetype::load_w(chat_type.value());
-    freetype::draw_line(chat_type.value(), pos_rect.x + 40 - w / 2, pos_rect.y);
+    auto s = load_chat_type_str();
+    auto w = freetype::load_w(s);
+    freetype::draw_line(s, pos_rect.x + 40 - w / 2, pos_rect.y);
     freetype::load_aligned(false);
 
     static auto chatbackgrnd1 = wz_resource::load_texture(
@@ -476,6 +480,72 @@ void statusbar_ui_system::event_button_quickslot() { return; }
 
 void statusbar_ui_system::event_button_chatlog() { return; }
 
+void statusbar_ui_system::event_chat_del() {
+  if (chat.has_value()) {
+    chat.value().pop_back();
+  }
+  return;
+}
+
+std::u16string statusbar_ui_system::load_chat_type_str() {
+  switch (chat_type.value()) {
+  case all: {
+    return u"All";
+    break;
+  }
+  }
+  return u"";
+}
+
+void statusbar_ui_system::event_chat() {
+  if (chat.has_value()) {
+
+    SDL_Window *window = SDL_GetKeyboardFocus();
+    SDL_StopTextInput(window);
+    SDL_SetTextInputArea(window, nullptr, 0);
+    auto chat_str = chat.value();
+
+    CharacterChatT ct;
+    ct.payload = std::vector<uint16_t>{chat_str.begin(), chat_str.end()};
+    ct.type = all;
+
+    ClientCharacterChatT c;
+    c.map_id = scene_system_instance::map_id;
+    c.payload = std::make_unique<CharacterChatT>(ct);
+
+    chat = std::nullopt;
+    chat2 = std::nullopt;
+  } else {
+    chat = u"";
+    chat2 = u"";
+    chat_type = all;
+    auto wh = load_wh();
+    auto screen_w = camera_game_instance::camera.w;
+    auto screen_h = camera_game_instance::camera.h;
+    auto base_x = (screen_w - wh.x) / 2;
+    auto base_y = (screen_h - wh.y);
+    const SDL_Rect posRect = {static_cast<int>(base_x),
+                              static_cast<int>(base_y), 100, 32};
+    SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition");
+    SDL_Window *window = SDL_GetKeyboardFocus();
+    /* Start-Stop */
+    SDL_StartTextInput(window);
+    SDL_SetTextInputArea(window, &posRect, 0);
+  }
+}
+
+void statusbar_ui_system::event_chat_edit(const char *text) {
+  if (text[0] != '\0') {
+    chat2 = freetype::load_u16str(text);
+  } else {
+    chat2 = u"";
+  }
+}
+
+void statusbar_ui_system::event_chat_input(const char *text) {
+  chat.value() += freetype::load_u16str(text);
+}
+
 bool statusbar_ui_system::event_button(SDL_Event *event) {
   const static std::array buttons_rect = {
       SDL_FRect{578, 38, 73, 34}, // CashShop
@@ -517,6 +587,14 @@ bool statusbar_ui_system::event_button(SDL_Event *event) {
 bool statusbar_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
+  case SDL_EVENT_TEXT_EDITING: {
+    event_chat_edit(event->edit.text);
+    break;
+  }
+  case SDL_EVENT_TEXT_INPUT: {
+    event_chat_input(event->edit.text);
+    break;
+  }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
@@ -526,12 +604,23 @@ bool statusbar_ui_system::event(SDL_Event *event) {
     }
     break;
   }
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_BACKSPACE: {
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
   case SDL_EVENT_KEY_UP: {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_RETURN: {
-      chat = u"";
-      chat_type = u"All";
+      event_chat();
       break;
     }
     default: {

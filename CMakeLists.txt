@@ -17,8 +17,8 @@ endif()
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
 
-include_directories("C:/SDL3-3.4.8/include")
-link_directories("C:/SDL3-3.4.8/lib/x64")
+include_directories("C:/SDL3-3.4.10/include")
+link_directories("C:/SDL3-3.4.10/lib/x64")
 
 include_directories("C:/libuv-1.x/include")
 link_directories("C:/libuv-1.x/build")

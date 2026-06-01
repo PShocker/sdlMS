@@ -31,21 +31,22 @@ enum NetPayload : uint8_t {
   NetPayload_ClientCharacterSkill = 5,
   NetPayload_ClientCharacterBall = 6,
   NetPayload_ClientMobAttack = 7,
-  NetPayload_ServerHeartbeat = 8,
-  NetPayload_ServerScene = 9,
-  NetPayload_ServerCharacterIn = 10,
-  NetPayload_ServerCharacterOut = 11,
-  NetPayload_ServerCharacterLogic = 12,
-  NetPayload_ServerCharacterAttack = 13,
-  NetPayload_ServerCharacterSkill = 14,
-  NetPayload_ServerCharacterBall = 15,
-  NetPayload_ServerMobLogic = 16,
-  NetPayload_ServerMobAttack = 17,
+  NetPayload_ClientCharacterChat = 8,
+  NetPayload_ServerHeartbeat = 9,
+  NetPayload_ServerScene = 10,
+  NetPayload_ServerCharacterIn = 11,
+  NetPayload_ServerCharacterOut = 12,
+  NetPayload_ServerCharacterLogic = 13,
+  NetPayload_ServerCharacterAttack = 14,
+  NetPayload_ServerCharacterSkill = 15,
+  NetPayload_ServerCharacterBall = 16,
+  NetPayload_ServerMobLogic = 17,
+  NetPayload_ServerMobAttack = 18,
   NetPayload_MIN = NetPayload_NONE,
   NetPayload_MAX = NetPayload_ServerMobAttack
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[18] {
+inline const NetPayload (&EnumValuesNetPayload())[19] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -55,6 +56,7 @@ inline const NetPayload (&EnumValuesNetPayload())[18] {
     NetPayload_ClientCharacterSkill,
     NetPayload_ClientCharacterBall,
     NetPayload_ClientMobAttack,
+    NetPayload_ClientCharacterChat,
     NetPayload_ServerHeartbeat,
     NetPayload_ServerScene,
     NetPayload_ServerCharacterIn,
@@ -70,7 +72,7 @@ inline const NetPayload (&EnumValuesNetPayload())[18] {
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[19] = {
+  static const char * const names[20] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -79,6 +81,7 @@ inline const char * const *EnumNamesNetPayload() {
     "ClientCharacterSkill",
     "ClientCharacterBall",
     "ClientMobAttack",
+    "ClientCharacterChat",
     "ServerHeartbeat",
     "ServerScene",
     "ServerCharacterIn",
@@ -130,6 +133,10 @@ template<> struct NetPayloadTraits<fbs::ClientCharacterBall> {
 
 template<> struct NetPayloadTraits<fbs::ClientMobAttack> {
   static const NetPayload enum_value = NetPayload_ClientMobAttack;
+};
+
+template<> struct NetPayloadTraits<fbs::ClientCharacterChat> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterChat;
 };
 
 template<> struct NetPayloadTraits<fbs::ServerHeartbeat> {
@@ -202,6 +209,10 @@ template<> struct NetPayloadUnionTraits<fbs::ClientCharacterBallT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ClientMobAttackT> {
   static const NetPayload enum_value = NetPayload_ClientMobAttack;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ClientCharacterChatT> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterChat;
 };
 
 template<> struct NetPayloadUnionTraits<fbs::ServerHeartbeatT> {
@@ -330,6 +341,14 @@ struct NetPayloadUnion {
     return type == NetPayload_ClientMobAttack ?
       reinterpret_cast<const fbs::ClientMobAttackT *>(value) : nullptr;
   }
+  fbs::ClientCharacterChatT *AsClientCharacterChat() {
+    return type == NetPayload_ClientCharacterChat ?
+      reinterpret_cast<fbs::ClientCharacterChatT *>(value) : nullptr;
+  }
+  const fbs::ClientCharacterChatT *AsClientCharacterChat() const {
+    return type == NetPayload_ClientCharacterChat ?
+      reinterpret_cast<const fbs::ClientCharacterChatT *>(value) : nullptr;
+  }
   fbs::ServerHeartbeatT *AsServerHeartbeat() {
     return type == NetPayload_ServerHeartbeat ?
       reinterpret_cast<fbs::ServerHeartbeatT *>(value) : nullptr;
@@ -457,6 +476,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ClientMobAttack *payload_as_ClientMobAttack() const {
     return payload_type() == fbs::NetPayload_ClientMobAttack ? static_cast<const fbs::ClientMobAttack *>(payload()) : nullptr;
   }
+  const fbs::ClientCharacterChat *payload_as_ClientCharacterChat() const {
+    return payload_type() == fbs::NetPayload_ClientCharacterChat ? static_cast<const fbs::ClientCharacterChat *>(payload()) : nullptr;
+  }
   const fbs::ServerHeartbeat *payload_as_ServerHeartbeat() const {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<const fbs::ServerHeartbeat *>(payload()) : nullptr;
   }
@@ -508,6 +530,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ClientMobAttack *mutable_payload_as_ClientMobAttack() {
     return payload_type() == fbs::NetPayload_ClientMobAttack ? static_cast<fbs::ClientMobAttack *>(mutable_payload()) : nullptr;
+  }
+  fbs::ClientCharacterChat *mutable_payload_as_ClientCharacterChat() {
+    return payload_type() == fbs::NetPayload_ClientCharacterChat ? static_cast<fbs::ClientCharacterChat *>(mutable_payload()) : nullptr;
   }
   fbs::ServerHeartbeat *mutable_payload_as_ServerHeartbeat() {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<fbs::ServerHeartbeat *>(mutable_payload()) : nullptr;
@@ -609,6 +634,14 @@ template<> inline const fbs::ClientMobAttack *NetPacket::payload_as<fbs::ClientM
 
 template<> inline fbs::ClientMobAttack *NetPacket::mutable_payload_as<fbs::ClientMobAttack>() {
   return mutable_payload_as_ClientMobAttack();
+}
+
+template<> inline const fbs::ClientCharacterChat *NetPacket::payload_as<fbs::ClientCharacterChat>() const {
+  return payload_as_ClientCharacterChat();
+}
+
+template<> inline fbs::ClientCharacterChat *NetPacket::mutable_payload_as<fbs::ClientCharacterChat>() {
+  return mutable_payload_as_ClientCharacterChat();
 }
 
 template<> inline const fbs::ServerHeartbeat *NetPacket::payload_as<fbs::ServerHeartbeat>() const {
@@ -787,6 +820,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ClientMobAttack *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ClientCharacterChat: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterChat *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeat *>(obj);
       return verifier.VerifyTable(ptr);
@@ -875,6 +912,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ClientMobAttack *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ClientCharacterChat: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterChat *>(obj);
+      return ptr->UnPack(resolver);
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeat *>(obj);
       return ptr->UnPack(resolver);
@@ -950,6 +991,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ClientMobAttackT *>(value);
       return CreateClientMobAttack(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ClientCharacterChat: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterChatT *>(value);
+      return CreateClientCharacterChat(_fbb, ptr, _rehasher).Union();
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeatT *>(value);
       return CreateServerHeartbeat(_fbb, ptr, _rehasher).Union();
@@ -1022,6 +1067,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ClientMobAttack: {
       value = new fbs::ClientMobAttackT(*reinterpret_cast<fbs::ClientMobAttackT *>(u.value));
+      break;
+    }
+    case NetPayload_ClientCharacterChat: {
+      value = new fbs::ClientCharacterChatT(*reinterpret_cast<fbs::ClientCharacterChatT *>(u.value));
       break;
     }
     case NetPayload_ServerHeartbeat: {
@@ -1103,6 +1152,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ClientMobAttack: {
       auto ptr = reinterpret_cast<fbs::ClientMobAttackT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ClientCharacterChat: {
+      auto ptr = reinterpret_cast<fbs::ClientCharacterChatT *>(value);
       delete ptr;
       break;
     }

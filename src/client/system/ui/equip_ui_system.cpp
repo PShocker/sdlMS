@@ -108,98 +108,106 @@ void equip_ui_system::render_equip_info() {
     return;
   }
   pos_rect = {
-      pos.x + earacc_slot.x,
-      pos.y + earacc_slot.y,
+      pos.x + earacc_slot.x + lt.x,
+      pos.y + earacc_slot.y + lt.y,
       32,
       32,
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.accessory.has_value()) {
-      tooltip_ui_system::render_equip(self.accessory.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.accessory.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }
   pos_rect = {
-      pos.x + clothes_slot.x,
-      pos.y + clothes_slot.y,
+      pos.x + clothes_slot.x + lt.x,
+      pos.y + clothes_slot.y + lt.y,
       32,
       32,
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.coat.has_value()) {
-      tooltip_ui_system::render_equip(self.coat.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.coat.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }
   pos_rect = {
-      pos.x + pants_slot.x,
-      pos.y + pants_slot.y,
+      pos.x + pants_slot.x + lt.x,
+      pos.y + pants_slot.y + lt.y,
       32,
       32,
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.pant.has_value()) {
-      tooltip_ui_system::render_equip(self.pant.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.pant.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }
   pos_rect = {
-      pos.x + shoes_slot.x,
-      pos.y + shoes_slot.y,
+      pos.x + shoes_slot.x + lt.x,
+      pos.y + shoes_slot.y + lt.y,
       32,
       32,
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.shoes.has_value()) {
-      tooltip_ui_system::render_equip(self.shoes.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.shoes.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }
   pos_rect = {
-      pos.x + gloves_slot.x,
-      pos.y + gloves_slot.y,
+      pos.x + gloves_slot.x + lt.x,
+      pos.y + gloves_slot.y + lt.y,
       32,
       32,
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.glove.has_value()) {
-      tooltip_ui_system::render_equip(self.glove.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.glove.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }
   pos_rect = {
-      pos.x + cape_slot.x,
-      pos.y + cape_slot.y,
+      pos.x + cape_slot.x + lt.x,
+      pos.y + cape_slot.y + lt.y,
       32,
       32,
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.cape.has_value()) {
-      tooltip_ui_system::render_equip(self.cape.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.cape.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }
   pos_rect = {
-      pos.x + shield_slot.x,
-      pos.y + shield_slot.y,
+      pos.x + shield_slot.x + lt.x,
+      pos.y + shield_slot.y + lt.y,
       32,
       32,
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.shield.has_value()) {
-      tooltip_ui_system::render_equip(self.shield.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.shield.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }
   pos_rect = {
-      pos.x + weapon_slot.x,
-      pos.y + weapon_slot.y,
+      pos.x + weapon_slot.x + lt.x,
+      pos.y + weapon_slot.y + lt.y,
       32,
       32,
   };
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     if (self.weapon.has_value()) {
-      tooltip_ui_system::render_equip(self.weapon.value(), 0, 0);
+      tooltip_ui_system::render_equip(self.weapon.value(), mouse_pos.x,
+                                      mouse_pos.y);
     }
     return;
   }

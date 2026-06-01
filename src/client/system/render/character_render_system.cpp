@@ -7,6 +7,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/render/effect_render_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -215,11 +216,16 @@ void character_render_system::render_tomb(game_character &g_character) {
   }
 }
 
+bool character_render_system::render_effect_back(game_character &g_character) {
+  return effect_render_system::render_character_back(&g_character);
+}
+
 bool character_render_system::render(game_character &g_character) {
   render_afterimage(g_character);
   render_tomb(g_character);
   render_character(g_character);
   render_nametag(g_character);
+  render_effect_back(g_character);
   // auto r = character_logic_system::load_rect(g_character);
   // auto &camera = camera_game_instance::camera;
   // r.x -= camera.x;

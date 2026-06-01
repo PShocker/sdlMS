@@ -69,6 +69,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_mob_instance::handle_attack(client_id, r);
     break;
   }
+  case NetPayload_ClientCharacterChat: {
+    auto payload = packet->payload_as_ClientCharacterChat();
+    fbs::ClientCharacterChatT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_chat(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;

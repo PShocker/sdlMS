@@ -33,3 +33,12 @@ table ClientMobAttack {
     map_id:uint32;
     payload:MobAttack;
 }
+
+table ClientCharacterChat {
+    map_id:uint32;
+    payload:CharacterChat;
+}
+
+table ClientCharacterStat {
+    payload:CharacterStat;
+}

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <ft2build.h>
+#include <string>
 
 #include FT_FREETYPE_H
 
@@ -52,4 +53,6 @@ public:
 
   static void draw_line(const std::u16string &str, float x, float y);
   static void draw_str(const std::u16string &str, float x, float y, float w);
+
+  static std::u16string load_u16str(const char *text);
 };

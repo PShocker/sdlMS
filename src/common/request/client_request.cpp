@@ -30,6 +30,10 @@ void client_request::scene_request(ClientSceneT &client_scene) {
   send_to_host(client_scene);
 }
 
+void client_request::character_chat_request(ClientCharacterChatT &c) {
+  send_to_host(c);
+}
+
 void client_request::character_logic_request(ClientCharacterLogicT &logic) {
   send_to_host(logic);
 }

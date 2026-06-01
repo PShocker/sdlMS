@@ -38,12 +38,6 @@ table Character{
     appearance:CharacterAppearance;
 }
 
-table CharacterState{
-    hp:uint32;
-    mp:uint32;
-    attack_speed:float;
-}
-
 table Movement{
     x1:float;
     y1:float;
@@ -150,4 +144,14 @@ table MobLogic{
     mob_index:uint32;
     mob_id:uint32;
     payload:MobLogicType;
+}
+
+table CharacterChat{
+    type:uint8;
+    payload:[uint16];
+}
+
+table CharacterStat{
+    type:uint8;
+    val:double;
 }
