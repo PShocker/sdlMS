@@ -14,20 +14,20 @@
 #include <string>
 
 void tooltip_ui_system::render_equip_req(uint32_t req, uint32_t val,
-                                         std::u16string path, float x,
+                                         const std::u16string &path, float x,
                                          float y) {
-  static auto e_node = wz_resource::ui->find(u"UIToolTip.img/Item/Equip");
-  auto color_node = e_node;
+  static auto equip_node = wz_resource::ui->find(u"UIToolTip.img/Item/Equip");
+  auto color_node = equip_node;
   SDL_Texture *texture;
   if (req == 0) {
-    texture = wz_resource::load_texture(e_node->find(u"Disabled/reqLEV"));
-    color_node = e_node->get_child(u"Disabled");
+    texture = wz_resource::load_texture(equip_node->find(u"Disabled/" + path));
+    color_node = equip_node->get_child(u"Disabled");
   } else if (req >= val) {
-    texture = wz_resource::load_texture(e_node->find(u"Cannot/reqLEV"));
-    color_node = e_node->get_child(u"Cannot");
+    texture = wz_resource::load_texture(equip_node->find(u"Cannot/" + path));
+    color_node = equip_node->get_child(u"Cannot");
   } else {
-    texture = wz_resource::load_texture(e_node->find(u"Can/reqLEV"));
-    color_node = e_node->get_child(u"Can");
+    texture = wz_resource::load_texture(equip_node->find(u"Can/" + path));
+    color_node = equip_node->get_child(u"Can");
   }
   SDL_FRect pos_rect = {
       x,
@@ -51,6 +51,36 @@ void tooltip_ui_system::render_equip_req(uint32_t req, uint32_t val,
     };
     SDL_RenderTexture(window::renderer, num_texture, nullptr, &r);
     w += num_texture->w + 1 - num_origin.x;
+  }
+}
+
+void tooltip_ui_system::render_equip_job(const std::u16string &id, float x,
+                                         float y) {
+  // job
+  auto jobs = equip_game_instance::load_equip_job(id);
+  static auto job_node = wz_resource::ui->find(u"UIToolTip.img/Item/Equip/Job");
+  wz::Node *node;
+  SDL_FRect pos_rect;
+  for (auto i : {
+           equip_game_instance::job_type::BEGINNER,
+           equip_game_instance::job_type::WARRIOR,
+           equip_game_instance::job_type::MAGICIAN,
+           equip_game_instance::job_type::BOWMAN,
+           equip_game_instance::job_type::THIEF,
+       }) {
+    if (jobs.contains(i)) {
+      node = job_node->get_child(u"enable");
+    } else {
+      node = job_node->get_child(u"disable");
+    }
+    node = node->get_child(std::to_string((uint8_t)i));
+    auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
+    auto texture = wz_resource::load_texture(node);
+    pos_rect.x = x - origin.x;
+    pos_rect.y = y - origin.y;
+    pos_rect.w = texture->w;
+    pos_rect.h = texture->h;
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
   }
 }
 
@@ -124,247 +154,41 @@ void tooltip_ui_system::render_equip(game_equip &equip, float x, float y) {
 
   SDL_RenderTexture(window::renderer, eqp_texture, nullptr, &pos_rect);
 
-  static auto e_node = wz_resource::ui->find(u"UIToolTip.img/Item/Equip");
-  auto color_node = e_node;
-  SDL_Texture *texture;
-
-  auto r_lev =
+  auto req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLevel"))
           ->get();
-  if (r_lev == 0) {
-    texture = wz_resource::load_texture(e_node->find(u"Disabled/reqLEV"));
-    color_node = e_node->get_child(u"Disabled");
-  } else if (r_lev >= character_stat_game_instance::level) {
-    texture = wz_resource::load_texture(e_node->find(u"Cannot/reqLEV"));
-    color_node = e_node->get_child(u"Cannot");
-  } else {
-    texture = wz_resource::load_texture(e_node->find(u"Can/reqLEV"));
-    color_node = e_node->get_child(u"Can");
-  }
-  pos_rect = {
-      x + base.x + 95,
-      y + base.y + 6,
-      static_cast<float>(texture->w),
-      static_cast<float>(texture->h),
-  };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  auto val = character_stat_game_instance::level;
+  render_equip_req(req, val, u"reqLEV", x + base.x + 95, y + base.y + 6);
 
-  auto lev_str = std::to_string(r_lev);
-  uint32_t w = 0;
-  for (auto c : lev_str) {
-    auto num_node = color_node->get_child(std::string{c});
-    auto num_texture = wz_resource::load_texture(num_node);
-    auto num_origin = wz_resource::load_fpoint(num_node->get_child(u"origin"));
-    SDL_FRect r = {
-        pos_rect.x + 54 + w - num_origin.x,
-        pos_rect.y,
-        static_cast<float>(num_texture->w),
-        static_cast<float>(num_texture->h),
-    };
-    SDL_RenderTexture(window::renderer, num_texture, nullptr, &r);
-    w += num_texture->w + 1 - num_origin.x;
-  }
-
-  //   str
-  auto r_str =
+  req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqSTR"))->get();
-  if (r_str == 0) {
-    texture = wz_resource::load_texture(e_node->find(u"Disabled/reqSTR"));
-    color_node = e_node->get_child(u"Disabled");
-  } else if (r_lev >= character_stat_game_instance::level) {
-    texture = wz_resource::load_texture(e_node->find(u"Cannot/reqSTR"));
-    color_node = e_node->get_child(u"Cannot");
-  } else {
-    texture = wz_resource::load_texture(e_node->find(u"Can/reqSTR"));
-    color_node = e_node->get_child(u"Can");
-  }
-  pos_rect = {
-      x + base.x + 95,
-      y + base.y + 18,
-      static_cast<float>(texture->w),
-      static_cast<float>(texture->h),
-  };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  val = character_stat_game_instance::str_point;
+  render_equip_req(req, val, u"reqSTR", x + base.x + 95, y + base.y + 18);
 
-  auto str_str = std::to_string(r_str);
-  w = 0;
-  for (auto c : str_str) {
-    auto num_node = color_node->get_child(std::string{c});
-    auto num_texture = wz_resource::load_texture(num_node);
-    auto num_origin = wz_resource::load_fpoint(num_node->get_child(u"origin"));
-    SDL_FRect r = {
-        pos_rect.x + 54 + w - num_origin.x,
-        pos_rect.y,
-        static_cast<float>(num_texture->w),
-        static_cast<float>(num_texture->h),
-    };
-    SDL_RenderTexture(window::renderer, num_texture, nullptr, &r);
-    w += num_texture->w + 1 - num_origin.x;
-  }
-
-  //   dex
-  auto r_dex =
+  req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqDEX"))->get();
-  if (r_str == 0) {
-    texture = wz_resource::load_texture(e_node->find(u"Disabled/reqDEX"));
-    color_node = e_node->get_child(u"Disabled");
-  } else if (r_lev >= character_stat_game_instance::level) {
-    texture = wz_resource::load_texture(e_node->find(u"Cannot/reqDEX"));
-    color_node = e_node->get_child(u"Cannot");
-  } else {
-    texture = wz_resource::load_texture(e_node->find(u"Can/reqDEX"));
-    color_node = e_node->get_child(u"Can");
-  }
-  pos_rect = {
-      x + base.x + 95,
-      y + base.y + 30,
-      static_cast<float>(texture->w),
-      static_cast<float>(texture->h),
-  };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  val = character_stat_game_instance::dex_point;
+  render_equip_req(req, val, u"reqDEX", x + base.x + 95, y + base.y + 30);
 
-  auto dex_str = std::to_string(r_dex);
-  w = 0;
-  for (auto c : dex_str) {
-    auto num_node = color_node->get_child(std::string{c});
-    auto num_texture = wz_resource::load_texture(num_node);
-    auto num_origin = wz_resource::load_fpoint(num_node->get_child(u"origin"));
-    SDL_FRect r = {
-        pos_rect.x + 54 + w - num_origin.x,
-        pos_rect.y,
-        static_cast<float>(num_texture->w),
-        static_cast<float>(num_texture->h),
-    };
-    SDL_RenderTexture(window::renderer, num_texture, nullptr, &r);
-    w += num_texture->w + 1 - num_origin.x;
-  }
-
-  //  int
-  auto r_int =
+  req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqINT"))->get();
-  if (r_str == 0) {
-    texture = wz_resource::load_texture(e_node->find(u"Disabled/reqINT"));
-    color_node = e_node->get_child(u"Disabled");
-  } else if (r_lev >= character_stat_game_instance::level) {
-    texture = wz_resource::load_texture(e_node->find(u"Cannot/reqINT"));
-    color_node = e_node->get_child(u"Cannot");
-  } else {
-    texture = wz_resource::load_texture(e_node->find(u"Can/reqINT"));
-    color_node = e_node->get_child(u"Can");
-  }
-  pos_rect = {
-      x + base.x + 95,
-      y + base.y + 42,
-      static_cast<float>(texture->w),
-      static_cast<float>(texture->h),
-  };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  val = character_stat_game_instance::int_point;
+  render_equip_req(req, val, u"reqINT", x + base.x + 95, y + base.y + 42);
 
-  auto int_str = std::to_string(r_int);
-  w = 0;
-  for (auto c : int_str) {
-    auto num_node = color_node->get_child(std::string{c});
-    auto num_texture = wz_resource::load_texture(num_node);
-    auto num_origin = wz_resource::load_fpoint(num_node->get_child(u"origin"));
-    SDL_FRect r = {
-        pos_rect.x + 54 + w - num_origin.x,
-        pos_rect.y,
-        static_cast<float>(num_texture->w),
-        static_cast<float>(num_texture->h),
-    };
-    SDL_RenderTexture(window::renderer, num_texture, nullptr, &r);
-    w += num_texture->w + 1 - num_origin.x;
-  }
-
-  //   luk
-  auto r_luk =
+  req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLUK"))->get();
-  if (r_str == 0) {
-    texture = wz_resource::load_texture(e_node->find(u"Disabled/reqLUK"));
-    color_node = e_node->get_child(u"Disabled");
-  } else if (r_lev >= character_stat_game_instance::level) {
-    texture = wz_resource::load_texture(e_node->find(u"Cannot/reqLUK"));
-    color_node = e_node->get_child(u"Cannot");
-  } else {
-    texture = wz_resource::load_texture(e_node->find(u"Can/reqLUK"));
-    color_node = e_node->get_child(u"Can");
-  }
-  pos_rect = {
-      x + base.x + 95,
-      y + base.y + 54,
-      static_cast<float>(texture->w),
-      static_cast<float>(texture->h),
-  };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  val = character_stat_game_instance::luk_point;
+  render_equip_req(req, val, u"reqLUK", x + base.x + 95, y + base.y + 54);
 
-  auto luk_str = std::to_string(r_luk);
-  w = 0;
-  for (auto c : luk_str) {
-    auto num_node = color_node->get_child(std::string{c});
-    auto num_texture = wz_resource::load_texture(num_node);
-    auto num_origin = wz_resource::load_fpoint(num_node->get_child(u"origin"));
-    SDL_FRect r = {
-        pos_rect.x + 54 + w - num_origin.x,
-        pos_rect.y,
-        static_cast<float>(num_texture->w),
-        static_cast<float>(num_texture->h),
-    };
-    SDL_RenderTexture(window::renderer, num_texture, nullptr, &r);
-    w += num_texture->w + 1 - num_origin.x;
-  }
+  req = 0;
+  val = 0;
+  render_equip_req(req, val, u"reqPOP", x + base.x + 95, y + base.y + 66);
 
-  // fame
-  texture = wz_resource::load_texture(e_node->find(u"Can/reqPOP"));
-  color_node = e_node->get_child(u"Can");
+  render_equip_job(equip.id, x + base.x, y + base.y + 80);
 
-  pos_rect = {
-      x + base.x + 95,
-      y + base.y + 66,
-      static_cast<float>(texture->w),
-      static_cast<float>(texture->h),
-  };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
-
-  auto fame_str = "0";
-  auto num_node = color_node->get_child(fame_str);
-  auto num_texture = wz_resource::load_texture(num_node);
-  SDL_FRect r = {
-      pos_rect.x + 54,
-      pos_rect.y,
-      static_cast<float>(num_texture->w),
-      static_cast<float>(num_texture->h),
-  };
-  SDL_RenderTexture(window::renderer, num_texture, nullptr, &r);
-
-  // job
-  auto jobs = equip_game_instance::load_equip_job(equip.id);
-
-  static auto job_node = wz_resource::ui->find(u"UIToolTip.img/Item/Equip/Job");
-  for (auto i : {
-           equip_game_instance::job_type::BEGINNER,
-           equip_game_instance::job_type::WARRIOR,
-           equip_game_instance::job_type::MAGICIAN,
-           equip_game_instance::job_type::BOWMAN,
-           equip_game_instance::job_type::THIEF,
-       }) {
-    if (jobs.contains(i)) {
-      color_node = job_node->get_child(u"enable");
-    } else {
-      color_node = job_node->get_child(u"disable");
-    }
-    color_node = color_node->get_child(std::to_string((uint8_t)i));
-    auto origin = wz_resource::load_fpoint(color_node->get_child(u"origin"));
-    texture = wz_resource::load_texture(color_node);
-    pos_rect.x = x + base.x - origin.x;
-    pos_rect.y = y + base.y - origin.y + 80;
-    pos_rect.w = texture->w;
-    pos_rect.h = texture->h;
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
-  }
-
+  auto line_y = y + base.y + 112;
   SDL_SetRenderDrawColor(window::renderer, 255, 255, 255, 255);
-  SDL_RenderLine(window::renderer, x + 5, pos_rect.y + 22, x + 230,
-                 pos_rect.y + 22);
+  SDL_RenderLine(window::renderer, x + 5, line_y, x + 230, line_y);
 
   freetype::load_aligned(false);
 }
