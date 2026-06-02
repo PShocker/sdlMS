@@ -37,6 +37,7 @@ struct character_avatar_render {
 struct character_face_render {
   // defalut ,stand0,0,0,0
   std::flat_map<std::u16string, character_avatar_render> data;
+  std::flat_map<std::u16string, std::vector<uint32_t>> delay;
 };
 
 struct character_other_data {

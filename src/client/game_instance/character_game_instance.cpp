@@ -823,6 +823,7 @@ void character_game_instance::add_face(game_character &g,
           }
           auto brow_pos = cbd.bone_pos.at(u"brow");
           std::vector<character_avatar> vc;
+          std::vector<uint32_t> vd;
           for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
             auto format2 = std::to_string(frame);
             auto f_node = v[0]->get_child(format2);
@@ -848,7 +849,17 @@ void character_game_instance::add_face(game_character &g,
             c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
             c.pos = {brow_pos.x - f_brow.x, brow_pos.y - f_brow.y};
             vc.push_back(c);
+
+            // delay
+            uint32_t delay = 0;
+            if (f_node->find(u"../delay")) {
+              delay =
+                  static_cast<wz::Property<int> *>(f_node->find(u"../delay"))
+                      ->get();
+            }
+            vd.push_back(delay);
           }
+          f.delay[k] = vd;
           f.data[k].data[bk].push_back(vc);
           f.data[k].islot = u"Fc";
           f.data[k].vslot = {u"Fc"}; // face只占用Fc

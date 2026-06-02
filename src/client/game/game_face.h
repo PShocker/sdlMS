@@ -5,7 +5,7 @@
 class game_face {
 public:
   std::u16string id;
-  std::u16string type;
-  uint32_t time;
-  uint8_t index;
+  std::u16string action = u"default";
+  uint32_t time = 0;
+  uint8_t index = 0;
 };

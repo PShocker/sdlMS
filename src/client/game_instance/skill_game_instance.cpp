@@ -3,6 +3,7 @@
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
+#include "wz/Property.h"
 #include <chrono>
 #include <cstdint>
 #include <flat_map>
@@ -46,12 +47,33 @@ SDL_FRect skill_game_instance::load_skill_rect(const std::u16string &id,
   return rect;
 }
 
-skill_game_instance::skill_type
-skill_game_instance::load_skill_type(const std::u16string &id, uint8_t l) {
-  return attack;
+std::flat_map<skill_game_instance::buff_attr, int32_t>
+skill_game_instance::load_skill_buff(const std::u16string &id, uint8_t l) {
+  const static std::flat_map<std::u16string, buff_attr> bufs{
+      {u"indieSpeed", speed},
+      {u"indieJump", jump},
+  };
+  std::flat_map<skill_game_instance::buff_attr, int32_t> r;
+  auto level_node = load_skill_level_node(id, l);
+  for (auto [k, v] : bufs) {
+    if (level_node->get_children()->contains(k)) {
+      auto buff_node = level_node->get_child(k);
+      auto buff_val = static_cast<wz::Property<int> *>(buff_node)->get();
+      r.insert({v, buff_val});
+    }
+  }
+  return r;
 }
 
-uint64_t skill_game_instance::load_beat_time(game_character &g_character) {
+bool skill_game_instance::load_skill_attack(const std::u16string &id, uint8_t l) {
+  auto level_node = load_skill_level_node(id, l);
+  if (level_node->get_children()->contains(u"mobCount")) {
+    return true;
+  }
+  return false;
+}
+
+uint64_t skill_game_instance::load_ski_time(game_character &g_character) {
   uint64_t r = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();

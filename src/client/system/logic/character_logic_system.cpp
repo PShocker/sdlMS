@@ -76,9 +76,9 @@ character_logic_system::run_attack_check(game_character &g_character,
         mob_action == mob_logic_system::action_enum::die) {
       continue;
     }
-    auto &m_pos = mob.pos;
     auto m_r = mob_logic_system::load_rect(mob).value();
     if (SDL_HasRectIntersectionFloat(&m_r, &g_r)) {
+      auto &m_pos = mob.pos;
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
                  (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
       SDL_FRect res;
@@ -96,6 +96,20 @@ character_logic_system::run_attack_check(game_character &g_character,
   return v;
 }
 
+std::vector<uint64_t>
+character_logic_system::run_buff_check(game_character &g_character,
+                                       SDL_FRect g_r) {
+  std::vector<uint64_t> r;
+  auto &g_pos = g_character.pos;
+  for (auto [k, o] : character_game_instance::others) {
+    auto o_r = load_rect(o.g_character);
+    if (SDL_HasRectIntersectionFloat(&o_r, &g_r)) {
+      r.push_back(k);
+    }
+  }
+  return r;
+}
+
 bool character_logic_system::run_action(game_character &g_character,
                                         const std::u16string &action) {
   if (g_character.action == action) {
@@ -104,6 +118,17 @@ bool character_logic_system::run_action(game_character &g_character,
   g_character.action = action;
   g_character.action_index = 0;
   g_character.action_time = 0;
+  return true;
+}
+
+bool character_logic_system::run_face_action(game_character &g_character,
+                                             const std::u16string &action) {
+  if (g_character.face.id == action) {
+    return false;
+  }
+  g_character.face.action = action;
+  g_character.face.index = 0;
+  g_character.face.time = 0;
   return true;
 }
 
@@ -509,14 +534,14 @@ bool character_logic_system::run_skill(game_character &g_character) {
       run_action(g_character, action4);
     }
     auto skill_level = job_skill_game_instance::load_self_skill_level(s_id2);
-    auto skill_type = skill_game_instance::load_skill_type(s_id2, skill_level);
+    auto skill_attack =
+        skill_game_instance::load_skill_attack(s_id2, skill_level);
 
     ClientCharacterAttackT t;
     ClientCharacterSkillT ckt;
     ckt.ski_id = std::stoi(s_id);
 
-    switch (skill_type) {
-    case skill_game_instance::attack: {
+    if (skill_attack) {
       auto g_r = skill_game_instance::load_skill_rect(s_id2, skill_level);
       auto atk_mobs = run_attack_check(g_character, g_r);
       if (!atk_mobs.empty()) {
@@ -528,8 +553,8 @@ bool character_logic_system::run_skill(game_character &g_character) {
         auto atk_count = static_cast<wz::Property<int32_t> *>(
                              skill_level_node->get_child(u"attackCount"))
                              ->get();
+        auto delay = skill_game_instance::load_ski_time(g_character);
         for (uint32_t i = 0; i < atk_mobs.size() && i < atk_mob_count; i++) {
-          auto delay = skill_game_instance::load_beat_time(g_character);
           CharacterAttackT ct;
           ct.mob_index = atk_mobs[i].mob.index;
           ct.attack = std::make_unique<AttackT>();
@@ -552,15 +577,24 @@ bool character_logic_system::run_skill(game_character &g_character) {
           ckt.payload.push_back(std::make_unique<CharacterSkillT>(c));
         }
       }
-      break;
     }
-    case skill_game_instance::move: {
-      break;
+    // buff
+    auto skill_buffs = skill_game_instance::load_skill_buff(s_id2, skill_level);
+    if (!skill_buffs.empty()) {
+      auto g_r = skill_game_instance::load_skill_rect(s_id2, skill_level);
+      auto o = run_buff_check(g_character, g_r);
+      auto delay = skill_game_instance::load_ski_time(g_character);
+      for (auto clients : o) {
+        CharacterSkillT c;
+        c.delay = delay;
+        c.mob = skill_level;
+        c.player = clients;
+        c.x = 0;
+        c.y = 0;
+        ckt.payload.push_back(std::make_unique<CharacterSkillT>(c));
+      }
     }
-    case skill_game_instance::buff: {
-      break;
-    }
-    }
+
     character_game_instance::load_character_skill(
         ckt.ski_id, ckt.payload, character_game_instance::self);
     client_request::character_skill_request(ckt);
@@ -618,7 +652,8 @@ bool character_logic_system::run_attack(game_character &g_character) {
                                std::vector<std::u16string>>
         weapon_attack_action2 = {
             {equip_game_instance::weapon_type::BOW, {u"swingT1", u"swingT3"}},
-            {equip_game_instance::weapon_type::CROSSBOW, {u"swingT1", u"stabT1"}},
+            {equip_game_instance::weapon_type::CROSSBOW,
+             {u"swingT1", u"stabT1"}},
             {equip_game_instance::weapon_type::CLAW, {u"stabO1", u"stabO2"}},
             {equip_game_instance::weapon_type::GUN, {u"swingP1", u"stabT2"}},
         };
@@ -733,6 +768,31 @@ bool character_logic_system::run_portal(game_character &g_character) {
 
 void character_logic_system::run_face(game_character &g_character) {
   // g_character.face;
+  g_character.face.time += window::delta_time;
+  const auto &delays =
+      character_game_instance::face_data.at(g_character.face.id)
+          .delay.at(g_character.face.action);
+  auto delay = delays[g_character.face.index];
+  if (delay != 0) {
+    if (g_character.face.time >= delay) {
+      g_character.face.index += 1;
+      if (g_character.face.index >= delays.size()) {
+        g_character.face.action = u"default";
+        g_character.face.index = 0;
+      }
+      g_character.face.time = 0;
+    }
+    return;
+  }
+  if (g_character.face.time >= 5000) {
+    if (g_character.face.action == u"default") {
+      g_character.face.action = u"blink";
+    } else {
+      g_character.face.action = u"default";
+    }
+    g_character.face.index = 0;
+    g_character.face.time = 0;
+  }
 }
 
 character_logic_system::pos_type
@@ -880,18 +940,28 @@ void character_logic_system::run_network_die_sync(game_character &g_character) {
 character_logic_system::action_enum
 character_logic_system::load_action_type(game_character &g_character) {
   const static std::flat_map<std::u16string, action_enum> map_name = {
-      {u"stand1", action_enum::stand},   {u"stand2", action_enum::stand},
-      {u"alert", action_enum::alert},    {u"walk1", action_enum::walk},
-      {u"walk2", action_enum::walk},     {u"prone", action_enum::prone},
-      {u"jump", action_enum::jump},      {u"ladder", action_enum::climb},
-      {u"rope", action_enum::climb},     {u"proneStab", action_enum::attack},
-      {u"stabO1", action_enum::attack},  {u"stabO2", action_enum::attack},
-      {u"swingO1", action_enum::attack}, {u"swingO2", action_enum::attack},
-      {u"swingO3", action_enum::attack}, {u"stabT1", action_enum::attack},
-      {u"swingP1", action_enum::attack}, {u"shoot1", action_enum::attack},
-      {u"swingT1", action_enum::attack}, {u"swingT2", action_enum::attack},
-      {u"swingT3", action_enum::attack}, {u"shot", action_enum::attack},
-      {u"stabT2", action_enum::attack},  {u"dead", action_enum::dead},
+      {u"stand1", action_enum::stand},    {u"stand2", action_enum::stand},
+      {u"alert", action_enum::alert},     {u"walk1", action_enum::walk},
+      {u"walk2", action_enum::walk},      {u"prone", action_enum::prone},
+      {u"jump", action_enum::jump},       {u"ladder", action_enum::climb},
+      {u"rope", action_enum::climb},      {u"proneStab", action_enum::attack},
+      {u"stabO1", action_enum::attack},   {u"stabO2", action_enum::attack},
+      {u"swingO1", action_enum::attack},  {u"swingO2", action_enum::attack},
+      {u"swingO3", action_enum::attack},  {u"stabT1", action_enum::attack},
+      {u"swingP1", action_enum::attack},  {u"shoot1", action_enum::attack},
+      {u"swingT1", action_enum::attack},  {u"swingT2", action_enum::attack},
+      {u"swingT3", action_enum::attack},  {u"shot", action_enum::attack},
+      {u"stabT2", action_enum::attack},   {u"dead", action_enum::dead},
+      {u"alert2", action_enum::skill},    {u"alert3", action_enum::skill},
+      {u"alert4", action_enum::skill},    {u"alert5", action_enum::skill},
+      {u"assaulter", action_enum::skill}, {u"avenger", action_enum::skill},
+      {u"burster1", action_enum::skill},  {u"burster2", action_enum::skill},
+      {u"craft", action_enum::skill},     {u"crawl", action_enum::skill},
+      {u"ladder2", action_enum::skill},   {u"magic1", action_enum::skill},
+      {u"magic2", action_enum::skill},    {u"magic3", action_enum::skill},
+      {u"prone2", action_enum::skill},    {u"rope2", action_enum::skill},
+      {u"savage", action_enum::skill},    {u"shoot6", action_enum::skill},
+      {u"shootDb1", action_enum::skill},  {u"shotC1", action_enum::skill},
   };
   auto action = map_name.at(g_character.action);
   if (action == action_enum::dead) {

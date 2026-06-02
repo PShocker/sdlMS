@@ -57,9 +57,12 @@ bool character_render_system::render_character(game_character &g_character) {
   const std::u16string action = g_character.action;
   if (character_game_instance::bone_data.at(action)[g_character.action_index]
           .face) {
-    const auto &face =
-        character_game_instance::face_data.at(g_character.face.id)
-            .data.at(u"default");
+    auto face = character_game_instance::face_data.at(g_character.face.id)
+                    .data.at(g_character.face.action);
+    auto data =
+        face.data.at(action)[g_character.action_index][g_character.face.index];
+    face.data.at(action)[g_character.action_index] = {data};
+
     render_parts.emplace(face.islot, &face);
   }
 
@@ -74,7 +77,7 @@ bool character_render_system::render_character(game_character &g_character) {
       std::flat_set<std::u16string> smaps_inter;
       for (const auto &pt : pts) {
         // 获取默认的smap
-        auto smaps = character_game_instance::smap.at(pt.z);
+        const auto &smaps = character_game_instance::smap.at(pt.z);
         // 求交集
         std::flat_set<std::u16string> smaps_inter2;
         std::ranges::set_intersection(

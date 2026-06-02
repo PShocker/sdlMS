@@ -22,6 +22,9 @@ private:
                                                    SDL_FRect g_r);
   static std::vector<attack_data> run_shoot_check(game_character &g_character);
 
+  static std::vector<uint64_t> run_buff_check(game_character &g_character,
+                                              SDL_FRect g_r);
+
   static void run_network_action_sync(game_character &g_character,
                                       game_character &o_character);
   static void run_network_flip_sync(game_character &g_character,
@@ -66,9 +69,9 @@ public:
                                game_character &o_character);
   static bool run_action(game_character &g_character,
                          const std::u16string &action);
-
+  static bool run_face_action(game_character &g_character,
+                              const std::u16string &action);
   static void run_die_action(game_character &g_character);
-
   static SDL_FRect load_rect(game_character &g_character);
   enum class action_enum {
     stand,

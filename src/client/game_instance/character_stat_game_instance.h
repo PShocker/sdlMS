@@ -34,7 +34,4 @@ public:
 
   static inline uint32_t crit_rate;
   static inline uint32_t crit_damage;
-
-  static inline uint32_t speed;
-  static inline uint32_t jump;
 };
