@@ -89,6 +89,7 @@ public:
   static bool run();
   static inline std::flat_set<std::string> character_action_input;
   static inline std::flat_set<std::string> character_skill_input;
+  static inline std::flat_set<std::string> character_face_input;
   static inline std::flat_set<game_input> character_item_input;
 
   static inline int32_t self_fh; // foothold

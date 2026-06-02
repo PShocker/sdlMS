@@ -23,6 +23,8 @@ bool keyboard_input_system::event(SDL_Event *event) {
         input_system::handle_action_input(g_input, true);
       } else if (g_input.type == "skill") {
         input_system::handle_skill_input(g_input, true);
+      } else if (g_input.type == "face") {
+        input_system::handle_face_input(g_input, true);
       }
     }
   } else if (event->type == SDL_EVENT_KEY_UP) {
@@ -32,6 +34,8 @@ bool keyboard_input_system::event(SDL_Event *event) {
       input_system::handle_action_input(g_input, false);
     } else if (g_input.type == "skill") {
       input_system::handle_skill_input(g_input, false);
+    } else if (g_input.type == "face") {
+      input_system::handle_face_input(g_input, false);
     }
   }
   return false;

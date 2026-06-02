@@ -7,4 +7,5 @@ public:
   static void handle_item_input(game_input &g_input, bool press);
   static void handle_action_input(game_input &g_input, bool press);
   static void handle_skill_input(game_input &g_input, bool press);
+  static void handle_face_input(game_input &g_input, bool press);
 };

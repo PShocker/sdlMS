@@ -129,6 +129,7 @@ bool character_logic_system::run_face_action(game_character &g_character,
   g_character.face.action = action;
   g_character.face.index = 0;
   g_character.face.time = 0;
+  g_character.face.destory = window::dt_now + 4000;
   return true;
 }
 
@@ -767,7 +768,11 @@ bool character_logic_system::run_portal(game_character &g_character) {
 }
 
 void character_logic_system::run_face(game_character &g_character) {
-  // g_character.face;
+  if (!character_face_input.empty()) {
+    auto &face = *character_face_input.begin();
+    run_face_action(g_character, std::u16string{face.begin(), face.end()});
+    return;
+  }
   g_character.face.time += window::delta_time;
   const auto &delays =
       character_game_instance::face_data.at(g_character.face.id)
@@ -777,14 +782,18 @@ void character_logic_system::run_face(game_character &g_character) {
     if (g_character.face.time >= delay) {
       g_character.face.index += 1;
       if (g_character.face.index >= delays.size()) {
-        g_character.face.action = u"default";
+        if (g_character.face.action == u"blink" ||
+            (g_character.face.destory <= window::dt_now)) {
+          g_character.face.action = u"default";
+          g_character.face.destory = window::dt_now + 4000;
+        }
         g_character.face.index = 0;
       }
       g_character.face.time = 0;
     }
     return;
   }
-  if (g_character.face.time >= 5000) {
+  if (g_character.face.destory <= window::dt_now) {
     if (g_character.face.action == u"default") {
       g_character.face.action = u"blink";
     } else {
@@ -792,6 +801,7 @@ void character_logic_system::run_face(game_character &g_character) {
     }
     g_character.face.index = 0;
     g_character.face.time = 0;
+    g_character.face.destory = window::dt_now + 4000;
   }
 }
 

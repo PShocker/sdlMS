@@ -50,3 +50,11 @@ void input_system::handle_skill_input(game_input &g_input, bool press) {
     character_logic_system::character_skill_input.erase(g_input.val);
   }
 }
+
+void input_system::handle_face_input(game_input &g_input, bool press) {
+  if (press) {
+    character_logic_system::character_face_input.insert(g_input.val);
+  } else {
+    character_logic_system::character_face_input.erase(g_input.val);
+  }
+}

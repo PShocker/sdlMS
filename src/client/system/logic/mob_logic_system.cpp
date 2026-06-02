@@ -137,6 +137,7 @@ void mob_logic_system::run_collision() {
     if (character_stat_game_instance::hp_point <= 0) {
       character_logic_system::run_die_action(self);
     } else {
+      character_logic_system::run_face_action(self, u"hit");
       character_logic_system::run_network_sync(self, o_character);
     }
     auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
