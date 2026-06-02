@@ -57,12 +57,11 @@ bool character_render_system::render_character(game_character &g_character) {
   const std::u16string action = g_character.action;
   if (character_game_instance::bone_data.at(action)[g_character.action_index]
           .face) {
-    auto face = character_game_instance::face_data.at(g_character.face.id)
-                    .data.at(g_character.face.action);
-    auto data =
-        face.data.at(action)[g_character.action_index][g_character.face.index];
-    face.data.at(action)[g_character.action_index] = {data};
-
+    auto &face = character_game_instance::face_data.at(g_character.face.id)
+                     .data.at(g_character.face.action);
+    face.data.at(action)[g_character.action_index] = {
+        face.data.at(action)[g_character.action_index][g_character.face.index],
+    };
     render_parts.emplace(face.islot, &face);
   }
 
