@@ -45,6 +45,11 @@ void server_character_instance::save_state(uint64_t client_id,
     character->state->action_animate = true;
     break;
   }
+  case CharacterLogicType_Face: {
+    const auto f = m.payload.AsFace();
+    character->state->face_action = f->face_action;
+    break;
+  }
   default: {
     std::abort();
     break;

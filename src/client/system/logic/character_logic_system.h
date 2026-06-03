@@ -31,10 +31,13 @@ private:
                                     game_character &o_character);
   static void run_network_movement_sync(game_character &g_character,
                                         game_character &o_character);
+  static void run_network_face_sync(game_character &g_character,
+                                    game_character &o_character);
   static void run_walk_action(game_character &g_character);
   static void run_stand_action(game_character &g_character);
   static void run_climb_action(game_character &g_character);
   static bool run_animate(game_character &g_character);
+  static void run_face_animate(game_character &g_character);
   static bool run_flip(game_character &g_character);
   static void run_pick(game_character &g_character);
   static bool run_walk(game_character &g_character);
@@ -48,7 +51,7 @@ private:
   static bool run_attack(game_character &g_character);
   static bool run_skill(game_character &g_character);
   static bool run_portal(game_character &g_character);
-  static void run_face(game_character &g_character);
+  static bool run_face(game_character &g_character);
   static void run_tomb(game_character &g_character);
   static void run_state_machine(game_character &g_character);
   enum class pos_type {
@@ -58,7 +61,7 @@ private:
   };
   static pos_type load_pos_type(game_character &g_character);
 
-  static void run_others_animate();
+  static void run_others_state_machine();
   static void run_others_logic();
   static void run_others();
 

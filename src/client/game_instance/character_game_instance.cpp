@@ -1017,7 +1017,8 @@ void character_game_instance::other_character_logic(
   const auto client_id = r.payload->client_id;
   if (others.contains(client_id)) {
     auto &logics = others[client_id].logics;
-    logics[r.payload->payload.type].push_back(r.payload->payload);
+    auto type = r.payload->payload.type;
+    logics[type].push_back(r.payload->payload);
   }
 }
 

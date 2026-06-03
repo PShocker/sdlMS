@@ -94,7 +94,26 @@ bool character_info_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
+bool character_info_ui_system::event_open(SDL_Event *event) {
+  switch (event->type) {
+  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks == 2) {
+      // 双击
+    }
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return true;
+}
+
 bool character_info_ui_system::event(SDL_Event *event) {
+  auto fn = &render;
+  if (!std::ranges::contains(system::render_systems, fn)) {
+    return event_open(event);
+  }
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {

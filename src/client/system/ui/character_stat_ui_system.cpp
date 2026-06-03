@@ -183,13 +183,13 @@ void character_stat_ui_system::render_text() {
     s = std::to_string(crit_damage);
     s2 = std::u16string{s.begin(), s.end()};
     freetype::draw_line(s2, p.x, p.y);
-    // spd
+    // hspd
     p = {dx + 78, dy + 154};
     auto hspd = character_logic_system::self_hspeed_max;
     s = std::to_string((int)hspd);
     s2 = std::u16string{s.begin(), s.end()};
     freetype::draw_line(s2, p.x, p.y);
-    // spd
+    // vspd
     p = {dx + 78, dy + 172};
     auto vspd = -character_logic_system::self_vspeed_min * 0.1;
     s = std::to_string((int)vspd);

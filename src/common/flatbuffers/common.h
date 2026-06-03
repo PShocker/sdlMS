@@ -75,6 +75,10 @@ struct MobAttack;
 struct MobAttackBuilder;
 struct MobAttackT;
 
+struct Face;
+struct FaceBuilder;
+struct FaceT;
+
 struct CharacterLogic;
 struct CharacterLogicBuilder;
 struct CharacterLogicT;
@@ -97,35 +101,38 @@ enum CharacterLogicType : uint8_t {
   CharacterLogicType_Flip = 2,
   CharacterLogicType_Action = 3,
   CharacterLogicType_Die = 4,
+  CharacterLogicType_Face = 5,
   CharacterLogicType_MIN = CharacterLogicType_NONE,
-  CharacterLogicType_MAX = CharacterLogicType_Die
+  CharacterLogicType_MAX = CharacterLogicType_Face
 };
 
-inline const CharacterLogicType (&EnumValuesCharacterLogicType())[5] {
+inline const CharacterLogicType (&EnumValuesCharacterLogicType())[6] {
   static const CharacterLogicType values[] = {
     CharacterLogicType_NONE,
     CharacterLogicType_Movement,
     CharacterLogicType_Flip,
     CharacterLogicType_Action,
-    CharacterLogicType_Die
+    CharacterLogicType_Die,
+    CharacterLogicType_Face
   };
   return values;
 }
 
 inline const char * const *EnumNamesCharacterLogicType() {
-  static const char * const names[6] = {
+  static const char * const names[7] = {
     "NONE",
     "Movement",
     "Flip",
     "Action",
     "Die",
+    "Face",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameCharacterLogicType(CharacterLogicType e) {
-  if (::flatbuffers::IsOutRange(e, CharacterLogicType_NONE, CharacterLogicType_Die)) return "";
+  if (::flatbuffers::IsOutRange(e, CharacterLogicType_NONE, CharacterLogicType_Face)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesCharacterLogicType()[index];
 }
@@ -150,6 +157,10 @@ template<> struct CharacterLogicTypeTraits<fbs::Die> {
   static const CharacterLogicType enum_value = CharacterLogicType_Die;
 };
 
+template<> struct CharacterLogicTypeTraits<fbs::Face> {
+  static const CharacterLogicType enum_value = CharacterLogicType_Face;
+};
+
 template<typename T> struct CharacterLogicTypeUnionTraits {
   static const CharacterLogicType enum_value = CharacterLogicType_NONE;
 };
@@ -168,6 +179,10 @@ template<> struct CharacterLogicTypeUnionTraits<fbs::ActionT> {
 
 template<> struct CharacterLogicTypeUnionTraits<fbs::DieT> {
   static const CharacterLogicType enum_value = CharacterLogicType_Die;
+};
+
+template<> struct CharacterLogicTypeUnionTraits<fbs::FaceT> {
+  static const CharacterLogicType enum_value = CharacterLogicType_Face;
 };
 
 struct CharacterLogicTypeUnion {
@@ -231,6 +246,14 @@ struct CharacterLogicTypeUnion {
   const fbs::DieT *AsDie() const {
     return type == CharacterLogicType_Die ?
       reinterpret_cast<const fbs::DieT *>(value) : nullptr;
+  }
+  fbs::FaceT *AsFace() {
+    return type == CharacterLogicType_Face ?
+      reinterpret_cast<fbs::FaceT *>(value) : nullptr;
+  }
+  const fbs::FaceT *AsFace() const {
+    return type == CharacterLogicType_Face ?
+      reinterpret_cast<const fbs::FaceT *>(value) : nullptr;
   }
 };
 
@@ -396,6 +419,7 @@ struct LifeStateT : public ::flatbuffers::NativeTable {
   bool action_animate = false;
   uint8_t page = 0;
   bool flip = false;
+  std::string face_action{};
 };
 
 struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -408,7 +432,8 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_ACTION_INDEX = 10,
     VT_ACTION_ANIMATE = 12,
     VT_PAGE = 14,
-    VT_FLIP = 16
+    VT_FLIP = 16,
+    VT_FACE_ACTION = 18
   };
   float x() const {
     return GetField<float>(VT_X, 0.0f);
@@ -452,6 +477,12 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_flip(bool _flip = 0) {
     return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
   }
+  const ::flatbuffers::String *face_action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FACE_ACTION);
+  }
+  ::flatbuffers::String *mutable_face_action() {
+    return GetPointer<::flatbuffers::String *>(VT_FACE_ACTION);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -463,6 +494,8 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_ACTION_ANIMATE, 1) &&
            VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
            VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
+           VerifyOffset(verifier, VT_FACE_ACTION) &&
+           verifier.VerifyString(face_action()) &&
            verifier.EndTable();
   }
   LifeStateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -495,6 +528,9 @@ struct LifeStateBuilder {
   void add_flip(bool flip) {
     fbb_.AddElement<uint8_t>(LifeState::VT_FLIP, static_cast<uint8_t>(flip), 0);
   }
+  void add_face_action(::flatbuffers::Offset<::flatbuffers::String> face_action) {
+    fbb_.AddOffset(LifeState::VT_FACE_ACTION, face_action);
+  }
   explicit LifeStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -514,8 +550,10 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeState(
     uint8_t action_index = 0,
     bool action_animate = false,
     uint8_t page = 0,
-    bool flip = false) {
+    bool flip = false,
+    ::flatbuffers::Offset<::flatbuffers::String> face_action = 0) {
   LifeStateBuilder builder_(_fbb);
+  builder_.add_face_action(face_action);
   builder_.add_action(action);
   builder_.add_y(y);
   builder_.add_x(x);
@@ -534,8 +572,10 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
     uint8_t action_index = 0,
     bool action_animate = false,
     uint8_t page = 0,
-    bool flip = false) {
+    bool flip = false,
+    const char *face_action = nullptr) {
   auto action__ = action ? _fbb.CreateString(action) : 0;
+  auto face_action__ = face_action ? _fbb.CreateString(face_action) : 0;
   return fbs::CreateLifeState(
       _fbb,
       x,
@@ -544,7 +584,8 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
       action_index,
       action_animate,
       page,
-      flip);
+      flip,
+      face_action__);
 }
 
 ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2036,6 +2077,72 @@ inline ::flatbuffers::Offset<MobAttack> CreateMobAttack(
 
 ::flatbuffers::Offset<MobAttack> CreateMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct FaceT : public ::flatbuffers::NativeTable {
+  typedef Face TableType;
+  std::string face_action{};
+};
+
+struct Face FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef FaceT NativeTableType;
+  typedef FaceBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_FACE_ACTION = 4
+  };
+  const ::flatbuffers::String *face_action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FACE_ACTION);
+  }
+  ::flatbuffers::String *mutable_face_action() {
+    return GetPointer<::flatbuffers::String *>(VT_FACE_ACTION);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_FACE_ACTION) &&
+           verifier.VerifyString(face_action()) &&
+           verifier.EndTable();
+  }
+  FaceT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(FaceT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Face> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const FaceT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct FaceBuilder {
+  typedef Face Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_face_action(::flatbuffers::Offset<::flatbuffers::String> face_action) {
+    fbb_.AddOffset(Face::VT_FACE_ACTION, face_action);
+  }
+  explicit FaceBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Face> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Face>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Face> CreateFace(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> face_action = 0) {
+  FaceBuilder builder_(_fbb);
+  builder_.add_face_action(face_action);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Face> CreateFaceDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *face_action = nullptr) {
+  auto face_action__ = face_action ? _fbb.CreateString(face_action) : 0;
+  return fbs::CreateFace(
+      _fbb,
+      face_action__);
+}
+
+::flatbuffers::Offset<Face> CreateFace(::flatbuffers::FlatBufferBuilder &_fbb, const FaceT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct CharacterLogicT : public ::flatbuffers::NativeTable {
   typedef CharacterLogic TableType;
   uint64_t client_id = 0;
@@ -2075,6 +2182,9 @@ struct CharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::Die *payload_as_Die() const {
     return payload_type() == fbs::CharacterLogicType_Die ? static_cast<const fbs::Die *>(payload()) : nullptr;
   }
+  const fbs::Face *payload_as_Face() const {
+    return payload_type() == fbs::CharacterLogicType_Face ? static_cast<const fbs::Face *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::Movement *mutable_payload_as_Movement() {
     return payload_type() == fbs::CharacterLogicType_Movement ? static_cast<fbs::Movement *>(mutable_payload()) : nullptr;
@@ -2087,6 +2197,9 @@ struct CharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::Die *mutable_payload_as_Die() {
     return payload_type() == fbs::CharacterLogicType_Die ? static_cast<fbs::Die *>(mutable_payload()) : nullptr;
+  }
+  fbs::Face *mutable_payload_as_Face() {
+    return payload_type() == fbs::CharacterLogicType_Face ? static_cast<fbs::Face *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -2135,6 +2248,14 @@ template<> inline const fbs::Die *CharacterLogic::payload_as<fbs::Die>() const {
 
 template<> inline fbs::Die *CharacterLogic::mutable_payload_as<fbs::Die>() {
   return mutable_payload_as_Die();
+}
+
+template<> inline const fbs::Face *CharacterLogic::payload_as<fbs::Face>() const {
+  return payload_as_Face();
+}
+
+template<> inline fbs::Face *CharacterLogic::mutable_payload_as<fbs::Face>() {
+  return mutable_payload_as_Face();
 }
 
 struct CharacterLogicBuilder {
@@ -2496,6 +2617,7 @@ inline void LifeState::UnPackTo(LifeStateT *_o, const ::flatbuffers::resolver_fu
   { auto _e = action_animate(); _o->action_animate = _e; }
   { auto _e = page(); _o->page = _e; }
   { auto _e = flip(); _o->flip = _e; }
+  { auto _e = face_action(); if (_e) _o->face_action = _e->str(); }
 }
 
 inline ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2513,6 +2635,7 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
   auto _action_animate = _o->action_animate;
   auto _page = _o->page;
   auto _flip = _o->flip;
+  auto _face_action = _o->face_action.empty() ? 0 : _fbb.CreateString(_o->face_action);
   return fbs::CreateLifeState(
       _fbb,
       _x,
@@ -2521,7 +2644,8 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
       _action_index,
       _action_animate,
       _page,
-      _flip);
+      _flip,
+      _face_action);
 }
 
 inline CharacterAppearanceT *CharacterAppearance::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -3098,6 +3222,32 @@ inline ::flatbuffers::Offset<MobAttack> MobAttack::Pack(::flatbuffers::FlatBuffe
       _attack);
 }
 
+inline FaceT *Face::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<FaceT>(new FaceT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Face::UnPackTo(FaceT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = face_action(); if (_e) _o->face_action = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<Face> CreateFace(::flatbuffers::FlatBufferBuilder &_fbb, const FaceT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Face::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Face> Face::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const FaceT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const FaceT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _face_action = _o->face_action.empty() ? 0 : _fbb.CreateString(_o->face_action);
+  return fbs::CreateFace(
+      _fbb,
+      _face_action);
+}
+
 inline CharacterLogicT *CharacterLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<CharacterLogicT>(new CharacterLogicT());
   UnPackTo(_o.get(), _resolver);
@@ -3245,6 +3395,10 @@ inline bool VerifyCharacterLogicType(::flatbuffers::VerifierTemplate<B> &verifie
       auto ptr = reinterpret_cast<const fbs::Die *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case CharacterLogicType_Face: {
+      auto ptr = reinterpret_cast<const fbs::Face *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -3281,6 +3435,10 @@ inline void *CharacterLogicTypeUnion::UnPack(const void *obj, CharacterLogicType
       auto ptr = reinterpret_cast<const fbs::Die *>(obj);
       return ptr->UnPack(resolver);
     }
+    case CharacterLogicType_Face: {
+      auto ptr = reinterpret_cast<const fbs::Face *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -3304,6 +3462,10 @@ inline ::flatbuffers::Offset<void> CharacterLogicTypeUnion::Pack(::flatbuffers::
       auto ptr = reinterpret_cast<const fbs::DieT *>(value);
       return CreateDie(_fbb, ptr, _rehasher).Union();
     }
+    case CharacterLogicType_Face: {
+      auto ptr = reinterpret_cast<const fbs::FaceT *>(value);
+      return CreateFace(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -3324,6 +3486,10 @@ inline CharacterLogicTypeUnion::CharacterLogicTypeUnion(const CharacterLogicType
     }
     case CharacterLogicType_Die: {
       value = new fbs::DieT(*reinterpret_cast<fbs::DieT *>(u.value));
+      break;
+    }
+    case CharacterLogicType_Face: {
+      value = new fbs::FaceT(*reinterpret_cast<fbs::FaceT *>(u.value));
       break;
     }
     default:
@@ -3350,6 +3516,11 @@ inline void CharacterLogicTypeUnion::Reset() {
     }
     case CharacterLogicType_Die: {
       auto ptr = reinterpret_cast<fbs::DieT *>(value);
+      delete ptr;
+      break;
+    }
+    case CharacterLogicType_Face: {
+      auto ptr = reinterpret_cast<fbs::FaceT *>(value);
       delete ptr;
       break;
     }

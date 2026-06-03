@@ -45,6 +45,7 @@
 #include "src/client/system/render/reactor_render_system.h"
 #include "src/client/system/render/tile_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/window/window.h"
@@ -146,6 +147,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       keyboard_input_system::event,
       statusbar_ui_system::event,
       minimap_ui_system::event,
+      character_info_ui_system::event,
   };
   system::logic_systems = {
       backgrnd_logic_system::run,  ball_logic_system::run,

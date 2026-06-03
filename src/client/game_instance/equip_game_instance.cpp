@@ -128,3 +128,28 @@ equip_game_instance::load_equip_job(const std::u16string &id) {
   }
   return r;
 }
+
+std::flat_map<equip_game_instance::inc_type, int>
+equip_game_instance::load_equip_inc(const std::u16string &id) {
+  std::flat_map<equip_game_instance::inc_type, int> r;
+  auto equip_info = load_equip_info(id);
+  static const std::flat_map<std::u16string, inc_type> incs = {
+      {u"attackSpeed", equip_game_instance::inc_type::WEAPON_ATTACK_SPEED},
+      {u"incPAD", equip_game_instance::inc_type::WEAPON_PAD},
+      {u"incMAD", equip_game_instance::inc_type::WEAPON_MAD},
+      {u"incPDD", equip_game_instance::inc_type::PDD},
+      {u"incACC", equip_game_instance::inc_type::ACC},
+      {u"incSTR", equip_game_instance::inc_type::STR},
+      {u"incDEX", equip_game_instance::inc_type::DEX},
+      {u"incINT", equip_game_instance::inc_type::INT},
+      {u"incLUK", equip_game_instance::inc_type::LUK},
+  };
+  for (auto [k, v] : incs) {
+    if (equip_info->get_children()->contains(k)) {
+      auto node = equip_info->get_child(k);
+      r[v] = static_cast<wz::Property<int> *>(node)->get();
+    }
+  }
+
+  return r;
+}

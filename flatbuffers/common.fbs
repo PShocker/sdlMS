@@ -10,6 +10,8 @@ table LifeState{
 
     page:uint8;
     flip:bool;
+
+    face_action:string;
 }
 
 table CharacterAppearance{
@@ -121,11 +123,17 @@ table MobAttack{
     attack:Attack;
 }
 
+
+table Face{
+    face_action:string;
+}
+
 union CharacterLogicType {
     Movement,
     Flip,
     Action,
     Die,
+    Face,
 }
 
 union MobLogicType {

@@ -13,6 +13,96 @@
 #include <cstdint>
 #include <string>
 
+float tooltip_ui_system::load_equip_bottom_h(const std::u16string &id) {
+  auto equip_inc = equip_game_instance::load_equip_inc(id);
+  freetype::load_size(13);
+  auto h = freetype::load_lh();
+  return h * (equip_inc.size() + 1);
+}
+
+void tooltip_ui_system::render_equip_bottom(const std::u16string &id, float x,
+                                            float y) {
+  auto equip_inc = equip_game_instance::load_equip_inc(id);
+  freetype::load_size(13);
+  auto h = freetype::load_lh();
+  //   type
+  auto equip_type = equip_game_instance::load_equip_type(id);
+  if (equip_type == u"Weapon") {
+    auto weapon_node =
+        wz_resource::string2->get_root()->find(u"Equip.img/Weapon/Type");
+    auto sub_id = id.substr(0, 4);
+    equip_type = static_cast<wz::Property<std::u16string> *>(
+                     weapon_node->get_child(sub_id))
+                     ->get();
+  }
+  auto str_node = wz_resource::string2->get_root()->find(u"Equip.img/TYPE");
+  auto type_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+  freetype::load_aligned(true);
+  freetype::load_color(255, 0, 0, 255);
+  freetype::draw_line(type_str, x, y);
+  auto w = freetype::load_w(type_str);
+
+  // weapon pad
+  if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_PAD)) {
+  }
+  // weapon speed
+  if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_ATTACK_SPEED)) {
+    auto str_node =
+        wz_resource::string2->get_root()->find(u"Equip.img/WEAPON_SPEED");
+    auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+    std::u16string val_str;
+    auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_ATTACK_SPEED);
+    if (val < 4) {
+      // slow
+    }
+  }
+  // weapon mad
+  if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_MAD)) {
+    auto str_node =
+        wz_resource::string2->get_root()->find(u"Equip.img/WEAPON_MAD");
+    auto mad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+    auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_MAD);
+  }
+
+  if (equip_inc.contains(equip_game_instance::inc_type::STR)) {
+    auto str_node =
+        wz_resource::string2->get_root()->find(u"Character.img/STR");
+    auto str_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+    auto val = equip_inc.at(equip_game_instance::inc_type::STR);
+  }
+
+  if (equip_inc.contains(equip_game_instance::inc_type::DEX)) {
+    auto str_node =
+        wz_resource::string2->get_root()->find(u"Character.img/DEX");
+    auto dex_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+    auto val = equip_inc.at(equip_game_instance::inc_type::DEX);
+  }
+
+  if (equip_inc.contains(equip_game_instance::inc_type::INT)) {
+    auto str_node =
+        wz_resource::string2->get_root()->find(u"Character.img/INT");
+    auto int_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+    auto val = equip_inc.at(equip_game_instance::inc_type::INT);
+  }
+
+  if (equip_inc.contains(equip_game_instance::inc_type::SPEED)) {
+    auto str_node =
+        wz_resource::string2->get_root()->find(u"Character.img/SPEED");
+    auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+    auto val = equip_inc.at(equip_game_instance::inc_type::SPEED);
+  }
+
+  if (equip_inc.contains(equip_game_instance::inc_type::JUMP)) {
+    auto str_node =
+        wz_resource::string2->get_root()->find(u"Character.img/JUMP");
+    auto jump_str =
+        static_cast<wz::Property<std::u16string> *>(str_node)->get();
+    auto val = equip_inc.at(equip_game_instance::inc_type::JUMP);
+  }
+
+  freetype::load_aligned(false);
+}
+
 void tooltip_ui_system::render_equip_req(uint32_t req, uint32_t val,
                                          const std::u16string &path, float x,
                                          float y) {

@@ -767,12 +767,16 @@ bool character_logic_system::run_portal(game_character &g_character) {
   return false;
 }
 
-void character_logic_system::run_face(game_character &g_character) {
+bool character_logic_system::run_face(game_character &g_character) {
   if (!character_face_input.empty()) {
     auto &face = *character_face_input.begin();
     run_face_action(g_character, std::u16string{face.begin(), face.end()});
-    return;
+    return true;
   }
+  return false;
+}
+
+void character_logic_system::run_face_animate(game_character &g_character) {
   g_character.face.time += window::delta_time;
   const auto &delays =
       character_game_instance::face_data.at(g_character.face.id)
@@ -803,6 +807,7 @@ void character_logic_system::run_face(game_character &g_character) {
     g_character.face.time = 0;
     g_character.face.destory = window::dt_now + 4000;
   }
+  return;
 }
 
 character_logic_system::pos_type
@@ -929,11 +934,33 @@ void character_logic_system::run_network_movement_sync(
   }
 }
 
+void character_logic_system::run_network_face_sync(
+    game_character &g_character, game_character &o_character) {
+  if (g_character.face.action == u"blink") {
+    // blink状态不同步
+    return;
+  }
+  bool face_changed = o_character.face.action != g_character.face.action;
+  if (!face_changed)
+    return;
+
+  auto &action = g_character.face.action;
+  FaceT ft;
+  ft.face_action = std::string{action.begin(), action.end()};
+
+  ClientCharacterLogicT req;
+  req.map_id = scene_system_instance::map_id;
+  req.payload.Set(ft);
+  client_request::character_logic_request(req);
+  return;
+}
+
 void character_logic_system::run_network_sync(game_character &g_character,
                                               game_character &o_character) {
   run_network_movement_sync(g_character, o_character);
   run_network_flip_sync(g_character, o_character);
   run_network_action_sync(g_character, o_character);
+  run_network_face_sync(g_character, o_character);
 }
 
 void character_logic_system::run_network_die_sync(game_character &g_character) {
@@ -1026,6 +1053,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   auto o_character = g_character;
   auto g_action = load_action_type(g_character);
   run_face(g_character);
+  run_face_animate(g_character);
   switch (g_action) {
   case action_enum::stand:
   case action_enum::alert:
@@ -1223,6 +1251,19 @@ void character_logic_system::run_others_logic() {
         v.clear();
         break;
       }
+      case fbs::CharacterLogicType_Face: {
+        if (v.empty()) {
+          break;
+        }
+        auto f = v[0].AsFace();
+        c.g_character.face.action =
+            std::u16string{f->face_action.begin(), f->face_action.end()};
+        c.g_character.face.index = 0;
+        c.g_character.face.time = 0;
+        c.g_character.face.destory = UINT64_MAX;
+        v.clear();
+        break;
+      }
       default: {
         std::abort();
       }
@@ -1231,9 +1272,10 @@ void character_logic_system::run_others_logic() {
   }
 }
 
-void character_logic_system::run_others_animate() {
+void character_logic_system::run_others_state_machine() {
   for (auto &c : character_game_instance::others | std::views::values) {
     auto &g_character = c.g_character;
+    run_face_animate(g_character);
     auto g_action = load_action_type(g_character);
     switch (g_action) {
     case action_enum::stand:
@@ -1270,7 +1312,7 @@ void character_logic_system::run_others_animate() {
 }
 
 void character_logic_system::run_others() {
-  run_others_animate();
+  run_others_state_machine();
   run_others_logic();
 }
 
