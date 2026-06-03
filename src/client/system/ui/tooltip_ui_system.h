@@ -12,7 +12,9 @@ private:
   static void render_equip_req(uint32_t req, uint32_t val,
                                const std::u16string &path, float x, float y);
   static void render_equip_job(const std::u16string &id, float x, float y);
-  static void render_equip_bottom(const std::u16string &id, float x, float y);
+  static void render_equip_bottom_inc(std::u16string label, std::u16string val,
+                                      float x, float &y);
+  static void render_equip_bottom(game_equip &equip, float x, float y);
   static float load_equip_bottom_h(const std::u16string &id);
 
 public:

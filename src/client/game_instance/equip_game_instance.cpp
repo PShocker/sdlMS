@@ -1,6 +1,7 @@
 #include "equip_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <cstdint>
 #include <flat_map>
 #include <flat_set>
 #include <ranges>
@@ -134,7 +135,7 @@ equip_game_instance::load_equip_inc(const std::u16string &id) {
   std::flat_map<equip_game_instance::inc_type, int> r;
   auto equip_info = load_equip_info(id);
   static const std::flat_map<std::u16string, inc_type> incs = {
-      {u"attackSpeed", equip_game_instance::inc_type::WEAPON_ATTACK_SPEED},
+      {u"attackSpeed", equip_game_instance::inc_type::WEAPON_SPEED},
       {u"incPAD", equip_game_instance::inc_type::WEAPON_PAD},
       {u"incMAD", equip_game_instance::inc_type::WEAPON_MAD},
       {u"incPDD", equip_game_instance::inc_type::PDD},
@@ -152,4 +153,9 @@ equip_game_instance::load_equip_inc(const std::u16string &id) {
   }
 
   return r;
+}
+
+uint8_t equip_game_instance::load_equip_tuc(const std::u16string &id) {
+  auto equip_info = load_equip_info(id);
+  return static_cast<wz::Property<int> *>(equip_info->get_child(u"tuc"))->get();
 }

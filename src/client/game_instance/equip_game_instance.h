@@ -27,10 +27,9 @@ public:
     THIEF,
   };
   enum class inc_type : uint8_t {
-    WEAPON_ATTACK_SPEED,
+    WEAPON_SPEED,
     WEAPON_PAD,
     WEAPON_MAD,
-    WEAPON_ATTACK_DEF,
     STR,
     DEX,
     INT,
@@ -52,6 +51,7 @@ public:
   static std::u16string load_equip_name(const std::u16string &id);
   static std::flat_set<job_type> load_equip_job(const std::u16string &id);
   static std::u16string load_equip_type(const std::u16string &id);
+  static uint8_t load_equip_tuc(const std::u16string &id);
 
   static std::flat_map<inc_type, int> load_equip_inc(const std::u16string &id);
 };
