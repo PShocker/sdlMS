@@ -104,7 +104,6 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
   if (equip_inc.contains(equip_game_instance::inc_type::PDD)) {
     str_node = wz_resource::string2->get_root()->find(u"Character.img/PDD");
     auto pdd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    pdd_str += u":";
     auto val = equip_inc.at(equip_game_instance::inc_type::PDD);
     auto val_str = "+" + std::to_string(val);
     render_equip_bottom_inc(
