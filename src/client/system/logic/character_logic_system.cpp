@@ -1260,7 +1260,11 @@ void character_logic_system::run_others_logic() {
             std::u16string{f->face_action.begin(), f->face_action.end()};
         c.g_character.face.index = 0;
         c.g_character.face.time = 0;
-        c.g_character.face.destory = UINT64_MAX;
+        if (c.g_character.face.action == u"default") {
+          c.g_character.face.destory = window::dt_now + 4000;
+        } else {
+          c.g_character.face.destory = UINT64_MAX;
+        }
         v.clear();
         break;
       }

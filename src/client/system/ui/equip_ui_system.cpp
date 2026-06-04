@@ -91,6 +91,10 @@ void equip_ui_system::render_equip() {
 }
 
 void equip_ui_system::render_equip_info() {
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  if (cursor_in != render) {
+    return;
+  }
   const SDL_FPoint lt{4, 45};
   auto &self = character_game_instance::self;
   SDL_FRect pos_rect{

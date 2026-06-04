@@ -3,11 +3,16 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
+#include <cstdint>
 #include <optional>
+#include <string>
 #include <vector>
 class character_info_ui_system {
 private:
   static void render_backgrnd();
+  static void render_button();
+  static void render_character();
+  static void render_text();
 
   static SDL_FPoint load_wh();
   static void event_top();
@@ -15,18 +20,35 @@ private:
   static void event_drag_end();
   static void event_drag_move(SDL_Event *event);
 
-  static bool event_click_check(game_character &g_character);
+  static void event_button_party();
+  static void event_button_trade();
+  static void event_button_toggleitem();
+  static void event_button_wishlist();
+  static void event_button_up_fame();
+  static void event_button_dowm_fame();
+  static void event_button_show_pet();
+  static void event_close();
+
+  static bool event_button(SDL_Event *event);
+
+  static bool event_open_check(game_character &g_character);
   static bool event_open(SDL_Event *event);
 
   static bool run();
 
   static inline std::optional<SDL_FPoint> drag;
 
-  static inline bool item_list;
+  static inline bool item;
   static inline bool pet;
 
 public:
+  static inline game_character character;
+  static inline std::u16string character_job;
+  static inline int32_t character_fame;
+
   static inline SDL_FPoint pos;
+
+  static void load_avatar(game_character &c, std::u16string &j, int32_t f);
 
   static bool cursor_in();
 

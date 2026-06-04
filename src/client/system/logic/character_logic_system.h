@@ -34,7 +34,6 @@ private:
   static void run_network_face_sync(game_character &g_character,
                                     game_character &o_character);
   static void run_walk_action(game_character &g_character);
-  static void run_stand_action(game_character &g_character);
   static void run_climb_action(game_character &g_character);
   static bool run_animate(game_character &g_character);
   static void run_face_animate(game_character &g_character);
@@ -75,6 +74,7 @@ public:
   static bool run_face_action(game_character &g_character,
                               const std::u16string &action);
   static void run_die_action(game_character &g_character);
+  static void run_stand_action(game_character &g_character);
   static SDL_FRect load_rect(game_character &g_character);
   enum class action_enum {
     stand,

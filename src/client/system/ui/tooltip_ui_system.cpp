@@ -53,7 +53,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
   //   type
   auto equip_type = equip_game_instance::load_equip_type(id);
   if (equip_type == u"Weapon") {
-    auto weapon_node =
+    static auto weapon_node =
         wz_resource::string2->get_root()->find(u"Equip.img/Weapon/Type");
     auto sub_id = id.substr(0, 4);
     equip_type = static_cast<wz::Property<std::u16string> *>(
