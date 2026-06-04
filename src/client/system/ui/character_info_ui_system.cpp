@@ -1,11 +1,14 @@
 #include "character_info_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
+#include <ranges>
 
 SDL_FPoint character_info_ui_system::load_wh() { return SDL_FPoint{277, 183}; }
 
@@ -94,11 +97,31 @@ bool character_info_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
+bool character_info_ui_system::event_click_check(game_character &g_character) {
+  auto &camera = camera_game_instance::camera;
+  auto r = character_logic_system::load_rect(g_character);
+  r.x -= camera.x;
+  r.y -= camera.y;
+  return SDL_PointInRectFloat(&window::mouse_pos, &r);
+}
+
 bool character_info_ui_system::event_open(SDL_Event *event) {
+  bool r = false;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks == 2) {
       // 双击
+      if (event_click_check(character_game_instance::self)) {
+        r = true;
+        break;
+      }
+      for (auto &other_data :
+           character_game_instance::others | std::views::values) {
+        if (event_click_check(other_data.g_character)) {
+          r = true;
+          break;
+        }
+      }
     }
     break;
   }
@@ -106,13 +129,16 @@ bool character_info_ui_system::event_open(SDL_Event *event) {
     break;
   }
   }
-  return true;
+  if (r) {
+    open();
+  }
+  return r;
 }
 
 bool character_info_ui_system::event(SDL_Event *event) {
   auto fn = &render;
   if (!std::ranges::contains(system::render_systems, fn)) {
-    return event_open(event);
+    return !event_open(event);
   }
   bool r = true;
   switch (event->type) {
