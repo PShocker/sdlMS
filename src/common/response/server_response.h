@@ -1,27 +1,27 @@
 #pragma once
 
+#include "src/common/flatbuffers/protocol.h"
 #include "src/common/flatbuffers/server.h"
+#include "src/server/server_main.h"
 #include <cstdint>
 
 using namespace fbs;
 
 class server_response {
 public:
-  static void heartbeat_response(uint64_t client_id);
-  static void scene_response(uint64_t client_id, ServerSceneT &r);
+  template <typename T>
+  static void send_to_client(uint64_t client_id, T &message_data) {
+    // 构建 NetPacket
+    NetPacketT packet;
+    NetPayloadUnion u;
+    u.Set((message_data));
+    packet.payload = u;
 
-  static void character_in_response(uint64_t client_id, ServerCharacterInT &r);
-  static void character_out_response(uint64_t client_id,
-                                     ServerCharacterOutT &r);
-  static void character_logic_response(uint64_t client_id,
-                                       ServerCharacterLogicT &r);
-  static void character_attack_response(uint64_t client_id,
-                                        ServerCharacterAttackT &r);
-  static void character_skill_response(uint64_t client_id,
-                                       ServerCharacterSkillT &r);
-  static void character_chat_response(uint64_t client_id,
-                                      ServerCharacterChatT &r);
-
-  static void mob_logic_response(uint64_t client_id, ServerMobLogicT &r);
-  static void mob_attack_response(uint64_t client_id, ServerMobAttackT &r);
+    // 序列化并发送
+    flatbuffers::FlatBufferBuilder builder;
+    auto packet_offset = NetPacket::Pack(builder, &packet);
+    builder.Finish(packet_offset);
+    server_main::server_send(builder.GetBufferPointer(), builder.GetSize(),
+                             client_id);
+  }
 };

@@ -43,7 +43,7 @@ void character_stat_ui_system::render_text() {
   freetype::load_color(0, 0, 0, 255);
   freetype::draw_line(self_name, p.x, p.y);
   // job
-  auto self_job = job_skill_game_instance::self_job;
+  auto self_job = self.job;
   p = {pos.x + 61, pos.y + 55};
   static auto job_node = wz_resource::ui->find(u"CharacterStat.img/Main/Job");
   auto job_texture = wz_resource::load_texture(
@@ -70,7 +70,7 @@ void character_stat_ui_system::render_text() {
 
   // level
   p = {pos.x + 60, pos.y + 79};
-  auto level = character_stat_game_instance::level;
+  auto level = self.level;
   auto level1 = std::to_string(level);
   auto level2 = std::u16string{level1.begin(), level1.end()};
   freetype::draw_line(level2, p.x, p.y);
@@ -98,7 +98,7 @@ void character_stat_ui_system::render_text() {
 
   // fame
   p = {pos.x + 60, pos.y + 151};
-  auto fame = character_stat_game_instance::fame;
+  auto fame = self.fame;
   auto fame1 = std::to_string(fame);
   auto fame2 = std::u16string{fame1.begin(), fame1.end()};
   freetype::draw_line(fame2, p.x, p.y);

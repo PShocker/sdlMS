@@ -1,8 +1,6 @@
 #include "character_stat_game_instance.h"
 
 void character_stat_game_instance::load() {
-  level = 100;
-
   hp_point = 100;
   hp_point_max = 100;
 

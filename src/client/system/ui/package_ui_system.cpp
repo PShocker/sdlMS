@@ -4,6 +4,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -80,7 +81,7 @@ void package_ui_system::render_items() {
         break;
       }
 
-      auto id = equips[0]->id;
+      auto id = equips[i]->id;
       auto info = equip_game_instance::load_equip_info(id);
       auto icon = wz_resource::load_texture(info->get_child(u"icon"));
 
@@ -95,6 +96,50 @@ void package_ui_system::render_items() {
       SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
     }
   } else {
+    std::array<std::optional<game_item>, 96> *r;
+    switch (active_tab) {
+    case 1: {
+      r = &package_game_instance::cosumes;
+      break;
+    }
+    case 2: {
+      r = &package_game_instance::etc;
+      break;
+    }
+    case 3: {
+      r = &package_game_instance::install;
+      break;
+    }
+    case 4: {
+      r = &package_game_instance::cash;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    for (uint8_t i = page * 5; i <= r->size(); i++) {
+      auto row = i / 5 - page;
+      auto col = i % 5;
+
+      if (row >= 6) {
+        break;
+      }
+
+      auto id = r->at(i)->id;
+      auto info = item_game_instance::load_item_info(id);
+      auto icon = wz_resource::load_texture(info->get_child(u"icon"));
+
+      SDL_FRect pos_rect{
+          static_cast<float>(
+              int(pos.x + slot_pos.x + col * 32 + col * slot_space_x)),
+          static_cast<float>(
+              int(pos.y + slot_pos.y + row * 32 + row * slot_space_y)),
+          static_cast<float>(icon->w),
+          static_cast<float>(icon->h),
+      };
+      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+    }
   }
 }
 

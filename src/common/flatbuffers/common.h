@@ -95,6 +95,10 @@ struct CharacterStat;
 struct CharacterStatBuilder;
 struct CharacterStatT;
 
+struct EquipScroll;
+struct EquipScrollBuilder;
+struct EquipScrollT;
+
 enum CharacterLogicType : uint8_t {
   CharacterLogicType_NONE = 0,
   CharacterLogicType_Movement = 1,
@@ -419,7 +423,6 @@ struct LifeStateT : public ::flatbuffers::NativeTable {
   bool action_animate = false;
   uint8_t page = 0;
   bool flip = false;
-  std::string face_action{};
 };
 
 struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -432,8 +435,7 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_ACTION_INDEX = 10,
     VT_ACTION_ANIMATE = 12,
     VT_PAGE = 14,
-    VT_FLIP = 16,
-    VT_FACE_ACTION = 18
+    VT_FLIP = 16
   };
   float x() const {
     return GetField<float>(VT_X, 0.0f);
@@ -477,12 +479,6 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_flip(bool _flip = 0) {
     return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
   }
-  const ::flatbuffers::String *face_action() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_FACE_ACTION);
-  }
-  ::flatbuffers::String *mutable_face_action() {
-    return GetPointer<::flatbuffers::String *>(VT_FACE_ACTION);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -494,8 +490,6 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_ACTION_ANIMATE, 1) &&
            VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
            VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
-           VerifyOffset(verifier, VT_FACE_ACTION) &&
-           verifier.VerifyString(face_action()) &&
            verifier.EndTable();
   }
   LifeStateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -528,9 +522,6 @@ struct LifeStateBuilder {
   void add_flip(bool flip) {
     fbb_.AddElement<uint8_t>(LifeState::VT_FLIP, static_cast<uint8_t>(flip), 0);
   }
-  void add_face_action(::flatbuffers::Offset<::flatbuffers::String> face_action) {
-    fbb_.AddOffset(LifeState::VT_FACE_ACTION, face_action);
-  }
   explicit LifeStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -550,10 +541,8 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeState(
     uint8_t action_index = 0,
     bool action_animate = false,
     uint8_t page = 0,
-    bool flip = false,
-    ::flatbuffers::Offset<::flatbuffers::String> face_action = 0) {
+    bool flip = false) {
   LifeStateBuilder builder_(_fbb);
-  builder_.add_face_action(face_action);
   builder_.add_action(action);
   builder_.add_y(y);
   builder_.add_x(x);
@@ -572,10 +561,8 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
     uint8_t action_index = 0,
     bool action_animate = false,
     uint8_t page = 0,
-    bool flip = false,
-    const char *face_action = nullptr) {
+    bool flip = false) {
   auto action__ = action ? _fbb.CreateString(action) : 0;
-  auto face_action__ = face_action ? _fbb.CreateString(face_action) : 0;
   return fbs::CreateLifeState(
       _fbb,
       x,
@@ -584,8 +571,7 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
       action_index,
       action_animate,
       page,
-      flip,
-      face_action__);
+      flip);
 }
 
 ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -833,6 +819,11 @@ struct CharacterT : public ::flatbuffers::NativeTable {
   std::vector<uint16_t> name{};
   std::unique_ptr<fbs::LifeStateT> state{};
   std::unique_ptr<fbs::CharacterAppearanceT> appearance{};
+  int32_t fame = 0;
+  std::string job{};
+  uint32_t level = 0;
+  std::string face_action{};
+  std::vector<std::unique_ptr<fbs::EquipScrollT>> equip_scrolls{};
   CharacterT() = default;
   CharacterT(const CharacterT &o);
   CharacterT(CharacterT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -845,7 +836,12 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
     VT_STATE = 6,
-    VT_APPEARANCE = 8
+    VT_APPEARANCE = 8,
+    VT_FAME = 10,
+    VT_JOB = 12,
+    VT_LEVEL = 14,
+    VT_FACE_ACTION = 16,
+    VT_EQUIP_SCROLLS = 18
   };
   const ::flatbuffers::Vector<uint16_t> *name() const {
     return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
@@ -865,6 +861,36 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::CharacterAppearance *mutable_appearance() {
     return GetPointer<fbs::CharacterAppearance *>(VT_APPEARANCE);
   }
+  int32_t fame() const {
+    return GetField<int32_t>(VT_FAME, 0);
+  }
+  bool mutate_fame(int32_t _fame = 0) {
+    return SetField<int32_t>(VT_FAME, _fame, 0);
+  }
+  const ::flatbuffers::String *job() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_JOB);
+  }
+  ::flatbuffers::String *mutable_job() {
+    return GetPointer<::flatbuffers::String *>(VT_JOB);
+  }
+  uint32_t level() const {
+    return GetField<uint32_t>(VT_LEVEL, 0);
+  }
+  bool mutate_level(uint32_t _level = 0) {
+    return SetField<uint32_t>(VT_LEVEL, _level, 0);
+  }
+  const ::flatbuffers::String *face_action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_FACE_ACTION);
+  }
+  ::flatbuffers::String *mutable_face_action() {
+    return GetPointer<::flatbuffers::String *>(VT_FACE_ACTION);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *equip_scrolls() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *>(VT_EQUIP_SCROLLS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *mutable_equip_scrolls() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *>(VT_EQUIP_SCROLLS);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -874,6 +900,15 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyTable(state()) &&
            VerifyOffset(verifier, VT_APPEARANCE) &&
            verifier.VerifyTable(appearance()) &&
+           VerifyField<int32_t>(verifier, VT_FAME, 4) &&
+           VerifyOffset(verifier, VT_JOB) &&
+           verifier.VerifyString(job()) &&
+           VerifyField<uint32_t>(verifier, VT_LEVEL, 4) &&
+           VerifyOffset(verifier, VT_FACE_ACTION) &&
+           verifier.VerifyString(face_action()) &&
+           VerifyOffset(verifier, VT_EQUIP_SCROLLS) &&
+           verifier.VerifyVector(equip_scrolls()) &&
+           verifier.VerifyVectorOfTables(equip_scrolls()) &&
            verifier.EndTable();
   }
   CharacterT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -894,6 +929,21 @@ struct CharacterBuilder {
   void add_appearance(::flatbuffers::Offset<fbs::CharacterAppearance> appearance) {
     fbb_.AddOffset(Character::VT_APPEARANCE, appearance);
   }
+  void add_fame(int32_t fame) {
+    fbb_.AddElement<int32_t>(Character::VT_FAME, fame, 0);
+  }
+  void add_job(::flatbuffers::Offset<::flatbuffers::String> job) {
+    fbb_.AddOffset(Character::VT_JOB, job);
+  }
+  void add_level(uint32_t level) {
+    fbb_.AddElement<uint32_t>(Character::VT_LEVEL, level, 0);
+  }
+  void add_face_action(::flatbuffers::Offset<::flatbuffers::String> face_action) {
+    fbb_.AddOffset(Character::VT_FACE_ACTION, face_action);
+  }
+  void add_equip_scrolls(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> equip_scrolls) {
+    fbb_.AddOffset(Character::VT_EQUIP_SCROLLS, equip_scrolls);
+  }
   explicit CharacterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -909,8 +959,18 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name = 0,
     ::flatbuffers::Offset<fbs::LifeState> state = 0,
-    ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0) {
+    ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
+    int32_t fame = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> job = 0,
+    uint32_t level = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> face_action = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> equip_scrolls = 0) {
   CharacterBuilder builder_(_fbb);
+  builder_.add_equip_scrolls(equip_scrolls);
+  builder_.add_face_action(face_action);
+  builder_.add_level(level);
+  builder_.add_job(job);
+  builder_.add_fame(fame);
   builder_.add_appearance(appearance);
   builder_.add_state(state);
   builder_.add_name(name);
@@ -921,13 +981,26 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const std::vector<uint16_t> *name = nullptr,
     ::flatbuffers::Offset<fbs::LifeState> state = 0,
-    ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0) {
+    ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
+    int32_t fame = 0,
+    const char *job = nullptr,
+    uint32_t level = 0,
+    const char *face_action = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::EquipScroll>> *equip_scrolls = nullptr) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
+  auto job__ = job ? _fbb.CreateString(job) : 0;
+  auto face_action__ = face_action ? _fbb.CreateString(face_action) : 0;
+  auto equip_scrolls__ = equip_scrolls ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>>(*equip_scrolls) : 0;
   return fbs::CreateCharacter(
       _fbb,
       name__,
       state,
-      appearance);
+      appearance,
+      fame,
+      job__,
+      level,
+      face_action__,
+      equip_scrolls__);
 }
 
 ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2601,6 +2674,90 @@ inline ::flatbuffers::Offset<CharacterStat> CreateCharacterStat(
 
 ::flatbuffers::Offset<CharacterStat> CreateCharacterStat(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterStatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct EquipScrollT : public ::flatbuffers::NativeTable {
+  typedef EquipScroll TableType;
+  uint32_t equip_id = 0;
+  uint32_t scroll_id = 0;
+  bool success = false;
+};
+
+struct EquipScroll FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef EquipScrollT NativeTableType;
+  typedef EquipScrollBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EQUIP_ID = 4,
+    VT_SCROLL_ID = 6,
+    VT_SUCCESS = 8
+  };
+  uint32_t equip_id() const {
+    return GetField<uint32_t>(VT_EQUIP_ID, 0);
+  }
+  bool mutate_equip_id(uint32_t _equip_id = 0) {
+    return SetField<uint32_t>(VT_EQUIP_ID, _equip_id, 0);
+  }
+  uint32_t scroll_id() const {
+    return GetField<uint32_t>(VT_SCROLL_ID, 0);
+  }
+  bool mutate_scroll_id(uint32_t _scroll_id = 0) {
+    return SetField<uint32_t>(VT_SCROLL_ID, _scroll_id, 0);
+  }
+  bool success() const {
+    return GetField<uint8_t>(VT_SUCCESS, 0) != 0;
+  }
+  bool mutate_success(bool _success = 0) {
+    return SetField<uint8_t>(VT_SUCCESS, static_cast<uint8_t>(_success), 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_EQUIP_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_SCROLL_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_SUCCESS, 1) &&
+           verifier.EndTable();
+  }
+  EquipScrollT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(EquipScrollT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<EquipScroll> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const EquipScrollT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct EquipScrollBuilder {
+  typedef EquipScroll Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_equip_id(uint32_t equip_id) {
+    fbb_.AddElement<uint32_t>(EquipScroll::VT_EQUIP_ID, equip_id, 0);
+  }
+  void add_scroll_id(uint32_t scroll_id) {
+    fbb_.AddElement<uint32_t>(EquipScroll::VT_SCROLL_ID, scroll_id, 0);
+  }
+  void add_success(bool success) {
+    fbb_.AddElement<uint8_t>(EquipScroll::VT_SUCCESS, static_cast<uint8_t>(success), 0);
+  }
+  explicit EquipScrollBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<EquipScroll> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<EquipScroll>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<EquipScroll> CreateEquipScroll(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t equip_id = 0,
+    uint32_t scroll_id = 0,
+    bool success = false) {
+  EquipScrollBuilder builder_(_fbb);
+  builder_.add_scroll_id(scroll_id);
+  builder_.add_equip_id(equip_id);
+  builder_.add_success(success);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<EquipScroll> CreateEquipScroll(::flatbuffers::FlatBufferBuilder &_fbb, const EquipScrollT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline LifeStateT *LifeState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<LifeStateT>(new LifeStateT());
   UnPackTo(_o.get(), _resolver);
@@ -2617,7 +2774,6 @@ inline void LifeState::UnPackTo(LifeStateT *_o, const ::flatbuffers::resolver_fu
   { auto _e = action_animate(); _o->action_animate = _e; }
   { auto _e = page(); _o->page = _e; }
   { auto _e = flip(); _o->flip = _e; }
-  { auto _e = face_action(); if (_e) _o->face_action = _e->str(); }
 }
 
 inline ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2635,7 +2791,6 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
   auto _action_animate = _o->action_animate;
   auto _page = _o->page;
   auto _flip = _o->flip;
-  auto _face_action = _o->face_action.empty() ? 0 : _fbb.CreateString(_o->face_action);
   return fbs::CreateLifeState(
       _fbb,
       _x,
@@ -2644,8 +2799,7 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
       _action_index,
       _action_animate,
       _page,
-      _flip,
-      _face_action);
+      _flip);
 }
 
 inline CharacterAppearanceT *CharacterAppearance::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -2716,13 +2870,24 @@ inline ::flatbuffers::Offset<CharacterAppearance> CharacterAppearance::Pack(::fl
 inline CharacterT::CharacterT(const CharacterT &o)
       : name(o.name),
         state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
-        appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr) {
+        appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr),
+        fame(o.fame),
+        job(o.job),
+        level(o.level),
+        face_action(o.face_action) {
+  equip_scrolls.reserve(o.equip_scrolls.size());
+  for (const auto &equip_scrolls_ : o.equip_scrolls) { equip_scrolls.emplace_back((equip_scrolls_) ? new fbs::EquipScrollT(*equip_scrolls_) : nullptr); }
 }
 
 inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(name, o.name);
   std::swap(state, o.state);
   std::swap(appearance, o.appearance);
+  std::swap(fame, o.fame);
+  std::swap(job, o.job);
+  std::swap(level, o.level);
+  std::swap(face_action, o.face_action);
+  std::swap(equip_scrolls, o.equip_scrolls);
   return *this;
 }
 
@@ -2738,6 +2903,11 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   { auto _e = name(); if (_e) { _o->name.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->name[_i] = _e->Get(_i); } } else { _o->name.resize(0); } }
   { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
   { auto _e = appearance(); if (_e) { if(_o->appearance) { _e->UnPackTo(_o->appearance.get(), _resolver); } else { _o->appearance = std::unique_ptr<fbs::CharacterAppearanceT>(_e->UnPack(_resolver)); } } else if (_o->appearance) { _o->appearance.reset(); } }
+  { auto _e = fame(); _o->fame = _e; }
+  { auto _e = job(); if (_e) _o->job = _e->str(); }
+  { auto _e = level(); _o->level = _e; }
+  { auto _e = face_action(); if (_e) _o->face_action = _e->str(); }
+  { auto _e = equip_scrolls(); if (_e) { _o->equip_scrolls.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->equip_scrolls[_i]) { _e->Get(_i)->UnPackTo(_o->equip_scrolls[_i].get(), _resolver); } else { _o->equip_scrolls[_i] = std::unique_ptr<fbs::EquipScrollT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->equip_scrolls.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2751,11 +2921,21 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   auto _name = _o->name.size() ? _fbb.CreateVector(_o->name) : 0;
   auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
   auto _appearance = _o->appearance ? CreateCharacterAppearance(_fbb, _o->appearance.get(), _rehasher) : 0;
+  auto _fame = _o->fame;
+  auto _job = _o->job.empty() ? 0 : _fbb.CreateString(_o->job);
+  auto _level = _o->level;
+  auto _face_action = _o->face_action.empty() ? 0 : _fbb.CreateString(_o->face_action);
+  auto _equip_scrolls = _o->equip_scrolls.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>> (_o->equip_scrolls.size(), [](size_t i, _VectorArgs *__va) { return CreateEquipScroll(*__va->__fbb, __va->__o->equip_scrolls[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateCharacter(
       _fbb,
       _name,
       _state,
-      _appearance);
+      _appearance,
+      _fame,
+      _job,
+      _level,
+      _face_action,
+      _equip_scrolls);
 }
 
 inline MovementT *Movement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -3371,6 +3551,38 @@ inline ::flatbuffers::Offset<CharacterStat> CharacterStat::Pack(::flatbuffers::F
       _fbb,
       _type,
       _val);
+}
+
+inline EquipScrollT *EquipScroll::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<EquipScrollT>(new EquipScrollT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void EquipScroll::UnPackTo(EquipScrollT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = equip_id(); _o->equip_id = _e; }
+  { auto _e = scroll_id(); _o->scroll_id = _e; }
+  { auto _e = success(); _o->success = _e; }
+}
+
+inline ::flatbuffers::Offset<EquipScroll> CreateEquipScroll(::flatbuffers::FlatBufferBuilder &_fbb, const EquipScrollT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return EquipScroll::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<EquipScroll> EquipScroll::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const EquipScrollT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const EquipScrollT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _equip_id = _o->equip_id;
+  auto _scroll_id = _o->scroll_id;
+  auto _success = _o->success;
+  return fbs::CreateEquipScroll(
+      _fbb,
+      _equip_id,
+      _scroll_id,
+      _success);
 }
 
 template <bool B>

@@ -270,7 +270,7 @@ void server_mob_system::run_send() {
   r.payload = std::move(unique_logics);
   auto &clients = server_scene_instance::scenes[map_id].clients;
   for (auto client_id : clients) {
-    server_response::mob_logic_response(client_id, r);
+    server_response::send_to_client(client_id, r);
   }
   unique_logics.clear();
 }

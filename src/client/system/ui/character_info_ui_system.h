@@ -43,12 +43,10 @@ private:
 
 public:
   static inline game_character character;
-  static inline std::u16string character_job;
-  static inline int32_t character_fame;
 
   static inline SDL_FPoint pos;
 
-  static void load_avatar(game_character &c, std::u16string &j, int32_t f);
+  static void load_avatar(game_character &g_character);
 
   static bool cursor_in();
 

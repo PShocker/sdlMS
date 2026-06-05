@@ -1,20 +1,27 @@
 #pragma once
 
 #include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/protocol.h"
+#include "src/server/server_main.h"
 #include <cstdint>
 
 using namespace fbs;
 
 class client_request {
 public:
-  static void heartbeat_request();
+  template <typename T> static void send_to_host(T &message_data) {
+    // 构建 NetPacket
+    NetPacketT packet;
+    NetPayloadUnion u;
+    u.Set((message_data));
+    packet.payload = u;
 
-  static void scene_request(ClientSceneT &client_scene);
-
-  static void character_logic_request(ClientCharacterLogicT &logic);
-  static void character_attack_request(ClientCharacterAttackT &atk);
-  static void character_skill_request(ClientCharacterSkillT &ski);
-  static void character_chat_request(ClientCharacterChatT &c);
-
-  static void mob_attack_request(ClientMobAttackT &mt);
+    // 序列化并发送
+    flatbuffers::FlatBufferBuilder builder;
+    auto packet_offset = NetPacket::Pack(builder, &packet);
+    builder.Finish(packet_offset);
+    auto addr = server_main::host ? &server_main::host_addr : nullptr;
+    server_main::server_send(builder.GetBufferPointer(), builder.GetSize(),
+                             addr);
+  }
 };

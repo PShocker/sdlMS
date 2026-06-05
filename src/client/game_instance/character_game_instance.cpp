@@ -325,14 +325,14 @@ void character_game_instance::load_others_character(
       std::u16string{c->character->name.begin(), c->character->name.end()};
 
   g_character.nametags.push_back(nametag);
-  others.emplace(c->client_id, g_character);
-}
 
-void character_game_instance::load_others_character(
-    const std::vector<std::unique_ptr<fbs::PlayerT>> &v) {
-  for (const auto &c : v) {
-    load_others_character(c);
-  }
+  g_character.fame = c->character->fame;
+  g_character.level = c->character->level;
+  g_character.job =
+      std::u16string{c->character->job.begin(), c->character->job.end()};
+  g_character.face.action = std::u16string{c->character->face_action.begin(),
+                                           c->character->face_action.end()};
+  others.emplace(c->client_id, g_character);
 }
 
 void character_game_instance::clear_others() { others.clear(); }
@@ -870,7 +870,7 @@ void character_game_instance::add_face(game_character &g,
 }
 
 fbs::CharacterT
-character_game_instance::load_self_fbs_character(const game_character &g) {
+character_game_instance::load_characterT(const game_character &g) {
   fbs::CharacterT c;
 
   c.appearance = std::make_unique<fbs::CharacterAppearanceT>();
@@ -932,6 +932,11 @@ character_game_instance::load_self_fbs_character(const game_character &g) {
 
   auto name = g.nametags[0].text;
   c.name = std::vector<uint16_t>{name.begin(), name.end()};
+
+  c.fame = g.fame;
+  c.face_action = std::string{g.face.action.begin(), g.face.action.end()};
+  c.job = std::string{g.job.begin(), g.job.end()};
+  c.level = g.level;
 
   return c;
 }

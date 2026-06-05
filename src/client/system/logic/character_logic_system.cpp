@@ -568,7 +568,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
           t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
         }
         character_game_instance::load_character_attack(t.payload, g_character);
-        client_request::character_attack_request(t);
+        client_request::send_to_host(t);
         for (const auto &a : t.payload) {
           CharacterSkillT c;
           c.delay = a->attack->delay;
@@ -598,7 +598,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
 
     character_game_instance::load_character_skill(
         ckt.ski_id, ckt.payload, character_game_instance::self);
-    client_request::character_skill_request(ckt);
+    client_request::send_to_host(ckt);
     return true;
   }
   return false;
@@ -720,7 +720,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
 
       character_game_instance::load_character_attack(t.payload, g_character);
-      client_request::character_attack_request(t);
+      client_request::send_to_host(t);
     }
     self_alert_cooldown = window::dt_now + 5000;
     return true;
@@ -854,7 +854,7 @@ void character_logic_system::run_network_action_sync(
     a.action_animate = g_character.action_animate;
     a.action_index = g_character.action_index;
     req.payload.Set(a);
-    client_request::character_logic_request(req);
+    client_request::send_to_host(req);
     last_send_time = window::dt_now;
     last_action = false;
   } else {
@@ -885,7 +885,7 @@ void character_logic_system::run_network_flip_sync(
     FlipT f;
     f.flip = g_character.flip;
     req.payload.Set(f);
-    client_request::character_logic_request(req);
+    client_request::send_to_host(req);
     last_send_time = window::dt_now;
     last_flip = false;
   } else {
@@ -926,7 +926,7 @@ void character_logic_system::run_network_movement_sync(
     ClientCharacterLogicT req;
     req.map_id = scene_system_instance::map_id;
     req.payload.Set(mv);
-    client_request::character_logic_request(req);
+    client_request::send_to_host(req);
     last_send_time = window::dt_now;
     last_movement = false;
   } else {
@@ -951,7 +951,7 @@ void character_logic_system::run_network_face_sync(
   ClientCharacterLogicT req;
   req.map_id = scene_system_instance::map_id;
   req.payload.Set(ft);
-  client_request::character_logic_request(req);
+  client_request::send_to_host(req);
   return;
 }
 
@@ -970,7 +970,7 @@ void character_logic_system::run_network_die_sync(game_character &g_character) {
   ClientCharacterLogicT req;
   req.map_id = scene_system_instance::map_id;
   req.payload.Set(d);
-  client_request::character_logic_request(req);
+  client_request::send_to_host(req);
   return;
 }
 

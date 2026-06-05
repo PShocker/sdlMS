@@ -23,7 +23,7 @@ void server_scene_instance::clean_client(uint64_t client_id) {
     for (const auto other : scenes.clients) {
       fbs::ServerCharacterOutT r;
       r.client_id = client_id;
-      server_response::character_out_response(other, r);
+      server_response::send_to_client(other, r);
     }
     server_client_instance::clients.erase(client_id);
   }
@@ -68,7 +68,7 @@ void server_scene_instance::send_scene_clients(uint64_t client_id,
     mobt->state->y = m.pos.y;
   }
 
-  server_response::scene_response(client_id, r);
+  server_response::send_to_client(client_id, r);
 }
 
 void server_scene_instance::send_in_scene(uint64_t client_id,
@@ -83,7 +83,7 @@ void server_scene_instance::send_in_scene(uint64_t client_id,
   auto scene = server_scene_instance::scenes[client_scene.map_id];
   scene.clients.erase(client_id);
   for (const auto c : scene.clients) {
-    server_response::character_in_response(c, r);
+    server_response::send_to_client(c, r);
   }
 }
 

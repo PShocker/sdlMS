@@ -153,7 +153,7 @@ void mob_logic_system::run_collision() {
     ClientMobAttackT t;
     t.map_id = scene_system_instance::map_id;
     t.payload = std::make_unique<MobAttackT>(mt);
-    client_request::mob_attack_request(t);
+    client_request::send_to_host(t);
   }
 }
 

@@ -10,8 +10,6 @@ table LifeState{
 
     page:uint8;
     flip:bool;
-
-    face_action:string;
 }
 
 table CharacterAppearance{
@@ -38,6 +36,12 @@ table Character{
     name:[uint16];
     state:LifeState;
     appearance:CharacterAppearance;
+
+    fame:int32;
+    job:string;
+    level:uint32;
+    face_action:string;
+    equip_scrolls:[EquipScroll];
 }
 
 table Movement{
@@ -162,4 +166,10 @@ table CharacterChat{
 table CharacterStat{
     type:uint8;
     val:double;
+}
+
+table EquipScroll{
+    equip_id:uint32;
+    scroll_id:uint32;
+    success:bool;
 }

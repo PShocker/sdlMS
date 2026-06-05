@@ -1,6 +1,7 @@
 #pragma once
 
 #include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/server.h"
 #include <cstdint>
 using namespace fbs;
 

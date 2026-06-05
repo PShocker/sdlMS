@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-
 class game_character {
 
 public:
@@ -72,4 +71,9 @@ public:
   std::optional<game_tomb> tomb;
 
   float attack_speed = 1.0f;
+
+  // characterinfo
+  std::u16string job = u"000";
+  int32_t fame = 0;
+  int32_t level = 0;
 };

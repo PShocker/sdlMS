@@ -8,6 +8,9 @@
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/freetype/freetype.h"
+#include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <ranges>
@@ -83,6 +86,16 @@ void character_info_ui_system::render_character() {
   character.pos.x = int(camera.x + pos.x + 57);
   character.pos.y = int(camera.y + pos.y + 122);
   character_render_system::render_character(character);
+}
+
+void character_info_ui_system::render_text() {
+  freetype::load_aligned(true);
+  freetype::load_size(12);
+  auto charname = character.nametags[0].text;
+  freetype::draw_line(charname, int(pos.x + 53), int(pos.y + 128));
+  auto level = character.level;
+
+  freetype::load_aligned(false);
 }
 
 bool character_info_ui_system::render() {
@@ -170,14 +183,10 @@ bool character_info_ui_system::event_open_check(game_character &g_character) {
   return SDL_PointInRectFloat(&window::mouse_pos, &r);
 }
 
-void character_info_ui_system::load_avatar(game_character &c, std::u16string &j,
-                                           int32_t f) {
+void character_info_ui_system::load_avatar(game_character &g_character) {
 
-  character = c;
+  character = g_character;
   character.flip = 0;
-  character_job = j;
-  character_fame = f;
-
   character_logic_system::run_stand_action(character);
   character_logic_system::run_face_action(character, u"default");
 }
@@ -193,14 +202,13 @@ bool character_info_ui_system::event_open(SDL_Event *event) {
       // 双击
       if (event_open_check(character_game_instance::self)) {
         r = true;
-        load_avatar(character_game_instance::self,
-                    job_skill_game_instance::self_job, 0);
+        load_avatar(character_game_instance::self);
         break;
       }
-      for (auto &other_data :
-           character_game_instance::others | std::views::values) {
+      for (auto [k, other_data] : character_game_instance::others) {
         if (event_open_check(other_data.g_character)) {
-          r = false;
+          r = true;
+          load_avatar(other_data.g_character);
           break;
         }
       }

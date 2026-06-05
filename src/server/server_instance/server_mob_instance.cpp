@@ -73,6 +73,6 @@ void server_mob_instance::handle_attack(uint64_t client_id,
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    server_response::mob_attack_response(c, t);
+    server_response::send_to_client(c, t);
   }
 }

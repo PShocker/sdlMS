@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/system/system.h"
@@ -18,7 +19,7 @@
 SDL_FPoint skill_ui_system::load_wh() { return {197, 371}; }
 
 uint8_t skill_ui_system::load_skill_num() {
-  auto self_job = job_skill_game_instance::self_job;
+  auto self_job = character_game_instance::self.job;
   auto skill_node = wz_resource::skill->find(self_job + u".img/skill");
   return skill_node->children_count();
 }
@@ -129,7 +130,7 @@ void skill_ui_system::render_skill_entry() {
   const uint8_t max_scroll_num = 6;
   const auto l =
       (rb.y - lt.y - max_scroll_num * entry->h) / (max_scroll_num - 1);
-  auto self_job = job_skill_game_instance::self_job;
+  auto self_job = character_game_instance::self.job;
   // 根据active_tab获取技能组
   auto skill_group = std::pow(10, active_tab);
   auto skill_node = wz_resource::skill->find(self_job + u".img");
@@ -274,7 +275,6 @@ void skill_ui_system::render_scroll() {
 
 void skill_ui_system::render_info() {
   tooltip_ui_system::render_skill(u"0001000", 1, 0, 0);
-  
 }
 
 bool skill_ui_system::render() {

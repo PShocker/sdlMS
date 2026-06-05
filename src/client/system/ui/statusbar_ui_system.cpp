@@ -249,7 +249,7 @@ void statusbar_ui_system::render_character_stat() {
 
   // job
   auto job_node = wz_resource::string2->get_root()->find(
-      u"JobName.img/" + job_skill_game_instance::self_job);
+      u"JobName.img/" + character_game_instance::self.job);
   auto job_name = static_cast<wz::Property<std::u16string> *>(job_node)->get();
   freetype::load_size(12);
   freetype::load_color(255, 255, 255, 255);
@@ -265,7 +265,7 @@ void statusbar_ui_system::render_character_stat() {
 
   // level
   static auto lvNumber = wz_resource::ui->find(u"StatusBar.img/lvNumber");
-  auto level = character_stat_game_instance::level;
+  auto level = self.level;
   auto level_str = std::to_string(level);
   pos_rect.x = base_x + 44;
   pos_rect.y = base_y + 49;

@@ -1,6 +1,7 @@
 #include "tooltip_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
@@ -332,7 +333,7 @@ void tooltip_ui_system::render_equip(game_equip &equip, float x, float y) {
   auto req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLevel"))
           ->get();
-  auto val = character_stat_game_instance::level;
+  auto val = character_game_instance::self.level;
   render_equip_req(req, val, u"reqLEV", x + base.x + 95, y + base.y + 6);
 
   req =
@@ -522,7 +523,7 @@ void tooltip_ui_system::render_item(game_item &item, float x, float y) {
               static_cast<float>(dot0->h)};
   SDL_RenderTexture(window::renderer, dot0, nullptr, &pos_rect);
 
-  auto item_name = item_game_instance::load_item_name(item);
+  auto item_name = item_game_instance::load_item_name(item.id);
   freetype::load_bold(true);
   freetype::load_size(15);
   freetype::draw_line(item_name, x + 30, y + 20);

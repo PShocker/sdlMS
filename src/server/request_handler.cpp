@@ -85,7 +85,9 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerSceneT r;
     payload->UnPackTo(&r);
     scene_system_instance::enter(r.map_id);
-    character_game_instance::load_others_character(r.players);
+    for (const auto &c : r.players) {
+      character_game_instance::load_others_character(c);
+    }
     mob_game_instance::load_server_mob(r.mobs);
     break;
   }

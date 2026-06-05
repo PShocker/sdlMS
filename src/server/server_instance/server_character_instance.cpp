@@ -1,11 +1,14 @@
 #include "server_character_instance.h"
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
+#include "src/common/request/client_request.h"
 #include "src/common/response/server_response.h"
 #include <cstdlib>
+#include <memory>
 #include <ranges>
 #include <utility>
 
@@ -47,7 +50,7 @@ void server_character_instance::save_state(uint64_t client_id,
   }
   case CharacterLogicType_Face: {
     const auto f = m.payload.AsFace();
-    character->state->face_action = f->face_action;
+    character->face_action = f->face_action;
     break;
   }
   default: {
@@ -74,7 +77,7 @@ void server_character_instance::send_logic(uint64_t client_id,
   t.payload = std::make_unique<CharacterLogicT>(t2);
   // 广播给其他所有客户端
   for (const auto c : clients) {
-    server_response::character_logic_response(c, t);
+    server_response::send_to_client(c, t);
   }
 }
 
@@ -98,7 +101,7 @@ void server_character_instance::handle_skill(uint64_t client_id,
     t.ski_id = r.ski_id;
     t.payload = std::move(r.payload);
     for (auto c : scenes) {
-      server_response::character_skill_response(c, t);
+      server_response::send_to_client(c, t);
     }
   }
 }
@@ -126,7 +129,7 @@ void server_character_instance::handle_attack(uint64_t client_id,
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    server_response::character_attack_response(c, t);
+    server_response::send_to_client(c, t);
   }
 }
 
@@ -138,6 +141,6 @@ void server_character_instance::handle_chat(uint64_t client_id,
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
-    server_response::character_chat_response(c, t);
+    server_response::send_to_client(c, t);
   }
 }

@@ -67,13 +67,10 @@ public:
   static void load_self_nametag();
   static void load_self_character();
 
-  static void
-  load_others_character(const std::vector<std::unique_ptr<PlayerT>> &v);
-
   static void load_others_character(const std::unique_ptr<PlayerT> &c);
   static void exit_others_character(uint64_t client_id);
   static void clear_others();
-  static CharacterT load_self_fbs_character(const game_character &g);
+  static CharacterT load_characterT(const game_character &g);
 
   static void load_character_attack(
       const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,

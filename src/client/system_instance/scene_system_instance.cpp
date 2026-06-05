@@ -176,7 +176,7 @@ void scene_system_instance::enter_prepare(uint32_t map_id,
     character_game_instance::self.action = u"jump";
     prepare_pos = std::nullopt;
     const auto &self = character_game_instance::self;
-    c = character_game_instance::load_self_fbs_character(self);
+    c = character_game_instance::load_characterT(self);
   } else {
     prepare_map_id = map_id;
     auto r = character_game_instance::load_self_pos(pn, i);
@@ -184,7 +184,7 @@ void scene_system_instance::enter_prepare(uint32_t map_id,
     g.pos = r;
     g.action = u"jump";
     prepare_pos = r;
-    c = character_game_instance::load_self_fbs_character(g);
+    c = character_game_instance::load_characterT(g);
   }
 
   fbs::ClientSceneT client_scene;
@@ -192,5 +192,5 @@ void scene_system_instance::enter_prepare(uint32_t map_id,
   client_scene.map_id = map_id;
   client_scene.character = std::make_unique<fbs::CharacterT>(std::move(c));
 
-  client_request::scene_request(client_scene);
+  client_request::send_to_host(client_scene);
 }
