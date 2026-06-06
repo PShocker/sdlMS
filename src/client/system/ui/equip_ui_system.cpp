@@ -10,6 +10,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
 #include <algorithm>
+#include <optional>
 #include <string>
 
 SDL_FPoint equip_ui_system::load_wh() { return {175, 289}; }
@@ -23,11 +24,10 @@ void equip_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
-void equip_ui_system::render_equip_texture(std::u16string &id,
-                                           SDL_FPoint slot) {
+void equip_ui_system::render_equip_texture(game_equip &equip, SDL_FPoint slot) {
   const SDL_FPoint lt{4, 45};
 
-  auto info = equip_game_instance::load_equip_info(id);
+  auto info = equip_game_instance::load_equip_info(equip.id);
   auto icon = wz_resource::load_texture(info->get_child(u"icon"));
   auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
   auto y = (int)pos.y + slot.y + lt.y + (32 - icon->h) / 2;
@@ -38,6 +38,15 @@ void equip_ui_system::render_equip_texture(std::u16string &id,
       static_cast<float>(icon->h),
   };
   SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  if (cursor_in != render) {
+    return;
+  }
+  auto &mouse_pos = window::mouse_pos;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    equip_info = equip;
+    return;
+  }
 }
 
 const static SDL_FPoint cap_slot{68, 23};
@@ -51,162 +60,52 @@ const static SDL_FPoint shield_slot{134, 89};
 const static SDL_FPoint weapon_slot{101, 89};
 
 void equip_ui_system::render_equip() {
-  const auto &self = character_game_instance::self;
+  auto &self = character_game_instance::self;
   if (self.cap.has_value()) {
     auto id = self.cap->id;
-    render_equip_texture(id, cap_slot);
+    render_equip_texture(self.cap.value(), cap_slot);
   }
   if (self.accessory.has_value()) {
     auto id = self.accessory->id;
-    render_equip_texture(id, earacc_slot);
+    render_equip_texture(self.accessory.value(), earacc_slot);
   }
   if (self.coat.has_value()) {
     auto id = self.coat->id;
-    render_equip_texture(id, clothes_slot);
+    render_equip_texture(self.coat.value(), clothes_slot);
   }
   if (self.pant.has_value()) {
     auto id = self.pant->id;
-    render_equip_texture(id, pants_slot);
+    render_equip_texture(self.pant.value(), pants_slot);
   }
   if (self.shoes.has_value()) {
     auto id = self.shoes->id;
-    render_equip_texture(id, pants_slot);
+    render_equip_texture(self.shoes.value(), pants_slot);
   }
   if (self.glove.has_value()) {
     auto id = self.glove->id;
-    render_equip_texture(id, gloves_slot);
+    render_equip_texture(self.glove.value(), gloves_slot);
   }
   if (self.cape.has_value()) {
     auto id = self.cape->id;
-    render_equip_texture(id, cape_slot);
+    render_equip_texture(self.cape.value(), cape_slot);
   }
   if (self.shield.has_value()) {
     auto id = self.shield->id;
-    render_equip_texture(id, shield_slot);
+    render_equip_texture(self.shield.value(), shield_slot);
   }
   if (self.weapon.has_value()) {
     auto id = self.weapon->id;
-    render_equip_texture(id, weapon_slot);
+    render_equip_texture(self.weapon.value(), weapon_slot);
   }
 }
 
 void equip_ui_system::render_equip_info() {
-  auto cursor_in = cursor_game_instance::cursor_ui;
-  if (cursor_in != render) {
-    return;
+  if (equip_info.has_value()) {
+    auto &mouse_pos = window::mouse_pos;
+    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
+    tooltip_ui_system::render_equip(equip_info.value(), show_pos.x, show_pos.y);
   }
-  const SDL_FPoint lt{4, 45};
-  auto &self = character_game_instance::self;
-  SDL_FRect pos_rect{
-      pos.x + cap_slot.x + lt.x,
-      pos.y + cap_slot.y + lt.y,
-      32,
-      32,
-  };
-  auto &mouse_pos = window::mouse_pos;
-  SDL_FPoint m_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.cap.has_value()) {
-      tooltip_ui_system::render_equip(self.cap.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
-  pos_rect = {
-      pos.x + earacc_slot.x + lt.x,
-      pos.y + earacc_slot.y + lt.y,
-      32,
-      32,
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.accessory.has_value()) {
-      tooltip_ui_system::render_equip(self.accessory.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
-  pos_rect = {
-      pos.x + clothes_slot.x + lt.x,
-      pos.y + clothes_slot.y + lt.y,
-      32,
-      32,
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.coat.has_value()) {
-      tooltip_ui_system::render_equip(self.coat.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
-  pos_rect = {
-      pos.x + pants_slot.x + lt.x,
-      pos.y + pants_slot.y + lt.y,
-      32,
-      32,
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.pant.has_value()) {
-      tooltip_ui_system::render_equip(self.pant.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
-  pos_rect = {
-      pos.x + shoes_slot.x + lt.x,
-      pos.y + shoes_slot.y + lt.y,
-      32,
-      32,
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.shoes.has_value()) {
-      tooltip_ui_system::render_equip(self.shoes.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
-  pos_rect = {
-      pos.x + gloves_slot.x + lt.x,
-      pos.y + gloves_slot.y + lt.y,
-      32,
-      32,
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.glove.has_value()) {
-      tooltip_ui_system::render_equip(self.glove.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
-  pos_rect = {
-      pos.x + cape_slot.x + lt.x,
-      pos.y + cape_slot.y + lt.y,
-      32,
-      32,
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.cape.has_value()) {
-      tooltip_ui_system::render_equip(self.cape.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
-  pos_rect = {
-      pos.x + shield_slot.x + lt.x,
-      pos.y + shield_slot.y + lt.y,
-      32,
-      32,
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.shield.has_value()) {
-      tooltip_ui_system::render_equip(self.shield.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
-  pos_rect = {
-      pos.x + weapon_slot.x + lt.x,
-      pos.y + weapon_slot.y + lt.y,
-      32,
-      32,
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    if (self.weapon.has_value()) {
-      tooltip_ui_system::render_equip(self.weapon.value(), m_pos.x, m_pos.y);
-    }
-    return;
-  }
+  equip_info = std::nullopt;
 }
 
 void equip_ui_system::render_tab() {

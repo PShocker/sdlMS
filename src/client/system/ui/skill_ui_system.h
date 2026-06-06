@@ -23,7 +23,7 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
   static inline uint8_t active_tab;
-  static inline uint8_t sroll_num;
+  static inline uint8_t page;
 
 public:
   static inline SDL_FPoint pos;
