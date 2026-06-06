@@ -2,13 +2,28 @@
 #include "src/client/game/game_item.h"
 
 void package_game_instance::load() {
-  game_equip e{
+  equips[0] = {
       .id = u"01382004",
   };
-  equips[0] = e;
-  game_item i{
+  equips[1] = {
+      .id = u"01372004",
+  };
+  equips[2] = {
+      .id = u"01312002",
+  };
+  equips[3] = {
+      .id = u"01402003",
+  };
+  cosumes[0] = {
       .id = u"04080000",
       .num = 1,
   };
-  cosumes[0] = i;
+  cosumes[1] = {
+      .id = u"02000000",
+      .num = 1,
+  };
+  cosumes[2] = {
+      .id = u"02000001",
+      .num = 1,
+  };
 }

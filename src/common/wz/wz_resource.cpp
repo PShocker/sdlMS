@@ -32,6 +32,7 @@ void wz_resource::init_files() {
   skill = new wz::Files("Data/", "Skill/Skill");
   effect = new wz::Files("Data/", "Effect/Effect");
   string = new wz::Files("Data/", "String/String");
+  item = new wz::Files("Data/", "Item/Item");
 
   string2 = new wz::File("Data/String2.wz");
 }

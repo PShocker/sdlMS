@@ -10,6 +10,7 @@
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include "tooltip_ui_system.h"
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>
@@ -58,14 +59,19 @@ void package_ui_system::render_tab() {
   }
 }
 
-void package_ui_system::render_info() {
-  auto cursor_in = cursor_game_instance::cursor_ui;
-  if (cursor_in == render) {
-    if (active_tab == 0) {
-
-    } else {
-    }
+void package_ui_system::render_items_info() {
+  if (equip_info.has_value()) {
+    auto &mouse_pos = window::mouse_pos;
+    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
+    tooltip_ui_system::render_equip(equip_info.value(), show_pos.x, show_pos.y);
   }
+  equip_info = std::nullopt;
+  if (item_info.has_value()) {
+    auto &mouse_pos = window::mouse_pos;
+    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
+    tooltip_ui_system::render_item(item_info.value(), show_pos.x, show_pos.y);
+  }
+  item_info = std::nullopt;
 }
 
 void package_ui_system::render_items() {
@@ -81,20 +87,33 @@ void package_ui_system::render_items() {
       if (row >= 6) {
         break;
       }
+      if (!equips[i].has_value()) {
+        continue;
+      }
 
-      auto id = equips[0]->id;
+      auto id = equips[i]->id;
       auto info = equip_game_instance::load_equip_info(id);
       auto icon = wz_resource::load_texture(info->get_child(u"icon"));
 
+      auto x = pos.x + slot_pos.x + col * 32 + col * slot_space_x +
+               (32 - icon->w) / 2;
+      auto y =
+          pos.y + slot_pos.y + row * 32 + row * slot_space_y + 32 - icon->h;
       SDL_FRect pos_rect{
-          static_cast<float>(
-              int(pos.x + slot_pos.x + col * 32 + col * slot_space_x)),
-          static_cast<float>(
-              int(pos.y + slot_pos.y + row * 32 + row * slot_space_y)),
+          static_cast<float>(int(x)),
+          static_cast<float>(int(y)),
           static_cast<float>(icon->w),
           static_cast<float>(icon->h),
       };
       SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      auto cursor_in = cursor_game_instance::cursor_ui;
+      if (cursor_in != render) {
+        continue;
+      }
+      auto &mouse_pos = window::mouse_pos;
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+        equip_info = equips[i];
+      }
     }
   } else {
     std::array<std::optional<game_item>, 96> *r;
@@ -126,20 +145,32 @@ void package_ui_system::render_items() {
       if (row >= 6) {
         break;
       }
+      if (!r->at(i).has_value()) {
+        continue;
+      }
 
       auto id = r->at(i)->id;
       auto info = item_game_instance::load_item_info(id);
       auto icon = wz_resource::load_texture(info->get_child(u"icon"));
-
+      auto x = pos.x + slot_pos.x + col * 32 + col * slot_space_x +
+               (32 - icon->w) / 2;
+      auto y =
+          pos.y + slot_pos.y + row * 32 + row * slot_space_y + 32 - icon->h;
       SDL_FRect pos_rect{
-          static_cast<float>(
-              int(pos.x + slot_pos.x + col * 32 + col * slot_space_x)),
-          static_cast<float>(
-              int(pos.y + slot_pos.y + row * 32 + row * slot_space_y)),
+          static_cast<float>(int(x)),
+          static_cast<float>(int(y)),
           static_cast<float>(icon->w),
           static_cast<float>(icon->h),
       };
       SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      auto cursor_in = cursor_game_instance::cursor_ui;
+      if (cursor_in != render) {
+        continue;
+      }
+      auto &mouse_pos = window::mouse_pos;
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+        item_info = r->at(i).value();
+      }
     }
   }
 }
@@ -195,6 +226,7 @@ bool package_ui_system::render() {
   render_items();
   render_scroll();
   render_button();
+  render_items_info();
   return true;
 }
 

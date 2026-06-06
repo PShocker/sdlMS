@@ -45,14 +45,15 @@ float freetype::load_lh() { return face->size->metrics.height >> 6; }
 float freetype::load_h(const std::u16string &str, float w) {
   uint32_t line = 1;
   auto lineHeight = face->size->metrics.height >> 6;
+  lineHeight = lineHeight * 1.1;
   float lineWidth = 0;
   for (auto c : str) {
-    lineWidth += load_char_w(c);
-    if (lineWidth >= w) {
+    if (lineWidth >= w || c == u'\n') {
       // 换行
       line++;
       lineWidth = 0;
     }
+    lineWidth += load_char_w(c);
   }
   return line * lineHeight;
 }
@@ -62,6 +63,9 @@ void freetype::load_aligned(bool r) { aligned = r; }
 void freetype::load_bold(bool r) { bold = r; }
 
 float freetype::draw_char(float x, float y, char16_t c) {
+  if (c == u'\n') {
+    return 0;
+  }
   SDL_Texture *texture = nullptr;
   auto lineHeight = face->size->metrics.height >> 6;
   float advance = 0;
@@ -131,7 +135,6 @@ void freetype::draw_line(const std::u16string &str, float x, float y) {
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
-
   for (auto c : str) {
     l += draw_char(l, t, c);
   }
@@ -141,12 +144,14 @@ void freetype::draw_str(const std::u16string &str, float x, float y, float w) {
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
-  for (auto c : str) {
-    l += draw_char(l, t, c);
-    if (l >= x + w) {
+  lineHeight = lineHeight * 1.1;
+  for (uint32_t i = 0; i < str.size(); i++) {
+    auto c = str[i];
+    if (l >= x + w || c == u'\n') {
       t += lineHeight;
       l = x;
     }
+    l += draw_char(l, t, c);
   }
 }
 
