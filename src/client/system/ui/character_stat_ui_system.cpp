@@ -215,7 +215,7 @@ void character_stat_ui_system::open() {
   pos.y = (camera.h - wh.y) / 2;
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::event_systems.insert(system::event_systems.begin(), event);
 }
 
 void character_stat_ui_system::close() {
@@ -272,7 +272,7 @@ void character_stat_ui_system::event_top() {
   std::erase(system::event_systems, event);
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::event_systems.insert(system::event_systems.begin(), event);
 }
 
 void character_stat_ui_system::event_drag_start(SDL_Event *event) {

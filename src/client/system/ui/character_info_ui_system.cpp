@@ -301,7 +301,7 @@ void character_info_ui_system::open() {
   pet = false;
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::event_systems.insert(system::event_systems.begin(), event);
 }
 
 void character_info_ui_system::close() {
@@ -313,7 +313,7 @@ void character_info_ui_system::event_top() {
   std::erase(system::event_systems, event);
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::event_systems.insert(system::event_systems.begin(), event);
 }
 
 void character_info_ui_system::event_drag_start(SDL_Event *event) {

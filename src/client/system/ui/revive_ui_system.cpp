@@ -63,7 +63,7 @@ void revive_ui_system::open() {
   pos.y = (camera.h - wh.y) / 2;
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::event_systems.insert(system::event_systems.begin(), event);
 }
 
 void revive_ui_system::close() {
@@ -76,7 +76,7 @@ void revive_ui_system::event_top() {
   std::erase(system::event_systems, event);
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.end() - 1, event);
+  system::event_systems.insert(system::event_systems.begin(), event);
 }
 
 void revive_ui_system::event_drag_start(SDL_Event *event) {
@@ -163,7 +163,7 @@ void revive_ui_system::event_button_ok() {
 
   character_logic_system::self_portal_cooldown = window::dt_now + 1500;
   cursor_game_instance::cursor_hand = std::nullopt;
-  
+
   close();
   return;
 }
