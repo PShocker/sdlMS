@@ -34,13 +34,14 @@ table CharacterAppearance{
 
 table Character{
     name:[uint16];
-    state:LifeState;
-    appearance:CharacterAppearance;
-
     fame:int32;
     job:string;
     level:uint32;
-    face_action:string;
+
+    state:LifeState;
+    appearance:CharacterAppearance;
+    face:Face;
+
     equip_scrolls:[EquipScroll];
 }
 

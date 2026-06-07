@@ -14,20 +14,22 @@
 #include "src/client/window/window.h"
 #include <cstdlib>
 
-bool cursor_logic_system::run_mousedown() {
+bool cursor_logic_system::run_default() {
+  if (cursor_game_instance::cursor_hand.has_value()) {
+    cursor_game_instance::cursor_type = u"11";
+    cursor_game_instance::cursor_index = 0;
+    cursor_game_instance::cursor_time = 0;
+  } else 
   if (window::mouse_state & SDL_BUTTON_LMASK) {
     cursor_game_instance::cursor_type = u"12";
     cursor_game_instance::cursor_index = 0;
     cursor_game_instance::cursor_time = 0;
-    return true;
+  } else {
+    cursor_game_instance::cursor_type = u"0";
+    cursor_game_instance::cursor_index = 0;
+    cursor_game_instance::cursor_time = 0;
   }
-  return false;
-}
 
-bool cursor_logic_system::run_default() {
-  cursor_game_instance::cursor_type = u"0";
-  cursor_game_instance::cursor_index = 0;
-  cursor_game_instance::cursor_time = 0;
   return true;
 }
 
@@ -79,11 +81,7 @@ void cursor_logic_system::run_cursor_ui() {
 }
 
 bool cursor_logic_system::run() {
-  for (auto &fn : {run_mousedown, run_default}) {
-    if (fn()) {
-      break;
-    }
-  }
+  run_default();
   run_cursor_ui();
   return true;
 }

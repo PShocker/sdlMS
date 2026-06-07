@@ -5,9 +5,12 @@
 #include "src/client/game/game_item.h"
 #include <cstdint>
 #include <flat_map>
+#include <optional>
 
 class package_ui_system {
 private:
+  static std::optional<uint32_t> load_mouse_index();
+
   static void render_scroll();
   static void render_backgrnd();
   static void render_tab();
@@ -33,10 +36,6 @@ private:
   static inline uint8_t page;
 
   static inline std::optional<SDL_FPoint> drag;
-
-  static inline std::optional<game_equip> equip_info;
-  static inline std::optional<game_item> item_info;
-
 public:
   static inline SDL_FPoint pos;
 

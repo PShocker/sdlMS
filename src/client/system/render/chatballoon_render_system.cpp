@@ -70,8 +70,8 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
 
     // 左上
     SDL_FPoint p_nw{r_x, r_y};
-    rect.x = (p_nw.x);
-    rect.y = (p_nw.y);
+    rect.x = int(p_nw.x);
+    rect.y = int(p_nw.y);
     rect.w = texture_nw->w;
     rect.h = texture_nw->h;
     SDL_RenderTexture(window::renderer, texture_nw, nullptr, &rect);
@@ -81,8 +81,8 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
         r_x + (origin_nw.x - origin_sw.x),
         r_y + texture_nw->h + result_h - (origin_nw.y - origin_n.y),
     };
-    rect.x = (p_sw.x);
-    rect.y = (p_sw.y);
+    rect.x = int(p_sw.x);
+    rect.y = int(p_sw.y);
     rect.w = texture_sw->w;
     rect.h = texture_sw->h;
     SDL_RenderTexture(window::renderer, texture_sw, nullptr, &rect);
@@ -92,8 +92,8 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
         r_x + r_w - texture_ne->w - (origin_nw.x - origin_w.x),
         r_y + (origin_nw.y - origin_n.y),
     };
-    rect.x = (p_ne.x);
-    rect.y = (p_ne.y);
+    rect.x = int(p_ne.x);
+    rect.y = int(p_ne.y);
     rect.w = texture_ne->w;
     rect.h = texture_ne->h;
     SDL_RenderTexture(window::renderer, texture_ne, nullptr, &rect);
@@ -103,34 +103,34 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
         p_ne.x,
         r_y + texture_nw->h + result_h - (origin_nw.y - origin_n.y),
     };
-    rect.x = (p_se.x);
-    rect.y = (p_se.y);
+    rect.x = int(p_se.x);
+    rect.y = int(p_se.y);
     rect.w = texture_se->w;
     rect.h = texture_se->h;
     SDL_RenderTexture(window::renderer, texture_se, nullptr, &rect);
 
-    rect.x = (r_x + texture_nw->w);
-    rect.y = (r_y + texture_nw->h);
+    rect.x = int(r_x + texture_nw->w);
+    rect.y = int(r_y + texture_nw->h);
     rect.w = p_ne.x - (p_nw.x + texture_nw->w);
     rect.h = p_sw.y - (p_nw.y + texture_nw->h);
     SDL_RenderTextureTiled(window::renderer, texture_c, nullptr, 1, &rect);
 
     // 竖着的两边
-    rect.x = (r_x + (origin_nw.x - origin_w.x));
-    rect.y = (p_nw.y + texture_nw->h);
+    rect.x = int(r_x + (origin_nw.x - origin_w.x));
+    rect.y = int(p_nw.y + texture_nw->h);
     rect.w = texture_w->w;
     rect.h = p_sw.y - (p_nw.y + texture_nw->h);
     SDL_RenderTextureTiled(window::renderer, texture_w, nullptr, 1, &rect);
 
-    rect.x = (p_se.x);
-    rect.y = (p_ne.y + texture_ne->h);
+    rect.x = int(p_se.x);
+    rect.y = int(p_ne.y + texture_ne->h);
     rect.w = texture_e->w;
     rect.h = p_se.y - (p_ne.y + texture_ne->h);
     SDL_RenderTextureTiled(window::renderer, texture_e, nullptr, 1, &rect);
 
     // 横着的两边
-    rect.x = (p_nw.x + texture_nw->w);
-    rect.y = (p_ne.y);
+    rect.x = int(p_nw.x + texture_nw->w);
+    rect.y = int(p_ne.y);
     rect.w = p_ne.x - (p_nw.x + texture_nw->w);
     rect.h = texture_n->h;
     SDL_RenderTextureTiled(window::renderer, texture_n, nullptr, 1, &rect);
@@ -140,20 +140,20 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
         r_x + r_w / 2 - (float)texture_arrow->w / 2,
         r_y + texture_nw->h + result_h - (origin_nw.y - origin_n.y),
     };
-    rect.x = (p_arrow.x);
-    rect.y = (p_arrow.y);
+    rect.x = int(p_arrow.x);
+    rect.y = int(p_arrow.y);
     rect.w = texture_arrow->w;
     rect.h = texture_arrow->h;
     SDL_RenderTexture(window::renderer, texture_arrow, nullptr, &rect);
     // 箭头两边
-    rect.x = (p_sw.x + texture_sw->w);
-    rect.y = (p_sw.y);
+    rect.x = int(p_sw.x + texture_sw->w);
+    rect.y = int(p_sw.y);
     rect.w = p_arrow.x - (p_sw.x + texture_sw->w) + origin_arrow.x;
     rect.h = texture_s->h;
     SDL_RenderTextureTiled(window::renderer, texture_s, nullptr, 1, &rect);
 
-    rect.x = (p_arrow.x + texture_arrow->w);
-    rect.y = (p_arrow.y);
+    rect.x = int(p_arrow.x + texture_arrow->w);
+    rect.y = int(p_arrow.y);
     rect.w = p_se.x - (p_arrow.x + texture_arrow->w);
     rect.h = texture_s->h;
     SDL_RenderTextureTiled(window::renderer, texture_s, nullptr, 1, &rect);

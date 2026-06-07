@@ -1,4 +1,5 @@
 #include "equip_game_instance.h"
+#include "character_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
@@ -158,4 +159,81 @@ equip_game_instance::load_equip_inc(const std::u16string &id) {
 uint8_t equip_game_instance::load_equip_tuc(const std::u16string &id) {
   auto equip_info = load_equip_info(id);
   return static_cast<wz::Property<int> *>(equip_info->get_child(u"tuc"))->get();
+}
+
+void equip_game_instance::add_equip(game_equip &equip,
+                                    game_character &character, uint8_t slot) {
+  auto type = load_equip_type(equip.id);
+  if (type == u"Accessory") {
+    character_game_instance::add_accessory(character, equip.id);
+    character.accessory = equip;
+  } else if (type == u"Cap") {
+    character_game_instance::add_cap(character, equip.id);
+    character.cap = equip;
+  } else if (type == u"Cape") {
+    character_game_instance::add_cape(character, equip.id);
+    character.cape = equip;
+  } else if (type == u"Coat") {
+    character_game_instance::add_coat(character, equip.id);
+    character.coat = equip;
+  } else if (type == u"Glove") {
+    character_game_instance::add_glove(character, equip.id);
+    character.glove = equip;
+  } else if (type == u"Longcoat") {
+    character_game_instance::add_longcoat(character, equip.id);
+    character.longcoat = equip;
+  } else if (type == u"Pants") {
+    character_game_instance::add_pants(character, equip.id);
+    character.pant = equip;
+  } else if (type == u"Ring") {
+  } else if (type == u"Shield") {
+    character_game_instance::add_shield(character, equip.id);
+    character.shield = equip;
+  } else if (type == u"Shoes") {
+    character_game_instance::add_shoes(character, equip.id);
+    character.shoes = equip;
+  } else if (type == u"Weapon") {
+    character_game_instance::add_weapon(character, equip.id);
+    character.weapon = equip;
+  }
+}
+
+std::optional<game_equip>
+equip_game_instance::load_equip_slot(game_equip &equip,
+                                     game_character &character) {
+  std::optional<game_equip> r;
+  auto type = load_equip_type(equip.id);
+  if (type == u"Accessory") {
+    r = character.accessory;
+  } else if (type == u"Cap") {
+    r = character.cap;
+  } else if (type == u"Cape") {
+    r = character.cape;
+  } else if (type == u"Coat") {
+    r = character.coat;
+  } else if (type == u"Glove") {
+    r = character.glove;
+  } else if (type == u"Longcoat") {
+    r = character.longcoat;
+  } else if (type == u"Pants") {
+    r = character.pant;
+  } else if (type == u"Ring") {
+    r = character.ring0;
+    if (r.has_value()) {
+      r = character.ring1;
+    }
+    if (r.has_value()) {
+      r = character.ring2;
+    }
+    if (r.has_value()) {
+      r = character.ring3;
+    }
+  } else if (type == u"Shield") {
+    r = character.shield;
+  } else if (type == u"Shoes") {
+    r = character.shoes;
+  } else if (type == u"Weapon") {
+    r = character.weapon;
+  }
+  return r;
 }

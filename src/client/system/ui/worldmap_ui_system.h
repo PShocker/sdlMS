@@ -14,6 +14,8 @@ private:
   static void render_spot();
   static void render_spot_info(uint32_t id, float x, float y);
 
+  static void event_close();
+
   static SDL_FPoint load_wh();
   static void event_top();
   static void event_drag_start(SDL_Event *event);

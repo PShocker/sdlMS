@@ -8,6 +8,7 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
+#include <optional>
 
 void revive_ui_system::render_backgrnd() {
   static auto texture =
@@ -159,7 +160,10 @@ void revive_ui_system::event_button_ok() {
   auto r_map = map_info_game_instance::load_return_map(map_id);
 
   scene_system_instance::enter_prepare(r_map, u"sp", 0);
+
   character_logic_system::self_portal_cooldown = window::dt_now + 1500;
+  cursor_game_instance::cursor_hand = std::nullopt;
+  
   close();
   return;
 }

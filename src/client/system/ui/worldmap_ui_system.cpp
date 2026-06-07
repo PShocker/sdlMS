@@ -173,9 +173,25 @@ void worldmap_ui_system::close() {
   path.clear();
 }
 
+void worldmap_ui_system::event_close() { close(); }
+
 bool worldmap_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_ESCAPE: {
+      event_close();
+      return false;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {

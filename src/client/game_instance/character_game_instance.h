@@ -58,6 +58,7 @@ public:
 class character_game_instance {
 private:
   static std::flat_set<std::u16string> split_vslot(const std::u16string &vslot);
+  static std::u16string split_islot(const std::u16string &islot);
 
 public:
   static void init_character_bone();
@@ -98,6 +99,9 @@ public:
   static void add_weapon(game_character &g, const std::u16string &val);
   static void add_shield(game_character &g, const std::u16string &val);
   static void add_cape(game_character &g, const std::u16string &val);
+  static void add_accessory(game_character &g, const std::u16string &val);
+  static void add_glove(game_character &g, const std::u16string &val);
+  static void add_longcoat(game_character &g, const std::u16string &val);
 
   static inline std::flat_map<uint64_t, character_other_data> others;
 

@@ -14,6 +14,15 @@ void package_game_instance::load() {
   equips[3] = {
       .id = u"01402003",
   };
+  equips[4] = {
+      .id = u"01002024",
+  };
+  equips[5] = {
+      .id = u"01002041",
+  };
+  equips[5] = {
+      .id = u"01302011",
+  };
   cosumes[0] = {
       .id = u"04080000",
       .num = 1,
