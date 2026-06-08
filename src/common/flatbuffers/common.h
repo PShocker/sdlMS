@@ -107,6 +107,10 @@ struct Item;
 struct ItemBuilder;
 struct ItemT;
 
+struct Drop;
+struct DropBuilder;
+struct DropT;
+
 enum CharacterLogicType : uint8_t {
   CharacterLogicType_NONE = 0,
   CharacterLogicType_Movement = 1,
@@ -422,24 +426,24 @@ bool VerifyMobLogicType(::flatbuffers::VerifierTemplate<B> &verifier, const void
 template <bool B = false>
 bool VerifyMobLogicTypeVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
-enum Drop : uint8_t {
-  Drop_NONE = 0,
-  Drop_Equip = 1,
-  Drop_Item = 2,
-  Drop_MIN = Drop_NONE,
-  Drop_MAX = Drop_Item
+enum DropUnion : uint8_t {
+  DropUnion_NONE = 0,
+  DropUnion_Equip = 1,
+  DropUnion_Item = 2,
+  DropUnion_MIN = DropUnion_NONE,
+  DropUnion_MAX = DropUnion_Item
 };
 
-inline const Drop (&EnumValuesDrop())[3] {
-  static const Drop values[] = {
-    Drop_NONE,
-    Drop_Equip,
-    Drop_Item
+inline const DropUnion (&EnumValuesDropUnion())[3] {
+  static const DropUnion values[] = {
+    DropUnion_NONE,
+    DropUnion_Equip,
+    DropUnion_Item
   };
   return values;
 }
 
-inline const char * const *EnumNamesDrop() {
+inline const char * const *EnumNamesDropUnion() {
   static const char * const names[4] = {
     "NONE",
     "Equip",
@@ -449,50 +453,50 @@ inline const char * const *EnumNamesDrop() {
   return names;
 }
 
-inline const char *EnumNameDrop(Drop e) {
-  if (::flatbuffers::IsOutRange(e, Drop_NONE, Drop_Item)) return "";
+inline const char *EnumNameDropUnion(DropUnion e) {
+  if (::flatbuffers::IsOutRange(e, DropUnion_NONE, DropUnion_Item)) return "";
   const size_t index = static_cast<size_t>(e);
-  return EnumNamesDrop()[index];
+  return EnumNamesDropUnion()[index];
 }
 
-template<typename T> struct DropTraits {
-  static const Drop enum_value = Drop_NONE;
-};
-
-template<> struct DropTraits<fbs::Equip> {
-  static const Drop enum_value = Drop_Equip;
-};
-
-template<> struct DropTraits<fbs::Item> {
-  static const Drop enum_value = Drop_Item;
-};
-
 template<typename T> struct DropUnionTraits {
-  static const Drop enum_value = Drop_NONE;
+  static const DropUnion enum_value = DropUnion_NONE;
 };
 
-template<> struct DropUnionTraits<fbs::EquipT> {
-  static const Drop enum_value = Drop_Equip;
+template<> struct DropUnionTraits<fbs::Equip> {
+  static const DropUnion enum_value = DropUnion_Equip;
 };
 
-template<> struct DropUnionTraits<fbs::ItemT> {
-  static const Drop enum_value = Drop_Item;
+template<> struct DropUnionTraits<fbs::Item> {
+  static const DropUnion enum_value = DropUnion_Item;
 };
 
-struct DropUnion {
-  Drop type;
+template<typename T> struct DropUnionUnionTraits {
+  static const DropUnion enum_value = DropUnion_NONE;
+};
+
+template<> struct DropUnionUnionTraits<fbs::EquipT> {
+  static const DropUnion enum_value = DropUnion_Equip;
+};
+
+template<> struct DropUnionUnionTraits<fbs::ItemT> {
+  static const DropUnion enum_value = DropUnion_Item;
+};
+
+struct DropUnionUnion {
+  DropUnion type;
   void *value;
 
-  DropUnion() : type(Drop_NONE), value(nullptr) {}
-  DropUnion(DropUnion&& u) FLATBUFFERS_NOEXCEPT :
-    type(Drop_NONE), value(nullptr)
+  DropUnionUnion() : type(DropUnion_NONE), value(nullptr) {}
+  DropUnionUnion(DropUnionUnion&& u) FLATBUFFERS_NOEXCEPT :
+    type(DropUnion_NONE), value(nullptr)
     { std::swap(type, u.type); std::swap(value, u.value); }
-  DropUnion(const DropUnion &);
-  DropUnion &operator=(const DropUnion &u)
-    { DropUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
-  DropUnion &operator=(DropUnion &&u) FLATBUFFERS_NOEXCEPT
+  DropUnionUnion(const DropUnionUnion &);
+  DropUnionUnion &operator=(const DropUnionUnion &u)
+    { DropUnionUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
+  DropUnionUnion &operator=(DropUnionUnion &&u) FLATBUFFERS_NOEXCEPT
     { std::swap(type, u.type); std::swap(value, u.value); return *this; }
-  ~DropUnion() { Reset(); }
+  ~DropUnionUnion() { Reset(); }
 
   void Reset();
 
@@ -500,37 +504,37 @@ struct DropUnion {
   void Set(T&& val) {
     typedef typename std::remove_reference<T>::type RT;
     Reset();
-    type = DropUnionTraits<RT>::enum_value;
-    if (type != Drop_NONE) {
+    type = DropUnionUnionTraits<RT>::enum_value;
+    if (type != DropUnion_NONE) {
       value = new RT(std::forward<T>(val));
     }
   }
 
-  static void *UnPack(const void *obj, Drop type, const ::flatbuffers::resolver_function_t *resolver);
+  static void *UnPack(const void *obj, DropUnion type, const ::flatbuffers::resolver_function_t *resolver);
   ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
 
   fbs::EquipT *AsEquip() {
-    return type == Drop_Equip ?
+    return type == DropUnion_Equip ?
       reinterpret_cast<fbs::EquipT *>(value) : nullptr;
   }
   const fbs::EquipT *AsEquip() const {
-    return type == Drop_Equip ?
+    return type == DropUnion_Equip ?
       reinterpret_cast<const fbs::EquipT *>(value) : nullptr;
   }
   fbs::ItemT *AsItem() {
-    return type == Drop_Item ?
+    return type == DropUnion_Item ?
       reinterpret_cast<fbs::ItemT *>(value) : nullptr;
   }
   const fbs::ItemT *AsItem() const {
-    return type == Drop_Item ?
+    return type == DropUnion_Item ?
       reinterpret_cast<const fbs::ItemT *>(value) : nullptr;
   }
 };
 
 template <bool B = false>
-bool VerifyDrop(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, Drop type);
+bool VerifyDropUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, DropUnion type);
 template <bool B = false>
-bool VerifyDropVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
+bool VerifyDropUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 struct LifeStateT : public ::flatbuffers::NativeTable {
   typedef LifeState TableType;
@@ -2879,8 +2883,6 @@ struct EquipT : public ::flatbuffers::NativeTable {
   typedef Equip TableType;
   uint32_t equip_id = 0;
   std::vector<std::unique_ptr<fbs::EquipScrollT>> scroll{};
-  float x = 0.0f;
-  float y = 0.0f;
   EquipT() = default;
   EquipT(const EquipT &o);
   EquipT(EquipT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -2892,9 +2894,7 @@ struct Equip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef EquipBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_EQUIP_ID = 4,
-    VT_SCROLL = 6,
-    VT_X = 8,
-    VT_Y = 10
+    VT_SCROLL = 6
   };
   uint32_t equip_id() const {
     return GetField<uint32_t>(VT_EQUIP_ID, 0);
@@ -2908,18 +2908,6 @@ struct Equip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *mutable_scroll() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *>(VT_SCROLL);
   }
-  float x() const {
-    return GetField<float>(VT_X, 0.0f);
-  }
-  bool mutate_x(float _x = 0.0f) {
-    return SetField<float>(VT_X, _x, 0.0f);
-  }
-  float y() const {
-    return GetField<float>(VT_Y, 0.0f);
-  }
-  bool mutate_y(float _y = 0.0f) {
-    return SetField<float>(VT_Y, _y, 0.0f);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -2927,8 +2915,6 @@ struct Equip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_SCROLL) &&
            verifier.VerifyVector(scroll()) &&
            verifier.VerifyVectorOfTables(scroll()) &&
-           VerifyField<float>(verifier, VT_X, 4) &&
-           VerifyField<float>(verifier, VT_Y, 4) &&
            verifier.EndTable();
   }
   EquipT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2946,12 +2932,6 @@ struct EquipBuilder {
   void add_scroll(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> scroll) {
     fbb_.AddOffset(Equip::VT_SCROLL, scroll);
   }
-  void add_x(float x) {
-    fbb_.AddElement<float>(Equip::VT_X, x, 0.0f);
-  }
-  void add_y(float y) {
-    fbb_.AddElement<float>(Equip::VT_Y, y, 0.0f);
-  }
   explicit EquipBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2966,12 +2946,8 @@ struct EquipBuilder {
 inline ::flatbuffers::Offset<Equip> CreateEquip(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t equip_id = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> scroll = 0,
-    float x = 0.0f,
-    float y = 0.0f) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> scroll = 0) {
   EquipBuilder builder_(_fbb);
-  builder_.add_y(y);
-  builder_.add_x(x);
   builder_.add_scroll(scroll);
   builder_.add_equip_id(equip_id);
   return builder_.Finish();
@@ -2980,16 +2956,12 @@ inline ::flatbuffers::Offset<Equip> CreateEquip(
 inline ::flatbuffers::Offset<Equip> CreateEquipDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t equip_id = 0,
-    const std::vector<::flatbuffers::Offset<fbs::EquipScroll>> *scroll = nullptr,
-    float x = 0.0f,
-    float y = 0.0f) {
+    const std::vector<::flatbuffers::Offset<fbs::EquipScroll>> *scroll = nullptr) {
   auto scroll__ = scroll ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>>(*scroll) : 0;
   return fbs::CreateEquip(
       _fbb,
       equip_id,
-      scroll__,
-      x,
-      y);
+      scroll__);
 }
 
 ::flatbuffers::Offset<Equip> CreateEquip(::flatbuffers::FlatBufferBuilder &_fbb, const EquipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2998,8 +2970,6 @@ struct ItemT : public ::flatbuffers::NativeTable {
   typedef Item TableType;
   uint32_t item_id = 0;
   uint32_t item_num = 0;
-  float x = 0.0f;
-  float y = 0.0f;
 };
 
 struct Item FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -3007,9 +2977,7 @@ struct Item FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ItemBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ITEM_ID = 4,
-    VT_ITEM_NUM = 6,
-    VT_X = 8,
-    VT_Y = 10
+    VT_ITEM_NUM = 6
   };
   uint32_t item_id() const {
     return GetField<uint32_t>(VT_ITEM_ID, 0);
@@ -3023,25 +2991,11 @@ struct Item FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_item_num(uint32_t _item_num = 0) {
     return SetField<uint32_t>(VT_ITEM_NUM, _item_num, 0);
   }
-  float x() const {
-    return GetField<float>(VT_X, 0.0f);
-  }
-  bool mutate_x(float _x = 0.0f) {
-    return SetField<float>(VT_X, _x, 0.0f);
-  }
-  float y() const {
-    return GetField<float>(VT_Y, 0.0f);
-  }
-  bool mutate_y(float _y = 0.0f) {
-    return SetField<float>(VT_Y, _y, 0.0f);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_ITEM_ID, 4) &&
            VerifyField<uint32_t>(verifier, VT_ITEM_NUM, 4) &&
-           VerifyField<float>(verifier, VT_X, 4) &&
-           VerifyField<float>(verifier, VT_Y, 4) &&
            verifier.EndTable();
   }
   ItemT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -3059,12 +3013,6 @@ struct ItemBuilder {
   void add_item_num(uint32_t item_num) {
     fbb_.AddElement<uint32_t>(Item::VT_ITEM_NUM, item_num, 0);
   }
-  void add_x(float x) {
-    fbb_.AddElement<float>(Item::VT_X, x, 0.0f);
-  }
-  void add_y(float y) {
-    fbb_.AddElement<float>(Item::VT_Y, y, 0.0f);
-  }
   explicit ItemBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -3079,18 +3027,139 @@ struct ItemBuilder {
 inline ::flatbuffers::Offset<Item> CreateItem(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t item_id = 0,
-    uint32_t item_num = 0,
-    float x = 0.0f,
-    float y = 0.0f) {
+    uint32_t item_num = 0) {
   ItemBuilder builder_(_fbb);
-  builder_.add_y(y);
-  builder_.add_x(x);
   builder_.add_item_num(item_num);
   builder_.add_item_id(item_id);
   return builder_.Finish();
 }
 
 ::flatbuffers::Offset<Item> CreateItem(::flatbuffers::FlatBufferBuilder &_fbb, const ItemT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct DropT : public ::flatbuffers::NativeTable {
+  typedef Drop TableType;
+  fbs::DropUnionUnion drop{};
+  float x = 0.0f;
+  float y = 0.0f;
+};
+
+struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef DropT NativeTableType;
+  typedef DropBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DROP_TYPE = 4,
+    VT_DROP = 6,
+    VT_X = 8,
+    VT_Y = 10
+  };
+  fbs::DropUnion drop_type() const {
+    return static_cast<fbs::DropUnion>(GetField<uint8_t>(VT_DROP_TYPE, 0));
+  }
+  const void *drop() const {
+    return GetPointer<const void *>(VT_DROP);
+  }
+  template<typename T> const T *drop_as() const;
+  const fbs::Equip *drop_as_Equip() const {
+    return drop_type() == fbs::DropUnion_Equip ? static_cast<const fbs::Equip *>(drop()) : nullptr;
+  }
+  const fbs::Item *drop_as_Item() const {
+    return drop_type() == fbs::DropUnion_Item ? static_cast<const fbs::Item *>(drop()) : nullptr;
+  }
+  template<typename T> T *mutable_drop_as();
+  fbs::Equip *mutable_drop_as_Equip() {
+    return drop_type() == fbs::DropUnion_Equip ? static_cast<fbs::Equip *>(mutable_drop()) : nullptr;
+  }
+  fbs::Item *mutable_drop_as_Item() {
+    return drop_type() == fbs::DropUnion_Item ? static_cast<fbs::Item *>(mutable_drop()) : nullptr;
+  }
+  void *mutable_drop() {
+    return GetPointer<void *>(VT_DROP);
+  }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_DROP_TYPE, 1) &&
+           VerifyOffset(verifier, VT_DROP) &&
+           VerifyDropUnion(verifier, drop(), drop_type()) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           verifier.EndTable();
+  }
+  DropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DropT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Drop> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+template<> inline const fbs::Equip *Drop::drop_as<fbs::Equip>() const {
+  return drop_as_Equip();
+}
+
+template<> inline fbs::Equip *Drop::mutable_drop_as<fbs::Equip>() {
+  return mutable_drop_as_Equip();
+}
+
+template<> inline const fbs::Item *Drop::drop_as<fbs::Item>() const {
+  return drop_as_Item();
+}
+
+template<> inline fbs::Item *Drop::mutable_drop_as<fbs::Item>() {
+  return mutable_drop_as_Item();
+}
+
+struct DropBuilder {
+  typedef Drop Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_drop_type(fbs::DropUnion drop_type) {
+    fbb_.AddElement<uint8_t>(Drop::VT_DROP_TYPE, static_cast<uint8_t>(drop_type), 0);
+  }
+  void add_drop(::flatbuffers::Offset<void> drop) {
+    fbb_.AddOffset(Drop::VT_DROP, drop);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(Drop::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(Drop::VT_Y, y, 0.0f);
+  }
+  explicit DropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Drop> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Drop>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Drop> CreateDrop(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    fbs::DropUnion drop_type = fbs::DropUnion_NONE,
+    ::flatbuffers::Offset<void> drop = 0,
+    float x = 0.0f,
+    float y = 0.0f) {
+  DropBuilder builder_(_fbb);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_drop(drop);
+  builder_.add_drop_type(drop_type);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Drop> CreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const DropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline LifeStateT *LifeState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<LifeStateT>(new LifeStateT());
@@ -3920,9 +3989,7 @@ inline ::flatbuffers::Offset<EquipScroll> EquipScroll::Pack(::flatbuffers::FlatB
 }
 
 inline EquipT::EquipT(const EquipT &o)
-      : equip_id(o.equip_id),
-        x(o.x),
-        y(o.y) {
+      : equip_id(o.equip_id) {
   scroll.reserve(o.scroll.size());
   for (const auto &scroll_ : o.scroll) { scroll.emplace_back((scroll_) ? new fbs::EquipScrollT(*scroll_) : nullptr); }
 }
@@ -3930,8 +3997,6 @@ inline EquipT::EquipT(const EquipT &o)
 inline EquipT &EquipT::operator=(EquipT o) FLATBUFFERS_NOEXCEPT {
   std::swap(equip_id, o.equip_id);
   std::swap(scroll, o.scroll);
-  std::swap(x, o.x);
-  std::swap(y, o.y);
   return *this;
 }
 
@@ -3946,8 +4011,6 @@ inline void Equip::UnPackTo(EquipT *_o, const ::flatbuffers::resolver_function_t
   (void)_resolver;
   { auto _e = equip_id(); _o->equip_id = _e; }
   { auto _e = scroll(); if (_e) { _o->scroll.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->scroll[_i]) { _e->Get(_i)->UnPackTo(_o->scroll[_i].get(), _resolver); } else { _o->scroll[_i] = std::unique_ptr<fbs::EquipScrollT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->scroll.resize(0); } }
-  { auto _e = x(); _o->x = _e; }
-  { auto _e = y(); _o->y = _e; }
 }
 
 inline ::flatbuffers::Offset<Equip> CreateEquip(::flatbuffers::FlatBufferBuilder &_fbb, const EquipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3960,14 +4023,10 @@ inline ::flatbuffers::Offset<Equip> Equip::Pack(::flatbuffers::FlatBufferBuilder
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const EquipT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _equip_id = _o->equip_id;
   auto _scroll = _o->scroll.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>> (_o->scroll.size(), [](size_t i, _VectorArgs *__va) { return CreateEquipScroll(*__va->__fbb, __va->__o->scroll[i].get(), __va->__rehasher); }, &_va ) : 0;
-  auto _x = _o->x;
-  auto _y = _o->y;
   return fbs::CreateEquip(
       _fbb,
       _equip_id,
-      _scroll,
-      _x,
-      _y);
+      _scroll);
 }
 
 inline ItemT *Item::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -3981,8 +4040,6 @@ inline void Item::UnPackTo(ItemT *_o, const ::flatbuffers::resolver_function_t *
   (void)_resolver;
   { auto _e = item_id(); _o->item_id = _e; }
   { auto _e = item_num(); _o->item_num = _e; }
-  { auto _e = x(); _o->x = _e; }
-  { auto _e = y(); _o->y = _e; }
 }
 
 inline ::flatbuffers::Offset<Item> CreateItem(::flatbuffers::FlatBufferBuilder &_fbb, const ItemT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3995,12 +4052,43 @@ inline ::flatbuffers::Offset<Item> Item::Pack(::flatbuffers::FlatBufferBuilder &
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ItemT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _item_id = _o->item_id;
   auto _item_num = _o->item_num;
-  auto _x = _o->x;
-  auto _y = _o->y;
   return fbs::CreateItem(
       _fbb,
       _item_id,
-      _item_num,
+      _item_num);
+}
+
+inline DropT *Drop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<DropT>(new DropT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Drop::UnPackTo(DropT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = drop_type(); _o->drop.type = _e; }
+  { auto _e = drop(); if (_e) _o->drop.value = fbs::DropUnionUnion::UnPack(_e, drop_type(), _resolver); }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+}
+
+inline ::flatbuffers::Offset<Drop> CreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const DropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Drop::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Drop> Drop::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _drop_type = _o->drop.type;
+  auto _drop = _o->drop.Pack(_fbb);
+  auto _x = _o->x;
+  auto _y = _o->y;
+  return fbs::CreateDrop(
+      _fbb,
+      _drop_type,
+      _drop,
       _x,
       _y);
 }
@@ -4299,16 +4387,16 @@ inline void MobLogicTypeUnion::Reset() {
 }
 
 template <bool B>
-inline bool VerifyDrop(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, Drop type) {
+inline bool VerifyDropUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, DropUnion type) {
   switch (type) {
-    case Drop_NONE: {
+    case DropUnion_NONE: {
       return true;
     }
-    case Drop_Equip: {
+    case DropUnion_Equip: {
       auto ptr = reinterpret_cast<const fbs::Equip *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case Drop_Item: {
+    case DropUnion_Item: {
       auto ptr = reinterpret_cast<const fbs::Item *>(obj);
       return verifier.VerifyTable(ptr);
     }
@@ -4317,26 +4405,26 @@ inline bool VerifyDrop(::flatbuffers::VerifierTemplate<B> &verifier, const void 
 }
 
 template <bool B>
-inline bool VerifyDropVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
+inline bool VerifyDropUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
   if (!values || !types) return !values && !types;
   if (values->size() != types->size()) return false;
   for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
-    if (!VerifyDrop(
-        verifier,  values->Get(i), types->GetEnum<Drop>(i))) {
+    if (!VerifyDropUnion(
+        verifier,  values->Get(i), types->GetEnum<DropUnion>(i))) {
       return false;
     }
   }
   return true;
 }
 
-inline void *DropUnion::UnPack(const void *obj, Drop type, const ::flatbuffers::resolver_function_t *resolver) {
+inline void *DropUnionUnion::UnPack(const void *obj, DropUnion type, const ::flatbuffers::resolver_function_t *resolver) {
   (void)resolver;
   switch (type) {
-    case Drop_Equip: {
+    case DropUnion_Equip: {
       auto ptr = reinterpret_cast<const fbs::Equip *>(obj);
       return ptr->UnPack(resolver);
     }
-    case Drop_Item: {
+    case DropUnion_Item: {
       auto ptr = reinterpret_cast<const fbs::Item *>(obj);
       return ptr->UnPack(resolver);
     }
@@ -4344,14 +4432,14 @@ inline void *DropUnion::UnPack(const void *obj, Drop type, const ::flatbuffers::
   }
 }
 
-inline ::flatbuffers::Offset<void> DropUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
+inline ::flatbuffers::Offset<void> DropUnionUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
   (void)_rehasher;
   switch (type) {
-    case Drop_Equip: {
+    case DropUnion_Equip: {
       auto ptr = reinterpret_cast<const fbs::EquipT *>(value);
       return CreateEquip(_fbb, ptr, _rehasher).Union();
     }
-    case Drop_Item: {
+    case DropUnion_Item: {
       auto ptr = reinterpret_cast<const fbs::ItemT *>(value);
       return CreateItem(_fbb, ptr, _rehasher).Union();
     }
@@ -4359,13 +4447,13 @@ inline ::flatbuffers::Offset<void> DropUnion::Pack(::flatbuffers::FlatBufferBuil
   }
 }
 
-inline DropUnion::DropUnion(const DropUnion &u) : type(u.type), value(nullptr) {
+inline DropUnionUnion::DropUnionUnion(const DropUnionUnion &u) : type(u.type), value(nullptr) {
   switch (type) {
-    case Drop_Equip: {
+    case DropUnion_Equip: {
       value = new fbs::EquipT(*reinterpret_cast<fbs::EquipT *>(u.value));
       break;
     }
-    case Drop_Item: {
+    case DropUnion_Item: {
       value = new fbs::ItemT(*reinterpret_cast<fbs::ItemT *>(u.value));
       break;
     }
@@ -4374,14 +4462,14 @@ inline DropUnion::DropUnion(const DropUnion &u) : type(u.type), value(nullptr) {
   }
 }
 
-inline void DropUnion::Reset() {
+inline void DropUnionUnion::Reset() {
   switch (type) {
-    case Drop_Equip: {
+    case DropUnion_Equip: {
       auto ptr = reinterpret_cast<fbs::EquipT *>(value);
       delete ptr;
       break;
     }
-    case Drop_Item: {
+    case DropUnion_Item: {
       auto ptr = reinterpret_cast<fbs::ItemT *>(value);
       delete ptr;
       break;
@@ -4389,7 +4477,7 @@ inline void DropUnion::Reset() {
     default: break;
   }
   value = nullptr;
-  type = Drop_NONE;
+  type = DropUnion_NONE;
 }
 
 }  // namespace fbs

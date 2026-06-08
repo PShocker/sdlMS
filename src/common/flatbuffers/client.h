@@ -782,7 +782,11 @@ inline ::flatbuffers::Offset<ClientCharacterStat> CreateClientCharacterStat(
 struct ClientCharacterDropT : public ::flatbuffers::NativeTable {
   typedef ClientCharacterDrop TableType;
   uint32_t map_id = 0;
-  fbs::DropUnion payload{};
+  std::unique_ptr<fbs::DropT> payload{};
+  ClientCharacterDropT() = default;
+  ClientCharacterDropT(const ClientCharacterDropT &o);
+  ClientCharacterDropT(ClientCharacterDropT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientCharacterDropT &operator=(ClientCharacterDropT o) FLATBUFFERS_NOEXCEPT;
 };
 
 struct ClientCharacterDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -790,8 +794,7 @@ struct ClientCharacterDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   typedef ClientCharacterDropBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MAP_ID = 4,
-    VT_PAYLOAD_TYPE = 6,
-    VT_PAYLOAD = 8
+    VT_PAYLOAD = 6
   };
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
@@ -799,58 +802,24 @@ struct ClientCharacterDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   bool mutate_map_id(uint32_t _map_id = 0) {
     return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
   }
-  fbs::Drop payload_type() const {
-    return static_cast<fbs::Drop>(GetField<uint8_t>(VT_PAYLOAD_TYPE, 0));
+  const fbs::Drop *payload() const {
+    return GetPointer<const fbs::Drop *>(VT_PAYLOAD);
   }
-  const void *payload() const {
-    return GetPointer<const void *>(VT_PAYLOAD);
-  }
-  template<typename T> const T *payload_as() const;
-  const fbs::Equip *payload_as_Equip() const {
-    return payload_type() == fbs::Drop_Equip ? static_cast<const fbs::Equip *>(payload()) : nullptr;
-  }
-  const fbs::Item *payload_as_Item() const {
-    return payload_type() == fbs::Drop_Item ? static_cast<const fbs::Item *>(payload()) : nullptr;
-  }
-  template<typename T> T *mutable_payload_as();
-  fbs::Equip *mutable_payload_as_Equip() {
-    return payload_type() == fbs::Drop_Equip ? static_cast<fbs::Equip *>(mutable_payload()) : nullptr;
-  }
-  fbs::Item *mutable_payload_as_Item() {
-    return payload_type() == fbs::Drop_Item ? static_cast<fbs::Item *>(mutable_payload()) : nullptr;
-  }
-  void *mutable_payload() {
-    return GetPointer<void *>(VT_PAYLOAD);
+  fbs::Drop *mutable_payload() {
+    return GetPointer<fbs::Drop *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
-           VerifyField<uint8_t>(verifier, VT_PAYLOAD_TYPE, 1) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
-           VerifyDrop(verifier, payload(), payload_type()) &&
+           verifier.VerifyTable(payload()) &&
            verifier.EndTable();
   }
   ClientCharacterDropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
   void UnPackTo(ClientCharacterDropT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
   static ::flatbuffers::Offset<ClientCharacterDrop> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
-
-template<> inline const fbs::Equip *ClientCharacterDrop::payload_as<fbs::Equip>() const {
-  return payload_as_Equip();
-}
-
-template<> inline fbs::Equip *ClientCharacterDrop::mutable_payload_as<fbs::Equip>() {
-  return mutable_payload_as_Equip();
-}
-
-template<> inline const fbs::Item *ClientCharacterDrop::payload_as<fbs::Item>() const {
-  return payload_as_Item();
-}
-
-template<> inline fbs::Item *ClientCharacterDrop::mutable_payload_as<fbs::Item>() {
-  return mutable_payload_as_Item();
-}
 
 struct ClientCharacterDropBuilder {
   typedef ClientCharacterDrop Table;
@@ -859,10 +828,7 @@ struct ClientCharacterDropBuilder {
   void add_map_id(uint32_t map_id) {
     fbb_.AddElement<uint32_t>(ClientCharacterDrop::VT_MAP_ID, map_id, 0);
   }
-  void add_payload_type(fbs::Drop payload_type) {
-    fbb_.AddElement<uint8_t>(ClientCharacterDrop::VT_PAYLOAD_TYPE, static_cast<uint8_t>(payload_type), 0);
-  }
-  void add_payload(::flatbuffers::Offset<void> payload) {
+  void add_payload(::flatbuffers::Offset<fbs::Drop> payload) {
     fbb_.AddOffset(ClientCharacterDrop::VT_PAYLOAD, payload);
   }
   explicit ClientCharacterDropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
@@ -879,12 +845,10 @@ struct ClientCharacterDropBuilder {
 inline ::flatbuffers::Offset<ClientCharacterDrop> CreateClientCharacterDrop(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t map_id = 0,
-    fbs::Drop payload_type = fbs::Drop_NONE,
-    ::flatbuffers::Offset<void> payload = 0) {
+    ::flatbuffers::Offset<fbs::Drop> payload = 0) {
   ClientCharacterDropBuilder builder_(_fbb);
   builder_.add_payload(payload);
   builder_.add_map_id(map_id);
-  builder_.add_payload_type(payload_type);
   return builder_.Finish();
 }
 
@@ -1218,6 +1182,17 @@ inline ::flatbuffers::Offset<ClientCharacterStat> ClientCharacterStat::Pack(::fl
       _payload);
 }
 
+inline ClientCharacterDropT::ClientCharacterDropT(const ClientCharacterDropT &o)
+      : map_id(o.map_id),
+        payload((o.payload) ? new fbs::DropT(*o.payload) : nullptr) {
+}
+
+inline ClientCharacterDropT &ClientCharacterDropT::operator=(ClientCharacterDropT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(map_id, o.map_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
 inline ClientCharacterDropT *ClientCharacterDrop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientCharacterDropT>(new ClientCharacterDropT());
   UnPackTo(_o.get(), _resolver);
@@ -1228,8 +1203,7 @@ inline void ClientCharacterDrop::UnPackTo(ClientCharacterDropT *_o, const ::flat
   (void)_o;
   (void)_resolver;
   { auto _e = map_id(); _o->map_id = _e; }
-  { auto _e = payload_type(); _o->payload.type = _e; }
-  { auto _e = payload(); if (_e) _o->payload.value = fbs::DropUnion::UnPack(_e, payload_type(), _resolver); }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::DropT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
 }
 
 inline ::flatbuffers::Offset<ClientCharacterDrop> CreateClientCharacterDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1241,12 +1215,10 @@ inline ::flatbuffers::Offset<ClientCharacterDrop> ClientCharacterDrop::Pack(::fl
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterDropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _map_id = _o->map_id;
-  auto _payload_type = _o->payload.type;
-  auto _payload = _o->payload.Pack(_fbb);
+  auto _payload = _o->payload ? CreateDrop(_fbb, _o->payload.get(), _rehasher) : 0;
   return fbs::CreateClientCharacterDrop(
       _fbb,
       _map_id,
-      _payload_type,
       _payload);
 }
 

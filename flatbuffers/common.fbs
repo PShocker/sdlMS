@@ -178,18 +178,20 @@ table EquipScroll{
 table Equip{
     equip_id:uint32;
     scroll:[EquipScroll];
-    x:float;
-    y:float;
 }
 
 table Item{
     item_id:uint32;
     item_num:uint32;
-    x:float;
-    y:float;
 }
 
-union Drop {
+union DropUnion {
     Equip,
     Item,
+}
+
+table Drop{
+    drop:DropUnion;
+    x:float;
+    y:float;
 }
