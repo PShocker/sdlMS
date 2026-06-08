@@ -8,6 +8,23 @@
 #include <string>
 class equip_ui_system {
 private:
+  enum equip_mouse_index {
+    cap,
+    earcc,
+    clothes,
+    pants,
+    shoes,
+    gloves,
+    cape,
+    shield,
+    weapon,
+    ring0,
+    ring1,
+    ring2,
+    ring3,
+  };
+  static std::optional<equip_mouse_index> load_mouse_index();
+
   static void render_backgrnd();
   static void render_backgrnd2();
   static void render_tab();
@@ -28,7 +45,6 @@ private:
 
   static inline std::optional<SDL_FPoint> drag;
   static inline uint8_t active_tab;
-  static inline std::optional<game_equip> equip_info;
 
 public:
   static inline SDL_FPoint pos;

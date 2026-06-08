@@ -32,21 +32,23 @@ enum NetPayload : uint8_t {
   NetPayload_ClientCharacterBall = 6,
   NetPayload_ClientMobAttack = 7,
   NetPayload_ClientCharacterChat = 8,
-  NetPayload_ServerHeartbeat = 9,
-  NetPayload_ServerScene = 10,
-  NetPayload_ServerCharacterIn = 11,
-  NetPayload_ServerCharacterOut = 12,
-  NetPayload_ServerCharacterLogic = 13,
-  NetPayload_ServerCharacterAttack = 14,
-  NetPayload_ServerCharacterSkill = 15,
-  NetPayload_ServerCharacterBall = 16,
-  NetPayload_ServerMobLogic = 17,
-  NetPayload_ServerMobAttack = 18,
+  NetPayload_ClientCharacterDrop = 9,
+  NetPayload_ServerHeartbeat = 10,
+  NetPayload_ServerScene = 11,
+  NetPayload_ServerCharacterIn = 12,
+  NetPayload_ServerCharacterOut = 13,
+  NetPayload_ServerCharacterLogic = 14,
+  NetPayload_ServerCharacterAttack = 15,
+  NetPayload_ServerCharacterSkill = 16,
+  NetPayload_ServerCharacterBall = 17,
+  NetPayload_ServerCharacterDrop = 18,
+  NetPayload_ServerMobLogic = 19,
+  NetPayload_ServerMobAttack = 20,
   NetPayload_MIN = NetPayload_NONE,
   NetPayload_MAX = NetPayload_ServerMobAttack
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[19] {
+inline const NetPayload (&EnumValuesNetPayload())[21] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -57,6 +59,7 @@ inline const NetPayload (&EnumValuesNetPayload())[19] {
     NetPayload_ClientCharacterBall,
     NetPayload_ClientMobAttack,
     NetPayload_ClientCharacterChat,
+    NetPayload_ClientCharacterDrop,
     NetPayload_ServerHeartbeat,
     NetPayload_ServerScene,
     NetPayload_ServerCharacterIn,
@@ -65,6 +68,7 @@ inline const NetPayload (&EnumValuesNetPayload())[19] {
     NetPayload_ServerCharacterAttack,
     NetPayload_ServerCharacterSkill,
     NetPayload_ServerCharacterBall,
+    NetPayload_ServerCharacterDrop,
     NetPayload_ServerMobLogic,
     NetPayload_ServerMobAttack
   };
@@ -72,7 +76,7 @@ inline const NetPayload (&EnumValuesNetPayload())[19] {
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[20] = {
+  static const char * const names[22] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -82,6 +86,7 @@ inline const char * const *EnumNamesNetPayload() {
     "ClientCharacterBall",
     "ClientMobAttack",
     "ClientCharacterChat",
+    "ClientCharacterDrop",
     "ServerHeartbeat",
     "ServerScene",
     "ServerCharacterIn",
@@ -90,6 +95,7 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerCharacterAttack",
     "ServerCharacterSkill",
     "ServerCharacterBall",
+    "ServerCharacterDrop",
     "ServerMobLogic",
     "ServerMobAttack",
     nullptr
@@ -139,6 +145,10 @@ template<> struct NetPayloadTraits<fbs::ClientCharacterChat> {
   static const NetPayload enum_value = NetPayload_ClientCharacterChat;
 };
 
+template<> struct NetPayloadTraits<fbs::ClientCharacterDrop> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterDrop;
+};
+
 template<> struct NetPayloadTraits<fbs::ServerHeartbeat> {
   static const NetPayload enum_value = NetPayload_ServerHeartbeat;
 };
@@ -169,6 +179,10 @@ template<> struct NetPayloadTraits<fbs::ServerCharacterSkill> {
 
 template<> struct NetPayloadTraits<fbs::ServerCharacterBall> {
   static const NetPayload enum_value = NetPayload_ServerCharacterBall;
+};
+
+template<> struct NetPayloadTraits<fbs::ServerCharacterDrop> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterDrop;
 };
 
 template<> struct NetPayloadTraits<fbs::ServerMobLogic> {
@@ -215,6 +229,10 @@ template<> struct NetPayloadUnionTraits<fbs::ClientCharacterChatT> {
   static const NetPayload enum_value = NetPayload_ClientCharacterChat;
 };
 
+template<> struct NetPayloadUnionTraits<fbs::ClientCharacterDropT> {
+  static const NetPayload enum_value = NetPayload_ClientCharacterDrop;
+};
+
 template<> struct NetPayloadUnionTraits<fbs::ServerHeartbeatT> {
   static const NetPayload enum_value = NetPayload_ServerHeartbeat;
 };
@@ -245,6 +263,10 @@ template<> struct NetPayloadUnionTraits<fbs::ServerCharacterSkillT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerCharacterBallT> {
   static const NetPayload enum_value = NetPayload_ServerCharacterBall;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerCharacterDropT> {
+  static const NetPayload enum_value = NetPayload_ServerCharacterDrop;
 };
 
 template<> struct NetPayloadUnionTraits<fbs::ServerMobLogicT> {
@@ -349,6 +371,14 @@ struct NetPayloadUnion {
     return type == NetPayload_ClientCharacterChat ?
       reinterpret_cast<const fbs::ClientCharacterChatT *>(value) : nullptr;
   }
+  fbs::ClientCharacterDropT *AsClientCharacterDrop() {
+    return type == NetPayload_ClientCharacterDrop ?
+      reinterpret_cast<fbs::ClientCharacterDropT *>(value) : nullptr;
+  }
+  const fbs::ClientCharacterDropT *AsClientCharacterDrop() const {
+    return type == NetPayload_ClientCharacterDrop ?
+      reinterpret_cast<const fbs::ClientCharacterDropT *>(value) : nullptr;
+  }
   fbs::ServerHeartbeatT *AsServerHeartbeat() {
     return type == NetPayload_ServerHeartbeat ?
       reinterpret_cast<fbs::ServerHeartbeatT *>(value) : nullptr;
@@ -412,6 +442,14 @@ struct NetPayloadUnion {
   const fbs::ServerCharacterBallT *AsServerCharacterBall() const {
     return type == NetPayload_ServerCharacterBall ?
       reinterpret_cast<const fbs::ServerCharacterBallT *>(value) : nullptr;
+  }
+  fbs::ServerCharacterDropT *AsServerCharacterDrop() {
+    return type == NetPayload_ServerCharacterDrop ?
+      reinterpret_cast<fbs::ServerCharacterDropT *>(value) : nullptr;
+  }
+  const fbs::ServerCharacterDropT *AsServerCharacterDrop() const {
+    return type == NetPayload_ServerCharacterDrop ?
+      reinterpret_cast<const fbs::ServerCharacterDropT *>(value) : nullptr;
   }
   fbs::ServerMobLogicT *AsServerMobLogic() {
     return type == NetPayload_ServerMobLogic ?
@@ -479,6 +517,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ClientCharacterChat *payload_as_ClientCharacterChat() const {
     return payload_type() == fbs::NetPayload_ClientCharacterChat ? static_cast<const fbs::ClientCharacterChat *>(payload()) : nullptr;
   }
+  const fbs::ClientCharacterDrop *payload_as_ClientCharacterDrop() const {
+    return payload_type() == fbs::NetPayload_ClientCharacterDrop ? static_cast<const fbs::ClientCharacterDrop *>(payload()) : nullptr;
+  }
   const fbs::ServerHeartbeat *payload_as_ServerHeartbeat() const {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<const fbs::ServerHeartbeat *>(payload()) : nullptr;
   }
@@ -502,6 +543,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   const fbs::ServerCharacterBall *payload_as_ServerCharacterBall() const {
     return payload_type() == fbs::NetPayload_ServerCharacterBall ? static_cast<const fbs::ServerCharacterBall *>(payload()) : nullptr;
+  }
+  const fbs::ServerCharacterDrop *payload_as_ServerCharacterDrop() const {
+    return payload_type() == fbs::NetPayload_ServerCharacterDrop ? static_cast<const fbs::ServerCharacterDrop *>(payload()) : nullptr;
   }
   const fbs::ServerMobLogic *payload_as_ServerMobLogic() const {
     return payload_type() == fbs::NetPayload_ServerMobLogic ? static_cast<const fbs::ServerMobLogic *>(payload()) : nullptr;
@@ -534,6 +578,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::ClientCharacterChat *mutable_payload_as_ClientCharacterChat() {
     return payload_type() == fbs::NetPayload_ClientCharacterChat ? static_cast<fbs::ClientCharacterChat *>(mutable_payload()) : nullptr;
   }
+  fbs::ClientCharacterDrop *mutable_payload_as_ClientCharacterDrop() {
+    return payload_type() == fbs::NetPayload_ClientCharacterDrop ? static_cast<fbs::ClientCharacterDrop *>(mutable_payload()) : nullptr;
+  }
   fbs::ServerHeartbeat *mutable_payload_as_ServerHeartbeat() {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<fbs::ServerHeartbeat *>(mutable_payload()) : nullptr;
   }
@@ -557,6 +604,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerCharacterBall *mutable_payload_as_ServerCharacterBall() {
     return payload_type() == fbs::NetPayload_ServerCharacterBall ? static_cast<fbs::ServerCharacterBall *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerCharacterDrop *mutable_payload_as_ServerCharacterDrop() {
+    return payload_type() == fbs::NetPayload_ServerCharacterDrop ? static_cast<fbs::ServerCharacterDrop *>(mutable_payload()) : nullptr;
   }
   fbs::ServerMobLogic *mutable_payload_as_ServerMobLogic() {
     return payload_type() == fbs::NetPayload_ServerMobLogic ? static_cast<fbs::ServerMobLogic *>(mutable_payload()) : nullptr;
@@ -644,6 +694,14 @@ template<> inline fbs::ClientCharacterChat *NetPacket::mutable_payload_as<fbs::C
   return mutable_payload_as_ClientCharacterChat();
 }
 
+template<> inline const fbs::ClientCharacterDrop *NetPacket::payload_as<fbs::ClientCharacterDrop>() const {
+  return payload_as_ClientCharacterDrop();
+}
+
+template<> inline fbs::ClientCharacterDrop *NetPacket::mutable_payload_as<fbs::ClientCharacterDrop>() {
+  return mutable_payload_as_ClientCharacterDrop();
+}
+
 template<> inline const fbs::ServerHeartbeat *NetPacket::payload_as<fbs::ServerHeartbeat>() const {
   return payload_as_ServerHeartbeat();
 }
@@ -706,6 +764,14 @@ template<> inline const fbs::ServerCharacterBall *NetPacket::payload_as<fbs::Ser
 
 template<> inline fbs::ServerCharacterBall *NetPacket::mutable_payload_as<fbs::ServerCharacterBall>() {
   return mutable_payload_as_ServerCharacterBall();
+}
+
+template<> inline const fbs::ServerCharacterDrop *NetPacket::payload_as<fbs::ServerCharacterDrop>() const {
+  return payload_as_ServerCharacterDrop();
+}
+
+template<> inline fbs::ServerCharacterDrop *NetPacket::mutable_payload_as<fbs::ServerCharacterDrop>() {
+  return mutable_payload_as_ServerCharacterDrop();
 }
 
 template<> inline const fbs::ServerMobLogic *NetPacket::payload_as<fbs::ServerMobLogic>() const {
@@ -824,6 +890,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ClientCharacterChat *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ClientCharacterDrop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterDrop *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeat *>(obj);
       return verifier.VerifyTable(ptr);
@@ -854,6 +924,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
     }
     case NetPayload_ServerCharacterBall: {
       auto ptr = reinterpret_cast<const fbs::ServerCharacterBall *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ServerCharacterDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterDrop *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case NetPayload_ServerMobLogic: {
@@ -916,6 +990,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ClientCharacterChat *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ClientCharacterDrop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterDrop *>(obj);
+      return ptr->UnPack(resolver);
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeat *>(obj);
       return ptr->UnPack(resolver);
@@ -946,6 +1024,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
     }
     case NetPayload_ServerCharacterBall: {
       auto ptr = reinterpret_cast<const fbs::ServerCharacterBall *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case NetPayload_ServerCharacterDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterDrop *>(obj);
       return ptr->UnPack(resolver);
     }
     case NetPayload_ServerMobLogic: {
@@ -995,6 +1077,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ClientCharacterChatT *>(value);
       return CreateClientCharacterChat(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ClientCharacterDrop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCharacterDropT *>(value);
+      return CreateClientCharacterDrop(_fbb, ptr, _rehasher).Union();
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeatT *>(value);
       return CreateServerHeartbeat(_fbb, ptr, _rehasher).Union();
@@ -1026,6 +1112,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
     case NetPayload_ServerCharacterBall: {
       auto ptr = reinterpret_cast<const fbs::ServerCharacterBallT *>(value);
       return CreateServerCharacterBall(_fbb, ptr, _rehasher).Union();
+    }
+    case NetPayload_ServerCharacterDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCharacterDropT *>(value);
+      return CreateServerCharacterDrop(_fbb, ptr, _rehasher).Union();
     }
     case NetPayload_ServerMobLogic: {
       auto ptr = reinterpret_cast<const fbs::ServerMobLogicT *>(value);
@@ -1073,6 +1163,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
       value = new fbs::ClientCharacterChatT(*reinterpret_cast<fbs::ClientCharacterChatT *>(u.value));
       break;
     }
+    case NetPayload_ClientCharacterDrop: {
+      value = new fbs::ClientCharacterDropT(*reinterpret_cast<fbs::ClientCharacterDropT *>(u.value));
+      break;
+    }
     case NetPayload_ServerHeartbeat: {
       value = new fbs::ServerHeartbeatT(*reinterpret_cast<fbs::ServerHeartbeatT *>(u.value));
       break;
@@ -1103,6 +1197,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ServerCharacterBall: {
       value = new fbs::ServerCharacterBallT(*reinterpret_cast<fbs::ServerCharacterBallT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerCharacterDrop: {
+      value = new fbs::ServerCharacterDropT(*reinterpret_cast<fbs::ServerCharacterDropT *>(u.value));
       break;
     }
     case NetPayload_ServerMobLogic: {
@@ -1160,6 +1258,11 @@ inline void NetPayloadUnion::Reset() {
       delete ptr;
       break;
     }
+    case NetPayload_ClientCharacterDrop: {
+      auto ptr = reinterpret_cast<fbs::ClientCharacterDropT *>(value);
+      delete ptr;
+      break;
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<fbs::ServerHeartbeatT *>(value);
       delete ptr;
@@ -1197,6 +1300,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerCharacterBall: {
       auto ptr = reinterpret_cast<fbs::ServerCharacterBallT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerCharacterDrop: {
+      auto ptr = reinterpret_cast<fbs::ServerCharacterDropT *>(value);
       delete ptr;
       break;
     }

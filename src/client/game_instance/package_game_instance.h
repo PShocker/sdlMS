@@ -6,11 +6,12 @@
 #include <optional>
 class package_game_instance {
 public:
-  static inline std::array<std::optional<game_equip>, 96> equips;
-  static inline std::array<std::optional<game_item>, 96> cosumes;
-  static inline std::array<std::optional<game_item>, 96> etc;
-  static inline std::array<std::optional<game_item>, 96> install;
-  static inline std::array<std::optional<game_item>, 96> cash;
+  static inline std::vector<std::optional<game_equip>> equips;
+  static inline std::vector<std::optional<game_item>> cosumes;
+  static inline std::vector<std::optional<game_item>> etc;
+  static inline std::vector<std::optional<game_item>> install;
+  static inline std::vector<std::optional<game_item>> cash;
 
   static void load();
+
 };

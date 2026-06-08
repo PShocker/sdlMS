@@ -2,6 +2,12 @@
 #include "src/client/game/game_item.h"
 
 void package_game_instance::load() {
+  equips.resize(96);
+  cosumes.resize(96);
+  etc.resize(96);
+  install.resize(96);
+  cash.resize(96);
+
   equips[0] = {
       .id = u"01382004",
   };

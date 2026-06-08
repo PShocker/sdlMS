@@ -6,10 +6,11 @@
 #include <cstdint>
 #include <flat_map>
 #include <optional>
+#include <vector>
 
 class package_ui_system {
 private:
-  static std::optional<uint32_t> load_mouse_index();
+  static std::vector<uint32_t> load_blank_index(uint32_t tab);
 
   static void render_scroll();
   static void render_backgrnd();
@@ -36,6 +37,7 @@ private:
   static inline uint8_t page;
 
   static inline std::optional<SDL_FPoint> drag;
+
 public:
   static inline SDL_FPoint pos;
 
@@ -50,4 +52,6 @@ public:
   static bool cursor_in();
 
   static void toggle();
+
+  static std::optional<uint32_t> load_mouse_index();
 };

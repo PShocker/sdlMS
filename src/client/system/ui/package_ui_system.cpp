@@ -21,6 +21,45 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
+
+std::vector<uint32_t> package_ui_system::load_blank_index(uint32_t tab) {
+  std::vector<uint32_t> r;
+  if (tab == 0) {
+    auto &equips = package_game_instance::equips;
+    for (int32_t i = 0; i < equips.size(); i++) {
+      if (!equips[i].has_value()) {
+        r.push_back(i);
+      }
+    }
+  } else {
+    std::vector<std::optional<game_item>> *items;
+    switch (tab) {
+    case 1: {
+      items = &package_game_instance::cosumes;
+      break;
+    }
+    case 2: {
+      items = &package_game_instance::etc;
+      break;
+    }
+    case 3: {
+      items = &package_game_instance::install;
+      break;
+    }
+    case 4: {
+      items = &package_game_instance::cash;
+      break;
+    }
+    }
+    for (int32_t i = 0; i < items->size(); i++) {
+      if (!items->at(i).has_value()) {
+        r.push_back(i);
+      }
+    }
+  }
+  return r;
+}
 
 std::optional<uint32_t> package_ui_system::load_mouse_index() {
   SDL_FPoint slot_pos{8, 51};
@@ -100,7 +139,7 @@ void package_ui_system::render_items_info() {
         tooltip_ui_system::render_equip(equip.value(), show_pos.x, show_pos.y);
       }
     } else {
-      std::array<std::optional<game_item>, 96> *r;
+      std::vector<std::optional<game_item>> *r;
       switch (active_tab) {
       case 1: {
         r = &package_game_instance::cosumes;
@@ -166,7 +205,7 @@ void package_ui_system::render_items() {
       SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
     }
   } else {
-    std::array<std::optional<game_item>, 96> *r;
+    std::vector<std::optional<game_item>> *r;
     switch (active_tab) {
     case 1: {
       r = &package_game_instance::cosumes;
@@ -305,24 +344,31 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     if (hand.type == cursor_game_instance::package && hand.val == active_tab) {
       auto index = load_mouse_index();
       if (active_tab == 0) {
-        auto &equips = package_game_instance::equips;
+        auto equips = package_game_instance::equips;
         if (index.has_value()) {
           if (hand.val2 == index.value()) {
             auto &self = character_game_instance::self;
             auto equip = equips[index.value()].value();
-            auto e = equip_game_instance::load_equip_slot(equip, self);
-            if (e.has_value()) {
-              equips[hand.val2] = e;
-              equip_game_instance::add_equip(equip, self, 0);
+            auto ev = equip_game_instance::load_equip_slot(equip, self);
+            auto blank_slot = load_blank_index(active_tab);
+            blank_slot.push_back(index.value());
+            std::ranges::sort(blank_slot);
+            if (blank_slot.size() >= ev.size()) {
+              equips[hand.val2] = std::nullopt;
+              for (int32_t i = 0; i < ev.size(); i++) {
+                equips[blank_slot[i]] = ev[i];
+              }
+              equip_game_instance::add_equip(equip, self, -1);
             } else {
-              equip_game_instance::add_equip(equip, self, 0);
+              // 无空闲位置
             }
           } else {
             std::swap(equips[hand.val2], equips[index.value()]);
           }
+          package_game_instance::equips = equips;
         }
       } else {
-        std::array<std::optional<game_item>, 96> *r;
+        std::vector<std::optional<game_item>> *r;
         switch (active_tab) {
         case 1: {
           r = &package_game_instance::cosumes;
@@ -363,7 +409,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         return false;
       }
     } else {
-      std::array<std::optional<game_item>, 96> *r;
+      std::vector<std::optional<game_item>> *r;
       switch (active_tab) {
       case 1: {
         r = &package_game_instance::cosumes;

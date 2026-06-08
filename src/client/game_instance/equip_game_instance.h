@@ -8,6 +8,7 @@
 #include <flat_set>
 #include <optional>
 #include <string>
+#include <vector>
 class equip_game_instance {
 public:
   enum class weapon_type : uint8_t {
@@ -55,8 +56,8 @@ public:
   static std::u16string load_equip_type(const std::u16string &id);
   static uint8_t load_equip_tuc(const std::u16string &id);
 
-  static void add_equip(game_equip &equip, game_character &character,
-                        uint8_t slot);
-  static std::optional<game_equip> load_equip_slot(game_equip &equip, game_character &character);
+  static void add_equip(game_equip &equip, game_character &character, int slot);
+  static std::vector<game_equip> load_equip_slot(game_equip &equip,
+                                                 game_character &character);
   static std::flat_map<inc_type, int> load_equip_inc(const std::u16string &id);
 };

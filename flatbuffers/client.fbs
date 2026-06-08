@@ -42,3 +42,8 @@ table ClientCharacterChat {
 table ClientCharacterStat {
     payload:CharacterStat;
 }
+
+table ClientCharacterDrop {
+    map_id:uint32;
+    payload:Drop;
+}

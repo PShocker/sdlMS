@@ -31,7 +31,7 @@ void cursor_render_system::render_item() {
         SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
         SDL_SetTextureAlphaMod(icon, 255);
       } else {
-        std::array<std::optional<game_item>, 96> *r;
+        std::vector<std::optional<game_item>> *r;
         switch (hand.val) {
         case 1: {
           r = &package_game_instance::cosumes;

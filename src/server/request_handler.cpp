@@ -76,6 +76,9 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_character_instance::handle_chat(client_id, r);
     break;
   }
+  case NetPayload_ClientCharacterDrop: {
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -140,6 +143,9 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerMobAttackT r;
     payload->UnPackTo(&r);
     mob_game_instance::load_mob_attack(r.client_id, r.payload.get());
+    break;
+  }
+  case NetPayload_ServerCharacterDrop: {
     break;
   }
   default:

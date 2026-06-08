@@ -330,8 +330,9 @@ void character_game_instance::load_others_character(
   g_character.level = c->character->level;
   g_character.job =
       std::u16string{c->character->job.begin(), c->character->job.end()};
-  g_character.face.action = std::u16string{c->character->face_action.begin(),
-                                           c->character->face_action.end()};
+  g_character.face.action =
+      std::u16string{c->character->face->face_action.begin(),
+                     c->character->face->face_action.end()};
   others.emplace(c->client_id, g_character);
 }
 
@@ -1258,7 +1259,7 @@ character_game_instance::load_characterT(const game_character &g) {
   c.name = std::vector<uint16_t>{name.begin(), name.end()};
 
   c.fame = g.fame;
-  c.face_action = std::string{g.face.action.begin(), g.face.action.end()};
+  c.face->face_action = std::string{g.face.action.begin(), g.face.action.end()};
   c.job = std::string{g.job.begin(), g.job.end()};
   c.level = g.level;
 

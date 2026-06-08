@@ -55,3 +55,8 @@ table ServerCharacterChat {
     client_id:uint64;
     payload:CharacterChat;
 }
+
+table ServerCharacterDrop {
+    client_id:uint64;
+    payload:Drop;
+}

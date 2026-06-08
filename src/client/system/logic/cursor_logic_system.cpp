@@ -1,5 +1,6 @@
 #include "cursor_logic_system.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
@@ -12,22 +13,73 @@
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/window/window.h"
+#include "src/common/wz/wz_resource.h"
+#include "wz/Property.h"
+#include "wz/Wz.h"
 #include <cstdlib>
+#include <string>
+
+bool cursor_logic_system::run_package_motion() {
+  auto index = package_ui_system::load_mouse_index();
+  if (!index.has_value()) {
+    return false;
+  }
+  auto active_tab = package_ui_system::active_tab;
+  if (active_tab == 0) {
+    if (!package_game_instance::equips[index.value()].has_value()) {
+      return false;
+    }
+  } else {
+    std::vector<std::optional<game_item>> *r;
+    switch (active_tab) {
+    case 1: {
+      r = &package_game_instance::cosumes;
+      break;
+    }
+    case 2: {
+      r = &package_game_instance::etc;
+      break;
+    }
+    case 3: {
+      r = &package_game_instance::install;
+      break;
+    }
+    case 4: {
+      r = &package_game_instance::cash;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    if (!r->at(index.value()).has_value()) {
+      return false;
+    }
+  }
+  return true;
+}
+
+void cursor_logic_system::run_cursor_action(const std::u16string &action) {
+  if (cursor_game_instance::cursor_type != action) {
+    cursor_game_instance::cursor_type = action;
+    cursor_game_instance::cursor_index = 0;
+    cursor_game_instance::cursor_time = 0;
+  }
+}
 
 bool cursor_logic_system::run_default() {
   if (cursor_game_instance::cursor_hand.has_value()) {
-    cursor_game_instance::cursor_type = u"11";
-    cursor_game_instance::cursor_index = 0;
-    cursor_game_instance::cursor_time = 0;
-  } else 
-  if (window::mouse_state & SDL_BUTTON_LMASK) {
-    cursor_game_instance::cursor_type = u"12";
-    cursor_game_instance::cursor_index = 0;
-    cursor_game_instance::cursor_time = 0;
+    run_cursor_action(u"11");
+  } else if (window::mouse_state & SDL_BUTTON_LMASK) {
+    run_cursor_action(u"12");
   } else {
-    cursor_game_instance::cursor_type = u"0";
-    cursor_game_instance::cursor_index = 0;
-    cursor_game_instance::cursor_time = 0;
+    run_cursor_action(u"0");
+  }
+
+  if (cursor_game_instance::cursor_ui == package_ui_system::render) {
+    if (run_package_motion()) {
+      run_cursor_action(u"0");
+    }
   }
 
   return true;
@@ -80,8 +132,33 @@ void cursor_logic_system::run_cursor_ui() {
   }
 }
 
+bool cursor_logic_system::run_animate() {
+  static auto cursor_node = wz_resource::ui->find(u"Cursor.img");
+  auto type_node = cursor_node->get_child(cursor_game_instance::cursor_type);
+  auto child_count = type_node->children_count();
+  auto index = std::to_string(cursor_game_instance::cursor_index);
+  type_node = type_node->get_child(index);
+  if (type_node->type == wz::Type::UOL) {
+    type_node = static_cast<wz::Property<wz::WzUOL> *>(type_node)->get_uol();
+  }
+  int delay = 0;
+  if (type_node->get_child(u"delay")) {
+    delay =
+        static_cast<wz::Property<int> *>(type_node->get_child(u"delay"))->get();
+  }
+  cursor_game_instance::cursor_time += window::delta_time;
+  if (cursor_game_instance::cursor_time >= delay) {
+    cursor_game_instance::cursor_time = 0;
+    cursor_game_instance::cursor_index += 1;
+    cursor_game_instance::cursor_index =
+        cursor_game_instance::cursor_index % child_count;
+  }
+  return true;
+}
+
 bool cursor_logic_system::run() {
-  run_default();
+  run_animate();
   run_cursor_ui();
+  run_default();
   return true;
 }

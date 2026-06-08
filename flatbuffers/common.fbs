@@ -174,3 +174,22 @@ table EquipScroll{
     scroll_id:uint32;
     success:bool;
 }
+
+table Equip{
+    equip_id:uint32;
+    scroll:[EquipScroll];
+    x:float;
+    y:float;
+}
+
+table Item{
+    item_id:uint32;
+    item_num:uint32;
+    x:float;
+    y:float;
+}
+
+union Drop {
+    Equip,
+    Item,
+}

@@ -61,6 +61,10 @@ struct ServerCharacterChat;
 struct ServerCharacterChatBuilder;
 struct ServerCharacterChatT;
 
+struct ServerCharacterDrop;
+struct ServerCharacterDropBuilder;
+struct ServerCharacterDropT;
+
 struct ServerHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ServerHeartbeat TableType;
 };
@@ -915,6 +919,117 @@ inline ::flatbuffers::Offset<ServerCharacterChat> CreateServerCharacterChat(
 
 ::flatbuffers::Offset<ServerCharacterChat> CreateServerCharacterChat(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterChatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterDropT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterDrop TableType;
+  uint64_t client_id = 0;
+  fbs::DropUnion payload{};
+};
+
+struct ServerCharacterDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterDropT NativeTableType;
+  typedef ServerCharacterDropBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD_TYPE = 6,
+    VT_PAYLOAD = 8
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  fbs::Drop payload_type() const {
+    return static_cast<fbs::Drop>(GetField<uint8_t>(VT_PAYLOAD_TYPE, 0));
+  }
+  const void *payload() const {
+    return GetPointer<const void *>(VT_PAYLOAD);
+  }
+  template<typename T> const T *payload_as() const;
+  const fbs::Equip *payload_as_Equip() const {
+    return payload_type() == fbs::Drop_Equip ? static_cast<const fbs::Equip *>(payload()) : nullptr;
+  }
+  const fbs::Item *payload_as_Item() const {
+    return payload_type() == fbs::Drop_Item ? static_cast<const fbs::Item *>(payload()) : nullptr;
+  }
+  template<typename T> T *mutable_payload_as();
+  fbs::Equip *mutable_payload_as_Equip() {
+    return payload_type() == fbs::Drop_Equip ? static_cast<fbs::Equip *>(mutable_payload()) : nullptr;
+  }
+  fbs::Item *mutable_payload_as_Item() {
+    return payload_type() == fbs::Drop_Item ? static_cast<fbs::Item *>(mutable_payload()) : nullptr;
+  }
+  void *mutable_payload() {
+    return GetPointer<void *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyField<uint8_t>(verifier, VT_PAYLOAD_TYPE, 1) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           VerifyDrop(verifier, payload(), payload_type()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterDropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterDropT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterDrop> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+template<> inline const fbs::Equip *ServerCharacterDrop::payload_as<fbs::Equip>() const {
+  return payload_as_Equip();
+}
+
+template<> inline fbs::Equip *ServerCharacterDrop::mutable_payload_as<fbs::Equip>() {
+  return mutable_payload_as_Equip();
+}
+
+template<> inline const fbs::Item *ServerCharacterDrop::payload_as<fbs::Item>() const {
+  return payload_as_Item();
+}
+
+template<> inline fbs::Item *ServerCharacterDrop::mutable_payload_as<fbs::Item>() {
+  return mutable_payload_as_Item();
+}
+
+struct ServerCharacterDropBuilder {
+  typedef ServerCharacterDrop Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterDrop::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload_type(fbs::Drop payload_type) {
+    fbb_.AddElement<uint8_t>(ServerCharacterDrop::VT_PAYLOAD_TYPE, static_cast<uint8_t>(payload_type), 0);
+  }
+  void add_payload(::flatbuffers::Offset<void> payload) {
+    fbb_.AddOffset(ServerCharacterDrop::VT_PAYLOAD, payload);
+  }
+  explicit ServerCharacterDropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterDrop> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterDrop>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterDrop> CreateServerCharacterDrop(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    fbs::Drop payload_type = fbs::Drop_NONE,
+    ::flatbuffers::Offset<void> payload = 0) {
+  ServerCharacterDropBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  builder_.add_payload_type(payload_type);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterDrop> CreateServerCharacterDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -1332,6 +1447,38 @@ inline ::flatbuffers::Offset<ServerCharacterChat> ServerCharacterChat::Pack(::fl
   return fbs::CreateServerCharacterChat(
       _fbb,
       _client_id,
+      _payload);
+}
+
+inline ServerCharacterDropT *ServerCharacterDrop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterDropT>(new ServerCharacterDropT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterDrop::UnPackTo(ServerCharacterDropT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload_type(); _o->payload.type = _e; }
+  { auto _e = payload(); if (_e) _o->payload.value = fbs::DropUnion::UnPack(_e, payload_type(), _resolver); }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterDrop> CreateServerCharacterDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterDrop::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterDrop> ServerCharacterDrop::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterDropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload_type = _o->payload.type;
+  auto _payload = _o->payload.Pack(_fbb);
+  return fbs::CreateServerCharacterDrop(
+      _fbb,
+      _client_id,
+      _payload_type,
       _payload);
 }
 

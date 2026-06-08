@@ -1,6 +1,7 @@
 #include "equip_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game/game_equip.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -12,6 +13,78 @@
 #include <algorithm>
 #include <optional>
 #include <string>
+
+const static SDL_FPoint cap_slot{68, 23};
+const static SDL_FPoint earacc_slot{101, 56};
+const static SDL_FPoint clothes_slot{35, 89};
+const static SDL_FPoint pants_slot{35, 122};
+const static SDL_FPoint shoes_slot{35, 155};
+const static SDL_FPoint gloves_slot{2, 122};
+const static SDL_FPoint cape_slot{2, 89};
+const static SDL_FPoint shield_slot{134, 89};
+const static SDL_FPoint weapon_slot{101, 89};
+
+std::optional<equip_ui_system::equip_mouse_index>
+equip_ui_system::load_mouse_index() {
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  if (cursor_in != render) {
+    return std::nullopt;
+  }
+  auto &mouse_pos = window::mouse_pos;
+  const SDL_FPoint lt{4, 45};
+  auto x = (int)pos.x + cap_slot.x + lt.x;
+  auto y = (int)pos.y + cap_slot.y + lt.y;
+  SDL_FRect pos_rect{
+      x,
+      y,
+      static_cast<float>(32),
+      static_cast<float>(32),
+  };
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return cap;
+  }
+  pos_rect.x = (int)pos.x + earacc_slot.x + lt.x;
+  pos_rect.y = (int)pos.y + earacc_slot.y + lt.y;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return earcc;
+  }
+  pos_rect.x = (int)pos.x + clothes_slot.x + lt.x;
+  pos_rect.y = (int)pos.y + clothes_slot.y + lt.y;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return clothes;
+  }
+  pos_rect.x = (int)pos.x + pants_slot.x + lt.x;
+  pos_rect.y = (int)pos.y + pants_slot.y + lt.y;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return pants;
+  }
+  pos_rect.x = (int)pos.x + shoes_slot.x + lt.x;
+  pos_rect.y = (int)pos.y + shoes_slot.y + lt.y;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return shoes;
+  }
+  pos_rect.x = (int)pos.x + gloves_slot.x + lt.x;
+  pos_rect.y = (int)pos.y + gloves_slot.y + lt.y;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return gloves;
+  }
+  pos_rect.x = (int)pos.x + cape_slot.x + lt.x;
+  pos_rect.y = (int)pos.y + cape_slot.y + lt.y;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return cape;
+  }
+  pos_rect.x = (int)pos.x + shield_slot.x + lt.x;
+  pos_rect.y = (int)pos.y + shield_slot.y + lt.y;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return shield;
+  }
+  pos_rect.x = (int)pos.x + weapon_slot.x + lt.x;
+  pos_rect.y = (int)pos.y + weapon_slot.y + lt.y;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return weapon;
+  }
+  return std::nullopt;
+}
 
 SDL_FPoint equip_ui_system::load_wh() { return {175, 289}; }
 
@@ -38,26 +111,7 @@ void equip_ui_system::render_equip_texture(game_equip &equip, SDL_FPoint slot) {
       static_cast<float>(icon->h),
   };
   SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
-  auto cursor_in = cursor_game_instance::cursor_ui;
-  if (cursor_in != render) {
-    return;
-  }
-  auto &mouse_pos = window::mouse_pos;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    equip_info = equip;
-    return;
-  }
 }
-
-const static SDL_FPoint cap_slot{68, 23};
-const static SDL_FPoint earacc_slot{101, 56};
-const static SDL_FPoint clothes_slot{35, 89};
-const static SDL_FPoint pants_slot{35, 122};
-const static SDL_FPoint shoes_slot{35, 155};
-const static SDL_FPoint gloves_slot{2, 122};
-const static SDL_FPoint cape_slot{2, 89};
-const static SDL_FPoint shield_slot{134, 89};
-const static SDL_FPoint weapon_slot{101, 89};
 
 void equip_ui_system::render_equip() {
   auto &self = character_game_instance::self;
@@ -100,12 +154,59 @@ void equip_ui_system::render_equip() {
 }
 
 void equip_ui_system::render_equip_info() {
-  if (equip_info.has_value()) {
+  auto index = load_mouse_index();
+  if (index.has_value()) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    tooltip_ui_system::render_equip(equip_info.value(), show_pos.x, show_pos.y);
+    std::optional<game_equip> equip;
+    auto &self = character_game_instance::self;
+    switch (index.value()) {
+    case cap: {
+      equip = self.cap;
+      break;
+    }
+    case earcc: {
+      equip = self.accessory;
+      break;
+    }
+    case clothes: {
+      equip = self.coat;
+      break;
+    }
+    case pants: {
+      equip = self.pant;
+      break;
+    }
+    case shoes: {
+      equip = self.shoes;
+      break;
+    }
+    case gloves: {
+      equip = self.glove;
+      break;
+    }
+    case cape: {
+      equip = self.cape;
+      break;
+    }
+    case shield: {
+      equip = self.shield;
+      break;
+    }
+    case weapon: {
+      equip = self.weapon;
+      break;
+    }
+    case ring0:
+    case ring1:
+    case ring2:
+    case ring3:
+      break;
+    }
+    if (equip.has_value()) {
+      tooltip_ui_system::render_equip(equip.value(), show_pos.x, show_pos.y);
+    }
   }
-  equip_info = std::nullopt;
 }
 
 void equip_ui_system::render_tab() {

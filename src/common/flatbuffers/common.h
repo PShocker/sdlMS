@@ -99,6 +99,14 @@ struct EquipScroll;
 struct EquipScrollBuilder;
 struct EquipScrollT;
 
+struct Equip;
+struct EquipBuilder;
+struct EquipT;
+
+struct Item;
+struct ItemBuilder;
+struct ItemT;
+
 enum CharacterLogicType : uint8_t {
   CharacterLogicType_NONE = 0,
   CharacterLogicType_Movement = 1,
@@ -413,6 +421,116 @@ template <bool B = false>
 bool VerifyMobLogicType(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, MobLogicType type);
 template <bool B = false>
 bool VerifyMobLogicTypeVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
+
+enum Drop : uint8_t {
+  Drop_NONE = 0,
+  Drop_Equip = 1,
+  Drop_Item = 2,
+  Drop_MIN = Drop_NONE,
+  Drop_MAX = Drop_Item
+};
+
+inline const Drop (&EnumValuesDrop())[3] {
+  static const Drop values[] = {
+    Drop_NONE,
+    Drop_Equip,
+    Drop_Item
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesDrop() {
+  static const char * const names[4] = {
+    "NONE",
+    "Equip",
+    "Item",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameDrop(Drop e) {
+  if (::flatbuffers::IsOutRange(e, Drop_NONE, Drop_Item)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesDrop()[index];
+}
+
+template<typename T> struct DropTraits {
+  static const Drop enum_value = Drop_NONE;
+};
+
+template<> struct DropTraits<fbs::Equip> {
+  static const Drop enum_value = Drop_Equip;
+};
+
+template<> struct DropTraits<fbs::Item> {
+  static const Drop enum_value = Drop_Item;
+};
+
+template<typename T> struct DropUnionTraits {
+  static const Drop enum_value = Drop_NONE;
+};
+
+template<> struct DropUnionTraits<fbs::EquipT> {
+  static const Drop enum_value = Drop_Equip;
+};
+
+template<> struct DropUnionTraits<fbs::ItemT> {
+  static const Drop enum_value = Drop_Item;
+};
+
+struct DropUnion {
+  Drop type;
+  void *value;
+
+  DropUnion() : type(Drop_NONE), value(nullptr) {}
+  DropUnion(DropUnion&& u) FLATBUFFERS_NOEXCEPT :
+    type(Drop_NONE), value(nullptr)
+    { std::swap(type, u.type); std::swap(value, u.value); }
+  DropUnion(const DropUnion &);
+  DropUnion &operator=(const DropUnion &u)
+    { DropUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
+  DropUnion &operator=(DropUnion &&u) FLATBUFFERS_NOEXCEPT
+    { std::swap(type, u.type); std::swap(value, u.value); return *this; }
+  ~DropUnion() { Reset(); }
+
+  void Reset();
+
+  template <typename T>
+  void Set(T&& val) {
+    typedef typename std::remove_reference<T>::type RT;
+    Reset();
+    type = DropUnionTraits<RT>::enum_value;
+    if (type != Drop_NONE) {
+      value = new RT(std::forward<T>(val));
+    }
+  }
+
+  static void *UnPack(const void *obj, Drop type, const ::flatbuffers::resolver_function_t *resolver);
+  ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
+
+  fbs::EquipT *AsEquip() {
+    return type == Drop_Equip ?
+      reinterpret_cast<fbs::EquipT *>(value) : nullptr;
+  }
+  const fbs::EquipT *AsEquip() const {
+    return type == Drop_Equip ?
+      reinterpret_cast<const fbs::EquipT *>(value) : nullptr;
+  }
+  fbs::ItemT *AsItem() {
+    return type == Drop_Item ?
+      reinterpret_cast<fbs::ItemT *>(value) : nullptr;
+  }
+  const fbs::ItemT *AsItem() const {
+    return type == Drop_Item ?
+      reinterpret_cast<const fbs::ItemT *>(value) : nullptr;
+  }
+};
+
+template <bool B = false>
+bool VerifyDrop(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, Drop type);
+template <bool B = false>
+bool VerifyDropVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 struct LifeStateT : public ::flatbuffers::NativeTable {
   typedef LifeState TableType;
@@ -817,12 +935,12 @@ inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(
 struct CharacterT : public ::flatbuffers::NativeTable {
   typedef Character TableType;
   std::vector<uint16_t> name{};
-  std::unique_ptr<fbs::LifeStateT> state{};
-  std::unique_ptr<fbs::CharacterAppearanceT> appearance{};
   int32_t fame = 0;
   std::string job{};
   uint32_t level = 0;
-  std::string face_action{};
+  std::unique_ptr<fbs::LifeStateT> state{};
+  std::unique_ptr<fbs::CharacterAppearanceT> appearance{};
+  std::unique_ptr<fbs::FaceT> face{};
   std::vector<std::unique_ptr<fbs::EquipScrollT>> equip_scrolls{};
   CharacterT() = default;
   CharacterT(const CharacterT &o);
@@ -835,12 +953,12 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CharacterBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_NAME = 4,
-    VT_STATE = 6,
-    VT_APPEARANCE = 8,
-    VT_FAME = 10,
-    VT_JOB = 12,
-    VT_LEVEL = 14,
-    VT_FACE_ACTION = 16,
+    VT_FAME = 6,
+    VT_JOB = 8,
+    VT_LEVEL = 10,
+    VT_STATE = 12,
+    VT_APPEARANCE = 14,
+    VT_FACE = 16,
     VT_EQUIP_SCROLLS = 18
   };
   const ::flatbuffers::Vector<uint16_t> *name() const {
@@ -848,18 +966,6 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   ::flatbuffers::Vector<uint16_t> *mutable_name() {
     return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_NAME);
-  }
-  const fbs::LifeState *state() const {
-    return GetPointer<const fbs::LifeState *>(VT_STATE);
-  }
-  fbs::LifeState *mutable_state() {
-    return GetPointer<fbs::LifeState *>(VT_STATE);
-  }
-  const fbs::CharacterAppearance *appearance() const {
-    return GetPointer<const fbs::CharacterAppearance *>(VT_APPEARANCE);
-  }
-  fbs::CharacterAppearance *mutable_appearance() {
-    return GetPointer<fbs::CharacterAppearance *>(VT_APPEARANCE);
   }
   int32_t fame() const {
     return GetField<int32_t>(VT_FAME, 0);
@@ -879,11 +985,23 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_level(uint32_t _level = 0) {
     return SetField<uint32_t>(VT_LEVEL, _level, 0);
   }
-  const ::flatbuffers::String *face_action() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_FACE_ACTION);
+  const fbs::LifeState *state() const {
+    return GetPointer<const fbs::LifeState *>(VT_STATE);
   }
-  ::flatbuffers::String *mutable_face_action() {
-    return GetPointer<::flatbuffers::String *>(VT_FACE_ACTION);
+  fbs::LifeState *mutable_state() {
+    return GetPointer<fbs::LifeState *>(VT_STATE);
+  }
+  const fbs::CharacterAppearance *appearance() const {
+    return GetPointer<const fbs::CharacterAppearance *>(VT_APPEARANCE);
+  }
+  fbs::CharacterAppearance *mutable_appearance() {
+    return GetPointer<fbs::CharacterAppearance *>(VT_APPEARANCE);
+  }
+  const fbs::Face *face() const {
+    return GetPointer<const fbs::Face *>(VT_FACE);
+  }
+  fbs::Face *mutable_face() {
+    return GetPointer<fbs::Face *>(VT_FACE);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *equip_scrolls() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *>(VT_EQUIP_SCROLLS);
@@ -896,16 +1014,16 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_NAME) &&
            verifier.VerifyVector(name()) &&
-           VerifyOffset(verifier, VT_STATE) &&
-           verifier.VerifyTable(state()) &&
-           VerifyOffset(verifier, VT_APPEARANCE) &&
-           verifier.VerifyTable(appearance()) &&
            VerifyField<int32_t>(verifier, VT_FAME, 4) &&
            VerifyOffset(verifier, VT_JOB) &&
            verifier.VerifyString(job()) &&
            VerifyField<uint32_t>(verifier, VT_LEVEL, 4) &&
-           VerifyOffset(verifier, VT_FACE_ACTION) &&
-           verifier.VerifyString(face_action()) &&
+           VerifyOffset(verifier, VT_STATE) &&
+           verifier.VerifyTable(state()) &&
+           VerifyOffset(verifier, VT_APPEARANCE) &&
+           verifier.VerifyTable(appearance()) &&
+           VerifyOffset(verifier, VT_FACE) &&
+           verifier.VerifyTable(face()) &&
            VerifyOffset(verifier, VT_EQUIP_SCROLLS) &&
            verifier.VerifyVector(equip_scrolls()) &&
            verifier.VerifyVectorOfTables(equip_scrolls()) &&
@@ -923,12 +1041,6 @@ struct CharacterBuilder {
   void add_name(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name) {
     fbb_.AddOffset(Character::VT_NAME, name);
   }
-  void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
-    fbb_.AddOffset(Character::VT_STATE, state);
-  }
-  void add_appearance(::flatbuffers::Offset<fbs::CharacterAppearance> appearance) {
-    fbb_.AddOffset(Character::VT_APPEARANCE, appearance);
-  }
   void add_fame(int32_t fame) {
     fbb_.AddElement<int32_t>(Character::VT_FAME, fame, 0);
   }
@@ -938,8 +1050,14 @@ struct CharacterBuilder {
   void add_level(uint32_t level) {
     fbb_.AddElement<uint32_t>(Character::VT_LEVEL, level, 0);
   }
-  void add_face_action(::flatbuffers::Offset<::flatbuffers::String> face_action) {
-    fbb_.AddOffset(Character::VT_FACE_ACTION, face_action);
+  void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
+    fbb_.AddOffset(Character::VT_STATE, state);
+  }
+  void add_appearance(::flatbuffers::Offset<fbs::CharacterAppearance> appearance) {
+    fbb_.AddOffset(Character::VT_APPEARANCE, appearance);
+  }
+  void add_face(::flatbuffers::Offset<fbs::Face> face) {
+    fbb_.AddOffset(Character::VT_FACE, face);
   }
   void add_equip_scrolls(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> equip_scrolls) {
     fbb_.AddOffset(Character::VT_EQUIP_SCROLLS, equip_scrolls);
@@ -958,21 +1076,21 @@ struct CharacterBuilder {
 inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name = 0,
-    ::flatbuffers::Offset<fbs::LifeState> state = 0,
-    ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
     int32_t fame = 0,
     ::flatbuffers::Offset<::flatbuffers::String> job = 0,
     uint32_t level = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> face_action = 0,
+    ::flatbuffers::Offset<fbs::LifeState> state = 0,
+    ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
+    ::flatbuffers::Offset<fbs::Face> face = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> equip_scrolls = 0) {
   CharacterBuilder builder_(_fbb);
   builder_.add_equip_scrolls(equip_scrolls);
-  builder_.add_face_action(face_action);
+  builder_.add_face(face);
+  builder_.add_appearance(appearance);
+  builder_.add_state(state);
   builder_.add_level(level);
   builder_.add_job(job);
   builder_.add_fame(fame);
-  builder_.add_appearance(appearance);
-  builder_.add_state(state);
   builder_.add_name(name);
   return builder_.Finish();
 }
@@ -980,26 +1098,25 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
 inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const std::vector<uint16_t> *name = nullptr,
-    ::flatbuffers::Offset<fbs::LifeState> state = 0,
-    ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
     int32_t fame = 0,
     const char *job = nullptr,
     uint32_t level = 0,
-    const char *face_action = nullptr,
+    ::flatbuffers::Offset<fbs::LifeState> state = 0,
+    ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
+    ::flatbuffers::Offset<fbs::Face> face = 0,
     const std::vector<::flatbuffers::Offset<fbs::EquipScroll>> *equip_scrolls = nullptr) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   auto job__ = job ? _fbb.CreateString(job) : 0;
-  auto face_action__ = face_action ? _fbb.CreateString(face_action) : 0;
   auto equip_scrolls__ = equip_scrolls ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>>(*equip_scrolls) : 0;
   return fbs::CreateCharacter(
       _fbb,
       name__,
-      state,
-      appearance,
       fame,
       job__,
       level,
-      face_action__,
+      state,
+      appearance,
+      face,
       equip_scrolls__);
 }
 
@@ -2758,6 +2875,223 @@ inline ::flatbuffers::Offset<EquipScroll> CreateEquipScroll(
 
 ::flatbuffers::Offset<EquipScroll> CreateEquipScroll(::flatbuffers::FlatBufferBuilder &_fbb, const EquipScrollT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct EquipT : public ::flatbuffers::NativeTable {
+  typedef Equip TableType;
+  uint32_t equip_id = 0;
+  std::vector<std::unique_ptr<fbs::EquipScrollT>> scroll{};
+  float x = 0.0f;
+  float y = 0.0f;
+  EquipT() = default;
+  EquipT(const EquipT &o);
+  EquipT(EquipT&&) FLATBUFFERS_NOEXCEPT = default;
+  EquipT &operator=(EquipT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct Equip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef EquipT NativeTableType;
+  typedef EquipBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_EQUIP_ID = 4,
+    VT_SCROLL = 6,
+    VT_X = 8,
+    VT_Y = 10
+  };
+  uint32_t equip_id() const {
+    return GetField<uint32_t>(VT_EQUIP_ID, 0);
+  }
+  bool mutate_equip_id(uint32_t _equip_id = 0) {
+    return SetField<uint32_t>(VT_EQUIP_ID, _equip_id, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *scroll() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *>(VT_SCROLL);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *mutable_scroll() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *>(VT_SCROLL);
+  }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_EQUIP_ID, 4) &&
+           VerifyOffset(verifier, VT_SCROLL) &&
+           verifier.VerifyVector(scroll()) &&
+           verifier.VerifyVectorOfTables(scroll()) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           verifier.EndTable();
+  }
+  EquipT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(EquipT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Equip> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const EquipT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct EquipBuilder {
+  typedef Equip Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_equip_id(uint32_t equip_id) {
+    fbb_.AddElement<uint32_t>(Equip::VT_EQUIP_ID, equip_id, 0);
+  }
+  void add_scroll(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> scroll) {
+    fbb_.AddOffset(Equip::VT_SCROLL, scroll);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(Equip::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(Equip::VT_Y, y, 0.0f);
+  }
+  explicit EquipBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Equip> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Equip>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Equip> CreateEquip(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t equip_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> scroll = 0,
+    float x = 0.0f,
+    float y = 0.0f) {
+  EquipBuilder builder_(_fbb);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_scroll(scroll);
+  builder_.add_equip_id(equip_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Equip> CreateEquipDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t equip_id = 0,
+    const std::vector<::flatbuffers::Offset<fbs::EquipScroll>> *scroll = nullptr,
+    float x = 0.0f,
+    float y = 0.0f) {
+  auto scroll__ = scroll ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>>(*scroll) : 0;
+  return fbs::CreateEquip(
+      _fbb,
+      equip_id,
+      scroll__,
+      x,
+      y);
+}
+
+::flatbuffers::Offset<Equip> CreateEquip(::flatbuffers::FlatBufferBuilder &_fbb, const EquipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ItemT : public ::flatbuffers::NativeTable {
+  typedef Item TableType;
+  uint32_t item_id = 0;
+  uint32_t item_num = 0;
+  float x = 0.0f;
+  float y = 0.0f;
+};
+
+struct Item FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ItemT NativeTableType;
+  typedef ItemBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ITEM_ID = 4,
+    VT_ITEM_NUM = 6,
+    VT_X = 8,
+    VT_Y = 10
+  };
+  uint32_t item_id() const {
+    return GetField<uint32_t>(VT_ITEM_ID, 0);
+  }
+  bool mutate_item_id(uint32_t _item_id = 0) {
+    return SetField<uint32_t>(VT_ITEM_ID, _item_id, 0);
+  }
+  uint32_t item_num() const {
+    return GetField<uint32_t>(VT_ITEM_NUM, 0);
+  }
+  bool mutate_item_num(uint32_t _item_num = 0) {
+    return SetField<uint32_t>(VT_ITEM_NUM, _item_num, 0);
+  }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ITEM_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_ITEM_NUM, 4) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           verifier.EndTable();
+  }
+  ItemT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ItemT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Item> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ItemT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ItemBuilder {
+  typedef Item Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_item_id(uint32_t item_id) {
+    fbb_.AddElement<uint32_t>(Item::VT_ITEM_ID, item_id, 0);
+  }
+  void add_item_num(uint32_t item_num) {
+    fbb_.AddElement<uint32_t>(Item::VT_ITEM_NUM, item_num, 0);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(Item::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(Item::VT_Y, y, 0.0f);
+  }
+  explicit ItemBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Item> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Item>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Item> CreateItem(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t item_id = 0,
+    uint32_t item_num = 0,
+    float x = 0.0f,
+    float y = 0.0f) {
+  ItemBuilder builder_(_fbb);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_item_num(item_num);
+  builder_.add_item_id(item_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Item> CreateItem(::flatbuffers::FlatBufferBuilder &_fbb, const ItemT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline LifeStateT *LifeState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<LifeStateT>(new LifeStateT());
   UnPackTo(_o.get(), _resolver);
@@ -2869,24 +3203,24 @@ inline ::flatbuffers::Offset<CharacterAppearance> CharacterAppearance::Pack(::fl
 
 inline CharacterT::CharacterT(const CharacterT &o)
       : name(o.name),
-        state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
-        appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr),
         fame(o.fame),
         job(o.job),
         level(o.level),
-        face_action(o.face_action) {
+        state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
+        appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr),
+        face((o.face) ? new fbs::FaceT(*o.face) : nullptr) {
   equip_scrolls.reserve(o.equip_scrolls.size());
   for (const auto &equip_scrolls_ : o.equip_scrolls) { equip_scrolls.emplace_back((equip_scrolls_) ? new fbs::EquipScrollT(*equip_scrolls_) : nullptr); }
 }
 
 inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(name, o.name);
-  std::swap(state, o.state);
-  std::swap(appearance, o.appearance);
   std::swap(fame, o.fame);
   std::swap(job, o.job);
   std::swap(level, o.level);
-  std::swap(face_action, o.face_action);
+  std::swap(state, o.state);
+  std::swap(appearance, o.appearance);
+  std::swap(face, o.face);
   std::swap(equip_scrolls, o.equip_scrolls);
   return *this;
 }
@@ -2901,12 +3235,12 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   (void)_o;
   (void)_resolver;
   { auto _e = name(); if (_e) { _o->name.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->name[_i] = _e->Get(_i); } } else { _o->name.resize(0); } }
-  { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
-  { auto _e = appearance(); if (_e) { if(_o->appearance) { _e->UnPackTo(_o->appearance.get(), _resolver); } else { _o->appearance = std::unique_ptr<fbs::CharacterAppearanceT>(_e->UnPack(_resolver)); } } else if (_o->appearance) { _o->appearance.reset(); } }
   { auto _e = fame(); _o->fame = _e; }
   { auto _e = job(); if (_e) _o->job = _e->str(); }
   { auto _e = level(); _o->level = _e; }
-  { auto _e = face_action(); if (_e) _o->face_action = _e->str(); }
+  { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
+  { auto _e = appearance(); if (_e) { if(_o->appearance) { _e->UnPackTo(_o->appearance.get(), _resolver); } else { _o->appearance = std::unique_ptr<fbs::CharacterAppearanceT>(_e->UnPack(_resolver)); } } else if (_o->appearance) { _o->appearance.reset(); } }
+  { auto _e = face(); if (_e) { if(_o->face) { _e->UnPackTo(_o->face.get(), _resolver); } else { _o->face = std::unique_ptr<fbs::FaceT>(_e->UnPack(_resolver)); } } else if (_o->face) { _o->face.reset(); } }
   { auto _e = equip_scrolls(); if (_e) { _o->equip_scrolls.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->equip_scrolls[_i]) { _e->Get(_i)->UnPackTo(_o->equip_scrolls[_i].get(), _resolver); } else { _o->equip_scrolls[_i] = std::unique_ptr<fbs::EquipScrollT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->equip_scrolls.resize(0); } }
 }
 
@@ -2919,22 +3253,22 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _name = _o->name.size() ? _fbb.CreateVector(_o->name) : 0;
-  auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
-  auto _appearance = _o->appearance ? CreateCharacterAppearance(_fbb, _o->appearance.get(), _rehasher) : 0;
   auto _fame = _o->fame;
   auto _job = _o->job.empty() ? 0 : _fbb.CreateString(_o->job);
   auto _level = _o->level;
-  auto _face_action = _o->face_action.empty() ? 0 : _fbb.CreateString(_o->face_action);
+  auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
+  auto _appearance = _o->appearance ? CreateCharacterAppearance(_fbb, _o->appearance.get(), _rehasher) : 0;
+  auto _face = _o->face ? CreateFace(_fbb, _o->face.get(), _rehasher) : 0;
   auto _equip_scrolls = _o->equip_scrolls.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>> (_o->equip_scrolls.size(), [](size_t i, _VectorArgs *__va) { return CreateEquipScroll(*__va->__fbb, __va->__o->equip_scrolls[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateCharacter(
       _fbb,
       _name,
-      _state,
-      _appearance,
       _fame,
       _job,
       _level,
-      _face_action,
+      _state,
+      _appearance,
+      _face,
       _equip_scrolls);
 }
 
@@ -3585,6 +3919,92 @@ inline ::flatbuffers::Offset<EquipScroll> EquipScroll::Pack(::flatbuffers::FlatB
       _success);
 }
 
+inline EquipT::EquipT(const EquipT &o)
+      : equip_id(o.equip_id),
+        x(o.x),
+        y(o.y) {
+  scroll.reserve(o.scroll.size());
+  for (const auto &scroll_ : o.scroll) { scroll.emplace_back((scroll_) ? new fbs::EquipScrollT(*scroll_) : nullptr); }
+}
+
+inline EquipT &EquipT::operator=(EquipT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(equip_id, o.equip_id);
+  std::swap(scroll, o.scroll);
+  std::swap(x, o.x);
+  std::swap(y, o.y);
+  return *this;
+}
+
+inline EquipT *Equip::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<EquipT>(new EquipT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Equip::UnPackTo(EquipT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = equip_id(); _o->equip_id = _e; }
+  { auto _e = scroll(); if (_e) { _o->scroll.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->scroll[_i]) { _e->Get(_i)->UnPackTo(_o->scroll[_i].get(), _resolver); } else { _o->scroll[_i] = std::unique_ptr<fbs::EquipScrollT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->scroll.resize(0); } }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+}
+
+inline ::flatbuffers::Offset<Equip> CreateEquip(::flatbuffers::FlatBufferBuilder &_fbb, const EquipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Equip::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Equip> Equip::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const EquipT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const EquipT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _equip_id = _o->equip_id;
+  auto _scroll = _o->scroll.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>> (_o->scroll.size(), [](size_t i, _VectorArgs *__va) { return CreateEquipScroll(*__va->__fbb, __va->__o->scroll[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _x = _o->x;
+  auto _y = _o->y;
+  return fbs::CreateEquip(
+      _fbb,
+      _equip_id,
+      _scroll,
+      _x,
+      _y);
+}
+
+inline ItemT *Item::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ItemT>(new ItemT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Item::UnPackTo(ItemT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = item_id(); _o->item_id = _e; }
+  { auto _e = item_num(); _o->item_num = _e; }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+}
+
+inline ::flatbuffers::Offset<Item> CreateItem(::flatbuffers::FlatBufferBuilder &_fbb, const ItemT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Item::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Item> Item::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ItemT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ItemT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _item_id = _o->item_id;
+  auto _item_num = _o->item_num;
+  auto _x = _o->x;
+  auto _y = _o->y;
+  return fbs::CreateItem(
+      _fbb,
+      _item_id,
+      _item_num,
+      _x,
+      _y);
+}
+
 template <bool B>
 inline bool VerifyCharacterLogicType(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, CharacterLogicType type) {
   switch (type) {
@@ -3876,6 +4296,100 @@ inline void MobLogicTypeUnion::Reset() {
   }
   value = nullptr;
   type = MobLogicType_NONE;
+}
+
+template <bool B>
+inline bool VerifyDrop(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, Drop type) {
+  switch (type) {
+    case Drop_NONE: {
+      return true;
+    }
+    case Drop_Equip: {
+      auto ptr = reinterpret_cast<const fbs::Equip *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case Drop_Item: {
+      auto ptr = reinterpret_cast<const fbs::Item *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    default: return true;
+  }
+}
+
+template <bool B>
+inline bool VerifyDropVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
+  if (!values || !types) return !values && !types;
+  if (values->size() != types->size()) return false;
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+    if (!VerifyDrop(
+        verifier,  values->Get(i), types->GetEnum<Drop>(i))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+inline void *DropUnion::UnPack(const void *obj, Drop type, const ::flatbuffers::resolver_function_t *resolver) {
+  (void)resolver;
+  switch (type) {
+    case Drop_Equip: {
+      auto ptr = reinterpret_cast<const fbs::Equip *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case Drop_Item: {
+      auto ptr = reinterpret_cast<const fbs::Item *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    default: return nullptr;
+  }
+}
+
+inline ::flatbuffers::Offset<void> DropUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
+  (void)_rehasher;
+  switch (type) {
+    case Drop_Equip: {
+      auto ptr = reinterpret_cast<const fbs::EquipT *>(value);
+      return CreateEquip(_fbb, ptr, _rehasher).Union();
+    }
+    case Drop_Item: {
+      auto ptr = reinterpret_cast<const fbs::ItemT *>(value);
+      return CreateItem(_fbb, ptr, _rehasher).Union();
+    }
+    default: return 0;
+  }
+}
+
+inline DropUnion::DropUnion(const DropUnion &u) : type(u.type), value(nullptr) {
+  switch (type) {
+    case Drop_Equip: {
+      value = new fbs::EquipT(*reinterpret_cast<fbs::EquipT *>(u.value));
+      break;
+    }
+    case Drop_Item: {
+      value = new fbs::ItemT(*reinterpret_cast<fbs::ItemT *>(u.value));
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+inline void DropUnion::Reset() {
+  switch (type) {
+    case Drop_Equip: {
+      auto ptr = reinterpret_cast<fbs::EquipT *>(value);
+      delete ptr;
+      break;
+    }
+    case Drop_Item: {
+      auto ptr = reinterpret_cast<fbs::ItemT *>(value);
+      delete ptr;
+      break;
+    }
+    default: break;
+  }
+  value = nullptr;
+  type = Drop_NONE;
 }
 
 }  // namespace fbs

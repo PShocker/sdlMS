@@ -50,7 +50,7 @@ void server_character_instance::save_state(uint64_t client_id,
   }
   case CharacterLogicType_Face: {
     const auto f = m.payload.AsFace();
-    character->face_action = f->face_action;
+    character->face->face_action = f->face_action;
     break;
   }
   default: {
