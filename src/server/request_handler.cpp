@@ -79,6 +79,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
   case NetPayload_ClientCharacterDrop: {
     break;
   }
+  case NetPayload_ClientCharacter: {
+    auto payload = packet->payload_as_ClientCharacter();
+    fbs::ClientCharacterT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_character(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -107,7 +114,12 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterLogic();
     fbs::ServerCharacterLogicT r;
     payload->UnPackTo(&r);
-    character_game_instance::other_character_logic(r);
+    if (character_game_instance::others.contains(r.payload->client_id)) {
+      auto &logics =
+          character_game_instance::others[r.payload->client_id].logics;
+      auto type = r.payload->payload.type;
+      logics[type].push_back(r.payload->payload);
+    }
     break;
   }
   case NetPayload_ServerCharacterOut: {
@@ -128,14 +140,24 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterAttack();
     fbs::ServerCharacterAttackT r;
     payload->UnPackTo(&r);
-    character_game_instance::other_character_attack(r);
+    if (character_game_instance::others.contains(r.client_id)) {
+      auto &g_character =
+          character_game_instance::others.at(r.client_id).g_character;
+      character_game_instance::load_character_attack(r.payload, g_character);
+    }
+
     break;
   }
   case NetPayload_ServerCharacterSkill: {
     auto payload = packet->payload_as_ServerCharacterSkill();
     fbs::ServerCharacterSkillT r;
     payload->UnPackTo(&r);
-    character_game_instance::other_character_skill(r);
+    if (character_game_instance::others.contains(r.client_id)) {
+      auto &g_character =
+          character_game_instance::others.at(r.client_id).g_character;
+      character_game_instance::load_character_skill(r.ski_id, r.payload,
+                                                    g_character);
+    }
     break;
   }
   case NetPayload_ServerMobAttack: {
@@ -146,6 +168,17 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     break;
   }
   case NetPayload_ServerCharacterDrop: {
+    break;
+  }
+  case NetPayload_ServerCharacter: {
+    auto payload = packet->payload_as_ServerCharacter();
+    fbs::ServerCharacterT r;
+    payload->UnPackTo(&r);
+    if (character_game_instance::others.contains(r.client_id)) {
+      auto &g_character =
+          character_game_instance::others.at(r.client_id).g_character;
+      character_game_instance::load_others_character(r.payload, g_character);
+    }
     break;
   }
   default:

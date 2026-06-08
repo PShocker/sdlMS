@@ -144,3 +144,21 @@ void server_character_instance::handle_chat(uint64_t client_id,
     server_response::send_to_client(c, t);
   }
 }
+
+void server_character_instance::handle_character(uint64_t client_id,
+                                                 ClientCharacterT &r) {
+  if (server_client_instance::clients.contains(client_id)) {
+    auto map_id = r.map_id;
+    auto scenes = server_scene_instance::scenes[map_id].clients;
+    scenes.erase(client_id);
+    ServerCharacterT t;
+    t.client_id = client_id;
+    t.payload = std::move(r.payload);
+    for (auto c : scenes) {
+      server_response::send_to_client(c, t);
+    }
+    // save
+    server_client_instance::clients[client_id].player_t.character =
+        std::move(t.payload);
+  }
+}

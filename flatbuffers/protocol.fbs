@@ -14,6 +14,7 @@ union NetPayload {
     ClientMobAttack,
     ClientCharacterChat,
     ClientCharacterDrop,
+    ClientCharacter,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
@@ -23,6 +24,7 @@ union NetPayload {
     ServerCharacterSkill,
     ServerCharacterBall,
     ServerCharacterDrop,
+    ServerCharacter,
     ServerMobLogic,
     ServerMobAttack,
 }

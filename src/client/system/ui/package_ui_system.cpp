@@ -11,7 +11,10 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
 #include <algorithm>
@@ -359,6 +362,12 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
                 equips[blank_slot[i]] = ev[i];
               }
               equip_game_instance::add_equip(equip, self, -1);
+              // 发包
+              ClientCharacterT ct;
+              ct.map_id = scene_system_instance::map_id;
+              auto c = character_game_instance::load_characterT(self);
+              ct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
+              client_request::send_to_host(ct);
             } else {
               // 无空闲位置
             }

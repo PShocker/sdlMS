@@ -3,9 +3,11 @@
 #include "effect_game_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
+#include "src/client/game/game_equip.h"
 #include "src/client/game/game_nametag.h"
 #include "src/client/game/game_portal.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -19,6 +21,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
+#include <memory>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -227,73 +230,34 @@ void character_game_instance::load_self_character() {
 }
 
 void character_game_instance::load_others_character(
-    const std::unique_ptr<fbs::PlayerT> &c) {
-
-  game_character g_character;
-  const auto &appearance = c->character->appearance;
+    const std::unique_ptr<CharacterT> &c, game_character &g_character) {
+  const auto &appearance = c->appearance;
 
   std::string tmp = std::format("{:08d}", appearance->body);
-  g_character.body = {tmp.begin(), tmp.end()};
+  add_body(g_character, {tmp.begin(), tmp.end()});
 
   tmp = std::format("{:08d}", appearance->head);
-  g_character.head = {tmp.begin(), tmp.end()};
+  add_head(g_character, {tmp.begin(), tmp.end()});
 
   tmp = std::format("{:08d}", appearance->face);
-  g_character.face.id = {tmp.begin(), tmp.end()};
+  add_face(g_character, {tmp.begin(), tmp.end()});
 
   tmp = std::format("{:08d}", appearance->hair);
-  g_character.hair = {tmp.begin(), tmp.end()};
+  add_hair(g_character, {tmp.begin(), tmp.end()});
 
-  if (appearance->weapon != 0) {
-    auto &weapon = g_character.weapon.emplace();
-    tmp = std::format("{:08d}", appearance->weapon);
-    weapon.id = {tmp.begin(), tmp.end()};
+  for (auto &equip : c->equips) {
+    tmp = std::format("{:08d}", equip->equip_id);
+    game_equip e;
+    e.id = {tmp.begin(), tmp.end()};
+    equip_game_instance::add_equip(e, g_character, 0);
   }
-  if (appearance->cap != 0) {
-    auto &cap = g_character.cap.emplace();
-    tmp = std::format("{:08d}", appearance->cap);
-    cap.id = {tmp.begin(), tmp.end()};
-  }
-  if (appearance->cape != 0) {
-    auto &cape = g_character.cape.emplace();
-    tmp = std::format("{:08d}", appearance->cape);
-    cape.id = {tmp.begin(), tmp.end()};
-  }
-  if (appearance->coat != 0) {
-    auto &coat = g_character.coat.emplace();
-    tmp = std::format("{:08d}", appearance->coat);
-    coat.id = {tmp.begin(), tmp.end()};
-  }
-  if (appearance->glove != 0) {
-    auto &glove = g_character.glove.emplace();
-    tmp = std::format("{:08d}", appearance->glove);
-    glove.id = {tmp.begin(), tmp.end()};
-  }
-  if (appearance->pant != 0) {
-    auto &pant = g_character.pant.emplace();
-    tmp = std::format("{:08d}", appearance->pant);
-    pant.id = {tmp.begin(), tmp.end()};
-  }
-  if (appearance->shield != 0) {
-    auto &shield = g_character.shield.emplace();
-    tmp = std::format("{:08d}", appearance->shield);
-    shield.id = {tmp.begin(), tmp.end()};
-  }
-  if (appearance->longcoat != 0) {
-    auto &longcoat = g_character.longcoat.emplace();
-    tmp = std::format("{:08d}", appearance->longcoat);
-    longcoat.id = {tmp.begin(), tmp.end()};
-  }
-  if (appearance->shoes != 0) {
-    auto &shoes = g_character.shoes.emplace();
-    tmp = std::format("{:08d}", appearance->shoes);
-    shoes.id = {tmp.begin(), tmp.end()};
-  }
-  if (appearance->accessory != 0) {
-    auto &accessory = g_character.accessory.emplace();
-    tmp = std::format("{:08d}", appearance->accessory);
-    accessory.id = {tmp.begin(), tmp.end()};
-  }
+}
+
+void character_game_instance::load_others_character(
+    const std::unique_ptr<fbs::PlayerT> &c) {
+  game_character g_character;
+  load_others_character(c->character, g_character);
+
   const auto &state = c->character->state;
   g_character.pos = SDL_FPoint{
       state->x,
@@ -1200,46 +1164,67 @@ character_game_instance::load_characterT(const game_character &g) {
 
   c.appearance = std::make_unique<fbs::CharacterAppearanceT>();
   c.state = std::make_unique<fbs::LifeStateT>();
+  c.face = std::make_unique<fbs::FaceT>();
 
   if (self.accessory.has_value()) {
     auto id = g.accessory->id;
-    c.appearance->accessory = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.cap.has_value()) {
     auto id = g.cap->id;
-    c.appearance->cap = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.cape.has_value()) {
     auto id = g.cape->id;
-    c.appearance->cape = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.glove.has_value()) {
     auto id = g.glove->id;
-    c.appearance->glove = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.coat.has_value()) {
     auto id = g.coat->id;
-    c.appearance->coat = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.longcoat.has_value()) {
     auto id = g.longcoat->id;
-    c.appearance->longcoat = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.pant.has_value()) {
     auto id = g.pant->id;
-    c.appearance->pant = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.shield.has_value()) {
     auto id = g.shield->id;
-    c.appearance->shield = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.weapon.has_value()) {
     auto id = g.weapon->id;
-    c.appearance->weapon = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   if (self.shoes.has_value()) {
     auto id = g.shoes->id;
-    c.appearance->shoes = std::stoi(std::string{id.begin(), id.end()});
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    c.equips.push_back(std::make_unique<EquipT>(et));
   }
   c.appearance->head = std::stoi(std::string{g.head.begin(), g.head.end()});
   c.appearance->body = std::stoi(std::string{g.body.begin(), g.body.end()});
@@ -1252,6 +1237,7 @@ character_game_instance::load_characterT(const game_character &g) {
   c.state->action = std::string{g.action.begin(), g.action.end()};
   c.state->x = g.pos.x;
   c.state->y = g.pos.y;
+  c.state->page = g.page;
 
   c.state->flip = g.flip;
 
@@ -1339,33 +1325,5 @@ void character_game_instance::load_character_skill(
         .z = false,
     };
     mob[s->mob].mob.effect.push_back(e2);
-  }
-}
-
-void character_game_instance::other_character_logic(
-    const fbs::ServerCharacterLogicT &r) {
-  const auto client_id = r.payload->client_id;
-  if (others.contains(client_id)) {
-    auto &logics = others[client_id].logics;
-    auto type = r.payload->payload.type;
-    logics[type].push_back(r.payload->payload);
-  }
-}
-
-void character_game_instance::other_character_attack(
-    const ServerCharacterAttackT &r) {
-  const auto client_id = r.client_id;
-  if (others.contains(client_id)) {
-    auto &g_character = others.at(client_id).g_character;
-    character_game_instance::load_character_attack(r.payload, g_character);
-  }
-}
-
-void character_game_instance::other_character_skill(
-    const ServerCharacterSkillT &r) {
-  const auto client_id = r.client_id;
-  if (others.contains(client_id)) {
-    auto &g = others.at(client_id).g_character;
-    character_game_instance::load_character_skill(r.ski_id, r.payload, g);
   }
 }

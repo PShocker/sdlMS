@@ -704,16 +704,6 @@ struct CharacterAppearanceT : public ::flatbuffers::NativeTable {
   uint32_t head = 0;
   uint32_t face = 0;
   uint32_t hair = 0;
-  uint32_t weapon = 0;
-  uint32_t cap = 0;
-  uint32_t cape = 0;
-  uint32_t coat = 0;
-  uint32_t glove = 0;
-  uint32_t pant = 0;
-  uint32_t shield = 0;
-  uint32_t longcoat = 0;
-  uint32_t shoes = 0;
-  uint32_t accessory = 0;
 };
 
 struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -723,17 +713,7 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
     VT_BODY = 4,
     VT_HEAD = 6,
     VT_FACE = 8,
-    VT_HAIR = 10,
-    VT_WEAPON = 12,
-    VT_CAP = 14,
-    VT_CAPE = 16,
-    VT_COAT = 18,
-    VT_GLOVE = 20,
-    VT_PANT = 22,
-    VT_SHIELD = 24,
-    VT_LONGCOAT = 26,
-    VT_SHOES = 28,
-    VT_ACCESSORY = 30
+    VT_HAIR = 10
   };
   uint32_t body() const {
     return GetField<uint32_t>(VT_BODY, 0);
@@ -759,66 +739,6 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   bool mutate_hair(uint32_t _hair = 0) {
     return SetField<uint32_t>(VT_HAIR, _hair, 0);
   }
-  uint32_t weapon() const {
-    return GetField<uint32_t>(VT_WEAPON, 0);
-  }
-  bool mutate_weapon(uint32_t _weapon = 0) {
-    return SetField<uint32_t>(VT_WEAPON, _weapon, 0);
-  }
-  uint32_t cap() const {
-    return GetField<uint32_t>(VT_CAP, 0);
-  }
-  bool mutate_cap(uint32_t _cap = 0) {
-    return SetField<uint32_t>(VT_CAP, _cap, 0);
-  }
-  uint32_t cape() const {
-    return GetField<uint32_t>(VT_CAPE, 0);
-  }
-  bool mutate_cape(uint32_t _cape = 0) {
-    return SetField<uint32_t>(VT_CAPE, _cape, 0);
-  }
-  uint32_t coat() const {
-    return GetField<uint32_t>(VT_COAT, 0);
-  }
-  bool mutate_coat(uint32_t _coat = 0) {
-    return SetField<uint32_t>(VT_COAT, _coat, 0);
-  }
-  uint32_t glove() const {
-    return GetField<uint32_t>(VT_GLOVE, 0);
-  }
-  bool mutate_glove(uint32_t _glove = 0) {
-    return SetField<uint32_t>(VT_GLOVE, _glove, 0);
-  }
-  uint32_t pant() const {
-    return GetField<uint32_t>(VT_PANT, 0);
-  }
-  bool mutate_pant(uint32_t _pant = 0) {
-    return SetField<uint32_t>(VT_PANT, _pant, 0);
-  }
-  uint32_t shield() const {
-    return GetField<uint32_t>(VT_SHIELD, 0);
-  }
-  bool mutate_shield(uint32_t _shield = 0) {
-    return SetField<uint32_t>(VT_SHIELD, _shield, 0);
-  }
-  uint32_t longcoat() const {
-    return GetField<uint32_t>(VT_LONGCOAT, 0);
-  }
-  bool mutate_longcoat(uint32_t _longcoat = 0) {
-    return SetField<uint32_t>(VT_LONGCOAT, _longcoat, 0);
-  }
-  uint32_t shoes() const {
-    return GetField<uint32_t>(VT_SHOES, 0);
-  }
-  bool mutate_shoes(uint32_t _shoes = 0) {
-    return SetField<uint32_t>(VT_SHOES, _shoes, 0);
-  }
-  uint32_t accessory() const {
-    return GetField<uint32_t>(VT_ACCESSORY, 0);
-  }
-  bool mutate_accessory(uint32_t _accessory = 0) {
-    return SetField<uint32_t>(VT_ACCESSORY, _accessory, 0);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -826,16 +746,6 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
            VerifyField<uint32_t>(verifier, VT_HEAD, 4) &&
            VerifyField<uint32_t>(verifier, VT_FACE, 4) &&
            VerifyField<uint32_t>(verifier, VT_HAIR, 4) &&
-           VerifyField<uint32_t>(verifier, VT_WEAPON, 4) &&
-           VerifyField<uint32_t>(verifier, VT_CAP, 4) &&
-           VerifyField<uint32_t>(verifier, VT_CAPE, 4) &&
-           VerifyField<uint32_t>(verifier, VT_COAT, 4) &&
-           VerifyField<uint32_t>(verifier, VT_GLOVE, 4) &&
-           VerifyField<uint32_t>(verifier, VT_PANT, 4) &&
-           VerifyField<uint32_t>(verifier, VT_SHIELD, 4) &&
-           VerifyField<uint32_t>(verifier, VT_LONGCOAT, 4) &&
-           VerifyField<uint32_t>(verifier, VT_SHOES, 4) &&
-           VerifyField<uint32_t>(verifier, VT_ACCESSORY, 4) &&
            verifier.EndTable();
   }
   CharacterAppearanceT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -859,36 +769,6 @@ struct CharacterAppearanceBuilder {
   void add_hair(uint32_t hair) {
     fbb_.AddElement<uint32_t>(CharacterAppearance::VT_HAIR, hair, 0);
   }
-  void add_weapon(uint32_t weapon) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_WEAPON, weapon, 0);
-  }
-  void add_cap(uint32_t cap) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_CAP, cap, 0);
-  }
-  void add_cape(uint32_t cape) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_CAPE, cape, 0);
-  }
-  void add_coat(uint32_t coat) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_COAT, coat, 0);
-  }
-  void add_glove(uint32_t glove) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_GLOVE, glove, 0);
-  }
-  void add_pant(uint32_t pant) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_PANT, pant, 0);
-  }
-  void add_shield(uint32_t shield) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_SHIELD, shield, 0);
-  }
-  void add_longcoat(uint32_t longcoat) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_LONGCOAT, longcoat, 0);
-  }
-  void add_shoes(uint32_t shoes) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_SHOES, shoes, 0);
-  }
-  void add_accessory(uint32_t accessory) {
-    fbb_.AddElement<uint32_t>(CharacterAppearance::VT_ACCESSORY, accessory, 0);
-  }
   explicit CharacterAppearanceBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -905,28 +785,8 @@ inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(
     uint32_t body = 0,
     uint32_t head = 0,
     uint32_t face = 0,
-    uint32_t hair = 0,
-    uint32_t weapon = 0,
-    uint32_t cap = 0,
-    uint32_t cape = 0,
-    uint32_t coat = 0,
-    uint32_t glove = 0,
-    uint32_t pant = 0,
-    uint32_t shield = 0,
-    uint32_t longcoat = 0,
-    uint32_t shoes = 0,
-    uint32_t accessory = 0) {
+    uint32_t hair = 0) {
   CharacterAppearanceBuilder builder_(_fbb);
-  builder_.add_accessory(accessory);
-  builder_.add_shoes(shoes);
-  builder_.add_longcoat(longcoat);
-  builder_.add_shield(shield);
-  builder_.add_pant(pant);
-  builder_.add_glove(glove);
-  builder_.add_coat(coat);
-  builder_.add_cape(cape);
-  builder_.add_cap(cap);
-  builder_.add_weapon(weapon);
   builder_.add_hair(hair);
   builder_.add_face(face);
   builder_.add_head(head);
@@ -945,7 +805,7 @@ struct CharacterT : public ::flatbuffers::NativeTable {
   std::unique_ptr<fbs::LifeStateT> state{};
   std::unique_ptr<fbs::CharacterAppearanceT> appearance{};
   std::unique_ptr<fbs::FaceT> face{};
-  std::vector<std::unique_ptr<fbs::EquipScrollT>> equip_scrolls{};
+  std::vector<std::unique_ptr<fbs::EquipT>> equips{};
   CharacterT() = default;
   CharacterT(const CharacterT &o);
   CharacterT(CharacterT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -963,7 +823,7 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_STATE = 12,
     VT_APPEARANCE = 14,
     VT_FACE = 16,
-    VT_EQUIP_SCROLLS = 18
+    VT_EQUIPS = 18
   };
   const ::flatbuffers::Vector<uint16_t> *name() const {
     return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
@@ -1007,11 +867,11 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::Face *mutable_face() {
     return GetPointer<fbs::Face *>(VT_FACE);
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *equip_scrolls() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *>(VT_EQUIP_SCROLLS);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>> *equips() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>> *>(VT_EQUIPS);
   }
-  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *mutable_equip_scrolls() {
-    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>> *>(VT_EQUIP_SCROLLS);
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>> *mutable_equips() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>> *>(VT_EQUIPS);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -1028,9 +888,9 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyTable(appearance()) &&
            VerifyOffset(verifier, VT_FACE) &&
            verifier.VerifyTable(face()) &&
-           VerifyOffset(verifier, VT_EQUIP_SCROLLS) &&
-           verifier.VerifyVector(equip_scrolls()) &&
-           verifier.VerifyVectorOfTables(equip_scrolls()) &&
+           VerifyOffset(verifier, VT_EQUIPS) &&
+           verifier.VerifyVector(equips()) &&
+           verifier.VerifyVectorOfTables(equips()) &&
            verifier.EndTable();
   }
   CharacterT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1063,8 +923,8 @@ struct CharacterBuilder {
   void add_face(::flatbuffers::Offset<fbs::Face> face) {
     fbb_.AddOffset(Character::VT_FACE, face);
   }
-  void add_equip_scrolls(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> equip_scrolls) {
-    fbb_.AddOffset(Character::VT_EQUIP_SCROLLS, equip_scrolls);
+  void add_equips(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>>> equips) {
+    fbb_.AddOffset(Character::VT_EQUIPS, equips);
   }
   explicit CharacterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1086,9 +946,9 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::Offset<fbs::LifeState> state = 0,
     ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
     ::flatbuffers::Offset<fbs::Face> face = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::EquipScroll>>> equip_scrolls = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>>> equips = 0) {
   CharacterBuilder builder_(_fbb);
-  builder_.add_equip_scrolls(equip_scrolls);
+  builder_.add_equips(equips);
   builder_.add_face(face);
   builder_.add_appearance(appearance);
   builder_.add_state(state);
@@ -1108,10 +968,10 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::Offset<fbs::LifeState> state = 0,
     ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
     ::flatbuffers::Offset<fbs::Face> face = 0,
-    const std::vector<::flatbuffers::Offset<fbs::EquipScroll>> *equip_scrolls = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::Equip>> *equips = nullptr) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   auto job__ = job ? _fbb.CreateString(job) : 0;
-  auto equip_scrolls__ = equip_scrolls ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>>(*equip_scrolls) : 0;
+  auto equips__ = equips ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>>(*equips) : 0;
   return fbs::CreateCharacter(
       _fbb,
       name__,
@@ -1121,7 +981,7 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
       state,
       appearance,
       face,
-      equip_scrolls__);
+      equips__);
 }
 
 ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -3218,16 +3078,6 @@ inline void CharacterAppearance::UnPackTo(CharacterAppearanceT *_o, const ::flat
   { auto _e = head(); _o->head = _e; }
   { auto _e = face(); _o->face = _e; }
   { auto _e = hair(); _o->hair = _e; }
-  { auto _e = weapon(); _o->weapon = _e; }
-  { auto _e = cap(); _o->cap = _e; }
-  { auto _e = cape(); _o->cape = _e; }
-  { auto _e = coat(); _o->coat = _e; }
-  { auto _e = glove(); _o->glove = _e; }
-  { auto _e = pant(); _o->pant = _e; }
-  { auto _e = shield(); _o->shield = _e; }
-  { auto _e = longcoat(); _o->longcoat = _e; }
-  { auto _e = shoes(); _o->shoes = _e; }
-  { auto _e = accessory(); _o->accessory = _e; }
 }
 
 inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAppearanceT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3242,32 +3092,12 @@ inline ::flatbuffers::Offset<CharacterAppearance> CharacterAppearance::Pack(::fl
   auto _head = _o->head;
   auto _face = _o->face;
   auto _hair = _o->hair;
-  auto _weapon = _o->weapon;
-  auto _cap = _o->cap;
-  auto _cape = _o->cape;
-  auto _coat = _o->coat;
-  auto _glove = _o->glove;
-  auto _pant = _o->pant;
-  auto _shield = _o->shield;
-  auto _longcoat = _o->longcoat;
-  auto _shoes = _o->shoes;
-  auto _accessory = _o->accessory;
   return fbs::CreateCharacterAppearance(
       _fbb,
       _body,
       _head,
       _face,
-      _hair,
-      _weapon,
-      _cap,
-      _cape,
-      _coat,
-      _glove,
-      _pant,
-      _shield,
-      _longcoat,
-      _shoes,
-      _accessory);
+      _hair);
 }
 
 inline CharacterT::CharacterT(const CharacterT &o)
@@ -3278,8 +3108,8 @@ inline CharacterT::CharacterT(const CharacterT &o)
         state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
         appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr),
         face((o.face) ? new fbs::FaceT(*o.face) : nullptr) {
-  equip_scrolls.reserve(o.equip_scrolls.size());
-  for (const auto &equip_scrolls_ : o.equip_scrolls) { equip_scrolls.emplace_back((equip_scrolls_) ? new fbs::EquipScrollT(*equip_scrolls_) : nullptr); }
+  equips.reserve(o.equips.size());
+  for (const auto &equips_ : o.equips) { equips.emplace_back((equips_) ? new fbs::EquipT(*equips_) : nullptr); }
 }
 
 inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
@@ -3290,7 +3120,7 @@ inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(state, o.state);
   std::swap(appearance, o.appearance);
   std::swap(face, o.face);
-  std::swap(equip_scrolls, o.equip_scrolls);
+  std::swap(equips, o.equips);
   return *this;
 }
 
@@ -3310,7 +3140,7 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
   { auto _e = appearance(); if (_e) { if(_o->appearance) { _e->UnPackTo(_o->appearance.get(), _resolver); } else { _o->appearance = std::unique_ptr<fbs::CharacterAppearanceT>(_e->UnPack(_resolver)); } } else if (_o->appearance) { _o->appearance.reset(); } }
   { auto _e = face(); if (_e) { if(_o->face) { _e->UnPackTo(_o->face.get(), _resolver); } else { _o->face = std::unique_ptr<fbs::FaceT>(_e->UnPack(_resolver)); } } else if (_o->face) { _o->face.reset(); } }
-  { auto _e = equip_scrolls(); if (_e) { _o->equip_scrolls.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->equip_scrolls[_i]) { _e->Get(_i)->UnPackTo(_o->equip_scrolls[_i].get(), _resolver); } else { _o->equip_scrolls[_i] = std::unique_ptr<fbs::EquipScrollT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->equip_scrolls.resize(0); } }
+  { auto _e = equips(); if (_e) { _o->equips.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->equips[_i]) { _e->Get(_i)->UnPackTo(_o->equips[_i].get(), _resolver); } else { _o->equips[_i] = std::unique_ptr<fbs::EquipT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->equips.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3328,7 +3158,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
   auto _appearance = _o->appearance ? CreateCharacterAppearance(_fbb, _o->appearance.get(), _rehasher) : 0;
   auto _face = _o->face ? CreateFace(_fbb, _o->face.get(), _rehasher) : 0;
-  auto _equip_scrolls = _o->equip_scrolls.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::EquipScroll>> (_o->equip_scrolls.size(), [](size_t i, _VectorArgs *__va) { return CreateEquipScroll(*__va->__fbb, __va->__o->equip_scrolls[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _equips = _o->equips.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>> (_o->equips.size(), [](size_t i, _VectorArgs *__va) { return CreateEquip(*__va->__fbb, __va->__o->equips[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateCharacter(
       _fbb,
       _name,
@@ -3338,7 +3168,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
       _state,
       _appearance,
       _face,
-      _equip_scrolls);
+      _equips);
 }
 
 inline MovementT *Movement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

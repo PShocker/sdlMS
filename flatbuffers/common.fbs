@@ -17,19 +17,6 @@ table CharacterAppearance{
     head:uint32;
     face:uint32;
     hair:uint32;
-
-    weapon:uint32;
-    cap:uint32;
-    cape:uint32;
-    coat:uint32;
-    glove:uint32;
-    pant:uint32;
-
-    shield:uint32;
-    longcoat:uint32;
-    shoes:uint32;
-
-    accessory:uint32;
 }
 
 table Character{
@@ -42,7 +29,7 @@ table Character{
     appearance:CharacterAppearance;
     face:Face;
 
-    equip_scrolls:[EquipScroll];
+    equips:[Equip];
 }
 
 table Movement{

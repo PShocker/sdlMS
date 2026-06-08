@@ -15,4 +15,5 @@ public:
   static void handle_logic(uint64_t client_id, ClientCharacterLogicT &m);
   static void handle_skill(uint64_t client_id, ClientCharacterSkillT &r);
   static void handle_chat(uint64_t client_id, ClientCharacterChatT &r);
+  static void handle_character(uint64_t client_id, ClientCharacterT &r);
 };

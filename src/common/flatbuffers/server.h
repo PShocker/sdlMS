@@ -65,6 +65,10 @@ struct ServerCharacterDrop;
 struct ServerCharacterDropBuilder;
 struct ServerCharacterDropT;
 
+struct ServerCharacter;
+struct ServerCharacterBuilder;
+struct ServerCharacterT;
+
 struct ServerHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ServerHeartbeat TableType;
 };
@@ -994,6 +998,81 @@ inline ::flatbuffers::Offset<ServerCharacterDrop> CreateServerCharacterDrop(
 
 ::flatbuffers::Offset<ServerCharacterDrop> CreateServerCharacterDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacter TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::CharacterT> payload{};
+  ServerCharacterT() = default;
+  ServerCharacterT(const ServerCharacterT &o);
+  ServerCharacterT(ServerCharacterT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterT &operator=(ServerCharacterT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacter FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterT NativeTableType;
+  typedef ServerCharacterBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Character *payload() const {
+    return GetPointer<const fbs::Character *>(VT_PAYLOAD);
+  }
+  fbs::Character *mutable_payload() {
+    return GetPointer<fbs::Character *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacter> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterBuilder {
+  typedef ServerCharacter Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacter::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Character> payload) {
+    fbb_.AddOffset(ServerCharacter::VT_PAYLOAD, payload);
+  }
+  explicit ServerCharacterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacter> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacter>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacter> CreateServerCharacter(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Character> payload = 0) {
+  ServerCharacterBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacter> CreateServerCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -1449,6 +1528,46 @@ inline ::flatbuffers::Offset<ServerCharacterDrop> ServerCharacterDrop::Pack(::fl
   auto _client_id = _o->client_id;
   auto _payload = _o->payload ? CreateDrop(_fbb, _o->payload.get(), _rehasher) : 0;
   return fbs::CreateServerCharacterDrop(
+      _fbb,
+      _client_id,
+      _payload);
+}
+
+inline ServerCharacterT::ServerCharacterT(const ServerCharacterT &o)
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::CharacterT(*o.payload) : nullptr) {
+}
+
+inline ServerCharacterT &ServerCharacterT::operator=(ServerCharacterT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerCharacterT *ServerCharacter::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterT>(new ServerCharacterT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacter::UnPackTo(ServerCharacterT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::CharacterT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacter> CreateServerCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacter::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacter> ServerCharacter::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateCharacter(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacter(
       _fbb,
       _client_id,
       _payload);

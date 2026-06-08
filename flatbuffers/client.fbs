@@ -47,3 +47,8 @@ table ClientCharacterDrop {
     map_id:uint32;
     payload:Drop;
 }
+
+table ClientCharacter {
+    map_id:uint32;
+    payload:Character;
+}
