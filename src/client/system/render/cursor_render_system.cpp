@@ -6,6 +6,7 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Property.h"
 #include <string>
 
 void cursor_render_system::render_item() {
@@ -87,6 +88,10 @@ void cursor_render_system::render_cursor() {
       cursor_node->get_child(cursor_game_instance::cursor_type);
   auto texture_index = std::to_string(cursor_game_instance::cursor_index);
   auto texture_node = cursor_index_node->get_child(texture_index);
+  if (texture_node->type == wz::Type::UOL) {
+    texture_node =
+        static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
+  }
   auto texture = wz_resource::load_texture(texture_node);
   SDL_FRect pos_rect = {
       .x = window::mouse_pos.x,

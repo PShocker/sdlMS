@@ -70,16 +70,18 @@ void cursor_logic_system::run_cursor_action(const std::u16string &action) {
 bool cursor_logic_system::run_default() {
   if (cursor_game_instance::cursor_hand.has_value()) {
     run_cursor_action(u"11");
-  } else if (window::mouse_state & SDL_BUTTON_LMASK) {
+    return true;
+  }
+  if (cursor_game_instance::cursor_ui == package_ui_system::render) {
+    if (run_package_motion()) {
+      run_cursor_action(u"5");
+      return true;
+    }
+  }
+  if (window::mouse_state & SDL_BUTTON_LMASK) {
     run_cursor_action(u"12");
   } else {
     run_cursor_action(u"0");
-  }
-
-  if (cursor_game_instance::cursor_ui == package_ui_system::render) {
-    if (run_package_motion()) {
-      run_cursor_action(u"0");
-    }
   }
 
   return true;
