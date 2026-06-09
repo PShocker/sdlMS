@@ -27,5 +27,7 @@ public:
     uint32_t val;
     uint32_t val2;
   };
+
+  static inline std::optional<uint64_t> cursor_hand_drop_id;
   static inline std::optional<cursor_hand_data> cursor_hand;
 };

@@ -1,5 +1,6 @@
 #include "scene_system_instance.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_drop.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -74,6 +75,11 @@ bool scene_system_instance::render_game() {
     auto &mob = mob_data.mob;
     mob_array[mob.page].push_back(&mob);
   }
+
+  std::array<std::vector<game_drop *>, 8> drop_array;
+  for (auto &drop : drop_game_instance::data | std::views::values) {
+    drop_array[drop.page].push_back(&drop);
+  }
   //   后景
   for (auto &b_backgrnd : backgrnd_game_instance::back | std::views::values) {
     backgrnd_render_system::render(b_backgrnd);
@@ -100,8 +106,8 @@ bool scene_system_instance::render_game() {
     for (auto &character : character_array[i]) {
       character_render_system::render(*character);
     }
-    for (auto &drop : drop_game_instance::data[i]) {
-      drop_render_system::render(drop);
+    for (auto &drop : drop_array[i]) {
+      drop_render_system::render(*drop);
     }
   }
   // 传送门

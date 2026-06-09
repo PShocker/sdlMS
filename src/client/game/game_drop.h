@@ -4,6 +4,7 @@
 #include "game_equip.h"
 #include "game_pet.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_item.h"
 #include "src/client/game/game_pet.h"
 #include <any>
 #include <cstdint>
@@ -12,21 +13,28 @@
 #include <vector>
 class game_drop {
 public:
-  uint32_t id;
-  uint32_t num;
+  uint64_t random_id;
 
-  uint8_t type;
+  std::variant<game_equip, game_item> data;
 
   SDL_FPoint pos;
+  SDL_FPoint goal;
+
   int32_t rotate;
   uint64_t destory;
-
-  bool fly;
 
   float hspeed = 0;
   float vspeed = 0;
 
-  std::variant<game_character *, game_pet *> picker;
+  uint8_t page;
 
-  std::optional<game_equip> equip;
+  enum drop_type {
+    fly,
+    land,
+    pick,
+  };
+
+  drop_type type = fly;
+
+  std::variant<game_character *, game_pet *> picker;
 };

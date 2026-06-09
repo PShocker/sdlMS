@@ -1,11 +1,14 @@
 #include "request_handler.h"
 #include "SDL3/SDL_timer.h"
 #include "server_instance/server_client_instance.h"
+#include "server_instance/server_drop_instance.h"
 #include "server_instance/server_mob_instance.h"
 #include "server_instance/server_scene_instance.h"
 #include "server_system/server_heartbeat_system.h"
 #include "server_system_instance/server_system_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -77,6 +80,10 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     break;
   }
   case NetPayload_ClientCharacterDrop: {
+    auto payload = packet->payload_as_ClientCharacterDrop();
+    fbs::ClientCharacterDropT r;
+    payload->UnPackTo(&r);
+    server_drop_instance::handle_drop(client_id, r);
     break;
   }
   case NetPayload_ClientCharacter: {
@@ -168,6 +175,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     break;
   }
   case NetPayload_ServerCharacterDrop: {
+    auto payload = packet->payload_as_ServerCharacterDrop();
+    fbs::ServerCharacterDropT r;
+    payload->UnPackTo(&r);
+    if (r.payload->random_id == cursor_game_instance::cursor_hand_drop_id) {
+      cursor_game_instance::cursor_hand_drop_id = std::nullopt;
+    }
+    drop_game_instance::load_drop(*r.payload);
     break;
   }
   case NetPayload_ServerCharacter: {

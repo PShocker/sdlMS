@@ -2898,20 +2898,34 @@ inline ::flatbuffers::Offset<Item> CreateItem(
 
 struct DropT : public ::flatbuffers::NativeTable {
   typedef Drop TableType;
+  uint64_t random_id = 0;
   fbs::DropUnionUnion drop{};
-  float x = 0.0f;
-  float y = 0.0f;
+  float x1 = 0.0f;
+  float y1 = 0.0f;
+  float x2 = 0.0f;
+  float y2 = 0.0f;
+  uint8_t page = 0;
 };
 
 struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef DropT NativeTableType;
   typedef DropBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_DROP_TYPE = 4,
-    VT_DROP = 6,
-    VT_X = 8,
-    VT_Y = 10
+    VT_RANDOM_ID = 4,
+    VT_DROP_TYPE = 6,
+    VT_DROP = 8,
+    VT_X1 = 10,
+    VT_Y1 = 12,
+    VT_X2 = 14,
+    VT_Y2 = 16,
+    VT_PAGE = 18
   };
+  uint64_t random_id() const {
+    return GetField<uint64_t>(VT_RANDOM_ID, 0);
+  }
+  bool mutate_random_id(uint64_t _random_id = 0) {
+    return SetField<uint64_t>(VT_RANDOM_ID, _random_id, 0);
+  }
   fbs::DropUnion drop_type() const {
     return static_cast<fbs::DropUnion>(GetField<uint8_t>(VT_DROP_TYPE, 0));
   }
@@ -2935,26 +2949,48 @@ struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   void *mutable_drop() {
     return GetPointer<void *>(VT_DROP);
   }
-  float x() const {
-    return GetField<float>(VT_X, 0.0f);
+  float x1() const {
+    return GetField<float>(VT_X1, 0.0f);
   }
-  bool mutate_x(float _x = 0.0f) {
-    return SetField<float>(VT_X, _x, 0.0f);
+  bool mutate_x1(float _x1 = 0.0f) {
+    return SetField<float>(VT_X1, _x1, 0.0f);
   }
-  float y() const {
-    return GetField<float>(VT_Y, 0.0f);
+  float y1() const {
+    return GetField<float>(VT_Y1, 0.0f);
   }
-  bool mutate_y(float _y = 0.0f) {
-    return SetField<float>(VT_Y, _y, 0.0f);
+  bool mutate_y1(float _y1 = 0.0f) {
+    return SetField<float>(VT_Y1, _y1, 0.0f);
+  }
+  float x2() const {
+    return GetField<float>(VT_X2, 0.0f);
+  }
+  bool mutate_x2(float _x2 = 0.0f) {
+    return SetField<float>(VT_X2, _x2, 0.0f);
+  }
+  float y2() const {
+    return GetField<float>(VT_Y2, 0.0f);
+  }
+  bool mutate_y2(float _y2 = 0.0f) {
+    return SetField<float>(VT_Y2, _y2, 0.0f);
+  }
+  uint8_t page() const {
+    return GetField<uint8_t>(VT_PAGE, 0);
+  }
+  bool mutate_page(uint8_t _page = 0) {
+    return SetField<uint8_t>(VT_PAGE, _page, 0);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_RANDOM_ID, 8) &&
            VerifyField<uint8_t>(verifier, VT_DROP_TYPE, 1) &&
            VerifyOffset(verifier, VT_DROP) &&
            VerifyDropUnion(verifier, drop(), drop_type()) &&
-           VerifyField<float>(verifier, VT_X, 4) &&
-           VerifyField<float>(verifier, VT_Y, 4) &&
+           VerifyField<float>(verifier, VT_X1, 4) &&
+           VerifyField<float>(verifier, VT_Y1, 4) &&
+           VerifyField<float>(verifier, VT_X2, 4) &&
+           VerifyField<float>(verifier, VT_Y2, 4) &&
+           VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
            verifier.EndTable();
   }
   DropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2982,17 +3018,29 @@ struct DropBuilder {
   typedef Drop Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_random_id(uint64_t random_id) {
+    fbb_.AddElement<uint64_t>(Drop::VT_RANDOM_ID, random_id, 0);
+  }
   void add_drop_type(fbs::DropUnion drop_type) {
     fbb_.AddElement<uint8_t>(Drop::VT_DROP_TYPE, static_cast<uint8_t>(drop_type), 0);
   }
   void add_drop(::flatbuffers::Offset<void> drop) {
     fbb_.AddOffset(Drop::VT_DROP, drop);
   }
-  void add_x(float x) {
-    fbb_.AddElement<float>(Drop::VT_X, x, 0.0f);
+  void add_x1(float x1) {
+    fbb_.AddElement<float>(Drop::VT_X1, x1, 0.0f);
   }
-  void add_y(float y) {
-    fbb_.AddElement<float>(Drop::VT_Y, y, 0.0f);
+  void add_y1(float y1) {
+    fbb_.AddElement<float>(Drop::VT_Y1, y1, 0.0f);
+  }
+  void add_x2(float x2) {
+    fbb_.AddElement<float>(Drop::VT_X2, x2, 0.0f);
+  }
+  void add_y2(float y2) {
+    fbb_.AddElement<float>(Drop::VT_Y2, y2, 0.0f);
+  }
+  void add_page(uint8_t page) {
+    fbb_.AddElement<uint8_t>(Drop::VT_PAGE, page, 0);
   }
   explicit DropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -3007,14 +3055,22 @@ struct DropBuilder {
 
 inline ::flatbuffers::Offset<Drop> CreateDrop(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t random_id = 0,
     fbs::DropUnion drop_type = fbs::DropUnion_NONE,
     ::flatbuffers::Offset<void> drop = 0,
-    float x = 0.0f,
-    float y = 0.0f) {
+    float x1 = 0.0f,
+    float y1 = 0.0f,
+    float x2 = 0.0f,
+    float y2 = 0.0f,
+    uint8_t page = 0) {
   DropBuilder builder_(_fbb);
-  builder_.add_y(y);
-  builder_.add_x(x);
+  builder_.add_random_id(random_id);
+  builder_.add_y2(y2);
+  builder_.add_x2(x2);
+  builder_.add_y1(y1);
+  builder_.add_x1(x1);
   builder_.add_drop(drop);
+  builder_.add_page(page);
   builder_.add_drop_type(drop_type);
   return builder_.Finish();
 }
@@ -3897,10 +3953,14 @@ inline DropT *Drop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) 
 inline void Drop::UnPackTo(DropT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = random_id(); _o->random_id = _e; }
   { auto _e = drop_type(); _o->drop.type = _e; }
   { auto _e = drop(); if (_e) _o->drop.value = fbs::DropUnionUnion::UnPack(_e, drop_type(), _resolver); }
-  { auto _e = x(); _o->x = _e; }
-  { auto _e = y(); _o->y = _e; }
+  { auto _e = x1(); _o->x1 = _e; }
+  { auto _e = y1(); _o->y1 = _e; }
+  { auto _e = x2(); _o->x2 = _e; }
+  { auto _e = y2(); _o->y2 = _e; }
+  { auto _e = page(); _o->page = _e; }
 }
 
 inline ::flatbuffers::Offset<Drop> CreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const DropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3911,16 +3971,24 @@ inline ::flatbuffers::Offset<Drop> Drop::Pack(::flatbuffers::FlatBufferBuilder &
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _random_id = _o->random_id;
   auto _drop_type = _o->drop.type;
   auto _drop = _o->drop.Pack(_fbb);
-  auto _x = _o->x;
-  auto _y = _o->y;
+  auto _x1 = _o->x1;
+  auto _y1 = _o->y1;
+  auto _x2 = _o->x2;
+  auto _y2 = _o->y2;
+  auto _page = _o->page;
   return fbs::CreateDrop(
       _fbb,
+      _random_id,
       _drop_type,
       _drop,
-      _x,
-      _y);
+      _x1,
+      _y1,
+      _x2,
+      _y2,
+      _page);
 }
 
 template <bool B>

@@ -19,6 +19,8 @@ private:
 
   static inline std::optional<SDL_FPoint> drag;
 
+  static bool event_open(SDL_Event *event);
+
 public:
   static inline SDL_FPoint pos;
 

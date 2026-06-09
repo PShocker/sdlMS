@@ -3,6 +3,9 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_drop.h"
 class drop_logic_system {
+private:
+  static void run_state_machine(game_drop &drop);
+
 public:
   static void pick(game_character &g_character);
   static void pick(game_pet &g_pet);

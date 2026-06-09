@@ -21,6 +21,4 @@ private:
 
 public:
   static bool run();
-
-  static bool event(SDL_Event *event);
 };

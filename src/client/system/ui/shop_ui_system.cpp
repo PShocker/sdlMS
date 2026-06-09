@@ -1,7 +1,7 @@
 #include "shop_ui_system.h"
+#include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "src/client/system/system.h"
 
 void shop_ui_system::render_backgrnd() {
   static auto texture =
@@ -11,7 +11,10 @@ void shop_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void shop_ui_system::render_button() {
-}
+void shop_ui_system::render_button() {}
 
 bool shop_ui_system::render() { return true; }
+
+bool shop_ui_system::event_open(SDL_Event *event) { return false; }
+
+bool shop_ui_system::event(SDL_Event *event) { return true; }

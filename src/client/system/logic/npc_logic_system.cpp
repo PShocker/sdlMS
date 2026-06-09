@@ -106,7 +106,7 @@ bool npc_logic_system::run_chatballoon(game_npc &g_npc) {
     c.path = u"0";
     c.pos = {0, 0};
     c.size = 14;
-    c.color={156, 91, 97, 255};
+    c.color = {156, 91, 97, 255};
 
     auto view =
         g_npc.id | std::views::drop_while([](char16_t c) { return c == u'0'; });
@@ -202,23 +202,6 @@ std::optional<std::u16string> npc_logic_system::cursor_in() {
         return g_npc.id;
       }
     }
-  }
-  return r;
-}
-
-bool npc_logic_system::event(SDL_Event *event) {
-  bool r = true;
-  switch (event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == nullptr) {
-        auto g_npc = cursor_in();
-        if (g_npc.has_value()) {
-        }
-      }
-    }
-    break;
-  }
   }
   return r;
 }

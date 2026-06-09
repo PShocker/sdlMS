@@ -342,6 +342,9 @@ void package_ui_system::event_top() {
 }
 
 bool package_ui_system::event_click_item(SDL_Event *event) {
+  if (cursor_game_instance::cursor_hand_drop_id) {
+    return false;
+  }
   if (cursor_game_instance::cursor_hand.has_value()) {
     auto hand = cursor_game_instance::cursor_hand.value();
     if (hand.type == cursor_game_instance::package && hand.val == active_tab) {
