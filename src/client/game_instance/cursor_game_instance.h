@@ -2,10 +2,13 @@
 
 #include "src/client/game/game_equip.h"
 #include "src/client/game/game_item.h"
+#include "src/common/flatbuffers/common.h"
 #include <cstdint>
 #include <optional>
 #include <string>
 #include <variant>
+
+using namespace fbs;
 
 class cursor_game_instance {
 public:
@@ -30,4 +33,6 @@ public:
 
   static inline std::optional<uint64_t> cursor_hand_drop_id;
   static inline std::optional<cursor_hand_data> cursor_hand;
+
+  static void server_cursor_drop(const DropT& dt);
 };

@@ -180,7 +180,7 @@ bool cursor_logic_system::run() {
   return true;
 }
 
-bool cursor_logic_system::event_click() {
+bool cursor_logic_system::event_left_click() {
   auto &cursor_hand = cursor_game_instance::cursor_hand;
   if (cursor_hand.has_value()) {
     switch (cursor_hand->type) {
@@ -261,7 +261,6 @@ bool cursor_logic_system::event_click() {
     }
     }
   }
-  cursor_game_instance::cursor_hand = std::nullopt;
   return false;
 }
 
@@ -271,7 +270,7 @@ bool cursor_logic_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == nullptr) {
-        event_click();
+        event_left_click();
       }
     }
     break;

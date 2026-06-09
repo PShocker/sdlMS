@@ -10,7 +10,7 @@ void server_drop_instance::handle_drop(uint64_t client_id,
   auto scene = server_scene_instance::scenes[map_id];
   ServerCharacterDropT t;
   t.client_id = client_id;
-  t.payload->drop.Set(r.payload->drop);
+  t.payload = std::move(r.payload);
   for (const auto c : scene.clients) {
     server_response::send_to_client(c, t);
   }

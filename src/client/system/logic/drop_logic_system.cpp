@@ -2,6 +2,7 @@
 #include "src/client/game/game_drop.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/window/window.h"
+#include <cmath>
 #include <ranges>
 
 void drop_logic_system::pick(game_character &g_character) {}
@@ -15,15 +16,20 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     drop.vspeed = drop.vspeed + delta_time * 2000;
     auto dy = drop.vspeed * delta_time;
     drop.pos.y += dy;
-    if (drop.pos.y >= drop.goal.y) {
+    if (drop.pos.y >= drop.goal.y && drop.vspeed > 0) {
       drop.pos.x = drop.goal.x;
       drop.pos.y = drop.goal.y;
       drop.type = game_drop::land;
+      drop.rotate = 0;
       return;
     }
+    drop.rotate += (float)window::delta_time;
     break;
   }
   case game_drop::land: {
+    double t = fmod((double)window::dt_now / 4100, 1.0);
+    auto dy = (1.0 - fabs(2.0 * t - 1.0)) * 8.0 - 4.0;
+    drop.pos.y = drop.goal.y + dy;
     break;
   }
   case game_drop::pick: {

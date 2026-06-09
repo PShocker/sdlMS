@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_equip.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include <format>
 
 void drop_game_instance::load_drop(const DropT &dt) {

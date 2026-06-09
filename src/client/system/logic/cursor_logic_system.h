@@ -4,7 +4,7 @@
 #include <string>
 class cursor_logic_system {
 private:
-  static bool event_click();
+  static bool event_left_click();
 
   static bool run_package_motion();
   static bool run_animate();

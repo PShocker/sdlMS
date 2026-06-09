@@ -162,7 +162,6 @@ void revive_ui_system::event_button_ok() {
   scene_system_instance::enter_prepare(r_map, u"sp", 0);
 
   character_logic_system::self_portal_cooldown = window::dt_now + 1500;
-  cursor_game_instance::cursor_hand = std::nullopt;
 
   close();
   return;

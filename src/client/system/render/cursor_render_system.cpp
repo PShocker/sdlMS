@@ -10,6 +10,9 @@
 #include <string>
 
 void cursor_render_system::render_item() {
+  if (cursor_game_instance::cursor_hand_drop_id.has_value()) {
+    return;
+  }
   if (cursor_game_instance::cursor_hand.has_value()) {
     auto hand = cursor_game_instance::cursor_hand.value();
     switch (hand.type) {

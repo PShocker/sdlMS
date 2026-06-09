@@ -178,9 +178,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterDrop();
     fbs::ServerCharacterDropT r;
     payload->UnPackTo(&r);
-    if (r.payload->random_id == cursor_game_instance::cursor_hand_drop_id) {
-      cursor_game_instance::cursor_hand_drop_id = std::nullopt;
-    }
+    cursor_game_instance::server_cursor_drop(*r.payload);
     drop_game_instance::load_drop(*r.payload);
     break;
   }

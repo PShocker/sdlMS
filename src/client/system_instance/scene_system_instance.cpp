@@ -150,9 +150,8 @@ void scene_system_instance::enter(uint32_t map_id) {
   camera_game_instance::reset();
 
   system::event_systems = {
-      keyboard_input_system::event,
-      statusbar_ui_system::event,
-      minimap_ui_system::event,
+      cursor_logic_system::event,      keyboard_input_system::event,
+      statusbar_ui_system::event,      minimap_ui_system::event,
       character_info_ui_system::event,
   };
   system::logic_systems = {
