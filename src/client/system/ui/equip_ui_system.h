@@ -37,6 +37,8 @@ private:
 
   static void event_close();
 
+  static bool event_click_equip(SDL_Event *event);
+
   static bool event_button(SDL_Event *event);
   static void event_top();
   static void event_drag_start(SDL_Event *event);

@@ -306,6 +306,7 @@ void character_info_ui_system::open() {
 
 void character_info_ui_system::close() {
   std::erase(system::render_systems, render);
+  std::erase(system::event_systems, event);
 }
 
 void character_info_ui_system::event_top() {
@@ -371,60 +372,6 @@ bool character_info_ui_system::cursor_in() {
   return r;
 }
 
-bool character_info_ui_system::event_open_check(game_character &g_character) {
-  auto &camera = camera_game_instance::camera;
-  auto r = character_logic_system::load_rect(g_character);
-  r.x -= camera.x;
-  r.y -= camera.y;
-  return SDL_PointInRectFloat(&window::mouse_pos, &r);
-}
-
-void character_info_ui_system::load_avatar(game_character &g_character) {
-
-  character = g_character;
-  character.flip = 0;
-  character_logic_system::run_stand_action(character);
-  character_logic_system::run_face_action(character, u"default");
-}
-
-bool character_info_ui_system::event_open(SDL_Event *event) {
-  bool r = false;
-  switch (event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks == 2) {
-      if (cursor_game_instance::cursor_ui != nullptr) {
-        break;
-      }
-      // 双击
-      if (event_open_check(character_game_instance::self)) {
-        r = true;
-        load_avatar(character_game_instance::self);
-        break;
-      }
-      for (auto [k, other_data] : character_game_instance::others) {
-        if (event_open_check(other_data.g_character)) {
-          r = true;
-          load_avatar(other_data.g_character);
-          break;
-        }
-      }
-    }
-    break;
-  }
-  default: {
-    break;
-  }
-  }
-  if (r) {
-    auto fn = &render;
-    if (std::ranges::contains(system::render_systems, fn)) {
-      close();
-    }
-    open();
-  }
-  return r;
-}
-
 void character_info_ui_system::event_button_party() {}
 
 void character_info_ui_system::event_button_trade() {}
@@ -479,14 +426,8 @@ bool character_info_ui_system::event_button(SDL_Event *event) {
 
   return false;
 }
+
 bool character_info_ui_system::event(SDL_Event *event) {
-  if (event_open(event)) {
-    return false;
-  }
-  auto fn = &render;
-  if (!std::ranges::contains(system::render_systems, fn)) {
-    return true;
-  }
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {

@@ -65,3 +65,8 @@ table ServerCharacter {
     client_id:uint64;
     payload:Character;
 }
+
+table ServerCharacterPick {
+    client_id:uint64;
+    random_id:uint64;
+}

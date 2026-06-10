@@ -69,6 +69,10 @@ struct ServerCharacter;
 struct ServerCharacterBuilder;
 struct ServerCharacterT;
 
+struct ServerCharacterPick;
+struct ServerCharacterPickBuilder;
+struct ServerCharacterPickT;
+
 struct ServerHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ServerHeartbeat TableType;
 };
@@ -1073,6 +1077,76 @@ inline ::flatbuffers::Offset<ServerCharacter> CreateServerCharacter(
 
 ::flatbuffers::Offset<ServerCharacter> CreateServerCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterPickT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterPick TableType;
+  uint64_t client_id = 0;
+  uint64_t random_id = 0;
+};
+
+struct ServerCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterPickT NativeTableType;
+  typedef ServerCharacterPickBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_RANDOM_ID = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  uint64_t random_id() const {
+    return GetField<uint64_t>(VT_RANDOM_ID, 0);
+  }
+  bool mutate_random_id(uint64_t _random_id = 0) {
+    return SetField<uint64_t>(VT_RANDOM_ID, _random_id, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyField<uint64_t>(verifier, VT_RANDOM_ID, 8) &&
+           verifier.EndTable();
+  }
+  ServerCharacterPickT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterPickT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterPick> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPickT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterPickBuilder {
+  typedef ServerCharacterPick Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterPick::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_random_id(uint64_t random_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterPick::VT_RANDOM_ID, random_id, 0);
+  }
+  explicit ServerCharacterPickBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterPick> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterPick>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterPick> CreateServerCharacterPick(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    uint64_t random_id = 0) {
+  ServerCharacterPickBuilder builder_(_fbb);
+  builder_.add_random_id(random_id);
+  builder_.add_client_id(client_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterPick> CreateServerCharacterPick(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPickT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -1571,6 +1645,35 @@ inline ::flatbuffers::Offset<ServerCharacter> ServerCharacter::Pack(::flatbuffer
       _fbb,
       _client_id,
       _payload);
+}
+
+inline ServerCharacterPickT *ServerCharacterPick::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterPickT>(new ServerCharacterPickT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterPick::UnPackTo(ServerCharacterPickT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = random_id(); _o->random_id = _e; }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPick> CreateServerCharacterPick(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPickT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterPick::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterPick> ServerCharacterPick::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPickT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterPickT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _random_id = _o->random_id;
+  return fbs::CreateServerCharacterPick(
+      _fbb,
+      _client_id,
+      _random_id);
 }
 
 }  // namespace fbs

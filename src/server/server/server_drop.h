@@ -2,24 +2,14 @@
 
 #include "SDL3/SDL_rect.h"
 #include "server_equip.h"
+#include "src/client/game/game_drop.h"
+#include "src/common/flatbuffers/common.h"
 #include <cstdint>
 #include <optional>
+
+using namespace fbs;
+
 class server_drop {
 public:
-  uint32_t index;
-  uint32_t id;
-  uint32_t num;
-
-  SDL_FPoint pos;
-  int32_t rotate;
-  uint64_t destory;
-
-  bool fly;
-
-  uint64_t picker;
-
-  float hspeed = 0;
-  float vspeed = 0;
-
-  std::optional<server_equip> equip;
+  DropT drop;
 };

@@ -38,9 +38,6 @@ private:
 
   static bool event_button(SDL_Event *event);
 
-  static bool event_open_check(game_character &g_character);
-  static bool event_open(SDL_Event *event);
-
   static bool run();
 
   static std::vector<game_equip> load_equips();
@@ -57,8 +54,6 @@ public:
   static inline game_character character;
 
   static inline SDL_FPoint pos;
-
-  static void load_avatar(game_character &g_character);
 
   static bool cursor_in();
 

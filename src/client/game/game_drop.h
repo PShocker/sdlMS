@@ -36,5 +36,9 @@ public:
 
   drop_type type = fly;
 
-  std::variant<game_character *, game_pet *> picker;
+  struct pick_data {
+    uint64_t client_id;
+    std::optional<uint8_t> pet_id;
+  };
+  std::optional<pick_data> picker;
 };

@@ -14,6 +14,10 @@ private:
 
   static bool run_default();
 
+  static bool event_cursor_hand(SDL_Event *event);
+  static bool event_character_info(SDL_Event *event);
+  static bool event_npc(SDL_Event *event);
+
 public:
   static bool run();
 

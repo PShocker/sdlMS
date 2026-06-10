@@ -291,6 +291,43 @@ bool equip_ui_system::render() {
   return true;
 }
 
+bool equip_ui_system::event_click_equip(SDL_Event *event) {
+  if (cursor_game_instance::cursor_hand_drop_id.has_value()) {
+    return false;
+  }
+  auto index = load_mouse_index();
+  if (!index.has_value()) {
+    return false;
+  }
+  auto &self = character_game_instance::self;
+  std::optional<game_equip> *ptr;
+  switch (index.value()) {
+  case cap: {
+    ptr = &self.cap;
+    break;
+  }
+  case earcc:{
+    ptr=&self.accessory;
+  }
+  case clothes:
+  case pants:
+  case shoes:
+  case gloves:
+  case cape:
+  case shield:
+  case weapon:
+  case ring0:
+  case ring1:
+  case ring2:
+  case ring3:
+    break;
+  }
+  ptr->reset();
+  if (cursor_game_instance::cursor_hand.has_value()) {
+  } else {
+  }
+}
+
 void equip_ui_system::open() {
   auto wh = load_wh();
   auto &camera = camera_game_instance::camera;

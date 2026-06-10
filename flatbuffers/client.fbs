@@ -52,3 +52,8 @@ table ClientCharacter {
     map_id:uint32;
     payload:Character;
 }
+
+table ClientCharacterPick {
+    map_id:uint32;
+    random_id:uint64;
+}

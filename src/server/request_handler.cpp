@@ -93,6 +93,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_character_instance::handle_character(client_id, r);
     break;
   }
+  case NetPayload_ClientCharacterPick: {
+    auto payload = packet->payload_as_ClientCharacterPick();
+    fbs::ClientCharacterPickT r;
+    payload->UnPackTo(&r);
+    server_drop_instance::handle_pick(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -191,6 +198,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
           character_game_instance::others.at(r.client_id).g_character;
       character_game_instance::load_others_character(r.payload, g_character);
     }
+    break;
+  }
+  case NetPayload_ServerCharacterPick: {
+    auto payload = packet->payload_as_ServerCharacterPick();
+    fbs::ServerCharacterPickT r;
+    payload->UnPackTo(&r);
+    
     break;
   }
   default:

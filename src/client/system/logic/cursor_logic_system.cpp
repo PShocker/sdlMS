@@ -1,8 +1,12 @@
 #include "cursor_logic_system.h"
+#include "character_logic_system.h"
+#include "npc_logic_system.h"
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
+#include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/system/system.h"
@@ -180,105 +184,172 @@ bool cursor_logic_system::run() {
   return true;
 }
 
-bool cursor_logic_system::event_left_click() {
-  auto &cursor_hand = cursor_game_instance::cursor_hand;
-  if (cursor_hand.has_value()) {
-    switch (cursor_hand->type) {
-    case cursor_game_instance::equipment: {
-      break;
-    }
-    case cursor_game_instance::package: {
-      auto active_tab = cursor_hand->val;
-      if (active_tab == 0) {
-        auto equip = package_game_instance::equips[cursor_hand->val2];
-        DropT dt;
-        EquipT et;
-        et.equip_id =
-            std::stoi(std::string{equip->id.begin(), equip->id.end()});
-        dt.drop.Set(et);
-
-        dt.x1 = character_game_instance::self.pos.x;
-        dt.y1 = character_game_instance::self.pos.y;
-
-        dt.x2 = character_game_instance::self.pos.x;
-        dt.y2 = character_game_instance::self.pos.y - 100;
-
-        dt.page = character_game_instance::self.page;
-
-        auto border = map_info_game_instance::load_mr_border(
-            scene_system_instance::map_id);
-        int32_t tmp_fh;
-        uint8_t tmp_page;
-        float tmp_hsp = 0;
-        float tmp_vsp = 10000;
-        SDL_FPoint tmp_fp{dt.x2, dt.y2};
-        physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
-                     true, true, tmp_fh, tmp_page,
-                     foothold_game_instance::data);
-        dt.x2 = tmp_fp.x;
-        dt.y2 = tmp_fp.y;
-
-        std::uniform_int_distribution<uint64_t> dist;
-        // 生成一个随机的 uint64_t
-        dt.random_id = dist(random_game_instance::gen);
-
-        ClientCharacterDropT cct;
-        cct.map_id = scene_system_instance::map_id;
-        cct.payload = std::make_unique<DropT>(dt);
-        client_request::send_to_host(cct);
-
-        cursor_game_instance::cursor_hand_drop_id = dt.random_id;
-
-        // package_game_instance::equips[cursor_hand->val2] = std::nullopt;
-      } else {
-        std::vector<std::optional<game_item>> *r;
-        switch (active_tab) {
-        case 1: {
-          r = &package_game_instance::cosumes;
-          break;
-        }
-        case 2: {
-          r = &package_game_instance::etc;
-          break;
-        }
-        case 3: {
-          r = &package_game_instance::install;
-          break;
-        }
-        case 4: {
-          r = &package_game_instance::cash;
-          break;
-        }
-        default: {
-          break;
-        }
-        }
-      }
-      break;
-    }
-    default: {
-      break;
-    }
-    }
-  }
-  return false;
-}
-
-bool cursor_logic_system::event(SDL_Event *event) {
-  bool r = true;
+bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == nullptr) {
-        event_left_click();
+        auto &cursor_hand = cursor_game_instance::cursor_hand;
+        if (cursor_hand.has_value()) {
+          switch (cursor_hand->type) {
+          case cursor_game_instance::equipment: {
+            break;
+          }
+          case cursor_game_instance::package: {
+            auto active_tab = cursor_hand->val;
+            if (active_tab == 0) {
+              auto equip = package_game_instance::equips[cursor_hand->val2];
+              DropT dt;
+              EquipT et;
+              et.equip_id =
+                  std::stoi(std::string{equip->id.begin(), equip->id.end()});
+              dt.drop.Set(et);
+
+              dt.x1 = character_game_instance::self.pos.x;
+              dt.y1 = character_game_instance::self.pos.y;
+
+              dt.x2 = character_game_instance::self.pos.x;
+              dt.y2 = character_game_instance::self.pos.y - 100;
+
+              dt.page = character_game_instance::self.page;
+
+              auto border = map_info_game_instance::load_mr_border(
+                  scene_system_instance::map_id);
+              int32_t tmp_fh;
+              uint8_t tmp_page;
+              float tmp_hsp = 0;
+              float tmp_vsp = 10000;
+              SDL_FPoint tmp_fp{dt.x2, dt.y2};
+              physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp,
+                           border, true, true, tmp_fh, tmp_page,
+                           foothold_game_instance::data);
+              dt.x2 = tmp_fp.x;
+              dt.y2 = tmp_fp.y;
+
+              std::uniform_int_distribution<uint64_t> dist;
+              // 生成一个随机的 uint64_t
+              dt.random_id = dist(random_game_instance::gen);
+
+              ClientCharacterDropT cct;
+              cct.map_id = scene_system_instance::map_id;
+              cct.payload = std::make_unique<DropT>(dt);
+              client_request::send_to_host(cct);
+
+              cursor_game_instance::cursor_hand_drop_id = dt.random_id;
+
+              // package_game_instance::equips[cursor_hand->val2] =
+              // std::nullopt;
+            } else {
+              std::vector<std::optional<game_item>> *r;
+              switch (active_tab) {
+              case 1: {
+                r = &package_game_instance::cosumes;
+                break;
+              }
+              case 2: {
+                r = &package_game_instance::etc;
+                break;
+              }
+              case 3: {
+                r = &package_game_instance::install;
+                break;
+              }
+              case 4: {
+                r = &package_game_instance::cash;
+                break;
+              }
+              default: {
+                break;
+              }
+              }
+            }
+            break;
+          }
+          default: {
+            break;
+          }
+          }
+        }
       }
     }
     break;
   }
+  default: {
+    break;
+  }
+  }
 
+  return false;
+}
+
+bool cursor_logic_system::event_character_info(SDL_Event *event) {
+  bool r = false;
+  switch (event->type) {
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks == 2) {
+      if (cursor_game_instance::cursor_ui != nullptr) {
+        break;
+      }
+      auto others = character_game_instance::others.values();
+      character_other_data s{.g_character = character_game_instance::self};
+      others.push_back(s);
+      auto &camera = camera_game_instance::camera;
+      for (auto character : others) {
+        auto rect = character_logic_system::load_rect(character.g_character);
+        rect.x -= camera.x;
+        rect.y -= camera.y;
+        bool ins = SDL_PointInRectFloat(&window::mouse_pos, &rect);
+        if (ins) {
+          auto &ui_character = character_info_ui_system::character;
+          ui_character = character.g_character;
+          ui_character.flip = 0;
+          character_logic_system::run_stand_action(ui_character);
+          character_logic_system::run_face_action(ui_character, u"default");
+          character_info_ui_system::close();
+          character_info_ui_system::open();
+          return true;
+        }
+      }
+    }
+    break;
+  }
   default: {
     break;
   }
   }
   return r;
+}
+
+bool cursor_logic_system::event_npc(SDL_Event *event) {
+  bool r = false;
+  switch (event->type) {
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks == 2) {
+      if (cursor_game_instance::cursor_ui != nullptr) {
+        break;
+      }
+      auto npc = npc_logic_system::cursor_in();
+      if (npc.has_value()) {
+      }
+    }
+  }
+  default: {
+    break;
+  }
+  }
+  return r;
+}
+
+bool cursor_logic_system::event(SDL_Event *event) {
+  if (event_cursor_hand(event)) {
+    return false;
+  }
+  if (event_character_info(event)) {
+    return false;
+  }
+  if (event_npc(event)) {
+    return false;
+  }
+
+  return true;
 }
