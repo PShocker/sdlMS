@@ -9,6 +9,7 @@
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
+#include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -29,6 +30,7 @@
 #include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/system/logic/drop_logic_system.h"
 #include "src/client/system/logic/effect_logic_system.h"
+#include "src/client/system/logic/gain_log_logic_system.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system/logic/npc_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
@@ -39,6 +41,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/drop_render_system.h"
 #include "src/client/system/render/effect_render_system.h"
+#include "src/client/system/render/gain_log_render_system.h"
 #include "src/client/system/render/mob_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
@@ -123,6 +126,9 @@ bool scene_system_instance::render_game() {
       npc_render_system::render_chatballoon(npc);
     }
   }
+  for (uint32_t i = 0; i < gain_log_game_instance::data.size(); i++) {
+    gain_log_render_system::render(gain_log_game_instance::data[i], i);
+  }
   return true;
 }
 
@@ -162,7 +168,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       drop_logic_system::run,      mob_logic_system::run,
       npc_logic_system::run,       portal_logic_system::run,
       sound_logic_system::run,     obj_logic_system::run,
-      cursor_logic_system::run,
+      cursor_logic_system::run,    gain_log_logic_system::run,
   };
   system::render_systems = {
       render_game,

@@ -36,12 +36,12 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
 }
 
 // 逻辑分辨率
-static int32_t logic_w = 800;
-static int32_t logic_h = 600;
+static int32_t logic_w = 1366;
+static int32_t logic_h = 768;
 
 // 窗口分辨率
-static int32_t window_w = 800;
-static int32_t window_h = 600;
+static int32_t window_w = 1366;
+static int32_t window_h = 768;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   wz_resource::init();

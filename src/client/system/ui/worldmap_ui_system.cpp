@@ -4,6 +4,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
@@ -98,6 +99,7 @@ void worldmap_ui_system::render_spot() {
 
   auto &mouse_pos = window::mouse_pos;
   uint32_t spot_info_id = 0;
+  std::optional<SDL_FPoint> spot_point;
   for (auto &spot : spots) {
     auto texture = map_img_array[spot.type];
     SDL_FRect pos_rect = {
@@ -114,6 +116,12 @@ void worldmap_ui_system::render_spot() {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       spot_info_id = *spot.map_id.begin();
     }
+    if (spot.map_id.contains(scene_system_instance::map_id)) {
+      spot_point = SDL_FPoint{pos_rect.x, pos_rect.y};
+    }
+  }
+  if (spot_point.has_value()) {
+    render_cur_pos(spot_point.value());
   }
   if (spot_info_id != 0) {
     render_spot_info(spot_info_id, mouse_pos.x, mouse_pos.y);
@@ -125,6 +133,22 @@ void worldmap_ui_system::render_map() {
   auto texture = wz_resource::load_texture(back_node);
   SDL_FRect pos_rect = {pos.x + map_offset.x, pos.y + map_offset.y,
                         static_cast<float>(texture->w), (float)texture->h};
+  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+}
+
+void worldmap_ui_system::render_cur_pos(SDL_FPoint point) {
+  auto now = window::dt_now;
+  static auto point_node =
+      wz_resource::map->find(u"MapHelper.img/worldMap/curPos");
+  auto sum = point_node->children_count() * 500;
+  auto offset = now % sum; // 取余，得到周期内偏移
+  auto i = offset / 500;
+  auto index = std::to_string(i);
+  auto node = point_node->get_child(index);
+  auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
+  auto texture = wz_resource::load_texture(node);
+  SDL_FRect pos_rect{point.x, point.y, static_cast<float>(texture->w),
+                     static_cast<float>(texture->h)};
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 

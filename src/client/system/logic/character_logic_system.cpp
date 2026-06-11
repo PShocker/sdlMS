@@ -729,12 +729,27 @@ bool character_logic_system::run_attack(game_character &g_character) {
 }
 
 bool character_logic_system::run_portal(game_character &g_character) {
+  // 特殊情况，如果掉到了地图外,直接传送到sp出生点
+  auto border =
+      map_info_game_instance::load_mr_border(scene_system_instance::map_id);
+  if (border.has_value() && g_character.pos.y >= border->h) {
+    // no change map
+    const auto &tn = portal_game_instance::data.find(u"sp")->second;
+    g_character.pos = tn.pos;
+    g_character.pos.y -= 5;
+    self_hspeed = 0;
+    self_vspeed = 0;
+    self_fh = 0;
+    run_action(g_character, u"jump");
+    self_portal_cooldown = window::dt_now + 1200;
+    return true;
+  }
   if (g_character.abnormals.contains(
           game_character::abnormal_state_type::dizz)) {
     return false;
   }
-  bool up = character_action_input.contains("up");
   if (self_portal_cooldown <= window::dt_now) {
+    bool up = character_action_input.contains("up");
     for (const auto &por : portal_game_instance::data | std::views::values) {
       if (por.tm == 999999999) {
         continue;

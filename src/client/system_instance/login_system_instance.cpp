@@ -1,1 +1,6 @@
-#include "character_choose_system_instance.h"
+#include "login_system_instance.h"
+
+
+void login_system_instance::enter() {
+    
+}
