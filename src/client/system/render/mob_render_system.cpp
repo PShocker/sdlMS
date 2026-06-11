@@ -32,6 +32,9 @@ bool mob_render_system::render_mob(game_mob &g_mob) {
   }
 
   mob_node = action_node->get_child(frame_index);
+  if (mob_node->type == wz::Type::UOL) {
+    mob_node = static_cast<wz::Property<wz::WzUOL> *>(mob_node)->get_uol();
+  }
 
   auto texture = wz_resource::load_texture(mob_node);
 

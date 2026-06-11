@@ -16,7 +16,7 @@ SDL_FPoint login_ui_system::load_pos() {
   const auto h = 768;
   auto &camera = camera_game_instance::camera;
   pos.x = (camera.w - w) / 2;
-  pos.y = (camera.w - h) / 2;
+  pos.y = (camera.h - h) / 2;
   return pos;
 }
 
@@ -108,4 +108,11 @@ void login_ui_system::render_effect() {
     };
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
   }
+}
+
+bool login_ui_system::render() {
+  render_backgrnd();
+  render_button();
+  render_effect();
+  return true;
 }

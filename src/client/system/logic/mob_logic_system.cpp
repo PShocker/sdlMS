@@ -46,6 +46,10 @@ std::optional<SDL_FRect> mob_logic_system::load_rect(const game_mob &g_mob) {
     frame_index = std::to_string(g_mob.ani_index);
   }
   auto texture_node = mob_action_node->get_child(frame_index);
+  if (texture_node->type == wz::Type::UOL) {
+    texture_node =
+        static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
+  }
   if (texture_node->get_child(u"lt") == nullptr) {
     return std::nullopt;
   }

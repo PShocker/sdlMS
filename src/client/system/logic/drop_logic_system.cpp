@@ -20,6 +20,8 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
       drop.pos.x = drop.goal.x;
       drop.pos.y = drop.goal.y;
       drop.type = game_drop::land;
+      drop.vspeed = 0;
+      drop.hspeed = 0;
       drop.rotate = 0;
       return;
     }
@@ -27,7 +29,8 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     break;
   }
   case game_drop::land: {
-    double t = fmod((double)window::dt_now / 4100, 1.0);
+    drop.hspeed += window::delta_time;
+    double t = fmod((double)drop.hspeed / 3500, 1.0);
     auto dy = (1.0 - fabs(2.0 * t - 1.0)) * 8.0 - 4.0;
     drop.pos.y = drop.goal.y + dy;
     break;

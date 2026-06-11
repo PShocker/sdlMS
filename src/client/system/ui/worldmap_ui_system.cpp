@@ -117,7 +117,7 @@ void worldmap_ui_system::render_spot() {
       spot_info_id = *spot.map_id.begin();
     }
     if (spot.map_id.contains(scene_system_instance::map_id)) {
-      spot_point = SDL_FPoint{pos_rect.x, pos_rect.y};
+      spot_point = SDL_FPoint{pos_rect.x + 5 + texture->w / 2, pos_rect.y + 5};
     }
   }
   if (spot_point.has_value()) {
@@ -140,15 +140,19 @@ void worldmap_ui_system::render_cur_pos(SDL_FPoint point) {
   auto now = window::dt_now;
   static auto point_node =
       wz_resource::map->find(u"MapHelper.img/worldMap/curPos");
-  auto sum = point_node->children_count() * 500;
+  auto sum = point_node->children_count() * 200;
   auto offset = now % sum; // 取余，得到周期内偏移
-  auto i = offset / 500;
+  auto i = offset / 200;
   auto index = std::to_string(i);
   auto node = point_node->get_child(index);
   auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
   auto texture = wz_resource::load_texture(node);
-  SDL_FRect pos_rect{point.x, point.y, static_cast<float>(texture->w),
-                     static_cast<float>(texture->h)};
+  SDL_FRect pos_rect{
+      point.x - origin.x,
+      point.y - origin.y,
+      static_cast<float>(texture->w),
+      static_cast<float>(texture->h),
+  };
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 

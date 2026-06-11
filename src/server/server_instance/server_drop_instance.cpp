@@ -13,6 +13,8 @@ void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
 void server_drop_instance::handle_drop(uint64_t client_id,
                                        fbs::ClientCharacterDropT &r) {
   auto map_id = r.map_id;
+  save_drop(map_id, *r.payload);
+
   const auto &scene = server_scene_instance::scenes[map_id];
   ServerCharacterDropT t;
   t.client_id = client_id;
@@ -20,7 +22,6 @@ void server_drop_instance::handle_drop(uint64_t client_id,
   for (const auto c : scene.clients) {
     server_response::send_to_client(c, t);
   }
-  save_drop(map_id, *r.payload);
 }
 
 void server_drop_instance::handle_pick(uint64_t client_id,
