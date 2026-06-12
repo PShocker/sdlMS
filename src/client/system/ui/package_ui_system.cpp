@@ -275,7 +275,7 @@ void package_ui_system::render_button() {
       wz_resource::ui->find(u"Basic.img/BtClose"),
   };
   auto wh = load_wh();
-  std::array buttons_rect = {
+  const std::array buttons_rect = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
 

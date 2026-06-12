@@ -4,9 +4,9 @@
 #include "wz/Property.h"
 #include <string>
 
-void tile_game_instance::load(uint32_t map_id) {
+void tile_game_instance::load(wz::Node *image) {
   data = {};
-  auto map_node = wz_resource::load_map_node(map_id);
+  auto map_node = image;
   uint8_t map_layer = 0;
   for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
     auto layer_node = map_node->get_child(i);
@@ -51,4 +51,9 @@ void tile_game_instance::load(uint32_t map_id) {
     }
     map_layer++;
   }
+}
+
+void tile_game_instance::load(uint32_t map_id) {
+  auto map_node = wz_resource::load_map_node(map_id);
+  load(map_node);
 }

@@ -7,10 +7,11 @@
 #include <cstdlib>
 #include <string>
 
-void backgrnd_game_instance::load(uint32_t map_id) {
-  front.clear();
-  back.clear();
-  auto map_node = wz_resource::load_map_node(map_id);
+void backgrnd_game_instance::load(wz::Node *image) {
+  front = {};
+  back = {};
+
+  auto map_node = image;
   auto map_back_node = map_node->get_child(u"back");
   for (auto [key, val] : *map_back_node->get_children()) {
 
@@ -145,4 +146,9 @@ void backgrnd_game_instance::load(uint32_t map_id) {
       back.insert({id, g_backgrnd});
     }
   }
+}
+
+void backgrnd_game_instance::load(uint32_t map_id) {
+  auto map_node = wz_resource::load_map_node(map_id);
+  load(map_node);
 }
