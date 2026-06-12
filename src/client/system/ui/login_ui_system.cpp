@@ -13,6 +13,9 @@
 #include <string>
 #include <vector>
 
+const static auto origin_x = 280;
+const static auto origin_y = 82;
+
 SDL_FPoint login_ui_system::load_pos() {
   SDL_FPoint pos;
   const auto w = 1366;
@@ -47,8 +50,8 @@ void login_ui_system::render_button() {
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+    pos_rect.x += pos.x + origin_x;
+    pos_rect.y += pos.y + origin_y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = window::mouse_pos;
@@ -128,8 +131,8 @@ void login_ui_system::render_effect() {
     auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
     auto texture = wz_resource::load_texture(node);
     SDL_FRect pos_rect{
-        pos.x - origin.x,
-        pos.y - origin.y,
+        pos.x - origin.x + origin_x,
+        pos.y - origin.y + origin_y,
         static_cast<float>(texture->w),
         static_cast<float>(texture->h),
     };
