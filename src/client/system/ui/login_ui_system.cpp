@@ -203,9 +203,7 @@ bool login_ui_system::login_animate_render() {
 }
 
 void login_ui_system::event_button_login() {
-  system::logic_systems = {
-      login_animate,
-  };
+  system::logic_systems.push_back(login_animate);
   system::render_systems = {
       login_system_instance::render_game,
       login_animate_render,

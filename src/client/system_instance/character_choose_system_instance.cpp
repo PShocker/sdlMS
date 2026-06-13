@@ -15,6 +15,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/common/wz/wz_resource.h"
+#include <algorithm>
 #include <ranges>
 
 bool character_choose_system_instance::render_game() {
@@ -39,9 +40,12 @@ bool character_choose_system_instance::render_game() {
 
 void character_choose_system_instance::enter() {
   static auto image = wz_resource::ui->find(u"MapLogin.img");
-  backgrnd_game_instance::load(image);
-  obj_game_instance::load(image);
-  tile_game_instance::load(image);
+  auto fn = &login_system_instance::render_game;
+  if (!std::ranges::contains(system::render_systems, fn)) {
+    backgrnd_game_instance::load(image);
+    obj_game_instance::load(image);
+    tile_game_instance::load(image);
+  }
   system::logic_systems = {
       backgrnd_logic_system::run,
       obj_logic_system::run,
