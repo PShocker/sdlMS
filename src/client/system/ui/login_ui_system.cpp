@@ -186,9 +186,9 @@ void login_ui_system::render_effect() {
 
 bool login_ui_system::render() {
   render_button();
+  render_effect();
   render_backgrnd();
   render_banner();
-  render_effect();
   return true;
 }
 
