@@ -6,7 +6,6 @@
 class login_ui_system {
 private:
   static bool login_animate();
-  static bool login_animate_render();
 
   static SDL_FPoint load_pos();
   static void render_backgrnd();
@@ -21,6 +20,7 @@ private:
   static void event_button_register();
   static void event_button_homepage();
   static void event_button_quit();
+  static void event_button_back();
 
   static bool event_button(SDL_Event *event);
 public:

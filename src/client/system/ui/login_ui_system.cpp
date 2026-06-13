@@ -4,6 +4,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
@@ -15,9 +16,6 @@
 #include <numeric>
 #include <string>
 #include <vector>
-
-const static auto origin_x = 283;
-const static auto origin_y = 84;
 
 SDL_FPoint login_ui_system::load_pos() {
   SDL_FPoint pos;
@@ -38,25 +36,21 @@ void login_ui_system::render_button() {
       wz_resource::ui->find(u"Login.img/ClassicIntro/button:register"),
       wz_resource::ui->find(u"Login.img/ClassicIntro/button:homepage"),
       wz_resource::ui->find(u"Login.img/ClassicIntro/button:quit"),
-      wz_resource::ui->find(u"Login.img/LoginStart/BtClassicPrev"),
   };
-  std::array buttons_rect = {
-      SDL_FRect{640, 237, 122, 61},  // login
-      SDL_FRect{450, 328, 101, 29},  // login_saved
-      SDL_FRect{584, 324, 90, 29},   // find_id
-      SDL_FRect{677, 324, 74, 29},   // find_pw
-      SDL_FRect{391, 389, 118, 56},  // register
-      SDL_FRect{518, 389, 119, 55},  // homepage
-      SDL_FRect{645, 389, 108, 55},  // quit
-      SDL_FRect{-120, 490, 161, 69}, // BtClassicPrev
-
-  };
+  auto &camera = camera_game_instance::camera;
   auto pos = load_pos();
+  std::array buttons_rect = {
+      SDL_FRect{160 - camera.x, 960 - camera.y, 122, 61},  // login
+      SDL_FRect{-30 - camera.x, 1051 - camera.y, 101, 29}, // login_saved
+      SDL_FRect{104 - camera.x, 1047 - camera.y, 90, 29},  // find_id
+      SDL_FRect{197 - camera.x, 1047 - camera.y, 74, 29},  // find_pw
+      SDL_FRect{-89 - camera.x, 1112 - camera.y, 118, 56}, // register
+      SDL_FRect{38 - camera.x, 1112 - camera.y, 119, 55},  // homepage
+      SDL_FRect{165 - camera.x, 1112 - camera.y, 108, 55}, // quit
+  };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x + origin_x;
-    pos_rect.y += pos.y + origin_y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = window::mouse_pos;
@@ -86,6 +80,32 @@ void login_ui_system::render_banner() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+
+  const static std::array buttons_nodes = {
+      wz_resource::ui->find(u"Login.img/LoginStart/BtClassicPrev"),
+  };
+  std::array buttons_rect = {
+      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
+  };
+  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
+    auto k = buttons_nodes[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
+    auto &mouse_pos = window::mouse_pos;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
 }
 
 void login_ui_system::render_backgrnd() {
@@ -119,6 +139,12 @@ void login_ui_system::render_effect() {
       {2800, 2800},       //
       {1000, 1000, 2500}, //
   };
+  auto &camera = camera_game_instance::camera;
+  const std::vector<SDL_FPoint> origins = {
+      {75 - camera.x, 502 - camera.y},   {-121 - camera.x, 438 - camera.y},
+      {-145 - camera.x, 448 - camera.y}, {39 - camera.x, 478 - camera.y},
+      {-155 - camera.x, 451 - camera.y}, {-153 - camera.x, 435 - camera.y},
+  };
   for (auto i = 0; i < effect_nodes.size(); i++) {
     auto ds = delays[i];
     auto sum = std::accumulate(ds.begin(), ds.end(), 0u);
@@ -146,11 +172,10 @@ void login_ui_system::render_effect() {
     auto ani_time = offset - accumulated;
     float t = (float)ani_time / (float)ds[render_index];
     auto alpha = a0 + (a1 - a0) * t;
-    auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
     auto texture = wz_resource::load_texture(node);
     SDL_FRect pos_rect{
-        pos.x - origin.x + origin_x,
-        pos.y - origin.y + origin_y,
+        origins[i].x,
+        origins[i].y,
         static_cast<float>(texture->w),
         static_cast<float>(texture->h),
     };
@@ -160,8 +185,8 @@ void login_ui_system::render_effect() {
 }
 
 bool login_ui_system::render() {
-  render_backgrnd();
   render_button();
+  render_backgrnd();
   render_banner();
   render_effect();
   return true;
@@ -169,7 +194,7 @@ bool login_ui_system::render() {
 
 bool login_ui_system::login_animate() {
   const auto x = -80;
-  const auto y = -395;
+  const auto y = -479;
 
   auto &camera = camera_game_instance::camera;
   auto prev_x = camera.x;
@@ -196,17 +221,11 @@ bool login_ui_system::login_animate() {
   }
 }
 
-bool login_ui_system::login_animate_render() {
-  render_backgrnd();
-  render_banner();
-  return true;
-}
-
 void login_ui_system::event_button_login() {
   system::logic_systems.push_back(login_animate);
   system::render_systems = {
       login_system_instance::render_game,
-      login_animate_render,
+      character_choose_ui_system::render,
       cursor_render_system::render,
   };
   system::event_systems = {};
@@ -222,26 +241,29 @@ void login_ui_system::event_button_register() {}
 void login_ui_system::event_button_homepage() {}
 
 void login_ui_system::event_button_quit() {}
+void login_ui_system::event_button_back() { event_button_quit(); }
 bool login_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
+  auto &camera = camera_game_instance::camera;
+  auto pos = load_pos();
   r = {
-      SDL_FRect{640, 237, 122, 61}, // login
-      SDL_FRect{450, 328, 101, 29}, // login_saved
-      SDL_FRect{584, 324, 90, 29},  // find_id
-      SDL_FRect{677, 324, 74, 29},  // find_pw
-      SDL_FRect{391, 389, 118, 56}, // register
-      SDL_FRect{518, 389, 119, 55}, // homepage
-      SDL_FRect{645, 389, 108, 55}, // quit
+      SDL_FRect{160 - camera.x, 960 - camera.y, 122, 61},  // login
+      SDL_FRect{-30 - camera.x, 1051 - camera.y, 101, 29}, // login_saved
+      SDL_FRect{104 - camera.x, 1047 - camera.y, 90, 29},  // find_id
+      SDL_FRect{197 - camera.x, 1047 - camera.y, 74, 29},  // find_pw
+      SDL_FRect{-89 - camera.x, 1112 - camera.y, 118, 56}, // register
+      SDL_FRect{38 - camera.x, 1112 - camera.y, 119, 55},  // homepage
+      SDL_FRect{165 - camera.x, 1112 - camera.y, 108, 55}, // quit
+      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},        // BtClassicPrev
   };
   fns = {event_button_login,   event_button_login_save, event_button_find_id,
          event_button_find_pw, event_button_register,   event_button_homepage,
-         event_button_quit};
-  auto pos = load_pos();
+         event_button_quit,    event_button_back};
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
-    pos_rect.x += pos.x + origin_x;
-    pos_rect.y += pos.y + origin_y;
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       fns[i]();
       return false;

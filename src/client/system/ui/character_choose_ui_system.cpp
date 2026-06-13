@@ -1,11 +1,13 @@
 #include "character_choose_ui_system.h"
 #include "SDL3/SDL_events.h"
+#include "login_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/system/render/cursor_render_system.h"
+#include "src/client/system/system.h"
+#include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-
-const static auto origin_x = 280;
-const static auto origin_y = 82;
+#include <cmath>
 
 SDL_FPoint character_choose_ui_system::load_pos() {
   SDL_FPoint pos;
@@ -18,40 +20,37 @@ SDL_FPoint character_choose_ui_system::load_pos() {
 }
 
 void character_choose_ui_system::render_button() {
-  //   const static std::array buttons_nodes = {
-  //       wz_resource::ui->find(u"Basic.img/BtClose"),
-  //   };
-  //   auto wh = load_wh();
-  //   const std::array buttons_rect = {
-  //       SDL_FRect{wh.x - 20, 7, 12, 12}, //
-  //   };
-
-  //   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-  //     auto k = buttons_nodes[i];
-  //     auto pos_rect = buttons_rect[i];
-  //     pos_rect.x += pos.x;
-  //     pos_rect.y += pos.y;
-  //     pos_rect.x = (int)pos_rect.x;
-  //     pos_rect.y = (int)pos_rect.y;
-  //     auto &mouse_pos = window::mouse_pos;
-  //     // 判断按钮是否被遮挡
-  //     auto cursor_in = cursor_game_instance::cursor_ui;
-  //     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render)
-  //     {
-  //       if (window::mouse_state & SDL_BUTTON_LMASK) {
-  //         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-  //         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
-  //       } else {
-  //         auto mouse_over =
-  //         wz_resource::load_texture(k->find(u"mouseOver/0"));
-  //         SDL_RenderTexture(window::renderer, mouse_over, nullptr,
-  //         &pos_rect);
-  //       }
-  //     } else {
-  //       auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-  //       SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
-  //     }
-  //   }
+  const static std::array buttons_nodes = {
+      wz_resource::ui->find(u"Login.img/CharSelect/button:select"),
+      wz_resource::ui->find(u"Login.img/CharSelect/button:new"),
+      wz_resource::ui->find(u"Login.img/CharSelect/button:delete"),
+  };
+  auto pos = load_pos();
+  auto &camera = camera_game_instance::camera;
+  std::array buttons_rect = {
+      SDL_FRect{149 - camera.x, -656 - camera.y, 129, 41},
+      SDL_FRect{149 - camera.x, -607 - camera.y, 129, 45},
+      SDL_FRect{151 - camera.x, -543 - camera.y, 129, 55},
+  };
+  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
+    auto k = buttons_nodes[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
+    auto &mouse_pos = window::mouse_pos;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
 }
 
 void character_choose_ui_system::render_banner() {
@@ -65,6 +64,32 @@ void character_choose_ui_system::render_banner() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+
+  const static std::array buttons_nodes = {
+      wz_resource::ui->find(u"Login.img/LoginStart/BtClassicPrev"),
+  };
+  std::array buttons_rect = {
+      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
+  };
+  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
+    auto k = buttons_nodes[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
+    auto &mouse_pos = window::mouse_pos;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
 }
 
 void character_choose_ui_system::render_backgrnd() {
@@ -81,10 +106,83 @@ void character_choose_ui_system::render_backgrnd() {
 }
 
 bool character_choose_ui_system::render() {
-  render_backgrnd();
   render_button();
+  render_backgrnd();
   render_banner();
   return true;
+}
+
+void character_choose_ui_system::event_button_select() {}
+void character_choose_ui_system::event_button_new() {}
+void character_choose_ui_system::event_button_delete() {}
+
+bool character_choose_ui_system::back_animate() {
+  const auto x = -80;
+  const auto y = 1023;
+
+  auto &camera = camera_game_instance::camera;
+  auto prev_x = camera.x;
+  auto next_x = x - camera.w / 2; // 人物移动后新的摄像机坐标
+  auto delta_x = next_x - prev_x;
+
+  camera.x = (std::lerp(prev_x, next_x, std::abs(delta_x) / 6000.0f));
+
+  auto prev_y = camera.y;
+  auto next_y = y - camera.h / 2; // 人物移动后新的摄像机坐标
+  auto delta_y = next_y - prev_y;
+
+  const float MIN_T = 0.2f; // 最小lerp系数
+  float t = std::abs(delta_y) / 6000.0f;
+  t = std::max(t, MIN_T);
+
+  camera.y = std::lerp(prev_y, next_y, t);
+  if (std::roundf(camera.x) == next_x && std::roundf(camera.y) == next_y) {
+    login_system_instance::enter();
+    return false;
+  } else {
+    return true;
+  }
+  return true;
+}
+
+void character_choose_ui_system::event_button_back() {
+  system::logic_systems.push_back(back_animate);
+  system::render_systems = {
+      login_system_instance::render_game,
+      login_ui_system::render,
+      cursor_render_system::render,
+  };
+  system::event_systems = {};
+}
+
+bool character_choose_ui_system::event_button(SDL_Event *event) {
+  std::vector<SDL_FRect> r;
+  std::vector<void (*)()> fns;
+  auto &camera = camera_game_instance::camera;
+  auto pos = load_pos();
+  r = {
+      SDL_FRect{149 - camera.x, -656 - camera.y, 129, 41},
+      SDL_FRect{149 - camera.x, -607 - camera.y, 129, 45},
+      SDL_FRect{151 - camera.x, -543 - camera.y, 129, 55},
+      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
+  };
+  fns = {
+      event_button_select,
+      event_button_new,
+      event_button_delete,
+      event_button_back,
+  };
+  for (size_t i = 0; i < r.size(); ++i) {
+    auto pos_rect = r[i];
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      fns[i]();
+      return false;
+    }
+  }
+
+  return false;
 }
 
 bool character_choose_ui_system::event(SDL_Event *event) {
@@ -111,6 +209,7 @@ bool character_choose_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
+      event_button(event);
     }
     break;
   }

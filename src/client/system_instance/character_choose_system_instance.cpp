@@ -62,5 +62,5 @@ void character_choose_system_instance::enter() {
   };
   auto &camera = camera_game_instance::camera;
   camera.x = -80 - camera.w / 2;
-  camera.y = -395 - camera.h / 2;
+  camera.y = -479 - camera.h / 2;
 }
