@@ -16,8 +16,8 @@
 #include <string>
 #include <vector>
 
-const static auto origin_x = 280;
-const static auto origin_y = 82;
+const static auto origin_x = 283;
+const static auto origin_y = 84;
 
 SDL_FPoint login_ui_system::load_pos() {
   SDL_FPoint pos;
