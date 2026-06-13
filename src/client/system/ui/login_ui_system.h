@@ -6,11 +6,13 @@
 class login_ui_system {
 private:
   static bool login_animate();
+  static bool login_animate_render();
 
   static SDL_FPoint load_pos();
   static void render_backgrnd();
   static void render_button();
   static void render_effect();
+  static void render_banner();
 
   static void event_button_login();
   static void event_button_login_save();

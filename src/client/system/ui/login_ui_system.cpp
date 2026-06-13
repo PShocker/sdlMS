@@ -2,11 +2,14 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
+#include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <numeric>
@@ -35,15 +38,17 @@ void login_ui_system::render_button() {
       wz_resource::ui->find(u"Login.img/ClassicIntro/button:register"),
       wz_resource::ui->find(u"Login.img/ClassicIntro/button:homepage"),
       wz_resource::ui->find(u"Login.img/ClassicIntro/button:quit"),
+      wz_resource::ui->find(u"Login.img/LoginStart/BtClassicPrev"),
   };
   std::array buttons_rect = {
-      SDL_FRect{640, 237, 122, 61}, // login
-      SDL_FRect{450, 328, 101, 29}, // login_saved
-      SDL_FRect{584, 324, 90, 29},  // find_id
-      SDL_FRect{677, 324, 74, 29},  // find_pw
-      SDL_FRect{391, 389, 118, 56}, // register
-      SDL_FRect{518, 389, 119, 55}, // homepage
-      SDL_FRect{645, 389, 108, 55}, // quit
+      SDL_FRect{640, 237, 122, 61},  // login
+      SDL_FRect{450, 328, 101, 29},  // login_saved
+      SDL_FRect{584, 324, 90, 29},   // find_id
+      SDL_FRect{677, 324, 74, 29},   // find_pw
+      SDL_FRect{391, 389, 118, 56},  // register
+      SDL_FRect{518, 389, 119, 55},  // homepage
+      SDL_FRect{645, 389, 108, 55},  // quit
+      SDL_FRect{-120, 490, 161, 69}, // BtClassicPrev
 
   };
   auto pos = load_pos();
@@ -68,6 +73,19 @@ void login_ui_system::render_button() {
       SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
     }
   }
+}
+
+void login_ui_system::render_banner() {
+  static auto t = wz_resource::load_texture(
+      wz_resource::ui->find(u"Login.img/LoginStart/StepBanner/ClassicIntro"));
+  auto pos = load_pos();
+  SDL_FRect pos_rect{
+      pos.x + 160,
+      pos.y + 85,
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
 }
 
 void login_ui_system::render_backgrnd() {
@@ -144,6 +162,7 @@ void login_ui_system::render_effect() {
 bool login_ui_system::render() {
   render_backgrnd();
   render_button();
+  render_banner();
   render_effect();
   return true;
 }
@@ -157,17 +176,19 @@ bool login_ui_system::login_animate() {
   auto next_x = x - camera.w / 2; // 人物移动后新的摄像机坐标
   auto delta_x = next_x - prev_x;
 
-  camera.x =
-      std::roundf(std::lerp(prev_x, next_x, std::abs(delta_x) / 6000.0f));
+  camera.x = (std::lerp(prev_x, next_x, std::abs(delta_x) / 6000.0f));
 
   auto prev_y = camera.y;
   auto next_y = y - camera.h / 2; // 人物移动后新的摄像机坐标
   auto delta_y = next_y - prev_y;
 
-  camera.y =
-      std::roundf(std::lerp(prev_y, next_y, std::abs(delta_y) / 6000.0f));
+  const float MIN_T = 0.2f; // 最小lerp系数
+  float t = std::abs(delta_y) / 6000.0f;
+  t = std::max(t, MIN_T);
 
-  if ((int)camera.x == x && (int)camera.y == y) {
+  camera.y = std::lerp(prev_y, next_y, t);
+
+  if (std::roundf(camera.x) == next_x && std::roundf(camera.y) == next_y) {
     character_choose_system_instance::enter();
     return false;
   } else {
@@ -175,10 +196,22 @@ bool login_ui_system::login_animate() {
   }
 }
 
+bool login_ui_system::login_animate_render() {
+  render_backgrnd();
+  render_banner();
+  return true;
+}
+
 void login_ui_system::event_button_login() {
   system::logic_systems = {
       login_animate,
   };
+  system::render_systems = {
+      login_system_instance::render_game,
+      login_animate_render,
+      cursor_render_system::render,
+  };
+  system::event_systems = {};
 }
 
 void login_ui_system::event_button_login_save() {}
@@ -209,8 +242,8 @@ bool login_ui_system::event_button(SDL_Event *event) {
   auto pos = load_pos();
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+    pos_rect.x += pos.x + origin_x;
+    pos_rect.y += pos.y + origin_y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       fns[i]();
       return false;

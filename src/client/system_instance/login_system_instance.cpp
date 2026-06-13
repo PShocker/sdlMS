@@ -56,6 +56,6 @@ void login_system_instance::enter() {
       login_ui_system::event,
   };
   auto &camera = camera_game_instance::camera;
-  camera.x = -760;
-  camera.y = 640;
+  camera.x = -80 - camera.w / 2;
+  camera.y = 1023 - camera.h / 2;
 }

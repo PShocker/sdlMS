@@ -1,6 +1,21 @@
 #include "character_choose_ui_system.h"
 #include "SDL3/SDL_events.h"
+#include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+const static auto origin_x = 280;
+const static auto origin_y = 82;
+
+SDL_FPoint character_choose_ui_system::load_pos() {
+  SDL_FPoint pos;
+  const auto w = 1366;
+  const auto h = 768;
+  auto &camera = camera_game_instance::camera;
+  pos.x = (camera.w - w) / 2;
+  pos.y = (camera.h - h) / 2;
+  return pos;
+}
 
 void character_choose_ui_system::render_button() {
   //   const static std::array buttons_nodes = {
@@ -39,7 +54,38 @@ void character_choose_ui_system::render_button() {
   //   }
 }
 
-bool character_choose_ui_system::render() { return true; }
+void character_choose_ui_system::render_banner() {
+  static auto t = wz_resource::load_texture(
+      wz_resource::ui->find(u"Login.img/LoginStart/StepBanner/CharSelect"));
+  auto pos = load_pos();
+  SDL_FRect pos_rect{
+      pos.x + 160,
+      pos.y + 85,
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+}
+
+void character_choose_ui_system::render_backgrnd() {
+  static auto t = wz_resource::load_texture(
+      wz_resource::ui->find(u"Login.img/Common/classicFrame"));
+  auto pos = load_pos();
+  SDL_FRect pos_rect{
+      pos.x,
+      pos.y,
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+}
+
+bool character_choose_ui_system::render() {
+  render_backgrnd();
+  render_button();
+  render_banner();
+  return true;
+}
 
 bool character_choose_ui_system::event(SDL_Event *event) {
   bool r = true;

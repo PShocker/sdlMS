@@ -9,6 +9,7 @@
 #include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/sound_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
 #include "src/client/system/render/tile_render_system.h"
 #include "src/client/system/system.h"
@@ -49,11 +50,13 @@ void character_choose_system_instance::enter() {
   };
   system::render_systems = {
       render_game,
+      character_choose_ui_system::render,
+      cursor_render_system::render,
   };
   system::event_systems = {
       character_choose_ui_system::event,
   };
   auto &camera = camera_game_instance::camera;
-  camera.x = -80;
-  camera.y = -395;
+  camera.x = -80 - camera.w / 2;
+  camera.y = -395 - camera.h / 2;
 }
