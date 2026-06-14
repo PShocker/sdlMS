@@ -192,10 +192,7 @@ bool login_ui_system::render() {
   return true;
 }
 
-bool login_ui_system::login_animate() {
-  const auto x = -80;
-  const auto y = -479;
-
+bool login_ui_system::camera_animate(float x, float y) {
   auto &camera = camera_game_instance::camera;
   auto prev_x = camera.x;
   auto next_x = x - camera.w / 2; // 人物移动后新的摄像机坐标
@@ -214,11 +211,18 @@ bool login_ui_system::login_animate() {
   camera.y = std::lerp(prev_y, next_y, t);
 
   if (std::roundf(camera.x) == next_x && std::roundf(camera.y) == next_y) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool login_ui_system::login_animate() {
+  if (camera_animate(-80, -479)) {
     character_choose_system_instance::enter();
     return false;
-  } else {
-    return true;
   }
+  return true;
 }
 
 void login_ui_system::event_button_login() {

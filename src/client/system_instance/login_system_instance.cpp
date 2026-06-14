@@ -38,9 +38,9 @@ bool login_system_instance::render_game() {
 }
 
 void login_system_instance::enter() {
-  static auto image = wz_resource::ui->find(u"MapLogin.img");
   auto fn = &login_system_instance::render_game;
   if (!std::ranges::contains(system::render_systems, fn)) {
+    static auto image = wz_resource::ui->find(u"MapLogin.img");
     backgrnd_game_instance::load(image);
     obj_game_instance::load(image);
     tile_game_instance::load(image);

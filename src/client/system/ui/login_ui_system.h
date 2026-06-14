@@ -24,6 +24,8 @@ private:
 
   static bool event_button(SDL_Event *event);
 public:
+  static bool camera_animate(float x,float y);
+
   static bool render();
   static bool event(SDL_Event *event);
 };

@@ -35,7 +35,6 @@ private:
                                     game_character &o_character);
   static void run_walk_action(game_character &g_character);
   static void run_climb_action(game_character &g_character);
-  static bool run_animate(game_character &g_character);
   static void run_face_animate(game_character &g_character);
   static bool run_flip(game_character &g_character);
   static void run_pick(game_character &g_character);
@@ -65,8 +64,8 @@ private:
   static void run_others();
 
 public:
+  static bool run_animate(game_character &g_character);
   static void run_network_die_sync(game_character &g_character);
-
   static void run_network_sync(game_character &g_character,
                                game_character &o_character);
   static bool run_action(game_character &g_character,

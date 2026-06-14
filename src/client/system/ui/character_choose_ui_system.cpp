@@ -4,6 +4,8 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/character_create_ui_system.h"
+#include "src/client/system_instance/chatacter_create_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -113,34 +115,30 @@ bool character_choose_ui_system::render() {
 }
 
 void character_choose_ui_system::event_button_select() {}
-void character_choose_ui_system::event_button_new() {}
+
+void character_choose_ui_system::event_button_new() {
+  system::logic_systems.push_back(new_animate);
+  system::render_systems = {
+      login_system_instance::render_game,
+      character_create_ui_system::render,
+      cursor_render_system::render,
+  };
+  system::event_systems = {};
+}
 void character_choose_ui_system::event_button_delete() {}
 
+bool character_choose_ui_system::new_animate() {
+  if (login_ui_system::camera_animate(-80, -1294)) {
+    chatacter_create_system_instance::enter();
+    return false;
+  }
+  return true;
+}
+
 bool character_choose_ui_system::back_animate() {
-  const auto x = -80;
-  const auto y = 1023;
-
-  auto &camera = camera_game_instance::camera;
-  auto prev_x = camera.x;
-  auto next_x = x - camera.w / 2; // 人物移动后新的摄像机坐标
-  auto delta_x = next_x - prev_x;
-
-  camera.x = (std::lerp(prev_x, next_x, std::abs(delta_x) / 6000.0f));
-
-  auto prev_y = camera.y;
-  auto next_y = y - camera.h / 2; // 人物移动后新的摄像机坐标
-  auto delta_y = next_y - prev_y;
-
-  const float MIN_T = 0.2f; // 最小lerp系数
-  float t = std::abs(delta_y) / 6000.0f;
-  t = std::max(t, MIN_T);
-
-  camera.y = std::lerp(prev_y, next_y, t);
-  if (std::roundf(camera.x) == next_x && std::roundf(camera.y) == next_y) {
+  if (login_ui_system::camera_animate(-80, 1023)) {
     login_system_instance::enter();
     return false;
-  } else {
-    return true;
   }
   return true;
 }

@@ -1,6 +1,6 @@
 #pragma once
 
-class character_choose_system_instance {
+class chatacter_create_system_instance {
 public:
   static void enter();
 };
