@@ -12,7 +12,7 @@ void cursor_game_instance::server_cursor_drop(const DropT &dt) {
     }
     case cursor_game_instance::package: {
       if (hand.val == 0) {
-        package_game_instance::equips[hand.val2] = std::nullopt;
+        package_game_instance::equips[hand.sub_val] = std::nullopt;
       } else {
         std::vector<std::optional<game_item>> *r;
         switch (hand.val) {
@@ -36,7 +36,7 @@ void cursor_game_instance::server_cursor_drop(const DropT &dt) {
           break;
         }
         }
-        r->at(hand.val2) = std::nullopt;
+        r->at(hand.sub_val) = std::nullopt;
       }
       break;
     }

@@ -352,7 +352,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       if (active_tab == 0) {
         auto equips = package_game_instance::equips;
         if (index.has_value()) {
-          if (hand.val2 == index.value()) {
+          if (hand.sub_val == index.value()) {
             auto &self = character_game_instance::self;
             auto equip = equips[index.value()].value();
             auto ev = equip_game_instance::load_equip_slot(equip, self);
@@ -360,7 +360,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
             blank_slot.push_back(index.value());
             std::ranges::sort(blank_slot);
             if (blank_slot.size() >= ev.size()) {
-              equips[hand.val2] = std::nullopt;
+              equips[hand.sub_val] = std::nullopt;
               for (int32_t i = 0; i < ev.size(); i++) {
                 equips[blank_slot[i]] = ev[i];
               }
@@ -375,7 +375,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
               // 无空闲位置
             }
           } else {
-            std::swap(equips[hand.val2], equips[index.value()]);
+            std::swap(equips[hand.sub_val], equips[index.value()]);
           }
           package_game_instance::equips = equips;
         }
@@ -403,9 +403,9 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         }
         }
         if (index.has_value()) {
-          if (hand.val2 == index.value()) {
+          if (hand.sub_val == index.value()) {
           } else {
-            std::swap(r->at(hand.val2), r->at(index.value()));
+            std::swap(r->at(hand.sub_val), r->at(index.value()));
           }
         }
       }
@@ -450,7 +450,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     cursor_game_instance::cursor_hand = cursor_game_instance::cursor_hand_data{
         .type = cursor_game_instance::package,
         .val = active_tab,
-        .val2 = index.value(),
+        .sub_val = index.value(),
     };
   }
   return true;

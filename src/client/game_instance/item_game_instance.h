@@ -5,6 +5,8 @@
 #include <string>
 class item_game_instance {
 public:
+  static bool check_item(const std::u16string &id);
+
   static std::u16string load_item_name(const std::u16string &id);
   static std::u16string load_item_desc(const std::u16string &id);
   static std::u16string load_item_type(const std::u16string &id);

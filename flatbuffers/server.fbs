@@ -70,3 +70,7 @@ table ServerCharacterPick {
     client_id:uint64;
     random_id:uint64;
 }
+
+table ServerMobDrop {
+    payload:[Drop];
+}

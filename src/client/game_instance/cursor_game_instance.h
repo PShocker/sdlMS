@@ -28,7 +28,7 @@ public:
   struct cursor_hand_data {
     cursor_hand_type type;
     uint32_t val;
-    uint32_t val2;
+    uint32_t sub_val;
   };
 
   static inline std::optional<uint64_t> cursor_hand_drop_id;

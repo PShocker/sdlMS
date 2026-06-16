@@ -22,12 +22,12 @@ void cursor_render_system::render_item() {
     }
     case cursor_game_instance::package: {
       if (hand.val == 0) {
-        auto equip = package_game_instance::equips[hand.val2];
+        auto equip = package_game_instance::equips[hand.sub_val];
         auto info = equip_game_instance::load_equip_info(equip.value().id);
         auto icon = wz_resource::load_texture(info->get_child(u"iconRaw"));
         SDL_FRect pos_rect{
-            window::mouse_pos.x - icon->w / 2,
-            window::mouse_pos.y - icon->h / 2,
+            window::mouse_pos.x - (float)icon->w / 2,
+            window::mouse_pos.y - (float)icon->h / 2,
             static_cast<float>(icon->w),
             static_cast<float>(icon->h),
         };
@@ -57,7 +57,7 @@ void cursor_render_system::render_item() {
           break;
         }
         }
-        auto item = r->at(hand.val2).value();
+        auto item = r->at(hand.sub_val).value();
         auto info = item_game_instance::load_item_info(item.id);
         auto icon = wz_resource::load_texture(info->get_child(u"iconRaw"));
         SDL_FRect pos_rect{

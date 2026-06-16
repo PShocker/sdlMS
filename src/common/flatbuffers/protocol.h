@@ -48,11 +48,12 @@ enum NetPayload : uint8_t {
   NetPayload_ServerMobLogic = 22,
   NetPayload_ServerMobAttack = 23,
   NetPayload_ServerCharacterPick = 24,
+  NetPayload_ServerMobDrop = 25,
   NetPayload_MIN = NetPayload_NONE,
-  NetPayload_MAX = NetPayload_ServerCharacterPick
+  NetPayload_MAX = NetPayload_ServerMobDrop
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[25] {
+inline const NetPayload (&EnumValuesNetPayload())[26] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -78,13 +79,14 @@ inline const NetPayload (&EnumValuesNetPayload())[25] {
     NetPayload_ServerCharacter,
     NetPayload_ServerMobLogic,
     NetPayload_ServerMobAttack,
-    NetPayload_ServerCharacterPick
+    NetPayload_ServerCharacterPick,
+    NetPayload_ServerMobDrop
   };
   return values;
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[26] = {
+  static const char * const names[27] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -110,13 +112,14 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerMobLogic",
     "ServerMobAttack",
     "ServerCharacterPick",
+    "ServerMobDrop",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameNetPayload(NetPayload e) {
-  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerCharacterPick)) return "";
+  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerMobDrop)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNetPayload()[index];
 }
@@ -221,6 +224,10 @@ template<> struct NetPayloadTraits<fbs::ServerCharacterPick> {
   static const NetPayload enum_value = NetPayload_ServerCharacterPick;
 };
 
+template<> struct NetPayloadTraits<fbs::ServerMobDrop> {
+  static const NetPayload enum_value = NetPayload_ServerMobDrop;
+};
+
 template<typename T> struct NetPayloadUnionTraits {
   static const NetPayload enum_value = NetPayload_NONE;
 };
@@ -319,6 +326,10 @@ template<> struct NetPayloadUnionTraits<fbs::ServerMobAttackT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerCharacterPickT> {
   static const NetPayload enum_value = NetPayload_ServerCharacterPick;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerMobDropT> {
+  static const NetPayload enum_value = NetPayload_ServerMobDrop;
 };
 
 struct NetPayloadUnion {
@@ -543,6 +554,14 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerCharacterPick ?
       reinterpret_cast<const fbs::ServerCharacterPickT *>(value) : nullptr;
   }
+  fbs::ServerMobDropT *AsServerMobDrop() {
+    return type == NetPayload_ServerMobDrop ?
+      reinterpret_cast<fbs::ServerMobDropT *>(value) : nullptr;
+  }
+  const fbs::ServerMobDropT *AsServerMobDrop() const {
+    return type == NetPayload_ServerMobDrop ?
+      reinterpret_cast<const fbs::ServerMobDropT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -641,6 +660,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerCharacterPick *payload_as_ServerCharacterPick() const {
     return payload_type() == fbs::NetPayload_ServerCharacterPick ? static_cast<const fbs::ServerCharacterPick *>(payload()) : nullptr;
   }
+  const fbs::ServerMobDrop *payload_as_ServerMobDrop() const {
+    return payload_type() == fbs::NetPayload_ServerMobDrop ? static_cast<const fbs::ServerMobDrop *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::ClientHeartbeat *mutable_payload_as_ClientHeartbeat() {
     return payload_type() == fbs::NetPayload_ClientHeartbeat ? static_cast<fbs::ClientHeartbeat *>(mutable_payload()) : nullptr;
@@ -713,6 +735,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerCharacterPick *mutable_payload_as_ServerCharacterPick() {
     return payload_type() == fbs::NetPayload_ServerCharacterPick ? static_cast<fbs::ServerCharacterPick *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerMobDrop *mutable_payload_as_ServerMobDrop() {
+    return payload_type() == fbs::NetPayload_ServerMobDrop ? static_cast<fbs::ServerMobDrop *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -922,6 +947,14 @@ template<> inline fbs::ServerCharacterPick *NetPacket::mutable_payload_as<fbs::S
   return mutable_payload_as_ServerCharacterPick();
 }
 
+template<> inline const fbs::ServerMobDrop *NetPacket::payload_as<fbs::ServerMobDrop>() const {
+  return payload_as_ServerMobDrop();
+}
+
+template<> inline fbs::ServerMobDrop *NetPacket::mutable_payload_as<fbs::ServerMobDrop>() {
+  return mutable_payload_as_ServerMobDrop();
+}
+
 struct NetPacketBuilder {
   typedef NetPacket Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
@@ -1086,6 +1119,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ServerCharacterPick *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ServerMobDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDrop *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -1202,6 +1239,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerCharacterPick *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ServerMobDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDrop *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -1305,6 +1346,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerCharacterPickT *>(value);
       return CreateServerCharacterPick(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ServerMobDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDropT *>(value);
+      return CreateServerMobDrop(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -1405,6 +1450,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ServerCharacterPick: {
       value = new fbs::ServerCharacterPickT(*reinterpret_cast<fbs::ServerCharacterPickT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerMobDrop: {
+      value = new fbs::ServerMobDropT(*reinterpret_cast<fbs::ServerMobDropT *>(u.value));
       break;
     }
     default:
@@ -1531,6 +1580,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerCharacterPick: {
       auto ptr = reinterpret_cast<fbs::ServerCharacterPickT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerMobDrop: {
+      auto ptr = reinterpret_cast<fbs::ServerMobDropT *>(value);
       delete ptr;
       break;
     }

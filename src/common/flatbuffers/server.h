@@ -73,6 +73,10 @@ struct ServerCharacterPick;
 struct ServerCharacterPickBuilder;
 struct ServerCharacterPickT;
 
+struct ServerMobDrop;
+struct ServerMobDropBuilder;
+struct ServerMobDropT;
+
 struct ServerHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ServerHeartbeat TableType;
 };
@@ -1147,6 +1151,77 @@ inline ::flatbuffers::Offset<ServerCharacterPick> CreateServerCharacterPick(
 
 ::flatbuffers::Offset<ServerCharacterPick> CreateServerCharacterPick(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPickT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerMobDropT : public ::flatbuffers::NativeTable {
+  typedef ServerMobDrop TableType;
+  std::vector<std::unique_ptr<fbs::DropT>> payload{};
+  ServerMobDropT() = default;
+  ServerMobDropT(const ServerMobDropT &o);
+  ServerMobDropT(ServerMobDropT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobDropT &operator=(ServerMobDropT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobDropT NativeTableType;
+  typedef ServerMobDropBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PAYLOAD = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobDropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobDropT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobDrop> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobDropBuilder {
+  typedef ServerMobDrop Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> payload) {
+    fbb_.AddOffset(ServerMobDrop::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobDropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobDrop> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobDrop>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> payload = 0) {
+  ServerMobDropBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDropDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<fbs::Drop>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*payload) : 0;
+  return fbs::CreateServerMobDrop(
+      _fbb,
+      payload__);
+}
+
+::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -1674,6 +1749,42 @@ inline ::flatbuffers::Offset<ServerCharacterPick> ServerCharacterPick::Pack(::fl
       _fbb,
       _client_id,
       _random_id);
+}
+
+inline ServerMobDropT::ServerMobDropT(const ServerMobDropT &o) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::DropT(*payload_) : nullptr); }
+}
+
+inline ServerMobDropT &ServerMobDropT::operator=(ServerMobDropT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerMobDropT *ServerMobDrop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobDropT>(new ServerMobDropT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobDrop::UnPackTo(ServerMobDropT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobDrop::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobDrop> ServerMobDrop::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobDropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerMobDrop(
+      _fbb,
+      _payload);
 }
 
 }  // namespace fbs

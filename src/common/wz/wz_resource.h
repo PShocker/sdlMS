@@ -28,6 +28,7 @@ public:
 
   // patch
   static inline wz::File *string2;
+  static inline wz::File *drop;
 
   static void init();
   static std::string load_map_path(uint32_t map_id);

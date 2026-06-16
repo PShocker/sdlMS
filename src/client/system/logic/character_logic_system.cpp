@@ -732,7 +732,7 @@ bool character_logic_system::run_portal(game_character &g_character) {
   // 特殊情况，如果掉到了地图外,直接传送到sp出生点
   auto border =
       map_info_game_instance::load_mr_border(scene_system_instance::map_id);
-  if (border.has_value() && g_character.pos.y >= border->h) {
+  if (g_character.pos.y >= border.h) {
     // no change map
     const auto &tn = portal_game_instance::data.find(u"sp")->second;
     g_character.pos = tn.pos;

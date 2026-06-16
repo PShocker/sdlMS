@@ -34,4 +34,7 @@ public:
   std::vector<game_effect> effect;
 
   std::optional<game_gauge> gauge;
+
+  // 人物总共打出的伤害，分配经验，伤害统计
+  uint64_t attack_val = 0;
 };

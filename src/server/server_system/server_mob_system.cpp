@@ -1,20 +1,54 @@
 #include "server_mob_system.h"
 #include "SDL3/SDL_rect.h"
+#include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/physic/physic.h"
 #include "src/common/response/server_response.h"
+#include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_client_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
+#include "wz/Property.h"
 #include <chrono>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
+#include <memory>
 #include <ranges>
 #include <string>
+#include <utility>
+#include <vector>
+
+std::vector<server_mob_system::mob_drop>
+server_mob_system::load_mob_drops(server_mob &s_mob) {
+  static std::flat_map<std::u16string, std::vector<mob_drop>> cache;
+  if (!cache.contains(s_mob.id)) {
+    auto node =
+        wz_resource::drop->get_root()->find(u"Mob/" + s_mob.id + u".img");
+    for (auto [k, v] : *node->get_children()) {
+      auto min_quantity =
+          static_cast<wz::Property<int> *>(v[0]->get_child(u"min_quantity"))
+              ->get();
+      auto max_quantity =
+          static_cast<wz::Property<int> *>(v[0]->get_child(u"max_quantity"))
+              ->get();
+      auto chance =
+          static_cast<wz::Property<int> *>(v[0]->get_child(u"chance"))->get();
+      mob_drop md;
+      md.id = k;
+      md.min_quantity = min_quantity;
+      md.max_quantity = max_quantity;
+      md.rate = chance / 1000000.0f;
+      cache[s_mob.id].push_back(md);
+    }
+  }
+  return cache.at(s_mob.id);
+}
 
 void server_mob_system::run_network_movement_sync(server_mob &s_mob,
                                                   server_mob &o_mob) {
@@ -72,10 +106,10 @@ void server_mob_system::run_network_sync(server_mob &s_mob, server_mob &o_mob) {
 
 void server_mob_system::run_walk(server_mob &s_mob) {
   // 移动
-  auto s_fhs = server_scene_instance::scenes.at(map_id).fhs;
+  const auto &s_fhs = server_scene_instance::scenes.at(map_id).fhs;
   std::flat_map<int32_t, game_foothold> g_fhs;
-  for (auto [key, value] : s_fhs) {
-    g_fhs.emplace(key, std::move(value.fh)); // 移动避免拷贝s
+  for (const auto &[key, value] : s_fhs) {
+    g_fhs.emplace(key, value.fh);
   }
 
   SDL_FRect border;
@@ -176,6 +210,79 @@ void server_mob_system::run_die_action(server_mob &s_mob) {
   s_mob.action = u"die1";
 }
 
+void server_mob_system::run_network_drop_sync(server_mob &s_mob) {
+  ServerMobDropT smd;
+  auto mob_drops = load_mob_drops(s_mob);
+  for (const auto &drop : mob_drops) {
+    auto &gen = random_game_instance::gen;
+    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+    bool success = dis(gen) <= drop.rate;
+    if (success) {
+      auto min_quantity = drop.min_quantity;
+      auto max_quantity = drop.max_quantity;
+      std::uniform_int_distribution<int> dis(min_quantity, max_quantity);
+      int random_num = dis(gen);
+      DropT dt;
+      dt.x1 = s_mob.pos.x;
+      dt.y1 = s_mob.pos.y;
+      dt.page = s_mob.page;
+      std::uniform_int_distribution<uint64_t> dist;
+      dt.random_id = dist(gen);
+      if (item_game_instance::check_item(drop.id)) {
+        ItemT it;
+        it.item_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
+        it.item_num = random_num;
+        dt.drop.Set(it);
+      } else {
+        EquipT et;
+        et.equip_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
+        dt.drop.Set(et);
+      }
+      smd.payload.push_back(std::make_unique<DropT>(dt));
+    }
+  }
+  auto drop_size = smd.payload.size();
+  if (drop_size == 0) {
+    return;
+  }
+  auto border = map_info_game_instance::load_mr_border(map_id);
+  const auto w = 32;
+  int mid = drop_size / 2;
+  float offset = (drop_size % 2 == 0) ? 0.5f : 0.0f;
+  const auto &s_fhs = server_scene_instance::scenes.at(map_id).fhs;
+  std::flat_map<int32_t, game_foothold> g_fhs;
+  for (const auto &[key, value] : s_fhs) {
+    g_fhs.emplace(key, value.fh);
+  }
+  for (size_t n = 0; n < smd.payload.size(); n++) {
+    float centerX = (n - mid + offset) * (w);
+    float x = centerX - w / 2.0f;
+    auto &d = smd.payload[n];
+    d->x2 = d->x1 + x;
+    d->y2 = d->y1 - 100;
+
+    int32_t tmp_fh;
+    uint8_t tmp_page;
+    float tmp_hsp = 0;
+    float tmp_vsp = 10000;
+    SDL_FPoint tmp_fp{d->x2, d->y2};
+    physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
+                 true, true, tmp_fh, tmp_page, g_fhs);
+    d->x2 = tmp_fp.x;
+    d->y2 = tmp_fp.y;
+  }
+  auto &clients = server_scene_instance::scenes[map_id].clients;
+  for (auto client_id : clients) {
+    server_response::send_to_client(client_id, smd);
+  }
+}
+
+void server_mob_system::run_die(server_mob &s_mob) {
+  s_mob.hate_id = 0;
+  run_die_action(s_mob);
+  run_network_drop_sync(s_mob);
+}
+
 bool server_mob_system::run_beat(server_mob &s_mob) {
   if (s_mob.beats.empty()) {
     return false;
@@ -195,8 +302,7 @@ bool server_mob_system::run_beat(server_mob &s_mob) {
         s_mob.hate_id = beat.beat_id;
         run_hit_action(s_mob);
       } else {
-        s_mob.hate_id = 0;
-        run_die_action(s_mob);
+        run_die(s_mob);
       }
       return true;
     } else {

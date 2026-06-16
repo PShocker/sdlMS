@@ -198,7 +198,7 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
           case cursor_game_instance::package: {
             auto active_tab = cursor_hand->val;
             if (active_tab == 0) {
-              auto equip = package_game_instance::equips[cursor_hand->val2];
+              auto equip = package_game_instance::equips[cursor_hand->sub_val];
               DropT dt;
               EquipT et;
               et.equip_id =
@@ -236,9 +236,6 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
               client_request::send_to_host(cct);
 
               cursor_game_instance::cursor_hand_drop_id = dt.random_id;
-
-              // package_game_instance::equips[cursor_hand->val2] =
-              // std::nullopt;
             } else {
               std::vector<std::optional<game_item>> *r;
               switch (active_tab) {

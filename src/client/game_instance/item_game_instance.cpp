@@ -7,6 +7,14 @@
 #include <ranges>
 #include <string>
 
+bool item_game_instance::check_item(const std::u16string &id) {
+  auto r = id.substr(0, 2);
+  if (r == u"01") {
+    return false;
+  }
+  return true;
+}
+
 std::u16string item_game_instance::load_item_name(const std::u16string &id) {
   auto item_type = load_item_type(id);
   auto str_node = wz_resource::string->find(item_type + u".img");

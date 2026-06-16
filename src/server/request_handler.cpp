@@ -204,7 +204,12 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterPick();
     fbs::ServerCharacterPickT r;
     payload->UnPackTo(&r);
-    
+    break;
+  }
+  case NetPayload_ServerMobDrop: {
+    auto payload = packet->payload_as_ServerMobDrop();
+    fbs::ServerMobDropT r;
+    payload->UnPackTo(&r);
     break;
   }
   default:

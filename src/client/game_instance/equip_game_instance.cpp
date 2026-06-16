@@ -9,6 +9,14 @@
 #include <string>
 #include <vector>
 
+bool equip_game_instance::check_equip(const std::u16string &id) {
+  auto r = id.substr(0, 2);
+  if (r == u"01") {
+    return true;
+  }
+  return false;
+}
+
 std::u16string equip_game_instance::load_equip_type(const std::u16string &id) {
   const auto result = id.substr(1, 3);
   static const std::flat_map<std::u16string, std::u16string> equip_type = {

@@ -188,4 +188,6 @@ table Drop{
     y2:float;
 
     page:uint8;
+    
+    timestamp:uint64;
 }
