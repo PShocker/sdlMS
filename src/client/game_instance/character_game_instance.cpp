@@ -895,9 +895,6 @@ void character_game_instance::add_glove(game_character &g,
         auto format2 = std::to_string(frame);
         auto body_frame_node = v[0]->get_child(format2);
         if (body_frame_node == nullptr) {
-          character_avatar c;
-          c.texture = nullptr;
-          r.data[k][frame].push_back(c);
           continue;
         }
         for (auto [bk, bv] : *body_frame_node->get_children()) {
