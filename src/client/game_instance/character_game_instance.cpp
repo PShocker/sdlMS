@@ -875,7 +875,7 @@ void character_game_instance::add_glove(game_character &g,
   if (!avatar_data.contains(val)) {
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
-    auto glove_node = character_node->find(u"Cape/" + val + u".img");
+    auto glove_node = character_node->find(u"Glove/" + val + u".img");
     r.islot = static_cast<wz::Property<std::u16string> *>(
                   glove_node->find(u"info/islot"))
                   ->get();
@@ -894,6 +894,9 @@ void character_game_instance::add_glove(game_character &g,
       for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
         auto format2 = std::to_string(frame);
         auto body_frame_node = v[0]->get_child(format2);
+        if (body_frame_node == nullptr) {
+          continue;
+        }
         for (auto [bk, bv] : *body_frame_node->get_children()) {
           auto part_node = bv[0];
           if (part_node->type == wz::Type::UOL) {
