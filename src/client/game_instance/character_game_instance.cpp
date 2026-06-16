@@ -415,12 +415,29 @@ void character_game_instance::add_head(game_character &g,
                            ->get();
             c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
             c.pos = bone_data[k][frame].part_pos.at(bk);
+            c.name = bk;
             r.data[k][frame].push_back(c);
           }
         }
       }
     }
   }
+}
+
+void character_game_instance::add_ear(game_character &g,
+                                      const std::u16string &val) {
+  std::flat_set<std::u16string> hide_ear = {
+      u"humanEar",
+      u"ear",
+      u"lefEar",
+      u"highlefEar",
+  };
+  // 从 hide_part 中移除所有耳朵
+  for (const auto &ear : hide_ear) {
+    g.hide_part.erase(ear);
+  }
+  hide_ear.erase(val);
+  g.hide_part.insert_range(hide_ear);
 }
 
 void character_game_instance::add_coat(game_character &g,

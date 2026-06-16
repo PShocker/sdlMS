@@ -31,6 +31,7 @@ public:
 
   std::u16string body;
   std::u16string head;
+  std::u16string ear;
   std::u16string hair;
 
   game_face face;
@@ -76,4 +77,7 @@ public:
   std::u16string job = u"000";
   int32_t fame = 0;
   int32_t level = 0;
+
+  // hide ear
+  std::flat_set<std::u16string> hide_part;
 };

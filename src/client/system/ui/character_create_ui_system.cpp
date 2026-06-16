@@ -318,6 +318,7 @@ void character_create_ui_system::reset_character(bool g) {
   auto &g_character = character_create_ui_system::g_character;
   character_game_instance::add_body(g_character, u"00002000");
   character_game_instance::add_head(g_character, u"00012000");
+  character_game_instance::add_ear(g_character, u"humanEar");
   character_game_instance::add_face(g_character, load_default_face()[0]);
   character_game_instance::add_hair(g_character, load_default_hair()[0]);
   character_game_instance::add_coat(g_character, load_default_top()[0]);
@@ -463,9 +464,9 @@ void character_create_ui_system::event_button_skin_color_next() {
 std::vector<std::u16string> character_create_ui_system::load_default_top() {
   std::vector<std::u16string> tops;
   if (!gender) {
-    tops = {u"00104001", u"00104002", u"00104003"};
+    tops = {u"01040001", u"01040002", u"01040003"};
   } else {
-    tops = {u"00104101", u"00104102", u"00104103", u"00104104"};
+    tops = {u"01041001", u"01041002", u"01041003", u"01041004"};
   }
   return tops;
 }
@@ -499,9 +500,9 @@ void character_create_ui_system::event_button_top_next() {
 std::vector<std::u16string> character_create_ui_system::load_default_bottom() {
   std::vector<std::u16string> bottom;
   if (!gender) {
-    bottom = {u"00106001", u"00106002"};
+    bottom = {u"01060001", u"01060002"};
   } else {
-    bottom = {u"00106101", u"00106102"};
+    bottom = {u"01061001", u"01061002"};
   }
   return bottom;
 }

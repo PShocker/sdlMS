@@ -94,7 +94,9 @@ bool character_render_system::render_character(game_character &g_character) {
           // 如果装备部分没有遮挡,占据cover栏
           smaps_inter.insert_range(smaps_inter2);
           // 放入渲染队列里面
-          renders.emplace(pt.z, &pt);
+          if (!g_character.hide_part.contains(pt.name)) {
+            renders.emplace(pt.z, &pt);
+          }
         }
       }
       smaps_cover.insert_range(smaps_inter);

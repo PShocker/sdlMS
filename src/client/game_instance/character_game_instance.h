@@ -25,6 +25,7 @@ struct character_avatar {
   SDL_FPoint origin;
   SDL_FPoint pos;
   std::u16string z;
+  std::u16string name = u"";
 };
 
 struct character_avatar_render {
@@ -92,6 +93,7 @@ public:
   static void add_cap(game_character &g, const std::u16string &val);
   static void add_pants(game_character &g, const std::u16string &val);
   static void add_head(game_character &g, const std::u16string &val);
+  static void add_ear(game_character &g, const std::u16string &val);
   static void add_face(game_character &g, const std::u16string &val);
   static void add_hair(game_character &g, const std::u16string &val);
   static void add_shoes(game_character &g, const std::u16string &val);
