@@ -115,6 +115,9 @@ bool character_render_system::render_character(game_character &g_character) {
         const character_avatar *avatar = it->second;
         // 处理 avatar
         auto texture = avatar->texture;
+        if (texture == nullptr) {
+          continue;
+        }
         auto origin = avatar->origin;
         SDL_FRect pos_rect = {
             .x = g_character.pos.x + avatar->pos.x - origin.x,
