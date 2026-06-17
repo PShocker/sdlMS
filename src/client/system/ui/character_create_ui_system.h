@@ -25,6 +25,20 @@ private:
   static void render_character();
   static void render_custom();
 
+  enum class choose_type {
+    gender,
+    face,
+    hairstyle,
+    haircolor,
+    skin,
+    top,
+    bottom,
+    shoes,
+    weapon,
+  };
+
+  static void render_custom_item(float cx, float cy, choose_type type);
+
   static void event_button_gender_prev();
   static void event_button_gender_next();
 
@@ -59,14 +73,16 @@ private:
 
   static bool event_button(SDL_Event *event);
 
+public:
   static inline int str_point;
   static inline int dex_point;
   static inline int int_point;
   static inline int luk_point;
+  static inline int remain_point;
 
   static inline int gender;
+  static inline int choose_index;
 
-public:
   static void reset_character(bool g);
   static bool render();
   static bool event(SDL_Event *event);

@@ -1000,7 +1000,7 @@ void character_game_instance::add_shoes(game_character &g,
   if (!avatar_data.contains(val)) {
     character_avatar_render &r = avatar_data[val];
     auto character_node = wz_resource::character;
-    auto shoes_node = character_node->find(u"Longcoat/" + val + u".img");
+    auto shoes_node = character_node->find(u"Shoes/" + val + u".img");
     r.islot = static_cast<wz::Property<std::u16string> *>(
                   shoes_node->find(u"info/islot"))
                   ->get();

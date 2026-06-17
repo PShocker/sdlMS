@@ -27,9 +27,22 @@ void freetype::init() {
 }
 
 float freetype::load_char_w(const char16_t c) {
-  FT_Load_Char(face, c, FT_LOAD_DEFAULT);
-  auto w = face->glyph->advance.x >> 6;
-  return w;
+  static std::flat_map<freetype_cache_key, float> w_cache;
+  freetype_cache_key t{
+      .c = c,
+      .size = size,
+      .r = 0,
+      .g = 0,
+      .b = 0,
+      .a = 0,
+      .bold = bold,
+  };
+  if (!w_cache.contains(t)) {
+    FT_Load_Char(face, c, FT_LOAD_DEFAULT);
+    auto w = face->glyph->advance.x >> 6;
+    w_cache[t] = w;
+  }
+  return w_cache.at(t);
 }
 
 float freetype::load_w(const std::u16string &str) {

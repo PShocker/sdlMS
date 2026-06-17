@@ -1,5 +1,6 @@
 #include "character_create_ui_system.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "login_ui_system.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -13,6 +14,7 @@
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cmath>
@@ -133,6 +135,41 @@ void character_create_ui_system::render_stat() {
       SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
     }
   }
+
+  freetype::load_size(13);
+  freetype::load_aligned(true);
+  freetype::load_color(0, 0, 0, 255);
+  auto str1 = std::to_string(str_point);
+  auto str2 = std::u16string{str1.begin(), str1.end()};
+  auto dx = freetype::load_w(str2);
+  freetype::draw_line(str2, buttons_rect[0].x + 32 - dx / 2,
+                      buttons_rect[0].y - 2);
+
+  auto dex1 = std::to_string(dex_point);
+  auto dex2 = std::u16string{dex1.begin(), dex1.end()};
+  dx = freetype::load_w(dex2);
+  freetype::draw_line(dex2, buttons_rect[2].x + 32 - dx / 2,
+                      buttons_rect[2].y - 2);
+
+  auto int1 = std::to_string(int_point);
+  auto int2 = std::u16string{int1.begin(), int1.end()};
+  dx = freetype::load_w(int2);
+  freetype::draw_line(int2, buttons_rect[4].x + 32 - dx / 2,
+                      buttons_rect[4].y - 2);
+
+  auto luk1 = std::to_string(luk_point);
+  auto luk2 = std::u16string{luk1.begin(), luk1.end()};
+  dx = freetype::load_w(luk2);
+  freetype::draw_line(luk2, buttons_rect[6].x + 32 - dx / 2,
+                      buttons_rect[6].y - 2);
+  freetype::load_bold(true);
+  freetype::load_size(21);
+  auto r1 = std::to_string(remain_point);
+  auto r2 = std::u16string{r1.begin(), r1.end()};
+  freetype::draw_line(r2, buttons_rect[6].x + 98, buttons_rect[6].y - 28);
+  freetype::load_bold(false);
+
+  freetype::load_aligned(false);
 }
 
 void character_create_ui_system::render_character() {
@@ -183,103 +220,218 @@ void character_create_ui_system::render_banner() {
   }
 }
 
+void character_create_ui_system::render_custom_item(float cx, float cy,
+                                                    choose_type type) {
+  std::u16string item_name;
+  SDL_FPoint pos;
+  SDL_Texture *t;
+  bool choose = false;
+  switch (type) {
+  case choose_type::gender: {
+    if (gender) {
+      item_name = u"Female";
+    } else {
+      item_name = u"Male";
+    }
+    if (choose_index == 0) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:gender_selected"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find("Login.img/NewChar/customize/canvas:gender"));
+    }
+    pos = {35, 30};
+    break;
+  }
+  case choose_type::face: {
+    item_name = equip_game_instance::load_equip_name(g_character.face.id);
+    if (choose_index == 1) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:face_selected"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find("Login.img/NewChar/customize/canvas:face"));
+    }
+    pos = {35, 48};
+    break;
+  }
+  case choose_type::hairstyle: {
+    item_name = equip_game_instance::load_equip_name(g_character.hair);
+    if (choose_index == 2) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:hairstyle_selected"));
+    } else {
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:hairstyle"));
+    }
+    pos = {35, 66};
+    break;
+  }
+  case choose_type::haircolor: {
+    static auto haircolor_node =
+        wz_resource::ui->find(u"Login.img/HairColorName");
+    auto back = g_character.hair.back();
+    auto node = haircolor_node->get_child(std::u16string{back});
+    item_name = static_cast<wz::Property<std::u16string> *>(node)->get();
+    if (choose_index == 3) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:haircolor_selected"));
+    } else {
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:haircolor"));
+    }
+    pos = {35, 84};
+    break;
+  }
+  case choose_type::skin: {
+    item_name = equip_game_instance::load_equip_name(g_character.head);
+    if (choose_index == 4) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:skincolor_selected"));
+    } else {
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:skincolor"));
+    }
+    pos = {35, 102};
+    break;
+  }
+  case choose_type::top: {
+    item_name = equip_game_instance::load_equip_name(g_character.coat->id);
+    if (choose_index == 5) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:top_selected"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find("Login.img/NewChar/customize/canvas:top"));
+    }
+    pos = {35, 120};
+    break;
+  }
+  case choose_type::bottom: {
+    item_name = equip_game_instance::load_equip_name(g_character.pant->id);
+    if (choose_index == 6) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:bottom_selected"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find("Login.img/NewChar/customize/canvas:bottom"));
+    }
+    pos = {35, 138};
+    break;
+  }
+  case choose_type::shoes: {
+    item_name = equip_game_instance::load_equip_name(g_character.shoes->id);
+    if (choose_index == 7) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:shoes_selected"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find("Login.img/NewChar/customize/canvas:shoes"));
+    }
+    pos = {35, 156};
+    break;
+  }
+  case choose_type::weapon: {
+    item_name = equip_game_instance::load_equip_name(g_character.weapon->id);
+    if (choose_index == 8) {
+      choose = true;
+      t = wz_resource::load_texture(wz_resource::ui->find(
+          "Login.img/NewChar/customize/canvas:weapon_selected"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find("Login.img/NewChar/customize/canvas:weapon"));
+    }
+    pos = {35, 174};
+    break;
+  }
+  }
+  SDL_FRect pos_rect{
+      cx + pos.x,
+      cy + pos.y,
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+
+  freetype::load_size(13);
+  freetype::load_aligned(true);
+  freetype::load_color(0, 0, 0, 255);
+  auto dx = freetype::load_w(item_name);
+  freetype::draw_line(item_name, pos_rect.x + 175 - dx / 2, pos_rect.y);
+  freetype::load_aligned(false);
+
+  static auto prev_button =
+      wz_resource::ui->find("Login.img/NewChar/customize/button:gender_prev");
+
+  static auto next_button =
+      wz_resource::ui->find("Login.img/NewChar/customize/button:gender_next");
+  if (choose) {
+    std::vector<wz::Node *> buttons_nodes = {prev_button, next_button};
+    std::vector<SDL_FRect> buttons_rect = {
+        SDL_FRect{cx + pos.x + 95, cy + pos.y, 16, 17},  //
+        SDL_FRect{cx + pos.x + 235, cy + pos.y, 16, 17}, //
+    };
+    for (size_t i = 0; i < buttons_nodes.size(); ++i) {
+      auto k = buttons_nodes[i];
+      auto pos_rect = buttons_rect[i];
+      pos_rect.x = (int)pos_rect.x;
+      pos_rect.y = (int)pos_rect.y;
+      auto &mouse_pos = window::mouse_pos;
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+        if (window::mouse_state & SDL_BUTTON_LMASK) {
+          auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+          SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+        } else {
+          auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+          SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        }
+      } else {
+        auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+        SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      }
+    }
+  }
+}
+
 void character_create_ui_system::render_custom() {
   static auto backgrnd = wz_resource::load_texture(
       wz_resource::ui->find(u"Login.img/NewChar/customize/animOpen/3"));
   auto pos = load_pos();
+  auto &camera = camera_game_instance::camera;
+  auto cx = -440 - camera.x;
+  auto cy = -1370 - camera.y;
   SDL_FRect pos_rect{
-      pos.x + 160,
-      pos.y + 85,
+      cx,
+      cy,
       static_cast<float>(backgrnd->w),
       static_cast<float>(backgrnd->h),
   };
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 
-  static auto gender_t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/NewChar/customize/canvas:gender"));
-  pos_rect = {
-      pos_rect.x + 160,
-      pos_rect.y + 85,
-      static_cast<float>(backgrnd->w),
-      static_cast<float>(backgrnd->h),
-  };
-  SDL_RenderTexture(window::renderer, gender_t, nullptr, &pos_rect);
-
-  static auto face_t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/NewChar/customize/canvas:face"));
-  pos_rect = {
-      pos_rect.x + 160,
-      pos_rect.y + 85,
-      static_cast<float>(backgrnd->w),
-      static_cast<float>(backgrnd->h),
-  };
-  SDL_RenderTexture(window::renderer, face_t, nullptr, &pos_rect);
-
-  static auto hairstyle_t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/NewChar/customize/canvas:hairstyle"));
-  pos_rect = {
-      pos_rect.x + 160,
-      pos_rect.y + 85,
-      static_cast<float>(backgrnd->w),
-      static_cast<float>(backgrnd->h),
-  };
-  SDL_RenderTexture(window::renderer, hairstyle_t, nullptr, &pos_rect);
-
-  static auto haircolor_t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/NewChar/customize/canvas:haircolor"));
-  pos_rect = {
-      pos_rect.x + 160,
-      pos_rect.y + 85,
-      static_cast<float>(backgrnd->w),
-      static_cast<float>(backgrnd->h),
-  };
-  SDL_RenderTexture(window::renderer, haircolor_t, nullptr, &pos_rect);
-
-  static auto skincolor_t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/NewChar/customize/canvas:skincolor"));
-  pos_rect = {
-      pos_rect.x + 160,
-      pos_rect.y + 85,
-      static_cast<float>(backgrnd->w),
-      static_cast<float>(backgrnd->h),
-  };
-  SDL_RenderTexture(window::renderer, skincolor_t, nullptr, &pos_rect);
-
-  static auto top_t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Login.img/NewChar/customize/canvas:top"));
-  pos_rect = {
-      pos_rect.x + 160,
-      pos_rect.y + 85,
-      static_cast<float>(top_t->w),
-      static_cast<float>(top_t->h),
-  };
-  SDL_RenderTexture(window::renderer, top_t, nullptr, &pos_rect);
-
-  const auto &character = g_character;
-  auto face_id = character.face.id;
-  auto head_id = character.head;
-  auto body_id = character.body;
-  auto hair_id = character.hair;
-
-  auto cap_id = character.cap->id;
-  auto coat_id = character.coat->id;
-  auto pant_id = character.pant->id;
-  auto weapon_id = character.weapon->id;
-
-  auto face_name = equip_game_instance::load_equip_name(face_id);
-  auto skin_name = equip_game_instance::load_equip_name(head_id);
-  auto hair_name = equip_game_instance::load_equip_name(hair_id);
-
-  auto cap_name = equip_game_instance::load_equip_name(cap_id);
-  auto coat_name = equip_game_instance::load_equip_name(coat_id);
-  auto pant_name = equip_game_instance::load_equip_name(pant_id);
-  auto weapon_name = equip_game_instance::load_equip_name(weapon_id);
+  render_custom_item(cx, cy, choose_type::gender);
+  render_custom_item(cx, cy, choose_type::face);
+  render_custom_item(cx, cy, choose_type::hairstyle);
+  render_custom_item(cx, cy, choose_type::haircolor);
+  render_custom_item(cx, cy, choose_type::skin);
+  render_custom_item(cx, cy, choose_type::top);
+  render_custom_item(cx, cy, choose_type::bottom);
+  render_custom_item(cx, cy, choose_type::shoes);
+  render_custom_item(cx, cy, choose_type::weapon);
 }
 
 bool character_create_ui_system::render() {
   render_stat();
   render_button();
   render_character();
+  render_custom();
   render_backgrnd();
   render_banner();
   return true;
@@ -323,6 +475,7 @@ void character_create_ui_system::reset_character(bool g) {
   character_game_instance::add_hair(g_character, load_default_hair()[0]);
   character_game_instance::add_coat(g_character, load_default_top()[0]);
   character_game_instance::add_pants(g_character, load_default_bottom()[0]);
+  character_game_instance::add_shoes(g_character, load_default_shoes()[0]);
 
   character_game_instance::add_weapon(g_character, load_default_weapon()[0]);
   character_logic_system::run_stand_action(g_character);
@@ -535,7 +688,7 @@ void character_create_ui_system::event_button_bottom_next() {
 
 std::vector<std::u16string> character_create_ui_system::load_default_shoes() {
   std::vector<std::u16string> shoes;
-  shoes = {u"00107200", u"00107201", u"00107202", u"00107203"};
+  shoes = {u"01072000", u"01072001", u"01072002", u"01072003"};
   return shoes;
 }
 

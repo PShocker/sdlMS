@@ -72,18 +72,11 @@ std::u16string equip_game_instance::load_equip_type(const std::u16string &id) {
       {u"149", u"Weapon"},
       {u"160", u"Weapon"},
       {u"170", u"Weapon"},
+      {u"000", u"Body"},
+      {u"001", u"Skin"},
+      {u"002", u"Face"},
+      {u"003", u"Hair"},
   };
-  if (result == u"000") {
-    if (id[4] == u'0') {
-      return u"Body";
-    } else if (id[4] == u'1') {
-      return u"Skin";
-    } else if (id[4] == u'2') {
-      return u"Face";
-    } else if (id[4] == u'3') {
-      return u"Hair";
-    }
-  }
   return equip_type.at(result);
 }
 

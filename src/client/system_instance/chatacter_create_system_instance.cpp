@@ -29,6 +29,11 @@ void chatacter_create_system_instance::enter() {
     tile_game_instance::load(image);
   }
   character_create_ui_system::reset_character(false);
+  character_create_ui_system::str_point = 4;
+  character_create_ui_system::dex_point = 4;
+  character_create_ui_system::int_point = 4;
+  character_create_ui_system::luk_point = 4;
+  character_create_ui_system::remain_point = 9;
   system::logic_systems = {
       backgrnd_logic_system::run,
       obj_logic_system::run,

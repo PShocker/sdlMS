@@ -59,6 +59,11 @@ bool character_render_system::render_character(game_character &g_character) {
         character_game_instance::avatar_data.at(g_character.glove->id);
     render_parts.emplace(glove.islot, &glove);
   }
+  if (g_character.shoes.has_value()) {
+    const auto &shoes =
+        character_game_instance::avatar_data.at(g_character.shoes->id);
+    render_parts.emplace(shoes.islot, &shoes);
+  }
   const std::u16string &action = g_character.action;
 
   auto face = character_game_instance::face_data.at(g_character.face.id)
