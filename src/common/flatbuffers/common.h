@@ -111,6 +111,14 @@ struct Drop;
 struct DropBuilder;
 struct DropT;
 
+struct PlayerSave;
+struct PlayerSaveBuilder;
+struct PlayerSaveT;
+
+struct GameSave;
+struct GameSaveBuilder;
+struct GameSaveT;
+
 enum CharacterLogicType : uint8_t {
   CharacterLogicType_NONE = 0,
   CharacterLogicType_Movement = 1,
@@ -3091,6 +3099,164 @@ inline ::flatbuffers::Offset<Drop> CreateDrop(
 
 ::flatbuffers::Offset<Drop> CreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const DropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct PlayerSaveT : public ::flatbuffers::NativeTable {
+  typedef PlayerSave TableType;
+  std::string username{};
+  std::unique_ptr<fbs::CharacterT> character{};
+  PlayerSaveT() = default;
+  PlayerSaveT(const PlayerSaveT &o);
+  PlayerSaveT(PlayerSaveT&&) FLATBUFFERS_NOEXCEPT = default;
+  PlayerSaveT &operator=(PlayerSaveT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct PlayerSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PlayerSaveT NativeTableType;
+  typedef PlayerSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_USERNAME = 4,
+    VT_CHARACTER = 6
+  };
+  const ::flatbuffers::String *username() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USERNAME);
+  }
+  ::flatbuffers::String *mutable_username() {
+    return GetPointer<::flatbuffers::String *>(VT_USERNAME);
+  }
+  const fbs::Character *character() const {
+    return GetPointer<const fbs::Character *>(VT_CHARACTER);
+  }
+  fbs::Character *mutable_character() {
+    return GetPointer<fbs::Character *>(VT_CHARACTER);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_USERNAME) &&
+           verifier.VerifyString(username()) &&
+           VerifyOffset(verifier, VT_CHARACTER) &&
+           verifier.VerifyTable(character()) &&
+           verifier.EndTable();
+  }
+  PlayerSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(PlayerSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<PlayerSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct PlayerSaveBuilder {
+  typedef PlayerSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_username(::flatbuffers::Offset<::flatbuffers::String> username) {
+    fbb_.AddOffset(PlayerSave::VT_USERNAME, username);
+  }
+  void add_character(::flatbuffers::Offset<fbs::Character> character) {
+    fbb_.AddOffset(PlayerSave::VT_CHARACTER, character);
+  }
+  explicit PlayerSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<PlayerSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<PlayerSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::String> username = 0,
+    ::flatbuffers::Offset<fbs::Character> character = 0) {
+  PlayerSaveBuilder builder_(_fbb);
+  builder_.add_character(character);
+  builder_.add_username(username);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSaveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const char *username = nullptr,
+    ::flatbuffers::Offset<fbs::Character> character = 0) {
+  auto username__ = username ? _fbb.CreateString(username) : 0;
+  return fbs::CreatePlayerSave(
+      _fbb,
+      username__,
+      character);
+}
+
+::flatbuffers::Offset<PlayerSave> CreatePlayerSave(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct GameSaveT : public ::flatbuffers::NativeTable {
+  typedef GameSave TableType;
+  std::vector<std::unique_ptr<fbs::PlayerSaveT>> data{};
+  GameSaveT() = default;
+  GameSaveT(const GameSaveT &o);
+  GameSaveT(GameSaveT&&) FLATBUFFERS_NOEXCEPT = default;
+  GameSaveT &operator=(GameSaveT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct GameSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef GameSaveT NativeTableType;
+  typedef GameSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DATA = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>> *data() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>> *>(VT_DATA);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>> *mutable_data() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>> *>(VT_DATA);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_DATA) &&
+           verifier.VerifyVector(data()) &&
+           verifier.VerifyVectorOfTables(data()) &&
+           verifier.EndTable();
+  }
+  GameSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(GameSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<GameSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const GameSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct GameSaveBuilder {
+  typedef GameSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_data(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>>> data) {
+    fbb_.AddOffset(GameSave::VT_DATA, data);
+  }
+  explicit GameSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<GameSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<GameSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<GameSave> CreateGameSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>>> data = 0) {
+  GameSaveBuilder builder_(_fbb);
+  builder_.add_data(data);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<GameSave> CreateGameSaveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<fbs::PlayerSave>> *data = nullptr) {
+  auto data__ = data ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PlayerSave>>(*data) : 0;
+  return fbs::CreateGameSave(
+      _fbb,
+      data__);
+}
+
+::flatbuffers::Offset<GameSave> CreateGameSave(::flatbuffers::FlatBufferBuilder &_fbb, const GameSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline LifeStateT *LifeState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<LifeStateT>(new LifeStateT());
   UnPackTo(_o.get(), _resolver);
@@ -4006,6 +4172,82 @@ inline ::flatbuffers::Offset<Drop> Drop::Pack(::flatbuffers::FlatBufferBuilder &
       _y2,
       _page,
       _timestamp);
+}
+
+inline PlayerSaveT::PlayerSaveT(const PlayerSaveT &o)
+      : username(o.username),
+        character((o.character) ? new fbs::CharacterT(*o.character) : nullptr) {
+}
+
+inline PlayerSaveT &PlayerSaveT::operator=(PlayerSaveT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(username, o.username);
+  std::swap(character, o.character);
+  return *this;
+}
+
+inline PlayerSaveT *PlayerSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<PlayerSaveT>(new PlayerSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void PlayerSave::UnPackTo(PlayerSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = username(); if (_e) _o->username = _e->str(); }
+  { auto _e = character(); if (_e) { if(_o->character) { _e->UnPackTo(_o->character.get(), _resolver); } else { _o->character = std::unique_ptr<fbs::CharacterT>(_e->UnPack(_resolver)); } } else if (_o->character) { _o->character.reset(); } }
+}
+
+inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSave(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return PlayerSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<PlayerSave> PlayerSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const PlayerSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _username = _o->username.empty() ? 0 : _fbb.CreateString(_o->username);
+  auto _character = _o->character ? CreateCharacter(_fbb, _o->character.get(), _rehasher) : 0;
+  return fbs::CreatePlayerSave(
+      _fbb,
+      _username,
+      _character);
+}
+
+inline GameSaveT::GameSaveT(const GameSaveT &o) {
+  data.reserve(o.data.size());
+  for (const auto &data_ : o.data) { data.emplace_back((data_) ? new fbs::PlayerSaveT(*data_) : nullptr); }
+}
+
+inline GameSaveT &GameSaveT::operator=(GameSaveT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(data, o.data);
+  return *this;
+}
+
+inline GameSaveT *GameSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<GameSaveT>(new GameSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void GameSave::UnPackTo(GameSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = data(); if (_e) { _o->data.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->data[_i]) { _e->Get(_i)->UnPackTo(_o->data[_i].get(), _resolver); } else { _o->data[_i] = std::unique_ptr<fbs::PlayerSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->data.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<GameSave> CreateGameSave(::flatbuffers::FlatBufferBuilder &_fbb, const GameSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return GameSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<GameSave> GameSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const GameSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const GameSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _data = _o->data.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PlayerSave>> (_o->data.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayerSave(*__va->__fbb, __va->__o->data[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateGameSave(
+      _fbb,
+      _data);
 }
 
 template <bool B>

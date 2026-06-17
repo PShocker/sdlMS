@@ -191,3 +191,12 @@ table Drop{
     
     timestamp:uint64;
 }
+
+table PlayerSave{
+    username:string;
+    character:Character;
+}
+
+table GameSave{
+    data:[PlayerSave];
+}
