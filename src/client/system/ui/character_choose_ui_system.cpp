@@ -1,5 +1,6 @@
 #include "character_choose_ui_system.h"
 #include "SDL3/SDL_events.h"
+#include "SDL3/SDL_rect.h"
 #include "login_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -105,6 +106,16 @@ void character_choose_ui_system::render_backgrnd() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+}
+
+void character_choose_ui_system::render_character() {
+  SDL_FPoint pos = load_pos();
+  for (uint8_t i = 0; i < characters.size(); i++) {
+    if (choose.has_value() && choose == i) {
+
+    } else {
+    }
+  }
 }
 
 bool character_choose_ui_system::render() {

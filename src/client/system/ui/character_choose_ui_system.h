@@ -1,6 +1,10 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/client/game/game_character.h"
+#include <cstdint>
+#include <optional>
+#include <vector>
 class character_choose_ui_system {
 private:
   static bool new_animate();
@@ -11,6 +15,7 @@ private:
   static void render_button();
   static void render_effect();
   static void render_banner();
+  static void render_character();
 
   static void event_button_select();
   static void event_button_new();
@@ -20,6 +25,9 @@ private:
   static bool event_button(SDL_Event *event);
 
 public:
+  static inline std::vector<game_character> characters;
+  static inline std::optional<uint8_t> choose;
+
   static bool render();
   static bool event(SDL_Event *event);
 };

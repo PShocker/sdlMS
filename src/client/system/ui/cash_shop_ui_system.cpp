@@ -7,8 +7,8 @@ void cash_shop_ui_system::render_backgrnd() {
   static auto backgrnd = wz_resource::load_texture(
       wz_resource::ui->find(u"Login.img/NewChar/customize/canvas:top"));
   SDL_FRect pos_rect = {
-      pos_rect.x + 160,
-      pos_rect.y + 85,
+      160,
+      85,
       static_cast<float>(backgrnd->w),
       static_cast<float>(backgrnd->h),
   };

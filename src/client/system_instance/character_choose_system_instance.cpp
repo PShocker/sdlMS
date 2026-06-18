@@ -18,7 +18,10 @@
 #include <algorithm>
 #include <ranges>
 
-void character_choose_system_instance::enter() {
+
+void character_choose_system_instance::enter(const std::string &login) {
+  username = login;
+
   auto fn = &login_system_instance::render_game;
   if (!std::ranges::contains(system::render_systems, fn)) {
     static auto image = wz_resource::ui->find(u"MapLogin.img");

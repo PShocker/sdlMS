@@ -24,7 +24,8 @@ bool server_heartbeat_system::run_client_heartbeat() {
       (current_time - server_hb_time >=
        server_heartbeat_instance::heartbeat_interval * 2000)) {
     // 掉线了,客户端退出到人物选择界面
-    character_choose_system_instance::enter();
+    character_choose_system_instance::enter(
+        character_choose_system_instance::username);
     return false;
   }
   // 客户端发送心跳

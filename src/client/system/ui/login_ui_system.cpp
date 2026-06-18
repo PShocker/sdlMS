@@ -8,6 +8,7 @@
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cmath>
@@ -184,6 +185,21 @@ void login_ui_system::render_effect() {
   }
 }
 
+void login_ui_system::render_username() {
+  auto ustr = std::u16string{username.begin(), username.end()};
+  if (username_focus) {
+    auto delta = window::dt_now % 200;
+    if (delta <= 100) {
+      ustr += u'|';
+    }
+  }
+  freetype::load_aligned(true);
+  freetype::load_size(13);
+  freetype::load_color(0, 0, 0, 255);
+  freetype::draw_line(ustr, 100, 100);
+  freetype::load_aligned(false);
+}
+
 bool login_ui_system::render() {
   render_button();
   render_effect();
@@ -219,20 +235,23 @@ bool login_ui_system::camera_animate(float x, float y) {
 
 bool login_ui_system::login_animate() {
   if (camera_animate(-80, -479)) {
-    character_choose_system_instance::enter();
+    character_choose_system_instance::enter(username);
     return false;
   }
   return true;
 }
 
 void login_ui_system::event_button_login() {
-  system::logic_systems.push_back(login_animate);
-  system::render_systems = {
-      login_system_instance::render_game,
-      character_choose_ui_system::render,
-      cursor_render_system::render,
-  };
-  system::event_systems = {};
+  if (!username.empty()) {
+    system::logic_systems.push_back(login_animate);
+    system::render_systems = {
+        login_system_instance::render_game,
+        character_choose_ui_system::render,
+        cursor_render_system::render,
+    };
+    system::event_systems = {};
+  } else {
+  }
 }
 
 void login_ui_system::event_button_login_save() {}
@@ -277,6 +296,17 @@ bool login_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+bool login_ui_system::check_username(SDL_Event *event) {
+  SDL_FPoint p{event->button.x, event->button.y};
+  SDL_FRect pos_rect{100, 100, 100, 100};
+  if (SDL_PointInRectFloat(&p, &pos_rect)) {
+    username_focus = true;
+    return true;
+  }
+  username_focus = false;
+  return false;
+}
+
 bool login_ui_system::event(SDL_Event *event) {
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN: {
@@ -287,6 +317,14 @@ bool login_ui_system::event(SDL_Event *event) {
       break;
     }
     default: {
+      if (username_focus) {
+        SDL_Keycode key =
+            SDL_GetKeyFromScancode(event->key.scancode, event->key.mod, true);
+        if (SDL_isprint(key)) {
+          char ch = (char)key;
+          username += ch;
+        }
+      }
       break;
     }
     }
@@ -294,6 +332,7 @@ bool login_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
+      check_username(event);
     }
     break;
   }

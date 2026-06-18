@@ -439,7 +439,8 @@ bool character_create_ui_system::render() {
 
 bool character_create_ui_system::back_animate() {
   if (login_ui_system::camera_animate(-80, -479)) {
-    character_choose_system_instance::enter();
+    character_choose_system_instance::enter(
+        character_choose_system_instance::username);
     return false;
   }
   return true;

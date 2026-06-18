@@ -179,7 +179,7 @@ void scene_system_instance::enter(uint32_t map_id) {
 }
 
 void scene_system_instance::enter_prepare(uint32_t map_id,
-                                          const std::u16string &pn, uint8_t i) {
+                                          const std::u16string &pn, int i) {
   fbs::CharacterT c;
   if (prepare_map_id == 0) {
     prepare_map_id = map_id;
