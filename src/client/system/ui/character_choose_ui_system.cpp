@@ -7,6 +7,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_create_ui_system.h"
 #include "src/client/system_instance/chatacter_create_system_instance.h"
+#include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -110,6 +111,7 @@ void character_choose_ui_system::render_backgrnd() {
 
 void character_choose_ui_system::render_character() {
   SDL_FPoint pos = load_pos();
+  auto &characters = game_save_system_instance::save.characters;
   for (uint8_t i = 0; i < characters.size(); i++) {
     if (choose.has_value() && choose == i) {
 

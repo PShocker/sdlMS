@@ -4,5 +4,6 @@
 
 class game_save_system_instance {
 public:
-  static game_save load_save(const std::string &login);
+  static inline game_save save;
+  static bool load_save(const std::string &login);
 };

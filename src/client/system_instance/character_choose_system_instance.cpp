@@ -1,4 +1,5 @@
 #include "character_choose_system_instance.h"
+#include "game_save_system_instance.h"
 #include "login_system_instance.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -18,10 +19,12 @@
 #include <algorithm>
 #include <ranges>
 
-
 void character_choose_system_instance::enter(const std::string &login) {
-  username = login;
+  game_save_system_instance::load_save(login);
+  enter();
+}
 
+void character_choose_system_instance::enter() {
   auto fn = &login_system_instance::render_game;
   if (!std::ranges::contains(system::render_systems, fn)) {
     static auto image = wz_resource::ui->find(u"MapLogin.img");

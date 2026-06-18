@@ -341,7 +341,7 @@ void character_game_instance::add_body(game_character &g,
                               body_node->find(u"info/vslot"))
                               ->get());
     for (auto [k, v] : *body_node->get_children()) {
-      if (k == u"info") {
+      if (!bone_data.contains(k)) {
         continue;
       }
       r.data[k].resize(v[0]->children_count());

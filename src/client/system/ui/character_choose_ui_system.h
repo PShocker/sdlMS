@@ -25,7 +25,6 @@ private:
   static bool event_button(SDL_Event *event);
 
 public:
-  static inline std::vector<game_character> characters;
   static inline std::optional<uint8_t> choose;
 
   static bool render();

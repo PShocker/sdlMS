@@ -12,12 +12,15 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
+#include "src/client/system_instance/chatacter_create_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cmath>
+#include <cstdint>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -109,8 +112,10 @@ void character_create_ui_system::render_stat() {
       SDL_FRect{pos_rect.x + 96, pos_rect.y + 73, 16, 17},
   };
   std::vector<bool> r = {
-      str_point <= 4, str_point >= 12, dex_point <= 4, dex_point >= 12,
-      int_point <= 4, int_point >= 12, luk_point <= 4, luk_point >= 12,
+      str_point <= 4, str_point > 12 || remain_point == 0,
+      dex_point <= 4, dex_point > 12 || remain_point == 0,
+      int_point <= 4, int_point > 12 || remain_point == 0,
+      luk_point <= 4, luk_point > 12 || remain_point == 0,
   };
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -439,14 +444,14 @@ bool character_create_ui_system::render() {
 
 bool character_create_ui_system::back_animate() {
   if (login_ui_system::camera_animate(-80, -479)) {
-    character_choose_system_instance::enter(
-        character_choose_system_instance::username);
+    character_choose_system_instance::enter();
     return false;
   }
   return true;
 }
 
 void character_create_ui_system::event_button_back() {
+  chatacter_create_system_instance::enter();
   system::logic_systems.push_back(back_animate);
   system::render_systems = {
       login_system_instance::render_game,
@@ -512,11 +517,9 @@ void character_create_ui_system::event_button_face_prev() {
   auto face_id = g_character.face.id;
   auto it = std::ranges::find(faces, face_id);
   if (it != faces.end()) {
-    auto index = std::distance(faces.begin(), it);
-    if (index > 0) {
-      index -= 1;
-      character_game_instance::add_face(g_character, faces[index]);
-    }
+    // 计算前一个迭代器（循环）
+    auto prev_it = (it == faces.begin()) ? (faces.end() - 1) : (it - 1);
+    character_game_instance::add_face(g_character, *prev_it);
   }
 }
 
@@ -525,11 +528,8 @@ void character_create_ui_system::event_button_face_next() {
   auto face_id = g_character.face.id;
   auto it = std::ranges::find(faces, face_id);
   if (it != faces.end()) {
-    auto index = std::distance(faces.begin(), it);
-    if (index < faces.size() - 1) {
-      index += 1;
-      character_game_instance::add_face(g_character, faces[index]);
-    }
+    auto next_it = (it + 1 == faces.end()) ? faces.begin() : (it + 1);
+    character_game_instance::add_face(g_character, *next_it);
   }
 }
 
@@ -548,11 +548,8 @@ void character_create_ui_system::event_button_hair_prev() {
   auto hair_id = g_character.hair;
   auto it = std::ranges::find(hairs, hair_id);
   if (it != hairs.end()) {
-    auto index = std::distance(hairs.begin(), it);
-    if (index < hairs.size() - 1) {
-      index += 1;
-      character_game_instance::add_hair(g_character, hairs[index]);
-    }
+    auto prev_it = (it == hairs.begin()) ? (hairs.end() - 1) : (it - 1);
+    character_game_instance::add_hair(g_character, *prev_it);
   }
 }
 
@@ -561,11 +558,8 @@ void character_create_ui_system::event_button_hair_next() {
   auto hair_id = g_character.hair;
   auto it = std::ranges::find(hairs, hair_id);
   if (it != hairs.end()) {
-    auto index = std::distance(hairs.begin(), it);
-    if (index > 0) {
-      index -= 1;
-      character_game_instance::add_hair(g_character, hairs[index]);
-    }
+    auto next_it = (it + 1 == hairs.end()) ? hairs.begin() : (it + 1);
+    character_game_instance::add_hair(g_character, *next_it);
   }
 }
 
@@ -574,6 +568,8 @@ void character_create_ui_system::event_button_hair_color_prev() {
   auto back = hair_id.back();
   if (back > u'0') {
     back -= 1;
+  } else {
+    back = u'7';
   }
   hair_id.back() = back;
   character_game_instance::add_hair(g_character, hair_id);
@@ -584,6 +580,8 @@ void character_create_ui_system::event_button_hair_color_next() {
   auto back = hair_id.back();
   if (back < u'7') {
     back += 1;
+  } else {
+    back = u'0';
   }
   hair_id.back() = back;
   character_game_instance::add_hair(g_character, hair_id);
@@ -595,6 +593,8 @@ void character_create_ui_system::event_button_skin_color_prev() {
   auto back = head_id.back();
   if (back > u'0') {
     back -= 1;
+  } else {
+    back = u'3';
   }
   head_id.back() = back;
   body_id.back() = back;
@@ -608,6 +608,8 @@ void character_create_ui_system::event_button_skin_color_next() {
   auto back = head_id.back();
   if (back < u'3') {
     back += 1;
+  } else {
+    back = u'0';
   }
   head_id.back() = back;
   body_id.back() = back;
@@ -630,11 +632,8 @@ void character_create_ui_system::event_button_top_prev() {
   auto top_id = g_character.coat->id;
   auto it = std::ranges::find(tops, top_id);
   if (it != tops.end()) {
-    auto index = std::distance(tops.begin(), it);
-    if (index < tops.size() - 1) {
-      index += 1;
-      character_game_instance::add_coat(g_character, tops[index]);
-    }
+    auto prev_it = (it == tops.begin()) ? (tops.end() - 1) : (it - 1);
+    character_game_instance::add_coat(g_character, *prev_it);
   }
 }
 
@@ -643,11 +642,8 @@ void character_create_ui_system::event_button_top_next() {
   auto top_id = g_character.coat->id;
   auto it = std::ranges::find(tops, top_id);
   if (it != tops.end()) {
-    auto index = std::distance(tops.begin(), it);
-    if (index > 0) {
-      index -= 1;
-      character_game_instance::add_coat(g_character, tops[index]);
-    }
+    auto next_it = (it + 1 == tops.end()) ? tops.begin() : (it + 1);
+    character_game_instance::add_coat(g_character, *next_it);
   }
 }
 
@@ -666,11 +662,8 @@ void character_create_ui_system::event_button_bottom_prev() {
   auto pant_id = g_character.pant->id;
   auto it = std::ranges::find(bottoms, pant_id);
   if (it != bottoms.end()) {
-    auto index = std::distance(bottoms.begin(), it);
-    if (index < bottoms.size() - 1) {
-      index += 1;
-      character_game_instance::add_pants(g_character, bottoms[index]);
-    }
+    auto prev_it = (it == bottoms.begin()) ? (bottoms.end() - 1) : (it - 1);
+    character_game_instance::add_pants(g_character, *prev_it);
   }
 }
 
@@ -679,11 +672,8 @@ void character_create_ui_system::event_button_bottom_next() {
   auto pant_id = g_character.pant->id;
   auto it = std::ranges::find(bottoms, pant_id);
   if (it != bottoms.end()) {
-    auto index = std::distance(bottoms.begin(), it);
-    if (index > 0) {
-      index -= 1;
-      character_game_instance::add_pants(g_character, bottoms[index]);
-    }
+    auto next_it = (it + 1 == bottoms.end()) ? bottoms.begin() : (it + 1);
+    character_game_instance::add_pants(g_character, *next_it);
   }
 }
 
@@ -698,11 +688,8 @@ void character_create_ui_system::event_button_shoes_prev() {
   auto shoes_id = g_character.shoes->id;
   auto it = std::ranges::find(shoes, shoes_id);
   if (it != shoes.end()) {
-    auto index = std::distance(shoes.begin(), it);
-    if (index < shoes.size() - 1) {
-      index += 1;
-      character_game_instance::add_shoes(g_character, shoes[index]);
-    }
+    auto prev_it = (it == shoes.begin()) ? (shoes.end() - 1) : (it - 1);
+    character_game_instance::add_shoes(g_character, *prev_it);
   }
 }
 
@@ -711,11 +698,8 @@ void character_create_ui_system::event_button_shoes_next() {
   auto shoes_id = g_character.shoes->id;
   auto it = std::ranges::find(shoes, shoes_id);
   if (it != shoes.end()) {
-    auto index = std::distance(shoes.begin(), it);
-    if (index > 0) {
-      index -= 1;
-      character_game_instance::add_shoes(g_character, shoes[index]);
-    }
+    auto next_it = (it + 1 == shoes.end()) ? shoes.begin() : (it + 1);
+    character_game_instance::add_shoes(g_character, *next_it);
   }
 }
 
@@ -730,11 +714,8 @@ void character_create_ui_system::event_button_weapon_prev() {
   auto weapon_id = g_character.weapon->id;
   auto it = std::ranges::find(weapons, weapon_id);
   if (it != weapons.end()) {
-    auto index = std::distance(weapons.begin(), it);
-    if (index < weapons.size() - 1) {
-      index += 1;
-      character_game_instance::add_weapon(g_character, weapons[index]);
-    }
+    auto prev_it = (it == weapons.begin()) ? (weapons.end() - 1) : (it - 1);
+    character_game_instance::add_weapon(g_character, *prev_it);
   }
 }
 
@@ -743,12 +724,168 @@ void character_create_ui_system::event_button_weapon_next() {
   auto weapon_id = g_character.weapon->id;
   auto it = std::ranges::find(weapons, weapon_id);
   if (it != weapons.end()) {
-    auto index = std::distance(weapons.begin(), it);
-    if (index > 0) {
-      index -= 1;
-      character_game_instance::add_weapon(g_character, weapons[index]);
+    auto next_it = (it + 1 == weapons.end()) ? weapons.begin() : (it + 1);
+    character_game_instance::add_weapon(g_character, *next_it);
+  }
+}
+
+void character_create_ui_system::event_button_str_inc() {
+  if (remain_point > 0) {
+    str_point++;
+    remain_point--;
+  }
+}
+
+void character_create_ui_system::event_button_str_dec() {
+  if (str_point > 4) {
+    str_point--;
+    remain_point++;
+  }
+}
+
+void character_create_ui_system::event_button_dex_inc() {
+  if (remain_point > 0) {
+    dex_point++;
+    remain_point--;
+  }
+}
+
+void character_create_ui_system::event_button_dex_dec() {
+  if (dex_point > 4) {
+    dex_point--;
+    remain_point++;
+  }
+}
+
+void character_create_ui_system::event_button_int_inc() {
+  if (remain_point > 0) {
+    int_point++;
+    remain_point--;
+  }
+}
+
+void character_create_ui_system::event_button_int_dec() {
+  if (int_point > 4) {
+    int_point--;
+    remain_point++;
+  }
+}
+
+void character_create_ui_system::event_button_luk_inc() {
+  if (remain_point > 0) {
+    luk_point++;
+    remain_point--;
+  }
+}
+
+void character_create_ui_system::event_button_luk_dec() {
+  if (luk_point > 4) {
+    luk_point--;
+    remain_point++;
+  }
+}
+
+bool character_create_ui_system::event_button_custom(SDL_Event *event) {
+  auto &camera = camera_game_instance::camera;
+  auto cx = -440 - camera.x;
+  auto cy = -1370 - camera.y;
+  cx += 35;
+  cy += 30;
+  for (uint8_t i = 0; i <= 8; i++) {
+    SDL_FRect pos_rect{cx, cy + 18 * i, 256, 17};
+    auto &mouse_pos = window::mouse_pos;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      if (choose_index != i) {
+        choose_index = i;
+        return true;
+      } else {
+        std::vector<SDL_FRect> buttons_rect = {
+            SDL_FRect{cx + 95, cy + 18 * i, 16, 17},  //
+            SDL_FRect{cx + 235, cy + 18 * i, 16, 17}, //
+        };
+        std::optional<bool> left;
+        if (SDL_PointInRectFloat(&mouse_pos, &buttons_rect[0])) {
+          left = true;
+        } else if (SDL_PointInRectFloat(&mouse_pos, &buttons_rect[1])) {
+          left = false;
+        }
+        if (left.has_value()) {
+          switch (choose_index) {
+          case 0: {
+            reset_character(!gender);
+            break;
+          }
+          case 1: {
+            // face
+            if (left.value()) {
+              event_button_face_prev();
+            } else {
+              event_button_face_next();
+            }
+            break;
+          }
+          case 2: {
+            if (left.value()) {
+              event_button_hair_prev();
+            } else {
+              event_button_hair_next();
+            }
+            break;
+          }
+          case 3: {
+            if (left.value()) {
+              event_button_hair_color_prev();
+            } else {
+              event_button_hair_color_next();
+            }
+            break;
+          }
+          case 4: {
+            if (left.value()) {
+              event_button_skin_color_prev();
+            } else {
+              event_button_skin_color_next();
+            }
+            break;
+          }
+          case 5: {
+            if (left.value()) {
+              event_button_top_prev();
+            } else {
+              event_button_top_next();
+            }
+            break;
+          }
+          case 6: {
+            if (left.value()) {
+              event_button_bottom_prev();
+            } else {
+              event_button_bottom_next();
+            }
+            break;
+          }
+          case 7: {
+            if (left.value()) {
+              event_button_shoes_prev();
+            } else {
+              event_button_shoes_next();
+            }
+            break;
+          }
+          case 8: {
+            if (left.value()) {
+              event_button_weapon_prev();
+            } else {
+              event_button_weapon_next();
+            }
+            break;
+          }
+          }
+        }
+      }
     }
   }
+  return false;
 }
 
 bool character_create_ui_system::event_button(SDL_Event *event) {
@@ -772,7 +909,9 @@ bool character_create_ui_system::event_button(SDL_Event *event) {
       SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
   };
   fns = {
-      {}, {}, {}, {}, {}, {}, {}, {}, event_button_back,
+      event_button_str_dec, event_button_str_inc, event_button_dex_dec,
+      event_button_dex_inc, event_button_int_dec, event_button_int_inc,
+      event_button_luk_dec, event_button_luk_inc, event_button_back,
   };
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
@@ -812,6 +951,7 @@ bool character_create_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       event_button(event);
+      event_button_custom(event);
     }
     break;
   }

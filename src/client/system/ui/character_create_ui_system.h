@@ -66,12 +66,25 @@ private:
   static void event_button_weapon_prev();
   static void event_button_weapon_next();
 
+  static void event_button_str_inc();
+  static void event_button_str_dec();
+
+  static void event_button_dex_inc();
+  static void event_button_dex_dec();
+
+  static void event_button_int_inc();
+  static void event_button_int_dec();
+
+  static void event_button_luk_inc();
+  static void event_button_luk_dec();
+
   static void event_button_select();
   static void event_button_new();
   static void event_button_delete();
   static void event_button_back();
 
   static bool event_button(SDL_Event *event);
+  static bool event_button_custom(SDL_Event *event);
 
 public:
   static inline int str_point;
