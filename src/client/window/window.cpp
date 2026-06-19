@@ -5,6 +5,10 @@
 
 void window::create(const char *title, uint32_t logic_w, uint32_t logic_h,
                     uint32_t window_w, uint32_t window_h) {
+  // hint
+  SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition");
+  SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, "60");
+
   auto result = SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO);
   if (result == false) {
     std::abort();
@@ -19,7 +23,6 @@ void window::create(const char *title, uint32_t logic_w, uint32_t logic_h,
   // 设置缩放,实际分辨率最好是窗口分辨率的整数倍
   auto logical_mode = SDL_LOGICAL_PRESENTATION_STRETCH;
   SDL_SetRenderLogicalPresentation(renderer, logic_w, logic_h, logical_mode);
-  SDL_SetHint(SDL_HINT_MAIN_CALLBACK_RATE, "60");
 }
 
 void window::tick() {

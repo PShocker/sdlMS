@@ -24,6 +24,7 @@ private:
   static void render_stat();
   static void render_character();
   static void render_custom();
+  static void render_name();
 
   enum class choose_type {
     gender,
@@ -83,10 +84,15 @@ private:
   static void event_button_delete();
   static void event_button_back();
 
+  static bool event_focus_name(SDL_Event *event);
   static bool event_button(SDL_Event *event);
   static bool event_button_custom(SDL_Event *event);
 
 public:
+  static inline std::u16string name;
+  static inline std::u16string name_bak;
+  static inline bool name_focus;
+
   static inline int str_point;
   static inline int dex_point;
   static inline int int_point;

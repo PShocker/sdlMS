@@ -6,7 +6,6 @@
 #include <string>
 class login_ui_system {
 private:
-  static bool check_username(SDL_Event *event);
   static bool login_animate();
 
   static SDL_FPoint load_pos();
@@ -25,6 +24,7 @@ private:
   static void event_button_quit();
   static void event_button_back();
 
+  static bool event_focus_username(SDL_Event *event);
   static bool event_button(SDL_Event *event);
 
 public:

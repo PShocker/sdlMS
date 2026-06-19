@@ -432,6 +432,23 @@ void character_create_ui_system::render_custom() {
   render_custom_item(cx, cy, choose_type::weapon);
 }
 
+void character_create_ui_system::render_name() {
+  auto str = name + name_bak;
+  if (name_focus) {
+    auto delta = window::dt_now % 2000;
+    if (delta <= 1000) {
+      str += u'|';
+    }
+  }
+  auto &camera = camera_game_instance::camera;
+  freetype::load_aligned(true);
+  freetype::load_bold(false);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::load_size(13);
+  freetype::draw_line(str, 70 - camera.x, -1395 - camera.y);
+  freetype::load_aligned(false);
+}
+
 bool character_create_ui_system::render() {
   render_stat();
   render_button();
@@ -439,6 +456,7 @@ bool character_create_ui_system::render() {
   render_custom();
   render_backgrnd();
   render_banner();
+  render_name();
   return true;
 }
 
@@ -926,12 +944,55 @@ bool character_create_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+bool character_create_ui_system::event_focus_name(SDL_Event *event) {
+  SDL_FPoint p{event->button.x, event->button.y};
+  auto &camera = camera_game_instance::camera;
+  SDL_FRect pos_rect{65 - camera.x, -1400 - camera.y, 235, 30};
+  if (SDL_PointInRectFloat(&p, &pos_rect)) {
+    name_focus = true;
+    const SDL_Rect posRect = {
+        static_cast<int>(pos_rect.x),
+        static_cast<int>(pos_rect.y),
+        0,
+        30,
+    };
+    SDL_Window *window = SDL_GetKeyboardFocus();
+    /* Start-Stop */
+    SDL_StartTextInput(window);
+    SDL_SetTextInputArea(window, &posRect, 0);
+    return true;
+  }
+  name_focus = false;
+  return false;
+}
+
 bool character_create_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
+  case SDL_EVENT_TEXT_EDITING: {
+    auto text = event->edit.text;
+    if (text[0] != '\0') {
+      name_bak = freetype::load_u16str(text);
+    } else {
+      name_bak = u"";
+    }
+    break;
+  }
+  case SDL_EVENT_TEXT_INPUT: {
+    auto text = event->edit.text;
+    name = name + freetype::load_u16str(text);
+    name = name.substr(0, 10);
+    break;
+  }
   case SDL_EVENT_KEY_DOWN: {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
+    case SDL_SCANCODE_BACKSPACE: {
+      if (name_focus && !name.empty()) {
+        name.pop_back();
+      }
+      break;
+    }
     case SDL_SCANCODE_ESCAPE: {
       return false;
       break;
@@ -944,6 +1005,7 @@ bool character_create_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
+      event_focus_name(event);
       r = false;
     }
     break;

@@ -296,7 +296,7 @@ bool login_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
-bool login_ui_system::check_username(SDL_Event *event) {
+bool login_ui_system::event_focus_username(SDL_Event *event) {
   SDL_FPoint p{event->button.x, event->button.y};
   SDL_FRect pos_rect{100, 100, 100, 100};
   if (SDL_PointInRectFloat(&p, &pos_rect)) {
@@ -332,7 +332,7 @@ bool login_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      check_username(event);
+      event_focus_username(event);
     }
     break;
   }
