@@ -20,24 +20,21 @@
 #include <algorithm>
 #include <ranges>
 
-void chatacter_create_system_instance::enter() {
-  auto &camera = camera_game_instance::camera;
-  camera.x = -80 - camera.w / 2;
-  camera.y = -1294 - camera.h / 2;
-
-  auto fn = &login_system_instance::render_game;
-  if (!std::ranges::contains(system::render_systems, fn)) {
-    static auto image = wz_resource::ui->find(u"MapLogin.img");
-    backgrnd_game_instance::load(image);
-    obj_game_instance::load(image);
-    tile_game_instance::load(image);
-  }
+void chatacter_create_system_instance::enter_prepare() {
   character_create_ui_system::reset_character(false);
   character_create_ui_system::str_point = 4;
   character_create_ui_system::dex_point = 4;
   character_create_ui_system::int_point = 4;
   character_create_ui_system::luk_point = 4;
   character_create_ui_system::remain_point = 9;
+}
+
+void chatacter_create_system_instance::enter() {
+  enter_prepare();
+  auto &camera = camera_game_instance::camera;
+  camera.x = -80 - camera.w / 2;
+  camera.y = -1294 - camera.h / 2;
+
   character_create_ui_system::name = {
       .max_size = 10,
       .text = {},
@@ -54,6 +51,16 @@ void chatacter_create_system_instance::enter() {
       .color = {255, 255, 255, 255},
       .font_size = 13,
   };
+  character_create_ui_system::name.type.set(text_input::ime);
+
+  auto fn = &login_system_instance::render_game;
+  if (!std::ranges::contains(system::render_systems, fn)) {
+    static auto image = wz_resource::ui->find(u"MapLogin.img");
+    backgrnd_game_instance::load(image);
+    obj_game_instance::load(image);
+    tile_game_instance::load(image);
+  }
+
   system::logic_systems = {
       backgrnd_logic_system::run,
       obj_logic_system::run,

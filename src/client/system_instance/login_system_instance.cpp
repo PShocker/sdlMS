@@ -37,7 +37,32 @@ bool login_system_instance::render_game() {
   return true;
 }
 
+void login_system_instance::enter_prepare() {
+  auto camera = camera_game_instance::camera;
+  camera.x = -80 - camera.w / 2;
+  camera.y = 1023 - camera.h / 2;
+  login_ui_system::username = {
+      .max_size = 12,
+      .text = u"sdlMS",
+      .composition = {},
+      .disable = false,
+      .active = false,
+      .r =
+          SDL_Rect{
+              static_cast<int>(-30 - camera.x),
+              static_cast<int>(960 - camera.y),
+              230,
+              40,
+          },
+      .color = {255, 255, 255, 255},
+      .font_size = 13,
+  };
+  login_ui_system::username.type.set(text_input::letter);
+  login_ui_system::username.type.set(text_input::digit);
+}
+
 void login_system_instance::enter() {
+  enter_prepare();
   auto fn = &login_system_instance::render_game;
   if (!std::ranges::contains(system::render_systems, fn)) {
     static auto image = wz_resource::ui->find(u"MapLogin.img");
@@ -45,6 +70,7 @@ void login_system_instance::enter() {
     obj_game_instance::load(image);
     tile_game_instance::load(image);
   }
+
   system::logic_systems = {
       backgrnd_logic_system::run,
       obj_logic_system::run,

@@ -80,9 +80,8 @@ private:
   static void event_button_luk_inc();
   static void event_button_luk_dec();
 
-  static void event_button_select();
-  static void event_button_new();
-  static void event_button_delete();
+  static void event_button_ok();
+  static void event_button_cancel();
   static void event_button_back();
 
   static bool event_button(SDL_Event *event);

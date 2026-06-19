@@ -1,16 +1,25 @@
 #include "text_input_ui_system.h"
+#include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_scancode.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include <algorithm>
 
+void text_input_ui_system::close(text_input &input) {
+  input.active = false;
+  if (input.type.test(text_input::ime)) {
+    SDL_StopTextInput(SDL_GetKeyboardFocus());
+  }
+}
+
 void text_input_ui_system::active(text_input &input) {
   input.active = true;
-  SDL_Window *window = SDL_GetKeyboardFocus();
-  /* Start-Stop */
-  SDL_StartTextInput(window);
-  SDL_SetTextInputArea(window, &input.r, 0);
+  if (input.type.test(text_input::ime)) {
+    SDL_Window *window = SDL_GetKeyboardFocus();
+    SDL_StartTextInput(window);
+    SDL_SetTextInputArea(window, &input.r, 0);
+  }
 }
 
 void text_input_ui_system::render(text_input &input, int x, int y) {
@@ -74,6 +83,9 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
     break;
   }
   case SDL_EVENT_KEY_DOWN: {
+    if (input.active == false) {
+      break;
+    }
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_LEFT: {
@@ -98,6 +110,37 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
       break;
     }
     default: {
+      SDL_Keycode key =
+          SDL_GetKeyFromScancode(event->key.scancode, event->key.mod, true);
+      // 过滤
+      bool digit = (key >= SDLK_0 && key <= SDLK_9);
+      bool letter = (key >= SDLK_A && key <= SDLK_Z);
+      bool symbol = !digit && !letter;
+      if (!input.type.test(text_input::symbol)) {
+        if (symbol) {
+          break;
+        }
+      }
+      if (!input.type.test(text_input::digit)) {
+        if (digit) {
+          break;
+        }
+      }
+      if (!input.type.test(text_input::letter)) {
+        if (letter) {
+          break;
+        }
+      }
+      SDL_Event e;
+      e.type = SDL_EVENT_TEXT_INPUT;
+      // 如果是字母且 Caps Lock 开启，手动转换
+      if ((event->key.mod & SDL_KMOD_CAPS) && (key >= 'a' && key <= 'z')) {
+        key -= 32; // 小写转大写
+      }
+      char c[2] = {0, 0};
+      c[0] = key;
+      e.edit.text = c;
+      text_input_ui_system::event(&e, input);
       break;
     }
     }
@@ -111,17 +154,6 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
       };
       if (SDL_PointInRect(&p, &input.r)) {
         active(input);
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      SDL_Point p = {
-          static_cast<int>(window::mouse_pos.x),
-          static_cast<int>(window::mouse_pos.y),
-      };
-      if (SDL_PointInRect(&p, &input.r)) {
         auto dx = p.x - input.r.x;
         freetype::load_size(input.font_size);
         auto text_w = freetype::load_w(input.text);
@@ -139,8 +171,13 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
           }
           w += cw;
         }
+      } else {
+        close(input);
       }
     }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
     break;
   }
   }

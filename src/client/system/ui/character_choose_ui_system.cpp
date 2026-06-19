@@ -130,6 +130,8 @@ bool character_choose_ui_system::render() {
 void character_choose_ui_system::event_button_select() {}
 
 void character_choose_ui_system::event_button_new() {
+  chatacter_create_system_instance::enter_prepare();
+
   system::logic_systems.push_back(new_animate);
   system::render_systems = {
       login_system_instance::render_game,
@@ -153,10 +155,15 @@ bool character_choose_ui_system::back_animate() {
     login_system_instance::enter();
     return false;
   }
+  auto &camera = camera_game_instance::camera;
+  login_ui_system::username.r.x = (-30 - camera.x);
+  login_ui_system::username.r.y = (960 - camera.y);
   return true;
 }
 
 void character_choose_ui_system::event_button_back() {
+  login_system_instance::enter_prepare();
+
   system::logic_systems.push_back(back_animate);
   system::render_systems = {
       login_system_instance::render_game,

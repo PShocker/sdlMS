@@ -450,7 +450,7 @@ bool character_create_ui_system::render() {
 }
 
 bool character_create_ui_system::back_animate() {
-  SDL_StopTextInput(SDL_GetKeyboardFocus());
+  text_input_ui_system::close(name);
   if (login_ui_system::camera_animate(-80, -479)) {
     character_choose_system_instance::enter();
     return false;
@@ -896,6 +896,13 @@ bool character_create_ui_system::event_button_custom(SDL_Event *event) {
   return false;
 }
 
+void character_create_ui_system::event_button_ok() {
+  // check name
+  
+}
+
+void character_create_ui_system::event_button_cancel() { event_button_back(); }
+
 bool character_create_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
@@ -915,11 +922,15 @@ bool character_create_ui_system::event_button(SDL_Event *event) {
       SDL_FRect{stat_point.x + 48, stat_point.y + 73, 16, 17},
       SDL_FRect{stat_point.x + 96, stat_point.y + 73, 16, 17},
       SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
+      SDL_FRect{66 - camera.x, -1154 - camera.y, 104, 52},
+      SDL_FRect{160 - camera.x, -1156 - camera.y, 104, 52},
+
   };
   fns = {
       event_button_str_dec, event_button_str_inc, event_button_dex_dec,
       event_button_dex_inc, event_button_int_dec, event_button_int_inc,
       event_button_luk_dec, event_button_luk_inc, event_button_back,
+      event_button_ok,      event_button_cancel,
   };
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];

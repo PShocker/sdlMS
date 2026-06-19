@@ -10,6 +10,7 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "text_input_ui_system.h"
 #include "wz/Property.h"
 #include <cmath>
 #include <cstdint>
@@ -186,18 +187,7 @@ void login_ui_system::render_effect() {
 }
 
 void login_ui_system::render_username() {
-  auto ustr = std::u16string{username.begin(), username.end()};
-  if (username_focus) {
-    auto delta = window::dt_now % 200;
-    if (delta <= 100) {
-      ustr += u'|';
-    }
-  }
-  freetype::load_aligned(true);
-  freetype::load_size(13);
-  freetype::load_color(0, 0, 0, 255);
-  freetype::draw_line(ustr, 100, 100);
-  freetype::load_aligned(false);
+  text_input_ui_system::render(username, 5, 5);
 }
 
 bool login_ui_system::render() {
@@ -205,6 +195,7 @@ bool login_ui_system::render() {
   render_effect();
   render_backgrnd();
   render_banner();
+  render_username();
   return true;
 }
 
@@ -220,7 +211,7 @@ bool login_ui_system::camera_animate(float x, float y) {
   auto next_y = y - camera.h / 2; // 人物移动后新的摄像机坐标
   auto delta_y = next_y - prev_y;
 
-  const float MIN_T = 0.2f; // 最小lerp系数
+  const float MIN_T = 0.4f; // 最小lerp系数
   float t = std::abs(delta_y) / 6000.0f;
   t = std::max(t, MIN_T);
 
@@ -234,15 +225,17 @@ bool login_ui_system::camera_animate(float x, float y) {
 }
 
 bool login_ui_system::login_animate() {
+  text_input_ui_system::close(username);
   if (camera_animate(-80, -479)) {
-    character_choose_system_instance::enter(username);
+    auto name = std::string{username.text.begin(), username.text.end()};
+    character_choose_system_instance::enter(name);
     return false;
   }
   return true;
 }
 
 void login_ui_system::event_button_login() {
-  if (!username.empty()) {
+  if (!username.text.empty()) {
     system::logic_systems.push_back(login_animate);
     system::render_systems = {
         login_system_instance::render_game,
@@ -296,43 +289,11 @@ bool login_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
-bool login_ui_system::event_focus_username(SDL_Event *event) {
-  SDL_FPoint p{event->button.x, event->button.y};
-  SDL_FRect pos_rect{100, 100, 100, 100};
-  if (SDL_PointInRectFloat(&p, &pos_rect)) {
-    username_focus = true;
-    return true;
-  }
-  username_focus = false;
-  return false;
-}
-
 bool login_ui_system::event(SDL_Event *event) {
+  text_input_ui_system::event(event, username);
   switch (event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_ESCAPE: {
-      return false;
-      break;
-    }
-    default: {
-      if (username_focus) {
-        SDL_Keycode key =
-            SDL_GetKeyFromScancode(event->key.scancode, event->key.mod, true);
-        if (SDL_isprint(key)) {
-          char ch = (char)key;
-          username += ch;
-        }
-      }
-      break;
-    }
-    }
-    break;
-  }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      event_focus_username(event);
     }
     break;
   }

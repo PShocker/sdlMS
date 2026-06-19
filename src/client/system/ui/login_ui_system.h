@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
+#include "text_input_ui_system.h"
 #include <cstdint>
 #include <string>
 class login_ui_system {
@@ -24,12 +25,10 @@ private:
   static void event_button_quit();
   static void event_button_back();
 
-  static bool event_focus_username(SDL_Event *event);
   static bool event_button(SDL_Event *event);
 
 public:
-  static inline std::string username;
-  static inline bool username_focus;
+  static inline text_input username;
   static bool camera_animate(float x, float y);
 
   static bool render();
