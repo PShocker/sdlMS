@@ -21,6 +21,10 @@
 #include <ranges>
 
 void chatacter_create_system_instance::enter() {
+  auto &camera = camera_game_instance::camera;
+  camera.x = -80 - camera.w / 2;
+  camera.y = -1294 - camera.h / 2;
+
   auto fn = &login_system_instance::render_game;
   if (!std::ranges::contains(system::render_systems, fn)) {
     static auto image = wz_resource::ui->find(u"MapLogin.img");
@@ -34,6 +38,22 @@ void chatacter_create_system_instance::enter() {
   character_create_ui_system::int_point = 4;
   character_create_ui_system::luk_point = 4;
   character_create_ui_system::remain_point = 9;
+  character_create_ui_system::name = {
+      .max_size = 10,
+      .text = {},
+      .composition = {},
+      .disable = false,
+      .active = false,
+      .r =
+          SDL_Rect{
+              static_cast<int>(65 - camera.x),
+              static_cast<int>(-1400 - camera.y),
+              235,
+              30,
+          },
+      .color = {255, 255, 255, 255},
+      .font_size = 13,
+  };
   system::logic_systems = {
       backgrnd_logic_system::run,
       obj_logic_system::run,
@@ -48,7 +68,4 @@ void chatacter_create_system_instance::enter() {
   system::event_systems = {
       character_create_ui_system::event,
   };
-  auto &camera = camera_game_instance::camera;
-  camera.x = -80 - camera.w / 2;
-  camera.y = -1294 - camera.h / 2;
 }

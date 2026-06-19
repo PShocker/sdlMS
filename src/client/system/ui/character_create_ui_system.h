@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include "src/client/game/game_character.h"
+#include "text_input_ui_system.h"
 #include <string>
 #include <vector>
 class character_create_ui_system {
@@ -84,14 +85,11 @@ private:
   static void event_button_delete();
   static void event_button_back();
 
-  static bool event_focus_name(SDL_Event *event);
   static bool event_button(SDL_Event *event);
   static bool event_button_custom(SDL_Event *event);
 
 public:
-  static inline std::u16string name;
-  static inline std::u16string name_bak;
-  static inline bool name_focus;
+  static inline text_input name;
 
   static inline int str_point;
   static inline int dex_point;

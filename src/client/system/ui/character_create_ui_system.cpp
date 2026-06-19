@@ -11,12 +11,14 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
+#include "src/client/system/ui/text_input_ui_system.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/chatacter_create_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "text_input_ui_system.h"
 #include "wz/Property.h"
 #include <cmath>
 #include <cstdint>
@@ -433,20 +435,7 @@ void character_create_ui_system::render_custom() {
 }
 
 void character_create_ui_system::render_name() {
-  auto str = name + name_bak;
-  if (name_focus) {
-    auto delta = window::dt_now % 2000;
-    if (delta <= 1000) {
-      str += u'|';
-    }
-  }
-  auto &camera = camera_game_instance::camera;
-  freetype::load_aligned(true);
-  freetype::load_bold(false);
-  freetype::load_color(255, 255, 255, 255);
-  freetype::load_size(13);
-  freetype::draw_line(str, 70 - camera.x, -1395 - camera.y);
-  freetype::load_aligned(false);
+  text_input_ui_system::render(name, 5, 5);
 }
 
 bool character_create_ui_system::render() {
@@ -461,6 +450,7 @@ bool character_create_ui_system::render() {
 }
 
 bool character_create_ui_system::back_animate() {
+  SDL_StopTextInput(SDL_GetKeyboardFocus());
   if (login_ui_system::camera_animate(-80, -479)) {
     character_choose_system_instance::enter();
     return false;
@@ -944,55 +934,13 @@ bool character_create_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
-bool character_create_ui_system::event_focus_name(SDL_Event *event) {
-  SDL_FPoint p{event->button.x, event->button.y};
-  auto &camera = camera_game_instance::camera;
-  SDL_FRect pos_rect{65 - camera.x, -1400 - camera.y, 235, 30};
-  if (SDL_PointInRectFloat(&p, &pos_rect)) {
-    name_focus = true;
-    const SDL_Rect posRect = {
-        static_cast<int>(pos_rect.x),
-        static_cast<int>(pos_rect.y),
-        0,
-        30,
-    };
-    SDL_Window *window = SDL_GetKeyboardFocus();
-    /* Start-Stop */
-    SDL_StartTextInput(window);
-    SDL_SetTextInputArea(window, &posRect, 0);
-    return true;
-  }
-  name_focus = false;
-  return false;
-}
-
 bool character_create_ui_system::event(SDL_Event *event) {
+  text_input_ui_system::event(event, name);
   bool r = true;
   switch (event->type) {
-  case SDL_EVENT_TEXT_EDITING: {
-    auto text = event->edit.text;
-    if (text[0] != '\0') {
-      name_bak = freetype::load_u16str(text);
-    } else {
-      name_bak = u"";
-    }
-    break;
-  }
-  case SDL_EVENT_TEXT_INPUT: {
-    auto text = event->edit.text;
-    name = name + freetype::load_u16str(text);
-    name = name.substr(0, 10);
-    break;
-  }
   case SDL_EVENT_KEY_DOWN: {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
-    case SDL_SCANCODE_BACKSPACE: {
-      if (name_focus && !name.empty()) {
-        name.pop_back();
-      }
-      break;
-    }
     case SDL_SCANCODE_ESCAPE: {
       return false;
       break;
@@ -1005,7 +953,6 @@ bool character_create_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      event_focus_name(event);
       r = false;
     }
     break;

@@ -15,11 +15,12 @@ struct text_input {
 
   SDL_Color color;
   int font_size;
+  int cur = 0;
 };
 
 class text_input_ui_system {
 public:
-  void render(text_input &input);
-  void active(text_input &input);
-  bool event(SDL_Event *event, text_input &input);
+  static void render(text_input &input, int x, int y);
+  static void active(text_input &input);
+  static bool event(SDL_Event *event, text_input &input);
 };
