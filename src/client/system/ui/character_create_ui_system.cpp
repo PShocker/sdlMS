@@ -235,10 +235,14 @@ void character_create_ui_system::render_custom_item(float cx, float cy,
   bool choose = false;
   switch (type) {
   case choose_type::gender: {
-    if (gender) {
-      item_name = u"Female";
+    if (!gender) {
+      auto str_node =
+          wz_resource::string2->get_root()->find(u"Character.img/gender/0");
+      item_name = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     } else {
-      item_name = u"Male";
+      auto str_node =
+          wz_resource::string2->get_root()->find(u"Character.img/gender/1");
+      item_name = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     }
     if (choose_index == 0) {
       choose = true;
@@ -898,7 +902,6 @@ bool character_create_ui_system::event_button_custom(SDL_Event *event) {
 
 void character_create_ui_system::event_button_ok() {
   // check name
-  
 }
 
 void character_create_ui_system::event_button_cancel() { event_button_back(); }

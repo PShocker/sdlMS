@@ -184,7 +184,7 @@ void character_info_ui_system::render_text() {
 
   // job
   auto job_node =
-      wz_resource::string2->get_root()->find(u"JobName.img/" + character.job);
+      wz_resource::string2->get_root()->find(u"Job.img/" + character.job);
   auto job_name = static_cast<wz::Property<std::u16string> *>(job_node)->get();
   freetype::load_color(0, 0, 0, 255);
   freetype::draw_line(job_name, int(pos.x + 165), int(pos.y + 95));

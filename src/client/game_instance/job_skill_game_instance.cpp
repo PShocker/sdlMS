@@ -3,7 +3,7 @@
 #include <cstdint>
 
 void job_skill_game_instance::load_skill_point() {
-  self_skill_point = {
+  skill_point = {
       {1300000, 1},
   };
 }
@@ -13,6 +13,6 @@ void job_skill_game_instance::load() {
 }
 
 uint8_t
-job_skill_game_instance::load_self_skill_level(const std::u16string &id) {
+job_skill_game_instance::load_skill_level(const std::u16string &id) {
   return 1;
 }

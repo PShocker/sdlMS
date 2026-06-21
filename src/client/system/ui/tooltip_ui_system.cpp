@@ -5,6 +5,8 @@
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -56,45 +58,49 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
   auto equip_type = equip_game_instance::load_equip_type(id);
   if (equip_type == u"Weapon") {
     static auto weapon_node =
-        wz_resource::string2->get_root()->find(u"Equip.img/Weapon/Type");
+        wz_resource::string2->get_root()->find(u"Equip.img/weapon/type");
     auto sub_id = id.substr(0, 4);
     equip_type = static_cast<wz::Property<std::u16string> *>(
                      weapon_node->get_child(sub_id))
                      ->get();
   }
-  auto str_node = wz_resource::string2->get_root()->find(u"Equip.img/TYPE");
+  auto str_node = wz_resource::string2->get_root()->find(u"Equip.img/type");
   auto type_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
   render_equip_bottom_inc(type_str, equip_type, x, y);
   // weapon speed
   if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_SPEED)) {
     auto str_node =
-        wz_resource::string2->get_root()->find(u"Equip.img/WEAPON_SPEED");
+        wz_resource::string2->get_root()->find(u"Equip.img/attackSpeed");
     auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     std::u16string val_str;
     auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_SPEED);
     if (val >= 6) {
       // slow
       str_node = wz_resource::string2->get_root()->find(
-          u"Equip.img/Weapon/Speed/SLOW");
+          u"Equip.img/weapon/speed/slow");
       val_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     } else if (val > 4) {
       // Normal
       str_node = wz_resource::string2->get_root()->find(
-          u"Equip.img/Weapon/Speed/NORMAL");
+          u"Equip.img/weapon/speed/normal");
       val_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     } else {
       // Fast
       str_node = wz_resource::string2->get_root()->find(
-          u"Equip.img/Weapon/Speed/FAST");
+          u"Equip.img/weapon/speed/fast");
       val_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     }
+    auto speed_val_str = std::to_string(val);
+    auto speed_val_str2 =
+        std::u16string{speed_val_str.begin(), speed_val_str.end()};
+    val_str = val_str + u"(" + speed_val_str2 + u")";
     render_equip_bottom_inc(spd_str, val_str, x, y);
   }
 
   // weapon pad
   if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_PAD)) {
     auto str_node =
-        wz_resource::string2->get_root()->find(u"Equip.img/WEAPON_PAD");
+        wz_resource::string2->get_root()->find(u"Equip.img/weaponAttack");
     auto pad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_PAD);
     auto val_str = "+" + std::to_string(val);
@@ -104,7 +110,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
 
   // weapon pad
   if (equip_inc.contains(equip_game_instance::inc_type::PDD)) {
-    str_node = wz_resource::string2->get_root()->find(u"Character.img/PDD");
+    str_node = wz_resource::string2->get_root()->find(u"Character.img/pdd");
     auto pdd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::PDD);
     auto val_str = "+" + std::to_string(val);
@@ -114,7 +120,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
 
   // weapon mad
   if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_MAD)) {
-    str_node = wz_resource::string2->get_root()->find(u"Equip.img/WEAPON_MAD");
+    str_node = wz_resource::string2->get_root()->find(u"Equip.img/weaponMagic");
     auto mad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_MAD);
     auto val_str = "+" + std::to_string(val);
@@ -124,7 +130,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
 
   // acc
   if (equip_inc.contains(equip_game_instance::inc_type::ACC)) {
-    str_node = wz_resource::string2->get_root()->find(u"Character.img/ACC");
+    str_node = wz_resource::string2->get_root()->find(u"Character.img/acc");
     auto acc_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::ACC);
     auto val_str = "+" + std::to_string(val);
@@ -134,7 +140,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
 
   if (equip_inc.contains(equip_game_instance::inc_type::STR)) {
     auto str_node =
-        wz_resource::string2->get_root()->find(u"Character.img/STR");
+        wz_resource::string2->get_root()->find(u"Character.img/str");
     auto str_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::STR);
     auto val_str = "+" + std::to_string(val);
@@ -144,7 +150,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
 
   if (equip_inc.contains(equip_game_instance::inc_type::DEX)) {
     auto str_node =
-        wz_resource::string2->get_root()->find(u"Character.img/DEX");
+        wz_resource::string2->get_root()->find(u"Character.img/dex");
     auto dex_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::DEX);
     auto val_str = "+" + std::to_string(val);
@@ -154,7 +160,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
 
   if (equip_inc.contains(equip_game_instance::inc_type::INT)) {
     auto str_node =
-        wz_resource::string2->get_root()->find(u"Character.img/INT");
+        wz_resource::string2->get_root()->find(u"Character.img/int");
     auto int_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::INT);
     auto val_str = "+" + std::to_string(val);
@@ -164,7 +170,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
 
   if (equip_inc.contains(equip_game_instance::inc_type::SPEED)) {
     auto str_node =
-        wz_resource::string2->get_root()->find(u"Character.img/SPEED");
+        wz_resource::string2->get_root()->find(u"Character.img/speed");
     auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::SPEED);
     auto val_str = "+" + std::to_string(val);
@@ -174,7 +180,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
 
   if (equip_inc.contains(equip_game_instance::inc_type::JUMP)) {
     auto str_node =
-        wz_resource::string2->get_root()->find(u"Character.img/JUMP");
+        wz_resource::string2->get_root()->find(u"Character.img/jump");
     auto jump_str =
         static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::JUMP);
@@ -183,7 +189,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
         jump_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
   // enh
-  str_node = wz_resource::string2->get_root()->find(u"Equip.img/REMAIN_ENH");
+  str_node = wz_resource::string2->get_root()->find(
+      u"Equip.img/remainingEnhancements");
   auto enh_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
   auto val = equip_game_instance::load_equip_tuc(id) - equip.scroll.size();
   auto val_str = std::to_string(val);
@@ -481,8 +488,147 @@ void tooltip_ui_system::render_backgrnd(float x, float y, float w, float h) {
   SDL_RenderTextureTiled(window::renderer, texture_s, nullptr, 1, &rect);
 }
 
-void tooltip_ui_system::render_skill(std::u16string id, uint8_t level, float x,
-                                     float y) {}
+float tooltip_ui_system::load_skill_bottom_h(const std::u16string &id) {
+  auto ski_name = skill_game_instance::load_ski_name(id);
+  auto ski_level = job_skill_game_instance::load_skill_level(id);
+  float h = 0;
+  const auto w = 330;
+  freetype::load_size(12);
+  if (ski_level == 0 || ski_level == ski_name.level.size()) {
+    ski_level =
+        std::clamp(ski_level, (uint8_t)0, (uint8_t)(ski_name.level.size() - 1));
+    auto ski_l0 = ski_name.level[ski_level];
+    h += freetype::load_lh() * 1.1;
+    h += freetype::load_h(ski_l0, w);
+  } else {
+    auto ski_l0 = ski_name.level[ski_level - 1];
+    auto ski_l1 = ski_name.level[ski_level];
+    h += freetype::load_lh() * 2 * 1.1;
+    h += freetype::load_h(ski_l0, w);
+    h += freetype::load_h(ski_l1, w);
+    h += 5;
+  }
+  return h;
+}
+
+void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
+                                            uint8_t level, float x, float y) {
+  const auto w = 330;
+  auto ski_name = skill_game_instance::load_ski_name(id);
+  auto ski_level = job_skill_game_instance::load_skill_level(id);
+  auto ski_level2 = std::to_string(ski_level);
+  std::u16string ski_level3{ski_level2.begin(), ski_level2.end()};
+
+  auto next_level = ski_level + 1;
+  auto next_level2 = std::to_string(next_level);
+  std::u16string next_level3{next_level2.begin(), next_level2.end()};
+
+  if (ski_level == 0) {
+    freetype::load_size(12);
+    freetype::load_color(255, 255, 255, 255);
+    auto next_node =
+        wz_resource::string2->get_root()->find(u"Skill.img/nextLevel");
+    auto str = static_cast<wz::Property<std::u16string> *>(next_node)->get();
+
+    str = u"[" + str + u" " + next_level3 + u"]";
+    freetype::draw_line(str, x, y);
+
+    str = ski_name.level[ski_level];
+    y += freetype::load_lh() * 1.1;
+    freetype::draw_rstr(str, x + 2, y, w - 22);
+  } else if (ski_level == ski_name.level.size()) {
+    freetype::load_size(12);
+    freetype::load_color(255, 255, 255, 255);
+    auto cur_node =
+        wz_resource::string2->get_root()->find(u"Skill.img/currentLevel");
+    auto str = static_cast<wz::Property<std::u16string> *>(cur_node)->get();
+
+    str = u"[" + str + u" " + ski_level3 + u"]";
+    freetype::draw_line(str, x, y);
+
+    str = ski_name.level[ski_level - 1];
+    y += freetype::load_lh() * 1.1;
+    freetype::draw_rstr(str, x + 2, y, w - 22);
+
+  } else {
+    freetype::load_size(12);
+    freetype::load_color(255, 255, 255, 255);
+    auto cur_node =
+        wz_resource::string2->get_root()->find(u"Skill.img/currentLevel");
+    auto str = static_cast<wz::Property<std::u16string> *>(cur_node)->get();
+
+    str = u"[" + str + u" " + ski_level3 + u"]";
+    freetype::draw_line(str, x, y);
+
+    str = ski_name.level[ski_level - 1];
+    y += freetype::load_lh() * 1.1;
+    freetype::draw_rstr(str, x + 2, y, w - 22);
+
+    y += 22;
+
+    auto next_node =
+        wz_resource::string2->get_root()->find(u"Skill.img/nextLevel");
+    str = static_cast<wz::Property<std::u16string> *>(next_node)->get();
+
+    str = u"[" + str + u" " + next_level3 + u"]";
+    freetype::draw_line(str, x, y);
+    str = ski_name.level[ski_level];
+    y += freetype::load_lh() * 1.1;
+    freetype::draw_rstr(str, x + 2, y, w - 22);
+  }
+}
+
+void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
+                                     float x, float y) {
+  auto ski_name = skill_game_instance::load_ski_name(id);
+  const auto w = 330;
+  auto h = 145;
+  h += load_skill_bottom_h(id);
+  render_backgrnd(x, y, w, h);
+  static auto dot0 = wz_resource::load_texture(
+      wz_resource::ui->find(u"Tooltip.img/Equip/Dot/0"));
+
+  SDL_FRect pos_rect = {x + 10, y + 20, static_cast<float>(dot0->w),
+                        static_cast<float>(dot0->h)};
+  SDL_RenderTexture(window::renderer, dot0, nullptr, &pos_rect);
+
+  static auto item_base = wz_resource::load_texture(
+      wz_resource::ui->find(u"UIToolTip.img/Item/ItemIcon/base"));
+  SDL_FPoint base{10, 35};
+  pos_rect = {x + base.x, y + base.y, static_cast<float>(item_base->w),
+              static_cast<float>(item_base->h)};
+  SDL_RenderTexture(window::renderer, item_base, nullptr, &pos_rect);
+
+  freetype::load_color(255, 255, 255, 255);
+  freetype::load_aligned(true);
+  freetype::load_bold(true);
+  freetype::load_size(15);
+  freetype::draw_line(ski_name.name, x + 20, y + 10);
+  freetype::load_bold(false);
+
+  auto ski_node = skill_game_instance::load_skill_node(id);
+  auto ski_texture = wz_resource::load_texture(ski_node->get_child(u"icon"));
+  pos_rect.w = ski_texture->w * 2;
+  pos_rect.h = ski_texture->h * 2;
+  auto dx = 74 - pos_rect.w;
+  auto dy = 74 - pos_rect.h;
+  pos_rect.x += 4 + dx / 2;
+  pos_rect.y += 4 + dy / 2;
+
+  SDL_RenderTexture(window::renderer, ski_texture, nullptr, &pos_rect);
+
+  freetype::load_size(12);
+  freetype::load_color(255, 255, 255, 255);
+  auto str = ski_name.desc;
+  freetype::draw_str(str, pos_rect.x + 75, pos_rect.y - 4, w - 112);
+
+  auto line_y = y + base.y + 90;
+  SDL_SetRenderDrawColor(window::renderer, 255, 255, 255, 255);
+  SDL_RenderLine(window::renderer, x + 5, line_y, x + w - 5, line_y);
+
+  render_skill_bottom(id, level, x + 14, line_y + 5);
+  freetype::load_aligned(false);
+}
 
 void tooltip_ui_system::render_item(game_item &item, float x, float y) {
   auto item_name = item_game_instance::load_item_name(item.id);

@@ -65,6 +65,10 @@ std::vector<uint32_t> package_ui_system::load_blank_index(uint32_t tab) {
 }
 
 std::optional<uint32_t> package_ui_system::load_mouse_index() {
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  if (cursor_in != render) {
+    return std::nullopt;
+  }
   SDL_FPoint slot_pos{8, 51};
   const auto slot_space_x = 4;
   const auto slot_space_y = 2;

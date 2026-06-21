@@ -534,7 +534,7 @@ bool character_logic_system::run_skill(game_character &g_character) {
           static_cast<wz::Property<std::u16string> *>(action3)->get();
       run_action(g_character, action4);
     }
-    auto skill_level = job_skill_game_instance::load_self_skill_level(s_id2);
+    auto skill_level = job_skill_game_instance::load_skill_level(s_id2);
     auto skill_attack =
         skill_game_instance::load_skill_attack(s_id2, skill_level);
 

@@ -17,11 +17,16 @@ private:
   static void render_equip_bottom(game_equip &equip, float x, float y);
   static float load_equip_bottom_h(const std::u16string &id);
 
+  static void render_skill_bottom(const std::u16string &id, uint8_t level,
+                                  float x, float y);
+  static float load_skill_bottom_h(const std::u16string &id);
+
 public:
   static void render_equip(game_equip &equip, float x, float y);
   static void render_item(game_item &item, float x, float y);
   static void render_install(game_install &ins, float x, float y);
-  static void render_skill(std::u16string id, uint8_t level, float x, float y);
+  static void render_skill(const std::u16string &id, uint8_t level, float x,
+                           float y);
   static void render_world_map_info(uint32_t id, float x, float y);
   static bool event(SDL_Event *event);
 };

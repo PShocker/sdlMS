@@ -32,4 +32,11 @@ public:
   static bool load_skill_attack(const std::u16string &id, uint8_t l);
   static SDL_FRect load_skill_rect(const std::u16string &id, uint8_t l);
   static uint64_t load_ski_time(game_character &g_character);
+
+  struct skill_name {
+    std::u16string name;
+    std::u16string desc;
+    std::vector<std::u16string> level;
+  };
+  static skill_name load_ski_name(const std::u16string &id);
 };

@@ -32,9 +32,9 @@ void character_choose_ui_system::render_button() {
   auto pos = load_pos();
   auto &camera = camera_game_instance::camera;
   std::array buttons_rect = {
-      SDL_FRect{149 - camera.x, -656 - camera.y, 129, 41},
-      SDL_FRect{149 - camera.x, -607 - camera.y, 129, 45},
-      SDL_FRect{151 - camera.x, -543 - camera.y, 129, 55},
+      SDL_FRect{146 - camera.x, -656 - camera.y, 129, 41},
+      SDL_FRect{146 - camera.x, -607 - camera.y, 129, 45},
+      SDL_FRect{146 - camera.x, -544 - camera.y, 129, 55},
   };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
@@ -179,9 +179,9 @@ bool character_choose_ui_system::event_button(SDL_Event *event) {
   auto &camera = camera_game_instance::camera;
   auto pos = load_pos();
   r = {
-      SDL_FRect{149 - camera.x, -656 - camera.y, 129, 41},
-      SDL_FRect{149 - camera.x, -607 - camera.y, 129, 45},
-      SDL_FRect{151 - camera.x, -543 - camera.y, 129, 55},
+      SDL_FRect{146 - camera.x, -656 - camera.y, 129, 41},
+      SDL_FRect{146 - camera.x, -607 - camera.y, 129, 45},
+      SDL_FRect{146 - camera.x, -544 - camera.y, 129, 55},
       SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
   };
   fns = {

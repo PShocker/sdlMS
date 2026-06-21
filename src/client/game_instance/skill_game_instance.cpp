@@ -65,7 +65,8 @@ skill_game_instance::load_skill_buff(const std::u16string &id, uint8_t l) {
   return r;
 }
 
-bool skill_game_instance::load_skill_attack(const std::u16string &id, uint8_t l) {
+bool skill_game_instance::load_skill_attack(const std::u16string &id,
+                                            uint8_t l) {
   auto level_node = load_skill_level_node(id, l);
   if (level_node->get_children()->contains(u"mobCount")) {
     return true;
@@ -91,4 +92,36 @@ uint64_t skill_game_instance::load_ski_time(game_character &g_character) {
     }
   }
   return r;
+}
+
+skill_game_instance::skill_name
+skill_game_instance::load_ski_name(const std::u16string &id) {
+  static std::flat_map<std::u16string, skill_name> cache;
+  if (!cache.contains(id)) {
+    static auto ski_node = wz_resource::string->find(u"Skill.img");
+    auto node = ski_node->get_child(id);
+    skill_name ski_name;
+    ski_name.name =
+        static_cast<wz::Property<std::u16string> *>(node->get_child(u"name"))
+            ->get();
+    ski_name.desc =
+        static_cast<wz::Property<std::u16string> *>(node->get_child(u"desc"))
+            ->get();
+    const std::u16string_view pattern = u"\\n";
+    const std::u16string_view replacement = u"\n";
+    for (size_t pos = 0;
+         (pos = ski_name.desc.find(pattern, pos)) != std::u16string::npos;) {
+      ski_name.desc.replace(pos, pattern.size(), replacement);
+      pos += replacement.size();
+    }
+    auto child = node->get_children();
+    child->erase(u"name");
+    child->erase(u"desc");
+    for (auto [k, v] : *child) {
+      auto level = static_cast<wz::Property<std::u16string> *>(v[0])->get();
+      ski_name.level.push_back(level);
+    }
+    cache[id] = ski_name;
+  }
+  return cache.at(id);
 }

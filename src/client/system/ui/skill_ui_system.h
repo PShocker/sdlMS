@@ -3,18 +3,24 @@
 #include "SDL3/SDL_events.h"
 #include <cstdint>
 #include <flat_map>
+#include <optional>
+#include <string>
 
 class skill_ui_system {
 private:
+  static std::optional<std::u16string> load_mouse_ski();
   static void render_backgrnd();
   static void render_tab();
   static void render_skill_entry();
   static void render_scroll();
   static void render_info();
+  static void render_button();
 
   static SDL_FPoint load_wh();
   static uint8_t load_skill_num();
 
+  static bool event_button(SDL_Event *event);
+  static void event_close();
   static void event_top();
   static void event_drag_start(SDL_Event *event);
   static void event_drag_end();
