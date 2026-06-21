@@ -1,6 +1,7 @@
 #include "statusbar_ui_system.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "SDL3/SDL_scancode.h"
 #include "skill_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -21,8 +22,10 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <flat_map>
 #include <format>
 #include <string>
+#include <vector>
 
 void statusbar_ui_system::render_backgrnd() {
   static auto backgrnd = wz_resource::load_texture(
@@ -361,7 +364,29 @@ void statusbar_ui_system::render_button() {
 }
 
 void statusbar_ui_system::render_quickSlot() {
-  if (quickSlot) {
+  const static std::flat_map<SDL_Scancode, SDL_Texture *> textures = {
+      {SDL_SCANCODE_PAGEDOWN, wz_resource::load_texture(wz_resource::ui->find(
+                                  u"QuickSlot.img/key/81"))},
+      {SDL_SCANCODE_END, wz_resource::load_texture(
+                             wz_resource::ui->find(u"QuickSlot.img/key/79"))},
+      {SDL_SCANCODE_PAGEUP, wz_resource::load_texture(wz_resource::ui->find(
+                                u"QuickSlot.img/key/73"))},
+      {SDL_SCANCODE_HOME, wz_resource::load_texture(
+                              wz_resource::ui->find(u"QuickSlot.img/key/71"))},
+      {SDL_SCANCODE_INSERT, wz_resource::load_texture(wz_resource::ui->find(
+                                u"QuickSlot.img/key/82"))},
+      {SDL_SCANCODE_DELETE, wz_resource::load_texture(wz_resource::ui->find(
+                                u"QuickSlot.img/key/83"))},
+      {SDL_SCANCODE_LCTRL, wz_resource::load_texture(
+                               wz_resource::ui->find(u"QuickSlot.img/key/29"))},
+      {SDL_SCANCODE_LSHIFT, wz_resource::load_texture(wz_resource::ui->find(
+                                u"QuickSlot.img/key/42"))},
+  };
+  switch (quickSlot) {
+  case quick_slot::hide: {
+    break;
+  }
+  case quick_slot::two: {
     static auto q = wz_resource::load_texture(
         wz_resource::ui->find(u"QuickSlot.img/backgrnd"));
     auto screen_w = camera_game_instance::camera.w;
@@ -371,6 +396,40 @@ void statusbar_ui_system::render_quickSlot() {
     SDL_FRect p{base_x + 654, base_y - 107, static_cast<float>(q->w),
                 static_cast<float>(q->h)};
     SDL_RenderTexture(window::renderer, q, nullptr, &p);
+
+    std::vector<SDL_Texture *> t = {
+        textures.at(SDL_SCANCODE_LSHIFT), textures.at(SDL_SCANCODE_INSERT),
+        textures.at(SDL_SCANCODE_HOME),   textures.at(SDL_SCANCODE_PAGEUP),
+        textures.at(SDL_SCANCODE_LCTRL),  textures.at(SDL_SCANCODE_DELETE),
+        textures.at(SDL_SCANCODE_END),    textures.at(SDL_SCANCODE_PAGEDOWN),
+    };
+    std::vector<SDL_FPoint> r = {
+        SDL_FPoint{p.x + 9, p.y + 10},
+        SDL_FPoint{p.x + 44, p.y + 10},
+        SDL_FPoint{p.x + 79, p.y + 10},
+        SDL_FPoint{p.x + 114, p.y + 10},
+        // 2row
+        SDL_FPoint{p.x + 9, p.y + 44},
+        SDL_FPoint{p.x + 44, p.y + 44},
+        SDL_FPoint{p.x + 79, p.y + 44},
+        SDL_FPoint{p.x + 114, p.y + 44},
+    };
+    for (int i = 0; i < r.size(); i++) {
+      auto texture = t[i];
+      SDL_FRect pos_rect{
+          r[i].x,
+          r[i].y + 34,
+          static_cast<float>(texture->w),
+          static_cast<float>(texture->h),
+      };
+      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    }
+
+    break;
+  }
+  case quick_slot::three: {
+    break;
+  }
   }
 }
 

@@ -192,7 +192,6 @@ void skill_ui_system::render_skill_entry() {
   auto &mouse_pos = window::mouse_pos;
   // 判断按钮是否被遮挡
   auto cursor_in = cursor_game_instance::cursor_ui;
-  const auto &skill_point = job_skill_game_instance::skill_point;
   uint8_t i = 0;
   for (auto [k, v] : *skill_node->get_children()) {
     if (i >= max_scroll_num) {
@@ -211,7 +210,8 @@ void skill_ui_system::render_skill_entry() {
     auto skl_id2 = std::stoi(skl_id);
 
     SDL_Texture *ski_texture;
-    if (skill_point.contains(skl_id2)) {
+    auto ski_level = job_skill_game_instance::load_skill_level(k);
+    if (ski_level > 0) {
       if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
         ski_texture =
             wz_resource::load_texture(v[0]->get_child(u"iconMouseOver"));
@@ -232,7 +232,6 @@ void skill_ui_system::render_skill_entry() {
     freetype::load_aligned(true);
     freetype::load_size(12);
     freetype::draw_line(ski_name.name, pos.x + lt.x + 40, pos_rect.y - 3);
-    auto ski_level = job_skill_game_instance::load_skill_level(k);
     auto ski_level2 = std::to_string(ski_level);
     auto ski_level3 = std::u16string{ski_level2.begin(), ski_level2.end()};
     freetype::draw_line(ski_level3, pos.x + lt.x + 40, pos_rect.y + 15);
@@ -372,6 +371,24 @@ bool skill_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+bool skill_ui_system::event_click_ski(SDL_Event *event) {
+  if (cursor_game_instance::cursor_hand.has_value()) {
+    return false;
+  }
+  auto index = load_mouse_ski();
+  if (index.has_value()) {
+    auto val = std::string{index.value().begin(), index.value().end()};
+    auto sub_val = std::stoi(val);
+    cursor_game_instance::cursor_hand = cursor_game_instance::cursor_hand_data{
+        .type = cursor_game_instance::skill,
+        .val = active_tab,
+        .sub_val = static_cast<uint32_t>(sub_val),
+    };
+    return true;
+  }
+  return false;
+}
+
 bool skill_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -403,6 +420,7 @@ bool skill_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        event_click_ski(event);
         r = event_button(event);
       }
       event_drag_end();

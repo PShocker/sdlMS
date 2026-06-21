@@ -40,7 +40,12 @@ private:
   static void event_button_quickslot();
   static void event_button_chatlog();
 
-  static inline bool quickSlot = true;
+  enum class quick_slot {
+    hide,
+    two,
+    three,
+  };
+  static inline quick_slot quickSlot = quick_slot::two;
 
   static inline std::optional<std::u16string> chat;
   static inline std::optional<std::u16string> chat2;

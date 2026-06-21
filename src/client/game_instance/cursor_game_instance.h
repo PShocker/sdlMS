@@ -30,9 +30,16 @@ public:
     uint32_t val;
     uint32_t sub_val;
   };
+  enum cursor_hand_net_type {
+    drop,
+  };
+  struct cursor_hand_net_data {
+    cursor_hand_net_type type;
+    uint64_t id;
+  };
 
-  static inline std::optional<uint64_t> cursor_hand_drop_id;
+  static inline std::optional<cursor_hand_net_data> cursor_hand_net;
   static inline std::optional<cursor_hand_data> cursor_hand;
 
-  static void server_cursor_drop(const DropT& dt);
+  static void server_cursor_drop(const DropT &dt);
 };

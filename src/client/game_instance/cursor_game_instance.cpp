@@ -3,8 +3,11 @@
 #include <optional>
 
 void cursor_game_instance::server_cursor_drop(const DropT &dt) {
-  if (dt.random_id == cursor_hand_drop_id) {
-    cursor_hand_drop_id = std::nullopt;
+  if (!cursor_hand_net.has_value()) {
+    return;
+  }
+  if (dt.random_id == cursor_hand_net->id) {
+    cursor_hand_net = std::nullopt;
     auto &hand = cursor_hand.value();
     switch (hand.type) {
     case cursor_game_instance::equipment: {

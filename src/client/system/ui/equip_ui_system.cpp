@@ -292,7 +292,7 @@ bool equip_ui_system::render() {
 }
 
 bool equip_ui_system::event_click_equip(SDL_Event *event) {
-  if (cursor_game_instance::cursor_hand_drop_id.has_value()) {
+  if (cursor_game_instance::cursor_hand_net.has_value()) {
     return false;
   }
   auto index = load_mouse_index();

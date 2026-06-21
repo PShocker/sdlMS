@@ -4,13 +4,14 @@
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <string>
 
-void cursor_render_system::render_item() {
-  if (cursor_game_instance::cursor_hand_drop_id.has_value()) {
+void cursor_render_system::render_hand() {
+  if (cursor_game_instance::cursor_hand_net.has_value()) {
     return;
   }
   if (cursor_game_instance::cursor_hand.has_value()) {
@@ -73,6 +74,19 @@ void cursor_render_system::render_item() {
       break;
     }
     case cursor_game_instance::skill: {
+      auto tmp = std::format("{:07d}", hand.sub_val);
+      std::u16string ski_id{tmp.begin(), tmp.end()};
+      auto ski_node = skill_game_instance::load_skill_node(ski_id);
+      auto icon = wz_resource::load_texture(ski_node->get_child(u"icon"));
+      SDL_FRect pos_rect{
+          window::mouse_pos.x - (float)icon->w / 2,
+          window::mouse_pos.y - (float)icon->h / 2,
+          static_cast<float>(icon->w),
+          static_cast<float>(icon->h),
+      };
+      SDL_SetTextureAlphaMod(icon, 172);
+      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      SDL_SetTextureAlphaMod(icon, 255);
       break;
     }
     case cursor_game_instance::keybind: {
@@ -106,7 +120,7 @@ void cursor_render_system::render_cursor() {
 }
 
 bool cursor_render_system::render() {
-  render_item();
+  render_hand();
   render_cursor();
   return true;
 }
