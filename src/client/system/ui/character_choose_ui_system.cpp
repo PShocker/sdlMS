@@ -3,14 +3,18 @@
 #include "SDL3/SDL_rect.h"
 #include "login_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_create_ui_system.h"
 #include "src/client/system_instance/chatacter_create_system_instance.h"
 #include "src/client/system_instance/game_save_system_instance.h"
+#include "src/client/system_instance/login_notice_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include <array>
 #include <cmath>
 
 SDL_FPoint character_choose_ui_system::load_pos() {
@@ -111,16 +115,25 @@ void character_choose_ui_system::render_backgrnd() {
 
 void character_choose_ui_system::render_character() {
   SDL_FPoint pos = load_pos();
+  const std::array character_pos = {
+      SDL_FPoint{-270, -404},
+      SDL_FPoint{-110, -404},
+      SDL_FPoint{50, -404},
+  };
   for (uint8_t i = 0; i < characters.size(); i++) {
+    auto &character = characters[i];
     if (choose.has_value() && choose == i) {
-
-    } else {
     }
+    character.pos.x = character_pos[i].x;
+    character.pos.y = character_pos[i].y;
+    character_render_system::render(character);
+    character_render_system::render_nametag(character);
   }
 }
 
 bool character_choose_ui_system::render() {
   render_button();
+  render_character();
   render_backgrnd();
   render_banner();
   return true;
@@ -129,6 +142,11 @@ bool character_choose_ui_system::render() {
 void character_choose_ui_system::event_button_select() {}
 
 void character_choose_ui_system::event_button_new() {
+  if (characters.size() >= 3) {
+    login_notice_system_instance::enter(
+        login_notice_system_instance::character_full, nullptr);
+    return;
+  }
   chatacter_create_system_instance::enter_prepare();
 
   system::logic_systems.push_back(new_animate);
@@ -239,4 +257,11 @@ bool character_choose_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+bool character_choose_ui_system::run() {
+  for (auto &character : characters) {
+    character_logic_system::run_animate(character);
+  }
+  return true;
 }

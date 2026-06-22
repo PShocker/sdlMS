@@ -195,7 +195,6 @@ bool character_render_system::render_afterimage(game_character &g_character) {
 }
 
 void character_render_system::render_nametag(game_character &g_character) {
-  const auto &camera = camera_game_instance::camera;
   for (auto &n : g_character.nametags) {
     nametag_render_system::render(n, g_character.pos);
   }

@@ -206,14 +206,15 @@ SDL_FPoint character_game_instance::load_self_pos(const std::u16string &pn,
   return r;
 }
 
-void character_game_instance::load_self_nametag() {
+void character_game_instance::load_name(game_character &g,
+                                           const std::u16string &str) {
   game_nametag nametag;
-  nametag.text = u"进击的蓝蘑菇";
+  nametag.text = str;
   nametag.path = u"14";
   nametag.pos = {0, 0};
   nametag.size = 13;
   nametag.color = {255, 255, 255, 255};
-  self.nametags.push_back(nametag);
+  g.nametags.push_back(nametag);
 }
 
 void character_game_instance::load_self_character() {
@@ -226,7 +227,7 @@ void character_game_instance::load_self_character() {
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
   add_shield(self, u"01092003");
-  load_self_nametag();
+  load_name(self, u"进击的蓝蘑菇");
 }
 
 void character_game_instance::load_others_character(

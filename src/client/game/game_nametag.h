@@ -7,7 +7,7 @@
 class game_nametag {
 public:
   std::u16string text;
-  std::u16string path;
+  std::u16string path = u"";
 
   SDL_Color color;
   SDL_FPoint pos;

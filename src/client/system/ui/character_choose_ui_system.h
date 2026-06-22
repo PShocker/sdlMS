@@ -31,4 +31,5 @@ public:
 
   static bool render();
   static bool event(SDL_Event *event);
+  static bool run();
 };

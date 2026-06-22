@@ -135,14 +135,20 @@ bool game_save_system_instance::save_game() {
       }
       cst.package.push_back(std::make_unique<PackageSaveT>(pst));
     }
-    gst.data = std::make_unique<PlayerSaveT>(pst);
-    flatbuffers::FlatBufferBuilder builder;
-    auto offset = GameSave::Pack(builder, &gst);
-    builder.Finish(offset);
-    uint8_t *pointer = builder.GetBufferPointer();
-    size_t size = builder.GetSize();
-    
+    pst.data.push_back(std::make_unique<CharacterSaveT>(cst));
   }
+  gst.data = std::make_unique<PlayerSaveT>(pst);
+  flatbuffers::FlatBufferBuilder builder;
+  auto offset = GameSave::Pack(builder, &gst);
+  builder.Finish(offset);
+  uint8_t *pointer = builder.GetBufferPointer();
+  size_t size = builder.GetSize();
+  auto save_path = "./Save/" + save.username + ".bin";
+  SDL_IOStream *io = SDL_IOFromFile(save_path.c_str(), "wb");
+  if (io == NULL) {
+    return -1;
+  }
+  SDL_WriteIO(io, pointer, size);
 
   return true;
 }

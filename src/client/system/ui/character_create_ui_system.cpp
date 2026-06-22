@@ -27,6 +27,14 @@
 #include <string>
 #include <vector>
 
+bool character_create_ui_system::load_top() {
+  bool top = true;
+  if (system::render_systems[system::render_systems.size() - 2] != render) {
+    top = false;
+  }
+  return top;
+}
+
 void character_create_ui_system::render_button() {
   const static std::array buttons_nodes = {
       wz_resource::ui->find(u"Login.img/NewChar/button:ok"),
@@ -38,13 +46,14 @@ void character_create_ui_system::render_button() {
       SDL_FRect{66 - camera.x, -1154 - camera.y, 104, 52},
       SDL_FRect{160 - camera.x, -1156 - camera.y, 104, 52},
   };
+  bool top = load_top();
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = window::mouse_pos;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && top) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -121,6 +130,8 @@ void character_create_ui_system::render_stat() {
       luk_point <= 4, luk_point > 12 || remain_point == 0,
   };
 
+  bool top = load_top();
+
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
@@ -130,7 +141,7 @@ void character_create_ui_system::render_stat() {
     if (r[i]) {
       auto normal = wz_resource::load_texture(k->find(u"disabled/0"));
       SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
-    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && top) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -181,11 +192,9 @@ void character_create_ui_system::render_stat() {
 }
 
 void character_create_ui_system::render_character() {
-  auto &camera = camera_game_instance::camera;
   g_character.pos.x = -84;
   g_character.pos.y = -1211;
   // animate
-  character_logic_system::run_animate(g_character);
   character_render_system::render_character(g_character);
 }
 
@@ -391,13 +400,15 @@ void character_create_ui_system::render_custom_item(float cx, float cy,
         SDL_FRect{cx + pos.x + 95, cy + pos.y, 16, 17},  //
         SDL_FRect{cx + pos.x + 235, cy + pos.y, 16, 17}, //
     };
+
+    bool top = load_top();
     for (size_t i = 0; i < buttons_nodes.size(); ++i) {
       auto k = buttons_nodes[i];
       auto pos_rect = buttons_rect[i];
       pos_rect.x = (int)pos_rect.x;
       pos_rect.y = (int)pos_rect.y;
       auto &mouse_pos = window::mouse_pos;
-      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && top) {
         if (window::mouse_state & SDL_BUTTON_LMASK) {
           auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
           SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -499,6 +510,7 @@ void character_create_ui_system::reset_character(bool g) {
   character_game_instance::add_weapon(g_character, load_default_weapon()[0]);
   character_logic_system::run_stand_action(g_character);
   g_character.flip = 1;
+  g_character.nametags = {};
 }
 
 void character_create_ui_system::event_button_gender_prev() {
@@ -905,12 +917,26 @@ void character_create_ui_system::event_button_ok() {
   // check size
   auto &characters = character_choose_ui_system::characters;
   if (characters.size() >= 3) {
+    login_notice_system_instance::enter(
+        login_notice_system_instance::character_full, nullptr);
     return;
   }
   // check name
   auto &name_text = name.text;
+  if (name_text.empty()) {
+    login_notice_system_instance::enter(
+        login_notice_system_instance::charactername_error, nullptr);
+    return;
+  }
+  // check ap
+  if (remain_point != 0) {
+    login_notice_system_instance::enter(
+        login_notice_system_instance::character_use_ap, nullptr);
+    return;
+  }
   for (auto ch : name_text) {
-    if (SDL_ispunct(static_cast<int>(ch))) {
+    if (SDL_ispunct(static_cast<int>(ch)) ||
+        SDL_isspace(static_cast<int>(ch))) {
       // 发现标点符号
       login_notice_system_instance::enter(
           login_notice_system_instance::charactername_error, nullptr);
@@ -921,12 +947,14 @@ void character_create_ui_system::event_button_ok() {
     if (g.nametags[0].text == name_text) {
       // 名称重复
       login_notice_system_instance::enter(
-          login_notice_system_instance::charactername_error, nullptr);
+          login_notice_system_instance::charactername_used, nullptr);
       return;
     }
   }
-  g_character.nametags.push_back({.text = name_text});
+  character_game_instance::load_name(g_character, name_text);
   characters.push_back(g_character);
+
+  chatacter_create_system_instance::enter();
   event_button_back();
 }
 
@@ -1013,4 +1041,9 @@ bool character_create_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+bool character_create_ui_system::run() {
+  character_logic_system::run_animate(g_character);
+  return true;
 }

@@ -7,6 +7,7 @@
 #include <vector>
 class character_create_ui_system {
 private:
+  static bool load_top();
   static std::vector<std::u16string> load_default_face();
   static std::vector<std::u16string> load_default_hair();
   static std::vector<std::u16string> load_default_top();
@@ -102,6 +103,7 @@ public:
   static void reset_character(bool g);
   static bool render();
   static bool event(SDL_Event *event);
+  static bool run();
 
   static inline game_character g_character;
 };

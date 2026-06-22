@@ -65,8 +65,9 @@ public:
   static void init_character_bone();
 
   static void load_self();
+  static void load_name(game_character &g, const std::u16string &str);
+
   static SDL_FPoint load_self_pos(const std::u16string &pn, uint8_t index);
-  static void load_self_nametag();
   static void load_self_character();
 
   static void load_others_character(const std::unique_ptr<CharacterT> &c,

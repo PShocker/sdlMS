@@ -1,15 +1,26 @@
 #include "login_notice_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include <vector>
 
-SDL_FPoint login_notice_ui_system::load_pos() { return {100, 100}; }
+SDL_FPoint login_notice_ui_system::load_pos() {
+  SDL_FPoint pos;
+  const auto w = 1366;
+  const auto h = 768;
+  auto &camera = camera_game_instance::camera;
+  pos.x = (camera.w - w) / 2;
+  pos.y = (camera.h - h) / 2;
+  return pos;
+}
 
 void login_notice_ui_system::render_backgrnd() {
+  const auto w = 1366;
+  const auto h = 768;
   SDL_Texture *backgrnd;
   SDL_Texture *text;
   SDL_FPoint text_pos;
@@ -18,13 +29,40 @@ void login_notice_ui_system::render_backgrnd() {
   switch (type) {
   case login_notice_system_instance::charactername_error: {
     backgrnd = wz_resource::load_texture(notice_node->find(u"backgrnd/0"));
-    text = wz_resource::load_texture(notice_node->find(u"text/28"));
+    text =
+        wz_resource::load_texture(notice_node->find(u"text/cannotUseThisName"));
+    text_pos = {17, 13};
+    break;
+  }
+  case login_notice_system_instance::charactername_used: {
+    backgrnd = wz_resource::load_texture(notice_node->find(u"backgrnd/0"));
+    text = wz_resource::load_texture(notice_node->find(u"text/8"));
+    text_pos = {17, 13};
+    break;
+  }
+  case login_notice_system_instance::character_delete: {
+    backgrnd = wz_resource::load_texture(notice_node->find(u"backgrnd/0"));
+    text = wz_resource::load_texture(notice_node->find(u"text/58"));
+    text_pos = {17, 13};
+    break;
+  }
+  case login_notice_system_instance::character_full: {
+    backgrnd = wz_resource::load_texture(notice_node->find(u"backgrnd/0"));
+    text = wz_resource::load_texture(
+        notice_node->find(u"text/cannotCreateAccountMore"));
+    text_pos = {17, 13};
+    break;
+  }
+  case login_notice_system_instance::character_use_ap: {
+    backgrnd = wz_resource::load_texture(notice_node->find(u"backgrnd/0"));
+    text = wz_resource::load_texture(notice_node->find(u"text/useAllAP"));
+    text_pos = {17, 13};
     break;
   }
   }
   SDL_FRect pos_rect{
-      bx,
-      by,
+      bx + (w - backgrnd->w) / 2,
+      by + (h - backgrnd->h) / 2,
       static_cast<float>(backgrnd->w),
       static_cast<float>(backgrnd->h),
   };
@@ -38,15 +76,25 @@ void login_notice_ui_system::render_backgrnd() {
 }
 
 void login_notice_ui_system::render_button() {
+  const auto w = 1366;
+  const auto h = 768;
   std::vector<wz::Node *> buttons_nodes;
   std::vector<SDL_FRect> buttons_rect;
   auto [bx, by] = load_pos();
   switch (type) {
-  case login_notice_system_instance::charactername_error: {
+  case login_notice_system_instance::charactername_error:
+  case login_notice_system_instance::character_full:
+  case login_notice_system_instance::character_use_ap:
+  case login_notice_system_instance::charactername_used: {
     buttons_nodes = {
         wz_resource::ui->find(u"Login.img/Notice/BtYes"),
     };
-    buttons_rect = {SDL_FRect{bx, by, 50, 23}};
+    buttons_rect = {
+        SDL_FRect{bx + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+    };
+    break;
+  }
+  case login_notice_system_instance::character_delete: {
     break;
   }
   }
@@ -83,13 +131,22 @@ void login_notice_ui_system::event_close() {
 }
 
 bool login_notice_ui_system::event_button(SDL_Event *event) {
+  const auto w = 1366;
+  const auto h = 768;
   std::vector<SDL_FRect> buttons_rect;
-  std::vector<void (*)()> fns;
+  std::vector<void (*)()> fns = {event_close};
   auto [bx, by] = load_pos();
   switch (type) {
-  case login_notice_system_instance::charactername_error: {
-    buttons_rect = {SDL_FRect{bx, by, 50, 23}};
-    fns = {fn};
+  case login_notice_system_instance::charactername_error:
+  case login_notice_system_instance::character_full:
+  case login_notice_system_instance::character_use_ap:
+  case login_notice_system_instance::charactername_used: {
+    buttons_rect = {
+        SDL_FRect{bx + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+    };
+    break;
+  }
+  default: {
     break;
   }
   }
@@ -125,5 +182,7 @@ bool login_notice_ui_system::event(SDL_Event *event) {
   }
   }
 
-  return r;
+  return false;
 }
+
+bool login_notice_ui_system::run() { return true; }

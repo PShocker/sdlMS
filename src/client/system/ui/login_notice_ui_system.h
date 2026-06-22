@@ -17,5 +17,6 @@ public:
 
   static inline login_notice_system_instance::notice_type type;
   static bool render();
+  static bool run();
   static bool event(SDL_Event *event);
 };

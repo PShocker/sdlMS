@@ -62,10 +62,9 @@ void chatacter_create_system_instance::enter() {
   }
 
   system::logic_systems = {
-      backgrnd_logic_system::run,
-      obj_logic_system::run,
-      sound_logic_system::run,
-      cursor_logic_system::run,
+      backgrnd_logic_system::run,      obj_logic_system::run,
+      sound_logic_system::run,         cursor_logic_system::run,
+      character_create_ui_system::run,
   };
   system::render_systems = {
       login_system_instance::render_game,
