@@ -30,4 +30,11 @@ public:
 
   static inline uint32_t crit_rate;
   static inline uint32_t crit_damage;
+
+  static inline uint32_t hp_ap;
+  static inline uint32_t mp_ap;
+  static inline uint32_t str_ap;
+  static inline uint32_t dex_ap;
+  static inline uint32_t int_ap;
+  static inline uint32_t luk_ap;
 };

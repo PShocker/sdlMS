@@ -14,6 +14,7 @@
 #include "src/client/system/ui/text_input_ui_system.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/chatacter_create_system_instance.h"
+#include "src/client/system_instance/login_notice_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -901,7 +902,32 @@ bool character_create_ui_system::event_button_custom(SDL_Event *event) {
 }
 
 void character_create_ui_system::event_button_ok() {
+  // check size
+  auto &characters = character_choose_ui_system::characters;
+  if (characters.size() >= 3) {
+    return;
+  }
   // check name
+  auto &name_text = name.text;
+  for (auto ch : name_text) {
+    if (SDL_ispunct(static_cast<int>(ch))) {
+      // 发现标点符号
+      login_notice_system_instance::enter(
+          login_notice_system_instance::charactername_error, nullptr);
+      return;
+    }
+  }
+  for (auto g : characters) {
+    if (g.nametags[0].text == name_text) {
+      // 名称重复
+      login_notice_system_instance::enter(
+          login_notice_system_instance::charactername_error, nullptr);
+      return;
+    }
+  }
+  g_character.nametags.push_back({.text = name_text});
+  characters.push_back(g_character);
+  event_button_back();
 }
 
 void character_create_ui_system::event_button_cancel() { event_button_back(); }

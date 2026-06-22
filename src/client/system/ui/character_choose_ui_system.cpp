@@ -111,7 +111,6 @@ void character_choose_ui_system::render_backgrnd() {
 
 void character_choose_ui_system::render_character() {
   SDL_FPoint pos = load_pos();
-  auto &characters = game_save_system_instance::save.characters;
   for (uint8_t i = 0; i < characters.size(); i++) {
     if (choose.has_value() && choose == i) {
 

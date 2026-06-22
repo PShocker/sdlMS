@@ -235,11 +235,10 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
               cct.payload = std::make_unique<DropT>(dt);
               client_request::send_to_host(cct);
 
-              cursor_game_instance::cursor_hand_net =
-                  cursor_game_instance::cursor_hand_net_data{
-                      .type = cursor_game_instance::drop,
-                      .id = dt.random_id,
-                  };
+              cursor_game_instance::cursor_hand_net = {
+                  .type = cursor_game_instance::drop,
+                  .id = dt.random_id,
+              };
             } else {
               std::vector<std::optional<game_item>> *r;
               switch (active_tab) {
@@ -264,6 +263,10 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
               }
               }
             }
+            break;
+          }
+          case cursor_game_instance::skill: {
+            cursor_game_instance::cursor_hand = std::nullopt;
             break;
           }
           default: {

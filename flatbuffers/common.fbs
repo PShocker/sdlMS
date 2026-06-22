@@ -172,14 +172,14 @@ table Item{
     item_num:uint32;
 }
 
-union DropUnion {
+union ItemUnion {
     Equip,
     Item,
 }
 
 table Drop{
     random_id:uint64;
-    drop:DropUnion;
+    drop:ItemUnion;
 
     x1:float;
     y1:float;
@@ -192,11 +192,39 @@ table Drop{
     timestamp:uint64;
 }
 
-table PlayerSave{
-    username:string;
+table APSave{
+    hp_ap:uint32;
+    mp_ap:uint32;
+   
+    str_ap:uint32;
+    dex_ap:uint32;
+    int_ap:uint32;
+    luk_ap:uint32;
+}
+
+table SPSave{
+   id:uint32;
+   val:uint32;
+}
+
+
+table PackageSave{
+   id:uint32;
+   data:ItemUnion;
+}
+
+table CharacterSave{
     character:Character;
+    ap:APSave;
+    sp:[SPSave];
+    package:[PackageSave];
+}
+
+table PlayerSave{
+    data:[CharacterSave];
 }
 
 table GameSave{
-    data:[PlayerSave];
+    username:string;
+    data:PlayerSave;
 }

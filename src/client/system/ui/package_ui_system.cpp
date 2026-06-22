@@ -451,7 +451,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         return false;
       }
     }
-    cursor_game_instance::cursor_hand = cursor_game_instance::cursor_hand_data{
+    cursor_game_instance::cursor_hand = {
         .type = cursor_game_instance::package,
         .val = active_tab,
         .sub_val = index.value(),

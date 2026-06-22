@@ -379,7 +379,7 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
   if (index.has_value()) {
     auto val = std::string{index.value().begin(), index.value().end()};
     auto sub_val = std::stoi(val);
-    cursor_game_instance::cursor_hand = cursor_game_instance::cursor_hand_data{
+    cursor_game_instance::cursor_hand = {
         .type = cursor_game_instance::skill,
         .val = active_tab,
         .sub_val = static_cast<uint32_t>(sub_val),

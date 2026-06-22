@@ -9,6 +9,7 @@
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -539,13 +540,6 @@ void statusbar_ui_system::event_button_quickslot() { return; }
 
 void statusbar_ui_system::event_button_chatlog() { return; }
 
-void statusbar_ui_system::event_chat_del() {
-  if (chat.has_value()) {
-    chat.value().pop_back();
-  }
-  return;
-}
-
 std::u16string statusbar_ui_system::load_chat_type_str() {
   switch (chat_type.value()) {
   case all: {
@@ -554,55 +548,6 @@ std::u16string statusbar_ui_system::load_chat_type_str() {
   }
   }
   return u"";
-}
-
-void statusbar_ui_system::event_chat() {
-  if (chat.has_value()) {
-
-    SDL_Window *window = SDL_GetKeyboardFocus();
-    SDL_StopTextInput(window);
-    SDL_SetTextInputArea(window, nullptr, 0);
-    auto chat_str = chat.value();
-
-    CharacterChatT ct;
-    ct.payload = std::vector<uint16_t>{chat_str.begin(), chat_str.end()};
-    ct.type = all;
-
-    ClientCharacterChatT c;
-    c.map_id = scene_system_instance::map_id;
-    c.payload = std::make_unique<CharacterChatT>(ct);
-
-    chat = std::nullopt;
-    chat2 = std::nullopt;
-  } else {
-    chat = u"";
-    chat2 = u"";
-    chat_type = all;
-    auto wh = load_wh();
-    auto screen_w = camera_game_instance::camera.w;
-    auto screen_h = camera_game_instance::camera.h;
-    auto base_x = (screen_w - wh.x) / 2;
-    auto base_y = (screen_h - wh.y);
-    const SDL_Rect posRect = {static_cast<int>(base_x),
-                              static_cast<int>(base_y), 100, 32};
-    SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition");
-    SDL_Window *window = SDL_GetKeyboardFocus();
-    /* Start-Stop */
-    SDL_StartTextInput(window);
-    SDL_SetTextInputArea(window, &posRect, 0);
-  }
-}
-
-void statusbar_ui_system::event_chat_edit(const char *text) {
-  if (text[0] != '\0') {
-    chat2 = freetype::load_u16str(text);
-  } else {
-    chat2 = u"";
-  }
-}
-
-void statusbar_ui_system::event_chat_input(const char *text) {
-  chat.value() += freetype::load_u16str(text);
 }
 
 bool statusbar_ui_system::event_button(SDL_Event *event) {
@@ -643,17 +588,101 @@ bool statusbar_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+bool statusbar_ui_system::event_click_quickslot(SDL_Event *event) {
+  if (cursor_game_instance::cursor_hand_net.has_value()) {
+    return false; 
+  }
+  switch (quickSlot) {
+  case quick_slot::hide: {
+    break;
+  }
+  case quick_slot::two: {
+    static auto q = wz_resource::load_texture(
+        wz_resource::ui->find(u"QuickSlot.img/backgrnd"));
+    auto screen_w = camera_game_instance::camera.w;
+    auto screen_h = camera_game_instance::camera.h;
+    auto base_x = (screen_w - 808) / 2;
+    auto base_y = (screen_h - 73);
+    SDL_FRect p{base_x + 654, base_y - 107, static_cast<float>(q->w),
+                static_cast<float>(q->h)};
+    std::vector<SDL_Scancode> t = {
+        SDL_SCANCODE_LSHIFT, SDL_SCANCODE_INSERT,   SDL_SCANCODE_HOME,
+        SDL_SCANCODE_PAGEUP, SDL_SCANCODE_LCTRL,    SDL_SCANCODE_DELETE,
+        SDL_SCANCODE_END,    SDL_SCANCODE_PAGEDOWN,
+    };
+    std::vector<SDL_FPoint> r = {
+        SDL_FPoint{p.x + 9, p.y + 10},
+        SDL_FPoint{p.x + 44, p.y + 10},
+        SDL_FPoint{p.x + 79, p.y + 10},
+        SDL_FPoint{p.x + 114, p.y + 10},
+        // 2row
+        SDL_FPoint{p.x + 9, p.y + 44},
+        SDL_FPoint{p.x + 44, p.y + 44},
+        SDL_FPoint{p.x + 79, p.y + 44},
+        SDL_FPoint{p.x + 114, p.y + 44},
+    };
+    for (int i = 0; i < r.size(); i++) {
+      SDL_FRect pos_rect{
+          r[i].x,
+          r[i].y + 34,
+          static_cast<float>(32),
+          static_cast<float>(32),
+      };
+      if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+        if (cursor_game_instance::cursor_hand.has_value()) {
+          auto &cursor_hand = cursor_game_instance::cursor_hand.value();
+          auto scan_code = t[i];
+          switch (cursor_hand.type) {
+          case cursor_game_instance::equipment: {
+            break;
+          }
+          case cursor_game_instance::package: {
+            break;
+          }
+          case cursor_game_instance::skill: {
+            auto ski_id = std::format("{:07d}", cursor_hand.sub_val);
+            auto &key_data = keyboard_game_instance::data;
+            key_data[scan_code] = {
+                .type = "skill",
+                .val = ski_id,
+            };
+            break;
+          }
+          case cursor_game_instance::keybind: {
+            break;
+          }
+          }
+        } else {
+          auto &key_data = keyboard_game_instance::data;
+          auto scan_code = t[i];
+          if (key_data.contains(scan_code)) {
+            auto &input = key_data.at(scan_code);
+            if (input.type == "skill") {
+              auto ski_id = std::stoi(input.val);
+              cursor_game_instance::cursor_hand = {
+                  .type = cursor_game_instance::skill,
+                  .val = static_cast<uint32_t>(ski_id),
+              };
+              return true;
+            }
+          }
+        }
+        return true;
+      }
+    }
+
+    break;
+  }
+  case quick_slot::three: {
+    break;
+  }
+  }
+  return false;
+}
+
 bool statusbar_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
-  case SDL_EVENT_TEXT_EDITING: {
-    event_chat_edit(event->edit.text);
-    break;
-  }
-  case SDL_EVENT_TEXT_INPUT: {
-    event_chat_input(event->edit.text);
-    break;
-  }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
@@ -679,7 +708,6 @@ bool statusbar_ui_system::event(SDL_Event *event) {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_RETURN: {
-      event_chat();
       break;
     }
     default: {

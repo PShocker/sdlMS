@@ -16,10 +16,7 @@ private:
   static void render_chat();
   static SDL_FPoint load_wh();
 
-  static void event_chat();
-  static void event_chat_edit(const char *text);
-  static void event_chat_input(const char *text);
-  static void event_chat_del();
+  static bool event_click_quickslot(SDL_Event *event);
 
   enum chat_type {
     all,

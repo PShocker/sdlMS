@@ -14,10 +14,7 @@ void drop_game_instance::load_drop(const DropT &dt) {
   drop.goal = SDL_FPoint{dt.x2, dt.y2};
 
   switch (dt.drop.type) {
-  case fbs::DropUnion_NONE: {
-    break;
-  }
-  case fbs::DropUnion_Equip: {
+  case fbs::ItemUnion_Equip: {
     auto equipT = dt.drop.AsEquip();
     game_equip equip;
     auto tmp = std::format("{:08d}", equipT->equip_id);
@@ -25,8 +22,11 @@ void drop_game_instance::load_drop(const DropT &dt) {
     drop.data = equip;
     break;
   }
-  case fbs::DropUnion_Item: {
+  case fbs::ItemUnion_Item: {
     auto item = dt.drop.AsItem();
+    break;
+  }
+  default: {
     break;
   }
   }

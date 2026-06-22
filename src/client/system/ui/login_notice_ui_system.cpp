@@ -16,7 +16,7 @@ void login_notice_ui_system::render_backgrnd() {
   static auto notice_node = wz_resource::ui->find(u"Login.img/Notice");
   auto [bx, by] = load_pos();
   switch (type) {
-  case login_notice_system_instance::username_error: {
+  case login_notice_system_instance::charactername_error: {
     backgrnd = wz_resource::load_texture(notice_node->find(u"backgrnd/0"));
     text = wz_resource::load_texture(notice_node->find(u"text/28"));
     break;
@@ -42,7 +42,7 @@ void login_notice_ui_system::render_button() {
   std::vector<SDL_FRect> buttons_rect;
   auto [bx, by] = load_pos();
   switch (type) {
-  case login_notice_system_instance::username_error: {
+  case login_notice_system_instance::charactername_error: {
     buttons_nodes = {
         wz_resource::ui->find(u"Login.img/Notice/BtYes"),
     };
@@ -74,6 +74,7 @@ void login_notice_ui_system::render_button() {
 bool login_notice_ui_system::render() {
   render_backgrnd();
   render_button();
+  return true;
 }
 
 void login_notice_ui_system::event_close() {
@@ -86,7 +87,7 @@ bool login_notice_ui_system::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns;
   auto [bx, by] = load_pos();
   switch (type) {
-  case login_notice_system_instance::username_error: {
+  case login_notice_system_instance::charactername_error: {
     buttons_rect = {SDL_FRect{bx, by, 50, 23}};
     fns = {fn};
     break;

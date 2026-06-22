@@ -326,6 +326,7 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
   if (cursor_game_instance::cursor_hand.has_value()) {
   } else {
   }
+  return false;
 }
 
 void equip_ui_system::open() {

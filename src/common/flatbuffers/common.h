@@ -111,6 +111,22 @@ struct Drop;
 struct DropBuilder;
 struct DropT;
 
+struct APSave;
+struct APSaveBuilder;
+struct APSaveT;
+
+struct SPSave;
+struct SPSaveBuilder;
+struct SPSaveT;
+
+struct PackageSave;
+struct PackageSaveBuilder;
+struct PackageSaveT;
+
+struct CharacterSave;
+struct CharacterSaveBuilder;
+struct CharacterSaveT;
+
 struct PlayerSave;
 struct PlayerSaveBuilder;
 struct PlayerSaveT;
@@ -434,24 +450,24 @@ bool VerifyMobLogicType(::flatbuffers::VerifierTemplate<B> &verifier, const void
 template <bool B = false>
 bool VerifyMobLogicTypeVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
-enum DropUnion : uint8_t {
-  DropUnion_NONE = 0,
-  DropUnion_Equip = 1,
-  DropUnion_Item = 2,
-  DropUnion_MIN = DropUnion_NONE,
-  DropUnion_MAX = DropUnion_Item
+enum ItemUnion : uint8_t {
+  ItemUnion_NONE = 0,
+  ItemUnion_Equip = 1,
+  ItemUnion_Item = 2,
+  ItemUnion_MIN = ItemUnion_NONE,
+  ItemUnion_MAX = ItemUnion_Item
 };
 
-inline const DropUnion (&EnumValuesDropUnion())[3] {
-  static const DropUnion values[] = {
-    DropUnion_NONE,
-    DropUnion_Equip,
-    DropUnion_Item
+inline const ItemUnion (&EnumValuesItemUnion())[3] {
+  static const ItemUnion values[] = {
+    ItemUnion_NONE,
+    ItemUnion_Equip,
+    ItemUnion_Item
   };
   return values;
 }
 
-inline const char * const *EnumNamesDropUnion() {
+inline const char * const *EnumNamesItemUnion() {
   static const char * const names[4] = {
     "NONE",
     "Equip",
@@ -461,50 +477,50 @@ inline const char * const *EnumNamesDropUnion() {
   return names;
 }
 
-inline const char *EnumNameDropUnion(DropUnion e) {
-  if (::flatbuffers::IsOutRange(e, DropUnion_NONE, DropUnion_Item)) return "";
+inline const char *EnumNameItemUnion(ItemUnion e) {
+  if (::flatbuffers::IsOutRange(e, ItemUnion_NONE, ItemUnion_Item)) return "";
   const size_t index = static_cast<size_t>(e);
-  return EnumNamesDropUnion()[index];
+  return EnumNamesItemUnion()[index];
 }
 
-template<typename T> struct DropUnionTraits {
-  static const DropUnion enum_value = DropUnion_NONE;
+template<typename T> struct ItemUnionTraits {
+  static const ItemUnion enum_value = ItemUnion_NONE;
 };
 
-template<> struct DropUnionTraits<fbs::Equip> {
-  static const DropUnion enum_value = DropUnion_Equip;
+template<> struct ItemUnionTraits<fbs::Equip> {
+  static const ItemUnion enum_value = ItemUnion_Equip;
 };
 
-template<> struct DropUnionTraits<fbs::Item> {
-  static const DropUnion enum_value = DropUnion_Item;
+template<> struct ItemUnionTraits<fbs::Item> {
+  static const ItemUnion enum_value = ItemUnion_Item;
 };
 
-template<typename T> struct DropUnionUnionTraits {
-  static const DropUnion enum_value = DropUnion_NONE;
+template<typename T> struct ItemUnionUnionTraits {
+  static const ItemUnion enum_value = ItemUnion_NONE;
 };
 
-template<> struct DropUnionUnionTraits<fbs::EquipT> {
-  static const DropUnion enum_value = DropUnion_Equip;
+template<> struct ItemUnionUnionTraits<fbs::EquipT> {
+  static const ItemUnion enum_value = ItemUnion_Equip;
 };
 
-template<> struct DropUnionUnionTraits<fbs::ItemT> {
-  static const DropUnion enum_value = DropUnion_Item;
+template<> struct ItemUnionUnionTraits<fbs::ItemT> {
+  static const ItemUnion enum_value = ItemUnion_Item;
 };
 
-struct DropUnionUnion {
-  DropUnion type;
+struct ItemUnionUnion {
+  ItemUnion type;
   void *value;
 
-  DropUnionUnion() : type(DropUnion_NONE), value(nullptr) {}
-  DropUnionUnion(DropUnionUnion&& u) FLATBUFFERS_NOEXCEPT :
-    type(DropUnion_NONE), value(nullptr)
+  ItemUnionUnion() : type(ItemUnion_NONE), value(nullptr) {}
+  ItemUnionUnion(ItemUnionUnion&& u) FLATBUFFERS_NOEXCEPT :
+    type(ItemUnion_NONE), value(nullptr)
     { std::swap(type, u.type); std::swap(value, u.value); }
-  DropUnionUnion(const DropUnionUnion &);
-  DropUnionUnion &operator=(const DropUnionUnion &u)
-    { DropUnionUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
-  DropUnionUnion &operator=(DropUnionUnion &&u) FLATBUFFERS_NOEXCEPT
+  ItemUnionUnion(const ItemUnionUnion &);
+  ItemUnionUnion &operator=(const ItemUnionUnion &u)
+    { ItemUnionUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
+  ItemUnionUnion &operator=(ItemUnionUnion &&u) FLATBUFFERS_NOEXCEPT
     { std::swap(type, u.type); std::swap(value, u.value); return *this; }
-  ~DropUnionUnion() { Reset(); }
+  ~ItemUnionUnion() { Reset(); }
 
   void Reset();
 
@@ -512,37 +528,37 @@ struct DropUnionUnion {
   void Set(T&& val) {
     typedef typename std::remove_reference<T>::type RT;
     Reset();
-    type = DropUnionUnionTraits<RT>::enum_value;
-    if (type != DropUnion_NONE) {
+    type = ItemUnionUnionTraits<RT>::enum_value;
+    if (type != ItemUnion_NONE) {
       value = new RT(std::forward<T>(val));
     }
   }
 
-  static void *UnPack(const void *obj, DropUnion type, const ::flatbuffers::resolver_function_t *resolver);
+  static void *UnPack(const void *obj, ItemUnion type, const ::flatbuffers::resolver_function_t *resolver);
   ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
 
   fbs::EquipT *AsEquip() {
-    return type == DropUnion_Equip ?
+    return type == ItemUnion_Equip ?
       reinterpret_cast<fbs::EquipT *>(value) : nullptr;
   }
   const fbs::EquipT *AsEquip() const {
-    return type == DropUnion_Equip ?
+    return type == ItemUnion_Equip ?
       reinterpret_cast<const fbs::EquipT *>(value) : nullptr;
   }
   fbs::ItemT *AsItem() {
-    return type == DropUnion_Item ?
+    return type == ItemUnion_Item ?
       reinterpret_cast<fbs::ItemT *>(value) : nullptr;
   }
   const fbs::ItemT *AsItem() const {
-    return type == DropUnion_Item ?
+    return type == ItemUnion_Item ?
       reinterpret_cast<const fbs::ItemT *>(value) : nullptr;
   }
 };
 
 template <bool B = false>
-bool VerifyDropUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, DropUnion type);
+bool VerifyItemUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, ItemUnion type);
 template <bool B = false>
-bool VerifyDropUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
+bool VerifyItemUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 struct LifeStateT : public ::flatbuffers::NativeTable {
   typedef LifeState TableType;
@@ -2907,7 +2923,7 @@ inline ::flatbuffers::Offset<Item> CreateItem(
 struct DropT : public ::flatbuffers::NativeTable {
   typedef Drop TableType;
   uint64_t random_id = 0;
-  fbs::DropUnionUnion drop{};
+  fbs::ItemUnionUnion drop{};
   float x1 = 0.0f;
   float y1 = 0.0f;
   float x2 = 0.0f;
@@ -2936,25 +2952,25 @@ struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_random_id(uint64_t _random_id = 0) {
     return SetField<uint64_t>(VT_RANDOM_ID, _random_id, 0);
   }
-  fbs::DropUnion drop_type() const {
-    return static_cast<fbs::DropUnion>(GetField<uint8_t>(VT_DROP_TYPE, 0));
+  fbs::ItemUnion drop_type() const {
+    return static_cast<fbs::ItemUnion>(GetField<uint8_t>(VT_DROP_TYPE, 0));
   }
   const void *drop() const {
     return GetPointer<const void *>(VT_DROP);
   }
   template<typename T> const T *drop_as() const;
   const fbs::Equip *drop_as_Equip() const {
-    return drop_type() == fbs::DropUnion_Equip ? static_cast<const fbs::Equip *>(drop()) : nullptr;
+    return drop_type() == fbs::ItemUnion_Equip ? static_cast<const fbs::Equip *>(drop()) : nullptr;
   }
   const fbs::Item *drop_as_Item() const {
-    return drop_type() == fbs::DropUnion_Item ? static_cast<const fbs::Item *>(drop()) : nullptr;
+    return drop_type() == fbs::ItemUnion_Item ? static_cast<const fbs::Item *>(drop()) : nullptr;
   }
   template<typename T> T *mutable_drop_as();
   fbs::Equip *mutable_drop_as_Equip() {
-    return drop_type() == fbs::DropUnion_Equip ? static_cast<fbs::Equip *>(mutable_drop()) : nullptr;
+    return drop_type() == fbs::ItemUnion_Equip ? static_cast<fbs::Equip *>(mutable_drop()) : nullptr;
   }
   fbs::Item *mutable_drop_as_Item() {
-    return drop_type() == fbs::DropUnion_Item ? static_cast<fbs::Item *>(mutable_drop()) : nullptr;
+    return drop_type() == fbs::ItemUnion_Item ? static_cast<fbs::Item *>(mutable_drop()) : nullptr;
   }
   void *mutable_drop() {
     return GetPointer<void *>(VT_DROP);
@@ -3001,7 +3017,7 @@ struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint64_t>(verifier, VT_RANDOM_ID, 8) &&
            VerifyField<uint8_t>(verifier, VT_DROP_TYPE, 1) &&
            VerifyOffset(verifier, VT_DROP) &&
-           VerifyDropUnion(verifier, drop(), drop_type()) &&
+           VerifyItemUnion(verifier, drop(), drop_type()) &&
            VerifyField<float>(verifier, VT_X1, 4) &&
            VerifyField<float>(verifier, VT_Y1, 4) &&
            VerifyField<float>(verifier, VT_X2, 4) &&
@@ -3038,7 +3054,7 @@ struct DropBuilder {
   void add_random_id(uint64_t random_id) {
     fbb_.AddElement<uint64_t>(Drop::VT_RANDOM_ID, random_id, 0);
   }
-  void add_drop_type(fbs::DropUnion drop_type) {
+  void add_drop_type(fbs::ItemUnion drop_type) {
     fbb_.AddElement<uint8_t>(Drop::VT_DROP_TYPE, static_cast<uint8_t>(drop_type), 0);
   }
   void add_drop(::flatbuffers::Offset<void> drop) {
@@ -3076,7 +3092,7 @@ struct DropBuilder {
 inline ::flatbuffers::Offset<Drop> CreateDrop(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t random_id = 0,
-    fbs::DropUnion drop_type = fbs::DropUnion_NONE,
+    fbs::ItemUnion drop_type = fbs::ItemUnion_NONE,
     ::flatbuffers::Offset<void> drop = 0,
     float x1 = 0.0f,
     float y1 = 0.0f,
@@ -3099,10 +3115,440 @@ inline ::flatbuffers::Offset<Drop> CreateDrop(
 
 ::flatbuffers::Offset<Drop> CreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const DropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct APSaveT : public ::flatbuffers::NativeTable {
+  typedef APSave TableType;
+  uint32_t hp_ap = 0;
+  uint32_t mp_ap = 0;
+  uint32_t str_ap = 0;
+  uint32_t dex_ap = 0;
+  uint32_t int_ap = 0;
+  uint32_t luk_ap = 0;
+};
+
+struct APSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef APSaveT NativeTableType;
+  typedef APSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_HP_AP = 4,
+    VT_MP_AP = 6,
+    VT_STR_AP = 8,
+    VT_DEX_AP = 10,
+    VT_INT_AP = 12,
+    VT_LUK_AP = 14
+  };
+  uint32_t hp_ap() const {
+    return GetField<uint32_t>(VT_HP_AP, 0);
+  }
+  bool mutate_hp_ap(uint32_t _hp_ap = 0) {
+    return SetField<uint32_t>(VT_HP_AP, _hp_ap, 0);
+  }
+  uint32_t mp_ap() const {
+    return GetField<uint32_t>(VT_MP_AP, 0);
+  }
+  bool mutate_mp_ap(uint32_t _mp_ap = 0) {
+    return SetField<uint32_t>(VT_MP_AP, _mp_ap, 0);
+  }
+  uint32_t str_ap() const {
+    return GetField<uint32_t>(VT_STR_AP, 0);
+  }
+  bool mutate_str_ap(uint32_t _str_ap = 0) {
+    return SetField<uint32_t>(VT_STR_AP, _str_ap, 0);
+  }
+  uint32_t dex_ap() const {
+    return GetField<uint32_t>(VT_DEX_AP, 0);
+  }
+  bool mutate_dex_ap(uint32_t _dex_ap = 0) {
+    return SetField<uint32_t>(VT_DEX_AP, _dex_ap, 0);
+  }
+  uint32_t int_ap() const {
+    return GetField<uint32_t>(VT_INT_AP, 0);
+  }
+  bool mutate_int_ap(uint32_t _int_ap = 0) {
+    return SetField<uint32_t>(VT_INT_AP, _int_ap, 0);
+  }
+  uint32_t luk_ap() const {
+    return GetField<uint32_t>(VT_LUK_AP, 0);
+  }
+  bool mutate_luk_ap(uint32_t _luk_ap = 0) {
+    return SetField<uint32_t>(VT_LUK_AP, _luk_ap, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_HP_AP, 4) &&
+           VerifyField<uint32_t>(verifier, VT_MP_AP, 4) &&
+           VerifyField<uint32_t>(verifier, VT_STR_AP, 4) &&
+           VerifyField<uint32_t>(verifier, VT_DEX_AP, 4) &&
+           VerifyField<uint32_t>(verifier, VT_INT_AP, 4) &&
+           VerifyField<uint32_t>(verifier, VT_LUK_AP, 4) &&
+           verifier.EndTable();
+  }
+  APSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(APSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<APSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const APSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct APSaveBuilder {
+  typedef APSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_hp_ap(uint32_t hp_ap) {
+    fbb_.AddElement<uint32_t>(APSave::VT_HP_AP, hp_ap, 0);
+  }
+  void add_mp_ap(uint32_t mp_ap) {
+    fbb_.AddElement<uint32_t>(APSave::VT_MP_AP, mp_ap, 0);
+  }
+  void add_str_ap(uint32_t str_ap) {
+    fbb_.AddElement<uint32_t>(APSave::VT_STR_AP, str_ap, 0);
+  }
+  void add_dex_ap(uint32_t dex_ap) {
+    fbb_.AddElement<uint32_t>(APSave::VT_DEX_AP, dex_ap, 0);
+  }
+  void add_int_ap(uint32_t int_ap) {
+    fbb_.AddElement<uint32_t>(APSave::VT_INT_AP, int_ap, 0);
+  }
+  void add_luk_ap(uint32_t luk_ap) {
+    fbb_.AddElement<uint32_t>(APSave::VT_LUK_AP, luk_ap, 0);
+  }
+  explicit APSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<APSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<APSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<APSave> CreateAPSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t hp_ap = 0,
+    uint32_t mp_ap = 0,
+    uint32_t str_ap = 0,
+    uint32_t dex_ap = 0,
+    uint32_t int_ap = 0,
+    uint32_t luk_ap = 0) {
+  APSaveBuilder builder_(_fbb);
+  builder_.add_luk_ap(luk_ap);
+  builder_.add_int_ap(int_ap);
+  builder_.add_dex_ap(dex_ap);
+  builder_.add_str_ap(str_ap);
+  builder_.add_mp_ap(mp_ap);
+  builder_.add_hp_ap(hp_ap);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<APSave> CreateAPSave(::flatbuffers::FlatBufferBuilder &_fbb, const APSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct SPSaveT : public ::flatbuffers::NativeTable {
+  typedef SPSave TableType;
+  uint32_t id = 0;
+  uint32_t val = 0;
+};
+
+struct SPSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef SPSaveT NativeTableType;
+  typedef SPSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_VAL = 6
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  bool mutate_id(uint32_t _id = 0) {
+    return SetField<uint32_t>(VT_ID, _id, 0);
+  }
+  uint32_t val() const {
+    return GetField<uint32_t>(VT_VAL, 0);
+  }
+  bool mutate_val(uint32_t _val = 0) {
+    return SetField<uint32_t>(VT_VAL, _val, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_VAL, 4) &&
+           verifier.EndTable();
+  }
+  SPSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(SPSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<SPSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const SPSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct SPSaveBuilder {
+  typedef SPSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(SPSave::VT_ID, id, 0);
+  }
+  void add_val(uint32_t val) {
+    fbb_.AddElement<uint32_t>(SPSave::VT_VAL, val, 0);
+  }
+  explicit SPSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<SPSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<SPSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<SPSave> CreateSPSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    uint32_t val = 0) {
+  SPSaveBuilder builder_(_fbb);
+  builder_.add_val(val);
+  builder_.add_id(id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<SPSave> CreateSPSave(::flatbuffers::FlatBufferBuilder &_fbb, const SPSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct PackageSaveT : public ::flatbuffers::NativeTable {
+  typedef PackageSave TableType;
+  uint32_t id = 0;
+  fbs::ItemUnionUnion data{};
+};
+
+struct PackageSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef PackageSaveT NativeTableType;
+  typedef PackageSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_DATA_TYPE = 6,
+    VT_DATA = 8
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  bool mutate_id(uint32_t _id = 0) {
+    return SetField<uint32_t>(VT_ID, _id, 0);
+  }
+  fbs::ItemUnion data_type() const {
+    return static_cast<fbs::ItemUnion>(GetField<uint8_t>(VT_DATA_TYPE, 0));
+  }
+  const void *data() const {
+    return GetPointer<const void *>(VT_DATA);
+  }
+  template<typename T> const T *data_as() const;
+  const fbs::Equip *data_as_Equip() const {
+    return data_type() == fbs::ItemUnion_Equip ? static_cast<const fbs::Equip *>(data()) : nullptr;
+  }
+  const fbs::Item *data_as_Item() const {
+    return data_type() == fbs::ItemUnion_Item ? static_cast<const fbs::Item *>(data()) : nullptr;
+  }
+  template<typename T> T *mutable_data_as();
+  fbs::Equip *mutable_data_as_Equip() {
+    return data_type() == fbs::ItemUnion_Equip ? static_cast<fbs::Equip *>(mutable_data()) : nullptr;
+  }
+  fbs::Item *mutable_data_as_Item() {
+    return data_type() == fbs::ItemUnion_Item ? static_cast<fbs::Item *>(mutable_data()) : nullptr;
+  }
+  void *mutable_data() {
+    return GetPointer<void *>(VT_DATA);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_DATA_TYPE, 1) &&
+           VerifyOffset(verifier, VT_DATA) &&
+           VerifyItemUnion(verifier, data(), data_type()) &&
+           verifier.EndTable();
+  }
+  PackageSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(PackageSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<PackageSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PackageSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+template<> inline const fbs::Equip *PackageSave::data_as<fbs::Equip>() const {
+  return data_as_Equip();
+}
+
+template<> inline fbs::Equip *PackageSave::mutable_data_as<fbs::Equip>() {
+  return mutable_data_as_Equip();
+}
+
+template<> inline const fbs::Item *PackageSave::data_as<fbs::Item>() const {
+  return data_as_Item();
+}
+
+template<> inline fbs::Item *PackageSave::mutable_data_as<fbs::Item>() {
+  return mutable_data_as_Item();
+}
+
+struct PackageSaveBuilder {
+  typedef PackageSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(PackageSave::VT_ID, id, 0);
+  }
+  void add_data_type(fbs::ItemUnion data_type) {
+    fbb_.AddElement<uint8_t>(PackageSave::VT_DATA_TYPE, static_cast<uint8_t>(data_type), 0);
+  }
+  void add_data(::flatbuffers::Offset<void> data) {
+    fbb_.AddOffset(PackageSave::VT_DATA, data);
+  }
+  explicit PackageSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<PackageSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<PackageSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<PackageSave> CreatePackageSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    fbs::ItemUnion data_type = fbs::ItemUnion_NONE,
+    ::flatbuffers::Offset<void> data = 0) {
+  PackageSaveBuilder builder_(_fbb);
+  builder_.add_data(data);
+  builder_.add_id(id);
+  builder_.add_data_type(data_type);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<PackageSave> CreatePackageSave(::flatbuffers::FlatBufferBuilder &_fbb, const PackageSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct CharacterSaveT : public ::flatbuffers::NativeTable {
+  typedef CharacterSave TableType;
+  std::unique_ptr<fbs::CharacterT> character{};
+  std::unique_ptr<fbs::APSaveT> ap{};
+  std::vector<std::unique_ptr<fbs::SPSaveT>> sp{};
+  std::vector<std::unique_ptr<fbs::PackageSaveT>> package{};
+  CharacterSaveT() = default;
+  CharacterSaveT(const CharacterSaveT &o);
+  CharacterSaveT(CharacterSaveT&&) FLATBUFFERS_NOEXCEPT = default;
+  CharacterSaveT &operator=(CharacterSaveT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef CharacterSaveT NativeTableType;
+  typedef CharacterSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CHARACTER = 4,
+    VT_AP = 6,
+    VT_SP = 8,
+    VT_PACKAGE = 10
+  };
+  const fbs::Character *character() const {
+    return GetPointer<const fbs::Character *>(VT_CHARACTER);
+  }
+  fbs::Character *mutable_character() {
+    return GetPointer<fbs::Character *>(VT_CHARACTER);
+  }
+  const fbs::APSave *ap() const {
+    return GetPointer<const fbs::APSave *>(VT_AP);
+  }
+  fbs::APSave *mutable_ap() {
+    return GetPointer<fbs::APSave *>(VT_AP);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>> *sp() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>> *>(VT_SP);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>> *mutable_sp() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>> *>(VT_SP);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>> *package() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>> *>(VT_PACKAGE);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>> *mutable_package() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>> *>(VT_PACKAGE);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_CHARACTER) &&
+           verifier.VerifyTable(character()) &&
+           VerifyOffset(verifier, VT_AP) &&
+           verifier.VerifyTable(ap()) &&
+           VerifyOffset(verifier, VT_SP) &&
+           verifier.VerifyVector(sp()) &&
+           verifier.VerifyVectorOfTables(sp()) &&
+           VerifyOffset(verifier, VT_PACKAGE) &&
+           verifier.VerifyVector(package()) &&
+           verifier.VerifyVectorOfTables(package()) &&
+           verifier.EndTable();
+  }
+  CharacterSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(CharacterSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<CharacterSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct CharacterSaveBuilder {
+  typedef CharacterSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_character(::flatbuffers::Offset<fbs::Character> character) {
+    fbb_.AddOffset(CharacterSave::VT_CHARACTER, character);
+  }
+  void add_ap(::flatbuffers::Offset<fbs::APSave> ap) {
+    fbb_.AddOffset(CharacterSave::VT_AP, ap);
+  }
+  void add_sp(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>>> sp) {
+    fbb_.AddOffset(CharacterSave::VT_SP, sp);
+  }
+  void add_package(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>>> package) {
+    fbb_.AddOffset(CharacterSave::VT_PACKAGE, package);
+  }
+  explicit CharacterSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<CharacterSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<CharacterSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<fbs::Character> character = 0,
+    ::flatbuffers::Offset<fbs::APSave> ap = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>>> sp = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>>> package = 0) {
+  CharacterSaveBuilder builder_(_fbb);
+  builder_.add_package(package);
+  builder_.add_sp(sp);
+  builder_.add_ap(ap);
+  builder_.add_character(character);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<fbs::Character> character = 0,
+    ::flatbuffers::Offset<fbs::APSave> ap = 0,
+    const std::vector<::flatbuffers::Offset<fbs::SPSave>> *sp = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::PackageSave>> *package = nullptr) {
+  auto sp__ = sp ? _fbb.CreateVector<::flatbuffers::Offset<fbs::SPSave>>(*sp) : 0;
+  auto package__ = package ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PackageSave>>(*package) : 0;
+  return fbs::CreateCharacterSave(
+      _fbb,
+      character,
+      ap,
+      sp__,
+      package__);
+}
+
+::flatbuffers::Offset<CharacterSave> CreateCharacterSave(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct PlayerSaveT : public ::flatbuffers::NativeTable {
   typedef PlayerSave TableType;
-  std::string username{};
-  std::unique_ptr<fbs::CharacterT> character{};
+  std::vector<std::unique_ptr<fbs::CharacterSaveT>> data{};
   PlayerSaveT() = default;
   PlayerSaveT(const PlayerSaveT &o);
   PlayerSaveT(PlayerSaveT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -3113,28 +3559,20 @@ struct PlayerSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef PlayerSaveT NativeTableType;
   typedef PlayerSaveBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_USERNAME = 4,
-    VT_CHARACTER = 6
+    VT_DATA = 4
   };
-  const ::flatbuffers::String *username() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_USERNAME);
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>> *data() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>> *>(VT_DATA);
   }
-  ::flatbuffers::String *mutable_username() {
-    return GetPointer<::flatbuffers::String *>(VT_USERNAME);
-  }
-  const fbs::Character *character() const {
-    return GetPointer<const fbs::Character *>(VT_CHARACTER);
-  }
-  fbs::Character *mutable_character() {
-    return GetPointer<fbs::Character *>(VT_CHARACTER);
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>> *mutable_data() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>> *>(VT_DATA);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_USERNAME) &&
-           verifier.VerifyString(username()) &&
-           VerifyOffset(verifier, VT_CHARACTER) &&
-           verifier.VerifyTable(character()) &&
+           VerifyOffset(verifier, VT_DATA) &&
+           verifier.VerifyVector(data()) &&
+           verifier.VerifyVectorOfTables(data()) &&
            verifier.EndTable();
   }
   PlayerSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -3146,11 +3584,8 @@ struct PlayerSaveBuilder {
   typedef PlayerSave Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_username(::flatbuffers::Offset<::flatbuffers::String> username) {
-    fbb_.AddOffset(PlayerSave::VT_USERNAME, username);
-  }
-  void add_character(::flatbuffers::Offset<fbs::Character> character) {
-    fbb_.AddOffset(PlayerSave::VT_CHARACTER, character);
+  void add_data(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>>> data) {
+    fbb_.AddOffset(PlayerSave::VT_DATA, data);
   }
   explicit PlayerSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -3165,30 +3600,27 @@ struct PlayerSaveBuilder {
 
 inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSave(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::String> username = 0,
-    ::flatbuffers::Offset<fbs::Character> character = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSave>>> data = 0) {
   PlayerSaveBuilder builder_(_fbb);
-  builder_.add_character(character);
-  builder_.add_username(username);
+  builder_.add_data(data);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSaveDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const char *username = nullptr,
-    ::flatbuffers::Offset<fbs::Character> character = 0) {
-  auto username__ = username ? _fbb.CreateString(username) : 0;
+    const std::vector<::flatbuffers::Offset<fbs::CharacterSave>> *data = nullptr) {
+  auto data__ = data ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterSave>>(*data) : 0;
   return fbs::CreatePlayerSave(
       _fbb,
-      username__,
-      character);
+      data__);
 }
 
 ::flatbuffers::Offset<PlayerSave> CreatePlayerSave(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct GameSaveT : public ::flatbuffers::NativeTable {
   typedef GameSave TableType;
-  std::vector<std::unique_ptr<fbs::PlayerSaveT>> data{};
+  std::string username{};
+  std::unique_ptr<fbs::PlayerSaveT> data{};
   GameSaveT() = default;
   GameSaveT(const GameSaveT &o);
   GameSaveT(GameSaveT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -3199,20 +3631,28 @@ struct GameSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef GameSaveT NativeTableType;
   typedef GameSaveBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_DATA = 4
+    VT_USERNAME = 4,
+    VT_DATA = 6
   };
-  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>> *data() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>> *>(VT_DATA);
+  const ::flatbuffers::String *username() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_USERNAME);
   }
-  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>> *mutable_data() {
-    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>> *>(VT_DATA);
+  ::flatbuffers::String *mutable_username() {
+    return GetPointer<::flatbuffers::String *>(VT_USERNAME);
+  }
+  const fbs::PlayerSave *data() const {
+    return GetPointer<const fbs::PlayerSave *>(VT_DATA);
+  }
+  fbs::PlayerSave *mutable_data() {
+    return GetPointer<fbs::PlayerSave *>(VT_DATA);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_USERNAME) &&
+           verifier.VerifyString(username()) &&
            VerifyOffset(verifier, VT_DATA) &&
-           verifier.VerifyVector(data()) &&
-           verifier.VerifyVectorOfTables(data()) &&
+           verifier.VerifyTable(data()) &&
            verifier.EndTable();
   }
   GameSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -3224,7 +3664,10 @@ struct GameSaveBuilder {
   typedef GameSave Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_data(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>>> data) {
+  void add_username(::flatbuffers::Offset<::flatbuffers::String> username) {
+    fbb_.AddOffset(GameSave::VT_USERNAME, username);
+  }
+  void add_data(::flatbuffers::Offset<fbs::PlayerSave> data) {
     fbb_.AddOffset(GameSave::VT_DATA, data);
   }
   explicit GameSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
@@ -3240,19 +3683,23 @@ struct GameSaveBuilder {
 
 inline ::flatbuffers::Offset<GameSave> CreateGameSave(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PlayerSave>>> data = 0) {
+    ::flatbuffers::Offset<::flatbuffers::String> username = 0,
+    ::flatbuffers::Offset<fbs::PlayerSave> data = 0) {
   GameSaveBuilder builder_(_fbb);
   builder_.add_data(data);
+  builder_.add_username(username);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<GameSave> CreateGameSaveDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<::flatbuffers::Offset<fbs::PlayerSave>> *data = nullptr) {
-  auto data__ = data ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PlayerSave>>(*data) : 0;
+    const char *username = nullptr,
+    ::flatbuffers::Offset<fbs::PlayerSave> data = 0) {
+  auto username__ = username ? _fbb.CreateString(username) : 0;
   return fbs::CreateGameSave(
       _fbb,
-      data__);
+      username__,
+      data);
 }
 
 ::flatbuffers::Offset<GameSave> CreateGameSave(::flatbuffers::FlatBufferBuilder &_fbb, const GameSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -4135,7 +4582,7 @@ inline void Drop::UnPackTo(DropT *_o, const ::flatbuffers::resolver_function_t *
   (void)_resolver;
   { auto _e = random_id(); _o->random_id = _e; }
   { auto _e = drop_type(); _o->drop.type = _e; }
-  { auto _e = drop(); if (_e) _o->drop.value = fbs::DropUnionUnion::UnPack(_e, drop_type(), _resolver); }
+  { auto _e = drop(); if (_e) _o->drop.value = fbs::ItemUnionUnion::UnPack(_e, drop_type(), _resolver); }
   { auto _e = x1(); _o->x1 = _e; }
   { auto _e = y1(); _o->y1 = _e; }
   { auto _e = x2(); _o->x2 = _e; }
@@ -4174,14 +4621,167 @@ inline ::flatbuffers::Offset<Drop> Drop::Pack(::flatbuffers::FlatBufferBuilder &
       _timestamp);
 }
 
-inline PlayerSaveT::PlayerSaveT(const PlayerSaveT &o)
-      : username(o.username),
-        character((o.character) ? new fbs::CharacterT(*o.character) : nullptr) {
+inline APSaveT *APSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<APSaveT>(new APSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void APSave::UnPackTo(APSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = hp_ap(); _o->hp_ap = _e; }
+  { auto _e = mp_ap(); _o->mp_ap = _e; }
+  { auto _e = str_ap(); _o->str_ap = _e; }
+  { auto _e = dex_ap(); _o->dex_ap = _e; }
+  { auto _e = int_ap(); _o->int_ap = _e; }
+  { auto _e = luk_ap(); _o->luk_ap = _e; }
+}
+
+inline ::flatbuffers::Offset<APSave> CreateAPSave(::flatbuffers::FlatBufferBuilder &_fbb, const APSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return APSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<APSave> APSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const APSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const APSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _hp_ap = _o->hp_ap;
+  auto _mp_ap = _o->mp_ap;
+  auto _str_ap = _o->str_ap;
+  auto _dex_ap = _o->dex_ap;
+  auto _int_ap = _o->int_ap;
+  auto _luk_ap = _o->luk_ap;
+  return fbs::CreateAPSave(
+      _fbb,
+      _hp_ap,
+      _mp_ap,
+      _str_ap,
+      _dex_ap,
+      _int_ap,
+      _luk_ap);
+}
+
+inline SPSaveT *SPSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<SPSaveT>(new SPSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void SPSave::UnPackTo(SPSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = id(); _o->id = _e; }
+  { auto _e = val(); _o->val = _e; }
+}
+
+inline ::flatbuffers::Offset<SPSave> CreateSPSave(::flatbuffers::FlatBufferBuilder &_fbb, const SPSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return SPSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<SPSave> SPSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const SPSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const SPSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _id = _o->id;
+  auto _val = _o->val;
+  return fbs::CreateSPSave(
+      _fbb,
+      _id,
+      _val);
+}
+
+inline PackageSaveT *PackageSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<PackageSaveT>(new PackageSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void PackageSave::UnPackTo(PackageSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = id(); _o->id = _e; }
+  { auto _e = data_type(); _o->data.type = _e; }
+  { auto _e = data(); if (_e) _o->data.value = fbs::ItemUnionUnion::UnPack(_e, data_type(), _resolver); }
+}
+
+inline ::flatbuffers::Offset<PackageSave> CreatePackageSave(::flatbuffers::FlatBufferBuilder &_fbb, const PackageSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return PackageSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<PackageSave> PackageSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const PackageSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const PackageSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _id = _o->id;
+  auto _data_type = _o->data.type;
+  auto _data = _o->data.Pack(_fbb);
+  return fbs::CreatePackageSave(
+      _fbb,
+      _id,
+      _data_type,
+      _data);
+}
+
+inline CharacterSaveT::CharacterSaveT(const CharacterSaveT &o)
+      : character((o.character) ? new fbs::CharacterT(*o.character) : nullptr),
+        ap((o.ap) ? new fbs::APSaveT(*o.ap) : nullptr) {
+  sp.reserve(o.sp.size());
+  for (const auto &sp_ : o.sp) { sp.emplace_back((sp_) ? new fbs::SPSaveT(*sp_) : nullptr); }
+  package.reserve(o.package.size());
+  for (const auto &package_ : o.package) { package.emplace_back((package_) ? new fbs::PackageSaveT(*package_) : nullptr); }
+}
+
+inline CharacterSaveT &CharacterSaveT::operator=(CharacterSaveT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(character, o.character);
+  std::swap(ap, o.ap);
+  std::swap(sp, o.sp);
+  std::swap(package, o.package);
+  return *this;
+}
+
+inline CharacterSaveT *CharacterSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<CharacterSaveT>(new CharacterSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void CharacterSave::UnPackTo(CharacterSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = character(); if (_e) { if(_o->character) { _e->UnPackTo(_o->character.get(), _resolver); } else { _o->character = std::unique_ptr<fbs::CharacterT>(_e->UnPack(_resolver)); } } else if (_o->character) { _o->character.reset(); } }
+  { auto _e = ap(); if (_e) { if(_o->ap) { _e->UnPackTo(_o->ap.get(), _resolver); } else { _o->ap = std::unique_ptr<fbs::APSaveT>(_e->UnPack(_resolver)); } } else if (_o->ap) { _o->ap.reset(); } }
+  { auto _e = sp(); if (_e) { _o->sp.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->sp[_i]) { _e->Get(_i)->UnPackTo(_o->sp[_i].get(), _resolver); } else { _o->sp[_i] = std::unique_ptr<fbs::SPSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->sp.resize(0); } }
+  { auto _e = package(); if (_e) { _o->package.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->package[_i]) { _e->Get(_i)->UnPackTo(_o->package[_i].get(), _resolver); } else { _o->package[_i] = std::unique_ptr<fbs::PackageSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->package.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return CharacterSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _character = _o->character ? CreateCharacter(_fbb, _o->character.get(), _rehasher) : 0;
+  auto _ap = _o->ap ? CreateAPSave(_fbb, _o->ap.get(), _rehasher) : 0;
+  auto _sp = _o->sp.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::SPSave>> (_o->sp.size(), [](size_t i, _VectorArgs *__va) { return CreateSPSave(*__va->__fbb, __va->__o->sp[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _package = _o->package.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PackageSave>> (_o->package.size(), [](size_t i, _VectorArgs *__va) { return CreatePackageSave(*__va->__fbb, __va->__o->package[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateCharacterSave(
+      _fbb,
+      _character,
+      _ap,
+      _sp,
+      _package);
+}
+
+inline PlayerSaveT::PlayerSaveT(const PlayerSaveT &o) {
+  data.reserve(o.data.size());
+  for (const auto &data_ : o.data) { data.emplace_back((data_) ? new fbs::CharacterSaveT(*data_) : nullptr); }
 }
 
 inline PlayerSaveT &PlayerSaveT::operator=(PlayerSaveT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(username, o.username);
-  std::swap(character, o.character);
+  std::swap(data, o.data);
   return *this;
 }
 
@@ -4194,8 +4794,7 @@ inline PlayerSaveT *PlayerSave::UnPack(const ::flatbuffers::resolver_function_t 
 inline void PlayerSave::UnPackTo(PlayerSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = username(); if (_e) _o->username = _e->str(); }
-  { auto _e = character(); if (_e) { if(_o->character) { _e->UnPackTo(_o->character.get(), _resolver); } else { _o->character = std::unique_ptr<fbs::CharacterT>(_e->UnPack(_resolver)); } } else if (_o->character) { _o->character.reset(); } }
+  { auto _e = data(); if (_e) { _o->data.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->data[_i]) { _e->Get(_i)->UnPackTo(_o->data[_i].get(), _resolver); } else { _o->data[_i] = std::unique_ptr<fbs::CharacterSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->data.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<PlayerSave> CreatePlayerSave(::flatbuffers::FlatBufferBuilder &_fbb, const PlayerSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4206,20 +4805,19 @@ inline ::flatbuffers::Offset<PlayerSave> PlayerSave::Pack(::flatbuffers::FlatBuf
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const PlayerSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _username = _o->username.empty() ? 0 : _fbb.CreateString(_o->username);
-  auto _character = _o->character ? CreateCharacter(_fbb, _o->character.get(), _rehasher) : 0;
+  auto _data = _o->data.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterSave>> (_o->data.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterSave(*__va->__fbb, __va->__o->data[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreatePlayerSave(
       _fbb,
-      _username,
-      _character);
+      _data);
 }
 
-inline GameSaveT::GameSaveT(const GameSaveT &o) {
-  data.reserve(o.data.size());
-  for (const auto &data_ : o.data) { data.emplace_back((data_) ? new fbs::PlayerSaveT(*data_) : nullptr); }
+inline GameSaveT::GameSaveT(const GameSaveT &o)
+      : username(o.username),
+        data((o.data) ? new fbs::PlayerSaveT(*o.data) : nullptr) {
 }
 
 inline GameSaveT &GameSaveT::operator=(GameSaveT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(username, o.username);
   std::swap(data, o.data);
   return *this;
 }
@@ -4233,7 +4831,8 @@ inline GameSaveT *GameSave::UnPack(const ::flatbuffers::resolver_function_t *_re
 inline void GameSave::UnPackTo(GameSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = data(); if (_e) { _o->data.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->data[_i]) { _e->Get(_i)->UnPackTo(_o->data[_i].get(), _resolver); } else { _o->data[_i] = std::unique_ptr<fbs::PlayerSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->data.resize(0); } }
+  { auto _e = username(); if (_e) _o->username = _e->str(); }
+  { auto _e = data(); if (_e) { if(_o->data) { _e->UnPackTo(_o->data.get(), _resolver); } else { _o->data = std::unique_ptr<fbs::PlayerSaveT>(_e->UnPack(_resolver)); } } else if (_o->data) { _o->data.reset(); } }
 }
 
 inline ::flatbuffers::Offset<GameSave> CreateGameSave(::flatbuffers::FlatBufferBuilder &_fbb, const GameSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4244,9 +4843,11 @@ inline ::flatbuffers::Offset<GameSave> GameSave::Pack(::flatbuffers::FlatBufferB
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const GameSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _data = _o->data.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PlayerSave>> (_o->data.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayerSave(*__va->__fbb, __va->__o->data[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _username = _o->username.empty() ? 0 : _fbb.CreateString(_o->username);
+  auto _data = _o->data ? CreatePlayerSave(_fbb, _o->data.get(), _rehasher) : 0;
   return fbs::CreateGameSave(
       _fbb,
+      _username,
       _data);
 }
 
@@ -4544,16 +5145,16 @@ inline void MobLogicTypeUnion::Reset() {
 }
 
 template <bool B>
-inline bool VerifyDropUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, DropUnion type) {
+inline bool VerifyItemUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, ItemUnion type) {
   switch (type) {
-    case DropUnion_NONE: {
+    case ItemUnion_NONE: {
       return true;
     }
-    case DropUnion_Equip: {
+    case ItemUnion_Equip: {
       auto ptr = reinterpret_cast<const fbs::Equip *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case DropUnion_Item: {
+    case ItemUnion_Item: {
       auto ptr = reinterpret_cast<const fbs::Item *>(obj);
       return verifier.VerifyTable(ptr);
     }
@@ -4562,26 +5163,26 @@ inline bool VerifyDropUnion(::flatbuffers::VerifierTemplate<B> &verifier, const 
 }
 
 template <bool B>
-inline bool VerifyDropUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
+inline bool VerifyItemUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
   if (!values || !types) return !values && !types;
   if (values->size() != types->size()) return false;
   for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
-    if (!VerifyDropUnion(
-        verifier,  values->Get(i), types->GetEnum<DropUnion>(i))) {
+    if (!VerifyItemUnion(
+        verifier,  values->Get(i), types->GetEnum<ItemUnion>(i))) {
       return false;
     }
   }
   return true;
 }
 
-inline void *DropUnionUnion::UnPack(const void *obj, DropUnion type, const ::flatbuffers::resolver_function_t *resolver) {
+inline void *ItemUnionUnion::UnPack(const void *obj, ItemUnion type, const ::flatbuffers::resolver_function_t *resolver) {
   (void)resolver;
   switch (type) {
-    case DropUnion_Equip: {
+    case ItemUnion_Equip: {
       auto ptr = reinterpret_cast<const fbs::Equip *>(obj);
       return ptr->UnPack(resolver);
     }
-    case DropUnion_Item: {
+    case ItemUnion_Item: {
       auto ptr = reinterpret_cast<const fbs::Item *>(obj);
       return ptr->UnPack(resolver);
     }
@@ -4589,14 +5190,14 @@ inline void *DropUnionUnion::UnPack(const void *obj, DropUnion type, const ::fla
   }
 }
 
-inline ::flatbuffers::Offset<void> DropUnionUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
+inline ::flatbuffers::Offset<void> ItemUnionUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
   (void)_rehasher;
   switch (type) {
-    case DropUnion_Equip: {
+    case ItemUnion_Equip: {
       auto ptr = reinterpret_cast<const fbs::EquipT *>(value);
       return CreateEquip(_fbb, ptr, _rehasher).Union();
     }
-    case DropUnion_Item: {
+    case ItemUnion_Item: {
       auto ptr = reinterpret_cast<const fbs::ItemT *>(value);
       return CreateItem(_fbb, ptr, _rehasher).Union();
     }
@@ -4604,13 +5205,13 @@ inline ::flatbuffers::Offset<void> DropUnionUnion::Pack(::flatbuffers::FlatBuffe
   }
 }
 
-inline DropUnionUnion::DropUnionUnion(const DropUnionUnion &u) : type(u.type), value(nullptr) {
+inline ItemUnionUnion::ItemUnionUnion(const ItemUnionUnion &u) : type(u.type), value(nullptr) {
   switch (type) {
-    case DropUnion_Equip: {
+    case ItemUnion_Equip: {
       value = new fbs::EquipT(*reinterpret_cast<fbs::EquipT *>(u.value));
       break;
     }
-    case DropUnion_Item: {
+    case ItemUnion_Item: {
       value = new fbs::ItemT(*reinterpret_cast<fbs::ItemT *>(u.value));
       break;
     }
@@ -4619,14 +5220,14 @@ inline DropUnionUnion::DropUnionUnion(const DropUnionUnion &u) : type(u.type), v
   }
 }
 
-inline void DropUnionUnion::Reset() {
+inline void ItemUnionUnion::Reset() {
   switch (type) {
-    case DropUnion_Equip: {
+    case ItemUnion_Equip: {
       auto ptr = reinterpret_cast<fbs::EquipT *>(value);
       delete ptr;
       break;
     }
-    case DropUnion_Item: {
+    case ItemUnion_Item: {
       auto ptr = reinterpret_cast<fbs::ItemT *>(value);
       delete ptr;
       break;
@@ -4634,7 +5235,7 @@ inline void DropUnionUnion::Reset() {
     default: break;
   }
   value = nullptr;
-  type = DropUnion_NONE;
+  type = ItemUnion_NONE;
 }
 
 }  // namespace fbs
