@@ -1,10 +1,12 @@
 #pragma once
 
+#include "src/client/game/game_save.h"
 #include <cstdint>
 #include <flat_map>
 #include <string>
 class job_skill_game_instance {
 public:
+  static void load(const character_save &cs);
   static uint8_t load_skill_level(const std::u16string &id);
 
   static inline std::flat_map<uint32_t, uint8_t> skill_point;

@@ -207,7 +207,7 @@ SDL_FPoint character_game_instance::load_self_pos(const std::u16string &pn,
 }
 
 void character_game_instance::load_name(game_character &g,
-                                           const std::u16string &str) {
+                                        const std::u16string &str) {
   game_nametag nametag;
   nametag.text = str;
   nametag.path = u"14";
@@ -230,8 +230,9 @@ void character_game_instance::load_self_character() {
   load_name(self, u"进击的蓝蘑菇");
 }
 
-void character_game_instance::load_others_character(
-    const std::unique_ptr<CharacterT> &c, game_character &g_character) {
+game_character character_game_instance::load_others_character(
+    const std::unique_ptr<CharacterT> &c) {
+  game_character g_character;
   const auto &appearance = c->appearance;
 
   std::string tmp = std::format("{:08d}", appearance->body);
@@ -252,12 +253,12 @@ void character_game_instance::load_others_character(
     e.id = {tmp.begin(), tmp.end()};
     equip_game_instance::add_equip(e, g_character, 0);
   }
+  return g_character;
 }
 
 void character_game_instance::load_others_character(
     const std::unique_ptr<fbs::PlayerT> &c) {
-  game_character g_character;
-  load_others_character(c->character, g_character);
+  auto g_character = load_others_character(c->character);
 
   const auto &state = c->character->state;
   g_character.pos = SDL_FPoint{

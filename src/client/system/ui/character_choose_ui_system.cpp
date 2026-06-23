@@ -1,8 +1,13 @@
 #include "character_choose_ui_system.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "login_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -12,10 +17,14 @@
 #include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_notice_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include <array>
 #include <cmath>
+#include <cstdint>
+#include <vector>
 
 SDL_FPoint character_choose_ui_system::load_pos() {
   SDL_FPoint pos;
@@ -123,11 +132,67 @@ void character_choose_ui_system::render_character() {
   for (uint8_t i = 0; i < characters.size(); i++) {
     auto &character = characters[i];
     if (choose.has_value() && choose == i) {
+      render_character_board(i);
     }
     character.pos.x = character_pos[i].x;
     character.pos.y = character_pos[i].y;
     character_render_system::render(character);
     character_render_system::render_nametag(character);
+  }
+}
+
+void character_choose_ui_system::render_character_board(uint8_t i) {
+  const std::array board_pos = {
+      SDL_FPoint{-270, -404},
+      SDL_FPoint{-110, -404},
+      SDL_FPoint{50, -404},
+  };
+  auto ani = boards[i];
+  const static std::vector<SDL_Texture *> textures = {
+      wz_resource::load_texture(
+          wz_resource::ui->find(u"Login.img/CharSelect/Statboard/open/0")),
+      wz_resource::load_texture(
+          wz_resource::ui->find(u"Login.img/CharSelect/Statboard/open/1")),
+      wz_resource::load_texture(
+          wz_resource::ui->find(u"Login.img/CharSelect/Statboard/open/2")),
+      wz_resource::load_texture(
+          wz_resource::ui->find(u"Login.img/CharSelect/Statboard/open/3")),
+  };
+  auto t = textures.at(ani.ani_index);
+  SDL_FRect pos_rect{
+      board_pos[i].x,
+      board_pos[i].y,
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  if (ani.ani_index == ani.ani_delay.size() - 1) {
+    // render stat
+    static SDL_Texture *charInfo =
+        wz_resource::load_texture(wz_resource::ui->find(
+            u"Login.img/CharSelect/Statboard/canvas:charInfo"));
+    SDL_RenderTexture(window::renderer, charInfo, nullptr, &pos_rect);
+
+    const auto &cs = game_save_system_instance::save.characters[i];
+    freetype::load_size(13);
+    freetype::load_aligned(true);
+    freetype::load_color(0, 0, 0, 255);
+    auto str1 = std::to_string(cs.ap.str_ap);
+    auto str2 = std::u16string{str1.begin(), str1.end()};
+    freetype::draw_line(str2, 0, 0);
+
+    str1 = std::to_string(cs.ap.dex_ap);
+    str2 = std::u16string{str1.begin(), str1.end()};
+    freetype::draw_line(str2, 0, 0);
+
+    str1 = std::to_string(cs.ap.int_ap);
+    str2 = std::u16string{str1.begin(), str1.end()};
+    freetype::draw_line(str2, 0, 0);
+
+    str1 = std::to_string(cs.ap.luk_ap);
+    str2 = std::u16string{str1.begin(), str1.end()};
+    freetype::draw_line(str2, 0, 0);
+    freetype::load_aligned(false);
   }
 }
 
@@ -139,7 +204,32 @@ bool character_choose_ui_system::render() {
   return true;
 }
 
-void character_choose_ui_system::event_button_select() {}
+void character_choose_ui_system::event_button_select() {
+  if (!choose.has_value()) {
+    return;
+  }
+  auto cse = choose.value();
+  auto character = characters[cse];
+  uint32_t map_id = 10;
+  // load
+  for (auto &cs : game_save_system_instance::save.characters) {
+    if (cs.character.nametags[0].text == character.nametags[0].text) {
+      map_id = cs.map_id;
+      // load pack,ski,ap,sp
+      package_game_instance::load(cs);
+      character_stat_game_instance::load(cs);
+      job_skill_game_instance::load(cs);
+    }
+  }
+  // init
+  character_game_instance::self = character;
+
+  scene_system_instance::enter_prepare(map_id, u"sp", 0);
+  // notice login
+  auto notice_type = login_notice_system_instance::logining;
+  login_notice_system_instance::enter(notice_type, NULL);
+  return;
+}
 
 void character_choose_ui_system::event_button_new() {
   if (characters.size() >= 3) {
@@ -190,6 +280,10 @@ void character_choose_ui_system::event_button_back() {
   system::event_systems = {};
 }
 
+bool character_choose_ui_system::event_choose_character(SDL_Event *event) {
+  return false;
+}
+
 bool character_choose_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
@@ -217,13 +311,14 @@ bool character_choose_ui_system::event_button(SDL_Event *event) {
     }
   }
 
-  return false;
+  return true;
 }
 
 bool character_choose_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN: {
+    r = event_choose_character(event);
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
@@ -244,7 +339,8 @@ bool character_choose_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      event_button(event);
+      event_choose_character(event);
+      r = event_button(event);
     }
     break;
   }
@@ -262,6 +358,17 @@ bool character_choose_ui_system::event(SDL_Event *event) {
 bool character_choose_ui_system::run() {
   for (auto &character : characters) {
     character_logic_system::run_animate(character);
+  }
+  if (choose.has_value()) {
+    auto cse = choose.value();
+    auto &ani = boards[cse];
+    if (ani.ani_index < ani.ani_delay.size() - 1) {
+      ani.ani_time += window::delta_time;
+      if (ani.ani_time >= ani.ani_delay[ani.ani_index]) {
+        ani.ani_index++;
+        ani.ani_time = 0;
+      }
+    }
   }
   return true;
 }

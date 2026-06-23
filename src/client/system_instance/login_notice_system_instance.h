@@ -9,6 +9,7 @@ public:
     character_delete,
     character_full,
     character_use_ap,
+    logining,
   };
   static void enter(notice_type type, void (*fn)());
 };

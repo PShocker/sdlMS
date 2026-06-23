@@ -194,9 +194,8 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterT r;
     payload->UnPackTo(&r);
     if (character_game_instance::others.contains(r.client_id)) {
-      auto &g_character =
-          character_game_instance::others.at(r.client_id).g_character;
-      character_game_instance::load_others_character(r.payload, g_character);
+      character_game_instance::others[r.client_id].g_character =
+          character_game_instance::load_others_character(r.payload);
     }
     break;
   }

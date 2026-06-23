@@ -1,9 +1,10 @@
 #pragma once
 
+#include "src/client/game/game_save.h"
 #include <cstdint>
 class character_stat_game_instance {
 public:
-  static void load();
+  static void load(const character_save &cs);
 
   static inline int32_t hp_point;
   static inline int32_t hp_point_max;

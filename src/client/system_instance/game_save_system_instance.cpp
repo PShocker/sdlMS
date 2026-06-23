@@ -1,5 +1,7 @@
 #include "game_save_system_instance.h"
 #include "SDL3/SDL_filesystem.h"
+#include "src/client/game/game_equip.h"
+#include "src/client/game/game_item.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -21,7 +23,56 @@ bool game_save_system_instance::load_save(const std::string &login) {
   std::string path = "./Save/" + login + ".bin";
   void *data = SDL_LoadFile(path.c_str(), &file_size);
   if (data != nullptr) {
+    auto game_save = flatbuffers::GetRoot<GameSave>(data);
+    GameSaveT gst;
+    game_save->UnPackTo(&gst);
+    for (const auto &c : gst.data->data) {
+      character_save cs;
+      cs.map_id = c->map_id;
+      cs.character =
+          character_game_instance::load_others_character(c->character);
+      for (auto &item : c->package) {
+        switch (item->data.type) {
+        case fbs::ItemUnion_Equip: {
+          auto eqp = item->data.AsEquip();
+          game_equip g_equip;
+          g_equip.id = eqp->equip_id;
+          cs.package.push_back({
+              .index = item->index,
+              .val = g_equip,
+          });
+          break;
+        }
+        case fbs::ItemUnion_Item: {
+          auto itm = item->data.AsItem();
+          game_item g_item;
+          g_item.id = itm->item_id;
+          g_item.num = itm->item_num;
+          cs.package.push_back({
+              .index = item->index,
+              .val = g_item,
+          });
+          break;
+        }
+        default: {
+          break;
+        }
+        }
+      }
+      cs.meso = c->meso;
+      cs.ap.hp_ap = c->ap->hp_ap;
+      cs.ap.mp_ap = c->ap->mp_ap;
 
+      cs.ap.str_ap = c->ap->str_ap;
+      cs.ap.dex_ap = c->ap->dex_ap;
+      cs.ap.int_ap = c->ap->int_ap;
+      cs.ap.luk_ap = c->ap->luk_ap;
+
+      for (auto &i : c->sp) {
+        cs.sp.ski_sp[i->id] = i->val;
+      }
+      save.characters.push_back(cs);
+    }
     SDL_free(data);
     return true;
   }
@@ -45,6 +96,11 @@ bool game_save_system_instance::save_game() {
   };
   cs.sp = {job_skill_game_instance::skill_point};
   cs.meso = package_game_instance::meso;
+
+  cs.hp = character_stat_game_instance::hp_point;
+  cs.mp = character_stat_game_instance::mp_point;
+  cs.exp = character_stat_game_instance::exp_point;
+
   for (uint32_t i = 0; i < package_game_instance::equips.size(); i++) {
     auto equip = package_game_instance::equips[i];
     if (equip.has_value()) {
@@ -111,6 +167,12 @@ bool game_save_system_instance::save_game() {
     cst.ap->int_ap = character_s.ap.int_ap;
     cst.ap->luk_ap = character_s.ap.luk_ap;
 
+    cst.meso = character_s.meso;
+    
+    cst.hp = character_s.hp;
+    cst.mp = character_s.mp;
+    cst.exp = character_s.exp;
+
     for (auto [k, v] : character_s.sp.ski_sp) {
       SPSaveT spt = {
           .id = k,
@@ -120,7 +182,7 @@ bool game_save_system_instance::save_game() {
     }
     for (auto &pkg : character_s.package) {
       PackageSaveT pst;
-      pst.id = pkg.index;
+      pst.index = pkg.index;
       if (std::holds_alternative<game_equip>(pkg.val)) {
         game_equip &equip = std::get<game_equip>(pkg.val);
         EquipT et;
@@ -149,6 +211,6 @@ bool game_save_system_instance::save_game() {
     return -1;
   }
   SDL_WriteIO(io, pointer, size);
-
+  SDL_CloseIO(io);
   return true;
 }

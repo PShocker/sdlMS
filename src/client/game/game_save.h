@@ -32,7 +32,12 @@ struct character_save {
   ap_save ap;
   sp_save sp;
   std::vector<package_save> package;
-  std::uint64_t meso;
+  uint64_t meso;
+  uint32_t map_id;
+
+  uint32_t hp;
+  uint32_t mp;
+  uint64_t exp;
 };
 
 class game_save {

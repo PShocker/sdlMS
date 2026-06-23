@@ -148,8 +148,6 @@ void scene_system_instance::enter(uint32_t map_id) {
   tooltip_game_instance::load(map_id);
   seat_game_instance::load(map_id);
   minimap_ui_system::load();
-  package_game_instance::load();
-  character_stat_game_instance::load();
   character_game_instance::load_self();
   character_game_instance::clear_others();
   effect_game_instance::reset();

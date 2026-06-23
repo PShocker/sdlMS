@@ -61,7 +61,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   keyboard_game_instance::load();
 
   character_game_instance::init_character_bone();
-  character_game_instance::load_self_character();
+  // character_game_instance::load_self_character();
 
   SDL_HideCursor();
 

@@ -209,7 +209,7 @@ table SPSave{
 
 
 table PackageSave{
-   id:uint32;
+   index:uint32;
    data:ItemUnion;
 }
 
@@ -218,6 +218,12 @@ table CharacterSave{
     ap:APSave;
     sp:[SPSave];
     package:[PackageSave];
+    meso:uint64;
+    map_id:uint32;
+
+    hp:uint32;
+    mp:uint32;
+    exp:uint64;
 }
 
 table PlayerSave{

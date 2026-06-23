@@ -1,6 +1,7 @@
 #include "character_choose_system_instance.h"
 #include "game_save_system_instance.h"
 #include "login_system_instance.h"
+#include "src/client/game/game_animate.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
@@ -21,6 +22,13 @@
 
 void character_choose_system_instance::enter(const std::string &login) {
   game_save_system_instance::load_save(login);
+  // 进一步解析game_save
+  auto character_size = game_save_system_instance::save.characters.size();
+  character_choose_ui_system::characters.resize(character_size);
+  for (int i = 0; i < character_size; i++) {
+    auto sc = game_save_system_instance::save.characters[i];
+    character_choose_ui_system::characters[i] = sc.character;
+  }
   enter();
 }
 
@@ -48,4 +56,8 @@ void character_choose_system_instance::enter() {
   auto &camera = camera_game_instance::camera;
   camera.x = -80 - camera.w / 2;
   camera.y = -479 - camera.h / 2;
+
+  game_animate ani{.ani_delay = {250, 50, 50, 0}};
+  auto character_size = character_choose_ui_system::characters.size();
+  character_choose_ui_system::boards.assign(character_size, ani);
 }

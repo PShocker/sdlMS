@@ -3,6 +3,7 @@
 #include "SDL3/SDL_render.h"
 #include "login_ui_system.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_save.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
@@ -14,6 +15,7 @@
 #include "src/client/system/ui/text_input_ui_system.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/chatacter_create_system_instance.h"
+#include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_notice_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
@@ -953,6 +955,18 @@ void character_create_ui_system::event_button_ok() {
   }
   character_game_instance::load_name(g_character, name_text);
   characters.push_back(g_character);
+
+  character_save cs;
+  cs.character = g_character;
+  cs.ap.hp_ap = 0;
+  cs.ap.mp_ap = 0;
+
+  cs.ap.str_ap = str_point;
+  cs.ap.dex_ap = dex_point;
+  cs.ap.int_ap = int_point;
+  cs.ap.luk_ap = luk_point;
+
+  game_save_system_instance::save.characters.push_back(cs);
 
   chatacter_create_system_instance::enter();
   event_button_back();

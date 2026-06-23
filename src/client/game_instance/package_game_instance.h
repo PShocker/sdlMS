@@ -2,6 +2,7 @@
 #include "SDL3/SDL_audio.h"
 #include "src/client/game/game_equip.h"
 #include "src/client/game/game_item.h"
+#include "src/client/game/game_save.h"
 #include <array>
 #include <cstdint>
 #include <optional>
@@ -14,7 +15,6 @@ public:
   static inline std::vector<std::optional<game_item>> cash;
 
   static inline uint64_t meso;
-  
-  static void load();
 
+  static void load(const character_save &cs);
 };

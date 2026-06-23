@@ -1,44 +1,32 @@
 #include "package_game_instance.h"
+#include "item_game_instance.h"
 #include "src/client/game/game_item.h"
+#include <optional>
 
-void package_game_instance::load() {
-  equips.resize(96);
-  cosumes.resize(96);
-  etc.resize(96);
-  install.resize(96);
-  cash.resize(96);
+void package_game_instance::load(const character_save &cs) {
+  equips.assign(96, std::nullopt);
+  cosumes.assign(96, std::nullopt);
+  etc.assign(96, std::nullopt);
+  install.assign(96, std::nullopt);
+  cash.assign(96, std::nullopt);
 
-  equips[0] = {
-      .id = u"01382004",
-  };
-  equips[1] = {
-      .id = u"01372004",
-  };
-  equips[2] = {
-      .id = u"01312002",
-  };
-  equips[3] = {
-      .id = u"01402003",
-  };
-  equips[4] = {
-      .id = u"01002024",
-  };
-  equips[5] = {
-      .id = u"01002041",
-  };
-  equips[5] = {
-      .id = u"01302011",
-  };
-  cosumes[0] = {
-      .id = u"04080000",
-      .num = 1,
-  };
-  cosumes[1] = {
-      .id = u"02000000",
-      .num = 1,
-  };
-  cosumes[2] = {
-      .id = u"02000001",
-      .num = 1,
-  };
+  for (auto pkg : cs.package) {
+    if (std::holds_alternative<game_equip>(pkg.val)) {
+      game_equip &equip = std::get<game_equip>(pkg.val);
+      equips[pkg.index] = equip;
+    } else {
+      game_item &item = std::get<game_item>(pkg.val);
+      auto item_type = item_game_instance::load_item_type(item.id);
+      if (item_type == u"Consume") {
+        cosumes[pkg.index] = item;
+      } else if (item_type == u"Etc") {
+        etc[pkg.index] = item;
+      } else if (item_type == u"Install") {
+        install[pkg.index] = item;
+      } else {
+        cash[pkg.index] = item;
+      }
+    }
+  }
+  meso = cs.meso;
 }

@@ -6,6 +6,7 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
+#include <string>
 #include <vector>
 
 SDL_FPoint login_notice_ui_system::load_pos() {
@@ -59,6 +60,12 @@ void login_notice_ui_system::render_backgrnd() {
     text_pos = {17, 13};
     break;
   }
+  case login_notice_system_instance::logining: {
+    backgrnd = wz_resource::load_texture(
+        notice_node->find(u"Login.img/Notice/Loading/backgrnd"));
+    text = nullptr;
+    break;
+  }
   }
   SDL_FRect pos_rect{
       bx + (w - backgrnd->w) / 2,
@@ -68,11 +75,33 @@ void login_notice_ui_system::render_backgrnd() {
   };
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 
-  pos_rect.x += text_pos.x;
-  pos_rect.y += text_pos.y;
-  pos_rect.w = text->w;
-  pos_rect.h = text->h;
-  SDL_RenderTexture(window::renderer, text, nullptr, &pos_rect);
+  if (text != nullptr) {
+    pos_rect.x += text_pos.x;
+    pos_rect.y += text_pos.y;
+    pos_rect.w = text->w;
+    pos_rect.h = text->h;
+    SDL_RenderTexture(window::renderer, text, nullptr, &pos_rect);
+  }
+  switch (type) {
+  case login_notice_system_instance::logining: {
+    static auto circle_node =
+        wz_resource::ui->find(u"Login.img/Notice/Loading/circle");
+    const auto circle_delay = 90;
+    auto now = window::dt_now;
+    auto index = (now / circle_delay) % (circle_node->children_count());
+    auto circle_texture = circle_node->get_child(std::to_string(index));
+    auto circle = wz_resource::load_texture(circle_texture);
+    pos_rect.x += text_pos.x;
+    pos_rect.y += text_pos.y;
+    pos_rect.w = text->w;
+    pos_rect.h = text->h;
+    SDL_RenderTexture(window::renderer, circle, nullptr, &pos_rect);
+    break;
+  }
+  default: {
+    break;
+  }
+  }
 }
 
 void login_notice_ui_system::render_button() {
@@ -95,6 +124,9 @@ void login_notice_ui_system::render_button() {
     break;
   }
   case login_notice_system_instance::character_delete: {
+    break;
+  }
+  case login_notice_system_instance::logining: {
     break;
   }
   }
