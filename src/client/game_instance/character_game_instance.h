@@ -70,8 +70,7 @@ public:
   static SDL_FPoint load_self_pos(const std::u16string &pn, uint8_t index);
   static void load_self_character();
 
-  static game_character
-  load_others_character(const std::unique_ptr<CharacterT> &c);
+  static game_character load_g_character(const std::unique_ptr<CharacterT> &c);
   static void load_others_character(const std::unique_ptr<PlayerT> &c);
   static void exit_others_character(uint64_t client_id);
   static void clear_others();

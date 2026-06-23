@@ -17,6 +17,7 @@ table CharacterAppearance{
     head:uint32;
     face:uint32;
     hair:uint32;
+    ear:string;
 }
 
 table Character{

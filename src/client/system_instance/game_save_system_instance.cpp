@@ -7,6 +7,7 @@
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/common/flatbuffers/common.h"
 #include <cassert>
 #include <cstdint>
@@ -15,6 +16,8 @@
 #include <string>
 
 bool game_save_system_instance::load_save(const std::string &login) {
+  save = {};
+  save.username = login;
   if (!SDL_CreateDirectory("./Save")) {
     assert(0);
     std::abort();
@@ -29,8 +32,10 @@ bool game_save_system_instance::load_save(const std::string &login) {
     for (const auto &c : gst.data->data) {
       character_save cs;
       cs.map_id = c->map_id;
-      cs.character =
-          character_game_instance::load_others_character(c->character);
+      cs.character = character_game_instance::load_g_character(c->character);
+      auto name =
+          std::u16string{c->character->name.begin(), c->character->name.end()};
+      character_game_instance::load_name(cs.character, name);
       for (auto &item : c->package) {
         switch (item->data.type) {
         case fbs::ItemUnion_Equip: {
@@ -76,68 +81,72 @@ bool game_save_system_instance::load_save(const std::string &login) {
     SDL_free(data);
     return true;
   }
-  save = {};
-  save.username = login;
   return false;
 }
 
 bool game_save_system_instance::save_game() {
+  if (save.username.empty()) {
+    return false;
+  }
+  if (character_choose_ui_system::characters.empty()) {
+    return false;
+  }
   // save
   auto character = character_game_instance::self;
-  character_save cs;
-  cs.character = character;
-  cs.ap = {
-      .hp_ap = character_stat_game_instance::hp_ap,
-      .mp_ap = character_stat_game_instance::mp_ap,
-      .str_ap = character_stat_game_instance::str_ap,
-      .dex_ap = character_stat_game_instance::dex_ap,
-      .int_ap = character_stat_game_instance::int_ap,
-      .luk_ap = character_stat_game_instance::luk_ap,
-  };
-  cs.sp = {job_skill_game_instance::skill_point};
-  cs.meso = package_game_instance::meso;
+  if (!character.nametags.empty()) {
+    character_save cs;
+    cs.character = character;
+    cs.ap = {
+        .hp_ap = character_stat_game_instance::hp_ap,
+        .mp_ap = character_stat_game_instance::mp_ap,
+        .str_ap = character_stat_game_instance::str_ap,
+        .dex_ap = character_stat_game_instance::dex_ap,
+        .int_ap = character_stat_game_instance::int_ap,
+        .luk_ap = character_stat_game_instance::luk_ap,
+    };
+    cs.sp = {job_skill_game_instance::skill_point};
+    cs.meso = package_game_instance::meso;
 
-  cs.hp = character_stat_game_instance::hp_point;
-  cs.mp = character_stat_game_instance::mp_point;
-  cs.exp = character_stat_game_instance::exp_point;
+    cs.hp = character_stat_game_instance::hp_point;
+    cs.mp = character_stat_game_instance::mp_point;
+    cs.exp = character_stat_game_instance::exp_point;
 
-  for (uint32_t i = 0; i < package_game_instance::equips.size(); i++) {
-    auto equip = package_game_instance::equips[i];
-    if (equip.has_value()) {
-      cs.package.push_back({
-          .index = i,
-          .val = equip.value(),
-      });
-    }
-  }
-  for (uint32_t i = 0; i < package_game_instance::equips.size(); i++) {
-    auto equip = package_game_instance::equips[i];
-    if (equip.has_value()) {
-      auto &eqp = equip.value();
-      cs.package.push_back({
-          .index = i,
-          .val = eqp,
-      });
-    }
-  }
-  for (auto &v : {
-           package_game_instance::cosumes,
-           package_game_instance::etc,
-           package_game_instance::install,
-           package_game_instance::cash,
-       }) {
-    for (uint32_t i = 0; i < v.size(); i++) {
-      auto item = v[i];
-      if (item.has_value()) {
-        auto &itm = item.value();
+    for (uint32_t i = 0; i < package_game_instance::equips.size(); i++) {
+      auto equip = package_game_instance::equips[i];
+      if (equip.has_value()) {
         cs.package.push_back({
             .index = i,
-            .val = itm,
+            .val = equip.value(),
         });
       }
     }
-  }
-  if (!save.characters.empty()) {
+    for (uint32_t i = 0; i < package_game_instance::equips.size(); i++) {
+      auto equip = package_game_instance::equips[i];
+      if (equip.has_value()) {
+        auto &eqp = equip.value();
+        cs.package.push_back({
+            .index = i,
+            .val = eqp,
+        });
+      }
+    }
+    for (auto &v : {
+             package_game_instance::cosumes,
+             package_game_instance::etc,
+             package_game_instance::install,
+             package_game_instance::cash,
+         }) {
+      for (uint32_t i = 0; i < v.size(); i++) {
+        auto item = v[i];
+        if (item.has_value()) {
+          auto &itm = item.value();
+          cs.package.push_back({
+              .index = i,
+              .val = itm,
+          });
+        }
+      }
+    }
     for (int i = 0; i < save.characters.size(); i++) {
       auto &save_character = save.characters[i].character;
       if (save_character.nametags[0].text == character.nametags[0].text) {
@@ -145,8 +154,6 @@ bool game_save_system_instance::save_game() {
         break;
       }
     }
-  } else {
-    save.characters.push_back(cs);
   }
 
   // save
@@ -168,7 +175,7 @@ bool game_save_system_instance::save_game() {
     cst.ap->luk_ap = character_s.ap.luk_ap;
 
     cst.meso = character_s.meso;
-    
+
     cst.hp = character_s.hp;
     cst.mp = character_s.mp;
     cst.exp = character_s.exp;

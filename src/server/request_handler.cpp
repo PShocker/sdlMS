@@ -195,7 +195,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     payload->UnPackTo(&r);
     if (character_game_instance::others.contains(r.client_id)) {
       character_game_instance::others[r.client_id].g_character =
-          character_game_instance::load_others_character(r.payload);
+          character_game_instance::load_g_character(r.payload);
     }
     break;
   }

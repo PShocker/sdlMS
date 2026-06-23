@@ -7,6 +7,7 @@
 #include "src/client/game_instance/obj_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/sound_logic_system.h"
@@ -20,7 +21,7 @@
 #include <algorithm>
 #include <ranges>
 
-void character_choose_system_instance::enter(const std::string &login) {
+void character_choose_system_instance::enter_prepare(const std::string &login) {
   game_save_system_instance::load_save(login);
   // 进一步解析game_save
   auto character_size = game_save_system_instance::save.characters.size();
@@ -28,7 +29,14 @@ void character_choose_system_instance::enter(const std::string &login) {
   for (int i = 0; i < character_size; i++) {
     auto sc = game_save_system_instance::save.characters[i];
     character_choose_ui_system::characters[i] = sc.character;
+    character_logic_system::run_stand_action(
+        character_choose_ui_system::characters[i]);
+    character_choose_ui_system::characters[i].flip = 1;
   }
+}
+
+void character_choose_system_instance::enter(const std::string &login) {
+  enter_prepare(login);
   enter();
 }
 

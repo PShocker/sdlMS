@@ -227,8 +227,7 @@ bool login_ui_system::camera_animate(float x, float y) {
 bool login_ui_system::login_animate() {
   text_input_ui_system::close(username);
   if (camera_animate(-80, -479)) {
-    auto name = std::string{username.text.begin(), username.text.end()};
-    character_choose_system_instance::enter(name);
+    character_choose_system_instance::enter();
     return false;
   }
   return true;
@@ -236,6 +235,8 @@ bool login_ui_system::login_animate() {
 
 void login_ui_system::event_button_login() {
   if (!username.text.empty()) {
+    auto name = std::string{username.text.begin(), username.text.end()};
+    character_choose_system_instance::enter_prepare(name);
     system::logic_systems.push_back(login_animate);
     system::render_systems = {
         login_system_instance::render_game,

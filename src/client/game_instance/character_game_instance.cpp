@@ -230,7 +230,7 @@ void character_game_instance::load_self_character() {
   load_name(self, u"进击的蓝蘑菇");
 }
 
-game_character character_game_instance::load_others_character(
+game_character character_game_instance::load_g_character(
     const std::unique_ptr<CharacterT> &c) {
   game_character g_character;
   const auto &appearance = c->appearance;
@@ -247,6 +247,9 @@ game_character character_game_instance::load_others_character(
   tmp = std::format("{:08d}", appearance->hair);
   add_hair(g_character, {tmp.begin(), tmp.end()});
 
+  tmp = appearance->ear;
+  add_ear(g_character, {tmp.begin(), tmp.end()});
+
   for (auto &equip : c->equips) {
     tmp = std::format("{:08d}", equip->equip_id);
     game_equip e;
@@ -258,7 +261,7 @@ game_character character_game_instance::load_others_character(
 
 void character_game_instance::load_others_character(
     const std::unique_ptr<fbs::PlayerT> &c) {
-  auto g_character = load_others_character(c->character);
+  auto g_character = load_g_character(c->character);
 
   const auto &state = c->character->state;
   g_character.pos = SDL_FPoint{
@@ -428,6 +431,7 @@ void character_game_instance::add_head(game_character &g,
 
 void character_game_instance::add_ear(game_character &g,
                                       const std::u16string &val) {
+  g.ear = val;
   std::flat_set<std::u16string> hide_ear = {
       u"humanEar",
       u"ear",
@@ -1188,61 +1192,61 @@ character_game_instance::load_characterT(const game_character &g) {
   c.state = std::make_unique<fbs::LifeStateT>();
   c.face = std::make_unique<fbs::FaceT>();
 
-  if (self.accessory.has_value()) {
+  if (g.accessory.has_value()) {
     auto id = g.accessory->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.cap.has_value()) {
+  if (g.cap.has_value()) {
     auto id = g.cap->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.cape.has_value()) {
+  if (g.cape.has_value()) {
     auto id = g.cape->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.glove.has_value()) {
+  if (g.glove.has_value()) {
     auto id = g.glove->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.coat.has_value()) {
+  if (g.coat.has_value()) {
     auto id = g.coat->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.longcoat.has_value()) {
+  if (g.longcoat.has_value()) {
     auto id = g.longcoat->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.pant.has_value()) {
+  if (g.pant.has_value()) {
     auto id = g.pant->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.shield.has_value()) {
+  if (g.shield.has_value()) {
     auto id = g.shield->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.weapon.has_value()) {
+  if (g.weapon.has_value()) {
     auto id = g.weapon->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  if (self.shoes.has_value()) {
+  if (g.shoes.has_value()) {
     auto id = g.shoes->id;
     EquipT et;
     et.equip_id = std::stoi(std::string{id.begin(), id.end()});
@@ -1255,6 +1259,8 @@ character_game_instance::load_characterT(const game_character &g) {
 
   c.appearance->face =
       std::stoi(std::string{g.face.id.begin(), g.face.id.end()});
+
+  c.appearance->ear = std::string{g.ear.begin(), g.ear.end()};
 
   c.state->action = std::string{g.action.begin(), g.action.end()};
   c.state->x = g.pos.x;

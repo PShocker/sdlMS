@@ -573,6 +573,7 @@ std::vector<std::u16string> character_create_ui_system::load_default_hair() {
 void character_create_ui_system::event_button_hair_prev() {
   auto hairs = load_default_hair();
   auto hair_id = g_character.hair;
+  hair_id.back() = u'0';
   auto it = std::ranges::find(hairs, hair_id);
   if (it != hairs.end()) {
     auto prev_it = (it == hairs.begin()) ? (hairs.end() - 1) : (it - 1);
@@ -583,6 +584,7 @@ void character_create_ui_system::event_button_hair_prev() {
 void character_create_ui_system::event_button_hair_next() {
   auto hairs = load_default_hair();
   auto hair_id = g_character.hair;
+  hair_id.back() = u'0';
   auto it = std::ranges::find(hairs, hair_id);
   if (it != hairs.end()) {
     auto next_it = (it + 1 == hairs.end()) ? hairs.begin() : (it + 1);

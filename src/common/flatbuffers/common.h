@@ -728,6 +728,7 @@ struct CharacterAppearanceT : public ::flatbuffers::NativeTable {
   uint32_t head = 0;
   uint32_t face = 0;
   uint32_t hair = 0;
+  std::string ear{};
 };
 
 struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -737,7 +738,8 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
     VT_BODY = 4,
     VT_HEAD = 6,
     VT_FACE = 8,
-    VT_HAIR = 10
+    VT_HAIR = 10,
+    VT_EAR = 12
   };
   uint32_t body() const {
     return GetField<uint32_t>(VT_BODY, 0);
@@ -763,6 +765,12 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   bool mutate_hair(uint32_t _hair = 0) {
     return SetField<uint32_t>(VT_HAIR, _hair, 0);
   }
+  const ::flatbuffers::String *ear() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_EAR);
+  }
+  ::flatbuffers::String *mutable_ear() {
+    return GetPointer<::flatbuffers::String *>(VT_EAR);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -770,6 +778,8 @@ struct CharacterAppearance FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
            VerifyField<uint32_t>(verifier, VT_HEAD, 4) &&
            VerifyField<uint32_t>(verifier, VT_FACE, 4) &&
            VerifyField<uint32_t>(verifier, VT_HAIR, 4) &&
+           VerifyOffset(verifier, VT_EAR) &&
+           verifier.VerifyString(ear()) &&
            verifier.EndTable();
   }
   CharacterAppearanceT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -793,6 +803,9 @@ struct CharacterAppearanceBuilder {
   void add_hair(uint32_t hair) {
     fbb_.AddElement<uint32_t>(CharacterAppearance::VT_HAIR, hair, 0);
   }
+  void add_ear(::flatbuffers::Offset<::flatbuffers::String> ear) {
+    fbb_.AddOffset(CharacterAppearance::VT_EAR, ear);
+  }
   explicit CharacterAppearanceBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -809,13 +822,32 @@ inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(
     uint32_t body = 0,
     uint32_t head = 0,
     uint32_t face = 0,
-    uint32_t hair = 0) {
+    uint32_t hair = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> ear = 0) {
   CharacterAppearanceBuilder builder_(_fbb);
+  builder_.add_ear(ear);
   builder_.add_hair(hair);
   builder_.add_face(face);
   builder_.add_head(head);
   builder_.add_body(body);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearanceDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t body = 0,
+    uint32_t head = 0,
+    uint32_t face = 0,
+    uint32_t hair = 0,
+    const char *ear = nullptr) {
+  auto ear__ = ear ? _fbb.CreateString(ear) : 0;
+  return fbs::CreateCharacterAppearance(
+      _fbb,
+      body,
+      head,
+      face,
+      hair,
+      ear__);
 }
 
 ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAppearanceT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -3841,6 +3873,7 @@ inline void CharacterAppearance::UnPackTo(CharacterAppearanceT *_o, const ::flat
   { auto _e = head(); _o->head = _e; }
   { auto _e = face(); _o->face = _e; }
   { auto _e = hair(); _o->hair = _e; }
+  { auto _e = ear(); if (_e) _o->ear = _e->str(); }
 }
 
 inline ::flatbuffers::Offset<CharacterAppearance> CreateCharacterAppearance(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAppearanceT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3855,12 +3888,14 @@ inline ::flatbuffers::Offset<CharacterAppearance> CharacterAppearance::Pack(::fl
   auto _head = _o->head;
   auto _face = _o->face;
   auto _hair = _o->hair;
+  auto _ear = _o->ear.empty() ? 0 : _fbb.CreateString(_o->ear);
   return fbs::CreateCharacterAppearance(
       _fbb,
       _body,
       _head,
       _face,
-      _hair);
+      _hair,
+      _ear);
 }
 
 inline CharacterT::CharacterT(const CharacterT &o)
