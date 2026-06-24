@@ -4,7 +4,8 @@
 
 void login_notice_system_instance::enter(notice_type type, void (*fn)()) {
   login_notice_ui_system::type = type;
-  
+  login_notice_ui_system::fn = fn;
+
   auto render = login_notice_ui_system::render;
   system::render_systems.insert(system::render_systems.end() - 1, render);
 

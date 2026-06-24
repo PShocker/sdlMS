@@ -11,6 +11,7 @@
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -108,11 +109,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerScene();
     fbs::ServerSceneT r;
     payload->UnPackTo(&r);
-    scene_system_instance::enter(r.map_id);
-    for (const auto &c : r.players) {
-      character_game_instance::load_others_character(c);
-    }
-    mob_game_instance::load_server_mob(r.mobs);
+    fade_system_instance::enter([r]() {
+      scene_system_instance::enter(r.map_id);
+      for (const auto &c : r.players) {
+        character_game_instance::load_others_character(c);
+      }
+      mob_game_instance::load_server_mob(r.mobs);
+    });
     break;
   }
   case NetPayload_ServerCharacterIn: {

@@ -11,7 +11,10 @@
 SDL_FPoint trade_ui_system::load_wh() { return SDL_FPoint{567, 442}; }
 
 bool trade_ui_system::cursor_in() {
-  return true;
+  auto [w, h] = load_wh();
+  auto &mouse = window::mouse_pos;
+  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
 void trade_ui_system::close() {
@@ -44,6 +47,44 @@ void trade_ui_system::render_backgrnd() {
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
                      static_cast<float>(backgrnd->h)};
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+}
+
+void trade_ui_system::render_button() {
+  const static std::array buttons_node = {
+      wz_resource::ui->find(u"MapleChat.img/MapleChat/button:claim"),
+      wz_resource::ui->find(u"Trade.img/TradingRoom/button:trade"),
+      wz_resource::ui->find(u"MapleChat.img/MapleChat/button:enter"),
+      wz_resource::ui->find(u"Trade.img/TradingRoom/button:coin"),
+      wz_resource::ui->find(u"Trade.img/TradingRoom/button:reset"),
+  };
+  const std::array buttons_rect = {
+      SDL_FRect{541, 250, 20, 19}, // claim
+      SDL_FRect{116, 48, 60, 18},  // trade
+      SDL_FRect{500, 251, 39, 17}, // enter
+      SDL_FRect{151, 243, 36, 18}, // coin
+      SDL_FRect{116, 70, 60, 18},  // reset
+  };
+  for (size_t i = 0; i < buttons_node.size(); ++i) {
+    auto k = buttons_node[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
 }
 
 bool trade_ui_system::render() { return true; }

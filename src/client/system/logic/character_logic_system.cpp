@@ -508,6 +508,86 @@ bool character_logic_system::run_sitting(game_character &g_character) {
   return true;
 }
 
+bool character_logic_system::run_skill(game_character &g_character,
+                                       const std::u16string &id) {
+  auto skill_node = skill_game_instance::load_skill_node(id);
+  if (auto action_node = skill_node->get_child(u"action")) {
+    auto action_count = action_node->children_count();
+    std::uniform_int_distribution<> dis(0, action_count - 1);
+    auto &gen = random_game_instance::gen;
+    auto action = dis(gen);
+    auto action2 = std::to_string(action);
+    auto action3 = action_node->get_child(action2);
+    auto action4 = static_cast<wz::Property<std::u16string> *>(action3)->get();
+    run_action(g_character, action4);
+  }
+  auto skill_level = job_skill_game_instance::load_skill_level(id);
+  auto skill_attack = skill_game_instance::load_skill_attack(id, skill_level);
+
+  ClientCharacterAttackT t;
+  ClientCharacterSkillT ckt;
+  ckt.ski_id = std::stoi(std::string{id.begin(), id.end()});
+
+  if (skill_attack) {
+    auto g_r = skill_game_instance::load_skill_rect(id, skill_level);
+    auto atk_mobs = run_attack_check(g_character, g_r);
+    if (!atk_mobs.empty()) {
+      auto skill_level_node =
+          skill_game_instance::load_skill_level_node(id, skill_level);
+      auto atk_mob_count = static_cast<wz::Property<int32_t> *>(
+                               skill_level_node->get_child(u"mobCount"))
+                               ->get();
+      auto atk_count = static_cast<wz::Property<int32_t> *>(
+                           skill_level_node->get_child(u"attackCount"))
+                           ->get();
+      auto delay = skill_game_instance::load_ski_time(g_character);
+      for (uint32_t i = 0; i < atk_mobs.size() && i < atk_mob_count; i++) {
+        CharacterAttackT ct;
+        ct.mob_index = atk_mobs[i].mob.index;
+        ct.attack = std::make_unique<AttackT>();
+        ct.attack->num = 40;
+        ct.attack->delay = delay + i * 60;
+        ct.attack->x = atk_mobs[i].x;
+        ct.attack->y = atk_mobs[i].y;
+        ct.afterimage = false;
+        ct.left = g_character.pos.x < atk_mobs[i].mob.pos.x;
+        t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
+      }
+      character_game_instance::load_character_attack(t.payload, g_character);
+      client_request::send_to_host(t);
+      for (const auto &a : t.payload) {
+        CharacterSkillT c;
+        c.delay = a->attack->delay;
+        c.mob = a->mob_index;
+        c.x = a->attack->x;
+        c.y = a->attack->y;
+        ckt.payload.push_back(std::make_unique<CharacterSkillT>(c));
+      }
+    }
+  }
+  // buff
+  auto skill_buffs = skill_game_instance::load_skill_buff(id, skill_level);
+  if (!skill_buffs.empty()) {
+    auto g_r = skill_game_instance::load_skill_rect(id, skill_level);
+    auto o = run_buff_check(g_character, g_r);
+    auto delay = skill_game_instance::load_ski_time(g_character);
+    for (auto clients : o) {
+      CharacterSkillT c;
+      c.delay = delay;
+      c.mob = skill_level;
+      c.player = clients;
+      c.x = 0;
+      c.y = 0;
+      ckt.payload.push_back(std::make_unique<CharacterSkillT>(c));
+    }
+  }
+
+  character_game_instance::load_character_skill(ckt.ski_id, ckt.payload,
+                                                character_game_instance::self);
+  client_request::send_to_host(ckt);
+  return true;
+}
+
 bool character_logic_system::run_skill(game_character &g_character) {
   if (g_character.abnormals.contains(
           game_character::abnormal_state_type::dizz)) {
@@ -520,86 +600,8 @@ bool character_logic_system::run_skill(game_character &g_character) {
     return false;
   }
   if (!character_skill_input.empty()) {
-    const auto &s_id = *character_skill_input.begin();
-    std::u16string s_id2{s_id.begin(), s_id.end()};
-    auto skill_node = skill_game_instance::load_skill_node(s_id2);
-    if (auto action_node = skill_node->get_child(u"action")) {
-      auto action_count = action_node->children_count();
-      std::uniform_int_distribution<> dis(0, action_count - 1);
-      auto &gen = random_game_instance::gen;
-      auto action = dis(gen);
-      auto action2 = std::to_string(action);
-      auto action3 = action_node->get_child(action2);
-      auto action4 =
-          static_cast<wz::Property<std::u16string> *>(action3)->get();
-      run_action(g_character, action4);
-    }
-    auto skill_level = job_skill_game_instance::load_skill_level(s_id2);
-    auto skill_attack =
-        skill_game_instance::load_skill_attack(s_id2, skill_level);
-
-    ClientCharacterAttackT t;
-    ClientCharacterSkillT ckt;
-    ckt.ski_id = std::stoi(s_id);
-
-    if (skill_attack) {
-      auto g_r = skill_game_instance::load_skill_rect(s_id2, skill_level);
-      auto atk_mobs = run_attack_check(g_character, g_r);
-      if (!atk_mobs.empty()) {
-        auto skill_level_node =
-            skill_game_instance::load_skill_level_node(s_id2, skill_level);
-        auto atk_mob_count = static_cast<wz::Property<int32_t> *>(
-                                 skill_level_node->get_child(u"mobCount"))
-                                 ->get();
-        auto atk_count = static_cast<wz::Property<int32_t> *>(
-                             skill_level_node->get_child(u"attackCount"))
-                             ->get();
-        auto delay = skill_game_instance::load_ski_time(g_character);
-        for (uint32_t i = 0; i < atk_mobs.size() && i < atk_mob_count; i++) {
-          CharacterAttackT ct;
-          ct.mob_index = atk_mobs[i].mob.index;
-          ct.attack = std::make_unique<AttackT>();
-          ct.attack->num = 40;
-          ct.attack->delay = delay + i * 60;
-          ct.attack->x = atk_mobs[i].x;
-          ct.attack->y = atk_mobs[i].y;
-          ct.afterimage = false;
-          ct.left = g_character.pos.x < atk_mobs[i].mob.pos.x;
-          t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
-        }
-        character_game_instance::load_character_attack(t.payload, g_character);
-        client_request::send_to_host(t);
-        for (const auto &a : t.payload) {
-          CharacterSkillT c;
-          c.delay = a->attack->delay;
-          c.mob = a->mob_index;
-          c.x = a->attack->x;
-          c.y = a->attack->y;
-          ckt.payload.push_back(std::make_unique<CharacterSkillT>(c));
-        }
-      }
-    }
-    // buff
-    auto skill_buffs = skill_game_instance::load_skill_buff(s_id2, skill_level);
-    if (!skill_buffs.empty()) {
-      auto g_r = skill_game_instance::load_skill_rect(s_id2, skill_level);
-      auto o = run_buff_check(g_character, g_r);
-      auto delay = skill_game_instance::load_ski_time(g_character);
-      for (auto clients : o) {
-        CharacterSkillT c;
-        c.delay = delay;
-        c.mob = skill_level;
-        c.player = clients;
-        c.x = 0;
-        c.y = 0;
-        ckt.payload.push_back(std::make_unique<CharacterSkillT>(c));
-      }
-    }
-
-    character_game_instance::load_character_skill(
-        ckt.ski_id, ckt.payload, character_game_instance::self);
-    client_request::send_to_host(ckt);
-    return true;
+    const auto &id = *character_skill_input.begin();
+    return run_skill(g_character, {id.begin(), id.end()});
   }
   return false;
 }

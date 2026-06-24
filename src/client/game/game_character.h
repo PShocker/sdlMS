@@ -71,8 +71,6 @@ public:
   std::optional<std::u16string> skill;
   std::optional<game_tomb> tomb;
 
-  float attack_speed = 1.0f;
-
   // characterinfo
   std::u16string job = u"000";
   int32_t fame = 0;

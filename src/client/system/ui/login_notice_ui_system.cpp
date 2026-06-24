@@ -124,6 +124,14 @@ void login_notice_ui_system::render_button() {
     break;
   }
   case login_notice_system_instance::character_delete: {
+    buttons_nodes = {
+        wz_resource::ui->find(u"Login.img/Notice/BtYes"),
+        wz_resource::ui->find(u"Login.img/Notice/BtNo"),
+    };
+    buttons_rect = {
+        SDL_FRect{bx - 25 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+        SDL_FRect{bx + 25 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+    };
     break;
   }
   case login_notice_system_instance::logining: {
@@ -176,6 +184,14 @@ bool login_notice_ui_system::event_button(SDL_Event *event) {
     buttons_rect = {
         SDL_FRect{bx + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
     };
+    break;
+  }
+  case login_notice_system_instance::character_delete: {
+    buttons_rect = {
+        SDL_FRect{bx - 25 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+        SDL_FRect{bx + 25 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+    };
+    fns = {fn, event_close};
     break;
   }
   default: {

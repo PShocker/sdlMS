@@ -15,6 +15,7 @@ private:
   static void render_scroll();
   static void render_info();
   static void render_button();
+  static void render_book();
 
   static SDL_FPoint load_wh();
   static uint8_t load_skill_num();

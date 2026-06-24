@@ -247,7 +247,28 @@ void character_choose_ui_system::event_button_new() {
   };
   system::event_systems = {};
 }
-void character_choose_ui_system::event_button_delete() {}
+
+void character_choose_ui_system::event_button_delete_cb() {
+  if (!choose.has_value()) {
+    return;
+  }
+  auto cse = choose.value();
+  auto character = characters[cse];
+  auto &save = game_save_system_instance::save;
+  for (int i = 0; i < save.characters.size(); i++) {
+    auto &save_character = save.characters[i].character;
+    if (save_character.nametags[0].text == character.nametags[0].text) {
+      save.characters.erase(save.characters.begin() + i);
+    }
+  }
+  characters.erase(characters.begin() + cse);
+}
+
+void character_choose_ui_system::event_button_delete() {
+  login_notice_system_instance::enter(
+      login_notice_system_instance::character_delete, event_button_delete_cb);
+  return;
+}
 
 bool character_choose_ui_system::new_animate() {
   if (login_ui_system::camera_animate(-80, -1294)) {
@@ -282,6 +303,25 @@ void character_choose_ui_system::event_button_back() {
 }
 
 bool character_choose_ui_system::event_choose_character(SDL_Event *event) {
+  const std::array character_pos = {
+      SDL_FPoint{-270, -404},
+      SDL_FPoint{-110, -404},
+      SDL_FPoint{50, -404},
+  };
+  auto &camera = camera_game_instance::camera;
+  for (int i = 0; i < character_pos.size(); i++) {
+    auto pos = character_pos[i];
+    auto character = characters[i];
+    character.pos = pos;
+    auto r = character_logic_system::load_rect(character);
+    r.x -= camera.x;
+    r.y -= camera.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &r)) {
+      choose = i;
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -318,20 +358,6 @@ bool character_choose_ui_system::event_button(SDL_Event *event) {
 bool character_choose_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    r = event_choose_character(event);
-    auto scan_code = event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_ESCAPE: {
-      return false;
-      break;
-    }
-    default: {
-      break;
-    }
-    }
-    break;
-  }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       r = false;

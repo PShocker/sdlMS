@@ -326,6 +326,29 @@ void skill_ui_system::render_button() {
   }
 }
 
+void skill_ui_system::render_book() {
+  auto self_job = character_game_instance::self.job;
+  auto icon_node = wz_resource::skill->find(self_job + u".img/info/icon");
+  auto t = wz_resource::load_texture(icon_node);
+  SDL_FRect pos_rect{
+      pos.x,
+      pos.y,
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+
+  auto book_node =
+      wz_resource::string->find(u"Skill.img/" + self_job + u"/bookName");
+  auto book_name =
+      static_cast<wz::Property<std::u16string> *>(book_node)->get();
+  freetype::load_aligned(true);
+  freetype::load_size(13);
+  freetype::load_color(0, 0, 0, 255);
+  freetype::draw_line(book_name, pos.x, pos.y);
+  freetype::load_aligned(false);
+}
+
 bool skill_ui_system::render() {
   render_backgrnd();
   render_skill_entry();
@@ -377,13 +400,17 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
   }
   auto index = load_mouse_ski();
   if (index.has_value()) {
-    auto val = std::string{index.value().begin(), index.value().end()};
-    auto sub_val = std::stoi(val);
-    cursor_game_instance::cursor_hand = {
-        .type = cursor_game_instance::skill,
-        .val = active_tab,
-        .sub_val = static_cast<uint32_t>(sub_val),
-    };
+    if (event->button.clicks >= 2) {
+
+    } else {
+      auto val = std::string{index.value().begin(), index.value().end()};
+      auto sub_val = std::stoi(val);
+      cursor_game_instance::cursor_hand = {
+          .type = cursor_game_instance::skill,
+          .val = active_tab,
+          .sub_val = static_cast<uint32_t>(sub_val),
+      };
+    }
     return true;
   }
   return false;
