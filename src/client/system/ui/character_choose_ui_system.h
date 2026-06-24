@@ -20,6 +20,7 @@ private:
   static void render_banner();
   static void render_character();
   static void render_character_board(uint8_t i);
+  static void render_character_effect(uint8_t i);
 
   static void event_button_delete_cb();
 
@@ -34,7 +35,8 @@ private:
 public:
   static inline std::optional<uint8_t> choose;
   static inline std::vector<game_character> characters;
-  static inline std::vector<game_animate> boards;
+  static inline game_animate board;
+  static inline game_animate effect;
 
   static bool render();
   static bool event(SDL_Event *event);

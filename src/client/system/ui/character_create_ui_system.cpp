@@ -141,8 +141,8 @@ void character_create_ui_system::render_stat() {
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = window::mouse_pos;
     if (r[i]) {
-      auto normal = wz_resource::load_texture(k->find(u"disabled/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto d = wz_resource::load_texture(k->find(u"disabled/0"));
+      SDL_RenderTexture(window::renderer, d, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && top) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
@@ -967,6 +967,8 @@ void character_create_ui_system::event_button_ok() {
   cs.ap.dex_ap = dex_point;
   cs.ap.int_ap = int_point;
   cs.ap.luk_ap = luk_point;
+
+  cs.map_id = 1;
 
   game_save_system_instance::save.characters.push_back(cs);
 

@@ -61,8 +61,8 @@ void login_notice_ui_system::render_backgrnd() {
     break;
   }
   case login_notice_system_instance::logining: {
-    backgrnd = wz_resource::load_texture(
-        notice_node->find(u"Login.img/Notice/Loading/backgrnd"));
+    backgrnd =
+        wz_resource::load_texture(notice_node->find(u"Loading/backgrnd"));
     text = nullptr;
     break;
   }
@@ -93,8 +93,8 @@ void login_notice_ui_system::render_backgrnd() {
     auto circle = wz_resource::load_texture(circle_texture);
     pos_rect.x += text_pos.x;
     pos_rect.y += text_pos.y;
-    pos_rect.w = text->w;
-    pos_rect.h = text->h;
+    pos_rect.w = circle->w;
+    pos_rect.h = circle->h;
     SDL_RenderTexture(window::renderer, circle, nullptr, &pos_rect);
     break;
   }

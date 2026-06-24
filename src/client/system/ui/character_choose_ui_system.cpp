@@ -24,6 +24,8 @@
 #include <array>
 #include <cmath>
 #include <cstdint>
+#include <optional>
+#include <string>
 #include <vector>
 
 SDL_FPoint character_choose_ui_system::load_pos() {
@@ -49,13 +51,21 @@ void character_choose_ui_system::render_button() {
       SDL_FRect{146 - camera.x, -607 - camera.y, 129, 45},
       SDL_FRect{146 - camera.x, -544 - camera.y, 129, 55},
   };
+  std::vector<bool> disable = {
+      !choose.has_value(),
+      false,
+      !choose.has_value(),
+  };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = window::mouse_pos;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    if (disable[i]) {
+      auto d = wz_resource::load_texture(k->find(u"disabled/0"));
+      SDL_RenderTexture(window::renderer, d, nullptr, &pos_rect);
+    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -132,6 +142,7 @@ void character_choose_ui_system::render_character() {
   for (uint8_t i = 0; i < characters.size(); i++) {
     auto &character = characters[i];
     if (choose.has_value() && choose == i) {
+      render_character_effect(i);
       render_character_board(i);
     }
     character.pos.x = character_pos[i].x;
@@ -143,11 +154,11 @@ void character_choose_ui_system::render_character() {
 
 void character_choose_ui_system::render_character_board(uint8_t i) {
   const std::array board_pos = {
-      SDL_FPoint{-270, -404},
-      SDL_FPoint{-110, -404},
-      SDL_FPoint{50, -404},
+      SDL_FPoint{-366, -684},
+      SDL_FPoint{-206, -684},
+      SDL_FPoint{-46, -684},
   };
-  auto ani = boards[i];
+  auto &ani = board;
   const static std::vector<SDL_Texture *> textures = {
       wz_resource::load_texture(
           wz_resource::ui->find(u"Login.img/CharSelect/Statboard/open/0")),
@@ -158,10 +169,11 @@ void character_choose_ui_system::render_character_board(uint8_t i) {
       wz_resource::load_texture(
           wz_resource::ui->find(u"Login.img/CharSelect/Statboard/open/3")),
   };
+  auto &camera = camera_game_instance::camera;
   auto t = textures.at(ani.ani_index);
   SDL_FRect pos_rect{
-      board_pos[i].x,
-      board_pos[i].y,
+      board_pos[i].x - camera.x,
+      board_pos[i].y - camera.y,
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
@@ -171,6 +183,10 @@ void character_choose_ui_system::render_character_board(uint8_t i) {
     static SDL_Texture *charInfo =
         wz_resource::load_texture(wz_resource::ui->find(
             u"Login.img/CharSelect/Statboard/canvas:charInfo"));
+    pos_rect.x += 31;
+    pos_rect.y += 35;
+    pos_rect.w = charInfo->w;
+    pos_rect.h = charInfo->h;
     SDL_RenderTexture(window::renderer, charInfo, nullptr, &pos_rect);
 
     const auto &cs = game_save_system_instance::save.characters[i];
@@ -196,6 +212,28 @@ void character_choose_ui_system::render_character_board(uint8_t i) {
   }
 }
 
+void character_choose_ui_system::render_character_effect(uint8_t i) {
+  const std::array effect_pos = {
+      SDL_FPoint{-270, -680},
+      SDL_FPoint{-110, -680},
+      SDL_FPoint{50, -680},
+  };
+  const static auto effect_node =
+      wz_resource::ui->find(u"Login.img/CharSelect/animation:selectEffect1");
+  auto &camera = camera_game_instance::camera;
+  auto texture_node = effect_node->get_child(std::to_string(effect.ani_index));
+  auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
+  auto t = wz_resource::load_texture(texture_node);
+
+  SDL_FRect pos_rect{
+      effect_pos[i].x - camera.x - origin.x,
+      effect_pos[i].y - camera.y - origin.y,
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+}
+
 bool character_choose_ui_system::render() {
   render_button();
   render_character();
@@ -210,7 +248,7 @@ void character_choose_ui_system::event_button_select() {
   }
   auto cse = choose.value();
   auto character = characters[cse];
-  uint32_t map_id = 10;
+  uint32_t map_id;
   // load
   for (auto &cs : game_save_system_instance::save.characters) {
     if (cs.character.nametags[0].text == character.nametags[0].text) {
@@ -303,13 +341,14 @@ void character_choose_ui_system::event_button_back() {
 }
 
 bool character_choose_ui_system::event_choose_character(SDL_Event *event) {
+  std::optional<uint8_t> cse;
   const std::array character_pos = {
       SDL_FPoint{-270, -404},
       SDL_FPoint{-110, -404},
       SDL_FPoint{50, -404},
   };
   auto &camera = camera_game_instance::camera;
-  for (int i = 0; i < character_pos.size(); i++) {
+  for (int i = 0; i < characters.size(); i++) {
     auto pos = character_pos[i];
     auto character = characters[i];
     character.pos = pos;
@@ -317,12 +356,27 @@ bool character_choose_ui_system::event_choose_character(SDL_Event *event) {
     r.x -= camera.x;
     r.y -= camera.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &r)) {
-      choose = i;
-      return true;
+      cse = i;
+      break;
     }
   }
-
-  return false;
+  if (cse == std::nullopt) {
+    return false;
+  }
+  if (cse == choose) {
+    event_button_select();
+  } else {
+    choose = cse;
+    for (auto &character : characters) {
+      character_logic_system::run_stand_action(character);
+    }
+    character_logic_system::run_walk_action(characters[cse.value()]);
+    board.ani_index = 0;
+    board.ani_time = 0;
+    effect.ani_index = 0;
+    effect.ani_time = 0;
+  }
+  return true;
 }
 
 bool character_choose_ui_system::event_button(SDL_Event *event) {
@@ -342,11 +396,17 @@ bool character_choose_ui_system::event_button(SDL_Event *event) {
       event_button_delete,
       event_button_back,
   };
+  std::vector<bool> disable = {
+      !choose.has_value(),
+      false,
+      !choose.has_value(),
+      false,
+  };
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect) && !disable[i]) {
       fns[i]();
       return false;
     }
@@ -387,13 +447,18 @@ bool character_choose_ui_system::run() {
     character_logic_system::run_animate(character);
   }
   if (choose.has_value()) {
-    auto cse = choose.value();
-    auto &ani = boards[cse];
-    if (ani.ani_index < ani.ani_delay.size() - 1) {
-      ani.ani_time += window::delta_time;
-      if (ani.ani_time >= ani.ani_delay[ani.ani_index]) {
-        ani.ani_index++;
-        ani.ani_time = 0;
+    auto anis = {&board, &effect};
+    for (auto ani : anis) {
+      if (ani->ani_index < ani->ani_delay.size()) {
+        ani->ani_time += window::delta_time;
+        auto delay = ani->ani_delay[ani->ani_index];
+        if (delay == 0) {
+          continue;
+        }
+        if (ani->ani_time >= delay) {
+          ani->ani_index++;
+          ani->ani_time = 0;
+        }
       }
     }
   }

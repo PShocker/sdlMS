@@ -19,6 +19,7 @@
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
+#include <cstdint>
 #include <ranges>
 
 void character_choose_system_instance::enter_prepare(const std::string &login) {
@@ -65,7 +66,7 @@ void character_choose_system_instance::enter() {
   camera.x = -80 - camera.w / 2;
   camera.y = -479 - camera.h / 2;
 
-  game_animate ani{.ani_delay = {250, 50, 50, 0}};
+  character_choose_ui_system::board.ani_delay = {250, 50, 50, 0};
+  character_choose_ui_system::effect.ani_delay = {150, 100, 100, 100, 0};
   auto character_size = character_choose_ui_system::characters.size();
-  character_choose_ui_system::boards.assign(character_size, ani);
 }

@@ -52,7 +52,7 @@ void login_system_instance::enter_prepare() {
               static_cast<int>(-30 - camera.x),
               static_cast<int>(960 - camera.y),
               230,
-              40,
+              30,
           },
       .color = {255, 255, 255, 255},
       .font_size = 13,

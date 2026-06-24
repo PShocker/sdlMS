@@ -110,9 +110,10 @@ void cursor_render_system::render_cursor() {
         static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
   }
   auto texture = wz_resource::load_texture(texture_node);
+  auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
-      .x = window::mouse_pos.x,
-      .y = window::mouse_pos.y,
+      .x = window::mouse_pos.x - origin.x,
+      .y = window::mouse_pos.y - origin.y,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };

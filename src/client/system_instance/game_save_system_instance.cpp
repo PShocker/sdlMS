@@ -1,5 +1,6 @@
 #include "game_save_system_instance.h"
 #include "SDL3/SDL_filesystem.h"
+#include "scene_system_instance.h"
 #include "src/client/game/game_equip.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_save.h"
@@ -105,6 +106,8 @@ bool game_save_system_instance::save_game() {
         .luk_ap = character_stat_game_instance::luk_ap,
     };
     cs.sp = {job_skill_game_instance::skill_point};
+
+    cs.map_id = scene_system_instance::map_id;
     cs.meso = package_game_instance::meso;
 
     cs.hp = character_stat_game_instance::hp_point;
@@ -174,6 +177,7 @@ bool game_save_system_instance::save_game() {
     cst.ap->int_ap = character_s.ap.int_ap;
     cst.ap->luk_ap = character_s.ap.luk_ap;
 
+    cst.map_id = character_s.map_id;
     cst.meso = character_s.meso;
 
     cst.hp = character_s.hp;

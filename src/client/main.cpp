@@ -15,7 +15,6 @@
 #include <cstdint>
 #include <cstdio>
 
-
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -23,11 +22,14 @@
 SDL_AppResult SDL_AppIterate(void *appstate) {
   window::tick();
   window::clear();
-  for (const auto &fns : {system::logic_systems, system::render_systems}) {
-    for (const auto &fn : fns) {
-      if (fn() == false) {
-        break;
-      }
+  for (const auto &fn : system::logic_systems) {
+    if (!fn()) {
+      break;
+    }
+  }
+  for (const auto &fn : system::render_systems) {
+    if (!fn()) {
+      break;
     }
   }
   window::update();

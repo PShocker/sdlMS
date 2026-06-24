@@ -160,8 +160,8 @@ void scene_system_instance::enter(uint32_t map_id) {
       minimap_ui_system::event,
   };
   system::logic_systems = {
-      backgrnd_logic_system::run,  ball_logic_system::run,
-      camera_logic_system::run,    effect_logic_system::run,
+      camera_logic_system::run,    backgrnd_logic_system::run,
+      ball_logic_system::run,      effect_logic_system::run,
       character_logic_system::run, chatballoon_logic_system::run,
       drop_logic_system::run,      mob_logic_system::run,
       npc_logic_system::run,       portal_logic_system::run,

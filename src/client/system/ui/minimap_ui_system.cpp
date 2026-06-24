@@ -239,8 +239,8 @@ void minimap_ui_system::render_button() {
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
     if (r[i] == false) {
-      auto normal = wz_resource::load_texture(k->find(u"disabled/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      auto d = wz_resource::load_texture(k->find(u"disabled/0"));
+      SDL_RenderTexture(window::renderer, d, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
                cursor_in == render) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
