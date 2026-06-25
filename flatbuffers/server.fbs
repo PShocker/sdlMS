@@ -7,7 +7,7 @@ table ServerHeartbeat {
 
 table ServerScene {
     map_id:uint32;
-    your_id:uint64;
+    fade:bool;
     
     players:[Player];
     mobs:[Mob];

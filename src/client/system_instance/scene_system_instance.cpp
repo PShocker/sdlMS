@@ -179,25 +179,26 @@ void scene_system_instance::enter(uint32_t map_id) {
 
 void scene_system_instance::enter_prepare(uint32_t map_id,
                                           const std::u16string &pn, int i) {
-  fade_system_instance::enter([map_id, pn, i]() {
-    enter_prepare_cb(map_id, pn, i); //
-  });
-}
-
-void scene_system_instance::enter_prepare_cb(uint32_t map_id,
-                                             const std::u16string &pn, int i) {
 
   prepare_map_id = map_id;
-  auto r = character_game_instance::load_self_pos(pn, i);
+  prepare_pos = character_game_instance::load_self_pos(pn, i);
+
+  fbs::ClientSceneT client_scene;
+  client_scene.fade = false;
+  client_scene.map_id = map_id;
+
+  client_request::send_to_host(client_scene);
+}
+
+void scene_system_instance::enter_prepare_fade() {
   auto g = character_game_instance::self;
-  g.pos = r;
+  g.pos = prepare_pos.value();
   g.action = u"jump";
-  prepare_pos = r;
   auto c = character_game_instance::load_characterT(g);
 
   fbs::ClientSceneT client_scene;
-  client_scene.come = true;
-  client_scene.map_id = map_id;
+  client_scene.fade = true;
+  client_scene.map_id = prepare_map_id;
   client_scene.character = std::make_unique<fbs::CharacterT>(std::move(c));
 
   client_request::send_to_host(client_scene);

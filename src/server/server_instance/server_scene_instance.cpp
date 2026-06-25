@@ -14,14 +14,15 @@
 
 using namespace fbs;
 
-void server_scene_instance::clean_client(uint64_t client_id) {
+void server_scene_instance::clean_client(uint64_t client_id,
+                                         ClientSceneT client_scene) {
   if (server_client_instance::clients.contains(client_id)) {
     // 地图切换
     auto map_id = server_client_instance::clients.at(client_id).map_id;
     auto &scenes = server_scene_instance::scenes[map_id];
     scenes.clients.erase(client_id);
+    fbs::ServerCharacterOutT r;
     for (const auto other : scenes.clients) {
-      fbs::ServerCharacterOutT r;
       r.client_id = client_id;
       server_response::send_to_client(other, r);
     }
@@ -48,7 +49,7 @@ void server_scene_instance::send_scene_clients(uint64_t client_id,
                                                ClientSceneT client_scene) {
   ServerSceneT r;
   r.map_id = client_scene.map_id;
-  r.your_id = client_id;
+  r.fade = true;
 
   auto scene = server_scene_instance::scenes[client_scene.map_id];
   scene.clients.erase(client_id);
@@ -87,6 +88,14 @@ void server_scene_instance::send_in_scene(uint64_t client_id,
   }
 }
 
+void server_scene_instance::send_in_fade(uint64_t client_id,
+                                         ClientSceneT client_scene) {
+  ServerSceneT r;
+  r.map_id = client_scene.map_id;
+  r.fade = false;
+  server_response::send_to_client(client_id, r);
+}
+
 void server_scene_instance::init_scene(uint64_t client_id,
                                        ClientSceneT client_scene) {
   //
@@ -104,9 +113,14 @@ void server_scene_instance::init_scene(uint64_t client_id,
 
 void server_scene_instance::handle_scene(uint64_t client_id,
                                          ClientSceneT client_scene) {
-  init_scene(client_id, client_scene);
-  send_scene_clients(client_id, client_scene);
-  send_in_scene(client_id, client_scene);
-  clean_client(client_id);
-  save_client(client_id, client_scene);
+  if (client_scene.fade == false) {
+    // 黑屏过渡
+    send_in_fade(client_id, client_scene);
+  } else {
+    init_scene(client_id, client_scene);
+    send_scene_clients(client_id, client_scene);
+    send_in_scene(client_id, client_scene);
+    clean_client(client_id, client_scene);
+    save_client(client_id, client_scene);
+  }
 }

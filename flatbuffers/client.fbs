@@ -6,7 +6,7 @@ table ClientHeartbeat {
 }
 
 table ClientScene {
-    come:bool;
+    fade:bool;
     map_id:uint32;
     character:Character;
 }

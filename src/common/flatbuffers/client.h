@@ -107,7 +107,7 @@ inline ::flatbuffers::Offset<ClientHeartbeat> CreateClientHeartbeat(
 
 struct ClientSceneT : public ::flatbuffers::NativeTable {
   typedef ClientScene TableType;
-  bool come = false;
+  bool fade = false;
   uint32_t map_id = 0;
   std::unique_ptr<fbs::CharacterT> character{};
   ClientSceneT() = default;
@@ -120,15 +120,15 @@ struct ClientScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ClientSceneT NativeTableType;
   typedef ClientSceneBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_COME = 4,
+    VT_FADE = 4,
     VT_MAP_ID = 6,
     VT_CHARACTER = 8
   };
-  bool come() const {
-    return GetField<uint8_t>(VT_COME, 0) != 0;
+  bool fade() const {
+    return GetField<uint8_t>(VT_FADE, 0) != 0;
   }
-  bool mutate_come(bool _come = 0) {
-    return SetField<uint8_t>(VT_COME, static_cast<uint8_t>(_come), 0);
+  bool mutate_fade(bool _fade = 0) {
+    return SetField<uint8_t>(VT_FADE, static_cast<uint8_t>(_fade), 0);
   }
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
@@ -145,7 +145,7 @@ struct ClientScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_COME, 1) &&
+           VerifyField<uint8_t>(verifier, VT_FADE, 1) &&
            VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
            VerifyOffset(verifier, VT_CHARACTER) &&
            verifier.VerifyTable(character()) &&
@@ -160,8 +160,8 @@ struct ClientSceneBuilder {
   typedef ClientScene Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_come(bool come) {
-    fbb_.AddElement<uint8_t>(ClientScene::VT_COME, static_cast<uint8_t>(come), 0);
+  void add_fade(bool fade) {
+    fbb_.AddElement<uint8_t>(ClientScene::VT_FADE, static_cast<uint8_t>(fade), 0);
   }
   void add_map_id(uint32_t map_id) {
     fbb_.AddElement<uint32_t>(ClientScene::VT_MAP_ID, map_id, 0);
@@ -182,13 +182,13 @@ struct ClientSceneBuilder {
 
 inline ::flatbuffers::Offset<ClientScene> CreateClientScene(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    bool come = false,
+    bool fade = false,
     uint32_t map_id = 0,
     ::flatbuffers::Offset<fbs::Character> character = 0) {
   ClientSceneBuilder builder_(_fbb);
   builder_.add_character(character);
   builder_.add_map_id(map_id);
-  builder_.add_come(come);
+  builder_.add_fade(fade);
   return builder_.Finish();
 }
 
@@ -1031,13 +1031,13 @@ inline ::flatbuffers::Offset<ClientHeartbeat> ClientHeartbeat::Pack(::flatbuffer
 }
 
 inline ClientSceneT::ClientSceneT(const ClientSceneT &o)
-      : come(o.come),
+      : fade(o.fade),
         map_id(o.map_id),
         character((o.character) ? new fbs::CharacterT(*o.character) : nullptr) {
 }
 
 inline ClientSceneT &ClientSceneT::operator=(ClientSceneT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(come, o.come);
+  std::swap(fade, o.fade);
   std::swap(map_id, o.map_id);
   std::swap(character, o.character);
   return *this;
@@ -1052,7 +1052,7 @@ inline ClientSceneT *ClientScene::UnPack(const ::flatbuffers::resolver_function_
 inline void ClientScene::UnPackTo(ClientSceneT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = come(); _o->come = _e; }
+  { auto _e = fade(); _o->fade = _e; }
   { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = character(); if (_e) { if(_o->character) { _e->UnPackTo(_o->character.get(), _resolver); } else { _o->character = std::unique_ptr<fbs::CharacterT>(_e->UnPack(_resolver)); } } else if (_o->character) { _o->character.reset(); } }
 }
@@ -1065,12 +1065,12 @@ inline ::flatbuffers::Offset<ClientScene> ClientScene::Pack(::flatbuffers::FlatB
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientSceneT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _come = _o->come;
+  auto _fade = _o->fade;
   auto _map_id = _o->map_id;
   auto _character = _o->character ? CreateCharacter(_fbb, _o->character.get(), _rehasher) : 0;
   return fbs::CreateClientScene(
       _fbb,
-      _come,
+      _fade,
       _map_id,
       _character);
 }
