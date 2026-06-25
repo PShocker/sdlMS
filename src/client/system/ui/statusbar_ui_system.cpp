@@ -252,8 +252,8 @@ void statusbar_ui_system::render_character_stat() {
   SDL_RenderTexture(window::renderer, gaugeCover, nullptr, &pos_rect);
 
   // job
-  auto job_node = wz_resource::string2->get_root()->find(
-      u"Job.img/" + character_game_instance::self.job);
+  auto job_node = wz_resource::ms->get_root()->find(
+      u"String.img/Job/" + character_game_instance::self.job);
   auto job_name = static_cast<wz::Property<std::u16string> *>(job_node)->get();
   freetype::load_size(12);
   freetype::load_color(255, 255, 255, 255);

@@ -8,6 +8,7 @@
 #include <vector>
 
 class game_storage {
+public:
   std::vector<std::optional<std::variant<game_equip, game_item>>> data;
   uint64_t meso;
 };

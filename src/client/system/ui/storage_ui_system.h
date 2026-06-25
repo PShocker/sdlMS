@@ -5,7 +5,13 @@
 #include <optional>
 class storage_ui_system {
 private:
+  static std::optional<uint32_t> load_mouse_index();
   static SDL_FPoint load_wh();
+  
+  static void render_backgrnd();
+  static void render_items();
+  static void render_item_info();
+
 
   static bool event_button(SDL_Event *event);
   static void event_close();

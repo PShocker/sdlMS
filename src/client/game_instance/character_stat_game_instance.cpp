@@ -15,3 +15,33 @@ void character_stat_game_instance::load(const character_save &cs) {
   exp_point = 50;
   exp_point_max = 100;
 }
+
+void character_stat_game_instance::hp_inc(uint64_t i) {
+  exp_point += i;
+  //
+}
+
+void character_stat_game_instance::mp_inc(uint64_t i) {
+  exp_point += i;
+  //
+}
+
+void character_stat_game_instance::str_inc(uint64_t i) {
+  exp_point += i;
+  //
+}
+
+void character_stat_game_instance::dex_inc(uint64_t i) {
+  exp_point += i;
+  //
+}
+
+void character_stat_game_instance::int_inc(uint64_t i) {
+  exp_point += i;
+  //
+}
+
+void character_stat_game_instance::luk_inc(uint64_t i) {
+  exp_point += i;
+  //
+}

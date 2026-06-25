@@ -34,8 +34,7 @@ void wz_resource::init_files() {
   string = new wz::Files("Data/", "String/String");
   item = new wz::Files("Data/", "Item/Item");
 
-  string2 = new wz::File("Data/String2.wz");
-  drop = new wz::File("Data/Drop.wz");
+  ms = new wz::File("Data/sdlMS.wz");
 }
 
 void wz_resource::init() {

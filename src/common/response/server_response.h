@@ -21,7 +21,9 @@ public:
     flatbuffers::FlatBufferBuilder builder;
     auto packet_offset = NetPacket::Pack(builder, &packet);
     builder.Finish(packet_offset);
-    server_main::server_send(builder.GetBufferPointer(), builder.GetSize(),
-                             client_id);
+
+    auto point = builder.GetBufferPointer();
+    auto size = builder.GetSize();
+    server_main::server_send(point, size, client_id);
   }
 };

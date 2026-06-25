@@ -21,7 +21,9 @@ public:
     auto packet_offset = NetPacket::Pack(builder, &packet);
     builder.Finish(packet_offset);
     auto addr = server_main::host ? &server_main::host_addr : nullptr;
-    server_main::server_send(builder.GetBufferPointer(), builder.GetSize(),
-                             addr);
+
+    auto point = builder.GetBufferPointer();
+    auto size = builder.GetSize();
+    server_main::server_send(point, size, addr);
   }
 };

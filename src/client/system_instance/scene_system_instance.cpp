@@ -52,6 +52,7 @@
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
+#include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
@@ -178,24 +179,21 @@ void scene_system_instance::enter(uint32_t map_id) {
 
 void scene_system_instance::enter_prepare(uint32_t map_id,
                                           const std::u16string &pn, int i) {
-  fbs::CharacterT c;
-  if (prepare_map_id == 0) {
-    prepare_map_id = map_id;
-    auto r = character_game_instance::load_self_pos(pn, i);
-    character_game_instance::self.pos = r;
-    character_game_instance::self.action = u"jump";
-    prepare_pos = std::nullopt;
-    const auto &self = character_game_instance::self;
-    c = character_game_instance::load_characterT(self);
-  } else {
-    prepare_map_id = map_id;
-    auto r = character_game_instance::load_self_pos(pn, i);
-    auto g = character_game_instance::self;
-    g.pos = r;
-    g.action = u"jump";
-    prepare_pos = r;
-    c = character_game_instance::load_characterT(g);
-  }
+  fade_system_instance::enter([map_id, pn, i]() {
+    enter_prepare_cb(map_id, pn, i); //
+  });
+}
+
+void scene_system_instance::enter_prepare_cb(uint32_t map_id,
+                                             const std::u16string &pn, int i) {
+
+  prepare_map_id = map_id;
+  auto r = character_game_instance::load_self_pos(pn, i);
+  auto g = character_game_instance::self;
+  g.pos = r;
+  g.action = u"jump";
+  prepare_pos = r;
+  auto c = character_game_instance::load_characterT(g);
 
   fbs::ClientSceneT client_scene;
   client_scene.come = true;

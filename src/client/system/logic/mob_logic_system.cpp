@@ -3,6 +3,7 @@
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -303,6 +304,23 @@ void mob_logic_system::run_logic() {
         m.mob.ani_index = 0;
         m.mob.ani_time = 0;
         m.mob.ani_animate = a.action_animate;
+        auto action = load_action_type(m.mob.action);
+        if (action == action_enum::die) {
+          // get exp
+          auto mob_info = mob_game_instance::load_mob_info(m.mob.id);
+          auto mob_hp =
+              static_cast<wz::Property<int> *>(mob_info->get_child(u"maxHP"))
+                  ->get();
+          auto atk_per = (float)m.mob.attack_val / (float)mob_hp;
+          atk_per = std::clamp(atk_per, 0.0f, 1.0f);
+          auto mob_exp =
+              static_cast<wz::Property<int> *>(mob_info->get_child(u"exp"))
+                  ->get();
+          int exp = std::ceil(mob_exp * atk_per);
+          gain_log_game_instance::load_exp(exp);
+          // gain_log_game_instance::load_exp
+        }
+
         v.clear();
         break;
       }

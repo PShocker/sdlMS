@@ -12,6 +12,7 @@ public:
   static inline std::optional<SDL_FPoint> prepare_pos;
   static void enter(uint32_t map_id);
   static void enter_prepare(uint32_t map_id, const std::u16string &pn, int i);
+  static void enter_prepare_cb(uint32_t map_id, const std::u16string &pn, int i);
 
 private:
   static bool render_game();

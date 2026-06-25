@@ -28,8 +28,7 @@ std::vector<server_mob_system::mob_drop>
 server_mob_system::load_mob_drops(server_mob &s_mob) {
   static std::flat_map<std::u16string, std::vector<mob_drop>> cache;
   if (!cache.contains(s_mob.id)) {
-    auto node =
-        wz_resource::drop->get_root()->find(u"Mob/" + s_mob.id + u".img");
+    auto node = wz_resource::ms->get_root()->find(u"MobDrop/" + s_mob.id);
     for (auto [k, v] : *node->get_children()) {
       auto min_quantity =
           static_cast<wz::Property<int> *>(v[0]->get_child(u"min_quantity"))

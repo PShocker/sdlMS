@@ -131,10 +131,14 @@ void skill_ui_system::event_drag_move(SDL_Event *event) {
 }
 
 void skill_ui_system::render_backgrnd() {
-  static auto back_node = wz_resource::ui->find(u"Skill.img/backgrnd");
-  static auto back_texture = wz_resource::load_texture(back_node);
-  SDL_FRect pos_rect = {pos.x, pos.y, (float)back_texture->w,
-                        (float)back_texture->h};
+  static auto back_texture =
+      wz_resource::load_texture(wz_resource::ui->find(u"Skill.img/backgrnd"));
+  SDL_FRect pos_rect = {
+      pos.x,
+      pos.y,
+      (float)back_texture->w,
+      (float)back_texture->h,
+  };
   SDL_RenderTexture(window::renderer, back_texture, nullptr, &pos_rect);
 }
 

@@ -19,6 +19,8 @@
 #include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
+#include "src/client/system/ui/storage_ui_system.h"
+#include "src/client/system/ui/trade_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -147,6 +149,14 @@ void cursor_logic_system::run_cursor_ui() {
       }
     } else if (fn == revive_ui_system::render) {
       if (revive_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
+    } else if (fn == trade_ui_system::render) {
+      if (trade_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
+    } else if (fn == storage_ui_system::render) {
+      if (storage_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
     }

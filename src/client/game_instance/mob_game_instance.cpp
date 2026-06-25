@@ -9,11 +9,22 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Node.h"
 #include "wz/Property.h"
 #include <cstdint>
+#include <flat_map>
 #include <optional>
 #include <string>
 #include <vector>
+
+wz::Node *mob_game_instance::load_mob_info(const std::u16string &id) {
+  static std::flat_map<std::u16string, wz::Node *> cache;
+  if (!cache.contains(id)) {
+    auto mob_node = load_link_mob_node(id);
+    cache[id] = mob_node->get_child(u"info");
+  }
+  return cache.at(id);
+}
 
 wz::Node *mob_game_instance::load_link_mob_node(const std::u16string &id) {
   auto mob_node = wz_resource::mob->find(id + u".img");
