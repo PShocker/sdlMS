@@ -1,5 +1,6 @@
 #include "game_instance/character_game_instance.h"
 #include "game_instance/keyboard_game_instance.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/common/freetype/freetype.h"
@@ -61,6 +62,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   window::create("sdlMS", logic_w, logic_h, window_w, window_h);
   camera_game_instance::load(0, 0, logic_w, logic_h);
   keyboard_game_instance::load();
+  audio_game_instance::init();
 
   character_game_instance::init_character_bone();
   // character_game_instance::load_self_character();

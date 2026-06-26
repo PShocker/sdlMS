@@ -1,6 +1,7 @@
 #include "login_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -283,6 +284,7 @@ bool login_ui_system::event_button(SDL_Event *event) {
     pos_rect.y = (int)pos_rect.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       fns[i]();
+      audio_game_instance::load_audio(u"", 0);
       return false;
     }
   }

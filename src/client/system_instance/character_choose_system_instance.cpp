@@ -10,7 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
-#include "src/client/system/logic/sound_logic_system.h"
+#include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
@@ -51,7 +51,7 @@ void character_choose_system_instance::enter() {
   }
   system::logic_systems = {
       backgrnd_logic_system::run,      obj_logic_system::run,
-      sound_logic_system::run,         cursor_logic_system::run,
+      audio_logic_system::run,         cursor_logic_system::run,
       character_choose_ui_system::run,
   };
   system::render_systems = {

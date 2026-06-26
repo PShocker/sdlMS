@@ -2,6 +2,7 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_mob.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -22,6 +23,7 @@
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
+#include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
 #include "src/client/system/logic/ball_logic_system.h"
 #include "src/client/system/logic/camera_logic_system.h"
@@ -35,7 +37,6 @@
 #include "src/client/system/logic/npc_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/portal_logic_system.h"
-#include "src/client/system/logic/sound_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -63,6 +64,7 @@
 #include <ranges>
 #include <utility>
 #include <vector>
+
 
 bool scene_system_instance::render_game() {
   std::array<std::vector<game_character *>, 8> character_array;
@@ -153,6 +155,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   character_game_instance::clear_others();
   effect_game_instance::reset();
   camera_game_instance::reset();
+  audio_game_instance::load_backgrnd_audio(u"");
 
   system::event_systems = {
       cursor_logic_system::event,
@@ -166,7 +169,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       character_logic_system::run, chatballoon_logic_system::run,
       drop_logic_system::run,      mob_logic_system::run,
       npc_logic_system::run,       portal_logic_system::run,
-      sound_logic_system::run,     obj_logic_system::run,
+      audio_logic_system::run,     obj_logic_system::run,
       cursor_logic_system::run,    gain_log_logic_system::run,
   };
   system::render_systems = {
