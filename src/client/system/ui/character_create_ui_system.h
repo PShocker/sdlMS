@@ -42,9 +42,6 @@ private:
 
   static void render_custom_item(float cx, float cy, choose_type type);
 
-  static void event_button_gender_prev();
-  static void event_button_gender_next();
-
   static void event_button_face_prev();
   static void event_button_face_next();
 

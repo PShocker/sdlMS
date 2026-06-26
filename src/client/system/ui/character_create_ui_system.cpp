@@ -4,6 +4,7 @@
 #include "login_ui_system.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_save.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
@@ -477,6 +478,8 @@ bool character_create_ui_system::back_animate() {
 }
 
 void character_create_ui_system::event_button_back() {
+  audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
+
   chatacter_create_system_instance::enter();
   system::logic_systems.push_back(back_animate);
   system::render_systems = {
@@ -515,20 +518,6 @@ void character_create_ui_system::reset_character(bool g) {
   g_character.nametags = {};
 }
 
-void character_create_ui_system::event_button_gender_prev() {
-  if (gender) {
-    gender = true;
-    reset_character(true);
-  }
-}
-
-void character_create_ui_system::event_button_gender_next() {
-  if (!gender) {
-    gender = false;
-    reset_character(false);
-  }
-}
-
 std::vector<std::u16string> character_create_ui_system::load_default_face() {
   std::vector<std::u16string> faces;
   if (!gender) {
@@ -540,6 +529,8 @@ std::vector<std::u16string> character_create_ui_system::load_default_face() {
 }
 
 void character_create_ui_system::event_button_face_prev() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto faces = load_default_face();
   auto face_id = g_character.face.id;
   auto it = std::ranges::find(faces, face_id);
@@ -551,6 +542,8 @@ void character_create_ui_system::event_button_face_prev() {
 }
 
 void character_create_ui_system::event_button_face_next() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto faces = load_default_face();
   auto face_id = g_character.face.id;
   auto it = std::ranges::find(faces, face_id);
@@ -571,6 +564,8 @@ std::vector<std::u16string> character_create_ui_system::load_default_hair() {
 }
 
 void character_create_ui_system::event_button_hair_prev() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto hairs = load_default_hair();
   auto hair_id = g_character.hair;
   hair_id.back() = u'0';
@@ -582,6 +577,8 @@ void character_create_ui_system::event_button_hair_prev() {
 }
 
 void character_create_ui_system::event_button_hair_next() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto hairs = load_default_hair();
   auto hair_id = g_character.hair;
   hair_id.back() = u'0';
@@ -593,6 +590,8 @@ void character_create_ui_system::event_button_hair_next() {
 }
 
 void character_create_ui_system::event_button_hair_color_prev() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto hair_id = g_character.hair;
   auto back = hair_id.back();
   if (back > u'0') {
@@ -605,6 +604,8 @@ void character_create_ui_system::event_button_hair_color_prev() {
 }
 
 void character_create_ui_system::event_button_hair_color_next() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto hair_id = g_character.hair;
   auto back = hair_id.back();
   if (back < u'7') {
@@ -617,6 +618,8 @@ void character_create_ui_system::event_button_hair_color_next() {
 }
 
 void character_create_ui_system::event_button_skin_color_prev() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto head_id = g_character.head;
   auto body_id = g_character.body;
   auto back = head_id.back();
@@ -632,6 +635,8 @@ void character_create_ui_system::event_button_skin_color_prev() {
 }
 
 void character_create_ui_system::event_button_skin_color_next() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto &head_id = g_character.head;
   auto body_id = g_character.body;
   auto back = head_id.back();
@@ -657,6 +662,8 @@ std::vector<std::u16string> character_create_ui_system::load_default_top() {
 }
 
 void character_create_ui_system::event_button_top_prev() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto tops = load_default_top();
   auto top_id = g_character.coat->id;
   auto it = std::ranges::find(tops, top_id);
@@ -667,6 +674,8 @@ void character_create_ui_system::event_button_top_prev() {
 }
 
 void character_create_ui_system::event_button_top_next() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto tops = load_default_top();
   auto top_id = g_character.coat->id;
   auto it = std::ranges::find(tops, top_id);
@@ -687,6 +696,8 @@ std::vector<std::u16string> character_create_ui_system::load_default_bottom() {
 }
 
 void character_create_ui_system::event_button_bottom_prev() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto bottoms = load_default_bottom();
   auto pant_id = g_character.pant->id;
   auto it = std::ranges::find(bottoms, pant_id);
@@ -697,6 +708,8 @@ void character_create_ui_system::event_button_bottom_prev() {
 }
 
 void character_create_ui_system::event_button_bottom_next() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto bottoms = load_default_bottom();
   auto pant_id = g_character.pant->id;
   auto it = std::ranges::find(bottoms, pant_id);
@@ -713,6 +726,8 @@ std::vector<std::u16string> character_create_ui_system::load_default_shoes() {
 }
 
 void character_create_ui_system::event_button_shoes_prev() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto shoes = load_default_shoes();
   auto shoes_id = g_character.shoes->id;
   auto it = std::ranges::find(shoes, shoes_id);
@@ -723,6 +738,8 @@ void character_create_ui_system::event_button_shoes_prev() {
 }
 
 void character_create_ui_system::event_button_shoes_next() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto shoes = load_default_shoes();
   auto shoes_id = g_character.shoes->id;
   auto it = std::ranges::find(shoes, shoes_id);
@@ -739,6 +756,8 @@ std::vector<std::u16string> character_create_ui_system::load_default_weapon() {
 }
 
 void character_create_ui_system::event_button_weapon_prev() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto weapons = load_default_weapon();
   auto weapon_id = g_character.weapon->id;
   auto it = std::ranges::find(weapons, weapon_id);
@@ -749,6 +768,8 @@ void character_create_ui_system::event_button_weapon_prev() {
 }
 
 void character_create_ui_system::event_button_weapon_next() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+
   auto weapons = load_default_weapon();
   auto weapon_id = g_character.weapon->id;
   auto it = std::ranges::find(weapons, weapon_id);
@@ -760,6 +781,7 @@ void character_create_ui_system::event_button_weapon_next() {
 
 void character_create_ui_system::event_button_str_inc() {
   if (remain_point > 0) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     str_point++;
     remain_point--;
   }
@@ -767,6 +789,7 @@ void character_create_ui_system::event_button_str_inc() {
 
 void character_create_ui_system::event_button_str_dec() {
   if (str_point > 4) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     str_point--;
     remain_point++;
   }
@@ -774,6 +797,7 @@ void character_create_ui_system::event_button_str_dec() {
 
 void character_create_ui_system::event_button_dex_inc() {
   if (remain_point > 0) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     dex_point++;
     remain_point--;
   }
@@ -781,6 +805,7 @@ void character_create_ui_system::event_button_dex_inc() {
 
 void character_create_ui_system::event_button_dex_dec() {
   if (dex_point > 4) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     dex_point--;
     remain_point++;
   }
@@ -788,6 +813,7 @@ void character_create_ui_system::event_button_dex_dec() {
 
 void character_create_ui_system::event_button_int_inc() {
   if (remain_point > 0) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     int_point++;
     remain_point--;
   }
@@ -795,6 +821,7 @@ void character_create_ui_system::event_button_int_inc() {
 
 void character_create_ui_system::event_button_int_dec() {
   if (int_point > 4) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     int_point--;
     remain_point++;
   }
@@ -802,6 +829,7 @@ void character_create_ui_system::event_button_int_dec() {
 
 void character_create_ui_system::event_button_luk_inc() {
   if (remain_point > 0) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     luk_point++;
     remain_point--;
   }
@@ -809,6 +837,7 @@ void character_create_ui_system::event_button_luk_inc() {
 
 void character_create_ui_system::event_button_luk_dec() {
   if (luk_point > 4) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     luk_point--;
     remain_point++;
   }
@@ -841,6 +870,7 @@ bool character_create_ui_system::event_button_custom(SDL_Event *event) {
         if (left.has_value()) {
           switch (choose_index) {
           case 0: {
+            audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
             reset_character(!gender);
             break;
           }
@@ -923,6 +953,7 @@ void character_create_ui_system::event_button_ok() {
   if (characters.size() >= 3) {
     login_notice_system_instance::enter(
         login_notice_system_instance::character_full, nullptr);
+    audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
   // check name
@@ -930,12 +961,14 @@ void character_create_ui_system::event_button_ok() {
   if (name_text.empty()) {
     login_notice_system_instance::enter(
         login_notice_system_instance::charactername_error, nullptr);
+    audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
   // check ap
   if (remain_point != 0) {
     login_notice_system_instance::enter(
         login_notice_system_instance::character_use_ap, nullptr);
+    audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
   for (auto ch : name_text) {
@@ -944,6 +977,7 @@ void character_create_ui_system::event_button_ok() {
       // 发现标点符号
       login_notice_system_instance::enter(
           login_notice_system_instance::charactername_error, nullptr);
+      audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
       return;
     }
   }
@@ -952,9 +986,12 @@ void character_create_ui_system::event_button_ok() {
       // 名称重复
       login_notice_system_instance::enter(
           login_notice_system_instance::charactername_used, nullptr);
+      audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
       return;
     }
   }
+  audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
+
   character_game_instance::load_name(g_character, name_text);
   characters.push_back(g_character);
 

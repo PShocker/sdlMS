@@ -6,11 +6,11 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
+#include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
-#include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
@@ -20,7 +20,9 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <cstdint>
+#include <optional>
 #include <ranges>
+
 
 void character_choose_system_instance::enter_prepare(const std::string &login) {
   game_save_system_instance::load_save(login);
@@ -66,6 +68,7 @@ void character_choose_system_instance::enter() {
   camera.x = -80 - camera.w / 2;
   camera.y = -479 - camera.h / 2;
 
+  character_choose_ui_system::choose = std::nullopt;
   character_choose_ui_system::board.ani_delay = {250, 50, 50, 0};
   character_choose_ui_system::effect.ani_delay = {150, 100, 100, 100, 0};
   auto character_size = character_choose_ui_system::characters.size();

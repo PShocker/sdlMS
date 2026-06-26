@@ -17,6 +17,4 @@ public:
   uint64_t delay;
   bool backgrnd;
   SDL_AudioStream *stream;
-
-  auto operator<=>(const game_audio &) const = default;
 };

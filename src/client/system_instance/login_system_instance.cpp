@@ -1,12 +1,13 @@
 #include "login_system_instance.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
+#include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
 #include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
-#include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
@@ -62,6 +63,8 @@ void login_system_instance::enter_prepare() {
 }
 
 void login_system_instance::enter() {
+  audio_game_instance::load_backgrnd_audio(u"BgmUI.img/TitleClassic");
+
   enter_prepare();
   auto fn = &login_system_instance::render_game;
   if (!std::ranges::contains(system::render_systems, fn)) {

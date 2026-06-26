@@ -2,7 +2,9 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "login_notice_ui_system.h"
 #include "login_ui_system.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -246,6 +248,8 @@ void character_choose_ui_system::event_button_select() {
   if (!choose.has_value()) {
     return;
   }
+  audio_game_instance::load_audio(u"Game.img/GameIn", 0);
+
   auto cse = choose.value();
   auto character = characters[cse];
   uint32_t map_id;
@@ -273,8 +277,11 @@ void character_choose_ui_system::event_button_new() {
   if (characters.size() >= 3) {
     login_notice_system_instance::enter(
         login_notice_system_instance::character_full, nullptr);
+    audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
+  audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
+
   chatacter_create_system_instance::enter_prepare();
 
   system::logic_systems.push_back(new_animate);
@@ -300,9 +307,12 @@ void character_choose_ui_system::event_button_delete_cb() {
     }
   }
   characters.erase(characters.begin() + cse);
+  choose = std::nullopt;
+  login_notice_ui_system::event_close();
 }
 
 void character_choose_ui_system::event_button_delete() {
+  audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
   login_notice_system_instance::enter(
       login_notice_system_instance::character_delete, event_button_delete_cb);
   return;
@@ -328,6 +338,8 @@ bool character_choose_ui_system::back_animate() {
 }
 
 void character_choose_ui_system::event_button_back() {
+  audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
+
   game_save_system_instance::save_game();
   login_system_instance::enter_prepare();
 
@@ -375,6 +387,7 @@ bool character_choose_ui_system::event_choose_character(SDL_Event *event) {
     board.ani_time = 0;
     effect.ani_index = 0;
     effect.ani_time = 0;
+    audio_game_instance::load_audio(u"UI.img/CharSelect", 0);
   }
   return true;
 }

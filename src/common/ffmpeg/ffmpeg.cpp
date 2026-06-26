@@ -10,205 +10,171 @@ extern "C" {
 #include <libavformat/avformat.h>
 }
 
-game_audio_cache ffmpeg::decode_audio_pcm(const std::vector<uint8_t> &audio_data) {
+game_audio_cache
+ffmpeg::decode_audio_pcm(const std::vector<uint8_t> &audio_data) {
   game_audio_cache gac;
-  std::vector<uint8_t> pcm_data;
 
   if (audio_data.empty()) {
     return gac;
   }
 
-  // 1. 分配输入缓冲区
-  unsigned char *buffer = (unsigned char *)av_malloc(audio_data.size());
+  // 1. 打开输入（直接从内存读取）
+  AVIOContext *avio_ctx = nullptr;
+  AVFormatContext *fmt_ctx = nullptr;
+
+  uint8_t *buffer = (uint8_t *)av_malloc(audio_data.size());
   if (!buffer)
     return gac;
   memcpy(buffer, audio_data.data(), audio_data.size());
 
-  // 2. 创建内存IO上下文
-  AVIOContext *avio_ctx = avio_alloc_context(
-      buffer, audio_data.size(), 0, nullptr, nullptr, nullptr, nullptr);
+  avio_ctx = avio_alloc_context(buffer, audio_data.size(), 0, nullptr, nullptr,
+                                nullptr, nullptr);
   if (!avio_ctx) {
     av_free(buffer);
     return gac;
   }
 
-  // 3. 打开格式上下文（自动检测格式）
-  AVFormatContext *fmt_ctx = avformat_alloc_context();
-  if (!fmt_ctx) {
-    avio_context_free(&avio_ctx);
-    av_free(buffer);
-    return gac;
-  }
+  fmt_ctx = avformat_alloc_context();
   fmt_ctx->pb = avio_ctx;
 
-  // 关键：不指定输入格式，让 FFmpeg 自动探测
   if (avformat_open_input(&fmt_ctx, nullptr, nullptr, nullptr) < 0) {
-    avformat_free_context(fmt_ctx);
+    avformat_close_input(&fmt_ctx);
     avio_context_free(&avio_ctx);
-    av_free(buffer);
     return gac;
   }
 
-  // 获取流信息
   if (avformat_find_stream_info(fmt_ctx, nullptr) < 0) {
     avformat_close_input(&fmt_ctx);
-    avio_context_free(&avio_ctx);
-    av_free(buffer);
     return gac;
   }
 
-  // 打印检测到的格式（调试用）
-  std::cout << "Detected format: " << fmt_ctx->iformat->name << std::endl;
-
-  // 4. 找到音频流
-  const AVCodec *codec = nullptr;
+  // 2. 找到音频流
   int audio_idx =
-      av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, &codec, 0);
-  if (audio_idx < 0 || !codec) {
+      av_find_best_stream(fmt_ctx, AVMEDIA_TYPE_AUDIO, -1, -1, nullptr, 0);
+  if (audio_idx < 0) {
     avformat_close_input(&fmt_ctx);
-    avio_context_free(&avio_ctx);
-    av_free(buffer);
     return gac;
   }
 
-  std::cout << "Audio codec: " << codec->name << std::endl;
+  // 3. 创建解码器
+  const AVCodec *codec =
+      avcodec_find_decoder(fmt_ctx->streams[audio_idx]->codecpar->codec_id);
+  if (!codec) {
+    avformat_close_input(&fmt_ctx);
+    return gac;
+  }
 
-  // 5. 创建解码器上下文
   AVCodecContext *codec_ctx = avcodec_alloc_context3(codec);
-  if (!codec_ctx) {
-    avformat_close_input(&fmt_ctx);
-    avio_context_free(&avio_ctx);
-    av_free(buffer);
-    return gac;
-  }
+  avcodec_parameters_to_context(codec_ctx,
+                                fmt_ctx->streams[audio_idx]->codecpar);
+  avcodec_open2(codec_ctx, codec, nullptr);
 
-  AVCodecParameters *codec_params = fmt_ctx->streams[audio_idx]->codecpar;
-  if (avcodec_parameters_to_context(codec_ctx, codec_params) < 0) {
-    avcodec_free_context(&codec_ctx);
-    avformat_close_input(&fmt_ctx);
-    avio_context_free(&avio_ctx);
-    av_free(buffer);
-    return gac;
-  }
-
-  // 设置多线程
+  // 设置多线程解码
   codec_ctx->thread_count = std::thread::hardware_concurrency();
-  codec_ctx->thread_type = FF_THREAD_FRAME | FF_THREAD_SLICE;
 
-  if (avcodec_open2(codec_ctx, codec, nullptr) < 0) {
-    avcodec_free_context(&codec_ctx);
-    avformat_close_input(&fmt_ctx);
-    avio_context_free(&avio_ctx);
-    av_free(buffer);
-    return gac;
-  }
+  // 4. 设置输出格式（统一转为交错格式）
+  AVSampleFormat in_fmt = codec_ctx->sample_fmt;
+  bool is_planar = av_sample_fmt_is_planar(in_fmt);
+  AVSampleFormat out_fmt =
+      is_planar ? av_get_packed_sample_fmt(in_fmt) : in_fmt;
 
-  // 6. 准备解码结构
-  AVPacket *packet = av_packet_alloc();
-  AVFrame *frame = av_frame_alloc();
-  if (!packet || !frame) {
-    av_packet_free(&packet);
-    av_frame_free(&frame);
-    avcodec_free_context(&codec_ctx);
-    avformat_close_input(&fmt_ctx);
-    avio_context_free(&avio_ctx);
-    av_free(buffer);
-    return gac;
-  }
-  //   填充音频结构
-  switch (codec_ctx->sample_fmt) {
+  // 映射到SDL格式
+  switch (out_fmt) {
   case AV_SAMPLE_FMT_U8:
-  case AV_SAMPLE_FMT_U8P: {
     gac.spec.format = SDL_AUDIO_U8;
     break;
-  }
   case AV_SAMPLE_FMT_S16:
-  case AV_SAMPLE_FMT_S16P: {
     gac.spec.format = SDL_AUDIO_S16LE;
     break;
-  }
   case AV_SAMPLE_FMT_S32:
-  case AV_SAMPLE_FMT_S32P: {
     gac.spec.format = SDL_AUDIO_S32LE;
     break;
-  }
   case AV_SAMPLE_FMT_FLT:
-  case AV_SAMPLE_FMT_FLTP: {
     gac.spec.format = SDL_AUDIO_F32LE;
     break;
-  }
-  default: {
+  default:
     gac.spec.format = SDL_AUDIO_S16LE;
     break;
-  }
   }
   gac.spec.freq = codec_ctx->sample_rate;
   gac.spec.channels = codec_ctx->ch_layout.nb_channels;
 
-  // 7. 解码循环
+  // 5. 解码并转换
+  AVPacket *packet = av_packet_alloc();
+  AVFrame *frame = av_frame_alloc();
+  std::vector<uint8_t> pcm_data;
+
+  int channels = gac.spec.channels;
+  int bytes_per_sample = av_get_bytes_per_sample(out_fmt);
+
   while (av_read_frame(fmt_ctx, packet) >= 0) {
-    if (packet->stream_index == audio_idx) {
-      int ret = avcodec_send_packet(codec_ctx, packet);
-      if (ret == 0) {
-        while (true) {
-          ret = avcodec_receive_frame(codec_ctx, frame);
-          if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-            break;
-          }
-          if (ret < 0) {
-            break;
-          }
+    if (packet->stream_index != audio_idx) {
+      av_packet_unref(packet);
+      continue;
+    }
 
-          // 获取 PCM 数据
-          int channels = codec_ctx->ch_layout.nb_channels;
-          int data_size = av_samples_get_buffer_size(
-              nullptr, channels, frame->nb_samples, codec_ctx->sample_fmt, 1);
+    if (avcodec_send_packet(codec_ctx, packet) == 0) {
+      while (avcodec_receive_frame(codec_ctx, frame) == 0) {
+        int nb_samples = frame->nb_samples;
+        size_t old_size = pcm_data.size();
 
-          if (data_size > 0) {
-            size_t old_size = pcm_data.size();
-            pcm_data.resize(old_size + data_size);
-            memcpy(pcm_data.data() + old_size, frame->data[0], data_size);
+        if (is_planar) {
+          // 平面 → 交错（手动交织）
+          pcm_data.resize(old_size + nb_samples * channels * bytes_per_sample);
+          uint8_t *dst = pcm_data.data() + old_size;
+
+          for (int s = 0; s < nb_samples; s++) {
+            for (int c = 0; c < channels; c++) {
+              memcpy(dst, frame->extended_data[c] + s * bytes_per_sample,
+                     bytes_per_sample);
+              dst += bytes_per_sample;
+            }
           }
-
-          av_frame_unref(frame);
+        } else {
+          // 交错格式直接拷贝
+          int size = nb_samples * channels * bytes_per_sample;
+          pcm_data.resize(old_size + size);
+          memcpy(pcm_data.data() + old_size, frame->data[0], size);
         }
+        av_frame_unref(frame);
       }
     }
     av_packet_unref(packet);
   }
 
-  // 8. 冲刷解码器
+  // 6. 冲刷解码器
   avcodec_send_packet(codec_ctx, nullptr);
-  while (true) {
-    int ret = avcodec_receive_frame(codec_ctx, frame);
-    if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) {
-      break;
-    }
-    if (ret < 0) {
-      break;
-    }
+  while (avcodec_receive_frame(codec_ctx, frame) == 0) {
+    // 同样的转换逻辑...
+    int nb_samples = frame->nb_samples;
+    size_t old_size = pcm_data.size();
 
-    int channels = codec_ctx->ch_layout.nb_channels;
-    int data_size = av_samples_get_buffer_size(
-        nullptr, channels, frame->nb_samples, codec_ctx->sample_fmt, 1);
-
-    if (data_size > 0) {
-      size_t old_size = pcm_data.size();
-      pcm_data.resize(old_size + data_size);
-      memcpy(pcm_data.data() + old_size, frame->data[0], data_size);
+    if (is_planar) {
+      pcm_data.resize(old_size + nb_samples * channels * bytes_per_sample);
+      uint8_t *dst = pcm_data.data() + old_size;
+      for (int s = 0; s < nb_samples; s++) {
+        for (int c = 0; c < channels; c++) {
+          memcpy(dst, frame->extended_data[c] + s * bytes_per_sample,
+                 bytes_per_sample);
+          dst += bytes_per_sample;
+        }
+      }
+    } else {
+      int size = nb_samples * channels * bytes_per_sample;
+      pcm_data.resize(old_size + size);
+      memcpy(pcm_data.data() + old_size, frame->data[0], size);
     }
-
     av_frame_unref(frame);
   }
-  gac.data = pcm_data;
 
-  // 9. 清理资源
+  // 7. 清理
+  gac.data = std::move(pcm_data);
   av_frame_free(&frame);
   av_packet_free(&packet);
   avcodec_free_context(&codec_ctx);
   avformat_close_input(&fmt_ctx);
+  av_freep(&avio_ctx->buffer);
   avio_context_free(&avio_ctx);
-  av_free(buffer);
 
   return gac;
 }

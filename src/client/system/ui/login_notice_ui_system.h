@@ -9,10 +9,11 @@ private:
   static void render_backgrnd();
   static void render_button();
 
-  static void event_close();
   static bool event_button(SDL_Event *event);
 
 public:
+  static void event_close();
+
   static inline void (*fn)();
 
   static inline login_notice_system_instance::notice_type type;

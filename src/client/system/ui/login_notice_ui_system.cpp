@@ -1,6 +1,7 @@
 #include "login_notice_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -91,8 +92,8 @@ void login_notice_ui_system::render_backgrnd() {
     auto index = (now / circle_delay) % (circle_node->children_count());
     auto circle_texture = circle_node->get_child(std::to_string(index));
     auto circle = wz_resource::load_texture(circle_texture);
-    pos_rect.x += text_pos.x;
-    pos_rect.y += text_pos.y;
+    pos_rect.x += 84;
+    pos_rect.y += 40;
     pos_rect.w = circle->w;
     pos_rect.h = circle->h;
     SDL_RenderTexture(window::renderer, circle, nullptr, &pos_rect);
@@ -126,11 +127,11 @@ void login_notice_ui_system::render_button() {
   case login_notice_system_instance::character_delete: {
     buttons_nodes = {
         wz_resource::ui->find(u"Login.img/Notice/BtYes"),
-        wz_resource::ui->find(u"Login.img/Notice/BtNo"),
+        wz_resource::ui->find(u"Login.img/Notice/BtNo1"),
     };
     buttons_rect = {
-        SDL_FRect{bx - 25 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
-        SDL_FRect{bx + 25 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+        SDL_FRect{bx - 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+        SDL_FRect{bx + 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
     };
     break;
   }
@@ -188,8 +189,8 @@ bool login_notice_ui_system::event_button(SDL_Event *event) {
   }
   case login_notice_system_instance::character_delete: {
     buttons_rect = {
-        SDL_FRect{bx - 25 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
-        SDL_FRect{bx + 25 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+        SDL_FRect{bx - 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
+        SDL_FRect{bx + 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
     };
     fns = {fn, event_close};
     break;
@@ -203,6 +204,7 @@ bool login_notice_ui_system::event_button(SDL_Event *event) {
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       fns[i]();
       return false;
     }

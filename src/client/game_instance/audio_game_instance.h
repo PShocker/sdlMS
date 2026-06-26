@@ -6,10 +6,11 @@
 #include <flat_map>
 #include <flat_set>
 #include <string>
+#include <vector>
 
 class audio_game_instance {
 public:
-  static inline std::flat_set<game_audio> audios;
+  static inline std::vector<game_audio> audios;
   static game_audio_cache &load_cache(const std::u16string &path);
 
   static void load_audio(const std::u16string &path, uint64_t delay);

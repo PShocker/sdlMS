@@ -33,6 +33,7 @@ void wz_resource::init_files() {
   effect = new wz::Files("Data/", "Effect/Effect");
   string = new wz::Files("Data/", "String/String");
   item = new wz::Files("Data/", "Item/Item");
+  sound = new wz::Files("Data/", "Sound/Sound");
 
   ms = new wz::File("Data/sdlMS.wz");
 }

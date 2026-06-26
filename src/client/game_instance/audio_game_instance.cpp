@@ -7,8 +7,7 @@
 #include <cstddef>
 
 void audio_game_instance::init() {
-  SDL_AudioDeviceID device_id =
-      SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
+  device_id = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
 }
 
 game_audio_cache &audio_game_instance::load_cache(const std::u16string &path) {
@@ -36,10 +35,15 @@ void audio_game_instance::load_audio(const std::u16string &path,
   auto spec = load_cache(path).spec;
   audio.stream = SDL_CreateAudioStream(&spec, NULL);
   SDL_BindAudioStream(device_id, audio.stream);
-  audios.emplace(audio);
+  audios.emplace_back(audio);
 }
 
 void audio_game_instance::load_backgrnd_audio(const std::u16string &path) {
+  for (const auto &audio : audios) {
+    if (audio.path == path) {
+      return;
+    }
+  }
   game_audio audio{
       .path = path,
       .offset = 0,
@@ -49,7 +53,7 @@ void audio_game_instance::load_backgrnd_audio(const std::u16string &path) {
   auto spec = load_cache(path).spec;
   audio.stream = SDL_CreateAudioStream(&spec, NULL);
   SDL_BindAudioStream(device_id, audio.stream);
-  audios.emplace(audio);
+  audios.emplace_back(audio);
 }
 
 void audio_game_instance::close_audio(const game_audio &audio) {

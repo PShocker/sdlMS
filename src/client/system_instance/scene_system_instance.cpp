@@ -155,7 +155,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   character_game_instance::clear_others();
   effect_game_instance::reset();
   camera_game_instance::reset();
-  audio_game_instance::load_backgrnd_audio(u"");
+  // audio_game_instance::load_backgrnd_audio(u"");
 
   system::event_systems = {
       cursor_logic_system::event,

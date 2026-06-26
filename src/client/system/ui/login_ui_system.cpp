@@ -1,6 +1,7 @@
 #include "login_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "login_notice_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -245,21 +246,36 @@ void login_ui_system::event_button_login() {
         cursor_render_system::render,
     };
     system::event_systems = {};
+    audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
   } else {
   }
 }
 
-void login_ui_system::event_button_login_save() {}
+void login_ui_system::event_button_login_save() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+}
 
-void login_ui_system::event_button_find_id() {}
+void login_ui_system::event_button_find_id() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+}
 
-void login_ui_system::event_button_find_pw() {}
+void login_ui_system::event_button_find_pw() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+}
 
-void login_ui_system::event_button_register() {}
-void login_ui_system::event_button_homepage() {}
+void login_ui_system::event_button_register() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+}
+void login_ui_system::event_button_homepage() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+}
 
-void login_ui_system::event_button_quit() {}
+void login_ui_system::event_button_quit() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+}
+
 void login_ui_system::event_button_back() { event_button_quit(); }
+
 bool login_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
@@ -284,7 +300,6 @@ bool login_ui_system::event_button(SDL_Event *event) {
     pos_rect.y = (int)pos_rect.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       fns[i]();
-      audio_game_instance::load_audio(u"", 0);
       return false;
     }
   }
