@@ -177,6 +177,8 @@ void scene_system_instance::enter(uint32_t map_id) {
       minimap_ui_system::render,
       cursor_render_system::render,
   };
+
+  fade_system_instance::enter_out();
 }
 
 void scene_system_instance::enter_prepare(uint32_t map_id,

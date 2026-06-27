@@ -16,13 +16,18 @@ bool fade_system_instance::render() {
       (camera_game_instance::camera.h),
   };
   SDL_SetRenderDrawBlendMode(window::renderer, SDL_BLENDMODE_BLEND);
-  SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
-  SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, mask_alpha);
+  auto alpha = mask_alpha;
+  if (!fade_in) {
+    alpha = 255 - alpha;
+  } else {
+    SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+  }
+  SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, alpha);
   SDL_RenderFillRect(window::renderer, &pos_rect);
   return true;
 }
 
-void fade_system_instance::enter(std::function<void()> cb) {
+void fade_system_instance::enter_in(std::function<void()> cb) {
   // save texture
   SDL_Rect pos_rect{
       0,
@@ -44,14 +49,27 @@ void fade_system_instance::enter(std::function<void()> cb) {
 
   mask_alpha = 0;
   fn = cb;
+  fade_in = true;
+}
+
+void fade_system_instance::enter_out() {
+  system::render_systems.push_back(run);
+  system::render_systems.push_back(render);
+
+  mask_alpha = 0;
+  fn = {};
+  fade_in = false;
 }
 
 bool fade_system_instance::run() {
   if (mask_alpha < 255) {
     mask_alpha += 15;
   } else {
-    fn();
-    fn = []() {};
+    if (fn) {
+      fn();
+    }
+    std::erase(system::render_systems, render);
+    std::erase(system::render_systems, run);
     return false;
   }
   mask_alpha = std::clamp(mask_alpha, 0, 255);
