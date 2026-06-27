@@ -138,7 +138,7 @@ void mob_logic_system::run_collision() {
     } else {
       character_logic_system::self_vspeed -= speed;
     }
-    character_stat_game_instance::hp_point -= 40;
+    character_stat_game_instance::hp_point -= 1;
     if (character_stat_game_instance::hp_point <= 0) {
       character_logic_system::run_die_action(self);
     } else {
@@ -151,7 +151,7 @@ void mob_logic_system::run_collision() {
     MobAttackT mt;
     mt.attack = std::make_unique<AttackT>();
     mt.attack->delay = now;
-    mt.attack->num = 40;
+    mt.attack->num = 1;
     mt.attack->x = self.pos.x;
     mt.attack->y = self.pos.y - 30;
     mob_game_instance::load_mob_attack(0, &mt);

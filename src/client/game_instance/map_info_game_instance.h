@@ -4,6 +4,7 @@
 #include "wz/Node.h"
 #include <cstdint>
 #include <optional>
+#include <string>
 #include <vector>
 class map_info_game_instance {
 public:
@@ -13,4 +14,5 @@ public:
   static std::optional<SDL_FRect> load_swim_rect(uint32_t map_id);
   static std::vector<SDL_FPoint> load_seat(uint32_t map_id);
   static uint32_t load_return_map(uint32_t map_id);
+  static std::u16string load_bgm(uint32_t map_id);
 };

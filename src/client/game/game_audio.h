@@ -13,8 +13,7 @@ struct game_audio_cache {
 class game_audio {
 public:
   std::u16string path;
-  uint64_t offset;
   uint64_t delay;
-  bool backgrnd;
+  float fade;
   SDL_AudioStream *stream;
 };

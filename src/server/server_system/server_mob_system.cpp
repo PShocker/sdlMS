@@ -14,6 +14,7 @@
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
 #include "wz/Property.h"
+#include <algorithm>
 #include <chrono>
 #include <cstdint>
 #include <flat_map>
@@ -381,22 +382,20 @@ void server_mob_system::run_send() {
 }
 
 bool server_mob_system::run() {
-  // 怪物逻辑为30帧
-  const int32_t MIN_FRAME_INTERVAL_MS = 33;
-  static uint64_t last_frame_time = 0;
-  // 节流：未达到帧间隔时直接返回
-  delta_time = window::dt_now - last_frame_time;
+  // 怪物逻辑为30帧（约33ms/帧）
+  const uint32_t MIN_FRAME_INTERVAL_MS = 33;
+  static uint64_t last = SDL_GetTicks();
+
+  delta_time = window::dt_now - last;
   if (delta_time < MIN_FRAME_INTERVAL_MS) {
     return true; // 跳过这一帧
   }
-  last_frame_time = window::dt_now;
+  last = window::dt_now;
+  delta_time = std::min(delta_time, MIN_FRAME_INTERVAL_MS);
 
   auto &scenes = server_scene_instance::scenes;
   for (auto &sc : scenes | std::views::values) {
-    if (sc.mobs.empty()) {
-      continue;
-    }
-    if (sc.clients.empty()) {
+    if (sc.mobs.empty() || sc.clients.empty()) {
       continue;
     }
     map_id = sc.map_id;

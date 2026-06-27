@@ -7,6 +7,7 @@
 #include "src/client/game/game_nametag.h"
 #include "src/client/game/game_portal.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
@@ -177,6 +178,8 @@ void character_game_instance::load_self() {
   }
   character_logic_system::self_fh = 0;
   character_logic_system::self_lr = 0;
+  character_logic_system::self_hspeed = 0;
+  character_logic_system::self_vspeed = 0;
 
   self.tomb = std::nullopt;
 }
@@ -1340,6 +1343,7 @@ void character_game_instance::load_character_skill(
       .z = false,
   };
   g_character.effect.push_back(e);
+  audio_game_instance::load_audio(u"Skill.img/" + ski_id3 + u"/Use", 0);
 
   auto &mob = mob_game_instance::data;
   for (const auto &s : v) {

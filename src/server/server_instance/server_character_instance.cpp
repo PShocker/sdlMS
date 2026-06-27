@@ -8,8 +8,10 @@
 #include "src/common/request/client_request.h"
 #include "src/common/response/server_response.h"
 #include <cstdlib>
+#include <flat_set>
 #include <memory>
 #include <ranges>
+#include <string>
 #include <utility>
 
 using namespace fbs;
@@ -33,10 +35,16 @@ void server_character_instance::save_state(uint64_t client_id,
     break;
   }
   case CharacterLogicType_Action: {
+    const static std::flat_set<std::string> actions = {
+        "stand1", "stand2", "alert",  "walk1", "walk2",
+        "prone",  "jump",   "ladder", "rope",  "dead",
+    };
     const auto a = m.payload.AsAction();
-    character->state->action = a->action;
-    character->state->action_index = a->action_index;
-    character->state->action_animate = a->action_animate;
+    if (actions.contains(a->action)) {
+      character->state->action = a->action;
+      character->state->action_index = a->action_index;
+      character->state->action_animate = a->action_animate;
+    }
     break;
   }
   case CharacterLogicType_Die: {

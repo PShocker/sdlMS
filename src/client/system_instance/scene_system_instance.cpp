@@ -65,7 +65,6 @@
 #include <utility>
 #include <vector>
 
-
 bool scene_system_instance::render_game() {
   std::array<std::vector<game_character *>, 8> character_array;
   for (auto &other_data :
@@ -138,7 +137,6 @@ bool scene_system_instance::render_game() {
 void scene_system_instance::enter(uint32_t map_id) {
   scene_system_instance::map_id = map_id;
 
-  map_info_game_instance::load(map_id);
   foothold_game_instance::data = foothold_game_instance::load(map_id);
   backgrnd_game_instance::load(map_id);
   ladderrope_game_instance::load(map_id);
@@ -155,7 +153,8 @@ void scene_system_instance::enter(uint32_t map_id) {
   character_game_instance::clear_others();
   effect_game_instance::reset();
   camera_game_instance::reset();
-  // audio_game_instance::load_backgrnd_audio(u"");
+  auto bgm = map_info_game_instance::load_bgm(map_id);
+  audio_game_instance::load_backgrnd_audio(bgm);
 
   system::event_systems = {
       cursor_logic_system::event,

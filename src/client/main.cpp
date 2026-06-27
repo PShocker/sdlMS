@@ -65,13 +65,13 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   audio_game_instance::init();
 
   character_game_instance::init_character_bone();
-  // character_game_instance::load_self_character();
+  character_game_instance::load_self_character();
 
   SDL_HideCursor();
 
-  // scene_system_instance::enter_prepare(61, u"sp", 0);
+  scene_system_instance::enter_prepare(61, u"sp", 0);
   // chatacter_create_system_instance::enter();
-  login_system_instance::enter();
+  // login_system_instance::enter();
 
   return SDL_APP_CONTINUE;
 }

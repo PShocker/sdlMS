@@ -116,11 +116,11 @@ void server_scene_instance::handle_scene(uint64_t client_id,
   if (client_scene.fade == false) {
     // 黑屏过渡
     send_in_fade(client_id, client_scene);
+    clean_client(client_id, client_scene);
   } else {
     init_scene(client_id, client_scene);
     send_scene_clients(client_id, client_scene);
     send_in_scene(client_id, client_scene);
-    clean_client(client_id, client_scene);
     save_client(client_id, client_scene);
   }
 }

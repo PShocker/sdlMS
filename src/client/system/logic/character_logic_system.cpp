@@ -6,6 +6,7 @@
 #include "src/client/game/game_mob.h"
 #include "src/client/game/game_tomb.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
@@ -39,6 +40,35 @@
 #include <ranges>
 #include <string>
 #include <vector>
+
+static const std::flat_set<equip_game_instance::weapon_type> shoot_weapons = {
+    equip_game_instance::weapon_type::BOW,
+    equip_game_instance::weapon_type::CROSSBOW,
+    equip_game_instance::weapon_type::CLAW,
+    equip_game_instance::weapon_type::GUN,
+};
+static const std::flat_map<equip_game_instance::weapon_type,
+                           std::flat_set<std::u16string>>
+    weapon_attack_action = {
+        {equip_game_instance::weapon_type::S1A1M1D,
+         {u"stabO1", u"stabO2", u"swingO1", u"swingO2", u"swingO3"}},
+        {equip_game_instance::weapon_type::SPEAR, {u"stabT1", u"swingP1"}},
+        {equip_game_instance::weapon_type::BOW, {u"shoot1"}},
+        {equip_game_instance::weapon_type::CROSSBOW, {u"shoot1"}},
+        {equip_game_instance::weapon_type::S2A2M2,
+         {u"stabO1", u"stabO2", u"swingT1", u"swingT2", u"swingT3"}},
+        {equip_game_instance::weapon_type::WAND, {u"swingO1", u"swingO2"}},
+        {equip_game_instance::weapon_type::CLAW, {u"swingO1", u"swingO2"}},
+        {equip_game_instance::weapon_type::GUN, {u"shot"}},
+};
+static const std::flat_map<equip_game_instance::weapon_type,
+                           std::flat_set<std::u16string>>
+    weapon_attack_action2 = {
+        {equip_game_instance::weapon_type::BOW, {u"swingT1", u"swingT3"}},
+        {equip_game_instance::weapon_type::CROSSBOW, {u"swingT1", u"stabT1"}},
+        {equip_game_instance::weapon_type::CLAW, {u"stabO1", u"stabO2"}},
+        {equip_game_instance::weapon_type::GUN, {u"swingP1", u"stabT2"}},
+};
 
 SDL_FRect character_logic_system::load_rect(game_character &g_character) {
   const auto stand_w = 44.0f;
@@ -387,6 +417,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
     }
     self_fh = 0;
     run_action(g_character, u"jump");
+    audio_game_instance::load_audio(u"Game.img/Jump", 0);
     return true;
   }
   return false;
@@ -627,39 +658,11 @@ bool character_logic_system::run_attack(game_character &g_character) {
     auto g_action = load_action_type(g_character);
     auto g_weapon = g_character.weapon->id;
     auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
+    std::u16string sfx;
+    uint64_t delay;
     auto weapon_type = equip_game_instance::load_weapon_type(g_character);
     std::vector<character_logic_system::attack_data> atk_mobs;
     bool shoot = false;
-    static const std::flat_set<equip_game_instance::weapon_type> shoot_weapons =
-        {
-            equip_game_instance::weapon_type::BOW,
-            equip_game_instance::weapon_type::CROSSBOW,
-            equip_game_instance::weapon_type::CLAW,
-            equip_game_instance::weapon_type::GUN,
-        };
-    static const std::flat_map<equip_game_instance::weapon_type,
-                               std::vector<std::u16string>>
-        weapon_attack_action = {
-            {equip_game_instance::weapon_type::S1A1M1D,
-             {u"stabO1", u"stabO2", u"swingO1", u"swingO2", u"swingO3"}},
-            {equip_game_instance::weapon_type::SPEAR, {u"stabT1", u"swingP1"}},
-            {equip_game_instance::weapon_type::BOW, {u"shoot1"}},
-            {equip_game_instance::weapon_type::CROSSBOW, {u"shoot1"}},
-            {equip_game_instance::weapon_type::S2A2M2,
-             {u"stabO1", u"stabO2", u"swingT1", u"swingT2", u"swingT3"}},
-            {equip_game_instance::weapon_type::WAND, {u"swingO1", u"swingO2"}},
-            {equip_game_instance::weapon_type::CLAW, {u"swingO1", u"swingO2"}},
-            {equip_game_instance::weapon_type::GUN, {u"shot"}},
-        };
-    static const std::flat_map<equip_game_instance::weapon_type,
-                               std::vector<std::u16string>>
-        weapon_attack_action2 = {
-            {equip_game_instance::weapon_type::BOW, {u"swingT1", u"swingT3"}},
-            {equip_game_instance::weapon_type::CROSSBOW,
-             {u"swingT1", u"stabT1"}},
-            {equip_game_instance::weapon_type::CLAW, {u"stabO1", u"stabO2"}},
-            {equip_game_instance::weapon_type::GUN, {u"swingP1", u"stabT2"}},
-        };
     switch (g_action) {
     case action_enum::stand:
     case action_enum::alert:
@@ -669,7 +672,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
     case action_enum::jump: {
       auto &gen = random_game_instance::gen;
       bool shoot_weapon = shoot_weapons.contains(weapon_type);
-      const std::vector<std::u16string> *actions;
+      const std::flat_set<std::u16string> *actions;
       if (shoot_weapon) {
         if (!atk_mobs.empty()) {
           actions = &weapon_attack_action2.at(weapon_type);
@@ -681,7 +684,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
         actions = &weapon_attack_action.at(weapon_type);
       }
       std::uniform_int_distribution<> dis(0, actions->size() - 1);
-      auto selected = actions->at(dis(gen));
+      auto selected = *std::next(actions->begin(), dis(gen));
       run_action(g_character, selected);
       break;
     }
@@ -694,17 +697,15 @@ bool character_logic_system::run_attack(game_character &g_character) {
     }
     }
     SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
+    delay = afterimage_game_instance::load_beat_time(g_character);
+
     if (atk_mobs.empty()) {
       atk_mobs = run_attack_check(g_character, g_r);
     }
     if (!atk_mobs.empty()) {
       auto atk_mob = atk_mobs[0];
-      uint64_t delay;
-      if (!shoot) {
-        delay = afterimage_game_instance::load_beat_time(g_character);
-      } else {
+      if (shoot) {
         // shoot
-        delay = afterimage_game_instance::load_beat_time(g_character);
         float hspeed = 100.0f;
         auto dx = atk_mob.mob.pos.x - g_character.pos.x;
         delay += dx / hspeed;
@@ -713,7 +714,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       CharacterAttackT ct;
       ct.mob_index = atk_mob.mob.index;
       ct.attack = std::make_unique<AttackT>();
-      ct.attack->num = 1;
+      ct.attack->num = 40;
       ct.attack->delay = delay;
       ct.attack->x = atk_mob.x;
       ct.attack->y = atk_mob.y;
@@ -725,6 +726,13 @@ bool character_logic_system::run_attack(game_character &g_character) {
       client_request::send_to_host(t);
     }
     self_alert_cooldown = window::dt_now + 5000;
+    if (sfx.empty()) {
+      sfx = static_cast<wz::Property<std::u16string> *>(
+                g_weapon_info->get_child(u"sfx"))
+                ->get() +
+            u"/Attack";
+    }
+    audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
     return true;
   }
   return false;
@@ -764,7 +772,8 @@ bool character_logic_system::run_portal(game_character &g_character) {
           if (por.tm != scene_system_instance::map_id) {
             // need to change map
             scene_system_instance::enter_prepare(por.tm, por.tn, 0);
-            self_portal_cooldown = window::dt_now + 1500;
+            self_portal_cooldown = window::dt_now + 1000;
+            audio_game_instance::load_audio(u"Game.img/Portal", 0);
           } else {
             // no change map
             const auto &tn = portal_game_instance::data.find(por.tn)->second;
@@ -775,6 +784,7 @@ bool character_logic_system::run_portal(game_character &g_character) {
             self_fh = 0;
             run_action(g_character, u"jump");
             self_portal_cooldown = window::dt_now + 1200;
+            audio_game_instance::load_audio(u"Game.img/Portal", 0);
             return true;
           }
         }
@@ -1243,6 +1253,35 @@ void character_logic_system::run_others_logic() {
         c.g_character.action_index = a.action_index;
         c.g_character.action_animate = a.action_animate;
         c.g_character.action_time = 0;
+        auto action = load_action_type(c.g_character);
+        switch (action) {
+        case action_enum::attack: {
+          auto weapon_type =
+              equip_game_instance::load_weapon_type(c.g_character);
+          bool shoot_weapon = shoot_weapons.contains(weapon_type);
+          auto g_weapon = c.g_character.weapon->id;
+          auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
+          auto sfx = static_cast<wz::Property<std::u16string> *>(
+                         g_weapon_info->get_child(u"sfx"))
+                         ->get();
+          auto actions = weapon_attack_action.at(weapon_type);
+          if (shoot_weapon && actions.contains(c.g_character.action)) {
+            sfx = sfx + u"/Attack2";
+          } else {
+            sfx = sfx + u"/Attack";
+          }
+          auto delay = afterimage_game_instance::load_beat_time(c.g_character);
+          audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
+          break;
+        }
+        case action_enum::dead: {
+          audio_game_instance::load_audio(u"Game.img/Tombstone", 0);
+          break;
+        }
+        default: {
+          break;
+        }
+        }
         v.clear();
         break;
       }
@@ -1373,6 +1412,8 @@ void character_logic_system::run_die_action(game_character &g_character) {
   self_alert_cooldown = 0;
 
   run_network_die_sync(g_character);
+
+  audio_game_instance::load_audio(u"Game.img/Tombstone", 0);
 
   revive_ui_system::toggle();
 }

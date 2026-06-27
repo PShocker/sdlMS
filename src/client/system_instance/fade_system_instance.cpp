@@ -48,7 +48,7 @@ void fade_system_instance::enter(std::function<void()> cb) {
 
 bool fade_system_instance::run() {
   if (mask_alpha < 255) {
-    mask_alpha += 20;
+    mask_alpha += 15;
   } else {
     fn();
     fn = []() {};

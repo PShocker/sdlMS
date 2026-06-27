@@ -479,6 +479,7 @@ bool character_create_ui_system::back_animate() {
 
 void character_create_ui_system::event_button_back() {
   audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
+  character_choose_ui_system::choose = std::nullopt;
 
   chatacter_create_system_instance::enter();
   system::logic_systems.push_back(back_animate);

@@ -5,11 +5,16 @@
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
+#include <optional>
 #include <string>
 #include <vector>
 
 class audio_game_instance {
 public:
+  static inline float backgrnd_volume;
+  static inline float audio_volume;
+
+  static inline std::vector<game_audio> backgrnds;
   static inline std::vector<game_audio> audios;
   static game_audio_cache &load_cache(const std::u16string &path);
 

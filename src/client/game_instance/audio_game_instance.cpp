@@ -28,9 +28,8 @@ void audio_game_instance::load_audio(const std::u16string &path,
                                      uint64_t delay) {
   game_audio audio{
       .path = path,
-      .offset = 0,
       .delay = delay,
-      .backgrnd = false,
+      .fade = 0,
   };
   auto spec = load_cache(path).spec;
   audio.stream = SDL_CreateAudioStream(&spec, NULL);
@@ -39,21 +38,28 @@ void audio_game_instance::load_audio(const std::u16string &path,
 }
 
 void audio_game_instance::load_backgrnd_audio(const std::u16string &path) {
-  for (const auto &audio : audios) {
-    if (audio.path == path) {
+  if (path.empty()) {
+    return;
+  }
+  if (!backgrnds.empty()) {
+    if (backgrnds[0].path == path && backgrnds[0].fade == 0) {
       return;
     }
   }
-  game_audio audio{
+  game_audio backgrnd{
       .path = path,
-      .offset = 0,
       .delay = 0,
-      .backgrnd = true,
+      .fade = 0,
   };
   auto spec = load_cache(path).spec;
-  audio.stream = SDL_CreateAudioStream(&spec, NULL);
-  SDL_BindAudioStream(device_id, audio.stream);
-  audios.emplace_back(audio);
+  backgrnd.stream = SDL_CreateAudioStream(&spec, NULL);
+  SDL_BindAudioStream(device_id, backgrnd.stream);
+  if (!backgrnds.empty()) {
+    if (backgrnds[0].fade == 0) {
+      backgrnds[0].fade = 1;
+    }
+  }
+  backgrnds.emplace_back(backgrnd);
 }
 
 void audio_game_instance::close_audio(const game_audio &audio) {

@@ -103,3 +103,18 @@ uint32_t map_info_game_instance::load_return_map(uint32_t map_id) {
           ->get();
   return r;
 }
+
+std::u16string map_info_game_instance::load_bgm(uint32_t map_id) {
+  auto map_info = load(map_id);
+  if (map_info->get_child(u"bgm")) {
+    auto map_bgm =
+        static_cast<wz::Property<std::u16string> *>(map_info->get_child(u"bgm"))
+            ->get();
+    size_t pos = map_bgm.find(u'/');
+    if (pos != std::u16string::npos) {
+      map_bgm.insert(pos, u".img");
+    }
+    return map_bgm;
+  }
+  return u"";
+}
