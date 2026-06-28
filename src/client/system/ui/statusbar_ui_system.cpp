@@ -10,14 +10,18 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
+#include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/freetype/freetype.h"
+#include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+#include "text_input_ui_system.h"
 #include "wz/Property.h"
 #include <algorithm>
 #include <array>
@@ -25,6 +29,8 @@
 #include <cstdint>
 #include <flat_map>
 #include <format>
+#include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -439,7 +445,7 @@ void statusbar_ui_system::render_chat() {
   auto screen_h = camera_game_instance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-  if (chat.has_value()) {
+  if (chat_type.has_value()) {
     static auto TargetSelect =
         wz_resource::ui->find(u"StatusBar.img/chat/button:ChatTargetSelect");
     SDL_FRect pos_rect{6, 11, 80, 18};
@@ -465,10 +471,12 @@ void statusbar_ui_system::render_chat() {
     freetype::load_size(12);
     freetype::load_aligned(true);
     freetype::load_color(255, 255, 255, 255);
-    auto s = load_chat_type_str();
+    auto s = load_chat_type();
     auto w = freetype::load_w(s);
     freetype::draw_line(s, pos_rect.x + 40 - w / 2, pos_rect.y);
     freetype::load_aligned(false);
+
+    text_input_ui_system::render(chat, 5, 5);
 
     static auto chatbackgrnd1 = wz_resource::load_texture(
         wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd1"));
@@ -540,7 +548,7 @@ void statusbar_ui_system::event_button_quickslot() { return; }
 
 void statusbar_ui_system::event_button_chatlog() { return; }
 
-std::u16string statusbar_ui_system::load_chat_type_str() {
+std::u16string statusbar_ui_system::load_chat_type() {
   switch (chat_type.value()) {
   case all: {
     return u"All";
@@ -590,7 +598,7 @@ bool statusbar_ui_system::event_button(SDL_Event *event) {
 
 bool statusbar_ui_system::event_click_quickslot(SDL_Event *event) {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
-    return false; 
+    return false;
   }
   switch (quickSlot) {
   case quick_slot::hide: {
@@ -681,6 +689,7 @@ bool statusbar_ui_system::event_click_quickslot(SDL_Event *event) {
 }
 
 bool statusbar_ui_system::event(SDL_Event *event) {
+  auto cr = text_input_ui_system::event(event, chat);
   bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
@@ -692,10 +701,30 @@ bool statusbar_ui_system::event(SDL_Event *event) {
     }
     break;
   }
+  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+    std::erase(system::event_systems, keyboard_input_system::event);
+    if (cr) {
+      // close input
+      system::event_systems.push_back(keyboard_input_system::event);
+    }
+    r = false;
+  }
   case SDL_EVENT_KEY_DOWN: {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
-    case SDL_SCANCODE_BACKSPACE: {
+    case SDL_SCANCODE_RETURN: {
+      std::erase(system::event_systems, keyboard_input_system::event);
+      if (chat_type.has_value()) {
+        event_chat_send();
+        chat_type = std::nullopt;
+        text_input_ui_system::close(chat);
+        system::event_systems.push_back(keyboard_input_system::event);
+      } else {
+        chat_type = all;
+        text_input_ui_system::active(chat);
+        keyboard_input_system::reset();
+      }
+      r = false;
       break;
     }
     default: {
@@ -721,4 +750,43 @@ bool statusbar_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+void statusbar_ui_system::event_chat_send() {
+  if (chat.text == u"") {
+    return;
+  }
+  ClientCharacterChatT cct;
+  cct.map_id = scene_system_instance::map_id;
+  cct.payload = std::make_unique<CharacterChatT>();
+  cct.payload->type = all;
+  cct.payload->payload = {chat.text.begin(), chat.text.end()};
+  client_request::send_to_host(cct);
+  reset();
+}
+
+void statusbar_ui_system::reset() {
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
+  chat = {
+      .max_size = 32,
+      .text = u"sdlMS",
+      .composition = {},
+      .disable = false,
+      .active = false,
+      .r =
+          SDL_Rect{
+              static_cast<int>(base_x + 85),
+              static_cast<int>(base_y + 6),
+              450,
+              25,
+          },
+      .font_color = {0, 0, 0, 255},
+      .cur_color = {0, 0, 0, 255},
+      .font_size = 12,
+  };
+  chat.type.set(text_input::ime);
+  chat_type = std::nullopt;
 }

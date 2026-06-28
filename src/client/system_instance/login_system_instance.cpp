@@ -55,7 +55,7 @@ void login_system_instance::enter_prepare() {
               230,
               30,
           },
-      .color = {255, 255, 255, 255},
+      .font_color = {255, 255, 255, 255},
       .font_size = 13,
   };
   login_ui_system::username.type.set(text_input::letter);

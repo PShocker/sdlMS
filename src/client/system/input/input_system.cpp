@@ -58,3 +58,10 @@ void input_system::handle_face_input(game_input &g_input, bool press) {
     character_logic_system::character_face_input.erase(g_input.val);
   }
 }
+
+void input_system::reset() {
+  character_logic_system::character_item_input.clear();
+  character_logic_system::character_action_input.clear();
+  character_logic_system::character_skill_input.clear();
+  character_logic_system::character_face_input.clear();
+}

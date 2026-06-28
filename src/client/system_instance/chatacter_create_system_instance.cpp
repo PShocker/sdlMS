@@ -48,7 +48,7 @@ void chatacter_create_system_instance::enter() {
               235,
               30,
           },
-      .color = {255, 255, 255, 255},
+      .font_color = {255, 255, 255, 255},
       .font_size = 13,
   };
   character_create_ui_system::name.type.set(text_input::ime);

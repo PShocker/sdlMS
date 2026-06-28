@@ -128,6 +128,11 @@ bool scene_system_instance::render_game() {
       npc_render_system::render_chatballoon(npc);
     }
   }
+  for (auto &cs : character_array) {
+    for (auto &c : cs) {
+      character_render_system::render_chatballoon(*c);
+    }
+  }
   for (uint32_t i = 0; i < gain_log_game_instance::data.size(); i++) {
     gain_log_render_system::render(gain_log_game_instance::data[i], i);
   }
@@ -153,14 +158,15 @@ void scene_system_instance::enter(uint32_t map_id) {
   character_game_instance::clear_others();
   effect_game_instance::reset();
   camera_game_instance::reset();
+  statusbar_ui_system::reset();
   auto bgm = map_info_game_instance::load_bgm(map_id);
   audio_game_instance::load_backgrnd_audio(bgm);
 
   system::event_systems = {
       cursor_logic_system::event,
-      keyboard_input_system::event,
-      statusbar_ui_system::event,
       minimap_ui_system::event,
+      statusbar_ui_system::event,
+      keyboard_input_system::event,
   };
   system::logic_systems = {
       camera_logic_system::run,    backgrnd_logic_system::run,
@@ -183,7 +189,6 @@ void scene_system_instance::enter(uint32_t map_id) {
 
 void scene_system_instance::enter_prepare(uint32_t map_id,
                                           const std::u16string &pn, int i) {
-
   prepare_map_id = map_id;
   prepare_pos = character_game_instance::load_self_pos(pn, i);
 

@@ -40,3 +40,7 @@ bool keyboard_input_system::event(SDL_Event *event) {
   }
   return false;
 }
+
+void keyboard_input_system::reset() {
+  input_system::reset();
+}

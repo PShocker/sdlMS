@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "text_input_ui_system.h"
 #include <cstdint>
 #include <flat_map>
 #include <optional>
@@ -16,12 +17,13 @@ private:
   static void render_chat();
   static SDL_FPoint load_wh();
 
+  static void event_chat_send();
   static bool event_click_quickslot(SDL_Event *event);
 
   enum chat_type {
     all,
   };
-  static std::u16string load_chat_type_str();
+  static std::u16string load_chat_type();
 
   static bool event_button(SDL_Event *event);
   // button_func
@@ -44,11 +46,11 @@ private:
   };
   static inline quick_slot quickSlot = quick_slot::two;
 
-  static inline std::optional<std::u16string> chat;
-  static inline std::optional<std::u16string> chat2;
   static inline std::optional<chat_type> chat_type;
+  static inline text_input chat;
 
 public:
+  static void reset();
   static bool render();
   static bool event(SDL_Event *event);
 

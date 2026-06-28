@@ -6,6 +6,7 @@
 #include "server_instance/server_scene_instance.h"
 #include "server_system/server_heartbeat_system.h"
 #include "server_system_instance/server_system_instance.h"
+#include "src/client/game/game_character.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
@@ -184,6 +185,28 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerMobAttackT r;
     payload->UnPackTo(&r);
     mob_game_instance::load_mob_attack(r.client_id, r.payload.get());
+    break;
+  }
+  case NetPayload_ServerCharacterChat: {
+    auto payload = packet->payload_as_ServerCharacterChat();
+    fbs::ServerCharacterChatT r;
+    payload->UnPackTo(&r);
+    game_character *g_character = nullptr;
+    if (r.client_id == 0) {
+      g_character = &character_game_instance::self;
+    } else if (character_game_instance::others.contains(r.client_id)) {
+      g_character = &character_game_instance::others[r.client_id].g_character;
+    }
+    if (g_character) {
+      game_chatballoon c;
+      c.w = 92;
+      c.destory = window::dt_now + 5000;
+      c.path = u"0";
+      c.color = {0, 0, 0, 255};
+      c.text = {r.payload->payload.begin(), r.payload->payload.end()};
+      c.size = 13;
+      g_character->chatballoon = c;
+    }
     break;
   }
   case NetPayload_ServerCharacterDrop: {

@@ -24,6 +24,7 @@ union NetPayload {
     ServerCharacterAttack,
     ServerCharacterSkill,
     ServerCharacterBall,
+    ServerCharacterChat,
     ServerCharacterDrop,
     ServerCharacter,
     ServerMobLogic,

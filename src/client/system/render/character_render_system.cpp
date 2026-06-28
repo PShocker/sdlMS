@@ -1,6 +1,7 @@
 #include "character_render_system.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
+#include "chatballoon_render_system.h"
 #include "nametag_render_system.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -232,6 +233,27 @@ void character_render_system::render_tomb(game_character &g_character) {
 
 bool character_render_system::render_effect_back(game_character &g_character) {
   return effect_render_system::render_character_back(&g_character);
+}
+
+void character_render_system::render_chatballoon(game_character &g_character) {
+  if (!g_character.chatballoon.has_value()) {
+    return;
+  }
+  auto chatballoon = g_character.chatballoon.value();
+  auto name = g_character.nametags[0].text + u":";
+  auto blank_w = freetype::load_w(u" ");
+  auto blank_num = (chatballoon.w - freetype::load_w(name)) / 2 / blank_w;
+  for (int i = 0; i < blank_num; i++) {
+    name = u" " + name;
+  }
+  chatballoon.text = name + u"\n" + chatballoon.text;
+  freetype::load_size(chatballoon.size);
+  auto h = freetype::load_h(chatballoon.text, chatballoon.w);
+  SDL_FPoint pos{
+      .x = g_character.pos.x,
+      .y = g_character.pos.y - 120 - h / 2,
+  };
+  chatballoon_render_system::render(chatballoon, pos);
 }
 
 bool character_render_system::render(game_character &g_character) {

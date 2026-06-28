@@ -145,12 +145,15 @@ void server_character_instance::handle_chat(uint64_t client_id,
                                             ClientCharacterChatT &r) {
   // 转发
   auto clients = server_scene_instance::scenes.at(r.map_id).clients;
+  clients.erase(client_id);
   ServerCharacterChatT t;
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
     server_response::send_to_client(c, t);
   }
+  t.client_id = 0;
+  server_response::send_to_client(client_id, t);
 }
 
 void server_character_instance::handle_character(uint64_t client_id,

@@ -1273,7 +1273,7 @@ character_game_instance::load_characterT(const game_character &g) {
   c.state->flip = g.flip;
 
   auto name = g.nametags[0].text;
-  c.name = std::vector<uint16_t>{name.begin(), name.end()};
+  c.name = {name.begin(), name.end()};
 
   c.fame = g.fame;
   c.face->face_action = std::string{g.face.action.begin(), g.face.action.end()};

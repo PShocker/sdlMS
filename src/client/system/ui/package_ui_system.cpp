@@ -184,7 +184,7 @@ void package_ui_system::render_items() {
   const auto slot_space_y = 2;
   if (active_tab == 0) {
     auto &equips = package_game_instance::equips;
-    for (uint8_t i = page * 5; i <= equips.size(); i++) {
+    for (uint8_t i = page * 5; i < equips.size(); i++) {
       auto row = i / 5 - page;
       auto col = i % 5;
 

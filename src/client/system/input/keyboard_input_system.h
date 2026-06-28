@@ -4,4 +4,5 @@
 class keyboard_input_system {
 public:
   static bool event(SDL_Event *event);
+  static void reset();
 };

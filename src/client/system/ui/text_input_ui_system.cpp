@@ -23,6 +23,7 @@ void text_input_ui_system::active(text_input &input) {
 }
 
 void text_input_ui_system::render(text_input &input, int x, int y) {
+  bool r = false;
   freetype::load_size(input.font_size);
   if (input.active) {
     auto delta = window::dt_now % 1000;
@@ -37,14 +38,16 @@ void text_input_ui_system::render(text_input &input, int x, int y) {
           1, // 宽度
           lh // 高度与字体匹配
       };
-      SDL_SetRenderDrawColor(window::renderer, 255, 255, 255, 255);
+      SDL_SetRenderDrawColor(window::renderer, input.cur_color.r,
+                             input.cur_color.g, input.cur_color.b,
+                             input.cur_color.a);
       SDL_RenderFillRect(window::renderer, &cursorRect);
     }
   }
   freetype::load_aligned(true);
   freetype::load_bold(false);
-  freetype::load_color(input.color.r, input.color.g, input.color.b,
-                       input.color.a);
+  freetype::load_color(input.font_color.r, input.font_color.g,
+                       input.font_color.b, input.font_color.a);
 
   auto str1 = input.text.substr(0, input.cur);
   auto str2 = input.composition;
@@ -56,6 +59,7 @@ void text_input_ui_system::render(text_input &input, int x, int y) {
 }
 
 bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
+  bool r = false;
   switch (event->type) {
   case SDL_EVENT_TEXT_EDITING: {
     auto text = event->edit.text;
@@ -173,6 +177,7 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
         }
       } else {
         close(input);
+        r = true;
       }
     }
     break;
@@ -181,5 +186,5 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
     break;
   }
   }
-  return true;
+  return r;
 }

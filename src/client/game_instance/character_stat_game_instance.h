@@ -16,10 +16,10 @@ public:
 
   static void load(const character_save &cs);
 
-  static inline int32_t hp_point;
-  static inline int32_t hp_point_max;
-  static inline int32_t mp_point;
-  static inline int32_t mp_point_max;
+  static inline int32_t hp_point = INT32_MAX;
+  static inline int32_t hp_point_max = INT32_MAX;
+  static inline int32_t mp_point = INT32_MAX;
+  static inline int32_t mp_point_max = INT32_MAX;
   static inline uint32_t exp_point;
   static inline uint32_t exp_point_max = UINT32_MAX;
 

@@ -9,7 +9,7 @@ bool chatballoon_logic_system::run() {
   auto &self = character_game_instance::self;
   if (self.chatballoon.has_value()) {
     if (self.chatballoon.value().destory <= window::dt_now) {
-      self.chatballoon = std::nullopt;
+      // self.chatballoon = std::nullopt;
     }
   }
 

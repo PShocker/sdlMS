@@ -12,9 +12,9 @@ public:
 
   float w = 150.0f;
 
-  SDL_FPoint pos;
+  SDL_FPoint pos = {0, 0};
   uint64_t destory;
-  uint32_t size;
+  uint32_t size = 14;
 
   std::optional<SDL_Color> color;
 };

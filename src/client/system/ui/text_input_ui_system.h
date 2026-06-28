@@ -16,7 +16,8 @@ struct text_input {
   bool active = false;
   SDL_Rect r;
 
-  SDL_Color color;
+  SDL_Color font_color;
+  SDL_Color cur_color = {255, 255, 255, 255};
   int font_size;
   int cur = 0;
 

@@ -47,6 +47,9 @@ bool cursor_logic_system::run_package_motion() {
   }
   auto active_tab = package_ui_system::active_tab;
   if (active_tab == 0) {
+    if (package_game_instance::equips.size() < index.value()) {
+      return false;
+    }
     if (!package_game_instance::equips[index.value()].has_value()) {
       return false;
     }
