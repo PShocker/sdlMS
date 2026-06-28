@@ -194,6 +194,33 @@ void freetype::draw_rstr(const std::u16string &str, float x, float y, float w) {
   load_color(r, g, b, a);
 }
 
+void freetype::draw_cstr(const std::u16string &str, float x, float y, float w) {
+  auto l = x;
+  auto t = y;
+  auto lineHeight = face->size->metrics.height >> 6;
+  lineHeight = lineHeight * 1.1;
+  std::u16string tmp;
+  for (uint32_t i = 0; i < str.size(); i++) {
+    auto c = str[i];
+    if (l >= x + w || c == u'\n') {
+      auto mid = (w - freetype::load_w(tmp)) / 2;
+      draw_line(tmp, x + mid, t);
+      tmp.clear();
+      t += lineHeight;
+      l = x;
+    }
+    if (c == u'\n') {
+      continue;
+    }
+    l += load_w({c});
+    tmp.push_back(c);
+  }
+  if (!tmp.empty()) {
+    l = (w - freetype::load_w(tmp)) / 2;
+    draw_line(tmp, x + l, t);
+  }
+}
+
 std::u16string freetype::load_u16str(const char *text) {
   size_t utf8Len = std::strlen(text);
   char *utf16Data = SDL_iconv_string("UTF-16LE", "UTF-8", text, utf8Len);

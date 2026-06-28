@@ -772,7 +772,7 @@ void statusbar_ui_system::reset() {
   auto base_y = (screen_h - 73);
   chat = {
       .max_size = 32,
-      .text = u"sdlMS",
+      .text = u"1234567890abcdefjhhii",
       .composition = {},
       .disable = false,
       .active = false,

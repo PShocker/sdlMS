@@ -66,7 +66,7 @@ void npc_render_system::render_chatballoon(game_npc &g_npc) {
       .x = g_npc.pos.x,
       .y = g_npc.pos.y - origin.y - texture->h - h / 2,
   };
-  chatballoon_render_system::render(chatballoon, pos);
+  chatballoon_render_system::render_npc(chatballoon, pos);
 }
 
 bool npc_render_system::render_npc(game_npc &g_npc) {

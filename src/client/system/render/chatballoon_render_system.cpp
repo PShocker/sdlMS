@@ -1,4 +1,5 @@
 #include "chatballoon_render_system.h"
+#include "SDL3/SDL_pixels.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -6,9 +7,11 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <optional>
 
-bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
-                                       SDL_FPoint base) {
+std::optional<chatballoon_render_system::backgrnd_pad>
+chatballoon_render_system::render_backgrnd(game_chatballoon &g_chatballoon,
+                                           SDL_FPoint base) {
   auto path = g_chatballoon.path;
   auto node = wz_resource::ui->find(u"ChatBalloon.img/" + path);
   auto texture_c = wz_resource::load_texture(node->get_child(u"c"));
@@ -157,7 +160,25 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
     rect.w = p_se.x - (p_arrow.x + texture_arrow->w);
     rect.h = texture_s->h;
     SDL_RenderTextureTiled(window::renderer, texture_s, nullptr, 1, &rect);
+    std::optional<int32_t> clr;
+    if (auto clr_node = node->get_child(u"clr")) {
+      clr = static_cast<wz::Property<int32_t> *>(clr_node)->get();
+    }
+    return backgrnd_pad{
+        r_x + texture_nw->w,
+        r_y + texture_nw->h,
+        r_w - 2 * texture_nw->w - texture_se->w,
+        r_h - 2 * texture_nw->h - texture_se->h,
+        clr,
+    };
+  }
+  return std::nullopt;
+}
 
+bool chatballoon_render_system::render_npc(game_chatballoon &g_chatballoon,
+                                           SDL_FPoint base) {
+  auto bacgrnd_pad = render_backgrnd(g_chatballoon, base);
+  if (bacgrnd_pad.has_value()) {
     if (g_chatballoon.color.has_value()) {
       uint8_t a, r, g, b;
       a = g_chatballoon.color->a;
@@ -165,9 +186,8 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
       g = g_chatballoon.color->g;
       b = g_chatballoon.color->b;
       freetype::load_color(r, g, b, a);
-    } else {
-      auto clr =
-          static_cast<wz::Property<int32_t> *>(node->get_child(u"clr"))->get();
+    } else if (bacgrnd_pad->color.has_value()) {
+      auto clr = bacgrnd_pad->color.value();
       uint8_t a, r, g, b;
       a = (clr >> 24) & 0xFF;
       r = (clr >> 16) & 0xFF;
@@ -177,8 +197,37 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
     }
 
     freetype::load_aligned(true);
-    freetype::draw_str(g_chatballoon.text, r_x + texture_nw->w,
-                       r_y + texture_nw->h, g_chatballoon.w + texture_nw->w);
+    freetype::draw_str(g_chatballoon.text, bacgrnd_pad->x, bacgrnd_pad->y,
+                       bacgrnd_pad->w);
+    freetype::load_aligned(false);
+  }
+  return true;
+}
+
+bool chatballoon_render_system::render_character(
+    game_chatballoon &g_chatballoon, SDL_FPoint base) {
+  auto bacgrnd_pad = render_backgrnd(g_chatballoon, base);
+  if (bacgrnd_pad.has_value()) {
+    if (g_chatballoon.color.has_value()) {
+      uint8_t a, r, g, b;
+      a = g_chatballoon.color->a;
+      r = g_chatballoon.color->r;
+      g = g_chatballoon.color->g;
+      b = g_chatballoon.color->b;
+      freetype::load_color(r, g, b, a);
+    } else if (bacgrnd_pad->color.has_value()) {
+      auto clr = bacgrnd_pad->color.value();
+      uint8_t a, r, g, b;
+      a = (clr >> 24) & 0xFF;
+      r = (clr >> 16) & 0xFF;
+      g = (clr >> 8) & 0xFF;
+      b = clr & 0xFF;
+      freetype::load_color(r, g, b, a);
+    }
+
+    freetype::load_aligned(true);
+    freetype::draw_cstr(g_chatballoon.text, bacgrnd_pad->x, bacgrnd_pad->y,
+                        bacgrnd_pad->w);
     freetype::load_aligned(false);
   }
   return true;

@@ -241,11 +241,6 @@ void character_render_system::render_chatballoon(game_character &g_character) {
   }
   auto chatballoon = g_character.chatballoon.value();
   auto name = g_character.nametags[0].text + u":";
-  auto blank_w = freetype::load_w(u" ");
-  auto blank_num = (chatballoon.w - freetype::load_w(name)) / 2 / blank_w;
-  for (int i = 0; i < blank_num; i++) {
-    name = u" " + name;
-  }
   chatballoon.text = name + u"\n" + chatballoon.text;
   freetype::load_size(chatballoon.size);
   auto h = freetype::load_h(chatballoon.text, chatballoon.w);
@@ -253,7 +248,7 @@ void character_render_system::render_chatballoon(game_character &g_character) {
       .x = g_character.pos.x,
       .y = g_character.pos.y - 120 - h / 2,
   };
-  chatballoon_render_system::render(chatballoon, pos);
+  chatballoon_render_system::render_character(chatballoon, pos);
 }
 
 bool character_render_system::render(game_character &g_character) {
