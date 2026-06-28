@@ -1,11 +1,13 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/common/flatbuffers/server.h"
 #include "text_input_ui_system.h"
 #include <cstdint>
 #include <flat_map>
 #include <optional>
 #include <string>
+#include <vector>
 
 class statusbar_ui_system {
 private:
@@ -15,14 +17,14 @@ private:
   static void render_quickSlot();
   static void render_character_stat();
   static void render_chat();
+  static void render_chat_info();
+  static void render_chat_infos();
+  static void render_chat_vscr();
   static SDL_FPoint load_wh();
 
   static void event_chat_send();
   static bool event_click_quickslot(SDL_Event *event);
 
-  enum chat_type {
-    all,
-  };
   static std::u16string load_chat_type();
 
   static bool event_button(SDL_Event *event);
@@ -44,12 +46,23 @@ private:
     two,
     three,
   };
+  enum chat_enum {
+    all,
+  };
   static inline quick_slot quickSlot = quick_slot::two;
 
-  static inline std::optional<chat_type> chat_type;
+  static inline std::optional<chat_enum> chat_type;
   static inline text_input chat;
+  struct chats {
+    chat_enum type;
+    std::u16string owner;
+    std::u16string text;
+  };
+  static inline std::vector<chats> chats_info;
 
 public:
+  static void load_chats(fbs::ServerCharacterChatT &c);
+
   static void reset();
   static bool render();
   static bool event(SDL_Event *event);

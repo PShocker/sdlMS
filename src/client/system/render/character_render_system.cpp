@@ -243,12 +243,11 @@ void character_render_system::render_chatballoon(game_character &g_character) {
   auto name = g_character.nametags[0].text + u":";
   chatballoon.text = name + u"\n" + chatballoon.text;
   freetype::load_size(chatballoon.size);
-  auto h = freetype::load_h(chatballoon.text, chatballoon.w);
   SDL_FPoint pos{
       .x = g_character.pos.x,
-      .y = g_character.pos.y - 120 - h / 2,
+      .y = g_character.pos.y - 70,
   };
-  chatballoon_render_system::render_character(chatballoon, pos);
+  chatballoon_render_system::render(chatballoon, pos);
 }
 
 bool character_render_system::render(game_character &g_character) {

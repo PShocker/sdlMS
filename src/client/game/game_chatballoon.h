@@ -8,7 +8,7 @@
 class game_chatballoon {
 public:
   std::u16string text;
-  std::u16string path;
+  std::u16string path = u"0";
 
   float w = 150.0f;
 

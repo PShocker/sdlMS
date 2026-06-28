@@ -859,6 +859,7 @@ inline ::flatbuffers::Offset<ServerMobAttack> CreateServerMobAttack(
 struct ServerCharacterChatT : public ::flatbuffers::NativeTable {
   typedef ServerCharacterChat TableType;
   uint64_t client_id = 0;
+  std::vector<uint16_t> name{};
   std::unique_ptr<fbs::CharacterChatT> payload{};
   ServerCharacterChatT() = default;
   ServerCharacterChatT(const ServerCharacterChatT &o);
@@ -871,13 +872,20 @@ struct ServerCharacterChat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   typedef ServerCharacterChatBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CLIENT_ID = 4,
-    VT_PAYLOAD = 6
+    VT_NAME = 6,
+    VT_PAYLOAD = 8
   };
   uint64_t client_id() const {
     return GetField<uint64_t>(VT_CLIENT_ID, 0);
   }
   bool mutate_client_id(uint64_t _client_id = 0) {
     return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const ::flatbuffers::Vector<uint16_t> *name() const {
+    return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
+  }
+  ::flatbuffers::Vector<uint16_t> *mutable_name() {
+    return GetPointer<::flatbuffers::Vector<uint16_t> *>(VT_NAME);
   }
   const fbs::CharacterChat *payload() const {
     return GetPointer<const fbs::CharacterChat *>(VT_PAYLOAD);
@@ -889,6 +897,8 @@ struct ServerCharacterChat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_NAME) &&
+           verifier.VerifyVector(name()) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyTable(payload()) &&
            verifier.EndTable();
@@ -904,6 +914,9 @@ struct ServerCharacterChatBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_client_id(uint64_t client_id) {
     fbb_.AddElement<uint64_t>(ServerCharacterChat::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_name(::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name) {
+    fbb_.AddOffset(ServerCharacterChat::VT_NAME, name);
   }
   void add_payload(::flatbuffers::Offset<fbs::CharacterChat> payload) {
     fbb_.AddOffset(ServerCharacterChat::VT_PAYLOAD, payload);
@@ -922,11 +935,26 @@ struct ServerCharacterChatBuilder {
 inline ::flatbuffers::Offset<ServerCharacterChat> CreateServerCharacterChat(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t client_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint16_t>> name = 0,
     ::flatbuffers::Offset<fbs::CharacterChat> payload = 0) {
   ServerCharacterChatBuilder builder_(_fbb);
   builder_.add_client_id(client_id);
   builder_.add_payload(payload);
+  builder_.add_name(name);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerCharacterChat> CreateServerCharacterChatDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    const std::vector<uint16_t> *name = nullptr,
+    ::flatbuffers::Offset<fbs::CharacterChat> payload = 0) {
+  auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
+  return fbs::CreateServerCharacterChat(
+      _fbb,
+      client_id,
+      name__,
+      payload);
 }
 
 ::flatbuffers::Offset<ServerCharacterChat> CreateServerCharacterChat(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterChatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1604,11 +1632,13 @@ inline ::flatbuffers::Offset<ServerMobAttack> ServerMobAttack::Pack(::flatbuffer
 
 inline ServerCharacterChatT::ServerCharacterChatT(const ServerCharacterChatT &o)
       : client_id(o.client_id),
+        name(o.name),
         payload((o.payload) ? new fbs::CharacterChatT(*o.payload) : nullptr) {
 }
 
 inline ServerCharacterChatT &ServerCharacterChatT::operator=(ServerCharacterChatT o) FLATBUFFERS_NOEXCEPT {
   std::swap(client_id, o.client_id);
+  std::swap(name, o.name);
   std::swap(payload, o.payload);
   return *this;
 }
@@ -1623,6 +1653,7 @@ inline void ServerCharacterChat::UnPackTo(ServerCharacterChatT *_o, const ::flat
   (void)_o;
   (void)_resolver;
   { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = name(); if (_e) { _o->name.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->name[_i] = _e->Get(_i); } } else { _o->name.resize(0); } }
   { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::CharacterChatT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
 }
 
@@ -1635,10 +1666,12 @@ inline ::flatbuffers::Offset<ServerCharacterChat> ServerCharacterChat::Pack(::fl
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterChatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _client_id = _o->client_id;
+  auto _name = _o->name.size() ? _fbb.CreateVector(_o->name) : 0;
   auto _payload = _o->payload ? CreateCharacterChat(_fbb, _o->payload.get(), _rehasher) : 0;
   return fbs::CreateServerCharacterChat(
       _fbb,
       _client_id,
+      _name,
       _payload);
 }
 

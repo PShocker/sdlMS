@@ -47,7 +47,7 @@ public:
   static void load_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
   static float load_w(const std::u16string &str);
   static float load_lh();
-  static float load_h(const std::u16string &str, float w);
+  static float load_h(const std::u16string &str, float w, float h);
   static void load_aligned(bool r);
   static void load_bold(bool r);
 

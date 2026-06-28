@@ -3,6 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_scancode.h"
+#include "scroll_ui_system.h"
 #include "skill_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -499,12 +500,82 @@ void statusbar_ui_system::render_chat() {
   }
 }
 
+void statusbar_ui_system::render_chat_info() {
+  if (chat_type.has_value()) {
+    return;
+  }
+  if (!chats_info.empty()) {
+    auto info = chats_info.back();
+    freetype::load_aligned(true);
+    freetype::load_size(12);
+    auto str = info.owner + u":" + info.text;
+    auto screen_w = camera_game_instance::camera.w;
+    auto screen_h = camera_game_instance::camera.h;
+    auto base_x = (screen_w - 808) / 2;
+    auto base_y = (screen_h - 73);
+    freetype::load_color(255, 255, 255, 255);
+    auto w = freetype::load_w(str);
+    bool point = false;
+    while (w > 476) {
+      str.pop_back();
+      w = freetype::load_w(str);
+      point = true;
+    }
+    if (point) {
+      str = str + u"...";
+    }
+    freetype::draw_line(str, base_x + 18, base_y + 10);
+    freetype::load_aligned(false);
+  }
+}
+
+void statusbar_ui_system::render_chat_infos() {
+  if (!chat_type.has_value()) {
+    return;
+  }
+  for (int i = chats_info.size() - 1; i >= 0; i--) {
+    auto info = chats_info[i];
+    freetype::load_aligned(true);
+    freetype::load_size(12);
+    auto str = info.owner + u":" + info.text;
+    auto screen_w = camera_game_instance::camera.w;
+    auto screen_h = camera_game_instance::camera.h;
+    auto base_x = (screen_w - 808) / 2;
+    auto base_y = (screen_h - 73);
+    freetype::load_color(255, 255, 255, 255);
+    auto lh = freetype::load_lh();
+    int l = -(chats_info.size() - 1 - i);
+    freetype::draw_str(str, base_x + 8, base_y - 14 + l * lh, 564);
+    freetype::load_aligned(false);
+  }
+}
+
+void statusbar_ui_system::render_chat_vscr() {
+  if (!chat_type.has_value()) {
+    return;
+  }
+  const uint32_t length = 76;
+  auto size = 6;
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  bool top = cursor_in == render;
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
+  scroll_ui_system::render_vscroll(base_x + 564, base_y - 71, 5, size, length,
+                                   top);
+  return;
+}
+
 bool statusbar_ui_system::render() {
   render_backgrnd();
   render_chat();
   render_button();
   render_quickSlot();
   render_character_stat();
+  render_chat_info();
+  render_chat_infos();
+  render_chat_vscr();
   return true;
 }
 
@@ -771,8 +842,8 @@ void statusbar_ui_system::reset() {
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   chat = {
-      .max_size = 32,
-      .text = u"1234567890abcdefjhhii",
+      .max_size = 60,
+      .text = u"nnn1234567890abcdefjhhii顶顶顶顶顶顶顶顶顶顶顶顶顶顶1111111的",
       .composition = {},
       .disable = false,
       .active = false,
@@ -789,4 +860,12 @@ void statusbar_ui_system::reset() {
   };
   chat.type.set(text_input::ime);
   chat_type = std::nullopt;
+}
+
+void statusbar_ui_system::load_chats(fbs::ServerCharacterChatT &c) {
+  chats_info.push_back({
+      .type = (chat_enum)c.payload->type,
+      .owner = {c.name.begin(), c.name.end()},
+      .text = {c.payload->payload.begin(), c.payload->payload.end()},
+  });
 }

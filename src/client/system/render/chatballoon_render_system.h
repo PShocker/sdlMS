@@ -20,7 +20,5 @@ private:
   render_backgrnd(game_chatballoon &g_chatballoon, SDL_FPoint base);
 
 public:
-  static bool render_npc(game_chatballoon &g_chatballoon, SDL_FPoint base);
-  static bool render_character(game_chatballoon &g_chatballoon,
-                               SDL_FPoint base);
+  static bool render(game_chatballoon &g_chatballoon, SDL_FPoint base);
 };

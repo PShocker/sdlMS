@@ -46,19 +46,22 @@ chatballoon_render_system::render_backgrnd(game_chatballoon &g_chatballoon,
   auto origin_arrow = wz_resource::load_fpoint(node->find(u"arrow/origin"));
 
   freetype::load_size(g_chatballoon.size);
-  auto h = freetype::load_h(g_chatballoon.text, g_chatballoon.w);
+  auto text_w = g_chatballoon.w - (texture_nw->w + texture_ne->w);
 
   auto a = (float)texture_c->w;
-  auto b = g_chatballoon.w;
-  auto result_w = a * ((b + a - 1) / a); // 整数向上取整技巧
+  auto b = text_w;
+  auto result_w = a * std::ceil(static_cast<float>(b) / a);
+
+  auto h = std::ceil(freetype::load_h(g_chatballoon.text, result_w, 1.3)) + 0.1;
 
   a = (float)texture_c->h;
   b = h;
-  auto result_h = a * ((b + a - 1) / a); // 整数向上取整技巧
+  auto result_h = a * std::ceil(static_cast<float>(b) / a);
 
   SDL_FRect rect;
   rect.w = result_w + texture_nw->w + texture_ne->w;
   rect.h = result_h + texture_nw->h + texture_sw->h + texture_arrow->h;
+  base.y -= rect.h;
   rect.x = base.x - rect.w / 2;
   rect.y = base.y;
   const auto &camera = camera_game_instance::camera;
@@ -175,8 +178,8 @@ chatballoon_render_system::render_backgrnd(game_chatballoon &g_chatballoon,
   return std::nullopt;
 }
 
-bool chatballoon_render_system::render_npc(game_chatballoon &g_chatballoon,
-                                           SDL_FPoint base) {
+bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
+                                       SDL_FPoint base) {
   auto bacgrnd_pad = render_backgrnd(g_chatballoon, base);
   if (bacgrnd_pad.has_value()) {
     if (g_chatballoon.color.has_value()) {
@@ -197,35 +200,7 @@ bool chatballoon_render_system::render_npc(game_chatballoon &g_chatballoon,
     }
 
     freetype::load_aligned(true);
-    freetype::draw_str(g_chatballoon.text, bacgrnd_pad->x, bacgrnd_pad->y,
-                       bacgrnd_pad->w);
-    freetype::load_aligned(false);
-  }
-  return true;
-}
-
-bool chatballoon_render_system::render_character(
-    game_chatballoon &g_chatballoon, SDL_FPoint base) {
-  auto bacgrnd_pad = render_backgrnd(g_chatballoon, base);
-  if (bacgrnd_pad.has_value()) {
-    if (g_chatballoon.color.has_value()) {
-      uint8_t a, r, g, b;
-      a = g_chatballoon.color->a;
-      r = g_chatballoon.color->r;
-      g = g_chatballoon.color->g;
-      b = g_chatballoon.color->b;
-      freetype::load_color(r, g, b, a);
-    } else if (bacgrnd_pad->color.has_value()) {
-      auto clr = bacgrnd_pad->color.value();
-      uint8_t a, r, g, b;
-      a = (clr >> 24) & 0xFF;
-      r = (clr >> 16) & 0xFF;
-      g = (clr >> 8) & 0xFF;
-      b = clr & 0xFF;
-      freetype::load_color(r, g, b, a);
-    }
-
-    freetype::load_aligned(true);
+    freetype::load_size(g_chatballoon.size);
     freetype::draw_cstr(g_chatballoon.text, bacgrnd_pad->x, bacgrnd_pad->y,
                         bacgrnd_pad->w);
     freetype::load_aligned(false);

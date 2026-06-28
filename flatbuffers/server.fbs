@@ -53,6 +53,7 @@ table ServerMobAttack {
 
 table ServerCharacterChat {
     client_id:uint64;
+    name:[uint16];
     payload:CharacterChat;
 }
 

@@ -69,7 +69,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   SDL_HideCursor();
 
-  scene_system_instance::enter_prepare(61, u"sp", 0);
+  scene_system_instance::enter_prepare(1005, u"sp", 0);
   // chatacter_create_system_instance::enter();
   // login_system_instance::enter();
 

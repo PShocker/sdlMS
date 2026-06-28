@@ -55,20 +55,58 @@ float freetype::load_w(const std::u16string &str) {
 
 float freetype::load_lh() { return face->size->metrics.height >> 6; }
 
-float freetype::load_h(const std::u16string &str, float w) {
-  uint32_t line = 1;
-  auto lineHeight = face->size->metrics.height >> 6;
-  lineHeight = lineHeight * 1.1;
-  float lineWidth = 0;
-  for (auto c : str) {
-    if (lineWidth >= w || c == u'\n') {
-      // 换行
-      line++;
-      lineWidth = 0;
-    }
-    lineWidth += load_char_w(c);
+float freetype::load_h(const std::u16string &str, float w, float h) {
+  if (str.empty()) {
+    return 0.0f;
   }
-  return line * lineHeight;
+
+  // 行高 = 基础行高 × 倍数
+  float lineHeight = static_cast<float>(face->size->metrics.height >> 6) * h;
+
+  // 分行统计
+  std::u16string current_line;
+  float current_width = 0.0f;
+  int line_count = 0;
+
+  for (uint32_t i = 0; i < str.size(); i++) {
+    auto c = str[i];
+    float char_width = load_w({c});
+
+    bool need_newline = false;
+    if (c == u'\n') {
+      need_newline = true;
+    } else if (!current_line.empty() && current_width + char_width > w) {
+      need_newline = true;
+    }
+
+    if (need_newline) {
+      if (!current_line.empty()) {
+        line_count++;
+        current_line.clear();
+        current_width = 0.0f;
+      }
+      if (c == u'\n') {
+        continue;
+      }
+    }
+
+    if (c == u'\n') {
+      continue;
+    }
+
+    current_line.push_back(c);
+    current_width += char_width;
+  }
+
+  if (!current_line.empty()) {
+    line_count++;
+  }
+
+  if (line_count == 0) {
+    return 0.0f;
+  }
+
+  return static_cast<float>(line_count) * lineHeight;
 }
 
 void freetype::load_aligned(bool r) { aligned = r; }
@@ -195,29 +233,57 @@ void freetype::draw_rstr(const std::u16string &str, float x, float y, float w) {
 }
 
 void freetype::draw_cstr(const std::u16string &str, float x, float y, float w) {
-  auto l = x;
-  auto t = y;
-  auto lineHeight = face->size->metrics.height >> 6;
-  lineHeight = lineHeight * 1.1;
-  std::u16string tmp;
+  if (str.empty())
+    return;
+
+  // 行高
+  float lineHeight = static_cast<float>(face->size->metrics.height >> 6) * 1.3f;
+
+  // 当前行
+  std::u16string currentLine;
+  float lineWidth = 0.0f;
+  float currentY = y;
+
   for (uint32_t i = 0; i < str.size(); i++) {
-    auto c = str[i];
-    if (l >= x + w || c == u'\n') {
-      auto mid = (w - freetype::load_w(tmp)) / 2;
-      draw_line(tmp, x + mid, t);
-      tmp.clear();
-      t += lineHeight;
-      l = x;
-    }
+    char16_t c = str[i];
+
+    // 处理换行符
     if (c == u'\n') {
+      if (!currentLine.empty()) {
+        // 水平居中
+        float midX = x + (w - lineWidth) / 2.0f;
+        draw_line(currentLine, midX, currentY);
+        currentLine.clear();
+        lineWidth = 0.0f;
+      }
+      currentY += lineHeight;
       continue;
     }
-    l += load_w({c});
-    tmp.push_back(c);
+
+    // 获取字符宽度
+    float charWidth = static_cast<float>(load_w({c}));
+
+    // 检查是否需要换行（当前行已有内容且加上新字符会超出宽度）
+    if (!currentLine.empty() && lineWidth + charWidth > w) {
+      // 绘制当前行（居中）
+      float midX = x + (w - lineWidth) / 2.0f;
+      draw_line(currentLine, midX, currentY);
+
+      // 重置当前行
+      currentLine.clear();
+      lineWidth = 0.0f;
+      currentY += lineHeight;
+    }
+
+    // 添加字符到当前行
+    currentLine.push_back(c);
+    lineWidth += charWidth;
   }
-  if (!tmp.empty()) {
-    l = (w - freetype::load_w(tmp)) / 2;
-    draw_line(tmp, x + l, t);
+
+  // 绘制最后一行（如果有内容）
+  if (!currentLine.empty()) {
+    float midX = x + (w - lineWidth) / 2.0f;
+    draw_line(currentLine, midX, currentY);
   }
 }
 

@@ -61,12 +61,11 @@ void npc_render_system::render_chatballoon(game_npc &g_npc) {
   auto texture = wz_resource::load_texture(npc_node);
   auto origin = wz_resource::load_fpoint(npc_node->get_child(u"origin"));
   freetype::load_size(chatballoon.size);
-  auto h = freetype::load_h(chatballoon.text, chatballoon.w);
   SDL_FPoint pos{
       .x = g_npc.pos.x,
-      .y = g_npc.pos.y - origin.y - texture->h - h / 2,
+      .y = g_npc.pos.y - origin.y - texture->h / 2,
   };
-  chatballoon_render_system::render_npc(chatballoon, pos);
+  chatballoon_render_system::render(chatballoon, pos);
 }
 
 bool npc_render_system::render_npc(game_npc &g_npc) {

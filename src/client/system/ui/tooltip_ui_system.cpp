@@ -500,13 +500,13 @@ float tooltip_ui_system::load_skill_bottom_h(const std::u16string &id) {
         std::clamp(ski_level, (uint8_t)0, (uint8_t)(ski_name.level.size() - 1));
     auto ski_l0 = ski_name.level[ski_level];
     h += freetype::load_lh() * 1.1;
-    h += freetype::load_h(ski_l0, w);
+    h += freetype::load_h(ski_l0, w, 1.1);
   } else {
     auto ski_l0 = ski_name.level[ski_level - 1];
     auto ski_l1 = ski_name.level[ski_level];
     h += freetype::load_lh() * 2 * 1.1;
-    h += freetype::load_h(ski_l0, w);
-    h += freetype::load_h(ski_l1, w);
+    h += freetype::load_h(ski_l0, w, 1.1);
+    h += freetype::load_h(ski_l1, w, 1.1);
     h += 5;
   }
   return h;
@@ -687,7 +687,7 @@ void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {
   const auto bh = 60;
   const auto w = 300;
   if (map_desc != u"") {
-    auto h = freetype::load_h(map_desc, 280);
+    auto h = freetype::load_h(map_desc, 280, 1.1);
     render_backgrnd(x, y, w, h + bh + 20);
   } else {
     render_backgrnd(x, y, w, bh);

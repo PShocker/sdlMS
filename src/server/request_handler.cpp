@@ -12,6 +12,7 @@
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -199,14 +200,14 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     }
     if (g_character) {
       game_chatballoon c;
-      c.w = 92;
+      c.w = 120;
       c.destory = window::dt_now + 5000;
-      c.path = u"0";
       c.color = {0, 0, 0, 255};
       c.text = {r.payload->payload.begin(), r.payload->payload.end()};
       c.size = 13;
       g_character->chatballoon = c;
     }
+    statusbar_ui_system::load_chats(r);
     break;
   }
   case NetPayload_ServerCharacterDrop: {

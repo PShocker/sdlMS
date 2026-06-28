@@ -144,9 +144,12 @@ void server_character_instance::handle_attack(uint64_t client_id,
 void server_character_instance::handle_chat(uint64_t client_id,
                                             ClientCharacterChatT &r) {
   // 转发
+  auto client_name =
+      server_client_instance::clients.at(client_id).player_t.character->name;
   auto clients = server_scene_instance::scenes.at(r.map_id).clients;
   clients.erase(client_id);
   ServerCharacterChatT t;
+  t.name = client_name;
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
