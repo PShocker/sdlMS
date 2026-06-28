@@ -63,7 +63,7 @@ void npc_render_system::render_chatballoon(game_npc &g_npc) {
   freetype::load_size(chatballoon.size);
   SDL_FPoint pos{
       .x = g_npc.pos.x,
-      .y = g_npc.pos.y - origin.y - texture->h / 2,
+      .y = g_npc.pos.y - origin.y - texture->h / 8,
   };
   chatballoon_render_system::render(chatballoon, pos);
 }

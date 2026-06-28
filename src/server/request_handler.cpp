@@ -200,11 +200,11 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     }
     if (g_character) {
       game_chatballoon c;
-      c.w = 120;
+      c.w = 100;
       c.destory = window::dt_now + 5000;
-      c.color = {0, 0, 0, 255};
       c.text = {r.payload->payload.begin(), r.payload->payload.end()};
       c.size = 13;
+      c.path = u"0";
       g_character->chatballoon = c;
     }
     statusbar_ui_system::load_chats(r);
