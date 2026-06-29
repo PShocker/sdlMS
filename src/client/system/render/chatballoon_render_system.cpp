@@ -171,8 +171,8 @@ chatballoon_render_system::render_backgrnd(game_chatballoon &g_chatballoon,
     return backgrnd_pad{
         r_x + texture_nw->w,
         r_y + texture_nw->h,
-        r_w - 2 * texture_nw->w - texture_se->w,
-        r_h - 2 * texture_nw->h - texture_se->h,
+        r_w - texture_nw->w - texture_se->w,
+        r_h - texture_nw->h - texture_se->h,
         clr,
     };
   }

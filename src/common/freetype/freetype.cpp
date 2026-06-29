@@ -176,8 +176,8 @@ float freetype::draw_char(float x, float y, char16_t c) {
   SDL_FRect posRect{posX, posY, static_cast<float>(texture->w),
                     static_cast<float>(texture->h)};
   if (aligned) {
-    posRect.x = std::round(posRect.x);
-    posRect.y = std::round(posRect.y);
+    posRect.x = int(posRect.x);
+    posRect.y = int(posRect.y);
   }
   SDL_RenderTexture(window::renderer, texture, nullptr, &posRect);
   return advance;
@@ -265,9 +265,10 @@ void freetype::draw_cstr(const std::u16string &str, float x, float y, float w) {
     float charWidth = static_cast<float>(load_w({c}));
 
     // 检查是否需要换行（当前行已有内容且加上新字符会超出宽度）
-    if (!currentLine.empty() && lineWidth + charWidth > w) {
+    if (!currentLine.empty() && lineWidth + charWidth >= w) {
       // 绘制当前行（居中）
-      float midX = x + (w - lineWidth) / 2.0f;
+      auto dx = (w - lineWidth) / 2.0f;
+      float midX = (int)x + (int)dx;
       draw_line(currentLine, midX, currentY);
 
       // 重置当前行
@@ -283,7 +284,8 @@ void freetype::draw_cstr(const std::u16string &str, float x, float y, float w) {
 
   // 绘制最后一行（如果有内容）
   if (!currentLine.empty()) {
-    float midX = x + (w - lineWidth) / 2.0f;
+    auto dx = (w - lineWidth) / 2.0f;
+    float midX = (int)x + (int)dx;
     draw_line(currentLine, midX, currentY);
   }
 }

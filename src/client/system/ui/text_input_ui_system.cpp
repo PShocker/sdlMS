@@ -52,33 +52,7 @@ void text_input_ui_system::render(text_input &input, int x, int y) {
       has_selection ? std::max(input.cur, input.cur_next.value()) : input.cur;
 
   // ============================================================
-  // 4. 光标渲染（仅在激活且无选区时显示闪烁光标）
-  // ============================================================
-  if (input.active && !has_selection) {
-    const int blink_period = 500;
-    if ((window::dt_now % (blink_period * 2)) < blink_period) {
-      const float cursor_x = freetype::load_w(text_before_cursor);
-
-      SDL_FRect cursor_rect = {rect_x + cursor_x, rect_y + 2.0f, 1.0f,
-                               line_height};
-
-      SDL_SetRenderDrawColor(window::renderer, input.cur_color.r,
-                             input.cur_color.g, input.cur_color.b,
-                             input.cur_color.a);
-      SDL_RenderFillRect(window::renderer, &cursor_rect);
-    }
-  }
-
-  // ============================================================
-  // 5. 文本渲染配置
-  // ============================================================
-  freetype::load_aligned(true);
-  freetype::load_bold(false);
-  freetype::load_color(input.font_color.r, input.font_color.g,
-                       input.font_color.b, input.font_color.a);
-
-  // ============================================================
-  // 6. 文本裁剪（保持光标/选区可见）
+  // 4. 文本裁剪（保持光标/选区可见）
   // ============================================================
   std::u16string display_text;
   size_t display_offset = 0;
@@ -140,6 +114,63 @@ void text_input_ui_system::render(text_input &input, int x, int y) {
   }
 
   // ============================================================
+  // 5. 光标渲染（仅在激活且无选区时显示闪烁光标）
+  // ============================================================
+  if (input.active && !has_selection) {
+    const int blink_period = 500;
+    if ((window::dt_now % (blink_period * 2)) < blink_period) {
+      // 计算光标在显示文本中的相对位置
+      const int cursor_display_pos =
+          static_cast<int>(input.cur - display_offset);
+
+      // 检查光标是否在显示区域内
+      if (cursor_display_pos >= 0 &&
+          cursor_display_pos <= static_cast<int>(display_text.length())) {
+        // 计算光标前文本在显示区域中的宽度
+        const auto text_before_cursor_display =
+            display_text.substr(0, cursor_display_pos);
+        const float cursor_x = freetype::load_w(text_before_cursor_display);
+
+        // 确保光标不会超出显示区域右边界
+        if (cursor_x <= max_width) {
+          SDL_FRect cursor_rect = {rect_x + cursor_x, rect_y + 2.0f, 1.0f,
+                                   line_height};
+
+          SDL_SetRenderDrawColor(window::renderer, input.cur_color.r,
+                                 input.cur_color.g, input.cur_color.b,
+                                 input.cur_color.a);
+          SDL_RenderFillRect(window::renderer, &cursor_rect);
+        }
+      }
+      // 可选：当光标在显示区域外时，在边缘显示指示符
+      else if (cursor_display_pos < 0) {
+        // 光标在左侧被裁剪，在左边缘显示小标记
+        SDL_FRect cursor_rect = {rect_x, rect_y + 2.0f, 2.0f, line_height};
+        SDL_SetRenderDrawColor(window::renderer, input.cur_color.r,
+                               input.cur_color.g, input.cur_color.b,
+                               input.cur_color.a);
+        SDL_RenderFillRect(window::renderer, &cursor_rect);
+      } else if (cursor_display_pos > static_cast<int>(display_text.length())) {
+        // 光标在右侧被裁剪，在右边缘显示小标记
+        SDL_FRect cursor_rect = {rect_x + max_width - 2.0f, rect_y + 2.0f, 2.0f,
+                                 line_height};
+        SDL_SetRenderDrawColor(window::renderer, input.cur_color.r,
+                               input.cur_color.g, input.cur_color.b,
+                               input.cur_color.a);
+        SDL_RenderFillRect(window::renderer, &cursor_rect);
+      }
+    }
+  }
+
+  // ============================================================
+  // 6. 文本渲染配置
+  // ============================================================
+  freetype::load_aligned(true);
+  freetype::load_bold(false);
+  freetype::load_color(input.font_color.r, input.font_color.g,
+                       input.font_color.b, input.font_color.a);
+
+  // ============================================================
   // 7. 绘制选区背景（蓝色高亮）
   // ============================================================
   if (has_selection) {
@@ -162,7 +193,7 @@ void text_input_ui_system::render(text_input &input, int x, int y) {
       SDL_FRect sel_rect = {rect_x + sel_x, rect_y + 2.0f, sel_width,
                             line_height};
 
-      SDL_SetRenderDrawColor(window::renderer, 60, 140, 255, 80);
+      SDL_SetRenderDrawColor(window::renderer, 50, 102, 208, 255);
       SDL_RenderFillRect(window::renderer, &sel_rect);
     }
   }
@@ -265,9 +296,9 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
       if (input.active && !input.text.empty() && input.cur > 0) {
         if (input.cur_next.has_value()) {
           auto cur_min = std::min(input.cur, input.cur_next.value());
-          auto cur_max = std::min(input.cur, input.cur_next.value());
+          auto cur_max = std::max(input.cur, input.cur_next.value());
           input.text.erase(cur_min, cur_max - cur_min);
-          input.cur = cur_min;
+          input.cur = cur_min + 1;
           input.cur_next = std::nullopt;
         } else if (input.cur < input.text.length()) {
           input.text.erase(input.cur - 1, 1);
@@ -321,6 +352,7 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
           static_cast<int>(window::mouse_pos.x),
           static_cast<int>(window::mouse_pos.y),
       };
+      input.cur_next = std::nullopt;
       if (SDL_PointInRect(&p, &input.r)) {
         active(input);
         auto dx = p.x - input.r.x;
@@ -341,7 +373,6 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
           w += cw;
         }
       } else {
-        input.cur_next = std::nullopt;
         close(input);
         r = true;
       }

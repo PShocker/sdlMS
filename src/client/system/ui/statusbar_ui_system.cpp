@@ -481,10 +481,10 @@ void statusbar_ui_system::render_chat() {
 
     static auto chatbackgrnd1 = wz_resource::load_texture(
         wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd1"));
-    pos_rect.x = base_x;
-    pos_rect.y = base_y - 71;
+    pos_rect.x = base_x + 6;
+    pos_rect.y = base_y - 75;
     pos_rect.w = chatbackgrnd1->w;
-    pos_rect.h = 76;
+    pos_rect.h = 80;
 
     SDL_RenderTexture(window::renderer, chatbackgrnd1, nullptr, &pos_rect);
   } else {
@@ -533,6 +533,7 @@ void statusbar_ui_system::render_chat_infos() {
   if (!chat_type.has_value()) {
     return;
   }
+  float str_h = 0;
   for (int i = chats_info.size() - 1; i >= 0; i--) {
     auto info = chats_info[i];
     freetype::load_aligned(true);
@@ -543,10 +544,8 @@ void statusbar_ui_system::render_chat_infos() {
     auto base_x = (screen_w - 808) / 2;
     auto base_y = (screen_h - 73);
     freetype::load_color(255, 255, 255, 255);
-    auto lh = freetype::load_lh();
-    int l = -(chats_info.size() - 1 - i);
-    auto str_h = freetype::load_h(str, 564, 1.1);
-    freetype::draw_str(str, base_x + 8, base_y - 14 + l * lh, 564);
+    str_h += freetype::load_h(str, 550, 1.1);
+    freetype::draw_str(str, base_x + 8, base_y - str_h + 2, 550);
     freetype::load_aligned(false);
   }
 }
@@ -555,7 +554,7 @@ void statusbar_ui_system::render_chat_vscr() {
   if (!chat_type.has_value()) {
     return;
   }
-  const uint32_t length = 76;
+  const uint32_t length = 80;
   auto size = 6;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
@@ -563,7 +562,7 @@ void statusbar_ui_system::render_chat_vscr() {
   auto screen_h = camera_game_instance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-  scroll_ui_system::render_vscroll(base_x + 564, base_y - 71, 5, size, length,
+  scroll_ui_system::render_vscroll(base_x + 570, base_y - 75, 5, size, length,
                                    top);
   return;
 }
@@ -869,8 +868,8 @@ void statusbar_ui_system::reset() {
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   chat = {
-      .max_size = 60,
-      .text = u"nnn1234567890abcdefjhhii顶顶顶顶顶顶顶顶顶顶顶顶顶顶1111111的",
+      .max_size = 80,
+      .text = u"",
       .composition = {},
       .disable = false,
       .active = false,
@@ -878,7 +877,7 @@ void statusbar_ui_system::reset() {
           SDL_Rect{
               static_cast<int>(base_x + 85),
               static_cast<int>(base_y + 6),
-              450,
+              420,
               25,
           },
       .font_color = {0, 0, 0, 255},
