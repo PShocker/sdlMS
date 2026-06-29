@@ -1,5 +1,6 @@
 #include "freetype.h"
 #include "src/client/window/window.h"
+#include <cmath>
 #include <cstdint>
 #include <flat_map>
 #include <ft2build.h>
@@ -175,8 +176,8 @@ float freetype::draw_char(float x, float y, char16_t c) {
   SDL_FRect posRect{posX, posY, static_cast<float>(texture->w),
                     static_cast<float>(texture->h)};
   if (aligned) {
-    posRect.x = (int)posRect.x;
-    posRect.y = (int)posRect.y;
+    posRect.x = std::round(posRect.x);
+    posRect.y = std::round(posRect.y);
   }
   SDL_RenderTexture(window::renderer, texture, nullptr, &posRect);
   return advance;

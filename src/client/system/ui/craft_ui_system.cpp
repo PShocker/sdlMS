@@ -1,6 +1,7 @@
 #include "craft_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/system.h"
@@ -109,6 +110,7 @@ void craft_ui_system::event_drag_move(SDL_Event *event) {
 }
 
 void craft_ui_system::toggle() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
   auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
     close();

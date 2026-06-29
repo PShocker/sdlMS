@@ -1,4 +1,5 @@
 #include "revive_ui_system.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
@@ -181,6 +182,7 @@ bool revive_ui_system::event_button(SDL_Event *event) {
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       buttons_func[i]();
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }

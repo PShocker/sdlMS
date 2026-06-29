@@ -22,6 +22,8 @@ private:
   static void render_chat_vscr();
   static SDL_FPoint load_wh();
 
+  static void event_click_chat_vscr();
+
   static void event_chat_send();
   static bool event_click_quickslot(SDL_Event *event);
 
@@ -53,6 +55,7 @@ private:
 
   static inline std::optional<chat_enum> chat_type;
   static inline text_input chat;
+  static inline int chat_index;
   struct chats {
     chat_enum type;
     std::u16string owner;

@@ -4,6 +4,7 @@
 #include "SDL3/SDL_pixels.h"
 #include "SDL3/SDL_rect.h"
 #include <bitset>
+#include <optional>
 #include <string>
 
 // 定义标志位索引
@@ -20,6 +21,7 @@ struct text_input {
   SDL_Color cur_color = {255, 255, 255, 255};
   int font_size;
   int cur = 0;
+  std::optional<int> cur_next = 0;
 
   enum text_input_type : size_t {
     digit = 0,  // 第0位：允许数字

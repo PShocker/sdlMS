@@ -4,6 +4,7 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_scancode.h"
 #include "scroll_ui_system.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -487,6 +488,7 @@ void package_ui_system::event_drag_move(SDL_Event *event) {
 }
 
 void package_ui_system::toggle() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
   auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
     close();
@@ -540,6 +542,7 @@ bool package_ui_system::event_button(SDL_Event *event) {
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       fns[i]();
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }

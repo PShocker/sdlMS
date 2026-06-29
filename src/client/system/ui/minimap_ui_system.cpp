@@ -1,6 +1,7 @@
 #include "minimap_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -637,6 +638,7 @@ bool minimap_ui_system::event_button(SDL_Event *event) {
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       fns[i]();
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }
