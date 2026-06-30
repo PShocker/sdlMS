@@ -223,21 +223,11 @@ bool character_logic_system::run_animate(game_character &g_character) {
         character_game_instance::bone_data.at(g_character.action);
     delay = action_info[g_character.action_index].delay;
     size = action_info.size();
-    if (g_character.action_index >= size) {
-      uint32_t action_index = 0;
-      uint32_t period = 2 * (size - 1);
-      uint32_t phase = g_character.action_index % period;
-      if (phase <= size - 1) {
-        action_index = phase;
-      } else {
-        action_index = (period - phase);
-      }
-      delay = action_info[action_index].delay;
-    }
   }
   if (g_character.action_time >= delay) {
     g_character.action_index += 1;
     r = g_character.action_index >= size;
+    g_character.action_index = g_character.action_index % size;
     g_character.action_time = 0;
   }
   return r;
@@ -1094,9 +1084,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   case action_enum::stand:
   case action_enum::alert:
   case action_enum::walk: {
-    run_walk_action(g_character);
     run_animate(g_character);
-    return;
     run_flip(g_character);
     run_pick(g_character);
     if (run_climb(g_character)) {

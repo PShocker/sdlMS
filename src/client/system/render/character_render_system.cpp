@@ -72,17 +72,6 @@ bool character_render_system::render_character(game_character &g_character) {
         character_game_instance::extern_action[action][action_index].action;
     action_index =
         character_game_instance::extern_action[action][action_index].frame;
-  } else {
-    int action_size = character_game_instance::bone_data.at(action).size();
-    if (action_index >= action_size) {
-      uint32_t period = 2 * (action_size - 1);
-      uint32_t phase = g_character.action_index % period;
-      if (phase <= action_size - 1) {
-        action_index = phase;
-      } else {
-        action_index = (period - phase);
-      }
-    }
   }
 
   auto face = character_game_instance::face_data.at(g_character.face.id)
