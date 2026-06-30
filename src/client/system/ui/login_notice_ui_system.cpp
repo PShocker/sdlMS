@@ -67,6 +67,13 @@ void login_notice_ui_system::render_backgrnd() {
     text = nullptr;
     break;
   }
+  case login_notice_system_instance::logining_used: {
+    backgrnd =
+        wz_resource::load_texture(notice_node->find(u"Loading/backgrnd"));
+    text = wz_resource::load_texture(notice_node->find(u"text/8"));
+    text_pos = {17, 13};
+    break;
+  }
   }
   SDL_FRect pos_rect{
       bx + (w - backgrnd->w) / 2,
@@ -115,6 +122,7 @@ void login_notice_ui_system::render_button() {
   case login_notice_system_instance::charactername_error:
   case login_notice_system_instance::character_full:
   case login_notice_system_instance::character_use_ap:
+  case login_notice_system_instance::logining_used:
   case login_notice_system_instance::charactername_used: {
     buttons_nodes = {
         wz_resource::ui->find(u"Login.img/Notice/BtYes"),
@@ -181,6 +189,7 @@ bool login_notice_ui_system::event_button(SDL_Event *event) {
   case login_notice_system_instance::charactername_error:
   case login_notice_system_instance::character_full:
   case login_notice_system_instance::character_use_ap:
+  case login_notice_system_instance::logining_used:
   case login_notice_system_instance::charactername_used: {
     buttons_rect = {
         SDL_FRect{bx + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},

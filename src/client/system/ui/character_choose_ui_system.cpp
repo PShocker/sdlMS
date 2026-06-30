@@ -344,8 +344,6 @@ void character_choose_ui_system::event_button_back() {
   game_save_system_instance::save_game();
   login_system_instance::enter_prepare();
 
-  login_ui_system::login_out();
-
   system::logic_systems.push_back(back_animate);
   system::render_systems = {
       login_system_instance::render_game,

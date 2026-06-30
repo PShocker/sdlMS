@@ -28,9 +28,8 @@ private:
 
   static bool event_button(SDL_Event *event);
 
-  static inline uv_pipe_t pipe;
 public:
-  static void login_out();
+  static inline uv_pipe_t pipe;
   static inline text_input username;
   static bool camera_animate(float x, float y);
 

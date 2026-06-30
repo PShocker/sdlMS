@@ -10,6 +10,7 @@ public:
     character_full,
     character_use_ap,
     logining,
+    logining_used,
   };
   static void enter(notice_type type, void (*fn)());
 };

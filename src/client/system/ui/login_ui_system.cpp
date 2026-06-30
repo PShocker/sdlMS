@@ -260,8 +260,9 @@ void login_ui_system::event_button_login() {
   auto bind_result = uv_pipe_bind(&pipe, name.c_str());
   if (bind_result != 0) {
     // 绑定失败
-    assert(0);
-
+    login_notice_system_instance::enter(
+        login_notice_system_instance::logining_used, nullptr);
+    audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
     return;
   }
 
@@ -354,9 +355,4 @@ bool login_ui_system::event(SDL_Event *event) {
   }
   }
   return true;
-}
-
-void login_ui_system::login_out() {
-  // 清理命名管道
-  uv_close((uv_handle_t *)&login_ui_system::pipe, nullptr);
 }

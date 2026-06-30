@@ -4,17 +4,13 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/common/freetype/freetype.h"
-#include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
 #include "src/server/server_system/server_system.h"
-#include "system_instance/chatacter_create_system_instance.h"
 #include "system_instance/game_save_system_instance.h"
 #include "system_instance/login_system_instance.h"
-#include "system_instance/scene_system_instance.h"
 #include "window/window.h"
 #include <cstdint>
-#include <cstdio>
 
 #define SDL_MAIN_USE_CALLBACKS
 #include <SDL3/SDL.h>
@@ -87,6 +83,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
+  login_system_instance::clean();
   // save
   game_save_system_instance::save_game();
   SDL_Quit();
