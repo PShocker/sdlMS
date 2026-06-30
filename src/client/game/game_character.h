@@ -22,8 +22,8 @@ public:
   uint8_t page;
 
   std::u16string action;
-  uint8_t action_index = 0;
-  uint32_t action_time = 0;
+  uint32_t action_index = 0;
+  int32_t action_time = 0;
   bool action_animate = true;
 
   uint8_t alpha = 255;

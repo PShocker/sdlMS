@@ -23,6 +23,7 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "uv.h"
 #include <array>
 #include <cmath>
 #include <cstdint>
@@ -342,6 +343,9 @@ void character_choose_ui_system::event_button_back() {
 
   game_save_system_instance::save_game();
   login_system_instance::enter_prepare();
+
+  // 清理命名管道
+  uv_close((uv_handle_t *)&login_ui_system::pipe, nullptr);
 
   system::logic_systems.push_back(back_animate);
   system::render_systems = {

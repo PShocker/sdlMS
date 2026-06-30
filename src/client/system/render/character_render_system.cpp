@@ -65,14 +65,31 @@ bool character_render_system::render_character(game_character &g_character) {
         character_game_instance::avatar_data.at(g_character.shoes->id);
     render_parts.emplace(shoes.islot, &shoes);
   }
-  const std::u16string &action = g_character.action;
+  std::u16string action = g_character.action;
+  auto action_index = g_character.action_index;
+  if (character_game_instance::extern_action.contains(action)) {
+    action =
+        character_game_instance::extern_action[action][action_index].action;
+    action_index =
+        character_game_instance::extern_action[action][action_index].frame;
+  } else {
+    int action_size = character_game_instance::bone_data.at(action).size();
+    if (action_index >= action_size) {
+      uint32_t period = 2 * (action_size - 1);
+      uint32_t phase = g_character.action_index % period;
+      if (phase <= action_size - 1) {
+        action_index = phase;
+      } else {
+        action_index = (period - phase);
+      }
+    }
+  }
 
   auto face = character_game_instance::face_data.at(g_character.face.id)
                   .data.at(g_character.face.action);
-  if (character_game_instance::bone_data.at(action)[g_character.action_index]
-          .face) {
-    face.data.at(action)[g_character.action_index] = {
-        face.data.at(action)[g_character.action_index][g_character.face.index],
+  if (character_game_instance::bone_data.at(action)[action_index].face) {
+    face.data.at(action)[action_index] = {
+        face.data.at(action)[action_index][g_character.face.index],
     };
     render_parts.emplace(face.islot, &face);
   }
@@ -84,7 +101,7 @@ bool character_render_system::render_character(game_character &g_character) {
       if (!r->data.contains(action)) {
         continue;
       }
-      const auto &pts = r->data.at(action)[g_character.action_index];
+      const auto &pts = r->data.at(action)[action_index];
       std::flat_set<std::u16string> smaps_inter;
       for (const auto &pt : pts) {
         // 获取默认的smap

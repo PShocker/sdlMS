@@ -182,8 +182,10 @@ bool mob_logic_system::run_animate(game_mob &g_mob) {
   }
   std::string frame_index;
   if (zigzag && g_mob.ani_index >= canvas_count) {
-    frame_index =
-        std::to_string(canvas_count - 2 - (g_mob.ani_index % canvas_count));
+    uint32_t period = 2 * (canvas_count - 1);
+    uint32_t phase = g_mob.ani_index % period;
+    uint32_t frame_i = (phase <= canvas_count - 1) ? phase : (period - phase);
+    frame_index = std::to_string(frame_i);
   } else {
     frame_index = std::to_string(g_mob.ani_index);
   }

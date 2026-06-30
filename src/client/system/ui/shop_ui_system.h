@@ -1,11 +1,16 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/client/game/game_shop.h"
+#include <cstdint>
 #include <optional>
+#include <string>
 class shop_ui_system {
 private:
   static void render_backgrnd();
   static void render_button();
+  static void render_items();
+  static void render_tab();
 
   static bool event_button(SDL_Event *event);
 
@@ -21,7 +26,13 @@ private:
 
   static bool event_open(SDL_Event *event);
 
+  static inline int32_t page;
 public:
+  static inline uint8_t active_tab;
+
+  static inline std::optional<std::u16string> npc_id;
+  static inline std::optional<game_shop> shop;
+  
   static inline SDL_FPoint pos;
 
   static void open();

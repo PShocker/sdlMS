@@ -34,9 +34,8 @@ shop_game_instance::load_npc_shop(const std::u16string &npc_id) {
     auto node = wz_resource::ms->get_root()->find(u"Shop.img/ShopNpc");
     for (auto [k, v] : *node->get_children()) {
       auto npc_i = static_cast<wz::Property<std::u16string> *>(v[0])->get();
-      auto shop_i = k;
-      shop = load_shop(shop_i);
-      cache[npc_i] = shop.value();
+      game_shop gs = load_shop(k);
+      cache[npc_i] = gs;
     }
   }
   if (cache.contains(npc_id)) {

@@ -5,7 +5,7 @@ table LifeState{
     y:float;
 
     action:string;
-    action_index:uint8;
+    action_index:uint32;
     action_animate:bool;
 
     page:uint8;
@@ -50,7 +50,7 @@ table Flip{
 
 table Action{
     action:string;
-    action_index:uint8;
+    action_index:uint32;
     action_animate:bool;
 }
 

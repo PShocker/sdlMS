@@ -6,26 +6,95 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 
-SDL_FPoint shop_ui_system::load_wh() { return SDL_FPoint{277, 183}; }
+SDL_FPoint shop_ui_system::load_wh() { return SDL_FPoint{465, 381}; }
 
 void shop_ui_system::render_backgrnd() {
-  static auto texture =
-      wz_resource::load_texture(wz_resource::ui->find(u"Revive.img/back0"));
-  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
-                     static_cast<float>(texture->h)};
+  static auto texture = wz_resource::load_texture(
+      wz_resource::ui->find(u"UIShop.img/Shop/backgrnd"));
+  SDL_FRect pos_rect{
+      pos.x,
+      pos.y,
+      static_cast<float>(texture->w),
+      static_cast<float>(texture->h),
+  };
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void shop_ui_system::render_button() {}
+void shop_ui_system::render_items() {}
+
+void shop_ui_system::render_button() {
+  const static std::array buttons_node = {
+      wz_resource::ui->find(u"UIShop.img/Shop/BtBuy"),
+      wz_resource::ui->find(u"UIShop.img/Shop/BtSell"),
+      wz_resource::ui->find(u"UIShop.img/Shop/BtExit"),
+  };
+  const std::array buttons_rect = {
+      SDL_FRect{144, 34, 80, 18}, //
+      SDL_FRect{374, 34, 80, 18}, //
+      SDL_FRect{144, 14, 80, 18}, //
+  };
+  for (size_t i = 0; i < buttons_node.size(); ++i) {
+    auto k = buttons_node[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
+}
+
+void shop_ui_system::render_tab() {
+  const static std::array tab_pos = {
+      SDL_FPoint{237, 96}, //
+      SDL_FPoint{281, 96}, //
+      SDL_FPoint{325, 96}, //
+      SDL_FPoint{369, 96}, //
+  };
+  const static auto tab_node =
+      wz_resource::ui->find(u"UIShop.img/Shop/TabSell");
+  const static std::array active_texture = {
+      wz_resource::load_texture(tab_node->find(u"enabled/0")),
+      wz_resource::load_texture(tab_node->find(u"enabled/1")),
+      wz_resource::load_texture(tab_node->find(u"enabled/2")),
+      wz_resource::load_texture(tab_node->find(u"enabled/3")),
+  };
+  const static std::array disabled_texture = {
+      wz_resource::load_texture(tab_node->find(u"disabled/0")),
+      wz_resource::load_texture(tab_node->find(u"disabled/1")),
+      wz_resource::load_texture(tab_node->find(u"disabled/2")),
+      wz_resource::load_texture(tab_node->find(u"disabled/3")),
+  };
+  for (uint8_t i = 0; i < tab_pos.size(); i++) {
+    SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
+    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos[i].x)),
+                       static_cast<float>(int(pos.y + tab_pos[i].y)),
+                       static_cast<float>(t->w), static_cast<float>(t->h)};
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  }
+}
 
 bool shop_ui_system::render() { return true; }
-
 
 void shop_ui_system::open() {
   auto wh = load_wh();
   auto &camera = camera_game_instance::camera;
   pos.x = (camera.w - wh.x) / 2;
   pos.y = (camera.h - wh.y) / 2;
+
+  page = 0;
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
   system::event_systems.insert(system::event_systems.begin(), event);
@@ -35,10 +104,10 @@ bool shop_ui_system::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns;
   auto wh = load_wh();
   std::vector<SDL_FRect> buttons_rect = {
-    
+
   };
   fns = {
-     
+
   };
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {

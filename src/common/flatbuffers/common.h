@@ -565,7 +565,7 @@ struct LifeStateT : public ::flatbuffers::NativeTable {
   float x = 0.0f;
   float y = 0.0f;
   std::string action{};
-  uint8_t action_index = 0;
+  uint32_t action_index = 0;
   bool action_animate = false;
   uint8_t page = 0;
   bool flip = false;
@@ -601,11 +601,11 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::String *mutable_action() {
     return GetPointer<::flatbuffers::String *>(VT_ACTION);
   }
-  uint8_t action_index() const {
-    return GetField<uint8_t>(VT_ACTION_INDEX, 0);
+  uint32_t action_index() const {
+    return GetField<uint32_t>(VT_ACTION_INDEX, 0);
   }
-  bool mutate_action_index(uint8_t _action_index = 0) {
-    return SetField<uint8_t>(VT_ACTION_INDEX, _action_index, 0);
+  bool mutate_action_index(uint32_t _action_index = 0) {
+    return SetField<uint32_t>(VT_ACTION_INDEX, _action_index, 0);
   }
   bool action_animate() const {
     return GetField<uint8_t>(VT_ACTION_ANIMATE, 0) != 0;
@@ -632,7 +632,7 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_Y, 4) &&
            VerifyOffset(verifier, VT_ACTION) &&
            verifier.VerifyString(action()) &&
-           VerifyField<uint8_t>(verifier, VT_ACTION_INDEX, 1) &&
+           VerifyField<uint32_t>(verifier, VT_ACTION_INDEX, 4) &&
            VerifyField<uint8_t>(verifier, VT_ACTION_ANIMATE, 1) &&
            VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
            VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
@@ -656,8 +656,8 @@ struct LifeStateBuilder {
   void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
     fbb_.AddOffset(LifeState::VT_ACTION, action);
   }
-  void add_action_index(uint8_t action_index) {
-    fbb_.AddElement<uint8_t>(LifeState::VT_ACTION_INDEX, action_index, 0);
+  void add_action_index(uint32_t action_index) {
+    fbb_.AddElement<uint32_t>(LifeState::VT_ACTION_INDEX, action_index, 0);
   }
   void add_action_animate(bool action_animate) {
     fbb_.AddElement<uint8_t>(LifeState::VT_ACTION_ANIMATE, static_cast<uint8_t>(action_animate), 0);
@@ -684,18 +684,18 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeState(
     float x = 0.0f,
     float y = 0.0f,
     ::flatbuffers::Offset<::flatbuffers::String> action = 0,
-    uint8_t action_index = 0,
+    uint32_t action_index = 0,
     bool action_animate = false,
     uint8_t page = 0,
     bool flip = false) {
   LifeStateBuilder builder_(_fbb);
+  builder_.add_action_index(action_index);
   builder_.add_action(action);
   builder_.add_y(y);
   builder_.add_x(x);
   builder_.add_flip(flip);
   builder_.add_page(page);
   builder_.add_action_animate(action_animate);
-  builder_.add_action_index(action_index);
   return builder_.Finish();
 }
 
@@ -704,7 +704,7 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
     float x = 0.0f,
     float y = 0.0f,
     const char *action = nullptr,
-    uint8_t action_index = 0,
+    uint32_t action_index = 0,
     bool action_animate = false,
     uint8_t page = 0,
     bool flip = false) {
@@ -1227,7 +1227,7 @@ inline ::flatbuffers::Offset<Flip> CreateFlip(
 struct ActionT : public ::flatbuffers::NativeTable {
   typedef Action TableType;
   std::string action{};
-  uint8_t action_index = 0;
+  uint32_t action_index = 0;
   bool action_animate = false;
 };
 
@@ -1245,11 +1245,11 @@ struct Action FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::String *mutable_action() {
     return GetPointer<::flatbuffers::String *>(VT_ACTION);
   }
-  uint8_t action_index() const {
-    return GetField<uint8_t>(VT_ACTION_INDEX, 0);
+  uint32_t action_index() const {
+    return GetField<uint32_t>(VT_ACTION_INDEX, 0);
   }
-  bool mutate_action_index(uint8_t _action_index = 0) {
-    return SetField<uint8_t>(VT_ACTION_INDEX, _action_index, 0);
+  bool mutate_action_index(uint32_t _action_index = 0) {
+    return SetField<uint32_t>(VT_ACTION_INDEX, _action_index, 0);
   }
   bool action_animate() const {
     return GetField<uint8_t>(VT_ACTION_ANIMATE, 0) != 0;
@@ -1262,7 +1262,7 @@ struct Action FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyOffset(verifier, VT_ACTION) &&
            verifier.VerifyString(action()) &&
-           VerifyField<uint8_t>(verifier, VT_ACTION_INDEX, 1) &&
+           VerifyField<uint32_t>(verifier, VT_ACTION_INDEX, 4) &&
            VerifyField<uint8_t>(verifier, VT_ACTION_ANIMATE, 1) &&
            verifier.EndTable();
   }
@@ -1278,8 +1278,8 @@ struct ActionBuilder {
   void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
     fbb_.AddOffset(Action::VT_ACTION, action);
   }
-  void add_action_index(uint8_t action_index) {
-    fbb_.AddElement<uint8_t>(Action::VT_ACTION_INDEX, action_index, 0);
+  void add_action_index(uint32_t action_index) {
+    fbb_.AddElement<uint32_t>(Action::VT_ACTION_INDEX, action_index, 0);
   }
   void add_action_animate(bool action_animate) {
     fbb_.AddElement<uint8_t>(Action::VT_ACTION_ANIMATE, static_cast<uint8_t>(action_animate), 0);
@@ -1298,19 +1298,19 @@ struct ActionBuilder {
 inline ::flatbuffers::Offset<Action> CreateAction(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> action = 0,
-    uint8_t action_index = 0,
+    uint32_t action_index = 0,
     bool action_animate = false) {
   ActionBuilder builder_(_fbb);
+  builder_.add_action_index(action_index);
   builder_.add_action(action);
   builder_.add_action_animate(action_animate);
-  builder_.add_action_index(action_index);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<Action> CreateActionDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *action = nullptr,
-    uint8_t action_index = 0,
+    uint32_t action_index = 0,
     bool action_animate = false) {
   auto action__ = action ? _fbb.CreateString(action) : 0;
   return fbs::CreateAction(

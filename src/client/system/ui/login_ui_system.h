@@ -3,6 +3,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "text_input_ui_system.h"
+#include "uv.h"
 #include <cstdint>
 #include <string>
 class login_ui_system {
@@ -28,6 +29,7 @@ private:
   static bool event_button(SDL_Event *event);
 
 public:
+  static inline uv_pipe_t pipe;
   static inline text_input username;
   static bool camera_animate(float x, float y);
 

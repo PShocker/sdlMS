@@ -12,14 +12,22 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_main.h"
 #include "text_input_ui_system.h"
 #include "wz/Property.h"
+#include <assert.h>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <numeric>
 #include <string>
 #include <vector>
+
+#ifdef _WIN32
+#define PIPENAME "\\\\.\\pipe\\"
+#else
+#define PIPENAME ""
+#endif
 
 SDL_FPoint login_ui_system::load_pos() {
   SDL_FPoint pos;
@@ -236,19 +244,36 @@ bool login_ui_system::login_animate() {
 }
 
 void login_ui_system::event_button_login() {
-  if (!username.text.empty()) {
-    auto name = std::string{username.text.begin(), username.text.end()};
-    character_choose_system_instance::enter_prepare(name);
-    system::logic_systems.push_back(login_animate);
-    system::render_systems = {
-        login_system_instance::render_game,
-        character_choose_ui_system::render,
-        cursor_render_system::render,
-    };
-    system::event_systems = {};
-    audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
-  } else {
+  if (username.text.empty()) {
+    return;
   }
+  std::string name{username.text.begin(), username.text.end()};
+  // 命名管道检测是否多次打开
+  name = "sdlMS_" + name;
+  name = PIPENAME + name;
+
+  int init_result = uv_pipe_init(server_main::loop, &pipe, 0);
+  if (init_result != 0) {
+    assert(0);
+    std::abort();
+  }
+  auto bind_result = uv_pipe_bind(&pipe, name.c_str());
+  if (bind_result != 0) {
+    // 绑定失败
+    assert(0);
+
+    return;
+  }
+
+  character_choose_system_instance::enter_prepare(name);
+  system::logic_systems.push_back(login_animate);
+  system::render_systems = {
+      login_system_instance::render_game,
+      character_choose_ui_system::render,
+      cursor_render_system::render,
+  };
+  system::event_systems = {};
+  audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
 }
 
 void login_ui_system::event_button_login_save() {

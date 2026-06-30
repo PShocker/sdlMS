@@ -16,6 +16,7 @@ using namespace fbs;
 class character_extern_action {
 public:
   std::u16string action;
+  int8_t frame;
   int32_t delay;
   SDL_FPoint move;
 };

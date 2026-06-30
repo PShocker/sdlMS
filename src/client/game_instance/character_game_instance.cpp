@@ -102,6 +102,9 @@ void character_game_instance::init_character_bone() {
         e_action.action = static_cast<wz::Property<std::u16string> *>(
                               body_frame_node->get_child(u"action"))
                               ->get();
+        e_action.frame = static_cast<wz::Property<int> *>(
+                             body_frame_node->get_child(u"frame"))
+                             ->get();
         e_action.delay = static_cast<wz::Property<int> *>(
                              body_frame_node->get_child(u"delay"))
                              ->get();
@@ -271,8 +274,7 @@ void character_game_instance::load_others_character(
       state->x,
       state->y,
   };
-  g_character.action =
-      std::u16string{state->action.begin(), state->action.end()};
+  g_character.action = {state->action.begin(), state->action.end()};
   if (g_character.action == u"dead") {
     game_tomb t{
         .ani_type = u"land",
@@ -293,18 +295,15 @@ void character_game_instance::load_others_character(
   nametag.pos = {0, 0};
   nametag.size = 13;
   nametag.color = {255, 255, 255, 255};
-  nametag.text =
-      std::u16string{c->character->name.begin(), c->character->name.end()};
+  nametag.text = {c->character->name.begin(), c->character->name.end()};
 
   g_character.nametags.push_back(nametag);
 
   g_character.fame = c->character->fame;
   g_character.level = c->character->level;
-  g_character.job =
-      std::u16string{c->character->job.begin(), c->character->job.end()};
-  g_character.face.action =
-      std::u16string{c->character->face->face_action.begin(),
-                     c->character->face->face_action.end()};
+  g_character.job = {c->character->job.begin(), c->character->job.end()};
+  g_character.face.action = {c->character->face->face_action.begin(),
+                             c->character->face->face_action.end()};
   others.emplace(c->client_id, g_character);
 }
 

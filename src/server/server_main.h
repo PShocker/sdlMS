@@ -6,6 +6,7 @@
 #include <string>
 class server_main {
 public:
+  static inline uv_loop_t *loop;
   static inline bool host = true;
   static inline sockaddr_in host_addr = {};
 
@@ -17,7 +18,6 @@ public:
   static bool run();
 
 private:
-  static inline uv_loop_t *loop;
   static inline uv_udp_t local_socket;
   static inline uint32_t local_port;
 

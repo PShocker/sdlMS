@@ -1,10 +1,12 @@
 #include "npc_game_instance.h"
 #include "foothold_game_instance.h"
+#include "shop_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <array>
+#include <flat_map>
 #include <string>
 
 wz::Node *npc_game_instance::load_link_npc_node(const std::u16string &id) {
@@ -54,4 +56,12 @@ void npc_game_instance::load(uint32_t map_id) {
     auto page = foothold_game_instance::data.at(g_npc.fh).page;
     data[page].push_back(g_npc);
   }
+}
+
+npc_game_instance::npc_type
+npc_game_instance::load_npc_type(const std::u16string &id) {
+  if (shop_game_instance::load_npc_shop(id).has_value()) {
+    return npc_type::shop;
+  }
+  return npc_type::none;
 }

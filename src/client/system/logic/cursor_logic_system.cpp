@@ -9,6 +9,7 @@
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
+#include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
@@ -17,6 +18,7 @@
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
+#include "src/client/system/ui/shop_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system/ui/storage_ui_system.h"
@@ -347,6 +349,21 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
       }
       auto npc = npc_logic_system::cursor_in();
       if (npc.has_value()) {
+        auto npc_id = npc.value();
+        auto npc_type = npc_game_instance::load_npc_type(npc_id);
+        switch (npc_type) {
+        case npc_game_instance::npc_type::shop: {
+          auto shop = shop_game_instance::load_npc_shop(npc_id);
+          shop_ui_system::shop = shop;
+          shop_ui_system::npc_id = npc_id;
+          shop_ui_system::close();
+          shop_ui_system::open();
+          break;
+        }
+        default: {
+          break;
+        }
+        }
       }
     }
   }
