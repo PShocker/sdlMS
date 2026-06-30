@@ -355,3 +355,8 @@ bool login_ui_system::event(SDL_Event *event) {
   }
   return true;
 }
+
+void login_ui_system::login_out() {
+  // 清理命名管道
+  uv_close((uv_handle_t *)&login_ui_system::pipe, nullptr);
+}

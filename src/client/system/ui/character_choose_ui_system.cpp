@@ -344,8 +344,7 @@ void character_choose_ui_system::event_button_back() {
   game_save_system_instance::save_game();
   login_system_instance::enter_prepare();
 
-  // 清理命名管道
-  uv_close((uv_handle_t *)&login_ui_system::pipe, nullptr);
+  login_ui_system::login_out();
 
   system::logic_systems.push_back(back_animate);
   system::render_systems = {
