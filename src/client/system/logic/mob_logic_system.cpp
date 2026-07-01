@@ -143,7 +143,6 @@ void mob_logic_system::run_collision() {
       character_logic_system::run_die_action(self);
     } else {
       character_logic_system::run_face_action(self, u"hit");
-      character_logic_system::run_network_sync(self, o_character);
     }
     auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())

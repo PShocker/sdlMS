@@ -851,142 +851,64 @@ character_logic_system::load_pos_type(game_character &g_character) {
   return pos_type::land;
 }
 
-void character_logic_system::run_network_action_sync(
-    game_character &g_character, game_character &o_character) {
-
-  static bool last_action;
-  static uint64_t last_send_time = 0;
+void character_logic_system::run_network_sync() {
+  static uint64_t time = 0;
   const int32_t MIN_SEND_INTERVAL_MS = 33;
-
-  bool action_changed =
-      (o_character.action != g_character.action ||
-       o_character.action_animate != g_character.action_animate);
-
-  if (last_action) {
-    action_changed = true;
-    last_action = false;
-    last_send_time = window::dt_now - MIN_SEND_INTERVAL_MS;
-  }
-
-  if (!action_changed)
-    return;
-
   // 节流：频率限制
-  if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
-    ClientCharacterLogicT req;
-    req.map_id = scene_system_instance::map_id;
+  if (window::dt_now - time <= MIN_SEND_INTERVAL_MS) {
+    return;
+  }
+  time = window::dt_now;
+  const auto &g_character = character_game_instance::self;
+  ClientCharacterLogicT req;
+  req.map_id = scene_system_instance::map_id;
+
+  static SDL_FPoint pos;
+  if ((g_character.pos.x != pos.x || g_character.pos.y != pos.y) &&
+      g_character.action != u"dead") {
+    MovementT mv;
+    mv.x1 = pos.x;
+    mv.y1 = pos.y;
+    mv.x2 = g_character.pos.x;
+    mv.y2 = g_character.pos.y;
+    mv.page = g_character.page;
+    mv.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
+    pos = g_character.pos;
+    req.payload.Set(mv);
+    client_request::send_to_host(req);
+  }
+  static bool flip;
+  if (flip != g_character.flip) {
+    FlipT f;
+    f.flip = g_character.flip;
+    req.payload.Set(f);
+    client_request::send_to_host(req);
+    flip = g_character.flip;
+  }
+  static std::u16string action;
+  static bool action_animate;
+  if (action != g_character.action ||
+      action_animate != g_character.action_animate) {
     ActionT a;
     a.action = {g_character.action.begin(), g_character.action.end()};
     a.action_animate = g_character.action_animate;
     a.action_index = g_character.action_index;
     req.payload.Set(a);
     client_request::send_to_host(req);
-    last_send_time = window::dt_now;
-    last_action = false;
-  } else {
-    last_action = true;
+    action = g_character.action;
+    action_animate = g_character.action_animate;
   }
-}
-
-void character_logic_system::run_network_flip_sync(
-    game_character &g_character, game_character &o_character) {
-  static bool last_flip;
-  static uint64_t last_send_time = 0;
-  const int32_t MIN_SEND_INTERVAL_MS = 33;
-
-  bool flip_changed = o_character.flip != g_character.flip;
-  if (last_flip) {
-    flip_changed = true;
-    last_flip = false;
-    last_send_time = window::dt_now - MIN_SEND_INTERVAL_MS;
+  static std::u16string face;
+  if (face != g_character.face.action) {
+    if (g_character.face.action != u"blink") {
+      FaceT ft;
+      ft.face_action = {g_character.face.action.begin(),
+                        g_character.face.action.end()};
+      req.payload.Set(ft);
+      client_request::send_to_host(req);
+      face = g_character.face.action;
+    }
   }
-
-  if (!flip_changed)
-    return;
-
-  // 节流：频率限制
-  if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
-    ClientCharacterLogicT req;
-    req.map_id = scene_system_instance::map_id;
-    FlipT f;
-    f.flip = g_character.flip;
-    req.payload.Set(f);
-    client_request::send_to_host(req);
-    last_send_time = window::dt_now;
-    last_flip = false;
-  } else {
-    last_flip = true;
-  }
-}
-
-void character_logic_system::run_network_movement_sync(
-    game_character &g_character, game_character &o_character) {
-  static bool last_movement;
-
-  static uint64_t last_send_time = 0;
-  const int32_t MIN_SEND_INTERVAL_MS = 33;
-
-  bool position_changed = (o_character.pos.x != g_character.pos.x ||
-                           o_character.pos.y != g_character.pos.y);
-
-  if (last_movement) {
-    position_changed = true;
-    last_movement = false;
-    last_send_time = window::dt_now - MIN_SEND_INTERVAL_MS;
-  }
-
-  if (!position_changed)
-    return;
-
-  // 构造当前 movement
-  MovementT mv;
-  mv.x1 = o_character.pos.x;
-  mv.y1 = o_character.pos.y;
-  mv.x2 = g_character.pos.x;
-  mv.y2 = g_character.pos.y;
-  mv.page = g_character.page;
-  mv.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
-
-  // 节流：频率限制
-  if (window::dt_now - last_send_time >= MIN_SEND_INTERVAL_MS) {
-    ClientCharacterLogicT req;
-    req.map_id = scene_system_instance::map_id;
-    req.payload.Set(mv);
-    client_request::send_to_host(req);
-    last_send_time = window::dt_now;
-    last_movement = false;
-  } else {
-    last_movement = true;
-  }
-}
-
-void character_logic_system::run_network_face_sync(
-    game_character &g_character, game_character &o_character) {
-  if (g_character.face.action == u"blink") {
-    // blink状态不同步
-    return;
-  }
-  bool face_changed = o_character.face.action != g_character.face.action;
-  if (!face_changed)
-    return;
-
-  auto &action = g_character.face.action;
-  FaceT ft;
-  ft.face_action = std::string{action.begin(), action.end()};
-
-  ClientCharacterLogicT req;
-  req.map_id = scene_system_instance::map_id;
-  req.payload.Set(ft);
-  client_request::send_to_host(req);
-  return;
-}
-
-void character_logic_system::run_network_sync(game_character &g_character,
-                                              game_character &o_character) {
-  run_network_movement_sync(g_character, o_character);
-  run_network_flip_sync(g_character, o_character);
-  run_network_action_sync(g_character, o_character);
-  run_network_face_sync(g_character, o_character);
 }
 
 void character_logic_system::run_network_die_sync(game_character &g_character) {
@@ -1188,14 +1110,13 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   }
   case action_enum::dead: {
     run_tomb(g_character);
-    return;
     break;
   }
   default: {
     std::abort();
   }
   }
-  run_network_sync(g_character, o_character);
+  run_network_sync();
 }
 
 void character_logic_system::run_others_logic() {

@@ -33,6 +33,4 @@ public:
   static void open();
   static void close();
   static bool event(SDL_Event *event);
-
-  static void toggle();
 };

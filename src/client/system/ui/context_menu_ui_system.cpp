@@ -1,6 +1,7 @@
 #include "context_menu_ui_system.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/freetype/freetype.h"
@@ -12,7 +13,7 @@
 SDL_FPoint context_menu_ui_system::load_wh() { return {100, 200}; }
 
 void context_menu_ui_system::render_backgrnd() {
-  auto wh = load_wh();
+  auto [w, h] = load_wh();
   static auto t2 = wz_resource::load_texture(
       wz_resource::ui->find(u"ContextMenu.img/ContextMenu/t2"));
   SDL_FRect pos_rect{
@@ -24,18 +25,19 @@ void context_menu_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, t2, nullptr, &pos_rect);
   static auto c = wz_resource::load_texture(
       wz_resource::ui->find(u"ContextMenu.img/ContextMenu/c"));
-  pos_rect = {
-      pos.x,
-      pos.y,
-      static_cast<float>(t2->w),
-      static_cast<float>(t2->h),
-  };
-  SDL_RenderTextureTiled(window::renderer, c, nullptr, 1, &pos_rect);
   static auto s = wz_resource::load_texture(
       wz_resource::ui->find(u"ContextMenu.img/ContextMenu/s"));
   pos_rect = {
-      pos.x,
-      pos.y,
+      pos.x + 3,
+      pos.y + t2->h,
+      static_cast<float>(c->w),
+      static_cast<float>(h - t2->h - s->h),
+  };
+  SDL_RenderTextureTiled(window::renderer, c, nullptr, 1, &pos_rect);
+
+  pos_rect = {
+      pos.x + 3,
+      pos.y + h - s->h,
       static_cast<float>(s->w),
       static_cast<float>(s->h),
   };
@@ -87,7 +89,10 @@ void context_menu_ui_system::render_button() {
   }
 }
 
-bool context_menu_ui_system::render() { return true; }
+bool context_menu_ui_system::render() {
+  render_backgrnd();
+  return true;
+}
 
 void context_menu_ui_system::event_button_info() {
   fbs::ClientCharacterInfoT ct;
@@ -101,9 +106,7 @@ void context_menu_ui_system::event_button_save() {
   SDL_SetClipboardText(utf8_str.c_str());
 }
 
-void context_menu_ui_system::event_button_whisper() {
-  statusbar_ui_system::cursor_in()
-}
+void context_menu_ui_system::event_button_whisper() {}
 
 void context_menu_ui_system::event_button_party() {}
 
@@ -150,4 +153,15 @@ bool context_menu_ui_system::event_button(SDL_Event *event) {
   }
 
   return true;
+}
+
+bool context_menu_ui_system::event(SDL_Event *event) { return true; }
+void context_menu_ui_system::open() {
+  system::render_systems.insert(system::render_systems.end() - 1, render);
+  system::event_systems.insert(system::event_systems.begin(), event);
+}
+
+void context_menu_ui_system::close() {
+  std::erase(system::render_systems, render);
+  std::erase(system::event_systems, event);
 }

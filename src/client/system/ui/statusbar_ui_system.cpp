@@ -799,12 +799,14 @@ bool statusbar_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    std::erase(system::event_systems, keyboard_input_system::event);
-    if (cr) {
-      // close input
-      system::event_systems.push_back(keyboard_input_system::event);
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      std::erase(system::event_systems, keyboard_input_system::event);
+      if (cr) {
+        // close input
+        system::event_systems.push_back(keyboard_input_system::event);
+      }
+      r = false;
     }
-    r = false;
   }
   case SDL_EVENT_KEY_DOWN: {
     auto scan_code = event->key.scancode;

@@ -1,4 +1,5 @@
 #include "cursor_logic_system.h"
+#include "SDL3/SDL_mouse.h"
 #include "character_logic_system.h"
 #include "npc_logic_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -13,6 +14,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
+#include "src/client/system/ui/context_menu_ui_system.h"
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
@@ -301,7 +303,7 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
   return false;
 }
 
-bool cursor_logic_system::event_character_info(SDL_Event *event) {
+bool cursor_logic_system::event_character(SDL_Event *event) {
   bool r = false;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
@@ -322,6 +324,27 @@ bool cursor_logic_system::event_character_info(SDL_Event *event) {
           character_info_ui_system::character = character.g_character;
           character_info_ui_system::close();
           character_info_ui_system::open();
+          return true;
+        }
+      }
+    } else if (event->button.button == SDL_BUTTON_RIGHT) {
+      if (cursor_game_instance::cursor_ui != nullptr) {
+        break;
+      }
+      auto others = character_game_instance::others;
+      character_other_data s{.g_character = character_game_instance::self};
+      others[0] = s;
+      auto &camera = camera_game_instance::camera;
+      for (auto [k, v] : others) {
+        auto rect = character_logic_system::load_rect(v.g_character);
+        rect.x -= camera.x;
+        rect.y -= camera.y;
+        bool ins = SDL_PointInRectFloat(&window::mouse_pos, &rect);
+        if (ins) {
+          context_menu_ui_system::pos = window::mouse_pos;
+          context_menu_ui_system::client_id = k;
+          context_menu_ui_system::close();
+          context_menu_ui_system::open();
           return true;
         }
       }
@@ -374,7 +397,7 @@ bool cursor_logic_system::event(SDL_Event *event) {
   if (event_cursor_hand(event)) {
     return false;
   }
-  if (event_character_info(event)) {
+  if (event_character(event)) {
     return false;
   }
   if (event_npc(event)) {

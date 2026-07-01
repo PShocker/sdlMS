@@ -25,14 +25,6 @@ private:
   static std::vector<uint64_t> run_buff_check(game_character &g_character,
                                               SDL_FRect g_r);
 
-  static void run_network_action_sync(game_character &g_character,
-                                      game_character &o_character);
-  static void run_network_flip_sync(game_character &g_character,
-                                    game_character &o_character);
-  static void run_network_movement_sync(game_character &g_character,
-                                        game_character &o_character);
-  static void run_network_face_sync(game_character &g_character,
-                                    game_character &o_character);
   static void run_climb_action(game_character &g_character);
   static void run_face_animate(game_character &g_character);
   static bool run_flip(game_character &g_character);
@@ -64,12 +56,11 @@ private:
   static void run_others_state_machine();
   static void run_others_logic();
   static void run_others();
+  static void run_network_sync();
 
 public:
   static bool run_animate(game_character &g_character);
   static void run_network_die_sync(game_character &g_character);
-  static void run_network_sync(game_character &g_character,
-                               game_character &o_character);
   static bool run_action(game_character &g_character,
                          const std::u16string &action);
   static bool run_face_action(game_character &g_character,
