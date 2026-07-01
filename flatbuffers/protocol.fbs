@@ -16,6 +16,8 @@ union NetPayload {
     ClientCharacterDrop,
     ClientCharacter,
     ClientCharacterPick,
+    ClientCharacterInfo,
+    ClientCharacterTrade,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
@@ -30,6 +32,8 @@ union NetPayload {
     ServerMobLogic,
     ServerMobAttack,
     ServerCharacterPick,
+    ServerCharacterInfo,
+    ServerCharacterTrade,
     ServerMobDrop,
 }
 // 统一的网络包（最外层包装）

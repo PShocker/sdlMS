@@ -291,11 +291,20 @@ void freetype::draw_cstr(const std::u16string &str, float x, float y, float w) {
 }
 
 std::u16string freetype::load_u16str(const char *text) {
-  size_t utf8Len = std::strlen(text);
-  char *utf16Data = SDL_iconv_string("UTF-16LE", "UTF-8", text, utf8Len);
+  size_t utf8_len = std::strlen(text);
+  char *utf16_data = SDL_iconv_string("UTF-16LE", "UTF-8", text, utf8_len);
   // 直接构造，SDL已经添加了null终止符
-  auto u16Ptr = reinterpret_cast<const char16_t *>(utf16Data);
-  std::u16string result(u16Ptr); // 自动查找null终止符
-  SDL_free(utf16Data);
+  auto u16_ptr = reinterpret_cast<const char16_t *>(utf16_data);
+  std::u16string result(u16_ptr); // 自动查找null终止符
+  SDL_free(utf16_data);
+  return result;
+}
+
+std::string freetype::load_u8str(const std::u16string &str) {
+  size_t in_bytes = str.length() * sizeof(char16_t);
+  char *utf8_text = SDL_iconv_string("UTF-8", "UTF-16LE",
+                                     (const char *)str.c_str(), in_bytes);
+  std::string result(utf8_text);
+  SDL_free(utf8_text);
   return result;
 }

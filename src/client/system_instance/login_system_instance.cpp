@@ -60,7 +60,10 @@ void login_system_instance::enter_prepare() {
   };
   login_ui_system::username.type.set(text_input::letter);
   login_ui_system::username.type.set(text_input::digit);
-  clean();
+  if (login_ui_system::g_pipe.type == UV_NAMED_PIPE) {
+    uv_close((uv_handle_t *)&login_ui_system::g_pipe, nullptr);
+    login_ui_system::g_pipe = {};
+  }
 }
 
 void login_system_instance::enter() {
@@ -92,11 +95,4 @@ void login_system_instance::enter() {
   auto &camera = camera_game_instance::camera;
   camera.x = -80 - camera.w / 2;
   camera.y = 1023 - camera.h / 2;
-}
-
-void login_system_instance::clean() {
-  if (login_ui_system::pipe.type == UV_NAMED_PIPE) {
-    uv_close((uv_handle_t *)&login_ui_system::pipe, nullptr);
-    login_ui_system::pipe = {};
-  }
 }

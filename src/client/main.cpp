@@ -65,9 +65,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   character_game_instance::load_self_character();
 
   SDL_HideCursor();
-  scene_system_instance::enter_prepare(61, u"sp", 0);
+  // scene_system_instance::enter_prepare(61, u"sp", 0);
   // chatacter_create_system_instance::enter();
-  // login_system_instance::enter();
+  login_system_instance::enter();
 
   return SDL_APP_CONTINUE;
 }
@@ -83,7 +83,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
-  login_system_instance::clean();
   // save
   game_save_system_instance::save_game();
   SDL_Quit();

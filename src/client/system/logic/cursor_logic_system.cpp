@@ -319,11 +319,7 @@ bool cursor_logic_system::event_character_info(SDL_Event *event) {
         rect.y -= camera.y;
         bool ins = SDL_PointInRectFloat(&window::mouse_pos, &rect);
         if (ins) {
-          auto &ui_character = character_info_ui_system::character;
-          ui_character = character.g_character;
-          ui_character.flip = 0;
-          character_logic_system::run_stand_action(ui_character);
-          character_logic_system::run_face_action(ui_character, u"default");
+          character_info_ui_system::character = character.g_character;
           character_info_ui_system::close();
           character_info_ui_system::open();
           return true;

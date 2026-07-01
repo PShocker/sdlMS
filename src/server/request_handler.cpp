@@ -12,6 +12,7 @@
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -25,6 +26,8 @@
 #include <algorithm>
 #include <cstdio>
 #include <ctime>
+#include <memory>
+#include <utility>
 
 using namespace fbs;
 
@@ -101,6 +104,39 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ClientCharacterPickT r;
     payload->UnPackTo(&r);
     server_drop_instance::handle_pick(client_id, r);
+    break;
+  }
+  case NetPayload_ClientCharacterInfo: {
+    auto payload = packet->payload_as_ClientCharacterInfo();
+    fbs::ClientCharacterInfoT r;
+    payload->UnPackTo(&r);
+    if (server_client_instance::clients.contains(r.payload)) {
+      const auto &character =
+          server_client_instance::clients[r.payload].player_t.character;
+      ServerCharacterInfoT sct;
+      sct.payload = std::make_unique<CharacterT>(*character);
+      server_response::send_to_client(client_id, sct);
+    }
+    break;
+  }
+  case NetPayload_ClientCharacterTrade: {
+    auto payload = packet->payload_as_ClientCharacterTrade();
+    fbs::ClientCharacterTradeT r;
+    payload->UnPackTo(&r);
+    if (server_client_instance::clients.contains(r.to_id)) {
+      ServerCharacterTradeT sct;
+      sct.request = r.request;
+      sct.confirm = r.confirm;
+      sct.payload = std::move(r.payload);
+      if (sct.request) {
+        const auto player = server_client_instance::clients[client_id].player_t;
+        sct.player = std::make_unique<PlayerT>(player);
+      } else {
+        const auto player = server_client_instance::clients[r.to_id].player_t;
+        sct.player = std::make_unique<PlayerT>(player);
+      }
+      server_response::send_to_client(r.to_id, sct);
+    }
     break;
   }
   case NetPayload_ServerHeartbeat: {
@@ -232,6 +268,19 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterPick();
     fbs::ServerCharacterPickT r;
     payload->UnPackTo(&r);
+    break;
+  }
+  case NetPayload_ServerCharacterInfo: {
+    auto payload = packet->payload_as_ServerCharacterInfo();
+    fbs::ServerCharacterInfoT r;
+    payload->UnPackTo(&r);
+    auto character = character_game_instance::load_g_character(r.payload);
+    character_info_ui_system::character = character;
+    character_info_ui_system::close();
+    character_info_ui_system::open();
+    break;
+  }
+  case NetPayload_ServerCharacterTrade: {
     break;
   }
   case NetPayload_ServerMobDrop: {

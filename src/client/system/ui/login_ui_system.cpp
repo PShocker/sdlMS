@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <numeric>
+#include <stdio.h>
 #include <string>
 #include <vector>
 
@@ -247,17 +248,40 @@ void login_ui_system::event_button_login() {
   if (username.text.empty()) {
     return;
   }
-  std::string name{username.text.begin(), username.text.end()};
+  static std::string name;
+  int init_result;
+  name = {username.text.begin(), username.text.end()};
   // 命名管道检测是否多次打开
-  name = "sdlMS_" + name;
+  name = "__sdlMS__" + name;
   name = PIPENAME + name;
 
-  int init_result = uv_pipe_init(server_main::loop, &pipe, 0);
+  init_result = uv_pipe_init(server_main::loop, &g_pipe, 0);
   if (init_result != 0) {
     assert(0);
     std::abort();
   }
-  auto bind_result = uv_pipe_bind(&pipe, name.c_str());
+  static bool con_connect;
+  con_connect = false;
+  static uv_connect_t c;
+  uv_pipe_connect(&c, &g_pipe, name.c_str(), [](uv_connect_t *req, int status) {
+    if (status != 0) {
+      uv_fs_t req;
+      uv_fs_unlink(NULL, &req, name.c_str(), NULL);
+      uv_fs_req_cleanup(&req);
+    }
+    con_connect = true;
+    uv_close((uv_handle_t *)&g_pipe, NULL);
+  });
+  // 阻塞等待
+  while (!con_connect) {
+    uv_run(server_main::loop, UV_RUN_ONCE);
+  }
+  init_result = uv_pipe_init(server_main::loop, &g_pipe, 0);
+  if (init_result != 0) {
+    assert(0);
+    std::abort();
+  }
+  auto bind_result = uv_pipe_bind(&g_pipe, name.c_str());
   if (bind_result != 0) {
     // 绑定失败
     login_notice_system_instance::enter(

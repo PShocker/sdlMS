@@ -53,8 +53,6 @@ private:
   };
   static inline quick_slot quickSlot = quick_slot::two;
 
-  static inline std::optional<chat_enum> chat_type;
-  static inline text_input chat;
   static inline int chat_index;
   struct chats {
     chat_enum type;
@@ -64,6 +62,9 @@ private:
   static inline std::vector<chats> chats_info;
 
 public:
+  static inline std::optional<chat_enum> chat_type;
+  static inline text_input chat;
+  
   static void load_chats(fbs::ServerCharacterChatT &c);
 
   static void reset();

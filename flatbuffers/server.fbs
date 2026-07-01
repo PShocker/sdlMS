@@ -72,6 +72,17 @@ table ServerCharacterPick {
     random_id:uint64;
 }
 
+table ServerCharacterInfo {
+   payload:Character;
+}
+
+table ServerCharacterTrade {
+   request:bool;
+   player:Player;
+   payload:[ItemUnion];
+   confirm:bool;
+}
+
 table ServerMobDrop {
     payload:[Drop];
 }

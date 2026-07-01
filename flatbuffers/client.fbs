@@ -57,3 +57,14 @@ table ClientCharacterPick {
     map_id:uint32;
     random_id:uint64;
 }
+
+table ClientCharacterInfo {
+   payload:uint64;
+}
+
+table ClientCharacterTrade {
+   to_id:uint64;
+   request:bool;
+   payload:[ItemUnion];
+   confirm:bool;
+}

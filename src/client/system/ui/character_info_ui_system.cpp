@@ -299,6 +299,10 @@ void character_info_ui_system::open() {
 
   item = false;
   pet = false;
+  
+  character_logic_system::run_stand_action(character);
+  character_logic_system::run_face_action(character, u"default");
+  character.flip = 0;
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
   system::event_systems.insert(system::event_systems.begin(), event);
