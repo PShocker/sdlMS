@@ -166,6 +166,10 @@ void cursor_logic_system::run_cursor_ui() {
       if (storage_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
+    } else if (fn == context_menu_ui_system::render) {
+      if (context_menu_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
     }
   }
 }
@@ -343,6 +347,7 @@ bool cursor_logic_system::event_character(SDL_Event *event) {
         if (ins) {
           context_menu_ui_system::pos = window::mouse_pos;
           context_menu_ui_system::client_id = k;
+          context_menu_ui_system::client_name = v.g_character.nametags[0].text;
           context_menu_ui_system::close();
           context_menu_ui_system::open();
           return true;

@@ -1,8 +1,10 @@
 #include "context_menu_ui_system.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/freetype/freetype.h"
@@ -11,7 +13,7 @@
 #include "statusbar_ui_system.h"
 #include <cstddef>
 
-SDL_FPoint context_menu_ui_system::load_wh() { return {100, 200}; }
+SDL_FPoint context_menu_ui_system::load_wh() { return {100, 122}; }
 
 bool context_menu_ui_system::cursor_in() {
   bool r = false;
@@ -64,11 +66,14 @@ void context_menu_ui_system::render_button() {
       wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtFriend"),
       wz_resource::ui->find(u"ContextMenu.img/ContextMenu/BtMapleChat"),
   };
-  auto &camera = camera_game_instance::camera;
   std::array buttons_rect = {
-      SDL_FRect{pos.x, pos.y, 85, 14},
-      SDL_FRect{pos.x, pos.y, 85, 14},
-      SDL_FRect{pos.x, pos.y, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 6, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 22, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 38, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 54, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 70, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 86, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 102, 85, 14},
   };
   std::vector<bool> disable = {
       false,
@@ -101,13 +106,26 @@ void context_menu_ui_system::render_button() {
 
 bool context_menu_ui_system::render() {
   render_backgrnd();
+  render_button();
   return true;
 }
 
 void context_menu_ui_system::event_button_info() {
-  fbs::ClientCharacterInfoT ct;
-  ct.payload = client_id;
-  client_request::send_to_host(ct);
+  if (client_id == 0) {
+    // self
+    character_info_ui_system::character = character_game_instance::self;
+    character_info_ui_system::close();
+    character_info_ui_system::open();
+  } else if (character_game_instance::others.contains(client_id)) {
+    character_info_ui_system::character =
+        character_game_instance::others[client_id].g_character;
+    character_info_ui_system::close();
+    character_info_ui_system::open();
+  } else {
+    fbs::ClientCharacterInfoT ct;
+    ct.payload = client_id;
+    client_request::send_to_host(ct);
+  }
 }
 
 void context_menu_ui_system::event_button_save() {
@@ -132,14 +150,16 @@ void context_menu_ui_system::event_button_friend() {}
 void context_menu_ui_system::event_button_chat() {}
 
 bool context_menu_ui_system::event_button(SDL_Event *event) {
-  std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto &camera = camera_game_instance::camera;
-  r = {
-      SDL_FRect{146 - camera.x, -656 - camera.y, 129, 41},
-      SDL_FRect{146 - camera.x, -607 - camera.y, 129, 45},
-      SDL_FRect{146 - camera.x, -544 - camera.y, 129, 55},
-      SDL_FRect{163 + pos.x, 574 + pos.y, 161, 69},
+  std::array r = {
+      SDL_FRect{pos.x + 9, pos.y + 6, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 22, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 38, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 54, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 70, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 86, 85, 14},
+      SDL_FRect{pos.x + 9, pos.y + 102, 85, 14},
   };
   fns = {
       event_button_info,  event_button_save,  event_button_whisper,
@@ -195,8 +215,11 @@ bool context_menu_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        event_button(event);
       }
     }
+    event_close();
+    r = false;
     break;
   }
   default: {

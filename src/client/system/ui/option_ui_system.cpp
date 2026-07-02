@@ -6,10 +6,9 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
-
 void option_ui_system::render_backgrnd() {
-  static auto texture =
-      wz_resource::load_texture(wz_resource::ui->find(u"Revive.img/back0"));
+  static auto texture = wz_resource::load_texture(
+      wz_resource::ui->find(u"Options.img/OptionMenu/backgrnd"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
@@ -19,18 +18,39 @@ void option_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
+void option_ui_system::render_option() {
+  switch (active_tab) {
+  case 0: {
+    static auto graphic = wz_resource::load_texture(wz_resource::ui->find(
+        u"Options.img/OptionMenu/graphic/layer:backgrnd"));
+    SDL_FRect pos_rect{
+        pos.x + 9,
+        pos.y + 51,
+        static_cast<float>(graphic->w),
+        static_cast<float>(graphic->h),
+    };
+    SDL_RenderTexture(window::renderer, graphic, nullptr, &pos_rect);
+    break;
+  }
+  }
+}
+
 void option_ui_system::render_button() {
   const static std::array buttons_node = {
-      wz_resource::ui->find(u"Revive.img/button:ok"),
+      wz_resource::ui->find(u"KeyBindings.img/quickslot/button:confirm"),
+      wz_resource::ui->find(u"ChannelChange.img/Channel/BtCancel"),
+      wz_resource::ui->find(u"Basic.img/BtClose"),
   };
   const std::array buttons_rect = {
-      SDL_FRect{119, 115, 47, 18}, //
+      SDL_FRect{176, 407, 53, 18}, //
+      SDL_FRect{232, 407, 47, 18}, //
+      SDL_FRect{266, 7, 12, 12},   //
   };
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
@@ -49,9 +69,45 @@ void option_ui_system::render_button() {
   }
 }
 
-bool option_ui_system::render() { return true; }
+void option_ui_system::render_tab() {
+  const static std::array tab_pos = {
+      SDL_FPoint{6, 23},   //
+      SDL_FPoint{65, 23},  //
+      SDL_FPoint{124, 23}, //
+      SDL_FPoint{183, 23}, //
+  };
+  const static auto tab_node =
+      wz_resource::ui->find(u"Options.img/OptionMenu/tab");
+  const static std::array active_texture = {
+      wz_resource::load_texture(tab_node->find(u"enabled/0")),
+      wz_resource::load_texture(tab_node->find(u"enabled/1")),
+      wz_resource::load_texture(tab_node->find(u"enabled/2")),
+      wz_resource::load_texture(tab_node->find(u"enabled/3")),
+  };
+  const static std::array disabled_texture = {
+      wz_resource::load_texture(tab_node->find(u"disabled/0")),
+      wz_resource::load_texture(tab_node->find(u"disabled/1")),
+      wz_resource::load_texture(tab_node->find(u"disabled/2")),
+      wz_resource::load_texture(tab_node->find(u"disabled/3")),
+  };
+  for (uint8_t i = 0; i < tab_pos.size(); i++) {
+    SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
+    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos[i].x)),
+                       static_cast<float>(int(pos.y + tab_pos[i].y)),
+                       static_cast<float>(t->w), static_cast<float>(t->h)};
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  }
+}
 
-SDL_FPoint option_ui_system::load_wh() { return {286, 146}; }
+bool option_ui_system::render() {
+  render_backgrnd();
+  render_button();
+  render_tab();
+  render_option();
+  return true;
+}
+
+SDL_FPoint option_ui_system::load_wh() { return {287, 432}; }
 
 void option_ui_system::open() {
   auto wh = load_wh();
@@ -157,4 +213,14 @@ bool option_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+void option_ui_system::toggle() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+  auto fn = &render;
+  if (std::ranges::contains(system::render_systems, fn)) {
+    close();
+  } else {
+    open();
+  }
 }

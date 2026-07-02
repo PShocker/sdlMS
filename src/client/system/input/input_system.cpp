@@ -5,6 +5,7 @@
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
+#include "src/client/system/ui/option_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
@@ -23,6 +24,7 @@ void input_system::handle_ui_input(game_input &g_input) {
       {"equip", equip_ui_system::toggle},
       {"craft", craft_ui_system::toggle},
       {"quest", quest_ui_system::toggle},
+      {"option", option_ui_system::toggle},
   };
   fns.at(g_input.val)();
 }

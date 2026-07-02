@@ -565,7 +565,7 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
     y += freetype::load_lh() * 1.1;
     freetype::draw_rstr(str, x + 2, y, w - 22);
 
-    y += 22;
+    y += 19;
 
     auto next_node =
         wz_resource::ms->get_root()->find(u"String.img/Skill/nextLevel");
@@ -583,7 +583,7 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
                                      float x, float y) {
   auto ski_name = skill_game_instance::load_ski_name(id);
   const auto w = 330;
-  auto h = 145;
+  auto h = 142;
   h += load_skill_bottom_h(id);
   render_backgrnd(x, y, w, h);
   static auto dot0 = wz_resource::load_texture(
