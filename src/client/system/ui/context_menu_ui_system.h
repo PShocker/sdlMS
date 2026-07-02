@@ -11,6 +11,7 @@ private:
   static void render_backgrnd();
   static void render_button();
 
+  static void event_close();
   static void event_button_info();
   static void event_button_save();
   static void event_button_whisper();

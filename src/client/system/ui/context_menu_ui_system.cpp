@@ -1,6 +1,7 @@
 #include "context_menu_ui_system.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -11,6 +12,15 @@
 #include <cstddef>
 
 SDL_FPoint context_menu_ui_system::load_wh() { return {100, 200}; }
+
+bool context_menu_ui_system::cursor_in() {
+  bool r = false;
+  auto &mouse = window::mouse_pos;
+  auto [w, h] = load_wh();
+  SDL_FRect pos_rect{pos.x + 3, pos.y, w - 3, h};
+  r = SDL_PointInRectFloat(&mouse, &pos_rect);
+  return r;
+}
 
 void context_menu_ui_system::render_backgrnd() {
   auto [w, h] = load_wh();
@@ -56,9 +66,9 @@ void context_menu_ui_system::render_button() {
   };
   auto &camera = camera_game_instance::camera;
   std::array buttons_rect = {
-      SDL_FRect{146 - camera.x, -656 - camera.y, 129, 41},
-      SDL_FRect{146 - camera.x, -607 - camera.y, 129, 45},
-      SDL_FRect{146 - camera.x, -544 - camera.y, 129, 55},
+      SDL_FRect{pos.x, pos.y, 85, 14},
+      SDL_FRect{pos.x, pos.y, 85, 14},
+      SDL_FRect{pos.x, pos.y, 85, 14},
   };
   std::vector<bool> disable = {
       false,
@@ -155,7 +165,47 @@ bool context_menu_ui_system::event_button(SDL_Event *event) {
   return true;
 }
 
-bool context_menu_ui_system::event(SDL_Event *event) { return true; }
+void context_menu_ui_system::event_close() { close(); };
+
+bool context_menu_ui_system::event(SDL_Event *event) {
+  bool r = true;
+  switch (event->type) {
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_ESCAPE: {
+      event_close();
+      return false;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        r = false;
+      }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+      }
+    }
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+
+  return r;
+}
 void context_menu_ui_system::open() {
   system::render_systems.insert(system::render_systems.end() - 1, render);
   system::event_systems.insert(system::event_systems.begin(), event);

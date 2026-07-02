@@ -23,6 +23,7 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "text_input_ui_system.h"
+#include "wz/Node.h"
 #include "wz/Property.h"
 #include <algorithm>
 #include <array>
@@ -567,6 +568,135 @@ void statusbar_ui_system::render_chat_vscr() {
   return;
 }
 
+void statusbar_ui_system::render_submenu_backgrnd() {
+  int w;
+  int h;
+  int x = 0;
+  switch (menu_type.value()) {
+  case menu_enums::menu: {
+    w = 93;
+    h = 300;
+    break;
+  }
+  case menu_enums::shortcut: {
+    w = 93;
+    h = 300;
+    break;
+  }
+  }
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
+  // render backgrnd
+  static auto t2 = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/0"));
+  SDL_FRect pos_rect{
+      base_x + x,
+      base_y,
+      static_cast<float>(t2->w),
+      static_cast<float>(t2->h),
+  };
+  SDL_RenderTexture(window::renderer, t2, nullptr, &pos_rect);
+  static auto c = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+  static auto s = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/2"));
+  pos_rect = {
+      base_x + x,
+      base_y + t2->h,
+      static_cast<float>(c->w),
+      static_cast<float>(h - t2->h - s->h),
+  };
+  SDL_RenderTextureTiled(window::renderer, c, nullptr, 1, &pos_rect);
+
+  pos_rect = {
+      base_x + x,
+      base_y + h - s->h,
+      static_cast<float>(s->w),
+      static_cast<float>(s->h),
+  };
+  SDL_RenderTexture(window::renderer, s, nullptr, &pos_rect);
+}
+
+void statusbar_ui_system::render_submenu_button() {
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
+
+  std::vector<wz::Node *> buttons_nodes;
+  std::vector<SDL_FRect> buttons_rect;
+  std::vector<bool> disable;
+
+  switch (menu_type.value()) {
+  case menu_enums::menu: {
+    buttons_nodes = {
+        wz_resource::ui->find(u"StatusBar.img/submenu/menu/button:Channel"),
+        wz_resource::ui->find(u"StatusBar.img/submenu/menu/button:GameOpt"),
+        wz_resource::ui->find(u"StatusBar.img/submenu/menu/button:Quit"),
+    };
+    buttons_rect = {
+        SDL_FRect{6, 24, 12, 12}, //
+    };
+    disable = {true, false, false};
+    break;
+  }
+  case menu_enums::shortcut: {
+    buttons_nodes = {
+        wz_resource::ui->find(u"StatusBar.img/submenu/shortcut/button:Item"),
+        wz_resource::ui->find(u"StatusBar.img/submenu/shortcut/button:Equip"),
+        wz_resource::ui->find(u"StatusBar.img/submenu/shortcut/button:Stat"),
+        wz_resource::ui->find(u"StatusBar.img/submenu/shortcut/button:Skill"),
+        wz_resource::ui->find(u"StatusBar.img/submenu/shortcut/button:Party"),
+        wz_resource::ui->find(u"StatusBar.img/submenu/shortcut/button:Quest"),
+        wz_resource::ui->find(
+            u"StatusBar.img/submenu/shortcut/button:Crafting"),
+    };
+    buttons_rect = {
+        SDL_FRect{6, 24, 81, 25}, //
+        SDL_FRect{6, 24, 81, 25}, //
+        SDL_FRect{6, 24, 81, 25}, //
+        SDL_FRect{6, 24, 81, 25}, //
+        SDL_FRect{6, 24, 81, 25}, //
+        SDL_FRect{6, 24, 81, 25}, //
+        SDL_FRect{6, 24, 81, 25}, //
+    };
+    break;
+  }
+  }
+
+  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
+    auto k = buttons_nodes[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += base_x;
+    pos_rect.y += base_y;
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
+    auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
+}
+
+void statusbar_ui_system::render_submenu() {
+  render_submenu_backgrnd();
+  // render menu button
+  render_submenu_button();
+}
+
 bool statusbar_ui_system::render() {
   render_backgrnd();
   render_chat();
@@ -619,9 +749,23 @@ void statusbar_ui_system::event_click_chat_vscr() {
 
 void statusbar_ui_system::event_button_cashshop() { return; }
 
-void statusbar_ui_system::event_button_menu() { return; }
+void statusbar_ui_system::event_button_menu() {
+  if (menu_type == statusbar_ui_system::menu_enums::menu) {
+    menu_type = std::nullopt;
+  } else {
+    menu_type = statusbar_ui_system::menu_enums::menu;
+  }
+  return;
+}
 
-void statusbar_ui_system::event_button_shortcut() { return; }
+void statusbar_ui_system::event_button_shortcut() {
+  if (menu_type == statusbar_ui_system::menu_enums::shortcut) {
+    menu_type = std::nullopt;
+  } else {
+    menu_type = statusbar_ui_system::menu_enums::shortcut;
+  }
+  return;
+}
 
 void statusbar_ui_system::event_button_mailbox() { return; }
 
@@ -653,6 +797,44 @@ std::u16string statusbar_ui_system::load_chat_type() {
   }
   }
   return u"";
+}
+
+bool statusbar_ui_system::event_menu_button(SDL_Event *event) {
+  const static std::array buttons_rect = {
+      SDL_FRect{578, 38, 73, 34}, // CashShop
+      SDL_FRect{652, 38, 73, 34}, // Menu
+      SDL_FRect{726, 38, 73, 34}, // Shortcut
+      SDL_FRect{578, 11, 22, 19}, // Mailbox
+      SDL_FRect{621, 10, 28, 20}, // Equip
+      SDL_FRect{651, 10, 28, 20}, // Inven
+      SDL_FRect{681, 10, 28, 20}, // Stat StatUp
+      SDL_FRect{711, 10, 28, 20}, // Skill SkillUp
+      SDL_FRect{741, 10, 28, 20}, // Key
+      SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
+      SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
+  };
+  const static std::array buttons_func = {
+      event_button_cashshop,  event_button_menu,    event_button_shortcut,
+      event_button_mailbox,   event_button_equip,   event_button_inven,
+      event_button_stat,      event_button_skill,   event_button_keybind,
+      event_button_quickslot, event_button_chatlog,
+  };
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto [w, h] = load_wh();
+  auto base_x = (screen_w - w) / 2;
+  auto base_y = (screen_h - h);
+
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += base_x;
+    pos_rect.y += base_y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      buttons_func[i]();
+      return true;
+    }
+  }
+  return false;
 }
 
 bool statusbar_ui_system::event_button(SDL_Event *event) {

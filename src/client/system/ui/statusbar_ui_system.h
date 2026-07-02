@@ -20,6 +20,11 @@ private:
   static void render_chat_info();
   static void render_chat_infos();
   static void render_chat_vscr();
+  
+  static void render_submenu_backgrnd();
+  static void render_submenu_button();
+  static void render_submenu();
+
   static SDL_FPoint load_wh();
 
   static void event_click_chat_vscr();
@@ -28,6 +33,9 @@ private:
   static bool event_click_quickslot(SDL_Event *event);
 
   static std::u16string load_chat_type();
+
+  static bool event_menu_button(SDL_Event *event);
+  static void event_menu_button_option();
 
   static bool event_button(SDL_Event *event);
   // button_func
@@ -61,10 +69,16 @@ private:
   };
   static inline std::vector<chats> chats_info;
 
+  enum class menu_enums {
+    menu,
+    shortcut,
+  };
+  static inline std::optional<menu_enums> menu_type;
+
 public:
   static inline std::optional<chat_enum> chat_type;
   static inline text_input chat;
-  
+
   static void load_chats(fbs::ServerCharacterChatT &c);
 
   static void reset();
