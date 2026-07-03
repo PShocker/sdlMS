@@ -13,7 +13,9 @@ public:
 
   enum class npc_type {
     none,
+    quest,
     shop,
+    script,
   };
   static npc_type load_npc_type(const std::u16string &id);
 

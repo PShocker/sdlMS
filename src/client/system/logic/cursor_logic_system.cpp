@@ -9,6 +9,7 @@
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/system/system.h"
@@ -32,6 +33,7 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
 #include "src/common/request/client_request.h"
+#include "src/common/script/script.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include "wz/Wz.h"
@@ -382,6 +384,18 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
           shop_ui_system::npc_id = npc_id;
           shop_ui_system::close();
           shop_ui_system::open();
+          break;
+        }
+        case npc_game_instance::npc_type::script: {
+          auto node = npc_game_instance::load_link_npc_node(npc_id);
+          auto script_node = node->find(u"info/script");
+          auto script_str =
+              static_cast<wz::Property<std::u16string> *>(script_node)->get();
+          script::fns().at(script_str)();
+          break;
+        }
+        case npc_game_instance::npc_type::quest: {
+          auto quest = quest_game_instance::load_npc_quest(npc_id).value();
           break;
         }
         default: {

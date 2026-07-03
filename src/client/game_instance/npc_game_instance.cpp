@@ -1,5 +1,6 @@
 #include "npc_game_instance.h"
 #include "foothold_game_instance.h"
+#include "quest_game_instance.h"
 #include "shop_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -62,6 +63,13 @@ npc_game_instance::npc_type
 npc_game_instance::load_npc_type(const std::u16string &id) {
   if (shop_game_instance::load_npc_shop(id).has_value()) {
     return npc_type::shop;
+  }
+  auto node = load_link_npc_node(id);
+  if (node->find(u"info/script")) {
+    return npc_type::script;
+  }
+  if (quest_game_instance::load_npc_quest(id).has_value()) {
+    return npc_type::quest;
   }
   return npc_type::none;
 }
