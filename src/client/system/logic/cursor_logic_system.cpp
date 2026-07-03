@@ -388,10 +388,11 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
         }
         case npc_game_instance::npc_type::script: {
           auto node = npc_game_instance::load_link_npc_node(npc_id);
-          auto script_node = node->find(u"info/script");
+          auto script_node = node->find(u"info/script/0/script");
           auto script_str =
               static_cast<wz::Property<std::u16string> *>(script_node)->get();
           script::fns().at(script_str)();
+          r = true;
           break;
         }
         case npc_game_instance::npc_type::quest: {
