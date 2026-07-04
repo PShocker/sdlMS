@@ -19,6 +19,7 @@
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/system/ui/shop_ui_system.h"
@@ -170,6 +171,10 @@ void cursor_logic_system::run_cursor_ui() {
       }
     } else if (fn == context_menu_ui_system::render) {
       if (context_menu_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
+    } else if (fn == npc_dlg_ui_system::render) {
+      if (npc_dlg_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
     }
@@ -387,7 +392,7 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
           break;
         }
         case npc_game_instance::npc_type::script: {
-          auto node = npc_game_instance::load_link_npc_node(npc_id);
+          auto node = wz_resource::npc->find(npc_id + u".img");
           auto script_node = node->find(u"info/script/0/script");
           auto script_str =
               static_cast<wz::Property<std::u16string> *>(script_node)->get();
@@ -396,7 +401,18 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
           break;
         }
         case npc_game_instance::npc_type::quest: {
-          auto quest = quest_game_instance::load_npc_quest(npc_id).value();
+          auto quest = quest_game_instance::load_npc_quest(npc_id);
+          npc_dlg_ui_system::close();
+          npc_dlg_ui_system::open();
+          npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
+          npc_dlg_ui_system::index = 0;
+          npc_dlg_ui_system::max_index = 0;
+          npc_dlg_ui_system::npc_id = npc_id;
+          npc_dlg_ui_system::time = window::dt_now;
+          // string.wz找d0
+          npc_dlg_ui_system::text =
+              npc_game_instance::load_npc_text(npc_id, u"d0");
+          r = true;
           break;
         }
         default: {

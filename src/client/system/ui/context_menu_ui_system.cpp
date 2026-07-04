@@ -3,6 +3,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/window/window.h"
@@ -130,7 +131,7 @@ void context_menu_ui_system::event_button_info() {
 
 void context_menu_ui_system::event_button_save() {
   auto name = client_name;
-  auto utf8_str = freetype::load_u8str(name);
+  auto utf8_str = text_game_instance::load_u8str(name);
   SDL_SetClipboardText(utf8_str.c_str());
 }
 

@@ -182,7 +182,10 @@ std::optional<std::u16string> npc_logic_system::cursor_in() {
 
       auto index = std::to_string(g_npc.ani_index);
       npc_node = action_node->get_child(index);
-
+      // uol
+      if (npc_node->type == wz::Type::UOL) {
+        npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
+      }
       auto texture = wz_resource::load_texture(npc_node);
       auto origin = wz_resource::load_fpoint(npc_node->get_child(u"origin"));
       SDL_FRect pos_rect = {

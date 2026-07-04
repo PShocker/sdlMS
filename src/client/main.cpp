@@ -66,6 +66,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   SDL_HideCursor();
   scene_system_instance::enter_prepare(40, u"sp", 0);
+  scene_system_instance::prepare_pos = {1527, 188};
+  character_game_instance::self.pos = {1527, 188};
   // chatacter_create_system_instance::enter();
   // login_system_instance::enter();
 

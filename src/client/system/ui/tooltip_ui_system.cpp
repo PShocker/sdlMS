@@ -632,7 +632,7 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
 }
 
 void tooltip_ui_system::render_item(game_item &item, float x, float y) {
-  auto item_name = item_game_instance::load_item_name(item.id);
+  auto item_name = item_game_instance::load_item_text(item.id, u"name");
   freetype::load_bold(true);
   freetype::load_size(15);
   auto w = freetype::load_w(item_name) + 110;
@@ -673,7 +673,7 @@ void tooltip_ui_system::render_item(game_item &item, float x, float y) {
   SDL_RenderTexture(window::renderer, item_texture, nullptr, &pos_rect);
   freetype::load_bold(false);
 
-  auto item_desc = item_game_instance::load_item_desc(item.id);
+  auto item_desc = item_game_instance::load_item_text(item.id,u"desc");
   freetype::load_size(13);
   freetype::draw_str(item_desc, pos_rect.x + 74, pos_rect.y - 8, w - 112);
   freetype::load_aligned(false);

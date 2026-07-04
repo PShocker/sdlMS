@@ -1,5 +1,6 @@
 #include "item_game_instance.h"
 #include "src/common/wz/wz_resource.h"
+#include "text_game_instance.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <algorithm>
@@ -15,7 +16,8 @@ bool item_game_instance::check_item(const std::u16string &id) {
   return true;
 }
 
-std::u16string item_game_instance::load_item_name(const std::u16string &id) {
+std::u16string item_game_instance::load_item_text(const std::u16string &id,
+                                                  const std::u16string &val) {
   auto item_type = load_item_type(id);
   auto str_node = wz_resource::string->find(item_type + u".img");
   if (item_type == u"Etc") {
@@ -23,30 +25,8 @@ std::u16string item_game_instance::load_item_name(const std::u16string &id) {
   }
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
   std::u16string result(view.begin(), view.end());
-
-  auto str = str_node->get_child(result)->get_child(u"name");
-  return static_cast<wz::Property<std::u16string> *>(str)->get();
-}
-
-std::u16string item_game_instance::load_item_desc(const std::u16string &id) {
-  auto item_type = load_item_type(id);
-  auto str_node = wz_resource::string->find(item_type + u".img");
-  if (item_type == u"Etc") {
-    str_node = str_node->get_child("Etc");
-  }
-  auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
-  std::u16string result(view.begin(), view.end());
-
-  str_node = str_node->get_child(result)->get_child(u"desc");
-  auto str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-  const std::u16string_view pattern = u"\\n";
-  const std::u16string_view replacement = u"\n";
-  for (size_t pos = 0;
-       (pos = str.find(pattern, pos)) != std::u16string::npos;) {
-    str.replace(pos, pattern.size(), replacement);
-    pos += replacement.size();
-  }
-  return str;
+  str_node = str_node->get_child(result)->get_child(val);
+  return text_game_instance::load_rstr(str_node);
 }
 
 std::u16string item_game_instance::load_item_type(const std::u16string &id) {

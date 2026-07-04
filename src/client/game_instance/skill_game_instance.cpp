@@ -2,6 +2,7 @@
 #include "character_game_instance.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/common/wz/wz_resource.h"
+#include "text_game_instance.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <chrono>
@@ -104,16 +105,7 @@ skill_game_instance::load_ski_name(const std::u16string &id) {
     ski_name.name =
         static_cast<wz::Property<std::u16string> *>(node->get_child(u"name"))
             ->get();
-    ski_name.desc =
-        static_cast<wz::Property<std::u16string> *>(node->get_child(u"desc"))
-            ->get();
-    const std::u16string_view pattern = u"\\n";
-    const std::u16string_view replacement = u"\n";
-    for (size_t pos = 0;
-         (pos = ski_name.desc.find(pattern, pos)) != std::u16string::npos;) {
-      ski_name.desc.replace(pos, pattern.size(), replacement);
-      pos += replacement.size();
-    }
+    ski_name.desc = text_game_instance::load_rstr(node->get_child(u"desc"));
     auto child = node->get_children();
     child->erase(u"name");
     child->erase(u"desc");

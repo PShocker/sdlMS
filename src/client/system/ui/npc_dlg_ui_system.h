@@ -11,15 +11,19 @@ class npc_dlg_ui_system {
 private:
   static void render_backgrnd();
   static void render_npc();
+  static void render_button();
+  static void render_text();
+  static void render_list();
+
   static SDL_FPoint load_wh();
 
-  static void event_button(SDL_Event *event);
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static void event_button_close();
+  static void event_button_ok();
 
-  static inline std::optional<SDL_FPoint> drag;
+  static void event_button_prev();
+  static void event_button_next();
+
+  static bool event_button(SDL_Event *event);
 
 public:
   static bool render();
@@ -37,9 +41,19 @@ public:
 
   static inline std::u16string npc_id;
   static inline std::u16string text;
+  static inline std::u16string selected;
   static inline uint8_t index;
+  static inline uint8_t max_index;
 
+  enum class npc_dlg_enum {
+    choose,
+    quest,
+    talk,
+    select,
+  };
+  static inline npc_dlg_enum type;
+
+  static inline uint64_t time;
   static inline std::vector<std::u16string> select;
-  static inline std::optional<bool> yesno;
   static inline std::function<void()> cb;
 };

@@ -11,6 +11,9 @@ public:
   static void load(uint32_t map_id);
   static wz::Node *load_link_npc_node(const std::u16string &id);
 
+  static std::u16string load_npc_text(const std::u16string &id,
+                                      const std::u16string &val);
+
   enum class npc_type {
     none,
     quest,

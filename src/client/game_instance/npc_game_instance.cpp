@@ -4,11 +4,27 @@
 #include "shop_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include "text_game_instance.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <array>
 #include <flat_map>
+#include <ranges>
 #include <string>
+
+std::u16string npc_game_instance::load_npc_text(const std::u16string &id,
+                                                const std::u16string &val) {
+  std::u16string r = u"";
+  auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
+
+  std::u16string result(view.begin(), view.end());
+  auto str_node = wz_resource::string->find(u"Npc.img/" + result);
+
+  if (auto node = str_node->get_child(val)) {
+    r = text_game_instance::load_rstr(node);
+  }
+  return r;
+}
 
 wz::Node *npc_game_instance::load_link_npc_node(const std::u16string &id) {
   auto npc_node = wz_resource::npc->find(id + u".img");
@@ -64,11 +80,11 @@ npc_game_instance::load_npc_type(const std::u16string &id) {
   if (shop_game_instance::load_npc_shop(id).has_value()) {
     return npc_type::shop;
   }
-  auto node = load_link_npc_node(id);
-  if (node->find(u"info/script")) {
+  auto npc_node = wz_resource::npc->find(id + u".img");
+  if (npc_node->find(u"info/script")) {
     return npc_type::script;
   }
-  if (quest_game_instance::load_npc_quest(id).has_value()) {
+  if (!quest_game_instance::load_npc_quest(id).empty()) {
     return npc_type::quest;
   }
   return npc_type::none;

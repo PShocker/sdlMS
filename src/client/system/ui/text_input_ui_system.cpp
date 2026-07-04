@@ -2,6 +2,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_scancode.h"
+#include "src/client/game_instance/text_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include <algorithm>
@@ -254,7 +255,7 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
   case SDL_EVENT_TEXT_EDITING: {
     auto text = event->edit.text;
     if (text[0] != '\0') {
-      input.composition = freetype::load_u16str(text);
+      input.composition = text_game_instance::load_u16str(text);
     } else {
       input.composition = u"";
     }
@@ -267,7 +268,7 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
     auto text = event->edit.text;
     auto cur0 = input.text.length();
     auto str1 = input.text.substr(0, input.cur);
-    auto str2 = freetype::load_u16str(text);
+    auto str2 = text_game_instance::load_u16str(text);
     auto str3 = input.text.substr(input.cur);
 
     input.text = str1 + str2 + str3;
