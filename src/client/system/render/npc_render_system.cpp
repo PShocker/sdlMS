@@ -4,6 +4,7 @@
 #include "src/client/game/game_nametag.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/render/chatballoon_render_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -39,6 +40,10 @@ void npc_render_system::render_nametag(game_npc &g_npc) {
 
 void npc_render_system::render_chatballoon(game_npc &g_npc) {
   if (!g_npc.chatballoon.has_value()) {
+    return;
+  }
+  auto quests = quest_game_instance::load_npc_quest(g_npc.id);
+  if (!quests.empty()) {
     return;
   }
   auto chatballoon = g_npc.chatballoon.value();
@@ -90,8 +95,24 @@ bool npc_render_system::render_npc(game_npc &g_npc) {
   return true;
 }
 
+void npc_render_system::render_quest(game_npc &g_npc) {
+  auto quests = quest_game_instance::load_npc_quest(g_npc.id);
+  if (!quests.empty()) {
+    auto node = npc_game_instance::load_quest_node(g_npc);
+    auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
+    auto texture = wz_resource::load_texture(node);
+    auto &camera = camera_game_instance::camera;
+    auto npc_rect = npc_game_instance::load_rect(g_npc);
+    auto pos_rect = npc_game_instance::load_quest_rect(g_npc).value();
+    pos_rect.x -= camera.x;
+    pos_rect.y -= camera.y;
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  }
+}
+
 bool npc_render_system::render(game_npc &g_npc) {
   render_npc(g_npc);
   render_nametag(g_npc);
+  render_quest(g_npc);
   return true;
 }

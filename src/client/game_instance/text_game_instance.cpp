@@ -1,5 +1,7 @@
 #include "text_game_instance.h"
 #include "SDL3/SDL_stdinc.h"
+#include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "wz/Node.h"
@@ -35,7 +37,7 @@ std::u16string text_game_instance::replace_r(std::u16string text) {
       break;
 
     char type = result[start + 1];
-    if (type != u'm' && type != u'p') {
+    if (type != u'm' && type != u'p' && type != u'o' && type != u't') {
       pos = start + 1;
       continue;
     }
@@ -64,15 +66,33 @@ std::u16string text_game_instance::replace_r(std::u16string text) {
 
     // 获取替换文本
     std::u16string replacement;
-    if (type == u'm') {
+    switch (type) {
+    case u'm': {
       // get map name
       int id = std::stoi(std::string{num_str.begin(), num_str.end()});
       auto map_name = minimap_ui_system::load_map_name(id).map_name;
       replacement = map_name;
-    } else {
+      break;
+    }
+    case u'p': {
       auto npc_name = npc_game_instance::load_npc_text(num_str, u"name");
       replacement = npc_name;
+      break;
     }
+    case u'o': {
+      // mob
+      auto mob_name = mob_game_instance::load_mob_name(num_str);
+      replacement = mob_name;
+      break;
+    }
+    case u't': {
+      // item
+      auto item_name = item_game_instance::load_item_text(num_str, u"name");
+      replacement = item_name;
+      break;
+    }
+    }
+
     // 执行替换
     result.replace(start, end - start + 1, replacement);
     pos = start + replacement.length();

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL3/SDL_rect.h"
 #include "src/client/game/game_npc.h"
 #include "wz/Node.h"
 #include <cstdint>
@@ -10,6 +11,10 @@ class npc_game_instance {
 public:
   static void load(uint32_t map_id);
   static wz::Node *load_link_npc_node(const std::u16string &id);
+
+  static SDL_FRect load_rect(const game_npc &g_npc);
+  static wz::Node *load_quest_node(const game_npc &g_npc);
+  static std::optional<SDL_FRect> load_quest_rect(const game_npc &g_npc);
 
   static std::u16string load_npc_text(const std::u16string &id,
                                       const std::u16string &val);

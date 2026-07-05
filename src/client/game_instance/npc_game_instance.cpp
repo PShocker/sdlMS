@@ -9,6 +9,7 @@
 #include "wz/Property.h"
 #include <array>
 #include <flat_map>
+#include <optional>
 #include <ranges>
 #include <string>
 
@@ -34,6 +35,64 @@ wz::Node *npc_game_instance::load_link_npc_node(const std::u16string &id) {
     npc_node = wz_resource::npc->find(link + u".img");
   }
   return npc_node;
+}
+
+SDL_FRect npc_game_instance::load_rect(const game_npc &g_npc) {
+  auto npc_node = npc_game_instance::load_link_npc_node(g_npc.id);
+  auto action_node = npc_node->get_child(g_npc.action);
+
+  auto index = std::to_string(g_npc.ani_index);
+  npc_node = action_node->get_child(index);
+  // uol
+  if (npc_node->type == wz::Type::UOL) {
+    npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
+  }
+  auto texture = wz_resource::load_texture(npc_node);
+  auto origin = wz_resource::load_fpoint(npc_node->get_child(u"origin"));
+  SDL_FRect pos_rect = {
+      .x = g_npc.pos.x - origin.x,
+      .y = g_npc.pos.y - origin.y,
+      .w = static_cast<float>(texture->w),
+      .h = static_cast<float>(texture->h),
+  };
+  if (g_npc.flip == 1) {
+    pos_rect.x = g_npc.pos.x;
+    pos_rect.x = (pos_rect.x - (texture->w - origin.x));
+  }
+  return pos_rect;
+}
+
+wz::Node *npc_game_instance::load_quest_node(const game_npc &g_npc) {
+  auto quests = quest_game_instance::load_npc_quest(g_npc.id);
+  if (quests.empty()) {
+    return nullptr;
+  }
+  // 直接用当前时间控制灯泡时间
+  auto now = window::dt_now;
+  const int delay = 150;
+  auto node = wz_resource::ui->find(u"QuestIcon.img/0");
+  auto index = std::to_string((now % (node->children_count() * delay)) / delay);
+  node = node->get_child(index);
+  return node;
+}
+
+std::optional<SDL_FRect>
+npc_game_instance::load_quest_rect(const game_npc &g_npc) {
+  auto quests = quest_game_instance::load_npc_quest(g_npc.id);
+  if (!quests.empty()) {
+    auto node = load_quest_node(g_npc);
+    auto npc_rect = npc_game_instance::load_rect(g_npc);
+    auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
+    auto texture = wz_resource::load_texture(node);
+    SDL_FRect pos_rect{
+        g_npc.pos.x - origin.x + (npc_rect.w / 2) + 5,
+        g_npc.pos.y - origin.y - npc_rect.h - 10,
+        static_cast<float>(texture->w),
+        static_cast<float>(texture->h),
+    };
+    return pos_rect;
+  }
+  return std::nullopt;
 }
 
 void npc_game_instance::load(uint32_t map_id) {

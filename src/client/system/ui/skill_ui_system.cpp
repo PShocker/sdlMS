@@ -437,7 +437,6 @@ bool skill_ui_system::event(SDL_Event *event) {
     }
     break;
   }
-
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {

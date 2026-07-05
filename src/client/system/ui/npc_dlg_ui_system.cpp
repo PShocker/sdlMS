@@ -1,10 +1,13 @@
 #include "npc_dlg_ui_system.h"
+#include "SDL3/SDL_rect.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
+#include "src/client/game_instance/text_game_instance.h"
+#include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -85,23 +88,56 @@ void npc_dlg_ui_system::render_button() {
   auto [w, h] = load_wh();
   std::vector<wz::Node *> buttons_node = {
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtClose"),
-      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"),
+
   };
   std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{10, h - 25, 85, 18},     //
-      SDL_FRect{w - 56, h - 25, 46, 18}, //
+      SDL_FRect{10, h - 25, 85, 18}, //
+
   };
-  auto w0 = w - 72;
-  if (index < max_index) {
-    buttons_node.push_back(
-        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    w0 -= 52;
+  auto i = index;
+  auto m = max_index;
+  switch (type) {
+  case npc_dlg_enum::choose: {
+    break;
   }
-  if (index > 0) {
+  case npc_dlg_enum::quest: {
+    if (index == max_index && cb == nullptr) {
+      buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtOK"));
+      buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
+
+      buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtNo"));
+      buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
+      break;
+    }
+    if (index == 0) {
+      break;
+    }
+    i -= 1;
+    m -= 1;
+  }
+  case npc_dlg_enum::talk: {
     buttons_node.push_back(
-        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"));
+    buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
+
+    auto w0 = w - 72;
+    if (i < m) {
+      buttons_node.push_back(
+          wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
+      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+      w0 -= 52;
+    }
+    if (i > 0) {
+      buttons_node.push_back(
+          wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
+      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+    }
+
+    break;
+  }
+  case npc_dlg_enum::select: {
+    break;
+  }
   }
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
@@ -129,7 +165,7 @@ void npc_dlg_ui_system::render_button() {
 
 void npc_dlg_ui_system::render_text() {
   auto dt = window::dt_now - time;
-  dt = dt / 45;
+  dt = dt / 35;
   dt = std::clamp(dt, (uint64_t)1, (uint64_t)text.size());
   auto str = text.substr(0, dt);
   switch (type) {
@@ -167,7 +203,7 @@ void npc_dlg_ui_system::render_list() {
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list2"));
   SDL_FRect pos_rect{
       pos.x + 165,
-      pos.y + h - 130,
+      pos.y + h - 120,
       static_cast<float>(t1->w),
       static_cast<float>(t1->h),
   };
@@ -177,15 +213,37 @@ void npc_dlg_ui_system::render_list() {
   freetype::load_aligned(true);
   freetype::load_color(128, 0, 128, 255);
   auto lh = freetype::load_lh();
+  const auto &mouse_pos = window::mouse_pos;
+  selected = u"";
   for (int i = 0; i < quests.size(); i++) {
-    auto name_node = quests[i].node->find(u"QuestInfo/name");
+    auto quest_node =
+        wz_resource::quest->find(u"QuestData/" + quests[i].quest_id);
+    auto name_node = quest_node->find(u"QuestInfo/name");
     auto name = static_cast<wz::Property<std::u16string> *>(name_node)->get();
-    auto lvl_node = quests[i].node->find(u"Check/0/lvmin");
-    auto lvl = static_cast<wz::Property<int> *>(lvl_node)->get();
+    auto lvl_node = quest_node->find(u"Check/0/lvmin");
+    auto lvl = 0;
+    if (lvl_node) {
+      lvl = static_cast<wz::Property<int> *>(lvl_node)->get();
+    }
     auto lvl2 = std::to_string(lvl);
     std::u16string lvl3{lvl2.begin(), lvl2.end()};
     name = u"(Lv." + lvl3 + u") " + name;
-    freetype::draw_line(name, pos_rect.x + 12, pos_rect.y + 25 + lh * i);
+    auto text_x = pos_rect.x + 12;
+    auto text_y = pos_rect.y + 25 + lh * i;
+    freetype::draw_line(name, text_x, text_y);
+    auto text_w = freetype::load_w(name);
+    SDL_FRect r{
+        text_x,
+        text_y,
+        text_w,
+        lh,
+    };
+    if (SDL_PointInRectFloat(&mouse_pos, &r)) {
+      SDL_SetRenderDrawColor(window::renderer, 128, 0, 128, 255);
+      SDL_RenderLine(window::renderer, text_x, text_y + lh, text_x + text_w,
+                     text_y + lh);
+      selected = quests[i].quest_id;
+    }
   }
   freetype::load_aligned(false);
 }
@@ -201,9 +259,15 @@ bool npc_dlg_ui_system::render() {
 
 SDL_FPoint npc_dlg_ui_system::load_wh() {
   freetype::load_size(12);
-  auto h = freetype::load_h(text, 330, 1.1);
-  h = h + 150;
-  return {529, static_cast<float>(std::max((int)h, 200))};
+  auto h = freetype::load_h(text, 330, 1.3);
+  h = h + 125;
+  if (type == npc_dlg_enum::quest && index == 0) {
+    auto quests = quest_game_instance::load_npc_quest(npc_id);
+    freetype::load_size(12);
+    auto lh = freetype::load_lh();
+    h += quests.size() * lh;
+  }
+  return {529, static_cast<float>(std::max((int)h, 180))};
 }
 
 void npc_dlg_ui_system::open() {
@@ -211,6 +275,8 @@ void npc_dlg_ui_system::open() {
   auto &camera = camera_game_instance::camera;
   pos.x = (camera.w - wh.x) / 2;
   pos.y = (camera.h - wh.y) / 2;
+
+  keyboard_input_system::reset();
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
   system::event_systems.insert(system::event_systems.begin(), event);
@@ -237,34 +303,106 @@ void npc_dlg_ui_system::event_button_ok() { close(); }
 void npc_dlg_ui_system::event_button_prev() {
   selected = u"";
   index--;
-  cb();
+  if (cb) {
+    cb();
+  } else {
+  }
 }
 
 void npc_dlg_ui_system::event_button_next() {
   selected = u"";
   index++;
+  if (cb) {
+    cb();
+  } else {
+  }
+}
+
+void npc_dlg_ui_system::event_quest_list() {
+  if (type != npc_dlg_enum::quest) {
+    return;
+  }
+  if (index != 0) {
+    return;
+  }
+  if (selected.empty()) {
+    return;
+  }
+  index++;
+  auto node = wz_resource::quest->find(u"QuestData/" + selected + u"/Say/0");
+  auto child = node->children;
+  child.erase(u"yes");
+  child.erase(u"no");
+  child.erase(u"stop");
+  max_index = child.size();
+  text = text_game_instance::load_rstr(node->get_child(u"0"));
+  time = window::dt_now;
+}
+
+void npc_dlg_ui_system::event_button_quest_yes() {
+  static wz::Node *yes_node;
+  yes_node = wz_resource::quest->find(u"QuestData/" + selected + u"/Say/0/yes");
+  cb = []() {
+    auto node = yes_node->get_child(std::to_string(index - 1));
+    text = text_game_instance::load_rstr(node);
+    max_index = yes_node->children_count();
+    time = window::dt_now;
+  };
   cb();
 }
+
+void npc_dlg_ui_system::event_button_quest_no() { close(); }
 
 bool npc_dlg_ui_system::event_button(SDL_Event *event) {
   auto [w, h] = load_wh();
   std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{10, h - 25, 85, 18},     //
-      SDL_FRect{w - 56, h - 25, 46, 18}, //
+      SDL_FRect{10, h - 25, 85, 18}, //
   };
   std::vector<std::function<void()>> func = {
       event_button_close,
-      event_button_ok,
   };
-  auto w0 = w - 72;
-  if (index < max_index) {
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    w0 -= 52;
-    func.push_back(event_button_next);
+
+  auto i = index;
+  auto m = max_index;
+  switch (type) {
+  case npc_dlg_enum::choose: {
+    break;
   }
-  if (index > 0) {
-    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    func.push_back(event_button_prev);
+  case npc_dlg_enum::quest: {
+    if (index == max_index && cb == nullptr) {
+      buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
+      func.push_back(event_button_quest_yes);
+
+      buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
+      func.push_back(event_button_quest_no);
+      break;
+    }
+    if (index == 0) {
+      break;
+    }
+    i -= 1;
+    m -= 1;
+  }
+  case npc_dlg_enum::talk: {
+    buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
+    func.push_back(event_button_ok);
+
+    auto w0 = w - 72;
+    if (i < m) {
+      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+      func.push_back(event_button_next);
+      w0 -= 52;
+    }
+    if (i > 0) {
+      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+      func.push_back(event_button_prev);
+    }
+
+    break;
+  }
+  case npc_dlg_enum::select: {
+    break;
+  }
   }
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
@@ -290,6 +428,20 @@ bool npc_dlg_ui_system::cursor_in() {
 bool npc_dlg_ui_system::event(SDL_Event *event) {
   bool r = false;
   switch (event->type) {
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_ESCAPE: {
+      event_button_close();
+      return false;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
@@ -301,6 +453,7 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
         time = UINT64_MAX;
+        event_quest_list();
         event_button(event);
       }
     }

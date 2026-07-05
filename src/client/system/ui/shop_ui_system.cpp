@@ -1,6 +1,7 @@
 #include "shop_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -36,8 +37,8 @@ void shop_ui_system::render_button() {
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
     auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
@@ -86,7 +87,13 @@ void shop_ui_system::render_tab() {
   }
 }
 
-bool shop_ui_system::render() { return true; }
+bool shop_ui_system::render() {
+  render_backgrnd();
+  render_button();
+  render_tab();
+  render_items();
+  return true;
+}
 
 void shop_ui_system::open() {
   auto wh = load_wh();
@@ -95,6 +102,7 @@ void shop_ui_system::open() {
   pos.y = (camera.h - wh.y) / 2;
 
   page = 0;
+  keyboard_input_system::reset();
 
   system::render_systems.insert(system::render_systems.end() - 1, render);
   system::event_systems.insert(system::event_systems.begin(), event);
@@ -128,48 +136,28 @@ void shop_ui_system::close() {
   std::erase(system::event_systems, event);
 }
 
-void shop_ui_system::event_top() {
-  std::erase(system::render_systems, render);
-  std::erase(system::event_systems, event);
-
-  system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.begin(), event);
-}
-
-void shop_ui_system::event_drag_start(SDL_Event *event) {
-  auto wh = load_wh();
-  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - event->button.x, pos.y - event->button.y};
-  }
-  return;
-}
-
-void shop_ui_system::event_drag_end() {
-  drag = std::nullopt;
-  return;
-}
-
-void shop_ui_system::event_drag_move(SDL_Event *event) {
-  if (drag.has_value()) {
-    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
-    auto &camera = camera_game_instance::camera;
-    auto [w, h] = load_wh();
-    pos.x = std::clamp(pos.x, (float)0, camera.w - w);
-    pos.y = std::clamp(pos.y, (float)0, camera.h - h);
-  }
-  return;
-}
+void shop_ui_system::event_close() { close(); }
 
 bool shop_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_ESCAPE: {
+      event_close();
+      return false;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
-        event_top();
-        event_drag_start(event);
         r = false;
       }
     }
@@ -180,12 +168,10 @@ bool shop_ui_system::event(SDL_Event *event) {
       if (cursor_game_instance::cursor_ui == render) {
         r = !event_button(event);
       }
-      event_drag_end();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_drag_move(event);
     break;
   }
   default: {

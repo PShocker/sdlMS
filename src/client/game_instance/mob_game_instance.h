@@ -21,6 +21,7 @@ struct mob_server_data {
 
 class mob_game_instance {
 public:
+  static std::u16string load_mob_name(const std::u16string &id);
   static wz::Node *load_mob_info(const std::u16string &id);
   static wz::Node *load_link_mob_node(const std::u16string &id);
 

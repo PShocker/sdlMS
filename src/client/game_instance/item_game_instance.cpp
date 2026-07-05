@@ -30,11 +30,15 @@ std::u16string item_game_instance::load_item_text(const std::u16string &id,
 }
 
 std::u16string item_game_instance::load_item_type(const std::u16string &id) {
+  auto str = id;
+  if (str.length() < 8) {
+    str.insert(0, 8 - str.size(), u'0');
+  }
   static const std::flat_map<std::u16string, std::u16string> types = {
       {u"05", u"Cash"},    {u"02", u"Consume"}, {u"04", u"Etc"},
       {u"03", u"Install"}, {u"50", u"Pet"},     {u"09", u"Special"},
   };
-  auto r = id.substr(0, 2);
+  auto r = str.substr(0, 2);
   return types.at(r);
 }
 

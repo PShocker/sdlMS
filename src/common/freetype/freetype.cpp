@@ -211,7 +211,7 @@ void freetype::draw_rstr(const std::u16string &str, float x, float y, float w) {
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
-  lineHeight = lineHeight * 1.1;
+  lineHeight = lineHeight * 1.3;
   for (uint32_t i = 0; i < str.size(); i++) {
     auto c = str[i];
     if (l >= x + w || c == u'\n') {
@@ -224,6 +224,31 @@ void freetype::draw_rstr(const std::u16string &str, float x, float y, float w) {
         switch (d) {
         case u'c': {
           load_color(240, 224, 104, 255);
+          i++;
+          break;
+        }
+        case u'b': {
+          load_color(0, 0, 255, 255);
+          i++;
+          break;
+        }
+        case u'k': {
+          load_color(0, 0, 0, 255);
+          i++;
+          break;
+        }
+        case u'r': {
+          load_color(255, 0, 0, 255);
+          i++;
+          break;
+        }
+        case u'e': {
+          load_bold(true);
+          i++;
+          break;
+        }
+        case u'n': {
+          load_bold(false);
           i++;
           break;
         }

@@ -17,11 +17,16 @@ private:
 
   static SDL_FPoint load_wh();
 
+  static void event_quest_list();
+
   static void event_button_close();
   static void event_button_ok();
 
   static void event_button_prev();
   static void event_button_next();
+
+  static void event_button_quest_yes();
+  static void event_button_quest_no();
 
   static bool event_button(SDL_Event *event);
 

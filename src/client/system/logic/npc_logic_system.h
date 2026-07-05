@@ -18,7 +18,5 @@ private:
   static action_enum load_action_type(game_npc &g_npc);
 
 public:
-  static std::optional<std::u16string> cursor_in();
-
   static bool run();
 };

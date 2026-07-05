@@ -12,17 +12,12 @@ private:
   static void render_items();
   static void render_tab();
 
+  static void event_close();
   static bool event_button(SDL_Event *event);
 
   static void event_tab(SDL_Event *event);
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
 
   static SDL_FPoint load_wh();
-
-  static inline std::optional<SDL_FPoint> drag;
 
   static bool event_open(SDL_Event *event);
 
