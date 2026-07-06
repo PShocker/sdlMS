@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -23,13 +24,17 @@ void trade_ui_system::close() {
 }
 
 void trade_ui_system::open() {
-  auto wh = load_wh();
-  auto &camera = camera_game_instance::camera;
-  pos.x = (camera.w - wh.x) / 2;
-  pos.y = (camera.h - wh.y) / 2;
+  auto it =
+      std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
+    auto wh = load_wh();
+    auto &camera = camera_game_instance::camera;
+    pos.x = (camera.w - wh.x) / 2;
+    pos.y = (camera.h - wh.y) / 2;
 
-  system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.begin(), event);
+    system::render_systems.insert(it, render);
+    system::event_systems.insert(system::event_systems.begin(), event);
+  }
 }
 
 void trade_ui_system::toggle() {
@@ -118,9 +123,12 @@ void trade_ui_system::event_drag_move(SDL_Event *event) {
 void trade_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
-
-  system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.begin(), event);
+  auto it =
+      std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
+    system::render_systems.insert(it, render);
+    system::event_systems.insert(system::event_systems.begin(), event);
+  }
 }
 
 void trade_ui_system::event_button_close() { close(); }

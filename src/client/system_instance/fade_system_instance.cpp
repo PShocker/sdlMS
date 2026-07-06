@@ -62,6 +62,7 @@ void fade_system_instance::enter_out() {
 }
 
 bool fade_system_instance::run() {
+  character_logic_system::self_invincible_cooldown = window::dt_now;
   if (mask_alpha < 255) {
     mask_alpha += 15;
   } else {
@@ -70,6 +71,7 @@ bool fade_system_instance::run() {
     }
     std::erase(system::render_systems, render);
     std::erase(system::render_systems, run);
+    character_logic_system::self_invincible_cooldown = 0;
     return false;
   }
   mask_alpha = std::clamp(mask_alpha, 0, 255);

@@ -4,6 +4,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/window/window.h"
@@ -231,8 +232,12 @@ bool context_menu_ui_system::event(SDL_Event *event) {
   return r;
 }
 void context_menu_ui_system::open() {
-  system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.begin(), event);
+  auto it =
+      std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
+    system::render_systems.insert(it, render);
+    system::event_systems.insert(system::event_systems.begin(), event);
+  }
 }
 
 void context_menu_ui_system::close() {

@@ -11,7 +11,7 @@ public:
   static inline uint32_t prepare_map_id;
   static inline std::optional<SDL_FPoint> prepare_pos;
   static void enter(uint32_t map_id);
-  static void enter_prepare_fade();
+  static void enter_fade();
   static void enter_prepare(uint32_t map_id, const std::u16string &pn, int i);
 
 private:

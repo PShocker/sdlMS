@@ -32,8 +32,6 @@ private:
 
   static SDL_FPoint load_wh();
 
-  static bool run();
-
   static inline uint8_t page;
 
   static inline std::optional<SDL_FPoint> drag;

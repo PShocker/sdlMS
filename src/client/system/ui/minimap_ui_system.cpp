@@ -8,6 +8,7 @@
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -649,9 +650,12 @@ bool minimap_ui_system::event_button(SDL_Event *event) {
 void minimap_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
-
-  system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.begin(), event);
+  auto it =
+      std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
+    system::render_systems.insert(it, render);
+    system::event_systems.insert(system::event_systems.begin(), event);
+  }
 }
 
 void minimap_ui_system::event_drag_start(SDL_Event *event) {

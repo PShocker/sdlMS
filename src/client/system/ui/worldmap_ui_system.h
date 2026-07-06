@@ -23,8 +23,6 @@ private:
   static void event_drag_end();
   static void event_drag_move(SDL_Event *event);
 
-  static bool run();
-
   static inline std::optional<SDL_FPoint> drag;
 
 public:

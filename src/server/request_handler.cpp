@@ -154,7 +154,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
       }
       mob_game_instance::load_server_mob(r.mobs);
     } else {
-      fade_system_instance::enter_in(scene_system_instance::enter_prepare_fade);
+      fade_system_instance::enter_in(scene_system_instance::enter_fade);
     }
     break;
   }

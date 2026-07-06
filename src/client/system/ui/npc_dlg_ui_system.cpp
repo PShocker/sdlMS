@@ -9,6 +9,7 @@
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -272,15 +273,19 @@ SDL_FPoint npc_dlg_ui_system::load_wh() {
 }
 
 void npc_dlg_ui_system::open() {
-  auto wh = load_wh();
-  auto &camera = camera_game_instance::camera;
-  pos.x = (camera.w - wh.x) / 2;
-  pos.y = (camera.h - wh.y) / 2;
+  auto it =
+      std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
+    auto wh = load_wh();
+    auto &camera = camera_game_instance::camera;
+    pos.x = (camera.w - wh.x) / 2;
+    pos.y = (camera.h - wh.y) / 2;
 
-  keyboard_input_system::reset();
+    keyboard_input_system::reset();
 
-  system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.begin(), event);
+    system::render_systems.insert(it, render);
+    system::event_systems.insert(system::event_systems.begin(), event);
+  }
 }
 
 void npc_dlg_ui_system::close() {

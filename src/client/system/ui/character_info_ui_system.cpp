@@ -6,9 +6,9 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
-#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -292,20 +292,25 @@ void character_info_ui_system::event_click_scroll() {
 }
 
 void character_info_ui_system::open() {
-  auto wh = load_wh();
-  auto &camera = camera_game_instance::camera;
-  pos.x = (camera.w - wh.x) / 2;
-  pos.y = (camera.h - wh.y) / 2;
+  auto it =
+      std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
 
-  item = false;
-  pet = false;
-  
-  character_logic_system::run_stand_action(character);
-  character_logic_system::run_face_action(character, u"default");
-  character.flip = 0;
+    auto wh = load_wh();
+    auto &camera = camera_game_instance::camera;
+    pos.x = (camera.w - wh.x) / 2;
+    pos.y = (camera.h - wh.y) / 2;
 
-  system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.begin(), event);
+    item = false;
+    pet = false;
+
+    character_logic_system::run_stand_action(character);
+    character_logic_system::run_face_action(character, u"default");
+    character.flip = 0;
+
+    system::render_systems.insert(it, render);
+    system::event_systems.insert(system::event_systems.begin(), event);
+  }
 }
 
 void character_info_ui_system::close() {
@@ -314,11 +319,15 @@ void character_info_ui_system::close() {
 }
 
 void character_info_ui_system::event_top() {
-  std::erase(system::render_systems, render);
-  std::erase(system::event_systems, event);
+  auto it =
+      std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
+    std::erase(system::render_systems, render);
+    std::erase(system::event_systems, event);
 
-  system::render_systems.insert(system::render_systems.end() - 1, render);
-  system::event_systems.insert(system::event_systems.begin(), event);
+    system::render_systems.insert(it, render);
+    system::event_systems.insert(system::event_systems.begin(), event);
+  }
 }
 
 void character_info_ui_system::event_drag_start(SDL_Event *event) {
