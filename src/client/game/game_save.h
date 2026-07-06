@@ -4,6 +4,7 @@
 #include "game_item.h"
 #include "game_storage.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_quest.h"
 #include <cstdint>
 #include <string>
 #include <variant>
@@ -38,6 +39,8 @@ struct character_save {
   uint32_t hp;
   uint32_t mp;
   uint64_t exp;
+
+  std::vector<game_quest> quests;
 };
 
 class game_save {

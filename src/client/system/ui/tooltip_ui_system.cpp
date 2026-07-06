@@ -500,13 +500,13 @@ float tooltip_ui_system::load_skill_bottom_h(const std::u16string &id) {
         std::clamp(ski_level, (uint8_t)0, (uint8_t)(ski_name.level.size() - 1));
     auto ski_l0 = ski_name.level[ski_level];
     h += freetype::load_lh() * 1.1;
-    h += freetype::load_h(ski_l0, w, 1.1);
+    h += freetype::load_h(ski_l0, w, 1.3);
   } else {
     auto ski_l0 = ski_name.level[ski_level - 1];
     auto ski_l1 = ski_name.level[ski_level];
     h += freetype::load_lh() * 2 * 1.1;
-    h += freetype::load_h(ski_l0, w, 1.1);
-    h += freetype::load_h(ski_l1, w, 1.1);
+    h += freetype::load_h(ski_l0, w, 1.3);
+    h += freetype::load_h(ski_l1, w, 1.3);
     h += 5;
   }
   return h;
@@ -535,7 +535,7 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
     freetype::draw_line(str, x, y);
 
     str = ski_name.level[ski_level];
-    y += freetype::load_lh() * 1.1;
+    y += freetype::load_lh() * 1.3;
     freetype::draw_rstr(str, x + 2, y, w - 22);
   } else if (ski_level == ski_name.level.size()) {
     freetype::load_size(12);
@@ -548,9 +548,8 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
     freetype::draw_line(str, x, y);
 
     str = ski_name.level[ski_level - 1];
-    y += freetype::load_lh() * 1.1;
+    y += freetype::load_lh() * 1.3;
     freetype::draw_rstr(str, x + 2, y, w - 22);
-
   } else {
     freetype::load_size(12);
     freetype::load_color(255, 255, 255, 255);
@@ -562,7 +561,7 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
     freetype::draw_line(str, x, y);
 
     str = ski_name.level[ski_level - 1];
-    y += freetype::load_lh() * 1.1;
+    y += freetype::load_lh() * 1.3;
     freetype::draw_rstr(str, x + 2, y, w - 22);
 
     y += 19;
@@ -574,7 +573,7 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
     str = u"[" + str + u" " + next_level3 + u"]";
     freetype::draw_line(str, x, y);
     str = ski_name.level[ski_level];
-    y += freetype::load_lh() * 1.1;
+    y += freetype::load_lh() * 1.3;
     freetype::draw_rstr(str, x + 2, y, w - 22);
   }
 }
@@ -583,7 +582,7 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
                                      float x, float y) {
   auto ski_name = skill_game_instance::load_ski_name(id);
   const auto w = 330;
-  auto h = 142;
+  auto h = 140;
   h += load_skill_bottom_h(id);
   render_backgrnd(x, y, w, h);
   static auto dot0 = wz_resource::load_texture(
@@ -621,7 +620,7 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
   freetype::load_size(12);
   freetype::load_color(255, 255, 255, 255);
   auto str = ski_name.desc;
-  freetype::draw_str(str, pos_rect.x + 75, pos_rect.y - 4, w - 112);
+  freetype::draw_rstr(str, pos_rect.x + 75, pos_rect.y - 4, w - 112);
 
   auto line_y = y + base.y + 90;
   SDL_SetRenderDrawColor(window::renderer, 255, 255, 255, 255);

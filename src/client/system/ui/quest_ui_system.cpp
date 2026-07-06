@@ -5,6 +5,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -38,7 +39,6 @@ void quest_ui_system::render_backgrnd() {
 }
 
 void quest_ui_system::render_button() {
-
   const static std::array buttons_nodes = {
       wz_resource::ui->find(u"Basic.img/BtClose"),
   };
@@ -70,6 +70,43 @@ void quest_ui_system::render_button() {
       SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
     }
   }
+}
+
+void quest_ui_system::render_quests() {
+  auto quests = quest_game_instance::load_avaliable_quest();
+  // UIWindow.img/Quest/Tab/enabled/0
+  static auto notice3 = wz_resource::load_texture(
+      wz_resource::ui->find(u"UIWindow.img/Quest/notice3"));
+  // SDL_FRect pos_rect{
+  //     pos.x,
+  //     pos.y,
+  //     static_cast<float>(backgrnd->w),
+  //     static_cast<float>(backgrnd->h),
+  // };
+  // SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+  for (int i = 0; i < quests.size(); i++) {
+    static auto notice3 = wz_resource::load_texture(
+        wz_resource::ui->find(u"UIWindow.img/Quest/notice3"));
+    // SDL_FRect pos_rect{
+    //     pos.x,
+    //     pos.y,
+    //     static_cast<float>(backgrnd->w),
+    //     static_cast<float>(backgrnd->h),
+    // };
+    // SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+  }
+}
+
+void quest_ui_system::render_quest_detail() {
+  static auto notice3 = wz_resource::load_texture(
+      wz_resource::ui->find(u"UIWindow.img/Quest/notice3"));
+  // SDL_FRect pos_rect{
+  //     pos.x,
+  //     pos.y,
+  //     static_cast<float>(backgrnd->w),
+  //     static_cast<float>(backgrnd->h),
+  // };
+  // SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
 bool quest_ui_system::render() {

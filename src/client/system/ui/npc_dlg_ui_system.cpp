@@ -1,6 +1,7 @@
 #include "npc_dlg_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_npc.h"
+#include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -349,6 +350,9 @@ void npc_dlg_ui_system::event_button_quest_yes() {
     time = window::dt_now;
   };
   cb();
+  // accept quest
+  game_quest q{.quest_id = selected, .index = 0};
+  quest_game_instance::quests.emplace_back(q);
 }
 
 void npc_dlg_ui_system::event_button_quest_no() { close(); }

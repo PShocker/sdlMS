@@ -1,6 +1,8 @@
 #include "shop_ui_system.h"
+#include "scroll_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -21,7 +23,32 @@ void shop_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void shop_ui_system::render_items() {}
+void shop_ui_system::render_items() {
+  if (!shop.has_value()) {
+    return;
+  }
+  auto items = shop->items;
+  // render shop
+  for (int i = pages[0]; i < items.size(); i++) {
+    auto item = items[i];
+    if (item_game_instance::check_item(item.itemId)) {
+      auto info = item_game_instance::load_item_info(item.itemId);
+      auto icon = wz_resource::load_texture(info->get_child(u"iconRaw"));
+    } else {
+      // equip
+    }
+  }
+}
+
+void shop_ui_system::render_vscr() {
+  const SDL_FPoint lt{188, 51};
+  const uint32_t length = 202;
+  auto size = 96 / 5;
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
+                                   pages[0], size, length, true);
+  return;
+}
 
 void shop_ui_system::render_button() {
   const static std::array buttons_node = {
@@ -101,7 +128,7 @@ void shop_ui_system::open() {
   pos.x = (camera.w - wh.x) / 2;
   pos.y = (camera.h - wh.y) / 2;
 
-  page = 0;
+  pages = {};
   keyboard_input_system::reset();
 
   system::render_systems.insert(system::render_systems.end() - 1, render);

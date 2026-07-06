@@ -70,7 +70,14 @@ wz::Node *npc_game_instance::load_quest_node(const game_npc &g_npc) {
   // 直接用当前时间控制灯泡时间
   auto now = window::dt_now;
   const int delay = 150;
-  auto node = wz_resource::ui->find(u"QuestIcon.img/0");
+  wz::Node *node = nullptr;
+  for (auto &v : quests) {
+    auto index = quest_game_instance::load_quest_index(v.quest_id);
+    if (v.index == index) {
+    }
+  }
+
+  node = wz_resource::ui->find(u"QuestIcon.img/0");
   auto index = std::to_string((now % (node->children_count() * delay)) / delay);
   node = node->get_child(index);
   return node;

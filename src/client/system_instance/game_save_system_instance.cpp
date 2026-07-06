@@ -3,16 +3,19 @@
 #include "scene_system_instance.h"
 #include "src/client/game/game_equip.h"
 #include "src/client/game/game_item.h"
+#include "src/client/game/game_quest.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/common/flatbuffers/common.h"
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
+#include <format>
 #include <memory>
 #include <string>
 
@@ -34,8 +37,7 @@ bool game_save_system_instance::load_save(const std::string &login) {
       character_save cs;
       cs.map_id = c->map_id;
       cs.character = character_game_instance::load_g_character(c->character);
-      auto name =
-          std::u16string{c->character->name.begin(), c->character->name.end()};
+      std::u16string name{c->character->name.begin(), c->character->name.end()};
       character_game_instance::load_name(cs.character, name);
       for (auto &item : c->package) {
         switch (item->data.type) {
@@ -73,6 +75,29 @@ bool game_save_system_instance::load_save(const std::string &login) {
       cs.ap.dex_ap = c->ap->dex_ap;
       cs.ap.int_ap = c->ap->int_ap;
       cs.ap.luk_ap = c->ap->luk_ap;
+
+      cs.exp = c->exp;
+
+      for (const auto &quest : c->quest) {
+        game_quest g_quest;
+        g_quest.quest_id = {quest->id.begin(), quest->id.end()};
+        g_quest.index = quest->index;
+        g_quest.complete = quest->complete;
+        for (const auto &v : quest->mob) {
+          quest_mob q_mob;
+          auto tmp = std::format("{:07d}", v->mob_id);
+          q_mob.id = {tmp.begin(), tmp.end()};
+          q_mob.count = v->mob_num;
+          g_quest.mob[q_mob.id] = q_mob;
+        }
+        for (const auto &v : quest->npc) {
+          quest_npc q_npc;
+          auto tmp = std::format("{:07d}", v->npc_id);
+          q_npc.id = {tmp.begin(), tmp.end()};
+          g_quest.npc[q_npc.id] = q_npc;
+        }
+        cs.quests.push_back(g_quest);
+      }
 
       for (auto &i : c->sp) {
         cs.sp.ski_sp[i->id] = i->val;
@@ -113,6 +138,8 @@ bool game_save_system_instance::save_game() {
     cs.hp = character_stat_game_instance::hp_point;
     cs.mp = character_stat_game_instance::mp_point;
     cs.exp = character_stat_game_instance::exp_point;
+
+    cs.quests = quest_game_instance::quests;
 
     for (uint32_t i = 0; i < package_game_instance::equips.size(); i++) {
       auto equip = package_game_instance::equips[i];
@@ -183,6 +210,24 @@ bool game_save_system_instance::save_game() {
     cst.hp = character_s.hp;
     cst.mp = character_s.mp;
     cst.exp = character_s.exp;
+
+    for (auto quest : character_s.quests) {
+      QuestSaveT qt;
+      qt.id = {quest.quest_id.begin(), quest.quest_id.end()};
+      qt.index = quest.index, qt.complete = quest.complete;
+      for (const auto &[k, v] : quest.mob) {
+        QuestMobSaveT qmt;
+        qmt.mob_id = std::stoi(std::string{v.id.begin(), v.id.end()});
+        qmt.mob_num = v.count;
+        qt.mob.push_back(std::make_unique<QuestMobSaveT>(qmt));
+      }
+      for (const auto &[k, v] : quest.npc) {
+        QuestNPCSaveT qnt;
+        qnt.npc_id = std::stoi(std::string{v.id.begin(), v.id.end()});
+        qt.npc.push_back(std::make_unique<QuestNPCSaveT>(qnt));
+      }
+      cst.quest.push_back(std::make_unique<QuestSaveT>(qt));
+    }
 
     for (auto [k, v] : character_s.sp.ski_sp) {
       SPSaveT spt = {

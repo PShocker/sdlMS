@@ -7,6 +7,8 @@ class quest_ui_system {
 private:
   static void render_backgrnd();
   static void render_button();
+  static void render_quests();
+  static void render_quest_detail();
 
   static void event_button(SDL_Event *event);
   static void event_top();

@@ -208,10 +208,26 @@ table SPSave{
    val:uint32;
 }
 
-
 table PackageSave{
    index:uint32;
    data:ItemUnion;
+}
+
+table QuestMobSave{
+    mob_id:uint32;
+    mob_num:uint32;
+}
+
+table QuestNPCSave{
+    npc_id:uint32;
+}
+
+table QuestSave{
+   id:string;
+   index:uint8;
+   complete:bool;
+   mob:[QuestMobSave];
+   npc:[QuestNPCSave];
 }
 
 table CharacterSave{
@@ -221,10 +237,10 @@ table CharacterSave{
     package:[PackageSave];
     meso:uint64;
     map_id:uint32;
-
     hp:uint32;
     mp:uint32;
     exp:uint64;
+    quest:[QuestSave];
 }
 
 table PlayerSave{
