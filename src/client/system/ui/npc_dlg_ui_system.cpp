@@ -197,6 +197,11 @@ void npc_dlg_ui_system::render_list() {
     return;
   }
   auto [w, h] = load_wh();
+  auto quests = quest_game_instance::load_npc_quest(npc_id);
+  freetype::load_size(12);
+  freetype::load_aligned(true);
+  freetype::load_color(128, 0, 128, 255);
+  auto lh = freetype::load_lh();
   static auto t0 = wz_resource::load_texture(
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list0"));
   static auto t1 = wz_resource::load_texture(
@@ -205,16 +210,12 @@ void npc_dlg_ui_system::render_list() {
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list2"));
   SDL_FRect pos_rect{
       pos.x + 165,
-      pos.y + h - 120,
+      pos.y + h - 115 - lh * quests.size(),
       static_cast<float>(t1->w),
       static_cast<float>(t1->h),
   };
   SDL_RenderTexture(window::renderer, t1, nullptr, &pos_rect);
-  auto quests = quest_game_instance::load_npc_quest(npc_id);
-  freetype::load_size(12);
-  freetype::load_aligned(true);
-  freetype::load_color(128, 0, 128, 255);
-  auto lh = freetype::load_lh();
+
   const auto &mouse_pos = window::mouse_pos;
   selected = u"";
   for (int i = 0; i < quests.size(); i++) {
@@ -262,14 +263,15 @@ bool npc_dlg_ui_system::render() {
 SDL_FPoint npc_dlg_ui_system::load_wh() {
   freetype::load_size(12);
   auto h = freetype::load_h(text, 330, 1.3);
-  h = h + 125;
+  h = h + 140;
+  h = std::max((int)h, 190);
   if (type == npc_dlg_enum::quest && index == 0) {
     auto quests = quest_game_instance::load_npc_quest(npc_id);
     freetype::load_size(12);
     auto lh = freetype::load_lh();
     h += quests.size() * lh;
   }
-  return {529, static_cast<float>(std::max((int)h, 180))};
+  return {529, h};
 }
 
 void npc_dlg_ui_system::open() {
