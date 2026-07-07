@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
 #include <array>
 #include <cstdint>
@@ -13,6 +14,9 @@ private:
   static void render_items();
   static void render_tab();
   static void render_vscr();
+
+  static void render_npc();
+  static void render_self();
 
   static void event_close();
   static bool event_button(SDL_Event *event);
@@ -27,7 +31,7 @@ private:
 public:
   static inline uint8_t active_tab;
 
-  static inline std::optional<std::u16string> npc_id;
+  static inline std::optional<game_npc> npc;
   static inline std::optional<game_shop> shop;
 
   static inline SDL_FPoint pos;

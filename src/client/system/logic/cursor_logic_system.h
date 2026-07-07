@@ -1,11 +1,12 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/client/game/game_npc.h"
 #include <optional>
 #include <string>
 class cursor_logic_system {
 private:
-  static std::u16string cursor_npc();
+  static std::optional<game_npc> cursor_npc();
 
   static bool event_left_click();
 

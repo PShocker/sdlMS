@@ -120,6 +120,8 @@ void npc_game_instance::load(uint32_t map_id) {
     g_npc.id =
         static_cast<wz::Property<std::u16string> *>(npc_node->get_child(u"id"))
             ->get();
+    g_npc.flip =
+        static_cast<wz::Property<int> *>(npc_node->get_child(u"f"))->get();
     g_npc.fh =
         static_cast<wz::Property<int> *>(npc_node->get_child(u"fh"))->get();
     g_npc.rx0 =

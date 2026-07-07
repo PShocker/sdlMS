@@ -89,7 +89,8 @@ bool npc_render_system::render_npc(game_npc &g_npc) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_SetTextureAlphaMod(texture, g_npc.alpha);
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    SDL_RenderTextureRotated(window::renderer, texture, nullptr, &pos_rect, 0,
+                             nullptr, (SDL_FlipMode)g_npc.flip);
   }
 
   return true;

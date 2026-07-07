@@ -1,14 +1,25 @@
 #include "shop_ui_system.h"
+#include "SDL3/SDL_render.h"
 #include "scroll_ui_system.h"
+#include "src/client/game/game_npc.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
+#include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
+#include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Property.h"
 #include <algorithm>
+#include <string>
 
 SDL_FPoint shop_ui_system::load_wh() { return SDL_FPoint{465, 381}; }
 
@@ -22,6 +33,16 @@ void shop_ui_system::render_backgrnd() {
       static_cast<float>(texture->h),
   };
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+
+  static auto tab = wz_resource::load_texture(
+      wz_resource::ui->find(u"UIShop.img/Shop/TabBuy/enabled/0"));
+  pos_rect = {
+      static_cast<float>((int)pos.x + 7),
+      static_cast<float>((int)pos.y + 96),
+      static_cast<float>(tab->w),
+      static_cast<float>(tab->h),
+  };
+  SDL_RenderTexture(window::renderer, tab, nullptr, &pos_rect);
 }
 
 void shop_ui_system::render_items() {
@@ -30,14 +51,52 @@ void shop_ui_system::render_items() {
   }
   auto items = shop->items;
   // render shop
-  for (int i = pages[0]; i < items.size(); i++) {
+  const auto page_size = 6;
+  for (int i = pages[0]; i < pages[0] + page_size; i++) {
+    if (i >= items.size()) {
+      break;
+    }
     auto item = items[i];
+    SDL_Texture *texture;
+    std::u16string item_name;
     if (item_game_instance::check_item(item.itemId)) {
       auto info = item_game_instance::load_item_info(item.itemId);
-      auto icon = wz_resource::load_texture(info->get_child(u"iconRaw"));
+      texture = wz_resource::load_texture(info->get_child(u"icon"));
+      item_name = item_game_instance::load_item_text(item.itemId, u"name");
     } else {
       // equip
+      auto info = equip_game_instance::load_equip_info(item.itemId);
+      texture = wz_resource::load_texture(info->get_child(u"icon"));
+      item_name = equip_game_instance::load_equip_name(item.itemId);
     }
+    SDL_FRect pos_rect;
+    auto x = (int)pos.x + 8;
+    auto y = (int)pos.y + 129 + (i - pages[0]) * 40;
+    pos_rect.x = x + (36 - texture->w) / 2;
+    pos_rect.y = y + (36 - texture->h) / 2;
+    pos_rect.w = texture->w;
+    pos_rect.h = texture->h;
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+
+    // render name
+    freetype::load_size(12);
+    freetype::load_color(0, 0, 0, 255);
+    x = x + 42;
+    y = y - 2;
+    freetype::draw_line(item_name, x, y);
+    // render meso
+    static auto meso = wz_resource::load_texture(
+        wz_resource::ui->find(u"UIShop.img/Shop/meso"));
+    pos_rect.x = x;
+    pos_rect.y = y + 23;
+    pos_rect.w = meso->w;
+    pos_rect.h = meso->h;
+    SDL_RenderTexture(window::renderer, meso, nullptr, &pos_rect);
+    auto tmp = std::to_string(item.price);
+    std::u16string tmp2{tmp.begin(), tmp.end()};
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Shop/mesos");
+    tmp2 = tmp2 + u" " + static_cast<wz::Property<std::u16string> *>(n)->get();
+    freetype::draw_line(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }
 }
 
@@ -115,11 +174,39 @@ void shop_ui_system::render_tab() {
   }
 }
 
+void shop_ui_system::render_npc() {
+  if (!npc.has_value()) {
+    return;
+  }
+  auto n = npc.value();
+  n.action = u"stand";
+  const auto &camera = camera_game_instance::camera;
+  n.pos.x = camera.x + pos.x + 55;
+  n.pos.y = camera.y + pos.y + 76;
+  n.ani_index = 0;
+  npc_render_system::render_npc(n);
+}
+
+void shop_ui_system::render_self() {
+  auto self = character_game_instance::self;
+  character_logic_system::run_stand_action(self);
+  self.action_index = 0;
+  self.flip = 0;
+  self.face.action = u"default";
+  self.face.index = 0;
+  const auto &camera = camera_game_instance::camera;
+  self.pos.x = camera.x + (int)pos.x + 290;
+  self.pos.y = camera.y + (int)pos.y + 76;
+  character_render_system::render_character(self);
+}
+
 bool shop_ui_system::render() {
   render_backgrnd();
   render_button();
   render_tab();
   render_items();
+  render_npc();
+  render_self();
   return true;
 }
 

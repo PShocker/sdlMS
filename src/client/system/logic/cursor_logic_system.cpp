@@ -43,12 +43,10 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <utility>
 
 using namespace fbs;
 
-std::u16string cursor_logic_system::cursor_npc() {
-  std::u16string r = u"";
+std::optional<game_npc> cursor_logic_system::cursor_npc() {
   const auto &pos = window::mouse_pos;
   auto &camera = camera_game_instance::camera;
   for (auto &m : npc_game_instance::data) {
@@ -59,18 +57,18 @@ std::u16string cursor_logic_system::cursor_npc() {
         quest_r.x -= camera.x;
         quest_r.y -= camera.y;
         if (SDL_PointInRectFloat(&pos, &quest_r)) {
-          return g_npc.id;
+          return g_npc;
         }
       }
       auto npc_rect = npc_game_instance::load_rect(g_npc);
       npc_rect.x -= camera.x;
       npc_rect.y -= camera.y;
       if (SDL_PointInRectFloat(&pos, &npc_rect)) {
-        return g_npc.id;
+        return g_npc;
       }
     }
   }
-  return r;
+  return std::nullopt;
 }
 
 bool cursor_logic_system::run_package_motion() {
@@ -132,7 +130,7 @@ bool cursor_logic_system::run_default() {
   if (cursor_game_instance::cursor_ui == nullptr) {
     if (!(window::mouse_state & SDL_BUTTON_LMASK)) {
       auto npc = cursor_npc();
-      if (!npc.empty()) {
+      if (npc.has_value()) {
         run_cursor_action(u"1");
         return true;
       }
@@ -414,14 +412,14 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
         break;
       }
       auto npc = cursor_npc();
-      if (!npc.empty()) {
-        auto npc_id = npc;
+      if (npc.has_value()) {
+        auto npc_id = npc->id;
         auto npc_type = npc_game_instance::load_npc_type(npc_id);
         switch (npc_type) {
         case npc_game_instance::npc_type::shop: {
           auto shop = shop_game_instance::load_npc_shop(npc_id);
           shop_ui_system::shop = shop;
-          shop_ui_system::npc_id = npc_id;
+          shop_ui_system::npc = npc.value();
           shop_ui_system::close();
           shop_ui_system::open();
           r = true;
