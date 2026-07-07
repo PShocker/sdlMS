@@ -2,6 +2,8 @@
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/system/ui/statusbar_ui_system.h"
+#include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
@@ -157,6 +159,30 @@ void server_character_instance::handle_chat(uint64_t client_id,
   }
   t.client_id = 0;
   server_response::send_to_client(client_id, t);
+}
+
+void server_character_instance::handle_server_chat(uint64_t client_id,
+                                                   ServerCharacterChatT &r) {
+  game_character *g_character = nullptr;
+  if (r.client_id == 0) {
+    g_character = &character_game_instance::self;
+  } else if (character_game_instance::others.contains(r.client_id)) {
+    g_character = &character_game_instance::others[r.client_id].g_character;
+  }
+  if (g_character) {
+    game_chatballoon c;
+    c.w = 100;
+    c.destory = window::dt_now + 5000;
+    c.text = {r.payload->payload.begin(), r.payload->payload.end()};
+    c.size = 13;
+    c.path = u"0";
+    g_character->chatballoon = c;
+  }
+  statusbar_ui_system::chats_info.push_back({
+      .type = (statusbar_ui_system::chat_enum)r.payload->type,
+      .owner = {r.name.begin(), r.name.end()},
+      .text = {r.payload->payload.begin(), r.payload->payload.end()},
+  });
 }
 
 void server_character_instance::handle_character(uint64_t client_id,

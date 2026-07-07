@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "SDL3/SDL_rect.h"
+#include "src/client/game/game_popup_tip.h"
 #include "src/common/flatbuffers/server.h"
 #include "text_input_ui_system.h"
 #include <cstdint>
@@ -20,7 +22,8 @@ private:
   static void render_chat_info();
   static void render_chat_infos();
   static void render_chat_vscr();
-  
+  static void render_popup_tips();
+
   static void render_submenu_backgrnd();
   static void render_submenu_button();
   static void render_submenu();
@@ -56,18 +59,10 @@ private:
     two,
     three,
   };
-  enum chat_enum {
-    all,
-  };
+
   static inline quick_slot quickSlot = quick_slot::two;
 
   static inline int chat_index;
-  struct chats {
-    chat_enum type;
-    std::u16string owner;
-    std::u16string text;
-  };
-  static inline std::vector<chats> chats_info;
 
   enum class menu_enums {
     menu,
@@ -76,10 +71,19 @@ private:
   static inline std::optional<menu_enums> menu_type;
 
 public:
+  enum chat_enum {
+    all,
+  };
+  struct chats {
+    chat_enum type;
+    std::u16string owner;
+    std::u16string text;
+  };
+  static inline std::vector<chats> chats_info;
+
+  static inline std::vector<game_popup_tip> tips;
   static inline std::optional<chat_enum> chat_type;
   static inline text_input chat;
-
-  static void load_chats(fbs::ServerCharacterChatT &c);
 
   static void reset();
   static bool render();

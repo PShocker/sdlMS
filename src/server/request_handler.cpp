@@ -10,10 +10,8 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
-#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/ui/character_info_ui_system.h"
-#include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -22,6 +20,7 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_character_instance.h"
+#include "src/server/server_instance/server_trade_instance.h"
 #include "src/server/server_main.h"
 #include <algorithm>
 #include <cstdio>
@@ -123,20 +122,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ClientCharacterTrade();
     fbs::ClientCharacterTradeT r;
     payload->UnPackTo(&r);
-    if (server_client_instance::clients.contains(r.to_id)) {
-      ServerCharacterTradeT sct;
-      sct.request = r.request;
-      sct.confirm = r.confirm;
-      sct.payload = std::move(r.payload);
-      if (sct.request) {
-        const auto player = server_client_instance::clients[client_id].player_t;
-        sct.player = std::make_unique<PlayerT>(player);
-      } else {
-        const auto player = server_client_instance::clients[r.to_id].player_t;
-        sct.player = std::make_unique<PlayerT>(player);
-      }
-      server_response::send_to_client(r.to_id, sct);
-    }
+    server_trade_instance::handle_client(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {
@@ -202,7 +188,6 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
           character_game_instance::others.at(r.client_id).g_character;
       character_game_instance::load_character_attack(r.payload, g_character);
     }
-
     break;
   }
   case NetPayload_ServerCharacterSkill: {
@@ -228,22 +213,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterChat();
     fbs::ServerCharacterChatT r;
     payload->UnPackTo(&r);
-    game_character *g_character = nullptr;
-    if (r.client_id == 0) {
-      g_character = &character_game_instance::self;
-    } else if (character_game_instance::others.contains(r.client_id)) {
-      g_character = &character_game_instance::others[r.client_id].g_character;
-    }
-    if (g_character) {
-      game_chatballoon c;
-      c.w = 100;
-      c.destory = window::dt_now + 5000;
-      c.text = {r.payload->payload.begin(), r.payload->payload.end()};
-      c.size = 13;
-      c.path = u"0";
-      g_character->chatballoon = c;
-    }
-    statusbar_ui_system::load_chats(r);
+    server_character_instance::handle_server_chat(client_id, r);
     break;
   }
   case NetPayload_ServerCharacterDrop: {
@@ -281,6 +251,10 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     break;
   }
   case NetPayload_ServerCharacterTrade: {
+    auto payload = packet->payload_as_ServerCharacterTrade();
+    fbs::ServerCharacterTradeT r;
+    payload->UnPackTo(&r);
+    server_trade_instance::handle_server(client_id, r);
     break;
   }
   case NetPayload_ServerMobDrop: {

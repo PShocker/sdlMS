@@ -9,6 +9,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 #include <cstdint>
@@ -99,20 +100,31 @@ void quest_ui_system::render_quests() {
 }
 
 void quest_ui_system::render_quest_detail() {
-  static auto notice3 = wz_resource::load_texture(
-      wz_resource::ui->find(u"UIWindow.img/Quest/notice3"));
-  // SDL_FRect pos_rect{
-  //     pos.x,
-  //     pos.y,
-  //     static_cast<float>(backgrnd->w),
-  //     static_cast<float>(backgrnd->h),
-  // };
-  // SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+  if (detail == u"") {
+    return;
+  }
+  static auto backgrnd2 = wz_resource::load_texture(
+      wz_resource::ui->find(u"UIWindow.img/Quest/backgrnd2"));
+  SDL_FRect pos_rect{
+      pos.x,
+      pos.y,
+      static_cast<float>(backgrnd2->w),
+      static_cast<float>(backgrnd2->h),
+  };
+  SDL_RenderTexture(window::renderer, backgrnd2, nullptr, &pos_rect);
+  // name
+  freetype::load_size(12);
+  freetype::load_bold(true);
+  auto quest_name =
+      wz_resource::quest->find(u"QuestData/" + detail + u"/QuestInfo");
+  
+  freetype::load_bold(false);
 }
 
 bool quest_ui_system::render() {
   render_backgrnd();
   render_button();
+  render_quest_detail();
   return true;
 }
 
@@ -126,6 +138,8 @@ void quest_ui_system::open() {
     auto &camera = camera_game_instance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
+
+    detail = u"";
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);

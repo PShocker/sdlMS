@@ -5,6 +5,7 @@
 #include "SDL3/SDL_scancode.h"
 #include "scroll_ui_system.h"
 #include "skill_ui_system.h"
+#include "src/client/game/game_popup_tip.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -697,6 +698,26 @@ void statusbar_ui_system::render_submenu() {
   render_submenu_button();
 }
 
+void statusbar_ui_system::render_popup_tips() {
+  std::erase_if(tips, [](const game_popup_tip &tip) {
+    return tip.destory < window::dt_now;
+  });
+  for (const auto &tip : tips) {
+    switch (tip.type) {
+    case popup_tip_enums::trade: {
+      static auto t = wz_resource::load_texture(
+          wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+      break;
+    }
+    case popup_tip_enums::party: {
+      static auto t = wz_resource::load_texture(
+          wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+      break;
+    }
+    }
+  }
+}
+
 bool statusbar_ui_system::render() {
   render_backgrnd();
   render_chat();
@@ -1070,12 +1091,4 @@ void statusbar_ui_system::reset() {
   };
   chat.type.set(text_input::ime);
   chat_type = std::nullopt;
-}
-
-void statusbar_ui_system::load_chats(fbs::ServerCharacterChatT &c) {
-  chats_info.push_back({
-      .type = (chat_enum)c.payload->type,
-      .owner = {c.name.begin(), c.name.end()},
-      .text = {c.payload->payload.begin(), c.payload->payload.end()},
-  });
 }

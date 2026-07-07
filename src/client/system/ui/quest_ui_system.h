@@ -3,6 +3,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include <optional>
+#include <string>
 class quest_ui_system {
 private:
   static void render_backgrnd();
@@ -23,7 +24,7 @@ private:
 public:
   static inline SDL_FPoint pos;
 
-  static inline uint8_t active_tab;
+  static inline std::u16string detail;
 
   static void open();
   static void close();
