@@ -33,16 +33,6 @@ void shop_ui_system::render_backgrnd() {
       static_cast<float>(texture->h),
   };
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
-
-  static auto tab = wz_resource::load_texture(
-      wz_resource::ui->find(u"UIShop.img/Shop/TabBuy/enabled/0"));
-  pos_rect = {
-      static_cast<float>((int)pos.x + 7),
-      static_cast<float>((int)pos.y + 96),
-      static_cast<float>(tab->w),
-      static_cast<float>(tab->h),
-  };
-  SDL_RenderTexture(window::renderer, tab, nullptr, &pos_rect);
 }
 
 void shop_ui_system::render_items() {
@@ -145,33 +135,62 @@ void shop_ui_system::render_button() {
 }
 
 void shop_ui_system::render_tab() {
-  const static std::array tab_pos = {
+  const static std::array tab_pos0 = {
+      SDL_FPoint{237, 96}, //
+      SDL_FPoint{281, 96}, //
+  };
+  const static auto tab_node0 =
+      wz_resource::ui->find(u"UIShop.img/Shop/TabBuy");
+  const static std::array active_texture0 = {
+      wz_resource::load_texture(tab_node0->find(u"enabled/0")),
+      wz_resource::load_texture(tab_node0->find(u"enabled/1")),
+  };
+  const static std::array disabled_texture0 = {
+      wz_resource::load_texture(tab_node0->find(u"disabled/0")),
+      wz_resource::load_texture(tab_node0->find(u"disabled/1")),
+  };
+  for (uint8_t i = 0; i < tab_pos0.size(); i++) {
+    SDL_Texture *t =
+        active_tab[0] == i ? active_texture0[i] : disabled_texture0[i];
+    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos0[i].x)),
+                       static_cast<float>(int(pos.y + tab_pos0[i].y)),
+                       static_cast<float>(t->w), static_cast<float>(t->h)};
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  }
+
+  //
+  const static std::array tab_pos1 = {
       SDL_FPoint{237, 96}, //
       SDL_FPoint{281, 96}, //
       SDL_FPoint{325, 96}, //
       SDL_FPoint{369, 96}, //
   };
-  const static auto tab_node =
+  const static auto tab_node1 =
       wz_resource::ui->find(u"UIShop.img/Shop/TabSell");
-  const static std::array active_texture = {
-      wz_resource::load_texture(tab_node->find(u"enabled/0")),
-      wz_resource::load_texture(tab_node->find(u"enabled/1")),
-      wz_resource::load_texture(tab_node->find(u"enabled/2")),
-      wz_resource::load_texture(tab_node->find(u"enabled/3")),
+  const static std::array active_texture1 = {
+      wz_resource::load_texture(tab_node1->find(u"enabled/0")),
+      wz_resource::load_texture(tab_node1->find(u"enabled/1")),
+      wz_resource::load_texture(tab_node1->find(u"enabled/2")),
+      wz_resource::load_texture(tab_node1->find(u"enabled/3")),
   };
-  const static std::array disabled_texture = {
-      wz_resource::load_texture(tab_node->find(u"disabled/0")),
-      wz_resource::load_texture(tab_node->find(u"disabled/1")),
-      wz_resource::load_texture(tab_node->find(u"disabled/2")),
-      wz_resource::load_texture(tab_node->find(u"disabled/3")),
+  const static std::array disabled_texture1 = {
+      wz_resource::load_texture(tab_node1->find(u"disabled/0")),
+      wz_resource::load_texture(tab_node1->find(u"disabled/1")),
+      wz_resource::load_texture(tab_node1->find(u"disabled/2")),
+      wz_resource::load_texture(tab_node1->find(u"disabled/3")),
   };
-  for (uint8_t i = 0; i < tab_pos.size(); i++) {
-    SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
-    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos[i].x)),
-                       static_cast<float>(int(pos.y + tab_pos[i].y)),
+  for (uint8_t i = 0; i < tab_pos1.size(); i++) {
+    SDL_Texture *t =
+        active_tab[1] == i ? active_texture1[i] : disabled_texture1[i];
+    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos1[i].x)),
+                       static_cast<float>(int(pos.y + tab_pos1[i].y)),
                        static_cast<float>(t->w), static_cast<float>(t->h)};
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
   }
+}
+
+void shop_ui_system::render_active_item() {
+  
 }
 
 void shop_ui_system::render_npc() {
@@ -220,6 +239,8 @@ void shop_ui_system::open() {
     pos.y = (camera.h - wh.y) / 2;
 
     pages = {};
+    active_item = {};
+    active_tab = {};
     keyboard_input_system::reset();
 
     system::render_systems.insert(it, render);

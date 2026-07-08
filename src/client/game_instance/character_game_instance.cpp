@@ -3,7 +3,6 @@
 #include "effect_game_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
-#include "src/client/game/game_equip.h"
 #include "src/client/game/game_nametag.h"
 #include "src/client/game/game_portal.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
@@ -258,7 +257,7 @@ game_character character_game_instance::load_g_character(
 
   for (auto &equip : c->equips) {
     tmp = std::format("{:08d}", equip->equip_id);
-    game_equip e;
+    game_equip_item e;
     e.id = {tmp.begin(), tmp.end()};
     equip_game_instance::add_equip(e, g_character, 0);
   }
@@ -450,7 +449,7 @@ void character_game_instance::add_ear(game_character &g,
 
 void character_game_instance::add_coat(game_character &g,
                                        const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.coat = g_equip;
   if (!avatar_data.contains(val)) {
@@ -511,7 +510,7 @@ void character_game_instance::add_coat(game_character &g,
 
 void character_game_instance::add_cap(game_character &g,
                                       const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.cap = g_equip;
   if (!avatar_data.contains(val)) {
@@ -572,7 +571,7 @@ void character_game_instance::add_cap(game_character &g,
 
 void character_game_instance::add_pants(game_character &g,
                                         const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.pant = g_equip;
   if (!avatar_data.contains(val)) {
@@ -633,7 +632,7 @@ void character_game_instance::add_pants(game_character &g,
 
 void character_game_instance::add_weapon(game_character &g,
                                          const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.weapon = g_equip;
   if (!avatar_data.contains(val)) {
@@ -694,7 +693,7 @@ void character_game_instance::add_weapon(game_character &g,
 
 void character_game_instance::add_shield(game_character &g,
                                          const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.shield = g_equip;
   if (!avatar_data.contains(val)) {
@@ -755,7 +754,7 @@ void character_game_instance::add_shield(game_character &g,
 
 void character_game_instance::add_cape(game_character &g,
                                        const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.cape = g_equip;
   if (!avatar_data.contains(val)) {
@@ -816,7 +815,7 @@ void character_game_instance::add_cape(game_character &g,
 
 void character_game_instance::add_accessory(game_character &g,
                                             const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.accessory = g_equip;
   if (!avatar_data.contains(val)) {
@@ -877,7 +876,7 @@ void character_game_instance::add_accessory(game_character &g,
 
 void character_game_instance::add_glove(game_character &g,
                                         const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.glove = g_equip;
   if (!avatar_data.contains(val)) {
@@ -941,7 +940,7 @@ void character_game_instance::add_glove(game_character &g,
 
 void character_game_instance::add_longcoat(game_character &g,
                                            const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.longcoat = g_equip;
   if (!avatar_data.contains(val)) {
@@ -1002,7 +1001,7 @@ void character_game_instance::add_longcoat(game_character &g,
 
 void character_game_instance::add_shoes(game_character &g,
                                         const std::u16string &val) {
-  game_equip g_equip;
+  game_equip_item g_equip;
   g_equip.id = val;
   g.shoes = g_equip;
   if (!avatar_data.contains(val)) {

@@ -14,33 +14,7 @@ void cursor_game_instance::server_cursor_drop(const DropT &dt) {
       break;
     }
     case cursor_game_instance::package: {
-      if (hand.val == 0) {
-        package_game_instance::equips[hand.sub_val] = std::nullopt;
-      } else {
-        std::vector<std::optional<game_item>> *r;
-        switch (hand.val) {
-        case 1: {
-          r = &package_game_instance::cosumes;
-          break;
-        }
-        case 2: {
-          r = &package_game_instance::etc;
-          break;
-        }
-        case 3: {
-          r = &package_game_instance::install;
-          break;
-        }
-        case 4: {
-          r = &package_game_instance::cash;
-          break;
-        }
-        default: {
-          break;
-        }
-        }
-        r->at(hand.sub_val) = std::nullopt;
-      }
+      package_game_instance::data[hand.val][hand.sub_val] = std::nullopt;
       break;
     }
     default: {

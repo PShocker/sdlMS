@@ -1,6 +1,5 @@
 #pragma once
 
-#include "src/client/game/game_equip.h"
 #include "src/client/game/game_item.h"
 #include "src/common/flatbuffers/common.h"
 #include <cstdint>

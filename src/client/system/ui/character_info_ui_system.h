@@ -3,7 +3,6 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
-#include "src/client/game/game_equip.h"
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -40,13 +39,13 @@ private:
 
   static bool run();
 
-  static std::vector<game_equip> load_equips();
+  static std::vector<game_equip_item> load_equips();
 
   static inline std::optional<SDL_FPoint> drag;
 
   static inline bool item;
   static inline uint8_t item_page;
-  static inline std::optional<game_equip> item_info;
+  static inline std::optional<game_equip_item> item_info;
 
   static inline bool pet;
 

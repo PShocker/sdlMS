@@ -1,7 +1,8 @@
 #pragma once
 
 #include "src/client/game/game_character.h"
-#include "src/client/game/game_equip.h"
+#include "src/client/game/game_item.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "wz/Node.h"
 #include <cstdint>
 #include <flat_map>
@@ -21,13 +22,6 @@ public:
     WAND = 6,
     CLAW = 7,
     GUN = 9,
-  };
-  enum class job_type : uint8_t {
-    BEGINNER,
-    WARRIOR,
-    MAGICIAN,
-    BOWMAN,
-    THIEF,
   };
   enum class inc_type : uint8_t {
     WEAPON_SPEED,
@@ -58,8 +52,11 @@ public:
   static std::u16string load_equip_type(const std::u16string &id);
   static uint8_t load_equip_tuc(const std::u16string &id);
 
-  static void add_equip(game_equip &equip, game_character &character, int slot);
-  static std::vector<game_equip> load_equip_slot(game_equip &equip,
-                                                 game_character &character);
+  static void add_equip(game_equip_item &equip, game_character &character,
+                        int slot);
+  static bool add_equip_limit(game_equip_item &equip, game_character &character,
+                              int slot);
+  static std::vector<game_equip_item>
+  load_equip_slot(game_equip_item &equip, game_character &character);
   static std::flat_map<inc_type, int> load_equip_inc(const std::u16string &id);
 };

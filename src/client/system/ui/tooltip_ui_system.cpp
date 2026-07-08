@@ -48,7 +48,7 @@ void tooltip_ui_system::render_equip_bottom_inc(std::u16string label,
   y += h + 1;
 }
 
-void tooltip_ui_system::render_equip_bottom(game_equip &equip, float x,
+void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
                                             float y) {
   auto id = equip.id;
   auto equip_inc = equip_game_instance::load_equip_inc(id);
@@ -250,11 +250,11 @@ void tooltip_ui_system::render_equip_job(const std::u16string &id, float x,
   wz::Node *node;
   SDL_FRect pos_rect;
   for (auto i : {
-           equip_game_instance::job_type::BEGINNER,
-           equip_game_instance::job_type::WARRIOR,
-           equip_game_instance::job_type::MAGICIAN,
-           equip_game_instance::job_type::BOWMAN,
-           equip_game_instance::job_type::THIEF,
+           job_type::BEGINNER,
+           job_type::WARRIOR,
+           job_type::MAGICIAN,
+           job_type::BOWMAN,
+           job_type::THIEF,
        }) {
     if (jobs.contains(i)) {
       node = job_node->get_child(u"enable");
@@ -272,7 +272,7 @@ void tooltip_ui_system::render_equip_job(const std::u16string &id, float x,
   }
 }
 
-void tooltip_ui_system::render_equip(game_equip &equip, float x, float y) {
+void tooltip_ui_system::render_equip(game_equip_item &equip, float x, float y) {
   // backgrnd
   static auto backgrnd_node = wz_resource::ui->find(u"UIToolTip.img/Item");
   static auto top =
@@ -672,7 +672,7 @@ void tooltip_ui_system::render_item(game_item &item, float x, float y) {
   SDL_RenderTexture(window::renderer, item_texture, nullptr, &pos_rect);
   freetype::load_bold(false);
 
-  auto item_desc = item_game_instance::load_item_text(item.id,u"desc");
+  auto item_desc = item_game_instance::load_item_text(item.id, u"desc");
   freetype::load_size(13);
   freetype::draw_str(item_desc, pos_rect.x + 74, pos_rect.y - 8, w - 112);
   freetype::load_aligned(false);

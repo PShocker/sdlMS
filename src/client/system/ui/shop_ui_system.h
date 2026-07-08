@@ -18,6 +18,8 @@ private:
   static void render_npc();
   static void render_self();
 
+  static void render_active_item();
+
   static void event_close();
   static bool event_button(SDL_Event *event);
 
@@ -28,8 +30,10 @@ private:
   static bool event_open(SDL_Event *event);
 
   static inline std::array<int, 2> pages;
+  static inline std::array<int, 2> active_item;
+
 public:
-  static inline uint8_t active_tab;
+  static inline std::array<int, 2> active_tab;
 
   static inline std::optional<game_npc> npc;
   static inline std::optional<game_shop> shop;

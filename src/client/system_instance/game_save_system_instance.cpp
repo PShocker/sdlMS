@@ -1,12 +1,12 @@
 #include "game_save_system_instance.h"
 #include "SDL3/SDL_filesystem.h"
 #include "scene_system_instance.h"
-#include "src/client/game/game_equip.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
@@ -43,8 +43,9 @@ bool game_save_system_instance::load_save(const std::string &login) {
         switch (item->data.type) {
         case fbs::ItemUnion_Equip: {
           auto eqp = item->data.AsEquip();
-          game_equip g_equip;
-          g_equip.id = eqp->equip_id;
+          game_equip_item g_equip;
+          auto tmp = std::format("{:08d}", eqp->equip_id);
+          g_equip.id = {tmp.begin(), tmp.end()};
           cs.package.push_back({
               .index = item->index,
               .val = g_equip,
@@ -53,12 +54,40 @@ bool game_save_system_instance::load_save(const std::string &login) {
         }
         case fbs::ItemUnion_Item: {
           auto itm = item->data.AsItem();
-          game_item g_item;
-          g_item.id = itm->item_id;
-          g_item.num = itm->item_num;
+          auto tmp = std::format("{:08d}", itm->item_id);
+          std::u16string item_id{tmp.begin(), tmp.end()};
+          auto item_type = item_game_instance::load_item_type(item_id);
+          game_item *i;
+          if (item_type == u"Cash") {
+            game_cash_item cash;
+            cash.id = item_id;
+            i = &cash;
+          } else if (item_type == u"Consume") {
+            game_cosume_item cosume;
+            cosume.id = item_id;
+            cosume.num = itm->item_num;
+            i = &cosume;
+          } else if (item_type == u"Etc") {
+            game_etc_item etc;
+            etc.id = item_id;
+            etc.num = itm->item_num;
+            i = &etc;
+          } else if (item_type == u"Install") {
+            game_install_item install;
+            install.id = item_id;
+            i = &install;
+          } else if (item_type == u"Pet") {
+            game_cash_item cash;
+            cash.id = item_id;
+            i = &cash;
+          } else if (item_type == u"Special") {
+            game_cash_item cash;
+            cash.id = item_id;
+            i = &cash;
+          }
           cs.package.push_back({
               .index = item->index,
-              .val = g_item,
+              .val = *i,
           });
           break;
         }
@@ -141,40 +170,33 @@ bool game_save_system_instance::save_game() {
 
     cs.quests = quest_game_instance::quests;
 
-    for (uint32_t i = 0; i < package_game_instance::equips.size(); i++) {
-      auto equip = package_game_instance::equips[i];
-      if (equip.has_value()) {
-        cs.package.push_back({
-            .index = i,
-            .val = equip.value(),
-        });
-      }
-    }
-    for (uint32_t i = 0; i < package_game_instance::equips.size(); i++) {
-      auto equip = package_game_instance::equips[i];
-      if (equip.has_value()) {
-        auto &eqp = equip.value();
-        cs.package.push_back({
-            .index = i,
-            .val = eqp,
-        });
-      }
-    }
-    for (auto &v : {
-             package_game_instance::cosumes,
-             package_game_instance::etc,
-             package_game_instance::install,
-             package_game_instance::cash,
-         }) {
-      for (uint32_t i = 0; i < v.size(); i++) {
-        auto item = v[i];
-        if (item.has_value()) {
-          auto &itm = item.value();
-          cs.package.push_back({
-              .index = i,
-              .val = itm,
-          });
+    for (const auto &d : package_game_instance::data) {
+      uint32_t i = 0;
+      for (const auto &v : d) {
+        if (v.has_value()) {
+          switch (v->type) {
+          case item_enum::equip: {
+            auto eqp = v.value();
+            cs.package.push_back({
+                .index = i,
+                .val = eqp,
+            });
+            break;
+          }
+          case item_enum::cosume:
+          case item_enum::etc:
+          case item_enum::install:
+          case item_enum::cash: {
+            auto itm = v.value();
+            cs.package.push_back({
+                .index = i,
+                .val = itm,
+            });
+            break;
+          }
+          }
         }
+        i++;
       }
     }
     for (int i = 0; i < save.characters.size(); i++) {
@@ -238,19 +260,37 @@ bool game_save_system_instance::save_game() {
     }
     for (auto &pkg : character_s.package) {
       PackageSaveT pst;
-      pst.index = pkg.index;
-      if (std::holds_alternative<game_equip>(pkg.val)) {
-        game_equip &equip = std::get<game_equip>(pkg.val);
+      uint32_t item_num = 1;
+      uint32_t item_id =
+          std::stoi(std::string{pkg.val.id.begin(), pkg.val.id.end()});
+      switch (pkg.val.type) {
+      case item_enum::equip: {
+        game_equip_item &equip = static_cast<game_equip_item &>(pkg.val);
         EquipT et;
-        et.equip_id = std::stoi(std::string{equip.id.begin(), equip.id.end()});
+        et.equip_id = item_id;
         pst.data.Set(et);
-      } else {
-        game_item &item = std::get<game_item>(pkg.val);
-        ItemT it;
-        it.item_id = std::stoi(std::string{item.id.begin(), item.id.end()});
-        it.item_num = item.num;
-        pst.data.Set(it);
+        break;
       }
+      case item_enum::cosume: {
+        game_cosume_item &cosume = static_cast<game_cosume_item &>(pkg.val);
+        item_num = cosume.num;
+      }
+      case item_enum::etc: {
+        game_etc_item &etc = static_cast<game_etc_item &>(pkg.val);
+        item_num = etc.num;
+      }
+      case item_enum::install: {
+      }
+      case item_enum::cash: {
+        ItemT it;
+        it.item_id = item_id;
+        it.item_num = item_num;
+        pst.data.Set(it);
+        break;
+      }
+      }
+      pst.expire = pkg.val.expire;
+      pst.index = pkg.index;
       cst.package.push_back(std::make_unique<PackageSaveT>(pst));
     }
     pst.data.push_back(std::make_unique<CharacterSaveT>(cst));

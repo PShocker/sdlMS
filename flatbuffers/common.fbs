@@ -211,6 +211,7 @@ table SPSave{
 table PackageSave{
    index:uint32;
    data:ItemUnion;
+   expire:uint64;
 }
 
 table QuestMobSave{

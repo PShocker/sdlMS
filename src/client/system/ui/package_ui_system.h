@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
-#include "src/client/game/game_equip.h"
 #include "src/client/game/game_item.h"
 #include <cstdint>
 #include <flat_map>

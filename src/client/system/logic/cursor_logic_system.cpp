@@ -77,39 +77,9 @@ bool cursor_logic_system::run_package_motion() {
     return false;
   }
   auto active_tab = package_ui_system::active_tab;
-  if (active_tab == 0) {
-    if (package_game_instance::equips.size() < index.value()) {
-      return false;
-    }
-    if (!package_game_instance::equips[index.value()].has_value()) {
-      return false;
-    }
-  } else {
-    std::vector<std::optional<game_item>> *r;
-    switch (active_tab) {
-    case 1: {
-      r = &package_game_instance::cosumes;
-      break;
-    }
-    case 2: {
-      r = &package_game_instance::etc;
-      break;
-    }
-    case 3: {
-      r = &package_game_instance::install;
-      break;
-    }
-    case 4: {
-      r = &package_game_instance::cash;
-      break;
-    }
-    default: {
-      break;
-    }
-    }
-    if (!r->at(index.value()).has_value()) {
-      return false;
-    }
+  const auto &r = package_game_instance::data[active_tab];
+  if (!r[index.value()].has_value()) {
+    return false;
   }
   return true;
 }
@@ -259,7 +229,7 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
           case cursor_game_instance::package: {
             auto active_tab = cursor_hand->val;
             if (active_tab == 0) {
-              auto equip = package_game_instance::equips[cursor_hand->sub_val];
+              auto equip = package_game_instance::data[0][cursor_hand->sub_val];
               DropT dt;
               EquipT et;
               et.equip_id =
@@ -301,28 +271,6 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
                   .id = dt.random_id,
               };
             } else {
-              std::vector<std::optional<game_item>> *r;
-              switch (active_tab) {
-              case 1: {
-                r = &package_game_instance::cosumes;
-                break;
-              }
-              case 2: {
-                r = &package_game_instance::etc;
-                break;
-              }
-              case 3: {
-                r = &package_game_instance::install;
-                break;
-              }
-              case 4: {
-                r = &package_game_instance::cash;
-                break;
-              }
-              default: {
-                break;
-              }
-              }
             }
             break;
           }

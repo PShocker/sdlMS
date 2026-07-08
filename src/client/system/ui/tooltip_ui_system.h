@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
-#include "src/client/game/game_equip.h"
 #include "src/client/game/game_install.h"
 #include "src/client/game/game_item.h"
 #include <cstdint>
@@ -14,7 +13,7 @@ private:
   static void render_equip_job(const std::u16string &id, float x, float y);
   static void render_equip_bottom_inc(std::u16string label, std::u16string val,
                                       float x, float &y);
-  static void render_equip_bottom(game_equip &equip, float x, float y);
+  static void render_equip_bottom(game_equip_item &equip, float x, float y);
   static float load_equip_bottom_h(const std::u16string &id);
 
   static void render_skill_bottom(const std::u16string &id, uint8_t level,
@@ -22,7 +21,7 @@ private:
   static float load_skill_bottom_h(const std::u16string &id);
 
 public:
-  static void render_equip(game_equip &equip, float x, float y);
+  static void render_equip(game_equip_item &equip, float x, float y);
   static void render_item(game_item &item, float x, float y);
   static void render_install(game_install &ins, float x, float y);
   static void render_skill(const std::u16string &id, uint8_t level, float x,

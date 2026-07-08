@@ -1,5 +1,7 @@
 #include "equip_game_instance.h"
 #include "character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
@@ -114,32 +116,29 @@ std::u16string equip_game_instance::load_equip_name(const std::u16string &id) {
   return static_cast<wz::Property<std::u16string> *>(str)->get();
 }
 
-std::flat_set<equip_game_instance::job_type>
+std::flat_set<job_type>
 equip_game_instance::load_equip_job(const std::u16string &id) {
-  std::flat_set<equip_game_instance::job_type> r;
+  std::flat_set<job_type> r;
   auto equip_info = equip_game_instance::load_equip_info(id);
   auto reqJob =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqJob"))->get();
   if (reqJob == 0) {
     r = {
-        equip_game_instance::job_type::BEGINNER,
-        equip_game_instance::job_type::WARRIOR,
-        equip_game_instance::job_type::MAGICIAN,
-        equip_game_instance::job_type::BOWMAN,
-        equip_game_instance::job_type::THIEF,
+        job_type::BEGINNER, job_type::WARRIOR, job_type::MAGICIAN,
+        job_type::BOWMAN,   job_type::THIEF,
     };
   } else {
     if (reqJob & 1) {
-      r.insert(equip_game_instance::job_type::WARRIOR);
+      r.insert(job_type::WARRIOR);
     }
     if (reqJob & 2) {
-      r.insert(equip_game_instance::job_type::MAGICIAN);
+      r.insert(job_type::MAGICIAN);
     }
     if (reqJob & 4) {
-      r.insert(equip_game_instance::job_type::MAGICIAN);
+      r.insert(job_type::MAGICIAN);
     }
     if (reqJob & 8) {
-      r.insert(equip_game_instance::job_type::THIEF);
+      r.insert(job_type::THIEF);
     }
   }
   return r;
@@ -175,7 +174,7 @@ uint8_t equip_game_instance::load_equip_tuc(const std::u16string &id) {
   return static_cast<wz::Property<int> *>(equip_info->get_child(u"tuc"))->get();
 }
 
-void equip_game_instance::add_equip(game_equip &equip,
+void equip_game_instance::add_equip(game_equip_item &equip,
                                     game_character &character, int slot) {
   auto type = load_equip_type(equip.id);
   if (type == u"Accessory") {
@@ -216,10 +215,63 @@ void equip_game_instance::add_equip(game_equip &equip,
   }
 }
 
-std::vector<game_equip>
-equip_game_instance::load_equip_slot(game_equip &equip,
+bool equip_game_instance::add_equip_limit(game_equip_item &equip,
+                                          game_character &character, int slot) {
+  auto equip_info = load_equip_info(equip.id);
+  auto require_job =
+      static_cast<wz::Property<int> *>(equip_info->get_child(u"reqJob"))->get();
+  auto require_lv =
+      static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLevel"))
+          ->get();
+  auto require_str =
+      static_cast<wz::Property<int> *>(equip_info->get_child(u"reqSTR"))->get();
+  auto require_dex =
+      static_cast<wz::Property<int> *>(equip_info->get_child(u"reqDEX"))->get();
+  auto require_int =
+      static_cast<wz::Property<int> *>(equip_info->get_child(u"reqINT"))->get();
+  auto require_luk =
+      static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLUK"))->get();
+
+  auto jobs = equip_game_instance::load_equip_job(equip.id);
+  auto job = job_skill_game_instance::load_skill_tree(character.job);
+  bool job_r = false;
+  for (auto j : job) {
+    if (jobs.contains(j)) {
+      job_r = true;
+      break;
+    }
+  }
+  if (!job_r) {
+    return false;
+  }
+  auto lv = character.level;
+  if (lv < require_lv) {
+    return false;
+  }
+  auto str_ap = character_stat_game_instance::str_ap;
+  if (str_ap < require_str) {
+    return false;
+  }
+  auto dex_ap = character_stat_game_instance::dex_ap;
+  if (dex_ap < require_dex) {
+    return false;
+  }
+  auto int_ap = character_stat_game_instance::int_ap;
+  if (int_ap < require_int) {
+    return false;
+  }
+  auto luk_ap = character_stat_game_instance::luk_ap;
+  if (luk_ap < require_luk) {
+    return false;
+  }
+  add_equip(equip, character, slot);
+  return true;
+}
+
+std::vector<game_equip_item>
+equip_game_instance::load_equip_slot(game_equip_item &equip,
                                      game_character &character) {
-  std::vector<game_equip> r;
+  std::vector<game_equip_item> r;
   auto type = load_equip_type(equip.id);
   if (type == u"Accessory") {
     if (character.accessory.has_value()) {

@@ -3359,6 +3359,7 @@ struct PackageSaveT : public ::flatbuffers::NativeTable {
   typedef PackageSave TableType;
   uint32_t index = 0;
   fbs::ItemUnionUnion data{};
+  uint64_t expire = 0;
 };
 
 struct PackageSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -3367,7 +3368,8 @@ struct PackageSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_INDEX = 4,
     VT_DATA_TYPE = 6,
-    VT_DATA = 8
+    VT_DATA = 8,
+    VT_EXPIRE = 10
   };
   uint32_t index() const {
     return GetField<uint32_t>(VT_INDEX, 0);
@@ -3398,6 +3400,12 @@ struct PackageSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   void *mutable_data() {
     return GetPointer<void *>(VT_DATA);
   }
+  uint64_t expire() const {
+    return GetField<uint64_t>(VT_EXPIRE, 0);
+  }
+  bool mutate_expire(uint64_t _expire = 0) {
+    return SetField<uint64_t>(VT_EXPIRE, _expire, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -3405,6 +3413,7 @@ struct PackageSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_DATA_TYPE, 1) &&
            VerifyOffset(verifier, VT_DATA) &&
            VerifyItemUnion(verifier, data(), data_type()) &&
+           VerifyField<uint64_t>(verifier, VT_EXPIRE, 8) &&
            verifier.EndTable();
   }
   PackageSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -3441,6 +3450,9 @@ struct PackageSaveBuilder {
   void add_data(::flatbuffers::Offset<void> data) {
     fbb_.AddOffset(PackageSave::VT_DATA, data);
   }
+  void add_expire(uint64_t expire) {
+    fbb_.AddElement<uint64_t>(PackageSave::VT_EXPIRE, expire, 0);
+  }
   explicit PackageSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -3456,8 +3468,10 @@ inline ::flatbuffers::Offset<PackageSave> CreatePackageSave(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t index = 0,
     fbs::ItemUnion data_type = fbs::ItemUnion_NONE,
-    ::flatbuffers::Offset<void> data = 0) {
+    ::flatbuffers::Offset<void> data = 0,
+    uint64_t expire = 0) {
   PackageSaveBuilder builder_(_fbb);
+  builder_.add_expire(expire);
   builder_.add_data(data);
   builder_.add_index(index);
   builder_.add_data_type(data_type);
@@ -5115,6 +5129,7 @@ inline void PackageSave::UnPackTo(PackageSaveT *_o, const ::flatbuffers::resolve
   { auto _e = index(); _o->index = _e; }
   { auto _e = data_type(); _o->data.type = _e; }
   { auto _e = data(); if (_e) _o->data.value = fbs::ItemUnionUnion::UnPack(_e, data_type(), _resolver); }
+  { auto _e = expire(); _o->expire = _e; }
 }
 
 inline ::flatbuffers::Offset<PackageSave> CreatePackageSave(::flatbuffers::FlatBufferBuilder &_fbb, const PackageSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5128,11 +5143,13 @@ inline ::flatbuffers::Offset<PackageSave> PackageSave::Pack(::flatbuffers::FlatB
   auto _index = _o->index;
   auto _data_type = _o->data.type;
   auto _data = _o->data.Pack(_fbb);
+  auto _expire = _o->expire;
   return fbs::CreatePackageSave(
       _fbb,
       _index,
       _data_type,
-      _data);
+      _data,
+      _expire);
 }
 
 inline QuestMobSaveT *QuestMobSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

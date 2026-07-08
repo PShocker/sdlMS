@@ -3,9 +3,9 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "game_chatballoon.h"
-#include "game_equip.h"
 #include "game_face.h"
 #include "game_install.h"
+#include "game_item.h"
 #include "game_nametag.h"
 #include "game_tomb.h"
 #include "src/client/game/game_effect.h"
@@ -15,6 +15,7 @@
 #include <optional>
 #include <string>
 #include <vector>
+
 
 class game_character {
 
@@ -36,23 +37,23 @@ public:
 
   game_face face;
 
-  std::optional<game_equip> weapon;
-  std::optional<game_equip> cap;
-  std::optional<game_equip> cape;
-  std::optional<game_equip> coat;
-  std::optional<game_equip> glove;
-  std::optional<game_equip> pant;
+  std::optional<game_equip_item> weapon;
+  std::optional<game_equip_item> cap;
+  std::optional<game_equip_item> cape;
+  std::optional<game_equip_item> coat;
+  std::optional<game_equip_item> glove;
+  std::optional<game_equip_item> pant;
 
-  std::optional<game_equip> ring0;
-  std::optional<game_equip> ring1;
-  std::optional<game_equip> ring2;
-  std::optional<game_equip> ring3;
+  std::optional<game_equip_item> ring0;
+  std::optional<game_equip_item> ring1;
+  std::optional<game_equip_item> ring2;
+  std::optional<game_equip_item> ring3;
 
-  std::optional<game_equip> shield;
-  std::optional<game_equip> longcoat;
-  std::optional<game_equip> shoes;
+  std::optional<game_equip_item> shield;
+  std::optional<game_equip_item> longcoat;
+  std::optional<game_equip_item> shoes;
 
-  std::optional<game_equip> accessory;
+  std::optional<game_equip_item> accessory;
 
   std::vector<game_nametag> nametags;
 

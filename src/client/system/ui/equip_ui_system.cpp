@@ -1,12 +1,13 @@
 #include "equip_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
-#include "src/client/game/game_equip.h"
+#include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -15,6 +16,7 @@
 #include <algorithm>
 #include <optional>
 #include <string>
+#include <utility>
 
 const static SDL_FPoint cap_slot{68, 23};
 const static SDL_FPoint earacc_slot{101, 56};
@@ -99,7 +101,8 @@ void equip_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
-void equip_ui_system::render_equip_texture(game_equip &equip, SDL_FPoint slot) {
+void equip_ui_system::render_equip_texture(game_equip_item &equip,
+                                           SDL_FPoint slot) {
   const SDL_FPoint lt{4, 45};
 
   auto info = equip_game_instance::load_equip_info(equip.id);
@@ -160,7 +163,7 @@ void equip_ui_system::render_equip_info() {
   if (index.has_value()) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    std::optional<game_equip> equip;
+    std::optional<game_equip_item> equip;
     auto &self = character_game_instance::self;
     switch (index.value()) {
     case cap: {
@@ -302,31 +305,89 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
     return false;
   }
   auto &self = character_game_instance::self;
-  std::optional<game_equip> *ptr;
+  std::optional<game_item> eqp;
   switch (index.value()) {
   case cap: {
-    ptr = &self.cap;
+    eqp = self.cap;
     break;
   }
   case earcc: {
-    ptr = &self.accessory;
-  }
-  case clothes:
-  case pants:
-  case shoes:
-  case gloves:
-  case cape:
-  case shield:
-  case weapon:
-  case ring0:
-  case ring1:
-  case ring2:
-  case ring3:
+    eqp = self.accessory;
     break;
   }
-  ptr->reset();
-  if (cursor_game_instance::cursor_hand.has_value()) {
+  case clothes: {
+    eqp = self.coat;
+    break;
+  }
+  case pants: {
+    eqp = self.pant;
+    break;
+  }
+  case shoes: {
+    eqp = self.shoes;
+    break;
+  }
+  case gloves: {
+    eqp = self.glove;
+    break;
+  }
+  case cape: {
+    eqp = self.cape;
+    break;
+  }
+  case shield: {
+    eqp = self.shield;
+    break;
+  }
+  case weapon: {
+    eqp = self.weapon;
+    break;
+  }
+  case ring0: {
+    eqp = self.ring0;
+    break;
+  }
+  case ring1: {
+    eqp = self.ring1;
+    break;
+  }
+  case ring2: {
+    eqp = self.ring2;
+    break;
+  }
+  case ring3: {
+    eqp = self.ring3;
+    break;
+  }
+  }
+  auto cursor_hand = cursor_game_instance::cursor_hand;
+  if (cursor_hand.has_value()) {
+    switch (cursor_hand->type) {
+    case cursor_game_instance::equipment: {
+      break;
+    }
+    case cursor_game_instance::package: {
+      auto &equip = package_game_instance::data[0][cursor_hand->sub_val];
+      auto ep = static_cast<game_equip_item &>(equip.value());
+      if (equip_game_instance::add_equip_limit(ep, self, index.value())) {
+        std::swap(equip, eqp);
+      } else {
+        // dialog
+      }
+      break;
+    }
+    default: {
+      break;
+    }
+    }
   } else {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      cursor_game_instance::cursor_hand = {
+          .type = cursor_game_instance::equipment,
+          .val = 0,
+          .sub_val = index.value(),
+      };
+    }
   }
   return false;
 }

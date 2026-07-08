@@ -1,7 +1,7 @@
 #include "character_info_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "scroll_ui_system.h"
-#include "src/client/game/game_equip.h"
+#include "src/client/game/game_item.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -24,8 +24,8 @@
 #include <string>
 #include <vector>
 
-std::vector<game_equip> character_info_ui_system::load_equips() {
-  std::vector<game_equip> v;
+std::vector<game_equip_item> character_info_ui_system::load_equips() {
+  std::vector<game_equip_item> v;
   if (character.cap.has_value()) {
     v.push_back(character.cap.value());
   }

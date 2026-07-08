@@ -2,12 +2,12 @@
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
-#include "src/client/game/game_equip.h"
+#include "src/client/game/game_item.h"
 #include <cstdint>
 #include <optional>
 #include <string>
 class equip_ui_system {
-private:
+public:
   enum equip_mouse_index {
     cap,
     earcc,
@@ -23,13 +23,15 @@ private:
     ring2,
     ring3,
   };
+
+private:
   static std::optional<equip_mouse_index> load_mouse_index();
 
   static void render_backgrnd();
   static void render_backgrnd2();
   static void render_tab();
   static void render_equip();
-  static void render_equip_texture(game_equip &equip, SDL_FPoint slot);
+  static void render_equip_texture(game_equip_item &equip, SDL_FPoint slot);
   static void render_equip_info();
   static void render_button();
 

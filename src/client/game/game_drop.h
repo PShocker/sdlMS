@@ -1,7 +1,6 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
-#include "game_equip.h"
 #include "game_pet.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_item.h"
@@ -11,11 +10,17 @@
 #include <optional>
 #include <variant>
 #include <vector>
+
+struct drop_pick {
+  uint64_t client_id;
+  std::optional<uint8_t> pet_id;
+};
+
 class game_drop {
 public:
   uint64_t random_id;
 
-  std::variant<game_equip, game_item> data;
+  game_item data;
 
   SDL_FPoint pos;
   SDL_FPoint goal;
@@ -36,9 +41,5 @@ public:
 
   drop_type type = fly;
 
-  struct pick_data {
-    uint64_t client_id;
-    std::optional<uint8_t> pet_id;
-  };
-  std::optional<pick_data> picker;
+  std::optional<drop_pick> picker;
 };

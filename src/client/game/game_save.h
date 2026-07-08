@@ -1,6 +1,5 @@
 #pragma once
 
-#include "game_equip.h"
 #include "game_item.h"
 #include "game_storage.h"
 #include "src/client/game/game_character.h"
@@ -25,7 +24,7 @@ struct sp_save {
 
 struct package_save {
   uint32_t index;
-  std::variant<game_equip, game_item> val;
+  game_item val;
 };
 
 struct character_save {
