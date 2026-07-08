@@ -1,9 +1,11 @@
 #pragma once
 
+#include "src/client/game/game_item.h"
+#include <memory>
 #include <string>
 #include <vector>
 struct game_shop_item {
-  std::u16string itemId;
+  std::unique_ptr<game_item> item;
   int price;
 };
 

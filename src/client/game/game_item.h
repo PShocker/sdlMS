@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-enum class item_enum { equip, cosume, etc, install, cash };
+enum class item_enum { equip, consume, etc, install, cash };
 
 class game_item {
 public:
@@ -21,9 +21,9 @@ public:
   std::vector<game_scroll> scroll;
 };
 
-class game_cosume_item : public game_item {
+class game_consume_item : public game_item {
 public:
-  game_cosume_item() { type = item_enum::cosume; }
+  game_consume_item() { type = item_enum::consume; }
   uint32_t num;
 };
 

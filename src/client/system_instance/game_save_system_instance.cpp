@@ -63,10 +63,10 @@ bool game_save_system_instance::load_save(const std::string &login) {
             cash.id = item_id;
             i = &cash;
           } else if (item_type == u"Consume") {
-            game_cosume_item cosume;
-            cosume.id = item_id;
-            cosume.num = itm->item_num;
-            i = &cosume;
+            game_consume_item consume;
+            consume.id = item_id;
+            consume.num = itm->item_num;
+            i = &consume;
           } else if (item_type == u"Etc") {
             game_etc_item etc;
             etc.id = item_id;
@@ -183,7 +183,7 @@ bool game_save_system_instance::save_game() {
             });
             break;
           }
-          case item_enum::cosume:
+          case item_enum::consume:
           case item_enum::etc:
           case item_enum::install:
           case item_enum::cash: {
@@ -271,9 +271,9 @@ bool game_save_system_instance::save_game() {
         pst.data.Set(et);
         break;
       }
-      case item_enum::cosume: {
-        game_cosume_item &cosume = static_cast<game_cosume_item &>(pkg.val);
-        item_num = cosume.num;
+      case item_enum::consume: {
+        game_consume_item &consume = static_cast<game_consume_item &>(pkg.val);
+        item_num = consume.num;
       }
       case item_enum::etc: {
         game_etc_item &etc = static_cast<game_etc_item &>(pkg.val);

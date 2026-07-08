@@ -180,6 +180,10 @@ void cursor_logic_system::run_cursor_ui() {
       if (npc_dlg_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
+    } else if (fn == shop_ui_system::render) {
+      if (shop_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
     }
   }
 }

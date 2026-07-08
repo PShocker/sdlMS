@@ -18,7 +18,7 @@ bool drop_render_system::render(game_drop &g_drop) {
         equip_info->get_child(u"iconRaw")->get_child(u"origin"));
     break;
   }
-  case item_enum::cosume:
+  case item_enum::consume:
   case item_enum::etc:
   case item_enum::install: {
     auto item_info = item_game_instance::load_item_info(g_drop.data.id);

@@ -120,8 +120,10 @@ void npc_game_instance::load(uint32_t map_id) {
     g_npc.id =
         static_cast<wz::Property<std::u16string> *>(npc_node->get_child(u"id"))
             ->get();
-    g_npc.flip =
-        static_cast<wz::Property<int> *>(npc_node->get_child(u"f"))->get();
+    if (npc_node->get_child(u"f")) {
+      g_npc.flip =
+          static_cast<wz::Property<int> *>(npc_node->get_child(u"f"))->get();
+    }
     g_npc.fh =
         static_cast<wz::Property<int> *>(npc_node->get_child(u"fh"))->get();
     g_npc.rx0 =
@@ -145,7 +147,7 @@ void npc_game_instance::load(uint32_t map_id) {
 
 npc_game_instance::npc_type
 npc_game_instance::load_npc_type(const std::u16string &id) {
-  if (shop_game_instance::load_npc_shop(id).has_value()) {
+  if (shop_game_instance::load_npc_shop(id)) {
     return npc_type::shop;
   }
   auto npc_node = wz_resource::npc->find(id + u".img");

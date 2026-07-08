@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
 #include <array>
@@ -20,6 +21,10 @@ private:
 
   static void render_active_item();
 
+  static void render_item_info(game_item& item);
+
+  static bool event_item(SDL_Event *event);
+
   static void event_close();
   static bool event_button(SDL_Event *event);
 
@@ -30,13 +35,13 @@ private:
   static bool event_open(SDL_Event *event);
 
   static inline std::array<int, 2> pages;
-  static inline std::array<int, 2> active_item;
+  static inline std::array<std::optional<int>, 2> active_item;
 
 public:
   static inline std::array<int, 2> active_tab;
 
   static inline std::optional<game_npc> npc;
-  static inline std::optional<game_shop> shop;
+  static inline const game_shop* shop;
 
   static inline SDL_FPoint pos;
 
