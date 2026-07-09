@@ -223,7 +223,8 @@ void skill_ui_system::render_skill_entry() {
     SDL_Texture *ski_texture;
     auto ski_level = job_skill_game_instance::load_skill_level(k);
     if (ski_level > 0) {
-      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+          !cursor_game_instance::modal_overlay) {
         ski_texture =
             wz_resource::load_texture(v[0]->get_child(u"iconMouseOver"));
       } else {
@@ -257,7 +258,7 @@ void skill_ui_system::render_scroll() {
   const uint32_t length = 236;
   auto size = 6;
   auto cursor_in = cursor_game_instance::cursor_ui;
-  bool top = cursor_in == render;
+  bool top = (cursor_in == render) && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
                                    size, length, top);
   return;
@@ -265,7 +266,7 @@ void skill_ui_system::render_scroll() {
 
 void skill_ui_system::render_info() {
   auto mouse_ski = load_mouse_ski();
-  if (mouse_ski.has_value()) {
+  if (mouse_ski.has_value() && !cursor_game_instance::modal_overlay) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     auto ski_id = mouse_ski.value();
@@ -322,7 +323,8 @@ void skill_ui_system::render_button() {
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+        !cursor_game_instance::modal_overlay) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);

@@ -7,7 +7,6 @@
 #include <vector>
 class character_create_ui_system {
 private:
-  static bool load_top();
   static std::vector<std::u16string> load_default_face();
   static std::vector<std::u16string> load_default_hair();
   static std::vector<std::u16string> load_default_top();

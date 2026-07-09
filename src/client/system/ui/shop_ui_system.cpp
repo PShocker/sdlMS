@@ -1,6 +1,7 @@
 #include "shop_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "notice_ui_system.h"
 #include "scroll_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
@@ -11,6 +12,7 @@
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
@@ -81,6 +83,7 @@ void shop_ui_system::render_items() {
     }
 
     // render name
+    freetype::load_aligned(true);
     freetype::load_size(12);
     freetype::load_color(0, 0, 0, 255);
     x = x + 42;
@@ -100,7 +103,7 @@ void shop_ui_system::render_items() {
     tmp2 = tmp2 + u" " + static_cast<wz::Property<std::u16string> *>(n)->get();
     freetype::draw_line(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }
-  if (item_info) {
+  if (item_info && !cursor_game_instance::modal_overlay) {
     render_item_info(*item_info->item);
   }
 }
@@ -137,7 +140,8 @@ void shop_ui_system::render_button() {
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+        cursor_game_instance::modal_overlay == render) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -350,7 +354,17 @@ bool shop_ui_system::event_item(SDL_Event *event) {
     auto &items = shop->items;
     int item = pages[0] + (mouse_pos.y - y) / 40;
     if (item < items.size()) {
-      active_item[0] = item;
+      if (active_item[0] == item) {
+        auto meso = package_game_instance::meso;
+        const auto &itm = items[item];
+        if (meso < itm.price) {
+          notice_ui_system::type =
+              notice_ui_system::notice_enum::shopbuy_no_meso;
+        }
+        notice_ui_system::open();
+      } else {
+        active_item[0] = item;
+      }
     }
     return true;
   }
@@ -358,14 +372,12 @@ bool shop_ui_system::event_item(SDL_Event *event) {
 }
 
 bool shop_ui_system::event(SDL_Event *event) {
-  bool r = true;
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN: {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
       event_close();
-      return false;
       break;
     }
     default: {
@@ -377,7 +389,6 @@ bool shop_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
-        r = false;
       }
     }
     break;
@@ -385,8 +396,10 @@ bool shop_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
-        event_item(event);
-        r = !event_button(event);
+        if (event_item(event)) {
+          return false;
+        }
+        event_button(event);
       }
     }
     break;
@@ -399,5 +412,5 @@ bool shop_ui_system::event(SDL_Event *event) {
   }
   }
 
-  return r;
+  return false;
 }

@@ -7,6 +7,7 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
@@ -30,14 +31,6 @@
 #include <string>
 #include <vector>
 
-bool character_create_ui_system::load_top() {
-  bool top = true;
-  if (system::render_systems[system::render_systems.size() - 2] != render) {
-    top = false;
-  }
-  return top;
-}
-
 void character_create_ui_system::render_button() {
   const static std::array buttons_nodes = {
       wz_resource::ui->find(u"Login.img/NewChar/button:ok"),
@@ -49,14 +42,14 @@ void character_create_ui_system::render_button() {
       SDL_FRect{66 - camera.x, -1154 - camera.y, 104, 52},
       SDL_FRect{160 - camera.x, -1156 - camera.y, 104, 52},
   };
-  bool top = load_top();
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = window::mouse_pos;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && top) {
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
+        !cursor_game_instance::modal_overlay) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -133,8 +126,6 @@ void character_create_ui_system::render_stat() {
       luk_point <= 4, luk_point > 12 || remain_point == 0,
   };
 
-  bool top = load_top();
-
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];
     auto pos_rect = buttons_rect[i];
@@ -144,7 +135,8 @@ void character_create_ui_system::render_stat() {
     if (r[i]) {
       auto d = wz_resource::load_texture(k->find(u"disabled/0"));
       SDL_RenderTexture(window::renderer, d, nullptr, &pos_rect);
-    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && top) {
+    } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
+               !cursor_game_instance::modal_overlay) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -404,14 +396,14 @@ void character_create_ui_system::render_custom_item(float cx, float cy,
         SDL_FRect{cx + pos.x + 235, cy + pos.y, 16, 17}, //
     };
 
-    bool top = load_top();
     for (size_t i = 0; i < buttons_nodes.size(); ++i) {
       auto k = buttons_nodes[i];
       auto pos_rect = buttons_rect[i];
       pos_rect.x = (int)pos_rect.x;
       pos_rect.y = (int)pos_rect.y;
       auto &mouse_pos = window::mouse_pos;
-      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && top) {
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
+          !cursor_game_instance::modal_overlay) {
         if (window::mouse_state & SDL_BUTTON_LMASK) {
           auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
           SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);

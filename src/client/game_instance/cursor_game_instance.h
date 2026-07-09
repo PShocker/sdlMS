@@ -15,6 +15,7 @@ public:
   static inline uint32_t cursor_time;
 
   static inline bool (*cursor_ui)(void);
+  static inline bool (*modal_overlay)(void);
 
   // 点击装备,背包,技能,键盘按钮
   enum cursor_hand_type {

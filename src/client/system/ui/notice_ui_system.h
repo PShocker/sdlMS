@@ -8,12 +8,18 @@ private:
   static void render_button();
   static void render_text();
 
+  static void event_close();
+
+  static bool event_button(SDL_Event *event);
+
   static SDL_FPoint load_wh();
 
 public:
   enum class notice_enum {
     shopbuy,
     shopbuy_mul,
+    shopbuy_no_meso,
+    shopbuy_no_space,
   };
 
   static inline notice_enum type;

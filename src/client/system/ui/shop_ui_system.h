@@ -31,8 +31,6 @@ private:
 
   static SDL_FPoint load_wh();
 
-  static bool event_open(SDL_Event *event);
-
   static inline std::array<int, 2> pages;
   static inline std::array<std::optional<int>, 2> active_item;
 

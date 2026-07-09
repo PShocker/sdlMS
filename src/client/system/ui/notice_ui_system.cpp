@@ -1,15 +1,22 @@
 #include "notice_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/audio_game_instance.h"
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/system/render/cursor_render_system.h"
+#include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include <string>
+#include <vector>
 
 void notice_ui_system::render_backgrnd() {
   wz::Node *node;
   switch (type) {
+  case notice_enum::shopbuy_no_meso:
+  case notice_enum::shopbuy_no_space:
   case notice_enum::shopbuy: {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice1");
     break;
@@ -20,7 +27,7 @@ void notice_ui_system::render_backgrnd() {
   }
   }
   auto [w, h] = load_wh();
-  static auto t = wz_resource::load_texture(node->get_child(u"t"));
+  auto t = wz_resource::load_texture(node->get_child(u"t"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
@@ -28,8 +35,8 @@ void notice_ui_system::render_backgrnd() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
-  static auto c = wz_resource::load_texture(node->get_child(u"c"));
-  static auto s = wz_resource::load_texture(node->get_child(u"s"));
+  auto c = wz_resource::load_texture(node->get_child(u"c"));
+  auto s = wz_resource::load_texture(node->get_child(u"s"));
   pos_rect = {
       pos.x,
       pos.y + t->h,
@@ -90,9 +97,17 @@ void notice_ui_system::render_text() {
   SDL_FPoint p;
   switch (type) {
   case notice_enum::shopbuy: {
+    auto n = wz_resource::ms->get_root()->find(u"PopNotice.img/buyItem");
+    // text=
     break;
   }
   case notice_enum::shopbuy_mul: {
+    break;
+  }
+  case notice_enum::shopbuy_no_meso: {
+    break;
+  }
+  case notice_enum::shopbuy_no_space: {
     break;
   }
   }
@@ -106,13 +121,101 @@ bool notice_ui_system::render() {
   return true;
 }
 
+void notice_ui_system::open() {
+  auto it =
+      std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
+    auto wh = load_wh();
+    auto &camera = camera_game_instance::camera;
+    pos.x = (camera.w - wh.x) / 2;
+    pos.y = (camera.h - wh.y) / 2;
+
+    system::render_systems.insert(it, render);
+    system::event_systems.insert(system::event_systems.begin(), event);
+  }
+}
+
+void notice_ui_system::close() {
+  std::erase(system::render_systems, render);
+  std::erase(system::event_systems, event);
+}
+
 SDL_FPoint notice_ui_system::load_wh() {
   switch (type) {
-  case notice_enum::shopbuy: {
-    return {266, 96};
+  case notice_enum::shopbuy:
+  case notice_enum::shopbuy_no_meso:
+  case notice_enum::shopbuy_no_space: {
+    return {266, 116};
   }
   case notice_enum::shopbuy_mul:
     return {266, 119};
   }
   return {0, 0};
+}
+
+void notice_ui_system::event_close() { close(); }
+
+bool notice_ui_system::event_button(SDL_Event *event) {
+  std::vector<SDL_FRect> buttons_rect;
+  std::vector<std::function<void()>> func = {};
+
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      func[i]();
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+      return true;
+    }
+  }
+  return false;
+}
+
+bool notice_ui_system::event(SDL_Event *event) {
+  switch (event->type) {
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_ESCAPE: {
+      event_close();
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+      }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        event_button(event);
+      }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_MOTION: {
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+
+  return false;
+}
+
+bool notice_ui_system::cursor_in() {
+  auto [w, h] = load_wh();
+  auto &mouse = window::mouse_pos;
+  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  return SDL_PointInRectFloat(&mouse, &pos_rect);
 }

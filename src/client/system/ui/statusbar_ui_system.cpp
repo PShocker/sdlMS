@@ -358,7 +358,8 @@ void statusbar_ui_system::render_button() {
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+        !cursor_game_instance::modal_overlay) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
@@ -457,7 +458,8 @@ void statusbar_ui_system::render_chat() {
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+        !cursor_game_instance::modal_overlay) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed =
             wz_resource::load_texture(TargetSelect->find(u"pressed/0"));
@@ -677,7 +679,8 @@ void statusbar_ui_system::render_submenu_button() {
     auto &mouse_pos = window::mouse_pos;
     // 判断按钮是否被遮挡
     auto cursor_in = cursor_game_instance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+        !cursor_game_instance::modal_overlay) {
       if (window::mouse_state & SDL_BUTTON_LMASK) {
         auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
         SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);

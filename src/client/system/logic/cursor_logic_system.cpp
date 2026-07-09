@@ -18,7 +18,9 @@
 #include "src/client/system/ui/context_menu_ui_system.h"
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
+#include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
@@ -123,6 +125,7 @@ bool cursor_logic_system::run_default() {
 
 void cursor_logic_system::run_cursor_ui() {
   cursor_game_instance::cursor_ui = nullptr;
+  cursor_game_instance::modal_overlay = nullptr;
   for (auto &fn : system::render_systems) {
     if (fn == minimap_ui_system::render) {
       if (minimap_ui_system::cursor_in()) {
@@ -177,13 +180,22 @@ void cursor_logic_system::run_cursor_ui() {
         cursor_game_instance::cursor_ui = fn;
       }
     } else if (fn == npc_dlg_ui_system::render) {
+      cursor_game_instance::modal_overlay = fn;
       if (npc_dlg_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
     } else if (fn == shop_ui_system::render) {
+      cursor_game_instance::modal_overlay = fn;
       if (shop_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
+    } else if (fn == notice_ui_system::render) {
+      cursor_game_instance::modal_overlay = fn;
+      if (notice_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
+    } else if (fn == login_notice_ui_system::render) {
+      cursor_game_instance::modal_overlay = fn;
     }
   }
 }
