@@ -23,14 +23,13 @@
 #include <optional>
 #include <ranges>
 
-
 void character_choose_system_instance::enter_prepare(const std::string &login) {
   game_save_system_instance::load_save(login);
   // 进一步解析game_save
   auto character_size = game_save_system_instance::save.characters.size();
   character_choose_ui_system::characters.resize(character_size);
   for (int i = 0; i < character_size; i++) {
-    auto sc = game_save_system_instance::save.characters[i];
+    auto &sc = game_save_system_instance::save.characters[i];
     character_choose_ui_system::characters[i] = sc.character;
     character_logic_system::run_stand_action(
         character_choose_ui_system::characters[i]);

@@ -94,7 +94,6 @@ void npc_dlg_ui_system::render_button() {
   };
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{10, h - 25, 85, 18}, //
-
   };
   auto i = index;
   auto m = max_index;

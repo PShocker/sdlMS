@@ -12,6 +12,7 @@
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/common/flatbuffers/common.h"
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
@@ -43,13 +44,10 @@ bool game_save_system_instance::load_save(const std::string &login) {
         switch (item->data.type) {
         case fbs::ItemUnion_Equip: {
           auto eqp = item->data.AsEquip();
-          game_equip_item g_equip;
+          auto g_equip = std::make_unique<game_equip_item>();
           auto tmp = std::format("{:08d}", eqp->equip_id);
-          g_equip.id = {tmp.begin(), tmp.end()};
-          cs.package.push_back({
-              .index = item->index,
-              .val = g_equip,
-          });
+          g_equip->id = {tmp.begin(), tmp.end()};
+          cs.package.emplace_back(item->index, std::move(g_equip));
           break;
         }
         case fbs::ItemUnion_Item: {
@@ -57,38 +55,29 @@ bool game_save_system_instance::load_save(const std::string &login) {
           auto tmp = std::format("{:08d}", itm->item_id);
           std::u16string item_id{tmp.begin(), tmp.end()};
           auto item_type = item_game_instance::load_item_type(item_id);
-          game_item *i;
           if (item_type == u"Cash") {
-            game_cash_item cash;
-            cash.id = item_id;
-            i = &cash;
+            auto cash = std::make_unique<game_cash_item>();
+            cash->id = item_id;
+            cs.package.emplace_back(item->index, std::move(cash));
           } else if (item_type == u"Consume") {
-            game_consume_item consume;
-            consume.id = item_id;
-            consume.num = itm->item_num;
-            i = &consume;
+            auto consume = std::make_unique<game_consume_item>();
+            consume->id = item_id;
+            consume->num = itm->item_num;
+            cs.package.emplace_back(item->index, std::move(consume));
           } else if (item_type == u"Etc") {
-            game_etc_item etc;
-            etc.id = item_id;
-            etc.num = itm->item_num;
-            i = &etc;
+            auto etc = std::make_unique<game_etc_item>();
+            etc->id = item_id;
+            etc->num = itm->item_num;
+            cs.package.emplace_back(item->index, std::move(etc));
           } else if (item_type == u"Install") {
-            game_install_item install;
-            install.id = item_id;
-            i = &install;
-          } else if (item_type == u"Pet") {
-            game_cash_item cash;
-            cash.id = item_id;
-            i = &cash;
-          } else if (item_type == u"Special") {
-            game_cash_item cash;
-            cash.id = item_id;
-            i = &cash;
+            auto install = std::make_unique<game_install_item>();
+            install->id = item_id;
+            cs.package.emplace_back(item->index, std::move(install));
+          } else if (item_type == u"Pet" || item_type == u"Special") {
+            auto cash = std::make_unique<game_cash_item>();
+            cash->id = item_id;
+            cs.package.emplace_back(item->index, std::move(cash));
           }
-          cs.package.push_back({
-              .index = item->index,
-              .val = *i,
-          });
           break;
         }
         default: {
@@ -131,7 +120,7 @@ bool game_save_system_instance::load_save(const std::string &login) {
       for (auto &i : c->sp) {
         cs.sp.ski_sp[i->id] = i->val;
       }
-      save.characters.push_back(cs);
+      save.characters.push_back(std::move(cs));
     }
     SDL_free(data);
     return true;
@@ -170,31 +159,14 @@ bool game_save_system_instance::save_game() {
 
     cs.quests = quest_game_instance::quests;
 
-    for (const auto &d : package_game_instance::data) {
+    for (auto &d : package_game_instance::data) {
       uint32_t i = 0;
-      for (const auto &v : d) {
-        if (v.has_value()) {
-          switch (v->type) {
-          case item_enum::equip: {
-            auto eqp = v.value();
-            cs.package.push_back({
-                .index = i,
-                .val = eqp,
-            });
-            break;
-          }
-          case item_enum::consume:
-          case item_enum::etc:
-          case item_enum::install:
-          case item_enum::cash: {
-            auto itm = v.value();
-            cs.package.push_back({
-                .index = i,
-                .val = itm,
-            });
-            break;
-          }
-          }
+      for (auto &v : d) {
+        if (v) {
+          cs.package.push_back({
+              .index = i,
+              .val = std::move(v), // 移动所有权
+          });
         }
         i++;
       }
@@ -202,7 +174,7 @@ bool game_save_system_instance::save_game() {
     for (int i = 0; i < save.characters.size(); i++) {
       auto &save_character = save.characters[i].character;
       if (save_character.nametags[0].text == character.nametags[0].text) {
-        save.characters[i] = cs;
+        save.characters[i] = std::move(cs);
         break;
       }
     }
@@ -214,7 +186,7 @@ bool game_save_system_instance::save_game() {
   gst.username = save.username;
   for (uint32_t i = 0; i < save.characters.size(); i++) {
     CharacterSaveT cst;
-    auto character_s = save.characters[i];
+    auto character_s = std::move(save.characters[i]);
     auto ct = character_game_instance::load_characterT(character_s.character);
     cst.character = std::make_unique<CharacterT>(ct);
     cst.ap = std::make_unique<APSaveT>();
@@ -262,21 +234,21 @@ bool game_save_system_instance::save_game() {
       PackageSaveT pst;
       uint32_t item_num = 1;
       uint32_t item_id =
-          std::stoi(std::string{pkg.val.id.begin(), pkg.val.id.end()});
-      switch (pkg.val.type) {
+          std::stoi(std::string{pkg.val->id.begin(), pkg.val->id.end()});
+      switch (pkg.val->type) {
       case item_enum::equip: {
-        game_equip_item &equip = static_cast<game_equip_item &>(pkg.val);
+        game_equip_item &equip = static_cast<game_equip_item &>(*pkg.val);
         EquipT et;
         et.equip_id = item_id;
         pst.data.Set(et);
         break;
       }
       case item_enum::consume: {
-        game_consume_item &consume = static_cast<game_consume_item &>(pkg.val);
+        game_consume_item &consume = static_cast<game_consume_item &>(*pkg.val);
         item_num = consume.num;
       }
       case item_enum::etc: {
-        game_etc_item &etc = static_cast<game_etc_item &>(pkg.val);
+        game_etc_item &etc = static_cast<game_etc_item &>(*pkg.val);
         item_num = etc.num;
       }
       case item_enum::install: {
@@ -289,7 +261,7 @@ bool game_save_system_instance::save_game() {
         break;
       }
       }
-      pst.expire = pkg.val.expire;
+      pst.expire = pkg.val->expire;
       pst.index = pkg.index;
       cst.package.push_back(std::make_unique<PackageSaveT>(pst));
     }

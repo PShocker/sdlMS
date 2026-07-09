@@ -1008,7 +1008,7 @@ void character_create_ui_system::event_button_ok() {
 
   cs.map_id = 1;
 
-  game_save_system_instance::save.characters.push_back(cs);
+  game_save_system_instance::save.characters.push_back(std::move(cs));
 
   chatacter_create_system_instance::enter();
   event_button_back();

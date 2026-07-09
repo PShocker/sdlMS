@@ -5,7 +5,6 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <variant>
 
 using namespace fbs;
 

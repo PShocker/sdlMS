@@ -3,7 +3,6 @@
 #include "game_item.h"
 #include <cstdint>
 #include <optional>
-#include <variant>
 #include <vector>
 
 class game_storage {

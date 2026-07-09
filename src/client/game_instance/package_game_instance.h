@@ -8,7 +8,7 @@
 class package_game_instance {
 public:
   // enum class package_enum { equip, consume, etc, install, cash };
-  static inline std::array<std::vector<std::optional<game_item>>, 5> data;
+  static inline std::array<std::vector<std::unique_ptr<game_item>>, 5> data;
 
   static inline uint64_t meso;
 

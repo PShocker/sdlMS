@@ -14,6 +14,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
 #include <algorithm>
+#include <memory>
 #include <optional>
 #include <string>
 #include <utility>
@@ -305,58 +306,84 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
     return false;
   }
   auto &self = character_game_instance::self;
-  std::optional<game_item> eqp;
+  std::unique_ptr<game_item> eqp;
   switch (index.value()) {
   case cap: {
-    eqp = self.cap;
+    if (self.cap.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.cap.value());
+    }
     break;
   }
   case earcc: {
-    eqp = self.accessory;
+    if (self.accessory.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.accessory.value());
+    }
     break;
   }
   case clothes: {
-    eqp = self.coat;
+    if (self.coat.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.coat.value());
+    }
     break;
   }
   case pants: {
-    eqp = self.pant;
+    if (self.pant.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.pant.value());
+    }
     break;
   }
   case shoes: {
-    eqp = self.shoes;
+    if (self.shoes.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.shoes.value());
+    }
     break;
   }
   case gloves: {
-    eqp = self.glove;
+    if (self.glove.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.glove.value());
+    }
     break;
   }
   case cape: {
-    eqp = self.cape;
+    if (self.cape.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.cape.value());
+    }
     break;
   }
   case shield: {
-    eqp = self.shield;
+    if (self.shield.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.shield.value());
+    }
     break;
   }
   case weapon: {
-    eqp = self.weapon;
+    if (self.weapon.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.weapon.value());
+    }
     break;
   }
   case ring0: {
-    eqp = self.ring0;
+    if (self.ring0.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.ring0.value());
+    }
     break;
   }
   case ring1: {
-    eqp = self.ring1;
+    if (self.ring1.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.ring1.value());
+    }
     break;
   }
   case ring2: {
-    eqp = self.ring2;
+    if (self.ring2.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.ring2.value());
+    }
     break;
   }
   case ring3: {
-    eqp = self.ring3;
+    if (self.ring3.has_value()) {
+      eqp = std::make_unique<game_equip_item>(self.ring3.value());
+    }
     break;
   }
   }
@@ -368,9 +395,8 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
     }
     case cursor_game_instance::package: {
       auto &equip = package_game_instance::data[0][cursor_hand->sub_val];
-      auto ep = static_cast<game_equip_item &>(equip.value());
+      auto ep = static_cast<game_equip_item &>(*equip);
       if (equip_game_instance::add_equip_limit(ep, self, index.value())) {
-        std::swap(equip, eqp);
       } else {
         // dialog
       }

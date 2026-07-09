@@ -6,7 +6,6 @@
 #include "src/client/game/game_quest.h"
 #include <cstdint>
 #include <string>
-#include <variant>
 #include <vector>
 
 struct ap_save {
@@ -24,7 +23,7 @@ struct sp_save {
 
 struct package_save {
   uint32_t index;
-  game_item val;
+  std::unique_ptr<game_item> val;
 };
 
 struct character_save {

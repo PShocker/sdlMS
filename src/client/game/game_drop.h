@@ -4,12 +4,9 @@
 #include "game_pet.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_item.h"
-#include "src/client/game/game_pet.h"
 #include <any>
 #include <cstdint>
 #include <optional>
-#include <variant>
-#include <vector>
 
 struct drop_pick {
   uint64_t client_id;

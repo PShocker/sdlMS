@@ -14,7 +14,7 @@ void cursor_game_instance::server_cursor_drop(const DropT &dt) {
       break;
     }
     case cursor_game_instance::package: {
-      package_game_instance::data[hand.val][hand.sub_val] = std::nullopt;
+      package_game_instance::data[hand.val][hand.sub_val] = nullptr;
       break;
     }
     default: {

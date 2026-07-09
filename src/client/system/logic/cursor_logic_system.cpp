@@ -78,7 +78,7 @@ bool cursor_logic_system::run_package_motion() {
   }
   auto active_tab = package_ui_system::active_tab;
   const auto &r = package_game_instance::data[active_tab];
-  if (!r[index.value()].has_value()) {
+  if (!r[index.value()]) {
     return false;
   }
   return true;
@@ -233,7 +233,8 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
           case cursor_game_instance::package: {
             auto active_tab = cursor_hand->val;
             if (active_tab == 0) {
-              auto equip = package_game_instance::data[0][cursor_hand->sub_val];
+              auto &equip =
+                  package_game_instance::data[0][cursor_hand->sub_val];
               DropT dt;
               EquipT et;
               et.equip_id =

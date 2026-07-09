@@ -5,7 +5,6 @@
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
 #include <array>
-#include <cstdint>
 #include <optional>
 #include <string>
 class shop_ui_system {

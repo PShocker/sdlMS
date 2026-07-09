@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>
+#include <memory>
 #include <optional>
 #include <string>
 #include <utility>
@@ -30,9 +31,9 @@
 
 std::vector<uint32_t> package_ui_system::load_blank_index(uint32_t tab) {
   std::vector<uint32_t> r;
-  auto d = package_game_instance::data[tab];
+  auto &d = package_game_instance::data[tab];
   for (int32_t i = 0; i < d.size(); i++) {
-    if (!d[i].has_value()) {
+    if (!d[i]) {
       r.push_back(i);
     }
   }
@@ -114,20 +115,20 @@ void package_ui_system::render_items_info() {
   if (index.has_value()) {
     if (active_tab == 0) {
       auto &equips = package_game_instance::data[0];
-      auto equip = equips.at(index.value());
-      if (equip.has_value()) {
+      auto &equip = equips.at(index.value());
+      if (equip) {
         auto &mouse_pos = window::mouse_pos;
         SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-        auto eqp = static_cast<game_equip_item &>(equip.value());
+        auto eqp = static_cast<game_equip_item &>(*equip);
         tooltip_ui_system::render_equip(eqp, show_pos.x, show_pos.y);
       }
     } else {
       auto &r = package_game_instance::data[active_tab];
-      if (r.at(index.value()).has_value()) {
+      if (r.at(index.value())) {
         auto &mouse_pos = window::mouse_pos;
         SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-        tooltip_ui_system::render_item(r[index.value()].value(), show_pos.x,
-                                       show_pos.y);
+        auto itm = *r[index.value()];
+        tooltip_ui_system::render_item(itm, show_pos.x, show_pos.y);
       }
     }
   }
@@ -146,7 +147,7 @@ void package_ui_system::render_items() {
       if (row >= 6) {
         break;
       }
-      if (!equips[i].has_value()) {
+      if (!equips[i]) {
         continue;
       }
 
@@ -167,7 +168,7 @@ void package_ui_system::render_items() {
       SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
     }
   } else {
-    auto r = package_game_instance::data[active_tab];
+    auto &r = package_game_instance::data[active_tab];
     for (uint8_t i = page * 5; i <= r.size(); i++) {
       auto row = i / 5 - page;
       auto col = i % 5;
@@ -175,7 +176,7 @@ void package_ui_system::render_items() {
       if (row >= 6) {
         break;
       }
-      if (!r.at(i).has_value()) {
+      if (!r.at(i)) {
         continue;
       }
 
@@ -294,20 +295,20 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     if (hand.type == cursor_game_instance::package && hand.val == active_tab) {
       auto index = load_mouse_index();
       if (active_tab == 0) {
-        auto equips = package_game_instance::data[0];
+        auto &equips = package_game_instance::data[0];
         if (index.has_value()) {
           if (hand.sub_val == index.value()) {
             auto &self = character_game_instance::self;
-            auto equip =
-                static_cast<game_equip_item &>(equips[index.value()].value());
+            auto equip = static_cast<game_equip_item &>(*equips[index.value()]);
             auto ev = equip_game_instance::load_equip_slot(equip, self);
             auto blank_slot = load_blank_index(active_tab);
             blank_slot.push_back(index.value());
             std::ranges::sort(blank_slot);
             if (blank_slot.size() >= ev.size()) {
-              equips[hand.sub_val] = std::nullopt;
+              equips[hand.sub_val] = nullptr;
               for (int32_t i = 0; i < ev.size(); i++) {
-                equips[blank_slot[i]] = ev[i];
+                equips[blank_slot[i]] =
+                    std::make_unique<game_equip_item>(ev[i]);
               }
               equip_game_instance::add_equip(equip, self, -1);
               // 发包
@@ -322,7 +323,6 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
           } else {
             std::swap(equips[hand.sub_val], equips[index.value()]);
           }
-          package_game_instance::data[0] = equips;
         }
       } else {
         auto &r = package_game_instance::data[active_tab];
@@ -341,7 +341,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       return false;
     }
     const auto &r = package_game_instance::data[active_tab];
-    if (!r[index.value()].has_value()) {
+    if (!r[index.value()]) {
       return false;
     }
     cursor_game_instance::cursor_hand = {
