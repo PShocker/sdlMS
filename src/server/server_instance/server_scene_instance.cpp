@@ -21,7 +21,7 @@ void server_scene_instance::clean_client(uint64_t client_id,
     auto map_id = server_client_instance::clients.at(client_id).map_id;
     auto &scenes = server_scene_instance::scenes[map_id];
     scenes.clients.erase(client_id);
-    fbs::ServerCharacterOutT r;
+    ServerCharacterOutT r;
     for (const auto other : scenes.clients) {
       r.client_id = client_id;
       server_response::send_to_client(other, r);

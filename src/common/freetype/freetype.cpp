@@ -191,11 +191,12 @@ void freetype::draw_line(const std::u16string &str, float x, float y) {
   }
 }
 
-void freetype::draw_str(const std::u16string &str, float x, float y, float w) {
+void freetype::draw_str(const std::u16string &str, float x, float y, float w,
+                        float h) {
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
-  lineHeight = lineHeight * 1.1;
+  lineHeight = lineHeight * h;
   for (uint32_t i = 0; i < str.size(); i++) {
     auto c = str[i];
     if (l >= x + w || c == u'\n') {
@@ -206,12 +207,13 @@ void freetype::draw_str(const std::u16string &str, float x, float y, float w) {
   }
 }
 
-void freetype::draw_rstr(const std::u16string &str, float x, float y, float w) {
+void freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
+                         float h) {
   auto [r, g, b, a] = color;
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
-  lineHeight = lineHeight * 1.3;
+  lineHeight = lineHeight * h;
   for (uint32_t i = 0; i < str.size(); i++) {
     auto c = str[i];
     if (l >= x + w || c == u'\n') {
@@ -261,12 +263,13 @@ void freetype::draw_rstr(const std::u16string &str, float x, float y, float w) {
   load_color(r, g, b, a);
 }
 
-void freetype::draw_cstr(const std::u16string &str, float x, float y, float w) {
+void freetype::draw_cstr(const std::u16string &str, float x, float y, float w,
+                         float h) {
   if (str.empty())
     return;
 
   // 行高
-  float lineHeight = static_cast<float>(face->size->metrics.height >> 6) * 1.3f;
+  float lineHeight = static_cast<float>(face->size->metrics.height >> 6) * h;
 
   // 当前行
   std::u16string currentLine;

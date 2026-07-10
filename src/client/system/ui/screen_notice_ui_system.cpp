@@ -4,6 +4,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include <ranges>
 
@@ -38,6 +39,13 @@ void screen_notice_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, r, nullptr, &pos_rect);
 }
 
+void screen_notice_ui_system::render_text() {
+  freetype::load_size(12);
+  freetype::load_aligned(true);
+  freetype::load_color(255, 255, 255, 255);
+  // freetype::draw_str();
+}
+
 void screen_notice_ui_system::open() {
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
@@ -52,7 +60,11 @@ void screen_notice_ui_system::open() {
   }
 }
 
-bool screen_notice_ui_system::render() { return true; }
+bool screen_notice_ui_system::render() {
+  render_backgrnd();
+
+  return true;
+}
 
 bool screen_notice_ui_system::event(SDL_Event *event) { return true; }
 

@@ -220,8 +220,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterDrop();
     fbs::ServerCharacterDropT r;
     payload->UnPackTo(&r);
-    cursor_game_instance::server_cursor_drop(*r.payload);
-    drop_game_instance::load_drop(*r.payload);
+    server_drop_instance::handle_server_drop(client_id, r);
     break;
   }
   case NetPayload_ServerCharacter: {

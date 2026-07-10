@@ -52,9 +52,13 @@ public:
   static void load_bold(bool r);
 
   static void draw_line(const std::u16string &str, float x, float y);
-  static void draw_str(const std::u16string &str, float x, float y, float w);
-  static void draw_rstr(const std::u16string &str, float x, float y, float w);
-  static void draw_cstr(const std::u16string &str, float x, float y, float w);
+  
+  static void draw_str(const std::u16string &str, float x, float y, float w,
+                       float h);
+  static void draw_rstr(const std::u16string &str, float x, float y, float w,
+                        float h);
+  static void draw_cstr(const std::u16string &str, float x, float y, float w,
+                        float h);
 
   static std::u16string load_u16str(const char *text);
   static std::string load_u8str(const std::u16string &str);

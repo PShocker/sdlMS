@@ -25,6 +25,9 @@ void notice_ui_system::render_backgrnd() {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice2");
     break;
   }
+  case notice_enum::equip_no_ability:
+  case notice_enum::equip_no_space:
+    break;
   }
   auto [w, h] = load_wh();
   auto t = wz_resource::load_texture(node->get_child(u"t"));
@@ -68,6 +71,11 @@ void notice_ui_system::render_button() {
     buttons_rect = {};
     break;
   }
+  case notice_enum::shopbuy_no_meso:
+  case notice_enum::shopbuy_no_space:
+  case notice_enum::equip_no_ability:
+  case notice_enum::equip_no_space:
+    break;
   }
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
@@ -110,6 +118,9 @@ void notice_ui_system::render_text() {
   case notice_enum::shopbuy_no_space: {
     break;
   }
+  case notice_enum::equip_no_ability:
+  case notice_enum::equip_no_space:
+    break;
   }
   if (!text.empty()) {
   }
@@ -149,6 +160,9 @@ SDL_FPoint notice_ui_system::load_wh() {
   }
   case notice_enum::shopbuy_mul:
     return {266, 119};
+  case notice_enum::equip_no_ability:
+  case notice_enum::equip_no_space:
+    break;
   }
   return {0, 0};
 }

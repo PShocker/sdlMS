@@ -6,10 +6,12 @@
 class screen_notice_ui_system {
 private:
   static void render_backgrnd();
+  static void render_text();
 
 public:
   static inline SDL_FPoint pos;
   static inline std::u16string path;
+  static inline std::u16string text;
 
   static void open();
   static void close();

@@ -77,7 +77,7 @@ void character_info_ui_system::render_scroll() {
   const uint32_t length = 115;
   auto size = load_equips().size() - 3;
   auto cursor_in = cursor_game_instance::cursor_ui;
-  bool top = cursor_in == render;
+  bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
                                    item_page, size, length, top);
   return;

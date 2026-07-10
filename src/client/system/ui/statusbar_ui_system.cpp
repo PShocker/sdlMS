@@ -549,8 +549,7 @@ void statusbar_ui_system::render_chat_infos() {
     auto base_y = (screen_h - 73);
     freetype::load_color(255, 255, 255, 255);
     str_h += freetype::load_h(str, 550, 1.1);
-    freetype::draw_str(str, base_x + 8, base_y - str_h + 2, 550);
-    freetype::load_aligned(false);
+    freetype::draw_str(str, base_x + 8, base_y - str_h + 2, 550, 1.1);
   }
 }
 
@@ -561,11 +560,11 @@ void statusbar_ui_system::render_chat_vscr() {
   const uint32_t length = 80;
   auto size = 6;
   auto cursor_in = cursor_game_instance::cursor_ui;
-  bool top = cursor_in == render;
   auto screen_w = camera_game_instance::camera.w;
   auto screen_h = camera_game_instance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
+  bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll(base_x + 570, base_y - 75, 5, size, length,
                                    top);
   return;

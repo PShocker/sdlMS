@@ -39,6 +39,4 @@ public:
 
   static inline std::optional<cursor_hand_net_data> cursor_hand_net;
   static inline std::optional<cursor_hand_data> cursor_hand;
-
-  static void server_cursor_drop(const DropT &dt);
 };

@@ -20,6 +20,9 @@ public:
     shopbuy_mul,
     shopbuy_no_meso,
     shopbuy_no_space,
+
+    equip_no_ability,
+    equip_no_space,
   };
 
   static inline notice_enum type;

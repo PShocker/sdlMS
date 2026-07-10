@@ -203,7 +203,7 @@ bool chatballoon_render_system::render(game_chatballoon &g_chatballoon,
     freetype::load_aligned(true);
     freetype::load_size(g_chatballoon.size);
     freetype::draw_cstr(g_chatballoon.text, bacgrnd_pad->x, bacgrnd_pad->y,
-                        bacgrnd_pad->w);
+                        bacgrnd_pad->w, 1.3);
     freetype::load_aligned(false);
   }
   return true;

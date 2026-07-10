@@ -3,6 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_scancode.h"
+#include "notice_ui_system.h"
 #include "scroll_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -203,7 +204,7 @@ void package_ui_system::render_scroll() {
   const uint32_t length = 202;
   auto size = 96 / 5;
   auto cursor_in = cursor_game_instance::cursor_ui;
-  bool top = cursor_in == render;
+  bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
                                    size, length, top);
   return;
@@ -299,27 +300,37 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         auto &equips = package_game_instance::data[0];
         if (index.has_value()) {
           if (hand.sub_val == index.value()) {
-            auto &self = character_game_instance::self;
+            auto sf = character_game_instance::self;
             auto equip = static_cast<game_equip_item &>(*equips[index.value()]);
-            auto ev = equip_game_instance::load_equip_slot(equip, self);
-            auto blank_slot = load_blank_index(active_tab);
-            blank_slot.push_back(index.value());
-            std::ranges::sort(blank_slot);
-            if (blank_slot.size() >= ev.size()) {
-              equips[hand.sub_val] = nullptr;
-              for (int32_t i = 0; i < ev.size(); i++) {
-                equips[blank_slot[i]] =
-                    std::make_unique<game_equip_item>(ev[i]);
+            auto ev = equip_game_instance::load_equip_slot(equip, sf);
+            if (equip_game_instance::add_equip_limit(equip, sf, 0)) {
+              auto blank_slot = load_blank_index(active_tab);
+              blank_slot.push_back(index.value());
+              std::ranges::sort(blank_slot);
+              if (blank_slot.size() >= ev.size()) {
+                equips[hand.sub_val] = nullptr;
+                for (int32_t i = 0; i < ev.size(); i++) {
+                  equips[blank_slot[i]] =
+                      std::make_unique<game_equip_item>(ev[i]);
+                }
+                character_game_instance::self = sf;
+                // 发包
+                ClientCharacterT ct;
+                ct.map_id = scene_system_instance::map_id;
+                auto c = character_game_instance::load_characterT(sf);
+                ct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
+                client_request::send_to_host(ct);
+              } else {
+                // 无空闲位置
+                notice_ui_system::type =
+                    notice_ui_system::notice_enum::equip_no_space;
+                notice_ui_system::open();
               }
-              equip_game_instance::add_equip(equip, self, -1);
-              // 发包
-              ClientCharacterT ct;
-              ct.map_id = scene_system_instance::map_id;
-              auto c = character_game_instance::load_characterT(self);
-              ct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
-              client_request::send_to_host(ct);
             } else {
-              // 无空闲位置
+              // 属性不够穿戴装备
+              notice_ui_system::type =
+                  notice_ui_system::notice_enum::equip_no_ability;
+              notice_ui_system::open();
             }
           } else {
             std::swap(equips[hand.sub_val], equips[index.value()]);

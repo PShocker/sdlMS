@@ -114,10 +114,11 @@ void shop_ui_system::render_vscr() {
   auto y = (int)pos.y + 129;
   auto cursor_in = cursor_game_instance::cursor_ui;
   auto &items = shop->items;
-  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, true);
+  bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
+  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, top);
 
   x += 230;
-  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, true);
+  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, top);
   return;
 }
 
