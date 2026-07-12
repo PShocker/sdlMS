@@ -9,14 +9,13 @@
 
 class package_ui_system {
 private:
-  static std::vector<uint32_t> load_blank_index(uint32_t tab);
-
   static void render_scroll();
   static void render_backgrnd();
   static void render_tab();
   static void render_items();
   static void render_items_info();
   static void render_button();
+  static void render_meso();
 
   static void event_close();
 
@@ -36,6 +35,8 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
+  static std::vector<uint32_t> load_blank_index(uint32_t tab);
+
   static inline SDL_FPoint pos;
 
   static inline uint8_t active_tab;

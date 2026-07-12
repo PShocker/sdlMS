@@ -1,14 +1,20 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "text_input_ui_system.h"
+#include <any>
 #include <cstdint>
+#include <functional>
 class notice_ui_system {
 private:
   static void render_backgrnd();
   static void render_button();
   static void render_text();
+  static void render_input();
 
   static void event_close();
+
+  static void event_button_shopbuy();
 
   static bool event_button(SDL_Event *event);
 
@@ -27,6 +33,8 @@ public:
 
   static inline notice_enum type;
   static inline SDL_FPoint pos;
+  static inline text_input text;
+  static inline std::any data;
 
   static bool render();
 

@@ -78,8 +78,12 @@ bool cursor_logic_system::run_package_motion() {
   if (!index.has_value()) {
     return false;
   }
+
   auto active_tab = package_ui_system::active_tab;
   const auto &r = package_game_instance::data[active_tab];
+  if (index.value() >= r.size()) {
+    return false;
+  }
   if (!r[index.value()]) {
     return false;
   }

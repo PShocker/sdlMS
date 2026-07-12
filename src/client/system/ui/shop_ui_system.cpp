@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "notice_ui_system.h"
+#include "package_ui_system.h"
 #include "scroll_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
@@ -13,6 +14,7 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
@@ -26,6 +28,8 @@
 #include "wz/Property.h"
 #include <algorithm>
 #include <string>
+#include <utility>
+#include <vector>
 
 SDL_FPoint shop_ui_system::load_wh() { return SDL_FPoint{465, 381}; }
 
@@ -39,6 +43,26 @@ void shop_ui_system::render_backgrnd() {
       static_cast<float>(texture->h),
   };
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+}
+
+void shop_ui_system::render_self_items() {
+  const game_shop_item *item_info = nullptr;
+  std::vector<game_shop_item> items;
+  const auto &r = package_game_instance::data[active_tab[1]];
+  for (const auto &itm : r) {
+    auto item = shop_game_instance::load_shop_item(itm->id);
+    game_shop_item gst;
+    gst.item = std::move(item);
+    if (item->type == item_enum::equip) {
+      auto info = equip_game_instance::load_equip_info(gst.item->id);
+      gst.price =
+          static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
+    } else {
+      auto info = item_game_instance::load_item_info(gst.item->id);
+      gst.price =
+          static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
+    }
+  }
 }
 
 void shop_ui_system::render_items() {
@@ -103,7 +127,7 @@ void shop_ui_system::render_items() {
     tmp2 = tmp2 + u" " + static_cast<wz::Property<std::u16string> *>(n)->get();
     freetype::draw_line(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }
-  if (item_info && !cursor_game_instance::modal_overlay) {
+  if (item_info && cursor_game_instance::modal_overlay == render) {
     render_item_info(*item_info->item);
   }
 }
@@ -274,6 +298,17 @@ void shop_ui_system::render_item_info(game_item &item) {
   }
 }
 
+void shop_ui_system::render_meso() {
+  freetype::load_size(12);
+  freetype::load_aligned(true);
+  freetype::load_color(0, 0, 0, 255);
+  auto meso = std::to_string(package_game_instance::meso);
+  std::u16string meso2 = {meso.begin(), meso.end()};
+  auto w = freetype::load_w(meso2);
+  freetype::draw_line(meso2, pos.x + 448 - w, pos.y + 64);
+  return;
+}
+
 bool shop_ui_system::render() {
   render_backgrnd();
   render_button();
@@ -281,6 +316,7 @@ bool shop_ui_system::render() {
   render_active_item();
   render_npc();
   render_self();
+  render_meso();
   render_vscr();
   render_items();
   return true;
@@ -361,6 +397,21 @@ bool shop_ui_system::event_item(SDL_Event *event) {
         if (meso < itm.price) {
           notice_ui_system::type =
               notice_ui_system::notice_enum::shopbuy_no_meso;
+        } else {
+          auto &itm = items[item];
+          auto type = itm.item->type;
+          if (!package_ui_system::load_blank_index((int)type).empty()) {
+            notice_ui_system::type =
+                notice_ui_system::notice_enum::shopbuy_no_space;
+          } else {
+            if (type == item_enum::equip) {
+              notice_ui_system::type = notice_ui_system::notice_enum::shopbuy;
+            } else {
+              notice_ui_system::type =
+                  notice_ui_system::notice_enum::shopbuy_mul;
+            }
+          }
+          notice_ui_system::data = &itm;
         }
         notice_ui_system::open();
       } else {

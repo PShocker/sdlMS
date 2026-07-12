@@ -18,6 +18,7 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
@@ -113,7 +114,8 @@ void package_ui_system::render_tab() {
 
 void package_ui_system::render_items_info() {
   auto index = load_mouse_index();
-  if (index.has_value()) {
+  if (index.has_value() &&
+      index.value() < package_game_instance::data[active_tab].size()) {
     if (active_tab == 0) {
       auto &equips = package_game_instance::data[0];
       auto &equip = equips.at(index.value());
@@ -170,7 +172,7 @@ void package_ui_system::render_items() {
     }
   } else {
     auto &r = package_game_instance::data[active_tab];
-    for (uint8_t i = page * 5; i <= r.size(); i++) {
+    for (uint8_t i = page * 5; i < r.size(); i++) {
       auto row = i / 5 - page;
       auto col = i % 5;
 
@@ -245,12 +247,23 @@ void package_ui_system::render_button() {
   }
 }
 
+void package_ui_system::render_meso() {
+  freetype::load_size(12);
+  freetype::load_aligned(true);
+  freetype::load_color(0, 0, 0, 255);
+  auto meso = std::to_string(package_game_instance::meso);
+  std::u16string meso2 = {meso.begin(), meso.end()};
+  auto w = freetype::load_w(meso2);
+  freetype::draw_line(meso2, pos.x + 165 - w, pos.y + 266);
+}
+
 bool package_ui_system::render() {
   render_backgrnd();
   render_tab();
   render_items();
   render_scroll();
   render_button();
+  render_meso();
   render_items_info();
   return true;
 }

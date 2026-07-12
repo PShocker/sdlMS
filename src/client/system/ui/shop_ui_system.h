@@ -5,22 +5,26 @@
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
 #include <array>
+#include <cstdint>
 #include <optional>
 #include <string>
 class shop_ui_system {
 private:
   static void render_backgrnd();
   static void render_button();
+
   static void render_items();
   static void render_tab();
   static void render_vscr();
+  static void render_meso();
 
   static void render_npc();
   static void render_self();
+  static void render_self_items();
 
   static void render_active_item();
 
-  static void render_item_info(game_item& item);
+  static void render_item_info(game_item &item);
 
   static bool event_item(SDL_Event *event);
 
@@ -38,7 +42,7 @@ public:
   static inline std::array<int, 2> active_tab;
 
   static inline std::optional<game_npc> npc;
-  static inline const game_shop* shop;
+  static inline const game_shop *shop;
 
   static inline SDL_FPoint pos;
 

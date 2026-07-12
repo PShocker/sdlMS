@@ -54,30 +54,8 @@ bool game_save_system_instance::load_save(const std::string &login) {
           auto itm = item->data.AsItem();
           auto tmp = std::format("{:08d}", itm->item_id);
           std::u16string item_id{tmp.begin(), tmp.end()};
-          auto item_type = item_game_instance::load_item_type(item_id);
-          if (item_type == u"Cash") {
-            auto cash = std::make_unique<game_cash_item>();
-            cash->id = item_id;
-            cs.package.emplace_back(item->index, std::move(cash));
-          } else if (item_type == u"Consume") {
-            auto consume = std::make_unique<game_consume_item>();
-            consume->id = item_id;
-            consume->num = itm->item_num;
-            cs.package.emplace_back(item->index, std::move(consume));
-          } else if (item_type == u"Etc") {
-            auto etc = std::make_unique<game_etc_item>();
-            etc->id = item_id;
-            etc->num = itm->item_num;
-            cs.package.emplace_back(item->index, std::move(etc));
-          } else if (item_type == u"Install") {
-            auto install = std::make_unique<game_install_item>();
-            install->id = item_id;
-            cs.package.emplace_back(item->index, std::move(install));
-          } else if (item_type == u"Pet" || item_type == u"Special") {
-            auto cash = std::make_unique<game_cash_item>();
-            cash->id = item_id;
-            cs.package.emplace_back(item->index, std::move(cash));
-          }
+          auto item2 = item_game_instance::load_item(item_id, itm->item_num);
+          cs.package.emplace_back(item->index, std::move(item2));
           break;
         }
         default: {

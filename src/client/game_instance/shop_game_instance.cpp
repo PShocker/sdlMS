@@ -8,6 +8,19 @@
 #include <optional>
 #include <string>
 
+std::unique_ptr<game_item>
+shop_game_instance::load_shop_item(const std::u16string &id) {
+  std::unique_ptr<game_item> r;
+  if (item_game_instance::check_item(id)) {
+    r = item_game_instance::load_item(id, 1);
+  } else {
+    game_equip_item eqp;
+    eqp.id = id;
+    r = std::make_unique<game_equip_item>(eqp);
+  }
+  return r;
+}
+
 game_shop shop_game_instance::load_shop(const std::u16string &shop_id) {
   game_shop shop;
   auto node =
@@ -22,15 +35,7 @@ game_shop shop_game_instance::load_shop(const std::u16string &shop_id) {
     game_shop_item item{
         .price = price,
     };
-    if (item_game_instance::check_item(id)) {
-      game_item itm;
-      itm.id = id;
-      item.item = std::make_unique<game_item>(itm);
-    } else {
-      game_equip_item eqp;
-      eqp.id = id;
-      item.item = std::make_unique<game_equip_item>(eqp);
-    }
+    item.item = load_shop_item(id);
     shop.items.push_back(std::move(item));
   }
   return shop;

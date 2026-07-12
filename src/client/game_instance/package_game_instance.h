@@ -10,7 +10,7 @@ public:
   // enum class package_enum { equip, consume, etc, install, cash };
   static inline std::array<std::vector<std::unique_ptr<game_item>>, 5> data;
 
-  static inline uint64_t meso;
+  static inline uint64_t meso = UINT64_MAX;
 
   static void load(const character_save &cs);
 };

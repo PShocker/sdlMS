@@ -1,20 +1,28 @@
 #include "notice_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game/game_shop.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
+#include "wz/Property.h"
 #include <string>
+#include <utility>
 #include <vector>
 
 void notice_ui_system::render_backgrnd() {
   wz::Node *node;
   switch (type) {
+  case notice_enum::equip_no_ability:
+  case notice_enum::equip_no_space:
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
   case notice_enum::shopbuy: {
@@ -25,9 +33,6 @@ void notice_ui_system::render_backgrnd() {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice2");
     break;
   }
-  case notice_enum::equip_no_ability:
-  case notice_enum::equip_no_space:
-    break;
   }
   auto [w, h] = load_wh();
   auto t = wz_resource::load_texture(node->get_child(u"t"));
@@ -60,22 +65,34 @@ void notice_ui_system::render_backgrnd() {
 void notice_ui_system::render_button() {
   std::vector<wz::Node *> buttons_node = {};
   std::vector<SDL_FRect> buttons_rect = {};
+  auto [w, h] = load_wh();
   switch (type) {
-  case notice_enum::shopbuy: {
-    buttons_node = {};
-    buttons_rect = {};
-    break;
-  }
+  case notice_enum::shopbuy:
   case notice_enum::shopbuy_mul: {
-    buttons_node = {};
-    buttons_rect = {};
+    buttons_node = {
+        wz_resource::ui->find(u"Basic.img/BtOK2"),
+        wz_resource::ui->find(u"Basic.img/BtCancel2"),
+    };
+    buttons_rect = {
+        {w - 105, h - 30, 47, 18},
+        {w - 55, h - 30, 47, 18},
+    };
     break;
   }
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
   case notice_enum::equip_no_ability:
-  case notice_enum::equip_no_space:
+  case notice_enum::equip_no_space: {
+    buttons_node = {
+        wz_resource::ui->find(u"Basic.img/BtOK2"),
+        wz_resource::ui->find(u"Basic.img/BtCancel2"),
+    };
+    buttons_rect = {
+        {w - 110, h - 30, 47, 18},
+        {w, h - 30, 47, 18},
+    };
     break;
+  }
   }
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
@@ -105,11 +122,15 @@ void notice_ui_system::render_text() {
   SDL_FPoint p;
   switch (type) {
   case notice_enum::shopbuy: {
-    auto n = wz_resource::ms->get_root()->find(u"PopNotice.img/buyItem");
-    // text=
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/buyItem");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
     break;
   }
   case notice_enum::shopbuy_mul: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/buyItemMul");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
     break;
   }
   case notice_enum::shopbuy_no_meso: {
@@ -123,12 +144,28 @@ void notice_ui_system::render_text() {
     break;
   }
   if (!text.empty()) {
+    freetype::load_aligned(true);
+    freetype::load_size(12);
+    freetype::load_color(255, 255, 255, 255);
+    freetype::draw_str(text, pos.x + p.x, pos.y + p.y, 240, 1.3);
+  }
+}
+
+void notice_ui_system::render_input() {
+  switch (type) {
+  case notice_enum::shopbuy_mul: {
+    break;
+  }
+  default: {
+    break;
+  }
   }
 }
 
 bool notice_ui_system::render() {
   render_backgrnd();
   render_button();
+  render_text();
   return true;
 }
 
@@ -169,10 +206,44 @@ SDL_FPoint notice_ui_system::load_wh() {
 
 void notice_ui_system::event_close() { close(); }
 
+void notice_ui_system::event_button_shopbuy() {
+  auto p = std::any_cast<const game_shop_item *>(notice_ui_system::data);
+  auto itm = shop_game_instance::load_shop_item(p->item->id);
+  switch (type) {
+  case notice_enum::shopbuy: {
+    package_game_instance::data[(int)p->item->type].push_back(std::move(itm));
+    break;
+  }
+  case notice_enum::shopbuy_mul: {
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  close();
+}
+
 bool notice_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
-
+  auto [w, h] = load_wh();
+  switch (type) {
+  case notice_enum::shopbuy:
+  case notice_enum::shopbuy_mul: {
+    buttons_rect = {
+        {w - 110, h - 30, 47, 18},
+        {w, h - 30, 47, 18},
+    };
+    func = {event_button_shopbuy, close};
+  }
+  case notice_enum::shopbuy_no_meso:
+  case notice_enum::shopbuy_no_space:
+  case notice_enum::equip_no_ability:
+  case notice_enum::equip_no_space: {
+    break;
+  }
+  }
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += pos.x;

@@ -7,4 +7,7 @@ class shop_game_instance {
 public:
   static const game_shop *load_npc_shop(const std::u16string &npc_id);
   static game_shop load_shop(const std::u16string &shop_id);
+  static std::unique_ptr<game_item> load_shop_item(const std::u16string &id);
+
+  static inline std::vector<std::unique_ptr<game_item>> must;
 };

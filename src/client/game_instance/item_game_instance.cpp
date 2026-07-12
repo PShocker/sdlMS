@@ -52,3 +52,31 @@ wz::Node *item_game_instance::load_item_info(const std::u16string &id) {
   }
   return node;
 }
+
+std::unique_ptr<game_item>
+item_game_instance::load_item(const std::u16string &id, uint32_t num) {
+  auto item_type = item_game_instance::load_item_type(id);
+  if (item_type == u"Cash") {
+    auto cash = std::make_unique<game_cash_item>();
+    cash->id = id;
+    return cash;
+  } else if (item_type == u"Consume") {
+    auto consume = std::make_unique<game_consume_item>();
+    consume->id = id;
+    consume->num = num;
+    return consume;
+  } else if (item_type == u"Etc") {
+    auto etc = std::make_unique<game_etc_item>();
+    etc->id = id;
+    etc->num = 1;
+    return etc;
+  } else if (item_type == u"Install") {
+    auto install = std::make_unique<game_install_item>();
+    install->id = id;
+    return install;
+  } else if (item_type == u"Pet" || item_type == u"Special") {
+    auto cash = std::make_unique<game_cash_item>();
+    cash->id = id;
+    return cash;
+  }
+}
