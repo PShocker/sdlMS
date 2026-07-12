@@ -15,6 +15,7 @@
 #include "wz/Property.h"
 #include <algorithm>
 #include <cstdint>
+#include <optional>
 #include <string>
 
 float tooltip_ui_system::load_equip_bottom_h(const std::u16string &id) {
@@ -536,7 +537,7 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
 
     str = ski_name.level[ski_level];
     y += freetype::load_lh() * 1.3;
-    freetype::draw_rstr(str, x + 2, y, w - 22, 1.3);
+    freetype::draw_rstr(str, x + 2, y, w - 22, 1.3,std::nullopt);
   } else if (ski_level == ski_name.level.size()) {
     freetype::load_size(12);
     freetype::load_color(255, 255, 255, 255);
@@ -549,7 +550,7 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
 
     str = ski_name.level[ski_level - 1];
     y += freetype::load_lh() * 1.3;
-    freetype::draw_rstr(str, x + 2, y, w - 22, 1.3);
+    freetype::draw_rstr(str, x + 2, y, w - 22, 1.3, std::nullopt);
   } else {
     freetype::load_size(12);
     freetype::load_color(255, 255, 255, 255);
@@ -562,19 +563,20 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
 
     str = ski_name.level[ski_level - 1];
     y += freetype::load_lh() * 1.3;
-    freetype::draw_rstr(str, x + 2, y, w - 22, 1.3);
+    auto lh = freetype::draw_rstr(str, x + 2, y, w - 28, 1.3, std::nullopt);
 
-    y += 19;
+    y += lh;
 
     auto next_node =
         wz_resource::ms->get_root()->find(u"String.img/Skill/nextLevel");
     str = static_cast<wz::Property<std::u16string> *>(next_node)->get();
 
+    freetype::load_color(255, 255, 255, 255);
     str = u"[" + str + u" " + next_level3 + u"]";
     freetype::draw_line(str, x, y);
     str = ski_name.level[ski_level];
     y += freetype::load_lh() * 1.3;
-    freetype::draw_rstr(str, x + 2, y, w - 22, 1.3);
+    freetype::draw_rstr(str, x + 2, y, w - 28, 1.3, std::nullopt);
   }
 }
 
@@ -620,9 +622,12 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
   freetype::load_size(12);
   freetype::load_color(255, 255, 255, 255);
   auto str = ski_name.desc;
-  freetype::draw_rstr(str, pos_rect.x + 75, pos_rect.y - 4, w - 112, 1.3);
+  auto sx = pos_rect.x;
+  auto sy = pos_rect.y-8;
+  auto rstr_h =
+      freetype::draw_rstr(str, sx, sy, w -28, 1.2, SDL_FRect{sx, sy, 74, 64});
 
-  auto line_y = y + base.y + 90;
+  auto line_y = std::max(sy + rstr_h + 10, y + base.y + 90);
   SDL_SetRenderDrawColor(window::renderer, 255, 255, 255, 255);
   SDL_RenderLine(window::renderer, x + 5, line_y, x + w - 5, line_y);
 

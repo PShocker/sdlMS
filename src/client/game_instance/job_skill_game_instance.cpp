@@ -93,3 +93,39 @@ job_skill_game_instance::load_skill_tree(const std::u16string &id) {
 
   return r;
 }
+
+std::u16string job_skill_game_instance::load_job_id(job_type type) {
+  switch (type) {
+  case job_type::BEGINNER:
+    return u"000";
+  case job_type::WARRIOR:
+    return u"100";
+  case job_type::MAGICIAN:
+    return u"200";
+  case job_type::BOWMAN:
+    return u"300";
+  case job_type::THIEF:
+    return u"400";
+  case job_type::FIGHTER:
+    return u"110";
+  case job_type::PAGE:
+    return u"120";
+  case job_type::SPEARMAN:
+    return u"130";
+  case job_type::FP_WIZARD:
+    return u"210";
+  case job_type::IL_WIZARD:
+    return u"220";
+  case job_type::CLERIC:
+    return u"230";
+  case job_type::HUNTER:
+    return u"310";
+  case job_type::CROSSBOWMAN:
+    return u"320";
+  case job_type::ASSASSIN:
+    return u"410";
+  case job_type::BANDIT:
+    return u"420";
+  }
+  return u"";
+}

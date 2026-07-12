@@ -18,7 +18,6 @@
 
 
 class game_character {
-
 public:
   uint8_t page;
 
@@ -73,7 +72,7 @@ public:
   std::optional<game_tomb> tomb;
 
   // characterinfo
-  std::u16string job = u"000";
+  std::u16string job = u"100";
   int32_t fame = 0;
   int32_t level = 0;
 

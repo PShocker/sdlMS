@@ -178,7 +178,7 @@ void npc_dlg_ui_system::render_text() {
     freetype::load_size(12);
     freetype::load_aligned(true);
     freetype::load_color(0, 0, 0, 255);
-    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3);
+    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt);
     freetype::load_aligned(false);
     break;
   }

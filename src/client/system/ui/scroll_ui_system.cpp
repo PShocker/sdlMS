@@ -5,8 +5,8 @@
 #include <cmath>
 
 void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
-                                      uint32_t count, int32_t length,
-                                      bool top) {
+                                      uint32_t count, int32_t length, bool top,
+                                      uint32_t size) {
   static auto prev0 = wz_resource::load_texture(
       wz_resource::ui->find(u"Basic.img/VScr4/enabled/prev0"));
   static auto prev1 = wz_resource::load_texture(
@@ -60,7 +60,7 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
   pos_rect = {static_cast<float>((int)x),
               static_cast<float>((int)y + length - next->h),
               static_cast<float>(next->w), static_cast<float>(next->h)};
-  if (val >= count) {
+  if (val >= count || val + size >= count) {
     SDL_RenderTexture(window::renderer, next, nullptr, &pos_rect);
     nex = false;
   } else {
@@ -87,7 +87,7 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
   }
 
   // thumb
-  float percent = (float)val / count;
+  float percent = (float)val / (count - size);
   auto h = percent * (length - prev->h * 2) - thumb0->h / 2;
   h = std::clamp(h, 0.0f, float(length - prev->h * 2 - thumb0->h));
   pos_rect = {static_cast<float>((int)x),

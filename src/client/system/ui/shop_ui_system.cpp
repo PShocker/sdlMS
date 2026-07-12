@@ -27,6 +27,7 @@
 #include "tooltip_ui_system.h"
 #include "wz/Property.h"
 #include <algorithm>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -45,32 +46,11 @@ void shop_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void shop_ui_system::render_self_items() {
+void shop_ui_system::render_item(const std::vector<game_shop_item> &items,
+                                 int page, SDL_FPoint p) {
   const game_shop_item *item_info = nullptr;
-  std::vector<game_shop_item> items;
-  const auto &r = package_game_instance::data[active_tab[1]];
-  for (const auto &itm : r) {
-    auto item = shop_game_instance::load_shop_item(itm->id);
-    game_shop_item gst;
-    gst.item = std::move(item);
-    if (item->type == item_enum::equip) {
-      auto info = equip_game_instance::load_equip_info(gst.item->id);
-      gst.price =
-          static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
-    } else {
-      auto info = item_game_instance::load_item_info(gst.item->id);
-      gst.price =
-          static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
-    }
-  }
-}
-
-void shop_ui_system::render_items() {
-  const game_shop_item *item_info = nullptr;
-  auto &items = shop->items;
-  // render shop
   const auto page_size = 6;
-  for (int i = pages[0]; i < pages[0] + page_size; i++) {
+  for (int i = page; i < page + page_size; i++) {
     if (i >= items.size()) {
       break;
     }
@@ -88,8 +68,8 @@ void shop_ui_system::render_items() {
       item_name = equip_game_instance::load_equip_name(item.item->id);
     }
     SDL_FRect pos_rect;
-    auto x = (int)pos.x + 8;
-    auto y = (int)pos.y + 129 + (i - pages[0]) * 40;
+    auto x = (int)pos.x + p.x;
+    auto y = (int)pos.y + p.y + (i - page) * 40;
     pos_rect.x = x + (36 - texture->w) / 2;
     pos_rect.y = y + (36 - texture->h) / 2;
     pos_rect.w = texture->w;
@@ -132,6 +112,34 @@ void shop_ui_system::render_items() {
   }
 }
 
+void shop_ui_system::render_self_items() {
+  const game_shop_item *item_info = nullptr;
+  std::vector<game_shop_item> items;
+  const auto &r = package_game_instance::data[active_tab[1]];
+  for (const auto &itm : r) {
+    auto item = shop_game_instance::load_shop_item(itm->id);
+    game_shop_item gst;
+    if (item->type == item_enum::equip) {
+      auto info = equip_game_instance::load_equip_info(item->id);
+      gst.price =
+          static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
+    } else {
+      auto info = item_game_instance::load_item_info(item->id);
+      gst.price =
+          static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
+    }
+    gst.item = std::move(item);
+    items.push_back(std::move(gst));
+  }
+  render_item(items, pages[1], {238, 129});
+}
+
+void shop_ui_system::render_items() {
+  const game_shop_item *item_info = nullptr;
+  auto &items = shop->items;
+  render_item(items, pages[0], {8, 129});
+}
+
 void shop_ui_system::render_vscr() {
   const uint32_t length = 235;
   auto x = (int)pos.x + 212;
@@ -139,10 +147,12 @@ void shop_ui_system::render_vscr() {
   auto cursor_in = cursor_game_instance::cursor_ui;
   auto &items = shop->items;
   bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
-  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, top);
+  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, top,
+                                   6);
 
   x += 230;
-  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, top);
+  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, top,
+                                   6);
   return;
 }
 
@@ -249,6 +259,16 @@ void shop_ui_system::render_active_item() {
     pos_rect.h = texture->h;
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
   }
+  if (active_item[1].has_value()) {
+    auto x = (int)pos.x + 275;
+    auto y = (int)pos.y + 129 + (active_item[1].value() - pages[1]) * 40;
+    SDL_FRect pos_rect;
+    pos_rect.x = x;
+    pos_rect.y = y;
+    pos_rect.w = texture->w;
+    pos_rect.h = texture->h;
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  }
 }
 
 void shop_ui_system::render_npc() {
@@ -318,6 +338,7 @@ bool shop_ui_system::render() {
   render_self();
   render_meso();
   render_vscr();
+  render_self_items();
   render_items();
   return true;
 }
@@ -378,9 +399,10 @@ bool shop_ui_system::cursor_in() {
 
 void shop_ui_system::event_close() { close(); }
 
-bool shop_ui_system::event_item(SDL_Event *event) {
-  auto x = (int)pos.x + 8;
-  auto y = (int)pos.y + 129;
+std::optional<int> shop_ui_system::event_item_click(SDL_Event *event,
+                                                    SDL_FPoint p) {
+  auto x = (int)pos.x + p.x;
+  auto y = (int)pos.y + p.y;
   const auto &mouse_pos = window::mouse_pos;
   SDL_FRect pos_rect;
   pos_rect.x = x;
@@ -388,37 +410,84 @@ bool shop_ui_system::event_item(SDL_Event *event) {
   pos_rect.w = 202;
   pos_rect.h = 240;
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    return (mouse_pos.y - y) / 40;
+  }
+  return std::nullopt;
+}
+
+bool shop_ui_system::event_item(SDL_Event *event) {
+  auto item0 = event_item_click(event, {8, 129});
+  if (item0.has_value()) {
     auto &items = shop->items;
-    int item = pages[0] + (mouse_pos.y - y) / 40;
-    if (item < items.size()) {
-      if (active_item[0] == item) {
-        auto meso = package_game_instance::meso;
-        const auto &itm = items[item];
-        if (meso < itm.price) {
-          notice_ui_system::type =
-              notice_ui_system::notice_enum::shopbuy_no_meso;
-        } else {
-          auto &itm = items[item];
-          auto type = itm.item->type;
-          if (!package_ui_system::load_blank_index((int)type).empty()) {
-            notice_ui_system::type =
-                notice_ui_system::notice_enum::shopbuy_no_space;
-          } else {
-            if (type == item_enum::equip) {
-              notice_ui_system::type = notice_ui_system::notice_enum::shopbuy;
-            } else {
-              notice_ui_system::type =
-                  notice_ui_system::notice_enum::shopbuy_mul;
-            }
-          }
-          notice_ui_system::data = &itm;
-        }
-        notice_ui_system::open();
+    auto index = pages[0] + item0.value();
+    if (index >= items.size()) {
+      return true;
+    }
+    if (active_item[0] == index) {
+      auto meso = package_game_instance::meso;
+
+      const auto &itm = items[index];
+      if (meso < itm.price) {
+        notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_meso;
+      } else if (!package_ui_system::load_blank_index((int)itm.item->type)
+                      .empty()) {
+        notice_ui_system::type =
+            notice_ui_system::notice_enum::shopbuy_no_space;
       } else {
-        active_item[0] = item;
+        switch (itm.item->type) {
+        case item_enum::equip: {
+          notice_ui_system::type = notice_ui_system::notice_enum::shopbuy;
+          break;
+        }
+        case item_enum::consume:
+        case item_enum::etc:
+        case item_enum::install:
+        case item_enum::cash: {
+          notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_mul;
+          break;
+        }
+        }
+        notice_ui_system::data = &itm;
       }
+      notice_ui_system::open();
+
+    } else {
+      active_item[0] = index;
+      active_item[1] = std::nullopt;
     }
     return true;
+  }
+  auto item1 = event_item_click(event, {238, 129});
+  if (item1.has_value()) {
+    auto index = pages[1] + item1.value();
+    auto &items = package_game_instance::data[active_tab[1]];
+    if (index >= items.size()) {
+      return true;
+    }
+    if (active_item[1] == index) {
+      auto meso = package_game_instance::meso;
+      const auto &itm = items[index];
+      switch (itm->type) {
+      case item_enum::equip: {
+        notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_sell;
+        break;
+      }
+      case item_enum::consume:
+      case item_enum::etc:
+      case item_enum::install:
+      case item_enum::cash: {
+        notice_ui_system::type =
+            notice_ui_system::notice_enum::shopbuy_sell_mul;
+        break;
+      }
+      }
+      notice_ui_system::data = &itm;
+      notice_ui_system::open();
+
+    } else {
+      active_item[1] = index;
+      active_item[0] = std::nullopt;
+    }
   }
   return false;
 }

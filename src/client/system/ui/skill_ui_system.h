@@ -21,6 +21,7 @@ private:
   static uint8_t load_skill_num();
 
   static bool event_click_ski(SDL_Event *event);
+  static bool event_click_tab(SDL_Event *event);
 
   static bool event_button(SDL_Event *event);
   static void event_close();

@@ -1,9 +1,11 @@
 #pragma once
 #include "SDL3/SDL_pixels.h"
+#include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include <cstdint>
 #include <flat_map>
 #include <ft2build.h>
+#include <optional>
 #include <string>
 
 #include FT_FREETYPE_H
@@ -55,8 +57,8 @@ public:
   
   static void draw_str(const std::u16string &str, float x, float y, float w,
                        float h);
-  static void draw_rstr(const std::u16string &str, float x, float y, float w,
-                        float h);
+  static float draw_rstr(const std::u16string &str, float x, float y, float w,
+                        float h,std::optional<SDL_FRect> obstacle);
   static void draw_cstr(const std::u16string &str, float x, float y, float w,
                         float h);
 };

@@ -25,10 +25,12 @@ void notice_ui_system::render_backgrnd() {
   case notice_enum::equip_no_space:
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
+  case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy: {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice1");
     break;
   }
+  case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy_mul: {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice2");
     break;
@@ -67,6 +69,8 @@ void notice_ui_system::render_button() {
   std::vector<SDL_FRect> buttons_rect = {};
   auto [w, h] = load_wh();
   switch (type) {
+  case notice_enum::shopbuy_sell:
+  case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy:
   case notice_enum::shopbuy_mul: {
     buttons_node = {
@@ -142,6 +146,12 @@ void notice_ui_system::render_text() {
   case notice_enum::equip_no_ability:
   case notice_enum::equip_no_space:
     break;
+  case notice_enum::shopbuy_sell: {
+    break;
+  }
+  case notice_enum::shopbuy_sell_mul: {
+    break;
+  }
   }
   if (!text.empty()) {
     freetype::load_aligned(true);
@@ -190,11 +200,13 @@ void notice_ui_system::close() {
 
 SDL_FPoint notice_ui_system::load_wh() {
   switch (type) {
+  case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy:
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space: {
     return {266, 116};
   }
+  case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy_mul:
     return {266, 119};
   case notice_enum::equip_no_ability:
@@ -224,6 +236,8 @@ void notice_ui_system::event_button_shopbuy() {
   close();
 }
 
+void notice_ui_system::event_button_shopbuy_sell() {}
+
 bool notice_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
@@ -236,6 +250,16 @@ bool notice_ui_system::event_button(SDL_Event *event) {
         {w, h - 30, 47, 18},
     };
     func = {event_button_shopbuy, close};
+    break;
+  }
+  case notice_enum::shopbuy_sell:
+  case notice_enum::shopbuy_sell_mul: {
+    buttons_rect = {
+        {w - 110, h - 30, 47, 18},
+        {w, h - 30, 47, 18},
+    };
+    func = {event_button_shopbuy_sell, close};
+    break;
   }
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
@@ -264,6 +288,26 @@ bool notice_ui_system::event(SDL_Event *event) {
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
       event_close();
+      break;
+    }
+    case SDL_SCANCODE_RETURN: {
+      switch (type) {
+      case notice_enum::shopbuy:
+      case notice_enum::shopbuy_mul: {
+        event_button_shopbuy();
+        break;
+      }
+      case notice_enum::shopbuy_no_meso:
+      case notice_enum::shopbuy_no_space:
+      case notice_enum::equip_no_ability:
+      case notice_enum::equip_no_space:
+        break;
+      case notice_enum::shopbuy_sell:
+      case notice_enum::shopbuy_sell_mul: {
+        event_button_shopbuy_sell();
+        break;
+      }
+      }
       break;
     }
     default: {

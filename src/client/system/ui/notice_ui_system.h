@@ -15,6 +15,7 @@ private:
   static void event_close();
 
   static void event_button_shopbuy();
+  static void event_button_shopbuy_sell();
 
   static bool event_button(SDL_Event *event);
 
@@ -23,6 +24,8 @@ private:
 public:
   enum class notice_enum {
     shopbuy,
+    shopbuy_sell,
+    shopbuy_sell_mul,
     shopbuy_mul,
     shopbuy_no_meso,
     shopbuy_no_space,

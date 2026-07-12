@@ -9,7 +9,7 @@ class game_input {
 public:
   std::string type;
   std::string val;
-  std::string val2;
+  std::string sub_val;
 
   auto operator<=>(const game_input &) const = default;
 };

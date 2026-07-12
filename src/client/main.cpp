@@ -63,6 +63,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   character_game_instance::init_character_bone();
   character_game_instance::load_self_character();
+  character_game_instance::self.job = u"110";
 
   SDL_HideCursor();
   scene_system_instance::enter_prepare(61, u"sp", 0);

@@ -75,11 +75,11 @@ void character_info_ui_system::render_scroll() {
   }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
-  auto size = load_equips().size() - 3;
+  auto size = load_equips().size();
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
-                                   item_page, size, length, top);
+                                   item_page, size, length, top, 3);
   return;
 }
 
@@ -296,7 +296,6 @@ void character_info_ui_system::open() {
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
-
     auto wh = load_wh();
     auto &camera = camera_game_instance::camera;
     pos.x = (camera.w - wh.x) / 2;
@@ -320,12 +319,11 @@ void character_info_ui_system::close() {
 }
 
 void character_info_ui_system::event_top() {
+  std::erase(system::render_systems, render);
+  std::erase(system::event_systems, event);
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
-    std::erase(system::render_systems, render);
-    std::erase(system::event_systems, event);
-
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
   }

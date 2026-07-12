@@ -15,6 +15,7 @@ shop_game_instance::load_shop_item(const std::u16string &id) {
     r = item_game_instance::load_item(id, 1);
   } else {
     game_equip_item eqp;
+    eqp.type = item_enum::equip;
     eqp.id = id;
     r = std::make_unique<game_equip_item>(eqp);
   }

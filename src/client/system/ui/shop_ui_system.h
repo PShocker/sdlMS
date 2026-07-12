@@ -1,6 +1,7 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "SDL3/SDL_rect.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
@@ -12,6 +13,9 @@ class shop_ui_system {
 private:
   static void render_backgrnd();
   static void render_button();
+
+  static void render_item(const std::vector<game_shop_item> &items, int page,
+                          SDL_FPoint p);
 
   static void render_items();
   static void render_tab();
@@ -26,6 +30,7 @@ private:
 
   static void render_item_info(game_item &item);
 
+  static std::optional<int> event_item_click(SDL_Event *event, SDL_FPoint p);
   static bool event_item(SDL_Event *event);
 
   static void event_close();

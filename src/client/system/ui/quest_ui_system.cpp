@@ -155,7 +155,6 @@ void quest_ui_system::close() {
 void quest_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
-
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {

@@ -204,11 +204,12 @@ void package_ui_system::render_items() {
 void package_ui_system::render_scroll() {
   const SDL_FPoint lt{188, 51};
   const uint32_t length = 202;
-  auto size = 96 / 5;
+  const auto &r = package_game_instance::data[active_tab];
+  auto size = r.size() / 5;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
-                                   size, length, top);
+                                   size, length, top, 30);
   return;
 }
 
@@ -292,7 +293,6 @@ void package_ui_system::close() {
 void package_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
-
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {

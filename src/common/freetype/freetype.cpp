@@ -206,20 +206,30 @@ void freetype::draw_str(const std::u16string &str, float x, float y, float w,
     l += draw_char(l, t, c);
   }
 }
-
-void freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
-                         float h) {
-  auto [r, g, b, a] = color;
+float freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
+                          float h, std::optional<SDL_FRect> obstacle) {
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
   lineHeight = lineHeight * h;
+  // 辅助函数
+  auto isBlocked = [&](float px, float py, float pw, float ph) -> bool {
+    if (!obstacle.has_value())
+      return false;
+    SDL_FRect rect = {px, py, pw, ph};
+    const auto &obs = obstacle.value();
+    return SDL_HasRectIntersectionFloat(&rect, &obs);
+  };
+
   for (uint32_t i = 0; i < str.size(); i++) {
     auto c = str[i];
-    if (l >= x + w || c == u'\n') {
+    if (c == u'\n') {
       t += lineHeight;
       l = x;
+      continue;
     }
+
+    // 控制字符处理
     if (c == u'#') {
       if (i + 1 < str.size()) {
         auto d = str[i + 1];
@@ -258,9 +268,58 @@ void freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
       }
       continue;
     }
+
+    // 获取字符宽度
+    float charWidth = load_char_w(c);
+    float charHeight = lineHeight;
+
+    // 检查是否被遮挡
+    if (isBlocked(l, t, charWidth, charHeight)) {
+      bool placed = false;
+
+      // 尝试向右移动
+      while (l + charWidth <= x + w) {
+        l += 1.0f;
+        if (!isBlocked(l, t, charWidth, charHeight)) {
+          placed = true;
+          break;
+        }
+      }
+
+      if (!placed) {
+        // 换行
+        t += lineHeight;
+        l = x;
+
+        // 继续换行直到找到可用位置
+        while (t + lineHeight <= y + h) {
+          if (!isBlocked(l, t, charWidth, charHeight)) {
+            placed = true;
+            break;
+          }
+          t += lineHeight;
+        }
+
+        if (!placed) {
+          continue; // 无法放置，跳过此字符
+        }
+      }
+    }
+
+    // 边界检查
+    if (l + charWidth > x + w) {
+      t += lineHeight;
+      l = x;
+      if (isBlocked(l, t, charWidth, charHeight)) {
+        continue;
+      }
+    }
+
+    // 绘制字符
     l += draw_char(l, t, c);
   }
-  load_color(r, g, b, a);
+
+  return (t - y + lineHeight);
 }
 
 void freetype::draw_cstr(const std::u16string &str, float x, float y, float w,

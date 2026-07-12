@@ -4,7 +4,7 @@
 class scroll_ui_system {
 public:
   static void render_vscroll(float x, float y, uint32_t val, uint32_t count,
-                             int32_t length, bool top);
+                             int32_t length, bool top, uint32_t size);
   static uint32_t click_vscroll(float x, float y, uint32_t val, uint32_t count,
                                 int32_t length, bool top);
 };

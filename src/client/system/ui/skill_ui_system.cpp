@@ -33,6 +33,10 @@ std::optional<std::u16string> skill_ui_system::load_mouse_ski() {
   const SDL_FPoint pos_icon{2, 2};
   const uint8_t max_scroll_num = 6;
   auto self_job = character_game_instance::self.job;
+  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  job_type jt = ski_tree.at(active_tab);
+  self_job = job_skill_game_instance::load_job_id(jt);
+
   // 根据active_tab获取技能组
   auto skill_node = wz_resource::skill->find(self_job + u".img");
 
@@ -153,6 +157,8 @@ void skill_ui_system::render_tab() {
   const static SDL_FPoint lt = {5, 24};
   const static SDL_FPoint rb = {186, 43};
   const static auto tab_node = wz_resource::ui->find(u"Skill.img/tab:grade");
+  auto jobs = job_skill_game_instance::load_skill_tree(
+      character_game_instance::self.job);
   const static std::array selected_texture = {
       wz_resource::load_texture(tab_node->find(u"selected/0")),
       wz_resource::load_texture(tab_node->find(u"selected/1")),
@@ -167,7 +173,7 @@ void skill_ui_system::render_tab() {
       wz_resource::load_texture(tab_node->find(u"normal/3")),
       wz_resource::load_texture(tab_node->find(u"normal/4")),
   };
-  for (uint8_t i = 0; i < selected_texture.size(); i++) {
+  for (uint8_t i = 0; i < jobs.size(); i++) {
     SDL_Texture *t = active_tab == i ? selected_texture[i] : normal_texture[i];
     SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
     SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos.x)),
@@ -178,7 +184,6 @@ void skill_ui_system::render_tab() {
 }
 
 void skill_ui_system::render_skill_entry() {
-
   static auto entry = wz_resource::load_texture(
       wz_resource::ui->find(u"Skill.img/entry/skill1"));
 
@@ -189,15 +194,12 @@ void skill_ui_system::render_skill_entry() {
   const auto l =
       (rb.y - lt.y - max_scroll_num * entry->h) / (max_scroll_num - 1);
   auto self_job = character_game_instance::self.job;
-  // 根据active_tab获取技能组
-  auto skill_group = std::pow(10, active_tab);
-  auto skill_node = wz_resource::skill->find(self_job + u".img");
+  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  job_type jt = ski_tree.at(active_tab);
+  self_job = job_skill_game_instance::load_job_id(jt);
 
-  auto book_texture = wz_resource::load_texture(skill_node->find(u"info/icon"));
-  SDL_FRect pos_rect{pos.x + 15, pos.y + 57,
-                     static_cast<float>(book_texture->w),
-                     static_cast<float>(book_texture->h)};
-  SDL_RenderTexture(window::renderer, book_texture, nullptr, &pos_rect);
+  // 根据active_tab获取技能组
+  auto skill_node = wz_resource::skill->find(self_job + u".img");
 
   skill_node = skill_node->get_child(u"skill");
   auto &mouse_pos = window::mouse_pos;
@@ -209,9 +211,6 @@ void skill_ui_system::render_skill_entry() {
       break;
     }
     // render backgrnd
-
-    // SDL_RenderTexture(window::renderer, line, nullptr, &pos_rect);
-
     SDL_FRect pos_rect{pos.x + lt.x, pos.y + lt.y + i * entry->h + l * i,
                        static_cast<float>(entry->w),
                        static_cast<float>(entry->h)};
@@ -256,11 +255,18 @@ void skill_ui_system::render_skill_entry() {
 void skill_ui_system::render_scroll() {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
-  auto size = 6;
+  auto self_job = character_game_instance::self.job;
+  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  job_type jt = ski_tree.at(active_tab);
+  self_job = job_skill_game_instance::load_job_id(jt);
+  // 根据active_tab获取技能组
+  auto skill_node = wz_resource::skill->find(self_job + u".img");
+  skill_node = skill_node->get_child(u"skill");
+  auto size = skill_node->children_count();
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = (cursor_in == render) && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
-                                   size, length, top);
+                                   size, length, top, 6);
   return;
 }
 
@@ -284,6 +290,10 @@ void skill_ui_system::render_button() {
   };
 
   auto self_job = character_game_instance::self.job;
+  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  job_type jt = ski_tree.at(active_tab);
+  self_job = job_skill_game_instance::load_job_id(jt);
+
   auto skill_node = wz_resource::skill->find(self_job + u".img");
   const SDL_FPoint lt{8, 99};
   const SDL_FPoint rb{184, 334};
@@ -341,24 +351,28 @@ void skill_ui_system::render_button() {
 
 void skill_ui_system::render_book() {
   auto self_job = character_game_instance::self.job;
-  auto icon_node = wz_resource::skill->find(self_job + u".img/info/icon");
+  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  job_type jt = ski_tree.at(active_tab);
+  auto job_str = job_skill_game_instance::load_job_id(jt);
+
+  auto icon_node = wz_resource::skill->find(job_str + u".img/info/icon");
   auto t = wz_resource::load_texture(icon_node);
   SDL_FRect pos_rect{
-      pos.x,
-      pos.y,
+      pos.x + 15,
+      pos.y + 57,
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
 
   auto book_node =
-      wz_resource::string->find(u"Skill.img/" + self_job + u"/bookName");
+      wz_resource::string->find(u"Skill.img/" + job_str + u"/bookName");
   auto book_name =
       static_cast<wz::Property<std::u16string> *>(book_node)->get();
   freetype::load_aligned(true);
-  freetype::load_size(13);
-  freetype::load_color(0, 0, 0, 255);
-  freetype::draw_line(book_name, pos.x, pos.y);
+  freetype::load_size(12);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::draw_line(book_name, pos_rect.x + 35, pos_rect.y + 6);
   freetype::load_aligned(false);
 }
 
@@ -369,6 +383,7 @@ bool skill_ui_system::render() {
   render_scroll();
   render_tab();
   render_info();
+  render_book();
   return true;
 }
 
@@ -429,6 +444,28 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
   return false;
 }
 
+bool skill_ui_system::event_click_tab(SDL_Event *event) {
+  const static SDL_FPoint lt = {5, 24};
+  const static SDL_FPoint rb = {186, 43};
+  auto jobs = job_skill_game_instance::load_skill_tree(
+      character_game_instance::self.job);
+  auto &mouse_pos = window::mouse_pos;
+  for (uint8_t i = 0; i < jobs.size(); i++) {
+    SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
+    SDL_FRect pos_rect{
+        static_cast<float>(int(pos.x + tab_pos.x)),
+        static_cast<float>(int(pos.y + tab_pos.y)),
+        33,
+        19,
+    };
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      active_tab = i;
+      return true;
+    }
+  }
+  return false;
+}
+
 bool skill_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -460,6 +497,7 @@ bool skill_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
         event_click_ski(event);
+        event_click_tab(event);
         r = event_button(event);
       }
       event_drag_end();

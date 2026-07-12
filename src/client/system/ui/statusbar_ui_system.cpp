@@ -566,7 +566,7 @@ void statusbar_ui_system::render_chat_vscr() {
   auto base_y = (screen_h - 73);
   bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll(base_x + 570, base_y - 75, 5, size, length,
-                                   top);
+                                   top, 1);
   return;
 }
 
