@@ -1,4 +1,6 @@
 #include "scroll_ui_system.h"
+#include "SDL3/SDL_rect.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
@@ -76,7 +78,6 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
     }
     SDL_RenderTexture(window::renderer, nx, nullptr, &pos_rect);
   }
-
   // 滚动条
   pos_rect = {x, y + prev->h, static_cast<float>(base->w),
               static_cast<float>(length - prev->h - next->h)};
@@ -84,6 +85,11 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
     SDL_RenderTextureTiled(window::renderer, base, nullptr, 1, &pos_rect);
   } else {
     SDL_RenderTextureTiled(window::renderer, base0, nullptr, 1, &pos_rect);
+    if (top && SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      if (!cursor_game_instance::cursor_vscr) {
+        cursor_game_instance::cursor_vscr = true;
+      }
+    }
   }
 
   // thumb

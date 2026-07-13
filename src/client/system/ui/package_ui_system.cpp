@@ -23,6 +23,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
 #include <cstdlib>
 #include <memory>
@@ -113,91 +114,85 @@ void package_ui_system::render_tab() {
 }
 
 void package_ui_system::render_items_info() {
-  auto index = load_mouse_index();
-  if (index.has_value() &&
-      index.value() < package_game_instance::data[active_tab].size()) {
-    if (active_tab == 0) {
-      auto &equips = package_game_instance::data[0];
-      auto &equip = equips.at(index.value());
-      if (equip) {
-        auto &mouse_pos = window::mouse_pos;
-        SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-        auto eqp = static_cast<game_equip_item &>(*equip);
-        tooltip_ui_system::render_equip(eqp, show_pos.x, show_pos.y);
-      }
-    } else {
-      auto &r = package_game_instance::data[active_tab];
-      if (r.at(index.value())) {
-        auto &mouse_pos = window::mouse_pos;
-        SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-        auto itm = *r[index.value()];
-        tooltip_ui_system::render_item(itm, show_pos.x, show_pos.y);
-      }
-    }
+  constexpr int tooltip_offset = 15;
+  auto index_opt = load_mouse_index();
+  if (!index_opt.has_value()) {
+    return;
+  }
+  const size_t index = static_cast<size_t>(index_opt.value());
+  const auto &items = package_game_instance::data[active_tab];
+
+  if (index >= items.size() || !items[index]) {
+    return;
+  }
+  const SDL_FPoint show_pos{
+      window::mouse_pos.x + tooltip_offset,
+      window::mouse_pos.y + tooltip_offset,
+  };
+
+  // 统一使用指针，通过重载或模板区分类型
+  if (active_tab == 0) {
+    auto &equip = static_cast<game_equip_item &>(*items[index]);
+    tooltip_ui_system::render_equip(equip, show_pos.x, show_pos.y);
+  } else {
+    tooltip_ui_system::render_item(*items[index], show_pos.x, show_pos.y);
   }
 }
 
 void package_ui_system::render_items() {
-  SDL_FPoint slot_pos{8, 51};
-  const auto slot_space_x = 4;
-  const auto slot_space_y = 2;
-  if (active_tab == 0) {
-    auto &equips = package_game_instance::data[0];
-    for (uint8_t i = page * 5; i < equips.size(); i++) {
-      auto row = i / 5 - page;
-      auto col = i % 5;
+  constexpr SDL_FPoint slot_pos{8, 51};
+  constexpr int slot_space_x = 4;
+  constexpr int slot_space_y = 2;
+  constexpr int slot_size = 32;
+  constexpr int slots_per_row = 5;
+  constexpr int max_rows = 6;
+  constexpr int items_per_page = slots_per_row * max_rows;
 
-      if (row >= 6) {
-        break;
-      }
-      if (!equips[i]) {
-        continue;
-      }
+  // 获取数据
+  const auto &items = (active_tab == 0)
+                          ? package_game_instance::data[0]
+                          : package_game_instance::data[active_tab];
 
-      auto id = equips[i]->id;
-      auto info = equip_game_instance::load_equip_info(id);
-      auto icon = wz_resource::load_texture(info->get_child(u"icon"));
+  // 选择加载函数
+  auto load_info = (active_tab == 0) ? &equip_game_instance::load_equip_info
+                                     : &item_game_instance::load_item_info;
 
-      auto x = pos.x + slot_pos.x + col * 32 + col * slot_space_x +
-               (32 - icon->w) / 2;
-      auto y =
-          pos.y + slot_pos.y + row * 32 + row * slot_space_y + 32 - icon->h;
-      SDL_FRect pos_rect{
-          static_cast<float>(int(x)),
-          static_cast<float>(int(y)),
-          static_cast<float>(icon->w),
-          static_cast<float>(icon->h),
-      };
-      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
-    }
-  } else {
-    auto &r = package_game_instance::data[active_tab];
-    for (uint8_t i = page * 5; i < r.size(); i++) {
-      auto row = i / 5 - page;
-      auto col = i % 5;
+  const size_t start_index = static_cast<size_t>(page) * slots_per_row;
+  const size_t end_index = std::min(start_index + items_per_page, items.size());
 
-      if (row >= 6) {
-        break;
-      }
-      if (!r.at(i)) {
-        continue;
-      }
+  for (size_t i = start_index; i < end_index; ++i) {
+    const auto &item_ptr = items[i];
+    if (!item_ptr)
+      continue;
 
-      auto id = r.at(i)->id;
-      auto info = item_game_instance::load_item_info(id);
-      auto icon = wz_resource::load_texture(info->get_child(u"icon"));
-      auto x = pos.x + slot_pos.x + col * 32 + col * slot_space_x +
-               (32 - icon->w) / 2;
-      auto y =
-          pos.y + slot_pos.y + row * 32 + row * slot_space_y + 32 - icon->h;
-      SDL_FRect pos_rect{
-          static_cast<float>(int(x)),
-          static_cast<float>(int(y)),
-          static_cast<float>(icon->w),
-          static_cast<float>(icon->h),
-      };
-      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
-    }
+    // 计算行列
+    const size_t local_index = i - start_index;
+    const int row = local_index / slots_per_row;
+    const int col = local_index % slots_per_row;
+
+    // 加载信息
+    auto info = load_info(item_ptr->id);
+    if (!info)
+      continue;
+
+    auto icon = wz_resource::load_texture(info->get_child(u"icon"));
+    if (!icon)
+      continue;
+
+    // 计算位置
+    const float x = pos.x + slot_pos.x + col * (slot_size + slot_space_x) +
+                    (slot_size - icon->w) * 0.5f;
+    const float y = pos.y + slot_pos.y + row * (slot_size + slot_space_y) +
+                    (slot_size - icon->h) * 0.5f;
+
+    SDL_FRect pos_rect{
+        std::floor(x),
+        std::floor(y),
+        static_cast<float>(icon->w),
+        static_cast<float>(icon->h),
+    };
+
+    SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
   }
 }
 

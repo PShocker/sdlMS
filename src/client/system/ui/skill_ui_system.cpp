@@ -35,14 +35,10 @@ std::optional<std::u16string> skill_ui_system::load_mouse_ski() {
   auto self_job = character_game_instance::self.job;
   auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
-  self_job = job_skill_game_instance::load_job_id(jt);
-
   // 根据active_tab获取技能组
-  auto skill_node = wz_resource::skill->find(self_job + u".img");
+  auto skill_node = job_skill_game_instance::load_job_skills(jt);
 
-  skill_node = skill_node->get_child(u"skill");
   auto &mouse_pos = window::mouse_pos;
-
   uint8_t i = 0;
   const auto ski_w = 32;
   const auto ski_h = 32;
@@ -50,7 +46,7 @@ std::optional<std::u16string> skill_ui_system::load_mouse_ski() {
   const auto entry_h = 35;
   const auto l =
       (rb.y - lt.y - max_scroll_num * entry_h) / (max_scroll_num - 1);
-  for (auto [k, v] : *skill_node->get_children()) {
+  for (auto [k, v] : skill_node) {
     if (i >= max_scroll_num) {
       break;
     }
@@ -61,7 +57,7 @@ std::optional<std::u16string> skill_ui_system::load_mouse_ski() {
         static_cast<float>(ski_h),
     };
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      return k;
+      return (skill_node.begin() + i + page)->first;
     }
     i++;
   }
@@ -196,24 +192,25 @@ void skill_ui_system::render_skill_entry() {
   auto self_job = character_game_instance::self.job;
   auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
-  self_job = job_skill_game_instance::load_job_id(jt);
 
-  // 根据active_tab获取技能组
-  auto skill_node = wz_resource::skill->find(self_job + u".img");
-
-  skill_node = skill_node->get_child(u"skill");
   auto &mouse_pos = window::mouse_pos;
   // 判断按钮是否被遮挡
   auto cursor_in = cursor_game_instance::cursor_ui;
   uint8_t i = 0;
-  for (auto [k, v] : *skill_node->get_children()) {
+  auto nodes = job_skill_game_instance::load_job_skills(jt);
+  for (auto it = nodes.begin() + page; it != nodes.end(); ++it) {
+    auto &k = it->first;
+    auto &v = it->second;
     if (i >= max_scroll_num) {
       break;
     }
     // render backgrnd
-    SDL_FRect pos_rect{pos.x + lt.x, pos.y + lt.y + i * entry->h + l * i,
-                       static_cast<float>(entry->w),
-                       static_cast<float>(entry->h)};
+    SDL_FRect pos_rect{
+        pos.x + lt.x,
+        pos.y + lt.y + i * entry->h + l * i,
+        static_cast<float>(entry->w),
+        static_cast<float>(entry->h),
+    };
     SDL_RenderTexture(window::renderer, entry, nullptr, &pos_rect);
 
     auto skl_id = std::string{k.begin(), k.end()};
@@ -258,11 +255,8 @@ void skill_ui_system::render_scroll() {
   auto self_job = character_game_instance::self.job;
   auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
-  self_job = job_skill_game_instance::load_job_id(jt);
-  // 根据active_tab获取技能组
-  auto skill_node = wz_resource::skill->find(self_job + u".img");
-  skill_node = skill_node->get_child(u"skill");
-  auto size = skill_node->children_count();
+  auto skill_node = job_skill_game_instance::load_job_skills(jt);
+  auto size = skill_node.size();
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = (cursor_in == render) && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
@@ -379,10 +373,11 @@ void skill_ui_system::render_point() {
   auto point = job_skill_game_instance::remain_point[active_tab];
   freetype::load_aligned(true);
   freetype::load_size(12);
-  freetype::load_color(255, 255, 255, 255);
+  freetype::load_color(0, 0, 0, 255);
   auto str = std::to_string(point);
   std::u16string str2{str.begin(), str.end()};
-  freetype::draw_line(str2, pos.x + 35, pos.y + 6);
+  auto w = freetype::load_w(str2);
+  freetype::draw_line(str2, pos.x + 104 - w, pos.y + 347);
 }
 
 bool skill_ui_system::render() {
@@ -476,6 +471,22 @@ bool skill_ui_system::event_click_tab(SDL_Event *event) {
   return false;
 }
 
+void skill_ui_system::event_click_vscr(SDL_Event *event) {
+  const SDL_FPoint lt{174, 98};
+  const uint32_t length = 236;
+  auto self_job = character_game_instance::self.job;
+  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  job_type jt = ski_tree.at(active_tab);
+  // 根据active_tab获取技能组
+  auto skill_node = job_skill_game_instance::load_job_skills(jt);
+  auto size = skill_node.size() - 6;
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  bool top = cursor_in == render;
+  auto val = scroll_ui_system::click_vscroll(
+      (int)pos.x + lt.x, (int)pos.y + lt.y, page, size, length, top);
+  page = val;
+}
+
 bool skill_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -506,6 +517,7 @@ bool skill_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        event_click_vscr(event);
         event_click_ski(event);
         event_click_tab(event);
         r = event_button(event);
@@ -516,6 +528,26 @@ bool skill_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_MOTION: {
     event_drag_move(event);
+    break;
+  }
+  case SDL_EVENT_MOUSE_WHEEL: {
+    auto dy = event->wheel.integer_y;
+    if (dy > 0) {
+      // up
+      if (page > 0) {
+        page -= 1;
+      }
+    } else {
+      // down
+      auto self_job = character_game_instance::self.job;
+      auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+      job_type jt = ski_tree.at(active_tab);
+      // 根据active_tab获取技能组
+      auto skill_node = job_skill_game_instance::load_job_skills(jt);
+      if (page < skill_node.size() - 6) {
+        page += 1;
+      }
+    }
     break;
   }
   default: {

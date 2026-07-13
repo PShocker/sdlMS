@@ -1,5 +1,6 @@
 #include "cursor_logic_system.h"
 #include "SDL3/SDL_mouse.h"
+#include "SDL3/SDL_rect.h"
 #include "character_logic_system.h"
 #include "npc_logic_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -78,7 +79,6 @@ bool cursor_logic_system::run_package_motion() {
   if (!index.has_value()) {
     return false;
   }
-
   auto active_tab = package_ui_system::active_tab;
   const auto &r = package_game_instance::data[active_tab];
   if (index.value() >= r.size()) {
@@ -88,6 +88,10 @@ bool cursor_logic_system::run_package_motion() {
     return false;
   }
   return true;
+}
+
+bool cursor_logic_system::run_vscroll_motion() {
+  return cursor_game_instance::cursor_vscr;
 }
 
 void cursor_logic_system::run_cursor_action(const std::u16string &action) {
@@ -118,6 +122,18 @@ bool cursor_logic_system::run_default() {
       return true;
     }
   }
+  if (cursor_game_instance::cursor_ui == character_info_ui_system::render) {
+    if (run_vscroll_motion()) {
+      run_cursor_action(u"9");
+      return true;
+    }
+  }
+  if (cursor_game_instance::cursor_ui == skill_ui_system::render) {
+    if (run_vscroll_motion()) {
+      run_cursor_action(u"9");
+      return true;
+    }
+  }
   if (window::mouse_state & SDL_BUTTON_LMASK) {
     run_cursor_action(u"12");
   } else {
@@ -129,6 +145,7 @@ bool cursor_logic_system::run_default() {
 
 void cursor_logic_system::run_cursor_ui() {
   cursor_game_instance::cursor_ui = nullptr;
+  cursor_game_instance::cursor_vscr = false;
   cursor_game_instance::modal_overlay = nullptr;
   for (auto &fn : system::render_systems) {
     if (fn == minimap_ui_system::render) {
@@ -230,8 +247,8 @@ bool cursor_logic_system::run_animate() {
 
 bool cursor_logic_system::run() {
   run_animate();
-  run_cursor_ui();
   run_default();
+  run_cursor_ui();
   return true;
 }
 

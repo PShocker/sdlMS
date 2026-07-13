@@ -501,13 +501,13 @@ float tooltip_ui_system::load_skill_bottom_h(const std::u16string &id) {
         std::clamp(ski_level, (uint8_t)0, (uint8_t)(ski_name.level.size() - 1));
     auto ski_l0 = ski_name.level[ski_level];
     h += freetype::load_lh() * 1.1;
-    h += freetype::load_h(ski_l0, w, 1.3);
+    h += freetype::load_h(ski_l0, w - 28, 1.3);
   } else {
     auto ski_l0 = ski_name.level[ski_level - 1];
     auto ski_l1 = ski_name.level[ski_level];
     h += freetype::load_lh() * 2 * 1.1;
-    h += freetype::load_h(ski_l0, w, 1.3);
-    h += freetype::load_h(ski_l1, w, 1.3);
+    h += freetype::load_rh(ski_l0, w - 28, 1.3, std::nullopt);
+    h += freetype::load_rh(ski_l1, w - 28, 1.3, std::nullopt);
     h += 5;
   }
   return h;

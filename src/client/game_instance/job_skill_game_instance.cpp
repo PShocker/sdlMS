@@ -1,5 +1,6 @@
 #include "job_skill_game_instance.h"
 #include "character_game_instance.h"
+#include "src/common/wz/wz_resource.h"
 #include <cstdint>
 
 void job_skill_game_instance::load(const character_save &cs) {
@@ -128,4 +129,23 @@ std::u16string job_skill_game_instance::load_job_id(job_type type) {
     return u"420";
   }
   return u"";
+}
+
+wz::WzMap job_skill_game_instance::load_job_skills(job_type type) {
+  wz::WzMap r;
+  auto job = job_skill_game_instance::load_job_id(type);
+  // 根据active_tab获取技能组
+  auto skill_node = wz_resource::skill->find(job + u".img");
+  skill_node = skill_node->get_child(u"skill");
+  r = skill_node->children;
+  // 删除所有长度大于5的key
+  for (auto it = r.begin(); it != r.end();) {
+    auto n = it->second[0];
+    if (!n->get_child(u"icon")) {
+      it = r.erase(it);
+    } else {
+      ++it; // 不删除时手动递增
+    }
+  }
+  return r;
 }
