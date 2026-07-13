@@ -50,15 +50,20 @@ public:
   static float load_w(const std::u16string &str);
   static float load_lh();
   static float load_h(const std::u16string &str, float w, float h);
+
   static void load_aligned(bool r);
   static void load_bold(bool r);
 
+  static float load_rh(const std::u16string &str, float w, float h,
+                       std::optional<SDL_FRect> obstacle);
+
   static void draw_line(const std::u16string &str, float x, float y);
-  
+
   static void draw_str(const std::u16string &str, float x, float y, float w,
                        float h);
   static float draw_rstr(const std::u16string &str, float x, float y, float w,
-                        float h,std::optional<SDL_FRect> obstacle);
+                         float h, std::optional<SDL_FRect> obstacle,
+                         bool dryRun = false);
   static void draw_cstr(const std::u16string &str, float x, float y, float w,
                         float h);
 };

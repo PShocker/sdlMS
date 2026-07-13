@@ -373,7 +373,16 @@ void skill_ui_system::render_book() {
   freetype::load_size(12);
   freetype::load_color(255, 255, 255, 255);
   freetype::draw_line(book_name, pos_rect.x + 35, pos_rect.y + 6);
-  freetype::load_aligned(false);
+}
+
+void skill_ui_system::render_point() {
+  auto point = job_skill_game_instance::remain_point[active_tab];
+  freetype::load_aligned(true);
+  freetype::load_size(12);
+  freetype::load_color(255, 255, 255, 255);
+  auto str = std::to_string(point);
+  std::u16string str2{str.begin(), str.end()};
+  freetype::draw_line(str2, pos.x + 35, pos.y + 6);
 }
 
 bool skill_ui_system::render() {
@@ -384,6 +393,7 @@ bool skill_ui_system::render() {
   render_tab();
   render_info();
   render_book();
+  render_point();
   return true;
 }
 

@@ -537,7 +537,7 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
 
     str = ski_name.level[ski_level];
     y += freetype::load_lh() * 1.3;
-    freetype::draw_rstr(str, x + 2, y, w - 22, 1.3,std::nullopt);
+    freetype::draw_rstr(str, x + 2, y, w - 22, 1.3, std::nullopt);
   } else if (ski_level == ski_name.level.size()) {
     freetype::load_size(12);
     freetype::load_color(255, 255, 255, 255);
@@ -584,7 +584,10 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
                                      float x, float y) {
   auto ski_name = skill_game_instance::load_ski_name(id);
   const auto w = 330;
-  auto h = 140;
+  freetype::load_size(12);
+  auto desc = ski_name.desc;
+  auto rh = freetype::load_rh(desc, w - 28, 1.2, SDL_FRect{0, 0, 74, 64});
+  auto h = std::max(140.0f, rh + 60);
   h += load_skill_bottom_h(id);
   render_backgrnd(x, y, w, h);
   static auto dot0 = wz_resource::load_texture(
@@ -621,18 +624,16 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
 
   freetype::load_size(12);
   freetype::load_color(255, 255, 255, 255);
-  auto str = ski_name.desc;
   auto sx = pos_rect.x;
-  auto sy = pos_rect.y-8;
+  auto sy = pos_rect.y - 8;
   auto rstr_h =
-      freetype::draw_rstr(str, sx, sy, w -28, 1.2, SDL_FRect{sx, sy, 74, 64});
+      freetype::draw_rstr(desc, sx, sy, w - 28, 1.2, SDL_FRect{sx, sy, 74, 64});
 
   auto line_y = std::max(sy + rstr_h + 10, y + base.y + 90);
   SDL_SetRenderDrawColor(window::renderer, 255, 255, 255, 255);
   SDL_RenderLine(window::renderer, x + 5, line_y, x + w - 5, line_y);
 
   render_skill_bottom(id, level, x + 14, line_y + 5);
-  freetype::load_aligned(false);
 }
 
 void tooltip_ui_system::render_item(game_item &item, float x, float y) {
@@ -680,7 +681,6 @@ void tooltip_ui_system::render_item(game_item &item, float x, float y) {
   auto item_desc = item_game_instance::load_item_text(item.id, u"desc");
   freetype::load_size(13);
   freetype::draw_str(item_desc, pos_rect.x + 74, pos_rect.y - 8, w - 112, 1.1);
-  freetype::load_aligned(false);
 }
 
 void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {
@@ -716,5 +716,4 @@ void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {
     auto s3 = map_desc;
     freetype::draw_str(s3, x + 10, sh + 5, w - 20, 1.1);
   }
-  freetype::load_aligned(false);
 }

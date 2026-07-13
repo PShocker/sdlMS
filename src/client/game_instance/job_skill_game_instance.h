@@ -32,4 +32,5 @@ public:
   static std::u16string load_job_id(job_type type);
 
   static inline std::flat_map<uint32_t, uint8_t> skill_point;
+  static inline std::vector<uint32_t> remain_point;
 };

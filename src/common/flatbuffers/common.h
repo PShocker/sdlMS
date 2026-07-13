@@ -3751,6 +3751,8 @@ struct CharacterSaveT : public ::flatbuffers::NativeTable {
   std::unique_ptr<fbs::CharacterT> character{};
   std::unique_ptr<fbs::APSaveT> ap{};
   std::vector<std::unique_ptr<fbs::SPSaveT>> sp{};
+  uint32_t remain_ap = 0;
+  std::vector<uint32_t> remain_sp{};
   std::vector<std::unique_ptr<fbs::PackageSaveT>> package{};
   uint64_t meso = 0;
   uint32_t map_id = 0;
@@ -3771,13 +3773,15 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_CHARACTER = 4,
     VT_AP = 6,
     VT_SP = 8,
-    VT_PACKAGE = 10,
-    VT_MESO = 12,
-    VT_MAP_ID = 14,
-    VT_HP = 16,
-    VT_MP = 18,
-    VT_EXP = 20,
-    VT_QUEST = 22
+    VT_REMAIN_AP = 10,
+    VT_REMAIN_SP = 12,
+    VT_PACKAGE = 14,
+    VT_MESO = 16,
+    VT_MAP_ID = 18,
+    VT_HP = 20,
+    VT_MP = 22,
+    VT_EXP = 24,
+    VT_QUEST = 26
   };
   const fbs::Character *character() const {
     return GetPointer<const fbs::Character *>(VT_CHARACTER);
@@ -3796,6 +3800,18 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>> *mutable_sp() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>> *>(VT_SP);
+  }
+  uint32_t remain_ap() const {
+    return GetField<uint32_t>(VT_REMAIN_AP, 0);
+  }
+  bool mutate_remain_ap(uint32_t _remain_ap = 0) {
+    return SetField<uint32_t>(VT_REMAIN_AP, _remain_ap, 0);
+  }
+  const ::flatbuffers::Vector<uint32_t> *remain_sp() const {
+    return GetPointer<const ::flatbuffers::Vector<uint32_t> *>(VT_REMAIN_SP);
+  }
+  ::flatbuffers::Vector<uint32_t> *mutable_remain_sp() {
+    return GetPointer<::flatbuffers::Vector<uint32_t> *>(VT_REMAIN_SP);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>> *package() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>> *>(VT_PACKAGE);
@@ -3849,6 +3865,9 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_SP) &&
            verifier.VerifyVector(sp()) &&
            verifier.VerifyVectorOfTables(sp()) &&
+           VerifyField<uint32_t>(verifier, VT_REMAIN_AP, 4) &&
+           VerifyOffset(verifier, VT_REMAIN_SP) &&
+           verifier.VerifyVector(remain_sp()) &&
            VerifyOffset(verifier, VT_PACKAGE) &&
            verifier.VerifyVector(package()) &&
            verifier.VerifyVectorOfTables(package()) &&
@@ -3879,6 +3898,12 @@ struct CharacterSaveBuilder {
   }
   void add_sp(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>>> sp) {
     fbb_.AddOffset(CharacterSave::VT_SP, sp);
+  }
+  void add_remain_ap(uint32_t remain_ap) {
+    fbb_.AddElement<uint32_t>(CharacterSave::VT_REMAIN_AP, remain_ap, 0);
+  }
+  void add_remain_sp(::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> remain_sp) {
+    fbb_.AddOffset(CharacterSave::VT_REMAIN_SP, remain_sp);
   }
   void add_package(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>>> package) {
     fbb_.AddOffset(CharacterSave::VT_PACKAGE, package);
@@ -3917,6 +3942,8 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(
     ::flatbuffers::Offset<fbs::Character> character = 0,
     ::flatbuffers::Offset<fbs::APSave> ap = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::SPSave>>> sp = 0,
+    uint32_t remain_ap = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint32_t>> remain_sp = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>>> package = 0,
     uint64_t meso = 0,
     uint32_t map_id = 0,
@@ -3932,6 +3959,8 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(
   builder_.add_hp(hp);
   builder_.add_map_id(map_id);
   builder_.add_package(package);
+  builder_.add_remain_sp(remain_sp);
+  builder_.add_remain_ap(remain_ap);
   builder_.add_sp(sp);
   builder_.add_ap(ap);
   builder_.add_character(character);
@@ -3943,6 +3972,8 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
     ::flatbuffers::Offset<fbs::Character> character = 0,
     ::flatbuffers::Offset<fbs::APSave> ap = 0,
     const std::vector<::flatbuffers::Offset<fbs::SPSave>> *sp = nullptr,
+    uint32_t remain_ap = 0,
+    const std::vector<uint32_t> *remain_sp = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::PackageSave>> *package = nullptr,
     uint64_t meso = 0,
     uint32_t map_id = 0,
@@ -3951,6 +3982,7 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
     uint64_t exp = 0,
     const std::vector<::flatbuffers::Offset<fbs::QuestSave>> *quest = nullptr) {
   auto sp__ = sp ? _fbb.CreateVector<::flatbuffers::Offset<fbs::SPSave>>(*sp) : 0;
+  auto remain_sp__ = remain_sp ? _fbb.CreateVector<uint32_t>(*remain_sp) : 0;
   auto package__ = package ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PackageSave>>(*package) : 0;
   auto quest__ = quest ? _fbb.CreateVector<::flatbuffers::Offset<fbs::QuestSave>>(*quest) : 0;
   return fbs::CreateCharacterSave(
@@ -3958,6 +3990,8 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
       character,
       ap,
       sp__,
+      remain_ap,
+      remain_sp__,
       package__,
       meso,
       map_id,
@@ -5267,6 +5301,8 @@ inline ::flatbuffers::Offset<QuestSave> QuestSave::Pack(::flatbuffers::FlatBuffe
 inline CharacterSaveT::CharacterSaveT(const CharacterSaveT &o)
       : character((o.character) ? new fbs::CharacterT(*o.character) : nullptr),
         ap((o.ap) ? new fbs::APSaveT(*o.ap) : nullptr),
+        remain_ap(o.remain_ap),
+        remain_sp(o.remain_sp),
         meso(o.meso),
         map_id(o.map_id),
         hp(o.hp),
@@ -5284,6 +5320,8 @@ inline CharacterSaveT &CharacterSaveT::operator=(CharacterSaveT o) FLATBUFFERS_N
   std::swap(character, o.character);
   std::swap(ap, o.ap);
   std::swap(sp, o.sp);
+  std::swap(remain_ap, o.remain_ap);
+  std::swap(remain_sp, o.remain_sp);
   std::swap(package, o.package);
   std::swap(meso, o.meso);
   std::swap(map_id, o.map_id);
@@ -5306,6 +5344,8 @@ inline void CharacterSave::UnPackTo(CharacterSaveT *_o, const ::flatbuffers::res
   { auto _e = character(); if (_e) { if(_o->character) { _e->UnPackTo(_o->character.get(), _resolver); } else { _o->character = std::unique_ptr<fbs::CharacterT>(_e->UnPack(_resolver)); } } else if (_o->character) { _o->character.reset(); } }
   { auto _e = ap(); if (_e) { if(_o->ap) { _e->UnPackTo(_o->ap.get(), _resolver); } else { _o->ap = std::unique_ptr<fbs::APSaveT>(_e->UnPack(_resolver)); } } else if (_o->ap) { _o->ap.reset(); } }
   { auto _e = sp(); if (_e) { _o->sp.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->sp[_i]) { _e->Get(_i)->UnPackTo(_o->sp[_i].get(), _resolver); } else { _o->sp[_i] = std::unique_ptr<fbs::SPSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->sp.resize(0); } }
+  { auto _e = remain_ap(); _o->remain_ap = _e; }
+  { auto _e = remain_sp(); if (_e) { _o->remain_sp.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->remain_sp[_i] = _e->Get(_i); } } else { _o->remain_sp.resize(0); } }
   { auto _e = package(); if (_e) { _o->package.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->package[_i]) { _e->Get(_i)->UnPackTo(_o->package[_i].get(), _resolver); } else { _o->package[_i] = std::unique_ptr<fbs::PackageSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->package.resize(0); } }
   { auto _e = meso(); _o->meso = _e; }
   { auto _e = map_id(); _o->map_id = _e; }
@@ -5326,6 +5366,8 @@ inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::F
   auto _character = _o->character ? CreateCharacter(_fbb, _o->character.get(), _rehasher) : 0;
   auto _ap = _o->ap ? CreateAPSave(_fbb, _o->ap.get(), _rehasher) : 0;
   auto _sp = _o->sp.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::SPSave>> (_o->sp.size(), [](size_t i, _VectorArgs *__va) { return CreateSPSave(*__va->__fbb, __va->__o->sp[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _remain_ap = _o->remain_ap;
+  auto _remain_sp = _o->remain_sp.size() ? _fbb.CreateVector(_o->remain_sp) : 0;
   auto _package = _o->package.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PackageSave>> (_o->package.size(), [](size_t i, _VectorArgs *__va) { return CreatePackageSave(*__va->__fbb, __va->__o->package[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _meso = _o->meso;
   auto _map_id = _o->map_id;
@@ -5338,6 +5380,8 @@ inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::F
       _character,
       _ap,
       _sp,
+      _remain_ap,
+      _remain_sp,
       _package,
       _meso,
       _map_id,

@@ -1,6 +1,5 @@
 #include "freetype.h"
 #include "src/client/window/window.h"
-#include <cmath>
 #include <cstdint>
 #include <flat_map>
 #include <ft2build.h>
@@ -207,7 +206,8 @@ void freetype::draw_str(const std::u16string &str, float x, float y, float w,
   }
 }
 float freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
-                          float h, std::optional<SDL_FRect> obstacle) {
+                          float h, std::optional<SDL_FRect> obstacle,
+                          bool dryRun) {
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
@@ -315,8 +315,12 @@ float freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
       }
     }
 
-    // 绘制字符
-    l += draw_char(l, t, c);
+    // 根据模式决定是绘制还是仅计算
+    if (!dryRun) {
+      l += draw_char(l, t, c);
+    } else {
+      l += charWidth; // 仅移动位置
+    }
   }
 
   return (t - y + lineHeight);
@@ -378,4 +382,9 @@ void freetype::draw_cstr(const std::u16string &str, float x, float y, float w,
     float midX = (int)x + (int)dx;
     draw_line(currentLine, midX, currentY);
   }
+}
+
+float freetype::load_rh(const std::u16string &str, float w, float h,
+                        std::optional<SDL_FRect> obstacle) {
+  return draw_rstr(str, 0, 0, w, h, obstacle, true); // 添加 dryRun 参数
 }

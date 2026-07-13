@@ -235,6 +235,8 @@ table CharacterSave{
     character:Character;
     ap:APSave;
     sp:[SPSave];
+    remain_ap:uint32;
+    remain_sp:[uint32];
     package:[PackageSave];
     meso:uint64;
     map_id:uint32;

@@ -48,4 +48,6 @@ public:
   static inline uint32_t dex_ap;
   static inline uint32_t int_ap;
   static inline uint32_t luk_ap;
+
+  static inline uint32_t remain_ap = UINT32_MAX;
 };
