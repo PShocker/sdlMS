@@ -274,72 +274,77 @@ void skill_ui_system::render_info() {
   }
 }
 
-void skill_ui_system::render_button() {
-  std::vector<wz::Node *> buttons_nodes = {
-      wz_resource::ui->find(u"Basic.img/BtClose"),
-  };
-  auto wh = load_wh();
-  std::vector<SDL_FRect> buttons_rect = {
-      {wh.x - 20, 8, 12, 12}, //
-  };
+static std::u16string ski_button_id = u"";
 
+void skill_ui_system::render_button() {
+  ski_button_id = u"";
+
+  auto wh = load_wh();
   auto self_job = character_game_instance::self.job;
   auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
   self_job = job_skill_game_instance::load_job_id(jt);
+  auto skill_node = job_skill_game_instance::load_job_skills(jt);
 
-  auto skill_node = wz_resource::skill->find(self_job + u".img");
-  const SDL_FPoint lt{8, 99};
-  const SDL_FPoint rb{184, 334};
-  const SDL_FPoint pos_icon{2, 2};
-  const uint8_t max_scroll_num = 6;
-  const auto ski_w = 32;
-  const auto ski_h = 32;
+  const int max_scroll = 6;
+  const int entry_h = 35;
+  const float l = (334 - 99 - max_scroll * entry_h) / (max_scroll - 1);
 
-  const auto entry_h = 35;
-  const auto l =
-      (rb.y - lt.y - max_scroll_num * entry_h) / (max_scroll_num - 1);
+  // 构建按钮列表
+  std::vector<wz::Node *> nodes = {wz_resource::ui->find(u"Basic.img/BtClose")};
+  std::vector<SDL_FRect> rects = {{wh.x - 20, 8, 12, 12}};
 
-  skill_node = skill_node->get_child(u"skill");
-  int i = 0;
-  for (auto [k, v] : *skill_node->get_children()) {
-    if (i >= max_scroll_num) {
-      break;
+  const auto disable_ski = [](std::u16string id) {
+    auto active = active_tab;
+    const auto sps = job_skill_game_instance::remain_point;
+    if (sps.at(active) == 0) {
+      return true;
     }
-    SDL_FRect pos_rect{
-        lt.x + 146,
-        lt.y + i * entry_h + l * i + 22,
-        12,
-        12,
-    };
-    buttons_nodes.push_back(wz_resource::ui->find(u"Basic.img/BtUP"));
-    buttons_rect.push_back(pos_rect);
-    i++;
+    auto ski_max_lvl = skill_game_instance::load_ski_max_lvl(id);
+    auto ski_lvl = job_skill_game_instance::load_skill_level(id);
+    if (ski_lvl >= ski_max_lvl) {
+      return true;
+    }
+    return false;
+  };
+
+  std::vector<bool> disable = {
+      false,
+  };
+
+  for (int i = 0; i < max_scroll && i < skill_node.size(); ++i) {
+    nodes.push_back(wz_resource::ui->find(u"Basic.img/BtUP"));
+    rects.push_back({8 + 146, 99 + i * entry_h + l * i + 22, 12, 12});
+    auto id = (skill_node.begin() + page + i)->first;
+    disable.push_back(disable_ski(id));
   }
 
-  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
-    auto k = buttons_nodes[i];
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += pos.x;
-    pos_rect.y += pos.y;
-    pos_rect.x = (int)pos_rect.x;
-    pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = window::mouse_pos;
-    // 判断按钮是否被遮挡
-    auto cursor_in = cursor_game_instance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
-        !cursor_game_instance::modal_overlay) {
-      if (window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
-        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
-      } else {
-        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
-        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+  // 渲染所有按钮
+  bool mouse_down = window::mouse_state & SDL_BUTTON_LMASK;
+  bool cursor_on_ui = cursor_game_instance::cursor_ui == render;
+  bool modal_blocked = cursor_game_instance::modal_overlay;
+
+  for (size_t i = 0; i < nodes.size(); ++i) {
+    SDL_FRect rect = {
+        rects[i].x + (int)pos.x,
+        rects[i].y + (int)pos.y,
+        rects[i].w,
+        rects[i].h,
+    };
+
+    std::u16string state = u"normal";
+    bool mouse_in = SDL_PointInRectFloat(&window::mouse_pos, &rect);
+
+    if (disable[i]) {
+      state = u"disabled";
+    } else if (cursor_on_ui && !modal_blocked && mouse_in) {
+      state = mouse_down ? u"pressed" : u"mouseOver";
+      if (i >= 1) {
+        ski_button_id = (skill_node.begin() + (i - 1))->first;
       }
-    } else {
-      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
-      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
     }
+    auto texture = wz_resource::load_texture(nodes[i]->find((state + u"/0")));
+    SDL_RenderTexture(window::renderer, texture, nullptr, &rect);
   }
 }
 
@@ -399,6 +404,17 @@ void skill_ui_system::toggle() {
   } else {
     open();
   }
+}
+
+void skill_ui_system::event_button_ski_up() {
+  if (ski_button_id == u"") {
+    return;
+  }
+  auto ski_id =
+      std::stoi(std::string(ski_button_id.begin(), ski_button_id.end()));
+  job_skill_game_instance::skill_point[ski_id] += 1;
+  job_skill_game_instance::remain_point[active_tab] -= 1;
+  return;
 }
 
 void skill_ui_system::event_close() { close(); }
@@ -517,6 +533,7 @@ bool skill_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        event_button_ski_up();
         event_click_vscr(event);
         event_click_ski(event);
         event_click_tab(event);

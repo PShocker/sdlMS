@@ -197,13 +197,100 @@ void character_stat_ui_system::render_text() {
     s2 = std::u16string{s.begin(), s.end()};
     freetype::draw_line(s2, p.x, p.y);
   }
+}
 
-  freetype::load_aligned(false);
+void character_stat_ui_system::render_remain_ap() {
+  auto s = std::to_string(character_stat_game_instance::remain_ap);
+  auto s2 = std::u16string{s.begin(), s.end()};
+  freetype::load_size(12);
+  freetype::load_aligned(true);
+  freetype::load_color(0, 0, 0, 255);
+  freetype::draw_line(s2, pos.x, pos.y);
+}
+
+void character_stat_ui_system::render_button() {
+  // 构建按钮列表
+  std::vector<wz::Node *> nodes = {
+      wz_resource::ui->find(u"Basic.img/BtClose"),
+      wz_resource::ui->find(u"CharacterStat.img/Main/button:detail"),
+      wz_resource::ui->find(u"Basic.img/BtUP"), // hp
+      wz_resource::ui->find(u"CharacterStat.img/Main/button:hpupall"),
+      wz_resource::ui->find(u"Basic.img/BtUP"), // mp
+      wz_resource::ui->find(u"CharacterStat.img/Main/button:hpupall"),
+      wz_resource::ui->find(u"Basic.img/BtUP"), // str
+      wz_resource::ui->find(u"CharacterStat.img/Main/button:hpupall"),
+      wz_resource::ui->find(u"Basic.img/BtUP"), // dex
+      wz_resource::ui->find(u"CharacterStat.img/Main/button:hpupall"),
+      wz_resource::ui->find(u"Basic.img/BtUP"), // int
+      wz_resource::ui->find(u"CharacterStat.img/Main/button:hpupall"),
+      wz_resource::ui->find(u"Basic.img/BtUP"), // luk
+      wz_resource::ui->find(u"CharacterStat.img/Main/button:hpupall"),
+  };
+  std::vector<SDL_FRect> rects = {
+      {166, 6, 12, 12},   //
+      {122, 256, 47, 18}, //
+      {148, 99, 12, 12},  //
+      {161, 99, 12, 12},  //
+      {148, 117, 12, 12}, //
+      {161, 117, 12, 12}, //
+      {148, 177, 12, 12}, // str
+      {161, 177, 12, 12}, // strall
+      {148, 195, 12, 12}, // dex
+      {161, 195, 12, 12}, // dexall
+      {148, 213, 12, 12}, // dex
+      {161, 213, 12, 12}, // dexall
+      {148, 231, 12, 12}, // dex
+      {161, 231, 12, 12}, // dexall
+  };
+  std::vector<bool> disable = {};
+  if (character_stat_game_instance::remain_ap) {
+    disable = {
+        false, false, false, false, false, false, false,
+        false, false, false, false, false, false, false,
+    };
+  } else {
+    disable = {
+        false, true, true, true, true, true, true,
+        true,  true, true, true, true, true, true,
+    };
+  }
+
+  if (detail) {
+    nodes.push_back(wz_resource::ui->find(u"Basic.img/BtHide"));
+    rects.push_back({164 + detail_rect.x, 203 + detail_rect.y, 13, 12});
+    disable.push_back(false);
+  }
+  // 渲染所有按钮
+  bool mouse_down = window::mouse_state & SDL_BUTTON_LMASK;
+  bool cursor_on_ui = cursor_game_instance::cursor_ui == render;
+  bool modal_blocked = cursor_game_instance::modal_overlay;
+
+  for (size_t i = 0; i < nodes.size(); ++i) {
+    SDL_FRect rect = {
+        rects[i].x + (int)pos.x,
+        rects[i].y + (int)pos.y,
+        rects[i].w,
+        rects[i].h,
+    };
+
+    std::u16string state = u"normal";
+    bool mouse_in = SDL_PointInRectFloat(&window::mouse_pos, &rect);
+
+    if (disable[i]) {
+      state = u"disabled";
+    } else if (cursor_on_ui && !modal_blocked && mouse_in) {
+      state = mouse_down ? u"pressed" : u"mouseOver";
+    }
+    auto texture = wz_resource::load_texture(nodes[i]->find((state + u"/0")));
+    SDL_RenderTexture(window::renderer, texture, nullptr, &rect);
+  }
 }
 
 bool character_stat_ui_system::render() {
   render_backgrnd();
   render_text();
+  render_remain_ap();
+  render_button();
   return true;
 }
 
@@ -237,6 +324,77 @@ void character_stat_ui_system::toggle() {
   } else {
     open();
   }
+}
+
+void character_stat_ui_system::event_button_detail_show() { detail = true; }
+
+void character_stat_ui_system::event_button_detail_hide() { detail = false; }
+
+void character_stat_ui_system::event_button_hp_inc() {}
+void character_stat_ui_system::event_button_hp_inc_max() {}
+void character_stat_ui_system::event_button_mp_inc() {}
+void character_stat_ui_system::event_button_mp_inc_max() {}
+void character_stat_ui_system::event_button_str_inc() {}
+void character_stat_ui_system::event_button_str_inc_max() {}
+void character_stat_ui_system::event_button_dex_inc() {}
+void character_stat_ui_system::event_button_dex_inc_max() {}
+void character_stat_ui_system::event_button_int_inc() {}
+void character_stat_ui_system::event_button_int_inc_max() {}
+void character_stat_ui_system::event_button_luk_inc() {}
+void character_stat_ui_system::event_button_luk_inc_max() {}
+
+bool character_stat_ui_system::event_button(SDL_Event *event) {
+  std::vector<void (*)()> fns;
+  auto wh = load_wh();
+  std::vector<SDL_FRect> buttons_rect = {
+      {166, 6, 12, 12},   // close
+      {122, 256, 47, 18}, // detail
+      {148, 99, 12, 12},  // hp
+      {161, 99, 12, 12},  // hpm
+      {148, 117, 12, 12}, // mp
+      {161, 117, 12, 12}, // mpm
+      {148, 177, 12, 12}, // str
+      {161, 177, 12, 12}, // strall
+      {148, 195, 12, 12}, // dex
+      {161, 195, 12, 12}, // dexall
+      {148, 213, 12, 12}, // dex
+      {161, 213, 12, 12}, // dexall
+      {148, 231, 12, 12}, // dex
+      {161, 231, 12, 12}, // dexall
+  };
+  fns = {
+      close,
+      event_button_detail_show,
+      event_button_hp_inc,
+      event_button_hp_inc_max,
+      event_button_mp_inc,
+      event_button_mp_inc_max,
+      event_button_str_inc,
+      event_button_str_inc_max,
+      event_button_dex_inc,
+      event_button_dex_inc_max,
+      event_button_int_inc,
+      event_button_int_inc_max,
+      event_button_luk_inc,
+      event_button_luk_inc_max,
+  };
+
+  if (detail) {
+    buttons_rect.push_back({164 + detail_rect.x, 203 + detail_rect.y, 13, 12});
+    fns.push_back(event_button_detail_hide);
+  }
+
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      fns[i]();
+      return true;
+    }
+  }
+
+  return false;
 }
 
 bool character_stat_ui_system::event(SDL_Event *event) {

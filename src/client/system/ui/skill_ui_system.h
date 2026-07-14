@@ -25,6 +25,7 @@ private:
   static bool event_click_tab(SDL_Event *event);
   static void event_click_vscr(SDL_Event *event);
 
+  static void event_button_ski_up();
   static bool event_button(SDL_Event *event);
   static void event_close();
   static void event_top();

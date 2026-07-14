@@ -12,6 +12,7 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "text_input_ui_system.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <string>
@@ -30,6 +31,7 @@ void notice_ui_system::render_backgrnd() {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice1");
     break;
   }
+  case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy_mul: {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice2");
@@ -69,6 +71,7 @@ void notice_ui_system::render_button() {
   std::vector<SDL_FRect> buttons_rect = {};
   auto [w, h] = load_wh();
   switch (type) {
+  case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy:
@@ -152,6 +155,9 @@ void notice_ui_system::render_text() {
   case notice_enum::shopbuy_sell_mul: {
     break;
   }
+  case notice_enum::ap_inc: {
+    break;
+  }
   }
   if (!text.empty()) {
     freetype::load_aligned(true);
@@ -163,7 +169,10 @@ void notice_ui_system::render_text() {
 
 void notice_ui_system::render_input() {
   switch (type) {
+  case notice_enum::ap_inc:
+  case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy_mul: {
+    text_input_ui_system::render(text, pos.x, pos.y);
     break;
   }
   default: {
@@ -188,6 +197,36 @@ void notice_ui_system::open() {
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
+    switch (type) {
+    case notice_enum::ap_inc:
+    case notice_enum::shopbuy_sell:
+    case notice_enum::shopbuy_sell_mul:
+    case notice_enum::shopbuy_mul: {
+      text = {
+          .max_size = 12,
+          .text = u"",
+          .composition = {},
+          .disable = false,
+          .active = false,
+          .r =
+              SDL_Rect{
+                  static_cast<int>(-30 - camera.x),
+                  static_cast<int>(960 - camera.y),
+                  230,
+                  30,
+              },
+          .font_color = {255, 255, 255, 255},
+          .font_size = 13,
+      };
+      text.type.reset();
+      text.type.set(text_input::digit);
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
   }
@@ -206,6 +245,7 @@ SDL_FPoint notice_ui_system::load_wh() {
   case notice_enum::shopbuy_no_space: {
     return {266, 116};
   }
+  case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy_mul:
     return {266, 119};
@@ -238,6 +278,8 @@ void notice_ui_system::event_button_shopbuy() {
 
 void notice_ui_system::event_button_shopbuy_sell() {}
 
+void notice_ui_system::event_button_ap_inc() {}
+
 bool notice_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
@@ -250,6 +292,14 @@ bool notice_ui_system::event_button(SDL_Event *event) {
         {w, h - 30, 47, 18},
     };
     func = {event_button_shopbuy, close};
+    break;
+  }
+  case notice_enum::ap_inc: {
+    buttons_rect = {
+        {w - 110, h - 30, 47, 18},
+        {w, h - 30, 47, 18},
+    };
+    func = {event_button_shopbuy_sell, close};
     break;
   }
   case notice_enum::shopbuy_sell:
@@ -281,7 +331,21 @@ bool notice_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+void notice_ui_system::event_input(SDL_Event *event) {
+  switch (type) {
+  case notice_enum::ap_inc:
+  case notice_enum::shopbuy_sell_mul:
+  case notice_enum::shopbuy_mul: {
+    text_input_ui_system::event(event, text);
+  }
+  default: {
+    break;
+  }
+  }
+}
+
 bool notice_ui_system::event(SDL_Event *event) {
+  event_input(event);
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN: {
     auto scan_code = event->key.scancode;
@@ -305,6 +369,9 @@ bool notice_ui_system::event(SDL_Event *event) {
       case notice_enum::shopbuy_sell:
       case notice_enum::shopbuy_sell_mul: {
         event_button_shopbuy_sell();
+        break;
+      }
+      case notice_enum::ap_inc: {
         break;
       }
       }

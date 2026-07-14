@@ -90,43 +90,6 @@ void storage_ui_system::close() {
   std::erase(system::event_systems, event);
 }
 
-void storage_ui_system::event_top() {
-  std::erase(system::render_systems, render);
-  std::erase(system::event_systems, event);
-  auto it =
-      std::ranges::find(system::render_systems, &cursor_render_system::render);
-  if (it != system::render_systems.end()) {
-    system::render_systems.insert(it, render);
-    system::event_systems.insert(system::event_systems.begin(), event);
-  }
-}
-
-void storage_ui_system::event_drag_start(SDL_Event *event) {
-  auto wh = load_wh();
-  SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - event->button.x, pos.y - event->button.y};
-  }
-  return;
-}
-
-void storage_ui_system::event_drag_end() {
-  drag = std::nullopt;
-  return;
-}
-
-void storage_ui_system::event_drag_move(SDL_Event *event) {
-  if (drag.has_value()) {
-    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
-    auto &camera = camera_game_instance::camera;
-    auto [w, h] = load_wh();
-    pos.x = std::clamp(pos.x, (float)0, camera.w - w);
-    pos.y = std::clamp(pos.y, (float)0, camera.h - h);
-  }
-  return;
-}
-
 bool storage_ui_system::event_button(SDL_Event *event) { return false; }
 
 bool storage_ui_system::event(SDL_Event *event) {
@@ -135,8 +98,6 @@ bool storage_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
-        event_top();
-        event_drag_start(event);
         r = false;
       }
     }
@@ -147,12 +108,10 @@ bool storage_ui_system::event(SDL_Event *event) {
       if (cursor_game_instance::cursor_ui == render) {
         r = !event_button(event);
       }
-      event_drag_end();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_drag_move(event);
     break;
   }
   default: {

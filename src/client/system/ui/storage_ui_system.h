@@ -12,15 +12,8 @@ private:
   static void render_items();
   static void render_item_info();
 
-
   static bool event_button(SDL_Event *event);
   static void event_close();
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
-
-  static inline std::optional<SDL_FPoint> drag;
 
 public:
   static inline SDL_FPoint pos;

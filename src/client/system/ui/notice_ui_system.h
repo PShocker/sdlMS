@@ -17,7 +17,10 @@ private:
   static void event_button_shopbuy();
   static void event_button_shopbuy_sell();
 
+  static void event_button_ap_inc();
+
   static bool event_button(SDL_Event *event);
+  static void event_input(SDL_Event *event);
 
   static SDL_FPoint load_wh();
 
@@ -32,6 +35,8 @@ public:
 
     equip_no_ability,
     equip_no_space,
+
+    ap_inc,
   };
 
   static inline notice_enum type;

@@ -38,4 +38,5 @@ public:
     std::vector<std::u16string> level;
   };
   static skill_name load_ski_name(const std::u16string &id);
+  static int load_ski_max_lvl(const std::u16string &id);
 };

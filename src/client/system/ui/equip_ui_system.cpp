@@ -241,8 +241,8 @@ void equip_ui_system::render_tab() {
 void equip_ui_system::render_backgrnd2() {
   const SDL_FPoint lt{4, 45};
   if (active_tab == 0) {
-    static auto t = wz_resource::ui->find(u"Equipment.img/equip/backgrnd");
-    static auto texture = wz_resource::load_texture(t);
+    static auto texture = wz_resource::load_texture(
+        wz_resource::ui->find(u"Equipment.img/equip/backgrnd"));
     SDL_FRect pos_rect = {
         int(pos.x) + lt.x,
         int(pos.y) + lt.y,

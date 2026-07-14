@@ -162,6 +162,37 @@ void worldmap_ui_system::render_spot_info(uint32_t id, float x, float y) {
   tooltip_ui_system::render_world_map_info(id, x, y);
 }
 
+void worldmap_ui_system::render_button() {
+  // 构建按钮列表
+  std::vector<wz::Node *> nodes = {
+      wz_resource::ui->find(u"Basic.img/BtClose"),
+  };
+  std::vector<SDL_FRect> rects = {
+      {166, 6, 12, 12}, //
+  };
+  // 渲染所有按钮
+  bool mouse_down = window::mouse_state & SDL_BUTTON_LMASK;
+  bool cursor_on_ui = cursor_game_instance::cursor_ui == render;
+  bool modal_blocked = cursor_game_instance::modal_overlay;
+
+  for (size_t i = 0; i < nodes.size(); ++i) {
+    SDL_FRect rect = {
+        rects[i].x + (int)pos.x,
+        rects[i].y + (int)pos.y,
+        rects[i].w,
+        rects[i].h,
+    };
+
+    std::u16string state = u"normal";
+    if (cursor_on_ui && !modal_blocked &&
+        SDL_PointInRectFloat(&window::mouse_pos, &rect)) {
+      state = mouse_down ? u"pressed" : u"mouseOver";
+    }
+    auto texture = wz_resource::load_texture(nodes[i]->find((state + u"/0")));
+    SDL_RenderTexture(window::renderer, texture, nullptr, &rect);
+  }
+}
+
 bool worldmap_ui_system::render() {
   render_backgrnd();
   render_map();

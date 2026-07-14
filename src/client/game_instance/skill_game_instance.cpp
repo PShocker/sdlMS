@@ -117,3 +117,8 @@ skill_game_instance::load_ski_name(const std::u16string &id) {
   }
   return cache.at(id);
 }
+
+int skill_game_instance::load_ski_max_lvl(const std::u16string &id) {
+  auto ski_name = load_ski_name(id);
+  return ski_name.level.size();
+}
