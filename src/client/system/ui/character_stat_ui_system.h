@@ -10,6 +10,7 @@ private:
   static void render_text();
   static void render_remain_ap();
   static void render_button();
+  static void render_detail();
   static SDL_FPoint load_wh();
 
   static void event_button_hp_inc();

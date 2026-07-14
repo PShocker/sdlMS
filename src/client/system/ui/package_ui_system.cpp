@@ -297,71 +297,20 @@ void package_ui_system::event_top() {
 }
 
 bool package_ui_system::event_click_item(SDL_Event *event) {
+  // 网络手占用时拒绝操作
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     return false;
   }
-  if (cursor_game_instance::cursor_hand.has_value()) {
-    auto hand = cursor_game_instance::cursor_hand.value();
-    if (hand.type == cursor_game_instance::package && hand.val == active_tab) {
-      auto index = load_mouse_index();
-      if (active_tab == 0) {
-        auto &equips = package_game_instance::data[0];
-        if (index.has_value()) {
-          if (hand.sub_val == index.value()) {
-            auto sf = character_game_instance::self;
-            auto equip = static_cast<game_equip_item &>(*equips[index.value()]);
-            auto ev = equip_game_instance::load_equip_slot(equip, sf);
-            if (equip_game_instance::add_equip_limit(equip, sf, 0)) {
-              auto blank_slot = load_blank_index(active_tab);
-              blank_slot.push_back(index.value());
-              std::ranges::sort(blank_slot);
-              if (blank_slot.size() >= ev.size()) {
-                equips[hand.sub_val] = nullptr;
-                for (int32_t i = 0; i < ev.size(); i++) {
-                  equips[blank_slot[i]] =
-                      std::make_unique<game_equip_item>(ev[i]);
-                }
-                character_game_instance::self = sf;
-                // 发包
-                ClientCharacterT ct;
-                ct.map_id = scene_system_instance::map_id;
-                auto c = character_game_instance::load_characterT(sf);
-                ct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
-                client_request::send_to_host(ct);
-              } else {
-                // 无空闲位置
-                notice_ui_system::type =
-                    notice_ui_system::notice_enum::equip_no_space;
-                notice_ui_system::open();
-              }
-            } else {
-              // 属性不够穿戴装备
-              notice_ui_system::type =
-                  notice_ui_system::notice_enum::equip_no_ability;
-              notice_ui_system::open();
-            }
-          } else {
-            std::swap(equips[hand.sub_val], equips[index.value()]);
-          }
-        }
-      } else {
-        auto &r = package_game_instance::data[active_tab];
-        if (index.has_value()) {
-          if (hand.sub_val == index.value()) {
-          } else {
-            std::swap(r.at(hand.sub_val), r.at(index.value()));
-          }
-        }
-      }
-    }
-    cursor_game_instance::cursor_hand = std::nullopt;
-  } else {
-    auto index = load_mouse_index();
-    if (!index.has_value()) {
-      return false;
-    }
+
+  auto index = load_mouse_index();
+  if (!index.has_value()) {
+    return false;
+  }
+
+  // 无手持物品：拾取
+  if (!cursor_game_instance::cursor_hand.has_value()) {
     const auto &r = package_game_instance::data[active_tab];
-    if (!r[index.value()]) {
+    if (index.value() >= r.size() || !r[index.value()]) {
       return false;
     }
     cursor_game_instance::cursor_hand = {
@@ -369,7 +318,77 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         .val = active_tab,
         .sub_val = index.value(),
     };
+    return true;
   }
+
+  // 有手持物品
+  auto &hand = cursor_game_instance::cursor_hand.value();
+
+  // 手持物品不匹配当前标签页，清除手持状态
+  if (hand.type != cursor_game_instance::package || hand.val != active_tab) {
+    cursor_game_instance::cursor_hand = std::nullopt;
+    return true;
+  }
+
+  // 处理装备栏
+  if (active_tab == static_cast<int>(item_enum::equip)) {
+    auto &equips = package_game_instance::data[0];
+    auto &sf = character_game_instance::self;
+
+    // 点击的是同一个格子：尝试穿戴
+    if (hand.sub_val == index.value()) {
+      auto equip = static_cast<game_equip_item &>(*equips[index.value()]);
+      auto ev = equip_game_instance::load_equip_slot(equip, sf);
+
+      if (!equip_game_instance::add_equip_limit(equip, sf, 0)) {
+        notice_ui_system::type =
+            notice_ui_system::notice_enum::equip_no_ability;
+        notice_ui_system::open();
+        cursor_game_instance::cursor_hand = std::nullopt;
+        return true;
+      }
+
+      auto blank_slot = load_blank_index(active_tab);
+      blank_slot.push_back(index.value());
+      std::ranges::sort(blank_slot);
+
+      if (blank_slot.size() < ev.size()) {
+        notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+        notice_ui_system::open();
+        cursor_game_instance::cursor_hand = std::nullopt;
+        return true;
+      }
+
+      // 执行穿戴
+      equips[hand.sub_val] = nullptr;
+      for (int32_t i = 0; i < ev.size(); i++) {
+        equips[blank_slot[i]] = std::make_unique<game_equip_item>(ev[i]);
+      }
+      character_game_instance::self = sf;
+
+      // 发包
+      ClientCharacterT ct;
+      ct.map_id = scene_system_instance::map_id;
+      auto c = character_game_instance::load_characterT(sf);
+      ct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
+      client_request::send_to_host(ct);
+
+      cursor_game_instance::cursor_hand = std::nullopt;
+      return true;
+    }
+
+    // 点击不同格子：交换
+    std::swap(equips[hand.sub_val], equips[index.value()]);
+    cursor_game_instance::cursor_hand = std::nullopt;
+    return true;
+  }
+
+  // 处理普通背包栏
+  auto &r = package_game_instance::data[active_tab];
+  if (hand.sub_val != index.value()) {
+    std::swap(r.at(hand.sub_val), r.at(index.value()));
+  }
+  cursor_game_instance::cursor_hand = std::nullopt;
   return true;
 }
 

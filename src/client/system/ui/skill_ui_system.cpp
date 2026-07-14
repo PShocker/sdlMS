@@ -300,6 +300,17 @@ void skill_ui_system::render_button() {
     if (sps.at(active) == 0) {
       return true;
     }
+    // 判断前置技能
+    auto ski_node = skill_game_instance::load_skill_node(id);
+    if (auto req = ski_node->get_child(u"req")) {
+      for (auto [k, v] : *req) {
+        auto lvl = static_cast<wz::Property<int> *>(v[0])->get();
+        auto req_lvl = job_skill_game_instance::load_skill_level(k);
+        if (req_lvl < lvl) {
+          return true;
+        }
+      }
+    }
     auto ski_max_lvl = skill_game_instance::load_ski_max_lvl(id);
     auto ski_lvl = job_skill_game_instance::load_skill_level(id);
     if (ski_lvl >= ski_max_lvl) {
@@ -340,7 +351,7 @@ void skill_ui_system::render_button() {
     } else if (cursor_on_ui && !modal_blocked && mouse_in) {
       state = mouse_down ? u"pressed" : u"mouseOver";
       if (i >= 1) {
-        ski_button_id = (skill_node.begin() + (i - 1))->first;
+        ski_button_id = (skill_node.begin() + page + (i - 1))->first;
       }
     }
     auto texture = wz_resource::load_texture(nodes[i]->find((state + u"/0")));
@@ -449,10 +460,15 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
   }
   auto index = load_mouse_ski();
   if (index.has_value()) {
-    if (event->button.clicks >= 2) {
-
-    } else {
-      auto val = std::string{index.value().begin(), index.value().end()};
+    if (event->button.clicks >= 1) {
+      auto id = index.value();
+      if (!skill_game_instance::load_ski_active(id)) {
+        return false;
+      }
+      if (job_skill_game_instance::load_skill_level(id) == 0) {
+        return false;
+      }
+      auto val = std::string{id.begin(), id.end()};
       auto sub_val = std::stoi(val);
       cursor_game_instance::cursor_hand = {
           .type = cursor_game_instance::skill,
@@ -481,6 +497,7 @@ bool skill_ui_system::event_click_tab(SDL_Event *event) {
     };
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       active_tab = i;
+      page = 0;
       return true;
     }
   }

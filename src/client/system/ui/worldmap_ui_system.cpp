@@ -1,6 +1,7 @@
 #include "worldmap_ui_system.h"
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
+#include "minimap_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -167,8 +168,9 @@ void worldmap_ui_system::render_button() {
   std::vector<wz::Node *> nodes = {
       wz_resource::ui->find(u"Basic.img/BtClose"),
   };
+  auto [w, h] = load_wh();
   std::vector<SDL_FRect> rects = {
-      {166, 6, 12, 12}, //
+      {w - 18, 6, 12, 12}, //
   };
   // 渲染所有按钮
   bool mouse_down = window::mouse_state & SDL_BUTTON_LMASK;
@@ -197,6 +199,7 @@ bool worldmap_ui_system::render() {
   render_backgrnd();
   render_map();
   render_spot();
+  render_button();
   return true;
 }
 
@@ -216,6 +219,9 @@ void worldmap_ui_system::open() {
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
+    if (minimap_ui_system::disable) {
+      return;
+    }
     worldmap_ui_system::path = u"WorldMap000.img";
 
     auto wh = load_wh();

@@ -25,13 +25,6 @@ void character_stat_ui_system::render_backgrnd() {
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
                      static_cast<float>(backgrnd->h)};
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
-
-  static auto backgrnd_detail = wz_resource::load_texture(
-      wz_resource::ui->find(u"CharacterStat.img/Detail/backgrnd"));
-  pos_rect = {pos.x + detail_rect.x, pos.y + detail_rect.y,
-              static_cast<float>(backgrnd_detail->w),
-              static_cast<float>(backgrnd_detail->h)};
-  SDL_RenderTexture(window::renderer, backgrnd_detail, nullptr, &pos_rect);
 }
 
 void character_stat_ui_system::render_text() {
@@ -131,72 +124,6 @@ void character_stat_ui_system::render_text() {
   auto luk1 = std::to_string(luk);
   auto luk2 = std::u16string{luk1.begin(), luk1.end()};
   freetype::draw_line(luk2, p.x, p.y);
-
-  if (detail) {
-    auto dx = detail_rect.x + pos.x;
-    auto dy = detail_rect.y + pos.y;
-    // atk
-    p = {dx + 78, dy + 10};
-    auto min_atk = character_stat_game_instance::min_atk;
-    auto max_atk = character_stat_game_instance::max_atk;
-    auto s = std::to_string(min_atk) + " - " + std::to_string(max_atk);
-    auto s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // pdd
-    p = {dx + 78, dy + 28};
-    auto pdd = character_stat_game_instance::weapon_def;
-    s = std::to_string(pdd);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // mad
-    p = {dx + 78, dy + 46};
-    auto mad = character_stat_game_instance::magic;
-    s = std::to_string(mad);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // mdd
-    p = {dx + 78, dy + 62};
-    auto mdd = character_stat_game_instance::magic_def;
-    s = std::to_string(mdd);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // acc
-    p = {dx + 78, dy + 82};
-    auto acc = character_stat_game_instance::accuracy;
-    s = std::to_string(acc);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // eva
-    p = {dx + 78, dy + 100};
-    auto avoid = character_stat_game_instance::avoid;
-    s = std::to_string(avoid);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // crtr
-    p = {dx + 78, dy + 118};
-    auto crit_rate = character_stat_game_instance::crit_rate;
-    s = std::to_string(crit_rate);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // crtd
-    p = {dx + 78, dy + 136};
-    auto crit_damage = character_stat_game_instance::crit_damage;
-    s = std::to_string(crit_damage);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // hspd
-    p = {dx + 78, dy + 154};
-    auto hspd = character_logic_system::self_hspeed_max;
-    s = std::to_string((int)hspd);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-    // vspd
-    p = {dx + 78, dy + 172};
-    auto vspd = -character_logic_system::self_vspeed_min * 0.1;
-    s = std::to_string((int)vspd);
-    s2 = std::u16string{s.begin(), s.end()};
-    freetype::draw_line(s2, p.x, p.y);
-  }
 }
 
 void character_stat_ui_system::render_remain_ap() {
@@ -205,7 +132,7 @@ void character_stat_ui_system::render_remain_ap() {
   freetype::load_size(12);
   freetype::load_aligned(true);
   freetype::load_color(0, 0, 0, 255);
-  freetype::draw_line(s2, pos.x, pos.y);
+  freetype::draw_line(s2, pos.x + 90, pos.y + 258);
 }
 
 void character_stat_ui_system::render_button() {
@@ -286,10 +213,86 @@ void character_stat_ui_system::render_button() {
   }
 }
 
+void character_stat_ui_system::render_detail() {
+  static auto backgrnd_detail = wz_resource::load_texture(
+      wz_resource::ui->find(u"CharacterStat.img/Detail/backgrnd"));
+  SDL_FRect pos_rect = {pos.x + detail_rect.x, pos.y + detail_rect.y,
+                        static_cast<float>(backgrnd_detail->w),
+                        static_cast<float>(backgrnd_detail->h)};
+  SDL_RenderTexture(window::renderer, backgrnd_detail, nullptr, &pos_rect);
+
+  auto dx = detail_rect.x + pos.x;
+  auto dy = detail_rect.y + pos.y;
+  // atk
+  SDL_FPoint p = {dx + 78, dy + 10};
+  auto min_atk = character_stat_game_instance::min_atk;
+  auto max_atk = character_stat_game_instance::max_atk;
+  auto s = std::to_string(min_atk) + " - " + std::to_string(max_atk);
+  auto s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // pdd
+  p = {dx + 78, dy + 28};
+  auto pdd = character_stat_game_instance::weapon_def;
+  s = std::to_string(pdd);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // mad
+  p = {dx + 78, dy + 46};
+  auto mad = character_stat_game_instance::magic;
+  s = std::to_string(mad);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // mdd
+  p = {dx + 78, dy + 62};
+  auto mdd = character_stat_game_instance::magic_def;
+  s = std::to_string(mdd);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // acc
+  p = {dx + 78, dy + 82};
+  auto acc = character_stat_game_instance::accuracy;
+  s = std::to_string(acc);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // eva
+  p = {dx + 78, dy + 100};
+  auto avoid = character_stat_game_instance::avoid;
+  s = std::to_string(avoid);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // crtr
+  p = {dx + 78, dy + 118};
+  auto crit_rate = character_stat_game_instance::crit_rate;
+  s = std::to_string(crit_rate);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // crtd
+  p = {dx + 78, dy + 136};
+  auto crit_damage = character_stat_game_instance::crit_damage;
+  s = std::to_string(crit_damage);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // hspd
+  p = {dx + 78, dy + 154};
+  auto hspd = character_logic_system::self_hspeed_max;
+  s = std::to_string((int)hspd);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+  // vspd
+  p = {dx + 78, dy + 172};
+  auto vspd = -character_logic_system::self_vspeed_min * 0.1;
+  s = std::to_string((int)vspd);
+  s2 = std::u16string{s.begin(), s.end()};
+  freetype::draw_line(s2, p.x, p.y);
+}
+
 bool character_stat_ui_system::render() {
   render_backgrnd();
   render_text();
   render_remain_ap();
+  if (detail) {
+    render_detail();
+  }
   render_button();
   return true;
 }
@@ -400,6 +403,20 @@ bool character_stat_ui_system::event_button(SDL_Event *event) {
 bool character_stat_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_ESCAPE: {
+      close();
+      return false;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
@@ -413,6 +430,7 @@ bool character_stat_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        r = !event_button(event);
       }
       event_drag_end();
     }

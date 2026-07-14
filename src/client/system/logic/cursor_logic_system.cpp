@@ -337,7 +337,7 @@ bool cursor_logic_system::event_character(SDL_Event *event) {
   bool r = false;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks == 2) {
+    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks >= 2) {
       if (cursor_game_instance::cursor_ui != nullptr) {
         break;
       }
@@ -393,7 +393,7 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
   bool r = false;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks == 2) {
+    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks >= 2) {
       if (cursor_game_instance::cursor_ui != nullptr) {
         break;
       }

@@ -122,3 +122,17 @@ int skill_game_instance::load_ski_max_lvl(const std::u16string &id) {
   auto ski_name = load_ski_name(id);
   return ski_name.level.size();
 }
+
+bool skill_game_instance::load_ski_active(const std::u16string &id) {
+  auto ski_node = load_skill_node(id);
+  if (ski_node->get_child(u"action")) {
+    return true;
+  }
+  if (ski_node->get_child(u"hit")) {
+    return true;
+  }
+  if (ski_node->get_child(u"effect")) {
+    return true;
+  }
+  return false;
+}

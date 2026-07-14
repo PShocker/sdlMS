@@ -12,7 +12,7 @@ uint8_t job_skill_game_instance::load_skill_level(const std::u16string &id) {
   if (skill_point.contains(ski_id)) {
     return skill_point.at(ski_id);
   } else {
-    return 1;
+    return 0;
   }
 }
 
