@@ -36,7 +36,7 @@ std::vector<uint32_t> package_ui_system::load_blank_index(uint32_t tab) {
   std::vector<uint32_t> r;
   auto &d = package_game_instance::data[tab];
   for (int32_t i = 0; i < d.size(); i++) {
-    if (d[i].valueless_after_move()) {
+    if (d[i]->id.empty()) {
       r.push_back(i);
     }
   }
@@ -122,7 +122,7 @@ void package_ui_system::render_items_info() {
   const size_t index = static_cast<size_t>(index_opt.value());
   auto &items = package_game_instance::data[active_tab];
 
-  if (index >= items.size() || items[index].valueless_after_move()) {
+  if (index >= items.size() || items[index]->id.empty()) {
     return;
   }
   const SDL_FPoint show_pos{
@@ -162,7 +162,7 @@ void package_ui_system::render_items() {
 
   for (size_t i = start_index; i < end_index; ++i) {
     const auto &item = items[i];
-    if (item.valueless_after_move())
+    if (item->id.empty())
       continue;
 
     // 计算行列
@@ -310,7 +310,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
   // 无手持物品：拾取
   if (!cursor_game_instance::cursor_hand.has_value()) {
     const auto &r = package_game_instance::data[active_tab];
-    if (index.value() >= r.size() || r[index.value()].valueless_after_move()) {
+    if (index.value() >= r.size() || r[index.value()]->id.empty()) {
       return false;
     }
     cursor_game_instance::cursor_hand = {

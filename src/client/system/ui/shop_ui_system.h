@@ -23,8 +23,8 @@ private:
   static void render_meso();
 
   static void render_npc();
-  static void render_self();
-  static void render_self_items();
+  static void render_avatar();
+  static void render_pkg_items();
 
   static void render_active_item();
 
@@ -36,14 +36,16 @@ private:
   static void event_close();
   static bool event_button(SDL_Event *event);
 
-  static void event_tab(SDL_Event *event);
+  static bool event_tab(SDL_Event *event);
 
   static SDL_FPoint load_wh();
 
   static inline std::array<int, 2> pages;
-  static inline std::array<std::optional<int>, 2> active_item;
 
 public:
+  static inline std::vector<game_shop_item> must;
+
+  static inline std::array<std::optional<int>, 2> active_item;
   static inline std::array<int, 2> active_tab;
 
   static inline std::optional<game_npc> npc;

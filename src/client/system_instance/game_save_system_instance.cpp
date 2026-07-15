@@ -140,15 +140,11 @@ bool game_save_system_instance::save_game() {
     cs.quests = quest_game_instance::quests;
 
     for (auto &d : package_game_instance::data) {
-      uint32_t i = 0;
-      for (auto &v : d) {
-        if (!v.valueless_after_move()) {
-          cs.package.push_back({
-              .index = i,
-              .val = std::move(v), // 移动所有权
-          });
+      for (uint32_t i = 0; i < d.size(); ++i) {
+        auto &v = d[i];
+        if (!v->id.empty()) {
+          cs.package.push_back({.index = i, .val = std::move(v)});
         }
-        i++;
       }
     }
     for (int i = 0; i < save.characters.size(); i++) {

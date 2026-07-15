@@ -112,31 +112,27 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
   }
 }
 
-void shop_ui_system::render_self_items() {
+void shop_ui_system::render_pkg_items() {
   const game_shop_item *item_info = nullptr;
   std::vector<game_shop_item> items;
   const auto &r = package_game_instance::data[active_tab[1]];
   for (const auto &itm : r) {
-    auto item = shop_game_instance::load_shop_item(itm->id);
-    game_shop_item gst;
-    if (item->type == item_enum::equip) {
-      auto info = equip_game_instance::load_equip_info(item->id);
-      gst.price =
-          static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
-    } else {
-      auto info = item_game_instance::load_item_info(item->id);
-      gst.price =
-          static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
+    if (!itm->id.empty()) {
+      auto item = shop_game_instance::load_shop_item(itm->id);
+      items.push_back(std::move(item));
     }
-    gst.item = std::move(item);
-    items.push_back(std::move(gst));
   }
   render_item(items, pages[1], {238, 129});
 }
 
 void shop_ui_system::render_items() {
-  auto items = shop->items;
-  render_item(items, pages[0], {8, 129});
+  if (active_tab[0] == 0) {
+    auto items = shop->items;
+    render_item(items, pages[0], {8, 129});
+  } else {
+    auto items = must;
+    render_item(items, pages[0], {8, 129});
+  }
 }
 
 void shop_ui_system::render_vscr() {
@@ -283,7 +279,7 @@ void shop_ui_system::render_npc() {
   npc_render_system::render_npc(n);
 }
 
-void shop_ui_system::render_self() {
+void shop_ui_system::render_avatar() {
   auto self = character_game_instance::self;
   character_logic_system::run_stand_action(self);
   self.action_index = 0;
@@ -335,10 +331,10 @@ bool shop_ui_system::render() {
   render_tab();
   render_active_item();
   render_npc();
-  render_self();
+  render_avatar();
   render_meso();
   render_vscr();
-  render_self_items();
+  render_pkg_items();
   render_items();
   return true;
 }
@@ -418,75 +414,92 @@ std::optional<int> shop_ui_system::event_item_click(SDL_Event *event,
 bool shop_ui_system::event_item(SDL_Event *event) {
   auto item0 = event_item_click(event, {8, 129});
   if (item0.has_value()) {
-    auto &items = shop->items;
+    const std::vector<game_shop_item> *items =
+        (active_tab[0] == 0) ? &shop->items : &must;
     auto index = pages[0] + item0.value();
-    if (index >= items.size()) {
+    if (index >= items->size()) {
       return true;
     }
-    if (active_item[0] == index) {
-      auto meso = package_game_instance::meso;
-
-      const auto &itm = items[index];
-      if (meso < itm.price) {
-        notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_meso;
-      } else if (!package_ui_system::load_blank_index((int)itm.item->type)
-                      .empty()) {
-        notice_ui_system::type =
-            notice_ui_system::notice_enum::shopbuy_no_space;
-      } else {
-        switch (itm.item->type) {
-        case item_enum::equip: {
-          notice_ui_system::type = notice_ui_system::notice_enum::shopbuy;
-          break;
-        }
-        case item_enum::consume:
-        case item_enum::etc:
-        case item_enum::install:
-        case item_enum::cash: {
-          notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_mul;
-          break;
-        }
-        }
-        notice_ui_system::data = &itm;
-      }
-      notice_ui_system::open();
-    } else {
+    if (active_item[0] != index) {
       active_item[0] = index;
       active_item[1] = std::nullopt;
+      return true;
     }
+    auto meso = package_game_instance::meso;
+    const auto &itm = items->at(index);
+    if (meso < itm.price) {
+      notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_meso;
+    } else if (!package_ui_system::load_blank_index((int)itm.item->type)
+                    .empty()) {
+      notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;
+    } else {
+      notice_ui_system::type = (itm.item->type == item_enum::equip)
+                                   ? notice_ui_system::notice_enum::shopbuy
+                                   : notice_ui_system::notice_enum::shopbuy_mul;
+      notice_ui_system::data = &itm;
+    }
+    notice_ui_system::open();
     return true;
   }
+
   auto item1 = event_item_click(event, {238, 129});
   if (item1.has_value()) {
     auto index = pages[1] + item1.value();
     auto &items = package_game_instance::data[active_tab[1]];
-    if (index >= items.size()) {
+    if (index >= items.size() || items[index]->id.empty()) {
       return true;
     }
-    if (active_item[1] == index) {
-      auto meso = package_game_instance::meso;
-      const auto &itm = items[index];
-      switch (itm->type) {
-      case item_enum::equip: {
-        notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_sell;
-        break;
-      }
-      case item_enum::consume:
-      case item_enum::etc:
-      case item_enum::install:
-      case item_enum::cash: {
-        notice_ui_system::type =
-            notice_ui_system::notice_enum::shopbuy_sell_mul;
-        break;
-      }
-      }
-      notice_ui_system::data = &itm;
-      notice_ui_system::open();
-    } else {
+    if (active_item[1] != index) {
       active_item[1] = index;
       active_item[0] = std::nullopt;
+      return true;
+    }
+    auto &itm = items[index];
+    notice_ui_system::type =
+        (itm->type == item_enum::equip)
+            ? notice_ui_system::notice_enum::shopbuy_sell
+            : notice_ui_system::notice_enum::shopbuy_sell_mul;
+    notice_ui_system::data = &itm;
+    notice_ui_system::open();
+  }
+  return false;
+}
+
+bool shop_ui_system::event_tab(SDL_Event *event) {
+  const auto &mouse_pos = window::mouse_pos;
+
+  // 第一组标签页（商店分类）
+  const static std::array tab_pos0 = {
+      SDL_FPoint{7, 96},
+      SDL_FPoint{64, 96},
+  };
+  for (uint8_t i = 0; i < tab_pos0.size(); ++i) {
+    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos0[i].x)),
+                       static_cast<float>(int(pos.y + tab_pos0[i].y)), 57, 21};
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      active_tab[0] = i;
+      active_item[0] = std::nullopt;
+      return true;
     }
   }
+
+  // 第二组标签页（背包分类）
+  const static std::array tab_pos1 = {
+      SDL_FPoint{237, 96},
+      SDL_FPoint{281, 96},
+      SDL_FPoint{325, 96},
+      SDL_FPoint{369, 96},
+  };
+  for (uint8_t i = 0; i < tab_pos1.size(); ++i) {
+    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos1[i].x)),
+                       static_cast<float>(int(pos.y + tab_pos1[i].y)), 44, 21};
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      active_tab[1] = i;
+      active_item[1] = std::nullopt;
+      return true;
+    }
+  }
+
   return false;
 }
 
@@ -516,6 +529,9 @@ bool shop_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
         if (event_item(event)) {
+          return false;
+        }
+        if (event_tab(event)) {
           return false;
         }
         event_button(event);

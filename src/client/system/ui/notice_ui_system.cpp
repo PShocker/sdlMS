@@ -9,6 +9,7 @@
 #include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/shop_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -272,10 +273,32 @@ void notice_ui_system::event_button_shopbuy() {
     break;
   }
   }
+  shop_ui_system::active_item = {};
   close();
 }
 
-void notice_ui_system::event_button_shopbuy_sell() {}
+void notice_ui_system::event_button_shopbuy_sell() {
+  auto p = std::any_cast<std::polymorphic<game_item> *>(notice_ui_system::data);
+  switch (type) {
+  case notice_enum::shopbuy_sell: {
+    game_shop_item gst = shop_game_instance::load_shop_item((*p)->id);
+    gst.item = *p;
+    shop_ui_system::must.push_back(gst);
+    shop_ui_system::active_tab[0] = 1;
+    shop_ui_system::active_item = {};
+    *p = std::polymorphic<game_item>{};
+    break;
+  }
+  case notice_enum::shopbuy_sell_mul: {
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  shop_ui_system::active_item = {};
+  close();
+}
 
 void notice_ui_system::event_button_ap_inc() {}
 
