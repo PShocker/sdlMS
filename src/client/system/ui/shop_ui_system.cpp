@@ -429,8 +429,8 @@ bool shop_ui_system::event_item(SDL_Event *event) {
     const auto &itm = items->at(index);
     if (meso < itm.price) {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_meso;
-    } else if (!package_ui_system::load_blank_index((int)itm.item->type)
-                    .empty()) {
+    } else if (package_ui_system::load_blank_index((int)itm.item->type)
+                   .empty()) {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;
     } else {
       notice_ui_system::type = (itm.item->type == item_enum::equip)
