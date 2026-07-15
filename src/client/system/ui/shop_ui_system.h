@@ -14,7 +14,7 @@ private:
   static void render_backgrnd();
   static void render_button();
 
-  static void render_item(const std::vector<game_shop_item> &items, int page,
+  static void render_item(std::vector<game_shop_item> &items, int page,
                           SDL_FPoint p);
 
   static void render_items();
@@ -28,7 +28,7 @@ private:
 
   static void render_active_item();
 
-  static void render_item_info(game_item &item);
+  static void render_item_info(std::polymorphic<game_item> &item);
 
   static std::optional<int> event_item_click(SDL_Event *event, SDL_FPoint p);
   static bool event_item(SDL_Event *event);

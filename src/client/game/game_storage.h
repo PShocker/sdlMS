@@ -8,6 +8,6 @@
 
 class game_storage {
 public:
-  std::vector<std::unique_ptr<game_item>> data;
+  std::vector<std::polymorphic<game_item>> data;
   uint64_t meso;
 };

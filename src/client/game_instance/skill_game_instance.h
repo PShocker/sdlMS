@@ -15,6 +15,8 @@ class skill_game_instance {
 public:
   static inline std::vector<game_buff> buf;
 
+  static wz::Node *load_skill_node(uint32_t id);
+  static wz::Node *load_skill_node(const std::string &id);
   static wz::Node *load_skill_node(const std::u16string &id);
   static wz::Node *load_skill_level_node(const std::u16string &id, uint8_t l);
   enum buff_attr {

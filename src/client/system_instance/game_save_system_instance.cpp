@@ -44,10 +44,12 @@ bool game_save_system_instance::load_save(const std::string &login) {
         switch (item->data.type) {
         case fbs::ItemUnion_Equip: {
           auto eqp = item->data.AsEquip();
-          auto g_equip = std::make_unique<game_equip_item>();
+          game_equip_item g_equip;
           auto tmp = std::format("{:08d}", eqp->equip_id);
-          g_equip->id = {tmp.begin(), tmp.end()};
-          cs.package.emplace_back(item->index, std::move(g_equip));
+          g_equip.id = {tmp.begin(), tmp.end()};
+          auto g_item = std::polymorphic<game_item>(
+              std::in_place_type<game_equip_item>, g_equip);
+          cs.package.emplace_back(item->index, g_item);
           break;
         }
         case fbs::ItemUnion_Item: {
@@ -140,7 +142,7 @@ bool game_save_system_instance::save_game() {
     for (auto &d : package_game_instance::data) {
       uint32_t i = 0;
       for (auto &v : d) {
-        if (v) {
+        if (!v.valueless_after_move()) {
           cs.package.push_back({
               .index = i,
               .val = std::move(v), // 移动所有权

@@ -10,9 +10,9 @@
 bool drop_render_system::render(game_drop &g_drop) {
   SDL_Texture *icon;
   SDL_FPoint o;
-  switch (g_drop.data.type) {
+  switch (g_drop.data->type) {
   case item_enum::equip: {
-    auto equip_info = equip_game_instance::load_equip_info(g_drop.data.id);
+    auto equip_info = equip_game_instance::load_equip_info(g_drop.data->id);
     icon = wz_resource::load_texture(equip_info->get_child(u"iconRaw"));
     o = wz_resource::load_fpoint(
         equip_info->get_child(u"iconRaw")->get_child(u"origin"));
@@ -21,7 +21,7 @@ bool drop_render_system::render(game_drop &g_drop) {
   case item_enum::consume:
   case item_enum::etc:
   case item_enum::install: {
-    auto item_info = item_game_instance::load_item_info(g_drop.data.id);
+    auto item_info = item_game_instance::load_item_info(g_drop.data->id);
     icon = wz_resource::load_texture(item_info->get_child(u"iconRaw"));
     o = wz_resource::load_fpoint(
         item_info->get_child(u"iconRaw")->get_child(u"origin"));

@@ -53,30 +53,37 @@ wz::Node *item_game_instance::load_item_info(const std::u16string &id) {
   return node;
 }
 
-std::unique_ptr<game_item>
+std::polymorphic<game_item>
 item_game_instance::load_item(const std::u16string &id, uint32_t num) {
   auto item_type = item_game_instance::load_item_type(id);
+
   if (item_type == u"Cash") {
-    auto cash = std::make_unique<game_cash_item>();
-    cash->id = id;
-    return cash;
+    game_cash_item cash;
+    cash.id = id;
+    return std::polymorphic<game_item>(std::in_place_type<game_cash_item>,
+                                       cash);
   } else if (item_type == u"Consume") {
-    auto consume = std::make_unique<game_consume_item>();
-    consume->id = id;
-    consume->num = num;
-    return consume;
+    game_consume_item consume;
+    consume.id = id;
+    consume.num = num;
+    return std::polymorphic<game_item>(std::in_place_type<game_consume_item>,
+                                       consume);
   } else if (item_type == u"Etc") {
-    auto etc = std::make_unique<game_etc_item>();
-    etc->id = id;
-    etc->num = 1;
-    return etc;
+    game_etc_item etc;
+    etc.id = id;
+    etc.num = 1;
+    return std::polymorphic<game_item>(std::in_place_type<game_etc_item>, etc);
   } else if (item_type == u"Install") {
-    auto install = std::make_unique<game_install_item>();
-    install->id = id;
-    return install;
+    game_install_item install;
+    install.id = id;
+    return std::polymorphic<game_item>(std::in_place_type<game_install_item>,
+                                       install);
   } else if (item_type == u"Pet" || item_type == u"Special") {
-    auto cash = std::make_unique<game_cash_item>();
-    cash->id = id;
-    return cash;
+    game_cash_item cash;
+    cash.id = id;
+    return std::polymorphic<game_item>(std::in_place_type<game_cash_item>,
+                                       cash);
   }
+  // 处理未知类型 - 返回空或抛出异常
+  return std::polymorphic<game_item>(); // 返回空对象
 }

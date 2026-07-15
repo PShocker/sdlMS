@@ -36,7 +36,7 @@ std::vector<uint32_t> package_ui_system::load_blank_index(uint32_t tab) {
   std::vector<uint32_t> r;
   auto &d = package_game_instance::data[tab];
   for (int32_t i = 0; i < d.size(); i++) {
-    if (!d[i]) {
+    if (d[i].valueless_after_move()) {
       r.push_back(i);
     }
   }
@@ -120,9 +120,9 @@ void package_ui_system::render_items_info() {
     return;
   }
   const size_t index = static_cast<size_t>(index_opt.value());
-  const auto &items = package_game_instance::data[active_tab];
+  auto &items = package_game_instance::data[active_tab];
 
-  if (index >= items.size() || !items[index]) {
+  if (index >= items.size() || items[index].valueless_after_move()) {
     return;
   }
   const SDL_FPoint show_pos{
@@ -161,8 +161,8 @@ void package_ui_system::render_items() {
   const size_t end_index = std::min(start_index + items_per_page, items.size());
 
   for (size_t i = start_index; i < end_index; ++i) {
-    const auto &item_ptr = items[i];
-    if (!item_ptr)
+    const auto &item = items[i];
+    if (item.valueless_after_move())
       continue;
 
     // 计算行列
@@ -171,7 +171,7 @@ void package_ui_system::render_items() {
     const int col = local_index % slots_per_row;
 
     // 加载信息
-    auto info = load_info(item_ptr->id);
+    auto info = load_info(item->id);
     if (!info)
       continue;
 
@@ -310,7 +310,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
   // 无手持物品：拾取
   if (!cursor_game_instance::cursor_hand.has_value()) {
     const auto &r = package_game_instance::data[active_tab];
-    if (index.value() >= r.size() || !r[index.value()]) {
+    if (index.value() >= r.size() || r[index.value()].valueless_after_move()) {
       return false;
     }
     cursor_game_instance::cursor_hand = {
@@ -360,9 +360,11 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       }
 
       // 执行穿戴
-      equips[hand.sub_val] = nullptr;
+      equips[hand.sub_val] = std::polymorphic<game_item>{};
       for (int32_t i = 0; i < ev.size(); i++) {
-        equips[blank_slot[i]] = std::make_unique<game_equip_item>(ev[i]);
+        auto eqp = ev[i];
+        equips[blank_slot[i]] = std::polymorphic<game_item>(
+            std::in_place_type<game_equip_item>, eqp);
       }
       character_game_instance::self = sf;
 

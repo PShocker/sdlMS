@@ -14,6 +14,7 @@
 #include "wz/Property.h"
 #include "wz/Wz.h"
 #include <algorithm>
+#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <flat_map>

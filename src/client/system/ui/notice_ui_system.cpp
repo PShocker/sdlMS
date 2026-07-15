@@ -260,10 +260,9 @@ void notice_ui_system::event_close() { close(); }
 
 void notice_ui_system::event_button_shopbuy() {
   auto p = std::any_cast<const game_shop_item *>(notice_ui_system::data);
-  auto itm = shop_game_instance::load_shop_item(p->item->id);
   switch (type) {
   case notice_enum::shopbuy: {
-    package_game_instance::data[(int)p->item->type].push_back(std::move(itm));
+    package_game_instance::data[(int)p->item->type].push_back(p->item);
     break;
   }
   case notice_enum::shopbuy_mul: {

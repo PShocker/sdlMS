@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.28)
 project(main)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
@@ -40,13 +40,13 @@ file(GLOB_RECURSE ALL_CPP_FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp)
 list(FILTER ALL_CPP_FILES EXCLUDE REGEX ".*CMakeFiles.*")
 add_executable(main ${CMAKE_CURRENT_SOURCE_DIR}/src/client/main.cpp ${ALL_CPP_FILES})
 
+target_link_libraries(main PRIVATE wzlib)
+
 target_link_libraries(main PRIVATE SDL3)
 
 target_link_libraries(main PRIVATE avcodec avformat avutil swscale swresample)
 
 target_link_libraries(main PRIVATE uv)
-
-target_link_libraries(main PRIVATE wzlib)
 
 target_link_libraries(main PRIVATE freetype)
 

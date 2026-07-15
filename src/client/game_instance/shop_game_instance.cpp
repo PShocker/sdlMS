@@ -8,16 +8,16 @@
 #include <optional>
 #include <string>
 
-std::unique_ptr<game_item>
+std::polymorphic<game_item>
 shop_game_instance::load_shop_item(const std::u16string &id) {
-  std::unique_ptr<game_item> r;
+  std::polymorphic<game_item> r;
   if (item_game_instance::check_item(id)) {
     r = item_game_instance::load_item(id, 1);
   } else {
     game_equip_item eqp;
     eqp.type = item_enum::equip;
     eqp.id = id;
-    r = std::make_unique<game_equip_item>(eqp);
+    r = std::polymorphic<game_item>(std::in_place_type<game_equip_item>, eqp);
   }
   return r;
 }
@@ -33,9 +33,8 @@ game_shop shop_game_instance::load_shop(const std::u16string &shop_id) {
     auto id =
         static_cast<wz::Property<std::u16string> *>(node->get_child(u"itemid"))
             ->get();
-    game_shop_item item{
-        .price = price,
-    };
+    game_shop_item item;
+    item.price = price;
     item.item = load_shop_item(id);
     shop.items.push_back(std::move(item));
   }

@@ -4,16 +4,6 @@
 #include <cstdint>
 class character_stat_game_instance {
 public:
-  static void hp_inc(uint64_t i);
-  static void mp_inc(uint64_t i);
-
-  static void str_inc(uint64_t i);
-  static void dex_inc(uint64_t i);
-  static void int_inc(uint64_t i);
-  static void luk_inc(uint64_t i);
-
-  static void exp_inc(uint64_t i);
-
   static void load(const character_save &cs);
 
   static inline int32_t hp_point = INT32_MAX;

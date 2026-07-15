@@ -46,9 +46,9 @@ void shop_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void shop_ui_system::render_item(const std::vector<game_shop_item> &items,
-                                 int page, SDL_FPoint p) {
-  const game_shop_item *item_info = nullptr;
+void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
+                                 SDL_FPoint p) {
+  game_shop_item *item_info = nullptr;
   const auto page_size = 6;
   for (int i = page; i < page + page_size; i++) {
     if (i >= items.size()) {
@@ -108,7 +108,7 @@ void shop_ui_system::render_item(const std::vector<game_shop_item> &items,
     freetype::draw_line(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }
   if (item_info && cursor_game_instance::modal_overlay == render) {
-    render_item_info(*item_info->item);
+    render_item_info(item_info->item);
   }
 }
 
@@ -135,8 +135,7 @@ void shop_ui_system::render_self_items() {
 }
 
 void shop_ui_system::render_items() {
-  const game_shop_item *item_info = nullptr;
-  auto &items = shop->items;
+  auto items = shop->items;
   render_item(items, pages[0], {8, 129});
 }
 
@@ -297,12 +296,12 @@ void shop_ui_system::render_self() {
   character_render_system::render_character(self);
 }
 
-void shop_ui_system::render_item_info(game_item &item) {
+void shop_ui_system::render_item_info(std::polymorphic<game_item> &item) {
   auto &mouse_pos = window::mouse_pos;
   SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-  switch (item.type) {
+  switch (item->type) {
   case item_enum::equip: {
-    auto eqp = static_cast<game_equip_item &>(item);
+    auto eqp = static_cast<game_equip_item &>(*item);
     tooltip_ui_system::render_equip(eqp, show_pos.x, show_pos.y);
     auto self = character_game_instance::self;
     auto eqps = equip_game_instance::load_equip_slot(eqp, self);
@@ -312,7 +311,8 @@ void shop_ui_system::render_item_info(game_item &item) {
     break;
   }
   default: {
-    tooltip_ui_system::render_item(item, show_pos.x, show_pos.y);
+    auto itm = static_cast<game_item &>(*item);
+    tooltip_ui_system::render_item(itm, show_pos.x, show_pos.y);
     break;
   }
   }
@@ -450,7 +450,6 @@ bool shop_ui_system::event_item(SDL_Event *event) {
         notice_ui_system::data = &itm;
       }
       notice_ui_system::open();
-
     } else {
       active_item[0] = index;
       active_item[1] = std::nullopt;
@@ -483,7 +482,6 @@ bool shop_ui_system::event_item(SDL_Event *event) {
       }
       notice_ui_system::data = &itm;
       notice_ui_system::open();
-
     } else {
       active_item[1] = index;
       active_item[0] = std::nullopt;

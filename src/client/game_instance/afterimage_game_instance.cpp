@@ -7,6 +7,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
+#include <chrono>
 #include <cstdint>
 #include <flat_map>
 #include <optional>

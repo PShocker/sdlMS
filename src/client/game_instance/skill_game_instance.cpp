@@ -18,6 +18,16 @@ wz::Node *skill_game_instance::load_skill_level_node(const std::u16string &id,
   return level_node;
 }
 
+wz::Node *skill_game_instance::load_skill_node(uint32_t id) {
+  auto tmp = std::format("{:07d}", id);
+  std::u16string ski_id{tmp.begin(), tmp.end()};
+  return load_skill_node(ski_id);
+}
+
+wz::Node *skill_game_instance::load_skill_node(const std::string &id) {
+  return load_skill_node(std::u16string{id.begin(), id.end()});
+}
+
 wz::Node *skill_game_instance::load_skill_node(const std::u16string &id) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(id)) {

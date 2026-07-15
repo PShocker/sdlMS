@@ -84,7 +84,7 @@ bool cursor_logic_system::run_package_motion() {
   if (index.value() >= r.size()) {
     return false;
   }
-  if (!r[index.value()]) {
+  if (!r[index.value()].valueless_after_move()) {
     return false;
   }
   return true;

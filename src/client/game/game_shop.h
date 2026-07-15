@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 struct game_shop_item {
-  std::unique_ptr<game_item> item;
+  std::polymorphic<game_item> item;
   int price;
 };
 

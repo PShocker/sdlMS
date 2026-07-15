@@ -54,7 +54,8 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
         break;
       }
       case cursor_game_instance::package: {
-        package_game_instance::data[hand.val][hand.sub_val] = nullptr;
+        package_game_instance::data[hand.val][hand.sub_val] =
+            std::polymorphic<game_item>{};
         break;
       }
       default: {

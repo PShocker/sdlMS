@@ -6,9 +6,10 @@
 #include "src/client/game/game_item.h"
 #include <any>
 #include <cstdint>
+#include <memory>
 #include <optional>
 
-struct drop_pick {
+struct game_drop_pick {
   uint64_t client_id;
   std::optional<uint8_t> pet_id;
 };
@@ -17,7 +18,7 @@ class game_drop {
 public:
   uint64_t random_id;
 
-  game_item data;
+  std::polymorphic<game_item> data;
 
   SDL_FPoint pos;
   SDL_FPoint goal;
@@ -38,5 +39,5 @@ public:
 
   drop_type type = fly;
 
-  std::optional<drop_pick> picker;
+  std::optional<game_drop_pick> picker;
 };

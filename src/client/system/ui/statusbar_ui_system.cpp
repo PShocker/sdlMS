@@ -10,8 +10,10 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/system.h"
@@ -404,15 +406,17 @@ void statusbar_ui_system::render_quickSlot() {
     auto screen_h = camera_game_instance::camera.h;
     auto base_x = (screen_w - 808) / 2;
     auto base_y = (screen_h - 73);
-    SDL_FRect p{base_x + 654, base_y - 107, static_cast<float>(q->w),
-                static_cast<float>(q->h)};
+    SDL_FRect p{
+        base_x + 654,
+        base_y - 107,
+        static_cast<float>(q->w),
+        static_cast<float>(q->h),
+    };
     SDL_RenderTexture(window::renderer, q, nullptr, &p);
-
-    std::vector<SDL_Texture *> t = {
-        textures.at(SDL_SCANCODE_LSHIFT), textures.at(SDL_SCANCODE_INSERT),
-        textures.at(SDL_SCANCODE_HOME),   textures.at(SDL_SCANCODE_PAGEUP),
-        textures.at(SDL_SCANCODE_LCTRL),  textures.at(SDL_SCANCODE_DELETE),
-        textures.at(SDL_SCANCODE_END),    textures.at(SDL_SCANCODE_PAGEDOWN),
+    std::vector<SDL_Scancode> scode = {
+        (SDL_SCANCODE_LSHIFT), (SDL_SCANCODE_INSERT),   (SDL_SCANCODE_HOME),
+        (SDL_SCANCODE_PAGEUP), (SDL_SCANCODE_LCTRL),    (SDL_SCANCODE_DELETE),
+        (SDL_SCANCODE_END),    (SDL_SCANCODE_PAGEDOWN),
     };
     std::vector<SDL_FPoint> r = {
         SDL_FPoint{p.x + 9, p.y + 10},
@@ -426,8 +430,12 @@ void statusbar_ui_system::render_quickSlot() {
         SDL_FPoint{p.x + 114, p.y + 44},
     };
     for (int i = 0; i < r.size(); i++) {
-      auto texture = t[i];
-      SDL_FRect pos_rect{
+      SDL_FRect pos_rect;
+      if (keyboard_game_instance::data.contains(scode[i])) {
+        const auto &input = keyboard_game_instance::data.at(scode[i]);
+      }
+      auto texture = textures.at(scode[i]);
+      pos_rect = {
           r[i].x,
           r[i].y + 34,
           static_cast<float>(texture->w),
@@ -913,8 +921,12 @@ bool statusbar_ui_system::event_click_quickslot(SDL_Event *event) {
     auto screen_h = camera_game_instance::camera.h;
     auto base_x = (screen_w - 808) / 2;
     auto base_y = (screen_h - 73);
-    SDL_FRect p{base_x + 654, base_y - 107, static_cast<float>(q->w),
-                static_cast<float>(q->h)};
+    SDL_FRect p{
+        base_x + 654,
+        base_y - 107,
+        static_cast<float>(q->w),
+        static_cast<float>(q->h),
+    };
     std::vector<SDL_Scancode> t = {
         SDL_SCANCODE_LSHIFT, SDL_SCANCODE_INSERT,   SDL_SCANCODE_HOME,
         SDL_SCANCODE_PAGEUP, SDL_SCANCODE_LCTRL,    SDL_SCANCODE_DELETE,

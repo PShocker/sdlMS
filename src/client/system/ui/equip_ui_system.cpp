@@ -307,84 +307,58 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
     return false;
   }
   auto &self = character_game_instance::self;
-  std::unique_ptr<game_item> eqp;
+  std::optional<game_equip_item> eqp;
   switch (index.value()) {
   case cap: {
-    if (self.cap.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.cap.value());
-    }
+    eqp = self.cap;
     break;
   }
   case earcc: {
-    if (self.accessory.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.accessory.value());
-    }
+    eqp = self.accessory;
     break;
   }
   case clothes: {
-    if (self.coat.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.coat.value());
-    }
+    eqp = self.coat;
     break;
   }
   case pants: {
-    if (self.pant.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.pant.value());
-    }
+    eqp = self.pant;
     break;
   }
   case shoes: {
-    if (self.shoes.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.shoes.value());
-    }
+    eqp = self.shoes;
     break;
   }
   case gloves: {
-    if (self.glove.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.glove.value());
-    }
+    eqp = self.glove;
     break;
   }
   case cape: {
-    if (self.cape.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.cape.value());
-    }
+    eqp = self.cape;
     break;
   }
   case shield: {
-    if (self.shield.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.shield.value());
-    }
+    eqp = self.shield;
     break;
   }
   case weapon: {
-    if (self.weapon.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.weapon.value());
-    }
+    eqp = self.weapon;
     break;
   }
   case ring0: {
-    if (self.ring0.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.ring0.value());
-    }
+    eqp = self.ring0;
     break;
   }
   case ring1: {
-    if (self.ring1.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.ring1.value());
-    }
+    eqp = self.ring1;
     break;
   }
   case ring2: {
-    if (self.ring2.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.ring2.value());
-    }
+    eqp = self.ring2;
     break;
   }
   case ring3: {
-    if (self.ring3.has_value()) {
-      eqp = std::make_unique<game_equip_item>(self.ring3.value());
-    }
+    eqp = self.ring3;
     break;
   }
   }

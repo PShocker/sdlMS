@@ -6,6 +6,7 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <chrono>
 #include <cstdint>
 #include <ranges>
 

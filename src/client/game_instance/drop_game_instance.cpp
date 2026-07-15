@@ -18,7 +18,8 @@ void drop_game_instance::load_drop(const DropT &dt) {
     game_equip_item equip;
     auto tmp = std::format("{:08d}", equipT->equip_id);
     equip.id = {tmp.begin(), tmp.end()};
-    drop.data = equip;
+    drop.data =
+        std::polymorphic<game_item>(std::in_place_type<game_equip_item>, equip);
     break;
   }
   case fbs::ItemUnion_Item: {

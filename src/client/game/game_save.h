@@ -23,7 +23,7 @@ struct sp_save {
 
 struct package_save {
   uint32_t index;
-  std::unique_ptr<game_item> val;
+  std::polymorphic<game_item> val;
 };
 
 struct character_save {
