@@ -112,15 +112,23 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
   }
 }
 
-void shop_ui_system::render_pkg_items() {
-  const game_shop_item *item_info = nullptr;
-  std::vector<game_shop_item> items;
-  const auto &r = package_game_instance::data[active_tab[1]];
-  for (const auto &itm : r) {
+std::vector<std::polymorphic<game_item> *> shop_ui_system::load_pkg_items() {
+  std::vector<std::polymorphic<game_item> *> items;
+  auto &r = package_game_instance::data[active_tab[1]];
+  for (auto &itm : r) {
     if (!itm->id.empty()) {
-      auto item = shop_game_instance::load_shop_item(itm->id);
-      items.push_back(std::move(item));
+      items.push_back(&itm);
     }
+  }
+  return items;
+}
+
+void shop_ui_system::render_pkg_items() {
+  std::vector<game_shop_item> items;
+  auto its = load_pkg_items();
+  for (auto &itm : its) {
+    auto item = shop_game_instance::load_shop_item((*itm)->id);
+    items.push_back(std::move(item));
   }
   render_item(items, pages[1], {238, 129});
 }
@@ -404,7 +412,7 @@ std::optional<int> shop_ui_system::event_item_click(SDL_Event *event,
   pos_rect.x = x;
   pos_rect.y = y;
   pos_rect.w = 202;
-  pos_rect.h = 240;
+  pos_rect.h = 238;
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     return (mouse_pos.y - y) / 40;
   }
@@ -445,8 +453,8 @@ bool shop_ui_system::event_item(SDL_Event *event) {
   auto item1 = event_item_click(event, {238, 129});
   if (item1.has_value()) {
     auto index = pages[1] + item1.value();
-    auto &items = package_game_instance::data[active_tab[1]];
-    if (index >= items.size() || items[index]->id.empty()) {
+    auto items = load_pkg_items();
+    if (index >= items.size()) {
       return true;
     }
     if (active_item[1] != index) {
@@ -454,13 +462,13 @@ bool shop_ui_system::event_item(SDL_Event *event) {
       active_item[0] = std::nullopt;
       return true;
     }
-    auto &itm = items[index];
+    auto itm = items[index];
     notice_ui_system::type =
-        (itm->type == item_enum::equip)
+        ((*itm)->type == item_enum::equip)
             ? notice_ui_system::notice_enum::shopbuy_sell
             : notice_ui_system::notice_enum::shopbuy_sell_mul;
-    notice_ui_system::data = &itm;
     notice_ui_system::open();
+    notice_ui_system::data = itm;
   }
   return false;
 }

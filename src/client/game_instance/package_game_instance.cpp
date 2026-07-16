@@ -14,5 +14,5 @@ void package_game_instance::load(const character_save &cs) {
     auto type = (int)pkg.val->type;
     data[type][pkg.index] = pkg.val;
   }
-  meso = cs.meso;
+  // meso = cs.meso;
 }

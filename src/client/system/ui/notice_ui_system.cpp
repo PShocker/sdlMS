@@ -1,6 +1,7 @@
 #include "notice_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "package_ui_system.h"
 #include "src/client/game/game_shop.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -76,17 +77,7 @@ void notice_ui_system::render_button() {
   case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy:
-  case notice_enum::shopbuy_mul: {
-    buttons_node = {
-        wz_resource::ui->find(u"Basic.img/BtOK2"),
-        wz_resource::ui->find(u"Basic.img/BtCancel2"),
-    };
-    buttons_rect = {
-        {w - 105, h - 30, 47, 18},
-        {w - 55, h - 30, 47, 18},
-    };
-    break;
-  }
+  case notice_enum::shopbuy_mul:
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
   case notice_enum::equip_no_ability:
@@ -96,8 +87,8 @@ void notice_ui_system::render_button() {
         wz_resource::ui->find(u"Basic.img/BtCancel2"),
     };
     buttons_rect = {
-        {w - 110, h - 30, 47, 18},
-        {w, h - 30, 47, 18},
+        {w - 105, h - 30, 47, 18},
+        {w - 55, h - 30, 47, 18},
     };
     break;
   }
@@ -263,7 +254,8 @@ void notice_ui_system::event_button_shopbuy() {
   auto p = std::any_cast<const game_shop_item *>(notice_ui_system::data);
   switch (type) {
   case notice_enum::shopbuy: {
-    package_game_instance::data[(int)p->item->type].push_back(p->item);
+    auto blank = package_ui_system::load_blank_index((int)p->item->type);
+    package_game_instance::data[(int)p->item->type][blank[0]] = (p->item);
     break;
   }
   case notice_enum::shopbuy_mul: {
@@ -273,8 +265,12 @@ void notice_ui_system::event_button_shopbuy() {
     break;
   }
   }
-  shop_ui_system::active_item = {};
+  if (shop_ui_system::active_tab[0] == 1) {
+    auto &must = shop_ui_system::must;
+    must.erase(must.begin() + shop_ui_system::active_item[0].value());
+  }
   close();
+  shop_ui_system::active_item = {};
 }
 
 void notice_ui_system::event_button_shopbuy_sell() {
@@ -306,30 +302,22 @@ bool notice_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
   auto [w, h] = load_wh();
+  buttons_rect = {
+      {w - 105, h - 30, 47, 18},
+      {w - 55, h - 30, 47, 18},
+  };
   switch (type) {
   case notice_enum::shopbuy:
   case notice_enum::shopbuy_mul: {
-    buttons_rect = {
-        {w - 110, h - 30, 47, 18},
-        {w, h - 30, 47, 18},
-    };
     func = {event_button_shopbuy, close};
     break;
   }
   case notice_enum::ap_inc: {
-    buttons_rect = {
-        {w - 110, h - 30, 47, 18},
-        {w, h - 30, 47, 18},
-    };
     func = {event_button_shopbuy_sell, close};
     break;
   }
   case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy_sell_mul: {
-    buttons_rect = {
-        {w - 110, h - 30, 47, 18},
-        {w, h - 30, 47, 18},
-    };
     func = {event_button_shopbuy_sell, close};
     break;
   }

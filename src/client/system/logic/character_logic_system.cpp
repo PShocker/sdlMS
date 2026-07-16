@@ -565,10 +565,10 @@ bool character_logic_system::run_skill(game_character &g_character,
     if (!atk_mobs.empty()) {
       auto skill_level_node =
           skill_game_instance::load_skill_level_node(id, skill_level);
-      auto atk_mob_count = static_cast<wz::Property<int32_t> *>(
+      auto atk_mob_count = static_cast<wz::Property<int> *>(
                                skill_level_node->get_child(u"mobCount"))
                                ->get();
-      auto atk_count = static_cast<wz::Property<int32_t> *>(
+      auto atk_count = static_cast<wz::Property<int> *>(
                            skill_level_node->get_child(u"attackCount"))
                            ->get();
       auto delay = skill_game_instance::load_ski_time(g_character);
@@ -614,7 +614,7 @@ bool character_logic_system::run_skill(game_character &g_character,
   }
 
   character_game_instance::load_skill(ckt.ski_id, ckt.payload,
-                                                character_game_instance::self);
+                                      character_game_instance::self);
   client_request::send_to_host(ckt);
   return true;
 }

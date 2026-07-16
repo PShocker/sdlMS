@@ -85,6 +85,14 @@ bool skill_game_instance::load_skill_attack(const std::u16string &id,
   return false;
 }
 
+bool skill_game_instance::load_skill_ball(const std::u16string &id, uint8_t l) {
+  auto level_node = load_skill_level_node(id, l);
+  if (level_node->get_children()->contains(u"ball")) {
+    return true;
+  }
+  return false;
+}
+
 uint64_t skill_game_instance::load_ski_time(game_character &g_character) {
   uint64_t r = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())

@@ -2,6 +2,7 @@
 #include "game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/system.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -66,6 +67,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   character_game_instance::self.job = u"110";
 
   SDL_HideCursor();
+  character_save cs;
+  package_game_instance::load(cs);
   scene_system_instance::enter_prepare(61, u"sp", 0);
   // scene_system_instance::prepare_pos = {1930, -188};
   // chatacter_create_system_instance::enter();

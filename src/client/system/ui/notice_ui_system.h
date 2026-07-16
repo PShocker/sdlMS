@@ -15,6 +15,7 @@ private:
   static void event_close();
 
   static void event_button_shopbuy();
+  static void event_button_shopbuy_must();
   static void event_button_shopbuy_sell();
 
   static void event_button_ap_inc();

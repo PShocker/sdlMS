@@ -11,6 +11,8 @@
 #include <string>
 class shop_ui_system {
 private:
+  static std::vector<std::polymorphic<game_item> *> load_pkg_items();
+
   static void render_backgrnd();
   static void render_button();
 
