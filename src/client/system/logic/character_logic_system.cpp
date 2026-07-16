@@ -584,7 +584,7 @@ bool character_logic_system::run_skill(game_character &g_character,
         ct.left = g_character.pos.x < atk_mobs[i].mob.pos.x;
         t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
       }
-      character_game_instance::load_character_attack(t.payload, g_character);
+      character_game_instance::load_attack(t.payload, g_character);
       client_request::send_to_host(t);
       for (const auto &a : t.payload) {
         CharacterSkillT c;
@@ -613,7 +613,7 @@ bool character_logic_system::run_skill(game_character &g_character,
     }
   }
 
-  character_game_instance::load_character_skill(ckt.ski_id, ckt.payload,
+  character_game_instance::load_skill(ckt.ski_id, ckt.payload,
                                                 character_game_instance::self);
   client_request::send_to_host(ckt);
   return true;
@@ -722,7 +722,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       ct.left = g_character.pos.x < atk_mob.mob.pos.x;
       t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
 
-      character_game_instance::load_character_attack(t.payload, g_character);
+      character_game_instance::load_attack(t.payload, g_character);
       client_request::send_to_host(t);
     }
     self_alert_cooldown = window::dt_now + 5000;

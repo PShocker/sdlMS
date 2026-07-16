@@ -1281,7 +1281,7 @@ character_game_instance::load_characterT(const game_character &g) {
   return c;
 }
 
-void character_game_instance::load_character_attack(
+void character_game_instance::load_attack(
     const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,
     game_character &g_character) {
   auto &mobs = mob_game_instance::data;
@@ -1322,7 +1322,7 @@ void character_game_instance::load_character_attack(
   }
 }
 
-void character_game_instance::load_character_skill(
+void character_game_instance::load_skill(
     uint32_t ski_id,
     const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
     game_character &g_character) {

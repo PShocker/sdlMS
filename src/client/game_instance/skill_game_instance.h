@@ -31,6 +31,7 @@ public:
   load_skill_buff(const std::u16string &id, uint8_t l);
 
   static bool load_skill_attack(const std::u16string &id, uint8_t l);
+  static bool load_skill_ball(const std::u16string &id, uint8_t l);
   static SDL_FRect load_skill_rect(const std::u16string &id, uint8_t l);
   static uint64_t load_ski_time(game_character &g_character);
 

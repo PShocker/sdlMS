@@ -186,7 +186,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     if (character_game_instance::others.contains(r.client_id)) {
       auto &g_character =
           character_game_instance::others.at(r.client_id).g_character;
-      character_game_instance::load_character_attack(r.payload, g_character);
+      character_game_instance::load_attack(r.payload, g_character);
     }
     break;
   }
@@ -197,7 +197,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     if (character_game_instance::others.contains(r.client_id)) {
       auto &g_character =
           character_game_instance::others.at(r.client_id).g_character;
-      character_game_instance::load_character_skill(r.ski_id, r.payload,
+      character_game_instance::load_skill(r.ski_id, r.payload,
                                                     g_character);
     }
     break;

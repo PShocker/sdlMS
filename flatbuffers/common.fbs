@@ -68,9 +68,6 @@ table Die{
 }
 
 table Ball{
-    id:uint32;
-    delay:uint64;
-
     x1:float;
     y1:float;
 
@@ -78,11 +75,16 @@ table Ball{
     y2:float;
 
     speed:float;
+
+    mob:bool;
+    mob_index:uint32;
+    delay:uint64;
+    page:uint8;
 }
 
 table CharacterBall{
+    item_id:uint32;
     ski_id:uint32;
-    mob_index:uint32;
     ball:[Ball];
 }
 

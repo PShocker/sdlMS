@@ -1518,39 +1518,31 @@ inline ::flatbuffers::Offset<Die> CreateDie(
 
 struct BallT : public ::flatbuffers::NativeTable {
   typedef Ball TableType;
-  uint32_t id = 0;
-  uint64_t delay = 0;
   float x1 = 0.0f;
   float y1 = 0.0f;
   float x2 = 0.0f;
   float y2 = 0.0f;
   float speed = 0.0f;
+  bool mob = false;
+  uint32_t mob_index = 0;
+  uint64_t delay = 0;
+  uint8_t page = 0;
 };
 
 struct Ball FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef BallT NativeTableType;
   typedef BallBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ID = 4,
-    VT_DELAY = 6,
-    VT_X1 = 8,
-    VT_Y1 = 10,
-    VT_X2 = 12,
-    VT_Y2 = 14,
-    VT_SPEED = 16
+    VT_X1 = 4,
+    VT_Y1 = 6,
+    VT_X2 = 8,
+    VT_Y2 = 10,
+    VT_SPEED = 12,
+    VT_MOB = 14,
+    VT_MOB_INDEX = 16,
+    VT_DELAY = 18,
+    VT_PAGE = 20
   };
-  uint32_t id() const {
-    return GetField<uint32_t>(VT_ID, 0);
-  }
-  bool mutate_id(uint32_t _id = 0) {
-    return SetField<uint32_t>(VT_ID, _id, 0);
-  }
-  uint64_t delay() const {
-    return GetField<uint64_t>(VT_DELAY, 0);
-  }
-  bool mutate_delay(uint64_t _delay = 0) {
-    return SetField<uint64_t>(VT_DELAY, _delay, 0);
-  }
   float x1() const {
     return GetField<float>(VT_X1, 0.0f);
   }
@@ -1581,16 +1573,42 @@ struct Ball FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_speed(float _speed = 0.0f) {
     return SetField<float>(VT_SPEED, _speed, 0.0f);
   }
+  bool mob() const {
+    return GetField<uint8_t>(VT_MOB, 0) != 0;
+  }
+  bool mutate_mob(bool _mob = 0) {
+    return SetField<uint8_t>(VT_MOB, static_cast<uint8_t>(_mob), 0);
+  }
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  uint64_t delay() const {
+    return GetField<uint64_t>(VT_DELAY, 0);
+  }
+  bool mutate_delay(uint64_t _delay = 0) {
+    return SetField<uint64_t>(VT_DELAY, _delay, 0);
+  }
+  uint8_t page() const {
+    return GetField<uint8_t>(VT_PAGE, 0);
+  }
+  bool mutate_page(uint8_t _page = 0) {
+    return SetField<uint8_t>(VT_PAGE, _page, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
-           VerifyField<uint64_t>(verifier, VT_DELAY, 8) &&
            VerifyField<float>(verifier, VT_X1, 4) &&
            VerifyField<float>(verifier, VT_Y1, 4) &&
            VerifyField<float>(verifier, VT_X2, 4) &&
            VerifyField<float>(verifier, VT_Y2, 4) &&
            VerifyField<float>(verifier, VT_SPEED, 4) &&
+           VerifyField<uint8_t>(verifier, VT_MOB, 1) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyField<uint64_t>(verifier, VT_DELAY, 8) &&
+           VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
            verifier.EndTable();
   }
   BallT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1602,12 +1620,6 @@ struct BallBuilder {
   typedef Ball Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_id(uint32_t id) {
-    fbb_.AddElement<uint32_t>(Ball::VT_ID, id, 0);
-  }
-  void add_delay(uint64_t delay) {
-    fbb_.AddElement<uint64_t>(Ball::VT_DELAY, delay, 0);
-  }
   void add_x1(float x1) {
     fbb_.AddElement<float>(Ball::VT_X1, x1, 0.0f);
   }
@@ -1623,6 +1635,18 @@ struct BallBuilder {
   void add_speed(float speed) {
     fbb_.AddElement<float>(Ball::VT_SPEED, speed, 0.0f);
   }
+  void add_mob(bool mob) {
+    fbb_.AddElement<uint8_t>(Ball::VT_MOB, static_cast<uint8_t>(mob), 0);
+  }
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(Ball::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_delay(uint64_t delay) {
+    fbb_.AddElement<uint64_t>(Ball::VT_DELAY, delay, 0);
+  }
+  void add_page(uint8_t page) {
+    fbb_.AddElement<uint8_t>(Ball::VT_PAGE, page, 0);
+  }
   explicit BallBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1636,21 +1660,25 @@ struct BallBuilder {
 
 inline ::flatbuffers::Offset<Ball> CreateBall(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t id = 0,
-    uint64_t delay = 0,
     float x1 = 0.0f,
     float y1 = 0.0f,
     float x2 = 0.0f,
     float y2 = 0.0f,
-    float speed = 0.0f) {
+    float speed = 0.0f,
+    bool mob = false,
+    uint32_t mob_index = 0,
+    uint64_t delay = 0,
+    uint8_t page = 0) {
   BallBuilder builder_(_fbb);
   builder_.add_delay(delay);
+  builder_.add_mob_index(mob_index);
   builder_.add_speed(speed);
   builder_.add_y2(y2);
   builder_.add_x2(x2);
   builder_.add_y1(y1);
   builder_.add_x1(x1);
-  builder_.add_id(id);
+  builder_.add_page(page);
+  builder_.add_mob(mob);
   return builder_.Finish();
 }
 
@@ -1658,8 +1686,8 @@ inline ::flatbuffers::Offset<Ball> CreateBall(
 
 struct CharacterBallT : public ::flatbuffers::NativeTable {
   typedef CharacterBall TableType;
+  uint32_t item_id = 0;
   uint32_t ski_id = 0;
-  uint32_t mob_index = 0;
   std::vector<std::unique_ptr<fbs::BallT>> ball{};
   CharacterBallT() = default;
   CharacterBallT(const CharacterBallT &o);
@@ -1671,21 +1699,21 @@ struct CharacterBall FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef CharacterBallT NativeTableType;
   typedef CharacterBallBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_SKI_ID = 4,
-    VT_MOB_INDEX = 6,
+    VT_ITEM_ID = 4,
+    VT_SKI_ID = 6,
     VT_BALL = 8
   };
+  uint32_t item_id() const {
+    return GetField<uint32_t>(VT_ITEM_ID, 0);
+  }
+  bool mutate_item_id(uint32_t _item_id = 0) {
+    return SetField<uint32_t>(VT_ITEM_ID, _item_id, 0);
+  }
   uint32_t ski_id() const {
     return GetField<uint32_t>(VT_SKI_ID, 0);
   }
   bool mutate_ski_id(uint32_t _ski_id = 0) {
     return SetField<uint32_t>(VT_SKI_ID, _ski_id, 0);
-  }
-  uint32_t mob_index() const {
-    return GetField<uint32_t>(VT_MOB_INDEX, 0);
-  }
-  bool mutate_mob_index(uint32_t _mob_index = 0) {
-    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>> *ball() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>> *>(VT_BALL);
@@ -1696,8 +1724,8 @@ struct CharacterBall FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ITEM_ID, 4) &&
            VerifyField<uint32_t>(verifier, VT_SKI_ID, 4) &&
-           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
            VerifyOffset(verifier, VT_BALL) &&
            verifier.VerifyVector(ball()) &&
            verifier.VerifyVectorOfTables(ball()) &&
@@ -1712,11 +1740,11 @@ struct CharacterBallBuilder {
   typedef CharacterBall Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_item_id(uint32_t item_id) {
+    fbb_.AddElement<uint32_t>(CharacterBall::VT_ITEM_ID, item_id, 0);
+  }
   void add_ski_id(uint32_t ski_id) {
     fbb_.AddElement<uint32_t>(CharacterBall::VT_SKI_ID, ski_id, 0);
-  }
-  void add_mob_index(uint32_t mob_index) {
-    fbb_.AddElement<uint32_t>(CharacterBall::VT_MOB_INDEX, mob_index, 0);
   }
   void add_ball(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>>> ball) {
     fbb_.AddOffset(CharacterBall::VT_BALL, ball);
@@ -1734,26 +1762,26 @@ struct CharacterBallBuilder {
 
 inline ::flatbuffers::Offset<CharacterBall> CreateCharacterBall(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t item_id = 0,
     uint32_t ski_id = 0,
-    uint32_t mob_index = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Ball>>> ball = 0) {
   CharacterBallBuilder builder_(_fbb);
   builder_.add_ball(ball);
-  builder_.add_mob_index(mob_index);
   builder_.add_ski_id(ski_id);
+  builder_.add_item_id(item_id);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<CharacterBall> CreateCharacterBallDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t item_id = 0,
     uint32_t ski_id = 0,
-    uint32_t mob_index = 0,
     const std::vector<::flatbuffers::Offset<fbs::Ball>> *ball = nullptr) {
   auto ball__ = ball ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Ball>>(*ball) : 0;
   return fbs::CreateCharacterBall(
       _fbb,
+      item_id,
       ski_id,
-      mob_index,
       ball__);
 }
 
@@ -4489,13 +4517,15 @@ inline BallT *Ball::UnPack(const ::flatbuffers::resolver_function_t *_resolver) 
 inline void Ball::UnPackTo(BallT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = id(); _o->id = _e; }
-  { auto _e = delay(); _o->delay = _e; }
   { auto _e = x1(); _o->x1 = _e; }
   { auto _e = y1(); _o->y1 = _e; }
   { auto _e = x2(); _o->x2 = _e; }
   { auto _e = y2(); _o->y2 = _e; }
   { auto _e = speed(); _o->speed = _e; }
+  { auto _e = mob(); _o->mob = _e; }
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = delay(); _o->delay = _e; }
+  { auto _e = page(); _o->page = _e; }
 }
 
 inline ::flatbuffers::Offset<Ball> CreateBall(::flatbuffers::FlatBufferBuilder &_fbb, const BallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4506,34 +4536,38 @@ inline ::flatbuffers::Offset<Ball> Ball::Pack(::flatbuffers::FlatBufferBuilder &
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const BallT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _id = _o->id;
-  auto _delay = _o->delay;
   auto _x1 = _o->x1;
   auto _y1 = _o->y1;
   auto _x2 = _o->x2;
   auto _y2 = _o->y2;
   auto _speed = _o->speed;
+  auto _mob = _o->mob;
+  auto _mob_index = _o->mob_index;
+  auto _delay = _o->delay;
+  auto _page = _o->page;
   return fbs::CreateBall(
       _fbb,
-      _id,
-      _delay,
       _x1,
       _y1,
       _x2,
       _y2,
-      _speed);
+      _speed,
+      _mob,
+      _mob_index,
+      _delay,
+      _page);
 }
 
 inline CharacterBallT::CharacterBallT(const CharacterBallT &o)
-      : ski_id(o.ski_id),
-        mob_index(o.mob_index) {
+      : item_id(o.item_id),
+        ski_id(o.ski_id) {
   ball.reserve(o.ball.size());
   for (const auto &ball_ : o.ball) { ball.emplace_back((ball_) ? new fbs::BallT(*ball_) : nullptr); }
 }
 
 inline CharacterBallT &CharacterBallT::operator=(CharacterBallT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(item_id, o.item_id);
   std::swap(ski_id, o.ski_id);
-  std::swap(mob_index, o.mob_index);
   std::swap(ball, o.ball);
   return *this;
 }
@@ -4547,8 +4581,8 @@ inline CharacterBallT *CharacterBall::UnPack(const ::flatbuffers::resolver_funct
 inline void CharacterBall::UnPackTo(CharacterBallT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = item_id(); _o->item_id = _e; }
   { auto _e = ski_id(); _o->ski_id = _e; }
-  { auto _e = mob_index(); _o->mob_index = _e; }
   { auto _e = ball(); if (_e) { _o->ball.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->ball[_i]) { _e->Get(_i)->UnPackTo(_o->ball[_i].get(), _resolver); } else { _o->ball[_i] = std::unique_ptr<fbs::BallT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->ball.resize(0); } }
 }
 
@@ -4560,13 +4594,13 @@ inline ::flatbuffers::Offset<CharacterBall> CharacterBall::Pack(::flatbuffers::F
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterBallT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _item_id = _o->item_id;
   auto _ski_id = _o->ski_id;
-  auto _mob_index = _o->mob_index;
   auto _ball = _o->ball.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Ball>> (_o->ball.size(), [](size_t i, _VectorArgs *__va) { return CreateBall(*__va->__fbb, __va->__o->ball[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateCharacterBall(
       _fbb,
+      _item_id,
       _ski_id,
-      _mob_index,
       _ball);
 }
 

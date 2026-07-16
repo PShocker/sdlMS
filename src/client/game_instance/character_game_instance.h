@@ -77,13 +77,13 @@ public:
   static void clear_others();
   static CharacterT load_characterT(const game_character &g);
 
-  static void load_character_attack(
-      const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,
-      game_character &g_character);
-  static void load_character_skill(
-      uint32_t ski_id,
-      const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
-      game_character &g_character);
+  static void
+  load_attack(const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,
+              game_character &g_character);
+  static void
+  load_skill(uint32_t ski_id,
+             const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
+             game_character &g_character);
 
   // network
 
