@@ -19,6 +19,7 @@
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
+#include "src/client/game_instance/triangle_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -91,6 +92,39 @@ SDL_FRect character_logic_system::load_rect(game_character &g_character) {
     rect.x += 2 * (g_character.pos.x - rect.x) - rect.w;
   }
   return rect;
+}
+
+std::vector<character_logic_system::attack_data>
+character_logic_system::run_attack_check(game_character &g_character,
+                                         game_triangle tri) {
+  std::vector<attack_data> v;
+  std::flat_map<uint32_t, attack_data> m;
+  auto &g_pos = g_character.pos;
+  for (const auto [k, v] : mob_game_instance::data) {
+    auto &mob = v.mob;
+    auto mob_action = mob_logic_system::load_action_type(mob.action);
+    if (mob_action == mob_logic_system::action_enum::revive ||
+        mob_action == mob_logic_system::action_enum::die) {
+      continue;
+    }
+    auto m_r = mob_logic_system::load_rect(mob).value();
+    tri = triangle_game_instance::load_tri(tri, g_character.flip,
+                                           g_character.pos);
+    if (triangle_game_instance::rect_ins_tri(m_r, tri)) {
+      auto &m_pos = mob.pos;
+      auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
+                 (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
+      float attack_x = 0;
+      float attack_y = 0;
+      m[dis] = {
+          .mob = v.mob,
+          .x = attack_x,
+          .y = attack_y,
+      };
+    }
+  }
+  v.append_range(m.values());
+  return v;
 }
 
 std::vector<character_logic_system::attack_data>
@@ -539,8 +573,8 @@ bool character_logic_system::run_sitting(game_character &g_character) {
   return true;
 }
 
-bool character_logic_system::run_skill(game_character &g_character,
-                                       const std::u16string &id) {
+bool character_logic_system::run_skill_action(game_character &g_character,
+                                              const std::u16string &id) {
   auto skill_node = skill_game_instance::load_skill_node(id);
   if (auto action_node = skill_node->get_child(u"action")) {
     auto action_count = action_node->children_count();
@@ -552,6 +586,38 @@ bool character_logic_system::run_skill(game_character &g_character,
     auto action4 = static_cast<wz::Property<std::u16string> *>(action3)->get();
     run_action(g_character, action4);
   }
+  return true;
+}
+
+bool character_logic_system::run_skill_attack(game_character &g_character,
+                                              const std::u16string &id) {
+  auto ski_level = job_skill_game_instance::load_skill_level(id);
+  auto ski_attack = skill_game_instance::load_skill_attack(id, ski_level);
+  if (ski_attack) {
+    auto ski_ball = skill_game_instance::load_skill_ball(id, ski_level);
+    std::vector<character_logic_system::attack_data> r;
+    if (ski_ball) {
+
+    } else {
+      auto g_r = skill_game_instance::load_skill_rect(id, ski_level);
+      auto atk_mobs = run_attack_check(g_character, g_r);
+      if (atk_mobs.empty()) {
+        return false;
+      }
+    }
+    auto n = skill_game_instance::load_skill_level_node(id, ski_level);
+    auto m_count =
+        static_cast<wz::Property<int> *>(n->get_child(u"mobCount"))->get();
+    auto a_count =
+        static_cast<wz::Property<int> *>(n->get_child(u"attackCount"))->get();
+  }
+  return true;
+}
+
+bool character_logic_system::run_skill(game_character &g_character,
+                                       const std::u16string &id) {
+  run_skill_action(g_character, id);
+
   auto skill_level = job_skill_game_instance::load_skill_level(id);
   auto skill_attack = skill_game_instance::load_skill_attack(id, skill_level);
 

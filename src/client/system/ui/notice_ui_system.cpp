@@ -256,6 +256,7 @@ void notice_ui_system::event_button_shopbuy() {
   case notice_enum::shopbuy: {
     auto blank = package_ui_system::load_blank_index((int)p->item->type);
     package_game_instance::data[(int)p->item->type][blank[0]] = (p->item);
+    package_game_instance::meso -= p->price;
     break;
   }
   case notice_enum::shopbuy_mul: {
@@ -283,6 +284,7 @@ void notice_ui_system::event_button_shopbuy_sell() {
     shop_ui_system::active_tab[0] = 1;
     shop_ui_system::active_item = {};
     *p = std::polymorphic<game_item>{};
+    package_game_instance::meso += gst.price;
     break;
   }
   case notice_enum::shopbuy_sell_mul: {

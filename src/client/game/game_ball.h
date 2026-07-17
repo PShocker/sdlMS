@@ -17,5 +17,6 @@ public:
   uint64_t destory;
   int32_t rotate = 0;
 
+  bool pierce = false; // 穿透
   SDL_FPoint pos;
 };

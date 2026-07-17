@@ -1,34 +1,37 @@
 #include "skill_game_instance.h"
+#include "SDL3/SDL_rect.h"
 #include "character_game_instance.h"
+#include "equip_game_instance.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "text_game_instance.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
+#include <array>
 #include <chrono>
 #include <cstdint>
 #include <flat_map>
 #include <string>
 
-wz::Node *skill_game_instance::load_skill_level_node(const std::u16string &id,
-                                                     uint8_t l) {
-  auto skill_node = load_skill_node(id);
+wz::Node *skill_game_instance::load_ski_level_node(const std::u16string &id,
+                                                   uint8_t l) {
+  auto skill_node = load_ski_node(id);
   auto l2 = std::to_string(l);
   auto level_node = skill_node->get_child(u"level")->get_child(l2);
   return level_node;
 }
 
-wz::Node *skill_game_instance::load_skill_node(uint32_t id) {
+wz::Node *skill_game_instance::load_ski_node(uint32_t id) {
   auto tmp = std::format("{:07d}", id);
   std::u16string ski_id{tmp.begin(), tmp.end()};
-  return load_skill_node(ski_id);
+  return load_ski_node(ski_id);
 }
 
-wz::Node *skill_game_instance::load_skill_node(const std::string &id) {
-  return load_skill_node(std::u16string{id.begin(), id.end()});
+wz::Node *skill_game_instance::load_ski_node(const std::string &id) {
+  return load_ski_node(std::u16string{id.begin(), id.end()});
 }
 
-wz::Node *skill_game_instance::load_skill_node(const std::u16string &id) {
+wz::Node *skill_game_instance::load_ski_node(const std::u16string &id) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(id)) {
     auto id2 = id.substr(0, id.length() - 4);
@@ -37,19 +40,14 @@ wz::Node *skill_game_instance::load_skill_node(const std::u16string &id) {
   return cache.at(id);
 }
 
-SDL_FRect skill_game_instance::load_skill_rect(const std::u16string &id,
-                                               uint8_t l) {
-  auto level_node = load_skill_level_node(id, l);
-  auto lt = wz_resource::load_fpoint(level_node->get_child(u"lt"));
-  auto rb = wz_resource::load_fpoint(level_node->get_child(u"rb"));
+SDL_FRect skill_game_instance::load_ltrb(SDL_FPoint lt, SDL_FPoint rb,
+                                         SDL_FPoint pos, bool flip) {
   SDL_FRect rect{
       .x = lt.x,
       .y = lt.y,
       .w = rb.x - lt.x,
       .h = rb.y - lt.y,
   };
-  auto pos = character_game_instance::self.pos;
-  auto flip = character_game_instance::self.flip;
   rect.x += pos.x;
   rect.y += pos.y;
   if (flip == 1) {
@@ -58,36 +56,71 @@ SDL_FRect skill_game_instance::load_skill_rect(const std::u16string &id,
   return rect;
 }
 
-std::flat_map<skill_game_instance::buff_attr, int32_t>
-skill_game_instance::load_skill_buff(const std::u16string &id, uint8_t l) {
-  const static std::flat_map<std::u16string, buff_attr> bufs{
-      {u"indieSpeed", speed},
-      {u"indieJump", jump},
-  };
-  std::flat_map<skill_game_instance::buff_attr, int32_t> r;
-  auto level_node = load_skill_level_node(id, l);
-  for (auto [k, v] : bufs) {
-    if (level_node->get_children()->contains(k)) {
-      auto buff_node = level_node->get_child(k);
-      auto buff_val = static_cast<wz::Property<int> *>(buff_node)->get();
-      r.insert({v, buff_val});
-    }
-  }
-  return r;
+SDL_FRect skill_game_instance::load_ski_ltrb(const std::u16string &id,
+                                             uint8_t l,
+                                             game_character &g_character) {
+  auto level_node = load_ski_level_node(id, l);
+  auto lt = wz_resource::load_fpoint(level_node->get_child(u"lt"));
+  auto rb = wz_resource::load_fpoint(level_node->get_child(u"rb"));
+
+  auto pos = g_character.pos;
+  auto flip = g_character.flip;
+
+  return load_ltrb(lt, rb, pos, flip);
 }
 
-bool skill_game_instance::load_skill_attack(const std::u16string &id,
-                                            uint8_t l) {
-  auto level_node = load_skill_level_node(id, l);
+SDL_FRect skill_game_instance::load_ski_r(const std::u16string &id, uint8_t l,
+                                          game_character &g_character) {
+  auto node = load_ski_level_node(id, l);
+  if (node->get_child(u"lt")) {
+    return load_ski_ltrb(id, l, g_character);
+  }
+  if (node->get_child(u"range")) {
+    return {0, 0, 0, 0};
+  }
+  auto pos = g_character.pos;
+  auto flip = g_character.flip;
+  if (g_character.weapon.has_value()) {
+    auto type = equip_game_instance::load_weapon_type(g_character);
+    switch (type) {
+    case equip_game_instance::weapon_type::BOW:
+    case equip_game_instance::weapon_type::CROSSBOW: {
+      auto lt = SDL_FPoint{-350, -90};
+      auto rb = SDL_FPoint{-25, -10};
+      return load_ltrb(lt, rb, pos, flip);
+      break;
+    }
+    case equip_game_instance::weapon_type::CLAW: {
+      auto lt = SDL_FPoint{-350, -90};
+      auto rb = SDL_FPoint{-25, -10};
+      return load_ltrb(lt, rb, pos, flip);
+      break;
+    }
+    default: {
+      auto r = afterimage_game_instance::load_rect(g_character);
+      return r.value();
+    }
+    }
+  }
+  static std::flat_map<std::u16string, std::array<SDL_FPoint, 2>> hardcode = {
+      {u"3201004", {SDL_FPoint{0.0f, 0.0f}, SDL_FPoint{0.0f, 0.0f}}}};
+  auto lt = hardcode.at(id)[0];
+  auto rb = hardcode.at(id)[1];
+  return load_ltrb(lt, rb, pos, flip);
+}
+
+bool skill_game_instance::load_ski_attack(const std::u16string &id, uint8_t l) {
+  auto level_node = load_ski_level_node(id, l);
   if (level_node->get_children()->contains(u"mobCount")) {
     return true;
   }
   return false;
 }
 
-bool skill_game_instance::load_skill_ball(const std::u16string &id, uint8_t l) {
-  auto level_node = load_skill_level_node(id, l);
-  if (level_node->get_children()->contains(u"ball")) {
+bool skill_game_instance::load_ski_ball(const std::u16string &id, uint8_t l) {
+  auto level_node = load_ski_level_node(id, l);
+  if (level_node->get_children()->contains(u"ball") ||
+      level_node->get_children()->contains(u"bulletCount")) {
     return true;
   }
   return false;
@@ -142,7 +175,7 @@ int skill_game_instance::load_ski_max_lvl(const std::u16string &id) {
 }
 
 bool skill_game_instance::load_ski_active(const std::u16string &id) {
-  auto ski_node = load_skill_node(id);
+  auto ski_node = load_ski_node(id);
   if (ski_node->get_child(u"action")) {
     return true;
   }

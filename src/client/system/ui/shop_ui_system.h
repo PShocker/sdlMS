@@ -35,6 +35,7 @@ private:
   static std::optional<int> event_item_click(SDL_Event *event, SDL_FPoint p);
   static bool event_item(SDL_Event *event);
 
+  static bool event_vscr(SDL_Event *event);
   static void event_close();
   static bool event_button(SDL_Event *event);
 

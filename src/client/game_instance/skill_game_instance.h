@@ -3,6 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_buff.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_skill.h"
 #include "wz/Node.h"
 #include <cstdint>
 #include <flat_map>
@@ -14,25 +15,16 @@
 class skill_game_instance {
 public:
   static inline std::vector<game_buff> buf;
+  static auto &skis() {
+    static std::flat_map<std::u16string, game_skill> instance;
+    return instance;
+  }
 
-  static wz::Node *load_skill_node(uint32_t id);
-  static wz::Node *load_skill_node(const std::string &id);
-  static wz::Node *load_skill_node(const std::u16string &id);
-  static wz::Node *load_skill_level_node(const std::u16string &id, uint8_t l);
-  enum buff_attr {
-    hp_recover,
-    hp_max,
-    acc,
-    eva,
-    speed,
-    jump,
-  };
-  static std::flat_map<buff_attr, int32_t>
-  load_skill_buff(const std::u16string &id, uint8_t l);
+  static wz::Node *load_ski_node(uint32_t id);
+  static wz::Node *load_ski_node(const std::string &id);
+  static wz::Node *load_ski_node(const std::u16string &id);
+  static wz::Node *load_ski_level_node(const std::u16string &id, uint8_t l);
 
-  static bool load_skill_attack(const std::u16string &id, uint8_t l);
-  static bool load_skill_ball(const std::u16string &id, uint8_t l);
-  static SDL_FRect load_skill_rect(const std::u16string &id, uint8_t l);
   static uint64_t load_ski_time(game_character &g_character);
 
   struct skill_name {

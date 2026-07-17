@@ -150,12 +150,11 @@ void shop_ui_system::render_vscr() {
   auto cursor_in = cursor_game_instance::cursor_ui;
   auto &items = shop->items;
   bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
-  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, top,
-                                   6);
-
+  auto itm_size = items.size();
+  scroll_ui_system::render_vscroll(x, y, pages[0], itm_size, length, top, 6);
   x += 230;
-  scroll_ui_system::render_vscroll(x, y, pages[0], items.size(), length, top,
-                                   6);
+  auto pkg_size = load_pkg_items().size();
+  scroll_ui_system::render_vscroll(x, y, pages[1], pkg_size, length, top, 6);
   return;
 }
 
@@ -471,6 +470,23 @@ bool shop_ui_system::event_item(SDL_Event *event) {
     notice_ui_system::data = itm;
   }
   return false;
+}
+
+bool shop_ui_system::event_vscr(SDL_Event *event) {
+  const uint32_t length = 235;
+  auto x = (int)pos.x + 212;
+  auto y = (int)pos.y + 129;
+
+  auto size = shop->items.size() - 6;
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  bool top = cursor_in == render;
+  auto val = scroll_ui_system::click_vscroll(x, y, pages[0], size, length, top);
+  pages[0] = val;
+
+  size = load_pkg_items().size() - 6;
+  x += 230;
+  val = scroll_ui_system::click_vscroll(x, y, pages[1], size, length, top);
+  pages[1] = val;
 }
 
 bool shop_ui_system::event_tab(SDL_Event *event) {
