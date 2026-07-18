@@ -301,7 +301,7 @@ void skill_ui_system::render_button() {
       return true;
     }
     // 判断前置技能
-    auto ski_node = skill_game_instance::load_skill_node(id);
+    auto ski_node = skill_game_instance::load_ski_node(id);
     if (auto req = ski_node->get_child(u"req")) {
       for (auto [k, v] : *req) {
         auto lvl = static_cast<wz::Property<int> *>(v[0])->get();

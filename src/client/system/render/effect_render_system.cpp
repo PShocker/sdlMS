@@ -120,7 +120,7 @@ void effect_render_system::render_damage(SDL_FPoint pos,
 
 void effect_render_system::render_skill_use(SDL_FPoint pos,
                                             game_effect &g_effect, bool flip) {
-  auto ski_node = skill_game_instance::load_skill_node(g_effect.id);
+  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
   ski_node = ski_node->get_child(u"effect");
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
@@ -153,7 +153,7 @@ void effect_render_system::render_skill_hit(SDL_FPoint pos,
   if (g_effect.delay >= now) {
     return;
   }
-  auto ski_node = skill_game_instance::load_skill_node(g_effect.id);
+  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
   ski_node = ski_node->find(u"hit/0");
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);

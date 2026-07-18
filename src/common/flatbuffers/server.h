@@ -705,7 +705,7 @@ inline ::flatbuffers::Offset<ServerCharacterSkill> CreateServerCharacterSkillDir
 struct ServerCharacterBallT : public ::flatbuffers::NativeTable {
   typedef ServerCharacterBall TableType;
   uint64_t client_id = 0;
-  std::vector<std::unique_ptr<fbs::CharacterBallT>> payload{};
+  std::unique_ptr<fbs::CharacterBallT> payload{};
   ServerCharacterBallT() = default;
   ServerCharacterBallT(const ServerCharacterBallT &o);
   ServerCharacterBallT(ServerCharacterBallT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -725,19 +725,18 @@ struct ServerCharacterBall FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   bool mutate_client_id(uint64_t _client_id = 0) {
     return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>> *payload() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>> *>(VT_PAYLOAD);
+  const fbs::CharacterBall *payload() const {
+    return GetPointer<const fbs::CharacterBall *>(VT_PAYLOAD);
   }
-  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>> *mutable_payload() {
-    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>> *>(VT_PAYLOAD);
+  fbs::CharacterBall *mutable_payload() {
+    return GetPointer<fbs::CharacterBall *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
-           verifier.VerifyVector(payload()) &&
-           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.VerifyTable(payload()) &&
            verifier.EndTable();
   }
   ServerCharacterBallT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -752,7 +751,7 @@ struct ServerCharacterBallBuilder {
   void add_client_id(uint64_t client_id) {
     fbb_.AddElement<uint64_t>(ServerCharacterBall::VT_CLIENT_ID, client_id, 0);
   }
-  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>>> payload) {
+  void add_payload(::flatbuffers::Offset<fbs::CharacterBall> payload) {
     fbb_.AddOffset(ServerCharacterBall::VT_PAYLOAD, payload);
   }
   explicit ServerCharacterBallBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
@@ -769,22 +768,11 @@ struct ServerCharacterBallBuilder {
 inline ::flatbuffers::Offset<ServerCharacterBall> CreateServerCharacterBall(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t client_id = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterBall>>> payload = 0) {
+    ::flatbuffers::Offset<fbs::CharacterBall> payload = 0) {
   ServerCharacterBallBuilder builder_(_fbb);
   builder_.add_client_id(client_id);
   builder_.add_payload(payload);
   return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<ServerCharacterBall> CreateServerCharacterBallDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t client_id = 0,
-    const std::vector<::flatbuffers::Offset<fbs::CharacterBall>> *payload = nullptr) {
-  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterBall>>(*payload) : 0;
-  return fbs::CreateServerCharacterBall(
-      _fbb,
-      client_id,
-      payload__);
 }
 
 ::flatbuffers::Offset<ServerCharacterBall> CreateServerCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1756,9 +1744,8 @@ inline ::flatbuffers::Offset<ServerCharacterSkill> ServerCharacterSkill::Pack(::
 }
 
 inline ServerCharacterBallT::ServerCharacterBallT(const ServerCharacterBallT &o)
-      : client_id(o.client_id) {
-  payload.reserve(o.payload.size());
-  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::CharacterBallT(*payload_) : nullptr); }
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::CharacterBallT(*o.payload) : nullptr) {
 }
 
 inline ServerCharacterBallT &ServerCharacterBallT::operator=(ServerCharacterBallT o) FLATBUFFERS_NOEXCEPT {
@@ -1777,7 +1764,7 @@ inline void ServerCharacterBall::UnPackTo(ServerCharacterBallT *_o, const ::flat
   (void)_o;
   (void)_resolver;
   { auto _e = client_id(); _o->client_id = _e; }
-  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::CharacterBallT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::CharacterBallT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
 }
 
 inline ::flatbuffers::Offset<ServerCharacterBall> CreateServerCharacterBall(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterBallT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1789,7 +1776,7 @@ inline ::flatbuffers::Offset<ServerCharacterBall> ServerCharacterBall::Pack(::fl
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterBallT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _client_id = _o->client_id;
-  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterBall>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterBall(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _payload = _o->payload ? CreateCharacterBall(_fbb, _o->payload.get(), _rehasher) : 0;
   return fbs::CreateServerCharacterBall(
       _fbb,
       _client_id,

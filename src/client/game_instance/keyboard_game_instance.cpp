@@ -22,8 +22,8 @@ void keyboard_game_instance::reset() {
       {SDL_SCANCODE_C, {.type = "ui", .val = "craft"}},
       {SDL_SCANCODE_Q, {.type = "ui", .val = "quest"}},
       {SDL_SCANCODE_P, {.type = "ui", .val = "option"}},
-      {SDL_SCANCODE_A, {.type = "skill", .val = "2201004"}},
-      // {SDL_SCANCODE_V, {.type = "skill", .val = "4101001"}},
+      {SDL_SCANCODE_A, {.type = "skill", .val = "1001002"}},
+      {SDL_SCANCODE_V, {.type = "skill", .val = "0001000"}},
       {SDL_SCANCODE_C, {.type = "item", .val = "03010000"}},
       {SDL_SCANCODE_F4, {.type = "face", .val = "vomit"}},
 

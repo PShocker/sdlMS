@@ -27,27 +27,53 @@
 
 std::vector<server_mob_system::mob_drop>
 server_mob_system::load_mob_drops(server_mob &s_mob) {
-  static std::flat_map<std::u16string, std::vector<mob_drop>> cache;
-  if (!cache.contains(s_mob.id)) {
-    auto node = wz_resource::ms->get_root()->find(u"MobDrop/" + s_mob.id);
-    for (auto [k, v] : *node->get_children()) {
-      auto min_quantity =
-          static_cast<wz::Property<int> *>(v[0]->get_child(u"min_quantity"))
-              ->get();
-      auto max_quantity =
-          static_cast<wz::Property<int> *>(v[0]->get_child(u"max_quantity"))
-              ->get();
-      auto chance =
-          static_cast<wz::Property<int> *>(v[0]->get_child(u"chance"))->get();
-      mob_drop md;
-      md.id = k;
-      md.min_quantity = min_quantity;
-      md.max_quantity = max_quantity;
-      md.rate = chance / 1000000.0f;
-      cache[s_mob.id].push_back(md);
-    }
+  using cache_type = std::flat_map<std::u16string, std::vector<mob_drop>>;
+  static cache_type cache;
+
+  // 使用 try_emplace 一次完成查找和插入，避免两次哈希查找
+  auto [it, inserted] = cache.try_emplace(s_mob.id);
+  if (!inserted) {
+    return it->second; // 已缓存，直接返回
   }
-  return cache.at(s_mob.id);
+
+  // 查找节点
+  auto node = wz_resource::ms->get_root()->find(u"MobDrop/" + s_mob.id);
+  if (node == nullptr) {
+    return {}; // 节点不存在，返回空（缓存中保留空条目）
+  }
+
+  auto &drops = it->second;
+  drops.reserve(node->get_children()->size()); // 预分配内存，避免多次扩容
+
+  // 遍历所有子节点
+  for (auto [k, v] : *node->get_children()) {
+    // 缓存指针，避免重复索引
+    auto *child = v[0];
+    if (!child)
+      continue; // 安全检查
+
+    // 获取三个属性，使用指针避免重复类型转换
+    auto *min_quantity_prop =
+        static_cast<wz::Property<int> *>(child->get_child(u"min_quantity"));
+    auto *max_quantity_prop =
+        static_cast<wz::Property<int> *>(child->get_child(u"max_quantity"));
+    auto *chance_prop =
+        static_cast<wz::Property<int> *>(child->get_child(u"chance"));
+
+    // 验证所有属性都存在
+    if (!min_quantity_prop || !max_quantity_prop || !chance_prop) {
+      continue; // 跳过无效条目
+    }
+
+    mob_drop md;
+    md.id = std::move(k); // 移动字符串，避免拷贝
+    md.min_quantity = min_quantity_prop->get();
+    md.max_quantity = max_quantity_prop->get();
+    md.rate = chance_prop->get() / 1000000.0f;
+    drops.push_back(std::move(md));
+  }
+
+  return drops;
 }
 
 void server_mob_system::run_network_movement_sync(server_mob &s_mob,

@@ -1,5 +1,6 @@
 #include "request_handler.h"
 #include "SDL3/SDL_timer.h"
+#include "server_instance/server_ball_instance.h"
 #include "server_instance/server_client_instance.h"
 #include "server_instance/server_drop_instance.h"
 #include "server_instance/server_mob_instance.h"
@@ -125,6 +126,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_trade_instance::handle_client(client_id, r);
     break;
   }
+  case NetPayload_ClientCharacterBall: {
+    auto payload = packet->payload_as_ClientCharacterBall();
+    fbs::ClientCharacterBallT r;
+    payload->UnPackTo(&r);
+    server_ball_instance::handle_ball(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -183,23 +191,14 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterAttack();
     fbs::ServerCharacterAttackT r;
     payload->UnPackTo(&r);
-    if (character_game_instance::others.contains(r.client_id)) {
-      auto &g_character =
-          character_game_instance::others.at(r.client_id).g_character;
-      character_game_instance::load_attack(r.payload, g_character);
-    }
+    server_character_instance::handle_server_atk(client_id, r);
     break;
   }
   case NetPayload_ServerCharacterSkill: {
     auto payload = packet->payload_as_ServerCharacterSkill();
     fbs::ServerCharacterSkillT r;
     payload->UnPackTo(&r);
-    if (character_game_instance::others.contains(r.client_id)) {
-      auto &g_character =
-          character_game_instance::others.at(r.client_id).g_character;
-      character_game_instance::load_skill(r.ski_id, r.payload,
-                                                    g_character);
-    }
+    server_character_instance::handle_server_ski(client_id, r);
     break;
   }
   case NetPayload_ServerMobAttack: {
@@ -260,6 +259,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerMobDrop();
     fbs::ServerMobDropT r;
     payload->UnPackTo(&r);
+    break;
+  }
+  case NetPayload_ServerCharacterBall: {
+    auto payload = packet->payload_as_ServerCharacterBall();
+    fbs::ServerCharacterBallT r;
+    payload->UnPackTo(&r);
+    server_ball_instance::handle_server_ball(client_id, r);
     break;
   }
   default:

@@ -77,16 +77,6 @@ public:
   static void clear_others();
   static CharacterT load_characterT(const game_character &g);
 
-  static void
-  load_attack(const std::vector<std::unique_ptr<fbs::CharacterAttackT>> &v,
-              game_character &g_character);
-  static void
-  load_skill(uint32_t ski_id,
-             const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
-             game_character &g_character);
-
-  // network
-
   static inline game_character self;
 
   static void add_body(game_character &g, const std::u16string &val);

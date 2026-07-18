@@ -108,7 +108,7 @@ void cursor_render_system::render_hand() {
     case cursor_game_instance::skill: {
       auto tmp = std::format("{:07d}", hand.sub_val);
       std::u16string ski_id{tmp.begin(), tmp.end()};
-      auto ski_node = skill_game_instance::load_skill_node(ski_id);
+      auto ski_node = skill_game_instance::load_ski_node(ski_id);
       auto icon = wz_resource::load_texture(ski_node->get_child(u"icon"));
       render_icon(icon, 172); // 技能透明度不同
       break;

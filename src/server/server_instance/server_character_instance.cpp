@@ -1,7 +1,12 @@
 #include "server_character_instance.h"
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
+#include "src/client/game/game_character.h"
+#include "src/client/game_instance/afterimage_game_instance.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/effect_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -141,6 +146,8 @@ void server_character_instance::handle_attack(uint64_t client_id,
   for (auto c : clients) {
     server_response::send_to_client(c, t);
   }
+  t.client_id = 0;
+  server_response::send_to_client(client_id, t);
 }
 
 void server_character_instance::handle_chat(uint64_t client_id,
@@ -200,5 +207,97 @@ void server_character_instance::handle_character(uint64_t client_id,
     // save
     server_client_instance::clients[client_id].player_t.character =
         std::move(t.payload);
+  }
+}
+
+void server_character_instance::handle_server_atk(uint64_t client_id,
+                                                  ServerCharacterAttackT &r) {
+  auto &mobs = mob_game_instance::data;
+  std::flat_multiset<uint32_t> mob_hit;
+  auto &v = r.payload;
+  for (uint32_t i = 0; i < v.size(); i++) {
+    auto &ct = v[i];
+    auto &mob = mobs[ct->mob_index].mob;
+    if (ct->afterimage) {
+      game_character g_character;
+      if (r.client_id == 0) {
+        g_character = character_game_instance::self;
+      } else if (character_game_instance::others.contains(r.client_id)) {
+        g_character = character_game_instance::others.at(client_id).g_character;
+      }
+      game_effect e = {
+          .id = afterimage_game_instance::load_hit_type(g_character),
+          .index = 0,
+          .time = 0,
+          .delay = ct->attack->delay,
+          .type = game_effect::effect_type::afterimage,
+          .pos = SDL_FPoint{ct->attack->x, ct->attack->y},
+          .z = false,
+      };
+      mob.effect.push_back(e);
+    }
+    // 伤害数字
+    damage_data data = {
+        .num = ct->attack->num,
+        .type = damage_data::red,
+    };
+    game_effect d = {
+        .id = u"",
+        .index = (uint32_t)mob_hit.count(mob.index),
+        .time = mob.index,
+        .delay = ct->attack->delay,
+        .type = game_effect::effect_type::damage,
+        .pos = SDL_FPoint{ct->attack->x, ct->attack->y - 10},
+        .z = false,
+        .flip = false,
+        .data = data,
+    };
+    mob_hit.insert(mob.index);
+    effect_game_instance::data[7].emplace_back(d);
+  }
+}
+
+void server_character_instance::handle_ski(
+    uint32_t ski_id,
+    const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
+    game_character &g_character) {
+  auto ski_id2 = std::to_string(ski_id);
+  auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};
+
+  g_character.skill = ski_id3;
+
+  game_effect e = {
+      .id = ski_id3,
+      .index = 0,
+      .time = 0,
+      .delay = 0,
+      .type = game_effect::effect_type::skill_use,
+      .pos = std::nullopt,
+      .z = false,
+  };
+  g_character.effect.push_back(e);
+  audio_game_instance::load_audio(u"Skill.img/" + ski_id3 + u"/Use", 0);
+
+  auto &mob = mob_game_instance::data;
+  for (const auto &s : v) {
+    game_effect e2 = {
+        .id = ski_id3,
+        .index = 0,
+        .time = 0,
+        .delay = s->delay,
+        .type = game_effect::effect_type::skill_hit,
+        .pos = SDL_FPoint{s->x, s->y},
+        .z = false,
+    };
+    mob[s->mob].mob.effect.push_back(e2);
+  }
+}
+
+void server_character_instance::handle_server_ski(uint64_t client_id,
+                                                  ServerCharacterSkillT &r) {
+  if (character_game_instance::others.contains(r.client_id)) {
+    auto &g_character =
+        character_game_instance::others.at(client_id).g_character;
+    handle_ski(r.ski_id, r.payload, g_character);
   }
 }

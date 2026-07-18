@@ -149,7 +149,8 @@ void shop_ui_system::render_vscr() {
   auto y = (int)pos.y + 129;
   auto cursor_in = cursor_game_instance::cursor_ui;
   auto &items = shop->items;
-  bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
+  bool top =
+      cursor_in == render && cursor_game_instance::modal_overlay == render;
   auto itm_size = items.size();
   scroll_ui_system::render_vscroll(x, y, pages[0], itm_size, length, top, 6);
   x += 230;
@@ -487,6 +488,7 @@ bool shop_ui_system::event_vscr(SDL_Event *event) {
   x += 230;
   val = scroll_ui_system::click_vscroll(x, y, pages[1], size, length, top);
   pages[1] = val;
+  return true;
 }
 
 bool shop_ui_system::event_tab(SDL_Event *event) {
@@ -559,6 +561,7 @@ bool shop_ui_system::event(SDL_Event *event) {
           return false;
         }
         event_button(event);
+        event_vscr(event);
       }
     }
     break;

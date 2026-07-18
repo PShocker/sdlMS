@@ -67,7 +67,7 @@ bool effect_logic_system::run_afterimage(game_effect &g_effect) {
 
 bool effect_logic_system::run_skill_use(game_effect &g_effect) {
   bool r = false;
-  auto ski_node = skill_game_instance::load_skill_node(g_effect.id);
+  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
   ski_node = ski_node->get_child(u"effect");
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
@@ -95,7 +95,7 @@ bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
     return false;
   }
   bool r = false;
-  auto ski_node = skill_game_instance::load_skill_node(g_effect.id);
+  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
   ski_node = ski_node->get_child(u"hit")->get_child(u"0");
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);

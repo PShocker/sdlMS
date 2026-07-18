@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/client/game/game_character.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/server.h"
 #include <cstdint>
@@ -17,4 +18,12 @@ public:
   static void handle_chat(uint64_t client_id, ClientCharacterChatT &r);
   static void handle_server_chat(uint64_t client_id, ServerCharacterChatT &r);
   static void handle_character(uint64_t client_id, ClientCharacterT &r);
+
+  static void handle_server_atk(uint64_t client_id, ServerCharacterAttackT &r);
+
+  static void
+  handle_ski(uint32_t ski_id,
+             const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
+             game_character &g_character);
+  static void handle_server_ski(uint64_t client_id, ServerCharacterSkillT &r);
 };

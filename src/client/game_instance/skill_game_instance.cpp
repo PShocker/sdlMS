@@ -13,6 +13,8 @@
 #include <flat_map>
 #include <string>
 
+using namespace fbs;
+
 wz::Node *skill_game_instance::load_ski_level_node(const std::u16string &id,
                                                    uint8_t l) {
   auto skill_node = load_ski_node(id);
@@ -40,92 +42,6 @@ wz::Node *skill_game_instance::load_ski_node(const std::u16string &id) {
   return cache.at(id);
 }
 
-SDL_FRect skill_game_instance::load_ltrb(SDL_FPoint lt, SDL_FPoint rb,
-                                         SDL_FPoint pos, bool flip) {
-  SDL_FRect rect{
-      .x = lt.x,
-      .y = lt.y,
-      .w = rb.x - lt.x,
-      .h = rb.y - lt.y,
-  };
-  rect.x += pos.x;
-  rect.y += pos.y;
-  if (flip == 1) {
-    rect.x += 2 * (pos.x - rect.x) - rect.w;
-  }
-  return rect;
-}
-
-SDL_FRect skill_game_instance::load_ski_ltrb(const std::u16string &id,
-                                             uint8_t l,
-                                             game_character &g_character) {
-  auto level_node = load_ski_level_node(id, l);
-  auto lt = wz_resource::load_fpoint(level_node->get_child(u"lt"));
-  auto rb = wz_resource::load_fpoint(level_node->get_child(u"rb"));
-
-  auto pos = g_character.pos;
-  auto flip = g_character.flip;
-
-  return load_ltrb(lt, rb, pos, flip);
-}
-
-SDL_FRect skill_game_instance::load_ski_r(const std::u16string &id, uint8_t l,
-                                          game_character &g_character) {
-  auto node = load_ski_level_node(id, l);
-  if (node->get_child(u"lt")) {
-    return load_ski_ltrb(id, l, g_character);
-  }
-  if (node->get_child(u"range")) {
-    return {0, 0, 0, 0};
-  }
-  auto pos = g_character.pos;
-  auto flip = g_character.flip;
-  if (g_character.weapon.has_value()) {
-    auto type = equip_game_instance::load_weapon_type(g_character);
-    switch (type) {
-    case equip_game_instance::weapon_type::BOW:
-    case equip_game_instance::weapon_type::CROSSBOW: {
-      auto lt = SDL_FPoint{-350, -90};
-      auto rb = SDL_FPoint{-25, -10};
-      return load_ltrb(lt, rb, pos, flip);
-      break;
-    }
-    case equip_game_instance::weapon_type::CLAW: {
-      auto lt = SDL_FPoint{-350, -90};
-      auto rb = SDL_FPoint{-25, -10};
-      return load_ltrb(lt, rb, pos, flip);
-      break;
-    }
-    default: {
-      auto r = afterimage_game_instance::load_rect(g_character);
-      return r.value();
-    }
-    }
-  }
-  static std::flat_map<std::u16string, std::array<SDL_FPoint, 2>> hardcode = {
-      {u"3201004", {SDL_FPoint{0.0f, 0.0f}, SDL_FPoint{0.0f, 0.0f}}}};
-  auto lt = hardcode.at(id)[0];
-  auto rb = hardcode.at(id)[1];
-  return load_ltrb(lt, rb, pos, flip);
-}
-
-bool skill_game_instance::load_ski_attack(const std::u16string &id, uint8_t l) {
-  auto level_node = load_ski_level_node(id, l);
-  if (level_node->get_children()->contains(u"mobCount")) {
-    return true;
-  }
-  return false;
-}
-
-bool skill_game_instance::load_ski_ball(const std::u16string &id, uint8_t l) {
-  auto level_node = load_ski_level_node(id, l);
-  if (level_node->get_children()->contains(u"ball") ||
-      level_node->get_children()->contains(u"bulletCount")) {
-    return true;
-  }
-  return false;
-}
-
 uint64_t skill_game_instance::load_ski_time(game_character &g_character) {
   uint64_t r = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
@@ -144,6 +60,22 @@ uint64_t skill_game_instance::load_ski_time(game_character &g_character) {
     }
   }
   return r;
+}
+
+SDL_FRect skill_game_instance::load_r(SDL_FPoint lt, SDL_FPoint rb,
+                                      SDL_FPoint pos, bool flip) {
+  SDL_FRect rect{
+      .x = lt.x,
+      .y = lt.y,
+      .w = rb.x - lt.x,
+      .h = rb.y - lt.y,
+  };
+  rect.x += pos.x;
+  rect.y += pos.y;
+  if (flip == 1) {
+    rect.x += 2 * (pos.x - rect.x) - rect.w;
+  }
+  return rect;
 }
 
 skill_game_instance::skill_name
@@ -186,4 +118,42 @@ bool skill_game_instance::load_ski_active(const std::u16string &id) {
     return true;
   }
   return false;
+}
+
+ClientCharacterAttackT
+skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
+                                           uint64_t delay) {
+  ClientCharacterAttackT attack_payload;
+  auto atk_mobs = cm.data;
+  for (int i = 0; i < atk_mobs.size(); ++i) {
+    CharacterAttackT ct;
+    ct.mob_index = atk_mobs[i].mob.index;
+    ct.attack = std::make_unique<AttackT>();
+    ct.attack->num = 1;
+    ct.attack->delay = delay + i * 60;
+    ct.attack->x = atk_mobs[i].x;
+    ct.attack->y = atk_mobs[i].y;
+    ct.afterimage = false;
+    ct.left = pos.x < atk_mobs[i].mob.pos.x;
+    attack_payload.payload.push_back(
+        std::make_unique<CharacterAttackT>(std::move(ct)));
+  }
+
+  return attack_payload;
+}
+
+ClientCharacterSkillT skill_game_instance::create_skill_payload(
+    const ClientCharacterAttackT &attack_payload) {
+  ClientCharacterSkillT skill_payload;
+
+  for (const auto &a : attack_payload.payload) {
+    CharacterSkillT c;
+    c.delay = a->attack->delay;
+    c.mob = a->mob_index;
+    c.x = a->attack->x;
+    c.y = a->attack->y;
+    skill_payload.payload.push_back(
+        std::make_unique<CharacterSkillT>(std::move(c)));
+  }
+  return skill_payload;
 }

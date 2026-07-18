@@ -43,7 +43,7 @@ table ServerCharacterSkill {
 
 table ServerCharacterBall {
     client_id:uint64;
-    payload:[CharacterBall];
+    payload:CharacterBall;
 }
 
 table ServerMobAttack {

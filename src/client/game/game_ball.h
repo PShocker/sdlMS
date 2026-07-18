@@ -7,8 +7,7 @@
 
 class game_ball {
 public:
-  std::u16string itm_id;
-  std::u16string ski_id;
+  std::u16string path;
 
   SDL_FPoint goal;
   std::optional<uint32_t> mob_index;
@@ -17,6 +16,8 @@ public:
   uint64_t destory;
   int32_t rotate = 0;
 
-  bool pierce = false; // 穿透
   SDL_FPoint pos;
+
+  uint32_t ani_index = 0;
+  uint32_t ani_time = 0;
 };

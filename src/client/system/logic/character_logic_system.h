@@ -12,15 +12,18 @@
 #include <string>
 #include <vector>
 
-class character_logic_system {
-private:
+struct check_mobs {
   struct attack_data {
     game_mob mob;
     float x;
     float y;
   };
+  std::vector<attack_data> data;
+};
 
-  static std::vector<attack_data> run_shoot_check(game_character &g_character);
+class character_logic_system {
+private:
+  static check_mobs run_shoot_check(game_character &g_character);
 
   static std::vector<uint64_t> run_buff_check(game_character &g_character,
                                               SDL_FRect g_r);
@@ -37,12 +40,8 @@ private:
   static bool run_climbing(game_character &g_character);
   static bool run_sit(game_character &g_character);
   static bool run_sitting(game_character &g_character);
-  static bool run_attack(game_character &g_character);
 
-  static bool run_skill_action(game_character &g_character,
-                               const std::u16string &id);
-  static bool run_skill_attack(game_character &g_character,
-                               const std::u16string &id);
+  static bool run_attack(game_character &g_character);
   static bool run_skill(game_character &g_character, const std::u16string &id);
 
   static bool run_skill(game_character &g_character);
@@ -63,10 +62,10 @@ private:
   static void run_network_sync();
 
 public:
-  static std::vector<attack_data> run_attack_check(game_character &g_character,
-                                                   SDL_FRect g_r);
-  static std::vector<attack_data> run_attack_check(game_character &g_character,
-                                                   game_triangle tri);
+  static check_mobs run_attack_check(game_character &g_character,
+                                     SDL_FRect g_r);
+  static check_mobs run_attack_check(game_character &g_character,
+                                     game_triangle tri);
   static bool run_animate(game_character &g_character);
   static void run_network_die_sync(game_character &g_character);
   static bool run_action(game_character &g_character,
@@ -76,6 +75,8 @@ public:
   static void run_die_action(game_character &g_character);
   static void run_stand_action(game_character &g_character);
   static void run_walk_action(game_character &g_character);
+  static bool run_attack_action(game_character &g_character);
+
   static SDL_FRect load_rect(game_character &g_character);
   enum class action_enum {
     stand,

@@ -611,7 +611,7 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
   freetype::draw_line(ski_name.name, x + 20, y + 10);
   freetype::load_bold(false);
 
-  auto ski_node = skill_game_instance::load_skill_node(id);
+  auto ski_node = skill_game_instance::load_ski_node(id);
   auto ski_texture = wz_resource::load_texture(ski_node->get_child(u"icon"));
   pos_rect.w = ski_texture->w * 2;
   pos_rect.h = ski_texture->h * 2;

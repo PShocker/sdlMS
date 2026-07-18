@@ -4,6 +4,7 @@
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
+#include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -37,6 +38,7 @@
 #include "src/client/system/logic/npc_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/portal_logic_system.h"
+#include "src/client/system/render/ball_render_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -92,6 +94,9 @@ bool scene_system_instance::render_game() {
   for (uint8_t i = 0; i < 8; i++) {
     for (auto &obj : obj_game_instance::data[i] | std::views::values) {
       obj_render_system::render(obj);
+    }
+     for (auto &ball : ball_game_instance::data[i]) {
+      ball_render_system::render(ball);
     }
     for (auto &tile : tile_game_instance::data[i] | std::views::values) {
       tile_render_system::render(tile);

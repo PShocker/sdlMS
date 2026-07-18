@@ -1,28 +1,28 @@
 #include "ball_game_instance.h"
 #include "src/client/game/game_ball.h"
+#include "src/common/flatbuffers/common.h"
+#include <memory>
 #include <string>
 
 void ball_game_instance::reset() { data = {}; }
 
-void ball_game_instance::load(const fbs::CharacterBallT &bt) {
-  for (const auto &b : bt.ball) {
-    game_ball g_ball;
-    g_ball.delay = b->delay;
-    if (bt.item_id) {
-      auto tmp = std::to_string(bt.item_id);
-      std::u16string itm_id{tmp.begin(), tmp.end()};
-      g_ball.itm_id = itm_id;
-    }
-    if (bt.ski_id) {
-      auto tmp = std::to_string(bt.ski_id);
-      std::u16string ski_id{tmp.begin(), tmp.end()};
-      g_ball.ski_id = ski_id;
-    }
-    if (b->mob) {
-      g_ball.mob_index = b->mob_index;
-    }
-    g_ball.pos = {b->x1, b->y1};
-    g_ball.goal = {b->x2, b->y2};
-    data[b->page].emplace_back(g_ball);
+ClientCharacterBallT
+ball_game_instance::create_ball_payload(check_mobs &cm, SDL_FPoint pos,
+                                        uint64_t delay,
+                                        const std::u16string &path) {
+  ClientCharacterBallT ccb;
+  ccb.payload = std::make_unique<CharacterBallT>();
+  ccb.payload->path = {path.begin(), path.end()};
+  ccb.payload->ball = std::make_unique<BallT>();
+  ccb.payload->ball->delay = delay;
+  ccb.payload->ball->x1 = pos.x;
+  ccb.payload->ball->y1 = pos.y;
+  if (!cm.data.empty()) {
+    ccb.payload->ball->mob = true;
+    ccb.payload->ball->mob_index = cm.data[0].mob.index;
+  } else {
+    ccb.payload->ball->mob = false;
   }
+
+  return ccb;
 }
