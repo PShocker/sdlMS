@@ -114,6 +114,7 @@ void server_character_instance::handle_skill(uint64_t client_id,
     ServerCharacterSkillT t;
     t.client_id = client_id;
     t.ski_id = r.ski_id;
+    t.ski_lv = r.ski_lv;
     t.payload = std::move(r.payload);
     for (auto c : scenes) {
       server_response::send_to_client(c, t);
@@ -258,11 +259,15 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
 }
 
 void server_character_instance::handle_ski(
-    uint32_t ski_id,
+    uint32_t ski_id, uint8_t ski_lv,
     const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
     game_character &g_character) {
   auto ski_id2 = std::to_string(ski_id);
   auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};
+
+  if (ski_id3.length() < 7) {
+    ski_id3.insert(0, 7 - ski_id3.length(), u'0');
+  }
 
   g_character.skill = ski_id3;
 
@@ -285,6 +290,7 @@ void server_character_instance::handle_ski(
         .index = 0,
         .time = 0,
         .delay = s->delay,
+        .lvl = ski_lv,
         .type = game_effect::effect_type::skill_hit,
         .pos = SDL_FPoint{s->x, s->y},
         .z = false,
@@ -297,7 +303,7 @@ void server_character_instance::handle_server_ski(uint64_t client_id,
                                                   ServerCharacterSkillT &r) {
   if (character_game_instance::others.contains(r.client_id)) {
     auto &g_character =
-        character_game_instance::others.at(client_id).g_character;
-    handle_ski(r.ski_id, r.payload, g_character);
+        character_game_instance::others.at(r.client_id).g_character;
+    handle_ski(r.ski_id, r.ski_lv, r.payload, g_character);
   }
 }

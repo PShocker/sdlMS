@@ -46,5 +46,6 @@ public:
   create_attack_payload(check_mobs &cm, SDL_FPoint pos, uint64_t delay);
 
   static ClientCharacterSkillT
-  create_skill_payload(const ClientCharacterAttackT &attack_payload);
+  create_skill_payload(const ClientCharacterAttackT &attack_payload, int ski_id,
+                       uint8_t ski_lv);
 };

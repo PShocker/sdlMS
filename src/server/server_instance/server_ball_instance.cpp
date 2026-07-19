@@ -22,13 +22,14 @@ void server_ball_instance::handle_ball(uint64_t client_id,
 
 void server_ball_instance::handle_server_ball(uint64_t client_id,
                                               ServerCharacterBallT &r) {
-  game_ball g_ball;
-  g_ball.delay = r.payload->ball->delay;
-  g_ball.path = {r.payload->path.begin(), r.payload->path.end()};
+  game_ball b;
+  b.delay = r.payload->ball->delay;
+  b.path = {r.payload->path.begin(), r.payload->path.end()};
   if (r.payload->ball->mob) {
-    g_ball.mob_index = r.payload->ball->mob_index;
+    b.mob_index = r.payload->ball->mob_index;
   }
-  g_ball.pos = {r.payload->ball->x1, r.payload->ball->y1};
-  g_ball.goal = {r.payload->ball->x2, r.payload->ball->y2};
-  ball_game_instance::data[r.payload->ball->page].emplace_back(g_ball);
+  b.pos = {r.payload->ball->x1, r.payload->ball->y1};
+  b.goal = {r.payload->ball->x2, r.payload->ball->y2};
+  b.speed = r.payload->ball->speed;
+  ball_game_instance::data[r.payload->ball->page].emplace_back(b);
 }

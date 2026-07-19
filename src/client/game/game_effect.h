@@ -25,6 +25,7 @@ public:
   uint8_t alpha = 255;
 
   uint64_t delay;
+  uint8_t lvl = 0;
 
   enum class effect_type {
     afterimage,

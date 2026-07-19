@@ -18,6 +18,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <flat_map>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <utility>
@@ -33,6 +34,9 @@ mob_logic_system::load_action_type(const std::u16string &action) {
 }
 
 std::optional<SDL_FRect> mob_logic_system::load_rect(const game_mob &g_mob) {
+  if (g_mob.action.empty()) {
+    return std::nullopt;
+  }
   auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
   auto mob_action_node = mob_node->get_child(g_mob.action);
   bool zigzag = mob_action_node->get_child(u"zigzag") == nullptr ? false : true;

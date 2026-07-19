@@ -107,9 +107,9 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
       continue;
     }
     auto m_r = mob_logic_system::load_rect(mob).value();
-    tri = triangle_game_instance::load_tri(tri, g_character.flip,
-                                           g_character.pos);
-    if (triangle_game_instance::rect_ins_tri(m_r, tri)) {
+    auto t = triangle_game_instance::load_tri(tri, g_character.flip,
+                                              g_character.pos);
+    if (triangle_game_instance::rect_ins_tri(m_r, t)) {
       auto &m_pos = mob.pos;
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
                  (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);

@@ -13,8 +13,7 @@ public:
   std::optional<uint32_t> mob_index;
 
   uint64_t delay;
-  uint64_t destory;
-  int32_t rotate = 0;
+  int speed;
 
   SDL_FPoint pos;
 

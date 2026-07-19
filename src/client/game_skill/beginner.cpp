@@ -10,6 +10,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
+#include "src/server/server_instance/server_character_instance.h"
 #include <memory>
 #include <string>
 
@@ -17,10 +18,14 @@ static void ThreeSnail() {
   game_skill g_skill;
   g_skill.id = u"0001000";
   g_skill.use = []() {
-    game_triangle tri = {{SDL_FPoint{-350, -100}, {-350, 100}, {0, 0}}};
+    game_triangle tri = {
+        {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -30}}};
     auto &self = character_game_instance::self;
     character_logic_system::run_action(self, u"swingO1");
     auto cm = character_logic_system::run_attack_check(self, tri);
+    if (!cm.data.empty()) {
+      cm.data = {cm.data[0]};
+    }
     auto delay = skill_game_instance::load_ski_time(self);
     auto ski_lvl = job_skill_game_instance::load_skill_level(u"0001000");
     auto ski_lvl2 = std::to_string(ski_lvl);
@@ -29,8 +34,28 @@ static void ThreeSnail() {
     path += u"/ball";
     auto pos = self.pos;
     pos.y -= 30;
-    auto cct = ball_game_instance::create_ball_payload(cm, pos, delay, path);
+    auto page = self.page;
+    SDL_FPoint goal = pos;
+    if (self.flip) {
+      goal.x += 350;
+    } else {
+      goal.x -= 350;
+    }
+    auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
+                                                       page, 900, path);
     client_request::send_to_host(cct);
+
+    ClientCharacterAttackT cat;
+    if (!cm.data.empty()) {
+      auto d = ball_game_instance::load_ball_time(cct);
+      // Create and send attack payload
+      cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
+      client_request::send_to_host(cat);
+    }
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1000, ski_lvl);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lvl, ckt.payload,
+                                          self);
+    client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
   skis[g_skill.id] = g_skill;

@@ -69,6 +69,9 @@ bool effect_logic_system::run_skill_use(game_effect &g_effect) {
   bool r = false;
   auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
   ski_node = ski_node->get_child(u"effect");
+  if (ski_node == nullptr) {
+    return true;
+  }
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
   auto delay_node = texture_node->get_child(u"delay");
@@ -96,13 +99,19 @@ bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
   }
   bool r = false;
   auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
-  ski_node = ski_node->get_child(u"hit")->get_child(u"0");
+  if (ski_node->find(u"hit/0")) {
+    ski_node = ski_node->find(u"hit/0");
+  } else {
+    ski_node =
+        skill_game_instance::load_ski_level_node(g_effect.id, g_effect.lvl);
+    ski_node = ski_node->find(u"hit/0");
+  }
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
   auto delay_node = texture_node->get_child(u"delay");
-  int32_t delay = 100;
+  int delay = 100;
   if (delay_node) {
-    delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
+    delay = static_cast<wz::Property<int> *>(delay_node)->get();
   }
   g_effect.time += window::delta_time;
   if (g_effect.time >= delay) {

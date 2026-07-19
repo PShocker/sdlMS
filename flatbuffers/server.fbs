@@ -37,6 +37,7 @@ table ServerCharacterAttack {
 
 table ServerCharacterSkill {
     ski_id:uint32;
+    ski_lv:uint8;
     client_id:uint64;
     payload:[CharacterSkill];
 }

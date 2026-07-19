@@ -22,7 +22,7 @@ public:
   static void handle_server_atk(uint64_t client_id, ServerCharacterAttackT &r);
 
   static void
-  handle_ski(uint32_t ski_id,
+  handle_ski(uint32_t ski_id, uint8_t ski_lv,
              const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
              game_character &g_character);
   static void handle_server_ski(uint64_t client_id, ServerCharacterSkillT &r);

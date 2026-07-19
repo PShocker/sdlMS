@@ -143,8 +143,10 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
 }
 
 ClientCharacterSkillT skill_game_instance::create_skill_payload(
-    const ClientCharacterAttackT &attack_payload) {
+    const ClientCharacterAttackT &attack_payload, int ski_id, uint8_t ski_lv) {
   ClientCharacterSkillT skill_payload;
+  skill_payload.ski_id = ski_id;
+  skill_payload.ski_lv = ski_lv;
 
   for (const auto &a : attack_payload.payload) {
     CharacterSkillT c;

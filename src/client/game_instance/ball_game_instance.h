@@ -17,8 +17,10 @@ public:
   static inline std::array<std::vector<game_ball>, 8> data;
   static void reset();
 
-  static ClientCharacterBallT create_ball_payload(check_mobs &cm,
-                                                  SDL_FPoint pos,
-                                                  uint64_t delay,
-                                                  const std::u16string& path);
+  static uint64_t load_ball_time(ClientCharacterBallT &cct);
+
+  static ClientCharacterBallT
+  create_ball_payload(check_mobs &cm, SDL_FPoint pos, SDL_FPoint goal,
+                      uint64_t delay, int page, int speed,
+                      const std::u16string &path);
 };

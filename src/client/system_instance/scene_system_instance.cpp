@@ -38,8 +38,8 @@
 #include "src/client/system/logic/npc_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/portal_logic_system.h"
-#include "src/client/system/render/ball_render_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
+#include "src/client/system/render/ball_render_system.h"
 #include "src/client/system/render/character_render_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/drop_render_system.h"
@@ -95,9 +95,6 @@ bool scene_system_instance::render_game() {
     for (auto &obj : obj_game_instance::data[i] | std::views::values) {
       obj_render_system::render(obj);
     }
-     for (auto &ball : ball_game_instance::data[i]) {
-      ball_render_system::render(ball);
-    }
     for (auto &tile : tile_game_instance::data[i] | std::views::values) {
       tile_render_system::render(tile);
     }
@@ -112,6 +109,9 @@ bool scene_system_instance::render_game() {
     }
     for (auto &mob : mob_array[i]) {
       mob_render_system::render(*mob);
+    }
+    for (auto &ball : ball_game_instance::data[i]) {
+      ball_render_system::render(ball);
     }
     for (auto &character : character_array[i]) {
       character_render_system::render(*character);
@@ -164,6 +164,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   effect_game_instance::reset();
   camera_game_instance::reset();
   statusbar_ui_system::reset();
+  ball_game_instance::reset();
   auto bgm = map_info_game_instance::load_bgm(map_id);
   audio_game_instance::load_backgrnd_audio(bgm);
 

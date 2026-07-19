@@ -6,6 +6,7 @@
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/common/flatbuffers/client.h"
@@ -29,9 +30,10 @@ static void PowerStrke() {
       cat = skill_game_instance::create_attack_payload(cm, self.pos, delay);
       client_request::send_to_host(cat);
     }
-    auto ckt = skill_game_instance::create_skill_payload(cat);
-    ckt.ski_id = 1001001;
-    server_character_instance::handle_ski(ckt.ski_id, ckt.payload, self);
+    auto ski_lvl = job_skill_game_instance::load_skill_level(u"1001001");
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1001001, ski_lvl);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lvl, ckt.payload,
+                                          self);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
@@ -55,9 +57,10 @@ static void SlashBlast() {
       cat = skill_game_instance::create_attack_payload(cm, self.pos, delay);
       client_request::send_to_host(cat);
     }
-    auto ckt = skill_game_instance::create_skill_payload(cat);
-    ckt.ski_id = 1001002;
-    server_character_instance::handle_ski(ckt.ski_id, ckt.payload, self);
+    auto ski_lvl = job_skill_game_instance::load_skill_level(u"1001002");
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1001002, ski_lvl);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lvl, ckt.payload,
+                                          self);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
