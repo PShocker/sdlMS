@@ -42,7 +42,7 @@ static void ThreeSnail() {
       goal.x -= 350;
     }
     auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
-                                                       page, 900, path);
+                                                       page, 700, path);
     client_request::send_to_host(cct);
 
     ClientCharacterAttackT cat;

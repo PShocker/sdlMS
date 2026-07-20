@@ -86,6 +86,7 @@ void mob_game_instance::load_server_mob(
       mob.flip = state->flip;
       mob.pos.x = state->x;
       mob.pos.y = state->y;
+      mob.hp = m->mob_hp;
 
       auto action_type = mob_logic_system::load_action_type(mob.action);
       if (action_type == mob_logic_system::action_enum::die) {

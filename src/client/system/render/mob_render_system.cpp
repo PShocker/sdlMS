@@ -84,14 +84,14 @@ bool mob_render_system::render_effect_back(game_mob &g_mob) {
 bool mob_render_system::render(game_mob &g_mob) {
   render_mob(g_mob);
   render_effect_back(g_mob);
-  auto r = mob_logic_system::load_rect(g_mob);
-  if (r.has_value()) {
-    SDL_FRect rr = r.value();
-    auto &camera = camera_game_instance::camera;
-    rr.x -= camera.x;
-    rr.y -= camera.y;
-    SDL_RenderFillRect(window::renderer, &rr);
-  }
+  // auto r = mob_logic_system::load_rect(g_mob);
+  // if (r.has_value()) {
+  //   SDL_FRect rr = r.value();
+  //   auto &camera = camera_game_instance::camera;
+  //   rr.x -= camera.x;
+  //   rr.y -= camera.y;
+  //   SDL_RenderFillRect(window::renderer, &rr);
+  // }
 
   return true;
 }

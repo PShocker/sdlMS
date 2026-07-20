@@ -1769,6 +1769,7 @@ struct MobT : public ::flatbuffers::NativeTable {
   typedef Mob TableType;
   uint32_t mob_index = 0;
   uint32_t mob_id = 0;
+  int64_t mob_hp = 0;
   std::unique_ptr<fbs::LifeStateT> state{};
   MobT() = default;
   MobT(const MobT &o);
@@ -1782,7 +1783,8 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MOB_INDEX = 4,
     VT_MOB_ID = 6,
-    VT_STATE = 8
+    VT_MOB_HP = 8,
+    VT_STATE = 10
   };
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
@@ -1796,6 +1798,12 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_mob_id(uint32_t _mob_id = 0) {
     return SetField<uint32_t>(VT_MOB_ID, _mob_id, 0);
   }
+  int64_t mob_hp() const {
+    return GetField<int64_t>(VT_MOB_HP, 0);
+  }
+  bool mutate_mob_hp(int64_t _mob_hp = 0) {
+    return SetField<int64_t>(VT_MOB_HP, _mob_hp, 0);
+  }
   const fbs::LifeState *state() const {
     return GetPointer<const fbs::LifeState *>(VT_STATE);
   }
@@ -1807,6 +1815,7 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
            VerifyField<uint32_t>(verifier, VT_MOB_ID, 4) &&
+           VerifyField<int64_t>(verifier, VT_MOB_HP, 8) &&
            VerifyOffset(verifier, VT_STATE) &&
            verifier.VerifyTable(state()) &&
            verifier.EndTable();
@@ -1826,6 +1835,9 @@ struct MobBuilder {
   void add_mob_id(uint32_t mob_id) {
     fbb_.AddElement<uint32_t>(Mob::VT_MOB_ID, mob_id, 0);
   }
+  void add_mob_hp(int64_t mob_hp) {
+    fbb_.AddElement<int64_t>(Mob::VT_MOB_HP, mob_hp, 0);
+  }
   void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
     fbb_.AddOffset(Mob::VT_STATE, state);
   }
@@ -1844,8 +1856,10 @@ inline ::flatbuffers::Offset<Mob> CreateMob(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t mob_index = 0,
     uint32_t mob_id = 0,
+    int64_t mob_hp = 0,
     ::flatbuffers::Offset<fbs::LifeState> state = 0) {
   MobBuilder builder_(_fbb);
+  builder_.add_mob_hp(mob_hp);
   builder_.add_state(state);
   builder_.add_mob_id(mob_id);
   builder_.add_mob_index(mob_index);
@@ -4120,12 +4134,14 @@ inline ::flatbuffers::Offset<Player> Player::Pack(::flatbuffers::FlatBufferBuild
 inline MobT::MobT(const MobT &o)
       : mob_index(o.mob_index),
         mob_id(o.mob_id),
+        mob_hp(o.mob_hp),
         state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr) {
 }
 
 inline MobT &MobT::operator=(MobT o) FLATBUFFERS_NOEXCEPT {
   std::swap(mob_index, o.mob_index);
   std::swap(mob_id, o.mob_id);
+  std::swap(mob_hp, o.mob_hp);
   std::swap(state, o.state);
   return *this;
 }
@@ -4141,6 +4157,7 @@ inline void Mob::UnPackTo(MobT *_o, const ::flatbuffers::resolver_function_t *_r
   (void)_resolver;
   { auto _e = mob_index(); _o->mob_index = _e; }
   { auto _e = mob_id(); _o->mob_id = _e; }
+  { auto _e = mob_hp(); _o->mob_hp = _e; }
   { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
 }
 
@@ -4154,11 +4171,13 @@ inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_f
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MobT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _mob_index = _o->mob_index;
   auto _mob_id = _o->mob_id;
+  auto _mob_hp = _o->mob_hp;
   auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
   return fbs::CreateMob(
       _fbb,
       _mob_index,
       _mob_id,
+      _mob_hp,
       _state);
 }
 

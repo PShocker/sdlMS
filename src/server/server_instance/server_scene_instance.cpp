@@ -59,6 +59,7 @@ void server_scene_instance::send_scene_clients(uint64_t client_id,
   }
   for (const auto &[k, m] : scene.mobs) {
     auto &mobt = r.mobs.emplace_back(std::make_unique<MobT>());
+    mobt->mob_hp = m.hp;
     mobt->mob_index = m.index;
     mobt->mob_id = std::stoi(std::string{m.id.begin(), m.id.end()});
     mobt->state = std::make_unique<LifeStateT>();

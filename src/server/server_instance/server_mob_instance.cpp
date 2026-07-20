@@ -59,7 +59,7 @@ void server_mob_instance::load_mob(server_scene &scene) {
     }
     mob.duration = window::dt_now;
 
-    auto info_node = mob_game_instance::load_link_mob_node(mob.id);
+    auto info_node = mob_game_instance::load_mob_info(mob.id);
     mob.hp =
         static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
     mob.mp =

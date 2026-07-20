@@ -129,7 +129,7 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
     CharacterAttackT ct;
     ct.mob_index = atk_mobs[i].mob.index;
     ct.attack = std::make_unique<AttackT>();
-    ct.attack->num = 1;
+    ct.attack->num = 100;
     ct.attack->delay = delay + i * 60;
     ct.attack->x = atk_mobs[i].x;
     ct.attack->y = atk_mobs[i].y;

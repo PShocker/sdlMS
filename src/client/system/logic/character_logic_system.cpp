@@ -855,7 +855,7 @@ void character_logic_system::run_network_sync() {
     f.flip = g_character.flip;
     ClientCharacterFlipT fpt;
     fpt.map_id = map_id;
-    fpt.payload = std::make_unique<FlipT>(fpt);
+    fpt.payload = std::make_unique<FlipT>(f);
     client_request::send_to_host(fpt);
     flip = g_character.flip;
   }
@@ -870,7 +870,7 @@ void character_logic_system::run_network_sync() {
 
     ClientCharacterActionT cct;
     cct.map_id = map_id;
-    cct.payload = std::make_unique<ActionT>(cct);
+    cct.payload = std::make_unique<ActionT>(a);
 
     client_request::send_to_host(cct);
     action = g_character.action;

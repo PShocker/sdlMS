@@ -268,16 +268,16 @@ bool character_render_system::render(game_character &g_character) {
   // r.y -= camera.y;
   // SDL_RenderFillRect(window::renderer, &r);
 
-  auto pos = g_character.pos;
-  auto &camera = camera_game_instance::camera;
-  pos.x -= camera.x;
-  pos.y -= camera.y;
-  pos.y -= 30;
-  SDL_FPoint p1{pos.x - 350, pos.y - 100};
-  SDL_FPoint p2{pos.x - 350, pos.y + 100};
-  SDL_SetRenderDrawColor(window::renderer, 255, 0, 0, 255);
-  SDL_RenderLine(window::renderer, p1.x, p1.y, p2.x, p2.y);
-  SDL_RenderLine(window::renderer, p1.x, p1.y, pos.x, pos.y);
-  SDL_RenderLine(window::renderer, p2.x, p2.y, pos.x, pos.y);
+  // auto pos = g_character.pos;
+  // auto &camera = camera_game_instance::camera;
+  // pos.x -= camera.x;
+  // pos.y -= camera.y;
+  // pos.y -= 30;
+  // SDL_FPoint p1{pos.x - 350, pos.y - 100};
+  // SDL_FPoint p2{pos.x - 350, pos.y + 100};
+  // SDL_SetRenderDrawColor(window::renderer, 255, 0, 0, 255);
+  // SDL_RenderLine(window::renderer, p1.x, p1.y, p2.x, p2.y);
+  // SDL_RenderLine(window::renderer, p1.x, p1.y, pos.x, pos.y);
+  // SDL_RenderLine(window::renderer, p2.x, p2.y, pos.x, pos.y);
   return true;
 }

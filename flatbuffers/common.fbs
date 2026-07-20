@@ -110,6 +110,7 @@ table Player{
 table Mob{
     mob_index:uint32;
     mob_id:uint32;
+    mob_hp:int64;
     state:LifeState;
 }
 

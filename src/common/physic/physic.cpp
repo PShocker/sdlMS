@@ -199,70 +199,119 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
                   std::optional<SDL_FRect> border, bool fall_collide,
                   bool wall_collide, int32_t &current_fh, uint8_t &page,
                   const std::flat_map<int32_t, game_foothold> &fhs) {
+  // 限速
   vspeed = std::clamp(vspeed, vspeed_min, vspeed_max);
+
+  // 计算新位置
   SDL_FPoint new_pos = pos;
   new_pos.x += hspeed * delta_time;
   new_pos.y += vspeed * delta_time;
+
+  // 获取碰撞信息
   auto inter_pos = fall_intersect_pos(pos, new_pos, fhs);
   pos = new_pos;
+
+  // 边界限制
   if (border.has_value()) {
     pos.x = std::clamp(pos.x, border->x, border->w);
     pos.y = std::clamp(pos.y, border->y, border->h);
   }
-  // 下落
-  if (vspeed >= 0) {
-    if (fall_collide) {
-      while (!inter_pos.empty()) {
-        auto first = *inter_pos.begin(); // 下落取y最小
-        const auto &collide_pos = first.second.pos;
-        const auto &fh = first.second.fh;
-        if (fh.x2 >= fh.x1) {
-          // 碰撞
-          if (fh.k.has_value()) {
-            // 落地
-            current_fh = fh.id;
-            hspeed = hspeed / 2;
-            vspeed = 0;
-            page = fh.page;
-            pos = collide_pos;
-            return false;
-          } else {
-            // 撞墙
-            if (fall_collide_wall(hspeed, fh, fhs)) {
-              pos = collide_pos;
-              pos.x += hspeed < 0 ? 0.1 : -0.1;
-              hspeed = 0;
-              return true;
-            }
-          }
-        }
-        inter_pos.erase(inter_pos.begin());
-      }
+
+  // 如果不需要碰撞检测或没有碰撞点，直接返回
+  if (!fall_collide || inter_pos.empty()) {
+    return true;
+  }
+
+  // Lambda: 处理墙碰撞
+  auto handle_wall = [&](const game_foothold &fh,
+                         const SDL_FPoint &collide_pos) -> bool {
+    if (!wall_collide)
+      return false;
+    if (fall_collide_wall(hspeed, fh, fhs)) {
+      pos.x = fh.x1;
+      pos.x += (hspeed < 0) ? 0.1f : -0.1f;
+      hspeed = 0;
+      return true;
     }
-  } else {
-    // vspeed<0
-    // 只需要和天花板,墙碰撞
-    while (!inter_pos.empty()) {
-      auto last = *inter_pos.rbegin(); // 上升取y最大
-      const auto &collide_pos = last.second.pos;
-      const auto &fh = last.second.fh;
-      if (!fh.k.has_value()) {
+    return false;
+  };
+
+  // Lambda: 处理落地
+  auto handle_landing = [&](const game_foothold &fh,
+                            const SDL_FPoint &collide_pos) -> bool {
+    current_fh = fh.id;
+    hspeed /= 2;
+    vspeed = 0;
+    page = fh.page;
+    pos = collide_pos;
+    return false;
+  };
+
+  // Lambda: 判断是否在斜坡上
+  auto is_on_slope = [&](const game_foothold &fh) -> bool {
+    if (hspeed == 0) {
+      return false;
+    }
+    if (!fh.k.has_value() || fh.k.value() == 0)
+      return false;
+    bool slope_forward = !(new_pos.x > pos.x && fh.y1 < fh.y2);
+    bool slope_backward = !(new_pos.x < pos.x && fh.y1 > fh.y2);
+    return slope_forward && slope_backward;
+  };
+
+  // 下落 (vspeed >= 0)
+  if (vspeed >= 0) {
+    for (auto it = inter_pos.begin(); it != inter_pos.end(); ++it) {
+      const auto &collide_pos = it->second.pos;
+      const auto &fh = it->second.fh;
+
+      // 只处理从左到右的立足点
+      if (fh.x2 < fh.x1)
+        continue;
+
+      if (fh.k.has_value()) {
+        // 落地
+        return handle_landing(fh, collide_pos);
+      } else {
         // 撞墙
-        if (fall_collide_wall(hspeed, fh, fhs)) {
-          pos.x = fh.x1;
-          pos.x += hspeed < 0 ? 0.1 : -0.1;
-          hspeed = 0;
+        if (handle_wall(fh, collide_pos)) {
           return true;
         }
-      } else if (fh.x2 < fh.x1 && fh.zmass == 0) {
-        if (fall_collide_wall(hspeed, fh, fhs)) {
+      }
+    }
+  }
+  // 上升 (vspeed < 0)
+  else {
+    for (auto it = inter_pos.rbegin(); it != inter_pos.rend(); ++it) {
+      const auto &collide_pos = it->second.pos;
+      const auto &fh = it->second.fh;
+
+      if (!fh.k.has_value()) {
+        // 撞墙
+        if (handle_wall(fh, collide_pos)) {
+          return true;
+        }
+        continue;
+      }
+
+      // 有斜率的情况
+      if (fh.k.value() != 0) {
+        if (is_on_slope(fh)) {
+          // 在斜坡上落地
+          return handle_landing(fh, collide_pos);
+        }
+      }
+
+      // 天花板碰撞
+      if (fh.x2 < fh.x1 && fh.zmass == 0) {
+        if (wall_collide && fall_collide_wall(hspeed, fh, fhs)) {
           vspeed = 0;
           pos.y = collide_pos.y;
           return true;
         }
       }
-      inter_pos.erase(std::prev(inter_pos.end()));
     }
   }
+
   return true;
 }
