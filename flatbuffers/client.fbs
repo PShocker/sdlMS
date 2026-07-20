@@ -11,11 +11,6 @@ table ClientScene {
     character:Character;
 }
 
-table ClientCharacterLogic {
-    map_id:uint32;
-    payload:CharacterLogicType;
-}
-
 table ClientCharacterAttack {
     payload:[CharacterAttack];
 }
@@ -32,7 +27,7 @@ table ClientCharacterBall {
 
 table ClientMobAttack {
     map_id:uint32;
-    payload:MobAttack;
+    payload:Attack;
 }
 
 table ClientCharacterChat {
@@ -68,4 +63,33 @@ table ClientCharacterTrade {
    request:bool;
    payload:[ItemUnion];
    confirm:bool;
+}
+
+table ClientCharacterState {
+    payload:[State];
+}
+
+table ClientCharacterMv {
+    map_id:uint32;
+    payload:Movement;
+}
+
+table ClientCharacterFlip {
+    map_id:uint32;
+    payload:Flip;
+}
+
+table ClientCharacterAction {
+    map_id:uint32;
+    payload:Action;
+}
+
+table ClientCharacterDie {
+    map_id:uint32;
+    payload:Die;
+}
+
+table ClientCharacterFc {
+    map_id:uint32;
+    payload:Face;
 }

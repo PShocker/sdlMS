@@ -16,7 +16,7 @@ using namespace fbs;
 
 struct mob_server_data {
   game_mob mob;
-  std::flat_map<MobLogicType, std::vector<MobLogicTypeUnion>> logics;
+  std::vector<MovementT> mvs;
 };
 
 class mob_game_instance {
@@ -28,9 +28,6 @@ public:
   static void load(uint32_t map_id);
 
   static void load_server_mob(const std::vector<std::unique_ptr<MobT>> &v);
-  static void load_mob_attack(uint64_t client_id, const MobAttackT *m);
-
-  static void server_mob_logic(const ServerMobLogicT &v);
-
+  
   static inline std::flat_map<int32_t, mob_server_data> data;
 };

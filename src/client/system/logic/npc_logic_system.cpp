@@ -55,7 +55,6 @@ bool npc_logic_system::run_duration(game_npc &g_npc) {
   child.erase(u"info");
   std::uniform_int_distribution<> dis(0, child.size() - 1);
 
-  // flat_map 支持随机访问
   auto &gen = random_game_instance::gen;
   auto it = std::next(child.begin(), dis(gen));
   auto random_key = it->first;

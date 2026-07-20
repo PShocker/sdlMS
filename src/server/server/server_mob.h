@@ -13,6 +13,7 @@ struct mob_beat {
   uint64_t beat_id; // client_id
   uint64_t beat_start_time;
   int32_t beat_time;
+  int64_t beat_num;
   bool left;
 };
 

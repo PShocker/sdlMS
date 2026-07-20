@@ -13,10 +13,6 @@ table ServerScene {
     mobs:[Mob];
 }
 
-table ServerCharacterLogic {
-    payload:CharacterLogic;
-}
-
 table ServerCharacterIn {
     player:Player;
 }
@@ -25,9 +21,42 @@ table ServerCharacterOut {
     client_id:uint64;
 }
 
-table ServerMobLogic {
+table ServerMobMv {
+    mob_index:uint32;
+    payload:Movement;
+}
+
+table ServerMobFlip {
+    mob_index:uint32;
+    payload:Flip;
+}
+
+table ServerMobAction {
+    mob_index:uint32;
+    payload:Action;
+}
+
+table ServerMobState {
+    mob_index:uint32;
+    payload:[State];
+}
+
+table ServerMobDie {
+    mob_index:uint32;
+    drop:[Drop];
+}
+
+union MobEventUnion {
+    ServerMobMv,
+    ServerMobFlip,
+    ServerMobAction,
+    ServerMobState,
+    ServerMobDie,
+}
+
+table ServerMobEvent {
     map_id:uint32;
-    payload:[MobLogic];
+    payload:[MobEventUnion];
 }
 
 table ServerCharacterAttack {
@@ -49,7 +78,7 @@ table ServerCharacterBall {
 
 table ServerMobAttack {
     client_id:uint64;
-    payload:MobAttack;
+    payload:Attack;
 }
 
 table ServerCharacterChat {
@@ -84,6 +113,28 @@ table ServerCharacterTrade {
    confirm:bool;
 }
 
-table ServerMobDrop {
-    payload:[Drop];
+
+table ServerCharacterMv {
+    client_id:uint64;
+    payload:Movement;
+}
+
+table ServerCharacterFlip {
+    client_id:uint64;
+    payload:Flip;
+}
+
+table ServerCharacterAction {
+    client_id:uint64;
+    payload:Action;
+}
+
+table ServerCharacterDie {
+    client_id:uint64;
+    payload:Die;
+}
+
+table ServerCharacterFc {
+    client_id:uint64;
+    payload:Face;
 }

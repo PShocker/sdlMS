@@ -50,11 +50,39 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_scene_instance::handle_scene(client_id, r);
     break;
   }
-  case NetPayload_ClientCharacterLogic: {
-    auto payload = packet->payload_as_ClientCharacterLogic();
-    fbs::ClientCharacterLogicT r;
+  case NetPayload_ClientCharacterMv: {
+    auto payload = packet->payload_as_ClientCharacterMv();
+    fbs::ClientCharacterMvT r;
     payload->UnPackTo(&r);
-    server_character_instance::handle_logic(client_id, r);
+    server_character_instance::handle_mv(client_id, r);
+    break;
+  }
+  case NetPayload_ClientCharacterFlip: {
+    auto payload = packet->payload_as_ClientCharacterFlip();
+    fbs::ClientCharacterFlipT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_flip(client_id, r);
+    break;
+  }
+  case NetPayload_ClientCharacterAction: {
+    auto payload = packet->payload_as_ClientCharacterAction();
+    fbs::ClientCharacterActionT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_action(client_id, r);
+    break;
+  }
+  case NetPayload_ClientCharacterDie: {
+    auto payload = packet->payload_as_ClientCharacterDie();
+    fbs::ClientCharacterDieT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_die(client_id, r);
+    break;
+  }
+  case NetPayload_ClientCharacterFc: {
+    auto payload = packet->payload_as_ClientCharacterFc();
+    fbs::ClientCharacterFcT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_fc(client_id, r);
     break;
   }
   case NetPayload_ClientCharacterAttack: {
@@ -161,16 +189,39 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     character_game_instance::load_others_character(r.player);
     break;
   }
-  case NetPayload_ServerCharacterLogic: {
-    auto payload = packet->payload_as_ServerCharacterLogic();
-    fbs::ServerCharacterLogicT r;
+  case NetPayload_ServerCharacterMv: {
+    auto payload = packet->payload_as_ServerCharacterMv();
+    fbs::ServerCharacterMvT r;
     payload->UnPackTo(&r);
-    if (character_game_instance::others.contains(r.payload->client_id)) {
-      auto &logics =
-          character_game_instance::others[r.payload->client_id].logics;
-      auto type = r.payload->payload.type;
-      logics[type].push_back(r.payload->payload);
-    }
+    server_character_instance::handle_server_mv(client_id, r);
+    break;
+  }
+  case NetPayload_ServerCharacterFlip: {
+    auto payload = packet->payload_as_ServerCharacterFlip();
+    fbs::ServerCharacterFlipT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_server_flip(client_id, r);
+    break;
+  }
+  case NetPayload_ServerCharacterAction: {
+    auto payload = packet->payload_as_ServerCharacterAction();
+    fbs::ServerCharacterActionT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_server_action(client_id, r);
+    break;
+  }
+  case NetPayload_ServerCharacterDie: {
+    auto payload = packet->payload_as_ServerCharacterDie();
+    fbs::ServerCharacterDieT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_server_die(client_id, r);
+    break;
+  }
+  case NetPayload_ServerCharacterFc: {
+    auto payload = packet->payload_as_ServerCharacterFc();
+    fbs::ServerCharacterFcT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_server_fc(client_id, r);
     break;
   }
   case NetPayload_ServerCharacterOut: {
@@ -180,11 +231,11 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     character_game_instance::exit_others_character(r.client_id);
     break;
   }
-  case NetPayload_ServerMobLogic: {
-    auto payload = packet->payload_as_ServerMobLogic();
-    fbs::ServerMobLogicT r;
+  case NetPayload_ServerMobEvent: {
+    auto payload = packet->payload_as_ServerMobEvent();
+    fbs::ServerMobEventT r;
     payload->UnPackTo(&r);
-    mob_game_instance::server_mob_logic(r);
+    server_mob_instance::handle_server_event(r);
     break;
   }
   case NetPayload_ServerCharacterAttack: {
@@ -205,7 +256,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerMobAttack();
     fbs::ServerMobAttackT r;
     payload->UnPackTo(&r);
-    mob_game_instance::load_mob_attack(r.client_id, r.payload.get());
+    server_mob_instance::handle_server_attack(r);
     break;
   }
   case NetPayload_ServerCharacterChat: {
@@ -253,12 +304,6 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterTradeT r;
     payload->UnPackTo(&r);
     server_trade_instance::handle_server(client_id, r);
-    break;
-  }
-  case NetPayload_ServerMobDrop: {
-    auto payload = packet->payload_as_ServerMobDrop();
-    fbs::ServerMobDropT r;
-    payload->UnPackTo(&r);
     break;
   }
   case NetPayload_ServerCharacterBall: {

@@ -106,6 +106,9 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
         mob_action == mob_logic_system::action_enum::die) {
       continue;
     }
+    if (mob.hp <= 0) {
+      continue;
+    }
     auto m_r = mob_logic_system::load_rect(mob).value();
     auto t = triangle_game_instance::load_tri(tri, g_character.flip,
                                               g_character.pos);
@@ -138,6 +141,9 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
         mob_action == mob_logic_system::action_enum::die) {
       continue;
     }
+    if (mob.hp <= 0) {
+      continue;
+    }
     auto m_r = mob_logic_system::load_rect(mob).value();
     if (SDL_HasRectIntersectionFloat(&m_r, &g_r)) {
       auto &m_pos = mob.pos;
@@ -156,20 +162,6 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
   }
   v.append_range(m.values());
   return {v};
-}
-
-std::vector<uint64_t>
-character_logic_system::run_buff_check(game_character &g_character,
-                                       SDL_FRect g_r) {
-  std::vector<uint64_t> r;
-  auto &g_pos = g_character.pos;
-  for (auto [k, o] : character_game_instance::others) {
-    auto o_r = load_rect(o.g_character);
-    if (SDL_HasRectIntersectionFloat(&o_r, &g_r)) {
-      r.push_back(k);
-    }
-  }
-  return r;
 }
 
 bool character_logic_system::run_action(game_character &g_character,
@@ -657,7 +649,6 @@ bool character_logic_system::run_attack(game_character &g_character) {
     auto g_action = load_action_type(g_character);
     auto g_weapon = g_character.weapon->id;
     auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
-    std::u16string sfx;
     uint64_t delay;
     auto weapon_type = equip_game_instance::load_weapon_type(g_character);
     bool shoot = false;
@@ -712,13 +703,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       client_request::send_to_host(t);
     }
     self_alert_cooldown = window::dt_now + 5000;
-    if (sfx.empty()) {
-      sfx = static_cast<wz::Property<std::u16string> *>(
-                g_weapon_info->get_child(u"sfx"))
-                ->get() +
-            u"/Attack";
-    }
-    audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
+    load_sfx(g_character);
     return true;
   }
   return false;
@@ -846,8 +831,7 @@ void character_logic_system::run_network_sync() {
   }
   time = window::dt_now;
   const auto &g_character = character_game_instance::self;
-  ClientCharacterLogicT req;
-  req.map_id = scene_system_instance::map_id;
+  auto map_id = scene_system_instance::map_id;
 
   static SDL_FPoint pos;
   if ((g_character.pos.x != pos.x || g_character.pos.y != pos.y) &&
@@ -860,15 +844,19 @@ void character_logic_system::run_network_sync() {
     mv.page = g_character.page;
     mv.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
     pos = g_character.pos;
-    req.payload.Set(mv);
-    client_request::send_to_host(req);
+    ClientCharacterMvT mvt;
+    mvt.map_id = map_id;
+    mvt.payload = std::make_unique<MovementT>(mv);
+    client_request::send_to_host(mvt);
   }
   static bool flip;
   if (flip != g_character.flip) {
     FlipT f;
     f.flip = g_character.flip;
-    req.payload.Set(f);
-    client_request::send_to_host(req);
+    ClientCharacterFlipT fpt;
+    fpt.map_id = map_id;
+    fpt.payload = std::make_unique<FlipT>(fpt);
+    client_request::send_to_host(fpt);
     flip = g_character.flip;
   }
   static std::u16string action;
@@ -879,19 +867,26 @@ void character_logic_system::run_network_sync() {
     a.action = {g_character.action.begin(), g_character.action.end()};
     a.action_animate = g_character.action_animate;
     a.action_index = g_character.action_index;
-    req.payload.Set(a);
-    client_request::send_to_host(req);
+
+    ClientCharacterActionT cct;
+    cct.map_id = map_id;
+    cct.payload = std::make_unique<ActionT>(cct);
+
+    client_request::send_to_host(cct);
     action = g_character.action;
     action_animate = g_character.action_animate;
   }
+
   static std::u16string face;
   if (face != g_character.face.action) {
     if (g_character.face.action != u"blink") {
       FaceT ft;
       ft.face_action = {g_character.face.action.begin(),
                         g_character.face.action.end()};
-      req.payload.Set(ft);
-      client_request::send_to_host(req);
+      ClientCharacterFcT fct;
+      fct.map_id = map_id;
+      fct.payload = std::make_unique<FaceT>(ft);
+      client_request::send_to_host(fct);
       face = g_character.face.action;
     }
   }
@@ -901,9 +896,9 @@ void character_logic_system::run_network_die_sync(game_character &g_character) {
   DieT d;
   d.x = g_character.pos.x;
   d.y = g_character.pos.y;
-  ClientCharacterLogicT req;
+  ClientCharacterDieT req;
   req.map_id = scene_system_instance::map_id;
-  req.payload.Set(d);
+  req.payload = std::make_unique<DieT>(d);
   client_request::send_to_host(req);
   return;
 }
@@ -1105,135 +1100,36 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   run_network_sync();
 }
 
-void character_logic_system::run_others_logic() {
+void character_logic_system::run_others_mv() {
   for (auto &c : character_game_instance::others | std::views::values) {
-    for (const auto &[k, v] : c.logics) {
-      switch (k) {
-      case fbs::CharacterLogicType_Movement: {
-        if (v.empty()) {
-          break;
-        }
-        auto &l = v[0];
-        auto mv = *l.AsMovement();
-        auto per = window::delta_time / (float)mv.time;
-        // 计算当前点在线段上的进度（基于 x 和 y）
-        float dx = mv.x2 - mv.x1;
-        float dy = mv.y2 - mv.y1;
-        float length_sq = dx * dx + dy * dy;
+    auto &mvs = c.mvs;
+    if (mvs.empty()) {
+      continue;
+    }
+    auto mv = mvs[0];
+    auto per = window::delta_time / (float)mv.time;
+    // 计算当前点在线段上的进度（基于 x 和 y）
+    float dx = mv.x2 - mv.x1;
+    float dy = mv.y2 - mv.y1;
+    float length_sq = dx * dx + dy * dy;
 
-        if (length_sq > 0) {
-          // 投影参数 t：当前点在线段上的位置（0=起点，1=终点）
-          float t = ((c.g_character.pos.x - mv.x1) * dx +
-                     (c.g_character.pos.y - mv.y1) * dy) /
-                    length_sq;
-          t = std::clamp(t, 0.0f, 1.0f);
-          per += t;
-        }
-        per = std::min(per, 1.0f);
+    if (length_sq > 0) {
+      // 投影参数 t：当前点在线段上的位置（0=起点，1=终点）
+      float t = ((c.g_character.pos.x - mv.x1) * dx +
+                 (c.g_character.pos.y - mv.y1) * dy) /
+                length_sq;
+      t = std::clamp(t, 0.0f, 1.0f);
+      per += t;
+    }
+    per = std::min(per, 1.0f);
 
-        auto per_x = mv.x1 + (mv.x2 - mv.x1) * per;
-        auto per_y = mv.y1 + (mv.y2 - mv.y1) * per;
-        c.g_character.pos.x = per_x;
-        c.g_character.pos.y = per_y;
-        c.g_character.page = mv.page;
-        if (per >= 1.0f) {
-          v.erase(v.begin());
-        }
-        break;
-      }
-      case fbs::CharacterLogicType_Flip: {
-        if (v.empty()) {
-          break;
-        }
-        auto f = *v.back().AsFlip();
-        c.g_character.flip = f.flip;
-        v.clear();
-        break;
-      }
-      case fbs::CharacterLogicType_Action: {
-        if (v.empty()) {
-          break;
-        }
-        auto a = *v.back().AsAction();
-        c.g_character.action = std::u16string{a.action.begin(), a.action.end()};
-        c.g_character.action_index = a.action_index;
-        c.g_character.action_animate = a.action_animate;
-        c.g_character.action_time = 0;
-        auto action = load_action_type(c.g_character);
-        switch (action) {
-        case action_enum::attack: {
-          auto weapon_type =
-              equip_game_instance::load_weapon_type(c.g_character);
-          bool shoot_weapon = shoot_weapons.contains(weapon_type);
-          auto g_weapon = c.g_character.weapon->id;
-          auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
-          auto sfx = static_cast<wz::Property<std::u16string> *>(
-                         g_weapon_info->get_child(u"sfx"))
-                         ->get();
-          auto actions = weapon_attack_action.at(weapon_type);
-          if (shoot_weapon && actions.contains(c.g_character.action)) {
-            sfx = sfx + u"/Attack2";
-          } else {
-            sfx = sfx + u"/Attack";
-          }
-          auto delay = afterimage_game_instance::load_beat_time(c.g_character);
-          audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
-          break;
-        }
-        case action_enum::dead: {
-          audio_game_instance::load_audio(u"Game.img/Tombstone", 0);
-          break;
-        }
-        default: {
-          break;
-        }
-        }
-        v.clear();
-        break;
-      }
-      case fbs::CharacterLogicType_Die: {
-        if (v.empty()) {
-          break;
-        }
-        auto d = v[0].AsDie();
-        c.g_character.pos.x = d->x;
-        c.g_character.pos.y = d->y;
-        c.g_character.action = u"dead";
-        c.g_character.action_animate = true;
-        c.g_character.action_index = 0;
-        c.g_character.action_time = 0;
-        game_tomb t{
-            .ani_type = u"fall",
-            .ani_index = 0,
-            .ani_time = 0,
-            .pos = {d->x, d->y - 300},
-            .b = c.g_character.pos,
-        };
-        c.g_character.tomb = t;
-        v.clear();
-        break;
-      }
-      case fbs::CharacterLogicType_Face: {
-        if (v.empty()) {
-          break;
-        }
-        auto f = v[0].AsFace();
-        c.g_character.face.action =
-            std::u16string{f->face_action.begin(), f->face_action.end()};
-        c.g_character.face.index = 0;
-        c.g_character.face.time = 0;
-        if (c.g_character.face.action == u"default") {
-          c.g_character.face.destory = window::dt_now + 4000;
-        } else {
-          c.g_character.face.destory = UINT64_MAX;
-        }
-        v.clear();
-        break;
-      }
-      default: {
-        std::abort();
-      }
-      }
+    auto per_x = mv.x1 + (mv.x2 - mv.x1) * per;
+    auto per_y = mv.y1 + (mv.y2 - mv.y1) * per;
+    c.g_character.pos.x = per_x;
+    c.g_character.pos.y = per_y;
+    c.g_character.page = mv.page;
+    if (per >= 1.0f) {
+      mvs.erase(mvs.begin());
     }
   }
 }
@@ -1279,7 +1175,7 @@ void character_logic_system::run_others_state_machine() {
 
 void character_logic_system::run_others() {
   run_others_state_machine();
-  run_others_logic();
+  run_others_mv();
 }
 
 // 人物状态机
@@ -1322,4 +1218,15 @@ void character_logic_system::run_die_action(game_character &g_character) {
   audio_game_instance::load_audio(u"Game.img/Tombstone", 0);
 
   revive_ui_system::toggle();
+}
+
+void character_logic_system::load_sfx(game_character &g_character) {
+  auto delay = afterimage_game_instance::load_beat_time(g_character);
+  auto g_weapon = g_character.weapon->id;
+  auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
+  auto sfx = static_cast<wz::Property<std::u16string> *>(
+                 g_weapon_info->get_child(u"sfx"))
+                 ->get() +
+             u"/Attack";
+  audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
 }

@@ -7,13 +7,21 @@
 using namespace fbs;
 
 class server_character_instance {
-private:
-  static void save_state(uint64_t client_id, ClientCharacterLogicT &m);
-  static void send_logic(uint64_t client_id, ClientCharacterLogicT &m);
-
 public:
   static void handle_attack(uint64_t client_id, ClientCharacterAttackT &r);
-  static void handle_logic(uint64_t client_id, ClientCharacterLogicT &m);
+
+  static void handle_mv(uint64_t client_id, ClientCharacterMvT &m);
+  static void handle_flip(uint64_t client_id, ClientCharacterFlipT &m);
+  static void handle_action(uint64_t client_id, ClientCharacterActionT &m);
+  static void handle_die(uint64_t client_id, ClientCharacterDieT &m);
+  static void handle_fc(uint64_t client_id, ClientCharacterFcT &m);
+
+  static void handle_server_mv(uint64_t client_id, ServerCharacterMvT &m);
+  static void handle_server_flip(uint64_t client_id, ServerCharacterFlipT &m);
+  static void handle_server_action(uint64_t client_id, ServerCharacterActionT &m);
+  static void handle_server_die(uint64_t client_id, ServerCharacterDieT &m);
+  static void handle_server_fc(uint64_t client_id, ServerCharacterFcT &m);
+
   static void handle_skill(uint64_t client_id, ClientCharacterSkillT &r);
   static void handle_chat(uint64_t client_id, ClientCharacterChatT &r);
   static void handle_server_chat(uint64_t client_id, ServerCharacterChatT &r);

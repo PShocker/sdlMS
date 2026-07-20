@@ -6,7 +6,9 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -23,86 +25,215 @@
 
 using namespace fbs;
 
-void server_character_instance::save_state(uint64_t client_id,
-                                           ClientCharacterLogicT &m) {
-
+void server_character_instance::handle_mv(uint64_t client_id,
+                                          ClientCharacterMvT &m) {
+  if (!server_client_instance::clients.contains(client_id)) {
+    return;
+  }
   auto &client = server_client_instance::clients.at(client_id);
   auto &character = client.player_t.character;
-  switch (m.payload.type) {
-  case CharacterLogicType_Movement: {
-    const auto mv = m.payload.AsMovement();
-    character->state->x = mv->x2;
-    character->state->y = mv->y2;
-    character->state->page = mv->page;
-    break;
-  }
-  case CharacterLogicType_Flip: {
-    const auto f = m.payload.AsFlip();
-    character->state->flip = f->flip;
-    break;
-  }
-  case CharacterLogicType_Action: {
-    const static std::flat_set<std::string> actions = {
-        "stand1", "stand2", "alert",  "walk1", "walk2",
-        "prone",  "jump",   "ladder", "rope",  "dead",
-    };
-    const auto a = m.payload.AsAction();
-    if (actions.contains(a->action)) {
-      character->state->action = a->action;
-      character->state->action_index = a->action_index;
-      character->state->action_animate = a->action_animate;
-    }
-    break;
-  }
-  case CharacterLogicType_Die: {
-    const auto d = m.payload.AsDie();
-    character->state->x = d->x;
-    character->state->y = d->y;
-    character->state->action = "dead";
-    character->state->action_index = 0;
-    character->state->action_animate = true;
-    break;
-  }
-  case CharacterLogicType_Face: {
-    const auto f = m.payload.AsFace();
-    character->face->face_action = f->face_action;
-    break;
-  }
-  default: {
-    std::abort();
-    break;
-  }
-  }
-}
 
-void server_character_instance::send_logic(uint64_t client_id,
-                                           ClientCharacterLogicT &m) {
+  character->state->x = m.payload->x2;
+  character->state->y = m.payload->y2;
+  character->state->page = m.payload->page;
+
   const auto client_map_id = m.map_id;
   auto clients = server_scene_instance::scenes[client_map_id].clients;
-
   // 移除当前客户端，只发给其他客户端
   clients.erase(client_id);
-
-  // 创建要发送的数据包
-  ServerCharacterLogicT t; // 假设这是响应的包装结构
-                           // 关键：将union设置到payload中
-  CharacterLogicT t2;
-  t2.client_id = client_id;
-  t2.payload = m.payload;
-  t.payload = std::make_unique<CharacterLogicT>(t2);
+  ServerCharacterMvT t;
+  t.client_id = client_id;
+  t.payload = std::move(m.payload);
   // 广播给其他所有客户端
   for (const auto c : clients) {
     server_response::send_to_client(c, t);
   }
 }
 
-void server_character_instance::handle_logic(uint64_t client_id,
-                                             ClientCharacterLogicT &m) {
+void server_character_instance::handle_flip(uint64_t client_id,
+                                            ClientCharacterFlipT &m) {
   if (!server_client_instance::clients.contains(client_id)) {
     return;
   }
-  send_logic(client_id, m);
-  save_state(client_id, m);
+  auto &client = server_client_instance::clients.at(client_id);
+  auto &character = client.player_t.character;
+
+  character->state->flip = m.payload->flip;
+
+  const auto client_map_id = m.map_id;
+  auto clients = server_scene_instance::scenes[client_map_id].clients;
+  clients.erase(client_id);
+  ServerCharacterFlipT t;
+  t.client_id = client_id;
+  t.payload = std::move(m.payload);
+  // 广播给其他所有客户端
+  for (const auto c : clients) {
+    server_response::send_to_client(c, t);
+  }
+}
+
+void server_character_instance::handle_action(uint64_t client_id,
+                                              ClientCharacterActionT &m) {
+  if (!server_client_instance::clients.contains(client_id)) {
+    return;
+  }
+  auto &client = server_client_instance::clients.at(client_id);
+  auto &character = client.player_t.character;
+
+  const static std::flat_set<std::string> actions = {
+      "stand1", "stand2", "alert",  "walk1", "walk2",
+      "prone",  "jump",   "ladder", "rope",  "dead",
+  };
+  const auto &a = m.payload;
+  if (actions.contains(a->action)) {
+    character->state->action = a->action;
+    character->state->action_index = a->action_index;
+    character->state->action_animate = a->action_animate;
+  }
+
+  const auto client_map_id = m.map_id;
+  auto clients = server_scene_instance::scenes[client_map_id].clients;
+  clients.erase(client_id);
+  ServerCharacterActionT t;
+  t.client_id = client_id;
+  t.payload = std::move(m.payload);
+  // 广播给其他所有客户端
+  for (const auto c : clients) {
+    server_response::send_to_client(c, t);
+  }
+}
+
+void server_character_instance::handle_die(uint64_t client_id,
+                                           ClientCharacterDieT &m) {
+  if (!server_client_instance::clients.contains(client_id)) {
+    return;
+  }
+  auto &client = server_client_instance::clients.at(client_id);
+  auto &character = client.player_t.character;
+
+  character->state->x = m.payload->x;
+  character->state->y = m.payload->y;
+  character->state->action = "dead";
+  character->state->action_index = 0;
+  character->state->action_animate = true;
+
+  const auto client_map_id = m.map_id;
+  auto clients = server_scene_instance::scenes[client_map_id].clients;
+  clients.erase(client_id);
+  ServerCharacterDieT t;
+  t.client_id = client_id;
+  t.payload = std::move(m.payload);
+  // 广播给其他所有客户端
+  for (const auto c : clients) {
+    server_response::send_to_client(c, t);
+  }
+}
+
+void server_character_instance::handle_fc(uint64_t client_id,
+                                          ClientCharacterFcT &m) {
+  if (!server_client_instance::clients.contains(client_id)) {
+    return;
+  }
+  auto &client = server_client_instance::clients.at(client_id);
+  auto &character = client.player_t.character;
+
+  character->face->face_action = m.payload->face_action;
+
+  const auto client_map_id = m.map_id;
+  auto clients = server_scene_instance::scenes[client_map_id].clients;
+  clients.erase(client_id);
+  ServerCharacterFcT t;
+  t.client_id = client_id;
+  t.payload = std::move(m.payload);
+  // 广播给其他所有客户端
+  for (const auto c : clients) {
+    server_response::send_to_client(c, t);
+  }
+}
+
+void server_character_instance::handle_server_mv(uint64_t client_id,
+                                                 ServerCharacterMvT &m) {
+  if (!character_game_instance::others.contains(m.client_id)) {
+    return;
+  }
+  auto &mvs = character_game_instance::others[m.client_id].mvs;
+  mvs.push_back(*m.payload);
+}
+
+void server_character_instance::handle_server_flip(uint64_t client_id,
+                                                   ServerCharacterFlipT &m) {
+  if (!character_game_instance::others.contains(m.client_id)) {
+    return;
+  }
+  auto &c = character_game_instance::others[m.client_id].g_character;
+  c.flip = m.payload->flip;
+}
+
+void server_character_instance::handle_server_action(
+    uint64_t client_id, ServerCharacterActionT &m) {
+  if (!character_game_instance::others.contains(m.client_id)) {
+    return;
+  }
+  auto &c = character_game_instance::others[m.client_id].g_character;
+  const auto &a = m.payload;
+  c.action = std::u16string{a->action.begin(), a->action.end()};
+  c.action_index = a->action_index;
+  c.action_animate = a->action_animate;
+  c.action_time = 0;
+  auto action = character_logic_system::load_action_type(c);
+  switch (action) {
+  case character_logic_system::action_enum::attack: {
+    character_logic_system::load_sfx(c);
+    break;
+  }
+  case character_logic_system::action_enum::dead: {
+    audio_game_instance::load_audio(u"Game.img/Tombstone", 0);
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+}
+
+void server_character_instance::handle_server_die(uint64_t client_id,
+                                                  ServerCharacterDieT &m) {
+  if (!character_game_instance::others.contains(m.client_id)) {
+    return;
+  }
+  auto &c = character_game_instance::others[m.client_id].g_character;
+  const auto &d = m.payload;
+  c.pos.x = d->x;
+  c.pos.y = d->y;
+  c.action = u"dead";
+  c.action_animate = true;
+  c.action_index = 0;
+  c.action_time = 0;
+  game_tomb t{
+      .ani_type = u"fall",
+      .ani_index = 0,
+      .ani_time = 0,
+      .pos = {d->x, d->y - 300},
+      .b = c.pos,
+  };
+  c.tomb = t;
+}
+
+void server_character_instance::handle_server_fc(uint64_t client_id,
+                                                 ServerCharacterFcT &m) {
+  if (!character_game_instance::others.contains(m.client_id)) {
+    return;
+  }
+  const auto &f = m.payload;
+  auto &c = character_game_instance::others[m.client_id].g_character;
+  c.face.action = std::u16string{f->face_action.begin(), f->face_action.end()};
+  c.face.index = 0;
+  c.face.time = 0;
+  if (c.face.action == u"default") {
+    c.face.destory = window::dt_now + 4000;
+  } else {
+    c.face.destory = UINT64_MAX;
+  }
 }
 
 void server_character_instance::handle_skill(uint64_t client_id,
@@ -135,6 +266,7 @@ void server_character_instance::handle_attack(uint64_t client_id,
     mbb.beat_id = client_id;
     mbb.beat_start_time = a->attack->delay;
     mbb.left = a->left;
+    mbb.beat_num = a->attack->num;
     mbb.beat_time = 300;
     mob.beats.emplace(mbb.beat_start_time, mbb);
   }

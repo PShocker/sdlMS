@@ -1,8 +1,11 @@
 #include "server_mob_instance.h"
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
+#include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
@@ -27,35 +30,48 @@ void server_mob_instance::load_mob(server_scene &scene) {
     if (type == u"n") {
       continue;
     }
-    server_mob s_mob;
+    server_mob mob;
     auto mob_node = val[0];
-    s_mob.index = std::stoi(std::string{key.begin(), key.end()});
-    s_mob.id =
+    mob.index = std::stoi(std::string{key.begin(), key.end()});
+    mob.id =
         static_cast<wz::Property<std::u16string> *>(mob_node->get_child(u"id"))
             ->get();
-    s_mob.fh =
+    mob.fh =
         static_cast<wz::Property<int> *>(mob_node->get_child(u"fh"))->get();
-    s_mob.rx0 =
+    mob.rx0 =
         static_cast<wz::Property<int> *>(mob_node->get_child(u"rx0"))->get();
-    s_mob.rx1 =
+    mob.rx1 =
         static_cast<wz::Property<int> *>(mob_node->get_child(u"rx1"))->get();
 
     auto x = static_cast<wz::Property<int> *>(mob_node->get_child(u"x"))->get();
-    auto m_fh = fhs.at(s_mob.fh);
+    auto m_fh = fhs.at(mob.fh);
     auto y = m_fh.k.value() * x + m_fh.intercept.value();
-    s_mob.pos = {static_cast<float>(x), static_cast<float>(y)};
-    s_mob.page = m_fh.page;
+    mob.pos = {static_cast<float>(x), static_cast<float>(y)};
+    mob.page = m_fh.page;
     // default action
-    mob_node = wz_resource::mob->find(s_mob.id + u".img");
+    mob_node = wz_resource::mob->find(mob.id + u".img");
     if (mob_node->get_child(u"info")->get_child("flySpeed")) {
-      s_mob.action = u"fly";
-      s_mob.type = server_mob::mob_type::fly;
+      mob.action = u"fly";
+      mob.type = server_mob::mob_type::fly;
     } else {
-      s_mob.action = u"stand";
-      s_mob.type = server_mob::mob_type::stand;
+      mob.action = u"stand";
+      mob.type = server_mob::mob_type::stand;
     }
-    s_mob.duration = window::dt_now;
-    data[s_mob.index] = s_mob;
+    mob.duration = window::dt_now;
+
+    auto info_node = mob_game_instance::load_link_mob_node(mob.id);
+    mob.hp =
+        static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
+    mob.mp =
+        static_cast<wz::Property<int> *>(info_node->get_child(u"maxMP"))->get();
+    if (info_node->get_child(u"speed") != nullptr) {
+      mob.hspeed =
+          static_cast<wz::Property<int> *>(info_node->get_child(u"speed"))
+              ->get();
+      mob.hspeed = -1 * (float)(mob.hspeed + 100) / 100 * 125;
+      mob.hspeed = (float)(mob.hspeed + 100) / 100 * 125;
+    }
+    data[mob.index] = mob;
   }
   scene.mobs = data;
 }
@@ -75,4 +91,120 @@ void server_mob_instance::handle_attack(uint64_t client_id,
   for (auto c : clients) {
     server_response::send_to_client(c, t);
   }
+}
+
+void server_mob_instance::handle_server_mv(const ServerMobMvT &m) {
+  auto &mvs = mob_game_instance::data.at(m.mob_index).mvs;
+  mvs.push_back(*m.payload);
+}
+
+void server_mob_instance::handle_server_flip(const ServerMobFlipT &m) {
+  auto &mob = mob_game_instance::data.at(m.mob_index).mob;
+  mob.flip = m.payload->flip;
+}
+
+void server_mob_instance::handle_server_action(const ServerMobActionT &m) {
+  auto &mob = mob_game_instance::data.at(m.mob_index).mob;
+  const auto &a = m.payload;
+  mob.action = std::u16string{a->action.begin(), a->action.end()};
+  mob.ani_index = 0;
+  mob.ani_time = 0;
+  mob.ani_animate = a->action_animate;
+}
+
+void server_mob_instance::handle_server_state(const ServerMobStateT &m) {
+  auto &mob = mob_game_instance::data.at(m.mob_index).mob;
+  for (const auto &s : m.payload) {
+    switch (s->state) {
+    case fbs::StateEnum_HP: {
+      mob.hp = s->val;
+      break;
+    }
+    }
+  }
+}
+
+void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
+  auto &mob = mob_game_instance::data.at(m.mob_index).mob;
+  float percent = (float)mob.attack_val / mob.max_hp;
+  if (percent) {
+    auto info_node = mob_game_instance::load_link_mob_node(mob.id);
+    auto max_exp =
+        static_cast<wz::Property<int> *>(info_node->get_child(u"exp"))->get();
+    auto exp = percent * max_exp;
+    game_gain_log g_log{
+        .id = u"",
+        .num = static_cast<uint64_t>(exp),
+        .destory = window::dt_now + 5000,
+        .experience = true,
+    };
+    gain_log_game_instance::data.push_back(g_log);
+  }
+  mob.attack_val = 0;
+}
+
+void server_mob_instance::handle_server_event(const ServerMobEventT &m) {
+  if (m.map_id != scene_system_instance::map_id) {
+    return;
+  }
+  for (const auto &ev : m.payload) {
+    switch (ev.type) {
+    case fbs::MobEventUnion_ServerMobMv: {
+      const auto mv = ev.AsServerMobMv();
+      handle_server_mv(*mv);
+      break;
+    }
+    case fbs::MobEventUnion_ServerMobFlip: {
+      const auto fp = ev.AsServerMobFlip();
+      handle_server_flip(*fp);
+      break;
+    }
+    case fbs::MobEventUnion_ServerMobAction: {
+      const auto action = ev.AsServerMobAction();
+      handle_server_action(*action);
+      break;
+    }
+    case fbs::MobEventUnion_ServerMobState: {
+      const auto st = ev.AsServerMobState();
+      handle_server_state(*st);
+      break;
+    }
+    case fbs::MobEventUnion_ServerMobDie: {
+      const auto d = ev.AsServerMobDie();
+      handle_server_die(*d);
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+  }
+}
+
+void server_mob_instance::handle_s_attack(uint64_t client_id, AttackT &at) {
+  const auto &attack = at;
+  // 伤害数字
+  damage_data data = {
+      .num = attack.num,
+      .type = damage_data::red,
+  };
+  if (client_id == 0) {
+    data.type = damage_data::viole;
+  }
+  game_effect d = {
+      .id = u"",
+      .index = 0,
+      .time = 0,
+      .delay = attack.delay,
+      .type = game_effect::effect_type::damage,
+      .pos = SDL_FPoint{attack.x, attack.y - 10},
+      .z = true,
+      .flip = false,
+      .data = data,
+  };
+  effect_game_instance::data[7].emplace_back(d);
+}
+
+void server_mob_instance::handle_server_attack(ServerMobAttackT &r) {
+  handle_s_attack(r.client_id, *r.payload);
 }

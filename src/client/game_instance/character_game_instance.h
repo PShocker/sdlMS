@@ -44,8 +44,7 @@ struct character_face_render {
 
 struct character_other_data {
   game_character g_character;
-  std::flat_map<CharacterLogicType, std::vector<CharacterLogicTypeUnion>>
-      logics;
+  std::vector<MovementT> mvs;
 };
 
 class character_bone_data {

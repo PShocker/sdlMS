@@ -11,6 +11,7 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_mob_instance.h"
 #include "wz/Property.h"
 #include "wz/Wz.h"
 #include <algorithm>
@@ -89,7 +90,9 @@ void mob_logic_system::run_collision() {
     if (action_type == action_enum::revive || action_type == action_enum::die) {
       continue;
     }
-
+    if (m.mob.hp <= 0) {
+      continue;
+    }
     auto m_r = load_rect(m.mob).value();
     auto c_r = character_logic_system::load_rect(self);
     if (SDL_HasRectIntersectionFloat(&m_r, &c_r)) {
@@ -152,17 +155,16 @@ void mob_logic_system::run_collision() {
     auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
                    std::chrono::system_clock::now().time_since_epoch())
                    .count();
-    MobAttackT mt;
-    mt.attack = std::make_unique<AttackT>();
-    mt.attack->delay = now;
-    mt.attack->num = 1;
-    mt.attack->x = self.pos.x;
-    mt.attack->y = self.pos.y - 30;
-    mob_game_instance::load_mob_attack(0, &mt);
-    ClientMobAttackT t;
-    t.map_id = scene_system_instance::map_id;
-    t.payload = std::make_unique<MobAttackT>(mt);
-    client_request::send_to_host(t);
+    AttackT at;
+    at.delay = now;
+    at.num = 1;
+    at.x = self.pos.x;
+    at.y = self.pos.y - 30;
+    server_mob_instance::handle_s_attack(0, at);
+    ClientMobAttackT cma;
+    cma.map_id = scene_system_instance::map_id;
+    cma.payload = std::make_unique<AttackT>(at);
+    client_request::send_to_host(cma);
   }
 }
 
@@ -257,83 +259,35 @@ void mob_logic_system::run_alpha(game_mob &g_mob) {
   }
 }
 
-void mob_logic_system::run_logic() {
-  for (auto &m : mob_game_instance::data | std::views::values) {
-    for (const auto &[k, v] : m.logics) {
-      switch (k) {
-      case fbs::MobLogicType_Movement: {
-        if (v.empty()) {
-          break;
-        }
-        auto &l = v[0];
-        auto mv = *l.AsMovement();
-        auto per = window::delta_time / (float)mv.time;
-        // 计算当前点在线段上的进度（基于 x 和 y）
-        float dx = mv.x2 - mv.x1;
-        float dy = mv.y2 - mv.y1;
-        float length_sq = dx * dx + dy * dy;
+void mob_logic_system::run_mv() {
+  for (auto &c : mob_game_instance::data | std::views::values) {
+    auto &mvs = c.mvs;
+    if (mvs.empty()) {
+      continue;
+    }
+    auto mv = mvs[0];
+    auto per = window::delta_time / (float)mv.time;
+    // 计算当前点在线段上的进度（基于 x 和 y）
+    float dx = mv.x2 - mv.x1;
+    float dy = mv.y2 - mv.y1;
+    float length_sq = dx * dx + dy * dy;
 
-        if (length_sq > 0) {
-          // 投影参数 t：当前点在线段上的位置（0=起点，1=终点）
-          float t = ((m.mob.pos.x - mv.x1) * dx + (m.mob.pos.y - mv.y1) * dy) /
-                    length_sq;
-          t = std::clamp(t, 0.0f, 1.0f);
-          per += t;
-        }
-        per = std::min(per, 1.0f);
+    if (length_sq > 0) {
+      // 投影参数 t：当前点在线段上的位置（0=起点，1=终点）
+      float t =
+          ((c.mob.pos.x - mv.x1) * dx + (c.mob.pos.y - mv.y1) * dy) / length_sq;
+      t = std::clamp(t, 0.0f, 1.0f);
+      per += t;
+    }
+    per = std::min(per, 1.0f);
 
-        auto per_x = mv.x1 + (mv.x2 - mv.x1) * per;
-        auto per_y = mv.y1 + (mv.y2 - mv.y1) * per;
-        m.mob.pos.x = per_x;
-        m.mob.pos.y = per_y;
-        m.mob.page = mv.page;
-        if (per == 1.0f) {
-          v.erase(v.begin());
-        }
-        break;
-      }
-      case fbs::MobLogicType_Flip: {
-        if (v.empty()) {
-          break;
-        }
-        auto f = *v.back().AsFlip();
-        m.mob.flip = f.flip;
-        v.clear();
-        break;
-      }
-      case fbs::MobLogicType_Action: {
-        if (v.empty()) {
-          break;
-        }
-        auto a = *v.back().AsAction();
-        m.mob.action = std::u16string{a.action.begin(), a.action.end()};
-        m.mob.ani_index = 0;
-        m.mob.ani_time = 0;
-        m.mob.ani_animate = a.action_animate;
-        auto action = load_action_type(m.mob.action);
-        if (action == action_enum::die) {
-          // get exp
-          auto mob_info = mob_game_instance::load_mob_info(m.mob.id);
-          auto mob_hp =
-              static_cast<wz::Property<int> *>(mob_info->get_child(u"maxHP"))
-                  ->get();
-          auto atk_per = (float)m.mob.attack_val / (float)mob_hp;
-          atk_per = std::clamp(atk_per, 0.0f, 1.0f);
-          auto mob_exp =
-              static_cast<wz::Property<int> *>(mob_info->get_child(u"exp"))
-                  ->get();
-          int exp = std::ceil(mob_exp * atk_per);
-          gain_log_game_instance::load_exp(exp);
-          // gain_log_game_instance::load_exp
-        }
-
-        v.clear();
-        break;
-      }
-      default: {
-        std::abort();
-      }
-      }
+    auto per_x = mv.x1 + (mv.x2 - mv.x1) * per;
+    auto per_y = mv.y1 + (mv.y2 - mv.y1) * per;
+    c.mob.pos.x = per_x;
+    c.mob.pos.y = per_y;
+    c.mob.page = mv.page;
+    if (per >= 1.0f) {
+      mvs.erase(mvs.begin());
     }
   }
 }
@@ -359,6 +313,6 @@ bool mob_logic_system::run() {
     run_state_machine(m.mob);
   }
   run_collision();
-  run_logic();
+  run_mv();
   return true;
 }

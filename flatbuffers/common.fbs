@@ -113,39 +113,8 @@ table Mob{
     state:LifeState;
 }
 
-table MobAttack{
-    attack:Attack;
-}
-
-
 table Face{
     face_action:string;
-}
-
-union CharacterLogicType {
-    Movement,
-    Flip,
-    Action,
-    Die,
-    Face,
-}
-
-union MobLogicType {
-    Movement,
-    Flip,
-    Action,
-    Die,
-}
-
-table CharacterLogic{
-    client_id:uint64;
-    payload:CharacterLogicType;
-}
-
-table MobLogic{
-    mob_index:uint32;
-    mob_id:uint32;
-    payload:MobLogicType;
 }
 
 table CharacterChat{
@@ -192,6 +161,15 @@ table Drop{
     page:uint8;
     
     timestamp:uint64;
+}
+
+enum StateEnum : byte {
+    HP,
+}
+
+table State{
+    state: StateEnum;
+    val:int64;
 }
 
 table APSave{

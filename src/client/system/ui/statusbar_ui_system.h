@@ -54,14 +54,6 @@ private:
   static void event_button_quickslot();
   static void event_button_chatlog();
 
-  enum class quick_slot {
-    hide,
-    two,
-    three,
-  };
-
-  static inline quick_slot quickSlot = quick_slot::two;
-
   static inline int chat_index;
 
   enum class menu_enums {
@@ -71,6 +63,13 @@ private:
   static inline std::optional<menu_enums> menu_type;
 
 public:
+  enum class quick_slot {
+    hide,
+    two,
+    three,
+  };
+  static inline quick_slot quickSlot = quick_slot::two;
+
   enum chat_enum {
     all,
   };

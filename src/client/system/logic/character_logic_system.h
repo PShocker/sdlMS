@@ -25,9 +25,6 @@ class character_logic_system {
 private:
   static check_mobs run_shoot_check(game_character &g_character);
 
-  static std::vector<uint64_t> run_buff_check(game_character &g_character,
-                                              SDL_FRect g_r);
-
   static void run_climb_action(game_character &g_character);
   static void run_face_animate(game_character &g_character);
   static bool run_flip(game_character &g_character);
@@ -57,7 +54,7 @@ private:
   static pos_type load_pos_type(game_character &g_character);
 
   static void run_others_state_machine();
-  static void run_others_logic();
+  static void run_others_mv();
   static void run_others();
   static void run_network_sync();
 
@@ -76,6 +73,8 @@ public:
   static void run_stand_action(game_character &g_character);
   static void run_walk_action(game_character &g_character);
   static bool run_attack_action(game_character &g_character);
+
+  static void load_sfx(game_character &g_character);
 
   static SDL_FRect load_rect(game_character &g_character);
   enum class action_enum {

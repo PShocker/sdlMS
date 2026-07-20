@@ -25,10 +25,6 @@ struct ServerScene;
 struct ServerSceneBuilder;
 struct ServerSceneT;
 
-struct ServerCharacterLogic;
-struct ServerCharacterLogicBuilder;
-struct ServerCharacterLogicT;
-
 struct ServerCharacterIn;
 struct ServerCharacterInBuilder;
 struct ServerCharacterInT;
@@ -37,9 +33,29 @@ struct ServerCharacterOut;
 struct ServerCharacterOutBuilder;
 struct ServerCharacterOutT;
 
-struct ServerMobLogic;
-struct ServerMobLogicBuilder;
-struct ServerMobLogicT;
+struct ServerMobMv;
+struct ServerMobMvBuilder;
+struct ServerMobMvT;
+
+struct ServerMobFlip;
+struct ServerMobFlipBuilder;
+struct ServerMobFlipT;
+
+struct ServerMobAction;
+struct ServerMobActionBuilder;
+struct ServerMobActionT;
+
+struct ServerMobState;
+struct ServerMobStateBuilder;
+struct ServerMobStateT;
+
+struct ServerMobDie;
+struct ServerMobDieBuilder;
+struct ServerMobDieT;
+
+struct ServerMobEvent;
+struct ServerMobEventBuilder;
+struct ServerMobEventT;
 
 struct ServerCharacterAttack;
 struct ServerCharacterAttackBuilder;
@@ -81,9 +97,192 @@ struct ServerCharacterTrade;
 struct ServerCharacterTradeBuilder;
 struct ServerCharacterTradeT;
 
-struct ServerMobDrop;
-struct ServerMobDropBuilder;
-struct ServerMobDropT;
+struct ServerCharacterMv;
+struct ServerCharacterMvBuilder;
+struct ServerCharacterMvT;
+
+struct ServerCharacterFlip;
+struct ServerCharacterFlipBuilder;
+struct ServerCharacterFlipT;
+
+struct ServerCharacterAction;
+struct ServerCharacterActionBuilder;
+struct ServerCharacterActionT;
+
+struct ServerCharacterDie;
+struct ServerCharacterDieBuilder;
+struct ServerCharacterDieT;
+
+struct ServerCharacterFc;
+struct ServerCharacterFcBuilder;
+struct ServerCharacterFcT;
+
+enum MobEventUnion : uint8_t {
+  MobEventUnion_NONE = 0,
+  MobEventUnion_ServerMobMv = 1,
+  MobEventUnion_ServerMobFlip = 2,
+  MobEventUnion_ServerMobAction = 3,
+  MobEventUnion_ServerMobState = 4,
+  MobEventUnion_ServerMobDie = 5,
+  MobEventUnion_MIN = MobEventUnion_NONE,
+  MobEventUnion_MAX = MobEventUnion_ServerMobDie
+};
+
+inline const MobEventUnion (&EnumValuesMobEventUnion())[6] {
+  static const MobEventUnion values[] = {
+    MobEventUnion_NONE,
+    MobEventUnion_ServerMobMv,
+    MobEventUnion_ServerMobFlip,
+    MobEventUnion_ServerMobAction,
+    MobEventUnion_ServerMobState,
+    MobEventUnion_ServerMobDie
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesMobEventUnion() {
+  static const char * const names[7] = {
+    "NONE",
+    "ServerMobMv",
+    "ServerMobFlip",
+    "ServerMobAction",
+    "ServerMobState",
+    "ServerMobDie",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameMobEventUnion(MobEventUnion e) {
+  if (::flatbuffers::IsOutRange(e, MobEventUnion_NONE, MobEventUnion_ServerMobDie)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesMobEventUnion()[index];
+}
+
+template<typename T> struct MobEventUnionTraits {
+  static const MobEventUnion enum_value = MobEventUnion_NONE;
+};
+
+template<> struct MobEventUnionTraits<fbs::ServerMobMv> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobMv;
+};
+
+template<> struct MobEventUnionTraits<fbs::ServerMobFlip> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobFlip;
+};
+
+template<> struct MobEventUnionTraits<fbs::ServerMobAction> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobAction;
+};
+
+template<> struct MobEventUnionTraits<fbs::ServerMobState> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobState;
+};
+
+template<> struct MobEventUnionTraits<fbs::ServerMobDie> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobDie;
+};
+
+template<typename T> struct MobEventUnionUnionTraits {
+  static const MobEventUnion enum_value = MobEventUnion_NONE;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobMvT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobMv;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobFlipT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobFlip;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobActionT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobAction;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobStateT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobState;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobDieT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobDie;
+};
+
+struct MobEventUnionUnion {
+  MobEventUnion type;
+  void *value;
+
+  MobEventUnionUnion() : type(MobEventUnion_NONE), value(nullptr) {}
+  MobEventUnionUnion(MobEventUnionUnion&& u) FLATBUFFERS_NOEXCEPT :
+    type(MobEventUnion_NONE), value(nullptr)
+    { std::swap(type, u.type); std::swap(value, u.value); }
+  MobEventUnionUnion(const MobEventUnionUnion &);
+  MobEventUnionUnion &operator=(const MobEventUnionUnion &u)
+    { MobEventUnionUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
+  MobEventUnionUnion &operator=(MobEventUnionUnion &&u) FLATBUFFERS_NOEXCEPT
+    { std::swap(type, u.type); std::swap(value, u.value); return *this; }
+  ~MobEventUnionUnion() { Reset(); }
+
+  void Reset();
+
+  template <typename T>
+  void Set(T&& val) {
+    typedef typename std::remove_reference<T>::type RT;
+    Reset();
+    type = MobEventUnionUnionTraits<RT>::enum_value;
+    if (type != MobEventUnion_NONE) {
+      value = new RT(std::forward<T>(val));
+    }
+  }
+
+  static void *UnPack(const void *obj, MobEventUnion type, const ::flatbuffers::resolver_function_t *resolver);
+  ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
+
+  fbs::ServerMobMvT *AsServerMobMv() {
+    return type == MobEventUnion_ServerMobMv ?
+      reinterpret_cast<fbs::ServerMobMvT *>(value) : nullptr;
+  }
+  const fbs::ServerMobMvT *AsServerMobMv() const {
+    return type == MobEventUnion_ServerMobMv ?
+      reinterpret_cast<const fbs::ServerMobMvT *>(value) : nullptr;
+  }
+  fbs::ServerMobFlipT *AsServerMobFlip() {
+    return type == MobEventUnion_ServerMobFlip ?
+      reinterpret_cast<fbs::ServerMobFlipT *>(value) : nullptr;
+  }
+  const fbs::ServerMobFlipT *AsServerMobFlip() const {
+    return type == MobEventUnion_ServerMobFlip ?
+      reinterpret_cast<const fbs::ServerMobFlipT *>(value) : nullptr;
+  }
+  fbs::ServerMobActionT *AsServerMobAction() {
+    return type == MobEventUnion_ServerMobAction ?
+      reinterpret_cast<fbs::ServerMobActionT *>(value) : nullptr;
+  }
+  const fbs::ServerMobActionT *AsServerMobAction() const {
+    return type == MobEventUnion_ServerMobAction ?
+      reinterpret_cast<const fbs::ServerMobActionT *>(value) : nullptr;
+  }
+  fbs::ServerMobStateT *AsServerMobState() {
+    return type == MobEventUnion_ServerMobState ?
+      reinterpret_cast<fbs::ServerMobStateT *>(value) : nullptr;
+  }
+  const fbs::ServerMobStateT *AsServerMobState() const {
+    return type == MobEventUnion_ServerMobState ?
+      reinterpret_cast<const fbs::ServerMobStateT *>(value) : nullptr;
+  }
+  fbs::ServerMobDieT *AsServerMobDie() {
+    return type == MobEventUnion_ServerMobDie ?
+      reinterpret_cast<fbs::ServerMobDieT *>(value) : nullptr;
+  }
+  const fbs::ServerMobDieT *AsServerMobDie() const {
+    return type == MobEventUnion_ServerMobDie ?
+      reinterpret_cast<const fbs::ServerMobDieT *>(value) : nullptr;
+  }
+};
+
+template <bool B = false>
+bool VerifyMobEventUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, MobEventUnion type);
+template <bool B = false>
+bool VerifyMobEventUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 struct ServerHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ServerHeartbeat TableType;
@@ -247,67 +446,6 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
 
 ::flatbuffers::Offset<ServerScene> CreateServerScene(::flatbuffers::FlatBufferBuilder &_fbb, const ServerSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ServerCharacterLogicT : public ::flatbuffers::NativeTable {
-  typedef ServerCharacterLogic TableType;
-  std::unique_ptr<fbs::CharacterLogicT> payload{};
-  ServerCharacterLogicT() = default;
-  ServerCharacterLogicT(const ServerCharacterLogicT &o);
-  ServerCharacterLogicT(ServerCharacterLogicT&&) FLATBUFFERS_NOEXCEPT = default;
-  ServerCharacterLogicT &operator=(ServerCharacterLogicT o) FLATBUFFERS_NOEXCEPT;
-};
-
-struct ServerCharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ServerCharacterLogicT NativeTableType;
-  typedef ServerCharacterLogicBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PAYLOAD = 4
-  };
-  const fbs::CharacterLogic *payload() const {
-    return GetPointer<const fbs::CharacterLogic *>(VT_PAYLOAD);
-  }
-  fbs::CharacterLogic *mutable_payload() {
-    return GetPointer<fbs::CharacterLogic *>(VT_PAYLOAD);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_PAYLOAD) &&
-           verifier.VerifyTable(payload()) &&
-           verifier.EndTable();
-  }
-  ServerCharacterLogicT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ServerCharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ServerCharacterLogic> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-struct ServerCharacterLogicBuilder {
-  typedef ServerCharacterLogic Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_payload(::flatbuffers::Offset<fbs::CharacterLogic> payload) {
-    fbb_.AddOffset(ServerCharacterLogic::VT_PAYLOAD, payload);
-  }
-  explicit ServerCharacterLogicBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<ServerCharacterLogic> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ServerCharacterLogic>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<ServerCharacterLogic> CreateServerCharacterLogic(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<fbs::CharacterLogic> payload = 0) {
-  ServerCharacterLogicBuilder builder_(_fbb);
-  builder_.add_payload(payload);
-  return builder_.Finish();
-}
-
-::flatbuffers::Offset<ServerCharacterLogic> CreateServerCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
 struct ServerCharacterInT : public ::flatbuffers::NativeTable {
   typedef ServerCharacterIn TableType;
   std::unique_ptr<fbs::PlayerT> player{};
@@ -425,22 +563,418 @@ inline ::flatbuffers::Offset<ServerCharacterOut> CreateServerCharacterOut(
 
 ::flatbuffers::Offset<ServerCharacterOut> CreateServerCharacterOut(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterOutT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ServerMobLogicT : public ::flatbuffers::NativeTable {
-  typedef ServerMobLogic TableType;
-  uint32_t map_id = 0;
-  std::vector<std::unique_ptr<fbs::MobLogicT>> payload{};
-  ServerMobLogicT() = default;
-  ServerMobLogicT(const ServerMobLogicT &o);
-  ServerMobLogicT(ServerMobLogicT&&) FLATBUFFERS_NOEXCEPT = default;
-  ServerMobLogicT &operator=(ServerMobLogicT o) FLATBUFFERS_NOEXCEPT;
+struct ServerMobMvT : public ::flatbuffers::NativeTable {
+  typedef ServerMobMv TableType;
+  uint32_t mob_index = 0;
+  std::unique_ptr<fbs::MovementT> payload{};
+  ServerMobMvT() = default;
+  ServerMobMvT(const ServerMobMvT &o);
+  ServerMobMvT(ServerMobMvT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobMvT &operator=(ServerMobMvT o) FLATBUFFERS_NOEXCEPT;
 };
 
-struct ServerMobLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ServerMobLogicT NativeTableType;
-  typedef ServerMobLogicBuilder Builder;
+struct ServerMobMv FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobMvT NativeTableType;
+  typedef ServerMobMvBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  const fbs::Movement *payload() const {
+    return GetPointer<const fbs::Movement *>(VT_PAYLOAD);
+  }
+  fbs::Movement *mutable_payload() {
+    return GetPointer<fbs::Movement *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobMvT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobMvT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobMv> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobMvT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobMvBuilder {
+  typedef ServerMobMv Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobMv::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Movement> payload) {
+    fbb_.AddOffset(ServerMobMv::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobMvBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobMv> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobMv>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobMv> CreateServerMobMv(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    ::flatbuffers::Offset<fbs::Movement> payload = 0) {
+  ServerMobMvBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerMobMv> CreateServerMobMv(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobMvT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobFlipT : public ::flatbuffers::NativeTable {
+  typedef ServerMobFlip TableType;
+  uint32_t mob_index = 0;
+  std::unique_ptr<fbs::FlipT> payload{};
+  ServerMobFlipT() = default;
+  ServerMobFlipT(const ServerMobFlipT &o);
+  ServerMobFlipT(ServerMobFlipT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobFlipT &operator=(ServerMobFlipT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobFlip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobFlipT NativeTableType;
+  typedef ServerMobFlipBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  const fbs::Flip *payload() const {
+    return GetPointer<const fbs::Flip *>(VT_PAYLOAD);
+  }
+  fbs::Flip *mutable_payload() {
+    return GetPointer<fbs::Flip *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobFlipT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobFlipT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobFlip> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobFlipT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobFlipBuilder {
+  typedef ServerMobFlip Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobFlip::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Flip> payload) {
+    fbb_.AddOffset(ServerMobFlip::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobFlipBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobFlip> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobFlip>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobFlip> CreateServerMobFlip(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    ::flatbuffers::Offset<fbs::Flip> payload = 0) {
+  ServerMobFlipBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerMobFlip> CreateServerMobFlip(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobFlipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobActionT : public ::flatbuffers::NativeTable {
+  typedef ServerMobAction TableType;
+  uint32_t mob_index = 0;
+  std::unique_ptr<fbs::ActionT> payload{};
+  ServerMobActionT() = default;
+  ServerMobActionT(const ServerMobActionT &o);
+  ServerMobActionT(ServerMobActionT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobActionT &operator=(ServerMobActionT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobActionT NativeTableType;
+  typedef ServerMobActionBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  const fbs::Action *payload() const {
+    return GetPointer<const fbs::Action *>(VT_PAYLOAD);
+  }
+  fbs::Action *mutable_payload() {
+    return GetPointer<fbs::Action *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobActionT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobActionT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobAction> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobActionT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobActionBuilder {
+  typedef ServerMobAction Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobAction::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Action> payload) {
+    fbb_.AddOffset(ServerMobAction::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobActionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobAction> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobAction>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobAction> CreateServerMobAction(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    ::flatbuffers::Offset<fbs::Action> payload = 0) {
+  ServerMobActionBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerMobAction> CreateServerMobAction(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobStateT : public ::flatbuffers::NativeTable {
+  typedef ServerMobState TableType;
+  uint32_t mob_index = 0;
+  std::vector<std::unique_ptr<fbs::StateT>> payload{};
+  ServerMobStateT() = default;
+  ServerMobStateT(const ServerMobStateT &o);
+  ServerMobStateT(ServerMobStateT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobStateT &operator=(ServerMobStateT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobStateT NativeTableType;
+  typedef ServerMobStateBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobStateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobStateT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobState> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobStateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobStateBuilder {
+  typedef ServerMobState Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobState::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> payload) {
+    fbb_.AddOffset(ServerMobState::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobState> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobState>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobState> CreateServerMobState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> payload = 0) {
+  ServerMobStateBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerMobState> CreateServerMobStateDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    const std::vector<::flatbuffers::Offset<fbs::State>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>>(*payload) : 0;
+  return fbs::CreateServerMobState(
+      _fbb,
+      mob_index,
+      payload__);
+}
+
+::flatbuffers::Offset<ServerMobState> CreateServerMobState(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobDieT : public ::flatbuffers::NativeTable {
+  typedef ServerMobDie TableType;
+  uint32_t mob_index = 0;
+  std::vector<std::unique_ptr<fbs::DropT>> drop{};
+  ServerMobDieT() = default;
+  ServerMobDieT(const ServerMobDieT &o);
+  ServerMobDieT(ServerMobDieT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobDieT &operator=(ServerMobDieT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobDie FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobDieT NativeTableType;
+  typedef ServerMobDieBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_DROP = 6
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *drop() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_DROP);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *mutable_drop() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_DROP);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyOffset(verifier, VT_DROP) &&
+           verifier.VerifyVector(drop()) &&
+           verifier.VerifyVectorOfTables(drop()) &&
+           verifier.EndTable();
+  }
+  ServerMobDieT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobDieT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobDie> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobDieBuilder {
+  typedef ServerMobDie Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobDie::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_drop(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drop) {
+    fbb_.AddOffset(ServerMobDie::VT_DROP, drop);
+  }
+  explicit ServerMobDieBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobDie> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobDie>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drop = 0) {
+  ServerMobDieBuilder builder_(_fbb);
+  builder_.add_drop(drop);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerMobDie> CreateServerMobDieDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    const std::vector<::flatbuffers::Offset<fbs::Drop>> *drop = nullptr) {
+  auto drop__ = drop ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*drop) : 0;
+  return fbs::CreateServerMobDie(
+      _fbb,
+      mob_index,
+      drop__);
+}
+
+::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobEventT : public ::flatbuffers::NativeTable {
+  typedef ServerMobEvent TableType;
+  uint32_t map_id = 0;
+  std::vector<fbs::MobEventUnionUnion> payload{};
+};
+
+struct ServerMobEvent FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobEventT NativeTableType;
+  typedef ServerMobEventBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MAP_ID = 4,
-    VT_PAYLOAD = 6
+    VT_PAYLOAD_TYPE = 6,
+    VT_PAYLOAD = 8
   };
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
@@ -448,69 +982,85 @@ struct ServerMobLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_map_id(uint32_t _map_id = 0) {
     return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *payload() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *>(VT_PAYLOAD);
+  const ::flatbuffers::Vector<uint8_t> *payload_type() const {
+    return GetPointer<const ::flatbuffers::Vector<uint8_t> *>(VT_PAYLOAD_TYPE);
   }
-  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *mutable_payload() {
-    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>> *>(VT_PAYLOAD);
+  ::flatbuffers::Vector<uint8_t> *mutable_payload_type() {
+    return GetPointer<::flatbuffers::Vector<uint8_t> *>(VT_PAYLOAD_TYPE);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<void>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<void>> *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD_TYPE) &&
+           verifier.VerifyVector(payload_type()) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
-           verifier.VerifyVectorOfTables(payload()) &&
+           VerifyMobEventUnionVector(verifier, payload(), payload_type()) &&
            verifier.EndTable();
   }
-  ServerMobLogicT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ServerMobLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ServerMobLogic> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ServerMobEventT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobEventT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobEvent> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobEventT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ServerMobLogicBuilder {
-  typedef ServerMobLogic Table;
+struct ServerMobEventBuilder {
+  typedef ServerMobEvent Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_map_id(uint32_t map_id) {
-    fbb_.AddElement<uint32_t>(ServerMobLogic::VT_MAP_ID, map_id, 0);
+    fbb_.AddElement<uint32_t>(ServerMobEvent::VT_MAP_ID, map_id, 0);
   }
-  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>>> payload) {
-    fbb_.AddOffset(ServerMobLogic::VT_PAYLOAD, payload);
+  void add_payload_type(::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> payload_type) {
+    fbb_.AddOffset(ServerMobEvent::VT_PAYLOAD_TYPE, payload_type);
   }
-  explicit ServerMobLogicBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload) {
+    fbb_.AddOffset(ServerMobEvent::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobEventBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<ServerMobLogic> Finish() {
+  ::flatbuffers::Offset<ServerMobEvent> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ServerMobLogic>(end);
+    auto o = ::flatbuffers::Offset<ServerMobEvent>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogic(
+inline ::flatbuffers::Offset<ServerMobEvent> CreateServerMobEvent(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t map_id = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobLogic>>> payload = 0) {
-  ServerMobLogicBuilder builder_(_fbb);
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> payload_type = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0) {
+  ServerMobEventBuilder builder_(_fbb);
   builder_.add_payload(payload);
+  builder_.add_payload_type(payload_type);
   builder_.add_map_id(map_id);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogicDirect(
+inline ::flatbuffers::Offset<ServerMobEvent> CreateServerMobEventDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t map_id = 0,
-    const std::vector<::flatbuffers::Offset<fbs::MobLogic>> *payload = nullptr) {
-  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobLogic>>(*payload) : 0;
-  return fbs::CreateServerMobLogic(
+    const std::vector<uint8_t> *payload_type = nullptr,
+    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr) {
+  auto payload_type__ = payload_type ? _fbb.CreateVector<uint8_t>(*payload_type) : 0;
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<void>>(*payload) : 0;
+  return fbs::CreateServerMobEvent(
       _fbb,
       map_id,
+      payload_type__,
       payload__);
 }
 
-::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+::flatbuffers::Offset<ServerMobEvent> CreateServerMobEvent(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobEventT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct ServerCharacterAttackT : public ::flatbuffers::NativeTable {
   typedef ServerCharacterAttack TableType;
@@ -796,7 +1346,7 @@ inline ::flatbuffers::Offset<ServerCharacterBall> CreateServerCharacterBall(
 struct ServerMobAttackT : public ::flatbuffers::NativeTable {
   typedef ServerMobAttack TableType;
   uint64_t client_id = 0;
-  std::unique_ptr<fbs::MobAttackT> payload{};
+  std::unique_ptr<fbs::AttackT> payload{};
   ServerMobAttackT() = default;
   ServerMobAttackT(const ServerMobAttackT &o);
   ServerMobAttackT(ServerMobAttackT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -816,11 +1366,11 @@ struct ServerMobAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_client_id(uint64_t _client_id = 0) {
     return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
   }
-  const fbs::MobAttack *payload() const {
-    return GetPointer<const fbs::MobAttack *>(VT_PAYLOAD);
+  const fbs::Attack *payload() const {
+    return GetPointer<const fbs::Attack *>(VT_PAYLOAD);
   }
-  fbs::MobAttack *mutable_payload() {
-    return GetPointer<fbs::MobAttack *>(VT_PAYLOAD);
+  fbs::Attack *mutable_payload() {
+    return GetPointer<fbs::Attack *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -842,7 +1392,7 @@ struct ServerMobAttackBuilder {
   void add_client_id(uint64_t client_id) {
     fbb_.AddElement<uint64_t>(ServerMobAttack::VT_CLIENT_ID, client_id, 0);
   }
-  void add_payload(::flatbuffers::Offset<fbs::MobAttack> payload) {
+  void add_payload(::flatbuffers::Offset<fbs::Attack> payload) {
     fbb_.AddOffset(ServerMobAttack::VT_PAYLOAD, payload);
   }
   explicit ServerMobAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
@@ -859,7 +1409,7 @@ struct ServerMobAttackBuilder {
 inline ::flatbuffers::Offset<ServerMobAttack> CreateServerMobAttack(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t client_id = 0,
-    ::flatbuffers::Offset<fbs::MobAttack> payload = 0) {
+    ::flatbuffers::Offset<fbs::Attack> payload = 0) {
   ServerMobAttackBuilder builder_(_fbb);
   builder_.add_client_id(client_id);
   builder_.add_payload(payload);
@@ -1389,76 +1939,380 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTradeDir
 
 ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ServerMobDropT : public ::flatbuffers::NativeTable {
-  typedef ServerMobDrop TableType;
-  std::vector<std::unique_ptr<fbs::DropT>> payload{};
-  ServerMobDropT() = default;
-  ServerMobDropT(const ServerMobDropT &o);
-  ServerMobDropT(ServerMobDropT&&) FLATBUFFERS_NOEXCEPT = default;
-  ServerMobDropT &operator=(ServerMobDropT o) FLATBUFFERS_NOEXCEPT;
+struct ServerCharacterMvT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterMv TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::MovementT> payload{};
+  ServerCharacterMvT() = default;
+  ServerCharacterMvT(const ServerCharacterMvT &o);
+  ServerCharacterMvT(ServerCharacterMvT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterMvT &operator=(ServerCharacterMvT o) FLATBUFFERS_NOEXCEPT;
 };
 
-struct ServerMobDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ServerMobDropT NativeTableType;
-  typedef ServerMobDropBuilder Builder;
+struct ServerCharacterMv FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterMvT NativeTableType;
+  typedef ServerCharacterMvBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PAYLOAD = 4
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD = 6
   };
-  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *payload() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_PAYLOAD);
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
   }
-  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *mutable_payload() {
-    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_PAYLOAD);
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Movement *payload() const {
+    return GetPointer<const fbs::Movement *>(VT_PAYLOAD);
+  }
+  fbs::Movement *mutable_payload() {
+    return GetPointer<fbs::Movement *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
-           verifier.VerifyVector(payload()) &&
-           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.VerifyTable(payload()) &&
            verifier.EndTable();
   }
-  ServerMobDropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ServerMobDropT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ServerMobDrop> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ServerCharacterMvT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterMvT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterMv> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMvT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ServerMobDropBuilder {
-  typedef ServerMobDrop Table;
+struct ServerCharacterMvBuilder {
+  typedef ServerCharacterMv Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> payload) {
-    fbb_.AddOffset(ServerMobDrop::VT_PAYLOAD, payload);
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterMv::VT_CLIENT_ID, client_id, 0);
   }
-  explicit ServerMobDropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  void add_payload(::flatbuffers::Offset<fbs::Movement> payload) {
+    fbb_.AddOffset(ServerCharacterMv::VT_PAYLOAD, payload);
+  }
+  explicit ServerCharacterMvBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<ServerMobDrop> Finish() {
+  ::flatbuffers::Offset<ServerCharacterMv> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ServerMobDrop>(end);
+    auto o = ::flatbuffers::Offset<ServerCharacterMv>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(
+inline ::flatbuffers::Offset<ServerCharacterMv> CreateServerCharacterMv(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> payload = 0) {
-  ServerMobDropBuilder builder_(_fbb);
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Movement> payload = 0) {
+  ServerCharacterMvBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
   builder_.add_payload(payload);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDropDirect(
+::flatbuffers::Offset<ServerCharacterMv> CreateServerCharacterMv(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMvT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerCharacterFlipT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterFlip TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::FlipT> payload{};
+  ServerCharacterFlipT() = default;
+  ServerCharacterFlipT(const ServerCharacterFlipT &o);
+  ServerCharacterFlipT(ServerCharacterFlipT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterFlipT &operator=(ServerCharacterFlipT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacterFlip FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterFlipT NativeTableType;
+  typedef ServerCharacterFlipBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Flip *payload() const {
+    return GetPointer<const fbs::Flip *>(VT_PAYLOAD);
+  }
+  fbs::Flip *mutable_payload() {
+    return GetPointer<fbs::Flip *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterFlipT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterFlipT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterFlip> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFlipT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterFlipBuilder {
+  typedef ServerCharacterFlip Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterFlip::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Flip> payload) {
+    fbb_.AddOffset(ServerCharacterFlip::VT_PAYLOAD, payload);
+  }
+  explicit ServerCharacterFlipBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterFlip> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterFlip>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterFlip> CreateServerCharacterFlip(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    const std::vector<::flatbuffers::Offset<fbs::Drop>> *payload = nullptr) {
-  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*payload) : 0;
-  return fbs::CreateServerMobDrop(
-      _fbb,
-      payload__);
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Flip> payload = 0) {
+  ServerCharacterFlipBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  return builder_.Finish();
 }
 
-::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+::flatbuffers::Offset<ServerCharacterFlip> CreateServerCharacterFlip(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFlipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerCharacterActionT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterAction TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::ActionT> payload{};
+  ServerCharacterActionT() = default;
+  ServerCharacterActionT(const ServerCharacterActionT &o);
+  ServerCharacterActionT(ServerCharacterActionT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterActionT &operator=(ServerCharacterActionT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacterAction FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterActionT NativeTableType;
+  typedef ServerCharacterActionBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Action *payload() const {
+    return GetPointer<const fbs::Action *>(VT_PAYLOAD);
+  }
+  fbs::Action *mutable_payload() {
+    return GetPointer<fbs::Action *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterActionT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterActionT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterAction> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterActionT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterActionBuilder {
+  typedef ServerCharacterAction Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterAction::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Action> payload) {
+    fbb_.AddOffset(ServerCharacterAction::VT_PAYLOAD, payload);
+  }
+  explicit ServerCharacterActionBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterAction> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterAction>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterAction> CreateServerCharacterAction(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Action> payload = 0) {
+  ServerCharacterActionBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterAction> CreateServerCharacterAction(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerCharacterDieT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterDie TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::DieT> payload{};
+  ServerCharacterDieT() = default;
+  ServerCharacterDieT(const ServerCharacterDieT &o);
+  ServerCharacterDieT(ServerCharacterDieT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterDieT &operator=(ServerCharacterDieT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacterDie FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterDieT NativeTableType;
+  typedef ServerCharacterDieBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Die *payload() const {
+    return GetPointer<const fbs::Die *>(VT_PAYLOAD);
+  }
+  fbs::Die *mutable_payload() {
+    return GetPointer<fbs::Die *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterDieT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterDieT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterDie> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDieT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterDieBuilder {
+  typedef ServerCharacterDie Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterDie::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Die> payload) {
+    fbb_.AddOffset(ServerCharacterDie::VT_PAYLOAD, payload);
+  }
+  explicit ServerCharacterDieBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterDie> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterDie>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterDie> CreateServerCharacterDie(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Die> payload = 0) {
+  ServerCharacterDieBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterDie> CreateServerCharacterDie(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerCharacterFcT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterFc TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::FaceT> payload{};
+  ServerCharacterFcT() = default;
+  ServerCharacterFcT(const ServerCharacterFcT &o);
+  ServerCharacterFcT(ServerCharacterFcT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCharacterFcT &operator=(ServerCharacterFcT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCharacterFc FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterFcT NativeTableType;
+  typedef ServerCharacterFcBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Face *payload() const {
+    return GetPointer<const fbs::Face *>(VT_PAYLOAD);
+  }
+  fbs::Face *mutable_payload() {
+    return GetPointer<fbs::Face *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerCharacterFcT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterFcT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterFc> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFcT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterFcBuilder {
+  typedef ServerCharacterFc Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterFc::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Face> payload) {
+    fbb_.AddOffset(ServerCharacterFc::VT_PAYLOAD, payload);
+  }
+  explicit ServerCharacterFcBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterFc> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterFc>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterFc> CreateServerCharacterFc(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Face> payload = 0) {
+  ServerCharacterFcBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterFc> CreateServerCharacterFc(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFcT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
@@ -1535,41 +2389,6 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
       _mobs);
 }
 
-inline ServerCharacterLogicT::ServerCharacterLogicT(const ServerCharacterLogicT &o)
-      : payload((o.payload) ? new fbs::CharacterLogicT(*o.payload) : nullptr) {
-}
-
-inline ServerCharacterLogicT &ServerCharacterLogicT::operator=(ServerCharacterLogicT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(payload, o.payload);
-  return *this;
-}
-
-inline ServerCharacterLogicT *ServerCharacterLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ServerCharacterLogicT>(new ServerCharacterLogicT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void ServerCharacterLogic::UnPackTo(ServerCharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::CharacterLogicT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
-}
-
-inline ::flatbuffers::Offset<ServerCharacterLogic> CreateServerCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ServerCharacterLogic::Pack(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<ServerCharacterLogic> ServerCharacterLogic::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _payload = _o->payload ? CreateCharacterLogic(_fbb, _o->payload.get(), _rehasher) : 0;
-  return fbs::CreateServerCharacterLogic(
-      _fbb,
-      _payload);
-}
-
 inline ServerCharacterInT::ServerCharacterInT(const ServerCharacterInT &o)
       : player((o.player) ? new fbs::PlayerT(*o.player) : nullptr) {
 }
@@ -1631,44 +2450,237 @@ inline ::flatbuffers::Offset<ServerCharacterOut> ServerCharacterOut::Pack(::flat
       _client_id);
 }
 
-inline ServerMobLogicT::ServerMobLogicT(const ServerMobLogicT &o)
-      : map_id(o.map_id) {
-  payload.reserve(o.payload.size());
-  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::MobLogicT(*payload_) : nullptr); }
+inline ServerMobMvT::ServerMobMvT(const ServerMobMvT &o)
+      : mob_index(o.mob_index),
+        payload((o.payload) ? new fbs::MovementT(*o.payload) : nullptr) {
 }
 
-inline ServerMobLogicT &ServerMobLogicT::operator=(ServerMobLogicT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(map_id, o.map_id);
+inline ServerMobMvT &ServerMobMvT::operator=(ServerMobMvT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
   std::swap(payload, o.payload);
   return *this;
 }
 
-inline ServerMobLogicT *ServerMobLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ServerMobLogicT>(new ServerMobLogicT());
+inline ServerMobMvT *ServerMobMv::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobMvT>(new ServerMobMvT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void ServerMobLogic::UnPackTo(ServerMobLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+inline void ServerMobMv::UnPackTo(ServerMobMvT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::MovementT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobMv> CreateServerMobMv(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobMvT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobMv::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobMv> ServerMobMv::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobMvT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobMvT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _payload = _o->payload ? CreateMovement(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerMobMv(
+      _fbb,
+      _mob_index,
+      _payload);
+}
+
+inline ServerMobFlipT::ServerMobFlipT(const ServerMobFlipT &o)
+      : mob_index(o.mob_index),
+        payload((o.payload) ? new fbs::FlipT(*o.payload) : nullptr) {
+}
+
+inline ServerMobFlipT &ServerMobFlipT::operator=(ServerMobFlipT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerMobFlipT *ServerMobFlip::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobFlipT>(new ServerMobFlipT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobFlip::UnPackTo(ServerMobFlipT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::FlipT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobFlip> CreateServerMobFlip(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobFlipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobFlip::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobFlip> ServerMobFlip::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobFlipT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobFlipT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _payload = _o->payload ? CreateFlip(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerMobFlip(
+      _fbb,
+      _mob_index,
+      _payload);
+}
+
+inline ServerMobActionT::ServerMobActionT(const ServerMobActionT &o)
+      : mob_index(o.mob_index),
+        payload((o.payload) ? new fbs::ActionT(*o.payload) : nullptr) {
+}
+
+inline ServerMobActionT &ServerMobActionT::operator=(ServerMobActionT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerMobActionT *ServerMobAction::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobActionT>(new ServerMobActionT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobAction::UnPackTo(ServerMobActionT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::ActionT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobAction> CreateServerMobAction(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobAction::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobAction> ServerMobAction::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobActionT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobActionT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _payload = _o->payload ? CreateAction(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerMobAction(
+      _fbb,
+      _mob_index,
+      _payload);
+}
+
+inline ServerMobStateT::ServerMobStateT(const ServerMobStateT &o)
+      : mob_index(o.mob_index) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::StateT(*payload_) : nullptr); }
+}
+
+inline ServerMobStateT &ServerMobStateT::operator=(ServerMobStateT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerMobStateT *ServerMobState::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobStateT>(new ServerMobStateT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobState::UnPackTo(ServerMobStateT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobState> CreateServerMobState(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobState::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobState> ServerMobState::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobStateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobStateT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerMobState(
+      _fbb,
+      _mob_index,
+      _payload);
+}
+
+inline ServerMobDieT::ServerMobDieT(const ServerMobDieT &o)
+      : mob_index(o.mob_index) {
+  drop.reserve(o.drop.size());
+  for (const auto &drop_ : o.drop) { drop.emplace_back((drop_) ? new fbs::DropT(*drop_) : nullptr); }
+}
+
+inline ServerMobDieT &ServerMobDieT::operator=(ServerMobDieT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
+  std::swap(drop, o.drop);
+  return *this;
+}
+
+inline ServerMobDieT *ServerMobDie::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobDieT>(new ServerMobDieT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobDie::UnPackTo(ServerMobDieT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = drop(); if (_e) { _o->drop.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->drop[_i]) { _e->Get(_i)->UnPackTo(_o->drop[_i].get(), _resolver); } else { _o->drop[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->drop.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobDie::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobDie> ServerMobDie::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobDieT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _drop = _o->drop.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->drop.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->drop[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerMobDie(
+      _fbb,
+      _mob_index,
+      _drop);
+}
+
+inline ServerMobEventT *ServerMobEvent::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobEventT>(new ServerMobEventT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobEvent::UnPackTo(ServerMobEventT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
   { auto _e = map_id(); _o->map_id = _e; }
-  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::MobLogicT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+  { auto _e = payload_type(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].type = static_cast<fbs::MobEventUnion>(_e->Get(_i)); } } else { _o->payload.resize(0); } }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].value = fbs::MobEventUnionUnion::UnPack(_e->Get(_i), payload_type()->GetEnum<MobEventUnion>(_i), _resolver); } } else { _o->payload.resize(0); } }
 }
 
-inline ::flatbuffers::Offset<ServerMobLogic> CreateServerMobLogic(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ServerMobLogic::Pack(_fbb, _o, _rehasher);
+inline ::flatbuffers::Offset<ServerMobEvent> CreateServerMobEvent(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobEventT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobEvent::Pack(_fbb, _o, _rehasher);
 }
 
-inline ::flatbuffers::Offset<ServerMobLogic> ServerMobLogic::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+inline ::flatbuffers::Offset<ServerMobEvent> ServerMobEvent::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobEventT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobEventT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _map_id = _o->map_id;
-  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobLogic>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateMobLogic(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
-  return fbs::CreateServerMobLogic(
+  auto _payload_type = _o->payload.size() ? _fbb.CreateVector<uint8_t>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return static_cast<uint8_t>(__va->__o->payload[i].type); }, &_va) : 0;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<void>>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return __va->__o->payload[i].Pack(*__va->__fbb, __va->__rehasher); }, &_va) : 0;
+  return fbs::CreateServerMobEvent(
       _fbb,
       _map_id,
+      _payload_type,
       _payload);
 }
 
@@ -1806,7 +2818,7 @@ inline ::flatbuffers::Offset<ServerCharacterBall> ServerCharacterBall::Pack(::fl
 
 inline ServerMobAttackT::ServerMobAttackT(const ServerMobAttackT &o)
       : client_id(o.client_id),
-        payload((o.payload) ? new fbs::MobAttackT(*o.payload) : nullptr) {
+        payload((o.payload) ? new fbs::AttackT(*o.payload) : nullptr) {
 }
 
 inline ServerMobAttackT &ServerMobAttackT::operator=(ServerMobAttackT o) FLATBUFFERS_NOEXCEPT {
@@ -1825,7 +2837,7 @@ inline void ServerMobAttack::UnPackTo(ServerMobAttackT *_o, const ::flatbuffers:
   (void)_o;
   (void)_resolver;
   { auto _e = client_id(); _o->client_id = _e; }
-  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::MobAttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
 }
 
 inline ::flatbuffers::Offset<ServerMobAttack> CreateServerMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1837,7 +2849,7 @@ inline ::flatbuffers::Offset<ServerMobAttack> ServerMobAttack::Pack(::flatbuffer
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _client_id = _o->client_id;
-  auto _payload = _o->payload ? CreateMobAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  auto _payload = _o->payload ? CreateAttack(_fbb, _o->payload.get(), _rehasher) : 0;
   return fbs::CreateServerMobAttack(
       _fbb,
       _client_id,
@@ -2086,40 +3098,361 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> ServerCharacterTrade::Pack(::
       _confirm);
 }
 
-inline ServerMobDropT::ServerMobDropT(const ServerMobDropT &o) {
-  payload.reserve(o.payload.size());
-  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::DropT(*payload_) : nullptr); }
+inline ServerCharacterMvT::ServerCharacterMvT(const ServerCharacterMvT &o)
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::MovementT(*o.payload) : nullptr) {
 }
 
-inline ServerMobDropT &ServerMobDropT::operator=(ServerMobDropT o) FLATBUFFERS_NOEXCEPT {
+inline ServerCharacterMvT &ServerCharacterMvT::operator=(ServerCharacterMvT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
   std::swap(payload, o.payload);
   return *this;
 }
 
-inline ServerMobDropT *ServerMobDrop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ServerMobDropT>(new ServerMobDropT());
+inline ServerCharacterMvT *ServerCharacterMv::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterMvT>(new ServerCharacterMvT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void ServerMobDrop::UnPackTo(ServerMobDropT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+inline void ServerCharacterMv::UnPackTo(ServerCharacterMvT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::MovementT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
 }
 
-inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ServerMobDrop::Pack(_fbb, _o, _rehasher);
+inline ::flatbuffers::Offset<ServerCharacterMv> CreateServerCharacterMv(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMvT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterMv::Pack(_fbb, _o, _rehasher);
 }
 
-inline ::flatbuffers::Offset<ServerMobDrop> ServerMobDrop::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+inline ::flatbuffers::Offset<ServerCharacterMv> ServerCharacterMv::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterMvT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobDropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
-  return fbs::CreateServerMobDrop(
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterMvT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateMovement(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacterMv(
       _fbb,
+      _client_id,
       _payload);
+}
+
+inline ServerCharacterFlipT::ServerCharacterFlipT(const ServerCharacterFlipT &o)
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::FlipT(*o.payload) : nullptr) {
+}
+
+inline ServerCharacterFlipT &ServerCharacterFlipT::operator=(ServerCharacterFlipT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerCharacterFlipT *ServerCharacterFlip::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterFlipT>(new ServerCharacterFlipT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterFlip::UnPackTo(ServerCharacterFlipT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::FlipT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterFlip> CreateServerCharacterFlip(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFlipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterFlip::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterFlip> ServerCharacterFlip::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFlipT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterFlipT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateFlip(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacterFlip(
+      _fbb,
+      _client_id,
+      _payload);
+}
+
+inline ServerCharacterActionT::ServerCharacterActionT(const ServerCharacterActionT &o)
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::ActionT(*o.payload) : nullptr) {
+}
+
+inline ServerCharacterActionT &ServerCharacterActionT::operator=(ServerCharacterActionT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerCharacterActionT *ServerCharacterAction::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterActionT>(new ServerCharacterActionT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterAction::UnPackTo(ServerCharacterActionT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::ActionT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterAction> CreateServerCharacterAction(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterActionT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterAction::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterAction> ServerCharacterAction::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterActionT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterActionT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateAction(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacterAction(
+      _fbb,
+      _client_id,
+      _payload);
+}
+
+inline ServerCharacterDieT::ServerCharacterDieT(const ServerCharacterDieT &o)
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::DieT(*o.payload) : nullptr) {
+}
+
+inline ServerCharacterDieT &ServerCharacterDieT::operator=(ServerCharacterDieT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerCharacterDieT *ServerCharacterDie::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterDieT>(new ServerCharacterDieT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterDie::UnPackTo(ServerCharacterDieT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::DieT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterDie> CreateServerCharacterDie(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterDie::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterDie> ServerCharacterDie::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterDieT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterDieT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateDie(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacterDie(
+      _fbb,
+      _client_id,
+      _payload);
+}
+
+inline ServerCharacterFcT::ServerCharacterFcT(const ServerCharacterFcT &o)
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::FaceT(*o.payload) : nullptr) {
+}
+
+inline ServerCharacterFcT &ServerCharacterFcT::operator=(ServerCharacterFcT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerCharacterFcT *ServerCharacterFc::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterFcT>(new ServerCharacterFcT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterFc::UnPackTo(ServerCharacterFcT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::FaceT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterFc> CreateServerCharacterFc(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFcT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterFc::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterFc> ServerCharacterFc::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFcT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterFcT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateFace(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerCharacterFc(
+      _fbb,
+      _client_id,
+      _payload);
+}
+
+template <bool B>
+inline bool VerifyMobEventUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, MobEventUnion type) {
+  switch (type) {
+    case MobEventUnion_NONE: {
+      return true;
+    }
+    case MobEventUnion_ServerMobMv: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobMv *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MobEventUnion_ServerMobFlip: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobFlip *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MobEventUnion_ServerMobAction: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobAction *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MobEventUnion_ServerMobState: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobState *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MobEventUnion_ServerMobDie: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDie *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    default: return true;
+  }
+}
+
+template <bool B>
+inline bool VerifyMobEventUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
+  if (!values || !types) return !values && !types;
+  if (values->size() != types->size()) return false;
+  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
+    if (!VerifyMobEventUnion(
+        verifier,  values->Get(i), types->GetEnum<MobEventUnion>(i))) {
+      return false;
+    }
+  }
+  return true;
+}
+
+inline void *MobEventUnionUnion::UnPack(const void *obj, MobEventUnion type, const ::flatbuffers::resolver_function_t *resolver) {
+  (void)resolver;
+  switch (type) {
+    case MobEventUnion_ServerMobMv: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobMv *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case MobEventUnion_ServerMobFlip: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobFlip *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case MobEventUnion_ServerMobAction: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobAction *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case MobEventUnion_ServerMobState: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobState *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case MobEventUnion_ServerMobDie: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDie *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    default: return nullptr;
+  }
+}
+
+inline ::flatbuffers::Offset<void> MobEventUnionUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
+  (void)_rehasher;
+  switch (type) {
+    case MobEventUnion_ServerMobMv: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobMvT *>(value);
+      return CreateServerMobMv(_fbb, ptr, _rehasher).Union();
+    }
+    case MobEventUnion_ServerMobFlip: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobFlipT *>(value);
+      return CreateServerMobFlip(_fbb, ptr, _rehasher).Union();
+    }
+    case MobEventUnion_ServerMobAction: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobActionT *>(value);
+      return CreateServerMobAction(_fbb, ptr, _rehasher).Union();
+    }
+    case MobEventUnion_ServerMobState: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobStateT *>(value);
+      return CreateServerMobState(_fbb, ptr, _rehasher).Union();
+    }
+    case MobEventUnion_ServerMobDie: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDieT *>(value);
+      return CreateServerMobDie(_fbb, ptr, _rehasher).Union();
+    }
+    default: return 0;
+  }
+}
+
+inline MobEventUnionUnion::MobEventUnionUnion(const MobEventUnionUnion &u) : type(u.type), value(nullptr) {
+  switch (type) {
+    case MobEventUnion_ServerMobMv: {
+      value = new fbs::ServerMobMvT(*reinterpret_cast<fbs::ServerMobMvT *>(u.value));
+      break;
+    }
+    case MobEventUnion_ServerMobFlip: {
+      value = new fbs::ServerMobFlipT(*reinterpret_cast<fbs::ServerMobFlipT *>(u.value));
+      break;
+    }
+    case MobEventUnion_ServerMobAction: {
+      value = new fbs::ServerMobActionT(*reinterpret_cast<fbs::ServerMobActionT *>(u.value));
+      break;
+    }
+    case MobEventUnion_ServerMobState: {
+      value = new fbs::ServerMobStateT(*reinterpret_cast<fbs::ServerMobStateT *>(u.value));
+      break;
+    }
+    case MobEventUnion_ServerMobDie: {
+      value = new fbs::ServerMobDieT(*reinterpret_cast<fbs::ServerMobDieT *>(u.value));
+      break;
+    }
+    default:
+      break;
+  }
+}
+
+inline void MobEventUnionUnion::Reset() {
+  switch (type) {
+    case MobEventUnion_ServerMobMv: {
+      auto ptr = reinterpret_cast<fbs::ServerMobMvT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobEventUnion_ServerMobFlip: {
+      auto ptr = reinterpret_cast<fbs::ServerMobFlipT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobEventUnion_ServerMobAction: {
+      auto ptr = reinterpret_cast<fbs::ServerMobActionT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobEventUnion_ServerMobState: {
+      auto ptr = reinterpret_cast<fbs::ServerMobStateT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobEventUnion_ServerMobDie: {
+      auto ptr = reinterpret_cast<fbs::ServerMobDieT *>(value);
+      delete ptr;
+      break;
+    }
+    default: break;
+  }
+  value = nullptr;
+  type = MobEventUnion_NONE;
 }
 
 }  // namespace fbs

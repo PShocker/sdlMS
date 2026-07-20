@@ -71,21 +71,9 @@ struct Mob;
 struct MobBuilder;
 struct MobT;
 
-struct MobAttack;
-struct MobAttackBuilder;
-struct MobAttackT;
-
 struct Face;
 struct FaceBuilder;
 struct FaceT;
-
-struct CharacterLogic;
-struct CharacterLogicBuilder;
-struct CharacterLogicT;
-
-struct MobLogic;
-struct MobLogicBuilder;
-struct MobLogicT;
 
 struct CharacterChat;
 struct CharacterChatBuilder;
@@ -110,6 +98,10 @@ struct ItemT;
 struct Drop;
 struct DropBuilder;
 struct DropT;
+
+struct State;
+struct StateBuilder;
+struct StateT;
 
 struct APSave;
 struct APSaveBuilder;
@@ -146,321 +138,6 @@ struct PlayerSaveT;
 struct GameSave;
 struct GameSaveBuilder;
 struct GameSaveT;
-
-enum CharacterLogicType : uint8_t {
-  CharacterLogicType_NONE = 0,
-  CharacterLogicType_Movement = 1,
-  CharacterLogicType_Flip = 2,
-  CharacterLogicType_Action = 3,
-  CharacterLogicType_Die = 4,
-  CharacterLogicType_Face = 5,
-  CharacterLogicType_MIN = CharacterLogicType_NONE,
-  CharacterLogicType_MAX = CharacterLogicType_Face
-};
-
-inline const CharacterLogicType (&EnumValuesCharacterLogicType())[6] {
-  static const CharacterLogicType values[] = {
-    CharacterLogicType_NONE,
-    CharacterLogicType_Movement,
-    CharacterLogicType_Flip,
-    CharacterLogicType_Action,
-    CharacterLogicType_Die,
-    CharacterLogicType_Face
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesCharacterLogicType() {
-  static const char * const names[7] = {
-    "NONE",
-    "Movement",
-    "Flip",
-    "Action",
-    "Die",
-    "Face",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameCharacterLogicType(CharacterLogicType e) {
-  if (::flatbuffers::IsOutRange(e, CharacterLogicType_NONE, CharacterLogicType_Face)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesCharacterLogicType()[index];
-}
-
-template<typename T> struct CharacterLogicTypeTraits {
-  static const CharacterLogicType enum_value = CharacterLogicType_NONE;
-};
-
-template<> struct CharacterLogicTypeTraits<fbs::Movement> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Movement;
-};
-
-template<> struct CharacterLogicTypeTraits<fbs::Flip> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Flip;
-};
-
-template<> struct CharacterLogicTypeTraits<fbs::Action> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Action;
-};
-
-template<> struct CharacterLogicTypeTraits<fbs::Die> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Die;
-};
-
-template<> struct CharacterLogicTypeTraits<fbs::Face> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Face;
-};
-
-template<typename T> struct CharacterLogicTypeUnionTraits {
-  static const CharacterLogicType enum_value = CharacterLogicType_NONE;
-};
-
-template<> struct CharacterLogicTypeUnionTraits<fbs::MovementT> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Movement;
-};
-
-template<> struct CharacterLogicTypeUnionTraits<fbs::FlipT> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Flip;
-};
-
-template<> struct CharacterLogicTypeUnionTraits<fbs::ActionT> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Action;
-};
-
-template<> struct CharacterLogicTypeUnionTraits<fbs::DieT> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Die;
-};
-
-template<> struct CharacterLogicTypeUnionTraits<fbs::FaceT> {
-  static const CharacterLogicType enum_value = CharacterLogicType_Face;
-};
-
-struct CharacterLogicTypeUnion {
-  CharacterLogicType type;
-  void *value;
-
-  CharacterLogicTypeUnion() : type(CharacterLogicType_NONE), value(nullptr) {}
-  CharacterLogicTypeUnion(CharacterLogicTypeUnion&& u) FLATBUFFERS_NOEXCEPT :
-    type(CharacterLogicType_NONE), value(nullptr)
-    { std::swap(type, u.type); std::swap(value, u.value); }
-  CharacterLogicTypeUnion(const CharacterLogicTypeUnion &);
-  CharacterLogicTypeUnion &operator=(const CharacterLogicTypeUnion &u)
-    { CharacterLogicTypeUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
-  CharacterLogicTypeUnion &operator=(CharacterLogicTypeUnion &&u) FLATBUFFERS_NOEXCEPT
-    { std::swap(type, u.type); std::swap(value, u.value); return *this; }
-  ~CharacterLogicTypeUnion() { Reset(); }
-
-  void Reset();
-
-  template <typename T>
-  void Set(T&& val) {
-    typedef typename std::remove_reference<T>::type RT;
-    Reset();
-    type = CharacterLogicTypeUnionTraits<RT>::enum_value;
-    if (type != CharacterLogicType_NONE) {
-      value = new RT(std::forward<T>(val));
-    }
-  }
-
-  static void *UnPack(const void *obj, CharacterLogicType type, const ::flatbuffers::resolver_function_t *resolver);
-  ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
-
-  fbs::MovementT *AsMovement() {
-    return type == CharacterLogicType_Movement ?
-      reinterpret_cast<fbs::MovementT *>(value) : nullptr;
-  }
-  const fbs::MovementT *AsMovement() const {
-    return type == CharacterLogicType_Movement ?
-      reinterpret_cast<const fbs::MovementT *>(value) : nullptr;
-  }
-  fbs::FlipT *AsFlip() {
-    return type == CharacterLogicType_Flip ?
-      reinterpret_cast<fbs::FlipT *>(value) : nullptr;
-  }
-  const fbs::FlipT *AsFlip() const {
-    return type == CharacterLogicType_Flip ?
-      reinterpret_cast<const fbs::FlipT *>(value) : nullptr;
-  }
-  fbs::ActionT *AsAction() {
-    return type == CharacterLogicType_Action ?
-      reinterpret_cast<fbs::ActionT *>(value) : nullptr;
-  }
-  const fbs::ActionT *AsAction() const {
-    return type == CharacterLogicType_Action ?
-      reinterpret_cast<const fbs::ActionT *>(value) : nullptr;
-  }
-  fbs::DieT *AsDie() {
-    return type == CharacterLogicType_Die ?
-      reinterpret_cast<fbs::DieT *>(value) : nullptr;
-  }
-  const fbs::DieT *AsDie() const {
-    return type == CharacterLogicType_Die ?
-      reinterpret_cast<const fbs::DieT *>(value) : nullptr;
-  }
-  fbs::FaceT *AsFace() {
-    return type == CharacterLogicType_Face ?
-      reinterpret_cast<fbs::FaceT *>(value) : nullptr;
-  }
-  const fbs::FaceT *AsFace() const {
-    return type == CharacterLogicType_Face ?
-      reinterpret_cast<const fbs::FaceT *>(value) : nullptr;
-  }
-};
-
-template <bool B = false>
-bool VerifyCharacterLogicType(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, CharacterLogicType type);
-template <bool B = false>
-bool VerifyCharacterLogicTypeVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
-
-enum MobLogicType : uint8_t {
-  MobLogicType_NONE = 0,
-  MobLogicType_Movement = 1,
-  MobLogicType_Flip = 2,
-  MobLogicType_Action = 3,
-  MobLogicType_Die = 4,
-  MobLogicType_MIN = MobLogicType_NONE,
-  MobLogicType_MAX = MobLogicType_Die
-};
-
-inline const MobLogicType (&EnumValuesMobLogicType())[5] {
-  static const MobLogicType values[] = {
-    MobLogicType_NONE,
-    MobLogicType_Movement,
-    MobLogicType_Flip,
-    MobLogicType_Action,
-    MobLogicType_Die
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesMobLogicType() {
-  static const char * const names[6] = {
-    "NONE",
-    "Movement",
-    "Flip",
-    "Action",
-    "Die",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameMobLogicType(MobLogicType e) {
-  if (::flatbuffers::IsOutRange(e, MobLogicType_NONE, MobLogicType_Die)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesMobLogicType()[index];
-}
-
-template<typename T> struct MobLogicTypeTraits {
-  static const MobLogicType enum_value = MobLogicType_NONE;
-};
-
-template<> struct MobLogicTypeTraits<fbs::Movement> {
-  static const MobLogicType enum_value = MobLogicType_Movement;
-};
-
-template<> struct MobLogicTypeTraits<fbs::Flip> {
-  static const MobLogicType enum_value = MobLogicType_Flip;
-};
-
-template<> struct MobLogicTypeTraits<fbs::Action> {
-  static const MobLogicType enum_value = MobLogicType_Action;
-};
-
-template<> struct MobLogicTypeTraits<fbs::Die> {
-  static const MobLogicType enum_value = MobLogicType_Die;
-};
-
-template<typename T> struct MobLogicTypeUnionTraits {
-  static const MobLogicType enum_value = MobLogicType_NONE;
-};
-
-template<> struct MobLogicTypeUnionTraits<fbs::MovementT> {
-  static const MobLogicType enum_value = MobLogicType_Movement;
-};
-
-template<> struct MobLogicTypeUnionTraits<fbs::FlipT> {
-  static const MobLogicType enum_value = MobLogicType_Flip;
-};
-
-template<> struct MobLogicTypeUnionTraits<fbs::ActionT> {
-  static const MobLogicType enum_value = MobLogicType_Action;
-};
-
-template<> struct MobLogicTypeUnionTraits<fbs::DieT> {
-  static const MobLogicType enum_value = MobLogicType_Die;
-};
-
-struct MobLogicTypeUnion {
-  MobLogicType type;
-  void *value;
-
-  MobLogicTypeUnion() : type(MobLogicType_NONE), value(nullptr) {}
-  MobLogicTypeUnion(MobLogicTypeUnion&& u) FLATBUFFERS_NOEXCEPT :
-    type(MobLogicType_NONE), value(nullptr)
-    { std::swap(type, u.type); std::swap(value, u.value); }
-  MobLogicTypeUnion(const MobLogicTypeUnion &);
-  MobLogicTypeUnion &operator=(const MobLogicTypeUnion &u)
-    { MobLogicTypeUnion t(u); std::swap(type, t.type); std::swap(value, t.value); return *this; }
-  MobLogicTypeUnion &operator=(MobLogicTypeUnion &&u) FLATBUFFERS_NOEXCEPT
-    { std::swap(type, u.type); std::swap(value, u.value); return *this; }
-  ~MobLogicTypeUnion() { Reset(); }
-
-  void Reset();
-
-  template <typename T>
-  void Set(T&& val) {
-    typedef typename std::remove_reference<T>::type RT;
-    Reset();
-    type = MobLogicTypeUnionTraits<RT>::enum_value;
-    if (type != MobLogicType_NONE) {
-      value = new RT(std::forward<T>(val));
-    }
-  }
-
-  static void *UnPack(const void *obj, MobLogicType type, const ::flatbuffers::resolver_function_t *resolver);
-  ::flatbuffers::Offset<void> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr) const;
-
-  fbs::MovementT *AsMovement() {
-    return type == MobLogicType_Movement ?
-      reinterpret_cast<fbs::MovementT *>(value) : nullptr;
-  }
-  const fbs::MovementT *AsMovement() const {
-    return type == MobLogicType_Movement ?
-      reinterpret_cast<const fbs::MovementT *>(value) : nullptr;
-  }
-  fbs::FlipT *AsFlip() {
-    return type == MobLogicType_Flip ?
-      reinterpret_cast<fbs::FlipT *>(value) : nullptr;
-  }
-  const fbs::FlipT *AsFlip() const {
-    return type == MobLogicType_Flip ?
-      reinterpret_cast<const fbs::FlipT *>(value) : nullptr;
-  }
-  fbs::ActionT *AsAction() {
-    return type == MobLogicType_Action ?
-      reinterpret_cast<fbs::ActionT *>(value) : nullptr;
-  }
-  const fbs::ActionT *AsAction() const {
-    return type == MobLogicType_Action ?
-      reinterpret_cast<const fbs::ActionT *>(value) : nullptr;
-  }
-  fbs::DieT *AsDie() {
-    return type == MobLogicType_Die ?
-      reinterpret_cast<fbs::DieT *>(value) : nullptr;
-  }
-  const fbs::DieT *AsDie() const {
-    return type == MobLogicType_Die ?
-      reinterpret_cast<const fbs::DieT *>(value) : nullptr;
-  }
-};
-
-template <bool B = false>
-bool VerifyMobLogicType(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, MobLogicType type);
-template <bool B = false>
-bool VerifyMobLogicTypeVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
 
 enum ItemUnion : uint8_t {
   ItemUnion_NONE = 0,
@@ -571,6 +248,33 @@ template <bool B = false>
 bool VerifyItemUnion(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, ItemUnion type);
 template <bool B = false>
 bool VerifyItemUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types);
+
+enum StateEnum : int8_t {
+  StateEnum_HP = 0,
+  StateEnum_MIN = StateEnum_HP,
+  StateEnum_MAX = StateEnum_HP
+};
+
+inline const StateEnum (&EnumValuesStateEnum())[1] {
+  static const StateEnum values[] = {
+    StateEnum_HP
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesStateEnum() {
+  static const char * const names[2] = {
+    "HP",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameStateEnum(StateEnum e) {
+  if (::flatbuffers::IsOutRange(e, StateEnum_HP, StateEnum_HP)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesStateEnum()[index];
+}
 
 struct LifeStateT : public ::flatbuffers::NativeTable {
   typedef LifeState TableType;
@@ -2150,67 +1854,6 @@ inline ::flatbuffers::Offset<Mob> CreateMob(
 
 ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct MobAttackT : public ::flatbuffers::NativeTable {
-  typedef MobAttack TableType;
-  std::unique_ptr<fbs::AttackT> attack{};
-  MobAttackT() = default;
-  MobAttackT(const MobAttackT &o);
-  MobAttackT(MobAttackT&&) FLATBUFFERS_NOEXCEPT = default;
-  MobAttackT &operator=(MobAttackT o) FLATBUFFERS_NOEXCEPT;
-};
-
-struct MobAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MobAttackT NativeTableType;
-  typedef MobAttackBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ATTACK = 4
-  };
-  const fbs::Attack *attack() const {
-    return GetPointer<const fbs::Attack *>(VT_ATTACK);
-  }
-  fbs::Attack *mutable_attack() {
-    return GetPointer<fbs::Attack *>(VT_ATTACK);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_ATTACK) &&
-           verifier.VerifyTable(attack()) &&
-           verifier.EndTable();
-  }
-  MobAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(MobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<MobAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-struct MobAttackBuilder {
-  typedef MobAttack Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_attack(::flatbuffers::Offset<fbs::Attack> attack) {
-    fbb_.AddOffset(MobAttack::VT_ATTACK, attack);
-  }
-  explicit MobAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MobAttack> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MobAttack>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MobAttack> CreateMobAttack(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<fbs::Attack> attack = 0) {
-  MobAttackBuilder builder_(_fbb);
-  builder_.add_attack(attack);
-  return builder_.Finish();
-}
-
-::flatbuffers::Offset<MobAttack> CreateMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
 struct FaceT : public ::flatbuffers::NativeTable {
   typedef Face TableType;
   std::string face_action{};
@@ -2276,312 +1919,6 @@ inline ::flatbuffers::Offset<Face> CreateFaceDirect(
 }
 
 ::flatbuffers::Offset<Face> CreateFace(::flatbuffers::FlatBufferBuilder &_fbb, const FaceT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct CharacterLogicT : public ::flatbuffers::NativeTable {
-  typedef CharacterLogic TableType;
-  uint64_t client_id = 0;
-  fbs::CharacterLogicTypeUnion payload{};
-};
-
-struct CharacterLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef CharacterLogicT NativeTableType;
-  typedef CharacterLogicBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_CLIENT_ID = 4,
-    VT_PAYLOAD_TYPE = 6,
-    VT_PAYLOAD = 8
-  };
-  uint64_t client_id() const {
-    return GetField<uint64_t>(VT_CLIENT_ID, 0);
-  }
-  bool mutate_client_id(uint64_t _client_id = 0) {
-    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
-  }
-  fbs::CharacterLogicType payload_type() const {
-    return static_cast<fbs::CharacterLogicType>(GetField<uint8_t>(VT_PAYLOAD_TYPE, 0));
-  }
-  const void *payload() const {
-    return GetPointer<const void *>(VT_PAYLOAD);
-  }
-  template<typename T> const T *payload_as() const;
-  const fbs::Movement *payload_as_Movement() const {
-    return payload_type() == fbs::CharacterLogicType_Movement ? static_cast<const fbs::Movement *>(payload()) : nullptr;
-  }
-  const fbs::Flip *payload_as_Flip() const {
-    return payload_type() == fbs::CharacterLogicType_Flip ? static_cast<const fbs::Flip *>(payload()) : nullptr;
-  }
-  const fbs::Action *payload_as_Action() const {
-    return payload_type() == fbs::CharacterLogicType_Action ? static_cast<const fbs::Action *>(payload()) : nullptr;
-  }
-  const fbs::Die *payload_as_Die() const {
-    return payload_type() == fbs::CharacterLogicType_Die ? static_cast<const fbs::Die *>(payload()) : nullptr;
-  }
-  const fbs::Face *payload_as_Face() const {
-    return payload_type() == fbs::CharacterLogicType_Face ? static_cast<const fbs::Face *>(payload()) : nullptr;
-  }
-  template<typename T> T *mutable_payload_as();
-  fbs::Movement *mutable_payload_as_Movement() {
-    return payload_type() == fbs::CharacterLogicType_Movement ? static_cast<fbs::Movement *>(mutable_payload()) : nullptr;
-  }
-  fbs::Flip *mutable_payload_as_Flip() {
-    return payload_type() == fbs::CharacterLogicType_Flip ? static_cast<fbs::Flip *>(mutable_payload()) : nullptr;
-  }
-  fbs::Action *mutable_payload_as_Action() {
-    return payload_type() == fbs::CharacterLogicType_Action ? static_cast<fbs::Action *>(mutable_payload()) : nullptr;
-  }
-  fbs::Die *mutable_payload_as_Die() {
-    return payload_type() == fbs::CharacterLogicType_Die ? static_cast<fbs::Die *>(mutable_payload()) : nullptr;
-  }
-  fbs::Face *mutable_payload_as_Face() {
-    return payload_type() == fbs::CharacterLogicType_Face ? static_cast<fbs::Face *>(mutable_payload()) : nullptr;
-  }
-  void *mutable_payload() {
-    return GetPointer<void *>(VT_PAYLOAD);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
-           VerifyField<uint8_t>(verifier, VT_PAYLOAD_TYPE, 1) &&
-           VerifyOffset(verifier, VT_PAYLOAD) &&
-           VerifyCharacterLogicType(verifier, payload(), payload_type()) &&
-           verifier.EndTable();
-  }
-  CharacterLogicT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(CharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<CharacterLogic> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-template<> inline const fbs::Movement *CharacterLogic::payload_as<fbs::Movement>() const {
-  return payload_as_Movement();
-}
-
-template<> inline fbs::Movement *CharacterLogic::mutable_payload_as<fbs::Movement>() {
-  return mutable_payload_as_Movement();
-}
-
-template<> inline const fbs::Flip *CharacterLogic::payload_as<fbs::Flip>() const {
-  return payload_as_Flip();
-}
-
-template<> inline fbs::Flip *CharacterLogic::mutable_payload_as<fbs::Flip>() {
-  return mutable_payload_as_Flip();
-}
-
-template<> inline const fbs::Action *CharacterLogic::payload_as<fbs::Action>() const {
-  return payload_as_Action();
-}
-
-template<> inline fbs::Action *CharacterLogic::mutable_payload_as<fbs::Action>() {
-  return mutable_payload_as_Action();
-}
-
-template<> inline const fbs::Die *CharacterLogic::payload_as<fbs::Die>() const {
-  return payload_as_Die();
-}
-
-template<> inline fbs::Die *CharacterLogic::mutable_payload_as<fbs::Die>() {
-  return mutable_payload_as_Die();
-}
-
-template<> inline const fbs::Face *CharacterLogic::payload_as<fbs::Face>() const {
-  return payload_as_Face();
-}
-
-template<> inline fbs::Face *CharacterLogic::mutable_payload_as<fbs::Face>() {
-  return mutable_payload_as_Face();
-}
-
-struct CharacterLogicBuilder {
-  typedef CharacterLogic Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_client_id(uint64_t client_id) {
-    fbb_.AddElement<uint64_t>(CharacterLogic::VT_CLIENT_ID, client_id, 0);
-  }
-  void add_payload_type(fbs::CharacterLogicType payload_type) {
-    fbb_.AddElement<uint8_t>(CharacterLogic::VT_PAYLOAD_TYPE, static_cast<uint8_t>(payload_type), 0);
-  }
-  void add_payload(::flatbuffers::Offset<void> payload) {
-    fbb_.AddOffset(CharacterLogic::VT_PAYLOAD, payload);
-  }
-  explicit CharacterLogicBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<CharacterLogic> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<CharacterLogic>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<CharacterLogic> CreateCharacterLogic(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint64_t client_id = 0,
-    fbs::CharacterLogicType payload_type = fbs::CharacterLogicType_NONE,
-    ::flatbuffers::Offset<void> payload = 0) {
-  CharacterLogicBuilder builder_(_fbb);
-  builder_.add_client_id(client_id);
-  builder_.add_payload(payload);
-  builder_.add_payload_type(payload_type);
-  return builder_.Finish();
-}
-
-::flatbuffers::Offset<CharacterLogic> CreateCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct MobLogicT : public ::flatbuffers::NativeTable {
-  typedef MobLogic TableType;
-  uint32_t mob_index = 0;
-  uint32_t mob_id = 0;
-  fbs::MobLogicTypeUnion payload{};
-};
-
-struct MobLogic FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef MobLogicT NativeTableType;
-  typedef MobLogicBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MOB_INDEX = 4,
-    VT_MOB_ID = 6,
-    VT_PAYLOAD_TYPE = 8,
-    VT_PAYLOAD = 10
-  };
-  uint32_t mob_index() const {
-    return GetField<uint32_t>(VT_MOB_INDEX, 0);
-  }
-  bool mutate_mob_index(uint32_t _mob_index = 0) {
-    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
-  }
-  uint32_t mob_id() const {
-    return GetField<uint32_t>(VT_MOB_ID, 0);
-  }
-  bool mutate_mob_id(uint32_t _mob_id = 0) {
-    return SetField<uint32_t>(VT_MOB_ID, _mob_id, 0);
-  }
-  fbs::MobLogicType payload_type() const {
-    return static_cast<fbs::MobLogicType>(GetField<uint8_t>(VT_PAYLOAD_TYPE, 0));
-  }
-  const void *payload() const {
-    return GetPointer<const void *>(VT_PAYLOAD);
-  }
-  template<typename T> const T *payload_as() const;
-  const fbs::Movement *payload_as_Movement() const {
-    return payload_type() == fbs::MobLogicType_Movement ? static_cast<const fbs::Movement *>(payload()) : nullptr;
-  }
-  const fbs::Flip *payload_as_Flip() const {
-    return payload_type() == fbs::MobLogicType_Flip ? static_cast<const fbs::Flip *>(payload()) : nullptr;
-  }
-  const fbs::Action *payload_as_Action() const {
-    return payload_type() == fbs::MobLogicType_Action ? static_cast<const fbs::Action *>(payload()) : nullptr;
-  }
-  const fbs::Die *payload_as_Die() const {
-    return payload_type() == fbs::MobLogicType_Die ? static_cast<const fbs::Die *>(payload()) : nullptr;
-  }
-  template<typename T> T *mutable_payload_as();
-  fbs::Movement *mutable_payload_as_Movement() {
-    return payload_type() == fbs::MobLogicType_Movement ? static_cast<fbs::Movement *>(mutable_payload()) : nullptr;
-  }
-  fbs::Flip *mutable_payload_as_Flip() {
-    return payload_type() == fbs::MobLogicType_Flip ? static_cast<fbs::Flip *>(mutable_payload()) : nullptr;
-  }
-  fbs::Action *mutable_payload_as_Action() {
-    return payload_type() == fbs::MobLogicType_Action ? static_cast<fbs::Action *>(mutable_payload()) : nullptr;
-  }
-  fbs::Die *mutable_payload_as_Die() {
-    return payload_type() == fbs::MobLogicType_Die ? static_cast<fbs::Die *>(mutable_payload()) : nullptr;
-  }
-  void *mutable_payload() {
-    return GetPointer<void *>(VT_PAYLOAD);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
-           VerifyField<uint32_t>(verifier, VT_MOB_ID, 4) &&
-           VerifyField<uint8_t>(verifier, VT_PAYLOAD_TYPE, 1) &&
-           VerifyOffset(verifier, VT_PAYLOAD) &&
-           VerifyMobLogicType(verifier, payload(), payload_type()) &&
-           verifier.EndTable();
-  }
-  MobLogicT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(MobLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<MobLogic> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-template<> inline const fbs::Movement *MobLogic::payload_as<fbs::Movement>() const {
-  return payload_as_Movement();
-}
-
-template<> inline fbs::Movement *MobLogic::mutable_payload_as<fbs::Movement>() {
-  return mutable_payload_as_Movement();
-}
-
-template<> inline const fbs::Flip *MobLogic::payload_as<fbs::Flip>() const {
-  return payload_as_Flip();
-}
-
-template<> inline fbs::Flip *MobLogic::mutable_payload_as<fbs::Flip>() {
-  return mutable_payload_as_Flip();
-}
-
-template<> inline const fbs::Action *MobLogic::payload_as<fbs::Action>() const {
-  return payload_as_Action();
-}
-
-template<> inline fbs::Action *MobLogic::mutable_payload_as<fbs::Action>() {
-  return mutable_payload_as_Action();
-}
-
-template<> inline const fbs::Die *MobLogic::payload_as<fbs::Die>() const {
-  return payload_as_Die();
-}
-
-template<> inline fbs::Die *MobLogic::mutable_payload_as<fbs::Die>() {
-  return mutable_payload_as_Die();
-}
-
-struct MobLogicBuilder {
-  typedef MobLogic Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_mob_index(uint32_t mob_index) {
-    fbb_.AddElement<uint32_t>(MobLogic::VT_MOB_INDEX, mob_index, 0);
-  }
-  void add_mob_id(uint32_t mob_id) {
-    fbb_.AddElement<uint32_t>(MobLogic::VT_MOB_ID, mob_id, 0);
-  }
-  void add_payload_type(fbs::MobLogicType payload_type) {
-    fbb_.AddElement<uint8_t>(MobLogic::VT_PAYLOAD_TYPE, static_cast<uint8_t>(payload_type), 0);
-  }
-  void add_payload(::flatbuffers::Offset<void> payload) {
-    fbb_.AddOffset(MobLogic::VT_PAYLOAD, payload);
-  }
-  explicit MobLogicBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<MobLogic> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<MobLogic>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<MobLogic> CreateMobLogic(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t mob_index = 0,
-    uint32_t mob_id = 0,
-    fbs::MobLogicType payload_type = fbs::MobLogicType_NONE,
-    ::flatbuffers::Offset<void> payload = 0) {
-  MobLogicBuilder builder_(_fbb);
-  builder_.add_payload(payload);
-  builder_.add_mob_id(mob_id);
-  builder_.add_mob_index(mob_index);
-  builder_.add_payload_type(payload_type);
-  return builder_.Finish();
-}
-
-::flatbuffers::Offset<MobLogic> CreateMobLogic(::flatbuffers::FlatBufferBuilder &_fbb, const MobLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct CharacterChatT : public ::flatbuffers::NativeTable {
   typedef CharacterChat TableType;
@@ -3170,6 +2507,76 @@ inline ::flatbuffers::Offset<Drop> CreateDrop(
 }
 
 ::flatbuffers::Offset<Drop> CreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const DropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct StateT : public ::flatbuffers::NativeTable {
+  typedef State TableType;
+  fbs::StateEnum state = fbs::StateEnum_HP;
+  int64_t val = 0;
+};
+
+struct State FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef StateT NativeTableType;
+  typedef StateBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_STATE = 4,
+    VT_VAL = 6
+  };
+  fbs::StateEnum state() const {
+    return static_cast<fbs::StateEnum>(GetField<int8_t>(VT_STATE, 0));
+  }
+  bool mutate_state(fbs::StateEnum _state = static_cast<fbs::StateEnum>(0)) {
+    return SetField<int8_t>(VT_STATE, static_cast<int8_t>(_state), 0);
+  }
+  int64_t val() const {
+    return GetField<int64_t>(VT_VAL, 0);
+  }
+  bool mutate_val(int64_t _val = 0) {
+    return SetField<int64_t>(VT_VAL, _val, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int8_t>(verifier, VT_STATE, 1) &&
+           VerifyField<int64_t>(verifier, VT_VAL, 8) &&
+           verifier.EndTable();
+  }
+  StateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(StateT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<State> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const StateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct StateBuilder {
+  typedef State Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_state(fbs::StateEnum state) {
+    fbb_.AddElement<int8_t>(State::VT_STATE, static_cast<int8_t>(state), 0);
+  }
+  void add_val(int64_t val) {
+    fbb_.AddElement<int64_t>(State::VT_VAL, val, 0);
+  }
+  explicit StateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<State> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<State>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<State> CreateState(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    fbs::StateEnum state = fbs::StateEnum_HP,
+    int64_t val = 0) {
+  StateBuilder builder_(_fbb);
+  builder_.add_val(val);
+  builder_.add_state(state);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<State> CreateState(::flatbuffers::FlatBufferBuilder &_fbb, const StateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct APSaveT : public ::flatbuffers::NativeTable {
   typedef APSave TableType;
@@ -4755,41 +4162,6 @@ inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_f
       _state);
 }
 
-inline MobAttackT::MobAttackT(const MobAttackT &o)
-      : attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr) {
-}
-
-inline MobAttackT &MobAttackT::operator=(MobAttackT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(attack, o.attack);
-  return *this;
-}
-
-inline MobAttackT *MobAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<MobAttackT>(new MobAttackT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void MobAttack::UnPackTo(MobAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = attack(); if (_e) { if(_o->attack) { _e->UnPackTo(_o->attack.get(), _resolver); } else { _o->attack = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->attack) { _o->attack.reset(); } }
-}
-
-inline ::flatbuffers::Offset<MobAttack> CreateMobAttack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return MobAttack::Pack(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<MobAttack> MobAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MobAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _attack = _o->attack ? CreateAttack(_fbb, _o->attack.get(), _rehasher) : 0;
-  return fbs::CreateMobAttack(
-      _fbb,
-      _attack);
-}
-
 inline FaceT *Face::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<FaceT>(new FaceT());
   UnPackTo(_o.get(), _resolver);
@@ -4814,73 +4186,6 @@ inline ::flatbuffers::Offset<Face> Face::Pack(::flatbuffers::FlatBufferBuilder &
   return fbs::CreateFace(
       _fbb,
       _face_action);
-}
-
-inline CharacterLogicT *CharacterLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<CharacterLogicT>(new CharacterLogicT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void CharacterLogic::UnPackTo(CharacterLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = client_id(); _o->client_id = _e; }
-  { auto _e = payload_type(); _o->payload.type = _e; }
-  { auto _e = payload(); if (_e) _o->payload.value = fbs::CharacterLogicTypeUnion::UnPack(_e, payload_type(), _resolver); }
-}
-
-inline ::flatbuffers::Offset<CharacterLogic> CreateCharacterLogic(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return CharacterLogic::Pack(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<CharacterLogic> CharacterLogic::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _client_id = _o->client_id;
-  auto _payload_type = _o->payload.type;
-  auto _payload = _o->payload.Pack(_fbb);
-  return fbs::CreateCharacterLogic(
-      _fbb,
-      _client_id,
-      _payload_type,
-      _payload);
-}
-
-inline MobLogicT *MobLogic::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<MobLogicT>(new MobLogicT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void MobLogic::UnPackTo(MobLogicT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = mob_index(); _o->mob_index = _e; }
-  { auto _e = mob_id(); _o->mob_id = _e; }
-  { auto _e = payload_type(); _o->payload.type = _e; }
-  { auto _e = payload(); if (_e) _o->payload.value = fbs::MobLogicTypeUnion::UnPack(_e, payload_type(), _resolver); }
-}
-
-inline ::flatbuffers::Offset<MobLogic> CreateMobLogic(::flatbuffers::FlatBufferBuilder &_fbb, const MobLogicT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return MobLogic::Pack(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<MobLogic> MobLogic::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobLogicT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MobLogicT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _mob_index = _o->mob_index;
-  auto _mob_id = _o->mob_id;
-  auto _payload_type = _o->payload.type;
-  auto _payload = _o->payload.Pack(_fbb);
-  return fbs::CreateMobLogic(
-      _fbb,
-      _mob_index,
-      _mob_id,
-      _payload_type,
-      _payload);
 }
 
 inline CharacterChatT *CharacterChat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -5091,6 +4396,35 @@ inline ::flatbuffers::Offset<Drop> Drop::Pack(::flatbuffers::FlatBufferBuilder &
       _y2,
       _page,
       _timestamp);
+}
+
+inline StateT *State::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<StateT>(new StateT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void State::UnPackTo(StateT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = state(); _o->state = _e; }
+  { auto _e = val(); _o->val = _e; }
+}
+
+inline ::flatbuffers::Offset<State> CreateState(::flatbuffers::FlatBufferBuilder &_fbb, const StateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return State::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<State> State::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const StateT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const StateT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _state = _o->state;
+  auto _val = _o->val;
+  return fbs::CreateState(
+      _fbb,
+      _state,
+      _val);
 }
 
 inline APSaveT *APSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -5477,299 +4811,6 @@ inline ::flatbuffers::Offset<GameSave> GameSave::Pack(::flatbuffers::FlatBufferB
       _fbb,
       _username,
       _data);
-}
-
-template <bool B>
-inline bool VerifyCharacterLogicType(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, CharacterLogicType type) {
-  switch (type) {
-    case CharacterLogicType_NONE: {
-      return true;
-    }
-    case CharacterLogicType_Movement: {
-      auto ptr = reinterpret_cast<const fbs::Movement *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case CharacterLogicType_Flip: {
-      auto ptr = reinterpret_cast<const fbs::Flip *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case CharacterLogicType_Action: {
-      auto ptr = reinterpret_cast<const fbs::Action *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case CharacterLogicType_Die: {
-      auto ptr = reinterpret_cast<const fbs::Die *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case CharacterLogicType_Face: {
-      auto ptr = reinterpret_cast<const fbs::Face *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    default: return true;
-  }
-}
-
-template <bool B>
-inline bool VerifyCharacterLogicTypeVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
-  if (!values || !types) return !values && !types;
-  if (values->size() != types->size()) return false;
-  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
-    if (!VerifyCharacterLogicType(
-        verifier,  values->Get(i), types->GetEnum<CharacterLogicType>(i))) {
-      return false;
-    }
-  }
-  return true;
-}
-
-inline void *CharacterLogicTypeUnion::UnPack(const void *obj, CharacterLogicType type, const ::flatbuffers::resolver_function_t *resolver) {
-  (void)resolver;
-  switch (type) {
-    case CharacterLogicType_Movement: {
-      auto ptr = reinterpret_cast<const fbs::Movement *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case CharacterLogicType_Flip: {
-      auto ptr = reinterpret_cast<const fbs::Flip *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case CharacterLogicType_Action: {
-      auto ptr = reinterpret_cast<const fbs::Action *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case CharacterLogicType_Die: {
-      auto ptr = reinterpret_cast<const fbs::Die *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case CharacterLogicType_Face: {
-      auto ptr = reinterpret_cast<const fbs::Face *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    default: return nullptr;
-  }
-}
-
-inline ::flatbuffers::Offset<void> CharacterLogicTypeUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
-  (void)_rehasher;
-  switch (type) {
-    case CharacterLogicType_Movement: {
-      auto ptr = reinterpret_cast<const fbs::MovementT *>(value);
-      return CreateMovement(_fbb, ptr, _rehasher).Union();
-    }
-    case CharacterLogicType_Flip: {
-      auto ptr = reinterpret_cast<const fbs::FlipT *>(value);
-      return CreateFlip(_fbb, ptr, _rehasher).Union();
-    }
-    case CharacterLogicType_Action: {
-      auto ptr = reinterpret_cast<const fbs::ActionT *>(value);
-      return CreateAction(_fbb, ptr, _rehasher).Union();
-    }
-    case CharacterLogicType_Die: {
-      auto ptr = reinterpret_cast<const fbs::DieT *>(value);
-      return CreateDie(_fbb, ptr, _rehasher).Union();
-    }
-    case CharacterLogicType_Face: {
-      auto ptr = reinterpret_cast<const fbs::FaceT *>(value);
-      return CreateFace(_fbb, ptr, _rehasher).Union();
-    }
-    default: return 0;
-  }
-}
-
-inline CharacterLogicTypeUnion::CharacterLogicTypeUnion(const CharacterLogicTypeUnion &u) : type(u.type), value(nullptr) {
-  switch (type) {
-    case CharacterLogicType_Movement: {
-      value = new fbs::MovementT(*reinterpret_cast<fbs::MovementT *>(u.value));
-      break;
-    }
-    case CharacterLogicType_Flip: {
-      value = new fbs::FlipT(*reinterpret_cast<fbs::FlipT *>(u.value));
-      break;
-    }
-    case CharacterLogicType_Action: {
-      value = new fbs::ActionT(*reinterpret_cast<fbs::ActionT *>(u.value));
-      break;
-    }
-    case CharacterLogicType_Die: {
-      value = new fbs::DieT(*reinterpret_cast<fbs::DieT *>(u.value));
-      break;
-    }
-    case CharacterLogicType_Face: {
-      value = new fbs::FaceT(*reinterpret_cast<fbs::FaceT *>(u.value));
-      break;
-    }
-    default:
-      break;
-  }
-}
-
-inline void CharacterLogicTypeUnion::Reset() {
-  switch (type) {
-    case CharacterLogicType_Movement: {
-      auto ptr = reinterpret_cast<fbs::MovementT *>(value);
-      delete ptr;
-      break;
-    }
-    case CharacterLogicType_Flip: {
-      auto ptr = reinterpret_cast<fbs::FlipT *>(value);
-      delete ptr;
-      break;
-    }
-    case CharacterLogicType_Action: {
-      auto ptr = reinterpret_cast<fbs::ActionT *>(value);
-      delete ptr;
-      break;
-    }
-    case CharacterLogicType_Die: {
-      auto ptr = reinterpret_cast<fbs::DieT *>(value);
-      delete ptr;
-      break;
-    }
-    case CharacterLogicType_Face: {
-      auto ptr = reinterpret_cast<fbs::FaceT *>(value);
-      delete ptr;
-      break;
-    }
-    default: break;
-  }
-  value = nullptr;
-  type = CharacterLogicType_NONE;
-}
-
-template <bool B>
-inline bool VerifyMobLogicType(::flatbuffers::VerifierTemplate<B> &verifier, const void *obj, MobLogicType type) {
-  switch (type) {
-    case MobLogicType_NONE: {
-      return true;
-    }
-    case MobLogicType_Movement: {
-      auto ptr = reinterpret_cast<const fbs::Movement *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case MobLogicType_Flip: {
-      auto ptr = reinterpret_cast<const fbs::Flip *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case MobLogicType_Action: {
-      auto ptr = reinterpret_cast<const fbs::Action *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case MobLogicType_Die: {
-      auto ptr = reinterpret_cast<const fbs::Die *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    default: return true;
-  }
-}
-
-template <bool B>
-inline bool VerifyMobLogicTypeVector(::flatbuffers::VerifierTemplate<B> &verifier, const ::flatbuffers::Vector<::flatbuffers::Offset<void>> *values, const ::flatbuffers::Vector<uint8_t> *types) {
-  if (!values || !types) return !values && !types;
-  if (values->size() != types->size()) return false;
-  for (::flatbuffers::uoffset_t i = 0; i < values->size(); ++i) {
-    if (!VerifyMobLogicType(
-        verifier,  values->Get(i), types->GetEnum<MobLogicType>(i))) {
-      return false;
-    }
-  }
-  return true;
-}
-
-inline void *MobLogicTypeUnion::UnPack(const void *obj, MobLogicType type, const ::flatbuffers::resolver_function_t *resolver) {
-  (void)resolver;
-  switch (type) {
-    case MobLogicType_Movement: {
-      auto ptr = reinterpret_cast<const fbs::Movement *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case MobLogicType_Flip: {
-      auto ptr = reinterpret_cast<const fbs::Flip *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case MobLogicType_Action: {
-      auto ptr = reinterpret_cast<const fbs::Action *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    case MobLogicType_Die: {
-      auto ptr = reinterpret_cast<const fbs::Die *>(obj);
-      return ptr->UnPack(resolver);
-    }
-    default: return nullptr;
-  }
-}
-
-inline ::flatbuffers::Offset<void> MobLogicTypeUnion::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ::flatbuffers::rehasher_function_t *_rehasher) const {
-  (void)_rehasher;
-  switch (type) {
-    case MobLogicType_Movement: {
-      auto ptr = reinterpret_cast<const fbs::MovementT *>(value);
-      return CreateMovement(_fbb, ptr, _rehasher).Union();
-    }
-    case MobLogicType_Flip: {
-      auto ptr = reinterpret_cast<const fbs::FlipT *>(value);
-      return CreateFlip(_fbb, ptr, _rehasher).Union();
-    }
-    case MobLogicType_Action: {
-      auto ptr = reinterpret_cast<const fbs::ActionT *>(value);
-      return CreateAction(_fbb, ptr, _rehasher).Union();
-    }
-    case MobLogicType_Die: {
-      auto ptr = reinterpret_cast<const fbs::DieT *>(value);
-      return CreateDie(_fbb, ptr, _rehasher).Union();
-    }
-    default: return 0;
-  }
-}
-
-inline MobLogicTypeUnion::MobLogicTypeUnion(const MobLogicTypeUnion &u) : type(u.type), value(nullptr) {
-  switch (type) {
-    case MobLogicType_Movement: {
-      value = new fbs::MovementT(*reinterpret_cast<fbs::MovementT *>(u.value));
-      break;
-    }
-    case MobLogicType_Flip: {
-      value = new fbs::FlipT(*reinterpret_cast<fbs::FlipT *>(u.value));
-      break;
-    }
-    case MobLogicType_Action: {
-      value = new fbs::ActionT(*reinterpret_cast<fbs::ActionT *>(u.value));
-      break;
-    }
-    case MobLogicType_Die: {
-      value = new fbs::DieT(*reinterpret_cast<fbs::DieT *>(u.value));
-      break;
-    }
-    default:
-      break;
-  }
-}
-
-inline void MobLogicTypeUnion::Reset() {
-  switch (type) {
-    case MobLogicType_Movement: {
-      auto ptr = reinterpret_cast<fbs::MovementT *>(value);
-      delete ptr;
-      break;
-    }
-    case MobLogicType_Flip: {
-      auto ptr = reinterpret_cast<fbs::FlipT *>(value);
-      delete ptr;
-      break;
-    }
-    case MobLogicType_Action: {
-      auto ptr = reinterpret_cast<fbs::ActionT *>(value);
-      delete ptr;
-      break;
-    }
-    case MobLogicType_Die: {
-      auto ptr = reinterpret_cast<fbs::DieT *>(value);
-      delete ptr;
-      break;
-    }
-    default: break;
-  }
-  value = nullptr;
-  type = MobLogicType_NONE;
 }
 
 template <bool B>

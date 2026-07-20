@@ -96,39 +96,3 @@ void mob_game_instance::load_server_mob(
     }
   }
 }
-
-void mob_game_instance::server_mob_logic(const ServerMobLogicT &v) {
-  if (v.map_id != scene_system_instance::map_id) {
-    return;
-  }
-  for (const auto &m : v.payload) {
-    if (data.contains(m->mob_index)) {
-      auto &logics = data.at(m->mob_index).logics;
-      logics[m->payload.type].push_back(m->payload);
-    }
-  }
-}
-
-void mob_game_instance::load_mob_attack(uint64_t client_id,
-                                        const MobAttackT *m) {
-  // 伤害数字
-  damage_data data = {
-      .num = m->attack->num,
-      .type = damage_data::red,
-  };
-  if (client_id == 0) {
-    data.type = damage_data::viole;
-  }
-  game_effect d = {
-      .id = u"",
-      .index = 0,
-      .time = 0,
-      .delay = m->attack->delay,
-      .type = game_effect::effect_type::damage,
-      .pos = SDL_FPoint{m->attack->x, m->attack->y - 10},
-      .z = true,
-      .flip = false,
-      .data = data,
-  };
-  effect_game_instance::data[7].emplace_back(d);
-}
