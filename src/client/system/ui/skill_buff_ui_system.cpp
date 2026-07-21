@@ -8,7 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 
-static void render_ui(game_skill &sk, float x, float y) {
+void skill_buff_ui_system::render_ui(game_skill &sk, float x, float y) {
   auto id = sk.id;
   auto ski_node = skill_game_instance::load_ski_node(id);
   auto icon = wz_resource::load_texture(ski_node->get_child(u"icon"));
