@@ -356,7 +356,8 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
       if (r.client_id == 0) {
         g_character = character_game_instance::self;
       } else if (character_game_instance::others.contains(r.client_id)) {
-        g_character = character_game_instance::others.at(client_id).g_character;
+        g_character =
+            character_game_instance::others.at(r.client_id).g_character;
       }
       game_effect e = {
           .id = afterimage_game_instance::load_hit_type(g_character),

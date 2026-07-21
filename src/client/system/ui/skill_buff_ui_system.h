@@ -9,7 +9,7 @@
 class skill_buff_ui_system {
 private:
   static void render_ui(game_skill &sk, float x, float y);
-  static void render_ui_info(game_skill &sk, float x, float y);
+  static void render_ui_info();
 
 public:
   static bool render();

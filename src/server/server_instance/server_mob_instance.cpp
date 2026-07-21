@@ -188,9 +188,6 @@ void server_mob_instance::handle_s_attack(uint64_t client_id, AttackT &at) {
       .num = attack.num,
       .type = (damage_data::t)attack.type,
   };
-  if (client_id == 0) {
-    data.type = damage_data::viole;
-  }
   game_effect d = {
       .id = u"",
       .index = 0,

@@ -21,7 +21,7 @@
 static void ThreeSnail() {
   game_skill g_skill;
   g_skill.id = u"0001000";
-  g_skill.use = []() {
+  g_skill.use = [](int ski_lv) {
     game_triangle tri = {
         {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -30}}};
     auto &self = character_game_instance::self;
@@ -31,8 +31,7 @@ static void ThreeSnail() {
       cm.data = {cm.data[0]};
     }
     auto delay = skill_game_instance::load_ski_time(self);
-    auto ski_lvl = job_skill_game_instance::load_skill_level(u"0001000");
-    auto ski_lvl2 = std::to_string(ski_lvl);
+    auto ski_lvl2 = std::to_string(ski_lv);
     std::u16string path = u"000.img/skill/0001000/level/";
     path += {ski_lvl2.begin(), ski_lvl2.end()};
     path += u"/ball";
@@ -56,8 +55,8 @@ static void ThreeSnail() {
       cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
       client_request::send_to_host(cat);
     }
-    auto ckt = skill_game_instance::create_skill_payload(cat, 1000, ski_lvl);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lvl, ckt.payload,
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1000, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
                                           self);
     client_request::send_to_host(ckt);
   };
@@ -68,60 +67,100 @@ static void ThreeSnail() {
 static void Recover() {
   game_skill g_skill;
   g_skill.id = u"0001001";
-  g_skill.lv = job_skill_game_instance::load_skill_level(u"0001001");
 
   static uint64_t now;
-  static uint8_t count;
-  g_skill.use = [g_skill]() {
-    now = 0;
-    count = 0;
-    skill_game_instance::ski.push_back(g_skill);
+  g_skill.end = []() {
+    auto &ski = skill_game_instance::ski;
+    auto it = std::ranges::find_if(
+        ski, [](const game_skill &s) { return s.id == u"0001001"; });
+    ski.erase(it);
   };
 
   g_skill.frame = []() {
-    if (count >= 5) {
-      return false;
-    }
     if (now <= window::dt_now) {
-      now = window::dt_now + 2000;
+      const auto &pos = character_game_instance::self.pos;
+      now = window::dt_now + 1000;
       AttackT at;
+      at.x = pos.x - 10;
+      at.y = pos.y - 30;
       at.type = AttackEnum_Blue;
       at.num = 20;
       server_mob_instance::handle_s_attack(0, at);
       character_stat_game_instance::hp_point += at.num;
-      return true;
     }
-
-    return true;
   };
+
+  g_skill.use = [g_skill](int ski_lv) mutable {
+    skill_game_instance::skis()[u"0001001"].cd = window::dt_now + 10000;
+
+    auto &ski = skill_game_instance::ski;
+    auto it = std::ranges::find_if(
+        ski, [](const game_skill &s) { return s.id == u"0001001"; });
+    if (it != ski.end()) {
+      it->end();
+    }
+    g_skill.lv = ski_lv;
+    g_skill.destory = window::dt_now + 10000;
+    ski.push_back(g_skill);
+
+    auto &self = character_game_instance::self;
+    ClientCharacterAttackT cat;
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1001, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
+                                          self);
+    client_request::send_to_host(ckt);
+  };
+
   auto &skis = skill_game_instance::skis();
   skis[g_skill.id] = g_skill;
 }
 
-static void SpeedUp() {
+static void NimbleFeet() {
   game_skill g_skill;
   g_skill.id = u"0001002";
-  g_skill.lv = job_skill_game_instance::load_skill_level(u"0001002");
-  static uint64_t now;
-  g_skill.use = [g_skill]() {
-    now = window::dt_now + 5000;
+  g_skill.end = []() {
+    auto &ski = skill_game_instance::ski;
+    auto it = std::ranges::find_if(
+        ski, [](const game_skill &s) { return s.id == u"0001002"; });
+    ski.erase(it);
+
+    character_logic_system::self_hspeed_max -= 100;
+    character_logic_system::self_hspeed_min += 100;
+  };
+
+  g_skill.frame = []() { return; };
+
+  g_skill.use = [g_skill](int ski_lv) mutable {
+    skill_game_instance::skis()[u"0001002"].cd = window::dt_now + 1000;
+
+    auto &ski = skill_game_instance::ski;
+    auto it = std::ranges::find_if(
+        ski, [](const game_skill &s) { return s.id == u"0001002"; });
+    if (it != ski.end()) {
+      it->end();
+    }
+    g_skill.lv = ski_lv;
+    g_skill.destory = window::dt_now + 10000;
+    ski.push_back(g_skill);
+
     character_logic_system::self_hspeed_max += 100;
     character_logic_system::self_hspeed_min -= 100;
-    skill_game_instance::ski.push_back(g_skill);
+
+    auto &self = character_game_instance::self;
+    ClientCharacterAttackT cat;
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1002, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
+                                          self);
+    client_request::send_to_host(ckt);
   };
-  g_skill.frame = []() {
-    if (window::dt_now >= now) {
-      character_logic_system::self_hspeed_max -= 100;
-      character_logic_system::self_hspeed_min += 100;
-      return false;
-    }
-    return true;
-  };
+
+  auto &skis = skill_game_instance::skis();
+  skis[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {
   ThreeSnail();
   Recover();
-  SpeedUp();
+  NimbleFeet();
   return true;
 }();

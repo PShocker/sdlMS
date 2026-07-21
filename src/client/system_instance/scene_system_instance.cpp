@@ -39,6 +39,7 @@
 #include "src/client/system/logic/npc_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/system/logic/portal_logic_system.h"
+#include "src/client/system/logic/skill_logic_system.h"
 #include "src/client/system/render/backgrnd_render_system.h"
 #include "src/client/system/render/ball_render_system.h"
 #include "src/client/system/render/character_render_system.h"
@@ -182,6 +183,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       npc_logic_system::run,       portal_logic_system::run,
       audio_logic_system::run,     obj_logic_system::run,
       cursor_logic_system::run,    gain_log_logic_system::run,
+      skill_logic_system::run,
   };
   system::render_systems = {
       render_game,

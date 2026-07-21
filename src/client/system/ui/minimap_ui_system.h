@@ -22,7 +22,6 @@ private:
   static void render_mini();
   static void render_name();
 
-
   static void event_world_map();
   static void event_min();
   static void event_max();
@@ -45,7 +44,7 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
-  static inline SDL_FPoint pos = {5, 5};
+  static inline SDL_FPoint pos = {0, 0};
   static inline bool max = true;
   static inline bool disable;
 

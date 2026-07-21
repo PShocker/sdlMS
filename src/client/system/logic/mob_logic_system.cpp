@@ -157,10 +157,12 @@ void mob_logic_system::run_collision() {
                    .count();
     AttackT at;
     at.delay = now;
+    at.type = fbs::AttackEnum_Viole;
     at.num = 1;
     at.x = self.pos.x;
     at.y = self.pos.y - 30;
     server_mob_instance::handle_s_attack(0, at);
+    at.type = fbs::AttackEnum_Red;
     ClientMobAttackT cma;
     cma.map_id = scene_system_instance::map_id;
     cma.payload = std::make_unique<AttackT>(at);

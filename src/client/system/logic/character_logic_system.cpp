@@ -567,7 +567,11 @@ bool character_logic_system::run_skill(game_character &g_character,
                                        const std::u16string &id) {
   auto &skis = skill_game_instance::skis();
   if (skis.contains(id)) {
-    skis[id].use();
+    auto ski_lv = job_skill_game_instance::load_skill_level(id);
+    const auto &ski = skis[id];
+    if (ski.cd < window::dt_now) {
+      ski.use(ski_lv);
+    }
   }
   return true;
 }
@@ -934,6 +938,9 @@ character_logic_system::load_action_type(game_character &g_character) {
     return action;
   }
   if (g_character.skill.has_value()) {
+    if (action != action_enum::skill) {
+      return action;
+    }
     return action_enum::skill;
   }
   return action;

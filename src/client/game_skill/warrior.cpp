@@ -18,7 +18,7 @@
 static void PowerStrke() {
   game_skill g_skill;
   g_skill.id = u"1001001";
-  g_skill.use = []() {
+  g_skill.use = [](int ski_lv) {
     auto &self = character_game_instance::self;
     character_logic_system::run_attack_action(self);
     SDL_FRect g_r = afterimage_game_instance::load_rect(self).value();
@@ -30,9 +30,8 @@ static void PowerStrke() {
       cat = skill_game_instance::create_attack_payload(cm, self.pos, delay);
       client_request::send_to_host(cat);
     }
-    auto ski_lvl = job_skill_game_instance::load_skill_level(u"1001001");
-    auto ckt = skill_game_instance::create_skill_payload(cat, 1001001, ski_lvl);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lvl, ckt.payload,
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1001001, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
                                           self);
     client_request::send_to_host(ckt);
   };
@@ -43,7 +42,7 @@ static void PowerStrke() {
 static void SlashBlast() {
   game_skill g_skill;
   g_skill.id = u"1001002";
-  g_skill.use = []() {
+  g_skill.use = [](int ski_lv) {
     auto &self = character_game_instance::self;
     character_logic_system::run_attack_action(self);
     SDL_FPoint lt = {-150, -100};
@@ -57,9 +56,8 @@ static void SlashBlast() {
       cat = skill_game_instance::create_attack_payload(cm, self.pos, delay);
       client_request::send_to_host(cat);
     }
-    auto ski_lvl = job_skill_game_instance::load_skill_level(u"1001002");
-    auto ckt = skill_game_instance::create_skill_payload(cat, 1001002, ski_lvl);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lvl, ckt.payload,
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1001002, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
                                           self);
     client_request::send_to_host(ckt);
   };
