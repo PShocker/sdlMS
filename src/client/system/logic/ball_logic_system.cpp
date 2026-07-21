@@ -36,11 +36,6 @@ SDL_FPoint ball_logic_system::move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
   float dy = p2.y - p1.y;
   float length = sqrtf(dx * dx + dy * dy);
 
-  // 如果已经重合，直接返回
-  if (length < 0.0001f) {
-    return p2;
-  }
-
   // 如果剩余距离 <= 步长，直接到达终点并停止
   if (length <= step) {
     return p2;
