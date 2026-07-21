@@ -139,6 +139,39 @@ struct GameSave;
 struct GameSaveBuilder;
 struct GameSaveT;
 
+enum AttackEnum : uint8_t {
+  AttackEnum_Red = 0,
+  AttackEnum_Blue = 1,
+  AttackEnum_Viole = 2,
+  AttackEnum_MIN = AttackEnum_Red,
+  AttackEnum_MAX = AttackEnum_Viole
+};
+
+inline const AttackEnum (&EnumValuesAttackEnum())[3] {
+  static const AttackEnum values[] = {
+    AttackEnum_Red,
+    AttackEnum_Blue,
+    AttackEnum_Viole
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesAttackEnum() {
+  static const char * const names[4] = {
+    "Red",
+    "Blue",
+    "Viole",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameAttackEnum(AttackEnum e) {
+  if (::flatbuffers::IsOutRange(e, AttackEnum_Red, AttackEnum_Viole)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesAttackEnum()[index];
+}
+
 enum ItemUnion : uint8_t {
   ItemUnion_NONE = 0,
   ItemUnion_Equip = 1,
@@ -1044,7 +1077,7 @@ struct AttackT : public ::flatbuffers::NativeTable {
   uint64_t num = 0;
   float x = 0.0f;
   float y = 0.0f;
-  uint8_t type = 0;
+  fbs::AttackEnum type = fbs::AttackEnum_Red;
 };
 
 struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1081,11 +1114,11 @@ struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_y(float _y = 0.0f) {
     return SetField<float>(VT_Y, _y, 0.0f);
   }
-  uint8_t type() const {
-    return GetField<uint8_t>(VT_TYPE, 0);
+  fbs::AttackEnum type() const {
+    return static_cast<fbs::AttackEnum>(GetField<uint8_t>(VT_TYPE, 0));
   }
-  bool mutate_type(uint8_t _type = 0) {
-    return SetField<uint8_t>(VT_TYPE, _type, 0);
+  bool mutate_type(fbs::AttackEnum _type = static_cast<fbs::AttackEnum>(0)) {
+    return SetField<uint8_t>(VT_TYPE, static_cast<uint8_t>(_type), 0);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -1118,8 +1151,8 @@ struct AttackBuilder {
   void add_y(float y) {
     fbb_.AddElement<float>(Attack::VT_Y, y, 0.0f);
   }
-  void add_type(uint8_t type) {
-    fbb_.AddElement<uint8_t>(Attack::VT_TYPE, type, 0);
+  void add_type(fbs::AttackEnum type) {
+    fbb_.AddElement<uint8_t>(Attack::VT_TYPE, static_cast<uint8_t>(type), 0);
   }
   explicit AttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1138,7 +1171,7 @@ inline ::flatbuffers::Offset<Attack> CreateAttack(
     uint64_t num = 0,
     float x = 0.0f,
     float y = 0.0f,
-    uint8_t type = 0) {
+    fbs::AttackEnum type = fbs::AttackEnum_Red) {
   AttackBuilder builder_(_fbb);
   builder_.add_num(num);
   builder_.add_delay(delay);

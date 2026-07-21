@@ -69,6 +69,7 @@ void effect_render_system::render_damage(SDL_FPoint pos,
   }
   static auto red = wz_resource::effect->find(u"BasicEff.img/NoRed0");
   static auto viole = wz_resource::effect->find(u"BasicEff.img/NoViolet0");
+  static auto blue = wz_resource::effect->find(u"BasicEff.img/NoBlue0");
 
   const std::vector<std::u16string> damage_vector = {
       u"0", u"1", u"2", u"3", u"4",    u"5",
@@ -85,6 +86,7 @@ void effect_render_system::render_damage(SDL_FPoint pos,
     break;
   }
   case damage_data::blue: {
+    node = blue;
     break;
   }
   case damage_data::viole: {
@@ -160,7 +162,8 @@ void effect_render_system::render_skill_hit(SDL_FPoint pos,
   if (ski_node->find(u"hit/0")) {
     ski_node = ski_node->find(u"hit/0");
   } else {
-    ski_node = skill_game_instance::load_ski_level_node(g_effect.id, g_effect.lvl);
+    ski_node =
+        skill_game_instance::load_ski_level_node(g_effect.id, g_effect.lvl);
     ski_node = ski_node->find(u"hit/0");
   }
   auto index = std::to_string(g_effect.index);

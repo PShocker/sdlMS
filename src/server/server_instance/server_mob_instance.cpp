@@ -186,7 +186,7 @@ void server_mob_instance::handle_s_attack(uint64_t client_id, AttackT &at) {
   // 伤害数字
   damage_data data = {
       .num = attack.num,
-      .type = damage_data::red,
+      .type = (damage_data::t)attack.type,
   };
   if (client_id == 0) {
     data.type = damage_data::viole;

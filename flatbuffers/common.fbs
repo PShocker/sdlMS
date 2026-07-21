@@ -54,12 +54,18 @@ table Action{
     action_animate:bool;
 }
 
+enum AttackEnum : uint8 {
+    Red,
+    Blue,
+    Viole,
+}
+
 table Attack{
     delay:uint64;
     num:uint64;
     x:float;
     y:float;
-    type:uint8;
+    type:AttackEnum;
 }
 
 table Die{

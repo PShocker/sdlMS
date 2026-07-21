@@ -21,6 +21,7 @@
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
@@ -52,8 +53,8 @@
 #include "src/client/system/render/reactor_render_system.h"
 #include "src/client/system/render/tile_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system/ui/skill_buff_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/window/window.h"
@@ -169,9 +170,8 @@ void scene_system_instance::enter(uint32_t map_id) {
   audio_game_instance::load_backgrnd_audio(bgm);
 
   system::event_systems = {
-      minimap_ui_system::event,
-      statusbar_ui_system::event,
-      cursor_logic_system::event,
+      minimap_ui_system::event,     statusbar_ui_system::event,
+      skill_buff_ui_system::event,  cursor_logic_system::event,
       keyboard_input_system::event,
   };
   system::logic_systems = {
@@ -185,6 +185,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   };
   system::render_systems = {
       render_game,
+      skill_buff_ui_system::render,
       statusbar_ui_system::render,
       minimap_ui_system::render,
       cursor_render_system::render,

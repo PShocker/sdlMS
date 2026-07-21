@@ -1,7 +1,6 @@
 #pragma once
 #include "SDL3/SDL_audio.h"
 #include "SDL3/SDL_rect.h"
-#include "src/client/game/game_buff.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -18,7 +17,7 @@ using namespace fbs;
 
 class skill_game_instance {
 public:
-  static inline std::vector<game_buff> buf;
+  static inline std::vector<game_skill> ski;
   static auto &skis() {
     static std::flat_map<std::u16string, game_skill> instance;
     return instance;
