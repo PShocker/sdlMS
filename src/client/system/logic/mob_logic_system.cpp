@@ -15,7 +15,6 @@
 #include "wz/Property.h"
 #include "wz/Wz.h"
 #include <algorithm>
-#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <flat_map>
@@ -152,9 +151,7 @@ void mob_logic_system::run_collision() {
     } else {
       character_logic_system::run_face_action(self, u"hit");
     }
-    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                   std::chrono::system_clock::now().time_since_epoch())
-                   .count();
+    auto now = window::dt_time;
     AttackT at;
     at.delay = now;
     at.type = fbs::AttackEnum_Viole;

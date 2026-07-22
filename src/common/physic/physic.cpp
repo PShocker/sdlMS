@@ -230,6 +230,9 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
     if (fall_collide_wall(hspeed, fh, fhs)) {
       pos.x = fh.x1;
       pos.x += (hspeed < 0) ? 0.1f : -0.1f;
+      float low = std::min(fh.y1, fh.y2);
+      float high = std::max(fh.y1, fh.y2);
+      pos.y = std::clamp(pos.y, low, high);
       hspeed = 0;
       return true;
     }

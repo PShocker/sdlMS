@@ -8,16 +8,13 @@
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <array>
-#include <chrono>
 #include <cstdint>
 #include <string>
 #include <vector>
 
 void effect_render_system::render_afterimage(SDL_FPoint pos,
                                              game_effect &g_effect) {
-  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                          std::chrono::system_clock::now().time_since_epoch())
-                          .count();
+  auto current_time = window::dt_time;
   if (current_time <= g_effect.delay) {
     return;
   }
@@ -58,9 +55,7 @@ void effect_render_system::render_damage(SDL_FPoint pos,
     miss,
     guard,
   };
-  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                          std::chrono::system_clock::now().time_since_epoch())
-                          .count();
+  auto current_time = window::dt_time;
   if (current_time <= g_effect.delay) {
     return;
   }
@@ -152,9 +147,7 @@ void effect_render_system::render_skill_use(SDL_FPoint pos,
 
 void effect_render_system::render_skill_hit(SDL_FPoint pos,
                                             game_effect &g_effect, bool flip) {
-  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                 std::chrono::system_clock::now().time_since_epoch())
-                 .count();
+  auto now = window::dt_time;
   if (g_effect.delay >= now) {
     return;
   }

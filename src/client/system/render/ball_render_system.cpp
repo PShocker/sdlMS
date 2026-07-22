@@ -6,13 +6,10 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
-#include <chrono>
 #include <string>
 
 bool ball_render_system::render(game_ball &g_ball) {
-  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                 std::chrono::system_clock::now().time_since_epoch())
-                 .count();
+  auto now = window::dt_time;
   if (g_ball.delay >= now) {
     return false;
   }

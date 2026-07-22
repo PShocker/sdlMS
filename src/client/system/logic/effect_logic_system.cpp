@@ -6,15 +6,12 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
-#include <chrono>
 #include <cstdint>
 #include <ranges>
 
 bool effect_logic_system::run_damage(game_effect &g_effect) {
   bool r = false;
-  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                          std::chrono::system_clock::now().time_since_epoch())
-                          .count();
+  auto current_time = window::dt_time;
   if (g_effect.delay >= current_time) {
     return r;
   }
@@ -38,9 +35,7 @@ bool effect_logic_system::run_damage(game_effect &g_effect) {
 
 bool effect_logic_system::run_afterimage(game_effect &g_effect) {
   bool r = false;
-  auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                          std::chrono::system_clock::now().time_since_epoch())
-                          .count();
+  auto current_time = window::dt_time;
   if (g_effect.delay >= current_time) {
     return r;
   }
@@ -91,9 +86,7 @@ bool effect_logic_system::run_skill_use(game_effect &g_effect) {
 }
 
 bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
-  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                 std::chrono::system_clock::now().time_since_epoch())
-                 .count();
+  auto now = window::dt_time;
   if (g_effect.delay >= now) {
     return false;
   }

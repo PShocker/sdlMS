@@ -67,7 +67,7 @@ void fade_system_instance::enter_out() {
 bool fade_system_instance::run() {
   character_logic_system::self_invincible_cooldown = window::dt_now + 900;
   if (mask_alpha < 255) {
-    mask_alpha += 15;
+    mask_alpha += 20;
   } else {
     if (fn) {
       fn();

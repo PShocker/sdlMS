@@ -3,11 +3,10 @@
 #include "character_game_instance.h"
 #include "effect_game_instance.h"
 #include "equip_game_instance.h"
-#include "src/client/game/game_effect.h"
+#include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
-#include <chrono>
 #include <cstdint>
 #include <flat_map>
 #include <optional>
@@ -144,9 +143,7 @@ uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
     for (auto i = 0; i < index; i++) {
       time += bones[i].delay;
     }
-    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                   std::chrono::system_clock::now().time_since_epoch())
-                   .count();
+    auto now = window::dt_time;
     time += now;
   }
   return time;

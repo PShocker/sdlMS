@@ -1,6 +1,6 @@
 #include "audio_logic_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
-#include <chrono>
+#include "src/client/window/window.h"
 
 void audio_logic_system::run_backgrnd() {
   auto &backgrnds = audio_game_instance::backgrnds;
@@ -23,9 +23,7 @@ void audio_logic_system::run_backgrnd() {
 }
 
 void audio_logic_system::run_audios() {
-  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                 std::chrono::system_clock::now().time_since_epoch())
-                 .count();
+  auto now = window::dt_time;
   auto &audios = audio_game_instance::audios;
   for (auto it = audios.begin(); it != audios.end();) {
     if (now >= it->delay || it->delay == 0) {

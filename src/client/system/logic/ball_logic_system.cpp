@@ -6,7 +6,6 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
-#include <chrono>
 
 void ball_logic_system::run_animate(game_ball &b) {
   wz::Node *n = nullptr;
@@ -78,9 +77,7 @@ bool ball_logic_system::run_move(game_ball &b) {
 }
 
 bool ball_logic_system::run() {
-  auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                 std::chrono::system_clock::now().time_since_epoch())
-                 .count();
+  auto now = window::dt_time;
   for (auto &bs : ball_game_instance::data) {
     // 使用迭代器遍历并安全删除
     for (auto it = bs.begin(); it != bs.end();) {

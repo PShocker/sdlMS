@@ -3,12 +3,11 @@
 #include "character_game_instance.h"
 #include "equip_game_instance.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "text_game_instance.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
-#include <array>
-#include <chrono>
 #include <cstdint>
 #include <flat_map>
 #include <string>
@@ -43,9 +42,7 @@ wz::Node *skill_game_instance::load_ski_node(const std::u16string &id) {
 }
 
 uint64_t skill_game_instance::load_ski_time(game_character &g_character) {
-  uint64_t r = std::chrono::duration_cast<std::chrono::milliseconds>(
-                   std::chrono::system_clock::now().time_since_epoch())
-                   .count();
+  uint64_t r = window::dt_time;
   if (character_game_instance::bone_data.contains(g_character.action)) {
     r = afterimage_game_instance::load_beat_time(g_character);
   } else {
