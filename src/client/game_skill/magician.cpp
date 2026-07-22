@@ -37,6 +37,7 @@ static void mfdan() {
     auto cm = character_logic_system::run_attack_check(self, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
+      cm.data[0].hits = {60};
     }
     auto delay = skill_game_instance::load_ski_time(self);
     auto ski_lvl2 = std::to_string(ski_lv);
@@ -124,7 +125,7 @@ static void mfsj() {
       cm.data = {cm.data[0]};
       auto delay = skill_game_instance::load_ski_time(self);
       // Create and send attack payload
-      cm.data[0].hits = {60, 10};
+      cm.data[0].hits = {60, 70};
       cat = skill_game_instance::create_attack_payload(cm, self.pos, delay);
       client_request::send_to_host(cat);
     }

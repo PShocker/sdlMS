@@ -8,10 +8,12 @@
 
 class skill_buff_ui_system {
 private:
+  static void render_ui();
   static void render_ui(game_skill &sk, float x, float y);
-  static void render_ui_info();
+  static void render_info();
 
 public:
+  static bool render_ui_info();
   static bool render();
   static bool event(SDL_Event *event);
 };

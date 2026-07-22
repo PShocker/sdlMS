@@ -550,6 +550,7 @@ void package_ui_system::render_number_l(uint32_t num, int x, int y) {
         (float)t->w,
         (float)t->h,
     };
+    SDL_SetTextureColorMod(t, 255, 224, 104);
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
     w += t->w;
   }
@@ -571,6 +572,7 @@ void package_ui_system::render_number_r(uint32_t num, int x, int y) {
         (float)t->w,
         (float)t->h,
     };
+    SDL_SetTextureColorMod(t, 0, 0, 0);
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
     w += t->w;
   }

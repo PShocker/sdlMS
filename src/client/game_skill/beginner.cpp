@@ -50,6 +50,7 @@ static void ThreeSnail() {
     if (!cm.data.empty()) {
       auto d = ball_game_instance::load_ball_time(cct);
       // Create and send attack payload
+      cm.data[0].y = 0;
       cm.data[0].hits = {60};
       cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
       client_request::send_to_host(cat);
@@ -65,6 +66,7 @@ static void ThreeSnail() {
 
 static void Recover() {
   game_skill g_skill;
+  g_skill.climb = true;
   g_skill.id = u"0001001";
 
   static uint64_t now;
@@ -115,6 +117,7 @@ static void Recover() {
 
 static void NimbleFeet() {
   game_skill g_skill;
+  g_skill.climb = true;
   g_skill.id = u"0001002";
   g_skill.end = []() {
     auto &ski = skill_game_instance::ski;

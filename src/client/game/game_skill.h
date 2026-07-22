@@ -13,6 +13,9 @@ public:
   std::function<void()> end;
   std::function<void(game_mob, uint64_t)> hit;
 
+  bool fall = false;
+  bool climb = false;
+
   uint64_t destory;
   uint64_t duration;
   uint64_t cd;

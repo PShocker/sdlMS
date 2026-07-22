@@ -175,8 +175,8 @@ void effect_render_system::render_skill_hit(SDL_FPoint pos,
   }
   auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
-      .x = pos.x - origin.x,
-      .y = pos.y - origin.y,
+      .x = pos.x - origin.x + g_effect.pos->x,
+      .y = pos.y - origin.y + g_effect.pos->y,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };

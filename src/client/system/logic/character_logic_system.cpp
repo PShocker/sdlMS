@@ -570,7 +570,25 @@ bool character_logic_system::run_skill(game_character &g_character,
     auto ski_lv = job_skill_game_instance::load_skill_level(id);
     const auto &ski = skis[id];
     if (ski.cd < window::dt_now) {
-      ski.use(ski_lv);
+      auto action_type = load_action_type(g_character);
+      switch (action_type) {
+      case action_enum::jump: {
+        if (ski.fall) {
+          ski.use(ski_lv);
+        }
+        break;
+      }
+      case action_enum::climb: {
+        if (ski.climb) {
+          ski.use(ski_lv);
+        }
+        break;
+      }
+      default: {
+        ski.use(ski_lv);
+        break;
+      }
+      }
     }
   }
   return true;
@@ -1049,6 +1067,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (run_attack(g_character)) {
       break;
     }
+    if (run_skill(g_character)) {
+      break;
+    }
     if (run_climb(g_character)) {
       break;
     }
@@ -1067,6 +1088,9 @@ void character_logic_system::run_state_machine(game_character &g_character) {
       run_action(g_character, u"jump");
     }
     if (run_portal(g_character)) {
+      break;
+    }
+    if (run_skill(g_character)) {
       break;
     }
     break;

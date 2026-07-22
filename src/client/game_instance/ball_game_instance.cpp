@@ -54,6 +54,8 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
     auto closest_pos = closest_point_on_rect(pos, mob_r);
     ccb.payload->ball->x2 = closest_pos.x - mob.pos.x;
     ccb.payload->ball->y2 = closest_pos.y - mob.pos.y;
+    cm.data[0].x = ccb.payload->ball->x2;
+    cm.data[0].y = ccb.payload->ball->y2;
   } else {
     ccb.payload->ball->x2 = goal.x;
     ccb.payload->ball->y2 = goal.y;

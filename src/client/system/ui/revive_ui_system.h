@@ -10,15 +10,7 @@ private:
   static bool event_button(SDL_Event *event);
   static void event_button_ok();
 
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
-
   static SDL_FPoint load_wh();
-
-  static inline std::optional<SDL_FPoint> drag;
-
 public:
   static inline SDL_FPoint pos;
 

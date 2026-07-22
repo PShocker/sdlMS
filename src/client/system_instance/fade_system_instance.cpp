@@ -7,6 +7,7 @@
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include <algorithm>
+#include <cstdint>
 
 bool fade_system_instance::render() {
   SDL_FRect pos_rect{
@@ -59,10 +60,12 @@ void fade_system_instance::enter_out() {
   mask_alpha = 0;
   fn = {};
   fade_in = false;
+  
+  character_logic_system::self_invincible_cooldown = UINT64_MAX;
 }
 
 bool fade_system_instance::run() {
-  character_logic_system::self_invincible_cooldown = window::dt_now;
+  character_logic_system::self_invincible_cooldown = window::dt_now + 900;
   if (mask_alpha < 255) {
     mask_alpha += 15;
   } else {
@@ -71,7 +74,7 @@ bool fade_system_instance::run() {
     }
     std::erase(system::render_systems, render);
     std::erase(system::render_systems, run);
-    character_logic_system::self_invincible_cooldown = 0;
+    character_logic_system::self_invincible_cooldown = window::dt_now;
     return false;
   }
   mask_alpha = std::clamp(mask_alpha, 0, 255);

@@ -358,6 +358,7 @@ void character_stat_ui_system::event_button_mp_inc_max() {
 
 void character_stat_ui_system::event_button_str_inc() {
   character_stat_game_instance::str_ap += 1;
+  character_stat_game_instance::str_point += 1;
   character_stat_game_instance::remain_ap -= 1;
 }
 
@@ -369,6 +370,7 @@ void character_stat_ui_system::event_button_str_inc_max() {
 
 void character_stat_ui_system::event_button_dex_inc() {
   character_stat_game_instance::dex_ap += 1;
+  character_stat_game_instance::dex_point += 1;
   character_stat_game_instance::remain_ap -= 1;
 }
 
@@ -380,6 +382,7 @@ void character_stat_ui_system::event_button_dex_inc_max() {
 
 void character_stat_ui_system::event_button_int_inc() {
   character_stat_game_instance::int_ap += 1;
+  character_stat_game_instance::int_point += 1;
   character_stat_game_instance::remain_ap -= 1;
 }
 
@@ -391,6 +394,7 @@ void character_stat_ui_system::event_button_int_inc_max() {
 
 void character_stat_ui_system::event_button_luk_inc() {
   character_stat_game_instance::luk_ap += 1;
+  character_stat_game_instance::luk_point += 1;
   character_stat_game_instance::remain_ap -= 1;
 }
 

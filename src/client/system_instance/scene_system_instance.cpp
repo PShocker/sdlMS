@@ -195,6 +195,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   };
 
   fade_system_instance::enter_out();
+  window::delta_time = 0;
 }
 
 void scene_system_instance::enter_prepare(uint32_t map_id,

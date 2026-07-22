@@ -1,10 +1,13 @@
 #include "skill_buff_ui_system.h"
+#include "SDL3/SDL_mouse.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "package_ui_system.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
+#include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
@@ -26,28 +29,31 @@ void skill_buff_ui_system::render_ui(game_skill &sk, float x, float y) {
       static_cast<float>(icon->h),
   };
   SDL_RenderTexture(window::renderer, icon, NULL, &pos_rect);
+  auto &mouse_pos = window::mouse_pos;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    mouse_ski = sk;
+  }
   if (sk.destory) {
     SDL_SetRenderDrawBlendMode(window::renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 148);
+    SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 100);
     auto d = sk.destory - window::dt_now;
     pos_rect.x = x;
-    pos_rect.y = y - 32 + 32 * d / (float)sk.duration;
+    pos_rect.h = 32 * (1 - (d / (float)sk.duration));
+    pos_rect.y = y + 32 - pos_rect.h;
     pos_rect.w = 32;
-    pos_rect.h = 32 * (1 - d / (float)sk.duration);
     SDL_RenderFillRect(window::renderer, &pos_rect);
     // 渲染冷却时间
     auto num = d / 1000;
     package_ui_system::render_number_l(num, x, y + 21);
   }
-  auto &mouse_pos = window::mouse_pos;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    mouse_ski = sk;
-  }
 }
 
-void skill_buff_ui_system::render_ui_info() {
+bool skill_buff_ui_system::render_ui_info() {
   if (!mouse_ski.has_value()) {
-    return;
+    return false;
+  }
+  if (cursor_game_instance::cursor_ui != nullptr) {
+    return false;
   }
   auto ski = mouse_ski.value();
   // 宽度固定330
@@ -61,10 +67,10 @@ void skill_buff_ui_system::render_ui_info() {
     x = camera.w - 330;
   }
   tooltip_ui_system::render_skill(ski.id, ski.lv, x, mouse_pos.y);
+  return true;
 }
 
-bool skill_buff_ui_system::render() {
-  mouse_ski = std::nullopt;
+void skill_buff_ui_system::render_ui() {
   // ski buff
   const auto &camera = camera_game_instance::camera;
   for (uint32_t i = 0; i < skill_game_instance::ski.size(); i++) {
@@ -74,8 +80,46 @@ bool skill_buff_ui_system::render() {
     auto y = row * 32;
     render_ui(skill_game_instance::ski[i], x, y);
   }
-  render_ui_info();
+}
+
+void skill_buff_ui_system::render_info() {
+  auto &sys = system::render_systems;
+  auto it = std::ranges::find(sys, &render_ui_info);
+  if (it != sys.end()) {
+    sys.erase(it);
+  }
+  if (!mouse_ski.has_value()) {
+    return;
+  }
+  sys.push_back(render_ui_info);
+}
+
+bool skill_buff_ui_system::render() {
+  mouse_ski = std::nullopt;
+  render_ui();
+  render_info();
   return true;
 }
 
-bool skill_buff_ui_system::event(SDL_Event *event) { return true; }
+bool skill_buff_ui_system::event(SDL_Event *event) {
+  switch (event->type) {
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_RIGHT) {
+      if (cursor_game_instance::cursor_ui == nullptr) {
+        if (mouse_ski.has_value()) {
+          mouse_ski->end();
+        }
+      }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_MOTION: {
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+
+  return true;
+}
