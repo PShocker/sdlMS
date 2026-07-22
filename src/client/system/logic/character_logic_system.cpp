@@ -101,14 +101,15 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
   auto &g_pos = g_character.pos;
   for (const auto [k, v] : mob_game_instance::data) {
     auto &mob = v.mob;
+    if (mob.hp <= 0) {
+      continue;
+    }
     auto mob_action = mob_logic_system::load_action_type(mob.action);
     if (mob_action == mob_logic_system::action_enum::revive ||
         mob_action == mob_logic_system::action_enum::die) {
       continue;
     }
-    if (mob.hp <= 0) {
-      continue;
-    }
+
     auto m_r = mob_logic_system::load_rect(mob).value();
     auto t = triangle_game_instance::load_tri(tri, g_character.flip,
                                               g_character.pos);

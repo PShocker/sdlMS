@@ -330,34 +330,41 @@ bool server_mob_system::run_beat(server_mob &mob) {
   if (mob.beats.empty()) {
     return false;
   }
+
+  // 累积所有beats的伤害
   for (auto &b : mob.beats | std::views::values) {
     mob.hp -= b.beat_num;
     b.beat_num = 0;
   }
-  const auto &begin = mob.beats.begin();
-  auto &beat = begin->second;
-  auto time = beat.beat_start_time;
+
+  auto &l_beat = mob.beats.begin()->second;
+  auto &r_beat = mob.beats.rbegin()->second;
   auto current_time = std::chrono::duration_cast<std::chrono::milliseconds>(
                           std::chrono::system_clock::now().time_since_epoch())
                           .count();
-  if (time <= current_time) {
-    if (beat.beat_time >= 0) {
-      beat.beat_time -= delta_time;
-      mob.hforce = beat.left ? 1400 : -1400;
-      mob.flip = beat.left ? false : true;
-      if (mob.hp > 0) {
-        mob.hate_id = beat.beat_id;
-        run_hit_action(mob);
-      } else {
-        run_die(mob);
-      }
-      return true;
-    } else {
-      mob.beats.clear();
-      return false;
-    }
+
+  if (l_beat.beat_start_time > current_time) {
+    return false;
   }
-  return false;
+
+  if (l_beat.beat_time < 0) {
+    mob.beats.erase(mob.beats.begin());
+    return false;
+  }
+
+  // 执行beat动作
+  l_beat.beat_time -= delta_time;
+  mob.hforce = l_beat.left ? 1400 : -1400;
+  mob.flip = !l_beat.left;
+
+  if (mob.hp > 0) {
+    mob.hate_id = l_beat.beat_id;
+    run_hit_action(mob);
+  } else if (r_beat.beat_start_time < current_time) {
+    run_die(mob);
+    mob.beats.clear();
+  }
+  return true;
 }
 
 void server_mob_system::run_hit(server_mob &mob) {

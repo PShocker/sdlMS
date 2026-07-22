@@ -137,7 +137,7 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
       ct.attack->x = mob.x;
       ct.attack->y = mob.y;
       ct.afterimage = false;
-      ct.left = pos.x < mob.x;
+      ct.left = pos.x < mob.mob.pos.x;
       attack_payload.payload.push_back(
           std::make_unique<CharacterAttackT>(std::move(ct)));
     }
