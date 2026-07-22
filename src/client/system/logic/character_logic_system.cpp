@@ -96,8 +96,8 @@ SDL_FRect character_logic_system::load_rect(game_character &g_character) {
 
 check_mobs character_logic_system::run_attack_check(game_character &g_character,
                                                     game_triangle tri) {
-  std::vector<check_mobs::attack_data> v;
-  std::flat_map<uint32_t, check_mobs::attack_data> m;
+  std::vector<check_mobs::mobs> v;
+  std::flat_map<uint32_t, check_mobs::mobs> m;
   auto &g_pos = g_character.pos;
   for (const auto [k, v] : mob_game_instance::data) {
     auto &mob = v.mob;
@@ -131,8 +131,8 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
 
 check_mobs character_logic_system::run_attack_check(game_character &g_character,
                                                     SDL_FRect g_r) {
-  std::vector<check_mobs::attack_data> v;
-  std::flat_map<uint32_t, check_mobs::attack_data> m;
+  std::vector<check_mobs::mobs> v;
+  std::flat_map<uint32_t, check_mobs::mobs> m;
   auto &g_pos = g_character.pos;
   for (const auto [k, v] : mob_game_instance::data) {
     auto &mob = v.mob;

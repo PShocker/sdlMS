@@ -33,6 +33,7 @@ struct character_save {
   std::vector<package_save> package;
   uint64_t meso;
   uint32_t map_id;
+  uint32_t portal_id;
 
   uint32_t hp;
   uint32_t mp;

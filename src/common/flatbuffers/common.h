@@ -3222,6 +3222,7 @@ struct CharacterSaveT : public ::flatbuffers::NativeTable {
   std::vector<std::unique_ptr<fbs::PackageSaveT>> package{};
   uint64_t meso = 0;
   uint32_t map_id = 0;
+  uint32_t portal_id = 0;
   uint32_t hp = 0;
   uint32_t mp = 0;
   uint64_t exp = 0;
@@ -3244,10 +3245,11 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_PACKAGE = 14,
     VT_MESO = 16,
     VT_MAP_ID = 18,
-    VT_HP = 20,
-    VT_MP = 22,
-    VT_EXP = 24,
-    VT_QUEST = 26
+    VT_PORTAL_ID = 20,
+    VT_HP = 22,
+    VT_MP = 24,
+    VT_EXP = 26,
+    VT_QUEST = 28
   };
   const fbs::Character *character() const {
     return GetPointer<const fbs::Character *>(VT_CHARACTER);
@@ -3297,6 +3299,12 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_map_id(uint32_t _map_id = 0) {
     return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
   }
+  uint32_t portal_id() const {
+    return GetField<uint32_t>(VT_PORTAL_ID, 0);
+  }
+  bool mutate_portal_id(uint32_t _portal_id = 0) {
+    return SetField<uint32_t>(VT_PORTAL_ID, _portal_id, 0);
+  }
   uint32_t hp() const {
     return GetField<uint32_t>(VT_HP, 0);
   }
@@ -3339,6 +3347,7 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyVectorOfTables(package()) &&
            VerifyField<uint64_t>(verifier, VT_MESO, 8) &&
            VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_PORTAL_ID, 4) &&
            VerifyField<uint32_t>(verifier, VT_HP, 4) &&
            VerifyField<uint32_t>(verifier, VT_MP, 4) &&
            VerifyField<uint64_t>(verifier, VT_EXP, 8) &&
@@ -3380,6 +3389,9 @@ struct CharacterSaveBuilder {
   void add_map_id(uint32_t map_id) {
     fbb_.AddElement<uint32_t>(CharacterSave::VT_MAP_ID, map_id, 0);
   }
+  void add_portal_id(uint32_t portal_id) {
+    fbb_.AddElement<uint32_t>(CharacterSave::VT_PORTAL_ID, portal_id, 0);
+  }
   void add_hp(uint32_t hp) {
     fbb_.AddElement<uint32_t>(CharacterSave::VT_HP, hp, 0);
   }
@@ -3413,6 +3425,7 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::PackageSave>>> package = 0,
     uint64_t meso = 0,
     uint32_t map_id = 0,
+    uint32_t portal_id = 0,
     uint32_t hp = 0,
     uint32_t mp = 0,
     uint64_t exp = 0,
@@ -3423,6 +3436,7 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(
   builder_.add_quest(quest);
   builder_.add_mp(mp);
   builder_.add_hp(hp);
+  builder_.add_portal_id(portal_id);
   builder_.add_map_id(map_id);
   builder_.add_package(package);
   builder_.add_remain_sp(remain_sp);
@@ -3443,6 +3457,7 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
     const std::vector<::flatbuffers::Offset<fbs::PackageSave>> *package = nullptr,
     uint64_t meso = 0,
     uint32_t map_id = 0,
+    uint32_t portal_id = 0,
     uint32_t hp = 0,
     uint32_t mp = 0,
     uint64_t exp = 0,
@@ -3461,6 +3476,7 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
       package__,
       meso,
       map_id,
+      portal_id,
       hp,
       mp,
       exp,
@@ -4703,6 +4719,7 @@ inline CharacterSaveT::CharacterSaveT(const CharacterSaveT &o)
         remain_sp(o.remain_sp),
         meso(o.meso),
         map_id(o.map_id),
+        portal_id(o.portal_id),
         hp(o.hp),
         mp(o.mp),
         exp(o.exp) {
@@ -4723,6 +4740,7 @@ inline CharacterSaveT &CharacterSaveT::operator=(CharacterSaveT o) FLATBUFFERS_N
   std::swap(package, o.package);
   std::swap(meso, o.meso);
   std::swap(map_id, o.map_id);
+  std::swap(portal_id, o.portal_id);
   std::swap(hp, o.hp);
   std::swap(mp, o.mp);
   std::swap(exp, o.exp);
@@ -4747,6 +4765,7 @@ inline void CharacterSave::UnPackTo(CharacterSaveT *_o, const ::flatbuffers::res
   { auto _e = package(); if (_e) { _o->package.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->package[_i]) { _e->Get(_i)->UnPackTo(_o->package[_i].get(), _resolver); } else { _o->package[_i] = std::unique_ptr<fbs::PackageSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->package.resize(0); } }
   { auto _e = meso(); _o->meso = _e; }
   { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = portal_id(); _o->portal_id = _e; }
   { auto _e = hp(); _o->hp = _e; }
   { auto _e = mp(); _o->mp = _e; }
   { auto _e = exp(); _o->exp = _e; }
@@ -4769,6 +4788,7 @@ inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::F
   auto _package = _o->package.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PackageSave>> (_o->package.size(), [](size_t i, _VectorArgs *__va) { return CreatePackageSave(*__va->__fbb, __va->__o->package[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _meso = _o->meso;
   auto _map_id = _o->map_id;
+  auto _portal_id = _o->portal_id;
   auto _hp = _o->hp;
   auto _mp = _o->mp;
   auto _exp = _o->exp;
@@ -4783,6 +4803,7 @@ inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::F
       _package,
       _meso,
       _map_id,
+      _portal_id,
       _hp,
       _mp,
       _exp,

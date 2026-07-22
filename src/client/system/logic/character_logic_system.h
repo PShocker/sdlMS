@@ -13,12 +13,13 @@
 #include <vector>
 
 struct check_mobs {
-  struct attack_data {
+  struct mobs {
     game_mob mob;
     float x;
     float y;
+    std::vector<int64_t> hits;
   };
-  std::vector<attack_data> data;
+  std::vector<mobs> data;
 };
 
 class character_logic_system {

@@ -13,6 +13,10 @@
 using namespace fbs;
 
 class ball_game_instance {
+private:
+  static SDL_FPoint closest_point_on_rect(const SDL_FPoint &pos,
+                                          const SDL_FRect &rect);
+
 public:
   static inline std::array<std::vector<game_ball>, 8> data;
   static void reset();

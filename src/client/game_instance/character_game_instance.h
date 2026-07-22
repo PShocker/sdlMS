@@ -62,6 +62,8 @@ private:
   static std::u16string split_islot(const std::u16string &islot);
 
 public:
+  static inline game_character self;
+
   static void init_character_bone();
 
   static void load_self();
@@ -69,14 +71,6 @@ public:
 
   static SDL_FPoint load_self_pos(const std::u16string &pn, uint8_t index);
   static void load_self_character();
-
-  static game_character load_g_character(const std::unique_ptr<CharacterT> &c);
-  static void load_others_character(const std::unique_ptr<PlayerT> &c);
-  static void exit_others_character(uint64_t client_id);
-  static void clear_others();
-  static CharacterT load_characterT(const game_character &g);
-
-  static inline game_character self;
 
   static void add_body(game_character &g, const std::u16string &val);
   static void add_coat(game_character &g, const std::u16string &val);

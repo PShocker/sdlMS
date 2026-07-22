@@ -254,10 +254,12 @@ void character_choose_ui_system::event_button_select() {
   auto cse = choose.value();
   auto character = characters[cse];
   uint32_t map_id;
+  uint32_t portal_id;
   // load
   for (auto &cs : game_save_system_instance::save.characters) {
     if (cs.character.nametags[0].text == character.nametags[0].text) {
       map_id = cs.map_id;
+      portal_id = cs.portal_id;
       // load pack,ski,ap,sp
       package_game_instance::load(cs);
       character_stat_game_instance::load(cs);
@@ -267,7 +269,7 @@ void character_choose_ui_system::event_button_select() {
   // init
   character_game_instance::self = character;
 
-  scene_system_instance::enter_prepare(map_id, u"sp", 0);
+  scene_system_instance::enter_prepare(map_id, u"sp", portal_id);
   // notice login
   auto notice_type = login_notice_system_instance::logining;
   login_notice_system_instance::enter(notice_type, NULL);

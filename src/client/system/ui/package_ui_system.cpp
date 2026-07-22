@@ -21,6 +21,7 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_character_instance.h"
 #include "tooltip_ui_system.h"
 #include <algorithm>
 #include <cmath>
@@ -371,7 +372,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       // 发包
       ClientCharacterT ct;
       ct.map_id = scene_system_instance::map_id;
-      auto c = character_game_instance::load_characterT(sf);
+      auto c = server_character_instance::load_charactert(sf);
       ct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
       client_request::send_to_host(ct);
 
@@ -531,4 +532,46 @@ bool package_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+void package_ui_system::render_number_l(uint32_t num, int x, int y) {
+  auto node = wz_resource::ui->find(u"Basic.img/ItemNo");
+  // 计算数字位数
+  int digits = num == 0 ? 1 : static_cast<int>(std::log10(num)) + 1;
+  // 从最高位开始遍历
+  int w = 0;
+  for (int i = digits - 1; i >= 0; --i) {
+    int divisor = static_cast<int>(std::pow(10, i));
+    int digit = (num / divisor) % 10;
+    auto t = wz_resource::load_texture(node->get_child(std::to_string(digit)));
+    SDL_FRect pos_rect = {
+        (float)x + w,
+        (float)y,
+        (float)t->w,
+        (float)t->h,
+    };
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    w += t->w;
+  }
+}
+
+void package_ui_system::render_number_r(uint32_t num, int x, int y) {
+  auto node = wz_resource::ui->find(u"Basic.img/ItemNo");
+  // 计算数字位数
+  int digits = num == 0 ? 1 : static_cast<int>(std::log10(num)) + 1;
+  // 从最低位开始遍历
+  int w = 0;
+  for (int i = 0; i < digits; ++i) {
+    int divisor = static_cast<int>(std::pow(10, i));
+    int digit = (num / divisor) % 10;
+    auto t = wz_resource::load_texture(node->get_child(std::to_string(digit)));
+    SDL_FRect pos_rect = {
+        (float)x - w,
+        (float)y,
+        (float)t->w,
+        (float)t->h,
+    };
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    w += t->w;
+  }
 }

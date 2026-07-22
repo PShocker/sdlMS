@@ -9,13 +9,16 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/common/flatbuffers/common.h"
+#include "src/server/server_instance/server_character_instance.h"
 #include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
+#include <flat_map>
 #include <format>
 #include <memory>
 #include <string>
@@ -37,7 +40,7 @@ bool game_save_system_instance::load_save(const std::string &login) {
     for (const auto &c : gst.data->data) {
       character_save cs;
       cs.map_id = c->map_id;
-      cs.character = character_game_instance::load_g_character(c->character);
+      cs.character = server_character_instance::load_g_character(c->character);
       std::u16string name{c->character->name.begin(), c->character->name.end()};
       character_game_instance::load_name(cs.character, name);
       for (auto &item : c->package) {
@@ -131,6 +134,18 @@ bool game_save_system_instance::save_game() {
     cs.sp = {job_skill_game_instance::skill_point};
 
     cs.map_id = scene_system_instance::map_id;
+
+    auto [first, last] = portal_game_instance::data.equal_range(u"sp");
+    std::flat_map<uint64_t, int> por_dis;
+    const auto &character_pos = character.pos;
+    for (auto it = first; it != last; ++it) {
+      const auto &portal = it->second;
+      auto dx = portal.pos.x - character_pos.x;
+      auto dy = portal.pos.y - character_pos.y;
+      por_dis[dx * dx + dy * dy] = static_cast<int>(std::distance(first, it));
+    }
+    cs.portal_id = por_dis.begin()->second;
+
     cs.meso = package_game_instance::meso;
 
     cs.hp = character_stat_game_instance::hp_point;
@@ -163,7 +178,7 @@ bool game_save_system_instance::save_game() {
   for (uint32_t i = 0; i < save.characters.size(); i++) {
     CharacterSaveT cst;
     auto character_s = std::move(save.characters[i]);
-    auto ct = character_game_instance::load_characterT(character_s.character);
+    auto ct = server_character_instance::load_charactert(character_s.character);
     cst.character = std::make_unique<CharacterT>(ct);
     cst.ap = std::make_unique<APSaveT>();
     cst.ap->hp_ap = character_s.ap.hp_ap;
@@ -175,6 +190,7 @@ bool game_save_system_instance::save_game() {
     cst.ap->luk_ap = character_s.ap.luk_ap;
 
     cst.map_id = character_s.map_id;
+    cst.portal_id = character_s.portal_id;
     cst.meso = character_s.meso;
 
     cst.hp = character_s.hp;

@@ -172,7 +172,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     if (r.fade) {
       scene_system_instance::enter(r.map_id);
       for (const auto &c : r.players) {
-        character_game_instance::load_others_character(c);
+        server_character_instance::handle_server_playert(c);
       }
       mob_game_instance::load_server_mob(r.mobs);
     } else {
@@ -186,7 +186,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     payload->UnPackTo(&r);
     // 用户加入，需要把action设置默认jump
     r.player->character->state->action = "jump";
-    character_game_instance::load_others_character(r.player);
+    server_character_instance::handle_server_playert(r.player);
     break;
   }
   case NetPayload_ServerCharacterMv: {
@@ -228,7 +228,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterOut();
     fbs::ServerCharacterOutT r;
     payload->UnPackTo(&r);
-    character_game_instance::exit_others_character(r.client_id);
+    character_game_instance::others.erase(r.client_id);
     break;
   }
   case NetPayload_ServerMobEvent: {
@@ -279,7 +279,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     payload->UnPackTo(&r);
     if (character_game_instance::others.contains(r.client_id)) {
       character_game_instance::others[r.client_id].g_character =
-          character_game_instance::load_g_character(r.payload);
+          server_character_instance::load_g_character(r.payload);
     }
     break;
   }
@@ -293,7 +293,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterInfo();
     fbs::ServerCharacterInfoT r;
     payload->UnPackTo(&r);
-    auto character = character_game_instance::load_g_character(r.payload);
+    auto character = server_character_instance::load_g_character(r.payload);
     character_info_ui_system::character = character;
     character_info_ui_system::close();
     character_info_ui_system::open();

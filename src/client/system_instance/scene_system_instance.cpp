@@ -61,6 +61,7 @@
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
+#include "src/server/server_instance/server_character_instance.h"
 #include <array>
 #include <cstdint>
 #include <cstdlib>
@@ -162,7 +163,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   seat_game_instance::load(map_id);
   minimap_ui_system::load();
   character_game_instance::load_self();
-  character_game_instance::clear_others();
+  character_game_instance::others.clear();
   effect_game_instance::reset();
   camera_game_instance::reset();
   statusbar_ui_system::reset();
@@ -212,7 +213,7 @@ void scene_system_instance::enter_fade() {
   auto g = character_game_instance::self;
   g.pos = prepare_pos.value();
   g.action = u"jump";
-  auto c = character_game_instance::load_characterT(g);
+  auto c = server_character_instance::load_charactert(g);
 
   fbs::ClientSceneT client_scene;
   client_scene.fade = true;

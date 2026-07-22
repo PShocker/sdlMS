@@ -59,8 +59,8 @@ table ClientCharacterInfo {
 }
 
 table ClientCharacterTrade {
-   to_id:uint64;
    request:bool;
+   to_id:uint64;
    payload:[ItemUnion];
    confirm:bool;
 }
@@ -92,4 +92,10 @@ table ClientCharacterDie {
 table ClientCharacterFc {
     map_id:uint32;
     payload:Face;
+}
+
+table ClientCharacterParty {
+    invite:bool;
+    to_id:uint64;
+    confirm:bool;
 }

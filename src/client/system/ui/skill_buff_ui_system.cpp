@@ -1,12 +1,14 @@
 #include "skill_buff_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "package_ui_system.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
+#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <optional>
@@ -24,6 +26,19 @@ void skill_buff_ui_system::render_ui(game_skill &sk, float x, float y) {
       static_cast<float>(icon->h),
   };
   SDL_RenderTexture(window::renderer, icon, NULL, &pos_rect);
+  if (sk.destory) {
+    SDL_SetRenderDrawBlendMode(window::renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 148);
+    auto d = sk.destory - window::dt_now;
+    pos_rect.x = x;
+    pos_rect.y = y - 32 + 32 * d / (float)sk.duration;
+    pos_rect.w = 32;
+    pos_rect.h = 32 * (1 - d / (float)sk.duration);
+    SDL_RenderFillRect(window::renderer, &pos_rect);
+    // 渲染冷却时间
+    auto num = d / 1000;
+    package_ui_system::render_number_l(num, x, y + 21);
+  }
   auto &mouse_pos = window::mouse_pos;
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     mouse_ski = sk;

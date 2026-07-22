@@ -18,7 +18,8 @@ public:
 
   static void handle_server_mv(uint64_t client_id, ServerCharacterMvT &m);
   static void handle_server_flip(uint64_t client_id, ServerCharacterFlipT &m);
-  static void handle_server_action(uint64_t client_id, ServerCharacterActionT &m);
+  static void handle_server_action(uint64_t client_id,
+                                   ServerCharacterActionT &m);
   static void handle_server_die(uint64_t client_id, ServerCharacterDieT &m);
   static void handle_server_fc(uint64_t client_id, ServerCharacterFcT &m);
 
@@ -28,6 +29,10 @@ public:
   static void handle_character(uint64_t client_id, ClientCharacterT &r);
 
   static void handle_server_atk(uint64_t client_id, ServerCharacterAttackT &r);
+
+  static game_character load_g_character(const std::unique_ptr<CharacterT> &c);
+  static CharacterT load_charactert(const game_character &g);
+  static void handle_server_playert(const std::unique_ptr<fbs::PlayerT> &c);
 
   static void
   handle_ski(uint32_t ski_id, uint8_t ski_lv,

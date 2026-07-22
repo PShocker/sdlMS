@@ -1,5 +1,6 @@
 #include "character_stat_ui_system.h"
 #include "SDL3/SDL_rect.h"
+#include "notice_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -333,18 +334,71 @@ void character_stat_ui_system::event_button_detail_show() { detail = true; }
 
 void character_stat_ui_system::event_button_detail_hide() { detail = false; }
 
-void character_stat_ui_system::event_button_hp_inc() {}
-void character_stat_ui_system::event_button_hp_inc_max() {}
-void character_stat_ui_system::event_button_mp_inc() {}
-void character_stat_ui_system::event_button_mp_inc_max() {}
-void character_stat_ui_system::event_button_str_inc() {}
-void character_stat_ui_system::event_button_str_inc_max() {}
-void character_stat_ui_system::event_button_dex_inc() {}
-void character_stat_ui_system::event_button_dex_inc_max() {}
-void character_stat_ui_system::event_button_int_inc() {}
-void character_stat_ui_system::event_button_int_inc_max() {}
-void character_stat_ui_system::event_button_luk_inc() {}
-void character_stat_ui_system::event_button_luk_inc_max() {}
+void character_stat_ui_system::event_button_hp_inc() {
+  character_stat_game_instance::hp_ap += 1;
+  character_stat_game_instance::remain_ap -= 1;
+}
+
+void character_stat_ui_system::event_button_hp_inc_max() {
+  notice_ui_system::data = &character_stat_game_instance::hp_ap;
+  notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
+  notice_ui_system::open();
+}
+
+void character_stat_ui_system::event_button_mp_inc() {
+  character_stat_game_instance::mp_ap += 1;
+  character_stat_game_instance::remain_ap -= 1;
+}
+
+void character_stat_ui_system::event_button_mp_inc_max() {
+  notice_ui_system::data = &character_stat_game_instance::mp_ap;
+  notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
+  notice_ui_system::open();
+}
+
+void character_stat_ui_system::event_button_str_inc() {
+  character_stat_game_instance::str_ap += 1;
+  character_stat_game_instance::remain_ap -= 1;
+}
+
+void character_stat_ui_system::event_button_str_inc_max() {
+  notice_ui_system::data = &character_stat_game_instance::str_ap;
+  notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
+  notice_ui_system::open();
+}
+
+void character_stat_ui_system::event_button_dex_inc() {
+  character_stat_game_instance::dex_ap += 1;
+  character_stat_game_instance::remain_ap -= 1;
+}
+
+void character_stat_ui_system::event_button_dex_inc_max() {
+  notice_ui_system::data = &character_stat_game_instance::dex_ap;
+  notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
+  notice_ui_system::open();
+}
+
+void character_stat_ui_system::event_button_int_inc() {
+  character_stat_game_instance::int_ap += 1;
+  character_stat_game_instance::remain_ap -= 1;
+}
+
+void character_stat_ui_system::event_button_int_inc_max() {
+  notice_ui_system::data = &character_stat_game_instance::int_ap;
+  notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
+  notice_ui_system::open();
+}
+
+void character_stat_ui_system::event_button_luk_inc() {
+  character_stat_game_instance::luk_ap += 1;
+  character_stat_game_instance::remain_ap -= 1;
+}
+
+void character_stat_ui_system::event_button_luk_inc_max() {
+  notice_ui_system::data = &character_stat_game_instance::luk_ap;
+  notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
+  notice_ui_system::open();
+}
 
 bool character_stat_ui_system::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns;

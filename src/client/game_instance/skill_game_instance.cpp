@@ -124,21 +124,23 @@ ClientCharacterAttackT
 skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
                                            uint64_t delay) {
   ClientCharacterAttackT attack_payload;
-  auto atk_mobs = cm.data;
-  for (int i = 0; i < atk_mobs.size(); ++i) {
-    CharacterAttackT ct;
-    ct.mob_index = atk_mobs[i].mob.index;
-    ct.attack = std::make_unique<AttackT>();
-    ct.attack->num = 100;
-    ct.attack->delay = delay + i * 60;
-    ct.attack->x = atk_mobs[i].x;
-    ct.attack->y = atk_mobs[i].y;
-    ct.afterimage = false;
-    ct.left = pos.x < atk_mobs[i].mob.pos.x;
-    attack_payload.payload.push_back(
-        std::make_unique<CharacterAttackT>(std::move(ct)));
-  }
+  auto mobs = cm.data;
 
+  for (int m = 0; m < mobs.size(); m++) {
+    auto &mob = mobs[m];
+    for (int n = 0; n < mob.hits.size(); n++) {
+      CharacterAttackT ct;
+      ct.attack = std::make_unique<AttackT>();
+      ct.attack->num = mob.hits[n];
+      ct.attack->delay = delay + n * 60;
+      ct.attack->x = mob.x;
+      ct.attack->y = mob.y;
+      ct.afterimage = false;
+      ct.left = pos.x < mob.x;
+      attack_payload.payload.push_back(
+          std::make_unique<CharacterAttackT>(std::move(ct)));
+    }
+  }
   return attack_payload;
 }
 

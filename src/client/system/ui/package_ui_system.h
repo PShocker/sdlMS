@@ -35,6 +35,9 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
+  static void render_number_l(uint32_t num, int x, int y);
+  static void render_number_r(uint32_t num, int x, int y);
+
   static std::vector<uint32_t> load_blank_index(uint32_t tab);
 
   static inline SDL_FPoint pos;

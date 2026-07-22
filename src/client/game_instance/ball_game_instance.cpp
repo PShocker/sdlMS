@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_ball.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/system/logic/mob_logic_system.h"
 #include "src/common/flatbuffers/common.h"
 #include <cmath>
 #include <cstdint>
@@ -9,6 +10,29 @@
 #include <string>
 
 void ball_game_instance::reset() { data = {}; }
+
+SDL_FPoint ball_game_instance::closest_point_on_rect(const SDL_FPoint &pos,
+                                                     const SDL_FRect &rect) {
+  SDL_FPoint closest;
+
+  // X 方向夹紧（clamp）
+  if (pos.x < rect.x)
+    closest.x = rect.x;
+  else if (pos.x > rect.x + rect.w)
+    closest.x = rect.x + rect.w;
+  else
+    closest.x = pos.x; // 点在矩形 X 范围内
+
+  // Y 方向夹紧（clamp）
+  if (pos.y < rect.y)
+    closest.y = rect.y;
+  else if (pos.y > rect.y + rect.h)
+    closest.y = rect.y + rect.h;
+  else
+    closest.y = pos.y; // 点在矩形 Y 范围内
+
+  return closest;
+}
 
 ClientCharacterBallT ball_game_instance::create_ball_payload(
     check_mobs &cm, SDL_FPoint pos, SDL_FPoint goal, uint64_t delay, int page,
@@ -24,9 +48,12 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
   ccb.payload->ball->y1 = pos.y;
   if (!cm.data.empty()) {
     ccb.payload->ball->mob = true;
-    ccb.payload->ball->mob_index = cm.data[0].mob.index;
-    ccb.payload->ball->x2 = 0;
-    ccb.payload->ball->y2 = 0;
+    const auto &mob = cm.data[0].mob;
+    ccb.payload->ball->mob_index = mob.index;
+    auto mob_r = mob_logic_system::load_rect(mob).value();
+    auto closest_pos = closest_point_on_rect(pos, mob_r);
+    ccb.payload->ball->x2 = closest_pos.x - mob.pos.x;
+    ccb.payload->ball->y2 = closest_pos.y - mob.pos.y;
   } else {
     ccb.payload->ball->x2 = goal.x;
     ccb.payload->ball->y2 = goal.y;
