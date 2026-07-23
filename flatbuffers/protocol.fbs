@@ -47,6 +47,7 @@ union NetPayload {
     ServerCharacterPick,
     ServerCharacterInfo,
     ServerCharacterTrade,
+    ServerCharacterParty,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

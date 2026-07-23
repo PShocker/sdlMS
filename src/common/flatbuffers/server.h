@@ -117,6 +117,10 @@ struct ServerCharacterFc;
 struct ServerCharacterFcBuilder;
 struct ServerCharacterFcT;
 
+struct ServerCharacterParty;
+struct ServerCharacterPartyBuilder;
+struct ServerCharacterPartyT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -2314,6 +2318,90 @@ inline ::flatbuffers::Offset<ServerCharacterFc> CreateServerCharacterFc(
 
 ::flatbuffers::Offset<ServerCharacterFc> CreateServerCharacterFc(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterFcT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterPartyT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterParty TableType;
+  bool invite = false;
+  uint64_t to_id = 0;
+  bool confirm = false;
+};
+
+struct ServerCharacterParty FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterPartyT NativeTableType;
+  typedef ServerCharacterPartyBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_INVITE = 4,
+    VT_TO_ID = 6,
+    VT_CONFIRM = 8
+  };
+  bool invite() const {
+    return GetField<uint8_t>(VT_INVITE, 0) != 0;
+  }
+  bool mutate_invite(bool _invite = 0) {
+    return SetField<uint8_t>(VT_INVITE, static_cast<uint8_t>(_invite), 0);
+  }
+  uint64_t to_id() const {
+    return GetField<uint64_t>(VT_TO_ID, 0);
+  }
+  bool mutate_to_id(uint64_t _to_id = 0) {
+    return SetField<uint64_t>(VT_TO_ID, _to_id, 0);
+  }
+  bool confirm() const {
+    return GetField<uint8_t>(VT_CONFIRM, 0) != 0;
+  }
+  bool mutate_confirm(bool _confirm = 0) {
+    return SetField<uint8_t>(VT_CONFIRM, static_cast<uint8_t>(_confirm), 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_INVITE, 1) &&
+           VerifyField<uint64_t>(verifier, VT_TO_ID, 8) &&
+           VerifyField<uint8_t>(verifier, VT_CONFIRM, 1) &&
+           verifier.EndTable();
+  }
+  ServerCharacterPartyT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterPartyT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterParty> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPartyT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterPartyBuilder {
+  typedef ServerCharacterParty Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_invite(bool invite) {
+    fbb_.AddElement<uint8_t>(ServerCharacterParty::VT_INVITE, static_cast<uint8_t>(invite), 0);
+  }
+  void add_to_id(uint64_t to_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterParty::VT_TO_ID, to_id, 0);
+  }
+  void add_confirm(bool confirm) {
+    fbb_.AddElement<uint8_t>(ServerCharacterParty::VT_CONFIRM, static_cast<uint8_t>(confirm), 0);
+  }
+  explicit ServerCharacterPartyBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterParty> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterParty>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterParty> CreateServerCharacterParty(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    bool invite = false,
+    uint64_t to_id = 0,
+    bool confirm = false) {
+  ServerCharacterPartyBuilder builder_(_fbb);
+  builder_.add_to_id(to_id);
+  builder_.add_confirm(confirm);
+  builder_.add_invite(invite);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterParty> CreateServerCharacterParty(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPartyT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -3296,6 +3384,38 @@ inline ::flatbuffers::Offset<ServerCharacterFc> ServerCharacterFc::Pack(::flatbu
       _fbb,
       _client_id,
       _payload);
+}
+
+inline ServerCharacterPartyT *ServerCharacterParty::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterPartyT>(new ServerCharacterPartyT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterParty::UnPackTo(ServerCharacterPartyT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = invite(); _o->invite = _e; }
+  { auto _e = to_id(); _o->to_id = _e; }
+  { auto _e = confirm(); _o->confirm = _e; }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterParty> CreateServerCharacterParty(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPartyT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterParty::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterParty> ServerCharacterParty::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPartyT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterPartyT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _invite = _o->invite;
+  auto _to_id = _o->to_id;
+  auto _confirm = _o->confirm;
+  return fbs::CreateServerCharacterParty(
+      _fbb,
+      _invite,
+      _to_id,
+      _confirm);
 }
 
 template <bool B>

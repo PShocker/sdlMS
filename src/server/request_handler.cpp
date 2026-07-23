@@ -4,6 +4,7 @@
 #include "server_instance/server_client_instance.h"
 #include "server_instance/server_drop_instance.h"
 #include "server_instance/server_mob_instance.h"
+#include "server_instance/server_party_instance.h"
 #include "server_instance/server_scene_instance.h"
 #include "server_system/server_heartbeat_system.h"
 #include "server_system_instance/server_system_instance.h"
@@ -161,6 +162,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_ball_instance::handle_ball(client_id, r);
     break;
   }
+  case NetPayload_ClientCharacterParty: {
+    auto payload = packet->payload_as_ClientCharacterParty();
+    fbs::ClientCharacterPartyT r;
+    payload->UnPackTo(&r);
+    server_party_instance::handle_party(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -311,6 +319,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterBallT r;
     payload->UnPackTo(&r);
     server_ball_instance::handle_server_ball(client_id, r);
+    break;
+  }
+  case NetPayload_ServerCharacterParty: {
+    auto payload = packet->payload_as_ServerCharacterParty();
+    fbs::ServerCharacterPartyT r;
+    payload->UnPackTo(&r);
+    server_party_instance::handle_server_party(client_id, r);
     break;
   }
   default:

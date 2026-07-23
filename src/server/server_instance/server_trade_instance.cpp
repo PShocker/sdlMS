@@ -1,6 +1,6 @@
 #include "server_trade_instance.h"
 #include "server_client_instance.h"
-#include "src/client/system/ui/statusbar_ui_system.h"
+#include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
 
@@ -28,13 +28,7 @@ void server_trade_instance::handle_server(uint64_t client_id,
 
   } else if (r.request) {
     // show tip
-    auto tips_size = statusbar_ui_system::tips.size();
-    game_popup_tip tip{
-        .type = popup_tip_enums::trade,
-        .pos = {0, 0},
-        .player = *r.player,
-    };
-    statusbar_ui_system::tips.emplace_back(tip);
+    popup_tip_game_instance::load_tip(popup_tip_enums::trade, *r.player);
   } else {
     // reply tip
   }

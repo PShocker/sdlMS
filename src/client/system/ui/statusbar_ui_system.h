@@ -80,7 +80,6 @@ public:
   };
   static inline std::vector<chats> chats_info;
 
-  static inline std::vector<game_popup_tip> tips;
   static inline std::optional<chat_enum> chat_type;
   static inline text_input chat;
 

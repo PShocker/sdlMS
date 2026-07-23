@@ -604,7 +604,12 @@ void server_character_instance::handle_server_playert(
   g_character.fame = c->character->fame;
   g_character.level = c->character->level;
   g_character.job = {c->character->job.begin(), c->character->job.end()};
-  g_character.face.action = {c->character->face->face_action.begin(),
-                             c->character->face->face_action.end()};
-  character_game_instance::others.emplace(c->client_id, g_character);
+  g_character.face.action = {
+      c->character->face->face_action.begin(),
+      c->character->face->face_action.end(),
+  };
+  character_other_data cod;
+  cod.g_character = g_character;
+  cod.player_t = *c;
+  character_game_instance::others.emplace(c->client_id, cod);
 }

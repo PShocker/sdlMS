@@ -45,6 +45,7 @@ struct character_face_render {
 struct character_other_data {
   game_character g_character;
   std::vector<MovementT> mvs;
+  PlayerT player_t;
 };
 
 class character_bone_data {

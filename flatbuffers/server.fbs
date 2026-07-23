@@ -138,3 +138,9 @@ table ServerCharacterFc {
     client_id:uint64;
     payload:Face;
 }
+
+table ServerCharacterParty {
+    invite:bool;
+    to_id:uint64;
+    confirm:bool;
+}

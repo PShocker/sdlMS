@@ -13,6 +13,7 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
+#include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -709,22 +710,30 @@ void statusbar_ui_system::render_submenu() {
 }
 
 void statusbar_ui_system::render_popup_tips() {
-  std::erase_if(tips, [](const game_popup_tip &tip) {
-    return tip.destory < window::dt_now;
-  });
+  auto &tips = popup_tip_game_instance::data;
+  int i = 0;
   for (const auto &tip : tips) {
     switch (tip.type) {
     case popup_tip_enums::trade: {
       static auto t = wz_resource::load_texture(
           wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+      SDL_FRect pos = {
+
+      };
+      SDL_RenderTexture(window::renderer, t, nullptr, &pos);
       break;
     }
     case popup_tip_enums::party: {
       static auto t = wz_resource::load_texture(
           wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+      SDL_FRect pos = {
+
+      };
+      SDL_RenderTexture(window::renderer, t, nullptr, &pos);
       break;
     }
     }
+    i++;
   }
 }
 
