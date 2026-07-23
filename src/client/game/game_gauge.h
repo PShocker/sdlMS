@@ -3,8 +3,6 @@
 #include <cstdint>
 class game_gauge {
 public:
-  int64_t val;
-  int32_t time;
-
-  bool red = false;
+  float hp_percent;
+  float hp_percent_now;
 };

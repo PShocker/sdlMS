@@ -180,10 +180,10 @@ void statusbar_ui_system::render_character_stat() {
   static auto gray = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/canvas:gaugeBack"));
 
-  auto self_hp = character_stat_game_instance::hp_point;
-  auto self_max_hp = character_stat_game_instance::hp_point_max;
-  auto self_hp_percent = (float)self_hp / self_max_hp;
-  static auto last_hp_percent = self_hp_percent;
+  auto hp = character_stat_game_instance::hp_point;
+  auto max_hp = character_stat_game_instance::hp_point_max;
+  auto hp_percent_now = (float)hp / max_hp;
+  static auto hp_percent = hp_percent_now;
   SDL_FRect pos_rect;
   pos_rect = {
       base_x + 224,
@@ -193,11 +193,11 @@ void statusbar_ui_system::render_character_stat() {
   };
   SDL_RenderTexture(window::renderer, gray, nullptr, &pos_rect);
 
-  last_hp_percent = std::lerp(last_hp_percent, self_hp_percent, 0.1);
+  hp_percent = std::lerp(hp_percent, hp_percent_now, 0.05);
   SDL_FRect src_rect{
       0,
       0,
-      static_cast<float>(gaugeHp->w * last_hp_percent),
+      static_cast<float>(gaugeHp->w * hp_percent),
       static_cast<float>(gaugeHp->h),
   };
   pos_rect = {
@@ -208,9 +208,9 @@ void statusbar_ui_system::render_character_stat() {
   };
   SDL_RenderTexture(window::renderer, gaugeHp, &src_rect, &pos_rect);
 
-  auto self_mp = character_stat_game_instance::mp_point;
-  auto self_max_mp = character_stat_game_instance::mp_point_max;
-  auto self_mp_percent = (float)self_mp / self_max_mp;
+  auto mp = character_stat_game_instance::mp_point;
+  auto max_mp = character_stat_game_instance::mp_point_max;
+  auto mp_percent = (float)mp / max_mp;
   static auto gaugeMp = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeMp"));
   pos_rect = {
@@ -224,7 +224,7 @@ void statusbar_ui_system::render_character_stat() {
   src_rect = {
       0,
       0,
-      static_cast<float>(gaugeMp->w * self_mp_percent),
+      static_cast<float>(gaugeMp->w * mp_percent),
       static_cast<float>(gaugeMp->h),
   };
 
@@ -234,9 +234,9 @@ void statusbar_ui_system::render_character_stat() {
 
   static auto gaugeExp = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeExp"));
-  auto self_exp = character_stat_game_instance::exp_point;
-  auto self_max_exp = character_stat_game_instance::exp_point_max;
-  auto self_exp_percent = (float)self_exp / self_max_exp;
+  auto exp = character_stat_game_instance::exp_point;
+  auto max_exp = character_stat_game_instance::exp_point_max;
+  auto exp_percent = (float)exp / max_exp;
 
   pos_rect = {
       base_x + 445,
@@ -249,7 +249,7 @@ void statusbar_ui_system::render_character_stat() {
   src_rect = {
       0,
       0,
-      static_cast<float>(gaugeExp->w * self_exp_percent),
+      static_cast<float>(gaugeExp->w * exp_percent),
       static_cast<float>(gaugeExp->h),
   };
 

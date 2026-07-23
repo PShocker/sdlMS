@@ -703,26 +703,13 @@ bool character_logic_system::run_attack(game_character &g_character) {
     SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
     delay = afterimage_game_instance::load_beat_time(g_character);
 
-    auto atk_mobs = run_attack_check(g_character, g_r).data;
-    if (!atk_mobs.empty()) {
-      auto atk_mob = atk_mobs[0];
-      if (shoot) {
-        // shoot
-        float hspeed = 100.0f;
-        auto dx = atk_mob.mob.pos.x - g_character.pos.x;
-        delay += dx / hspeed;
-      }
-      ClientCharacterAttackT t;
-      CharacterAttackT ct;
-      ct.mob_index = atk_mob.mob.index;
-      ct.attack = std::make_unique<AttackT>();
-      ct.attack->num = 40;
-      ct.attack->delay = delay;
-      ct.attack->x = atk_mob.x;
-      ct.attack->y = atk_mob.y;
-      ct.afterimage = true;
-      ct.left = g_character.pos.x < atk_mob.mob.pos.x;
-      t.payload.push_back(std::make_unique<CharacterAttackT>(ct));
+    auto cm = run_attack_check(g_character, g_r);
+    if (!cm.data.empty()) {
+      cm.data = {cm.data[0]};
+      cm.data[0].hits = {30};
+      auto t = skill_game_instance::create_attack_payload(cm, g_character.pos,
+                                                          delay);
+      t.payload[0]->afterimage = true;
       client_request::send_to_host(t);
     }
     self_alert_cooldown = window::dt_now + 5000;

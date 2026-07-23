@@ -143,7 +143,6 @@ void context_menu_ui_system::event_button_party() {}
 void context_menu_ui_system::event_button_trade() {
   fbs::ClientCharacterTradeT ct;
   ct.to_id = client_id;
-  ct.request = true;
   client_request::send_to_host(ct);
 }
 

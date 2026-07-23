@@ -2,7 +2,9 @@
 #include "SDL3/SDL_rect.h"
 #include "character_game_instance.h"
 #include "equip_game_instance.h"
+#include "src/client/game/game_gauge.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "text_game_instance.h"
@@ -121,7 +123,7 @@ ClientCharacterAttackT
 skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
                                            uint64_t delay) {
   ClientCharacterAttackT attack_payload;
-  auto mobs = cm.data;
+  auto &mobs = cm.data;
 
   for (int m = 0; m < mobs.size(); m++) {
     auto &mob = mobs[m];
@@ -137,6 +139,13 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
       ct.left = pos.x < mob.mob.pos.x;
       attack_payload.payload.push_back(
           std::make_unique<CharacterAttackT>(std::move(ct)));
+    }
+    // gauge
+    if (!mob_game_instance::data.at(mob.mob.index).mob.gauge.has_value()) {
+      game_gauge g;
+      g.hp_percent = mob.mob.hp / mob.mob.max_hp;
+      g.hp_percent_now = g.hp_percent;
+      mob_game_instance::data.at(mob.mob.index).mob.gauge = g;
     }
   }
   return attack_payload;

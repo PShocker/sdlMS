@@ -75,6 +75,36 @@ std::optional<SDL_FRect> mob_logic_system::load_rect(const game_mob &g_mob) {
   return rect;
 }
 
+std::optional<SDL_FPoint> mob_logic_system::load_head(const game_mob &g_mob) {
+  if (g_mob.action.empty()) {
+    return std::nullopt;
+  }
+  auto mob_node = mob_game_instance::load_link_mob_node(g_mob.id);
+  auto mob_action_node = mob_node->get_child(g_mob.action);
+  bool zigzag = mob_action_node->get_child(u"zigzag") == nullptr ? false : true;
+  int32_t canvas_count = mob_action_node->children_count();
+  if (zigzag) {
+    canvas_count -= 1;
+  }
+  std::string frame_index;
+  if (zigzag && g_mob.ani_index >= canvas_count) {
+    frame_index =
+        std::to_string(canvas_count - 2 - (g_mob.ani_index % canvas_count));
+  } else {
+    frame_index = std::to_string(g_mob.ani_index);
+  }
+  auto texture_node = mob_action_node->get_child(frame_index);
+  if (texture_node->type == wz::Type::UOL) {
+    texture_node =
+        static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
+  }
+  if (texture_node->get_child(u"head") == nullptr) {
+    return std::nullopt;
+  }
+  auto head = wz_resource::load_fpoint(texture_node->get_child(u"head"));
+  return head;
+}
+
 void mob_logic_system::run_collision() {
   if (character_logic_system::self_invincible_cooldown >= window::dt_now) {
     return;

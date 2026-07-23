@@ -9,26 +9,24 @@
 
 void server_party_instance::handle_party(uint64_t client_id,
                                          ClientCharacterPartyT &r) {
-  if (r.invite) {
+  if (r.step == 0) {
     auto to_id = r.to_id;
     if (server_client_instance::clients.contains(to_id)) {
       ServerCharacterPartyT scp;
-      scp.invite = true;
       scp.to_id = client_id;
       server_response::send_to_client(to_id, scp);
     }
     return;
   }
   if (r.confirm) {
-    auto captain=r.to_id;
+    auto captain = r.to_id;
     // create party
-    
   }
 }
 
 void server_party_instance::handle_server_party(uint64_t client_id,
                                                 ServerCharacterPartyT &r) {
-  if (r.invite) {
+  if (r.step == 0) {
     if (!character_game_instance::others.contains(r.to_id)) {
       return;
     }

@@ -5,5 +5,5 @@
 #include <cstdint>
 class gauge_render_system {
 public:
-  static bool render(SDL_FPoint pos, game_gauge &g, int64_t new_val);
+  static bool render(SDL_FPoint pos, game_gauge &g);
 };

@@ -26,4 +26,5 @@ public:
 
   static bool run();
   static std::optional<SDL_FRect> load_rect(const game_mob &g_mob);
+  static std::optional<SDL_FPoint> load_head(const game_mob &g_mob);
 };

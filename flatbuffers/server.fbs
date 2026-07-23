@@ -107,7 +107,7 @@ table ServerCharacterInfo {
 }
 
 table ServerCharacterTrade {
-   request:bool;
+   step:uint8;
    player:Player;
    payload:[ItemUnion];
    confirm:bool;
@@ -140,7 +140,7 @@ table ServerCharacterFc {
 }
 
 table ServerCharacterParty {
-    invite:bool;
+    step:uint8;
     to_id:uint64;
     confirm:bool;
 }

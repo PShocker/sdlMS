@@ -59,7 +59,7 @@ table ClientCharacterInfo {
 }
 
 table ClientCharacterTrade {
-   request:bool;
+   step:uint8;
    to_id:uint64;
    payload:[ItemUnion];
    confirm:bool;
@@ -95,7 +95,7 @@ table ClientCharacterFc {
 }
 
 table ClientCharacterParty {
-    invite:bool;
+    step:uint8;
     to_id:uint64;
     confirm:bool;
 }
