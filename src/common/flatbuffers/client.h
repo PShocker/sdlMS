@@ -45,10 +45,6 @@ struct ClientCharacterChat;
 struct ClientCharacterChatBuilder;
 struct ClientCharacterChatT;
 
-struct ClientCharacterStat;
-struct ClientCharacterStatBuilder;
-struct ClientCharacterStatT;
-
 struct ClientCharacterDrop;
 struct ClientCharacterDropBuilder;
 struct ClientCharacterDropT;
@@ -611,67 +607,6 @@ inline ::flatbuffers::Offset<ClientCharacterChat> CreateClientCharacterChat(
 
 ::flatbuffers::Offset<ClientCharacterChat> CreateClientCharacterChat(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterChatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ClientCharacterStatT : public ::flatbuffers::NativeTable {
-  typedef ClientCharacterStat TableType;
-  std::unique_ptr<fbs::CharacterStatT> payload{};
-  ClientCharacterStatT() = default;
-  ClientCharacterStatT(const ClientCharacterStatT &o);
-  ClientCharacterStatT(ClientCharacterStatT&&) FLATBUFFERS_NOEXCEPT = default;
-  ClientCharacterStatT &operator=(ClientCharacterStatT o) FLATBUFFERS_NOEXCEPT;
-};
-
-struct ClientCharacterStat FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ClientCharacterStatT NativeTableType;
-  typedef ClientCharacterStatBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PAYLOAD = 4
-  };
-  const fbs::CharacterStat *payload() const {
-    return GetPointer<const fbs::CharacterStat *>(VT_PAYLOAD);
-  }
-  fbs::CharacterStat *mutable_payload() {
-    return GetPointer<fbs::CharacterStat *>(VT_PAYLOAD);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyOffset(verifier, VT_PAYLOAD) &&
-           verifier.VerifyTable(payload()) &&
-           verifier.EndTable();
-  }
-  ClientCharacterStatT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ClientCharacterStatT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ClientCharacterStat> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterStatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-struct ClientCharacterStatBuilder {
-  typedef ClientCharacterStat Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_payload(::flatbuffers::Offset<fbs::CharacterStat> payload) {
-    fbb_.AddOffset(ClientCharacterStat::VT_PAYLOAD, payload);
-  }
-  explicit ClientCharacterStatBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<ClientCharacterStat> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ClientCharacterStat>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<ClientCharacterStat> CreateClientCharacterStat(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    ::flatbuffers::Offset<fbs::CharacterStat> payload = 0) {
-  ClientCharacterStatBuilder builder_(_fbb);
-  builder_.add_payload(payload);
-  return builder_.Finish();
-}
-
-::flatbuffers::Offset<ClientCharacterStat> CreateClientCharacterStat(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterStatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
 struct ClientCharacterDropT : public ::flatbuffers::NativeTable {
   typedef ClientCharacterDrop TableType;
   uint32_t map_id = 0;
@@ -1082,6 +1017,7 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTradeDir
 
 struct ClientCharacterStateT : public ::flatbuffers::NativeTable {
   typedef ClientCharacterState TableType;
+  uint32_t map_id = 0;
   std::vector<std::unique_ptr<fbs::StateT>> payload{};
   ClientCharacterStateT() = default;
   ClientCharacterStateT(const ClientCharacterStateT &o);
@@ -1093,8 +1029,15 @@ struct ClientCharacterState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   typedef ClientCharacterStateT NativeTableType;
   typedef ClientCharacterStateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PAYLOAD = 4
+    VT_MAP_ID = 4,
+    VT_PAYLOAD = 6
   };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *payload() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_PAYLOAD);
   }
@@ -1104,6 +1047,7 @@ struct ClientCharacterState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
            verifier.VerifyVectorOfTables(payload()) &&
@@ -1118,6 +1062,9 @@ struct ClientCharacterStateBuilder {
   typedef ClientCharacterState Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientCharacterState::VT_MAP_ID, map_id, 0);
+  }
   void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> payload) {
     fbb_.AddOffset(ClientCharacterState::VT_PAYLOAD, payload);
   }
@@ -1134,18 +1081,22 @@ struct ClientCharacterStateBuilder {
 
 inline ::flatbuffers::Offset<ClientCharacterState> CreateClientCharacterState(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> payload = 0) {
   ClientCharacterStateBuilder builder_(_fbb);
   builder_.add_payload(payload);
+  builder_.add_map_id(map_id);
   return builder_.Finish();
 }
 
 inline ::flatbuffers::Offset<ClientCharacterState> CreateClientCharacterStateDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
     const std::vector<::flatbuffers::Offset<fbs::State>> *payload = nullptr) {
   auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>>(*payload) : 0;
   return fbs::CreateClientCharacterState(
       _fbb,
+      map_id,
       payload__);
 }
 
@@ -1875,41 +1826,6 @@ inline ::flatbuffers::Offset<ClientCharacterChat> ClientCharacterChat::Pack(::fl
       _payload);
 }
 
-inline ClientCharacterStatT::ClientCharacterStatT(const ClientCharacterStatT &o)
-      : payload((o.payload) ? new fbs::CharacterStatT(*o.payload) : nullptr) {
-}
-
-inline ClientCharacterStatT &ClientCharacterStatT::operator=(ClientCharacterStatT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(payload, o.payload);
-  return *this;
-}
-
-inline ClientCharacterStatT *ClientCharacterStat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ClientCharacterStatT>(new ClientCharacterStatT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void ClientCharacterStat::UnPackTo(ClientCharacterStatT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::CharacterStatT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
-}
-
-inline ::flatbuffers::Offset<ClientCharacterStat> CreateClientCharacterStat(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterStatT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ClientCharacterStat::Pack(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<ClientCharacterStat> ClientCharacterStat::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterStatT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterStatT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _payload = _o->payload ? CreateCharacterStat(_fbb, _o->payload.get(), _rehasher) : 0;
-  return fbs::CreateClientCharacterStat(
-      _fbb,
-      _payload);
-}
-
 inline ClientCharacterDropT::ClientCharacterDropT(const ClientCharacterDropT &o)
       : map_id(o.map_id),
         payload((o.payload) ? new fbs::DropT(*o.payload) : nullptr) {
@@ -2083,12 +1999,14 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> ClientCharacterTrade::Pack(::
       _confirm);
 }
 
-inline ClientCharacterStateT::ClientCharacterStateT(const ClientCharacterStateT &o) {
+inline ClientCharacterStateT::ClientCharacterStateT(const ClientCharacterStateT &o)
+      : map_id(o.map_id) {
   payload.reserve(o.payload.size());
   for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::StateT(*payload_) : nullptr); }
 }
 
 inline ClientCharacterStateT &ClientCharacterStateT::operator=(ClientCharacterStateT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(map_id, o.map_id);
   std::swap(payload, o.payload);
   return *this;
 }
@@ -2102,6 +2020,7 @@ inline ClientCharacterStateT *ClientCharacterState::UnPack(const ::flatbuffers::
 inline void ClientCharacterState::UnPackTo(ClientCharacterStateT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
 }
 
@@ -2113,9 +2032,11 @@ inline ::flatbuffers::Offset<ClientCharacterState> ClientCharacterState::Pack(::
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterStateT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateClientCharacterState(
       _fbb,
+      _map_id,
       _payload);
 }
 

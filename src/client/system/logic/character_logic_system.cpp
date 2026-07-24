@@ -8,6 +8,7 @@
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -832,6 +833,29 @@ character_logic_system::load_pos_type(game_character &g_character) {
   return pos_type::land;
 }
 
+void character_logic_system::run_network_sync_state() {
+  static int32_t hp;
+  static int32_t max_hp;
+  ClientCharacterStateT ccs;
+  if (hp != character_stat_game_instance::hp_point) {
+    StateT st;
+    st.state = StateEnum_HP;
+    st.val = character_stat_game_instance::hp_point;
+    ccs.payload.push_back(std::make_unique<StateT>(st));
+    hp = character_stat_game_instance::hp_point;
+  }
+  if (max_hp != character_stat_game_instance::hp_point_max) {
+    StateT st;
+    st.state = StateEnum_MAX_HP;
+    st.val = character_stat_game_instance::hp_point_max;
+    ccs.payload.push_back(std::make_unique<StateT>(st));
+    max_hp = character_stat_game_instance::hp_point_max;
+  }
+  if (!ccs.payload.empty()) {
+    client_request::send_to_host(ccs);
+  }
+}
+
 void character_logic_system::run_network_sync() {
   static uint64_t time = 0;
   const int32_t MIN_SEND_INTERVAL_MS = 33;
@@ -900,6 +924,7 @@ void character_logic_system::run_network_sync() {
       face = g_character.face.action;
     }
   }
+  run_network_sync_state();
 }
 
 void character_logic_system::run_network_die_sync(game_character &g_character) {

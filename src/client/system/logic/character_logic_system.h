@@ -58,6 +58,7 @@ private:
   static void run_others_mv();
   static void run_others();
   static void run_network_sync();
+  static void run_network_sync_state();
 
 public:
   static check_mobs run_attack_check(game_character &g_character,

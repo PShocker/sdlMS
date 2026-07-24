@@ -31,6 +31,8 @@ table Character{
     face:Face;
 
     equips:[Equip];
+
+    states:[State];
 }
 
 table Movement{
@@ -124,14 +126,13 @@ table Face{
     face_action:string;
 }
 
-table CharacterChat{
-    type:uint8;
-    payload:[uint16];
+enum ChatEnum : int8 {
+    MAP,
 }
 
-table CharacterStat{
-    type:uint8;
-    val:double;
+table CharacterChat{
+    type:ChatEnum;
+    payload:[uint16];
 }
 
 table EquipScroll{
@@ -170,13 +171,18 @@ table Drop{
     timestamp:uint64;
 }
 
-enum StateEnum : byte {
+enum StateEnum : int8 {
     HP,
+    MAX_HP,
+    BUFF_SKILL,
+    BUFF_ITEM,
+    BUFF_ABNORMAL,
 }
 
 table State{
     state: StateEnum;
     val:int64;
+    sub_val:int64;
 }
 
 table APSave{

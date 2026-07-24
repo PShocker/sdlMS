@@ -169,6 +169,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_party_instance::handle_party(client_id, r);
     break;
   }
+  case NetPayload_ClientCharacterState: {
+    auto payload = packet->payload_as_ClientCharacterState();
+    fbs::ClientCharacterStateT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_state(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -326,6 +333,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterPartyT r;
     payload->UnPackTo(&r);
     server_party_instance::handle_server_party(client_id, r);
+    break;
+  }
+  case NetPayload_ServerCharacterState: {
+    auto payload = packet->payload_as_ServerCharacterState();
+    fbs::ServerCharacterStateT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_server_state(client_id, r);
     break;
   }
   default:

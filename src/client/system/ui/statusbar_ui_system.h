@@ -24,10 +24,6 @@ private:
   static void render_chat_vscr();
   static void render_popup_tips();
 
-  static void render_submenu_backgrnd();
-  static void render_submenu_button();
-  static void render_submenu();
-
   static SDL_FPoint load_wh();
 
   static void event_click_chat_vscr();
@@ -55,13 +51,6 @@ private:
   static void event_button_chatlog();
 
   static inline int chat_index;
-
-  enum class menu_enums {
-    menu,
-    shortcut,
-  };
-  static inline std::optional<menu_enums> menu_type;
-
 public:
   enum class quick_slot {
     hide,

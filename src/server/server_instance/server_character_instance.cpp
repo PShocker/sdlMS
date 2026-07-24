@@ -1,5 +1,6 @@
 #include "server_character_instance.h"
 #include "server_client_instance.h"
+#include "server_party_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
@@ -612,4 +613,50 @@ void server_character_instance::handle_server_playert(
   cod.g_character = g_character;
   cod.player_t = *c;
   character_game_instance::others.emplace(c->client_id, cod);
+}
+
+void server_character_instance::handle_state(uint64_t client_id,
+                                             ClientCharacterStateT &r) {
+  if (server_client_instance::clients.contains(client_id)) {
+    auto &c = server_client_instance::clients.at(client_id).player_t.character;
+    load_state(r.payload, *c);
+    auto scenes = server_scene_instance::scenes[r.map_id].clients;
+    scenes.erase(client_id);
+    ServerCharacterStateT t;
+    t.client_id = client_id;
+    t.payload = std::move(r.payload);
+    for (auto c : scenes) {
+      server_response::send_to_client(c, t);
+    }
+  }
+}
+
+void server_character_instance::handle_server_state(uint64_t client_id,
+                                                    ServerCharacterStateT &r) {
+  if (character_game_instance::others.contains(r.client_id)) {
+    auto &c =
+        character_game_instance::others.at(r.client_id).player_t.character;
+    load_state(r.payload, *c);
+  }
+}
+
+void server_character_instance::remove_state(StateEnum e, CharacterT &c) {
+  std::erase_if(c.states, [&](const auto &st) { return st->state == e; });
+}
+
+void server_character_instance::load_state(
+    const std::vector<std::unique_ptr<fbs::StateT>> &v, CharacterT &c) {
+  for (const auto &st : v) {
+    switch (st->state) {
+    case StateEnum_HP:
+    case StateEnum_MAX_HP: {
+      remove_state(st->state, c);
+      c.states.push_back(std::make_unique<StateT>(*st));
+      break;
+    }
+    default: {
+      c.states.push_back(std::make_unique<StateT>(*st));
+    }
+    }
+  }
 }

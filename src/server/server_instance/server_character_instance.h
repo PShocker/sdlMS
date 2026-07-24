@@ -7,6 +7,11 @@
 using namespace fbs;
 
 class server_character_instance {
+private:
+  static void remove_state(StateEnum e, CharacterT &c);
+  static void load_state(const std::vector<std::unique_ptr<fbs::StateT>> &v,
+                         CharacterT &c);
+
 public:
   static void handle_attack(uint64_t client_id, ClientCharacterAttackT &r);
 
@@ -39,4 +44,7 @@ public:
              const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
              game_character &g_character);
   static void handle_server_ski(uint64_t client_id, ServerCharacterSkillT &r);
+
+  static void handle_state(uint64_t client_id, ClientCharacterStateT &r);
+  static void handle_server_state(uint64_t client_id, ServerCharacterStateT &r);
 };

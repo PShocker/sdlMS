@@ -35,10 +35,6 @@ table ClientCharacterChat {
     payload:CharacterChat;
 }
 
-table ClientCharacterStat {
-    payload:CharacterStat;
-}
-
 table ClientCharacterDrop {
     map_id:uint32;
     payload:Drop;
@@ -66,6 +62,7 @@ table ClientCharacterTrade {
 }
 
 table ClientCharacterState {
+    map_id:uint32;
     payload:[State];
 }
 

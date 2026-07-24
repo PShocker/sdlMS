@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -31,6 +32,10 @@ void trade_ui_system::open() {
     auto &camera = camera_game_instance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
+
+    character_logic_system::run_stand_action(other);
+    character_logic_system::run_face_action(other, u"default");
+    other.flip = 0;
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);

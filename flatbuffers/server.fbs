@@ -143,4 +143,11 @@ table ServerCharacterParty {
     step:uint8;
     to_id:uint64;
     confirm:bool;
+    
+    players:[Player];
+}
+
+table ServerCharacterState {
+    client_id:uint64;
+    payload:[State];
 }
