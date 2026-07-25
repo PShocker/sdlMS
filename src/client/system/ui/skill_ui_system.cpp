@@ -512,9 +512,10 @@ void skill_ui_system::event_click_vscr(SDL_Event *event) {
   job_type jt = ski_tree.at(active_tab);
   // 根据active_tab获取技能组
   auto skill_node = job_skill_game_instance::load_job_skills(jt);
-  auto size = skill_node.size() - 6;
+  int size = skill_node.size() - 6;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
+  size = std::max(0, size);
   auto val = scroll_ui_system::click_vscroll(
       (int)pos.x + lt.x, (int)pos.y + lt.y, page, size, length, top);
   page = val;

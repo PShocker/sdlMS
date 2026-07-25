@@ -7,6 +7,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
+#include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -44,7 +45,7 @@ void skill_buff_ui_system::render_ui(game_skill &sk, float x, float y) {
     SDL_RenderFillRect(window::renderer, &pos_rect);
     // 渲染冷却时间
     auto num = d / 1000;
-    package_ui_system::render_number_l(num, x, y + 21);
+    package_ui_system::render_number(num, x, y + 21);
   }
 }
 
@@ -91,7 +92,10 @@ void skill_buff_ui_system::render_info() {
   if (!mouse_ski.has_value()) {
     return;
   }
-  sys.push_back(render_ui_info);
+  it = std::ranges::find(system::render_systems, &cursor_render_system::render);
+  if (it != system::render_systems.end()) {
+    system::render_systems.insert(it, render_ui_info);
+  }
 }
 
 bool skill_buff_ui_system::render() {

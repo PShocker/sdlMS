@@ -24,13 +24,13 @@ public:
 class game_consume_item : public game_item {
 public:
   game_consume_item() { type = item_enum::consume; }
-  uint32_t num;
+  uint32_t num = 0;
 };
 
 class game_etc_item : public game_item {
 public:
   game_etc_item() { type = item_enum::etc; }
-  uint32_t num;
+  uint32_t num = 0;
 };
 
 class game_install_item : public game_item {

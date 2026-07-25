@@ -4,6 +4,7 @@
 #include "src/client/game/game_item.h"
 #include <cstdint>
 #include <flat_map>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -34,11 +35,15 @@ private:
 
   static inline std::optional<SDL_FPoint> drag;
 
+  static void add_item_slot(std::polymorphic<game_item> &item, int i);
+
 public:
-  static void render_number_l(uint32_t num, int x, int y);
-  static void render_number_r(uint32_t num, int x, int y);
+  static void render_number(uint32_t num, int x, int y);
 
   static std::vector<uint32_t> load_blank_index(uint32_t tab);
+  static std::vector<uint32_t> load_b_index(std::polymorphic<game_item> &item);
+
+  static bool add_item(std::polymorphic<game_item> &item);
 
   static inline SDL_FPoint pos;
 

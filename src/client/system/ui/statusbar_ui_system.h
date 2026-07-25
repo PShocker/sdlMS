@@ -33,9 +33,6 @@ private:
 
   static std::u16string load_chat_type();
 
-  static bool event_menu_button(SDL_Event *event);
-  static void event_menu_button_option();
-
   static bool event_button(SDL_Event *event);
   // button_func
   static void event_button_cashshop();

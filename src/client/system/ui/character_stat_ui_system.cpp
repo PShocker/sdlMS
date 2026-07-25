@@ -552,8 +552,8 @@ bool character_stat_ui_system::cursor_in() {
   if (detail) {
     pos_rect.x = pos.x + detail_rect.x;
     pos_rect.y = pos.y + detail_rect.y;
-    pos_rect.w = pos.y + detail_rect.w;
-    pos_rect.h = pos.y + detail_rect.h;
+    pos_rect.w = detail_rect.w;
+    pos_rect.h = detail_rect.h;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       return true;
     }

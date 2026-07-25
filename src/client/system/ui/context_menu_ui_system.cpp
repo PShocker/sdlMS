@@ -78,9 +78,7 @@ void context_menu_ui_system::render_button() {
       SDL_FRect{pos.x + 9, pos.y + 102, 85, 14},
   };
   std::vector<bool> disable = {
-      false,
-      false,
-      false,
+      false, false, false, false, false, false, false,
   };
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
     auto k = buttons_nodes[i];

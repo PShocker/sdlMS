@@ -87,3 +87,32 @@ item_game_instance::load_item(const std::u16string &id, uint32_t num) {
   // 处理未知类型 - 返回空或抛出异常
   return std::polymorphic<game_item>(); // 返回空对象
 }
+
+int item_game_instance::load_slot_max(const std::u16string &id) {
+  int r = 200;
+  auto info = load_item_info(id);
+  if (info->get_child(u"slotMax")) {
+    r = static_cast<wz::Property<int> *>(info->get_child(u"slotMax"))->get();
+  }
+  return r;
+}
+
+int item_game_instance::load_item_num(std::polymorphic<game_item>& itm) {
+  int num = 0;
+  switch (itm->type) {
+  case item_enum::consume: {
+    auto &consume = static_cast<game_consume_item &>(*itm);
+    num = consume.num;
+    break;
+  }
+  case item_enum::etc: {
+    auto &etc = static_cast<game_etc_item &>(*itm);
+    num = etc.num;
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return num;
+}

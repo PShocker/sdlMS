@@ -284,9 +284,10 @@ void character_info_ui_system::event_click_scroll() {
   }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
-  auto size = load_equips().size() - 3;
+  int size = load_equips().size() - 3;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
+  size = std::max(0, size);
   auto val = scroll_ui_system::click_vscroll(
       (int)pos.x + lt.x, (int)pos.y + lt.y, item_page, size, length, top);
   item_page = val;

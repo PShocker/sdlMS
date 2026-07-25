@@ -1081,9 +1081,8 @@ void character_game_instance::add_face(game_character &g,
                               f_node->find(u"map/brow"))
                               ->get();
             c.texture = wz_resource::load_texture(f_node);
-            c.z =
-                static_cast<wz::Property<std::u16string> *>(f_node->find(u"z"))
-                    ->get();
+            // 直接写face
+            c.z = u"face";
             auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
                            f_node->find(u"origin"))
                            ->get();

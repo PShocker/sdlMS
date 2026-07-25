@@ -91,6 +91,9 @@ void server_scene_instance::send_in_scene(uint64_t client_id,
 
 void server_scene_instance::send_in_fade(uint64_t client_id,
                                          ClientSceneT client_scene) {
+  if (client_scene.map_id == 0) {
+    return;
+  }
   ServerSceneT r;
   r.map_id = client_scene.map_id;
   r.fade = false;

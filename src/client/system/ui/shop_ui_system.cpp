@@ -85,6 +85,11 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       item_info = &item;
     }
+    // render num
+    auto item_num = item_game_instance::load_item_num(item.item);
+    if (item_num > 0) {
+      package_ui_system::render_number(item_num, x, y + 24);
+    }
 
     // render name
     freetype::load_aligned(true);
@@ -128,6 +133,7 @@ void shop_ui_system::render_pkg_items() {
   auto its = load_pkg_items();
   for (auto &itm : its) {
     auto item = shop_game_instance::load_shop_item((*itm)->id);
+    item.item = *itm;
     items.push_back(std::move(item));
   }
   render_item(items, pages[1], {238, 129});
@@ -254,23 +260,29 @@ void shop_ui_system::render_active_item() {
       wz_resource::ui->find(u"PlayerShop.img/Store/ItemEntry/selected"));
   if (active_item[0].has_value()) {
     auto x = (int)pos.x + 45;
-    auto y = (int)pos.y + 129 + (active_item[0].value() - pages[0]) * 40;
-    SDL_FRect pos_rect;
-    pos_rect.x = x;
-    pos_rect.y = y;
-    pos_rect.w = texture->w;
-    pos_rect.h = texture->h;
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    auto index = (active_item[0].value() - pages[0]);
+    if (index < 6) {
+      auto y = (int)pos.y + 129 + index * 40;
+      SDL_FRect pos_rect;
+      pos_rect.x = x;
+      pos_rect.y = y;
+      pos_rect.w = texture->w;
+      pos_rect.h = texture->h;
+      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    }
   }
   if (active_item[1].has_value()) {
     auto x = (int)pos.x + 275;
-    auto y = (int)pos.y + 129 + (active_item[1].value() - pages[1]) * 40;
-    SDL_FRect pos_rect;
-    pos_rect.x = x;
-    pos_rect.y = y;
-    pos_rect.w = texture->w;
-    pos_rect.h = texture->h;
-    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    auto index = (active_item[1].value() - pages[1]);
+    if (index < 6) {
+      auto y = (int)pos.y + 129 + index * 40;
+      SDL_FRect pos_rect;
+      pos_rect.x = x;
+      pos_rect.y = y;
+      pos_rect.w = texture->w;
+      pos_rect.h = texture->h;
+      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+    }
   }
 }
 
@@ -478,14 +490,16 @@ bool shop_ui_system::event_vscr(SDL_Event *event) {
   auto x = (int)pos.x + 212;
   auto y = (int)pos.y + 129;
 
-  auto size = shop->items.size() - 6;
+  int size = shop->items.size() - 6;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
+  size = std::max(0, size);
   auto val = scroll_ui_system::click_vscroll(x, y, pages[0], size, length, top);
   pages[0] = val;
 
   size = load_pkg_items().size() - 6;
   x += 230;
+  size = std::max(0, size);
   val = scroll_ui_system::click_vscroll(x, y, pages[1], size, length, top);
   pages[1] = val;
   return true;
@@ -505,6 +519,7 @@ bool shop_ui_system::event_tab(SDL_Event *event) {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       active_tab[0] = i;
       active_item[0] = std::nullopt;
+      pages[0] = 0;
       return true;
     }
   }
@@ -522,6 +537,7 @@ bool shop_ui_system::event_tab(SDL_Event *event) {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       active_tab[1] = i;
       active_item[1] = std::nullopt;
+      pages[1] = 0;
       return true;
     }
   }

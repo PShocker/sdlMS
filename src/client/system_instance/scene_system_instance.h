@@ -13,6 +13,8 @@ public:
   static void enter(uint32_t map_id);
   static void enter_fade();
   static void enter_prepare(uint32_t map_id, const std::u16string &pn, int i);
+  static void enter_quit();
+  static void quit_prepare();
 
 private:
   static bool render_game();

@@ -5,6 +5,7 @@ class mob_render_system {
 private:
   static bool render_mob(game_mob &g_mob);
   static bool render_gauge(game_mob &g_mob);
+  static bool render_nametag(game_mob &g_mob);
   static bool render_effect_back(game_mob &g_mob);
 
 public:

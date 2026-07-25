@@ -58,6 +58,7 @@
 #include "src/client/system/ui/skill_buff_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
+#include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
@@ -222,4 +223,18 @@ void scene_system_instance::enter_fade() {
   client_scene.character = std::make_unique<fbs::CharacterT>(std::move(c));
 
   client_request::send_to_host(client_scene);
+}
+
+void scene_system_instance::enter_quit() {
+  login_system_instance::enter();
+  fade_system_instance::enter_out();
+  fade_system_instance::enter_out();
+}
+
+void scene_system_instance::quit_prepare() {
+  fbs::ClientSceneT client_scene;
+  client_scene.fade = false;
+  client_scene.map_id = 0;
+  client_request::send_to_host(client_scene);
+  fade_system_instance::enter_in(scene_system_instance::enter_quit);
 }

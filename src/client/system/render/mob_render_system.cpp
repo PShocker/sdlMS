@@ -1,5 +1,7 @@
 #include "mob_render_system.h"
 #include "gauge_render_system.h"
+#include "nametag_render_system.h"
+#include "src/client/game/game_nametag.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
@@ -70,15 +72,15 @@ bool mob_render_system::render_mob(game_mob &g_mob) {
 
 bool mob_render_system::render_gauge(game_mob &g_mob) {
   if (g_mob.gauge.has_value()) {
-    auto pos = g_mob.pos;
     auto r = mob_logic_system::load_rect(g_mob);
     if (!r.has_value()) {
       return false;
     }
+    auto pos = g_mob.pos;
     auto head = mob_logic_system::load_head(g_mob);
     pos.y = pos.y + head->y - 20;
     auto hp_percent_now = (float)g_mob.hp / g_mob.max_hp;
-    hp_percent_now=std::max(0.0f,hp_percent_now);
+    hp_percent_now = std::max(0.0f, hp_percent_now);
     g_mob.gauge->hp_percent =
         std::lerp(g_mob.gauge->hp_percent, hp_percent_now, 0.03);
     g_mob.gauge->hp_percent_now = hp_percent_now;
@@ -96,6 +98,7 @@ bool mob_render_system::render(game_mob &g_mob) {
   render_mob(g_mob);
   render_effect_back(g_mob);
   render_gauge(g_mob);
+  render_nametag(g_mob);
   // auto r = mob_logic_system::load_rect(g_mob);
   // if (r.has_value()) {
   //   SDL_FRect rr = r.value();
@@ -105,5 +108,23 @@ bool mob_render_system::render(game_mob &g_mob) {
   //   SDL_RenderFillRect(window::renderer, &rr);
   // }
 
+  return true;
+}
+
+bool mob_render_system::render_nametag(game_mob &g_mob) {
+  if (!g_mob.gauge.has_value()) {
+    return false;
+  }
+  auto r = mob_logic_system::load_rect(g_mob);
+  if (!r.has_value()) {
+    return false;
+  }
+  game_nametag name;
+  name.color = {255, 255, 255, 255};
+  name.path = u"";
+  name.pos = g_mob.pos;
+  name.size = 12;
+  name.text = mob_game_instance::load_mob_name(g_mob.id);
+  nametag_render_system::render(name, {0, 5});
   return true;
 }

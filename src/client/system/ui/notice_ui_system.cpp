@@ -17,6 +17,7 @@
 #include "text_input_ui_system.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
+#include <algorithm>
 #include <string>
 #include <utility>
 #include <vector>
@@ -164,7 +165,7 @@ void notice_ui_system::render_input() {
   case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy_mul: {
-    text_input_ui_system::render(text, pos.x, pos.y);
+    text_input_ui_system::render(text, 5, 5);
     break;
   }
   default: {
@@ -177,6 +178,7 @@ bool notice_ui_system::render() {
   render_backgrnd();
   render_button();
   render_text();
+  render_input();
   return true;
 }
 
@@ -196,22 +198,25 @@ void notice_ui_system::open() {
     case notice_enum::shopbuy_mul: {
       text = {
           .max_size = 12,
-          .text = u"",
+          .text = u"1",
           .composition = {},
           .disable = false,
           .active = false,
           .r =
               SDL_Rect{
-                  static_cast<int>(-30 - camera.x),
-                  static_cast<int>(960 - camera.y),
+                  static_cast<int>(pos.x + 18),
+                  static_cast<int>(pos.y + 40),
                   230,
                   30,
               },
-          .font_color = {255, 255, 255, 255},
-          .font_size = 13,
+          .font_color = {0, 0, 0, 255},
+          .cur_color = {0, 0, 0, 255},
+          .font_size = 12,
       };
       text.type.reset();
       text.type.set(text_input::digit);
+      text.cur = 1;
+      text_input_ui_system::active(text);
       break;
     }
     default: {
@@ -252,14 +257,33 @@ void notice_ui_system::event_close() { close(); }
 
 void notice_ui_system::event_button_shopbuy() {
   auto p = std::any_cast<const game_shop_item *>(notice_ui_system::data);
+  auto itm = p->item;
   switch (type) {
   case notice_enum::shopbuy: {
-    auto blank = package_ui_system::load_blank_index((int)p->item->type);
-    package_game_instance::data[(int)p->item->type][blank[0]] = (p->item);
+    package_ui_system::add_item(itm);
     package_game_instance::meso -= p->price;
     break;
   }
   case notice_enum::shopbuy_mul: {
+    auto num = std::stoi(std::string{text.text.begin(), text.text.end()});
+    switch (itm->type) {
+    case item_enum::consume: {
+      auto &consume = static_cast<game_consume_item &>(*itm);
+      consume.num = num;
+      break;
+    }
+    case item_enum::etc: {
+      auto &etc = static_cast<game_consume_item &>(*itm);
+      etc.num = num;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    if (package_ui_system::add_item(itm)) {
+      package_game_instance::meso -= p->price * num;
+    }
     break;
   }
   default: {
@@ -271,6 +295,8 @@ void notice_ui_system::event_button_shopbuy() {
     must.erase(must.begin() + shop_ui_system::active_item[0].value());
   }
   close();
+  shop_ui_system::active_tab[1] = (int)p->item->type;
+  shop_ui_system::pages[1] = 0;
   shop_ui_system::active_item = {};
 }
 

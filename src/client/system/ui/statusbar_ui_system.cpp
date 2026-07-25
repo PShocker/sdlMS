@@ -3,6 +3,8 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_scancode.h"
+#include "character_stat_ui_system.h"
+#include "equip_ui_system.h"
 #include "scroll_ui_system.h"
 #include "skill_ui_system.h"
 #include "src/client/game/game_popup_tip.h"
@@ -18,6 +20,7 @@
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -651,7 +654,7 @@ void statusbar_ui_system::event_click_chat_vscr() {
     size += h;
   }
   size = size / (freetype::load_lh() * 1.1);
-
+  size = std::max(0, size);
   auto val = scroll_ui_system::click_vscroll(base_x + 564, base_y - 71,
                                              chat_index, size, length, top);
   chat_index = val;
@@ -676,21 +679,30 @@ void statusbar_ui_system::event_button_shortcut() {
 
 void statusbar_ui_system::event_button_mailbox() { return; }
 
-void statusbar_ui_system::event_button_equip() { return; }
+void statusbar_ui_system::event_button_equip() {
+  equip_ui_system::toggle();
+  return;
+}
 
 void statusbar_ui_system::event_button_inven() {
   package_ui_system::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_stat() { return; }
+void statusbar_ui_system::event_button_stat() {
+  character_stat_ui_system::toggle();
+  return;
+}
 
 void statusbar_ui_system::event_button_skill() {
   skill_ui_system::toggle();
   return;
 }
 
-void statusbar_ui_system::event_button_keybind() { return; }
+void statusbar_ui_system::event_button_keybind() {
+  keybinding_ui_system::toggle();
+  return;
+}
 
 void statusbar_ui_system::event_button_quickslot() { return; }
 
@@ -704,44 +716,6 @@ std::u16string statusbar_ui_system::load_chat_type() {
   }
   }
   return u"";
-}
-
-bool statusbar_ui_system::event_menu_button(SDL_Event *event) {
-  const static std::array buttons_rect = {
-      SDL_FRect{578, 38, 73, 34}, // CashShop
-      SDL_FRect{652, 38, 73, 34}, // Menu
-      SDL_FRect{726, 38, 73, 34}, // Shortcut
-      SDL_FRect{578, 11, 22, 19}, // Mailbox
-      SDL_FRect{621, 10, 28, 20}, // Equip
-      SDL_FRect{651, 10, 28, 20}, // Inven
-      SDL_FRect{681, 10, 28, 20}, // Stat StatUp
-      SDL_FRect{711, 10, 28, 20}, // Skill SkillUp
-      SDL_FRect{741, 10, 28, 20}, // Key
-      SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
-      SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
-  };
-  const static std::array buttons_func = {
-      event_button_cashshop,  event_button_menu,    event_button_shortcut,
-      event_button_mailbox,   event_button_equip,   event_button_inven,
-      event_button_stat,      event_button_skill,   event_button_keybind,
-      event_button_quickslot, event_button_chatlog,
-  };
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
-  auto [w, h] = load_wh();
-  auto base_x = (screen_w - w) / 2;
-  auto base_y = (screen_h - h);
-
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += base_x;
-    pos_rect.y += base_y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-      buttons_func[i]();
-      return true;
-    }
-  }
-  return false;
 }
 
 bool statusbar_ui_system::event_button(SDL_Event *event) {

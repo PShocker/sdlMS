@@ -11,8 +11,6 @@
 #include <string>
 class shop_ui_system {
 private:
-  static std::vector<std::polymorphic<game_item> *> load_pkg_items();
-
   static void render_backgrnd();
   static void render_button();
 
@@ -43,9 +41,10 @@ private:
 
   static SDL_FPoint load_wh();
 
-  static inline std::array<int, 2> pages;
-
 public:
+  static inline std::array<int, 2> pages;
+  static std::vector<std::polymorphic<game_item> *> load_pkg_items();
+
   static inline std::vector<game_shop_item> must;
 
   static inline std::array<std::optional<int>, 2> active_item;

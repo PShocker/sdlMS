@@ -7,9 +7,14 @@
 
 void package_game_instance::load(const character_save &cs) {
   for (auto &d : data) {
-    d.clear();    // 先清空
-    d.resize(96); // 创建96个空的 unique_ptr
+    d.clear(); // 先清空
   }
+  data[0].assign(96, std::polymorphic<game_item>(game_equip_item{}));
+  data[1].assign(96, std::polymorphic<game_item>(game_consume_item{}));
+  data[2].assign(96, std::polymorphic<game_item>(game_etc_item{}));
+  data[3].assign(96, std::polymorphic<game_item>(game_install_item{}));
+  data[4].assign(96, std::polymorphic<game_item>(game_cash_item{}));
+
   for (auto &pkg : cs.package) {
     auto type = (int)pkg.val->type;
     data[type][pkg.index] = pkg.val;

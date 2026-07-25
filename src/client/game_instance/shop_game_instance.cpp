@@ -13,7 +13,7 @@ std::polymorphic<game_item>
 shop_game_instance::load_item(const std::u16string &id) {
   std::polymorphic<game_item> r;
   if (item_game_instance::check_item(id)) {
-    r = item_game_instance::load_item(id, 1);
+    r = item_game_instance::load_item(id, 0);
   } else {
     game_equip_item eqp;
     eqp.type = item_enum::equip;
