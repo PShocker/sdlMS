@@ -34,16 +34,11 @@ private:
   static inline uint8_t page;
 
   static inline std::optional<SDL_FPoint> drag;
-
-  static void add_item_slot(std::polymorphic<game_item> &item, int i);
-
 public:
   static void render_number(uint32_t num, int x, int y);
 
   static std::vector<uint32_t> load_blank_index(uint32_t tab);
   static std::vector<uint32_t> load_b_index(std::polymorphic<game_item> &item);
-
-  static bool add_item(std::polymorphic<game_item> &item);
 
   static inline SDL_FPoint pos;
 

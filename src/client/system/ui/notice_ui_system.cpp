@@ -6,6 +6,7 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -30,6 +31,7 @@ void notice_ui_system::render_backgrnd() {
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
   case notice_enum::shopbuy_sell:
+  case notice_enum::shopbuy_sell_no_num:
   case notice_enum::shopbuy: {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice1");
     break;
@@ -77,6 +79,7 @@ void notice_ui_system::render_button() {
   case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy_sell_mul:
+  case notice_enum::shopbuy_sell_no_num:
   case notice_enum::shopbuy:
   case notice_enum::shopbuy_mul:
   case notice_enum::shopbuy_no_meso:
@@ -134,21 +137,43 @@ void notice_ui_system::render_text() {
     break;
   }
   case notice_enum::shopbuy_no_meso: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noMeso");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
     break;
   }
   case notice_enum::shopbuy_no_space: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noSpace");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
     break;
   }
   case notice_enum::equip_no_ability:
   case notice_enum::equip_no_space:
     break;
   case notice_enum::shopbuy_sell: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/sellItem");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
     break;
   }
   case notice_enum::shopbuy_sell_mul: {
+    auto n =
+        wz_resource::ms->get_root()->find(u"String.img/Notice/sellItemMul");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::shopbuy_sell_no_num: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/sellNoNum");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
     break;
   }
   case notice_enum::ap_inc: {
+    break;
+  }
+  default: {
     break;
   }
   }
@@ -237,6 +262,7 @@ void notice_ui_system::close() {
 SDL_FPoint notice_ui_system::load_wh() {
   switch (type) {
   case notice_enum::shopbuy_sell:
+  case notice_enum::shopbuy_sell_no_num:
   case notice_enum::shopbuy:
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space: {
@@ -260,7 +286,7 @@ void notice_ui_system::event_button_shopbuy() {
   auto itm = p->item;
   switch (type) {
   case notice_enum::shopbuy: {
-    package_ui_system::add_item(itm);
+    shop_ui_system::add_item(itm);
     package_game_instance::meso -= p->price;
     break;
   }
@@ -273,7 +299,7 @@ void notice_ui_system::event_button_shopbuy() {
       break;
     }
     case item_enum::etc: {
-      auto &etc = static_cast<game_consume_item &>(*itm);
+      auto &etc = static_cast<game_etc_item &>(*itm);
       etc.num = num;
       break;
     }
@@ -281,8 +307,32 @@ void notice_ui_system::event_button_shopbuy() {
       break;
     }
     }
-    if (package_ui_system::add_item(itm)) {
-      package_game_instance::meso -= p->price * num;
+    auto price = p->price * num;
+    if (package_game_instance::meso < price) {
+      type = notice_enum::shopbuy_no_meso;
+      return;
+      break;
+    }
+    auto buy_num = std::stoi(std::string{text.text.begin(), text.text.end()});
+    if (shop_ui_system::active_tab[0] == 1) {
+      auto &must = shop_ui_system::must;
+      auto &must_itm = must[shop_ui_system::active_item[0].value()];
+      auto itm_num = item_game_instance::load_item_num(must_itm.item);
+      if (buy_num > itm_num) {
+        type = notice_enum::shopbuy_sell_no_num;
+        return;
+      }
+    }
+    if (shop_ui_system::add_item(itm)) {
+      package_game_instance::meso -= price;
+      if (shop_ui_system::active_tab[0] == 1) {
+        auto &must = shop_ui_system::must;
+        auto &must_itm = must[shop_ui_system::active_item[0].value()];
+        shop_ui_system::dec_item_num(must_itm.item, buy_num);
+      }
+    } else {
+      type = notice_enum::shopbuy_no_space;
+      return;
     }
     break;
   }
@@ -292,34 +342,46 @@ void notice_ui_system::event_button_shopbuy() {
   }
   if (shop_ui_system::active_tab[0] == 1) {
     auto &must = shop_ui_system::must;
-    must.erase(must.begin() + shop_ui_system::active_item[0].value());
+    auto &itm = must[shop_ui_system::active_item[0].value()].item;
+    if (item_game_instance::load_item_num(itm) == 0) {
+      must.erase(must.begin() + shop_ui_system::active_item[0].value());
+    }
   }
-  close();
-  shop_ui_system::active_tab[1] = (int)p->item->type;
+  shop_ui_system::active_tab[1] = (int)itm->type;
   shop_ui_system::pages[1] = 0;
   shop_ui_system::active_item = {};
+  close();
 }
 
 void notice_ui_system::event_button_shopbuy_sell() {
   auto p = std::any_cast<std::polymorphic<game_item> *>(notice_ui_system::data);
+  game_shop_item gst = shop_game_instance::load_shop_item((*p)->id);
+  gst.item = *p;
   switch (type) {
   case notice_enum::shopbuy_sell: {
-    game_shop_item gst = shop_game_instance::load_shop_item((*p)->id);
-    gst.item = *p;
-    shop_ui_system::must.push_back(gst);
-    shop_ui_system::active_tab[0] = 1;
-    shop_ui_system::active_item = {};
-    *p = std::polymorphic<game_item>{};
     package_game_instance::meso += gst.price;
+    shop_ui_system::dec_item_num(*p, 0);
     break;
   }
   case notice_enum::shopbuy_sell_mul: {
+    auto num = item_game_instance::load_item_num(gst.item);
+    auto sell_num = std::stoi(std::string{text.text.begin(), text.text.end()});
+    if (sell_num > num) {
+      type = notice_enum::shopbuy_sell_no_num;
+      return;
+    }
+    package_game_instance::meso += gst.price * num;
+    shop_ui_system::dec_item_num(*p, sell_num);
+    shop_ui_system::add_item_num(gst.item, (sell_num - num));
     break;
   }
   default: {
     break;
   }
   }
+  shop_ui_system::add_must_item(gst.item);
+  shop_ui_system::active_tab[0] = 1;
+  shop_ui_system::active_item = {};
   shop_ui_system::active_item = {};
   close();
 }
@@ -349,10 +411,12 @@ bool notice_ui_system::event_button(SDL_Event *event) {
     func = {event_button_shopbuy_sell, close};
     break;
   }
+  case notice_enum::shopbuy_sell_no_num:
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
   case notice_enum::equip_no_ability:
   case notice_enum::equip_no_space: {
+    func = {close, close};
     break;
   }
   }
@@ -403,6 +467,7 @@ bool notice_ui_system::event(SDL_Event *event) {
       case notice_enum::shopbuy_no_space:
       case notice_enum::equip_no_ability:
       case notice_enum::equip_no_space:
+        close();
         break;
       case notice_enum::shopbuy_sell:
       case notice_enum::shopbuy_sell_mul: {

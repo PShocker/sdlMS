@@ -447,10 +447,11 @@ bool shop_ui_system::event_item(SDL_Event *event) {
     }
     auto meso = package_game_instance::meso;
     const auto &itm = items->at(index);
+    auto itm2 = items->at(index);
+    bool space = package_ui_system::load_b_index(itm2.item).empty();
     if (meso < itm.price) {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_meso;
-    } else if (package_ui_system::load_blank_index((int)itm.item->type)
-                   .empty()) {
+    } else if (space) {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;
     } else {
       notice_ui_system::type = (itm.item->type == item_enum::equip)
@@ -591,4 +592,132 @@ bool shop_ui_system::event(SDL_Event *event) {
   }
 
   return false;
+}
+
+void shop_ui_system::add_item_num(std::polymorphic<game_item> &item, int num) {
+  switch (item->type) {
+  case item_enum::consume: {
+    auto &consume = static_cast<game_consume_item &>(*item);
+    consume.num += num;
+    break;
+  }
+  case item_enum::etc: {
+    auto &etc = static_cast<game_etc_item &>(*item);
+    etc.num += num;
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return;
+}
+
+void shop_ui_system::add_item_slot(std::polymorphic<game_item> &item, int i) {
+  auto num = item_game_instance::load_item_num(item);
+  auto &p = package_game_instance::data[(int)item->type];
+  auto slot_max = item_game_instance::load_slot_max(item->id);
+  auto &itm = p.at(i);
+  itm->id = item->id;
+  auto itm_num = item_game_instance::load_item_num(itm);
+  num = std::min((int)num + itm_num, slot_max);
+  add_item_num(itm, num - itm_num);
+  dec_item_num(item, num - itm_num);
+  return;
+}
+
+bool shop_ui_system::add_item(std::polymorphic<game_item> &item) {
+  auto b = package_ui_system::load_b_index(item);
+  if (b.empty()) {
+    return false;
+  }
+  auto &p = package_game_instance::data[(int)item->type];
+  switch (item->type) {
+  case item_enum::consume:
+  case item_enum::etc: {
+    for (auto i : b) {
+      add_item_slot(item, i);
+    }
+    break;
+  }
+  default: {
+    p[b[0]] = (item);
+    break;
+  }
+  }
+  return true;
+}
+
+bool shop_ui_system::add_must_item(std::polymorphic<game_item> &item) {
+  auto add_num = item_game_instance::load_item_num(item);
+  game_shop_item gst = shop_game_instance::load_shop_item((*item).id);
+  gst.item = item;
+  auto slot_max = 1;
+  if (item_game_instance::check_item(item->id)) {
+    slot_max = item_game_instance::load_slot_max(item->id);
+  }
+  switch (item->type) {
+  case item_enum::consume:
+  case item_enum::etc: {
+    for (auto &shop : must) {
+      auto itm_id = shop.item->id;
+      if (item->id == itm_id) {
+        auto itm_num = item_game_instance::load_item_num(shop.item);
+        auto num = std::min((int)add_num + itm_num, slot_max);
+        add_item_num(shop.item, num - itm_num);
+        add_num = add_num - (num - itm_num);
+      }
+    }
+    while (add_num > 0) {
+      auto num = std::min((int)add_num, slot_max);
+      auto itm_num = item_game_instance::load_item_num(gst.item);
+      add_item_num(gst.item, (num - itm_num));
+      must.push_back(gst);
+      add_num = add_num - (num);
+    }
+    break;
+  }
+  default: {
+    must.push_back(gst);
+    break;
+  }
+  }
+  return true;
+}
+
+void shop_ui_system::dec_item_num(std::polymorphic<game_item> &item, int num) {
+  switch (item->type) {
+  case item_enum::equip: {
+    item = std::polymorphic<game_item>(game_equip_item{});
+    break;
+  }
+  case item_enum::consume: {
+    auto &consume = static_cast<game_consume_item &>(*item);
+    consume.num = consume.num - num;
+    if (consume.num == 0) {
+      item = std::polymorphic<game_item>(game_consume_item{});
+    }
+    break;
+  }
+  case item_enum::etc: {
+    auto &etc = static_cast<game_etc_item &>(*item);
+    etc.num = etc.num - num;
+    if (etc.num == 0) {
+      item = std::polymorphic<game_item>(game_etc_item{});
+    }
+    break;
+  }
+  case item_enum::install: {
+    item = std::polymorphic<game_item>(game_install_item{});
+    break;
+  }
+  case item_enum::cash: {
+    item = std::polymorphic<game_item>(game_cash_item{});
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return;
 }

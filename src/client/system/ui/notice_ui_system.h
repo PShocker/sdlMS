@@ -30,6 +30,7 @@ public:
     shopbuy,
     shopbuy_sell,
     shopbuy_sell_mul,
+    shopbuy_sell_no_num,
     shopbuy_mul,
     shopbuy_no_meso,
     shopbuy_no_space,
@@ -38,6 +39,7 @@ public:
     equip_no_space,
 
     ap_inc,
+    worldmap_teleport,
   };
 
   static inline notice_enum type;

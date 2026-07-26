@@ -10,10 +10,12 @@ void package_game_instance::load(const character_save &cs) {
     d.clear(); // 先清空
   }
   data[0].assign(96, std::polymorphic<game_item>(game_equip_item{}));
-  data[1].assign(96, std::polymorphic<game_item>(game_consume_item{}));
+  data[1].assign(2, std::polymorphic<game_item>(game_consume_item{}));
   data[2].assign(96, std::polymorphic<game_item>(game_etc_item{}));
   data[3].assign(96, std::polymorphic<game_item>(game_install_item{}));
   data[4].assign(96, std::polymorphic<game_item>(game_cash_item{}));
+
+  // meso = 0;
 
   for (auto &pkg : cs.package) {
     auto type = (int)pkg.val->type;

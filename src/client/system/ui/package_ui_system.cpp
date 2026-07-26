@@ -77,60 +77,6 @@ package_ui_system::load_b_index(std::polymorphic<game_item> &item) {
   }
 }
 
-void package_ui_system::add_item_slot(std::polymorphic<game_item> &item,
-                                      int i) {
-  auto num = item_game_instance::load_item_num(item);
-  auto &p = package_game_instance::data[(int)item->type];
-  auto slot_max = item_game_instance::load_slot_max(item->id);
-  auto &itm = p.at(i);
-  itm->id = item->id;
-  auto itm_num = item_game_instance::load_item_num(itm);
-  switch (item->type) {
-  case item_enum::consume: {
-    auto &consume = static_cast<game_consume_item &>(*itm);
-    consume.num = itm_num + num;
-    consume.num = std::min((int)consume.num, slot_max);
-    auto dn = consume.num - itm_num;
-    static_cast<game_consume_item &>(*item).num = num - dn;
-    break;
-  }
-  case item_enum::etc: {
-    auto &etc = static_cast<game_etc_item &>(*itm);
-    etc.num = itm_num + num;
-    etc.num = std::min((int)etc.num, slot_max);
-    auto dn = etc.num - itm_num;
-    static_cast<game_etc_item &>(*item).num = num - dn;
-    break;
-  }
-  default: {
-    break;
-  }
-  }
-  return;
-}
-
-bool package_ui_system::add_item(std::polymorphic<game_item> &item) {
-  auto b = load_b_index(item);
-  if (b.empty()) {
-    return false;
-  }
-  auto &p = package_game_instance::data[(int)item->type];
-  switch (item->type) {
-  case item_enum::consume:
-  case item_enum::etc: {
-    for (auto i : b) {
-      add_item_slot(item, i);
-    }
-    break;
-  }
-  default: {
-    p[b[0]] = (item);
-    break;
-  }
-  }
-  return true;
-}
-
 std::optional<uint32_t> package_ui_system::load_mouse_index() {
   auto cursor_in = cursor_game_instance::cursor_ui;
   if (cursor_in != render) {

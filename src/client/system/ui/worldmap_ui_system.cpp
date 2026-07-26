@@ -243,6 +243,27 @@ void worldmap_ui_system::close() {
 
 void worldmap_ui_system::event_close() { close(); }
 
+bool worldmap_ui_system::event_button(SDL_Event *event) {
+  auto [w, h] = load_wh();
+  std::vector<SDL_FRect> buttons_rect = {
+      {w - 18, 6, 12, 12}, //
+  };
+  const static std::array buttons_func = {
+      event_close,
+  };
+
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      buttons_func[i]();
+      return true;
+    }
+  }
+  return false;
+}
+
 bool worldmap_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -272,6 +293,7 @@ bool worldmap_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
+      r = !event_button(event);
       event_drag_end();
     }
     break;
