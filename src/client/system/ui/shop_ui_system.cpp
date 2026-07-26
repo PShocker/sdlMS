@@ -261,7 +261,7 @@ void shop_ui_system::render_active_item() {
   if (active_item[0].has_value()) {
     auto x = (int)pos.x + 45;
     auto index = (active_item[0].value() - pages[0]);
-    if (index < 6) {
+    if (index >= 0 && index < 6) {
       auto y = (int)pos.y + 129 + index * 40;
       SDL_FRect pos_rect;
       pos_rect.x = x;
@@ -274,7 +274,7 @@ void shop_ui_system::render_active_item() {
   if (active_item[1].has_value()) {
     auto x = (int)pos.x + 275;
     auto index = (active_item[1].value() - pages[1]);
-    if (index < 6) {
+    if (index >= 0 && index < 6) {
       auto y = (int)pos.y + 129 + index * 40;
       SDL_FRect pos_rect;
       pos_rect.x = x;

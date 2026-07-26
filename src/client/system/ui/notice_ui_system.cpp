@@ -382,7 +382,7 @@ void notice_ui_system::event_button_shopbuy_sell() {
   shop_ui_system::add_must_item(gst.item);
   shop_ui_system::active_tab[0] = 1;
   shop_ui_system::active_item = {};
-  shop_ui_system::active_item = {};
+  shop_ui_system::pages = {};
   close();
 }
 
