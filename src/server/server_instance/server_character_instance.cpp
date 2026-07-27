@@ -419,7 +419,9 @@ void server_character_instance::handle_ski(
         .z = false,
     };
     e.data = &g_character;
-    g_character.effect.push_back(e);
+    auto &eff = g_character.effect;
+    std::erase_if(eff, [&](const auto &ef) { return ef.id == e.id; });
+    eff.push_back(e);
   } else {
     game_effect e = {
         .id = ski_id3,

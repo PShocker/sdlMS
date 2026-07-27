@@ -157,12 +157,19 @@ static void mfkaijia() {
   };
 
   g_skill.effect = [](SDL_FPoint p, game_effect e, bool f) {
+    const int duration = 300;
     auto start = e.delay;
-    float scale = 2.0;
-    auto g_character = std::any_cast<game_character *>(e.data);
-    auto character = *g_character;
-    character.scale=scale;
-    character_render_system::render_character(character);
+    auto dt = window::dt_now - start;
+    if (dt <= duration) {
+      float scale = 1 + 1.2 * (float)dt / duration;
+      auto g_character = std::any_cast<game_character *>(e.data);
+      auto character = *g_character;
+      character.scale = scale;
+      character.color.a = 192 * (1 - (float)dt / duration);
+      character_render_system::render_character(character);
+      return true;
+    }
+    return false;
   };
 
   g_skill.use = [g_skill](int ski_lv) mutable {

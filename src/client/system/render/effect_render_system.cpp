@@ -115,8 +115,8 @@ void effect_render_system::render_damage(SDL_FPoint pos,
   }
 }
 
-void effect_render_system::render_skill_use(SDL_FPoint pos,
-                                            game_effect &g_effect, bool flip) {
+void effect_render_system::render_ski_use(SDL_FPoint pos, game_effect &g_effect,
+                                          bool flip) {
   auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
   if (!ski_node->get_child(u"effect")) {
     return;
@@ -145,8 +145,8 @@ void effect_render_system::render_skill_use(SDL_FPoint pos,
   }
 }
 
-void effect_render_system::render_skill_hit(SDL_FPoint pos,
-                                            game_effect &g_effect, bool flip) {
+void effect_render_system::render_ski_hit(SDL_FPoint pos, game_effect &g_effect,
+                                          bool flip) {
   auto now = window::dt_time;
   if (g_effect.delay >= now) {
     return;
@@ -186,16 +186,18 @@ void effect_render_system::render_skill_hit(SDL_FPoint pos,
   }
 }
 
-void effect_render_system::render_custom(SDL_FPoint pos, game_effect &g_effect,
+bool effect_render_system::render_custom(SDL_FPoint pos, game_effect &g_effect,
                                          bool flip) {
   auto skis = skill_game_instance::skis();
   if (skis.contains(g_effect.id)) {
-    skis.at(g_effect.id).effect(pos, g_effect, flip);
+    return skis.at(g_effect.id).effect(pos, g_effect, flip);
   }
+  return false;
 }
 
 bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
                                   bool flip) {
+  bool r = true;
   switch (g_effect.type) {
   case game_effect::effect_type::afterimage: {
     render_afterimage(pos, g_effect);
@@ -206,15 +208,15 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
     break;
   }
   case game_effect::effect_type::skill_use: {
-    render_skill_use(pos, g_effect, flip);
+    render_ski_use(pos, g_effect, flip);
     break;
   }
   case game_effect::effect_type::skill_hit: {
-    render_skill_hit(pos, g_effect, flip);
+    render_ski_hit(pos, g_effect, flip);
     break;
   }
   case game_effect::effect_type::custom: {
-    render_custom(pos, g_effect, flip);
+    r = render_custom(pos, g_effect, flip);
     break;
   }
   default: {
@@ -222,7 +224,7 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
   }
   }
 
-  return true;
+  return r;
 }
 
 bool effect_render_system::render_mob_back(game_mob &g_mob) {
@@ -236,11 +238,17 @@ bool effect_render_system::render_mob_back(game_mob &g_mob) {
 }
 
 bool effect_render_system::render_character_back(game_character *g_character) {
-  auto &v = g_character->effect;
-  for (auto &e : v) {
+  auto &effect = g_character->effect;
+  for (auto it = effect.begin(); it != effect.end();) {
+    auto &e = *it;
     if (e.z.has_value() && !e.z.value()) {
-      render(g_character->pos, e, g_character->flip);
+      auto r = render(g_character->pos, e, g_character->flip);
+      if (r == false) {
+        it = effect.erase(it); // erase返回下一个迭代器
+        continue;
+      }
     }
+    ++it; // 只有不删除时才前进
   }
   return true;
 }
