@@ -31,6 +31,7 @@ table Character{
     face:Face;
 
     equips:[Equip];
+    decos:[Deco];
 
     states:[State];
 }
@@ -144,6 +145,10 @@ table EquipScroll{
 table Equip{
     equip_id:uint32;
     scroll:[EquipScroll];
+}
+
+table Deco{
+    deco_id:uint32;
 }
 
 table Item{

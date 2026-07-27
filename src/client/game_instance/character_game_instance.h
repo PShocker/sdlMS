@@ -89,6 +89,17 @@ public:
   static void add_glove(game_character &g, const std::u16string &val);
   static void add_longcoat(game_character &g, const std::u16string &val);
 
+  static void add_coat_deco(game_character &g, const std::u16string &val);
+  static void add_cap_deco(game_character &g, const std::u16string &val);
+  static void add_pants_deco(game_character &g, const std::u16string &val);
+  static void add_shoes_deco(game_character &g, const std::u16string &val);
+  static void add_shield_deco(game_character &g, const std::u16string &val);
+  static void add_cape_deco(game_character &g, const std::u16string &val);
+  static void add_accessory_deco(game_character &g, const std::u16string &val);
+  static void add_glove_deco(game_character &g, const std::u16string &val);
+  static void add_longcoat_deco(game_character &g, const std::u16string &val);
+  static void add_weapon_deco(game_character &g, const std::u16string &val);
+
   static inline std::flat_map<uint64_t, character_other_data> others;
 
   static inline std::flat_map<std::u16string,

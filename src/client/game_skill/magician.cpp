@@ -1,6 +1,8 @@
 
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_ball.h"
+#include "src/client/game/game_character.h"
+#include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
@@ -11,6 +13,8 @@
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/render/character_render_system.h"
+#include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
@@ -138,8 +142,49 @@ static void mfsj() {
   skis[g_skill.id] = g_skill;
 }
 
+static void mfkaijia() {
+  game_skill g_skill;
+  g_skill.id = u"2001001";
+
+  g_skill.end = []() {
+    auto &ski = skill_game_instance::ski;
+    auto it = std::ranges::find_if(
+        ski, [](const game_skill &s) { return s.id == u"2001001"; });
+    if (it != ski.end()) {
+      ski.erase(it);
+    }
+  };
+
+  g_skill.effect = [](SDL_FPoint p, game_effect e, bool f) {
+    auto start = e.delay;
+    SDL_SetRenderScale(window::renderer, 2.0, 2.0);
+    auto g_character = std::any_cast<game_character>(e.data);
+    character_render_system::render_character(g_character);
+    SDL_SetRenderScale(window::renderer, 1.0, 1.0);
+  };
+
+  g_skill.use = [g_skill](int ski_lv) mutable {
+    auto &self = character_game_instance::self;
+    auto &ski = skill_game_instance::ski;
+
+    g_skill.end();
+    g_skill.lv = ski_lv;
+    ski.push_back(g_skill);
+
+    character_logic_system::run_action(self, u"alert2");
+    ClientCharacterAttackT cat;
+    auto ckt = skill_game_instance::create_skill_payload(cat, 2001001, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
+                                          self);
+    client_request::send_to_host(ckt);
+  };
+  auto &skis = skill_game_instance::skis();
+  skis[g_skill.id] = g_skill;
+}
+
 [[maybe_unused]] static const bool r = [] {
   mfdan();
   mfsj();
+  mfkaijia();
   return true;
 }();

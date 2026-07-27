@@ -30,37 +30,68 @@ bool character_render_system::render_character(game_character &g_character) {
   render_parts.emplace(head.islot, &head);
   render_parts.emplace(body.islot, &body);
   render_parts.emplace(hair.islot, &hair);
-  if (g_character.coat.has_value()) {
+  if (g_character.coat_deco.has_value()) {
+    const auto &coat =
+        character_game_instance::avatar_data.at(g_character.coat_deco->id);
+    render_parts.emplace(coat.islot, &coat);
+  } else if (g_character.coat.has_value()) {
     const auto &coat =
         character_game_instance::avatar_data.at(g_character.coat->id);
     render_parts.emplace(coat.islot, &coat);
   }
-  if (g_character.cap.has_value()) {
+
+  if (g_character.cap_deco.has_value()) {
+    const auto &cap =
+        character_game_instance::avatar_data.at(g_character.cap_deco->id);
+    render_parts.emplace(cap.islot, &cap);
+  } else if (g_character.cap.has_value()) {
     const auto &cap =
         character_game_instance::avatar_data.at(g_character.cap->id);
     render_parts.emplace(cap.islot, &cap);
   }
-  if (g_character.weapon.has_value()) {
+
+  if (g_character.weapon_deco.has_value()) {
+    std::u16string sub = g_character.weapon->id.substr(1, 2);
+    std::u16string deco_val = g_character.weapon_deco->id + u"/" + sub;
+    const auto &weapon = character_game_instance::avatar_data.at(deco_val);
+    render_parts.emplace(weapon.islot, &weapon);
+  } else if (g_character.weapon.has_value()) {
     const auto &weapon =
         character_game_instance::avatar_data.at(g_character.weapon->id);
     render_parts.emplace(weapon.islot, &weapon);
   }
-  if (g_character.shield.has_value()) {
+  if (g_character.shield_deco.has_value()) {
+    const auto &shield =
+        character_game_instance::avatar_data.at(g_character.shield_deco->id);
+    render_parts.emplace(shield.islot, &shield);
+  } else if (g_character.shield.has_value()) {
     const auto &shield =
         character_game_instance::avatar_data.at(g_character.shield->id);
     render_parts.emplace(shield.islot, &shield);
   }
-  if (g_character.pant.has_value()) {
+  if (g_character.pant_deco.has_value()) {
+    const auto &pant =
+        character_game_instance::avatar_data.at(g_character.pant_deco->id);
+    render_parts.emplace(pant.islot, &pant);
+  } else if (g_character.pant.has_value()) {
     const auto &pant =
         character_game_instance::avatar_data.at(g_character.pant->id);
     render_parts.emplace(pant.islot, &pant);
   }
-  if (g_character.glove.has_value()) {
+  if (g_character.glove_deco.has_value()) {
+    const auto &glove =
+        character_game_instance::avatar_data.at(g_character.glove_deco->id);
+    render_parts.emplace(glove.islot, &glove);
+  } else if (g_character.glove.has_value()) {
     const auto &glove =
         character_game_instance::avatar_data.at(g_character.glove->id);
     render_parts.emplace(glove.islot, &glove);
   }
-  if (g_character.shoes.has_value()) {
+  if (g_character.shoes_deco.has_value()) {
+    const auto &shoes =
+        character_game_instance::avatar_data.at(g_character.shoes_deco->id);
+    render_parts.emplace(shoes.islot, &shoes);
+  } else if (g_character.shoes.has_value()) {
     const auto &shoes =
         character_game_instance::avatar_data.at(g_character.shoes->id);
     render_parts.emplace(shoes.islot, &shoes);

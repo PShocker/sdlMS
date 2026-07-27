@@ -7,8 +7,8 @@
 #include <optional>
 class package_game_instance {
 public:
-  // enum class package_enum { equip, consume, etc, install, cash };
-  static inline std::array<std::vector<std::polymorphic<game_item>>, 5> data;
+  // enum class package_enum { equip, consume, etc, install, cash ,deco};
+  static inline std::array<std::vector<std::polymorphic<game_item>>, 6> data;
 
   static inline uint64_t meso = UINT64_MAX;
 

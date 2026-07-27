@@ -8,7 +8,7 @@ class effect_render_system {
 private:
   static void render_afterimage(SDL_FPoint pos, game_effect &g_effect);
   static void render_damage(SDL_FPoint pos, game_effect &g_effect);
-  static void render_custom(SDL_FPoint pos, game_effect &g_effect);
+  static void render_custom(SDL_FPoint pos, game_effect &g_effect, bool flip);
   static void render_skill_use(SDL_FPoint pos, game_effect &g_effect,
                                bool flip);
   static void render_skill_hit(SDL_FPoint pos, game_effect &g_effect,

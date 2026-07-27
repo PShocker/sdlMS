@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-enum class item_enum { equip, consume, etc, install, cash };
+enum class item_enum { equip, consume, etc, install, cash, deco };
 
 class game_item {
 public:
@@ -41,4 +41,9 @@ public:
 class game_cash_item : public game_item {
 public:
   game_cash_item() { type = item_enum::cash; }
+};
+
+class game_deco_item : public game_item {
+public:
+  game_deco_item() { type = item_enum::deco; }
 };

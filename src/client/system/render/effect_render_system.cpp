@@ -186,6 +186,14 @@ void effect_render_system::render_skill_hit(SDL_FPoint pos,
   }
 }
 
+void effect_render_system::render_custom(SDL_FPoint pos, game_effect &g_effect,
+                                         bool flip) {
+  auto skis = skill_game_instance::skis();
+  if (skis.contains(g_effect.id)) {
+    skis.at(g_effect.id).effect(pos, g_effect, flip);
+  }
+}
+
 bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
                                   bool flip) {
   switch (g_effect.type) {
@@ -206,6 +214,7 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
     break;
   }
   case game_effect::effect_type::custom: {
+    render_custom(pos, g_effect, flip);
     break;
   }
   default: {

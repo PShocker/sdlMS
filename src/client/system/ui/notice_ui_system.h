@@ -18,6 +18,8 @@ private:
   static void event_button_shopbuy_must();
   static void event_button_shopbuy_sell();
 
+  static void event_button_worldmap_teleport();
+
   static void event_button_ap_inc();
 
   static bool event_button(SDL_Event *event);
@@ -39,6 +41,7 @@ public:
     equip_no_space,
 
     ap_inc,
+    worldmap_disable,
     worldmap_teleport,
   };
 

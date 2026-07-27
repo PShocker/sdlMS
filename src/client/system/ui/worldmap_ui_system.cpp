@@ -2,6 +2,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "minimap_ui_system.h"
+#include "notice_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -64,12 +65,15 @@ void worldmap_ui_system::render_backgrnd() {
 
 static const SDL_FPoint map_offset = {6, 30};
 
+static uint32_t spot_info_id;
+
 void worldmap_ui_system::render_spot() {
   struct worldmap_spot {
     SDL_FPoint pos;
     uint8_t type;
     std::flat_set<uint32_t> map_id;
   };
+  spot_info_id = 0;
   static std::flat_map<std::u16string, std::vector<worldmap_spot>> spot_cache;
   if (!spot_cache.contains(path)) {
     auto spot_node = wz_resource::map->find(u"WorldMap/" + path + u"/MapList");
@@ -101,7 +105,6 @@ void worldmap_ui_system::render_spot() {
   auto map_oy = (wh.y - 44) / 2;
 
   auto &mouse_pos = window::mouse_pos;
-  uint32_t spot_info_id = 0;
   std::optional<SDL_FPoint> spot_point;
   for (auto &spot : spots) {
     auto texture = map_img_array[spot.type];
@@ -120,13 +123,17 @@ void worldmap_ui_system::render_spot() {
       spot_info_id = *spot.map_id.begin();
     }
     if (spot.map_id.contains(scene_system_instance::map_id)) {
-      spot_point = SDL_FPoint{pos_rect.x + 5 + texture->w / 2, pos_rect.y + 5};
+      spot_point = {
+          pos_rect.x + 5 + (float)texture->w / 2,
+          pos_rect.y + 5,
+      };
     }
   }
   if (spot_point.has_value()) {
     render_cur_pos(spot_point.value());
   }
-  if (spot_info_id != 0) {
+  if (cursor_game_instance::modal_overlay == nullptr &&
+      cursor_game_instance::cursor_ui == render && spot_info_id != 0) {
     render_spot_info(spot_info_id, mouse_pos.x, mouse_pos.y);
   }
 }
@@ -220,6 +227,9 @@ void worldmap_ui_system::open() {
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
     if (minimap_ui_system::disable) {
+      notice_ui_system::type = notice_ui_system::notice_enum::worldmap_disable;
+      notice_ui_system::close();
+      notice_ui_system::open();
       return;
     }
     worldmap_ui_system::path = u"WorldMap000.img";
@@ -242,6 +252,15 @@ void worldmap_ui_system::close() {
 }
 
 void worldmap_ui_system::event_close() { close(); }
+
+void worldmap_ui_system::event_click_spot() {
+  if (spot_info_id != 0) {
+    notice_ui_system::type = notice_ui_system::notice_enum::worldmap_teleport;
+    notice_ui_system::data = spot_info_id;
+    notice_ui_system::close();
+    notice_ui_system::open();
+  }
+}
 
 bool worldmap_ui_system::event_button(SDL_Event *event) {
   auto [w, h] = load_wh();
@@ -295,6 +314,7 @@ bool worldmap_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       r = !event_button(event);
       event_drag_end();
+      event_click_spot();
     }
     break;
   }

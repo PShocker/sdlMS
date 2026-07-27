@@ -9,6 +9,7 @@
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/window/window.h"
@@ -405,17 +406,33 @@ void server_character_instance::handle_ski(
   }
 
   g_character.skill = ski_id3;
+  auto skis = skill_game_instance::skis();
 
-  game_effect e = {
-      .id = ski_id3,
-      .index = 0,
-      .time = 0,
-      .delay = 0,
-      .type = game_effect::effect_type::skill_use,
-      .pos = std::nullopt,
-      .z = false,
-  };
-  g_character.effect.push_back(e);
+  if (skis.at(ski_id3).effect) {
+    game_effect e = {
+        .id = ski_id3,
+        .index = 0,
+        .time = 0,
+        .delay = window::dt_now,
+        .type = game_effect::effect_type::custom,
+        .pos = std::nullopt,
+        .z = false,
+    };
+    e.data = g_character;
+    g_character.effect.push_back(e);
+  } else {
+    game_effect e = {
+        .id = ski_id3,
+        .index = 0,
+        .time = 0,
+        .delay = 0,
+        .type = game_effect::effect_type::skill_use,
+        .pos = std::nullopt,
+        .z = false,
+    };
+    g_character.effect.push_back(e);
+  }
+
   audio_game_instance::load_audio(u"Skill.img/" + ski_id3 + u"/Use", 0);
 
   auto &mob = mob_game_instance::data;
@@ -469,6 +486,12 @@ game_character server_character_instance::load_g_character(
     game_equip_item e;
     e.id = {tmp.begin(), tmp.end()};
     equip_game_instance::add_equip(e, g_character, 0);
+  }
+  for (auto &deco : c->decos) {
+    tmp = std::format("{:08d}", deco->deco_id);
+    game_deco_item e;
+    e.id = {tmp.begin(), tmp.end()};
+    equip_game_instance::add_equip_deco(e, g_character, 0);
   }
   return g_character;
 }
@@ -549,6 +572,67 @@ CharacterT server_character_instance::load_charactert(const game_character &g) {
       std::stoi(std::string{g.face.id.begin(), g.face.id.end()});
 
   c.appearance->ear = std::string{g.ear.begin(), g.ear.end()};
+
+  if (g.coat_deco.has_value()) {
+    auto id = g.coat_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.cap_deco.has_value()) {
+    auto id = g.cap_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.pant_deco.has_value()) {
+    auto id = g.pant_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.shoes_deco.has_value()) {
+    auto id = g.shoes_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.shield_deco.has_value()) {
+    auto id = g.shield_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.cape_deco.has_value()) {
+    auto id = g.cape_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.accessory_deco.has_value()) {
+    auto id = g.accessory_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.glove_deco.has_value()) {
+    auto id = g.glove_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.longcoat_deco.has_value()) {
+    auto id = g.longcoat_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.weapon_deco.has_value()) {
+    auto id = g.weapon_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
 
   c.state->action = std::string{g.action.begin(), g.action.end()};
   c.state->x = g.pos.x;

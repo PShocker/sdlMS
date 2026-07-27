@@ -23,6 +23,25 @@ public:
     CLAW = 7,
     GUN = 9,
   };
+  enum class weapon_enum : int {
+    NONE = 0,
+    SWORD_1H = 30,
+    AXE_1H = 31,
+    MACE_1H = 32,
+    DAGGER = 33,
+    WAND = 37,
+    STAFF = 38,
+    SWORD_2H = 40,
+    AXE_2H = 41,
+    MACE_2H = 42,
+    SPEAR = 43,
+    POLEARM = 44,
+    BOW = 45,
+    CROSSBOW = 46,
+    CLAW = 47,
+    KNUCKLE = 48,
+    GUN = 49,
+  };
   enum class inc_type : uint8_t {
     WEAPON_SPEED,
     WEAPON_PAD,
@@ -56,6 +75,12 @@ public:
                         int slot);
   static bool add_equip_limit(game_equip_item &equip, game_character &character,
                               int slot);
+
+  static void add_equip_deco(game_deco_item &deco, game_character &character,
+                             int slot);
+  static bool add_equip_deco_limit(game_deco_item &deco,
+                                   game_character &character, int slot);
+
   static std::vector<game_equip_item>
   load_equip_slot(game_equip_item &equip, game_character &character);
   static std::flat_map<inc_type, int> load_equip_inc(const std::u16string &id);

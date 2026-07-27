@@ -268,6 +268,54 @@ bool equip_game_instance::add_equip_limit(game_equip_item &equip,
   return true;
 }
 
+void equip_game_instance::add_equip_deco(game_deco_item &deco,
+                                         game_character &character, int slot) {
+  if (add_equip_deco_limit(deco, character, slot)) {
+    auto type = load_equip_type(deco.id);
+    if (type == u"Accessory") {
+      character_game_instance::add_accessory_deco(character, deco.id);
+    } else if (type == u"Cap") {
+      character_game_instance::add_cap_deco(character, deco.id);
+    } else if (type == u"Cape") {
+      character_game_instance::add_cape_deco(character, deco.id);
+    } else if (type == u"Coat") {
+      character_game_instance::add_coat_deco(character, deco.id);
+    } else if (type == u"Glove") {
+      character_game_instance::add_glove_deco(character, deco.id);
+    } else if (type == u"Longcoat") {
+      character_game_instance::add_longcoat_deco(character, deco.id);
+    } else if (type == u"Pants") {
+      character_game_instance::add_pants_deco(character, deco.id);
+    } else if (type == u"Ring") {
+      if (slot == -1) {
+
+      } else {
+      }
+    } else if (type == u"Shield") {
+      character_game_instance::add_shield_deco(character, deco.id);
+    } else if (type == u"Shoes") {
+      character_game_instance::add_shoes_deco(character, deco.id);
+    } else if (type == u"Weapon") {
+      character_game_instance::add_weapon_deco(character, deco.id);
+    }
+  }
+}
+
+bool equip_game_instance::add_equip_deco_limit(game_deco_item &deco,
+                                               game_character &character,
+                                               int slot) {
+  auto type = load_equip_type(deco.id);
+  if (type == u"Weapon") {
+    if (!character.weapon.has_value()) {
+      return false;
+    }
+    auto equip_info = load_equip_info(deco.id);
+    std::u16string sub = character.weapon->id.substr(1, 2);
+    return equip_info->get_child(sub);
+  }
+  return true;
+}
+
 std::vector<game_equip_item>
 equip_game_instance::load_equip_slot(game_equip_item &equip,
                                      game_character &character) {

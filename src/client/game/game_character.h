@@ -16,7 +16,6 @@
 #include <string>
 #include <vector>
 
-
 class game_character {
 public:
   uint8_t page;
@@ -53,6 +52,24 @@ public:
   std::optional<game_equip_item> shoes;
 
   std::optional<game_equip_item> accessory;
+
+  std::optional<game_deco_item> weapon_deco;
+  std::optional<game_deco_item> cap_deco;
+  std::optional<game_deco_item> cape_deco;
+  std::optional<game_deco_item> coat_deco;
+  std::optional<game_deco_item> glove_deco;
+  std::optional<game_deco_item> pant_deco;
+
+  std::optional<game_deco_item> ring0_deco;
+  std::optional<game_deco_item> ring1_deco;
+  std::optional<game_deco_item> ring2_deco;
+  std::optional<game_deco_item> ring3_deco;
+
+  std::optional<game_deco_item> shield_deco;
+  std::optional<game_deco_item> longcoat_deco;
+  std::optional<game_deco_item> shoes_deco;
+
+  std::optional<game_deco_item> accessory_deco;
 
   std::vector<game_nametag> nametags;
 

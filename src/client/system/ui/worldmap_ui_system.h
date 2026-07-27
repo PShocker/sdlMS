@@ -24,6 +24,7 @@ private:
   static void event_drag_end();
   static void event_drag_move(SDL_Event *event);
 
+  static void event_click_spot();
   static bool event_button(SDL_Event *event);
 
   static inline std::optional<SDL_FPoint> drag;

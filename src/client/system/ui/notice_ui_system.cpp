@@ -12,6 +12,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/shop_ui_system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -19,6 +20,7 @@
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <algorithm>
+#include <cstdint>
 #include <string>
 #include <utility>
 #include <vector>
@@ -26,6 +28,8 @@
 void notice_ui_system::render_backgrnd() {
   wz::Node *node;
   switch (type) {
+  case notice_enum::worldmap_disable:
+  case notice_enum::worldmap_teleport:
   case notice_enum::equip_no_ability:
   case notice_enum::equip_no_space:
   case notice_enum::shopbuy_no_meso:
@@ -76,6 +80,8 @@ void notice_ui_system::render_button() {
   std::vector<SDL_FRect> buttons_rect = {};
   auto [w, h] = load_wh();
   switch (type) {
+  case notice_enum::worldmap_disable:
+  case notice_enum::worldmap_teleport:
   case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy_sell_mul:
@@ -173,6 +179,18 @@ void notice_ui_system::render_text() {
   case notice_enum::ap_inc: {
     break;
   }
+  case notice_enum::worldmap_disable: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/sellNoNum");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::worldmap_teleport: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/sellNoNum");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
   default: {
     break;
   }
@@ -261,6 +279,8 @@ void notice_ui_system::close() {
 
 SDL_FPoint notice_ui_system::load_wh() {
   switch (type) {
+  case notice_enum::worldmap_disable:
+  case notice_enum::worldmap_teleport:
   case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy_sell_no_num:
   case notice_enum::shopbuy:
@@ -388,6 +408,12 @@ void notice_ui_system::event_button_shopbuy_sell() {
 
 void notice_ui_system::event_button_ap_inc() {}
 
+void notice_ui_system::event_button_worldmap_teleport() {
+  auto p = std::any_cast<uint32_t>(notice_ui_system::data);
+  scene_system_instance::enter_prepare(p, u"sp", 0);
+  close();
+}
+
 bool notice_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
@@ -406,11 +432,16 @@ bool notice_ui_system::event_button(SDL_Event *event) {
     func = {event_button_shopbuy_sell, close};
     break;
   }
+  case notice_enum::worldmap_teleport: {
+    func = {event_button_worldmap_teleport, close};
+    break;
+  }
   case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy_sell_mul: {
     func = {event_button_shopbuy_sell, close};
     break;
   }
+  case notice_enum::worldmap_disable:
   case notice_enum::shopbuy_sell_no_num:
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
@@ -467,6 +498,7 @@ bool notice_ui_system::event(SDL_Event *event) {
       case notice_enum::shopbuy_no_space:
       case notice_enum::equip_no_ability:
       case notice_enum::equip_no_space:
+      case notice_enum::worldmap_disable:
         close();
         break;
       case notice_enum::shopbuy_sell:
@@ -475,6 +507,10 @@ bool notice_ui_system::event(SDL_Event *event) {
         break;
       }
       case notice_enum::ap_inc: {
+        break;
+      }
+      case notice_enum::worldmap_teleport: {
+        event_button_worldmap_teleport();
         break;
       }
       }

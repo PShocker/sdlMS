@@ -87,6 +87,10 @@ struct Equip;
 struct EquipBuilder;
 struct EquipT;
 
+struct Deco;
+struct DecoBuilder;
+struct DecoT;
+
 struct Item;
 struct ItemBuilder;
 struct ItemT;
@@ -646,6 +650,7 @@ struct CharacterT : public ::flatbuffers::NativeTable {
   std::unique_ptr<fbs::CharacterAppearanceT> appearance{};
   std::unique_ptr<fbs::FaceT> face{};
   std::vector<std::unique_ptr<fbs::EquipT>> equips{};
+  std::vector<std::unique_ptr<fbs::DecoT>> decos{};
   std::vector<std::unique_ptr<fbs::StateT>> states{};
   CharacterT() = default;
   CharacterT(const CharacterT &o);
@@ -665,7 +670,8 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_APPEARANCE = 14,
     VT_FACE = 16,
     VT_EQUIPS = 18,
-    VT_STATES = 20
+    VT_DECOS = 20,
+    VT_STATES = 22
   };
   const ::flatbuffers::Vector<uint16_t> *name() const {
     return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
@@ -715,6 +721,12 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>> *mutable_equips() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>> *>(VT_EQUIPS);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>> *decos() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>> *>(VT_DECOS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>> *mutable_decos() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>> *>(VT_DECOS);
+  }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *states() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_STATES);
   }
@@ -739,6 +751,9 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_EQUIPS) &&
            verifier.VerifyVector(equips()) &&
            verifier.VerifyVectorOfTables(equips()) &&
+           VerifyOffset(verifier, VT_DECOS) &&
+           verifier.VerifyVector(decos()) &&
+           verifier.VerifyVectorOfTables(decos()) &&
            VerifyOffset(verifier, VT_STATES) &&
            verifier.VerifyVector(states()) &&
            verifier.VerifyVectorOfTables(states()) &&
@@ -777,6 +792,9 @@ struct CharacterBuilder {
   void add_equips(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>>> equips) {
     fbb_.AddOffset(Character::VT_EQUIPS, equips);
   }
+  void add_decos(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>>> decos) {
+    fbb_.AddOffset(Character::VT_DECOS, decos);
+  }
   void add_states(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states) {
     fbb_.AddOffset(Character::VT_STATES, states);
   }
@@ -801,9 +819,11 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
     ::flatbuffers::Offset<fbs::Face> face = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>>> equips = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>>> decos = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0) {
   CharacterBuilder builder_(_fbb);
   builder_.add_states(states);
+  builder_.add_decos(decos);
   builder_.add_equips(equips);
   builder_.add_face(face);
   builder_.add_appearance(appearance);
@@ -825,10 +845,12 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::Offset<fbs::CharacterAppearance> appearance = 0,
     ::flatbuffers::Offset<fbs::Face> face = 0,
     const std::vector<::flatbuffers::Offset<fbs::Equip>> *equips = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::Deco>> *decos = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   auto job__ = job ? _fbb.CreateString(job) : 0;
   auto equips__ = equips ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>>(*equips) : 0;
+  auto decos__ = decos ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Deco>>(*decos) : 0;
   auto states__ = states ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>>(*states) : 0;
   return fbs::CreateCharacter(
       _fbb,
@@ -840,6 +862,7 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
       appearance,
       face,
       equips__,
+      decos__,
       states__);
 }
 
@@ -2273,6 +2296,62 @@ inline ::flatbuffers::Offset<Equip> CreateEquipDirect(
 }
 
 ::flatbuffers::Offset<Equip> CreateEquip(::flatbuffers::FlatBufferBuilder &_fbb, const EquipT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct DecoT : public ::flatbuffers::NativeTable {
+  typedef Deco TableType;
+  uint32_t deco_id = 0;
+};
+
+struct Deco FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef DecoT NativeTableType;
+  typedef DecoBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DECO_ID = 4
+  };
+  uint32_t deco_id() const {
+    return GetField<uint32_t>(VT_DECO_ID, 0);
+  }
+  bool mutate_deco_id(uint32_t _deco_id = 0) {
+    return SetField<uint32_t>(VT_DECO_ID, _deco_id, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_DECO_ID, 4) &&
+           verifier.EndTable();
+  }
+  DecoT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DecoT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Deco> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DecoT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DecoBuilder {
+  typedef Deco Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_deco_id(uint32_t deco_id) {
+    fbb_.AddElement<uint32_t>(Deco::VT_DECO_ID, deco_id, 0);
+  }
+  explicit DecoBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Deco> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Deco>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Deco> CreateDeco(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t deco_id = 0) {
+  DecoBuilder builder_(_fbb);
+  builder_.add_deco_id(deco_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Deco> CreateDeco(::flatbuffers::FlatBufferBuilder &_fbb, const DecoT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct ItemT : public ::flatbuffers::NativeTable {
   typedef Item TableType;
@@ -3733,6 +3812,8 @@ inline CharacterT::CharacterT(const CharacterT &o)
         face((o.face) ? new fbs::FaceT(*o.face) : nullptr) {
   equips.reserve(o.equips.size());
   for (const auto &equips_ : o.equips) { equips.emplace_back((equips_) ? new fbs::EquipT(*equips_) : nullptr); }
+  decos.reserve(o.decos.size());
+  for (const auto &decos_ : o.decos) { decos.emplace_back((decos_) ? new fbs::DecoT(*decos_) : nullptr); }
   states.reserve(o.states.size());
   for (const auto &states_ : o.states) { states.emplace_back((states_) ? new fbs::StateT(*states_) : nullptr); }
 }
@@ -3746,6 +3827,7 @@ inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(appearance, o.appearance);
   std::swap(face, o.face);
   std::swap(equips, o.equips);
+  std::swap(decos, o.decos);
   std::swap(states, o.states);
   return *this;
 }
@@ -3767,6 +3849,7 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   { auto _e = appearance(); if (_e) { if(_o->appearance) { _e->UnPackTo(_o->appearance.get(), _resolver); } else { _o->appearance = std::unique_ptr<fbs::CharacterAppearanceT>(_e->UnPack(_resolver)); } } else if (_o->appearance) { _o->appearance.reset(); } }
   { auto _e = face(); if (_e) { if(_o->face) { _e->UnPackTo(_o->face.get(), _resolver); } else { _o->face = std::unique_ptr<fbs::FaceT>(_e->UnPack(_resolver)); } } else if (_o->face) { _o->face.reset(); } }
   { auto _e = equips(); if (_e) { _o->equips.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->equips[_i]) { _e->Get(_i)->UnPackTo(_o->equips[_i].get(), _resolver); } else { _o->equips[_i] = std::unique_ptr<fbs::EquipT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->equips.resize(0); } }
+  { auto _e = decos(); if (_e) { _o->decos.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decos[_i]) { _e->Get(_i)->UnPackTo(_o->decos[_i].get(), _resolver); } else { _o->decos[_i] = std::unique_ptr<fbs::DecoT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decos.resize(0); } }
   { auto _e = states(); if (_e) { _o->states.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->states[_i]) { _e->Get(_i)->UnPackTo(_o->states[_i].get(), _resolver); } else { _o->states[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->states.resize(0); } }
 }
 
@@ -3786,6 +3869,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   auto _appearance = _o->appearance ? CreateCharacterAppearance(_fbb, _o->appearance.get(), _rehasher) : 0;
   auto _face = _o->face ? CreateFace(_fbb, _o->face.get(), _rehasher) : 0;
   auto _equips = _o->equips.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>> (_o->equips.size(), [](size_t i, _VectorArgs *__va) { return CreateEquip(*__va->__fbb, __va->__o->equips[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _decos = _o->decos.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Deco>> (_o->decos.size(), [](size_t i, _VectorArgs *__va) { return CreateDeco(*__va->__fbb, __va->__o->decos[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _states = _o->states.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->states.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->states[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateCharacter(
       _fbb,
@@ -3797,6 +3881,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
       _appearance,
       _face,
       _equips,
+      _decos,
       _states);
 }
 
@@ -4360,6 +4445,32 @@ inline ::flatbuffers::Offset<Equip> Equip::Pack(::flatbuffers::FlatBufferBuilder
       _fbb,
       _equip_id,
       _scroll);
+}
+
+inline DecoT *Deco::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<DecoT>(new DecoT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Deco::UnPackTo(DecoT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = deco_id(); _o->deco_id = _e; }
+}
+
+inline ::flatbuffers::Offset<Deco> CreateDeco(::flatbuffers::FlatBufferBuilder &_fbb, const DecoT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Deco::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Deco> Deco::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DecoT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DecoT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _deco_id = _o->deco_id;
+  return fbs::CreateDeco(
+      _fbb,
+      _deco_id);
 }
 
 inline ItemT *Item::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
