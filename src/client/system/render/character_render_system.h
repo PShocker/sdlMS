@@ -1,6 +1,8 @@
 #pragma once
 
+#include "SDL3/SDL_pixels.h"
 #include "src/client/game/game_character.h"
+#include <cstdint>
 class character_render_system {
 private:
   static bool render_afterimage(game_character &g_character);

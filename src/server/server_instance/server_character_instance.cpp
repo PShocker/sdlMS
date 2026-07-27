@@ -418,7 +418,7 @@ void server_character_instance::handle_ski(
         .pos = std::nullopt,
         .z = false,
     };
-    e.data = g_character;
+    e.data = &g_character;
     g_character.effect.push_back(e);
   } else {
     game_effect e = {

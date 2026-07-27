@@ -99,10 +99,10 @@ bool character_render_system::render_character(game_character &g_character) {
   std::u16string action = g_character.action;
   auto action_index = g_character.action_index;
   if (character_game_instance::extern_action.contains(action)) {
-    action =
-        character_game_instance::extern_action[action][action_index].action;
     action_index =
         character_game_instance::extern_action[action][action_index].frame;
+    action =
+        character_game_instance::extern_action[action][action_index].action;
   }
 
   auto face = character_game_instance::face_data.at(g_character.face.id)
@@ -159,33 +159,34 @@ bool character_render_system::render_character(game_character &g_character) {
         // 处理 avatar
         auto texture = avatar->texture;
         auto origin = avatar->origin;
+
+        // 获取缩放倍数
+        float scale = g_character.scale;
+
+        // 应用缩放 - 只有尺寸和相对偏移乘以 scale，位置不变
         SDL_FRect pos_rect = {
-            .x = g_character.pos.x + avatar->pos.x - origin.x,
-            .y = g_character.pos.y + avatar->pos.y - origin.y,
-            .w = static_cast<float>(texture->w),
-            .h = static_cast<float>(texture->h),
+            .x = g_character.pos.x + avatar->pos.x * scale - origin.x * scale,
+            .y = g_character.pos.y + avatar->pos.y * scale - origin.y * scale,
+            .w = static_cast<float>(texture->w * scale),
+            .h = static_cast<float>(texture->h * scale),
         };
+
+        // 翻转处理
         if (g_character.flip == 1) {
-          pos_rect.x = g_character.pos.x - avatar->pos.x;
-          pos_rect.x = (pos_rect.x - (texture->w - origin.x));
+          // 以角色位置为中心进行水平翻转
+          float centerX = g_character.pos.x;
+          // 计算翻转后的位置
+          pos_rect.x = centerX - (pos_rect.x - centerX) - pos_rect.w;
         }
+
         auto &camera = camera_game_instance::camera;
+        // 相机不缩放（因为 pos_rect 的位置没缩放）
         if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
           pos_rect.x -= camera.x;
           pos_rect.y -= camera.y;
-          if (&g_character == &character_game_instance::self) {
-            auto cooldown = character_logic_system::self_invincible_cooldown;
-            if (cooldown >= window::dt_now) {
-              auto delta = cooldown - window::dt_now;
-              bool dark = (delta % 200) > 100;
-              Uint8 color = dark ? 128 : 255;
-              SDL_SetTextureColorMod(texture, color, color, color);
-            } else {
-              SDL_SetTextureColorMod(texture, 255, 255, 255);
-            }
-          } else {
-            SDL_SetTextureColorMod(texture, 255, 255, 255);
-          }
+          SDL_SetTextureColorMod(texture, g_character.color.r,
+                                 g_character.color.g, g_character.color.b);
+          SDL_SetTextureAlphaMod(texture, g_character.color.a);
           SDL_RenderTextureRotated(window::renderer, texture, nullptr,
                                    &pos_rect, 0, nullptr,
                                    (SDL_FlipMode)g_character.flip);

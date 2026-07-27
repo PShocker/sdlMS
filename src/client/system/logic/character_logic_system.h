@@ -46,7 +46,8 @@ private:
   static bool run_portal(game_character &g_character);
   static bool run_face(game_character &g_character);
   static void run_tomb(game_character &g_character);
-  static void run_state_machine(game_character &g_character);
+  static void run_state_machine();
+  static void run_color();
   enum class pos_type {
     land,
     swim,

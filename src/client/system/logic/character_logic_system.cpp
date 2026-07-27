@@ -1016,7 +1016,8 @@ void character_logic_system::run_tomb(game_character &g_character) {
   return;
 }
 
-void character_logic_system::run_state_machine(game_character &g_character) {
+void character_logic_system::run_state_machine() {
+  auto &g_character = character_game_instance::self;
   auto o_character = g_character;
   auto g_action = load_action_type(g_character);
   run_face(g_character);
@@ -1075,7 +1076,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
     if (!run_fall(g_character)) {
       // 刚落地后，瞬间动作不一定是stand，需要再进行一次状态机
       run_stand_action(g_character);
-      run_state_machine(g_character);
+      run_state_machine();
     }
     if (run_attack(g_character)) {
       break;
@@ -1110,7 +1111,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
   }
   case action_enum::sit: {
     if (!run_sitting(g_character)) {
-      run_state_machine(g_character);
+      run_state_machine();
     }
   }
   case action_enum::skill:
@@ -1129,7 +1130,7 @@ void character_logic_system::run_state_machine(game_character &g_character) {
         run_action(g_character, u"jump");
       }
       g_character.skill = std::nullopt;
-      run_state_machine(g_character);
+      run_state_machine();
     }
     break;
   }
@@ -1222,10 +1223,24 @@ void character_logic_system::run_others() {
   run_others_mv();
 }
 
+void character_logic_system::run_color() {
+  auto g_character = &character_game_instance::self;
+  auto cooldown = character_logic_system::self_invincible_cooldown;
+  if (cooldown >= window::dt_now) {
+    auto delta = cooldown - window::dt_now;
+    bool dark = (delta % 200) > 100;
+    Uint8 color = dark ? 128 : 255;
+    g_character->color = {color, color, color, 255};
+  } else {
+    g_character->color = {255, 255, 255, 255};
+  }
+}
+
 // 人物状态机
 bool character_logic_system::run() {
   run_others();
-  run_state_machine(character_game_instance::self);
+  run_state_machine();
+  run_color();
   return true;
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL3/SDL_pixels.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "game_chatballoon.h"
@@ -25,8 +26,9 @@ public:
   int32_t action_time = 0;
   bool action_animate = true;
 
-  uint8_t alpha = 255;
+  SDL_Color color = {255, 255,255, 255};
   uint8_t flip = 0;
+  float scale = 1;
 
   std::u16string body;
   std::u16string head;

@@ -180,13 +180,13 @@ void notice_ui_system::render_text() {
     break;
   }
   case notice_enum::worldmap_disable: {
-    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/sellNoNum");
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/worldMapDis");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
   case notice_enum::worldmap_teleport: {
-    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/sellNoNum");
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/worldMapTel");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
@@ -411,7 +411,6 @@ void notice_ui_system::event_button_ap_inc() {}
 void notice_ui_system::event_button_worldmap_teleport() {
   auto p = std::any_cast<uint32_t>(notice_ui_system::data);
   scene_system_instance::enter_prepare(p, u"sp", 0);
-  close();
 }
 
 bool notice_ui_system::event_button(SDL_Event *event) {

@@ -8,6 +8,7 @@
 #include "src/client/game/game_triangle.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
+#include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
@@ -157,10 +158,11 @@ static void mfkaijia() {
 
   g_skill.effect = [](SDL_FPoint p, game_effect e, bool f) {
     auto start = e.delay;
-    SDL_SetRenderScale(window::renderer, 2.0, 2.0);
-    auto g_character = std::any_cast<game_character>(e.data);
-    character_render_system::render_character(g_character);
-    SDL_SetRenderScale(window::renderer, 1.0, 1.0);
+    float scale = 2.0;
+    auto g_character = std::any_cast<game_character *>(e.data);
+    auto character = *g_character;
+    character.scale=scale;
+    character_render_system::render_character(character);
   };
 
   g_skill.use = [g_skill](int ski_lv) mutable {
