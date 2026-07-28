@@ -571,6 +571,9 @@ bool character_logic_system::run_skill(game_character &g_character,
   if (skis.contains(id)) {
     auto ski_lv = job_skill_game_instance::load_skill_level(id);
     const auto &ski = skis[id];
+    if (!ski.use) {
+      return false;
+    }
     if (ski.cd < window::dt_now) {
       auto action_type = load_action_type(g_character);
       switch (action_type) {
@@ -836,7 +839,6 @@ character_logic_system::load_pos_type(game_character &g_character) {
 void character_logic_system::run_network_sync_state() {
   static int32_t hp;
   static int32_t max_hp;
-  ClientCharacterStateT ccs;
   if (hp != character_stat_game_instance::hp_point) {
     StateT st;
     st.state = StateEnum_HP;
@@ -852,8 +854,10 @@ void character_logic_system::run_network_sync_state() {
     max_hp = character_stat_game_instance::hp_point_max;
   }
   if (!ccs.payload.empty()) {
+    ccs.map_id = scene_system_instance::map_id;
     client_request::send_to_host(ccs);
   }
+  ccs.payload.clear();
 }
 
 void character_logic_system::run_network_sync() {

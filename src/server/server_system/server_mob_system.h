@@ -29,7 +29,7 @@ private:
   static void run_walk(server_mob &mob);
   static void run_state_machine(server_mob &mob);
   static void run_duration(server_mob &mob);
-  static bool run_beat(server_mob &mob);
+  static bool run_hitting(server_mob &mob);
   static void run_hit(server_mob &mob);
   static void run_die(server_mob &mob);
   static void run_send();

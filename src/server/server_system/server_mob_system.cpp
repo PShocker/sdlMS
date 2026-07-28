@@ -280,49 +280,49 @@ void server_mob_system::run_die(server_mob &mob) {
   run_mob_drop(mob);
 }
 
-bool server_mob_system::run_beat(server_mob &mob) {
-  if (mob.beats.empty()) {
+bool server_mob_system::run_hitting(server_mob &mob) {
+  if (mob.hits.empty()) {
     return false;
   }
 
   // 累积所有beats的伤害
   int32_t total_damage = 0;
-  for (auto &b : mob.beats | std::views::values) {
-    total_damage += b.beat_num;
-    b.beat_num = 0; // 清零已处理的伤害
+  for (auto &b : mob.hits | std::views::values) {
+    total_damage += b.hit_num;
+    b.hit_num = 0; // 清零已处理的伤害
   }
   mob.hp -= total_damage;
 
-  auto &l_beat = mob.beats.begin()->second;
-  auto &r_beat = mob.beats.rbegin()->second;
+  auto &l = mob.hits.begin()->second;
+  auto &r = mob.hits.rbegin()->second;
   auto current_time = window::dt_time;
 
-  if (l_beat.beat_start_time > current_time) {
+  if (l.hit_time > current_time) {
     return false;
   }
 
-  if (l_beat.beat_time < 0) {
-    mob.beats.erase(mob.beats.begin());
+  if (l.hit_duration <= 0) {
+    mob.hits.erase(mob.hits.begin());
     return false;
   }
 
   // 执行beat动作
-  l_beat.beat_time -= delta_time;
-  mob.hforce = l_beat.left ? MOVE_FORCE : -MOVE_FORCE;
-  mob.flip = !l_beat.left;
+  l.hit_duration -= delta_time;
+  mob.hforce = l.left ? MOVE_FORCE : -MOVE_FORCE;
+  mob.flip = !l.left;
 
   if (mob.hp > 0) {
-    mob.hate_id = l_beat.beat_id;
+    mob.hate_id = l.hit_id;
     run_hit_action(mob);
-  } else if (r_beat.beat_start_time < current_time) {
+  } else if (r.hit_time < current_time) {
     run_die(mob);
-    mob.beats.clear();
+    mob.hits.clear();
   }
   return true;
 }
 
 void server_mob_system::run_hit(server_mob &mob) {
-  auto r = run_beat(mob);
+  auto r = run_hitting(mob);
   switch (mob.type) {
   case server_mob::mob_type::stand: {
     run_walk(mob);
@@ -352,12 +352,14 @@ void server_mob_system::run_state_machine(server_mob &mob) {
     break;
   }
   case mob_logic_system::action_enum::stand: {
-    run_beat(mob);
+    run_hitting(mob);
+    run_duration(mob);
     break;
   }
   case mob_logic_system::action_enum::move: {
-    run_beat(mob);
+    run_hitting(mob);
     run_walk(mob);
+    run_duration(mob);
     break;
   }
   case mob_logic_system::action_enum::hit: {
@@ -372,7 +374,6 @@ void server_mob_system::run_state_machine(server_mob &mob) {
     break;
   }
   }
-  run_duration(mob);
   run_network_sync(mob, o_mob);
 }
 

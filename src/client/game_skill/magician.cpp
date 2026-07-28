@@ -191,9 +191,21 @@ static void mfkaijia() {
   skis[g_skill.id] = g_skill;
 }
 
+static void molitisheng() {
+  game_skill g_skill;
+  g_skill.id = u"2001001";
+
+  g_skill.passive = [](int ski_lv) {
+
+  };
+  auto &skis = skill_game_instance::skis();
+  skis[g_skill.id] = g_skill;
+}
+
 [[maybe_unused]] static const bool r = [] {
   mfdan();
   mfsj();
   mfkaijia();
+  molitisheng();
   return true;
 }();

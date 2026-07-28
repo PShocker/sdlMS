@@ -7,6 +7,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
@@ -455,9 +456,6 @@ bool skill_ui_system::event_button(SDL_Event *event) {
 }
 
 bool skill_ui_system::event_click_ski(SDL_Event *event) {
-  if (cursor_game_instance::cursor_hand.has_value()) {
-    return false;
-  }
   auto index = load_mouse_ski();
   if (index.has_value()) {
     if (event->button.clicks >= 1) {
@@ -470,11 +468,25 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
       }
       auto val = std::string{id.begin(), id.end()};
       auto sub_val = std::stoi(val);
-      cursor_game_instance::cursor_hand = {
-          .type = cursor_game_instance::skill,
-          .val = active_tab,
-          .sub_val = static_cast<uint32_t>(sub_val),
-      };
+
+      if (cursor_game_instance::cursor_hand.has_value()) {
+        if (cursor_game_instance::cursor_hand->type ==
+            cursor_game_instance::skill) {
+          if (cursor_game_instance::cursor_hand->sub_val == sub_val) {
+            // run_skill
+            auto &c = character_game_instance::self;
+            character_logic_system::run_skill(c, id);
+          }
+        }
+        cursor_game_instance::cursor_hand = std::nullopt;
+        return false;
+      } else {
+        cursor_game_instance::cursor_hand = {
+            .type = cursor_game_instance::skill,
+            .val = active_tab,
+            .sub_val = static_cast<uint32_t>(sub_val),
+        };
+      }
     }
     return true;
   }

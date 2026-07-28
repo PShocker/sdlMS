@@ -18,6 +18,7 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/common/request/client_request.h"
 #include "src/common/response/server_response.h"
+#include "src/server/server/server_mob.h"
 #include <cstdlib>
 #include <flat_set>
 #include <format>
@@ -265,13 +266,13 @@ void server_character_instance::handle_attack(uint64_t client_id,
   auto &mobs = server_scene_instance::scenes.at(map_id).mobs;
   for (const auto &a : r.payload) {
     auto &mob = mobs.at(a->mob_index);
-    mob_beat mbb;
-    mbb.beat_id = client_id;
-    mbb.beat_start_time = a->attack->delay;
-    mbb.left = a->left;
-    mbb.beat_num = a->attack->num;
-    mbb.beat_time = 300;
-    mob.beats.emplace(mbb.beat_start_time, mbb);
+    mob_hit mh;
+    mh.hit_id = client_id;
+    mh.hit_time = a->attack->delay;
+    mh.left = a->left;
+    mh.hit_num = a->attack->num;
+    mh.hit_duration = 100;
+    mob.hits.emplace(mh.hit_time, mh);
   }
   // 转发
   auto clients = server_scene_instance::scenes.at(map_id).clients;

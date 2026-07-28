@@ -4,6 +4,7 @@
 #include <cstdint>
 class character_stat_game_instance {
 public:
+  static void update();
   static void load(const character_save &cs);
 
   static inline int32_t hp_point = INT32_MAX;

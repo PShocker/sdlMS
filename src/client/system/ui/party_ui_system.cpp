@@ -121,7 +121,7 @@ void party_ui_system::render_backgrnd(float x, float y, float w, float h) {
 void party_ui_system::render_party_hp() {
   for (int i = 0; i < party_game_instance::data->clients.size(); i++) {
     const auto &player = party_game_instance::data->clients[i];
-    
+    static auto texture = wz_resource::load_texture(wz_resource::ui->find(u""));
   }
 }
 

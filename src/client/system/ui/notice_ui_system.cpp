@@ -5,6 +5,7 @@
 #include "src/client/game/game_shop.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -180,13 +181,15 @@ void notice_ui_system::render_text() {
     break;
   }
   case notice_enum::worldmap_disable: {
-    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/worldMapDis");
+    auto n =
+        wz_resource::ms->get_root()->find(u"String.img/Notice/worldMapDis");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
   case notice_enum::worldmap_teleport: {
-    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/worldMapTel");
+    auto n =
+        wz_resource::ms->get_root()->find(u"String.img/Notice/worldMapTel");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
@@ -406,7 +409,17 @@ void notice_ui_system::event_button_shopbuy_sell() {
   close();
 }
 
-void notice_ui_system::event_button_ap_inc() {}
+void notice_ui_system::event_button_ap_inc() {
+  auto num = std::stoi(std::string{text.text.begin(), text.text.end()});
+  if (num > character_stat_game_instance::remain_ap) {
+    type = notice_enum::shopbuy_sell_no_num;
+    return;
+  }
+  auto p = std::any_cast<uint32_t *>(notice_ui_system::data);
+  *p = *p + num;
+  character_stat_game_instance::remain_ap -= num;
+  close();
+}
 
 void notice_ui_system::event_button_worldmap_teleport() {
   auto p = std::any_cast<uint32_t>(notice_ui_system::data);

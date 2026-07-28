@@ -22,7 +22,6 @@ private:
   static void render_chat_info();
   static void render_chat_infos();
   static void render_chat_vscr();
-  static void render_popup_tips();
 
   static SDL_FPoint load_wh();
 

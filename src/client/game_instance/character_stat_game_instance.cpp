@@ -15,3 +15,8 @@ void character_stat_game_instance::load(const character_save &cs) {
   exp_point = 50;
   exp_point_max = 100;
 }
+
+void character_stat_game_instance::update() {
+  min_atk = str_point;
+  max_atk = str_point + 1;
+}

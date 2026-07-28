@@ -6,11 +6,14 @@
 #include "src/client/game/game_input.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game/game_triangle.h"
+#include "src/common/flatbuffers/client.h"
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
 #include <string>
 #include <vector>
+
+using namespace fbs;
 
 struct check_mobs {
   struct mobs {
@@ -40,7 +43,6 @@ private:
   static bool run_sitting(game_character &g_character);
 
   static bool run_attack(game_character &g_character);
-  static bool run_skill(game_character &g_character, const std::u16string &id);
 
   static bool run_skill(game_character &g_character);
   static bool run_portal(game_character &g_character);
@@ -62,6 +64,10 @@ private:
   static void run_network_sync_state();
 
 public:
+  static inline ClientCharacterStateT ccs;
+
+  static bool run_skill(game_character &g_character, const std::u16string &id);
+
   static check_mobs run_attack_check(game_character &g_character,
                                      SDL_FRect g_r);
   static check_mobs run_attack_check(game_character &g_character,

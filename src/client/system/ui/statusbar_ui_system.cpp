@@ -583,33 +583,6 @@ void statusbar_ui_system::render_chat_vscr() {
   return;
 }
 
-void statusbar_ui_system::render_popup_tips() {
-  auto &tips = popup_tip_game_instance::data;
-  int i = 0;
-  for (const auto &tip : tips) {
-    switch (tip.type) {
-    case popup_tip_enums::trade: {
-      static auto t = wz_resource::load_texture(
-          wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
-      SDL_FRect pos = {
-
-      };
-      SDL_RenderTexture(window::renderer, t, nullptr, &pos);
-      break;
-    }
-    case popup_tip_enums::party: {
-      static auto t = wz_resource::load_texture(
-          wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
-      SDL_FRect pos = {
-
-      };
-      SDL_RenderTexture(window::renderer, t, nullptr, &pos);
-      break;
-    }
-    }
-    i++;
-  }
-}
 
 bool statusbar_ui_system::render() {
   render_backgrnd();
