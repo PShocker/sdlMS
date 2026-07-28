@@ -2,13 +2,14 @@
 
 #include "src/client/game/game_character.h"
 #include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include <cstdint>
 using namespace fbs;
 
 class server_character_instance {
 private:
-  static void remove_state(StateEnum e, CharacterT &c);
+  static void remove_state(StateT s, CharacterT &c);
   static void load_state(const std::vector<std::unique_ptr<fbs::StateT>> &v,
                          CharacterT &c);
 
@@ -44,6 +45,10 @@ public:
              const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
              game_character &g_character);
   static void handle_server_ski(uint64_t client_id, ServerCharacterSkillT &r);
+
+  static void
+  handle_s_state(game_character &g_character,
+                 const std::vector<std::unique_ptr<fbs::StateT>> &v);
 
   static void handle_state(uint64_t client_id, ClientCharacterStateT &r);
   static void handle_server_state(uint64_t client_id, ServerCharacterStateT &r);

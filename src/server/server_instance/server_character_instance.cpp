@@ -699,7 +699,11 @@ void server_character_instance::handle_server_playert(
   character_other_data cod;
   cod.g_character = g_character;
   cod.player_t = *c;
-  character_game_instance::others.emplace(c->client_id, cod);
+
+  auto it =
+      character_game_instance::others.emplace(c->client_id, std::move(cod));
+  auto &character = it.first->second.g_character;
+  server_character_instance::handle_s_state(character, c->character->states);
 }
 
 void server_character_instance::handle_state(uint64_t client_id,
@@ -718,32 +722,66 @@ void server_character_instance::handle_state(uint64_t client_id,
   }
 }
 
+void server_character_instance::handle_s_state(
+    game_character &g_character,
+    const std::vector<std::unique_ptr<fbs::StateT>> &v) {
+  for (auto &st : v) {
+    switch (st->state) {
+    case StateEnum_BUFF_SKILL:
+    case StateEnum_BUFF_ITEM:
+    case StateEnum_BUFF_ABNORMAL: {
+      auto &skis = skill_game_instance::skis();
+      auto ski_id2 = std::to_string(st->val);
+      auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};
+      if (ski_id3.length() < 7) {
+        ski_id3.insert(0, 7 - ski_id3.length(), u'0');
+      }
+      skis.at(ski_id3).state(&g_character, st->sub_val);
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+  }
+}
+
 void server_character_instance::handle_server_state(uint64_t client_id,
                                                     ServerCharacterStateT &r) {
   if (character_game_instance::others.contains(r.client_id)) {
     auto &c =
         character_game_instance::others.at(r.client_id).player_t.character;
     load_state(r.payload, *c);
+    handle_s_state(character_game_instance::others.at(r.client_id).g_character,
+                   r.payload);
   }
 }
 
-void server_character_instance::remove_state(StateEnum e, CharacterT &c) {
-  std::erase_if(c.states, [&](const auto &st) { return st->state == e; });
+void server_character_instance::remove_state(StateT s, CharacterT &c) {
+  std::erase_if(c.states, [&](const auto &st) {
+    switch (s.state) {
+    case StateEnum_HP:
+    case StateEnum_MAX_HP: {
+      return st->state == s.state;
+      break;
+    }
+    case StateEnum_BUFF_SKILL:
+    case StateEnum_BUFF_ITEM:
+    case StateEnum_BUFF_ABNORMAL: {
+      if (s.sub_val == 0 && s.val == st->val) {
+        return true;
+      }
+      break;
+    }
+    }
+    return false;
+  });
 }
 
 void server_character_instance::load_state(
     const std::vector<std::unique_ptr<fbs::StateT>> &v, CharacterT &c) {
   for (const auto &st : v) {
-    switch (st->state) {
-    case StateEnum_HP:
-    case StateEnum_MAX_HP: {
-      remove_state(st->state, c);
-      c.states.push_back(std::make_unique<StateT>(*st));
-      break;
-    }
-    default: {
-      c.states.push_back(std::make_unique<StateT>(*st));
-    }
-    }
+    remove_state(*st, c);
+    c.states.push_back(std::make_unique<StateT>(*st));
   }
 }

@@ -9,6 +9,7 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
@@ -51,10 +52,10 @@ void skill_buff_ui_system::render_ui(game_skill &sk, float x, float y) {
 
 bool skill_buff_ui_system::render_ui_info() {
   if (!mouse_ski.has_value()) {
-    return false;
+    return true;
   }
   if (cursor_game_instance::cursor_ui != nullptr) {
-    return false;
+    return true;
   }
   auto ski = mouse_ski.value();
   // 宽度固定330
@@ -83,7 +84,7 @@ void skill_buff_ui_system::render_ui() {
   }
 }
 
-void skill_buff_ui_system::render_info() {
+void skill_buff_ui_system::event_motion(SDL_Event *event) {
   auto &sys = system::render_systems;
   auto it = std::ranges::find(sys, &render_ui_info);
   if (it != sys.end()) {
@@ -101,7 +102,6 @@ void skill_buff_ui_system::render_info() {
 bool skill_buff_ui_system::render() {
   mouse_ski = std::nullopt;
   render_ui();
-  render_info();
   return true;
 }
 
@@ -118,6 +118,7 @@ bool skill_buff_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion(event);
     break;
   }
   default: {

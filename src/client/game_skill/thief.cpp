@@ -43,6 +43,22 @@ static void yinshenshu() {
       c->color = {255, 255, 255, 255};
     }
   };
+  g_skill.frame = [g_skill]() {
+    auto &self = character_game_instance::self;
+    self.color = {255, 255, 255, 128};
+    auto type = character_logic_system::load_action_type(self);
+    switch (type) {
+    case character_logic_system::action_enum::attack:
+    case character_logic_system::action_enum::skill: {
+      g_skill.end();
+      break;
+    }
+    default: {
+      character_logic_system::self_invincible_cooldown = window::dt_now + 100;
+      break;
+    }
+    }
+  };
 
   g_skill.use = [g_skill](int ski_lv) mutable {
     skill_game_instance::skis()[u"4001001"].cd = window::dt_now + 1000;

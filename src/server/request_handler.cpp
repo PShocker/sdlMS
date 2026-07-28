@@ -18,6 +18,7 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/protocol.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"

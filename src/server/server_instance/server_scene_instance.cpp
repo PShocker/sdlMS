@@ -26,23 +26,33 @@ void server_scene_instance::clean_client(uint64_t client_id,
       r.client_id = client_id;
       server_response::send_to_client(other, r);
     }
-    server_client_instance::clients.erase(client_id);
   }
 }
 
 void server_scene_instance::save_client(uint64_t client_id,
                                         ClientSceneT client_scene) {
-  auto map_id = client_scene.map_id;
-  server_client client;
+  auto &clients = server_client_instance::clients;
+  auto &scenes = server_scene_instance::scenes;
 
-  client.client_id = client_id;
-  client.map_id = map_id;
-  client.heartbeat = window::dt_now;
-  client.player_t.client_id = client_id;
-  client.player_t.character = std::move(client_scene.character);
+  const auto map_id = client_scene.map_id;
+  const auto now = window::dt_now;
+  auto [it, inserted] = clients.try_emplace(client_id);
+  auto &client = it->second;
 
-  server_client_instance::clients[client_id] = client;
-  server_scene_instance::scenes[map_id].clients.insert(client_id);
+  if (inserted) {
+    client.client_id = client_id;
+    client.map_id = map_id;
+    client.heartbeat = now;
+    client.player_t.client_id = client_id;
+    client.player_t.character = std::move(client_scene.character);
+  } else {
+    client.map_id = map_id;
+    client.heartbeat = now;
+    client.player_t.character->state = std::move(client_scene.character->state);
+  }
+
+  // 将客户端加入场景
+  scenes[map_id].clients.insert(client_id);
 }
 
 void server_scene_instance::send_scene_clients(uint64_t client_id,
@@ -76,11 +86,9 @@ void server_scene_instance::send_scene_clients(uint64_t client_id,
 void server_scene_instance::send_in_scene(uint64_t client_id,
                                           ClientSceneT client_scene) {
   ServerCharacterInT r;
-  PlayerT p;
+  const auto &p = server_client_instance::clients.at(client_id).player_t;
 
-  p.character = std::move(client_scene.character);
-  p.client_id = client_id;
-  r.player = std::make_unique<PlayerT>(std::move(p));
+  r.player = std::make_unique<PlayerT>(p);
 
   auto scene = server_scene_instance::scenes[client_scene.map_id];
   scene.clients.erase(client_id);
@@ -123,8 +131,8 @@ void server_scene_instance::handle_scene(uint64_t client_id,
     clean_client(client_id, client_scene);
   } else {
     init_scene(client_id, client_scene);
+    save_client(client_id, client_scene);
     send_scene_clients(client_id, client_scene);
     send_in_scene(client_id, client_scene);
-    save_client(client_id, client_scene);
   }
 }

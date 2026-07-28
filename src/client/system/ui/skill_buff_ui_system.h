@@ -11,6 +11,7 @@ private:
   static void render_ui();
   static void render_ui(game_skill &sk, float x, float y);
   static void render_info();
+  static void event_motion(SDL_Event *event);
 
 public:
   static bool render_ui_info();

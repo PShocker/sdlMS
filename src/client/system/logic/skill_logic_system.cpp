@@ -16,7 +16,9 @@ bool skill_logic_system::run() {
     fn();
   }
   for (const auto &sk : v) {
-    sk.frame();
+    if (sk.frame) {
+      sk.frame();
+    }
   }
   return true;
 }

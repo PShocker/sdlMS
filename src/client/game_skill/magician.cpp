@@ -193,7 +193,7 @@ static void mfkaijia() {
 
 static void molitisheng() {
   game_skill g_skill;
-  g_skill.id = u"2001001";
+  g_skill.id = u"2001099";
 
   g_skill.passive = [](int ski_lv) {
 
