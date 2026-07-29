@@ -1,4 +1,5 @@
 #include "chat_log_ui_system.h"
+#include "SDL3/SDL_rect.h"
 #include "scroll_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/chat_game_instance.h"
@@ -44,19 +45,33 @@ void chat_log_ui_system::render_chats() {
   }
 }
 
-bool chat_log_ui_system::render() { return true; }
+void chat_log_ui_system::render_backgrnd() {
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
+  SDL_FRect pos_rect;
+  static auto chatbackgrnd1 = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd1"));
+  pos_rect.x = base_x + 6;
+  pos_rect.y = base_y - 75;
+  pos_rect.w = chatbackgrnd1->w;
+  pos_rect.h = 80;
 
-SDL_FPoint chat_log_ui_system::load_wh() { return {286, 146}; }
+  SDL_RenderTexture(window::renderer, chatbackgrnd1, nullptr, &pos_rect);
+}
+
+bool chat_log_ui_system::render() {
+  render_backgrnd();
+  render_chats();
+  render_vscr();
+  return true;
+}
 
 void chat_log_ui_system::open() {
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
-    auto wh = load_wh();
-    auto &camera = camera_game_instance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
-
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
   }
@@ -74,13 +89,6 @@ void chat_log_ui_system::toggle() {
   } else {
     open();
   }
-}
-
-bool chat_log_ui_system::cursor_in() {
-  auto [w, h] = load_wh();
-  auto &mouse = window::mouse_pos;
-  SDL_FRect pos_rect{pos.x, pos.y, w, h};
-  return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
 void chat_log_ui_system::event_click_chat_vscr() {
@@ -107,12 +115,11 @@ void chat_log_ui_system::event_click_chat_vscr() {
 }
 
 bool chat_log_ui_system::event(SDL_Event *event) {
-  bool r = false;
+  bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
-        r = false;
       }
     }
     break;

@@ -111,9 +111,8 @@ static void huibishu() {
 }
 
 static void shuangfeizhan() {
-
   game_skill g_skill;
-  g_skill.id = u"0001000";
+  g_skill.id = u"4001003";
   g_skill.use = [](int ski_lv) {
     game_triangle tri = {
         {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -30}}};

@@ -415,15 +415,6 @@ void statusbar_ui_system::render_chat() {
     freetype::load_aligned(false);
 
     text_input_ui_system::render(chat, 5, 5);
-
-    static auto chatbackgrnd1 = wz_resource::load_texture(
-        wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd1"));
-    pos_rect.x = base_x + 6;
-    pos_rect.y = base_y - 75;
-    pos_rect.w = chatbackgrnd1->w;
-    pos_rect.h = 80;
-
-    SDL_RenderTexture(window::renderer, chatbackgrnd1, nullptr, &pos_rect);
   } else {
     static auto chatBackgrnd = wz_resource::load_texture(
         wz_resource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd2"));
@@ -441,6 +432,9 @@ void statusbar_ui_system::render_back_chat() {
   auto it =
       std::ranges::find(system::render_systems, &chat_log_ui_system::render);
   if (it != system::render_systems.end()) {
+    return;
+  }
+  if (chat_game_instance::chats.empty()) {
     return;
   }
   auto back = chat_game_instance::chats.back();
@@ -533,8 +527,12 @@ void statusbar_ui_system::event_button_keybind() {
 void statusbar_ui_system::event_button_quickslot() { return; }
 
 void statusbar_ui_system::event_button_chatlog() {
-  chat_type = game_chat_enum::map;
   chat_log_ui_system::toggle();
+  if (chat_type.has_value()) {
+    chat_type = std::nullopt;
+  } else {
+    chat_type = game_chat_enum::map;
+  }
   return;
 }
 
@@ -614,13 +612,14 @@ bool statusbar_ui_system::event(SDL_Event *event) {
     switch (scan_code) {
     case SDL_SCANCODE_RETURN: {
       std::erase(system::event_systems, keyboard_input_system::event);
-      event_button_chatlog();
+      chat_log_ui_system::toggle();
       if (chat_type.has_value()) {
         event_chat_send();
         chat_type = std::nullopt;
         text_input_ui_system::close(chat);
         system::event_systems.push_back(keyboard_input_system::event);
       } else {
+        chat_type = game_chat_enum::map;
         text_input_ui_system::active(chat);
         keyboard_input_system::reset();
       }

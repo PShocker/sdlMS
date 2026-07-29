@@ -8,6 +8,7 @@
 #include "src/common/flatbuffers/common.h"
 #include <cstdint>
 #include <flat_map>
+#include <string>
 #include <vector>
 
 using namespace fbs;
@@ -22,6 +23,13 @@ public:
   static void reset();
 
   static uint64_t load_ball_time(ClientCharacterBallT &cct);
+
+  enum class ball_enum {
+    claw,
+    bow,
+    arrow,
+  };
+  static std::u16string load_pkg_ball(int i, ball_enum type);
 
   static ClientCharacterBallT
   create_ball_payload(check_mobs &cm, SDL_FPoint pos, SDL_FPoint goal,

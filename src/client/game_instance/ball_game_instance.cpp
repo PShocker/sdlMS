@@ -1,7 +1,9 @@
 #include "ball_game_instance.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_ball.h"
+#include "src/client/game/game_item.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/common/flatbuffers/common.h"
 #include <cmath>
@@ -83,4 +85,23 @@ uint64_t ball_game_instance::load_ball_time(ClientCharacterBallT &cct) {
     return dt + b->delay;
   }
   return 0;
+}
+
+std::u16string ball_game_instance::load_pkg_ball(int i, ball_enum type) {
+  std::u16string r;
+  std::u16string pre;
+  switch (type) {
+  case ball_enum::claw: {
+    pre = u"0207";
+    break;
+  }
+  case ball_enum::bow:
+  case ball_enum::arrow:
+    break;
+  }
+
+  auto pkg = package_game_instance::data[(int)item_enum::consume];
+  for (auto itm : pkg) {
+  }
+  return r;
 }
