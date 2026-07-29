@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
+#include "src/client/game/game_chat.h"
 #include "src/client/game/game_popup_tip.h"
 #include "src/common/flatbuffers/server.h"
 #include "text_input_ui_system.h"
@@ -16,20 +17,13 @@ private:
   static void render_gauge_text();
   static void render_backgrnd();
   static void render_button();
-  static void render_quickSlot();
   static void render_character_stat();
   static void render_chat();
-  static void render_chat_info();
-  static void render_chat_infos();
-  static void render_chat_vscr();
+  static void render_back_chat();
 
   static SDL_FPoint load_wh();
 
-  static void event_click_chat_vscr();
-
   static void event_chat_send();
-  static bool event_click_quickslot(SDL_Event *event);
-
   static std::u16string load_chat_type();
 
   static bool event_button(SDL_Event *event);
@@ -46,26 +40,8 @@ private:
   static void event_button_quickslot();
   static void event_button_chatlog();
 
-  static inline int chat_index;
 public:
-  enum class quick_slot {
-    hide,
-    two,
-    three,
-  };
-  static inline quick_slot quickSlot = quick_slot::two;
-
-  enum chat_enum {
-    all,
-  };
-  struct chats {
-    chat_enum type;
-    std::u16string owner;
-    std::u16string text;
-  };
-  static inline std::vector<chats> chats_info;
-
-  static inline std::optional<chat_enum> chat_type;
+  static inline std::optional<game_chat_enum> chat_type;
   static inline text_input chat;
 
   static void reset();

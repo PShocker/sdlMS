@@ -233,7 +233,7 @@ bool equip_game_instance::add_equip_limit(game_equip_item &equip,
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLUK"))->get();
 
   auto jobs = equip_game_instance::load_equip_job(equip.id);
-  auto job = job_skill_game_instance::load_skill_tree(character.job);
+  auto job = job_skill_game_instance::load_ski_tree(character.job);
   bool job_r = false;
   for (auto j : job) {
     if (jobs.contains(j)) {

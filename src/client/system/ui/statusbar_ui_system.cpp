@@ -7,19 +7,15 @@
 #include "equip_ui_system.h"
 #include "scroll_ui_system.h"
 #include "skill_ui_system.h"
-#include "src/client/game/game_popup_tip.h"
+#include "src/client/game/game_chat.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/chat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
-#include "src/client/game_instance/item_game_instance.h"
-#include "src/client/game_instance/job_skill_game_instance.h"
-#include "src/client/game_instance/keyboard_game_instance.h"
-#include "src/client/game_instance/popup_tip_game_instance.h"
-#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
-#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/chat_log_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -381,82 +377,6 @@ void statusbar_ui_system::render_button() {
   }
 }
 
-void statusbar_ui_system::render_quickSlot() {
-  const static std::flat_map<SDL_Scancode, SDL_Texture *> textures = {
-      {SDL_SCANCODE_PAGEDOWN, wz_resource::load_texture(wz_resource::ui->find(
-                                  u"QuickSlot.img/key/81"))},
-      {SDL_SCANCODE_END, wz_resource::load_texture(
-                             wz_resource::ui->find(u"QuickSlot.img/key/79"))},
-      {SDL_SCANCODE_PAGEUP, wz_resource::load_texture(wz_resource::ui->find(
-                                u"QuickSlot.img/key/73"))},
-      {SDL_SCANCODE_HOME, wz_resource::load_texture(
-                              wz_resource::ui->find(u"QuickSlot.img/key/71"))},
-      {SDL_SCANCODE_INSERT, wz_resource::load_texture(wz_resource::ui->find(
-                                u"QuickSlot.img/key/82"))},
-      {SDL_SCANCODE_DELETE, wz_resource::load_texture(wz_resource::ui->find(
-                                u"QuickSlot.img/key/83"))},
-      {SDL_SCANCODE_LCTRL, wz_resource::load_texture(
-                               wz_resource::ui->find(u"QuickSlot.img/key/29"))},
-      {SDL_SCANCODE_LSHIFT, wz_resource::load_texture(wz_resource::ui->find(
-                                u"QuickSlot.img/key/42"))},
-  };
-  switch (quickSlot) {
-  case quick_slot::hide: {
-    break;
-  }
-  case quick_slot::two: {
-    static auto q = wz_resource::load_texture(
-        wz_resource::ui->find(u"QuickSlot.img/backgrnd"));
-    auto screen_w = camera_game_instance::camera.w;
-    auto screen_h = camera_game_instance::camera.h;
-    auto base_x = (screen_w - 808) / 2;
-    auto base_y = (screen_h - 73);
-    SDL_FRect p{
-        base_x + 654,
-        base_y - 107,
-        static_cast<float>(q->w),
-        static_cast<float>(q->h),
-    };
-    SDL_RenderTexture(window::renderer, q, nullptr, &p);
-    std::vector<SDL_Scancode> scode = {
-        (SDL_SCANCODE_LSHIFT), (SDL_SCANCODE_INSERT),   (SDL_SCANCODE_HOME),
-        (SDL_SCANCODE_PAGEUP), (SDL_SCANCODE_LCTRL),    (SDL_SCANCODE_DELETE),
-        (SDL_SCANCODE_END),    (SDL_SCANCODE_PAGEDOWN),
-    };
-    std::vector<SDL_FPoint> r = {
-        SDL_FPoint{p.x + 9, p.y + 10},
-        SDL_FPoint{p.x + 44, p.y + 10},
-        SDL_FPoint{p.x + 79, p.y + 10},
-        SDL_FPoint{p.x + 114, p.y + 10},
-        // 2row
-        SDL_FPoint{p.x + 9, p.y + 44},
-        SDL_FPoint{p.x + 44, p.y + 44},
-        SDL_FPoint{p.x + 79, p.y + 44},
-        SDL_FPoint{p.x + 114, p.y + 44},
-    };
-    for (int i = 0; i < r.size(); i++) {
-      SDL_FRect pos_rect;
-      if (keyboard_game_instance::data.contains(scode[i])) {
-        const auto &input = keyboard_game_instance::data.at(scode[i]);
-      }
-      auto texture = textures.at(scode[i]);
-      pos_rect = {
-          r[i].x,
-          r[i].y + 34,
-          static_cast<float>(texture->w),
-          static_cast<float>(texture->h),
-      };
-      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
-    }
-
-    break;
-  }
-  case quick_slot::three: {
-    break;
-  }
-  }
-}
-
 void statusbar_ui_system::render_chat() {
   auto screen_w = camera_game_instance::camera.w;
   auto screen_h = camera_game_instance::camera.h;
@@ -517,82 +437,41 @@ void statusbar_ui_system::render_chat() {
   }
 }
 
-void statusbar_ui_system::render_chat_info() {
-  if (chat_type.has_value()) {
+void statusbar_ui_system::render_back_chat() {
+  auto it =
+      std::ranges::find(system::render_systems, &chat_log_ui_system::render);
+  if (it != system::render_systems.end()) {
     return;
   }
-  if (!chats_info.empty()) {
-    auto info = chats_info.back();
-    freetype::load_aligned(true);
-    freetype::load_size(12);
-    auto str = info.owner + u":" + info.text;
-    auto screen_w = camera_game_instance::camera.w;
-    auto screen_h = camera_game_instance::camera.h;
-    auto base_x = (screen_w - 808) / 2;
-    auto base_y = (screen_h - 73);
-    freetype::load_color(255, 255, 255, 255);
-    auto w = freetype::load_w(str);
-    bool point = false;
-    while (w > 476) {
-      str.pop_back();
-      w = freetype::load_w(str);
-      point = true;
-    }
-    if (point) {
-      str = str + u"...";
-    }
-    freetype::draw_line(str, base_x + 18, base_y + 10);
-    freetype::load_aligned(false);
-  }
-}
-
-void statusbar_ui_system::render_chat_infos() {
-  if (!chat_type.has_value()) {
-    return;
-  }
-  float str_h = 0;
-  for (int i = chats_info.size() - 1; i >= 0; i--) {
-    auto info = chats_info[i];
-    freetype::load_aligned(true);
-    freetype::load_size(12);
-    auto str = info.owner + u":" + info.text;
-    auto screen_w = camera_game_instance::camera.w;
-    auto screen_h = camera_game_instance::camera.h;
-    auto base_x = (screen_w - 808) / 2;
-    auto base_y = (screen_h - 73);
-    freetype::load_color(255, 255, 255, 255);
-    str_h += freetype::load_h(str, 550, 1.1);
-    freetype::draw_str(str, base_x + 8, base_y - str_h + 2, 550, 1.1);
-  }
-}
-
-void statusbar_ui_system::render_chat_vscr() {
-  if (!chat_type.has_value()) {
-    return;
-  }
-  const uint32_t length = 80;
-  auto size = 6;
-  auto cursor_in = cursor_game_instance::cursor_ui;
+  auto back = chat_game_instance::chats.back();
+  freetype::load_aligned(true);
+  freetype::load_size(12);
+  auto str = back.owner + u":" + back.text;
   auto screen_w = camera_game_instance::camera.w;
   auto screen_h = camera_game_instance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-  bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
-  scroll_ui_system::render_vscroll(base_x + 570, base_y - 75, 5, size, length,
-                                   top, 1);
-  return;
+  freetype::load_color(255, 255, 255, 255);
+  auto w = freetype::load_w(str);
+  bool point = false;
+  while (w > 476) {
+    str.pop_back();
+    w = freetype::load_w(str);
+    point = true;
+  }
+  if (point) {
+    str = str + u"...";
+  }
+  freetype::draw_line(str, base_x + 18, base_y + 10);
+  freetype::load_aligned(false);
 }
-
 
 bool statusbar_ui_system::render() {
   render_backgrnd();
   render_chat();
   render_button();
-  render_quickSlot();
   render_character_stat();
-  render_chat_info();
-  render_chat_infos();
-  render_chat_vscr();
+  render_back_chat();
   return true;
 }
 
@@ -606,32 +485,6 @@ bool statusbar_ui_system::cursor_in() {
   auto base_y = (screen_h - wh.y);
   SDL_FRect pos_rect = {base_x, base_y, wh.x, wh.y};
   return SDL_PointInRectFloat(&window::mouse_pos, &pos_rect);
-}
-
-void statusbar_ui_system::event_click_chat_vscr() {
-  if (!chat_type.has_value()) {
-    return;
-  }
-  const uint32_t length = 76;
-  auto cursor_in = cursor_game_instance::cursor_ui;
-  bool top = cursor_in == render;
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
-  auto base_x = (screen_w - 808) / 2;
-  auto base_y = (screen_h - 73);
-
-  int size = 0;
-  for (const auto &info : chats_info) {
-    auto str = info.owner + u":" + info.text;
-    auto h = freetype::load_h(str, 564, 1.1);
-    size += h;
-  }
-  size = size / (freetype::load_lh() * 1.1);
-  size = std::max(0, size);
-  auto val = scroll_ui_system::click_vscroll(base_x + 564, base_y - 71,
-                                             chat_index, size, length, top);
-  chat_index = val;
-  return;
 }
 
 void statusbar_ui_system::event_button_cashshop() { return; }
@@ -679,11 +532,15 @@ void statusbar_ui_system::event_button_keybind() {
 
 void statusbar_ui_system::event_button_quickslot() { return; }
 
-void statusbar_ui_system::event_button_chatlog() { return; }
+void statusbar_ui_system::event_button_chatlog() {
+  chat_type = game_chat_enum::map;
+  chat_log_ui_system::toggle();
+  return;
+}
 
 std::u16string statusbar_ui_system::load_chat_type() {
   switch (chat_type.value()) {
-  case all: {
+  case game_chat_enum::map: {
     return u"All";
     break;
   }
@@ -729,102 +586,6 @@ bool statusbar_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
-bool statusbar_ui_system::event_click_quickslot(SDL_Event *event) {
-  if (cursor_game_instance::cursor_hand_net.has_value()) {
-    return false;
-  }
-  switch (quickSlot) {
-  case quick_slot::hide: {
-    break;
-  }
-  case quick_slot::two: {
-    static auto q = wz_resource::load_texture(
-        wz_resource::ui->find(u"QuickSlot.img/backgrnd"));
-    auto screen_w = camera_game_instance::camera.w;
-    auto screen_h = camera_game_instance::camera.h;
-    auto base_x = (screen_w - 808) / 2;
-    auto base_y = (screen_h - 73);
-    SDL_FRect p{
-        base_x + 654,
-        base_y - 107,
-        static_cast<float>(q->w),
-        static_cast<float>(q->h),
-    };
-    std::vector<SDL_Scancode> t = {
-        SDL_SCANCODE_LSHIFT, SDL_SCANCODE_INSERT,   SDL_SCANCODE_HOME,
-        SDL_SCANCODE_PAGEUP, SDL_SCANCODE_LCTRL,    SDL_SCANCODE_DELETE,
-        SDL_SCANCODE_END,    SDL_SCANCODE_PAGEDOWN,
-    };
-    std::vector<SDL_FPoint> r = {
-        SDL_FPoint{p.x + 9, p.y + 10},
-        SDL_FPoint{p.x + 44, p.y + 10},
-        SDL_FPoint{p.x + 79, p.y + 10},
-        SDL_FPoint{p.x + 114, p.y + 10},
-        // 2row
-        SDL_FPoint{p.x + 9, p.y + 44},
-        SDL_FPoint{p.x + 44, p.y + 44},
-        SDL_FPoint{p.x + 79, p.y + 44},
-        SDL_FPoint{p.x + 114, p.y + 44},
-    };
-    for (int i = 0; i < r.size(); i++) {
-      SDL_FRect pos_rect{
-          r[i].x,
-          r[i].y + 34,
-          static_cast<float>(32),
-          static_cast<float>(32),
-      };
-      if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-        if (cursor_game_instance::cursor_hand.has_value()) {
-          auto &cursor_hand = cursor_game_instance::cursor_hand.value();
-          auto scan_code = t[i];
-          switch (cursor_hand.type) {
-          case cursor_game_instance::equipment: {
-            break;
-          }
-          case cursor_game_instance::package: {
-            break;
-          }
-          case cursor_game_instance::skill: {
-            auto ski_id = std::format("{:07d}", cursor_hand.sub_val);
-            auto &key_data = keyboard_game_instance::data;
-            key_data[scan_code] = {
-                .type = "skill",
-                .val = ski_id,
-            };
-            break;
-          }
-          case cursor_game_instance::keybind: {
-            break;
-          }
-          }
-        } else {
-          auto &key_data = keyboard_game_instance::data;
-          auto scan_code = t[i];
-          if (key_data.contains(scan_code)) {
-            auto &input = key_data.at(scan_code);
-            if (input.type == "skill") {
-              auto ski_id = std::stoi(input.val);
-              cursor_game_instance::cursor_hand = {
-                  .type = cursor_game_instance::skill,
-                  .val = static_cast<uint32_t>(ski_id),
-              };
-              return true;
-            }
-          }
-        }
-        return true;
-      }
-    }
-
-    break;
-  }
-  case quick_slot::three: {
-    break;
-  }
-  }
-  return false;
-}
-
 bool statusbar_ui_system::event(SDL_Event *event) {
   auto cr = text_input_ui_system::event(event, chat);
   bool r = true;
@@ -853,13 +614,13 @@ bool statusbar_ui_system::event(SDL_Event *event) {
     switch (scan_code) {
     case SDL_SCANCODE_RETURN: {
       std::erase(system::event_systems, keyboard_input_system::event);
+      event_button_chatlog();
       if (chat_type.has_value()) {
         event_chat_send();
         chat_type = std::nullopt;
         text_input_ui_system::close(chat);
         system::event_systems.push_back(keyboard_input_system::event);
       } else {
-        chat_type = all;
         text_input_ui_system::active(chat);
         keyboard_input_system::reset();
       }

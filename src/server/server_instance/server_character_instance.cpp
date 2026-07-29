@@ -3,9 +3,11 @@
 #include "server_party_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_chat.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/chat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -322,8 +324,9 @@ void server_character_instance::handle_server_chat(uint64_t client_id,
     c.path = u"0";
     g_character->chatballoon = c;
   }
-  statusbar_ui_system::chats_info.push_back({
-      .type = (statusbar_ui_system::chat_enum)r.payload->type,
+
+  chat_game_instance::chats.push_back({
+      .type = (game_chat_enum)r.payload->type,
       .owner = {r.name.begin(), r.name.end()},
       .text = {r.payload->payload.begin(), r.payload->payload.end()},
   });

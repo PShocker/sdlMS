@@ -492,7 +492,7 @@ void tooltip_ui_system::render_backgrnd(float x, float y, float w, float h) {
 
 float tooltip_ui_system::load_skill_bottom_h(const std::u16string &id) {
   auto ski_name = skill_game_instance::load_ski_name(id);
-  auto ski_level = job_skill_game_instance::load_skill_level(id);
+  auto ski_level = job_skill_game_instance::load_ski_level(id);
   float h = 0;
   const auto w = 330;
   freetype::load_size(12);
@@ -517,7 +517,7 @@ void tooltip_ui_system::render_skill_bottom(const std::u16string &id,
                                             uint8_t level, float x, float y) {
   const auto w = 330;
   auto ski_name = skill_game_instance::load_ski_name(id);
-  auto ski_level = job_skill_game_instance::load_skill_level(id);
+  auto ski_level = job_skill_game_instance::load_ski_level(id);
   auto ski_level2 = std::to_string(ski_level);
   std::u16string ski_level3{ski_level2.begin(), ski_level2.end()};
 

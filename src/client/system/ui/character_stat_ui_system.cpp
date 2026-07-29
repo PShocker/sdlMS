@@ -233,19 +233,19 @@ void character_stat_ui_system::render_detail() {
   freetype::draw_line(s2, p.x, p.y);
   // pdd
   p = {dx + 78, dy + 28};
-  auto pdd = character_stat_game_instance::weapon_def;
+  auto pdd = character_stat_game_instance::eqp_attack_def;
   s = std::to_string(pdd);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
   // mad
   p = {dx + 78, dy + 46};
-  auto mad = character_stat_game_instance::magic;
+  auto mad = character_stat_game_instance::eqp_magic;
   s = std::to_string(mad);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
   // mdd
   p = {dx + 78, dy + 62};
-  auto mdd = character_stat_game_instance::magic_def;
+  auto mdd = character_stat_game_instance::eqp_magic_def;
   s = std::to_string(mdd);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);

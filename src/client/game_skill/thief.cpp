@@ -91,7 +91,74 @@ static void yinshenshu() {
   skis[g_skill.id] = g_skill;
 }
 
+static void huibishu() {
+  game_skill g_skill;
+  g_skill.id = u"2001099";
+
+  g_skill.end = []() {
+    auto &skis = skill_game_instance::skis();
+    auto ski_lv = skis[u"2001099"].lv;
+    character_stat_game_instance::ski_mp -= ski_lv;
+  };
+  g_skill.passive = [](int ski_lv) {
+    auto &skis = skill_game_instance::skis();
+    skis[u"2001099"].lv = ski_lv;
+    character_stat_game_instance::ski_mp += ski_lv;
+  };
+  auto &skis = skill_game_instance::skis();
+
+  skis[g_skill.id] = g_skill;
+}
+
+static void shuangfeizhan() {
+
+  game_skill g_skill;
+  g_skill.id = u"0001000";
+  g_skill.use = [](int ski_lv) {
+    game_triangle tri = {
+        {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -30}}};
+    auto &self = character_game_instance::self;
+    character_logic_system::run_action(self, u"swingO1");
+    auto cm = character_logic_system::run_attack_check(self, tri);
+    if (!cm.data.empty()) {
+      cm.data = {cm.data[0]};
+    }
+    auto delay = skill_game_instance::load_ski_time(self);
+    auto ski_lvl2 = std::to_string(ski_lv);
+    std::u16string path = u"200.img/skill/2001002/ball";
+    auto pos = self.pos;
+    pos.y -= 30;
+    auto page = self.page;
+    SDL_FPoint goal = pos;
+    if (self.flip) {
+      goal.x += 350;
+    } else {
+      goal.x -= 350;
+    }
+    auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
+                                                       page, 700, path);
+    client_request::send_to_host(cct);
+
+    ClientCharacterAttackT cat;
+    if (!cm.data.empty()) {
+      auto d = ball_game_instance::load_ball_time(cct);
+      // Create and send attack payload
+      cm.data[0].y = 0;
+      cm.data[0].hits = {30};
+      cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
+      client_request::send_to_host(cat);
+    }
+    auto ckt = skill_game_instance::create_skill_payload(cat, 1000, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
+                                          self);
+    client_request::send_to_host(ckt);
+  };
+  auto &skis = skill_game_instance::skis();
+  skis[g_skill.id] = g_skill;
+}
+
 [[maybe_unused]] static const bool r = [] {
   yinshenshu();
+  huibishu();
   return true;
 }();

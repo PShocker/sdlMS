@@ -1,6 +1,7 @@
 #include "gain_log_render_system.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
+#include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/common/freetype/freetype.h"
 #include <string>
@@ -25,14 +26,14 @@ void gain_log_render_system::render(game_gain_log &g_log, uint32_t i) {
   freetype::load_bold(false);
   int x;
   int y;
-  switch (statusbar_ui_system::quickSlot) {
-  case statusbar_ui_system::quick_slot::hide: {
+  switch (quick_slot_ui_system::quickSlot) {
+  case quick_slot_ui_system::quick_slot::hide: {
     break;
   }
-  case statusbar_ui_system::quick_slot::two: {
+  case quick_slot_ui_system::quick_slot::two: {
     break;
   }
-  case statusbar_ui_system::quick_slot::three: {
+  case quick_slot_ui_system::quick_slot::three: {
     break;
   }
   }

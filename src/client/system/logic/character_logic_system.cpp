@@ -569,7 +569,7 @@ bool character_logic_system::run_skill(game_character &g_character,
                                        const std::u16string &id) {
   auto &skis = skill_game_instance::skis();
   if (skis.contains(id)) {
-    auto ski_lv = job_skill_game_instance::load_skill_level(id);
+    auto ski_lv = job_skill_game_instance::load_ski_level(id);
     const auto &ski = skis[id];
     if (!ski.use) {
       return false;

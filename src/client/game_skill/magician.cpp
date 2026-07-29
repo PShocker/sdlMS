@@ -10,6 +10,7 @@
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
@@ -80,7 +81,7 @@ static void mfdun() {
   game_skill g_skill;
   g_skill.id = u"2001000";
   g_skill.hit = [](game_mob mob, uint64_t n) {
-    auto ski_lv = job_skill_game_instance::load_skill_level(u"2001000");
+    auto ski_lv = job_skill_game_instance::load_ski_level(u"2001000");
     auto x_node = wz_resource::skill->find(u"200.img/skill/2001000/level");
     auto x = static_cast<wz::Property<int> *>(
                  x_node->get_child(std::to_string(ski_lv))->get_child(u"x"))
@@ -195,10 +196,18 @@ static void molitisheng() {
   game_skill g_skill;
   g_skill.id = u"2001099";
 
+  g_skill.end = []() {
+    auto &skis = skill_game_instance::skis();
+    auto ski_lv = skis[u"2001099"].lv;
+    character_stat_game_instance::ski_mp -= ski_lv;
+  };
   g_skill.passive = [](int ski_lv) {
-
+    auto &skis = skill_game_instance::skis();
+    skis[u"2001099"].lv = ski_lv;
+    character_stat_game_instance::ski_mp += ski_lv;
   };
   auto &skis = skill_game_instance::skis();
+
   skis[g_skill.id] = g_skill;
 }
 

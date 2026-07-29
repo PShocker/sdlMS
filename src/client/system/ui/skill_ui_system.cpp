@@ -34,10 +34,10 @@ std::optional<std::u16string> skill_ui_system::load_mouse_ski() {
   const SDL_FPoint pos_icon{2, 2};
   const uint8_t max_scroll_num = 6;
   auto self_job = character_game_instance::self.job;
-  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
   // 根据active_tab获取技能组
-  auto skill_node = job_skill_game_instance::load_job_skills(jt);
+  auto skill_node = job_skill_game_instance::load_job_skis(jt);
 
   auto &mouse_pos = window::mouse_pos;
   uint8_t i = 0;
@@ -154,7 +154,7 @@ void skill_ui_system::render_tab() {
   const static SDL_FPoint lt = {5, 24};
   const static SDL_FPoint rb = {186, 43};
   const static auto tab_node = wz_resource::ui->find(u"Skill.img/tab:grade");
-  auto jobs = job_skill_game_instance::load_skill_tree(
+  auto jobs = job_skill_game_instance::load_ski_tree(
       character_game_instance::self.job);
   const static std::array selected_texture = {
       wz_resource::load_texture(tab_node->find(u"selected/0")),
@@ -191,14 +191,14 @@ void skill_ui_system::render_skill_entry() {
   const auto l =
       (rb.y - lt.y - max_scroll_num * entry->h) / (max_scroll_num - 1);
   auto self_job = character_game_instance::self.job;
-  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
 
   auto &mouse_pos = window::mouse_pos;
   // 判断按钮是否被遮挡
   auto cursor_in = cursor_game_instance::cursor_ui;
   uint8_t i = 0;
-  auto nodes = job_skill_game_instance::load_job_skills(jt);
+  auto nodes = job_skill_game_instance::load_job_skis(jt);
   for (auto it = nodes.begin() + page; it != nodes.end(); ++it) {
     auto &k = it->first;
     auto &v = it->second;
@@ -218,7 +218,7 @@ void skill_ui_system::render_skill_entry() {
     auto skl_id2 = std::stoi(skl_id);
 
     SDL_Texture *ski_texture;
-    auto ski_level = job_skill_game_instance::load_skill_level(k);
+    auto ski_level = job_skill_game_instance::load_ski_level(k);
     if (ski_level > 0) {
       if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
           !cursor_game_instance::modal_overlay) {
@@ -254,9 +254,9 @@ void skill_ui_system::render_scroll() {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   auto self_job = character_game_instance::self.job;
-  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
-  auto skill_node = job_skill_game_instance::load_job_skills(jt);
+  auto skill_node = job_skill_game_instance::load_job_skis(jt);
   auto size = skill_node.size();
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = (cursor_in == render) && !cursor_game_instance::modal_overlay;
@@ -282,10 +282,10 @@ void skill_ui_system::render_button() {
 
   auto wh = load_wh();
   auto self_job = character_game_instance::self.job;
-  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
   self_job = job_skill_game_instance::load_job_id(jt);
-  auto skill_node = job_skill_game_instance::load_job_skills(jt);
+  auto skill_node = job_skill_game_instance::load_job_skis(jt);
 
   const int max_scroll = 6;
   const int entry_h = 35;
@@ -306,14 +306,14 @@ void skill_ui_system::render_button() {
     if (auto req = ski_node->get_child(u"req")) {
       for (auto [k, v] : *req) {
         auto lvl = static_cast<wz::Property<int> *>(v[0])->get();
-        auto req_lvl = job_skill_game_instance::load_skill_level(k);
+        auto req_lvl = job_skill_game_instance::load_ski_level(k);
         if (req_lvl < lvl) {
           return true;
         }
       }
     }
     auto ski_max_lvl = skill_game_instance::load_ski_max_lvl(id);
-    auto ski_lvl = job_skill_game_instance::load_skill_level(id);
+    auto ski_lvl = job_skill_game_instance::load_ski_level(id);
     if (ski_lvl >= ski_max_lvl) {
       return true;
     }
@@ -362,7 +362,7 @@ void skill_ui_system::render_button() {
 
 void skill_ui_system::render_book() {
   auto self_job = character_game_instance::self.job;
-  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
   auto job_str = job_skill_game_instance::load_job_id(jt);
 
@@ -463,7 +463,7 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
       if (!skill_game_instance::load_ski_active(id)) {
         return false;
       }
-      if (job_skill_game_instance::load_skill_level(id) == 0) {
+      if (job_skill_game_instance::load_ski_level(id) == 0) {
         return false;
       }
       auto val = std::string{id.begin(), id.end()};
@@ -496,7 +496,7 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
 bool skill_ui_system::event_click_tab(SDL_Event *event) {
   const static SDL_FPoint lt = {5, 24};
   const static SDL_FPoint rb = {186, 43};
-  auto jobs = job_skill_game_instance::load_skill_tree(
+  auto jobs = job_skill_game_instance::load_ski_tree(
       character_game_instance::self.job);
   auto &mouse_pos = window::mouse_pos;
   for (uint8_t i = 0; i < jobs.size(); i++) {
@@ -520,10 +520,10 @@ void skill_ui_system::event_click_vscr(SDL_Event *event) {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   auto self_job = character_game_instance::self.job;
-  auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+  auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
   job_type jt = ski_tree.at(active_tab);
   // 根据active_tab获取技能组
-  auto skill_node = job_skill_game_instance::load_job_skills(jt);
+  auto skill_node = job_skill_game_instance::load_job_skis(jt);
   int size = skill_node.size() - 6;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
@@ -587,10 +587,10 @@ bool skill_ui_system::event(SDL_Event *event) {
     } else {
       // down
       auto self_job = character_game_instance::self.job;
-      auto ski_tree = job_skill_game_instance::load_skill_tree(self_job);
+      auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
       job_type jt = ski_tree.at(active_tab);
       // 根据active_tab获取技能组
-      auto skill_node = job_skill_game_instance::load_job_skills(jt);
+      auto skill_node = job_skill_game_instance::load_job_skis(jt);
       if (page < skill_node.size() - 6) {
         page += 1;
       }
