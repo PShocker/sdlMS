@@ -16,7 +16,7 @@
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
-#include "src/client/system_instance/chatacter_create_system_instance.h"
+#include "src/client/system_instance/character_create_system_instance.h"
 #include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_notice_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
@@ -473,7 +473,7 @@ void character_create_ui_system::event_button_back() {
   audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
   character_choose_ui_system::choose = std::nullopt;
 
-  chatacter_create_system_instance::enter();
+  character_create_system_instance::enter();
   system::logic_systems.push_back(back_animate);
   system::render_systems = {
       login_system_instance::render_game,
@@ -1002,7 +1002,7 @@ void character_create_ui_system::event_button_ok() {
 
   game_save_system_instance::save.characters.push_back(std::move(cs));
 
-  chatacter_create_system_instance::enter();
+  character_create_system_instance::enter();
   event_button_back();
 }
 

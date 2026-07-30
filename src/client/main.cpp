@@ -71,7 +71,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   package_game_instance::load(cs);
   scene_system_instance::enter_prepare(61, u"sp", 0);
   // scene_system_instance::prepare_pos = {1930, -188};
-  // chatacter_create_system_instance::enter();
+  // character_create_system_instance::enter();
   // login_system_instance::enter();
 
   return SDL_APP_CONTINUE;

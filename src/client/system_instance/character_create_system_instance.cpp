@@ -1,4 +1,4 @@
-#include "chatacter_create_system_instance.h"
+#include "character_create_system_instance.h"
 #include "login_system_instance.h"
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -20,7 +20,7 @@
 #include <algorithm>
 #include <ranges>
 
-void chatacter_create_system_instance::enter_prepare() {
+void character_create_system_instance::enter_prepare() {
   character_create_ui_system::reset_character(false);
   character_create_ui_system::str_point = 4;
   character_create_ui_system::dex_point = 4;
@@ -29,7 +29,7 @@ void chatacter_create_system_instance::enter_prepare() {
   character_create_ui_system::remain_point = 9;
 }
 
-void chatacter_create_system_instance::enter() {
+void character_create_system_instance::enter() {
   enter_prepare();
   auto &camera = camera_game_instance::camera;
   camera.x = -80 - camera.w / 2;

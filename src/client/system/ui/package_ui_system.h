@@ -6,6 +6,7 @@
 #include <flat_map>
 #include <memory>
 #include <optional>
+#include <string>
 #include <vector>
 
 class package_ui_system {
@@ -17,6 +18,7 @@ private:
   static void render_items_info();
   static void render_button();
   static void render_meso();
+  static void render_active_ball();
 
   static void event_close();
 
@@ -34,11 +36,14 @@ private:
   static inline uint8_t page;
 
   static inline std::optional<SDL_FPoint> drag;
+
 public:
   static void render_number(uint32_t num, int x, int y);
 
   static std::vector<uint32_t> load_blank_index(uint32_t tab);
   static std::vector<uint32_t> load_b_index(std::polymorphic<game_item> &item);
+
+  static uint32_t load_full_item_num(const std::u16string &id);
 
   static inline SDL_FPoint pos;
 

@@ -84,6 +84,7 @@ public:
   static bool run_attack_action(game_character &g_character);
 
   static void load_sfx(game_character &g_character);
+  static float load_attack_speed(game_character &g_character);
 
   static SDL_FRect load_rect(game_character &g_character);
   enum class action_enum {

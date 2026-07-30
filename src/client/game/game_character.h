@@ -26,7 +26,7 @@ public:
   int32_t action_time = 0;
   bool action_animate = true;
 
-  SDL_Color color = {255, 255,255, 255};
+  SDL_Color color = {255, 255, 255, 255};
   uint8_t flip = 0;
   float scale = 1;
 
@@ -97,4 +97,6 @@ public:
 
   // hide ear
   std::flat_set<std::u16string> hide_part;
+
+  int8_t attack_speed = 0;
 };

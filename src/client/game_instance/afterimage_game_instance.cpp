@@ -3,6 +3,7 @@
 #include "character_game_instance.h"
 #include "effect_game_instance.h"
 #include "equip_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
@@ -146,5 +147,7 @@ uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
     auto now = window::dt_time;
     time += now;
   }
-  return time;
+  auto speed = character_logic_system::load_attack_speed(g_character);
+  speed = 1.0 / speed;
+  return time * speed;
 }

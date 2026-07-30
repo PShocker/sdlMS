@@ -15,7 +15,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_create_ui_system.h"
-#include "src/client/system_instance/chatacter_create_system_instance.h"
+#include "src/client/system_instance/character_create_system_instance.h"
 #include "src/client/system_instance/game_save_system_instance.h"
 #include "src/client/system_instance/login_notice_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
@@ -285,7 +285,7 @@ void character_choose_ui_system::event_button_new() {
   }
   audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
 
-  chatacter_create_system_instance::enter_prepare();
+  character_create_system_instance::enter_prepare();
 
   system::logic_systems.push_back(new_animate);
   system::render_systems = {
@@ -323,7 +323,7 @@ void character_choose_ui_system::event_button_delete() {
 
 bool character_choose_ui_system::new_animate() {
   if (login_ui_system::camera_animate(-80, -1294)) {
-    chatacter_create_system_instance::enter();
+    character_create_system_instance::enter();
     return false;
   }
   return true;

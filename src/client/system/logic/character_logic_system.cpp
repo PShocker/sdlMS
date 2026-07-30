@@ -235,10 +235,22 @@ bool character_logic_system::run_animate(game_character &g_character) {
     return r;
   }
   auto delta = window::delta_time;
-  uint32_t size = 0;
-  g_character.action_time += delta;
+  auto action_type = load_action_type(g_character);
+  float speed = 1;
+  switch (action_type) {
+  case action_enum::attack:
+  case action_enum::skill: {
+    speed = load_attack_speed(g_character);
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  g_character.action_time += delta * speed;
   //   获取动作延迟时间
   uint32_t delay;
+  uint32_t size = 0;
   if (character_game_instance::extern_action.contains(g_character.action)) {
     auto &action_info =
         character_game_instance::extern_action.at(g_character.action);
@@ -1292,4 +1304,11 @@ void character_logic_system::load_sfx(game_character &g_character) {
                  ->get() +
              u"/Attack";
   audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
+}
+
+float character_logic_system::load_attack_speed(game_character &g_character) {
+  auto w_speed = equip_game_instance::load_equip_inc(g_character.weapon->id)
+                     .at(equip_game_instance::inc_type::WEAPON_SPEED);
+  float speed = w_speed + g_character.attack_speed;
+  return 1.7 - speed / 10;
 }

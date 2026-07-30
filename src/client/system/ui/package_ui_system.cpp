@@ -7,6 +7,7 @@
 #include "scroll_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
+#include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -15,6 +16,7 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system_instance/character_create_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -104,12 +106,67 @@ std::optional<uint32_t> package_ui_system::load_mouse_index() {
   return std::nullopt;
 }
 
+uint32_t package_ui_system::load_full_item_num(const std::u16string &id) {
+  uint32_t r = 0;
+  auto itm = item_game_instance::load_item(id, 1);
+  auto &p = package_game_instance::data[(int)itm->type];
+  for (auto &i : p) {
+    if (i->id == id) {
+      auto num = item_game_instance::load_item_num(i);
+      r += num;
+    }
+  }
+  return r;
+}
+
+void package_ui_system::render_active_ball() {
+  auto &self = character_game_instance::self;
+  auto ball_type = ball_game_instance::load_ball_type(self);
+  auto ball_id = ball_game_instance::load_pkg_ball(1, ball_type);
+  if (!ball_id.empty()) {
+    auto p = package_game_instance::data[(int)item_enum::consume];
+    for (int i = 0; i < p.size(); i++) {
+      auto itm = p[i];
+      auto itm_num = item_game_instance::load_item_num(itm);
+      if (itm->id == ball_id && itm_num > 0) {
+        // render
+        static auto t = wz_resource::load_texture(
+            wz_resource::ui->find(u"UI/Item.img/canvas:activeIcon"));
+        SDL_FRect pos_rect;
+
+        return;
+      }
+    }
+  }
+}
+
 void package_ui_system::render_backgrnd() {
   static auto texture =
       wz_resource::load_texture(wz_resource::ui->find(u"Item.img/backgrnd"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
                      static_cast<float>(texture->h)};
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+}
+
+void package_ui_system::render_number(uint32_t num, int x, int y) {
+  auto node = wz_resource::ui->find(u"Basic.img/ItemNo");
+  // 计算数字位数
+  int digits = num == 0 ? 1 : static_cast<int>(std::log10(num)) + 1;
+  // 从最高位开始遍历
+  int w = 0;
+  for (int i = digits - 1; i >= 0; --i) {
+    int divisor = static_cast<int>(std::pow(10, i));
+    int digit = (num / divisor) % 10;
+    auto t = wz_resource::load_texture(node->get_child(std::to_string(digit)));
+    SDL_FRect pos_rect = {
+        (float)x + w,
+        (float)y,
+        (float)t->w,
+        (float)t->h,
+    };
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    w += t->w;
+  }
 }
 
 void package_ui_system::render_tab() {
@@ -572,25 +629,4 @@ bool package_ui_system::event(SDL_Event *event) {
   }
 
   return r;
-}
-
-void package_ui_system::render_number(uint32_t num, int x, int y) {
-  auto node = wz_resource::ui->find(u"Basic.img/ItemNo");
-  // 计算数字位数
-  int digits = num == 0 ? 1 : static_cast<int>(std::log10(num)) + 1;
-  // 从最高位开始遍历
-  int w = 0;
-  for (int i = digits - 1; i >= 0; --i) {
-    int divisor = static_cast<int>(std::pow(10, i));
-    int digit = (num / divisor) % 10;
-    auto t = wz_resource::load_texture(node->get_child(std::to_string(digit)));
-    SDL_FRect pos_rect = {
-        (float)x + w,
-        (float)y,
-        (float)t->w,
-        (float)t->h,
-    };
-    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
-    w += t->w;
-  }
 }
