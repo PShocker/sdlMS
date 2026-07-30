@@ -44,39 +44,77 @@ SDL_FPoint ball_game_instance::closest_point_on_rect(const SDL_FPoint &pos,
 ClientCharacterBallT ball_game_instance::create_ball_payload(
     check_mobs &cm, SDL_FPoint pos, SDL_FPoint goal, uint64_t delay, int page,
     int speed, const std::u16string &path) {
+
   ClientCharacterBallT ccb;
-  ccb.payload = std::make_unique<CharacterBallT>();
-  ccb.payload->path = {path.begin(), path.end()};
-  ccb.payload->ball = std::make_unique<BallT>();
-  ccb.payload->ball->page = page;
-  ccb.payload->ball->speed = speed;
-  ccb.payload->ball->delay = delay;
-  ccb.payload->ball->x1 = pos.x;
-  ccb.payload->ball->y1 = pos.y;
+
+  // 使用初始化列表或直接构造，避免多次unique_ptr分配
+  auto ball = std::make_unique<BallT>();
+  ball->page = page;
+  ball->speed = speed;
+  ball->delay = delay;
+  ball->x1 = pos.x;
+  ball->y1 = pos.y;
+
+  // 处理目标位置
+  const auto &fhs = foothold_game_instance::data;
+  SDL_FPoint target_pos = goal; // 默认目标
+
   if (!cm.data.empty()) {
-    // wall
     const auto &mob = cm.data[0].mob;
-    auto mob_r = mob_logic_system::load_rect(mob).value();
-    auto closest_pos = closest_point_on_rect(pos, mob_r);
-    const auto &fhs = foothold_game_instance::data;
-    auto ins = physic::fall_intersect_pos(pos, closest_pos, fhs);
-    if (!ins.empty()) {
-      ccb.payload->ball->x2 = ins.begin()->second.pos.x;
-      ccb.payload->ball->y2 = ins.begin()->second.pos.y;
-      ccb.payload->ball->mob = false;
+    auto mob_r = mob_logic_system::load_rect(mob);
+
+    if (mob_r.has_value()) {
+      auto closest_pos = closest_point_on_rect(pos, mob_r.value());
+      auto ins = physic::fall_intersect_pos(pos, closest_pos, fhs);
+
+      if (!ins.empty()) {
+        // 命中墙面
+        cm.data.clear(); // 更清晰的清空方式
+        // 找到x最近的点
+        
+        target_pos = {ins.begin()->second.pos.x, ins.begin()->second.pos.y};
+        ball->mob = false;
+      } else {
+        // 命中怪物
+        ball->mob = true;
+        ball->mob_index = mob.index;
+        target_pos = {closest_pos.x - mob.pos.x, closest_pos.y - mob.pos.y};
+        // 更新cm数据
+        cm.data[0].x = target_pos.x;
+        cm.data[0].y = target_pos.y;
+      }
     } else {
-      ccb.payload->ball->mob = true;
-      ccb.payload->ball->mob_index = mob.index;
-      ccb.payload->ball->x2 = closest_pos.x - mob.pos.x;
-      ccb.payload->ball->y2 = closest_pos.y - mob.pos.y;
-      cm.data[0].x = ccb.payload->ball->x2;
-      cm.data[0].y = ccb.payload->ball->y2;
+      // load_rect失败时的回退处理
+      ball->mob = false;
+      // 使用goal作为目标
+      auto ins = physic::fall_intersect_pos(pos, goal, fhs);
+      target_pos = ins.empty() ? goal
+                               : SDL_FPoint{
+                                     ins.begin()->second.pos.x,
+                                     ins.begin()->second.pos.y,
+                                 };
     }
   } else {
-    ccb.payload->ball->x2 = goal.x;
-    ccb.payload->ball->y2 = goal.y;
-    ccb.payload->ball->mob = false;
+    // 无cm.data时
+    auto ins = physic::fall_intersect_pos(pos, goal, fhs);
+    // if (fall_collide_wall(hspeed, fh, fhs)) {
+    // }
+    target_pos = ins.empty() ? goal
+                             : SDL_FPoint{
+                                   ins.begin()->second.pos.x,
+                                   ins.begin()->second.pos.y,
+                               };
+    ball->mob = false;
   }
+
+  // 设置目标位置
+  ball->x2 = target_pos.x;
+  ball->y2 = target_pos.y;
+
+  // 构造payload
+  ccb.payload = std::make_unique<CharacterBallT>();
+  ccb.payload->path.assign(path.begin(), path.end());
+  ccb.payload->ball = std::move(ball);
 
   return ccb;
 }

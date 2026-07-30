@@ -13,7 +13,6 @@ bool ball_render_system::render(game_ball &g_ball) {
   if (g_ball.delay >= now) {
     return false;
   }
-
   SDL_Texture *t;
   wz::Node *n = nullptr;
   if (wz_resource::skill->find(g_ball.path)) {
@@ -38,7 +37,7 @@ bool ball_render_system::render(game_ball &g_ball) {
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
-    auto flip = 0;
+    auto flip = g_ball.flip;
     SDL_RenderTextureRotated(window::renderer, t, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)flip);
   }

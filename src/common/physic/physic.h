@@ -15,12 +15,11 @@ private:
                                                   const SDL_FPoint &p2,
                                                   const SDL_FPoint &p3,
                                                   const SDL_FPoint &p4);
-
+public:
   static bool
   fall_collide_wall(float hspeed, game_foothold fh,
                     const std::flat_map<int32_t, game_foothold> &fhs);
 
-public:
   struct intersect_pos {
     SDL_FPoint pos;
     game_foothold fh;

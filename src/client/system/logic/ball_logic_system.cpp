@@ -17,9 +17,11 @@ void ball_logic_system::run_animate(game_ball &b) {
   b.ani_time += window::delta_time;
   auto index = std::to_string(b.ani_index);
   auto texture_node = n->get_child(index);
-  auto delay =
-      static_cast<wz::Property<int> *>(texture_node->get_child(u"delay"))
-          ->get();
+  int delay = 100;
+  if (texture_node->get_child(u"delay")) {
+    delay = static_cast<wz::Property<int> *>(texture_node->get_child(u"delay"))
+                ->get();
+  }
   if (b.ani_time >= delay) {
     b.ani_time = 0;
     b.ani_index += 1;

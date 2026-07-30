@@ -114,16 +114,18 @@ static void huibishu() {
 static void shuangfeizhan() {
   game_skill g_skill;
   g_skill.id = u"4001003";
+  g_skill.fall = true;
   g_skill.use = [](int ski_lv) {
     game_triangle tri = {
         {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -28}}};
     auto &self = character_game_instance::self;
     auto weapon_type = equip_game_instance::load_weapon_type(self);
-    if (weapon_type != equip_game_instance::weapon_type::CLAW) {
-      return;
-    }
+    // if (weapon_type != equip_game_instance::weapon_type::CLAW) {
+    //   return;
+    // }
     auto ball_type = ball_game_instance::load_ball_type(self);
-    auto ball_id = ball_game_instance::load_pkg_ball(2, ball_type);
+    // auto ball_id = ball_game_instance::load_pkg_ball(2, ball_type);
+    std::u16string ball_id = u"02070005";
     if (ball_id.empty()) {
       return;
     }
@@ -133,7 +135,7 @@ static void shuangfeizhan() {
       cm.data = {cm.data[0]};
     }
     auto delay = skill_game_instance::load_ski_time(self);
-    std::u16string path = u"Consume/0207.img/" + ball_id + u"/bullet/";
+    std::u16string path = u"Consume/0207.img/" + ball_id + u"/bullet";
     auto pos = self.pos;
     pos.y -= 28;
     auto page = self.page;
@@ -147,19 +149,18 @@ static void shuangfeizhan() {
                                                        page, 700, path);
     client_request::send_to_host(cct);
     // 注意,需要再次发送一遍ball
-    cct.payload->ball->delay += 60;
+    cct.payload->ball->delay += 100;
     client_request::send_to_host(cct);
 
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = ball_game_instance::load_ball_time(cct);
       // Create and send attack payload
-      cm.data[0].y = 0;
       cm.data[0].hits = {30, 60};
       cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
       client_request::send_to_host(cat);
     }
-    auto ckt = skill_game_instance::create_skill_payload(cat, 1000, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(cat, 4001003, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
                                           self);
     client_request::send_to_host(ckt);
@@ -171,5 +172,6 @@ static void shuangfeizhan() {
 [[maybe_unused]] static const bool r = [] {
   yinshenshu();
   huibishu();
+  shuangfeizhan();
   return true;
 }();

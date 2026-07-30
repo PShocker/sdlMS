@@ -132,6 +132,8 @@ afterimage_game_instance::load_rect(game_character &g_character) {
 
 uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
   uint64_t time = 0;
+  auto speed = character_logic_system::load_attack_speed(g_character);
+  speed = 1.0 / speed;
   if (auto data = load_atf_node(g_character)) {
     auto childs = *data->get_children();
     childs.erase(u"lt");
@@ -142,12 +144,10 @@ uint64_t afterimage_game_instance::load_beat_time(game_character &g_character) {
     const auto &bones =
         character_game_instance::bone_data.at(g_character.action);
     for (auto i = 0; i < index; i++) {
-      time += bones[i].delay;
+      time += bones[i].delay * speed;
     }
     auto now = window::dt_time;
     time += now;
   }
-  auto speed = character_logic_system::load_attack_speed(g_character);
-  speed = 1.0 / speed;
-  return time * speed;
+  return time;
 }

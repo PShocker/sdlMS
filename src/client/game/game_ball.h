@@ -16,6 +16,7 @@ public:
   int speed;
 
   SDL_FPoint pos;
+  bool flip;
 
   uint32_t ani_index = 0;
   uint32_t ani_time = 0;

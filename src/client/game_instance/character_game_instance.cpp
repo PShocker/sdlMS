@@ -235,6 +235,7 @@ void character_game_instance::load_self_character() {
   add_ear(self, u"humanEar");
 
   load_name(self, u"进击的蓝蘑菇");
+  self.attack_speed = -7;
 }
 
 std::flat_set<std::u16string>

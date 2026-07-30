@@ -31,5 +31,6 @@ void server_ball_instance::handle_server_ball(uint64_t client_id,
   b.pos = {r.payload->ball->x1, r.payload->ball->y1};
   b.goal = {r.payload->ball->x2, r.payload->ball->y2};
   b.speed = r.payload->ball->speed;
+  b.flip = b.pos.x < b.goal.x;
   ball_game_instance::data[r.payload->ball->page].emplace_back(b);
 }
