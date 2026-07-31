@@ -227,7 +227,7 @@ void character_game_instance::load_self_character() {
   add_head(self, u"00012000");
   add_coat(self, u"01040002");
   add_cap(self, u"01002005");
-  add_weapon(self, u"01302010");
+  add_weapon(self, u"01472012");
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
@@ -235,7 +235,6 @@ void character_game_instance::load_self_character() {
   add_ear(self, u"humanEar");
 
   load_name(self, u"进击的蓝蘑菇");
-  self.attack_speed = -7;
 }
 
 std::flat_set<std::u16string>

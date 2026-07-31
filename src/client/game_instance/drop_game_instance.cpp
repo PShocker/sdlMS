@@ -5,34 +5,6 @@
 #include <format>
 #include <optional>
 
-void drop_game_instance::load_drop(const DropT &dt) {
-  game_drop drop;
-  drop.page = dt.page;
-  drop.vspeed = -550;
-  drop.pos = SDL_FPoint{dt.x1, dt.y1};
-  drop.goal = SDL_FPoint{dt.x2, dt.y2};
-
-  switch (dt.drop.type) {
-  case fbs::ItemUnion_Equip: {
-    auto equipT = dt.drop.AsEquip();
-    game_equip_item equip;
-    auto tmp = std::format("{:08d}", equipT->equip_id);
-    equip.id = {tmp.begin(), tmp.end()};
-    drop.data =
-        std::polymorphic<game_item>(std::in_place_type<game_equip_item>, equip);
-    break;
-  }
-  case fbs::ItemUnion_Item: {
-    auto item = dt.drop.AsItem();
-    break;
-  }
-  default: {
-    break;
-  }
-  }
-  data.emplace(dt.random_id, drop);
-}
-
 void drop_game_instance::pick_drop(uint64_t client_id,
                                    ServerCharacterDropT &r) {
   auto random_id = r.payload->random_id;

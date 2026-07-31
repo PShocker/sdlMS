@@ -21,6 +21,7 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "wz/Property.h"
 #include <array>
@@ -60,6 +61,7 @@ static void mfdan() {
     auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
                                                        page, 700, path);
     client_request::send_to_host(cct);
+    server_ball_instance::handle_server_b(cct.payload);
 
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {

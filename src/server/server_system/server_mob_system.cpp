@@ -267,17 +267,23 @@ void server_mob_system::run_die_action(server_mob &mob) {
   mob.action = u"die1";
 }
 
-void server_mob_system::run_mob_drop(server_mob &mob) {
-  // 保持原样，已注释
-  // ServerMobDropT smd;
-  // auto mob_drops = load_mob_drops(mob);
-  // ...
-}
-
 void server_mob_system::run_die(server_mob &mob) {
   mob.hate_id = 0;
   run_die_action(mob);
-  run_mob_drop(mob);
+  ServerMobDieT smd;
+  auto mob_drops = load_mob_drops(mob);
+  for (const auto &drop : mob_drops) {
+    auto &gen = random_game_instance::gen;
+    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+    bool success = dis(gen) <= drop.rate;
+    if (!success) {
+      continue;
+    }
+    DropT dt;
+    dt.x1 = mob.pos.x;
+    dt.y1 = mob.pos.y;
+    dt.page = mob.page;
+  }
 }
 
 bool server_mob_system::run_hitting(server_mob &mob) {
@@ -313,6 +319,7 @@ bool server_mob_system::run_hitting(server_mob &mob) {
 
   if (mob.hp > 0) {
     mob.hate_id = l.hit_id;
+    mob.duration = window::dt_now + 220;
     run_hit_action(mob);
   } else if (r.hit_time < current_time) {
     run_die(mob);
@@ -326,8 +333,7 @@ void server_mob_system::run_hit(server_mob &mob) {
   switch (mob.type) {
   case server_mob::mob_type::stand: {
     run_walk(mob);
-    if (!r) {
-      mob.duration = window::dt_now + 500;
+    if (window::dt_now > mob.duration) {
       run_stand_action(mob);
     }
     break;

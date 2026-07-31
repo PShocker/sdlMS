@@ -6,6 +6,7 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
 #include "src/server/server/server_drop.h"
+#include <format>
 #include <utility>
 
 void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
@@ -42,9 +43,36 @@ void server_drop_instance::handle_pick(uint64_t client_id,
   }
 }
 
+void server_drop_instance::handle_server_dt(const DropT &dt) {
+  game_drop drop;
+  drop.page = dt.page;
+  drop.vspeed = -550;
+  drop.pos = SDL_FPoint{dt.x1, dt.y1};
+  drop.goal = SDL_FPoint{dt.x2, dt.y2};
+
+  switch (dt.drop.type) {
+  case fbs::ItemUnion_Equip: {
+    auto equipT = dt.drop.AsEquip();
+    game_equip_item equip;
+    auto tmp = std::format("{:08d}", equipT->equip_id);
+    equip.id = {tmp.begin(), tmp.end()};
+    drop.data =
+        std::polymorphic<game_item>(std::in_place_type<game_equip_item>, equip);
+    break;
+  }
+  case fbs::ItemUnion_Item: {
+    auto item = dt.drop.AsItem();
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  drop_game_instance::data.emplace(dt.random_id, drop);
+}
+
 void server_drop_instance::handle_server_drop(uint64_t client_id,
                                               ServerCharacterDropT &r) {
-
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     if (r.payload->random_id == cursor_game_instance::cursor_hand_net->id) {
       cursor_game_instance::cursor_hand_net = std::nullopt;
@@ -65,5 +93,5 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
       cursor_game_instance::cursor_hand = std::nullopt;
     }
   }
-  drop_game_instance::load_drop(*r.payload);
+  handle_server_dt(*r.payload);
 }

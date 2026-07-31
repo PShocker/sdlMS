@@ -10,6 +10,7 @@
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
+#include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include <cstdint>
@@ -21,7 +22,7 @@ static void ThreeSnail() {
   g_skill.id = u"0001000";
   g_skill.use = [](int ski_lv) {
     game_triangle tri = {
-        {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -30}}};
+        {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -28}}};
     auto &self = character_game_instance::self;
     character_logic_system::run_action(self, u"swingO1");
     auto cm = character_logic_system::run_attack_check(self, tri);
@@ -34,7 +35,7 @@ static void ThreeSnail() {
     path += {ski_lvl2.begin(), ski_lvl2.end()};
     path += u"/ball";
     auto pos = self.pos;
-    pos.y -= 30;
+    pos.y -= 28;
     auto page = self.page;
     SDL_FPoint goal = pos;
     if (self.flip) {
@@ -45,13 +46,14 @@ static void ThreeSnail() {
     auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
                                                        page, 700, path);
     client_request::send_to_host(cct);
+    server_ball_instance::handle_server_b(cct.payload);
 
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = ball_game_instance::load_ball_time(cct);
       // Create and send attack payload
       cm.data[0].y = 0;
-      cm.data[0].hits = {30};
+      cm.data[0].hits = {10};
       cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
       client_request::send_to_host(cat);
     }

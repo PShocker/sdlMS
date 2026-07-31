@@ -12,6 +12,7 @@
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <flat_map>
@@ -69,17 +70,31 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
   auto calculate_target = [&](SDL_FPoint target) -> SDL_FPoint {
     auto ins = physic::fall_intersect_pos(pos, target, fhs);
 
-    // 使用std::map或直接遍历查找，避免多次分配
     SDL_FPoint best_point = target;
     float min_dx = std::numeric_limits<float>::max();
+    const float pos_x = pos.x; // 缓存pos.x
 
     for (const auto &[k, v] : ins) {
-      if (physic::fall_collide_wall(hspeed, v.fh, fhs)) {
-        float dx = std::abs(pos.x - v.pos.x);
-        if (dx < min_dx) {
-          min_dx = dx;
-          best_point = {v.pos.x, v.pos.y};
-        }
+      bool check = false;
+      // 预计算dx避免重复
+      const float dx = std::abs(pos_x - v.pos.x);
+      if (dx >= min_dx)
+        continue; // 提前剪枝
+
+      if (!v.fh.k.has_value()) {
+        check = physic::fall_collide_wall(hspeed, v.fh, fhs);
+      } else if (v.fh.k == 0) {
+        check = (pos.y < target.y); // 禁止从上到下
+      } else {
+        // 禁止同向
+        const bool moving_right = v.fh.x1 < v.fh.x2;
+        const bool target_right = pos.x < target.x;
+        check =
+            (moving_right && target_right) || (!moving_right && !target_right);
+      }
+      if (check) {
+        min_dx = dx;
+        best_point = {v.pos.x, v.pos.y};
       }
     }
     return best_point;

@@ -1307,6 +1307,9 @@ void character_logic_system::load_sfx(game_character &g_character) {
 }
 
 float character_logic_system::load_attack_speed(game_character &g_character) {
+  if (!g_character.weapon.has_value()) {
+    return 1.0;
+  }
   auto w_speed = equip_game_instance::load_equip_inc(g_character.weapon->id)
                      .at(equip_game_instance::inc_type::WEAPON_SPEED);
   float speed = w_speed + g_character.attack_speed;

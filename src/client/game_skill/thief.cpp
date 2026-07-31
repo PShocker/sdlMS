@@ -12,6 +12,7 @@
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
+#include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include <cstdint>
@@ -147,11 +148,6 @@ static void shuangfeizhan() {
     }
     auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
                                                        page, 700, path);
-    client_request::send_to_host(cct);
-    // 注意,需要再次发送一遍ball
-    cct.payload->ball->delay += 100;
-    client_request::send_to_host(cct);
-
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = ball_game_instance::load_ball_time(cct);
@@ -159,6 +155,11 @@ static void shuangfeizhan() {
       cm.data[0].hits = {30, 60};
       cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
       client_request::send_to_host(cat);
+    }
+    for (auto i : {0, 1}) {
+      client_request::send_to_host(cct);
+      server_ball_instance::handle_server_b(cct.payload);
+      cct.payload->ball->delay += 100;
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 4001003, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
