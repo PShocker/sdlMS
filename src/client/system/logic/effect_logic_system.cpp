@@ -1,4 +1,5 @@
 #include "effect_logic_system.h"
+#include "character_logic_system.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -74,7 +75,20 @@ bool effect_logic_system::run_skill_use(game_effect &g_effect) {
   if (delay_node) {
     delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
   }
-  g_effect.time += window::delta_time;
+  auto g_character = std::any_cast<game_character *>(g_effect.data);
+  auto action_type = character_logic_system::load_action_type(*g_character);
+  float speed = 1;
+  switch (action_type) {
+  case character_logic_system::action_enum::attack:
+  case character_logic_system::action_enum::skill: {
+    speed = character_logic_system::load_attack_speed(*g_character);
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  g_effect.time += window::delta_time * speed;
   if (g_effect.time >= delay) {
     g_effect.time = 0;
     g_effect.index += 1;
@@ -134,7 +148,6 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
       remove = run_skill_hit(g_effect);
       break;
     }
-
     case game_effect::effect_type::damage: {
       remove = run_damage(g_effect);
       break;

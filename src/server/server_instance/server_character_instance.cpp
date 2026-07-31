@@ -421,8 +421,8 @@ void server_character_instance::handle_ski(
         .type = game_effect::effect_type::custom,
         .pos = std::nullopt,
         .z = false,
+        .data = &g_character,
     };
-    e.data = &g_character;
     auto &eff = g_character.effect;
     std::erase_if(eff, [&](const auto &ef) { return ef.id == e.id; });
     eff.push_back(e);
@@ -435,6 +435,7 @@ void server_character_instance::handle_ski(
         .type = game_effect::effect_type::skill_use,
         .pos = std::nullopt,
         .z = false,
+        .data = &g_character,
     };
     g_character.effect.push_back(e);
   }

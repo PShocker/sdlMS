@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "equip_game_instance.h"
 #include "src/client/game/game_ball.h"
+#include "src/client/game/game_foothold.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
@@ -13,6 +14,7 @@
 #include "src/common/physic/physic.h"
 #include <cmath>
 #include <cstdint>
+#include <flat_map>
 #include <memory>
 #include <string>
 
@@ -47,71 +49,85 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
 
   ClientCharacterBallT ccb;
 
-  // 使用初始化列表或直接构造，避免多次unique_ptr分配
-  auto ball = std::make_unique<BallT>();
-  ball->page = page;
-  ball->speed = speed;
-  ball->delay = delay;
-  ball->x1 = pos.x;
-  ball->y1 = pos.y;
+  // 1. 直接构造BallT，避免unique_ptr的单独分配
+  auto ball = std::make_unique<BallT>(BallT{
+      .x1 = pos.x,
+      .y1 = pos.y,
+      .x2 = goal.x, // 默认值
+      .y2 = goal.y, // 默认值
+      .speed = (float)speed,
+      .mob = false,
+      .mob_index = 0,
+      .delay = delay,
+      .page = (uint8_t)page,
+  });
 
-  // 处理目标位置
   const auto &fhs = foothold_game_instance::data;
-  SDL_FPoint target_pos = goal; // 默认目标
+  auto hspeed = (goal.x > pos.x) ? speed : -speed;
 
+  // 2. 提取目标计算逻辑为lambda，减少重复
+  auto calculate_target = [&](SDL_FPoint target) -> SDL_FPoint {
+    auto ins = physic::fall_intersect_pos(pos, target, fhs);
+
+    // 使用std::map或直接遍历查找，避免多次分配
+    SDL_FPoint best_point = target;
+    float min_dx = std::numeric_limits<float>::max();
+
+    for (const auto &[k, v] : ins) {
+      if (physic::fall_collide_wall(hspeed, v.fh, fhs)) {
+        float dx = std::abs(pos.x - v.pos.x);
+        if (dx < min_dx) {
+          min_dx = dx;
+          best_point = {v.pos.x, v.pos.y};
+        }
+      }
+    }
+    return best_point;
+  };
+
+  // 3. 主逻辑流
   if (!cm.data.empty()) {
     const auto &mob = cm.data[0].mob;
     auto mob_r = mob_logic_system::load_rect(mob);
 
     if (mob_r.has_value()) {
       auto closest_pos = closest_point_on_rect(pos, mob_r.value());
-      auto ins = physic::fall_intersect_pos(pos, closest_pos, fhs);
+      auto target = calculate_target(closest_pos);
 
-      if (!ins.empty()) {
+      // 检查是否命中墙面
+      if (target.x != closest_pos.x || target.y != closest_pos.y) {
         // 命中墙面
-        cm.data.clear(); // 更清晰的清空方式
-        // 找到x最近的点
-        
-        target_pos = {ins.begin()->second.pos.x, ins.begin()->second.pos.y};
+        cm.data.clear();
+        ball->x2 = target.x;
+        ball->y2 = target.y;
         ball->mob = false;
       } else {
         // 命中怪物
         ball->mob = true;
         ball->mob_index = mob.index;
-        target_pos = {closest_pos.x - mob.pos.x, closest_pos.y - mob.pos.y};
+        ball->x2 = closest_pos.x - mob.pos.x;
+        ball->y2 = closest_pos.y - mob.pos.y;
+
         // 更新cm数据
-        cm.data[0].x = target_pos.x;
-        cm.data[0].y = target_pos.y;
+        cm.data[0].x = ball->x2;
+        cm.data[0].y = ball->y2;
       }
     } else {
-      // load_rect失败时的回退处理
+      // load_rect失败，回退到goal
+      auto target = calculate_target(goal);
+      ball->x2 = target.x;
+      ball->y2 = target.y;
       ball->mob = false;
-      // 使用goal作为目标
-      auto ins = physic::fall_intersect_pos(pos, goal, fhs);
-      target_pos = ins.empty() ? goal
-                               : SDL_FPoint{
-                                     ins.begin()->second.pos.x,
-                                     ins.begin()->second.pos.y,
-                                 };
     }
   } else {
-    // 无cm.data时
-    auto ins = physic::fall_intersect_pos(pos, goal, fhs);
-    // if (fall_collide_wall(hspeed, fh, fhs)) {
-    // }
-    target_pos = ins.empty() ? goal
-                             : SDL_FPoint{
-                                   ins.begin()->second.pos.x,
-                                   ins.begin()->second.pos.y,
-                               };
+    // 无cm.data
+    auto target = calculate_target(goal);
+    ball->x2 = target.x;
+    ball->y2 = target.y;
     ball->mob = false;
   }
 
-  // 设置目标位置
-  ball->x2 = target_pos.x;
-  ball->y2 = target_pos.y;
-
-  // 构造payload
+  // 4. 构造payload
   ccb.payload = std::make_unique<CharacterBallT>();
   ccb.payload->path.assign(path.begin(), path.end());
   ccb.payload->ball = std::move(ball);

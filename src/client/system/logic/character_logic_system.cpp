@@ -1310,5 +1310,5 @@ float character_logic_system::load_attack_speed(game_character &g_character) {
   auto w_speed = equip_game_instance::load_equip_inc(g_character.weapon->id)
                      .at(equip_game_instance::inc_type::WEAPON_SPEED);
   float speed = w_speed + g_character.attack_speed;
-  return 1.7 - speed / 10;
+  return 1.6 - speed / 10;
 }
