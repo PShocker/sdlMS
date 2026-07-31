@@ -24,7 +24,7 @@ public:
     SDL_FPoint pos;
     game_foothold fh;
   };
-  static std::flat_map<float, intersect_pos>
+  static std::flat_multimap<float, intersect_pos>
   fall_intersect_pos(const SDL_FPoint &p1, const SDL_FPoint &p2,
                      const std::flat_map<int32_t, game_foothold> &fhs);
 

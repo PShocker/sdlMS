@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
+#include <flat_map>
 #include <ranges>
 
 bool physic::walk_fh(SDL_FPoint &pos, bool fall, int32_t next_fh,
@@ -152,10 +153,10 @@ std::optional<SDL_FPoint> physic::fall_intersect(const SDL_FPoint &p1,
   return SDL_FPoint{p1.x + t * dx1, p1.y + t * dy1};
 }
 
-std::flat_map<float, physic::intersect_pos>
+std::flat_multimap<float, physic::intersect_pos>
 physic::fall_intersect_pos(const SDL_FPoint &p1, const SDL_FPoint &p2,
                            const std::flat_map<int32_t, game_foothold> &fhs) {
-  std::flat_map<float, physic::intersect_pos> r;
+  std::flat_multimap<float, physic::intersect_pos> r;
   for (const auto &fh : fhs | std::views::values) {
     auto collide = fall_intersect(p1, p2, {(float)fh.x1, (float)fh.y1},
                                   {(float)fh.x2, (float)fh.y2});
