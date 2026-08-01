@@ -57,7 +57,7 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
     SDL_Texture *texture;
     std::u16string item_name;
     if (item_game_instance::check_item(item.item->id)) {
-      auto info = item_game_instance::load_item_info(item.item->id);
+      auto info = item_game_instance::load_item_info(item.item->id, 0);
       texture = wz_resource::load_texture(info->get_child(u"icon"));
       item_name = item_game_instance::load_item_text(item.item->id, u"name");
     } else {

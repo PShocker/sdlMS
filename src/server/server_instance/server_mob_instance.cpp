@@ -11,6 +11,7 @@
 #include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
+#include "src/server/server_instance/server_drop_instance.h"
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
@@ -120,6 +121,9 @@ void server_mob_instance::handle_server_state(const ServerMobStateT &m) {
       mob.hp = s->val;
       break;
     }
+    default: {
+      break;
+    }
     }
   }
 }
@@ -139,6 +143,10 @@ void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
         .experience = true,
     };
     gain_log_game_instance::data.push_back(g_log);
+  }
+  // Drop
+  for (const auto &dt : m.drop) {
+    server_drop_instance::handle_server_dt(*dt);
   }
   mob.attack_val = 0;
 }

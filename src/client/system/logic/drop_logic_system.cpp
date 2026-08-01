@@ -16,6 +16,10 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     drop.vspeed = drop.vspeed + delta_time * 2000;
     auto dy = drop.vspeed * delta_time;
     drop.pos.y += dy;
+    if (drop.vspeed <= 0) {
+      auto dx = drop.hspeed * delta_time;
+      drop.pos.x += dx;
+    }
     if (drop.pos.y >= drop.goal.y && drop.vspeed > 0) {
       drop.pos.x = drop.goal.x;
       drop.pos.y = drop.goal.y;

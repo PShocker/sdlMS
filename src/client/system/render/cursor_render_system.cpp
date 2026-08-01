@@ -99,7 +99,7 @@ void cursor_render_system::render_hand() {
       } else {
         auto &r = package_game_instance::data[hand.val];
         const auto &item = r.at(hand.sub_val);
-        auto info = item_game_instance::load_item_info(item->id);
+        auto info = item_game_instance::load_item_info(item->id, 0);
         icon = wz_resource::load_texture(info->get_child(u"iconRaw"));
         render_icon(icon);
       }

@@ -243,10 +243,6 @@ void package_ui_system::render_items() {
   auto &items = (active_tab == 0) ? package_game_instance::data[0]
                                   : package_game_instance::data[active_tab];
 
-  // 选择加载函数
-  auto load_info = (active_tab == 0) ? &equip_game_instance::load_equip_info
-                                     : &item_game_instance::load_item_info;
-
   const size_t start_index = static_cast<size_t>(page) * slots_per_row;
   const size_t end_index = std::min(start_index + items_per_page, items.size());
 
@@ -260,10 +256,13 @@ void package_ui_system::render_items() {
     const int row = local_index / slots_per_row;
     const int col = local_index % slots_per_row;
 
+    wz::Node *info;
     // 加载信息
-    auto info = load_info(item->id);
-    if (!info)
-      continue;
+    if (active_tab == 0) {
+      info = equip_game_instance::load_equip_info(item->id);
+    } else {
+      info = item_game_instance::load_item_info(item->id, 0);
+    }
 
     auto icon = wz_resource::load_texture(info->get_child(u"icon"));
     if (!icon)

@@ -31,7 +31,7 @@ game_shop_item shop_game_instance::load_shop_item(const std::u16string &id) {
     gst.price =
         static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
   } else {
-    auto info = item_game_instance::load_item_info(item->id);
+    auto info = item_game_instance::load_item_info(item->id, 0);
     gst.price =
         static_cast<wz::Property<int> *>(info->get_child(u"price"))->get();
   }

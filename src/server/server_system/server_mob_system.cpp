@@ -11,6 +11,7 @@
 #include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_client_instance.h"
+#include "src/server/server_instance/server_drop_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
 #include "wz/Property.h"
@@ -41,7 +42,7 @@ server_mob_system::load_mob_drops(server_mob &mob) {
     return it->second;
   }
 
-  auto node = wz_resource::ms->get_root()->find(u"MobDrop/" + mob.id);
+  auto node = wz_resource::ms->get_root()->find(u"MobDrop.img/" + mob.id);
   if (node == nullptr) {
     return {};
   }
@@ -272,6 +273,7 @@ void server_mob_system::run_die(server_mob &mob) {
   run_die_action(mob);
   ServerMobDieT smd;
   auto mob_drops = load_mob_drops(mob);
+  std::vector<DropT> dts;
   for (const auto &drop : mob_drops) {
     auto &gen = random_game_instance::gen;
     std::uniform_real_distribution<float> dis(0.0f, 1.0f);
@@ -283,7 +285,29 @@ void server_mob_system::run_die(server_mob &mob) {
     dt.x1 = mob.pos.x;
     dt.y1 = mob.pos.y;
     dt.page = mob.page;
+    if (item_game_instance::check_item(drop.id)) {
+      auto min_quantity = drop.min_quantity;
+      auto max_quantity = drop.max_quantity;
+      std::uniform_int_distribution<int> dis(min_quantity, max_quantity);
+      int random_num = dis(gen);
+      ItemT it;
+      it.item_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
+      it.item_num = random_num;
+      dt.drop.Set(it);
+    } else {
+      EquipT et;
+      et.equip_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
+      dt.drop.Set(et);
+    }
+    dts.push_back(dt);
   }
+  smd.drop = server_drop_instance::create_dts(dts, map_id);
+  smd.mob_index = mob.index;
+
+  MobEventUnionUnion muu;
+  muu.Set(std::move(smd));
+  events.payload.push_back(std::move(muu));
+  return;
 }
 
 bool server_mob_system::run_hitting(server_mob &mob) {

@@ -4,6 +4,7 @@
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <algorithm>
+#include <cstdint>
 #include <flat_map>
 #include <ranges>
 #include <string>
@@ -34,6 +35,10 @@ std::u16string item_game_instance::load_item_type(const std::u16string &id) {
   if (str.length() < 8) {
     str.insert(0, 8 - str.size(), u'0');
   }
+  if (str == u"00000000") {
+    // meso
+    return u"Etc";
+  }
   static const std::flat_map<std::u16string, std::u16string> types = {
       {u"05", u"Cash"},    {u"02", u"Consume"}, {u"04", u"Etc"},
       {u"03", u"Install"}, {u"50", u"Pet"},     {u"09", u"Special"},
@@ -42,9 +47,14 @@ std::u16string item_game_instance::load_item_type(const std::u16string &id) {
   return types.at(r);
 }
 
-wz::Node *item_game_instance::load_item_info(const std::u16string &id) {
-  auto type = load_item_type(id);
+wz::Node *item_game_instance::load_item_info(const std::u16string &id,
+                                             uint32_t num) {
   wz::Node *node;
+  if (id == u"00000000") {
+    node = wz_resource::item->find(u"Special/0900.img/09000000/iconRaw");
+    return node;
+  }
+  auto type = load_item_type(id);
   if (type == u"Consume" || type == u"Etc" || type == u"Install") {
     auto r = id.substr(0, 4) + u".img";
     node = wz_resource::item->find(type + u"/" + r + u"/" + id)
@@ -90,14 +100,14 @@ item_game_instance::load_item(const std::u16string &id, uint32_t num) {
 
 int item_game_instance::load_slot_max(const std::u16string &id) {
   int r = 200;
-  auto info = load_item_info(id);
+  auto info = load_item_info(id, 0);
   if (info->get_child(u"slotMax")) {
     r = static_cast<wz::Property<int> *>(info->get_child(u"slotMax"))->get();
   }
   return r;
 }
 
-int item_game_instance::load_item_num(std::polymorphic<game_item>& itm) {
+int item_game_instance::load_item_num(std::polymorphic<game_item> &itm) {
   int num = 0;
   switch (itm->type) {
   case item_enum::consume: {

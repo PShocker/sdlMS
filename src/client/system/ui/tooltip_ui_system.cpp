@@ -666,7 +666,7 @@ void tooltip_ui_system::render_item(game_item &item, float x, float y) {
               static_cast<float>(item_cover->h)};
   SDL_RenderTexture(window::renderer, item_cover, nullptr, &pos_rect);
 
-  auto item_info = item_game_instance::load_item_info(item.id);
+  auto item_info = item_game_instance::load_item_info(item.id, 0);
   auto item_texture = wz_resource::load_texture(item_info->get_child(u"icon"));
   pos_rect.w = item_texture->w * 2;
   pos_rect.h = item_texture->h * 2;

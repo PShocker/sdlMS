@@ -12,9 +12,12 @@ using namespace fbs;
 class server_drop_instance {
 private:
   static void save_drop(uint64_t map_id, const DropT &drop);
-  static void handle_server_dt(const DropT &dt);
 
 public:
+  static std::vector<std::unique_ptr<fbs::DropT>>
+  create_dts(const std::vector<DropT> &dts, uint32_t map_id);
+
+  static void handle_server_dt(const DropT &dt);
   static void handle_drop(uint64_t client_id, ClientCharacterDropT &r);
   static void handle_pick(uint64_t client_id, ClientCharacterPickT &r);
   static void handle_server_drop(uint64_t client_id, ServerCharacterDropT &r);
