@@ -17,6 +17,7 @@ void package_game_instance::load(const character_save &cs) {
   data[5].assign(96, std::polymorphic<game_item>(game_deco_item{}));
 
   // meso = 0;
+  data[0][0]->id=u"01472012";
 
   for (auto &pkg : cs.package) {
     auto type = (int)pkg.val->type;

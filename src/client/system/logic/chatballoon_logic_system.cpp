@@ -8,7 +8,7 @@ bool chatballoon_logic_system::run() {
   // self
   auto &self = character_game_instance::self;
   if (self.chatballoon.has_value()) {
-    if (self.chatballoon.value().destory <= window::dt_now) {
+    if (self.chatballoon.value().destroy‌ <= window::dt_now) {
       // self.chatballoon = std::nullopt;
     }
   }
@@ -19,7 +19,7 @@ bool chatballoon_logic_system::run() {
       if (!npc.chatballoon.has_value()) {
         continue;
       }
-      if (npc.chatballoon.value().destory <= window::dt_now) {
+      if (npc.chatballoon.value().destroy‌ <= window::dt_now) {
         npc.chatballoon = std::nullopt;
       }
     }

@@ -9,8 +9,6 @@ class cursor_logic_system {
 private:
   static std::optional<game_npc> cursor_npc();
 
-  static bool event_left_click();
-
   static bool run_package_motion();
   static bool run_vscroll_motion();
   static bool run_animate();

@@ -76,7 +76,7 @@ void clock_ui_system::render_number(uint32_t num, float x, float y) {
 }
 
 void clock_ui_system::render_time() {
-  auto dt = destory - window::dt_now;
+  auto dt = destroy‌ - window::dt_now;
   switch (type) {
   case clock_enum::min: {
     // render min

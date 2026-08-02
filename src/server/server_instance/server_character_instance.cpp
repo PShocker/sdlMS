@@ -236,9 +236,9 @@ void server_character_instance::handle_server_fc(uint64_t client_id,
   c.face.index = 0;
   c.face.time = 0;
   if (c.face.action == u"default") {
-    c.face.destory = window::dt_now + 4000;
+    c.face.destroy‌ = window::dt_now + 4000;
   } else {
-    c.face.destory = UINT64_MAX;
+    c.face.destroy‌ = UINT64_MAX;
   }
 }
 
@@ -318,7 +318,7 @@ void server_character_instance::handle_server_chat(uint64_t client_id,
   if (g_character) {
     game_chatballoon c;
     c.w = 100;
-    c.destory = window::dt_now + 5000;
+    c.destroy‌ = window::dt_now + 5000;
     c.text = {r.payload->payload.begin(), r.payload->payload.end()};
     c.size = 13;
     c.path = u"0";

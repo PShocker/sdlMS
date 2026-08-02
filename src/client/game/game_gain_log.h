@@ -6,7 +6,7 @@ class game_gain_log {
 public:
   std::u16string id;
   uint64_t num;
-  uint64_t destory;
+  uint64_t destroy‌;
 
   bool experience;
 };

@@ -274,17 +274,18 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == nullptr) {
         auto &cursor_hand = cursor_game_instance::cursor_hand;
-        if (cursor_hand.has_value()) {
+        auto &cursor_hand_net = cursor_game_instance::cursor_hand_net;
+        if (cursor_hand.has_value() && !cursor_hand_net.has_value()) {
           switch (cursor_hand->type) {
           case cursor_game_instance::equipment: {
             break;
           }
           case cursor_game_instance::package: {
             auto active_tab = cursor_hand->val;
+            DropT dt;
             if (active_tab == 0) {
               auto &equip =
                   package_game_instance::data[0][cursor_hand->sub_val];
-              DropT dt;
               EquipT et;
               et.equip_id =
                   std::stoi(std::string{equip->id.begin(), equip->id.end()});
@@ -293,36 +294,15 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
               dt.x1 = character_game_instance::self.pos.x;
               dt.y1 = character_game_instance::self.pos.y;
 
-              dt.x2 = character_game_instance::self.pos.x;
-              dt.y2 = character_game_instance::self.pos.y - 100;
-
               dt.page = character_game_instance::self.page;
-
-              auto border = map_info_game_instance::load_mr_border(
-                  scene_system_instance::map_id);
-              int32_t tmp_fh;
-              uint8_t tmp_page;
-              float tmp_hsp = 0;
-              float tmp_vsp = 10000;
-              SDL_FPoint tmp_fp{dt.x2, dt.y2};
-              physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp,
-                           border, true, true, tmp_fh, tmp_page,
-                           foothold_game_instance::data);
-              dt.x2 = tmp_fp.x;
-              dt.y2 = tmp_fp.y;
-
-              std::uniform_int_distribution<uint64_t> dist;
-              // 生成一个随机的 uint64_t
-              dt.random_id = dist(random_game_instance::gen);
 
               ClientCharacterDropT cct;
               cct.map_id = scene_system_instance::map_id;
               cct.payload = std::make_unique<DropT>(dt);
               client_request::send_to_host(cct);
 
-              cursor_game_instance::cursor_hand_net = {
+              cursor_hand_net = {
                   .type = cursor_game_instance::drop,
-                  .id = dt.random_id,
               };
             } else {
             }

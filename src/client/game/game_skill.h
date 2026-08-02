@@ -21,7 +21,7 @@ public:
   bool fall = false;
   bool climb = false;
 
-  uint64_t destory;
+  uint64_t destroy‌;
   uint64_t duration;
   uint64_t cd;
   uint64_t start;

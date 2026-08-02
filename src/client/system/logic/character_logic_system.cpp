@@ -185,7 +185,7 @@ bool character_logic_system::run_face_action(game_character &g_character,
   g_character.face.action = action;
   g_character.face.index = 0;
   g_character.face.time = 0;
-  g_character.face.destory = window::dt_now + 4000;
+  g_character.face.destroy‌ = window::dt_now + 4000;
   return true;
 }
 
@@ -811,9 +811,9 @@ void character_logic_system::run_face_animate(game_character &g_character) {
       g_character.face.index += 1;
       if (g_character.face.index >= delays.size()) {
         if (g_character.face.action == u"blink" ||
-            (g_character.face.destory <= window::dt_now)) {
+            (g_character.face.destroy‌ <= window::dt_now)) {
           g_character.face.action = u"default";
-          g_character.face.destory = window::dt_now + 4000;
+          g_character.face.destroy‌ = window::dt_now + 4000;
         }
         g_character.face.index = 0;
       }
@@ -821,7 +821,7 @@ void character_logic_system::run_face_animate(game_character &g_character) {
     }
     return;
   }
-  if (g_character.face.destory <= window::dt_now) {
+  if (g_character.face.destroy‌ <= window::dt_now) {
     if (g_character.face.action == u"default") {
       g_character.face.action = u"blink";
     } else {
@@ -829,7 +829,7 @@ void character_logic_system::run_face_animate(game_character &g_character) {
     }
     g_character.face.index = 0;
     g_character.face.time = 0;
-    g_character.face.destory = window::dt_now + 4000;
+    g_character.face.destroy‌ = window::dt_now + 4000;
   }
   return;
 }

@@ -13,5 +13,5 @@ class server_drop {
 public:
   DropT dt;
   uint64_t available;
-  uint64_t destory;
+  uint64_t destroy‌;
 };

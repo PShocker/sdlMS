@@ -8,7 +8,7 @@ bool skill_logic_system::run() {
   auto &v = skill_game_instance::ski;
   std::vector<std::function<void()>> ends;
   for (const auto &sk : v) {
-    if (sk.destory <= window::dt_now) {
+    if (sk.destroy‌ <= window::dt_now) {
       ends.push_back(sk.end);
     }
   }

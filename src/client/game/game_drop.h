@@ -11,7 +11,7 @@
 
 struct game_drop_pick {
   uint64_t client_id;
-  std::optional<uint8_t> pet_id;
+  std::optional<uint8_t> pet_index;
 };
 
 class game_drop {
@@ -24,7 +24,7 @@ public:
   SDL_FPoint goal;
 
   int32_t rotate;
-  uint64_t destory;
+  uint64_t destroy;
 
   float hspeed = 0;
   float vspeed = 0;

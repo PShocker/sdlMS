@@ -54,23 +54,29 @@ void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
   auto &scene = server_scene_instance::scenes[map_id];
   server_drop sd;
   sd.dt = drop;
-  sd.destory = window::dt_now + 60 * 5 * 1000;
+  sd.destroy‌ = window::dt_now + 60 * 5 * 1000;
   sd.available = window::dt_now + cal_drop_time(drop.y1, drop.y2) * 1000;
   scene.drops.emplace(drop.random_id, sd);
 }
 
-void server_drop_instance::handle_drop(uint64_t client_id,
-                                       ClientCharacterDropT &r) {
+void server_drop_instance::handle_client_drop(uint64_t client_id,
+                                              ClientCharacterDropT &r) {
   auto map_id = r.map_id;
-  save_drop(map_id, *r.payload);
 
-  const auto &scene = server_scene_instance::scenes[map_id];
+  auto dts = create_dts({*r.payload}, map_id);
+  for (const auto &dt : dts) {
+    save_drop(map_id, *dt);
+  }
+  auto clients = server_scene_instance::scenes[map_id].clients;
+  clients.erase(client_id);
   ServerCharacterDropT t;
   t.client_id = client_id;
-  t.payload = std::move(r.payload);
-  for (const auto c : scene.clients) {
+  t.payload = std::move(dts[0]);
+  for (const auto c : clients) {
     server_response::send_to_client(c, t);
   }
+  t.client_id = 0;
+  server_response::send_to_client(client_id, t);
 }
 
 void server_drop_instance::handle_pick(uint64_t client_id,
@@ -133,7 +139,7 @@ void server_drop_instance::handle_server_scene_dt(const DropT &dt) {
 void server_drop_instance::handle_server_drop(uint64_t client_id,
                                               ServerCharacterDropT &r) {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
-    if (r.payload->random_id == cursor_game_instance::cursor_hand_net->id) {
+    if (r.client_id == 0) {
       cursor_game_instance::cursor_hand_net = std::nullopt;
       auto &hand = cursor_game_instance::cursor_hand.value();
       switch (hand.type) {
@@ -171,16 +177,21 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
   auto border = map_info_game_instance::load_mr_border(map_id);
   auto dts_size = dts.size();
   const auto dt_w = 24;
-  float mid = dts_size / 2;
-  float offset = (dts_size % 2 == 0) ? 0.5f : 0.0f;
 
   int n = 0;
   auto max_h = std::pow(400, 2) / (2 * 800);
 
   for (auto dt : dts) {
     dt.random_id = dist(gen);
-    int x = (n - mid + offset) * (dt_w);
-    x = x - dt_w / 2.0f;
+
+    int x;
+    if (dts_size == 1) {
+      x = 0;
+    } else {
+      float center_offset = (dts_size - 1) / 2.0f;
+      x = (int)((n - center_offset) * dt_w);
+    }
+
     dt.x2 = dt.x1 + x;
     dt.y2 = dt.y1 - max_h;
 
@@ -192,7 +203,7 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
     physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
                  true, true, tmp_fh, tmp_page, g_fhs);
     if (tmp_fp.y == border.h) {
-      // 如果这个掉落物会掉落在地图外,则修正x为原始x
+      // 如果这个掉落物会掉落在地图外，则修正x为原始x
       tmp_fp = {dt.x1, dt.y2};
       physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
                    true, true, tmp_fh, tmp_page, g_fhs);

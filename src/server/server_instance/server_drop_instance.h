@@ -21,7 +21,7 @@ public:
 
   static void handle_server_dt(const DropT &dt);
   static void handle_server_scene_dt(const DropT &dt);
-  static void handle_drop(uint64_t client_id, ClientCharacterDropT &r);
+  static void handle_client_drop(uint64_t client_id, ClientCharacterDropT &r);
   static void handle_pick(uint64_t client_id, ClientCharacterPickT &r);
   static void handle_server_drop(uint64_t client_id, ServerCharacterDropT &r);
 };

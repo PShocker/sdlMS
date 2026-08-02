@@ -77,7 +77,7 @@ bool npc_logic_system::run_duration(game_npc &g_npc) {
 bool npc_logic_system::run_chatballoon(game_npc &g_npc) {
   if (g_npc.chatballoon.has_value()) {
     auto &chatballoon = g_npc.chatballoon.value();
-    if (chatballoon.destory < window::dt_now) {
+    if (chatballoon.destroy‌ < window::dt_now) {
       g_npc.chatballoon = std::nullopt;
     }
   } else {
@@ -99,7 +99,7 @@ bool npc_logic_system::run_chatballoon(game_npc &g_npc) {
     }
 
     game_chatballoon c;
-    c.destory = window::dt_now + random_number;
+    c.destroy‌ = window::dt_now + random_number;
     // c.path = u"25";
     // c.path = u"20";
     c.path = u"0";
