@@ -27,7 +27,5 @@ public:
 
   static void load(uint32_t map_id);
 
-  static void load_server_mob(const std::vector<std::unique_ptr<MobT>> &v);
-  
   static inline std::flat_map<int32_t, mob_server_data> data;
 };

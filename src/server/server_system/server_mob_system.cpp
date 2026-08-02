@@ -304,6 +304,10 @@ void server_mob_system::run_die(server_mob &mob) {
   smd.drop = server_drop_instance::create_dts(dts, map_id);
   smd.mob_index = mob.index;
 
+  for (const auto &dt : smd.drop) {
+    server_drop_instance::save_drop(map_id, *dt);
+  }
+
   MobEventUnionUnion muu;
   muu.Set(std::move(smd));
   events.payload.push_back(std::move(muu));

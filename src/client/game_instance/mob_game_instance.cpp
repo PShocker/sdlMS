@@ -78,26 +78,3 @@ void mob_game_instance::load(uint32_t map_id) {
     data[g_mob.index] = {g_mob, {}};
   }
 }
-
-void mob_game_instance::load_server_mob(
-    const std::vector<std::unique_ptr<fbs::MobT>> &v) {
-  for (const auto &m : v) {
-    if (data.contains(m->mob_index)) {
-      auto &mob = data.at(m->mob_index).mob;
-      const auto &state = m->state;
-      mob.action = std::u16string{state->action.begin(), state->action.end()};
-      mob.page = state->page;
-      mob.flip = state->flip;
-      mob.pos.x = state->x;
-      mob.pos.y = state->y;
-      mob.hp = m->mob_hp;
-
-      auto action_type = mob_logic_system::load_action_type(mob.action);
-      if (action_type == mob_logic_system::action_enum::die) {
-        mob_logic_system::run_revice(mob);
-      }
-    } else {
-      // summon mob
-    }
-  }
-}

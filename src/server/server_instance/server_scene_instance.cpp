@@ -67,6 +67,9 @@ void server_scene_instance::send_scene_clients(uint64_t client_id,
     auto client = server_client_instance::clients.at(c);
     r.players.push_back(std::make_unique<PlayerT>(client.player_t));
   }
+  for (const auto d : scene.drops | std::views::values) {
+    r.drops.push_back(std::make_unique<DropT>(d.dt));
+  }
   for (const auto &[k, m] : scene.mobs) {
     auto &mobt = r.mobs.emplace_back(std::make_unique<MobT>());
     mobt->mob_hp = m.hp;

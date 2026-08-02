@@ -11,5 +11,7 @@ using namespace fbs;
 
 class server_drop {
 public:
-  DropT drop;
+  DropT dt;
+  uint64_t available;
+  uint64_t destory;
 };

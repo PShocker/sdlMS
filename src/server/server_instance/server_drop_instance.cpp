@@ -1,11 +1,13 @@
 #include "server_drop_instance.h"
 #include "server_scene_instance.h"
+#include "src/client/game/game_drop.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
+#include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/physic/physic.h"
 #include "src/common/response/server_response.h"
@@ -14,9 +16,47 @@
 #include <format>
 #include <utility>
 
+float server_drop_instance::cal_drop_time(float y1, float y2) {
+  const float VY = 400.0f; // 初速度 = 最大速度
+  const float G = 800.0f;  // 重力加速度
+
+  float delta_y = y1 - y2; // 起点-终点（正数=下落）
+  // 终点在起点下方（下落）
+  if (delta_y > 0) {
+    float fall_distance = delta_y;
+    if (fall_distance <= 100.0f) {
+      // 距离 <= 100px：全程加速，未达到最大速度
+      // t = sqrt(2*fall_distance/G)
+      float t = sqrtf(2.0f * fall_distance / G);
+      return 0.5f + t; // 上升0.5秒 + 下落时间
+    } else {
+      // 距离 > 100px：加速100px后匀速
+      float t_accel = 0.5f;                          // 加速时间
+      float t_const = (fall_distance - 100.0f) / VY; // 匀速时间
+      float t = 0.5f + t_accel + t_const; // 上升0.5s + 加速0.5s + 匀速
+      return t;
+    }
+  }
+  // 终点在起点上方（上升）
+  else if (delta_y < 0) {
+    float rise_distance = -delta_y;
+    // 上升阶段：t = (VY - sqrt(VY² - 2*G*rise_distance)) / G
+    float t = (VY - sqrtf(VY * VY - 2.0f * G * rise_distance)) / G;
+    return t;
+  }
+  // 相同高度
+  else {
+    return 1.0f; // 完整抛物线：0.5s上升 + 0.5s下落
+  }
+}
+
 void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
   auto &scene = server_scene_instance::scenes[map_id];
-  scene.drops.emplace(drop.random_id, server_drop{drop});
+  server_drop sd;
+  sd.dt = drop;
+  sd.destory = window::dt_now + 60 * 5 * 1000;
+  sd.available = window::dt_now + cal_drop_time(drop.y1, drop.y2) * 1000;
+  scene.drops.emplace(drop.random_id, sd);
 }
 
 void server_drop_instance::handle_drop(uint64_t client_id,
@@ -51,10 +91,10 @@ void server_drop_instance::handle_pick(uint64_t client_id,
 void server_drop_instance::handle_server_dt(const DropT &dt) {
   game_drop drop;
   drop.page = dt.page;
-  drop.vspeed = -555;
+  drop.vspeed = -400;
   drop.pos = SDL_FPoint{dt.x1, dt.y1};
   drop.goal = SDL_FPoint{dt.x2, dt.y2};
-  drop.hspeed = (dt.x2 - dt.x1) / (-drop.vspeed / 2000);
+  drop.hspeed = (dt.x2 - dt.x1) / (-drop.vspeed / 800);
 
   switch (dt.drop.type) {
   case fbs::ItemUnion_Equip: {
@@ -78,6 +118,16 @@ void server_drop_instance::handle_server_dt(const DropT &dt) {
   }
   }
   drop_game_instance::data.emplace(dt.random_id, drop);
+}
+
+void server_drop_instance::handle_server_scene_dt(const DropT &dt) {
+  handle_server_dt(dt);
+  auto &drop = drop_game_instance::data.at(dt.random_id);
+  drop.hspeed = 0;
+  drop.pos.x = dt.x2;
+  drop.pos.y = dt.y2;
+  drop.type = game_drop::land;
+  return;
 }
 
 void server_drop_instance::handle_server_drop(uint64_t client_id,
@@ -125,7 +175,7 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
   float offset = (dts_size % 2 == 0) ? 0.5f : 0.0f;
 
   int n = 0;
-  auto max_h = std::pow(555, 2) / (2 * 2000);
+  auto max_h = std::pow(400, 2) / (2 * 800);
 
   for (auto dt : dts) {
     dt.random_id = dist(gen);
@@ -141,6 +191,14 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
     SDL_FPoint tmp_fp{dt.x2, dt.y2};
     physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
                  true, true, tmp_fh, tmp_page, g_fhs);
+    if (tmp_fp.y == border.h) {
+      // 如果这个掉落物会掉落在地图外,则修正x为原始x
+      tmp_fp = {dt.x1, dt.y2};
+      physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
+                   true, true, tmp_fh, tmp_page, g_fhs);
+    }
+    dt.page = tmp_page;
+
     dt.x2 = tmp_fp.x;
     dt.y2 = tmp_fp.y;
 

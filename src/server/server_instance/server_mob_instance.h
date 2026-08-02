@@ -17,6 +17,8 @@ public:
   static void load_mob(server_scene &scene);
   static void load_summon_mob(uint64_t client_id);
 
+  static void hanle_server_mob(const std::unique_ptr<fbs::MobT> &m);
+
   static void handle_s_attack(uint64_t client_id, AttackT &at);
 
   static void handle_attack(uint64_t client_id, ClientMobAttackT &r);

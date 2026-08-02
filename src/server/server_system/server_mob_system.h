@@ -34,7 +34,6 @@ private:
   static void run_die(server_mob &mob);
   static void run_send();
 
-  static void run_mob_drop(server_mob &mob);
   static void run_network_sync(server_mob &mob, server_mob &o_mob);
 
 public:

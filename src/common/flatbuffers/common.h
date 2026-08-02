@@ -2432,7 +2432,6 @@ struct DropT : public ::flatbuffers::NativeTable {
   float x2 = 0.0f;
   float y2 = 0.0f;
   uint8_t page = 0;
-  uint64_t timestamp = 0;
 };
 
 struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -2446,8 +2445,7 @@ struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_Y1 = 12,
     VT_X2 = 14,
     VT_Y2 = 16,
-    VT_PAGE = 18,
-    VT_TIMESTAMP = 20
+    VT_PAGE = 18
   };
   uint64_t random_id() const {
     return GetField<uint64_t>(VT_RANDOM_ID, 0);
@@ -2508,12 +2506,6 @@ struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_page(uint8_t _page = 0) {
     return SetField<uint8_t>(VT_PAGE, _page, 0);
   }
-  uint64_t timestamp() const {
-    return GetField<uint64_t>(VT_TIMESTAMP, 0);
-  }
-  bool mutate_timestamp(uint64_t _timestamp = 0) {
-    return SetField<uint64_t>(VT_TIMESTAMP, _timestamp, 0);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -2526,7 +2518,6 @@ struct Drop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_X2, 4) &&
            VerifyField<float>(verifier, VT_Y2, 4) &&
            VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
-           VerifyField<uint64_t>(verifier, VT_TIMESTAMP, 8) &&
            verifier.EndTable();
   }
   DropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2578,9 +2569,6 @@ struct DropBuilder {
   void add_page(uint8_t page) {
     fbb_.AddElement<uint8_t>(Drop::VT_PAGE, page, 0);
   }
-  void add_timestamp(uint64_t timestamp) {
-    fbb_.AddElement<uint64_t>(Drop::VT_TIMESTAMP, timestamp, 0);
-  }
   explicit DropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2601,10 +2589,8 @@ inline ::flatbuffers::Offset<Drop> CreateDrop(
     float y1 = 0.0f,
     float x2 = 0.0f,
     float y2 = 0.0f,
-    uint8_t page = 0,
-    uint64_t timestamp = 0) {
+    uint8_t page = 0) {
   DropBuilder builder_(_fbb);
-  builder_.add_timestamp(timestamp);
   builder_.add_random_id(random_id);
   builder_.add_y2(y2);
   builder_.add_x2(x2);
@@ -4519,7 +4505,6 @@ inline void Drop::UnPackTo(DropT *_o, const ::flatbuffers::resolver_function_t *
   { auto _e = x2(); _o->x2 = _e; }
   { auto _e = y2(); _o->y2 = _e; }
   { auto _e = page(); _o->page = _e; }
-  { auto _e = timestamp(); _o->timestamp = _e; }
 }
 
 inline ::flatbuffers::Offset<Drop> CreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const DropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4538,7 +4523,6 @@ inline ::flatbuffers::Offset<Drop> Drop::Pack(::flatbuffers::FlatBufferBuilder &
   auto _x2 = _o->x2;
   auto _y2 = _o->y2;
   auto _page = _o->page;
-  auto _timestamp = _o->timestamp;
   return fbs::CreateDrop(
       _fbb,
       _random_id,
@@ -4548,8 +4532,7 @@ inline ::flatbuffers::Offset<Drop> Drop::Pack(::flatbuffers::FlatBufferBuilder &
       _y1,
       _x2,
       _y2,
-      _page,
-      _timestamp);
+      _page);
 }
 
 inline StateT *State::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

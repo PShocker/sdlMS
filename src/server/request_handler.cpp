@@ -190,7 +190,12 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
       for (const auto &c : r.players) {
         server_character_instance::handle_server_playert(c);
       }
-      mob_game_instance::load_server_mob(r.mobs);
+      for (const auto &m : r.mobs) {
+        server_mob_instance::hanle_server_mob(m);
+      }
+      for (const auto &d : r.drops) {
+        server_drop_instance::handle_server_scene_dt(*d);
+      }
     } else {
       fade_system_instance::enter_in(scene_system_instance::enter_fade);
     }

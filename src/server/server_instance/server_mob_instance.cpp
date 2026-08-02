@@ -5,6 +5,7 @@
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
@@ -212,4 +213,26 @@ void server_mob_instance::handle_s_attack(uint64_t client_id, AttackT &at) {
 
 void server_mob_instance::handle_server_attack(ServerMobAttackT &r) {
   handle_s_attack(r.client_id, *r.payload);
+}
+
+void server_mob_instance::hanle_server_mob(
+    const std::unique_ptr<fbs::MobT> &m) {
+  auto &data = mob_game_instance::data;
+  if (data.contains(m->mob_index)) {
+    auto &mob = data.at(m->mob_index).mob;
+    const auto &state = m->state;
+    mob.action = std::u16string{state->action.begin(), state->action.end()};
+    mob.page = state->page;
+    mob.flip = state->flip;
+    mob.pos.x = state->x;
+    mob.pos.y = state->y;
+    mob.hp = m->mob_hp;
+
+    auto action_type = mob_logic_system::load_action_type(mob.action);
+    if (action_type == mob_logic_system::action_enum::die) {
+      mob_logic_system::run_revice(mob);
+    }
+  } else {
+    // summon mob
+  }
 }

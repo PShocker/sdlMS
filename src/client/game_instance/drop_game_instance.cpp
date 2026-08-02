@@ -5,6 +5,8 @@
 #include <format>
 #include <optional>
 
+void drop_game_instance::reset() { data = {}; }
+
 void drop_game_instance::pick_drop(uint64_t client_id,
                                    ServerCharacterDropT &r) {
   auto random_id = r.payload->random_id;

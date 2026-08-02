@@ -172,8 +172,6 @@ table Drop{
     y2:float;
 
     page:uint8;
-    
-    timestamp:uint64;
 }
 
 enum StateEnum : int8 {

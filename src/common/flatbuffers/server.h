@@ -338,6 +338,7 @@ struct ServerSceneT : public ::flatbuffers::NativeTable {
   bool fade = false;
   std::vector<std::unique_ptr<fbs::PlayerT>> players{};
   std::vector<std::unique_ptr<fbs::MobT>> mobs{};
+  std::vector<std::unique_ptr<fbs::DropT>> drops{};
   ServerSceneT() = default;
   ServerSceneT(const ServerSceneT &o);
   ServerSceneT(ServerSceneT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -351,7 +352,8 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_MAP_ID = 4,
     VT_FADE = 6,
     VT_PLAYERS = 8,
-    VT_MOBS = 10
+    VT_MOBS = 10,
+    VT_DROPS = 12
   };
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
@@ -377,6 +379,12 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>> *mutable_mobs() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>> *>(VT_MOBS);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *drops() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_DROPS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *mutable_drops() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_DROPS);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -388,6 +396,9 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_MOBS) &&
            verifier.VerifyVector(mobs()) &&
            verifier.VerifyVectorOfTables(mobs()) &&
+           VerifyOffset(verifier, VT_DROPS) &&
+           verifier.VerifyVector(drops()) &&
+           verifier.VerifyVectorOfTables(drops()) &&
            verifier.EndTable();
   }
   ServerSceneT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -411,6 +422,9 @@ struct ServerSceneBuilder {
   void add_mobs(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>>> mobs) {
     fbb_.AddOffset(ServerScene::VT_MOBS, mobs);
   }
+  void add_drops(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops) {
+    fbb_.AddOffset(ServerScene::VT_DROPS, drops);
+  }
   explicit ServerSceneBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -427,8 +441,10 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
     uint32_t map_id = 0,
     bool fade = false,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>>> mobs = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>>> mobs = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops = 0) {
   ServerSceneBuilder builder_(_fbb);
+  builder_.add_drops(drops);
   builder_.add_mobs(mobs);
   builder_.add_players(players);
   builder_.add_map_id(map_id);
@@ -441,15 +457,18 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
     uint32_t map_id = 0,
     bool fade = false,
     const std::vector<::flatbuffers::Offset<fbs::Player>> *players = nullptr,
-    const std::vector<::flatbuffers::Offset<fbs::Mob>> *mobs = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::Mob>> *mobs = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::Drop>> *drops = nullptr) {
   auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>>(*players) : 0;
   auto mobs__ = mobs ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Mob>>(*mobs) : 0;
+  auto drops__ = drops ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*drops) : 0;
   return fbs::CreateServerScene(
       _fbb,
       map_id,
       fade,
       players__,
-      mobs__);
+      mobs__,
+      drops__);
 }
 
 ::flatbuffers::Offset<ServerScene> CreateServerScene(::flatbuffers::FlatBufferBuilder &_fbb, const ServerSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2558,6 +2577,8 @@ inline ServerSceneT::ServerSceneT(const ServerSceneT &o)
   for (const auto &players_ : o.players) { players.emplace_back((players_) ? new fbs::PlayerT(*players_) : nullptr); }
   mobs.reserve(o.mobs.size());
   for (const auto &mobs_ : o.mobs) { mobs.emplace_back((mobs_) ? new fbs::MobT(*mobs_) : nullptr); }
+  drops.reserve(o.drops.size());
+  for (const auto &drops_ : o.drops) { drops.emplace_back((drops_) ? new fbs::DropT(*drops_) : nullptr); }
 }
 
 inline ServerSceneT &ServerSceneT::operator=(ServerSceneT o) FLATBUFFERS_NOEXCEPT {
@@ -2565,6 +2586,7 @@ inline ServerSceneT &ServerSceneT::operator=(ServerSceneT o) FLATBUFFERS_NOEXCEP
   std::swap(fade, o.fade);
   std::swap(players, o.players);
   std::swap(mobs, o.mobs);
+  std::swap(drops, o.drops);
   return *this;
 }
 
@@ -2581,6 +2603,7 @@ inline void ServerScene::UnPackTo(ServerSceneT *_o, const ::flatbuffers::resolve
   { auto _e = fade(); _o->fade = _e; }
   { auto _e = players(); if (_e) { _o->players.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->players[_i]) { _e->Get(_i)->UnPackTo(_o->players[_i].get(), _resolver); } else { _o->players[_i] = std::unique_ptr<fbs::PlayerT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->players.resize(0); } }
   { auto _e = mobs(); if (_e) { _o->mobs.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->mobs[_i]) { _e->Get(_i)->UnPackTo(_o->mobs[_i].get(), _resolver); } else { _o->mobs[_i] = std::unique_ptr<fbs::MobT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->mobs.resize(0); } }
+  { auto _e = drops(); if (_e) { _o->drops.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->drops[_i]) { _e->Get(_i)->UnPackTo(_o->drops[_i].get(), _resolver); } else { _o->drops[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->drops.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<ServerScene> CreateServerScene(::flatbuffers::FlatBufferBuilder &_fbb, const ServerSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2595,12 +2618,14 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
   auto _fade = _o->fade;
   auto _players = _o->players.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>> (_o->players.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayer(*__va->__fbb, __va->__o->players[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _mobs = _o->mobs.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Mob>> (_o->mobs.size(), [](size_t i, _VectorArgs *__va) { return CreateMob(*__va->__fbb, __va->__o->mobs[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _drops = _o->drops.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->drops.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->drops[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerScene(
       _fbb,
       _map_id,
       _fade,
       _players,
-      _mobs);
+      _mobs,
+      _drops);
 }
 
 inline ServerCharacterInT::ServerCharacterInT(const ServerCharacterInT &o)

@@ -169,6 +169,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   camera_game_instance::reset();
   statusbar_ui_system::reset();
   ball_game_instance::reset();
+  drop_game_instance::reset();
   auto bgm = map_info_game_instance::load_bgm(map_id);
   audio_game_instance::load_backgrnd_audio(bgm);
 

@@ -2,6 +2,7 @@
 #include "src/client/game/game_drop.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/window/window.h"
+#include <algorithm>
 #include <cmath>
 #include <ranges>
 
@@ -13,7 +14,8 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
   switch (drop.type) {
   case game_drop::fly: {
     auto delta_time = window::delta_time / 1000.0;
-    drop.vspeed = drop.vspeed + delta_time * 2000;
+    drop.vspeed = drop.vspeed + delta_time * 800;
+    drop.vspeed = std::min(drop.vspeed, 400.0f);
     auto dy = drop.vspeed * delta_time;
     drop.pos.y += dy;
     if (drop.vspeed <= 0) {
@@ -29,7 +31,9 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
       drop.rotate = 0;
       return;
     }
-    drop.rotate += (float)window::delta_time;
+    if (drop.data->id != u"00000000") {
+      drop.rotate += (float)window::delta_time;
+    }
     break;
   }
   case game_drop::land: {
