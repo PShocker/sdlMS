@@ -42,47 +42,67 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     break;
   }
   case game_drop::drop_enum::pick: {
-    const auto PICK_UP_DURATION = 700;
-    int duration = window::dt_now - drop.pick_time;
-    if (duration <= PICK_UP_DURATION) {
-      // alpha
-      if (duration < 420) {
-        drop.alpha = 255;
-      } else {
-        drop.alpha = (192 * (420 - duration) / 280.0f + 255);
-      }
-      // pos
-      const auto &picker = drop.picker;
-      std::optional<SDL_FPoint> picker_pos;
-      if (picker->pet_index.has_value()) {
+    constexpr auto PICK_UP_DURATION = 700;
+    constexpr auto ALPHA_FADE_START = 420;
+    constexpr auto ALPHA_FADE_DURATION =
+        PICK_UP_DURATION - ALPHA_FADE_START; // 280
+    constexpr auto PARABOLA_PEAK_DELTA = 40; // 最高点偏移
+    constexpr auto PARABOLA_PEAK_TIME = 350;
+    constexpr auto PARABOLA_SCALE = 160;
 
-      } else {
-        auto client_id = picker->client_id;
-        if (client_id == 0) {
-          picker_pos = character_game_instance::self.pos;
-        } else {
-          const auto &others = character_game_instance::others;
-          if (others.contains(client_id)) {
-            picker_pos = others.at(client_id).g_character.pos;
-          }
-        }
-      }
-      if (picker_pos.has_value()) {
-        float x = (picker_pos->x * duration +
-                   drop.goal.x * (PICK_UP_DURATION - duration)) /
-                  PICK_UP_DURATION;
-        float y = (picker_pos->y * duration +
-                   drop.goal.y * (PICK_UP_DURATION - duration)) /
-                      PICK_UP_DURATION +
-                  160 * SDL_powf((duration - 350.0f) / PICK_UP_DURATION, 2) -
-                  40;
-        drop.pos = {x, y};
-      } else {
-        drop.alpha = 0;
-      }
-    } else {
+    int elapsed = window::dt_now - drop.pick_time;
+    bool is_animating = elapsed <= PICK_UP_DURATION;
+
+    if (!is_animating) {
       drop.alpha = 0;
+      break;
     }
+
+    // 计算透明度
+    if (elapsed < ALPHA_FADE_START) {
+      drop.alpha = 255;
+    } else {
+      float fade_progress =
+          static_cast<float>(elapsed - ALPHA_FADE_START) / ALPHA_FADE_DURATION;
+      drop.alpha = static_cast<uint8_t>(255 * (1.0f - fade_progress * 1.0f));
+    }
+
+    // 获取拾取者位置
+    const auto &picker = drop.picker;
+    std::optional<SDL_FPoint> picker_pos;
+
+    if (picker->pet_index.has_value()) {
+    } else {
+      auto client_id = picker->client_id;
+      if (client_id == 0) {
+        picker_pos = character_game_instance::self.pos;
+      } else if (auto it = character_game_instance::others.find(client_id);
+                 it != character_game_instance::others.end()) {
+        picker_pos = it->second.g_character.pos;
+      }
+    }
+
+    if (!picker_pos.has_value()) {
+      drop.alpha = 0;
+      break;
+    }
+
+    // 计算位置插值（带抛物线弧线效果）
+    float progress = static_cast<float>(elapsed) / PICK_UP_DURATION;
+    float inverse_progress = 1.0f - progress;
+
+    // 线性插值位置
+    float x = picker_pos->x * progress + drop.goal.x * inverse_progress;
+
+    // Y轴带抛物线弧线：基础线性插值 + 抛物线偏移
+    float parabola_offset =
+        PARABOLA_SCALE * SDL_powf((elapsed - PARABOLA_PEAK_TIME) /
+                                      static_cast<float>(PICK_UP_DURATION),
+                                  2) -
+        PARABOLA_PEAK_DELTA;
+    float y = (picker_pos->y * progress + drop.goal.y * inverse_progress) +
+              parabola_offset;
+    drop.pos = {x, y};
     break;
   }
   case game_drop::drop_enum::fade: {

@@ -303,7 +303,7 @@ void character_logic_system::run_pick(game_character &g_character) {
     for (auto &v : drop_game_instance::data | std::views::values) {
       if (v.type == game_drop::drop_enum::land) {
         auto pos = g_character.pos;
-        if (pos.x == std::clamp(pos.x, v.goal.x - 20, v.goal.x + 20) &&
+        if (pos.x == std::clamp(pos.x, v.goal.x - 20, v.goal.x + 40) &&
             pos.y == std::clamp(pos.y, v.goal.y - 20, v.goal.y + 20)) {
           ClientCharacterPickT ccp;
           ccp.map_id = scene_system_instance::map_id;
