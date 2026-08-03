@@ -48,6 +48,8 @@ table ClientCharacter {
 table ClientCharacterPick {
     map_id:uint32;
     random_id:uint64;
+    pet:bool;
+    pet_index:int8;
 }
 
 table ClientCharacterInfo {

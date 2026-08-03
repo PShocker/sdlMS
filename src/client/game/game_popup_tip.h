@@ -15,5 +15,5 @@ struct game_popup_tip {
   popup_tip_enums type;
   PlayerT player_t;
   int32_t fade = 255;
-  uint64_t destroy‌ = window::dt_now + 120 * 1000;
+  uint64_t destroy = window::dt_now + 120 * 1000;
 };

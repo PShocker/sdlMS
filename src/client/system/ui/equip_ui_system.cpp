@@ -91,6 +91,56 @@ equip_ui_system::load_mouse_index() {
   return std::nullopt;
 }
 
+std::optional<game_equip_item> *
+equip_ui_system::load_equip(equip_mouse_index index) {
+  std::optional<game_equip_item> *equip;
+  auto &self = character_game_instance::self;
+  switch (index) {
+  case cap: {
+    equip = &self.cap;
+    break;
+  }
+  case earcc: {
+    equip = &self.accessory;
+    break;
+  }
+  case clothes: {
+    equip = &self.coat;
+    break;
+  }
+  case pants: {
+    equip = &self.pant;
+    break;
+  }
+  case shoes: {
+    equip = &self.shoes;
+    break;
+  }
+  case gloves: {
+    equip = &self.glove;
+    break;
+  }
+  case cape: {
+    equip = &self.cape;
+    break;
+  }
+  case shield: {
+    equip = &self.shield;
+    break;
+  }
+  case weapon: {
+    equip = &self.weapon;
+    break;
+  }
+  case ring0:
+  case ring1:
+  case ring2:
+  case ring3:
+    break;
+  }
+  return equip;
+}
+
 SDL_FPoint equip_ui_system::load_wh() { return {175, 289}; }
 
 void equip_ui_system::render_backgrnd() {
@@ -164,53 +214,9 @@ void equip_ui_system::render_equip_info() {
   if (index.has_value()) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    std::optional<game_equip_item> equip;
-    auto &self = character_game_instance::self;
-    switch (index.value()) {
-    case cap: {
-      equip = self.cap;
-      break;
-    }
-    case earcc: {
-      equip = self.accessory;
-      break;
-    }
-    case clothes: {
-      equip = self.coat;
-      break;
-    }
-    case pants: {
-      equip = self.pant;
-      break;
-    }
-    case shoes: {
-      equip = self.shoes;
-      break;
-    }
-    case gloves: {
-      equip = self.glove;
-      break;
-    }
-    case cape: {
-      equip = self.cape;
-      break;
-    }
-    case shield: {
-      equip = self.shield;
-      break;
-    }
-    case weapon: {
-      equip = self.weapon;
-      break;
-    }
-    case ring0:
-    case ring1:
-    case ring2:
-    case ring3:
-      break;
-    }
-    if (equip.has_value()) {
-      tooltip_ui_system::render_equip(equip.value(), show_pos.x, show_pos.y);
+    auto equip = load_equip(index.value());
+    if (equip->has_value()) {
+      tooltip_ui_system::render_equip(equip->value(), show_pos.x, show_pos.y);
     }
   }
 }
@@ -306,62 +312,8 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
   if (!index.has_value()) {
     return false;
   }
+  auto eqp = *load_equip(index.value());
   auto &self = character_game_instance::self;
-  std::optional<game_equip_item> eqp;
-  switch (index.value()) {
-  case cap: {
-    eqp = self.cap;
-    break;
-  }
-  case earcc: {
-    eqp = self.accessory;
-    break;
-  }
-  case clothes: {
-    eqp = self.coat;
-    break;
-  }
-  case pants: {
-    eqp = self.pant;
-    break;
-  }
-  case shoes: {
-    eqp = self.shoes;
-    break;
-  }
-  case gloves: {
-    eqp = self.glove;
-    break;
-  }
-  case cape: {
-    eqp = self.cape;
-    break;
-  }
-  case shield: {
-    eqp = self.shield;
-    break;
-  }
-  case weapon: {
-    eqp = self.weapon;
-    break;
-  }
-  case ring0: {
-    eqp = self.ring0;
-    break;
-  }
-  case ring1: {
-    eqp = self.ring1;
-    break;
-  }
-  case ring2: {
-    eqp = self.ring2;
-    break;
-  }
-  case ring3: {
-    eqp = self.ring3;
-    break;
-  }
-  }
   auto cursor_hand = cursor_game_instance::cursor_hand;
   if (cursor_hand.has_value()) {
     switch (cursor_hand->type) {

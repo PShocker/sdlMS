@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "drop_logic_system.h"
 #include "src/client/game/game_character.h"
+#include "src/client/game/game_drop.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game/game_tomb.h"
@@ -9,6 +10,7 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -185,7 +187,7 @@ bool character_logic_system::run_face_action(game_character &g_character,
   g_character.face.action = action;
   g_character.face.index = 0;
   g_character.face.time = 0;
-  g_character.face.destroy‌ = window::dt_now + 4000;
+  g_character.face.destroy = window::dt_now + 4000;
   return true;
 }
 
@@ -298,7 +300,18 @@ void character_logic_system::run_pick(game_character &g_character) {
     return;
   }
   if (character_action_input.contains("pick")) {
-    drop_logic_system::pick(g_character);
+    for (auto &v : drop_game_instance::data | std::views::values) {
+      if (v.type == game_drop::drop_enum::land) {
+        auto pos = g_character.pos;
+        if (pos.x == std::clamp(pos.x, v.goal.x - 20, v.goal.x + 20) &&
+            pos.y == std::clamp(pos.y, v.goal.y - 20, v.goal.y + 20)) {
+          ClientCharacterPickT ccp;
+          ccp.map_id = scene_system_instance::map_id;
+          ccp.random_id = v.random_id;
+          client_request::send_to_host(ccp);
+        }
+      }
+    }
     return;
   }
 }
@@ -811,9 +824,9 @@ void character_logic_system::run_face_animate(game_character &g_character) {
       g_character.face.index += 1;
       if (g_character.face.index >= delays.size()) {
         if (g_character.face.action == u"blink" ||
-            (g_character.face.destroy‌ <= window::dt_now)) {
+            (g_character.face.destroy <= window::dt_now)) {
           g_character.face.action = u"default";
-          g_character.face.destroy‌ = window::dt_now + 4000;
+          g_character.face.destroy = window::dt_now + 4000;
         }
         g_character.face.index = 0;
       }
@@ -821,7 +834,7 @@ void character_logic_system::run_face_animate(game_character &g_character) {
     }
     return;
   }
-  if (g_character.face.destroy‌ <= window::dt_now) {
+  if (g_character.face.destroy <= window::dt_now) {
     if (g_character.face.action == u"default") {
       g_character.face.action = u"blink";
     } else {
@@ -829,7 +842,7 @@ void character_logic_system::run_face_animate(game_character &g_character) {
     }
     g_character.face.index = 0;
     g_character.face.time = 0;
-    g_character.face.destroy‌ = window::dt_now + 4000;
+    g_character.face.destroy = window::dt_now + 4000;
   }
   return;
 }

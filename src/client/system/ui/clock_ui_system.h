@@ -14,7 +14,7 @@ public:
     hour,
   };
   static inline clock_enum type = clock_enum::min;
-  static inline uint64_t destroy‌;
+  static inline uint64_t destroy;
 
   static inline SDL_FPoint pos;
   static bool render();

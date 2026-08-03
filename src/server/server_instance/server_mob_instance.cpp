@@ -140,7 +140,7 @@ void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
     game_gain_log g_log{
         .id = u"",
         .num = static_cast<uint64_t>(exp),
-        .destroy‌ = window::dt_now + 5000,
+        .destroy = window::dt_now + 5000,
         .experience = true,
     };
     gain_log_game_instance::data.push_back(g_log);

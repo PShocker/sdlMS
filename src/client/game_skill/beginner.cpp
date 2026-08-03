@@ -102,7 +102,7 @@ static void Recover() {
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy‌ = window::dt_now + g_skill.duration;
+    g_skill.destroy = window::dt_now + g_skill.duration;
     ski.push_back(g_skill);
 
     auto &self = character_game_instance::self;
@@ -141,7 +141,7 @@ static void NimbleFeet() {
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
-    g_skill.destroy‌ = window::dt_now + g_skill.duration;
+    g_skill.destroy = window::dt_now + g_skill.duration;
     ski.push_back(g_skill);
 
     character_logic_system::self_hspeed_max += 100;

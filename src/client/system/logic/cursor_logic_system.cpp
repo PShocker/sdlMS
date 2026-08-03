@@ -278,6 +278,27 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
         if (cursor_hand.has_value() && !cursor_hand_net.has_value()) {
           switch (cursor_hand->type) {
           case cursor_game_instance::equipment: {
+            DropT dt;
+            auto eqp = equip_ui_system::load_equip(
+                (equip_ui_system::equip_mouse_index)cursor_hand->sub_val);
+            EquipT et;
+            et.equip_id = std::stoi(
+                std::string{eqp->value().id.begin(), eqp->value().id.end()});
+            dt.drop.Set(et);
+
+            dt.x1 = character_game_instance::self.pos.x;
+            dt.y1 = character_game_instance::self.pos.y;
+
+            dt.page = character_game_instance::self.page;
+
+            ClientCharacterDropT cct;
+            cct.map_id = scene_system_instance::map_id;
+            cct.payload = std::make_unique<DropT>(dt);
+            client_request::send_to_host(cct);
+
+            cursor_hand_net = {
+                .type = cursor_game_instance::drop,
+            };
             break;
           }
           case cursor_game_instance::package: {

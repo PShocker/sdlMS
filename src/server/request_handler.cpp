@@ -308,6 +308,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerCharacterPick();
     fbs::ServerCharacterPickT r;
     payload->UnPackTo(&r);
+    server_drop_instance::handle_server_pick(client_id, r);
     break;
   }
   case NetPayload_ServerCharacterInfo: {
@@ -346,6 +347,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterStateT r;
     payload->UnPackTo(&r);
     server_character_instance::handle_server_state(client_id, r);
+    break;
+  }
+  case fbs::NetPayload_ServerDropFade: {
+    auto payload = packet->payload_as_ServerDropFade();
+    fbs::ServerDropFadeT r;
+    payload->UnPackTo(&r);
+    server_drop_instance::handle_server_drop_fade(r);
     break;
   }
   default:

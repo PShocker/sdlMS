@@ -69,11 +69,12 @@ enum NetPayload : uint8_t {
   NetPayload_ServerCharacterTrade = 43,
   NetPayload_ServerCharacterParty = 44,
   NetPayload_ServerCharacterState = 45,
+  NetPayload_ServerDropFade = 46,
   NetPayload_MIN = NetPayload_NONE,
-  NetPayload_MAX = NetPayload_ServerCharacterState
+  NetPayload_MAX = NetPayload_ServerDropFade
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[46] {
+inline const NetPayload (&EnumValuesNetPayload())[47] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -120,13 +121,14 @@ inline const NetPayload (&EnumValuesNetPayload())[46] {
     NetPayload_ServerCharacterInfo,
     NetPayload_ServerCharacterTrade,
     NetPayload_ServerCharacterParty,
-    NetPayload_ServerCharacterState
+    NetPayload_ServerCharacterState,
+    NetPayload_ServerDropFade
   };
   return values;
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[47] = {
+  static const char * const names[48] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -173,13 +175,14 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerCharacterTrade",
     "ServerCharacterParty",
     "ServerCharacterState",
+    "ServerDropFade",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameNetPayload(NetPayload e) {
-  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerCharacterState)) return "";
+  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerDropFade)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNetPayload()[index];
 }
@@ -368,6 +371,10 @@ template<> struct NetPayloadTraits<fbs::ServerCharacterState> {
   static const NetPayload enum_value = NetPayload_ServerCharacterState;
 };
 
+template<> struct NetPayloadTraits<fbs::ServerDropFade> {
+  static const NetPayload enum_value = NetPayload_ServerDropFade;
+};
+
 template<typename T> struct NetPayloadUnionTraits {
   static const NetPayload enum_value = NetPayload_NONE;
 };
@@ -550,6 +557,10 @@ template<> struct NetPayloadUnionTraits<fbs::ServerCharacterPartyT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerCharacterStateT> {
   static const NetPayload enum_value = NetPayload_ServerCharacterState;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerDropFadeT> {
+  static const NetPayload enum_value = NetPayload_ServerDropFade;
 };
 
 struct NetPayloadUnion {
@@ -942,6 +953,14 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerCharacterState ?
       reinterpret_cast<const fbs::ServerCharacterStateT *>(value) : nullptr;
   }
+  fbs::ServerDropFadeT *AsServerDropFade() {
+    return type == NetPayload_ServerDropFade ?
+      reinterpret_cast<fbs::ServerDropFadeT *>(value) : nullptr;
+  }
+  const fbs::ServerDropFadeT *AsServerDropFade() const {
+    return type == NetPayload_ServerDropFade ?
+      reinterpret_cast<const fbs::ServerDropFadeT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -1103,6 +1122,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerCharacterState *payload_as_ServerCharacterState() const {
     return payload_type() == fbs::NetPayload_ServerCharacterState ? static_cast<const fbs::ServerCharacterState *>(payload()) : nullptr;
   }
+  const fbs::ServerDropFade *payload_as_ServerDropFade() const {
+    return payload_type() == fbs::NetPayload_ServerDropFade ? static_cast<const fbs::ServerDropFade *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::ClientHeartbeat *mutable_payload_as_ClientHeartbeat() {
     return payload_type() == fbs::NetPayload_ClientHeartbeat ? static_cast<fbs::ClientHeartbeat *>(mutable_payload()) : nullptr;
@@ -1238,6 +1260,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerCharacterState *mutable_payload_as_ServerCharacterState() {
     return payload_type() == fbs::NetPayload_ServerCharacterState ? static_cast<fbs::ServerCharacterState *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerDropFade *mutable_payload_as_ServerDropFade() {
+    return payload_type() == fbs::NetPayload_ServerDropFade ? static_cast<fbs::ServerDropFade *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -1615,6 +1640,14 @@ template<> inline fbs::ServerCharacterState *NetPacket::mutable_payload_as<fbs::
   return mutable_payload_as_ServerCharacterState();
 }
 
+template<> inline const fbs::ServerDropFade *NetPacket::payload_as<fbs::ServerDropFade>() const {
+  return payload_as_ServerDropFade();
+}
+
+template<> inline fbs::ServerDropFade *NetPacket::mutable_payload_as<fbs::ServerDropFade>() {
+  return mutable_payload_as_ServerDropFade();
+}
+
 struct NetPacketBuilder {
   typedef NetPacket Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
@@ -1863,6 +1896,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ServerCharacterState *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ServerDropFade: {
+      auto ptr = reinterpret_cast<const fbs::ServerDropFade *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -2063,6 +2100,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerCharacterState *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ServerDropFade: {
+      auto ptr = reinterpret_cast<const fbs::ServerDropFade *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -2250,6 +2291,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerCharacterStateT *>(value);
       return CreateServerCharacterState(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ServerDropFade: {
+      auto ptr = reinterpret_cast<const fbs::ServerDropFadeT *>(value);
+      return CreateServerDropFade(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -2434,6 +2479,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ServerCharacterState: {
       value = new fbs::ServerCharacterStateT(*reinterpret_cast<fbs::ServerCharacterStateT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerDropFade: {
+      value = new fbs::ServerDropFadeT(*reinterpret_cast<fbs::ServerDropFadeT *>(u.value));
       break;
     }
     default:
@@ -2665,6 +2714,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerCharacterState: {
       auto ptr = reinterpret_cast<fbs::ServerCharacterStateT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerDropFade: {
+      auto ptr = reinterpret_cast<fbs::ServerDropFadeT *>(value);
       delete ptr;
       break;
     }

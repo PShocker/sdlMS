@@ -761,6 +761,8 @@ struct ClientCharacterPickT : public ::flatbuffers::NativeTable {
   typedef ClientCharacterPick TableType;
   uint32_t map_id = 0;
   uint64_t random_id = 0;
+  bool pet = false;
+  int8_t pet_index = 0;
 };
 
 struct ClientCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -768,7 +770,9 @@ struct ClientCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   typedef ClientCharacterPickBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MAP_ID = 4,
-    VT_RANDOM_ID = 6
+    VT_RANDOM_ID = 6,
+    VT_PET = 8,
+    VT_PET_INDEX = 10
   };
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
@@ -782,11 +786,25 @@ struct ClientCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   bool mutate_random_id(uint64_t _random_id = 0) {
     return SetField<uint64_t>(VT_RANDOM_ID, _random_id, 0);
   }
+  bool pet() const {
+    return GetField<uint8_t>(VT_PET, 0) != 0;
+  }
+  bool mutate_pet(bool _pet = 0) {
+    return SetField<uint8_t>(VT_PET, static_cast<uint8_t>(_pet), 0);
+  }
+  int8_t pet_index() const {
+    return GetField<int8_t>(VT_PET_INDEX, 0);
+  }
+  bool mutate_pet_index(int8_t _pet_index = 0) {
+    return SetField<int8_t>(VT_PET_INDEX, _pet_index, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
            VerifyField<uint64_t>(verifier, VT_RANDOM_ID, 8) &&
+           VerifyField<uint8_t>(verifier, VT_PET, 1) &&
+           VerifyField<int8_t>(verifier, VT_PET_INDEX, 1) &&
            verifier.EndTable();
   }
   ClientCharacterPickT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -804,6 +822,12 @@ struct ClientCharacterPickBuilder {
   void add_random_id(uint64_t random_id) {
     fbb_.AddElement<uint64_t>(ClientCharacterPick::VT_RANDOM_ID, random_id, 0);
   }
+  void add_pet(bool pet) {
+    fbb_.AddElement<uint8_t>(ClientCharacterPick::VT_PET, static_cast<uint8_t>(pet), 0);
+  }
+  void add_pet_index(int8_t pet_index) {
+    fbb_.AddElement<int8_t>(ClientCharacterPick::VT_PET_INDEX, pet_index, 0);
+  }
   explicit ClientCharacterPickBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -818,10 +842,14 @@ struct ClientCharacterPickBuilder {
 inline ::flatbuffers::Offset<ClientCharacterPick> CreateClientCharacterPick(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t map_id = 0,
-    uint64_t random_id = 0) {
+    uint64_t random_id = 0,
+    bool pet = false,
+    int8_t pet_index = 0) {
   ClientCharacterPickBuilder builder_(_fbb);
   builder_.add_random_id(random_id);
   builder_.add_map_id(map_id);
+  builder_.add_pet_index(pet_index);
+  builder_.add_pet(pet);
   return builder_.Finish();
 }
 
@@ -1917,6 +1945,8 @@ inline void ClientCharacterPick::UnPackTo(ClientCharacterPickT *_o, const ::flat
   (void)_resolver;
   { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = random_id(); _o->random_id = _e; }
+  { auto _e = pet(); _o->pet = _e; }
+  { auto _e = pet_index(); _o->pet_index = _e; }
 }
 
 inline ::flatbuffers::Offset<ClientCharacterPick> CreateClientCharacterPick(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterPickT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -1929,10 +1959,14 @@ inline ::flatbuffers::Offset<ClientCharacterPick> ClientCharacterPick::Pack(::fl
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterPickT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _map_id = _o->map_id;
   auto _random_id = _o->random_id;
+  auto _pet = _o->pet;
+  auto _pet_index = _o->pet_index;
   return fbs::CreateClientCharacterPick(
       _fbb,
       _map_id,
-      _random_id);
+      _random_id,
+      _pet,
+      _pet_index);
 }
 
 inline ClientCharacterInfoT *ClientCharacterInfo::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

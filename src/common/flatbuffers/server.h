@@ -125,6 +125,10 @@ struct ServerCharacterState;
 struct ServerCharacterStateBuilder;
 struct ServerCharacterStateT;
 
+struct ServerDropFade;
+struct ServerDropFadeBuilder;
+struct ServerDropFadeT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -1702,6 +1706,8 @@ struct ServerCharacterPickT : public ::flatbuffers::NativeTable {
   typedef ServerCharacterPick TableType;
   uint64_t client_id = 0;
   uint64_t random_id = 0;
+  bool pet = false;
+  int8_t pet_index = 0;
 };
 
 struct ServerCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1709,7 +1715,9 @@ struct ServerCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   typedef ServerCharacterPickBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CLIENT_ID = 4,
-    VT_RANDOM_ID = 6
+    VT_RANDOM_ID = 6,
+    VT_PET = 8,
+    VT_PET_INDEX = 10
   };
   uint64_t client_id() const {
     return GetField<uint64_t>(VT_CLIENT_ID, 0);
@@ -1723,11 +1731,25 @@ struct ServerCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   bool mutate_random_id(uint64_t _random_id = 0) {
     return SetField<uint64_t>(VT_RANDOM_ID, _random_id, 0);
   }
+  bool pet() const {
+    return GetField<uint8_t>(VT_PET, 0) != 0;
+  }
+  bool mutate_pet(bool _pet = 0) {
+    return SetField<uint8_t>(VT_PET, static_cast<uint8_t>(_pet), 0);
+  }
+  int8_t pet_index() const {
+    return GetField<int8_t>(VT_PET_INDEX, 0);
+  }
+  bool mutate_pet_index(int8_t _pet_index = 0) {
+    return SetField<int8_t>(VT_PET_INDEX, _pet_index, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
            VerifyField<uint64_t>(verifier, VT_RANDOM_ID, 8) &&
+           VerifyField<uint8_t>(verifier, VT_PET, 1) &&
+           VerifyField<int8_t>(verifier, VT_PET_INDEX, 1) &&
            verifier.EndTable();
   }
   ServerCharacterPickT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1745,6 +1767,12 @@ struct ServerCharacterPickBuilder {
   void add_random_id(uint64_t random_id) {
     fbb_.AddElement<uint64_t>(ServerCharacterPick::VT_RANDOM_ID, random_id, 0);
   }
+  void add_pet(bool pet) {
+    fbb_.AddElement<uint8_t>(ServerCharacterPick::VT_PET, static_cast<uint8_t>(pet), 0);
+  }
+  void add_pet_index(int8_t pet_index) {
+    fbb_.AddElement<int8_t>(ServerCharacterPick::VT_PET_INDEX, pet_index, 0);
+  }
   explicit ServerCharacterPickBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1759,10 +1787,14 @@ struct ServerCharacterPickBuilder {
 inline ::flatbuffers::Offset<ServerCharacterPick> CreateServerCharacterPick(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t client_id = 0,
-    uint64_t random_id = 0) {
+    uint64_t random_id = 0,
+    bool pet = false,
+    int8_t pet_index = 0) {
   ServerCharacterPickBuilder builder_(_fbb);
   builder_.add_random_id(random_id);
   builder_.add_client_id(client_id);
+  builder_.add_pet_index(pet_index);
+  builder_.add_pet(pet);
   return builder_.Finish();
 }
 
@@ -2547,6 +2579,72 @@ inline ::flatbuffers::Offset<ServerCharacterState> CreateServerCharacterStateDir
 
 ::flatbuffers::Offset<ServerCharacterState> CreateServerCharacterState(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerDropFadeT : public ::flatbuffers::NativeTable {
+  typedef ServerDropFade TableType;
+  std::vector<uint64_t> drop_ids{};
+};
+
+struct ServerDropFade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerDropFadeT NativeTableType;
+  typedef ServerDropFadeBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_DROP_IDS = 4
+  };
+  const ::flatbuffers::Vector<uint64_t> *drop_ids() const {
+    return GetPointer<const ::flatbuffers::Vector<uint64_t> *>(VT_DROP_IDS);
+  }
+  ::flatbuffers::Vector<uint64_t> *mutable_drop_ids() {
+    return GetPointer<::flatbuffers::Vector<uint64_t> *>(VT_DROP_IDS);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_DROP_IDS) &&
+           verifier.VerifyVector(drop_ids()) &&
+           verifier.EndTable();
+  }
+  ServerDropFadeT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerDropFadeT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerDropFade> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerDropFadeT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerDropFadeBuilder {
+  typedef ServerDropFade Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_drop_ids(::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> drop_ids) {
+    fbb_.AddOffset(ServerDropFade::VT_DROP_IDS, drop_ids);
+  }
+  explicit ServerDropFadeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerDropFade> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerDropFade>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerDropFade> CreateServerDropFade(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> drop_ids = 0) {
+  ServerDropFadeBuilder builder_(_fbb);
+  builder_.add_drop_ids(drop_ids);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerDropFade> CreateServerDropFadeDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<uint64_t> *drop_ids = nullptr) {
+  auto drop_ids__ = drop_ids ? _fbb.CreateVector<uint64_t>(*drop_ids) : 0;
+  return fbs::CreateServerDropFade(
+      _fbb,
+      drop_ids__);
+}
+
+::flatbuffers::Offset<ServerDropFade> CreateServerDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -3231,6 +3329,8 @@ inline void ServerCharacterPick::UnPackTo(ServerCharacterPickT *_o, const ::flat
   (void)_resolver;
   { auto _e = client_id(); _o->client_id = _e; }
   { auto _e = random_id(); _o->random_id = _e; }
+  { auto _e = pet(); _o->pet = _e; }
+  { auto _e = pet_index(); _o->pet_index = _e; }
 }
 
 inline ::flatbuffers::Offset<ServerCharacterPick> CreateServerCharacterPick(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterPickT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3243,10 +3343,14 @@ inline ::flatbuffers::Offset<ServerCharacterPick> ServerCharacterPick::Pack(::fl
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterPickT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _client_id = _o->client_id;
   auto _random_id = _o->random_id;
+  auto _pet = _o->pet;
+  auto _pet_index = _o->pet_index;
   return fbs::CreateServerCharacterPick(
       _fbb,
       _client_id,
-      _random_id);
+      _random_id,
+      _pet,
+      _pet_index);
 }
 
 inline ServerCharacterInfoT::ServerCharacterInfoT(const ServerCharacterInfoT &o)
@@ -3627,6 +3731,32 @@ inline ::flatbuffers::Offset<ServerCharacterState> ServerCharacterState::Pack(::
       _fbb,
       _client_id,
       _payload);
+}
+
+inline ServerDropFadeT *ServerDropFade::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerDropFadeT>(new ServerDropFadeT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerDropFade::UnPackTo(ServerDropFadeT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = drop_ids(); if (_e) { _o->drop_ids.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->drop_ids[_i] = _e->Get(_i); } } else { _o->drop_ids.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerDropFade> CreateServerDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerDropFade::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerDropFade> ServerDropFade::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerDropFadeT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerDropFadeT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _drop_ids = _o->drop_ids.size() ? _fbb.CreateVector(_o->drop_ids) : 0;
+  return fbs::CreateServerDropFade(
+      _fbb,
+      _drop_ids);
 }
 
 template <bool B>

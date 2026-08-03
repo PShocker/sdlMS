@@ -51,6 +51,8 @@ private:
   static inline uint8_t active_tab;
 
 public:
+  static std::optional<game_equip_item> *load_equip(equip_mouse_index index);
+
   static inline SDL_FPoint pos;
 
   static void open();

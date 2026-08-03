@@ -54,7 +54,7 @@ void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
   auto &scene = server_scene_instance::scenes[map_id];
   server_drop sd;
   sd.dt = drop;
-  sd.destroy‌ = window::dt_now + 60 * 5 * 1000;
+  sd.destroy = window::dt_now + 60 * 5 * 1000;
   sd.available = window::dt_now + cal_drop_time(drop.y1, drop.y2) * 1000;
   scene.drops.emplace(drop.random_id, sd);
 }
@@ -84,13 +84,30 @@ void server_drop_instance::handle_pick(uint64_t client_id,
   auto map_id = r.map_id;
   auto &scene = server_scene_instance::scenes[map_id];
   if (scene.drops.contains(r.random_id)) {
-    ServerCharacterPickT t;
-    t.random_id = r.random_id;
-    t.client_id = client_id;
-    for (const auto c : scene.clients) {
-      server_response::send_to_client(c, t);
+    if (scene.drops[r.random_id].available <= window::dt_now) {
+      ServerCharacterPickT t;
+      t.random_id = r.random_id;
+      t.client_id = client_id;
+      for (const auto c : scene.clients) {
+        server_response::send_to_client(c, t);
+      }
+      scene.drops.erase(r.random_id);
     }
-    scene.drops.erase(r.random_id);
+  }
+}
+
+void server_drop_instance::handle_server_pick(uint64_t client_id,
+                                              ServerCharacterPickT &r) {
+  if (drop_game_instance::data.contains(r.random_id)) {
+    auto &dt = drop_game_instance::data.at(r.random_id);
+    game_drop_pick gdp;
+    gdp.client_id = r.client_id;
+    if (r.pet) {
+      gdp.pet_index = r.pet_index;
+    }
+    dt.picker = gdp;
+    dt.pick_time = window::dt_now;
+    dt.type = game_drop::drop_enum::pick;
   }
 }
 
@@ -132,7 +149,7 @@ void server_drop_instance::handle_server_scene_dt(const DropT &dt) {
   drop.hspeed = 0;
   drop.pos.x = dt.x2;
   drop.pos.y = dt.y2;
-  drop.type = game_drop::land;
+  drop.type = game_drop::drop_enum::land;
   return;
 }
 
@@ -217,4 +234,14 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
     n++;
   }
   return r;
+}
+
+void server_drop_instance::handle_server_drop_fade(ServerDropFadeT &r) {
+  auto &data = drop_game_instance::data;
+  for (const auto id : r.drop_ids) {
+    if (data.contains(id)) {
+      data.at(id).type = game_drop::drop_enum::fade;
+    }
+  }
+  return;
 }

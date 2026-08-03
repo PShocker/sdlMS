@@ -101,6 +101,8 @@ table ServerCharacter {
 table ServerCharacterPick {
     client_id:uint64;
     random_id:uint64;
+    pet:bool;
+    pet_index:int8;
 }
 
 table ServerCharacterInfo {
@@ -151,4 +153,8 @@ table ServerCharacterParty {
 table ServerCharacterState {
     client_id:uint64;
     payload:[State];
+}
+
+table ServerDropFade {
+    drop_ids:[uint64];
 }
