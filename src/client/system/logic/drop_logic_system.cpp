@@ -43,10 +43,10 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
   }
   case game_drop::drop_enum::pick: {
     const auto PICK_UP_DURATION = 700;
-    auto duration = drop.pick_time - window::dt_now;
+    int duration = window::dt_now - drop.pick_time;
     if (duration <= PICK_UP_DURATION) {
       // alpha
-      if (duration <= 420) {
+      if (duration < 420) {
         drop.alpha = 255;
       } else {
         drop.alpha = (192 * (420 - duration) / 280.0f + 255);
@@ -68,21 +68,15 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
         }
       }
       if (picker_pos.has_value()) {
-        const float progress =
-            static_cast<float>(duration) / PICK_UP_DURATION; // 0.0 ~ 1.0
-        const float inverse_progress = 1.0f - progress;
-        // X轴：线性插值
-        float x = std::lerp(drop.pos.x, picker_pos->x, progress);
-        // Y轴：线性插值 + 弧线偏移
-        constexpr float PICKUP_ARC_HEIGHT = 160.0f;      // 弧线高度
-        constexpr float PICKUP_PEAK_OFFSET = 350.0f;     // 弧线峰值偏移时间
-        constexpr float PICKUP_VERTICAL_OFFSET = -40.0f; // 垂直偏移
-        float arc_offset =
-            PICKUP_ARC_HEIGHT *
-                SDL_powf((duration - PICKUP_PEAK_OFFSET) / PICK_UP_DURATION,
-                         2) +
-            PICKUP_VERTICAL_OFFSET;
-        float y = std::lerp(drop.pos.y, picker_pos->y, progress) + arc_offset;
+        float x = (picker_pos->x * duration +
+                   drop.goal.x * (PICK_UP_DURATION - duration)) /
+                  PICK_UP_DURATION;
+        float y = (picker_pos->y * duration +
+                   drop.goal.y * (PICK_UP_DURATION - duration)) /
+                      PICK_UP_DURATION +
+                  160 * SDL_powf((duration - 350.0f) / PICK_UP_DURATION, 2) -
+                  40;
+        drop.pos = {x, y};
       } else {
         drop.alpha = 0;
       }
@@ -91,11 +85,14 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     }
     break;
   }
+  case game_drop::drop_enum::fade: {
+    break;
+  }
   }
   return;
 }
 
-void drop_logic_system::destroy_drops() {
+void drop_logic_system::run_destroy() {
   std::erase_if(drop_game_instance::data, [](const auto &pair) {
     const auto &[id, drop] = pair;
     return drop.alpha == 0;
@@ -106,6 +103,6 @@ bool drop_logic_system::run() {
   for (auto &drop : drop_game_instance::data | std::views::values) {
     run_state_machine(drop);
   }
-  destroy_drops();
+  run_destroy();
   return true;
 }

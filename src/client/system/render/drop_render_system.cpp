@@ -56,7 +56,7 @@ bool drop_render_system::render(game_drop &g_drop) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     SDL_FPoint center{(float)icon->w / 2, (float)icon->h / 2};
-
+    SDL_SetTextureAlphaMod(icon, g_drop.alpha);
     SDL_RenderTextureRotated(window::renderer, icon, nullptr, &pos_rect,
                              g_drop.rotate, &center, (SDL_FlipMode)0);
   }

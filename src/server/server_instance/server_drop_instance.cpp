@@ -88,9 +88,13 @@ void server_drop_instance::handle_pick(uint64_t client_id,
       ServerCharacterPickT t;
       t.random_id = r.random_id;
       t.client_id = client_id;
-      for (const auto c : scene.clients) {
+      auto clients = server_scene_instance::scenes[map_id].clients;
+      clients.erase(client_id);
+      for (const auto c : clients) {
         server_response::send_to_client(c, t);
       }
+      t.client_id = 0;
+      server_response::send_to_client(client_id, t);
       scene.drops.erase(r.random_id);
     }
   }
@@ -113,6 +117,7 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
 
 void server_drop_instance::handle_server_dt(const DropT &dt) {
   game_drop drop;
+  drop.random_id = dt.random_id;
   drop.page = dt.page;
   drop.vspeed = -400;
   drop.pos = SDL_FPoint{dt.x1, dt.y1};

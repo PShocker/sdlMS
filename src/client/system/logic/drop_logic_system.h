@@ -6,7 +6,7 @@
 #include <vector>
 class drop_logic_system {
 private:
-  static void destroy_drops();
+  static void run_destroy();
   static void run_state_machine(game_drop &drop);
 
 public:
