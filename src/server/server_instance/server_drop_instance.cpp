@@ -217,6 +217,21 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
     dt.x2 = dt.x1 + x;
     dt.y2 = dt.y1 - max_h;
 
+    // 提取判断墙面
+    auto ins =
+        physic::fall_intersect_pos({dt.x1, dt.y1}, {dt.x2, dt.y2}, g_fhs);
+    auto hspeed = (dt.x1 > dt.x2) ? -1 : 1;
+
+    for (const auto &[k, v] : ins) {
+      if (!v.fh.k.has_value()) {
+        auto check = physic::fall_collide_wall(hspeed, v.fh, g_fhs);
+        if (check) {
+          dt.x2 = v.pos.x;
+          break;
+        }
+      }
+    }
+
     int32_t tmp_fh;
     uint8_t tmp_page;
     float tmp_hsp = 0;

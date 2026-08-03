@@ -64,7 +64,7 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     } else {
       float fade_progress =
           static_cast<float>(elapsed - ALPHA_FADE_START) / ALPHA_FADE_DURATION;
-      drop.alpha = static_cast<uint8_t>(255 * (1.0f - fade_progress * 1.0f));
+      drop.alpha = static_cast<uint8_t>(255 * (1.0f - fade_progress * 0.75f));
     }
 
     // 获取拾取者位置
