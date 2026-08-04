@@ -48,6 +48,9 @@ private:
   static bool run_portal(game_character &g_character);
   static bool run_face(game_character &g_character);
   static void run_tomb(game_character &g_character);
+
+  static void run_item(game_character &g_character);
+
   static void run_state_machine();
   static void run_color();
   enum class pos_type {
@@ -63,9 +66,12 @@ private:
   static void run_network_sync();
   static void run_network_sync_state();
 
+  static void run_animate_chair(game_character &g_character);
+
 public:
   static inline ClientCharacterStateT ccs;
 
+  static void run_chair(game_character &g_character, const std::u16string &c);
   static bool run_skill(game_character &g_character, const std::u16string &id);
 
   static check_mobs run_attack_check(game_character &g_character,

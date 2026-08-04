@@ -52,4 +52,7 @@ public:
 
   static void handle_state(uint64_t client_id, ClientCharacterStateT &r);
   static void handle_server_state(uint64_t client_id, ServerCharacterStateT &r);
+
+  static void handle_chair(uint64_t client_id, ClientCharacterChairT &r);
+  static void handle_server_chair(uint64_t client_id, ServerCharacterChairT &r);
 };

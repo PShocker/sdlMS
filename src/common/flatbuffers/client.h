@@ -93,6 +93,10 @@ struct ClientCharacterParty;
 struct ClientCharacterPartyBuilder;
 struct ClientCharacterPartyT;
 
+struct ClientCharacterChair;
+struct ClientCharacterChairBuilder;
+struct ClientCharacterChairT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -1589,6 +1593,76 @@ inline ::flatbuffers::Offset<ClientCharacterParty> CreateClientCharacterParty(
 
 ::flatbuffers::Offset<ClientCharacterParty> CreateClientCharacterParty(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterPartyT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientCharacterChairT : public ::flatbuffers::NativeTable {
+  typedef ClientCharacterChair TableType;
+  uint32_t map_id = 0;
+  uint32_t chair_id = 0;
+};
+
+struct ClientCharacterChair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientCharacterChairT NativeTableType;
+  typedef ClientCharacterChairBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MAP_ID = 4,
+    VT_CHAIR_ID = 6
+  };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  uint32_t chair_id() const {
+    return GetField<uint32_t>(VT_CHAIR_ID, 0);
+  }
+  bool mutate_chair_id(uint32_t _chair_id = 0) {
+    return SetField<uint32_t>(VT_CHAIR_ID, _chair_id, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyField<uint32_t>(verifier, VT_CHAIR_ID, 4) &&
+           verifier.EndTable();
+  }
+  ClientCharacterChairT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientCharacterChairT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientCharacterChair> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterChairT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientCharacterChairBuilder {
+  typedef ClientCharacterChair Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientCharacterChair::VT_MAP_ID, map_id, 0);
+  }
+  void add_chair_id(uint32_t chair_id) {
+    fbb_.AddElement<uint32_t>(ClientCharacterChair::VT_CHAIR_ID, chair_id, 0);
+  }
+  explicit ClientCharacterChairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientCharacterChair> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientCharacterChair>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientCharacterChair> CreateClientCharacterChair(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    uint32_t chair_id = 0) {
+  ClientCharacterChairBuilder builder_(_fbb);
+  builder_.add_chair_id(chair_id);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ClientCharacterChair> CreateClientCharacterChair(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterChairT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -2304,6 +2378,35 @@ inline ::flatbuffers::Offset<ClientCharacterParty> ClientCharacterParty::Pack(::
       _step,
       _to_id,
       _confirm);
+}
+
+inline ClientCharacterChairT *ClientCharacterChair::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientCharacterChairT>(new ClientCharacterChairT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientCharacterChair::UnPackTo(ClientCharacterChairT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = chair_id(); _o->chair_id = _e; }
+}
+
+inline ::flatbuffers::Offset<ClientCharacterChair> CreateClientCharacterChair(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterChairT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientCharacterChair::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientCharacterChair> ClientCharacterChair::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterChairT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterChairT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
+  auto _chair_id = _o->chair_id;
+  return fbs::CreateClientCharacterChair(
+      _fbb,
+      _map_id,
+      _chair_id);
 }
 
 }  // namespace fbs

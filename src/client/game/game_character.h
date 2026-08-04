@@ -3,9 +3,9 @@
 #include "SDL3/SDL_pixels.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "game_chair.h"
 #include "game_chatballoon.h"
 #include "game_face.h"
-#include "game_install.h"
 #include "game_item.h"
 #include "game_nametag.h"
 #include "game_tomb.h"
@@ -77,7 +77,7 @@ public:
 
   std::optional<game_chatballoon> chatballoon;
 
-  std::optional<game_install> install;
+  std::optional<game_chair> chair;
 
   SDL_FPoint pos;
 

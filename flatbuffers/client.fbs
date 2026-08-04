@@ -98,3 +98,8 @@ table ClientCharacterParty {
     to_id:uint64;
     confirm:bool;
 }
+
+table ClientCharacterChair {
+    map_id:uint32;
+    chair_id:uint32;
+}

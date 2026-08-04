@@ -129,6 +129,10 @@ struct ServerDropFade;
 struct ServerDropFadeBuilder;
 struct ServerDropFadeT;
 
+struct ServerCharacterChair;
+struct ServerCharacterChairBuilder;
+struct ServerCharacterChairT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -2645,6 +2649,76 @@ inline ::flatbuffers::Offset<ServerDropFade> CreateServerDropFadeDirect(
 
 ::flatbuffers::Offset<ServerDropFade> CreateServerDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterChairT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterChair TableType;
+  uint64_t client_id = 0;
+  uint32_t chair_id = 0;
+};
+
+struct ServerCharacterChair FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterChairT NativeTableType;
+  typedef ServerCharacterChairBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_CHAIR_ID = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  uint32_t chair_id() const {
+    return GetField<uint32_t>(VT_CHAIR_ID, 0);
+  }
+  bool mutate_chair_id(uint32_t _chair_id = 0) {
+    return SetField<uint32_t>(VT_CHAIR_ID, _chair_id, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyField<uint32_t>(verifier, VT_CHAIR_ID, 4) &&
+           verifier.EndTable();
+  }
+  ServerCharacterChairT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterChairT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterChair> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterChairT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterChairBuilder {
+  typedef ServerCharacterChair Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterChair::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_chair_id(uint32_t chair_id) {
+    fbb_.AddElement<uint32_t>(ServerCharacterChair::VT_CHAIR_ID, chair_id, 0);
+  }
+  explicit ServerCharacterChairBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterChair> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterChair>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterChair> CreateServerCharacterChair(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    uint32_t chair_id = 0) {
+  ServerCharacterChairBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_chair_id(chair_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterChair> CreateServerCharacterChair(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterChairT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -3757,6 +3831,35 @@ inline ::flatbuffers::Offset<ServerDropFade> ServerDropFade::Pack(::flatbuffers:
   return fbs::CreateServerDropFade(
       _fbb,
       _drop_ids);
+}
+
+inline ServerCharacterChairT *ServerCharacterChair::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterChairT>(new ServerCharacterChairT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterChair::UnPackTo(ServerCharacterChairT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = chair_id(); _o->chair_id = _e; }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterChair> CreateServerCharacterChair(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterChairT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterChair::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterChair> ServerCharacterChair::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterChairT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterChairT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _chair_id = _o->chair_id;
+  return fbs::CreateServerCharacterChair(
+      _fbb,
+      _client_id,
+      _chair_id);
 }
 
 template <bool B>

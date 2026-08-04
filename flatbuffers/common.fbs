@@ -34,6 +34,7 @@ table Character{
     decos:[Deco];
 
     states:[State];
+    chair:uint32;
 }
 
 table Movement{

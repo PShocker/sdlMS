@@ -14,6 +14,7 @@
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
@@ -1045,6 +1046,13 @@ void character_logic_system::run_tomb(game_character &g_character) {
   return;
 }
 
+void character_logic_system::run_animate_chair(game_character &g_character) {
+  if (!g_character.chair.has_value()) {
+    return;
+  }
+  auto chair_id = g_character.chair->id;
+}
+
 void character_logic_system::run_state_machine() {
   auto &g_character = character_game_instance::self;
   auto o_character = g_character;
@@ -1240,6 +1248,10 @@ void character_logic_system::run_others_state_machine() {
       run_tomb(g_character);
       break;
     }
+    case action_enum::sit: {
+      run_animate_chair(g_character);
+      break;
+    }
     default: {
       break;
     }
@@ -1327,4 +1339,28 @@ float character_logic_system::load_attack_speed(game_character &g_character) {
                      .at(equip_game_instance::inc_type::WEAPON_SPEED);
   float speed = w_speed + g_character.attack_speed;
   return 1.6 - speed / 10;
+}
+
+void character_logic_system::run_chair(game_character &g_character,
+                                       const std::u16string &c) {
+  g_character.chair = game_chair{};
+  g_character.chair->id = c;
+  return;
+}
+
+void character_logic_system::run_item(game_character &g_character) {
+  if (!character_item_input.empty()) {
+    for (const auto &input : character_item_input) {
+      auto item_id = input.val;
+      auto item_type =
+          item_game_instance::load_item_type({item_id.begin(), item_id.end()});
+      if (item_type == u"Install") {
+        if (item_id.starts_with("0301")) {
+          // chair
+          run_sit(g_character);
+          run_chair(g_character, {item_id.begin(), item_id.end()});
+        }
+      }
+    }
+  }
 }
