@@ -288,11 +288,56 @@ void character_render_system::render_chatballoon(game_character &g_character) {
   chatballoon_render_system::render(chatballoon, pos);
 }
 
+void character_render_system::render_chair(game_character &g_character) {
+  auto chair_id = g_character.chair->id;
+  auto chair_node =
+      wz_resource::item->find(u"Install/0301.img/" + chair_id + u"/effect");
+  chair_node =
+      chair_node->get_child(std::to_string(g_character.chair->ani_index));
+  auto t = wz_resource::load_texture(chair_node);
+  auto origin = wz_resource::load_fpoint(chair_node->get_child(u"origin"));
+  SDL_FRect pos_rect = {
+      .x = g_character.pos.x - origin.x,
+      .y = g_character.pos.y - origin.y - (t->h - origin.y),
+      .w = static_cast<float>(t->w),
+      .h = static_cast<float>(t->h),
+  };
+  if (g_character.flip == 1) {
+    pos_rect.x = g_character.pos.x;
+    pos_rect.x = (pos_rect.x - (t->w - origin.x));
+  }
+  auto &camera = camera_game_instance::camera;
+  if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+    pos_rect.x -= camera.x;
+    pos_rect.y -= camera.y;
+    SDL_RenderTextureRotated(window::renderer, t, nullptr, &pos_rect, 0,
+                             nullptr, (SDL_FlipMode)g_character.flip);
+  }
+}
+
+void character_render_system::render_chair(game_character &g_character,
+                                           bool front) {
+  if (!g_character.chair.has_value()) {
+    return;
+  }
+
+  auto chair_id = g_character.chair->id;
+  auto z_node =
+      wz_resource::item->find(u"Install/0301.img/" + chair_id + u"/effect/z");
+  auto z = static_cast<wz::Property<int> *>(z_node)->get();
+
+  if ((front && z < 0) || (!front && z > 0)) {
+    render_chair(g_character);
+  }
+}
+
 bool character_render_system::render(game_character &g_character) {
+  render_chair(g_character, true);
   render_afterimage(g_character);
   render_tomb(g_character);
   render_character(g_character);
   render_nametag(g_character);
+  render_chair(g_character, false);
   render_effect_back(g_character);
   // auto r = character_logic_system::load_rect(g_character);
   // auto &camera = camera_game_instance::camera;

@@ -993,6 +993,7 @@ character_logic_system::load_action_type(game_character &g_character) {
       {u"prone2", action_enum::skill},    {u"rope2", action_enum::skill},
       {u"savage", action_enum::skill},    {u"shoot6", action_enum::skill},
       {u"shootDb1", action_enum::skill},  {u"shotC1", action_enum::skill},
+      {u"sit", action_enum::sit},
   };
   auto action = map_name.at(g_character.action);
   if (action == action_enum::dead) {
@@ -1056,6 +1057,7 @@ void character_logic_system::run_animate_chair(game_character &g_character) {
 void character_logic_system::run_state_machine() {
   auto &g_character = character_game_instance::self;
   auto o_character = g_character;
+  run_item(g_character);
   auto g_action = load_action_type(g_character);
   run_face(g_character);
   run_face_animate(g_character);
@@ -1150,6 +1152,7 @@ void character_logic_system::run_state_machine() {
     if (!run_sitting(g_character)) {
       run_state_machine();
     }
+    break;
   }
   case action_enum::skill:
   case action_enum::attack: {
@@ -1357,7 +1360,8 @@ void character_logic_system::run_item(game_character &g_character) {
       if (item_type == u"Install") {
         if (item_id.starts_with("0301")) {
           // chair
-          run_sit(g_character);
+          run_action(g_character, u"sit");
+          self_sit_cooldown = window::dt_now + 120;
           run_chair(g_character, {item_id.begin(), item_id.end()});
         }
       }
