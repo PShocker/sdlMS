@@ -25,7 +25,7 @@ bool effect_logic_system::run_damage(game_effect &g_effect) {
     };
     g_effect.z = true;
   }
-  int32_t a = g_effect.alpha - window::delta_time / 4;
+  int32_t a = g_effect.alpha - window::delta_time / 3.5f;
   if (a <= 0) {
     r = true;
   } else {

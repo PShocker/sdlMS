@@ -61,7 +61,18 @@ package_ui_system::load_b_index(std::polymorphic<game_item> &item) {
   std::vector<std::polymorphic<game_item>> *r;
   r = &package_game_instance::data[(int)item->type];
   auto slot_max = item_game_instance::load_slot_max(item->id);
+  std::vector<int32_t> same_slots;
+  std::vector<int32_t> add_slots;
   for (int32_t i = 0; i < r->size(); i++) {
+    auto itm = r->at(i);
+    if (itm->id == item->id) {
+      same_slots.push_back(i);
+    } else if (itm->id.empty()) {
+      add_slots.push_back(i);
+    }
+  }
+  same_slots.append_range(add_slots);
+  for (auto i : same_slots) {
     auto itm = r->at(i);
     if (itm->id == item->id) {
       auto itm_num = item_game_instance::load_item_num(itm);

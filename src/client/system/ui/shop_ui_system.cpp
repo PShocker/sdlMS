@@ -633,6 +633,7 @@ bool shop_ui_system::add_item(std::polymorphic<game_item> &item) {
   if (item->id == u"00000000") {
     auto num = item_game_instance::load_item_num(item);
     package_game_instance::meso += num;
+    return true;
   }
   auto &p = package_game_instance::data[(int)item->type];
   switch (item->type) {

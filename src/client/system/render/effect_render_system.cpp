@@ -97,7 +97,7 @@ void effect_render_system::render_damage(SDL_FPoint pos,
     auto texture = wz_resource::load_texture(texture_node);
     auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
     auto x = pos.x - origin.x + w;
-    auto y = pos.y - origin.y - g_effect.index * texture->h -
+    auto y = pos.y - origin.y - g_effect.index * texture->h - 25 -
              (255 - g_effect.alpha) / 5;
     SDL_FRect pos_rect = {
         .x = x,

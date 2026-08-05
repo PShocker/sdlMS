@@ -9,15 +9,21 @@ void package_game_instance::load(const character_save &cs) {
   for (auto &d : data) {
     d.clear(); // 先清空
   }
-  data[0].assign(96, std::polymorphic<game_item>(game_equip_item{}));
-  data[1].assign(96, std::polymorphic<game_item>(game_consume_item{}));
-  data[2].assign(96, std::polymorphic<game_item>(game_etc_item{}));
-  data[3].assign(96, std::polymorphic<game_item>(game_install_item{}));
-  data[4].assign(96, std::polymorphic<game_item>(game_cash_item{}));
-  data[5].assign(96, std::polymorphic<game_item>(game_deco_item{}));
+  data[(int)item_enum::equip].assign(
+      96, std::polymorphic<game_item>(game_equip_item{}));
+  data[(int)item_enum::consume].assign(
+      96, std::polymorphic<game_item>(game_consume_item{}));
+  data[(int)item_enum::install].assign(
+      96, std::polymorphic<game_item>(game_install_item{}));
+  data[(int)item_enum::etc].assign(
+      96, std::polymorphic<game_item>(game_etc_item{}));
+  data[(int)item_enum::cash].assign(
+      96, std::polymorphic<game_item>(game_cash_item{}));
+  data[(int)item_enum::deco].assign(
+      96, std::polymorphic<game_item>(game_deco_item{}));
 
   // meso = 0;
-  data[0][0]->id=u"01472012";
+  data[0][0]->id = u"01472012";
 
   for (auto &pkg : cs.package) {
     auto type = (int)pkg.val->type;

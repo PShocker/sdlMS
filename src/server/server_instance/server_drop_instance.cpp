@@ -116,7 +116,8 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
     dt.type = game_drop::drop_enum::pick;
 
     if (r.client_id == 0) {
-      package_ui_system::add_item(dt.data);
+      auto itm = dt.data;
+      package_ui_system::add_item(itm);
       character_logic_system::ccp = {};
     }
   }
