@@ -5,6 +5,7 @@
 #include "SDL3/SDL_scancode.h"
 #include "notice_ui_system.h"
 #include "scroll_ui_system.h"
+#include "shop_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/ball_game_instance.h"
@@ -48,6 +49,10 @@ std::vector<uint32_t> package_ui_system::load_blank_index(uint32_t tab) {
 
 std::vector<uint32_t>
 package_ui_system::load_b_index(std::polymorphic<game_item> &item) {
+  if (item->id == u"00000000") {
+    // meso
+    return {0};
+  }
   if (!(item->type == item_enum::consume || item->type == item_enum::etc)) {
     return load_blank_index((int)item->type);
   }
@@ -628,4 +633,20 @@ bool package_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+bool package_ui_system::add_item(std::polymorphic<game_item> &item) {
+  return shop_ui_system::add_item(item);
+}
+
+void package_ui_system::add_item_num(std::polymorphic<game_item> &item,
+                                     int num) {
+  shop_ui_system::add_item_num(item, num);
+  return;
+}
+
+void package_ui_system::dec_item_num(std::polymorphic<game_item> &item,
+                                     int num) {
+  shop_ui_system::dec_item_num(item, num);
+  return;
 }

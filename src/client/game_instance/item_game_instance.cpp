@@ -66,7 +66,6 @@ wz::Node *item_game_instance::load_item_info(const std::u16string &id,
 std::polymorphic<game_item>
 item_game_instance::load_item(const std::u16string &id, uint32_t num) {
   auto item_type = item_game_instance::load_item_type(id);
-
   if (item_type == u"Cash") {
     game_cash_item cash;
     cash.id = id;
@@ -81,7 +80,7 @@ item_game_instance::load_item(const std::u16string &id, uint32_t num) {
   } else if (item_type == u"Etc") {
     game_etc_item etc;
     etc.id = id;
-    etc.num = 1;
+    etc.num = num;
     return std::polymorphic<game_item>(std::in_place_type<game_etc_item>, etc);
   } else if (item_type == u"Install") {
     game_install_item install;

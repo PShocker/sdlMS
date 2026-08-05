@@ -25,6 +25,7 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/game_instance/triangle_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -296,6 +297,9 @@ bool character_logic_system::run_flip(game_character &g_character) {
 }
 
 void character_logic_system::run_pick(game_character &g_character) {
+  if (ccp.random_id != 0) {
+    return;
+  }
   if (g_character.abnormals.contains(
           game_character::abnormal_state_type::dizz)) {
     return;
@@ -303,13 +307,16 @@ void character_logic_system::run_pick(game_character &g_character) {
   if (character_action_input.contains("pick")) {
     for (auto &v : drop_game_instance::data | std::views::values) {
       if (v.type == game_drop::drop_enum::land) {
+        if (package_ui_system::load_b_index(v.data).empty()) {
+          continue;
+        }
         auto pos = g_character.pos;
         if (pos.x == std::clamp(pos.x, v.goal.x - 20, v.goal.x + 40) &&
             pos.y == std::clamp(pos.y, v.goal.y - 20, v.goal.y + 20)) {
-          ClientCharacterPickT ccp;
           ccp.map_id = scene_system_instance::map_id;
           ccp.random_id = v.random_id;
           client_request::send_to_host(ccp);
+          return;
         }
       }
     }
@@ -587,6 +594,10 @@ bool character_logic_system::run_sitting(game_character &g_character) {
       self_sit_cooldown = window::dt_now + 120;
       return false;
     }
+  }
+  if (self_alert_cooldown > window::dt_now) {
+    run_action(g_character, u"alert");
+    return false;
   }
   return true;
 }
@@ -1360,9 +1371,24 @@ void character_logic_system::run_item(game_character &g_character) {
       if (item_type == u"Install") {
         if (item_id.starts_with("0301")) {
           // chair
-          run_action(g_character, u"sit");
-          self_sit_cooldown = window::dt_now + 120;
-          run_chair(g_character, {item_id.begin(), item_id.end()});
+          auto action_type = load_action_type(g_character);
+          switch (action_type) {
+          case action_enum::stand: {
+            run_action(g_character, u"sit");
+            self_sit_cooldown = window::dt_now + 120;
+            run_chair(g_character, {item_id.begin(), item_id.end()});
+            break;
+          }
+          case action_enum::sit: {
+            run_stand_action(g_character);
+            self_sit_cooldown = window::dt_now + 120;
+            g_character.chair = std::nullopt;
+            break;
+          }
+          default: {
+            break;
+          }
+          }
         }
       }
     }

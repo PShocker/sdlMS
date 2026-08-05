@@ -7,6 +7,8 @@
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/physic/physic.h"
@@ -112,6 +114,11 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
     dt.picker = gdp;
     dt.pick_time = window::dt_now;
     dt.type = game_drop::drop_enum::pick;
+
+    if (r.client_id == 0) {
+      package_ui_system::add_item(dt.data);
+      character_logic_system::ccp = {};
+    }
   }
 }
 

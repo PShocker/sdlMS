@@ -70,6 +70,7 @@ private:
 
 public:
   static inline ClientCharacterStateT ccs;
+  static inline ClientCharacterPickT ccp;
 
   static void run_chair(game_character &g_character, const std::u16string &c);
   static bool run_skill(game_character &g_character, const std::u16string &id);
