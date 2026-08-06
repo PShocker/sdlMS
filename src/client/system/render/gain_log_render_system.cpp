@@ -15,14 +15,19 @@ void gain_log_render_system::render(game_gain_log &g_log, uint32_t i) {
     auto itm_id = g_log.id;
     std::u16string item_name;
     if (item_game_instance::check_item(itm_id)) {
-      item_name = item_game_instance::load_item_text(itm_id, u"name");
-      auto item_type = item_game_instance::load_item_type(itm_id);
-      auto tmp_node = wz_resource::ms->get_root()->find(u"");
-      auto tmp = static_cast<wz::Property<std::u16string> *>(tmp_node)->get();
+      if (itm_id == u"00000000") {
+      } else {
+        item_name = item_game_instance::load_item_text(itm_id, u"name");
+        auto item_type = item_game_instance::load_item_type(itm_id);
+        auto tmp_node = wz_resource::ms->get_root()->find(u"");
+        // auto tmp = static_cast<wz::Property<std::u16string>
+        // *>(tmp_node)->get();
+      }
     } else {
       item_name = equip_game_instance::load_equip_name(itm_id);
       auto tmp_node = wz_resource::ms->get_root()->find(u"");
-      auto tmp = static_cast<wz::Property<std::u16string> *>(tmp_node)->get();
+      // auto tmp = static_cast<wz::Property<std::u16string>
+      // *>(tmp_node)->get();
     }
     text = u"Gain item" + item_name;
     break;

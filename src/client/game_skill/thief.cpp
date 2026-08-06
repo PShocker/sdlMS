@@ -152,7 +152,7 @@ static void shuangfeizhan() {
     if (!cm.data.empty()) {
       auto d = ball_game_instance::load_ball_time(cct);
       // Create and send attack payload
-      cm.data[0].hits = {30, 60};
+      cm.data[0].hits = {1, 1};
       cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
       client_request::send_to_host(cat);
     }

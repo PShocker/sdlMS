@@ -131,7 +131,7 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
       auto itm_num = item_game_instance::load_item_num(dt.data);
       itm_num = std::max(1, itm_num);
       game_gain_log g_log{
-          .id = u"",
+          .id = dt.data->id,
           .num = (uint64_t)itm_num,
           .destroy = window::dt_now + 5000,
           .type = gain_enum::item,

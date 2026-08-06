@@ -222,7 +222,7 @@ void package_ui_system::render_tab() {
   }
   if (new_itm.has_value()) {
     // render new tab
-    if (active_tab != new_itm->index) {
+    if (active_tab != (int)new_itm->type) {
       auto now = window::dt_now;
       auto new_item_node = wz_resource::ui->find(u"Item.img/New/Tab0");
       auto sum = new_item_node->children_count() * 100;
@@ -232,7 +232,7 @@ void package_ui_system::render_tab() {
       auto icon = wz_resource::load_texture(new_item_node);
       auto origin =
           wz_resource::load_fpoint(new_item_node->get_child(u"origin"));
-      auto pos_point = tab_pos[new_itm->index];
+      auto pos_point = tab_pos[(int)new_itm->type];
       SDL_FRect pos_rect{
           pos_point.x + pos.x - origin.x,
           pos_point.y + pos.y - origin.y,
@@ -324,7 +324,7 @@ void package_ui_system::render_items() {
 
     // render new item
     if (new_itm.has_value()) {
-      if (active_tab == new_itm->index) {
+      if (active_tab == (int)new_itm->type && i == new_itm->index) {
         auto now = window::dt_now;
         auto new_item_node = wz_resource::ui->find(u"Item.img/New/inventory");
         auto sum = new_item_node->children_count() * 100;
@@ -332,7 +332,12 @@ void package_ui_system::render_items() {
         auto i = offset / 100;
         new_item_node = new_item_node->get_child(std::to_string(i));
         icon = wz_resource::load_texture(new_item_node);
-        auto o = wz_resource::load_fpoint(new_item_node->get_child(u"origin"));
+        pos_rect.x =
+            (int)pos.x + slot_pos.x + col * (slot_size + slot_space_x) - 1;
+        pos_rect.y =
+            (int)pos.y + slot_pos.y + row * (slot_size + slot_space_y) - 2;
+        pos_rect.w = icon->w;
+        pos_rect.h = icon->h;
         SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
       }
     }
@@ -475,6 +480,12 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
   }
 
   // 有手持物品
+  if (new_itm.has_value()) {
+    if (active_tab == (int)new_itm->type && new_itm->index == index.value()) {
+      new_itm = std::nullopt;
+    }
+  }
+
   auto &hand = cursor_game_instance::cursor_hand.value();
 
   // 手持物品不匹配当前标签页，清除手持状态
@@ -604,8 +615,13 @@ void package_ui_system::event_tab(SDL_Event *event) {
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-      if (new_itm->index == active_tab) {
-        new_itm = std::nullopt;
+      if (active_tab == i) {
+        return;
+      }
+      if (new_itm.has_value()) {
+        if ((int)new_itm->type == active_tab) {
+          new_itm = std::nullopt;
+        }
       }
       active_tab = i;
     }
