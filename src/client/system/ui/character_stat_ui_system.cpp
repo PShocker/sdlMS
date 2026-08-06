@@ -5,7 +5,6 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
-#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -13,7 +12,6 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
-#include <cstdint>
 #include <string>
 
 SDL_FPoint character_stat_ui_system::load_wh() { return {185, 281}; }

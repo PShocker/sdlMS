@@ -3,46 +3,10 @@
 #include "wz/Property.h"
 #include <vector>
 
-std::vector<game_foothold>
-foothold_game_instance::load_obj_fhs(uint32_t map_id) {
-  std::vector<game_foothold> r;
-  auto map_node = wz_resource::load_map_node(map_id);
-  uint8_t map_layer = 0;
-  for (auto i : {u"0", u"1", u"2", u"3", u"4", u"5", u"6", u"7"}) {
-    auto layer_node = map_node->get_child(i);
-    for (auto [key, val] : *layer_node->get_child(u"obj")->get_children()) {
-      auto obj_node = val[0];
-      auto oS = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"oS"))
-                    ->get();
-      auto l0 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l0"))
-                    ->get();
-      auto l1 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l1"))
-                    ->get();
-      auto l2 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l2"))
-                    ->get();
-      auto path = u"Obj/" + oS + u".img/" + l0 + u"/" + l1 + u"/" + l2;
-      auto x =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"x"))->get();
-      auto y =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"y"))->get();
-      auto pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
-
-      obj_node = wz_resource::map->find(path);
-    }
-    map_layer++;
-  }
-  return r;
-}
-
 std::flat_map<int32_t, game_foothold>
-foothold_game_instance::load(uint32_t map_id) {
+foothold_game_instance::load(wz::Node *node) {
   std::flat_map<int32_t, game_foothold> data;
-
-  auto map_node = wz_resource::load_map_node(map_id);
+  auto map_node = node;
   auto map_foothold_node = map_node->get_child(u"foothold");
   for (auto [page, val0] : *map_foothold_node->get_children()) {
     for (auto [zmass, val1] : *val0[0]->get_children()) {
@@ -91,4 +55,10 @@ foothold_game_instance::load(uint32_t map_id) {
     }
   }
   return data;
+}
+
+std::flat_map<int32_t, game_foothold>
+foothold_game_instance::load(uint32_t map_id) {
+  auto map_node = wz_resource::load_map_node(map_id);
+  return load(map_node);
 }

@@ -38,10 +38,10 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
-  static bool add_item(std::polymorphic<game_item> &item);
+  static std::optional<int> add_item(std::polymorphic<game_item> &item);
   static void add_item_num(std::polymorphic<game_item> &item, int num);
   static void dec_item_num(std::polymorphic<game_item> &item, int num);
-  
+
   static void render_number(uint32_t num, int x, int y);
 
   static std::vector<uint32_t> load_blank_index(uint32_t tab);
@@ -64,4 +64,10 @@ public:
   static void toggle();
 
   static std::optional<uint32_t> load_mouse_index();
+
+  struct new_item {
+    item_enum type;
+    uint16_t index;
+  };
+  static inline std::optional<new_item> new_itm;
 };

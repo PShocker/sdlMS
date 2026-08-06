@@ -17,5 +17,30 @@ void cash_shop_ui_system::render_backgrnd() {
 
 bool cash_shop_ui_system::render() {
   render_backgrnd();
-  return false;
+  return true;
+}
+
+bool cash_shop_ui_system::event(SDL_Event *event) {
+  bool r = true;
+  switch (event->type) {
+  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      r = false;
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_MOTION: {
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+
+  return r;
 }

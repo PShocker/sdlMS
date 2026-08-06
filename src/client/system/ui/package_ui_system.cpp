@@ -17,7 +17,6 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system_instance/character_create_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -213,10 +212,35 @@ void package_ui_system::render_tab() {
   };
   for (uint8_t i = 0; i < tab_pos.size(); i++) {
     SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
-    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos[i].x)),
-                       static_cast<float>(int(pos.y + tab_pos[i].y)),
-                       static_cast<float>(t->w), static_cast<float>(t->h)};
+    SDL_FRect pos_rect{
+        static_cast<float>(int(pos.x + tab_pos[i].x)),
+        static_cast<float>(int(pos.y + tab_pos[i].y)),
+        static_cast<float>(t->w),
+        static_cast<float>(t->h),
+    };
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  }
+  if (new_itm.has_value()) {
+    // render new tab
+    if (active_tab != new_itm->index) {
+      auto now = window::dt_now;
+      auto new_item_node = wz_resource::ui->find(u"Item.img/New/Tab0");
+      auto sum = new_item_node->children_count() * 100;
+      auto offset = now % sum; // 取余，得到周期内偏移
+      auto i = offset / 100;
+      new_item_node = new_item_node->get_child(std::to_string(i));
+      auto icon = wz_resource::load_texture(new_item_node);
+      auto origin =
+          wz_resource::load_fpoint(new_item_node->get_child(u"origin"));
+      auto pos_point = tab_pos[new_itm->index];
+      SDL_FRect pos_rect{
+          pos_point.x + pos.x - origin.x,
+          pos_point.y + pos.y - origin.y,
+          static_cast<float>(icon->w),
+          static_cast<float>(icon->h),
+      };
+      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+    }
   }
 }
 
@@ -256,8 +280,7 @@ void package_ui_system::render_items() {
   constexpr int items_per_page = slots_per_row * max_rows;
 
   // 获取数据
-  auto &items = (active_tab == 0) ? package_game_instance::data[0]
-                                  : package_game_instance::data[active_tab];
+  auto &items = package_game_instance::data[active_tab];
 
   const size_t start_index = static_cast<size_t>(page) * slots_per_row;
   const size_t end_index = std::min(start_index + items_per_page, items.size());
@@ -298,6 +321,21 @@ void package_ui_system::render_items() {
     };
 
     SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+
+    // render new item
+    if (new_itm.has_value()) {
+      if (active_tab == new_itm->index) {
+        auto now = window::dt_now;
+        auto new_item_node = wz_resource::ui->find(u"Item.img/New/inventory");
+        auto sum = new_item_node->children_count() * 100;
+        auto offset = now % sum; // 取余，得到周期内偏移
+        auto i = offset / 100;
+        new_item_node = new_item_node->get_child(std::to_string(i));
+        icon = wz_resource::load_texture(new_item_node);
+        auto o = wz_resource::load_fpoint(new_item_node->get_child(u"origin"));
+        SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      }
+    }
 
     // render num
     auto item_num = item_game_instance::load_item_num(item);
@@ -396,6 +434,8 @@ void package_ui_system::open() {
 void package_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
+
+  new_itm = std::nullopt;
 }
 
 void package_ui_system::event_top() {
@@ -564,6 +604,9 @@ void package_ui_system::event_tab(SDL_Event *event) {
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      if (new_itm->index == active_tab) {
+        new_itm = std::nullopt;
+      }
       active_tab = i;
     }
   }
@@ -646,7 +689,8 @@ bool package_ui_system::event(SDL_Event *event) {
   return r;
 }
 
-bool package_ui_system::add_item(std::polymorphic<game_item> &item) {
+std::optional<int>
+package_ui_system::add_item(std::polymorphic<game_item> &item) {
   return shop_ui_system::add_item(item);
 }
 

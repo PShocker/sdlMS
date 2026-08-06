@@ -1,4 +1,5 @@
 #include "scene_system_instance.h"
+#include "cash_shop_system_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_mob.h"
@@ -17,11 +18,9 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/obj_game_instance.h"
-#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
-#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
@@ -233,6 +232,20 @@ void scene_system_instance::enter_quit() {
 }
 
 void scene_system_instance::quit_prepare() {
+  fbs::ClientSceneT client_scene;
+  client_scene.fade = false;
+  client_scene.map_id = 0;
+  client_request::send_to_host(client_scene);
+  fade_system_instance::enter_in(scene_system_instance::enter_quit);
+}
+
+void scene_system_instance::enter_cash_shop() {
+  cash_shop_system_instance::enter();
+  fade_system_instance::enter_out();
+  fade_system_instance::enter_out();
+}
+
+void scene_system_instance::cash_shop_prepare() {
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;
   client_scene.map_id = 0;

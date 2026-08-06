@@ -15,6 +15,8 @@ public:
   static void enter_prepare(uint32_t map_id, const std::u16string &pn, int i);
   static void enter_quit();
   static void quit_prepare();
+  static void enter_cash_shop();
+  static void cash_shop_prepare();
 
 private:
   static bool render_game();

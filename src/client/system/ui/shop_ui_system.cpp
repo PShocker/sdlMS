@@ -612,7 +612,7 @@ void shop_ui_system::add_item_num(std::polymorphic<game_item> &item, int num) {
   return;
 }
 
-void shop_ui_system::add_item_slot(std::polymorphic<game_item> &item, int i) {
+int shop_ui_system::add_item_slot(std::polymorphic<game_item> &item, int i) {
   auto num = item_game_instance::load_item_num(item);
   auto &p = package_game_instance::data[(int)item->type];
   auto slot_max = item_game_instance::load_slot_max(item->id);
@@ -620,36 +620,41 @@ void shop_ui_system::add_item_slot(std::polymorphic<game_item> &item, int i) {
   itm->id = item->id;
   auto itm_num = item_game_instance::load_item_num(itm);
   num = std::min((int)num + itm_num, slot_max);
-  add_item_num(itm, num - itm_num);
-  dec_item_num(item, num - itm_num);
-  return;
+  auto dn = num - itm_num;
+  add_item_num(itm, dn);
+  dec_item_num(item, dn);
+  return dn;
 }
 
-bool shop_ui_system::add_item(std::polymorphic<game_item> &item) {
+std::optional<int> shop_ui_system::add_item(std::polymorphic<game_item> &item) {
   auto b = package_ui_system::load_b_index(item);
   if (b.empty()) {
-    return false;
+    return std::nullopt;
   }
   if (item->id == u"00000000") {
     auto num = item_game_instance::load_item_num(item);
     package_game_instance::meso += num;
-    return true;
+    return 0;
   }
+  std::optional<int> r;
   auto &p = package_game_instance::data[(int)item->type];
   switch (item->type) {
   case item_enum::consume:
   case item_enum::etc: {
     for (auto i : b) {
-      add_item_slot(item, i);
+      if (add_item_slot(item, i)) {
+        r = i;
+      }
     }
     break;
   }
   default: {
+    r = b[0];
     p[b[0]] = (item);
     break;
   }
   }
-  return true;
+  return r;
 }
 
 bool shop_ui_system::add_must_item(std::polymorphic<game_item> &item) {

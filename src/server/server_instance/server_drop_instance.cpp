@@ -1,8 +1,10 @@
 #include "server_drop_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game/game_drop.h"
+#include "src/client/game/game_gain_log.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
+#include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -14,7 +16,9 @@
 #include "src/common/physic/physic.h"
 #include "src/common/response/server_response.h"
 #include "src/server/server/server_drop.h"
+#include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <format>
 #include <utility>
 
@@ -117,8 +121,22 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
 
     if (r.client_id == 0) {
       auto itm = dt.data;
-      package_ui_system::add_item(itm);
+      uint16_t i = package_ui_system::add_item(itm).value();
+      package_ui_system::new_itm = {
+          .type = itm->type,
+          .index = i,
+      };
       character_logic_system::ccp = {};
+
+      auto itm_num = item_game_instance::load_item_num(dt.data);
+      itm_num = std::max(1, itm_num);
+      game_gain_log g_log{
+          .id = u"",
+          .num = (uint64_t)itm_num,
+          .destroy = window::dt_now + 5000,
+          .type = gain_enum::item,
+      };
+      gain_log_game_instance::data.push_back(g_log);
     }
   }
 }

@@ -1,6 +1,7 @@
 #include "server_mob_instance.h"
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
+#include "src/client/game/game_gain_log.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"
@@ -141,7 +142,7 @@ void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
         .id = u"",
         .num = static_cast<uint64_t>(exp),
         .destroy = window::dt_now + 5000,
-        .experience = true,
+        .type = gain_enum::experience,
     };
     gain_log_game_instance::data.push_back(g_log);
   }
