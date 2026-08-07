@@ -1,11 +1,11 @@
-#include "script.h"
+#include "../script.h"
 
-static void jane_103() {
+static void npc_18() {
 
 };
 
 [[maybe_unused]] static const bool r = [] {
   auto &fns = script::fns();
-  fns[u"jane_103"] = jane_103;
+  fns[u"npc_18"] = npc_18;
   return true;
 }();

@@ -122,10 +122,14 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
     if (r.client_id == 0) {
       auto itm = dt.data;
       uint16_t i = package_ui_system::add_item(itm).value();
-      package_ui_system::new_itm = {
-          .type = itm->type,
-          .index = i,
-      };
+
+      if (dt.data->id != u"00000000") {
+        package_ui_system::new_itm = {
+            .type = itm->type,
+            .index = i,
+        };
+      }
+      
       character_logic_system::ccp = {};
 
       auto itm_num = item_game_instance::load_item_num(dt.data);

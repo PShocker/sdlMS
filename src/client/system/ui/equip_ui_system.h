@@ -31,8 +31,11 @@ private:
   static void render_backgrnd2();
   static void render_tab();
   static void render_equip();
+  static void render_deco();
   static void render_equip_texture(game_equip_item &equip, SDL_FPoint slot);
+  static void render_deco_texture(game_deco_item &deco, SDL_FPoint slot);
   static void render_equip_info();
+  static void render_deco_info();
   static void render_button();
 
   static SDL_FPoint load_wh();
@@ -52,6 +55,7 @@ private:
 
 public:
   static std::optional<game_equip_item> *load_equip(equip_mouse_index index);
+  static std::optional<game_deco_item> *load_deco(equip_mouse_index index);
 
   static inline SDL_FPoint pos;
 

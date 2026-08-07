@@ -1,4 +1,4 @@
-#include "script.h"
+#include "../script.h"
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"

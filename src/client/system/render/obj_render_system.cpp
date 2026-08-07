@@ -36,3 +36,6 @@ bool obj_render_system::render(game_obj &g_obj) {
 
   return true;
 }
+
+void obj_render_system::render_clock(SDL_FRect &r) {
+}

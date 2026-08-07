@@ -101,6 +101,9 @@ bool scene_system_instance::render_game() {
     for (auto &tile : tile_game_instance::data[i] | std::views::values) {
       tile_render_system::render(tile);
     }
+    for (auto &clock : obj_game_instance::clock) {
+      obj_render_system::render_clock(clock);
+    }
     for (auto &reactor : reactor_game_instance::data[i]) {
       reactor_render_system::render(reactor);
     }

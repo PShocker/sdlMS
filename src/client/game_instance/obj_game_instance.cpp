@@ -66,6 +66,18 @@ void obj_game_instance::load(wz::Node *image) {
   }
 }
 
+void obj_game_instance::load_clock(wz::Node *image) {
+  clock = {};
+  if (auto n = image->get_child(u"clock")) {
+    SDL_FRect r;
+    r.x = static_cast<wz::Property<int> *>(n->get_child(u"x"))->get();
+    r.y = static_cast<wz::Property<int> *>(n->get_child(u"y"))->get();
+    r.w = static_cast<wz::Property<int> *>(n->get_child(u"width"))->get();
+    r.h = static_cast<wz::Property<int> *>(n->get_child(u"height"))->get();
+    clock.push_back(r);
+  }
+}
+
 void obj_game_instance::load(uint32_t map_id) {
   auto map_node = wz_resource::load_map_node(map_id);
   load(map_node);

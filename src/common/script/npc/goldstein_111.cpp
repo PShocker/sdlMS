@@ -1,11 +1,11 @@
-#include "script.h"
+#include "../script.h"
 
-static void npc_101() {
+static void goldstein_111() {
 
 };
 
 [[maybe_unused]] static const bool r = [] {
   auto &fns = script::fns();
-  fns[u"npc_101"] = npc_101;
+  fns[u"goldstein_111"] = goldstein_111;
   return true;
 }();

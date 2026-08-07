@@ -32,12 +32,9 @@ void reactor_game_instance::load(uint32_t map_id) {
       auto y = static_cast<wz::Property<int> *>(reactor_node->get_child(u"y"))
                    ->get();
       g_reactor.pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
-      g_reactor.reactor_index = 0;
       g_reactor.ani_index = 0;
       g_reactor.ani_time = 0;
-      g_reactor.reactor_time = static_cast<wz::Property<int> *>(
-                                   reactor_node->get_child(u"reactorTime"))
-                                   ->get();
+
       g_reactor.f =
           static_cast<wz::Property<int> *>(reactor_node->get_child(u"f"))
               ->get();

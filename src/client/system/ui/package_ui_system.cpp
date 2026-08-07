@@ -552,7 +552,22 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
   // 处理普通背包栏
   auto &r = package_game_instance::data[active_tab];
   if (hand.sub_val != index.value()) {
-    std::swap(r.at(hand.sub_val), r.at(index.value()));
+    // 是否可堆叠，尝试合并
+    auto &itm0 = r.at(index.value());
+    auto &itm1 = r.at(hand.sub_val);
+    if (itm0->id == itm1->id) {
+      auto itm_num0 = item_game_instance::load_item_num(itm0);
+      auto itm_num1 = item_game_instance::load_item_num(itm1);
+      auto slot_max = item_game_instance::load_slot_max(itm0->id);
+      auto add_num = std::min(slot_max - itm_num0, itm_num1);
+      add_item_num(itm0, add_num);
+      dec_item_num(itm1, add_num);
+    } else {
+      std::swap(r.at(hand.sub_val), r.at(index.value()));
+    }
+  } else {
+    // 使用道具
+    
   }
   cursor_game_instance::cursor_hand = std::nullopt;
   return true;

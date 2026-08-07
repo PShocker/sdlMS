@@ -141,6 +141,56 @@ equip_ui_system::load_equip(equip_mouse_index index) {
   return equip;
 }
 
+std::optional<game_deco_item> *
+equip_ui_system::load_deco(equip_mouse_index index) {
+  std::optional<game_deco_item> *deco;
+  auto &self = character_game_instance::self;
+  switch (index) {
+  case cap: {
+    deco = &self.cap_deco;
+    break;
+  }
+  case earcc: {
+    deco = &self.accessory_deco;
+    break;
+  }
+  case clothes: {
+    deco = &self.coat_deco;
+    break;
+  }
+  case pants: {
+    deco = &self.pant_deco;
+    break;
+  }
+  case shoes: {
+    deco = &self.shoes_deco;
+    break;
+  }
+  case gloves: {
+    deco = &self.glove_deco;
+    break;
+  }
+  case cape: {
+    deco = &self.cape_deco;
+    break;
+  }
+  case shield: {
+    deco = &self.shield_deco;
+    break;
+  }
+  case weapon: {
+    deco = &self.weapon_deco;
+    break;
+  }
+  case ring0:
+  case ring1:
+  case ring2:
+  case ring3:
+    break;
+  }
+  return deco;
+}
+
 SDL_FPoint equip_ui_system::load_wh() { return {175, 289}; }
 
 void equip_ui_system::render_backgrnd() {
@@ -172,40 +222,79 @@ void equip_ui_system::render_equip_texture(game_equip_item &equip,
 void equip_ui_system::render_equip() {
   auto &self = character_game_instance::self;
   if (self.cap.has_value()) {
-    auto id = self.cap->id;
     render_equip_texture(self.cap.value(), cap_slot);
   }
   if (self.accessory.has_value()) {
-    auto id = self.accessory->id;
     render_equip_texture(self.accessory.value(), earacc_slot);
   }
   if (self.coat.has_value()) {
-    auto id = self.coat->id;
     render_equip_texture(self.coat.value(), clothes_slot);
   }
   if (self.pant.has_value()) {
-    auto id = self.pant->id;
     render_equip_texture(self.pant.value(), pants_slot);
   }
   if (self.shoes.has_value()) {
-    auto id = self.shoes->id;
     render_equip_texture(self.shoes.value(), pants_slot);
   }
   if (self.glove.has_value()) {
-    auto id = self.glove->id;
     render_equip_texture(self.glove.value(), gloves_slot);
   }
   if (self.cape.has_value()) {
-    auto id = self.cape->id;
     render_equip_texture(self.cape.value(), cape_slot);
   }
   if (self.shield.has_value()) {
-    auto id = self.shield->id;
     render_equip_texture(self.shield.value(), shield_slot);
   }
   if (self.weapon.has_value()) {
-    auto id = self.weapon->id;
     render_equip_texture(self.weapon.value(), weapon_slot);
+  }
+}
+
+void equip_ui_system::render_deco_texture(game_deco_item &deco,
+                                          SDL_FPoint slot) {
+  const SDL_FPoint lt{4, 45};
+
+  auto info = equip_game_instance::load_equip_info(deco.id);
+  auto icon = wz_resource::load_texture(info->get_child(u"icon"));
+  auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
+  auto y = (int)pos.y + slot.y + lt.y + (32 - icon->h) / 2;
+  SDL_FRect pos_rect{
+      x,
+      y,
+      static_cast<float>(icon->w),
+      static_cast<float>(icon->h),
+  };
+  SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+}
+
+void equip_ui_system::render_deco() {
+  auto &self = character_game_instance::self;
+  if (self.cap_deco.has_value()) {
+    render_deco_texture(self.cap_deco.value(), cap_slot);
+  }
+  if (self.accessory_deco.has_value()) {
+    render_deco_texture(self.accessory_deco.value(), earacc_slot);
+  }
+  if (self.coat_deco.has_value()) {
+    render_deco_texture(self.coat_deco.value(), clothes_slot);
+  }
+  if (self.pant_deco.has_value()) {
+    render_deco_texture(self.pant_deco.value(), pants_slot);
+  }
+  if (self.shoes_deco.has_value()) {
+    render_deco_texture(self.shoes_deco.value(), pants_slot);
+  }
+  if (self.glove_deco.has_value()) {
+    render_deco_texture(self.glove_deco.value(), gloves_slot);
+  }
+  if (self.cape_deco.has_value()) {
+    render_deco_texture(self.cape_deco.value(), cape_slot);
+  }
+  if (self.shield_deco.has_value()) {
+    render_deco_texture(self.shield_deco.value(), shield_slot);
+  }
+  if (self.weapon_deco.has_value()) {
+    render_deco_texture(self.weapon_deco.value(), weapon_slot);
   }
 }
 
@@ -217,6 +306,19 @@ void equip_ui_system::render_equip_info() {
     auto equip = load_equip(index.value());
     if (equip->has_value()) {
       tooltip_ui_system::render_equip(equip->value(), show_pos.x, show_pos.y);
+    }
+  }
+}
+
+void equip_ui_system::render_deco_info() {
+  auto index = load_mouse_index();
+  if (index.has_value()) {
+    auto &mouse_pos = window::mouse_pos;
+    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
+    auto equip = load_deco(index.value());
+    if (equip->has_value()) {
+      // tooltip_ui_system::render_equip(equip->value(), show_pos.x,
+      // show_pos.y);
     }
   }
 }
@@ -299,8 +401,14 @@ bool equip_ui_system::render() {
   render_backgrnd2();
   render_tab();
   render_button();
-  render_equip();
-  render_equip_info();
+  if (active_tab == 0) {
+    render_equip();
+    render_equip_info();
+  } else {
+    render_deco();
+    render_deco_info();
+  }
+
   return true;
 }
 

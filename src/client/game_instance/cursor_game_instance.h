@@ -20,6 +20,7 @@ public:
   // 点击装备,背包,技能,键盘按钮
   enum cursor_hand_type {
     equipment,
+    deco,
     package,
     skill,
     keybind,

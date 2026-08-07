@@ -3,13 +3,12 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class game_reactor {
+#include <vector>
+
+class server_reactor {
 public:
   std::u16string id;
+  uint32_t index;
   SDL_FPoint pos;
-
-  bool f;
-
-  uint32_t ani_index = 0;
-  uint32_t ani_time;
+  uint8_t act;
 };
