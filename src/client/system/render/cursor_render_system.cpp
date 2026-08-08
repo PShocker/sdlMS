@@ -17,6 +17,9 @@ void cursor_render_system::render_hand() {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     return;
   }
+  if (cursor_game_instance::modal_overlay) {
+    return;
+  }
   if (cursor_game_instance::cursor_hand.has_value()) {
     auto hand = cursor_game_instance::cursor_hand.value();
     const auto &self = character_game_instance::self;

@@ -11,7 +11,7 @@ using namespace fbs;
 
 class server_drop_instance {
 private:
-  static float cal_drop_time(float y1, float y2);
+  static float cal_available_time(float y1, float y2);
 
 public:
   static void save_drop(uint64_t map_id, const DropT &drop);

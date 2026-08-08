@@ -22,38 +22,28 @@
 #include <format>
 #include <utility>
 
-float server_drop_instance::cal_drop_time(float y1, float y2) {
-  const float VY = 400.0f; // 初速度 = 最大速度
-  const float G = 800.0f;  // 重力加速度
+float server_drop_instance::cal_available_time(float y1, float y2) {
+  const float VY = 400.0f;                     // 初速度（向上）
+  const float G = 800.0f;                      // 重力加速度
+  const float MAX_RISE = VY * VY / (2.0f * G); // 最大上升高度 = 100.0f
 
-  float delta_y = y1 - y2; // 起点-终点（正数=下落）
-  // 终点在起点下方（下落）
-  if (delta_y > 0) {
-    float fall_distance = delta_y;
-    if (fall_distance <= 100.0f) {
-      // 距离 <= 100px：全程加速，未达到最大速度
-      // t = sqrt(2*fall_distance/G)
-      float t = sqrtf(2.0f * fall_distance / G);
-      return 0.5f + t; // 上升0.5秒 + 下落时间
-    } else {
-      // 距离 > 100px：加速100px后匀速
-      float t_accel = 0.5f;                          // 加速时间
-      float t_const = (fall_distance - 100.0f) / VY; // 匀速时间
-      float t = 0.5f + t_accel + t_const; // 上升0.5s + 加速0.5s + 匀速
-      return t;
-    }
+  float max_height = y1 - MAX_RISE;
+
+  // 总下落距离 = 从最高点到y2
+  float total_fall_distance = y2 - max_height;
+
+  if (total_fall_distance < 0) {
+    // y2在最高点上方，无法到达
+    return -1.0f;
   }
-  // 终点在起点上方（上升）
-  else if (delta_y < 0) {
-    float rise_distance = -delta_y;
-    // 上升阶段：t = (VY - sqrt(VY² - 2*G*rise_distance)) / G
-    float t = (VY - sqrtf(VY * VY - 2.0f * G * rise_distance)) / G;
-    return t;
-  }
-  // 相同高度
-  else {
-    return 1.0f; // 完整抛物线：0.5s上升 + 0.5s下落
-  }
+
+  // 上升到最高点的时间
+  float rise_time = VY / G; // 0.5s
+
+  // 从最高点下落到y2的时间
+  float fall_time = sqrtf(2.0f * total_fall_distance / G);
+
+  return rise_time + fall_time;
 }
 
 void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
@@ -61,7 +51,8 @@ void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
   server_drop sd;
   sd.dt = drop;
   sd.destroy = window::dt_now + 60 * 5 * 1000;
-  sd.available = window::dt_now + cal_drop_time(drop.y1, drop.y2) * 1000;
+  sd.available = window::dt_now + cal_available_time(drop.y1, drop.y2) * 1000;
+  // sd.available = window::dt_now;
   scene.drops.emplace(drop.random_id, sd);
 }
 
@@ -102,12 +93,21 @@ void server_drop_instance::handle_pick(uint64_t client_id,
       t.client_id = 0;
       server_response::send_to_client(client_id, t);
       scene.drops.erase(r.random_id);
+    } else {
+      ServerCharacterPickT t;
+      t.random_id = 0;
+      server_response::send_to_client(client_id, t);
     }
   }
 }
 
 void server_drop_instance::handle_server_pick(uint64_t client_id,
                                               ServerCharacterPickT &r) {
+  if (r.client_id == 0 && r.random_id == 0) {
+    // 捡取物品失败
+    character_logic_system::ccp = {};
+    return;
+  }
   if (drop_game_instance::data.contains(r.random_id)) {
     auto &dt = drop_game_instance::data.at(r.random_id);
     game_drop_pick gdp;
@@ -129,7 +129,7 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
             .index = i,
         };
       }
-      
+
       character_logic_system::ccp = {};
 
       auto itm_num = item_game_instance::load_item_num(dt.data);
@@ -199,8 +199,32 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
         break;
       }
       case cursor_game_instance::package: {
-        package_game_instance::data[hand.val][hand.sub_val] =
-            std::polymorphic<game_item>{};
+        int num = 1;
+        switch (r.payload->drop.type) {
+        case fbs::ItemUnion_Item: {
+          auto item = r.payload->drop.AsItem();
+          num = item->item_num;
+          break;
+        }
+        default: {
+          break;
+        }
+        }
+        auto &itm = package_game_instance::data[hand.val][hand.sub_val];
+        switch (static_cast<item_enum>(hand.val)) {
+        case item_enum::equip: {
+          itm = std::polymorphic<game_item>(game_equip_item{});
+          break;
+        }
+        case item_enum::deco: {
+          itm = std::polymorphic<game_item>(game_deco_item{});
+          break;
+        }
+        default: {
+          package_ui_system::dec_item_num(itm, num);
+          break;
+        }
+        }
         break;
       }
       default: {
@@ -219,7 +243,7 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
   std::vector<std::unique_ptr<fbs::DropT>> r;
 
   auto &gen = random_game_instance::gen;
-  std::uniform_int_distribution<uint64_t> dist;
+  std::uniform_int_distribution<uint64_t> dist(1, UINT64_MAX);
 
   const auto &s_fhs = server_scene_instance::scenes.at(map_id).fhs;
   std::flat_map<int32_t, game_foothold> g_fhs;
@@ -234,8 +258,11 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
   auto max_h = std::pow(400, 2) / (2 * 800);
 
   for (auto dt : dts) {
+    uint64_t random_id = 0;
+    do {
+      random_id = dist(gen);
+    } while (server_scene_instance::scenes[map_id].drops.contains(random_id));
     dt.random_id = dist(gen);
-
     int x;
     if (dts_size == 1) {
       x = 0;

@@ -5,6 +5,7 @@
 #include "src/client/game/game_shop.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
@@ -15,13 +16,17 @@
 #include "src/client/system/ui/shop_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/freetype/freetype.h"
+#include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "text_input_ui_system.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <algorithm>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -43,7 +48,8 @@ void notice_ui_system::render_backgrnd() {
   }
   case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell_mul:
-  case notice_enum::shopbuy_mul: {
+  case notice_enum::shopbuy_mul:
+  case notice_enum::throw_mul: {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice2");
     break;
   }
@@ -92,6 +98,7 @@ void notice_ui_system::render_button() {
   case notice_enum::shopbuy_no_meso:
   case notice_enum::shopbuy_no_space:
   case notice_enum::equip_no_ability:
+  case notice_enum::throw_mul:
   case notice_enum::equip_no_space: {
     buttons_node = {
         wz_resource::ui->find(u"Basic.img/BtOK2"),
@@ -194,6 +201,12 @@ void notice_ui_system::render_text() {
     p = {20, 20};
     break;
   }
+  case notice_enum::throw_mul: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/throwMul");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
   default: {
     break;
   }
@@ -210,7 +223,8 @@ void notice_ui_system::render_input() {
   switch (type) {
   case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell_mul:
-  case notice_enum::shopbuy_mul: {
+  case notice_enum::shopbuy_mul:
+  case notice_enum::throw_mul: {
     text_input_ui_system::render(text, 5, 5);
     break;
   }
@@ -241,7 +255,8 @@ void notice_ui_system::open() {
     case notice_enum::ap_inc:
     case notice_enum::shopbuy_sell:
     case notice_enum::shopbuy_sell_mul:
-    case notice_enum::shopbuy_mul: {
+    case notice_enum::shopbuy_mul:
+    case notice_enum::throw_mul: {
       text = {
           .max_size = 12,
           .text = u"1",
@@ -294,6 +309,7 @@ SDL_FPoint notice_ui_system::load_wh() {
   case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell_mul:
   case notice_enum::shopbuy_mul:
+  case notice_enum::throw_mul:
     return {266, 119};
   case notice_enum::equip_no_ability:
   case notice_enum::equip_no_space:
@@ -426,6 +442,43 @@ void notice_ui_system::event_button_worldmap_teleport() {
   scene_system_instance::enter_prepare(p, u"sp", 0);
 }
 
+void notice_ui_system::event_button_throw_mul() {
+  auto p = std::any_cast<std::polymorphic<game_item> *>(notice_ui_system::data);
+  auto throw_num = std::stoi(std::string{text.text.begin(), text.text.end()});
+  auto itm_num = item_game_instance::load_item_num(*p);
+  if (throw_num > itm_num) {
+    type = notice_enum::shopbuy_sell_no_num;
+    cursor_game_instance::cursor_hand = std::nullopt;
+    return;
+  } else {
+    DropT dt;
+    ItemT it;
+    it.item_id = std::stoi(std::string{(*p)->id.begin(), (*p)->id.end()});
+    it.item_num = throw_num;
+    dt.drop.Set(it);
+
+    dt.x1 = character_game_instance::self.pos.x;
+    dt.y1 = character_game_instance::self.pos.y;
+
+    dt.page = character_game_instance::self.page;
+
+    ClientCharacterDropT cct;
+    cct.map_id = scene_system_instance::map_id;
+    cct.payload = std::make_unique<DropT>(dt);
+    client_request::send_to_host(cct);
+
+    cursor_game_instance::cursor_hand_net = {
+        .type = cursor_game_instance::drop,
+    };
+    close();
+  }
+}
+
+void notice_ui_system::event_button_throw_close() {
+  cursor_game_instance::cursor_hand = std::nullopt;
+  close();
+}
+
 bool notice_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
@@ -453,12 +506,11 @@ bool notice_ui_system::event_button(SDL_Event *event) {
     func = {event_button_shopbuy_sell, close};
     break;
   }
-  case notice_enum::worldmap_disable:
-  case notice_enum::shopbuy_sell_no_num:
-  case notice_enum::shopbuy_no_meso:
-  case notice_enum::shopbuy_no_space:
-  case notice_enum::equip_no_ability:
-  case notice_enum::equip_no_space: {
+  case notice_enum::throw_mul: {
+    func = {event_button_throw_mul, event_button_throw_close};
+    break;
+  }
+  default: {
     func = {close, close};
     break;
   }
@@ -480,7 +532,8 @@ void notice_ui_system::event_input(SDL_Event *event) {
   switch (type) {
   case notice_enum::ap_inc:
   case notice_enum::shopbuy_sell_mul:
-  case notice_enum::shopbuy_mul: {
+  case notice_enum::shopbuy_mul:
+  case notice_enum::throw_mul: {
     text_input_ui_system::event(event, text);
   }
   default: {
@@ -497,6 +550,9 @@ bool notice_ui_system::event(SDL_Event *event) {
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
       event_close();
+      if (type == notice_enum::throw_mul) {
+        cursor_game_instance::cursor_hand = std::nullopt;
+      }
       break;
     }
     case SDL_SCANCODE_RETURN: {
@@ -506,13 +562,6 @@ bool notice_ui_system::event(SDL_Event *event) {
         event_button_shopbuy();
         break;
       }
-      case notice_enum::shopbuy_no_meso:
-      case notice_enum::shopbuy_no_space:
-      case notice_enum::equip_no_ability:
-      case notice_enum::equip_no_space:
-      case notice_enum::worldmap_disable:
-        close();
-        break;
       case notice_enum::shopbuy_sell:
       case notice_enum::shopbuy_sell_mul: {
         event_button_shopbuy_sell();
@@ -523,6 +572,14 @@ bool notice_ui_system::event(SDL_Event *event) {
       }
       case notice_enum::worldmap_teleport: {
         event_button_worldmap_teleport();
+        break;
+      }
+      case notice_enum::throw_mul: {
+        event_button_throw_mul();
+        break;
+      }
+      default: {
+        close();
         break;
       }
       }

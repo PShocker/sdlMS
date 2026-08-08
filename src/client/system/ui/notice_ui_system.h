@@ -18,6 +18,9 @@ private:
   static void event_button_shopbuy_must();
   static void event_button_shopbuy_sell();
 
+  static void event_button_throw_mul();
+  static void event_button_throw_close();
+
   static void event_button_worldmap_teleport();
 
   static void event_button_ap_inc();
@@ -43,6 +46,8 @@ public:
     ap_inc,
     worldmap_disable,
     worldmap_teleport,
+
+    throw_mul,
   };
 
   static inline notice_enum type;

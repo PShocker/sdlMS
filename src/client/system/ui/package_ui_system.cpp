@@ -245,6 +245,9 @@ void package_ui_system::render_tab() {
 }
 
 void package_ui_system::render_items_info() {
+  if (cursor_game_instance::modal_overlay) {
+    return;
+  }
   constexpr int tooltip_offset = 15;
   auto index_opt = load_mouse_index();
   if (!index_opt.has_value()) {
@@ -524,7 +527,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       }
 
       // 执行穿戴
-      equips[hand.sub_val] = std::polymorphic<game_item>{};
+      equips[hand.sub_val]->id = u"";
       for (int32_t i = 0; i < ev.size(); i++) {
         auto eqp = ev[i];
         equips[blank_slot[i]] = std::polymorphic<game_item>(
@@ -567,7 +570,6 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     }
   } else {
     // 使用道具
-    
   }
   cursor_game_instance::cursor_hand = std::nullopt;
   return true;

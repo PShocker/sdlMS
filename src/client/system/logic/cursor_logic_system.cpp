@@ -7,6 +7,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -106,8 +107,10 @@ void cursor_logic_system::run_cursor_action(const std::u16string &action) {
 
 bool cursor_logic_system::run_default() {
   if (cursor_game_instance::cursor_hand.has_value()) {
-    run_cursor_action(u"11");
-    return true;
+    if (!cursor_game_instance::modal_overlay) {
+      run_cursor_action(u"11");
+      return true;
+    }
   }
   if (cursor_game_instance::cursor_ui == nullptr) {
     if (!(window::mouse_state & SDL_BUTTON_LMASK)) {
@@ -118,7 +121,8 @@ bool cursor_logic_system::run_default() {
       }
     }
   }
-  if (cursor_game_instance::cursor_ui == package_ui_system::render) {
+  if (cursor_game_instance::cursor_ui == package_ui_system::render &&
+      !cursor_game_instance::modal_overlay) {
     if (run_package_motion()) {
       run_cursor_action(u"5");
       return true;
@@ -326,6 +330,35 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
                   .type = cursor_game_instance::drop,
               };
             } else {
+              auto &itm =
+                  package_game_instance::data[active_tab][cursor_hand->sub_val];
+              auto num = item_game_instance::load_item_num(itm);
+              if (num > 1) {
+                notice_ui_system::type =
+                    notice_ui_system::notice_enum::throw_mul;
+                notice_ui_system::open();
+                notice_ui_system::data = &itm;
+              } else {
+                ItemT it;
+                it.item_id =
+                    std::stoi(std::string{itm->id.begin(), itm->id.end()});
+                it.item_num = 1;
+                dt.drop.Set(it);
+
+                dt.x1 = character_game_instance::self.pos.x;
+                dt.y1 = character_game_instance::self.pos.y;
+
+                dt.page = character_game_instance::self.page;
+
+                ClientCharacterDropT cct;
+                cct.map_id = scene_system_instance::map_id;
+                cct.payload = std::make_unique<DropT>(dt);
+                client_request::send_to_host(cct);
+
+                cursor_hand_net = {
+                    .type = cursor_game_instance::drop,
+                };
+              }
             }
             break;
           }
