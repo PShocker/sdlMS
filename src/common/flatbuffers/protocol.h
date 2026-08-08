@@ -43,40 +43,38 @@ enum NetPayload : uint8_t {
   NetPayload_ClientCharacterInfo = 17,
   NetPayload_ClientCharacterTrade = 18,
   NetPayload_ClientCharacterParty = 19,
-  NetPayload_ClientCharacterChair = 20,
-  NetPayload_ServerHeartbeat = 21,
-  NetPayload_ServerScene = 22,
-  NetPayload_ServerCharacterIn = 23,
-  NetPayload_ServerCharacterOut = 24,
-  NetPayload_ServerCharacterMv = 25,
-  NetPayload_ServerCharacterFlip = 26,
-  NetPayload_ServerCharacterAction = 27,
-  NetPayload_ServerCharacterDie = 28,
-  NetPayload_ServerCharacterFc = 29,
-  NetPayload_ServerCharacterAttack = 30,
-  NetPayload_ServerCharacterSkill = 31,
-  NetPayload_ServerCharacterBall = 32,
-  NetPayload_ServerCharacterChat = 33,
-  NetPayload_ServerCharacterDrop = 34,
-  NetPayload_ServerCharacter = 35,
-  NetPayload_ServerMobMv = 36,
-  NetPayload_ServerMobFlip = 37,
-  NetPayload_ServerMobAction = 38,
-  NetPayload_ServerMobState = 39,
-  NetPayload_ServerMobEvent = 40,
-  NetPayload_ServerMobAttack = 41,
-  NetPayload_ServerCharacterPick = 42,
-  NetPayload_ServerCharacterInfo = 43,
-  NetPayload_ServerCharacterTrade = 44,
-  NetPayload_ServerCharacterParty = 45,
-  NetPayload_ServerCharacterState = 46,
-  NetPayload_ServerDropFade = 47,
-  NetPayload_ServerCharacterChair = 48,
+  NetPayload_ServerHeartbeat = 20,
+  NetPayload_ServerScene = 21,
+  NetPayload_ServerCharacterIn = 22,
+  NetPayload_ServerCharacterOut = 23,
+  NetPayload_ServerCharacterMv = 24,
+  NetPayload_ServerCharacterFlip = 25,
+  NetPayload_ServerCharacterAction = 26,
+  NetPayload_ServerCharacterDie = 27,
+  NetPayload_ServerCharacterFc = 28,
+  NetPayload_ServerCharacterAttack = 29,
+  NetPayload_ServerCharacterSkill = 30,
+  NetPayload_ServerCharacterBall = 31,
+  NetPayload_ServerCharacterChat = 32,
+  NetPayload_ServerCharacterDrop = 33,
+  NetPayload_ServerCharacter = 34,
+  NetPayload_ServerMobMv = 35,
+  NetPayload_ServerMobFlip = 36,
+  NetPayload_ServerMobAction = 37,
+  NetPayload_ServerMobState = 38,
+  NetPayload_ServerMobEvent = 39,
+  NetPayload_ServerMobAttack = 40,
+  NetPayload_ServerCharacterPick = 41,
+  NetPayload_ServerCharacterInfo = 42,
+  NetPayload_ServerCharacterTrade = 43,
+  NetPayload_ServerCharacterParty = 44,
+  NetPayload_ServerCharacterState = 45,
+  NetPayload_ServerDropFade = 46,
   NetPayload_MIN = NetPayload_NONE,
-  NetPayload_MAX = NetPayload_ServerCharacterChair
+  NetPayload_MAX = NetPayload_ServerDropFade
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[49] {
+inline const NetPayload (&EnumValuesNetPayload())[47] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -98,7 +96,6 @@ inline const NetPayload (&EnumValuesNetPayload())[49] {
     NetPayload_ClientCharacterInfo,
     NetPayload_ClientCharacterTrade,
     NetPayload_ClientCharacterParty,
-    NetPayload_ClientCharacterChair,
     NetPayload_ServerHeartbeat,
     NetPayload_ServerScene,
     NetPayload_ServerCharacterIn,
@@ -125,14 +122,13 @@ inline const NetPayload (&EnumValuesNetPayload())[49] {
     NetPayload_ServerCharacterTrade,
     NetPayload_ServerCharacterParty,
     NetPayload_ServerCharacterState,
-    NetPayload_ServerDropFade,
-    NetPayload_ServerCharacterChair
+    NetPayload_ServerDropFade
   };
   return values;
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[50] = {
+  static const char * const names[48] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -153,7 +149,6 @@ inline const char * const *EnumNamesNetPayload() {
     "ClientCharacterInfo",
     "ClientCharacterTrade",
     "ClientCharacterParty",
-    "ClientCharacterChair",
     "ServerHeartbeat",
     "ServerScene",
     "ServerCharacterIn",
@@ -181,14 +176,13 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerCharacterParty",
     "ServerCharacterState",
     "ServerDropFade",
-    "ServerCharacterChair",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameNetPayload(NetPayload e) {
-  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerCharacterChair)) return "";
+  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerDropFade)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNetPayload()[index];
 }
@@ -271,10 +265,6 @@ template<> struct NetPayloadTraits<fbs::ClientCharacterTrade> {
 
 template<> struct NetPayloadTraits<fbs::ClientCharacterParty> {
   static const NetPayload enum_value = NetPayload_ClientCharacterParty;
-};
-
-template<> struct NetPayloadTraits<fbs::ClientCharacterChair> {
-  static const NetPayload enum_value = NetPayload_ClientCharacterChair;
 };
 
 template<> struct NetPayloadTraits<fbs::ServerHeartbeat> {
@@ -385,10 +375,6 @@ template<> struct NetPayloadTraits<fbs::ServerDropFade> {
   static const NetPayload enum_value = NetPayload_ServerDropFade;
 };
 
-template<> struct NetPayloadTraits<fbs::ServerCharacterChair> {
-  static const NetPayload enum_value = NetPayload_ServerCharacterChair;
-};
-
 template<typename T> struct NetPayloadUnionTraits {
   static const NetPayload enum_value = NetPayload_NONE;
 };
@@ -467,10 +453,6 @@ template<> struct NetPayloadUnionTraits<fbs::ClientCharacterTradeT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ClientCharacterPartyT> {
   static const NetPayload enum_value = NetPayload_ClientCharacterParty;
-};
-
-template<> struct NetPayloadUnionTraits<fbs::ClientCharacterChairT> {
-  static const NetPayload enum_value = NetPayload_ClientCharacterChair;
 };
 
 template<> struct NetPayloadUnionTraits<fbs::ServerHeartbeatT> {
@@ -579,10 +561,6 @@ template<> struct NetPayloadUnionTraits<fbs::ServerCharacterStateT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerDropFadeT> {
   static const NetPayload enum_value = NetPayload_ServerDropFade;
-};
-
-template<> struct NetPayloadUnionTraits<fbs::ServerCharacterChairT> {
-  static const NetPayload enum_value = NetPayload_ServerCharacterChair;
 };
 
 struct NetPayloadUnion {
@@ -766,14 +744,6 @@ struct NetPayloadUnion {
   const fbs::ClientCharacterPartyT *AsClientCharacterParty() const {
     return type == NetPayload_ClientCharacterParty ?
       reinterpret_cast<const fbs::ClientCharacterPartyT *>(value) : nullptr;
-  }
-  fbs::ClientCharacterChairT *AsClientCharacterChair() {
-    return type == NetPayload_ClientCharacterChair ?
-      reinterpret_cast<fbs::ClientCharacterChairT *>(value) : nullptr;
-  }
-  const fbs::ClientCharacterChairT *AsClientCharacterChair() const {
-    return type == NetPayload_ClientCharacterChair ?
-      reinterpret_cast<const fbs::ClientCharacterChairT *>(value) : nullptr;
   }
   fbs::ServerHeartbeatT *AsServerHeartbeat() {
     return type == NetPayload_ServerHeartbeat ?
@@ -991,14 +961,6 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerDropFade ?
       reinterpret_cast<const fbs::ServerDropFadeT *>(value) : nullptr;
   }
-  fbs::ServerCharacterChairT *AsServerCharacterChair() {
-    return type == NetPayload_ServerCharacterChair ?
-      reinterpret_cast<fbs::ServerCharacterChairT *>(value) : nullptr;
-  }
-  const fbs::ServerCharacterChairT *AsServerCharacterChair() const {
-    return type == NetPayload_ServerCharacterChair ?
-      reinterpret_cast<const fbs::ServerCharacterChairT *>(value) : nullptr;
-  }
 };
 
 template <bool B = false>
@@ -1082,9 +1044,6 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ClientCharacterParty *payload_as_ClientCharacterParty() const {
     return payload_type() == fbs::NetPayload_ClientCharacterParty ? static_cast<const fbs::ClientCharacterParty *>(payload()) : nullptr;
   }
-  const fbs::ClientCharacterChair *payload_as_ClientCharacterChair() const {
-    return payload_type() == fbs::NetPayload_ClientCharacterChair ? static_cast<const fbs::ClientCharacterChair *>(payload()) : nullptr;
-  }
   const fbs::ServerHeartbeat *payload_as_ServerHeartbeat() const {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<const fbs::ServerHeartbeat *>(payload()) : nullptr;
   }
@@ -1166,9 +1125,6 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerDropFade *payload_as_ServerDropFade() const {
     return payload_type() == fbs::NetPayload_ServerDropFade ? static_cast<const fbs::ServerDropFade *>(payload()) : nullptr;
   }
-  const fbs::ServerCharacterChair *payload_as_ServerCharacterChair() const {
-    return payload_type() == fbs::NetPayload_ServerCharacterChair ? static_cast<const fbs::ServerCharacterChair *>(payload()) : nullptr;
-  }
   template<typename T> T *mutable_payload_as();
   fbs::ClientHeartbeat *mutable_payload_as_ClientHeartbeat() {
     return payload_type() == fbs::NetPayload_ClientHeartbeat ? static_cast<fbs::ClientHeartbeat *>(mutable_payload()) : nullptr;
@@ -1226,9 +1182,6 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ClientCharacterParty *mutable_payload_as_ClientCharacterParty() {
     return payload_type() == fbs::NetPayload_ClientCharacterParty ? static_cast<fbs::ClientCharacterParty *>(mutable_payload()) : nullptr;
-  }
-  fbs::ClientCharacterChair *mutable_payload_as_ClientCharacterChair() {
-    return payload_type() == fbs::NetPayload_ClientCharacterChair ? static_cast<fbs::ClientCharacterChair *>(mutable_payload()) : nullptr;
   }
   fbs::ServerHeartbeat *mutable_payload_as_ServerHeartbeat() {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<fbs::ServerHeartbeat *>(mutable_payload()) : nullptr;
@@ -1310,9 +1263,6 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerDropFade *mutable_payload_as_ServerDropFade() {
     return payload_type() == fbs::NetPayload_ServerDropFade ? static_cast<fbs::ServerDropFade *>(mutable_payload()) : nullptr;
-  }
-  fbs::ServerCharacterChair *mutable_payload_as_ServerCharacterChair() {
-    return payload_type() == fbs::NetPayload_ServerCharacterChair ? static_cast<fbs::ServerCharacterChair *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -1480,14 +1430,6 @@ template<> inline const fbs::ClientCharacterParty *NetPacket::payload_as<fbs::Cl
 
 template<> inline fbs::ClientCharacterParty *NetPacket::mutable_payload_as<fbs::ClientCharacterParty>() {
   return mutable_payload_as_ClientCharacterParty();
-}
-
-template<> inline const fbs::ClientCharacterChair *NetPacket::payload_as<fbs::ClientCharacterChair>() const {
-  return payload_as_ClientCharacterChair();
-}
-
-template<> inline fbs::ClientCharacterChair *NetPacket::mutable_payload_as<fbs::ClientCharacterChair>() {
-  return mutable_payload_as_ClientCharacterChair();
 }
 
 template<> inline const fbs::ServerHeartbeat *NetPacket::payload_as<fbs::ServerHeartbeat>() const {
@@ -1706,14 +1648,6 @@ template<> inline fbs::ServerDropFade *NetPacket::mutable_payload_as<fbs::Server
   return mutable_payload_as_ServerDropFade();
 }
 
-template<> inline const fbs::ServerCharacterChair *NetPacket::payload_as<fbs::ServerCharacterChair>() const {
-  return payload_as_ServerCharacterChair();
-}
-
-template<> inline fbs::ServerCharacterChair *NetPacket::mutable_payload_as<fbs::ServerCharacterChair>() {
-  return mutable_payload_as_ServerCharacterChair();
-}
-
 struct NetPacketBuilder {
   typedef NetPacket Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
@@ -1858,10 +1792,6 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ClientCharacterParty *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case NetPayload_ClientCharacterChair: {
-      auto ptr = reinterpret_cast<const fbs::ClientCharacterChair *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeat *>(obj);
       return verifier.VerifyTable(ptr);
@@ -1968,10 +1898,6 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
     }
     case NetPayload_ServerDropFade: {
       auto ptr = reinterpret_cast<const fbs::ServerDropFade *>(obj);
-      return verifier.VerifyTable(ptr);
-    }
-    case NetPayload_ServerCharacterChair: {
-      auto ptr = reinterpret_cast<const fbs::ServerCharacterChair *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;
@@ -2070,10 +1996,6 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ClientCharacterParty *>(obj);
       return ptr->UnPack(resolver);
     }
-    case NetPayload_ClientCharacterChair: {
-      auto ptr = reinterpret_cast<const fbs::ClientCharacterChair *>(obj);
-      return ptr->UnPack(resolver);
-    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeat *>(obj);
       return ptr->UnPack(resolver);
@@ -2182,10 +2104,6 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerDropFade *>(obj);
       return ptr->UnPack(resolver);
     }
-    case NetPayload_ServerCharacterChair: {
-      auto ptr = reinterpret_cast<const fbs::ServerCharacterChair *>(obj);
-      return ptr->UnPack(resolver);
-    }
     default: return nullptr;
   }
 }
@@ -2268,10 +2186,6 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
     case NetPayload_ClientCharacterParty: {
       auto ptr = reinterpret_cast<const fbs::ClientCharacterPartyT *>(value);
       return CreateClientCharacterParty(_fbb, ptr, _rehasher).Union();
-    }
-    case NetPayload_ClientCharacterChair: {
-      auto ptr = reinterpret_cast<const fbs::ClientCharacterChairT *>(value);
-      return CreateClientCharacterChair(_fbb, ptr, _rehasher).Union();
     }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeatT *>(value);
@@ -2381,10 +2295,6 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerDropFadeT *>(value);
       return CreateServerDropFade(_fbb, ptr, _rehasher).Union();
     }
-    case NetPayload_ServerCharacterChair: {
-      auto ptr = reinterpret_cast<const fbs::ServerCharacterChairT *>(value);
-      return CreateServerCharacterChair(_fbb, ptr, _rehasher).Union();
-    }
     default: return 0;
   }
 }
@@ -2465,10 +2375,6 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ClientCharacterParty: {
       value = new fbs::ClientCharacterPartyT(*reinterpret_cast<fbs::ClientCharacterPartyT *>(u.value));
-      break;
-    }
-    case NetPayload_ClientCharacterChair: {
-      value = new fbs::ClientCharacterChairT(*reinterpret_cast<fbs::ClientCharacterChairT *>(u.value));
       break;
     }
     case NetPayload_ServerHeartbeat: {
@@ -2579,10 +2485,6 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
       value = new fbs::ServerDropFadeT(*reinterpret_cast<fbs::ServerDropFadeT *>(u.value));
       break;
     }
-    case NetPayload_ServerCharacterChair: {
-      value = new fbs::ServerCharacterChairT(*reinterpret_cast<fbs::ServerCharacterChairT *>(u.value));
-      break;
-    }
     default:
       break;
   }
@@ -2682,11 +2584,6 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ClientCharacterParty: {
       auto ptr = reinterpret_cast<fbs::ClientCharacterPartyT *>(value);
-      delete ptr;
-      break;
-    }
-    case NetPayload_ClientCharacterChair: {
-      auto ptr = reinterpret_cast<fbs::ClientCharacterChairT *>(value);
       delete ptr;
       break;
     }
@@ -2822,11 +2719,6 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerDropFade: {
       auto ptr = reinterpret_cast<fbs::ServerDropFadeT *>(value);
-      delete ptr;
-      break;
-    }
-    case NetPayload_ServerCharacterChair: {
-      auto ptr = reinterpret_cast<fbs::ServerCharacterChairT *>(value);
       delete ptr;
       break;
     }

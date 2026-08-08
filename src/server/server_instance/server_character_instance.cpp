@@ -732,7 +732,6 @@ void server_character_instance::handle_s_state(
   for (auto &st : v) {
     switch (st->state) {
     case StateEnum_BUFF_SKILL:
-    case StateEnum_BUFF_ITEM:
     case StateEnum_BUFF_ABNORMAL: {
       auto &skis = skill_game_instance::skis();
       auto ski_id2 = std::to_string(st->val);
@@ -741,6 +740,12 @@ void server_character_instance::handle_s_state(
         ski_id3.insert(0, 7 - ski_id3.length(), u'0');
       }
       skis.at(ski_id3).state(&g_character, st->sub_val);
+      break;
+    }
+    case StateEnum_BUFF_ITEM: {
+      auto tmp = std::format("{:08d}", st->val);
+      character_logic_system::run_item(g_character, {tmp.begin(), tmp.end()},
+                                       st->sub_val);
       break;
     }
     default: {
@@ -787,33 +792,5 @@ void server_character_instance::load_state(
   for (const auto &st : v) {
     remove_state(*st, c);
     c.states.push_back(std::make_unique<StateT>(*st));
-  }
-}
-
-void server_character_instance::handle_chair(uint64_t client_id,
-                                             ClientCharacterChairT &r) {
-
-  if (server_client_instance::clients.contains(client_id)) {
-    auto map_id = r.map_id;
-    auto &clients = server_client_instance::clients;
-    // save
-    clients[client_id].player_t.character->chair = r.chair_id;
-    auto scenes = server_scene_instance::scenes[map_id].clients;
-    scenes.erase(client_id);
-    ServerCharacterChairT t;
-    t.client_id = client_id;
-    t.chair_id = r.chair_id;
-    for (auto c : scenes) {
-      server_response::send_to_client(c, t);
-    }
-  }
-}
-
-void server_character_instance::handle_server_chair(uint64_t client_id,
-                                                    ServerCharacterChairT &r) {
-  if (character_game_instance::others.contains(r.client_id)) {
-    auto &c = character_game_instance::others.at(r.client_id).g_character;
-    auto tmp = std::format("{:08d}", r.chair_id);
-    character_logic_system::run_chair(c, {tmp.begin(), tmp.end()});
   }
 }

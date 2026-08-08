@@ -24,7 +24,6 @@ union NetPayload {
     ClientCharacterInfo,
     ClientCharacterTrade,
     ClientCharacterParty,
-    ClientCharacterChair,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
@@ -52,7 +51,6 @@ union NetPayload {
     ServerCharacterParty,
     ServerCharacterState,
     ServerDropFade,
-    ServerCharacterChair,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

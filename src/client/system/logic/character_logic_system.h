@@ -72,7 +72,8 @@ public:
   static inline ClientCharacterStateT ccs;
   static inline ClientCharacterPickT ccp;
 
-  static void run_chair(game_character &g_character, const std::u16string &c);
+  static void run_item(game_character &g_character, const std::u16string &c,
+                       int64_t state);
   static bool run_skill(game_character &g_character, const std::u16string &id);
 
   static check_mobs run_attack_check(game_character &g_character,

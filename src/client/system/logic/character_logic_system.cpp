@@ -589,9 +589,21 @@ bool character_logic_system::run_sit(game_character &g_character) {
 
 bool character_logic_system::run_sitting(game_character &g_character) {
   if (!character_action_input.empty()) {
-    if (self_sit_cooldown >= window::dt_now) {
+    if (self_sit_cooldown <= window::dt_now) {
       run_stand_action(g_character);
-      self_sit_cooldown = window::dt_now + 120;
+      self_sit_cooldown = window::dt_now + 1000;
+      if (g_character.chair.has_value()) {
+        StateT st;
+        st.state = fbs::StateEnum_BUFF_ITEM;
+        auto tmp = std::string{
+            g_character.chair->id.begin(),
+            g_character.chair->id.end(),
+        };
+        st.val = std::stoi(tmp);
+        st.sub_val = 0;
+        ccs.payload.push_back(std::make_unique<StateT>(st));
+      }
+      g_character.chair=std::nullopt;
       return false;
     }
   }
@@ -1355,33 +1367,60 @@ float character_logic_system::load_attack_speed(game_character &g_character) {
   return 1.6 - speed / 10;
 }
 
-void character_logic_system::run_chair(game_character &g_character,
-                                       const std::u16string &c) {
-  g_character.chair = game_chair{};
-  g_character.chair->id = c;
-  return;
+void character_logic_system::run_item(game_character &g_character,
+                                      const std::u16string &c, int64_t state) {
+  auto item_type = item_game_instance::load_item_type(c);
+  if (item_type == u"Install") {
+    if (c.starts_with(u"0301")) {
+      // chair
+      if (state == 0) {
+        g_character.chair = std::nullopt;
+      } else {
+        run_action(g_character, u"sit");
+        g_character.chair = game_chair{};
+        g_character.chair->id = c;
+      }
+
+      return;
+    }
+  }
 }
 
 void character_logic_system::run_item(game_character &g_character) {
   if (!character_item_input.empty()) {
     for (const auto &input : character_item_input) {
       auto item_id = input.val;
-      auto item_type =
-          item_game_instance::load_item_type({item_id.begin(), item_id.end()});
+      std::u16string item_id2{item_id.begin(), item_id.end()};
+      auto item_type = item_game_instance::load_item_type(item_id2);
       if (item_type == u"Install") {
-        if (item_id.starts_with("0301")) {
+        if (item_id.starts_with("0301") && self_sit_cooldown < window::dt_now) {
           // chair
           auto action_type = load_action_type(g_character);
           switch (action_type) {
           case action_enum::stand: {
-            run_action(g_character, u"sit");
-            self_sit_cooldown = window::dt_now + 120;
-            run_chair(g_character, {item_id.begin(), item_id.end()});
+            run_item(g_character, item_id2, 1);
+            self_sit_cooldown = window::dt_now + 1000;
+            StateT st;
+            st.state = fbs::StateEnum_BUFF_ITEM;
+            st.val = std::stoi(item_id);
+            st.sub_val = 1;
+            ccs.payload.push_back(std::make_unique<StateT>(st));
             break;
           }
           case action_enum::sit: {
             run_stand_action(g_character);
-            self_sit_cooldown = window::dt_now + 120;
+            self_sit_cooldown = window::dt_now + 1000;
+            if (g_character.chair.has_value()) {
+              StateT st;
+              st.state = fbs::StateEnum_BUFF_ITEM;
+              auto tmp = std::string{
+                  g_character.chair->id.begin(),
+                  g_character.chair->id.end(),
+              };
+              st.val = std::stoi(tmp);
+              st.sub_val = 0;
+              ccs.payload.push_back(std::make_unique<StateT>(st));
+            }
             g_character.chair = std::nullopt;
             break;
           }

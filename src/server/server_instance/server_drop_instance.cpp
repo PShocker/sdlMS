@@ -52,7 +52,6 @@ void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
   sd.dt = drop;
   sd.destroy = window::dt_now + 60 * 5 * 1000;
   sd.available = window::dt_now + cal_available_time(drop.y1, drop.y2) * 1000;
-  // sd.available = window::dt_now;
   scene.drops.emplace(drop.random_id, sd);
 }
 

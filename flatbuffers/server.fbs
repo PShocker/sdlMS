@@ -158,8 +158,3 @@ table ServerCharacterState {
 table ServerDropFade {
     drop_ids:[uint64];
 }
-
-table ServerCharacterChair {
-    client_id:uint64;
-    chair_id:uint32;
-}
