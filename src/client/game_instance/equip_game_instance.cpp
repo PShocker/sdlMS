@@ -2,6 +2,7 @@
 #include "character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/text_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
@@ -114,6 +115,20 @@ std::u16string equip_game_instance::load_equip_name(const std::u16string &id) {
 
   auto str = str_node->get_child(type)->get_child(result)->get_child(u"name");
   return static_cast<wz::Property<std::u16string> *>(str)->get();
+}
+
+std::u16string equip_game_instance::load_equip_desc(const std::u16string &id) {
+  static auto str_node = wz_resource::string->find(u"Eqp.img/ClassicWorld");
+  auto type = load_equip_type(id);
+
+  auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
+  std::u16string result(view.begin(), view.end());
+
+  auto str = str_node->get_child(type)->get_child(result)->get_child(u"desc");
+  if (str == nullptr) {
+    return u"";
+  }
+  return text_game_instance::load_rstr(str);
 }
 
 std::flat_set<job_type>

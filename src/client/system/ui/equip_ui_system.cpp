@@ -253,7 +253,6 @@ void equip_ui_system::render_equip() {
 void equip_ui_system::render_deco_texture(game_deco_item &deco,
                                           SDL_FPoint slot) {
   const SDL_FPoint lt{4, 45};
-
   auto info = equip_game_instance::load_equip_info(deco.id);
   auto icon = wz_resource::load_texture(info->get_child(u"icon"));
   auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
@@ -264,6 +263,13 @@ void equip_ui_system::render_deco_texture(game_deco_item &deco,
       static_cast<float>(icon->w),
       static_cast<float>(icon->h),
   };
+  SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+  icon = wz_resource::load_texture(
+      wz_resource::ui->find(u"CashShop.img/CashItem/0"));
+  pos_rect.x = (int)pos.x + slot.x + lt.x + 19;
+  pos_rect.y = (int)pos.y + slot.y + lt.y + 19;
+  pos_rect.w = icon->w;
+  pos_rect.h = icon->h;
   SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
 }
 
@@ -300,7 +306,7 @@ void equip_ui_system::render_deco() {
 
 void equip_ui_system::render_equip_info() {
   auto index = load_mouse_index();
-  if (index.has_value()) {
+  if (index.has_value() && !cursor_game_instance::modal_overlay) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     auto equip = load_equip(index.value());
@@ -312,13 +318,12 @@ void equip_ui_system::render_equip_info() {
 
 void equip_ui_system::render_deco_info() {
   auto index = load_mouse_index();
-  if (index.has_value()) {
+  if (index.has_value() && !cursor_game_instance::modal_overlay) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    auto equip = load_deco(index.value());
-    if (equip->has_value()) {
-      // tooltip_ui_system::render_equip(equip->value(), show_pos.x,
-      // show_pos.y);
+    auto deco = load_deco(index.value());
+    if (deco->has_value()) {
+      tooltip_ui_system::render_deco(deco->value(), show_pos.x, show_pos.y);
     }
   }
 }
@@ -326,7 +331,6 @@ void equip_ui_system::render_deco_info() {
 void equip_ui_system::render_tab() {
   static auto node = wz_resource::ui->find(u"Equipment.img/tab:mainTab");
   const SDL_FPoint lt{5, 26};
-  const SDL_FPoint rb{167, 42};
   for (auto i : {0, 1}) {
     SDL_Texture *texture;
     if (active_tab == i) {
@@ -351,6 +355,16 @@ void equip_ui_system::render_backgrnd2() {
   if (active_tab == 0) {
     static auto texture = wz_resource::load_texture(
         wz_resource::ui->find(u"Equipment.img/equip/backgrnd"));
+    SDL_FRect pos_rect = {
+        int(pos.x) + lt.x,
+        int(pos.y) + lt.y,
+        static_cast<float>(texture->w),
+        static_cast<float>(texture->h),
+    };
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  } else {
+    static auto texture = wz_resource::load_texture(
+        wz_resource::ui->find(u"Equipment.img/cash/backgrnd"));
     SDL_FRect pos_rect = {
         int(pos.x) + lt.x,
         int(pos.y) + lt.y,
@@ -552,6 +566,21 @@ bool equip_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+void equip_ui_system::event_tab(SDL_Event *event) {
+  const static std::array tab_rect = {
+      SDL_FRect{5, 26, 33, 19},  //
+      SDL_FRect{38, 26, 33, 19}, //
+  };
+  for (uint8_t i = 0; i < tab_rect.size(); i++) {
+    auto pos_rect = tab_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      active_tab = i;
+    }
+  }
+}
+
 bool equip_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -582,6 +611,7 @@ bool equip_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        event_tab(event);
         r = !event_button(event);
       }
       event_drag_end();

@@ -51,7 +51,7 @@ bool character_render_system::render_character(game_character &g_character) {
   }
 
   if (g_character.weapon_deco.has_value()) {
-    std::u16string sub = g_character.weapon->id.substr(1, 2);
+    std::u16string sub = g_character.weapon->id.substr(2, 2);
     std::u16string deco_val = g_character.weapon_deco->id + u"/" + sub;
     const auto &weapon = character_game_instance::avatar_data.at(deco_val);
     render_parts.emplace(weapon.islot, &weapon);

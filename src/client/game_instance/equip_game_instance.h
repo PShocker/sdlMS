@@ -67,6 +67,7 @@ public:
   static weapon_type load_weapon_type(const game_character &g_character);
   static wz::Node *load_equip_info(const std::u16string &id);
   static std::u16string load_equip_name(const std::u16string &id);
+  static std::u16string load_equip_desc(const std::u16string &id);
   static std::flat_set<job_type> load_equip_job(const std::u16string &id);
   static std::u16string load_equip_type(const std::u16string &id);
   static uint8_t load_equip_tuc(const std::u16string &id);

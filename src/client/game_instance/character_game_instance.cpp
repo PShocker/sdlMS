@@ -234,6 +234,9 @@ void character_game_instance::load_self_character() {
   add_shield(self, u"01092003");
   add_ear(self, u"humanEar");
 
+  add_cap_deco(self, u"01007002");
+  add_weapon_deco(self, u"01702017");
+
   load_name(self, u"进击的蓝蘑菇");
 }
 
@@ -655,7 +658,7 @@ void character_game_instance::add_weapon_deco(game_character &g,
     return;
   }
   auto weapon_enum = g.weapon->id;
-  std::u16string sub = weapon_enum.substr(1, 2);
+  std::u16string sub = weapon_enum.substr(2, 2);
   game_deco_item g_deco;
   g_deco.id = val;
   g.weapon_deco = g_deco;
@@ -663,7 +666,7 @@ void character_game_instance::add_weapon_deco(game_character &g,
   if (!avatar_data.contains(deco_val)) {
     character_avatar_render &r = avatar_data[deco_val];
     auto character_node = wz_resource::character;
-    auto weapon_node = character_node->find(u"Weapon/" + val + u".img/" + sub);
+    auto weapon_node = character_node->find(u"Weapon/" + val + u".img");
     r.islot = static_cast<wz::Property<std::u16string> *>(
                   weapon_node->find(u"info/islot"))
                   ->get();
@@ -671,6 +674,7 @@ void character_game_instance::add_weapon_deco(game_character &g,
     r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
                               weapon_node->find(u"info/vslot"))
                               ->get());
+    weapon_node = weapon_node->get_child(sub);
     for (auto [k, v] : *weapon_node->get_children()) {
       if (k == u"info") {
         continue;
