@@ -457,11 +457,13 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
     }
   } else {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      cursor_game_instance::cursor_hand = {
-          .type = cursor_game_instance::equipment,
-          .val = 0,
-          .sub_val = index.value(),
-      };
+      if (eqp.has_value()) {
+        cursor_game_instance::cursor_hand = {
+            .type = cursor_game_instance::equipment,
+            .val = 0,
+            .sub_val = index.value(),
+        };
+      }
     }
   }
   return false;
@@ -612,6 +614,7 @@ bool equip_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
         event_tab(event);
+        event_click_equip(event);
         r = !event_button(event);
       }
       event_drag_end();

@@ -2,6 +2,7 @@
 #include "server_scene_instance.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_gain_log.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"
@@ -10,6 +11,7 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
@@ -20,6 +22,7 @@
 #include <cmath>
 #include <cstdint>
 #include <format>
+#include <optional>
 #include <utility>
 
 float server_drop_instance::cal_available_time(float y1, float y2) {
