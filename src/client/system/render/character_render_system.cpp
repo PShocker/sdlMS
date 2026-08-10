@@ -38,6 +38,10 @@ bool character_render_system::render_character(game_character &g_character) {
     const auto &coat =
         character_game_instance::avatar_data.at(g_character.coat->id);
     render_parts.emplace(coat.islot, &coat);
+  } else if (!(g_character.longcoat.has_value() ||
+               g_character.longcoat_deco.has_value())) {
+    const auto &coat = character_game_instance::avatar_data.at(u"01040000");
+    render_parts.emplace(coat.islot, &coat);
   }
 
   if (g_character.cap_deco.has_value()) {
@@ -77,7 +81,12 @@ bool character_render_system::render_character(game_character &g_character) {
     const auto &pant =
         character_game_instance::avatar_data.at(g_character.pant->id);
     render_parts.emplace(pant.islot, &pant);
+  } else if (!(g_character.longcoat.has_value() ||
+               g_character.longcoat_deco.has_value())) {
+    const auto &pant = character_game_instance::avatar_data.at(u"01060000");
+    render_parts.emplace(pant.islot, &pant);
   }
+
   if (g_character.glove_deco.has_value()) {
     const auto &glove =
         character_game_instance::avatar_data.at(g_character.glove_deco->id);

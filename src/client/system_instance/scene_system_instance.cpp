@@ -150,8 +150,26 @@ bool scene_system_instance::render_game() {
   return true;
 }
 
+void scene_system_instance::enter_prepare() {
+  const auto &pos = scene_system_instance::prepare_pos;
+  auto &self = character_game_instance::self;
+  if (pos.has_value()) {
+    self.pos = pos.value();
+    self.action = u"jump";
+    self.action_index = 0;
+    self.action_time = 0;
+  }
+  character_logic_system::self_fh = 0;
+  character_logic_system::self_lr = 0;
+  character_logic_system::self_hspeed = 0;
+  character_logic_system::self_vspeed = 0;
+
+  self.tomb = std::nullopt;
+}
+
 void scene_system_instance::enter(uint32_t map_id) {
   scene_system_instance::map_id = map_id;
+  enter_prepare();
 
   foothold_game_instance::data = foothold_game_instance::load(map_id);
   backgrnd_game_instance::load(map_id);
@@ -165,7 +183,6 @@ void scene_system_instance::enter(uint32_t map_id) {
   tooltip_game_instance::load(map_id);
   seat_game_instance::load(map_id);
   minimap_ui_system::load();
-  character_game_instance::load_self();
   character_game_instance::others.clear();
   effect_game_instance::reset();
   camera_game_instance::reset();
@@ -202,10 +219,35 @@ void scene_system_instance::enter(uint32_t map_id) {
   window::delta_time = 0;
 }
 
+SDL_FPoint scene_system_instance::load_prepare_pos(const std::u16string &pn,
+                                                   uint8_t index) {
+  SDL_FPoint r;
+  game_portal *por;
+  auto portals =
+      portal_game_instance::load(scene_system_instance::prepare_map_id);
+  if (index == 0) {
+    // 只需要第一个元素，使用 find 更高效
+    auto it = portals.find(pn);
+    if (it != portals.end()) {
+      por = &it->second;
+    }
+  } else {
+    // 需要第 N 个元素（N>0）
+    auto [first, last] = portals.equal_range(pn);
+    if (std::distance(first, last) > index) {
+      auto it = std::ranges::next(first, index);
+      por = &it->second;
+    }
+  }
+  r = por->pos;
+  r.y -= 5;
+  return r;
+}
+
 void scene_system_instance::enter_prepare(uint32_t map_id,
                                           const std::u16string &pn, int i) {
   prepare_map_id = map_id;
-  prepare_pos = character_game_instance::load_self_pos(pn, i);
+  prepare_pos = load_prepare_pos(pn, i);
 
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;

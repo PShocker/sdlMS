@@ -1,27 +1,14 @@
 #include "character_game_instance.h"
 #include "SDL3/SDL_rect.h"
-#include "effect_game_instance.h"
 #include "src/client/game/game_character.h"
-#include "src/client/game/game_effect.h"
 #include "src/client/game/game_nametag.h"
-#include "src/client/game/game_portal.h"
-#include "src/client/game_instance/afterimage_game_instance.h"
-#include "src/client/game_instance/audio_game_instance.h"
-#include "src/client/game_instance/equip_game_instance.h"
-#include "src/client/game_instance/mob_game_instance.h"
-#include "src/client/game_instance/portal_game_instance.h"
-#include "src/client/system/logic/character_logic_system.h"
-#include "src/client/system_instance/scene_system_instance.h"
-#include "src/common/flatbuffers/common.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include "wz/Wz.h"
-#include <algorithm>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
-#include <memory>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -170,45 +157,11 @@ void character_game_instance::init_character_bone() {
   }
 }
 
-void character_game_instance::load_self() {
-  const auto &pos = scene_system_instance::prepare_pos;
-  if (pos.has_value()) {
-    self.pos = pos.value();
-    self.action = u"jump";
-    self.action_index = 0;
-    self.action_time = 0;
-  }
-  character_logic_system::self_fh = 0;
-  character_logic_system::self_lr = 0;
-  character_logic_system::self_hspeed = 0;
-  character_logic_system::self_vspeed = 0;
-
-  self.tomb = std::nullopt;
-}
-
-SDL_FPoint character_game_instance::load_self_pos(const std::u16string &pn,
-                                                  uint8_t index) {
-  SDL_FPoint r;
-  game_portal *por;
-  auto portals =
-      portal_game_instance::load(scene_system_instance::prepare_map_id);
-  if (index == 0) {
-    // 只需要第一个元素，使用 find 更高效
-    auto it = portals.find(pn);
-    if (it != portals.end()) {
-      por = &it->second;
-    }
-  } else {
-    // 需要第 N 个元素（N>0）
-    auto [first, last] = portals.equal_range(pn);
-    if (std::distance(first, last) > index) {
-      auto it = std::ranges::next(first, index);
-      por = &it->second;
-    }
-  }
-  r = por->pos;
-  r.y -= 5;
-  return r;
+void character_game_instance::init_default_clothes() {
+  game_character g;
+  add_coat(g, u"01040000");
+  add_pants(g, u"01060000");
+  return;
 }
 
 void character_game_instance::load_name(game_character &g,

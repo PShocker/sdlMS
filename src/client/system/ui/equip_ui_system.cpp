@@ -460,7 +460,7 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
       if (eqp.has_value()) {
         cursor_game_instance::cursor_hand = {
             .type = cursor_game_instance::equipment,
-            .val = 0,
+            .val = active_tab,
             .sub_val = index.value(),
         };
       }

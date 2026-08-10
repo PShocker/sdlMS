@@ -19,5 +19,7 @@ public:
   static void cash_shop_prepare();
 
 private:
+  static SDL_FPoint load_prepare_pos(const std::u16string &pn, uint8_t index);
+  static void enter_prepare();
   static bool render_game();
 };

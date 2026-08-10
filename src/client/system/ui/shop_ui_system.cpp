@@ -80,16 +80,18 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
     pos_rect.y = y;
     pos_rect.w = 36;
     pos_rect.h = 36;
-    const auto &mouse_pos = window::mouse_pos;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      item_info = &item;
-    }
     // render num
     auto item_num = item_game_instance::load_item_num(item.item);
     if (item_num > 0) {
       package_ui_system::render_number(item_num, x, y + 24);
     }
 
+    pos_rect.w = 202;
+    pos_rect.h = 238;
+    const auto &mouse_pos = window::mouse_pos;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      item_info = &item;
+    }
     // render name
     freetype::load_aligned(true);
     freetype::load_size(12);
@@ -111,6 +113,7 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
     tmp2 = tmp2 + u" " + static_cast<wz::Property<std::u16string> *>(n)->get();
     freetype::draw_line(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }
+
   if (item_info && cursor_game_instance::modal_overlay == render) {
     render_item_info(item_info->item);
   }

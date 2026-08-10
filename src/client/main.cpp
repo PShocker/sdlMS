@@ -63,6 +63,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   audio_game_instance::init();
 
   character_game_instance::init_character_bone();
+  character_game_instance::init_default_clothes();
   character_game_instance::load_self_character();
   character_game_instance::self.job = u"110";
 

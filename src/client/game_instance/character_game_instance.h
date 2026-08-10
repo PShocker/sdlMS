@@ -66,11 +66,10 @@ public:
   static inline game_character self;
 
   static void init_character_bone();
+  static void init_default_clothes();
 
-  static void load_self();
   static void load_name(game_character &g, const std::u16string &str);
 
-  static SDL_FPoint load_self_pos(const std::u16string &pn, uint8_t index);
   static void load_self_character();
 
   static void add_body(game_character &g, const std::u16string &val);
