@@ -969,8 +969,10 @@ void character_logic_system::run_network_sync() {
   if (face != g_character.face.action) {
     if (g_character.face.action != u"blink") {
       FaceT ft;
-      ft.face_action = {g_character.face.action.begin(),
-                        g_character.face.action.end()};
+      ft.face_action = {
+          g_character.face.action.begin(),
+          g_character.face.action.end(),
+      };
       ClientCharacterFcT fct;
       fct.map_id = map_id;
       fct.payload = std::make_unique<FaceT>(ft);

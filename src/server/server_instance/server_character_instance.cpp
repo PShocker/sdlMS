@@ -488,6 +488,29 @@ game_character server_character_instance::load_g_character(
   tmp = appearance->ear;
   character_game_instance::add_ear(g_character, {tmp.begin(), tmp.end()});
 
+  g_character.action = {
+      c->state->action.begin(),
+      c->state->action.end(),
+  };
+  g_character.action_index = c->state->action_index;
+  g_character.action_time = 0;
+  g_character.action_animate = c->state->action_animate;
+  g_character.page = c->state->page;
+  g_character.flip = c->state->flip;
+
+  g_character.pos = SDL_FPoint{
+      c->state->x,
+      c->state->y,
+  };
+
+  g_character.fame = c->fame;
+  g_character.level = c->level;
+  g_character.job = {c->job.begin(), c->job.end()};
+  g_character.face.action = {
+      c->face->face_action.begin(),
+      c->face->face_action.end(),
+  };
+
   for (auto &equip : c->equips) {
     tmp = std::format("{:08d}", equip->equip_id);
     game_equip_item e;
@@ -648,6 +671,8 @@ CharacterT server_character_instance::load_charactert(const game_character &g) {
 
   c.state->flip = g.flip;
 
+  c.state->action_animate = g.action_animate;
+
   auto name = g.nametags[0].text;
   c.name = {name.begin(), name.end()};
 
@@ -663,12 +688,6 @@ void server_character_instance::handle_server_playert(
     const std::unique_ptr<fbs::PlayerT> &c) {
   auto g_character = load_g_character(c->character);
 
-  const auto &state = c->character->state;
-  g_character.pos = SDL_FPoint{
-      state->x,
-      state->y,
-  };
-  g_character.action = {state->action.begin(), state->action.end()};
   if (g_character.action == u"dead") {
     game_tomb t{
         .ani_type = u"land",
@@ -679,27 +698,14 @@ void server_character_instance::handle_server_playert(
     };
     g_character.tomb = t;
   }
-  g_character.action_index = state->action_index;
-  g_character.action_time = 0;
-  g_character.action_animate = c->character->state->action_animate;
-  g_character.page = c->character->state->page;
-  g_character.flip = c->character->state->flip;
   game_nametag nametag;
   nametag.path = u"";
   nametag.pos = {0, 0};
   nametag.size = 13;
   nametag.color = {255, 255, 255, 255};
   nametag.text = {c->character->name.begin(), c->character->name.end()};
-
   g_character.nametags.push_back(nametag);
 
-  g_character.fame = c->character->fame;
-  g_character.level = c->character->level;
-  g_character.job = {c->character->job.begin(), c->character->job.end()};
-  g_character.face.action = {
-      c->character->face->face_action.begin(),
-      c->character->face->face_action.end(),
-  };
   character_other_data cod;
   cod.g_character = g_character;
   cod.player_t = *c;

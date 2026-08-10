@@ -505,6 +505,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
           r[index.value()] = eqp2;
           *eqp = std::nullopt;
           cursor_game_instance::cursor_hand = std::nullopt;
+          character_logic_system::cct.map_id = scene_system_instance::map_id;
         }
       }
       break;
