@@ -34,6 +34,7 @@
 #include "src/common/physic/physic.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_character_instance.h"
 #include "wz/Property.h"
 #include <algorithm>
 #include <cstdint>
@@ -603,7 +604,7 @@ bool character_logic_system::run_sitting(game_character &g_character) {
         st.sub_val = 0;
         ccs.payload.push_back(std::make_unique<StateT>(st));
       }
-      g_character.chair=std::nullopt;
+      g_character.chair = std::nullopt;
       return false;
     }
   }
@@ -977,6 +978,14 @@ void character_logic_system::run_network_sync() {
       face = g_character.face.action;
     }
   }
+
+  if (cct.map_id != 0) {
+    auto c = server_character_instance::load_charactert(g_character);
+    cct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
+    client_request::send_to_host(cct);
+    cct.map_id = 0;
+  }
+
   run_network_sync_state();
 }
 

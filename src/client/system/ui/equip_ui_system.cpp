@@ -8,8 +8,10 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "tooltip_ui_system.h"
@@ -434,9 +436,8 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
   if (!index.has_value()) {
     return false;
   }
-  auto eqp = *load_equip(index.value());
   auto &self = character_game_instance::self;
-  auto cursor_hand = cursor_game_instance::cursor_hand;
+  auto &cursor_hand = cursor_game_instance::cursor_hand;
   if (cursor_hand.has_value()) {
     switch (cursor_hand->type) {
     case cursor_game_instance::equipment: {
@@ -446,9 +447,13 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
       auto &equip = package_game_instance::data[0][cursor_hand->sub_val];
       auto ep = static_cast<game_equip_item &>(*equip);
       if (equip_game_instance::add_equip_limit(ep, self, index.value())) {
+        // 发包
+        equip->id = u"";
+        character_logic_system::cct.map_id = scene_system_instance::map_id;
       } else {
         // dialog
       }
+      cursor_hand = std::nullopt;
       break;
     }
     default: {
@@ -457,7 +462,13 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
     }
   } else {
     if (event->button.button == SDL_BUTTON_LEFT) {
-      if (eqp.has_value()) {
+      bool click = false;
+      if (active_tab == 0) {
+        click = load_equip(index.value())->has_value();
+      } else {
+        click = load_deco(index.value())->has_value();
+      }
+      if (click) {
         cursor_game_instance::cursor_hand = {
             .type = cursor_game_instance::equipment,
             .val = active_tab,

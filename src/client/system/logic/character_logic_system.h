@@ -71,6 +71,7 @@ private:
 public:
   static inline ClientCharacterStateT ccs;
   static inline ClientCharacterPickT ccp;
+  static inline ClientCharacterT cct;
 
   static void run_item(game_character &g_character, const std::u16string &c,
                        int64_t state);
