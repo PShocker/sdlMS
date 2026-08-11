@@ -308,28 +308,24 @@ void equip_ui_system::render_deco() {
   }
 }
 
-void equip_ui_system::render_equip_info() {
+bool equip_ui_system::render_info() {
   auto index = load_mouse_index();
   if (index.has_value() && !cursor_game_instance::modal_overlay) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    auto equip = load_equip(index.value());
-    if (equip->has_value()) {
-      tooltip_ui_system::render_equip(equip->value(), show_pos.x, show_pos.y);
+    if (active_tab == 0) {
+      auto equip = load_equip(index.value());
+      if (equip->has_value()) {
+        tooltip_ui_system::render_equip(equip->value(), show_pos.x, show_pos.y);
+      }
+    } else {
+      auto deco = load_deco(index.value());
+      if (deco->has_value()) {
+        tooltip_ui_system::render_deco(deco->value(), show_pos.x, show_pos.y);
+      }
     }
   }
-}
-
-void equip_ui_system::render_deco_info() {
-  auto index = load_mouse_index();
-  if (index.has_value() && !cursor_game_instance::modal_overlay) {
-    auto &mouse_pos = window::mouse_pos;
-    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    auto deco = load_deco(index.value());
-    if (deco->has_value()) {
-      tooltip_ui_system::render_deco(deco->value(), show_pos.x, show_pos.y);
-    }
-  }
+  return true;
 }
 
 void equip_ui_system::render_tab() {
@@ -421,10 +417,8 @@ bool equip_ui_system::render() {
   render_button();
   if (active_tab == 0) {
     render_equip();
-    render_equip_info();
   } else {
     render_deco();
-    render_deco_info();
   }
 
   return true;
@@ -514,6 +508,8 @@ void equip_ui_system::open() {
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -547,6 +543,8 @@ void equip_ui_system::event_top() {
   if (it != system::render_systems.end()) {
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -617,6 +615,15 @@ void equip_ui_system::event_tab(SDL_Event *event) {
   }
 }
 
+void equip_ui_system::event_motion(SDL_Event *event) {
+  auto &sys = system::render_systems;
+  std::erase(sys, render_info);
+  auto it = std::ranges::find(sys, &cursor_render_system::render);
+  if (it != sys.end()) {
+    sys.insert(it, render_info);
+  }
+}
+
 bool equip_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -656,6 +663,7 @@ bool equip_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion(event);
     event_drag_move(event);
     break;
   }

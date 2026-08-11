@@ -91,6 +91,8 @@ void skill_ui_system::open() {
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -109,6 +111,8 @@ void skill_ui_system::event_top() {
   if (it != system::render_systems.end()) {
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -154,8 +158,8 @@ void skill_ui_system::render_tab() {
   const static SDL_FPoint lt = {5, 24};
   const static SDL_FPoint rb = {186, 43};
   const static auto tab_node = wz_resource::ui->find(u"Skill.img/tab:grade");
-  auto jobs = job_skill_game_instance::load_ski_tree(
-      character_game_instance::self.job);
+  auto jobs =
+      job_skill_game_instance::load_ski_tree(character_game_instance::self.job);
   const static std::array selected_texture = {
       wz_resource::load_texture(tab_node->find(u"selected/0")),
       wz_resource::load_texture(tab_node->find(u"selected/1")),
@@ -265,7 +269,7 @@ void skill_ui_system::render_scroll() {
   return;
 }
 
-void skill_ui_system::render_info() {
+bool skill_ui_system::render_info() {
   auto mouse_ski = load_mouse_ski();
   if (mouse_ski.has_value() && !cursor_game_instance::modal_overlay) {
     auto &mouse_pos = window::mouse_pos;
@@ -273,6 +277,7 @@ void skill_ui_system::render_info() {
     auto ski_id = mouse_ski.value();
     tooltip_ui_system::render_skill(ski_id, 1, show_pos.x, show_pos.y);
   }
+  return true;
 }
 
 static std::u16string ski_button_id = u"";
@@ -403,7 +408,6 @@ bool skill_ui_system::render() {
   render_button();
   render_scroll();
   render_tab();
-  render_info();
   render_book();
   render_point();
   return true;
@@ -496,8 +500,8 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
 bool skill_ui_system::event_click_tab(SDL_Event *event) {
   const static SDL_FPoint lt = {5, 24};
   const static SDL_FPoint rb = {186, 43};
-  auto jobs = job_skill_game_instance::load_ski_tree(
-      character_game_instance::self.job);
+  auto jobs =
+      job_skill_game_instance::load_ski_tree(character_game_instance::self.job);
   auto &mouse_pos = window::mouse_pos;
   for (uint8_t i = 0; i < jobs.size(); i++) {
     SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
@@ -531,6 +535,15 @@ void skill_ui_system::event_click_vscr(SDL_Event *event) {
   auto val = scroll_ui_system::click_vscroll(
       (int)pos.x + lt.x, (int)pos.y + lt.y, page, size, length, top);
   page = val;
+}
+
+void skill_ui_system::event_motion(SDL_Event *event) {
+  auto &sys = system::render_systems;
+  std::erase(sys, render_info);
+  auto it = std::ranges::find(sys, &cursor_render_system::render);
+  if (it != sys.end()) {
+    sys.insert(it, render_info);
+  }
 }
 
 bool skill_ui_system::event(SDL_Event *event) {
@@ -574,6 +587,7 @@ bool skill_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion(event);
     event_drag_move(event);
     break;
   }

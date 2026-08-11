@@ -34,8 +34,7 @@ private:
   static void render_deco();
   static void render_equip_texture(game_equip_item &equip, SDL_FPoint slot);
   static void render_deco_texture(game_deco_item &deco, SDL_FPoint slot);
-  static void render_equip_info();
-  static void render_deco_info();
+  static bool render_info();
   static void render_button();
 
   static SDL_FPoint load_wh();
@@ -44,6 +43,7 @@ private:
 
   static bool event_click_equip(SDL_Event *event);
 
+  static void event_motion(SDL_Event *event);
   static void event_tab(SDL_Event *event);
   static bool event_button(SDL_Event *event);
   static void event_top();

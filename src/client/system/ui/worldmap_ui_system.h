@@ -13,9 +13,10 @@ private:
   static void render_map();
   static void render_spot();
   static void render_button();
-  static void render_spot_info(uint32_t id, float x, float y);
+  static bool render_spot_info();
   static void render_cur_pos(SDL_FPoint point);
 
+  static void event_motion(SDL_Event *event);
   static void event_close();
 
   static SDL_FPoint load_wh();

@@ -15,12 +15,13 @@ private:
   static void render_backgrnd();
   static void render_tab();
   static void render_items();
-  static void render_items_info();
+  static bool render_items_info();
   static void render_button();
   static void render_meso();
   static void render_active_ball();
 
   static void event_close();
+  static void event_motion(SDL_Event *event);
 
   static bool event_click_item(SDL_Event *event);
 

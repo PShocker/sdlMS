@@ -328,8 +328,8 @@ bool equip_game_instance::add_equip_deco_limit(game_deco_item &deco,
       return false;
     }
     auto equip_info = load_equip_info(deco.id);
-    std::u16string sub = character.weapon->id.substr(1, 2);
-    return equip_info->get_child(sub);
+    std::u16string sub = character.weapon->id.substr(2, 2);
+    return equip_info->find(u"../" + sub);
   }
   return true;
 }

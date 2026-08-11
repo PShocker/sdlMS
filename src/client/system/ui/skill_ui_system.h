@@ -13,7 +13,7 @@ private:
   static void render_tab();
   static void render_skill_entry();
   static void render_scroll();
-  static void render_info();
+  static bool render_info();
   static void render_button();
   static void render_book();
   static void render_point();
@@ -25,6 +25,7 @@ private:
   static bool event_click_tab(SDL_Event *event);
   static void event_click_vscr(SDL_Event *event);
 
+  static void event_motion(SDL_Event *event);
   static void event_button_ski_up();
   static bool event_button(SDL_Event *event);
   static void event_close();

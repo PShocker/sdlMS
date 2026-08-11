@@ -86,16 +86,10 @@ void skill_buff_ui_system::render_ui() {
 
 void skill_buff_ui_system::event_motion(SDL_Event *event) {
   auto &sys = system::render_systems;
-  auto it = std::ranges::find(sys, &render_ui_info);
+  std::erase(sys, render_ui_info);
+  auto it = std::ranges::find(sys, &cursor_render_system::render);
   if (it != sys.end()) {
-    sys.erase(it);
-  }
-  if (!mouse_ski.has_value()) {
-    return;
-  }
-  it = std::ranges::find(system::render_systems, &cursor_render_system::render);
-  if (it != system::render_systems.end()) {
-    system::render_systems.insert(it, render_ui_info);
+    sys.insert(it, render_ui_info);
   }
 }
 

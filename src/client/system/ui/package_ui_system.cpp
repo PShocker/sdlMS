@@ -246,20 +246,20 @@ void package_ui_system::render_tab() {
   }
 }
 
-void package_ui_system::render_items_info() {
+bool package_ui_system::render_items_info() {
   if (cursor_game_instance::modal_overlay) {
-    return;
+    return true;
   }
   constexpr int tooltip_offset = 15;
   auto index_opt = load_mouse_index();
   if (!index_opt.has_value()) {
-    return;
+    return true;
   }
   const size_t index = static_cast<size_t>(index_opt.value());
   auto &items = package_game_instance::data[active_tab];
 
   if (index >= items.size() || items[index]->id.empty()) {
-    return;
+    return true;
   }
   const SDL_FPoint show_pos{
       window::mouse_pos.x + tooltip_offset,
@@ -267,12 +267,16 @@ void package_ui_system::render_items_info() {
   };
 
   // 统一使用指针，通过重载或模板区分类型
-  if (active_tab == 0) {
+  if (active_tab == (int)item_enum::equip) {
     auto &equip = static_cast<game_equip_item &>(*items[index]);
     tooltip_ui_system::render_equip(equip, show_pos.x, show_pos.y);
+  } else if (active_tab == (int)item_enum::deco) {
+    auto &deco = static_cast<game_deco_item &>(*items[index]);
+    tooltip_ui_system::render_deco(deco, show_pos.x, show_pos.y);
   } else {
     tooltip_ui_system::render_item(*items[index], show_pos.x, show_pos.y);
   }
+  return true;
 }
 
 void package_ui_system::render_items() {
@@ -302,7 +306,8 @@ void package_ui_system::render_items() {
 
     wz::Node *info;
     // 加载信息
-    if (active_tab == 0) {
+    if (active_tab == (int)item_enum::equip ||
+        active_tab == (int)item_enum::deco) {
       info = equip_game_instance::load_equip_info(item->id);
     } else {
       info = item_game_instance::load_item_info(item->id, 0);
@@ -326,6 +331,18 @@ void package_ui_system::render_items() {
     };
 
     SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+
+    if (active_tab == (int)item_enum::deco) {
+      icon = wz_resource::load_texture(
+          wz_resource::ui->find(u"CashShop.img/CashItem/0"));
+      pos_rect.x =
+          (int)pos.x + slot_pos.x + col * (slot_size + slot_space_x) + 19;
+      pos_rect.y =
+          (int)pos.y + slot_pos.y + row * (slot_size + slot_space_y) + 19;
+      pos_rect.w = icon->w;
+      pos_rect.h = icon->h;
+      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+    }
 
     // render new item
     if (new_itm.has_value()) {
@@ -421,7 +438,6 @@ bool package_ui_system::render() {
   render_scroll();
   render_button();
   render_meso();
-  render_items_info();
   return true;
 }
 
@@ -438,6 +454,8 @@ void package_ui_system::open() {
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -456,6 +474,8 @@ void package_ui_system::event_top() {
   if (it != system::render_systems.end()) {
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -704,6 +724,15 @@ bool package_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+void package_ui_system::event_motion(SDL_Event *event) {
+  auto &sys = system::render_systems;
+  std::erase(sys, render_items_info);
+  auto it = std::ranges::find(sys, &cursor_render_system::render);
+  if (it != sys.end()) {
+    sys.insert(it, render_items_info);
+  }
+}
+
 bool package_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -743,6 +772,7 @@ bool package_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion(event);
     event_drag_move(event);
     break;
   }

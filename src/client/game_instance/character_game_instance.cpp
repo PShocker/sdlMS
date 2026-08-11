@@ -178,6 +178,8 @@ void character_game_instance::load_self_character() {
 
   add_cap_deco(self, u"01007002");
   add_weapon_deco(self, u"01702017");
+  add_ring0_deco(self, u"01112219");
+  add_ring1_deco(self, u"01112108");
 }
 
 std::flat_set<std::u16string>

@@ -132,10 +132,6 @@ void worldmap_ui_system::render_spot() {
   if (spot_point.has_value()) {
     render_cur_pos(spot_point.value());
   }
-  if (cursor_game_instance::modal_overlay == nullptr &&
-      cursor_game_instance::cursor_ui == render && spot_info_id != 0) {
-    render_spot_info(spot_info_id, mouse_pos.x, mouse_pos.y);
-  }
 }
 
 void worldmap_ui_system::render_map() {
@@ -166,8 +162,14 @@ void worldmap_ui_system::render_cur_pos(SDL_FPoint point) {
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void worldmap_ui_system::render_spot_info(uint32_t id, float x, float y) {
-  tooltip_ui_system::render_world_map_info(id, x, y);
+bool worldmap_ui_system::render_spot_info() {
+  if (cursor_game_instance::modal_overlay == nullptr &&
+      cursor_game_instance::cursor_ui == render && spot_info_id != 0) {
+    const auto &mouse_pos = window::mouse_pos;
+    tooltip_ui_system::render_world_map_info(spot_info_id, mouse_pos.x,
+                                             mouse_pos.y);
+  }
+  return true;
 }
 
 void worldmap_ui_system::render_button() {
@@ -241,6 +243,8 @@ void worldmap_ui_system::open() {
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -283,6 +287,15 @@ bool worldmap_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+void worldmap_ui_system::event_motion(SDL_Event *event) {
+  auto &sys = system::render_systems;
+  std::erase(sys, render_spot_info);
+  auto it = std::ranges::find(sys, &cursor_render_system::render);
+  if (it != sys.end()) {
+    sys.insert(it, render_spot_info);
+  }
+}
+
 bool worldmap_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -319,6 +332,7 @@ bool worldmap_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion(event);
     event_drag_move(event);
     break;
   }
@@ -354,6 +368,8 @@ void worldmap_ui_system::event_top() {
   if (it != system::render_systems.end()) {
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 

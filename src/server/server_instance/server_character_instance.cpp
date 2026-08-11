@@ -25,6 +25,7 @@
 #include <flat_set>
 #include <format>
 #include <memory>
+#include <optional>
 #include <ranges>
 #include <string>
 #include <utility>
@@ -509,6 +510,39 @@ void server_character_instance::load_g_character(
       c->face->face_action.end(),
   };
   g_character.name = {c->name.begin(), c->name.end()};
+
+  g_character.weapon = std::nullopt;
+  g_character.weapon_deco = std::nullopt;
+
+  g_character.cap = std::nullopt;
+  g_character.cap_deco = std::nullopt;
+
+  g_character.cape = std::nullopt;
+  g_character.cape_deco = std::nullopt;
+
+  g_character.coat = std::nullopt;
+  g_character.coat_deco = std::nullopt;
+
+  g_character.glove = std::nullopt;
+  g_character.glove_deco = std::nullopt;
+
+  g_character.pant = std::nullopt;
+  g_character.pant_deco = std::nullopt;
+
+  g_character.ring0_deco = std::nullopt;
+  g_character.ring1_deco = std::nullopt;
+
+  g_character.shield = std::nullopt;
+  g_character.shield_deco = std::nullopt;
+
+  g_character.longcoat = std::nullopt;
+  g_character.longcoat_deco = std::nullopt;
+
+  g_character.shoes = std::nullopt;
+  g_character.shoes_deco = std::nullopt;
+
+  g_character.accessory = std::nullopt;
+  g_character.accessory_deco = std::nullopt;
 
   for (auto &equip : c->equips) {
     tmp = std::format("{:08d}", equip->equip_id);
