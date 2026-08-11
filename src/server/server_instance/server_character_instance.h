@@ -36,6 +36,8 @@ public:
 
   static void handle_server_atk(uint64_t client_id, ServerCharacterAttackT &r);
 
+  static void load_g_character(game_character &g_character,
+                               const std::unique_ptr<CharacterT> &c);
   static game_character load_g_character(const std::unique_ptr<CharacterT> &c);
   static CharacterT load_charactert(const game_character &g);
   static void handle_server_playert(const std::unique_ptr<fbs::PlayerT> &c);

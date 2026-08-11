@@ -1,7 +1,7 @@
 #include "character_game_instance.h"
 #include "SDL3/SDL_rect.h"
+#include "equip_game_instance.h"
 #include "src/client/game/game_character.h"
-#include "src/client/game/game_nametag.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
@@ -164,17 +164,6 @@ void character_game_instance::init_default_clothes() {
   return;
 }
 
-void character_game_instance::load_name(game_character &g,
-                                        const std::u16string &str) {
-  game_nametag nametag;
-  nametag.text = str;
-  nametag.path = u"14";
-  nametag.pos = {0, 0};
-  nametag.size = 13;
-  nametag.color = {255, 255, 255, 255};
-  g.nametags.push_back(nametag);
-}
-
 void character_game_instance::load_self_character() {
   add_body(self, u"00002000");
   add_head(self, u"00012000");
@@ -189,8 +178,6 @@ void character_game_instance::load_self_character() {
 
   add_cap_deco(self, u"01007002");
   add_weapon_deco(self, u"01702017");
-
-  load_name(self, u"进击的蓝蘑菇");
 }
 
 std::flat_set<std::u16string>
@@ -1230,4 +1217,18 @@ void character_game_instance::add_face(game_character &g,
       }
     }
   }
+}
+
+void character_game_instance::add_ring0_deco(game_character &g,
+                                             const std::u16string &val) {
+  game_deco_item g_deco;
+  g_deco.id = val;
+  g.ring0_deco = g_deco;
+}
+
+void character_game_instance::add_ring1_deco(game_character &g,
+                                             const std::u16string &val) {
+  game_deco_item g_deco;
+  g_deco.id = val;
+  g.ring1_deco = g_deco;
 }

@@ -21,6 +21,7 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
+#include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/game_instance/triangle_game_instance.h"
@@ -98,6 +99,39 @@ SDL_FRect character_logic_system::load_rect(game_character &g_character) {
     rect.x += 2 * (g_character.pos.x - rect.x) - rect.w;
   }
   return rect;
+}
+
+std::optional<check_reactor>
+character_logic_system::run_reactor_check(game_character &g, SDL_FRect g_r) {
+  auto &g_pos = g.pos;
+  std::flat_map<uint32_t, check_reactor> m;
+  for (const auto &rs : reactor_game_instance::data) {
+    for (const auto &r : rs) {
+      SDL_FRect reactor_r;
+      reactor_r.x = r.pos.x - 20;
+      reactor_r.x = r.pos.y - 20;
+      reactor_r.w = 20;
+      reactor_r.h = 20;
+      if (SDL_HasRectIntersectionFloat(&reactor_r, &g_r)) {
+        auto &r_pos = r.pos;
+        auto dis = (r_pos.x - g_pos.x) * (r_pos.x - g_pos.x) +
+                   (r_pos.y - g_pos.y) * (r_pos.y - g_pos.y);
+        SDL_FRect res;
+        SDL_GetRectIntersectionFloat(&reactor_r, &g_r, &res);
+        float attack_x = res.x + res.w / 2 - r_pos.x;
+        float attack_y = res.y + res.h / 2 - r_pos.y;
+        m[dis] = {
+            .r = r,
+            .x = attack_x,
+            .y = attack_y,
+        };
+      }
+    }
+  }
+  if (!m.empty()) {
+    return m.begin()->second;
+  }
+  return std::nullopt;
 }
 
 check_mobs character_logic_system::run_attack_check(game_character &g_character,
@@ -756,6 +790,12 @@ bool character_logic_system::run_attack(game_character &g_character) {
     }
     SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
     delay = afterimage_game_instance::load_beat_time(g_character);
+    self_alert_cooldown = window::dt_now + 5000;
+    load_sfx(g_character);
+    // reactor
+    auto rt = run_reactor_check(g_character, g_r);
+    if (rt.has_value()) {
+    }
 
     auto cm = run_attack_check(g_character, g_r);
     if (!cm.data.empty()) {
@@ -766,8 +806,6 @@ bool character_logic_system::run_attack(game_character &g_character) {
       t.payload[0]->afterimage = true;
       client_request::send_to_host(t);
     }
-    self_alert_cooldown = window::dt_now + 5000;
-    load_sfx(g_character);
     return true;
   }
   return false;

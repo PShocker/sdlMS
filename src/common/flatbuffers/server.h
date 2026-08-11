@@ -129,6 +129,10 @@ struct ServerDropFade;
 struct ServerDropFadeBuilder;
 struct ServerDropFadeT;
 
+struct ServerReactor;
+struct ServerReactorBuilder;
+struct ServerReactorT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -2645,6 +2649,104 @@ inline ::flatbuffers::Offset<ServerDropFade> CreateServerDropFadeDirect(
 
 ::flatbuffers::Offset<ServerDropFade> CreateServerDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerReactorT : public ::flatbuffers::NativeTable {
+  typedef ServerReactor TableType;
+  uint8_t reactor_index = 0;
+  uint8_t state = 0;
+  std::string action{};
+};
+
+struct ServerReactor FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerReactorT NativeTableType;
+  typedef ServerReactorBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_REACTOR_INDEX = 4,
+    VT_STATE = 6,
+    VT_ACTION = 8
+  };
+  uint8_t reactor_index() const {
+    return GetField<uint8_t>(VT_REACTOR_INDEX, 0);
+  }
+  bool mutate_reactor_index(uint8_t _reactor_index = 0) {
+    return SetField<uint8_t>(VT_REACTOR_INDEX, _reactor_index, 0);
+  }
+  uint8_t state() const {
+    return GetField<uint8_t>(VT_STATE, 0);
+  }
+  bool mutate_state(uint8_t _state = 0) {
+    return SetField<uint8_t>(VT_STATE, _state, 0);
+  }
+  const ::flatbuffers::String *action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
+  }
+  ::flatbuffers::String *mutable_action() {
+    return GetPointer<::flatbuffers::String *>(VT_ACTION);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_REACTOR_INDEX, 1) &&
+           VerifyField<uint8_t>(verifier, VT_STATE, 1) &&
+           VerifyOffset(verifier, VT_ACTION) &&
+           verifier.VerifyString(action()) &&
+           verifier.EndTable();
+  }
+  ServerReactorT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerReactorT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerReactor> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerReactorBuilder {
+  typedef ServerReactor Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_reactor_index(uint8_t reactor_index) {
+    fbb_.AddElement<uint8_t>(ServerReactor::VT_REACTOR_INDEX, reactor_index, 0);
+  }
+  void add_state(uint8_t state) {
+    fbb_.AddElement<uint8_t>(ServerReactor::VT_STATE, state, 0);
+  }
+  void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
+    fbb_.AddOffset(ServerReactor::VT_ACTION, action);
+  }
+  explicit ServerReactorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerReactor> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerReactor>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerReactor> CreateServerReactor(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t reactor_index = 0,
+    uint8_t state = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> action = 0) {
+  ServerReactorBuilder builder_(_fbb);
+  builder_.add_action(action);
+  builder_.add_state(state);
+  builder_.add_reactor_index(reactor_index);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerReactor> CreateServerReactorDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t reactor_index = 0,
+    uint8_t state = 0,
+    const char *action = nullptr) {
+  auto action__ = action ? _fbb.CreateString(action) : 0;
+  return fbs::CreateServerReactor(
+      _fbb,
+      reactor_index,
+      state,
+      action__);
+}
+
+::flatbuffers::Offset<ServerReactor> CreateServerReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -3757,6 +3859,38 @@ inline ::flatbuffers::Offset<ServerDropFade> ServerDropFade::Pack(::flatbuffers:
   return fbs::CreateServerDropFade(
       _fbb,
       _drop_ids);
+}
+
+inline ServerReactorT *ServerReactor::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerReactorT>(new ServerReactorT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerReactor::UnPackTo(ServerReactorT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = reactor_index(); _o->reactor_index = _e; }
+  { auto _e = state(); _o->state = _e; }
+  { auto _e = action(); if (_e) _o->action = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<ServerReactor> CreateServerReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerReactor::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerReactor> ServerReactor::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerReactorT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _reactor_index = _o->reactor_index;
+  auto _state = _o->state;
+  auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
+  return fbs::CreateServerReactor(
+      _fbb,
+      _reactor_index,
+      _state,
+      _action);
 }
 
 template <bool B>

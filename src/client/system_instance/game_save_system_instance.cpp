@@ -42,7 +42,7 @@ bool game_save_system_instance::load_save(const std::string &login) {
       cs.map_id = c->map_id;
       cs.character = server_character_instance::load_g_character(c->character);
       std::u16string name{c->character->name.begin(), c->character->name.end()};
-      character_game_instance::load_name(cs.character, name);
+      cs.character.name = name;
       for (auto &item : c->package) {
         switch (item->data.type) {
         case fbs::ItemUnion_Equip: {
@@ -120,7 +120,7 @@ bool game_save_system_instance::save_game() {
   }
   // save
   auto character = character_game_instance::self;
-  if (!character.nametags.empty()) {
+  if (!character.name.empty()) {
     character_save cs;
     cs.character = character;
     cs.ap = {
@@ -164,7 +164,7 @@ bool game_save_system_instance::save_game() {
     }
     for (int i = 0; i < save.characters.size(); i++) {
       auto &save_character = save.characters[i].character;
-      if (save_character.nametags[0].text == character.nametags[0].text) {
+      if (save_character.name == character.name) {
         save.characters[i] = std::move(cs);
         break;
       }

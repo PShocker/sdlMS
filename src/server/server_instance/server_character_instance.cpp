@@ -467,10 +467,8 @@ void server_character_instance::handle_server_ski(uint64_t client_id,
   }
 }
 
-game_character server_character_instance::load_g_character(
-    const std::unique_ptr<CharacterT> &c) {
-
-  game_character g_character;
+void server_character_instance::load_g_character(
+    game_character &g_character, const std::unique_ptr<CharacterT> &c) {
   const auto &appearance = c->appearance;
 
   std::string tmp = std::format("{:08d}", appearance->body);
@@ -510,6 +508,7 @@ game_character server_character_instance::load_g_character(
       c->face->face_action.begin(),
       c->face->face_action.end(),
   };
+  g_character.name = {c->name.begin(), c->name.end()};
 
   for (auto &equip : c->equips) {
     tmp = std::format("{:08d}", equip->equip_id);
@@ -521,8 +520,14 @@ game_character server_character_instance::load_g_character(
     tmp = std::format("{:08d}", deco->deco_id);
     game_deco_item e;
     e.id = {tmp.begin(), tmp.end()};
-    equip_game_instance::add_equip_deco(e, g_character, 0);
+    equip_game_instance::add_equip_deco(e, g_character, -1);
   }
+}
+
+game_character server_character_instance::load_g_character(
+    const std::unique_ptr<CharacterT> &c) {
+  game_character g_character;
+  load_g_character(g_character, c);
   return g_character;
 }
 
@@ -663,6 +668,18 @@ CharacterT server_character_instance::load_charactert(const game_character &g) {
     dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
     c.decos.push_back(std::make_unique<DecoT>(dt));
   }
+  if (g.ring0_deco.has_value()) {
+    auto id = g.ring0_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
+  if (g.ring1_deco.has_value()) {
+    auto id = g.ring1_deco->id;
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
 
   c.state->action = std::string{g.action.begin(), g.action.end()};
   c.state->x = g.pos.x;
@@ -673,7 +690,7 @@ CharacterT server_character_instance::load_charactert(const game_character &g) {
 
   c.state->action_animate = g.action_animate;
 
-  auto name = g.nametags[0].text;
+  auto name = g.name;
   c.name = {name.begin(), name.end()};
 
   c.fame = g.fame;
@@ -698,14 +715,6 @@ void server_character_instance::handle_server_playert(
     };
     g_character.tomb = t;
   }
-  game_nametag nametag;
-  nametag.path = u"";
-  nametag.pos = {0, 0};
-  nametag.size = 13;
-  nametag.color = {255, 255, 255, 255};
-  nametag.text = {c->character->name.begin(), c->character->name.end()};
-  g_character.nametags.push_back(nametag);
-
   character_other_data cod;
   cod.g_character = g_character;
   cod.player_t = *c;

@@ -257,7 +257,7 @@ void character_choose_ui_system::event_button_select() {
   uint32_t portal_id;
   // load
   for (auto &cs : game_save_system_instance::save.characters) {
-    if (cs.character.nametags[0].text == character.nametags[0].text) {
+    if (cs.character.name == character.name) {
       map_id = cs.map_id;
       portal_id = cs.portal_id;
       // load pack,ski,ap,sp
@@ -305,7 +305,7 @@ void character_choose_ui_system::event_button_delete_cb() {
   auto &save = game_save_system_instance::save;
   for (int i = 0; i < save.characters.size(); i++) {
     auto &save_character = save.characters[i].character;
-    if (save_character.nametags[0].text == character.nametags[0].text) {
+    if (save_character.name == character.name) {
       save.characters.erase(save.characters.begin() + i);
     }
   }

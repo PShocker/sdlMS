@@ -303,8 +303,11 @@ void equip_game_instance::add_equip_deco(game_deco_item &deco,
       character_game_instance::add_pants_deco(character, deco.id);
     } else if (type == u"Ring") {
       if (slot == -1) {
-
-      } else {
+        if (!character.ring0_deco.has_value()) {
+          character_game_instance::add_ring0_deco(character, deco.id);
+        } else {
+          character_game_instance::add_ring1_deco(character, deco.id);
+        }
       }
     } else if (type == u"Shield") {
       character_game_instance::add_shield_deco(character, deco.id);

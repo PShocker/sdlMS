@@ -1,7 +1,5 @@
 #include "npc_render_system.h"
 #include "SDL3/SDL_rect.h"
-#include "nametag_render_system.h"
-#include "src/client/game/game_nametag.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
@@ -13,28 +11,41 @@
 #include "wz/Wz.h"
 #include <ranges>
 
-void npc_render_system::render_nametag(game_npc &g_npc) {
+void npc_render_system::render_nametag(const std::u16string &text,
+                                       SDL_FPoint p) {
+  const auto &camera = camera_game_instance::camera;
+  freetype::load_aligned(true);
+  freetype::load_size(13);
+  auto w = freetype::load_w(text);
+  auto h = freetype::load_lh();
 
+  auto x = p.x;
+  auto y = p.y;
+  SDL_FRect rect;
+  rect.w = w + 4;
+  rect.h = h + 4;
+  rect.x = x - rect.w / 2;
+  rect.y = y;
+  if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
+    rect.x -= camera.x;
+    rect.y -= camera.y;
+    SDL_SetRenderDrawBlendMode(window::renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 178);
+    SDL_RenderFillRect(window::renderer, &rect);
+    freetype::load_color(255, 205, 0, 255);
+    freetype::draw_line(text, x - camera.x - w / 2, y - camera.y);
+  }
+  return;
+}
+
+void npc_render_system::render_nametag(game_npc &g_npc) {
   auto npc_name = npc_game_instance::load_npc_text(g_npc.id, u"name");
   if (npc_name != u"") {
-    game_nametag n;
-    n.color = {255, 205, 0, 255};
-    n.path = u"";
-    n.pos = {0, 0};
-    n.size = 13;
-    n.text = npc_name;
-    nametag_render_system::render(n, g_npc.pos);
+    render_nametag(npc_name, {g_npc.pos.x, g_npc.pos.y});
   }
-
   auto npc_func = npc_game_instance::load_npc_text(g_npc.id, u"func");
   if (npc_func != u"") {
-    game_nametag n;
-    n.color = {255, 205, 0, 255};
-    n.path = u"";
-    n.pos = {0, 18};
-    n.size = 13;
-    n.text = npc_func;
-    nametag_render_system::render(n, g_npc.pos);
+    render_nametag(npc_func, {g_npc.pos.x, g_npc.pos.y + 18});
   }
 }
 

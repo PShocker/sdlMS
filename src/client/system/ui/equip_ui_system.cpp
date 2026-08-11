@@ -1,6 +1,7 @@
 #include "equip_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "notice_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -11,6 +12,7 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -441,6 +443,27 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
   if (cursor_hand.has_value()) {
     switch (cursor_hand->type) {
     case cursor_game_instance::equipment: {
+      if (index.value() == cursor_hand->sub_val) {
+        std::polymorphic<game_item> eqp;
+        if (active_tab == 0) {
+          eqp = std::polymorphic<game_item>(load_equip(index.value())->value());
+        } else {
+          eqp = std::polymorphic<game_item>(load_deco(index.value())->value());
+        }
+        if (!package_ui_system::add_item(eqp)) {
+          notice_ui_system::type =
+              notice_ui_system::notice_enum::equip_no_space;
+          notice_ui_system::open();
+          return false;
+        }
+        if (active_tab == 0) {
+          (*load_equip(index.value())) = std::nullopt;
+        } else {
+          (*load_deco(index.value())) = std::nullopt;
+        }
+        cursor_game_instance::cursor_hand = std::nullopt;
+        character_logic_system::cct.map_id = scene_system_instance::map_id;
+      }
       break;
     }
     case cursor_game_instance::package: {

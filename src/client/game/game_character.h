@@ -7,7 +7,6 @@
 #include "game_chatballoon.h"
 #include "game_face.h"
 #include "game_item.h"
-#include "game_nametag.h"
 #include "game_tomb.h"
 #include "src/client/game/game_effect.h"
 #include <cstdint>
@@ -64,16 +63,12 @@ public:
 
   std::optional<game_deco_item> ring0_deco;
   std::optional<game_deco_item> ring1_deco;
-  std::optional<game_deco_item> ring2_deco;
-  std::optional<game_deco_item> ring3_deco;
 
   std::optional<game_deco_item> shield_deco;
   std::optional<game_deco_item> longcoat_deco;
   std::optional<game_deco_item> shoes_deco;
 
   std::optional<game_deco_item> accessory_deco;
-
-  std::vector<game_nametag> nametags;
 
   std::optional<game_chatballoon> chatballoon;
 
@@ -91,6 +86,7 @@ public:
   std::optional<game_tomb> tomb;
 
   // characterinfo
+  std::u16string name;
   std::u16string job = u"100";
   int32_t fame = 0;
   int32_t level = 0;

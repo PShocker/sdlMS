@@ -172,7 +172,7 @@ void character_info_ui_system::render_character() {
 void character_info_ui_system::render_text() {
   freetype::load_aligned(true);
   freetype::load_size(12);
-  auto charname = character.nametags[0].text;
+  auto charname = character.name;
   auto w = freetype::load_w(charname);
   freetype::load_color(255, 255, 255, 255);
   freetype::draw_line(charname, int(pos.x + 53 - w / 2), int(pos.y + 127));

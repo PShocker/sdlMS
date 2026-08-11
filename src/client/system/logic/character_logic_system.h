@@ -5,6 +5,7 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_input.h"
 #include "src/client/game/game_mob.h"
+#include "src/client/game/game_reactor.h"
 #include "src/client/game/game_triangle.h"
 #include "src/common/flatbuffers/client.h"
 #include <cstdint>
@@ -25,9 +26,17 @@ struct check_mobs {
   std::vector<mobs> data;
 };
 
+struct check_reactor {
+  game_reactor r;
+  float x;
+  float y;
+};
+
 class character_logic_system {
 private:
   static check_mobs run_shoot_check(game_character &g_character);
+  static std::optional<check_reactor> run_reactor_check(game_character &g,
+                                                        SDL_FRect g_r);
 
   static void run_climb_action(game_character &g_character);
   static void run_face_animate(game_character &g_character);

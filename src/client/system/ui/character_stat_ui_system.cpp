@@ -30,7 +30,7 @@ void character_stat_ui_system::render_text() {
   SDL_FPoint p{pos.x + 60, pos.y + 32};
   // name
   const auto &self = character_game_instance::self;
-  auto &self_name = self.nametags[0].text;
+  auto &self_name = self.name;
   freetype::load_size(12);
   freetype::load_aligned(true);
   freetype::load_color(0, 0, 0, 255);
@@ -41,9 +41,12 @@ void character_stat_ui_system::render_text() {
   static auto job_node = wz_resource::ui->find(u"CharacterStat.img/Main/Job");
   auto job_texture = wz_resource::load_texture(
       job_node->find(u"main/" + std::u16string{self_job[0]}));
-  SDL_FRect pos_rect{static_cast<float>((int)p.x), static_cast<float>((int)p.y),
-                     static_cast<float>(job_texture->w),
-                     static_cast<float>(job_texture->h)};
+  SDL_FRect pos_rect{
+      static_cast<float>((int)p.x),
+      static_cast<float>((int)p.y),
+      static_cast<float>(job_texture->w),
+      static_cast<float>(job_texture->h),
+  };
   SDL_RenderTexture(window::renderer, job_texture, nullptr, &pos_rect);
 
   // sub job

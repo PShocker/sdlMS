@@ -1,6 +1,6 @@
 #include "portal_render_system.h"
 #include "SDL3/SDL_rect.h"
-#include "nametag_render_system.h"
+#include "npc_render_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
@@ -71,13 +71,7 @@ void portal_render_system::render_nametag(game_portal &g_portal) {
     return;
   }
   auto name = minimap_ui_system::load_map_name(g_portal.tm).map_name;
-  game_nametag n;
-  n.color = {255, 205, 0, 255};
-  n.path = u"";
-  n.pos = {0, 4};
-  n.size = 13;
-  n.text = name;
-  nametag_render_system::render(n, g_portal.pos);
+  npc_render_system::render_nametag(name, {g_portal.pos.x, g_portal.pos.y + 4});
 }
 
 bool portal_render_system::render(game_portal &g_portal) {

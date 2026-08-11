@@ -1,12 +1,11 @@
 #include "mob_render_system.h"
 #include "gauge_render_system.h"
-#include "nametag_render_system.h"
-#include "src/client/game/game_nametag.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system/render/effect_render_system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <algorithm>
@@ -111,6 +110,33 @@ bool mob_render_system::render(game_mob &g_mob) {
   return true;
 }
 
+void mob_render_system::render_nametag(const std::u16string &text,
+                                       SDL_FPoint p) {
+  const auto &camera = camera_game_instance::camera;
+  freetype::load_aligned(true);
+  freetype::load_size(13);
+  auto w = freetype::load_w(text);
+  auto h = freetype::load_lh();
+
+  auto x = p.x;
+  auto y = p.y;
+  SDL_FRect rect;
+  rect.w = w + 4;
+  rect.h = h + 4;
+  rect.x = x - rect.w / 2;
+  rect.y = y;
+  if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
+    rect.x -= camera.x;
+    rect.y -= camera.y;
+    SDL_SetRenderDrawBlendMode(window::renderer, SDL_BLENDMODE_BLEND);
+    SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 178);
+    SDL_RenderFillRect(window::renderer, &rect);
+    freetype::load_color(255, 255, 255, 255);
+    freetype::draw_line(text, x - camera.x - w / 2, y - camera.y);
+  }
+  return;
+}
+
 bool mob_render_system::render_nametag(game_mob &g_mob) {
   if (!g_mob.gauge.has_value()) {
     return false;
@@ -119,12 +145,7 @@ bool mob_render_system::render_nametag(game_mob &g_mob) {
   if (!r.has_value()) {
     return false;
   }
-  game_nametag name;
-  name.color = {255, 255, 255, 255};
-  name.path = u"";
-  name.pos = g_mob.pos;
-  name.size = 12;
-  name.text = mob_game_instance::load_mob_name(g_mob.id);
-  nametag_render_system::render(name, {0, 5});
+  auto mob_name = mob_game_instance::load_mob_name(g_mob.id);
+  render_nametag(mob_name, {g_mob.pos.x, g_mob.pos.y + 5});
   return true;
 }

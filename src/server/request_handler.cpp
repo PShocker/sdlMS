@@ -299,8 +299,8 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerCharacterT r;
     payload->UnPackTo(&r);
     if (character_game_instance::others.contains(r.client_id)) {
-      character_game_instance::others[r.client_id].g_character =
-          server_character_instance::load_g_character(r.payload);
+      auto &g = character_game_instance::others[r.client_id].g_character;
+      server_character_instance::load_g_character(g, r.payload);
     }
     break;
   }

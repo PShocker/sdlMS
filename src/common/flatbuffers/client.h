@@ -93,6 +93,10 @@ struct ClientCharacterParty;
 struct ClientCharacterPartyBuilder;
 struct ClientCharacterPartyT;
 
+struct ClientReactor;
+struct ClientReactorBuilder;
+struct ClientReactorT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -1589,6 +1593,81 @@ inline ::flatbuffers::Offset<ClientCharacterParty> CreateClientCharacterParty(
 
 ::flatbuffers::Offset<ClientCharacterParty> CreateClientCharacterParty(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterPartyT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientReactorT : public ::flatbuffers::NativeTable {
+  typedef ClientReactor TableType;
+  uint8_t reactor_index = 0;
+  std::unique_ptr<fbs::AttackT> attack{};
+  ClientReactorT() = default;
+  ClientReactorT(const ClientReactorT &o);
+  ClientReactorT(ClientReactorT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientReactorT &operator=(ClientReactorT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientReactor FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientReactorT NativeTableType;
+  typedef ClientReactorBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_REACTOR_INDEX = 4,
+    VT_ATTACK = 6
+  };
+  uint8_t reactor_index() const {
+    return GetField<uint8_t>(VT_REACTOR_INDEX, 0);
+  }
+  bool mutate_reactor_index(uint8_t _reactor_index = 0) {
+    return SetField<uint8_t>(VT_REACTOR_INDEX, _reactor_index, 0);
+  }
+  const fbs::Attack *attack() const {
+    return GetPointer<const fbs::Attack *>(VT_ATTACK);
+  }
+  fbs::Attack *mutable_attack() {
+    return GetPointer<fbs::Attack *>(VT_ATTACK);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_REACTOR_INDEX, 1) &&
+           VerifyOffset(verifier, VT_ATTACK) &&
+           verifier.VerifyTable(attack()) &&
+           verifier.EndTable();
+  }
+  ClientReactorT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientReactorT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientReactor> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientReactorT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientReactorBuilder {
+  typedef ClientReactor Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_reactor_index(uint8_t reactor_index) {
+    fbb_.AddElement<uint8_t>(ClientReactor::VT_REACTOR_INDEX, reactor_index, 0);
+  }
+  void add_attack(::flatbuffers::Offset<fbs::Attack> attack) {
+    fbb_.AddOffset(ClientReactor::VT_ATTACK, attack);
+  }
+  explicit ClientReactorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientReactor> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientReactor>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientReactor> CreateClientReactor(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t reactor_index = 0,
+    ::flatbuffers::Offset<fbs::Attack> attack = 0) {
+  ClientReactorBuilder builder_(_fbb);
+  builder_.add_attack(attack);
+  builder_.add_reactor_index(reactor_index);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ClientReactor> CreateClientReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ClientReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -2304,6 +2383,46 @@ inline ::flatbuffers::Offset<ClientCharacterParty> ClientCharacterParty::Pack(::
       _step,
       _to_id,
       _confirm);
+}
+
+inline ClientReactorT::ClientReactorT(const ClientReactorT &o)
+      : reactor_index(o.reactor_index),
+        attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr) {
+}
+
+inline ClientReactorT &ClientReactorT::operator=(ClientReactorT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(reactor_index, o.reactor_index);
+  std::swap(attack, o.attack);
+  return *this;
+}
+
+inline ClientReactorT *ClientReactor::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientReactorT>(new ClientReactorT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientReactor::UnPackTo(ClientReactorT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = reactor_index(); _o->reactor_index = _e; }
+  { auto _e = attack(); if (_e) { if(_o->attack) { _e->UnPackTo(_o->attack.get(), _resolver); } else { _o->attack = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->attack) { _o->attack.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ClientReactor> CreateClientReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ClientReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientReactor::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientReactor> ClientReactor::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientReactorT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientReactorT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _reactor_index = _o->reactor_index;
+  auto _attack = _o->attack ? CreateAttack(_fbb, _o->attack.get(), _rehasher) : 0;
+  return fbs::CreateClientReactor(
+      _fbb,
+      _reactor_index,
+      _attack);
 }
 
 }  // namespace fbs

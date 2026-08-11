@@ -403,7 +403,7 @@ bool cursor_logic_system::event_character(SDL_Event *event) {
         if (ins) {
           context_menu_ui_system::pos = window::mouse_pos;
           context_menu_ui_system::client_id = k;
-          context_menu_ui_system::client_name = v.g_character.nametags[0].text;
+          context_menu_ui_system::client_name = v.g_character.name;
           context_menu_ui_system::close();
           context_menu_ui_system::open();
           return true;

@@ -158,3 +158,9 @@ table ServerCharacterState {
 table ServerDropFade {
     drop_ids:[uint64];
 }
+
+table ServerReactor {
+    reactor_index:uint8;
+    state:uint8;
+    action:string;
+}

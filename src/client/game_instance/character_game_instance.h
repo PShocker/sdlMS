@@ -68,8 +68,6 @@ public:
   static void init_character_bone();
   static void init_default_clothes();
 
-  static void load_name(game_character &g, const std::u16string &str);
-
   static void load_self_character();
 
   static void add_body(game_character &g, const std::u16string &val);
@@ -98,6 +96,9 @@ public:
   static void add_glove_deco(game_character &g, const std::u16string &val);
   static void add_longcoat_deco(game_character &g, const std::u16string &val);
   static void add_weapon_deco(game_character &g, const std::u16string &val);
+
+  static void add_ring0_deco(game_character &g, const std::u16string &val);
+  static void add_ring1_deco(game_character &g, const std::u16string &val);
 
   static inline std::flat_map<uint64_t, character_other_data> others;
 

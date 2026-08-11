@@ -508,7 +508,7 @@ void character_create_ui_system::reset_character(bool g) {
   character_game_instance::add_weapon(g_character, load_default_weapon()[0]);
   character_logic_system::run_stand_action(g_character);
   g_character.flip = 1;
-  g_character.nametags = {};
+  g_character.name = u"";
 }
 
 std::vector<std::u16string> character_create_ui_system::load_default_face() {
@@ -975,7 +975,7 @@ void character_create_ui_system::event_button_ok() {
     }
   }
   for (auto g : characters) {
-    if (g.nametags[0].text == name_text) {
+    if (g.name == name_text) {
       // 名称重复
       login_notice_system_instance::enter(
           login_notice_system_instance::charactername_used, nullptr);
@@ -985,7 +985,7 @@ void character_create_ui_system::event_button_ok() {
   }
   audio_game_instance::load_audio(u"UI.img/ScrollUp", 0);
 
-  character_game_instance::load_name(g_character, name_text);
+  g_character.name = name_text;
   characters.push_back(g_character);
 
   character_save cs;

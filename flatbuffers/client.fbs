@@ -98,3 +98,8 @@ table ClientCharacterParty {
     to_id:uint64;
     confirm:bool;
 }
+
+table ClientReactor {
+    reactor_index:uint8;
+    attack:Attack;
+}
