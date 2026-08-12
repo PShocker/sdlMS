@@ -1,7 +1,9 @@
 #include "server_reactor_instance.h"
+#include "SDL3/SDL_rect.h"
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game/game_reactor.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
@@ -85,24 +87,16 @@ void server_reactor_instance::handle_reactor(uint64_t client_id,
   if (!server_client_instance::clients.contains(client_id)) {
     return;
   }
-  const auto &atk = r.payload->attack;
   auto &scene = server_scene_instance::scenes.at(r.map_id);
   auto &reactor = scene.reactors.at(r.payload->reactor_index);
-  if (reactor.hit_cd <= window::dt_time) {
-    reactor.hit_cd = load_hit_cd(reactor);
-
-    ServerReactorT srt;
-    srt.payload = std::make_unique<ReactorT>();
-    srt.payload->reactor_index = reactor.index;
-    srt.payload->state = reactor.state;
-    srt.payload->attack = std::move(r.payload->attack);
-    srt.payload->action = "hit";
-    auto scenes = server_scene_instance::scenes[r.map_id].clients;
-    for (auto c : scenes) {
-      server_response::send_to_client(c, srt);
-    }
-
-    reactor.state = load_next_state(reactor.id, reactor.state);
+  if (reactor.revive != 0) {
+    return;
+  }
+  auto delay = r.payload->delay;
+  if (reactor.hit_time == 0) {
+    reactor.hit_time = delay;
+  } else {
+    reactor.hit_time = std::min(delay, reactor.hit_time);
   }
   return;
 }
@@ -123,8 +117,11 @@ void server_reactor_instance::handle_s_reactor(const ReactorT &r) {
   reactor->state = r.state;
   reactor->ani_index = 0;
   reactor->ani_time = 0;
-  if (r.attack) {
+  if (r.action == "hit") {
     reactor->hit = true;
+  } else if (r.action == "revive") {
+    reactor->alpha = 0;
+    reactor->hit = false;
   }
   return;
 }

@@ -192,7 +192,7 @@ table Reactor{
     reactor_index:uint8;
     state:uint8;
     action:string;
-    attack:Attack;
+    delay:uint64;
 }
 
 

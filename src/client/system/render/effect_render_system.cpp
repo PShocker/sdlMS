@@ -76,15 +76,15 @@ void effect_render_system::render_damage(SDL_FPoint pos,
   uint32_t w = 0;
   wz::Node *node;
   switch (d_data.type) {
-  case damage_data::red: {
+  case damage_data::r: {
     node = red;
     break;
   }
-  case damage_data::blue: {
+  case damage_data::b: {
     node = blue;
     break;
   }
-  case damage_data::viole: {
+  case damage_data::v: {
     node = viole;
     break;
   }

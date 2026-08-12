@@ -21,7 +21,7 @@ static void q90008(std::any data) {
   dt.y1 = pos.y;
   dt.page = 7;
   ItemT it;
-  it.item_id = 1;
+  it.item_id = 2000000;
   it.item_num = 1;
   dt.drop.Set(it);
 

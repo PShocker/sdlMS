@@ -9,11 +9,9 @@
 #include <optional>
 #include <string>
 class server_reactor_instance {
-private:
-  static uint64_t load_hit_cd(server_reactor &r);
-
 public:
   static void load_reactor(server_scene &scene);
+  static uint64_t load_hit_cd(server_reactor &r);
   static int load_next_state(const std::u16string &id, uint8_t state);
   static std::u16string load_script(const std::u16string &id);
 

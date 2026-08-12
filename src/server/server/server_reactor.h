@@ -14,6 +14,7 @@ public:
 
   uint8_t state;
   uint64_t hit_cd;
+  uint64_t hit_time = 0;
 
   uint64_t revive = 0; // 刷新时间
 };

@@ -1,4 +1,5 @@
 #include "reactor_logic_system.h"
+#include "src/client/game/game_reactor.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -14,6 +15,12 @@ bool reactor_logic_system::run_animate(game_reactor &g_reactor) {
     auto node = wz_resource::reactor->find(g_reactor.id + u".img");
     node = node->get_child(std::to_string(g_reactor.state));
     node = node->get_child(u"hit");
+    if (node == nullptr) {
+      return false;
+    }
+    if (node->type == wz::Type::UOL) {
+      node = static_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
+    }
     auto count = node->children_count();
     node = node->get_child(std::to_string(g_reactor.ani_index));
 
@@ -37,9 +44,18 @@ bool reactor_logic_system::run_animate(game_reactor &g_reactor) {
   return finish;
 }
 
+void reactor_logic_system::run_alpha(game_reactor &g_reactor) {
+  if (g_reactor.alpha < 255) {
+    int alpha = g_reactor.alpha;
+    alpha += window::delta_time;
+    g_reactor.alpha = std::min(255, alpha);
+  }
+}
+
 bool reactor_logic_system::run() {
   for (auto &rs : reactor_game_instance::data) {
     for (auto &r : rs) {
+      run_alpha(r);
       if (run_animate(r)) {
         r.state = server_reactor_instance::load_next_state(r.id, r.state);
         r.ani_index = 0;

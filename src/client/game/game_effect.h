@@ -8,11 +8,7 @@
 
 struct damage_data {
   uint64_t num;
-  enum t {
-    red,
-    blue,
-    viole,
-  };
+  enum t { r, b, v };
   t type;
 };
 

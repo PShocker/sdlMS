@@ -381,7 +381,7 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
     // 伤害数字
     damage_data data = {
         .num = ct->attack->num,
-        .type = damage_data::red,
+        .type = damage_data::r,
     };
     game_effect d = {
         .id = u"",

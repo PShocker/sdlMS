@@ -179,10 +179,10 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     break;
   }
   case NetPayload_ClientReactor: {
-    auto payload = packet->payload_as_ClientCharacterState();
-    fbs::ClientCharacterStateT r;
+    auto payload = packet->payload_as_ClientReactor();
+    fbs::ClientReactorT r;
     payload->UnPackTo(&r);
-    server_character_instance::handle_state(client_id, r);
+    server_reactor_instance::handle_reactor(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {

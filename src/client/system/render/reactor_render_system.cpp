@@ -15,7 +15,10 @@ bool reactor_render_system::render(game_reactor &g_reactor) {
     if (!g_reactor.hit) {
       node = node->get_child(std::to_string(g_reactor.ani_index));
     } else {
-      node = node->get_child("hit/" + std::to_string(g_reactor.ani_index));
+      node = node->find("hit/" + std::to_string(g_reactor.ani_index));
+    }
+    if (node == nullptr) {
+      return true;
     }
     if (node->type == wz::Type::UOL) {
       node = static_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
@@ -31,6 +34,7 @@ bool reactor_render_system::render(game_reactor &g_reactor) {
     if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
       pos_rect.x -= camera.x;
       pos_rect.y -= camera.y;
+      SDL_SetTextureAlphaMod(t, g_reactor.alpha);
       SDL_RenderTextureRotated(window::renderer, t, nullptr, &pos_rect, 0,
                                nullptr, (SDL_FlipMode)g_reactor.f);
     }

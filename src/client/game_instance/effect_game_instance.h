@@ -16,7 +16,4 @@ class effect_game_instance {
 public:
   static inline std::array<std::vector<game_effect>, 8> data;
   static void reset();
-
-  static void load_atk();
-  static void load_ski();
 };

@@ -110,9 +110,9 @@ check_reactors character_logic_system::run_reactor_check(game_character &g,
     for (const auto &r : rs) {
       SDL_FRect reactor_r;
       reactor_r.x = r.pos.x - 20;
-      reactor_r.x = r.pos.y - 20;
-      reactor_r.w = 20;
-      reactor_r.h = 20;
+      reactor_r.y = r.pos.y - 20;
+      reactor_r.w = 40;
+      reactor_r.h = 40;
       if (SDL_HasRectIntersectionFloat(&reactor_r, &g_r)) {
         auto &r_pos = r.pos;
         auto dis = (r_pos.x - g_pos.x) * (r_pos.x - g_pos.x) +
@@ -796,12 +796,10 @@ bool character_logic_system::run_attack(game_character &g_character) {
     if (!rt.data.empty()) {
       auto &r = rt.data[0];
       ClientReactorT crt;
+      crt.map_id = scene_system_instance::map_id;
       crt.payload = std::make_unique<ReactorT>();
       crt.payload->reactor_index = r.r.index;
-      crt.payload->attack = std::make_unique<AttackT>();
-      crt.payload->attack->x = r.x;
-      crt.payload->attack->y = r.y;
-      crt.payload->attack->delay = delay;
+      crt.payload->delay = delay;
       client_request::send_to_host(crt);
       return true;
     }

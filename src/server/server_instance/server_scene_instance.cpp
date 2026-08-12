@@ -3,6 +3,7 @@
 #include "server_client_instance.h"
 #include "server_foothold_instance.h"
 #include "server_mob_instance.h"
+#include "server_reactor_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
@@ -126,6 +127,7 @@ void server_scene_instance::init_scene(uint64_t client_id,
 
     server_mob_instance::load_mob(scene);
     server_foothold_instance::load_fh(scene);
+    server_reactor_instance::load_reactor(scene);
 
     scenes[map_id] = scene;
   }

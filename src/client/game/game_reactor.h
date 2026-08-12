@@ -10,6 +10,7 @@ public:
 
   SDL_FPoint pos;
 
+  uint8_t alpha = 255;
   bool f;
 
   uint8_t state;
