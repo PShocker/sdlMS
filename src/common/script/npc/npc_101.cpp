@@ -1,6 +1,6 @@
 #include "../script.h"
 
-static void npc_101() {
+static void npc_101(std::any data) {
 
 };
 

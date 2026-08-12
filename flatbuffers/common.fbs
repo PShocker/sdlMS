@@ -188,6 +188,14 @@ table State{
     sub_val:int64;
 }
 
+table Reactor{
+    reactor_index:uint8;
+    state:uint8;
+    action:string;
+    attack:Attack;
+}
+
+
 table APSave{
     hp_ap:uint32;
     mp_ap:uint32;

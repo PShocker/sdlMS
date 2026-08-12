@@ -1,6 +1,6 @@
 #include "../script.h"
 
-static void cab_ant_104() {
+static void cab_ant_104(std::any data) {
 
 };
 

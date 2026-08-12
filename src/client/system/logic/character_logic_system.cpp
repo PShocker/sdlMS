@@ -101,10 +101,11 @@ SDL_FRect character_logic_system::load_rect(game_character &g_character) {
   return rect;
 }
 
-std::optional<check_reactor>
-character_logic_system::run_reactor_check(game_character &g, SDL_FRect g_r) {
+check_reactors character_logic_system::run_reactor_check(game_character &g,
+                                                         SDL_FRect g_r) {
   auto &g_pos = g.pos;
-  std::flat_map<uint32_t, check_reactor> m;
+  std::vector<check_reactors::reactors> v;
+  std::flat_map<uint32_t, check_reactors::reactors> m;
   for (const auto &rs : reactor_game_instance::data) {
     for (const auto &r : rs) {
       SDL_FRect reactor_r;
@@ -128,10 +129,8 @@ character_logic_system::run_reactor_check(game_character &g, SDL_FRect g_r) {
       }
     }
   }
-  if (!m.empty()) {
-    return m.begin()->second;
-  }
-  return std::nullopt;
+  v.append_range(m.values());
+  return {v};
 }
 
 check_mobs character_logic_system::run_attack_check(game_character &g_character,
@@ -794,7 +793,17 @@ bool character_logic_system::run_attack(game_character &g_character) {
     load_sfx(g_character);
     // reactor
     auto rt = run_reactor_check(g_character, g_r);
-    if (rt.has_value()) {
+    if (!rt.data.empty()) {
+      auto &r = rt.data[0];
+      ClientReactorT crt;
+      crt.payload = std::make_unique<ReactorT>();
+      crt.payload->reactor_index = r.r.index;
+      crt.payload->attack = std::make_unique<AttackT>();
+      crt.payload->attack->x = r.x;
+      crt.payload->attack->y = r.y;
+      crt.payload->attack->delay = delay;
+      client_request::send_to_host(crt);
+      return true;
     }
 
     auto cm = run_attack_check(g_character, g_r);

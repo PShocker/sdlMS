@@ -1,6 +1,6 @@
 #include "../script.h"
 
-static void goldstein_111() {
+static void goldstein_111(std::any data) {
 
 };
 

@@ -321,7 +321,7 @@ void mob_logic_system::run_mv() {
   }
 }
 
-void mob_logic_system::run_revice(game_mob &g_mob) { g_mob.action = u""; }
+void mob_logic_system::run_revive(game_mob &g_mob) { g_mob.action = u""; }
 
 void mob_logic_system::run_state_machine(game_mob &g_mob) {
   auto action_type = load_action_type(g_mob.action);
@@ -330,7 +330,7 @@ void mob_logic_system::run_state_machine(game_mob &g_mob) {
   }
   if (run_animate(g_mob)) {
     if (action_type == action_enum::die) {
-      run_revice(g_mob);
+      run_revive(g_mob);
       return;
     }
   }

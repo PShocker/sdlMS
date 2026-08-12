@@ -26,17 +26,19 @@ struct check_mobs {
   std::vector<mobs> data;
 };
 
-struct check_reactor {
-  game_reactor r;
-  float x;
-  float y;
+struct check_reactors {
+  struct reactors {
+    game_reactor r;
+    float x;
+    float y;
+  };
+  std::vector<reactors> data;
 };
 
 class character_logic_system {
 private:
   static check_mobs run_shoot_check(game_character &g_character);
-  static std::optional<check_reactor> run_reactor_check(game_character &g,
-                                                        SDL_FRect g_r);
+  static check_reactors run_reactor_check(game_character &g, SDL_FRect g_r);
 
   static void run_climb_action(game_character &g_character);
   static void run_face_animate(game_character &g_character);

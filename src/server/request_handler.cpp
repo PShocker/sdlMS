@@ -5,6 +5,7 @@
 #include "server_instance/server_drop_instance.h"
 #include "server_instance/server_mob_instance.h"
 #include "server_instance/server_party_instance.h"
+#include "server_instance/server_reactor_instance.h"
 #include "server_instance/server_scene_instance.h"
 #include "server_system/server_heartbeat_system.h"
 #include "server_system_instance/server_system_instance.h"
@@ -177,6 +178,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_character_instance::handle_state(client_id, r);
     break;
   }
+  case NetPayload_ClientReactor: {
+    auto payload = packet->payload_as_ClientCharacterState();
+    fbs::ClientCharacterStateT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_state(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -195,6 +203,9 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
       }
       for (const auto &d : r.drops) {
         server_drop_instance::handle_server_scene_dt(*d);
+      }
+      for (const auto &r : r.reactors) {
+        server_reactor_instance::handle_s_reactor(*r);
       }
     } else {
       fade_system_instance::enter_in(scene_system_instance::enter_fade);
@@ -349,11 +360,25 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_character_instance::handle_server_state(client_id, r);
     break;
   }
-  case fbs::NetPayload_ServerDropFade: {
+  case NetPayload_ServerDropFade: {
     auto payload = packet->payload_as_ServerDropFade();
     fbs::ServerDropFadeT r;
     payload->UnPackTo(&r);
     server_drop_instance::handle_server_drop_fade(r);
+    break;
+  }
+  case NetPayload_ServerReactor: {
+    auto payload = packet->payload_as_ServerReactor();
+    fbs::ServerReactorT r;
+    payload->UnPackTo(&r);
+    server_reactor_instance::handle_server_reactor(client_id, r);
+    break;
+  }
+  case NetPayload_ServerReactorDrop: {
+    auto payload = packet->payload_as_ServerReactorDrop();
+    fbs::ServerReactorDropT r;
+    payload->UnPackTo(&r);
+    server_reactor_instance::handle_server_reactor_drop(r);
     break;
   }
   default:

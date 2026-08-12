@@ -24,7 +24,7 @@ static void state() {
   npc_dlg_ui_system::time = window::dt_now;
 }
 
-static void npc_8() {
+static void npc_8(std::any data) {
   npc_dlg_ui_system::close();
   npc_dlg_ui_system::open();
   npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::talk;

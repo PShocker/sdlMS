@@ -446,7 +446,7 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
           auto script_node = node->find(u"info/script/0/script");
           auto script_str =
               static_cast<wz::Property<std::u16string> *>(script_node)->get();
-          script::fns().at(script_str)();
+          script::fns().at(script_str)(nullptr);
           r = true;
           break;
         }

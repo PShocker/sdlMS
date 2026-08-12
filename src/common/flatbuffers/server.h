@@ -53,6 +53,10 @@ struct ServerMobDie;
 struct ServerMobDieBuilder;
 struct ServerMobDieT;
 
+struct ServerMobDrop;
+struct ServerMobDropBuilder;
+struct ServerMobDropT;
+
 struct ServerMobEvent;
 struct ServerMobEventBuilder;
 struct ServerMobEventT;
@@ -133,6 +137,10 @@ struct ServerReactor;
 struct ServerReactorBuilder;
 struct ServerReactorT;
 
+struct ServerReactorDrop;
+struct ServerReactorDropBuilder;
+struct ServerReactorDropT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -140,37 +148,40 @@ enum MobEventUnion : uint8_t {
   MobEventUnion_ServerMobAction = 3,
   MobEventUnion_ServerMobState = 4,
   MobEventUnion_ServerMobDie = 5,
+  MobEventUnion_ServerMobDrop = 6,
   MobEventUnion_MIN = MobEventUnion_NONE,
-  MobEventUnion_MAX = MobEventUnion_ServerMobDie
+  MobEventUnion_MAX = MobEventUnion_ServerMobDrop
 };
 
-inline const MobEventUnion (&EnumValuesMobEventUnion())[6] {
+inline const MobEventUnion (&EnumValuesMobEventUnion())[7] {
   static const MobEventUnion values[] = {
     MobEventUnion_NONE,
     MobEventUnion_ServerMobMv,
     MobEventUnion_ServerMobFlip,
     MobEventUnion_ServerMobAction,
     MobEventUnion_ServerMobState,
-    MobEventUnion_ServerMobDie
+    MobEventUnion_ServerMobDie,
+    MobEventUnion_ServerMobDrop
   };
   return values;
 }
 
 inline const char * const *EnumNamesMobEventUnion() {
-  static const char * const names[7] = {
+  static const char * const names[8] = {
     "NONE",
     "ServerMobMv",
     "ServerMobFlip",
     "ServerMobAction",
     "ServerMobState",
     "ServerMobDie",
+    "ServerMobDrop",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameMobEventUnion(MobEventUnion e) {
-  if (::flatbuffers::IsOutRange(e, MobEventUnion_NONE, MobEventUnion_ServerMobDie)) return "";
+  if (::flatbuffers::IsOutRange(e, MobEventUnion_NONE, MobEventUnion_ServerMobDrop)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesMobEventUnion()[index];
 }
@@ -199,6 +210,10 @@ template<> struct MobEventUnionTraits<fbs::ServerMobDie> {
   static const MobEventUnion enum_value = MobEventUnion_ServerMobDie;
 };
 
+template<> struct MobEventUnionTraits<fbs::ServerMobDrop> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobDrop;
+};
+
 template<typename T> struct MobEventUnionUnionTraits {
   static const MobEventUnion enum_value = MobEventUnion_NONE;
 };
@@ -221,6 +236,10 @@ template<> struct MobEventUnionUnionTraits<fbs::ServerMobStateT> {
 
 template<> struct MobEventUnionUnionTraits<fbs::ServerMobDieT> {
   static const MobEventUnion enum_value = MobEventUnion_ServerMobDie;
+};
+
+template<> struct MobEventUnionUnionTraits<fbs::ServerMobDropT> {
+  static const MobEventUnion enum_value = MobEventUnion_ServerMobDrop;
 };
 
 struct MobEventUnionUnion {
@@ -293,6 +312,14 @@ struct MobEventUnionUnion {
     return type == MobEventUnion_ServerMobDie ?
       reinterpret_cast<const fbs::ServerMobDieT *>(value) : nullptr;
   }
+  fbs::ServerMobDropT *AsServerMobDrop() {
+    return type == MobEventUnion_ServerMobDrop ?
+      reinterpret_cast<fbs::ServerMobDropT *>(value) : nullptr;
+  }
+  const fbs::ServerMobDropT *AsServerMobDrop() const {
+    return type == MobEventUnion_ServerMobDrop ?
+      reinterpret_cast<const fbs::ServerMobDropT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -347,6 +374,7 @@ struct ServerSceneT : public ::flatbuffers::NativeTable {
   std::vector<std::unique_ptr<fbs::PlayerT>> players{};
   std::vector<std::unique_ptr<fbs::MobT>> mobs{};
   std::vector<std::unique_ptr<fbs::DropT>> drops{};
+  std::vector<std::unique_ptr<fbs::ReactorT>> reactors{};
   ServerSceneT() = default;
   ServerSceneT(const ServerSceneT &o);
   ServerSceneT(ServerSceneT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -361,7 +389,8 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_FADE = 6,
     VT_PLAYERS = 8,
     VT_MOBS = 10,
-    VT_DROPS = 12
+    VT_DROPS = 12,
+    VT_REACTORS = 14
   };
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
@@ -393,6 +422,12 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *mutable_drops() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_DROPS);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>> *reactors() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>> *>(VT_REACTORS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>> *mutable_reactors() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>> *>(VT_REACTORS);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -407,6 +442,9 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_DROPS) &&
            verifier.VerifyVector(drops()) &&
            verifier.VerifyVectorOfTables(drops()) &&
+           VerifyOffset(verifier, VT_REACTORS) &&
+           verifier.VerifyVector(reactors()) &&
+           verifier.VerifyVectorOfTables(reactors()) &&
            verifier.EndTable();
   }
   ServerSceneT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -433,6 +471,9 @@ struct ServerSceneBuilder {
   void add_drops(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops) {
     fbb_.AddOffset(ServerScene::VT_DROPS, drops);
   }
+  void add_reactors(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>>> reactors) {
+    fbb_.AddOffset(ServerScene::VT_REACTORS, reactors);
+  }
   explicit ServerSceneBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -450,8 +491,10 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
     bool fade = false,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>>> mobs = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>>> reactors = 0) {
   ServerSceneBuilder builder_(_fbb);
+  builder_.add_reactors(reactors);
   builder_.add_drops(drops);
   builder_.add_mobs(mobs);
   builder_.add_players(players);
@@ -466,17 +509,20 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
     bool fade = false,
     const std::vector<::flatbuffers::Offset<fbs::Player>> *players = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::Mob>> *mobs = nullptr,
-    const std::vector<::flatbuffers::Offset<fbs::Drop>> *drops = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::Drop>> *drops = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::Reactor>> *reactors = nullptr) {
   auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>>(*players) : 0;
   auto mobs__ = mobs ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Mob>>(*mobs) : 0;
   auto drops__ = drops ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*drops) : 0;
+  auto reactors__ = reactors ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Reactor>>(*reactors) : 0;
   return fbs::CreateServerScene(
       _fbb,
       map_id,
       fade,
       players__,
       mobs__,
-      drops__);
+      drops__,
+      reactors__);
 }
 
 ::flatbuffers::Offset<ServerScene> CreateServerScene(::flatbuffers::FlatBufferBuilder &_fbb, const ServerSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -913,16 +959,72 @@ inline ::flatbuffers::Offset<ServerMobState> CreateServerMobStateDirect(
 struct ServerMobDieT : public ::flatbuffers::NativeTable {
   typedef ServerMobDie TableType;
   uint32_t mob_index = 0;
-  std::vector<std::unique_ptr<fbs::DropT>> drop{};
-  ServerMobDieT() = default;
-  ServerMobDieT(const ServerMobDieT &o);
-  ServerMobDieT(ServerMobDieT&&) FLATBUFFERS_NOEXCEPT = default;
-  ServerMobDieT &operator=(ServerMobDieT o) FLATBUFFERS_NOEXCEPT;
 };
 
 struct ServerMobDie FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ServerMobDieT NativeTableType;
   typedef ServerMobDieBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           verifier.EndTable();
+  }
+  ServerMobDieT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobDieT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobDie> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobDieBuilder {
+  typedef ServerMobDie Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(ServerMobDie::VT_MOB_INDEX, mob_index, 0);
+  }
+  explicit ServerMobDieBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobDie> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobDie>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0) {
+  ServerMobDieBuilder builder_(_fbb);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerMobDropT : public ::flatbuffers::NativeTable {
+  typedef ServerMobDrop TableType;
+  uint32_t mob_index = 0;
+  std::vector<std::unique_ptr<fbs::DropT>> drop{};
+  ServerMobDropT() = default;
+  ServerMobDropT(const ServerMobDropT &o);
+  ServerMobDropT(ServerMobDropT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobDropT &operator=(ServerMobDropT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobDropT NativeTableType;
+  typedef ServerMobDropBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MOB_INDEX = 4,
     VT_DROP = 6
@@ -948,54 +1050,54 @@ struct ServerMobDie FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyVectorOfTables(drop()) &&
            verifier.EndTable();
   }
-  ServerMobDieT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ServerMobDieT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ServerMobDie> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ServerMobDropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobDropT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobDrop> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ServerMobDieBuilder {
-  typedef ServerMobDie Table;
+struct ServerMobDropBuilder {
+  typedef ServerMobDrop Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_mob_index(uint32_t mob_index) {
-    fbb_.AddElement<uint32_t>(ServerMobDie::VT_MOB_INDEX, mob_index, 0);
+    fbb_.AddElement<uint32_t>(ServerMobDrop::VT_MOB_INDEX, mob_index, 0);
   }
   void add_drop(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drop) {
-    fbb_.AddOffset(ServerMobDie::VT_DROP, drop);
+    fbb_.AddOffset(ServerMobDrop::VT_DROP, drop);
   }
-  explicit ServerMobDieBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit ServerMobDropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<ServerMobDie> Finish() {
+  ::flatbuffers::Offset<ServerMobDrop> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ServerMobDie>(end);
+    auto o = ::flatbuffers::Offset<ServerMobDrop>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(
+inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t mob_index = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drop = 0) {
-  ServerMobDieBuilder builder_(_fbb);
+  ServerMobDropBuilder builder_(_fbb);
   builder_.add_drop(drop);
   builder_.add_mob_index(mob_index);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<ServerMobDie> CreateServerMobDieDirect(
+inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDropDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t mob_index = 0,
     const std::vector<::flatbuffers::Offset<fbs::Drop>> *drop = nullptr) {
   auto drop__ = drop ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*drop) : 0;
-  return fbs::CreateServerMobDie(
+  return fbs::CreateServerMobDrop(
       _fbb,
       mob_index,
       drop__);
 }
 
-::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct ServerMobEventT : public ::flatbuffers::NativeTable {
   typedef ServerMobEvent TableType;
@@ -2651,44 +2753,30 @@ inline ::flatbuffers::Offset<ServerDropFade> CreateServerDropFadeDirect(
 
 struct ServerReactorT : public ::flatbuffers::NativeTable {
   typedef ServerReactor TableType;
-  uint8_t reactor_index = 0;
-  uint8_t state = 0;
-  std::string action{};
+  std::unique_ptr<fbs::ReactorT> payload{};
+  ServerReactorT() = default;
+  ServerReactorT(const ServerReactorT &o);
+  ServerReactorT(ServerReactorT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerReactorT &operator=(ServerReactorT o) FLATBUFFERS_NOEXCEPT;
 };
 
 struct ServerReactor FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ServerReactorT NativeTableType;
   typedef ServerReactorBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_REACTOR_INDEX = 4,
-    VT_STATE = 6,
-    VT_ACTION = 8
+    VT_PAYLOAD = 4
   };
-  uint8_t reactor_index() const {
-    return GetField<uint8_t>(VT_REACTOR_INDEX, 0);
+  const fbs::Reactor *payload() const {
+    return GetPointer<const fbs::Reactor *>(VT_PAYLOAD);
   }
-  bool mutate_reactor_index(uint8_t _reactor_index = 0) {
-    return SetField<uint8_t>(VT_REACTOR_INDEX, _reactor_index, 0);
-  }
-  uint8_t state() const {
-    return GetField<uint8_t>(VT_STATE, 0);
-  }
-  bool mutate_state(uint8_t _state = 0) {
-    return SetField<uint8_t>(VT_STATE, _state, 0);
-  }
-  const ::flatbuffers::String *action() const {
-    return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
-  }
-  ::flatbuffers::String *mutable_action() {
-    return GetPointer<::flatbuffers::String *>(VT_ACTION);
+  fbs::Reactor *mutable_payload() {
+    return GetPointer<fbs::Reactor *>(VT_PAYLOAD);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint8_t>(verifier, VT_REACTOR_INDEX, 1) &&
-           VerifyField<uint8_t>(verifier, VT_STATE, 1) &&
-           VerifyOffset(verifier, VT_ACTION) &&
-           verifier.VerifyString(action()) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
            verifier.EndTable();
   }
   ServerReactorT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2700,14 +2788,8 @@ struct ServerReactorBuilder {
   typedef ServerReactor Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_reactor_index(uint8_t reactor_index) {
-    fbb_.AddElement<uint8_t>(ServerReactor::VT_REACTOR_INDEX, reactor_index, 0);
-  }
-  void add_state(uint8_t state) {
-    fbb_.AddElement<uint8_t>(ServerReactor::VT_STATE, state, 0);
-  }
-  void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
-    fbb_.AddOffset(ServerReactor::VT_ACTION, action);
+  void add_payload(::flatbuffers::Offset<fbs::Reactor> payload) {
+    fbb_.AddOffset(ServerReactor::VT_PAYLOAD, payload);
   }
   explicit ServerReactorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -2722,30 +2804,84 @@ struct ServerReactorBuilder {
 
 inline ::flatbuffers::Offset<ServerReactor> CreateServerReactor(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint8_t reactor_index = 0,
-    uint8_t state = 0,
-    ::flatbuffers::Offset<::flatbuffers::String> action = 0) {
+    ::flatbuffers::Offset<fbs::Reactor> payload = 0) {
   ServerReactorBuilder builder_(_fbb);
-  builder_.add_action(action);
-  builder_.add_state(state);
-  builder_.add_reactor_index(reactor_index);
+  builder_.add_payload(payload);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<ServerReactor> CreateServerReactorDirect(
+::flatbuffers::Offset<ServerReactor> CreateServerReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ServerReactorDropT : public ::flatbuffers::NativeTable {
+  typedef ServerReactorDrop TableType;
+  std::vector<std::unique_ptr<fbs::DropT>> payload{};
+  ServerReactorDropT() = default;
+  ServerReactorDropT(const ServerReactorDropT &o);
+  ServerReactorDropT(ServerReactorDropT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerReactorDropT &operator=(ServerReactorDropT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerReactorDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerReactorDropT NativeTableType;
+  typedef ServerReactorDropBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PAYLOAD = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ServerReactorDropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerReactorDropT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerReactorDrop> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerReactorDropBuilder {
+  typedef ServerReactorDrop Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> payload) {
+    fbb_.AddOffset(ServerReactorDrop::VT_PAYLOAD, payload);
+  }
+  explicit ServerReactorDropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerReactorDrop> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerReactorDrop>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerReactorDrop> CreateServerReactorDrop(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint8_t reactor_index = 0,
-    uint8_t state = 0,
-    const char *action = nullptr) {
-  auto action__ = action ? _fbb.CreateString(action) : 0;
-  return fbs::CreateServerReactor(
-      _fbb,
-      reactor_index,
-      state,
-      action__);
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> payload = 0) {
+  ServerReactorDropBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  return builder_.Finish();
 }
 
-::flatbuffers::Offset<ServerReactor> CreateServerReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+inline ::flatbuffers::Offset<ServerReactorDrop> CreateServerReactorDropDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<fbs::Drop>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*payload) : 0;
+  return fbs::CreateServerReactorDrop(
+      _fbb,
+      payload__);
+}
+
+::flatbuffers::Offset<ServerReactorDrop> CreateServerReactorDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
@@ -2779,6 +2915,8 @@ inline ServerSceneT::ServerSceneT(const ServerSceneT &o)
   for (const auto &mobs_ : o.mobs) { mobs.emplace_back((mobs_) ? new fbs::MobT(*mobs_) : nullptr); }
   drops.reserve(o.drops.size());
   for (const auto &drops_ : o.drops) { drops.emplace_back((drops_) ? new fbs::DropT(*drops_) : nullptr); }
+  reactors.reserve(o.reactors.size());
+  for (const auto &reactors_ : o.reactors) { reactors.emplace_back((reactors_) ? new fbs::ReactorT(*reactors_) : nullptr); }
 }
 
 inline ServerSceneT &ServerSceneT::operator=(ServerSceneT o) FLATBUFFERS_NOEXCEPT {
@@ -2787,6 +2925,7 @@ inline ServerSceneT &ServerSceneT::operator=(ServerSceneT o) FLATBUFFERS_NOEXCEP
   std::swap(players, o.players);
   std::swap(mobs, o.mobs);
   std::swap(drops, o.drops);
+  std::swap(reactors, o.reactors);
   return *this;
 }
 
@@ -2804,6 +2943,7 @@ inline void ServerScene::UnPackTo(ServerSceneT *_o, const ::flatbuffers::resolve
   { auto _e = players(); if (_e) { _o->players.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->players[_i]) { _e->Get(_i)->UnPackTo(_o->players[_i].get(), _resolver); } else { _o->players[_i] = std::unique_ptr<fbs::PlayerT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->players.resize(0); } }
   { auto _e = mobs(); if (_e) { _o->mobs.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->mobs[_i]) { _e->Get(_i)->UnPackTo(_o->mobs[_i].get(), _resolver); } else { _o->mobs[_i] = std::unique_ptr<fbs::MobT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->mobs.resize(0); } }
   { auto _e = drops(); if (_e) { _o->drops.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->drops[_i]) { _e->Get(_i)->UnPackTo(_o->drops[_i].get(), _resolver); } else { _o->drops[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->drops.resize(0); } }
+  { auto _e = reactors(); if (_e) { _o->reactors.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->reactors[_i]) { _e->Get(_i)->UnPackTo(_o->reactors[_i].get(), _resolver); } else { _o->reactors[_i] = std::unique_ptr<fbs::ReactorT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->reactors.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<ServerScene> CreateServerScene(::flatbuffers::FlatBufferBuilder &_fbb, const ServerSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2819,13 +2959,15 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
   auto _players = _o->players.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>> (_o->players.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayer(*__va->__fbb, __va->__o->players[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _mobs = _o->mobs.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Mob>> (_o->mobs.size(), [](size_t i, _VectorArgs *__va) { return CreateMob(*__va->__fbb, __va->__o->mobs[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _drops = _o->drops.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->drops.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->drops[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _reactors = _o->reactors.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Reactor>> (_o->reactors.size(), [](size_t i, _VectorArgs *__va) { return CreateReactor(*__va->__fbb, __va->__o->reactors[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerScene(
       _fbb,
       _map_id,
       _fade,
       _players,
       _mobs,
-      _drops);
+      _drops,
+      _reactors);
 }
 
 inline ServerCharacterInT::ServerCharacterInT(const ServerCharacterInT &o)
@@ -3050,18 +3192,6 @@ inline ::flatbuffers::Offset<ServerMobState> ServerMobState::Pack(::flatbuffers:
       _payload);
 }
 
-inline ServerMobDieT::ServerMobDieT(const ServerMobDieT &o)
-      : mob_index(o.mob_index) {
-  drop.reserve(o.drop.size());
-  for (const auto &drop_ : o.drop) { drop.emplace_back((drop_) ? new fbs::DropT(*drop_) : nullptr); }
-}
-
-inline ServerMobDieT &ServerMobDieT::operator=(ServerMobDieT o) FLATBUFFERS_NOEXCEPT {
-  std::swap(mob_index, o.mob_index);
-  std::swap(drop, o.drop);
-  return *this;
-}
-
 inline ServerMobDieT *ServerMobDie::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerMobDieT>(new ServerMobDieT());
   UnPackTo(_o.get(), _resolver);
@@ -3072,7 +3202,6 @@ inline void ServerMobDie::UnPackTo(ServerMobDieT *_o, const ::flatbuffers::resol
   (void)_o;
   (void)_resolver;
   { auto _e = mob_index(); _o->mob_index = _e; }
-  { auto _e = drop(); if (_e) { _o->drop.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->drop[_i]) { _e->Get(_i)->UnPackTo(_o->drop[_i].get(), _resolver); } else { _o->drop[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->drop.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDieT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3084,8 +3213,47 @@ inline ::flatbuffers::Offset<ServerMobDie> ServerMobDie::Pack(::flatbuffers::Fla
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobDieT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _mob_index = _o->mob_index;
-  auto _drop = _o->drop.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->drop.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->drop[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerMobDie(
+      _fbb,
+      _mob_index);
+}
+
+inline ServerMobDropT::ServerMobDropT(const ServerMobDropT &o)
+      : mob_index(o.mob_index) {
+  drop.reserve(o.drop.size());
+  for (const auto &drop_ : o.drop) { drop.emplace_back((drop_) ? new fbs::DropT(*drop_) : nullptr); }
+}
+
+inline ServerMobDropT &ServerMobDropT::operator=(ServerMobDropT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
+  std::swap(drop, o.drop);
+  return *this;
+}
+
+inline ServerMobDropT *ServerMobDrop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobDropT>(new ServerMobDropT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobDrop::UnPackTo(ServerMobDropT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = drop(); if (_e) { _o->drop.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->drop[_i]) { _e->Get(_i)->UnPackTo(_o->drop[_i].get(), _resolver); } else { _o->drop[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->drop.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobDrop> CreateServerMobDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobDrop::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobDrop> ServerMobDrop::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobDropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _drop = _o->drop.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->drop.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->drop[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerMobDrop(
       _fbb,
       _mob_index,
       _drop);
@@ -3861,6 +4029,15 @@ inline ::flatbuffers::Offset<ServerDropFade> ServerDropFade::Pack(::flatbuffers:
       _drop_ids);
 }
 
+inline ServerReactorT::ServerReactorT(const ServerReactorT &o)
+      : payload((o.payload) ? new fbs::ReactorT(*o.payload) : nullptr) {
+}
+
+inline ServerReactorT &ServerReactorT::operator=(ServerReactorT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
+  return *this;
+}
+
 inline ServerReactorT *ServerReactor::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerReactorT>(new ServerReactorT());
   UnPackTo(_o.get(), _resolver);
@@ -3870,9 +4047,7 @@ inline ServerReactorT *ServerReactor::UnPack(const ::flatbuffers::resolver_funct
 inline void ServerReactor::UnPackTo(ServerReactorT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = reactor_index(); _o->reactor_index = _e; }
-  { auto _e = state(); _o->state = _e; }
-  { auto _e = action(); if (_e) _o->action = _e->str(); }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::ReactorT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
 }
 
 inline ::flatbuffers::Offset<ServerReactor> CreateServerReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3883,14 +4058,46 @@ inline ::flatbuffers::Offset<ServerReactor> ServerReactor::Pack(::flatbuffers::F
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerReactorT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _reactor_index = _o->reactor_index;
-  auto _state = _o->state;
-  auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
+  auto _payload = _o->payload ? CreateReactor(_fbb, _o->payload.get(), _rehasher) : 0;
   return fbs::CreateServerReactor(
       _fbb,
-      _reactor_index,
-      _state,
-      _action);
+      _payload);
+}
+
+inline ServerReactorDropT::ServerReactorDropT(const ServerReactorDropT &o) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::DropT(*payload_) : nullptr); }
+}
+
+inline ServerReactorDropT &ServerReactorDropT::operator=(ServerReactorDropT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerReactorDropT *ServerReactorDrop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerReactorDropT>(new ServerReactorDropT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerReactorDrop::UnPackTo(ServerReactorDropT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerReactorDrop> CreateServerReactorDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerReactorDrop::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerReactorDrop> ServerReactorDrop::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerReactorDropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerReactorDrop(
+      _fbb,
+      _payload);
 }
 
 template <bool B>
@@ -3917,6 +4124,10 @@ inline bool VerifyMobEventUnion(::flatbuffers::VerifierTemplate<B> &verifier, co
     }
     case MobEventUnion_ServerMobDie: {
       auto ptr = reinterpret_cast<const fbs::ServerMobDie *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case MobEventUnion_ServerMobDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDrop *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;
@@ -3959,6 +4170,10 @@ inline void *MobEventUnionUnion::UnPack(const void *obj, MobEventUnion type, con
       auto ptr = reinterpret_cast<const fbs::ServerMobDie *>(obj);
       return ptr->UnPack(resolver);
     }
+    case MobEventUnion_ServerMobDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDrop *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -3986,6 +4201,10 @@ inline ::flatbuffers::Offset<void> MobEventUnionUnion::Pack(::flatbuffers::FlatB
       auto ptr = reinterpret_cast<const fbs::ServerMobDieT *>(value);
       return CreateServerMobDie(_fbb, ptr, _rehasher).Union();
     }
+    case MobEventUnion_ServerMobDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerMobDropT *>(value);
+      return CreateServerMobDrop(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -4010,6 +4229,10 @@ inline MobEventUnionUnion::MobEventUnionUnion(const MobEventUnionUnion &u) : typ
     }
     case MobEventUnion_ServerMobDie: {
       value = new fbs::ServerMobDieT(*reinterpret_cast<fbs::ServerMobDieT *>(u.value));
+      break;
+    }
+    case MobEventUnion_ServerMobDrop: {
+      value = new fbs::ServerMobDropT(*reinterpret_cast<fbs::ServerMobDropT *>(u.value));
       break;
     }
     default:
@@ -4041,6 +4264,11 @@ inline void MobEventUnionUnion::Reset() {
     }
     case MobEventUnion_ServerMobDie: {
       auto ptr = reinterpret_cast<fbs::ServerMobDieT *>(value);
+      delete ptr;
+      break;
+    }
+    case MobEventUnion_ServerMobDrop: {
+      auto ptr = reinterpret_cast<fbs::ServerMobDropT *>(value);
       delete ptr;
       break;
     }

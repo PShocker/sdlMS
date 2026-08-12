@@ -272,6 +272,12 @@ void server_mob_system::run_die(server_mob &mob) {
   mob.hate_id = 0;
   run_die_action(mob);
   ServerMobDieT smd;
+  smd.mob_index = mob.index;
+
+  MobEventUnionUnion muu;
+  muu.Set(std::move(smd));
+  events.payload.push_back(std::move(muu));
+
   auto mob_drops = load_mob_drops(mob);
   std::vector<DropT> dts;
   for (const auto &drop : mob_drops) {
@@ -301,16 +307,18 @@ void server_mob_system::run_die(server_mob &mob) {
     }
     dts.push_back(dt);
   }
-  smd.drop = server_drop_instance::create_dts(dts, map_id);
-  smd.mob_index = mob.index;
 
-  for (const auto &dt : smd.drop) {
+  ServerMobDropT smt;
+  smt.mob_index = mob.index;
+  smt.drop = server_drop_instance::create_dts(dts, map_id);
+  for (const auto &dt : smt.drop) {
     server_drop_instance::save_drop(map_id, *dt);
   }
 
-  MobEventUnionUnion muu;
-  muu.Set(std::move(smd));
-  events.payload.push_back(std::move(muu));
+  MobEventUnionUnion mu;
+  mu.Set(std::move(smt));
+  events.payload.push_back(std::move(mu));
+
   return;
 }
 

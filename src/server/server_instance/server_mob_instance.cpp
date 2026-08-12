@@ -146,11 +146,15 @@ void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
     };
     gain_log_game_instance::data.push_back(g_log);
   }
+  mob.attack_val = 0;
+}
+
+void server_mob_instance::handle_server_drop(const ServerMobDropT &m) {
   // Drop
   for (const auto &dt : m.drop) {
     server_drop_instance::handle_server_dt(*dt);
   }
-  mob.attack_val = 0;
+  return;
 }
 
 void server_mob_instance::handle_server_event(const ServerMobEventT &m) {
@@ -182,6 +186,11 @@ void server_mob_instance::handle_server_event(const ServerMobEventT &m) {
     case fbs::MobEventUnion_ServerMobDie: {
       const auto d = ev.AsServerMobDie();
       handle_server_die(*d);
+      break;
+    }
+    case fbs::MobEventUnion_ServerMobDrop: {
+      const auto d = ev.AsServerMobDrop();
+      handle_server_drop(*d);
       break;
     }
     default: {
@@ -231,7 +240,7 @@ void server_mob_instance::hanle_server_mob(
 
     auto action_type = mob_logic_system::load_action_type(mob.action);
     if (action_type == mob_logic_system::action_enum::die) {
-      mob_logic_system::run_revice(mob);
+      mob_logic_system::run_revive(mob);
     }
   } else {
     // summon mob

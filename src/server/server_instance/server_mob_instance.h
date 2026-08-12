@@ -29,5 +29,6 @@ public:
   static void handle_server_action(const ServerMobActionT &m);
   static void handle_server_state(const ServerMobStateT &m);
   static void handle_server_die(const ServerMobDieT &m);
+  static void handle_server_drop(const ServerMobDropT &m);
   static void handle_server_event(const ServerMobEventT &m);
 };

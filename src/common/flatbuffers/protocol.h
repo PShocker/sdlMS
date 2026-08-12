@@ -72,11 +72,12 @@ enum NetPayload : uint8_t {
   NetPayload_ServerCharacterState = 46,
   NetPayload_ServerDropFade = 47,
   NetPayload_ServerReactor = 48,
+  NetPayload_ServerReactorDrop = 49,
   NetPayload_MIN = NetPayload_NONE,
-  NetPayload_MAX = NetPayload_ServerReactor
+  NetPayload_MAX = NetPayload_ServerReactorDrop
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[49] {
+inline const NetPayload (&EnumValuesNetPayload())[50] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -126,13 +127,14 @@ inline const NetPayload (&EnumValuesNetPayload())[49] {
     NetPayload_ServerCharacterParty,
     NetPayload_ServerCharacterState,
     NetPayload_ServerDropFade,
-    NetPayload_ServerReactor
+    NetPayload_ServerReactor,
+    NetPayload_ServerReactorDrop
   };
   return values;
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[50] = {
+  static const char * const names[51] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -182,13 +184,14 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerCharacterState",
     "ServerDropFade",
     "ServerReactor",
+    "ServerReactorDrop",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameNetPayload(NetPayload e) {
-  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerReactor)) return "";
+  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerReactorDrop)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNetPayload()[index];
 }
@@ -389,6 +392,10 @@ template<> struct NetPayloadTraits<fbs::ServerReactor> {
   static const NetPayload enum_value = NetPayload_ServerReactor;
 };
 
+template<> struct NetPayloadTraits<fbs::ServerReactorDrop> {
+  static const NetPayload enum_value = NetPayload_ServerReactorDrop;
+};
+
 template<typename T> struct NetPayloadUnionTraits {
   static const NetPayload enum_value = NetPayload_NONE;
 };
@@ -583,6 +590,10 @@ template<> struct NetPayloadUnionTraits<fbs::ServerDropFadeT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerReactorT> {
   static const NetPayload enum_value = NetPayload_ServerReactor;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerReactorDropT> {
+  static const NetPayload enum_value = NetPayload_ServerReactorDrop;
 };
 
 struct NetPayloadUnion {
@@ -999,6 +1010,14 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerReactor ?
       reinterpret_cast<const fbs::ServerReactorT *>(value) : nullptr;
   }
+  fbs::ServerReactorDropT *AsServerReactorDrop() {
+    return type == NetPayload_ServerReactorDrop ?
+      reinterpret_cast<fbs::ServerReactorDropT *>(value) : nullptr;
+  }
+  const fbs::ServerReactorDropT *AsServerReactorDrop() const {
+    return type == NetPayload_ServerReactorDrop ?
+      reinterpret_cast<const fbs::ServerReactorDropT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -1169,6 +1188,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerReactor *payload_as_ServerReactor() const {
     return payload_type() == fbs::NetPayload_ServerReactor ? static_cast<const fbs::ServerReactor *>(payload()) : nullptr;
   }
+  const fbs::ServerReactorDrop *payload_as_ServerReactorDrop() const {
+    return payload_type() == fbs::NetPayload_ServerReactorDrop ? static_cast<const fbs::ServerReactorDrop *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::ClientHeartbeat *mutable_payload_as_ClientHeartbeat() {
     return payload_type() == fbs::NetPayload_ClientHeartbeat ? static_cast<fbs::ClientHeartbeat *>(mutable_payload()) : nullptr;
@@ -1313,6 +1335,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerReactor *mutable_payload_as_ServerReactor() {
     return payload_type() == fbs::NetPayload_ServerReactor ? static_cast<fbs::ServerReactor *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerReactorDrop *mutable_payload_as_ServerReactorDrop() {
+    return payload_type() == fbs::NetPayload_ServerReactorDrop ? static_cast<fbs::ServerReactorDrop *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -1714,6 +1739,14 @@ template<> inline fbs::ServerReactor *NetPacket::mutable_payload_as<fbs::ServerR
   return mutable_payload_as_ServerReactor();
 }
 
+template<> inline const fbs::ServerReactorDrop *NetPacket::payload_as<fbs::ServerReactorDrop>() const {
+  return payload_as_ServerReactorDrop();
+}
+
+template<> inline fbs::ServerReactorDrop *NetPacket::mutable_payload_as<fbs::ServerReactorDrop>() {
+  return mutable_payload_as_ServerReactorDrop();
+}
+
 struct NetPacketBuilder {
   typedef NetPacket Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
@@ -1974,6 +2007,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ServerReactor *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ServerReactorDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerReactorDrop *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     default: return true;
   }
 }
@@ -2186,6 +2223,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerReactor *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ServerReactorDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerReactorDrop *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -2385,6 +2426,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerReactorT *>(value);
       return CreateServerReactor(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ServerReactorDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerReactorDropT *>(value);
+      return CreateServerReactorDrop(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -2581,6 +2626,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ServerReactor: {
       value = new fbs::ServerReactorT(*reinterpret_cast<fbs::ServerReactorT *>(u.value));
+      break;
+    }
+    case NetPayload_ServerReactorDrop: {
+      value = new fbs::ServerReactorDropT(*reinterpret_cast<fbs::ServerReactorDropT *>(u.value));
       break;
     }
     default:
@@ -2827,6 +2876,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerReactor: {
       auto ptr = reinterpret_cast<fbs::ServerReactorT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerReactorDrop: {
+      auto ptr = reinterpret_cast<fbs::ServerReactorDropT *>(value);
       delete ptr;
       break;
     }

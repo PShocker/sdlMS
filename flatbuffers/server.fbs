@@ -12,6 +12,7 @@ table ServerScene {
     players:[Player];
     mobs:[Mob];
     drops:[Drop];
+    reactors:[Reactor];
 }
 
 table ServerCharacterIn {
@@ -44,6 +45,10 @@ table ServerMobState {
 
 table ServerMobDie {
     mob_index:uint32;
+}
+
+table ServerMobDrop {
+    mob_index:uint32;
     drop:[Drop];
 }
 
@@ -53,6 +58,7 @@ union MobEventUnion {
     ServerMobAction,
     ServerMobState,
     ServerMobDie,
+    ServerMobDrop,
 }
 
 table ServerMobEvent {
@@ -160,7 +166,9 @@ table ServerDropFade {
 }
 
 table ServerReactor {
-    reactor_index:uint8;
-    state:uint8;
-    action:string;
+    payload:Reactor;
+}
+
+table ServerReactorDrop {
+    payload:[Drop];
 }

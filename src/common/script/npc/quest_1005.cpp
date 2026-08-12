@@ -1,6 +1,6 @@
 #include "../script.h"
 
-static void quest_1005() {
+static void quest_1005(std::any data) {
 
 };
 

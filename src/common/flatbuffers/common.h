@@ -103,6 +103,10 @@ struct State;
 struct StateBuilder;
 struct StateT;
 
+struct Reactor;
+struct ReactorBuilder;
+struct ReactorT;
+
 struct APSave;
 struct APSaveBuilder;
 struct APSaveT;
@@ -2688,6 +2692,125 @@ inline ::flatbuffers::Offset<State> CreateState(
 
 ::flatbuffers::Offset<State> CreateState(::flatbuffers::FlatBufferBuilder &_fbb, const StateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ReactorT : public ::flatbuffers::NativeTable {
+  typedef Reactor TableType;
+  uint8_t reactor_index = 0;
+  uint8_t state = 0;
+  std::string action{};
+  std::unique_ptr<fbs::AttackT> attack{};
+  ReactorT() = default;
+  ReactorT(const ReactorT &o);
+  ReactorT(ReactorT&&) FLATBUFFERS_NOEXCEPT = default;
+  ReactorT &operator=(ReactorT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct Reactor FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ReactorT NativeTableType;
+  typedef ReactorBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_REACTOR_INDEX = 4,
+    VT_STATE = 6,
+    VT_ACTION = 8,
+    VT_ATTACK = 10
+  };
+  uint8_t reactor_index() const {
+    return GetField<uint8_t>(VT_REACTOR_INDEX, 0);
+  }
+  bool mutate_reactor_index(uint8_t _reactor_index = 0) {
+    return SetField<uint8_t>(VT_REACTOR_INDEX, _reactor_index, 0);
+  }
+  uint8_t state() const {
+    return GetField<uint8_t>(VT_STATE, 0);
+  }
+  bool mutate_state(uint8_t _state = 0) {
+    return SetField<uint8_t>(VT_STATE, _state, 0);
+  }
+  const ::flatbuffers::String *action() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_ACTION);
+  }
+  ::flatbuffers::String *mutable_action() {
+    return GetPointer<::flatbuffers::String *>(VT_ACTION);
+  }
+  const fbs::Attack *attack() const {
+    return GetPointer<const fbs::Attack *>(VT_ATTACK);
+  }
+  fbs::Attack *mutable_attack() {
+    return GetPointer<fbs::Attack *>(VT_ATTACK);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint8_t>(verifier, VT_REACTOR_INDEX, 1) &&
+           VerifyField<uint8_t>(verifier, VT_STATE, 1) &&
+           VerifyOffset(verifier, VT_ACTION) &&
+           verifier.VerifyString(action()) &&
+           VerifyOffset(verifier, VT_ATTACK) &&
+           verifier.VerifyTable(attack()) &&
+           verifier.EndTable();
+  }
+  ReactorT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ReactorT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Reactor> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ReactorT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ReactorBuilder {
+  typedef Reactor Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_reactor_index(uint8_t reactor_index) {
+    fbb_.AddElement<uint8_t>(Reactor::VT_REACTOR_INDEX, reactor_index, 0);
+  }
+  void add_state(uint8_t state) {
+    fbb_.AddElement<uint8_t>(Reactor::VT_STATE, state, 0);
+  }
+  void add_action(::flatbuffers::Offset<::flatbuffers::String> action) {
+    fbb_.AddOffset(Reactor::VT_ACTION, action);
+  }
+  void add_attack(::flatbuffers::Offset<fbs::Attack> attack) {
+    fbb_.AddOffset(Reactor::VT_ATTACK, attack);
+  }
+  explicit ReactorBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Reactor> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Reactor>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Reactor> CreateReactor(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t reactor_index = 0,
+    uint8_t state = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> action = 0,
+    ::flatbuffers::Offset<fbs::Attack> attack = 0) {
+  ReactorBuilder builder_(_fbb);
+  builder_.add_attack(attack);
+  builder_.add_action(action);
+  builder_.add_state(state);
+  builder_.add_reactor_index(reactor_index);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Reactor> CreateReactorDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint8_t reactor_index = 0,
+    uint8_t state = 0,
+    const char *action = nullptr,
+    ::flatbuffers::Offset<fbs::Attack> attack = 0) {
+  auto action__ = action ? _fbb.CreateString(action) : 0;
+  return fbs::CreateReactor(
+      _fbb,
+      reactor_index,
+      state,
+      action__,
+      attack);
+}
+
+::flatbuffers::Offset<Reactor> CreateReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct APSaveT : public ::flatbuffers::NativeTable {
   typedef APSave TableType;
   uint32_t hp_ap = 0;
@@ -4565,6 +4688,56 @@ inline ::flatbuffers::Offset<State> State::Pack(::flatbuffers::FlatBufferBuilder
       _state,
       _val,
       _sub_val);
+}
+
+inline ReactorT::ReactorT(const ReactorT &o)
+      : reactor_index(o.reactor_index),
+        state(o.state),
+        action(o.action),
+        attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr) {
+}
+
+inline ReactorT &ReactorT::operator=(ReactorT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(reactor_index, o.reactor_index);
+  std::swap(state, o.state);
+  std::swap(action, o.action);
+  std::swap(attack, o.attack);
+  return *this;
+}
+
+inline ReactorT *Reactor::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ReactorT>(new ReactorT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Reactor::UnPackTo(ReactorT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = reactor_index(); _o->reactor_index = _e; }
+  { auto _e = state(); _o->state = _e; }
+  { auto _e = action(); if (_e) _o->action = _e->str(); }
+  { auto _e = attack(); if (_e) { if(_o->attack) { _e->UnPackTo(_o->attack.get(), _resolver); } else { _o->attack = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->attack) { _o->attack.reset(); } }
+}
+
+inline ::flatbuffers::Offset<Reactor> CreateReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Reactor::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Reactor> Reactor::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ReactorT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ReactorT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _reactor_index = _o->reactor_index;
+  auto _state = _o->state;
+  auto _action = _o->action.empty() ? 0 : _fbb.CreateString(_o->action);
+  auto _attack = _o->attack ? CreateAttack(_fbb, _o->attack.get(), _rehasher) : 0;
+  return fbs::CreateReactor(
+      _fbb,
+      _reactor_index,
+      _state,
+      _action,
+      _attack);
 }
 
 inline APSaveT *APSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

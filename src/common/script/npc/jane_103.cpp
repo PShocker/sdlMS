@@ -1,6 +1,6 @@
 #include "../script.h"
 
-static void jane_103() {
+static void jane_103(std::any data) {
 
 };
 

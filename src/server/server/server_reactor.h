@@ -9,6 +9,11 @@ class server_reactor {
 public:
   std::u16string id;
   uint32_t index;
+
   SDL_FPoint pos;
-  uint8_t act;
+
+  uint8_t state;
+  uint64_t hit_cd;
+
+  uint64_t revive = 0; // 刷新时间
 };

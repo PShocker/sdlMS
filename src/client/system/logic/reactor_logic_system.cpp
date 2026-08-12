@@ -2,6 +2,7 @@
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_reactor_instance.h"
 #include "wz/Property.h"
 #include "wz/Wz.h"
 #include <ranges>
@@ -40,7 +41,7 @@ bool reactor_logic_system::run() {
   for (auto &rs : reactor_game_instance::data) {
     for (auto &r : rs) {
       if (run_animate(r)) {
-        r.state += 1;
+        r.state = server_reactor_instance::load_next_state(r.id, r.state);
         r.ani_index = 0;
         r.ani_time = 0;
         r.hit = false;
