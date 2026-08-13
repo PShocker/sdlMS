@@ -8,7 +8,7 @@ void character_stat_game_instance::load(const character_save &cs) {
   int_point = cs.ap.int_ap;
   luk_point = cs.ap.luk_ap;
 
-  hp_point = 100;
+  hp_point = 20;
   hp_point_max = 100;
 
   mp_point = 20;

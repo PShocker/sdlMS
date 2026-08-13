@@ -1,4 +1,5 @@
 #include "game_instance/character_game_instance.h"
+#include "game_instance/character_stat_game_instance.h"
 #include "game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -71,8 +72,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   SDL_HideCursor();
   character_save cs;
   package_game_instance::load(cs);
+  character_stat_game_instance::load(cs);
 
-  scene_system_instance::enter_prepare(1010, u"sp", 0);
+  scene_system_instance::enter_prepare(61, u"sp", 0);
   // scene_system_instance::prepare_pos = {1930, -188};
   // character_create_system_instance::enter();
   // login_system_instance::enter();

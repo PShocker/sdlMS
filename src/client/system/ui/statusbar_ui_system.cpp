@@ -54,6 +54,10 @@ void statusbar_ui_system::render_hm_alert() {
   auto hp_percent_now = (float)hp / max_hp;
   static auto hp_percent = hp_percent_now;
   hp_percent = std::lerp(hp_percent, hp_percent_now, 0.05);
+  auto diff = std::abs(hp_percent - hp_percent_now);
+  if (diff < std::pow(10, -4)) {
+    hp_percent = hp_percent_now;
+  }
   if (hp_percent_now < hp_percent && hp_percent <= 0.3) {
     auto now = window::dt_now;
     auto sum = 5 * 130;
@@ -76,6 +80,10 @@ void statusbar_ui_system::render_hm_alert() {
   auto mp_percent_now = (float)mp / max_mp;
   static auto mp_percent = mp_percent_now;
   mp_percent = std::lerp(mp_percent, mp_percent_now, 0.05);
+  diff = std::abs(mp_percent - mp_percent_now);
+  if (diff < std::pow(10, -4)) {
+    mp_percent = mp_percent_now;
+  }
   if (mp_percent_now < mp_percent && mp_percent <= 0.3) {
     auto now = window::dt_now;
     auto sum = 5 * 130;
@@ -518,8 +526,8 @@ bool statusbar_ui_system::render() {
   render_backgrnd();
   render_chat();
   render_button();
-  render_hm_alert();
   render_character_stat();
+  render_hm_alert();
   render_back_chat();
   return true;
 }

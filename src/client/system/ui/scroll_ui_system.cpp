@@ -94,8 +94,8 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
 
   // thumb
   float percent = (float)val / (count - size);
-  auto h = percent * (length - prev->h * 2) - thumb0->h / 2;
-  h = std::clamp(h, 0.0f, float(length - prev->h * 2 - thumb0->h));
+  // percent = 1;
+  auto h = percent * (length - prev->h * 2 - thumb0->h);
   pos_rect = {static_cast<float>((int)x),
               static_cast<float>(int(y + prev->h + h)),
               static_cast<float>(thumb0->w), static_cast<float>(thumb0->h)};
@@ -132,8 +132,12 @@ uint32_t scroll_ui_system::click_vscroll(float x, float y, uint32_t val,
       return val;
     }
   }
-  pos_rect = {x, y + 13, static_cast<float>(15),
-              static_cast<float>(length - 26)};
+  pos_rect = {
+      x,
+      y + 13,
+      static_cast<float>(15),
+      static_cast<float>(length - 26),
+  };
   if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
     auto dy = window::mouse_pos.y - pos_rect.y;
     float percent = (float)dy / pos_rect.h;

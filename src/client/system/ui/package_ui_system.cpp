@@ -294,15 +294,29 @@ void package_ui_system::render_items() {
   const size_t start_index = static_cast<size_t>(page) * slots_per_row;
   const size_t end_index = std::min(start_index + items_per_page, items.size());
 
-  for (size_t i = start_index; i < end_index; ++i) {
-    auto &item = items[i];
-    if (item->id.empty())
-      continue;
-
+  for (size_t i = start_index; i < start_index + 30; ++i) {
     // 计算行列
     const size_t local_index = i - start_index;
     const int row = local_index / slots_per_row;
     const int col = local_index % slots_per_row;
+    if (i >= items.size()) {
+      auto x = pos.x + slot_pos.x + col * (slot_size + slot_space_x);
+      auto y = pos.y + slot_pos.y + row * (slot_size + slot_space_y);
+
+      auto icon = wz_resource::load_texture(
+          wz_resource::ui->find(u"Item.img/canvas:disabled"));
+      SDL_FRect pos_rect{
+          std::floor(x),
+          std::floor(y),
+          static_cast<float>(icon->w),
+          static_cast<float>(icon->h),
+      };
+      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      continue;
+    }
+    auto &item = items[i];
+    if (item->id.empty())
+      continue;
 
     wz::Node *info;
     // 加载信息

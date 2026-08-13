@@ -12,7 +12,7 @@ void package_game_instance::load(const character_save &cs) {
   data[(int)item_enum::equip].assign(
       96, std::polymorphic<game_item>(game_equip_item{}));
   data[(int)item_enum::consume].assign(
-      96, std::polymorphic<game_item>(game_consume_item{}));
+      2, std::polymorphic<game_item>(game_consume_item{}));
   data[(int)item_enum::install].assign(
       96, std::polymorphic<game_item>(game_install_item{}));
   data[(int)item_enum::etc].assign(

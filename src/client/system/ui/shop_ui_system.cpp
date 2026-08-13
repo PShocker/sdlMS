@@ -50,10 +50,24 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
   game_shop_item *item_info = nullptr;
   const auto page_size = 6;
   for (int i = page; i < page + page_size; i++) {
+    auto x = (int)pos.x + p.x;
+    auto y = (int)pos.y + p.y + (i - page) * 40;
     if (i >= items.size()) {
-      break;
+      auto icon = wz_resource::load_texture(
+          wz_resource::ui->find(u"Item.img/canvas:disabled"));
+      SDL_FRect pos_rect{
+          std::floor(x),
+          std::floor(y),
+          static_cast<float>(icon->w),
+          static_cast<float>(icon->h),
+      };
+      SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      continue;
     }
     auto &item = items[i];
+    if (item.item->id.empty()) {
+      continue;
+    }
     SDL_Texture *texture;
     std::u16string item_name;
     if (item_game_instance::check_item(item.item->id)) {
@@ -67,8 +81,7 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
       item_name = equip_game_instance::load_equip_name(item.item->id);
     }
     SDL_FRect pos_rect;
-    auto x = (int)pos.x + p.x;
-    auto y = (int)pos.y + p.y + (i - page) * 40;
+
     pos_rect.x = x + (36 - texture->w) / 2;
     pos_rect.y = y + (36 - texture->h) / 2;
     pos_rect.w = texture->w;
@@ -87,7 +100,7 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
     }
 
     pos_rect.w = 202;
-    pos_rect.h = 238;
+    pos_rect.h = 35;
     const auto &mouse_pos = window::mouse_pos;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       item_info = &item;
@@ -127,6 +140,7 @@ std::vector<std::polymorphic<game_item> *> shop_ui_system::load_pkg_items() {
       items.push_back(&itm);
     }
   }
+  items.resize(r.size());
   return items;
 }
 
@@ -134,9 +148,14 @@ void shop_ui_system::render_pkg_items() {
   std::vector<game_shop_item> items;
   auto its = load_pkg_items();
   for (auto &itm : its) {
-    auto item = shop_game_instance::load_shop_item((*itm)->id);
-    item.item = *itm;
-    items.push_back(std::move(item));
+    if (itm != nullptr) {
+      auto item = shop_game_instance::load_shop_item((*itm)->id);
+      item.item = *itm;
+      items.push_back(std::move(item));
+    } else {
+      game_shop_item item;
+      items.push_back(item);
+    }
   }
   render_item(items, pages[1], {238, 129});
 }
