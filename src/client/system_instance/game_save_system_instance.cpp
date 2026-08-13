@@ -105,6 +105,25 @@ bool game_save_system_instance::load_save(const std::string &login) {
       }
       save.characters.push_back(std::move(cs));
     }
+    for (const auto &s : gst.data->storage) {
+      switch (s.type) {
+      case fbs::ItemUnion_Equip: {
+        auto eqp = s.AsEquip();
+        game_equip_item g_equip;
+        auto tmp = std::format("{:08d}", eqp->equip_id);
+        g_equip.id = {tmp.begin(), tmp.end()};
+        auto g_item = std::polymorphic<game_item>(
+            std::in_place_type<game_equip_item>, g_equip);
+        break;
+      }
+      case fbs::ItemUnion_Item: {
+        break;
+      }
+      default:{
+        break;
+      }
+      }
+    }
     SDL_free(data);
     return true;
   }

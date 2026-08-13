@@ -40,6 +40,60 @@
 #include <string>
 #include <vector>
 
+void statusbar_ui_system::render_hm_alert() {
+  static auto backgrnd = wz_resource::load_texture(
+      wz_resource::ui->find(u"StatusBar.img/backgrnd2"));
+
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - backgrnd->w) / 2;
+  auto base_y = (screen_h - backgrnd->h);
+
+  auto hp = character_stat_game_instance::hp_point;
+  auto max_hp = character_stat_game_instance::hp_point_max;
+  auto hp_percent_now = (float)hp / max_hp;
+  static auto hp_percent = hp_percent_now;
+  hp_percent = std::lerp(hp_percent, hp_percent_now, 0.05);
+  if (hp_percent_now < hp_percent && hp_percent <= 0.3) {
+    auto now = window::dt_now;
+    auto sum = 5 * 130;
+    auto offset = now % sum; // 取余，得到周期内偏移
+    auto i = offset / 130;
+    auto node = wz_resource::ui->find(u"StatusBar.img/alertHP");
+    node = node->get_child(std::to_string(i));
+    auto icon = wz_resource::load_texture(node);
+    SDL_FRect pos_rect{
+        base_x + 223,
+        base_y + 54,
+        static_cast<float>(icon->w),
+        static_cast<float>(icon->h),
+    };
+    SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+  }
+
+  auto mp = character_stat_game_instance::mp_point;
+  auto max_mp = character_stat_game_instance::mp_point_max;
+  auto mp_percent_now = (float)mp / max_mp;
+  static auto mp_percent = mp_percent_now;
+  mp_percent = std::lerp(mp_percent, mp_percent_now, 0.05);
+  if (mp_percent_now < mp_percent && mp_percent <= 0.3) {
+    auto now = window::dt_now;
+    auto sum = 5 * 130;
+    auto offset = now % sum; // 取余，得到周期内偏移
+    auto i = offset / 130;
+    auto node = wz_resource::ui->find(u"StatusBar.img/alertMP");
+    node = node->get_child(std::to_string(i));
+    auto icon = wz_resource::load_texture(node);
+    SDL_FRect pos_rect{
+        base_x + 331,
+        base_y + 54,
+        static_cast<float>(icon->w),
+        static_cast<float>(icon->h),
+    };
+    SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+  }
+}
+
 void statusbar_ui_system::render_backgrnd() {
   static auto backgrnd = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/backgrnd2"));
@@ -464,6 +518,7 @@ bool statusbar_ui_system::render() {
   render_backgrnd();
   render_chat();
   render_button();
+  render_hm_alert();
   render_character_stat();
   render_back_chat();
   return true;

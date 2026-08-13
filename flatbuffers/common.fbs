@@ -252,6 +252,7 @@ table CharacterSave{
 
 table PlayerSave{
     data:[CharacterSave];
+    storage:[ItemUnion];
 }
 
 table GameSave{

@@ -14,6 +14,7 @@
 
 class statusbar_ui_system {
 private:
+  static void render_hm_alert();
   static void render_gauge_text();
   static void render_backgrnd();
   static void render_button();
