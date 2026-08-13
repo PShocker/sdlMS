@@ -140,7 +140,6 @@ std::vector<std::polymorphic<game_item> *> shop_ui_system::load_pkg_items() {
       items.push_back(&itm);
     }
   }
-  items.resize(r.size());
   return items;
 }
 
@@ -157,6 +156,11 @@ void shop_ui_system::render_pkg_items() {
       items.push_back(item);
     }
   }
+  auto &r = package_game_instance::data[active_tab[1]];
+  if (items.size() < 6) {
+    auto min = std::min(items.size() + 6, r.size());
+    items.resize(min);
+  }
   render_item(items, pages[1], {238, 129});
 }
 
@@ -166,6 +170,9 @@ void shop_ui_system::render_items() {
     render_item(items, pages[0], {8, 129});
   } else {
     auto items = must;
+    if (items.size() < 6) {
+      items.resize(6);
+    }
     render_item(items, pages[0], {8, 129});
   }
 }
