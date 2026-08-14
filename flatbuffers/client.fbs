@@ -60,7 +60,6 @@ table ClientCharacterTrade {
    step:uint8;
    to_id:uint64;
    payload:[ItemUnion];
-   confirm:bool;
 }
 
 table ClientCharacterState {
@@ -96,7 +95,6 @@ table ClientCharacterFc {
 table ClientCharacterParty {
     step:uint8;
     to_id:uint64;
-    confirm:bool;
 }
 
 table ClientReactor {

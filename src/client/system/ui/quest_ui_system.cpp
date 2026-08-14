@@ -122,6 +122,35 @@ void quest_ui_system::render_quest_detail() {
   freetype::load_bold(false);
 }
 
+void quest_ui_system::render_tab() {
+  const static std::array tab_pos = {
+      SDL_FPoint{7, 96},  //
+      SDL_FPoint{64, 96}, //
+  };
+  const static auto tab_node =
+      wz_resource::ui->find(u"Quest.img/Quest/list/Tab");
+  const static std::array active_texture = {
+      wz_resource::load_texture(tab_node->find(u"enabled/0")),
+      wz_resource::load_texture(tab_node->find(u"enabled/1")),
+      wz_resource::load_texture(tab_node->find(u"enabled/2")),
+  };
+  const static std::array disabled_texture = {
+      wz_resource::load_texture(tab_node->find(u"disabled/0")),
+      wz_resource::load_texture(tab_node->find(u"disabled/1")),
+      wz_resource::load_texture(tab_node->find(u"disabled/2")),
+  };
+  for (uint8_t i = 0; i < tab_pos.size(); i++) {
+    SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
+    SDL_FRect pos_rect{
+        static_cast<float>(int(pos.x + tab_pos[i].x)),
+        static_cast<float>(int(pos.y + tab_pos[i].y)),
+        static_cast<float>(t->w),
+        static_cast<float>(t->h),
+    };
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  }
+}
+
 bool quest_ui_system::render() {
   render_backgrnd();
   render_button();

@@ -12,9 +12,8 @@
 #include "wz/Node.h"
 #include <string>
 
-void popup_tip_ui_system::render_backgrnd(int i) {
+void popup_tip_ui_system::render_backgrnd(game_popup_tip &t) {
   SDL_Texture *texture;
-  auto t = popup_tip_game_instance::data[i];
   switch (t.type) {
   case popup_tip_enums::trade: {
     static auto texture = wz_resource::load_texture(
@@ -29,15 +28,14 @@ void popup_tip_ui_system::render_backgrnd(int i) {
   }
   SDL_FRect pos_rect{
       pos.x,
-      pos.y - 46 * i,
+      pos.y,
       static_cast<float>(texture->w),
       static_cast<float>(texture->h),
   };
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
-void popup_tip_ui_system::render_text(int i) {
-  auto t = popup_tip_game_instance::data[i];
+void popup_tip_ui_system::render_text(game_popup_tip &t) {
   SDL_FPoint p;
   std::u16string text;
   switch (t.type) {
@@ -56,11 +54,10 @@ void popup_tip_ui_system::render_text(int i) {
   freetype::draw_str(text, p.x + pos.x, p.y + pos.y, 100, 1.3);
 }
 
-void popup_tip_ui_system::render_button(int i) {
+void popup_tip_ui_system::render_button(game_popup_tip &t) {
   // 构建按钮列表
   std::vector<wz::Node *> nodes = {};
   std::vector<SDL_FRect> rects = {};
-  auto t = popup_tip_game_instance::data[i];
   switch (t.type) {
   case popup_tip_enums::trade: {
     nodes = {};
@@ -97,49 +94,54 @@ void popup_tip_ui_system::render_button(int i) {
 }
 
 bool popup_tip_ui_system::render() {
-  for (int i = 0; i < popup_tip_game_instance::data.size(); i++) {
-    render_backgrnd(i);
-    render_button(i);
+  for (auto &t : popup_tip_game_instance::data) {
+    render_backgrnd(t);
+    render_button(t);
   }
   return true;
 }
 
-void popup_tip_ui_system::event_button_party(int i) {
-  auto t = popup_tip_game_instance::data[i];
+void popup_tip_ui_system::event_button_party(game_popup_tip &t) {
   ClientCharacterPartyT ccp;
   ccp.step = 1;
-  ccp.confirm = true;
   client_request::send_to_host(ccp);
   return;
 }
 
-void popup_tip_ui_system::event_button_trade(int i) {}
+void popup_tip_ui_system::event_button_trade(game_popup_tip &t) {}
 
-void popup_tip_ui_system::event_button_ok(int i) {
-  auto t = popup_tip_game_instance::data[i];
+void popup_tip_ui_system::event_button_ok(game_popup_tip &t) {
   switch (t.type) {
   case popup_tip_enums::trade: {
-    event_button_trade(i);
+    event_button_trade(t);
     break;
   }
   case popup_tip_enums::party: {
-    event_button_party(i);
+    event_button_party(t);
     break;
   }
   }
 }
 
-void popup_tip_ui_system::event_button_cancel(int i) {
-  popup_tip_game_instance::data.erase(popup_tip_game_instance::data.begin() +
-                                      i);
+void popup_tip_ui_system::event_button_cancel(game_popup_tip &t) {
+  auto &data = popup_tip_game_instance::data;
+  std::erase_if(data, [t](const auto &tip) { return t.type == tip.type; });
 }
 
 bool popup_tip_ui_system::event_button(SDL_Event *event) {
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
+
   std::vector<SDL_FRect> buttons_rect;
-  std::vector<void (*)(int)> fns = {event_button_ok, event_button_cancel};
+  std::vector<void (*)(game_popup_tip &)> fns = {
+      event_button_ok,
+      event_button_cancel,
+  };
 
   for (int i = 0; i < popup_tip_game_instance::data.size(); i++) {
-    auto t = popup_tip_game_instance::data[i];
+    auto &t = popup_tip_game_instance::data[i];
     switch (t.type) {
     case popup_tip_enums::trade: {
       break;
@@ -148,20 +150,14 @@ bool popup_tip_ui_system::event_button(SDL_Event *event) {
       break;
     }
     }
-  }
-
-  auto screen_w = camera_game_instance::camera.w;
-  auto screen_h = camera_game_instance::camera.h;
-  auto base_x = (screen_w - 808) / 2;
-  auto base_y = (screen_h - 73);
-
-  for (size_t i = 0; i < buttons_rect.size(); ++i) {
-    auto pos_rect = buttons_rect[i];
-    pos_rect.x += base_x;
-    pos_rect.y += base_y;
-    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-      fns[i](i);
-      return true;
+    for (size_t i = 0; i < buttons_rect.size(); ++i) {
+      auto pos_rect = buttons_rect[i];
+      pos_rect.x += base_x;
+      pos_rect.y += base_y;
+      if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+        fns[i](t);
+        return true;
+      }
     }
   }
   return false;

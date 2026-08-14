@@ -41,7 +41,6 @@ void server_party_instance::handle_party(uint64_t client_id,
     ServerCharacterPartyT scp;
     scp.to_id = captain_id;
     scp.step = 1;
-    scp.confirm = false;
     const auto captain_t = server_client_instance::clients[captain_id].player_t;
     scp.players.push_back(std::make_unique<PlayerT>(captain_t));
     for (auto c_id : party.client_ids) {
@@ -49,7 +48,7 @@ void server_party_instance::handle_party(uint64_t client_id,
       scp.players.push_back(std::make_unique<PlayerT>(player_t));
       server_response::send_to_client(c_id, scp);
     }
-    scp.confirm = true;
+    scp.to_id = 0;
     server_response::send_to_client(captain_id, scp);
     return;
   }
@@ -73,7 +72,7 @@ void server_party_instance::handle_server_party(uint64_t client_id,
   case 1: {
     party_game_instance::data = {};
     auto &pt = party_game_instance::data.value();
-    pt.captain_id = r.confirm ? 0 : r.to_id;
+    pt.captain_id = r.to_id;
     for (const auto &p : r.players) {
       pt.clients.push_back(*p);
     }

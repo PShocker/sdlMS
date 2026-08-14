@@ -920,7 +920,6 @@ struct ClientCharacterTradeT : public ::flatbuffers::NativeTable {
   uint8_t step = 0;
   uint64_t to_id = 0;
   std::vector<fbs::ItemUnionUnion> payload{};
-  bool confirm = false;
 };
 
 struct ClientCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -930,8 +929,7 @@ struct ClientCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
     VT_STEP = 4,
     VT_TO_ID = 6,
     VT_PAYLOAD_TYPE = 8,
-    VT_PAYLOAD = 10,
-    VT_CONFIRM = 12
+    VT_PAYLOAD = 10
   };
   uint8_t step() const {
     return GetField<uint8_t>(VT_STEP, 0);
@@ -957,12 +955,6 @@ struct ClientCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   ::flatbuffers::Vector<::flatbuffers::Offset<void>> *mutable_payload() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<void>> *>(VT_PAYLOAD);
   }
-  bool confirm() const {
-    return GetField<uint8_t>(VT_CONFIRM, 0) != 0;
-  }
-  bool mutate_confirm(bool _confirm = 0) {
-    return SetField<uint8_t>(VT_CONFIRM, static_cast<uint8_t>(_confirm), 0);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -973,7 +965,6 @@ struct ClientCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
            VerifyItemUnionVector(verifier, payload(), payload_type()) &&
-           VerifyField<uint8_t>(verifier, VT_CONFIRM, 1) &&
            verifier.EndTable();
   }
   ClientCharacterTradeT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -997,9 +988,6 @@ struct ClientCharacterTradeBuilder {
   void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload) {
     fbb_.AddOffset(ClientCharacterTrade::VT_PAYLOAD, payload);
   }
-  void add_confirm(bool confirm) {
-    fbb_.AddElement<uint8_t>(ClientCharacterTrade::VT_CONFIRM, static_cast<uint8_t>(confirm), 0);
-  }
   explicit ClientCharacterTradeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1016,13 +1004,11 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTrade(
     uint8_t step = 0,
     uint64_t to_id = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> payload_type = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0,
-    bool confirm = false) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0) {
   ClientCharacterTradeBuilder builder_(_fbb);
   builder_.add_to_id(to_id);
   builder_.add_payload(payload);
   builder_.add_payload_type(payload_type);
-  builder_.add_confirm(confirm);
   builder_.add_step(step);
   return builder_.Finish();
 }
@@ -1032,8 +1018,7 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTradeDir
     uint8_t step = 0,
     uint64_t to_id = 0,
     const std::vector<uint8_t> *payload_type = nullptr,
-    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr,
-    bool confirm = false) {
+    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr) {
   auto payload_type__ = payload_type ? _fbb.CreateVector<uint8_t>(*payload_type) : 0;
   auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<void>>(*payload) : 0;
   return fbs::CreateClientCharacterTrade(
@@ -1041,8 +1026,7 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTradeDir
       step,
       to_id,
       payload_type__,
-      payload__,
-      confirm);
+      payload__);
 }
 
 ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1513,7 +1497,6 @@ struct ClientCharacterPartyT : public ::flatbuffers::NativeTable {
   typedef ClientCharacterParty TableType;
   uint8_t step = 0;
   uint64_t to_id = 0;
-  bool confirm = false;
 };
 
 struct ClientCharacterParty FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1521,8 +1504,7 @@ struct ClientCharacterParty FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   typedef ClientCharacterPartyBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_STEP = 4,
-    VT_TO_ID = 6,
-    VT_CONFIRM = 8
+    VT_TO_ID = 6
   };
   uint8_t step() const {
     return GetField<uint8_t>(VT_STEP, 0);
@@ -1536,18 +1518,11 @@ struct ClientCharacterParty FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   bool mutate_to_id(uint64_t _to_id = 0) {
     return SetField<uint64_t>(VT_TO_ID, _to_id, 0);
   }
-  bool confirm() const {
-    return GetField<uint8_t>(VT_CONFIRM, 0) != 0;
-  }
-  bool mutate_confirm(bool _confirm = 0) {
-    return SetField<uint8_t>(VT_CONFIRM, static_cast<uint8_t>(_confirm), 0);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_STEP, 1) &&
            VerifyField<uint64_t>(verifier, VT_TO_ID, 8) &&
-           VerifyField<uint8_t>(verifier, VT_CONFIRM, 1) &&
            verifier.EndTable();
   }
   ClientCharacterPartyT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1565,9 +1540,6 @@ struct ClientCharacterPartyBuilder {
   void add_to_id(uint64_t to_id) {
     fbb_.AddElement<uint64_t>(ClientCharacterParty::VT_TO_ID, to_id, 0);
   }
-  void add_confirm(bool confirm) {
-    fbb_.AddElement<uint8_t>(ClientCharacterParty::VT_CONFIRM, static_cast<uint8_t>(confirm), 0);
-  }
   explicit ClientCharacterPartyBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1582,11 +1554,9 @@ struct ClientCharacterPartyBuilder {
 inline ::flatbuffers::Offset<ClientCharacterParty> CreateClientCharacterParty(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t step = 0,
-    uint64_t to_id = 0,
-    bool confirm = false) {
+    uint64_t to_id = 0) {
   ClientCharacterPartyBuilder builder_(_fbb);
   builder_.add_to_id(to_id);
-  builder_.add_confirm(confirm);
   builder_.add_step(step);
   return builder_.Finish();
 }
@@ -2087,7 +2057,6 @@ inline void ClientCharacterTrade::UnPackTo(ClientCharacterTradeT *_o, const ::fl
   { auto _e = to_id(); _o->to_id = _e; }
   { auto _e = payload_type(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].type = static_cast<fbs::ItemUnion>(_e->Get(_i)); } } else { _o->payload.resize(0); } }
   { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].value = fbs::ItemUnionUnion::UnPack(_e->Get(_i), payload_type()->GetEnum<ItemUnion>(_i), _resolver); } } else { _o->payload.resize(0); } }
-  { auto _e = confirm(); _o->confirm = _e; }
 }
 
 inline ::flatbuffers::Offset<ClientCharacterTrade> CreateClientCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2102,14 +2071,12 @@ inline ::flatbuffers::Offset<ClientCharacterTrade> ClientCharacterTrade::Pack(::
   auto _to_id = _o->to_id;
   auto _payload_type = _o->payload.size() ? _fbb.CreateVector<uint8_t>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return static_cast<uint8_t>(__va->__o->payload[i].type); }, &_va) : 0;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<void>>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return __va->__o->payload[i].Pack(*__va->__fbb, __va->__rehasher); }, &_va) : 0;
-  auto _confirm = _o->confirm;
   return fbs::CreateClientCharacterTrade(
       _fbb,
       _step,
       _to_id,
       _payload_type,
-      _payload,
-      _confirm);
+      _payload);
 }
 
 inline ClientCharacterStateT::ClientCharacterStateT(const ClientCharacterStateT &o)
@@ -2364,7 +2331,6 @@ inline void ClientCharacterParty::UnPackTo(ClientCharacterPartyT *_o, const ::fl
   (void)_resolver;
   { auto _e = step(); _o->step = _e; }
   { auto _e = to_id(); _o->to_id = _e; }
-  { auto _e = confirm(); _o->confirm = _e; }
 }
 
 inline ::flatbuffers::Offset<ClientCharacterParty> CreateClientCharacterParty(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterPartyT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -2377,12 +2343,10 @@ inline ::flatbuffers::Offset<ClientCharacterParty> ClientCharacterParty::Pack(::
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterPartyT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _step = _o->step;
   auto _to_id = _o->to_id;
-  auto _confirm = _o->confirm;
   return fbs::CreateClientCharacterParty(
       _fbb,
       _step,
-      _to_id,
-      _confirm);
+      _to_id);
 }
 
 inline ClientReactorT::ClientReactorT(const ClientReactorT &o)

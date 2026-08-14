@@ -1972,7 +1972,6 @@ struct ServerCharacterTradeT : public ::flatbuffers::NativeTable {
   uint8_t step = 0;
   std::unique_ptr<fbs::PlayerT> player{};
   std::vector<fbs::ItemUnionUnion> payload{};
-  bool confirm = false;
   ServerCharacterTradeT() = default;
   ServerCharacterTradeT(const ServerCharacterTradeT &o);
   ServerCharacterTradeT(ServerCharacterTradeT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -1986,8 +1985,7 @@ struct ServerCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
     VT_STEP = 4,
     VT_PLAYER = 6,
     VT_PAYLOAD_TYPE = 8,
-    VT_PAYLOAD = 10,
-    VT_CONFIRM = 12
+    VT_PAYLOAD = 10
   };
   uint8_t step() const {
     return GetField<uint8_t>(VT_STEP, 0);
@@ -2013,12 +2011,6 @@ struct ServerCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   ::flatbuffers::Vector<::flatbuffers::Offset<void>> *mutable_payload() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<void>> *>(VT_PAYLOAD);
   }
-  bool confirm() const {
-    return GetField<uint8_t>(VT_CONFIRM, 0) != 0;
-  }
-  bool mutate_confirm(bool _confirm = 0) {
-    return SetField<uint8_t>(VT_CONFIRM, static_cast<uint8_t>(_confirm), 0);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -2030,7 +2022,6 @@ struct ServerCharacterTrade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
            VerifyItemUnionVector(verifier, payload(), payload_type()) &&
-           VerifyField<uint8_t>(verifier, VT_CONFIRM, 1) &&
            verifier.EndTable();
   }
   ServerCharacterTradeT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2054,9 +2045,6 @@ struct ServerCharacterTradeBuilder {
   void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload) {
     fbb_.AddOffset(ServerCharacterTrade::VT_PAYLOAD, payload);
   }
-  void add_confirm(bool confirm) {
-    fbb_.AddElement<uint8_t>(ServerCharacterTrade::VT_CONFIRM, static_cast<uint8_t>(confirm), 0);
-  }
   explicit ServerCharacterTradeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2073,13 +2061,11 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTrade(
     uint8_t step = 0,
     ::flatbuffers::Offset<fbs::Player> player = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint8_t>> payload_type = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0,
-    bool confirm = false) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<void>>> payload = 0) {
   ServerCharacterTradeBuilder builder_(_fbb);
   builder_.add_payload(payload);
   builder_.add_payload_type(payload_type);
   builder_.add_player(player);
-  builder_.add_confirm(confirm);
   builder_.add_step(step);
   return builder_.Finish();
 }
@@ -2089,8 +2075,7 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTradeDir
     uint8_t step = 0,
     ::flatbuffers::Offset<fbs::Player> player = 0,
     const std::vector<uint8_t> *payload_type = nullptr,
-    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr,
-    bool confirm = false) {
+    const std::vector<::flatbuffers::Offset<void>> *payload = nullptr) {
   auto payload_type__ = payload_type ? _fbb.CreateVector<uint8_t>(*payload_type) : 0;
   auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<void>>(*payload) : 0;
   return fbs::CreateServerCharacterTrade(
@@ -2098,8 +2083,7 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTradeDir
       step,
       player,
       payload_type__,
-      payload__,
-      confirm);
+      payload__);
 }
 
 ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2483,7 +2467,6 @@ struct ServerCharacterPartyT : public ::flatbuffers::NativeTable {
   typedef ServerCharacterParty TableType;
   uint8_t step = 0;
   uint64_t to_id = 0;
-  bool confirm = false;
   std::vector<std::unique_ptr<fbs::PlayerT>> players{};
   ServerCharacterPartyT() = default;
   ServerCharacterPartyT(const ServerCharacterPartyT &o);
@@ -2497,8 +2480,7 @@ struct ServerCharacterParty FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_STEP = 4,
     VT_TO_ID = 6,
-    VT_CONFIRM = 8,
-    VT_PLAYERS = 10
+    VT_PLAYERS = 8
   };
   uint8_t step() const {
     return GetField<uint8_t>(VT_STEP, 0);
@@ -2512,12 +2494,6 @@ struct ServerCharacterParty FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   bool mutate_to_id(uint64_t _to_id = 0) {
     return SetField<uint64_t>(VT_TO_ID, _to_id, 0);
   }
-  bool confirm() const {
-    return GetField<uint8_t>(VT_CONFIRM, 0) != 0;
-  }
-  bool mutate_confirm(bool _confirm = 0) {
-    return SetField<uint8_t>(VT_CONFIRM, static_cast<uint8_t>(_confirm), 0);
-  }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>> *players() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>> *>(VT_PLAYERS);
   }
@@ -2529,7 +2505,6 @@ struct ServerCharacterParty FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
     return VerifyTableStart(verifier) &&
            VerifyField<uint8_t>(verifier, VT_STEP, 1) &&
            VerifyField<uint64_t>(verifier, VT_TO_ID, 8) &&
-           VerifyField<uint8_t>(verifier, VT_CONFIRM, 1) &&
            VerifyOffset(verifier, VT_PLAYERS) &&
            verifier.VerifyVector(players()) &&
            verifier.VerifyVectorOfTables(players()) &&
@@ -2550,9 +2525,6 @@ struct ServerCharacterPartyBuilder {
   void add_to_id(uint64_t to_id) {
     fbb_.AddElement<uint64_t>(ServerCharacterParty::VT_TO_ID, to_id, 0);
   }
-  void add_confirm(bool confirm) {
-    fbb_.AddElement<uint8_t>(ServerCharacterParty::VT_CONFIRM, static_cast<uint8_t>(confirm), 0);
-  }
   void add_players(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players) {
     fbb_.AddOffset(ServerCharacterParty::VT_PLAYERS, players);
   }
@@ -2571,12 +2543,10 @@ inline ::flatbuffers::Offset<ServerCharacterParty> CreateServerCharacterParty(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t step = 0,
     uint64_t to_id = 0,
-    bool confirm = false,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players = 0) {
   ServerCharacterPartyBuilder builder_(_fbb);
   builder_.add_to_id(to_id);
   builder_.add_players(players);
-  builder_.add_confirm(confirm);
   builder_.add_step(step);
   return builder_.Finish();
 }
@@ -2585,14 +2555,12 @@ inline ::flatbuffers::Offset<ServerCharacterParty> CreateServerCharacterPartyDir
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint8_t step = 0,
     uint64_t to_id = 0,
-    bool confirm = false,
     const std::vector<::flatbuffers::Offset<fbs::Player>> *players = nullptr) {
   auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>>(*players) : 0;
   return fbs::CreateServerCharacterParty(
       _fbb,
       step,
       to_id,
-      confirm,
       players__);
 }
 
@@ -3661,15 +3629,13 @@ inline ::flatbuffers::Offset<ServerCharacterInfo> ServerCharacterInfo::Pack(::fl
 inline ServerCharacterTradeT::ServerCharacterTradeT(const ServerCharacterTradeT &o)
       : step(o.step),
         player((o.player) ? new fbs::PlayerT(*o.player) : nullptr),
-        payload(o.payload),
-        confirm(o.confirm) {
+        payload(o.payload) {
 }
 
 inline ServerCharacterTradeT &ServerCharacterTradeT::operator=(ServerCharacterTradeT o) FLATBUFFERS_NOEXCEPT {
   std::swap(step, o.step);
   std::swap(player, o.player);
   std::swap(payload, o.payload);
-  std::swap(confirm, o.confirm);
   return *this;
 }
 
@@ -3686,7 +3652,6 @@ inline void ServerCharacterTrade::UnPackTo(ServerCharacterTradeT *_o, const ::fl
   { auto _e = player(); if (_e) { if(_o->player) { _e->UnPackTo(_o->player.get(), _resolver); } else { _o->player = std::unique_ptr<fbs::PlayerT>(_e->UnPack(_resolver)); } } else if (_o->player) { _o->player.reset(); } }
   { auto _e = payload_type(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].type = static_cast<fbs::ItemUnion>(_e->Get(_i)); } } else { _o->payload.resize(0); } }
   { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->payload[_i].value = fbs::ItemUnionUnion::UnPack(_e->Get(_i), payload_type()->GetEnum<ItemUnion>(_i), _resolver); } } else { _o->payload.resize(0); } }
-  { auto _e = confirm(); _o->confirm = _e; }
 }
 
 inline ::flatbuffers::Offset<ServerCharacterTrade> CreateServerCharacterTrade(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterTradeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3701,14 +3666,12 @@ inline ::flatbuffers::Offset<ServerCharacterTrade> ServerCharacterTrade::Pack(::
   auto _player = _o->player ? CreatePlayer(_fbb, _o->player.get(), _rehasher) : 0;
   auto _payload_type = _o->payload.size() ? _fbb.CreateVector<uint8_t>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return static_cast<uint8_t>(__va->__o->payload[i].type); }, &_va) : 0;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<void>>(_o->payload.size(), [](size_t i, _VectorArgs *__va) { return __va->__o->payload[i].Pack(*__va->__fbb, __va->__rehasher); }, &_va) : 0;
-  auto _confirm = _o->confirm;
   return fbs::CreateServerCharacterTrade(
       _fbb,
       _step,
       _player,
       _payload_type,
-      _payload,
-      _confirm);
+      _payload);
 }
 
 inline ServerCharacterMvT::ServerCharacterMvT(const ServerCharacterMvT &o)
@@ -3913,8 +3876,7 @@ inline ::flatbuffers::Offset<ServerCharacterFc> ServerCharacterFc::Pack(::flatbu
 
 inline ServerCharacterPartyT::ServerCharacterPartyT(const ServerCharacterPartyT &o)
       : step(o.step),
-        to_id(o.to_id),
-        confirm(o.confirm) {
+        to_id(o.to_id) {
   players.reserve(o.players.size());
   for (const auto &players_ : o.players) { players.emplace_back((players_) ? new fbs::PlayerT(*players_) : nullptr); }
 }
@@ -3922,7 +3884,6 @@ inline ServerCharacterPartyT::ServerCharacterPartyT(const ServerCharacterPartyT 
 inline ServerCharacterPartyT &ServerCharacterPartyT::operator=(ServerCharacterPartyT o) FLATBUFFERS_NOEXCEPT {
   std::swap(step, o.step);
   std::swap(to_id, o.to_id);
-  std::swap(confirm, o.confirm);
   std::swap(players, o.players);
   return *this;
 }
@@ -3938,7 +3899,6 @@ inline void ServerCharacterParty::UnPackTo(ServerCharacterPartyT *_o, const ::fl
   (void)_resolver;
   { auto _e = step(); _o->step = _e; }
   { auto _e = to_id(); _o->to_id = _e; }
-  { auto _e = confirm(); _o->confirm = _e; }
   { auto _e = players(); if (_e) { _o->players.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->players[_i]) { _e->Get(_i)->UnPackTo(_o->players[_i].get(), _resolver); } else { _o->players[_i] = std::unique_ptr<fbs::PlayerT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->players.resize(0); } }
 }
 
@@ -3952,13 +3912,11 @@ inline ::flatbuffers::Offset<ServerCharacterParty> ServerCharacterParty::Pack(::
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterPartyT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _step = _o->step;
   auto _to_id = _o->to_id;
-  auto _confirm = _o->confirm;
   auto _players = _o->players.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>> (_o->players.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayer(*__va->__fbb, __va->__o->players[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerCharacterParty(
       _fbb,
       _step,
       _to_id,
-      _confirm,
       _players);
 }
 

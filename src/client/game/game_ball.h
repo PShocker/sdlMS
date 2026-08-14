@@ -17,6 +17,7 @@ public:
 
   SDL_FPoint pos;
   bool flip;
+  int32_t rotate = 0;
 
   uint32_t ani_index = 0;
   uint32_t ani_time = 0;

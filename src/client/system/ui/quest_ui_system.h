@@ -10,6 +10,7 @@ private:
   static void render_button();
   static void render_quests();
   static void render_quest_detail();
+  static void render_tab();
 
   static void event_button(SDL_Event *event);
   static void event_top();
@@ -20,6 +21,7 @@ private:
   static SDL_FPoint load_wh();
 
   static inline std::optional<SDL_FPoint> drag;
+  static inline uint8_t active_tab;
 
 public:
   static inline SDL_FPoint pos;

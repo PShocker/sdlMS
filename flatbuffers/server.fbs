@@ -119,7 +119,6 @@ table ServerCharacterTrade {
    step:uint8;
    player:Player;
    payload:[ItemUnion];
-   confirm:bool;
 }
 
 
@@ -151,7 +150,6 @@ table ServerCharacterFc {
 table ServerCharacterParty {
     step:uint8;
     to_id:uint64;
-    confirm:bool;
     
     players:[Player];
 }
