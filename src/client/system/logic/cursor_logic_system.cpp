@@ -123,6 +123,10 @@ bool cursor_logic_system::run_default() {
   }
   if (cursor_game_instance::cursor_ui == package_ui_system::render &&
       !cursor_game_instance::modal_overlay) {
+    if (run_vscroll_motion()) {
+      run_cursor_action(u"9");
+      return true;
+    }
     if (run_package_motion()) {
       run_cursor_action(u"5");
       return true;

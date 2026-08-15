@@ -182,11 +182,17 @@ void shop_ui_system::render_vscr() {
   auto x = (int)pos.x + 212;
   auto y = (int)pos.y + 129;
   auto cursor_in = cursor_game_instance::cursor_ui;
-  auto &items = shop->items;
+  auto items_size = 0;
+  if (active_tab[0] == 0) {
+    auto &items = shop->items;
+    items_size = items.size();
+  } else {
+    auto &items = must;
+    items_size = items.size();
+  }
   bool top =
       cursor_in == render && cursor_game_instance::modal_overlay == render;
-  auto itm_size = items.size();
-  scroll_ui_system::render_vscroll(x, y, pages[0], itm_size, length, top, 6);
+  scroll_ui_system::render_vscroll(x, y, pages[0], items_size, length, top, 6);
   x += 230;
   auto pkg_size = load_pkg_items().size();
   scroll_ui_system::render_vscroll(x, y, pages[1], pkg_size, length, top, 6);
@@ -520,6 +526,9 @@ bool shop_ui_system::event_vscr(SDL_Event *event) {
   auto y = (int)pos.y + 129;
 
   int size = shop->items.size() - 6;
+  if (active_tab[0] == 1) {
+    size = must.size() - 6;
+  }
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
   size = std::max(0, size);

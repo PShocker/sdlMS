@@ -28,18 +28,20 @@ void ball_logic_system::run_animate(game_ball &b) {
     b.ani_index = b.ani_index % n->children_count();
   }
   if (b.mob_index.has_value()) {
-    auto mob_index = b.mob_index.value();
-    auto mob_pos = mob_game_instance::data.at(mob_index).mob.pos;
-    auto p2 = b.goal;
-    p2.x += mob_pos.x;
-    p2.y += mob_pos.y;
-    auto p1 = b.pos;
+    const auto &mob = mob_game_instance::data.at(b.mob_index.value()).mob;
 
-    float dx = p2.x - p1.x;
-    float dy = p2.y - p1.y;
+    const float dx = (b.goal.x + mob.pos.x) - b.pos.x;
+    const float dy = (b.goal.y + mob.pos.y) - b.pos.y;
 
-    float angle = SDL_atan2f(dy, dx);
-    b.rotate = angle * (180.0f / M_PI);
+    float angle = SDL_atan2f(dy, dx) * (180.0f / M_PI);
+
+    if (dx < 0) {
+      // 翻转180度并归一化到 [-180, 180]
+      angle += 180.0f;
+      if (angle > 180.0f)
+        angle -= 360.0f;
+    }
+    b.rotate = angle;
   }
   return;
 }

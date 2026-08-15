@@ -385,6 +385,7 @@ void notice_ui_system::event_button_shopbuy() {
     if (item_game_instance::load_item_num(itm) == 0) {
       must.erase(must.begin() + shop_ui_system::active_item[0].value());
     }
+    shop_ui_system::pages[0] = 0;
   }
   shop_ui_system::active_tab[1] = (int)itm->type;
   shop_ui_system::pages[1] = 0;

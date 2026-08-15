@@ -25,6 +25,7 @@ private:
 
   static bool event_click_item(SDL_Event *event);
 
+  static bool event_vscr(SDL_Event *event);
   static bool event_button(SDL_Event *event);
   static void event_tab(SDL_Event *event);
   static void event_top();
@@ -32,7 +33,13 @@ private:
   static void event_drag_end();
   static void event_drag_move(SDL_Event *event);
 
+  static void event_vscr_start(SDL_Event *event);
+  static void event_vscr_end();
+  static void event_vscr_move(SDL_Event *event);
+
   static SDL_FPoint load_wh();
+
+  static inline bool vscr_motion;
 
   static inline uint8_t page;
 

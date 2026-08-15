@@ -38,8 +38,8 @@ bool ball_render_system::render(game_ball &g_ball) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     auto flip = g_ball.flip;
-    SDL_RenderTextureRotated(window::renderer, t, nullptr, &pos_rect, 0,
-                             nullptr, (SDL_FlipMode)flip);
+    SDL_RenderTextureRotated(window::renderer, t, nullptr, &pos_rect,
+                             g_ball.rotate, nullptr, (SDL_FlipMode)flip);
   }
   return true;
 }

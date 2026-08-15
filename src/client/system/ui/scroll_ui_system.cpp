@@ -110,23 +110,29 @@ void scroll_ui_system::render_vscroll(float x, float y, uint32_t val,
 
 uint32_t scroll_ui_system::click_vscroll(float x, float y, uint32_t val,
                                          uint32_t count, int32_t length,
-                                         bool top) {
+                                         bool top, SDL_FPoint mouse) {
   if (!top) {
     return val;
   }
-  auto mouse = window::mouse_pos;
-  SDL_FRect pos_rect{static_cast<float>((int)x), static_cast<float>((int)y),
-                     static_cast<float>(15), static_cast<float>(13)};
-  if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+  SDL_FRect pos_rect{
+      static_cast<float>((int)x),
+      static_cast<float>((int)y),
+      static_cast<float>(15),
+      static_cast<float>(13),
+  };
+  if (SDL_PointInRectFloat(&mouse, &pos_rect)) {
     if (val > 0) {
       val -= 1;
       return val;
     }
   }
-  pos_rect = {static_cast<float>((int)x),
-              static_cast<float>((int)y + length - 13), static_cast<float>(15),
-              static_cast<float>(13)};
-  if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+  pos_rect = {
+      static_cast<float>((int)x),
+      static_cast<float>((int)y + length - 13),
+      static_cast<float>(15),
+      static_cast<float>(13),
+  };
+  if (SDL_PointInRectFloat(&mouse, &pos_rect)) {
     if (val < count) {
       val += 1;
       return val;
@@ -138,11 +144,22 @@ uint32_t scroll_ui_system::click_vscroll(float x, float y, uint32_t val,
       static_cast<float>(15),
       static_cast<float>(length - 26),
   };
-  if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
-    auto dy = window::mouse_pos.y - pos_rect.y;
+  if (SDL_PointInRectFloat(&mouse, &pos_rect)) {
+    auto dy = mouse.y - pos_rect.y;
     float percent = (float)dy / pos_rect.h;
     val = std::round(percent * count);
     return val;
   }
   return val;
+}
+
+bool scroll_ui_system::click_thumb(float x, float y, int32_t length,
+                                   SDL_FPoint mouse) {
+  SDL_FRect pos_rect{
+      x,
+      y + 13,
+      static_cast<float>(15),
+      static_cast<float>(length - 26),
+  };
+  return SDL_PointInRectFloat(&mouse, &pos_rect);
 }

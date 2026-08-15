@@ -116,7 +116,7 @@ std::optional<uint32_t> package_ui_system::load_mouse_index() {
     auto dx = int((mouse_pos.x - lx) / 36);
     auto dy = int((mouse_pos.y - ty) / 34);
     auto index = dy * 5 + dx;
-    index += page;
+    index += page * 5;
     return index;
   }
 
@@ -392,11 +392,11 @@ void package_ui_system::render_scroll() {
   const SDL_FPoint lt{188, 51};
   const uint32_t length = 202;
   const auto &r = package_game_instance::data[active_tab];
-  auto size = r.size() / 5;
+  auto size = static_cast<size_t>(std::ceil(r.size() / 5.0));
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
-                                   size, length, top, 30);
+                                   size, length, top, 6);
   return;
 }
 
@@ -706,7 +706,9 @@ void package_ui_system::event_tab(SDL_Event *event) {
           new_itm = std::nullopt;
         }
       }
+      page = 0;
       active_tab = i;
+      return;
     }
   }
 }
@@ -747,6 +749,47 @@ void package_ui_system::event_motion(SDL_Event *event) {
   }
 }
 
+void package_ui_system::event_vscr_move(SDL_Event *event) {
+  auto mouse_state = window::mouse_state;
+  if (vscr_motion) {
+    const SDL_FPoint lt{188, 51};
+    const uint32_t length = 202;
+
+    event->button.x = pos.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+    event_vscr(event);
+  }
+}
+
+bool package_ui_system::event_vscr(SDL_Event *event) {
+  const SDL_FPoint lt{188, 51};
+  const uint32_t length = 202;
+
+  auto &items = package_game_instance::data[active_tab];
+  auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
+  size = std::max(0, size);
+
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  size = std::max(0, size);
+  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
+  auto val = scroll_ui_system::click_vscroll(pos.x + lt.x, pos.y + lt.y, page,
+                                             size, length, true, mouse_pos);
+  page = val;
+  return true;
+}
+
+void package_ui_system::event_vscr_start(SDL_Event *event) {
+  const SDL_FPoint lt{188, 51};
+  const uint32_t length = 202;
+  if (vscr_motion == false) {
+    vscr_motion =
+        scroll_ui_system::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+  }
+}
+
+void package_ui_system::event_vscr_end() { vscr_motion = false; }
+
 bool package_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -769,6 +812,7 @@ bool package_ui_system::event(SDL_Event *event) {
       if (cursor_game_instance::cursor_ui == render) {
         event_top();
         event_drag_start(event);
+        event_vscr_start(event);
         r = false;
       }
     }
@@ -780,14 +824,17 @@ bool package_ui_system::event(SDL_Event *event) {
         event_tab(event);
         event_click_item(event);
         r = event_button(event);
+        event_vscr(event);
       }
       event_drag_end();
+      event_vscr_end();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
     event_motion(event);
     event_drag_move(event);
+    event_vscr_move(event);
     break;
   }
   default: {

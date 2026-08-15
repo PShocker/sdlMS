@@ -9,10 +9,13 @@ void package_game_instance::load(const character_save &cs) {
   for (auto &d : data) {
     d.clear(); // 先清空
   }
+  game_consume_item gci;
+  gci.id = u"02000000";
+  gci.num = 1;
+
   data[(int)item_enum::equip].assign(
       96, std::polymorphic<game_item>(game_equip_item{}));
-  data[(int)item_enum::consume].assign(
-      2, std::polymorphic<game_item>(game_consume_item{}));
+  data[(int)item_enum::consume].assign(32, std::polymorphic<game_item>(gci));
   data[(int)item_enum::install].assign(
       96, std::polymorphic<game_item>(game_install_item{}));
   data[(int)item_enum::etc].assign(
