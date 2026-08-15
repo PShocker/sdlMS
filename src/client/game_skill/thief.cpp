@@ -158,11 +158,15 @@ static void shuangfeizhan() {
     }
     for (auto i : {0, 1}) {
       cct.payload->ball->y1 += i * 5;
+      cct.payload->ball->y2 += i * 5;
       client_request::send_to_host(cct);
       server_ball_instance::handle_server_b(cct.payload);
       cct.payload->ball->delay += 120;
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 4001003, ski_lv);
+    if (!ckt.payload.empty()) {
+      ckt.payload[1]->y += 10;
+    }
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
                                           self);
     client_request::send_to_host(ckt);
