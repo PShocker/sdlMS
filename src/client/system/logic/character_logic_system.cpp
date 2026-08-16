@@ -4,6 +4,7 @@
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_effect.h"
+#include "src/client/game/game_item_buff.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game/game_tomb.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
@@ -14,6 +15,7 @@
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
+#include "src/client/game_instance/item_buff_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
@@ -1423,23 +1425,89 @@ float character_logic_system::load_attack_speed(game_character &g_character) {
   return 1.6 - speed / 10;
 }
 
-void character_logic_system::run_item(game_character &g_character,
-                                      const std::u16string &c, int64_t state) {
-  auto item_type = item_game_instance::load_item_type(c);
+bool character_logic_system::run_item(game_character &g_character,
+                                      std::polymorphic<game_item> itm,
+                                      int64_t state) {
+  auto item_type = item_game_instance::load_item_type(itm->id);
   if (item_type == u"Install") {
-    if (c.starts_with(u"0301")) {
-      // chair
-      if (state == 0) {
-        g_character.chair = std::nullopt;
-      } else {
+    if (itm->id.starts_with(u"0301") && self_sit_cooldown < window::dt_now) {
+      auto action_type = load_action_type(g_character);
+      switch (action_type) {
+      case action_enum::stand: {
         run_action(g_character, u"sit");
         g_character.chair = game_chair{};
-        g_character.chair->id = c;
+        g_character.chair->id = itm->id;
+        StateT st;
+        st.state = fbs::StateEnum_BUFF_ITEM;
+        st.val = std::stoi(std::string{itm->id.begin(), itm->id.end()});
+        st.sub_val = 1;
+        ccs.payload.push_back(std::make_unique<StateT>(st));
+        break;
       }
-
-      return;
+      case action_enum::sit: {
+        g_character.chair = std::nullopt;
+        StateT st;
+        st.state = fbs::StateEnum_BUFF_ITEM;
+        auto tmp = std::string{
+            g_character.chair->id.begin(),
+            g_character.chair->id.end(),
+        };
+        st.val = std::stoi(tmp);
+        st.sub_val = 0;
+        ccs.payload.push_back(std::make_unique<StateT>(st));
+        break;
+      }
+      default: {
+        break;
+      }
+      }
+      return false;
+    }
+  } else if (item_type == u"Consume") {
+    auto info = item_game_instance::load_item_info(itm->id, 0);
+    info = info->find(u"../spec");
+    if (info) {
+      if (info->get_child(u"time")) {
+        item_buff_game_instance::use(itm->id);
+      }
+      if (info->get_child(u"hp")) {
+        auto hp =
+            static_cast<wz::Property<int> *>(info->get_child(u"hp"))->get();
+        character_stat_game_instance::hp_point += hp;
+        character_stat_game_instance::hp_point =
+            std::min(character_stat_game_instance::hp_point,
+                     character_stat_game_instance::hp_point_max);
+      }
+      if (info->get_child(u"hpR")) {
+        auto hpR =
+            static_cast<wz::Property<int> *>(info->get_child(u"hpR"))->get();
+        character_stat_game_instance::hp_point +=
+            hpR * character_stat_game_instance::hp_point_max;
+        character_stat_game_instance::hp_point =
+            std::min(character_stat_game_instance::hp_point,
+                     character_stat_game_instance::hp_point_max);
+      }
+      if (info->get_child(u"mp")) {
+        auto mp =
+            static_cast<wz::Property<int> *>(info->get_child(u"mp"))->get();
+        character_stat_game_instance::mp_point += mp;
+        character_stat_game_instance::mp_point =
+            std::min(character_stat_game_instance::mp_point,
+                     character_stat_game_instance::mp_point_max);
+      }
+      if (info->get_child(u"mpR")) {
+        auto mpR =
+            static_cast<wz::Property<int> *>(info->get_child(u"mpR"))->get();
+        character_stat_game_instance::mp_point +=
+            mpR * character_stat_game_instance::mp_point_max;
+        character_stat_game_instance::mp_point =
+            std::min(character_stat_game_instance::mp_point,
+                     character_stat_game_instance::mp_point_max);
+      }
+      return true;
     }
   }
+  return false;
 }
 
 void character_logic_system::run_item(game_character &g_character) {
@@ -1447,45 +1515,13 @@ void character_logic_system::run_item(game_character &g_character) {
     for (const auto &input : character_item_input) {
       auto item_id = input.val;
       std::u16string item_id2{item_id.begin(), item_id.end()};
-      auto item_type = item_game_instance::load_item_type(item_id2);
-      if (item_type == u"Install") {
-        if (item_id.starts_with("0301") && self_sit_cooldown < window::dt_now) {
-          // chair
-          auto action_type = load_action_type(g_character);
-          switch (action_type) {
-          case action_enum::stand: {
-            run_item(g_character, item_id2, 1);
-            self_sit_cooldown = window::dt_now + 1000;
-            StateT st;
-            st.state = fbs::StateEnum_BUFF_ITEM;
-            st.val = std::stoi(item_id);
-            st.sub_val = 1;
-            ccs.payload.push_back(std::make_unique<StateT>(st));
-            break;
-          }
-          case action_enum::sit: {
-            run_stand_action(g_character);
-            self_sit_cooldown = window::dt_now + 1000;
-            if (g_character.chair.has_value()) {
-              StateT st;
-              st.state = fbs::StateEnum_BUFF_ITEM;
-              auto tmp = std::string{
-                  g_character.chair->id.begin(),
-                  g_character.chair->id.end(),
-              };
-              st.val = std::stoi(tmp);
-              st.sub_val = 0;
-              ccs.payload.push_back(std::make_unique<StateT>(st));
-            }
-            g_character.chair = std::nullopt;
-            break;
-          }
-          default: {
-            break;
-          }
-          }
+      auto itm = package_ui_system::load_f_item(item_id2);
+      if (itm) {
+        if (run_item(g_character, *itm, 1)) {
+          package_ui_system::dec_item_num(*itm, 1);
         }
       }
     }
   }
+  return;
 }

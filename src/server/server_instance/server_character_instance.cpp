@@ -10,6 +10,7 @@
 #include "src/client/game_instance/chat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -793,8 +794,8 @@ void server_character_instance::handle_s_state(
     }
     case StateEnum_BUFF_ITEM: {
       auto tmp = std::format("{:08d}", st->val);
-      character_logic_system::run_item(g_character, {tmp.begin(), tmp.end()},
-                                       st->sub_val);
+      auto itm = item_game_instance::load_item({tmp.begin(), tmp.end()}, 1);
+      character_logic_system::run_item(g_character, itm, st->sub_val);
       break;
     }
     default: {

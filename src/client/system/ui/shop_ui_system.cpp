@@ -583,6 +583,41 @@ bool shop_ui_system::event_tab(SDL_Event *event) {
   return false;
 }
 
+void shop_ui_system::event_vscr_start(SDL_Event *event) {
+  SDL_FPoint lt{212, 129};
+  const uint32_t length = 235;
+  if (vscr_motion[0] == false) {
+    vscr_motion[0] =
+        scroll_ui_system::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+  }
+  lt.x += 230;
+  if (vscr_motion[1] == false) {
+    vscr_motion[1] =
+        scroll_ui_system::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+  }
+}
+
+void shop_ui_system::event_vscr_end() { vscr_motion = {}; }
+
+void shop_ui_system::event_vscr_move(SDL_Event *event) {
+  auto mouse_state = window::mouse_state;
+  SDL_FPoint lt{212, 129};
+  const uint32_t length = 235;
+  if (vscr_motion[0]) {
+    event->button.x = pos.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+    event_vscr(event);
+  }
+  if (vscr_motion[1]) {
+    lt.x += 230;
+    event->button.x = pos.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+    event_vscr(event);
+  }
+}
+
 bool shop_ui_system::event(SDL_Event *event) {
   switch (event->type) {
   case SDL_EVENT_KEY_DOWN: {

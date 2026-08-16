@@ -520,7 +520,7 @@ bool skill_ui_system::event_click_tab(SDL_Event *event) {
   return false;
 }
 
-void skill_ui_system::event_click_vscr(SDL_Event *event) {
+void skill_ui_system::event_vscr(SDL_Event *event) {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   auto self_job = character_game_instance::self.job;
@@ -543,6 +543,29 @@ void skill_ui_system::event_motion(SDL_Event *event) {
   auto it = std::ranges::find(sys, &cursor_render_system::render);
   if (it != sys.end()) {
     sys.insert(it, render_info);
+  }
+}
+
+void skill_ui_system::event_vscr_start(SDL_Event *event) {
+  const SDL_FPoint lt{174, 98};
+  const uint32_t length = 236;
+  if (vscr_motion == false) {
+    vscr_motion =
+        scroll_ui_system::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+  }
+}
+
+void skill_ui_system::event_vscr_end() { vscr_motion = {}; }
+
+void skill_ui_system::event_vscr_move(SDL_Event *event) {
+  auto mouse_state = window::mouse_state;
+  const SDL_FPoint lt{174, 98};
+  const uint32_t length = 236;
+  if (vscr_motion) {
+    event->button.x = pos.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+    event_vscr(event);
   }
 }
 
@@ -577,7 +600,7 @@ bool skill_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
         event_button_ski_up();
-        event_click_vscr(event);
+        event_vscr(event);
         event_click_ski(event);
         event_click_tab(event);
         r = event_button(event);

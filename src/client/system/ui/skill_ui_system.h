@@ -23,7 +23,7 @@ private:
 
   static bool event_click_ski(SDL_Event *event);
   static bool event_click_tab(SDL_Event *event);
-  static void event_click_vscr(SDL_Event *event);
+  static void event_vscr(SDL_Event *event);
 
   static void event_motion(SDL_Event *event);
   static void event_button_ski_up();
@@ -33,6 +33,12 @@ private:
   static void event_drag_start(SDL_Event *event);
   static void event_drag_end();
   static void event_drag_move(SDL_Event *event);
+
+  static void event_vscr_start(SDL_Event *event);
+  static void event_vscr_end();
+  static void event_vscr_move(SDL_Event *event);
+
+  static inline bool vscr_motion;
 
   static inline std::optional<SDL_FPoint> drag;
 

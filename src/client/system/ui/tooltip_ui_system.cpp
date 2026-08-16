@@ -148,7 +148,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
         pad_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  // weapon pad
+  // weapon pdd
   if (equip_inc.contains(equip_game_instance::inc_type::PDD)) {
     str_node = wz_resource::ms->get_root()->find(u"String.img/Character/pdd");
     auto pdd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();

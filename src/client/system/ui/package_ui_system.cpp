@@ -525,6 +525,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     }
   }
   // 有手持物品
+  auto &sf = character_game_instance::self;
   auto &hand = cursor_game_instance::cursor_hand.value();
   switch ((cursor_game_instance::cursor_hand_type)hand.type) {
   case cursor_game_instance::equipment: {
@@ -558,7 +559,6 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     switch ((item_enum)hand.val) {
     case item_enum::equip: {
       auto &equips = package_game_instance::data[0];
-      auto &sf = character_game_instance::self;
       // 点击的是同一个格子：尝试穿戴
       if (hand.sub_val == index.value()) {
         auto equip = static_cast<game_equip_item &>(*equips[index.value()]);
@@ -624,6 +624,10 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         }
       } else {
         // 使用道具
+        auto &itm = r.at(index.value());
+        if (character_logic_system::run_item(sf, itm, 1)) {
+          dec_item_num(itm, 1);
+        }
       }
       cursor_game_instance::cursor_hand = std::nullopt;
       break;
@@ -860,4 +864,23 @@ void package_ui_system::dec_item_num(std::polymorphic<game_item> &item,
                                      int num) {
   shop_ui_system::dec_item_num(item, num);
   return;
+}
+
+std::polymorphic<game_item> *
+package_ui_system::load_f_item(const std::u16string &id) {
+  auto type = item_game_instance::load_item_type(id);
+  std::vector<std::polymorphic<game_item>> *r;
+  if (type == u"Cash" || type == u"Pet") {
+    auto r = package_game_instance::data[(int)item_enum::cash];
+  } else if (type == u"Consume") {
+    auto r = package_game_instance::data[(int)item_enum::consume];
+  } else if (type == u"Install") {
+    auto r = package_game_instance::data[(int)item_enum::install];
+  }
+  for (auto &itm : *r) {
+    if (itm->id == id) {
+      return &itm;
+    }
+  }
+  return nullptr;
 }

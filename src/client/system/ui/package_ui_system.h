@@ -56,6 +56,7 @@ public:
   static std::vector<uint32_t> load_b_index(std::polymorphic<game_item> &item);
 
   static uint32_t load_full_item_num(const std::u16string &id);
+  static std::polymorphic<game_item> *load_f_item(const std::u16string &id);
 
   static inline SDL_FPoint pos;
 

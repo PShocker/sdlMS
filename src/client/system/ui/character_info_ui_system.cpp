@@ -278,9 +278,9 @@ bool character_info_ui_system::render() {
   return true;
 }
 
-void character_info_ui_system::event_click_scroll() {
+bool character_info_ui_system::event_vscr(SDL_Event *event) {
   if (!item) {
-    return;
+    return false;
   }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
@@ -288,9 +288,12 @@ void character_info_ui_system::event_click_scroll() {
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
   size = std::max(0, size);
-  auto val = scroll_ui_system::click_vscroll(
-      (int)pos.x + lt.x, (int)pos.y + lt.y, item_page, size, length, top);
+  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
+  auto val =
+      scroll_ui_system::click_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
+                                      item_page, size, length, top, mouse_pos);
   item_page = val;
+  return true;
 }
 
 void character_info_ui_system::open() {
@@ -440,6 +443,30 @@ bool character_info_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+void character_info_ui_system::event_vscr_start(SDL_Event *event) {
+  const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
+  const uint32_t length = 115;
+  if (vscr_motion == false) {
+    vscr_motion =
+        scroll_ui_system::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+  }
+}
+
+void character_info_ui_system::event_vscr_end() { vscr_motion = false; }
+
+void character_info_ui_system::event_vscr_move(SDL_Event *event) {
+  auto mouse_state = window::mouse_state;
+  if (vscr_motion) {
+    const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
+    const uint32_t length = 115;
+
+    event->button.x = pos.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+    event_vscr(event);
+  }
+}
+
 bool character_info_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -470,7 +497,7 @@ bool character_info_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
-        event_click_scroll();
+        event_vscr(event);
         r = !event_button(event);
       }
       event_drag_end();
@@ -479,6 +506,7 @@ bool character_info_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_MOTION: {
     event_drag_move(event);
+    event_vscr_move(event);
     break;
   }
   default: {

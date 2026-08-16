@@ -23,7 +23,7 @@ private:
   static void event_drag_end();
   static void event_drag_move(SDL_Event *event);
 
-  static void event_click_scroll();
+  static bool event_vscr(SDL_Event *event);
 
   static void event_button_party();
   static void event_button_trade();
@@ -36,6 +36,12 @@ private:
   static void event_close();
 
   static bool event_button(SDL_Event *event);
+
+  static void event_vscr_start(SDL_Event *event);
+  static void event_vscr_end();
+  static void event_vscr_move(SDL_Event *event);
+
+  static inline bool vscr_motion;
 
   static bool run();
 

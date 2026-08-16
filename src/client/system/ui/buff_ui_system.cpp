@@ -1,4 +1,4 @@
-#include "skill_buff_ui_system.h"
+#include "buff_ui_system.h"
 #include "SDL3/SDL_mouse.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
@@ -20,7 +20,7 @@
 
 static std::optional<game_skill> mouse_ski;
 
-void skill_buff_ui_system::render_ui(game_skill &sk, float x, float y) {
+void buff_ui_system::render_ui(game_skill &sk, float x, float y) {
   auto id = sk.id;
   auto ski_node = skill_game_instance::load_ski_node(id);
   auto icon = wz_resource::load_texture(ski_node->get_child(u"icon"));
@@ -50,7 +50,7 @@ void skill_buff_ui_system::render_ui(game_skill &sk, float x, float y) {
   }
 }
 
-bool skill_buff_ui_system::render_ui_info() {
+bool buff_ui_system::render_ui_info() {
   if (!mouse_ski.has_value()) {
     return true;
   }
@@ -72,7 +72,7 @@ bool skill_buff_ui_system::render_ui_info() {
   return true;
 }
 
-void skill_buff_ui_system::render_ui() {
+void buff_ui_system::render_ui() {
   // ski buff
   const auto &camera = camera_game_instance::camera;
   for (uint32_t i = 0; i < skill_game_instance::ski.size(); i++) {
@@ -84,7 +84,7 @@ void skill_buff_ui_system::render_ui() {
   }
 }
 
-void skill_buff_ui_system::event_motion(SDL_Event *event) {
+void buff_ui_system::event_motion(SDL_Event *event) {
   auto &sys = system::render_systems;
   std::erase(sys, render_ui_info);
   auto it = std::ranges::find(sys, &cursor_render_system::render);
@@ -93,13 +93,13 @@ void skill_buff_ui_system::event_motion(SDL_Event *event) {
   }
 }
 
-bool skill_buff_ui_system::render() {
+bool buff_ui_system::render() {
   mouse_ski = std::nullopt;
   render_ui();
   return true;
 }
 
-bool skill_buff_ui_system::event(SDL_Event *event) {
+bool buff_ui_system::event(SDL_Event *event) {
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_RIGHT) {

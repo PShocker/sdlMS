@@ -55,7 +55,7 @@
 #include "src/client/system/render/tile_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
-#include "src/client/system/ui/skill_buff_ui_system.h"
+#include "src/client/system/ui/buff_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
@@ -195,7 +195,7 @@ void scene_system_instance::enter(uint32_t map_id) {
 
   system::event_systems = {
       minimap_ui_system::event,     statusbar_ui_system::event,
-      skill_buff_ui_system::event,  cursor_logic_system::event,
+      buff_ui_system::event,  cursor_logic_system::event,
       keyboard_input_system::event,
   };
   system::logic_systems = {
@@ -210,7 +210,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   };
   system::render_systems = {
       render_game,
-      skill_buff_ui_system::render,
+      buff_ui_system::render,
       statusbar_ui_system::render,
       minimap_ui_system::render,
       cursor_render_system::render,

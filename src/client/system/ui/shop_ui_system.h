@@ -37,6 +37,12 @@ private:
   static void event_close();
   static bool event_button(SDL_Event *event);
 
+  static void event_vscr_start(SDL_Event *event);
+  static void event_vscr_end();
+  static void event_vscr_move(SDL_Event *event);
+
+  static inline std::array<bool, 2> vscr_motion;
+
   static bool event_tab(SDL_Event *event);
 
   static SDL_FPoint load_wh();

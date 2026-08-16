@@ -6,7 +6,7 @@
 #include <flat_map>
 #include <string>
 
-class skill_buff_ui_system {
+class buff_ui_system {
 private:
   static void render_ui();
   static void render_ui(game_skill &sk, float x, float y);

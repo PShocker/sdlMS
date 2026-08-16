@@ -63,7 +63,7 @@ public:
   static inline uint32_t eqp_accuracy; // 命中
   static inline uint32_t eqp_avoid;    // 回避
 
-  static inline uint32_t eqp_attack;
+  static inline uint32_t eqp_attack; // pad
   static inline uint32_t eqp_magic;
 
   static inline uint32_t eqp_attack_def;
@@ -80,6 +80,6 @@ public:
   static inline uint32_t itm_accuracy; // 命中
   static inline uint32_t itm_avoid;    // 回避
 
-  static inline uint32_t itm_attack;
+  static inline uint32_t itm_attack; // pad
   static inline uint32_t itm_magic;
 };
