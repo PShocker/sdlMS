@@ -155,103 +155,157 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
   }
 
   // weapon pad
-  if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_PAD)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_PAD) ||
+      scroll_inc.contains(equip_game_instance::inc_type::WEAPON_PAD)) {
     auto str_node =
         wz_resource::ms->get_root()->find(u"String.img/Equip/weaponAttack");
     auto pad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_PAD);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::WEAPON_PAD);
-    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    auto val = equip_inc[equip_game_instance::inc_type::WEAPON_PAD];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::WEAPON_PAD)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::WEAPON_PAD);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         pad_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
   // weapon pdd
-  if (equip_inc.contains(equip_game_instance::inc_type::PDD)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::PDD) ||
+      scroll_inc.contains(equip_game_instance::inc_type::PDD)) {
     str_node = wz_resource::ms->get_root()->find(u"String.img/Character/pdd");
     auto pdd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::PDD);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::PDD);
-    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    auto val = equip_inc[equip_game_instance::inc_type::PDD];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::PDD)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::PDD);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         pdd_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
   // weapon mad
-  if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_MAD)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::WEAPON_MAD) ||
+      scroll_inc.contains(equip_game_instance::inc_type::WEAPON_MAD)) {
     str_node =
         wz_resource::ms->get_root()->find(u"String.img/Equip/weaponMagic");
     auto mad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_MAD);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::WEAPON_MAD);
-    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    auto val = equip_inc[equip_game_instance::inc_type::WEAPON_MAD];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::WEAPON_MAD)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::WEAPON_MAD);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         mad_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
   // acc
-  if (equip_inc.contains(equip_game_instance::inc_type::ACC)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::ACC) ||
+      scroll_inc.contains(equip_game_instance::inc_type::ACC)) {
     str_node = wz_resource::ms->get_root()->find(u"String.img/Character/acc");
     auto acc_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::ACC);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::ACC);
-    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    auto val = equip_inc[equip_game_instance::inc_type::ACC];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::ACC)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::ACC);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         acc_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(equip_game_instance::inc_type::STR)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::STR) ||
+      scroll_inc.contains(equip_game_instance::inc_type::STR)) {
     auto str_node =
         wz_resource::ms->get_root()->find(u"String.img/Character/str");
     auto str_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::STR);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::STR);
-    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    auto val = equip_inc[equip_game_instance::inc_type::STR];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::STR)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::STR);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         str_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(equip_game_instance::inc_type::DEX)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::DEX) ||
+      scroll_inc.contains(equip_game_instance::inc_type::DEX)) {
     auto str_node =
         wz_resource::ms->get_root()->find(u"String.img/Character/dex");
     auto dex_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::DEX);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::DEX);
-    auto val_str = "+" + std::to_string(val);
+    auto val = equip_inc[equip_game_instance::inc_type::DEX];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::DEX)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::DEX);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         dex_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(equip_game_instance::inc_type::INT)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::INT) ||
+      scroll_inc.contains(equip_game_instance::inc_type::INT)) {
     auto str_node =
         wz_resource::ms->get_root()->find(u"String.img/Character/int");
     auto int_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::INT);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::INT);
-    auto val_str = "+" + std::to_string(val + val2);
+    auto val = equip_inc[equip_game_instance::inc_type::INT];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::INT)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::INT);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         int_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(equip_game_instance::inc_type::SPEED)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::SPEED) ||
+      scroll_inc.contains(equip_game_instance::inc_type::SPEED)) {
     auto str_node =
         wz_resource::ms->get_root()->find(u"String.img/Character/speed");
     auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::SPEED);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::SPEED);
-    auto val_str = "+" + std::to_string(val + val2);
+    auto val = equip_inc[equip_game_instance::inc_type::SPEED];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::SPEED)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::SPEED);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         spd_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
 
-  if (equip_inc.contains(equip_game_instance::inc_type::JUMP)) {
+  if (equip_inc.contains(equip_game_instance::inc_type::JUMP) ||
+      scroll_inc.contains(equip_game_instance::inc_type::JUMP)) {
     auto str_node =
         wz_resource::ms->get_root()->find(u"String.img/Character/jump");
     auto jump_str =
         static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    auto val = equip_inc.at(equip_game_instance::inc_type::JUMP);
-    auto val2 = scroll_inc.at(equip_game_instance::inc_type::JUMP);
-    auto val_str = "+" + std::to_string(val + val2);
+    auto val = equip_inc[equip_game_instance::inc_type::JUMP];
+    std::string val_str = "+";
+    if (scroll_inc.contains(equip_game_instance::inc_type::JUMP)) {
+      auto val2 = scroll_inc.at(equip_game_instance::inc_type::JUMP);
+      val_str = std::format("+{}({}+{})", val + val2, val, val2);
+    } else {
+      val_str = val_str + std::to_string(val);
+    }
     render_equip_bottom_inc(
         jump_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -875,7 +929,8 @@ void tooltip_ui_system::render_item(game_item &item, float x, float y) {
 
   auto item_desc = item_game_instance::load_item_text(item.id, u"desc");
   freetype::load_size(13);
-  freetype::draw_str(item_desc, pos_rect.x + 74, pos_rect.y - 8, w - 112, 1.1);
+  freetype::draw_rstr(item_desc, x + base.x + 84, y + base.y - 2, w - 112, 1.1,
+                      std::nullopt, false);
 }
 
 void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {

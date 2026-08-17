@@ -10,12 +10,12 @@ void package_game_instance::load(const character_save &cs) {
     d.clear(); // 先清空
   }
   game_consume_item gci;
-  gci.id = u"02000000";
-  gci.num = 1;
+  gci.id = u"02070008";
+  gci.num = 1000;
 
   data[(int)item_enum::equip].assign(
       96, std::polymorphic<game_item>(game_equip_item{}));
-  data[(int)item_enum::consume].assign(32, std::polymorphic<game_item>(gci));
+  data[(int)item_enum::consume].assign(96, std::polymorphic<game_item>(gci));
   data[(int)item_enum::install].assign(
       96, std::polymorphic<game_item>(game_install_item{}));
   data[(int)item_enum::etc].assign(
@@ -24,6 +24,10 @@ void package_game_instance::load(const character_save &cs) {
       96, std::polymorphic<game_item>(game_cash_item{}));
   data[(int)item_enum::deco].assign(
       96, std::polymorphic<game_item>(game_deco_item{}));
+
+  gci.id = u"02000000";
+  gci.num = 1000;
+  data[(int)item_enum::consume][0] = std::polymorphic<game_item>(gci);
 
   // meso = 0;
   data[0][0]->id = u"01472012";

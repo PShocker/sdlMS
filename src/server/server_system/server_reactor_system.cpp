@@ -15,7 +15,7 @@ void server_reactor_system::run_script(server_reactor &r) {
   auto state = r.state;
   auto next_state = server_reactor_instance::load_next_state(r.id, r.state);
   if (state == next_state && r.hit_cd <= window::dt_time) {
-    r.revive = window::dt_time + 3000;
+    r.revive = window::dt_time + 30000;
     auto script = server_reactor_instance::load_script(r.id);
     if (!script.empty()) {
       const auto &fns = script::fns();

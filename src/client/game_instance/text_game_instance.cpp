@@ -12,9 +12,16 @@
 #include <string>
 
 std::u16string text_game_instance::replace_n(std::u16string str) {
-  const std::u16string_view pattern = u"\\n";
-  const std::u16string_view replacement = u"\n";
+  std::u16string_view pattern = u"\\n";
+  std::u16string_view replacement = u"\n";
   size_t pos = 0;
+  while ((pos = str.find(pattern, pos)) != std::u16string::npos) {
+    str.replace(pos, pattern.size(), replacement);
+    pos += replacement.size(); // 跳过替换后的内容
+  }
+  pattern = u"\\r";
+  replacement = u"";
+  pos = 0;
   while ((pos = str.find(pattern, pos)) != std::u16string::npos) {
     str.replace(pos, pattern.size(), replacement);
     pos += replacement.size(); // 跳过替换后的内容

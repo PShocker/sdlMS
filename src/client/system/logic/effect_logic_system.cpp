@@ -53,7 +53,7 @@ bool effect_logic_system::run_effect(game_effect &g_effect) {
   if (g_effect.time > delay) {
     g_effect.index += 1;
     g_effect.time = 0;
-    if (g_effect.index >= texture_node->children_count()) {
+    if (g_effect.index >= hit_node->children_count()) {
       r = true;
     }
   }

@@ -121,7 +121,7 @@ bool skill_game_instance::load_ski_active(const std::u16string &id) {
 
 ClientCharacterAttackT
 skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
-                                           uint64_t delay) {
+                                           uint64_t delay, uint32_t interval) {
   ClientCharacterAttackT attack_payload;
   auto &mobs = cm.data;
 
@@ -132,7 +132,7 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
       ct.mob_index = mob.mob.index;
       ct.attack = std::make_unique<AttackT>();
       ct.attack->num = mob.hits[n];
-      ct.attack->delay = delay + n * 60;
+      ct.attack->delay = delay + n * interval;
       ct.attack->x = mob.x;
       ct.attack->y = mob.y;
       ct.left = pos.x < mob.mob.pos.x;

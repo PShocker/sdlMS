@@ -112,6 +112,16 @@ check_reactors character_logic_system::run_reactor_check(game_character &g,
   std::flat_map<uint32_t, check_reactors::reactors> m;
   for (const auto &rs : reactor_game_instance::data) {
     for (const auto &r : rs) {
+      auto node = wz_resource::reactor->find(r.id + u".img");
+      node = node->find(std::to_string(r.state) + "/event/0");
+      if (node == nullptr) {
+        continue;
+      }
+      auto type =
+          static_cast<wz::Property<int> *>(node->get_child(u"type"))->get();
+      if (type != 0) {
+        continue;
+      }
       SDL_FRect reactor_r;
       reactor_r.x = r.pos.x - 20;
       reactor_r.y = r.pos.y - 20;
@@ -761,6 +771,13 @@ bool character_logic_system::run_attack(game_character &g_character) {
     auto weapon_type = equip_game_instance::load_weapon_type(g_character);
     bool shoot_weapon = shoot_weapons.contains(weapon_type);
     auto &gen = random_game_instance::gen;
+    const std::flat_set<std::u16string> *actions;
+    if (weapon_attack_action2.contains(weapon_type)) {
+      actions = &weapon_attack_action2.at(weapon_type);
+    } else {
+      actions = &weapon_attack_action.at(weapon_type);
+    }
+    run_action(g_character, *actions->begin());
     SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
     auto rt = run_reactor_check(g_character, g_r);
     switch (g_action) {
@@ -770,7 +787,6 @@ bool character_logic_system::run_attack(game_character &g_character) {
       self_hspeed = 0;
     }
     case action_enum::jump: {
-      const std::flat_set<std::u16string> *actions;
       if (g_action == action_enum::jump &&
           (weapon_type == equip_game_instance::weapon_type::BOW ||
            weapon_type == equip_game_instance::weapon_type::CROSSBOW)) {
@@ -834,7 +850,8 @@ bool character_logic_system::run_attack(game_character &g_character) {
           u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
       auto page = g_character.page;
       SDL_FPoint pos = g_character.pos;
-      SDL_FPoint goal = g_character.pos;
+      pos.y -= 28;
+      SDL_FPoint goal = pos;
       if (g_character.flip) {
         goal.x += 350;
       } else {
@@ -844,10 +861,10 @@ bool character_logic_system::run_attack(game_character &g_character) {
                                                          page, 700, path);
       if (!cm.data.empty()) {
         cm.data = {cm.data[0]};
-        cm.data[0].hits = {1, 1};
+        cm.data[0].hits = {100};
         auto d = ball_game_instance::load_ball_time(cct);
         auto cat = skill_game_instance::create_attack_payload(cm, pos, d);
-        cat.payload[0]->effect = "Afterimage/hit.img/mace1";
+        cat.payload[0]->effect = "Afterimage/hit.img/maceF";
         client_request::send_to_host(cat);
       }
       server_ball_instance::handle_server_b(cct.payload);
