@@ -9,6 +9,7 @@
 #include "src/client/game/game_tomb.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
+#include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
@@ -37,6 +38,7 @@
 #include "src/common/physic/physic.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "wz/Property.h"
 #include <algorithm>
@@ -702,12 +704,6 @@ bool character_logic_system::run_skill(game_character &g_character) {
   return false;
 }
 
-check_mobs
-character_logic_system::run_shoot_check(game_character &g_character) {
-  SDL_FRect r{-20, -20, 20, 20};
-  return run_attack_check(g_character, r);
-}
-
 bool character_logic_system::run_attack_action(game_character &g_character) {
   if (g_character.abnormals.contains(
           game_character::abnormal_state_type::dizz)) {
@@ -763,7 +759,10 @@ bool character_logic_system::run_attack(game_character &g_character) {
     auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
     uint64_t delay;
     auto weapon_type = equip_game_instance::load_weapon_type(g_character);
-    bool shoot = false;
+    bool shoot_weapon = shoot_weapons.contains(weapon_type);
+    auto &gen = random_game_instance::gen;
+    SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
+    auto rt = run_reactor_check(g_character, g_r);
     switch (g_action) {
     case action_enum::stand:
     case action_enum::alert:
@@ -771,11 +770,24 @@ bool character_logic_system::run_attack(game_character &g_character) {
       self_hspeed = 0;
     }
     case action_enum::jump: {
-      auto &gen = random_game_instance::gen;
-      bool shoot_weapon = shoot_weapons.contains(weapon_type);
       const std::flat_set<std::u16string> *actions;
+      if (g_action == action_enum::jump &&
+          (weapon_type == equip_game_instance::weapon_type::BOW ||
+           weapon_type == equip_game_instance::weapon_type::CROSSBOW)) {
+        shoot_weapon = false;
+      }
+      if (!rt.data.empty()) {
+        shoot_weapon = false;
+      }
+      if (!package_ui_system::load_active_ball()) {
+        shoot_weapon = false;
+      }
       actions = &weapon_attack_action.at(weapon_type);
-
+      if (!shoot_weapon) {
+        if (weapon_attack_action2.contains(weapon_type)) {
+          actions = &weapon_attack_action2.at(weapon_type);
+        }
+      }
       std::uniform_int_distribution<> dis(0, actions->size() - 1);
       auto selected = *std::next(actions->begin(), dis(gen));
       run_action(g_character, selected);
@@ -789,12 +801,10 @@ bool character_logic_system::run_attack(game_character &g_character) {
       break;
     }
     }
-    SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
     delay = afterimage_game_instance::load_beat_time(g_character);
     self_alert_cooldown = window::dt_now + 5000;
     load_sfx(g_character);
     // reactor
-    auto rt = run_reactor_check(g_character, g_r);
     if (!rt.data.empty()) {
       auto &r = rt.data[0];
       ClientReactorT crt;
@@ -805,16 +815,57 @@ bool character_logic_system::run_attack(game_character &g_character) {
       client_request::send_to_host(crt);
       return true;
     }
+    if (shoot_weapon) {
+      game_triangle tri = {
+          {
+              SDL_FPoint{-350, -100},
+              SDL_FPoint{-350, 100},
+              SDL_FPoint{0, -28},
+          },
+      };
+      auto cm = character_logic_system::run_attack_check(g_character, tri);
+      auto ball = package_ui_system::load_active_ball();
+      auto &consume = static_cast<game_consume_item &>(**ball);
+      consume.num -= 1;
 
-    auto cm = run_attack_check(g_character, g_r);
-    if (!cm.data.empty()) {
-      cm.data = {cm.data[0]};
-      cm.data[0].hits = {30};
-      auto t = skill_game_instance::create_attack_payload(cm, g_character.pos,
-                                                          delay);
-      t.payload[0]->afterimage = true;
-      client_request::send_to_host(t);
+      auto ball_id = (*ball)->id;
+      auto ball_sub_id = ball_id.substr(0, 4) + u".img";
+      std::u16string path =
+          u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
+      auto page = g_character.page;
+      SDL_FPoint pos = g_character.pos;
+      SDL_FPoint goal = g_character.pos;
+      if (g_character.flip) {
+        goal.x += 350;
+      } else {
+        goal.x -= 350;
+      }
+      auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
+                                                         page, 700, path);
+      if (!cm.data.empty()) {
+        cm.data = {cm.data[0]};
+        cm.data[0].hits = {1, 1};
+        auto d = ball_game_instance::load_ball_time(cct);
+        auto cat = skill_game_instance::create_attack_payload(cm, pos, d);
+        cat.payload[0]->effect = "Afterimage/hit.img/mace1";
+        client_request::send_to_host(cat);
+      }
+      server_ball_instance::handle_server_b(cct.payload);
+      client_request::send_to_host(cct);
+    } else {
+      auto cm = run_attack_check(g_character, g_r);
+      if (!cm.data.empty()) {
+        cm.data = {cm.data[0]};
+        cm.data[0].hits = {30};
+        auto cat = skill_game_instance::create_attack_payload(
+            cm, g_character.pos, delay);
+        auto hit_type = afterimage_game_instance::load_hit_type(g_character);
+        cat.payload[0]->effect = "Afterimage/hit.img/" +
+                                 std::string{hit_type.begin(), hit_type.end()};
+        client_request::send_to_host(cat);
+      }
     }
+
     return true;
   }
   return false;
@@ -1503,6 +1554,11 @@ bool character_logic_system::run_item(game_character &g_character,
         character_stat_game_instance::mp_point =
             std::min(character_stat_game_instance::mp_point,
                      character_stat_game_instance::mp_point_max);
+      }
+      if (info->get_child(u"moveTo")) {
+        auto moveTo =
+            static_cast<wz::Property<int> *>(info->get_child(u"moveTo"))->get();
+        scene_system_instance::enter_prepare(moveTo, u"sp", 0);
       }
       return true;
     }

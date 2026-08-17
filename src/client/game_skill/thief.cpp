@@ -9,6 +9,7 @@
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
@@ -118,18 +119,22 @@ static void shuangfeizhan() {
   g_skill.fall = true;
   g_skill.use = [](int ski_lv) {
     game_triangle tri = {
-        {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -28}}};
+        {
+            SDL_FPoint{-350, -100},
+            SDL_FPoint{-350, 100},
+            SDL_FPoint{0, -28},
+        },
+    };
     auto &self = character_game_instance::self;
     auto weapon_type = equip_game_instance::load_weapon_type(self);
-    // if (weapon_type != equip_game_instance::weapon_type::CLAW) {
-    //   return;
-    // }
-    auto ball_type = ball_game_instance::load_ball_type(self);
-    // auto ball_id = ball_game_instance::load_pkg_ball(2, ball_type);
-    std::u16string ball_id = u"02070005";
-    if (ball_id.empty()) {
+    if (weapon_type != equip_game_instance::weapon_type::CLAW) {
       return;
     }
+    auto ball = package_ui_system::load_active_ball();
+    if (ball == nullptr) {
+      return;
+    }
+    auto ball_id = (*ball)->id;
     character_logic_system::run_action(self, u"swingO1");
     auto cm = character_logic_system::run_attack_check(self, tri);
     if (!cm.data.empty()) {

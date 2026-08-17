@@ -1,15 +1,9 @@
 #include "ball_game_instance.h"
 #include "SDL3/SDL_rect.h"
-#include "equip_game_instance.h"
-#include "src/client/game/game_ball.h"
 #include "src/client/game/game_foothold.h"
-#include "src/client/game/game_item.h"
 #include "src/client/game_instance/foothold_game_instance.h"
-#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
-#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
-#include "src/client/system/ui/package_ui_system.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
 #include <algorithm>
@@ -168,59 +162,4 @@ uint64_t ball_game_instance::load_ball_time(ClientCharacterBallT &cct) {
     return dt + b->delay;
   }
   return 0;
-}
-
-ball_game_instance::ball_enum
-ball_game_instance::load_ball_type(game_character &g_character) {
-  auto weapon_type = equip_game_instance::load_weapon_type(g_character);
-  switch (weapon_type) {
-  case equip_game_instance::weapon_type::BOW: {
-    return ball_enum::bow;
-    break;
-  }
-  case equip_game_instance::weapon_type::CROSSBOW: {
-    return ball_enum::arrow;
-    break;
-  }
-  case equip_game_instance::weapon_type::CLAW: {
-    return ball_enum::claw;
-    break;
-  }
-  default: {
-    break;
-  }
-  }
-  return ball_enum::none;
-}
-
-std::u16string ball_game_instance::load_pkg_ball(int i, ball_enum type) {
-  std::u16string pre;
-  switch (type) {
-  case ball_enum::claw: {
-    pre = u"0207";
-    break;
-  }
-  case ball_enum::bow:
-  case ball_enum::arrow:
-    break;
-
-  default: {
-    return u"";
-  }
-  }
-
-  auto pkg = package_game_instance::data[(int)item_enum::consume];
-  for (auto itm : pkg) {
-    if (itm->id.empty()) {
-      continue;
-    }
-    std::u16string sub = itm->id.substr(0, 3);
-    if (pre == sub) {
-      auto itm_num = package_ui_system::load_full_item_num(itm->id);
-      if (itm_num >= i) {
-        return itm->id;
-      }
-    }
-  }
-  return u"";
 }

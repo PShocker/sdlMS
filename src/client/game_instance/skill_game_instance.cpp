@@ -135,7 +135,6 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
       ct.attack->delay = delay + n * 60;
       ct.attack->x = mob.x;
       ct.attack->y = mob.y;
-      ct.afterimage = false;
       ct.left = pos.x < mob.mob.pos.x;
       attack_payload.payload.push_back(
           std::make_unique<CharacterAttackT>(std::move(ct)));
@@ -143,7 +142,7 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
     // gauge
     if (!mob_game_instance::data.at(mob.mob.index).mob.gauge.has_value()) {
       game_gauge g;
-      g.hp_percent = mob.mob.hp / mob.mob.max_hp;
+      g.hp_percent = (float)mob.mob.hp / mob.mob.max_hp;
       g.hp_percent_now = g.hp_percent;
       mob_game_instance::data.at(mob.mob.index).mob.gauge = g;
     }

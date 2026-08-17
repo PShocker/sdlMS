@@ -180,6 +180,13 @@ void character_game_instance::load_self_character() {
   add_weapon_deco(self, u"01702017");
   add_ring0_deco(self, u"01112219");
   add_ring1_deco(self, u"01112108");
+
+  self.weapon->scroll = {
+      {u"02040000", true},
+      {u"02040001", true},
+      {u"02040002", true},
+      {u"02040003", true},
+  };
 }
 
 std::flat_set<std::u16string>

@@ -24,11 +24,11 @@ public:
   uint8_t lvl = 0;
 
   enum class effect_type {
-    afterimage,
+    effect,
     damage,
     skill_use,
     skill_hit,
-    custom,
+    skill_custom,
   };
   effect_type type;
 

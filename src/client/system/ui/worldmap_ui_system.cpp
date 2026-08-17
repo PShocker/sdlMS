@@ -250,6 +250,7 @@ void worldmap_ui_system::open() {
 
 void worldmap_ui_system::close() {
   std::erase(system::render_systems, render);
+  std::erase(system::render_systems, render_spot_info);
   std::erase(system::event_systems, event);
 
   event_drag_end();

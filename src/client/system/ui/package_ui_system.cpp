@@ -25,7 +25,6 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
-#include "src/server/server_instance/server_character_instance.h"
 #include "tooltip_ui_system.h"
 #include <algorithm>
 #include <cmath>
@@ -134,27 +133,6 @@ uint32_t package_ui_system::load_full_item_num(const std::u16string &id) {
     }
   }
   return r;
-}
-
-void package_ui_system::render_active_ball() {
-  auto &self = character_game_instance::self;
-  auto ball_type = ball_game_instance::load_ball_type(self);
-  auto ball_id = ball_game_instance::load_pkg_ball(1, ball_type);
-  if (!ball_id.empty()) {
-    auto p = package_game_instance::data[(int)item_enum::consume];
-    for (int i = 0; i < p.size(); i++) {
-      auto itm = p[i];
-      auto itm_num = item_game_instance::load_item_num(itm);
-      if (itm->id == ball_id && itm_num > 0) {
-        // render
-        static auto t = wz_resource::load_texture(
-            wz_resource::ui->find(u"UI/Item.img/canvas:activeIcon"));
-        SDL_FRect pos_rect;
-
-        return;
-      }
-    }
-  }
 }
 
 void package_ui_system::render_backgrnd() {
@@ -377,6 +355,21 @@ void package_ui_system::render_items() {
         SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
       }
     }
+    // render active ball
+    if (active_tab == (int)item_enum::consume) {
+      auto active_ball = load_active_ball();
+      if (active_ball == &item) {
+        auto node = wz_resource::ui->find(u"Item.img/canvas:activeIcon");
+        icon = wz_resource::load_texture(node);
+        pos_rect.x =
+            (int)pos.x + slot_pos.x + col * (slot_size + slot_space_x) - 1;
+        pos_rect.y =
+            (int)pos.y + slot_pos.y + row * (slot_size + slot_space_y) - 2;
+        pos_rect.w = icon->w;
+        pos_rect.h = icon->h;
+        SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+      }
+    }
 
     // render num
     auto item_num = item_game_instance::load_item_num(item);
@@ -475,6 +468,7 @@ void package_ui_system::open() {
 
 void package_ui_system::close() {
   std::erase(system::render_systems, render);
+  std::erase(system::render_systems, render_items_info);
   std::erase(system::event_systems, event);
 
   new_itm = std::nullopt;
@@ -553,55 +547,70 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
   }
   case cursor_game_instance::package: {
     if (hand.val != active_tab) {
-      cursor_game_instance::cursor_hand = std::nullopt;
-      return true;
+      // 只有卷轴类道具可以跨tab使用
+      auto &r = package_game_instance::data[hand.val];
+      auto &itm = r.at(hand.sub_val);
+      if (!((item_enum)active_tab == item_enum::equip &&
+            hand.val == (int)item_enum::consume &&
+            itm->id.starts_with(u"0204"))) {
+        cursor_game_instance::cursor_hand = std::nullopt;
+        return true;
+      }
     }
     switch ((item_enum)hand.val) {
     case item_enum::equip: {
       auto &equips = package_game_instance::data[0];
       // 点击的是同一个格子：尝试穿戴
-      if (hand.sub_val == index.value()) {
-        auto equip = static_cast<game_equip_item &>(*equips[index.value()]);
-        auto ev = equip_game_instance::load_equip_slot(equip, sf);
+      if (hand.val == active_tab) {
+        if (hand.sub_val == index.value()) {
+          auto equip = static_cast<game_equip_item &>(*equips[index.value()]);
+          auto ev = equip_game_instance::load_equip_slot(equip, sf);
 
-        if (!equip_game_instance::add_equip_limit(equip, sf, 0)) {
-          notice_ui_system::type =
-              notice_ui_system::notice_enum::equip_no_ability;
-          notice_ui_system::open();
+          if (!equip_game_instance::add_equip_limit(equip, sf, 0)) {
+            notice_ui_system::type =
+                notice_ui_system::notice_enum::equip_no_ability;
+            notice_ui_system::open();
+            cursor_game_instance::cursor_hand = std::nullopt;
+            return true;
+          }
+
+          auto blank_slot = load_blank_index(active_tab);
+          blank_slot.push_back(index.value());
+          std::ranges::sort(blank_slot);
+
+          if (blank_slot.size() < ev.size()) {
+            notice_ui_system::type =
+                notice_ui_system::notice_enum::equip_no_space;
+            notice_ui_system::open();
+            cursor_game_instance::cursor_hand = std::nullopt;
+            return true;
+          }
+
+          // 执行穿戴
+          equips[hand.sub_val]->id = u"";
+          for (int32_t i = 0; i < ev.size(); i++) {
+            auto eqp = ev[i];
+            equips[blank_slot[i]] = std::polymorphic<game_item>(
+                std::in_place_type<game_equip_item>, eqp);
+          }
+          // 发包
+          character_logic_system::cct.map_id = scene_system_instance::map_id;
+
+          cursor_game_instance::cursor_hand = std::nullopt;
+          return true;
+        } else {
+          // 点击不同格子：交换
+          std::swap(equips[hand.sub_val], equips[index.value()]);
           cursor_game_instance::cursor_hand = std::nullopt;
           return true;
         }
-
-        auto blank_slot = load_blank_index(active_tab);
-        blank_slot.push_back(index.value());
-        std::ranges::sort(blank_slot);
-
-        if (blank_slot.size() < ev.size()) {
-          notice_ui_system::type =
-              notice_ui_system::notice_enum::equip_no_space;
-          notice_ui_system::open();
-          cursor_game_instance::cursor_hand = std::nullopt;
-          return true;
-        }
-
-        // 执行穿戴
-        equips[hand.sub_val]->id = u"";
-        for (int32_t i = 0; i < ev.size(); i++) {
-          auto eqp = ev[i];
-          equips[blank_slot[i]] = std::polymorphic<game_item>(
-              std::in_place_type<game_equip_item>, eqp);
-        }
-        // 发包
-        character_logic_system::cct.map_id = scene_system_instance::map_id;
-
-        cursor_game_instance::cursor_hand = std::nullopt;
-        return true;
+      } else {
+        // 卷轴
+        auto &r = package_game_instance::data[hand.val];
+        auto &itm0 = r.at(index.value());
+        auto &itm1 = r.at(hand.sub_val);
       }
 
-      // 点击不同格子：交换
-      std::swap(equips[hand.sub_val], equips[index.value()]);
-      cursor_game_instance::cursor_hand = std::nullopt;
-      return true;
       break;
     }
     case item_enum::etc:
@@ -880,6 +889,38 @@ package_ui_system::load_f_item(const std::u16string &id) {
   for (auto &itm : *r) {
     if (itm->id == id) {
       return &itm;
+    }
+  }
+  return nullptr;
+}
+
+std::polymorphic<game_item> *package_ui_system::load_active_ball() {
+  auto &sf = character_game_instance::self;
+  std::u16string pre;
+  auto weapon_type = equip_game_instance::load_weapon_type(sf);
+  switch (weapon_type) {
+  case equip_game_instance::weapon_type::BOW: {
+    break;
+  }
+  case equip_game_instance::weapon_type::CROSSBOW: {
+    break;
+  }
+  case equip_game_instance::weapon_type::CLAW: {
+    pre = u"0207";
+    break;
+  }
+  default: {
+    return nullptr;
+    break;
+  }
+  }
+  auto &r = package_game_instance::data[(int)item_enum::consume];
+  for (auto &itm : r) {
+    if (itm->id.starts_with(pre)) {
+      auto num = item_game_instance::load_item_num(itm);
+      if (num > 0) {
+        return &itm;
+      }
     }
   }
   return nullptr;

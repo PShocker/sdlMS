@@ -14,7 +14,7 @@ private:
                                       float x, float &y);
 
   static void render_equip_bottom(game_equip_item &equip, float x, float y);
-  static float load_equip_bottom_h(const std::u16string &id);
+  static float load_equip_bottom_h(game_equip_item &equip);
 
   static void render_deco_bottom(game_deco_item &deco, float x, float y);
   static float load_deco_bottom_h(const std::u16string &id);

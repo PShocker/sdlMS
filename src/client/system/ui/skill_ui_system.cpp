@@ -98,6 +98,7 @@ void skill_ui_system::open() {
 
 void skill_ui_system::close() {
   std::erase(system::render_systems, render);
+  std::erase(system::render_systems, render_info);
   std::erase(system::event_systems, event);
 
   event_drag_end();

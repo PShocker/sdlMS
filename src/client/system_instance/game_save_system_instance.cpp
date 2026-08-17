@@ -50,6 +50,11 @@ bool game_save_system_instance::load_save(const std::string &login) {
           game_equip_item g_equip;
           auto tmp = std::format("{:08d}", eqp->equip_id);
           g_equip.id = {tmp.begin(), tmp.end()};
+          for (const auto &scroll : eqp->scroll) {
+            tmp = std::format("{:08d}", scroll->scroll_id);
+            std::u16string scroll_id{tmp.begin(), tmp.end()};
+            g_equip.scroll.push_back({scroll_id, scroll->success});
+          }
           auto g_item = std::polymorphic<game_item>(
               std::in_place_type<game_equip_item>, g_equip);
           cs.package.emplace_back(item->index, g_item);
@@ -119,7 +124,7 @@ bool game_save_system_instance::load_save(const std::string &login) {
       case fbs::ItemUnion_Item: {
         break;
       }
-      default:{
+      default: {
         break;
       }
       }
@@ -251,6 +256,13 @@ bool game_save_system_instance::save_game() {
         game_equip_item &equip = static_cast<game_equip_item &>(*pkg.val);
         EquipT et;
         et.equip_id = item_id;
+        for (auto &scroll : equip.scroll) {
+          EquipScrollT est;
+          est.scroll_id =
+              std::stoi(std::string{scroll.id.begin(), scroll.id.end()});
+          est.success = scroll.success;
+          et.scroll.push_back(std::make_unique<EquipScrollT>(est));
+        }
         pst.data.Set(et);
         break;
       }
@@ -269,6 +281,12 @@ bool game_save_system_instance::save_game() {
         it.item_id = item_id;
         it.item_num = item_num;
         pst.data.Set(it);
+        break;
+      }
+      case item_enum::deco: {
+        EquipT et;
+        et.equip_id = item_id;
+        pst.data.Set(et);
         break;
       }
       }

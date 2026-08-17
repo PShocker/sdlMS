@@ -1593,7 +1593,7 @@ struct CharacterAttackT : public ::flatbuffers::NativeTable {
   typedef CharacterAttack TableType;
   uint32_t mob_index = 0;
   std::unique_ptr<fbs::AttackT> attack{};
-  bool afterimage = false;
+  std::string effect{};
   bool left = false;
   CharacterAttackT() = default;
   CharacterAttackT(const CharacterAttackT &o);
@@ -1607,7 +1607,7 @@ struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MOB_INDEX = 4,
     VT_ATTACK = 6,
-    VT_AFTERIMAGE = 8,
+    VT_EFFECT = 8,
     VT_LEFT = 10
   };
   uint32_t mob_index() const {
@@ -1622,11 +1622,11 @@ struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::Attack *mutable_attack() {
     return GetPointer<fbs::Attack *>(VT_ATTACK);
   }
-  bool afterimage() const {
-    return GetField<uint8_t>(VT_AFTERIMAGE, 0) != 0;
+  const ::flatbuffers::String *effect() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_EFFECT);
   }
-  bool mutate_afterimage(bool _afterimage = 0) {
-    return SetField<uint8_t>(VT_AFTERIMAGE, static_cast<uint8_t>(_afterimage), 0);
+  ::flatbuffers::String *mutable_effect() {
+    return GetPointer<::flatbuffers::String *>(VT_EFFECT);
   }
   bool left() const {
     return GetField<uint8_t>(VT_LEFT, 0) != 0;
@@ -1640,7 +1640,8 @@ struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
            VerifyOffset(verifier, VT_ATTACK) &&
            verifier.VerifyTable(attack()) &&
-           VerifyField<uint8_t>(verifier, VT_AFTERIMAGE, 1) &&
+           VerifyOffset(verifier, VT_EFFECT) &&
+           verifier.VerifyString(effect()) &&
            VerifyField<uint8_t>(verifier, VT_LEFT, 1) &&
            verifier.EndTable();
   }
@@ -1659,8 +1660,8 @@ struct CharacterAttackBuilder {
   void add_attack(::flatbuffers::Offset<fbs::Attack> attack) {
     fbb_.AddOffset(CharacterAttack::VT_ATTACK, attack);
   }
-  void add_afterimage(bool afterimage) {
-    fbb_.AddElement<uint8_t>(CharacterAttack::VT_AFTERIMAGE, static_cast<uint8_t>(afterimage), 0);
+  void add_effect(::flatbuffers::Offset<::flatbuffers::String> effect) {
+    fbb_.AddOffset(CharacterAttack::VT_EFFECT, effect);
   }
   void add_left(bool left) {
     fbb_.AddElement<uint8_t>(CharacterAttack::VT_LEFT, static_cast<uint8_t>(left), 0);
@@ -1680,14 +1681,29 @@ inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t mob_index = 0,
     ::flatbuffers::Offset<fbs::Attack> attack = 0,
-    bool afterimage = false,
+    ::flatbuffers::Offset<::flatbuffers::String> effect = 0,
     bool left = false) {
   CharacterAttackBuilder builder_(_fbb);
+  builder_.add_effect(effect);
   builder_.add_attack(attack);
   builder_.add_mob_index(mob_index);
   builder_.add_left(left);
-  builder_.add_afterimage(afterimage);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttackDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    ::flatbuffers::Offset<fbs::Attack> attack = 0,
+    const char *effect = nullptr,
+    bool left = false) {
+  auto effect__ = effect ? _fbb.CreateString(effect) : 0;
+  return fbs::CreateCharacterAttack(
+      _fbb,
+      mob_index,
+      attack,
+      effect__,
+      left);
 }
 
 ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2132,7 +2148,6 @@ inline ::flatbuffers::Offset<CharacterChat> CreateCharacterChatDirect(
 
 struct EquipScrollT : public ::flatbuffers::NativeTable {
   typedef EquipScroll TableType;
-  uint32_t equip_id = 0;
   uint32_t scroll_id = 0;
   bool success = false;
 };
@@ -2141,16 +2156,9 @@ struct EquipScroll FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef EquipScrollT NativeTableType;
   typedef EquipScrollBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_EQUIP_ID = 4,
-    VT_SCROLL_ID = 6,
-    VT_SUCCESS = 8
+    VT_SCROLL_ID = 4,
+    VT_SUCCESS = 6
   };
-  uint32_t equip_id() const {
-    return GetField<uint32_t>(VT_EQUIP_ID, 0);
-  }
-  bool mutate_equip_id(uint32_t _equip_id = 0) {
-    return SetField<uint32_t>(VT_EQUIP_ID, _equip_id, 0);
-  }
   uint32_t scroll_id() const {
     return GetField<uint32_t>(VT_SCROLL_ID, 0);
   }
@@ -2166,7 +2174,6 @@ struct EquipScroll FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_EQUIP_ID, 4) &&
            VerifyField<uint32_t>(verifier, VT_SCROLL_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_SUCCESS, 1) &&
            verifier.EndTable();
@@ -2180,9 +2187,6 @@ struct EquipScrollBuilder {
   typedef EquipScroll Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_equip_id(uint32_t equip_id) {
-    fbb_.AddElement<uint32_t>(EquipScroll::VT_EQUIP_ID, equip_id, 0);
-  }
   void add_scroll_id(uint32_t scroll_id) {
     fbb_.AddElement<uint32_t>(EquipScroll::VT_SCROLL_ID, scroll_id, 0);
   }
@@ -2202,12 +2206,10 @@ struct EquipScrollBuilder {
 
 inline ::flatbuffers::Offset<EquipScroll> CreateEquipScroll(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t equip_id = 0,
     uint32_t scroll_id = 0,
     bool success = false) {
   EquipScrollBuilder builder_(_fbb);
   builder_.add_scroll_id(scroll_id);
-  builder_.add_equip_id(equip_id);
   builder_.add_success(success);
   return builder_.Finish();
 }
@@ -4284,14 +4286,14 @@ inline ::flatbuffers::Offset<CharacterBall> CharacterBall::Pack(::flatbuffers::F
 inline CharacterAttackT::CharacterAttackT(const CharacterAttackT &o)
       : mob_index(o.mob_index),
         attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr),
-        afterimage(o.afterimage),
+        effect(o.effect),
         left(o.left) {
 }
 
 inline CharacterAttackT &CharacterAttackT::operator=(CharacterAttackT o) FLATBUFFERS_NOEXCEPT {
   std::swap(mob_index, o.mob_index);
   std::swap(attack, o.attack);
-  std::swap(afterimage, o.afterimage);
+  std::swap(effect, o.effect);
   std::swap(left, o.left);
   return *this;
 }
@@ -4307,7 +4309,7 @@ inline void CharacterAttack::UnPackTo(CharacterAttackT *_o, const ::flatbuffers:
   (void)_resolver;
   { auto _e = mob_index(); _o->mob_index = _e; }
   { auto _e = attack(); if (_e) { if(_o->attack) { _e->UnPackTo(_o->attack.get(), _resolver); } else { _o->attack = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->attack) { _o->attack.reset(); } }
-  { auto _e = afterimage(); _o->afterimage = _e; }
+  { auto _e = effect(); if (_e) _o->effect = _e->str(); }
   { auto _e = left(); _o->left = _e; }
 }
 
@@ -4321,13 +4323,13 @@ inline ::flatbuffers::Offset<CharacterAttack> CharacterAttack::Pack(::flatbuffer
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const CharacterAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _mob_index = _o->mob_index;
   auto _attack = _o->attack ? CreateAttack(_fbb, _o->attack.get(), _rehasher) : 0;
-  auto _afterimage = _o->afterimage;
+  auto _effect = _o->effect.empty() ? 0 : _fbb.CreateString(_o->effect);
   auto _left = _o->left;
   return fbs::CreateCharacterAttack(
       _fbb,
       _mob_index,
       _attack,
-      _afterimage,
+      _effect,
       _left);
 }
 
@@ -4523,7 +4525,6 @@ inline EquipScrollT *EquipScroll::UnPack(const ::flatbuffers::resolver_function_
 inline void EquipScroll::UnPackTo(EquipScrollT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = equip_id(); _o->equip_id = _e; }
   { auto _e = scroll_id(); _o->scroll_id = _e; }
   { auto _e = success(); _o->success = _e; }
 }
@@ -4536,12 +4537,10 @@ inline ::flatbuffers::Offset<EquipScroll> EquipScroll::Pack(::flatbuffers::FlatB
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const EquipScrollT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _equip_id = _o->equip_id;
   auto _scroll_id = _o->scroll_id;
   auto _success = _o->success;
   return fbs::CreateEquipScroll(
       _fbb,
-      _equip_id,
       _scroll_id,
       _success);
 }

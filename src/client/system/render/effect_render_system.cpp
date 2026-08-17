@@ -12,15 +12,14 @@
 #include <string>
 #include <vector>
 
-void effect_render_system::render_afterimage(SDL_FPoint pos,
-                                             game_effect &g_effect) {
+void effect_render_system::render_effect(SDL_FPoint pos,
+                                         game_effect &g_effect) {
   auto current_time = window::dt_time;
   if (current_time <= g_effect.delay) {
     return;
   }
   auto atk_pos = g_effect.pos.value();
-  std::u16string type = g_effect.id;
-  auto hit_node = wz_resource::character->find(u"Afterimage/hit.img/" + type);
+  auto hit_node = wz_resource::character->find(g_effect.id);
   auto index = std::to_string(g_effect.index);
   auto texture_node = hit_node->get_child(index);
   auto texture = wz_resource::load_texture(texture_node);
@@ -199,8 +198,8 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
                                   bool flip) {
   bool r = true;
   switch (g_effect.type) {
-  case game_effect::effect_type::afterimage: {
-    render_afterimage(pos, g_effect);
+  case game_effect::effect_type::effect: {
+    render_effect(pos, g_effect);
     break;
   }
   case game_effect::effect_type::damage: {
@@ -215,7 +214,7 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
     render_ski_hit(pos, g_effect, flip);
     break;
   }
-  case game_effect::effect_type::custom: {
+  case game_effect::effect_type::skill_custom: {
     r = render_custom(pos, g_effect, flip);
     break;
   }

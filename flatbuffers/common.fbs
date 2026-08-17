@@ -99,7 +99,7 @@ table CharacterBall{
 table CharacterAttack{
     mob_index:uint32;
     attack:Attack;
-    afterimage:bool;
+    effect:string;
     left:bool;
 }
 
@@ -137,7 +137,6 @@ table CharacterChat{
 }
 
 table EquipScroll{
-    equip_id:uint32;
     scroll_id:uint32;
     success:bool;
 }

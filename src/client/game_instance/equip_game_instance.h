@@ -84,5 +84,7 @@ public:
 
   static std::vector<game_equip_item>
   load_equip_slot(game_equip_item &equip, game_character &character);
+
   static std::flat_map<inc_type, int> load_equip_inc(const std::u16string &id);
+  static std::flat_map<inc_type, int> load_scroll_inc(const std::u16string &id);
 };

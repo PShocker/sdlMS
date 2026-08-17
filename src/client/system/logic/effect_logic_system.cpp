@@ -34,15 +34,14 @@ bool effect_logic_system::run_damage(game_effect &g_effect) {
   return r;
 }
 
-bool effect_logic_system::run_afterimage(game_effect &g_effect) {
+bool effect_logic_system::run_effect(game_effect &g_effect) {
   bool r = false;
   auto current_time = window::dt_time;
   if (g_effect.delay >= current_time) {
     return r;
   }
   g_effect.time += window::delta_time;
-  std::u16string type = g_effect.id;
-  auto hit_node = wz_resource::character->find(u"Afterimage/hit.img/" + type);
+  auto hit_node = wz_resource::character->find(g_effect.id);
   auto index = std::to_string(g_effect.index);
   auto texture_node = hit_node->get_child(index);
   uint32_t delay = 120;
@@ -136,8 +135,8 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
     bool remove = false;
     auto &g_effect = *it;
     switch (g_effect.type) {
-    case game_effect::effect_type::afterimage: {
-      remove = run_afterimage(g_effect);
+    case game_effect::effect_type::effect: {
+      remove = run_effect(g_effect);
       break;
     }
     case game_effect::effect_type::skill_use: {

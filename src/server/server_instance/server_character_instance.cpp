@@ -360,20 +360,13 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
   for (uint32_t i = 0; i < v.size(); i++) {
     auto &ct = v[i];
     auto &mob = mobs[ct->mob_index].mob;
-    if (ct->afterimage) {
-      game_character g_character;
-      if (r.client_id == 0) {
-        g_character = character_game_instance::self;
-      } else if (character_game_instance::others.contains(r.client_id)) {
-        g_character =
-            character_game_instance::others.at(r.client_id).g_character;
-      }
+    if (!ct->effect.empty()) {
       game_effect e = {
-          .id = afterimage_game_instance::load_hit_type(g_character),
+          .id = {ct->effect.begin(), ct->effect.end()},
           .index = 0,
           .time = 0,
           .delay = ct->attack->delay,
-          .type = game_effect::effect_type::afterimage,
+          .type = game_effect::effect_type::effect,
           .pos = SDL_FPoint{ct->attack->x, ct->attack->y},
           .z = false,
       };
@@ -420,7 +413,7 @@ void server_character_instance::handle_ski(
         .index = 0,
         .time = 0,
         .delay = window::dt_now,
-        .type = game_effect::effect_type::custom,
+        .type = game_effect::effect_type::skill_custom,
         .pos = std::nullopt,
         .z = false,
         .data = &g_character,
@@ -549,7 +542,11 @@ void server_character_instance::load_g_character(
     tmp = std::format("{:08d}", equip->equip_id);
     game_equip_item e;
     e.id = {tmp.begin(), tmp.end()};
-    equip_game_instance::add_equip(e, g_character, 0);
+    for (const auto &scroll : equip->scroll) {
+      tmp = std::format("{:08d}", scroll->scroll_id);
+      e.scroll.push_back({{tmp.begin(), tmp.end()}, scroll->success});
+    }
+    equip_game_instance::add_equip(e, g_character, -1);
   }
   for (auto &deco : c->decos) {
     tmp = std::format("{:08d}", deco->deco_id);
@@ -573,66 +570,33 @@ CharacterT server_character_instance::load_charactert(const game_character &g) {
   c.state = std::make_unique<fbs::LifeStateT>();
   c.face = std::make_unique<fbs::FaceT>();
 
-  if (g.accessory.has_value()) {
-    auto id = g.accessory->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.cap.has_value()) {
-    auto id = g.cap->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.cape.has_value()) {
-    auto id = g.cape->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.glove.has_value()) {
-    auto id = g.glove->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.coat.has_value()) {
-    auto id = g.coat->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.longcoat.has_value()) {
-    auto id = g.longcoat->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.pant.has_value()) {
-    auto id = g.pant->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.shield.has_value()) {
-    auto id = g.shield->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.weapon.has_value()) {
-    auto id = g.weapon->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
-  if (g.shoes.has_value()) {
-    auto id = g.shoes->id;
-    EquipT et;
-    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-    c.equips.push_back(std::make_unique<EquipT>(et));
-  }
+  const auto load_equip = [&c](const std::optional<game_equip_item> &eqp) {
+    if (eqp.has_value()) {
+      auto id = eqp->id;
+      EquipT et;
+      et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+      for (const auto &scroll : eqp->scroll) {
+        EquipScrollT est;
+        est.scroll_id =
+            std::stoi(std::string{scroll.id.begin(), scroll.id.end()});
+        est.success = scroll.success;
+        et.scroll.push_back(std::make_unique<EquipScrollT>(est));
+      }
+      c.equips.push_back(std::make_unique<EquipT>(et));
+    }
+  };
+
+  load_equip(g.accessory);
+  load_equip(g.cap);
+  load_equip(g.cape);
+  load_equip(g.glove);
+  load_equip(g.coat);
+  load_equip(g.longcoat);
+  load_equip(g.pant);
+  load_equip(g.shield);
+  load_equip(g.weapon);
+  load_equip(g.shoes);
+
   c.appearance->head = std::stoi(std::string{g.head.begin(), g.head.end()});
   c.appearance->body = std::stoi(std::string{g.body.begin(), g.body.end()});
 

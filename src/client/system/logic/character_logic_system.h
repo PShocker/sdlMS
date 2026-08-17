@@ -37,7 +37,6 @@ struct check_reactors {
 
 class character_logic_system {
 private:
-  static check_mobs run_shoot_check(game_character &g_character);
   static check_reactors run_reactor_check(game_character &g, SDL_FRect g_r);
 
   static void run_climb_action(game_character &g_character);

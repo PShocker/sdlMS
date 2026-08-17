@@ -29,8 +29,15 @@ float tooltip_ui_system::load_deco_bottom_h(const std::u16string &id) {
   return h + 18;
 }
 
-float tooltip_ui_system::load_equip_bottom_h(const std::u16string &id) {
+float tooltip_ui_system::load_equip_bottom_h(game_equip_item &equip) {
+  auto &id = equip.id;
   auto equip_inc = equip_game_instance::load_equip_inc(id);
+  for (const auto &scroll : equip.scroll) {
+    if (scroll.success) {
+      auto scroll_inc = equip_game_instance::load_scroll_inc(scroll.id);
+      equip_inc.insert_range(scroll_inc);
+    }
+  }
   freetype::load_size(12);
   auto h = freetype::load_lh();
   return h * (equip_inc.size() + 1);
@@ -92,6 +99,16 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
                                             float y) {
   auto id = equip.id;
   auto equip_inc = equip_game_instance::load_equip_inc(id);
+  std::flat_map<equip_game_instance::inc_type, int> scroll_inc;
+  for (const auto &scroll : equip.scroll) {
+    if (scroll.success) {
+      auto scroll_inc2 = equip_game_instance::load_scroll_inc(scroll.id);
+      for (auto [k, v] : scroll_inc2) {
+        scroll_inc[k] += v;
+      }
+    }
+  }
+
   freetype::load_size(12);
   auto h = freetype::load_lh();
   //   type
@@ -143,7 +160,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
         wz_resource::ms->get_root()->find(u"String.img/Equip/weaponAttack");
     auto pad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_PAD);
-    auto val_str = "+" + std::to_string(val);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::WEAPON_PAD);
+    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
     render_equip_bottom_inc(
         pad_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -153,7 +171,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
     str_node = wz_resource::ms->get_root()->find(u"String.img/Character/pdd");
     auto pdd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::PDD);
-    auto val_str = "+" + std::to_string(val);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::PDD);
+    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
     render_equip_bottom_inc(
         pdd_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -164,7 +183,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
         wz_resource::ms->get_root()->find(u"String.img/Equip/weaponMagic");
     auto mad_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::WEAPON_MAD);
-    auto val_str = "+" + std::to_string(val);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::WEAPON_MAD);
+    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
     render_equip_bottom_inc(
         mad_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -174,7 +194,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
     str_node = wz_resource::ms->get_root()->find(u"String.img/Character/acc");
     auto acc_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::ACC);
-    auto val_str = "+" + std::to_string(val);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::ACC);
+    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
     render_equip_bottom_inc(
         acc_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -184,7 +205,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
         wz_resource::ms->get_root()->find(u"String.img/Character/str");
     auto str_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::STR);
-    auto val_str = "+" + std::to_string(val);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::STR);
+    auto val_str = std::format("+{}({}+{})", val + val2, val, val2);
     render_equip_bottom_inc(
         str_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -194,6 +216,7 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
         wz_resource::ms->get_root()->find(u"String.img/Character/dex");
     auto dex_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::DEX);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::DEX);
     auto val_str = "+" + std::to_string(val);
     render_equip_bottom_inc(
         dex_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
@@ -204,7 +227,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
         wz_resource::ms->get_root()->find(u"String.img/Character/int");
     auto int_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::INT);
-    auto val_str = "+" + std::to_string(val);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::INT);
+    auto val_str = "+" + std::to_string(val + val2);
     render_equip_bottom_inc(
         int_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -214,7 +238,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
         wz_resource::ms->get_root()->find(u"String.img/Character/speed");
     auto spd_str = static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::SPEED);
-    auto val_str = "+" + std::to_string(val);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::SPEED);
+    auto val_str = "+" + std::to_string(val + val2);
     render_equip_bottom_inc(
         spd_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -225,7 +250,8 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
     auto jump_str =
         static_cast<wz::Property<std::u16string> *>(str_node)->get();
     auto val = equip_inc.at(equip_game_instance::inc_type::JUMP);
-    auto val_str = "+" + std::to_string(val);
+    auto val2 = scroll_inc.at(equip_game_instance::inc_type::JUMP);
+    auto val_str = "+" + std::to_string(val + val2);
     render_equip_bottom_inc(
         jump_str, std::u16string{val_str.begin(), val_str.end()}, x, y);
   }
@@ -237,8 +263,6 @@ void tooltip_ui_system::render_equip_bottom(game_equip_item &equip, float x,
   auto val_str = std::to_string(val);
   render_equip_bottom_inc(enh_str,
                           std::u16string{val_str.begin(), val_str.end()}, x, y);
-
-  freetype::load_aligned(false);
 }
 
 void tooltip_ui_system::render_equip_req(uint32_t req, uint32_t val,
@@ -442,7 +466,7 @@ void tooltip_ui_system::render_equip(game_equip_item &equip, float x, float y) {
       wz_resource::load_texture(backgrnd_node->find(u"Frame/line"));
   static auto bottom =
       wz_resource::load_texture(backgrnd_node->find(u"Frame/bottom"));
-  const auto h = 180 + load_equip_bottom_h(equip.id);
+  const auto h = 180 + load_equip_bottom_h(equip);
   SDL_FRect pos_rect{
       x,
       y,
@@ -471,8 +495,19 @@ void tooltip_ui_system::render_equip(game_equip_item &equip, float x, float y) {
   SDL_RenderTexture(window::renderer, dot0, nullptr, &pos_rect);
 
   auto equip_name = equip_game_instance::load_equip_name(equip.id);
+  int scroll_num = 0;
+  for (auto &scroll : equip.scroll) {
+    if (scroll.success) {
+      scroll_num++;
+    }
+  }
   freetype::load_bold(true);
   freetype::load_size(15);
+  if (scroll_num > 0) {
+    auto tmp = std::to_string(scroll_num);
+    equip_name =
+        equip_name + u"(+" + std::u16string{tmp.begin(), tmp.end()} + u")";
+  }
   freetype::draw_line(equip_name, x + 20, y + 10);
   freetype::load_bold(false);
 
