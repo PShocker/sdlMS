@@ -170,3 +170,7 @@ table ServerReactor {
 table ServerReactorDrop {
     payload:[Drop];
 }
+
+table ServerCharacterLvUp {
+    client_id:uint64;
+}

@@ -8,6 +8,7 @@ private:
   static int load_secondary_stat();
 
 public:
+  static bool upgrade();
   static void update();
   static void load(const character_save &cs);
 

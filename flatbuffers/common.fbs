@@ -176,6 +176,7 @@ table Drop{
 enum StateEnum : int8 {
     HP,
     MAX_HP,
+    ITEM_USE,
     BUFF_SKILL,
     BUFF_ITEM,
     BUFF_ABNORMAL,

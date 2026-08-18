@@ -25,6 +25,7 @@ union NetPayload {
     ClientCharacterTrade,
     ClientCharacterParty,
     ClientReactor,
+    ClientCharacterLvUp,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
@@ -54,6 +55,7 @@ union NetPayload {
     ServerDropFade,
     ServerReactor,
     ServerReactorDrop,
+    ServerCharacterLvUp,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

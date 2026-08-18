@@ -5,13 +5,15 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include <cstdint>
+#include <string>
 using namespace fbs;
 
 class server_character_instance {
 private:
-  static void remove_state(StateT s, CharacterT &c);
-  static void load_state(const std::vector<std::unique_ptr<fbs::StateT>> &v,
-                         CharacterT &c);
+  static void remove_character_state(StateT s, CharacterT &c);
+  static void
+  save_character_state(const std::vector<std::unique_ptr<fbs::StateT>> &v,
+                       CharacterT &c);
 
 public:
   static void handle_attack(uint64_t client_id, ClientCharacterAttackT &r);
@@ -54,4 +56,12 @@ public:
 
   static void handle_state(uint64_t client_id, ClientCharacterStateT &r);
   static void handle_server_state(uint64_t client_id, ServerCharacterStateT &r);
+
+  static void handle_lv_up(game_character &g_character);
+  static void handle_lv_up(uint64_t client_id, ClientCharacterLvUpT &r);
+
+  static void handle_buff_item(game_character &g_character, const StateT &st);
+
+  static void handle_scroll_use(game_character &g_character, bool success);
+  static void handle_item_use(game_character &g_character, const StateT &st);
 };

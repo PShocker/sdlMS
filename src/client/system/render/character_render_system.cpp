@@ -1,4 +1,5 @@
 #include "character_render_system.h"
+#include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_surface.h"
 #include "chatballoon_render_system.h"
@@ -421,14 +422,43 @@ void character_render_system::render_chair(game_character &g_character,
   }
 }
 
+void character_render_system::render_morph(game_character &g_character) {
+  auto node = wz_resource::morph->find(g_character.morph + u".img");
+  node = node->get_child(g_character.action);
+  node = node->get_child(std::to_string(g_character.action_index));
+  auto t = wz_resource::load_texture(node);
+  auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
+  SDL_FRect pos_rect{
+      .x = g_character.pos.x - origin.x,
+      .y = g_character.pos.y - origin.y - (t->h - origin.y),
+      .w = static_cast<float>(t->w),
+      .h = static_cast<float>(t->h),
+  };
+  if (g_character.flip == 1) {
+    pos_rect.x = g_character.pos.x;
+    pos_rect.x = (pos_rect.x - (t->w - origin.x));
+  }
+  auto &camera = camera_game_instance::camera;
+  if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+    pos_rect.x -= camera.x;
+    pos_rect.y -= camera.y;
+    SDL_RenderTextureRotated(window::renderer, t, nullptr, &pos_rect, 0,
+                             nullptr, (SDL_FlipMode)g_character.flip);
+  }
+}
+
 bool character_render_system::render(game_character &g_character) {
-  render_chair(g_character, true);
-  render_afterimage(g_character);
-  render_tomb(g_character);
-  render_character(g_character);
+  if (g_character.morph.empty()) {
+    render_chair(g_character, true);
+    render_afterimage(g_character);
+    render_tomb(g_character);
+    render_character(g_character);
+    render_chair(g_character, false);
+    render_effect_back(g_character);
+  } else {
+    render_morph(g_character);
+  }
   render_nametag(g_character);
-  render_chair(g_character, false);
-  render_effect_back(g_character);
   // auto r = character_logic_system::load_rect(g_character);
   // auto &camera = camera_game_instance::camera;
   // r.x -= camera.x;

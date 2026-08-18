@@ -137,3 +137,12 @@ std::string text_game_instance::load_u8str(const std::u16string &str) {
   SDL_free(utf8_text);
   return result;
 }
+
+std::string text_game_instance::format_with_commas(uint64_t value) {
+  char buf[32];
+  auto [ptr, ec] = std::to_chars(buf, buf + 32, value);
+  std::string s(buf, ptr);
+  for (int i = s.size() - 3; i > 0; i -= 3)
+    s.insert(i, ",");
+  return s;
+}

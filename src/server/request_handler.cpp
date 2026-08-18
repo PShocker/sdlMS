@@ -185,6 +185,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_reactor_instance::handle_reactor(client_id, r);
     break;
   }
+  case NetPayload_ClientCharacterLvUp: {
+    auto payload = packet->payload_as_ClientCharacterLvUp();
+    fbs::ClientCharacterLvUpT r;
+    payload->UnPackTo(&r);
+    server_character_instance::handle_lv_up(client_id, r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -379,6 +386,16 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerReactorDropT r;
     payload->UnPackTo(&r);
     server_reactor_instance::handle_server_reactor_drop(r);
+    break;
+  }
+  case NetPayload_ServerCharacterLvUp: {
+    auto payload = packet->payload_as_ServerCharacterLvUp();
+    fbs::ServerCharacterLvUpT r;
+    payload->UnPackTo(&r);
+    if (character_game_instance::others.contains(r.client_id)) {
+      auto &g = character_game_instance::others[r.client_id].g_character;
+      server_character_instance::handle_lv_up(g);
+    }
     break;
   }
   default:

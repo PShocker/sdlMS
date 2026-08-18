@@ -316,17 +316,19 @@ bool VerifyItemUnionVector(::flatbuffers::VerifierTemplate<B> &verifier, const :
 enum StateEnum : int8_t {
   StateEnum_HP = 0,
   StateEnum_MAX_HP = 1,
-  StateEnum_BUFF_SKILL = 2,
-  StateEnum_BUFF_ITEM = 3,
-  StateEnum_BUFF_ABNORMAL = 4,
+  StateEnum_ITEM_USE = 2,
+  StateEnum_BUFF_SKILL = 3,
+  StateEnum_BUFF_ITEM = 4,
+  StateEnum_BUFF_ABNORMAL = 5,
   StateEnum_MIN = StateEnum_HP,
   StateEnum_MAX = StateEnum_BUFF_ABNORMAL
 };
 
-inline const StateEnum (&EnumValuesStateEnum())[5] {
+inline const StateEnum (&EnumValuesStateEnum())[6] {
   static const StateEnum values[] = {
     StateEnum_HP,
     StateEnum_MAX_HP,
+    StateEnum_ITEM_USE,
     StateEnum_BUFF_SKILL,
     StateEnum_BUFF_ITEM,
     StateEnum_BUFF_ABNORMAL
@@ -335,9 +337,10 @@ inline const StateEnum (&EnumValuesStateEnum())[5] {
 }
 
 inline const char * const *EnumNamesStateEnum() {
-  static const char * const names[6] = {
+  static const char * const names[7] = {
     "HP",
     "MAX_HP",
+    "ITEM_USE",
     "BUFF_SKILL",
     "BUFF_ITEM",
     "BUFF_ABNORMAL",

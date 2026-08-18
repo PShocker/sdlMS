@@ -450,7 +450,21 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
           notice_ui_system::open();
           return false;
         }
-        if (active_tab == 0) {
+        if (equip_game_instance::check_equip(eqp->id) && active_tab == 0) {
+          auto deco = load_deco(index.value());
+          if (deco->has_value()) {
+            auto dec =
+                std::polymorphic<game_item>(load_deco(index.value())->value());
+            if (!package_ui_system::add_item(dec)) {
+              notice_ui_system::type =
+                  notice_ui_system::notice_enum::equip_no_space;
+              notice_ui_system::open();
+              return false;
+            }
+            (*load_deco(index.value())) = std::nullopt;
+          }
+          (*load_equip(index.value())) = std::nullopt;
+        } else if (active_tab == 0) {
           (*load_equip(index.value())) = std::nullopt;
         } else {
           (*load_deco(index.value())) = std::nullopt;

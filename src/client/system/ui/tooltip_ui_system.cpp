@@ -889,8 +889,8 @@ void tooltip_ui_system::render_item(game_item &item, float x, float y) {
   auto item_name = item_game_instance::load_item_text(item.id, u"name");
   freetype::load_bold(true);
   freetype::load_size(15);
-  auto w = freetype::load_w(item_name) + 110;
-  w = std::max(w, 320.0f);
+  auto w = freetype::load_w(item_name) + 150;
+  w = std::max(w, 360.0f);
   render_backgrnd(x, y, w, 128);
   freetype::load_color(255, 255, 255, 255);
   freetype::load_aligned(true);

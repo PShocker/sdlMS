@@ -101,3 +101,7 @@ table ClientReactor {
     map_id:uint32;
     payload:Reactor;
 }
+
+table ClientCharacterLvUp {
+    map_id:uint32;
+}

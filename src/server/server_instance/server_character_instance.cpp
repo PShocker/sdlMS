@@ -728,7 +728,7 @@ void server_character_instance::handle_state(uint64_t client_id,
                                              ClientCharacterStateT &r) {
   if (server_client_instance::clients.contains(client_id)) {
     auto &c = server_client_instance::clients.at(client_id).player_t.character;
-    load_state(r.payload, *c);
+    save_character_state(r.payload, *c);
     auto scenes = server_scene_instance::scenes[r.map_id].clients;
     scenes.erase(client_id);
     ServerCharacterStateT t;
@@ -736,6 +736,68 @@ void server_character_instance::handle_state(uint64_t client_id,
     t.payload = std::move(r.payload);
     for (auto c : scenes) {
       server_response::send_to_client(c, t);
+    }
+  }
+}
+
+void server_character_instance::handle_buff_item(game_character &g_character,
+                                                 const StateT &st) {
+  auto tmp = std::format("{:08d}", st.val);
+  std::u16string itm_id{tmp.begin(), tmp.end()};
+  auto item_type = item_game_instance::load_item_type(itm_id);
+  if (item_type == u"Install") {
+    if (itm_id.starts_with(u"0301")) {
+      if (st.sub_val == 1) {
+        character_logic_system::run_sit_chair(g_character, itm_id);
+      } else {
+        character_logic_system::run_unsit_chair(g_character);
+      }
+    }
+  }
+  return;
+}
+
+void server_character_instance::handle_scroll_use(game_character &g_character,
+                                                  bool success) {
+  if (success) {
+    game_effect e = {
+        .id = u"BasicEff.img/Enchant/Success",
+        .index = 0,
+        .time = 0,
+        .delay = 0,
+        .lvl = 1,
+        .type = game_effect::effect_type::effect,
+        .pos = SDL_FPoint{0, 0},
+        .z = false,
+    };
+    g_character.effect.emplace_back(e);
+  } else {
+    game_effect e = {
+        .id = u"BasicEff.img/Enchant/Failure",
+        .index = 0,
+        .time = 0,
+        .delay = 0,
+        .lvl = 1,
+        .type = game_effect::effect_type::effect,
+        .pos = SDL_FPoint{0, 0},
+        .z = false,
+    };
+    g_character.effect.emplace_back(e);
+  }
+}
+
+void server_character_instance::handle_item_use(game_character &g_character,
+                                                const StateT &st) {
+  auto tmp = std::format("{:08d}", st.val);
+  std::u16string itm_id{tmp.begin(), tmp.end()};
+  auto item_type = item_game_instance::load_item_type(itm_id);
+  if (item_type == u"Consume") {
+    if (itm_id.starts_with(u"0204")) {
+      if (st.sub_val == 1) {
+        handle_scroll_use(g_character, true);
+      } else {
+        handle_scroll_use(g_character, false);
+      }
     }
   }
 }
@@ -757,9 +819,11 @@ void server_character_instance::handle_s_state(
       break;
     }
     case StateEnum_BUFF_ITEM: {
-      auto tmp = std::format("{:08d}", st->val);
-      auto itm = item_game_instance::load_item({tmp.begin(), tmp.end()}, 1);
-      character_logic_system::run_item(g_character, itm, st->sub_val);
+      handle_buff_item(g_character, *st);
+      break;
+    }
+    case StateEnum_ITEM_USE: {
+      handle_item_use(g_character, *st);
       break;
     }
     default: {
@@ -774,13 +838,14 @@ void server_character_instance::handle_server_state(uint64_t client_id,
   if (character_game_instance::others.contains(r.client_id)) {
     auto &c =
         character_game_instance::others.at(r.client_id).player_t.character;
-    load_state(r.payload, *c);
+    save_character_state(r.payload, *c);
     handle_s_state(character_game_instance::others.at(r.client_id).g_character,
                    r.payload);
   }
 }
 
-void server_character_instance::remove_state(StateT s, CharacterT &c) {
+void server_character_instance::remove_character_state(StateT s,
+                                                       CharacterT &c) {
   std::erase_if(c.states, [&](const auto &st) {
     switch (s.state) {
     case StateEnum_HP:
@@ -796,15 +861,54 @@ void server_character_instance::remove_state(StateT s, CharacterT &c) {
       }
       break;
     }
+    default: {
+      break;
+    }
     }
     return false;
   });
 }
 
-void server_character_instance::load_state(
+void server_character_instance::save_character_state(
     const std::vector<std::unique_ptr<fbs::StateT>> &v, CharacterT &c) {
   for (const auto &st : v) {
-    remove_state(*st, c);
-    c.states.push_back(std::make_unique<StateT>(*st));
+    remove_character_state(*st, c);
+    switch (st->state) {
+    case StateEnum_ITEM_USE: {
+      break;
+    }
+    default: {
+      c.states.push_back(std::make_unique<StateT>(*st));
+      break;
+    }
+    }
+  }
+}
+
+void server_character_instance::handle_lv_up(game_character &g_character) {
+  game_effect e = {
+      .id = u"BasicEff.img/LevelUp",
+      .index = 0,
+      .time = 0,
+      .delay = 0,
+      .lvl = 1,
+      .type = game_effect::effect_type::effect,
+      .pos = SDL_FPoint{0, 0},
+      .z = false,
+  };
+  g_character.effect.emplace_back(e);
+}
+
+void server_character_instance::handle_lv_up(uint64_t client_id,
+                                             ClientCharacterLvUpT &r) {
+  if (server_client_instance::clients.contains(client_id)) {
+    auto map_id = r.map_id;
+    auto scenes = server_scene_instance::scenes[map_id].clients;
+    scenes.erase(client_id);
+    ServerCharacterLvUpT t;
+    t.client_id = client_id;
+    for (auto c : scenes) {
+      server_response::send_to_client(c, t);
+    }
   }
 }

@@ -18,15 +18,25 @@ void effect_render_system::render_effect(SDL_FPoint pos,
   if (current_time <= g_effect.delay) {
     return;
   }
-  auto atk_pos = g_effect.pos.value();
-  auto hit_node = wz_resource::character->find(g_effect.id);
+  wz::Node *node;
+  switch (g_effect.lvl) {
+  case 0: {
+    node = wz_resource::character->find(g_effect.id);
+    break;
+  }
+  case 1: {
+    node = wz_resource::effect->find(g_effect.id);
+    break;
+  }
+  }
+  auto pos2 = g_effect.pos.value();
   auto index = std::to_string(g_effect.index);
-  auto texture_node = hit_node->get_child(index);
+  auto texture_node = node->get_child(index);
   auto texture = wz_resource::load_texture(texture_node);
   auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
-      .x = pos.x - origin.x + atk_pos.x,
-      .y = pos.y - origin.y + atk_pos.y,
+      .x = pos.x - origin.x + pos2.x,
+      .y = pos.y - origin.y + pos2.y,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };

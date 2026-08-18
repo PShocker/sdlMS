@@ -6,6 +6,7 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Node.h"
 #include "wz/Property.h"
 #include <cstdint>
 #include <ranges>
@@ -41,9 +42,19 @@ bool effect_logic_system::run_effect(game_effect &g_effect) {
     return r;
   }
   g_effect.time += window::delta_time;
-  auto hit_node = wz_resource::character->find(g_effect.id);
+  wz::Node *node;
+  switch (g_effect.lvl) {
+  case 0: {
+    node = wz_resource::character->find(g_effect.id);
+    break;
+  }
+  case 1: {
+    node = wz_resource::effect->find(g_effect.id);
+    break;
+  }
+  }
   auto index = std::to_string(g_effect.index);
-  auto texture_node = hit_node->get_child(index);
+  auto texture_node = node->get_child(index);
   uint32_t delay = 120;
   if (texture_node->get_child(u"delay")) {
     delay =
@@ -53,7 +64,7 @@ bool effect_logic_system::run_effect(game_effect &g_effect) {
   if (g_effect.time > delay) {
     g_effect.index += 1;
     g_effect.time = 0;
-    if (g_effect.index >= hit_node->children_count()) {
+    if (g_effect.index >= node->children_count()) {
       r = true;
     }
   }

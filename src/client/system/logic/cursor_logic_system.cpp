@@ -3,6 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include "character_logic_system.h"
 #include "npc_logic_system.h"
+#include "src/client/game/game_item.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -292,7 +293,7 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
           case cursor_game_instance::package: {
             auto active_tab = cursor_hand->val;
             DropT dt;
-            if (active_tab == 0) {
+            if (active_tab == (int)item_enum::equip) {
               auto &equip =
                   package_game_instance::data[0][cursor_hand->sub_val];
               EquipT et;
@@ -317,7 +318,9 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
               auto &itm =
                   package_game_instance::data[active_tab][cursor_hand->sub_val];
               auto num = item_game_instance::load_item_num(itm);
-              if (num > 1) {
+              auto itm_info = item_game_instance::load_item_info(itm->id, 0);
+              bool unitPrice = itm_info->get_child(u"unitPrice");
+              if (num > 1 && !unitPrice) {
                 notice_ui_system::type =
                     notice_ui_system::notice_enum::throw_mul;
                 notice_ui_system::open();
@@ -326,7 +329,7 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
                 ItemT it;
                 it.item_id =
                     std::stoi(std::string{itm->id.begin(), itm->id.end()});
-                it.item_num = 1;
+                it.item_num = std::max(1, num);
                 dt.drop.Set(it);
 
                 dt.x1 = character_game_instance::self.pos.x;

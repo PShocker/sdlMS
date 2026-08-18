@@ -10,6 +10,7 @@ private:
   static bool render_effect_back(game_character &g_character);
   static void render_chair(game_character &g_character);
   static void render_chair(game_character &g_character, bool front);
+  static void render_morph(game_character &g_character);
 
 public:
   static void render_chatballoon(game_character &g_character);

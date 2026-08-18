@@ -14,6 +14,7 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/shop_game_instance.h"
+#include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
@@ -206,9 +207,9 @@ void shop_ui_system::render_button() {
       wz_resource::ui->find(u"UIShop.img/Shop/BtExit"),
   };
   const std::array buttons_rect = {
-      SDL_FRect{144, 34, 80, 18}, //
-      SDL_FRect{374, 34, 80, 18}, //
-      SDL_FRect{144, 14, 80, 18}, //
+      SDL_FRect{154, 34, 68, 16}, //
+      SDL_FRect{384, 34, 68, 16}, //
+      SDL_FRect{154, 14, 68, 16}, //
   };
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
@@ -372,7 +373,8 @@ void shop_ui_system::render_meso() {
   freetype::load_size(12);
   freetype::load_aligned(true);
   freetype::load_color(0, 0, 0, 255);
-  auto meso = std::to_string(package_game_instance::meso);
+  auto meso =
+      text_game_instance::format_with_commas(package_game_instance::meso);
   std::u16string meso2 = {meso.begin(), meso.end()};
   auto w = freetype::load_w(meso2);
   freetype::draw_line(meso2, pos.x + 448 - w, pos.y + 64);
@@ -510,10 +512,19 @@ bool shop_ui_system::event_item(SDL_Event *event) {
       return true;
     }
     auto itm = items[index];
-    notice_ui_system::type =
-        ((*itm)->type == item_enum::equip)
-            ? notice_ui_system::notice_enum::shopbuy_sell
-            : notice_ui_system::notice_enum::shopbuy_sell_mul;
+    if ((*itm)->type == item_enum::equip) {
+      notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_sell;
+    } else {
+      auto num = item_game_instance::load_item_num(*itm);
+      auto itm_info = item_game_instance::load_item_info((*itm)->id, 0);
+      bool unitPrice = itm_info->get_child(u"unitPrice");
+      if (num == 1 || unitPrice) {
+        notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_sell;
+      } else {
+        notice_ui_system::type =
+            notice_ui_system::notice_enum::shopbuy_sell_mul;
+      }
+    }
     notice_ui_system::open();
     notice_ui_system::data = itm;
   }

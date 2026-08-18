@@ -54,8 +54,8 @@
 #include "src/client/system/render/reactor_render_system.h"
 #include "src/client/system/render/tile_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/buff_ui_system.h"
+#include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
@@ -164,13 +164,15 @@ void scene_system_instance::enter_prepare() {
   character_logic_system::self_lr = 0;
   character_logic_system::self_hspeed = 0;
   character_logic_system::self_vspeed = 0;
+  character_logic_system::run_unsit_chair(self);
 
   self.tomb = std::nullopt;
+  self.skill = std::nullopt;
 }
 
 void scene_system_instance::enter(uint32_t map_id) {
-  scene_system_instance::map_id = map_id;
   enter_prepare();
+  scene_system_instance::map_id = map_id;
 
   foothold_game_instance::data = foothold_game_instance::load(map_id);
   backgrnd_game_instance::load(map_id);
@@ -195,7 +197,7 @@ void scene_system_instance::enter(uint32_t map_id) {
 
   system::event_systems = {
       minimap_ui_system::event,     statusbar_ui_system::event,
-      buff_ui_system::event,  cursor_logic_system::event,
+      buff_ui_system::event,        cursor_logic_system::event,
       keyboard_input_system::event,
   };
   system::logic_systems = {

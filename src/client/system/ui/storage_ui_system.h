@@ -9,7 +9,6 @@
 #include <optional>
 #include <string>
 
-
 class storage_ui_system {
 private:
   static bool add_item(std::polymorphic<game_item> &item);

@@ -95,4 +95,6 @@ public:
   std::flat_set<std::u16string> hide_part;
 
   int8_t attack_speed = 0;
+
+  std::u16string morph;
 };

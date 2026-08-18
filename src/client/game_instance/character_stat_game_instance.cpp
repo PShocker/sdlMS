@@ -1,6 +1,10 @@
 #include "character_stat_game_instance.h"
 #include "character_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/system_instance/scene_system_instance.h"
+#include "src/common/flatbuffers/client.h"
+#include "src/common/request/client_request.h"
+#include "src/server/server_instance/server_character_instance.h"
 
 void character_stat_game_instance::load(const character_save &cs) {
   str_point = cs.ap.str_ap;
@@ -91,4 +95,18 @@ void character_stat_game_instance::update() {
 
   avoid = ski_avoid + eqp_avoid;
   accuracy = ski_accuracy + itm_accuracy;
+}
+
+bool character_stat_game_instance::upgrade() {
+  if (exp_point >= exp_point_max) {
+    exp_point -= exp_point_max;
+    // lv up effect
+    auto &sf = character_game_instance::self;
+    ClientCharacterLvUpT ccl;
+    ccl.map_id = scene_system_instance::map_id;
+    client_request::send_to_host(ccl);
+    server_character_instance::handle_lv_up(sf);
+    return true;
+  }
+  return false;
 }

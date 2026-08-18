@@ -141,6 +141,10 @@ struct ServerReactorDrop;
 struct ServerReactorDropBuilder;
 struct ServerReactorDropT;
 
+struct ServerCharacterLvUp;
+struct ServerCharacterLvUpBuilder;
+struct ServerCharacterLvUpT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -2851,6 +2855,62 @@ inline ::flatbuffers::Offset<ServerReactorDrop> CreateServerReactorDropDirect(
 
 ::flatbuffers::Offset<ServerReactorDrop> CreateServerReactorDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ServerReactorDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCharacterLvUpT : public ::flatbuffers::NativeTable {
+  typedef ServerCharacterLvUp TableType;
+  uint64_t client_id = 0;
+};
+
+struct ServerCharacterLvUp FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCharacterLvUpT NativeTableType;
+  typedef ServerCharacterLvUpBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           verifier.EndTable();
+  }
+  ServerCharacterLvUpT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCharacterLvUpT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCharacterLvUp> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLvUpT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCharacterLvUpBuilder {
+  typedef ServerCharacterLvUp Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerCharacterLvUp::VT_CLIENT_ID, client_id, 0);
+  }
+  explicit ServerCharacterLvUpBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCharacterLvUp> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCharacterLvUp>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCharacterLvUp> CreateServerCharacterLvUp(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0) {
+  ServerCharacterLvUpBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerCharacterLvUp> CreateServerCharacterLvUp(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLvUpT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -4056,6 +4116,32 @@ inline ::flatbuffers::Offset<ServerReactorDrop> ServerReactorDrop::Pack(::flatbu
   return fbs::CreateServerReactorDrop(
       _fbb,
       _payload);
+}
+
+inline ServerCharacterLvUpT *ServerCharacterLvUp::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCharacterLvUpT>(new ServerCharacterLvUpT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCharacterLvUp::UnPackTo(ServerCharacterLvUpT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+}
+
+inline ::flatbuffers::Offset<ServerCharacterLvUp> CreateServerCharacterLvUp(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLvUpT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCharacterLvUp::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCharacterLvUp> ServerCharacterLvUp::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLvUpT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCharacterLvUpT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  return fbs::CreateServerCharacterLvUp(
+      _fbb,
+      _client_id);
 }
 
 template <bool B>

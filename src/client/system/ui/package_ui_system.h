@@ -45,6 +45,9 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
+  static bool use_scroll(std::polymorphic<game_item> &eqp,
+                         std::polymorphic<game_item> &s);
+
   static std::optional<int> add_item(std::polymorphic<game_item> &item);
   static void add_item_num(std::polymorphic<game_item> &item, int num);
   static void dec_item_num(std::polymorphic<game_item> &item, int num);

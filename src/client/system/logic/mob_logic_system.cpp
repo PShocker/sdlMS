@@ -136,6 +136,7 @@ void mob_logic_system::run_collision() {
     auto &mob = mobs.begin()->second;
     character_logic_system::self_fh = 0;
     character_logic_system::self_lr = 0;
+
     auto action_type = character_logic_system::load_action_type(self);
     switch (action_type) {
     case character_logic_system::action_enum::stand:
@@ -144,6 +145,12 @@ void mob_logic_system::run_collision() {
     case character_logic_system::action_enum::climb:
     case character_logic_system::action_enum::prone: {
       character_logic_system::run_action(self, u"jump");
+      break;
+    }
+    case character_logic_system::action_enum::sit: {
+      character_logic_system::run_unsit_chair(self);
+      character_logic_system::run_action(self, u"jump");
+      break;
     }
     default: {
       break;
@@ -181,19 +188,20 @@ void mob_logic_system::run_collision() {
     } else {
       character_logic_system::run_face_action(self, u"hit");
     }
-    auto now = window::dt_time;
-    AttackT at;
-    at.delay = now;
-    at.type = fbs::AttackEnum_Viole;
-    at.num = 1;
-    at.x = self.pos.x;
-    at.y = self.pos.y - 30;
+    const auto &now = window::dt_time;
+    AttackT at{
+        .delay = now,
+        .num = 1,
+        .x = self.pos.x,
+        .y = self.pos.y - 30,
+        .type = fbs::AttackEnum_Viole,
+    };
     server_mob_instance::handle_s_attack(0, at);
     at.type = fbs::AttackEnum_Red;
     ClientMobAttackT cma;
     cma.map_id = scene_system_instance::map_id;
-    cma.payload = std::make_unique<AttackT>(at);
-    client_request::send_to_host(cma);
+    cma.payload = std::make_unique<AttackT>(std::move(at));
+    client_request::send_to_host(cma); 
   }
 }
 

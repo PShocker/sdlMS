@@ -12,4 +12,5 @@ public:
 
   static std::u16string load_u16str(const char *text);
   static std::string load_u8str(const std::u16string &str);
+  static std::string format_with_commas(uint64_t value);
 };

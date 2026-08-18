@@ -399,8 +399,16 @@ void notice_ui_system::event_button_shopbuy_sell() {
   gst.item = *p;
   switch (type) {
   case notice_enum::shopbuy_sell: {
-    package_game_instance::meso += gst.price;
-    shop_ui_system::dec_item_num(*p, 0);
+    auto itm_info = item_game_instance::load_item_info(gst.item->id, 0);
+    auto unitPrice = itm_info->get_child(u"unitPrice");
+    auto num = item_game_instance::load_item_num(gst.item);
+    if (unitPrice) {
+      auto u_price = static_cast<wz::Property<double> *>(unitPrice)->get();
+      package_game_instance::meso += u_price * num;
+    } else {
+      package_game_instance::meso += gst.price;
+    }
+    shop_ui_system::dec_item_num(*p, num);
     break;
   }
   case notice_enum::shopbuy_sell_mul: {

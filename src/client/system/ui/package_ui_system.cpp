@@ -15,6 +15,7 @@
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -22,14 +23,18 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_character_instance.h"
 #include "tooltip_ui_system.h"
+#include "wz/Property.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <cstdlib>
+#include <format>
 #include <memory>
 #include <optional>
 #include <string>
@@ -138,8 +143,12 @@ uint32_t package_ui_system::load_full_item_num(const std::u16string &id) {
 void package_ui_system::render_backgrnd() {
   static auto texture =
       wz_resource::load_texture(wz_resource::ui->find(u"Item.img/backgrnd"));
-  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
-                     static_cast<float>(texture->h)};
+  SDL_FRect pos_rect{
+      pos.x,
+      pos.y,
+      static_cast<float>(texture->w),
+      static_cast<float>(texture->h),
+  };
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 }
 
@@ -432,7 +441,8 @@ void package_ui_system::render_meso() {
   freetype::load_size(12);
   freetype::load_aligned(true);
   freetype::load_color(0, 0, 0, 255);
-  auto meso = std::to_string(package_game_instance::meso);
+  auto meso =
+      text_game_instance::format_with_commas(package_game_instance::meso);
   std::u16string meso2 = {meso.begin(), meso.end()};
   auto w = freetype::load_w(meso2);
   freetype::draw_line(meso2, pos.x + 165 - w, pos.y + 266);
@@ -458,6 +468,8 @@ void package_ui_system::open() {
     auto &camera = camera_game_instance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
+
+    active_tab = 0;
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
@@ -605,10 +617,6 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
           return true;
         }
       } else {
-        // 卷轴
-        auto &r = package_game_instance::data[hand.val];
-        auto &itm0 = r.at(index.value());
-        auto &itm1 = r.at(hand.sub_val);
       }
 
       break;
@@ -616,12 +624,21 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     case item_enum::etc:
     case item_enum::consume: {
       // 处理普通背包栏
-      auto &r = package_game_instance::data[active_tab];
+      auto &r = package_game_instance::data[hand.val];
+      if ((int)item_enum::equip == active_tab) {
+        // 卷轴
+        auto &equips = package_game_instance::data[active_tab];
+        auto &equip = equips[index.value()];
+        auto &itm = r.at(hand.sub_val);
+        use_scroll(equip, itm);
+        cursor_game_instance::cursor_hand = std::nullopt;
+        return true;
+      }
       if (hand.sub_val != index.value()) {
         // 是否可堆叠，尝试合并
         auto &itm0 = r.at(index.value());
         auto &itm1 = r.at(hand.sub_val);
-        if (itm0->id == itm1->id) {
+        if (itm0->id == itm1->id && !itm0->id.starts_with(u"0207")) {
           auto itm_num0 = item_game_instance::load_item_num(itm0);
           auto itm_num1 = item_game_instance::load_item_num(itm1);
           auto slot_max = item_game_instance::load_slot_max(itm0->id);
@@ -634,7 +651,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       } else {
         // 使用道具
         auto &itm = r.at(index.value());
-        if (character_logic_system::run_item(sf, itm, 1)) {
+        if (character_logic_system::run_item(sf, itm)) {
           dec_item_num(itm, 1);
         }
       }
@@ -924,4 +941,36 @@ std::polymorphic<game_item> *package_ui_system::load_active_ball() {
     }
   }
   return nullptr;
+}
+
+bool package_ui_system::use_scroll(std::polymorphic<game_item> &eqp,
+                                   std::polymorphic<game_item> &s) {
+  auto &equip = static_cast<game_equip_item &>(*eqp);
+  auto tuc = equip_game_instance::load_equip_tuc(equip.id);
+  if (equip.scroll.size() < tuc) {
+    auto item_info = item_game_instance::load_item_info(s->id, 0);
+    int success = 100;
+    if (item_info->get_child(u"success")) {
+      success =
+          static_cast<wz::Property<int> *>(item_info->get_child(u"success"))
+              ->get();
+    }
+    int cursed = 0;
+    if (item_info->get_child(u"cursed")) {
+      cursed = static_cast<wz::Property<int> *>(item_info->get_child(u"cursed"))
+                   ->get();
+    }
+    equip.scroll.push_back({s->id, true});
+
+    auto &sf = character_game_instance::self;
+    server_character_instance::handle_scroll_use(sf, true);
+
+    StateT st;
+    st.state = fbs::StateEnum_ITEM_USE;
+    st.val = std::stoi(std::string{s->id.begin(), s->id.end()});
+    st.sub_val = 1;
+    character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
+    dec_item_num(s, 1);
+  }
+  return false;
 }
