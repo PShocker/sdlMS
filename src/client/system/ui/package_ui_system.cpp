@@ -554,9 +554,6 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     }
     break;
   }
-  case cursor_game_instance::deco: {
-    break;
-  }
   case cursor_game_instance::package: {
     if (hand.val != active_tab) {
       // 只有卷轴类道具可以跨tab使用
@@ -571,46 +568,14 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     }
     switch ((item_enum)hand.val) {
     case item_enum::equip: {
-      auto &equips = package_game_instance::data[0];
       // 点击的是同一个格子：尝试穿戴
       if (hand.val == active_tab) {
         if (hand.sub_val == index.value()) {
-          auto equip = static_cast<game_equip_item &>(*equips[index.value()]);
-          auto ev = equip_game_instance::load_equip_slot(equip, sf);
-
-          if (!equip_game_instance::add_equip_limit(equip, sf, 0)) {
-            notice_ui_system::type =
-                notice_ui_system::notice_enum::equip_no_ability;
-            notice_ui_system::open();
-            cursor_game_instance::cursor_hand = std::nullopt;
-            return true;
-          }
-
-          auto blank_slot = load_blank_index(active_tab);
-          blank_slot.push_back(index.value());
-          std::ranges::sort(blank_slot);
-
-          if (blank_slot.size() < ev.size()) {
-            notice_ui_system::type =
-                notice_ui_system::notice_enum::equip_no_space;
-            notice_ui_system::open();
-            cursor_game_instance::cursor_hand = std::nullopt;
-            return true;
-          }
-
-          // 执行穿戴
-          equips[hand.sub_val]->id = u"";
-          for (int32_t i = 0; i < ev.size(); i++) {
-            auto eqp = ev[i];
-            equips[blank_slot[i]] = std::polymorphic<game_item>(
-                std::in_place_type<game_equip_item>, eqp);
-          }
-          // 发包
-          character_logic_system::cct.map_id = scene_system_instance::map_id;
-
+          use_equip(index.value());
           cursor_game_instance::cursor_hand = std::nullopt;
           return true;
         } else {
+          auto &equips = package_game_instance::data[0];
           // 点击不同格子：交换
           std::swap(equips[hand.sub_val], equips[index.value()]);
           cursor_game_instance::cursor_hand = std::nullopt;
@@ -619,6 +584,20 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       } else {
       }
 
+      break;
+    }
+    case item_enum::deco: {
+      if (hand.sub_val == index.value()) {
+        use_deco(index.value());
+        cursor_game_instance::cursor_hand = std::nullopt;
+        return true;
+      } else {
+        auto &decos = package_game_instance::data[(int)item_enum::deco];
+        // 点击不同格子：交换
+        std::swap(decos[hand.sub_val], decos[index.value()]);
+        cursor_game_instance::cursor_hand = std::nullopt;
+        return true;
+      }
       break;
     }
     case item_enum::etc:
@@ -630,7 +609,9 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         auto &equips = package_game_instance::data[active_tab];
         auto &equip = equips[index.value()];
         auto &itm = r.at(hand.sub_val);
-        use_scroll(equip, itm);
+        auto &eq = static_cast<game_equip_item &>(*equip);
+        auto &it = static_cast<game_consume_item &>(*itm);
+        use_equip_scroll(eq, it);
         cursor_game_instance::cursor_hand = std::nullopt;
         return true;
       }
@@ -943,12 +924,11 @@ std::polymorphic<game_item> *package_ui_system::load_active_ball() {
   return nullptr;
 }
 
-bool package_ui_system::use_scroll(std::polymorphic<game_item> &eqp,
-                                   std::polymorphic<game_item> &s) {
-  auto &equip = static_cast<game_equip_item &>(*eqp);
-  auto tuc = equip_game_instance::load_equip_tuc(equip.id);
-  if (equip.scroll.size() < tuc) {
-    auto item_info = item_game_instance::load_item_info(s->id, 0);
+int package_ui_system::use_equip_scroll(game_equip_item &eqp,
+                                        game_consume_item &s) {
+  auto tuc = equip_game_instance::load_equip_tuc(eqp.id);
+  if (eqp.scroll.size() < tuc) {
+    auto item_info = item_game_instance::load_item_info(s.id, 0);
     int success = 100;
     if (item_info->get_child(u"success")) {
       success =
@@ -960,17 +940,75 @@ bool package_ui_system::use_scroll(std::polymorphic<game_item> &eqp,
       cursed = static_cast<wz::Property<int> *>(item_info->get_child(u"cursed"))
                    ->get();
     }
-    equip.scroll.push_back({s->id, true});
+    eqp.scroll.push_back({s.id, true});
 
     auto &sf = character_game_instance::self;
     server_character_instance::handle_scroll_use(sf, true);
 
     StateT st;
     st.state = fbs::StateEnum_ITEM_USE;
-    st.val = std::stoi(std::string{s->id.begin(), s->id.end()});
+    st.val = std::stoi(std::string{s.id.begin(), s.id.end()});
     st.sub_val = 1;
     character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
-    dec_item_num(s, 1);
+
+    s.num -= 1;
+    if (s.num == 0) {
+      s.id = u"";
+    }
   }
   return false;
+}
+
+int package_ui_system::use_equip(int i, int slot) {
+  auto &equips = package_game_instance::data[(int)item_enum::equip];
+  auto &itm = equips[i];
+  auto &sf = character_game_instance::self;
+  auto &eq = static_cast<game_equip_item &>(*itm);
+  auto ev = equip_game_instance::load_equip_slot(eq.id, sf);
+  auto blank_slot = load_blank_index((int)item_enum::equip);
+  blank_slot.push_back(i);
+  std::ranges::sort(blank_slot);
+  if (blank_slot.size() < ev.size()) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+    notice_ui_system::open();
+    return 0;
+  }
+  if (!equip_game_instance::add_equip_limit(eq, sf, slot)) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_ability;
+    notice_ui_system::open();
+    return 0;
+  }
+  for (int32_t i = 0; i < ev.size(); i++) {
+    equips[blank_slot[i]] = std::polymorphic<game_item>(ev[i]);
+  }
+  itm->id = u"";
+  character_logic_system::cct.map_id = scene_system_instance::map_id;
+  return 1;
+}
+
+int package_ui_system::use_deco(int i, int slot) {
+  auto &equips = package_game_instance::data[(int)item_enum::deco];
+  auto &itm = equips[i];
+  auto &sf = character_game_instance::self;
+  auto &de = static_cast<game_deco_item &>(*itm);
+  auto ev = equip_game_instance::load_deco_slot(de.id, sf);
+  auto blank_slot = load_blank_index((int)item_enum::equip);
+  blank_slot.push_back(i);
+  std::ranges::sort(blank_slot);
+  if (blank_slot.size() < ev.size()) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+    notice_ui_system::open();
+    return 0;
+  }
+  if (!equip_game_instance::add_equip_deco(de, sf, 0)) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_ability;
+    notice_ui_system::open();
+    return 0;
+  }
+  for (int32_t i = 0; i < ev.size(); i++) {
+    equips[blank_slot[i]] = std::polymorphic<game_item>(ev[i]);
+  }
+  itm->id = u"";
+  character_logic_system::cct.map_id = scene_system_instance::map_id;
+  return 1;
 }

@@ -323,8 +323,8 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
               if (num > 1 && !unitPrice) {
                 notice_ui_system::type =
                     notice_ui_system::notice_enum::throw_mul;
-                notice_ui_system::open();
                 notice_ui_system::data = &itm;
+                notice_ui_system::open();
               } else {
                 ItemT it;
                 it.item_id =

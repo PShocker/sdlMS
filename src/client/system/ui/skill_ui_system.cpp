@@ -629,6 +629,9 @@ bool skill_ui_system::event(SDL_Event *event) {
       job_type jt = ski_tree.at(active_tab);
       // 根据active_tab获取技能组
       auto skill_node = job_skill_game_instance::load_job_skis(jt);
+      if ((int)skill_node.size() - 6 < 0) {
+        break;
+      }
       if (page < skill_node.size() - 6) {
         page += 1;
       }

@@ -77,13 +77,16 @@ public:
   static bool add_equip_limit(game_equip_item &equip, game_character &character,
                               int slot);
 
-  static void add_equip_deco(game_deco_item &deco, game_character &character,
+  static bool add_equip_deco(game_deco_item &deco, game_character &character,
                              int slot);
   static bool add_equip_deco_limit(game_deco_item &deco,
                                    game_character &character, int slot);
 
   static std::vector<game_equip_item>
-  load_equip_slot(game_equip_item &equip, game_character &character);
+  load_equip_slot(const std::u16string &id, game_character &character);
+
+  static std::vector<game_deco_item> load_deco_slot(const std::u16string &id,
+                                                    game_character &character);
 
   static std::flat_map<inc_type, int> load_equip_inc(const std::u16string &id);
   static std::flat_map<inc_type, int> load_scroll_inc(const std::u16string &id);

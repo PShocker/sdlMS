@@ -672,12 +672,6 @@ bool character_logic_system::run_skill(game_character &g_character,
   if (!g_character.morph.empty()) {
     return false;
   }
-  if (!g_character.weapon.has_value()) {
-    return false;
-  }
-  if (self_attack_cooldown > window::dt_now) {
-    return false;
-  }
   auto &skis = skill_game_instance::skis();
   if (skis.contains(id)) {
     auto ski_lv = job_skill_game_instance::load_ski_level(id);

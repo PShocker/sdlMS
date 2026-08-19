@@ -54,7 +54,17 @@ bool character_render_system::render_character(game_character &g_character) {
     render_parts.emplace(cap.islot, &cap);
   }
 
+  bool weapon_deco = false;
   if (g_character.weapon_deco.has_value()) {
+    if (g_character.weapon.has_value()) {
+      std::u16string sub = g_character.weapon->id.substr(2, 2);
+      std::u16string deco_val = g_character.weapon_deco->id + u"/" + sub;
+      if (character_game_instance::avatar_data.contains(deco_val)) {
+        weapon_deco = true;
+      }
+    }
+  }
+  if (weapon_deco) {
     std::u16string sub = g_character.weapon->id.substr(2, 2);
     std::u16string deco_val = g_character.weapon_deco->id + u"/" + sub;
     const auto &weapon = character_game_instance::avatar_data.at(deco_val);

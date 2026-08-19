@@ -307,7 +307,7 @@ bool equip_game_instance::add_equip_limit(game_equip_item &equip,
   return true;
 }
 
-void equip_game_instance::add_equip_deco(game_deco_item &deco,
+bool equip_game_instance::add_equip_deco(game_deco_item &deco,
                                          game_character &character, int slot) {
   if (add_equip_deco_limit(deco, character, slot)) {
     auto type = load_equip_type(deco.id);
@@ -340,7 +340,9 @@ void equip_game_instance::add_equip_deco(game_deco_item &deco,
     } else if (type == u"Weapon") {
       character_game_instance::add_weapon_deco(character, deco.id);
     }
+    return true;
   }
+  return false;
 }
 
 bool equip_game_instance::add_equip_deco_limit(game_deco_item &deco,
@@ -359,10 +361,10 @@ bool equip_game_instance::add_equip_deco_limit(game_deco_item &deco,
 }
 
 std::vector<game_equip_item>
-equip_game_instance::load_equip_slot(game_equip_item &equip,
+equip_game_instance::load_equip_slot(const std::u16string &id,
                                      game_character &character) {
   std::vector<game_equip_item> r;
-  auto type = load_equip_type(equip.id);
+  auto type = load_equip_type(id);
   if (type == u"Accessory") {
     if (character.accessory.has_value()) {
       r.push_back(character.accessory.value());
@@ -416,6 +418,65 @@ equip_game_instance::load_equip_slot(game_equip_item &equip,
   } else if (type == u"Weapon") {
     if (character.weapon.has_value()) {
       r.push_back(character.weapon.value());
+    }
+  }
+  return r;
+}
+
+std::vector<game_deco_item>
+equip_game_instance::load_deco_slot(const std::u16string &id,
+                                    game_character &character) {
+  std::vector<game_deco_item> r;
+  auto type = load_equip_type(id);
+  if (type == u"Accessory") {
+    if (character.accessory_deco.has_value()) {
+      r.push_back(character.accessory_deco.value());
+    }
+  } else if (type == u"Cap") {
+    if (character.cap_deco.has_value()) {
+      r.push_back(character.cap_deco.value());
+    }
+  } else if (type == u"Cape") {
+    if (character.cape_deco.has_value()) {
+      r.push_back(character.cape_deco.value());
+    }
+  } else if (type == u"Coat") {
+    if (character.coat_deco.has_value()) {
+      r.push_back(character.coat_deco.value());
+    }
+  } else if (type == u"Glove") {
+    if (character.glove_deco.has_value()) {
+      r.push_back(character.glove_deco.value());
+    }
+  } else if (type == u"Longcoat") {
+    if (character.coat_deco.has_value()) {
+      r.push_back(character.coat_deco.value());
+    }
+    if (character.pant_deco.has_value()) {
+      r.push_back(character.pant_deco.value());
+    }
+  } else if (type == u"Pants") {
+    if (character.pant_deco.has_value()) {
+      r.push_back(character.pant_deco.value());
+    }
+  } else if (type == u"Ring") {
+    if (!character.ring0_deco.has_value())
+      return r;
+    if (!character.ring1_deco.has_value())
+      return r;
+    r.push_back(character.ring1_deco.value());
+    return r;
+  } else if (type == u"Shield") {
+    if (character.shield_deco.has_value()) {
+      r.push_back(character.shield_deco.value());
+    }
+  } else if (type == u"Shoes") {
+    if (character.shoes_deco.has_value()) {
+      r.push_back(character.shoes_deco.value());
+    }
+  } else if (type == u"Weapon") {
+    if (character.weapon_deco.has_value()) {
+      r.push_back(character.weapon_deco.value());
     }
   }
   return r;

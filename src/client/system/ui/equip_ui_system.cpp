@@ -254,6 +254,21 @@ void equip_ui_system::render_equip() {
   }
 }
 
+void equip_ui_system::render_disable_texture(SDL_FPoint slot) {
+  const SDL_FPoint lt{4, 45};
+  static auto icon = wz_resource::load_texture(
+      wz_resource::ui->find(u"Equipment.img/equip/canvas:disabled0"));
+  auto x = (int)pos.x + slot.x + lt.x;
+  auto y = (int)pos.y + slot.y + lt.y;
+  SDL_FRect pos_rect{
+      x,
+      y,
+      static_cast<float>(icon->w),
+      static_cast<float>(icon->h),
+  };
+  SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+}
+
 void equip_ui_system::render_deco_texture(game_deco_item &deco,
                                           SDL_FPoint slot) {
   const SDL_FPoint lt{4, 45};
@@ -304,7 +319,20 @@ void equip_ui_system::render_deco() {
     render_deco_texture(self.shield_deco.value(), shield_slot);
   }
   if (self.weapon_deco.has_value()) {
+    bool weapon_deco = false;
+    if (self.weapon_deco.has_value()) {
+      if (self.weapon.has_value()) {
+        std::u16string sub = self.weapon->id.substr(2, 2);
+        std::u16string deco_val = self.weapon_deco->id + u"/" + sub;
+        if (character_game_instance::avatar_data.contains(deco_val)) {
+          weapon_deco = true;
+        }
+      }
+    }
     render_deco_texture(self.weapon_deco.value(), weapon_slot);
+    if (!weapon_deco) {
+      render_disable_texture(weapon_slot);
+    }
   }
 }
 
@@ -438,51 +466,41 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
     switch (cursor_hand->type) {
     case cursor_game_instance::equipment: {
       if (index.value() == cursor_hand->sub_val) {
-        std::polymorphic<game_item> eqp;
-        if (active_tab == 0) {
-          eqp = std::polymorphic<game_item>(load_equip(index.value())->value());
-        } else {
-          eqp = std::polymorphic<game_item>(load_deco(index.value())->value());
-        }
-        if (!package_ui_system::add_item(eqp)) {
-          notice_ui_system::type =
-              notice_ui_system::notice_enum::equip_no_space;
-          notice_ui_system::open();
-          return false;
-        }
-        if (equip_game_instance::check_equip(eqp->id) && active_tab == 0) {
-          auto deco = load_deco(index.value());
-          if (deco->has_value()) {
-            auto dec =
-                std::polymorphic<game_item>(load_deco(index.value())->value());
-            if (!package_ui_system::add_item(dec)) {
-              notice_ui_system::type =
-                  notice_ui_system::notice_enum::equip_no_space;
-              notice_ui_system::open();
-              return false;
-            }
-            (*load_deco(index.value())) = std::nullopt;
-          }
-          (*load_equip(index.value())) = std::nullopt;
-        } else if (active_tab == 0) {
-          (*load_equip(index.value())) = std::nullopt;
-        } else {
-          (*load_deco(index.value())) = std::nullopt;
-        }
+        unuse_equip(index.value());
         cursor_game_instance::cursor_hand = std::nullopt;
-        character_logic_system::cct.map_id = scene_system_instance::map_id;
       }
       break;
     }
     case cursor_game_instance::package: {
-      auto &equip = package_game_instance::data[0][cursor_hand->sub_val];
-      auto ep = static_cast<game_equip_item &>(*equip);
-      if (equip_game_instance::add_equip_limit(ep, self, index.value())) {
-        // 发包
-        equip->id = u"";
+      switch ((item_enum)cursor_hand->val) {
+      case item_enum::equip: {
+        package_ui_system::use_equip(cursor_hand->sub_val);
+        break;
+      }
+      case item_enum::deco: {
+        package_ui_system::use_deco(cursor_hand->sub_val);
         character_logic_system::cct.map_id = scene_system_instance::map_id;
-      } else {
-        // dialog
+        break;
+      }
+      case item_enum::consume: {
+        auto &itm = package_game_instance::data[(int)item_enum::consume]
+                                               [cursor_hand->sub_val];
+        if (itm->id.starts_with(u"0204")) {
+          if (active_tab == 0) {
+            auto eqp = load_equip(index.value());
+            if (eqp->has_value()) {
+              auto &equip = eqp->value();
+              auto &it = static_cast<game_consume_item &>(*itm);
+              use_equip_scroll(equip, it);
+              cursor_game_instance::cursor_hand = std::nullopt;
+              return true;
+            }
+          }
+        }
+        break;
+      }
+      default: {
+      }
       }
       cursor_hand = std::nullopt;
       break;
@@ -688,4 +706,31 @@ bool equip_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+int equip_ui_system::use_equip_scroll(game_equip_item &eqp,
+                                      game_consume_item &s) {
+  return package_ui_system::use_equip_scroll(eqp, s);
+}
+
+int equip_ui_system::unuse_equip(int i) {
+  std::polymorphic<game_item> eqp;
+  if (active_tab == 0) {
+    eqp =
+        std::polymorphic<game_item>(load_equip((equip_mouse_index)i)->value());
+  } else {
+    eqp = std::polymorphic<game_item>(load_deco((equip_mouse_index)i)->value());
+  }
+  if (!package_ui_system::add_item(eqp)) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+    notice_ui_system::open();
+    return 0;
+  }
+  if (active_tab == 0) {
+    (*load_equip((equip_mouse_index)i)) = std::nullopt;
+  } else {
+    (*load_deco((equip_mouse_index)i)) = std::nullopt;
+  }
+  character_logic_system::cct.map_id = scene_system_instance::map_id;
+  return 1;
 }

@@ -355,7 +355,7 @@ void shop_ui_system::render_item_info(std::polymorphic<game_item> &item) {
     auto eqp = static_cast<game_equip_item &>(*item);
     tooltip_ui_system::render_equip(eqp, show_pos.x, show_pos.y);
     auto self = character_game_instance::self;
-    auto eqps = equip_game_instance::load_equip_slot(eqp, self);
+    auto eqps = equip_game_instance::load_equip_slot(eqp.id, self);
     if (!eqps.empty()) {
       tooltip_ui_system::render_equip(eqps[0], show_pos.x + 238, show_pos.y);
     }
@@ -525,8 +525,8 @@ bool shop_ui_system::event_item(SDL_Event *event) {
             notice_ui_system::notice_enum::shopbuy_sell_mul;
       }
     }
-    notice_ui_system::open();
     notice_ui_system::data = itm;
+    notice_ui_system::open();
   }
   return false;
 }

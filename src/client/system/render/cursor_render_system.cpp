@@ -60,7 +60,8 @@ void cursor_render_system::render_hand() {
     }
     case cursor_game_instance::package: {
       SDL_Texture *icon = nullptr;
-      if (hand.val == 0) {
+      if (hand.val == (int)item_enum::equip ||
+          hand.val == (int)item_enum::deco) {
         auto &equip = package_game_instance::data[hand.val][hand.sub_val];
         auto info = equip_game_instance::load_equip_info(equip->id);
         icon = wz_resource::load_texture(info->get_child(u"iconRaw"));

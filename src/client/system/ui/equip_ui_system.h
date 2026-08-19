@@ -4,8 +4,10 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_item.h"
 #include <cstdint>
+#include <memory>
 #include <optional>
 #include <string>
+
 class equip_ui_system {
 public:
   enum equip_mouse_index {
@@ -32,6 +34,7 @@ private:
   static void render_tab();
   static void render_equip();
   static void render_deco();
+  static void render_disable_texture(SDL_FPoint slot);
   static void render_equip_texture(game_equip_item &equip, SDL_FPoint slot);
   static void render_deco_texture(game_deco_item &deco, SDL_FPoint slot);
   static bool render_info();
@@ -54,7 +57,11 @@ private:
   static inline std::optional<SDL_FPoint> drag;
   static inline uint8_t active_tab;
 
+  static int use_equip_scroll(game_equip_item &eqp, game_consume_item &s);
+
 public:
+  static int unuse_equip(int i);
+
   static std::optional<game_equip_item> *load_equip(equip_mouse_index index);
   static std::optional<game_deco_item> *load_deco(equip_mouse_index index);
 
