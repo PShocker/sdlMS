@@ -22,7 +22,6 @@ public:
     revive,
   };
   static action_enum load_action_type(const std::u16string &action);
-  static void run_revive(game_mob &g_mob);
 
   static bool run();
   static std::optional<SDL_FRect> load_rect(const game_mob &g_mob);

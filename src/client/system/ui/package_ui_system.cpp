@@ -405,10 +405,16 @@ void package_ui_system::render_scroll() {
 void package_ui_system::render_button() {
   const static std::array buttons_nodes = {
       wz_resource::ui->find(u"Basic.img/BtClose"),
+      wz_resource::ui->find(u"Item.img/AutoBuild/button:Coin"),
+      wz_resource::ui->find(u"Item.img/AutoBuild/button:Gather"),
+      wz_resource::ui->find(u"Item.img/AutoBuild/button:Sort"),
   };
   auto wh = load_wh();
   const std::array buttons_rect = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
+      SDL_FRect{8, 268, 14, 14},       //
+      SDL_FRect{164, 6, 12, 12},       //
+      SDL_FRect{177, 6, 12, 12},       //
   };
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -726,12 +732,35 @@ void package_ui_system::event_tab(SDL_Event *event) {
 
 void package_ui_system::event_close() { close(); }
 
+void package_ui_system::event_button_coin() {
+  notice_ui_system::type = notice_ui_system::notice_enum::throw_mul;
+  notice_ui_system::data = nullptr;
+  notice_ui_system::open();
+}
+
+void package_ui_system::event_button_gather() {}
+
+void package_ui_system::event_button_sort() {
+  const auto cmp = [](const std::polymorphic<game_item> &a,
+                      const std::polymorphic<game_item> &b) {
+    bool aEmpty = a->id.empty();
+    bool bEmpty = b->id.empty();
+    if (aEmpty != bEmpty)
+      return bEmpty;
+    return a->id < b->id;
+  };
+  std::ranges::sort(package_game_instance::data[active_tab], cmp);
+}
+
 bool package_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto wh = load_wh();
   r = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
+      SDL_FRect{8, 268, 14, 14},       //
+      SDL_FRect{164, 6, 12, 12},       //
+      SDL_FRect{177, 6, 12, 12},       //
   };
   fns = {
       event_close,

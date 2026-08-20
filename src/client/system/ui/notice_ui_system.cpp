@@ -456,9 +456,18 @@ void notice_ui_system::event_button_worldmap_teleport() {
 }
 
 void notice_ui_system::event_button_throw_mul() {
-  auto p = std::any_cast<std::polymorphic<game_item> *>(notice_ui_system::data);
+  int itm_num;
+  std::u16string itm_id;
+  if (std::any_cast<std::nullptr_t>(&notice_ui_system::data)) {
+    itm_id = u"0";
+    itm_num = package_game_instance::meso;
+  } else {
+    auto p =
+        std::any_cast<std::polymorphic<game_item> *>(notice_ui_system::data);
+    itm_id = (*p)->id;
+    itm_num = item_game_instance::load_item_num(*p);
+  }
   auto throw_num = std::stoi(std::string{text.text.begin(), text.text.end()});
-  auto itm_num = item_game_instance::load_item_num(*p);
   if (throw_num > itm_num) {
     type = notice_enum::shopbuy_sell_no_num;
     cursor_game_instance::cursor_hand = std::nullopt;
@@ -466,7 +475,7 @@ void notice_ui_system::event_button_throw_mul() {
   } else {
     DropT dt;
     ItemT it;
-    it.item_id = std::stoi(std::string{(*p)->id.begin(), (*p)->id.end()});
+    it.item_id = std::stoi(std::string{itm_id.begin(), itm_id.end()});
     it.item_num = throw_num;
     dt.drop.Set(it);
 

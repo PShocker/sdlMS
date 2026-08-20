@@ -145,6 +145,10 @@ struct ServerCharacterLvUp;
 struct ServerCharacterLvUpBuilder;
 struct ServerCharacterLvUpT;
 
+struct ServerCreateMob;
+struct ServerCreateMobBuilder;
+struct ServerCreateMobT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -2911,6 +2915,77 @@ inline ::flatbuffers::Offset<ServerCharacterLvUp> CreateServerCharacterLvUp(
 
 ::flatbuffers::Offset<ServerCharacterLvUp> CreateServerCharacterLvUp(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterLvUpT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerCreateMobT : public ::flatbuffers::NativeTable {
+  typedef ServerCreateMob TableType;
+  std::vector<std::unique_ptr<fbs::MobT>> mobs{};
+  ServerCreateMobT() = default;
+  ServerCreateMobT(const ServerCreateMobT &o);
+  ServerCreateMobT(ServerCreateMobT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerCreateMobT &operator=(ServerCreateMobT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerCreateMob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerCreateMobT NativeTableType;
+  typedef ServerCreateMobBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOBS = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>> *mobs() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>> *>(VT_MOBS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>> *mutable_mobs() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>> *>(VT_MOBS);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_MOBS) &&
+           verifier.VerifyVector(mobs()) &&
+           verifier.VerifyVectorOfTables(mobs()) &&
+           verifier.EndTable();
+  }
+  ServerCreateMobT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerCreateMobT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerCreateMob> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCreateMobT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerCreateMobBuilder {
+  typedef ServerCreateMob Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mobs(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>>> mobs) {
+    fbb_.AddOffset(ServerCreateMob::VT_MOBS, mobs);
+  }
+  explicit ServerCreateMobBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerCreateMob> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerCreateMob>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerCreateMob> CreateServerCreateMob(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>>> mobs = 0) {
+  ServerCreateMobBuilder builder_(_fbb);
+  builder_.add_mobs(mobs);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerCreateMob> CreateServerCreateMobDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<fbs::Mob>> *mobs = nullptr) {
+  auto mobs__ = mobs ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Mob>>(*mobs) : 0;
+  return fbs::CreateServerCreateMob(
+      _fbb,
+      mobs__);
+}
+
+::flatbuffers::Offset<ServerCreateMob> CreateServerCreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCreateMobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -4142,6 +4217,42 @@ inline ::flatbuffers::Offset<ServerCharacterLvUp> ServerCharacterLvUp::Pack(::fl
   return fbs::CreateServerCharacterLvUp(
       _fbb,
       _client_id);
+}
+
+inline ServerCreateMobT::ServerCreateMobT(const ServerCreateMobT &o) {
+  mobs.reserve(o.mobs.size());
+  for (const auto &mobs_ : o.mobs) { mobs.emplace_back((mobs_) ? new fbs::MobT(*mobs_) : nullptr); }
+}
+
+inline ServerCreateMobT &ServerCreateMobT::operator=(ServerCreateMobT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mobs, o.mobs);
+  return *this;
+}
+
+inline ServerCreateMobT *ServerCreateMob::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerCreateMobT>(new ServerCreateMobT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerCreateMob::UnPackTo(ServerCreateMobT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mobs(); if (_e) { _o->mobs.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->mobs[_i]) { _e->Get(_i)->UnPackTo(_o->mobs[_i].get(), _resolver); } else { _o->mobs[_i] = std::unique_ptr<fbs::MobT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->mobs.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerCreateMob> CreateServerCreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCreateMobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerCreateMob::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerCreateMob> ServerCreateMob::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCreateMobT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerCreateMobT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mobs = _o->mobs.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Mob>> (_o->mobs.size(), [](size_t i, _VectorArgs *__va) { return CreateMob(*__va->__fbb, __va->__o->mobs[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerCreateMob(
+      _fbb,
+      _mobs);
 }
 
 template <bool B>

@@ -22,6 +22,10 @@ private:
   };
   static std::vector<mob_drop> load_mob_drops(server_mob &mob);
 
+  static int load_mob_hit_cd(server_mob &mob);
+
+  static bool run_hit_check(server_mob &mob);
+
   static void run_hit_action(server_mob &mob);
   static void run_move_action(server_mob &mob);
   static void run_stand_action(server_mob &mob);

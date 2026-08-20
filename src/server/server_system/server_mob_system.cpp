@@ -85,6 +85,20 @@ server_mob_system::load_mob_drops(server_mob &mob) {
   return drops;
 }
 
+int server_mob_system::load_mob_hit_cd(server_mob &mob) {
+  int cd = 0;
+  auto mob_node = wz_resource::mob->find(mob.id + u".img");
+  mob_node = mob_node->get_child(u"hit1");
+  for (auto [k, v] : *mob_node->get_children()) {
+    if (v[0]->get_child(u"delay")) {
+      auto delay =
+          static_cast<wz::Property<int> *>(v[0]->get_child(u"delay"))->get();
+      cd += delay;
+    }
+  }
+  return cd;
+}
+
 void server_mob_system::run_network_sync(server_mob &mob, server_mob &o_mob) {
   // 提前判断，减少无效操作
   bool pos_changed = (o_mob.pos.x != mob.pos.x || o_mob.pos.y != mob.pos.y);
@@ -335,49 +349,53 @@ bool server_mob_system::run_hitting(server_mob &mob) {
   }
   mob.hp -= total_damage;
 
-  auto &l = mob.hits.begin()->second;
-  auto &r = mob.hits.rbegin()->second;
+  auto &first = mob.hits.begin()->second;
+  auto &end = mob.hits.rbegin()->second;
   auto current_time = window::dt_time;
 
-  if (l.hit_time > current_time) {
+  if (first.hit_time > current_time) {
     return false;
   }
-
-  if (l.hit_duration <= 0) {
-    mob.hits.erase(mob.hits.begin());
-    return false;
-  }
-
-  // 执行beat动作
-  l.hit_duration -= delta_time;
-  mob.hforce = l.left ? MOVE_FORCE : -MOVE_FORCE;
-  mob.flip = !l.left;
+  mob.hforce = first.left ? MOVE_FORCE : -MOVE_FORCE;
+  mob.flip = !first.left;
 
   if (mob.hp > 0) {
-    mob.hate_id = l.hit_id;
-    mob.duration = window::dt_now + 220;
+    mob.hate_id = end.hit_id;
     run_hit_action(mob);
-  } else if (r.hit_time < current_time) {
+  } else if (end.hit_time < current_time) {
     run_die(mob);
     mob.hits.clear();
   }
   return true;
 }
 
-void server_mob_system::run_hit(server_mob &mob) {
-  auto r = run_hitting(mob);
-  switch (mob.type) {
-  case server_mob::mob_type::stand: {
-    run_walk(mob);
-    if (window::dt_now > mob.duration) {
-      run_stand_action(mob);
+bool server_mob_system::run_hit_check(server_mob &mob) {
+  if (mob.hits.empty()) {
+    auto &first = mob.hits.begin()->first;
+    auto delay = load_mob_hit_cd(mob);
+    if (first + delay <= window::dt_time) {
+      mob.hits.erase(mob.hits.begin());
+    } else {
+      return false;
     }
-    break;
   }
-  case server_mob::mob_type::swim:
-  case server_mob::mob_type::fly: {
-    break;
-  }
+  return true;
+}
+
+void server_mob_system::run_hit(server_mob &mob) {
+  if (run_hit_check(mob)) {
+    switch (mob.type) {
+    case server_mob::mob_type::stand: {
+      run_walk(mob);
+      break;
+    }
+    case server_mob::mob_type::swim:
+    case server_mob::mob_type::fly: {
+      break;
+    }
+    }
+  } else {
+    run_duration(mob);
   }
   return;
 }
@@ -385,7 +403,6 @@ void server_mob_system::run_hit(server_mob &mob) {
 void server_mob_system::run_state_machine(server_mob &mob) {
   auto o_mob = mob; // 拷贝用于对比
   auto m_action = mob_logic_system::load_action_type(mob.action);
-
   switch (m_action) {
   case mob_logic_system::action_enum::revive: {
     break;
@@ -406,6 +423,7 @@ void server_mob_system::run_state_machine(server_mob &mob) {
   }
   case mob_logic_system::action_enum::hit: {
     run_hit(mob);
+    run_hitting(mob);
     break;
   }
   case mob_logic_system::action_enum::jump: {

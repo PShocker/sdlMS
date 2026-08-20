@@ -105,3 +105,8 @@ table ClientReactor {
 table ClientCharacterLvUp {
     map_id:uint32;
 }
+
+table ClientCreateMob {
+    map_id:uint32;
+    mobs:[Mob];
+}

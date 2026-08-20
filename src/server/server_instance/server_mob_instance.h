@@ -8,14 +8,18 @@
 #include "src/server/server/server_scene.h"
 #include <cstdint>
 #include <flat_map>
+#include <string>
 #include <vector>
 
 using namespace fbs;
 
 class server_mob_instance {
 public:
+  static void load_default_mob(const std::u16string id, server_mob &mob);
   static void load_mob(server_scene &scene);
-  static void load_summon_mob(uint64_t client_id);
+
+  static void handle_create_mob(ClientCreateMobT &r);
+  static void handle_s_create_mob(ServerCreateMobT &r);
 
   static void hanle_server_mob(const std::unique_ptr<fbs::MobT> &m);
 

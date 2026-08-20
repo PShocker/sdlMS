@@ -192,6 +192,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_character_instance::handle_lv_up(client_id, r);
     break;
   }
+  case NetPayload_ClientCreateMob: {
+    auto payload = packet->payload_as_ClientCreateMob();
+    fbs::ClientCreateMobT r;
+    payload->UnPackTo(&r);
+    server_mob_instance::handle_create_mob(r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;

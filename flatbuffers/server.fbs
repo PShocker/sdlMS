@@ -174,3 +174,7 @@ table ServerReactorDrop {
 table ServerCharacterLvUp {
     client_id:uint64;
 }
+
+table ServerCreateMob {
+    mobs:[Mob];
+}

@@ -201,7 +201,7 @@ void mob_logic_system::run_collision() {
     ClientMobAttackT cma;
     cma.map_id = scene_system_instance::map_id;
     cma.payload = std::make_unique<AttackT>(std::move(at));
-    client_request::send_to_host(cma); 
+    client_request::send_to_host(cma);
   }
 }
 
@@ -329,8 +329,6 @@ void mob_logic_system::run_mv() {
   }
 }
 
-void mob_logic_system::run_revive(game_mob &g_mob) { g_mob.action = u""; }
-
 void mob_logic_system::run_state_machine(game_mob &g_mob) {
   auto action_type = load_action_type(g_mob.action);
   if (action_type == action_enum::revive) {
@@ -338,7 +336,7 @@ void mob_logic_system::run_state_machine(game_mob &g_mob) {
   }
   if (run_animate(g_mob)) {
     if (action_type == action_enum::die) {
-      run_revive(g_mob);
+      g_mob.action = u"";
       return;
     }
   }

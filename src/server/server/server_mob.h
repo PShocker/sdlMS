@@ -12,7 +12,7 @@
 struct mob_hit {
   uint64_t hit_id; // client_id
   uint64_t hit_time;
-  int32_t hit_duration;
+  uint64_t hit_move_duration;
   int64_t hit_num;
   bool left;
 };
@@ -47,6 +47,8 @@ public:
   uint64_t hate_id;
 
   std::flat_map<uint64_t, mob_hit> hits;
+
+  bool create = false; // 是否是道具召唤的
 
   enum class mob_type {
     stand,

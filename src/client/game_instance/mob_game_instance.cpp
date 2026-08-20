@@ -47,34 +47,4 @@ wz::Node *mob_game_instance::load_link_mob_node(const std::u16string &id) {
   return mob_node;
 }
 
-void mob_game_instance::load(uint32_t map_id) {
-  data = {};
-
-  auto map_node = wz_resource::load_map_node(map_id);
-  auto map_life_node = map_node->get_child(u"life");
-  auto fhs = foothold_game_instance::load(map_id);
-
-  for (auto [key, val] : *map_life_node->get_children()) {
-    auto type =
-        static_cast<wz::Property<std::u16string> *>(val[0]->get_child(u"type"))
-            ->get();
-    if (type == u"n") {
-      continue;
-    }
-    game_mob g_mob;
-    auto mob_node = val[0];
-    g_mob.index = std::stoi(std::string{key.begin(), key.end()});
-    g_mob.id =
-        static_cast<wz::Property<std::u16string> *>(mob_node->get_child(u"id"))
-            ->get();
-    g_mob.ani_index = 0;
-    g_mob.ani_time = 0;
-    g_mob.ani_animate = true;
-
-    auto info_node = load_mob_info(g_mob.id);
-    g_mob.max_hp =
-        static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
-
-    data[g_mob.index] = {g_mob, {}};
-  }
-}
+void mob_game_instance::load(uint32_t map_id) { data = {}; }

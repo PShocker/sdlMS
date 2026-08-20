@@ -2,6 +2,7 @@
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game/game_gain_log.h"
+#include "src/client/game/game_mob.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"
@@ -19,6 +20,32 @@
 #include <flat_map>
 #include <memory>
 #include <optional>
+
+void server_mob_instance::load_default_mob(const std::u16string id,
+                                           server_mob &mob) {
+  // default action
+  auto mob_node = wz_resource::mob->find(mob.id + u".img");
+  if (mob_node->get_child(u"info")->get_child("flySpeed")) {
+    mob.action = u"fly";
+    mob.type = server_mob::mob_type::fly;
+  } else {
+    mob.action = u"stand";
+    mob.type = server_mob::mob_type::stand;
+  }
+  mob.duration = window::dt_now;
+
+  auto info_node = mob_game_instance::load_mob_info(mob.id);
+  mob.hp =
+      static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
+  mob.mp =
+      static_cast<wz::Property<int> *>(info_node->get_child(u"maxMP"))->get();
+  if (info_node->get_child(u"speed") != nullptr) {
+    mob.hspeed =
+        static_cast<wz::Property<int> *>(info_node->get_child(u"speed"))->get();
+    mob.hspeed = -1 * (float)(mob.hspeed + 100) / 100 * 125;
+    mob.hspeed = (float)(mob.hspeed + 100) / 100 * 125;
+  }
+}
 
 void server_mob_instance::load_mob(server_scene &scene) {
   std::flat_map<uint32_t, server_mob> data;
@@ -49,31 +76,12 @@ void server_mob_instance::load_mob(server_scene &scene) {
     auto x = static_cast<wz::Property<int> *>(mob_node->get_child(u"x"))->get();
     auto m_fh = fhs.at(mob.fh);
     auto y = m_fh.k.value() * x + m_fh.intercept.value();
-    mob.pos = {static_cast<float>(x), static_cast<float>(y)};
+    mob.pos = {
+        static_cast<float>(x),
+        static_cast<float>(y),
+    };
     mob.page = m_fh.page;
-    // default action
-    mob_node = wz_resource::mob->find(mob.id + u".img");
-    if (mob_node->get_child(u"info")->get_child("flySpeed")) {
-      mob.action = u"fly";
-      mob.type = server_mob::mob_type::fly;
-    } else {
-      mob.action = u"stand";
-      mob.type = server_mob::mob_type::stand;
-    }
-    mob.duration = window::dt_now;
-
-    auto info_node = mob_game_instance::load_mob_info(mob.id);
-    mob.hp =
-        static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
-    mob.mp =
-        static_cast<wz::Property<int> *>(info_node->get_child(u"maxMP"))->get();
-    if (info_node->get_child(u"speed") != nullptr) {
-      mob.hspeed =
-          static_cast<wz::Property<int> *>(info_node->get_child(u"speed"))
-              ->get();
-      mob.hspeed = -1 * (float)(mob.hspeed + 100) / 100 * 125;
-      mob.hspeed = (float)(mob.hspeed + 100) / 100 * 125;
-    }
+    load_default_mob(mob.id, mob);
     data[mob.index] = mob;
   }
   scene.mobs = data;
@@ -228,21 +236,57 @@ void server_mob_instance::handle_server_attack(ServerMobAttackT &r) {
 void server_mob_instance::hanle_server_mob(
     const std::unique_ptr<fbs::MobT> &m) {
   auto &data = mob_game_instance::data;
-  if (data.contains(m->mob_index)) {
-    auto &mob = data.at(m->mob_index).mob;
-    const auto &state = m->state;
-    mob.action = std::u16string{state->action.begin(), state->action.end()};
-    mob.page = state->page;
-    mob.flip = state->flip;
-    mob.pos.x = state->x;
-    mob.pos.y = state->y;
-    mob.hp = m->mob_hp;
+  game_mob g_mob;
+  g_mob.id = m->mob_id;
+  g_mob.index = m->mob_index;
+  const auto &state = m->state;
+  g_mob.action = {
+      state->action.begin(),
+      state->action.end(),
+  };
+  g_mob.page = state->page;
+  g_mob.flip = state->flip;
+  g_mob.pos.x = state->x;
+  g_mob.pos.y = state->y;
+  g_mob.hp = m->mob_hp;
 
-    auto action_type = mob_logic_system::load_action_type(mob.action);
-    if (action_type == mob_logic_system::action_enum::die) {
-      mob_logic_system::run_revive(mob);
-    }
-  } else {
-    // summon mob
+  g_mob.ani_index = state->action_index;
+  g_mob.ani_time = 0;
+  g_mob.ani_animate = state->action_animate;
+
+  auto action_type = mob_logic_system::load_action_type(g_mob.action);
+  if (action_type == mob_logic_system::action_enum::die) {
+    g_mob.action = u"";
   }
+
+  data[g_mob.index] = {g_mob, {}};
+  return;
+}
+
+void server_mob_instance::handle_create_mob(ClientCreateMobT &r) {
+  auto map_id = r.map_id;
+  auto &scene = server_scene_instance::scenes[map_id];
+  for (const auto &mb : r.mobs) {
+    server_mob mob;
+    mob.create = true;
+    mob.index = scene.mobs.size();
+    mob.rx0 = INT32_MIN;
+    mob.rx1 = INT32_MAX;
+    mob.pos = {
+        static_cast<float>(mb->state->x),
+        static_cast<float>(mb->state->y),
+    };
+    mob.page = mb->state->page;
+    mob.fh = mb->state->fh;
+    auto tmp = std::format("{:07d}", mb->mob_id);
+    mob.id = {tmp.begin(), tmp.end()};
+    load_default_mob(mob.id, mob);
+    scene.mobs[mob.index] = mob;
+  }
+  ServerCreateMobT sct;
+  sct.mobs = std::move(r.mobs);
+  for (auto client_id : scene.clients) {
+    server_response::send_to_client(client_id, sct);
+  }
+  return;
 }

@@ -10,6 +10,7 @@ table LifeState{
 
     page:uint8;
     flip:bool;
+    fh:int16;
 }
 
 table CharacterAppearance{

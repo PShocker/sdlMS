@@ -9,7 +9,6 @@
 #include <flat_map>
 #include <format>
 
-
 void quick_slot_ui_system::render_quickSlot() {
   const static std::flat_map<SDL_Scancode, SDL_Texture *> textures = {
       {SDL_SCANCODE_PAGEDOWN, wz_resource::load_texture(wz_resource::ui->find(
@@ -127,7 +126,6 @@ bool quick_slot_ui_system::cursor_in() {
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
-
 
 bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
   if (cursor_game_instance::cursor_hand_net.has_value()) {

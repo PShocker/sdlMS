@@ -364,6 +364,7 @@ struct LifeStateT : public ::flatbuffers::NativeTable {
   bool action_animate = false;
   uint8_t page = 0;
   bool flip = false;
+  int16_t fh = 0;
 };
 
 struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -376,7 +377,8 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_ACTION_INDEX = 10,
     VT_ACTION_ANIMATE = 12,
     VT_PAGE = 14,
-    VT_FLIP = 16
+    VT_FLIP = 16,
+    VT_FH = 18
   };
   float x() const {
     return GetField<float>(VT_X, 0.0f);
@@ -420,6 +422,12 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_flip(bool _flip = 0) {
     return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
   }
+  int16_t fh() const {
+    return GetField<int16_t>(VT_FH, 0);
+  }
+  bool mutate_fh(int16_t _fh = 0) {
+    return SetField<int16_t>(VT_FH, _fh, 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -431,6 +439,7 @@ struct LifeState FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint8_t>(verifier, VT_ACTION_ANIMATE, 1) &&
            VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
            VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
+           VerifyField<int16_t>(verifier, VT_FH, 2) &&
            verifier.EndTable();
   }
   LifeStateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -463,6 +472,9 @@ struct LifeStateBuilder {
   void add_flip(bool flip) {
     fbb_.AddElement<uint8_t>(LifeState::VT_FLIP, static_cast<uint8_t>(flip), 0);
   }
+  void add_fh(int16_t fh) {
+    fbb_.AddElement<int16_t>(LifeState::VT_FH, fh, 0);
+  }
   explicit LifeStateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -482,12 +494,14 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeState(
     uint32_t action_index = 0,
     bool action_animate = false,
     uint8_t page = 0,
-    bool flip = false) {
+    bool flip = false,
+    int16_t fh = 0) {
   LifeStateBuilder builder_(_fbb);
   builder_.add_action_index(action_index);
   builder_.add_action(action);
   builder_.add_y(y);
   builder_.add_x(x);
+  builder_.add_fh(fh);
   builder_.add_flip(flip);
   builder_.add_page(page);
   builder_.add_action_animate(action_animate);
@@ -502,7 +516,8 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
     uint32_t action_index = 0,
     bool action_animate = false,
     uint8_t page = 0,
-    bool flip = false) {
+    bool flip = false,
+    int16_t fh = 0) {
   auto action__ = action ? _fbb.CreateString(action) : 0;
   return fbs::CreateLifeState(
       _fbb,
@@ -512,7 +527,8 @@ inline ::flatbuffers::Offset<LifeState> CreateLifeStateDirect(
       action_index,
       action_animate,
       page,
-      flip);
+      flip,
+      fh);
 }
 
 ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -3881,6 +3897,7 @@ inline void LifeState::UnPackTo(LifeStateT *_o, const ::flatbuffers::resolver_fu
   { auto _e = action_animate(); _o->action_animate = _e; }
   { auto _e = page(); _o->page = _e; }
   { auto _e = flip(); _o->flip = _e; }
+  { auto _e = fh(); _o->fh = _e; }
 }
 
 inline ::flatbuffers::Offset<LifeState> CreateLifeState(::flatbuffers::FlatBufferBuilder &_fbb, const LifeStateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3898,6 +3915,7 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
   auto _action_animate = _o->action_animate;
   auto _page = _o->page;
   auto _flip = _o->flip;
+  auto _fh = _o->fh;
   return fbs::CreateLifeState(
       _fbb,
       _x,
@@ -3906,7 +3924,8 @@ inline ::flatbuffers::Offset<LifeState> LifeState::Pack(::flatbuffers::FlatBuffe
       _action_index,
       _action_animate,
       _page,
-      _flip);
+      _flip,
+      _fh);
 }
 
 inline CharacterAppearanceT *CharacterAppearance::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

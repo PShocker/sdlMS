@@ -1590,6 +1590,32 @@ bool character_logic_system::run_consume_item(game_character &g_character,
     }
     return true;
   }
+  info = item_game_instance::load_item_info(itm->id, 0);
+  info = info->find(u"../mob");
+  if (info) {
+    if (self_fh == 0) {
+      return false;
+    }
+    for (auto [k, v] : *info->get_children()) {
+      auto mob_id =
+          static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
+      auto mob_num = 1;
+      ClientCreateMobT ccm;
+      ccm.map_id = scene_system_instance::map_id;
+      for (int i = 0; i < mob_num; i++) {
+        MobT mt;
+        mt.mob_id = mob_id;
+        LifeStateT ls;
+        ls.x = g_character.pos.x;
+        ls.y = g_character.pos.y;
+        ls.page = g_character.page;
+        ls.fh = self_fh;
+        mt.state = std::make_unique<LifeStateT>(ls);
+        ccm.mobs.push_back(std::make_unique<MobT>(mt));
+      }
+      client_request::send_to_host(ccm);
+    }
+  }
   return false;
 }
 

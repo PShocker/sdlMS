@@ -20,6 +20,10 @@ private:
   static void render_meso();
 
   static void event_close();
+  static void event_button_coin();
+  static void event_button_gather();
+  static void event_button_sort();
+
   static void event_motion(SDL_Event *event);
 
   static bool event_click_item(SDL_Event *event);
