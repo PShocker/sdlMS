@@ -38,23 +38,19 @@ void cursor_render_system::render_hand() {
     switch (hand.type) {
     case cursor_game_instance::equipment: {
       auto index = hand.sub_val;
-      SDL_Texture *t = nullptr;
-      switch (hand.val) {
-      case 0: {
-        auto eqp = equip_ui_system::load_equip(
-            (equip_ui_system::equip_mouse_index)index);
-        auto info = equip_game_instance::load_equip_info(eqp->value().id);
-        t = wz_resource::load_texture(info->get_child(u"iconRaw"));
-        break;
-      }
-      case 1: {
-        auto eqp = equip_ui_system::load_deco(
-            (equip_ui_system::equip_mouse_index)index);
-        auto info = equip_game_instance::load_equip_info(eqp->value().id);
-        t = wz_resource::load_texture(info->get_child(u"iconRaw"));
-        break;
-      }
-      }
+      auto eqp = equip_ui_system::load_equip(
+          (equip_ui_system::equip_mouse_index)index);
+      auto info = equip_game_instance::load_equip_info(eqp->value().id);
+      auto t = wz_resource::load_texture(info->get_child(u"iconRaw"));
+      render_icon(t);
+      break;
+    }
+    case cursor_game_instance::deco: {
+      auto index = hand.sub_val;
+      auto deco =
+          equip_ui_system::load_deco((equip_ui_system::equip_mouse_index)index);
+      auto info = equip_game_instance::load_equip_info(deco->value().id);
+      auto t = wz_resource::load_texture(info->get_child(u"iconRaw"));
       render_icon(t);
       break;
     }

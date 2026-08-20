@@ -465,10 +465,10 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
   if (cursor_hand.has_value()) {
     switch (cursor_hand->type) {
     case cursor_game_instance::equipment: {
-      if (index.value() == cursor_hand->sub_val) {
+      if (index.value() == cursor_hand->sub_val && active_tab == 0) {
         unuse_equip(index.value());
-        cursor_game_instance::cursor_hand = std::nullopt;
       }
+      cursor_game_instance::cursor_hand = std::nullopt;
       break;
     }
     case cursor_game_instance::package: {
@@ -505,6 +505,14 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
       cursor_hand = std::nullopt;
       break;
     }
+    case cursor_game_instance::deco: {
+      if (index.value() == cursor_hand->sub_val && active_tab == 1) {
+        unuse_deco(index.value());
+      }
+      cursor_game_instance::cursor_hand = std::nullopt;
+
+      break;
+    }
     default: {
       break;
     }
@@ -518,11 +526,19 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
         click = load_deco(index.value())->has_value();
       }
       if (click) {
-        cursor_game_instance::cursor_hand = {
-            .type = cursor_game_instance::equipment,
-            .val = active_tab,
-            .sub_val = index.value(),
-        };
+        if (active_tab == 0) {
+          cursor_game_instance::cursor_hand = {
+              .type = cursor_game_instance::equipment,
+              .val = active_tab,
+              .sub_val = index.value(),
+          };
+        } else {
+          cursor_game_instance::cursor_hand = {
+              .type = cursor_game_instance::deco,
+              .val = active_tab,
+              .sub_val = index.value(),
+          };
+        }
       }
     }
   }
@@ -714,23 +730,27 @@ int equip_ui_system::use_equip_scroll(game_equip_item &eqp,
 }
 
 int equip_ui_system::unuse_equip(int i) {
-  std::polymorphic<game_item> eqp;
-  if (active_tab == 0) {
-    eqp =
-        std::polymorphic<game_item>(load_equip((equip_mouse_index)i)->value());
-  } else {
-    eqp = std::polymorphic<game_item>(load_deco((equip_mouse_index)i)->value());
-  }
+  auto eqp =
+      std::polymorphic<game_item>(load_equip((equip_mouse_index)i)->value());
   if (!package_ui_system::add_item(eqp)) {
     notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
     notice_ui_system::open();
     return 0;
   }
-  if (active_tab == 0) {
-    (*load_equip((equip_mouse_index)i)) = std::nullopt;
-  } else {
-    (*load_deco((equip_mouse_index)i)) = std::nullopt;
+  (*load_equip((equip_mouse_index)i)) = std::nullopt;
+  character_logic_system::cct.map_id = scene_system_instance::map_id;
+  return 1;
+}
+
+int equip_ui_system::unuse_deco(int i) {
+  auto eqp =
+      std::polymorphic<game_item>(load_deco((equip_mouse_index)i)->value());
+  if (!package_ui_system::add_item(eqp)) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+    notice_ui_system::open();
+    return 0;
   }
+  (*load_deco((equip_mouse_index)i)) = std::nullopt;
   character_logic_system::cct.map_id = scene_system_instance::map_id;
   return 1;
 }

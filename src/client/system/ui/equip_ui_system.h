@@ -61,6 +61,7 @@ private:
 
 public:
   static int unuse_equip(int i);
+  static int unuse_deco(int i);
 
   static std::optional<game_equip_item> *load_equip(equip_mouse_index index);
   static std::optional<game_deco_item> *load_deco(equip_mouse_index index);
