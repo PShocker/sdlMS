@@ -93,7 +93,7 @@ int server_mob_system::load_mob_hit_cd(server_mob &mob) {
     if (v[0]->get_child(u"delay")) {
       auto delay =
           static_cast<wz::Property<int> *>(v[0]->get_child(u"delay"))->get();
-      cd += delay;
+      cd += delay / 2;
     }
   }
   return cd;
@@ -375,12 +375,10 @@ bool server_mob_system::run_hit_check(server_mob &mob) {
     auto delay = load_mob_hit_cd(mob);
     if (first + delay <= window::dt_time) {
       mob.hits.erase(mob.hits.begin());
+      return true;
     } else {
       return false;
     }
-  }
-  if (mob.hits.empty()) {
-    return true;
   }
   return false;
 }
