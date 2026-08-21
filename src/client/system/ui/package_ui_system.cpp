@@ -411,7 +411,7 @@ void package_ui_system::render_button() {
   };
   auto wh = load_wh();
   const std::array buttons_rect = {
-      SDL_FRect{wh.x - 20, 7, 12, 12}, //
+      SDL_FRect{wh.x - 18, 6, 12, 12}, //
       SDL_FRect{8, 268, 14, 14},       //
       SDL_FRect{164, 6, 12, 12},       //
       SDL_FRect{177, 6, 12, 12},       //
@@ -757,13 +757,16 @@ bool package_ui_system::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns;
   auto wh = load_wh();
   r = {
-      SDL_FRect{wh.x - 20, 7, 12, 12}, //
+      SDL_FRect{wh.x - 18, 6, 12, 12}, //
       SDL_FRect{8, 268, 14, 14},       //
       SDL_FRect{164, 6, 12, 12},       //
       SDL_FRect{177, 6, 12, 12},       //
   };
   fns = {
       event_close,
+      event_button_coin,
+      event_button_gather,
+      event_button_sort,
   };
 
   for (size_t i = 0; i < r.size(); ++i) {

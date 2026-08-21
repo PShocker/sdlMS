@@ -237,7 +237,8 @@ void server_mob_instance::hanle_server_mob(
     const std::unique_ptr<fbs::MobT> &m) {
   auto &data = mob_game_instance::data;
   game_mob g_mob;
-  g_mob.id = m->mob_id;
+  auto tmp = std::format("{:07d}", m->mob_id);
+  g_mob.id = {tmp.begin(), tmp.end()};
   g_mob.index = m->mob_index;
   const auto &state = m->state;
   g_mob.action = {
@@ -249,6 +250,9 @@ void server_mob_instance::hanle_server_mob(
   g_mob.pos.x = state->x;
   g_mob.pos.y = state->y;
   g_mob.hp = m->mob_hp;
+  auto info_node = mob_game_instance::load_mob_info(g_mob.id);
+  g_mob.max_hp =
+      static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
 
   g_mob.ani_index = state->action_index;
   g_mob.ani_time = 0;

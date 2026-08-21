@@ -359,18 +359,18 @@ bool server_mob_system::run_hitting(server_mob &mob) {
   mob.hforce = first.left ? MOVE_FORCE : -MOVE_FORCE;
   mob.flip = !first.left;
 
-  if (mob.hp > 0) {
-    mob.hate_id = end.hit_id;
-    run_hit_action(mob);
-  } else if (end.hit_time < current_time) {
+  if (mob.hp <= 0 && end.hit_time < current_time) {
     run_die(mob);
     mob.hits.clear();
+  } else {
+    mob.hate_id = end.hit_id;
+    run_hit_action(mob);
   }
   return true;
 }
 
 bool server_mob_system::run_hit_check(server_mob &mob) {
-  if (mob.hits.empty()) {
+  if (!mob.hits.empty()) {
     auto &first = mob.hits.begin()->first;
     auto delay = load_mob_hit_cd(mob);
     if (first + delay <= window::dt_time) {
@@ -379,11 +379,17 @@ bool server_mob_system::run_hit_check(server_mob &mob) {
       return false;
     }
   }
-  return true;
+  if (mob.hits.empty()) {
+    return true;
+  }
+  return false;
 }
 
 void server_mob_system::run_hit(server_mob &mob) {
   if (run_hit_check(mob)) {
+    run_stand_action(mob);
+    run_duration(mob);
+  } else {
     switch (mob.type) {
     case server_mob::mob_type::stand: {
       run_walk(mob);
@@ -394,8 +400,6 @@ void server_mob_system::run_hit(server_mob &mob) {
       break;
     }
     }
-  } else {
-    run_duration(mob);
   }
   return;
 }
@@ -411,14 +415,16 @@ void server_mob_system::run_state_machine(server_mob &mob) {
     break;
   }
   case mob_logic_system::action_enum::stand: {
-    run_hitting(mob);
-    run_duration(mob);
+    if (!run_hitting(mob)) {
+      run_duration(mob);
+    }
     break;
   }
   case mob_logic_system::action_enum::move: {
-    run_hitting(mob);
-    run_walk(mob);
-    run_duration(mob);
+    if (!run_hitting(mob)) {
+      run_walk(mob);
+      run_duration(mob);
+    }
     break;
   }
   case mob_logic_system::action_enum::hit: {

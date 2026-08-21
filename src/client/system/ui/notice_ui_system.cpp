@@ -257,9 +257,14 @@ void notice_ui_system::open() {
     case notice_enum::shopbuy_sell_mul:
     case notice_enum::shopbuy_mul:
     case notice_enum::throw_mul: {
-      auto p =
-          std::any_cast<std::polymorphic<game_item> *>(notice_ui_system::data);
-      auto num = item_game_instance::load_item_num(*p);
+      int num;
+      if (std::any_cast<std::nullptr_t>(&notice_ui_system::data)) {
+        num = 1;
+      } else {
+        auto p = std::any_cast<std::polymorphic<game_item> *>(
+            notice_ui_system::data);
+        auto num = item_game_instance::load_item_num(*p);
+      }
       auto tmp = std::to_string(num);
       text = {
           .max_size = 12,
