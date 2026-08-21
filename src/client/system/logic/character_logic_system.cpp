@@ -844,11 +844,20 @@ bool character_logic_system::run_attack(game_character &g_character) {
       auto ball = package_ui_system::load_active_ball();
       auto &consume = static_cast<game_consume_item &>(**ball);
       consume.num -= 1;
+      auto cash_ball = package_ui_system::load_active_cash_ball();
+      std::u16string path;
+      std::u16string effect;
+      if (!cash_ball.empty()) {
+        auto ball_sub_id = cash_ball.substr(0, 4) + u".img";
+        path = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/bullet";
+        effect = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/hit";
 
-      auto ball_id = (*ball)->id;
-      auto ball_sub_id = ball_id.substr(0, 4) + u".img";
-      std::u16string path =
-          u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
+      } else {
+        auto ball_id = (*ball)->id;
+        auto ball_sub_id = ball_id.substr(0, 4) + u".img";
+        path = u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
+        effect = u"Afterimage/hit.img/maceF";
+      }
       auto page = g_character.page;
       SDL_FPoint pos = g_character.pos;
       pos.y -= 28;
@@ -865,7 +874,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
         cm.data[0].hits = {100};
         auto d = ball_game_instance::load_ball_time(cct);
         auto cat = skill_game_instance::create_attack_payload(cm, pos, d);
-        cat.payload[0]->effect = "Afterimage/hit.img/maceF";
+        cat.payload[0]->effect = {effect.begin(), effect.end()};
         client_request::send_to_host(cat);
       }
       server_ball_instance::handle_server_b(cct.payload);
@@ -1573,15 +1582,6 @@ bool character_logic_system::run_consume_item(game_character &g_character,
       auto moveTo =
           static_cast<wz::Property<int> *>(info->get_child(u"moveTo"))->get();
       scene_system_instance::enter_prepare(moveTo, u"sp", 0);
-    }
-    if (info->get_child(u"morph")) {
-      auto morph =
-          static_cast<wz::Property<int> *>(info->get_child(u"morph"))->get();
-      auto tmp = std::format("{:04d}", morph);
-      g_character.morph = {tmp.begin(), tmp.end()};
-      g_character.action_index = 0;
-      g_character.action_time = 0;
-      run_unsit_chair(g_character);
     }
     if (info->get_child(u"exp")) {
       auto exp =

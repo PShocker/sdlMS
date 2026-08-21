@@ -2,9 +2,16 @@
 
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
+#include <string>
+
 class game_pet {
 public:
   game_character *g_character;
+
+  std::u16string action;
+
+  int rx0;
+  int rx1;
 
   SDL_FPoint pos;
   int64_t z;

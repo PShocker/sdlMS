@@ -953,6 +953,35 @@ std::polymorphic<game_item> *package_ui_system::load_active_ball() {
   return nullptr;
 }
 
+std::u16string package_ui_system::load_active_cash_ball() {
+  auto &sf = character_game_instance::self;
+  std::u16string pre;
+  auto weapon_type = equip_game_instance::load_weapon_type(sf);
+  switch (weapon_type) {
+  case equip_game_instance::weapon_type::BOW: {
+    break;
+  }
+  case equip_game_instance::weapon_type::CROSSBOW: {
+    break;
+  }
+  case equip_game_instance::weapon_type::CLAW: {
+    pre = u"0502";
+    break;
+  }
+  default: {
+    return u"";
+    break;
+  }
+  }
+  auto &r = package_game_instance::data[(int)item_enum::cash];
+  for (auto &itm : r) {
+    if (itm->id.starts_with(pre)) {
+      return itm->id;
+    }
+  }
+  return u"";
+}
+
 int package_ui_system::use_equip_scroll(game_equip_item &eqp,
                                         game_consume_item &s) {
   auto tuc = equip_game_instance::load_equip_tuc(eqp.id);

@@ -458,7 +458,9 @@ void minimap_ui_system::render_canvas_life() {
   SDL_FRect pos_rect = {
       pos.x + self_pos.x + canvas_o.x - (float)user_texture->w / 2,
       pos.y + self_pos.y + canvas_o.y - (float)user_texture->h / 2,
-      (float)user_texture->w, (float)user_texture->h};
+      (float)user_texture->w,
+      (float)user_texture->h,
+  };
   SDL_RenderTexture(window::renderer, user_texture, nullptr, &pos_rect);
 
   SDL_SetRenderClipRect(window::renderer, NULL);

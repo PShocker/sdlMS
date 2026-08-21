@@ -1,4 +1,5 @@
 #pragma once
+#include "src/client/game/game_character.h"
 #include "src/client/game/game_item_buff.h"
 #include <string>
 #include <vector>
@@ -8,4 +9,6 @@ public:
 
   static void use(const std::u16string &id);
   static void end(const std::u16string &id);
+
+  static void use_morph(const std::u16string &id, game_character &g_character);
 };

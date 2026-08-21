@@ -83,7 +83,7 @@ bool mob_render_system::render_gauge(game_mob &g_mob) {
     g_mob.gauge->hp_percent =
         std::lerp(g_mob.gauge->hp_percent, hp_percent_now, 0.03);
     g_mob.gauge->hp_percent_now = hp_percent_now;
-    gauge_render_system::render(pos, g_mob.gauge.value());
+    gauge_render_system::render_mob(pos, g_mob.gauge.value());
     return true;
   }
   return false;

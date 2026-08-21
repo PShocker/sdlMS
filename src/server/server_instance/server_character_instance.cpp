@@ -10,6 +10,7 @@
 #include "src/client/game_instance/chat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/item_buff_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
@@ -21,6 +22,7 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/common/request/client_request.h"
 #include "src/common/response/server_response.h"
+#include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
 #include <cstdlib>
 #include <flat_set>
@@ -369,6 +371,9 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
           .pos = SDL_FPoint{ct->attack->x, ct->attack->y},
           .z = false,
       };
+      if (wz_resource::item->find(e.id)) {
+        e.lvl = 2;
+      }
       mob.effect.push_back(e);
     }
     // 伤害数字
@@ -727,7 +732,9 @@ void server_character_instance::handle_state(uint64_t client_id,
                                              ClientCharacterStateT &r) {
   if (server_client_instance::clients.contains(client_id)) {
     auto &c = server_client_instance::clients.at(client_id).player_t.character;
-    save_character_state(r.payload, *c);
+    for (const auto &st : r.payload) {
+      save_character_state(*st, *c);
+    }
     auto scenes = server_scene_instance::scenes[r.map_id].clients;
     scenes.erase(client_id);
     ServerCharacterStateT t;
@@ -751,6 +758,10 @@ void server_character_instance::handle_buff_item(game_character &g_character,
       } else {
         character_logic_system::run_unsit_chair(g_character);
       }
+    }
+  } else if (item_type == u"Consume") {
+    if (itm_id.starts_with(u"0221")) {
+      item_buff_game_instance::use_morph(itm_id, g_character);
     }
   }
   return;
@@ -837,7 +848,9 @@ void server_character_instance::handle_server_state(uint64_t client_id,
   if (character_game_instance::others.contains(r.client_id)) {
     auto &c =
         character_game_instance::others.at(r.client_id).player_t.character;
-    save_character_state(r.payload, *c);
+    for (const auto &st : r.payload) {
+      save_character_state(*st, *c);
+    }
     handle_s_state(character_game_instance::others.at(r.client_id).g_character,
                    r.payload);
   }
@@ -868,19 +881,17 @@ void server_character_instance::remove_character_state(StateT s,
   });
 }
 
-void server_character_instance::save_character_state(
-    const std::vector<std::unique_ptr<fbs::StateT>> &v, CharacterT &c) {
-  for (const auto &st : v) {
-    remove_character_state(*st, c);
-    switch (st->state) {
-    case StateEnum_ITEM_USE: {
-      break;
-    }
-    default: {
-      c.states.push_back(std::make_unique<StateT>(*st));
-      break;
-    }
-    }
+void server_character_instance::save_character_state(const StateT &st,
+                                                     CharacterT &c) {
+  remove_character_state(st, c);
+  switch (st.state) {
+  case StateEnum_ITEM_USE: {
+    break;
+  }
+  default: {
+    c.states.push_back(std::make_unique<StateT>(st));
+    break;
+  }
   }
 }
 

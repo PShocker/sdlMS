@@ -34,6 +34,7 @@
 #include "src/client/system/logic/drop_logic_system.h"
 #include "src/client/system/logic/effect_logic_system.h"
 #include "src/client/system/logic/gain_log_logic_system.h"
+#include "src/client/system/logic/item_buff_logic_system.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system/logic/npc_logic_system.h"
 #include "src/client/system/logic/obj_logic_system.h"
@@ -200,6 +201,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       buff_ui_system::event,        cursor_logic_system::event,
       keyboard_input_system::event,
   };
+
   system::logic_systems = {
       camera_logic_system::run,    backgrnd_logic_system::run,
       ball_logic_system::run,      effect_logic_system::run,
@@ -209,6 +211,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       audio_logic_system::run,     obj_logic_system::run,
       cursor_logic_system::run,    gain_log_logic_system::run,
       skill_logic_system::run,     reactor_logic_system::run,
+      item_buff_logic_system::run,
   };
   system::render_systems = {
       render_game,

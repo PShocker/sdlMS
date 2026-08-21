@@ -52,6 +52,10 @@ bool effect_logic_system::run_effect(game_effect &g_effect) {
     node = wz_resource::effect->find(g_effect.id);
     break;
   }
+  case 2: {
+    node = wz_resource::item->find(g_effect.id);
+    break;
+  }
   }
   auto index = std::to_string(g_effect.index);
   auto texture_node = node->get_child(index);

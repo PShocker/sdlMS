@@ -28,6 +28,10 @@ void effect_render_system::render_effect(SDL_FPoint pos,
     node = wz_resource::effect->find(g_effect.id);
     break;
   }
+  case 2: {
+    node = wz_resource::item->find(g_effect.id);
+    break;
+  }
   }
   auto pos2 = g_effect.pos.value();
   auto index = std::to_string(g_effect.index);
