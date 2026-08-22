@@ -17,7 +17,7 @@
 
 void revive_ui_system::render_backgrnd() {
   static auto texture =
-      wz_resource::load_texture(wz_resource::ui->find(u"Revive.img/back0"));
+      wz_resource::load_texture(wz_resource::ui->find(u"Revive.img/backgrnd"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
                      static_cast<float>(texture->h)};
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
@@ -25,7 +25,7 @@ void revive_ui_system::render_backgrnd() {
 
 void revive_ui_system::render_button() {
   const static std::array buttons_node = {
-      wz_resource::ui->find(u"Revive.img/button:ok"),
+      wz_resource::ui->find(u"Basic.img/BtOK2"),
   };
   const std::array buttons_rect = {
       SDL_FRect{119, 115, 47, 18}, //

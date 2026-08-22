@@ -434,7 +434,8 @@ void character_render_system::render_chair(game_character &g_character,
 
 void character_render_system::render_morph(game_character &g_character) {
   auto node = wz_resource::morph->find(g_character.morph + u".img");
-  node = node->get_child(g_character.action);
+  auto action = character_logic_system::load_morph_type(g_character);
+  node = node->get_child(action);
   node = node->get_child(std::to_string(g_character.action_index));
   auto t = wz_resource::load_texture(node);
   auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
@@ -452,6 +453,9 @@ void character_render_system::render_morph(game_character &g_character) {
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
+    SDL_SetTextureColorMod(t, g_character.color.r, g_character.color.g,
+                           g_character.color.b);
+    SDL_SetTextureAlphaMod(t, g_character.color.a);
     SDL_RenderTextureRotated(window::renderer, t, nullptr, &pos_rect, 0,
                              nullptr, (SDL_FlipMode)g_character.flip);
   }

@@ -484,7 +484,7 @@ bool shop_ui_system::event_item(SDL_Event *event) {
     auto meso = package_game_instance::meso;
     const auto &itm = items->at(index);
     auto itm2 = items->at(index);
-    bool space = package_ui_system::load_b_index(itm2.item).empty();
+    bool space = package_ui_system::load_blank_index(itm2.item).empty();
     if (meso < itm.price) {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_meso;
     } else if (space) {
@@ -711,7 +711,7 @@ int shop_ui_system::add_item_slot(std::polymorphic<game_item> &item, int i) {
 }
 
 std::optional<int> shop_ui_system::add_item(std::polymorphic<game_item> &item) {
-  auto b = package_ui_system::load_b_index(item);
+  auto b = package_ui_system::load_blank_index(item);
   if (b.empty()) {
     return std::nullopt;
   }

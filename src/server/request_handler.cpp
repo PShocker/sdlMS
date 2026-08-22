@@ -405,6 +405,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     }
     break;
   }
+    case NetPayload_ServerCreateMob: {
+    auto payload = packet->payload_as_ServerCreateMob();
+    fbs::ServerCreateMobT r;
+    payload->UnPackTo(&r);
+    server_mob_instance::handle_s_create_mob(r);
+    break;
+  }
   default:
     break;
   }

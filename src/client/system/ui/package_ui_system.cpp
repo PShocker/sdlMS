@@ -53,7 +53,7 @@ std::vector<uint32_t> package_ui_system::load_blank_index(uint32_t tab) {
 }
 
 std::vector<uint32_t>
-package_ui_system::load_b_index(std::polymorphic<game_item> &item) {
+package_ui_system::load_blank_index(std::polymorphic<game_item> &item) {
   if (item->id == u"00000000") {
     // meso
     return {0};
@@ -907,7 +907,7 @@ void package_ui_system::dec_item_num(std::polymorphic<game_item> &item,
 }
 
 std::polymorphic<game_item> *
-package_ui_system::load_f_item(const std::u16string &id) {
+package_ui_system::load_item(const std::u16string &id) {
   auto type = item_game_instance::load_item_type(id);
   std::vector<std::polymorphic<game_item>> *r;
   if (type == u"Cash" || type == u"Pet") {

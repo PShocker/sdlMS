@@ -80,6 +80,7 @@ private:
 
   static bool run_consume_item(game_character &g_character,
                                std::polymorphic<game_item> itm);
+
 public:
   static inline ClientCharacterStateT ccs;
   static inline ClientCharacterPickT ccp;
@@ -111,6 +112,7 @@ public:
   static void load_sfx(game_character &g_character);
   static float load_attack_speed(game_character &g_character);
 
+  static std::u16string load_morph_type(game_character &g_character);
   static SDL_FRect load_rect(game_character &g_character);
   enum class action_enum {
     stand,

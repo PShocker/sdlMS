@@ -306,7 +306,8 @@ bool character_logic_system::run_animate(game_character &g_character) {
   uint32_t size = 0;
   if (!g_character.morph.empty()) {
     auto node = wz_resource::morph->find(g_character.morph + u".img");
-    node = node->get_child(g_character.action);
+    auto action = load_morph_type(g_character);
+    node = node->get_child(action);
     size = node->children_count();
     node = node->get_child(std::to_string(g_character.action_index));
     if (node->get_child(u"delay")) {
@@ -366,7 +367,7 @@ void character_logic_system::run_pick(game_character &g_character) {
   if (character_action_input.contains("pick")) {
     for (auto &v : drop_game_instance::data | std::views::values) {
       if (v.type == game_drop::drop_enum::land) {
-        if (package_ui_system::load_b_index(v.data).empty()) {
+        if (package_ui_system::load_blank_index(v.data).empty()) {
           continue;
         }
         auto pos = g_character.pos;
@@ -778,7 +779,9 @@ bool character_logic_system::run_attack(game_character &g_character) {
     } else {
       actions = &weapon_attack_action.at(weapon_type);
     }
-    run_action(g_character, *actions->begin());
+    std::uniform_int_distribution<> dis(0, actions->size() - 1);
+    auto selected = *std::next(actions->begin(), dis(gen));
+    run_action(g_character, selected);
     SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
     auto rt = run_reactor_check(g_character, g_r);
     switch (g_action) {
@@ -815,6 +818,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       break;
     }
     default: {
+      return false;
       break;
     }
     }
@@ -841,8 +845,8 @@ bool character_logic_system::run_attack(game_character &g_character) {
           },
       };
       auto cm = character_logic_system::run_attack_check(g_character, tri);
-      auto ball = package_ui_system::load_active_ball();
-      auto &consume = static_cast<game_consume_item &>(**ball);
+      auto &ball = *package_ui_system::load_active_ball();
+      auto &consume = static_cast<game_consume_item &>(*ball);
       consume.num -= 1;
       auto cash_ball = package_ui_system::load_active_cash_ball();
       std::u16string path;
@@ -853,7 +857,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
         effect = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/hit";
 
       } else {
-        auto ball_id = (*ball)->id;
+        auto ball_id = ball->id;
         auto ball_sub_id = ball_id.substr(0, 4) + u".img";
         path = u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
         effect = u"Afterimage/hit.img/maceF";
@@ -1610,6 +1614,7 @@ bool character_logic_system::run_consume_item(game_character &g_character,
         ls.y = g_character.pos.y;
         ls.page = g_character.page;
         ls.fh = self_fh;
+        ls.action_animate = true;
         mt.state = std::make_unique<LifeStateT>(ls);
         ccm.mobs.push_back(std::make_unique<MobT>(mt));
       }
@@ -1654,7 +1659,7 @@ void character_logic_system::run_item(game_character &g_character) {
     for (const auto &input : character_item_input) {
       auto item_id = input.val;
       std::u16string item_id2{item_id.begin(), item_id.end()};
-      auto itm = package_ui_system::load_f_item(item_id2);
+      auto itm = package_ui_system::load_item(item_id2);
       if (itm == nullptr) {
         return;
       }
@@ -1664,4 +1669,34 @@ void character_logic_system::run_item(game_character &g_character) {
     }
   }
   return;
+}
+
+std::u16string
+character_logic_system::load_morph_type(game_character &g_character) {
+  auto action_type = load_action_type(g_character);
+  switch (action_type) {
+  case action_enum::stand: {
+    return u"stand";
+  }
+  case action_enum::alert: {
+    return u"stand";
+  }
+  case action_enum::walk: {
+    return u"walk";
+  }
+  case action_enum::prone: {
+    return u"prone";
+  }
+  case action_enum::jump: {
+    return u"jump";
+  }
+  case action_enum::climb: {
+    return g_character.action;
+  }
+  default: {
+    return u"jump";
+    break;
+  }
+  }
+  return u"";
 }

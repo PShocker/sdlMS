@@ -24,6 +24,7 @@
 void server_mob_instance::load_default_mob(const std::u16string id,
                                            server_mob &mob) {
   // default action
+  mob.id = id;
   auto mob_node = wz_resource::mob->find(mob.id + u".img");
   if (mob_node->get_child(u"info")->get_child("flySpeed")) {
     mob.action = u"fly";
@@ -254,9 +255,9 @@ void server_mob_instance::hanle_server_mob(
   g_mob.max_hp =
       static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
 
-  g_mob.ani_index = state->action_index;
+  g_mob.ani_index = 0;
   g_mob.ani_time = 0;
-  g_mob.ani_animate = state->action_animate;
+  g_mob.ani_animate = true;
 
   auto action_type = mob_logic_system::load_action_type(g_mob.action);
   if (action_type == mob_logic_system::action_enum::die) {
@@ -270,6 +271,7 @@ void server_mob_instance::hanle_server_mob(
 void server_mob_instance::handle_create_mob(ClientCreateMobT &r) {
   auto map_id = r.map_id;
   auto &scene = server_scene_instance::scenes[map_id];
+  int i = 0;
   for (const auto &mb : r.mobs) {
     server_mob mob;
     mob.create = true;
@@ -283,14 +285,25 @@ void server_mob_instance::handle_create_mob(ClientCreateMobT &r) {
     mob.page = mb->state->page;
     mob.fh = mb->state->fh;
     auto tmp = std::format("{:07d}", mb->mob_id);
-    mob.id = {tmp.begin(), tmp.end()};
-    load_default_mob(mob.id, mob);
+    load_default_mob({tmp.begin(), tmp.end()}, mob);
     scene.mobs[mob.index] = mob;
+
+    r.mobs[i]->mob_index = mob.index;
+    r.mobs[i]->mob_hp = mob.hp;
+    r.mobs[i]->state->action = {mob.action.begin(), mob.action.end()};
+    i++;
   }
   ServerCreateMobT sct;
   sct.mobs = std::move(r.mobs);
   for (auto client_id : scene.clients) {
     server_response::send_to_client(client_id, sct);
+  }
+  return;
+}
+
+void server_mob_instance::handle_s_create_mob(ServerCreateMobT &r) {
+  for (const auto &m : r.mobs) {
+    hanle_server_mob(m);
   }
   return;
 }

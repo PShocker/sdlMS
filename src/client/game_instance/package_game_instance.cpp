@@ -11,7 +11,8 @@ void package_game_instance::load(const character_save &cs) {
   }
   game_consume_item gci;
   // gci.id = u"02040000";
-  gci.id = u"02070008";
+  // gci.id = u"02070008";
+  gci.id = u"02100000";
   gci.num = 3;
 
   data[(int)item_enum::equip].assign(

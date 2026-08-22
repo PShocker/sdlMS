@@ -93,7 +93,7 @@ int server_mob_system::load_mob_hit_cd(server_mob &mob) {
     if (v[0]->get_child(u"delay")) {
       auto delay =
           static_cast<wz::Property<int> *>(v[0]->get_child(u"delay"))->get();
-      cd += delay / 2;
+      cd += delay;
     }
   }
   return cd;
