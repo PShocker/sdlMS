@@ -735,6 +735,7 @@ void package_ui_system::event_close() { close(); }
 void package_ui_system::event_button_coin() {
   notice_ui_system::type = notice_ui_system::notice_enum::throw_mul;
   notice_ui_system::data = nullptr;
+  // notice_ui_system::close();
   notice_ui_system::open();
 }
 
@@ -866,7 +867,7 @@ bool package_ui_system::event(SDL_Event *event) {
       if (cursor_game_instance::cursor_ui == render) {
         event_tab(event);
         event_click_item(event);
-        r = event_button(event);
+        r = !event_button(event);
         event_vscr(event);
       }
       event_drag_end();

@@ -11,6 +11,7 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/shop_game_instance.h"
+#include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/shop_ui_system.h"
@@ -243,6 +244,8 @@ bool notice_ui_system::render() {
 }
 
 void notice_ui_system::open() {
+  keyboard_input_system::reset();
+
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {

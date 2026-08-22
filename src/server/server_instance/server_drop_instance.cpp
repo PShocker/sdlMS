@@ -195,44 +195,52 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     if (r.client_id == 0) {
       cursor_game_instance::cursor_hand_net = std::nullopt;
-      auto &hand = cursor_game_instance::cursor_hand.value();
-      switch (hand.type) {
-      case cursor_game_instance::equipment: {
-        break;
-      }
-      case cursor_game_instance::package: {
-        int num = 1;
-        switch (r.payload->drop.type) {
-        case fbs::ItemUnion_Item: {
-          auto item = r.payload->drop.AsItem();
-          num = item->item_num;
+      if (cursor_game_instance::cursor_hand.has_value()) {
+        auto &hand = cursor_game_instance::cursor_hand.value();
+        switch (hand.type) {
+        case cursor_game_instance::equipment: {
+          break;
+        }
+        case cursor_game_instance::package: {
+          int num = 1;
+          switch (r.payload->drop.type) {
+          case fbs::ItemUnion_Item: {
+            auto item = r.payload->drop.AsItem();
+            num = item->item_num;
+            break;
+          }
+          default: {
+            break;
+          }
+          }
+          auto &itm = package_game_instance::data[hand.val][hand.sub_val];
+          switch (static_cast<item_enum>(hand.val)) {
+          case item_enum::equip: {
+            itm = std::polymorphic<game_item>(game_equip_item{});
+            break;
+          }
+          case item_enum::deco: {
+            itm = std::polymorphic<game_item>(game_deco_item{});
+            break;
+          }
+          default: {
+            package_ui_system::dec_item_num(itm, num);
+            break;
+          }
+          }
           break;
         }
         default: {
           break;
         }
         }
-        auto &itm = package_game_instance::data[hand.val][hand.sub_val];
-        switch (static_cast<item_enum>(hand.val)) {
-        case item_enum::equip: {
-          itm = std::polymorphic<game_item>(game_equip_item{});
-          break;
-        }
-        case item_enum::deco: {
-          itm = std::polymorphic<game_item>(game_deco_item{});
-          break;
-        }
-        default: {
-          package_ui_system::dec_item_num(itm, num);
-          break;
-        }
-        }
-        break;
+      } else {
+        // meso
+        auto item = r.payload->drop.AsItem();
+        auto num = item->item_num;
+        package_game_instance::meso -= num;
       }
-      default: {
-        break;
-      }
-      }
+
       cursor_game_instance::cursor_hand = std::nullopt;
     }
   }
