@@ -16,6 +16,7 @@ public:
 
   static std::vector<game_quest> load_npc_quest(const std::u16string &id);
   static std::vector<game_quest> load_avaliable_quest();
+  static std::vector<game_quest> load_avaliable_quest(int area);
   static std::vector<game_quest> load_progress_quest();
   static std::vector<game_quest> load_complete_quest();
 

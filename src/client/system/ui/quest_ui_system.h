@@ -13,6 +13,7 @@ private:
   static void render_tab();
 
   static void event_button(SDL_Event *event);
+  static void event_tab(SDL_Event *event);
   static void event_top();
   static void event_drag_start(SDL_Event *event);
   static void event_drag_end();
@@ -25,8 +26,8 @@ private:
 
 public:
   static inline SDL_FPoint pos;
-
-  static inline std::u16string detail;
+  static inline bool detail;
+  static inline std::u16string quest; // quest
 
   static void open();
   static void close();

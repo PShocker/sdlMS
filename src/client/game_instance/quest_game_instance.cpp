@@ -69,6 +69,20 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
   return q;
 }
 
+std::vector<game_quest> quest_game_instance::load_avaliable_quest(int area) {
+  auto quests = load_avaliable_quest();
+  std::vector<game_quest> q;
+  for (auto &quest : quests) {
+    auto node = wz_resource::quest->find(u"QuestData/" + quest.quest_id);
+    node = node->find(u"QuestInfo/area");
+    auto ae = static_cast<wz::Property<int> *>(node)->get();
+    if (ae == area) {
+      q.push_back(quest);
+    }
+  }
+  return q;
+}
+
 std::vector<game_quest> quest_game_instance::load_progress_quest() {
   auto q = quests;
   for (const auto &v : q) {

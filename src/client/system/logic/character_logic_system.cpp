@@ -765,8 +765,11 @@ bool character_logic_system::run_attack(game_character &g_character) {
   if (self_attack_cooldown > window::dt_now) {
     return false;
   }
+  auto g_action = load_action_type(g_character);
+  if (g_action == action_enum::attack || g_action == action_enum::skill) {
+    return false;
+  }
   if (character_action_input.contains("attack")) {
-    auto g_action = load_action_type(g_character);
     auto g_weapon = g_character.weapon->id;
     auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
     uint64_t delay;
@@ -1279,6 +1282,7 @@ void character_logic_system::run_state_machine() {
       // 刚落地后，瞬间动作不一定是stand，需要再进行一次状态机
       run_stand_action(g_character);
       run_state_machine();
+      break;
     }
     if (run_attack(g_character)) {
       break;

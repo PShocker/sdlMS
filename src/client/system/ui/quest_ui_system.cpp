@@ -35,8 +35,12 @@ void quest_ui_system::render_backgrnd() {
       wz_resource::ui->find(u"UIWindow.img/Quest/notice2"));
   static auto notice3 = wz_resource::load_texture(
       wz_resource::ui->find(u"UIWindow.img/Quest/notice3"));
-  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
-                     static_cast<float>(backgrnd->h)};
+  SDL_FRect pos_rect{
+      pos.x,
+      pos.y,
+      static_cast<float>(backgrnd->w),
+      static_cast<float>(backgrnd->h),
+  };
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
@@ -46,7 +50,7 @@ void quest_ui_system::render_button() {
   };
   auto wh = load_wh();
   const std::array buttons_rect = {
-      SDL_FRect{wh.x - 20, 7, 12, 12}, //
+      SDL_FRect{wh.x - 18, 6, 12, 12}, //
   };
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -76,38 +80,28 @@ void quest_ui_system::render_button() {
 }
 
 void quest_ui_system::render_quests() {
-  auto quests = quest_game_instance::load_avaliable_quest();
-  // UIWindow.img/Quest/Tab/enabled/0
-  static auto notice3 = wz_resource::load_texture(
-      wz_resource::ui->find(u"UIWindow.img/Quest/notice3"));
-  // SDL_FRect pos_rect{
-  //     pos.x,
-  //     pos.y,
-  //     static_cast<float>(backgrnd->w),
-  //     static_cast<float>(backgrnd->h),
-  // };
-  // SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
-  for (int i = 0; i < quests.size(); i++) {
-    static auto notice3 = wz_resource::load_texture(
-        wz_resource::ui->find(u"UIWindow.img/Quest/notice3"));
-    // SDL_FRect pos_rect{
-    //     pos.x,
-    //     pos.y,
-    //     static_cast<float>(backgrnd->w),
-    //     static_cast<float>(backgrnd->h),
-    // };
-    // SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
+  int i = 1;
+  while (i <= 15) {
+    switch (active_tab) {
+    case 0: {
+      auto quests = quest_game_instance::load_avaliable_quest(i);
+      break;
+    }
+    }
+    i++;
   }
 }
 
+static const SDL_FPoint detail_lt = {245, 0};
+
 void quest_ui_system::render_quest_detail() {
-  if (detail == u"") {
+  if (!detail) {
     return;
   }
   static auto backgrnd2 = wz_resource::load_texture(
       wz_resource::ui->find(u"UIWindow.img/Quest/backgrnd2"));
   SDL_FRect pos_rect{
-      pos.x,
+      pos.x + detail_lt.x,
       pos.y,
       static_cast<float>(backgrnd2->w),
       static_cast<float>(backgrnd2->h),
@@ -117,15 +111,16 @@ void quest_ui_system::render_quest_detail() {
   freetype::load_size(12);
   freetype::load_bold(true);
   auto quest_name =
-      wz_resource::quest->find(u"QuestData/" + detail + u"/QuestInfo");
+      wz_resource::quest->find(u"QuestData/" + quest + u"/QuestInfo");
 
   freetype::load_bold(false);
 }
 
 void quest_ui_system::render_tab() {
   const static std::array tab_pos = {
-      SDL_FPoint{7, 96},  //
-      SDL_FPoint{64, 96}, //
+      SDL_FPoint{6, 24},   //
+      SDL_FPoint{78, 24},  //
+      SDL_FPoint{150, 24}, //
   };
   const static auto tab_node =
       wz_resource::ui->find(u"Quest.img/Quest/list/Tab");
@@ -153,12 +148,14 @@ void quest_ui_system::render_tab() {
 
 bool quest_ui_system::render() {
   render_backgrnd();
+  render_tab();
   render_button();
   render_quest_detail();
+  render_quests();
   return true;
 }
 
-SDL_FPoint quest_ui_system::load_wh() { return {209, 289}; }
+SDL_FPoint quest_ui_system::load_wh() { return {247, 398}; }
 
 void quest_ui_system::open() {
   auto it =
@@ -169,7 +166,7 @@ void quest_ui_system::open() {
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    detail = u"";
+    detail = true;
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
@@ -179,6 +176,26 @@ void quest_ui_system::open() {
 void quest_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
+}
+
+void quest_ui_system::event_tab(SDL_Event *event) {
+  const static std::array tab_rect = {
+      SDL_FRect{6, 24, 72, 19},   //
+      SDL_FRect{78, 24, 72, 19},  //
+      SDL_FRect{150, 24, 72, 19}, //
+  };
+  for (uint8_t i = 0; i < tab_rect.size(); i++) {
+    auto pos_rect = tab_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      if (active_tab == i) {
+        return;
+      }
+      quest = u"";
+      return;
+    }
+  }
 }
 
 void quest_ui_system::event_top() {
@@ -251,6 +268,7 @@ bool quest_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        event_tab(event);
       }
       event_drag_end();
     }
