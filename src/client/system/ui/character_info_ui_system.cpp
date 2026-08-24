@@ -34,7 +34,9 @@ void character_info_ui_system::render_scroll() {
   }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
-  auto size = equip_game_instance::load_equips(character).size();
+  auto v = equip_game_instance::load_equips(character).size();
+  auto v2 = equip_game_instance::load_decos(character).size();
+  auto size = v + v2;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
@@ -200,6 +202,9 @@ void character_info_ui_system::render_items() {
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 
     auto name = equip_game_instance::load_equip_name(itm_id);
+    if (name.size() > 22) {
+      name = name.substr(0, 22) + u"...";
+    }
     freetype::load_aligned(true);
     freetype::load_size(12);
     auto x = pos.x + item_lt.x + w + 42;
@@ -231,7 +236,7 @@ void character_info_ui_system::render_items() {
   }
 }
 
-void character_info_ui_system::render_items_info() {
+bool character_info_ui_system::render_items_info() {
   if (item_info.has_value()) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
@@ -245,6 +250,7 @@ void character_info_ui_system::render_items_info() {
     }
   }
   item_info = std::nullopt;
+  return true;
 }
 
 bool character_info_ui_system::render() {
@@ -254,7 +260,6 @@ bool character_info_ui_system::render() {
   render_character();
   render_text();
   render_items();
-  render_items_info();
   return true;
 }
 
@@ -264,7 +269,9 @@ bool character_info_ui_system::event_vscr(SDL_Event *event) {
   }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
-  int size = equip_game_instance::load_equips(character).size() - 3;
+  auto v = equip_game_instance::load_equips(character).size();
+  auto v2 = equip_game_instance::load_decos(character).size();
+  int size = v + v2 - 3;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
   size = std::max(0, size);
@@ -294,12 +301,15 @@ void character_info_ui_system::open() {
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
 void character_info_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
+  std::erase(system::render_systems, render_items_info);
 }
 
 void character_info_ui_system::event_top() {
@@ -310,6 +320,8 @@ void character_info_ui_system::event_top() {
   if (it != system::render_systems.end()) {
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -485,6 +497,7 @@ bool character_info_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion(event);
     event_drag_move(event);
     event_vscr_move(event);
     break;
@@ -498,7 +511,9 @@ bool character_info_ui_system::event(SDL_Event *event) {
       }
     } else {
       // down
-      int size = equip_game_instance::load_equips(character).size() - 3;
+      auto v = equip_game_instance::load_equips(character).size();
+      auto v2 = equip_game_instance::load_decos(character).size();
+      auto size = v + v2;
       if (size - 3 < 0) {
         break;
       }
@@ -506,6 +521,7 @@ bool character_info_ui_system::event(SDL_Event *event) {
         item_page += 1;
       }
     }
+    return false;
     break;
   }
   default: {
@@ -514,4 +530,13 @@ bool character_info_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+void character_info_ui_system::event_motion(SDL_Event *event) {
+  auto &sys = system::render_systems;
+  std::erase(sys, render_items_info);
+  auto it = std::ranges::find(sys, &cursor_render_system::render);
+  if (it != sys.end()) {
+    sys.insert(it, render_items_info);
+  }
 }

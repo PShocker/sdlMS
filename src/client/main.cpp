@@ -30,13 +30,13 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
     }
   }
 
-  shader_game_instance::start(shader_enum::grayscale);
+  // shader_game_instance::start(shader_enum::grayscale);
   for (const auto &fn : system::render_systems) {
     if (!fn()) {
       break;
     }
   }
-  shader_game_instance::end();
+  // shader_game_instance::end();
 
   window::update();
   for (const auto &fn : server_system::server_systems) {
@@ -68,7 +68,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   camera_game_instance::load(0, 0, logic_w, logic_h);
   keyboard_game_instance::load();
   audio_game_instance::init();
-  shader_game_instance::init();
+  // shader_game_instance::init();
 
   character_game_instance::init_character_bone();
   character_game_instance::init_default_clothes();

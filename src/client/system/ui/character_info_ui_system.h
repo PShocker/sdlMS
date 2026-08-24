@@ -16,7 +16,7 @@ private:
   static void render_character();
   static void render_text();
   static void render_items();
-  static void render_items_info();
+  static bool render_items_info();
   static void render_scroll();
 
   static SDL_FPoint load_wh();
@@ -36,6 +36,8 @@ private:
   static void event_button_dowm_fame();
   static void event_button_show_pet();
   static void event_close();
+
+  static void event_motion(SDL_Event *event);
 
   static bool event_button(SDL_Event *event);
 

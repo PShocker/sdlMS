@@ -6,6 +6,8 @@
 #include <string>
 class tooltip_ui_system {
 private:
+  static int load_equip_width(const std::u16string &id);
+
   static void render_backgrnd(float x, float y, float w, float h);
   static void render_equip_req(uint32_t req, uint32_t val,
                                const std::u16string &path, float x, float y);
