@@ -208,7 +208,7 @@ void storage_ui_system::event_button_get() {
     if (itm->id.empty()) {
       return;
     }
-    if (package_ui_system::add_item(itm)) {
+    if (package_game_instance::add_item(itm)) {
       itm->id = u"";
     } else {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;

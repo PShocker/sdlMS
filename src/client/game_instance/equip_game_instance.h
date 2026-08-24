@@ -90,4 +90,17 @@ public:
 
   static std::flat_map<inc_type, int> load_equip_inc(const std::u16string &id);
   static std::flat_map<inc_type, int> load_scroll_inc(const std::u16string &id);
+
+  static std::vector<game_equip_item> load_equips(const game_character &c);
+  static std::vector<game_deco_item> load_decos(const game_character &c);
+
+  static int use_equip(int i, int slot = 0);
+  static int use_deco(int i, int slot = 0);
+  static int use_equip_scroll(game_equip_item &eqp, game_consume_item &s);
+
+  static int unuse_equip(int i);
+  static int unuse_deco(int i);
+
+  static std::optional<game_equip_item> *load_equip(int index);
+  static std::optional<game_deco_item> *load_deco(int index);
 };

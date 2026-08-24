@@ -18,7 +18,9 @@ public:
   static std::vector<game_quest> load_avaliable_quest();
   static std::vector<game_quest> load_avaliable_quest(int area);
   static std::vector<game_quest> load_progress_quest();
+  static std::vector<game_quest> load_progress_quest(int area);
   static std::vector<game_quest> load_complete_quest();
+  static std::vector<game_quest> load_complete_quest(int area);
 
   static int load_quest_index(const std::u16string &id);
 

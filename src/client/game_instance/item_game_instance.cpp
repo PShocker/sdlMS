@@ -125,3 +125,83 @@ int item_game_instance::load_item_num(std::polymorphic<game_item> &itm) {
   }
   return num;
 }
+
+void item_game_instance::set_item_num(std::polymorphic<game_item> &itm,
+                                      int num) {
+  switch (itm->type) {
+  case item_enum::consume: {
+    auto &consume = static_cast<game_consume_item &>(*itm);
+    consume.num = num;
+    break;
+  }
+  case item_enum::etc: {
+    auto &etc = static_cast<game_etc_item &>(*itm);
+    etc.num = num;
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return;
+}
+
+void item_game_instance::add_item_num(std::polymorphic<game_item> &item,
+                                      int num) {
+  switch (item->type) {
+  case item_enum::consume: {
+    auto &consume = static_cast<game_consume_item &>(*item);
+    consume.num += num;
+    break;
+  }
+  case item_enum::etc: {
+    auto &etc = static_cast<game_etc_item &>(*item);
+    etc.num += num;
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return;
+}
+
+void item_game_instance::dec_item_num(std::polymorphic<game_item> &item,
+                                      int num) {
+  switch (item->type) {
+  case item_enum::equip: {
+    item = std::polymorphic<game_item>(game_equip_item{});
+    break;
+  }
+  case item_enum::consume: {
+    auto &consume = static_cast<game_consume_item &>(*item);
+    consume.num = consume.num - num;
+    if (consume.num == 0) {
+      if (!item->id.starts_with(u"0207")) {
+        item = std::polymorphic<game_item>(game_consume_item{});
+      }
+    }
+    break;
+  }
+  case item_enum::etc: {
+    auto &etc = static_cast<game_etc_item &>(*item);
+    etc.num = etc.num - num;
+    if (etc.num == 0) {
+      item = std::polymorphic<game_item>(game_etc_item{});
+    }
+    break;
+  }
+  case item_enum::install: {
+    item = std::polymorphic<game_item>(game_install_item{});
+    break;
+  }
+  case item_enum::cash: {
+    item = std::polymorphic<game_item>(game_cash_item{});
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return;
+}

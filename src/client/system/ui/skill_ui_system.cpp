@@ -67,12 +67,6 @@ std::optional<std::u16string> skill_ui_system::load_mouse_ski() {
 
 SDL_FPoint skill_ui_system::load_wh() { return {197, 371}; }
 
-uint8_t skill_ui_system::load_skill_num() {
-  auto self_job = character_game_instance::self.job;
-  auto skill_node = wz_resource::skill->find(self_job + u".img/skill");
-  return skill_node->children_count();
-}
-
 bool skill_ui_system::cursor_in() {
   auto [w, h] = load_wh();
   auto &mouse = window::mouse_pos;
@@ -186,7 +180,7 @@ void skill_ui_system::render_tab() {
 }
 
 void skill_ui_system::render_skill_entry() {
-  static auto entry = wz_resource::load_texture(
+  auto entry = wz_resource::load_texture(
       wz_resource::ui->find(u"Skill.img/entry/skill1"));
 
   const SDL_FPoint lt{8, 99};
@@ -210,21 +204,19 @@ void skill_ui_system::render_skill_entry() {
     if (i >= max_scroll_num) {
       break;
     }
-    // render backgrnd
-    SDL_FRect pos_rect{
-        pos.x + lt.x,
-        pos.y + lt.y + i * entry->h + l * i,
-        static_cast<float>(entry->w),
-        static_cast<float>(entry->h),
-    };
-    SDL_RenderTexture(window::renderer, entry, nullptr, &pos_rect);
-
     auto skl_id = std::string{k.begin(), k.end()};
     auto skl_id2 = std::stoi(skl_id);
 
     SDL_Texture *ski_texture;
     auto ski_level = job_skill_game_instance::load_ski_level(k);
+    SDL_FRect pos_rect;
     if (ski_level > 0) {
+      pos_rect = {
+          pos.x + lt.x + 2,
+          pos.y + lt.y + i * entry->h + l * i + 2,
+          static_cast<float>(32),
+          static_cast<float>(32),
+      };
       if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
           !cursor_game_instance::modal_overlay) {
         ski_texture =
@@ -235,10 +227,24 @@ void skill_ui_system::render_skill_entry() {
     } else {
       // disable
       ski_texture = wz_resource::load_texture(v[0]->get_child(u"iconDisabled"));
+      entry = wz_resource::load_texture(
+          wz_resource::ui->find(u"Skill.img/entry/skill0"));
     }
-    pos_rect = {pos.x + lt.x + 2, pos.y + lt.y + i * entry->h + l * i + 2,
-                static_cast<float>(ski_texture->w),
-                static_cast<float>(ski_texture->h)};
+    // render backgrnd
+    pos_rect = {
+        pos.x + lt.x,
+        pos.y + lt.y + i * entry->h + l * i,
+        static_cast<float>(entry->w),
+        static_cast<float>(entry->h),
+    };
+    SDL_RenderTexture(window::renderer, entry, nullptr, &pos_rect);
+
+    pos_rect = {
+        pos.x + lt.x + 2,
+        pos.y + lt.y + i * entry->h + l * i + 2,
+        static_cast<float>(ski_texture->w),
+        static_cast<float>(ski_texture->h),
+    };
     SDL_RenderTexture(window::renderer, ski_texture, nullptr, &pos_rect);
     // render ski_name
     auto ski_name = skill_game_instance::load_ski_name(k);

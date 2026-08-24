@@ -19,7 +19,6 @@ private:
   static void render_point();
 
   static SDL_FPoint load_wh();
-  static uint8_t load_skill_num();
 
   static bool event_click_ski(SDL_Event *event);
   static bool event_click_tab(SDL_Event *event);

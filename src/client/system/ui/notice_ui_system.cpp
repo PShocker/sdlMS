@@ -337,27 +337,13 @@ void notice_ui_system::event_button_shopbuy() {
   auto itm = p->item;
   switch (type) {
   case notice_enum::shopbuy: {
-    shop_ui_system::add_item(itm);
+    package_game_instance::add_item(itm);
     package_game_instance::meso -= p->price;
     break;
   }
   case notice_enum::shopbuy_mul: {
     auto num = std::stoi(std::string{text.text.begin(), text.text.end()});
-    switch (itm->type) {
-    case item_enum::consume: {
-      auto &consume = static_cast<game_consume_item &>(*itm);
-      consume.num = num;
-      break;
-    }
-    case item_enum::etc: {
-      auto &etc = static_cast<game_etc_item &>(*itm);
-      etc.num = num;
-      break;
-    }
-    default: {
-      break;
-    }
-    }
+    item_game_instance::set_item_num(itm, num);
     auto price = p->price * num;
     if (package_game_instance::meso < price) {
       type = notice_enum::shopbuy_no_meso;
@@ -366,7 +352,7 @@ void notice_ui_system::event_button_shopbuy() {
     }
     auto buy_num = std::stoi(std::string{text.text.begin(), text.text.end()});
     if (shop_ui_system::active_tab[0] == 1) {
-      auto &must = shop_ui_system::must;
+      auto &must = shop_game_instance::must;
       auto &must_itm = must[shop_ui_system::active_item[0].value()];
       auto itm_num = item_game_instance::load_item_num(must_itm.item);
       if (buy_num > itm_num) {
@@ -374,12 +360,12 @@ void notice_ui_system::event_button_shopbuy() {
         return;
       }
     }
-    if (shop_ui_system::add_item(itm)) {
+    if (package_game_instance::add_item(itm)) {
       package_game_instance::meso -= price;
       if (shop_ui_system::active_tab[0] == 1) {
-        auto &must = shop_ui_system::must;
+        auto &must = shop_game_instance::must;
         auto &must_itm = must[shop_ui_system::active_item[0].value()];
-        shop_ui_system::dec_item_num(must_itm.item, buy_num);
+        item_game_instance::dec_item_num(must_itm.item, buy_num);
       }
     } else {
       type = notice_enum::shopbuy_no_space;
@@ -392,7 +378,7 @@ void notice_ui_system::event_button_shopbuy() {
   }
   }
   if (shop_ui_system::active_tab[0] == 1) {
-    auto &must = shop_ui_system::must;
+    auto &must = shop_game_instance::must;
     auto &itm = must[shop_ui_system::active_item[0].value()].item;
     if (item_game_instance::load_item_num(itm) == 0) {
       must.erase(must.begin() + shop_ui_system::active_item[0].value());
@@ -420,7 +406,11 @@ void notice_ui_system::event_button_shopbuy_sell() {
     } else {
       package_game_instance::meso += gst.price;
     }
-    shop_ui_system::dec_item_num(*p, num);
+    if ((*p)->id.starts_with(u"0207")) {
+      (*p)->id = u"";
+    } else {
+      item_game_instance::dec_item_num(*p, num);
+    }
     break;
   }
   case notice_enum::shopbuy_sell_mul: {
@@ -431,15 +421,15 @@ void notice_ui_system::event_button_shopbuy_sell() {
       return;
     }
     package_game_instance::meso += gst.price * num;
-    shop_ui_system::dec_item_num(*p, sell_num);
-    shop_ui_system::add_item_num(gst.item, (sell_num - num));
+    item_game_instance::dec_item_num(*p, sell_num);
+    item_game_instance::add_item_num(gst.item, (sell_num - num));
     break;
   }
   default: {
     break;
   }
   }
-  shop_ui_system::add_must_item(gst.item);
+  shop_game_instance::add_must_item(gst.item);
   shop_ui_system::active_tab[0] = 1;
   shop_ui_system::active_item = {};
   shop_ui_system::pages = {};

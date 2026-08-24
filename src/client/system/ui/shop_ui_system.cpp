@@ -133,20 +133,9 @@ void shop_ui_system::render_item(std::vector<game_shop_item> &items, int page,
   }
 }
 
-std::vector<std::polymorphic<game_item> *> shop_ui_system::load_pkg_items() {
-  std::vector<std::polymorphic<game_item> *> items;
-  auto &r = package_game_instance::data[active_tab[1]];
-  for (auto &itm : r) {
-    if (!itm->id.empty()) {
-      items.push_back(&itm);
-    }
-  }
-  return items;
-}
-
 void shop_ui_system::render_pkg_items() {
   std::vector<game_shop_item> items;
-  auto its = load_pkg_items();
+  auto its = shop_game_instance::load_pkg_items(active_tab[1]);
   for (auto &itm : its) {
     if (itm != nullptr) {
       auto item = shop_game_instance::load_shop_item((*itm)->id);
@@ -170,7 +159,7 @@ void shop_ui_system::render_items() {
     auto items = shop->items;
     render_item(items, pages[0], {8, 129});
   } else {
-    auto items = must;
+    auto items = shop_game_instance::must;
     if (items.size() < 6) {
       items.resize(6);
     }
@@ -188,14 +177,14 @@ void shop_ui_system::render_vscr() {
     auto &items = shop->items;
     items_size = items.size();
   } else {
-    auto &items = must;
+    auto &items = shop_game_instance::must;
     items_size = items.size();
   }
   bool top =
       cursor_in == render && cursor_game_instance::modal_overlay == render;
   scroll_ui_system::render_vscroll(x, y, pages[0], items_size, length, top, 6);
   x += 230;
-  auto pkg_size = load_pkg_items().size();
+  auto pkg_size = shop_game_instance::load_pkg_items(active_tab[1]).size();
   scroll_ui_system::render_vscroll(x, y, pages[1], pkg_size, length, top, 6);
   return;
 }
@@ -471,7 +460,7 @@ bool shop_ui_system::event_item(SDL_Event *event) {
   auto item0 = event_item_click(event, {8, 129});
   if (item0.has_value()) {
     const std::vector<game_shop_item> *items =
-        (active_tab[0] == 0) ? &shop->items : &must;
+        (active_tab[0] == 0) ? &shop->items : &shop_game_instance::must;
     auto index = pages[0] + item0.value();
     if (index >= items->size()) {
       return true;
@@ -484,7 +473,7 @@ bool shop_ui_system::event_item(SDL_Event *event) {
     auto meso = package_game_instance::meso;
     const auto &itm = items->at(index);
     auto itm2 = items->at(index);
-    bool space = package_ui_system::load_blank_index(itm2.item).empty();
+    bool space = package_game_instance::load_empty_index(itm2.item).empty();
     if (meso < itm.price) {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_meso;
     } else if (space) {
@@ -502,7 +491,7 @@ bool shop_ui_system::event_item(SDL_Event *event) {
   auto item1 = event_item_click(event, {238, 129});
   if (item1.has_value()) {
     auto index = pages[1] + item1.value();
-    auto items = load_pkg_items();
+    auto items = shop_game_instance::load_pkg_items(active_tab[1]);
     if (index >= items.size()) {
       return true;
     }
@@ -538,7 +527,7 @@ bool shop_ui_system::event_vscr(SDL_Event *event) {
 
   int size = shop->items.size() - 6;
   if (active_tab[0] == 1) {
-    size = must.size() - 6;
+    size = shop_game_instance::must.size() - 6;
   }
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
@@ -546,7 +535,7 @@ bool shop_ui_system::event_vscr(SDL_Event *event) {
   auto val = scroll_ui_system::click_vscroll(x, y, pages[0], size, length, top);
   pages[0] = val;
 
-  size = load_pkg_items().size() - 6;
+  size = shop_game_instance::load_pkg_items(active_tab[1]).size() - 6;
   x += 230;
   size = std::max(0, size);
   val = scroll_ui_system::click_vscroll(x, y, pages[1], size, length, top);
@@ -563,8 +552,12 @@ bool shop_ui_system::event_tab(SDL_Event *event) {
       SDL_FPoint{64, 96},
   };
   for (uint8_t i = 0; i < tab_pos0.size(); ++i) {
-    SDL_FRect pos_rect{static_cast<float>(int(pos.x + tab_pos0[i].x)),
-                       static_cast<float>(int(pos.y + tab_pos0[i].y)), 57, 21};
+    SDL_FRect pos_rect{
+        static_cast<float>(int(pos.x + tab_pos0[i].x)),
+        static_cast<float>(int(pos.y + tab_pos0[i].y)),
+        57,
+        21,
+    };
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       active_tab[0] = i;
       active_item[0] = std::nullopt;
@@ -675,142 +668,4 @@ bool shop_ui_system::event(SDL_Event *event) {
   }
 
   return false;
-}
-
-void shop_ui_system::add_item_num(std::polymorphic<game_item> &item, int num) {
-  switch (item->type) {
-  case item_enum::consume: {
-    auto &consume = static_cast<game_consume_item &>(*item);
-    consume.num += num;
-    break;
-  }
-  case item_enum::etc: {
-    auto &etc = static_cast<game_etc_item &>(*item);
-    etc.num += num;
-    break;
-  }
-  default: {
-    break;
-  }
-  }
-  return;
-}
-
-int shop_ui_system::add_item_slot(std::polymorphic<game_item> &item, int i) {
-  auto num = item_game_instance::load_item_num(item);
-  auto &p = package_game_instance::data[(int)item->type];
-  auto slot_max = item_game_instance::load_slot_max(item->id);
-  auto &itm = p.at(i);
-  itm->id = item->id;
-  auto itm_num = item_game_instance::load_item_num(itm);
-  num = std::min((int)num + itm_num, slot_max);
-  auto dn = num - itm_num;
-  add_item_num(itm, dn);
-  dec_item_num(item, dn);
-  return dn;
-}
-
-std::optional<int> shop_ui_system::add_item(std::polymorphic<game_item> &item) {
-  auto b = package_ui_system::load_blank_index(item);
-  if (b.empty()) {
-    return std::nullopt;
-  }
-  if (item->id == u"00000000") {
-    auto num = item_game_instance::load_item_num(item);
-    package_game_instance::meso += num;
-    return 0;
-  }
-  std::optional<int> r;
-  auto &p = package_game_instance::data[(int)item->type];
-  switch (item->type) {
-  case item_enum::consume:
-  case item_enum::etc: {
-    for (auto i : b) {
-      if (add_item_slot(item, i)) {
-        r = i;
-      }
-    }
-    break;
-  }
-  default: {
-    r = b[0];
-    p[b[0]] = (item);
-    break;
-  }
-  }
-  return r;
-}
-
-bool shop_ui_system::add_must_item(std::polymorphic<game_item> &item) {
-  auto add_num = item_game_instance::load_item_num(item);
-  game_shop_item gst = shop_game_instance::load_shop_item((*item).id);
-  gst.item = item;
-  auto slot_max = 1;
-  if (item_game_instance::check_item(item->id)) {
-    slot_max = item_game_instance::load_slot_max(item->id);
-  }
-  switch (item->type) {
-  case item_enum::consume:
-  case item_enum::etc: {
-    for (auto &shop : must) {
-      auto itm_id = shop.item->id;
-      if (item->id == itm_id) {
-        auto itm_num = item_game_instance::load_item_num(shop.item);
-        auto num = std::min((int)add_num + itm_num, slot_max);
-        add_item_num(shop.item, num - itm_num);
-        add_num = add_num - (num - itm_num);
-      }
-    }
-    while (add_num > 0) {
-      auto num = std::min((int)add_num, slot_max);
-      auto itm_num = item_game_instance::load_item_num(gst.item);
-      add_item_num(gst.item, (num - itm_num));
-      must.push_back(gst);
-      add_num = add_num - (num);
-    }
-    break;
-  }
-  default: {
-    must.push_back(gst);
-    break;
-  }
-  }
-  return true;
-}
-
-void shop_ui_system::dec_item_num(std::polymorphic<game_item> &item, int num) {
-  switch (item->type) {
-  case item_enum::equip: {
-    item = std::polymorphic<game_item>(game_equip_item{});
-    break;
-  }
-  case item_enum::consume: {
-    auto &consume = static_cast<game_consume_item &>(*item);
-    consume.num = consume.num - num;
-    if (consume.num == 0) {
-      item = std::polymorphic<game_item>(game_consume_item{});
-    }
-    break;
-  }
-  case item_enum::etc: {
-    auto &etc = static_cast<game_etc_item &>(*item);
-    etc.num = etc.num - num;
-    if (etc.num == 0) {
-      item = std::polymorphic<game_item>(game_etc_item{});
-    }
-    break;
-  }
-  case item_enum::install: {
-    item = std::polymorphic<game_item>(game_install_item{});
-    break;
-  }
-  case item_enum::cash: {
-    item = std::polymorphic<game_item>(game_cash_item{});
-    break;
-  }
-  default: {
-    break;
-  }
-  }
-  return;
 }

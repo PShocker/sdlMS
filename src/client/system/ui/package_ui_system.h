@@ -49,23 +49,7 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
-  static int use_equip(int i, int slot = 0);
-  static int use_deco(int i, int slot = 0);
-  static int use_equip_scroll(game_equip_item &eqp, game_consume_item &s);
-
-  static std::optional<int> add_item(std::polymorphic<game_item> &item);
-  static void add_item_num(std::polymorphic<game_item> &item, int num);
-  static void dec_item_num(std::polymorphic<game_item> &item, int num);
-
   static void render_number(uint32_t num, int x, int y);
-
-  static std::vector<uint32_t> load_blank_index(uint32_t tab);
-  static std::vector<uint32_t> load_blank_index(std::polymorphic<game_item> &item);
-
-  static std::polymorphic<game_item> *load_active_ball();
-  static std::u16string load_active_cash_ball();
-  static uint32_t load_full_item_num(const std::u16string &id);
-  static std::polymorphic<game_item> *load_item(const std::u16string &id);
 
   static inline SDL_FPoint pos;
 

@@ -47,19 +47,8 @@ private:
 
   static SDL_FPoint load_wh();
 
-  static int add_item_slot(std::polymorphic<game_item> &item, int i);
-
 public:
-  static std::optional<int> add_item(std::polymorphic<game_item> &item);
-  static void add_item_num(std::polymorphic<game_item> &item, int num);
-  static void dec_item_num(std::polymorphic<game_item> &item, int num);
-
-  static bool add_must_item(std::polymorphic<game_item> &item);
-
   static inline std::array<int, 2> pages;
-  static std::vector<std::polymorphic<game_item> *> load_pkg_items();
-
-  static inline std::vector<game_shop_item> must;
 
   static inline std::array<std::optional<int>, 2> active_item;
   static inline std::array<int, 2> active_tab;

@@ -574,32 +574,27 @@ CharacterT server_character_instance::load_charactert(const game_character &g) {
   c.state = std::make_unique<fbs::LifeStateT>();
   c.face = std::make_unique<fbs::FaceT>();
 
-  const auto load_equip = [&c](const std::optional<game_equip_item> &eqp) {
-    if (eqp.has_value()) {
-      auto id = eqp->id;
-      EquipT et;
-      et.equip_id = std::stoi(std::string{id.begin(), id.end()});
-      for (const auto &scroll : eqp->scroll) {
-        EquipScrollT est;
-        est.scroll_id =
-            std::stoi(std::string{scroll.id.begin(), scroll.id.end()});
-        est.success = scroll.success;
-        et.scroll.push_back(std::make_unique<EquipScrollT>(est));
-      }
-      c.equips.push_back(std::make_unique<EquipT>(et));
+  auto equips = equip_game_instance::load_equips(g);
+  for (const auto &eq : equips) {
+    auto id = eq.id;
+    EquipT et;
+    et.equip_id = std::stoi(std::string{id.begin(), id.end()});
+    for (const auto &scroll : eq.scroll) {
+      EquipScrollT est;
+      est.scroll_id =
+          std::stoi(std::string{scroll.id.begin(), scroll.id.end()});
+      est.success = scroll.success;
+      et.scroll.push_back(std::make_unique<EquipScrollT>(est));
     }
-  };
-
-  load_equip(g.accessory);
-  load_equip(g.cap);
-  load_equip(g.cape);
-  load_equip(g.glove);
-  load_equip(g.coat);
-  load_equip(g.longcoat);
-  load_equip(g.pant);
-  load_equip(g.shield);
-  load_equip(g.weapon);
-  load_equip(g.shoes);
+    c.equips.push_back(std::make_unique<EquipT>(et));
+  }
+  
+  auto decos = equip_game_instance::load_decos(g);
+  for (const auto &de : decos) {
+    DecoT dt;
+    dt.deco_id = std::stoi(std::string{de.id.begin(), de.id.end()});
+    c.decos.push_back(std::make_unique<DecoT>(dt));
+  }
 
   c.appearance->head = std::stoi(std::string{g.head.begin(), g.head.end()});
   c.appearance->body = std::stoi(std::string{g.body.begin(), g.body.end()});
@@ -610,79 +605,6 @@ CharacterT server_character_instance::load_charactert(const game_character &g) {
       std::stoi(std::string{g.face.id.begin(), g.face.id.end()});
 
   c.appearance->ear = std::string{g.ear.begin(), g.ear.end()};
-
-  if (g.coat_deco.has_value()) {
-    auto id = g.coat_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.cap_deco.has_value()) {
-    auto id = g.cap_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.pant_deco.has_value()) {
-    auto id = g.pant_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.shoes_deco.has_value()) {
-    auto id = g.shoes_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.shield_deco.has_value()) {
-    auto id = g.shield_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.cape_deco.has_value()) {
-    auto id = g.cape_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.accessory_deco.has_value()) {
-    auto id = g.accessory_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.glove_deco.has_value()) {
-    auto id = g.glove_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.longcoat_deco.has_value()) {
-    auto id = g.longcoat_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.weapon_deco.has_value()) {
-    auto id = g.weapon_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.ring0_deco.has_value()) {
-    auto id = g.ring0_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
-  if (g.ring1_deco.has_value()) {
-    auto id = g.ring1_deco->id;
-    DecoT dt;
-    dt.deco_id = std::stoi(std::string{id.begin(), id.end()});
-    c.decos.push_back(std::make_unique<DecoT>(dt));
-  }
 
   c.state->action = std::string{g.action.begin(), g.action.end()};
   c.state->x = g.pos.x;

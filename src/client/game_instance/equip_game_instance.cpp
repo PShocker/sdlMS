@@ -3,8 +3,14 @@
 #include "item_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/ui/equip_ui_system.h"
+#include "src/client/system/ui/notice_ui_system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_character_instance.h"
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
@@ -480,4 +486,301 @@ equip_game_instance::load_deco_slot(const std::u16string &id,
     }
   }
   return r;
+}
+
+std::vector<game_equip_item>
+equip_game_instance::load_equips(const game_character &c) {
+  std::vector<game_equip_item> v;
+  if (c.cap.has_value()) {
+    v.push_back(c.cap.value());
+  }
+  if (c.cape.has_value()) {
+    v.push_back(c.cape.value());
+  }
+  if (c.coat.has_value()) {
+    v.push_back(c.coat.value());
+  }
+  if (c.longcoat.has_value()) {
+    v.push_back(c.longcoat.value());
+  }
+  if (c.weapon.has_value()) {
+    v.push_back(c.weapon.value());
+  }
+  if (c.pant.has_value()) {
+    v.push_back(c.pant.value());
+  }
+  if (c.shield.has_value()) {
+    v.push_back(c.shield.value());
+  }
+  if (c.shoes.has_value()) {
+    v.push_back(c.shoes.value());
+  }
+  if (c.ring0.has_value()) {
+    v.push_back(c.ring0.value());
+  }
+  if (c.ring1.has_value()) {
+    v.push_back(c.ring1.value());
+  }
+  if (c.ring2.has_value()) {
+    v.push_back(c.ring2.value());
+  }
+  if (c.ring3.has_value()) {
+    v.push_back(c.ring3.value());
+  }
+  return v;
+}
+
+std::vector<game_deco_item>
+equip_game_instance::load_decos(const game_character &c) {
+  std::vector<game_deco_item> v;
+  if (c.coat_deco.has_value()) {
+    v.push_back(c.coat_deco.value());
+  }
+  if (c.cap_deco.has_value()) {
+    v.push_back(c.cap_deco.value());
+  }
+  if (c.pant_deco.has_value()) {
+    v.push_back(c.pant_deco.value());
+  }
+  if (c.shoes_deco.has_value()) {
+    v.push_back(c.shoes_deco.value());
+  }
+  if (c.shield_deco.has_value()) {
+    v.push_back(c.shield_deco.value());
+  }
+  if (c.cape_deco.has_value()) {
+    v.push_back(c.cape_deco.value());
+  }
+  if (c.accessory_deco.has_value()) {
+    v.push_back(c.accessory_deco.value());
+  }
+  if (c.glove_deco.has_value()) {
+    v.push_back(c.glove_deco.value());
+  }
+  if (c.longcoat_deco.has_value()) {
+    v.push_back(c.longcoat_deco.value());
+  }
+  if (c.weapon_deco.has_value()) {
+    v.push_back(c.weapon_deco.value());
+  }
+  if (c.ring0_deco.has_value()) {
+    v.push_back(c.ring0_deco.value());
+  }
+  if (c.ring1_deco.has_value()) {
+    v.push_back(c.ring1_deco.value());
+  }
+  return v;
+}
+
+int equip_game_instance::use_equip_scroll(game_equip_item &eqp,
+                                          game_consume_item &s) {
+  auto tuc = equip_game_instance::load_equip_tuc(eqp.id);
+  if (eqp.scroll.size() < tuc) {
+    auto item_info = item_game_instance::load_item_info(s.id, 0);
+    int success = 100;
+    if (item_info->get_child(u"success")) {
+      success =
+          static_cast<wz::Property<int> *>(item_info->get_child(u"success"))
+              ->get();
+    }
+    int cursed = 0;
+    if (item_info->get_child(u"cursed")) {
+      cursed = static_cast<wz::Property<int> *>(item_info->get_child(u"cursed"))
+                   ->get();
+    }
+    eqp.scroll.push_back({s.id, true});
+
+    auto &sf = character_game_instance::self;
+    server_character_instance::handle_scroll_use(sf, true);
+
+    StateT st;
+    st.state = fbs::StateEnum_ITEM_USE;
+    st.val = std::stoi(std::string{s.id.begin(), s.id.end()});
+    st.sub_val = 1;
+    character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
+
+    s.num -= 1;
+    if (s.num == 0) {
+      s.id = u"";
+    }
+  }
+  return false;
+}
+
+int equip_game_instance::use_equip(int i, int slot) {
+  auto &equips = package_game_instance::data[(int)item_enum::equip];
+  auto &itm = equips[i];
+  auto &sf = character_game_instance::self;
+  auto &eq = static_cast<game_equip_item &>(*itm);
+  auto ev = equip_game_instance::load_equip_slot(eq.id, sf);
+  auto blank_slot =
+      package_game_instance::load_empty_index((int)item_enum::equip);
+  blank_slot.push_back(i);
+  std::ranges::sort(blank_slot);
+  if (blank_slot.size() < ev.size()) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+    notice_ui_system::open();
+    return 0;
+  }
+  if (!equip_game_instance::add_equip_limit(eq, sf, slot)) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_ability;
+    notice_ui_system::open();
+    return 0;
+  }
+  for (int32_t i = 0; i < ev.size(); i++) {
+    equips[blank_slot[i]] = std::polymorphic<game_item>(ev[i]);
+  }
+  itm->id = u"";
+  character_logic_system::cct.map_id = scene_system_instance::map_id;
+  return 1;
+}
+
+int equip_game_instance::use_deco(int i, int slot) {
+  auto &equips = package_game_instance::data[(int)item_enum::deco];
+  auto &itm = equips[i];
+  auto &sf = character_game_instance::self;
+  auto &de = static_cast<game_deco_item &>(*itm);
+  auto ev = equip_game_instance::load_deco_slot(de.id, sf);
+  auto blank_slot =
+      package_game_instance::load_empty_index((int)item_enum::equip);
+  blank_slot.push_back(i);
+  std::ranges::sort(blank_slot);
+  if (blank_slot.size() < ev.size()) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+    notice_ui_system::open();
+    return 0;
+  }
+  if (!equip_game_instance::add_equip_deco(de, sf, 0)) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_ability;
+    notice_ui_system::open();
+    return 0;
+  }
+  for (int32_t i = 0; i < ev.size(); i++) {
+    equips[blank_slot[i]] = std::polymorphic<game_item>(ev[i]);
+  }
+  itm->id = u"";
+  character_logic_system::cct.map_id = scene_system_instance::map_id;
+  return 1;
+}
+
+std::optional<game_equip_item> *equip_game_instance::load_equip(int index) {
+  std::optional<game_equip_item> *equip;
+  auto &self = character_game_instance::self;
+  switch ((equip_ui_system::equip_mouse_index)index) {
+  case equip_ui_system::cap: {
+    equip = &self.cap;
+    break;
+  }
+  case equip_ui_system::earcc: {
+    equip = &self.accessory;
+    break;
+  }
+  case equip_ui_system::clothes: {
+    equip = &self.coat;
+    break;
+  }
+  case equip_ui_system::pants: {
+    equip = &self.pant;
+    break;
+  }
+  case equip_ui_system::shoes: {
+    equip = &self.shoes;
+    break;
+  }
+  case equip_ui_system::gloves: {
+    equip = &self.glove;
+    break;
+  }
+  case equip_ui_system::cape: {
+    equip = &self.cape;
+    break;
+  }
+  case equip_ui_system::shield: {
+    equip = &self.shield;
+    break;
+  }
+  case equip_ui_system::weapon: {
+    equip = &self.weapon;
+    break;
+  }
+  case equip_ui_system::ring0:
+  case equip_ui_system::ring1:
+  case equip_ui_system::ring2:
+  case equip_ui_system::ring3:
+    break;
+  }
+  return equip;
+}
+
+std::optional<game_deco_item> *equip_game_instance::load_deco(int index) {
+  std::optional<game_deco_item> *deco;
+  auto &self = character_game_instance::self;
+  switch (index) {
+  case equip_ui_system::cap: {
+    deco = &self.cap_deco;
+    break;
+  }
+  case equip_ui_system::earcc: {
+    deco = &self.accessory_deco;
+    break;
+  }
+  case equip_ui_system::clothes: {
+    deco = &self.coat_deco;
+    break;
+  }
+  case equip_ui_system::pants: {
+    deco = &self.pant_deco;
+    break;
+  }
+  case equip_ui_system::shoes: {
+    deco = &self.shoes_deco;
+    break;
+  }
+  case equip_ui_system::gloves: {
+    deco = &self.glove_deco;
+    break;
+  }
+  case equip_ui_system::cape: {
+    deco = &self.cape_deco;
+    break;
+  }
+  case equip_ui_system::shield: {
+    deco = &self.shield_deco;
+    break;
+  }
+  case equip_ui_system::weapon: {
+    deco = &self.weapon_deco;
+    break;
+  }
+  case equip_ui_system::ring0:
+  case equip_ui_system::ring1:
+  case equip_ui_system::ring2:
+  case equip_ui_system::ring3:
+    break;
+  }
+  return deco;
+}
+
+int equip_game_instance::unuse_equip(int i) {
+  auto eqp = std::polymorphic<game_item>(load_equip(i)->value());
+  if (!package_game_instance::add_item(eqp)) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+    notice_ui_system::open();
+    return 0;
+  }
+  (*load_equip(i)) = std::nullopt;
+  character_logic_system::cct.map_id = scene_system_instance::map_id;
+  return 1;
+}
+
+int equip_game_instance::unuse_deco(int i) {
+  auto eqp = std::polymorphic<game_item>(load_deco(i)->value());
+  if (!package_game_instance::add_item(eqp)) {
+    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
+    notice_ui_system::open();
+    return 0;
+  }
+  (*load_deco(i)) = std::nullopt;
+  character_logic_system::cct.map_id = scene_system_instance::map_id;
+  return 1;
 }

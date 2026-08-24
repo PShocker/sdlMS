@@ -24,47 +24,6 @@
 #include <string>
 #include <vector>
 
-std::vector<game_equip_item> character_info_ui_system::load_equips() {
-  std::vector<game_equip_item> v;
-  if (character.cap.has_value()) {
-    v.push_back(character.cap.value());
-  }
-  if (character.cape.has_value()) {
-    v.push_back(character.cape.value());
-  }
-  if (character.coat.has_value()) {
-    v.push_back(character.coat.value());
-  }
-  if (character.longcoat.has_value()) {
-    v.push_back(character.longcoat.value());
-  }
-  if (character.weapon.has_value()) {
-    v.push_back(character.weapon.value());
-  }
-  if (character.pant.has_value()) {
-    v.push_back(character.pant.value());
-  }
-  if (character.shield.has_value()) {
-    v.push_back(character.shield.value());
-  }
-  if (character.shoes.has_value()) {
-    v.push_back(character.shoes.value());
-  }
-  if (character.ring0.has_value()) {
-    v.push_back(character.ring0.value());
-  }
-  if (character.ring1.has_value()) {
-    v.push_back(character.ring1.value());
-  }
-  if (character.ring2.has_value()) {
-    v.push_back(character.ring2.value());
-  }
-  if (character.ring3.has_value()) {
-    v.push_back(character.ring3.value());
-  }
-  return v;
-}
-
 SDL_FPoint character_info_ui_system::load_wh() { return SDL_FPoint{277, 183}; }
 
 const static SDL_FPoint item_lt{269, 0};
@@ -75,7 +34,7 @@ void character_info_ui_system::render_scroll() {
   }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
-  auto size = load_equips().size();
+  auto size = equip_game_instance::load_equips(character).size();
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render && !cursor_game_instance::modal_overlay;
   scroll_ui_system::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
@@ -205,37 +164,49 @@ void character_info_ui_system::render_items() {
   }
   auto w = 16;
   auto h = 32;
-  auto v = load_equips();
+  auto v = equip_game_instance::load_equips(character);
+  auto v2 = equip_game_instance::load_decos(character);
   for (uint8_t i = item_page; i < item_page + 3; i++) {
-    if (i >= v.size()) {
+    if (i >= v.size() + v2.size()) {
       break;
     }
+    std::u16string itm_id;
+    if (i < v.size()) {
+      itm_id = v[i].id;
+    } else {
+      itm_id = v2[i - v.size()].id;
+    }
+
     static auto entry_back = wz_resource::load_texture(
         wz_resource::ui->find(u"CharacterInfo.img/ItemListEntry/backgrnd"));
 
     SDL_FRect pos_rect = {
         static_cast<float>(int(pos.x + item_lt.x + w)),
         static_cast<float>(int(pos.y + item_lt.y + h + 40 * (i - item_page))),
-        static_cast<float>(entry_back->w), static_cast<float>(entry_back->h)};
+        static_cast<float>(entry_back->w),
+        static_cast<float>(entry_back->h),
+    };
     SDL_RenderTexture(window::renderer, entry_back, nullptr, &pos_rect);
 
-    auto info = equip_game_instance::load_equip_info(v[i].id);
+    auto info = equip_game_instance::load_equip_info(itm_id);
     auto texture = wz_resource::load_texture(info->get_child(u"icon"));
     pos_rect = {
         static_cast<float>(int(pos.x + item_lt.x + w + (35 - texture->w) / 2)),
         static_cast<float>(int(pos.y + item_lt.y + h + 40 * (i - item_page) +
                                (40 - texture->h) / 2)),
-        static_cast<float>(texture->w), static_cast<float>(texture->h)};
+        static_cast<float>(texture->w),
+        static_cast<float>(texture->h),
+    };
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
 
-    auto name = equip_game_instance::load_equip_name(v[i].id);
+    auto name = equip_game_instance::load_equip_name(itm_id);
     freetype::load_aligned(true);
     freetype::load_size(12);
     auto x = pos.x + item_lt.x + w + 42;
     auto y = pos.y + item_lt.y + h + 40 * (i - item_page) - 1;
     freetype::draw_line(name, x, y);
 
-    auto equip_info = equip_game_instance::load_equip_info(v[i].id);
+    auto equip_info = equip_game_instance::load_equip_info(itm_id);
     auto req =
         static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLevel"))
             ->get();
@@ -245,15 +216,17 @@ void character_info_ui_system::render_items() {
     y += 18;
     freetype::draw_line(req3, x, y);
 
-    freetype::load_aligned(false);
-
     auto cursor_in = cursor_game_instance::cursor_ui;
     if (cursor_in != render) {
       continue;
     }
     auto &mouse_pos = window::mouse_pos;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      item_info = v[i];
+      if (i < v.size()) {
+        item_info = v[i];
+      } else {
+        item_info = v2[i - v.size()];
+      }
     }
   }
 }
@@ -262,7 +235,14 @@ void character_info_ui_system::render_items_info() {
   if (item_info.has_value()) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    tooltip_ui_system::render_equip(item_info.value(), show_pos.x, show_pos.y);
+    if (std::holds_alternative<game_equip_item>(item_info.value())) {
+      // 是装备类型
+      auto &equip = std::get<game_equip_item>(item_info.value());
+      tooltip_ui_system::render_equip(equip, show_pos.x, show_pos.y);
+    } else {
+      auto &equip = std::get<game_deco_item>(item_info.value());
+      tooltip_ui_system::render_deco(equip, show_pos.x, show_pos.y);
+    }
   }
   item_info = std::nullopt;
 }
@@ -284,7 +264,7 @@ bool character_info_ui_system::event_vscr(SDL_Event *event) {
   }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
-  int size = load_equips().size() - 3;
+  int size = equip_game_instance::load_equips(character).size() - 3;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top = cursor_in == render;
   size = std::max(0, size);
@@ -507,6 +487,25 @@ bool character_info_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_MOTION: {
     event_drag_move(event);
     event_vscr_move(event);
+    break;
+  }
+  case SDL_EVENT_MOUSE_WHEEL: {
+    auto dy = event->wheel.integer_y;
+    if (dy > 0) {
+      // up
+      if (item_page > 0) {
+        item_page -= 1;
+      }
+    } else {
+      // down
+      int size = equip_game_instance::load_equips(character).size() - 3;
+      if (size - 3 < 0) {
+        break;
+      }
+      if (item_page < size - 3) {
+        item_page += 1;
+      }
+    }
     break;
   }
   default: {

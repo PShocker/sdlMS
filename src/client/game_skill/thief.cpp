@@ -7,15 +7,14 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
-#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
-#include "src/server/server_instance/server_mob_instance.h"
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -130,7 +129,7 @@ static void shuangfeizhan() {
     if (weapon_type != equip_game_instance::weapon_type::CLAW) {
       return;
     }
-    auto ball = package_ui_system::load_active_ball();
+    auto ball = package_game_instance::load_active_ball();
     if (ball == nullptr) {
       return;
     }

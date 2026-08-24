@@ -1,11 +1,6 @@
 #include "character_logic_system.h"
 #include "SDL3/SDL_rect.h"
-#include "drop_logic_system.h"
 #include "src/client/game/game_character.h"
-#include "src/client/game/game_drop.h"
-#include "src/client/game/game_effect.h"
-#include "src/client/game/game_item_buff.h"
-#include "src/client/game/game_mob.h"
 #include "src/client/game/game_tomb.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -13,7 +8,6 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
-#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/item_buff_game_instance.h"
@@ -22,6 +16,7 @@
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
@@ -367,7 +362,7 @@ void character_logic_system::run_pick(game_character &g_character) {
   if (character_action_input.contains("pick")) {
     for (auto &v : drop_game_instance::data | std::views::values) {
       if (v.type == game_drop::drop_enum::land) {
-        if (package_ui_system::load_blank_index(v.data).empty()) {
+        if (package_game_instance::load_empty_index(v.data).empty()) {
           continue;
         }
         auto pos = g_character.pos;
@@ -802,7 +797,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       if (!rt.data.empty()) {
         shoot_weapon = false;
       }
-      if (!package_ui_system::load_active_ball()) {
+      if (!package_game_instance::load_active_ball()) {
         shoot_weapon = false;
       }
       actions = &weapon_attack_action.at(weapon_type);
@@ -848,10 +843,10 @@ bool character_logic_system::run_attack(game_character &g_character) {
           },
       };
       auto cm = character_logic_system::run_attack_check(g_character, tri);
-      auto &ball = *package_ui_system::load_active_ball();
+      auto &ball = *package_game_instance::load_active_ball();
       auto &consume = static_cast<game_consume_item &>(*ball);
       consume.num -= 1;
-      auto cash_ball = package_ui_system::load_active_cash_ball();
+      auto cash_ball = package_game_instance::load_active_cash_ball();
       std::u16string path;
       std::u16string effect;
       if (!cash_ball.empty()) {
@@ -1663,12 +1658,12 @@ void character_logic_system::run_item(game_character &g_character) {
     for (const auto &input : character_item_input) {
       auto item_id = input.val;
       std::u16string item_id2{item_id.begin(), item_id.end()};
-      auto itm = package_ui_system::load_item(item_id2);
+      auto itm = package_game_instance::load_item(item_id2);
       if (itm == nullptr) {
         return;
       }
       if (run_item(g_character, *itm)) {
-        package_ui_system::dec_item_num(*itm, 1);
+        item_game_instance::dec_item_num(*itm, 1);
       }
     }
   }

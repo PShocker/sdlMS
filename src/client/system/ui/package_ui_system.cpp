@@ -41,65 +41,6 @@
 #include <utility>
 #include <vector>
 
-std::vector<uint32_t> package_ui_system::load_blank_index(uint32_t tab) {
-  std::vector<uint32_t> r;
-  auto &d = package_game_instance::data[tab];
-  for (int32_t i = 0; i < d.size(); i++) {
-    if (d[i]->id.empty()) {
-      r.push_back(i);
-    }
-  }
-  return r;
-}
-
-std::vector<uint32_t>
-package_ui_system::load_blank_index(std::polymorphic<game_item> &item) {
-  if (item->id == u"00000000") {
-    // meso
-    return {0};
-  }
-  if (!(item->type == item_enum::consume || item->type == item_enum::etc)) {
-    return load_blank_index((int)item->type);
-  }
-  std::vector<uint32_t> blank;
-  auto num = item_game_instance::load_item_num(item);
-  std::vector<std::polymorphic<game_item>> *r;
-  r = &package_game_instance::data[(int)item->type];
-  auto slot_max = item_game_instance::load_slot_max(item->id);
-  std::vector<int32_t> same_slots;
-  std::vector<int32_t> add_slots;
-  for (int32_t i = 0; i < r->size(); i++) {
-    auto itm = r->at(i);
-    if (itm->id == item->id) {
-      same_slots.push_back(i);
-    } else if (itm->id.empty()) {
-      add_slots.push_back(i);
-    }
-  }
-  same_slots.append_range(add_slots);
-  for (auto i : same_slots) {
-    auto itm = r->at(i);
-    if (itm->id == item->id) {
-      auto itm_num = item_game_instance::load_item_num(itm);
-      if (itm_num < slot_max) {
-        num = num - (slot_max - itm_num);
-      }
-      blank.push_back(i);
-    } else if (itm->id.empty()) {
-      num -= slot_max;
-      blank.push_back(i);
-    }
-    if (num <= 0) {
-      break;
-    }
-  }
-  if (num <= 0) {
-    return blank;
-  } else {
-    return {};
-  }
-}
-
 std::optional<uint32_t> package_ui_system::load_mouse_index() {
   auto cursor_in = cursor_game_instance::cursor_ui;
   if (cursor_in != render) {
@@ -125,19 +66,6 @@ std::optional<uint32_t> package_ui_system::load_mouse_index() {
   }
 
   return std::nullopt;
-}
-
-uint32_t package_ui_system::load_full_item_num(const std::u16string &id) {
-  uint32_t r = 0;
-  auto itm = item_game_instance::load_item(id, 1);
-  auto &p = package_game_instance::data[(int)itm->type];
-  for (auto &i : p) {
-    if (i->id == id) {
-      auto num = item_game_instance::load_item_num(i);
-      r += num;
-    }
-  }
-  return r;
 }
 
 void package_ui_system::render_backgrnd() {
@@ -366,7 +294,7 @@ void package_ui_system::render_items() {
     }
     // render active ball
     if (active_tab == (int)item_enum::consume) {
-      auto active_ball = load_active_ball();
+      auto active_ball = package_game_instance::load_active_ball();
       if (active_ball == &item) {
         auto node = wz_resource::ui->find(u"Item.img/canvas:activeIcon");
         icon = wz_resource::load_texture(node);
@@ -546,8 +474,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       if (active_tab == 0) {
         auto &r = package_game_instance::data[0];
         if (r[index.value()]->id.empty()) {
-          auto eqp = equip_ui_system::load_equip(
-              (equip_ui_system::equip_mouse_index)hand.sub_val);
+          auto eqp = equip_game_instance::load_equip(hand.sub_val);
           auto eqp2 = std::polymorphic<game_item>(eqp->value());
           r[index.value()] = eqp2;
           *eqp = std::nullopt;
@@ -577,7 +504,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       // 点击的是同一个格子：尝试穿戴
       if (hand.val == active_tab) {
         if (hand.sub_val == index.value()) {
-          use_equip(index.value());
+          equip_game_instance::use_equip(index.value());
           cursor_game_instance::cursor_hand = std::nullopt;
           return true;
         } else {
@@ -594,7 +521,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     }
     case item_enum::deco: {
       if (hand.sub_val == index.value()) {
-        use_deco(index.value());
+        equip_game_instance::use_deco(index.value());
         cursor_game_instance::cursor_hand = std::nullopt;
         return true;
       } else {
@@ -617,7 +544,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         auto &itm = r.at(hand.sub_val);
         auto &eq = static_cast<game_equip_item &>(*equip);
         auto &it = static_cast<game_consume_item &>(*itm);
-        use_equip_scroll(eq, it);
+        equip_game_instance::use_equip_scroll(eq, it);
         cursor_game_instance::cursor_hand = std::nullopt;
         return true;
       }
@@ -630,8 +557,8 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
           auto itm_num1 = item_game_instance::load_item_num(itm1);
           auto slot_max = item_game_instance::load_slot_max(itm0->id);
           auto add_num = std::min(slot_max - itm_num0, itm_num1);
-          add_item_num(itm0, add_num);
-          dec_item_num(itm1, add_num);
+          item_game_instance::add_item_num(itm0, add_num);
+          item_game_instance::dec_item_num(itm1, add_num);
         } else {
           std::swap(r.at(hand.sub_val), r.at(index.value()));
         }
@@ -639,7 +566,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         // 使用道具
         auto &itm = r.at(index.value());
         if (character_logic_system::run_item(sf, itm)) {
-          dec_item_num(itm, 1);
+          item_game_instance::dec_item_num(itm, 1);
         }
       }
       cursor_game_instance::cursor_hand = std::nullopt;
@@ -881,196 +808,30 @@ bool package_ui_system::event(SDL_Event *event) {
     event_vscr_move(event);
     break;
   }
+  case SDL_EVENT_MOUSE_WHEEL: {
+    auto dy = event->wheel.integer_y;
+    if (dy > 0) {
+      // up
+      if (page > 0) {
+        page -= 1;
+      }
+    } else {
+      // down
+      auto &items = package_game_instance::data[active_tab];
+      auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
+      if (size - 6 < 0) {
+        break;
+      }
+      if (page < size - 6) {
+        page += 1;
+      }
+    }
+    break;
+  }
   default: {
     break;
   }
   }
 
   return r;
-}
-
-std::optional<int>
-package_ui_system::add_item(std::polymorphic<game_item> &item) {
-  return shop_ui_system::add_item(item);
-}
-
-void package_ui_system::add_item_num(std::polymorphic<game_item> &item,
-                                     int num) {
-  shop_ui_system::add_item_num(item, num);
-  return;
-}
-
-void package_ui_system::dec_item_num(std::polymorphic<game_item> &item,
-                                     int num) {
-  shop_ui_system::dec_item_num(item, num);
-  return;
-}
-
-std::polymorphic<game_item> *
-package_ui_system::load_item(const std::u16string &id) {
-  auto type = item_game_instance::load_item_type(id);
-  std::vector<std::polymorphic<game_item>> *r;
-  if (type == u"Cash" || type == u"Pet") {
-    auto r = package_game_instance::data[(int)item_enum::cash];
-  } else if (type == u"Consume") {
-    auto r = package_game_instance::data[(int)item_enum::consume];
-  } else if (type == u"Install") {
-    auto r = package_game_instance::data[(int)item_enum::install];
-  }
-  for (auto &itm : *r) {
-    if (itm->id == id) {
-      return &itm;
-    }
-  }
-  return nullptr;
-}
-
-std::polymorphic<game_item> *package_ui_system::load_active_ball() {
-  auto &sf = character_game_instance::self;
-  std::u16string pre;
-  auto weapon_type = equip_game_instance::load_weapon_type(sf);
-  switch (weapon_type) {
-  case equip_game_instance::weapon_type::BOW: {
-    break;
-  }
-  case equip_game_instance::weapon_type::CROSSBOW: {
-    break;
-  }
-  case equip_game_instance::weapon_type::CLAW: {
-    pre = u"0207";
-    break;
-  }
-  default: {
-    return nullptr;
-    break;
-  }
-  }
-  auto &r = package_game_instance::data[(int)item_enum::consume];
-  for (auto &itm : r) {
-    if (itm->id.starts_with(pre)) {
-      auto num = item_game_instance::load_item_num(itm);
-      if (num > 0) {
-        return &itm;
-      }
-    }
-  }
-  return nullptr;
-}
-
-std::u16string package_ui_system::load_active_cash_ball() {
-  auto &sf = character_game_instance::self;
-  std::u16string pre;
-  auto weapon_type = equip_game_instance::load_weapon_type(sf);
-  switch (weapon_type) {
-  case equip_game_instance::weapon_type::BOW: {
-    break;
-  }
-  case equip_game_instance::weapon_type::CROSSBOW: {
-    break;
-  }
-  case equip_game_instance::weapon_type::CLAW: {
-    pre = u"0502";
-    break;
-  }
-  default: {
-    return u"";
-    break;
-  }
-  }
-  auto &r = package_game_instance::data[(int)item_enum::cash];
-  for (auto &itm : r) {
-    if (itm->id.starts_with(pre)) {
-      return itm->id;
-    }
-  }
-  return u"";
-}
-
-int package_ui_system::use_equip_scroll(game_equip_item &eqp,
-                                        game_consume_item &s) {
-  auto tuc = equip_game_instance::load_equip_tuc(eqp.id);
-  if (eqp.scroll.size() < tuc) {
-    auto item_info = item_game_instance::load_item_info(s.id, 0);
-    int success = 100;
-    if (item_info->get_child(u"success")) {
-      success =
-          static_cast<wz::Property<int> *>(item_info->get_child(u"success"))
-              ->get();
-    }
-    int cursed = 0;
-    if (item_info->get_child(u"cursed")) {
-      cursed = static_cast<wz::Property<int> *>(item_info->get_child(u"cursed"))
-                   ->get();
-    }
-    eqp.scroll.push_back({s.id, true});
-
-    auto &sf = character_game_instance::self;
-    server_character_instance::handle_scroll_use(sf, true);
-
-    StateT st;
-    st.state = fbs::StateEnum_ITEM_USE;
-    st.val = std::stoi(std::string{s.id.begin(), s.id.end()});
-    st.sub_val = 1;
-    character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
-
-    s.num -= 1;
-    if (s.num == 0) {
-      s.id = u"";
-    }
-  }
-  return false;
-}
-
-int package_ui_system::use_equip(int i, int slot) {
-  auto &equips = package_game_instance::data[(int)item_enum::equip];
-  auto &itm = equips[i];
-  auto &sf = character_game_instance::self;
-  auto &eq = static_cast<game_equip_item &>(*itm);
-  auto ev = equip_game_instance::load_equip_slot(eq.id, sf);
-  auto blank_slot = load_blank_index((int)item_enum::equip);
-  blank_slot.push_back(i);
-  std::ranges::sort(blank_slot);
-  if (blank_slot.size() < ev.size()) {
-    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
-    notice_ui_system::open();
-    return 0;
-  }
-  if (!equip_game_instance::add_equip_limit(eq, sf, slot)) {
-    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_ability;
-    notice_ui_system::open();
-    return 0;
-  }
-  for (int32_t i = 0; i < ev.size(); i++) {
-    equips[blank_slot[i]] = std::polymorphic<game_item>(ev[i]);
-  }
-  itm->id = u"";
-  character_logic_system::cct.map_id = scene_system_instance::map_id;
-  return 1;
-}
-
-int package_ui_system::use_deco(int i, int slot) {
-  auto &equips = package_game_instance::data[(int)item_enum::deco];
-  auto &itm = equips[i];
-  auto &sf = character_game_instance::self;
-  auto &de = static_cast<game_deco_item &>(*itm);
-  auto ev = equip_game_instance::load_deco_slot(de.id, sf);
-  auto blank_slot = load_blank_index((int)item_enum::equip);
-  blank_slot.push_back(i);
-  std::ranges::sort(blank_slot);
-  if (blank_slot.size() < ev.size()) {
-    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_space;
-    notice_ui_system::open();
-    return 0;
-  }
-  if (!equip_game_instance::add_equip_deco(de, sf, 0)) {
-    notice_ui_system::type = notice_ui_system::notice_enum::equip_no_ability;
-    notice_ui_system::open();
-    return 0;
-  }
-  for (int32_t i = 0; i < ev.size(); i++) {
-    equips[blank_slot[i]] = std::polymorphic<game_item>(ev[i]);
-  }
-  itm->id = u"";
-  character_logic_system::cct.map_id = scene_system_instance::map_id;
-  return 1;
 }

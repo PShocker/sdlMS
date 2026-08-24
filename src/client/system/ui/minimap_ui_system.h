@@ -8,7 +8,6 @@
 #include <string>
 
 class minimap_ui_system {
-
 private:
   static void render_max_backgrnd();
   static void render_min_backgrnd();

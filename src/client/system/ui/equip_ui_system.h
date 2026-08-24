@@ -56,16 +56,7 @@ private:
 
   static inline std::optional<SDL_FPoint> drag;
   static inline uint8_t active_tab;
-
-  static int use_equip_scroll(game_equip_item &eqp, game_consume_item &s);
-
 public:
-  static int unuse_equip(int i);
-  static int unuse_deco(int i);
-
-  static std::optional<game_equip_item> *load_equip(equip_mouse_index index);
-  static std::optional<game_deco_item> *load_deco(equip_mouse_index index);
-
   static inline SDL_FPoint pos;
 
   static void open();

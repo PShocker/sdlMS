@@ -17,4 +17,7 @@ public:
   static std::polymorphic<game_item> load_item(const std::u16string &id,
                                                uint32_t num);
   static int load_item_num(std::polymorphic<game_item> &itm);
+  static void add_item_num(std::polymorphic<game_item> &item, int num);
+  static void dec_item_num(std::polymorphic<game_item> &item, int num);
+  static void set_item_num(std::polymorphic<game_item> &itm, int num);
 };

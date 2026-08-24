@@ -123,7 +123,7 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
 
     if (r.client_id == 0) {
       auto itm = dt.data;
-      uint16_t i = package_ui_system::add_item(itm).value();
+      uint16_t i = package_game_instance::add_item(itm).value();
 
       if (dt.data->id != u"00000000") {
         package_ui_system::new_itm = {
@@ -224,7 +224,11 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
             break;
           }
           default: {
-            package_ui_system::dec_item_num(itm, num);
+            if (!itm->id.starts_with(u"0207")) {
+              itm = std::polymorphic<game_item>(game_consume_item{});
+            } else {
+              item_game_instance::dec_item_num(itm, num);
+            }
             break;
           }
           }
