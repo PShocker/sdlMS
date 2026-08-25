@@ -15,6 +15,7 @@ private:
   static void render_tab();
   static void render_area_name(int i, int y);
   static void render_quest(game_quest &q, int y);
+  static void render_vscr();
 
   static void event_button(SDL_Event *event);
   static void event_tab(SDL_Event *event);
@@ -28,6 +29,7 @@ private:
   static inline std::optional<SDL_FPoint> drag;
   static inline uint8_t active_tab;
   static inline std::array<bool, 64> area_fold;
+  static inline std::array<int, 2> pages;
 
 public:
   static inline SDL_FPoint pos;

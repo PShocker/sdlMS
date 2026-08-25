@@ -1,6 +1,7 @@
 #include "quest_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "scroll_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -51,7 +52,7 @@ void quest_ui_system::render_button() {
   };
   auto wh = load_wh();
   const std::array buttons_rect = {
-      SDL_FRect{wh.x - 18, 6, 12, 12}, //
+      SDL_FRect{wh.x - 20, 6, 12, 12}, //
   };
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -81,26 +82,76 @@ void quest_ui_system::render_button() {
 }
 
 void quest_ui_system::render_area_name(int i, int y) {
+  const SDL_FPoint lt{10, 50};
+  auto t = wz_resource::load_texture(
+      wz_resource::ui->find(u"Quest.img/Quest/icon/icon0"));
+  int px = pos.x + lt.x;
+  int py = pos.y + y + lt.y;
+
+  SDL_FRect pos_rect{
+      static_cast<float>(px - 2),
+      static_cast<float>(py - 2),
+      static_cast<float>(215),
+      static_cast<float>(18),
+  };
+  SDL_SetRenderDrawColor(window::renderer, 154, 176, 203, 255);
+  SDL_RenderFillRect(window::renderer, &pos_rect);
+
+  std::u16string state = u"normal";
+
+  pos_rect = {
+      static_cast<float>(px),
+      static_cast<float>(py),
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  bool mouse_in = SDL_PointInRectFloat(&window::mouse_pos, &pos_rect);
+  // 渲染所有按钮
+  bool mouse_down = window::mouse_state & SDL_BUTTON_LMASK;
+  bool cursor_on_ui = cursor_game_instance::cursor_ui == render;
+  bool modal_blocked = cursor_game_instance::modal_overlay;
+  if (cursor_on_ui && !modal_blocked && mouse_in) {
+    state = mouse_down ? u"pressed" : u"mouseOver";
+  }
+  auto node = wz_resource::ui->find(u"Basic.img/BtMin");
+  auto texture = wz_resource::load_texture(node->find((state + u"/0")));
+  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+
   auto name = quest_game_instance::load_area_name(i);
   freetype::load_size(12);
-  freetype::draw_line(name, 0, 0);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::draw_line(name, px + 17, py - 3);
 }
 
 void quest_ui_system::render_quest(game_quest &q, int y) {
+  const SDL_FPoint lt{10, 50};
+  int px = pos.x + lt.x;
+  int py = pos.y + y + lt.y;
+
+  auto t = wz_resource::load_texture(
+      wz_resource::ui->find(u"Quest.img/Quest/icon/icon0"));
+  SDL_FRect pos_rect{
+      static_cast<float>(px),
+      static_cast<float>(py),
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+
   auto node = quest_game_instance::load_quest_node(q.quest_id);
   node = node->find(u"QuestInfo/name");
   auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
   freetype::load_size(12);
-  freetype::draw_line(name, pos.x, y);
+  freetype::draw_line(name, px + 17, py - 3);
 }
 
 void quest_ui_system::render_quests() {
-  const int MAX_DISPLAY_ITEMS = 15;
+  const int MAX_DISPLAY_ITEMS = 16;
   int rendered_count = 0;
-  int area_index = 1;
+  int area_index = 0;
 
-  while (rendered_count <= MAX_DISPLAY_ITEMS) {
-    auto y = rendered_count * 30;
+  while (rendered_count < MAX_DISPLAY_ITEMS) {
+    auto y = rendered_count * 20;
     render_area_name(area_index, y);
     rendered_count++;
     if (!area_fold[area_index]) {
@@ -121,8 +172,9 @@ void quest_ui_system::render_quests() {
       for (auto &q : quests) {
         if (rendered_count > MAX_DISPLAY_ITEMS)
           break;
-        render_quest(q, y);
-        rendered_count++;
+        y = rendered_count * 20;
+        // render_quest(q, y);
+        // rendered_count++;
       }
     }
     area_index++;
@@ -183,12 +235,26 @@ void quest_ui_system::render_tab() {
   }
 }
 
+void quest_ui_system::render_vscr() {
+  const SDL_FPoint lt{225, 48};
+  int px = pos.x + lt.x;
+  int py = pos.y + lt.y;
+  const uint32_t length = 318;
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  bool top =
+      cursor_in == render && cursor_game_instance::modal_overlay == render;
+  scroll_ui_system::render_vscroll(px, py, pages[0], 0, length, top, 6);
+
+  return;
+}
+
 bool quest_ui_system::render() {
   render_backgrnd();
   render_tab();
   render_button();
   render_quest_detail();
   render_quests();
+  render_vscr();
   return true;
 }
 
