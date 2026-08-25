@@ -135,3 +135,19 @@ int quest_game_instance::load_quest_index(const std::u16string &id) {
   auto node = wz_resource::quest->find(u"QuestData/" + id + u"/Act");
   return node->children_count() - 1;
 }
+
+std::u16string quest_game_instance::load_area_name(int area) {
+  auto node = wz_resource::quest->find(u"QuestCategory.img");
+  node = node->get_child(std::to_string(area));
+  if (node == nullptr) {
+    return u"";
+  }
+  node = node->get_child(u"title");
+  auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
+  return name;
+}
+
+wz::Node *quest_game_instance::load_quest_node(const std::u16string &id) {
+  auto node = wz_resource::quest->find(u"QuestData/" + id);
+  return node;
+}

@@ -11,6 +11,7 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "wz/Property.h"
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>
@@ -79,16 +80,52 @@ void quest_ui_system::render_button() {
   }
 }
 
+void quest_ui_system::render_area_name(int i, int y) {
+  auto name = quest_game_instance::load_area_name(i);
+  freetype::load_size(12);
+  freetype::draw_line(name, 0, 0);
+}
+
+void quest_ui_system::render_quest(game_quest &q, int y) {
+  auto node = quest_game_instance::load_quest_node(q.quest_id);
+  node = node->find(u"QuestInfo/name");
+  auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
+  freetype::load_size(12);
+  freetype::draw_line(name, pos.x, y);
+}
+
 void quest_ui_system::render_quests() {
-  int i = 1;
-  while (i <= 15) {
-    switch (active_tab) {
-    case 0: {
-      auto quests = quest_game_instance::load_avaliable_quest(i);
-      break;
+  const int MAX_DISPLAY_ITEMS = 15;
+  int rendered_count = 0;
+  int area_index = 1;
+
+  while (rendered_count <= MAX_DISPLAY_ITEMS) {
+    auto y = rendered_count * 30;
+    render_area_name(area_index, y);
+    rendered_count++;
+    if (!area_fold[area_index]) {
+      std::vector<game_quest> quests;
+      switch (active_tab) {
+      case 0:
+        quests = quest_game_instance::load_avaliable_quest(area_index);
+        break;
+      case 1:
+        quests = quest_game_instance::load_progress_quest(area_index);
+        break;
+      case 2:
+        quests = quest_game_instance::load_complete_quest(area_index);
+        break;
+      default:
+        return; // 或处理无效tab
+      }
+      for (auto &q : quests) {
+        if (rendered_count > MAX_DISPLAY_ITEMS)
+          break;
+        render_quest(q, y);
+        rendered_count++;
+      }
     }
-    }
-    i++;
+    area_index++;
   }
 }
 
@@ -192,6 +229,7 @@ void quest_ui_system::event_tab(SDL_Event *event) {
       if (active_tab == i) {
         return;
       }
+      area_fold = {};
       quest = u"";
       return;
     }

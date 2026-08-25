@@ -1,13 +1,16 @@
-#include "obj_game_instance.h"
+#include "trap_game_instance.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_obj.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include "wz/Wz.h"
+#include <chrono>
 #include <cstdint>
+#include <numeric>
 #include <string>
+#include <vector>
 
-void obj_game_instance::load(wz::Node *image) {
+void trap_game_instance::load(wz::Node *image) {
   data = {};
   auto map_node = image;
   uint8_t map_layer = 0;
@@ -19,7 +22,7 @@ void obj_game_instance::load(wz::Node *image) {
       auto oS = static_cast<wz::Property<std::u16string> *>(
                     obj_node->get_child(u"oS"))
                     ->get();
-      if (oS == u"obj_trap") {
+      if (oS != u"obj_trap") {
         continue;
       }
       auto l0 = static_cast<wz::Property<std::u16string> *>(
@@ -53,15 +56,42 @@ void obj_game_instance::load(wz::Node *image) {
 
       obj_node = wz_resource::map->find(g_obj.path);
       uint8_t canvas_count = 0;
+
+      std::vector<int> delays;
       for (auto [k, v] : *obj_node->get_children()) {
         if (v[0]->type == wz::Type::UOL) {
           v[0] = static_cast<wz::Property<wz::WzUOL> *>(v[0])->get_uol();
         }
         if (v[0]->type == wz::Type::Canvas) {
           canvas_count++;
+          int delay = 100;
+          if (v[0]->get_child(u"delay")) {
+            delay =
+                static_cast<wz::Property<int> *>(obj_node->get_child(u"delay"))
+                    ->get();
+          }
+          delays.push_back(delay);
         }
       }
       g_obj.ani_count = canvas_count;
+      g_obj.ani_index = delays.size() - 1;
+      g_obj.ani_time = 0;
+
+      auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
+                     std::chrono::system_clock::now().time_since_epoch())
+                     .count();
+      //  通过时间戳来同步陷阱时间
+      int total = std::accumulate(delays.begin(), delays.end(), 0);
+      int time = now % total;
+      int accumulated = 0;
+      for (int i = 0; i < delays.size(); i++) {
+        if (time < accumulated + delays[i]) {
+          g_obj.ani_index = i;
+          g_obj.ani_time = time - accumulated;
+          break;
+        }
+        accumulated += delays[i];
+      }
 
       data[map_layer].emplace(g_obj.z, g_obj);
     }
@@ -69,7 +99,7 @@ void obj_game_instance::load(wz::Node *image) {
   }
 }
 
-void obj_game_instance::load(uint32_t map_id) {
+void trap_game_instance::load(uint32_t map_id) {
   auto map_node = wz_resource::load_map_node(map_id);
   load(map_node);
 }

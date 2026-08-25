@@ -6,8 +6,7 @@
 #include <array>
 #include <cstdint>
 #include <flat_map>
-#include <vector>
-class obj_game_instance {
+class trap_game_instance {
 public:
   static void load(wz::Node *image);
   static void load(uint32_t map_id);

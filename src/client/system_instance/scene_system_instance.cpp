@@ -23,6 +23,7 @@
 #include "src/client/game_instance/seat_game_instance.h"
 #include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game_instance/tooltip_game_instance.h"
+#include "src/client/game_instance/trap_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/logic/audio_logic_system.h"
 #include "src/client/system/logic/backgrnd_logic_system.h"
@@ -100,11 +101,11 @@ bool scene_system_instance::render_game() {
     for (auto &obj : obj_game_instance::data[i] | std::views::values) {
       obj_render_system::render(obj);
     }
+    for (auto &trap : trap_game_instance::data[i] | std::views::values) {
+      obj_render_system::render(trap);
+    }
     for (auto &tile : tile_game_instance::data[i] | std::views::values) {
       tile_render_system::render(tile);
-    }
-    for (auto &clock : obj_game_instance::clock) {
-      obj_render_system::render_clock(clock);
     }
     for (auto &reactor : reactor_game_instance::data[i]) {
       reactor_render_system::render(reactor);
@@ -181,6 +182,7 @@ void scene_system_instance::enter(uint32_t map_id) {
   mob_game_instance::load(map_id);
   npc_game_instance::load(map_id);
   obj_game_instance::load(map_id);
+  trap_game_instance::load(map_id);
   portal_game_instance::data = portal_game_instance::load(map_id);
   reactor_game_instance::load(map_id);
   tile_game_instance::load(map_id);
