@@ -52,7 +52,7 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
       }
       if (self.level >= lvl) {
         auto ar = node->find(k + u"/QuestInfo/area");
-        int8_t area = static_cast<wz::Property<int> *>(lv)->get();
+        int8_t area = static_cast<wz::Property<int> *>(ar)->get();
         game_quest quest{
             .quest_id = k,
             .index = 0,
@@ -136,14 +136,14 @@ std::u16string quest_game_instance::load_area_name(int area) {
   if (!cache.contains(area)) {
     auto node = wz_resource::quest->find(u"QuestCategory.img");
     for (int i = 0;; i++) {
-      auto n = node->get_child(std::to_string(i));
+      auto n = node->find(std::to_string(i));
       if (n == nullptr) {
         break;
       }
       auto category =
-          static_cast<wz::Property<int> *>(node->get_child(u"category"))->get();
+          static_cast<wz::Property<int> *>(n->get_child(u"category"))->get();
       auto name =
-          static_cast<wz::Property<std::u16string> *>(node->get_child(u"title"))
+          static_cast<wz::Property<std::u16string> *>(n->get_child(u"title"))
               ->get();
       cache[category] = name;
     }

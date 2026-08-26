@@ -23,6 +23,7 @@ private:
 
   static void event_fold();
 
+  static bool event_vscr(SDL_Event *event);
   static void event_button(SDL_Event *event);
   static void event_tab(SDL_Event *event);
   static void event_top();
