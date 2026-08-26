@@ -4,10 +4,14 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_quest.h"
 #include <array>
+#include <flat_set>
 #include <optional>
 #include <string>
 class quest_ui_system {
 private:
+  static int load_vscr_num0();
+  static int load_vscr_num1();
+
   static void render_backgrnd();
   static void render_button();
   static void render_quests();
@@ -16,6 +20,8 @@ private:
   static void render_area_name(int i, int y);
   static void render_quest(game_quest &q, int y);
   static void render_vscr();
+
+  static void event_fold();
 
   static void event_button(SDL_Event *event);
   static void event_tab(SDL_Event *event);
@@ -28,7 +34,7 @@ private:
 
   static inline std::optional<SDL_FPoint> drag;
   static inline uint8_t active_tab;
-  static inline std::array<bool, 64> area_fold;
+  static inline std::flat_set<int> disable_fold;
   static inline std::array<int, 2> pages;
 
 public:

@@ -86,6 +86,8 @@ public:
   static inline ClientCharacterPickT ccp;
   static inline ClientCharacterT cct;
 
+  static void run_being_hit(float x, uint64_t num);
+
   static void run_sit_chair(game_character &g_character,
                             const std::u16string &id);
   static void run_unsit_chair(game_character &g_character);

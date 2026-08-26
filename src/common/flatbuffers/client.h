@@ -105,6 +105,10 @@ struct ClientCreateMob;
 struct ClientCreateMobBuilder;
 struct ClientCreateMobT;
 
+struct ClientTrapAttack;
+struct ClientTrapAttackBuilder;
+struct ClientTrapAttackT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -1789,6 +1793,81 @@ inline ::flatbuffers::Offset<ClientCreateMob> CreateClientCreateMobDirect(
 
 ::flatbuffers::Offset<ClientCreateMob> CreateClientCreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCreateMobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientTrapAttackT : public ::flatbuffers::NativeTable {
+  typedef ClientTrapAttack TableType;
+  uint32_t map_id = 0;
+  std::unique_ptr<fbs::AttackT> payload{};
+  ClientTrapAttackT() = default;
+  ClientTrapAttackT(const ClientTrapAttackT &o);
+  ClientTrapAttackT(ClientTrapAttackT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientTrapAttackT &operator=(ClientTrapAttackT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientTrapAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientTrapAttackT NativeTableType;
+  typedef ClientTrapAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MAP_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  const fbs::Attack *payload() const {
+    return GetPointer<const fbs::Attack *>(VT_PAYLOAD);
+  }
+  fbs::Attack *mutable_payload() {
+    return GetPointer<fbs::Attack *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ClientTrapAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientTrapAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientTrapAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientTrapAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientTrapAttackBuilder {
+  typedef ClientTrapAttack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientTrapAttack::VT_MAP_ID, map_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Attack> payload) {
+    fbb_.AddOffset(ClientTrapAttack::VT_PAYLOAD, payload);
+  }
+  explicit ClientTrapAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientTrapAttack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientTrapAttack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientTrapAttack> CreateClientTrapAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    ::flatbuffers::Offset<fbs::Attack> payload = 0) {
+  ClientTrapAttackBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ClientTrapAttack> CreateClientTrapAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientTrapAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -2605,6 +2684,46 @@ inline ::flatbuffers::Offset<ClientCreateMob> ClientCreateMob::Pack(::flatbuffer
       _fbb,
       _map_id,
       _mobs);
+}
+
+inline ClientTrapAttackT::ClientTrapAttackT(const ClientTrapAttackT &o)
+      : map_id(o.map_id),
+        payload((o.payload) ? new fbs::AttackT(*o.payload) : nullptr) {
+}
+
+inline ClientTrapAttackT &ClientTrapAttackT::operator=(ClientTrapAttackT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(map_id, o.map_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ClientTrapAttackT *ClientTrapAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientTrapAttackT>(new ClientTrapAttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientTrapAttack::UnPackTo(ClientTrapAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ClientTrapAttack> CreateClientTrapAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientTrapAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientTrapAttack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientTrapAttack> ClientTrapAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientTrapAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientTrapAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
+  auto _payload = _o->payload ? CreateAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateClientTrapAttack(
+      _fbb,
+      _map_id,
+      _payload);
 }
 
 }  // namespace fbs

@@ -3,6 +3,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <cstdint>
 #include <flat_map>
 #include <optional>
 #include <string>
@@ -50,9 +51,12 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
         lvl = static_cast<wz::Property<int> *>(lv)->get();
       }
       if (self.level >= lvl) {
+        auto ar = node->find(k + u"/QuestInfo/area");
+        int8_t area = static_cast<wz::Property<int> *>(lv)->get();
         game_quest quest{
             .quest_id = k,
             .index = 0,
+            .area = area,
         };
         q.push_back(quest);
       }
@@ -69,18 +73,15 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
   return q;
 }
 
-std::vector<game_quest> quest_game_instance::load_avaliable_quest(int area) {
+std::flat_map<int8_t, std::vector<game_quest>>
+quest_game_instance::load_ui_avaliable_quest() {
+  std::flat_map<int8_t, std::vector<game_quest>> r;
   auto quests = load_avaliable_quest();
   std::vector<game_quest> q;
   for (auto &quest : quests) {
-    auto node = wz_resource::quest->find(u"QuestData/" + quest.quest_id);
-    node = node->find(u"QuestInfo/area");
-    auto ae = static_cast<wz::Property<int> *>(node)->get();
-    if (ae == area) {
-      q.push_back(quest);
-    }
+    r[quest.area].push_back(quest);
   }
-  return q;
+  return r;
 }
 
 std::vector<game_quest> quest_game_instance::load_progress_quest() {
@@ -93,18 +94,15 @@ std::vector<game_quest> quest_game_instance::load_progress_quest() {
   return q;
 }
 
-std::vector<game_quest> quest_game_instance::load_progress_quest(int area) {
+std::flat_map<int8_t, std::vector<game_quest>>
+quest_game_instance::load_ui_progress_quest() {
+  std::flat_map<int8_t, std::vector<game_quest>> r;
   auto quests = load_progress_quest();
   std::vector<game_quest> q;
   for (auto &quest : quests) {
-    auto node = wz_resource::quest->find(u"QuestData/" + quest.quest_id);
-    node = node->find(u"QuestInfo/area");
-    auto ae = static_cast<wz::Property<int> *>(node)->get();
-    if (ae == area) {
-      q.push_back(quest);
-    }
+    r[quest.area].push_back(quest);
   }
-  return q;
+  return r;
 }
 
 std::vector<game_quest> quest_game_instance::load_complete_quest() {
@@ -117,18 +115,15 @@ std::vector<game_quest> quest_game_instance::load_complete_quest() {
   return q;
 }
 
-std::vector<game_quest> quest_game_instance::load_complete_quest(int area) {
+std::flat_map<int8_t, std::vector<game_quest>>
+quest_game_instance::load_ui_complete_quest() {
+  std::flat_map<int8_t, std::vector<game_quest>> r;
   auto quests = load_complete_quest();
   std::vector<game_quest> q;
   for (auto &quest : quests) {
-    auto node = wz_resource::quest->find(u"QuestData/" + quest.quest_id);
-    node = node->find(u"QuestInfo/area");
-    auto ae = static_cast<wz::Property<int> *>(node)->get();
-    if (ae == area) {
-      q.push_back(quest);
-    }
+    r[quest.area].push_back(quest);
   }
-  return q;
+  return r;
 }
 
 int quest_game_instance::load_quest_index(const std::u16string &id) {
@@ -137,14 +132,23 @@ int quest_game_instance::load_quest_index(const std::u16string &id) {
 }
 
 std::u16string quest_game_instance::load_area_name(int area) {
-  auto node = wz_resource::quest->find(u"QuestCategory.img");
-  node = node->get_child(std::to_string(area));
-  if (node == nullptr) {
-    return u"";
+  static std::flat_map<int, std::u16string> cache;
+  if (!cache.contains(area)) {
+    auto node = wz_resource::quest->find(u"QuestCategory.img");
+    for (int i = 0;; i++) {
+      auto n = node->get_child(std::to_string(i));
+      if (n == nullptr) {
+        break;
+      }
+      auto category =
+          static_cast<wz::Property<int> *>(node->get_child(u"category"))->get();
+      auto name =
+          static_cast<wz::Property<std::u16string> *>(node->get_child(u"title"))
+              ->get();
+      cache[category] = name;
+    }
   }
-  node = node->get_child(u"title");
-  auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
-  return name;
+  return cache.at(area);
 }
 
 wz::Node *quest_game_instance::load_quest_node(const std::u16string &id) {

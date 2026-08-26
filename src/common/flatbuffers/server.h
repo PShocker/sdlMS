@@ -149,6 +149,10 @@ struct ServerCreateMob;
 struct ServerCreateMobBuilder;
 struct ServerCreateMobT;
 
+struct ServerTrapAttack;
+struct ServerTrapAttackBuilder;
+struct ServerTrapAttackT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -2986,6 +2990,81 @@ inline ::flatbuffers::Offset<ServerCreateMob> CreateServerCreateMobDirect(
 
 ::flatbuffers::Offset<ServerCreateMob> CreateServerCreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCreateMobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerTrapAttackT : public ::flatbuffers::NativeTable {
+  typedef ServerTrapAttack TableType;
+  uint64_t client_id = 0;
+  std::unique_ptr<fbs::AttackT> payload{};
+  ServerTrapAttackT() = default;
+  ServerTrapAttackT(const ServerTrapAttackT &o);
+  ServerTrapAttackT(ServerTrapAttackT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerTrapAttackT &operator=(ServerTrapAttackT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerTrapAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerTrapAttackT NativeTableType;
+  typedef ServerTrapAttackBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_CLIENT_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  const fbs::Attack *payload() const {
+    return GetPointer<const fbs::Attack *>(VT_PAYLOAD);
+  }
+  fbs::Attack *mutable_payload() {
+    return GetPointer<fbs::Attack *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           verifier.EndTable();
+  }
+  ServerTrapAttackT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerTrapAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerTrapAttack> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerTrapAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerTrapAttackBuilder {
+  typedef ServerTrapAttack Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerTrapAttack::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Attack> payload) {
+    fbb_.AddOffset(ServerTrapAttack::VT_PAYLOAD, payload);
+  }
+  explicit ServerTrapAttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerTrapAttack> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerTrapAttack>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerTrapAttack> CreateServerTrapAttack(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
+    ::flatbuffers::Offset<fbs::Attack> payload = 0) {
+  ServerTrapAttackBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<ServerTrapAttack> CreateServerTrapAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerTrapAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -4253,6 +4332,46 @@ inline ::flatbuffers::Offset<ServerCreateMob> ServerCreateMob::Pack(::flatbuffer
   return fbs::CreateServerCreateMob(
       _fbb,
       _mobs);
+}
+
+inline ServerTrapAttackT::ServerTrapAttackT(const ServerTrapAttackT &o)
+      : client_id(o.client_id),
+        payload((o.payload) ? new fbs::AttackT(*o.payload) : nullptr) {
+}
+
+inline ServerTrapAttackT &ServerTrapAttackT::operator=(ServerTrapAttackT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerTrapAttackT *ServerTrapAttack::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerTrapAttackT>(new ServerTrapAttackT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerTrapAttack::UnPackTo(ServerTrapAttackT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+}
+
+inline ::flatbuffers::Offset<ServerTrapAttack> CreateServerTrapAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerTrapAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerTrapAttack::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerTrapAttack> ServerTrapAttack::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerTrapAttackT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerTrapAttackT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
+  auto _payload = _o->payload ? CreateAttack(_fbb, _o->payload.get(), _rehasher) : 0;
+  return fbs::CreateServerTrapAttack(
+      _fbb,
+      _client_id,
+      _payload);
 }
 
 template <bool B>

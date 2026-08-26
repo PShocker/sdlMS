@@ -132,72 +132,17 @@ void mob_logic_system::run_collision() {
     }
   }
   if (!mobs.empty()) {
-    auto o_character = self;
     auto &mob = mobs.begin()->second;
-    character_logic_system::self_fh = 0;
-    character_logic_system::self_lr = 0;
-
-    auto action_type = character_logic_system::load_action_type(self);
-    switch (action_type) {
-    case character_logic_system::action_enum::stand:
-    case character_logic_system::action_enum::alert:
-    case character_logic_system::action_enum::walk:
-    case character_logic_system::action_enum::climb:
-    case character_logic_system::action_enum::prone: {
-      character_logic_system::run_action(self, u"jump");
-      break;
-    }
-    case character_logic_system::action_enum::sit: {
-      character_logic_system::run_unsit_chair(self);
-      character_logic_system::run_action(self, u"jump");
-      break;
-    }
-    default: {
-      break;
-    }
-    }
-    character_logic_system::self_invincible_cooldown = window::dt_now + 2000;
-    character_logic_system::self_alert_cooldown = window::dt_now + 5000;
-
-    const auto speed = 270.0f;
-    if (self.pos.x > mob.pos.x) {
-      if (character_logic_system::self_hspeed > 0 &&
-          character_logic_system::self_hspeed <= speed) {
-        character_logic_system::self_hspeed = speed;
-      } else {
-        character_logic_system::self_hspeed += speed;
-      }
-    } else {
-      if (character_logic_system::self_hspeed <= 0 &&
-          character_logic_system::self_hspeed > -speed) {
-        character_logic_system::self_hspeed = -speed;
-      } else {
-        character_logic_system::self_hspeed -= speed;
-      }
-    }
-    if (character_logic_system::self_vspeed < 0) {
-      if (character_logic_system::self_vspeed > -speed) {
-        character_logic_system::self_vspeed = -speed;
-      }
-    } else {
-      character_logic_system::self_vspeed -= speed;
-    }
-    character_stat_game_instance::hp_point -= 1;
-    if (character_stat_game_instance::hp_point <= 0) {
-      character_logic_system::run_die_action(self);
-    } else {
-      character_logic_system::run_face_action(self, u"hit");
-    }
-    const auto &now = window::dt_time;
+    uint64_t hit_num = 1;
+    character_logic_system::run_being_hit(mob.pos.x, hit_num);
     AttackT at{
-        .delay = now,
-        .num = 1,
+        .delay = window::dt_time,
+        .num = hit_num,
         .x = self.pos.x,
         .y = self.pos.y - 30,
         .type = fbs::AttackEnum_Viole,
     };
     server_mob_instance::handle_s_attack(0, at);
-    at.type = fbs::AttackEnum_Red;
     ClientMobAttackT cma;
     cma.map_id = scene_system_instance::map_id;
     cma.payload = std::make_unique<AttackT>(std::move(at));

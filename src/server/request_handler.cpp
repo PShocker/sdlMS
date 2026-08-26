@@ -25,6 +25,7 @@
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_trade_instance.h"
+#include "src/server/server_instance/server_trap_instance.h"
 #include "src/server/server_main.h"
 #include <algorithm>
 #include <cstdio>
@@ -197,6 +198,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ClientCreateMobT r;
     payload->UnPackTo(&r);
     server_mob_instance::handle_create_mob(r);
+    break;
+  }
+  case NetPayload_ClientTrapAttack: {
+    auto payload = packet->payload_as_ClientTrapAttack();
+    fbs::ClientTrapAttackT r;
+    payload->UnPackTo(&r);
+    server_trap_instance::handle_attack(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {
@@ -405,11 +413,18 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     }
     break;
   }
-    case NetPayload_ServerCreateMob: {
+  case NetPayload_ServerCreateMob: {
     auto payload = packet->payload_as_ServerCreateMob();
     fbs::ServerCreateMobT r;
     payload->UnPackTo(&r);
     server_mob_instance::handle_s_create_mob(r);
+    break;
+  }
+  case NetPayload_ServerTrapAttack: {
+    auto payload = packet->payload_as_ServerTrapAttack();
+    fbs::ServerTrapAttackT r;
+    payload->UnPackTo(&r);
+    server_trap_instance::handle_server_attack(client_id, r);
     break;
   }
   default:

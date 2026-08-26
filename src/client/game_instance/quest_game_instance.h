@@ -3,6 +3,7 @@
 #include "src/client/game/game_quest.h"
 #include "src/client/game/game_save.h"
 #include "wz/Node.h"
+#include <cstdint>
 #include <flat_map>
 #include <optional>
 #include <string>
@@ -17,11 +18,17 @@ public:
 
   static std::vector<game_quest> load_npc_quest(const std::u16string &id);
   static std::vector<game_quest> load_avaliable_quest();
-  static std::vector<game_quest> load_avaliable_quest(int area);
+  static std::flat_map<int8_t, std::vector<game_quest>>
+  load_ui_avaliable_quest();
+
   static std::vector<game_quest> load_progress_quest();
-  static std::vector<game_quest> load_progress_quest(int area);
+  static std::flat_map<int8_t, std::vector<game_quest>>
+  load_ui_progress_quest();
+
   static std::vector<game_quest> load_complete_quest();
-  static std::vector<game_quest> load_complete_quest(int area);
+  static std::flat_map<int8_t, std::vector<game_quest>>
+  load_ui_complete_quest();
+
   static std::u16string load_area_name(int area);
 
   static int load_quest_index(const std::u16string &id);

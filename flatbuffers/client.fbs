@@ -110,3 +110,8 @@ table ClientCreateMob {
     map_id:uint32;
     mobs:[Mob];
 }
+
+table ClientTrapAttack {
+    map_id:uint32;
+    payload:Attack;
+}

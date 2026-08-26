@@ -16,7 +16,36 @@
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>
+#include <optional>
 #include <string>
+
+int quest_ui_system::load_vscr_num0() {
+  std::flat_map<int8_t, std::vector<game_quest>> quests;
+  switch (active_tab) {
+  case 0:
+    quests = quest_game_instance::load_ui_avaliable_quest();
+    break;
+  case 1:
+    quests = quest_game_instance::load_ui_progress_quest();
+    break;
+  case 2:
+    quests = quest_game_instance::load_ui_complete_quest();
+    break;
+  default: {
+    break;
+  }
+  }
+  int count = 0;
+  for (auto [k, v] : quests) {
+    count++;
+    if (!disable_fold.contains(k)) {
+      count += v.size();
+    }
+  }
+  return count;
+}
+
+int quest_ui_system::load_vscr_num1() { return 0; }
 
 void quest_ui_system::render_backgrnd() {
   static auto backgrnd = wz_resource::load_texture(
@@ -81,7 +110,11 @@ void quest_ui_system::render_button() {
   }
 }
 
+static std::optional<int> fold;
+
 void quest_ui_system::render_area_name(int i, int y) {
+  fold = std::nullopt;
+
   const SDL_FPoint lt{10, 50};
   auto t = wz_resource::load_texture(
       wz_resource::ui->find(u"Quest.img/Quest/icon/icon0"));
@@ -114,8 +147,14 @@ void quest_ui_system::render_area_name(int i, int y) {
     state = mouse_down ? u"pressed" : u"mouseOver";
   }
   auto node = wz_resource::ui->find(u"Basic.img/BtMin");
+  if (disable_fold.contains(i)) {
+    node = wz_resource::ui->find(u"Basic.img/BtMax");
+  }
   auto texture = wz_resource::load_texture(node->find((state + u"/0")));
   SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  if (mouse_in) {
+    fold = i;
+  }
 
   auto name = quest_game_instance::load_area_name(i);
   freetype::load_size(12);
@@ -145,40 +184,35 @@ void quest_ui_system::render_quest(game_quest &q, int y) {
   freetype::draw_line(name, px + 17, py - 3);
 }
 
+// auto y = rendered_count * 20;
 void quest_ui_system::render_quests() {
   const int MAX_DISPLAY_ITEMS = 16;
-  int rendered_count = 0;
-  int area_index = 0;
-
-  while (rendered_count < MAX_DISPLAY_ITEMS) {
-    auto y = rendered_count * 20;
-    render_area_name(area_index, y);
-    rendered_count++;
-    if (!area_fold[area_index]) {
-      std::vector<game_quest> quests;
-      switch (active_tab) {
-      case 0:
-        quests = quest_game_instance::load_avaliable_quest(area_index);
-        break;
-      case 1:
-        quests = quest_game_instance::load_progress_quest(area_index);
-        break;
-      case 2:
-        quests = quest_game_instance::load_complete_quest(area_index);
-        break;
-      default:
-        return; // 或处理无效tab
-      }
-      for (auto &q : quests) {
-        if (rendered_count > MAX_DISPLAY_ITEMS)
-          break;
-        y = rendered_count * 20;
-        // render_quest(q, y);
-        // rendered_count++;
-      }
-    }
-    area_index++;
+  std::flat_map<int8_t, std::vector<game_quest>> quests;
+  switch (active_tab) {
+  case 0:
+    quests = quest_game_instance::load_ui_avaliable_quest();
+    break;
+  case 1:
+    break;
+  case 2:
+    break;
+  default:
+    return; // 或处理无效tab
   }
+  int i = 0;
+  for (const auto &[k, v] : quests) {
+    if (i >= MAX_DISPLAY_ITEMS)
+      break;
+    render_area_name(k, i * 20);
+    i++;
+    for (auto &q : v) {
+      if (i >= MAX_DISPLAY_ITEMS)
+        break;
+      render_quest(q, i * 20);
+      i++;
+    }
+  }
+  return;
 }
 
 static const SDL_FPoint detail_lt = {245, 0};
@@ -258,7 +292,13 @@ bool quest_ui_system::render() {
   return true;
 }
 
-SDL_FPoint quest_ui_system::load_wh() { return {247, 398}; }
+SDL_FPoint quest_ui_system::load_wh() {
+  if (detail) {
+    return {553, 398};
+  } else {
+    return {247, 398};
+  }
+}
 
 void quest_ui_system::open() {
   auto it =
@@ -295,7 +335,7 @@ void quest_ui_system::event_tab(SDL_Event *event) {
       if (active_tab == i) {
         return;
       }
-      area_fold = {};
+      disable_fold = {};
       quest = u"";
       return;
     }
@@ -356,6 +396,16 @@ bool quest_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
+void quest_ui_system::event_fold() {
+  if (fold.has_value()) {
+    if (disable_fold.contains(fold.value())) {
+      disable_fold.erase(fold.value());
+    } else {
+      disable_fold.insert(fold.value());
+    }
+  }
+}
+
 bool quest_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -372,6 +422,7 @@ bool quest_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        event_fold();
         event_tab(event);
       }
       event_drag_end();

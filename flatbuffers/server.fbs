@@ -178,3 +178,8 @@ table ServerCharacterLvUp {
 table ServerCreateMob {
     mobs:[Mob];
 }
+
+table ServerTrapAttack {
+    client_id:uint64;
+    payload:Attack;
+}
