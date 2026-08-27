@@ -286,7 +286,8 @@ void item_game_instance::unuse_buff_item(const std::u16string &id) {
   std::erase_if(buff, [id](const auto &buff) { return id == buff.id; });
 }
 
-void item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
+bool item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
+  bool r = false;
   unuse_buff_item(itm->id);
 
   auto id = itm->id;
@@ -296,40 +297,49 @@ void item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
   if (info->get_child(u"pad")) {
     auto pad = static_cast<wz::Property<int> *>(info->get_child(u"pad"))->get();
     character_stat_game_instance::itm_attack += pad;
+    r = true;
   }
   if (info->get_child(u"mad")) {
     auto mad = static_cast<wz::Property<int> *>(info->get_child(u"mad"))->get();
     character_stat_game_instance::itm_magic -= mad;
+    r = true;
   }
   if (info->get_child(u"acc")) {
     auto acc = static_cast<wz::Property<int> *>(info->get_child(u"acc"))->get();
     character_stat_game_instance::itm_accuracy -= acc;
+    r = true;
   }
   if (info->get_child(u"eva")) {
     auto eva = static_cast<wz::Property<int> *>(info->get_child(u"eva"))->get();
     character_stat_game_instance::itm_avoid -= eva;
+    r = true;
   }
   if (info->get_child(u"speed")) {
     auto speed =
         static_cast<wz::Property<int> *>(info->get_child(u"speed"))->get();
     character_logic_system::self_hspeed_max -= 5;
     character_logic_system::self_hspeed_min += 5;
+    r = true;
   }
   if (info->get_child(u"crt")) {
     auto crt = static_cast<wz::Property<int> *>(info->get_child(u"crt"))->get();
     character_stat_game_instance::crit_damage -= crt;
+    r = true;
   }
   if (info->get_child(u"morph")) {
     use_morph_item(id, character_game_instance::self);
+    r = true;
   }
   game_item_buff gib;
   gib.destroy = window::dt_now + time;
   gib.id = id;
 
   buff.emplace_back(gib);
+  return r;
 }
 
 bool item_game_instance::use_mob_item(std::polymorphic<game_item> &itm) {
+  bool r = false;
   if (character_logic_system::self_fh == 0) {
     return false;
   }
@@ -356,12 +366,14 @@ bool item_game_instance::use_mob_item(std::polymorphic<game_item> &itm) {
         ccm.mobs.push_back(std::make_unique<MobT>(mt));
       }
       client_request::send_to_host(ccm);
+      r = true;
     }
   }
-  return true;
+  return r;
 }
 
 bool item_game_instance::use_consume_item(const std::u16string &id) {
+  bool r = false;
   auto info = item_game_instance::load_item_info(id, 0);
   info = info->find(u"../spec");
   if (info == nullptr) {
@@ -373,6 +385,7 @@ bool item_game_instance::use_consume_item(const std::u16string &id) {
     character_stat_game_instance::hp_point =
         std::min(character_stat_game_instance::hp_point,
                  character_stat_game_instance::hp_point_max);
+    r = true;
   }
   if (info->get_child(u"hpR")) {
     auto hpR = static_cast<wz::Property<int> *>(info->get_child(u"hpR"))->get();
@@ -381,6 +394,7 @@ bool item_game_instance::use_consume_item(const std::u16string &id) {
     character_stat_game_instance::hp_point =
         std::min(character_stat_game_instance::hp_point,
                  character_stat_game_instance::hp_point_max);
+    r = true;
   }
   if (info->get_child(u"mp")) {
     auto mp = static_cast<wz::Property<int> *>(info->get_child(u"mp"))->get();
@@ -388,6 +402,7 @@ bool item_game_instance::use_consume_item(const std::u16string &id) {
     character_stat_game_instance::mp_point =
         std::min(character_stat_game_instance::mp_point,
                  character_stat_game_instance::mp_point_max);
+    r = true;
   }
   if (info->get_child(u"mpR")) {
     auto mpR = static_cast<wz::Property<int> *>(info->get_child(u"mpR"))->get();
@@ -396,22 +411,27 @@ bool item_game_instance::use_consume_item(const std::u16string &id) {
     character_stat_game_instance::mp_point =
         std::min(character_stat_game_instance::mp_point,
                  character_stat_game_instance::mp_point_max);
+    r = true;
   }
   if (info->get_child(u"moveTo")) {
     auto moveTo =
         static_cast<wz::Property<int> *>(info->get_child(u"moveTo"))->get();
     scene_system_instance::enter_prepare(moveTo, u"sp", 0);
+    r = true;
   }
   if (info->get_child(u"exp")) {
     auto exp = static_cast<wz::Property<int> *>(info->get_child(u"exp"))->get();
     character_stat_game_instance::exp_point += exp;
+    r = true;
   }
-  return true;
+  return r;
 }
 
 bool item_game_instance::use_consume_item(std::polymorphic<game_item> &itm) {
   bool r = false;
-  use_buff_item(itm);
+  if (use_buff_item(itm)) {
+    r = true;
+  }
   if (use_consume_item(itm->id)) {
     r = true;
   }

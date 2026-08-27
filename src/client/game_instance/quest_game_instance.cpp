@@ -152,6 +152,15 @@ int quest_game_instance::load_quest_index(const std::u16string &id) {
   return node->children_count() - 1;
 }
 
+int quest_game_instance::load_quest_progress(const std::u16string &id) {
+  for (auto&q : quests) {
+    if (id==q.quest_id) {
+      return q.index;
+    }
+  }
+  return 0;
+}
+
 std::u16string quest_game_instance::load_area_name(int area) {
   static std::flat_map<int, std::u16string> cache;
   if (!cache.contains(area)) {

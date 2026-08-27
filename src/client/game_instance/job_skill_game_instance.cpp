@@ -38,6 +38,9 @@ uint8_t job_skill_game_instance::load_ski_level(const std::u16string &id) {
 std::vector<job_type>
 job_skill_game_instance::load_ski_tree(const std::u16string &id) {
   std::vector<job_type> r = {job_type::BEGINNER};
+  if (id == u"0") {
+    return r;
+  }
   // 千位是职业群，冒险家默认是0，省略，百位是职业群
   auto ch = id[id.size() - 3];  // 倒数第3位
   auto ch2 = id[id.size() - 2]; // 倒数第2位

@@ -21,6 +21,8 @@ private:
   static void render_quest(game_quest &q, int y);
   static void render_vscr();
 
+  static void render_detail_text();
+
   static void event_fold();
   static void event_quest();
 

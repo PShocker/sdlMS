@@ -1,5 +1,6 @@
 #include "text_game_instance.h"
 #include "SDL3/SDL_stdinc.h"
+#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
@@ -93,8 +94,16 @@ std::u16string text_game_instance::replace_r(std::u16string text) {
       break;
     }
     case u't': {
-      // item
-      auto item_name = item_game_instance::load_item_text(num_str, u"name");
+      std::u16string item_name;
+      // item(equip)
+      if (num_str.length() < 8) {
+        num_str.insert(0, 8 - num_str.length(), u'0');
+      }
+      if (equip_game_instance::check_equip(num_str)) {
+        item_name = equip_game_instance::load_equip_name(num_str);
+      } else {
+        item_name = item_game_instance::load_item_text(num_str, u"name");
+      }
       replacement = item_name;
       break;
     }

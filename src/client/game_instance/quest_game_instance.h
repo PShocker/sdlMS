@@ -31,6 +31,8 @@ public:
   static std::u16string load_area_name(int area);
 
   static int load_quest_index(const std::u16string &id);
+  
+  static int load_quest_progress(const std::u16string &id);
 
   static wz::Node *load_quest_node(const std::u16string &id);
 

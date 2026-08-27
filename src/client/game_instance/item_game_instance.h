@@ -27,7 +27,7 @@ public:
 
   static void use_morph_item(const std::u16string &id, game_character &g);
   static bool use_mob_item(std::polymorphic<game_item> &itm);
-  static void use_buff_item(std::polymorphic<game_item> &itm);
+  static bool use_buff_item(std::polymorphic<game_item> &itm);
   static void unuse_buff_item(const std::u16string &id);
   static bool use_consume_item(const std::u16string &id);
   static bool use_consume_item(std::polymorphic<game_item> &itm);

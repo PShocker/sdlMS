@@ -147,6 +147,11 @@ uint32_t scroll_ui_system::click_vscroll(float x, float y, uint32_t val,
   if (SDL_PointInRectFloat(&mouse, &pos_rect)) {
     auto dy = mouse.y - pos_rect.y;
     float percent = (float)dy / pos_rect.h;
+    if (percent <= 0.02) {
+      percent = 0;
+    } else if (percent >= 0.98) {
+      percent = 1;
+    }
     val = std::round(percent * count);
     return val;
   }
