@@ -78,9 +78,6 @@ private:
 
   static void run_animate_chair(game_character &g_character);
 
-  static bool run_consume_item(game_character &g_character,
-                               std::polymorphic<game_item> itm);
-
 public:
   static inline ClientCharacterStateT ccs;
   static inline ClientCharacterPickT ccp;
@@ -92,8 +89,6 @@ public:
                             const std::u16string &id);
   static void run_unsit_chair(game_character &g_character);
 
-  static bool run_item(game_character &g_character,
-                       std::polymorphic<game_item> itm);
   static bool run_skill(game_character &g_character, const std::u16string &id);
 
   static check_mobs run_attack_check(game_character &g_character,

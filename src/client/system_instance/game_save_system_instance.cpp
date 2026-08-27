@@ -8,6 +8,7 @@
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
@@ -105,6 +106,15 @@ bool game_save_system_instance::load_save(const std::string &login) {
         cs.quests.push_back(g_quest);
       }
 
+      for (const auto &k : c->key) {
+        key_save ks;
+        ks.scan_code = k->scan_code;
+        ks.type = k->type;
+        ks.val = k->val;
+        ks.sub_val = k->sub_val;
+        cs.keys.push_back(ks);
+      }
+
       for (auto &i : c->sp) {
         cs.sp.ski_sp[i->id] = i->val;
       }
@@ -178,6 +188,15 @@ bool game_save_system_instance::save_game() {
 
     cs.quests = quest_game_instance::quests;
 
+    for (auto [k, v] : keyboard_game_instance::data) {
+      cs.keys.push_back({
+          .scan_code = static_cast<uint16_t>(k),
+          .type = v.type,
+          .val = v.val,
+          .sub_val = v.sub_val,
+      });
+    }
+
     for (auto &d : package_game_instance::data) {
       for (uint32_t i = 0; i < d.size(); ++i) {
         auto &v = d[i];
@@ -221,7 +240,7 @@ bool game_save_system_instance::save_game() {
     cst.mp = character_s.mp;
     cst.exp = character_s.exp;
 
-    for (auto quest : character_s.quests) {
+    for (auto &quest : character_s.quests) {
       QuestSaveT qt;
       qt.id = {quest.quest_id.begin(), quest.quest_id.end()};
       qt.index = quest.index, qt.complete = quest.complete;
@@ -237,6 +256,15 @@ bool game_save_system_instance::save_game() {
         qt.npc.push_back(std::make_unique<QuestNPCSaveT>(qnt));
       }
       cst.quest.push_back(std::make_unique<QuestSaveT>(qt));
+    }
+
+    for (auto &k : character_s.keys) {
+      KeyConfigSaveT kcs;
+      kcs.scan_code = k.scan_code;
+      kcs.type = k.type;
+      kcs.val = k.val;
+      kcs.sub_val = k.sub_val;
+      cst.key.push_back(std::make_unique<KeyConfigSaveT>(kcs));
     }
 
     for (auto [k, v] : character_s.sp.ski_sp) {

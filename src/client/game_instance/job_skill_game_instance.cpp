@@ -3,6 +3,7 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include <cstdint>
+#include <string>
 
 void job_skill_game_instance::load_passive_ski() {
   auto &self = character_game_instance::self;
@@ -166,4 +167,10 @@ wz::WzMap job_skill_game_instance::load_job_skis(job_type type) {
     }
   }
   return r;
+}
+
+std::vector<job_type> job_skill_game_instance::load_ski_tree(int i) {
+  auto tmp = std::to_string(i);
+  std::u16string id{tmp.begin(), tmp.end()};
+  return load_ski_tree(id);
 }

@@ -9,6 +9,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/character_render_system.h"
@@ -264,6 +265,7 @@ void character_choose_ui_system::event_button_select() {
       package_game_instance::load(cs);
       character_stat_game_instance::load(cs);
       job_skill_game_instance::load(cs);
+      keyboard_game_instance::load(cs);
     }
   }
   // init

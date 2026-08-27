@@ -131,6 +131,10 @@ struct QuestSave;
 struct QuestSaveBuilder;
 struct QuestSaveT;
 
+struct KeyConfigSave;
+struct KeyConfigSaveBuilder;
+struct KeyConfigSaveT;
+
 struct CharacterSave;
 struct CharacterSaveBuilder;
 struct CharacterSaveT;
@@ -3414,6 +3418,124 @@ inline ::flatbuffers::Offset<QuestSave> CreateQuestSaveDirect(
 
 ::flatbuffers::Offset<QuestSave> CreateQuestSave(::flatbuffers::FlatBufferBuilder &_fbb, const QuestSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct KeyConfigSaveT : public ::flatbuffers::NativeTable {
+  typedef KeyConfigSave TableType;
+  uint16_t scan_code = 0;
+  std::string type{};
+  std::string val{};
+  std::string sub_val{};
+};
+
+struct KeyConfigSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef KeyConfigSaveT NativeTableType;
+  typedef KeyConfigSaveBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_SCAN_CODE = 4,
+    VT_TYPE = 6,
+    VT_VAL = 8,
+    VT_SUB_VAL = 10
+  };
+  uint16_t scan_code() const {
+    return GetField<uint16_t>(VT_SCAN_CODE, 0);
+  }
+  bool mutate_scan_code(uint16_t _scan_code = 0) {
+    return SetField<uint16_t>(VT_SCAN_CODE, _scan_code, 0);
+  }
+  const ::flatbuffers::String *type() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_TYPE);
+  }
+  ::flatbuffers::String *mutable_type() {
+    return GetPointer<::flatbuffers::String *>(VT_TYPE);
+  }
+  const ::flatbuffers::String *val() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_VAL);
+  }
+  ::flatbuffers::String *mutable_val() {
+    return GetPointer<::flatbuffers::String *>(VT_VAL);
+  }
+  const ::flatbuffers::String *sub_val() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_SUB_VAL);
+  }
+  ::flatbuffers::String *mutable_sub_val() {
+    return GetPointer<::flatbuffers::String *>(VT_SUB_VAL);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint16_t>(verifier, VT_SCAN_CODE, 2) &&
+           VerifyOffset(verifier, VT_TYPE) &&
+           verifier.VerifyString(type()) &&
+           VerifyOffset(verifier, VT_VAL) &&
+           verifier.VerifyString(val()) &&
+           VerifyOffset(verifier, VT_SUB_VAL) &&
+           verifier.VerifyString(sub_val()) &&
+           verifier.EndTable();
+  }
+  KeyConfigSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(KeyConfigSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<KeyConfigSave> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const KeyConfigSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct KeyConfigSaveBuilder {
+  typedef KeyConfigSave Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_scan_code(uint16_t scan_code) {
+    fbb_.AddElement<uint16_t>(KeyConfigSave::VT_SCAN_CODE, scan_code, 0);
+  }
+  void add_type(::flatbuffers::Offset<::flatbuffers::String> type) {
+    fbb_.AddOffset(KeyConfigSave::VT_TYPE, type);
+  }
+  void add_val(::flatbuffers::Offset<::flatbuffers::String> val) {
+    fbb_.AddOffset(KeyConfigSave::VT_VAL, val);
+  }
+  void add_sub_val(::flatbuffers::Offset<::flatbuffers::String> sub_val) {
+    fbb_.AddOffset(KeyConfigSave::VT_SUB_VAL, sub_val);
+  }
+  explicit KeyConfigSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<KeyConfigSave> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<KeyConfigSave>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<KeyConfigSave> CreateKeyConfigSave(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint16_t scan_code = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> type = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> val = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> sub_val = 0) {
+  KeyConfigSaveBuilder builder_(_fbb);
+  builder_.add_sub_val(sub_val);
+  builder_.add_val(val);
+  builder_.add_type(type);
+  builder_.add_scan_code(scan_code);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<KeyConfigSave> CreateKeyConfigSaveDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint16_t scan_code = 0,
+    const char *type = nullptr,
+    const char *val = nullptr,
+    const char *sub_val = nullptr) {
+  auto type__ = type ? _fbb.CreateString(type) : 0;
+  auto val__ = val ? _fbb.CreateString(val) : 0;
+  auto sub_val__ = sub_val ? _fbb.CreateString(sub_val) : 0;
+  return fbs::CreateKeyConfigSave(
+      _fbb,
+      scan_code,
+      type__,
+      val__,
+      sub_val__);
+}
+
+::flatbuffers::Offset<KeyConfigSave> CreateKeyConfigSave(::flatbuffers::FlatBufferBuilder &_fbb, const KeyConfigSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct CharacterSaveT : public ::flatbuffers::NativeTable {
   typedef CharacterSave TableType;
   std::unique_ptr<fbs::CharacterT> character{};
@@ -3429,6 +3551,7 @@ struct CharacterSaveT : public ::flatbuffers::NativeTable {
   uint32_t mp = 0;
   uint64_t exp = 0;
   std::vector<std::unique_ptr<fbs::QuestSaveT>> quest{};
+  std::vector<std::unique_ptr<fbs::KeyConfigSaveT>> key{};
   CharacterSaveT() = default;
   CharacterSaveT(const CharacterSaveT &o);
   CharacterSaveT(CharacterSaveT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -3451,7 +3574,8 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_HP = 22,
     VT_MP = 24,
     VT_EXP = 26,
-    VT_QUEST = 28
+    VT_QUEST = 28,
+    VT_KEY = 30
   };
   const fbs::Character *character() const {
     return GetPointer<const fbs::Character *>(VT_CHARACTER);
@@ -3531,6 +3655,12 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestSave>> *mutable_quest() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestSave>> *>(VT_QUEST);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::KeyConfigSave>> *key() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::KeyConfigSave>> *>(VT_KEY);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::KeyConfigSave>> *mutable_key() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::KeyConfigSave>> *>(VT_KEY);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -3556,6 +3686,9 @@ struct CharacterSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_QUEST) &&
            verifier.VerifyVector(quest()) &&
            verifier.VerifyVectorOfTables(quest()) &&
+           VerifyOffset(verifier, VT_KEY) &&
+           verifier.VerifyVector(key()) &&
+           verifier.VerifyVectorOfTables(key()) &&
            verifier.EndTable();
   }
   CharacterSaveT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -3606,6 +3739,9 @@ struct CharacterSaveBuilder {
   void add_quest(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestSave>>> quest) {
     fbb_.AddOffset(CharacterSave::VT_QUEST, quest);
   }
+  void add_key(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::KeyConfigSave>>> key) {
+    fbb_.AddOffset(CharacterSave::VT_KEY, key);
+  }
   explicit CharacterSaveBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -3631,10 +3767,12 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(
     uint32_t hp = 0,
     uint32_t mp = 0,
     uint64_t exp = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestSave>>> quest = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestSave>>> quest = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::KeyConfigSave>>> key = 0) {
   CharacterSaveBuilder builder_(_fbb);
   builder_.add_exp(exp);
   builder_.add_meso(meso);
+  builder_.add_key(key);
   builder_.add_quest(quest);
   builder_.add_mp(mp);
   builder_.add_hp(hp);
@@ -3663,11 +3801,13 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
     uint32_t hp = 0,
     uint32_t mp = 0,
     uint64_t exp = 0,
-    const std::vector<::flatbuffers::Offset<fbs::QuestSave>> *quest = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::QuestSave>> *quest = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::KeyConfigSave>> *key = nullptr) {
   auto sp__ = sp ? _fbb.CreateVector<::flatbuffers::Offset<fbs::SPSave>>(*sp) : 0;
   auto remain_sp__ = remain_sp ? _fbb.CreateVector<uint32_t>(*remain_sp) : 0;
   auto package__ = package ? _fbb.CreateVector<::flatbuffers::Offset<fbs::PackageSave>>(*package) : 0;
   auto quest__ = quest ? _fbb.CreateVector<::flatbuffers::Offset<fbs::QuestSave>>(*quest) : 0;
+  auto key__ = key ? _fbb.CreateVector<::flatbuffers::Offset<fbs::KeyConfigSave>>(*key) : 0;
   return fbs::CreateCharacterSave(
       _fbb,
       character,
@@ -3682,7 +3822,8 @@ inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSaveDirect(
       hp,
       mp,
       exp,
-      quest__);
+      quest__,
+      key__);
 }
 
 ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -4994,6 +5135,41 @@ inline ::flatbuffers::Offset<QuestSave> QuestSave::Pack(::flatbuffers::FlatBuffe
       _npc);
 }
 
+inline KeyConfigSaveT *KeyConfigSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<KeyConfigSaveT>(new KeyConfigSaveT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void KeyConfigSave::UnPackTo(KeyConfigSaveT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = scan_code(); _o->scan_code = _e; }
+  { auto _e = type(); if (_e) _o->type = _e->str(); }
+  { auto _e = val(); if (_e) _o->val = _e->str(); }
+  { auto _e = sub_val(); if (_e) _o->sub_val = _e->str(); }
+}
+
+inline ::flatbuffers::Offset<KeyConfigSave> CreateKeyConfigSave(::flatbuffers::FlatBufferBuilder &_fbb, const KeyConfigSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return KeyConfigSave::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<KeyConfigSave> KeyConfigSave::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const KeyConfigSaveT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const KeyConfigSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _scan_code = _o->scan_code;
+  auto _type = _o->type.empty() ? 0 : _fbb.CreateString(_o->type);
+  auto _val = _o->val.empty() ? 0 : _fbb.CreateString(_o->val);
+  auto _sub_val = _o->sub_val.empty() ? 0 : _fbb.CreateString(_o->sub_val);
+  return fbs::CreateKeyConfigSave(
+      _fbb,
+      _scan_code,
+      _type,
+      _val,
+      _sub_val);
+}
+
 inline CharacterSaveT::CharacterSaveT(const CharacterSaveT &o)
       : character((o.character) ? new fbs::CharacterT(*o.character) : nullptr),
         ap((o.ap) ? new fbs::APSaveT(*o.ap) : nullptr),
@@ -5011,6 +5187,8 @@ inline CharacterSaveT::CharacterSaveT(const CharacterSaveT &o)
   for (const auto &package_ : o.package) { package.emplace_back((package_) ? new fbs::PackageSaveT(*package_) : nullptr); }
   quest.reserve(o.quest.size());
   for (const auto &quest_ : o.quest) { quest.emplace_back((quest_) ? new fbs::QuestSaveT(*quest_) : nullptr); }
+  key.reserve(o.key.size());
+  for (const auto &key_ : o.key) { key.emplace_back((key_) ? new fbs::KeyConfigSaveT(*key_) : nullptr); }
 }
 
 inline CharacterSaveT &CharacterSaveT::operator=(CharacterSaveT o) FLATBUFFERS_NOEXCEPT {
@@ -5027,6 +5205,7 @@ inline CharacterSaveT &CharacterSaveT::operator=(CharacterSaveT o) FLATBUFFERS_N
   std::swap(mp, o.mp);
   std::swap(exp, o.exp);
   std::swap(quest, o.quest);
+  std::swap(key, o.key);
   return *this;
 }
 
@@ -5052,6 +5231,7 @@ inline void CharacterSave::UnPackTo(CharacterSaveT *_o, const ::flatbuffers::res
   { auto _e = mp(); _o->mp = _e; }
   { auto _e = exp(); _o->exp = _e; }
   { auto _e = quest(); if (_e) { _o->quest.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->quest[_i]) { _e->Get(_i)->UnPackTo(_o->quest[_i].get(), _resolver); } else { _o->quest[_i] = std::unique_ptr<fbs::QuestSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->quest.resize(0); } }
+  { auto _e = key(); if (_e) { _o->key.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->key[_i]) { _e->Get(_i)->UnPackTo(_o->key[_i].get(), _resolver); } else { _o->key[_i] = std::unique_ptr<fbs::KeyConfigSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->key.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<CharacterSave> CreateCharacterSave(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterSaveT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5075,6 +5255,7 @@ inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::F
   auto _mp = _o->mp;
   auto _exp = _o->exp;
   auto _quest = _o->quest.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::QuestSave>> (_o->quest.size(), [](size_t i, _VectorArgs *__va) { return CreateQuestSave(*__va->__fbb, __va->__o->quest[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _key = _o->key.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::KeyConfigSave>> (_o->key.size(), [](size_t i, _VectorArgs *__va) { return CreateKeyConfigSave(*__va->__fbb, __va->__o->key[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateCharacterSave(
       _fbb,
       _character,
@@ -5089,7 +5270,8 @@ inline ::flatbuffers::Offset<CharacterSave> CharacterSave::Pack(::flatbuffers::F
       _hp,
       _mp,
       _exp,
-      _quest);
+      _quest,
+      _key);
 }
 
 inline PlayerSaveT::PlayerSaveT(const PlayerSaveT &o)

@@ -26,6 +26,13 @@ struct package_save {
   std::polymorphic<game_item> val;
 };
 
+struct key_save {
+  uint16_t scan_code;
+  std::string type;
+  std::string val;
+  std::string sub_val;
+};
+
 struct character_save {
   game_character character;
   ap_save ap;
@@ -40,6 +47,7 @@ struct character_save {
   uint64_t exp;
 
   std::vector<game_quest> quests;
+  std::vector<key_save> keys;
 };
 
 class game_save {

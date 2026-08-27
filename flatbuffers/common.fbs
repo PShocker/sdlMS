@@ -235,6 +235,13 @@ table QuestSave{
    npc:[QuestNPCSave];
 }
 
+table KeyConfigSave{
+    scan_code:uint16;
+    type:string;
+    val:string;
+    sub_val:string;
+}
+
 table CharacterSave{
     character:Character;
     ap:APSave;
@@ -249,6 +256,7 @@ table CharacterSave{
     mp:uint32;
     exp:uint64;
     quest:[QuestSave];
+    key:[KeyConfigSave];
 }
 
 table PlayerSave{

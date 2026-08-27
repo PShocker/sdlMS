@@ -32,6 +32,7 @@ public:
 
   static uint8_t load_ski_level(const std::u16string &id);
   static std::vector<job_type> load_ski_tree(const std::u16string &id);
+  static std::vector<job_type> load_ski_tree(int i);
   static std::u16string load_job_id(job_type type);
   static wz::WzMap load_job_skis(job_type type);
 

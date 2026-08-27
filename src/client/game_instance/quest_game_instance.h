@@ -5,7 +5,6 @@
 #include "wz/Node.h"
 #include <cstdint>
 #include <flat_map>
-#include <optional>
 #include <string>
 #include <vector>
 

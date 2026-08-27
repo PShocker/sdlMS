@@ -7,7 +7,6 @@
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
-#include "src/client/game_instance/item_buff_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -117,12 +116,12 @@ void buff_ui_system::render_ui() {
     render_ui(skill_game_instance::ski[i], x, y);
   }
   auto ski_size = skill_game_instance::ski.size();
-  for (uint32_t i = 0; i < item_buff_game_instance::data.size(); i++) {
+  for (uint32_t i = 0; i < item_game_instance::buff.size(); i++) {
     auto col = (i + ski_size) % 5;
     auto row = (i + ski_size) / 5;
     auto x = camera.w - 32 - col * 32;
     auto y = row * 32;
-    render_ui(item_buff_game_instance::data[i], x, y);
+    render_ui(item_game_instance::buff[i], x, y);
   }
 }
 
@@ -151,7 +150,7 @@ bool buff_ui_system::event(SDL_Event *event) {
           mouse_ski->end();
         }
         if (mouse_item.has_value()) {
-          item_buff_game_instance::end(mouse_item->id);
+          item_game_instance::unuse_buff_item(mouse_item->id);
         }
       }
     }

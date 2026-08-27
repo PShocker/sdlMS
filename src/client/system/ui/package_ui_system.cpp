@@ -565,9 +565,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       } else {
         // 使用道具
         auto &itm = r.at(index.value());
-        if (character_logic_system::run_item(sf, itm)) {
-          item_game_instance::dec_item_num(itm, 1);
-        }
+        item_game_instance::use_item(itm);
       }
       cursor_game_instance::cursor_hand = std::nullopt;
       break;

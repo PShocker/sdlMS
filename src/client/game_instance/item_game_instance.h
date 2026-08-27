@@ -1,12 +1,16 @@
 #pragma once
 
+#include "src/client/game/game_character.h"
 #include "src/client/game/game_item.h"
+#include "src/client/game/game_item_buff.h"
 #include "wz/Node.h"
 #include <cstdint>
 #include <memory>
 #include <string>
 class item_game_instance {
 public:
+  static inline std::vector<game_item_buff> buff;
+
   static bool check_item(const std::u16string &id);
 
   static std::u16string load_item_text(const std::u16string &id,
@@ -20,4 +24,12 @@ public:
   static void add_item_num(std::polymorphic<game_item> &item, int num);
   static void dec_item_num(std::polymorphic<game_item> &item, int num);
   static void set_item_num(std::polymorphic<game_item> &itm, int num);
+
+  static void use_morph_item(const std::u16string &id, game_character &g);
+  static bool use_mob_item(std::polymorphic<game_item> &itm);
+  static void use_buff_item(std::polymorphic<game_item> &itm);
+  static void unuse_buff_item(const std::u16string &id);
+  static bool use_consume_item(const std::u16string &id);
+  static bool use_consume_item(std::polymorphic<game_item> &itm);
+  static void use_item(std::polymorphic<game_item> &itm);
 };

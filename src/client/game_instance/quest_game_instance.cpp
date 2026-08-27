@@ -1,6 +1,7 @@
 #include "quest_game_instance.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
@@ -69,6 +70,26 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
     return std::find_if(p.begin(), p.end(), [&](const game_quest &other) {
              return quest.quest_id == other.quest_id;
            }) != p.end();
+  });
+  //  job filter
+  auto sf_job = self.job;
+  auto sf_job_tree = job_skill_game_instance::load_ski_tree(sf_job);
+  std::erase_if(q, [sf_job_tree](const game_quest &quest) {
+    auto node = load_quest_node(quest.quest_id);
+    if (!node->find(u"Check/0/job")) {
+      return false;
+    } else {
+      node = node->find(u"Check/0/job");
+      for (auto [k, v] : *node->get_children()) {
+        auto job = static_cast<wz::Property<int> *>(v[0])->get();
+        auto job_tree = job_skill_game_instance::load_ski_tree(job);
+        bool result = std::ranges::contains_subrange(sf_job_tree, job_tree);
+        if (result) {
+          return false;
+        }
+      }
+    }
+    return true;
   });
   return q;
 }

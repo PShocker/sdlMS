@@ -152,6 +152,12 @@ bool cursor_logic_system::run_default() {
       return true;
     }
   }
+  if (cursor_game_instance::cursor_ui == quest_ui_system::render) {
+    if (run_vscroll_motion()) {
+      run_cursor_action(u"9");
+      return true;
+    }
+  }
   if (window::mouse_state & SDL_BUTTON_LMASK) {
     run_cursor_action(u"12");
   } else {

@@ -10,7 +10,6 @@
 #include "src/client/game_instance/chat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
-#include "src/client/game_instance/item_buff_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
@@ -588,7 +587,7 @@ CharacterT server_character_instance::load_charactert(const game_character &g) {
     }
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
-  
+
   auto decos = equip_game_instance::load_decos(g);
   for (const auto &de : decos) {
     DecoT dt;
@@ -683,7 +682,7 @@ void server_character_instance::handle_buff_item(game_character &g_character,
     }
   } else if (item_type == u"Consume") {
     if (itm_id.starts_with(u"0221")) {
-      item_buff_game_instance::use_morph(itm_id, g_character);
+      item_game_instance::use_morph_item(itm_id, g_character);
     }
   }
   return;

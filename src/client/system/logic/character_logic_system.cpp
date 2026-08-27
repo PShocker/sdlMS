@@ -10,7 +10,6 @@
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
-#include "src/client/game_instance/item_buff_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
@@ -1541,118 +1540,6 @@ void character_logic_system::run_unsit_chair(game_character &g_character) {
   return;
 }
 
-bool character_logic_system::run_consume_item(game_character &g_character,
-                                              std::polymorphic<game_item> itm) {
-  auto info = item_game_instance::load_item_info(itm->id, 0);
-  info = info->find(u"../spec");
-  if (info) {
-    if (info->get_child(u"time")) {
-      item_buff_game_instance::use(itm->id);
-    }
-    if (info->get_child(u"hp")) {
-      auto hp = static_cast<wz::Property<int> *>(info->get_child(u"hp"))->get();
-      character_stat_game_instance::hp_point += hp;
-      character_stat_game_instance::hp_point =
-          std::min(character_stat_game_instance::hp_point,
-                   character_stat_game_instance::hp_point_max);
-    }
-    if (info->get_child(u"hpR")) {
-      auto hpR =
-          static_cast<wz::Property<int> *>(info->get_child(u"hpR"))->get();
-      character_stat_game_instance::hp_point +=
-          hpR * character_stat_game_instance::hp_point_max;
-      character_stat_game_instance::hp_point =
-          std::min(character_stat_game_instance::hp_point,
-                   character_stat_game_instance::hp_point_max);
-    }
-    if (info->get_child(u"mp")) {
-      auto mp = static_cast<wz::Property<int> *>(info->get_child(u"mp"))->get();
-      character_stat_game_instance::mp_point += mp;
-      character_stat_game_instance::mp_point =
-          std::min(character_stat_game_instance::mp_point,
-                   character_stat_game_instance::mp_point_max);
-    }
-    if (info->get_child(u"mpR")) {
-      auto mpR =
-          static_cast<wz::Property<int> *>(info->get_child(u"mpR"))->get();
-      character_stat_game_instance::mp_point +=
-          mpR * character_stat_game_instance::mp_point_max;
-      character_stat_game_instance::mp_point =
-          std::min(character_stat_game_instance::mp_point,
-                   character_stat_game_instance::mp_point_max);
-    }
-    if (info->get_child(u"moveTo")) {
-      auto moveTo =
-          static_cast<wz::Property<int> *>(info->get_child(u"moveTo"))->get();
-      scene_system_instance::enter_prepare(moveTo, u"sp", 0);
-    }
-    if (info->get_child(u"exp")) {
-      auto exp =
-          static_cast<wz::Property<int> *>(info->get_child(u"exp"))->get();
-      character_stat_game_instance::exp_point += exp;
-    }
-    return true;
-  }
-  info = item_game_instance::load_item_info(itm->id, 0);
-  info = info->find(u"../mob");
-  if (info) {
-    if (self_fh == 0) {
-      return false;
-    }
-    for (auto [k, v] : *info->get_children()) {
-      auto mob_id =
-          static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
-      auto mob_num = 1;
-      ClientCreateMobT ccm;
-      ccm.map_id = scene_system_instance::map_id;
-      for (int i = 0; i < mob_num; i++) {
-        MobT mt;
-        mt.mob_id = mob_id;
-        LifeStateT ls;
-        ls.x = g_character.pos.x;
-        ls.y = g_character.pos.y;
-        ls.page = g_character.page;
-        ls.fh = self_fh;
-        ls.action_animate = true;
-        mt.state = std::make_unique<LifeStateT>(ls);
-        ccm.mobs.push_back(std::make_unique<MobT>(mt));
-      }
-      client_request::send_to_host(ccm);
-    }
-  }
-  return false;
-}
-
-bool character_logic_system::run_item(game_character &g_character,
-                                      std::polymorphic<game_item> itm) {
-  auto item_type = item_game_instance::load_item_type(itm->id);
-  if (item_type == u"Install") {
-    if (itm->id.starts_with(u"0301") && self_sit_cooldown < window::dt_now) {
-      if (!g_character.morph.empty()) {
-        return false;
-      }
-      auto action_type = load_action_type(g_character);
-      switch (action_type) {
-      case action_enum::stand: {
-        run_sit_chair(g_character, itm->id);
-        break;
-      }
-      case action_enum::sit: {
-        run_unsit_chair(g_character);
-        break;
-      }
-      default: {
-        break;
-      }
-      }
-      return false;
-    }
-  } else if (item_type == u"Consume") {
-    run_consume_item(g_character, itm);
-  }
-  return false;
-}
-
 void character_logic_system::run_item(game_character &g_character) {
   if (!character_item_input.empty()) {
     for (const auto &input : character_item_input) {
@@ -1662,9 +1549,7 @@ void character_logic_system::run_item(game_character &g_character) {
       if (itm == nullptr) {
         return;
       }
-      if (run_item(g_character, *itm)) {
-        item_game_instance::dec_item_num(*itm, 1);
-      }
+      item_game_instance::use_item(*itm);
     }
   }
   return;

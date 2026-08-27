@@ -33,3 +33,14 @@ void keyboard_game_instance::reset() {
 }
 
 void keyboard_game_instance::load() { reset(); }
+
+void keyboard_game_instance::load(const character_save &cs) {
+  data = {};
+  for (auto &k : cs.keys) {
+    data[(SDL_Scancode)k.scan_code] = {
+        .type = k.type,
+        .val = k.val,
+        .sub_val = k.sub_val,
+    };
+  }
+}
