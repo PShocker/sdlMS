@@ -105,7 +105,7 @@ void npc_dlg_ui_system::render_button() {
     break;
   }
   case npc_dlg_enum::quest: {
-    if (index == max_index) {
+    if (index == max_index && cb == nullptr) {
       buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtOK"));
       buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
 
@@ -315,6 +315,8 @@ void npc_dlg_ui_system::event_button_prev() {
   index--;
   if (cb) {
     cb();
+  } else if (!script_id.empty()) {
+    script::fns().at(script_id)(nullptr);
   } else if (!quest_id.empty()) {
     auto node = quest_game_instance::load_quest_node(quest_id);
     node = node->find(u"Say/" + quest_index);
@@ -329,6 +331,8 @@ void npc_dlg_ui_system::event_button_next() {
   index++;
   if (cb) {
     cb();
+  } else if (!script_id.empty()) {
+    script::fns().at(script_id)(nullptr);
   } else if (!quest_id.empty()) {
     auto node = quest_game_instance::load_quest_node(quest_id);
     node = node->find(u"Say/" + quest_index);
@@ -349,10 +353,12 @@ void npc_dlg_ui_system::event_quest_list() {
     return;
   }
   quest_id = selected;
+  script_id = u"";
   auto node = quest_game_instance::load_quest_node(selected);
   if (auto n = node->find(u"Check/0/startscript"); n != nullptr) {
     auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
     script::fns().at(spt)(nullptr);
+    script_id = spt;
     return;
   }
   index++;
@@ -373,9 +379,9 @@ void npc_dlg_ui_system::event_quest_list() {
 }
 
 void npc_dlg_ui_system::event_button_quest_yes() {
-  if (cb) {
-    index = 0;
-    cb();
+  if (!script_id.empty()) {
+    index = -1;
+    script::fns().at(script_id)(nullptr);
     return;
   }
   // accept quest
@@ -434,7 +440,7 @@ bool npc_dlg_ui_system::event_button(SDL_Event *event) {
     break;
   }
   case npc_dlg_enum::quest: {
-    if (index == max_index) {
+    if (index == max_index && cb == nullptr) {
       buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
       func.push_back(event_button_quest_yes);
 

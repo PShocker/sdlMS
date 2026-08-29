@@ -12,9 +12,8 @@
 
 static void state() {
   switch (npc_dlg_ui_system::index) {
-  case 0: {
+  case -1: {
     npc_dlg_ui_system::close();
-
     game_consume_item con;
     con.num = 1;
     con.id = u"02010000";
@@ -42,12 +41,13 @@ static void state() {
 }
 
 static void q1002s(std::any data) {
-  npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
-  npc_dlg_ui_system::index = 1;
-  npc_dlg_ui_system::max_index = 1;
-  npc_dlg_ui_system::npc_id = u"0000003";
+  if (npc_dlg_ui_system::index == 0) {
+    npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
+    npc_dlg_ui_system::index = 1;
+    npc_dlg_ui_system::max_index = 1;
+    npc_dlg_ui_system::npc_id = u"0000003";
+  }
   state();
-  npc_dlg_ui_system::cb = state;
   return;
 };
 

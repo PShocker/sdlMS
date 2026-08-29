@@ -48,8 +48,10 @@ public:
   static inline std::u16string text;
   static inline std::u16string quest_id;
   static inline std::u16string quest_index;
-  static inline uint8_t index;
-  static inline uint8_t max_index;
+  static inline std::u16string script_id;
+
+  static inline int8_t index;
+  static inline int8_t max_index;
 
   enum class npc_dlg_enum {
     choose,
