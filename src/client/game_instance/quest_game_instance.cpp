@@ -52,12 +52,9 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
         lvl = static_cast<wz::Property<int> *>(lv)->get();
       }
       if (self.level >= lvl) {
-        auto ar = node->find(k + u"/QuestInfo/area");
-        int8_t area = static_cast<wz::Property<int> *>(ar)->get();
         game_quest quest{
             .quest_id = k,
             .index = 0,
-            .area = area,
         };
         q.push_back(quest);
       }
@@ -72,9 +69,9 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
            }) != p.end();
   });
   //  job filter
-  auto sf_job = self.job;
-  auto sf_job_tree = job_skill_game_instance::load_ski_tree(sf_job);
-  std::erase_if(q, [sf_job_tree](const game_quest &quest) {
+  auto sf_job = std::stoi(std::string{self.job.begin(), self.job.end()});
+
+  std::erase_if(q, [sf_job](const game_quest &quest) {
     auto node = load_quest_node(quest.quest_id);
     if (!node->find(u"Check/0/job")) {
       return false;
@@ -82,8 +79,7 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
       node = node->find(u"Check/0/job");
       for (auto [k, v] : *node->get_children()) {
         auto job = static_cast<wz::Property<int> *>(v[0])->get();
-        auto job_tree = job_skill_game_instance::load_ski_tree(job);
-        bool result = std::ranges::contains_subrange(sf_job_tree, job_tree);
+        bool result = sf_job == job;
         if (result) {
           return false;
         }
@@ -94,20 +90,28 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
   return q;
 }
 
+int quest_game_instance::load_quest_area(const std::u16string &id) {
+  auto node = load_quest_node(id);
+  auto ar = node->find(u"QuestInfo/area");
+  auto area = static_cast<wz::Property<int> *>(ar)->get();
+  return area;
+}
+
 std::flat_map<int8_t, std::vector<game_quest>>
 quest_game_instance::load_ui_avaliable_quest() {
   std::flat_map<int8_t, std::vector<game_quest>> r;
   auto quests = load_avaliable_quest();
   std::vector<game_quest> q;
   for (auto &quest : quests) {
-    r[quest.area].push_back(quest);
+    auto area = load_quest_area(quest.quest_id);
+    r[area].push_back(quest);
   }
   return r;
 }
 
 std::vector<game_quest> quest_game_instance::load_progress_quest() {
-  auto q = quests;
-  for (const auto &v : q) {
+  std::vector<game_quest> q;
+  for (const auto &v : quests) {
     if (!v.complete) {
       q.push_back(v);
     }
@@ -121,14 +125,15 @@ quest_game_instance::load_ui_progress_quest() {
   auto quests = load_progress_quest();
   std::vector<game_quest> q;
   for (auto &quest : quests) {
-    r[quest.area].push_back(quest);
+    auto area = load_quest_area(quest.quest_id);
+    r[area].push_back(quest);
   }
   return r;
 }
 
 std::vector<game_quest> quest_game_instance::load_complete_quest() {
-  auto q = quests;
-  for (const auto &v : q) {
+  std::vector<game_quest> q;
+  for (const auto &v : quests) {
     if (v.complete) {
       q.push_back(v);
     }
@@ -142,7 +147,8 @@ quest_game_instance::load_ui_complete_quest() {
   auto quests = load_complete_quest();
   std::vector<game_quest> q;
   for (auto &quest : quests) {
-    r[quest.area].push_back(quest);
+    auto area = load_quest_area(quest.quest_id);
+    r[area].push_back(quest);
   }
   return r;
 }
@@ -153,8 +159,8 @@ int quest_game_instance::load_quest_index(const std::u16string &id) {
 }
 
 int quest_game_instance::load_quest_progress(const std::u16string &id) {
-  for (auto&q : quests) {
-    if (id==q.quest_id) {
+  for (auto &q : quests) {
+    if (id == q.quest_id) {
       return q.index;
     }
   }
@@ -184,4 +190,11 @@ std::u16string quest_game_instance::load_area_name(int area) {
 wz::Node *quest_game_instance::load_quest_node(const std::u16string &id) {
   auto node = wz_resource::quest->find(u"QuestData/" + id);
   return node;
+}
+
+void quest_game_instance::load(const character_save &cs) {
+  game_quest q;
+  q.quest_id = u"1000.img";
+  q.index = 0;
+  quests.push_back(q);
 }

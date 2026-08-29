@@ -2,6 +2,8 @@
 #include "foothold_game_instance.h"
 #include "quest_game_instance.h"
 #include "shop_game_instance.h"
+#include "src/client/game/game_quest.h"
+#include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "text_game_instance.h"
@@ -9,6 +11,7 @@
 #include "wz/Property.h"
 #include <array>
 #include <flat_map>
+#include <flat_set>
 #include <optional>
 #include <ranges>
 #include <string>
@@ -63,21 +66,19 @@ SDL_FRect npc_game_instance::load_rect(const game_npc &g_npc) {
 }
 
 wz::Node *npc_game_instance::load_quest_node(const game_npc &g_npc) {
-  auto quests = quest_game_instance::load_npc_quest(g_npc.id);
-  if (quests.empty()) {
+  wz::Node *node = nullptr;
+  auto avaliable = npc_game_instance::load_avaliable_quest(g_npc);
+  auto progress = npc_game_instance::load_progress_quest(g_npc);
+  if (!avaliable.empty()) {
+    node = wz_resource::ui->find(u"QuestIcon.img/0");
+  } else if (!progress.empty()) {
+    node = wz_resource::ui->find(u"QuestIcon.img/1");
+  } else {
     return nullptr;
   }
   // 直接用当前时间控制灯泡时间
   auto now = window::dt_now;
   const int delay = 150;
-  wz::Node *node = nullptr;
-  for (auto &v : quests) {
-    auto index = quest_game_instance::load_quest_index(v.quest_id);
-    if (v.index == index) {
-    }
-  }
-
-  node = wz_resource::ui->find(u"QuestIcon.img/0");
   auto index = std::to_string((now % (node->children_count() * delay)) / delay);
   node = node->get_child(index);
   return node;
@@ -85,9 +86,8 @@ wz::Node *npc_game_instance::load_quest_node(const game_npc &g_npc) {
 
 std::optional<SDL_FRect>
 npc_game_instance::load_quest_rect(const game_npc &g_npc) {
-  auto quests = quest_game_instance::load_npc_quest(g_npc.id);
-  if (!quests.empty()) {
-    auto node = load_quest_node(g_npc);
+  auto node = load_quest_node(g_npc);
+  if (node != nullptr) {
     auto npc_rect = npc_game_instance::load_rect(g_npc);
     auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
     auto texture = wz_resource::load_texture(node);
@@ -158,4 +158,38 @@ npc_game_instance::load_npc_type(const std::u16string &id) {
     return npc_type::quest;
   }
   return npc_type::none;
+}
+
+std::vector<std::u16string>
+npc_game_instance::load_avaliable_quest(const game_npc &n) {
+  auto quests = quest_game_instance::load_npc_quest(n.id);
+  auto avaliable_quests = quest_game_instance::load_avaliable_quest();
+
+  std::ranges::sort(quests, {}, &game_quest::quest_id);
+  std::ranges::sort(avaliable_quests, {}, &game_quest::quest_id);
+
+  // 直接在视图上操作，避免创建临时vector
+  std::vector<std::u16string> result;
+  auto q1 = quests | std::views::transform(&game_quest::quest_id);
+  auto q2 = avaliable_quests | std::views::transform(&game_quest::quest_id);
+  std::ranges::set_intersection(q1, q2, std::back_inserter(result));
+
+  return result;
+}
+
+std::vector<std::u16string>
+npc_game_instance::load_progress_quest(const game_npc &n) {
+  auto quests = quest_game_instance::load_npc_quest(n.id);
+  auto progress_quests = quest_game_instance::load_progress_quest();
+
+  std::ranges::sort(quests, {}, &game_quest::quest_id);
+  std::ranges::sort(progress_quests, {}, &game_quest::quest_id);
+
+  // 直接在视图上操作，避免创建临时vector
+  std::vector<std::u16string> result;
+  auto q1 = quests | std::views::transform(&game_quest::quest_id);
+  auto q2 = progress_quests | std::views::transform(&game_quest::quest_id);
+  std::ranges::set_intersection(q1, q2, std::back_inserter(result));
+
+  return result;
 }

@@ -108,13 +108,11 @@ bool npc_render_system::render_npc(game_npc &g_npc) {
 }
 
 void npc_render_system::render_quest(game_npc &g_npc) {
-  auto quests = quest_game_instance::load_npc_quest(g_npc.id);
-  if (!quests.empty()) {
-    auto node = npc_game_instance::load_quest_node(g_npc);
+  auto node = npc_game_instance::load_quest_node(g_npc);
+  if (node != nullptr) {
     auto origin = wz_resource::load_fpoint(node->get_child(u"origin"));
     auto texture = wz_resource::load_texture(node);
     auto &camera = camera_game_instance::camera;
-    auto npc_rect = npc_game_instance::load_rect(g_npc);
     auto pos_rect = npc_game_instance::load_quest_rect(g_npc).value();
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;

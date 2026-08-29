@@ -456,7 +456,7 @@ void tooltip_ui_system::render_deco(game_deco_item &deco, float x, float y) {
   SDL_RenderTexture(window::renderer, eqp_texture, nullptr, &pos_rect);
 
   auto cash_icon = wz_resource::load_texture(
-      wz_resource::ui->find(u"CashShop.img/CashItem/0"));
+      wz_resource::ms->get_root()->find(u"UI.img/CashItem"));
   pos_rect = {
       x + base.x + 4 + 46,
       y + base.y + 4 + 46,

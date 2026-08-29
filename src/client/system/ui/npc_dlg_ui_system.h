@@ -46,7 +46,8 @@ public:
 
   static inline std::u16string npc_id;
   static inline std::u16string text;
-  static inline std::u16string selected;
+  static inline std::u16string quest_id;
+  static inline std::u16string quest_index;
   static inline uint8_t index;
   static inline uint8_t max_index;
 
@@ -59,6 +60,5 @@ public:
   static inline npc_dlg_enum type;
 
   static inline uint64_t time;
-  static inline std::vector<std::u16string> select;
   static inline std::function<void()> cb;
 };

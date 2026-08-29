@@ -263,7 +263,7 @@ void package_ui_system::render_items() {
 
     if (active_tab == (int)item_enum::deco) {
       icon = wz_resource::load_texture(
-          wz_resource::ui->find(u"CashShop.img/CashItem/0"));
+          wz_resource::ms->get_root()->find(u"UI.img/CashItem"));
       pos_rect.x =
           (int)pos.x + slot_pos.x + col * (slot_size + slot_space_x) + 19;
       pos_rect.y =

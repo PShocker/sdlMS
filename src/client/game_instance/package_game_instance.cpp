@@ -3,7 +3,9 @@
 #include "equip_game_instance.h"
 #include "item_game_instance.h"
 #include "src/client/game/game_item.h"
+#include "src/client/system/ui/package_ui_system.h"
 #include <algorithm>
+#include <cstdint>
 #include <memory>
 #include <optional>
 
@@ -240,4 +242,18 @@ package_game_instance::add_item(std::polymorphic<game_item> &item) {
   }
   }
   return r;
+}
+
+std::optional<int>
+package_game_instance::add_new_item(std::polymorphic<game_item> &item) {
+  auto i = add_item(item);
+  if (i.has_value()) {
+    if (item->id != u"00000000") {
+      package_ui_system::new_itm = {
+          .type = item->type,
+          .index = (uint16_t)(i.value()),
+      };
+    }
+  }
+  return i;
 }

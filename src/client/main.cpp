@@ -1,6 +1,7 @@
 #include "game_instance/character_game_instance.h"
 #include "game_instance/character_stat_game_instance.h"
 #include "game_instance/keyboard_game_instance.h"
+#include "game_instance/quest_game_instance.h"
 #include "game_instance/shader_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -73,7 +74,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   character_game_instance::init_character_bone();
   character_game_instance::init_default_clothes();
   character_game_instance::load_self_character();
-  character_game_instance::self.job = u"110";
+  character_game_instance::self.job = u"000";
   character_game_instance::self.level = 100;
   character_game_instance::self.name = u"进击的蓝蘑菇";
   // character_game_instance::self.morph = u"0001";
@@ -82,8 +83,9 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   character_save cs;
   package_game_instance::load(cs);
   character_stat_game_instance::load(cs);
+  quest_game_instance::load(cs);
 
-  scene_system_instance::enter_prepare(61, u"sp", 0);
+  scene_system_instance::enter_prepare(10, u"sp", 0);
   // scene_system_instance::prepare_pos = {1930, -188};
   // character_create_system_instance::enter();
   // login_system_instance::enter();

@@ -208,6 +208,7 @@ void quest_ui_system::render_quest(game_quest &q, int y) {
     name = name.substr(0, 30) + u"...";
   }
   freetype::load_size(12);
+  freetype::load_aligned(true);
   freetype::draw_line(name, px + 17, py - 3);
 
   pos_rect = {
@@ -230,6 +231,7 @@ void quest_ui_system::render_quests() {
     quests = quest_game_instance::load_ui_avaliable_quest();
     break;
   case 1:
+    quests = quest_game_instance::load_ui_progress_quest();
     break;
   case 2:
     break;
@@ -413,7 +415,6 @@ void quest_ui_system::open() {
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
     detail = true;
-    detail_quest = u"";
 
     auto wh = load_wh();
     auto &camera = camera_game_instance::camera;
@@ -445,7 +446,8 @@ void quest_ui_system::event_tab(SDL_Event *event) {
         return;
       }
       disable_fold = {};
-      detail_quest = u"";
+      pages = {};
+      active_tab = i;
       return;
     }
   }
@@ -567,9 +569,55 @@ void quest_ui_system::event_vscr_start(SDL_Event *event) {
 
 void quest_ui_system::event_vscr_end() { vscr_motion = {}; }
 
+void quest_ui_system::event_button_close() { close(); }
+
+void quest_ui_system::event_button_detail() { detail = !detail; }
+
+bool quest_ui_system::event_button(SDL_Event *event) {
+  std::vector<SDL_FRect> buttons_rect = {
+      SDL_FRect{227, 6, 12, 12},   //
+      SDL_FRect{183, 374, 57, 17}, //
+  };
+  std::vector<void (*)()> fns = {
+      event_button_close,
+      event_button_detail,
+  };
+
+  if (detail) {
+    buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
+    fns.push_back(event_button_detail);
+  }
+
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      fns[i]();
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+      return true;
+    }
+  }
+  return false;
+}
+
 bool quest_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_ESCAPE: {
+      close();
+      return false;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
@@ -588,6 +636,7 @@ bool quest_ui_system::event(SDL_Event *event) {
         event_quest();
         event_tab(event);
         event_vscr(event);
+        r = !event_button(event);
       }
       event_drag_end();
       event_vscr_end();

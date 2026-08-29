@@ -1,7 +1,6 @@
 #include "equip_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
-#include "notice_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -12,7 +11,6 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
-#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -21,7 +19,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <utility>
 
 const static SDL_FPoint cap_slot{68, 23};
 const static SDL_FPoint earacc_slot{101, 56};
@@ -184,7 +181,7 @@ void equip_ui_system::render_deco_texture(game_deco_item &deco,
   };
   SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
   icon = wz_resource::load_texture(
-      wz_resource::ui->find(u"CashShop.img/CashItem/0"));
+      wz_resource::ms->get_root()->find(u"UI.img/CashItem"));
   pos_rect.x = (int)pos.x + slot.x + lt.x + 19;
   pos_rect.y = (int)pos.y + slot.y + lt.y + 19;
   pos_rect.w = icon->w;

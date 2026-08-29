@@ -18,7 +18,6 @@ class game_quest {
 public:
   std::u16string quest_id;
   uint8_t index;
-  int8_t area;
   bool complete = false;
 
   std::flat_map<std::u16string, quest_mob> mob;

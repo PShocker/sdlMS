@@ -34,6 +34,8 @@ public:
   
   static int load_quest_progress(const std::u16string &id);
 
+  static int load_quest_area(const std::u16string &id);
+
   static wz::Node *load_quest_node(const std::u16string &id);
 
   static void load(const character_save &cs);

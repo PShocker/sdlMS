@@ -60,8 +60,9 @@ std::optional<game_npc> cursor_logic_system::cursor_npc() {
   for (auto &m : npc_game_instance::data) {
     for (auto &g_npc : m) {
       auto quests = quest_game_instance::load_npc_quest(g_npc.id);
-      if (!quests.empty()) {
-        auto quest_r = npc_game_instance::load_quest_rect(g_npc).value();
+      auto quest_rr = npc_game_instance::load_quest_rect(g_npc);
+      if (!quests.empty() && quest_rr.has_value()) {
+        auto quest_r = quest_rr.value();
         quest_r.x -= camera.x;
         quest_r.y -= camera.y;
         if (SDL_PointInRectFloat(&pos, &quest_r)) {
@@ -469,7 +470,6 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
           break;
         }
         case npc_game_instance::npc_type::quest: {
-          auto quest = quest_game_instance::load_npc_quest(npc_id);
           npc_dlg_ui_system::close();
           npc_dlg_ui_system::open();
           npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
