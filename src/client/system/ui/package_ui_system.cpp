@@ -417,6 +417,8 @@ void package_ui_system::close() {
   std::erase(system::render_systems, render_items_info);
   std::erase(system::event_systems, event);
 
+  event_drag_end();
+  event_vscr_end();
   new_itm = std::nullopt;
 }
 

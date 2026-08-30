@@ -15,6 +15,8 @@ private:
 public:
   static inline std::vector<game_quest> quests;
 
+  static void load_quest_check(game_quest &q);
+
   static std::vector<game_quest> load_npc_quest(const std::u16string &id);
   static std::vector<game_quest> load_avaliable_quest();
   static std::flat_map<int8_t, std::vector<game_quest>>
@@ -31,7 +33,7 @@ public:
   static std::u16string load_area_name(int area);
 
   static int load_quest_index(const std::u16string &id);
-  
+
   static int load_quest_progress(const std::u16string &id);
 
   static int load_quest_area(const std::u16string &id);

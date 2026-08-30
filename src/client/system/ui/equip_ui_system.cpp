@@ -462,6 +462,8 @@ void equip_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::render_systems, render_info);
   std::erase(system::event_systems, event);
+
+  event_drag_end();
 }
 
 void equip_ui_system::toggle() {

@@ -59,6 +59,7 @@
 #include "src/client/system/system.h"
 #include "src/client/system/ui/buff_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
@@ -221,6 +222,7 @@ void scene_system_instance::enter(uint32_t map_id) {
       buff_ui_system::render,
       statusbar_ui_system::render,
       minimap_ui_system::render,
+      quest_alarm_ui_system::render,
       cursor_render_system::render,
   };
 

@@ -3,7 +3,6 @@
 #include "scroll_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/camera_game_instance.h"
-#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
@@ -45,18 +44,17 @@ void character_info_ui_system::render_scroll() {
 }
 
 void character_info_ui_system::render_backgrnd() {
-  static auto backgrnd_top = wz_resource::load_texture(
-      wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd_top"));
-  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd_top->w),
-                     static_cast<float>(backgrnd_top->h)};
-  SDL_RenderTexture(window::renderer, backgrnd_top, nullptr, &pos_rect);
+  static auto backgrnd = wz_resource::load_texture(
+      wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd"));
+  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
+                     static_cast<float>(backgrnd->h)};
+  SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 
-  static auto backgrnd_bottom = wz_resource::load_texture(
-      wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd_bottom"));
-  pos_rect = {pos.x, pos.y + backgrnd_top->h,
-              static_cast<float>(backgrnd_bottom->w),
-              static_cast<float>(backgrnd_bottom->h)};
-  SDL_RenderTexture(window::renderer, backgrnd_bottom, nullptr, &pos_rect);
+  static auto backgrnd_detail = wz_resource::load_texture(
+      wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd_detail"));
+  pos_rect = {pos.x + 8, pos.y + 25, static_cast<float>(backgrnd_detail->w),
+              static_cast<float>(backgrnd_detail->h)};
+  SDL_RenderTexture(window::renderer, backgrnd_detail, nullptr, &pos_rect);
 
   if (item) {
     static auto backgrnd_item = wz_resource::load_texture(

@@ -429,6 +429,9 @@ void quest_ui_system::open() {
 void quest_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
+
+  event_drag_end();
+  event_vscr_end();
 }
 
 void quest_ui_system::event_tab(SDL_Event *event) {

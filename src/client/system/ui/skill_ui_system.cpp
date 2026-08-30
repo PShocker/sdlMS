@@ -96,6 +96,7 @@ void skill_ui_system::close() {
   std::erase(system::event_systems, event);
 
   event_drag_end();
+  event_vscr_end();
 }
 
 void skill_ui_system::event_top() {

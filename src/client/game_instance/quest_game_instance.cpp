@@ -1,11 +1,11 @@
 #include "quest_game_instance.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/character_game_instance.h"
-#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
+#include <format>
 #include <optional>
 #include <string>
 
@@ -192,9 +192,31 @@ wz::Node *quest_game_instance::load_quest_node(const std::u16string &id) {
   return node;
 }
 
+void quest_game_instance::load_quest_check(game_quest &q) {
+  auto node = load_quest_node(q.quest_id);
+  auto i = std::to_string(q.index);
+  node = node->get_child(u"Check");
+  node = node->get_child(i);
+  if (auto n = node->get_child(u"item"); n != nullptr) {
+    for (auto [k, v] : *n->get_children()) {
+      auto id = static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
+      int count = 0;
+      if (auto nn = v[0]->get_child(u"count"); nn != nullptr) {
+        count = static_cast<wz::Property<int> *>(nn)->get();
+      }
+      quest_item qi;
+      auto tmp = std::format("{:08d}", id);
+      qi.id = {tmp.begin(), tmp.end()};
+      qi.count = count;
+      q.check_item.push_back(qi);
+    }
+  }
+}
+
 void quest_game_instance::load(const character_save &cs) {
   game_quest q;
-  q.quest_id = u"1000.img";
-  q.index = 0;
+  q.quest_id = u"1002.img";
+  q.index = 1;
+  load_quest_check(q);
   quests.push_back(q);
 }
