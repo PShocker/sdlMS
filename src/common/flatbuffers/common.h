@@ -359,6 +359,39 @@ inline const char *EnumNameStateEnum(StateEnum e) {
   return EnumNamesStateEnum()[index];
 }
 
+enum QuestEnum : int8_t {
+  QuestEnum_PROGRESS = 0,
+  QuestEnum_COMPLETE = 1,
+  QuestEnum_DECLINE = 2,
+  QuestEnum_MIN = QuestEnum_PROGRESS,
+  QuestEnum_MAX = QuestEnum_DECLINE
+};
+
+inline const QuestEnum (&EnumValuesQuestEnum())[3] {
+  static const QuestEnum values[] = {
+    QuestEnum_PROGRESS,
+    QuestEnum_COMPLETE,
+    QuestEnum_DECLINE
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesQuestEnum() {
+  static const char * const names[4] = {
+    "PROGRESS",
+    "COMPLETE",
+    "DECLINE",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameQuestEnum(QuestEnum e) {
+  if (::flatbuffers::IsOutRange(e, QuestEnum_PROGRESS, QuestEnum_DECLINE)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesQuestEnum()[index];
+}
+
 struct LifeStateT : public ::flatbuffers::NativeTable {
   typedef LifeState TableType;
   float x = 0.0f;
@@ -3282,7 +3315,7 @@ struct QuestSaveT : public ::flatbuffers::NativeTable {
   typedef QuestSave TableType;
   std::string id{};
   uint8_t index = 0;
-  bool complete = false;
+  fbs::QuestEnum type = fbs::QuestEnum_PROGRESS;
   std::vector<std::unique_ptr<fbs::QuestMobSaveT>> mob{};
   std::vector<std::unique_ptr<fbs::QuestNPCSaveT>> npc{};
   QuestSaveT() = default;
@@ -3297,7 +3330,7 @@ struct QuestSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_ID = 4,
     VT_INDEX = 6,
-    VT_COMPLETE = 8,
+    VT_TYPE = 8,
     VT_MOB = 10,
     VT_NPC = 12
   };
@@ -3313,11 +3346,11 @@ struct QuestSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_index(uint8_t _index = 0) {
     return SetField<uint8_t>(VT_INDEX, _index, 0);
   }
-  bool complete() const {
-    return GetField<uint8_t>(VT_COMPLETE, 0) != 0;
+  fbs::QuestEnum type() const {
+    return static_cast<fbs::QuestEnum>(GetField<int8_t>(VT_TYPE, 0));
   }
-  bool mutate_complete(bool _complete = 0) {
-    return SetField<uint8_t>(VT_COMPLETE, static_cast<uint8_t>(_complete), 0);
+  bool mutate_type(fbs::QuestEnum _type = static_cast<fbs::QuestEnum>(0)) {
+    return SetField<int8_t>(VT_TYPE, static_cast<int8_t>(_type), 0);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestMobSave>> *mob() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestMobSave>> *>(VT_MOB);
@@ -3337,7 +3370,7 @@ struct QuestSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_ID) &&
            verifier.VerifyString(id()) &&
            VerifyField<uint8_t>(verifier, VT_INDEX, 1) &&
-           VerifyField<uint8_t>(verifier, VT_COMPLETE, 1) &&
+           VerifyField<int8_t>(verifier, VT_TYPE, 1) &&
            VerifyOffset(verifier, VT_MOB) &&
            verifier.VerifyVector(mob()) &&
            verifier.VerifyVectorOfTables(mob()) &&
@@ -3361,8 +3394,8 @@ struct QuestSaveBuilder {
   void add_index(uint8_t index) {
     fbb_.AddElement<uint8_t>(QuestSave::VT_INDEX, index, 0);
   }
-  void add_complete(bool complete) {
-    fbb_.AddElement<uint8_t>(QuestSave::VT_COMPLETE, static_cast<uint8_t>(complete), 0);
+  void add_type(fbs::QuestEnum type) {
+    fbb_.AddElement<int8_t>(QuestSave::VT_TYPE, static_cast<int8_t>(type), 0);
   }
   void add_mob(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestMobSave>>> mob) {
     fbb_.AddOffset(QuestSave::VT_MOB, mob);
@@ -3385,14 +3418,14 @@ inline ::flatbuffers::Offset<QuestSave> CreateQuestSave(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> id = 0,
     uint8_t index = 0,
-    bool complete = false,
+    fbs::QuestEnum type = fbs::QuestEnum_PROGRESS,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestMobSave>>> mob = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestNPCSave>>> npc = 0) {
   QuestSaveBuilder builder_(_fbb);
   builder_.add_npc(npc);
   builder_.add_mob(mob);
   builder_.add_id(id);
-  builder_.add_complete(complete);
+  builder_.add_type(type);
   builder_.add_index(index);
   return builder_.Finish();
 }
@@ -3401,7 +3434,7 @@ inline ::flatbuffers::Offset<QuestSave> CreateQuestSaveDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *id = nullptr,
     uint8_t index = 0,
-    bool complete = false,
+    fbs::QuestEnum type = fbs::QuestEnum_PROGRESS,
     const std::vector<::flatbuffers::Offset<fbs::QuestMobSave>> *mob = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::QuestNPCSave>> *npc = nullptr) {
   auto id__ = id ? _fbb.CreateString(id) : 0;
@@ -3411,7 +3444,7 @@ inline ::flatbuffers::Offset<QuestSave> CreateQuestSaveDirect(
       _fbb,
       id__,
       index,
-      complete,
+      type,
       mob__,
       npc__);
 }
@@ -5081,7 +5114,7 @@ inline ::flatbuffers::Offset<QuestNPCSave> QuestNPCSave::Pack(::flatbuffers::Fla
 inline QuestSaveT::QuestSaveT(const QuestSaveT &o)
       : id(o.id),
         index(o.index),
-        complete(o.complete) {
+        type(o.type) {
   mob.reserve(o.mob.size());
   for (const auto &mob_ : o.mob) { mob.emplace_back((mob_) ? new fbs::QuestMobSaveT(*mob_) : nullptr); }
   npc.reserve(o.npc.size());
@@ -5091,7 +5124,7 @@ inline QuestSaveT::QuestSaveT(const QuestSaveT &o)
 inline QuestSaveT &QuestSaveT::operator=(QuestSaveT o) FLATBUFFERS_NOEXCEPT {
   std::swap(id, o.id);
   std::swap(index, o.index);
-  std::swap(complete, o.complete);
+  std::swap(type, o.type);
   std::swap(mob, o.mob);
   std::swap(npc, o.npc);
   return *this;
@@ -5108,7 +5141,7 @@ inline void QuestSave::UnPackTo(QuestSaveT *_o, const ::flatbuffers::resolver_fu
   (void)_resolver;
   { auto _e = id(); if (_e) _o->id = _e->str(); }
   { auto _e = index(); _o->index = _e; }
-  { auto _e = complete(); _o->complete = _e; }
+  { auto _e = type(); _o->type = _e; }
   { auto _e = mob(); if (_e) { _o->mob.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->mob[_i]) { _e->Get(_i)->UnPackTo(_o->mob[_i].get(), _resolver); } else { _o->mob[_i] = std::unique_ptr<fbs::QuestMobSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->mob.resize(0); } }
   { auto _e = npc(); if (_e) { _o->npc.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->npc[_i]) { _e->Get(_i)->UnPackTo(_o->npc[_i].get(), _resolver); } else { _o->npc[_i] = std::unique_ptr<fbs::QuestNPCSaveT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->npc.resize(0); } }
 }
@@ -5123,14 +5156,14 @@ inline ::flatbuffers::Offset<QuestSave> QuestSave::Pack(::flatbuffers::FlatBuffe
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const QuestSaveT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _id = _o->id.empty() ? 0 : _fbb.CreateString(_o->id);
   auto _index = _o->index;
-  auto _complete = _o->complete;
+  auto _type = _o->type;
   auto _mob = _o->mob.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::QuestMobSave>> (_o->mob.size(), [](size_t i, _VectorArgs *__va) { return CreateQuestMobSave(*__va->__fbb, __va->__o->mob[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _npc = _o->npc.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::QuestNPCSave>> (_o->npc.size(), [](size_t i, _VectorArgs *__va) { return CreateQuestNPCSave(*__va->__fbb, __va->__o->npc[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateQuestSave(
       _fbb,
       _id,
       _index,
-      _complete,
+      _type,
       _mob,
       _npc);
 }

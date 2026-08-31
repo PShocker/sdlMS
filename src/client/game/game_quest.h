@@ -20,11 +20,18 @@ struct quest_npc {
   std::u16string id;
 };
 
+enum class quest_enum : uint8_t {
+  progress,
+  complete,
+  decline,
+};
+
 class game_quest {
 public:
   std::u16string quest_id;
   uint8_t index;
-  bool complete = false;
+
+  quest_enum type;
 
   std::vector<quest_mob> mob;
   std::vector<quest_npc> npc;

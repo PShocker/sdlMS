@@ -385,8 +385,7 @@ void npc_dlg_ui_system::event_button_quest_yes() {
     return;
   }
   // accept quest
-  game_quest q{.quest_id = quest_id, .index = 1};
-  quest_game_instance::quests.emplace_back(q);
+  quest_game_instance::accept_quest(quest_id);
 
   static wz::Node *yes_node;
   yes_node = quest_game_instance::load_quest_node(quest_id);

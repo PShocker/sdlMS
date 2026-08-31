@@ -227,10 +227,16 @@ table QuestNPCSave{
     npc_id:uint32;
 }
 
+enum QuestEnum : int8 {
+    PROGRESS,
+    COMPLETE,
+    DECLINE,
+}
+
 table QuestSave{
    id:string;
    index:uint8;
-   complete:bool;
+   type:QuestEnum;
    mob:[QuestMobSave];
    npc:[QuestNPCSave];
 }

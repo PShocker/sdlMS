@@ -13,9 +13,19 @@ private:
   static std::vector<game_quest> load_npc(const std::u16string &id);
 
 public:
-  static inline std::vector<game_quest> quests;
+  static void update_check_mob(const std::u16string &id, int num);
+  static void update_check_npc(const std::u16string &id);
+  static void update_check_item(const std::u16string &id);
 
-  static void load_quest_check(game_quest &q);
+  static void accept_quest(const std::u16string &id);
+
+  static void accept_quest(game_quest &q);
+  static void complete_quest(game_quest &q);
+  static void decline_quest(game_quest &q);
+
+  static inline std::flat_map<std::u16string, game_quest> progress_quests;
+  static inline std::flat_map<std::u16string, game_quest> complete_quests;
+  static inline std::flat_map<std::u16string, game_quest> decline_quests;
 
   static std::vector<game_quest> load_npc_quest(const std::u16string &id);
   static std::vector<game_quest> load_avaliable_quest();
@@ -40,5 +50,5 @@ public:
 
   static wz::Node *load_quest_node(const std::u16string &id);
 
-  static void load(const character_save &cs);
+  static void load(character_save &cs);
 };

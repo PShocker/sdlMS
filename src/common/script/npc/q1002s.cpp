@@ -24,8 +24,7 @@ static void state() {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;
     } else {
       // accept quest
-      game_quest q{.quest_id = u"1002.img", .index = 1};
-      quest_game_instance::quests.emplace_back(q);
+      quest_game_instance::accept_quest(u"1002.img");
     }
     break;
   }

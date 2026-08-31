@@ -15,7 +15,6 @@
 #include "src/client/system/ui/character_choose_ui_system.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/server/server_instance/server_character_instance.h"
-#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <cstdlib>
@@ -89,7 +88,7 @@ bool game_save_system_instance::load_save(const std::string &login) {
         game_quest g_quest;
         g_quest.quest_id = {quest->id.begin(), quest->id.end()};
         g_quest.index = quest->index;
-        g_quest.complete = quest->complete;
+        g_quest.type = (quest_enum)quest->type;
         for (const auto &v : quest->mob) {
           quest_mob q_mob;
           auto tmp = std::format("{:07d}", v->mob_id);
@@ -186,7 +185,15 @@ bool game_save_system_instance::save_game() {
     cs.mp = character_stat_game_instance::mp_point;
     cs.exp = character_stat_game_instance::exp_point;
 
-    cs.quests = quest_game_instance::quests;
+    for (auto [k, v] : quest_game_instance::progress_quests) {
+      cs.quests.push_back(std::move(v));
+    }
+    for (auto [k, v] : quest_game_instance::complete_quests) {
+      cs.quests.push_back(std::move(v));
+    }
+    for (auto [k, v] : quest_game_instance::decline_quests) {
+      cs.quests.push_back(std::move(v));
+    }
 
     for (auto [k, v] : keyboard_game_instance::data) {
       cs.keys.push_back({
@@ -243,7 +250,8 @@ bool game_save_system_instance::save_game() {
     for (auto &quest : character_s.quests) {
       QuestSaveT qt;
       qt.id = {quest.quest_id.begin(), quest.quest_id.end()};
-      qt.index = quest.index, qt.complete = quest.complete;
+      qt.index = quest.index;
+      qt.type = (QuestEnum)quest.type;
       for (const auto &v : quest.mob) {
         QuestMobSaveT qmt;
         qmt.mob_id = std::stoi(std::string{v.id.begin(), v.id.end()});

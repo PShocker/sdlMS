@@ -1,12 +1,12 @@
 #include "quest_game_instance.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
 #include <format>
-#include <optional>
 #include <string>
 
 std::vector<game_quest>
@@ -62,30 +62,58 @@ std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
     cache[self.level] = q;
   }
   auto q = cache.at(self.level);
-  auto p = quests;
-  std::erase_if(q, [&p](const game_quest &quest) {
-    return std::find_if(p.begin(), p.end(), [&](const game_quest &other) {
-             return quest.quest_id == other.quest_id;
-           }) != p.end();
+  std::erase_if(q, [](const game_quest &quest) {
+    return progress_quests.contains(quest.quest_id) ||
+           complete_quests.contains(quest.quest_id);
   });
+  //  decline ?
+  for (auto &v : q) {
+    if (decline_quests.contains(v.quest_id)) {
+      v.index = decline_quests[v.quest_id].index;
+    }
+  }
   //  job filter
   auto sf_job = std::stoi(std::string{self.job.begin(), self.job.end()});
 
   std::erase_if(q, [sf_job](const game_quest &quest) {
+    bool r = true;
     auto node = load_quest_node(quest.quest_id);
-    if (!node->find(u"Check/0/job")) {
-      return false;
+    if (!node->find(u"Check/0/quest")) {
+      r = false;
     } else {
-      node = node->find(u"Check/0/job");
-      for (auto [k, v] : *node->get_children()) {
+      r = true;
+      auto n = node->find(u"Check/0/quest");
+      for (auto [k, v] : *n->get_children()) {
         auto job = static_cast<wz::Property<int> *>(v[0])->get();
         bool result = sf_job == job;
         if (result) {
-          return false;
+          r = false;
+          break;
         }
       }
+      if (r) {
+        return r;
+      }
     }
-    return true;
+
+    if (!node->find(u"Check/0/job")) {
+      r = false;
+    } else {
+      r = true;
+      auto n = node->find(u"Check/0/job");
+      for (auto [k, v] : *n->get_children()) {
+        auto job = static_cast<wz::Property<int> *>(v[0])->get();
+        bool result = sf_job == job;
+        if (result) {
+          r = false;
+          break;
+        }
+      }
+      if (r) {
+        return r;
+      }
+    }
+    return r;
   });
   return q;
 }
@@ -110,13 +138,7 @@ quest_game_instance::load_ui_avaliable_quest() {
 }
 
 std::vector<game_quest> quest_game_instance::load_progress_quest() {
-  std::vector<game_quest> q;
-  for (const auto &v : quests) {
-    if (!v.complete) {
-      q.push_back(v);
-    }
-  }
-  return q;
+  return progress_quests | std::views::values | std::ranges::to<std::vector>();
 }
 
 std::flat_map<int8_t, std::vector<game_quest>>
@@ -132,13 +154,7 @@ quest_game_instance::load_ui_progress_quest() {
 }
 
 std::vector<game_quest> quest_game_instance::load_complete_quest() {
-  std::vector<game_quest> q;
-  for (const auto &v : quests) {
-    if (v.complete) {
-      q.push_back(v);
-    }
-  }
-  return q;
+  return complete_quests | std::views::values | std::ranges::to<std::vector>();
 }
 
 std::flat_map<int8_t, std::vector<game_quest>>
@@ -159,10 +175,8 @@ int quest_game_instance::load_quest_index(const std::u16string &id) {
 }
 
 int quest_game_instance::load_quest_progress(const std::u16string &id) {
-  for (auto &q : quests) {
-    if (id == q.quest_id) {
-      return q.index;
-    }
+  if (progress_quests.contains(id)) {
+    return progress_quests[id].index;
   }
   return 0;
 }
@@ -192,7 +206,32 @@ wz::Node *quest_game_instance::load_quest_node(const std::u16string &id) {
   return node;
 }
 
-void quest_game_instance::load_quest_check(game_quest &q) {
+void quest_game_instance::load(character_save &cs) {
+  for (auto &q : cs.quests) {
+    switch (q.type) {
+    case quest_enum::progress: {
+      accept_quest(q);
+      break;
+    }
+    case quest_enum::complete: {
+      complete_quest(q);
+      break;
+    }
+    case quest_enum::decline: {
+      decline_quest(q);
+      break;
+    }
+    }
+  }
+  game_quest q{.quest_id = u"1002.img"};
+  accept_quest(q);
+}
+
+void quest_game_instance::accept_quest(game_quest &q) {
+  uint8_t index = 1;
+  if (decline_quests.contains(q.quest_id)) {
+    index = decline_quests[q.quest_id].index;
+  }
   auto node = load_quest_node(q.quest_id);
   auto i = std::to_string(q.index);
   node = node->get_child(u"Check");
@@ -211,12 +250,32 @@ void quest_game_instance::load_quest_check(game_quest &q) {
       q.check_item.push_back(qi);
     }
   }
+  progress_quests[q.quest_id] = q;
+  update_check_item(q.quest_id);
 }
 
-void quest_game_instance::load(const character_save &cs) {
+void quest_game_instance::accept_quest(const std::u16string &id) {
   game_quest q;
-  q.quest_id = u"1002.img";
-  q.index = 1;
-  load_quest_check(q);
-  quests.push_back(q);
+  q.quest_id = id;
+  accept_quest(q);
+}
+
+void quest_game_instance::complete_quest(game_quest &q) {
+  progress_quests.erase(q.quest_id);
+  complete_quests[q.quest_id] = q;
+}
+
+void quest_game_instance::decline_quest(game_quest &q) {
+  progress_quests.erase(q.quest_id);
+  decline_quests[q.quest_id] = q;
+  return;
+}
+
+void quest_game_instance::update_check_item(const std::u16string &id) {
+  auto &quest = progress_quests.at(id);
+  quest.item.clear();
+  for (auto &q : quest.check_item) {
+    auto num = package_game_instance::load_item_num(q.id);
+    quest.item.push_back({.id = q.id, .count = num});
+  }
 }
