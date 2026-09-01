@@ -2,7 +2,6 @@
 #include "server_scene_instance.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_gain_log.h"
-#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"
@@ -11,13 +10,12 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
-#include "src/client/system/ui/equip_ui_system.h"
-#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/physic/physic.h"
 #include "src/common/response/server_response.h"
 #include "src/server/server/server_drop.h"
+#include "src/server/server_main.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -67,15 +65,12 @@ void server_drop_instance::handle_client_drop(uint64_t client_id,
     save_drop(map_id, *dt);
   }
   auto clients = server_scene_instance::scenes[map_id].clients;
-  clients.erase(client_id);
   ServerCharacterDropT t;
   t.client_id = client_id;
   t.payload = std::move(dts[0]);
   for (const auto c : clients) {
     server_response::send_to_client(c, t);
   }
-  t.client_id = 0;
-  server_response::send_to_client(client_id, t);
 }
 
 void server_drop_instance::handle_pick(uint64_t client_id,
@@ -88,12 +83,9 @@ void server_drop_instance::handle_pick(uint64_t client_id,
       t.random_id = r.random_id;
       t.client_id = client_id;
       auto clients = server_scene_instance::scenes[map_id].clients;
-      clients.erase(client_id);
       for (const auto c : clients) {
         server_response::send_to_client(c, t);
       }
-      t.client_id = 0;
-      server_response::send_to_client(client_id, t);
       scene.drops.erase(r.random_id);
     } else {
       ServerCharacterPickT t;
@@ -105,7 +97,7 @@ void server_drop_instance::handle_pick(uint64_t client_id,
 
 void server_drop_instance::handle_server_pick(uint64_t client_id,
                                               ServerCharacterPickT &r) {
-  if (r.client_id == 0 && r.random_id == 0) {
+  if (r.client_id == server_main::local_addr && r.random_id == 0) {
     // 捡取物品失败
     character_logic_system::ccp = {};
     return;
@@ -121,7 +113,7 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
     dt.pick_time = window::dt_now;
     dt.type = game_drop::drop_enum::pick;
 
-    if (r.client_id == 0) {
+    if (r.client_id == server_main::local_addr) {
       auto itm = dt.data;
       package_game_instance::add_new_item(itm);
 
@@ -186,7 +178,7 @@ void server_drop_instance::handle_server_scene_dt(const DropT &dt) {
 void server_drop_instance::handle_server_drop(uint64_t client_id,
                                               ServerCharacterDropT &r) {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
-    if (r.client_id == 0) {
+    if (r.client_id == server_main::local_addr) {
       cursor_game_instance::cursor_hand_net = std::nullopt;
       if (cursor_game_instance::cursor_hand.has_value()) {
         auto &hand = cursor_game_instance::cursor_hand.value();

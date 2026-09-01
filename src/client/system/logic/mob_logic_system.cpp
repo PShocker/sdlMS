@@ -2,8 +2,6 @@
 #include "character_logic_system.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/character_game_instance.h"
-#include "src/client/game_instance/character_stat_game_instance.h"
-#include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -16,7 +14,6 @@
 #include "wz/Wz.h"
 #include <algorithm>
 #include <cstdint>
-#include <cstdlib>
 #include <flat_map>
 #include <optional>
 #include <ranges>
@@ -140,7 +137,7 @@ void mob_logic_system::run_collision() {
         .num = hit_num,
         .x = self.pos.x,
         .y = self.pos.y - 30,
-        .type = fbs::AttackEnum_Viole,
+        .type = damage_data::v,
     };
     server_mob_instance::handle_s_attack(0, at);
     ClientMobAttackT cma;

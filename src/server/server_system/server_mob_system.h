@@ -35,7 +35,7 @@ private:
   static void run_duration(server_mob &mob);
   static bool run_hitting(server_mob &mob);
   static void run_hit(server_mob &mob);
-  static void run_die(server_mob &mob);
+  static void run_die(server_mob &mob, uint64_t client_id);
   static void run_send();
 
   static void run_network_sync(server_mob &mob, server_mob &o_mob);

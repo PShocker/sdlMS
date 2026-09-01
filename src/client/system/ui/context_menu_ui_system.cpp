@@ -9,10 +9,9 @@
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
-#include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
-#include "statusbar_ui_system.h"
+#include "src/server/server_main.h"
 #include <cstddef>
 
 SDL_FPoint context_menu_ui_system::load_wh() { return {100, 122}; }
@@ -111,7 +110,7 @@ bool context_menu_ui_system::render() {
 }
 
 void context_menu_ui_system::event_button_info() {
-  if (client_id == 0) {
+  if (client_id == server_main::local_addr) {
     // self
     character_info_ui_system::character = character_game_instance::self;
     character_info_ui_system::close();

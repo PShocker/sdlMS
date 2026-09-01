@@ -8,7 +8,6 @@
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
-#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -222,9 +221,9 @@ void scene_system_instance::enter(uint32_t map_id) {
       buff_ui_system::render,
       statusbar_ui_system::render,
       minimap_ui_system::render,
-      quest_alarm_ui_system::render,
       cursor_render_system::render,
   };
+  quest_alarm_ui_system::open();
 
   fade_system_instance::enter_out();
   window::delta_time = 0;

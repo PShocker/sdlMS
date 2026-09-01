@@ -1,12 +1,14 @@
 #include "item_game_instance.h"
 #include "character_game_instance.h"
 #include "character_stat_game_instance.h"
+#include "quest_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_character_instance.h"
 #include "text_game_instance.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
@@ -150,6 +152,7 @@ void item_game_instance::set_item_num(std::polymorphic<game_item> &itm,
     break;
   }
   }
+  quest_game_instance::update_check_item();
   return;
 }
 
@@ -170,6 +173,7 @@ void item_game_instance::add_item_num(std::polymorphic<game_item> &item,
     break;
   }
   }
+  quest_game_instance::update_check_item();
   return;
 }
 
@@ -210,6 +214,7 @@ void item_game_instance::dec_item_num(std::polymorphic<game_item> &item,
     break;
   }
   }
+  quest_game_instance::update_check_item();
   return;
 }
 
@@ -230,6 +235,12 @@ void item_game_instance::use_morph_item(const std::u16string &id,
     st.val = std::stoi(tmp);
     st.sub_val = 1;
     character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
+
+    st.state = fbs::StateEnum_ITEM_USE;
+    st.sub_val = 1;
+    character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
+
+    server_character_instance::handle_morph_use(g_character, st);
   }
 }
 
@@ -424,6 +435,7 @@ bool item_game_instance::use_consume_item(const std::u16string &id) {
   if (info->get_child(u"exp")) {
     auto exp = static_cast<wz::Property<int> *>(info->get_child(u"exp"))->get();
     character_stat_game_instance::exp_point += exp;
+    character_stat_game_instance::upgrade();
     r = true;
   }
   return r;

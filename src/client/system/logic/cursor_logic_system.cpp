@@ -27,6 +27,7 @@
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/party_ui_system.h"
+#include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/system/ui/shop_ui_system.h"
@@ -250,6 +251,10 @@ void cursor_logic_system::run_cursor_ui() {
       }
     } else if (fn == quest_ui_system::render) {
       if (quest_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
+    } else if (fn == quest_alarm_ui_system::render) {
+      if (quest_alarm_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
     } else if (fn == login_notice_ui_system::render) {

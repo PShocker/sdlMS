@@ -33,11 +33,11 @@ public:
 
   quest_enum type;
 
-  std::vector<quest_mob> mob;
-  std::vector<quest_npc> npc;
-  std::vector<quest_item> item;
+  std::flat_map<std::u16string, quest_mob> mob;
+  std::flat_map<std::u16string, quest_npc> npc;
+  std::flat_map<std::u16string, quest_item> item;
 
-  std::vector<quest_mob> check_mob;
-  std::vector<quest_npc> check_npc;
-  std::vector<quest_item> check_item;
+  std::flat_map<std::u16string, quest_mob> check_mob;
+  std::flat_map<std::u16string, quest_npc> check_npc;
+  std::flat_map<std::u16string, quest_item> check_item;
 };

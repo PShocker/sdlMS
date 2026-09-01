@@ -282,10 +282,11 @@ void server_mob_system::run_die_action(server_mob &mob) {
   mob.action = u"die1";
 }
 
-void server_mob_system::run_die(server_mob &mob) {
+void server_mob_system::run_die(server_mob &mob, uint64_t client_id) {
   mob.hate_id = 0;
   run_die_action(mob);
   ServerMobDieT smd;
+  smd.client_id = client_id;
   smd.mob_index = mob.index;
 
   MobEventUnionUnion muu;
@@ -360,7 +361,7 @@ bool server_mob_system::run_hitting(server_mob &mob) {
   mob.flip = !first.left;
 
   if (mob.hp <= 0 && end.hit_time < current_time) {
-    run_die(mob);
+    run_die(mob, end.hit_id);
     mob.hits.clear();
   } else {
     mob.hate_id = end.hit_id;

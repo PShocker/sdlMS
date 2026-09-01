@@ -1,5 +1,6 @@
 
 #include "SDL3/SDL_rect.h"
+#include "src/client/game/game_effect.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
 #include "src/client/game_instance/ball_game_instance.h"
@@ -88,7 +89,7 @@ static void Recover() {
       AttackT at;
       at.x = pos.x - 10;
       at.y = pos.y - 30;
-      at.type = AttackEnum_Blue;
+      at.type = damage_data::b;
       at.num = 20;
       server_mob_instance::handle_s_attack(0, at);
       character_stat_game_instance::hp_point += at.num;

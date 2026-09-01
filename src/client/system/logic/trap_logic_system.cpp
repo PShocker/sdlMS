@@ -36,7 +36,7 @@ void trap_logic_system::run_collision() {
             .num = hit_num,
             .x = self.pos.x,
             .y = self.pos.y - 30,
-            .type = fbs::AttackEnum_Viole,
+            .type = damage_data::v,
         };
         server_trap_instance::handle_s_attack(0, at);
         ClientTrapAttackT cta;

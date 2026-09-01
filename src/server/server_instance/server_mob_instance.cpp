@@ -3,10 +3,12 @@
 #include "server_scene_instance.h"
 #include "src/client/game/game_gain_log.h"
 #include "src/client/game/game_mob.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -15,6 +17,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
 #include "src/server/server_instance/server_drop_instance.h"
+#include "src/server/server_main.h"
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
@@ -154,6 +157,12 @@ void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
         .type = gain_enum::experience,
     };
     gain_log_game_instance::data.push_back(g_log);
+    character_stat_game_instance::exp_point += exp;
+    character_stat_game_instance::upgrade();
+  }
+  if (m.client_id == server_main::local_addr) {
+    quest_game_instance::update_check_mob(mob.id, 1);
+  } else {
   }
   mob.attack_val = 0;
 }

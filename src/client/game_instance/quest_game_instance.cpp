@@ -247,7 +247,7 @@ void quest_game_instance::accept_quest(game_quest &q) {
       auto tmp = std::format("{:08d}", id);
       qi.id = {tmp.begin(), tmp.end()};
       qi.count = count;
-      q.check_item.push_back(qi);
+      q.check_item[qi.id] = qi;
     }
   }
   progress_quests[q.quest_id] = q;
@@ -271,11 +271,34 @@ void quest_game_instance::decline_quest(game_quest &q) {
   return;
 }
 
-void quest_game_instance::update_check_item(const std::u16string &id) {
-  auto &quest = progress_quests.at(id);
+void quest_game_instance::update_check_item(const std::u16string &quest_id) {
+  auto &quest = progress_quests.at(quest_id);
   quest.item.clear();
-  for (auto &q : quest.check_item) {
-    auto num = package_game_instance::load_item_num(q.id);
-    quest.item.push_back({.id = q.id, .count = num});
+  for (auto [k, v] : quest.check_item) {
+    auto num = package_game_instance::load_item_num(v.id);
+    quest.item[k] = {.id = v.id, .count = num};
+  }
+}
+
+void quest_game_instance::update_check_item() {
+  for (auto [k, v] : progress_quests) {
+    update_check_item(k);
+  }
+}
+
+void quest_game_instance::update_check_npc(const std::u16string &npc_id) {
+  for (auto [k, v] : progress_quests) {
+    if (v.check_npc.contains(npc_id)) {
+      v.npc[npc_id] = {};
+    }
+  }
+}
+
+void quest_game_instance::update_check_mob(const std::u16string &mob_id,
+                                           int num) {
+  for (auto [k, v] : progress_quests) {
+    if (v.check_mob.contains(mob_id)) {
+      v.mob[mob_id].count += num;
+    }
   }
 }

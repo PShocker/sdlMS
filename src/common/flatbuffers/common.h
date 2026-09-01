@@ -147,39 +147,6 @@ struct GameSave;
 struct GameSaveBuilder;
 struct GameSaveT;
 
-enum AttackEnum : uint8_t {
-  AttackEnum_Red = 0,
-  AttackEnum_Blue = 1,
-  AttackEnum_Viole = 2,
-  AttackEnum_MIN = AttackEnum_Red,
-  AttackEnum_MAX = AttackEnum_Viole
-};
-
-inline const AttackEnum (&EnumValuesAttackEnum())[3] {
-  static const AttackEnum values[] = {
-    AttackEnum_Red,
-    AttackEnum_Blue,
-    AttackEnum_Viole
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesAttackEnum() {
-  static const char * const names[4] = {
-    "Red",
-    "Blue",
-    "Viole",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameAttackEnum(AttackEnum e) {
-  if (::flatbuffers::IsOutRange(e, AttackEnum_Red, AttackEnum_Viole)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesAttackEnum()[index];
-}
-
 enum ChatEnum : int8_t {
   ChatEnum_MAP = 0,
   ChatEnum_MIN = ChatEnum_MAP,
@@ -357,39 +324,6 @@ inline const char *EnumNameStateEnum(StateEnum e) {
   if (::flatbuffers::IsOutRange(e, StateEnum_HP, StateEnum_BUFF_ABNORMAL)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesStateEnum()[index];
-}
-
-enum QuestEnum : int8_t {
-  QuestEnum_PROGRESS = 0,
-  QuestEnum_COMPLETE = 1,
-  QuestEnum_DECLINE = 2,
-  QuestEnum_MIN = QuestEnum_PROGRESS,
-  QuestEnum_MAX = QuestEnum_DECLINE
-};
-
-inline const QuestEnum (&EnumValuesQuestEnum())[3] {
-  static const QuestEnum values[] = {
-    QuestEnum_PROGRESS,
-    QuestEnum_COMPLETE,
-    QuestEnum_DECLINE
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesQuestEnum() {
-  static const char * const names[4] = {
-    "PROGRESS",
-    "COMPLETE",
-    "DECLINE",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameQuestEnum(QuestEnum e) {
-  if (::flatbuffers::IsOutRange(e, QuestEnum_PROGRESS, QuestEnum_DECLINE)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesQuestEnum()[index];
 }
 
 struct LifeStateT : public ::flatbuffers::NativeTable {
@@ -1214,7 +1148,7 @@ struct AttackT : public ::flatbuffers::NativeTable {
   uint64_t num = 0;
   float x = 0.0f;
   float y = 0.0f;
-  fbs::AttackEnum type = fbs::AttackEnum_Red;
+  uint8_t type = 0;
 };
 
 struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -1251,11 +1185,11 @@ struct Attack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_y(float _y = 0.0f) {
     return SetField<float>(VT_Y, _y, 0.0f);
   }
-  fbs::AttackEnum type() const {
-    return static_cast<fbs::AttackEnum>(GetField<uint8_t>(VT_TYPE, 0));
+  uint8_t type() const {
+    return GetField<uint8_t>(VT_TYPE, 0);
   }
-  bool mutate_type(fbs::AttackEnum _type = static_cast<fbs::AttackEnum>(0)) {
-    return SetField<uint8_t>(VT_TYPE, static_cast<uint8_t>(_type), 0);
+  bool mutate_type(uint8_t _type = 0) {
+    return SetField<uint8_t>(VT_TYPE, _type, 0);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -1288,8 +1222,8 @@ struct AttackBuilder {
   void add_y(float y) {
     fbb_.AddElement<float>(Attack::VT_Y, y, 0.0f);
   }
-  void add_type(fbs::AttackEnum type) {
-    fbb_.AddElement<uint8_t>(Attack::VT_TYPE, static_cast<uint8_t>(type), 0);
+  void add_type(uint8_t type) {
+    fbb_.AddElement<uint8_t>(Attack::VT_TYPE, type, 0);
   }
   explicit AttackBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1308,7 +1242,7 @@ inline ::flatbuffers::Offset<Attack> CreateAttack(
     uint64_t num = 0,
     float x = 0.0f,
     float y = 0.0f,
-    fbs::AttackEnum type = fbs::AttackEnum_Red) {
+    uint8_t type = 0) {
   AttackBuilder builder_(_fbb);
   builder_.add_num(num);
   builder_.add_delay(delay);
@@ -3315,7 +3249,7 @@ struct QuestSaveT : public ::flatbuffers::NativeTable {
   typedef QuestSave TableType;
   std::string id{};
   uint8_t index = 0;
-  fbs::QuestEnum type = fbs::QuestEnum_PROGRESS;
+  uint8_t type = 0;
   std::vector<std::unique_ptr<fbs::QuestMobSaveT>> mob{};
   std::vector<std::unique_ptr<fbs::QuestNPCSaveT>> npc{};
   QuestSaveT() = default;
@@ -3346,11 +3280,11 @@ struct QuestSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_index(uint8_t _index = 0) {
     return SetField<uint8_t>(VT_INDEX, _index, 0);
   }
-  fbs::QuestEnum type() const {
-    return static_cast<fbs::QuestEnum>(GetField<int8_t>(VT_TYPE, 0));
+  uint8_t type() const {
+    return GetField<uint8_t>(VT_TYPE, 0);
   }
-  bool mutate_type(fbs::QuestEnum _type = static_cast<fbs::QuestEnum>(0)) {
-    return SetField<int8_t>(VT_TYPE, static_cast<int8_t>(_type), 0);
+  bool mutate_type(uint8_t _type = 0) {
+    return SetField<uint8_t>(VT_TYPE, _type, 0);
   }
   const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestMobSave>> *mob() const {
     return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestMobSave>> *>(VT_MOB);
@@ -3370,7 +3304,7 @@ struct QuestSave FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_ID) &&
            verifier.VerifyString(id()) &&
            VerifyField<uint8_t>(verifier, VT_INDEX, 1) &&
-           VerifyField<int8_t>(verifier, VT_TYPE, 1) &&
+           VerifyField<uint8_t>(verifier, VT_TYPE, 1) &&
            VerifyOffset(verifier, VT_MOB) &&
            verifier.VerifyVector(mob()) &&
            verifier.VerifyVectorOfTables(mob()) &&
@@ -3394,8 +3328,8 @@ struct QuestSaveBuilder {
   void add_index(uint8_t index) {
     fbb_.AddElement<uint8_t>(QuestSave::VT_INDEX, index, 0);
   }
-  void add_type(fbs::QuestEnum type) {
-    fbb_.AddElement<int8_t>(QuestSave::VT_TYPE, static_cast<int8_t>(type), 0);
+  void add_type(uint8_t type) {
+    fbb_.AddElement<uint8_t>(QuestSave::VT_TYPE, type, 0);
   }
   void add_mob(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestMobSave>>> mob) {
     fbb_.AddOffset(QuestSave::VT_MOB, mob);
@@ -3418,7 +3352,7 @@ inline ::flatbuffers::Offset<QuestSave> CreateQuestSave(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     ::flatbuffers::Offset<::flatbuffers::String> id = 0,
     uint8_t index = 0,
-    fbs::QuestEnum type = fbs::QuestEnum_PROGRESS,
+    uint8_t type = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestMobSave>>> mob = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::QuestNPCSave>>> npc = 0) {
   QuestSaveBuilder builder_(_fbb);
@@ -3434,7 +3368,7 @@ inline ::flatbuffers::Offset<QuestSave> CreateQuestSaveDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     const char *id = nullptr,
     uint8_t index = 0,
-    fbs::QuestEnum type = fbs::QuestEnum_PROGRESS,
+    uint8_t type = 0,
     const std::vector<::flatbuffers::Offset<fbs::QuestMobSave>> *mob = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::QuestNPCSave>> *npc = nullptr) {
   auto id__ = id ? _fbb.CreateString(id) : 0;

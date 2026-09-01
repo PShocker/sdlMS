@@ -58,18 +58,12 @@ table Action{
     action_animate:bool;
 }
 
-enum AttackEnum : uint8 {
-    Red,
-    Blue,
-    Viole,
-}
-
 table Attack{
     delay:uint64;
     num:uint64;
     x:float;
     y:float;
-    type:AttackEnum;
+    type:uint8;
 }
 
 table Die{
@@ -227,16 +221,10 @@ table QuestNPCSave{
     npc_id:uint32;
 }
 
-enum QuestEnum : int8 {
-    PROGRESS,
-    COMPLETE,
-    DECLINE,
-}
-
 table QuestSave{
    id:string;
    index:uint8;
-   type:QuestEnum;
+   type:uint8;
    mob:[QuestMobSave];
    npc:[QuestNPCSave];
 }

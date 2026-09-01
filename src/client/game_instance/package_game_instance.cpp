@@ -2,6 +2,7 @@
 #include "character_game_instance.h"
 #include "equip_game_instance.h"
 #include "item_game_instance.h"
+#include "quest_game_instance.h"
 #include "src/client/game/game_item.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include <algorithm>
@@ -241,6 +242,7 @@ package_game_instance::add_item(std::polymorphic<game_item> &item) {
     break;
   }
   }
+  quest_game_instance::update_check_item();
   return r;
 }
 

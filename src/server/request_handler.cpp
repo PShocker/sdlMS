@@ -27,11 +27,8 @@
 #include "src/server/server_instance/server_trade_instance.h"
 #include "src/server/server_instance/server_trap_instance.h"
 #include "src/server/server_main.h"
-#include <algorithm>
 #include <cstdio>
-#include <ctime>
 #include <memory>
-#include <utility>
 
 using namespace fbs;
 
@@ -215,6 +212,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ServerScene();
     fbs::ServerSceneT r;
     payload->UnPackTo(&r);
+    server_main::local_addr = r.client_id;
     if (r.fade) {
       scene_system_instance::enter(r.map_id);
       for (const auto &c : r.players) {

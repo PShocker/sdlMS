@@ -381,6 +381,7 @@ inline ::flatbuffers::Offset<ServerHeartbeat> CreateServerHeartbeat(
 
 struct ServerSceneT : public ::flatbuffers::NativeTable {
   typedef ServerScene TableType;
+  uint64_t client_id = 0;
   uint32_t map_id = 0;
   bool fade = false;
   std::vector<std::unique_ptr<fbs::PlayerT>> players{};
@@ -397,13 +398,20 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ServerSceneT NativeTableType;
   typedef ServerSceneBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MAP_ID = 4,
-    VT_FADE = 6,
-    VT_PLAYERS = 8,
-    VT_MOBS = 10,
-    VT_DROPS = 12,
-    VT_REACTORS = 14
+    VT_CLIENT_ID = 4,
+    VT_MAP_ID = 6,
+    VT_FADE = 8,
+    VT_PLAYERS = 10,
+    VT_MOBS = 12,
+    VT_DROPS = 14,
+    VT_REACTORS = 16
   };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
   }
@@ -443,6 +451,7 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
            VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_FADE, 1) &&
            VerifyOffset(verifier, VT_PLAYERS) &&
@@ -468,6 +477,9 @@ struct ServerSceneBuilder {
   typedef ServerScene Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerScene::VT_CLIENT_ID, client_id, 0);
+  }
   void add_map_id(uint32_t map_id) {
     fbb_.AddElement<uint32_t>(ServerScene::VT_MAP_ID, map_id, 0);
   }
@@ -499,6 +511,7 @@ struct ServerSceneBuilder {
 
 inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
     uint32_t map_id = 0,
     bool fade = false,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players = 0,
@@ -506,6 +519,7 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>>> reactors = 0) {
   ServerSceneBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
   builder_.add_reactors(reactors);
   builder_.add_drops(drops);
   builder_.add_mobs(mobs);
@@ -517,6 +531,7 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
 
 inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
     uint32_t map_id = 0,
     bool fade = false,
     const std::vector<::flatbuffers::Offset<fbs::Player>> *players = nullptr,
@@ -529,6 +544,7 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
   auto reactors__ = reactors ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Reactor>>(*reactors) : 0;
   return fbs::CreateServerScene(
       _fbb,
+      client_id,
       map_id,
       fade,
       players__,
@@ -970,6 +986,7 @@ inline ::flatbuffers::Offset<ServerMobState> CreateServerMobStateDirect(
 
 struct ServerMobDieT : public ::flatbuffers::NativeTable {
   typedef ServerMobDie TableType;
+  uint64_t client_id = 0;
   uint32_t mob_index = 0;
 };
 
@@ -977,8 +994,15 @@ struct ServerMobDie FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ServerMobDieT NativeTableType;
   typedef ServerMobDieBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_MOB_INDEX = 4
+    VT_CLIENT_ID = 4,
+    VT_MOB_INDEX = 6
   };
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
+  }
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
   }
@@ -988,6 +1012,7 @@ struct ServerMobDie FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
            VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
            verifier.EndTable();
   }
@@ -1000,6 +1025,9 @@ struct ServerMobDieBuilder {
   typedef ServerMobDie Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(ServerMobDie::VT_CLIENT_ID, client_id, 0);
+  }
   void add_mob_index(uint32_t mob_index) {
     fbb_.AddElement<uint32_t>(ServerMobDie::VT_MOB_INDEX, mob_index, 0);
   }
@@ -1016,8 +1044,10 @@ struct ServerMobDieBuilder {
 
 inline ::flatbuffers::Offset<ServerMobDie> CreateServerMobDie(
     ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t client_id = 0,
     uint32_t mob_index = 0) {
   ServerMobDieBuilder builder_(_fbb);
+  builder_.add_client_id(client_id);
   builder_.add_mob_index(mob_index);
   return builder_.Finish();
 }
@@ -3089,7 +3119,8 @@ inline ::flatbuffers::Offset<ServerHeartbeat> ServerHeartbeat::Pack(::flatbuffer
 }
 
 inline ServerSceneT::ServerSceneT(const ServerSceneT &o)
-      : map_id(o.map_id),
+      : client_id(o.client_id),
+        map_id(o.map_id),
         fade(o.fade) {
   players.reserve(o.players.size());
   for (const auto &players_ : o.players) { players.emplace_back((players_) ? new fbs::PlayerT(*players_) : nullptr); }
@@ -3102,6 +3133,7 @@ inline ServerSceneT::ServerSceneT(const ServerSceneT &o)
 }
 
 inline ServerSceneT &ServerSceneT::operator=(ServerSceneT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
   std::swap(map_id, o.map_id);
   std::swap(fade, o.fade);
   std::swap(players, o.players);
@@ -3120,6 +3152,7 @@ inline ServerSceneT *ServerScene::UnPack(const ::flatbuffers::resolver_function_
 inline void ServerScene::UnPackTo(ServerSceneT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
   { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = fade(); _o->fade = _e; }
   { auto _e = players(); if (_e) { _o->players.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->players[_i]) { _e->Get(_i)->UnPackTo(_o->players[_i].get(), _resolver); } else { _o->players[_i] = std::unique_ptr<fbs::PlayerT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->players.resize(0); } }
@@ -3136,6 +3169,7 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerSceneT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
   auto _map_id = _o->map_id;
   auto _fade = _o->fade;
   auto _players = _o->players.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>> (_o->players.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayer(*__va->__fbb, __va->__o->players[i].get(), __va->__rehasher); }, &_va ) : 0;
@@ -3144,6 +3178,7 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
   auto _reactors = _o->reactors.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Reactor>> (_o->reactors.size(), [](size_t i, _VectorArgs *__va) { return CreateReactor(*__va->__fbb, __va->__o->reactors[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerScene(
       _fbb,
+      _client_id,
       _map_id,
       _fade,
       _players,
@@ -3383,6 +3418,7 @@ inline ServerMobDieT *ServerMobDie::UnPack(const ::flatbuffers::resolver_functio
 inline void ServerMobDie::UnPackTo(ServerMobDieT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
+  { auto _e = client_id(); _o->client_id = _e; }
   { auto _e = mob_index(); _o->mob_index = _e; }
 }
 
@@ -3394,9 +3430,11 @@ inline ::flatbuffers::Offset<ServerMobDie> ServerMobDie::Pack(::flatbuffers::Fla
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobDieT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _client_id = _o->client_id;
   auto _mob_index = _o->mob_index;
   return fbs::CreateServerMobDie(
       _fbb,
+      _client_id,
       _mob_index);
 }
 

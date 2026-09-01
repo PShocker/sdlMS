@@ -1,10 +1,8 @@
 #include "server_character_instance.h"
 #include "server_client_instance.h"
-#include "server_party_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_chat.h"
-#include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/chat_game_instance.h"
@@ -14,21 +12,18 @@
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
-#include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
-#include "src/common/request/client_request.h"
 #include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
-#include <cstdlib>
+#include "src/server/server_main.h"
 #include <flat_set>
 #include <format>
 #include <memory>
 #include <optional>
-#include <ranges>
 #include <string>
 #include <utility>
 
@@ -279,16 +274,13 @@ void server_character_instance::handle_attack(uint64_t client_id,
     mob.hits.emplace(mh.hit_time, mh);
   }
   // 转发
-  auto clients = server_scene_instance::scenes.at(map_id).clients;
-  clients.erase(client_id);
+  const auto &clients = server_scene_instance::scenes.at(map_id).clients;
   ServerCharacterAttackT t;
   t.client_id = client_id;
   t.payload = std::move(r.payload);
   for (auto c : clients) {
     server_response::send_to_client(c, t);
   }
-  t.client_id = 0;
-  server_response::send_to_client(client_id, t);
 }
 
 void server_character_instance::handle_chat(uint64_t client_id,
@@ -296,8 +288,7 @@ void server_character_instance::handle_chat(uint64_t client_id,
   // 转发
   auto client_name =
       server_client_instance::clients.at(client_id).player_t.character->name;
-  auto clients = server_scene_instance::scenes.at(r.map_id).clients;
-  clients.erase(client_id);
+  const auto &clients = server_scene_instance::scenes.at(r.map_id).clients;
   ServerCharacterChatT t;
   t.name = client_name;
   t.client_id = client_id;
@@ -305,14 +296,12 @@ void server_character_instance::handle_chat(uint64_t client_id,
   for (auto c : clients) {
     server_response::send_to_client(c, t);
   }
-  t.client_id = 0;
-  server_response::send_to_client(client_id, t);
 }
 
 void server_character_instance::handle_server_chat(uint64_t client_id,
                                                    ServerCharacterChatT &r) {
   game_character *g_character = nullptr;
-  if (r.client_id == 0) {
+  if (r.client_id == server_main::local_addr) {
     g_character = &character_game_instance::self;
   } else if (character_game_instance::others.contains(r.client_id)) {
     g_character = &character_game_instance::others[r.client_id].g_character;
@@ -717,6 +706,26 @@ void server_character_instance::handle_scroll_use(game_character &g_character,
   }
 }
 
+void server_character_instance::handle_morph_use(game_character &g_character,
+                                                 const StateT &st) {
+  std::u16string path = u"BasicEff.img/Transform";
+  auto type = character_logic_system::load_action_type(g_character);
+  if (type == character_logic_system::action_enum::climb) {
+    path = u"BasicEff.img/TransformOnLadder";
+  }
+  game_effect e = {
+      .id = path,
+      .index = 0,
+      .time = 0,
+      .delay = 0,
+      .lvl = 1,
+      .type = game_effect::effect_type::effect,
+      .pos = SDL_FPoint{0, 0},
+      .z = false,
+  };
+  g_character.effect.emplace_back(e);
+}
+
 void server_character_instance::handle_item_use(game_character &g_character,
                                                 const StateT &st) {
   auto tmp = std::format("{:08d}", st.val);
@@ -729,6 +738,11 @@ void server_character_instance::handle_item_use(game_character &g_character,
       } else {
         handle_scroll_use(g_character, false);
       }
+      return;
+    }
+    if (itm_id.starts_with(u"0221")) {
+      handle_morph_use(g_character, st);
+      return;
     }
   }
 }

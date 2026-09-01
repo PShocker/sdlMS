@@ -1,11 +1,12 @@
 #pragma once
 
-#include "flatbuffers/flatbuffer_builder.h"
 #include "uv.h"
 #include <cstdint>
 #include <string>
 class server_main {
 public:
+  static inline uint64_t local_addr;
+
   static inline uv_loop_t *loop;
   static inline bool host = true;
   static inline sockaddr_in host_addr = {};

@@ -4,6 +4,7 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/window/window.h"
+#include "src/server/server_main.h"
 #include <algorithm>
 #include <cmath>
 #include <ranges>
@@ -68,21 +69,20 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     }
 
     // 获取拾取者位置
-    const auto &picker = drop.picker;
-    std::optional<SDL_FPoint> picker_pos;
+    const auto &pk = drop.picker;
+    std::optional<SDL_FPoint> pos;
 
-    if (picker->pet_index.has_value()) {
+    if (pk->pet_index.has_value()) {
     } else {
-      auto client_id = picker->client_id;
-      if (client_id == 0) {
-        picker_pos = character_game_instance::self.pos;
-      } else if (auto it = character_game_instance::others.find(client_id);
-                 it != character_game_instance::others.end()) {
-        picker_pos = it->second.g_character.pos;
+      auto client_id = pk->client_id;
+      if (client_id == server_main::local_addr) {
+        pos = character_game_instance::self.pos;
+      } else if (character_game_instance::others.contains(client_id)) {
+        pos = character_game_instance::others[client_id].g_character.pos;
       }
     }
 
-    if (!picker_pos.has_value()) {
+    if (!pos.has_value()) {
       drop.alpha = 0;
       break;
     }
@@ -92,7 +92,7 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
     float inverse_progress = 1.0f - progress;
 
     // 线性插值位置
-    float x = picker_pos->x * progress + drop.goal.x * inverse_progress;
+    float x = pos->x * progress + drop.goal.x * inverse_progress;
 
     // Y轴带抛物线弧线：基础线性插值 + 抛物线偏移
     float parabola_offset =
@@ -100,8 +100,8 @@ void drop_logic_system::run_state_machine(game_drop &drop) {
                                       static_cast<float>(PICK_UP_DURATION),
                                   2) -
         PARABOLA_PEAK_DELTA;
-    float y = (picker_pos->y * progress + drop.goal.y * inverse_progress) +
-              parabola_offset;
+    float y =
+        (pos->y * progress + drop.goal.y * inverse_progress) + parabola_offset;
     drop.pos = {x, y};
     break;
   }

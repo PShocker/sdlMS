@@ -60,6 +60,7 @@ public:
 
   static void handle_buff_item(game_character &g_character, const StateT &st);
 
+  static void handle_morph_use(game_character &g_character, const StateT &st);
   static void handle_scroll_use(game_character &g_character, bool success);
   static void handle_item_use(game_character &g_character, const StateT &st);
 };

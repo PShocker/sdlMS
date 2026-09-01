@@ -6,6 +6,7 @@ table ServerHeartbeat {
 }
 
 table ServerScene {
+    client_id:uint64;
     map_id:uint32;
     fade:bool;
     
@@ -44,6 +45,7 @@ table ServerMobState {
 }
 
 table ServerMobDie {
+    client_id:uint64;
     mob_index:uint32;
 }
 
