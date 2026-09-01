@@ -15,6 +15,7 @@
 #include <optional>
 #include <ranges>
 #include <string>
+#include <vector>
 
 std::u16string npc_game_instance::load_npc_text(const std::u16string &id,
                                                 const std::u16string &val) {
@@ -163,7 +164,13 @@ npc_game_instance::load_npc_type(const std::u16string &id) {
 std::vector<std::u16string>
 npc_game_instance::load_avaliable_quest(const game_npc &n) {
   auto quests = quest_game_instance::load_npc_quest(n.id);
-  auto avaliable_quests = quest_game_instance::load_avaliable_quest();
+  std::vector<game_quest> avaliable_quests;
+  for (auto q : quests) {
+    auto qs = quest_game_instance::load_avaliable_quest(q.quest_id);
+    if (qs.has_value()) {
+      avaliable_quests.push_back(qs.value());
+    }
+  }
 
   std::ranges::sort(quests, {}, &game_quest::quest_id);
   std::ranges::sort(avaliable_quests, {}, &game_quest::quest_id);

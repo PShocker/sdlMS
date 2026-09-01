@@ -5,6 +5,7 @@
 #include "wz/Node.h"
 #include <cstdint>
 #include <flat_map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -29,6 +30,8 @@ public:
   static inline std::flat_map<std::u16string, game_quest> decline_quests;
 
   static std::vector<game_quest> load_npc_quest(const std::u16string &id);
+  static std::optional<game_quest>
+  load_avaliable_quest(const std::u16string &id);
   static std::vector<game_quest> load_avaliable_quest();
   static std::flat_map<int8_t, std::vector<game_quest>>
   load_ui_avaliable_quest();

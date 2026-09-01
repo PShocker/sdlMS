@@ -49,8 +49,8 @@ std::u16string item_game_instance::load_item_type(const std::u16string &id) {
     return u"Etc";
   }
   static const std::flat_map<std::u16string, std::u16string> types = {
-      {u"05", u"Cash"},    {u"02", u"Consume"}, {u"04", u"Etc"},
-      {u"03", u"Install"}, {u"50", u"Pet"},     {u"09", u"Special"},
+      {u"05", u"Cash"}, {u"02", u"Consume"}, {u"04", u"Etc"},
+      {u"03", u"Ins"},  {u"50", u"Pet"},     {u"09", u"Special"},
   };
   auto r = str.substr(0, 2);
   return types.at(r);
@@ -64,7 +64,7 @@ wz::Node *item_game_instance::load_item_info(const std::u16string &id,
     return node;
   }
   auto type = load_item_type(id);
-  if (type == u"Consume" || type == u"Etc" || type == u"Install") {
+  if (type == u"Consume" || type == u"Etc" || type == u"Ins") {
     auto r = id.substr(0, 4) + u".img";
     node = wz_resource::item->find(type + u"/" + r + u"/" + id)
                ->get_child(u"info");
@@ -91,7 +91,7 @@ item_game_instance::load_item(const std::u16string &id, uint32_t num) {
     etc.id = id;
     etc.num = num;
     return std::polymorphic<game_item>(std::in_place_type<game_etc_item>, etc);
-  } else if (item_type == u"Install") {
+  } else if (item_type == u"Ins") {
     game_install_item install;
     install.id = id;
     return std::polymorphic<game_item>(std::in_place_type<game_install_item>,
@@ -460,7 +460,7 @@ void item_game_instance::use_item(std::polymorphic<game_item> &itm) {
   auto &g_character = character_game_instance::self;
   auto self_sit_cooldown = character_logic_system::self_sit_cooldown;
 
-  if (item_type == u"Install") {
+  if (item_type == u"Ins") {
     if (itm->id.starts_with(u"0301") && self_sit_cooldown < window::dt_now) {
       if (!g_character.morph.empty()) {
         return;

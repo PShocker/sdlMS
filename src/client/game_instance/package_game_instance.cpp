@@ -113,7 +113,7 @@ package_game_instance::load_item(const std::u16string &id) {
     auto r = package_game_instance::data[(int)item_enum::cash];
   } else if (type == u"Consume") {
     auto r = package_game_instance::data[(int)item_enum::consume];
-  } else if (type == u"Install") {
+  } else if (type == u"Ins") {
     auto r = package_game_instance::data[(int)item_enum::install];
   }
   for (auto &itm : *r) {

@@ -1,5 +1,4 @@
 #include "server_scene_instance.h"
-#include "SDL3/SDL_timer.h"
 #include "server_client_instance.h"
 #include "server_foothold_instance.h"
 #include "server_mob_instance.h"
@@ -114,6 +113,7 @@ void server_scene_instance::send_in_fade(uint64_t client_id,
   ServerSceneT r;
   r.map_id = client_scene.map_id;
   r.fade = false;
+  r.client_id = client_id;
   server_response::send_to_client(client_id, r);
 }
 

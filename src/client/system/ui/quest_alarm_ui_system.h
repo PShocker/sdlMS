@@ -37,7 +37,7 @@ public:
 
   static inline SDL_FPoint pos;
 
-  static void load_quests();
+  static void event_auto_quests();
 
   static void open();
   static void close();

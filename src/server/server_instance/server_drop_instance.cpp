@@ -64,7 +64,7 @@ void server_drop_instance::handle_client_drop(uint64_t client_id,
   for (const auto &dt : dts) {
     save_drop(map_id, *dt);
   }
-  auto clients = server_scene_instance::scenes[map_id].clients;
+  const auto &clients = server_scene_instance::scenes[map_id].clients;
   ServerCharacterDropT t;
   t.client_id = client_id;
   t.payload = std::move(dts[0]);

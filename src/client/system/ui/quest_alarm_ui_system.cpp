@@ -4,6 +4,8 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -16,17 +18,17 @@
 
 SDL_FPoint quest_alarm_ui_system::load_wh() {
   float h = 0;
-  auto quests = quest_game_instance::load_progress_quest();
-  for (auto &q : quests) {
-    h += q.check_item.size();
-    h += q.check_mob.size();
-    h += q.check_npc.size();
+  for (auto id : quests) {
+    auto q = quest_game_instance::progress_quests.at(id);
+    h += q.check_item.size() * 18;
+    h += q.check_mob.size() * 18;
+    h += q.check_npc.size() * 18;
+    h += 12;
   }
-  h = (h + 1) * 12;
   if (max) {
-    return {223, h};
+    return {223, h + 30};
   }
-  return {223, h};
+  return {223, 20};
 }
 
 void quest_alarm_ui_system::render_backgrnd() {
@@ -37,7 +39,7 @@ void quest_alarm_ui_system::render_backgrnd() {
         wz_resource::ui->find(u"Quest.img/QuestAlarm/backgrndcenter"));
     static auto backgrndbottom = wz_resource::load_texture(
         wz_resource::ui->find(u"Quest.img/QuestAlarm/backgrndbottom"));
-    auto h = load_wh().y;
+    auto h = load_wh().y - 30;
     SDL_FRect pos_rect{
         pos.x,
         pos.y,
@@ -72,15 +74,15 @@ void quest_alarm_ui_system::render_button() {
       wz_resource::ui->find(u"Basic.img/BtClose"), // hp
   };
   std::vector<SDL_FRect> rects = {
-      {170, 4, 21, 12}, //
-      {205, 4, 12, 12}, //
+      {173, 4, 21, 12}, //
+      {208, 4, 12, 12}, //
   };
   if (max) {
     nodes.push_back(wz_resource::ui->find(u"Basic.img/BtMin"));
-    rects.push_back({192, 4, 12, 12});
+    rects.push_back({195, 4, 12, 12});
   } else {
     nodes.push_back(wz_resource::ui->find(u"Basic.img/BtMax"));
-    rects.push_back({192, 4, 12, 12});
+    rects.push_back({195, 4, 12, 12});
   }
   // 渲染所有按钮
   bool mouse_down = window::mouse_state & SDL_BUTTON_LMASK;
@@ -116,15 +118,17 @@ void quest_alarm_ui_system::render_quests() {
     auto node = quest_game_instance::load_quest_node(id);
     node = node->find(u"QuestInfo/name");
     auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
-    freetype::load_size(13);
+    freetype::load_size(12);
+    freetype::load_bold(true);
     freetype::load_color(0, 0, 0, 255);
     freetype::load_aligned(true);
     freetype::draw_line(name, pos.x + 5, pos.y + y);
+    freetype::load_bold(false);
     static auto close_t = wz_resource::load_texture(
         wz_resource::ui->find(u"Quest.img/QuestAlarm/BtDelete/normal/0"));
     SDL_FRect pos_rect{
-        pos.x + 100,
-        pos.y + y,
+        static_cast<float>((int)pos.x + 208),
+        static_cast<float>((int)pos.y + y + 6),
         static_cast<float>(close_t->w),
         static_cast<float>(close_t->h),
     };
@@ -135,15 +139,25 @@ void quest_alarm_ui_system::render_quests() {
     }
     const auto &quest = quest_game_instance::progress_quests.at(id);
     for (const auto &[k, v] : quest.check_item) {
-      y += 20;
-      freetype::draw_line(u"123456", pos.x + 5, pos.y + y);
+      y += 18;
+      auto num = quest.item.at(k).count;
+      auto count = v.count;
+      auto tmp = std::format("{}/{}", num, count);
+      std::u16string str;
+      if (item_game_instance::check_item(k)) {
+        str = item_game_instance::load_item_text(k, u"name");
+      } else {
+        str = equip_game_instance::load_equip_name(k);
+      }
+      str = std::u16string{tmp.begin(), tmp.end()} + u" " + str;
+      freetype::draw_line(str, pos.x + 5, pos.y + y);
     }
     for (const auto &[k, v] : quest.check_mob) {
-      y += 20;
+      y += 18;
       freetype::draw_line(u"123456", pos.x + 5, pos.y + y);
     }
     for (const auto &[k, v] : quest.check_npc) {
-      y += 20;
+      y += 18;
       freetype::draw_line(u"123456", pos.x + 5, pos.y + y);
     }
     i++;
@@ -181,16 +195,16 @@ void quest_alarm_ui_system::event_button_close() {}
 
 bool quest_alarm_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r = {
-      {170, 4, 21, 12}, //
-      {205, 4, 12, 12}, //
+      {173, 4, 21, 12}, //
+      {208, 4, 12, 12}, //
   };
   std::vector<void (*)()> fns = {};
   if (max) {
     fns.push_back(event_button_min);
-    r.push_back({192, 4, 12, 12});
+    r.push_back({195, 4, 12, 12});
   } else {
     fns.push_back(event_button_max);
-    r.push_back({192, 4, 12, 12});
+    r.push_back({195, 4, 12, 12});
   }
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
@@ -215,6 +229,8 @@ void quest_alarm_ui_system::open() {
     auto &camera = camera_game_instance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
+
+    event_auto_quests();
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
@@ -307,7 +323,7 @@ bool quest_alarm_ui_system::event(SDL_Event *event) {
   return r;
 }
 
-void quest_alarm_ui_system::load_quests() {
+void quest_alarm_ui_system::event_auto_quests() {
   if (quests.empty()) {
     size_t count = 0;
     for (const auto &[key, _] : quest_game_instance::progress_quests) {

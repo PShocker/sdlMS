@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <flat_map>
 #include <format>
+#include <optional>
 #include <string>
 
 std::vector<game_quest>
@@ -39,82 +40,103 @@ quest_game_instance::load_npc_quest(const std::u16string &id) {
   return cache.at(id);
 }
 
+std::optional<game_quest>
+quest_game_instance::load_avaliable_quest(const std::u16string &id) {
+  struct key_cache {
+    std::u16string id;
+    int level;
+    std::u16string job;
+
+    auto operator<=>(const key_cache &) const = default;
+  };
+  static std::flat_map<key_cache, std::optional<game_quest>> cache;
+  auto &sf = character_game_instance::self;
+  auto node = load_quest_node(id);
+  key_cache kc{id, sf.level, sf.job};
+  if (!cache.contains(kc)) {
+    if (auto n = node->find(u"Check/0/lvmin"); n != nullptr) {
+      auto lv = static_cast<wz::Property<int> *>(n)->get();
+      if (kc.level < lv) {
+        cache.emplace(kc, std::nullopt);
+        return std::nullopt;
+      }
+    }
+    if (auto n = node->find(u"Check/0/job"); n != nullptr) {
+      auto sf_job = std::stoi(std::string{sf.job.begin(), sf.job.end()});
+      bool r = false;
+      for (auto [k, v] : *n->get_children()) {
+        auto job = static_cast<wz::Property<int> *>(v[0])->get();
+        r = sf_job == job;
+        if (r) {
+          break;
+        }
+      }
+      if (!r) {
+        cache.emplace(kc, std::nullopt);
+        return std::nullopt;
+      }
+    }
+    cache.emplace(kc, game_quest{.quest_id = id});
+  }
+  auto q = cache.at(kc);
+  if (!q.has_value()) {
+    return std::nullopt;
+  }
+  struct quest_cache {
+    std::u16string id;
+    int state;
+  };
+  static std::flat_map<std::u16string, std::vector<quest_cache>> cache2;
+  if (!cache2.contains(id)) {
+    if (auto n = node->find(u"Check/0/quest"); n != nullptr) {
+      for (auto [k, v] : *n->get_children()) {
+        auto q_id =
+            static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
+        auto state =
+            static_cast<wz::Property<int> *>(v[0]->get_child(u"state"))->get();
+        auto tmp = std::format("{}.img", q_id);
+        std::u16string id2{tmp.begin(), tmp.end()};
+        cache2[id].push_back({id2, state});
+      }
+    } else {
+      cache2[id] = {};
+    }
+  }
+  auto quest_check = cache2.at(id);
+  for (auto &qc : quest_check) {
+    bool r = false;
+    for (auto &qs : {progress_quests, complete_quests, decline_quests}) {
+      if (qs.contains(qc.id)) {
+        auto q_state = qs.at(qc.id).index;
+        if (q_state >= qc.state) {
+          r = true;
+          break;
+        }
+      }
+    }
+    if (!r) {
+      return std::nullopt;
+    }
+  }
+  if (progress_quests.contains(id) || complete_quests.contains(id)) {
+    return std::nullopt;
+  }
+  auto quest = q.value();
+  if (decline_quests.contains(id)) {
+    quest.index = decline_quests[id].index;
+  }
+  return quest;
+}
+
 std::vector<game_quest> quest_game_instance::load_avaliable_quest() {
-  auto self = character_game_instance::self;
-  static std::flat_map<int, std::vector<game_quest>> cache;
-  if (!cache.contains(self.level)) {
-    std::vector<game_quest> q;
-    auto node = wz_resource::quest->find(u"QuestData");
-    for (auto [k, v] : *node) {
-      auto lv = node->find(k + u"/Check/0/lvmin");
-      int lvl = 0;
-      if (lv != nullptr) {
-        lvl = static_cast<wz::Property<int> *>(lv)->get();
-      }
-      if (self.level >= lvl) {
-        game_quest quest{
-            .quest_id = k,
-            .index = 0,
-        };
-        q.push_back(quest);
-      }
-    }
-    cache[self.level] = q;
-  }
-  auto q = cache.at(self.level);
-  std::erase_if(q, [](const game_quest &quest) {
-    return progress_quests.contains(quest.quest_id) ||
-           complete_quests.contains(quest.quest_id);
-  });
-  //  decline ?
-  for (auto &v : q) {
-    if (decline_quests.contains(v.quest_id)) {
-      v.index = decline_quests[v.quest_id].index;
+  static auto node = wz_resource::quest->find(u"QuestData");
+  std::vector<game_quest> q;
+  for (auto k : *node->get_children() | std::views::keys) {
+    auto qs = load_avaliable_quest(k);
+    if (qs.has_value()) {
+      q.push_back(qs.value());
     }
   }
-  //  job filter
-  auto sf_job = std::stoi(std::string{self.job.begin(), self.job.end()});
-
-  std::erase_if(q, [sf_job](const game_quest &quest) {
-    bool r = true;
-    auto node = load_quest_node(quest.quest_id);
-    if (!node->find(u"Check/0/quest")) {
-      r = false;
-    } else {
-      r = true;
-      auto n = node->find(u"Check/0/quest");
-      for (auto [k, v] : *n->get_children()) {
-        auto job = static_cast<wz::Property<int> *>(v[0])->get();
-        bool result = sf_job == job;
-        if (result) {
-          r = false;
-          break;
-        }
-      }
-      if (r) {
-        return r;
-      }
-    }
-
-    if (!node->find(u"Check/0/job")) {
-      r = false;
-    } else {
-      r = true;
-      auto n = node->find(u"Check/0/job");
-      for (auto [k, v] : *n->get_children()) {
-        auto job = static_cast<wz::Property<int> *>(v[0])->get();
-        bool result = sf_job == job;
-        if (result) {
-          r = false;
-          break;
-        }
-      }
-      if (r) {
-        return r;
-      }
-    }
-    return r;
-  });
   return q;
 }
 
@@ -228,9 +250,9 @@ void quest_game_instance::load(character_save &cs) {
 }
 
 void quest_game_instance::accept_quest(game_quest &q) {
-  uint8_t index = 1;
+  q.index = 1;
   if (decline_quests.contains(q.quest_id)) {
-    index = decline_quests[q.quest_id].index;
+    q.index = decline_quests[q.quest_id].index;
   }
   auto node = load_quest_node(q.quest_id);
   auto i = std::to_string(q.index);

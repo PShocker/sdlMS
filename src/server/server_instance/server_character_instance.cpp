@@ -661,7 +661,7 @@ void server_character_instance::handle_buff_item(game_character &g_character,
   auto tmp = std::format("{:08d}", st.val);
   std::u16string itm_id{tmp.begin(), tmp.end()};
   auto item_type = item_game_instance::load_item_type(itm_id);
-  if (item_type == u"Install") {
+  if (item_type == u"Ins") {
     if (itm_id.starts_with(u"0301")) {
       if (st.sub_val == 1) {
         character_logic_system::run_sit_chair(g_character, itm_id);
