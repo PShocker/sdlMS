@@ -68,8 +68,8 @@ SDL_FRect npc_game_instance::load_rect(const game_npc &g_npc) {
 
 wz::Node *npc_game_instance::load_quest_node(const game_npc &g_npc) {
   wz::Node *node = nullptr;
-  auto avaliable = npc_game_instance::load_avaliable_quest(g_npc);
-  auto progress = npc_game_instance::load_progress_quest(g_npc);
+  auto avaliable = npc_game_instance::load_avaliable_quest(g_npc.id);
+  auto progress = npc_game_instance::load_progress_quest(g_npc.id);
   if (!avaliable.empty()) {
     node = wz_resource::ui->find(u"QuestIcon.img/0");
   } else if (!progress.empty()) {
@@ -162,8 +162,8 @@ npc_game_instance::load_npc_type(const std::u16string &id) {
 }
 
 std::vector<std::u16string>
-npc_game_instance::load_avaliable_quest(const game_npc &n) {
-  auto quests = quest_game_instance::load_npc_quest(n.id);
+npc_game_instance::load_avaliable_quest(const std::u16string &id) {
+  auto quests = quest_game_instance::load_npc_quest(id);
   std::vector<game_quest> avaliable_quests;
   for (auto q : quests) {
     auto qs = quest_game_instance::load_avaliable_quest(q.quest_id);
@@ -185,8 +185,8 @@ npc_game_instance::load_avaliable_quest(const game_npc &n) {
 }
 
 std::vector<std::u16string>
-npc_game_instance::load_progress_quest(const game_npc &n) {
-  auto quests = quest_game_instance::load_npc_quest(n.id);
+npc_game_instance::load_progress_quest(const std::u16string &id) {
+  auto quests = quest_game_instance::load_npc_quest(id);
   auto progress_quests = quest_game_instance::load_progress_quest();
 
   std::ranges::sort(quests, {}, &game_quest::quest_id);

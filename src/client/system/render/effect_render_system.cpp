@@ -203,7 +203,7 @@ bool effect_render_system::render_custom(SDL_FPoint pos, game_effect &g_effect,
                                          bool flip) {
   auto skis = skill_game_instance::skis();
   if (skis.contains(g_effect.id)) {
-    return skis.at(g_effect.id).effect(pos, g_effect, flip);
+    return skis.at(g_effect.id).effect(pos, &g_effect, flip);
   }
   return false;
 }

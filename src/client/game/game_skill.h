@@ -14,7 +14,7 @@ public:
   std::function<void()> frame;
   std::function<void(int)> passive;
   std::function<void()> end;
-  std::function<bool(SDL_FPoint, game_effect, bool)> effect;
+  std::function<bool(SDL_FPoint, game_effect *, bool)> effect;
   std::function<void(game_mob, uint64_t)> hit;
   std::function<void(game_character *, int)> state;
 

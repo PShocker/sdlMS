@@ -159,13 +159,13 @@ static void mfkaijia() {
     }
   };
 
-  g_skill.effect = [](SDL_FPoint p, game_effect e, bool f) {
+  g_skill.effect = [](SDL_FPoint p, game_effect *e, bool f) {
     const int duration = 300;
-    auto start = e.delay;
+    auto start = e->delay;
     auto dt = window::dt_now - start;
     if (dt <= duration) {
       float scale = 1 + 1.2 * (float)dt / duration;
-      auto g_character = std::any_cast<game_character *>(e.data);
+      auto g_character = std::any_cast<game_character *>(e->data);
       auto character = *g_character;
       character.scale = scale;
       character.color.a = 192 * (1 - (float)dt / duration);

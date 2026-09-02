@@ -4,9 +4,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <functional>
-#include <optional>
 #include <string>
-#include <vector>
 class npc_dlg_ui_system {
 private:
   static void render_backgrnd();

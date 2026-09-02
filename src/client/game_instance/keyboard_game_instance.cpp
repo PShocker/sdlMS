@@ -26,6 +26,7 @@ void keyboard_game_instance::reset() {
       {SDL_SCANCODE_B, {.type = "skill", .val = "4001001"}},
       {SDL_SCANCODE_N, {.type = "skill", .val = "0001002"}},
       {SDL_SCANCODE_H, {.type = "skill", .val = "2001003"}},
+      {SDL_SCANCODE_SPACE, {.type = "skill", .val = "2201001"}},
       {SDL_SCANCODE_C, {.type = "item", .val = "03010008"}},
       {SDL_SCANCODE_F4, {.type = "face", .val = "vomit"}},
 

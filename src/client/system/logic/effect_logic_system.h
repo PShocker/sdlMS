@@ -5,7 +5,6 @@
 #include <vector>
 class effect_logic_system {
 private:
-  static bool run_effect(game_effect &g_effect);
   static bool run_damage(game_effect &g_effect);
   static bool run_skill_use(game_effect &g_effect);
   static bool run_skill_hit(game_effect &g_effect);
@@ -13,5 +12,7 @@ private:
   static void run_animate(std::vector<game_effect> &v);
 
 public:
+  static bool run_effect(game_effect &g_effect);
+
   static bool run();
 };

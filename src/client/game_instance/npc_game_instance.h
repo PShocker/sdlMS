@@ -14,9 +14,12 @@ public:
 
   static SDL_FRect load_rect(const game_npc &g_npc);
 
-  static std::vector<std::u16string> load_avaliable_quest(const game_npc &n);
-  static std::vector<std::u16string> load_progress_quest(const game_npc &n);
-  static std::vector<std::u16string> load_complete_quest(const game_npc &n);
+  static std::vector<std::u16string>
+  load_avaliable_quest(const std::u16string &id);
+  static std::vector<std::u16string>
+  load_progress_quest(const std::u16string &id);
+  static std::vector<std::u16string>
+  load_complete_quest(const std::u16string &id);
 
   static wz::Node *load_quest_node(const game_npc &g_npc);
   static std::optional<SDL_FRect> load_quest_rect(const game_npc &g_npc);

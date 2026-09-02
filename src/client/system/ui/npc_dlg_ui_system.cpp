@@ -199,10 +199,7 @@ void npc_dlg_ui_system::render_list() {
     return;
   }
   auto [w, h] = load_wh();
-  auto quests = quest_game_instance::load_npc_quest(npc_id);
-  freetype::load_size(12);
-  freetype::load_aligned(true);
-  freetype::load_color(128, 0, 128, 255);
+
   auto lh = freetype::load_lh();
   static auto t0 = wz_resource::load_texture(
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list0"));
@@ -210,9 +207,12 @@ void npc_dlg_ui_system::render_list() {
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list1"));
   static auto t2 = wz_resource::load_texture(
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list2"));
+
+  auto quests = npc_game_instance::load_avaliable_quest(npc_id);
+
   SDL_FRect pos_rect{
       pos.x + 165,
-      pos.y + h - 115 - lh * quests.size(),
+      pos.y + h - 100 - lh * quests.size(),
       static_cast<float>(t1->w),
       static_cast<float>(t1->h),
   };
@@ -220,9 +220,11 @@ void npc_dlg_ui_system::render_list() {
 
   const auto &mouse_pos = window::mouse_pos;
   selected = u"";
+  freetype::load_size(12);
+  freetype::load_aligned(true);
+  freetype::load_color(128, 0, 128, 255);
   for (int i = 0; i < quests.size(); i++) {
-    auto quest_node =
-        wz_resource::quest->find(u"QuestData/" + quests[i].quest_id);
+    auto quest_node = quest_game_instance::load_quest_node(quests[i]);
     auto name_node = quest_node->find(u"QuestInfo/name");
     auto name = static_cast<wz::Property<std::u16string> *>(name_node)->get();
     auto lvl_node = quest_node->find(u"Check/0/lvmin");
@@ -247,7 +249,7 @@ void npc_dlg_ui_system::render_list() {
       SDL_SetRenderDrawColor(window::renderer, 128, 0, 128, 255);
       SDL_RenderLine(window::renderer, text_x, text_y + lh, text_x + text_w,
                      text_y + lh);
-      selected = quests[i].quest_id;
+      selected = quests[i];
     }
   }
   freetype::load_aligned(false);

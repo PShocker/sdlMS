@@ -11,11 +11,14 @@
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/logic/effect_logic_system.h"
+#include "src/client/system/render/effect_render_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
 #include "src/common/request/client_request.h"
+#include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include <algorithm>
@@ -25,6 +28,20 @@
 static void shunjianyidong() {
   game_skill g_skill;
   g_skill.id = u"2201001";
+
+  g_skill.effect = [](SDL_FPoint p, game_effect *e, bool f) {
+    e->id = u"BasicEff.img/Teleport";
+    e->lvl = 1;
+    e->pos = SDL_FPoint{0, 0};
+    if (effect_logic_system::run_effect(*e)) {
+      return false;
+    }
+    auto g_character = std::any_cast<game_character *>(e->data);
+    effect_render_system::render_effect(g_character->pos, *e);
+    e->id = u"2201001";
+    return true;
+  };
+
   g_skill.use = [g_skill](int ski_lv) {
     skill_game_instance::skis()[u"2201001"].cd = window::dt_now + 1000;
     auto &sf = character_game_instance::self;
@@ -50,7 +67,7 @@ static void shunjianyidong() {
     const auto &fhs = foothold_game_instance::data;
     auto border =
         map_info_game_instance::load_mr_border(scene_system_instance::map_id);
-    auto [t, l, b, r] = border;
+    auto [l, t, r, b] = border;
     x = std::clamp(x, l, r);
     y = std::clamp(y, t, b);
     if (y != sf.pos.y) {
@@ -69,11 +86,11 @@ static void shunjianyidong() {
         auto top = ins.begin()->first;
         if (std::abs(top - y) <= 50) {
           sf.pos = ins.begin()->second.pos;
+          character_logic_system::self_fh = ins.begin()->second.fh.id;
+          character_logic_system::run_stand_action(sf);
         }
       }
     }
-    sf.pos.y -= 5;
-    character_logic_system::run_action(sf, u"jump");
 
     character_logic_system::self_hspeed = 0;
     character_logic_system::self_vspeed = 0;
