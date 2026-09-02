@@ -1,7 +1,7 @@
 #include "server_mob_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/item_game_instance.h"
-#include "src/client/game_instance/map_info_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/window/window.h"
@@ -83,6 +83,14 @@ server_mob_system::load_mob_drops(server_mob &mob) {
   }
 
   return drops;
+}
+
+bool server_mob_system::run_try_jump(server_mob &mob) {
+  auto mob_node = mob_game_instance::load_link_mob_node(mob.id);
+  if (!mob_node->children.contains(u"jump")) {
+    return false;
+  }
+  return false;
 }
 
 int server_mob_system::load_mob_hit_cd(server_mob &mob) {

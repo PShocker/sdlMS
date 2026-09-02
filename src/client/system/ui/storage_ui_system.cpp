@@ -68,9 +68,7 @@ void storage_ui_system::render_items() {
   }
 }
 
-void storage_ui_system::render_vscr() {
-  
-}
+void storage_ui_system::render_vscr() {}
 
 void storage_ui_system::render_button() {
   const static std::array buttons_node = {
@@ -211,8 +209,7 @@ void storage_ui_system::event_button_get() {
     if (package_game_instance::add_item(itm)) {
       itm->id = u"";
     } else {
-      notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;
-      notice_ui_system::open();
+      notice_ui_system::open_no_space(itm->type);
     }
   }
   return;
@@ -236,7 +233,7 @@ void storage_ui_system::event_button_put() {
     auto &itm =
         package_game_instance::data[active_tab].at(active_item[1].value());
     if (!add_item(itm)) {
-      notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;
+      notice_ui_system::type = notice_ui_system::notice_enum::no_storage_space;
       notice_ui_system::open();
     }
   }

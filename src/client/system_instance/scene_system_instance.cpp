@@ -159,9 +159,7 @@ void scene_system_instance::enter_prepare() {
   auto &self = character_game_instance::self;
   if (pos.has_value()) {
     self.pos = pos.value();
-    self.action = u"jump";
-    self.action_index = 0;
-    self.action_time = 0;
+    character_logic_system::run_action(self, u"jump");
   }
   character_logic_system::self_fh = 0;
   character_logic_system::self_lr = 0;
@@ -269,7 +267,8 @@ void scene_system_instance::enter_prepare(uint32_t map_id,
 void scene_system_instance::enter_fade() {
   auto g = character_game_instance::self;
   g.pos = prepare_pos.value();
-  g.action = u"jump";
+
+  character_logic_system::run_action(g, u"jump");
   auto c = server_character_instance::load_charactert(g);
 
   fbs::ClientSceneT client_scene;

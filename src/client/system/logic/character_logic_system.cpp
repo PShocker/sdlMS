@@ -843,8 +843,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       };
       auto cm = character_logic_system::run_attack_check(g_character, tri);
       auto &ball = *package_game_instance::load_active_ball();
-      auto &consume = static_cast<game_consume_item &>(*ball);
-      consume.num -= 1;
+      item_game_instance::dec_item_num(ball, 1);
       auto cash_ball = package_game_instance::load_active_cash_ball();
       std::u16string path;
       std::u16string effect;

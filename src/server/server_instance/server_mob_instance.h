@@ -1,15 +1,12 @@
 #pragma once
 
-#include "src/client/game/game_mob.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/server/server/server_mob.h"
 #include "src/server/server/server_scene.h"
 #include <cstdint>
-#include <flat_map>
 #include <string>
-#include <vector>
 
 using namespace fbs;
 

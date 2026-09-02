@@ -13,7 +13,7 @@ public:
 
   static inline SDL_MouseButtonFlags pre_mouse_state;
   static inline SDL_MouseButtonFlags mouse_state;
-  static const inline bool *keyboard_State = SDL_GetKeyboardState(nullptr);
+  static const inline bool *keyboard_state = SDL_GetKeyboardState(nullptr);
 
   static inline uint64_t dt_now = 0;
   static inline uint64_t dt_last = 0;

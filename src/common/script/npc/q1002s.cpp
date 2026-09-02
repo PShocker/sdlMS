@@ -20,8 +20,7 @@ static void state() {
     std::polymorphic<game_item> itm{con};
     auto i = package_game_instance::add_new_item(itm);
     if (!i.has_value()) {
-      notice_ui_system::open();
-      notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;
+      notice_ui_system::open_no_space(itm->type);
     } else {
       // accept quest
       quest_game_instance::accept_quest(u"1002.img");

@@ -1,7 +1,6 @@
 #include "notice_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
-#include "package_ui_system.h"
 #include "src/client/game/game_shop.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -40,10 +39,17 @@ void notice_ui_system::render_backgrnd() {
   case notice_enum::equip_no_ability:
   case notice_enum::equip_no_space:
   case notice_enum::shopbuy_no_meso:
-  case notice_enum::shopbuy_no_space:
+  case notice_enum::no_equip_space:
+  case notice_enum::no_consume_space:
+  case notice_enum::no_install_space:
+  case notice_enum::no_etc_space:
+  case notice_enum::no_cash_space:
+  case notice_enum::no_deco_space:
+  case notice_enum::no_storage_space:
   case notice_enum::shopbuy_sell:
   case notice_enum::shopbuy_sell_no_num:
-  case notice_enum::shopbuy: {
+  case notice_enum::shopbuy:
+  case notice_enum::trade_block: {
     node = wz_resource::ui->find(u"PopupWindow.img/Notice1");
     break;
   }
@@ -97,10 +103,17 @@ void notice_ui_system::render_button() {
   case notice_enum::shopbuy:
   case notice_enum::shopbuy_mul:
   case notice_enum::shopbuy_no_meso:
-  case notice_enum::shopbuy_no_space:
+  case notice_enum::no_equip_space:
+  case notice_enum::no_consume_space:
+  case notice_enum::no_install_space:
+  case notice_enum::no_etc_space:
+  case notice_enum::no_cash_space:
+  case notice_enum::no_deco_space:
+  case notice_enum::no_storage_space:
   case notice_enum::equip_no_ability:
   case notice_enum::throw_mul:
-  case notice_enum::equip_no_space: {
+  case notice_enum::equip_no_space:
+  case notice_enum::trade_block: {
     buttons_node = {
         wz_resource::ui->find(u"Basic.img/BtOK2"),
         wz_resource::ui->find(u"Basic.img/BtCancel2"),
@@ -157,8 +170,46 @@ void notice_ui_system::render_text() {
     p = {20, 20};
     break;
   }
-  case notice_enum::shopbuy_no_space: {
-    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noSpace");
+  case notice_enum::no_equip_space: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noEqpSpace");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::no_consume_space: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noConSpace");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::no_install_space: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noInsSpace");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::no_etc_space: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noEtcSpace");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::no_cash_space: {
+    auto n =
+        wz_resource::ms->get_root()->find(u"String.img/Notice/noCashSpace");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::no_deco_space: {
+    auto n =
+        wz_resource::ms->get_root()->find(u"String.img/Notice/noDecoSpace");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::no_storage_space: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noStoSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
@@ -204,6 +255,12 @@ void notice_ui_system::render_text() {
   }
   case notice_enum::throw_mul: {
     auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/throwMul");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
+  case notice_enum::trade_block: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/tradeBlock");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
@@ -302,6 +359,38 @@ void notice_ui_system::open() {
   }
 }
 
+void notice_ui_system::open_no_space(item_enum type) {
+  switch (type) {
+  case item_enum::equip: {
+    notice_ui_system::type = notice_ui_system::notice_enum::no_equip_space;
+    break;
+  }
+  case item_enum::consume: {
+    notice_ui_system::type = notice_ui_system::notice_enum::no_consume_space;
+    break;
+  }
+  case item_enum::install: {
+    notice_ui_system::type = notice_ui_system::notice_enum::no_install_space;
+    break;
+  }
+  case item_enum::etc: {
+    notice_ui_system::type = notice_ui_system::notice_enum::no_etc_space;
+    break;
+  }
+  case item_enum::cash: {
+    notice_ui_system::type = notice_ui_system::notice_enum::no_cash_space;
+    break;
+  }
+  case item_enum::deco: {
+    notice_ui_system::type = notice_ui_system::notice_enum::no_deco_space;
+    break;
+  }
+  }
+  if (!std::ranges::contains(system::render_systems, &render)) {
+    open();
+  }
+}
+
 void notice_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
@@ -315,7 +404,14 @@ SDL_FPoint notice_ui_system::load_wh() {
   case notice_enum::shopbuy_sell_no_num:
   case notice_enum::shopbuy:
   case notice_enum::shopbuy_no_meso:
-  case notice_enum::shopbuy_no_space: {
+  case notice_enum::no_equip_space:
+  case notice_enum::no_consume_space:
+  case notice_enum::no_install_space:
+  case notice_enum::no_etc_space:
+  case notice_enum::no_cash_space:
+  case notice_enum::no_deco_space:
+  case notice_enum::no_storage_space:
+  case notice_enum::trade_block: {
     return {266, 116};
   }
   case notice_enum::ap_inc:
@@ -368,8 +464,7 @@ void notice_ui_system::event_button_shopbuy() {
         item_game_instance::dec_item_num(must_itm.item, buy_num);
       }
     } else {
-      type = notice_enum::shopbuy_no_space;
-      return;
+      open_no_space(itm->type);
     }
     break;
   }

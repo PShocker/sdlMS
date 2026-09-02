@@ -295,87 +295,90 @@ bool cursor_logic_system::run() {
 }
 
 bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
-  switch (event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (cursor_game_instance::cursor_ui == nullptr) {
-        auto &cursor_hand = cursor_game_instance::cursor_hand;
-        auto &cursor_hand_net = cursor_game_instance::cursor_hand_net;
-        if (cursor_hand.has_value() && !cursor_hand_net.has_value()) {
-          switch (cursor_hand->type) {
-          case cursor_game_instance::equipment: {
-            cursor_hand = std::nullopt;
-            break;
-          }
-          case cursor_game_instance::package: {
-            auto active_tab = cursor_hand->val;
-            DropT dt;
-            if (active_tab == (int)item_enum::equip) {
-              auto &equip =
-                  package_game_instance::data[0][cursor_hand->sub_val];
-              EquipT et;
-              et.equip_id =
-                  std::stoi(std::string{equip->id.begin(), equip->id.end()});
-              dt.drop.Set(et);
+  // 1. 事件类型检查
+  if (!event || event->type != SDL_EVENT_MOUSE_BUTTON_UP ||
+      event->button.button != SDL_BUTTON_LEFT) {
+    return false;
+  }
 
-              dt.x1 = character_game_instance::self.pos.x;
-              dt.y1 = character_game_instance::self.pos.y;
+  auto &cursor_hand = cursor_game_instance::cursor_hand;
+  auto &cursor_hand_net = cursor_game_instance::cursor_hand_net;
 
-              dt.page = character_game_instance::self.page;
+  // 2. 前置条件检查
+  if (cursor_game_instance::cursor_ui != nullptr || !cursor_hand.has_value() ||
+      cursor_hand_net.has_value()) {
+    return false;
+  }
 
-              ClientCharacterDropT cct;
-              cct.map_id = scene_system_instance::map_id;
-              cct.payload = std::make_unique<DropT>(dt);
-              client_request::send_to_host(cct);
+  // 3. 根据光标类型处理
+  switch (cursor_hand->type) {
+  case cursor_game_instance::equipment:
+  case cursor_game_instance::skill: {
+    cursor_hand = std::nullopt;
+    break;
+  }
 
-              cursor_hand_net = {
-                  .type = cursor_game_instance::drop,
-              };
-            } else {
-              auto &itm =
-                  package_game_instance::data[active_tab][cursor_hand->sub_val];
-              auto num = item_game_instance::load_item_num(itm);
-              auto itm_info = item_game_instance::load_item_info(itm->id, 0);
-              bool unitPrice = itm_info->get_child(u"unitPrice");
-              if (num > 1 && !unitPrice) {
-                notice_ui_system::type =
-                    notice_ui_system::notice_enum::throw_mul;
-                notice_ui_system::data = &itm;
-                notice_ui_system::open();
-              } else {
-                ItemT it;
-                it.item_id =
-                    std::stoi(std::string{itm->id.begin(), itm->id.end()});
-                it.item_num = std::max(1, num);
-                dt.drop.Set(it);
+  case cursor_game_instance::package: {
+    int active_tab = cursor_hand->val;
+    int sub_index = cursor_hand->sub_val;
+    // 处理装备丢弃
+    if (active_tab == static_cast<int>(item_enum::equip)) {
+      auto &equip = package_game_instance::data[0][sub_index];
+      DropT dt;
 
-                dt.x1 = character_game_instance::self.pos.x;
-                dt.y1 = character_game_instance::self.pos.y;
+      EquipT et;
+      et.equip_id = std::stoi(std::string(equip->id.begin(), equip->id.end()));
+      dt.drop.Set(et);
 
-                dt.page = character_game_instance::self.page;
+      dt.x1 = character_game_instance::self.pos.x;
+      dt.y1 = character_game_instance::self.pos.y;
+      dt.page = character_game_instance::self.page;
 
-                ClientCharacterDropT cct;
-                cct.map_id = scene_system_instance::map_id;
-                cct.payload = std::make_unique<DropT>(dt);
-                client_request::send_to_host(cct);
+      ClientCharacterDropT cct;
+      cct.map_id = scene_system_instance::map_id;
+      cct.payload = std::make_unique<DropT>(dt);
+      client_request::send_to_host(cct);
 
-                cursor_hand_net = {
-                    .type = cursor_game_instance::drop,
-                };
-              }
-            }
-            break;
-          }
-          case cursor_game_instance::skill: {
-            cursor_game_instance::cursor_hand = std::nullopt;
-            break;
-          }
-          default: {
-            break;
-          }
-          }
-        }
+      cursor_hand_net = {.type = cursor_game_instance::drop};
+    }
+    // 处理物品丢弃
+    else {
+      auto &itm = package_game_instance::data[active_tab][sub_index];
+      int num = item_game_instance::load_item_num(itm);
+      auto itm_info = item_game_instance::load_item_info(itm->id, 0);
+      bool unitPrice = itm_info->get_child(u"unitPrice");
+
+      // 数量>1且非单价物品，弹出多选对话框
+      if (num > 1 && !unitPrice) {
+        notice_ui_system::type = notice_ui_system::notice_enum::throw_mul;
+        notice_ui_system::data = &itm;
+        notice_ui_system::open();
+        break; // 不执行丢弃，等待用户选择数量
       }
+      bool tradeBlock = itm_info->get_child(u"tradeBlock");
+      if (tradeBlock) {
+        notice_ui_system::type = notice_ui_system::notice_enum::trade_block;
+        notice_ui_system::open();
+        break; // 不执行丢弃，等待用户选择数量
+      }
+
+      // 执行物品丢弃
+      DropT dt;
+      ItemT it;
+      it.item_id = std::stoi(std::string(itm->id.begin(), itm->id.end()));
+      it.item_num = std::max(1, num);
+      dt.drop.Set(it);
+
+      dt.x1 = character_game_instance::self.pos.x;
+      dt.y1 = character_game_instance::self.pos.y;
+      dt.page = character_game_instance::self.page;
+
+      ClientCharacterDropT cct;
+      cct.map_id = scene_system_instance::map_id;
+      cct.payload = std::make_unique<DropT>(dt);
+      client_request::send_to_host(cct);
+
+      cursor_hand_net = {.type = cursor_game_instance::drop};
     }
     break;
   }

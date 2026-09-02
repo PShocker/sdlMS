@@ -52,6 +52,7 @@ public:
 
   static inline uint32_t ski_accuracy; // 命中
   static inline uint32_t ski_avoid;    // 回避
+  static inline uint32_t ski_exp;
 
   static inline int64_t eqp_hp;
   static inline int64_t eqp_mp;
@@ -70,6 +71,8 @@ public:
   static inline uint32_t eqp_attack_def;
   static inline uint32_t eqp_magic_def;
 
+  static inline uint32_t eqp_exp;
+
   static inline int64_t itm_hp;
   static inline int64_t itm_mp;
   static inline int64_t itm_str;
@@ -83,4 +86,5 @@ public:
 
   static inline uint32_t itm_attack; // pad
   static inline uint32_t itm_magic;
+  static inline uint32_t itm_exp;
 };

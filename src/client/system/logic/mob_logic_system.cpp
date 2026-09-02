@@ -25,7 +25,7 @@ mob_logic_system::load_action_type(const std::u16string &action) {
   const static std::flat_map<std::u16string, action_enum> map_name = {
       {u"stand", action_enum::stand}, {u"move", action_enum::move},
       {u"hit1", action_enum::hit},    {u"die1", action_enum::die},
-      {u"", action_enum::revive},
+      {u"jump", action_enum::jump},   {u"", action_enum::revive},
   };
   return map_name.at(action);
 }

@@ -13,4 +13,5 @@ public:
   static void load(const character_save &cs);
   static void load();
   static inline std::flat_map<SDL_Scancode, game_input> data;
+  static SDL_Scancode find_key_by_val(const std::string &target_val);
 };

@@ -91,6 +91,8 @@ public:
 
   static bool run_skill(game_character &g_character, const std::u16string &id);
 
+  static std::vector<uint64_t> run_buff_check(game_character &g_character,
+                                              SDL_FRect g_r);
   static check_mobs run_attack_check(game_character &g_character,
                                      SDL_FRect g_r);
   static check_mobs run_attack_check(game_character &g_character,

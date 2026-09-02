@@ -24,6 +24,8 @@ private:
 
   static int load_mob_hit_cd(server_mob &mob);
 
+  static bool run_try_jump(server_mob &mob);
+
   static bool run_hit_check(server_mob &mob);
 
   static void run_hit_action(server_mob &mob);

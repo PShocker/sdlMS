@@ -280,6 +280,12 @@ void item_game_instance::unuse_buff_item(const std::u16string &id) {
             static_cast<wz::Property<int> *>(info->get_child(u"crt"))->get();
         character_stat_game_instance::crit_damage -= crt;
       }
+      if (info->get_child(u"expBuff")) {
+        auto expBuff =
+            static_cast<wz::Property<int> *>(info->get_child(u"expBuff"))
+                ->get();
+        character_stat_game_instance::itm_exp -= expBuff;
+      }
       if (info->get_child(u"morph")) {
         auto &sf = character_game_instance::self;
         sf.morph = u"";
@@ -288,8 +294,9 @@ void item_game_instance::unuse_buff_item(const std::u16string &id) {
         st.state = fbs::StateEnum_BUFF_ITEM;
         st.val = std::stoi(std::string{sf.morph.begin(), sf.morph.end()});
         st.sub_val = 0;
-        character_logic_system::ccs.payload.push_back(
-            std::make_unique<StateT>(st));
+
+        auto &ccs = character_logic_system::ccs;
+        ccs.payload.push_back(std::make_unique<StateT>(st));
       }
       break;
     }
@@ -338,6 +345,11 @@ bool item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
     auto crt = static_cast<wz::Property<int> *>(info->get_child(u"crt"))->get();
     character_stat_game_instance::crit_damage -= crt;
     r = true;
+  }
+  if (info->get_child(u"expBuff")) {
+    auto expBuff =
+        static_cast<wz::Property<int> *>(info->get_child(u"expBuff"))->get();
+    character_stat_game_instance::itm_exp += expBuff;
   }
   if (info->get_child(u"morph")) {
     use_morph_item(id, character_game_instance::self);

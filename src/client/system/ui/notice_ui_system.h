@@ -1,10 +1,9 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/client/game/game_item.h"
 #include "text_input_ui_system.h"
 #include <any>
-#include <cstdint>
-#include <functional>
 class notice_ui_system {
 private:
   static void render_backgrnd();
@@ -38,7 +37,15 @@ public:
     shopbuy_sell_no_num,
     shopbuy_mul,
     shopbuy_no_meso,
-    shopbuy_no_space,
+
+    no_equip_space,
+    no_consume_space,
+    no_install_space,
+    no_etc_space,
+    no_cash_space,
+    no_deco_space,
+
+    no_storage_space,
 
     equip_no_ability,
     equip_no_space,
@@ -48,6 +55,8 @@ public:
     worldmap_teleport,
 
     throw_mul,
+
+    trade_block,
   };
 
   static inline notice_enum type;
@@ -58,6 +67,7 @@ public:
   static bool render();
 
   static void open();
+  static void open_no_space(item_enum type);
   static void close();
 
   static bool event(SDL_Event *event);

@@ -44,3 +44,13 @@ void keyboard_game_instance::load(const character_save &cs) {
     };
   }
 }
+
+SDL_Scancode
+keyboard_game_instance::find_key_by_val(const std::string &target_val) {
+  for (const auto &[scancode, binding] : data) {
+    if (binding.val == target_val) {
+      return scancode;
+    }
+  }
+  return SDL_SCANCODE_UNKNOWN; // 未找到
+}

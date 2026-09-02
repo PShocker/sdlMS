@@ -477,7 +477,8 @@ bool shop_ui_system::event_item(SDL_Event *event) {
     if (meso < itm.price) {
       notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_meso;
     } else if (space) {
-      notice_ui_system::type = notice_ui_system::notice_enum::shopbuy_no_space;
+      notice_ui_system::open_no_space(itm2.item->type);
+      return true;
     } else {
       notice_ui_system::type = (itm.item->type == item_enum::equip)
                                    ? notice_ui_system::notice_enum::shopbuy

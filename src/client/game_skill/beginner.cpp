@@ -15,7 +15,6 @@
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include <cstdint>
-#include <memory>
 #include <string>
 
 static void ThreeSnail() {
