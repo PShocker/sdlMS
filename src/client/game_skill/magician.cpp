@@ -123,6 +123,7 @@ static void mfsj() {
   g_skill.id = u"2001003";
   g_skill.use = [](int ski_lv) {
     auto &self = character_game_instance::self;
+    character_logic_system::run_stand_action(self);
     character_logic_system::run_attack_action(self);
     SDL_FPoint lt = {-300, -90};
     SDL_FPoint rb = {-25, 10};

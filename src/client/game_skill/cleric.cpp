@@ -43,7 +43,7 @@ static void shunjianyidong() {
   };
 
   g_skill.use = [g_skill](int ski_lv) {
-    skill_game_instance::skis()[u"2201001"].cd = window::dt_now + 1000;
+    skill_game_instance::skis()[u"2201001"].cd = window::dt_now + 500;
     auto &sf = character_game_instance::self;
 
     auto up = keyboard_game_instance::find_key_by_val("up");
@@ -75,19 +75,25 @@ static void shunjianyidong() {
       auto ins = physic::fall_intersect_pos(sf.pos, {x, y}, fhs);
       if (!ins.empty()) {
         if (sf.pos.y < y) {
-          sf.pos = ins.begin()->second.pos;
+          sf.pos = ins.rbegin()->second.pos;
+          character_logic_system::self_fh = ins.rbegin()->second.fh.id;
         } else {
-          sf.pos = ins.end()->second.pos;
+          sf.pos = ins.begin()->second.pos;
+          character_logic_system::self_fh = ins.begin()->second.fh.id;
         }
       }
     } else if (x != sf.pos.x) {
-      auto ins = physic::fall_intersect_pos({x, b}, {x, y}, fhs);
+      auto ins = physic::fall_intersect_pos({x, y}, {x, y + 70}, fhs);
       if (!ins.empty()) {
         auto top = ins.begin()->first;
-        if (std::abs(top - y) <= 50) {
-          sf.pos = ins.begin()->second.pos;
+        sf.pos = ins.begin()->second.pos;
+        character_logic_system::self_fh = ins.begin()->second.fh.id;
+      } else {
+        auto ins = physic::fall_intersect_pos({x, y}, {x, y - 70}, fhs);
+        if (!ins.empty()) {
+          auto top = ins.rbegin()->first;
+          sf.pos = ins.rbegin()->second.pos;
           character_logic_system::self_fh = ins.begin()->second.fh.id;
-          character_logic_system::run_stand_action(sf);
         }
       }
     }

@@ -1264,6 +1264,9 @@ void character_logic_system::run_state_machine() {
     if (run_attack(g_character)) {
       break;
     }
+    if (run_skill(g_character)) {
+      break;
+    }
     if (run_portal(g_character)) {
       break;
     }
