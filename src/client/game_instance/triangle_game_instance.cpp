@@ -68,7 +68,6 @@ game_triangle triangle_game_instance::load_tri(game_triangle t, bool flip,
       p.x = pos.x - p.x;
       p.y = pos.y - p.y;
     }
-
   } else {
     for (auto &p : t.point) {
       p.x += pos.x;

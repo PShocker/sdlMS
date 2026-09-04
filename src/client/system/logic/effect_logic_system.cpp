@@ -113,6 +113,31 @@ bool effect_logic_system::run_skill_use(game_effect &g_effect) {
   return r;
 }
 
+bool effect_logic_system::run_skill_affected(game_effect &g_effect) {
+  bool r = false;
+  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
+  ski_node = ski_node->get_child(u"affected");
+  if (ski_node == nullptr) {
+    return true;
+  }
+  auto index = std::to_string(g_effect.index);
+  auto texture_node = ski_node->get_child(index);
+  auto delay_node = texture_node->get_child(u"delay");
+  int32_t delay = 100;
+  if (delay_node) {
+    delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
+  }
+  g_effect.time += window::delta_time;
+  if (g_effect.time >= delay) {
+    g_effect.time = 0;
+    g_effect.index += 1;
+    auto count = ski_node->children_count();
+    r = g_effect.index >= count;
+    g_effect.index = g_effect.index % count;
+  }
+  return r;
+}
+
 bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
   auto now = window::dt_time;
   if (g_effect.delay >= now) {
@@ -156,6 +181,10 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
     }
     case game_effect::effect_type::skill_use: {
       remove = run_skill_use(g_effect);
+      break;
+    }
+    case game_effect::effect_type::skill_affected: {
+      remove = run_skill_affected(g_effect);
       break;
     }
     case game_effect::effect_type::skill_hit: {

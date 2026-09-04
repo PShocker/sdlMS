@@ -240,7 +240,7 @@ void item_game_instance::use_morph_item(const std::u16string &id,
     st.sub_val = 1;
     character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
 
-    server_character_instance::handle_morph_use(g_character, st);
+    server_character_instance::handle_morph_use(g_character, true);
   }
 }
 
@@ -288,7 +288,7 @@ void item_game_instance::unuse_buff_item(const std::u16string &id) {
       }
       if (info->get_child(u"morph")) {
         auto &sf = character_game_instance::self;
-        sf.morph = u"";
+        server_character_instance::handle_morph_use(sf, false);
 
         StateT st;
         st.state = fbs::StateEnum_BUFF_ITEM;
@@ -379,16 +379,16 @@ bool item_game_instance::use_mob_item(std::polymorphic<game_item> &itm) {
       ClientCreateMobT ccm;
       ccm.map_id = scene_system_instance::map_id;
       for (int i = 0; i < mob_num; i++) {
-        MobT mt;
-        mt.mob_id = mob_id;
-        LifeStateT ls;
-        ls.x = g_character.pos.x;
-        ls.y = g_character.pos.y;
-        ls.page = g_character.page;
-        ls.fh = character_logic_system::self_fh;
-        ls.action_animate = true;
-        mt.state = std::make_unique<LifeStateT>(ls);
-        ccm.mobs.push_back(std::make_unique<MobT>(mt));
+        ccm.mobs.emplace_back(std::make_unique<MobT>());
+        auto &mob = ccm.mobs.back();
+        mob->mob_id = mob_id;
+        mob->state = std::make_unique<LifeStateT>(LifeStateT{
+            .x = g_character.pos.x,
+            .y = g_character.pos.y,
+            .action_animate = true,
+            .page = g_character.page,
+            .fh = static_cast<int16_t>(character_logic_system::self_fh),
+        });
       }
       client_request::send_to_host(ccm);
       r = true;

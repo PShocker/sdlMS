@@ -27,7 +27,7 @@
 
 static void shunjianyidong() {
   game_skill g_skill;
-  g_skill.id = u"2201001";
+  g_skill.id = u"2301000";
 
   g_skill.effect = [](SDL_FPoint p, game_effect *e, bool f) {
     e->id = u"BasicEff.img/Teleport";
@@ -38,12 +38,12 @@ static void shunjianyidong() {
     }
     auto g_character = std::any_cast<game_character *>(e->data);
     effect_render_system::render_effect(g_character->pos, *e);
-    e->id = u"2201001";
+    e->id = u"2301000";
     return true;
   };
 
   g_skill.use = [g_skill](int ski_lv) {
-    skill_game_instance::skis()[u"2201001"].cd = window::dt_now + 500;
+    skill_game_instance::skis()[u"2301000"].cd = window::dt_now + 500;
     auto &sf = character_game_instance::self;
 
     auto up = keyboard_game_instance::find_key_by_val("up");
@@ -102,10 +102,37 @@ static void shunjianyidong() {
     character_logic_system::self_vspeed = 0;
 
     ClientCharacterAttackT cat;
-    auto ckt = skill_game_instance::create_skill_payload(cat, 2201001, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(cat, 2301000, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
     client_request::send_to_host(ckt);
   };
+  auto &skis = skill_game_instance::skis();
+  skis[g_skill.id] = g_skill;
+}
+
+static void huixueshu() {
+  game_skill g_skill;
+  g_skill.climb = true;
+  g_skill.id = u"2301001";
+
+  static uint64_t now;
+  g_skill.use = [g_skill](int ski_lv) mutable {
+    skill_game_instance::skis()[u"2301001"].cd = window::dt_now + 1000;
+
+    auto &ski = skill_game_instance::ski;
+    g_skill.end();
+    g_skill.lv = ski_lv;
+    g_skill.duration = 30 * 1000;
+    g_skill.destroy = window::dt_now + g_skill.duration;
+    ski.push_back(g_skill);
+
+    auto &sf = character_game_instance::self;
+    auto ckt = skill_game_instance::create_skill_payload(
+        std::vector<uint64_t>{}, 1001, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    client_request::send_to_host(ckt);
+  };
+
   auto &skis = skill_game_instance::skis();
   skis[g_skill.id] = g_skill;
 }

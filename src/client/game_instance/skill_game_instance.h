@@ -49,4 +49,7 @@ public:
   static ClientCharacterSkillT
   create_skill_payload(const ClientCharacterAttackT &attack_payload, int ski_id,
                        uint8_t ski_lv);
+  static ClientCharacterSkillT
+  create_skill_payload(const std::vector<uint64_t> &buff_payload, int ski_id,
+                       uint8_t ski_lv);
 };

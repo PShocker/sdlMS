@@ -27,6 +27,7 @@ public:
     effect,
     damage,
     skill_use,
+    skill_affected,
     skill_hit,
     skill_custom,
   };

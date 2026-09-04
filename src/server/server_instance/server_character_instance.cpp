@@ -431,17 +431,42 @@ void server_character_instance::handle_ski(
 
   auto &mob = mob_game_instance::data;
   for (const auto &s : v) {
-    game_effect e2 = {
-        .id = ski_id3,
-        .index = 0,
-        .time = 0,
-        .delay = s->delay,
-        .lvl = ski_lv,
-        .type = game_effect::effect_type::skill_hit,
-        .pos = SDL_FPoint{s->x, s->y},
-        .z = false,
-    };
-    mob[s->mob].mob.effect.push_back(e2);
+    if (s->player == 0) {
+      game_effect e2 = {
+          .id = ski_id3,
+          .index = 0,
+          .time = 0,
+          .delay = s->delay,
+          .lvl = ski_lv,
+          .type = game_effect::effect_type::skill_hit,
+          .pos = SDL_FPoint{s->x, s->y},
+          .z = false,
+      };
+      mob[s->mob].mob.effect.push_back(e2);
+    } else {
+      game_character *c = nullptr;
+      if (character_game_instance::others.contains(s->player)) {
+        c = &character_game_instance::others[s->player].g_character;
+      } else if (s->player == server_main::local_addr) {
+        c = &character_game_instance::self;
+        // ski_buff
+        auto &skis = skill_game_instance::skis();
+        skis.at(ski_id3).use(ski_lv);
+      }
+      if (c != nullptr) {
+        game_effect e = {
+            .id = ski_id3,
+            .index = 0,
+            .time = 0,
+            .delay = 0,
+            .type = game_effect::effect_type::skill_affected,
+            .pos = std::nullopt,
+            .z = false,
+            .data = &g_character,
+        };
+        c->effect.push_back(e);
+      }
+    }
   }
 }
 
@@ -707,7 +732,7 @@ void server_character_instance::handle_scroll_use(game_character &g_character,
 }
 
 void server_character_instance::handle_morph_use(game_character &g_character,
-                                                 const StateT &st) {
+                                                 bool success) {
   std::u16string path = u"BasicEff.img/Transform";
   auto type = character_logic_system::load_action_type(g_character);
   if (type == character_logic_system::action_enum::climb) {
@@ -741,7 +766,11 @@ void server_character_instance::handle_item_use(game_character &g_character,
       return;
     }
     if (itm_id.starts_with(u"0221")) {
-      handle_morph_use(g_character, st);
+      if (st.sub_val == 1) {
+        handle_morph_use(g_character, true);
+      } else {
+        handle_morph_use(g_character, false);
+      }
       return;
     }
   }

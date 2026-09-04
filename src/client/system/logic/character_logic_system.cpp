@@ -23,7 +23,6 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/game_instance/triangle_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
-#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -1644,4 +1643,18 @@ void character_logic_system::run_being_hit(float x, uint64_t num) {
     character_logic_system::run_face_action(sf, u"hit");
   }
   return;
+}
+
+std::vector<uint64_t>
+character_logic_system::run_buff_check(game_character &g_character,
+                                       SDL_FRect g_r) {
+  std::vector<uint64_t> r;
+  auto &g_pos = g_character.pos;
+  for (const auto &[k, v] : character_game_instance::others) {
+    auto c_r = load_rect(v.g_character);
+    if (SDL_HasRectIntersectionFloat(&c_r, &g_r)) {
+      r.push_back(k);
+    }
+  }
+  return r;
 }

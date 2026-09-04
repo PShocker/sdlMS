@@ -130,9 +130,11 @@ std::polymorphic<game_item> *package_game_instance::load_active_ball() {
   auto weapon_type = equip_game_instance::load_weapon_type(sf);
   switch (weapon_type) {
   case equip_game_instance::weapon_type::BOW: {
+    pre = u"02060";
     break;
   }
   case equip_game_instance::weapon_type::CROSSBOW: {
+    pre = u"02061";
     break;
   }
   case equip_game_instance::weapon_type::CLAW: {

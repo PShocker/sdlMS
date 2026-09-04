@@ -34,6 +34,9 @@ static void qinggong() {
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](int ski_lv) mutable {
+    const SDL_FPoint lt = {-250, -150};
+    const SDL_FPoint rb = {250, 150};
+
     skill_game_instance::skis()[u"4101001"].cd = window::dt_now + 1000;
 
     auto &ski = skill_game_instance::ski;
@@ -47,8 +50,10 @@ static void qinggong() {
     character_logic_system::self_hspeed_min -= 100;
 
     auto &sf = character_game_instance::self;
-    ClientCharacterAttackT cat;
-    auto ckt = skill_game_instance::create_skill_payload(cat, 4101001, ski_lv);
+    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    auto players = character_logic_system::run_buff_check(sf, g_r);
+    auto ckt =
+        skill_game_instance::create_skill_payload(players, 4101001, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
     client_request::send_to_host(ckt);
   };

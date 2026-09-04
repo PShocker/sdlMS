@@ -9,6 +9,8 @@ private:
   static void render_damage(SDL_FPoint pos, game_effect &g_effect);
   static bool render_custom(SDL_FPoint pos, game_effect &g_effect, bool flip);
   static void render_ski_use(SDL_FPoint pos, game_effect &g_effect, bool flip);
+  static void render_ski_affected(SDL_FPoint pos, game_effect &g_effect,
+                                  bool flip);
   static void render_ski_hit(SDL_FPoint pos, game_effect &g_effect, bool flip);
 
 public:

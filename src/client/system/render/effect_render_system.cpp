@@ -158,6 +158,37 @@ void effect_render_system::render_ski_use(SDL_FPoint pos, game_effect &g_effect,
   }
 }
 
+void effect_render_system::render_ski_affected(SDL_FPoint pos,
+                                               game_effect &g_effect,
+                                               bool flip) {
+  auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
+  if (!ski_node->get_child(u"affected")) {
+    return;
+  }
+  ski_node = ski_node->get_child(u"affected");
+  auto index = std::to_string(g_effect.index);
+  auto texture_node = ski_node->get_child(index);
+  auto texture = wz_resource::load_texture(texture_node);
+  auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
+  SDL_FRect pos_rect = {
+      .x = pos.x - origin.x,
+      .y = pos.y - origin.y,
+      .w = static_cast<float>(texture->w),
+      .h = static_cast<float>(texture->h),
+  };
+  if (flip == 1) {
+    pos_rect.x = pos.x;
+    pos_rect.x = (pos_rect.x - (texture->w - origin.x));
+  }
+  auto &camera = camera_game_instance::camera;
+  if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
+    pos_rect.x -= camera.x;
+    pos_rect.y -= camera.y;
+    SDL_RenderTextureRotated(window::renderer, texture, nullptr, &pos_rect, 0,
+                             nullptr, (SDL_FlipMode)flip);
+  }
+}
+
 void effect_render_system::render_ski_hit(SDL_FPoint pos, game_effect &g_effect,
                                           bool flip) {
   auto now = window::dt_time;
@@ -222,6 +253,10 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
   }
   case game_effect::effect_type::skill_use: {
     render_ski_use(pos, g_effect, flip);
+    break;
+  }
+  case game_effect::effect_type::skill_affected: {
+    render_ski_affected(pos, g_effect, flip);
     break;
   }
   case game_effect::effect_type::skill_hit: {

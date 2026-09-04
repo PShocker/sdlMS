@@ -1,7 +1,6 @@
 #include "skill_game_instance.h"
 #include "SDL3/SDL_rect.h"
 #include "character_game_instance.h"
-#include "equip_game_instance.h"
 #include "src/client/game/game_gauge.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -162,6 +161,22 @@ ClientCharacterSkillT skill_game_instance::create_skill_payload(
     c.mob = a->mob_index;
     c.x = a->attack->x;
     c.y = a->attack->y;
+    skill_payload.payload.push_back(
+        std::make_unique<CharacterSkillT>(std::move(c)));
+  }
+  return skill_payload;
+}
+
+ClientCharacterSkillT skill_game_instance::create_skill_payload(
+    const std::vector<uint64_t> &buff_payload, int ski_id, uint8_t ski_lv) {
+  ClientCharacterSkillT skill_payload;
+  skill_payload.ski_id = ski_id;
+  skill_payload.ski_lv = ski_lv;
+
+  for (const auto &client_id : buff_payload) {
+    CharacterSkillT c;
+    c.delay = 0;
+    c.player = client_id;
     skill_payload.payload.push_back(
         std::make_unique<CharacterSkillT>(std::move(c)));
   }
