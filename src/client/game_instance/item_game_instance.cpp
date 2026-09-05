@@ -226,13 +226,15 @@ void item_game_instance::use_morph_item(const std::u16string &id,
       static_cast<wz::Property<int> *>(info->get_child(u"morph"))->get();
   auto tmp = std::format("{:04d}", morph);
   g_character.morph = {tmp.begin(), tmp.end()};
+
   g_character.action_index = 0;
   g_character.action_time = 0;
-  character_logic_system::run_unsit_chair(g_character);
   if (&g_character == &character_game_instance::self) {
+    character_logic_system::run_unsit_chair(g_character);
+
     StateT st;
     st.state = fbs::StateEnum_BUFF_ITEM;
-    st.val = std::stoi(tmp);
+    st.val = std::stoi(std::string{id.begin(), id.end()});
     st.sub_val = 1;
     character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
 
@@ -241,6 +243,29 @@ void item_game_instance::use_morph_item(const std::u16string &id,
     character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
 
     server_character_instance::handle_morph_use(g_character, true);
+  }
+}
+
+void item_game_instance::unuse_morph_item(const std::u16string &id,
+                                          game_character &g_character) {
+  g_character.morph = u"";
+  g_character.action_index = 0;
+  g_character.action_time = 0;
+
+  if (&g_character == &character_game_instance::self) {
+    StateT st;
+    st.state = fbs::StateEnum_BUFF_ITEM;
+    st.val = std::stoi(std::string{id.begin(), id.end()});
+    st.sub_val = 0;
+
+    auto &ccs = character_logic_system::ccs;
+    ccs.payload.push_back(std::make_unique<StateT>(st));
+
+    st.state = fbs::StateEnum_ITEM_USE;
+    st.sub_val = 0;
+    character_logic_system::ccs.payload.push_back(std::make_unique<StateT>(st));
+
+    server_character_instance::handle_morph_use(g_character, false);
   }
 }
 
@@ -288,15 +313,7 @@ void item_game_instance::unuse_buff_item(const std::u16string &id) {
       }
       if (info->get_child(u"morph")) {
         auto &sf = character_game_instance::self;
-        server_character_instance::handle_morph_use(sf, false);
-
-        StateT st;
-        st.state = fbs::StateEnum_BUFF_ITEM;
-        st.val = std::stoi(std::string{sf.morph.begin(), sf.morph.end()});
-        st.sub_val = 0;
-
-        auto &ccs = character_logic_system::ccs;
-        ccs.payload.push_back(std::make_unique<StateT>(st));
+        unuse_morph_item(id, sf);
       }
       break;
     }

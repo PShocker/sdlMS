@@ -62,7 +62,7 @@ static void yinshenshu() {
     }
   };
 
-  g_skill.use = [g_skill](int ski_lv) mutable {
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     skill_game_instance::skis()[u"4001001"].cd = window::dt_now + 1000;
 
     auto &ski = skill_game_instance::ski;
@@ -72,13 +72,12 @@ static void yinshenshu() {
     g_skill.destroy = window::dt_now + g_skill.duration;
     ski.push_back(g_skill);
 
-    auto &self = character_game_instance::self;
-    self.color = {255, 255, 255, 128};
+    auto &sf = character_game_instance::self;
+    sf.color = {255, 255, 255, 128};
 
     ClientCharacterAttackT cat;
     auto ckt = skill_game_instance::create_skill_payload(cat, 4001001, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
-                                          self);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
 
     auto &ccs = character_logic_system::ccs;
@@ -116,7 +115,7 @@ static void shuangfeizhan() {
   game_skill g_skill;
   g_skill.id = u"4001003";
   g_skill.fall = true;
-  g_skill.use = [](int ski_lv) {
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
     game_triangle tri = {
         {
             SDL_FPoint{-350, -100},
@@ -124,8 +123,8 @@ static void shuangfeizhan() {
             SDL_FPoint{0, -28},
         },
     };
-    auto &self = character_game_instance::self;
-    auto weapon_type = equip_game_instance::load_weapon_type(self);
+    auto &sf = character_game_instance::self;
+    auto weapon_type = equip_game_instance::load_weapon_type(sf);
     if (weapon_type != equip_game_instance::weapon_type::CLAW) {
       return;
     }
@@ -134,18 +133,18 @@ static void shuangfeizhan() {
       return;
     }
     auto ball_id = (*ball)->id;
-    character_logic_system::run_action(self, u"swingO1");
-    auto cm = character_logic_system::run_attack_check(self, tri);
+    character_logic_system::run_action(sf, u"swingO1");
+    auto cm = character_logic_system::run_attack_check(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
     }
-    auto delay = skill_game_instance::load_ski_time(self);
+    auto delay = skill_game_instance::load_ski_time(sf);
     std::u16string path = u"Consume/0207.img/" + ball_id + u"/bullet";
-    auto pos = self.pos;
+    auto pos = sf.pos;
     pos.y -= 28;
-    auto page = self.page;
+    auto page = sf.page;
     SDL_FPoint goal = pos;
-    if (self.flip) {
+    if (sf.flip) {
       goal.x += 350;
     } else {
       goal.x -= 350;
@@ -157,7 +156,7 @@ static void shuangfeizhan() {
       auto d = ball_game_instance::load_ball_time(cct);
       // Create and send attack payload
       cm.data[0].hits = {15, 15};
-      cat = skill_game_instance::create_attack_payload(cm, self.pos, d, 120);
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d, 120);
       client_request::send_to_host(cat);
     }
     for (auto i : {0, 1}) {
@@ -171,8 +170,7 @@ static void shuangfeizhan() {
     if (!ckt.payload.empty()) {
       ckt.payload[1]->y += 10;
     }
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
-                                          self);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();

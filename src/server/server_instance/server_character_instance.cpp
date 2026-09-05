@@ -388,7 +388,15 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
 void server_character_instance::handle_ski(
     uint32_t ski_id, uint8_t ski_lv,
     const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
-    game_character &g_character) {
+    uint64_t client_id) {
+  game_character *g_character;
+  if (client_id == 0) {
+    g_character = &character_game_instance::self;
+  } else if (character_game_instance::others.contains(client_id)) {
+    g_character = &character_game_instance::others[client_id].g_character;
+  } else {
+    return;
+  }
   auto ski_id2 = std::to_string(ski_id);
   auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};
 
@@ -396,7 +404,7 @@ void server_character_instance::handle_ski(
     ski_id3.insert(0, 7 - ski_id3.length(), u'0');
   }
 
-  g_character.skill = ski_id3;
+  g_character->skill = ski_id3;
   auto skis = skill_game_instance::skis();
 
   if (skis.at(ski_id3).effect) {
@@ -408,9 +416,9 @@ void server_character_instance::handle_ski(
         .type = game_effect::effect_type::skill_custom,
         .pos = std::nullopt,
         .z = false,
-        .data = &g_character,
+        .data = g_character,
     };
-    auto &eff = g_character.effect;
+    auto &eff = g_character->effect;
     std::erase_if(eff, [&](const auto &ef) { return ef.id == e.id; });
     eff.push_back(e);
   } else {
@@ -422,9 +430,9 @@ void server_character_instance::handle_ski(
         .type = game_effect::effect_type::skill_use,
         .pos = std::nullopt,
         .z = false,
-        .data = &g_character,
+        .data = g_character,
     };
-    g_character.effect.push_back(e);
+    g_character->effect.push_back(e);
   }
 
   audio_game_instance::load_audio(u"Skill.img/" + ski_id3 + u"/Use", 0);
@@ -451,7 +459,7 @@ void server_character_instance::handle_ski(
         c = &character_game_instance::self;
         // ski_buff
         auto &skis = skill_game_instance::skis();
-        skis.at(ski_id3).use(ski_lv);
+        skis.at(ski_id3).use(client_id, ski_lv);
       }
       if (c != nullptr) {
         game_effect e = {
@@ -462,7 +470,7 @@ void server_character_instance::handle_ski(
             .type = game_effect::effect_type::skill_affected,
             .pos = std::nullopt,
             .z = false,
-            .data = &g_character,
+            .data = g_character,
         };
         c->effect.push_back(e);
       }
@@ -472,11 +480,7 @@ void server_character_instance::handle_ski(
 
 void server_character_instance::handle_server_ski(uint64_t client_id,
                                                   ServerCharacterSkillT &r) {
-  if (character_game_instance::others.contains(r.client_id)) {
-    auto &g_character =
-        character_game_instance::others.at(r.client_id).g_character;
-    handle_ski(r.ski_id, r.ski_lv, r.payload, g_character);
-  }
+  handle_ski(r.ski_id, r.ski_lv, r.payload, r.client_id);
 }
 
 void server_character_instance::load_g_character(
@@ -696,7 +700,11 @@ void server_character_instance::handle_buff_item(game_character &g_character,
     }
   } else if (item_type == u"Consume") {
     if (itm_id.starts_with(u"0221")) {
-      item_game_instance::use_morph_item(itm_id, g_character);
+      if (st.sub_val == 1) {
+        item_game_instance::use_morph_item(itm_id, g_character);
+      } else {
+        item_game_instance::unuse_morph_item(itm_id, g_character);
+      }
     }
   }
   return;

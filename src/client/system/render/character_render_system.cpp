@@ -471,6 +471,7 @@ bool character_render_system::render(game_character &g_character) {
     render_effect_back(g_character);
   } else {
     render_morph(g_character);
+    render_effect_back(g_character);
   }
   render_nametag(g_character);
   // auto r = character_logic_system::load_rect(g_character);

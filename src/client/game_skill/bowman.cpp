@@ -23,7 +23,7 @@
 static void duanhunjian() {
   game_skill g_skill;
   g_skill.id = u"3001001";
-  g_skill.use = [](int ski_lv) {
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
     game_triangle tri = {
         {
             SDL_FPoint{-350, -100},
@@ -64,7 +64,7 @@ static void duanhunjian() {
       client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 3001001, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
@@ -75,7 +75,7 @@ static void shuangfeizhan() {
   game_skill g_skill;
   g_skill.id = u"4001003";
   g_skill.fall = true;
-  g_skill.use = [](int ski_lv) {
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
     const game_triangle tri = {
         {
             SDL_FPoint{-350, -100},
@@ -131,7 +131,7 @@ static void shuangfeizhan() {
     if (!ckt.payload.empty()) {
       ckt.payload[1]->y += 10;
     }
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();

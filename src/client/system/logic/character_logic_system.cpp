@@ -678,18 +678,18 @@ bool character_logic_system::run_skill(game_character &g_character,
       switch (action_type) {
       case action_enum::jump: {
         if (ski.fall) {
-          ski.use(ski_lv);
+          ski.use(0, ski_lv);
         }
         break;
       }
       case action_enum::climb: {
         if (ski.climb) {
-          ski.use(ski_lv);
+          ski.use(0, ski_lv);
         }
         break;
       }
       default: {
-        ski.use(ski_lv);
+        ski.use(0, ski_lv);
         break;
       }
       }

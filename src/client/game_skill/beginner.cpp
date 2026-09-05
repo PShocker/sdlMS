@@ -21,7 +21,7 @@
 static void ThreeSnail() {
   game_skill g_skill;
   g_skill.id = u"0001000";
-  g_skill.use = [](int ski_lv) {
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
     game_triangle tri = {
         {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -28}}};
     auto &sf = character_game_instance::self;
@@ -59,7 +59,7 @@ static void ThreeSnail() {
       client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 1000, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
@@ -95,7 +95,7 @@ static void Recover() {
     }
   };
 
-  g_skill.use = [g_skill](int ski_lv) mutable {
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     skill_game_instance::skis()[u"0001001"].cd = window::dt_now + 10000;
 
     auto &ski = skill_game_instance::ski;
@@ -108,7 +108,7 @@ static void Recover() {
     auto &sf = character_game_instance::self;
     auto ckt = skill_game_instance::create_skill_payload(
         std::vector<uint64_t>{}, 1001, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
 
@@ -133,7 +133,7 @@ static void NimbleFeet() {
 
   g_skill.frame = []() { return; };
 
-  g_skill.use = [g_skill](int ski_lv) mutable {
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     skill_game_instance::skis()[u"0001002"].cd = window::dt_now + 1000;
 
     auto &ski = skill_game_instance::ski;
@@ -149,7 +149,7 @@ static void NimbleFeet() {
     auto &sf = character_game_instance::self;
     ClientCharacterAttackT cat;
     auto ckt = skill_game_instance::create_skill_payload(cat, 1002, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
 

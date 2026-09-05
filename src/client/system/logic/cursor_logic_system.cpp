@@ -447,6 +447,9 @@ bool cursor_logic_system::event_character(SDL_Event *event) {
 }
 
 bool cursor_logic_system::event_npc(SDL_Event *event) {
+  if (cursor_game_instance::cursor_hand_net.has_value()) {
+    return false;
+  }
   bool r = false;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
@@ -482,7 +485,7 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
           npc_dlg_ui_system::open();
           npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
           npc_dlg_ui_system::index = 0;
-          npc_dlg_ui_system::max_index = UINT8_MAX;
+          npc_dlg_ui_system::max_index = INT8_MAX;
           npc_dlg_ui_system::npc_id = npc_id;
           npc_dlg_ui_system::time = window::dt_now;
           // string.wz找d0

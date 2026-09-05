@@ -42,7 +42,7 @@ static void shunjianyidong() {
     return true;
   };
 
-  g_skill.use = [g_skill](int ski_lv) {
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) {
     skill_game_instance::skis()[u"2301000"].cd = window::dt_now + 500;
     auto &sf = character_game_instance::self;
 
@@ -103,7 +103,7 @@ static void shunjianyidong() {
 
     ClientCharacterAttackT cat;
     auto ckt = skill_game_instance::create_skill_payload(cat, 2301000, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
@@ -116,7 +116,7 @@ static void huixueshu() {
   g_skill.id = u"2301001";
 
   static uint64_t now;
-  g_skill.use = [g_skill](int ski_lv) mutable {
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     skill_game_instance::skis()[u"2301001"].cd = window::dt_now + 1000;
 
     auto &ski = skill_game_instance::ski;
@@ -129,7 +129,7 @@ static void huixueshu() {
     auto &sf = character_game_instance::self;
     auto ckt = skill_game_instance::create_skill_payload(
         std::vector<uint64_t>{}, 1001, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
 

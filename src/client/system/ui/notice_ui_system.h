@@ -24,6 +24,8 @@ private:
 
   static void event_button_ap_inc();
 
+  static void event_button_equip_no_ap();
+
   static bool event_button(SDL_Event *event);
   static void event_input(SDL_Event *event);
 

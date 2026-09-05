@@ -13,26 +13,26 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_character_instance.h"
+#include <cstdint>
 #include <memory>
 
 static void PowerStrke() {
   game_skill g_skill;
   g_skill.id = u"1001001";
-  g_skill.use = [](int ski_lv) {
-    auto &self = character_game_instance::self;
-    character_logic_system::run_attack_action(self);
-    SDL_FRect g_r = afterimage_game_instance::load_rect(self).value();
-    auto cm = character_logic_system::run_attack_check(self, g_r);
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
+    auto &sf = character_game_instance::self;
+    character_logic_system::run_attack_action(sf);
+    SDL_FRect g_r = afterimage_game_instance::load_rect(sf).value();
+    auto cm = character_logic_system::run_attack_check(sf, g_r);
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
-      auto delay = skill_game_instance::load_ski_time(self);
+      auto delay = skill_game_instance::load_ski_time(sf);
       // Create and send attack payload
-      cat = skill_game_instance::create_attack_payload(cm, self.pos, delay);
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, delay);
       client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 1001001, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
-                                          self);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
@@ -42,7 +42,7 @@ static void PowerStrke() {
 static void SlashBlast() {
   game_skill g_skill;
   g_skill.id = u"1001002";
-  g_skill.use = [](int ski_lv) {
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
     character_logic_system::run_attack_action(sf);
     SDL_FPoint lt = {-150, -100};
@@ -57,7 +57,7 @@ static void SlashBlast() {
       client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 1001002, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();

@@ -28,7 +28,6 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 void notice_ui_system::render_backgrnd() {
@@ -209,14 +208,24 @@ void notice_ui_system::render_text() {
     break;
   }
   case notice_enum::no_storage_space: {
-    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noStoSpace");
+    auto n =
+        wz_resource::ms->get_root()->find(u"String.img/Notice/noStorageSpace");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
     p = {20, 20};
     break;
   }
-  case notice_enum::equip_no_ability:
-  case notice_enum::equip_no_space:
+  case notice_enum::equip_no_ability: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noAbility");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
     break;
+  }
+  case notice_enum::equip_no_space: {
+    auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/noEqpSpace");
+    text = static_cast<wz::Property<std::u16string> *>(n)->get();
+    p = {20, 20};
+    break;
+  }
   case notice_enum::shopbuy_sell: {
     auto n = wz_resource::ms->get_root()->find(u"String.img/Notice/sellItem");
     text = static_cast<wz::Property<std::u16string> *>(n)->get();
@@ -317,18 +326,9 @@ void notice_ui_system::open() {
     case notice_enum::shopbuy_sell_mul:
     case notice_enum::shopbuy_mul:
     case notice_enum::throw_mul: {
-      int num;
-      if (std::any_cast<std::nullptr_t>(&notice_ui_system::data)) {
-        num = 1;
-      } else {
-        auto p = std::any_cast<std::polymorphic<game_item> *>(
-            notice_ui_system::data);
-        num = item_game_instance::load_item_num(*p);
-      }
-      auto tmp = std::to_string(num);
       text = {
           .max_size = 12,
-          .text = {tmp.begin(), tmp.end()},
+          .text = u"1",
           .composition = {},
           .disable = false,
           .active = false,
@@ -347,6 +347,20 @@ void notice_ui_system::open() {
       text.type.set(text_input::digit);
       text.cur = 1;
       text_input_ui_system::active(text);
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+
+    switch (type) {
+    case notice_enum::shopbuy_sell_mul: {
+      auto p =
+          std::any_cast<std::polymorphic<game_item> *>(notice_ui_system::data);
+      auto num = item_game_instance::load_item_num(*p);
+      auto tmp = std::to_string(num);
+      text.text = {tmp.begin(), tmp.end()};
       break;
     }
     default: {
@@ -411,6 +425,8 @@ SDL_FPoint notice_ui_system::load_wh() {
   case notice_enum::no_cash_space:
   case notice_enum::no_deco_space:
   case notice_enum::no_storage_space:
+  case notice_enum::equip_no_ability:
+  case notice_enum::equip_no_space:
   case notice_enum::trade_block: {
     return {266, 116};
   }
@@ -419,9 +435,6 @@ SDL_FPoint notice_ui_system::load_wh() {
   case notice_enum::shopbuy_mul:
   case notice_enum::throw_mul:
     return {266, 119};
-  case notice_enum::equip_no_ability:
-  case notice_enum::equip_no_space:
-    break;
   }
   return {0, 0};
 }
@@ -465,6 +478,7 @@ void notice_ui_system::event_button_shopbuy() {
       }
     } else {
       open_no_space(itm->type);
+      return;
     }
     break;
   }
@@ -594,6 +608,11 @@ void notice_ui_system::event_button_throw_close() {
   close();
 }
 
+void notice_ui_system::event_button_equip_no_ap() {
+  cursor_game_instance::cursor_hand = std::nullopt;
+  close();
+}
+
 bool notice_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
@@ -623,6 +642,10 @@ bool notice_ui_system::event_button(SDL_Event *event) {
   }
   case notice_enum::throw_mul: {
     func = {event_button_throw_mul, event_button_throw_close};
+    break;
+  }
+  case notice_enum::equip_no_ability: {
+    func = {event_button_equip_no_ap, event_button_equip_no_ap};
     break;
   }
   default: {

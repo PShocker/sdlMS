@@ -33,7 +33,7 @@
 static void mfdan() {
   game_skill g_skill;
   g_skill.id = u"2001002";
-  g_skill.use = [](int ski_lv) {
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
     game_triangle tri = {
         {SDL_FPoint{-400, -100}, SDL_FPoint{-400, 100}, SDL_FPoint{0, -30}}};
     auto &self = character_game_instance::self;
@@ -71,8 +71,7 @@ static void mfdan() {
       client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 2001002, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
-                                          self);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
@@ -98,9 +97,9 @@ static void mfdun() {
     }
   };
 
-  g_skill.use = [g_skill](int ski_lv) mutable {
-    auto &self = character_game_instance::self;
-    character_logic_system::run_action(self, u"alert2");
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
+    auto &sf = character_game_instance::self;
+    character_logic_system::run_action(sf, u"alert2");
 
     auto &ski = skill_game_instance::ski;
 
@@ -110,8 +109,7 @@ static void mfdun() {
 
     ClientCharacterAttackT cat;
     auto ckt = skill_game_instance::create_skill_payload(cat, 2001000, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
-                                          self);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
@@ -121,7 +119,7 @@ static void mfdun() {
 static void mfsj() {
   game_skill g_skill;
   g_skill.id = u"2001003";
-  g_skill.use = [](int ski_lv) {
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
     character_logic_system::run_stand_action(sf);
     character_logic_system::run_attack_action(sf);
@@ -139,7 +137,7 @@ static void mfsj() {
       client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 2001003, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, sf);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();
@@ -175,19 +173,18 @@ static void mfkaijia() {
     return false;
   };
 
-  g_skill.use = [g_skill](int ski_lv) mutable {
-    auto &self = character_game_instance::self;
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
+    auto &sf = character_game_instance::self;
     auto &ski = skill_game_instance::ski;
 
     g_skill.end();
     g_skill.lv = ski_lv;
     ski.push_back(g_skill);
 
-    character_logic_system::run_action(self, u"alert2");
+    character_logic_system::run_action(sf, u"alert2");
     ClientCharacterAttackT cat;
     auto ckt = skill_game_instance::create_skill_payload(cat, 2001001, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload,
-                                          self);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
   auto &skis = skill_game_instance::skis();

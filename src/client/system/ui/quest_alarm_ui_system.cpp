@@ -198,7 +198,10 @@ bool quest_alarm_ui_system::event_button(SDL_Event *event) {
       {173, 4, 21, 12}, //
       {208, 4, 12, 12}, //
   };
-  std::vector<void (*)()> fns = {};
+  std::vector<void (*)()> fns = {
+      event_button_auto,
+      event_button_close,
+  };
   if (max) {
     fns.push_back(event_button_min);
     r.push_back({195, 4, 12, 12});
