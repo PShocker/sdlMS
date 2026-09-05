@@ -446,6 +446,13 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     return false;
   }
 
+  // 新获取的物品
+  if (new_itm.has_value()) {
+    if (active_tab == (int)new_itm->type && new_itm->index == index.value()) {
+      new_itm = std::nullopt;
+    }
+  }
+
   // 无手持物品：拾取
   if (!cursor_game_instance::cursor_hand.has_value()) {
     const auto &r = package_game_instance::data[active_tab];
@@ -460,12 +467,6 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     return true;
   }
 
-  // 新获取的物品
-  if (new_itm.has_value()) {
-    if (active_tab == (int)new_itm->type && new_itm->index == index.value()) {
-      new_itm = std::nullopt;
-    }
-  }
   // 有手持物品
   auto &sf = character_game_instance::self;
   auto &hand = cursor_game_instance::cursor_hand.value();
