@@ -3,6 +3,7 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include <cstdint>
+#include <flat_set>
 #include <string>
 
 void job_skill_game_instance::load_passive_ski() {
@@ -176,4 +177,17 @@ std::vector<job_type> job_skill_game_instance::load_ski_tree(int i) {
   auto tmp = std::to_string(i);
   std::u16string id{tmp.begin(), tmp.end()};
   return load_ski_tree(id);
+}
+
+std::u16string job_skill_game_instance::load_two_jump() {
+  const static std::flat_set<std::u16string> strs = {
+      u"4111005",
+  };
+  for (auto k : strs) {
+    auto ski = load_ski_level(k);
+    if (ski > 0) {
+      return k;
+    }
+  }
+  return u"";
 }

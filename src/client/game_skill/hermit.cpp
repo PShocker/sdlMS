@@ -15,6 +15,7 @@
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include <memory>
+#include <vector>
 
 static void erduantiao() {
   game_skill g_skill;
@@ -26,29 +27,12 @@ static void erduantiao() {
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     auto &ski = skill_game_instance::ski;
-    g_skill.end();
-    g_skill.lv = ski_lv;
-    g_skill.duration = 30 * 1000;
-    g_skill.destroy = window::dt_now + g_skill.duration;
-    ski.push_back(g_skill);
-
-    character_logic_system::self_hspeed_max += 100;
-    character_logic_system::self_hspeed_min -= 100;
-
-    if (client_id != 0) {
-      return;
-    }
-
-    const SDL_FPoint lt = {-250, -150};
-    const SDL_FPoint rb = {250, 150};
 
     skill_game_instance::skis()[u"4111005"].cd = window::dt_now + 1000;
 
     auto &sf = character_game_instance::self;
-    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
-    auto players = character_logic_system::run_buff_check(sf, g_r);
-    auto ckt =
-        skill_game_instance::create_skill_payload(players, 4111005, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(
+        std::vector<uint64_t>{}, 4111005, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
@@ -58,6 +42,6 @@ static void erduantiao() {
 }
 
 [[maybe_unused]] static const bool r = [] {
-  qinggong();
+  erduantiao();
   return true;
 }();

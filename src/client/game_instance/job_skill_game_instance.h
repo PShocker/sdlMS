@@ -36,6 +36,8 @@ public:
   static std::u16string load_job_id(job_type type);
   static wz::WzMap load_job_skis(job_type type);
 
+  static std::u16string load_two_jump();
+
   static inline std::flat_map<uint32_t, uint8_t> skill_point;
   static inline std::vector<uint32_t> remain_point = {100, 100, 100, 100};
 };
