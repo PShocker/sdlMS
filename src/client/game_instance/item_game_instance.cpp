@@ -338,29 +338,28 @@ bool item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
   }
   if (info->get_child(u"mad")) {
     auto mad = static_cast<wz::Property<int> *>(info->get_child(u"mad"))->get();
-    character_stat_game_instance::itm_magic -= mad;
+    character_stat_game_instance::itm_magic += mad;
     r = true;
   }
   if (info->get_child(u"acc")) {
     auto acc = static_cast<wz::Property<int> *>(info->get_child(u"acc"))->get();
-    character_stat_game_instance::itm_accuracy -= acc;
+    character_stat_game_instance::itm_accuracy += acc;
     r = true;
   }
   if (info->get_child(u"eva")) {
     auto eva = static_cast<wz::Property<int> *>(info->get_child(u"eva"))->get();
-    character_stat_game_instance::itm_avoid -= eva;
+    character_stat_game_instance::itm_avoid += eva;
     r = true;
   }
   if (info->get_child(u"speed")) {
-    auto speed =
-        static_cast<wz::Property<int> *>(info->get_child(u"speed"))->get();
-    character_logic_system::self_hspeed_max -= 5;
-    character_logic_system::self_hspeed_min += 5;
+    character_logic_system::self_hspeed_max += 5;
+    character_logic_system::self_hspeed_min -= 5;
     r = true;
   }
   if (info->get_child(u"crt")) {
     auto crt = static_cast<wz::Property<int> *>(info->get_child(u"crt"))->get();
-    character_stat_game_instance::crit_damage -= crt;
+    // 修复：符号错误，同 mad
+    character_stat_game_instance::crit_damage += crt;
     r = true;
   }
   if (info->get_child(u"expBuff")) {

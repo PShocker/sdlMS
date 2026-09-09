@@ -73,7 +73,6 @@ static void yinshenshu() {
     ski.push_back(g_skill);
 
     auto &sf = character_game_instance::self;
-    sf.color = {255, 255, 255, 128};
 
     ClientCharacterAttackT cat;
     auto ckt = skill_game_instance::create_skill_payload(cat, 4001001, ski_lv);
@@ -86,6 +85,8 @@ static void yinshenshu() {
     st.val = 4001001;
     st.sub_val = 1;
     ccs.payload.push_back(std::make_unique<StateT>(st));
+
+    g_skill.state(&sf, 0);
   };
 
   auto &skis = skill_game_instance::skis();

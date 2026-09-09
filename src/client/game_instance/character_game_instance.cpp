@@ -169,7 +169,7 @@ void character_game_instance::load_self_character() {
   add_head(self, u"00012000");
   add_coat(self, u"01040002");
   add_cap(self, u"01002005");
-  add_weapon(self, u"01472012");
+  add_weapon(self, u"01452011");
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
@@ -177,7 +177,6 @@ void character_game_instance::load_self_character() {
   add_ear(self, u"humanEar");
 
   add_cap_deco(self, u"01007002");
-  add_weapon_deco(self, u"01702017");
   add_ring0_deco(self, u"01112219");
   add_ring1_deco(self, u"01112108");
 

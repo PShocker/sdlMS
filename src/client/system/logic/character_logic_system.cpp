@@ -780,6 +780,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
     run_action(g_character, selected);
     SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
     auto rt = run_reactor_check(g_character, g_r);
+    auto ball = package_game_instance::load_active_ball();
     switch (g_action) {
     case action_enum::stand:
     case action_enum::alert:
@@ -795,7 +796,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
       if (!rt.data.empty()) {
         shoot_weapon = false;
       }
-      if (!package_game_instance::load_active_ball()) {
+      if (ball == nullptr) {
         shoot_weapon = false;
       }
       actions = &weapon_attack_action.at(weapon_type);
@@ -841,8 +842,6 @@ bool character_logic_system::run_attack(game_character &g_character) {
           },
       };
       auto cm = character_logic_system::run_attack_check(g_character, tri);
-      auto &ball = *package_game_instance::load_active_ball();
-      item_game_instance::dec_item_num(ball, 1);
       auto cash_ball = package_game_instance::load_active_cash_ball();
       std::u16string path;
       std::u16string effect;
@@ -852,11 +851,13 @@ bool character_logic_system::run_attack(game_character &g_character) {
         effect = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/hit";
 
       } else {
-        auto ball_id = ball->id;
+        auto ball_id = (*ball)->id;
         auto ball_sub_id = ball_id.substr(0, 4) + u".img";
         path = u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
         effect = u"Afterimage/hit.img/maceF";
       }
+      item_game_instance::dec_item_num(*ball, 1);
+
       auto page = g_character.page;
       SDL_FPoint pos = g_character.pos;
       pos.y -= 28;

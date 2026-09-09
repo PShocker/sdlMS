@@ -137,6 +137,56 @@ static void huixueshu() {
   skis[g_skill.id] = g_skill;
 }
 
+static void qidao() {
+  game_skill g_skill;
+  g_skill.climb = true;
+  g_skill.id = u"2301003";
+  g_skill.end = []() {
+    auto &ski = skill_game_instance::ski;
+    auto it = std::ranges::find_if(
+        ski, [](const game_skill &s) { return s.id == u"2301003"; });
+    if (it != ski.end()) {
+      ski.erase(it);
+      character_logic_system::self_hspeed_max -= 100;
+      character_logic_system::self_hspeed_min += 100;
+    }
+  };
+
+  g_skill.frame = []() { return; };
+
+  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
+    auto &ski = skill_game_instance::ski;
+    g_skill.end();
+    g_skill.lv = ski_lv;
+    g_skill.duration = 30 * 1000;
+    g_skill.destroy = window::dt_now + g_skill.duration;
+    ski.push_back(g_skill);
+
+    character_logic_system::self_hspeed_max += 100;
+    character_logic_system::self_hspeed_min -= 100;
+
+    if (client_id != 0) {
+      return;
+    }
+
+    const SDL_FPoint lt = {-250, -150};
+    const SDL_FPoint rb = {250, 150};
+
+    skill_game_instance::skis()[u"2301003"].cd = window::dt_now + 1000;
+
+    auto &sf = character_game_instance::self;
+    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    auto players = character_logic_system::run_buff_check(sf, g_r);
+    auto ckt =
+        skill_game_instance::create_skill_payload(players, 2301003, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    client_request::send_to_host(ckt);
+  };
+
+  auto &skis = skill_game_instance::skis();
+  skis[g_skill.id] = g_skill;
+}
+
 [[maybe_unused]] static const bool r = [] {
   shunjianyidong();
   return true;

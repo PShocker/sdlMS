@@ -73,8 +73,7 @@ static void duanhunjian() {
 
 static void shuangfeizhan() {
   game_skill g_skill;
-  g_skill.id = u"4001003";
-  g_skill.fall = true;
+  g_skill.id = u"3001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     const game_triangle tri = {
         {
@@ -94,7 +93,7 @@ static void shuangfeizhan() {
       return;
     }
     auto ball_id = (*ball)->id;
-    character_logic_system::run_action(sf, u"swingO1");
+    character_logic_system::run_attack_action(sf);
     auto cm = character_logic_system::run_attack_check(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
@@ -103,7 +102,7 @@ static void shuangfeizhan() {
     auto pre = ball_id.substr(0, 4);
     std::u16string path = u"Consume/" + pre + u".img/" + ball_id + u"/bullet";
     auto pos = sf.pos;
-    pos.y -= 28;
+    pos.y -= 32;
     auto page = sf.page;
     SDL_FPoint goal = pos;
     if (sf.flip) {
@@ -112,22 +111,22 @@ static void shuangfeizhan() {
       goal.x -= 350;
     }
     auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
-                                                       page, 700, path);
+                                                       page, 750, path);
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = ball_game_instance::load_ball_time(cct);
       // Create and send attack payload
       cm.data[0].hits = {15, 15};
-      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d, 120);
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d, 30);
       client_request::send_to_host(cat);
     }
     for (auto i : {0, 1}) {
-      cct.payload->ball->y1 += i * 5;
-      cct.payload->ball->y2 += i * 5;
+      cct.payload->ball->y1 = sf.pos.y - 28;
+      cct.payload->ball->y2 += i * 8;
       client_request::send_to_host(cct);
       server_ball_instance::handle_server_b(cct.payload);
     }
-    auto ckt = skill_game_instance::create_skill_payload(cat, 4001003, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(cat, 3001002, ski_lv);
     if (!ckt.payload.empty()) {
       ckt.payload[1]->y += 10;
     }
@@ -140,6 +139,6 @@ static void shuangfeizhan() {
 
 [[maybe_unused]] static const bool r = [] {
   duanhunjian();
-
+  shuangfeizhan();
   return true;
 }();
