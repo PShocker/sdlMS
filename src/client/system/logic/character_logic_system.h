@@ -156,6 +156,7 @@ public:
   static inline uint64_t self_flip_cooldown;
   static inline uint64_t self_attack_cooldown;
   static inline uint64_t self_invincible_cooldown;
+  static inline uint64_t self_two_jump_cooldown;
 
   static inline float self_fall_min;
 };

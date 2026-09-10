@@ -440,6 +440,9 @@ bool character_logic_system::run_fall(game_character &g_character) {
       physic::fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
                    self_vspeed_min, self_vspeed_max, border, fall_collide, true,
                    self_fh, g_character.page, foothold_game_instance::data);
+  if (r) {
+    character_logic_system::self_two_jump_cooldown = 0;
+  }
   return r;
 }
 
@@ -503,7 +506,14 @@ bool character_logic_system::run_jump(game_character &g_character) {
       break;
     }
     case action_enum::jump: {
-      // double jump
+      // two jump
+      if (self_two_jump_cooldown <= window::dt_now) {
+        auto ski_id = job_skill_game_instance::load_two_jump();
+        if (!ski_id.empty()) {
+          run_skill(g_character, ski_id);
+        }
+      }
+      break;
     }
     case action_enum::climb: {
       if (character_action_input.contains("up") ||
