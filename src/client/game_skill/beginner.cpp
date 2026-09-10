@@ -106,8 +106,7 @@ static void Recover() {
     ski.push_back(g_skill);
 
     auto &sf = character_game_instance::self;
-    auto ckt = skill_game_instance::create_skill_payload(
-        std::vector<uint64_t>{}, 1001, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(1001, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };

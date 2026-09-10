@@ -106,7 +106,9 @@ bool effect_logic_system::run_skill_use(game_effect &g_effect) {
   if (g_effect.time >= delay) {
     g_effect.time = 0;
     g_effect.index += 1;
-    auto count = ski_node->children_count();
+    auto keys = ski_node->children;
+    keys.erase(u"z");
+    auto count = keys.size();
     r = g_effect.index >= count;
     g_effect.index = g_effect.index % count;
   }

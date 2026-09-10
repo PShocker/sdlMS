@@ -20,6 +20,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
 #include "src/server/server_main.h"
+#include <cstdint>
 #include <flat_set>
 #include <format>
 #include <memory>
@@ -251,6 +252,9 @@ void server_character_instance::handle_skill(uint64_t client_id,
     t.ski_id = r.ski_id;
     t.ski_lv = r.ski_lv;
     t.payload = std::move(r.payload);
+    t.x = r.x;
+    t.y = r.y;
+    t.flip = r.flip;
     for (auto c : scenes) {
       server_response::send_to_client(c, t);
     }
@@ -389,6 +393,13 @@ void server_character_instance::handle_ski(
     uint32_t ski_id, uint8_t ski_lv,
     const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
     uint64_t client_id) {
+  handle_ski(ski_id, ski_lv, v, client_id, INT32_MAX, INT32_MAX, false);
+}
+
+void server_character_instance::handle_ski(
+    uint32_t ski_id, uint8_t ski_lv,
+    const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
+    uint64_t client_id, int32_t x, int32_t y, bool flip) {
   game_character *g_character;
   if (client_id == 0) {
     g_character = &character_game_instance::self;
@@ -432,6 +443,10 @@ void server_character_instance::handle_ski(
         .z = false,
         .data = g_character,
     };
+    if (x != INT32_MAX || y != INT32_MAX) {
+      e.pos = {static_cast<float>(x), static_cast<float>(y)};
+      e.flip = flip;
+    }
     g_character->effect.push_back(e);
   }
 
@@ -480,7 +495,7 @@ void server_character_instance::handle_ski(
 
 void server_character_instance::handle_server_ski(uint64_t client_id,
                                                   ServerCharacterSkillT &r) {
-  handle_ski(r.ski_id, r.ski_lv, r.payload, r.client_id);
+  handle_ski(r.ski_id, r.ski_lv, r.payload, r.client_id, r.x, r.y, r.flip);
 }
 
 void server_character_instance::load_g_character(

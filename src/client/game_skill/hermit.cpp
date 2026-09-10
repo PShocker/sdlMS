@@ -43,11 +43,14 @@ static void erduantiao() {
     }
     character_logic_system::self_two_jump_cooldown = UINT64_MAX;
 
-    auto ckt = skill_game_instance::create_skill_payload(
-        std::vector<uint64_t>{}, 4111005, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    auto ckt = skill_game_instance::create_skill_payload(4111005, ski_lv);
+    ckt.x = sf.pos.x;
+    ckt.y = sf.pos.y;
+    ckt.flip = sf.flip;
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0,
+                                          ckt.x, ckt.y, ckt.flip);
     client_request::send_to_host(ckt);
-    skill_game_instance::skis()[u"4111005"].cd = window::dt_now + 500;
+    skill_game_instance::skis()[u"4111005"].cd = window::dt_now + 100;
   };
 
   auto &skis = skill_game_instance::skis();

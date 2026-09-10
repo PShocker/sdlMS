@@ -154,6 +154,8 @@ ClientCharacterSkillT skill_game_instance::create_skill_payload(
   ClientCharacterSkillT skill_payload;
   skill_payload.ski_id = ski_id;
   skill_payload.ski_lv = ski_lv;
+  skill_payload.x = INT32_MAX;
+  skill_payload.y = INT32_MAX;
 
   for (const auto &a : attack_payload.payload) {
     CharacterSkillT c;
@@ -172,6 +174,8 @@ ClientCharacterSkillT skill_game_instance::create_skill_payload(
   ClientCharacterSkillT skill_payload;
   skill_payload.ski_id = ski_id;
   skill_payload.ski_lv = ski_lv;
+  skill_payload.x = INT32_MAX;
+  skill_payload.y = INT32_MAX;
 
   for (const auto &client_id : buff_payload) {
     CharacterSkillT c;
@@ -180,5 +184,16 @@ ClientCharacterSkillT skill_game_instance::create_skill_payload(
     skill_payload.payload.push_back(
         std::make_unique<CharacterSkillT>(std::move(c)));
   }
+  return skill_payload;
+}
+
+ClientCharacterSkillT
+skill_game_instance::create_skill_payload(int ski_id, uint8_t ski_lv) {
+  ClientCharacterSkillT skill_payload;
+  skill_payload.ski_id = ski_id;
+  skill_payload.ski_lv = ski_lv;
+  skill_payload.x = INT32_MAX;
+  skill_payload.y = INT32_MAX;
+
   return skill_payload;
 }

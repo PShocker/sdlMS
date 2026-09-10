@@ -46,6 +46,10 @@ public:
   handle_ski(uint32_t ski_id, uint8_t ski_lv,
              const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
              uint64_t client_id);
+  static void
+  handle_ski(uint32_t ski_id, uint8_t ski_lv,
+             const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
+             uint64_t client_id, int32_t x, int32_t y, bool flip);
   static void handle_server_ski(uint64_t client_id, ServerCharacterSkillT &r);
 
   static void

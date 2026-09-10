@@ -440,7 +440,7 @@ bool character_logic_system::run_fall(game_character &g_character) {
       physic::fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
                    self_vspeed_min, self_vspeed_max, border, fall_collide, true,
                    self_fh, g_character.page, foothold_game_instance::data);
-  if (r) {
+  if (!r) {
     character_logic_system::self_two_jump_cooldown = 0;
   }
   return r;
@@ -497,7 +497,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
               self_fh = 0;
               self_foothold_cooldown = window::dt_now + 120;
               run_action(g_character, u"jump");
-              return true;
+              break;
             }
           }
         }
@@ -513,6 +513,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
           run_skill(g_character, ski_id);
         }
       }
+      return true;
       break;
     }
     case action_enum::climb: {
@@ -537,6 +538,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
       break;
     }
     }
+    self_two_jump_cooldown = window::dt_now + 200;
     self_fh = 0;
     run_action(g_character, u"jump");
     audio_game_instance::load_audio(u"Game.img/Jump", 0);
@@ -1300,6 +1302,9 @@ void character_logic_system::run_state_machine() {
       break;
     }
     if (run_portal(g_character)) {
+      break;
+    }
+    if (run_jump(g_character)) {
       break;
     }
     break;

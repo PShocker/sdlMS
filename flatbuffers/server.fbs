@@ -78,6 +78,9 @@ table ServerCharacterSkill {
     ski_lv:uint8;
     client_id:uint64;
     payload:[CharacterSkill];
+    x:int32;
+    y:int32;
+    flip:bool;
 }
 
 table ServerCharacterBall {

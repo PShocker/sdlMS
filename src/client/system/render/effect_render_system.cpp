@@ -139,14 +139,21 @@ void effect_render_system::render_ski_use(SDL_FPoint pos, game_effect &g_effect,
   auto texture_node = ski_node->get_child(index);
   auto texture = wz_resource::load_texture(texture_node);
   auto origin = wz_resource::load_fpoint(texture_node->get_child(u"origin"));
+  auto x = pos.x;
+  auto y = pos.y;
+  if (g_effect.pos.has_value()) {
+    x = g_effect.pos->x;
+    y = g_effect.pos->y;
+    flip = g_effect.flip.value();
+  }
   SDL_FRect pos_rect = {
-      .x = pos.x - origin.x,
-      .y = pos.y - origin.y,
+      .x = x - origin.x,
+      .y = y - origin.y,
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
   if (flip == 1) {
-    pos_rect.x = pos.x;
+    pos_rect.x = x;
     pos_rect.x = (pos_rect.x - (texture->w - origin.x));
   }
   auto &camera = camera_game_instance::camera;

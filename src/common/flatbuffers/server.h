@@ -1334,6 +1334,9 @@ struct ServerCharacterSkillT : public ::flatbuffers::NativeTable {
   uint8_t ski_lv = 0;
   uint64_t client_id = 0;
   std::vector<std::unique_ptr<fbs::CharacterSkillT>> payload{};
+  int32_t x = 0;
+  int32_t y = 0;
+  bool flip = false;
   ServerCharacterSkillT() = default;
   ServerCharacterSkillT(const ServerCharacterSkillT &o);
   ServerCharacterSkillT(ServerCharacterSkillT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -1347,7 +1350,10 @@ struct ServerCharacterSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
     VT_SKI_ID = 4,
     VT_SKI_LV = 6,
     VT_CLIENT_ID = 8,
-    VT_PAYLOAD = 10
+    VT_PAYLOAD = 10,
+    VT_X = 12,
+    VT_Y = 14,
+    VT_FLIP = 16
   };
   uint32_t ski_id() const {
     return GetField<uint32_t>(VT_SKI_ID, 0);
@@ -1373,6 +1379,24 @@ struct ServerCharacterSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>> *mutable_payload() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>> *>(VT_PAYLOAD);
   }
+  int32_t x() const {
+    return GetField<int32_t>(VT_X, 0);
+  }
+  bool mutate_x(int32_t _x = 0) {
+    return SetField<int32_t>(VT_X, _x, 0);
+  }
+  int32_t y() const {
+    return GetField<int32_t>(VT_Y, 0);
+  }
+  bool mutate_y(int32_t _y = 0) {
+    return SetField<int32_t>(VT_Y, _y, 0);
+  }
+  bool flip() const {
+    return GetField<uint8_t>(VT_FLIP, 0) != 0;
+  }
+  bool mutate_flip(bool _flip = 0) {
+    return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -1382,6 +1406,9 @@ struct ServerCharacterSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tab
            VerifyOffset(verifier, VT_PAYLOAD) &&
            verifier.VerifyVector(payload()) &&
            verifier.VerifyVectorOfTables(payload()) &&
+           VerifyField<int32_t>(verifier, VT_X, 4) &&
+           VerifyField<int32_t>(verifier, VT_Y, 4) &&
+           VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
            verifier.EndTable();
   }
   ServerCharacterSkillT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1405,6 +1432,15 @@ struct ServerCharacterSkillBuilder {
   void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>>> payload) {
     fbb_.AddOffset(ServerCharacterSkill::VT_PAYLOAD, payload);
   }
+  void add_x(int32_t x) {
+    fbb_.AddElement<int32_t>(ServerCharacterSkill::VT_X, x, 0);
+  }
+  void add_y(int32_t y) {
+    fbb_.AddElement<int32_t>(ServerCharacterSkill::VT_Y, y, 0);
+  }
+  void add_flip(bool flip) {
+    fbb_.AddElement<uint8_t>(ServerCharacterSkill::VT_FLIP, static_cast<uint8_t>(flip), 0);
+  }
   explicit ServerCharacterSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1421,11 +1457,17 @@ inline ::flatbuffers::Offset<ServerCharacterSkill> CreateServerCharacterSkill(
     uint32_t ski_id = 0,
     uint8_t ski_lv = 0,
     uint64_t client_id = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>>> payload = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::CharacterSkill>>> payload = 0,
+    int32_t x = 0,
+    int32_t y = 0,
+    bool flip = false) {
   ServerCharacterSkillBuilder builder_(_fbb);
   builder_.add_client_id(client_id);
+  builder_.add_y(y);
+  builder_.add_x(x);
   builder_.add_payload(payload);
   builder_.add_ski_id(ski_id);
+  builder_.add_flip(flip);
   builder_.add_ski_lv(ski_lv);
   return builder_.Finish();
 }
@@ -1435,14 +1477,20 @@ inline ::flatbuffers::Offset<ServerCharacterSkill> CreateServerCharacterSkillDir
     uint32_t ski_id = 0,
     uint8_t ski_lv = 0,
     uint64_t client_id = 0,
-    const std::vector<::flatbuffers::Offset<fbs::CharacterSkill>> *payload = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::CharacterSkill>> *payload = nullptr,
+    int32_t x = 0,
+    int32_t y = 0,
+    bool flip = false) {
   auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterSkill>>(*payload) : 0;
   return fbs::CreateServerCharacterSkill(
       _fbb,
       ski_id,
       ski_lv,
       client_id,
-      payload__);
+      payload__,
+      x,
+      y,
+      flip);
 }
 
 ::flatbuffers::Offset<ServerCharacterSkill> CreateServerCharacterSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -3555,7 +3603,10 @@ inline ::flatbuffers::Offset<ServerCharacterAttack> ServerCharacterAttack::Pack(
 inline ServerCharacterSkillT::ServerCharacterSkillT(const ServerCharacterSkillT &o)
       : ski_id(o.ski_id),
         ski_lv(o.ski_lv),
-        client_id(o.client_id) {
+        client_id(o.client_id),
+        x(o.x),
+        y(o.y),
+        flip(o.flip) {
   payload.reserve(o.payload.size());
   for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::CharacterSkillT(*payload_) : nullptr); }
 }
@@ -3565,6 +3616,9 @@ inline ServerCharacterSkillT &ServerCharacterSkillT::operator=(ServerCharacterSk
   std::swap(ski_lv, o.ski_lv);
   std::swap(client_id, o.client_id);
   std::swap(payload, o.payload);
+  std::swap(x, o.x);
+  std::swap(y, o.y);
+  std::swap(flip, o.flip);
   return *this;
 }
 
@@ -3581,6 +3635,9 @@ inline void ServerCharacterSkill::UnPackTo(ServerCharacterSkillT *_o, const ::fl
   { auto _e = ski_lv(); _o->ski_lv = _e; }
   { auto _e = client_id(); _o->client_id = _e; }
   { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::CharacterSkillT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+  { auto _e = flip(); _o->flip = _e; }
 }
 
 inline ::flatbuffers::Offset<ServerCharacterSkill> CreateServerCharacterSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ServerCharacterSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3595,12 +3652,18 @@ inline ::flatbuffers::Offset<ServerCharacterSkill> ServerCharacterSkill::Pack(::
   auto _ski_lv = _o->ski_lv;
   auto _client_id = _o->client_id;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::CharacterSkill>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateCharacterSkill(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _x = _o->x;
+  auto _y = _o->y;
+  auto _flip = _o->flip;
   return fbs::CreateServerCharacterSkill(
       _fbb,
       _ski_id,
       _ski_lv,
       _client_id,
-      _payload);
+      _payload,
+      _x,
+      _y,
+      _flip);
 }
 
 inline ServerCharacterBallT::ServerCharacterBallT(const ServerCharacterBallT &o)
