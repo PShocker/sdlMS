@@ -54,7 +54,7 @@ static void qinggong() {
     skill_game_instance::skis()[u"4101001"].cd = window::dt_now + 1000;
 
     auto &sf = character_game_instance::self;
-    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    auto g_r = skill_game_instance::load_ski_r(u"4101001");
     auto players = character_logic_system::run_buff_check(sf, g_r);
     auto ckt =
         skill_game_instance::create_skill_payload(players, 4101001, ski_lv);

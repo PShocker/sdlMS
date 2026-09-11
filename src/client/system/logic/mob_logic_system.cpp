@@ -3,6 +3,7 @@
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -131,6 +132,12 @@ void mob_logic_system::run_collision() {
   if (!mobs.empty()) {
     auto &mob = mobs.begin()->second;
     uint64_t hit_num = 1;
+    auto &buff = skill_game_instance::ski;
+    for (auto &buf : buff) {
+      if (buf.hit) {
+        hit_num = buf.hit(&mob, hit_num);
+      }
+    }
     character_logic_system::run_being_hit(mob.pos.x, hit_num);
     AttackT at{
         .delay = window::dt_time,

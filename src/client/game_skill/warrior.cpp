@@ -45,9 +45,7 @@ static void SlashBlast() {
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
     character_logic_system::run_attack_action(sf);
-    SDL_FPoint lt = {-150, -100};
-    SDL_FPoint rb = {0, 0};
-    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    auto g_r = skill_game_instance::load_ski_r(u"1001002");
     auto cm = character_logic_system::run_attack_check(sf, g_r);
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {

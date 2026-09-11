@@ -33,20 +33,44 @@ static void douqijizhong() {
   g_skill.frame = []() { return; };
 
   g_skill.state = [](game_character *c, int index) {
-    if (index == 1) {
-      c->color = {255, 255, 255, 128};
-    } else {
-      c->color = {255, 255, 255, 255};
-    }
+    game_effect e = {
+        .id = u"1111000",
+        .index = static_cast<uint32_t>(index),
+        .time = 0,
+        .delay = window::dt_now,
+        .type = game_effect::effect_type::skill_custom,
+        .pos = std::nullopt,
+        .z = false,
+        .data = c,
+    };
+    auto &eff = c->effect;
+    std::erase_if(eff, [&](const auto &ef) { return ef.id == e.id; });
+    eff.push_back(e);
   };
 
   g_skill.effect = [](SDL_FPoint p, game_effect *e, bool f) { return false; };
+
+  g_skill.action = [](game_skill *s, std::u16string ski_id) {
+    if (ski_id.empty()) {
+      return;
+    }
+    s->start += 1;
+    auto &ccs = character_logic_system::ccs;
+    StateT st;
+    st.state = StateEnum_BUFF_SKILL;
+    st.val = 1111000;
+    st.sub_val = s->start;
+    ccs.payload.push_back(std::make_unique<StateT>(st));
+    return;
+  };
+
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     auto &ski = skill_game_instance::ski;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 0;
     g_skill.destroy = 0;
+    g_skill.start = 0;
     ski.push_back(g_skill);
 
     skill_game_instance::skis()[u"1111000"].cd = window::dt_now + 1000;

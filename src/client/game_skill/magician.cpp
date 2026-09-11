@@ -81,12 +81,13 @@ static void mfdan() {
 static void mfdun() {
   game_skill g_skill;
   g_skill.id = u"2001000";
-  g_skill.hit = [](game_mob mob, uint64_t n) {
+  g_skill.hit = [](game_mob *mob, uint64_t n) -> uint64_t {
     auto ski_lv = job_skill_game_instance::load_ski_level(u"2001000");
     auto x_node = wz_resource::skill->find(u"200.img/skill/2001000/level");
     auto x = static_cast<wz::Property<int> *>(
                  x_node->get_child(std::to_string(ski_lv))->get_child(u"x"))
                  ->get();
+    return n * x;
   };
   g_skill.end = []() {
     auto &ski = skill_game_instance::ski;
@@ -107,8 +108,7 @@ static void mfdun() {
     g_skill.lv = ski_lv;
     ski.push_back(g_skill);
 
-    ClientCharacterAttackT cat;
-    auto ckt = skill_game_instance::create_skill_payload(cat, 2001000, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(2001000, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
@@ -123,9 +123,7 @@ static void mfsj() {
     auto &sf = character_game_instance::self;
     character_logic_system::run_stand_action(sf);
     character_logic_system::run_attack_action(sf);
-    SDL_FPoint lt = {-300, -90};
-    SDL_FPoint rb = {-25, 10};
-    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    auto g_r = skill_game_instance::load_ski_r(u"2001003");
     auto cm = character_logic_system::run_attack_check(sf, g_r);
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
@@ -182,8 +180,7 @@ static void mfkaijia() {
     ski.push_back(g_skill);
 
     character_logic_system::run_action(sf, u"alert2");
-    ClientCharacterAttackT cat;
-    auto ckt = skill_game_instance::create_skill_payload(cat, 2001001, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(2001001, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };

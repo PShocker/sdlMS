@@ -3,6 +3,7 @@
 #include "character_game_instance.h"
 #include "src/client/game/game_gauge.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -116,6 +117,39 @@ bool skill_game_instance::load_ski_active(const std::u16string &id) {
     return true;
   }
   return false;
+}
+
+SDL_FRect skill_game_instance::load_ski_r(const std::u16string &id) {
+  auto ski_lv = job_skill_game_instance::load_ski_level(id);
+  auto ski_node = load_ski_level_node(id, ski_lv);
+  auto &sf = character_game_instance::self;
+  if (ski_node->get_child(u"lt")) {
+    auto lt = wz_resource::load_fpoint(ski_node->get_child(u"lt"));
+    auto rb = wz_resource::load_fpoint(ski_node->get_child(u"rb"));
+    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    return g_r;
+  }
+  if (ski_node->get_child(u"range")) {
+    auto range =
+        static_cast<wz::Property<int> *>(ski_node->get_child(u"range"))->get();
+    SDL_FPoint lt = {static_cast<float>(-range), -100};
+    SDL_FPoint rb = {0, 0};
+    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    return g_r;
+  }
+  // mag
+  if (id.starts_with(u"2")) {
+    SDL_FPoint lt = {-300, -90};
+    SDL_FPoint rb = {-25, 10};
+    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    return g_r;
+  }
+  // afterimage
+  auto g_r = afterimage_game_instance::load_rect(sf);
+  if (g_r.has_value()) {
+    return g_r.value();
+  }
+  return {0, 0, 0, 0};
 }
 
 ClientCharacterAttackT

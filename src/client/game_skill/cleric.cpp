@@ -101,8 +101,7 @@ static void shunjianyidong() {
     character_logic_system::self_hspeed = 0;
     character_logic_system::self_vspeed = 0;
 
-    ClientCharacterAttackT cat;
-    auto ckt = skill_game_instance::create_skill_payload(cat, 2301000, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(2301000, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };
@@ -168,13 +167,10 @@ static void qidao() {
       return;
     }
 
-    const SDL_FPoint lt = {-250, -150};
-    const SDL_FPoint rb = {250, 150};
-
     skill_game_instance::skis()[u"2301003"].cd = window::dt_now + 1000;
 
     auto &sf = character_game_instance::self;
-    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    auto g_r = skill_game_instance::load_ski_r(u"2301003");
     auto players = character_logic_system::run_buff_check(sf, g_r);
     auto ckt =
         skill_game_instance::create_skill_payload(players, 2301003, ski_lv);

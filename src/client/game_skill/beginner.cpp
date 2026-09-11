@@ -146,8 +146,7 @@ static void NimbleFeet() {
     character_logic_system::self_hspeed_min -= 100;
 
     auto &sf = character_game_instance::self;
-    ClientCharacterAttackT cat;
-    auto ckt = skill_game_instance::create_skill_payload(cat, 1002, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(1002, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };

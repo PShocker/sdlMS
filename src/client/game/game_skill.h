@@ -15,9 +15,10 @@ public:
   std::function<void(int)> passive;
   std::function<void()> end;
   std::function<bool(SDL_FPoint, game_effect *, bool)> effect;
-  std::function<void(game_mob, uint64_t)> hit;
+  std::function<void(game_skill *, std::u16string)>
+      action;                                        // 斗气集中,终极攻击,影分身
+  std::function<uint64_t(game_mob *, uint64_t)> hit; // 魔法盾，金钱护盾
   std::function<void(game_character *, int)> state;
-
   bool fall = false;
   bool climb = false;
 

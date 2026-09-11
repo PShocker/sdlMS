@@ -685,26 +685,35 @@ bool character_logic_system::run_skill(game_character &g_character,
     if (!ski.use) {
       return false;
     }
+    bool use = false;
     if (ski.cd < window::dt_now) {
       auto action_type = load_action_type(g_character);
       switch (action_type) {
       case action_enum::jump: {
         if (ski.fall) {
-          ski.use(0, ski_lv);
+          use = true;
         }
         break;
       }
       case action_enum::climb: {
         if (ski.climb) {
-          ski.use(0, ski_lv);
+          use = true;
         }
         break;
       }
       default: {
-        ski.use(0, ski_lv);
+        use = true;
         break;
       }
       }
+    }
+    if (use) {
+      for (auto &buff : skill_game_instance::ski) {
+        if (buff.action) {
+          buff.action(&buff, id);
+        }
+      }
+      ski.use(0, ski_lv);
     }
   }
   return true;

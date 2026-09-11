@@ -41,6 +41,8 @@ public:
   static int load_ski_max_lvl(const std::u16string &id);
   static bool load_ski_active(const std::u16string &id);
 
+  static SDL_FRect load_ski_r(const std::u16string &id);
+
   static ClientCharacterAttackT create_attack_payload(check_mobs &cm,
                                                       SDL_FPoint pos,
                                                       uint64_t delay,
