@@ -311,7 +311,7 @@ bool character_logic_system::run_animate(game_character &g_character) {
                  g_character.action)) {
     auto &action_info =
         character_game_instance::extern_action.at(g_character.action);
-    delay = action_info[g_character.action_index].delay;
+    delay = std::abs(action_info[g_character.action_index].delay);
     size = action_info.size();
   } else {
     auto &action_info =
@@ -436,12 +436,13 @@ bool character_logic_system::run_fall(game_character &g_character) {
   auto map_id = scene_system_instance::map_id;
   auto border = map_info_game_instance::load_mr_border(map_id);
 
-  bool r =
-      physic::fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
-                   self_vspeed_min, self_vspeed_max, border, fall_collide, true,
-                   self_fh, g_character.page, foothold_game_instance::data);
+  bool r = physic::fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
+                        self_vspeed_min, self_vspeed_max, border, fall_collide,
+                        true, self_fh, g_character.page,
+                        foothold_game_instance::data, self_fall_fh);
   if (!r) {
-    character_logic_system::self_two_jump_cooldown = 0;
+    self_two_jump_cooldown = 0;
+    self_fall_fh = self_fh;
   }
   return r;
 }
@@ -539,6 +540,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
     }
     }
     self_two_jump_cooldown = window::dt_now + 200;
+    self_fall_fh = self_fh;
     self_fh = 0;
     run_action(g_character, u"jump");
     audio_game_instance::load_audio(u"Game.img/Jump", 0);
@@ -727,11 +729,8 @@ bool character_logic_system::run_skill(game_character &g_character) {
   return false;
 }
 
-bool character_logic_system::run_attack_action(game_character &g_character) {
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
-    return false;
-  }
+bool character_logic_system::run_attack_action(game_character &g_character,
+                                               bool shoot) {
   if (!g_character.weapon.has_value()) {
     return false;
   }
@@ -739,7 +738,6 @@ bool character_logic_system::run_attack_action(game_character &g_character) {
   auto g_weapon = g_character.weapon->id;
   auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
   auto weapon_type = equip_game_instance::load_weapon_type(g_character);
-  bool shoot = true;
   switch (g_action) {
   case action_enum::stand:
   case action_enum::alert:
@@ -749,6 +747,11 @@ bool character_logic_system::run_attack_action(game_character &g_character) {
   case action_enum::jump: {
     auto &gen = random_game_instance::gen;
     auto actions = &weapon_attack_action.at(weapon_type);
+    if (!shoot) {
+      if (weapon_attack_action2.contains(weapon_type)) {
+        actions = &weapon_attack_action2.at(weapon_type);
+      }
+    }
     std::uniform_int_distribution<> dis(0, actions->size() - 1);
     auto selected = *std::next(actions->begin(), dis(gen));
     run_action(g_character, selected);
@@ -1613,9 +1616,6 @@ character_logic_system::load_morph_type(game_character &g_character) {
 
 void character_logic_system::run_being_hit(float x, uint64_t num) {
   auto &sf = character_game_instance::self;
-  character_logic_system::self_fh = 0;
-  character_logic_system::self_lr = 0;
-
   auto action_type = character_logic_system::load_action_type(sf);
   switch (action_type) {
   case character_logic_system::action_enum::stand:
@@ -1624,17 +1624,21 @@ void character_logic_system::run_being_hit(float x, uint64_t num) {
   case character_logic_system::action_enum::climb:
   case character_logic_system::action_enum::prone: {
     character_logic_system::run_action(sf, u"jump");
+    self_fall_fh = self_fh;
     break;
   }
   case character_logic_system::action_enum::sit: {
     character_logic_system::run_unsit_chair(sf);
     character_logic_system::run_action(sf, u"jump");
+    self_fall_fh = self_fh;
     break;
   }
   default: {
     break;
   }
   }
+  character_logic_system::self_fh = 0;
+  character_logic_system::self_lr = 0;
   character_logic_system::self_invincible_cooldown = window::dt_now + 2000;
   character_logic_system::self_alert_cooldown = window::dt_now + 5000;
 

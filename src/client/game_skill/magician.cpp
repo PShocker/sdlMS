@@ -36,24 +36,24 @@ static void mfdan() {
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     game_triangle tri = {
         {SDL_FPoint{-400, -100}, SDL_FPoint{-400, 100}, SDL_FPoint{0, -30}}};
-    auto &self = character_game_instance::self;
+    auto &sf = character_game_instance::self;
     const std::array actions = {u"swingO1", u"swingO2", u"swingO3"};
     std::uniform_int_distribution<> dis(0, actions.size() - 1);
     auto &gen = random_game_instance::gen;
-    character_logic_system::run_action(self, actions[dis(gen)]);
-    auto cm = character_logic_system::run_attack_check(self, tri);
+    character_logic_system::run_action(sf, actions[dis(gen)]);
+    auto cm = character_logic_system::run_attack_check(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
       cm.data[0].hits = {60};
     }
-    auto delay = skill_game_instance::load_ski_time(self);
+    auto delay = skill_game_instance::load_ski_time(sf);
     auto ski_lvl2 = std::to_string(ski_lv);
     std::u16string path = u"200.img/skill/2001002/ball";
-    auto pos = self.pos;
+    auto pos = sf.pos;
     pos.y -= 30;
-    auto page = self.page;
+    auto page = sf.page;
     SDL_FPoint goal = pos;
-    if (self.flip) {
+    if (sf.flip) {
       goal.x += 400;
     } else {
       goal.x -= 400;
@@ -67,7 +67,7 @@ static void mfdan() {
     if (!cm.data.empty()) {
       auto d = ball_game_instance::load_ball_time(cct);
       // Create and send attack payload
-      cat = skill_game_instance::create_attack_payload(cm, self.pos, d);
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d);
       client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 2001002, ski_lv);
@@ -122,7 +122,7 @@ static void mfsj() {
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
     character_logic_system::run_stand_action(sf);
-    character_logic_system::run_attack_action(sf);
+    character_logic_system::run_attack_action(sf, false);
     auto g_r = skill_game_instance::load_ski_r(u"2001003");
     auto cm = character_logic_system::run_attack_check(sf, g_r);
     ClientCharacterAttackT cat;

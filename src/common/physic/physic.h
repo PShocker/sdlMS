@@ -15,6 +15,7 @@ private:
                                                   const SDL_FPoint &p2,
                                                   const SDL_FPoint &p3,
                                                   const SDL_FPoint &p4);
+
 public:
   static bool
   fall_collide_wall(float hspeed, game_foothold fh,
@@ -38,5 +39,6 @@ public:
                    float &vspeed, float vspeed_min, float vspeed_max,
                    std::optional<SDL_FRect> border, bool fall_collide,
                    bool wall_collide, int32_t &current_fh, uint8_t &page,
-                   const std::flat_map<int32_t, game_foothold> &fhs);
+                   const std::flat_map<int32_t, game_foothold> &fhs,
+                   int32_t fall_fh = INT32_MAX);
 };

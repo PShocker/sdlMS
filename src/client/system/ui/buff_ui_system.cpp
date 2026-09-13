@@ -38,7 +38,7 @@ void buff_ui_system::render_ui(game_skill &sk, float x, float y) {
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     mouse_ski = sk;
   }
-  if (sk.destroy) {
+  if (sk.duration != 0) {
     SDL_SetRenderDrawBlendMode(window::renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 100);
     auto d = sk.destroy - window::dt_now;

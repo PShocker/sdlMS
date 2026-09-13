@@ -199,7 +199,8 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
                   float &vspeed, float vspeed_min, float vspeed_max,
                   std::optional<SDL_FRect> border, bool fall_collide,
                   bool wall_collide, int32_t &current_fh, uint8_t &page,
-                  const std::flat_map<int32_t, game_foothold> &fhs) {
+                  const std::flat_map<int32_t, game_foothold> &fhs,
+                  int32_t fall_fh) {
   // 限速
   vspeed = std::clamp(vspeed, vspeed_min, vspeed_max);
 
@@ -253,14 +254,22 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
 
   // Lambda: 判断是否在斜坡上
   auto is_on_slope = [&](const game_foothold &fh) -> bool {
+    if (!(fall_fh == fh.prev || fall_fh == fh.id || fall_fh == fh.next)) {
+      return false;
+    }
     if (hspeed == 0) {
       return false;
     }
-    if (!fh.k.has_value() || fh.k.value() == 0)
+    if (!fh.k.has_value() || fh.k.value() == 0) {
       return false;
-    bool slope_forward = !(new_pos.x > pos.x && fh.y1 < fh.y2);
-    bool slope_backward = !(new_pos.x < pos.x && fh.y1 > fh.y2);
-    return slope_forward && slope_backward;
+    }
+    if (hspeed > 0 && fh.y1 > fh.y2) {
+      return true;
+    }
+    if (hspeed < 0 && fh.y1 < fh.y2) {
+      return true;
+    }
+    return false;
   };
 
   // 下落 (vspeed >= 0)

@@ -13,6 +13,7 @@
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
+#include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
 #include <memory>
@@ -28,7 +29,6 @@ static void erduantiao() {
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     auto &ski = skill_game_instance::ski;
-
     auto &sf = character_game_instance::self;
     auto action_type = character_logic_system::load_action_type(sf);
     if (action_type != character_logic_system::action_enum::jump) {
@@ -42,7 +42,6 @@ static void erduantiao() {
       character_logic_system::self_hspeed -= 480;
     }
     character_logic_system::self_two_jump_cooldown = UINT64_MAX;
-
     auto ckt = skill_game_instance::create_skill_payload(4111005, ski_lv);
     ckt.x = sf.pos.x;
     ckt.y = sf.pos.y;
@@ -57,7 +56,47 @@ static void erduantiao() {
   skis[g_skill.id] = g_skill;
 }
 
+static void dafeibiao() {
+  game_skill g_skill;
+  g_skill.id = u"4111004";
+  g_skill.use = [](uint64_t client_id, int ski_lv) {
+    auto &sf = character_game_instance::self;
+    character_logic_system::run_action(sf, u"avenger");
+    auto delay = skill_game_instance::load_ski_time(sf);
+    auto ski_lvl2 = std::to_string(ski_lv);
+    std::u16string path = u"411.img/skill/4111004/ball";
+    auto pos = sf.pos;
+    pos.y -= 30;
+    auto page = sf.page;
+    SDL_FPoint goal = pos;
+    if (sf.flip) {
+      goal.x += 400;
+    } else {
+      goal.x -= 400;
+    }
+    check_mobs cm;
+    auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
+                                                       page, 700, path);
+    client_request::send_to_host(cct);
+    server_ball_instance::handle_server_b(cct.payload);
+
+    ClientCharacterAttackT cat;
+    if (!cm.data.empty()) {
+      auto d = ball_game_instance::load_ball_time(cct);
+      // Create and send attack payload
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d);
+      client_request::send_to_host(cat);
+    }
+    auto ckt = skill_game_instance::create_skill_payload(cat, 4111004, ski_lv);
+    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    client_request::send_to_host(ckt);
+  };
+  auto &skis = skill_game_instance::skis();
+  skis[g_skill.id] = g_skill;
+}
+
 [[maybe_unused]] static const bool r = [] {
   erduantiao();
+  dafeibiao();
   return true;
 }();

@@ -687,7 +687,7 @@ void server_character_instance::handle_state(uint64_t client_id,
   if (server_client_instance::clients.contains(client_id)) {
     auto &c = server_client_instance::clients.at(client_id).player_t.character;
     for (const auto &st : r.payload) {
-      save_character_state(*st, *c);
+      handle_save_state(*st, *c);
     }
     auto scenes = server_scene_instance::scenes[r.map_id].clients;
     scenes.erase(client_id);
@@ -836,43 +836,37 @@ void server_character_instance::handle_server_state(uint64_t client_id,
     auto &c =
         character_game_instance::others.at(r.client_id).player_t.character;
     for (const auto &st : r.payload) {
-      save_character_state(*st, *c);
+      handle_save_state(*st, *c);
     }
     handle_s_state(character_game_instance::others.at(r.client_id).g_character,
                    r.payload);
   }
 }
 
-void server_character_instance::remove_character_state(StateT s,
-                                                       CharacterT &c) {
-  std::erase_if(c.states, [&](const auto &st) {
-    switch (s.state) {
-    case StateEnum_HP:
-    case StateEnum_MAX_HP: {
-      return st->state == s.state;
-      break;
-    }
-    case StateEnum_BUFF_SKILL:
-    case StateEnum_BUFF_ITEM:
-    case StateEnum_BUFF_ABNORMAL: {
-      if (s.sub_val == 0 && s.val == st->val) {
-        return true;
+void server_character_instance::handle_save_state(const StateT &st,
+                                                  CharacterT &c) {
+  for (auto it = c.states.begin(); it != c.states.end();) {
+    auto &ist = *it;
+    if (ist->state == st.state) {
+      if (st.state == StateEnum_HP || st.state == fbs::StateEnum_MAX_HP) {
+        it = c.states.erase(it);
+        continue;
       }
-      break;
+      if (st.val == ist->val) {
+        it = c.states.erase(it);
+        continue;
+      }
     }
-    default: {
-      break;
-    }
-    }
-    return false;
-  });
-}
-
-void server_character_instance::save_character_state(const StateT &st,
-                                                     CharacterT &c) {
-  remove_character_state(st, c);
+    it++;
+  }
   switch (st.state) {
   case StateEnum_ITEM_USE: {
+    break;
+  }
+  case StateEnum_BUFF_SKILL: {
+    if (st.sub_val != 0) {
+      c.states.push_back(std::make_unique<StateT>(st));
+    }
     break;
   }
   default: {

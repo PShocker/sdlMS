@@ -25,7 +25,14 @@ void ball_logic_system::run_animate(game_ball &b) {
   if (b.ani_time >= delay) {
     b.ani_time = 0;
     b.ani_index += 1;
-    b.ani_index = b.ani_index % n->children_count();
+    auto m = n->children;
+    if (m.contains(u"rotatePeriod")) {
+      auto r =
+          static_cast<wz::Property<int> *>(m.at(u"rotatePeriod")[0])->get();
+      b.rotate += r;
+      m.erase(u"rotatePeriod");
+    }
+    b.ani_index = b.ani_index % m.size();
   }
   if (b.mob_index.has_value()) {
     const auto &mob = mob_game_instance::data.at(b.mob_index.value()).mob;

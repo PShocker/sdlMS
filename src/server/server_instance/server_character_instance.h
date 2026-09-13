@@ -5,13 +5,11 @@
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include <cstdint>
-#include <string>
 using namespace fbs;
 
 class server_character_instance {
 private:
-  static void remove_character_state(StateT s, CharacterT &c);
-  static void save_character_state(const StateT &v, CharacterT &c);
+  static void handle_save_state(const StateT &v, CharacterT &c);
 
 public:
   static void handle_attack(uint64_t client_id, ClientCharacterAttackT &r);

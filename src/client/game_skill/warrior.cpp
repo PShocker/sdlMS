@@ -21,7 +21,7 @@ static void PowerStrke() {
   g_skill.id = u"1001001";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
-    character_logic_system::run_attack_action(sf);
+    character_logic_system::run_attack_action(sf, false);
     SDL_FRect g_r = afterimage_game_instance::load_rect(sf).value();
     auto cm = character_logic_system::run_attack_check(sf, g_r);
     ClientCharacterAttackT cat;
@@ -44,7 +44,7 @@ static void SlashBlast() {
   g_skill.id = u"1001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
-    character_logic_system::run_attack_action(sf);
+    character_logic_system::run_attack_action(sf, false);
     auto g_r = skill_game_instance::load_ski_r(u"1001002");
     auto cm = character_logic_system::run_attack_check(sf, g_r);
     ClientCharacterAttackT cat;

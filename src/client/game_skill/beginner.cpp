@@ -22,10 +22,13 @@ static void ThreeSnail() {
   game_skill g_skill;
   g_skill.id = u"0001000";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    game_triangle tri = {
-        {SDL_FPoint{-350, -100}, SDL_FPoint{-350, 100}, SDL_FPoint{0, -28}}};
+    game_triangle tri = {{
+        SDL_FPoint{-350, -100},
+        SDL_FPoint{-350, 100},
+        SDL_FPoint{0, -28},
+    }};
     auto &sf = character_game_instance::self;
-    character_logic_system::run_action(sf, u"swingO1");
+    character_logic_system::run_attack_action(sf, false);
     auto cm = character_logic_system::run_attack_check(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};

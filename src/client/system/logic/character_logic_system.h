@@ -1,6 +1,5 @@
 #pragma once
 
-#include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_input.h"
@@ -106,7 +105,7 @@ public:
   static void run_die_action(game_character &g_character);
   static void run_stand_action(game_character &g_character);
   static void run_walk_action(game_character &g_character);
-  static bool run_attack_action(game_character &g_character);
+  static bool run_attack_action(game_character &g_character, bool shoot);
 
   static void load_sfx(game_character &g_character);
   static float load_attack_speed(game_character &g_character);
@@ -159,4 +158,5 @@ public:
   static inline uint64_t self_two_jump_cooldown;
 
   static inline float self_fall_min;
+  static inline int32_t self_fall_fh;
 };
