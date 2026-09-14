@@ -121,7 +121,6 @@ static void mfsj() {
   g_skill.id = u"2001003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
-    character_logic_system::run_stand_action(sf);
     character_logic_system::run_attack_action(sf, false);
     auto g_r = skill_game_instance::load_ski_r(u"2001003");
     auto cm = character_logic_system::run_attack_check(sf, g_r);

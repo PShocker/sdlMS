@@ -370,8 +370,12 @@ void character_render_system::render_tomb(game_character &g_character) {
   }
 }
 
+bool character_render_system::render_effect_front(game_character &g_character) {
+  return effect_render_system::render_character_effects(&g_character, true);
+}
+
 bool character_render_system::render_effect_back(game_character &g_character) {
-  return effect_render_system::render_character_back(&g_character);
+  return effect_render_system::render_character_effects(&g_character, false);
 }
 
 void character_render_system::render_chatballoon(game_character &g_character) {
@@ -463,6 +467,7 @@ void character_render_system::render_morph(game_character &g_character) {
 
 bool character_render_system::render(game_character &g_character) {
   if (g_character.morph.empty()) {
+    render_effect_front(g_character);
     render_chair(g_character, true);
     render_afterimage(g_character);
     render_tomb(g_character);

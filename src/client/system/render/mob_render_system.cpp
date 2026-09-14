@@ -90,7 +90,7 @@ bool mob_render_system::render_gauge(game_mob &g_mob) {
 }
 
 bool mob_render_system::render_effect_back(game_mob &g_mob) {
-  return effect_render_system::render_mob_back(g_mob);
+  return effect_render_system::render_mob_effects(g_mob, false);
 }
 
 bool mob_render_system::render(game_mob &g_mob) {

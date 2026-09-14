@@ -282,28 +282,29 @@ bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,
   return r;
 }
 
-bool effect_render_system::render_mob_back(game_mob &g_mob) {
+bool effect_render_system::render_mob_effects(game_mob &g_mob, bool front) {
   auto &v = g_mob.effect;
   for (auto &e : v) {
-    if (e.z.has_value() && !e.z.value()) {
+    if (e.z.has_value() && e.z.value() == front) {
       render(g_mob.pos, e, g_mob.flip);
     }
   }
   return true;
 }
 
-bool effect_render_system::render_character_back(game_character *g_character) {
+bool effect_render_system::render_character_effects(game_character *g_character,
+                                                    bool front) {
   auto &effect = g_character->effect;
   for (auto it = effect.begin(); it != effect.end();) {
     auto &e = *it;
-    if (e.z.has_value() && !e.z.value()) {
+    if (e.z.has_value() && e.z.value() == front) {
       auto r = render(g_character->pos, e, g_character->flip);
       if (r == false) {
-        it = effect.erase(it); // erase返回下一个迭代器
+        it = effect.erase(it);
         continue;
       }
     }
-    ++it; // 只有不删除时才前进
+    ++it;
   }
   return true;
 }

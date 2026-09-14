@@ -7,6 +7,7 @@ class character_render_system {
 private:
   static bool render_afterimage(game_character &g_character);
   static void render_tomb(game_character &g_character);
+  static bool render_effect_front(game_character &g_character);
   static bool render_effect_back(game_character &g_character);
   static void render_chair(game_character &g_character);
   static void render_chair(game_character &g_character, bool front);

@@ -447,6 +447,11 @@ void server_character_instance::handle_ski(
       e.pos = {static_cast<float>(x), static_cast<float>(y)};
       e.flip = flip;
     }
+    auto ski_node = skill_game_instance::load_ski_node(ski_id3);
+    ski_node = ski_node->find(u"effect/z");
+    if (ski_node) {
+      e.z = true;
+    }
     g_character->effect.push_back(e);
   }
 
