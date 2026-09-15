@@ -165,7 +165,7 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
       ct.mob_index = mob.mob.index;
       ct.attack = std::make_unique<AttackT>();
       ct.attack->num = mob.hits[n];
-      ct.attack->delay = delay + n * interval;
+      ct.attack->delay = delay + n * interval + mob.delay;
       ct.attack->x = mob.x;
       ct.attack->y = mob.y;
       ct.left = pos.x < mob.mob.pos.x;

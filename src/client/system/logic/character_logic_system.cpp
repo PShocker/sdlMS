@@ -142,11 +142,14 @@ check_reactors character_logic_system::run_reactor_check(game_character &g,
 }
 
 check_mobs character_logic_system::run_attack_check(game_character &g_character,
-                                                    game_triangle tri) {
+                                                    game_triangle tri,
+                                                    int num) {
   std::vector<check_mobs::mobs> v;
-  std::flat_map<uint32_t, check_mobs::mobs> m;
+  std::flat_multimap<uint32_t, check_mobs::mobs> m;
   auto &g_pos = g_character.pos;
-  for (const auto [k, v] : mob_game_instance::data) {
+  auto t =
+      triangle_game_instance::load_tri(tri, g_character.flip, g_character.pos);
+  for (const auto &[k, v] : mob_game_instance::data) {
     auto &mob = v.mob;
     if (mob.hp <= 0) {
       continue;
@@ -156,33 +159,38 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
         mob_action == mob_logic_system::action_enum::die) {
       continue;
     }
-
     auto m_r = mob_logic_system::load_rect(mob).value();
-    auto t = triangle_game_instance::load_tri(tri, g_character.flip,
-                                              g_character.pos);
+
     if (triangle_game_instance::rect_ins_tri(m_r, t)) {
       auto &m_pos = mob.pos;
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
                  (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
-      float attack_x = 0;
-      float attack_y = 0;
-      m[dis] = {
+      check_mobs::mobs cm = {
           .mob = v.mob,
-          .x = attack_x,
-          .y = attack_y,
+          .x = 0,
+          .y = 0,
       };
+      m.emplace(dis, cm);
     }
+  }
+  if (m.size() > num) {
+    m.erase(m.begin() + num, m.end());
   }
   v.append_range(m.values());
   return {v};
 }
 
 check_mobs character_logic_system::run_attack_check(game_character &g_character,
-                                                    SDL_FRect g_r) {
+                                                    game_triangle tri) {
+  return run_attack_check(g_character, tri, 1);
+}
+
+check_mobs character_logic_system::run_attack_check(game_character &g_character,
+                                                    SDL_FRect g_r, int num) {
   std::vector<check_mobs::mobs> v;
-  std::flat_map<uint32_t, check_mobs::mobs> m;
+  std::flat_multimap<uint32_t, check_mobs::mobs> m;
   auto &g_pos = g_character.pos;
-  for (const auto [k, v] : mob_game_instance::data) {
+  for (const auto &[k, v] : mob_game_instance::data) {
     auto &mob = v.mob;
     auto mob_action = mob_logic_system::load_action_type(mob.action);
     if (mob_action == mob_logic_system::action_enum::revive ||
@@ -201,15 +209,24 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
       SDL_GetRectIntersectionFloat(&m_r, &g_r, &res);
       float attack_x = res.x + res.w / 2 - m_pos.x;
       float attack_y = res.y + res.h / 2 - m_pos.y;
-      m[dis] = {
+      check_mobs::mobs cm = {
           .mob = v.mob,
           .x = attack_x,
           .y = attack_y,
       };
+      m.emplace(dis, cm);
     }
+  }
+  if (m.size() > num) {
+    m.erase(m.begin() + num, m.end());
   }
   v.append_range(m.values());
   return {v};
+}
+
+check_mobs character_logic_system::run_attack_check(game_character &g_character,
+                                                    SDL_FRect g_r) {
+  return run_attack_check(g_character, g_r, UINT32_MAX);
 }
 
 bool character_logic_system::run_action(game_character &g_character,

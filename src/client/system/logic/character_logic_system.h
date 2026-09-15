@@ -21,6 +21,7 @@ struct check_mobs {
     float x;
     float y;
     std::vector<int64_t> hits;
+    int32_t delay = 0;
   };
   std::vector<mobs> data;
 };
@@ -92,8 +93,12 @@ public:
 
   static std::vector<uint64_t> run_buff_check(game_character &g_character,
                                               SDL_FRect g_r);
+  static check_mobs run_attack_check(game_character &g_character, SDL_FRect g_r,
+                                     int num);
   static check_mobs run_attack_check(game_character &g_character,
                                      SDL_FRect g_r);
+  static check_mobs run_attack_check(game_character &g_character,
+                                     game_triangle tri, int num);
   static check_mobs run_attack_check(game_character &g_character,
                                      game_triangle tri);
   static bool run_animate(game_character &g_character);
