@@ -515,6 +515,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
               self_fh = 0;
               self_foothold_cooldown = window::dt_now + 120;
               run_action(g_character, u"jump");
+              self_two_jump_cooldown = window::dt_now + 400;
               break;
             }
           }
