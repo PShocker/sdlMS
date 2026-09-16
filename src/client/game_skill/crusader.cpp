@@ -93,7 +93,7 @@ static void douqijizhong() {
             .index = 0,
             .time = 0,
             .delay = window::dt_now,
-            .lvl = 1,
+            .lv = 1,
             .type = game_effect::effect_type::skill_custom,
             .pos = std::nullopt,
             .z = false,
@@ -111,7 +111,7 @@ static void douqijizhong() {
           .index = 0,
           .time = 0,
           .delay = window::dt_now,
-          .lvl = 1,
+          .lv = 1,
           .type = game_effect::effect_type::skill_custom,
           .pos = std::nullopt,
           .z = false,
@@ -167,12 +167,12 @@ static void douqijizhong() {
       dp = std::any_cast<data_pack>(&e->data);
       g_character = dp->c;
     }
-    if (e->lvl == 0) {
+    if (e->lv == 0) {
       e->type = game_effect::effect_type::skill_use;
       auto origin_data = e->data;
       e->data = g_character;
       if (effect_logic_system::run_skill_use(*e)) {
-        e->lvl = 1;
+        e->lv = 1;
       } else {
         effect_render_system::render_ski_use(g_character->pos, *e,
                                              g_character->flip);

@@ -227,14 +227,14 @@ void npc_dlg_ui_system::render_list() {
     auto quest_node = quest_game_instance::load_quest_node(quests[i]);
     auto name_node = quest_node->find(u"QuestInfo/name");
     auto name = static_cast<wz::Property<std::u16string> *>(name_node)->get();
-    auto lvl_node = quest_node->find(u"Check/0/lvmin");
-    auto lvl = 0;
-    if (lvl_node) {
-      lvl = static_cast<wz::Property<int> *>(lvl_node)->get();
+    auto lv_node = quest_node->find(u"Check/0/lvmin");
+    auto lv = 0;
+    if (lv_node) {
+      lv = static_cast<wz::Property<int> *>(lv_node)->get();
     }
-    auto lvl2 = std::to_string(lvl);
-    std::u16string lvl3{lvl2.begin(), lvl2.end()};
-    name = u"(Lv." + lvl3 + u") " + name;
+    auto lv2 = std::to_string(lv);
+    std::u16string lv3{lv2.begin(), lv2.end()};
+    name = u"(Lv." + lv3 + u") " + name;
     auto text_x = pos_rect.x + 12;
     auto text_y = pos_rect.y + 25 + lh * i;
     freetype::draw_line(name, text_x, text_y);

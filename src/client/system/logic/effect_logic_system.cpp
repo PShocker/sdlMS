@@ -43,7 +43,7 @@ bool effect_logic_system::run_effect(game_effect &g_effect) {
   }
   g_effect.time += window::delta_time;
   wz::Node *node;
-  switch (g_effect.lvl) {
+  switch (g_effect.lv) {
   case 0: {
     node = wz_resource::character->find(g_effect.id);
     break;
@@ -151,7 +151,7 @@ bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
     ski_node = ski_node->find(u"hit/0");
   } else {
     ski_node =
-        skill_game_instance::load_ski_level_node(g_effect.id, g_effect.lvl);
+        skill_game_instance::load_ski_level_node(g_effect.id, g_effect.lv);
     ski_node = ski_node->find(u"hit/0");
   }
   auto index = std::to_string(g_effect.index);

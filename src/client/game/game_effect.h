@@ -21,7 +21,7 @@ public:
   uint8_t alpha = 255;
 
   uint64_t delay;
-  uint8_t lvl = 0;
+  uint8_t lv = 0;
 
   enum class effect_type {
     effect,
@@ -36,5 +36,6 @@ public:
   std::optional<SDL_FPoint> pos;
   std::optional<bool> z;
   std::optional<bool> flip;
+  std::optional<uint8_t> order;
   std::any data;
 };

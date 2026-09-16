@@ -31,7 +31,7 @@ static void shunjianyidong() {
 
   g_skill.effect = [](SDL_FPoint p, game_effect *e, bool f) {
     e->id = u"BasicEff.img/Teleport";
-    e->lvl = 1;
+    e->lv = 1;
     e->pos = SDL_FPoint{0, 0};
     if (effect_logic_system::run_effect(*e)) {
       return false;

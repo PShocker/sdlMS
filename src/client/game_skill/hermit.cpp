@@ -69,25 +69,41 @@ static void dafeibiao() {
     pos.y -= 30;
     auto page = sf.page;
     SDL_FPoint goal = pos;
+    const auto w = 400;
+    const auto h = 72;
     if (sf.flip) {
-      goal.x += 400;
+      goal.x += w;
     } else {
-      goal.x -= 400;
+      goal.x -= w;
     }
     check_mobs cm;
     auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
-                                                       page, 700, path);
+                                                       page, 800, path);
     client_request::send_to_host(cct);
     server_ball_instance::handle_server_b(cct.payload);
 
     ClientCharacterAttackT cat;
+    SDL_FPoint lt{-w, -h};
+    SDL_FPoint rb{0, 0};
+    auto g_r = skill_game_instance::load_r(lt, rb, sf.pos, sf.flip);
+    cm = character_logic_system::run_attack_check(sf, g_r);
     if (!cm.data.empty()) {
-      auto d = ball_game_instance::load_ball_time(cct);
+      for (auto &data : cm.data) {
+        cct.payload->ball->x2 = 0;
+        cct.payload->ball->y2 = 0;
+        cct.payload->ball->mob = true;
+        cct.payload->ball->mob_index = data.mob.index;
+        data.delay = ball_game_instance::load_ball_time(cct);
+        data.hits = {100};
+      }
       // Create and send attack payload
-      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d);
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, 0);
+      for (auto &data : cat.payload) {
+        data->effect = "Afterimage/hit.img/sword2";
+      }
       client_request::send_to_host(cat);
     }
-    auto ckt = skill_game_instance::create_skill_payload(cat, 4111004, ski_lv);
+    auto ckt = skill_game_instance::create_skill_payload(4111004, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
   };

@@ -318,9 +318,9 @@ void skill_ui_system::render_button() {
     auto ski_node = skill_game_instance::load_ski_node(id);
     if (auto req = ski_node->get_child(u"req")) {
       for (auto [k, v] : *req) {
-        auto lvl = static_cast<wz::Property<int> *>(v[0])->get();
-        auto req_lvl = job_skill_game_instance::load_ski_level(k);
-        if (req_lvl < lvl) {
+        auto lv = static_cast<wz::Property<int> *>(v[0])->get();
+        auto req_lv = job_skill_game_instance::load_ski_level(k);
+        if (req_lv < lv) {
           return true;
         }
       }

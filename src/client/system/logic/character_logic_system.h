@@ -21,7 +21,7 @@ struct check_mobs {
     float x;
     float y;
     std::vector<int64_t> hits;
-    int32_t delay = 0;
+    uint64_t delay = 0;
   };
   std::vector<mobs> data;
 };

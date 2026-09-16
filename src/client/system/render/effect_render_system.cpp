@@ -19,7 +19,7 @@ void effect_render_system::render_effect(SDL_FPoint pos,
     return;
   }
   wz::Node *node;
-  switch (g_effect.lvl) {
+  switch (g_effect.lv) {
   case 0: {
     node = wz_resource::character->find(g_effect.id);
     break;
@@ -207,7 +207,7 @@ void effect_render_system::render_ski_hit(SDL_FPoint pos, game_effect &g_effect,
     ski_node = ski_node->find(u"hit/0");
   } else {
     ski_node =
-        skill_game_instance::load_ski_level_node(g_effect.id, g_effect.lvl);
+        skill_game_instance::load_ski_level_node(g_effect.id, g_effect.lv);
     ski_node = ski_node->find(u"hit/0");
   }
   auto index = std::to_string(g_effect.index);
