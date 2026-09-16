@@ -109,6 +109,10 @@ struct ClientTrapAttack;
 struct ClientTrapAttackBuilder;
 struct ClientTrapAttackT;
 
+struct ClientCharacterDropFade;
+struct ClientCharacterDropFadeBuilder;
+struct ClientCharacterDropFadeT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -1916,6 +1920,88 @@ inline ::flatbuffers::Offset<ClientTrapAttack> CreateClientTrapAttack(
 
 ::flatbuffers::Offset<ClientTrapAttack> CreateClientTrapAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientTrapAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientCharacterDropFadeT : public ::flatbuffers::NativeTable {
+  typedef ClientCharacterDropFade TableType;
+  uint32_t map_id = 0;
+  std::vector<uint64_t> random_id{};
+};
+
+struct ClientCharacterDropFade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientCharacterDropFadeT NativeTableType;
+  typedef ClientCharacterDropFadeBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MAP_ID = 4,
+    VT_RANDOM_ID = 6
+  };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  const ::flatbuffers::Vector<uint64_t> *random_id() const {
+    return GetPointer<const ::flatbuffers::Vector<uint64_t> *>(VT_RANDOM_ID);
+  }
+  ::flatbuffers::Vector<uint64_t> *mutable_random_id() {
+    return GetPointer<::flatbuffers::Vector<uint64_t> *>(VT_RANDOM_ID);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyOffset(verifier, VT_RANDOM_ID) &&
+           verifier.VerifyVector(random_id()) &&
+           verifier.EndTable();
+  }
+  ClientCharacterDropFadeT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientCharacterDropFadeT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientCharacterDropFade> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropFadeT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientCharacterDropFadeBuilder {
+  typedef ClientCharacterDropFade Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientCharacterDropFade::VT_MAP_ID, map_id, 0);
+  }
+  void add_random_id(::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> random_id) {
+    fbb_.AddOffset(ClientCharacterDropFade::VT_RANDOM_ID, random_id);
+  }
+  explicit ClientCharacterDropFadeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientCharacterDropFade> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientCharacterDropFade>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientCharacterDropFade> CreateClientCharacterDropFade(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> random_id = 0) {
+  ClientCharacterDropFadeBuilder builder_(_fbb);
+  builder_.add_random_id(random_id);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ClientCharacterDropFade> CreateClientCharacterDropFadeDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    const std::vector<uint64_t> *random_id = nullptr) {
+  auto random_id__ = random_id ? _fbb.CreateVector<uint64_t>(*random_id) : 0;
+  return fbs::CreateClientCharacterDropFade(
+      _fbb,
+      map_id,
+      random_id__);
+}
+
+::flatbuffers::Offset<ClientCharacterDropFade> CreateClientCharacterDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -2787,6 +2873,35 @@ inline ::flatbuffers::Offset<ClientTrapAttack> ClientTrapAttack::Pack(::flatbuff
       _fbb,
       _map_id,
       _payload);
+}
+
+inline ClientCharacterDropFadeT *ClientCharacterDropFade::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientCharacterDropFadeT>(new ClientCharacterDropFadeT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientCharacterDropFade::UnPackTo(ClientCharacterDropFadeT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = random_id(); if (_e) { _o->random_id.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->random_id[_i] = _e->Get(_i); } } else { _o->random_id.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ClientCharacterDropFade> CreateClientCharacterDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientCharacterDropFade::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientCharacterDropFade> ClientCharacterDropFade::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropFadeT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterDropFadeT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
+  auto _random_id = _o->random_id.size() ? _fbb.CreateVector(_o->random_id) : 0;
+  return fbs::CreateClientCharacterDropFade(
+      _fbb,
+      _map_id,
+      _random_id);
 }
 
 }  // namespace fbs

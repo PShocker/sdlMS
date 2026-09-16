@@ -116,6 +116,7 @@ table Mob{
     mob_id:uint32;
     mob_hp:int64;
     state:LifeState;
+    states:[State];
 }
 
 table Face{

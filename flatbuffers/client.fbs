@@ -118,3 +118,8 @@ table ClientTrapAttack {
     map_id:uint32;
     payload:Attack;
 }
+
+table ClientCharacterDropFade {
+    map_id:uint32;
+    random_id:[uint64];
+}

@@ -1891,6 +1891,7 @@ struct MobT : public ::flatbuffers::NativeTable {
   uint32_t mob_id = 0;
   int64_t mob_hp = 0;
   std::unique_ptr<fbs::LifeStateT> state{};
+  std::vector<std::unique_ptr<fbs::StateT>> states{};
   MobT() = default;
   MobT(const MobT &o);
   MobT(MobT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -1904,7 +1905,8 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_MOB_INDEX = 4,
     VT_MOB_ID = 6,
     VT_MOB_HP = 8,
-    VT_STATE = 10
+    VT_STATE = 10,
+    VT_STATES = 12
   };
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
@@ -1930,6 +1932,12 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::LifeState *mutable_state() {
     return GetPointer<fbs::LifeState *>(VT_STATE);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *states() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_STATES);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *mutable_states() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_STATES);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -1938,6 +1946,9 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<int64_t>(verifier, VT_MOB_HP, 8) &&
            VerifyOffset(verifier, VT_STATE) &&
            verifier.VerifyTable(state()) &&
+           VerifyOffset(verifier, VT_STATES) &&
+           verifier.VerifyVector(states()) &&
+           verifier.VerifyVectorOfTables(states()) &&
            verifier.EndTable();
   }
   MobT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1961,6 +1972,9 @@ struct MobBuilder {
   void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
     fbb_.AddOffset(Mob::VT_STATE, state);
   }
+  void add_states(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states) {
+    fbb_.AddOffset(Mob::VT_STATES, states);
+  }
   explicit MobBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -1977,13 +1991,32 @@ inline ::flatbuffers::Offset<Mob> CreateMob(
     uint32_t mob_index = 0,
     uint32_t mob_id = 0,
     int64_t mob_hp = 0,
-    ::flatbuffers::Offset<fbs::LifeState> state = 0) {
+    ::flatbuffers::Offset<fbs::LifeState> state = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0) {
   MobBuilder builder_(_fbb);
   builder_.add_mob_hp(mob_hp);
+  builder_.add_states(states);
   builder_.add_state(state);
   builder_.add_mob_id(mob_id);
   builder_.add_mob_index(mob_index);
   return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<Mob> CreateMobDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    uint32_t mob_id = 0,
+    int64_t mob_hp = 0,
+    ::flatbuffers::Offset<fbs::LifeState> state = 0,
+    const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr) {
+  auto states__ = states ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>>(*states) : 0;
+  return fbs::CreateMob(
+      _fbb,
+      mob_index,
+      mob_id,
+      mob_hp,
+      state,
+      states__);
 }
 
 ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -4546,6 +4579,8 @@ inline MobT::MobT(const MobT &o)
         mob_id(o.mob_id),
         mob_hp(o.mob_hp),
         state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr) {
+  states.reserve(o.states.size());
+  for (const auto &states_ : o.states) { states.emplace_back((states_) ? new fbs::StateT(*states_) : nullptr); }
 }
 
 inline MobT &MobT::operator=(MobT o) FLATBUFFERS_NOEXCEPT {
@@ -4553,6 +4588,7 @@ inline MobT &MobT::operator=(MobT o) FLATBUFFERS_NOEXCEPT {
   std::swap(mob_id, o.mob_id);
   std::swap(mob_hp, o.mob_hp);
   std::swap(state, o.state);
+  std::swap(states, o.states);
   return *this;
 }
 
@@ -4569,6 +4605,7 @@ inline void Mob::UnPackTo(MobT *_o, const ::flatbuffers::resolver_function_t *_r
   { auto _e = mob_id(); _o->mob_id = _e; }
   { auto _e = mob_hp(); _o->mob_hp = _e; }
   { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
+  { auto _e = states(); if (_e) { _o->states.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->states[_i]) { _e->Get(_i)->UnPackTo(_o->states[_i].get(), _resolver); } else { _o->states[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->states.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4583,12 +4620,14 @@ inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_f
   auto _mob_id = _o->mob_id;
   auto _mob_hp = _o->mob_hp;
   auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
+  auto _states = _o->states.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->states.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->states[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateMob(
       _fbb,
       _mob_index,
       _mob_id,
       _mob_hp,
-      _state);
+      _state,
+      _states);
 }
 
 inline FaceT *Face::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
