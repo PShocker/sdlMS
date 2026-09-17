@@ -22,7 +22,6 @@ SDL_FPoint quest_alarm_ui_system::load_wh() {
     auto q = quest_game_instance::progress_quests.at(id);
     h += q.check_item.size() * 18;
     h += q.check_mob.size() * 18;
-    h += q.check_npc.size() * 18;
     h += 12;
   }
   if (max) {
@@ -153,10 +152,6 @@ void quest_alarm_ui_system::render_quests() {
       freetype::draw_line(str, pos.x + 5, pos.y + y);
     }
     for (const auto &[k, v] : quest.check_mob) {
-      y += 18;
-      freetype::draw_line(u"123456", pos.x + 5, pos.y + y);
-    }
-    for (const auto &[k, v] : quest.check_npc) {
       y += 18;
       freetype::draw_line(u"123456", pos.x + 5, pos.y + y);
     }

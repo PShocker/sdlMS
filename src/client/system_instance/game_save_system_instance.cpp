@@ -96,12 +96,6 @@ bool game_save_system_instance::load_save(const std::string &login) {
           q_mob.count = v->mob_num;
           g_quest.mob[q_mob.id] = q_mob;
         }
-        for (const auto &v : quest->npc) {
-          quest_npc q_npc;
-          auto tmp = std::format("{:07d}", v->npc_id);
-          q_npc.id = {tmp.begin(), tmp.end()};
-          g_quest.npc[q_npc.id] = q_npc;
-        }
         cs.quests.push_back(g_quest);
       }
 
@@ -257,11 +251,6 @@ bool game_save_system_instance::save_game() {
         qmt.mob_id = std::stoi(std::string{v.id.begin(), v.id.end()});
         qmt.mob_num = v.count;
         qt.mob.push_back(std::make_unique<QuestMobSaveT>(qmt));
-      }
-      for (const auto &v : quest.npc | std::views::values) {
-        QuestNPCSaveT qnt;
-        qnt.npc_id = std::stoi(std::string{v.id.begin(), v.id.end()});
-        qt.npc.push_back(std::make_unique<QuestNPCSaveT>(qnt));
       }
       cst.quest.push_back(std::make_unique<QuestSaveT>(qt));
     }

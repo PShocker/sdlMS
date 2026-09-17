@@ -15,7 +15,6 @@ private:
 
 public:
   static void update_check_mob(const std::u16string &mob_id, int num);
-  static void update_check_npc(const std::u16string &npc_id);
   static void update_check_item();
   static void update_check_item(const std::u16string &quest_id);
 

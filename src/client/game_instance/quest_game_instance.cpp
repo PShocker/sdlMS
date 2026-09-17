@@ -273,13 +273,14 @@ void quest_game_instance::accept_quest(game_quest &q) {
     }
   }
   progress_quests[q.quest_id] = q;
-  update_check_item(q.quest_id);
 }
 
 void quest_game_instance::accept_quest(const std::u16string &id) {
   game_quest q;
   q.quest_id = id;
   accept_quest(q);
+  update_check_item(q.quest_id);
+  update_check_mob(u"", 0);
 }
 
 void quest_game_instance::complete_quest(game_quest &q) {
@@ -300,6 +301,20 @@ void quest_game_instance::update_check_item(const std::u16string &quest_id) {
     auto num = package_game_instance::load_item_num(v.id);
     quest.item[k] = {.id = v.id, .count = num};
   }
+  quest.item_bool = true;
+  for (auto [k, v] : quest.check_item) {
+    uint32_t itm_count = 0;
+    if (quest.item.contains(k)) {
+      itm_count = quest.item[k].count;
+    }
+    if (v.count == 0 && itm_count != 0) {
+      quest.item_bool = false;
+      break;
+    } else if (v.count > itm_count) {
+      quest.item_bool = false;
+      break;
+    }
+  }
 }
 
 void quest_game_instance::update_check_item() {
@@ -308,19 +323,22 @@ void quest_game_instance::update_check_item() {
   }
 }
 
-void quest_game_instance::update_check_npc(const std::u16string &npc_id) {
-  for (auto [k, v] : progress_quests) {
-    if (v.check_npc.contains(npc_id)) {
-      v.npc[npc_id] = {};
-    }
-  }
-}
-
 void quest_game_instance::update_check_mob(const std::u16string &mob_id,
                                            int num) {
-  for (auto [k, v] : progress_quests) {
-    if (v.check_mob.contains(mob_id)) {
-      v.mob[mob_id].count += num;
+  for (auto [k, quest] : progress_quests) {
+    if (quest.check_mob.contains(mob_id)) {
+      quest.mob[mob_id].count += num;
+    }
+    quest.mob_bool = true;
+    for (auto [m_id, v] : quest.check_mob) {
+      uint32_t mob_count = 0;
+      if (quest.mob.contains(m_id)) {
+        mob_count = quest.mob[m_id].count;
+      }
+      if (mob_count < v.count) {
+        quest.mob_bool = false;
+        break;
+      }
     }
   }
 }

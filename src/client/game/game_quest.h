@@ -34,10 +34,11 @@ public:
   quest_enum type;
 
   std::flat_map<std::u16string, quest_mob> mob;
-  std::flat_map<std::u16string, quest_npc> npc;
   std::flat_map<std::u16string, quest_item> item;
 
   std::flat_map<std::u16string, quest_mob> check_mob;
-  std::flat_map<std::u16string, quest_npc> check_npc;
   std::flat_map<std::u16string, quest_item> check_item;
+
+  bool mob_bool;
+  bool item_bool;
 };

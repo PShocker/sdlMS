@@ -218,16 +218,11 @@ table QuestMobSave{
     mob_num:uint32;
 }
 
-table QuestNPCSave{
-    npc_id:uint32;
-}
-
 table QuestSave{
    id:string;
    index:uint8;
    type:uint8;
    mob:[QuestMobSave];
-   npc:[QuestNPCSave];
 }
 
 table KeyConfigSave{
