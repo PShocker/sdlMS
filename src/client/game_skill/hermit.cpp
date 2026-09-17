@@ -7,6 +7,7 @@
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/window/window.h"
@@ -89,10 +90,12 @@ static void dafeibiao() {
     cm = character_logic_system::run_attack_check(sf, g_r);
     if (!cm.data.empty()) {
       for (auto &data : cm.data) {
-        cct.payload->ball->x2 = 0;
-        cct.payload->ball->y2 = 0;
         cct.payload->ball->mob = true;
         cct.payload->ball->mob_index = data.mob.index;
+        auto mob_pos = mob_game_instance::data.at(data.mob.index).mob.pos;
+        cct.payload->ball->y1 = mob_pos.y;
+        cct.payload->ball->x2 = 0;
+        cct.payload->ball->y2 = 0;
         data.delay = ball_game_instance::load_ball_time(cct);
         data.hits = {100};
       }
