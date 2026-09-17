@@ -131,10 +131,12 @@ void effect_render_system::render_damage(SDL_FPoint pos,
 void effect_render_system::render_ski_use(SDL_FPoint pos, game_effect &g_effect,
                                           bool flip) {
   auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
-  if (!ski_node->get_child(u"effect")) {
-    return;
+  if (g_effect.order.has_value()) {
+    ski_node =
+        ski_node->get_child("effect" + std::to_string(g_effect.order.value()));
+  } else {
+    ski_node = ski_node->get_child(u"effect");
   }
-  ski_node = ski_node->get_child(u"effect");
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
   auto texture = wz_resource::load_texture(texture_node);

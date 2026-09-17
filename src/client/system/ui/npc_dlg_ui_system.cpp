@@ -136,7 +136,6 @@ void npc_dlg_ui_system::render_button() {
           wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
       buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
     }
-
     break;
   }
   case npc_dlg_enum::select: {

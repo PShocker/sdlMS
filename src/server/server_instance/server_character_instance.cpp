@@ -1,4 +1,5 @@
 #include "server_character_instance.h"
+#include "SDL3/SDL_rect.h"
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game/game_character.h"
@@ -425,34 +426,56 @@ void server_character_instance::handle_ski(
         .time = 0,
         .delay = window::dt_now,
         .type = game_effect::effect_type::skill_custom,
-        .pos = std::nullopt,
+        .pos = SDL_FPoint{(float)x, (float)y},
         .z = false,
+        .flip = flip,
         .data = g_character,
     };
     auto &eff = g_character->effect;
     std::erase_if(eff, [&](const auto &ef) { return ef.id == e.id; });
     eff.push_back(e);
   } else {
-    game_effect e = {
-        .id = ski_id3,
-        .index = 0,
-        .time = 0,
-        .delay = 0,
-        .type = game_effect::effect_type::skill_use,
-        .pos = std::nullopt,
-        .z = false,
-        .data = g_character,
-    };
-    if (x != INT32_MAX || y != INT32_MAX) {
-      e.pos = {static_cast<float>(x), static_cast<float>(y)};
-      e.flip = flip;
-    }
     auto ski_node = skill_game_instance::load_ski_node(ski_id3);
-    ski_node = ski_node->find(u"effect/z");
-    if (ski_node) {
-      e.z = true;
+
+    const bool has_position = (x != INT32_MAX || y != INT32_MAX);
+    const bool has_z = static_cast<bool>(ski_node->find(u"effect/z"));
+
+    if (ski_node->get_child(u"effect")) {
+      game_effect e = {
+          .id = ski_id3,
+          .index = 0,
+          .time = 0,
+          .delay = 0,
+          .type = game_effect::effect_type::skill_use,
+          .pos = std::nullopt,
+          .z = has_z,
+          .order = std::nullopt,
+          .data = g_character,
+      };
+      if (has_position) {
+        e.pos = {static_cast<float>(x), static_cast<float>(y)};
+        e.flip = flip;
+      }
+      g_character->effect.push_back(e);
     }
-    g_character->effect.push_back(e);
+    for (int i = 0; ski_node->get_child("effect/" + std::to_string(i)); i++) {
+      game_effect e = {
+          .id = ski_id3,
+          .index = 0,
+          .time = 0,
+          .delay = 0,
+          .type = game_effect::effect_type::skill_use,
+          .pos = std::nullopt,
+          .z = has_z,
+          .order = i,
+          .data = g_character,
+      };
+      if (has_position) {
+        e.pos = {static_cast<float>(x), static_cast<float>(y)};
+        e.flip = flip;
+      }
+      g_character->effect.push_back(e);
+    }
   }
 
   audio_game_instance::load_audio(u"Skill.img/" + ski_id3 + u"/Use", 0);

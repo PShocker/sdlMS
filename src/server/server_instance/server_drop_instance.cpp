@@ -321,3 +321,15 @@ void server_drop_instance::handle_server_drop_fade(ServerDropFadeT &r) {
   }
   return;
 }
+
+void server_drop_instance::handle_client_drop_fade(
+    ClientCharacterDropFadeT &r) {
+  auto map_id = r.map_id;
+  auto &drops = server_scene_instance::scenes.at(map_id).drops;
+  for (auto id : r.random_id) {
+    if (drops.contains(id)) {
+      drops.at(id).destroy = window::dt_now;
+    }
+  }
+  return;
+}

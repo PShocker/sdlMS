@@ -10,6 +10,7 @@
 #include "wz/Property.h"
 #include <cstdint>
 #include <ranges>
+#include <string>
 
 bool effect_logic_system::run_damage(game_effect &g_effect) {
   bool r = false;
@@ -78,9 +79,11 @@ bool effect_logic_system::run_effect(game_effect &g_effect) {
 bool effect_logic_system::run_skill_use(game_effect &g_effect) {
   bool r = false;
   auto ski_node = skill_game_instance::load_ski_node(g_effect.id);
-  ski_node = ski_node->get_child(u"effect");
-  if (ski_node == nullptr) {
-    return true;
+  if (g_effect.order.has_value()) {
+    ski_node =
+        ski_node->get_child("effect" + std::to_string(g_effect.order.value()));
+  } else {
+    ski_node = ski_node->get_child(u"effect");
   }
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);

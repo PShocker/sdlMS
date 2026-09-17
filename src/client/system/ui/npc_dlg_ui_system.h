@@ -56,6 +56,10 @@ public:
     quest,
     talk,
     select,
+
+    quest_stop_item,
+    quest_stop_lost,
+    quest_stop_npc,
   };
   static inline npc_dlg_enum type;
 

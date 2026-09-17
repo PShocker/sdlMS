@@ -28,6 +28,7 @@ union NetPayload {
     ClientCharacterLvUp,
     ClientCreateMob,
     ClientTrapAttack,
+    ClientCharacterDropFade,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
