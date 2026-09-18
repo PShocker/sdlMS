@@ -313,34 +313,88 @@ void npc_dlg_ui_system::event_button_ok() { close(); }
 
 void npc_dlg_ui_system::event_button_prev() {
   selected = u"";
-  index--;
+  --index;
   if (cb) {
     cb();
-  } else if (!script_id.empty()) {
+    return;
+  }
+  if (!script_id.empty()) {
     script::fns().at(script_id)(nullptr);
-  } else if (!quest_id.empty()) {
-    auto node = quest_game_instance::load_quest_node(quest_id);
-    node = node->find(u"Say/" + quest_index);
+    return;
+  }
+  if (quest_id.empty()) {
+    return;
+  }
+  // 根据 type 决定后缀，统一拼接路径
+  std::u16string suffix;
+  switch (type) {
+  case npc_dlg_enum::quest:
+    suffix = u"";
+    break;
+  case npc_dlg_enum::quest_stop_item:
+    suffix = u"/item";
+    break;
+  case npc_dlg_enum::quest_stop_lost:
+    suffix = u"/lost";
+    break;
+  case npc_dlg_enum::quest_stop_npc:
+    suffix = u"/npc";
+    break;
+  default:
+    return;
+  }
+  auto node = quest_game_instance::load_quest_node(quest_id);
+  if (node) {
+    node = node->find(u"Say/" + quest_index + suffix);
+  }
+  if (node != nullptr) {
     text = text_game_instance::load_rstr(
         node->get_child(std::to_string(index - 1)));
-    time = window::dt_now;
   }
+  time = window::dt_now;
 }
 
 void npc_dlg_ui_system::event_button_next() {
   selected = u"";
-  index++;
+  ++index;
   if (cb) {
     cb();
-  } else if (!script_id.empty()) {
+    return;
+  }
+  if (!script_id.empty()) {
     script::fns().at(script_id)(nullptr);
-  } else if (!quest_id.empty()) {
-    auto node = quest_game_instance::load_quest_node(quest_id);
-    node = node->find(u"Say/" + quest_index);
+    return;
+  }
+  if (quest_id.empty()) {
+    return;
+  }
+  // 根据 type 决定后缀，统一拼接路径
+  std::u16string suffix;
+  switch (type) {
+  case npc_dlg_enum::quest:
+    suffix = u"";
+    break;
+  case npc_dlg_enum::quest_stop_item:
+    suffix = u"/item";
+    break;
+  case npc_dlg_enum::quest_stop_lost:
+    suffix = u"/lost";
+    break;
+  case npc_dlg_enum::quest_stop_npc:
+    suffix = u"/npc";
+    break;
+  default:
+    return;
+  }
+  auto node = quest_game_instance::load_quest_node(quest_id);
+  if (node) {
+    node = node->find(u"Say/" + quest_index + suffix);
+  }
+  if (node != nullptr) {
     text = text_game_instance::load_rstr(
         node->get_child(std::to_string(index - 1)));
-    time = window::dt_now;
   }
+  time = window::dt_now;
 }
 
 void npc_dlg_ui_system::event_quest_list() {
@@ -354,29 +408,54 @@ void npc_dlg_ui_system::event_quest_list() {
     return;
   }
   quest_id = selected;
-  script_id = u"";
-  auto node = quest_game_instance::load_quest_node(selected);
-  if (auto n = node->find(u"Check/0/startscript"); n != nullptr) {
-    auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
-    script::fns().at(spt)(nullptr);
-    script_id = spt;
-    return;
-  }
-  index++;
 
   auto progress = quest_game_instance::load_quest_progress(selected);
   auto tmp = std::to_string(progress);
   quest_index = {tmp.begin(), tmp.end()};
+  auto progress_complete =
+      npc_game_instance::load_progress_complete_quest(quest_id);
 
-  node = node->find(u"Say/" + quest_index);
-  auto child = node->children;
-  child.erase(u"yes");
-  child.erase(u"no");
-  child.erase(u"stop");
-  max_index = child.size();
+  wz::Node *node = nullptr;
+  if (std::ranges::contains(progress_complete, quest_id)) {
+    // 待完成
 
-  text = text_game_instance::load_rstr(node->get_child(u"0"));
-  time = window::dt_now;
+  } else if (quest_game_instance::progress_quests.contains(quest_id)) {
+    // 判断是否是进行中的任务
+    auto &q = quest_game_instance::progress_quests.at(quest_id);
+    if (!q.item_bool) {
+      type = npc_dlg_enum::quest_stop_item;
+      node = quest_game_instance::load_quest_node(selected);
+      node = node->find(u"Say/" + quest_index + u"/stop/item");
+    } else if (!q.mob_bool) {
+      type = npc_dlg_enum::quest_stop_item;
+      node = quest_game_instance::load_quest_node(selected);
+      node = node->find(u"Say/" + quest_index + u"/stop/mob");
+    } else {
+      type = npc_dlg_enum::quest_stop_npc;
+      node = quest_game_instance::load_quest_node(selected);
+      node = node->find(u"Say/" + quest_index + u"/stop/npc");
+    }
+  } else {
+    script_id = u"";
+    node = quest_game_instance::load_quest_node(selected);
+    if (auto n = node->find(u"Check/0/startscript"); n != nullptr) {
+      auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
+      script::fns().at(spt)(nullptr);
+      script_id = spt;
+      return;
+    }
+    node = node->find(u"Say/" + quest_index);
+    auto child = node->children;
+    child.erase(u"yes");
+    child.erase(u"no");
+    child.erase(u"stop");
+    max_index = child.size();
+  }
+  if (node != nullptr) {
+    index++;
+    text = text_game_instance::load_rstr(node->get_child(u"0"));
+    time = window::dt_now;
+  }
 }
 
 void npc_dlg_ui_system::event_button_quest_yes() {
@@ -472,6 +551,9 @@ bool npc_dlg_ui_system::event_button(SDL_Event *event) {
     break;
   }
   case npc_dlg_enum::select: {
+    break;
+  }
+  default: {
     break;
   }
   }

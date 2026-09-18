@@ -200,3 +200,23 @@ npc_game_instance::load_progress_quest(const std::u16string &id) {
 
   return result;
 }
+
+std::vector<std::u16string>
+npc_game_instance::load_progress_complete_quest(const std::u16string &id) {
+  std::vector<std::u16string> result;
+  auto progress = load_progress_quest(id);
+  for (auto &p : progress) {
+    auto &q = quest_game_instance::progress_quests.at(p);
+    if (q.item_bool && q.mob_bool) {
+      auto node = quest_game_instance::load_quest_node(p);
+      auto tmp = std::to_string(q.index);
+      node = node->find("Check/" + tmp + "/npc");
+      auto npc_id = static_cast<wz::Property<int> *>(node)->get();
+      auto npc_id2 = std::stoi(std::string{id.begin(), id.end()});
+      if (npc_id == npc_id2) {
+        result.push_back(p);
+      }
+    }
+  }
+  return result;
+}

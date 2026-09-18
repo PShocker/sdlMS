@@ -60,6 +60,8 @@ public:
     quest_stop_item,
     quest_stop_lost,
     quest_stop_npc,
+
+    quest_progress_complete,
   };
   static inline npc_dlg_enum type;
 

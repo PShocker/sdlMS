@@ -14,31 +14,6 @@ static void jianyu() {
   game_skill g_skill;
   g_skill.id = u"3111002";
 
-  struct data_pack {
-    game_character *c;
-    struct data_special {
-      float x1;
-      float y1;
-      float x2;
-      float y2;
-    };
-    std::vector<data_special> specs;
-  };
-
-  g_skill.effect = [](SDL_FPoint p, game_effect *e, bool f) {
-    data_pack *dp;
-    const std::type_info &tp = e->data.type();
-    if (tp == typeid(game_character *)) {
-      auto g_character = std::any_cast<game_character *>(e->data);
-      data_pack dp;
-      dp.c = g_character;
-      e->data = dp;
-    }
-    dp = std::any_cast<data_pack>(&e->data);
-
-    return true;
-  };
-
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
     character_logic_system::run_attack_action(sf, false);
