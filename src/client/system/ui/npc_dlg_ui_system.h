@@ -12,6 +12,7 @@ private:
   static void render_button();
   static void render_text();
   static void render_list();
+  static void render_obtain();
 
   static SDL_FPoint load_wh();
 
@@ -58,6 +59,7 @@ public:
     select,
 
     quest_stop_item,
+    quest_stop_mob,
     quest_stop_lost,
     quest_stop_npc,
 

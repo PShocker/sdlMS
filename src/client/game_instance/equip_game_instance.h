@@ -63,6 +63,7 @@ public:
     MMP,
   };
   static bool check_equip(const std::u16string &id);
+  static std::polymorphic<game_item> load_item(const std::u16string &id);
 
   static weapon_type load_weapon_type(const game_character &g_character);
   static wz::Node *load_equip_info(const std::u16string &id);

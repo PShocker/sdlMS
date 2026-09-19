@@ -70,7 +70,11 @@ wz::Node *npc_game_instance::load_quest_node(const game_npc &g_npc) {
   wz::Node *node = nullptr;
   auto avaliable = npc_game_instance::load_avaliable_quest(g_npc.id);
   auto progress = npc_game_instance::load_progress_quest(g_npc.id);
-  if (!avaliable.empty()) {
+  auto progress_complete =
+      npc_game_instance::load_progress_complete_quest(g_npc.id);
+  if (!progress_complete.empty()) {
+    node = wz_resource::ui->find(u"QuestIcon.img/2");
+  } else if (!avaliable.empty()) {
     node = wz_resource::ui->find(u"QuestIcon.img/0");
   } else if (!progress.empty()) {
     node = wz_resource::ui->find(u"QuestIcon.img/1");
@@ -204,17 +208,16 @@ npc_game_instance::load_progress_quest(const std::u16string &id) {
 std::vector<std::u16string>
 npc_game_instance::load_progress_complete_quest(const std::u16string &id) {
   std::vector<std::u16string> result;
-  auto progress = load_progress_quest(id);
+  auto progress = quest_game_instance::load_progress_quest();
   for (auto &p : progress) {
-    auto &q = quest_game_instance::progress_quests.at(p);
-    if (q.item_bool && q.mob_bool) {
-      auto node = quest_game_instance::load_quest_node(p);
-      auto tmp = std::to_string(q.index);
+    if (p.item_bool && p.mob_bool) {
+      auto node = quest_game_instance::load_quest_node(p.quest_id);
+      auto tmp = std::to_string(p.index);
       node = node->find("Check/" + tmp + "/npc");
       auto npc_id = static_cast<wz::Property<int> *>(node)->get();
       auto npc_id2 = std::stoi(std::string{id.begin(), id.end()});
       if (npc_id == npc_id2) {
-        result.push_back(p);
+        result.push_back(p.quest_id);
       }
     }
   }

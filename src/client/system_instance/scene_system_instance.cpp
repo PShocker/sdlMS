@@ -167,6 +167,7 @@ void scene_system_instance::enter_prepare() {
   character_logic_system::self_vspeed = 0;
   character_logic_system::run_unsit_chair(self);
 
+  self.action_animate = true;
   self.tomb = std::nullopt;
   self.skill = std::nullopt;
 }

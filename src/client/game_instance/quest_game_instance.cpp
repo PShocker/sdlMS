@@ -245,8 +245,6 @@ void quest_game_instance::load(character_save &cs) {
     }
     }
   }
-  game_quest q{.quest_id = u"1002.img"};
-  accept_quest(q);
 }
 
 void quest_game_instance::accept_quest(game_quest &q) {
@@ -284,14 +282,25 @@ void quest_game_instance::accept_quest(const std::u16string &id) {
 }
 
 void quest_game_instance::complete_quest(game_quest &q) {
-  progress_quests.erase(q.quest_id);
+  q.index += 1;
   complete_quests[q.quest_id] = q;
+  progress_quests.erase(q.quest_id);
+}
+
+void quest_game_instance::complete_quest(const std::u16string &id) {
+  auto &q = progress_quests.at(id);
+  complete_quest(q);
 }
 
 void quest_game_instance::decline_quest(game_quest &q) {
-  progress_quests.erase(q.quest_id);
   decline_quests[q.quest_id] = q;
+  progress_quests.erase(q.quest_id);
   return;
+}
+
+void quest_game_instance::decline_quest(const std::u16string &id) {
+  auto &q = progress_quests.at(id);
+  decline_quest(q);
 }
 
 void quest_game_instance::update_check_item(const std::u16string &quest_id) {
@@ -341,4 +350,38 @@ void quest_game_instance::update_check_mob(const std::u16string &mob_id,
       }
     }
   }
+}
+
+std::flat_map<std::u16string, int>
+quest_game_instance::load_quest_act_item(const std::u16string &id) {
+  std::flat_map<std::u16string, int> r;
+  uint8_t index = 0;
+  if (progress_quests.contains(id)) {
+    index = progress_quests.at(id).index;
+  }
+  auto quest_node = load_quest_node(id);
+  quest_node = quest_node->find("Act/" + std::to_string(index) + "/item");
+  if (quest_node != nullptr) {
+    for (auto [k, v] : *quest_node->get_children()) {
+      auto id = static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
+      auto count =
+          static_cast<wz::Property<int> *>(v[0]->get_child(u"count"))->get();
+      auto tmp = std::format("{:08d}", id);
+      std::u16string id2{tmp.begin(), tmp.end()};
+      r[id2] = count;
+    }
+  }
+  return r;
+}
+
+uint32_t quest_game_instance::load_quest_act_exp(const std::u16string &id) {
+  if (progress_quests.contains(id)) {
+    auto quest_node = load_quest_node(id);
+    auto index = progress_quests.at(id).index;
+    quest_node = quest_node->find("Act/" + std::to_string(index) + "/exp");
+    if (quest_node != nullptr) {
+      return static_cast<wz::Property<int> *>(quest_node)->get();
+    }
+  }
+  return 0;
 }

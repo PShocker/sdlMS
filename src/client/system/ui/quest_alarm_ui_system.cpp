@@ -13,6 +13,7 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <cstdint>
 #include <format>
 #include <string>
 
@@ -139,7 +140,10 @@ void quest_alarm_ui_system::render_quests() {
     const auto &quest = quest_game_instance::progress_quests.at(id);
     for (const auto &[k, v] : quest.check_item) {
       y += 18;
-      auto num = quest.item.at(k).count;
+      uint32_t num = 0;
+      if (quest.item.contains(k)) {
+        num = quest.item.at(k).count;
+      }
       auto count = v.count;
       auto tmp = std::format("{}/{}", num, count);
       std::u16string str;

@@ -27,6 +27,15 @@ bool equip_game_instance::check_equip(const std::u16string &id) {
   return false;
 }
 
+std::polymorphic<game_item>
+equip_game_instance::load_item(const std::u16string &id) {
+  game_equip_item eqp;
+  eqp.type = item_enum::equip;
+  eqp.id = id;
+  auto r = std::polymorphic<game_item>(eqp);
+  return r;
+}
+
 std::u16string equip_game_instance::load_equip_type(const std::u16string &id) {
   const auto result = id.substr(1, 3);
   static const std::flat_map<std::u16string, std::u16string> equip_type = {

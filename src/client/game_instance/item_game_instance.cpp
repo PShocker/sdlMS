@@ -78,14 +78,12 @@ item_game_instance::load_item(const std::u16string &id, uint32_t num) {
   if (item_type == u"Cash") {
     game_cash_item cash;
     cash.id = id;
-    return std::polymorphic<game_item>(std::in_place_type<game_cash_item>,
-                                       cash);
+    return std::polymorphic<game_item>(cash);
   } else if (item_type == u"Consume") {
     game_consume_item consume;
     consume.id = id;
     consume.num = num;
-    return std::polymorphic<game_item>(std::in_place_type<game_consume_item>,
-                                       consume);
+    return std::polymorphic<game_item>(consume);
   } else if (item_type == u"Etc") {
     game_etc_item etc;
     etc.id = id;
@@ -94,13 +92,11 @@ item_game_instance::load_item(const std::u16string &id, uint32_t num) {
   } else if (item_type == u"Ins") {
     game_install_item install;
     install.id = id;
-    return std::polymorphic<game_item>(std::in_place_type<game_install_item>,
-                                       install);
+    return std::polymorphic<game_item>(install);
   } else if (item_type == u"Pet" || item_type == u"Special") {
     game_cash_item cash;
     cash.id = id;
-    return std::polymorphic<game_item>(std::in_place_type<game_cash_item>,
-                                       cash);
+    return std::polymorphic<game_item>(cash);
   }
   // 处理未知类型 - 返回空或抛出异常
   return std::polymorphic<game_item>(); // 返回空对象

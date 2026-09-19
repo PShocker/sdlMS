@@ -18,11 +18,13 @@ public:
   static void update_check_item();
   static void update_check_item(const std::u16string &quest_id);
 
-  static void accept_quest(const std::u16string &id);
-
   static void accept_quest(game_quest &q);
   static void complete_quest(game_quest &q);
   static void decline_quest(game_quest &q);
+
+  static void accept_quest(const std::u16string &quest_id);
+  static void complete_quest(const std::u16string &quest_id);
+  static void decline_quest(const std::u16string &quest_id);
 
   static inline std::flat_map<std::u16string, game_quest> progress_quests;
   static inline std::flat_map<std::u16string, game_quest> complete_quests;
@@ -52,6 +54,10 @@ public:
   static int load_quest_area(const std::u16string &id);
 
   static wz::Node *load_quest_node(const std::u16string &id);
+
+  static std::flat_map<std::u16string, int>
+  load_quest_act_item(const std::u16string &id);
+  static uint32_t load_quest_act_exp(const std::u16string &id);
 
   static void load(character_save &cs);
 };
