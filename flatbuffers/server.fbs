@@ -14,6 +14,7 @@ table ServerScene {
     mobs:[Mob];
     drops:[Drop];
     reactors:[Reactor];
+    region_skill:[RSkill];
 }
 
 table ServerCharacterIn {
@@ -187,4 +188,8 @@ table ServerCreateMob {
 table ServerTrapAttack {
     client_id:uint64;
     payload:Attack;
+}
+
+table ServerRSkill {
+    payload:[RSkill];
 }

@@ -493,7 +493,13 @@ void server_character_instance::handle_ski(
           .pos = SDL_FPoint{s->x, s->y},
           .z = false,
       };
-      mob[s->mob].mob.effect.push_back(e2);
+      if (mob.contains(s->mob)) {
+        mob[s->mob].mob.effect.push_back(e2);
+      } else {
+        e2.flip = flip;
+        auto page = g_character->page;
+        effect_game_instance::data[page].emplace_back(e2);
+      }
     } else {
       game_character *c = nullptr;
       if (character_game_instance::others.contains(s->player)) {

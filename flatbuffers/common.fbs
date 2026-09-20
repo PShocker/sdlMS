@@ -80,7 +80,6 @@ table Ball{
 
     speed:float;
 
-    mob:bool;
     mob_index:uint32;
     delay:uint64;
     page:uint8;
@@ -191,6 +190,17 @@ table Reactor{
     delay:uint64;
 }
 
+table RSkill{ //RegionSkill
+    id:uint32;
+    lv:uint8;
+    x:float;
+    y:float;
+    flip:bool;
+    page:uint8;
+    start:uint64;
+    end:uint64;
+    val:int64;
+}
 
 table APSave{
     hp_ap:uint32;

@@ -50,8 +50,7 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
       .x2 = goal.x, // 默认值
       .y2 = goal.y, // 默认值
       .speed = (float)speed,
-      .mob = false,
-      .mob_index = 0,
+      .mob_index = UINT32_MAX,
       .delay = delay,
       .page = (uint8_t)page,
   });
@@ -108,10 +107,8 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
         cm.data.clear();
         ball->x2 = target.x;
         ball->y2 = target.y;
-        ball->mob = false;
       } else {
         // 命中怪物
-        ball->mob = true;
         ball->mob_index = mob.index;
         ball->x2 = closest_pos.x - mob.pos.x;
         ball->y2 = closest_pos.y - mob.pos.y;
@@ -125,14 +122,12 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
       auto target = calculate_target(goal);
       ball->x2 = target.x;
       ball->y2 = target.y;
-      ball->mob = false;
     }
   } else {
     // 无cm.data
     auto target = calculate_target(goal);
     ball->x2 = target.x;
     ball->y2 = target.y;
-    ball->mob = false;
   }
 
   // 4. 构造payload
@@ -144,21 +139,29 @@ ClientCharacterBallT ball_game_instance::create_ball_payload(
 }
 
 uint64_t ball_game_instance::load_ball_time(ClientCharacterBallT &cct) {
-  auto &b = cct.payload->ball;
-  if (b->mob) {
-    auto p1 = SDL_FPoint{b->x1, b->y1};
-    auto p2 = SDL_FPoint{b->x2, b->y2};
-    auto mob_index = b->mob_index;
-    auto mob_pos = mob_game_instance::data.at(mob_index).mob.pos;
-    p2.x += mob_pos.x;
-    p2.y += mob_pos.y;
+  const auto &b = cct.payload->ball;
 
-    float dx = p2.x - p1.x;
-    float dy = p2.y - p1.y;
-    float length = sqrtf(dx * dx + dy * dy);
-
-    uint64_t dt = (length * 1000) / (float)(b->speed);
-    return dt + b->delay;
+  // 一次查找，避免 contains + at 的双重开销
+  auto it = mob_game_instance::data.find(b->mob_index);
+  if (it == mob_game_instance::data.end()) {
+    return 0;
   }
-  return 0;
+
+  const auto &mob_pos = it->second.mob.pos;
+
+  // 起点 = b->x1/y1，终点 = b->x2/y2 + mob 偏移
+  const float dx = (b->x2 + mob_pos.x) - b->x1;
+  const float dy = (b->y2 + mob_pos.y) - b->y1;
+
+  // hypotf 比 sqrtf(dx*dx+dy*dy) 更稳，且常量优化更好
+  const float length = std::hypot(dx, dy);
+
+  // 防止除零；speed 为 0 时按 0 处理（或按业务定义）
+  if (b->speed <= 0.0f) {
+    return 0;
+  }
+
+  // 统一转 double 计算，最后四舍五入，避免截断误差
+  const double dt = (static_cast<double>(length) * 1000.0) / b->speed;
+  return static_cast<uint64_t>(dt + 0.5) + b->delay;
 }

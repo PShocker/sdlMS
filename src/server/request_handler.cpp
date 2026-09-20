@@ -5,6 +5,7 @@
 #include "server_instance/server_mob_instance.h"
 #include "server_instance/server_party_instance.h"
 #include "server_instance/server_reactor_instance.h"
+#include "server_instance/server_region_skill_instance.h"
 #include "server_instance/server_scene_instance.h"
 #include "server_system/server_heartbeat_system.h"
 #include "src/client/game/game_character.h"
@@ -199,11 +200,18 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_trap_instance::handle_attack(client_id, r);
     break;
   }
-  case NetPayload_ClientCharacterDropFade: {
-    auto payload = packet->payload_as_ClientCharacterDropFade();
-    fbs::ClientCharacterDropFadeT r;
+  case NetPayload_ClientDropFade: {
+    auto payload = packet->payload_as_ClientDropFade();
+    fbs::ClientDropFadeT r;
     payload->UnPackTo(&r);
     server_drop_instance::handle_client_drop_fade(r);
+    break;
+  }
+  case NetPayload_ClientRSkill: {
+    auto payload = packet->payload_as_ClientRSkill();
+    fbs::ClientRSkillT r;
+    payload->UnPackTo(&r);
+    server_region_skill_instance::handle_r(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {

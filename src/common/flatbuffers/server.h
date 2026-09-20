@@ -153,6 +153,10 @@ struct ServerTrapAttack;
 struct ServerTrapAttackBuilder;
 struct ServerTrapAttackT;
 
+struct ServerRSkill;
+struct ServerRSkillBuilder;
+struct ServerRSkillT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -388,6 +392,7 @@ struct ServerSceneT : public ::flatbuffers::NativeTable {
   std::vector<std::unique_ptr<fbs::MobT>> mobs{};
   std::vector<std::unique_ptr<fbs::DropT>> drops{};
   std::vector<std::unique_ptr<fbs::ReactorT>> reactors{};
+  std::vector<std::unique_ptr<fbs::RSkillT>> region_skill{};
   ServerSceneT() = default;
   ServerSceneT(const ServerSceneT &o);
   ServerSceneT(ServerSceneT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -404,7 +409,8 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_PLAYERS = 10,
     VT_MOBS = 12,
     VT_DROPS = 14,
-    VT_REACTORS = 16
+    VT_REACTORS = 16,
+    VT_REGION_SKILL = 18
   };
   uint64_t client_id() const {
     return GetField<uint64_t>(VT_CLIENT_ID, 0);
@@ -448,6 +454,12 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>> *mutable_reactors() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>> *>(VT_REACTORS);
   }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *region_skill() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *>(VT_REGION_SKILL);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *mutable_region_skill() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *>(VT_REGION_SKILL);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -466,6 +478,9 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_REACTORS) &&
            verifier.VerifyVector(reactors()) &&
            verifier.VerifyVectorOfTables(reactors()) &&
+           VerifyOffset(verifier, VT_REGION_SKILL) &&
+           verifier.VerifyVector(region_skill()) &&
+           verifier.VerifyVectorOfTables(region_skill()) &&
            verifier.EndTable();
   }
   ServerSceneT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -498,6 +513,9 @@ struct ServerSceneBuilder {
   void add_reactors(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>>> reactors) {
     fbb_.AddOffset(ServerScene::VT_REACTORS, reactors);
   }
+  void add_region_skill(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>>> region_skill) {
+    fbb_.AddOffset(ServerScene::VT_REGION_SKILL, region_skill);
+  }
   explicit ServerSceneBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -517,9 +535,11 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Mob>>> mobs = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>>> reactors = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>>> reactors = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>>> region_skill = 0) {
   ServerSceneBuilder builder_(_fbb);
   builder_.add_client_id(client_id);
+  builder_.add_region_skill(region_skill);
   builder_.add_reactors(reactors);
   builder_.add_drops(drops);
   builder_.add_mobs(mobs);
@@ -537,11 +557,13 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
     const std::vector<::flatbuffers::Offset<fbs::Player>> *players = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::Mob>> *mobs = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::Drop>> *drops = nullptr,
-    const std::vector<::flatbuffers::Offset<fbs::Reactor>> *reactors = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::Reactor>> *reactors = nullptr,
+    const std::vector<::flatbuffers::Offset<fbs::RSkill>> *region_skill = nullptr) {
   auto players__ = players ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>>(*players) : 0;
   auto mobs__ = mobs ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Mob>>(*mobs) : 0;
   auto drops__ = drops ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*drops) : 0;
   auto reactors__ = reactors ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Reactor>>(*reactors) : 0;
+  auto region_skill__ = region_skill ? _fbb.CreateVector<::flatbuffers::Offset<fbs::RSkill>>(*region_skill) : 0;
   return fbs::CreateServerScene(
       _fbb,
       client_id,
@@ -550,7 +572,8 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
       players__,
       mobs__,
       drops__,
-      reactors__);
+      reactors__,
+      region_skill__);
 }
 
 ::flatbuffers::Offset<ServerScene> CreateServerScene(::flatbuffers::FlatBufferBuilder &_fbb, const ServerSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -3143,6 +3166,77 @@ inline ::flatbuffers::Offset<ServerTrapAttack> CreateServerTrapAttack(
 
 ::flatbuffers::Offset<ServerTrapAttack> CreateServerTrapAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerTrapAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerRSkillT : public ::flatbuffers::NativeTable {
+  typedef ServerRSkill TableType;
+  std::vector<std::unique_ptr<fbs::RSkillT>> payload{};
+  ServerRSkillT() = default;
+  ServerRSkillT(const ServerRSkillT &o);
+  ServerRSkillT(ServerRSkillT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerRSkillT &operator=(ServerRSkillT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerRSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerRSkillT NativeTableType;
+  typedef ServerRSkillBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PAYLOAD = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ServerRSkillT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerRSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerRSkill> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerRSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerRSkillBuilder {
+  typedef ServerRSkill Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>>> payload) {
+    fbb_.AddOffset(ServerRSkill::VT_PAYLOAD, payload);
+  }
+  explicit ServerRSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerRSkill> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerRSkill>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerRSkill> CreateServerRSkill(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>>> payload = 0) {
+  ServerRSkillBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerRSkill> CreateServerRSkillDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<fbs::RSkill>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::RSkill>>(*payload) : 0;
+  return fbs::CreateServerRSkill(
+      _fbb,
+      payload__);
+}
+
+::flatbuffers::Offset<ServerRSkill> CreateServerRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ServerRSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -3178,6 +3272,8 @@ inline ServerSceneT::ServerSceneT(const ServerSceneT &o)
   for (const auto &drops_ : o.drops) { drops.emplace_back((drops_) ? new fbs::DropT(*drops_) : nullptr); }
   reactors.reserve(o.reactors.size());
   for (const auto &reactors_ : o.reactors) { reactors.emplace_back((reactors_) ? new fbs::ReactorT(*reactors_) : nullptr); }
+  region_skill.reserve(o.region_skill.size());
+  for (const auto &region_skill_ : o.region_skill) { region_skill.emplace_back((region_skill_) ? new fbs::RSkillT(*region_skill_) : nullptr); }
 }
 
 inline ServerSceneT &ServerSceneT::operator=(ServerSceneT o) FLATBUFFERS_NOEXCEPT {
@@ -3188,6 +3284,7 @@ inline ServerSceneT &ServerSceneT::operator=(ServerSceneT o) FLATBUFFERS_NOEXCEP
   std::swap(mobs, o.mobs);
   std::swap(drops, o.drops);
   std::swap(reactors, o.reactors);
+  std::swap(region_skill, o.region_skill);
   return *this;
 }
 
@@ -3207,6 +3304,7 @@ inline void ServerScene::UnPackTo(ServerSceneT *_o, const ::flatbuffers::resolve
   { auto _e = mobs(); if (_e) { _o->mobs.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->mobs[_i]) { _e->Get(_i)->UnPackTo(_o->mobs[_i].get(), _resolver); } else { _o->mobs[_i] = std::unique_ptr<fbs::MobT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->mobs.resize(0); } }
   { auto _e = drops(); if (_e) { _o->drops.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->drops[_i]) { _e->Get(_i)->UnPackTo(_o->drops[_i].get(), _resolver); } else { _o->drops[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->drops.resize(0); } }
   { auto _e = reactors(); if (_e) { _o->reactors.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->reactors[_i]) { _e->Get(_i)->UnPackTo(_o->reactors[_i].get(), _resolver); } else { _o->reactors[_i] = std::unique_ptr<fbs::ReactorT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->reactors.resize(0); } }
+  { auto _e = region_skill(); if (_e) { _o->region_skill.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->region_skill[_i]) { _e->Get(_i)->UnPackTo(_o->region_skill[_i].get(), _resolver); } else { _o->region_skill[_i] = std::unique_ptr<fbs::RSkillT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->region_skill.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<ServerScene> CreateServerScene(::flatbuffers::FlatBufferBuilder &_fbb, const ServerSceneT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -3224,6 +3322,7 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
   auto _mobs = _o->mobs.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Mob>> (_o->mobs.size(), [](size_t i, _VectorArgs *__va) { return CreateMob(*__va->__fbb, __va->__o->mobs[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _drops = _o->drops.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->drops.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->drops[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _reactors = _o->reactors.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Reactor>> (_o->reactors.size(), [](size_t i, _VectorArgs *__va) { return CreateReactor(*__va->__fbb, __va->__o->reactors[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _region_skill = _o->region_skill.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::RSkill>> (_o->region_skill.size(), [](size_t i, _VectorArgs *__va) { return CreateRSkill(*__va->__fbb, __va->__o->region_skill[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerScene(
       _fbb,
       _client_id,
@@ -3232,7 +3331,8 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
       _players,
       _mobs,
       _drops,
-      _reactors);
+      _reactors,
+      _region_skill);
 }
 
 inline ServerCharacterInT::ServerCharacterInT(const ServerCharacterInT &o)
@@ -4472,6 +4572,42 @@ inline ::flatbuffers::Offset<ServerTrapAttack> ServerTrapAttack::Pack(::flatbuff
   return fbs::CreateServerTrapAttack(
       _fbb,
       _client_id,
+      _payload);
+}
+
+inline ServerRSkillT::ServerRSkillT(const ServerRSkillT &o) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::RSkillT(*payload_) : nullptr); }
+}
+
+inline ServerRSkillT &ServerRSkillT::operator=(ServerRSkillT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerRSkillT *ServerRSkill::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerRSkillT>(new ServerRSkillT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerRSkill::UnPackTo(ServerRSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::RSkillT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerRSkill> CreateServerRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ServerRSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerRSkill::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerRSkill> ServerRSkill::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerRSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerRSkillT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::RSkill>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateRSkill(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerRSkill(
+      _fbb,
       _payload);
 }
 

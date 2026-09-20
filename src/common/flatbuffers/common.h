@@ -107,6 +107,10 @@ struct Reactor;
 struct ReactorBuilder;
 struct ReactorT;
 
+struct RSkill;
+struct RSkillBuilder;
+struct RSkillT;
+
 struct APSave;
 struct APSaveBuilder;
 struct APSaveT;
@@ -1327,7 +1331,6 @@ struct BallT : public ::flatbuffers::NativeTable {
   float x2 = 0.0f;
   float y2 = 0.0f;
   float speed = 0.0f;
-  bool mob = false;
   uint32_t mob_index = 0;
   uint64_t delay = 0;
   uint8_t page = 0;
@@ -1342,10 +1345,9 @@ struct Ball FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_X2 = 8,
     VT_Y2 = 10,
     VT_SPEED = 12,
-    VT_MOB = 14,
-    VT_MOB_INDEX = 16,
-    VT_DELAY = 18,
-    VT_PAGE = 20
+    VT_MOB_INDEX = 14,
+    VT_DELAY = 16,
+    VT_PAGE = 18
   };
   float x1() const {
     return GetField<float>(VT_X1, 0.0f);
@@ -1377,12 +1379,6 @@ struct Ball FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_speed(float _speed = 0.0f) {
     return SetField<float>(VT_SPEED, _speed, 0.0f);
   }
-  bool mob() const {
-    return GetField<uint8_t>(VT_MOB, 0) != 0;
-  }
-  bool mutate_mob(bool _mob = 0) {
-    return SetField<uint8_t>(VT_MOB, static_cast<uint8_t>(_mob), 0);
-  }
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
   }
@@ -1409,7 +1405,6 @@ struct Ball FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<float>(verifier, VT_X2, 4) &&
            VerifyField<float>(verifier, VT_Y2, 4) &&
            VerifyField<float>(verifier, VT_SPEED, 4) &&
-           VerifyField<uint8_t>(verifier, VT_MOB, 1) &&
            VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
            VerifyField<uint64_t>(verifier, VT_DELAY, 8) &&
            VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
@@ -1439,9 +1434,6 @@ struct BallBuilder {
   void add_speed(float speed) {
     fbb_.AddElement<float>(Ball::VT_SPEED, speed, 0.0f);
   }
-  void add_mob(bool mob) {
-    fbb_.AddElement<uint8_t>(Ball::VT_MOB, static_cast<uint8_t>(mob), 0);
-  }
   void add_mob_index(uint32_t mob_index) {
     fbb_.AddElement<uint32_t>(Ball::VT_MOB_INDEX, mob_index, 0);
   }
@@ -1469,7 +1461,6 @@ inline ::flatbuffers::Offset<Ball> CreateBall(
     float x2 = 0.0f,
     float y2 = 0.0f,
     float speed = 0.0f,
-    bool mob = false,
     uint32_t mob_index = 0,
     uint64_t delay = 0,
     uint8_t page = 0) {
@@ -1482,7 +1473,6 @@ inline ::flatbuffers::Offset<Ball> CreateBall(
   builder_.add_y1(y1);
   builder_.add_x1(x1);
   builder_.add_page(page);
-  builder_.add_mob(mob);
   return builder_.Finish();
 }
 
@@ -2826,6 +2816,174 @@ inline ::flatbuffers::Offset<Reactor> CreateReactorDirect(
 }
 
 ::flatbuffers::Offset<Reactor> CreateReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct RSkillT : public ::flatbuffers::NativeTable {
+  typedef RSkill TableType;
+  uint32_t id = 0;
+  uint8_t lv = 0;
+  float x = 0.0f;
+  float y = 0.0f;
+  bool flip = false;
+  uint8_t page = 0;
+  uint64_t start = 0;
+  uint64_t end = 0;
+  int64_t val = 0;
+};
+
+struct RSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RSkillT NativeTableType;
+  typedef RSkillBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_ID = 4,
+    VT_LV = 6,
+    VT_X = 8,
+    VT_Y = 10,
+    VT_FLIP = 12,
+    VT_PAGE = 14,
+    VT_START = 16,
+    VT_END = 18,
+    VT_VAL = 20
+  };
+  uint32_t id() const {
+    return GetField<uint32_t>(VT_ID, 0);
+  }
+  bool mutate_id(uint32_t _id = 0) {
+    return SetField<uint32_t>(VT_ID, _id, 0);
+  }
+  uint8_t lv() const {
+    return GetField<uint8_t>(VT_LV, 0);
+  }
+  bool mutate_lv(uint8_t _lv = 0) {
+    return SetField<uint8_t>(VT_LV, _lv, 0);
+  }
+  float x() const {
+    return GetField<float>(VT_X, 0.0f);
+  }
+  bool mutate_x(float _x = 0.0f) {
+    return SetField<float>(VT_X, _x, 0.0f);
+  }
+  float y() const {
+    return GetField<float>(VT_Y, 0.0f);
+  }
+  bool mutate_y(float _y = 0.0f) {
+    return SetField<float>(VT_Y, _y, 0.0f);
+  }
+  bool flip() const {
+    return GetField<uint8_t>(VT_FLIP, 0) != 0;
+  }
+  bool mutate_flip(bool _flip = 0) {
+    return SetField<uint8_t>(VT_FLIP, static_cast<uint8_t>(_flip), 0);
+  }
+  uint8_t page() const {
+    return GetField<uint8_t>(VT_PAGE, 0);
+  }
+  bool mutate_page(uint8_t _page = 0) {
+    return SetField<uint8_t>(VT_PAGE, _page, 0);
+  }
+  uint64_t start() const {
+    return GetField<uint64_t>(VT_START, 0);
+  }
+  bool mutate_start(uint64_t _start = 0) {
+    return SetField<uint64_t>(VT_START, _start, 0);
+  }
+  uint64_t end() const {
+    return GetField<uint64_t>(VT_END, 0);
+  }
+  bool mutate_end(uint64_t _end = 0) {
+    return SetField<uint64_t>(VT_END, _end, 0);
+  }
+  int64_t val() const {
+    return GetField<int64_t>(VT_VAL, 0);
+  }
+  bool mutate_val(int64_t _val = 0) {
+    return SetField<int64_t>(VT_VAL, _val, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_LV, 1) &&
+           VerifyField<float>(verifier, VT_X, 4) &&
+           VerifyField<float>(verifier, VT_Y, 4) &&
+           VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
+           VerifyField<uint8_t>(verifier, VT_PAGE, 1) &&
+           VerifyField<uint64_t>(verifier, VT_START, 8) &&
+           VerifyField<uint64_t>(verifier, VT_END, 8) &&
+           VerifyField<int64_t>(verifier, VT_VAL, 8) &&
+           verifier.EndTable();
+  }
+  RSkillT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(RSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<RSkill> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct RSkillBuilder {
+  typedef RSkill Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_id(uint32_t id) {
+    fbb_.AddElement<uint32_t>(RSkill::VT_ID, id, 0);
+  }
+  void add_lv(uint8_t lv) {
+    fbb_.AddElement<uint8_t>(RSkill::VT_LV, lv, 0);
+  }
+  void add_x(float x) {
+    fbb_.AddElement<float>(RSkill::VT_X, x, 0.0f);
+  }
+  void add_y(float y) {
+    fbb_.AddElement<float>(RSkill::VT_Y, y, 0.0f);
+  }
+  void add_flip(bool flip) {
+    fbb_.AddElement<uint8_t>(RSkill::VT_FLIP, static_cast<uint8_t>(flip), 0);
+  }
+  void add_page(uint8_t page) {
+    fbb_.AddElement<uint8_t>(RSkill::VT_PAGE, page, 0);
+  }
+  void add_start(uint64_t start) {
+    fbb_.AddElement<uint64_t>(RSkill::VT_START, start, 0);
+  }
+  void add_end(uint64_t end) {
+    fbb_.AddElement<uint64_t>(RSkill::VT_END, end, 0);
+  }
+  void add_val(int64_t val) {
+    fbb_.AddElement<int64_t>(RSkill::VT_VAL, val, 0);
+  }
+  explicit RSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<RSkill> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<RSkill>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<RSkill> CreateRSkill(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t id = 0,
+    uint8_t lv = 0,
+    float x = 0.0f,
+    float y = 0.0f,
+    bool flip = false,
+    uint8_t page = 0,
+    uint64_t start = 0,
+    uint64_t end = 0,
+    int64_t val = 0) {
+  RSkillBuilder builder_(_fbb);
+  builder_.add_val(val);
+  builder_.add_end(end);
+  builder_.add_start(start);
+  builder_.add_y(y);
+  builder_.add_x(x);
+  builder_.add_id(id);
+  builder_.add_page(page);
+  builder_.add_flip(flip);
+  builder_.add_lv(lv);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<RSkill> CreateRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct APSaveT : public ::flatbuffers::NativeTable {
   typedef APSave TableType;
@@ -4291,7 +4449,6 @@ inline void Ball::UnPackTo(BallT *_o, const ::flatbuffers::resolver_function_t *
   { auto _e = x2(); _o->x2 = _e; }
   { auto _e = y2(); _o->y2 = _e; }
   { auto _e = speed(); _o->speed = _e; }
-  { auto _e = mob(); _o->mob = _e; }
   { auto _e = mob_index(); _o->mob_index = _e; }
   { auto _e = delay(); _o->delay = _e; }
   { auto _e = page(); _o->page = _e; }
@@ -4310,7 +4467,6 @@ inline ::flatbuffers::Offset<Ball> Ball::Pack(::flatbuffers::FlatBufferBuilder &
   auto _x2 = _o->x2;
   auto _y2 = _o->y2;
   auto _speed = _o->speed;
-  auto _mob = _o->mob;
   auto _mob_index = _o->mob_index;
   auto _delay = _o->delay;
   auto _page = _o->page;
@@ -4321,7 +4477,6 @@ inline ::flatbuffers::Offset<Ball> Ball::Pack(::flatbuffers::FlatBufferBuilder &
       _x2,
       _y2,
       _speed,
-      _mob,
       _mob_index,
       _delay,
       _page);
@@ -4843,6 +4998,56 @@ inline ::flatbuffers::Offset<Reactor> Reactor::Pack(::flatbuffers::FlatBufferBui
       _state,
       _action,
       _delay);
+}
+
+inline RSkillT *RSkill::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<RSkillT>(new RSkillT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void RSkill::UnPackTo(RSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = id(); _o->id = _e; }
+  { auto _e = lv(); _o->lv = _e; }
+  { auto _e = x(); _o->x = _e; }
+  { auto _e = y(); _o->y = _e; }
+  { auto _e = flip(); _o->flip = _e; }
+  { auto _e = page(); _o->page = _e; }
+  { auto _e = start(); _o->start = _e; }
+  { auto _e = end(); _o->end = _e; }
+  { auto _e = val(); _o->val = _e; }
+}
+
+inline ::flatbuffers::Offset<RSkill> CreateRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return RSkill::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<RSkill> RSkill::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const RSkillT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _id = _o->id;
+  auto _lv = _o->lv;
+  auto _x = _o->x;
+  auto _y = _o->y;
+  auto _flip = _o->flip;
+  auto _page = _o->page;
+  auto _start = _o->start;
+  auto _end = _o->end;
+  auto _val = _o->val;
+  return fbs::CreateRSkill(
+      _fbb,
+      _id,
+      _lv,
+      _x,
+      _y,
+      _flip,
+      _page,
+      _start,
+      _end,
+      _val);
 }
 
 inline APSaveT *APSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

@@ -119,7 +119,12 @@ table ClientTrapAttack {
     payload:Attack;
 }
 
-table ClientCharacterDropFade {
+table ClientDropFade {
     map_id:uint32;
     random_id:[uint64];
+}
+
+table ClientRSkill {
+    map_id:uint32;
+    payload:[RSkill];
 }

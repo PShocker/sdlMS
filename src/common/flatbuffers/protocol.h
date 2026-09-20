@@ -47,44 +47,46 @@ enum NetPayload : uint8_t {
   NetPayload_ClientCharacterLvUp = 21,
   NetPayload_ClientCreateMob = 22,
   NetPayload_ClientTrapAttack = 23,
-  NetPayload_ClientCharacterDropFade = 24,
-  NetPayload_ServerHeartbeat = 25,
-  NetPayload_ServerScene = 26,
-  NetPayload_ServerCharacterIn = 27,
-  NetPayload_ServerCharacterOut = 28,
-  NetPayload_ServerCharacterMv = 29,
-  NetPayload_ServerCharacterFlip = 30,
-  NetPayload_ServerCharacterAction = 31,
-  NetPayload_ServerCharacterDie = 32,
-  NetPayload_ServerCharacterFc = 33,
-  NetPayload_ServerCharacterAttack = 34,
-  NetPayload_ServerCharacterSkill = 35,
-  NetPayload_ServerCharacterBall = 36,
-  NetPayload_ServerCharacterChat = 37,
-  NetPayload_ServerCharacterDrop = 38,
-  NetPayload_ServerCharacter = 39,
-  NetPayload_ServerMobMv = 40,
-  NetPayload_ServerMobFlip = 41,
-  NetPayload_ServerMobAction = 42,
-  NetPayload_ServerMobState = 43,
-  NetPayload_ServerMobEvent = 44,
-  NetPayload_ServerMobAttack = 45,
-  NetPayload_ServerCharacterPick = 46,
-  NetPayload_ServerCharacterInfo = 47,
-  NetPayload_ServerCharacterTrade = 48,
-  NetPayload_ServerCharacterParty = 49,
-  NetPayload_ServerCharacterState = 50,
-  NetPayload_ServerDropFade = 51,
-  NetPayload_ServerReactor = 52,
-  NetPayload_ServerReactorDrop = 53,
-  NetPayload_ServerCharacterLvUp = 54,
-  NetPayload_ServerCreateMob = 55,
-  NetPayload_ServerTrapAttack = 56,
+  NetPayload_ClientDropFade = 24,
+  NetPayload_ClientRSkill = 25,
+  NetPayload_ServerHeartbeat = 26,
+  NetPayload_ServerScene = 27,
+  NetPayload_ServerCharacterIn = 28,
+  NetPayload_ServerCharacterOut = 29,
+  NetPayload_ServerCharacterMv = 30,
+  NetPayload_ServerCharacterFlip = 31,
+  NetPayload_ServerCharacterAction = 32,
+  NetPayload_ServerCharacterDie = 33,
+  NetPayload_ServerCharacterFc = 34,
+  NetPayload_ServerCharacterAttack = 35,
+  NetPayload_ServerCharacterSkill = 36,
+  NetPayload_ServerCharacterBall = 37,
+  NetPayload_ServerCharacterChat = 38,
+  NetPayload_ServerCharacterDrop = 39,
+  NetPayload_ServerCharacter = 40,
+  NetPayload_ServerMobMv = 41,
+  NetPayload_ServerMobFlip = 42,
+  NetPayload_ServerMobAction = 43,
+  NetPayload_ServerMobState = 44,
+  NetPayload_ServerMobEvent = 45,
+  NetPayload_ServerMobAttack = 46,
+  NetPayload_ServerCharacterPick = 47,
+  NetPayload_ServerCharacterInfo = 48,
+  NetPayload_ServerCharacterTrade = 49,
+  NetPayload_ServerCharacterParty = 50,
+  NetPayload_ServerCharacterState = 51,
+  NetPayload_ServerDropFade = 52,
+  NetPayload_ServerReactor = 53,
+  NetPayload_ServerReactorDrop = 54,
+  NetPayload_ServerCharacterLvUp = 55,
+  NetPayload_ServerCreateMob = 56,
+  NetPayload_ServerTrapAttack = 57,
+  NetPayload_ServerRSkill = 58,
   NetPayload_MIN = NetPayload_NONE,
-  NetPayload_MAX = NetPayload_ServerTrapAttack
+  NetPayload_MAX = NetPayload_ServerRSkill
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[57] {
+inline const NetPayload (&EnumValuesNetPayload())[59] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -110,7 +112,8 @@ inline const NetPayload (&EnumValuesNetPayload())[57] {
     NetPayload_ClientCharacterLvUp,
     NetPayload_ClientCreateMob,
     NetPayload_ClientTrapAttack,
-    NetPayload_ClientCharacterDropFade,
+    NetPayload_ClientDropFade,
+    NetPayload_ClientRSkill,
     NetPayload_ServerHeartbeat,
     NetPayload_ServerScene,
     NetPayload_ServerCharacterIn,
@@ -142,13 +145,14 @@ inline const NetPayload (&EnumValuesNetPayload())[57] {
     NetPayload_ServerReactorDrop,
     NetPayload_ServerCharacterLvUp,
     NetPayload_ServerCreateMob,
-    NetPayload_ServerTrapAttack
+    NetPayload_ServerTrapAttack,
+    NetPayload_ServerRSkill
   };
   return values;
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[58] = {
+  static const char * const names[60] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -173,7 +177,8 @@ inline const char * const *EnumNamesNetPayload() {
     "ClientCharacterLvUp",
     "ClientCreateMob",
     "ClientTrapAttack",
-    "ClientCharacterDropFade",
+    "ClientDropFade",
+    "ClientRSkill",
     "ServerHeartbeat",
     "ServerScene",
     "ServerCharacterIn",
@@ -206,13 +211,14 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerCharacterLvUp",
     "ServerCreateMob",
     "ServerTrapAttack",
+    "ServerRSkill",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameNetPayload(NetPayload e) {
-  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerTrapAttack)) return "";
+  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerRSkill)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNetPayload()[index];
 }
@@ -313,8 +319,12 @@ template<> struct NetPayloadTraits<fbs::ClientTrapAttack> {
   static const NetPayload enum_value = NetPayload_ClientTrapAttack;
 };
 
-template<> struct NetPayloadTraits<fbs::ClientCharacterDropFade> {
-  static const NetPayload enum_value = NetPayload_ClientCharacterDropFade;
+template<> struct NetPayloadTraits<fbs::ClientDropFade> {
+  static const NetPayload enum_value = NetPayload_ClientDropFade;
+};
+
+template<> struct NetPayloadTraits<fbs::ClientRSkill> {
+  static const NetPayload enum_value = NetPayload_ClientRSkill;
 };
 
 template<> struct NetPayloadTraits<fbs::ServerHeartbeat> {
@@ -445,6 +455,10 @@ template<> struct NetPayloadTraits<fbs::ServerTrapAttack> {
   static const NetPayload enum_value = NetPayload_ServerTrapAttack;
 };
 
+template<> struct NetPayloadTraits<fbs::ServerRSkill> {
+  static const NetPayload enum_value = NetPayload_ServerRSkill;
+};
+
 template<typename T> struct NetPayloadUnionTraits {
   static const NetPayload enum_value = NetPayload_NONE;
 };
@@ -541,8 +555,12 @@ template<> struct NetPayloadUnionTraits<fbs::ClientTrapAttackT> {
   static const NetPayload enum_value = NetPayload_ClientTrapAttack;
 };
 
-template<> struct NetPayloadUnionTraits<fbs::ClientCharacterDropFadeT> {
-  static const NetPayload enum_value = NetPayload_ClientCharacterDropFade;
+template<> struct NetPayloadUnionTraits<fbs::ClientDropFadeT> {
+  static const NetPayload enum_value = NetPayload_ClientDropFade;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ClientRSkillT> {
+  static const NetPayload enum_value = NetPayload_ClientRSkill;
 };
 
 template<> struct NetPayloadUnionTraits<fbs::ServerHeartbeatT> {
@@ -671,6 +689,10 @@ template<> struct NetPayloadUnionTraits<fbs::ServerCreateMobT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerTrapAttackT> {
   static const NetPayload enum_value = NetPayload_ServerTrapAttack;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerRSkillT> {
+  static const NetPayload enum_value = NetPayload_ServerRSkill;
 };
 
 struct NetPayloadUnion {
@@ -887,13 +909,21 @@ struct NetPayloadUnion {
     return type == NetPayload_ClientTrapAttack ?
       reinterpret_cast<const fbs::ClientTrapAttackT *>(value) : nullptr;
   }
-  fbs::ClientCharacterDropFadeT *AsClientCharacterDropFade() {
-    return type == NetPayload_ClientCharacterDropFade ?
-      reinterpret_cast<fbs::ClientCharacterDropFadeT *>(value) : nullptr;
+  fbs::ClientDropFadeT *AsClientDropFade() {
+    return type == NetPayload_ClientDropFade ?
+      reinterpret_cast<fbs::ClientDropFadeT *>(value) : nullptr;
   }
-  const fbs::ClientCharacterDropFadeT *AsClientCharacterDropFade() const {
-    return type == NetPayload_ClientCharacterDropFade ?
-      reinterpret_cast<const fbs::ClientCharacterDropFadeT *>(value) : nullptr;
+  const fbs::ClientDropFadeT *AsClientDropFade() const {
+    return type == NetPayload_ClientDropFade ?
+      reinterpret_cast<const fbs::ClientDropFadeT *>(value) : nullptr;
+  }
+  fbs::ClientRSkillT *AsClientRSkill() {
+    return type == NetPayload_ClientRSkill ?
+      reinterpret_cast<fbs::ClientRSkillT *>(value) : nullptr;
+  }
+  const fbs::ClientRSkillT *AsClientRSkill() const {
+    return type == NetPayload_ClientRSkill ?
+      reinterpret_cast<const fbs::ClientRSkillT *>(value) : nullptr;
   }
   fbs::ServerHeartbeatT *AsServerHeartbeat() {
     return type == NetPayload_ServerHeartbeat ?
@@ -1151,6 +1181,14 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerTrapAttack ?
       reinterpret_cast<const fbs::ServerTrapAttackT *>(value) : nullptr;
   }
+  fbs::ServerRSkillT *AsServerRSkill() {
+    return type == NetPayload_ServerRSkill ?
+      reinterpret_cast<fbs::ServerRSkillT *>(value) : nullptr;
+  }
+  const fbs::ServerRSkillT *AsServerRSkill() const {
+    return type == NetPayload_ServerRSkill ?
+      reinterpret_cast<const fbs::ServerRSkillT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -1246,8 +1284,11 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ClientTrapAttack *payload_as_ClientTrapAttack() const {
     return payload_type() == fbs::NetPayload_ClientTrapAttack ? static_cast<const fbs::ClientTrapAttack *>(payload()) : nullptr;
   }
-  const fbs::ClientCharacterDropFade *payload_as_ClientCharacterDropFade() const {
-    return payload_type() == fbs::NetPayload_ClientCharacterDropFade ? static_cast<const fbs::ClientCharacterDropFade *>(payload()) : nullptr;
+  const fbs::ClientDropFade *payload_as_ClientDropFade() const {
+    return payload_type() == fbs::NetPayload_ClientDropFade ? static_cast<const fbs::ClientDropFade *>(payload()) : nullptr;
+  }
+  const fbs::ClientRSkill *payload_as_ClientRSkill() const {
+    return payload_type() == fbs::NetPayload_ClientRSkill ? static_cast<const fbs::ClientRSkill *>(payload()) : nullptr;
   }
   const fbs::ServerHeartbeat *payload_as_ServerHeartbeat() const {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<const fbs::ServerHeartbeat *>(payload()) : nullptr;
@@ -1345,6 +1386,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerTrapAttack *payload_as_ServerTrapAttack() const {
     return payload_type() == fbs::NetPayload_ServerTrapAttack ? static_cast<const fbs::ServerTrapAttack *>(payload()) : nullptr;
   }
+  const fbs::ServerRSkill *payload_as_ServerRSkill() const {
+    return payload_type() == fbs::NetPayload_ServerRSkill ? static_cast<const fbs::ServerRSkill *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::ClientHeartbeat *mutable_payload_as_ClientHeartbeat() {
     return payload_type() == fbs::NetPayload_ClientHeartbeat ? static_cast<fbs::ClientHeartbeat *>(mutable_payload()) : nullptr;
@@ -1415,8 +1459,11 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::ClientTrapAttack *mutable_payload_as_ClientTrapAttack() {
     return payload_type() == fbs::NetPayload_ClientTrapAttack ? static_cast<fbs::ClientTrapAttack *>(mutable_payload()) : nullptr;
   }
-  fbs::ClientCharacterDropFade *mutable_payload_as_ClientCharacterDropFade() {
-    return payload_type() == fbs::NetPayload_ClientCharacterDropFade ? static_cast<fbs::ClientCharacterDropFade *>(mutable_payload()) : nullptr;
+  fbs::ClientDropFade *mutable_payload_as_ClientDropFade() {
+    return payload_type() == fbs::NetPayload_ClientDropFade ? static_cast<fbs::ClientDropFade *>(mutable_payload()) : nullptr;
+  }
+  fbs::ClientRSkill *mutable_payload_as_ClientRSkill() {
+    return payload_type() == fbs::NetPayload_ClientRSkill ? static_cast<fbs::ClientRSkill *>(mutable_payload()) : nullptr;
   }
   fbs::ServerHeartbeat *mutable_payload_as_ServerHeartbeat() {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<fbs::ServerHeartbeat *>(mutable_payload()) : nullptr;
@@ -1513,6 +1560,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerTrapAttack *mutable_payload_as_ServerTrapAttack() {
     return payload_type() == fbs::NetPayload_ServerTrapAttack ? static_cast<fbs::ServerTrapAttack *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerRSkill *mutable_payload_as_ServerRSkill() {
+    return payload_type() == fbs::NetPayload_ServerRSkill ? static_cast<fbs::ServerRSkill *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -1714,12 +1764,20 @@ template<> inline fbs::ClientTrapAttack *NetPacket::mutable_payload_as<fbs::Clie
   return mutable_payload_as_ClientTrapAttack();
 }
 
-template<> inline const fbs::ClientCharacterDropFade *NetPacket::payload_as<fbs::ClientCharacterDropFade>() const {
-  return payload_as_ClientCharacterDropFade();
+template<> inline const fbs::ClientDropFade *NetPacket::payload_as<fbs::ClientDropFade>() const {
+  return payload_as_ClientDropFade();
 }
 
-template<> inline fbs::ClientCharacterDropFade *NetPacket::mutable_payload_as<fbs::ClientCharacterDropFade>() {
-  return mutable_payload_as_ClientCharacterDropFade();
+template<> inline fbs::ClientDropFade *NetPacket::mutable_payload_as<fbs::ClientDropFade>() {
+  return mutable_payload_as_ClientDropFade();
+}
+
+template<> inline const fbs::ClientRSkill *NetPacket::payload_as<fbs::ClientRSkill>() const {
+  return payload_as_ClientRSkill();
+}
+
+template<> inline fbs::ClientRSkill *NetPacket::mutable_payload_as<fbs::ClientRSkill>() {
+  return mutable_payload_as_ClientRSkill();
 }
 
 template<> inline const fbs::ServerHeartbeat *NetPacket::payload_as<fbs::ServerHeartbeat>() const {
@@ -1978,6 +2036,14 @@ template<> inline fbs::ServerTrapAttack *NetPacket::mutable_payload_as<fbs::Serv
   return mutable_payload_as_ServerTrapAttack();
 }
 
+template<> inline const fbs::ServerRSkill *NetPacket::payload_as<fbs::ServerRSkill>() const {
+  return payload_as_ServerRSkill();
+}
+
+template<> inline fbs::ServerRSkill *NetPacket::mutable_payload_as<fbs::ServerRSkill>() {
+  return mutable_payload_as_ServerRSkill();
+}
+
 struct NetPacketBuilder {
   typedef NetPacket Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
@@ -2138,8 +2204,12 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ClientTrapAttack *>(obj);
       return verifier.VerifyTable(ptr);
     }
-    case NetPayload_ClientCharacterDropFade: {
-      auto ptr = reinterpret_cast<const fbs::ClientCharacterDropFade *>(obj);
+    case NetPayload_ClientDropFade: {
+      auto ptr = reinterpret_cast<const fbs::ClientDropFade *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ClientRSkill: {
+      auto ptr = reinterpret_cast<const fbs::ClientRSkill *>(obj);
       return verifier.VerifyTable(ptr);
     }
     case NetPayload_ServerHeartbeat: {
@@ -2268,6 +2338,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
     }
     case NetPayload_ServerTrapAttack: {
       auto ptr = reinterpret_cast<const fbs::ServerTrapAttack *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ServerRSkill: {
+      auto ptr = reinterpret_cast<const fbs::ServerRSkill *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;
@@ -2382,8 +2456,12 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ClientTrapAttack *>(obj);
       return ptr->UnPack(resolver);
     }
-    case NetPayload_ClientCharacterDropFade: {
-      auto ptr = reinterpret_cast<const fbs::ClientCharacterDropFade *>(obj);
+    case NetPayload_ClientDropFade: {
+      auto ptr = reinterpret_cast<const fbs::ClientDropFade *>(obj);
+      return ptr->UnPack(resolver);
+    }
+    case NetPayload_ClientRSkill: {
+      auto ptr = reinterpret_cast<const fbs::ClientRSkill *>(obj);
       return ptr->UnPack(resolver);
     }
     case NetPayload_ServerHeartbeat: {
@@ -2514,6 +2592,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerTrapAttack *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ServerRSkill: {
+      auto ptr = reinterpret_cast<const fbs::ServerRSkill *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -2613,9 +2695,13 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ClientTrapAttackT *>(value);
       return CreateClientTrapAttack(_fbb, ptr, _rehasher).Union();
     }
-    case NetPayload_ClientCharacterDropFade: {
-      auto ptr = reinterpret_cast<const fbs::ClientCharacterDropFadeT *>(value);
-      return CreateClientCharacterDropFade(_fbb, ptr, _rehasher).Union();
+    case NetPayload_ClientDropFade: {
+      auto ptr = reinterpret_cast<const fbs::ClientDropFadeT *>(value);
+      return CreateClientDropFade(_fbb, ptr, _rehasher).Union();
+    }
+    case NetPayload_ClientRSkill: {
+      auto ptr = reinterpret_cast<const fbs::ClientRSkillT *>(value);
+      return CreateClientRSkill(_fbb, ptr, _rehasher).Union();
     }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeatT *>(value);
@@ -2745,6 +2831,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerTrapAttackT *>(value);
       return CreateServerTrapAttack(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ServerRSkill: {
+      auto ptr = reinterpret_cast<const fbs::ServerRSkillT *>(value);
+      return CreateServerRSkill(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -2843,8 +2933,12 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
       value = new fbs::ClientTrapAttackT(*reinterpret_cast<fbs::ClientTrapAttackT *>(u.value));
       break;
     }
-    case NetPayload_ClientCharacterDropFade: {
-      value = new fbs::ClientCharacterDropFadeT(*reinterpret_cast<fbs::ClientCharacterDropFadeT *>(u.value));
+    case NetPayload_ClientDropFade: {
+      value = new fbs::ClientDropFadeT(*reinterpret_cast<fbs::ClientDropFadeT *>(u.value));
+      break;
+    }
+    case NetPayload_ClientRSkill: {
+      value = new fbs::ClientRSkillT(*reinterpret_cast<fbs::ClientRSkillT *>(u.value));
       break;
     }
     case NetPayload_ServerHeartbeat: {
@@ -2975,6 +3069,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
       value = new fbs::ServerTrapAttackT(*reinterpret_cast<fbs::ServerTrapAttackT *>(u.value));
       break;
     }
+    case NetPayload_ServerRSkill: {
+      value = new fbs::ServerRSkillT(*reinterpret_cast<fbs::ServerRSkillT *>(u.value));
+      break;
+    }
     default:
       break;
   }
@@ -3097,8 +3195,13 @@ inline void NetPayloadUnion::Reset() {
       delete ptr;
       break;
     }
-    case NetPayload_ClientCharacterDropFade: {
-      auto ptr = reinterpret_cast<fbs::ClientCharacterDropFadeT *>(value);
+    case NetPayload_ClientDropFade: {
+      auto ptr = reinterpret_cast<fbs::ClientDropFadeT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ClientRSkill: {
+      auto ptr = reinterpret_cast<fbs::ClientRSkillT *>(value);
       delete ptr;
       break;
     }
@@ -3259,6 +3362,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerTrapAttack: {
       auto ptr = reinterpret_cast<fbs::ServerTrapAttackT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerRSkill: {
+      auto ptr = reinterpret_cast<fbs::ServerRSkillT *>(value);
       delete ptr;
       break;
     }

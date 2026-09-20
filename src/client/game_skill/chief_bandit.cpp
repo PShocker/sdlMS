@@ -21,7 +21,7 @@ static void jinqianzhadan() {
     auto g_r = skill_game_instance::load_ski_r(u"4211004");
     auto cm = character_logic_system::run_attack_check(sf, g_r);
     ClientCharacterAttackT cat;
-    ClientCharacterDropFadeT ccdf;
+    ClientDropFadeT ccdf;
     uint64_t meso = 0;
     for (const auto &[k, v] : drop_game_instance::data) {
       if (v.type != game_drop::drop_enum::land) {

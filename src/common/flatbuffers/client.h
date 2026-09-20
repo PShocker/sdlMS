@@ -109,9 +109,13 @@ struct ClientTrapAttack;
 struct ClientTrapAttackBuilder;
 struct ClientTrapAttackT;
 
-struct ClientCharacterDropFade;
-struct ClientCharacterDropFadeBuilder;
-struct ClientCharacterDropFadeT;
+struct ClientDropFade;
+struct ClientDropFadeBuilder;
+struct ClientDropFadeT;
+
+struct ClientRSkill;
+struct ClientRSkillBuilder;
+struct ClientRSkillT;
 
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
@@ -1920,15 +1924,15 @@ inline ::flatbuffers::Offset<ClientTrapAttack> CreateClientTrapAttack(
 
 ::flatbuffers::Offset<ClientTrapAttack> CreateClientTrapAttack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientTrapAttackT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
-struct ClientCharacterDropFadeT : public ::flatbuffers::NativeTable {
-  typedef ClientCharacterDropFade TableType;
+struct ClientDropFadeT : public ::flatbuffers::NativeTable {
+  typedef ClientDropFade TableType;
   uint32_t map_id = 0;
   std::vector<uint64_t> random_id{};
 };
 
-struct ClientCharacterDropFade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef ClientCharacterDropFadeT NativeTableType;
-  typedef ClientCharacterDropFadeBuilder Builder;
+struct ClientDropFade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientDropFadeT NativeTableType;
+  typedef ClientDropFadeBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MAP_ID = 4,
     VT_RANDOM_ID = 6
@@ -1953,54 +1957,141 @@ struct ClientCharacterDropFade FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::
            verifier.VerifyVector(random_id()) &&
            verifier.EndTable();
   }
-  ClientCharacterDropFadeT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(ClientCharacterDropFadeT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<ClientCharacterDropFade> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropFadeT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+  ClientDropFadeT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientDropFadeT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientDropFade> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientDropFadeT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 };
 
-struct ClientCharacterDropFadeBuilder {
-  typedef ClientCharacterDropFade Table;
+struct ClientDropFadeBuilder {
+  typedef ClientDropFade Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
   void add_map_id(uint32_t map_id) {
-    fbb_.AddElement<uint32_t>(ClientCharacterDropFade::VT_MAP_ID, map_id, 0);
+    fbb_.AddElement<uint32_t>(ClientDropFade::VT_MAP_ID, map_id, 0);
   }
   void add_random_id(::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> random_id) {
-    fbb_.AddOffset(ClientCharacterDropFade::VT_RANDOM_ID, random_id);
+    fbb_.AddOffset(ClientDropFade::VT_RANDOM_ID, random_id);
   }
-  explicit ClientCharacterDropFadeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+  explicit ClientDropFadeBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  ::flatbuffers::Offset<ClientCharacterDropFade> Finish() {
+  ::flatbuffers::Offset<ClientDropFade> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<ClientCharacterDropFade>(end);
+    auto o = ::flatbuffers::Offset<ClientDropFade>(end);
     return o;
   }
 };
 
-inline ::flatbuffers::Offset<ClientCharacterDropFade> CreateClientCharacterDropFade(
+inline ::flatbuffers::Offset<ClientDropFade> CreateClientDropFade(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t map_id = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<uint64_t>> random_id = 0) {
-  ClientCharacterDropFadeBuilder builder_(_fbb);
+  ClientDropFadeBuilder builder_(_fbb);
   builder_.add_random_id(random_id);
   builder_.add_map_id(map_id);
   return builder_.Finish();
 }
 
-inline ::flatbuffers::Offset<ClientCharacterDropFade> CreateClientCharacterDropFadeDirect(
+inline ::flatbuffers::Offset<ClientDropFade> CreateClientDropFadeDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t map_id = 0,
     const std::vector<uint64_t> *random_id = nullptr) {
   auto random_id__ = random_id ? _fbb.CreateVector<uint64_t>(*random_id) : 0;
-  return fbs::CreateClientCharacterDropFade(
+  return fbs::CreateClientDropFade(
       _fbb,
       map_id,
       random_id__);
 }
 
-::flatbuffers::Offset<ClientCharacterDropFade> CreateClientCharacterDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+::flatbuffers::Offset<ClientDropFade> CreateClientDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct ClientRSkillT : public ::flatbuffers::NativeTable {
+  typedef ClientRSkill TableType;
+  uint32_t map_id = 0;
+  std::vector<std::unique_ptr<fbs::RSkillT>> payload{};
+  ClientRSkillT() = default;
+  ClientRSkillT(const ClientRSkillT &o);
+  ClientRSkillT(ClientRSkillT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientRSkillT &operator=(ClientRSkillT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientRSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientRSkillT NativeTableType;
+  typedef ClientRSkillBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MAP_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ClientRSkillT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientRSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientRSkill> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientRSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientRSkillBuilder {
+  typedef ClientRSkill Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientRSkill::VT_MAP_ID, map_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>>> payload) {
+    fbb_.AddOffset(ClientRSkill::VT_PAYLOAD, payload);
+  }
+  explicit ClientRSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientRSkill> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientRSkill>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientRSkill> CreateClientRSkill(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>>> payload = 0) {
+  ClientRSkillBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ClientRSkill> CreateClientRSkillDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    const std::vector<::flatbuffers::Offset<fbs::RSkill>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::RSkill>>(*payload) : 0;
+  return fbs::CreateClientRSkill(
+      _fbb,
+      map_id,
+      payload__);
+}
+
+::flatbuffers::Offset<ClientRSkill> CreateClientRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ClientRSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
@@ -2875,33 +2966,74 @@ inline ::flatbuffers::Offset<ClientTrapAttack> ClientTrapAttack::Pack(::flatbuff
       _payload);
 }
 
-inline ClientCharacterDropFadeT *ClientCharacterDropFade::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<ClientCharacterDropFadeT>(new ClientCharacterDropFadeT());
+inline ClientDropFadeT *ClientDropFade::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientDropFadeT>(new ClientDropFadeT());
   UnPackTo(_o.get(), _resolver);
   return _o.release();
 }
 
-inline void ClientCharacterDropFade::UnPackTo(ClientCharacterDropFadeT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+inline void ClientDropFade::UnPackTo(ClientDropFadeT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
   { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = random_id(); if (_e) { _o->random_id.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->random_id[_i] = _e->Get(_i); } } else { _o->random_id.resize(0); } }
 }
 
-inline ::flatbuffers::Offset<ClientCharacterDropFade> CreateClientCharacterDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return ClientCharacterDropFade::Pack(_fbb, _o, _rehasher);
+inline ::flatbuffers::Offset<ClientDropFade> CreateClientDropFade(::flatbuffers::FlatBufferBuilder &_fbb, const ClientDropFadeT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientDropFade::Pack(_fbb, _o, _rehasher);
 }
 
-inline ::flatbuffers::Offset<ClientCharacterDropFade> ClientCharacterDropFade::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCharacterDropFadeT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+inline ::flatbuffers::Offset<ClientDropFade> ClientDropFade::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientDropFadeT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
   (void)_rehasher;
   (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterDropFadeT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientDropFadeT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _map_id = _o->map_id;
   auto _random_id = _o->random_id.size() ? _fbb.CreateVector(_o->random_id) : 0;
-  return fbs::CreateClientCharacterDropFade(
+  return fbs::CreateClientDropFade(
       _fbb,
       _map_id,
       _random_id);
+}
+
+inline ClientRSkillT::ClientRSkillT(const ClientRSkillT &o)
+      : map_id(o.map_id) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::RSkillT(*payload_) : nullptr); }
+}
+
+inline ClientRSkillT &ClientRSkillT::operator=(ClientRSkillT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(map_id, o.map_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ClientRSkillT *ClientRSkill::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientRSkillT>(new ClientRSkillT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientRSkill::UnPackTo(ClientRSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::RSkillT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ClientRSkill> CreateClientRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ClientRSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientRSkill::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientRSkill> ClientRSkill::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientRSkillT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientRSkillT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::RSkill>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateRSkill(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateClientRSkill(
+      _fbb,
+      _map_id,
+      _payload);
 }
 
 }  // namespace fbs

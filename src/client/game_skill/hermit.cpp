@@ -90,7 +90,6 @@ static void dafeibiao() {
     cm = character_logic_system::run_attack_check(sf, g_r);
     if (!cm.data.empty()) {
       for (auto &data : cm.data) {
-        cct.payload->ball->mob = true;
         cct.payload->ball->mob_index = data.mob.index;
         auto mob_pos = mob_game_instance::data.at(data.mob.index).mob.pos;
         cct.payload->ball->y1 = mob_pos.y;

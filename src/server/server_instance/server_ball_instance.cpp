@@ -25,35 +25,26 @@ void server_ball_instance::handle_ball(uint64_t client_id,
 
 void server_ball_instance::handle_server_b(
     const std::unique_ptr<fbs::CharacterBallT> &r) {
+  const auto &src = *r->ball;
+
   game_ball b;
-  b.delay = r->ball->delay;
-  b.path = {
-      r->path.begin(),
-      r->path.end(),
-  };
-  if (r->ball->mob) {
-    b.mob_index = r->ball->mob_index;
+  b.delay = src.delay;
+  b.mob_index = src.mob_index;
+  b.pos = {src.x1, src.y1};
+  b.goal = {src.x2, src.y2};
+  b.speed = src.speed;
+  b.flip = b.pos.x < b.goal.x;
+
+  b.path.assign(r->path.begin(), r->path.end());
+
+  auto it = mob_game_instance::data.find(*b.mob_index);
+  if (it != mob_game_instance::data.end()) {
+    const auto &mob_pos = it->second.mob.pos;
+    const float target_x = b.goal.x + mob_pos.x;
+    b.flip = b.pos.x < target_x;
   }
-  b.pos = {
-      r->ball->x1,
-      r->ball->y1,
-  };
-  b.goal = {
-      r->ball->x2,
-      r->ball->y2,
-  };
-  b.speed = r->ball->speed;
-  if (b.mob_index.has_value()) {
-    const auto &mob = mob_game_instance::data.at(b.mob_index.value());
-    SDL_FPoint mob_pos{
-        b.goal.x + mob.mob.pos.x,
-        b.goal.x + mob.mob.pos.y,
-    };
-    b.flip = b.pos.x < mob_pos.x;
-  } else {
-    b.flip = b.pos.x < b.goal.x;
-  }
-  ball_game_instance::data[r->ball->page].emplace_back(b);
+
+  ball_game_instance::data[src.page].emplace_back(std::move(b));
 }
 
 void server_ball_instance::handle_server_ball(uint64_t client_id,
