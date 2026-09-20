@@ -37,7 +37,7 @@ void server_ball_instance::handle_server_b(
 
   b.path.assign(r->path.begin(), r->path.end());
 
-  auto it = mob_game_instance::data.find(*b.mob_index);
+  auto it = mob_game_instance::data.find(b.mob_index);
   if (it != mob_game_instance::data.end()) {
     const auto &mob_pos = it->second.mob.pos;
     const float target_x = b.goal.x + mob_pos.x;

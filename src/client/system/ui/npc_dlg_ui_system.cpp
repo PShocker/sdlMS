@@ -283,7 +283,30 @@ void npc_dlg_ui_system::render_list() {
   render_q(t0, progress_quest, y, u"Progress");
 }
 
-void npc_dlg_ui_system::render_obtain() {}
+void npc_dlg_ui_system::render_obtain() {
+  static auto t =
+      wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/4/0"));
+  auto y = freetype::load_h(text, 330, 1.3) + 40;
+  SDL_FRect pos_rect{
+      static_cast<float>((int)pos.x + 165),
+      (int)pos.y + y,
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  auto act_exp = quest_game_instance::load_quest_act_exp(quest_id);
+  if (act_exp != 0) {
+    static auto t2 =
+        wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/8/0"));
+    pos_rect.y += t->h;
+    pos_rect.w = t2->w;
+    pos_rect.h = t2->h;
+    SDL_RenderTexture(window::renderer, t2, nullptr, &pos_rect);
+  }
+  auto act_item = quest_game_instance::load_quest_act_item(quest_id);
+  if (!act_item.empty()) {
+  }
+}
 
 bool npc_dlg_ui_system::render() {
   render_backgrnd();
@@ -291,6 +314,7 @@ bool npc_dlg_ui_system::render() {
   render_button();
   render_text();
   render_list();
+  render_obtain();
   return true;
 }
 

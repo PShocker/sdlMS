@@ -34,8 +34,8 @@ void ball_logic_system::run_animate(game_ball &b) {
     }
     b.ani_index = b.ani_index % m.size();
   }
-  if (b.mob_index.has_value()) {
-    const auto &mob = mob_game_instance::data.at(b.mob_index.value()).mob;
+  if (mob_game_instance::data.contains(b.mob_index)) {
+    const auto &mob = mob_game_instance::data.at(b.mob_index).mob;
 
     const float dx = (b.goal.x + mob.pos.x) - b.pos.x;
     const float dy = (b.goal.y + mob.pos.y) - b.pos.y;
@@ -77,9 +77,8 @@ SDL_FPoint ball_logic_system::move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
 }
 
 bool ball_logic_system::run_move(game_ball &b) {
-  if (b.mob_index.has_value()) {
-    auto mob_index = b.mob_index.value();
-    auto mob_pos = mob_game_instance::data.at(mob_index).mob.pos;
+  if (mob_game_instance::data.contains(b.mob_index)) {
+    auto mob_pos = mob_game_instance::data.at(b.mob_index).mob.pos;
     auto p2 = b.goal;
     p2.x += mob_pos.x;
     p2.y += mob_pos.y;
