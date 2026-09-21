@@ -1,9 +1,11 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
+#include "game_region_skill.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
+#include "src/server/server/server_region_skill.h"
 #include <cstdint>
 #include <functional>
 #include <string>
@@ -19,6 +21,10 @@ public:
       action;                                        // 斗气集中,终极攻击,影分身
   std::function<uint64_t(game_mob *, uint64_t)> hit; // 魔法盾，金钱护盾
   std::function<void(game_character *, int)> state;
+
+  std::function<void(game_region_skill *)> client_region;
+  std::function<void(server_region_skill *)> server_region;
+
   bool fall = false;
   bool climb = false;
 

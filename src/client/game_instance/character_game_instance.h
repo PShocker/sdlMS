@@ -3,11 +3,9 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
 #include "src/common/flatbuffers/common.h"
-#include "src/common/flatbuffers/server.h"
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
-#include <optional>
 #include <string>
 #include <vector>
 

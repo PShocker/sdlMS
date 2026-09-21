@@ -211,7 +211,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ClientRSkill();
     fbs::ClientRSkillT r;
     payload->UnPackTo(&r);
-    server_region_skill_instance::handle_r(client_id, r);
+    server_region_skill_instance::handle_rskill(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {
@@ -433,6 +433,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerTrapAttackT r;
     payload->UnPackTo(&r);
     server_trap_instance::handle_server_attack(client_id, r);
+    break;
+  }
+  case NetPayload_ServerRSkill: {
+    auto payload = packet->payload_as_ServerRSkill();
+    fbs::ServerRSkillT r;
+    payload->UnPackTo(&r);
+    server_region_skill_instance::handle_s_rskill(r);
     break;
   }
   default:

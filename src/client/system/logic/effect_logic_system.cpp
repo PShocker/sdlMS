@@ -1,5 +1,6 @@
 #include "effect_logic_system.h"
 #include "character_logic_system.h"
+#include "src/client/game/game_region_skill.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -175,6 +176,14 @@ bool effect_logic_system::run_skill_hit(game_effect &g_effect) {
   return r;
 }
 
+bool effect_logic_system::run_skill_region(game_effect &g_effect) {
+  auto rski = std::any_cast<game_region_skill>(&g_effect.data);
+  if (rski->end <= window::dt_time) {
+    return true;
+  }
+  return false;
+}
+
 void effect_logic_system::run_animate(std::vector<game_effect> &v) {
   for (auto it = v.begin(); it != v.end();) {
     bool remove = false;
@@ -198,6 +207,10 @@ void effect_logic_system::run_animate(std::vector<game_effect> &v) {
     }
     case game_effect::effect_type::damage: {
       remove = run_damage(g_effect);
+      break;
+    }
+    case game_effect::effect_type::skill_region: {
+      remove = run_skill_region(g_effect);
       break;
     }
     default: {

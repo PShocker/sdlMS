@@ -11,6 +11,7 @@ private:
   static void render_ski_affected(SDL_FPoint pos, game_effect &g_effect,
                                   bool flip);
   static void render_ski_hit(SDL_FPoint pos, game_effect &g_effect, bool flip);
+  static void render_ski_region(game_effect &g_effect);
 
 public:
   static void render_effect(SDL_FPoint pos, game_effect &g_effect);

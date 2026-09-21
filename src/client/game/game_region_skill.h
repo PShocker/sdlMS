@@ -1,9 +1,9 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
-#include <any>
 #include <cstdint>
 #include <string>
+
 class game_region_skill {
 public:
   std::u16string id;

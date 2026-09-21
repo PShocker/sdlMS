@@ -1,5 +1,6 @@
 #include "effect_render_system.h"
 #include "src/client/game/game_effect.h"
+#include "src/client/game/game_region_skill.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
@@ -246,6 +247,29 @@ bool effect_render_system::render_custom(SDL_FPoint pos, game_effect &g_effect,
     return skis.at(g_effect.id).effect(pos, &g_effect, flip);
   }
   return false;
+}
+
+void effect_render_system::render_ski_region(game_effect &g_effect) {
+  auto rski = std::any_cast<game_region_skill>(&g_effect.data);
+  auto id = rski->id;
+  auto ski_node = skill_game_instance::load_ski_node(id);
+  if (ski_node->find(u"special/x")) {
+    // 311002,
+    auto special = ski_node->get_child(u"special");
+    auto x = static_cast<wz::Property<int> *>(special->find(u"x"))->get();
+    auto y = static_cast<wz::Property<int> *>(special->find(u"y"))->get();
+    auto fall = static_cast<wz::Property<int> *>(special->find(u"fall"))->get();
+    auto start =
+        static_cast<wz::Property<int> *>(special->find(u"start"))->get();
+    auto interval =
+        static_cast<wz::Property<int> *>(special->find(u"interval"))->get();
+    auto count =
+        static_cast<wz::Property<int> *>(special->find(u"count"))->get();
+    auto duration =
+        static_cast<wz::Property<int> *>(special->find(u"duration"))->get();
+  } else {
+  }
+  return;
 }
 
 bool effect_render_system::render(SDL_FPoint pos, game_effect &g_effect,

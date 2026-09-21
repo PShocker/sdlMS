@@ -30,6 +30,7 @@ public:
     skill_affected,
     skill_hit,
     skill_custom,
+    skill_region,
   };
   effect_type type;
 

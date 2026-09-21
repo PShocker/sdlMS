@@ -153,8 +153,7 @@ uint64_t ball_game_instance::load_ball_time(ClientCharacterBallT &cct) {
   const float dx = (b->x2 + mob_pos.x) - b->x1;
   const float dy = (b->y2 + mob_pos.y) - b->y1;
 
-  // hypotf 比 sqrtf(dx*dx+dy*dy) 更稳，且常量优化更好
-  const float length = std::hypot(dx, dy);
+  const float length = sqrt(dx * dx + dy * dy);
 
   // 防止除零；speed 为 0 时按 0 处理（或按业务定义）
   if (b->speed <= 0.0f) {

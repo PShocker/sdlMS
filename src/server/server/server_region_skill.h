@@ -8,6 +8,7 @@
 class server_region_skill {
 public:
   uint64_t client_id;
+  uint64_t map_id;
   std::u16string id;
   uint8_t lv;
 

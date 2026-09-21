@@ -1,13 +1,13 @@
 #pragma once
 
 #include "src/client/game/game_effect.h"
-#include "src/client/game/game_mob.h"
 #include <vector>
 class effect_logic_system {
 private:
   static bool run_damage(game_effect &g_effect);
   static bool run_skill_affected(game_effect &g_effect);
   static bool run_skill_hit(game_effect &g_effect);
+  static bool run_skill_region(game_effect &g_effect);
 
   static void run_animate(std::vector<game_effect> &v);
 
