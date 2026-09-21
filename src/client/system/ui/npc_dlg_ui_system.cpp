@@ -1,5 +1,6 @@
 #include "npc_dlg_ui_system.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "notice_ui_system.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_quest.h"
@@ -284,6 +285,9 @@ void npc_dlg_ui_system::render_list() {
 }
 
 void npc_dlg_ui_system::render_obtain() {
+  if (type != npc_dlg_enum::quest_progress_complete) {
+    return;
+  }
   static auto t =
       wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/4/0"));
   auto y = freetype::load_h(text, 330, 1.3) + 40;
@@ -298,13 +302,60 @@ void npc_dlg_ui_system::render_obtain() {
   if (act_exp != 0) {
     static auto t2 =
         wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/8/0"));
-    pos_rect.y += t->h;
+    pos_rect.y += 20;
     pos_rect.w = t2->w;
     pos_rect.h = t2->h;
     SDL_RenderTexture(window::renderer, t2, nullptr, &pos_rect);
+    freetype::load_size(12);
+    freetype::load_aligned(true);
+    freetype::load_color(0, 0, 0, 255);
+    auto tmp = std::to_string(act_exp);
+    freetype::draw_line({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
+  }
+  auto act_meso = quest_game_instance::load_quest_act_meso(quest_id);
+  if (act_meso != 0) {
+    pos_rect.y += 22;
+    static auto t3 =
+        wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/7/0"));
+    pos_rect.y += 3;
+    pos_rect.w = t3->w;
+    pos_rect.h = t3->h;
+    SDL_RenderTexture(window::renderer, t3, nullptr, &pos_rect);
+    freetype::load_size(12);
+    freetype::load_aligned(true);
+    freetype::load_color(0, 0, 0, 255);
+    auto tmp = std::to_string(act_meso);
+    freetype::draw_line({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
   }
   auto act_item = quest_game_instance::load_quest_act_item(quest_id);
   if (!act_item.empty()) {
+    pos_rect.y += 26;
+    for (auto [k, v] : act_item) {
+      if (v <= 0) {
+        continue;
+      }
+      SDL_Texture *t;
+      std::u16string name;
+      if (item_game_instance::check_item(k)) {
+        auto info = item_game_instance::load_item_info(k, 0);
+        t = wz_resource::load_texture(info->get_child(u"icon"));
+        name = item_game_instance::load_item_text(k, u"name");
+      } else {
+        auto info = equip_game_instance::load_equip_info(k);
+        t = wz_resource::load_texture(info->get_child(u"icon"));
+        name = equip_game_instance::load_equip_name(k);
+      }
+      pos_rect.w = t->w;
+      pos_rect.h = t->h;
+      SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+      freetype::load_size(12);
+      freetype::load_aligned(true);
+      freetype::load_color(0, 0, 0, 255);
+      auto tmp = std::to_string(v);
+      name = name + u" x" + std::u16string{tmp.begin(), tmp.end()};
+      freetype::draw_line(name, pos_rect.x + t->w + 4, pos_rect.y + t->h - 18);
+      pos_rect.y += t->h + 4;
+    }
   }
 }
 
@@ -334,6 +385,21 @@ SDL_FPoint npc_dlg_ui_system::load_wh() {
         h += v.size() * lh;
         h += 18;
       }
+    }
+  } else if (type == npc_dlg_enum::quest_progress_complete) {
+    auto exp = quest_game_instance::load_quest_act_exp(quest_id);
+    if (exp != 0) {
+      h += 22;
+    }
+    auto item = quest_game_instance::load_quest_act_item(quest_id);
+    for (auto [k, v] : item) {
+      if (v > 0) {
+        h += 32;
+      }
+    }
+    auto meso = quest_game_instance::load_quest_act_meso(quest_id);
+    if (meso != 0) {
+      h += 22;
     }
   }
   h = std::max((int)h, 190);

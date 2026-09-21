@@ -385,3 +385,15 @@ uint32_t quest_game_instance::load_quest_act_exp(const std::u16string &id) {
   }
   return 0;
 }
+
+int32_t quest_game_instance::load_quest_act_meso(const std::u16string &id) {
+  if (progress_quests.contains(id)) {
+    auto quest_node = load_quest_node(id);
+    auto index = progress_quests.at(id).index;
+    quest_node = quest_node->find("Act/" + std::to_string(index) + "/money");
+    if (quest_node != nullptr) {
+      return static_cast<wz::Property<int> *>(quest_node)->get();
+    }
+  }
+  return 0;
+}

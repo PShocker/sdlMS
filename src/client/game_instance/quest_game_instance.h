@@ -58,6 +58,7 @@ public:
   static std::flat_map<std::u16string, int>
   load_quest_act_item(const std::u16string &id);
   static uint32_t load_quest_act_exp(const std::u16string &id);
+  static int32_t load_quest_act_meso(const std::u16string &id);
 
   static void load(character_save &cs);
 };
