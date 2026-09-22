@@ -1,5 +1,4 @@
 #pragma once
-#include "SDL3/SDL_audio.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_skill.h"
@@ -8,8 +7,6 @@
 #include "wz/Node.h"
 #include <cstdint>
 #include <flat_map>
-#include <flat_set>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -42,6 +39,8 @@ public:
   static bool load_ski_active(const std::u16string &id);
 
   static SDL_FRect load_ski_r(const std::u16string &id);
+  static SDL_FRect load_ski_r(const std::u16string &id, SDL_FPoint pos,
+                              bool flip);
 
   static ClientCharacterAttackT create_attack_payload(check_mobs &cm,
                                                       SDL_FPoint pos,

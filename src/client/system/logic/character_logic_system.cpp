@@ -145,7 +145,7 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
                                                     game_triangle tri,
                                                     int num) {
   std::vector<check_mobs::mobs> v;
-  std::flat_multimap<uint32_t, check_mobs::mobs> m;
+  std::flat_multimap<float, check_mobs::mobs> m;
   auto &g_pos = g_character.pos;
   auto t =
       triangle_game_instance::load_tri(tri, g_character.flip, g_character.pos);
@@ -185,11 +185,11 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
   return run_attack_check(g_character, tri, 1);
 }
 
-check_mobs character_logic_system::run_attack_check(game_character &g_character,
+check_mobs character_logic_system::run_attack_check(SDL_FPoint pos,
                                                     SDL_FRect g_r, int num) {
   std::vector<check_mobs::mobs> v;
-  std::flat_multimap<uint32_t, check_mobs::mobs> m;
-  auto &g_pos = g_character.pos;
+  std::flat_multimap<float, check_mobs::mobs> m;
+  auto &g_pos = pos;
   for (const auto &[k, v] : mob_game_instance::data) {
     auto &mob = v.mob;
     auto mob_action = mob_logic_system::load_action_type(mob.action);
@@ -222,6 +222,11 @@ check_mobs character_logic_system::run_attack_check(game_character &g_character,
   }
   v.append_range(m.values());
   return {v};
+}
+
+check_mobs character_logic_system::run_attack_check(game_character &g_character,
+                                                    SDL_FRect g_r, int num) {
+  return run_attack_check(g_character.pos, g_r, num);
 }
 
 check_mobs character_logic_system::run_attack_check(game_character &g_character,

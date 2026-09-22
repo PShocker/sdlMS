@@ -93,6 +93,7 @@ public:
 
   static std::vector<uint64_t> run_buff_check(game_character &g_character,
                                               SDL_FRect g_r);
+  static check_mobs run_attack_check(SDL_FPoint pos, SDL_FRect g_r, int num);
   static check_mobs run_attack_check(game_character &g_character, SDL_FRect g_r,
                                      int num);
   static check_mobs run_attack_check(game_character &g_character,
