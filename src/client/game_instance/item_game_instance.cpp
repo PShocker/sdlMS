@@ -458,8 +458,7 @@ bool item_game_instance::use_consume_item(const std::u16string &id) {
   }
   if (info->get_child(u"exp")) {
     auto exp = static_cast<wz::Property<int> *>(info->get_child(u"exp"))->get();
-    character_stat_game_instance::exp_point += exp;
-    character_stat_game_instance::upgrade();
+    character_stat_game_instance::add_exp(exp);
     r = true;
   }
   return r;

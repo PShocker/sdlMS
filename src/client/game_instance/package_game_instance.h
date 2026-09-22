@@ -25,4 +25,5 @@ public:
   static int add_item_slot(std::polymorphic<game_item> &item, int i);
   static std::optional<int> add_item(std::polymorphic<game_item> &item);
   static std::optional<int> add_new_item(std::polymorphic<game_item> &item);
+  static bool add_meso(uint32_t num);
 };

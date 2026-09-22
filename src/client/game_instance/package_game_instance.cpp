@@ -110,11 +110,13 @@ package_game_instance::load_item(const std::u16string &id) {
   auto type = item_game_instance::load_item_type(id);
   std::vector<std::polymorphic<game_item>> *r;
   if (type == u"Cash" || type == u"Pet") {
-    auto r = package_game_instance::data[(int)item_enum::cash];
+    r = &package_game_instance::data[(int)item_enum::cash];
   } else if (type == u"Consume") {
-    auto r = package_game_instance::data[(int)item_enum::consume];
+    r = &package_game_instance::data[(int)item_enum::consume];
   } else if (type == u"Ins") {
-    auto r = package_game_instance::data[(int)item_enum::install];
+    r = &package_game_instance::data[(int)item_enum::install];
+  } else if (type == u"Etc") {
+    r = &package_game_instance::data[(int)item_enum::etc];
   }
   for (auto &itm : *r) {
     if (itm->id == id) {
@@ -223,7 +225,7 @@ package_game_instance::add_item(std::polymorphic<game_item> &item) {
   }
   if (item->id == u"00000000") {
     auto num = item_game_instance::load_item_num(item);
-    package_game_instance::meso += num;
+    add_meso(num);
     return 0;
   }
   std::optional<int> r;
@@ -260,4 +262,9 @@ package_game_instance::add_new_item(std::polymorphic<game_item> &item) {
     }
   }
   return i;
+}
+
+bool package_game_instance::add_meso(uint32_t num) {
+  package_game_instance::meso += num;
+  return true;
 }

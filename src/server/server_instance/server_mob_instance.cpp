@@ -157,8 +157,7 @@ void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
         .type = gain_enum::experience,
     };
     gain_log_game_instance::data.push_back(g_log);
-    character_stat_game_instance::exp_point += exp;
-    character_stat_game_instance::upgrade();
+    character_stat_game_instance::add_exp(exp);
   }
   if (m.client_id == server_main::local_addr) {
     quest_game_instance::update_check_mob(mob.id, 1);

@@ -6,9 +6,11 @@ class character_stat_game_instance {
 private:
   static int load_primary_stat();
   static int load_secondary_stat();
+  static bool upgrade();
 
 public:
-  static bool upgrade();
+  static void add_exp(uint32_t num);
+  
   static void update();
   static void load(const character_save &cs);
 

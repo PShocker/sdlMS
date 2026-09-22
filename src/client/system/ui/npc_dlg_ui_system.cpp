@@ -1,11 +1,13 @@
 #include "npc_dlg_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "SDL3/SDL_scancode.h"
 #include "notice_ui_system.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
@@ -439,7 +441,38 @@ void npc_dlg_ui_system::toggle() {
 
 void npc_dlg_ui_system::event_button_close() { close(); }
 
-void npc_dlg_ui_system::event_button_ok() { close(); }
+void npc_dlg_ui_system::event_button_ok() {
+  if (type == npc_dlg_enum::quest_progress_complete) {
+    auto back_meso = package_game_instance::meso;
+    auto back_data = package_game_instance::data;
+    auto act_item = quest_game_instance::load_quest_act_item(quest_id);
+    for (auto [k, v] : act_item) {
+      if (v > 0) {
+        std::polymorphic<game_item> item;
+        if (item_game_instance::check_item(k)) {
+          item = item_game_instance::load_item(k, v);
+        } else {
+          item = equip_game_instance::load_item(k);
+        }
+        if (!package_game_instance::add_new_item(item)) {
+          notice_ui_system::open_no_space(item->type);
+          package_game_instance::meso = back_meso;
+          package_game_instance::data = back_data;
+          close();
+          return;
+        }
+      } else {
+        auto item = package_game_instance::load_item(k);
+        item_game_instance::dec_item_num(*item, -v);
+      }
+    }
+    auto act_meso = quest_game_instance::load_quest_act_meso(quest_id);
+    package_game_instance::add_meso(act_meso);
+    auto act_exp = quest_game_instance::load_quest_act_exp(quest_id);
+    character_stat_game_instance::add_exp(act_exp);
+  }
+  close();
+}
 
 void npc_dlg_ui_system::event_button_prev() {
   selected = u"";
@@ -767,6 +800,19 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
+      event_button_close();
+      return false;
+      break;
+    }
+    case SDL_SCANCODE_RETURN: {
+      if (index == max_index && cb == nullptr && type == npc_dlg_enum::quest) {
+        event_button_quest_yes();
+        return false;
+      }
+      if (type == npc_dlg_enum::quest_progress_complete) {
+        event_button_ok();
+        return false;
+      }
       event_button_close();
       return false;
       break;

@@ -481,8 +481,6 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
           break;
         }
         case npc_game_instance::npc_type::quest: {
-          npc_dlg_ui_system::close();
-          npc_dlg_ui_system::open();
           npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
           npc_dlg_ui_system::index = 0;
           npc_dlg_ui_system::max_index = INT8_MAX;
@@ -493,6 +491,8 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
               npc_game_instance::load_npc_text(npc_id, u"d0");
           npc_dlg_ui_system::cb = {};
           r = true;
+          npc_dlg_ui_system::close();
+          npc_dlg_ui_system::open();
           break;
         }
         default: {
