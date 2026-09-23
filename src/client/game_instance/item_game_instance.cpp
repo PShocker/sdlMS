@@ -182,7 +182,11 @@ void item_game_instance::dec_item_num(std::polymorphic<game_item> &item,
   }
   case item_enum::consume: {
     auto &consume = static_cast<game_consume_item &>(*item);
-    consume.num = consume.num - num;
+    if (consume.num >= num) {
+      consume.num = consume.num - num;
+    } else {
+      consume.num = 0;
+    }
     if (consume.num == 0) {
       if (!item->id.starts_with(u"0207")) {
         item = std::polymorphic<game_item>(game_consume_item{});

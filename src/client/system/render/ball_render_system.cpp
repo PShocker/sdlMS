@@ -14,10 +14,8 @@ bool ball_render_system::render(game_ball &g_ball) {
     return false;
   }
   SDL_Texture *t;
-  wz::Node *n = nullptr;
-  if (wz_resource::skill->find(g_ball.path)) {
-    n = wz_resource::skill->find(g_ball.path);
-  } else {
+  wz::Node *n = wz_resource::skill->find(g_ball.path);
+  if (!n) {
     n = wz_resource::item->find(g_ball.path);
   }
   auto index = std::to_string(g_ball.ani_index);

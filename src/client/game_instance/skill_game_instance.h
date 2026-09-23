@@ -41,6 +41,7 @@ public:
   static SDL_FRect load_ski_r(const std::u16string &id);
   static SDL_FRect load_ski_r(const std::u16string &id, SDL_FPoint pos,
                               bool flip);
+  static int load_ski_ball_num(const std::u16string &id, uint8_t lv);
 
   static ClientCharacterAttackT create_attack_payload(check_mobs &cm,
                                                       SDL_FPoint pos,

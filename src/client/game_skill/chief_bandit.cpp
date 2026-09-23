@@ -4,13 +4,17 @@
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
+#include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/logic/effect_logic_system.h"
+#include "src/client/system/render/effect_render_system.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
+#include <vector>
 
 static void jinqianzhadan() {
   game_skill g_skill;
@@ -57,6 +61,42 @@ static void jinqianzhadan() {
 static void luoyezhan() {
   game_skill g_skill;
   g_skill.id = u"4211001";
+
+  struct data_pack {
+    game_character *c;
+    std::vector<game_effect> es;
+  };
+
+  g_skill.effect = [](SDL_FPoint p, game_effect *e, bool f) {
+    data_pack *dp;
+    const std::type_info &tp = e->data.type();
+    if (tp == typeid(game_character *)) {
+      data_pack d;
+      auto g_character = std::any_cast<game_character *>(e->data);
+      d.c = g_character;
+      game_effect ef = {
+          .id = u"4211001",
+          .index = 0,
+          .time = 0,
+          .delay = 0,
+          .type = game_effect::effect_type::skill_use,
+          .pos = std::nullopt,
+          .data = g_character,
+      };
+      d.es.emplace_back(ef);
+      ef.order = 0;
+      d.es.emplace_back(ef);
+      e->data = d;
+    }
+    dp = std::any_cast<data_pack>(&e->data);
+
+    if (effect_logic_system::run_effect(*e)) {
+      return false;
+    }
+    auto g_character = std::any_cast<game_character *>(e->data);
+    effect_render_system::render_effect(g_character->pos, *e);
+    return false;
+  };
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = character_game_instance::self;
     character_logic_system::run_attack_action(sf, false);

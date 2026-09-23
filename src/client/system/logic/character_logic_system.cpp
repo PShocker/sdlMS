@@ -898,9 +898,17 @@ bool character_logic_system::run_attack(game_character &g_character) {
         effect = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/hit";
 
       } else {
-        auto ball_id = (*ball)->id;
-        auto ball_sub_id = ball_id.substr(0, 4) + u".img";
-        path = u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
+        // 硬编码判断无影箭
+        auto &ski = skill_game_instance::ski;
+        auto it = std::ranges::find_if(
+            ski, [](const game_skill &s) { return s.id == u"3101003"; });
+        if (it != ski.end()) {
+          path = u"310.img/skill/3101003/ball";
+        } else {
+          auto ball_id = (*ball)->id;
+          auto ball_sub_id = ball_id.substr(0, 4) + u".img";
+          path = u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
+        }
         effect = u"Afterimage/hit.img/maceF";
       }
       item_game_instance::dec_item_num(*ball, 1);

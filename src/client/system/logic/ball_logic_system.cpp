@@ -8,10 +8,8 @@
 #include "wz/Property.h"
 
 void ball_logic_system::run_animate(game_ball &b) {
-  wz::Node *n = nullptr;
-  if (wz_resource::skill->find(b.path)) {
-    n = wz_resource::skill->find(b.path);
-  } else {
+  wz::Node *n = wz_resource::skill->find(b.path);
+  if (!n) {
     n = wz_resource::item->find(b.path);
   }
   b.ani_time += window::delta_time;

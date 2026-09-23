@@ -158,6 +158,17 @@ SDL_FRect skill_game_instance::load_ski_r(const std::u16string &id) {
   return load_ski_r(id, sf.pos, sf.flip);
 }
 
+int skill_game_instance::load_ski_ball_num(const std::u16string &id,
+                                           uint8_t lv) {
+  auto ski_node = load_ski_level_node(id, lv);
+  int r = 0;
+  if (ski_node->get_child(u"bulletCount")) {
+    r = static_cast<wz::Property<int> *>(ski_node->get_child(u"bulletCount"))
+            ->get();
+  }
+  return r;
+}
+
 ClientCharacterAttackT
 skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
                                            uint64_t delay, uint32_t interval) {
