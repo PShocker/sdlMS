@@ -12,7 +12,7 @@
 
 static void state() {
   switch (npc_dlg_ui_system::index) {
-  case -1: {
+  case 1: {
     npc_dlg_ui_system::close();
     game_consume_item con;
     con.num = 1;
@@ -27,7 +27,7 @@ static void state() {
     }
     break;
   }
-  case 1: {
+  case 0: {
     auto text_node =
         wz_resource::ms->get_root()->find(u"String.img/Script/npc_3/t0");
     auto text = static_cast<wz::Property<std::u16string> *>(text_node)->get();
@@ -39,12 +39,9 @@ static void state() {
 }
 
 static void q1002s(std::any data) {
-  if (npc_dlg_ui_system::index == 0) {
-    npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
-    npc_dlg_ui_system::index = 1;
-    npc_dlg_ui_system::max_index = 1;
-    npc_dlg_ui_system::npc_id = u"0000003";
-  }
+  npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest_avaliable;
+  npc_dlg_ui_system::max_index = 0;
+  npc_dlg_ui_system::npc_id = u"0000003";
   state();
   return;
 };

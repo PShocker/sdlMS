@@ -483,7 +483,7 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
         case npc_game_instance::npc_type::quest: {
           npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
           npc_dlg_ui_system::index = 0;
-          npc_dlg_ui_system::max_index = INT8_MAX;
+          npc_dlg_ui_system::max_index = 0;
           npc_dlg_ui_system::npc_id = npc_id;
           npc_dlg_ui_system::time = window::dt_now;
           // string.wz找d0

@@ -113,6 +113,9 @@ static void wuyingjian() {
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
+    auto &sf = character_game_instance::self;
+    character_logic_system::run_action(sf, u"alert2");
+
     auto &ski = skill_game_instance::ski;
     g_skill.end();
     g_skill.lv = ski_lv;
@@ -120,9 +123,6 @@ static void wuyingjian() {
     g_skill.destroy = window::dt_now + g_skill.duration;
     ski.push_back(g_skill);
 
-    if (client_id != 0) {
-      return;
-    }
     skill_game_instance::skis()[u"3101003"].cd = window::dt_now + 1000;
 
     auto ckt = skill_game_instance::create_skill_payload(3101003, ski_lv);

@@ -3,6 +3,7 @@
 #include "src/client/game/game_foothold.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
@@ -163,4 +164,19 @@ uint64_t ball_game_instance::load_ball_time(ClientCharacterBallT &cct) {
   // 统一转 double 计算，最后四舍五入，避免截断误差
   const double dt = (static_cast<double>(length) * 1000.0) / b->speed;
   return static_cast<uint64_t>(dt + 0.5) + b->delay;
+}
+
+std::u16string ball_game_instance::load_ball_path(const std::u16string &id) {
+  std::u16string path;
+  // 硬编码判断无影箭
+  auto &ski = skill_game_instance::ski;
+  auto it = std::ranges::find_if(
+      ski, [](const game_skill &s) { return s.id == u"3101003"; });
+  if (it != ski.end()) {
+    path = u"310.img/skill/3101003/ball";
+  } else {
+    auto sub_id = id.substr(0, 4) + u".img";
+    path = u"Consume/" + sub_id + u"/" + id + u"/bullet";
+  }
+  return path;
 }

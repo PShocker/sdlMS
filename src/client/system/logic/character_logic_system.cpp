@@ -809,148 +809,142 @@ bool character_logic_system::run_attack(game_character &g_character) {
   if (g_action == action_enum::attack || g_action == action_enum::skill) {
     return false;
   }
-  if (character_action_input.contains("attack")) {
-    auto g_weapon = g_character.weapon->id;
-    auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
-    uint64_t delay;
-    auto weapon_type = equip_game_instance::load_weapon_type(g_character);
-    bool shoot_weapon = shoot_weapons.contains(weapon_type);
-    auto &gen = random_game_instance::gen;
-    const std::flat_set<std::u16string> *actions;
-    if (weapon_attack_action2.contains(weapon_type)) {
-      actions = &weapon_attack_action2.at(weapon_type);
-    } else {
-      actions = &weapon_attack_action.at(weapon_type);
+  if (!character_action_input.contains("attack")) {
+    return false;
+  }
+  auto g_weapon = g_character.weapon->id;
+  auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
+  uint64_t delay;
+  auto weapon_type = equip_game_instance::load_weapon_type(g_character);
+  bool shoot_weapon = shoot_weapons.contains(weapon_type);
+  auto &gen = random_game_instance::gen;
+  const std::flat_set<std::u16string> *actions;
+  if (weapon_attack_action2.contains(weapon_type)) {
+    actions = &weapon_attack_action2.at(weapon_type);
+  } else {
+    actions = &weapon_attack_action.at(weapon_type);
+  }
+  std::uniform_int_distribution<> dis(0, actions->size() - 1);
+  auto selected = *std::next(actions->begin(), dis(gen));
+  run_action(g_character, selected);
+  SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
+  auto rt = run_reactor_check(g_character, g_r);
+  auto ball = package_game_instance::load_active_ball();
+  switch (g_action) {
+  case action_enum::stand:
+  case action_enum::alert:
+  case action_enum::walk: {
+    self_hspeed = 0;
+  }
+  case action_enum::jump: {
+    if (g_action == action_enum::jump &&
+        (weapon_type == equip_game_instance::weapon_type::BOW ||
+         weapon_type == equip_game_instance::weapon_type::CROSSBOW)) {
+      shoot_weapon = false;
+    }
+    if (!rt.data.empty()) {
+      shoot_weapon = false;
+    }
+    if (ball == nullptr) {
+      shoot_weapon = false;
+    }
+    actions = &weapon_attack_action.at(weapon_type);
+    if (!shoot_weapon) {
+      if (weapon_attack_action2.contains(weapon_type)) {
+        actions = &weapon_attack_action2.at(weapon_type);
+      }
     }
     std::uniform_int_distribution<> dis(0, actions->size() - 1);
     auto selected = *std::next(actions->begin(), dis(gen));
     run_action(g_character, selected);
-    SDL_FRect g_r = afterimage_game_instance::load_rect(g_character).value();
-    auto rt = run_reactor_check(g_character, g_r);
-    auto ball = package_game_instance::load_active_ball();
-    switch (g_action) {
-    case action_enum::stand:
-    case action_enum::alert:
-    case action_enum::walk: {
-      self_hspeed = 0;
-    }
-    case action_enum::jump: {
-      if (g_action == action_enum::jump &&
-          (weapon_type == equip_game_instance::weapon_type::BOW ||
-           weapon_type == equip_game_instance::weapon_type::CROSSBOW)) {
-        shoot_weapon = false;
-      }
-      if (!rt.data.empty()) {
-        shoot_weapon = false;
-      }
-      if (ball == nullptr) {
-        shoot_weapon = false;
-      }
-      actions = &weapon_attack_action.at(weapon_type);
-      if (!shoot_weapon) {
-        if (weapon_attack_action2.contains(weapon_type)) {
-          actions = &weapon_attack_action2.at(weapon_type);
-        }
-      }
-      std::uniform_int_distribution<> dis(0, actions->size() - 1);
-      auto selected = *std::next(actions->begin(), dis(gen));
-      run_action(g_character, selected);
-      break;
-    }
-    case action_enum::prone: {
-      run_action(g_character, u"proneStab");
-      break;
-    }
-    default: {
-      return false;
-      break;
-    }
-    }
-    delay = afterimage_game_instance::load_beat_time(g_character);
-    self_alert_cooldown = window::dt_now + 5000;
-    load_sfx(g_character);
-    // reactor
-    if (!rt.data.empty()) {
-      auto &r = rt.data[0];
-      ClientReactorT crt;
-      crt.map_id = scene_system_instance::map_id;
-      crt.payload = std::make_unique<ReactorT>();
-      crt.payload->reactor_index = r.r.index;
-      crt.payload->delay = delay;
-      client_request::send_to_host(crt);
-      return true;
-    }
-    if (shoot_weapon) {
-      game_triangle tri = {
-          {
-              SDL_FPoint{-350, -100},
-              SDL_FPoint{-350, 100},
-              SDL_FPoint{0, -28},
-          },
-      };
-      auto cm = character_logic_system::run_attack_check(g_character, tri);
-      auto cash_ball = package_game_instance::load_active_cash_ball();
-      std::u16string path;
-      std::u16string effect;
-      if (!cash_ball.empty()) {
-        auto ball_sub_id = cash_ball.substr(0, 4) + u".img";
-        path = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/bullet";
-        effect = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/hit";
-
-      } else {
-        // 硬编码判断无影箭
-        auto &ski = skill_game_instance::ski;
-        auto it = std::ranges::find_if(
-            ski, [](const game_skill &s) { return s.id == u"3101003"; });
-        if (it != ski.end()) {
-          path = u"310.img/skill/3101003/ball";
-        } else {
-          auto ball_id = (*ball)->id;
-          auto ball_sub_id = ball_id.substr(0, 4) + u".img";
-          path = u"Consume/" + ball_sub_id + u"/" + ball_id + u"/bullet";
-        }
-        effect = u"Afterimage/hit.img/maceF";
-      }
-      item_game_instance::dec_item_num(*ball, 1);
-
-      auto page = g_character.page;
-      SDL_FPoint pos = g_character.pos;
-      pos.y -= 28;
-      SDL_FPoint goal = pos;
-      if (g_character.flip) {
-        goal.x += 350;
-      } else {
-        goal.x -= 350;
-      }
-      auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
-                                                         page, 700, path);
-      if (!cm.data.empty()) {
-        cm.data = {cm.data[0]};
-        cm.data[0].hits = {100};
-        auto d = ball_game_instance::load_ball_time(cct);
-        auto cat = skill_game_instance::create_attack_payload(cm, pos, d);
-        cat.payload[0]->effect = {effect.begin(), effect.end()};
-        client_request::send_to_host(cat);
-      }
-      server_ball_instance::handle_server_b(cct.payload);
-      client_request::send_to_host(cct);
-    } else {
-      auto cm = run_attack_check(g_character, g_r);
-      if (!cm.data.empty()) {
-        cm.data = {cm.data[0]};
-        cm.data[0].hits = {30};
-        auto cat = skill_game_instance::create_attack_payload(
-            cm, g_character.pos, delay);
-        auto hit_type = afterimage_game_instance::load_hit_type(g_character);
-        cat.payload[0]->effect = "Afterimage/hit.img/" +
-                                 std::string{hit_type.begin(), hit_type.end()};
-        client_request::send_to_host(cat);
-      }
-    }
-
+    break;
+  }
+  case action_enum::prone: {
+    shoot_weapon = false;
+    run_action(g_character, u"proneStab");
+    break;
+  }
+  default: {
+    return false;
+    break;
+  }
+  }
+  delay = afterimage_game_instance::load_beat_time(g_character);
+  self_alert_cooldown = window::dt_now + 5000;
+  load_sfx(g_character);
+  // reactor
+  if (!rt.data.empty()) {
+    auto &r = rt.data[0];
+    ClientReactorT crt;
+    crt.map_id = scene_system_instance::map_id;
+    crt.payload = std::make_unique<ReactorT>();
+    crt.payload->reactor_index = r.r.index;
+    crt.payload->delay = delay;
+    client_request::send_to_host(crt);
     return true;
   }
-  return false;
+  if (shoot_weapon) {
+    game_triangle tri = {
+        {
+            SDL_FPoint{-350, -100},
+            SDL_FPoint{-350, 100},
+            SDL_FPoint{0, -28},
+        },
+    };
+    auto cm = character_logic_system::run_attack_check(g_character, tri);
+    auto cash_ball = package_game_instance::load_active_cash_ball();
+    std::u16string path;
+    std::u16string effect;
+    if (!cash_ball.empty()) {
+      auto ball_sub_id = cash_ball.substr(0, 4) + u".img";
+      path = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/bullet";
+      effect = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/hit";
+    } else {
+      path = ball_game_instance::load_ball_path((*ball)->id);
+      effect = u"Afterimage/hit.img/maceF";
+    }
+    item_game_instance::dec_item_num(*ball, 1);
+
+    auto page = g_character.page;
+    SDL_FPoint pos = g_character.pos;
+    pos.y -= 28;
+    SDL_FPoint goal = pos;
+    if (g_character.flip) {
+      goal.x += 350;
+    } else {
+      goal.x -= 350;
+    }
+    auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
+                                                       page, 700, path);
+    if (!cm.data.empty()) {
+      cm.data = {cm.data[0]};
+      cm.data[0].hits = {100};
+      auto d = ball_game_instance::load_ball_time(cct);
+      auto cat = skill_game_instance::create_attack_payload(cm, pos, d);
+      cat.payload[0]->effect = {effect.begin(), effect.end()};
+      client_request::send_to_host(cat);
+    }
+    server_ball_instance::handle_server_b(cct.payload);
+    client_request::send_to_host(cct);
+  } else {
+    auto cm = run_attack_check(g_character, g_r);
+    if (!cm.data.empty()) {
+      cm.data = {cm.data[0]};
+      cm.data[0].hits = {30};
+      auto cat = skill_game_instance::create_attack_payload(cm, g_character.pos,
+                                                            delay);
+      auto hit_type = afterimage_game_instance::load_hit_type(g_character);
+      cat.payload[0]->effect =
+          "Afterimage/hit.img/" + std::string{hit_type.begin(), hit_type.end()};
+      client_request::send_to_host(cat);
+    }
+  }
+  for (auto &buff : skill_game_instance::ski) {
+    if (buff.action) {
+      buff.action(&buff, u"");
+    }
+  }
+  return true;
 }
 
 bool character_logic_system::run_portal(game_character &g_character) {

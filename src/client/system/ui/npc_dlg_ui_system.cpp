@@ -100,59 +100,33 @@ void npc_dlg_ui_system::render_button() {
   auto [w, h] = load_wh();
   std::vector<wz::Node *> buttons_node = {
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtClose"),
-
   };
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{10, h - 25, 85, 18}, //
   };
-  auto i = index;
-  auto m = max_index;
-  switch (type) {
-  case npc_dlg_enum::choose: {
-    break;
-  }
-  case npc_dlg_enum::quest_progress_complete:
-  case npc_dlg_enum::quest_stop_item:
-  case npc_dlg_enum::quest_stop_lost:
-  case npc_dlg_enum::quest_stop_mob:
-  case npc_dlg_enum::quest_stop_npc:
-  case npc_dlg_enum::quest: {
-    if (index == max_index && cb == nullptr && type == npc_dlg_enum::quest) {
-      buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtOK"));
-      buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
 
-      buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtNo"));
-      buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
-      break;
-    }
-    if (index == 0) {
-      break;
-    }
-    i -= 1;
-    m -= 1;
+  auto w0 = w - 72;
+  if (index < max_index) {
+    buttons_node.push_back(
+        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
+    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+    w0 -= 52;
   }
-  case npc_dlg_enum::talk: {
+  if (index > 0) {
+    buttons_node.push_back(
+        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
+    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+  }
+  if (type == npc_dlg_enum::quest_avaliable && index == max_index) {
+    buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtOK"));
+    buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
+
+    buttons_node.push_back(wz_resource::ui->find(u"UIWindow.img/Quest/BtNo"));
+    buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
+  } else {
     buttons_node.push_back(
         wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtOK"));
     buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
-
-    auto w0 = w - 72;
-    if (i < m) {
-      buttons_node.push_back(
-          wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtNext"));
-      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-      w0 -= 52;
-    }
-    if (i > 0) {
-      buttons_node.push_back(
-          wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/BtPrev"));
-      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-    }
-    break;
-  }
-  case npc_dlg_enum::select: {
-    break;
-  }
   }
 
   for (size_t i = 0; i < buttons_node.size(); ++i) {
@@ -188,7 +162,10 @@ void npc_dlg_ui_system::render_text() {
     break;
   }
   case npc_dlg_enum::quest:
-  case npc_dlg_enum::quest_progress_complete:
+  case npc_dlg_enum::quest_avaliable:
+  case npc_dlg_enum::quest_complete:
+  case npc_dlg_enum::quest_yes:
+  case npc_dlg_enum::quest_no:
   case npc_dlg_enum::quest_stop_item:
   case npc_dlg_enum::quest_stop_lost:
   case npc_dlg_enum::quest_stop_mob:
@@ -202,6 +179,9 @@ void npc_dlg_ui_system::render_text() {
     break;
   }
   case npc_dlg_enum::select: {
+    break;
+  }
+  default: {
     break;
   }
   }
@@ -227,6 +207,14 @@ void npc_dlg_ui_system::render_list() {
   auto progress_quest = npc_game_instance::load_progress_quest(npc_id);
   auto progress_complete_quest =
       npc_game_instance::load_progress_complete_quest(npc_id);
+
+  std::ranges::sort(progress_quest);
+  std::ranges::sort(progress_complete_quest);
+
+  std::vector<std::u16string> result;
+  std::ranges::set_difference(progress_quest, progress_complete_quest,
+                              std::back_inserter(result));
+  progress_quest = result;
 
   const auto &mouse_pos = window::mouse_pos;
   selected = u"";
@@ -287,7 +275,10 @@ void npc_dlg_ui_system::render_list() {
 }
 
 void npc_dlg_ui_system::render_obtain() {
-  if (type != npc_dlg_enum::quest_progress_complete) {
+  if (type != npc_dlg_enum::quest_complete) {
+    return;
+  }
+  if (index != max_index) {
     return;
   }
   static auto t =
@@ -388,7 +379,7 @@ SDL_FPoint npc_dlg_ui_system::load_wh() {
         h += 18;
       }
     }
-  } else if (type == npc_dlg_enum::quest_progress_complete) {
+  } else if (type == npc_dlg_enum::quest_complete && index == max_index) {
     auto exp = quest_game_instance::load_quest_act_exp(quest_id);
     if (exp != 0) {
       h += 22;
@@ -442,7 +433,7 @@ void npc_dlg_ui_system::toggle() {
 void npc_dlg_ui_system::event_button_close() { close(); }
 
 void npc_dlg_ui_system::event_button_ok() {
-  if (type == npc_dlg_enum::quest_progress_complete) {
+  if (type == npc_dlg_enum::quest_complete && index == max_index) {
     auto back_meso = package_game_instance::meso;
     auto back_data = package_game_instance::data;
     auto act_item = quest_game_instance::load_quest_act_item(quest_id);
@@ -470,6 +461,14 @@ void npc_dlg_ui_system::event_button_ok() {
     package_game_instance::add_meso(act_meso);
     auto act_exp = quest_game_instance::load_quest_act_exp(quest_id);
     character_stat_game_instance::add_exp(act_exp);
+    quest_game_instance::complete_quest(quest_id);
+    auto quest_node = quest_game_instance::load_quest_node(quest_id);
+    if (auto n = quest_node->find(u"Say/1/yes/0"); n != nullptr) {
+      text = text_game_instance::load_rstr(n);
+      index = 0;
+      max_index = n->children_count() - 1;
+      return;
+    }
   }
   close();
 }
@@ -504,15 +503,15 @@ void npc_dlg_ui_system::event_button_prev() {
     suffix = u"/npc";
     break;
   default:
-    return;
+    suffix = u"";
   }
   auto node = quest_game_instance::load_quest_node(quest_id);
   if (node) {
     node = node->find(u"Say/" + quest_index + suffix);
   }
   if (node != nullptr) {
-    text = text_game_instance::load_rstr(
-        node->get_child(std::to_string(index - 1)));
+    text =
+        text_game_instance::load_rstr(node->get_child(std::to_string(index)));
   }
   time = window::dt_now;
 }
@@ -534,6 +533,7 @@ void npc_dlg_ui_system::event_button_next() {
   // 根据 type 决定后缀，统一拼接路径
   std::u16string suffix;
   switch (type) {
+  case npc_dlg_enum::quest_complete:
   case npc_dlg_enum::quest:
     suffix = u"";
     break;
@@ -547,15 +547,15 @@ void npc_dlg_ui_system::event_button_next() {
     suffix = u"/npc";
     break;
   default:
-    return;
+    suffix = u"";
   }
   auto node = quest_game_instance::load_quest_node(quest_id);
   if (node) {
     node = node->find(u"Say/" + quest_index + suffix);
   }
   if (node != nullptr) {
-    text = text_game_instance::load_rstr(
-        node->get_child(std::to_string(index - 1)));
+    text =
+        text_game_instance::load_rstr(node->get_child(std::to_string(index)));
   }
   time = window::dt_now;
 }
@@ -598,14 +598,14 @@ void npc_dlg_ui_system::event_quest_list() {
       event_quest_list();
       return;
     }
-    type = npc_dlg_enum::quest_progress_complete;
+    type = npc_dlg_enum::quest_complete;
     node = node->find(u"Say/" + quest_index);
     auto child = node->children;
     child.erase(u"yes");
     child.erase(u"no");
     child.erase(u"stop");
     child.erase(u"lost");
-    max_index = child.size();
+    max_index = child.size() - 1;
   } else if (quest_game_instance::progress_quests.contains(quest_id)) {
     // 判断是否是进行中的任务
     auto &q = quest_game_instance::progress_quests.at(quest_id);
@@ -626,6 +626,7 @@ void npc_dlg_ui_system::event_quest_list() {
       max_index = node->children_count();
     }
   } else {
+    type = npc_dlg_enum::quest_avaliable;
     node = quest_game_instance::load_quest_node(selected);
     if (auto n = node->find(u"Check/0/startscript"); n != nullptr) {
       auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
@@ -639,10 +640,10 @@ void npc_dlg_ui_system::event_quest_list() {
     child.erase(u"no");
     child.erase(u"stop");
     child.erase(u"lost");
-    max_index = child.size();
+    max_index = child.size() - 1;
   }
   if (node != nullptr && node->get_child(u"0")) {
-    index++;
+    index = 0;
     text = text_game_instance::load_rstr(node->get_child(u"0"));
     time = window::dt_now;
   }
@@ -650,7 +651,7 @@ void npc_dlg_ui_system::event_quest_list() {
 
 void npc_dlg_ui_system::event_button_quest_yes() {
   if (!script_id.empty()) {
-    index = -1;
+    index++;
     script::fns().at(script_id)(nullptr);
     return;
   }
@@ -684,16 +685,14 @@ void npc_dlg_ui_system::event_button_quest_yes() {
   if (yes_node == nullptr) {
     close();
     return;
-  }
-  index = 1;
-
-  cb = []() {
-    auto node = yes_node->get_child(std::to_string(index - 1));
+  } else {
+    type = npc_dlg_enum::quest_yes;
+    index = 0;
+    max_index = yes_node->children_count() - 1;
+    auto node = yes_node->get_child(u"0");
     text = text_game_instance::load_rstr(node);
     time = window::dt_now;
-  };
-  max_index = yes_node->children_count();
-  cb();
+  }
 }
 
 void npc_dlg_ui_system::event_button_quest_no() {
@@ -703,15 +702,14 @@ void npc_dlg_ui_system::event_button_quest_no() {
   if (no_node == nullptr) {
     close();
     return;
-  }
-  index = 1;
-  cb = []() {
-    auto node = no_node->get_child(std::to_string(index - 1));
+  } else {
+    type = npc_dlg_enum::quest_no;
+    index = 0;
+    max_index = no_node->children_count() - 1;
+    auto node = no_node->get_child(u"0");
     text = text_game_instance::load_rstr(node);
     time = window::dt_now;
-  };
-  max_index = no_node->children_count();
-  cb();
+  }
 }
 
 bool npc_dlg_ui_system::event_button(SDL_Event *event) {
@@ -723,54 +721,26 @@ bool npc_dlg_ui_system::event_button(SDL_Event *event) {
       event_button_close,
   };
 
-  auto i = index;
-  auto m = max_index;
-  switch (type) {
-  case npc_dlg_enum::choose: {
-    break;
+  auto w0 = w - 72;
+  if (index < max_index) {
+    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+    func.push_back(event_button_next);
+    w0 -= 52;
   }
-  case npc_dlg_enum::quest_stop_item:
-  case npc_dlg_enum::quest_stop_lost:
-  case npc_dlg_enum::quest_stop_mob:
-  case npc_dlg_enum::quest_stop_npc:
-  case npc_dlg_enum::quest: {
-    if (index == max_index && cb == nullptr && type == npc_dlg_enum::quest) {
-      buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
-      func.push_back(event_button_quest_yes);
+  if (index > 0) {
+    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+    func.push_back(event_button_prev);
+  }
+  if (index == max_index && cb == nullptr &&
+      type == npc_dlg_enum::quest_avaliable) {
+    buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
+    func.push_back(event_button_quest_yes);
 
-      buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
-      func.push_back(event_button_quest_no);
-      break;
-    }
-    if (index == 0) {
-      break;
-    }
-    i -= 1;
-    m -= 1;
-  }
-  case npc_dlg_enum::talk: {
+    buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
+    func.push_back(event_button_quest_no);
+  } else {
     buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
     func.push_back(event_button_ok);
-
-    auto w0 = w - 72;
-    if (i < m) {
-      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-      func.push_back(event_button_next);
-      w0 -= 52;
-    }
-    if (i > 0) {
-      buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
-      func.push_back(event_button_prev);
-    }
-
-    break;
-  }
-  case npc_dlg_enum::select: {
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
@@ -805,11 +775,16 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
       break;
     }
     case SDL_SCANCODE_RETURN: {
-      if (index == max_index && cb == nullptr && type == npc_dlg_enum::quest) {
+      if (index == max_index && cb == nullptr &&
+          type == npc_dlg_enum::quest_avaliable) {
         event_button_quest_yes();
         return false;
       }
-      if (type == npc_dlg_enum::quest_progress_complete) {
+      if (type == npc_dlg_enum::quest_avaliable && index < max_index) {
+        event_button_next();
+        return false;
+      }
+      if (type == npc_dlg_enum::quest_complete) {
         event_button_ok();
         return false;
       }

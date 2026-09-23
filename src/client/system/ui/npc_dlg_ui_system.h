@@ -58,12 +58,17 @@ public:
     talk,
     select,
 
+    quest_avaliable,
+
     quest_stop_item,
     quest_stop_mob,
     quest_stop_lost,
     quest_stop_npc,
 
-    quest_progress_complete,
+    quest_yes,
+    quest_no,
+
+    quest_complete,
   };
   static inline npc_dlg_enum type;
 

@@ -100,7 +100,7 @@ static void shuangfeizhan() {
     }
     auto delay = skill_game_instance::load_ski_time(sf);
     auto pre = ball_id.substr(0, 4);
-    std::u16string path = u"Consume/" + pre + u".img/" + ball_id + u"/bullet";
+    std::u16string path = ball_game_instance::load_ball_path(ball_id);
     auto pos = sf.pos;
     pos.y -= 32;
     auto page = sf.page;

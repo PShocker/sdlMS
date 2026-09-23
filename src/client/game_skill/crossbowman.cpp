@@ -74,60 +74,7 @@ static void guanchuanjian() {
   skis[g_skill.id] = g_skill;
 }
 
-static void wuyingjian() {
-  game_skill g_skill;
-  g_skill.climb = true;
-  g_skill.id = u"3101003";
-  g_skill.end = []() {
-    auto &ski = skill_game_instance::ski;
-    auto it = std::ranges::find_if(
-        ski, [](const game_skill &s) { return s.id == u"3101003"; });
-    if (it != ski.end()) {
-      ski.erase(it);
-    }
-  };
-
-  g_skill.action = [](game_skill *s, std::u16string ski_id) {
-    auto b = package_game_instance::load_active_ball();
-    if (b == nullptr) {
-      return;
-    }
-    if (ski_id.empty()) {
-      auto &sf = character_game_instance::self;
-      if (sf.action == u"shoot1") {
-        item_game_instance::add_item_num(*b, 1);
-      }
-    } else {
-      auto ski_lv = job_skill_game_instance::load_ski_level(ski_id);
-      auto num = skill_game_instance::load_ski_ball_num(ski_id, ski_lv);
-      item_game_instance::add_item_num(*b, num);
-    }
-    return;
-  };
-
-  g_skill.frame = []() { return; };
-
-  g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &ski = skill_game_instance::ski;
-    g_skill.end();
-    g_skill.lv = ski_lv;
-    g_skill.duration = 30 * 1000;
-    g_skill.destroy = window::dt_now + g_skill.duration;
-    ski.push_back(g_skill);
-
-    if (client_id != 0) {
-      return;
-    }
-    skill_game_instance::skis()[u"3101003"].cd = window::dt_now + 1000;
-
-    auto ckt = skill_game_instance::create_skill_payload(3101003, ski_lv);
-    server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
-    client_request::send_to_host(ckt);
-  };
-
-  auto &skis = skill_game_instance::skis();
-  skis[g_skill.id] = g_skill;
-}
+static void wuyingjian() {}
 
 [[maybe_unused]] static const bool r = [] {
   guanchuanjian();
