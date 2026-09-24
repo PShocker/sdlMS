@@ -103,6 +103,10 @@ struct State;
 struct StateBuilder;
 struct StateT;
 
+struct Debuff;
+struct DebuffBuilder;
+struct DebuffT;
+
 struct Reactor;
 struct ReactorBuilder;
 struct ReactorT;
@@ -110,6 +114,10 @@ struct ReactorT;
 struct RSkill;
 struct RSkillBuilder;
 struct RSkillT;
+
+struct MobDebuff;
+struct MobDebuffBuilder;
+struct MobDebuffT;
 
 struct APSave;
 struct APSaveBuilder;
@@ -146,6 +154,36 @@ struct PlayerSaveT;
 struct GameSave;
 struct GameSaveBuilder;
 struct GameSaveT;
+
+enum DebuffEnum : int8_t {
+  DebuffEnum_DIZZ = 0,
+  DebuffEnum_FREEZE = 1,
+  DebuffEnum_MIN = DebuffEnum_DIZZ,
+  DebuffEnum_MAX = DebuffEnum_FREEZE
+};
+
+inline const DebuffEnum (&EnumValuesDebuffEnum())[2] {
+  static const DebuffEnum values[] = {
+    DebuffEnum_DIZZ,
+    DebuffEnum_FREEZE
+  };
+  return values;
+}
+
+inline const char * const *EnumNamesDebuffEnum() {
+  static const char * const names[3] = {
+    "DIZZ",
+    "FREEZE",
+    nullptr
+  };
+  return names;
+}
+
+inline const char *EnumNameDebuffEnum(DebuffEnum e) {
+  if (::flatbuffers::IsOutRange(e, DebuffEnum_DIZZ, DebuffEnum_FREEZE)) return "";
+  const size_t index = static_cast<size_t>(e);
+  return EnumNamesDebuffEnum()[index];
+}
 
 enum ChatEnum : int8_t {
   ChatEnum_MAP = 0,
@@ -290,38 +328,35 @@ enum StateEnum : int8_t {
   StateEnum_ITEM_USE = 2,
   StateEnum_BUFF_SKILL = 3,
   StateEnum_BUFF_ITEM = 4,
-  StateEnum_BUFF_ABNORMAL = 5,
   StateEnum_MIN = StateEnum_HP,
-  StateEnum_MAX = StateEnum_BUFF_ABNORMAL
+  StateEnum_MAX = StateEnum_BUFF_ITEM
 };
 
-inline const StateEnum (&EnumValuesStateEnum())[6] {
+inline const StateEnum (&EnumValuesStateEnum())[5] {
   static const StateEnum values[] = {
     StateEnum_HP,
     StateEnum_MAX_HP,
     StateEnum_ITEM_USE,
     StateEnum_BUFF_SKILL,
-    StateEnum_BUFF_ITEM,
-    StateEnum_BUFF_ABNORMAL
+    StateEnum_BUFF_ITEM
   };
   return values;
 }
 
 inline const char * const *EnumNamesStateEnum() {
-  static const char * const names[7] = {
+  static const char * const names[6] = {
     "HP",
     "MAX_HP",
     "ITEM_USE",
     "BUFF_SKILL",
     "BUFF_ITEM",
-    "BUFF_ABNORMAL",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameStateEnum(StateEnum e) {
-  if (::flatbuffers::IsOutRange(e, StateEnum_HP, StateEnum_BUFF_ABNORMAL)) return "";
+  if (::flatbuffers::IsOutRange(e, StateEnum_HP, StateEnum_BUFF_ITEM)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesStateEnum()[index];
 }
@@ -646,6 +681,7 @@ struct CharacterT : public ::flatbuffers::NativeTable {
   std::vector<std::unique_ptr<fbs::EquipT>> equips{};
   std::vector<std::unique_ptr<fbs::DecoT>> decos{};
   std::vector<std::unique_ptr<fbs::StateT>> states{};
+  std::vector<fbs::DebuffEnum> debuff{};
   CharacterT() = default;
   CharacterT(const CharacterT &o);
   CharacterT(CharacterT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -665,7 +701,8 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_FACE = 16,
     VT_EQUIPS = 18,
     VT_DECOS = 20,
-    VT_STATES = 22
+    VT_STATES = 22,
+    VT_DEBUFF = 24
   };
   const ::flatbuffers::Vector<uint16_t> *name() const {
     return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
@@ -727,6 +764,12 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *mutable_states() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_STATES);
   }
+  const ::flatbuffers::Vector<int8_t> *debuff() const {
+    return GetPointer<const ::flatbuffers::Vector<int8_t> *>(VT_DEBUFF);
+  }
+  ::flatbuffers::Vector<int8_t> *mutable_debuff() {
+    return GetPointer<::flatbuffers::Vector<int8_t> *>(VT_DEBUFF);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -751,6 +794,8 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_STATES) &&
            verifier.VerifyVector(states()) &&
            verifier.VerifyVectorOfTables(states()) &&
+           VerifyOffset(verifier, VT_DEBUFF) &&
+           verifier.VerifyVector(debuff()) &&
            verifier.EndTable();
   }
   CharacterT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -792,6 +837,9 @@ struct CharacterBuilder {
   void add_states(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states) {
     fbb_.AddOffset(Character::VT_STATES, states);
   }
+  void add_debuff(::flatbuffers::Offset<::flatbuffers::Vector<int8_t>> debuff) {
+    fbb_.AddOffset(Character::VT_DEBUFF, debuff);
+  }
   explicit CharacterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -814,8 +862,10 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::Offset<fbs::Face> face = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>>> equips = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>>> decos = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<int8_t>> debuff = 0) {
   CharacterBuilder builder_(_fbb);
+  builder_.add_debuff(debuff);
   builder_.add_states(states);
   builder_.add_decos(decos);
   builder_.add_equips(equips);
@@ -840,12 +890,14 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::Offset<fbs::Face> face = 0,
     const std::vector<::flatbuffers::Offset<fbs::Equip>> *equips = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::Deco>> *decos = nullptr,
-    const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr,
+    const std::vector<int8_t> *debuff = nullptr) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   auto job__ = job ? _fbb.CreateString(job) : 0;
   auto equips__ = equips ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>>(*equips) : 0;
   auto decos__ = decos ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Deco>>(*decos) : 0;
   auto states__ = states ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>>(*states) : 0;
+  auto debuff__ = debuff ? _fbb.CreateVector<int8_t>(*debuff) : 0;
   return fbs::CreateCharacter(
       _fbb,
       name__,
@@ -857,7 +909,8 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
       face,
       equips__,
       decos__,
-      states__);
+      states__,
+      debuff__);
 }
 
 ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1877,7 +1930,7 @@ struct MobT : public ::flatbuffers::NativeTable {
   uint32_t mob_id = 0;
   int64_t mob_hp = 0;
   std::unique_ptr<fbs::LifeStateT> state{};
-  std::vector<std::unique_ptr<fbs::StateT>> states{};
+  std::vector<fbs::DebuffEnum> debuff{};
   MobT() = default;
   MobT(const MobT &o);
   MobT(MobT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -1892,7 +1945,7 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_MOB_ID = 6,
     VT_MOB_HP = 8,
     VT_STATE = 10,
-    VT_STATES = 12
+    VT_DEBUFF = 12
   };
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
@@ -1918,11 +1971,11 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::LifeState *mutable_state() {
     return GetPointer<fbs::LifeState *>(VT_STATE);
   }
-  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *states() const {
-    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_STATES);
+  const ::flatbuffers::Vector<int8_t> *debuff() const {
+    return GetPointer<const ::flatbuffers::Vector<int8_t> *>(VT_DEBUFF);
   }
-  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *mutable_states() {
-    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_STATES);
+  ::flatbuffers::Vector<int8_t> *mutable_debuff() {
+    return GetPointer<::flatbuffers::Vector<int8_t> *>(VT_DEBUFF);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -1932,9 +1985,8 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<int64_t>(verifier, VT_MOB_HP, 8) &&
            VerifyOffset(verifier, VT_STATE) &&
            verifier.VerifyTable(state()) &&
-           VerifyOffset(verifier, VT_STATES) &&
-           verifier.VerifyVector(states()) &&
-           verifier.VerifyVectorOfTables(states()) &&
+           VerifyOffset(verifier, VT_DEBUFF) &&
+           verifier.VerifyVector(debuff()) &&
            verifier.EndTable();
   }
   MobT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -1958,8 +2010,8 @@ struct MobBuilder {
   void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
     fbb_.AddOffset(Mob::VT_STATE, state);
   }
-  void add_states(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states) {
-    fbb_.AddOffset(Mob::VT_STATES, states);
+  void add_debuff(::flatbuffers::Offset<::flatbuffers::Vector<int8_t>> debuff) {
+    fbb_.AddOffset(Mob::VT_DEBUFF, debuff);
   }
   explicit MobBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -1978,10 +2030,10 @@ inline ::flatbuffers::Offset<Mob> CreateMob(
     uint32_t mob_id = 0,
     int64_t mob_hp = 0,
     ::flatbuffers::Offset<fbs::LifeState> state = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<int8_t>> debuff = 0) {
   MobBuilder builder_(_fbb);
   builder_.add_mob_hp(mob_hp);
-  builder_.add_states(states);
+  builder_.add_debuff(debuff);
   builder_.add_state(state);
   builder_.add_mob_id(mob_id);
   builder_.add_mob_index(mob_index);
@@ -1994,15 +2046,15 @@ inline ::flatbuffers::Offset<Mob> CreateMobDirect(
     uint32_t mob_id = 0,
     int64_t mob_hp = 0,
     ::flatbuffers::Offset<fbs::LifeState> state = 0,
-    const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr) {
-  auto states__ = states ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>>(*states) : 0;
+    const std::vector<int8_t> *debuff = nullptr) {
+  auto debuff__ = debuff ? _fbb.CreateVector<int8_t>(*debuff) : 0;
   return fbs::CreateMob(
       _fbb,
       mob_index,
       mob_id,
       mob_hp,
       state,
-      states__);
+      debuff__);
 }
 
 ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2703,6 +2755,90 @@ inline ::flatbuffers::Offset<State> CreateState(
 
 ::flatbuffers::Offset<State> CreateState(::flatbuffers::FlatBufferBuilder &_fbb, const StateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct DebuffT : public ::flatbuffers::NativeTable {
+  typedef Debuff TableType;
+  fbs::DebuffEnum type = fbs::DebuffEnum_DIZZ;
+  uint64_t time = 0;
+  int64_t val = 0;
+};
+
+struct Debuff FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef DebuffT NativeTableType;
+  typedef DebuffBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TYPE = 4,
+    VT_TIME = 6,
+    VT_VAL = 8
+  };
+  fbs::DebuffEnum type() const {
+    return static_cast<fbs::DebuffEnum>(GetField<int8_t>(VT_TYPE, 0));
+  }
+  bool mutate_type(fbs::DebuffEnum _type = static_cast<fbs::DebuffEnum>(0)) {
+    return SetField<int8_t>(VT_TYPE, static_cast<int8_t>(_type), 0);
+  }
+  uint64_t time() const {
+    return GetField<uint64_t>(VT_TIME, 0);
+  }
+  bool mutate_time(uint64_t _time = 0) {
+    return SetField<uint64_t>(VT_TIME, _time, 0);
+  }
+  int64_t val() const {
+    return GetField<int64_t>(VT_VAL, 0);
+  }
+  bool mutate_val(int64_t _val = 0) {
+    return SetField<int64_t>(VT_VAL, _val, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<int8_t>(verifier, VT_TYPE, 1) &&
+           VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
+           VerifyField<int64_t>(verifier, VT_VAL, 8) &&
+           verifier.EndTable();
+  }
+  DebuffT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Debuff> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DebuffBuilder {
+  typedef Debuff Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_type(fbs::DebuffEnum type) {
+    fbb_.AddElement<int8_t>(Debuff::VT_TYPE, static_cast<int8_t>(type), 0);
+  }
+  void add_time(uint64_t time) {
+    fbb_.AddElement<uint64_t>(Debuff::VT_TIME, time, 0);
+  }
+  void add_val(int64_t val) {
+    fbb_.AddElement<int64_t>(Debuff::VT_VAL, val, 0);
+  }
+  explicit DebuffBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Debuff> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Debuff>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Debuff> CreateDebuff(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    fbs::DebuffEnum type = fbs::DebuffEnum_DIZZ,
+    uint64_t time = 0,
+    int64_t val = 0) {
+  DebuffBuilder builder_(_fbb);
+  builder_.add_val(val);
+  builder_.add_time(time);
+  builder_.add_type(type);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Debuff> CreateDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct ReactorT : public ::flatbuffers::NativeTable {
   typedef Reactor TableType;
   uint8_t reactor_index = 0;
@@ -2984,6 +3120,95 @@ inline ::flatbuffers::Offset<RSkill> CreateRSkill(
 }
 
 ::flatbuffers::Offset<RSkill> CreateRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
+struct MobDebuffT : public ::flatbuffers::NativeTable {
+  typedef MobDebuff TableType;
+  uint32_t mob_index = 0;
+  std::unique_ptr<fbs::DebuffT> payload{};
+  uint64_t delay = 0;
+  MobDebuffT() = default;
+  MobDebuffT(const MobDebuffT &o);
+  MobDebuffT(MobDebuffT&&) FLATBUFFERS_NOEXCEPT = default;
+  MobDebuffT &operator=(MobDebuffT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct MobDebuff FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef MobDebuffT NativeTableType;
+  typedef MobDebuffBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MOB_INDEX = 4,
+    VT_PAYLOAD = 6,
+    VT_DELAY = 8
+  };
+  uint32_t mob_index() const {
+    return GetField<uint32_t>(VT_MOB_INDEX, 0);
+  }
+  bool mutate_mob_index(uint32_t _mob_index = 0) {
+    return SetField<uint32_t>(VT_MOB_INDEX, _mob_index, 0);
+  }
+  const fbs::Debuff *payload() const {
+    return GetPointer<const fbs::Debuff *>(VT_PAYLOAD);
+  }
+  fbs::Debuff *mutable_payload() {
+    return GetPointer<fbs::Debuff *>(VT_PAYLOAD);
+  }
+  uint64_t delay() const {
+    return GetField<uint64_t>(VT_DELAY, 0);
+  }
+  bool mutate_delay(uint64_t _delay = 0) {
+    return SetField<uint64_t>(VT_DELAY, _delay, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MOB_INDEX, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyTable(payload()) &&
+           VerifyField<uint64_t>(verifier, VT_DELAY, 8) &&
+           verifier.EndTable();
+  }
+  MobDebuffT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(MobDebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<MobDebuff> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobDebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct MobDebuffBuilder {
+  typedef MobDebuff Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_mob_index(uint32_t mob_index) {
+    fbb_.AddElement<uint32_t>(MobDebuff::VT_MOB_INDEX, mob_index, 0);
+  }
+  void add_payload(::flatbuffers::Offset<fbs::Debuff> payload) {
+    fbb_.AddOffset(MobDebuff::VT_PAYLOAD, payload);
+  }
+  void add_delay(uint64_t delay) {
+    fbb_.AddElement<uint64_t>(MobDebuff::VT_DELAY, delay, 0);
+  }
+  explicit MobDebuffBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<MobDebuff> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<MobDebuff>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<MobDebuff> CreateMobDebuff(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t mob_index = 0,
+    ::flatbuffers::Offset<fbs::Debuff> payload = 0,
+    uint64_t delay = 0) {
+  MobDebuffBuilder builder_(_fbb);
+  builder_.add_delay(delay);
+  builder_.add_payload(payload);
+  builder_.add_mob_index(mob_index);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<MobDebuff> CreateMobDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const MobDebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct APSaveT : public ::flatbuffers::NativeTable {
   typedef APSave TableType;
@@ -4193,7 +4418,8 @@ inline CharacterT::CharacterT(const CharacterT &o)
         level(o.level),
         state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
         appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr),
-        face((o.face) ? new fbs::FaceT(*o.face) : nullptr) {
+        face((o.face) ? new fbs::FaceT(*o.face) : nullptr),
+        debuff(o.debuff) {
   equips.reserve(o.equips.size());
   for (const auto &equips_ : o.equips) { equips.emplace_back((equips_) ? new fbs::EquipT(*equips_) : nullptr); }
   decos.reserve(o.decos.size());
@@ -4213,6 +4439,7 @@ inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(equips, o.equips);
   std::swap(decos, o.decos);
   std::swap(states, o.states);
+  std::swap(debuff, o.debuff);
   return *this;
 }
 
@@ -4235,6 +4462,7 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   { auto _e = equips(); if (_e) { _o->equips.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->equips[_i]) { _e->Get(_i)->UnPackTo(_o->equips[_i].get(), _resolver); } else { _o->equips[_i] = std::unique_ptr<fbs::EquipT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->equips.resize(0); } }
   { auto _e = decos(); if (_e) { _o->decos.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decos[_i]) { _e->Get(_i)->UnPackTo(_o->decos[_i].get(), _resolver); } else { _o->decos[_i] = std::unique_ptr<fbs::DecoT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decos.resize(0); } }
   { auto _e = states(); if (_e) { _o->states.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->states[_i]) { _e->Get(_i)->UnPackTo(_o->states[_i].get(), _resolver); } else { _o->states[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->states.resize(0); } }
+  { auto _e = debuff(); if (_e) { _o->debuff.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->debuff[_i] = static_cast<fbs::DebuffEnum>(_e->Get(_i)); } } else { _o->debuff.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4255,6 +4483,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   auto _equips = _o->equips.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>> (_o->equips.size(), [](size_t i, _VectorArgs *__va) { return CreateEquip(*__va->__fbb, __va->__o->equips[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _decos = _o->decos.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Deco>> (_o->decos.size(), [](size_t i, _VectorArgs *__va) { return CreateDeco(*__va->__fbb, __va->__o->decos[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _states = _o->states.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->states.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->states[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _debuff = _o->debuff.size() ? _fbb.CreateVectorScalarCast<int8_t>(::flatbuffers::data(_o->debuff), _o->debuff.size()) : 0;
   return fbs::CreateCharacter(
       _fbb,
       _name,
@@ -4266,7 +4495,8 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
       _face,
       _equips,
       _decos,
-      _states);
+      _states,
+      _debuff);
 }
 
 inline MovementT *Movement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -4654,9 +4884,8 @@ inline MobT::MobT(const MobT &o)
       : mob_index(o.mob_index),
         mob_id(o.mob_id),
         mob_hp(o.mob_hp),
-        state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr) {
-  states.reserve(o.states.size());
-  for (const auto &states_ : o.states) { states.emplace_back((states_) ? new fbs::StateT(*states_) : nullptr); }
+        state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
+        debuff(o.debuff) {
 }
 
 inline MobT &MobT::operator=(MobT o) FLATBUFFERS_NOEXCEPT {
@@ -4664,7 +4893,7 @@ inline MobT &MobT::operator=(MobT o) FLATBUFFERS_NOEXCEPT {
   std::swap(mob_id, o.mob_id);
   std::swap(mob_hp, o.mob_hp);
   std::swap(state, o.state);
-  std::swap(states, o.states);
+  std::swap(debuff, o.debuff);
   return *this;
 }
 
@@ -4681,7 +4910,7 @@ inline void Mob::UnPackTo(MobT *_o, const ::flatbuffers::resolver_function_t *_r
   { auto _e = mob_id(); _o->mob_id = _e; }
   { auto _e = mob_hp(); _o->mob_hp = _e; }
   { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
-  { auto _e = states(); if (_e) { _o->states.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->states[_i]) { _e->Get(_i)->UnPackTo(_o->states[_i].get(), _resolver); } else { _o->states[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->states.resize(0); } }
+  { auto _e = debuff(); if (_e) { _o->debuff.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->debuff[_i] = static_cast<fbs::DebuffEnum>(_e->Get(_i)); } } else { _o->debuff.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4696,14 +4925,14 @@ inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_f
   auto _mob_id = _o->mob_id;
   auto _mob_hp = _o->mob_hp;
   auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
-  auto _states = _o->states.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->states.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->states[i].get(), __va->__rehasher); }, &_va ) : 0;
+  auto _debuff = _o->debuff.size() ? _fbb.CreateVectorScalarCast<int8_t>(::flatbuffers::data(_o->debuff), _o->debuff.size()) : 0;
   return fbs::CreateMob(
       _fbb,
       _mob_index,
       _mob_id,
       _mob_hp,
       _state,
-      _states);
+      _debuff);
 }
 
 inline FaceT *Face::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -4965,6 +5194,38 @@ inline ::flatbuffers::Offset<State> State::Pack(::flatbuffers::FlatBufferBuilder
       _sub_val);
 }
 
+inline DebuffT *Debuff::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<DebuffT>(new DebuffT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Debuff::UnPackTo(DebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = type(); _o->type = _e; }
+  { auto _e = time(); _o->time = _e; }
+  { auto _e = val(); _o->val = _e; }
+}
+
+inline ::flatbuffers::Offset<Debuff> CreateDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Debuff::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Debuff> Debuff::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DebuffT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _type = _o->type;
+  auto _time = _o->time;
+  auto _val = _o->val;
+  return fbs::CreateDebuff(
+      _fbb,
+      _type,
+      _time,
+      _val);
+}
+
 inline ReactorT *Reactor::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ReactorT>(new ReactorT());
   UnPackTo(_o.get(), _resolver);
@@ -5048,6 +5309,51 @@ inline ::flatbuffers::Offset<RSkill> RSkill::Pack(::flatbuffers::FlatBufferBuild
       _start,
       _end,
       _val);
+}
+
+inline MobDebuffT::MobDebuffT(const MobDebuffT &o)
+      : mob_index(o.mob_index),
+        payload((o.payload) ? new fbs::DebuffT(*o.payload) : nullptr),
+        delay(o.delay) {
+}
+
+inline MobDebuffT &MobDebuffT::operator=(MobDebuffT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(mob_index, o.mob_index);
+  std::swap(payload, o.payload);
+  std::swap(delay, o.delay);
+  return *this;
+}
+
+inline MobDebuffT *MobDebuff::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<MobDebuffT>(new MobDebuffT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void MobDebuff::UnPackTo(MobDebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = mob_index(); _o->mob_index = _e; }
+  { auto _e = payload(); if (_e) { if(_o->payload) { _e->UnPackTo(_o->payload.get(), _resolver); } else { _o->payload = std::unique_ptr<fbs::DebuffT>(_e->UnPack(_resolver)); } } else if (_o->payload) { _o->payload.reset(); } }
+  { auto _e = delay(); _o->delay = _e; }
+}
+
+inline ::flatbuffers::Offset<MobDebuff> CreateMobDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const MobDebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return MobDebuff::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<MobDebuff> MobDebuff::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const MobDebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const MobDebuffT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _mob_index = _o->mob_index;
+  auto _payload = _o->payload ? CreateDebuff(_fbb, _o->payload.get(), _rehasher) : 0;
+  auto _delay = _o->delay;
+  return fbs::CreateMobDebuff(
+      _fbb,
+      _mob_index,
+      _payload,
+      _delay);
 }
 
 inline APSaveT *APSave::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {

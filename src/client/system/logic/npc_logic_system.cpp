@@ -75,6 +75,16 @@ bool npc_logic_system::run_duration(game_npc &g_npc) {
 }
 
 bool npc_logic_system::run_chatballoon(game_npc &g_npc) {
+  auto quest_avaliable = npc_game_instance::load_avaliable_quest(g_npc.id);
+  if (!quest_avaliable.empty()) {
+    g_npc.chatballoon = std::nullopt;
+    return true;
+  }
+  auto progress_quests = npc_game_instance::load_progress_quest(g_npc.id);
+  if (!progress_quests.empty()) {
+    g_npc.chatballoon = std::nullopt;
+    return true;
+  }
   if (g_npc.chatballoon.has_value()) {
     auto &chatballoon = g_npc.chatballoon.value();
     if (chatballoon.destroy < window::dt_now) {
@@ -100,8 +110,6 @@ bool npc_logic_system::run_chatballoon(game_npc &g_npc) {
 
     game_chatballoon c;
     c.destroy = window::dt_now + random_number;
-    // c.path = u"25";
-    // c.path = u"20";
     c.path = u"0";
     c.pos = {0, 0};
     c.size = 14;

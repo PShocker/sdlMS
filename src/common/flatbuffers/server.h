@@ -157,6 +157,10 @@ struct ServerRSkill;
 struct ServerRSkillBuilder;
 struct ServerRSkillT;
 
+struct ServerMobDebuff;
+struct ServerMobDebuffBuilder;
+struct ServerMobDebuffT;
+
 enum MobEventUnion : uint8_t {
   MobEventUnion_NONE = 0,
   MobEventUnion_ServerMobMv = 1,
@@ -3237,6 +3241,77 @@ inline ::flatbuffers::Offset<ServerRSkill> CreateServerRSkillDirect(
 
 ::flatbuffers::Offset<ServerRSkill> CreateServerRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ServerRSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ServerMobDebuffT : public ::flatbuffers::NativeTable {
+  typedef ServerMobDebuff TableType;
+  std::vector<std::unique_ptr<fbs::MobDebuffT>> payload{};
+  ServerMobDebuffT() = default;
+  ServerMobDebuffT(const ServerMobDebuffT &o);
+  ServerMobDebuffT(ServerMobDebuffT&&) FLATBUFFERS_NOEXCEPT = default;
+  ServerMobDebuffT &operator=(ServerMobDebuffT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ServerMobDebuff FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ServerMobDebuffT NativeTableType;
+  typedef ServerMobDebuffBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_PAYLOAD = 4
+  };
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ServerMobDebuffT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ServerMobDebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ServerMobDebuff> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ServerMobDebuffBuilder {
+  typedef ServerMobDebuff Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>>> payload) {
+    fbb_.AddOffset(ServerMobDebuff::VT_PAYLOAD, payload);
+  }
+  explicit ServerMobDebuffBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ServerMobDebuff> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ServerMobDebuff>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ServerMobDebuff> CreateServerMobDebuff(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>>> payload = 0) {
+  ServerMobDebuffBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ServerMobDebuff> CreateServerMobDebuffDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    const std::vector<::flatbuffers::Offset<fbs::MobDebuff>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobDebuff>>(*payload) : 0;
+  return fbs::CreateServerMobDebuff(
+      _fbb,
+      payload__);
+}
+
+::flatbuffers::Offset<ServerMobDebuff> CreateServerMobDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ServerHeartbeatT *ServerHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ServerHeartbeatT>(new ServerHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -4607,6 +4682,42 @@ inline ::flatbuffers::Offset<ServerRSkill> ServerRSkill::Pack(::flatbuffers::Fla
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerRSkillT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::RSkill>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateRSkill(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateServerRSkill(
+      _fbb,
+      _payload);
+}
+
+inline ServerMobDebuffT::ServerMobDebuffT(const ServerMobDebuffT &o) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::MobDebuffT(*payload_) : nullptr); }
+}
+
+inline ServerMobDebuffT &ServerMobDebuffT::operator=(ServerMobDebuffT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ServerMobDebuffT *ServerMobDebuff::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ServerMobDebuffT>(new ServerMobDebuffT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ServerMobDebuff::UnPackTo(ServerMobDebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::MobDebuffT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ServerMobDebuff> CreateServerMobDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ServerMobDebuff::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ServerMobDebuff> ServerMobDebuff::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ServerMobDebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerMobDebuffT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobDebuff>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateMobDebuff(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateServerMobDebuff(
       _fbb,
       _payload);
 }

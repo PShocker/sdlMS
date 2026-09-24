@@ -150,13 +150,7 @@ void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
     auto max_exp =
         static_cast<wz::Property<int> *>(info_node->get_child(u"exp"))->get();
     auto exp = percent * max_exp;
-    game_gain_log g_log{
-        .id = u"",
-        .num = static_cast<uint64_t>(exp),
-        .destroy = window::dt_now + 5000,
-        .type = gain_enum::experience,
-    };
-    gain_log_game_instance::data.push_back(g_log);
+    gain_log_game_instance::add(u"", exp, gain_enum::experience);
     character_stat_game_instance::add_exp(exp);
   }
   if (m.client_id == server_main::local_addr) {

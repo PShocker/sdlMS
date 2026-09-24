@@ -41,6 +41,7 @@ void gain_log_render_system::render(game_gain_log &g_log, uint32_t i) {
   }
   freetype::load_size(12);
   freetype::load_bold(false);
+  freetype::load_color(255, 255, 255, 255);
   int x;
   int y;
   switch (quick_slot_ui_system::quickSlot) {
@@ -54,4 +55,5 @@ void gain_log_render_system::render(game_gain_log &g_log, uint32_t i) {
     break;
   }
   }
+  freetype::draw_line(text, x, y);
 }

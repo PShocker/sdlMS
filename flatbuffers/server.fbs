@@ -193,3 +193,7 @@ table ServerTrapAttack {
 table ServerRSkill {
     payload:[RSkill];
 }
+
+table ServerMobDebuff {
+    payload:[MobDebuff];
+}

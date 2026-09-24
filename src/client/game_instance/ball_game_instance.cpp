@@ -3,6 +3,7 @@
 #include "src/client/game/game_foothold.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/common/flatbuffers/common.h"
@@ -179,4 +180,24 @@ std::u16string ball_game_instance::load_ball_path(const std::u16string &id) {
     path = u"Consume/" + sub_id + u"/" + id + u"/bullet";
   }
   return path;
+}
+
+std::u16string
+ball_game_instance::load_cash_ball_path(const std::u16string &id) {
+  std::u16string path;
+  if (!id.empty()) {
+    auto sub_id = id.substr(0, 4) + u".img";
+    path = u"Cash/" + sub_id + u"/" + id + u"/bullet";
+  }
+  return path;
+}
+
+std::u16string
+ball_game_instance::load_cash_ball_effect(const std::u16string &id) {
+  std::u16string effect;
+  if (!id.empty()) {
+    auto sub_id = id.substr(0, 4) + u".img";
+    effect = u"Cash/" + sub_id + u"/" + id + u"/hit";
+  }
+  return effect;
 }

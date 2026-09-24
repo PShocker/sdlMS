@@ -24,6 +24,8 @@ public:
 
   static uint64_t load_ball_time(ClientCharacterBallT &cct);
   static std::u16string load_ball_path(const std::u16string &id);
+  static std::u16string load_cash_ball_path(const std::u16string &id);
+  static std::u16string load_cash_ball_effect(const std::u16string &id);
 
   static ClientCharacterBallT
   create_ball_payload(check_mobs &cm, SDL_FPoint pos, SDL_FPoint goal,

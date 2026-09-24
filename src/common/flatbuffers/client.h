@@ -117,6 +117,10 @@ struct ClientRSkill;
 struct ClientRSkillBuilder;
 struct ClientRSkillT;
 
+struct ClientMobDebuff;
+struct ClientMobDebuffBuilder;
+struct ClientMobDebuffT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -833,7 +837,6 @@ struct ClientCharacterPickT : public ::flatbuffers::NativeTable {
   typedef ClientCharacterPick TableType;
   uint32_t map_id = 0;
   uint64_t random_id = 0;
-  bool pet = false;
   int8_t pet_index = 0;
 };
 
@@ -843,8 +846,7 @@ struct ClientCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_MAP_ID = 4,
     VT_RANDOM_ID = 6,
-    VT_PET = 8,
-    VT_PET_INDEX = 10
+    VT_PET_INDEX = 8
   };
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
@@ -858,12 +860,6 @@ struct ClientCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
   bool mutate_random_id(uint64_t _random_id = 0) {
     return SetField<uint64_t>(VT_RANDOM_ID, _random_id, 0);
   }
-  bool pet() const {
-    return GetField<uint8_t>(VT_PET, 0) != 0;
-  }
-  bool mutate_pet(bool _pet = 0) {
-    return SetField<uint8_t>(VT_PET, static_cast<uint8_t>(_pet), 0);
-  }
   int8_t pet_index() const {
     return GetField<int8_t>(VT_PET_INDEX, 0);
   }
@@ -875,7 +871,6 @@ struct ClientCharacterPick FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Tabl
     return VerifyTableStart(verifier) &&
            VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
            VerifyField<uint64_t>(verifier, VT_RANDOM_ID, 8) &&
-           VerifyField<uint8_t>(verifier, VT_PET, 1) &&
            VerifyField<int8_t>(verifier, VT_PET_INDEX, 1) &&
            verifier.EndTable();
   }
@@ -893,9 +888,6 @@ struct ClientCharacterPickBuilder {
   }
   void add_random_id(uint64_t random_id) {
     fbb_.AddElement<uint64_t>(ClientCharacterPick::VT_RANDOM_ID, random_id, 0);
-  }
-  void add_pet(bool pet) {
-    fbb_.AddElement<uint8_t>(ClientCharacterPick::VT_PET, static_cast<uint8_t>(pet), 0);
   }
   void add_pet_index(int8_t pet_index) {
     fbb_.AddElement<int8_t>(ClientCharacterPick::VT_PET_INDEX, pet_index, 0);
@@ -915,13 +907,11 @@ inline ::flatbuffers::Offset<ClientCharacterPick> CreateClientCharacterPick(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t map_id = 0,
     uint64_t random_id = 0,
-    bool pet = false,
     int8_t pet_index = 0) {
   ClientCharacterPickBuilder builder_(_fbb);
   builder_.add_random_id(random_id);
   builder_.add_map_id(map_id);
   builder_.add_pet_index(pet_index);
-  builder_.add_pet(pet);
   return builder_.Finish();
 }
 
@@ -2093,6 +2083,93 @@ inline ::flatbuffers::Offset<ClientRSkill> CreateClientRSkillDirect(
 
 ::flatbuffers::Offset<ClientRSkill> CreateClientRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const ClientRSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientMobDebuffT : public ::flatbuffers::NativeTable {
+  typedef ClientMobDebuff TableType;
+  uint32_t map_id = 0;
+  std::vector<std::unique_ptr<fbs::MobDebuffT>> payload{};
+  ClientMobDebuffT() = default;
+  ClientMobDebuffT(const ClientMobDebuffT &o);
+  ClientMobDebuffT(ClientMobDebuffT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientMobDebuffT &operator=(ClientMobDebuffT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientMobDebuff FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientMobDebuffT NativeTableType;
+  typedef ClientMobDebuffBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MAP_ID = 4,
+    VT_PAYLOAD = 6
+  };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>> *payload() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>> *>(VT_PAYLOAD);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>> *mutable_payload() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>> *>(VT_PAYLOAD);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyOffset(verifier, VT_PAYLOAD) &&
+           verifier.VerifyVector(payload()) &&
+           verifier.VerifyVectorOfTables(payload()) &&
+           verifier.EndTable();
+  }
+  ClientMobDebuffT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientMobDebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientMobDebuff> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobDebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientMobDebuffBuilder {
+  typedef ClientMobDebuff Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientMobDebuff::VT_MAP_ID, map_id, 0);
+  }
+  void add_payload(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>>> payload) {
+    fbb_.AddOffset(ClientMobDebuff::VT_PAYLOAD, payload);
+  }
+  explicit ClientMobDebuffBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientMobDebuff> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientMobDebuff>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientMobDebuff> CreateClientMobDebuff(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::MobDebuff>>> payload = 0) {
+  ClientMobDebuffBuilder builder_(_fbb);
+  builder_.add_payload(payload);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ClientMobDebuff> CreateClientMobDebuffDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    const std::vector<::flatbuffers::Offset<fbs::MobDebuff>> *payload = nullptr) {
+  auto payload__ = payload ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobDebuff>>(*payload) : 0;
+  return fbs::CreateClientMobDebuff(
+      _fbb,
+      map_id,
+      payload__);
+}
+
+::flatbuffers::Offset<ClientMobDebuff> CreateClientMobDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobDebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -2464,7 +2541,6 @@ inline void ClientCharacterPick::UnPackTo(ClientCharacterPickT *_o, const ::flat
   (void)_resolver;
   { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = random_id(); _o->random_id = _e; }
-  { auto _e = pet(); _o->pet = _e; }
   { auto _e = pet_index(); _o->pet_index = _e; }
 }
 
@@ -2478,13 +2554,11 @@ inline ::flatbuffers::Offset<ClientCharacterPick> ClientCharacterPick::Pack(::fl
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCharacterPickT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _map_id = _o->map_id;
   auto _random_id = _o->random_id;
-  auto _pet = _o->pet;
   auto _pet_index = _o->pet_index;
   return fbs::CreateClientCharacterPick(
       _fbb,
       _map_id,
       _random_id,
-      _pet,
       _pet_index);
 }
 
@@ -3031,6 +3105,47 @@ inline ::flatbuffers::Offset<ClientRSkill> ClientRSkill::Pack(::flatbuffers::Fla
   auto _map_id = _o->map_id;
   auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::RSkill>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateRSkill(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
   return fbs::CreateClientRSkill(
+      _fbb,
+      _map_id,
+      _payload);
+}
+
+inline ClientMobDebuffT::ClientMobDebuffT(const ClientMobDebuffT &o)
+      : map_id(o.map_id) {
+  payload.reserve(o.payload.size());
+  for (const auto &payload_ : o.payload) { payload.emplace_back((payload_) ? new fbs::MobDebuffT(*payload_) : nullptr); }
+}
+
+inline ClientMobDebuffT &ClientMobDebuffT::operator=(ClientMobDebuffT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(map_id, o.map_id);
+  std::swap(payload, o.payload);
+  return *this;
+}
+
+inline ClientMobDebuffT *ClientMobDebuff::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientMobDebuffT>(new ClientMobDebuffT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientMobDebuff::UnPackTo(ClientMobDebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = payload(); if (_e) { _o->payload.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->payload[_i]) { _e->Get(_i)->UnPackTo(_o->payload[_i].get(), _resolver); } else { _o->payload[_i] = std::unique_ptr<fbs::MobDebuffT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->payload.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ClientMobDebuff> CreateClientMobDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobDebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientMobDebuff::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientMobDebuff> ClientMobDebuff::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobDebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientMobDebuffT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
+  auto _payload = _o->payload.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::MobDebuff>> (_o->payload.size(), [](size_t i, _VectorArgs *__va) { return CreateMobDebuff(*__va->__fbb, __va->__o->payload[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateClientMobDebuff(
       _fbb,
       _map_id,
       _payload);

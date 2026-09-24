@@ -838,8 +838,7 @@ void server_character_instance::handle_s_state(
     const std::vector<std::unique_ptr<fbs::StateT>> &v) {
   for (auto &st : v) {
     switch (st->state) {
-    case StateEnum_BUFF_SKILL:
-    case StateEnum_BUFF_ABNORMAL: {
+    case StateEnum_BUFF_SKILL: {
       auto &skis = skill_game_instance::skis();
       auto ski_id2 = std::to_string(st->val);
       auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};

@@ -51,7 +51,6 @@ table ClientCharacter {
 table ClientCharacterPick {
     map_id:uint32;
     random_id:uint64;
-    pet:bool;
     pet_index:int8;
 }
 
@@ -127,4 +126,9 @@ table ClientDropFade {
 table ClientRSkill {
     map_id:uint32;
     payload:[RSkill];
+}
+
+table ClientMobDebuff {
+    map_id:uint32;
+    payload:[MobDebuff];
 }

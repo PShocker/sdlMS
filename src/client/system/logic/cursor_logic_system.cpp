@@ -60,9 +60,8 @@ std::optional<game_npc> cursor_logic_system::cursor_npc() {
   auto &camera = camera_game_instance::camera;
   for (auto &m : npc_game_instance::data) {
     for (auto &g_npc : m) {
-      auto quests = quest_game_instance::load_npc_quest(g_npc.id);
       auto quest_rr = npc_game_instance::load_quest_rect(g_npc);
-      if (!quests.empty() && quest_rr.has_value()) {
+      if (quest_rr.has_value()) {
         auto quest_r = quest_rr.value();
         quest_r.x -= camera.x;
         quest_r.y -= camera.y;

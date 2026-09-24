@@ -896,9 +896,8 @@ bool character_logic_system::run_attack(game_character &g_character) {
     std::u16string path;
     std::u16string effect;
     if (!cash_ball.empty()) {
-      auto ball_sub_id = cash_ball.substr(0, 4) + u".img";
-      path = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/bullet";
-      effect = u"Cash/" + ball_sub_id + u"/" + cash_ball + u"/hit";
+      path = ball_game_instance::load_cash_ball_path(cash_ball);
+      effect = ball_game_instance::load_cash_ball_effect(cash_ball);
     } else {
       path = ball_game_instance::load_ball_path((*ball)->id);
       effect = u"Afterimage/hit.img/maceF";
