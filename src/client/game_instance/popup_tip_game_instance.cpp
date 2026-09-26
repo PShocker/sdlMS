@@ -10,11 +10,20 @@ bool popup_tip_game_instance::check_type(popup_tip_enums type) {
   return true;
 }
 
-void popup_tip_game_instance::load_tip(popup_tip_enums type, PlayerT player_t) {
-  if (check_type(type)) {
-    game_popup_tip tp;
-    tp.type = type;
-    tp.player_t = player_t;
-    data.push_back(tp);
+void popup_tip_game_instance::add_tip(popup_tip_enums type, PlayerT player_t) {
+  if (!check_type(type)) {
+    return;
   }
+  game_popup_tip tp;
+  tp.type = type;
+  tp.data = player_t;
+  data.emplace_back(tp);
+}
+
+void popup_tip_game_instance::add_quest_tip(const std::u16string &id) {
+  game_popup_tip tp;
+  tp.type = popup_tip_enums::quest;
+  tp.data = id;
+  tp.destroy = window::dt_now + 5 * 1000;
+  data.emplace_back(tp);
 }

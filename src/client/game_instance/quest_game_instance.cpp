@@ -1,4 +1,5 @@
 #include "quest_game_instance.h"
+#include "popup_tip_game_instance.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -6,6 +7,7 @@
 #include "wz/Property.h"
 #include <cstdint>
 #include <flat_map>
+#include <flat_set>
 #include <format>
 #include <optional>
 #include <string>
@@ -270,15 +272,38 @@ void quest_game_instance::accept_quest(game_quest &q) {
       q.check_item[qi.id] = qi;
     }
   }
+  if (auto n = node->get_child(u"mob"); n != nullptr) {
+    for (auto [k, v] : *n->get_children()) {
+      auto id = static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
+      int count = 0;
+      if (auto nn = v[0]->get_child(u"count"); nn != nullptr) {
+        count = static_cast<wz::Property<int> *>(nn)->get();
+      }
+      quest_mob qm;
+      auto tmp = std::format("{:07d}", id);
+      qm.id = {tmp.begin(), tmp.end()};
+      qm.count = count;
+      q.check_mob[qm.id] = qm;
+    }
+  }
   progress_quests[q.quest_id] = q;
+}
+
+void quest_game_instance::update_accept_quest_tip(
+    const std::u16string &quest_id) {
+  const auto &quest = progress_quests.at(quest_id);
+  if (quest.check_item.empty() && quest.item_bool && quest.mob_bool) {
+    popup_tip_game_instance::add_quest_tip(quest.quest_id);
+  }
 }
 
 void quest_game_instance::accept_quest(const std::u16string &id) {
   game_quest q;
   q.quest_id = id;
   accept_quest(q);
-  update_check_item(q.quest_id);
   update_check_mob(u"", 0);
+  update_check_item(q.quest_id);
+  update_accept_quest_tip(q.quest_id);
 }
 
 void quest_game_instance::complete_quest(game_quest &q) {
@@ -305,9 +330,17 @@ void quest_game_instance::decline_quest(const std::u16string &id) {
 
 void quest_game_instance::update_check_item(const std::u16string &quest_id) {
   auto &quest = progress_quests.at(quest_id);
-  quest.item.clear();
+  bool pop_tip = false;
+
   for (auto [k, v] : quest.check_item) {
-    auto num = package_game_instance::load_item_num(v.id);
+    int32_t back_num = -1;
+    if (quest.item.contains(k)) {
+      back_num = quest.item[k].count;
+    }
+    auto num = package_game_instance::load_item_num(k);
+    if (back_num < (int32_t)v.count && num >= v.count) {
+      pop_tip = true;
+    }
     quest.item[k] = {.id = v.id, .count = num};
   }
   quest.item_bool = true;
@@ -324,6 +357,9 @@ void quest_game_instance::update_check_item(const std::u16string &quest_id) {
       break;
     }
   }
+  if (pop_tip && quest.item_bool && quest.mob_bool) {
+    popup_tip_game_instance::add_quest_tip(quest.quest_id);
+  }
 }
 
 void quest_game_instance::update_check_item() {
@@ -335,8 +371,12 @@ void quest_game_instance::update_check_item() {
 void quest_game_instance::update_check_mob(const std::u16string &mob_id,
                                            int num) {
   for (auto [k, quest] : progress_quests) {
+    bool pop_tip = false;
     if (quest.check_mob.contains(mob_id)) {
-      quest.mob[mob_id].count += num;
+      if (quest.mob[mob_id].count < quest.check_mob[mob_id].count) {
+        quest.mob[mob_id].count += num;
+        pop_tip = true;
+      }
     }
     quest.mob_bool = true;
     for (auto [m_id, v] : quest.check_mob) {
@@ -348,6 +388,9 @@ void quest_game_instance::update_check_mob(const std::u16string &mob_id,
         quest.mob_bool = false;
         break;
       }
+    }
+    if (pop_tip && quest.item_bool && quest.mob_bool) {
+      popup_tip_game_instance::add_quest_tip(quest.quest_id);
     }
   }
 }

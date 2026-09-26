@@ -16,7 +16,7 @@ private:
   static bool event_button(SDL_Event *event);
 
 public:
-  static inline SDL_FPoint pos;
+  static inline SDL_FPoint pos = {429, -32};
 
   static bool render();
   static bool event(SDL_Event *event);

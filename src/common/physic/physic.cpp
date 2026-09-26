@@ -209,15 +209,15 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   new_pos.x += hspeed * delta_time;
   new_pos.y += vspeed * delta_time;
 
+  // 边界限制
+  if (border.has_value()) {
+    new_pos.x = std::clamp(new_pos.x, border->x, border->w);
+    new_pos.y = std::clamp(new_pos.y, border->y, border->h);
+  }
+
   // 获取碰撞信息
   auto inter_pos = fall_intersect_pos(pos, new_pos, fhs);
   pos = new_pos;
-
-  // 边界限制
-  if (border.has_value()) {
-    pos.x = std::clamp(pos.x, border->x, border->w);
-    pos.y = std::clamp(pos.y, border->y, border->h);
-  }
 
   // 如果不需要碰撞检测或没有碰撞点，直接返回
   if (!fall_collide || inter_pos.empty()) {
@@ -242,8 +242,8 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   };
 
   // Lambda: 处理落地
-  auto handle_landing = [&](const game_foothold &fh,
-                            const SDL_FPoint &collide_pos) -> bool {
+  const auto handle_landing = [&](const game_foothold &fh,
+                                  const SDL_FPoint &collide_pos) -> bool {
     current_fh = fh.id;
     hspeed /= 2;
     vspeed = 0;
@@ -253,11 +253,11 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   };
 
   // Lambda: 判断是否在斜坡上
-  auto is_on_slope = [&](const game_foothold &fh) -> bool {
+  const auto is_on_slope = [&](const game_foothold &fh) -> bool {
     if (!(fall_fh == fh.prev || fall_fh == fh.id || fall_fh == fh.next)) {
       return false;
     }
-    if (hspeed == 0) {
+    if (hspeed <= 0) {
       return false;
     }
     if (!fh.k.has_value() || fh.k.value() == 0) {

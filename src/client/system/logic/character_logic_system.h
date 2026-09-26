@@ -74,6 +74,13 @@ private:
   static void run_others_mv();
   static void run_others();
   static void run_network_sync();
+  static void run_network_sync_action();
+  static void run_network_sync_pos();
+  static void run_network_sync_flip();
+  static void run_network_sync_face();
+  static void run_network_sync_self();
+  static void run_network_sync_hp();
+  static void run_network_sync_max_hp();
   static void run_network_sync_state();
 
   static void run_animate_chair(game_character &g_character);
@@ -162,6 +169,8 @@ public:
   static inline uint64_t self_attack_cooldown;
   static inline uint64_t self_invincible_cooldown;
   static inline uint64_t self_two_jump_cooldown;
+
+  static inline uint64_t self_climb_animate_cooldown; // 绳子放技能,动作时间
 
   static inline float self_fall_min;
   static inline int32_t self_fall_fh;

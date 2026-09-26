@@ -1,5 +1,8 @@
 #include "freetype.h"
+#include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "src/client/window/window.h"
+#include "src/common/wz/wz_resource.h"
 #include <cstdint>
 #include <flat_map>
 #include <ft2build.h>
@@ -205,21 +208,25 @@ void freetype::draw_str(const std::u16string &str, float x, float y, float w,
     l += draw_char(l, t, c);
   }
 }
-float freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
-                          float h, std::optional<SDL_FRect> obstacle,
-                          bool dryRun) {
+
+freetype::rstr_return_data
+freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
+                    float h, std::optional<SDL_FRect> obstacle, bool dryRun) {
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
   lineHeight = lineHeight * h;
   // 辅助函数
-  auto isBlocked = [&](float px, float py, float pw, float ph) -> bool {
+  const auto isBlocked = [&](float px, float py, float pw, float ph) -> bool {
     if (!obstacle.has_value())
       return false;
     SDL_FRect rect = {px, py, pw, ph};
     const auto &obs = obstacle.value();
     return SDL_HasRectIntersectionFloat(&rect, &obs);
   };
+
+  int select = -1;
+  bool selected = false;
 
   for (uint32_t i = 0; i < str.size(); i++) {
     auto c = str[i];
@@ -262,6 +269,26 @@ float freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
         case u'n': {
           load_bold(false);
           i++;
+          break;
+        }
+        case u'L': {
+          i += 3;
+          select++;
+          l = x + 15;
+          static auto dot = wz_resource::load_texture(
+              wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
+          SDL_FRect pos{
+              l - size / 2,
+              t + size / 2,
+              static_cast<float>(dot->w),
+              static_cast<float>(dot->h),
+          };
+          SDL_RenderTexture(window::renderer, dot, nullptr, &pos);
+          break;
+        }
+        case u'l': {
+          i++;
+          select = -1;
           break;
         }
         }
@@ -322,8 +349,9 @@ float freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
       l += charWidth; // 仅移动位置
     }
   }
-
-  return (t - y + lineHeight);
+  rstr_return_data r;
+  r.height = (t - y + lineHeight);
+  return r;
 }
 
 void freetype::draw_cstr(const std::u16string &str, float x, float y, float w,
@@ -386,5 +414,5 @@ void freetype::draw_cstr(const std::u16string &str, float x, float y, float w,
 
 float freetype::load_rh(const std::u16string &str, float w, float h,
                         std::optional<SDL_FRect> obstacle) {
-  return draw_rstr(str, 0, 0, w, h, obstacle, true); // 添加 dryRun 参数
+  return draw_rstr(str, 0, 0, w, h, obstacle, true).height; // 添加 dryRun 参数
 }

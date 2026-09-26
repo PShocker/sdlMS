@@ -156,11 +156,11 @@ npc_game_instance::load_npc_type(const std::u16string &id) {
     return npc_type::shop;
   }
   auto npc_node = wz_resource::npc->find(id + u".img");
-  if (npc_node->find(u"info/script")) {
-    return npc_type::script;
-  }
   if (!quest_game_instance::load_npc_quest(id).empty()) {
     return npc_type::quest;
+  }
+  if (npc_node->find(u"info/script")) {
+    return npc_type::script;
   }
   return npc_type::none;
 }

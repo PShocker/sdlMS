@@ -4,8 +4,10 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
+#include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/physic/physic.h"
 #include "src/common/wz/wz_resource.h"
@@ -66,11 +68,13 @@ bool npc_logic_system::run_duration(game_npc &g_npc) {
     bool random_bool = dist(gen);
     g_npc.hforce = random_bool ? 1400 : -1400;
     g_npc.hspeed = 0.0f;
+    g_npc.duration = window::dt_now + 5000;
+    g_npc.flip = random_bool;
   } else {
     g_npc.hforce = std::nullopt;
     g_npc.hspeed = std::nullopt;
+    g_npc.duration = window::dt_now + 2000;
   }
-  g_npc.duration = window::dt_now + 1000;
   return true;
 }
 
@@ -143,9 +147,14 @@ bool npc_logic_system::run_move(game_npc &g_npc) {
   // 移动
   auto delta_time = window::delta_time / 1000.0f;
   float vspeed = 0;
+  auto border =
+      map_info_game_instance::load_mr_border(scene_system_instance::map_id);
+  border.x = g_npc.rx0;
+  border.w = g_npc.rx1;
+  auto force = g_npc.hforce.value();
   auto r = physic::walk(g_npc.pos, delta_time, g_npc.hspeed.value(), vspeed,
-                        g_npc.hforce.value(), -100, 100, 800, false, g_npc.fh,
-                        std::nullopt, foothold_game_instance::data);
+                        force, -100, 100, 800, false, g_npc.fh, border,
+                        foothold_game_instance::data);
   return r;
 }
 

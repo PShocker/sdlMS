@@ -4,16 +4,20 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Node.h"
+#include "wz/Property.h"
 #include <string>
 
 void popup_tip_ui_system::render_backgrnd(game_popup_tip &t) {
-  SDL_Texture *texture;
+  SDL_Texture *te;
+  SDL_Texture *i = nullptr;
+  SDL_FPoint icon_pos;
   switch (t.type) {
   case popup_tip_enums::trade: {
     static auto texture = wz_resource::load_texture(
@@ -25,33 +29,64 @@ void popup_tip_ui_system::render_backgrnd(game_popup_tip &t) {
         wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
     break;
   }
+  case popup_tip_enums::quest: {
+    static auto texture = wz_resource::load_texture(
+        wz_resource::ui->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
+    static auto icon = wz_resource::load_texture(
+        wz_resource::ui->find(u"FadeYesNo.img/FadeYesNo/icon6"));
+    te = texture;
+    i = icon;
+    icon_pos = {-10, -12};
+    break;
   }
+  }
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto x = pos.x + (screen_w - 808) / 2;
+  auto y = pos.y + (screen_h - 73);
+
   SDL_FRect pos_rect{
-      pos.x,
-      pos.y,
-      static_cast<float>(texture->w),
-      static_cast<float>(texture->h),
+      x,
+      y,
+      static_cast<float>(te->w),
+      static_cast<float>(te->h),
   };
-  SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  SDL_SetTextureAlphaMod(te, t.alpha);
+  SDL_RenderTexture(window::renderer, te, nullptr, &pos_rect);
+
+  pos_rect.x -= icon_pos.x;
+  pos_rect.y -= icon_pos.y;
+  pos_rect.w = i->w;
+  pos_rect.h = i->h;
+  SDL_SetTextureAlphaMod(i, t.alpha);
+  SDL_RenderTexture(window::renderer, i, nullptr, &pos_rect);
 }
 
 void popup_tip_ui_system::render_text(game_popup_tip &t) {
-  SDL_FPoint p;
-  std::u16string text;
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto x = pos.x + (screen_w - 808) / 2;
+  auto y = pos.y + (screen_h - 73);
+
   switch (t.type) {
-  case popup_tip_enums::trade: {
-    static auto t = wz_resource::load_texture(
-        wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
+  case popup_tip_enums::quest: {
+    auto quest_id = std::any_cast<std::u16string>(t.data);
+    auto node = quest_game_instance::load_quest_node(quest_id);
+    node = node->find(u"QuestInfo/name");
+    auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
+    if (name.size() > 17) {
+      name = name.substr(0, 17) + u"...";
+    }
+    freetype::load_size(12);
+    freetype::load_color(255, 255, 255, t.alpha);
+    freetype::load_aligned(true);
+    freetype::draw_line(name, x + 28, y + 3);
+
+    name = u"Quest Complete!";
+    freetype::draw_line(name, x + 28, y + 16);
     break;
   }
-  case popup_tip_enums::party: {
-    static auto t = wz_resource::load_texture(
-        wz_resource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
-    break;
   }
-  }
-  freetype::load_size(12);
-  freetype::draw_str(text, p.x + pos.x, p.y + pos.y, 100, 1.3);
 }
 
 void popup_tip_ui_system::render_button(game_popup_tip &t) {
@@ -94,10 +129,22 @@ void popup_tip_ui_system::render_button(game_popup_tip &t) {
 }
 
 bool popup_tip_ui_system::render() {
-  for (auto &t : popup_tip_game_instance::data) {
+  auto &data = popup_tip_game_instance::data;
+  const auto now = window::dt_now;
+  const auto dt = window::delta_time;
+
+  for (auto &t : data) {
+    const float dir = (t.destroy < now) ? -1.0f : 1.0f;
+    t.alpha = std::clamp(t.alpha + dir * dt, 0.0f, 255.0f);
     render_backgrnd(t);
+    render_text(t);
     render_button(t);
   }
+
+  std::erase_if(data, [now](const game_popup_tip &t) {
+    return t.destroy < now && t.alpha == 0.0f;
+  });
+
   return true;
 }
 
@@ -125,7 +172,7 @@ void popup_tip_ui_system::event_button_ok(game_popup_tip &t) {
 
 void popup_tip_ui_system::event_button_cancel(game_popup_tip &t) {
   auto &data = popup_tip_game_instance::data;
-  std::erase_if(data, [t](const auto &tip) { return t.type == tip.type; });
+  std::erase_if(data, [t](const auto &tip) { return &t == &tip; });
 }
 
 bool popup_tip_ui_system::event_button(SDL_Event *event) {

@@ -31,6 +31,8 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
+  static void accept_quest(const std::u16string &id);
+  static void complete_quest(const std::u16string &id);
   static inline std::flat_set<std::u16string> quests;
 
   static inline bool max = true;
@@ -41,7 +43,7 @@ public:
 
   static void open();
   static void close();
-  
+
   static bool cursor_in();
 
   static bool render();

@@ -17,6 +17,7 @@ public:
   static void update_check_mob(const std::u16string &mob_id, int num);
   static void update_check_item();
   static void update_check_item(const std::u16string &quest_id);
+  static void update_accept_quest_tip(const std::u16string &quest_id);
 
   static void accept_quest(game_quest &q);
   static void complete_quest(game_quest &q);

@@ -203,11 +203,7 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
             break;
           }
           default: {
-            if (!itm->id.starts_with(u"0207")) {
-              itm = std::polymorphic<game_item>(game_consume_item{});
-            } else {
-              item_game_instance::dec_item_num(itm, num);
-            }
+            item_game_instance::dec_item_num(itm, num);
             break;
           }
           }
@@ -244,6 +240,7 @@ server_drop_instance::create_dts(const std::vector<DropT> &dts,
     g_fhs.emplace(key, value.fh);
   }
   auto border = map_info_game_instance::load_mr_border(map_id);
+  border.w -= 80;
   auto dts_size = dts.size();
   const auto dt_w = 24;
 

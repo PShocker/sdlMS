@@ -114,8 +114,13 @@ static void wuyingjian() {
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     auto &sf = character_game_instance::self;
-    character_logic_system::run_action(sf, u"alert2");
-
+    auto action_type = character_logic_system::load_action_type(sf);
+    if (action_type != character_logic_system::action_enum::climb) {
+      character_logic_system::run_action(sf, u"alert2");
+    } else {
+      character_logic_system::self_climb_animate_cooldown =
+          window::dt_now + 700;
+    }
     auto &ski = skill_game_instance::ski;
     g_skill.end();
     g_skill.lv = ski_lv;

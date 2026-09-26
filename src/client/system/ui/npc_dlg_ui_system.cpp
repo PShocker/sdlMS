@@ -19,6 +19,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/script/script.h"
@@ -175,10 +176,13 @@ void npc_dlg_ui_system::render_text() {
     freetype::load_aligned(true);
     freetype::load_color(0, 0, 0, 255);
     freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt);
-    freetype::load_aligned(false);
     break;
   }
   case npc_dlg_enum::select: {
+    freetype::load_size(12);
+    freetype::load_aligned(true);
+    freetype::load_color(0, 0, 0, 255);
+    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt);
     break;
   }
   default: {
@@ -462,6 +466,7 @@ void npc_dlg_ui_system::event_button_ok() {
     auto act_exp = quest_game_instance::load_quest_act_exp(quest_id);
     character_stat_game_instance::add_exp(act_exp);
     quest_game_instance::complete_quest(quest_id);
+    quest_alarm_ui_system::complete_quest(quest_id);
     auto quest_node = quest_game_instance::load_quest_node(quest_id);
     if (auto n = quest_node->find(u"Say/1/yes/0"); n != nullptr) {
       text = text_game_instance::load_rstr(n);
@@ -589,9 +594,16 @@ void npc_dlg_ui_system::event_quest_list() {
       script_id = spt;
       return;
     }
+    if (node->find(u"Say/" + quest_index + u"/ask")) {
+      text = text_game_instance::load_rstr(
+          node->find(u"Say/" + quest_index + u"/0"));
+      type = npc_dlg_enum::select;
+      index = 0;
+    }
     if (auto n = node->find(u"Act/" + quest_index + u"/nextQuest");
         n != nullptr) {
       quest_game_instance::complete_quest(selected);
+      quest_alarm_ui_system::complete_quest(selected);
       auto nq = static_cast<wz::Property<int> *>(n)->get();
       tmp = std::to_string(nq);
       selected = std::u16string{tmp.begin(), tmp.end()} + u".img";
@@ -679,6 +691,7 @@ void npc_dlg_ui_system::event_button_quest_yes() {
   }
   // accept quest
   quest_game_instance::accept_quest(quest_id);
+  quest_alarm_ui_system::accept_quest(quest_id);
   static wz::Node *yes_node;
   yes_node = quest_game_instance::load_quest_node(quest_id);
   yes_node = yes_node->find(u"Say/" + quest_index + u"/yes");

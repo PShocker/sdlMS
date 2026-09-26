@@ -43,6 +43,7 @@ static void shunjianyidong() {
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) {
+    character_stat_game_instance::add_exp(1000);
     skill_game_instance::skis()[u"2301000"].cd = window::dt_now + 500;
     auto &sf = character_game_instance::self;
 

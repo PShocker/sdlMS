@@ -332,7 +332,8 @@ void quest_ui_system::render_quest_detail() {
     lv = static_cast<wz::Property<int> *>(node)->get();
   }
   tmp = std::to_string(lv);
-  lv_str = lv_str + u" " + std::u16string{tmp.begin(), tmp.end()} + u"+";
+  lv_str = lv_str + u" " + std::u16string{tmp.begin(), tmp.end()} + u"+" +
+           u" (" + detail_quest + u")";
   freetype::draw_line(lv_str, pos.x + 269, pos.y + 70);
 
   freetype::load_size(12);
@@ -344,6 +345,8 @@ void quest_ui_system::render_quest_detail() {
   freetype::load_color(0, 0, 193, 255);
   freetype::draw_line(npc_str, pos.x + 260, pos.y + 126);
   freetype::load_bold(false);
+  if (quest_game_instance::progress_quests.contains(detail_quest)) {
+  }
 
   render_detail_text();
 }

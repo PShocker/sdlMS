@@ -625,6 +625,12 @@ bool character_logic_system::run_climbing(game_character &g_character) {
     run_action(g_character, u"jump");
     return false;
   }
+  if (self_climb_animate_cooldown >= window::dt_now) {
+    g_character.action_animate = true;
+    return true;
+  } else {
+    g_character.action_animate = false;
+  }
   if (character_action_input.contains("up")) {
     self_vspeed = -100;
   } else if (character_action_input.contains("down")) {
@@ -1060,8 +1066,104 @@ character_logic_system::load_pos_type(game_character &g_character) {
 }
 
 void character_logic_system::run_network_sync_state() {
+  if (ccs.payload.empty()) {
+    return;
+  }
+  ccs.map_id = scene_system_instance::map_id;
+  client_request::send_to_host(ccs);
+  ccs.payload.clear();
+}
+
+void character_logic_system::run_network_sync_action() {
+  const auto &sf = character_game_instance::self;
+  auto map_id = scene_system_instance::map_id;
+
+  static std::u16string action;
+  static bool action_animate;
+  if (action != sf.action || action_animate != sf.action_animate) {
+    ActionT a;
+    a.action = {sf.action.begin(), sf.action.end()};
+    a.action_animate = sf.action_animate;
+    a.action_index = sf.action_index;
+
+    ClientCharacterActionT cct;
+    cct.map_id = map_id;
+    cct.payload = std::make_unique<ActionT>(a);
+
+    client_request::send_to_host(cct);
+    action = sf.action;
+    action_animate = sf.action_animate;
+  }
+}
+const static int32_t MIN_SEND_INTERVAL_MS = 33;
+
+void character_logic_system::run_network_sync_pos() {
+  const auto &sf = character_game_instance::self;
+  auto map_id = scene_system_instance::map_id;
+  static SDL_FPoint pos;
+  if ((sf.pos.x != pos.x || sf.pos.y != pos.y) && sf.action != u"dead") {
+    MovementT mv;
+    mv.x1 = pos.x;
+    mv.y1 = pos.y;
+    mv.x2 = sf.pos.x;
+    mv.y2 = sf.pos.y;
+    mv.page = sf.page;
+    mv.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
+    pos = sf.pos;
+    ClientCharacterMvT mvt;
+    mvt.map_id = map_id;
+    mvt.payload = std::make_unique<MovementT>(mv);
+    client_request::send_to_host(mvt);
+  }
+}
+
+void character_logic_system::run_network_sync_flip() {
+  const auto &sf = character_game_instance::self;
+  auto map_id = scene_system_instance::map_id;
+  static bool flip;
+  if (flip != sf.flip) {
+    FlipT f;
+    f.flip = sf.flip;
+    ClientCharacterFlipT fpt;
+    fpt.map_id = map_id;
+    fpt.payload = std::make_unique<FlipT>(f);
+    client_request::send_to_host(fpt);
+    flip = sf.flip;
+  }
+}
+
+void character_logic_system::run_network_sync_face() {
+  const auto &sf = character_game_instance::self;
+  auto map_id = scene_system_instance::map_id;
+  static std::u16string face;
+  if (face != sf.face.action) {
+    if (sf.face.action != u"blink") {
+      FaceT ft;
+      ft.face_action = {
+          sf.face.action.begin(),
+          sf.face.action.end(),
+      };
+      ClientCharacterFcT fct;
+      fct.map_id = map_id;
+      fct.payload = std::make_unique<FaceT>(ft);
+      client_request::send_to_host(fct);
+      face = sf.face.action;
+    }
+  }
+}
+
+void character_logic_system::run_network_sync_self() {
+  if (cct.map_id != 0) {
+    const auto &sf = character_game_instance::self;
+    auto c = server_character_instance::load_charactert(sf);
+    cct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
+    client_request::send_to_host(cct);
+    cct.map_id = 0;
+  }
+}
+
+void character_logic_system::run_network_sync_hp() {
   static int32_t hp;
-  static int32_t max_hp;
   if (hp != character_stat_game_instance::hp_point) {
     StateT st;
     st.state = StateEnum_HP;
@@ -1069,6 +1171,10 @@ void character_logic_system::run_network_sync_state() {
     ccs.payload.push_back(std::make_unique<StateT>(st));
     hp = character_stat_game_instance::hp_point;
   }
+}
+
+void character_logic_system::run_network_sync_max_hp() {
+  static int32_t max_hp;
   if (max_hp != character_stat_game_instance::hp_point_max) {
     StateT st;
     st.state = StateEnum_MAX_HP;
@@ -1076,92 +1182,23 @@ void character_logic_system::run_network_sync_state() {
     ccs.payload.push_back(std::make_unique<StateT>(st));
     max_hp = character_stat_game_instance::hp_point_max;
   }
-  if (!ccs.payload.empty()) {
-    ccs.map_id = scene_system_instance::map_id;
-    client_request::send_to_host(ccs);
-  }
-  ccs.payload.clear();
 }
 
 void character_logic_system::run_network_sync() {
+  run_network_sync_action();
+  run_network_sync_self();
+  run_network_sync_hp();
+  run_network_sync_max_hp();
+  run_network_sync_state();
   static uint64_t time = 0;
-  const int32_t MIN_SEND_INTERVAL_MS = 33;
   // 节流：频率限制
   if (window::dt_now - time <= MIN_SEND_INTERVAL_MS) {
     return;
   }
   time = window::dt_now;
-  const auto &g_character = character_game_instance::self;
-  auto map_id = scene_system_instance::map_id;
-
-  static SDL_FPoint pos;
-  if ((g_character.pos.x != pos.x || g_character.pos.y != pos.y) &&
-      g_character.action != u"dead") {
-    MovementT mv;
-    mv.x1 = pos.x;
-    mv.y1 = pos.y;
-    mv.x2 = g_character.pos.x;
-    mv.y2 = g_character.pos.y;
-    mv.page = g_character.page;
-    mv.time = std::min(window::delta_time, MIN_SEND_INTERVAL_MS);
-    pos = g_character.pos;
-    ClientCharacterMvT mvt;
-    mvt.map_id = map_id;
-    mvt.payload = std::make_unique<MovementT>(mv);
-    client_request::send_to_host(mvt);
-  }
-  static bool flip;
-  if (flip != g_character.flip) {
-    FlipT f;
-    f.flip = g_character.flip;
-    ClientCharacterFlipT fpt;
-    fpt.map_id = map_id;
-    fpt.payload = std::make_unique<FlipT>(f);
-    client_request::send_to_host(fpt);
-    flip = g_character.flip;
-  }
-  static std::u16string action;
-  static bool action_animate;
-  if (action != g_character.action ||
-      action_animate != g_character.action_animate) {
-    ActionT a;
-    a.action = {g_character.action.begin(), g_character.action.end()};
-    a.action_animate = g_character.action_animate;
-    a.action_index = g_character.action_index;
-
-    ClientCharacterActionT cct;
-    cct.map_id = map_id;
-    cct.payload = std::make_unique<ActionT>(a);
-
-    client_request::send_to_host(cct);
-    action = g_character.action;
-    action_animate = g_character.action_animate;
-  }
-
-  static std::u16string face;
-  if (face != g_character.face.action) {
-    if (g_character.face.action != u"blink") {
-      FaceT ft;
-      ft.face_action = {
-          g_character.face.action.begin(),
-          g_character.face.action.end(),
-      };
-      ClientCharacterFcT fct;
-      fct.map_id = map_id;
-      fct.payload = std::make_unique<FaceT>(ft);
-      client_request::send_to_host(fct);
-      face = g_character.face.action;
-    }
-  }
-
-  if (cct.map_id != 0) {
-    auto c = server_character_instance::load_charactert(g_character);
-    cct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
-    client_request::send_to_host(cct);
-    cct.map_id = 0;
-  }
-
-  run_network_sync_state();
+  run_network_sync_pos();
+  run_network_sync_flip();
+  run_network_sync_face();
 }
 
 void character_logic_system::run_network_die_sync(game_character &g_character) {
@@ -1384,6 +1421,7 @@ void character_logic_system::run_state_machine() {
         run_action(g_character, u"jump");
       }
       g_character.skill = std::nullopt;
+      run_network_sync();
       run_state_machine();
     }
     break;

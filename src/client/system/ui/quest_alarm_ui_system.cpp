@@ -6,6 +6,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -157,7 +158,15 @@ void quest_alarm_ui_system::render_quests() {
     }
     for (const auto &[k, v] : quest.check_mob) {
       y += 18;
-      freetype::draw_line(u"123456", pos.x + 5, pos.y + y);
+      uint32_t num = 0;
+      if (quest.mob.contains(k)) {
+        num = quest.mob.at(k).count;
+      }
+      auto count = v.count;
+      auto tmp = std::format("{}/{}", num, count);
+      std::u16string str = mob_game_instance::load_mob_name(k);
+      str = std::u16string{tmp.begin(), tmp.end()} + u" " + str;
+      freetype::draw_line(str, pos.x + 5, pos.y + y);
     }
     i++;
   }
@@ -341,4 +350,15 @@ bool quest_alarm_ui_system::cursor_in() {
   auto &mouse = window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
+}
+
+void quest_alarm_ui_system::accept_quest(const std::u16string &id) {
+  if (quests.size() > 5) {
+    return;
+  }
+  quests.insert(id);
+}
+
+void quest_alarm_ui_system::complete_quest(const std::u16string &id) {
+  quests.erase(id);
 }

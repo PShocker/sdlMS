@@ -40,7 +40,7 @@ void server_trade_instance::handle_server(uint64_t client_id,
                                           ServerCharacterTradeT &r) {
   switch (r.step) {
   case 0: {
-    popup_tip_game_instance::load_tip(popup_tip_enums::trade, *r.player);
+    popup_tip_game_instance::add_tip(popup_tip_enums::trade, *r.player);
     break;
   }
   case 1: {

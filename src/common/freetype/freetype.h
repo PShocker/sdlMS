@@ -61,9 +61,14 @@ public:
 
   static void draw_str(const std::u16string &str, float x, float y, float w,
                        float h);
-  static float draw_rstr(const std::u16string &str, float x, float y, float w,
-                         float h, std::optional<SDL_FRect> obstacle,
-                         bool dryRun = false);
+  struct rstr_return_data {
+    float height;
+    int select;
+  };
+  static rstr_return_data draw_rstr(const std::u16string &str, float x, float y,
+                                    float w, float h,
+                                    std::optional<SDL_FRect> obstacle,
+                                    bool dryRun = false);
   static void draw_cstr(const std::u16string &str, float x, float y, float w,
                         float h);
 };

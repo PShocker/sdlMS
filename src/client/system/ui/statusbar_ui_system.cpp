@@ -299,6 +299,7 @@ void statusbar_ui_system::render_character_stat() {
   auto exp = character_stat_game_instance::exp_point;
   auto max_exp = character_stat_game_instance::exp_point_max;
   auto exp_percent = (float)exp / max_exp;
+  exp_percent = std::min(1.0f, exp_percent);
 
   pos_rect = {
       base_x + 445,

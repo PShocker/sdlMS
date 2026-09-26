@@ -64,7 +64,7 @@ void server_party_instance::handle_server_party(uint64_t client_id,
       return;
     }
     // show popup tip
-    popup_tip_game_instance::load_tip(
+    popup_tip_game_instance::add_tip(
         popup_tip_enums::party,
         character_game_instance::others[r.to_id].player_t);
     return;
