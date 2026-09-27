@@ -32,22 +32,19 @@ void ball_logic_system::run_animate(game_ball &b) {
     }
     b.ani_index = b.ani_index % m.size();
   }
+  float dx = b.goal.x - b.pos.x;
+  float dy = b.goal.y - b.pos.y;
   if (mob_game_instance::data.contains(b.mob_index)) {
     const auto &mob = mob_game_instance::data.at(b.mob_index).mob;
-
-    const float dx = (b.goal.x + mob.pos.x) - b.pos.x;
-    const float dy = (b.goal.y + mob.pos.y) - b.pos.y;
-
-    float angle = SDL_atan2f(dy, dx) * (180.0f / M_PI);
-
-    if (dx < 0) {
-      // 翻转180度并归一化到 [-180, 180]
-      angle += 180.0f;
-      if (angle > 180.0f)
-        angle -= 360.0f;
-    }
-    b.rotate = angle;
+    dx = (b.goal.x + mob.pos.x) - b.pos.x;
+    dy = (b.goal.y + mob.pos.y) - b.pos.y;
   }
+  float angle = SDL_atan2f(dy, dx) * (180.0f / std::numbers::pi);
+  if (dx < 0) {
+    angle += 180.0f;
+    angle -= (angle > 180.0f) ? 360.0f : 0.0f;
+  }
+  b.rotate = angle;
   return;
 }
 

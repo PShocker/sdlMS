@@ -28,6 +28,7 @@ private:
   static void event_button_quest_no();
 
   static bool event_button(SDL_Event *event);
+  static void event_button_update();
 
 public:
   static bool render();

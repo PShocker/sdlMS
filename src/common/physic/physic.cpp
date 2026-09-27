@@ -217,6 +217,14 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
 
   // 获取碰撞信息
   auto inter_pos = fall_intersect_pos(pos, new_pos, fhs);
+  auto range = inter_pos.equal_range(pos.y);
+  for (auto it = range.first; it != range.second; ++it) {
+    if (it->second.pos.x == pos.x && it->second.pos.y == pos.y) {
+      inter_pos.erase(it);
+      break;
+    }
+  }
+
   pos = new_pos;
 
   // 如果不需要碰撞检测或没有碰撞点，直接返回
@@ -225,13 +233,13 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   }
 
   // Lambda: 处理墙碰撞
-  auto handle_wall = [&](const game_foothold &fh,
-                         const SDL_FPoint &collide_pos) -> bool {
+  const auto handle_wall = [&](const game_foothold &fh,
+                               const SDL_FPoint &collide_pos) -> bool {
     if (!wall_collide)
       return false;
     if (fall_collide_wall(hspeed, fh, fhs)) {
       pos.x = fh.x1;
-      pos.x += (hspeed < 0) ? 0.1f : -0.1f;
+      pos.x += (hspeed < 0) ? 0.5f : -0.5f;
       float low = std::min(fh.y1, fh.y2);
       float high = std::max(fh.y1, fh.y2);
       pos.y = std::clamp(pos.y, low, high);
@@ -253,20 +261,21 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   };
 
   // Lambda: 判断是否在斜坡上
-  const auto is_on_slope = [&](const game_foothold &fh) -> bool {
-    if (!(fall_fh == fh.prev || fall_fh == fh.id || fall_fh == fh.next)) {
-      return false;
-    }
-    if (hspeed <= 0) {
+  const auto is_on_slope = [&](const game_foothold &fh,
+                               const SDL_FPoint &collide_pos) -> bool {
+    if (hspeed == 0) {
       return false;
     }
     if (!fh.k.has_value() || fh.k.value() == 0) {
       return false;
     }
-    if (hspeed > 0 && fh.y1 > fh.y2) {
-      return true;
+    if (!(fall_fh == fh.prev || fall_fh == fh.id || fall_fh == fh.next)) {
+      return false;
     }
-    if (hspeed < 0 && fh.y1 < fh.y2) {
+    auto dx = collide_pos.x - pos.x;
+    auto dy = collide_pos.y - pos.y;
+    auto k = dy / dx;
+    if (std::signbit(k) == std::signbit(fh.k.value())) {
       return true;
     }
     return false;
@@ -309,7 +318,7 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
 
       // 有斜率的情况
       if (fh.k.value() != 0) {
-        if (is_on_slope(fh)) {
+        if (is_on_slope(fh, collide_pos)) {
           // 在斜坡上落地
           return handle_landing(fh, collide_pos);
         }

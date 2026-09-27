@@ -935,7 +935,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
     auto cm = run_attack_check(g_character, g_r);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
-      cm.data[0].hits = {30};
+      cm.data[0].hits = {10};
       auto cat = skill_game_instance::create_attack_payload(cm, g_character.pos,
                                                             delay);
       auto hit_type = afterimage_game_instance::load_hit_type(g_character);
@@ -1551,10 +1551,13 @@ void character_logic_system::run_die_action(game_character &g_character) {
     auto map_id = scene_system_instance::map_id;
     auto border = map_info_game_instance::load_mr_border(map_id);
 
-    float max_float = 10000;
-    physic::fall(g_character.pos, max_float, self_hspeed, self_vspeed,
-                 self_vspeed_min, self_vspeed_max, border, true, true, self_fh,
-                 g_character.page, foothold_game_instance::data);
+    SDL_FPoint new_pos{
+        .x = g_character.pos.x,
+        .y = border.h,
+    };
+    auto inter_pos = physic::fall_intersect_pos(g_character.pos, new_pos,
+                                                foothold_game_instance::data);
+    g_character.pos = inter_pos.begin()->second.pos;
   }
   game_tomb t{
       .ani_type = u"fall",

@@ -7,6 +7,7 @@
 #include <flat_map>
 #include <ft2build.h>
 #include <string>
+#include <vector>
 #include FT_FREETYPE_H
 #include FT_SYNTHESIS_H // 这个宏对应 ftsynth.h
 
@@ -209,9 +210,45 @@ void freetype::draw_str(const std::u16string &str, float x, float y, float w,
   }
 }
 
+void freetype::draw_dash_line(float x1, float y1, float x2, float y2,
+                              float dash_len, float gap_len) {
+  float dx = x2 - x1;
+  float dy = y2 - y1;
+  float total_len = SDL_sqrtf(dx * dx + dy * dy);
+
+  if (total_len <= 0.0f)
+    return;
+
+  // 计算单位方向向量
+  float ux = dx / total_len;
+  float uy = dy / total_len;
+
+  float step = dash_len + gap_len; // 一个完整的“画+空”周期
+  float progress = 0.0f;
+
+  while (progress < total_len) {
+    // 当前段起点
+    float sx = x1 + ux * progress;
+    float sy = y1 + uy * progress;
+
+    // 当前段终点（确保不超过总长）
+    float remain = total_len - progress;
+    float current_dash = (remain < dash_len) ? remain : dash_len;
+
+    float ex = sx + ux * current_dash;
+    float ey = sy + uy * current_dash;
+
+    // 绘制这一小段
+    SDL_RenderLine(window::renderer, sx, sy, ex, ey);
+
+    progress += step;
+  }
+}
+
 freetype::rstr_return_data
 freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
-                    float h, std::optional<SDL_FRect> obstacle, bool dryRun) {
+                    float h, std::optional<SDL_FRect> obstacle,
+                    int default_select, bool dryRun) {
   auto l = x;
   auto t = y;
   auto lineHeight = face->size->metrics.height >> 6;
@@ -226,11 +263,16 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
   };
 
   int select = -1;
-  bool selected = false;
+  int selected = -1;
+  std::vector<SDL_FRect> select_r;
+  std::vector<SDL_FPoint> select_dot;
 
   for (uint32_t i = 0; i < str.size(); i++) {
     auto c = str[i];
     if (c == u'\n') {
+      if (select >= 0) {
+        select_r[select].w = l - x;
+      }
       t += lineHeight;
       l = x;
       continue;
@@ -275,18 +317,22 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
           i += 3;
           select++;
           l = x + 15;
-          static auto dot = wz_resource::load_texture(
-              wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
-          SDL_FRect pos{
-              l - size / 2,
-              t + size / 2,
-              static_cast<float>(dot->w),
-              static_cast<float>(dot->h),
+
+          SDL_FRect r{
+              .x = l,
+              .y = t,
+              .w = 0,
+              .h = static_cast<float>(lineHeight),
           };
-          SDL_RenderTexture(window::renderer, dot, nullptr, &pos);
+          select_r.emplace_back(r);
+          select_dot.push_back({
+              .x = l - size / 2,
+              .y = t + size / 2,
+          });
           break;
         }
         case u'l': {
+          select_r[select].w = l - x;
           i++;
           select = -1;
           break;
@@ -344,13 +390,61 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
 
     // 根据模式决定是绘制还是仅计算
     if (!dryRun) {
+      if (select >= 0 && selected == -1) {
+        const auto &mouse_pos = window::mouse_pos;
+        SDL_FRect pos{.x = l, .y = t, .w = charWidth, .h = charHeight};
+        if (SDL_PointInRectFloat(&mouse_pos, &pos)) {
+          selected = select;
+        }
+      }
       l += draw_char(l, t, c);
+
     } else {
       l += charWidth; // 仅移动位置
     }
   }
+  for (int i = 0; i < select_dot.size(); i++) {
+    SDL_Texture *t;
+    if (i == selected || i == default_select) {
+      static auto dot1 = wz_resource::load_texture(
+          wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
+      t = dot1;
+    } else {
+      static auto dot0 = wz_resource::load_texture(
+          wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
+      t = dot0;
+    }
+    SDL_FRect pos{
+        select_dot[i].x,
+        select_dot[i].y,
+        static_cast<float>(t->w),
+        static_cast<float>(t->h),
+    };
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos);
+  }
+  // render default_line
+  if (default_select >= 0) {
+    auto &r = select_r[default_select];
+    SDL_SetRenderDrawColor(window::renderer, 128, 128, 128, 255);
+    auto x1 = r.x;
+    auto y1 = r.y + lineHeight;
+    auto x2 = x1 + r.w;
+    auto y2 = y1;
+    draw_dash_line(x1, y1, x2, y2, 3, 3);
+  }
+
+  if (selected >= 0) {
+    auto &r = select_r[selected];
+    SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 255);
+    auto x1 = r.x;
+    auto y1 = r.y + lineHeight;
+    auto x2 = x1 + r.w;
+    auto y2 = y1;
+    SDL_RenderLine(window::renderer, x1, y1, x2, y2);
+  }
   rstr_return_data r;
   r.height = (t - y + lineHeight);
+  r.select = select;
   return r;
 }
 

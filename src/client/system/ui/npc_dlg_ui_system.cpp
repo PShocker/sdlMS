@@ -182,7 +182,8 @@ void npc_dlg_ui_system::render_text() {
     freetype::load_size(12);
     freetype::load_aligned(true);
     freetype::load_color(0, 0, 0, 255);
-    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt);
+    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt,
+                        0);
     break;
   }
   default: {
@@ -478,9 +479,7 @@ void npc_dlg_ui_system::event_button_ok() {
   close();
 }
 
-void npc_dlg_ui_system::event_button_prev() {
-  selected = u"";
-  --index;
+void npc_dlg_ui_system::event_button_update() {
   if (cb) {
     cb();
     return;
@@ -495,8 +494,12 @@ void npc_dlg_ui_system::event_button_prev() {
   // 根据 type 决定后缀，统一拼接路径
   std::u16string suffix;
   switch (type) {
+  case npc_dlg_enum::quest_complete:
   case npc_dlg_enum::quest:
     suffix = u"";
+    break;
+  case npc_dlg_enum::quest_yes:
+    suffix = u"/yes";
     break;
   case npc_dlg_enum::quest_stop_item:
     suffix = u"/item";
@@ -521,48 +524,16 @@ void npc_dlg_ui_system::event_button_prev() {
   time = window::dt_now;
 }
 
+void npc_dlg_ui_system::event_button_prev() {
+  selected = u"";
+  --index;
+  event_button_update();
+}
+
 void npc_dlg_ui_system::event_button_next() {
   selected = u"";
   ++index;
-  if (cb) {
-    cb();
-    return;
-  }
-  if (!script_id.empty()) {
-    script::fns().at(script_id)(nullptr);
-    return;
-  }
-  if (quest_id.empty()) {
-    return;
-  }
-  // 根据 type 决定后缀，统一拼接路径
-  std::u16string suffix;
-  switch (type) {
-  case npc_dlg_enum::quest_complete:
-  case npc_dlg_enum::quest:
-    suffix = u"";
-    break;
-  case npc_dlg_enum::quest_stop_item:
-    suffix = u"/item";
-    break;
-  case npc_dlg_enum::quest_stop_lost:
-    suffix = u"/lost";
-    break;
-  case npc_dlg_enum::quest_stop_npc:
-    suffix = u"/npc";
-    break;
-  default:
-    suffix = u"";
-  }
-  auto node = quest_game_instance::load_quest_node(quest_id);
-  if (node) {
-    node = node->find(u"Say/" + quest_index + suffix);
-  }
-  if (node != nullptr) {
-    text =
-        text_game_instance::load_rstr(node->get_child(std::to_string(index)));
-  }
-  time = window::dt_now;
+  event_button_update();
 }
 
 void npc_dlg_ui_system::event_quest_list() {
