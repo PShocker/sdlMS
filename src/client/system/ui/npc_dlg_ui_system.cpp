@@ -182,8 +182,8 @@ void npc_dlg_ui_system::render_text() {
     freetype::load_size(12);
     freetype::load_aligned(true);
     freetype::load_color(0, 0, 0, 255);
-    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt, 0,
-                        false);
+    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt,
+                        select, false);
     break;
   }
   default: {
@@ -569,6 +569,14 @@ void npc_dlg_ui_system::event_quest_list() {
       text = text_game_instance::load_rstr(
           node->find(u"Say/" + quest_index + u"/0"));
       type = npc_dlg_enum::select;
+      select = 0;
+      max_select = -1;
+      for (size_t i = 0; i + 1 < text.size(); ++i) {
+        if (text[i] == u'#' && text[i + 1] == u'L') {
+          ++max_select;
+          i = i + 3;
+        }
+      }
       index = 0;
     }
     if (auto n = node->find(u"Act/" + quest_index + u"/nextQuest");
@@ -753,6 +761,20 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_KEY_DOWN: {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
+    case SDL_SCANCODE_UP: {
+      if (type == npc_dlg_enum::select) {
+        select--;
+        select = std::max((int8_t)0, select);
+      }
+      break;
+    }
+    case SDL_SCANCODE_DOWN: {
+      if (type == npc_dlg_enum::select) {
+        select++;
+        select = std::min(select, max_select);
+      }
+      break;
+    }
     case SDL_SCANCODE_ESCAPE: {
       event_button_close();
       return false;
@@ -785,6 +807,7 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
+        time = UINT64_MAX;
       }
     }
     break;

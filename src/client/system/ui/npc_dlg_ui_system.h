@@ -53,6 +53,9 @@ public:
   static inline int8_t index;
   static inline int8_t max_index;
 
+  static inline int8_t select;
+  static inline int8_t max_select;
+
   enum class npc_dlg_enum {
     choose,
     quest,
