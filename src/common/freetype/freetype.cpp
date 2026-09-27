@@ -249,201 +249,203 @@ freetype::rstr_return_data
 freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
                     float h, std::optional<SDL_FRect> obstacle,
                     int default_select, bool dryRun) {
+  // === 常量 ===
+  constexpr float kBulletOffsetX = 15.0f;
+  constexpr float kDashOn = 3.0f;
+  constexpr float kDashOff = 3.0f;
+  constexpr SDL_Color kDefaultLineColor{128, 128, 128, 255};
+  constexpr SDL_Color kSelectedLineColor{0, 0, 0, 255};
+
+  // === 初始化 ===
+  const float lineHeight =
+      static_cast<float>(face->size->metrics.height >> 6) * h;
+  const float rightEdge = x + w;
+  const float bottomEdge = y + h;
+
   auto l = x;
   auto t = y;
-  auto lineHeight = face->size->metrics.height >> 6;
-  lineHeight = lineHeight * h;
-  // 辅助函数
-  const auto isBlocked = [&](float px, float py, float pw, float ph) -> bool {
-    if (!obstacle.has_value())
-      return false;
-    SDL_FRect rect = {px, py, pw, ph};
-    const auto &obs = obstacle.value();
-    return SDL_HasRectIntersectionFloat(&rect, &obs);
-  };
 
   int select = -1;
   int selected = -1;
   std::vector<SDL_FRect> select_r;
   std::vector<SDL_FPoint> select_dot;
+  select_r.reserve(8);
+  select_dot.reserve(8);
 
-  for (uint32_t i = 0; i < str.size(); i++) {
-    auto c = str[i];
+  // === 辅助 ===
+  const SDL_FRect *obs = obstacle ? &*obstacle : nullptr;
+
+  const auto isBlocked = [obs](float px, float py, float pw,
+                               float ph) noexcept {
+    if (!obs)
+      return false;
+    const SDL_FRect rect{px, py, pw, ph};
+    return SDL_HasRectIntersectionFloat(&rect, obs);
+  };
+
+  const auto newline = [&] {
+    t += lineHeight;
+    l = x;
+  };
+
+  // 向右扫，找不到就换行向下扫；返回是否成功
+  const auto findPlacement = [&](float charWidth) -> bool {
+    while (l + charWidth <= rightEdge) {
+      l += 1.0f;
+      if (!isBlocked(l, t, charWidth, lineHeight))
+        return true;
+    }
+    newline();
+    while (t + lineHeight <= bottomEdge) {
+      if (!isBlocked(l, t, charWidth, lineHeight))
+        return true;
+      t += lineHeight;
+    }
+    return false;
+  };
+
+  // === 主循环 ===
+  for (size_t i = 0; i < str.size(); ++i) {
+    const char16_t c = str[i];
+
+    // --- 换行符 ---
     if (c == u'\n') {
       if (select >= 0) {
         select_r[select].w = l - x;
       }
-      t += lineHeight;
-      l = x;
+      newline();
       continue;
     }
 
-    // 控制字符处理
-    if (c == u'#') {
-      if (i + 1 < str.size()) {
-        auto d = str[i + 1];
-        switch (d) {
-        case u'c': {
-          load_color(240, 224, 104, 255);
-          i++;
+    // --- 控制字符 ---
+    if (c == u'#' && i + 1 < str.size()) {
+      const char16_t d = str[i + 1];
+      switch (d) {
+      case u'c':
+        load_color(240, 224, 104, 255);
+        ++i;
+        break;
+      case u'b':
+        load_color(0, 0, 255, 255);
+        ++i;
+        break;
+      case u'k':
+        load_color(0, 0, 0, 255);
+        ++i;
+        break;
+      case u'r':
+        load_color(255, 0, 0, 255);
+        ++i;
+        break;
+      case u'e':
+        load_bold(true);
+        ++i;
+        break;
+      case u'n':
+        load_bold(false);
+        ++i;
+        break;
+      case u'L': {
+        // 跳过 "Lxx"
+        if (i + 3 >= str.size())
           break;
-        }
-        case u'b': {
-          load_color(0, 0, 255, 255);
-          i++;
-          break;
-        }
-        case u'k': {
-          load_color(0, 0, 0, 255);
-          i++;
-          break;
-        }
-        case u'r': {
-          load_color(255, 0, 0, 255);
-          i++;
-          break;
-        }
-        case u'e': {
-          load_bold(true);
-          i++;
-          break;
-        }
-        case u'n': {
-          load_bold(false);
-          i++;
-          break;
-        }
-        case u'L': {
-          i += 3;
-          select++;
-          l = x + 15;
+        i += 3;
+        ++select;
+        l = x + kBulletOffsetX;
 
-          SDL_FRect r{
-              .x = l,
-              .y = t,
-              .w = 0,
-              .h = static_cast<float>(lineHeight),
-          };
-          select_r.emplace_back(r);
-          select_dot.push_back({
-              .x = l - size / 2,
-              .y = t + size / 2,
-          });
-          break;
-        }
-        case u'l': {
+        select_r.emplace_back(SDL_FRect{l, t, 0.0f, lineHeight});
+        select_dot.emplace_back(SDL_FPoint{l - size * 0.5f, t + size * 0.5f});
+        break;
+      }
+      case u'l': {
+        if (select >= 0) {
           select_r[select].w = l - x;
-          i++;
-          select = -1;
-          break;
         }
-        }
+        ++i;
+        select = -1;
+        break;
+      }
+      default:
+        break;
       }
       continue;
     }
 
-    // 获取字符宽度
-    float charWidth = load_char_w(c);
-    float charHeight = lineHeight;
+    // --- 普通字符 ---
+    const float charWidth = load_char_w(c);
+    const float charHeight = lineHeight;
 
-    // 检查是否被遮挡
+    // 遮挡处理
     if (isBlocked(l, t, charWidth, charHeight)) {
-      bool placed = false;
-
-      // 尝试向右移动
-      while (l + charWidth <= x + w) {
-        l += 1.0f;
-        if (!isBlocked(l, t, charWidth, charHeight)) {
-          placed = true;
-          break;
-        }
-      }
-
-      if (!placed) {
-        // 换行
-        t += lineHeight;
-        l = x;
-
-        // 继续换行直到找到可用位置
-        while (t + lineHeight <= y + h) {
-          if (!isBlocked(l, t, charWidth, charHeight)) {
-            placed = true;
-            break;
-          }
-          t += lineHeight;
-        }
-
-        if (!placed) {
-          continue; // 无法放置，跳过此字符
-        }
+      if (!findPlacement(charWidth)) {
+        continue;
       }
     }
 
-    // 边界检查
-    if (l + charWidth > x + w) {
-      t += lineHeight;
-      l = x;
+    // 右边界检查
+    if (l + charWidth > rightEdge) {
+      newline();
       if (isBlocked(l, t, charWidth, charHeight)) {
         continue;
       }
     }
 
-    // 根据模式决定是绘制还是仅计算
+    // 绘制 / 仅推进
     if (!dryRun) {
       if (select >= 0 && selected == -1) {
-        const auto &mouse_pos = window::mouse_pos;
-        SDL_FRect pos{.x = l, .y = t, .w = charWidth, .h = charHeight};
-        if (SDL_PointInRectFloat(&mouse_pos, &pos)) {
+        const SDL_FRect pos{l, t, charWidth, charHeight};
+        if (SDL_PointInRectFloat(&window::mouse_pos, &pos)) {
           selected = select;
         }
       }
       l += draw_char(l, t, c);
-
     } else {
-      l += charWidth; // 仅移动位置
+      l += charWidth;
     }
   }
-  for (int i = 0; i < select_dot.size(); i++) {
-    SDL_Texture *t;
-    if (i == selected || i == default_select) {
-      static auto dot1 = wz_resource::load_texture(
-          wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
-      t = dot1;
-    } else {
-      static auto dot0 = wz_resource::load_texture(
-          wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
-      t = dot0;
-    }
-    SDL_FRect pos{
+
+  // === 选择按钮 ===
+  const auto loadDot = [](bool active) -> SDL_Texture * {
+    static const auto dot0 = wz_resource::load_texture(
+        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
+    static const auto dot1 = wz_resource::load_texture(
+        wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
+    return active ? dot1 : dot0;
+  };
+
+  for (size_t i = 0; i < select_dot.size(); ++i) {
+    const int idx = static_cast<int>(i);
+    SDL_Texture *tex = loadDot(idx == selected || idx == default_select);
+    const SDL_FRect pos{
         select_dot[i].x,
         select_dot[i].y,
-        static_cast<float>(t->w),
-        static_cast<float>(t->h),
+        static_cast<float>(tex->w),
+        static_cast<float>(tex->h),
     };
-    SDL_RenderTexture(window::renderer, t, nullptr, &pos);
-  }
-  // render default_line
-  if (default_select >= 0) {
-    auto &r = select_r[default_select];
-    SDL_SetRenderDrawColor(window::renderer, 128, 128, 128, 255);
-    auto x1 = r.x;
-    auto y1 = r.y + lineHeight;
-    auto x2 = x1 + r.w;
-    auto y2 = y1;
-    draw_dash_line(x1, y1, x2, y2, 3, 3);
+    SDL_RenderTexture(window::renderer, tex, nullptr, &pos);
   }
 
-  if (selected >= 0) {
-    auto &r = select_r[selected];
-    SDL_SetRenderDrawColor(window::renderer, 0, 0, 0, 255);
-    auto x1 = r.x;
-    auto y1 = r.y + lineHeight;
-    auto x2 = x1 + r.w;
-    auto y2 = y1;
-    SDL_RenderLine(window::renderer, x1, y1, x2, y2);
-  }
+  // === 下划线 ===
+  const auto drawUnderline = [&](int idx, SDL_Color color, bool dashed) {
+    if (idx < 0 || idx >= static_cast<int>(select_r.size()))
+      return;
+    const auto &r = select_r[idx];
+    const float y1 = r.y + lineHeight;
+    SDL_SetRenderDrawColor(window::renderer, color.r, color.g, color.b,
+                           color.a);
+    if (dashed) {
+      draw_dash_line(r.x, y1, r.x + r.w, y1, kDashOn, kDashOff);
+    } else {
+      SDL_RenderLine(window::renderer, r.x, y1, r.x + r.w, y1);
+    }
+  };
+
+  drawUnderline(default_select, kDefaultLineColor, true);
+  drawUnderline(selected, kSelectedLineColor, false);
+
+  // === 返回 ===
   rstr_return_data r;
-  r.height = (t - y + lineHeight);
+  r.height = t - y + lineHeight;
   r.select = select;
   return r;
 }
@@ -508,5 +510,12 @@ void freetype::draw_cstr(const std::u16string &str, float x, float y, float w,
 
 float freetype::load_rh(const std::u16string &str, float w, float h,
                         std::optional<SDL_FRect> obstacle) {
-  return draw_rstr(str, 0, 0, w, h, obstacle, true).height; // 添加 dryRun 参数
+  return draw_rstr(str, 0, 0, w, h, obstacle, -1, true)
+      .height; // 添加 dryRun 参数
+}
+
+freetype::rstr_return_data
+freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
+                    float h, std::optional<SDL_FRect> obstacle) {
+  return draw_rstr(str, x, y, w, h, obstacle, -1, false);
 }

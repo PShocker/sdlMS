@@ -927,7 +927,7 @@ void tooltip_ui_system::render_item(game_item &item, float x, float y) {
   auto item_desc = item_game_instance::load_item_text(item.id, u"desc");
   freetype::load_size(13);
   freetype::draw_rstr(item_desc, x + base.x + 84, y + base.y - 2, w - 112, 1.1,
-                      std::nullopt, false);
+                      std::nullopt);
 }
 
 void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {

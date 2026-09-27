@@ -42,7 +42,7 @@ private:
   static float load_char_w(const char16_t c);
 
   static float draw_char(float x, float y, char16_t c);
-  
+
   static void draw_dash_line(float x1, float y1, float x2, float y2,
                              float dash_len, float gap_len);
 
@@ -70,9 +70,11 @@ public:
   };
   static rstr_return_data draw_rstr(const std::u16string &str, float x, float y,
                                     float w, float h,
+                                    std::optional<SDL_FRect> obstacle);
+  static rstr_return_data draw_rstr(const std::u16string &str, float x, float y,
+                                    float w, float h,
                                     std::optional<SDL_FRect> obstacle,
-                                    int default_select = -1,
-                                    bool dryRun = false);
+                                    int default_select, bool dryRun);
   static void draw_cstr(const std::u16string &str, float x, float y, float w,
                         float h);
 };
