@@ -182,8 +182,9 @@ void npc_dlg_ui_system::render_text() {
     freetype::load_size(12);
     freetype::load_aligned(true);
     freetype::load_color(0, 0, 0, 255);
-    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt,
-                        select, false);
+    select_mouse = freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3,
+                                       std::nullopt, select, false)
+                       .select;
     break;
   }
   default: {
@@ -531,9 +532,27 @@ void npc_dlg_ui_system::event_button_prev() {
 }
 
 void npc_dlg_ui_system::event_button_next() {
-  selected = u"";
-  ++index;
-  event_button_update();
+  switch (type) {
+  case npc_dlg_enum::select: {
+    auto node = quest_game_instance::load_quest_node(selected);
+    node = node->find(u"Say/" + quest_index + u"/stop/0/answer");
+    auto ans = static_cast<wz::Property<int> *>(node)->get();
+    auto st = select;
+    if (select_mouse != -1) {
+      st = select_mouse;
+    }
+    if (ans == st) {
+      int a = 0;
+    }
+    break;
+  }
+  default: {
+    selected = u"";
+    ++index;
+    event_button_update();
+    break;
+  }
+  }
 }
 
 void npc_dlg_ui_system::event_quest_list() {
@@ -577,7 +596,12 @@ void npc_dlg_ui_system::event_quest_list() {
           i = i + 3;
         }
       }
+      auto n = node->find(u"Say/" + quest_index);
+      auto m = n->children;
+      m.erase(u"ask");
+      m.erase(u"stop");
       index = 0;
+      max_index = m.size() - 1;
     }
     if (auto n = node->find(u"Act/" + quest_index + u"/nextQuest");
         n != nullptr) {
@@ -818,6 +842,9 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
         time = UINT64_MAX;
         event_quest_list();
         event_button(event);
+        if (type == npc_dlg_enum::select && select_mouse >= 0) {
+          event_button_next();
+        }
       }
     }
     break;

@@ -7,6 +7,8 @@
 #include <string>
 class npc_dlg_ui_system {
 private:
+  static inline int8_t select_mouse = -1;
+
   static void render_backgrnd();
   static void render_npc();
   static void render_button();

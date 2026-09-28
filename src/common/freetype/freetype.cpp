@@ -446,7 +446,7 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
   // === 返回 ===
   rstr_return_data r;
   r.height = t - y + lineHeight;
-  r.select = select;
+  r.select = selected;
   return r;
 }
 
