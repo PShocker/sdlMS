@@ -90,7 +90,30 @@ bool server_mob_system::run_try_jump(server_mob &mob) {
   if (!mob_node->children.contains(u"jump")) {
     return false;
   }
-  return false;
+  const auto &s_fhs = server_scene_instance::scenes.at(map_id).fhs;
+  const auto &s_fh = s_fhs.at(mob.fh).fh;
+  int32_t n_fh = -1;
+  if (mob.flip) {
+    n_fh = s_fh.prev;
+  } else {
+    n_fh = s_fh.next;
+  }
+  auto &gen = random_game_instance::gen;
+  bool jump = false;
+  std::bernoulli_distribution dist(0.1);
+  jump = dist(gen);
+  if (s_fhs.contains(n_fh)) {
+    if (!s_fhs.at(n_fh).fh.k.has_value()) {
+      // wall
+      std::bernoulli_distribution dist(0.2);
+      jump = dist(gen);
+    }
+  }
+  if (jump) {
+    mob.action = u"jump";
+    mob.vspeed = -555;
+  }
+  return jump;
 }
 
 int server_mob_system::load_mob_hit_cd(server_mob &mob) {
@@ -107,24 +130,16 @@ int server_mob_system::load_mob_hit_cd(server_mob &mob) {
   return cd;
 }
 
-void server_mob_system::run_network_sync(server_mob &mob, server_mob &o_mob) {
-  // 提前判断，减少无效操作
-  bool pos_changed = (o_mob.pos.x != mob.pos.x || o_mob.pos.y != mob.pos.y);
-  bool flip_changed = (o_mob.flip != mob.flip);
-  bool action_changed = (o_mob.action != mob.action);
-  bool hp_changed = (o_mob.hp != mob.hp);
-
-  if (!pos_changed && !flip_changed && !action_changed && !hp_changed) {
-    return;
-  }
-  if (pos_changed) {
+void server_mob_system::run_network_sync_pos(server_mob &mob,
+                                             server_mob &o_mob) {
+  if (o_mob.pos.x != mob.pos.x || o_mob.pos.y != mob.pos.y) {
     MovementT mv;
     mv.x1 = o_mob.pos.x;
     mv.y1 = o_mob.pos.y;
     mv.x2 = mob.pos.x;
     mv.y2 = mob.pos.y;
     mv.page = mob.page;
-    mv.time = std::min(window::delta_time, 33);
+    mv.time = std::min((uint32_t)window::delta_time, MIN_FRAME_INTERVAL_MS);
 
     ServerMobMvT mvt;
     mvt.mob_index = mob.index;
@@ -134,8 +149,11 @@ void server_mob_system::run_network_sync(server_mob &mob, server_mob &o_mob) {
     muu.Set(std::move(mvt));
     events.payload.push_back(std::move(muu));
   }
+}
 
-  if (flip_changed) {
+void server_mob_system::run_network_sync_flip(server_mob &mob,
+                                              server_mob &o_mob) {
+  if (o_mob.flip != mob.flip) {
     FlipT ft;
     ft.flip = mob.flip;
 
@@ -147,8 +165,11 @@ void server_mob_system::run_network_sync(server_mob &mob, server_mob &o_mob) {
     muu.Set(std::move(smf));
     events.payload.push_back(std::move(muu));
   }
+}
 
-  if (action_changed) {
+void server_mob_system::run_network_sync_action(server_mob &mob,
+                                                server_mob &o_mob) {
+  if (o_mob.action != mob.action) {
     ActionT a;
     a.action = std::string{mob.action.begin(), mob.action.end()};
     a.action_animate = true;
@@ -162,8 +183,11 @@ void server_mob_system::run_network_sync(server_mob &mob, server_mob &o_mob) {
     muu.Set(std::move(sma));
     events.payload.push_back(std::move(muu));
   }
+}
 
-  if (hp_changed) {
+void server_mob_system::run_network_sync_hp(server_mob &mob,
+                                            server_mob &o_mob) {
+  if (o_mob.hp != mob.hp) {
     StateT st;
     st.state = StateEnum_HP;
     st.val = mob.hp;
@@ -176,6 +200,13 @@ void server_mob_system::run_network_sync(server_mob &mob, server_mob &o_mob) {
     muu.Set(std::move(smb));
     events.payload.push_back(std::move(muu));
   }
+}
+
+void server_mob_system::run_network_sync(server_mob &mob, server_mob &o_mob) {
+  run_network_sync_pos(mob, o_mob);
+  run_network_sync_flip(mob, o_mob);
+  run_network_sync_action(mob, o_mob);
+  run_network_sync_hp(mob, o_mob);
 }
 
 void server_mob_system::run_walk(server_mob &mob) {
@@ -199,7 +230,8 @@ void server_mob_system::run_duration(server_mob &mob) {
   }
 
   auto action_type = mob_logic_system::load_action_type(mob.action);
-  if (action_type == mob_logic_system::action_enum::hit ||
+  if (action_type == mob_logic_system::action_enum::jump ||
+      action_type == mob_logic_system::action_enum::hit ||
       action_type == mob_logic_system::action_enum::die) {
     return;
   }
@@ -411,6 +443,13 @@ void server_mob_system::run_hit(server_mob &mob) {
   return;
 }
 
+bool server_mob_system::run_fall(server_mob &mob) {
+  if (mob.fh != 0) {
+    return false;
+  }
+  return false;
+}
+
 void server_mob_system::run_state_machine(server_mob &mob) {
   auto o_mob = mob; // 拷贝用于对比
   auto m_action = mob_logic_system::load_action_type(mob.action);
@@ -430,6 +469,7 @@ void server_mob_system::run_state_machine(server_mob &mob) {
   case mob_logic_system::action_enum::move: {
     if (!run_hitting(mob)) {
       run_walk(mob);
+      run_try_jump(mob);
       run_duration(mob);
     }
     break;
@@ -437,9 +477,11 @@ void server_mob_system::run_state_machine(server_mob &mob) {
   case mob_logic_system::action_enum::hit: {
     run_hit(mob);
     run_hitting(mob);
+    run_fall(mob);
     break;
   }
   case mob_logic_system::action_enum::jump: {
+    run_fall(mob);
     break;
   }
   case mob_logic_system::action_enum::swim:

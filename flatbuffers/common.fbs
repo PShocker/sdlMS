@@ -202,8 +202,9 @@ table Reactor{
 }
 
 table RSkill{ //RegionSkill
-    id:uint32;
-    lv:uint8;
+    client_id:uint64;
+    ski_id:uint32;
+    ski_lv:uint8;
     x:float;
     y:float;
     flip:bool;
@@ -211,6 +212,10 @@ table RSkill{ //RegionSkill
     start:uint64;
     end:uint64;
     val:int64;
+
+    goal_x:float = null;
+    goal_y:float = null;
+    goal_map:uint64 = null;
 }
 
 table MobDebuff{

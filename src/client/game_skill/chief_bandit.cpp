@@ -112,6 +112,7 @@ static void luoyezhan() {
     auto ckt = skill_game_instance::create_skill_payload(cat, 4211001, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
+    // 地面位移，与瞬移不同
   };
   auto &skis = skill_game_instance::skis();
   skis[g_skill.id] = g_skill;

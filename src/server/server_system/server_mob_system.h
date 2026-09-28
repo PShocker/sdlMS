@@ -39,6 +39,12 @@ private:
   static void run_hit(server_mob &mob);
   static void run_die(server_mob &mob, uint64_t client_id);
   static void run_send();
+  static bool run_fall(server_mob &mob);
+
+  static void run_network_sync_pos(server_mob &mob, server_mob &o_mob);
+  static void run_network_sync_flip(server_mob &mob, server_mob &o_mob);
+  static void run_network_sync_action(server_mob &mob, server_mob &o_mob);
+  static void run_network_sync_hp(server_mob &mob, server_mob &o_mob);
 
   static void run_network_sync(server_mob &mob, server_mob &o_mob);
 

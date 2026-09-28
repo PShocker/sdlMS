@@ -2955,8 +2955,9 @@ inline ::flatbuffers::Offset<Reactor> CreateReactorDirect(
 
 struct RSkillT : public ::flatbuffers::NativeTable {
   typedef RSkill TableType;
-  uint32_t id = 0;
-  uint8_t lv = 0;
+  uint64_t client_id = 0;
+  uint32_t ski_id = 0;
+  uint8_t ski_lv = 0;
   float x = 0.0f;
   float y = 0.0f;
   bool flip = false;
@@ -2964,33 +2965,46 @@ struct RSkillT : public ::flatbuffers::NativeTable {
   uint64_t start = 0;
   uint64_t end = 0;
   int64_t val = 0;
+  ::flatbuffers::Optional<float> goal_x = ::flatbuffers::nullopt;
+  ::flatbuffers::Optional<float> goal_y = ::flatbuffers::nullopt;
+  ::flatbuffers::Optional<uint64_t> goal_map = ::flatbuffers::nullopt;
 };
 
 struct RSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef RSkillT NativeTableType;
   typedef RSkillBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_ID = 4,
-    VT_LV = 6,
-    VT_X = 8,
-    VT_Y = 10,
-    VT_FLIP = 12,
-    VT_PAGE = 14,
-    VT_START = 16,
-    VT_END = 18,
-    VT_VAL = 20
+    VT_CLIENT_ID = 4,
+    VT_SKI_ID = 6,
+    VT_SKI_LV = 8,
+    VT_X = 10,
+    VT_Y = 12,
+    VT_FLIP = 14,
+    VT_PAGE = 16,
+    VT_START = 18,
+    VT_END = 20,
+    VT_VAL = 22,
+    VT_GOAL_X = 24,
+    VT_GOAL_Y = 26,
+    VT_GOAL_MAP = 28
   };
-  uint32_t id() const {
-    return GetField<uint32_t>(VT_ID, 0);
+  uint64_t client_id() const {
+    return GetField<uint64_t>(VT_CLIENT_ID, 0);
   }
-  bool mutate_id(uint32_t _id = 0) {
-    return SetField<uint32_t>(VT_ID, _id, 0);
+  bool mutate_client_id(uint64_t _client_id = 0) {
+    return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
   }
-  uint8_t lv() const {
-    return GetField<uint8_t>(VT_LV, 0);
+  uint32_t ski_id() const {
+    return GetField<uint32_t>(VT_SKI_ID, 0);
   }
-  bool mutate_lv(uint8_t _lv = 0) {
-    return SetField<uint8_t>(VT_LV, _lv, 0);
+  bool mutate_ski_id(uint32_t _ski_id = 0) {
+    return SetField<uint32_t>(VT_SKI_ID, _ski_id, 0);
+  }
+  uint8_t ski_lv() const {
+    return GetField<uint8_t>(VT_SKI_LV, 0);
+  }
+  bool mutate_ski_lv(uint8_t _ski_lv = 0) {
+    return SetField<uint8_t>(VT_SKI_LV, _ski_lv, 0);
   }
   float x() const {
     return GetField<float>(VT_X, 0.0f);
@@ -3034,11 +3048,30 @@ struct RSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_val(int64_t _val = 0) {
     return SetField<int64_t>(VT_VAL, _val, 0);
   }
+  ::flatbuffers::Optional<float> goal_x() const {
+    return GetOptional<float, float>(VT_GOAL_X);
+  }
+  bool mutate_goal_x(float _goal_x) {
+    return SetField<float>(VT_GOAL_X, _goal_x);
+  }
+  ::flatbuffers::Optional<float> goal_y() const {
+    return GetOptional<float, float>(VT_GOAL_Y);
+  }
+  bool mutate_goal_y(float _goal_y) {
+    return SetField<float>(VT_GOAL_Y, _goal_y);
+  }
+  ::flatbuffers::Optional<uint64_t> goal_map() const {
+    return GetOptional<uint64_t, uint64_t>(VT_GOAL_MAP);
+  }
+  bool mutate_goal_map(uint64_t _goal_map) {
+    return SetField<uint64_t>(VT_GOAL_MAP, _goal_map);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_ID, 4) &&
-           VerifyField<uint8_t>(verifier, VT_LV, 1) &&
+           VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyField<uint32_t>(verifier, VT_SKI_ID, 4) &&
+           VerifyField<uint8_t>(verifier, VT_SKI_LV, 1) &&
            VerifyField<float>(verifier, VT_X, 4) &&
            VerifyField<float>(verifier, VT_Y, 4) &&
            VerifyField<uint8_t>(verifier, VT_FLIP, 1) &&
@@ -3046,6 +3079,9 @@ struct RSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint64_t>(verifier, VT_START, 8) &&
            VerifyField<uint64_t>(verifier, VT_END, 8) &&
            VerifyField<int64_t>(verifier, VT_VAL, 8) &&
+           VerifyField<float>(verifier, VT_GOAL_X, 4) &&
+           VerifyField<float>(verifier, VT_GOAL_Y, 4) &&
+           VerifyField<uint64_t>(verifier, VT_GOAL_MAP, 8) &&
            verifier.EndTable();
   }
   RSkillT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -3057,11 +3093,14 @@ struct RSkillBuilder {
   typedef RSkill Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
   ::flatbuffers::uoffset_t start_;
-  void add_id(uint32_t id) {
-    fbb_.AddElement<uint32_t>(RSkill::VT_ID, id, 0);
+  void add_client_id(uint64_t client_id) {
+    fbb_.AddElement<uint64_t>(RSkill::VT_CLIENT_ID, client_id, 0);
   }
-  void add_lv(uint8_t lv) {
-    fbb_.AddElement<uint8_t>(RSkill::VT_LV, lv, 0);
+  void add_ski_id(uint32_t ski_id) {
+    fbb_.AddElement<uint32_t>(RSkill::VT_SKI_ID, ski_id, 0);
+  }
+  void add_ski_lv(uint8_t ski_lv) {
+    fbb_.AddElement<uint8_t>(RSkill::VT_SKI_LV, ski_lv, 0);
   }
   void add_x(float x) {
     fbb_.AddElement<float>(RSkill::VT_X, x, 0.0f);
@@ -3084,6 +3123,15 @@ struct RSkillBuilder {
   void add_val(int64_t val) {
     fbb_.AddElement<int64_t>(RSkill::VT_VAL, val, 0);
   }
+  void add_goal_x(float goal_x) {
+    fbb_.AddElement<float>(RSkill::VT_GOAL_X, goal_x);
+  }
+  void add_goal_y(float goal_y) {
+    fbb_.AddElement<float>(RSkill::VT_GOAL_Y, goal_y);
+  }
+  void add_goal_map(uint64_t goal_map) {
+    fbb_.AddElement<uint64_t>(RSkill::VT_GOAL_MAP, goal_map);
+  }
   explicit RSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -3097,25 +3145,33 @@ struct RSkillBuilder {
 
 inline ::flatbuffers::Offset<RSkill> CreateRSkill(
     ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t id = 0,
-    uint8_t lv = 0,
+    uint64_t client_id = 0,
+    uint32_t ski_id = 0,
+    uint8_t ski_lv = 0,
     float x = 0.0f,
     float y = 0.0f,
     bool flip = false,
     uint8_t page = 0,
     uint64_t start = 0,
     uint64_t end = 0,
-    int64_t val = 0) {
+    int64_t val = 0,
+    ::flatbuffers::Optional<float> goal_x = ::flatbuffers::nullopt,
+    ::flatbuffers::Optional<float> goal_y = ::flatbuffers::nullopt,
+    ::flatbuffers::Optional<uint64_t> goal_map = ::flatbuffers::nullopt) {
   RSkillBuilder builder_(_fbb);
+  if(goal_map) { builder_.add_goal_map(*goal_map); }
   builder_.add_val(val);
   builder_.add_end(end);
   builder_.add_start(start);
+  builder_.add_client_id(client_id);
+  if(goal_y) { builder_.add_goal_y(*goal_y); }
+  if(goal_x) { builder_.add_goal_x(*goal_x); }
   builder_.add_y(y);
   builder_.add_x(x);
-  builder_.add_id(id);
+  builder_.add_ski_id(ski_id);
   builder_.add_page(page);
   builder_.add_flip(flip);
-  builder_.add_lv(lv);
+  builder_.add_ski_lv(ski_lv);
   return builder_.Finish();
 }
 
@@ -5270,8 +5326,9 @@ inline RSkillT *RSkill::UnPack(const ::flatbuffers::resolver_function_t *_resolv
 inline void RSkill::UnPackTo(RSkillT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
   (void)_o;
   (void)_resolver;
-  { auto _e = id(); _o->id = _e; }
-  { auto _e = lv(); _o->lv = _e; }
+  { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = ski_id(); _o->ski_id = _e; }
+  { auto _e = ski_lv(); _o->ski_lv = _e; }
   { auto _e = x(); _o->x = _e; }
   { auto _e = y(); _o->y = _e; }
   { auto _e = flip(); _o->flip = _e; }
@@ -5279,6 +5336,9 @@ inline void RSkill::UnPackTo(RSkillT *_o, const ::flatbuffers::resolver_function
   { auto _e = start(); _o->start = _e; }
   { auto _e = end(); _o->end = _e; }
   { auto _e = val(); _o->val = _e; }
+  { auto _e = goal_x(); _o->goal_x = _e; }
+  { auto _e = goal_y(); _o->goal_y = _e; }
+  { auto _e = goal_map(); _o->goal_map = _e; }
 }
 
 inline ::flatbuffers::Offset<RSkill> CreateRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5289,8 +5349,9 @@ inline ::flatbuffers::Offset<RSkill> RSkill::Pack(::flatbuffers::FlatBufferBuild
   (void)_rehasher;
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const RSkillT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _id = _o->id;
-  auto _lv = _o->lv;
+  auto _client_id = _o->client_id;
+  auto _ski_id = _o->ski_id;
+  auto _ski_lv = _o->ski_lv;
   auto _x = _o->x;
   auto _y = _o->y;
   auto _flip = _o->flip;
@@ -5298,17 +5359,24 @@ inline ::flatbuffers::Offset<RSkill> RSkill::Pack(::flatbuffers::FlatBufferBuild
   auto _start = _o->start;
   auto _end = _o->end;
   auto _val = _o->val;
+  auto _goal_x = _o->goal_x;
+  auto _goal_y = _o->goal_y;
+  auto _goal_map = _o->goal_map;
   return fbs::CreateRSkill(
       _fbb,
-      _id,
-      _lv,
+      _client_id,
+      _ski_id,
+      _ski_lv,
       _x,
       _y,
       _flip,
       _page,
       _start,
       _end,
-      _val);
+      _val,
+      _goal_x,
+      _goal_y,
+      _goal_map);
 }
 
 inline MobDebuffT::MobDebuffT(const MobDebuffT &o)

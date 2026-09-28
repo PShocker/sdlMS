@@ -13,19 +13,19 @@ void server_region_skill_instance::handle_rskill(uint64_t client_id,
   for (const auto &v : r.payload) {
     server_region_skill srs;
     srs.client_id = client_id;
-    srs.id = v->id;
+    srs.id = v->ski_id;
   }
 }
 
 void server_region_skill_instance::handle_s_rskill(ServerRSkillT &r) {
   for (const auto &v : r.payload) {
     game_region_skill grs;
-    auto tmp = std::format("{:07d}", v->id);
+    auto tmp = std::format("{:07d}", v->ski_id);
     grs.id = {tmp.begin(), tmp.end()};
     grs.start = v->start;
     grs.end = v->end;
     grs.flip = v->flip;
-    grs.lv = v->lv;
+    grs.lv = v->ski_lv;
     grs.pos = {v->x, v->y};
 
     game_effect e = {
