@@ -534,15 +534,35 @@ void npc_dlg_ui_system::event_button_prev() {
 void npc_dlg_ui_system::event_button_next() {
   switch (type) {
   case npc_dlg_enum::select: {
-    auto node = quest_game_instance::load_quest_node(selected);
+    if (cb) {
+      cb();
+      return;
+    }
+    auto node = quest_game_instance::load_quest_node(quest_id);
     node = node->find(u"Say/" + quest_index + u"/stop/0/answer");
-    auto ans = static_cast<wz::Property<int> *>(node)->get();
+    auto ans = static_cast<wz::Property<int> *>(node)->get() - 1;
     auto st = select;
     if (select_mouse != -1) {
       st = select_mouse;
     }
     if (ans == st) {
-      int a = 0;
+      type = npc_dlg_enum::quest_complete;
+      node = quest_game_instance::load_quest_node(quest_id);
+      node = node->find(u"Say/" + quest_index);
+      node = node->get_child(std::to_string(index + 1));
+      time = window::dt_now;
+      text = text_game_instance::load_rstr(node);
+      index = 0;
+      max_index = 0;
+    } else {
+      node = quest_game_instance::load_quest_node(quest_id);
+      node = node->find(u"Say/" + quest_index + u"/stop");
+      node = node->get_child(std::to_string(index));
+      node = node->get_child(std::to_string(st));
+      time = window::dt_now;
+      text = text_game_instance::load_rstr(node);
+      index = 0;
+      max_index = 0;
     }
     break;
   }
@@ -602,6 +622,8 @@ void npc_dlg_ui_system::event_quest_list() {
       m.erase(u"stop");
       index = 0;
       max_index = m.size() - 1;
+      time = window::dt_now;
+      return;
     }
     if (auto n = node->find(u"Act/" + quest_index + u"/nextQuest");
         n != nullptr) {
