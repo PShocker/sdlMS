@@ -1,5 +1,6 @@
 #pragma once
 
+#include "src/client/game/game_foothold.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/server/server/server_mob.h"
 #include <cstdint>
@@ -12,6 +13,7 @@ class server_mob_system {
 private:
   static inline uint32_t map_id = 0;
   static inline uint32_t delta_time = 0;
+  static inline std::flat_map<int32_t, game_foothold> g_fhs;
   static inline ServerMobEventT events;
 
   struct mob_drop {
@@ -29,8 +31,11 @@ private:
   static bool run_hit_check(server_mob &mob);
 
   static void run_hit_action(server_mob &mob);
+  static void run_default_action(server_mob &mob);
   static void run_move_action(server_mob &mob);
   static void run_stand_action(server_mob &mob);
+  static void run_fly_action(server_mob &mob);
+  static void run_swim_action(server_mob &mob);
   static void run_die_action(server_mob &mob);
   static void run_walk(server_mob &mob);
   static void run_state_machine(server_mob &mob);

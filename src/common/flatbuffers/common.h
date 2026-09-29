@@ -99,17 +99,21 @@ struct Drop;
 struct DropBuilder;
 struct DropT;
 
-struct State;
-struct StateBuilder;
-struct StateT;
-
 struct Debuff;
 struct DebuffBuilder;
 struct DebuffT;
 
+struct State;
+struct StateBuilder;
+struct StateT;
+
 struct Reactor;
 struct ReactorBuilder;
 struct ReactorT;
+
+struct RSkillPortal;
+struct RSkillPortalBuilder;
+struct RSkillPortalT;
 
 struct RSkill;
 struct RSkillBuilder;
@@ -154,36 +158,6 @@ struct PlayerSaveT;
 struct GameSave;
 struct GameSaveBuilder;
 struct GameSaveT;
-
-enum DebuffEnum : int8_t {
-  DebuffEnum_DIZZ = 0,
-  DebuffEnum_FREEZE = 1,
-  DebuffEnum_MIN = DebuffEnum_DIZZ,
-  DebuffEnum_MAX = DebuffEnum_FREEZE
-};
-
-inline const DebuffEnum (&EnumValuesDebuffEnum())[2] {
-  static const DebuffEnum values[] = {
-    DebuffEnum_DIZZ,
-    DebuffEnum_FREEZE
-  };
-  return values;
-}
-
-inline const char * const *EnumNamesDebuffEnum() {
-  static const char * const names[3] = {
-    "DIZZ",
-    "FREEZE",
-    nullptr
-  };
-  return names;
-}
-
-inline const char *EnumNameDebuffEnum(DebuffEnum e) {
-  if (::flatbuffers::IsOutRange(e, DebuffEnum_DIZZ, DebuffEnum_FREEZE)) return "";
-  const size_t index = static_cast<size_t>(e);
-  return EnumNamesDebuffEnum()[index];
-}
 
 enum ChatEnum : int8_t {
   ChatEnum_MAP = 0,
@@ -328,35 +302,38 @@ enum StateEnum : int8_t {
   StateEnum_ITEM_USE = 2,
   StateEnum_BUFF_SKILL = 3,
   StateEnum_BUFF_ITEM = 4,
+  StateEnum_DEBUFF = 5,
   StateEnum_MIN = StateEnum_HP,
-  StateEnum_MAX = StateEnum_BUFF_ITEM
+  StateEnum_MAX = StateEnum_DEBUFF
 };
 
-inline const StateEnum (&EnumValuesStateEnum())[5] {
+inline const StateEnum (&EnumValuesStateEnum())[6] {
   static const StateEnum values[] = {
     StateEnum_HP,
     StateEnum_MAX_HP,
     StateEnum_ITEM_USE,
     StateEnum_BUFF_SKILL,
-    StateEnum_BUFF_ITEM
+    StateEnum_BUFF_ITEM,
+    StateEnum_DEBUFF
   };
   return values;
 }
 
 inline const char * const *EnumNamesStateEnum() {
-  static const char * const names[6] = {
+  static const char * const names[7] = {
     "HP",
     "MAX_HP",
     "ITEM_USE",
     "BUFF_SKILL",
     "BUFF_ITEM",
+    "DEBUFF",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameStateEnum(StateEnum e) {
-  if (::flatbuffers::IsOutRange(e, StateEnum_HP, StateEnum_BUFF_ITEM)) return "";
+  if (::flatbuffers::IsOutRange(e, StateEnum_HP, StateEnum_DEBUFF)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesStateEnum()[index];
 }
@@ -681,7 +658,6 @@ struct CharacterT : public ::flatbuffers::NativeTable {
   std::vector<std::unique_ptr<fbs::EquipT>> equips{};
   std::vector<std::unique_ptr<fbs::DecoT>> decos{};
   std::vector<std::unique_ptr<fbs::StateT>> states{};
-  std::vector<fbs::DebuffEnum> debuff{};
   CharacterT() = default;
   CharacterT(const CharacterT &o);
   CharacterT(CharacterT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -701,8 +677,7 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_FACE = 16,
     VT_EQUIPS = 18,
     VT_DECOS = 20,
-    VT_STATES = 22,
-    VT_DEBUFF = 24
+    VT_STATES = 22
   };
   const ::flatbuffers::Vector<uint16_t> *name() const {
     return GetPointer<const ::flatbuffers::Vector<uint16_t> *>(VT_NAME);
@@ -764,12 +739,6 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *mutable_states() {
     return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>> *>(VT_STATES);
   }
-  const ::flatbuffers::Vector<int8_t> *debuff() const {
-    return GetPointer<const ::flatbuffers::Vector<int8_t> *>(VT_DEBUFF);
-  }
-  ::flatbuffers::Vector<int8_t> *mutable_debuff() {
-    return GetPointer<::flatbuffers::Vector<int8_t> *>(VT_DEBUFF);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -794,8 +763,6 @@ struct Character FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyOffset(verifier, VT_STATES) &&
            verifier.VerifyVector(states()) &&
            verifier.VerifyVectorOfTables(states()) &&
-           VerifyOffset(verifier, VT_DEBUFF) &&
-           verifier.VerifyVector(debuff()) &&
            verifier.EndTable();
   }
   CharacterT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -837,9 +804,6 @@ struct CharacterBuilder {
   void add_states(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states) {
     fbb_.AddOffset(Character::VT_STATES, states);
   }
-  void add_debuff(::flatbuffers::Offset<::flatbuffers::Vector<int8_t>> debuff) {
-    fbb_.AddOffset(Character::VT_DEBUFF, debuff);
-  }
   explicit CharacterBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -862,10 +826,8 @@ inline ::flatbuffers::Offset<Character> CreateCharacter(
     ::flatbuffers::Offset<fbs::Face> face = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Equip>>> equips = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Deco>>> decos = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<int8_t>> debuff = 0) {
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::State>>> states = 0) {
   CharacterBuilder builder_(_fbb);
-  builder_.add_debuff(debuff);
   builder_.add_states(states);
   builder_.add_decos(decos);
   builder_.add_equips(equips);
@@ -890,14 +852,12 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
     ::flatbuffers::Offset<fbs::Face> face = 0,
     const std::vector<::flatbuffers::Offset<fbs::Equip>> *equips = nullptr,
     const std::vector<::flatbuffers::Offset<fbs::Deco>> *decos = nullptr,
-    const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr,
-    const std::vector<int8_t> *debuff = nullptr) {
+    const std::vector<::flatbuffers::Offset<fbs::State>> *states = nullptr) {
   auto name__ = name ? _fbb.CreateVector<uint16_t>(*name) : 0;
   auto job__ = job ? _fbb.CreateString(job) : 0;
   auto equips__ = equips ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>>(*equips) : 0;
   auto decos__ = decos ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Deco>>(*decos) : 0;
   auto states__ = states ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>>(*states) : 0;
-  auto debuff__ = debuff ? _fbb.CreateVector<int8_t>(*debuff) : 0;
   return fbs::CreateCharacter(
       _fbb,
       name__,
@@ -909,8 +869,7 @@ inline ::flatbuffers::Offset<Character> CreateCharacterDirect(
       face,
       equips__,
       decos__,
-      states__,
-      debuff__);
+      states__);
 }
 
 ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -1930,7 +1889,6 @@ struct MobT : public ::flatbuffers::NativeTable {
   uint32_t mob_id = 0;
   int64_t mob_hp = 0;
   std::unique_ptr<fbs::LifeStateT> state{};
-  std::vector<fbs::DebuffEnum> debuff{};
   MobT() = default;
   MobT(const MobT &o);
   MobT(MobT&&) FLATBUFFERS_NOEXCEPT = default;
@@ -1944,8 +1902,7 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_MOB_INDEX = 4,
     VT_MOB_ID = 6,
     VT_MOB_HP = 8,
-    VT_STATE = 10,
-    VT_DEBUFF = 12
+    VT_STATE = 10
   };
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
@@ -1971,12 +1928,6 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   fbs::LifeState *mutable_state() {
     return GetPointer<fbs::LifeState *>(VT_STATE);
   }
-  const ::flatbuffers::Vector<int8_t> *debuff() const {
-    return GetPointer<const ::flatbuffers::Vector<int8_t> *>(VT_DEBUFF);
-  }
-  ::flatbuffers::Vector<int8_t> *mutable_debuff() {
-    return GetPointer<::flatbuffers::Vector<int8_t> *>(VT_DEBUFF);
-  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
@@ -1985,8 +1936,6 @@ struct Mob FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<int64_t>(verifier, VT_MOB_HP, 8) &&
            VerifyOffset(verifier, VT_STATE) &&
            verifier.VerifyTable(state()) &&
-           VerifyOffset(verifier, VT_DEBUFF) &&
-           verifier.VerifyVector(debuff()) &&
            verifier.EndTable();
   }
   MobT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2010,9 +1959,6 @@ struct MobBuilder {
   void add_state(::flatbuffers::Offset<fbs::LifeState> state) {
     fbb_.AddOffset(Mob::VT_STATE, state);
   }
-  void add_debuff(::flatbuffers::Offset<::flatbuffers::Vector<int8_t>> debuff) {
-    fbb_.AddOffset(Mob::VT_DEBUFF, debuff);
-  }
   explicit MobBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2029,32 +1975,13 @@ inline ::flatbuffers::Offset<Mob> CreateMob(
     uint32_t mob_index = 0,
     uint32_t mob_id = 0,
     int64_t mob_hp = 0,
-    ::flatbuffers::Offset<fbs::LifeState> state = 0,
-    ::flatbuffers::Offset<::flatbuffers::Vector<int8_t>> debuff = 0) {
+    ::flatbuffers::Offset<fbs::LifeState> state = 0) {
   MobBuilder builder_(_fbb);
   builder_.add_mob_hp(mob_hp);
-  builder_.add_debuff(debuff);
   builder_.add_state(state);
   builder_.add_mob_id(mob_id);
   builder_.add_mob_index(mob_index);
   return builder_.Finish();
-}
-
-inline ::flatbuffers::Offset<Mob> CreateMobDirect(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t mob_index = 0,
-    uint32_t mob_id = 0,
-    int64_t mob_hp = 0,
-    ::flatbuffers::Offset<fbs::LifeState> state = 0,
-    const std::vector<int8_t> *debuff = nullptr) {
-  auto debuff__ = debuff ? _fbb.CreateVector<int8_t>(*debuff) : 0;
-  return fbs::CreateMob(
-      _fbb,
-      mob_index,
-      mob_id,
-      mob_hp,
-      state,
-      debuff__);
 }
 
 ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
@@ -2671,11 +2598,86 @@ inline ::flatbuffers::Offset<Drop> CreateDrop(
 
 ::flatbuffers::Offset<Drop> CreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const DropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct DebuffT : public ::flatbuffers::NativeTable {
+  typedef Debuff TableType;
+  uint64_t time = 0;
+  int64_t val = 0;
+};
+
+struct Debuff FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef DebuffT NativeTableType;
+  typedef DebuffBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_TIME = 4,
+    VT_VAL = 6
+  };
+  uint64_t time() const {
+    return GetField<uint64_t>(VT_TIME, 0);
+  }
+  bool mutate_time(uint64_t _time = 0) {
+    return SetField<uint64_t>(VT_TIME, _time, 0);
+  }
+  int64_t val() const {
+    return GetField<int64_t>(VT_VAL, 0);
+  }
+  bool mutate_val(int64_t _val = 0) {
+    return SetField<int64_t>(VT_VAL, _val, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
+           VerifyField<int64_t>(verifier, VT_VAL, 8) &&
+           verifier.EndTable();
+  }
+  DebuffT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(DebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<Debuff> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct DebuffBuilder {
+  typedef Debuff Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_time(uint64_t time) {
+    fbb_.AddElement<uint64_t>(Debuff::VT_TIME, time, 0);
+  }
+  void add_val(int64_t val) {
+    fbb_.AddElement<int64_t>(Debuff::VT_VAL, val, 0);
+  }
+  explicit DebuffBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<Debuff> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<Debuff>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<Debuff> CreateDebuff(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint64_t time = 0,
+    int64_t val = 0) {
+  DebuffBuilder builder_(_fbb);
+  builder_.add_val(val);
+  builder_.add_time(time);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<Debuff> CreateDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct StateT : public ::flatbuffers::NativeTable {
   typedef State TableType;
   fbs::StateEnum state = fbs::StateEnum_HP;
   int64_t val = 0;
   int64_t sub_val = 0;
+  std::unique_ptr<fbs::DebuffT> db{};
+  StateT() = default;
+  StateT(const StateT &o);
+  StateT(StateT&&) FLATBUFFERS_NOEXCEPT = default;
+  StateT &operator=(StateT o) FLATBUFFERS_NOEXCEPT;
 };
 
 struct State FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -2684,7 +2686,8 @@ struct State FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_STATE = 4,
     VT_VAL = 6,
-    VT_SUB_VAL = 8
+    VT_SUB_VAL = 8,
+    VT_DB = 10
   };
   fbs::StateEnum state() const {
     return static_cast<fbs::StateEnum>(GetField<int8_t>(VT_STATE, 0));
@@ -2704,12 +2707,20 @@ struct State FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_sub_val(int64_t _sub_val = 0) {
     return SetField<int64_t>(VT_SUB_VAL, _sub_val, 0);
   }
+  const fbs::Debuff *db() const {
+    return GetPointer<const fbs::Debuff *>(VT_DB);
+  }
+  fbs::Debuff *mutable_db() {
+    return GetPointer<fbs::Debuff *>(VT_DB);
+  }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<int8_t>(verifier, VT_STATE, 1) &&
            VerifyField<int64_t>(verifier, VT_VAL, 8) &&
            VerifyField<int64_t>(verifier, VT_SUB_VAL, 8) &&
+           VerifyOffset(verifier, VT_DB) &&
+           verifier.VerifyTable(db()) &&
            verifier.EndTable();
   }
   StateT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -2730,6 +2741,9 @@ struct StateBuilder {
   void add_sub_val(int64_t sub_val) {
     fbb_.AddElement<int64_t>(State::VT_SUB_VAL, sub_val, 0);
   }
+  void add_db(::flatbuffers::Offset<fbs::Debuff> db) {
+    fbb_.AddOffset(State::VT_DB, db);
+  }
   explicit StateBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
@@ -2745,99 +2759,17 @@ inline ::flatbuffers::Offset<State> CreateState(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     fbs::StateEnum state = fbs::StateEnum_HP,
     int64_t val = 0,
-    int64_t sub_val = 0) {
+    int64_t sub_val = 0,
+    ::flatbuffers::Offset<fbs::Debuff> db = 0) {
   StateBuilder builder_(_fbb);
   builder_.add_sub_val(sub_val);
   builder_.add_val(val);
+  builder_.add_db(db);
   builder_.add_state(state);
   return builder_.Finish();
 }
 
 ::flatbuffers::Offset<State> CreateState(::flatbuffers::FlatBufferBuilder &_fbb, const StateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-
-struct DebuffT : public ::flatbuffers::NativeTable {
-  typedef Debuff TableType;
-  fbs::DebuffEnum type = fbs::DebuffEnum_DIZZ;
-  uint64_t time = 0;
-  int64_t val = 0;
-};
-
-struct Debuff FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
-  typedef DebuffT NativeTableType;
-  typedef DebuffBuilder Builder;
-  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_TYPE = 4,
-    VT_TIME = 6,
-    VT_VAL = 8
-  };
-  fbs::DebuffEnum type() const {
-    return static_cast<fbs::DebuffEnum>(GetField<int8_t>(VT_TYPE, 0));
-  }
-  bool mutate_type(fbs::DebuffEnum _type = static_cast<fbs::DebuffEnum>(0)) {
-    return SetField<int8_t>(VT_TYPE, static_cast<int8_t>(_type), 0);
-  }
-  uint64_t time() const {
-    return GetField<uint64_t>(VT_TIME, 0);
-  }
-  bool mutate_time(uint64_t _time = 0) {
-    return SetField<uint64_t>(VT_TIME, _time, 0);
-  }
-  int64_t val() const {
-    return GetField<int64_t>(VT_VAL, 0);
-  }
-  bool mutate_val(int64_t _val = 0) {
-    return SetField<int64_t>(VT_VAL, _val, 0);
-  }
-  template <bool B = false>
-  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
-    return VerifyTableStart(verifier) &&
-           VerifyField<int8_t>(verifier, VT_TYPE, 1) &&
-           VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
-           VerifyField<int64_t>(verifier, VT_VAL, 8) &&
-           verifier.EndTable();
-  }
-  DebuffT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  void UnPackTo(DebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
-  static ::flatbuffers::Offset<Debuff> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
-};
-
-struct DebuffBuilder {
-  typedef Debuff Table;
-  ::flatbuffers::FlatBufferBuilder &fbb_;
-  ::flatbuffers::uoffset_t start_;
-  void add_type(fbs::DebuffEnum type) {
-    fbb_.AddElement<int8_t>(Debuff::VT_TYPE, static_cast<int8_t>(type), 0);
-  }
-  void add_time(uint64_t time) {
-    fbb_.AddElement<uint64_t>(Debuff::VT_TIME, time, 0);
-  }
-  void add_val(int64_t val) {
-    fbb_.AddElement<int64_t>(Debuff::VT_VAL, val, 0);
-  }
-  explicit DebuffBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
-        : fbb_(_fbb) {
-    start_ = fbb_.StartTable();
-  }
-  ::flatbuffers::Offset<Debuff> Finish() {
-    const auto end = fbb_.EndTable(start_);
-    auto o = ::flatbuffers::Offset<Debuff>(end);
-    return o;
-  }
-};
-
-inline ::flatbuffers::Offset<Debuff> CreateDebuff(
-    ::flatbuffers::FlatBufferBuilder &_fbb,
-    fbs::DebuffEnum type = fbs::DebuffEnum_DIZZ,
-    uint64_t time = 0,
-    int64_t val = 0) {
-  DebuffBuilder builder_(_fbb);
-  builder_.add_val(val);
-  builder_.add_time(time);
-  builder_.add_type(type);
-  return builder_.Finish();
-}
-
-::flatbuffers::Offset<Debuff> CreateDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
 struct ReactorT : public ::flatbuffers::NativeTable {
   typedef Reactor TableType;
@@ -2953,6 +2885,90 @@ inline ::flatbuffers::Offset<Reactor> CreateReactorDirect(
 
 ::flatbuffers::Offset<Reactor> CreateReactor(::flatbuffers::FlatBufferBuilder &_fbb, const ReactorT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct RSkillPortalT : public ::flatbuffers::NativeTable {
+  typedef RSkillPortal TableType;
+  float goal_x = 0.0f;
+  float goal_y = 0.0f;
+  uint64_t goal_map = 0;
+};
+
+struct RSkillPortal FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef RSkillPortalT NativeTableType;
+  typedef RSkillPortalBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_GOAL_X = 4,
+    VT_GOAL_Y = 6,
+    VT_GOAL_MAP = 8
+  };
+  float goal_x() const {
+    return GetField<float>(VT_GOAL_X, 0.0f);
+  }
+  bool mutate_goal_x(float _goal_x = 0.0f) {
+    return SetField<float>(VT_GOAL_X, _goal_x, 0.0f);
+  }
+  float goal_y() const {
+    return GetField<float>(VT_GOAL_Y, 0.0f);
+  }
+  bool mutate_goal_y(float _goal_y = 0.0f) {
+    return SetField<float>(VT_GOAL_Y, _goal_y, 0.0f);
+  }
+  uint64_t goal_map() const {
+    return GetField<uint64_t>(VT_GOAL_MAP, 0);
+  }
+  bool mutate_goal_map(uint64_t _goal_map = 0) {
+    return SetField<uint64_t>(VT_GOAL_MAP, _goal_map, 0);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<float>(verifier, VT_GOAL_X, 4) &&
+           VerifyField<float>(verifier, VT_GOAL_Y, 4) &&
+           VerifyField<uint64_t>(verifier, VT_GOAL_MAP, 8) &&
+           verifier.EndTable();
+  }
+  RSkillPortalT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(RSkillPortalT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<RSkillPortal> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillPortalT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct RSkillPortalBuilder {
+  typedef RSkillPortal Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_goal_x(float goal_x) {
+    fbb_.AddElement<float>(RSkillPortal::VT_GOAL_X, goal_x, 0.0f);
+  }
+  void add_goal_y(float goal_y) {
+    fbb_.AddElement<float>(RSkillPortal::VT_GOAL_Y, goal_y, 0.0f);
+  }
+  void add_goal_map(uint64_t goal_map) {
+    fbb_.AddElement<uint64_t>(RSkillPortal::VT_GOAL_MAP, goal_map, 0);
+  }
+  explicit RSkillPortalBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<RSkillPortal> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<RSkillPortal>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<RSkillPortal> CreateRSkillPortal(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    float goal_x = 0.0f,
+    float goal_y = 0.0f,
+    uint64_t goal_map = 0) {
+  RSkillPortalBuilder builder_(_fbb);
+  builder_.add_goal_map(goal_map);
+  builder_.add_goal_y(goal_y);
+  builder_.add_goal_x(goal_x);
+  return builder_.Finish();
+}
+
+::flatbuffers::Offset<RSkillPortal> CreateRSkillPortal(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillPortalT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 struct RSkillT : public ::flatbuffers::NativeTable {
   typedef RSkill TableType;
   uint64_t client_id = 0;
@@ -2965,9 +2981,11 @@ struct RSkillT : public ::flatbuffers::NativeTable {
   uint64_t start = 0;
   uint64_t end = 0;
   int64_t val = 0;
-  ::flatbuffers::Optional<float> goal_x = ::flatbuffers::nullopt;
-  ::flatbuffers::Optional<float> goal_y = ::flatbuffers::nullopt;
-  ::flatbuffers::Optional<uint64_t> goal_map = ::flatbuffers::nullopt;
+  std::unique_ptr<fbs::RSkillPortalT> portal{};
+  RSkillT() = default;
+  RSkillT(const RSkillT &o);
+  RSkillT(RSkillT&&) FLATBUFFERS_NOEXCEPT = default;
+  RSkillT &operator=(RSkillT o) FLATBUFFERS_NOEXCEPT;
 };
 
 struct RSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
@@ -2984,9 +3002,7 @@ struct RSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_START = 18,
     VT_END = 20,
     VT_VAL = 22,
-    VT_GOAL_X = 24,
-    VT_GOAL_Y = 26,
-    VT_GOAL_MAP = 28
+    VT_PORTAL = 24
   };
   uint64_t client_id() const {
     return GetField<uint64_t>(VT_CLIENT_ID, 0);
@@ -3048,23 +3064,11 @@ struct RSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool mutate_val(int64_t _val = 0) {
     return SetField<int64_t>(VT_VAL, _val, 0);
   }
-  ::flatbuffers::Optional<float> goal_x() const {
-    return GetOptional<float, float>(VT_GOAL_X);
+  const fbs::RSkillPortal *portal() const {
+    return GetPointer<const fbs::RSkillPortal *>(VT_PORTAL);
   }
-  bool mutate_goal_x(float _goal_x) {
-    return SetField<float>(VT_GOAL_X, _goal_x);
-  }
-  ::flatbuffers::Optional<float> goal_y() const {
-    return GetOptional<float, float>(VT_GOAL_Y);
-  }
-  bool mutate_goal_y(float _goal_y) {
-    return SetField<float>(VT_GOAL_Y, _goal_y);
-  }
-  ::flatbuffers::Optional<uint64_t> goal_map() const {
-    return GetOptional<uint64_t, uint64_t>(VT_GOAL_MAP);
-  }
-  bool mutate_goal_map(uint64_t _goal_map) {
-    return SetField<uint64_t>(VT_GOAL_MAP, _goal_map);
+  fbs::RSkillPortal *mutable_portal() {
+    return GetPointer<fbs::RSkillPortal *>(VT_PORTAL);
   }
   template <bool B = false>
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
@@ -3079,9 +3083,8 @@ struct RSkill FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            VerifyField<uint64_t>(verifier, VT_START, 8) &&
            VerifyField<uint64_t>(verifier, VT_END, 8) &&
            VerifyField<int64_t>(verifier, VT_VAL, 8) &&
-           VerifyField<float>(verifier, VT_GOAL_X, 4) &&
-           VerifyField<float>(verifier, VT_GOAL_Y, 4) &&
-           VerifyField<uint64_t>(verifier, VT_GOAL_MAP, 8) &&
+           VerifyOffset(verifier, VT_PORTAL) &&
+           verifier.VerifyTable(portal()) &&
            verifier.EndTable();
   }
   RSkillT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
@@ -3123,14 +3126,8 @@ struct RSkillBuilder {
   void add_val(int64_t val) {
     fbb_.AddElement<int64_t>(RSkill::VT_VAL, val, 0);
   }
-  void add_goal_x(float goal_x) {
-    fbb_.AddElement<float>(RSkill::VT_GOAL_X, goal_x);
-  }
-  void add_goal_y(float goal_y) {
-    fbb_.AddElement<float>(RSkill::VT_GOAL_Y, goal_y);
-  }
-  void add_goal_map(uint64_t goal_map) {
-    fbb_.AddElement<uint64_t>(RSkill::VT_GOAL_MAP, goal_map);
+  void add_portal(::flatbuffers::Offset<fbs::RSkillPortal> portal) {
+    fbb_.AddOffset(RSkill::VT_PORTAL, portal);
   }
   explicit RSkillBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
@@ -3155,17 +3152,13 @@ inline ::flatbuffers::Offset<RSkill> CreateRSkill(
     uint64_t start = 0,
     uint64_t end = 0,
     int64_t val = 0,
-    ::flatbuffers::Optional<float> goal_x = ::flatbuffers::nullopt,
-    ::flatbuffers::Optional<float> goal_y = ::flatbuffers::nullopt,
-    ::flatbuffers::Optional<uint64_t> goal_map = ::flatbuffers::nullopt) {
+    ::flatbuffers::Offset<fbs::RSkillPortal> portal = 0) {
   RSkillBuilder builder_(_fbb);
-  if(goal_map) { builder_.add_goal_map(*goal_map); }
   builder_.add_val(val);
   builder_.add_end(end);
   builder_.add_start(start);
   builder_.add_client_id(client_id);
-  if(goal_y) { builder_.add_goal_y(*goal_y); }
-  if(goal_x) { builder_.add_goal_x(*goal_x); }
+  builder_.add_portal(portal);
   builder_.add_y(y);
   builder_.add_x(x);
   builder_.add_ski_id(ski_id);
@@ -4474,8 +4467,7 @@ inline CharacterT::CharacterT(const CharacterT &o)
         level(o.level),
         state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
         appearance((o.appearance) ? new fbs::CharacterAppearanceT(*o.appearance) : nullptr),
-        face((o.face) ? new fbs::FaceT(*o.face) : nullptr),
-        debuff(o.debuff) {
+        face((o.face) ? new fbs::FaceT(*o.face) : nullptr) {
   equips.reserve(o.equips.size());
   for (const auto &equips_ : o.equips) { equips.emplace_back((equips_) ? new fbs::EquipT(*equips_) : nullptr); }
   decos.reserve(o.decos.size());
@@ -4495,7 +4487,6 @@ inline CharacterT &CharacterT::operator=(CharacterT o) FLATBUFFERS_NOEXCEPT {
   std::swap(equips, o.equips);
   std::swap(decos, o.decos);
   std::swap(states, o.states);
-  std::swap(debuff, o.debuff);
   return *this;
 }
 
@@ -4518,7 +4509,6 @@ inline void Character::UnPackTo(CharacterT *_o, const ::flatbuffers::resolver_fu
   { auto _e = equips(); if (_e) { _o->equips.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->equips[_i]) { _e->Get(_i)->UnPackTo(_o->equips[_i].get(), _resolver); } else { _o->equips[_i] = std::unique_ptr<fbs::EquipT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->equips.resize(0); } }
   { auto _e = decos(); if (_e) { _o->decos.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->decos[_i]) { _e->Get(_i)->UnPackTo(_o->decos[_i].get(), _resolver); } else { _o->decos[_i] = std::unique_ptr<fbs::DecoT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->decos.resize(0); } }
   { auto _e = states(); if (_e) { _o->states.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->states[_i]) { _e->Get(_i)->UnPackTo(_o->states[_i].get(), _resolver); } else { _o->states[_i] = std::unique_ptr<fbs::StateT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->states.resize(0); } }
-  { auto _e = debuff(); if (_e) { _o->debuff.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->debuff[_i] = static_cast<fbs::DebuffEnum>(_e->Get(_i)); } } else { _o->debuff.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<Character> CreateCharacter(::flatbuffers::FlatBufferBuilder &_fbb, const CharacterT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4539,7 +4529,6 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
   auto _equips = _o->equips.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Equip>> (_o->equips.size(), [](size_t i, _VectorArgs *__va) { return CreateEquip(*__va->__fbb, __va->__o->equips[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _decos = _o->decos.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Deco>> (_o->decos.size(), [](size_t i, _VectorArgs *__va) { return CreateDeco(*__va->__fbb, __va->__o->decos[i].get(), __va->__rehasher); }, &_va ) : 0;
   auto _states = _o->states.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::State>> (_o->states.size(), [](size_t i, _VectorArgs *__va) { return CreateState(*__va->__fbb, __va->__o->states[i].get(), __va->__rehasher); }, &_va ) : 0;
-  auto _debuff = _o->debuff.size() ? _fbb.CreateVectorScalarCast<int8_t>(::flatbuffers::data(_o->debuff), _o->debuff.size()) : 0;
   return fbs::CreateCharacter(
       _fbb,
       _name,
@@ -4551,8 +4540,7 @@ inline ::flatbuffers::Offset<Character> Character::Pack(::flatbuffers::FlatBuffe
       _face,
       _equips,
       _decos,
-      _states,
-      _debuff);
+      _states);
 }
 
 inline MovementT *Movement::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -4940,8 +4928,7 @@ inline MobT::MobT(const MobT &o)
       : mob_index(o.mob_index),
         mob_id(o.mob_id),
         mob_hp(o.mob_hp),
-        state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr),
-        debuff(o.debuff) {
+        state((o.state) ? new fbs::LifeStateT(*o.state) : nullptr) {
 }
 
 inline MobT &MobT::operator=(MobT o) FLATBUFFERS_NOEXCEPT {
@@ -4949,7 +4936,6 @@ inline MobT &MobT::operator=(MobT o) FLATBUFFERS_NOEXCEPT {
   std::swap(mob_id, o.mob_id);
   std::swap(mob_hp, o.mob_hp);
   std::swap(state, o.state);
-  std::swap(debuff, o.debuff);
   return *this;
 }
 
@@ -4966,7 +4952,6 @@ inline void Mob::UnPackTo(MobT *_o, const ::flatbuffers::resolver_function_t *_r
   { auto _e = mob_id(); _o->mob_id = _e; }
   { auto _e = mob_hp(); _o->mob_hp = _e; }
   { auto _e = state(); if (_e) { if(_o->state) { _e->UnPackTo(_o->state.get(), _resolver); } else { _o->state = std::unique_ptr<fbs::LifeStateT>(_e->UnPack(_resolver)); } } else if (_o->state) { _o->state.reset(); } }
-  { auto _e = debuff(); if (_e) { _o->debuff.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { _o->debuff[_i] = static_cast<fbs::DebuffEnum>(_e->Get(_i)); } } else { _o->debuff.resize(0); } }
 }
 
 inline ::flatbuffers::Offset<Mob> CreateMob(::flatbuffers::FlatBufferBuilder &_fbb, const MobT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -4981,14 +4966,12 @@ inline ::flatbuffers::Offset<Mob> Mob::Pack(::flatbuffers::FlatBufferBuilder &_f
   auto _mob_id = _o->mob_id;
   auto _mob_hp = _o->mob_hp;
   auto _state = _o->state ? CreateLifeState(_fbb, _o->state.get(), _rehasher) : 0;
-  auto _debuff = _o->debuff.size() ? _fbb.CreateVectorScalarCast<int8_t>(::flatbuffers::data(_o->debuff), _o->debuff.size()) : 0;
   return fbs::CreateMob(
       _fbb,
       _mob_index,
       _mob_id,
       _mob_hp,
-      _state,
-      _debuff);
+      _state);
 }
 
 inline FaceT *Face::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -5218,6 +5201,50 @@ inline ::flatbuffers::Offset<Drop> Drop::Pack(::flatbuffers::FlatBufferBuilder &
       _page);
 }
 
+inline DebuffT *Debuff::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<DebuffT>(new DebuffT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void Debuff::UnPackTo(DebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = time(); _o->time = _e; }
+  { auto _e = val(); _o->val = _e; }
+}
+
+inline ::flatbuffers::Offset<Debuff> CreateDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return Debuff::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<Debuff> Debuff::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DebuffT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _time = _o->time;
+  auto _val = _o->val;
+  return fbs::CreateDebuff(
+      _fbb,
+      _time,
+      _val);
+}
+
+inline StateT::StateT(const StateT &o)
+      : state(o.state),
+        val(o.val),
+        sub_val(o.sub_val),
+        db((o.db) ? new fbs::DebuffT(*o.db) : nullptr) {
+}
+
+inline StateT &StateT::operator=(StateT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(state, o.state);
+  std::swap(val, o.val);
+  std::swap(sub_val, o.sub_val);
+  std::swap(db, o.db);
+  return *this;
+}
+
 inline StateT *State::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<StateT>(new StateT());
   UnPackTo(_o.get(), _resolver);
@@ -5230,6 +5257,7 @@ inline void State::UnPackTo(StateT *_o, const ::flatbuffers::resolver_function_t
   { auto _e = state(); _o->state = _e; }
   { auto _e = val(); _o->val = _e; }
   { auto _e = sub_val(); _o->sub_val = _e; }
+  { auto _e = db(); if (_e) { if(_o->db) { _e->UnPackTo(_o->db.get(), _resolver); } else { _o->db = std::unique_ptr<fbs::DebuffT>(_e->UnPack(_resolver)); } } else if (_o->db) { _o->db.reset(); } }
 }
 
 inline ::flatbuffers::Offset<State> CreateState(::flatbuffers::FlatBufferBuilder &_fbb, const StateT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5243,43 +5271,13 @@ inline ::flatbuffers::Offset<State> State::Pack(::flatbuffers::FlatBufferBuilder
   auto _state = _o->state;
   auto _val = _o->val;
   auto _sub_val = _o->sub_val;
+  auto _db = _o->db ? CreateDebuff(_fbb, _o->db.get(), _rehasher) : 0;
   return fbs::CreateState(
       _fbb,
       _state,
       _val,
-      _sub_val);
-}
-
-inline DebuffT *Debuff::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
-  auto _o = std::unique_ptr<DebuffT>(new DebuffT());
-  UnPackTo(_o.get(), _resolver);
-  return _o.release();
-}
-
-inline void Debuff::UnPackTo(DebuffT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
-  (void)_o;
-  (void)_resolver;
-  { auto _e = type(); _o->type = _e; }
-  { auto _e = time(); _o->time = _e; }
-  { auto _e = val(); _o->val = _e; }
-}
-
-inline ::flatbuffers::Offset<Debuff> CreateDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  return Debuff::Pack(_fbb, _o, _rehasher);
-}
-
-inline ::flatbuffers::Offset<Debuff> Debuff::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const DebuffT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
-  (void)_rehasher;
-  (void)_o;
-  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const DebuffT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
-  auto _type = _o->type;
-  auto _time = _o->time;
-  auto _val = _o->val;
-  return fbs::CreateDebuff(
-      _fbb,
-      _type,
-      _time,
-      _val);
+      _sub_val,
+      _db);
 }
 
 inline ReactorT *Reactor::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
@@ -5317,6 +5315,67 @@ inline ::flatbuffers::Offset<Reactor> Reactor::Pack(::flatbuffers::FlatBufferBui
       _delay);
 }
 
+inline RSkillPortalT *RSkillPortal::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<RSkillPortalT>(new RSkillPortalT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void RSkillPortal::UnPackTo(RSkillPortalT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = goal_x(); _o->goal_x = _e; }
+  { auto _e = goal_y(); _o->goal_y = _e; }
+  { auto _e = goal_map(); _o->goal_map = _e; }
+}
+
+inline ::flatbuffers::Offset<RSkillPortal> CreateRSkillPortal(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillPortalT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return RSkillPortal::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<RSkillPortal> RSkillPortal::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillPortalT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const RSkillPortalT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _goal_x = _o->goal_x;
+  auto _goal_y = _o->goal_y;
+  auto _goal_map = _o->goal_map;
+  return fbs::CreateRSkillPortal(
+      _fbb,
+      _goal_x,
+      _goal_y,
+      _goal_map);
+}
+
+inline RSkillT::RSkillT(const RSkillT &o)
+      : client_id(o.client_id),
+        ski_id(o.ski_id),
+        ski_lv(o.ski_lv),
+        x(o.x),
+        y(o.y),
+        flip(o.flip),
+        page(o.page),
+        start(o.start),
+        end(o.end),
+        val(o.val),
+        portal((o.portal) ? new fbs::RSkillPortalT(*o.portal) : nullptr) {
+}
+
+inline RSkillT &RSkillT::operator=(RSkillT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(client_id, o.client_id);
+  std::swap(ski_id, o.ski_id);
+  std::swap(ski_lv, o.ski_lv);
+  std::swap(x, o.x);
+  std::swap(y, o.y);
+  std::swap(flip, o.flip);
+  std::swap(page, o.page);
+  std::swap(start, o.start);
+  std::swap(end, o.end);
+  std::swap(val, o.val);
+  std::swap(portal, o.portal);
+  return *this;
+}
+
 inline RSkillT *RSkill::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<RSkillT>(new RSkillT());
   UnPackTo(_o.get(), _resolver);
@@ -5336,9 +5395,7 @@ inline void RSkill::UnPackTo(RSkillT *_o, const ::flatbuffers::resolver_function
   { auto _e = start(); _o->start = _e; }
   { auto _e = end(); _o->end = _e; }
   { auto _e = val(); _o->val = _e; }
-  { auto _e = goal_x(); _o->goal_x = _e; }
-  { auto _e = goal_y(); _o->goal_y = _e; }
-  { auto _e = goal_map(); _o->goal_map = _e; }
+  { auto _e = portal(); if (_e) { if(_o->portal) { _e->UnPackTo(_o->portal.get(), _resolver); } else { _o->portal = std::unique_ptr<fbs::RSkillPortalT>(_e->UnPack(_resolver)); } } else if (_o->portal) { _o->portal.reset(); } }
 }
 
 inline ::flatbuffers::Offset<RSkill> CreateRSkill(::flatbuffers::FlatBufferBuilder &_fbb, const RSkillT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
@@ -5359,9 +5416,7 @@ inline ::flatbuffers::Offset<RSkill> RSkill::Pack(::flatbuffers::FlatBufferBuild
   auto _start = _o->start;
   auto _end = _o->end;
   auto _val = _o->val;
-  auto _goal_x = _o->goal_x;
-  auto _goal_y = _o->goal_y;
-  auto _goal_map = _o->goal_map;
+  auto _portal = _o->portal ? CreateRSkillPortal(_fbb, _o->portal.get(), _rehasher) : 0;
   return fbs::CreateRSkill(
       _fbb,
       _client_id,
@@ -5374,9 +5429,7 @@ inline ::flatbuffers::Offset<RSkill> RSkill::Pack(::flatbuffers::FlatBufferBuild
       _start,
       _end,
       _val,
-      _goal_x,
-      _goal_y,
-      _goal_map);
+      _portal);
 }
 
 inline MobDebuffT::MobDebuffT(const MobDebuffT &o)

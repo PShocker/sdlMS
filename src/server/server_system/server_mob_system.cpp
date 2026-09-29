@@ -1,6 +1,7 @@
 #include "server_mob_system.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
@@ -210,18 +211,13 @@ void server_mob_system::run_network_sync(server_mob &mob, server_mob &o_mob) {
 }
 
 void server_mob_system::run_walk(server_mob &mob) {
-  const auto &s_fhs = server_scene_instance::scenes.at(map_id).fhs;
-  std::flat_map<int32_t, game_foothold> g_fhs;
-  for (const auto &[key, value] : s_fhs) {
-    g_fhs.emplace(key, value.fh);
-  }
-
   SDL_FRect border;
   border.x = mob.rx0;
   border.w = mob.rx1;
 
   physic::walk(mob.pos, delta_time / 1000.0f, mob.hspeed, mob.vspeed,
-               mob.hforce, -80, 80, 0, false, mob.fh, border, g_fhs);
+               mob.hforce, -mob.hspeed, mob.hspeed, 0, false, mob.fh, border,
+               g_fhs);
 }
 
 void server_mob_system::run_duration(server_mob &mob) {
@@ -305,6 +301,27 @@ void server_mob_system::run_duration(server_mob &mob) {
   }
   }
 }
+
+void server_mob_system::run_default_action(server_mob &mob) {
+  switch (mob.type) {
+  case server_mob::mob_type::stand: {
+    run_stand_action(mob);
+    break;
+  }
+  case server_mob::mob_type::swim: {
+    run_swim_action(mob);
+    break;
+  }
+  case server_mob::mob_type::fly: {
+    run_fly_action(mob);
+    break;
+  }
+  }
+}
+
+void server_mob_system::run_fly_action(server_mob &mob) {}
+
+void server_mob_system::run_swim_action(server_mob &mob) {}
 
 void server_mob_system::run_hit_action(server_mob &mob) {
   mob.action = u"hit1";
@@ -426,7 +443,7 @@ bool server_mob_system::run_hit_check(server_mob &mob) {
 
 void server_mob_system::run_hit(server_mob &mob) {
   if (run_hit_check(mob)) {
-    run_stand_action(mob);
+    run_default_action(mob);
     run_duration(mob);
   } else {
     switch (mob.type) {
@@ -447,7 +464,18 @@ bool server_mob_system::run_fall(server_mob &mob) {
   if (mob.fh != 0) {
     return false;
   }
-  return false;
+
+  auto border = map_info_game_instance::load_mr_border(map_id);
+  auto vspeed = mob.vspeed + delta_time * 2000;
+  mob.vspeed = vspeed;
+
+  const float vspeed_min = -5550.0f;
+  const float vspeed_max = 670.0f;
+
+  bool r = physic::fall(mob.pos, delta_time / 1000.0f, mob.hspeed, mob.vspeed,
+                        vspeed_min, vspeed_max, border, true, true, mob.fh,
+                        mob.page, g_fhs, INT32_MAX);
+  return r;
 }
 
 void server_mob_system::run_state_machine(server_mob &mob) {
@@ -481,7 +509,9 @@ void server_mob_system::run_state_machine(server_mob &mob) {
     break;
   }
   case mob_logic_system::action_enum::jump: {
-    run_fall(mob);
+    if (run_fall(mob)) {
+      run_default_action(mob);
+    }
     break;
   }
   case mob_logic_system::action_enum::swim:
@@ -520,6 +550,11 @@ bool server_mob_system::run() {
       continue;
     }
     map_id = sc.map_id;
+    g_fhs.clear();
+    const auto &s_fhs = server_scene_instance::scenes.at(map_id).fhs;
+    for (const auto &[key, value] : s_fhs) {
+      g_fhs.emplace(key, value.fh);
+    }
     for (auto &mob : sc.mobs | std::views::values) {
       run_state_machine(mob);
     }

@@ -21,10 +21,6 @@ table CharacterAppearance{
     ear:string;
 }
 
-enum DebuffEnum : int8 {
-    DIZZ,
-    FREEZE,
-}
 
 table Character{
     name:[uint16];
@@ -40,7 +36,6 @@ table Character{
     decos:[Deco];
 
     states:[State];
-    debuff:[DebuffEnum];
 }
 
 table Movement{
@@ -121,7 +116,6 @@ table Mob{
     mob_id:uint32;
     mob_hp:int64;
     state:LifeState;
-    debuff:[DebuffEnum];
 }
 
 table Face{
@@ -180,18 +174,19 @@ enum StateEnum : int8 {
     ITEM_USE,
     BUFF_SKILL,
     BUFF_ITEM,
+    DEBUFF,
+}
+
+table Debuff{
+    time:uint64;
+    val:int64;
 }
 
 table State{
     state: StateEnum;
     val:int64;
     sub_val:int64;
-}
-
-table Debuff{
-    type: DebuffEnum;
-    time:uint64;
-    val:int64;
+    db:Debuff;
 }
 
 table Reactor{
@@ -199,6 +194,12 @@ table Reactor{
     state:uint8;
     action:string;
     delay:uint64;
+}
+
+table RSkillPortal{ 
+    goal_x:float;
+    goal_y:float;
+    goal_map:uint64;
 }
 
 table RSkill{ //RegionSkill
@@ -213,9 +214,7 @@ table RSkill{ //RegionSkill
     end:uint64;
     val:int64;
 
-    goal_x:float = null;
-    goal_y:float = null;
-    goal_map:uint64 = null;
+    portal:RSkillPortal;
 }
 
 table MobDebuff{
