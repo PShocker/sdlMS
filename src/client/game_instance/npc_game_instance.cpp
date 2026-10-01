@@ -150,6 +150,14 @@ void npc_game_instance::load(uint32_t map_id) {
   }
 }
 
+std::u16string npc_game_instance::load_npc_script(const std::u16string &id) {
+  auto npc_node = wz_resource::npc->find(id + u".img");
+  if (auto n = npc_node->find(u"info/script/0/script"); n != nullptr) {
+    return static_cast<wz::Property<std::u16string> *>(n)->get();
+  }
+  return u"";
+}
+
 npc_game_instance::npc_type
 npc_game_instance::load_npc_type(const std::u16string &id) {
   if (shop_game_instance::load_npc_shop(id)) {

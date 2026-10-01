@@ -151,7 +151,7 @@ uint64_t ball_game_instance::load_ball_time(ClientCharacterBallT &cct) {
 
   const auto &mob_pos = it->second.mob.pos;
 
-  // 起点 = b->x1/y1，终点 = b->x2/y2 + mob 偏移
+  // 起点 = b->x1/y1,终点 = b->x2/y2 + mob 偏移
   const float dx = (b->x2 + mob_pos.x) - b->x1;
   const float dy = (b->y2 + mob_pos.y) - b->y1;
 

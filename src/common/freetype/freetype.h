@@ -74,7 +74,8 @@ public:
   static rstr_return_data draw_rstr(const std::u16string &str, float x, float y,
                                     float w, float h,
                                     std::optional<SDL_FRect> obstacle,
-                                    int default_select, bool dryRun);
+                                    int default_select, bool dryRun,
+                                    int visibleCount);
   static void draw_cstr(const std::u16string &str, float x, float y, float w,
                         float h);
 };

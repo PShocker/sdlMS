@@ -155,13 +155,8 @@ void npc_dlg_ui_system::render_button() {
 
 void npc_dlg_ui_system::render_text() {
   auto dt = window::dt_now - time;
-  dt = dt / 35;
-  dt = std::clamp(dt, (uint64_t)1, (uint64_t)text.size());
-  auto str = text.substr(0, dt);
+  int visibleCount = int(dt * 0.05);
   switch (type) {
-  case npc_dlg_enum::choose: {
-    break;
-  }
   case npc_dlg_enum::quest:
   case npc_dlg_enum::quest_avaliable:
   case npc_dlg_enum::quest_complete:
@@ -171,20 +166,15 @@ void npc_dlg_ui_system::render_text() {
   case npc_dlg_enum::quest_stop_lost:
   case npc_dlg_enum::quest_stop_mob:
   case npc_dlg_enum::quest_stop_npc:
-  case npc_dlg_enum::talk: {
-    freetype::load_size(12);
-    freetype::load_aligned(true);
-    freetype::load_color(0, 0, 0, 255);
-    freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3, std::nullopt);
-    break;
-  }
+  case npc_dlg_enum::talk:
   case npc_dlg_enum::select: {
     freetype::load_size(12);
     freetype::load_aligned(true);
     freetype::load_color(0, 0, 0, 255);
-    select_mouse = freetype::draw_rstr(str, pos.x + 165, pos.y + 30, 330, 1.3,
-                                       std::nullopt, select, false)
-                       .select;
+    select_mouse =
+        freetype::draw_rstr(text, pos.x + 165, pos.y + 30, 330, 1.3,
+                            std::nullopt, select, false, visibleCount)
+            .select;
     break;
   }
   default: {
@@ -278,6 +268,20 @@ void npc_dlg_ui_system::render_list() {
   render_q(t2, progress_complete_quest, y, u"Complete");
   render_q(t1, avaliable_quest, y, u"Avaliable");
   render_q(t0, progress_quest, y, u"Progress");
+
+  // script
+  static auto t_etc = wz_resource::load_texture(
+      wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list2"));
+  auto script_id = npc_game_instance::load_npc_script(npc_id);
+  if (!script_id.empty()) {
+    SDL_FRect pos_rect{
+        static_cast<float>((int)pos.x + 165),
+        (int)pos.y + y,
+        static_cast<float>(t_etc->w),
+        static_cast<float>(t_etc->h),
+    };
+    SDL_RenderTexture(window::renderer, t_etc, nullptr, &pos_rect);
+  }
 }
 
 void npc_dlg_ui_system::render_obtain() {
@@ -467,10 +471,14 @@ void npc_dlg_ui_system::event_button_ok() {
     package_game_instance::add_meso(act_meso);
     auto act_exp = quest_game_instance::load_quest_act_exp(quest_id);
     character_stat_game_instance::add_exp(act_exp);
+    if (start_next_quest()) {
+      return;
+    }
     quest_game_instance::complete_quest(quest_id);
     quest_alarm_ui_system::complete_quest(quest_id);
     auto quest_node = quest_game_instance::load_quest_node(quest_id);
     if (auto n = quest_node->find(u"Say/1/yes/0"); n != nullptr) {
+      time = window::dt_now;
       text = text_game_instance::load_rstr(n);
       index = 0;
       max_index = n->children_count() - 1;
@@ -555,6 +563,7 @@ void npc_dlg_ui_system::event_button_next() {
       index = 0;
       max_index = 0;
     } else {
+      type = npc_dlg_enum::talk;
       node = quest_game_instance::load_quest_node(quest_id);
       node = node->find(u"Say/" + quest_index + u"/stop");
       node = node->get_child(std::to_string(index));
@@ -597,7 +606,7 @@ void npc_dlg_ui_system::event_quest_list() {
   wz::Node *node = nullptr;
   if (std::ranges::contains(progress_complete, quest_id)) {
     // 待完成
-    node = quest_game_instance::load_quest_node(selected);
+    node = quest_game_instance::load_quest_node(quest_id);
     if (auto n = node->find(u"Check/0/endscript"); n != nullptr) {
       auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
       script::fns().at(spt)(nullptr);
@@ -623,17 +632,16 @@ void npc_dlg_ui_system::event_quest_list() {
       index = 0;
       max_index = m.size() - 1;
       time = window::dt_now;
+      select_mouse = -1;
       return;
     }
-    if (auto n = node->find(u"Act/" + quest_index + u"/nextQuest");
-        n != nullptr) {
-      quest_game_instance::complete_quest(selected);
-      quest_alarm_ui_system::complete_quest(selected);
-      auto nq = static_cast<wz::Property<int> *>(n)->get();
-      tmp = std::to_string(nq);
-      selected = std::u16string{tmp.begin(), tmp.end()} + u".img";
-      event_quest_list();
-      return;
+    auto act_meso = quest_game_instance::load_quest_act_meso(quest_id);
+    auto act_item = quest_game_instance::load_quest_act_item(quest_id);
+    auto act_exp = quest_game_instance::load_quest_act_exp(quest_id);
+    if (act_meso == 0 && act_item.empty() && act_exp == 0) {
+      if (start_next_quest()) {
+        return;
+      }
     }
     type = npc_dlg_enum::quest_complete;
     node = node->find(u"Say/" + quest_index);
@@ -880,4 +888,20 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
   }
 
   return r;
+}
+
+bool npc_dlg_ui_system::start_next_quest() {
+  auto node = quest_game_instance::load_quest_node(quest_id);
+  if (auto n = node->find(u"Act/" + quest_index + u"/nextQuest");
+      n != nullptr) {
+    quest_game_instance::complete_quest(selected);
+    quest_alarm_ui_system::complete_quest(selected);
+    auto nq = static_cast<wz::Property<int> *>(n)->get();
+    auto tmp = std::to_string(nq);
+    selected = std::u16string{tmp.begin(), tmp.end()} + u".img";
+    type = npc_dlg_enum::quest;
+    event_quest_list();
+    return true;
+  }
+  return false;
 }

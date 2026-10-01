@@ -32,6 +32,8 @@ private:
   static bool event_button(SDL_Event *event);
   static void event_button_update();
 
+  static bool start_next_quest();
+
 public:
   static bool render();
 
@@ -59,7 +61,6 @@ public:
   static inline int8_t max_select;
 
   enum class npc_dlg_enum {
-    choose,
     quest,
     talk,
     select,

@@ -27,6 +27,8 @@ public:
   static std::u16string load_npc_text(const std::u16string &id,
                                       const std::u16string &val);
 
+  static std::u16string load_npc_script(const std::u16string &id);
+
   enum class npc_type {
     none,
     quest,

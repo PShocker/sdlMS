@@ -1,6 +1,8 @@
 #include "freetype.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <cstdint>
@@ -248,7 +250,8 @@ void freetype::draw_dash_line(float x1, float y1, float x2, float y2,
 freetype::rstr_return_data
 freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
                     float h, std::optional<SDL_FRect> obstacle,
-                    int default_select, bool dryRun) {
+                    int default_select, bool dryRun,
+                    int visibleCount /* = -1 */) {
   // === 常量 ===
   constexpr float kBulletOffsetX = 15.0f;
   constexpr float kDashOn = 3.0f;
@@ -271,6 +274,13 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
   std::vector<SDL_FPoint> select_dot;
   select_r.reserve(8);
   select_dot.reserve(8);
+
+  // 打字机：dryRun 时忽略 visibleCount，保证测量到完整布局
+  const bool typing = (visibleCount >= 0) && !dryRun;
+  // 已“提交”的可见正文字符数（选项、\n、#x 控制序列不计入）
+  size_t drawn = 0;
+  // 是否处于 #Lxx ... #l 选项区
+  bool inOption = false;
 
   // === 辅助 ===
   const SDL_FRect *obs = obstacle ? &*obstacle : nullptr;
@@ -303,6 +313,17 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
     }
     return false;
   };
+
+  // 判断当前这个普通字符是否应该“落墨”
+  // 选项永远显示；正文受打字机控制
+  const auto shouldShow = [&]() -> bool {
+    if (inOption)
+      return true;
+    return !typing || drawn < static_cast<size_t>(visibleCount);
+  };
+
+  // 富文本的图标，最大是32*32，如果出现图标，则行高需要调整为32
+  SDL_Texture *icon = nullptr;
 
   // === 主循环 ===
   for (size_t i = 0; i < str.size(); ++i) {
@@ -352,9 +373,28 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
         i += 3;
         ++select;
         l = x + kBulletOffsetX;
+        inOption = true; // ← 进入选项区
 
         select_r.emplace_back(SDL_FRect{l, t, 0.0f, lineHeight});
         select_dot.emplace_back(SDL_FPoint{l - size * 0.5f, t + size * 0.5f});
+        break;
+      }
+      case u'i': {
+        auto itm_id = str.substr(i + 2, 7);
+        itm_id = u"0" + itm_id;
+        auto node = item_game_instance::load_item_info(itm_id, 1);
+        if (!item_game_instance::check_item(itm_id)) {
+          node = equip_game_instance::load_equip_info(itm_id);
+        }
+        icon = wz_resource::load_texture(node->get_child(u"icon"));
+        SDL_FRect pos{
+            static_cast<float>((int)l),
+            static_cast<float>((int)t),
+            static_cast<float>(icon->w),
+            static_cast<float>(icon->h),
+        };
+        SDL_RenderTexture(window::renderer, icon, nullptr, &pos);
+        i += 9;
         break;
       }
       case u'l': {
@@ -363,6 +403,7 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
         }
         ++i;
         select = -1;
+        inOption = false; // ← 离开选项区
         break;
       }
       default:
@@ -375,33 +416,48 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
     const float charWidth = load_char_w(c);
     const float charHeight = lineHeight;
 
-    // 遮挡处理
+    // 遮挡处理（布局推进：无论是否显示都要做）
     if (isBlocked(l, t, charWidth, charHeight)) {
       if (!findPlacement(charWidth)) {
+        if (!inOption)
+          ++drawn; // 选项不占打字预算
         continue;
       }
     }
 
-    // 右边界检查
+    // 右边界检查（布局推进）
     if (l + charWidth > rightEdge) {
       newline();
       if (isBlocked(l, t, charWidth, charHeight)) {
+        if (!inOption)
+          ++drawn;
         continue;
       }
     }
 
-    // 绘制 / 仅推进
-    if (!dryRun) {
-      if (select >= 0 && selected == -1) {
-        const SDL_FRect pos{l, t, charWidth, charHeight};
-        if (SDL_PointInRectFloat(&window::mouse_pos, &pos)) {
-          selected = select;
+    // 是否轮到这个字符落墨
+    const bool show = shouldShow();
+
+    if (show) {
+      if (!dryRun) {
+        // hover 检测：选项一开始就能被 hover
+        if (select >= 0 && selected == -1) {
+          const SDL_FRect pos{l, t, charWidth, charHeight};
+          if (SDL_PointInRectFloat(&window::mouse_pos, &pos)) {
+            selected = select;
+          }
         }
+        l += draw_char(l, t, c);
+      } else {
+        l += charWidth;
       }
-      l += draw_char(l, t, c);
     } else {
+      // 未显示：只推进布局，不绘制、不 hover
       l += charWidth;
     }
+
+    if (!inOption)
+      ++drawn; // ← 只有正文才推进打字进度
   }
 
   // === 选择按钮 ===
@@ -510,12 +566,12 @@ void freetype::draw_cstr(const std::u16string &str, float x, float y, float w,
 
 float freetype::load_rh(const std::u16string &str, float w, float h,
                         std::optional<SDL_FRect> obstacle) {
-  return draw_rstr(str, 0, 0, w, h, obstacle, -1, true)
+  return draw_rstr(str, 0, 0, w, h, obstacle, -1, true, INT32_MAX)
       .height; // 添加 dryRun 参数
 }
 
 freetype::rstr_return_data
 freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
                     float h, std::optional<SDL_FRect> obstacle) {
-  return draw_rstr(str, x, y, w, h, obstacle, -1, false);
+  return draw_rstr(str, x, y, w, h, obstacle, -1, false, INT32_MAX);
 }
