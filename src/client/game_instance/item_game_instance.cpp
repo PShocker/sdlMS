@@ -64,7 +64,10 @@ wz::Node *item_game_instance::load_item_info(const std::u16string &id,
     return node;
   }
   auto type = load_item_type(id);
-  if (type == u"Consume" || type == u"Etc" || type == u"Ins") {
+  if (type == u"Ins") {
+    type = u"Install";
+  }
+  if (type == u"Consume" || type == u"Etc" || type == u"Install") {
     auto r = id.substr(0, 4) + u".img";
     node = wz_resource::item->find(type + u"/" + r + u"/" + id)
                ->get_child(u"info");

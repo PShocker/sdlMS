@@ -256,17 +256,19 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
   constexpr float kBulletOffsetX = 15.0f;
   constexpr float kDashOn = 3.0f;
   constexpr float kDashOff = 3.0f;
+  constexpr float kIconLineHeight = 32.0f;
   constexpr SDL_Color kDefaultLineColor{128, 128, 128, 255};
   constexpr SDL_Color kSelectedLineColor{0, 0, 0, 255};
 
   // === 初始化 ===
-  const float lineHeight =
+  const float baseLineHeight =
       static_cast<float>(face->size->metrics.height >> 6) * h;
   const float rightEdge = x + w;
   const float bottomEdge = y + h;
 
   auto l = x;
   auto t = y;
+  float lineHeight = baseLineHeight;
 
   int select = -1;
   int selected = -1;
@@ -275,11 +277,8 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
   select_r.reserve(8);
   select_dot.reserve(8);
 
-  // 打字机：dryRun 时忽略 visibleCount，保证测量到完整布局
   const bool typing = (visibleCount >= 0) && !dryRun;
-  // 已“提交”的可见正文字符数（选项、\n、#x 控制序列不计入）
   size_t drawn = 0;
-  // 是否处于 #Lxx ... #l 选项区
   bool inOption = false;
 
   // === 辅助 ===
@@ -293,12 +292,23 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
     return SDL_HasRectIntersectionFloat(&rect, obs);
   };
 
+  // 探测从索引 i 开始、到下一个换行点之前，这一“逻辑行”是否含图标
+  const auto lineHasIcon = [&](size_t i) -> bool {
+    for (size_t j = i; j < str.size(); ++j) {
+      if (str[j] == u'\n')
+        break;
+      if (str[j] == u'#' && j + 1 < str.size() && str[j + 1] == u'i')
+        return true;
+    }
+    return false;
+  };
+
   const auto newline = [&] {
     t += lineHeight;
     l = x;
+    lineHeight = baseLineHeight;
   };
 
-  // 向右扫，找不到就换行向下扫；返回是否成功
   const auto findPlacement = [&](float charWidth) -> bool {
     while (l + charWidth <= rightEdge) {
       l += 1.0f;
@@ -314,31 +324,42 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
     return false;
   };
 
-  // 判断当前这个普通字符是否应该“落墨”
-  // 选项永远显示；正文受打字机控制
   const auto shouldShow = [&]() -> bool {
     if (inOption)
       return true;
     return !typing || drawn < static_cast<size_t>(visibleCount);
   };
 
-  // 富文本的图标，最大是32*32，如果出现图标，则行高需要调整为32
   SDL_Texture *icon = nullptr;
+
+  // 进入一行时，先根据“本行是否含图标”决定行高
+  // 注意：这里的“行”按逻辑行（到 \n 为止）判断
+  bool lineChecked = false;
 
   // === 主循环 ===
   for (size_t i = 0; i < str.size(); ++i) {
     const char16_t c = str[i];
 
-    // --- 换行符 ---
+    // 每进入新的一行（l == x 且刚换行后），先探测行高
+    // 这里用 lineChecked 标记，遇到 newline 后重置
+    if (!lineChecked && l == x) {
+      if (lineHasIcon(i)) {
+        lineHeight = kIconLineHeight;
+      } else {
+        lineHeight = baseLineHeight;
+      }
+      lineChecked = true;
+    }
+
     if (c == u'\n') {
       if (select >= 0) {
         select_r[select].w = l - x;
       }
       newline();
+      lineChecked = false;
       continue;
     }
 
-    // --- 控制字符 ---
     if (c == u'#' && i + 1 < str.size()) {
       const char16_t d = str[i + 1];
       switch (d) {
@@ -367,13 +388,12 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
         ++i;
         break;
       case u'L': {
-        // 跳过 "Lxx"
         if (i + 3 >= str.size())
           break;
         i += 3;
         ++select;
         l = x + kBulletOffsetX;
-        inOption = true; // ← 进入选项区
+        inOption = true;
 
         select_r.emplace_back(SDL_FRect{l, t, 0.0f, lineHeight});
         select_dot.emplace_back(SDL_FPoint{l - size * 0.5f, t + size * 0.5f});
@@ -387,13 +407,19 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
           node = equip_game_instance::load_equip_info(itm_id);
         }
         icon = wz_resource::load_texture(node->get_child(u"icon"));
+
+        // 行高已在本行开始时确定为 32，这里直接底部对齐绘制
         SDL_FRect pos{
             static_cast<float>((int)l),
-            static_cast<float>((int)t),
+            static_cast<float>((int)(t + lineHeight - icon->h)),
             static_cast<float>(icon->w),
             static_cast<float>(icon->h),
         };
-        SDL_RenderTexture(window::renderer, icon, nullptr, &pos);
+        if (shouldShow()) {
+          SDL_RenderTexture(window::renderer, icon, nullptr, &pos);
+        }
+
+        l += static_cast<float>(icon->w);
         i += 9;
         break;
       }
@@ -403,7 +429,7 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
         }
         ++i;
         select = -1;
-        inOption = false; // ← 离开选项区
+        inOption = false;
         break;
       }
       default:
@@ -416,18 +442,24 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
     const float charWidth = load_char_w(c);
     const float charHeight = lineHeight;
 
-    // 遮挡处理（布局推进：无论是否显示都要做）
     if (isBlocked(l, t, charWidth, charHeight)) {
       if (!findPlacement(charWidth)) {
         if (!inOption)
-          ++drawn; // 选项不占打字预算
+          ++drawn;
         continue;
       }
     }
 
-    // 右边界检查（布局推进）
     if (l + charWidth > rightEdge) {
       newline();
+      lineChecked = false;
+      // 换行后重新探测行高
+      if (lineHasIcon(i)) {
+        lineHeight = kIconLineHeight;
+      } else {
+        lineHeight = baseLineHeight;
+      }
+      lineChecked = true;
       if (isBlocked(l, t, charWidth, charHeight)) {
         if (!inOption)
           ++drawn;
@@ -435,29 +467,28 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
       }
     }
 
-    // 是否轮到这个字符落墨
     const bool show = shouldShow();
 
     if (show) {
       if (!dryRun) {
-        // hover 检测：选项一开始就能被 hover
         if (select >= 0 && selected == -1) {
           const SDL_FRect pos{l, t, charWidth, charHeight};
           if (SDL_PointInRectFloat(&window::mouse_pos, &pos)) {
             selected = select;
           }
         }
-        l += draw_char(l, t, c);
+        // 文字按当前行高底部对齐：draw_char 的 y 为文字顶部
+        const float drawY = t + lineHeight - baseLineHeight;
+        l += draw_char(l, drawY, c);
       } else {
         l += charWidth;
       }
     } else {
-      // 未显示：只推进布局，不绘制、不 hover
       l += charWidth;
     }
 
     if (!inOption)
-      ++drawn; // ← 只有正文才推进打字进度
+      ++drawn;
   }
 
   // === 选择按钮 ===
