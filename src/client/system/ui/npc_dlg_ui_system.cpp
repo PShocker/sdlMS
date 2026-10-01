@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -374,8 +375,8 @@ bool npc_dlg_ui_system::render() {
 
 SDL_FPoint npc_dlg_ui_system::load_wh() {
   freetype::load_size(12);
-  auto h = freetype::load_h(text, 330, 1.3);
-  h = h + 140;
+  auto h = freetype::load_rh(text, 330, 1.3,std::nullopt);
+  h = h + 130;
   if (type == npc_dlg_enum::quest && index == 0) {
     auto avaliable_quest = npc_game_instance::load_avaliable_quest(npc_id);
     auto progress_quest = npc_game_instance::load_progress_quest(npc_id);

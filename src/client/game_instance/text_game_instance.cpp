@@ -4,6 +4,7 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
@@ -119,11 +120,41 @@ std::u16string text_game_instance::replace_r(std::u16string text) {
 
 std::u16string text_game_instance::load_rstr(wz::Node *node) {
   static std::flat_map<wz::Node *, std::u16string> cache;
+  std::u16string r;
   if (!cache.contains(node)) {
-    auto str = static_cast<wz::Property<std::u16string> *>(node)->get();
-    str = replace_n(str);
-    str = replace_r(str);
-    cache[node] = str;
+    r = static_cast<wz::Property<std::u16string> *>(node)->get();
+    r = replace_n(r);
+    r = replace_r(r);
+    size_t pos = 0;
+    const std::u16string tok = u"#c";
+    const auto is_digits = [](const std::u16string &s) {
+      if (s.empty())
+        return false;
+      for (char16_t c : s)
+        if (c < u'0' || c > u'9')
+          return false;
+      return true;
+    };
+    bool replace = false;
+    while ((pos = r.find(tok, pos)) != std::u16string::npos) {
+      auto itm_id = r.substr(pos + 2, 7);
+      if (!is_digits(itm_id)) {
+        pos += tok.size(); // 关键：跳过整个 tok，避免重复/死循环
+        continue;
+      }
+      itm_id = u"0" + itm_id;
+      auto num = package_game_instance::load_item_num(itm_id);
+      auto tmp = std::to_string(num);
+      std::u16string tmp2{tmp.begin(), tmp.end()};
+      r.replace(pos, 10, tmp2);
+      replace = true;
+      pos += tmp2.size();
+    }
+    if (!replace) {
+      cache[node] = r;
+    } else {
+      return r;
+    }
   }
   return cache.at(node);
 }

@@ -360,7 +360,10 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
       continue;
     }
 
-    if (c == u'#' && i + 1 < str.size()) {
+    if (c == u'#') {
+      if (i + 1 >= str.size()) {
+        continue;
+      }
       const char16_t d = str[i + 1];
       switch (d) {
       case u'c':
@@ -415,7 +418,7 @@ freetype::draw_rstr(const std::u16string &str, float x, float y, float w,
             static_cast<float>(icon->w),
             static_cast<float>(icon->h),
         };
-        if (shouldShow()) {
+        if (shouldShow() && !dryRun) {
           SDL_RenderTexture(window::renderer, icon, nullptr, &pos);
         }
 

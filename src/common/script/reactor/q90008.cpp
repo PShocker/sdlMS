@@ -12,6 +12,7 @@ using namespace fbs;
 
 // reactor1
 static void q90008(std::any data) {
+  auto map_id = server_reactor_system::map_id;
   auto r = std::any_cast<server_reactor *>(data);
   auto pos = r->pos;
   std::vector<DropT> dts;
@@ -27,8 +28,19 @@ static void q90008(std::any data) {
 
   dts.push_back(dt);
 
+  if (map_id == 1010) {
+    it.item_id = 4031003;
+    it.item_num = 1;
+    dt.drop.Set(it);
+    dts.push_back(dt);
+
+    it.item_id = 4031004;
+    it.item_num = 1;
+    dt.drop.Set(it);
+    dts.push_back(dt);
+  }
+
   ServerReactorDropT srd;
-  auto map_id = server_reactor_system::map_id;
   srd.payload = server_drop_instance::create_dts(dts, map_id);
 
   for (const auto &dt : srd.payload) {

@@ -93,7 +93,7 @@ static void shuangfeizhan() {
       return;
     }
     auto ball_id = (*ball)->id;
-    character_logic_system::run_attack_action(sf, true);
+    character_logic_system::run_action(sf, u"shoot1");
     auto cm = character_logic_system::run_attack_check(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};

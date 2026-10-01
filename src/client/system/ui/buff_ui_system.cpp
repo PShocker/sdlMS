@@ -92,14 +92,14 @@ bool buff_ui_system::render_ui_info() {
   }
   auto ski = mouse_ski.value();
   // 宽度固定330
-  const auto w = 330;
+  const auto w = 390;
   auto &mouse_pos = window::mouse_pos;
   const auto &camera = camera_game_instance::camera;
   auto x = 0;
   if (mouse_pos.x + w <= camera.w) {
     x = mouse_pos.x;
   } else {
-    x = camera.w - 330;
+    x = camera.w - w;
   }
   tooltip_ui_system::render_skill(ski.id, ski.lv, x, mouse_pos.y);
   return true;

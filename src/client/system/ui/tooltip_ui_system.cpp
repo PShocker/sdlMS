@@ -831,7 +831,7 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
   const auto w = 390;
   freetype::load_size(12);
   auto desc = ski_name.desc;
-  auto rh = freetype::load_rh(desc, w - 28, 1.2, SDL_FRect{0, 0, 74, 64});
+  auto rh = freetype::load_rh(desc, w - 28, 1.2, SDL_FRect{0, 0, 74, 74});
   auto h = std::max(140.0f, rh + 60);
   h += load_skill_bottom_h(id);
   render_backgrnd(x, y, w, h);
@@ -872,7 +872,7 @@ void tooltip_ui_system::render_skill(const std::u16string &id, uint8_t level,
   auto sx = pos_rect.x;
   auto sy = pos_rect.y - 8;
   auto rstr_h =
-      freetype::draw_rstr(desc, sx, sy, w - 28, 1.2, SDL_FRect{sx, sy, 74, 64})
+      freetype::draw_rstr(desc, sx, sy, w - 28, 1.2, SDL_FRect{sx, sy, 74, 74})
           .height;
 
   auto line_y = std::max(sy + rstr_h + 10, y + base.y + 90);
