@@ -74,7 +74,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   character_game_instance::init_character_bone();
   character_game_instance::init_default_clothes();
   character_game_instance::load_self_character();
-  character_game_instance::self.job = u"110";
+  character_game_instance::self.job = u"000";
   character_game_instance::self.level = 100;
   character_game_instance::self.name = u"进击的蓝蘑菇";
   // character_game_instance::self.morph = u"0001";
@@ -85,7 +85,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   character_stat_game_instance::load(cs);
   quest_game_instance::load(cs);
 
-  scene_system_instance::enter_prepare(1, u"sp", 0);
+  scene_system_instance::enter_prepare(1010, u"sp", 0);
   // scene_system_instance::prepare_pos = {600, -470};
   // character_create_system_instance::enter();
   // login_system_instance::enter();

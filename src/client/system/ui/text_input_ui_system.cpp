@@ -270,11 +270,19 @@ bool text_input_ui_system::event(SDL_Event *event, text_input &input) {
     auto str1 = input.text.substr(0, input.cur);
     auto str2 = text_game_instance::load_u16str(text);
     auto str3 = input.text.substr(input.cur);
-
-    input.text = str1 + str2 + str3;
-    input.text = input.text.substr(0, input.max_size);
-    auto cur1 = input.text.length();
-    input.cur += cur1 - cur0;
+    if (input.cur_next.has_value()) {
+      auto min_index = std::min(input.cur, input.cur_next.value());
+      auto max_index = std::max(input.cur, input.cur_next.value());
+      input.text.replace(min_index, max_index - min_index, str2);
+      input.cur = min_index + str2.size();
+      input.cur_next = std::nullopt;
+      input.text = input.text.substr(0, input.max_size);
+    } else {
+      input.text = str1 + str2 + str3;
+      input.text = input.text.substr(0, input.max_size);
+      auto cur1 = input.text.length();
+      input.cur += cur1 - cur0;
+    }
     break;
   }
   case SDL_EVENT_KEY_DOWN: {

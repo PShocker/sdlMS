@@ -3,6 +3,7 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
+#include <flat_map>
 #include <functional>
 #include <string>
 class npc_dlg_ui_system {
@@ -59,6 +60,11 @@ public:
 
   static inline int8_t select;
   static inline int8_t max_select;
+
+  static inline std::flat_map<std::u16string, int> act_item;
+  static inline int32_t act_meso;
+  static inline uint32_t act_exp;
+
 
   enum class npc_dlg_enum {
     quest,

@@ -116,6 +116,8 @@ void npc_render_system::render_quest(game_npc &g_npc) {
     auto pos_rect = npc_game_instance::load_quest_rect(g_npc).value();
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
   }
 }
