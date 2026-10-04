@@ -271,11 +271,12 @@ void npc_dlg_ui_system::render_list() {
   render_q(t0, progress_quest, y, u"Progress");
 
   // script
+  script_id = u"";
   y -= 4;
   static auto t_etc = wz_resource::load_texture(
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list2"));
-  auto script_id = npc_game_instance::load_npc_script(npc_id);
-  if (!script_id.empty()) {
+  auto scp_id = npc_game_instance::load_npc_script(npc_id);
+  if (!scp_id.empty()) {
     SDL_FRect pos_rect{
         static_cast<float>((int)pos.x + 165),
         (int)pos.y + y,
@@ -286,7 +287,7 @@ void npc_dlg_ui_system::render_list() {
     auto text_x = pos_rect.x + 12;
     auto text_y = pos_rect.y + 16;
     std::u16string str;
-    str = u"(" + script_id + u")" + u" Talk to " +
+    str = u"(" + scp_id + u")" + u" Talk to " +
           npc_game_instance::load_npc_text(npc_id, u"name");
     freetype::draw_line(str, text_x, text_y);
     auto text_w = freetype::load_w(str);
@@ -300,6 +301,7 @@ void npc_dlg_ui_system::render_list() {
       SDL_SetRenderDrawColor(window::renderer, 128, 0, 128, 255);
       SDL_RenderLine(window::renderer, text_x, text_y + lh, text_x + text_w,
                      text_y + lh);
+      script_id = scp_id;
     }
   }
 }
@@ -599,11 +601,15 @@ void npc_dlg_ui_system::event_button_next() {
   }
 }
 
-void npc_dlg_ui_system::event_quest_list() {
+void npc_dlg_ui_system::event_list() {
   if (type != npc_dlg_enum::quest) {
     return;
   }
   if (index != 0) {
+    return;
+  }
+  if (type == npc_dlg_enum::quest && !script_id.empty()) {
+    script::fns().at(script_id)(nullptr);
     return;
   }
   if (selected.empty()) {
@@ -885,7 +891,7 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
         time = UINT64_MAX;
-        event_quest_list();
+        event_list();
         event_button(event);
         if (type == npc_dlg_enum::select && select_mouse >= 0) {
           event_button_next();
@@ -915,7 +921,7 @@ bool npc_dlg_ui_system::start_next_quest() {
     auto tmp = std::to_string(nq);
     selected = std::u16string{tmp.begin(), tmp.end()} + u".img";
     type = npc_dlg_enum::quest;
-    event_quest_list();
+    event_list();
     return true;
   }
   return false;

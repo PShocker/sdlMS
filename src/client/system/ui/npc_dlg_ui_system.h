@@ -19,7 +19,7 @@ private:
 
   static SDL_FPoint load_wh();
 
-  static void event_quest_list();
+  static void event_list();
 
   static void event_button_close();
   static void event_button_ok();

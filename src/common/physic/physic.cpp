@@ -219,6 +219,9 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   auto inter_pos = fall_intersect_pos(pos, new_pos, fhs);
   auto range = inter_pos.equal_range(pos.y);
   for (auto it = range.first; it != range.second; ++it) {
+    if (!it->second.fh.k.has_value()) {
+      continue;
+    }
     if (it->second.pos.x == pos.x && it->second.pos.y == pos.y) {
       inter_pos.erase(it);
       break;
@@ -239,9 +242,13 @@ bool physic::fall(SDL_FPoint &pos, float delta_time, float &hspeed,
       return false;
     if (fall_collide_wall(hspeed, fh, fhs)) {
       pos.x = fh.x1;
-      pos.x += (hspeed < 0) ? 1.0f : -1.0f;
-      float low = std::min(fh.y1, fh.y2);
-      float high = std::max(fh.y1, fh.y2);
+      if (hspeed < 0) {
+        pos.x += 1.0f;
+      } else if (hspeed > 0) {
+        pos.x -= 1.0f;
+      }
+      float low = std::min(fh.y1, fh.y2) + 0.1;
+      float high = std::max(fh.y1, fh.y2) - 0.1;
       pos.y = std::clamp(pos.y, low, high);
       hspeed = 0;
       return true;

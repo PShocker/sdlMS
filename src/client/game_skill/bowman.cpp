@@ -7,9 +7,11 @@
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
@@ -112,12 +114,19 @@ static void shuangfeizhan() {
     }
     auto cct = ball_game_instance::create_ball_payload(cm, pos, goal, delay,
                                                        page, 750, path);
+    if (cct.payload->ball->mob_index != UINT32_MAX) {
+      if (cct.payload->ball->y2 >= -8) {
+        cct.payload->ball->y2 -= 8;
+        cm.data[0].y -= 8;
+      }
+    }
+
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
       auto d = ball_game_instance::load_ball_time(cct);
       // Create and send attack payload
-      cm.data[0].hits = {15, 15};
-      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d, 30);
+      cm.data[0].hits = {5, 5};
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, d, 60);
       client_request::send_to_host(cat);
     }
     for (auto i : {0, 1}) {
@@ -128,7 +137,7 @@ static void shuangfeizhan() {
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 3001002, ski_lv);
     if (!ckt.payload.empty()) {
-      ckt.payload[1]->y += 10;
+      ckt.payload[1]->y += 8;
     }
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);

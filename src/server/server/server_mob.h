@@ -38,10 +38,11 @@ public:
   int32_t rx1;
   int32_t fh;
 
-  float hspeed = 100;
+  float hspeed;
+  float hspeed_max;
   float vspeed;
 
-  float hforce = 1400;
+  float hforce = 0;
   uint64_t duration;
 
   uint64_t hate_id;

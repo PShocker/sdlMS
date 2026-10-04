@@ -101,18 +101,19 @@ bool server_mob_system::run_try_jump(server_mob &mob) {
   }
   auto &gen = random_game_instance::gen;
   bool jump = false;
-  std::bernoulli_distribution dist(0.1);
+  std::bernoulli_distribution dist(1);
   jump = dist(gen);
   if (s_fhs.contains(n_fh)) {
     if (!s_fhs.at(n_fh).fh.k.has_value()) {
       // wall
-      std::bernoulli_distribution dist(0.2);
+      std::bernoulli_distribution dist(1);
       jump = dist(gen);
     }
   }
   if (jump) {
     mob.action = u"jump";
     mob.vspeed = -555;
+    mob.fh = 0;
   }
   return jump;
 }
@@ -216,8 +217,8 @@ void server_mob_system::run_walk(server_mob &mob) {
   border.w = mob.rx1;
 
   physic::walk(mob.pos, delta_time / 1000.0f, mob.hspeed, mob.vspeed,
-               mob.hforce, -mob.hspeed, mob.hspeed, 0, false, mob.fh, border,
-               g_fhs);
+               mob.hforce, -mob.hspeed_max, mob.hspeed_max, 0, false, mob.fh,
+               border, g_fhs);
 }
 
 void server_mob_system::run_duration(server_mob &mob) {
@@ -274,6 +275,7 @@ void server_mob_system::run_duration(server_mob &mob) {
   switch (selected) {
   case mob_logic_system::action_enum::stand: {
     mob.duration = window::dt_now + 500;
+    mob.hspeed = 0;
     break;
   }
   case mob_logic_system::action_enum::jump: {
@@ -292,7 +294,7 @@ void server_mob_system::run_duration(server_mob &mob) {
     }
     mob.hforce = left ? -MOVE_FORCE : MOVE_FORCE;
     mob.flip = left ? false : true;
-    mob.hspeed = 0;
+    mob.hspeed = left == true ? -mob.hspeed_max : mob.hspeed_max;
     mob.duration = window::dt_now + 1000;
     break;
   }
@@ -305,7 +307,9 @@ void server_mob_system::run_duration(server_mob &mob) {
 void server_mob_system::run_default_action(server_mob &mob) {
   switch (mob.type) {
   case server_mob::mob_type::stand: {
-    run_stand_action(mob);
+    if (mob.fh != 0) {
+      run_stand_action(mob);
+    }
     break;
   }
   case server_mob::mob_type::swim: {
@@ -445,17 +449,6 @@ void server_mob_system::run_hit(server_mob &mob) {
   if (run_hit_check(mob)) {
     run_default_action(mob);
     run_duration(mob);
-  } else {
-    switch (mob.type) {
-    case server_mob::mob_type::stand: {
-      run_walk(mob);
-      break;
-    }
-    case server_mob::mob_type::swim:
-    case server_mob::mob_type::fly: {
-      break;
-    }
-    }
   }
   return;
 }
@@ -466,7 +459,9 @@ bool server_mob_system::run_fall(server_mob &mob) {
   }
 
   auto border = map_info_game_instance::load_mr_border(map_id);
-  auto vspeed = mob.vspeed + delta_time * 2000;
+  border.x = mob.rx0;
+  border.w = mob.rx1;
+  auto vspeed = mob.vspeed + delta_time * 2;
   mob.vspeed = vspeed;
 
   const float vspeed_min = -5550.0f;
@@ -497,20 +492,37 @@ void server_mob_system::run_state_machine(server_mob &mob) {
   case mob_logic_system::action_enum::move: {
     if (!run_hitting(mob)) {
       run_walk(mob);
-      run_try_jump(mob);
-      run_duration(mob);
+      if (!run_try_jump(mob)) {
+        run_duration(mob);
+      }
     }
     break;
   }
   case mob_logic_system::action_enum::hit: {
+    switch (mob.type) {
+    case server_mob::mob_type::stand: {
+      if (mob.fh == 0) {
+        run_fall(mob);
+      } else {
+        run_walk(mob);
+      }
+      break;
+    }
+    case server_mob::mob_type::swim:
+    case server_mob::mob_type::fly: {
+      break;
+    }
+    }
     run_hit(mob);
     run_hitting(mob);
-    run_fall(mob);
     break;
   }
   case mob_logic_system::action_enum::jump: {
-    if (run_fall(mob)) {
-      run_default_action(mob);
+    bool hit = run_hitting(mob);
+    if (!run_fall(mob)) {
+      if (!hit) {
+        run_default_action(mob);
+      }
     }
     break;
   }

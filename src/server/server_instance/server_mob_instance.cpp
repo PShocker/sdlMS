@@ -44,10 +44,9 @@ void server_mob_instance::load_default_mob(const std::u16string id,
   mob.mp =
       static_cast<wz::Property<int> *>(info_node->get_child(u"maxMP"))->get();
   if (info_node->get_child(u"speed") != nullptr) {
-    mob.hspeed =
+    auto speed =
         static_cast<wz::Property<int> *>(info_node->get_child(u"speed"))->get();
-    mob.hspeed = -1 * (float)(mob.hspeed + 100) / 100 * 125;
-    mob.hspeed = (float)(mob.hspeed + 100) / 100 * 125;
+    mob.hspeed_max = (float)(speed + 100) / 100 * 125;
   }
 }
 
