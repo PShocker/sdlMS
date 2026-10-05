@@ -11,6 +11,7 @@ class quest_ui_system {
 private:
   static int load_vscr_num0();
   static int load_vscr_num1();
+  static int load_detail_summary_backgrnd_h();
 
   static void render_backgrnd();
   static void render_button();
@@ -20,6 +21,10 @@ private:
   static void render_area_name(int i, int y);
   static void render_quest(game_quest &q, int y);
   static void render_vscr();
+  static void render_detail_vscr();
+  static void render_detail_talk();
+  static void render_detail_summary();
+  static void render_detail_summary_backgrnd();
 
   static void render_detail_text();
 

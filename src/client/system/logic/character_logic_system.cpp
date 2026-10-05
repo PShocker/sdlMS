@@ -1681,6 +1681,7 @@ character_logic_system::load_morph_type(game_character &g_character) {
 
 void character_logic_system::run_being_hit(float x, uint64_t num) {
   auto &sf = character_game_instance::self;
+  sf.action_animate = true;
   auto action_type = character_logic_system::load_action_type(sf);
   switch (action_type) {
   case character_logic_system::action_enum::stand:

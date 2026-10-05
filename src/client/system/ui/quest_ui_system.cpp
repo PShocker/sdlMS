@@ -6,6 +6,9 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
@@ -52,6 +55,21 @@ int quest_ui_system::load_vscr_num0() {
 }
 
 int quest_ui_system::load_vscr_num1() { return 0; }
+
+int quest_ui_system::load_detail_summary_backgrnd_h() {
+  if (detail_quest.empty()) {
+    return 0;
+  }
+  auto q = quest_game_instance::progress_quests.at(detail_quest);
+  int h = 0;
+  h += q.check_item.size() * 40;
+  h += q.check_mob.size() * 25;
+  if (h == 0) {
+    return 0;
+  }
+  h += 15;
+  return h;
+}
 
 void quest_ui_system::render_backgrnd() {
   static auto backgrnd = wz_resource::load_texture(
@@ -263,6 +281,119 @@ void quest_ui_system::render_quests() {
   return;
 }
 
+void quest_ui_system::render_detail_talk() {
+  if (quest_game_instance::progress_quests.contains(detail_quest) ||
+      quest_game_instance::complete_quests.contains(detail_quest)) {
+    return;
+  }
+  auto node = quest_game_instance::load_quest_node(detail_quest);
+  node = node->find(u"Check/0/npc");
+  if (node != nullptr) {
+    auto npc_i = static_cast<wz::Property<int> *>(node)->get();
+    auto tmp = std::format("{:07d}", npc_i);
+    std::u16string npc_id{tmp.begin(), tmp.end()};
+    freetype::load_size(12);
+    auto npc_name = npc_game_instance::load_npc_text(npc_id, u"name");
+    node = wz_resource::ms->get_root()->find(u"String.img/Quest/talkNPC");
+    auto npc_str = static_cast<wz::Property<std::u16string> *>(node)->get();
+    npc_str = npc_str + npc_name;
+    freetype::load_bold(true);
+    freetype::load_color(0, 0, 193, 255);
+    freetype::draw_line(npc_str, pos.x + 260, pos.y + 126);
+    freetype::load_bold(false);
+  }
+}
+
+void quest_ui_system::render_detail_summary_backgrnd() {
+  static auto t = wz_resource::load_texture(
+      wz_resource::ui->find(u"Quest.img/Quest/quest_info/summary_pattern/t"));
+  static auto c = wz_resource::load_texture(
+      wz_resource::ui->find(u"Quest.img/Quest/quest_info/summary_pattern/c"));
+  static auto b = wz_resource::load_texture(
+      wz_resource::ui->find(u"Quest.img/Quest/quest_info/summary_pattern/b"));
+  auto left = 260;
+  auto top = 125;
+  auto h = load_detail_summary_backgrnd_h();
+  SDL_FRect pos_rect{
+      static_cast<float>((int)pos.x + left),
+      static_cast<float>((int)pos.y + top),
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  pos_rect.y += t->h;
+  pos_rect.h = h;
+  SDL_RenderTextureTiled(window::renderer, c, nullptr, 1.0, &pos_rect);
+  pos_rect.y += pos_rect.h;
+  pos_rect.h = b->h;
+  SDL_RenderTexture(window::renderer, b, nullptr, &pos_rect);
+}
+
+void quest_ui_system::render_detail_summary() {
+  if (!quest_game_instance::progress_quests.contains(detail_quest)) {
+    return;
+  }
+  auto h = load_detail_summary_backgrnd_h();
+  if (h > 0) {
+    render_detail_summary_backgrnd();
+    auto left = 260;
+    auto top = 125;
+    static auto t2 = wz_resource::load_texture(wz_resource::ui->find(
+        u"Quest.img/Quest/quest_info/summary_icon/summary"));
+    SDL_FRect pos_rect{
+        static_cast<float>((int)pos.x + left + 5),
+        static_cast<float>((int)pos.y + top + 5),
+        static_cast<float>(t2->w),
+        static_cast<float>(t2->h),
+    };
+    SDL_RenderTexture(window::renderer, t2, nullptr, &pos_rect);
+    auto q = quest_game_instance::progress_quests.at(detail_quest);
+    top = pos_rect.y + pos_rect.h + 5;
+    for (auto [k, v] : q.check_mob) {
+      auto mob_name = mob_game_instance::load_mob_name(k);
+      int num = 0;
+      if (q.mob.contains(k)) {
+        num = q.mob.at(k).count;
+      }
+      int count = v.count;
+      auto tmp = std::format("{}/{}", num, count);
+      mob_name = mob_name + u" " + std::u16string{tmp.begin(), tmp.end()};
+      freetype::load_color(0, 0, 0, 255);
+      freetype::load_size(12);
+      freetype::draw_line(mob_name, pos_rect.x + 5, top);
+      top += 25;
+    }
+    for (auto [k, v] : q.check_item) {
+      wz::Node *node;
+      std::u16string name;
+      if (item_game_instance::check_item(k)) {
+        node = item_game_instance::load_item_info(k, 1);
+        name = item_game_instance::load_item_text(k, u"name");
+      } else {
+        node = equip_game_instance::load_equip_info(k);
+        name = equip_game_instance::load_equip_name(k);
+      }
+      auto t = wz_resource::load_texture(node->get_child(u"icon"));
+      SDL_FRect pos_rect{
+          static_cast<float>((int)pos.x + left + 5),
+          static_cast<float>((int)top),
+          static_cast<float>(t->w),
+          static_cast<float>(t->h),
+      };
+      SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+      freetype::load_size(12);
+      freetype::load_color(0, 0, 0, 255);
+      int num = q.item.at(k).count;
+      int count = v.count;
+      auto tmp = std::format("{}/{}", num, count);
+      name = name + u" " + std::u16string{tmp.begin(), tmp.end()};
+      freetype::draw_line(name, pos_rect.x + 5 + t->w,
+                          pos_rect.y - 12 + t->h / 2);
+      top += 40;
+    }
+  }
+}
+
 void quest_ui_system::render_detail_text() {
   auto index = quest_game_instance::load_quest_progress(detail_quest);
   std::u16string info;
@@ -273,7 +404,19 @@ void quest_ui_system::render_detail_text() {
     info = text_game_instance::load_rstr(node);
   }
   freetype::load_color(0, 0, 0, 255);
-  freetype::draw_rstr(info, pos.x + 260, pos.y + 150, 260, 1.3, std::nullopt);
+  int h = 140;
+  if (quest_game_instance::progress_quests.contains(detail_quest)) {
+    auto backgrnd_h = load_detail_summary_backgrnd_h();
+    if (backgrnd_h == 0) {
+      h = 130;
+    } else {
+      h = h + backgrnd_h;
+    }
+    freetype::draw_rstr(info, pos.x + 260, pos.y + h, 265, 1.3, std::nullopt);
+  } else {
+    h += 10;
+    freetype::draw_rstr(info, pos.x + 260, pos.y + h, 265, 1.3, std::nullopt);
+  }
 }
 
 static const SDL_FPoint detail_lt = {245, 0};
@@ -297,17 +440,35 @@ void quest_ui_system::render_quest_detail() {
   // render npc
   auto node = quest_game_instance::load_quest_node(detail_quest);
   node = node->find(u"Check/0/npc");
-  auto npc_i = static_cast<wz::Property<int> *>(node)->get();
-  auto tmp = std::format("{:07d}", npc_i);
-  std::u16string npc_id{tmp.begin(), tmp.end()};
-  game_npc npc;
-  npc.id = npc_id;
-  npc.action = u"stand";
-  const auto &camera = camera_game_instance::camera;
-  npc.pos.x = camera.x + pos.x + 488;
-  npc.pos.y = camera.y + pos.y + 115;
-  npc.ani_index = 0;
-  npc_render_system::render_npc(npc);
+  if (node != nullptr) {
+    auto npc_i = static_cast<wz::Property<int> *>(node)->get();
+    auto tmp = std::format("{:07d}", npc_i);
+    std::u16string npc_id{tmp.begin(), tmp.end()};
+    game_npc npc;
+    npc.id = npc_id;
+    npc.action = u"stand";
+    const auto &camera = camera_game_instance::camera;
+    npc.pos.x = camera.x + pos.x + 488;
+    npc.pos.y = camera.y + pos.y + 115;
+    npc.ani_index = 0;
+    npc_render_system::render_npc(npc);
+  }
+  // level
+  freetype::load_size(12);
+  freetype::load_color(255, 255, 255, 255);
+  node = wz_resource::ms->get_root()->find(u"String.img/Quest/lv");
+  auto lv_str = static_cast<wz::Property<std::u16string> *>(node)->get();
+  node = quest_game_instance::load_quest_node(detail_quest);
+  node = node->find(u"Check/0/lvmin");
+  int lv = 1;
+  if (node) {
+    lv = static_cast<wz::Property<int> *>(node)->get();
+  }
+  auto tmp = std::to_string(lv);
+  lv_str = lv_str + u" " + std::u16string{tmp.begin(), tmp.end()} + u"+" +
+           u" (" + detail_quest + u")";
+  freetype::draw_line(lv_str, pos.x + 269, pos.y + 70);
+
   // name
   node = quest_game_instance::load_quest_node(detail_quest);
   node = node->find(u"QuestInfo/name");
@@ -320,34 +481,9 @@ void quest_ui_system::render_quest_detail() {
   freetype::load_size(12);
   freetype::draw_line(name, pos.x + 276, pos.y + 36);
   freetype::load_bold(false);
-
-  // level
-  freetype::load_size(12);
-  node = wz_resource::ms->get_root()->find(u"String.img/Quest/lv");
-  auto lv_str = static_cast<wz::Property<std::u16string> *>(node)->get();
-  node = quest_game_instance::load_quest_node(detail_quest);
-  node = node->find(u"Check/0/lvmin");
-  int lv = 1;
-  if (node) {
-    lv = static_cast<wz::Property<int> *>(node)->get();
-  }
-  tmp = std::to_string(lv);
-  lv_str = lv_str + u" " + std::u16string{tmp.begin(), tmp.end()} + u"+" +
-           u" (" + detail_quest + u")";
-  freetype::draw_line(lv_str, pos.x + 269, pos.y + 70);
-
-  freetype::load_size(12);
-  auto npc_name = npc_game_instance::load_npc_text(npc_id, u"name");
-  node = wz_resource::ms->get_root()->find(u"String.img/Quest/talkNPC");
-  auto npc_str = static_cast<wz::Property<std::u16string> *>(node)->get();
-  npc_str = npc_str + npc_name;
-  freetype::load_bold(true);
-  freetype::load_color(0, 0, 193, 255);
-  freetype::draw_line(npc_str, pos.x + 260, pos.y + 126);
-  freetype::load_bold(false);
-  if (quest_game_instance::progress_quests.contains(detail_quest)) {
-  }
-
+  render_detail_talk();
+  render_detail_vscr();
+  render_detail_summary();
   render_detail_text();
 }
 
@@ -386,6 +522,20 @@ void quest_ui_system::render_vscr() {
   int px = pos.x + lt.x;
   int py = pos.y + lt.y;
   const uint32_t length = 318;
+  auto cursor_in = cursor_game_instance::cursor_ui;
+  bool top =
+      cursor_in == render && cursor_game_instance::modal_overlay == nullptr;
+  auto count = load_vscr_num0();
+  scroll_ui_system::render_vscroll(px, py, pages[0], count, length, top, 16);
+
+  return;
+}
+
+void quest_ui_system::render_detail_vscr() {
+  const SDL_FPoint lt{532, 122};
+  int px = pos.x + lt.x;
+  int py = pos.y + lt.y;
+  const uint32_t length = 244;
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top =
       cursor_in == render && cursor_game_instance::modal_overlay == nullptr;

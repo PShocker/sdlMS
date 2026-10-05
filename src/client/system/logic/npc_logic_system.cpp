@@ -79,13 +79,8 @@ bool npc_logic_system::run_duration(game_npc &g_npc) {
 }
 
 bool npc_logic_system::run_chatballoon(game_npc &g_npc) {
-  auto quest_avaliable = npc_game_instance::load_avaliable_quest(g_npc.id);
-  if (!quest_avaliable.empty()) {
-    g_npc.chatballoon = std::nullopt;
-    return true;
-  }
-  auto progress_quests = npc_game_instance::load_progress_quest(g_npc.id);
-  if (!progress_quests.empty()) {
+  auto node = npc_game_instance::load_quest_node(g_npc);
+  if (node != nullptr) {
     g_npc.chatballoon = std::nullopt;
     return true;
   }

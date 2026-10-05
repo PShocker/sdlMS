@@ -271,8 +271,8 @@ void npc_dlg_ui_system::render_list() {
   render_q(t0, progress_quest, y, u"Progress");
 
   // script
+  y += 10;
   script_id = u"";
-  y -= 4;
   static auto t_etc = wz_resource::load_texture(
       wz_resource::ui->find(u"UtilDlgEx.img/UtilDlgEx/list2"));
   auto scp_id = npc_game_instance::load_npc_script(npc_id);
@@ -398,15 +398,28 @@ SDL_FPoint npc_dlg_ui_system::load_wh() {
   if (type == npc_dlg_enum::quest && index == 0) {
     auto avaliable_quest = npc_game_instance::load_avaliable_quest(npc_id);
     auto progress_quest = npc_game_instance::load_progress_quest(npc_id);
-    auto progress_complete =
+    auto progress_complete_quest =
         npc_game_instance::load_progress_complete_quest(npc_id);
+
+    std::ranges::sort(progress_quest);
+    std::ranges::sort(progress_complete_quest);
+
+    std::vector<std::u16string> result;
+    std::ranges::set_difference(progress_quest, progress_complete_quest,
+                                std::back_inserter(result));
+    progress_quest = result;
     freetype::load_size(12);
     auto lh = freetype::load_lh();
-    for (const auto &v : {avaliable_quest, progress_quest, progress_complete}) {
+    for (const auto &v :
+         {avaliable_quest, progress_quest, progress_complete_quest}) {
       if (!v.empty()) {
         h += v.size() * lh;
         h += 18;
       }
+    }
+    auto scp_id = npc_game_instance::load_npc_script(npc_id);
+    if (!scp_id.empty()) {
+      h += 36;
     }
   } else if (type == npc_dlg_enum::quest_complete && index == max_index) {
     if (act_exp != 0) {

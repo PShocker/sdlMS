@@ -120,7 +120,7 @@ bool server_mob_system::run_try_jump(server_mob &mob) {
 
 int server_mob_system::load_mob_hit_cd(server_mob &mob) {
   int cd = 0;
-  auto mob_node = wz_resource::mob->find(mob.id + u".img");
+  auto mob_node = mob_game_instance::load_link_mob_node(mob.id);
   mob_node = mob_node->get_child(u"hit1");
   for (auto [k, v] : *mob_node->get_children()) {
     if (v[0]->get_child(u"delay")) {
@@ -502,7 +502,9 @@ void server_mob_system::run_state_machine(server_mob &mob) {
     switch (mob.type) {
     case server_mob::mob_type::stand: {
       if (mob.fh == 0) {
-        run_fall(mob);
+        if (!run_fall(mob)) {
+          run_stand_action(mob);
+        }
       } else {
         run_walk(mob);
       }
