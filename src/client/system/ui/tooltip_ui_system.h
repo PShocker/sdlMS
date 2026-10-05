@@ -33,5 +33,6 @@ public:
   static void render_skill(const std::u16string &id, uint8_t level, float x,
                            float y);
   static void render_world_map_info(uint32_t id, float x, float y);
+  static void render_str(const std::u16string &str, float x, float y);
   static bool event(SDL_Event *event);
 };

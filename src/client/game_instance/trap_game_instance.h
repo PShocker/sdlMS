@@ -11,4 +11,10 @@ public:
   static void load(wz::Node *image);
   static void load(uint32_t map_id);
   static inline std::array<std::flat_multimap<int64_t, game_obj>, 8> data;
+
+  struct animate_data {
+    int index;
+    int time;
+  };
+  static animate_data load_animate_index(std::vector<int> delays);
 };

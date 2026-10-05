@@ -964,3 +964,14 @@ void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {
     freetype::draw_str(s3, x + 10, sh + 5, w - 20, 1.1);
   }
 }
+
+void tooltip_ui_system::render_str(const std::u16string &str, float x,
+                                   float y) {
+  const auto w = freetype::load_w(str) + 12;
+  freetype::load_size(12);
+  auto h = freetype::load_lh();
+  render_backgrnd(x, y, w, 32);
+  freetype::load_aligned(true);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::draw_line(str, x + 5, y + 5);
+}

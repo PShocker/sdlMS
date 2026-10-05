@@ -1,6 +1,7 @@
 #include "trap_game_instance.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_obj.h"
+#include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include "wz/Wz.h"
@@ -77,26 +78,34 @@ void trap_game_instance::load(wz::Node *image) {
       g_obj.ani_index = delays.size() - 1;
       g_obj.ani_time = 0;
 
-      auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
-                     std::chrono::system_clock::now().time_since_epoch())
-                     .count();
-      //  通过时间戳来同步陷阱时间
-      int total = std::accumulate(delays.begin(), delays.end(), 0);
-      int time = now % total;
-      int accumulated = 0;
-      for (int i = 0; i < delays.size(); i++) {
-        if (time < accumulated + delays[i]) {
-          g_obj.ani_index = i;
-          g_obj.ani_time = time - accumulated;
-          break;
-        }
-        accumulated += delays[i];
-      }
+      auto animate_data = load_animate_index(delays);
+      g_obj.ani_index = animate_data.index;
+      g_obj.ani_time = animate_data.time;
 
       data[map_layer].emplace(g_obj.z, g_obj);
     }
     map_layer++;
   }
+}
+
+trap_game_instance::animate_data
+trap_game_instance::load_animate_index(std::vector<int> delays) {
+  auto ds = delays;
+  auto sum = std::accumulate(ds.begin(), ds.end(), 0);
+  auto offset = window::dt_time % sum; // 取余，得到周期内偏移
+  uint32_t accumulated = 0;
+  uint8_t index = 0;
+  for (auto j = 0; j < ds.size(); j++) {
+    if (offset < accumulated + ds[j]) {
+      index = j;
+      break;
+    }
+    accumulated += ds[j];
+  }
+  animate_data data;
+  data.index = index;
+  data.time = offset - accumulated;
+  return data;
 }
 
 void trap_game_instance::load(uint32_t map_id) {

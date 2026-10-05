@@ -12,12 +12,14 @@
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
+#include "src/client/game_instance/trap_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include "tooltip_ui_system.h"
 #include "wz/Node.h"
 #include "wz/Property.h"
 #include <algorithm>
@@ -190,44 +192,87 @@ void quest_ui_system::render_area_name(int i, int y) {
   freetype::draw_line(name, px + 17, py - 3);
 }
 
+static std::u16string quest_name;
+
 void quest_ui_system::render_quest(game_quest &q, int y) {
   const SDL_FPoint lt{10, 50};
   int px = pos.x + lt.x;
   int py = pos.y + y + lt.y;
 
-  auto t = wz_resource::load_texture(
-      wz_resource::ui->find(u"Quest.img/Quest/icon/icon0"));
-  SDL_FRect pos_rect{
-      static_cast<float>(px),
-      static_cast<float>(py),
-      static_cast<float>(t->w),
-      static_cast<float>(t->h),
-  };
-  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
-
-  if (detail_quest == q.quest_id) {
-    pos_rect = {
-        static_cast<float>(px + 14),
-        static_cast<float>(py - 2),
-        static_cast<float>(199),
-        static_cast<float>(18),
+  int str_len = 0;
+  int str_left = 0;
+  switch (active_tab) {
+  case 0: {
+    str_left = 17;
+    str_len = 26;
+    static auto t = wz_resource::load_texture(
+        wz_resource::ui->find(u"Quest.img/Quest/icon/icon0"));
+    SDL_FRect pos_rect{
+        static_cast<float>(px),
+        static_cast<float>(py),
+        static_cast<float>(t->w),
+        static_cast<float>(t->h),
     };
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    break;
+  }
+  case 1: {
+    str_left = 30;
+    str_len = 26;
+    static auto t = wz_resource::load_texture(
+        wz_resource::ui->find(u"Basic.img/CheckBox/0/0"));
+    SDL_FRect pos_rect{
+        static_cast<float>(px),
+        static_cast<float>(py),
+        static_cast<float>(t->w),
+        static_cast<float>(t->h),
+    };
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    std::vector<int> delays = {
+        120, 120, 120, 120, 120, 120, 120, 4000,
+    };
+    auto animate_data = trap_game_instance::load_animate_index(delays);
+    auto render_index = std::to_string(animate_data.index);
+    auto icon = wz_resource::load_texture(
+        wz_resource::ui->find(u"Quest.img/Quest/icon/icon2")
+            ->get_child(render_index));
+    pos_rect.x += t->w;
+    pos_rect.w = icon->w;
+    pos_rect.h = icon->h;
+    SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
+    break;
+  }
+  case 2: {
+    break;
+  }
+  }
+  auto node = quest_game_instance::load_quest_node(q.quest_id);
+  node = node->find(u"QuestInfo/name");
+  auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
+  SDL_FRect pos_rect;
+  pos_rect = {
+      static_cast<float>(px + str_left - 2),
+      static_cast<float>(py - 2),
+      static_cast<float>(215 - str_left),
+      static_cast<float>(18),
+  };
+  auto &mouse_pos = window::mouse_pos;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    quest_name = name;
+  }
+  if (detail_quest == q.quest_id) {
     SDL_SetRenderDrawColor(window::renderer, 51, 100, 148, 255);
     SDL_RenderFillRect(window::renderer, &pos_rect);
     freetype::load_color(255, 255, 255, 255);
   } else {
     freetype::load_color(0, 0, 0, 255);
   }
-
-  auto node = quest_game_instance::load_quest_node(q.quest_id);
-  node = node->find(u"QuestInfo/name");
-  auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
-  if (name.size() > 30) {
-    name = name.substr(0, 30) + u"...";
+  if (name.size() > str_len) {
+    name = name.substr(0, str_len) + u"...";
   }
   freetype::load_size(12);
   freetype::load_aligned(true);
-  freetype::draw_line(name, px + 17, py - 3);
+  freetype::draw_line(name, px + str_left, py - 3);
 
   pos_rect = {
       static_cast<float>(px - 2),
@@ -235,7 +280,6 @@ void quest_ui_system::render_quest(game_quest &q, int y) {
       static_cast<float>(215),
       static_cast<float>(22),
   };
-  auto &mouse_pos = window::mouse_pos;
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     d_quest = q.quest_id;
   }
@@ -259,6 +303,7 @@ void quest_ui_system::render_quests() {
   int i = -pages[0];
   fold = std::nullopt;
   d_quest = std::nullopt;
+  quest_name = u"";
   for (const auto &[k, v] : quests) {
     if (i >= MAX_DISPLAY_ITEMS)
       break;
@@ -576,11 +621,14 @@ void quest_ui_system::open() {
 
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
 void quest_ui_system::close() {
   std::erase(system::render_systems, render);
+  std::erase(system::render_systems, render_info);
   std::erase(system::event_systems, event);
 
   event_drag_end();
@@ -617,6 +665,8 @@ void quest_ui_system::event_top() {
   if (it != system::render_systems.end()) {
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
+
+    event_motion(nullptr);
   }
 }
 
@@ -757,6 +807,24 @@ bool quest_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+bool quest_ui_system::render_info() {
+  if (!quest_name.empty() && !cursor_game_instance::modal_overlay) {
+    auto &mouse_pos = window::mouse_pos;
+    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 20};
+    tooltip_ui_system::render_str(quest_name, show_pos.x, show_pos.y);
+  }
+  return true;
+}
+
+void quest_ui_system::event_motion(SDL_Event *event) {
+  auto &sys = system::render_systems;
+  std::erase(sys, render_info);
+  auto it = std::ranges::find(sys, &cursor_render_system::render);
+  if (it != sys.end()) {
+    sys.insert(it, render_info);
+  }
+}
+
 bool quest_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -803,6 +871,7 @@ bool quest_ui_system::event(SDL_Event *event) {
     // event_motion(event);
     event_drag_move(event);
     event_vscr_move(event);
+    event_motion(event);
     break;
   }
   default: {

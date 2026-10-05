@@ -25,6 +25,7 @@ private:
   static void render_detail_talk();
   static void render_detail_summary();
   static void render_detail_summary_backgrnd();
+  static bool render_info();
 
   static void render_detail_text();
 
@@ -45,6 +46,8 @@ private:
   static void event_vscr_start(SDL_Event *event);
   static void event_vscr_end();
   static void event_vscr_move(SDL_Event *event);
+
+  static void event_motion(SDL_Event *event);
 
   static SDL_FPoint load_wh();
 

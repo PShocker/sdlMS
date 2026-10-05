@@ -4,6 +4,7 @@
 #include "login_notice_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/trap_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
@@ -144,7 +145,7 @@ void login_ui_system::render_effect() {
       wz_resource::ui->find(u"Login.img/ClassicIntro/animation:effect4"),
       wz_resource::ui->find(u"Login.img/ClassicIntro/animation:effect5"),
   };
-  const static std::vector<std::vector<uint32_t>> delays = {
+  const static std::vector<std::vector<int>> delays = {
       {1500, 1500, 1000}, //
       {2500, 2500},       //
       {1700, 1700, 1700}, //
@@ -160,18 +161,9 @@ void login_ui_system::render_effect() {
   };
   for (auto i = 0; i < effect_nodes.size(); i++) {
     auto ds = delays[i];
-    auto sum = std::accumulate(ds.begin(), ds.end(), 0u);
-    auto offset = window::dt_now % sum; // 取余，得到周期内偏移
-    uint32_t accumulated = 0;
-    uint8_t render_index = 0;
-    for (auto j = 0; j < ds.size(); j++) {
-      if (offset < accumulated + ds[j]) {
-        render_index = j;
-        break;
-      }
-      accumulated += ds[j];
-    }
     // render
+    auto animate_data = trap_game_instance::load_animate_index(ds);
+    auto render_index = animate_data.index;
     auto index = std::to_string(render_index);
     auto node = effect_nodes[i]->get_child(index);
     uint8_t a0 = 255;
@@ -182,7 +174,7 @@ void login_ui_system::render_effect() {
     if (node->get_child(u"a1")) {
       a1 = static_cast<wz::Property<int> *>(node->get_child(u"a1"))->get();
     }
-    auto ani_time = offset - accumulated;
+    auto ani_time = animate_data.time;
     float t = (float)ani_time / (float)ds[render_index];
     auto alpha = a0 + (a1 - a0) * t;
     auto texture = wz_resource::load_texture(node);
