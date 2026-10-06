@@ -903,3 +903,16 @@ bool quest_ui_system::event(SDL_Event *event) {
 
   return r;
 }
+
+void quest_ui_system::accept_quest(const std::u16string &id) {
+  if (detail_quest == id) {
+    detail_quest = u"";
+  }
+  if (quest_name == id) {
+    quest_name = u"";
+  }
+}
+
+void quest_ui_system::complete_quest(const std::u16string &id) {
+  accept_quest(id);
+}

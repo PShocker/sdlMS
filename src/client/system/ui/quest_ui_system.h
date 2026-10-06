@@ -60,6 +60,8 @@ private:
   static inline std::array<bool, 2> vscr_motion;
 
 public:
+  static void accept_quest(const std::u16string &id);
+  static void complete_quest(const std::u16string &id);
   static inline SDL_FPoint pos;
   static inline bool detail;
   static inline std::u16string detail_quest; // quest

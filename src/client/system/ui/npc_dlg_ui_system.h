@@ -9,6 +9,7 @@
 class npc_dlg_ui_system {
 private:
   static inline int8_t select_mouse = -1;
+  static void reset_pos();
 
   static void render_backgrnd();
   static void render_npc();
@@ -62,6 +63,7 @@ public:
   static inline int8_t max_select;
 
   static inline std::flat_map<std::u16string, int> act_item;
+  static inline std::flat_map<std::u16string, int> act_random_item;
   static inline int32_t act_meso;
   static inline uint32_t act_exp;
 

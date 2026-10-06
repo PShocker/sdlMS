@@ -3,6 +3,7 @@
 #include "SDL3/SDL_render.h"
 #include "SDL3/SDL_scancode.h"
 #include "notice_ui_system.h"
+#include "quest_ui_system.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -14,6 +15,7 @@
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
+#include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -34,6 +36,13 @@
 #include <vector>
 
 static std::u16string selected;
+
+void npc_dlg_ui_system::reset_pos() {
+  auto wh = load_wh();
+  auto &camera = camera_game_instance::camera;
+  pos.x = (camera.w - wh.x) / 2;
+  pos.y = (camera.h - wh.y) / 2;
+}
 
 void npc_dlg_ui_system::render_backgrnd() {
   auto [w, h] = load_wh();
@@ -323,10 +332,10 @@ void npc_dlg_ui_system::render_obtain() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  pos_rect.y += 20;
   if (act_exp != 0) {
     static auto t2 =
         wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/8/0"));
-    pos_rect.y += 20;
     pos_rect.w = t2->w;
     pos_rect.h = t2->h;
     SDL_RenderTexture(window::renderer, t2, nullptr, &pos_rect);
@@ -335,9 +344,9 @@ void npc_dlg_ui_system::render_obtain() {
     freetype::load_color(0, 0, 0, 255);
     auto tmp = std::to_string(act_exp);
     freetype::draw_line({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
+    pos_rect.y += t2->h + 8;
   }
   if (act_meso != 0) {
-    pos_rect.y += 22;
     static auto t3 =
         wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/7/0"));
     pos_rect.y += 3;
@@ -349,9 +358,19 @@ void npc_dlg_ui_system::render_obtain() {
     freetype::load_color(0, 0, 0, 255);
     auto tmp = std::to_string(act_meso);
     freetype::draw_line({tmp.begin(), tmp.end()}, pos_rect.x + 22, pos_rect.y);
+    pos_rect.y += t3->h + 8;
+  }
+  if (!act_random_item.empty()) {
+    static auto t =
+        wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/5/0"));
+    pos_rect.w = t->w;
+    pos_rect.h = t->h;
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    std::u16string name = u"Random Item";
+    freetype::draw_line(name, pos_rect.x + t->w + 4, pos_rect.y + t->h - 18);
+    pos_rect.y += t->h + 8;
   }
   if (!act_item.empty()) {
-    pos_rect.y += 26;
     for (auto [k, v] : act_item) {
       if (v <= 0) {
         continue;
@@ -376,7 +395,7 @@ void npc_dlg_ui_system::render_obtain() {
       auto tmp = std::to_string(v);
       name = name + u" x" + std::u16string{tmp.begin(), tmp.end()};
       freetype::draw_line(name, pos_rect.x + t->w + 4, pos_rect.y + t->h - 18);
-      pos_rect.y += t->h + 4;
+      pos_rect.y += t->h + 8;
     }
   }
 }
@@ -425,6 +444,9 @@ SDL_FPoint npc_dlg_ui_system::load_wh() {
     if (act_exp != 0) {
       h += 22;
     }
+    if (!act_random_item.empty()) {
+      h += 27;
+    }
     for (auto [k, v] : act_item) {
       if (v > 0) {
         h += 32;
@@ -443,10 +465,7 @@ void npc_dlg_ui_system::open() {
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
-    auto wh = load_wh();
-    auto &camera = camera_game_instance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
+    reset_pos();
 
     keyboard_input_system::reset();
 
@@ -475,6 +494,13 @@ void npc_dlg_ui_system::event_button_ok() {
   if (type == npc_dlg_enum::quest_complete && index == max_index) {
     auto back_meso = package_game_instance::meso;
     auto back_data = package_game_instance::data;
+    if (!act_random_item.empty()) {
+      auto &r = random_game_instance::gen;
+      std::uniform_int_distribution<int> dist(0, act_random_item.size() - 1);
+      auto it = act_random_item.begin();
+      std::advance(it, dist(r));
+      act_item.insert(*it);
+    }
     for (auto [k, v] : act_item) {
       if (v > 0) {
         std::polymorphic<game_item> item;
@@ -502,6 +528,7 @@ void npc_dlg_ui_system::event_button_ok() {
     }
     quest_game_instance::complete_quest(quest_id);
     quest_alarm_ui_system::complete_quest(quest_id);
+    quest_ui_system::complete_quest(quest_id);
     auto quest_node = quest_game_instance::load_quest_node(quest_id);
     if (auto n = quest_node->find(u"Say/1/yes/0"); n != nullptr) {
       time = window::dt_now;
@@ -517,10 +544,12 @@ void npc_dlg_ui_system::event_button_ok() {
 void npc_dlg_ui_system::event_button_update() {
   if (cb) {
     cb();
+    reset_pos();
     return;
   }
   if (!script_id.empty()) {
     script::fns().at(script_id)(nullptr);
+    reset_pos();
     return;
   }
   if (quest_id.empty()) {
@@ -556,6 +585,7 @@ void npc_dlg_ui_system::event_button_update() {
     text =
         text_game_instance::load_rstr(node->get_child(std::to_string(index)));
   }
+  reset_pos();
   time = window::dt_now;
 }
 
@@ -670,14 +700,7 @@ void npc_dlg_ui_system::event_list() {
       select_mouse = -1;
       return;
     }
-    act_meso = quest_game_instance::load_quest_act_meso(quest_id);
-    act_item = quest_game_instance::load_quest_act_item(quest_id);
-    act_exp = quest_game_instance::load_quest_act_exp(quest_id);
-    if (act_meso == 0 && act_item.empty() && act_exp == 0) {
-      if (start_next_quest()) {
-        return;
-      }
-    }
+
     type = npc_dlg_enum::quest_complete;
     node = node->find(u"Say/" + quest_index);
     auto child = node->children;
@@ -686,6 +709,18 @@ void npc_dlg_ui_system::event_list() {
     child.erase(u"stop");
     child.erase(u"lost");
     max_index = child.size() - 1;
+
+    act_meso = quest_game_instance::load_quest_act_meso(quest_id);
+    act_item = quest_game_instance::load_quest_act_item(quest_id);
+    act_exp = quest_game_instance::load_quest_act_exp(quest_id);
+    act_random_item = quest_game_instance::load_quest_act_random_item(quest_id);
+    if (act_meso == 0 && act_exp == 0 || max_index == -1) {
+      max_index = 0;
+      index = max_index;
+      event_button_ok();
+      return;
+    }
+
   } else if (quest_game_instance::progress_quests.contains(quest_id)) {
     // 判断是否是进行中的任务
     auto &q = quest_game_instance::progress_quests.at(quest_id);
@@ -726,6 +761,7 @@ void npc_dlg_ui_system::event_list() {
     index = 0;
     text = text_game_instance::load_rstr(node->get_child(u"0"));
     time = window::dt_now;
+    reset_pos();
   }
 }
 
@@ -930,6 +966,7 @@ bool npc_dlg_ui_system::start_next_quest() {
       n != nullptr) {
     quest_game_instance::complete_quest(selected);
     quest_alarm_ui_system::complete_quest(selected);
+    quest_ui_system::complete_quest(quest_id);
     auto nq = static_cast<wz::Property<int> *>(n)->get();
     auto tmp = std::to_string(nq);
     selected = std::u16string{tmp.begin(), tmp.end()} + u".img";

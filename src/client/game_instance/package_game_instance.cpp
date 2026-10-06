@@ -36,6 +36,11 @@ void package_game_instance::load(const character_save &cs) {
   gci.num = 1000;
   data[(int)item_enum::consume][0] = std::polymorphic<game_item>(gci);
 
+  game_etc_item gei;
+  gei.id = u"04031002";
+  gei.num = 1;
+  data[(int)item_enum::etc][0] = std::polymorphic<game_item>(gei);
+
   meso = 1000000000;
   data[0][0]->id = u"01472012";
 

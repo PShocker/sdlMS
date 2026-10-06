@@ -24,23 +24,24 @@ SDL_FPoint quest_alarm_ui_system::load_wh() {
     auto q = quest_game_instance::progress_quests.at(id);
     h += q.check_item.size() * 18;
     h += q.check_mob.size() * 18;
-    h += 12;
+    h += 18;
   }
-  if (max) {
-    return {223, h + 30};
+  if (max && h > 0) {
+    return {223, h + 20};
   }
   return {223, 20};
 }
 
 void quest_alarm_ui_system::render_backgrnd() {
-  if (max) {
+  auto h = load_wh().y;
+  if (max && h > 20) {
+    h -= 20;
     static auto backgrndmax = wz_resource::load_texture(
         wz_resource::ui->find(u"Quest.img/QuestAlarm/backgrndmax"));
     static auto backgrndcenter = wz_resource::load_texture(
         wz_resource::ui->find(u"Quest.img/QuestAlarm/backgrndcenter"));
     static auto backgrndbottom = wz_resource::load_texture(
         wz_resource::ui->find(u"Quest.img/QuestAlarm/backgrndbottom"));
-    auto h = load_wh().y - 30;
     SDL_FRect pos_rect{
         pos.x,
         pos.y,
@@ -113,12 +114,14 @@ static std::u16string close_quest;
 
 void quest_alarm_ui_system::render_quests() {
   close_quest = u"";
-  int i = 0;
   int y = 20;
   for (const auto &id : quests) {
     auto node = quest_game_instance::load_quest_node(id);
     node = node->find(u"QuestInfo/name");
     auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
+    if (name.size() > 25) {
+      name = name.substr(0, 25) + u"...";
+    }
     freetype::load_size(12);
     freetype::load_bold(true);
     freetype::load_color(0, 0, 0, 255);
@@ -168,7 +171,7 @@ void quest_alarm_ui_system::render_quests() {
       str = std::u16string{tmp.begin(), tmp.end()} + u" " + str;
       freetype::draw_line(str, pos.x + 5, pos.y + y);
     }
-    i++;
+    y += 18;
   }
 }
 
@@ -236,11 +239,6 @@ void quest_alarm_ui_system::open() {
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
-    auto wh = load_wh();
-    auto &camera = camera_game_instance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
-
     event_auto_quests();
 
     system::render_systems.insert(it, render);

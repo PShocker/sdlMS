@@ -112,6 +112,9 @@ bool character_stat_game_instance::upgrade() {
 }
 
 void character_stat_game_instance::add_exp(uint32_t num) {
+  if (num == 0) {
+    return;
+  }
   exp_point += num;
   upgrade();
 }

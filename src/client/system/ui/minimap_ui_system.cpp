@@ -394,6 +394,10 @@ void minimap_ui_system::render_canvas_life() {
   const auto backgrnd_h = backgrnd_min_wh.y;
   static auto npc_texture = wz_resource::load_texture(
       wz_resource::map->find(u"MapHelper.img/minimap/npc"));
+  static auto npc_texture2 = wz_resource::load_texture(
+      wz_resource::map->find(u"MapHelper.img/minimap/startnpc"));
+  static auto npc_texture3 = wz_resource::load_texture(
+      wz_resource::map->find(u"MapHelper.img/minimap/endnpc"));
   static auto por_texture = wz_resource::load_texture(
       wz_resource::map->find(u"MapHelper.img/minimap/portal"));
   static auto user_texture = wz_resource::load_texture(
@@ -405,17 +409,31 @@ void minimap_ui_system::render_canvas_life() {
   auto canvas_viewport = load_canvas_viewport();
   for (auto &npcs : npc_game_instance::data) {
     for (auto &npc : npcs) {
-      auto npc_pos = load_canvas_point(npc.pos, -2, -4);
+      auto npc_pos = load_canvas_point(npc.pos, 4, 2);
       if (!SDL_PointInRectFloat(&npc_pos, &canvas_viewport)) {
         continue;
       }
+      SDL_Texture *texture = npc_texture;
+      auto progress_complete =
+          npc_game_instance::load_progress_complete_quest(npc.id);
+      if (!progress_complete.empty()) {
+        texture = npc_texture3;
+      } else {
+        auto avaliable = npc_game_instance::load_avaliable_quest(npc.id);
+        if (!avaliable.empty()) {
+          texture = npc_texture2;
+        }
+      }
+
       npc_pos.x = npc_pos.x - canvas_viewport.x;
       npc_pos.y = npc_pos.y - canvas_viewport.y;
       SDL_FRect pos_rect = {
-          pos.x + npc_pos.x + canvas_o.x - (float)npc_texture->w / 2,
-          pos.y + npc_pos.y + canvas_o.y - (float)npc_texture->h / 2,
-          (float)npc_texture->w, (float)npc_texture->h};
-      SDL_RenderTexture(window::renderer, npc_texture, nullptr, &pos_rect);
+          pos.x + npc_pos.x + canvas_o.x - (float)texture->w,
+          pos.y + npc_pos.y + canvas_o.y - (float)texture->h,
+          (float)texture->w,
+          (float)texture->h,
+      };
+      SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
     }
   }
   // render portal
@@ -423,41 +441,43 @@ void minimap_ui_system::render_canvas_life() {
     if (portal.pt != 2) {
       continue;
     }
-    auto portal_pos = load_canvas_point(portal.pos, -2, -6);
+    auto portal_pos = load_canvas_point(portal.pos, 4, 2);
     if (!SDL_PointInRectFloat(&portal_pos, &canvas_viewport)) {
       continue;
     }
     portal_pos.x = portal_pos.x - (canvas_viewport.x);
     portal_pos.y = portal_pos.y - (canvas_viewport.y);
     SDL_FRect pos_rect = {
-        pos.x + portal_pos.x + canvas_o.x - (float)por_texture->w / 2,
-        pos.y + portal_pos.y + canvas_o.y - (float)por_texture->h / 2,
+        pos.x + portal_pos.x + canvas_o.x - (float)por_texture->w,
+        pos.y + portal_pos.y + canvas_o.y - (float)por_texture->h,
         (float)por_texture->w, (float)por_texture->h};
     SDL_RenderTexture(window::renderer, por_texture, nullptr, &pos_rect);
   }
   // // render others
   for (auto &other : character_game_instance::others | std::views::values) {
     auto &o_character = other.g_character;
-    auto character_pos = load_canvas_point(o_character.pos, -2, -4);
+    auto character_pos = load_canvas_point(o_character.pos, 4, 2);
     if (!SDL_PointInRectFloat(&character_pos, &canvas_viewport)) {
       continue;
     }
     character_pos.x = character_pos.x - (canvas_viewport.x);
     character_pos.y = character_pos.y - (canvas_viewport.y);
     SDL_FRect pos_rect = {
-        pos.x + character_pos.x + canvas_o.x - (float)other_texture->w / 2,
-        pos.y + character_pos.y + canvas_o.y - (float)other_texture->h / 2,
-        (float)other_texture->w, (float)other_texture->h};
+        pos.x + character_pos.x + canvas_o.x - (float)other_texture->w,
+        pos.y + character_pos.y + canvas_o.y - (float)other_texture->h,
+        (float)other_texture->w,
+        (float)other_texture->h,
+    };
     SDL_RenderTexture(window::renderer, other_texture, nullptr, &pos_rect);
   }
   // // render self
   auto &self = character_game_instance::self;
-  auto self_pos = load_canvas_point(self.pos, -2, -4);
+  auto self_pos = load_canvas_point(self.pos, 4, 2);
   self_pos.x = self_pos.x - (canvas_viewport.x);
   self_pos.y = self_pos.y - (canvas_viewport.y);
   SDL_FRect pos_rect = {
-      pos.x + self_pos.x + canvas_o.x - (float)user_texture->w / 2,
-      pos.y + self_pos.y + canvas_o.y - (float)user_texture->h / 2,
+      pos.x + self_pos.x + canvas_o.x - (float)user_texture->w,
+      pos.y + self_pos.y + canvas_o.y - (float)user_texture->h,
       (float)user_texture->w,
       (float)user_texture->h,
   };

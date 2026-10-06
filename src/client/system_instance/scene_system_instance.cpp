@@ -200,9 +200,9 @@ void scene_system_instance::enter(uint32_t map_id) {
   audio_game_instance::load_backgrnd_audio(bgm);
 
   system::event_systems = {
-      minimap_ui_system::event,     statusbar_ui_system::event,
-      buff_ui_system::event,        cursor_logic_system::event,
-      keyboard_input_system::event,
+      quest_alarm_ui_system::event, minimap_ui_system::event,
+      statusbar_ui_system::event,   buff_ui_system::event,
+      cursor_logic_system::event,   keyboard_input_system::event,
   };
 
   system::logic_systems = {
@@ -222,10 +222,9 @@ void scene_system_instance::enter(uint32_t map_id) {
       statusbar_ui_system::render,
       popup_tip_ui_system::render,
       minimap_ui_system::render,
+      quest_alarm_ui_system::render,
       cursor_render_system::render,
   };
-  quest_alarm_ui_system::open();
-
   fade_system_instance::enter_out();
   window::delta_time = 0;
 }

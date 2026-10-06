@@ -231,8 +231,6 @@ wz::Node *quest_game_instance::load_quest_node(const std::u16string &id) {
 }
 
 void quest_game_instance::load(character_save &cs) {
-  accept_quest(u"1012.img");
-  accept_quest(u"1005.img");
   for (auto &q : cs.quests) {
     switch (q.type) {
     case quest_enum::progress: {
@@ -408,6 +406,34 @@ quest_game_instance::load_quest_act_item(const std::u16string &id) {
   quest_node = quest_node->find("Act/" + std::to_string(index) + "/item");
   if (quest_node != nullptr) {
     for (auto [k, v] : *quest_node->get_children()) {
+      if (v[0]->get_child(u"prop")) {
+        continue;
+      }
+      auto id = static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
+      auto count =
+          static_cast<wz::Property<int> *>(v[0]->get_child(u"count"))->get();
+      auto tmp = std::format("{:08d}", id);
+      std::u16string id2{tmp.begin(), tmp.end()};
+      r[id2] = count;
+    }
+  }
+  return r;
+}
+
+std::flat_map<std::u16string, int>
+quest_game_instance::load_quest_act_random_item(const std::u16string &id) {
+  std::flat_map<std::u16string, int> r;
+  uint8_t index = 0;
+  if (progress_quests.contains(id)) {
+    index = progress_quests.at(id).index;
+  }
+  auto quest_node = load_quest_node(id);
+  quest_node = quest_node->find("Act/" + std::to_string(index) + "/item");
+  if (quest_node != nullptr) {
+    for (auto [k, v] : *quest_node->get_children()) {
+      if (!v[0]->get_child(u"prop")) {
+        continue;
+      }
       auto id = static_cast<wz::Property<int> *>(v[0]->get_child(u"id"))->get();
       auto count =
           static_cast<wz::Property<int> *>(v[0]->get_child(u"count"))->get();
