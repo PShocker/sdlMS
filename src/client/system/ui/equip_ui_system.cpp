@@ -30,68 +30,6 @@ const static SDL_FPoint cape_slot{2, 89};
 const static SDL_FPoint shield_slot{134, 89};
 const static SDL_FPoint weapon_slot{101, 89};
 
-std::optional<equip_ui_system::equip_mouse_index>
-equip_ui_system::load_mouse_index() {
-  auto cursor_in = cursor_game_instance::cursor_ui;
-  if (cursor_in != render) {
-    return std::nullopt;
-  }
-  auto &mouse_pos = window::mouse_pos;
-  const SDL_FPoint lt{4, 45};
-  auto x = (int)pos.x + cap_slot.x + lt.x;
-  auto y = (int)pos.y + cap_slot.y + lt.y;
-  SDL_FRect pos_rect{
-      x,
-      y,
-      static_cast<float>(32),
-      static_cast<float>(32),
-  };
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return cap;
-  }
-  pos_rect.x = (int)pos.x + earacc_slot.x + lt.x;
-  pos_rect.y = (int)pos.y + earacc_slot.y + lt.y;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return earcc;
-  }
-  pos_rect.x = (int)pos.x + clothes_slot.x + lt.x;
-  pos_rect.y = (int)pos.y + clothes_slot.y + lt.y;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return clothes;
-  }
-  pos_rect.x = (int)pos.x + pants_slot.x + lt.x;
-  pos_rect.y = (int)pos.y + pants_slot.y + lt.y;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return pants;
-  }
-  pos_rect.x = (int)pos.x + shoes_slot.x + lt.x;
-  pos_rect.y = (int)pos.y + shoes_slot.y + lt.y;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return shoes;
-  }
-  pos_rect.x = (int)pos.x + gloves_slot.x + lt.x;
-  pos_rect.y = (int)pos.y + gloves_slot.y + lt.y;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return gloves;
-  }
-  pos_rect.x = (int)pos.x + cape_slot.x + lt.x;
-  pos_rect.y = (int)pos.y + cape_slot.y + lt.y;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return cape;
-  }
-  pos_rect.x = (int)pos.x + shield_slot.x + lt.x;
-  pos_rect.y = (int)pos.y + shield_slot.y + lt.y;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return shield;
-  }
-  pos_rect.x = (int)pos.x + weapon_slot.x + lt.x;
-  pos_rect.y = (int)pos.y + weapon_slot.y + lt.y;
-  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    return weapon;
-  }
-  return std::nullopt;
-}
-
 SDL_FPoint equip_ui_system::load_wh() { return {175, 289}; }
 
 void equip_ui_system::render_backgrnd() {
@@ -103,15 +41,27 @@ void equip_ui_system::render_backgrnd() {
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
-void equip_ui_system::render_equip_texture(game_equip_item &equip,
-                                           SDL_FPoint slot) {
+void equip_ui_system::render_equip_texture(
+    std::optional<game_equip_item> &equip, SDL_FPoint slot,
+    equip_mouse_index i) {
   const SDL_FPoint lt{4, 45};
-
-  auto info = equip_game_instance::load_equip_info(equip.id);
+  SDL_FRect pos_rect;
+  pos_rect.x = (int)pos.x + slot.x + lt.x;
+  pos_rect.y = (int)pos.y + slot.y + lt.y;
+  pos_rect.w = 32;
+  pos_rect.h = 32;
+  const auto &mouse_pos = window::mouse_pos;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    mouse_index = i;
+  }
+  if (!equip.has_value()) {
+    return;
+  }
+  auto info = equip_game_instance::load_equip_info(equip->id);
   auto icon = wz_resource::load_texture(info->get_child(u"icon"));
   auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
   auto y = (int)pos.y + slot.y + lt.y + (32 - icon->h) / 2;
-  SDL_FRect pos_rect{
+  pos_rect = {
       x,
       y,
       static_cast<float>(icon->w),
@@ -121,34 +71,17 @@ void equip_ui_system::render_equip_texture(game_equip_item &equip,
 }
 
 void equip_ui_system::render_equip() {
+  mouse_index = std::nullopt;
   auto &self = character_game_instance::self;
-  if (self.cap.has_value()) {
-    render_equip_texture(self.cap.value(), cap_slot);
-  }
-  if (self.accessory.has_value()) {
-    render_equip_texture(self.accessory.value(), earacc_slot);
-  }
-  if (self.coat.has_value()) {
-    render_equip_texture(self.coat.value(), clothes_slot);
-  }
-  if (self.pant.has_value()) {
-    render_equip_texture(self.pant.value(), pants_slot);
-  }
-  if (self.shoes.has_value()) {
-    render_equip_texture(self.shoes.value(), pants_slot);
-  }
-  if (self.glove.has_value()) {
-    render_equip_texture(self.glove.value(), gloves_slot);
-  }
-  if (self.cape.has_value()) {
-    render_equip_texture(self.cape.value(), cape_slot);
-  }
-  if (self.shield.has_value()) {
-    render_equip_texture(self.shield.value(), shield_slot);
-  }
-  if (self.weapon.has_value()) {
-    render_equip_texture(self.weapon.value(), weapon_slot);
-  }
+  render_equip_texture(self.cap, cap_slot, equip_mouse_index::cap);
+  render_equip_texture(self.accessory, earacc_slot, equip_mouse_index::earcc);
+  render_equip_texture(self.coat, clothes_slot, equip_mouse_index::clothes);
+  render_equip_texture(self.pant, pants_slot, equip_mouse_index::pants);
+  render_equip_texture(self.shoes, shoes_slot, equip_mouse_index::shoes);
+  render_equip_texture(self.glove, gloves_slot, equip_mouse_index::gloves);
+  render_equip_texture(self.cape, cape_slot, equip_mouse_index::cape);
+  render_equip_texture(self.shield, shield_slot, equip_mouse_index::shield);
+  render_equip_texture(self.weapon, weapon_slot, equip_mouse_index::weapon);
 }
 
 void equip_ui_system::render_disable_texture(SDL_FPoint slot) {
@@ -166,14 +99,27 @@ void equip_ui_system::render_disable_texture(SDL_FPoint slot) {
   SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
 }
 
-void equip_ui_system::render_deco_texture(game_deco_item &deco,
-                                          SDL_FPoint slot) {
+void equip_ui_system::render_deco_texture(std::optional<game_deco_item> &deco,
+                                          SDL_FPoint slot,
+                                          equip_mouse_index i) {
   const SDL_FPoint lt{4, 45};
-  auto info = equip_game_instance::load_equip_info(deco.id);
+  SDL_FRect pos_rect;
+  pos_rect.x = (int)pos.x + slot.x + lt.x;
+  pos_rect.y = (int)pos.y + slot.y + lt.y;
+  pos_rect.w = 32;
+  pos_rect.h = 32;
+  const auto &mouse_pos = window::mouse_pos;
+  if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+    mouse_index = i;
+  }
+  if (!deco.has_value()) {
+    return;
+  }
+  auto info = equip_game_instance::load_equip_info(deco->id);
   auto icon = wz_resource::load_texture(info->get_child(u"icon"));
   auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
   auto y = (int)pos.y + slot.y + lt.y + (32 - icon->h) / 2;
-  SDL_FRect pos_rect{
+  pos_rect = {
       x,
       y,
       static_cast<float>(icon->w),
@@ -190,33 +136,20 @@ void equip_ui_system::render_deco_texture(game_deco_item &deco,
 }
 
 void equip_ui_system::render_deco() {
+  mouse_index = std::nullopt;
   auto &self = character_game_instance::self;
-  if (self.cap_deco.has_value()) {
-    render_deco_texture(self.cap_deco.value(), cap_slot);
-  }
-  if (self.accessory_deco.has_value()) {
-    render_deco_texture(self.accessory_deco.value(), earacc_slot);
-  }
-  if (self.coat_deco.has_value()) {
-    render_deco_texture(self.coat_deco.value(), clothes_slot);
-  }
-  if (self.pant_deco.has_value()) {
-    render_deco_texture(self.pant_deco.value(), pants_slot);
-  }
-  if (self.shoes_deco.has_value()) {
-    render_deco_texture(self.shoes_deco.value(), pants_slot);
-  }
-  if (self.glove_deco.has_value()) {
-    render_deco_texture(self.glove_deco.value(), gloves_slot);
-  }
-  if (self.cape_deco.has_value()) {
-    render_deco_texture(self.cape_deco.value(), cape_slot);
-  }
-  if (self.shield_deco.has_value()) {
-    render_deco_texture(self.shield_deco.value(), shield_slot);
-  }
+  render_deco_texture(self.cap_deco, cap_slot, equip_mouse_index::cap);
+  render_deco_texture(self.accessory_deco, earacc_slot,
+                      equip_mouse_index::earcc);
+  render_deco_texture(self.coat_deco, clothes_slot, equip_mouse_index::clothes);
+  render_deco_texture(self.pant_deco, pants_slot, equip_mouse_index::pants);
+  render_deco_texture(self.shoes_deco, shoes_slot, equip_mouse_index::shoes);
+  render_deco_texture(self.glove_deco, gloves_slot, equip_mouse_index::gloves);
+  render_deco_texture(self.cape_deco, cape_slot, equip_mouse_index::cape);
+  render_deco_texture(self.shield_deco, shield_slot, equip_mouse_index::shield);
+  render_deco_texture(self.weapon_deco, weapon_slot, equip_mouse_index::weapon);
+  bool weapon_deco = false;
   if (self.weapon_deco.has_value()) {
-    bool weapon_deco = false;
     if (self.weapon_deco.has_value()) {
       if (self.weapon.has_value()) {
         std::u16string sub = self.weapon->id.substr(2, 2);
@@ -226,7 +159,6 @@ void equip_ui_system::render_deco() {
         }
       }
     }
-    render_deco_texture(self.weapon_deco.value(), weapon_slot);
     if (!weapon_deco) {
       render_disable_texture(weapon_slot);
     }
@@ -234,17 +166,17 @@ void equip_ui_system::render_deco() {
 }
 
 bool equip_ui_system::render_info() {
-  auto index = load_mouse_index();
+  auto index = mouse_index;
   if (index.has_value() && !cursor_game_instance::modal_overlay) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     if (active_tab == 0) {
-      auto equip = equip_game_instance::load_equip(index.value());
+      auto equip = equip_game_instance::load_equip((int)index.value());
       if (equip->has_value()) {
         tooltip_ui_system::render_equip(equip->value(), show_pos.x, show_pos.y);
       }
     } else {
-      auto deco = equip_game_instance::load_deco(index.value());
+      auto deco = equip_game_instance::load_deco((int)index.value());
       if (deco->has_value()) {
         tooltip_ui_system::render_deco(deco->value(), show_pos.x, show_pos.y);
       }
@@ -340,6 +272,7 @@ bool equip_ui_system::render() {
   render_backgrnd2();
   render_tab();
   render_button();
+
   if (active_tab == 0) {
     render_equip();
   } else {
@@ -353,17 +286,17 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     return false;
   }
-  auto index = load_mouse_index();
-  if (!index.has_value()) {
+  if (!mouse_index.has_value()) {
     return false;
   }
+  auto index = (int)mouse_index.value();
   auto &self = character_game_instance::self;
   auto &cursor_hand = cursor_game_instance::cursor_hand;
   if (cursor_hand.has_value()) {
     switch (cursor_hand->type) {
     case cursor_game_instance::equipment: {
-      if (index.value() == cursor_hand->sub_val && active_tab == 0) {
-        equip_game_instance::unuse_equip(index.value());
+      if (index == cursor_hand->sub_val && active_tab == 0) {
+        equip_game_instance::unuse_equip(index);
       }
       cursor_game_instance::cursor_hand = std::nullopt;
       break;
@@ -384,7 +317,7 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
                                                [cursor_hand->sub_val];
         if (itm->id.starts_with(u"0204")) {
           if (active_tab == 0) {
-            auto eqp = equip_game_instance::load_equip(index.value());
+            auto eqp = equip_game_instance::load_equip(index);
             if (eqp->has_value()) {
               auto &equip = eqp->value();
               auto &it = static_cast<game_consume_item &>(*itm);
@@ -403,8 +336,8 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
       break;
     }
     case cursor_game_instance::deco: {
-      if (index.value() == cursor_hand->sub_val && active_tab == 1) {
-        equip_game_instance::unuse_deco(index.value());
+      if (index == cursor_hand->sub_val && active_tab == 1) {
+        equip_game_instance::unuse_deco(index);
       }
       cursor_game_instance::cursor_hand = std::nullopt;
 
@@ -418,22 +351,22 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       bool click = false;
       if (active_tab == 0) {
-        click = equip_game_instance::load_equip(index.value())->has_value();
+        click = equip_game_instance::load_equip(index)->has_value();
       } else {
-        click = equip_game_instance::load_deco(index.value())->has_value();
+        click = equip_game_instance::load_deco(index)->has_value();
       }
       if (click) {
         if (active_tab == 0) {
           cursor_game_instance::cursor_hand = {
               .type = cursor_game_instance::equipment,
               .val = active_tab,
-              .sub_val = index.value(),
+              .sub_val = static_cast<uint32_t>(index),
           };
         } else {
           cursor_game_instance::cursor_hand = {
               .type = cursor_game_instance::deco,
               .val = active_tab,
-              .sub_val = index.value(),
+              .sub_val = static_cast<uint32_t>(index),
           };
         }
       }

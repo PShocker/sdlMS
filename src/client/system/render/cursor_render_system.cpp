@@ -31,6 +31,8 @@ void cursor_render_system::render_hand() {
           static_cast<float>(icon->w),
           static_cast<float>(icon->h),
       };
+      pos_rect.x = (int)pos_rect.x;
+      pos_rect.y = (int)pos_rect.y;
       SDL_SetTextureAlphaMod(icon, alpha);
       SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
       SDL_SetTextureAlphaMod(icon, 255);

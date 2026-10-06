@@ -24,47 +24,6 @@
 #include <string>
 #include <vector>
 
-std::optional<std::u16string> skill_ui_system::load_mouse_ski() {
-  auto cursor_in = cursor_game_instance::cursor_ui;
-  if (cursor_in != render) {
-    return std::nullopt;
-  }
-  const SDL_FPoint lt{8, 99};
-  const SDL_FPoint rb{184, 334};
-  const SDL_FPoint pos_icon{2, 2};
-  const uint8_t max_scroll_num = 6;
-  auto self_job = character_game_instance::self.job;
-  auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
-  job_type jt = ski_tree.at(active_tab);
-  // 根据active_tab获取技能组
-  auto skill_node = job_skill_game_instance::load_job_skis(jt);
-
-  auto &mouse_pos = window::mouse_pos;
-  uint8_t i = 0;
-  const auto ski_w = 32;
-  const auto ski_h = 32;
-
-  const auto entry_h = 35;
-  const auto l =
-      (rb.y - lt.y - max_scroll_num * entry_h) / (max_scroll_num - 1);
-  for (auto [k, v] : skill_node) {
-    if (i >= max_scroll_num) {
-      break;
-    }
-    SDL_FRect pos_rect{
-        pos.x + lt.x + 2,
-        pos.y + lt.y + i * entry_h + l * i + 2,
-        static_cast<float>(ski_w),
-        static_cast<float>(ski_h),
-    };
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      return (skill_node.begin() + i + page)->first;
-    }
-    i++;
-  }
-  return std::nullopt;
-}
-
 SDL_FPoint skill_ui_system::load_wh() { return {197, 371}; }
 
 bool skill_ui_system::cursor_in() {
@@ -180,7 +139,10 @@ void skill_ui_system::render_tab() {
   }
 }
 
+static std::u16string mouse_skill_id;
+
 void skill_ui_system::render_skill_entry() {
+  mouse_skill_id = u"";
   auto entry = wz_resource::load_texture(
       wz_resource::ui->find(u"Skill.img/entry/skill1"));
 
@@ -210,14 +172,16 @@ void skill_ui_system::render_skill_entry() {
 
     SDL_Texture *ski_texture;
     auto ski_level = job_skill_game_instance::load_ski_level(k);
-    SDL_FRect pos_rect;
+    SDL_FRect pos_rect = {
+        pos.x + lt.x + 2,
+        pos.y + lt.y + i * entry->h + l * i + 2,
+        static_cast<float>(32),
+        static_cast<float>(32),
+    };
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      mouse_skill_id = k;
+    }
     if (ski_level > 0) {
-      pos_rect = {
-          pos.x + lt.x + 2,
-          pos.y + lt.y + i * entry->h + l * i + 2,
-          static_cast<float>(32),
-          static_cast<float>(32),
-      };
       if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
           !cursor_game_instance::modal_overlay) {
         ski_texture =
@@ -278,12 +242,10 @@ void skill_ui_system::render_scroll() {
 }
 
 bool skill_ui_system::render_info() {
-  auto mouse_ski = load_mouse_ski();
-  if (mouse_ski.has_value() && !cursor_game_instance::modal_overlay) {
+  if (!mouse_skill_id.empty() && !cursor_game_instance::modal_overlay) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    auto ski_id = mouse_ski.value();
-    tooltip_ui_system::render_skill(ski_id, 1, show_pos.x, show_pos.y);
+    tooltip_ui_system::render_skill(mouse_skill_id, 1, show_pos.x, show_pos.y);
   }
   return true;
 }
@@ -468,10 +430,9 @@ bool skill_ui_system::event_button(SDL_Event *event) {
 }
 
 bool skill_ui_system::event_click_ski(SDL_Event *event) {
-  auto index = load_mouse_ski();
-  if (index.has_value()) {
+  if (!mouse_skill_id.empty()) {
     if (event->button.clicks >= 1) {
-      auto id = index.value();
+      auto id = mouse_skill_id;
       if (!skill_game_instance::load_ski_active(id)) {
         return false;
       }

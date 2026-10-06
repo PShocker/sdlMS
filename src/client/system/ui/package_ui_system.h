@@ -52,7 +52,7 @@ public:
   static void render_number(uint32_t num, int x, int y);
 
   static inline SDL_FPoint pos;
-
+  static inline std::optional<uint32_t> mouse_index;
   static inline uint8_t active_tab;
 
   static void open();
@@ -65,7 +65,7 @@ public:
 
   static void toggle();
 
-  static std::optional<uint32_t> load_mouse_index();
+  static void cal_mouse_index();
 
   struct new_item {
     item_enum type;

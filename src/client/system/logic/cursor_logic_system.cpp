@@ -81,7 +81,7 @@ std::optional<game_npc> cursor_logic_system::cursor_npc() {
 }
 
 bool cursor_logic_system::run_package_motion() {
-  auto index = package_ui_system::load_mouse_index();
+  auto index = package_ui_system::mouse_index;
   if (!index.has_value()) {
     return false;
   }

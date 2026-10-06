@@ -16,6 +16,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
@@ -193,6 +194,7 @@ void quest_ui_system::render_area_name(int i, int y) {
 }
 
 static std::u16string quest_name;
+static std::u16string checkbox_quest_name;
 
 void quest_ui_system::render_quest(game_quest &q, int y) {
   const SDL_FPoint lt{10, 50};
@@ -219,8 +221,12 @@ void quest_ui_system::render_quest(game_quest &q, int y) {
   case 1: {
     str_left = 30;
     str_len = 26;
-    static auto t = wz_resource::load_texture(
+    auto t = wz_resource::load_texture(
         wz_resource::ui->find(u"Basic.img/CheckBox/0/0"));
+    if (quest_alarm_ui_system::quests.contains(q.quest_id)) {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find(u"Basic.img/CheckBox/0/1"));
+    }
     SDL_FRect pos_rect{
         static_cast<float>(px),
         static_cast<float>(py),
@@ -228,6 +234,10 @@ void quest_ui_system::render_quest(game_quest &q, int y) {
         static_cast<float>(t->h),
     };
     SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    const auto &mouse_pos = window::mouse_pos;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      checkbox_quest_name = q.quest_id;
+    }
     std::vector<int> delays = {
         120, 120, 120, 120, 120, 120, 120, 4000,
     };
@@ -304,6 +314,7 @@ void quest_ui_system::render_quests() {
   fold = std::nullopt;
   d_quest = std::nullopt;
   quest_name = u"";
+  checkbox_quest_name = u"";
   for (const auto &[k, v] : quests) {
     if (i >= MAX_DISPLAY_ITEMS)
       break;
@@ -713,6 +724,16 @@ bool quest_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
+void quest_ui_system::event_checkbox() {
+  if (!checkbox_quest_name.empty()) {
+    if (quest_alarm_ui_system::quests.contains(checkbox_quest_name)) {
+      quest_alarm_ui_system::quests.erase(checkbox_quest_name);
+    } else {
+      quest_alarm_ui_system::quests.insert(checkbox_quest_name);
+    }
+  }
+}
+
 void quest_ui_system::event_fold() {
   if (fold.has_value()) {
     if (disable_fold.contains(fold.value())) {
@@ -858,6 +879,7 @@ bool quest_ui_system::event(SDL_Event *event) {
       if (cursor_game_instance::cursor_ui == render) {
         event_fold();
         event_quest();
+        event_checkbox();
         event_tab(event);
         event_vscr(event);
         r = !event_button(event);

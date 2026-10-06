@@ -328,6 +328,9 @@ bool item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
   auto id = itm->id;
   auto info = item_game_instance::load_item_info(id, 0);
   info = info->find(u"../spec");
+  if (info == nullptr) {
+    return false;
+  }
   if (!info->get_child(u"time")) {
     return false;
   }

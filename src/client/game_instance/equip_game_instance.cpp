@@ -675,47 +675,47 @@ int equip_game_instance::use_deco(int i, int slot) {
 std::optional<game_equip_item> *equip_game_instance::load_equip(int index) {
   std::optional<game_equip_item> *equip;
   auto &self = character_game_instance::self;
-  switch ((equip_ui_system::equip_mouse_index)index) {
-  case equip_ui_system::cap: {
+  switch ((equip_mouse_index)index) {
+  case equip_mouse_index::cap: {
     equip = &self.cap;
     break;
   }
-  case equip_ui_system::earcc: {
+  case equip_mouse_index::earcc: {
     equip = &self.accessory;
     break;
   }
-  case equip_ui_system::clothes: {
+  case equip_mouse_index::clothes: {
     equip = &self.coat;
     break;
   }
-  case equip_ui_system::pants: {
+  case equip_mouse_index::pants: {
     equip = &self.pant;
     break;
   }
-  case equip_ui_system::shoes: {
+  case equip_mouse_index::shoes: {
     equip = &self.shoes;
     break;
   }
-  case equip_ui_system::gloves: {
+  case equip_mouse_index::gloves: {
     equip = &self.glove;
     break;
   }
-  case equip_ui_system::cape: {
+  case equip_mouse_index::cape: {
     equip = &self.cape;
     break;
   }
-  case equip_ui_system::shield: {
+  case equip_mouse_index::shield: {
     equip = &self.shield;
     break;
   }
-  case equip_ui_system::weapon: {
+  case equip_mouse_index::weapon: {
     equip = &self.weapon;
     break;
   }
-  case equip_ui_system::ring0:
-  case equip_ui_system::ring1:
-  case equip_ui_system::ring2:
-  case equip_ui_system::ring3:
+  case equip_mouse_index::ring0:
+  case equip_mouse_index::ring1:
+  case equip_mouse_index::ring2:
+  case equip_mouse_index::ring3:
     break;
   }
   return equip;
@@ -724,47 +724,47 @@ std::optional<game_equip_item> *equip_game_instance::load_equip(int index) {
 std::optional<game_deco_item> *equip_game_instance::load_deco(int index) {
   std::optional<game_deco_item> *deco;
   auto &self = character_game_instance::self;
-  switch (index) {
-  case equip_ui_system::cap: {
+  switch ((equip_mouse_index)index) {
+  case equip_mouse_index::cap: {
     deco = &self.cap_deco;
     break;
   }
-  case equip_ui_system::earcc: {
+  case equip_mouse_index::earcc: {
     deco = &self.accessory_deco;
     break;
   }
-  case equip_ui_system::clothes: {
+  case equip_mouse_index::clothes: {
     deco = &self.coat_deco;
     break;
   }
-  case equip_ui_system::pants: {
+  case equip_mouse_index::pants: {
     deco = &self.pant_deco;
     break;
   }
-  case equip_ui_system::shoes: {
+  case equip_mouse_index::shoes: {
     deco = &self.shoes_deco;
     break;
   }
-  case equip_ui_system::gloves: {
+  case equip_mouse_index::gloves: {
     deco = &self.glove_deco;
     break;
   }
-  case equip_ui_system::cape: {
+  case equip_mouse_index::cape: {
     deco = &self.cape_deco;
     break;
   }
-  case equip_ui_system::shield: {
+  case equip_mouse_index::shield: {
     deco = &self.shield_deco;
     break;
   }
-  case equip_ui_system::weapon: {
+  case equip_mouse_index::weapon: {
     deco = &self.weapon_deco;
     break;
   }
-  case equip_ui_system::ring0:
-  case equip_ui_system::ring1:
-  case equip_ui_system::ring2:
-  case equip_ui_system::ring3:
+  case equip_mouse_index::ring0:
+  case equip_mouse_index::ring1:
+  case equip_mouse_index::ring2:
+  case equip_mouse_index::ring3:
     break;
   }
   return deco;

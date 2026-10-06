@@ -8,35 +8,34 @@
 #include <optional>
 #include <string>
 
+enum class equip_mouse_index {
+  cap,
+  earcc,
+  clothes,
+  pants,
+  shoes,
+  gloves,
+  cape,
+  shield,
+  weapon,
+  ring0,
+  ring1,
+  ring2,
+  ring3,
+};
+
 class equip_ui_system {
-public:
-  enum equip_mouse_index {
-    cap,
-    earcc,
-    clothes,
-    pants,
-    shoes,
-    gloves,
-    cape,
-    shield,
-    weapon,
-    ring0,
-    ring1,
-    ring2,
-    ring3,
-  };
-
 private:
-  static std::optional<equip_mouse_index> load_mouse_index();
-
   static void render_backgrnd();
   static void render_backgrnd2();
   static void render_tab();
   static void render_equip();
   static void render_deco();
   static void render_disable_texture(SDL_FPoint slot);
-  static void render_equip_texture(game_equip_item &equip, SDL_FPoint slot);
-  static void render_deco_texture(game_deco_item &deco, SDL_FPoint slot);
+  static void render_equip_texture(std::optional<game_equip_item> &equip,
+                                   SDL_FPoint slot, equip_mouse_index i);
+  static void render_deco_texture(std::optional<game_deco_item> &deco,
+                                  SDL_FPoint slot, equip_mouse_index i);
   static bool render_info();
   static void render_button();
 
@@ -56,7 +55,10 @@ private:
 
   static inline std::optional<SDL_FPoint> drag;
   static inline uint8_t active_tab;
+
 public:
+  static inline std::optional<equip_mouse_index> mouse_index;
+
   static inline SDL_FPoint pos;
 
   static void open();

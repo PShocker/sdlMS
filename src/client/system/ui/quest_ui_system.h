@@ -35,6 +35,7 @@ private:
   static void event_button_close();
   static void event_button_detail();
 
+  static void event_checkbox();
   static bool event_vscr(SDL_Event *event);
   static bool event_button(SDL_Event *event);
   static void event_tab(SDL_Event *event);

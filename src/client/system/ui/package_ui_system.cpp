@@ -41,10 +41,11 @@
 #include <utility>
 #include <vector>
 
-std::optional<uint32_t> package_ui_system::load_mouse_index() {
+void package_ui_system::cal_mouse_index() {
+  mouse_index = std::nullopt;
   auto cursor_in = cursor_game_instance::cursor_ui;
   if (cursor_in != render) {
-    return std::nullopt;
+    return;
   }
   SDL_FPoint slot_pos{8, 51};
   const auto slot_space_x = 4;
@@ -62,10 +63,9 @@ std::optional<uint32_t> package_ui_system::load_mouse_index() {
     auto dy = int((mouse_pos.y - ty) / 34);
     auto index = dy * 5 + dx;
     index += page * 5;
-    return index;
+    mouse_index = index;
   }
-
-  return std::nullopt;
+  return;
 }
 
 void package_ui_system::render_backgrnd() {
@@ -166,7 +166,7 @@ bool package_ui_system::render_items_info() {
     return true;
   }
   constexpr int tooltip_offset = 15;
-  auto index_opt = load_mouse_index();
+  auto index_opt = mouse_index;
   if (!index_opt.has_value()) {
     return true;
   }
@@ -383,6 +383,7 @@ void package_ui_system::render_meso() {
 }
 
 bool package_ui_system::render() {
+  cal_mouse_index();
   render_backgrnd();
   render_tab();
   render_items();
@@ -441,7 +442,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     return false;
   }
 
-  auto index = load_mouse_index();
+  auto index = mouse_index;
   if (!index.has_value()) {
     return false;
   }
