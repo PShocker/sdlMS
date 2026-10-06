@@ -7,6 +7,7 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
+#include <numeric>
 #include <optional>
 
 std::optional<chatballoon_render_system::backgrnd_pad>
@@ -48,15 +49,14 @@ chatballoon_render_system::render_backgrnd(game_chatballoon &g_chatballoon,
   freetype::load_size(g_chatballoon.size);
   auto text_w = g_chatballoon.w - (texture_nw->w + texture_ne->w);
 
-  auto a = (float)texture_c->w;
-  auto b = g_chatballoon.w;
+  int a = (float)texture_c->w;
+  int b = g_chatballoon.w;
   auto result_w = a * ((b + a - 1) / a); // 整数向上取整技巧
 
-  auto h = freetype::load_h(g_chatballoon.text, result_w, 1.3);
-  h -= freetype::load_lh();
+  int h = freetype::load_h(g_chatballoon.text, result_w, 1.3);
 
-  a = (float)texture_c->h;
-  b = h;
+  a = h;
+  b = (float)texture_c->h;
   auto result_h = a * ((b + a - 1) / a); // 整数向上取整技巧
 
   SDL_FRect rect;
@@ -70,13 +70,13 @@ chatballoon_render_system::render_backgrnd(game_chatballoon &g_chatballoon,
     rect.x -= camera.x;
     rect.y -= camera.y;
 
-    auto r_x = rect.x;
-    auto r_y = rect.y;
-    auto r_w = rect.w;
-    auto r_h = rect.h;
+    int r_x = rect.x;
+    int r_y = rect.y;
+    int r_w = rect.w;
+    int r_h = rect.h;
 
     // 左上
-    SDL_FPoint p_nw{r_x, r_y};
+    SDL_FPoint p_nw{static_cast<float>(r_x), static_cast<float>(r_y)};
     rect.x = (int)(p_nw.x);
     rect.y = (int)(p_nw.y);
     rect.w = texture_nw->w;
@@ -169,10 +169,10 @@ chatballoon_render_system::render_backgrnd(game_chatballoon &g_chatballoon,
       clr = static_cast<wz::Property<int32_t> *>(clr_node)->get();
     }
     return backgrnd_pad{
-        r_x + texture_nw->w,
-        r_y + texture_nw->h,
-        r_w - texture_nw->w - texture_se->w,
-        r_h - texture_nw->h - texture_se->h,
+        static_cast<float>(r_x + texture_nw->w),
+        static_cast<float>(r_y + texture_nw->h),
+        static_cast<float>(r_w - texture_nw->w - texture_se->w),
+        static_cast<float>(r_h - texture_nw->h - texture_se->h),
         clr,
     };
   }
