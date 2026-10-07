@@ -57,7 +57,19 @@ int quest_ui_system::load_vscr_num0() {
   return count;
 }
 
-int quest_ui_system::load_vscr_num1() { return 0; }
+int quest_ui_system::load_vscr_num1() {
+  int h = 0;
+  auto info = load_detail_str();
+  freetype::load_size(12);
+  h += freetype::load_rh(info, 265, 1.3, std::nullopt);
+  if (quest_game_instance::progress_quests.contains(detail_quest)) {
+    h += load_detail_summary_backgrnd_h();
+  } else {
+    h += 18;
+  }
+  auto lh = freetype::load_lh();
+  return h / lh;
+}
 
 int quest_ui_system::load_detail_summary_backgrnd_h() {
   if (detail_quest.empty()) {
@@ -337,7 +349,7 @@ void quest_ui_system::render_quests() {
   return;
 }
 
-void quest_ui_system::render_detail_talk() {
+void quest_ui_system::render_detail_avaliable() {
   if (quest_game_instance::progress_quests.contains(detail_quest) ||
       quest_game_instance::complete_quests.contains(detail_quest)) {
     return;
@@ -358,6 +370,37 @@ void quest_ui_system::render_detail_talk() {
     freetype::draw_line(npc_str, pos.x + 260, pos.y + 126);
     freetype::load_bold(false);
   }
+  auto info = load_detail_str();
+  freetype::load_color(0, 0, 0, 255);
+  freetype::draw_rstr(info, pos.x + 260, pos.y + 148, 265, 1.3, std::nullopt);
+}
+
+void quest_ui_system::render_detail_progress() {
+  if (!quest_game_instance::progress_quests.contains(detail_quest)) {
+    return;
+  }
+  auto left = 260;
+  auto top = 125;
+  SDL_Rect clip_rect = {
+      static_cast<int>(pos.x + left),
+      static_cast<int>(pos.y + top),
+      270,
+      240,
+  };
+  // 启用裁剪
+  SDL_SetRenderClipRect(window::renderer, &clip_rect);
+  render_detail_summary();
+  auto info = load_detail_str();
+  int h = 140;
+  auto backgrnd_h = load_detail_summary_backgrnd_h();
+  if (backgrnd_h == 0) {
+    h = 130;
+  } else {
+    h = h + backgrnd_h;
+  }
+  freetype::draw_rstr(info, pos.x + 260, pos.y + h - pages[1] * 18, 265, 1.3,
+                      std::nullopt);
+  SDL_SetRenderClipRect(window::renderer, NULL);
 }
 
 void quest_ui_system::render_detail_summary_backgrnd() {
@@ -368,7 +411,7 @@ void quest_ui_system::render_detail_summary_backgrnd() {
   static auto b = wz_resource::load_texture(
       wz_resource::ui->find(u"Quest.img/Quest/quest_info/summary_pattern/b"));
   auto left = 260;
-  auto top = 125;
+  auto top = 125 - pages[1] * 18;
   auto h = load_detail_summary_backgrnd_h();
   SDL_FRect pos_rect{
       static_cast<float>((int)pos.x + left),
@@ -393,7 +436,7 @@ void quest_ui_system::render_detail_summary() {
   if (h > 0) {
     render_detail_summary_backgrnd();
     auto left = 260;
-    auto top = 125;
+    auto top = 125 - pages[1] * 18;
     static auto t2 = wz_resource::load_texture(wz_resource::ui->find(
         u"Quest.img/Quest/quest_info/summary_icon/summary"));
     SDL_FRect pos_rect{
@@ -450,7 +493,10 @@ void quest_ui_system::render_detail_summary() {
   }
 }
 
-void quest_ui_system::render_detail_text() {
+std::u16string quest_ui_system::load_detail_str() {
+  if (detail_quest.empty()) {
+    return u"";
+  }
   auto index = quest_game_instance::load_quest_progress(detail_quest);
   std::u16string info;
   auto node = quest_game_instance::load_quest_node(detail_quest);
@@ -459,20 +505,7 @@ void quest_ui_system::render_detail_text() {
   if (node) {
     info = text_game_instance::load_rstr(node);
   }
-  freetype::load_color(0, 0, 0, 255);
-  int h = 140;
-  if (quest_game_instance::progress_quests.contains(detail_quest)) {
-    auto backgrnd_h = load_detail_summary_backgrnd_h();
-    if (backgrnd_h == 0) {
-      h = 130;
-    } else {
-      h = h + backgrnd_h;
-    }
-    freetype::draw_rstr(info, pos.x + 260, pos.y + h, 265, 1.3, std::nullopt);
-  } else {
-    h += 10;
-    freetype::draw_rstr(info, pos.x + 260, pos.y + h, 265, 1.3, std::nullopt);
-  }
+  return info;
 }
 
 static const SDL_FPoint detail_lt = {245, 0};
@@ -537,10 +570,9 @@ void quest_ui_system::render_quest_detail() {
   freetype::load_size(12);
   freetype::draw_line(name, pos.x + 276, pos.y + 36);
   freetype::load_bold(false);
-  render_detail_talk();
+  render_detail_avaliable();
+  render_detail_progress();
   render_detail_vscr();
-  render_detail_summary();
-  render_detail_text();
 }
 
 void quest_ui_system::render_tab() {
@@ -595,8 +627,8 @@ void quest_ui_system::render_detail_vscr() {
   auto cursor_in = cursor_game_instance::cursor_ui;
   bool top =
       cursor_in == render && cursor_game_instance::modal_overlay == nullptr;
-  auto count = load_vscr_num0();
-  scroll_ui_system::render_vscroll(px, py, pages[0], count, length, top, 16);
+  auto count = load_vscr_num1();
+  scroll_ui_system::render_vscroll(px, py, pages[1], count, length, top, 16);
 
   return;
 }
@@ -661,7 +693,7 @@ void quest_ui_system::event_tab(SDL_Event *event) {
         return;
       }
       disable_fold = {};
-      pages = {};
+      pages[0] = 0;
       active_tab = i;
       return;
     }
@@ -750,25 +782,35 @@ void quest_ui_system::event_fold() {
 void quest_ui_system::event_quest() {
   if (d_quest.has_value()) {
     detail_quest = d_quest.value();
+    pages[1] = 0;
+    vscr_motion = {};
   }
   return;
 }
 
 bool quest_ui_system::event_vscr(SDL_Event *event) {
-  const SDL_FPoint lt{225, 48};
+  SDL_FPoint lt{225, 48};
   int px = pos.x + lt.x;
   int py = pos.y + lt.y;
-  const uint32_t length = 318;
+  uint32_t length = 318;
 
   auto size = load_vscr_num0() - 16;
   size = std::max(0, size);
 
-  auto cursor_in = cursor_game_instance::cursor_ui;
   auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
-  bool top = cursor_in == render;
+  bool top = true;
   auto val = scroll_ui_system::click_vscroll(px, py, pages[0], size, length,
                                              top, mouse_pos);
   pages[0] = val;
+
+  lt = {532, 122};
+  px = pos.x + lt.x;
+  py = pos.y + lt.y;
+  length = 244;
+  size = load_vscr_num1() - 16;
+  val = scroll_ui_system::click_vscroll(px, py, pages[1], size, length, top,
+                                        mouse_pos);
+  pages[1] = val;
   return true;
 }
 
@@ -783,13 +825,28 @@ void quest_ui_system::event_vscr_move(SDL_Event *event) {
         std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
     event_vscr(event);
   }
+  if (vscr_motion[1]) {
+    const SDL_FPoint lt{532, 122};
+    const uint32_t length = 244;
+
+    event->button.x = pos.x + lt.x;
+    event->button.y =
+        std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+    event_vscr(event);
+  }
 }
 
 void quest_ui_system::event_vscr_start(SDL_Event *event) {
-  const SDL_FPoint lt{225, 48};
-  const uint32_t length = 318;
+  SDL_FPoint lt{225, 48};
+  uint32_t length = 318;
   if (vscr_motion[0] == false) {
     vscr_motion[0] =
+        scroll_ui_system::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+  }
+  lt = {532, 122};
+  length = 244;
+  if (vscr_motion[1] == false) {
+    vscr_motion[1] =
         scroll_ui_system::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
   }
 }

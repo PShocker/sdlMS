@@ -12,6 +12,7 @@ private:
   static int load_vscr_num0();
   static int load_vscr_num1();
   static int load_detail_summary_backgrnd_h();
+  static std::u16string load_detail_str();
 
   static void render_backgrnd();
   static void render_button();
@@ -22,12 +23,11 @@ private:
   static void render_quest(game_quest &q, int y);
   static void render_vscr();
   static void render_detail_vscr();
-  static void render_detail_talk();
+  static void render_detail_avaliable();
+  static void render_detail_progress();
   static void render_detail_summary();
   static void render_detail_summary_backgrnd();
   static bool render_info();
-
-  static void render_detail_text();
 
   static void event_fold();
   static void event_quest();

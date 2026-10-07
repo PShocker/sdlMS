@@ -743,7 +743,6 @@ bool package_ui_system::event_vscr(SDL_Event *event) {
   auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
   size = std::max(0, size);
 
-  auto cursor_in = cursor_game_instance::cursor_ui;
   size = std::max(0, size);
   auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
   auto val = scroll_ui_system::click_vscroll(pos.x + lt.x, pos.y + lt.y, page,

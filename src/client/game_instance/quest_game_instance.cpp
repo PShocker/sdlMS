@@ -231,6 +231,7 @@ wz::Node *quest_game_instance::load_quest_node(const std::u16string &id) {
 }
 
 void quest_game_instance::load(character_save &cs) {
+  accept_quest(u"10317.img");
   for (auto &q : cs.quests) {
     switch (q.type) {
     case quest_enum::progress: {
