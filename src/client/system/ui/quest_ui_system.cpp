@@ -356,11 +356,11 @@ void quest_ui_system::render_detail_avaliable() {
   }
   auto node = quest_game_instance::load_quest_node(detail_quest);
   node = node->find(u"Check/0/npc");
+  freetype::load_size(12);
   if (node != nullptr) {
     auto npc_i = static_cast<wz::Property<int> *>(node)->get();
     auto tmp = std::format("{:07d}", npc_i);
     std::u16string npc_id{tmp.begin(), tmp.end()};
-    freetype::load_size(12);
     auto npc_name = npc_game_instance::load_npc_text(npc_id, u"name");
     node = wz_resource::ms->get_root()->find(u"String.img/Quest/talkNPC");
     auto npc_str = static_cast<wz::Property<std::u16string> *>(node)->get();
@@ -398,6 +398,8 @@ void quest_ui_system::render_detail_progress() {
   } else {
     h = h + backgrnd_h;
   }
+  freetype::load_size(12);
+  freetype::load_color(0, 0, 0, 255);
   freetype::draw_rstr(info, pos.x + 260, pos.y + h - pages[1] * 18, 265, 1.3,
                       std::nullopt);
   SDL_SetRenderClipRect(window::renderer, NULL);
