@@ -8,6 +8,7 @@
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
+#include "src/client/game_instance/text_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
@@ -514,7 +515,7 @@ minimap_ui_system::map_name minimap_ui_system::load_map_name(uint32_t map_id) {
                             v2[0]->get_child(u"mapName"))
                             ->get();
         if (auto d = v2[0]->get_child(u"mapDesc")) {
-          desc.map_desc = static_cast<wz::Property<std::u16string> *>(d)->get();
+          desc.map_desc = text_game_instance::load_rstr(d);
         }
         cache[id] = desc;
       }

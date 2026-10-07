@@ -53,7 +53,7 @@ chatballoon_render_system::render_backgrnd(game_chatballoon &g_chatballoon,
   int b = g_chatballoon.w;
   auto result_w = a * ((b + a - 1) / a); // 整数向上取整技巧
 
-  int h = freetype::load_h(g_chatballoon.text, result_w, 1.3);
+  int h = freetype::load_ch(g_chatballoon.text, result_w, 1.3);
 
   a = h;
   b = (float)texture_c->h;

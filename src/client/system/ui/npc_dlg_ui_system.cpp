@@ -274,7 +274,7 @@ void npc_dlg_ui_system::render_list() {
     }
     y += 12;
   };
-  auto y = freetype::load_h(text, 330, 1.3) + 40;
+  auto y = freetype::load_ch(text, 330, 1.3) + 40;
   render_q(t2, progress_complete_quest, y, u"Complete");
   render_q(t1, avaliable_quest, y, u"Avaliable");
   render_q(t0, progress_quest, y, u"Progress");
@@ -324,7 +324,7 @@ void npc_dlg_ui_system::render_obtain() {
   }
   static auto t =
       wz_resource::load_texture(wz_resource::ui->find(u"QuestIcon.img/4/0"));
-  auto y = freetype::load_h(text, 330, 1.3) + 40;
+  auto y = freetype::load_rh(text, 330, 1.3, std::nullopt) + 40;
   SDL_FRect pos_rect{
       static_cast<float>((int)pos.x + 165),
       (int)pos.y + y,

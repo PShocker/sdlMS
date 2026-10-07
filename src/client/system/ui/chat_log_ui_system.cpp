@@ -39,7 +39,7 @@ void chat_log_ui_system::render_chats() {
     auto base_x = (screen_w - 808) / 2;
     auto base_y = (screen_h - 73);
     freetype::load_color(255, 255, 255, 255);
-    str_h += freetype::load_h(str, 550, 1.1);
+    str_h += freetype::load_ch(str, 550, 1.1);
     freetype::draw_str(str, base_x + 8, base_y - str_h + 2, 550, 1.1);
   }
 }
@@ -102,7 +102,7 @@ void chat_log_ui_system::event_click_chat_vscr() {
   int size = 0;
   for (const auto &chats : chat_game_instance::chats) {
     auto str = chats.owner + u":" + chats.text;
-    auto h = freetype::load_h(str, 564, 1.1);
+    auto h = freetype::load_ch(str, 564, 1.1);
     size += h;
   }
   size = size / (freetype::load_lh() * 1.1);

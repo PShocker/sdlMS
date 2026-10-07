@@ -52,11 +52,11 @@ public:
   static void load_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
   static float load_w(const std::u16string &str);
   static float load_lh();
-  static float load_h(const std::u16string &str, float w, float h);
 
   static void load_aligned(bool r);
   static void load_bold(bool r);
 
+  static float load_ch(const std::u16string &str, float w, float h);
   static float load_rh(const std::u16string &str, float w, float h,
                        std::optional<SDL_FRect> obstacle);
 
@@ -64,18 +64,17 @@ public:
 
   static void draw_str(const std::u16string &str, float x, float y, float w,
                        float h);
-  struct rstr_return_data {
+  struct draw_data {
     float height;
     int select;
   };
-  static rstr_return_data draw_rstr(const std::u16string &str, float x, float y,
-                                    float w, float h,
-                                    std::optional<SDL_FRect> obstacle);
-  static rstr_return_data draw_rstr(const std::u16string &str, float x, float y,
-                                    float w, float h,
-                                    std::optional<SDL_FRect> obstacle,
-                                    int default_select, bool dryRun,
-                                    int visibleCount);
-  static void draw_cstr(const std::u16string &str, float x, float y, float w,
-                        float h);
+  static draw_data draw_rstr(const std::u16string &str, float x, float y,
+                             float w, float h,
+                             std::optional<SDL_FRect> obstacle);
+  static draw_data draw_rstr(const std::u16string &str, float x, float y,
+                             float w, float h,
+                             std::optional<SDL_FRect> obstacle,
+                             int default_select, bool dryRun, int visibleCount);
+  static draw_data draw_cstr(const std::u16string &str, float x, float y,
+                             float w, float h, bool dryRun = false);
 };

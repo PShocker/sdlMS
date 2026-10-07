@@ -938,7 +938,7 @@ void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {
   const auto bh = 60;
   const auto w = 300;
   if (map_desc != u"") {
-    auto h = freetype::load_h(map_desc, 280, 1.1);
+    auto h = freetype::load_rh(map_desc, 280, 1.1, std::nullopt);
     render_backgrnd(x, y, w, h + bh + 20);
   } else {
     render_backgrnd(x, y, w, bh);
@@ -961,7 +961,7 @@ void tooltip_ui_system::render_world_map_info(uint32_t id, float x, float y) {
     SDL_RenderLine(window::renderer, x, sh, x + w, sh);
 
     auto s3 = map_desc;
-    freetype::draw_str(s3, x + 10, sh + 5, w - 20, 1.1);
+    freetype::draw_cstr(s3, x + 10, sh + 5, w - 20, 1.1);
   }
 }
 
