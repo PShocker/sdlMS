@@ -302,19 +302,19 @@ bool equip_game_instance::add_equip_limit(game_equip_item &equip,
   if (lv < require_lv) {
     return false;
   }
-  auto str_ap = character_stat_game_instance::str_ap;
+  auto str_ap = character_stat_game_instance::get_str_ap();
   if (str_ap < require_str) {
     return false;
   }
-  auto dex_ap = character_stat_game_instance::dex_ap;
+  auto dex_ap = character_stat_game_instance::get_dex_ap();
   if (dex_ap < require_dex) {
     return false;
   }
-  auto int_ap = character_stat_game_instance::int_ap;
+  auto int_ap = character_stat_game_instance::get_int_ap();
   if (int_ap < require_int) {
     return false;
   }
-  auto luk_ap = character_stat_game_instance::luk_ap;
+  auto luk_ap = character_stat_game_instance::get_luk_ap();
   if (luk_ap < require_luk) {
     return false;
   }

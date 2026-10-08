@@ -99,12 +99,10 @@ static void huibishu() {
   g_skill.end = []() {
     auto &skis = skill_game_instance::skis();
     auto ski_lv = skis[u"2001099"].lv;
-    character_stat_game_instance::ski_mp -= ski_lv;
   };
   g_skill.passive = [](int ski_lv) {
     auto &skis = skill_game_instance::skis();
     skis[u"2001099"].lv = ski_lv;
-    character_stat_game_instance::ski_mp += ski_lv;
   };
   auto &skis = skill_game_instance::skis();
 

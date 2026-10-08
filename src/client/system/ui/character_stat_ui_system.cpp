@@ -73,21 +73,21 @@ void character_stat_ui_system::render_text() {
 
   // hp
   p = {pos.x + 60, pos.y + 97};
-  auto hp = character_stat_game_instance::hp_point;
+  auto hp = character_stat_game_instance::get_hp();
   auto hp1 = std::to_string(hp);
   auto hp2 = std::u16string{hp1.begin(), hp1.end()};
   freetype::draw_line(hp2, p.x, p.y);
 
   // mp
   p = {pos.x + 60, pos.y + 115};
-  auto mp = character_stat_game_instance::mp_point;
+  auto mp = character_stat_game_instance::get_mp();
   auto mp1 = std::to_string(mp);
   auto mp2 = std::u16string{mp1.begin(), mp1.end()};
   freetype::draw_line(mp2, p.x, p.y);
 
   // exp
   p = {pos.x + 60, pos.y + 133};
-  auto exp = character_stat_game_instance::exp_point;
+  auto exp = character_stat_game_instance::get_exp();
   auto exp1 = std::to_string(exp);
   auto exp2 = std::u16string{exp1.begin(), exp1.end()};
   freetype::draw_line(exp2, p.x, p.y);
@@ -101,28 +101,28 @@ void character_stat_ui_system::render_text() {
 
   // str
   p = {pos.x + 60, pos.y + 175};
-  auto str = character_stat_game_instance::str_point;
+  auto str = character_stat_game_instance::get_str_ap();
   auto str1 = std::to_string(str);
   auto str2 = std::u16string{str1.begin(), str1.end()};
   freetype::draw_line(str2, p.x, p.y);
 
   // dex
   p = {pos.x + 60, pos.y + 193};
-  auto dex = character_stat_game_instance::dex_point;
+  auto dex = character_stat_game_instance::get_dex_ap();
   auto dex1 = std::to_string(dex);
   auto dex2 = std::u16string{dex1.begin(), dex1.end()};
   freetype::draw_line(dex2, p.x, p.y);
 
   // int
   p = {pos.x + 60, pos.y + 211};
-  auto in = character_stat_game_instance::int_point;
+  auto in = character_stat_game_instance::get_int_ap();
   auto in1 = std::to_string(in);
   auto in2 = std::u16string{in1.begin(), in1.end()};
   freetype::draw_line(in2, p.x, p.y);
 
   // luk
   p = {pos.x + 60, pos.y + 229};
-  auto luk = character_stat_game_instance::luk_point;
+  auto luk = character_stat_game_instance::get_luk_ap();
   auto luk1 = std::to_string(luk);
   auto luk2 = std::u16string{luk1.begin(), luk1.end()};
   freetype::draw_line(luk2, p.x, p.y);

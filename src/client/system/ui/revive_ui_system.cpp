@@ -144,12 +144,10 @@ void revive_ui_system::event_button_ok() {
   for (auto fn : ends) {
     fn();
   }
-
-  character_stat_game_instance::hp_point =
-      character_stat_game_instance::hp_point_max;
-  character_stat_game_instance::mp_point =
-      character_stat_game_instance::mp_point_max;
-
+  auto hp_max = character_stat_game_instance::get_hp_max();
+  auto mp_max = character_stat_game_instance::get_mp_max();
+  character_stat_game_instance::add_hp(hp_max * 2);
+  character_stat_game_instance::add_mp(mp_max * 2);
   close();
   return;
 }
