@@ -94,7 +94,8 @@ static void Recover() {
       at.type = damage_data::b;
       at.num = 20;
       server_mob_instance::handle_s_attack(0, at);
-      character_stat_game_instance::hp_point += at.num;
+      auto sf_hp = character_stat_game_instance::get_hp();
+      character_stat_game_instance::set_hp(sf_hp + at.num);
     }
   };
 

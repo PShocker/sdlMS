@@ -29,6 +29,12 @@ private:
   static inline uint32_t crit_rate;
   static inline uint32_t crit_damage;
 
+  static inline int32_t attack_def;
+  static inline int32_t magic_def;
+
+  static inline int32_t attack;
+  static inline int32_t magic;
+
   static inline uint32_t hp_ap;
   static inline uint32_t mp_ap;
   static inline uint32_t str_ap;
@@ -96,8 +102,8 @@ public:
   static void update();
   static void load(const character_save &cs);
 
-  static void add_hp(int n);
-  static void add_mp(int n);
+  static void set_hp(int n);
+  static void set_mp(int n);
 
   static int32_t get_hp();
   static int32_t get_mp();
@@ -106,12 +112,14 @@ public:
   static uint32_t get_exp();
   static uint32_t get_exp_max();
 
-  static void add_str_ap(int n);
-  static void add_dex_ap(int n);
-  static void add_int_ap(int n);
-  static void add_luk_ap(int n);
-  static void add_hp_ap(int n);
-  static void add_mp_ap(int n);
+  static uint32_t get_remain_ap();
+
+  static void set_str_ap(int n);
+  static void set_dex_ap(int n);
+  static void set_int_ap(int n);
+  static void set_luk_ap(int n);
+  static void set_hp_ap(int n);
+  static void set_mp_ap(int n);
 
   static uint32_t get_str_ap();
   static uint32_t get_dex_ap();
@@ -120,42 +128,62 @@ public:
   static uint32_t get_hp_ap();
   static uint32_t get_mp_ap();
 
-  static void add_ski_hp(int n);
-  static void add_ski_mp(int n);
-  static void add_ski_str(int n);
-  static void add_ski_dex(int n);
-  static void add_ski_int(int n);
-  static void add_ski_luk(int n);
-  static void add_ski_pro(int n);
-  static void add_ski_acc(int n);
-  static void add_ski_avd(int n);
-  static void add_ski_def(int n);
-  static void add_ski_mdef(int n);
-  static void add_ski_exp(int n);
+  static void set_ski_hp(int n);
+  static void set_ski_mp(int n);
+  static void set_ski_str(int n);
+  static void set_ski_dex(int n);
+  static void set_ski_int(int n);
+  static void set_ski_luk(int n);
+  static void set_ski_pro(int n);
+  static void set_ski_acc(int n);
+  static void set_ski_avd(int n);
+  static void set_ski_def(int n);
+  static void set_ski_mdef(int n);
+  static void set_ski_exp(int n);
 
-  static void add_eqp_hp(int n);
-  static void add_eqp_mp(int n);
-  static void add_eqp_str(int n);
-  static void add_eqp_dex(int n);
-  static void add_eqp_int(int n);
-  static void add_eqp_luk(int n);
-  static void add_eqp_pro(int n);
-  static void add_eqp_acc(int n);
-  static void add_eqp_avd(int n);
-  static void add_eqp_def(int n);
-  static void add_eqp_mdef(int n);
-  static void add_eqp_exp(int n);
+  static void set_eqp_hp(int n);
+  static void set_eqp_mp(int n);
+  static void set_eqp_str(int n);
+  static void set_eqp_dex(int n);
+  static void set_eqp_int(int n);
+  static void set_eqp_luk(int n);
+  static void set_eqp_pro(int n);
+  static void set_eqp_acc(int n);
+  static void set_eqp_avd(int n);
+  static void set_eqp_def(int n);
+  static void set_eqp_mdef(int n);
+  static void set_eqp_exp(int n);
 
-  static void add_itm_hp(int n);
-  static void add_itm_mp(int n);
-  static void add_itm_str(int n);
-  static void add_itm_dex(int n);
-  static void add_itm_int(int n);
-  static void add_itm_luk(int n);
-  static void add_itm_pro(int n);
-  static void add_itm_acc(int n);
-  static void add_itm_avd(int n);
-  static void add_itm_def(int n);
-  static void add_itm_mdef(int n);
-  static void add_itm_exp(int n);
+  static void set_itm_hp(int n);
+  static void set_itm_mp(int n);
+  static void set_itm_str(int n);
+  static void set_itm_dex(int n);
+  static void set_itm_int(int n);
+  static void set_itm_luk(int n);
+  static void set_itm_pro(int n);
+  static void set_itm_acc(int n);
+  static void set_itm_avd(int n);
+  static void set_itm_def(int n);
+  static void set_itm_mdef(int n);
+  static void set_itm_exp(int n);
+
+  static uint32_t get_itm_hp();
+  static uint32_t get_itm_mp();
+  static uint32_t get_itm_str();
+  static uint32_t get_itm_dex();
+  static uint32_t get_itm_int();
+  static uint32_t get_itm_luk();
+  static uint32_t get_itm_pro();
+  static uint32_t get_itm_acc();
+  static uint32_t get_itm_avd();
+
+  static uint32_t get_min_atk();
+  static uint32_t get_max_atk();
+  static int32_t get_def();
+  static int32_t get_mdef();
+  static uint32_t get_acc();
+  static uint32_t get_avd();
+
+  static int32_t get_attack();
+  static int32_t get_magic();
 };

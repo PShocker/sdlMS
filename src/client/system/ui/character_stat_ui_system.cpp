@@ -129,7 +129,8 @@ void character_stat_ui_system::render_text() {
 }
 
 void character_stat_ui_system::render_remain_ap() {
-  auto s = std::to_string(character_stat_game_instance::remain_ap);
+  auto ap = character_stat_game_instance::get_remain_ap();
+  auto s = std::to_string(ap);
   auto s2 = std::u16string{s.begin(), s.end()};
   freetype::load_size(12);
   freetype::load_aligned(true);
@@ -172,7 +173,8 @@ void character_stat_ui_system::render_button() {
       {161, 231, 12, 12}, // dexall
   };
   std::vector<bool> disable = {};
-  if (character_stat_game_instance::remain_ap) {
+  auto ap = character_stat_game_instance::get_remain_ap();
+  if (ap) {
     disable = {
         false, false, false, false, false, false, false,
         false, false, false, false, false, false, false,
@@ -227,14 +229,14 @@ void character_stat_ui_system::render_detail() {
   auto dy = detail_rect.y + pos.y;
   // atk
   SDL_FPoint p = {dx + 78, dy + 10};
-  auto min_atk = character_stat_game_instance::min_atk;
-  auto max_atk = character_stat_game_instance::max_atk;
+  auto min_atk = character_stat_game_instance::get_min_atk();
+  auto max_atk = character_stat_game_instance::get_max_atk();
   auto s = std::to_string(min_atk) + " - " + std::to_string(max_atk);
   auto s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
   // pdd
   p = {dx + 78, dy + 28};
-  auto pdd = character_stat_game_instance::eqp_attack_def;
+  auto pdd = character_stat_game_instance::get_def();
   s = std::to_string(pdd);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);

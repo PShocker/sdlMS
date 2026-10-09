@@ -1164,23 +1164,25 @@ void character_logic_system::run_network_sync_self() {
 
 void character_logic_system::run_network_sync_hp() {
   static int32_t hp;
-  if (hp != character_stat_game_instance::hp_point) {
+  auto sf_hp = character_stat_game_instance::get_hp();
+  if (hp != sf_hp) {
     StateT st;
     st.state = StateEnum_HP;
-    st.val = character_stat_game_instance::hp_point;
+    st.val = sf_hp;
     ccs.payload.push_back(std::make_unique<StateT>(st));
-    hp = character_stat_game_instance::hp_point;
+    hp = sf_hp;
   }
 }
 
 void character_logic_system::run_network_sync_max_hp() {
   static int32_t max_hp;
-  if (max_hp != character_stat_game_instance::hp_point_max) {
+  auto sf_max_hp = character_stat_game_instance::get_hp_max();
+  if (max_hp != sf_max_hp) {
     StateT st;
     st.state = StateEnum_MAX_HP;
-    st.val = character_stat_game_instance::hp_point_max;
+    st.val = sf_max_hp;
     ccs.payload.push_back(std::make_unique<StateT>(st));
-    max_hp = character_stat_game_instance::hp_point_max;
+    max_hp = sf_max_hp;
   }
 }
 
@@ -1731,8 +1733,10 @@ void character_logic_system::run_being_hit(float x, uint64_t num) {
   } else {
     character_logic_system::self_vspeed -= speed;
   }
-  character_stat_game_instance::hp_point -= num;
-  if (character_stat_game_instance::hp_point <= 0) {
+  auto sf_hp = character_stat_game_instance::get_hp();
+  sf_hp -= num;
+  if (sf_hp <= 0) {
+    character_stat_game_instance::set_hp(0);
     character_logic_system::run_die_action(sf);
   } else {
     character_logic_system::run_face_action(sf, u"hit");

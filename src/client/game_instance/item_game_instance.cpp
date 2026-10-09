@@ -339,6 +339,7 @@ bool item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
   auto time = static_cast<wz::Property<int> *>(info->get_child(u"time"))->get();
   if (info->get_child(u"pad")) {
     auto pad = static_cast<wz::Property<int> *>(info->get_child(u"pad"))->get();
+    auto sf_itm_atk=character_stat_game_instance::
     character_stat_game_instance::itm_attack += pad;
     r = true;
   }
@@ -428,36 +429,28 @@ bool item_game_instance::use_consume_item(const std::u16string &id) {
   }
   if (info->get_child(u"hp")) {
     auto hp = static_cast<wz::Property<int> *>(info->get_child(u"hp"))->get();
-    character_stat_game_instance::hp_point += hp;
-    character_stat_game_instance::hp_point =
-        std::min(character_stat_game_instance::hp_point,
-                 character_stat_game_instance::hp_point_max);
+    auto sf_hp = character_stat_game_instance::get_hp();
+    character_stat_game_instance::set_hp(sf_hp + hp);
     r = true;
   }
   if (info->get_child(u"hpR")) {
     auto hpR = static_cast<wz::Property<int> *>(info->get_child(u"hpR"))->get();
-    character_stat_game_instance::hp_point +=
-        hpR * character_stat_game_instance::hp_point_max;
-    character_stat_game_instance::hp_point =
-        std::min(character_stat_game_instance::hp_point,
-                 character_stat_game_instance::hp_point_max);
+    auto sf_hp_max = character_stat_game_instance::get_hp_max();
+    auto sf_hp = character_stat_game_instance::get_hp();
+    character_stat_game_instance::set_hp(sf_hp + sf_hp_max * hpR);
     r = true;
   }
   if (info->get_child(u"mp")) {
     auto mp = static_cast<wz::Property<int> *>(info->get_child(u"mp"))->get();
-    character_stat_game_instance::mp_point += mp;
-    character_stat_game_instance::mp_point =
-        std::min(character_stat_game_instance::mp_point,
-                 character_stat_game_instance::mp_point_max);
+    auto sf_mp = character_stat_game_instance::get_mp();
+    character_stat_game_instance::set_mp(sf_mp + mp);
     r = true;
   }
   if (info->get_child(u"mpR")) {
     auto mpR = static_cast<wz::Property<int> *>(info->get_child(u"mpR"))->get();
-    character_stat_game_instance::mp_point +=
-        mpR * character_stat_game_instance::mp_point_max;
-    character_stat_game_instance::mp_point =
-        std::min(character_stat_game_instance::mp_point,
-                 character_stat_game_instance::mp_point_max);
+    auto sf_mp_max = character_stat_game_instance::get_mp_max();
+    auto sf_mp = character_stat_game_instance::get_mp();
+    character_stat_game_instance::set_mp(sf_mp + sf_mp_max * mpR);
     r = true;
   }
   if (info->get_child(u"moveTo")) {
