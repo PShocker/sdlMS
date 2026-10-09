@@ -473,22 +473,22 @@ void tooltip_ui_system::render_deco(game_deco_item &deco, float x, float y) {
 
   req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqSTR"))->get();
-  val = character_stat_game_instance::str_point;
+  val = character_stat_game_instance::get_str_ap();
   render_equip_req(req, val, u"reqSTR", x + base.x + 95, y + base.y + 18);
 
   req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqDEX"))->get();
-  val = character_stat_game_instance::dex_point;
+  val = character_stat_game_instance::get_dex_ap();
   render_equip_req(req, val, u"reqDEX", x + base.x + 95, y + base.y + 30);
 
   req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqINT"))->get();
-  val = character_stat_game_instance::int_point;
+  val = character_stat_game_instance::get_int_ap();
   render_equip_req(req, val, u"reqINT", x + base.x + 95, y + base.y + 42);
 
   req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLUK"))->get();
-  val = character_stat_game_instance::luk_point;
+  val = character_stat_game_instance::get_luk_ap();
   render_equip_req(req, val, u"reqLUK", x + base.x + 95, y + base.y + 54);
 
   req = 0;
@@ -592,22 +592,22 @@ void tooltip_ui_system::render_equip(game_equip_item &equip, float x, float y) {
 
   req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqSTR"))->get();
-  val = character_stat_game_instance::str_point;
+  val = character_stat_game_instance::get_str_ap();
   render_equip_req(req, val, u"reqSTR", x + base.x + 95, y + base.y + 18);
 
   req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqDEX"))->get();
-  val = character_stat_game_instance::dex_point;
+  val = character_stat_game_instance::get_dex_ap();
   render_equip_req(req, val, u"reqDEX", x + base.x + 95, y + base.y + 30);
 
   req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqINT"))->get();
-  val = character_stat_game_instance::int_point;
+  val = character_stat_game_instance::get_int_ap();
   render_equip_req(req, val, u"reqINT", x + base.x + 95, y + base.y + 42);
 
   req =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLUK"))->get();
-  val = character_stat_game_instance::luk_point;
+  val = character_stat_game_instance::get_luk_ap();
   render_equip_req(req, val, u"reqLUK", x + base.x + 95, y + base.y + 54);
 
   req = 0;

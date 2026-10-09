@@ -547,13 +547,14 @@ void notice_ui_system::event_button_shopbuy_sell() {
 
 void notice_ui_system::event_button_ap_inc() {
   auto num = std::stoi(std::string{text.text.begin(), text.text.end()});
-  if (num > character_stat_game_instance::remain_ap) {
+  auto r_ap = character_stat_game_instance::get_remain_ap();
+  if (num > r_ap) {
     type = notice_enum::shopbuy_sell_no_num;
     return;
   }
   auto p = std::any_cast<uint32_t *>(notice_ui_system::data);
   *p = *p + num;
-  character_stat_game_instance::remain_ap -= num;
+  character_stat_game_instance::set_remain_ap(r_ap - num);
   close();
 }
 

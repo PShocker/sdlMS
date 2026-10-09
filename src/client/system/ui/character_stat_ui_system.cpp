@@ -242,37 +242,37 @@ void character_stat_ui_system::render_detail() {
   freetype::draw_line(s2, p.x, p.y);
   // mad
   p = {dx + 78, dy + 46};
-  auto mad = character_stat_game_instance::eqp_magic;
+  auto mad = character_stat_game_instance::get_magic();
   s = std::to_string(mad);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
   // mdd
   p = {dx + 78, dy + 62};
-  auto mdd = character_stat_game_instance::eqp_magic_def;
+  auto mdd = character_stat_game_instance::get_mdef();
   s = std::to_string(mdd);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
   // acc
   p = {dx + 78, dy + 82};
-  auto acc = character_stat_game_instance::accuracy;
+  auto acc = character_stat_game_instance::get_acc();
   s = std::to_string(acc);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
   // eva
   p = {dx + 78, dy + 100};
-  auto avoid = character_stat_game_instance::avoid;
+  auto avoid = character_stat_game_instance::get_avd();
   s = std::to_string(avoid);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
   // crtr
   p = {dx + 78, dy + 118};
-  auto crit_rate = character_stat_game_instance::crit_rate;
+  auto crit_rate = character_stat_game_instance::get_crit_rate();
   s = std::to_string(crit_rate);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
   // crtd
   p = {dx + 78, dy + 136};
-  auto crit_damage = character_stat_game_instance::crit_damage;
+  auto crit_damage = character_stat_game_instance::get_crit_damage();
   s = std::to_string(crit_damage);
   s2 = std::u16string{s.begin(), s.end()};
   freetype::draw_line(s2, p.x, p.y);
@@ -338,71 +338,79 @@ void character_stat_ui_system::event_button_detail_show() { detail = true; }
 void character_stat_ui_system::event_button_detail_hide() { detail = false; }
 
 void character_stat_ui_system::event_button_hp_inc() {
-  character_stat_game_instance::hp_ap += 1;
-  character_stat_game_instance::remain_ap -= 1;
+  auto hp_ap = character_stat_game_instance::get_hp_ap();
+  character_stat_game_instance::set_hp_ap(hp_ap + 1);
+  auto r_ap = character_stat_game_instance::get_remain_ap();
+  character_stat_game_instance::set_remain_ap(r_ap - 1);
 }
 
 void character_stat_ui_system::event_button_hp_inc_max() {
-  notice_ui_system::data = &character_stat_game_instance::hp_ap;
+  notice_ui_system::data = 0;
   notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
   notice_ui_system::open();
 }
 
 void character_stat_ui_system::event_button_mp_inc() {
-  character_stat_game_instance::mp_ap += 1;
-  character_stat_game_instance::remain_ap -= 1;
+  auto mp_ap = character_stat_game_instance::get_mp_ap();
+  character_stat_game_instance::set_mp_ap(mp_ap + 1);
+  auto r_ap = character_stat_game_instance::get_remain_ap();
+  character_stat_game_instance::set_remain_ap(r_ap - 1);
 }
 
 void character_stat_ui_system::event_button_mp_inc_max() {
-  notice_ui_system::data = &character_stat_game_instance::mp_ap;
+  notice_ui_system::data = 1;
   notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
   notice_ui_system::open();
 }
 
 void character_stat_ui_system::event_button_str_inc() {
-  character_stat_game_instance::str_ap += 1;
-  character_stat_game_instance::str_point += 1;
-  character_stat_game_instance::remain_ap -= 1;
+  auto str_ap = character_stat_game_instance::get_str_ap();
+  character_stat_game_instance::set_str_ap(str_ap + 1);
+  auto r_ap = character_stat_game_instance::get_remain_ap();
+  character_stat_game_instance::set_remain_ap(r_ap - 1);
 }
 
 void character_stat_ui_system::event_button_str_inc_max() {
-  notice_ui_system::data = &character_stat_game_instance::str_ap;
+  notice_ui_system::data = 2;
   notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
   notice_ui_system::open();
 }
 
 void character_stat_ui_system::event_button_dex_inc() {
-  character_stat_game_instance::dex_ap += 1;
-  character_stat_game_instance::dex_point += 1;
-  character_stat_game_instance::remain_ap -= 1;
+  auto dex_ap = character_stat_game_instance::get_dex_ap();
+  character_stat_game_instance::set_dex_ap(dex_ap + 1);
+  auto r_ap = character_stat_game_instance::get_remain_ap();
+  character_stat_game_instance::set_remain_ap(r_ap - 1);
 }
 
 void character_stat_ui_system::event_button_dex_inc_max() {
-  notice_ui_system::data = &character_stat_game_instance::dex_ap;
+  notice_ui_system::data = 3;
   notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
   notice_ui_system::open();
 }
 
 void character_stat_ui_system::event_button_int_inc() {
-  character_stat_game_instance::int_ap += 1;
-  character_stat_game_instance::int_point += 1;
-  character_stat_game_instance::remain_ap -= 1;
+  auto int_ap = character_stat_game_instance::get_int_ap();
+  character_stat_game_instance::set_int_ap(int_ap + 1);
+  auto r_ap = character_stat_game_instance::get_remain_ap();
+  character_stat_game_instance::set_remain_ap(r_ap - 1);
 }
 
 void character_stat_ui_system::event_button_int_inc_max() {
-  notice_ui_system::data = &character_stat_game_instance::int_ap;
+  notice_ui_system::data = 4;
   notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
   notice_ui_system::open();
 }
 
 void character_stat_ui_system::event_button_luk_inc() {
-  character_stat_game_instance::luk_ap += 1;
-  character_stat_game_instance::luk_point += 1;
-  character_stat_game_instance::remain_ap -= 1;
+  auto luk_ap = character_stat_game_instance::get_luk_ap();
+  character_stat_game_instance::set_luk_ap(luk_ap + 1);
+  auto r_ap = character_stat_game_instance::get_remain_ap();
+  character_stat_game_instance::set_remain_ap(r_ap - 1);
 }
 
 void character_stat_ui_system::event_button_luk_inc_max() {
-  notice_ui_system::data = &character_stat_game_instance::luk_ap;
+  notice_ui_system::data = 5;
   notice_ui_system::type = notice_ui_system::notice_enum::ap_inc;
   notice_ui_system::open();
 }

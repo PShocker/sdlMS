@@ -151,12 +151,12 @@ bool game_save_system_instance::save_game() {
     character_save cs;
     cs.character = character;
     cs.ap = {
-        .hp_ap = character_stat_game_instance::hp_ap,
-        .mp_ap = character_stat_game_instance::mp_ap,
-        .str_ap = character_stat_game_instance::str_ap,
-        .dex_ap = character_stat_game_instance::dex_ap,
-        .int_ap = character_stat_game_instance::int_ap,
-        .luk_ap = character_stat_game_instance::luk_ap,
+        .hp_ap = character_stat_game_instance::get_hp_ap(),
+        .mp_ap = character_stat_game_instance::get_mp_ap(),
+        .str_ap = character_stat_game_instance::get_str_ap(),
+        .dex_ap = character_stat_game_instance::get_dex_ap(),
+        .int_ap = character_stat_game_instance::get_int_ap(),
+        .luk_ap = character_stat_game_instance::get_luk_ap(),
     };
     cs.sp = {job_skill_game_instance::skill_point};
 
@@ -175,9 +175,9 @@ bool game_save_system_instance::save_game() {
 
     cs.meso = package_game_instance::meso;
 
-    cs.hp = character_stat_game_instance::hp_point;
-    cs.mp = character_stat_game_instance::mp_point;
-    cs.exp = character_stat_game_instance::exp_point;
+    cs.hp = character_stat_game_instance::get_hp();
+    cs.mp = character_stat_game_instance::get_mp();
+    cs.exp = character_stat_game_instance::get_exp();
 
     for (auto [k, v] : quest_game_instance::progress_quests) {
       cs.quests.push_back(std::move(v));

@@ -280,22 +280,26 @@ void item_game_instance::unuse_buff_item(const std::u16string &id) {
       if (info->get_child(u"pad")) {
         auto pad =
             static_cast<wz::Property<int> *>(info->get_child(u"pad"))->get();
-        character_stat_game_instance::itm_attack -= pad;
+        auto itm_atk = character_stat_game_instance::get_itm_attack();
+        character_stat_game_instance::set_itm_attack(itm_atk - pad);
       }
       if (info->get_child(u"mad")) {
         auto mad =
             static_cast<wz::Property<int> *>(info->get_child(u"mad"))->get();
-        character_stat_game_instance::itm_magic -= mad;
+        auto itm_magic = character_stat_game_instance::get_itm_magic();
+        character_stat_game_instance::set_itm_magic(itm_magic - mad);
       }
       if (info->get_child(u"acc")) {
         auto acc =
             static_cast<wz::Property<int> *>(info->get_child(u"acc"))->get();
-        character_stat_game_instance::itm_accuracy -= acc;
+        auto itm_acc = character_stat_game_instance::get_itm_acc();
+        character_stat_game_instance::set_itm_acc(itm_acc - acc);
       }
       if (info->get_child(u"eva")) {
         auto eva =
             static_cast<wz::Property<int> *>(info->get_child(u"eva"))->get();
-        character_stat_game_instance::itm_avoid -= eva;
+        auto itm_avd = character_stat_game_instance::get_itm_avd();
+        character_stat_game_instance::set_itm_avd(itm_avd - eva);
       }
       if (info->get_child(u"speed")) {
         auto speed =
@@ -306,13 +310,15 @@ void item_game_instance::unuse_buff_item(const std::u16string &id) {
       if (info->get_child(u"crt")) {
         auto crt =
             static_cast<wz::Property<int> *>(info->get_child(u"crt"))->get();
-        character_stat_game_instance::crit_damage -= crt;
+        auto sf_crt = character_stat_game_instance::get_crit_damage();
+        character_stat_game_instance::set_crit_damage(sf_crt - crt);
       }
       if (info->get_child(u"expBuff")) {
         auto expBuff =
             static_cast<wz::Property<int> *>(info->get_child(u"expBuff"))
                 ->get();
-        character_stat_game_instance::itm_exp -= expBuff;
+        auto itm_exp = character_stat_game_instance::get_itm_exp();
+        character_stat_game_instance::set_itm_exp(itm_exp - expBuff);
       }
       if (info->get_child(u"morph")) {
         auto &sf = character_game_instance::self;
@@ -339,23 +345,26 @@ bool item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
   auto time = static_cast<wz::Property<int> *>(info->get_child(u"time"))->get();
   if (info->get_child(u"pad")) {
     auto pad = static_cast<wz::Property<int> *>(info->get_child(u"pad"))->get();
-    auto sf_itm_atk=character_stat_game_instance::
-    character_stat_game_instance::itm_attack += pad;
+    auto itm_atk = character_stat_game_instance::get_itm_attack();
+    character_stat_game_instance::set_itm_attack(itm_atk + pad);
     r = true;
   }
   if (info->get_child(u"mad")) {
     auto mad = static_cast<wz::Property<int> *>(info->get_child(u"mad"))->get();
-    character_stat_game_instance::itm_magic += mad;
+    auto itm_mag = character_stat_game_instance::get_itm_magic();
+    character_stat_game_instance::set_itm_magic(itm_mag + mad);
     r = true;
   }
   if (info->get_child(u"acc")) {
     auto acc = static_cast<wz::Property<int> *>(info->get_child(u"acc"))->get();
-    character_stat_game_instance::itm_accuracy += acc;
+    auto itm_acc = character_stat_game_instance::get_itm_acc();
+    character_stat_game_instance::set_itm_acc(acc + itm_acc);
     r = true;
   }
   if (info->get_child(u"eva")) {
     auto eva = static_cast<wz::Property<int> *>(info->get_child(u"eva"))->get();
-    character_stat_game_instance::itm_avoid += eva;
+    auto itm_avd = character_stat_game_instance::get_itm_avd();
+    character_stat_game_instance::set_itm_avd(itm_avd + eva);
     r = true;
   }
   if (info->get_child(u"speed")) {
@@ -365,14 +374,15 @@ bool item_game_instance::use_buff_item(std::polymorphic<game_item> &itm) {
   }
   if (info->get_child(u"crt")) {
     auto crt = static_cast<wz::Property<int> *>(info->get_child(u"crt"))->get();
-    // 修复：符号错误，同 mad
-    character_stat_game_instance::crit_damage += crt;
+    auto sf_crt = character_stat_game_instance::get_crit_damage();
+    character_stat_game_instance::set_crit_damage(sf_crt + crt);
     r = true;
   }
   if (info->get_child(u"expBuff")) {
     auto expBuff =
         static_cast<wz::Property<int> *>(info->get_child(u"expBuff"))->get();
-    character_stat_game_instance::itm_exp += expBuff;
+    auto itm_exp = character_stat_game_instance::get_itm_exp();
+    character_stat_game_instance::set_itm_exp(itm_exp + expBuff);
   }
   if (info->get_child(u"morph")) {
     use_morph_item(id, character_game_instance::self);

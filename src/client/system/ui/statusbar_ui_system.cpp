@@ -49,8 +49,8 @@ void statusbar_ui_system::render_hm_alert() {
   auto base_x = (screen_w - backgrnd->w) / 2;
   auto base_y = (screen_h - backgrnd->h);
 
-  auto hp = character_stat_game_instance::hp_point;
-  auto max_hp = character_stat_game_instance::hp_point_max;
+  auto hp = character_stat_game_instance::get_hp();
+  auto max_hp = character_stat_game_instance::get_hp_max();
   auto hp_percent_now = (float)hp / max_hp;
   static auto hp_percent = hp_percent_now;
   hp_percent = std::lerp(hp_percent, hp_percent_now, 0.05);
@@ -75,8 +75,8 @@ void statusbar_ui_system::render_hm_alert() {
     SDL_RenderTexture(window::renderer, icon, nullptr, &pos_rect);
   }
 
-  auto mp = character_stat_game_instance::mp_point;
-  auto max_mp = character_stat_game_instance::mp_point_max;
+  auto mp = character_stat_game_instance::get_mp();
+  auto max_mp = character_stat_game_instance::get_mp_max();
   auto mp_percent_now = (float)mp / max_mp;
   static auto mp_percent = mp_percent_now;
   mp_percent = std::lerp(mp_percent, mp_percent_now, 0.05);
@@ -134,10 +134,14 @@ void statusbar_ui_system::render_gauge_text() {
   auto base_x = (screen_w - backgrnd->w) / 2;
   auto base_y = (screen_h - backgrnd->h);
   static auto num_node = wz_resource::ui->find(u"StatusBar.img/gauge/number");
-  std::array<int32_t, 2> a = {character_stat_game_instance::hp_point,
-                              character_stat_game_instance::mp_point};
-  std::array<int32_t, 2> a2 = {character_stat_game_instance::hp_point_max,
-                               character_stat_game_instance::mp_point_max};
+  std::array<int32_t, 2> a = {
+      character_stat_game_instance::get_hp(),
+      character_stat_game_instance::get_mp(),
+  };
+  std::array<int32_t, 2> a2 = {
+      character_stat_game_instance::get_hp_max(),
+      character_stat_game_instance::get_mp_max(),
+  };
   std::array<SDL_FPoint, 2> a3 = {
       SDL_FPoint{245, 42},
       SDL_FPoint{356, 42},
@@ -186,8 +190,8 @@ void statusbar_ui_system::render_gauge_text() {
     SDL_RenderTexture(window::renderer, r_bracket, nullptr, &pos_rect);
   }
   SDL_FPoint a4{473, 42};
-  auto self_exp = character_stat_game_instance::exp_point;
-  auto self_max_exp = character_stat_game_instance::exp_point_max;
+  auto self_exp = character_stat_game_instance::get_exp();
+  auto self_max_exp = character_stat_game_instance::get_exp_max();
   float self_exp_percent = (float)self_exp / self_max_exp;
   auto num = std::to_string(self_exp);
   int32_t w = 0;
@@ -242,8 +246,8 @@ void statusbar_ui_system::render_character_stat() {
   static auto gray = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/canvas:gaugeBack"));
 
-  auto hp = character_stat_game_instance::hp_point;
-  auto max_hp = character_stat_game_instance::hp_point_max;
+  auto hp = character_stat_game_instance::get_hp();
+  auto max_hp = character_stat_game_instance::get_hp_max();
   auto hp_percent_now = (float)hp / max_hp;
   static auto hp_percent = hp_percent_now;
   SDL_FRect pos_rect;
@@ -270,8 +274,8 @@ void statusbar_ui_system::render_character_stat() {
   };
   SDL_RenderTexture(window::renderer, gaugeHp, &src_rect, &pos_rect);
 
-  auto mp = character_stat_game_instance::mp_point;
-  auto max_mp = character_stat_game_instance::mp_point_max;
+  auto mp = character_stat_game_instance::get_mp();
+  auto max_mp = character_stat_game_instance::get_mp_max();
   auto mp_percent = (float)mp / max_mp;
   static auto gaugeMp = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeMp"));
@@ -296,8 +300,8 @@ void statusbar_ui_system::render_character_stat() {
 
   static auto gaugeExp = wz_resource::load_texture(
       wz_resource::ui->find(u"StatusBar.img/gauge/layer:gaugeExp"));
-  auto exp = character_stat_game_instance::exp_point;
-  auto max_exp = character_stat_game_instance::exp_point_max;
+  auto exp = character_stat_game_instance::get_exp();
+  auto max_exp = character_stat_game_instance::get_exp_max();
   auto exp_percent = (float)exp / max_exp;
   exp_percent = std::min(1.0f, exp_percent);
 
