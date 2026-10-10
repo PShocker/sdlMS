@@ -37,10 +37,6 @@ float freetype::load_char_w(const char16_t c) {
   freetype_cache_key t{
       .c = c,
       .size = size,
-      .r = 0,
-      .g = 0,
-      .b = 0,
-      .a = 0,
       .bold = bold,
   };
   if (!w_cache.contains(t)) {
