@@ -34,7 +34,7 @@ void quick_slot_ui_system::render_quickSlot() {
   }
   case quick_slot::two: {
     static auto q = wz_resource::load_texture(
-        wz_resource::ui->find(u"QuickSlot.img/backgrnd"));
+        wz_resource::ui->find(u"QuickSlot.img/layer:backgrnd"));
     auto screen_w = camera_game_instance::camera.w;
     auto screen_h = camera_game_instance::camera.h;
     auto base_x = (screen_w - 808) / 2;

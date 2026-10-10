@@ -33,7 +33,6 @@
 #include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/system/logic/drop_logic_system.h"
 #include "src/client/system/logic/effect_logic_system.h"
-#include "src/client/system/logic/gain_log_logic_system.h"
 #include "src/client/system/logic/item_logic_system.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system/logic/npc_logic_system.h"
@@ -48,7 +47,6 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/drop_render_system.h"
 #include "src/client/system/render/effect_render_system.h"
-#include "src/client/system/render/gain_log_render_system.h"
 #include "src/client/system/render/mob_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/render/obj_render_system.h"
@@ -57,9 +55,11 @@
 #include "src/client/system/render/tile_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/buff_ui_system.h"
+#include "src/client/system/ui/gain_log_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/popup_tip_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
+#include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
@@ -149,9 +149,6 @@ bool scene_system_instance::render_game() {
       character_render_system::render_chatballoon(*c);
     }
   }
-  for (uint32_t i = 0; i < gain_log_game_instance::data.size(); i++) {
-    gain_log_render_system::render(gain_log_game_instance::data[i], i);
-  }
   return true;
 }
 
@@ -212,17 +209,19 @@ void scene_system_instance::enter(uint32_t map_id) {
       drop_logic_system::run,      mob_logic_system::run,
       npc_logic_system::run,       portal_logic_system::run,
       audio_logic_system::run,     obj_logic_system::run,
-      cursor_logic_system::run,    gain_log_logic_system::run,
-      skill_logic_system::run,     reactor_logic_system::run,
-      item_logic_system::run,      trap_logic_system::run,
+      cursor_logic_system::run,    skill_logic_system::run,
+      reactor_logic_system::run,   item_logic_system::run,
+      trap_logic_system::run,
   };
   system::render_systems = {
       render_game,
       buff_ui_system::render,
       statusbar_ui_system::render,
+      quick_slot_ui_system::render,
       popup_tip_ui_system::render,
       minimap_ui_system::render,
       quest_alarm_ui_system::render,
+      gain_log_ui_system::render,
       cursor_render_system::render,
   };
   fade_system_instance::enter_out();

@@ -150,14 +150,12 @@ bool game_save_system_instance::save_game() {
   if (!character.name.empty()) {
     character_save cs;
     cs.character = character;
-    cs.ap = {
-        .hp_ap = character_stat_game_instance::get_hp_ap(),
-        .mp_ap = character_stat_game_instance::get_mp_ap(),
-        .str_ap = character_stat_game_instance::get_str_ap(),
-        .dex_ap = character_stat_game_instance::get_dex_ap(),
-        .int_ap = character_stat_game_instance::get_int_ap(),
-        .luk_ap = character_stat_game_instance::get_luk_ap(),
-    };
+    cs.ap.hp_ap = character_stat_game_instance::get_hp_ap(),
+    cs.ap.mp_ap = character_stat_game_instance::get_mp_ap(),
+    cs.ap.str_ap = character_stat_game_instance::get_str_ap(),
+    cs.ap.dex_ap = character_stat_game_instance::get_dex_ap(),
+    cs.ap.int_ap = character_stat_game_instance::get_int_ap(),
+    cs.ap.luk_ap = character_stat_game_instance::get_luk_ap(),
     cs.sp = {job_skill_game_instance::skill_point};
 
     cs.map_id = scene_system_instance::map_id;
