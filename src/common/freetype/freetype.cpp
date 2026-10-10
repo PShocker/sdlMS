@@ -80,10 +80,6 @@ float freetype::draw_char(float x, float y, char16_t c) {
   freetype_cache_key t{
       .c = c,
       .size = size,
-      .r = color.r,
-      .g = color.g,
-      .b = color.b,
-      .a = color.a,
       .bold = bold,
   };
   if (cache.contains(t)) {
@@ -111,10 +107,10 @@ float freetype::draw_char(float x, float y, char16_t c) {
         auto value =
             bitmap->buffer[y * bitmap->pitch + (x >> 3)] & (0x80 >> (x & 7));
         if (value != 0) {
-          buffer[(y * bitmap->width + x) * 4] = color.b;     // B
-          buffer[(y * bitmap->width + x) * 4 + 1] = color.g; // G
-          buffer[(y * bitmap->width + x) * 4 + 2] = color.r; // R
-          buffer[(y * bitmap->width + x) * 4 + 3] = color.a; // A
+          buffer[(y * bitmap->width + x) * 4] = 255;     // B
+          buffer[(y * bitmap->width + x) * 4 + 1] = 255; // G
+          buffer[(y * bitmap->width + x) * 4 + 2] = 255; // R
+          buffer[(y * bitmap->width + x) * 4 + 3] = 255; // A
         }
       }
     }
@@ -128,12 +124,18 @@ float freetype::draw_char(float x, float y, char16_t c) {
   auto posY = y + lineHeight - bearingY;
 
   auto posX = x + (advance - texture->w) / 2;
-  SDL_FRect posRect{posX, posY, static_cast<float>(texture->w),
-                    static_cast<float>(texture->h)};
+  SDL_FRect posRect{
+      posX,
+      posY,
+      static_cast<float>(texture->w),
+      static_cast<float>(texture->h),
+  };
   if (aligned) {
     posRect.x = int(posRect.x);
     posRect.y = int(posRect.y);
   }
+  SDL_SetTextureColorMod(texture, color.r, color.g, color.b);
+  SDL_SetTextureAlphaMod(texture, color.a);
   SDL_RenderTexture(window::renderer, texture, nullptr, &posRect);
   return advance;
 }
@@ -594,7 +596,7 @@ freetype::draw_data freetype::draw_cstr(const std::u16string &str, float x,
     }
   }
   d.height = currentY - y;
-  d.height += lineHeight ;
+  d.height += lineHeight;
   return d;
 }
 

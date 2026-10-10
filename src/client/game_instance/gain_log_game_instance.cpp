@@ -6,7 +6,7 @@ void gain_log_game_instance::add(const std::u16string &id, int num,
   game_gain_log g_log{
       .id = id,
       .num = num,
-      .destroy = window::dt_now + 8000,
+      .destroy = window::dt_now + 10000,
       .type = type,
   };
   gain_log_game_instance::data.emplace_back(g_log);

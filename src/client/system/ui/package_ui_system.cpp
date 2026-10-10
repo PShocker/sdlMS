@@ -162,6 +162,9 @@ void package_ui_system::render_tab() {
 }
 
 bool package_ui_system::render_items_info() {
+  if (cursor_game_instance::cursor_ui != render) {
+    return true;
+  }
   if (cursor_game_instance::modal_overlay) {
     return true;
   }

@@ -44,7 +44,7 @@ bool gain_log_ui_system::render() {
     }
     if (g_log.destroy > window::dt_now) {
       float alpha = g_log.destroy - window::dt_now;
-      alpha = (alpha / 8000) * 255;
+      alpha = (alpha / 10000) * 255;
       freetype::load_color(255, 255, 255, alpha);
       auto text_w = freetype::load_w(text);
       auto base_x = screen_w - text_w;

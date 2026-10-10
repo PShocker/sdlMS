@@ -242,7 +242,8 @@ void skill_ui_system::render_scroll() {
 }
 
 bool skill_ui_system::render_info() {
-  if (!mouse_skill_id.empty() && !cursor_game_instance::modal_overlay) {
+  if (!mouse_skill_id.empty() && !cursor_game_instance::modal_overlay &&
+      cursor_game_instance::cursor_ui == render) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     tooltip_ui_system::render_skill(mouse_skill_id, 1, show_pos.x, show_pos.y);
