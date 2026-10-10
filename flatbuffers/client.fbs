@@ -132,3 +132,8 @@ table ClientMobDebuff {
     map_id:uint32;
     payload:[MobDebuff];
 }
+
+table ClientCreateDrop {
+    map_id:uint32;
+    drops:[Drop];
+}

@@ -12,6 +12,17 @@ using namespace fbs;
 
 class server_mob_instance {
 public:
+  struct mob_drop {
+    std::u16string id;
+    int min_quantity;
+    int max_quantity;
+    float rate;
+  };
+  static std::vector<mob_drop> load_mob_drops(const std::u16string &mob_id);
+
+  static std::vector<DropT> create_mob_dts(const std::u16string &mob_id,
+                                           float x, float y, int page);
+
   static void load_default_mob(const std::u16string id, server_mob &mob);
   static void load_mob(server_scene &scene);
 

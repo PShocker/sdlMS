@@ -121,6 +121,10 @@ struct ClientMobDebuff;
 struct ClientMobDebuffBuilder;
 struct ClientMobDebuffT;
 
+struct ClientCreateDrop;
+struct ClientCreateDropBuilder;
+struct ClientCreateDropT;
+
 struct ClientHeartbeatT : public ::flatbuffers::NativeTable {
   typedef ClientHeartbeat TableType;
 };
@@ -2170,6 +2174,93 @@ inline ::flatbuffers::Offset<ClientMobDebuff> CreateClientMobDebuffDirect(
 
 ::flatbuffers::Offset<ClientMobDebuff> CreateClientMobDebuff(::flatbuffers::FlatBufferBuilder &_fbb, const ClientMobDebuffT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
 
+struct ClientCreateDropT : public ::flatbuffers::NativeTable {
+  typedef ClientCreateDrop TableType;
+  uint32_t map_id = 0;
+  std::vector<std::unique_ptr<fbs::DropT>> drops{};
+  ClientCreateDropT() = default;
+  ClientCreateDropT(const ClientCreateDropT &o);
+  ClientCreateDropT(ClientCreateDropT&&) FLATBUFFERS_NOEXCEPT = default;
+  ClientCreateDropT &operator=(ClientCreateDropT o) FLATBUFFERS_NOEXCEPT;
+};
+
+struct ClientCreateDrop FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
+  typedef ClientCreateDropT NativeTableType;
+  typedef ClientCreateDropBuilder Builder;
+  enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
+    VT_MAP_ID = 4,
+    VT_DROPS = 6
+  };
+  uint32_t map_id() const {
+    return GetField<uint32_t>(VT_MAP_ID, 0);
+  }
+  bool mutate_map_id(uint32_t _map_id = 0) {
+    return SetField<uint32_t>(VT_MAP_ID, _map_id, 0);
+  }
+  const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *drops() const {
+    return GetPointer<const ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_DROPS);
+  }
+  ::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *mutable_drops() {
+    return GetPointer<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>> *>(VT_DROPS);
+  }
+  template <bool B = false>
+  bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
+    return VerifyTableStart(verifier) &&
+           VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
+           VerifyOffset(verifier, VT_DROPS) &&
+           verifier.VerifyVector(drops()) &&
+           verifier.VerifyVectorOfTables(drops()) &&
+           verifier.EndTable();
+  }
+  ClientCreateDropT *UnPack(const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  void UnPackTo(ClientCreateDropT *_o, const ::flatbuffers::resolver_function_t *_resolver = nullptr) const;
+  static ::flatbuffers::Offset<ClientCreateDrop> Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCreateDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+};
+
+struct ClientCreateDropBuilder {
+  typedef ClientCreateDrop Table;
+  ::flatbuffers::FlatBufferBuilder &fbb_;
+  ::flatbuffers::uoffset_t start_;
+  void add_map_id(uint32_t map_id) {
+    fbb_.AddElement<uint32_t>(ClientCreateDrop::VT_MAP_ID, map_id, 0);
+  }
+  void add_drops(::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops) {
+    fbb_.AddOffset(ClientCreateDrop::VT_DROPS, drops);
+  }
+  explicit ClientCreateDropBuilder(::flatbuffers::FlatBufferBuilder &_fbb)
+        : fbb_(_fbb) {
+    start_ = fbb_.StartTable();
+  }
+  ::flatbuffers::Offset<ClientCreateDrop> Finish() {
+    const auto end = fbb_.EndTable(start_);
+    auto o = ::flatbuffers::Offset<ClientCreateDrop>(end);
+    return o;
+  }
+};
+
+inline ::flatbuffers::Offset<ClientCreateDrop> CreateClientCreateDrop(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Drop>>> drops = 0) {
+  ClientCreateDropBuilder builder_(_fbb);
+  builder_.add_drops(drops);
+  builder_.add_map_id(map_id);
+  return builder_.Finish();
+}
+
+inline ::flatbuffers::Offset<ClientCreateDrop> CreateClientCreateDropDirect(
+    ::flatbuffers::FlatBufferBuilder &_fbb,
+    uint32_t map_id = 0,
+    const std::vector<::flatbuffers::Offset<fbs::Drop>> *drops = nullptr) {
+  auto drops__ = drops ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>>(*drops) : 0;
+  return fbs::CreateClientCreateDrop(
+      _fbb,
+      map_id,
+      drops__);
+}
+
+::flatbuffers::Offset<ClientCreateDrop> CreateClientCreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCreateDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher = nullptr);
+
 inline ClientHeartbeatT *ClientHeartbeat::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
   auto _o = std::unique_ptr<ClientHeartbeatT>(new ClientHeartbeatT());
   UnPackTo(_o.get(), _resolver);
@@ -3149,6 +3240,47 @@ inline ::flatbuffers::Offset<ClientMobDebuff> ClientMobDebuff::Pack(::flatbuffer
       _fbb,
       _map_id,
       _payload);
+}
+
+inline ClientCreateDropT::ClientCreateDropT(const ClientCreateDropT &o)
+      : map_id(o.map_id) {
+  drops.reserve(o.drops.size());
+  for (const auto &drops_ : o.drops) { drops.emplace_back((drops_) ? new fbs::DropT(*drops_) : nullptr); }
+}
+
+inline ClientCreateDropT &ClientCreateDropT::operator=(ClientCreateDropT o) FLATBUFFERS_NOEXCEPT {
+  std::swap(map_id, o.map_id);
+  std::swap(drops, o.drops);
+  return *this;
+}
+
+inline ClientCreateDropT *ClientCreateDrop::UnPack(const ::flatbuffers::resolver_function_t *_resolver) const {
+  auto _o = std::unique_ptr<ClientCreateDropT>(new ClientCreateDropT());
+  UnPackTo(_o.get(), _resolver);
+  return _o.release();
+}
+
+inline void ClientCreateDrop::UnPackTo(ClientCreateDropT *_o, const ::flatbuffers::resolver_function_t *_resolver) const {
+  (void)_o;
+  (void)_resolver;
+  { auto _e = map_id(); _o->map_id = _e; }
+  { auto _e = drops(); if (_e) { _o->drops.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->drops[_i]) { _e->Get(_i)->UnPackTo(_o->drops[_i].get(), _resolver); } else { _o->drops[_i] = std::unique_ptr<fbs::DropT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->drops.resize(0); } }
+}
+
+inline ::flatbuffers::Offset<ClientCreateDrop> CreateClientCreateDrop(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCreateDropT *_o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  return ClientCreateDrop::Pack(_fbb, _o, _rehasher);
+}
+
+inline ::flatbuffers::Offset<ClientCreateDrop> ClientCreateDrop::Pack(::flatbuffers::FlatBufferBuilder &_fbb, const ClientCreateDropT* _o, const ::flatbuffers::rehasher_function_t *_rehasher) {
+  (void)_rehasher;
+  (void)_o;
+  struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ClientCreateDropT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
+  auto _map_id = _o->map_id;
+  auto _drops = _o->drops.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Drop>> (_o->drops.size(), [](size_t i, _VectorArgs *__va) { return CreateDrop(*__va->__fbb, __va->__o->drops[i].get(), __va->__rehasher); }, &_va ) : 0;
+  return fbs::CreateClientCreateDrop(
+      _fbb,
+      _map_id,
+      _drops);
 }
 
 }  // namespace fbs

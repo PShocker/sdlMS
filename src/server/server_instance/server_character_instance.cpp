@@ -365,7 +365,9 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
           .z = false,
       };
       if (wz_resource::item->find(e.id)) {
-        e.lv = 2;
+        e.lv = game_effect::effect_sub_type::item;
+      } else if (wz_resource::skill->find(e.id)) {
+        e.lv = game_effect::effect_sub_type::skill;
       }
       mob.effect.push_back(e);
     }
@@ -761,31 +763,20 @@ void server_character_instance::handle_buff_item(game_character &g_character,
 
 void server_character_instance::handle_scroll_use(game_character &g_character,
                                                   bool success) {
-  if (success) {
-    game_effect e = {
-        .id = u"BasicEff.img/Enchant/Success",
-        .index = 0,
-        .time = 0,
-        .delay = 0,
-        .lv = 1,
-        .type = game_effect::effect_type::effect,
-        .pos = SDL_FPoint{0, 0},
-        .z = false,
-    };
-    g_character.effect.emplace_back(e);
-  } else {
-    game_effect e = {
-        .id = u"BasicEff.img/Enchant/Failure",
-        .index = 0,
-        .time = 0,
-        .delay = 0,
-        .lv = 1,
-        .type = game_effect::effect_type::effect,
-        .pos = SDL_FPoint{0, 0},
-        .z = false,
-    };
-    g_character.effect.emplace_back(e);
+  game_effect e = {
+      .id = u"BasicEff.img/Enchant/Success",
+      .index = 0,
+      .time = 0,
+      .delay = 0,
+      .lv = game_effect::effect_sub_type::effect,
+      .type = game_effect::effect_type::effect,
+      .pos = SDL_FPoint{0, 0},
+      .z = false,
+  };
+  if (!success) {
+    e.id = u"BasicEff.img/Enchant/Failure";
   }
+  g_character.effect.emplace_back(e);
 }
 
 void server_character_instance::handle_morph_use(game_character &g_character,
@@ -800,7 +791,7 @@ void server_character_instance::handle_morph_use(game_character &g_character,
       .index = 0,
       .time = 0,
       .delay = 0,
-      .lv = 1,
+      .lv = game_effect::effect_sub_type::effect,
       .type = game_effect::effect_type::effect,
       .pos = SDL_FPoint{0, 0},
       .z = false,
@@ -915,7 +906,7 @@ void server_character_instance::handle_lv_up(game_character &g_character) {
       .index = 0,
       .time = 0,
       .delay = 0,
-      .lv = 1,
+      .lv = game_effect::effect_sub_type::effect,
       .type = game_effect::effect_type::effect,
       .pos = SDL_FPoint{0, 0},
       .z = false,

@@ -197,3 +197,7 @@ table ServerRSkill {
 table ServerMobDebuff {
     payload:[MobDebuff];
 }
+
+table ServerCreateDrop {
+    payload:[Drop];
+}

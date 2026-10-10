@@ -32,60 +32,6 @@ constexpr float MOVE_FORCE = 1400.0f;
 constexpr uint32_t MIN_FRAME_INTERVAL_MS = 33;
 } // namespace
 
-std::vector<server_mob_system::mob_drop>
-server_mob_system::load_mob_drops(server_mob &mob) {
-  using cache_type = std::flat_map<std::u16string, std::vector<mob_drop>>;
-  static cache_type cache;
-
-  // 使用 try_emplace 一次完成查找和插入
-  auto [it, inserted] = cache.try_emplace(mob.id);
-  if (!inserted) {
-    return it->second;
-  }
-
-  auto node = wz_resource::ms->get_root()->find(u"MobDrop.img/" + mob.id);
-  if (node == nullptr) {
-    return {};
-  }
-
-  auto &drops = it->second;
-  auto *children = node->get_children();
-  drops.reserve(children ? children->size() : 0);
-
-  if (!children) {
-    return drops;
-  }
-
-  for (auto [k, v] : *children) {
-    if (v.empty())
-      continue;
-
-    auto *child = v[0];
-    if (!child)
-      continue;
-
-    auto *min_quantity_prop =
-        static_cast<wz::Property<int> *>(child->get_child(u"min_quantity"));
-    auto *max_quantity_prop =
-        static_cast<wz::Property<int> *>(child->get_child(u"max_quantity"));
-    auto *chance_prop =
-        static_cast<wz::Property<int> *>(child->get_child(u"chance"));
-
-    if (!min_quantity_prop || !max_quantity_prop || !chance_prop) {
-      continue;
-    }
-
-    mob_drop md;
-    md.id = k; // 如果后续不需要原字符串，可改为 std::move(k)
-    md.min_quantity = min_quantity_prop->get();
-    md.max_quantity = max_quantity_prop->get();
-    md.rate = chance_prop->get() / 1000000.0f;
-    drops.push_back(std::move(md));
-  }
-
-  return drops;
-}
-
 bool server_mob_system::run_try_jump(server_mob &mob) {
   auto mob_node = mob_game_instance::load_link_mob_node(mob.id);
   if (!mob_node->children.contains(u"jump")) {
@@ -354,35 +300,9 @@ void server_mob_system::run_die(server_mob &mob, uint64_t client_id) {
   muu.Set(std::move(smd));
   events.payload.push_back(std::move(muu));
 
-  auto mob_drops = load_mob_drops(mob);
-  std::vector<DropT> dts;
-  for (const auto &drop : mob_drops) {
-    auto &gen = random_game_instance::gen;
-    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
-    bool success = dis(gen) <= drop.rate;
-    if (!success) {
-      continue;
-    }
-    DropT dt;
-    dt.x1 = mob.pos.x;
-    dt.y1 = mob.pos.y;
-    dt.page = mob.page;
-    if (item_game_instance::check_item(drop.id)) {
-      auto min_quantity = drop.min_quantity;
-      auto max_quantity = drop.max_quantity;
-      std::uniform_int_distribution<int> dis(min_quantity, max_quantity);
-      int random_num = dis(gen);
-      ItemT it;
-      it.item_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
-      it.item_num = random_num;
-      dt.drop.Set(it);
-    } else {
-      EquipT et;
-      et.equip_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
-      dt.drop.Set(et);
-    }
-    dts.push_back(dt);
-  }
+  auto mob_drops = server_mob_instance::load_mob_drops(mob.id);
+  std::vector<DropT> dts = server_mob_instance::create_mob_dts(
+      mob.id, mob.pos.x, mob.pos.y, mob.page);
 
   ServerMobDropT smt;
   smt.mob_index = mob.index;

@@ -1,5 +1,6 @@
 #include "effect_logic_system.h"
 #include "character_logic_system.h"
+#include "src/client/game/game_effect.h"
 #include "src/client/game/game_region_skill.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
@@ -45,17 +46,21 @@ bool effect_logic_system::run_effect(game_effect &g_effect) {
   }
   g_effect.time += window::delta_time;
   wz::Node *node;
-  switch (g_effect.lv) {
-  case 0: {
+  switch ((game_effect::effect_sub_type)g_effect.lv) {
+  case game_effect::character: {
     node = wz_resource::character->find(g_effect.id);
     break;
   }
-  case 1: {
+  case game_effect::effect: {
     node = wz_resource::effect->find(g_effect.id);
     break;
   }
-  case 2: {
+  case game_effect::item: {
     node = wz_resource::item->find(g_effect.id);
+    break;
+  }
+  case game_effect::skill: {
+    node = wz_resource::skill->find(g_effect.id);
     break;
   }
   }

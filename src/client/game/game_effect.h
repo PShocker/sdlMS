@@ -32,6 +32,14 @@ public:
     skill_custom,
     skill_region,
   };
+
+  enum effect_sub_type : uint8_t {
+    character,
+    effect,
+    item,
+    skill,
+  };
+
   effect_type type;
 
   std::optional<SDL_FPoint> pos;

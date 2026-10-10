@@ -7,11 +7,14 @@
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
+#include "src/client/game_instance/random_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
+#include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
@@ -307,4 +310,93 @@ void server_mob_instance::handle_s_create_mob(ServerCreateMobT &r) {
     hanle_server_mob(m);
   }
   return;
+}
+
+std::vector<server_mob_instance::mob_drop>
+server_mob_instance::load_mob_drops(const std::u16string &mob_id) {
+  using cache_type = std::flat_map<std::u16string, std::vector<mob_drop>>;
+  static cache_type cache;
+
+  // 使用 try_emplace 一次完成查找和插入
+  auto [it, inserted] = cache.try_emplace(mob_id);
+  if (!inserted) {
+    return it->second;
+  }
+
+  auto node = wz_resource::ms->get_root()->find(u"MobDrop.img/" + mob_id);
+  if (node == nullptr) {
+    return {};
+  }
+
+  auto &drops = it->second;
+  auto *children = node->get_children();
+  drops.reserve(children ? children->size() : 0);
+
+  if (!children) {
+    return drops;
+  }
+
+  for (auto [k, v] : *children) {
+    if (v.empty())
+      continue;
+
+    auto *child = v[0];
+    if (!child)
+      continue;
+
+    auto *min_quantity_prop =
+        static_cast<wz::Property<int> *>(child->get_child(u"min_quantity"));
+    auto *max_quantity_prop =
+        static_cast<wz::Property<int> *>(child->get_child(u"max_quantity"));
+    auto *chance_prop =
+        static_cast<wz::Property<int> *>(child->get_child(u"chance"));
+
+    if (!min_quantity_prop || !max_quantity_prop || !chance_prop) {
+      continue;
+    }
+
+    mob_drop md;
+    md.id = k; // 如果后续不需要原字符串，可改为 std::move(k)
+    md.min_quantity = min_quantity_prop->get();
+    md.max_quantity = max_quantity_prop->get();
+    md.rate = chance_prop->get() / 1000000.0f;
+    drops.push_back(std::move(md));
+  }
+
+  return drops;
+}
+
+std::vector<DropT>
+server_mob_instance::create_mob_dts(const std::u16string &mob_id, float x,
+                                    float y, int page) {
+  auto mob_drops = load_mob_drops(mob_id);
+  std::vector<DropT> dts;
+  for (const auto &drop : mob_drops) {
+    auto &gen = random_game_instance::gen;
+    std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+    bool success = dis(gen) <= drop.rate;
+    if (!success) {
+      continue;
+    }
+    DropT dt;
+    dt.x1 = x;
+    dt.y1 = y;
+    dt.page = page;
+    if (item_game_instance::check_item(drop.id)) {
+      auto min_quantity = drop.min_quantity;
+      auto max_quantity = drop.max_quantity;
+      std::uniform_int_distribution<int> dis(min_quantity, max_quantity);
+      int random_num = dis(gen);
+      ItemT it;
+      it.item_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
+      it.item_num = random_num;
+      dt.drop.Set(it);
+    } else {
+      EquipT et;
+      et.equip_id = std::stoi(std::string{drop.id.begin(), drop.id.end()});
+      dt.drop.Set(et);
+    }
+    dts.push_back(dt);
+  }
+  return dts;
 }

@@ -323,3 +323,30 @@ void server_drop_instance::handle_client_drop_fade(ClientDropFadeT &r) {
   }
   return;
 }
+
+void server_drop_instance::handle_client_create_drop(uint64_t client_id,
+                                                     ClientCreateDropT &r) {
+  auto map_id = r.map_id;
+
+  std::vector<fbs::DropT> dt;
+  for (auto &p : r.drops) {
+    dt.push_back(*p);
+  }
+  auto dts = create_dts(dt, map_id);
+  for (const auto &dt : dts) {
+    save_drop(map_id, *dt);
+  }
+  const auto &clients = server_scene_instance::scenes[map_id].clients;
+  ServerCreateDropT t;
+  t.payload = std::move(dts);
+  for (const auto c : clients) {
+    server_response::send_to_client(c, t);
+  }
+}
+
+void server_drop_instance::handle_server_create_drop(uint64_t client_id,
+                                                     ServerCreateDropT &r) {
+  for (const auto &dt : r.payload) {
+    server_drop_instance::handle_server_dt(*dt);
+  }
+}

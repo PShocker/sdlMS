@@ -49,44 +49,46 @@ enum NetPayload : uint8_t {
   NetPayload_ClientTrapAttack = 23,
   NetPayload_ClientDropFade = 24,
   NetPayload_ClientRSkill = 25,
-  NetPayload_ServerHeartbeat = 26,
-  NetPayload_ServerScene = 27,
-  NetPayload_ServerCharacterIn = 28,
-  NetPayload_ServerCharacterOut = 29,
-  NetPayload_ServerCharacterMv = 30,
-  NetPayload_ServerCharacterFlip = 31,
-  NetPayload_ServerCharacterAction = 32,
-  NetPayload_ServerCharacterDie = 33,
-  NetPayload_ServerCharacterFc = 34,
-  NetPayload_ServerCharacterAttack = 35,
-  NetPayload_ServerCharacterSkill = 36,
-  NetPayload_ServerCharacterBall = 37,
-  NetPayload_ServerCharacterChat = 38,
-  NetPayload_ServerCharacterDrop = 39,
-  NetPayload_ServerCharacter = 40,
-  NetPayload_ServerMobMv = 41,
-  NetPayload_ServerMobFlip = 42,
-  NetPayload_ServerMobAction = 43,
-  NetPayload_ServerMobState = 44,
-  NetPayload_ServerMobEvent = 45,
-  NetPayload_ServerMobAttack = 46,
-  NetPayload_ServerCharacterPick = 47,
-  NetPayload_ServerCharacterInfo = 48,
-  NetPayload_ServerCharacterTrade = 49,
-  NetPayload_ServerCharacterParty = 50,
-  NetPayload_ServerCharacterState = 51,
-  NetPayload_ServerDropFade = 52,
-  NetPayload_ServerReactor = 53,
-  NetPayload_ServerReactorDrop = 54,
-  NetPayload_ServerCharacterLvUp = 55,
-  NetPayload_ServerCreateMob = 56,
-  NetPayload_ServerTrapAttack = 57,
-  NetPayload_ServerRSkill = 58,
+  NetPayload_ClientCreateDrop = 26,
+  NetPayload_ServerHeartbeat = 27,
+  NetPayload_ServerScene = 28,
+  NetPayload_ServerCharacterIn = 29,
+  NetPayload_ServerCharacterOut = 30,
+  NetPayload_ServerCharacterMv = 31,
+  NetPayload_ServerCharacterFlip = 32,
+  NetPayload_ServerCharacterAction = 33,
+  NetPayload_ServerCharacterDie = 34,
+  NetPayload_ServerCharacterFc = 35,
+  NetPayload_ServerCharacterAttack = 36,
+  NetPayload_ServerCharacterSkill = 37,
+  NetPayload_ServerCharacterBall = 38,
+  NetPayload_ServerCharacterChat = 39,
+  NetPayload_ServerCharacterDrop = 40,
+  NetPayload_ServerCharacter = 41,
+  NetPayload_ServerMobMv = 42,
+  NetPayload_ServerMobFlip = 43,
+  NetPayload_ServerMobAction = 44,
+  NetPayload_ServerMobState = 45,
+  NetPayload_ServerMobEvent = 46,
+  NetPayload_ServerMobAttack = 47,
+  NetPayload_ServerCharacterPick = 48,
+  NetPayload_ServerCharacterInfo = 49,
+  NetPayload_ServerCharacterTrade = 50,
+  NetPayload_ServerCharacterParty = 51,
+  NetPayload_ServerCharacterState = 52,
+  NetPayload_ServerDropFade = 53,
+  NetPayload_ServerReactor = 54,
+  NetPayload_ServerReactorDrop = 55,
+  NetPayload_ServerCharacterLvUp = 56,
+  NetPayload_ServerCreateMob = 57,
+  NetPayload_ServerTrapAttack = 58,
+  NetPayload_ServerRSkill = 59,
+  NetPayload_ServerCreateDrop = 60,
   NetPayload_MIN = NetPayload_NONE,
-  NetPayload_MAX = NetPayload_ServerRSkill
+  NetPayload_MAX = NetPayload_ServerCreateDrop
 };
 
-inline const NetPayload (&EnumValuesNetPayload())[59] {
+inline const NetPayload (&EnumValuesNetPayload())[61] {
   static const NetPayload values[] = {
     NetPayload_NONE,
     NetPayload_ClientHeartbeat,
@@ -114,6 +116,7 @@ inline const NetPayload (&EnumValuesNetPayload())[59] {
     NetPayload_ClientTrapAttack,
     NetPayload_ClientDropFade,
     NetPayload_ClientRSkill,
+    NetPayload_ClientCreateDrop,
     NetPayload_ServerHeartbeat,
     NetPayload_ServerScene,
     NetPayload_ServerCharacterIn,
@@ -146,13 +149,14 @@ inline const NetPayload (&EnumValuesNetPayload())[59] {
     NetPayload_ServerCharacterLvUp,
     NetPayload_ServerCreateMob,
     NetPayload_ServerTrapAttack,
-    NetPayload_ServerRSkill
+    NetPayload_ServerRSkill,
+    NetPayload_ServerCreateDrop
   };
   return values;
 }
 
 inline const char * const *EnumNamesNetPayload() {
-  static const char * const names[60] = {
+  static const char * const names[62] = {
     "NONE",
     "ClientHeartbeat",
     "ClientScene",
@@ -179,6 +183,7 @@ inline const char * const *EnumNamesNetPayload() {
     "ClientTrapAttack",
     "ClientDropFade",
     "ClientRSkill",
+    "ClientCreateDrop",
     "ServerHeartbeat",
     "ServerScene",
     "ServerCharacterIn",
@@ -212,13 +217,14 @@ inline const char * const *EnumNamesNetPayload() {
     "ServerCreateMob",
     "ServerTrapAttack",
     "ServerRSkill",
+    "ServerCreateDrop",
     nullptr
   };
   return names;
 }
 
 inline const char *EnumNameNetPayload(NetPayload e) {
-  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerRSkill)) return "";
+  if (::flatbuffers::IsOutRange(e, NetPayload_NONE, NetPayload_ServerCreateDrop)) return "";
   const size_t index = static_cast<size_t>(e);
   return EnumNamesNetPayload()[index];
 }
@@ -325,6 +331,10 @@ template<> struct NetPayloadTraits<fbs::ClientDropFade> {
 
 template<> struct NetPayloadTraits<fbs::ClientRSkill> {
   static const NetPayload enum_value = NetPayload_ClientRSkill;
+};
+
+template<> struct NetPayloadTraits<fbs::ClientCreateDrop> {
+  static const NetPayload enum_value = NetPayload_ClientCreateDrop;
 };
 
 template<> struct NetPayloadTraits<fbs::ServerHeartbeat> {
@@ -459,6 +469,10 @@ template<> struct NetPayloadTraits<fbs::ServerRSkill> {
   static const NetPayload enum_value = NetPayload_ServerRSkill;
 };
 
+template<> struct NetPayloadTraits<fbs::ServerCreateDrop> {
+  static const NetPayload enum_value = NetPayload_ServerCreateDrop;
+};
+
 template<typename T> struct NetPayloadUnionTraits {
   static const NetPayload enum_value = NetPayload_NONE;
 };
@@ -561,6 +575,10 @@ template<> struct NetPayloadUnionTraits<fbs::ClientDropFadeT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ClientRSkillT> {
   static const NetPayload enum_value = NetPayload_ClientRSkill;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ClientCreateDropT> {
+  static const NetPayload enum_value = NetPayload_ClientCreateDrop;
 };
 
 template<> struct NetPayloadUnionTraits<fbs::ServerHeartbeatT> {
@@ -693,6 +711,10 @@ template<> struct NetPayloadUnionTraits<fbs::ServerTrapAttackT> {
 
 template<> struct NetPayloadUnionTraits<fbs::ServerRSkillT> {
   static const NetPayload enum_value = NetPayload_ServerRSkill;
+};
+
+template<> struct NetPayloadUnionTraits<fbs::ServerCreateDropT> {
+  static const NetPayload enum_value = NetPayload_ServerCreateDrop;
 };
 
 struct NetPayloadUnion {
@@ -924,6 +946,14 @@ struct NetPayloadUnion {
   const fbs::ClientRSkillT *AsClientRSkill() const {
     return type == NetPayload_ClientRSkill ?
       reinterpret_cast<const fbs::ClientRSkillT *>(value) : nullptr;
+  }
+  fbs::ClientCreateDropT *AsClientCreateDrop() {
+    return type == NetPayload_ClientCreateDrop ?
+      reinterpret_cast<fbs::ClientCreateDropT *>(value) : nullptr;
+  }
+  const fbs::ClientCreateDropT *AsClientCreateDrop() const {
+    return type == NetPayload_ClientCreateDrop ?
+      reinterpret_cast<const fbs::ClientCreateDropT *>(value) : nullptr;
   }
   fbs::ServerHeartbeatT *AsServerHeartbeat() {
     return type == NetPayload_ServerHeartbeat ?
@@ -1189,6 +1219,14 @@ struct NetPayloadUnion {
     return type == NetPayload_ServerRSkill ?
       reinterpret_cast<const fbs::ServerRSkillT *>(value) : nullptr;
   }
+  fbs::ServerCreateDropT *AsServerCreateDrop() {
+    return type == NetPayload_ServerCreateDrop ?
+      reinterpret_cast<fbs::ServerCreateDropT *>(value) : nullptr;
+  }
+  const fbs::ServerCreateDropT *AsServerCreateDrop() const {
+    return type == NetPayload_ServerCreateDrop ?
+      reinterpret_cast<const fbs::ServerCreateDropT *>(value) : nullptr;
+  }
 };
 
 template <bool B = false>
@@ -1290,6 +1328,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ClientRSkill *payload_as_ClientRSkill() const {
     return payload_type() == fbs::NetPayload_ClientRSkill ? static_cast<const fbs::ClientRSkill *>(payload()) : nullptr;
   }
+  const fbs::ClientCreateDrop *payload_as_ClientCreateDrop() const {
+    return payload_type() == fbs::NetPayload_ClientCreateDrop ? static_cast<const fbs::ClientCreateDrop *>(payload()) : nullptr;
+  }
   const fbs::ServerHeartbeat *payload_as_ServerHeartbeat() const {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<const fbs::ServerHeartbeat *>(payload()) : nullptr;
   }
@@ -1389,6 +1430,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   const fbs::ServerRSkill *payload_as_ServerRSkill() const {
     return payload_type() == fbs::NetPayload_ServerRSkill ? static_cast<const fbs::ServerRSkill *>(payload()) : nullptr;
   }
+  const fbs::ServerCreateDrop *payload_as_ServerCreateDrop() const {
+    return payload_type() == fbs::NetPayload_ServerCreateDrop ? static_cast<const fbs::ServerCreateDrop *>(payload()) : nullptr;
+  }
   template<typename T> T *mutable_payload_as();
   fbs::ClientHeartbeat *mutable_payload_as_ClientHeartbeat() {
     return payload_type() == fbs::NetPayload_ClientHeartbeat ? static_cast<fbs::ClientHeartbeat *>(mutable_payload()) : nullptr;
@@ -1464,6 +1508,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ClientRSkill *mutable_payload_as_ClientRSkill() {
     return payload_type() == fbs::NetPayload_ClientRSkill ? static_cast<fbs::ClientRSkill *>(mutable_payload()) : nullptr;
+  }
+  fbs::ClientCreateDrop *mutable_payload_as_ClientCreateDrop() {
+    return payload_type() == fbs::NetPayload_ClientCreateDrop ? static_cast<fbs::ClientCreateDrop *>(mutable_payload()) : nullptr;
   }
   fbs::ServerHeartbeat *mutable_payload_as_ServerHeartbeat() {
     return payload_type() == fbs::NetPayload_ServerHeartbeat ? static_cast<fbs::ServerHeartbeat *>(mutable_payload()) : nullptr;
@@ -1563,6 +1610,9 @@ struct NetPacket FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   }
   fbs::ServerRSkill *mutable_payload_as_ServerRSkill() {
     return payload_type() == fbs::NetPayload_ServerRSkill ? static_cast<fbs::ServerRSkill *>(mutable_payload()) : nullptr;
+  }
+  fbs::ServerCreateDrop *mutable_payload_as_ServerCreateDrop() {
+    return payload_type() == fbs::NetPayload_ServerCreateDrop ? static_cast<fbs::ServerCreateDrop *>(mutable_payload()) : nullptr;
   }
   void *mutable_payload() {
     return GetPointer<void *>(VT_PAYLOAD);
@@ -1778,6 +1828,14 @@ template<> inline const fbs::ClientRSkill *NetPacket::payload_as<fbs::ClientRSki
 
 template<> inline fbs::ClientRSkill *NetPacket::mutable_payload_as<fbs::ClientRSkill>() {
   return mutable_payload_as_ClientRSkill();
+}
+
+template<> inline const fbs::ClientCreateDrop *NetPacket::payload_as<fbs::ClientCreateDrop>() const {
+  return payload_as_ClientCreateDrop();
+}
+
+template<> inline fbs::ClientCreateDrop *NetPacket::mutable_payload_as<fbs::ClientCreateDrop>() {
+  return mutable_payload_as_ClientCreateDrop();
 }
 
 template<> inline const fbs::ServerHeartbeat *NetPacket::payload_as<fbs::ServerHeartbeat>() const {
@@ -2044,6 +2102,14 @@ template<> inline fbs::ServerRSkill *NetPacket::mutable_payload_as<fbs::ServerRS
   return mutable_payload_as_ServerRSkill();
 }
 
+template<> inline const fbs::ServerCreateDrop *NetPacket::payload_as<fbs::ServerCreateDrop>() const {
+  return payload_as_ServerCreateDrop();
+}
+
+template<> inline fbs::ServerCreateDrop *NetPacket::mutable_payload_as<fbs::ServerCreateDrop>() {
+  return mutable_payload_as_ServerCreateDrop();
+}
+
 struct NetPacketBuilder {
   typedef NetPacket Table;
   ::flatbuffers::FlatBufferBuilder &fbb_;
@@ -2212,6 +2278,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
       auto ptr = reinterpret_cast<const fbs::ClientRSkill *>(obj);
       return verifier.VerifyTable(ptr);
     }
+    case NetPayload_ClientCreateDrop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCreateDrop *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeat *>(obj);
       return verifier.VerifyTable(ptr);
@@ -2342,6 +2412,10 @@ inline bool VerifyNetPayload(::flatbuffers::VerifierTemplate<B> &verifier, const
     }
     case NetPayload_ServerRSkill: {
       auto ptr = reinterpret_cast<const fbs::ServerRSkill *>(obj);
+      return verifier.VerifyTable(ptr);
+    }
+    case NetPayload_ServerCreateDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCreateDrop *>(obj);
       return verifier.VerifyTable(ptr);
     }
     default: return true;
@@ -2464,6 +2538,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ClientRSkill *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ClientCreateDrop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCreateDrop *>(obj);
+      return ptr->UnPack(resolver);
+    }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeat *>(obj);
       return ptr->UnPack(resolver);
@@ -2596,6 +2674,10 @@ inline void *NetPayloadUnion::UnPack(const void *obj, NetPayload type, const ::f
       auto ptr = reinterpret_cast<const fbs::ServerRSkill *>(obj);
       return ptr->UnPack(resolver);
     }
+    case NetPayload_ServerCreateDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCreateDrop *>(obj);
+      return ptr->UnPack(resolver);
+    }
     default: return nullptr;
   }
 }
@@ -2702,6 +2784,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
     case NetPayload_ClientRSkill: {
       auto ptr = reinterpret_cast<const fbs::ClientRSkillT *>(value);
       return CreateClientRSkill(_fbb, ptr, _rehasher).Union();
+    }
+    case NetPayload_ClientCreateDrop: {
+      auto ptr = reinterpret_cast<const fbs::ClientCreateDropT *>(value);
+      return CreateClientCreateDrop(_fbb, ptr, _rehasher).Union();
     }
     case NetPayload_ServerHeartbeat: {
       auto ptr = reinterpret_cast<const fbs::ServerHeartbeatT *>(value);
@@ -2835,6 +2921,10 @@ inline ::flatbuffers::Offset<void> NetPayloadUnion::Pack(::flatbuffers::FlatBuff
       auto ptr = reinterpret_cast<const fbs::ServerRSkillT *>(value);
       return CreateServerRSkill(_fbb, ptr, _rehasher).Union();
     }
+    case NetPayload_ServerCreateDrop: {
+      auto ptr = reinterpret_cast<const fbs::ServerCreateDropT *>(value);
+      return CreateServerCreateDrop(_fbb, ptr, _rehasher).Union();
+    }
     default: return 0;
   }
 }
@@ -2939,6 +3029,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
     }
     case NetPayload_ClientRSkill: {
       value = new fbs::ClientRSkillT(*reinterpret_cast<fbs::ClientRSkillT *>(u.value));
+      break;
+    }
+    case NetPayload_ClientCreateDrop: {
+      value = new fbs::ClientCreateDropT(*reinterpret_cast<fbs::ClientCreateDropT *>(u.value));
       break;
     }
     case NetPayload_ServerHeartbeat: {
@@ -3073,6 +3167,10 @@ inline NetPayloadUnion::NetPayloadUnion(const NetPayloadUnion &u) : type(u.type)
       value = new fbs::ServerRSkillT(*reinterpret_cast<fbs::ServerRSkillT *>(u.value));
       break;
     }
+    case NetPayload_ServerCreateDrop: {
+      value = new fbs::ServerCreateDropT(*reinterpret_cast<fbs::ServerCreateDropT *>(u.value));
+      break;
+    }
     default:
       break;
   }
@@ -3202,6 +3300,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ClientRSkill: {
       auto ptr = reinterpret_cast<fbs::ClientRSkillT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ClientCreateDrop: {
+      auto ptr = reinterpret_cast<fbs::ClientCreateDropT *>(value);
       delete ptr;
       break;
     }
@@ -3367,6 +3470,11 @@ inline void NetPayloadUnion::Reset() {
     }
     case NetPayload_ServerRSkill: {
       auto ptr = reinterpret_cast<fbs::ServerRSkillT *>(value);
+      delete ptr;
+      break;
+    }
+    case NetPayload_ServerCreateDrop: {
+      auto ptr = reinterpret_cast<fbs::ServerCreateDropT *>(value);
       delete ptr;
       break;
     }

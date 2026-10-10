@@ -16,14 +16,6 @@ private:
   static inline std::flat_map<int32_t, game_foothold> g_fhs;
   static inline ServerMobEventT events;
 
-  struct mob_drop {
-    std::u16string id;
-    int min_quantity;
-    int max_quantity;
-    float rate;
-  };
-  static std::vector<mob_drop> load_mob_drops(server_mob &mob);
-
   static int load_mob_hit_cd(server_mob &mob);
 
   static bool run_try_jump(server_mob &mob);

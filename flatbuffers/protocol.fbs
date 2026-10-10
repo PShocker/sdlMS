@@ -30,6 +30,7 @@ union NetPayload {
     ClientTrapAttack,
     ClientDropFade,
     ClientRSkill,
+    ClientCreateDrop,
     ServerHeartbeat,
     ServerScene,
     ServerCharacterIn,
@@ -63,6 +64,7 @@ union NetPayload {
     ServerCreateMob,
     ServerTrapAttack,
     ServerRSkill,
+    ServerCreateDrop,
 }
 // 统一的网络包（最外层包装）
 table NetPacket {

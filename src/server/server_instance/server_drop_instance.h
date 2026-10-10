@@ -28,4 +28,9 @@ public:
   static void handle_server_drop(uint64_t client_id, ServerCharacterDropT &r);
 
   static void handle_server_drop_fade(ServerDropFadeT &r);
+
+  static void handle_client_create_drop(uint64_t client_id,
+                                        ClientCreateDropT &r);
+  static void handle_server_create_drop(uint64_t client_id,
+                                        ServerCreateDropT &r);
 };

@@ -214,6 +214,12 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_region_skill_instance::handle_rskill(client_id, r);
     break;
   }
+  case NetPayload_ClientCreateDrop: {
+    auto payload = packet->payload_as_ClientCreateDrop();
+    fbs::ClientCreateDropT r;
+    payload->UnPackTo(&r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;
@@ -440,6 +446,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     fbs::ServerRSkillT r;
     payload->UnPackTo(&r);
     server_region_skill_instance::handle_s_rskill(r);
+    break;
+  }
+  case NetPayload_ServerCreateDrop: {
+    auto payload = packet->payload_as_ServerCreateDrop();
+    fbs::ServerCreateDropT r;
+    payload->UnPackTo(&r);
+    server_drop_instance::handle_server_create_drop(client_id, r);
     break;
   }
   default:
