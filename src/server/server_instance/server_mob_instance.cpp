@@ -149,7 +149,7 @@ void server_mob_instance::handle_server_die(const ServerMobDieT &m) {
   auto &mob = mob_game_instance::data.at(m.mob_index).mob;
   float percent = (float)mob.attack_val / mob.max_hp;
   if (percent) {
-    percent = std::max(percent, 1.0f);
+    percent = std::min(percent, 1.0f);
     auto info_node = mob_game_instance::load_mob_info(mob.id);
     auto max_exp =
         static_cast<wz::Property<int> *>(info_node->get_child(u"exp"))->get();
