@@ -1,6 +1,7 @@
 #include "cursor_logic_system.h"
 #include "SDL3/SDL_mouse.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_scancode.h"
 #include "character_logic_system.h"
 #include "npc_logic_system.h"
 #include "src/client/game/game_item.h"
@@ -9,6 +10,7 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -29,6 +31,7 @@
 #include "src/client/system/ui/party_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
+#include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/system/ui/shop_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
@@ -172,7 +175,7 @@ void cursor_logic_system::run_cursor_ui() {
   cursor_game_instance::cursor_ui = nullptr;
   cursor_game_instance::cursor_vscr = false;
   cursor_game_instance::modal_overlay = nullptr;
-  for (auto &fn : system::render_systems) {
+  for (auto &fn : system::render_systems | std::views::reverse) {
     if (fn == minimap_ui_system::render) {
       if (minimap_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
@@ -252,12 +255,19 @@ void cursor_logic_system::run_cursor_ui() {
       if (quest_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
+    } else if (fn == quick_slot_ui_system::render) {
+      if (quick_slot_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
     } else if (fn == quest_alarm_ui_system::render) {
       if (quest_alarm_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
     } else if (fn == login_notice_ui_system::render) {
       cursor_game_instance::modal_overlay = fn;
+    }
+    if (cursor_game_instance::cursor_ui != nullptr) {
+      break;
     }
   }
 }
@@ -311,12 +321,20 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
 
   // 3. 根据光标类型处理
   switch (cursor_hand->type) {
-  case cursor_game_instance::equipment:
+  case cursor_game_instance::keybind: {
+    auto c = (SDL_Scancode)cursor_hand->val;
+    keyboard_game_instance::add_input(c, keyboard_game_instance::none, "");
+    cursor_hand = std::nullopt;
+    break;
+  }
+  case cursor_game_instance::equipment: {
+    cursor_hand = std::nullopt;
+    break;
+  }
   case cursor_game_instance::skill: {
     cursor_hand = std::nullopt;
     break;
   }
-
   case cursor_game_instance::package: {
     int active_tab = cursor_hand->val;
     int sub_index = cursor_hand->sub_val;

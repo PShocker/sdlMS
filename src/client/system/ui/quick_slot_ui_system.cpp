@@ -1,13 +1,51 @@
 #include "quick_slot_ui_system.h"
+#include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
+#include "src/client/game/game_input.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <flat_map>
 #include <format>
+#include <optional>
+#include <string>
+
+void quick_slot_ui_system::render_input_icon(const game_input &i, int x,
+                                             int y) {
+  SDL_Texture *t;
+  std::u16string id;
+  if (i.type == "skill") {
+    id = {i.val.begin(), i.val.end()};
+    auto ski_info = skill_game_instance::load_ski_node(id);
+    t = wz_resource::load_texture(ski_info->get_child(u"icon"));
+  } else if (i.type == "item") {
+    id = {i.val.begin(), i.val.end()};
+    auto item_info = item_game_instance::load_item_info(id, 1);
+    t = wz_resource::load_texture(item_info->get_child(u"icon"));
+  }
+  if (t == nullptr) {
+    return;
+  }
+  SDL_FRect pos_rect{
+      static_cast<float>(x),
+      static_cast<float>(y),
+      static_cast<float>(t->w),
+      static_cast<float>(t->h),
+  };
+  SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  if (i.type == "item") {
+    auto num = package_game_instance::load_item_num(id);
+    package_ui_system::render_number(num, x, y + 16);
+  }
+}
 
 void quick_slot_ui_system::render_quickSlot() {
   const static std::flat_map<SDL_Scancode, SDL_Texture *> textures = {
@@ -66,6 +104,7 @@ void quick_slot_ui_system::render_quickSlot() {
       SDL_FRect pos_rect;
       if (keyboard_game_instance::data.contains(scode[i])) {
         const auto &input = keyboard_game_instance::data.at(scode[i]);
+        render_input_icon(input, r[i].x - 2, r[i].y + 32);
       }
       auto texture = textures.at(scode[i]);
       pos_rect = {
@@ -90,17 +129,22 @@ bool quick_slot_ui_system::render() {
   return true;
 }
 
-SDL_FPoint quick_slot_ui_system::load_wh() { return {286, 146}; }
+SDL_FPoint quick_slot_ui_system::load_wh() {
+  switch (quickSlot) {
+  case quick_slot::hide:
+    return {0, 0};
+  case quick_slot::two:
+    return {151, 80};
+  case quick_slot::three:
+    return {151, 114};
+  }
+  return {0, 0};
+}
 
 void quick_slot_ui_system::open() {
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
-    auto wh = load_wh();
-    auto &camera = camera_game_instance::camera;
-    pos.x = (camera.w - wh.x) / 2;
-    pos.y = (camera.h - wh.y) / 2;
-
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
   }
@@ -123,7 +167,21 @@ void quick_slot_ui_system::toggle() {
 bool quick_slot_ui_system::cursor_in() {
   auto [w, h] = load_wh();
   auto &mouse = window::mouse_pos;
-  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
+  base_x = base_x + 654;
+  base_y = base_y - 107;
+  SDL_FRect pos_rect{
+      base_x,
+      base_y,
+      w,
+      h,
+  };
+  if (quickSlot == quick_slot::two) {
+    base_y += 34;
+  }
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
@@ -131,22 +189,18 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     return false;
   }
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto base_x = (screen_w - 808) / 2;
+  auto base_y = (screen_h - 73);
   switch (quickSlot) {
   case quick_slot::hide: {
     break;
   }
   case quick_slot::two: {
-    static auto q = wz_resource::load_texture(
-        wz_resource::ui->find(u"QuickSlot.img/backgrnd"));
-    auto screen_w = camera_game_instance::camera.w;
-    auto screen_h = camera_game_instance::camera.h;
-    auto base_x = (screen_w - 808) / 2;
-    auto base_y = (screen_h - 73);
-    SDL_FRect p{
+    SDL_FPoint p{
         base_x + 654,
         base_y - 107,
-        static_cast<float>(q->w),
-        static_cast<float>(q->h),
     };
     std::vector<SDL_Scancode> t = {
         SDL_SCANCODE_LSHIFT, SDL_SCANCODE_INSERT,   SDL_SCANCODE_HOME,
@@ -175,39 +229,52 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
         if (cursor_game_instance::cursor_hand.has_value()) {
           auto &cursor_hand = cursor_game_instance::cursor_hand.value();
           auto scan_code = t[i];
+          std::string id;
           switch (cursor_hand.type) {
-          case cursor_game_instance::equipment: {
+          case cursor_game_instance::keybind: {
+            auto input =
+                keyboard_game_instance::data.at((SDL_Scancode)cursor_hand.val);
+            if (input.type == "skill") {
+              keyboard_game_instance::add_input(
+                  scan_code, keyboard_game_instance::skill, input.val);
+            } else if (input.type == "item") {
+            }
             break;
           }
           case cursor_game_instance::package: {
+            auto &item = package_game_instance::data[cursor_hand.val]
+                                                    [cursor_hand.sub_val];
+            id = std::string{item->id.begin(), item->id.end()};
+            if (id.starts_with("02")) {
+              if (id.starts_with("0204") || id.starts_with("0206") ||
+                  id.starts_with("0207")) {
+                break;
+              }
+              keyboard_game_instance::add_input(
+                  scan_code, keyboard_game_instance::item, id);
+            }
             break;
           }
           case cursor_game_instance::skill: {
-            auto ski_id = std::format("{:07d}", cursor_hand.sub_val);
-            auto &key_data = keyboard_game_instance::data;
-            key_data[scan_code] = {
-                .type = "skill",
-                .val = ski_id,
-            };
+            id = std::format("{:07d}", cursor_hand.sub_val);
+            keyboard_game_instance::add_input(
+                scan_code, keyboard_game_instance::skill, id);
             break;
           }
-          case cursor_game_instance::keybind: {
+          default: {
             break;
           }
           }
+          cursor_game_instance::cursor_hand = std::nullopt;
         } else {
           auto &key_data = keyboard_game_instance::data;
           auto scan_code = t[i];
           if (key_data.contains(scan_code)) {
             auto &input = key_data.at(scan_code);
-            if (input.type == "skill") {
-              auto ski_id = std::stoi(input.val);
-              cursor_game_instance::cursor_hand = {
-                  .type = cursor_game_instance::skill,
-                  .val = static_cast<uint32_t>(ski_id),
-              };
-              return true;
-            }
+            cursor_game_instance::cursor_hand = {
+                .type = cursor_game_instance::keybind,
+                .val = scan_code,
+            };
           }
         }
         return true;
@@ -224,7 +291,7 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
 }
 
 bool quick_slot_ui_system::event(SDL_Event *event) {
-  bool r = false;
+  bool r = true;
   switch (event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     if (event->button.button == SDL_BUTTON_LEFT) {

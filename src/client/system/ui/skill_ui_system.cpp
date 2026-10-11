@@ -457,7 +457,7 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
       } else {
         cursor_game_instance::cursor_hand = {
             .type = cursor_game_instance::skill,
-            .val = active_tab,
+            .val = 0,
             .sub_val = static_cast<uint32_t>(sub_val),
         };
       }

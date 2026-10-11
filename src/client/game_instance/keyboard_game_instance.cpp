@@ -1,6 +1,7 @@
 #include "keyboard_game_instance.h"
 #include "SDL3/SDL_scancode.h"
 #include "src/client/game/game_input.h"
+#include <string>
 
 void keyboard_game_instance::reset() {
   data = {
@@ -55,4 +56,32 @@ keyboard_game_instance::find_key_by_val(const std::string &target_val) {
     }
   }
   return SDL_SCANCODE_UNKNOWN; // 未找到
+}
+
+void keyboard_game_instance::add_input(SDL_Scancode c, input_type t,
+                                       const std::string &id) {
+  data.erase(c);
+  if (id.empty()) {
+    return;
+  }
+  std::string type;
+  switch (t) {
+  case none: {
+    break;
+  }
+  case item: {
+    type = "item";
+    break;
+  }
+  case skill: {
+    type = "skill";
+    break;
+  }
+  }
+  std::erase_if(data, [&](const auto &kv) {
+    game_input input = kv.second;
+    return input.type == type && input.val == id; // 举例字段
+  });
+  data[c].type = type;
+  data[c].val = id;
 }

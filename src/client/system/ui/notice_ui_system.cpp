@@ -355,6 +355,7 @@ void notice_ui_system::open() {
     }
 
     switch (type) {
+    case notice_enum::throw_mul:
     case notice_enum::shopbuy_sell_mul: {
       auto p =
           std::any_cast<std::polymorphic<game_item> *>(notice_ui_system::data);

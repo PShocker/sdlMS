@@ -198,8 +198,9 @@ void scene_system_instance::enter(uint32_t map_id) {
 
   system::event_systems = {
       quest_alarm_ui_system::event, minimap_ui_system::event,
-      statusbar_ui_system::event,   buff_ui_system::event,
-      cursor_logic_system::event,   keyboard_input_system::event,
+      quick_slot_ui_system::event,  statusbar_ui_system::event,
+      buff_ui_system::event,        cursor_logic_system::event,
+      keyboard_input_system::event,
   };
 
   system::logic_systems = {
