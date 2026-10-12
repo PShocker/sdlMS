@@ -95,6 +95,7 @@ table CharacterAttack{
     mob_index:uint32;
     attack:Attack;
     effect:string;
+    sound:string;
     left:bool;
 }
 

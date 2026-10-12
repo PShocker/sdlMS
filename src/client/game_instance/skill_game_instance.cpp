@@ -191,12 +191,11 @@ int skill_game_instance::load_ski_atk_count(const std::u16string &id,
   return r;
 }
 
-ClientCharacterAttackT
-skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
-                                           uint64_t delay, uint32_t interval) {
+ClientCharacterAttackT skill_game_instance::create_attack_payload(
+    check_mobs &cm, SDL_FPoint pos, uint64_t delay, uint32_t interval,
+    std::string effect, std::string sound) {
   ClientCharacterAttackT attack_payload;
   auto &mobs = cm.data;
-
   for (int m = 0; m < mobs.size(); m++) {
     auto &mob = mobs[m];
     auto &mb = mob_game_instance::data.at(mob.mob.index).mob;
@@ -209,6 +208,8 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
       ct.attack->x = mob.x;
       ct.attack->y = mob.y;
       ct.left = pos.x < mob.mob.pos.x;
+      ct.effect = effect;
+      ct.sound = sound;
       attack_payload.payload.push_back(
           std::make_unique<CharacterAttackT>(std::move(ct)));
       mb.attack_val += mob.hits[n];
@@ -222,6 +223,12 @@ skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
     }
   }
   return attack_payload;
+}
+
+ClientCharacterAttackT
+skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
+                                           uint64_t delay) {
+  create_attack_payload(cm, pos, delay, 60, "", "");
 }
 
 ClientCharacterSkillT skill_game_instance::create_skill_payload(

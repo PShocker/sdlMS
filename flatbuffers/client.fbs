@@ -135,5 +135,6 @@ table ClientMobDebuff {
 
 table ClientCreateDrop {
     map_id:uint32;
+    delay:uint64;
     drops:[Drop];
 }

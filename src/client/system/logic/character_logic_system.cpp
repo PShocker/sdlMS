@@ -936,11 +936,29 @@ bool character_logic_system::run_attack(game_character &g_character) {
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
       cm.data[0].hits = {10};
-      auto cat = skill_game_instance::create_attack_payload(cm, g_character.pos,
-                                                            delay);
       auto hit_type = afterimage_game_instance::load_hit_type(g_character);
-      cat.payload[0]->effect =
+      auto effect =
           "Afterimage/hit.img/" + std::string{hit_type.begin(), hit_type.end()};
+      std::string sound;
+      switch (weapon_type) {
+      case equip_game_instance::weapon_type::BOW: {
+        sound = "Weapon.img/bow/Attack2";
+        break;
+      }
+      case equip_game_instance::weapon_type::CROSSBOW: {
+        sound = "Weapon.img/cbow/Attack2";
+        break;
+      }
+      case equip_game_instance::weapon_type::CLAW: {
+        sound = "Weapon.img/tGlove/Attack2";
+        break;
+      }
+      default: {
+        break;
+      }
+      }
+      auto cat = skill_game_instance::create_attack_payload(
+          cm, g_character.pos, delay, 0, effect, sound);
       client_request::send_to_host(cat);
     }
   }

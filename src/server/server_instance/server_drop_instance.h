@@ -15,6 +15,7 @@ private:
 
 public:
   static void save_drop(uint64_t map_id, const DropT &drop);
+  static void save_delay_drop(uint64_t map_id, uint64_t d, const DropT &drop);
 
   static std::vector<std::unique_ptr<fbs::DropT>>
   create_dts(const std::vector<DropT> &dts, uint32_t map_id);

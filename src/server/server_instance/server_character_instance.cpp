@@ -371,6 +371,11 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
       }
       mob.effect.push_back(e);
     }
+    // 声音
+    if (!ct->sound.empty()) {
+      std::u16string tmp{ct->sound.begin(), ct->sound.end()};
+      audio_game_instance::load_audio(tmp, ct->attack->delay);
+    }
     // 伤害数字
     damage_data data = {
         .num = ct->attack->num,
@@ -387,6 +392,10 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
         .flip = false,
         .data = data,
     };
+    if (!mob_hit.contains(mob.index)) {
+      std::u16string path = u"Mob.img/" + mob.id + u"/Damage";
+      audio_game_instance::load_audio(path, ct->attack->delay);
+    }
     mob_hit.insert(mob.index);
     effect_game_instance::data[7].emplace_back(d);
   }

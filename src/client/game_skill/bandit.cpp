@@ -83,14 +83,12 @@ static void huixuanzhan() {
       auto atk_count =
           skill_game_instance::load_ski_atk_count(u"4201003", ski_lv);
 
-      cm.data[0].hits = {60};
-
-      cat = skill_game_instance::create_attack_payload(cm, sf.pos, delay);
-      cat.payload[0]->effect = "420.img/skill/4201003/hit/0";
-      for (int i = 0; i < atk_count; i++) {
-        cat.payload[0]->attack->delay += 120;
-        client_request::send_to_host(cat);
-      }
+      cm.data[0].hits = {60, 1, 1, 1, 1, 1, 1};
+      std::string effect = "420.img/skill/4201003/hit/0";
+      std::string sound = "Skill.img/4201003/Hit";
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, delay, 120,
+                                                       effect, sound);
+      client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(4201003, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);

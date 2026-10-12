@@ -56,6 +56,17 @@ void server_drop_instance::save_drop(uint64_t map_id, const DropT &drop) {
   scene.drops.emplace(drop.random_id, sd);
 }
 
+void server_drop_instance::save_delay_drop(uint64_t map_id, uint64_t d,
+                                           const DropT &drop) {
+  auto &scene = server_scene_instance::scenes[map_id];
+  server_drop sd;
+  sd.dt = drop;
+  sd.destroy = window::dt_now + (d - window::dt_time) + 60 * 5 * 1000;
+  sd.available = window::dt_now + (d - window::dt_time) +
+                 cal_available_time(drop.y1, drop.y2) * 1000;
+  scene.delay_drops[d].emplace_back(sd);
+}
+
 void server_drop_instance::handle_client_drop(uint64_t client_id,
                                               ClientCharacterDropT &r) {
   auto map_id = r.map_id;
@@ -334,13 +345,7 @@ void server_drop_instance::handle_client_create_drop(uint64_t client_id,
   }
   auto dts = create_dts(dt, map_id);
   for (const auto &dt : dts) {
-    save_drop(map_id, *dt);
-  }
-  const auto &clients = server_scene_instance::scenes[map_id].clients;
-  ServerCreateDropT t;
-  t.payload = std::move(dts);
-  for (const auto c : clients) {
-    server_response::send_to_client(c, t);
+    save_delay_drop(map_id, r.delay, *dt);
   }
 }
 

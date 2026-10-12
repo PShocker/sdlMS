@@ -1582,6 +1582,7 @@ struct CharacterAttackT : public ::flatbuffers::NativeTable {
   uint32_t mob_index = 0;
   std::unique_ptr<fbs::AttackT> attack{};
   std::string effect{};
+  std::string sound{};
   bool left = false;
   CharacterAttackT() = default;
   CharacterAttackT(const CharacterAttackT &o);
@@ -1596,7 +1597,8 @@ struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
     VT_MOB_INDEX = 4,
     VT_ATTACK = 6,
     VT_EFFECT = 8,
-    VT_LEFT = 10
+    VT_SOUND = 10,
+    VT_LEFT = 12
   };
   uint32_t mob_index() const {
     return GetField<uint32_t>(VT_MOB_INDEX, 0);
@@ -1616,6 +1618,12 @@ struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   ::flatbuffers::String *mutable_effect() {
     return GetPointer<::flatbuffers::String *>(VT_EFFECT);
   }
+  const ::flatbuffers::String *sound() const {
+    return GetPointer<const ::flatbuffers::String *>(VT_SOUND);
+  }
+  ::flatbuffers::String *mutable_sound() {
+    return GetPointer<::flatbuffers::String *>(VT_SOUND);
+  }
   bool left() const {
     return GetField<uint8_t>(VT_LEFT, 0) != 0;
   }
@@ -1630,6 +1638,8 @@ struct CharacterAttack FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
            verifier.VerifyTable(attack()) &&
            VerifyOffset(verifier, VT_EFFECT) &&
            verifier.VerifyString(effect()) &&
+           VerifyOffset(verifier, VT_SOUND) &&
+           verifier.VerifyString(sound()) &&
            VerifyField<uint8_t>(verifier, VT_LEFT, 1) &&
            verifier.EndTable();
   }
@@ -1651,6 +1661,9 @@ struct CharacterAttackBuilder {
   void add_effect(::flatbuffers::Offset<::flatbuffers::String> effect) {
     fbb_.AddOffset(CharacterAttack::VT_EFFECT, effect);
   }
+  void add_sound(::flatbuffers::Offset<::flatbuffers::String> sound) {
+    fbb_.AddOffset(CharacterAttack::VT_SOUND, sound);
+  }
   void add_left(bool left) {
     fbb_.AddElement<uint8_t>(CharacterAttack::VT_LEFT, static_cast<uint8_t>(left), 0);
   }
@@ -1670,8 +1683,10 @@ inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttack(
     uint32_t mob_index = 0,
     ::flatbuffers::Offset<fbs::Attack> attack = 0,
     ::flatbuffers::Offset<::flatbuffers::String> effect = 0,
+    ::flatbuffers::Offset<::flatbuffers::String> sound = 0,
     bool left = false) {
   CharacterAttackBuilder builder_(_fbb);
+  builder_.add_sound(sound);
   builder_.add_effect(effect);
   builder_.add_attack(attack);
   builder_.add_mob_index(mob_index);
@@ -1684,13 +1699,16 @@ inline ::flatbuffers::Offset<CharacterAttack> CreateCharacterAttackDirect(
     uint32_t mob_index = 0,
     ::flatbuffers::Offset<fbs::Attack> attack = 0,
     const char *effect = nullptr,
+    const char *sound = nullptr,
     bool left = false) {
   auto effect__ = effect ? _fbb.CreateString(effect) : 0;
+  auto sound__ = sound ? _fbb.CreateString(sound) : 0;
   return fbs::CreateCharacterAttack(
       _fbb,
       mob_index,
       attack,
       effect__,
+      sound__,
       left);
 }
 
@@ -4800,6 +4818,7 @@ inline CharacterAttackT::CharacterAttackT(const CharacterAttackT &o)
       : mob_index(o.mob_index),
         attack((o.attack) ? new fbs::AttackT(*o.attack) : nullptr),
         effect(o.effect),
+        sound(o.sound),
         left(o.left) {
 }
 
@@ -4807,6 +4826,7 @@ inline CharacterAttackT &CharacterAttackT::operator=(CharacterAttackT o) FLATBUF
   std::swap(mob_index, o.mob_index);
   std::swap(attack, o.attack);
   std::swap(effect, o.effect);
+  std::swap(sound, o.sound);
   std::swap(left, o.left);
   return *this;
 }
@@ -4823,6 +4843,7 @@ inline void CharacterAttack::UnPackTo(CharacterAttackT *_o, const ::flatbuffers:
   { auto _e = mob_index(); _o->mob_index = _e; }
   { auto _e = attack(); if (_e) { if(_o->attack) { _e->UnPackTo(_o->attack.get(), _resolver); } else { _o->attack = std::unique_ptr<fbs::AttackT>(_e->UnPack(_resolver)); } } else if (_o->attack) { _o->attack.reset(); } }
   { auto _e = effect(); if (_e) _o->effect = _e->str(); }
+  { auto _e = sound(); if (_e) _o->sound = _e->str(); }
   { auto _e = left(); _o->left = _e; }
 }
 
@@ -4837,12 +4858,14 @@ inline ::flatbuffers::Offset<CharacterAttack> CharacterAttack::Pack(::flatbuffer
   auto _mob_index = _o->mob_index;
   auto _attack = _o->attack ? CreateAttack(_fbb, _o->attack.get(), _rehasher) : 0;
   auto _effect = _o->effect.empty() ? 0 : _fbb.CreateString(_o->effect);
+  auto _sound = _o->sound.empty() ? 0 : _fbb.CreateString(_o->sound);
   auto _left = _o->left;
   return fbs::CreateCharacterAttack(
       _fbb,
       _mob_index,
       _attack,
       _effect,
+      _sound,
       _left);
 }
 
