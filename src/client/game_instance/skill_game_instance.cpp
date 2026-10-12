@@ -228,7 +228,7 @@ ClientCharacterAttackT skill_game_instance::create_attack_payload(
 ClientCharacterAttackT
 skill_game_instance::create_attack_payload(check_mobs &cm, SDL_FPoint pos,
                                            uint64_t delay) {
-  create_attack_payload(cm, pos, delay, 60, "", "");
+  return create_attack_payload(cm, pos, delay, 60, "", "");
 }
 
 ClientCharacterSkillT skill_game_instance::create_skill_payload(

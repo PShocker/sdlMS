@@ -392,10 +392,8 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
         .flip = false,
         .data = data,
     };
-    if (!mob_hit.contains(mob.index)) {
-      std::u16string path = u"Mob.img/" + mob.id + u"/Damage";
-      audio_game_instance::load_audio(path, ct->attack->delay);
-    }
+    std::u16string path = u"Mob.img/" + mob.id + u"/Damage";
+    audio_game_instance::load_audio(path, ct->attack->delay);
     mob_hit.insert(mob.index);
     effect_game_instance::data[7].emplace_back(d);
   }
@@ -489,7 +487,11 @@ void server_character_instance::handle_ski(
     }
   }
 
-  audio_game_instance::load_audio(u"Skill.img/" + ski_id3 + u"/Use", 0);
+  auto sound_path = u"Skill.img/" + ski_id3 + u"/Use";
+  auto audio_node = wz_resource::sound->find(sound_path);
+  if (audio_node) {
+    audio_game_instance::load_audio(sound_path, 0);
+  }
 
   auto &mob = mob_game_instance::data;
   for (const auto &s : v) {
@@ -921,6 +923,7 @@ void server_character_instance::handle_lv_up(game_character &g_character) {
       .z = false,
   };
   g_character.effect.emplace_back(e);
+  audio_game_instance::load_audio(u"Game.img/LevelUp", 0);
 }
 
 void server_character_instance::handle_lv_up(uint64_t client_id,

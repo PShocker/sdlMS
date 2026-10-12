@@ -128,7 +128,8 @@ static void mfsj() {
       auto delay = skill_game_instance::load_ski_time(sf);
       // Create and send attack payload
       cm.data[0].hits = {60, 70};
-      cat = skill_game_instance::create_attack_payload(cm, sf.pos, delay);
+      cat = skill_game_instance::create_attack_payload(cm, sf.pos, delay, 120,
+                                                       "", "");
       client_request::send_to_host(cat);
     }
     auto ckt = skill_game_instance::create_skill_payload(cat, 2001003, ski_lv);

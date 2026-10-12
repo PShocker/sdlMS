@@ -939,26 +939,8 @@ bool character_logic_system::run_attack(game_character &g_character) {
       auto hit_type = afterimage_game_instance::load_hit_type(g_character);
       auto effect =
           "Afterimage/hit.img/" + std::string{hit_type.begin(), hit_type.end()};
-      std::string sound;
-      switch (weapon_type) {
-      case equip_game_instance::weapon_type::BOW: {
-        sound = "Weapon.img/bow/Attack2";
-        break;
-      }
-      case equip_game_instance::weapon_type::CROSSBOW: {
-        sound = "Weapon.img/cbow/Attack2";
-        break;
-      }
-      case equip_game_instance::weapon_type::CLAW: {
-        sound = "Weapon.img/tGlove/Attack2";
-        break;
-      }
-      default: {
-        break;
-      }
-      }
       auto cat = skill_game_instance::create_attack_payload(
-          cm, g_character.pos, delay, 0, effect, sound);
+          cm, g_character.pos, delay, 0, effect, "");
       client_request::send_to_host(cat);
     }
   }
@@ -1604,8 +1586,20 @@ void character_logic_system::load_sfx(game_character &g_character) {
   auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
   auto sfx = static_cast<wz::Property<std::u16string> *>(
                  g_weapon_info->get_child(u"sfx"))
-                 ->get() +
-             u"/Attack";
+                 ->get();
+  auto weapon_type = equip_game_instance::load_weapon_type(g_character);
+  const std::flat_set<std::u16string> *actions;
+  if (weapon_attack_action2.contains(weapon_type)) {
+    actions = &weapon_attack_action2.at(weapon_type);
+  } else {
+    actions = &weapon_attack_action.at(weapon_type);
+  }
+  if (actions->contains(g_character.action) ||
+      g_character.action == u"proneStab") {
+    sfx = sfx + u"/Attack";
+  } else {
+    sfx = sfx + u"/Attack2";
+  }
   audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
 }
 
