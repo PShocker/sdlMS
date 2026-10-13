@@ -402,3 +402,5 @@ server_mob_instance::create_mob_dts(const std::u16string &mob_id, float x,
   }
   return dts;
 }
+
+void server_mob_instance::handle_debuff(ClientMobDebuffT &r) { return; }

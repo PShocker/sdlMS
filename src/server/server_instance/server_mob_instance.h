@@ -43,4 +43,6 @@ public:
   static void handle_server_die(const ServerMobDieT &m);
   static void handle_server_drop(const ServerMobDropT &m);
   static void handle_server_event(const ServerMobEventT &m);
+
+  static void handle_debuff(ClientMobDebuffT &r);
 };

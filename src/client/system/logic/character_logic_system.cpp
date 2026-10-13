@@ -351,8 +351,7 @@ bool character_logic_system::run_animate(game_character &g_character) {
 }
 
 bool character_logic_system::run_flip(game_character &g_character) {
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return false;
   }
   if (self_flip_cooldown > window::dt_now) {
@@ -375,8 +374,7 @@ void character_logic_system::run_pick(game_character &g_character) {
   if (ccp.random_id != 0) {
     return;
   }
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return;
   }
   if (character_action_input.contains("pick")) {
@@ -401,8 +399,7 @@ void character_logic_system::run_pick(game_character &g_character) {
 
 bool character_logic_system::run_walk(game_character &g_character) {
   bool r = true;
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return r;
   }
   if (character_action_input.contains("left")) {
@@ -439,8 +436,7 @@ bool character_logic_system::run_fall(game_character &g_character) {
   if (self_fh != 0) {
     return false;
   }
-  if (!g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (!g_character.debuffs.contains(game_debuff::dizz)) {
     if (character_action_input.contains("left")) {
       self_hspeed -= 0.1 * window::delta_time;
     } else if (character_action_input.contains("right")) {
@@ -470,8 +466,7 @@ bool character_logic_system::run_fall(game_character &g_character) {
 }
 
 bool character_logic_system::run_prone(game_character &g_character) {
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return false;
   }
   if (self_fh == 0 || self_lr != 0) {
@@ -487,8 +482,7 @@ bool character_logic_system::run_prone(game_character &g_character) {
 }
 
 bool character_logic_system::run_jump(game_character &g_character) {
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return false;
   }
   if (character_action_input.contains("jump")) {
@@ -573,8 +567,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
 }
 
 bool character_logic_system::run_climb(game_character &g_character) {
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return false;
   }
   if (self_ladderrope_cooldown > window::dt_now) {
@@ -620,8 +613,7 @@ bool character_logic_system::run_climb(game_character &g_character) {
 }
 
 bool character_logic_system::run_climbing(game_character &g_character) {
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     run_action(g_character, u"jump");
     return false;
   }
@@ -702,8 +694,7 @@ bool character_logic_system::run_sitting(game_character &g_character) {
 
 bool character_logic_system::run_skill(game_character &g_character,
                                        const std::u16string &id) {
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return false;
   }
   if (!g_character.morph.empty()) {
@@ -745,6 +736,7 @@ bool character_logic_system::run_skill(game_character &g_character,
         }
       }
       ski.use(0, ski_lv);
+      character_logic_system::load_sfx(g_character);
     }
   }
   return true;
@@ -798,8 +790,7 @@ bool character_logic_system::run_attack_action(game_character &g_character,
 }
 
 bool character_logic_system::run_attack(game_character &g_character) {
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return false;
   }
   if (!g_character.morph.empty()) {
@@ -968,8 +959,7 @@ bool character_logic_system::run_portal(game_character &g_character) {
     self_portal_cooldown = window::dt_now + 1200;
     return true;
   }
-  if (g_character.abnormals.contains(
-          game_character::abnormal_state_type::dizz)) {
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
     return false;
   }
   if (self_portal_cooldown <= window::dt_now) {
@@ -1588,6 +1578,11 @@ void character_logic_system::load_sfx(game_character &g_character) {
                  g_weapon_info->get_child(u"sfx"))
                  ->get();
   auto weapon_type = equip_game_instance::load_weapon_type(g_character);
+  auto action_type = load_action_type(g_character);
+  if (action_type == character_logic_system::action_enum::skill &&
+      weapon_type == equip_game_instance::weapon_type::WAND) {
+    return;
+  }
   const std::flat_set<std::u16string> *actions;
   if (weapon_attack_action2.contains(weapon_type)) {
     actions = &weapon_attack_action2.at(weapon_type);
@@ -1601,6 +1596,12 @@ void character_logic_system::load_sfx(game_character &g_character) {
     sfx = sfx + u"/Attack2";
   }
   audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
+  if (g_character.skill.has_value()) {
+    // hard code
+    if (g_character.skill == u"4001003") {
+      audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay + 120);
+    }
+  }
 }
 
 float character_logic_system::load_attack_speed(game_character &g_character) {

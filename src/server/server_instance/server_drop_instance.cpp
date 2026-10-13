@@ -2,6 +2,7 @@
 #include "server_scene_instance.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_gain_log.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"
@@ -235,6 +236,7 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
     }
   }
   handle_server_dt(*r.payload);
+  audio_game_instance::load_audio(u"Game.img/DropItem", 0);
 }
 
 std::vector<std::unique_ptr<fbs::DropT>>
@@ -354,4 +356,5 @@ void server_drop_instance::handle_server_create_drop(uint64_t client_id,
   for (const auto &dt : r.payload) {
     server_drop_instance::handle_server_dt(*dt);
   }
+  audio_game_instance::load_audio(u"Game.img/DropItem", 0);
 }

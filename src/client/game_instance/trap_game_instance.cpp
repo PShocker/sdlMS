@@ -7,6 +7,7 @@
 #include "wz/Wz.h"
 #include <chrono>
 #include <cstdint>
+#include <flat_map>
 #include <numeric>
 #include <string>
 #include <vector>
@@ -106,6 +107,22 @@ trap_game_instance::load_animate_index(std::vector<int> delays) {
   data.index = index;
   data.time = offset - accumulated;
   return data;
+}
+
+std::vector<int> trap_game_instance::load_animate_delays(wz::Node *node) {
+  static std::flat_map<wz::Node *, std::vector<int>> cache;
+  if (!cache.contains(node)) {
+    for (int i = 0;; i++) {
+      auto n = node->get_child(std::to_string(i));
+      if (n == nullptr) {
+        break;
+      }
+      auto delay =
+          static_cast<wz::Property<int> *>(n->get_child(u"delay"))->get();
+      cache[node].push_back(delay);
+    }
+  }
+  return cache.at(node);
 }
 
 void trap_game_instance::load(uint32_t map_id) {

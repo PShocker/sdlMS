@@ -212,7 +212,6 @@ ClientCharacterAttackT skill_game_instance::create_attack_payload(
       ct.sound = sound;
       attack_payload.payload.push_back(
           std::make_unique<CharacterAttackT>(std::move(ct)));
-      mb.attack_val += mob.hits[n];
     }
     // gauge
     if (!mb.gauge.has_value()) {

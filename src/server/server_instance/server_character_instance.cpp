@@ -188,6 +188,12 @@ void server_character_instance::handle_server_action(
   c.action_time = 0;
   auto action = character_logic_system::load_action_type(c);
   switch (action) {
+  case character_logic_system::action_enum::jump:
+  case character_logic_system::action_enum::stand: {
+    c.skill = std::nullopt;
+    break;
+  }
+  case character_logic_system::action_enum::skill:
   case character_logic_system::action_enum::attack: {
     character_logic_system::load_sfx(c);
     break;
@@ -392,6 +398,9 @@ void server_character_instance::handle_server_atk(uint64_t client_id,
         .flip = false,
         .data = data,
     };
+    if (r.client_id == server_main::local_addr) {
+      mob.attack_val += data.num;
+    }
     std::u16string path = u"Mob.img/" + mob.id + u"/Damage";
     audio_game_instance::load_audio(path, ct->attack->delay);
     mob_hit.insert(mob.index);
@@ -403,6 +412,15 @@ void server_character_instance::handle_ski(
     uint32_t ski_id, uint8_t ski_lv,
     const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
     uint64_t client_id) {
+  if (character_game_instance::others.contains(client_id)) {
+    auto g_character = &character_game_instance::others[client_id].g_character;
+    auto ski_id2 = std::to_string(ski_id);
+    auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};
+    if (ski_id3.length() < 7) {
+      ski_id3.insert(0, 7 - ski_id3.length(), u'0');
+    }
+    g_character->skill = ski_id3;
+  }
   handle_ski(ski_id, ski_lv, v, client_id, INT32_MAX, INT32_MAX, false);
 }
 

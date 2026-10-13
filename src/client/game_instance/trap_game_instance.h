@@ -17,4 +17,5 @@ public:
     int time;
   };
   static animate_data load_animate_index(std::vector<int> delays);
+  static std::vector<int> load_animate_delays(wz::Node *node);
 };

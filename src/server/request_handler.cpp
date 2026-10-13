@@ -221,6 +221,13 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     server_drop_instance::handle_client_create_drop(client_id, r);
     break;
   }
+  case NetPayload_ClientMobDebuff: {
+    auto payload = packet->payload_as_ClientMobDebuff();
+    fbs::ClientMobDebuffT r;
+    payload->UnPackTo(&r);
+    server_mob_instance::handle_debuff(r);
+    break;
+  }
   case NetPayload_ServerHeartbeat: {
     server_heartbeat_system::receive_server_heartbeat();
     break;

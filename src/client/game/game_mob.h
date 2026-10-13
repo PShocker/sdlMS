@@ -1,9 +1,11 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
+#include "game_debuff.h"
 #include "game_gauge.h"
 #include "src/client/game/game_effect.h"
 #include <cstdint>
+#include <flat_map>
 #include <optional>
 #include <string>
 #include <vector>
@@ -34,6 +36,8 @@ public:
   std::vector<game_effect> effect;
 
   std::optional<game_gauge> gauge;
+
+  std::flat_map<game_debuff::debuff_type, game_debuff> debuffs;
 
   // 人物总共打出的伤害，分配经验，伤害统计
   uint64_t attack_val = 0;

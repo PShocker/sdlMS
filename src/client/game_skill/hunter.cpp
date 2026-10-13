@@ -1,5 +1,7 @@
 
 #include "SDL3/SDL_rect.h"
+#include "src/client/game/game_character.h"
+#include "src/client/game/game_debuff.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -8,6 +10,7 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
@@ -74,6 +77,20 @@ static void baozhajian() {
     auto ckt = skill_game_instance::create_skill_payload(cat, 3101005, ski_lv);
     server_character_instance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
     client_request::send_to_host(ckt);
+
+    ClientMobDebuffT cmb;
+    cmb.map_id = scene_system_instance::map_id;
+    for (int i = 0; i < cm.data.size(); i++) {
+      auto &data = cm.data[i];
+      MobDebuffT md;
+      md.mob_index = data.mob.index;
+      md.payload->val = game_debuff::dizz;
+      md.payload->delay = window::dt_time;
+      md.payload->time = window::dt_time + 5000;
+    }
+    if (!cmb.payload.empty()) {
+      client_request::send_to_host(cmb);
+    }
   };
   auto &skis = skill_game_instance::skis();
   skis[g_skill.id] = g_skill;

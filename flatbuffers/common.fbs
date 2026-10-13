@@ -178,16 +178,12 @@ enum StateEnum : int8 {
     DEBUFF,
 }
 
-table Debuff{
-    time:uint64;
-    val:int64;
-}
-
 table State{
     state: StateEnum;
     val:int64;
     sub_val:int64;
-    db:Debuff;
+    time:uint64;
+    delay:uint64;
 }
 
 table Reactor{
@@ -220,8 +216,7 @@ table RSkill{ //RegionSkill
 
 table MobDebuff{
     mob_index:uint32;
-    payload:Debuff;
-    delay:uint64;
+    payload:State;
 }
 
 table APSave{

@@ -5,6 +5,7 @@
 #include "SDL3/SDL_render.h"
 #include "game_chair.h"
 #include "game_chatballoon.h"
+#include "game_debuff.h"
 #include "game_face.h"
 #include "game_item.h"
 #include "game_tomb.h"
@@ -76,10 +77,7 @@ public:
 
   SDL_FPoint pos;
 
-  enum class abnormal_state_type {
-    dizz,
-  };
-  std::flat_set<abnormal_state_type> abnormals;
+  std::flat_map<game_debuff::debuff_type, game_debuff> debuffs;
 
   std::vector<game_effect> effect;
   std::optional<std::u16string> skill;

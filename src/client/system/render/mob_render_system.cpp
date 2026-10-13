@@ -1,8 +1,10 @@
 #include "mob_render_system.h"
+#include "debuff_render_system.h"
 #include "gauge_render_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/render/debuff_render_system.h"
 #include "src/client/system/render/effect_render_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
@@ -93,9 +95,14 @@ bool mob_render_system::render_effect_back(game_mob &g_mob) {
   return effect_render_system::render_mob_effects(g_mob, false);
 }
 
+void mob_render_system::render_debuff(game_mob &g_mob) {
+  debuff_render_system::render_mob(g_mob);
+}
+
 bool mob_render_system::render(game_mob &g_mob) {
   render_mob(g_mob);
   render_effect_back(g_mob);
+  render_debuff(g_mob);
   render_gauge(g_mob);
   render_nametag(g_mob);
   // auto r = mob_logic_system::load_rect(g_mob);
