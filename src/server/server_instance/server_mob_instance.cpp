@@ -3,6 +3,7 @@
 #include "server_scene_instance.h"
 #include "src/client/game/game_gain_log.h"
 #include "src/client/game/game_mob.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -169,6 +170,7 @@ void server_mob_instance::handle_server_drop(const ServerMobDropT &m) {
   for (const auto &dt : m.drop) {
     server_drop_instance::handle_server_dt(*dt);
   }
+  audio_game_instance::load_audio(u"Game.img/DropItem", 0);
   return;
 }
 
