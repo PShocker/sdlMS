@@ -762,9 +762,7 @@ bool character_logic_system::run_attack_action(game_character &g_character,
   switch (g_action) {
   case action_enum::stand:
   case action_enum::alert:
-  case action_enum::walk: {
-    self_hspeed = 0;
-  }
+  case action_enum::walk:
   case action_enum::jump: {
     auto &gen = random_game_instance::gen;
     auto actions = &weapon_attack_action.at(weapon_type);
