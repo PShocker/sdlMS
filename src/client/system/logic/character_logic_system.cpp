@@ -1571,6 +1571,9 @@ void character_logic_system::run_die_action(game_character &g_character) {
 }
 
 void character_logic_system::load_sfx(game_character &g_character) {
+  if (!g_character.weapon.has_value()) {
+    return;
+  }
   auto delay = afterimage_game_instance::load_beat_time(g_character);
   auto g_weapon = g_character.weapon->id;
   auto g_weapon_info = equip_game_instance::load_equip_info(g_weapon);
@@ -1579,21 +1582,35 @@ void character_logic_system::load_sfx(game_character &g_character) {
                  ->get();
   auto weapon_type = equip_game_instance::load_weapon_type(g_character);
   auto action_type = load_action_type(g_character);
-  if (action_type == character_logic_system::action_enum::skill &&
+  if (!(action_type == character_logic_system::action_enum::skill ||
+        action_type == character_logic_system::action_enum::attack)) {
+    return;
+  }
+  if (g_character.skill.has_value() &&
       weapon_type == equip_game_instance::weapon_type::WAND) {
     return;
   }
-  const std::flat_set<std::u16string> *actions;
   if (weapon_attack_action2.contains(weapon_type)) {
-    actions = &weapon_attack_action2.at(weapon_type);
+    auto actions = &weapon_attack_action2.at(weapon_type);
+    if (actions->contains(g_character.action) ||
+        g_character.action == u"proneStab") {
+      sfx = sfx + u"/Attack";
+    } else {
+      actions = &weapon_attack_action.at(weapon_type);
+      if (actions->contains(g_character.action)) {
+        sfx = sfx + u"/Attack2";
+      } else {
+        return;
+      }
+    }
   } else {
-    actions = &weapon_attack_action.at(weapon_type);
-  }
-  if (actions->contains(g_character.action) ||
-      g_character.action == u"proneStab") {
-    sfx = sfx + u"/Attack";
-  } else {
-    sfx = sfx + u"/Attack2";
+    auto actions = &weapon_attack_action.at(weapon_type);
+    if (actions->contains(g_character.action) ||
+        g_character.action == u"proneStab") {
+      sfx = sfx + u"/Attack";
+    } else {
+      return;
+    }
   }
   audio_game_instance::load_audio(u"Weapon.img/" + sfx, delay);
   if (g_character.skill.has_value()) {

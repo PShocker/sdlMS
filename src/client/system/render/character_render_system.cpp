@@ -218,10 +218,9 @@ bool character_render_system::render_character(game_character &g_character) {
 
 bool character_render_system::render_afterimage(game_character &g_character) {
   // 如果是法杖，而且是技能状态，不显示
-  auto action_type = character_logic_system::load_action_type(g_character);
   auto weapon_type = equip_game_instance::load_weapon_type(g_character);
-  if (action_type == character_logic_system::action_enum::skill &&
-      weapon_type == equip_game_instance::weapon_type::WAND) {
+  if (weapon_type == equip_game_instance::weapon_type::WAND &&
+      g_character.skill.has_value()) {
     return false;
   }
   // 通常情况下,attack和skill都会有afterimag的渲染

@@ -169,7 +169,7 @@ void character_game_instance::load_self_character() {
   add_head(self, u"00012000");
   add_coat(self, u"01040002");
   add_cap(self, u"01002005");
-  add_weapon(self, u"01452011");
+  add_weapon(self, u"01472002");
   add_pants(self, u"01060001");
   add_face(self, u"00020000");
   add_hair(self, u"00030000");
@@ -211,99 +211,13 @@ character_game_instance::split_islot(const std::u16string &islot) {
 void character_game_instance::add_body(game_character &g,
                                        const std::u16string &val) {
   g.body = val;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto body_node = character_node->find(val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  body_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              body_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *body_node->get_children()) {
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            c.pos = bone_data[k][frame].part_pos.at(bk);
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_head(game_character &g,
                                        const std::u16string &val) {
   g.head = val;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto head_node = character_node->find(val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  head_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              head_node->find(u"info/vslot"))
-                              ->get());
-    auto child = *head_node->get_children();
-    child.erase(u"info");
-    child[u"dead"] = {child[u"jump"].at(0)};
-    for (auto [k, v] : child) {
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            c.pos = bone_data[k][frame].part_pos.at(bk);
-            c.name = bk;
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_ear(game_character &g,
@@ -328,71 +242,15 @@ void character_game_instance::add_coat(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.coat = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto coat_node = character_node->find(u"Coat/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  coat_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              coat_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *coat_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_coat_deco(game_character &g,
                                             const std::u16string &val) {
-  auto coat = g.coat;
-  add_coat(g, val);
-  g.coat = coat;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.coat_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_cap(game_character &g,
@@ -400,71 +258,15 @@ void character_game_instance::add_cap(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.cap = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto cap_node = character_node->find(u"Cap/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  cap_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              cap_node->find(u"info/vslot"))
-                              ->get());
-    auto child = *cap_node->get_children();
-    child.erase(u"info");
-    child[u"dead"] = {child[u"jump"].at(0)};
-    for (auto [k, v] : child) {
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_cap_deco(game_character &g,
                                            const std::u16string &val) {
-  auto cap = g.cap;
-  add_cap(g, val);
-  g.cap = cap;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.cap_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_pants(game_character &g,
@@ -472,71 +274,15 @@ void character_game_instance::add_pants(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.pant = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto pant_node = character_node->find(u"Pants/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  pant_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              pant_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *pant_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_pants_deco(game_character &g,
                                              const std::u16string &val) {
-  auto pant = g.pant;
-  add_pants(g, val);
-  g.pant = pant;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.pant_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_weapon(game_character &g,
@@ -544,60 +290,7 @@ void character_game_instance::add_weapon(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.weapon = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto weapon_node = character_node->find(u"Weapon/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  weapon_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              weapon_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *weapon_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_weapon_deco(game_character &g,
@@ -610,62 +303,7 @@ void character_game_instance::add_weapon_deco(game_character &g,
   game_deco_item g_deco;
   g_deco.id = val;
   g.weapon_deco = g_deco;
-  std::u16string deco_val = val + u"/" + sub;
-  if (!avatar_data.contains(deco_val)) {
-    character_avatar_render &r = avatar_data[deco_val];
-    auto character_node = wz_resource::character;
-    auto weapon_node = character_node->find(u"Weapon/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  weapon_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              weapon_node->find(u"info/vslot"))
-                              ->get());
-    weapon_node = weapon_node->get_child(sub);
-    for (auto [k, v] : *weapon_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, sub);
 }
 
 void character_game_instance::add_shield(game_character &g,
@@ -673,71 +311,15 @@ void character_game_instance::add_shield(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.shield = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto shield_node = character_node->find(u"Shield/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  shield_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              shield_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *shield_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_shield_deco(game_character &g,
                                               const std::u16string &val) {
-  auto shield = g.shield;
-  add_shield(g, val);
-  g.shield = shield;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.shield_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_cape(game_character &g,
@@ -745,71 +327,15 @@ void character_game_instance::add_cape(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.cape = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto cape_node = character_node->find(u"Cape/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  cape_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              cape_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *cape_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_cape_deco(game_character &g,
                                             const std::u16string &val) {
-  auto cape = g.cape;
-  add_cape(g, val);
-  g.cape = cape;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.cape_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_accessory(game_character &g,
@@ -817,71 +343,15 @@ void character_game_instance::add_accessory(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.accessory = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto accessory_node = character_node->find(u"Cape/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  accessory_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              accessory_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *accessory_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_accessory_deco(game_character &g,
                                                  const std::u16string &val) {
-  auto accessory = g.accessory;
-  add_accessory(g, val);
-  g.accessory = accessory;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.accessory_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_glove(game_character &g,
@@ -889,74 +359,15 @@ void character_game_instance::add_glove(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.glove = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto glove_node = character_node->find(u"Glove/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  glove_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              glove_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *glove_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        if (body_frame_node == nullptr) {
-          continue;
-        }
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_glove_deco(game_character &g,
                                              const std::u16string &val) {
-  auto glove = g.glove;
-  add_glove(g, val);
-  g.glove = glove;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.glove_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_longcoat(game_character &g,
@@ -964,71 +375,15 @@ void character_game_instance::add_longcoat(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.longcoat = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto longcoat_node = character_node->find(u"Longcoat/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  longcoat_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              longcoat_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *longcoat_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_longcoat_deco(game_character &g,
                                                 const std::u16string &val) {
-  auto longcoat = g.longcoat;
-  add_longcoat(g, val);
-  g.longcoat = longcoat;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.longcoat_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_shoes(game_character &g,
@@ -1036,130 +391,21 @@ void character_game_instance::add_shoes(game_character &g,
   game_equip_item g_equip;
   g_equip.id = val;
   g.shoes = g_equip;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto shoes_node = character_node->find(u"Shoes/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  shoes_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              shoes_node->find(u"info/vslot"))
-                              ->get());
-    for (auto [k, v] : *shoes_node->get_children()) {
-      if (k == u"info") {
-        continue;
-      }
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_shoes_deco(game_character &g,
                                              const std::u16string &val) {
-  auto shoes = g.shoes;
-  add_shoes(g, val);
-  g.shoes = shoes;
-
   game_deco_item g_deco;
   g_deco.id = val;
   g.shoes_deco = g_deco;
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_hair(game_character &g,
                                        const std::u16string &val) {
   g.hair = val;
-  if (!avatar_data.contains(val)) {
-    character_avatar_render &r = avatar_data[val];
-    auto character_node = wz_resource::character;
-    auto hair_node = character_node->find(u"Hair/" + val + u".img");
-    r.islot = static_cast<wz::Property<std::u16string> *>(
-                  hair_node->find(u"info/islot"))
-                  ->get();
-    r.islot = split_islot(r.islot);
-    r.vslot = split_vslot(static_cast<wz::Property<std::u16string> *>(
-                              hair_node->find(u"info/vslot"))
-                              ->get());
-    auto child = *hair_node->get_children();
-    child.erase(u"info");
-    child[u"dead"] = {child[u"jump"].at(0)};
-    for (auto [k, v] : child) {
-      if (!bone_data.contains(k)) {
-        continue;
-      }
-      r.data[k].resize(v[0]->children_count());
-      for (uint8_t frame = 0; frame < v[0]->children_count(); frame++) {
-        auto format2 = std::to_string(frame);
-        auto body_frame_node = v[0]->get_child(format2);
-        for (auto [bk, bv] : *body_frame_node->get_children()) {
-          auto part_node = bv[0];
-          if (part_node->type == wz::Type::UOL) {
-            part_node =
-                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
-          }
-          if (part_node->type == wz::Type::Canvas) {
-            character_avatar c;
-            c.texture = wz_resource::load_texture(part_node);
-            c.z = static_cast<wz::Property<std::u16string> *>(
-                      part_node->get_child(u"z"))
-                      ->get();
-            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
-                           part_node->get_child(u"origin"))
-                           ->get();
-            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
-            auto map_node =
-                part_node->get_child(u"map")->get_children()->begin();
-            auto part_name = map_node->first;
-            auto part_val = map_node->second[0];
-            auto part_val_pos =
-                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
-            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
-
-            c.pos = {parent_pos.x - part_val_pos.x,
-                     parent_pos.y - part_val_pos.y};
-            r.data[k][frame].push_back(c);
-          }
-        }
-      }
-    }
-  }
+  add_avatar_cache(val, u"");
 }
 
 void character_game_instance::add_face(game_character &g,
@@ -1239,4 +485,82 @@ void character_game_instance::add_ring1_deco(game_character &g,
   game_deco_item g_deco;
   g_deco.id = val;
   g.ring1_deco = g_deco;
+}
+
+void character_game_instance::add_avatar_cache(const std::u16string &val,
+                                               const std::u16string &sub) {
+  std::u16string v = val;
+  if (!sub.empty()) {
+    v = val + u"/" + sub;
+  }
+  if (!avatar_data.contains(v)) {
+    character_avatar_render &r = avatar_data[v];
+    auto character_node = wz_resource::character;
+    auto type = equip_game_instance::load_equip_type(val);
+    wz::Node *node;
+    if (type == u"Body" || type == u"Head") {
+      node = character_node->find(val + u".img");
+    } else {
+      node = character_node->find(type + u"/" + val + u".img");
+    }
+    r.islot =
+        static_cast<wz::Property<std::u16string> *>(node->find(u"info/islot"))
+            ->get();
+    r.islot = split_islot(r.islot);
+    r.vslot = split_vslot(
+        static_cast<wz::Property<std::u16string> *>(node->find(u"info/vslot"))
+            ->get());
+    if (!sub.empty()) {
+      node = node->get_child(sub);
+    }
+    auto child = *node->get_children();
+    child.erase(u"info");
+    if (type == u"Hair" || type == u"Cap" || type == u"Head") {
+      child[u"dead"] = {child[u"jump"].at(0)};
+    }
+    for (auto [k, v] : child) {
+      if (!bone_data.contains(k)) {
+        continue;
+      }
+      auto size = bone_data[k].size();
+      r.data[k].resize(size);
+      for (uint8_t frame = 0; frame < size; frame++) {
+        auto format2 = std::to_string(frame);
+        auto frame_node = v[0]->get_child(format2);
+        if (frame_node == nullptr) {
+          continue;
+        }
+        for (auto [bk, bv] : *frame_node->get_children()) {
+          auto part_node = bv[0];
+          if (part_node->type == wz::Type::UOL) {
+            part_node =
+                static_cast<wz::Property<wz::WzUOL> *>(part_node)->get_uol();
+          }
+          if (part_node->type == wz::Type::Canvas) {
+            character_avatar c;
+            c.texture = wz_resource::load_texture(part_node);
+            c.z = static_cast<wz::Property<std::u16string> *>(
+                      part_node->get_child(u"z"))
+                      ->get();
+            auto ori = static_cast<wz::Property<wz::WzVec2D> *>(
+                           part_node->get_child(u"origin"))
+                           ->get();
+            c.origin = {static_cast<float>(ori.x), static_cast<float>(ori.y)};
+            auto map_node =
+                part_node->get_child(u"map")->get_children()->begin();
+            auto part_name = map_node->first;
+            auto part_val = map_node->second[0];
+            auto part_val_pos =
+                static_cast<wz::Property<wz::WzVec2D> *>(part_val)->get();
+            auto parent_pos = bone_data[k][frame].bone_pos.at(part_name);
+
+            c.pos = {parent_pos.x - part_val_pos.x,
+                     parent_pos.y - part_val_pos.y};
+            c.name = bk;
+            r.data[k][frame].push_back(c);
+          }
+        }
+      }
+    }
+  }
 }

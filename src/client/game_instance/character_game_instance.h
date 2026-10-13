@@ -20,7 +20,7 @@ public:
 };
 
 struct character_avatar {
-  SDL_Texture *texture;
+  SDL_Texture *texture = nullptr;
   SDL_FPoint origin;
   SDL_FPoint pos;
   std::u16string z;
@@ -59,6 +59,8 @@ class character_game_instance {
 private:
   static std::flat_set<std::u16string> split_vslot(const std::u16string &vslot);
   static std::u16string split_islot(const std::u16string &islot);
+  static void add_avatar_cache(const std::u16string &val,
+                               const std::u16string &sub);
 
 public:
   static inline game_character self;

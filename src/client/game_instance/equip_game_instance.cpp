@@ -37,7 +37,7 @@ equip_game_instance::load_item(const std::u16string &id) {
 }
 
 std::u16string equip_game_instance::load_equip_type(const std::u16string &id) {
-  const auto result = id.substr(1, 3);
+  auto result = id.substr(1, 3);
   static const std::flat_map<std::u16string, std::u16string> equip_type = {
       // Accessory
       {u"101", u"Accessory"},
@@ -92,11 +92,14 @@ std::u16string equip_game_instance::load_equip_type(const std::u16string &id) {
       {u"160", u"Weapon"},
       {u"170", u"Weapon"},
       {u"000", u"Body"},
-      {u"001", u"Skin"},
+      {u"001", u"Head"},
       {u"002", u"Face"},
       {u"003", u"Hair"},
   };
-  return equip_type.at(result);
+  if (equip_type.contains(result)) {
+    return equip_type.at(result);
+  }
+  return u"";
 }
 
 wz::Node *equip_game_instance::load_equip_info(const std::u16string &id) {
