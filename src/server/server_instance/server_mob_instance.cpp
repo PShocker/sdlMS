@@ -1,6 +1,7 @@
 #include "server_mob_instance.h"
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
+#include "src/client/game/game_debuff.h"
 #include "src/client/game/game_gain_log.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -129,6 +130,9 @@ void server_mob_instance::handle_server_action(const ServerMobActionT &m) {
   mob.ani_index = 0;
   mob.ani_time = 0;
   mob.ani_animate = a->action_animate;
+  if (a->action == "die1") {
+    mob.debuffs.clear();
+  }
 }
 
 void server_mob_instance::handle_server_state(const ServerMobStateT &m) {
@@ -405,4 +409,46 @@ server_mob_instance::create_mob_dts(const std::u16string &mob_id, float x,
   return dts;
 }
 
-void server_mob_instance::handle_debuff(ClientMobDebuffT &r) { return; }
+void server_mob_instance::handle_debuff(uint64_t client_id,
+                                        ClientMobDebuffT &r) {
+  auto map_id = r.map_id;
+  auto &scene = server_scene_instance::scenes[map_id];
+  auto &mobs = scene.mobs;
+  for (auto &db : r.payload) {
+    if (mobs.contains(db->mob_index)) {
+      auto &mb = mobs.at(db->mob_index);
+      server_debuff sd;
+      game_debuff debuff;
+      debuff.type = (game_debuff::debuff_type)db->payload->val;
+      debuff.delay = db->payload->delay;
+      debuff.destroy = db->payload->time;
+
+      sd.client_id = client_id;
+      sd.db = debuff;
+      mb.debuffs[debuff.type] = sd;
+    }
+  }
+  ServerMobDebuffT smd;
+  smd.payload = std::move(r.payload);
+  for (auto c : scene.clients) {
+    server_response::send_to_client(c, smd);
+  }
+  return;
+}
+
+void server_mob_instance::handle_s_debuff(ServerMobDebuffT &r) {
+  auto &mobs = mob_game_instance::data;
+  for (const auto &db : r.payload) {
+    if (db->payload->time <= window::dt_time) {
+      continue;
+    }
+    if (mobs.contains(db->mob_index)) {
+      auto &mb = mobs.at(db->mob_index).mob;
+      game_debuff debuff;
+      debuff.type = (game_debuff::debuff_type)db->payload->val;
+      debuff.delay = db->payload->delay;
+      debuff.destroy = db->payload->time;
+      mb.debuffs[debuff.type] = debuff;
+    }
+  }
+}

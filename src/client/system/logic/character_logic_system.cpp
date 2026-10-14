@@ -1767,6 +1767,7 @@ void character_logic_system::run_being_hit(float x, uint64_t num) {
     character_stat_game_instance::set_hp(0);
     character_logic_system::run_die_action(sf);
   } else {
+    character_stat_game_instance::set_hp(sf_hp);
     character_logic_system::run_face_action(sf, u"hit");
   }
   return;

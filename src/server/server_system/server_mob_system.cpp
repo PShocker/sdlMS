@@ -1,5 +1,6 @@
 #include "server_mob_system.h"
 #include "SDL3/SDL_rect.h"
+#include "src/client/game/game_debuff.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -315,6 +316,7 @@ void server_mob_system::run_die(server_mob &mob, uint64_t client_id) {
   mu.Set(std::move(smt));
   events.payload.push_back(std::move(mu));
 
+  mob.debuffs.clear();
   return;
 }
 
@@ -393,6 +395,14 @@ bool server_mob_system::run_fall(server_mob &mob) {
   return r;
 }
 
+bool server_mob_system::run_debuff_action(server_mob &mob) {
+  if (mob.debuffs.contains(game_debuff::dizz)) {
+    run_default_action(mob);
+    return true;
+  }
+  return false;
+}
+
 void server_mob_system::run_state_machine(server_mob &mob) {
   auto o_mob = mob; // 拷贝用于对比
   auto m_action = mob_logic_system::load_action_type(mob.action);
@@ -410,6 +420,9 @@ void server_mob_system::run_state_machine(server_mob &mob) {
     break;
   }
   case mob_logic_system::action_enum::move: {
+    if (run_debuff_action(mob)) {
+      break;
+    }
     if (!run_hitting(mob)) {
       run_walk(mob);
       if (!run_try_jump(mob)) {

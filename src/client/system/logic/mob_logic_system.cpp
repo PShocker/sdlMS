@@ -1,5 +1,6 @@
 #include "mob_logic_system.h"
 #include "character_logic_system.h"
+#include "src/client/game/game_debuff.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -278,6 +279,13 @@ void mob_logic_system::run_mv() {
   }
 }
 
+void mob_logic_system::run_debuff(game_mob &g_mob) {
+  std::erase_if(g_mob.debuffs, [](const auto &pair) {
+    game_debuff db = pair.second;
+    return db.destroy <= window::dt_time;
+  });
+}
+
 void mob_logic_system::run_state_machine(game_mob &g_mob) {
   auto action_type = load_action_type(g_mob.action);
   if (action_type == action_enum::revive) {
@@ -290,6 +298,7 @@ void mob_logic_system::run_state_machine(game_mob &g_mob) {
     }
   }
   run_alpha(g_mob);
+  run_debuff(g_mob);
 }
 
 bool mob_logic_system::run() {

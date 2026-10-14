@@ -1,11 +1,10 @@
 #pragma once
 
 #include "SDL3/SDL_rect.h"
-#include "src/client/game/game_mob.h"
+#include "server_debuff.h"
+#include "src/common/flatbuffers/common.h"
 #include <cstdint>
 #include <flat_map>
-#include <flat_set>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -48,6 +47,8 @@ public:
   uint64_t hate_id;
 
   std::flat_map<uint64_t, mob_hit> hits;
+
+  std::flat_map<game_debuff::debuff_type, server_debuff> debuffs;
 
   bool create = false; // 是否是道具召唤的
 

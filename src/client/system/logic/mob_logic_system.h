@@ -9,6 +9,7 @@ private:
   static void run_mv();
   static void run_state_machine(game_mob &g_mob);
   static void run_alpha(game_mob &g_mob);
+  static void run_debuff(game_mob &g_mob);
 
 public:
   enum class action_enum {

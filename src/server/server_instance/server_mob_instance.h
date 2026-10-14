@@ -44,5 +44,6 @@ public:
   static void handle_server_drop(const ServerMobDropT &m);
   static void handle_server_event(const ServerMobEventT &m);
 
-  static void handle_debuff(ClientMobDebuffT &r);
+  static void handle_debuff(uint64_t client_id, ClientMobDebuffT &r);
+  static void handle_s_debuff(ServerMobDebuffT &r);
 };

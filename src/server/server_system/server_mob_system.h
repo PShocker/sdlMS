@@ -22,6 +22,8 @@ private:
 
   static bool run_hit_check(server_mob &mob);
 
+  static bool run_debuff_action(server_mob &mob);
+
   static void run_hit_action(server_mob &mob);
   static void run_default_action(server_mob &mob);
   static void run_move_action(server_mob &mob);

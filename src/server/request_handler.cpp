@@ -225,7 +225,7 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
     auto payload = packet->payload_as_ClientMobDebuff();
     fbs::ClientMobDebuffT r;
     payload->UnPackTo(&r);
-    server_mob_instance::handle_debuff(r);
+    server_mob_instance::handle_debuff(client_id, r);
     break;
   }
   case NetPayload_ServerHeartbeat: {
