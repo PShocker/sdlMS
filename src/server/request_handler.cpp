@@ -251,6 +251,11 @@ void request_handler::handle_request(uint64_t client_id, void *buf,
         server_reactor_instance::handle_s_reactor(*r);
       }
     } else {
+      window::dt_time_end = window::dt_now;
+      window::dt_time_base =
+          r.time + (window::dt_time_end - window::dt_time_start) / 2;
+      window::dt_time = window::dt_time_base;
+
       server_main::local_addr = r.client_id;
       fade_system_instance::enter_in(scene_system_instance::enter_fade);
     }

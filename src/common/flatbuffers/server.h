@@ -394,6 +394,7 @@ inline ::flatbuffers::Offset<ServerHeartbeat> CreateServerHeartbeat(
 struct ServerSceneT : public ::flatbuffers::NativeTable {
   typedef ServerScene TableType;
   uint64_t client_id = 0;
+  uint64_t time = 0;
   uint32_t map_id = 0;
   bool fade = false;
   std::vector<std::unique_ptr<fbs::PlayerT>> players{};
@@ -412,19 +413,26 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   typedef ServerSceneBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_CLIENT_ID = 4,
-    VT_MAP_ID = 6,
-    VT_FADE = 8,
-    VT_PLAYERS = 10,
-    VT_MOBS = 12,
-    VT_DROPS = 14,
-    VT_REACTORS = 16,
-    VT_REGION_SKILL = 18
+    VT_TIME = 6,
+    VT_MAP_ID = 8,
+    VT_FADE = 10,
+    VT_PLAYERS = 12,
+    VT_MOBS = 14,
+    VT_DROPS = 16,
+    VT_REACTORS = 18,
+    VT_REGION_SKILL = 20
   };
   uint64_t client_id() const {
     return GetField<uint64_t>(VT_CLIENT_ID, 0);
   }
   bool mutate_client_id(uint64_t _client_id = 0) {
     return SetField<uint64_t>(VT_CLIENT_ID, _client_id, 0);
+  }
+  uint64_t time() const {
+    return GetField<uint64_t>(VT_TIME, 0);
+  }
+  bool mutate_time(uint64_t _time = 0) {
+    return SetField<uint64_t>(VT_TIME, _time, 0);
   }
   uint32_t map_id() const {
     return GetField<uint32_t>(VT_MAP_ID, 0);
@@ -472,6 +480,7 @@ struct ServerScene FLATBUFFERS_FINAL_CLASS : private ::flatbuffers::Table {
   bool Verify(::flatbuffers::VerifierTemplate<B> &verifier) const {
     return VerifyTableStart(verifier) &&
            VerifyField<uint64_t>(verifier, VT_CLIENT_ID, 8) &&
+           VerifyField<uint64_t>(verifier, VT_TIME, 8) &&
            VerifyField<uint32_t>(verifier, VT_MAP_ID, 4) &&
            VerifyField<uint8_t>(verifier, VT_FADE, 1) &&
            VerifyOffset(verifier, VT_PLAYERS) &&
@@ -502,6 +511,9 @@ struct ServerSceneBuilder {
   ::flatbuffers::uoffset_t start_;
   void add_client_id(uint64_t client_id) {
     fbb_.AddElement<uint64_t>(ServerScene::VT_CLIENT_ID, client_id, 0);
+  }
+  void add_time(uint64_t time) {
+    fbb_.AddElement<uint64_t>(ServerScene::VT_TIME, time, 0);
   }
   void add_map_id(uint32_t map_id) {
     fbb_.AddElement<uint32_t>(ServerScene::VT_MAP_ID, map_id, 0);
@@ -538,6 +550,7 @@ struct ServerSceneBuilder {
 inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t client_id = 0,
+    uint64_t time = 0,
     uint32_t map_id = 0,
     bool fade = false,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Player>>> players = 0,
@@ -546,6 +559,7 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::Reactor>>> reactors = 0,
     ::flatbuffers::Offset<::flatbuffers::Vector<::flatbuffers::Offset<fbs::RSkill>>> region_skill = 0) {
   ServerSceneBuilder builder_(_fbb);
+  builder_.add_time(time);
   builder_.add_client_id(client_id);
   builder_.add_region_skill(region_skill);
   builder_.add_reactors(reactors);
@@ -560,6 +574,7 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerScene(
 inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
     ::flatbuffers::FlatBufferBuilder &_fbb,
     uint64_t client_id = 0,
+    uint64_t time = 0,
     uint32_t map_id = 0,
     bool fade = false,
     const std::vector<::flatbuffers::Offset<fbs::Player>> *players = nullptr,
@@ -575,6 +590,7 @@ inline ::flatbuffers::Offset<ServerScene> CreateServerSceneDirect(
   return fbs::CreateServerScene(
       _fbb,
       client_id,
+      time,
       map_id,
       fade,
       players__,
@@ -3412,6 +3428,7 @@ inline ::flatbuffers::Offset<ServerHeartbeat> ServerHeartbeat::Pack(::flatbuffer
 
 inline ServerSceneT::ServerSceneT(const ServerSceneT &o)
       : client_id(o.client_id),
+        time(o.time),
         map_id(o.map_id),
         fade(o.fade) {
   players.reserve(o.players.size());
@@ -3428,6 +3445,7 @@ inline ServerSceneT::ServerSceneT(const ServerSceneT &o)
 
 inline ServerSceneT &ServerSceneT::operator=(ServerSceneT o) FLATBUFFERS_NOEXCEPT {
   std::swap(client_id, o.client_id);
+  std::swap(time, o.time);
   std::swap(map_id, o.map_id);
   std::swap(fade, o.fade);
   std::swap(players, o.players);
@@ -3448,6 +3466,7 @@ inline void ServerScene::UnPackTo(ServerSceneT *_o, const ::flatbuffers::resolve
   (void)_o;
   (void)_resolver;
   { auto _e = client_id(); _o->client_id = _e; }
+  { auto _e = time(); _o->time = _e; }
   { auto _e = map_id(); _o->map_id = _e; }
   { auto _e = fade(); _o->fade = _e; }
   { auto _e = players(); if (_e) { _o->players.resize(_e->size()); for (::flatbuffers::uoffset_t _i = 0; _i < _e->size(); _i++) { if(_o->players[_i]) { _e->Get(_i)->UnPackTo(_o->players[_i].get(), _resolver); } else { _o->players[_i] = std::unique_ptr<fbs::PlayerT>(_e->Get(_i)->UnPack(_resolver)); } } } else { _o->players.resize(0); } }
@@ -3466,6 +3485,7 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
   (void)_o;
   struct _VectorArgs { ::flatbuffers::FlatBufferBuilder *__fbb; const ServerSceneT* __o; const ::flatbuffers::rehasher_function_t *__rehasher; } _va = { &_fbb, _o, _rehasher}; (void)_va;
   auto _client_id = _o->client_id;
+  auto _time = _o->time;
   auto _map_id = _o->map_id;
   auto _fade = _o->fade;
   auto _players = _o->players.size() ? _fbb.CreateVector<::flatbuffers::Offset<fbs::Player>> (_o->players.size(), [](size_t i, _VectorArgs *__va) { return CreatePlayer(*__va->__fbb, __va->__o->players[i].get(), __va->__rehasher); }, &_va ) : 0;
@@ -3476,6 +3496,7 @@ inline ::flatbuffers::Offset<ServerScene> ServerScene::Pack(::flatbuffers::FlatB
   return fbs::CreateServerScene(
       _fbb,
       _client_id,
+      _time,
       _map_id,
       _fade,
       _players,

@@ -11,7 +11,6 @@
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
-#include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -263,6 +262,8 @@ void scene_system_instance::enter_prepare(uint32_t map_id,
   client_scene.fade = false;
   client_scene.map_id = map_id;
 
+  // 记录起始时间
+  window::dt_time_start = window::dt_now;
   client_request::send_to_host(client_scene);
 }
 

@@ -106,10 +106,20 @@ void character_stat_game_instance::update() {
 bool character_stat_game_instance::upgrade() {
   if (exp_point >= exp_point_max) {
     exp_point -= exp_point_max;
+
+    remain_ap += 5;
     auto &sf = character_game_instance::self;
+    auto job = job_skill_game_instance::load_ski_tree(sf.job);
+
+    if (job.size()==1) {
+    
+    }
+    job_skill_game_instance::remain_point[job.size() - 1] += 3;
+
     ClientCharacterLvUpT ccl;
     ccl.map_id = scene_system_instance::map_id;
     client_request::send_to_host(ccl);
+
     server_character_instance::handle_lv_up(sf);
     return true;
   }

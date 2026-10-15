@@ -18,7 +18,11 @@ public:
   static inline uint64_t dt_now = 0;
   static inline uint64_t dt_last = 0;
   static inline int32_t delta_time = 0;
+
   static inline uint64_t dt_time = 0;
+  static inline uint64_t dt_time_base = 0;
+  static inline uint64_t dt_time_start = 0;
+  static inline uint64_t dt_time_end = 0;
 
   static void create(const char *title, uint32_t logic_w, uint32_t logic_h,
                      uint32_t window_w, uint32_t window_h);

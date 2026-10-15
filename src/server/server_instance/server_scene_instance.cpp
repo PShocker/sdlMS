@@ -114,6 +114,7 @@ void server_scene_instance::send_in_fade(uint64_t client_id,
   r.map_id = client_scene.map_id;
   r.fade = false;
   r.client_id = client_id;
+  r.time = window::dt_time;
   server_response::send_to_client(client_id, r);
 }
 

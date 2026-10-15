@@ -1,5 +1,6 @@
 #include "window.h"
 #include "SDL3/SDL_render.h"
+#include "src/server/server_main.h"
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
@@ -30,10 +31,13 @@ void window::tick() {
   dt_last = dt_now;
   dt_now = SDL_GetTicks();
   delta_time = dt_now - dt_last;
-
-  dt_time = std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now().time_since_epoch())
-                .count();
+  if (server_main::host) {
+    dt_time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                  std::chrono::system_clock::now().time_since_epoch())
+                  .count();
+  } else {
+    dt_time = dt_time_base + (dt_now - dt_time_end);
+  }
 }
 
 void window::clear() { SDL_RenderClear(renderer); }
