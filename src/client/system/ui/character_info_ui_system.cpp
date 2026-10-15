@@ -513,19 +513,19 @@ void character_info_ui_system::event_motion_bt_audio(SDL_Event *event) {
   if (item) {
     buttons_rect.push_back(SDL_FRect{227 + item_lt.x, 7 + item_lt.y, 12, 12});
   }
-  static bool bt_audio = false;
+  static int8_t bt_audio = -1;
   auto &mouse_pos = window::mouse_pos;
-  bool bt_in = false;
-  for (auto &r : buttons_rect) {
-    auto pos_rect = r;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
     pos_rect.x += (int)pos.x;
     pos_rect.y += (int)pos.y;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      bt_in = true;
+      bt_in = i;
       break;
     }
   }
-  if (bt_in && !bt_audio) {
+  if (bt_in != -1 && bt_audio != bt_in) {
     audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
