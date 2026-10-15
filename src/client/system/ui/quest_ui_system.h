@@ -53,9 +53,6 @@ private:
   static SDL_FPoint load_wh();
 
   static inline std::optional<SDL_FPoint> drag;
-  static inline uint8_t active_tab;
-  static inline std::flat_set<int> disable_fold;
-  static inline std::array<int, 2> pages;
 
   static inline std::array<bool, 2> vscr_motion;
 
@@ -64,6 +61,9 @@ public:
   static void complete_quest(const std::u16string &id);
   static inline SDL_FPoint pos;
   static inline bool detail;
+  static inline uint8_t active_tab;
+  static inline std::flat_set<int> disable_fold;
+  static inline std::array<int, 2> pages;
   static inline std::u16string detail_quest; // quest
 
   static void open();

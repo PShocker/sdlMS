@@ -23,6 +23,7 @@
 #include "src/server/server/server_mob.h"
 #include "src/server/server_instance/server_drop_instance.h"
 #include "src/server/server_main.h"
+#include "src/server/server_system/server_mob_system.h"
 #include "wz/Property.h"
 #include <algorithm>
 #include <cstdint>
@@ -130,8 +131,16 @@ void server_mob_instance::handle_server_action(const ServerMobActionT &m) {
   mob.ani_index = 0;
   mob.ani_time = 0;
   mob.ani_animate = a->action_animate;
-  if (a->action == "die1") {
-    mob.debuffs.clear();
+  auto mob_type = mob_logic_system::load_action_type(mob.action);
+  switch (mob_type) {
+  case mob_logic_system::action_enum::die: {
+    mob.debuffs = {};
+    audio_game_instance::load_audio(u"Mob.img/" + mob.id + u"/Die", 0);
+    break;
+  }
+  default: {
+    break;
+  }
   }
 }
 

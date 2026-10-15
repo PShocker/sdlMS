@@ -31,12 +31,13 @@ private:
   static void event_button_trade();
   static void event_button_toggleitem();
   static void event_button_toggleitem_hide();
-  static void event_button_wishlist();
+  static void event_button_citizenship();
   static void event_button_up_fame();
   static void event_button_dowm_fame();
   static void event_button_show_pet();
   static void event_close();
 
+  static void event_motion_bt_audio(SDL_Event *event);
   static void event_motion(SDL_Event *event);
 
   static bool event_button(SDL_Event *event);

@@ -3,6 +3,7 @@
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
+#include "src/client/system/ui/quest_ui_system.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 #include <cstdint>
@@ -247,6 +248,15 @@ void quest_game_instance::load(character_save &cs) {
       break;
     }
     }
+  }
+
+  quest_ui_system::detail = true;
+  quest_ui_system::active_tab = 0;
+  quest_ui_system::disable_fold.clear();
+  quest_ui_system::pages = {};
+  quest_ui_system::detail_quest = u"";
+  if (auto aq = quest_game_instance::load_ui_avaliable_quest(); !aq.empty()) {
+    quest_ui_system::detail_quest = aq.begin()->second.begin()->quest_id;
   }
 }
 

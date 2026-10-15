@@ -888,6 +888,9 @@ bool quest_ui_system::event_button(SDL_Event *event) {
 }
 
 bool quest_ui_system::render_info() {
+  if (cursor_game_instance::cursor_ui != render) {
+    return true;
+  }
   if (!quest_name.empty() && !cursor_game_instance::modal_overlay) {
     auto &mouse_pos = window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 20};

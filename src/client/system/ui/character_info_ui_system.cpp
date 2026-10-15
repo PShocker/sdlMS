@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "scroll_ui_system.h"
 #include "src/client/game/game_item.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
@@ -10,7 +11,6 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
-#include "src/common/flatbuffers/client.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
@@ -23,15 +23,15 @@
 #include <string>
 #include <vector>
 
-SDL_FPoint character_info_ui_system::load_wh() { return SDL_FPoint{277, 183}; }
+SDL_FPoint character_info_ui_system::load_wh() { return SDL_FPoint{320, 183}; }
 
-const static SDL_FPoint item_lt{269, 0};
+const static SDL_FPoint item_lt{316, 0};
 
 void character_info_ui_system::render_scroll() {
   if (!item) {
     return;
   }
-  const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
+  const SDL_FPoint lt{225 + item_lt.x, 31 + item_lt.y};
   const uint32_t length = 115;
   auto v = equip_game_instance::load_equips(character).size();
   auto v2 = equip_game_instance::load_decos(character).size();
@@ -46,22 +46,33 @@ void character_info_ui_system::render_scroll() {
 void character_info_ui_system::render_backgrnd() {
   static auto backgrnd = wz_resource::load_texture(
       wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd"));
-  SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
-                     static_cast<float>(backgrnd->h)};
+  SDL_FRect pos_rect{
+      static_cast<float>((int)pos.x),
+      static_cast<float>((int)pos.y),
+      static_cast<float>(backgrnd->w),
+      static_cast<float>(backgrnd->h),
+  };
   SDL_RenderTexture(window::renderer, backgrnd, nullptr, &pos_rect);
 
   static auto backgrnd_detail = wz_resource::load_texture(
       wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd_detail"));
-  pos_rect = {pos.x + 8, pos.y + 25, static_cast<float>(backgrnd_detail->w),
-              static_cast<float>(backgrnd_detail->h)};
+  pos_rect = {
+      static_cast<float>((int)pos.x + 8),
+      static_cast<float>((int)pos.y + 25),
+      static_cast<float>(backgrnd_detail->w),
+      static_cast<float>(backgrnd_detail->h),
+  };
   SDL_RenderTexture(window::renderer, backgrnd_detail, nullptr, &pos_rect);
 
   if (item) {
     static auto backgrnd_item = wz_resource::load_texture(
         wz_resource::ui->find(u"CharacterInfo.img/ItemList/backgrnd"));
-    pos_rect = {pos.x + item_lt.x, pos.y + item_lt.y,
-                static_cast<float>(backgrnd_item->w),
-                static_cast<float>(backgrnd_item->h)};
+    pos_rect = {
+        (int)pos.x + item_lt.x,
+        (int)pos.y + item_lt.y,
+        static_cast<float>(backgrnd_item->w),
+        static_cast<float>(backgrnd_item->h),
+    };
     SDL_RenderTexture(window::renderer, backgrnd_item, nullptr, &pos_rect);
   }
 }
@@ -72,7 +83,8 @@ void character_info_ui_system::render_button() {
       wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/button:trade"),
       wz_resource::ui->find(
           u"CharacterInfo.img/RemoteInfo/button:toggleItemlist"),
-      wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/button:wishlist"),
+      wz_resource::ui->find(
+          u"CharacterInfo.img/RemoteInfo/button:showCitizenship"),
       wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/button:upPop"),
       wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/button:downPop"),
       wz_resource::ui->find(u"CharacterInfo.img/RemoteInfo/button:showPet"),
@@ -80,19 +92,19 @@ void character_info_ui_system::render_button() {
   };
   auto wh = load_wh();
   std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{117, 25, 80, 18},      //
-      SDL_FRect{117, 45, 80, 18},      //
-      SDL_FRect{210, 25, 60, 18},      //
-      SDL_FRect{210, 45, 60, 18},      //
-      SDL_FRect{240, 115, 12, 12},     //
-      SDL_FRect{253, 115, 12, 12},     //
-      SDL_FRect{188, 158, 81, 18},     //
-      SDL_FRect{wh.x - 20, 8, 12, 12}, //
+      SDL_FRect{130, 133, 89, 16},     //
+      SDL_FRect{223, 133, 89, 16},     //
+      SDL_FRect{214, 26, 80, 16},      //
+      SDL_FRect{130, 26, 80, 16},      //
+      SDL_FRect{285, 94, 12, 12},      //
+      SDL_FRect{298, 94, 12, 12},      //
+      SDL_FRect{245, 160, 67, 16},     //
+      SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
   if (item) {
     buttons_nodes.push_back(
         wz_resource::ui->find(u"CharacterInfo.img/ItemList/button:hide"));
-    buttons_rect.push_back(SDL_FRect{220 + item_lt.x, 7 + item_lt.y, 15, 14});
+    buttons_rect.push_back(SDL_FRect{227 + item_lt.x, 7 + item_lt.y, 12, 12});
   }
 
   for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -123,47 +135,64 @@ void character_info_ui_system::render_button() {
 
 void character_info_ui_system::render_character() {
   auto &camera = camera_game_instance::camera;
-  character.pos.x = int(camera.x + pos.x + 57);
-  character.pos.y = int(camera.y + pos.y + 122);
+  character.pos.x = int(camera.x + pos.x + 68);
+  character.pos.y = int(camera.y + pos.y + 119);
   character_render_system::render_character(character);
 }
 
 void character_info_ui_system::render_text() {
   freetype::load_aligned(true);
   freetype::load_size(12);
+  const auto label_offset = -43;
+  // name
   auto charname = character.name;
   auto w = freetype::load_w(charname);
   freetype::load_color(255, 255, 255, 255);
-  freetype::draw_line(charname, int(pos.x + 53 - w / 2), int(pos.y + 127));
+  auto x = int(pos.x + 67 - w / 2);
+  freetype::draw_line(charname, x, int(pos.y + 127));
 
+  freetype::load_color(0, 0, 0, 255);
+  // level
   auto level = character.level;
   std::string level2 = std::to_string(level);
   std::u16string level3{level2.begin(), level2.end()};
-  freetype::load_color(0, 0, 0, 255);
-  freetype::draw_line(level3, int(pos.x + 165), int(pos.y + 77));
+  x = int(pos.x + 208);
+  freetype::draw_line(level3, x, int(pos.y + 53));
+  x += label_offset;
+  std::u16string str = u"LEVEL";
+  w = freetype::load_w(str);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::draw_line(str, x - w / 2, int(pos.y + 53));
 
+  freetype::load_color(0, 0, 0, 255);
   // job
   auto job_node =
       wz_resource::ms->get_root()->find(u"String.img/Job/" + character.job);
   auto job_name = static_cast<wz::Property<std::u16string> *>(job_node)->get();
-  freetype::load_color(0, 0, 0, 255);
-  freetype::draw_line(job_name, int(pos.x + 165), int(pos.y + 95));
+  freetype::draw_line(job_name, int(pos.x + 208), int(pos.y + 72));
+  str = u"JOB";
+  w = freetype::load_w(str);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::draw_line(str, x - w / 2, int(pos.y + 72));
 
+  freetype::load_color(0, 0, 0, 255);
   auto fame = character.fame;
   std::string fame2 = std::to_string(fame);
   std::u16string fame3{fame2.begin(), fame2.end()};
-  freetype::load_color(0, 0, 0, 255);
-  freetype::draw_line(fame3, int(pos.x + 165), int(pos.y + 113));
-
-  freetype::load_aligned(false);
+  freetype::draw_line(fame3, int(pos.x + 208), int(pos.y + 91));
+  str = u"FAME";
+  w = freetype::load_w(str);
+  freetype::load_color(255, 255, 255, 255);
+  freetype::draw_line(str, x - w / 2, int(pos.y + 91));
 }
 
 void character_info_ui_system::render_items() {
   if (!item) {
     return;
   }
-  auto w = 16;
-  auto h = 32;
+  const auto line_h = 38;
+  auto w = 9;
+  auto h = 31;
   auto v = equip_game_instance::load_equips(character);
   auto v2 = equip_game_instance::load_decos(character);
   for (uint8_t i = item_page; i < item_page + 3; i++) {
@@ -182,7 +211,8 @@ void character_info_ui_system::render_items() {
 
     SDL_FRect pos_rect = {
         static_cast<float>(int(pos.x + item_lt.x + w)),
-        static_cast<float>(int(pos.y + item_lt.y + h + 40 * (i - item_page))),
+        static_cast<float>(
+            int(pos.y + item_lt.y + h + line_h * (i - item_page))),
         static_cast<float>(entry_back->w),
         static_cast<float>(entry_back->h),
     };
@@ -192,12 +222,15 @@ void character_info_ui_system::render_items() {
     auto texture = wz_resource::load_texture(info->get_child(u"icon"));
     pos_rect = {
         static_cast<float>(int(pos.x + item_lt.x + w + (35 - texture->w) / 2)),
-        static_cast<float>(int(pos.y + item_lt.y + h + 40 * (i - item_page) +
-                               (40 - texture->h) / 2)),
+        static_cast<float>(int(pos.y + item_lt.y + h +
+                               line_h * (i - item_page) +
+                               (line_h - texture->h) / 2)),
         static_cast<float>(texture->w),
         static_cast<float>(texture->h),
     };
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+
+    freetype::load_color(0, 0, 0, 255);
 
     auto name = equip_game_instance::load_equip_name(itm_id);
     if (name.size() > 22) {
@@ -205,9 +238,13 @@ void character_info_ui_system::render_items() {
     }
     freetype::load_aligned(true);
     freetype::load_size(12);
-    auto x = pos.x + item_lt.x + w + 42;
-    auto y = pos.y + item_lt.y + h + 40 * (i - item_page) - 1;
+    auto x = pos.x + item_lt.x + w + 43;
+    auto y = pos.y + item_lt.y + h + line_h * (i - item_page) - 1;
     freetype::draw_line(name, x, y);
+
+    x = pos.x + item_lt.x + w + 43;
+    y = pos.y + item_lt.y + h + line_h * (i - item_page) + 17;
+    freetype::draw_line(u"Level", x, y);
 
     auto equip_info = equip_game_instance::load_equip_info(itm_id);
     auto req =
@@ -215,8 +252,8 @@ void character_info_ui_system::render_items() {
             ->get();
     std::string req2 = std::to_string(req);
     std::u16string req3{req2.begin(), req2.end()};
-    x += 40;
-    y += 18;
+    x = pos.x + item_lt.x + w + 79;
+    y = pos.y + item_lt.y + h + line_h * (i - item_page) + 17;
     freetype::draw_line(req3, x, y);
 
     auto cursor_in = cursor_game_instance::cursor_ui;
@@ -361,13 +398,14 @@ void character_info_ui_system::toggle() {
 bool character_info_ui_system::cursor_in() {
   bool r = false;
   auto &mouse = window::mouse_pos;
-  SDL_FRect pos_rect{pos.x, pos.y, 277, 183};
+  auto [w, h] = load_wh();
+  SDL_FRect pos_rect{pos.x, pos.y, w, h};
   r = SDL_PointInRectFloat(&mouse, &pos_rect);
   if (r) {
     return r;
   }
   if (item) {
-    pos_rect = {pos.x + item_lt.x, pos.y + item_lt.y, 242, 164};
+    pos_rect = {pos.x + item_lt.x, pos.y + item_lt.y, 246, 160};
     r = SDL_PointInRectFloat(&mouse, &pos_rect);
     if (r) {
       return r;
@@ -386,7 +424,7 @@ void character_info_ui_system::event_button_toggleitem() { item = true; }
 
 void character_info_ui_system::event_button_toggleitem_hide() { item = false; }
 
-void character_info_ui_system::event_button_wishlist() {}
+void character_info_ui_system::event_button_citizenship() {}
 
 void character_info_ui_system::event_button_up_fame() {}
 
@@ -400,23 +438,22 @@ bool character_info_ui_system::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns;
   auto wh = load_wh();
   std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{117, 25, 80, 18},      //
-      SDL_FRect{117, 45, 80, 18},      //
-      SDL_FRect{210, 25, 60, 18},      //
-      SDL_FRect{210, 45, 60, 18},      //
-      SDL_FRect{240, 115, 12, 12},     //
-      SDL_FRect{253, 115, 12, 12},     //
-      SDL_FRect{188, 158, 81, 18},     //
-      SDL_FRect{wh.x - 20, 8, 12, 12}, //
+      SDL_FRect{130, 133, 89, 16},     //
+      SDL_FRect{223, 133, 89, 16},     //
+      SDL_FRect{214, 26, 80, 16},      //
+      SDL_FRect{130, 26, 80, 16},      //
+      SDL_FRect{285, 94, 12, 12},      //
+      SDL_FRect{298, 94, 12, 12},      //
+      SDL_FRect{245, 160, 67, 16},     //
+      SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
   fns = {
-      event_button_party,    event_button_trade,   event_button_toggleitem,
-      event_button_wishlist, event_button_up_fame, event_button_dowm_fame,
-      event_button_show_pet, event_close,
+      event_button_party,       event_button_trade,   event_button_toggleitem,
+      event_button_citizenship, event_button_up_fame, event_button_dowm_fame,
+      event_button_show_pet,    event_close,
   };
-
   if (item) {
-    buttons_rect.push_back(SDL_FRect{220 + item_lt.x, 7 + item_lt.y, 15, 14});
+    buttons_rect.push_back(SDL_FRect{227 + item_lt.x, 7 + item_lt.y, 12, 12});
     fns.push_back(event_button_toggleitem_hide);
   }
 
@@ -426,6 +463,7 @@ bool character_info_ui_system::event_button(SDL_Event *event) {
     pos_rect.y += (int)pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
       fns[i]();
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }
@@ -455,6 +493,42 @@ void character_info_ui_system::event_vscr_move(SDL_Event *event) {
         std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
     event_vscr(event);
   }
+}
+
+void character_info_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto wh = load_wh();
+  std::vector<SDL_FRect> buttons_rect = {
+      SDL_FRect{130, 133, 89, 16},     //
+      SDL_FRect{223, 133, 89, 16},     //
+      SDL_FRect{214, 26, 80, 16},      //
+      SDL_FRect{130, 26, 80, 16},      //
+      SDL_FRect{285, 94, 12, 12},      //
+      SDL_FRect{298, 94, 12, 12},      //
+      SDL_FRect{245, 160, 67, 16},     //
+      SDL_FRect{wh.x - 20, 7, 12, 12}, //
+  };
+  if (item) {
+    buttons_rect.push_back(SDL_FRect{227 + item_lt.x, 7 + item_lt.y, 12, 12});
+  }
+  static bool bt_audio = false;
+  auto &mouse_pos = window::mouse_pos;
+  bool bt_in = false;
+  for (auto &r : buttons_rect) {
+    auto pos_rect = r;
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = true;
+      break;
+    }
+  }
+  if (bt_in && !bt_audio) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
 }
 
 bool character_info_ui_system::event(SDL_Event *event) {
@@ -496,6 +570,7 @@ bool character_info_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_MOTION: {
     event_motion(event);
+    event_motion_bt_audio(event);
     event_drag_move(event);
     event_vscr_move(event);
     break;
