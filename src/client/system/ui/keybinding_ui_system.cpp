@@ -1,4 +1,5 @@
 #include "keybinding_ui_system.h"
+#include "SDL3/SDL_render.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -182,9 +183,16 @@ void keybinding_ui_system::render_backgrnd_key() {
       continue;
     }
     auto key_pos = mapped_scancode_position.at(k);
-    SDL_FRect pos_rect{pos.x + key_pos.x, pos.y + key_pos.y,
-                       static_cast<float>(v->w), static_cast<float>(v->h)};
-    SDL_RenderTexture(window::renderer, v, nullptr, &pos_rect);
+    SDL_FRect pos_rect{
+        pos.x + key_pos.x,
+        pos.y + key_pos.y,
+        static_cast<float>(v->w),
+        static_cast<float>(v->h),
+    };
+    pos_rect.w = 32;
+    pos_rect.h = 32;
+    SDL_RenderFillRect(window::renderer, &pos_rect);
+    //SDL_RenderTexture(window::renderer, v, nullptr, &pos_rect);
   }
 }
 

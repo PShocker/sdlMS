@@ -28,7 +28,7 @@ void revive_ui_system::render_button() {
       wz_resource::ui->find(u"Basic.img/BtOK2"),
   };
   const std::array buttons_rect = {
-      SDL_FRect{119, 115, 47, 18}, //
+      SDL_FRect{15, 84, 47, 18}, //
   };
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
@@ -97,6 +97,31 @@ bool revive_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
+void revive_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  const std::array buttons_rect = {
+      SDL_FRect{15, 84, 47, 18}, //
+  };
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
 bool revive_ui_system::event(SDL_Event *event) {
   keyboard_input_system::event(event);
   bool r = false;
@@ -118,6 +143,7 @@ bool revive_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion_bt_audio(event);
     break;
   }
   default: {
@@ -153,8 +179,8 @@ void revive_ui_system::event_button_ok() {
 }
 
 bool revive_ui_system::event_button(SDL_Event *event) {
-  const static std::array buttons_rect = {
-      SDL_FRect{119, 115, 47, 18}, //
+  const std::array buttons_rect = {
+      SDL_FRect{15, 84, 47, 18}, //
   };
   const static std::array buttons_func = {
       event_button_ok,

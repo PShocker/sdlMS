@@ -42,6 +42,8 @@ private:
 
   static bool event_button(SDL_Event *event);
 
+  static void event_wheel(SDL_Event *event);
+
   static void event_vscr_start(SDL_Event *event);
   static void event_vscr_end();
   static void event_vscr_move(SDL_Event *event);

@@ -468,6 +468,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         .val = active_tab,
         .sub_val = index.value(),
     };
+    audio_game_instance::load_audio(u"UI.img/DragStart", 0);
     return true;
   }
 
@@ -485,6 +486,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
           auto eqp2 = std::polymorphic<game_item>(eqp->value());
           r[index.value()] = eqp2;
           *eqp = std::nullopt;
+          audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
           cursor_game_instance::cursor_hand = std::nullopt;
           character_logic_system::cct.map_id = scene_system_instance::map_id;
         }
@@ -510,6 +512,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     case item_enum::equip: {
       // 点击的是同一个格子：尝试穿戴
       if (hand.val == active_tab) {
+        audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
         if (hand.sub_val == index.value()) {
           equip_game_instance::use_equip(index.value());
           cursor_game_instance::cursor_hand = std::nullopt;
@@ -527,6 +530,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       break;
     }
     case item_enum::deco: {
+      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
       if (hand.sub_val == index.value()) {
         equip_game_instance::use_deco(index.value());
         cursor_game_instance::cursor_hand = std::nullopt;
@@ -542,6 +546,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
     }
     case item_enum::etc:
     case item_enum::consume: {
+      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
       // 处理普通背包栏
       auto &r = package_game_instance::data[hand.val];
       if ((int)item_enum::equip == active_tab) {
@@ -744,7 +749,6 @@ bool package_ui_system::event_vscr(SDL_Event *event) {
 
   auto &items = package_game_instance::data[active_tab];
   auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
-  size = std::max(0, size);
 
   size = std::max(0, size);
   auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
@@ -764,6 +768,86 @@ void package_ui_system::event_vscr_start(SDL_Event *event) {
 }
 
 void package_ui_system::event_vscr_end() { vscr_motion = false; }
+
+void package_ui_system::event_wheel(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto dy = event->wheel.integer_y;
+  if (dy > 0) {
+    // up
+    if (page > 0) {
+      page -= 1;
+    }
+  } else {
+    // down
+    auto &items = package_game_instance::data[active_tab];
+    auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
+    size = std::max(0, size);
+    if (page < size) {
+      page++;
+    }
+  }
+}
+
+void package_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto wh = load_wh();
+  std::vector<SDL_FRect> buttons_rect = {
+      SDL_FRect{wh.x - 18, 6, 12, 12}, //
+      SDL_FRect{8, 268, 14, 14},       //
+      SDL_FRect{164, 6, 12, 12},       //
+      SDL_FRect{177, 6, 12, 12},       //
+  };
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
+void package_ui_system::event_motion_tab_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  const static std::array tab_rect = {
+      SDL_FRect{5, 24, 33, 19},   //
+      SDL_FRect{38, 24, 33, 19},  //
+      SDL_FRect{71, 24, 33, 19},  //
+      SDL_FRect{104, 24, 33, 19}, //
+      SDL_FRect{137, 24, 33, 19}, //
+      SDL_FRect{170, 24, 33, 19}, //
+  };
+  static int8_t tab_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t tab_in = -1;
+  for (size_t i = 0; i < tab_rect.size(); ++i) {
+    auto pos_rect = tab_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      tab_in = i;
+      break;
+    }
+  }
+  if (tab_in != -1 && tab_audio != tab_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  tab_audio = tab_in;
+}
 
 bool package_ui_system::event(SDL_Event *event) {
   bool r = true;
@@ -810,26 +894,12 @@ bool package_ui_system::event(SDL_Event *event) {
     event_motion(event);
     event_drag_move(event);
     event_vscr_move(event);
+    event_motion_bt_audio(event);
+    event_motion_tab_audio(event);
     break;
   }
   case SDL_EVENT_MOUSE_WHEEL: {
-    auto dy = event->wheel.integer_y;
-    if (dy > 0) {
-      // up
-      if (page > 0) {
-        page -= 1;
-      }
-    } else {
-      // down
-      auto &items = package_game_instance::data[active_tab];
-      auto size = static_cast<int>(std::ceil((items.size() - 30) / 5.0));
-      if (size - 6 < 0) {
-        break;
-      }
-      if (page < size - 6) {
-        page += 1;
-      }
-    }
+    event_wheel(event);
     break;
   }
   default: {

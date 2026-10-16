@@ -49,6 +49,10 @@ private:
   static void event_tab(SDL_Event *event);
   static bool event_button(SDL_Event *event);
   static void event_top();
+
+  static void event_motion_bt_audio(SDL_Event *event);
+  static void event_motion_tab_audio(SDL_Event *event);
+
   static void event_drag_start(SDL_Event *event);
   static void event_drag_end();
   static void event_drag_move(SDL_Event *event);

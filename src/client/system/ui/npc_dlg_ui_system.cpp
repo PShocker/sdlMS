@@ -879,6 +879,47 @@ bool npc_dlg_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
+void npc_dlg_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto [w, h] = load_wh();
+  std::vector<SDL_FRect> buttons_rect = {
+      SDL_FRect{10, h - 25, 85, 18}, //
+  };
+  auto w0 = w - 72;
+  if (index < max_index) {
+    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+    w0 -= 52;
+  }
+  if (index > 0) {
+    buttons_rect.push_back(SDL_FRect{w0, h - 76, 46, 18});
+  }
+  if (index == max_index && cb == nullptr &&
+      type == npc_dlg_enum::quest_avaliable) {
+    buttons_rect.push_back(SDL_FRect{w - 128, h - 25, 57, 17});
+    buttons_rect.push_back(SDL_FRect{w - 66, h - 25, 57, 17});
+  } else {
+    buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
+  }
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
 bool npc_dlg_ui_system::event(SDL_Event *event) {
   bool r = false;
   switch (event->type) {
@@ -950,6 +991,7 @@ bool npc_dlg_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion_bt_audio(event);
     break;
   }
   default: {

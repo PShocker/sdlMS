@@ -724,6 +724,42 @@ void minimap_ui_system::event_drag_move(SDL_Event *event) {
   return;
 }
 
+void minimap_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  std::vector<SDL_FRect> buttons_rect;
+  if (disable) {
+    auto wh = load_wh();
+    buttons_rect = {
+        SDL_FRect{wh.x - 34, 4, 12, 12}, //
+        SDL_FRect{wh.x - 20, 4, 12, 12}, //
+    };
+  } else {
+    buttons_rect = {
+        SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12}, //
+        SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12}, //
+        SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12}, //
+    };
+  }
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
 bool minimap_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -747,6 +783,7 @@ bool minimap_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion_bt_audio(event);
     event_drag_move(event);
     break;
   }

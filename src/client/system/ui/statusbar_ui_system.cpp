@@ -8,6 +8,7 @@
 #include "scroll_ui_system.h"
 #include "skill_ui_system.h"
 #include "src/client/game/game_chat.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -652,6 +653,46 @@ bool statusbar_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+void statusbar_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  const static std::array buttons_rect = {
+      SDL_FRect{578, 38, 73, 34}, // CashShop
+      SDL_FRect{652, 38, 73, 34}, // Menu
+      SDL_FRect{726, 38, 73, 34}, // Shortcut
+      SDL_FRect{578, 11, 22, 19}, // Mailbox
+      SDL_FRect{621, 10, 28, 20}, // Equip
+      SDL_FRect{651, 10, 28, 20}, // Inven
+      SDL_FRect{681, 10, 28, 20}, // Stat StatUp
+      SDL_FRect{711, 10, 28, 20}, // Skill SkillUp
+      SDL_FRect{741, 10, 28, 20}, // Key
+      SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
+      SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
+  };
+  auto screen_w = camera_game_instance::camera.w;
+  auto screen_h = camera_game_instance::camera.h;
+  auto [w, h] = load_wh();
+  auto base_x = (screen_w - w) / 2;
+  auto base_y = (screen_h - h);
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += base_x;
+    pos_rect.y += base_y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
 bool statusbar_ui_system::event(SDL_Event *event) {
   auto cr = text_input_ui_system::event(event, chat);
   bool r = true;
@@ -710,6 +751,10 @@ bool statusbar_ui_system::event(SDL_Event *event) {
       break;
     }
     }
+  }
+  case SDL_EVENT_MOUSE_MOTION: {
+    event_motion_bt_audio(event);
+    break;
   }
   default: {
     break;

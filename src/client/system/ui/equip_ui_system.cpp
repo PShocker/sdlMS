@@ -505,6 +505,59 @@ void equip_ui_system::event_motion(SDL_Event *event) {
   }
 }
 
+void equip_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  std::vector<SDL_FRect> buttons_rect;
+  auto wh = load_wh();
+  buttons_rect = {
+      SDL_FRect{wh.x - 20, 7, 12, 12}, //
+  };
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
+void equip_ui_system::event_motion_tab_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  const static std::array tab_rect = {
+      SDL_FRect{5, 26, 33, 19},  //
+      SDL_FRect{38, 26, 33, 19}, //
+  };
+  static int8_t tab_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t tab_in = -1;
+  for (size_t i = 0; i < tab_rect.size(); ++i) {
+    auto pos_rect = tab_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      tab_in = i;
+      break;
+    }
+  }
+  if (tab_in != -1 && tab_audio != tab_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  tab_audio = tab_in;
+}
+
 bool equip_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -544,6 +597,8 @@ bool equip_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion_bt_audio(event);
+    event_motion_tab_audio(event);
     event_motion(event);
     event_drag_move(event);
     break;

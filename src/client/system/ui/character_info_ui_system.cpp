@@ -531,6 +531,27 @@ void character_info_ui_system::event_motion_bt_audio(SDL_Event *event) {
   bt_audio = bt_in;
 }
 
+void character_info_ui_system::event_wheel(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto dy = event->wheel.integer_y;
+  if (dy > 0) {
+    // up
+    if (item_page > 0) {
+      item_page--;
+    }
+  } else {
+    auto v = equip_game_instance::load_equips(character).size();
+    auto v2 = equip_game_instance::load_decos(character).size();
+    int size = v + v2 - 3;
+    size = std::max(0, size);
+    if (item_page < size) {
+      item_page++;
+    }
+  }
+}
+
 bool character_info_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -576,25 +597,7 @@ bool character_info_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_WHEEL: {
-    auto dy = event->wheel.integer_y;
-    if (dy > 0) {
-      // up
-      if (item_page > 0) {
-        item_page -= 1;
-      }
-    } else {
-      // down
-      auto v = equip_game_instance::load_equips(character).size();
-      auto v2 = equip_game_instance::load_decos(character).size();
-      auto size = v + v2;
-      if (size - 3 < 0) {
-        break;
-      }
-      if (item_page < size - 3) {
-        item_page += 1;
-      }
-    }
-    return false;
+    event_wheel(event);
     break;
   }
   default: {

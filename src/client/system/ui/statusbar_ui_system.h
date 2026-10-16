@@ -27,6 +27,8 @@ private:
   static void event_chat_send();
   static std::u16string load_chat_type();
 
+  static void event_motion_bt_audio(SDL_Event *event);
+
   static bool event_button(SDL_Event *event);
   // button_func
   static void event_button_cashshop();

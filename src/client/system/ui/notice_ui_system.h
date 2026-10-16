@@ -31,6 +31,8 @@ private:
 
   static SDL_FPoint load_wh();
 
+  static void event_motion_bt_audio(SDL_Event *event);
+
 public:
   enum class notice_enum {
     shopbuy,

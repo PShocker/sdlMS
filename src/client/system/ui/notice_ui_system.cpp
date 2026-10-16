@@ -368,7 +368,7 @@ void notice_ui_system::open() {
       break;
     }
     }
-
+    audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
   }
@@ -553,8 +553,45 @@ void notice_ui_system::event_button_ap_inc() {
     type = notice_enum::shopbuy_sell_no_num;
     return;
   }
-  auto p = std::any_cast<uint32_t *>(notice_ui_system::data);
-  *p = *p + num;
+  auto p = std::any_cast<int>(notice_ui_system::data);
+  switch (p) {
+  case 0: {
+    // hp
+    auto sf_hp = character_stat_game_instance::get_hp_ap();
+    character_stat_game_instance::set_hp_ap(sf_hp + num);
+    break;
+  };
+  case 1: {
+    // mp
+    auto sf_mp = character_stat_game_instance::get_mp_ap();
+    character_stat_game_instance::set_mp_ap(sf_mp + num);
+    break;
+  };
+  case 2: {
+    // str
+    auto sf_str = character_stat_game_instance::get_str_ap();
+    character_stat_game_instance::set_str_ap(sf_str + num);
+    break;
+  };
+  case 3: {
+    // dex
+    auto sf_dex = character_stat_game_instance::get_dex_ap();
+    character_stat_game_instance::set_dex_ap(sf_dex + num);
+    break;
+  };
+  case 4: {
+    // int
+    auto sf_int = character_stat_game_instance::get_int_ap();
+    character_stat_game_instance::set_int_ap(sf_int + num);
+    break;
+  };
+  case 5: {
+    // luk
+    auto sf_luk = character_stat_game_instance::get_luk_ap();
+    character_stat_game_instance::set_luk_ap(sf_luk + num);
+    break;
+  };
+  }
   character_stat_game_instance::set_remain_ap(r_ap - num);
   close();
 }
@@ -682,6 +719,34 @@ void notice_ui_system::event_input(SDL_Event *event) {
   }
 }
 
+void notice_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  std::vector<SDL_FRect> buttons_rect;
+  auto [w, h] = load_wh();
+  buttons_rect = {
+      {w - 105, h - 30, 47, 18},
+      {w - 55, h - 30, 47, 18},
+  };
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
 bool notice_ui_system::event(SDL_Event *event) {
   event_input(event);
   switch (event->type) {
@@ -747,6 +812,7 @@ bool notice_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion_bt_audio(event);
     break;
   }
   default: {

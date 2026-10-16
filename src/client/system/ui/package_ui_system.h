@@ -40,6 +40,11 @@ private:
   static void event_vscr_end();
   static void event_vscr_move(SDL_Event *event);
 
+  static void event_wheel(SDL_Event *event);
+
+  static void event_motion_bt_audio(SDL_Event *event);
+  static void event_motion_tab_audio(SDL_Event *event);
+
   static SDL_FPoint load_wh();
 
   static inline bool vscr_motion;

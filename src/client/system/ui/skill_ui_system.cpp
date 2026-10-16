@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "scroll_ui_system.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -539,6 +540,95 @@ void skill_ui_system::event_vscr_move(SDL_Event *event) {
   }
 }
 
+void skill_ui_system::event_wheel(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto dy = event->wheel.integer_y;
+  if (dy > 0) {
+    // up
+    if (page > 0) {
+      page -= 1;
+    }
+  } else {
+    // down
+    auto self_job = character_game_instance::self.job;
+    auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
+    job_type jt = ski_tree.at(active_tab);
+    // 根据active_tab获取技能组
+    auto skill_node = job_skill_game_instance::load_job_skis(jt);
+    int size = skill_node.size() - 6;
+    size = std::max(0, size);
+    if (page < size) {
+      page++;
+    }
+  }
+}
+
+void skill_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto wh = load_wh();
+  std::vector<SDL_FRect> buttons_rect = {
+      SDL_FRect{wh.x - 20, 7, 12, 12}, //
+  };
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
+void skill_ui_system::event_motion_tab_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  const static SDL_FPoint lt = {5, 24};
+  const static SDL_FPoint rb = {186, 43};
+  auto jobs =
+      job_skill_game_instance::load_ski_tree(character_game_instance::self.job);
+
+  std::vector<SDL_FRect> tab_rect;
+  for (uint8_t i = 0; i < jobs.size(); i++) {
+    SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
+    SDL_FRect pos_rect{
+        static_cast<float>(int(pos.x + tab_pos.x)),
+        static_cast<float>(int(pos.y + tab_pos.y)),
+        33,
+        19,
+    };
+    tab_rect.emplace_back(pos_rect);
+  }
+  static int8_t tab_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t tab_in = -1;
+  for (size_t i = 0; i < tab_rect.size(); ++i) {
+    auto pos_rect = tab_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      tab_in = i;
+      break;
+    }
+  }
+  if (tab_in != -1 && tab_audio != tab_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  tab_audio = tab_in;
+}
+
 bool skill_ui_system::event(SDL_Event *event) {
   bool r = true;
   switch (event->type) {
@@ -580,31 +670,14 @@ bool skill_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion_bt_audio(event);
+    event_motion_tab_audio(event);
     event_motion(event);
     event_drag_move(event);
     break;
   }
   case SDL_EVENT_MOUSE_WHEEL: {
-    auto dy = event->wheel.integer_y;
-    if (dy > 0) {
-      // up
-      if (page > 0) {
-        page -= 1;
-      }
-    } else {
-      // down
-      auto self_job = character_game_instance::self.job;
-      auto ski_tree = job_skill_game_instance::load_ski_tree(self_job);
-      job_type jt = ski_tree.at(active_tab);
-      // 根据active_tab获取技能组
-      auto skill_node = job_skill_game_instance::load_job_skis(jt);
-      if ((int)skill_node.size() - 6 < 0) {
-        break;
-      }
-      if (page < skill_node.size() - 6) {
-        page += 1;
-      }
-    }
+    event_wheel(event);
     break;
   }
   default: {

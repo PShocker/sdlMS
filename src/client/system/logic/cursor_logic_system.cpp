@@ -5,6 +5,7 @@
 #include "character_logic_system.h"
 #include "npc_logic_system.h"
 #include "src/client/game/game_item.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -325,14 +326,18 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
     auto c = (SDL_Scancode)cursor_hand->val;
     keyboard_game_instance::add_input(c, keyboard_game_instance::none, "");
     cursor_hand = std::nullopt;
+    audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
     break;
   }
   case cursor_game_instance::equipment: {
     cursor_hand = std::nullopt;
+    audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+
     break;
   }
   case cursor_game_instance::skill: {
     cursor_hand = std::nullopt;
+    audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
     break;
   }
   case cursor_game_instance::package: {

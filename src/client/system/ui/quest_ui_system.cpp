@@ -691,6 +691,7 @@ void quest_ui_system::event_tab(SDL_Event *event) {
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       if (active_tab == i) {
         return;
       }
@@ -700,6 +701,33 @@ void quest_ui_system::event_tab(SDL_Event *event) {
       return;
     }
   }
+}
+
+void quest_ui_system::event_motion_tab_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  const static std::array tab_rect = {
+      SDL_FRect{6, 24, 72, 19},   //
+      SDL_FRect{78, 24, 72, 19},  //
+      SDL_FRect{150, 24, 72, 19}, //
+  };
+  static int8_t tab_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t tab_in = -1;
+  for (size_t i = 0; i < tab_rect.size(); ++i) {
+    auto pos_rect = tab_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      tab_in = i;
+      break;
+    }
+  }
+  if (tab_in != -1 && tab_audio != tab_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  tab_audio = tab_in;
 }
 
 void quest_ui_system::event_top() {
@@ -763,7 +791,12 @@ void quest_ui_system::event_checkbox() {
     if (quest_alarm_ui_system::quests.contains(checkbox_quest_name)) {
       quest_alarm_ui_system::quests.erase(checkbox_quest_name);
     } else {
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       quest_alarm_ui_system::quests.insert(checkbox_quest_name);
+      auto fn = &quest_alarm_ui_system::render;
+      if (!std::ranges::contains(system::render_systems, fn)) {
+        quest_alarm_ui_system::open();
+      }
     }
   }
 }
@@ -786,6 +819,7 @@ void quest_ui_system::event_quest() {
     detail_quest = d_quest.value();
     pages[1] = 0;
     vscr_motion = {};
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
   }
   return;
 }
@@ -805,14 +839,17 @@ bool quest_ui_system::event_vscr(SDL_Event *event) {
                                              top, mouse_pos);
   pages[0] = val;
 
-  lt = {532, 122};
-  px = pos.x + lt.x;
-  py = pos.y + lt.y;
-  length = 244;
-  size = load_vscr_num1() - 16;
-  val = scroll_ui_system::click_vscroll(px, py, pages[1], size, length, top,
-                                        mouse_pos);
-  pages[1] = val;
+  if (detail && !detail_quest.empty()) {
+    lt = {532, 122};
+    px = pos.x + lt.x;
+    py = pos.y + lt.y;
+    length = 244;
+    size = load_vscr_num1() - 16;
+    val = scroll_ui_system::click_vscroll(px, py, pages[1], size, length, top,
+                                          mouse_pos);
+    pages[1] = val;
+  }
+
   return true;
 }
 
@@ -887,6 +924,35 @@ bool quest_ui_system::event_button(SDL_Event *event) {
   return false;
 }
 
+void quest_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  std::vector<SDL_FRect> buttons_rect = {
+      SDL_FRect{227, 6, 12, 12},   //
+      SDL_FRect{183, 374, 57, 17}, //
+  };
+  if (detail) {
+    buttons_rect.push_back(SDL_FRect{530, 6, 13, 12});
+  }
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
 bool quest_ui_system::render_info() {
   if (cursor_game_instance::cursor_ui != render) {
     return true;
@@ -906,6 +972,38 @@ void quest_ui_system::event_motion(SDL_Event *event) {
   if (it != sys.end()) {
     sys.insert(it, render_info);
   }
+}
+
+void quest_ui_system::event_wheel(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto &mouse_pos = window::mouse_pos;
+  SDL_FRect pos_r;
+  pos_r.x = (int)pos.x + detail_lt.x;
+  pos_r.y = (int)pos.y + detail_lt.y;
+  pos_r.w = 305;
+  pos_r.h = 396;
+  const auto wheel_func = [&](int &page, int size) {
+    if (page <= 0) {
+      return;
+    }
+    if (page < size) {
+      page++;
+    }
+    return;
+  };
+  bool detail_in = SDL_PointInRectFloat(&mouse_pos, &pos_r);
+  if (detail && detail_in) {
+    auto size = load_vscr_num1() - 16;
+    size = std::max(0, size);
+    wheel_func(pages[1], size);
+  } else {
+    auto size = load_vscr_num0() - 16;
+    size = std::max(0, size);
+    wheel_func(pages[0], size);
+  }
+  return;
 }
 
 bool quest_ui_system::event(SDL_Event *event) {
@@ -952,10 +1050,15 @@ bool quest_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    // event_motion(event);
     event_drag_move(event);
     event_vscr_move(event);
+    event_motion_tab_audio(event);
+    event_motion_bt_audio(event);
     event_motion(event);
+    break;
+  }
+  case SDL_EVENT_MOUSE_WHEEL: {
+    event_wheel(event);
     break;
   }
   default: {

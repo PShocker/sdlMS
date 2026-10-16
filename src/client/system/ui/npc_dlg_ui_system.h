@@ -20,6 +20,8 @@ private:
 
   static SDL_FPoint load_wh();
 
+  static void event_motion_bt_audio(SDL_Event *event);
+
   static void event_list();
 
   static void event_button_close();
@@ -66,7 +68,6 @@ public:
   static inline std::flat_map<std::u16string, int> act_random_item;
   static inline int32_t act_meso;
   static inline uint32_t act_exp;
-
 
   enum class npc_dlg_enum {
     quest,

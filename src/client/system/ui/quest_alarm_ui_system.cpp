@@ -196,13 +196,13 @@ bool quest_alarm_ui_system::render() {
   return true;
 }
 
-void quest_alarm_ui_system::event_button_auto() {}
+void quest_alarm_ui_system::event_button_auto() { event_auto_quests(); }
 
 void quest_alarm_ui_system::event_button_max() {}
 
 void quest_alarm_ui_system::event_button_min() {}
 
-void quest_alarm_ui_system::event_button_close() {}
+void quest_alarm_ui_system::event_button_close() { close(); }
 
 bool quest_alarm_ui_system::event_button(SDL_Event *event) {
   std::vector<SDL_FRect> r = {
@@ -239,8 +239,6 @@ void quest_alarm_ui_system::open() {
   auto it =
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
-    event_auto_quests();
-
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
   }

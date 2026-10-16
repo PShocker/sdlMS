@@ -520,6 +520,7 @@ bool character_logic_system::run_jump(game_character &g_character) {
           }
         }
       }
+      audio_game_instance::load_audio(u"Game.img/Jump", 0);
       return false;
       break;
     }
