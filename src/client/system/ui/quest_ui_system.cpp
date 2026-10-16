@@ -703,33 +703,6 @@ void quest_ui_system::event_tab(SDL_Event *event) {
   }
 }
 
-void quest_ui_system::event_motion_tab_audio(SDL_Event *event) {
-  if (cursor_game_instance::cursor_ui != render) {
-    return;
-  }
-  const static std::array tab_rect = {
-      SDL_FRect{6, 24, 72, 19},   //
-      SDL_FRect{78, 24, 72, 19},  //
-      SDL_FRect{150, 24, 72, 19}, //
-  };
-  static int8_t tab_audio = -1;
-  auto &mouse_pos = window::mouse_pos;
-  int8_t tab_in = -1;
-  for (size_t i = 0; i < tab_rect.size(); ++i) {
-    auto pos_rect = tab_rect[i];
-    pos_rect.x += (int)pos.x;
-    pos_rect.y += (int)pos.y;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      tab_in = i;
-      break;
-    }
-  }
-  if (tab_in != -1 && tab_audio != tab_in) {
-    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
-  }
-  tab_audio = tab_in;
-}
-
 void quest_ui_system::event_top() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
@@ -786,19 +759,21 @@ bool quest_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void quest_ui_system::event_checkbox() {
+bool quest_ui_system::event_checkbox() {
   if (!checkbox_quest_name.empty()) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+    auto fn = &quest_alarm_ui_system::render;
+    if (!std::ranges::contains(system::render_systems, fn)) {
+      quest_alarm_ui_system::open();
+    }
     if (quest_alarm_ui_system::quests.contains(checkbox_quest_name)) {
       quest_alarm_ui_system::quests.erase(checkbox_quest_name);
     } else {
-      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       quest_alarm_ui_system::quests.insert(checkbox_quest_name);
-      auto fn = &quest_alarm_ui_system::render;
-      if (!std::ranges::contains(system::render_systems, fn)) {
-        quest_alarm_ui_system::open();
-      }
     }
+    return true;
   }
+  return false;
 }
 
 void quest_ui_system::event_fold() {
@@ -985,10 +960,11 @@ void quest_ui_system::event_wheel(SDL_Event *event) {
   pos_r.w = 305;
   pos_r.h = 396;
   const auto wheel_func = [&](int &page, int size) {
-    if (page <= 0) {
-      return;
+    auto dy = event->wheel.integer_y;
+    if (page > 0 && dy > 0) {
+      page--;
     }
-    if (page < size) {
+    if (page < size && dy < 0) {
       page++;
     }
     return;
@@ -1039,7 +1015,9 @@ bool quest_ui_system::event(SDL_Event *event) {
       if (cursor_game_instance::cursor_ui == render) {
         event_fold();
         event_quest();
-        event_checkbox();
+        if (event_checkbox()) {
+          return false;
+        }
         event_tab(event);
         event_vscr(event);
         r = !event_button(event);
@@ -1052,7 +1030,6 @@ bool quest_ui_system::event(SDL_Event *event) {
   case SDL_EVENT_MOUSE_MOTION: {
     event_drag_move(event);
     event_vscr_move(event);
-    event_motion_tab_audio(event);
     event_motion_bt_audio(event);
     event_motion(event);
     break;

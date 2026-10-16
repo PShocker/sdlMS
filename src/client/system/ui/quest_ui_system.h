@@ -35,7 +35,7 @@ private:
   static void event_button_close();
   static void event_button_detail();
 
-  static void event_checkbox();
+  static bool event_checkbox();
   static bool event_vscr(SDL_Event *event);
   static bool event_button(SDL_Event *event);
   static void event_tab(SDL_Event *event);
@@ -51,7 +51,6 @@ private:
   static void event_vscr_move(SDL_Event *event);
 
   static void event_motion_bt_audio(SDL_Event *event);
-  static void event_motion_tab_audio(SDL_Event *event);
   static void event_motion(SDL_Event *event);
 
   static SDL_FPoint load_wh();

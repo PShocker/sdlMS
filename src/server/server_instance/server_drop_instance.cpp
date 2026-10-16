@@ -128,6 +128,7 @@ void server_drop_instance::handle_server_pick(uint64_t client_id,
     if (r.client_id == server_main::local_addr) {
       auto itm = dt.data;
       package_game_instance::add_new_item(itm);
+      audio_game_instance::load_audio(u"Game.img/PickUpItem", 0);
 
       character_logic_system::ccp = {};
 
@@ -216,6 +217,10 @@ void server_drop_instance::handle_server_drop(uint64_t client_id,
           }
           default: {
             item_game_instance::dec_item_num(itm, num);
+            auto itm_num = item_game_instance::load_item_num(itm);
+            if (itm_num == 0) {
+              itm->id = u"";
+            }
             break;
           }
           }

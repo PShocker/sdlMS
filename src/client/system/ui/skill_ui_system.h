@@ -33,7 +33,6 @@ private:
   static void event_wheel(SDL_Event *event);
 
   static void event_motion_bt_audio(SDL_Event *event);
-  static void event_motion_tab_audio(SDL_Event *event);
   
   static void event_vscr_start(SDL_Event *event);
   static void event_vscr_end();

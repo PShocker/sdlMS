@@ -248,6 +248,8 @@ void quest_alarm_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
 
+  quests.clear();
+
   event_drag_end();
 }
 

@@ -454,8 +454,10 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
           }
         }
         cursor_game_instance::cursor_hand = std::nullopt;
+        audio_game_instance::load_audio(u"UI.img/DragEnd", 0); 
         return false;
       } else {
+        audio_game_instance::load_audio(u"UI.img/DragStart", 0);
         cursor_game_instance::cursor_hand = {
             .type = cursor_game_instance::skill,
             .val = 0,
@@ -483,6 +485,7 @@ bool skill_ui_system::event_click_tab(SDL_Event *event) {
         19,
     };
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       active_tab = i;
       page = 0;
       return true;
@@ -569,6 +572,14 @@ void skill_ui_system::event_motion_bt_audio(SDL_Event *event) {
   if (cursor_game_instance::cursor_ui != render) {
     return;
   }
+  static std::u16string ski_button_i;
+  if (!ski_button_id.empty() && ski_button_i.empty()) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+    ski_button_i = ski_button_id;
+    return;
+  }
+  ski_button_i = ski_button_id;
+
   auto wh = load_wh();
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
@@ -589,44 +600,6 @@ void skill_ui_system::event_motion_bt_audio(SDL_Event *event) {
     audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
-}
-
-void skill_ui_system::event_motion_tab_audio(SDL_Event *event) {
-  if (cursor_game_instance::cursor_ui != render) {
-    return;
-  }
-  const static SDL_FPoint lt = {5, 24};
-  const static SDL_FPoint rb = {186, 43};
-  auto jobs =
-      job_skill_game_instance::load_ski_tree(character_game_instance::self.job);
-
-  std::vector<SDL_FRect> tab_rect;
-  for (uint8_t i = 0; i < jobs.size(); i++) {
-    SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
-    SDL_FRect pos_rect{
-        static_cast<float>(int(pos.x + tab_pos.x)),
-        static_cast<float>(int(pos.y + tab_pos.y)),
-        33,
-        19,
-    };
-    tab_rect.emplace_back(pos_rect);
-  }
-  static int8_t tab_audio = -1;
-  auto &mouse_pos = window::mouse_pos;
-  int8_t tab_in = -1;
-  for (size_t i = 0; i < tab_rect.size(); ++i) {
-    auto pos_rect = tab_rect[i];
-    pos_rect.x += (int)pos.x;
-    pos_rect.y += (int)pos.y;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      tab_in = i;
-      break;
-    }
-  }
-  if (tab_in != -1 && tab_audio != tab_in) {
-    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
-  }
-  tab_audio = tab_in;
 }
 
 bool skill_ui_system::event(SDL_Event *event) {
@@ -671,7 +644,6 @@ bool skill_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_MOTION: {
     event_motion_bt_audio(event);
-    event_motion_tab_audio(event);
     event_motion(event);
     event_drag_move(event);
     break;

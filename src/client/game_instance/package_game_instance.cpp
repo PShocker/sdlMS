@@ -64,50 +64,50 @@ std::vector<int> package_game_instance::load_empty_index(uint32_t tab) {
 
 std::vector<int>
 package_game_instance::load_empty_index(std::polymorphic<game_item> &item) {
+  // 特殊：meso
   if (item->id == u"00000000") {
-    // meso
     return {0};
   }
-  if (!(item->type == item_enum::consume || item->type == item_enum::etc)) {
-    return load_empty_index((int)item->type);
+
+  // 特殊：0207 前缀
+  if (item->id.starts_with(u"0207")) {
+    auto b = load_empty_index(static_cast<int>(item->type));
+    return b.empty() ? std::vector<int>{} : std::vector<int>{b[0]};
   }
+
+  // 非消耗品/其他类型：直接按 type 索引
+  if (item->type != item_enum::consume && item->type != item_enum::etc) {
+    return load_empty_index(static_cast<int>(item->type));
+  }
+
+  auto *r = &package_game_instance::data[static_cast<int>(item->type)];
+  const auto slot_max = item_game_instance::load_slot_max(item->id);
+  int num = item_game_instance::load_item_num(item);
+
   std::vector<int> blank;
-  auto num = item_game_instance::load_item_num(item);
-  std::vector<std::polymorphic<game_item>> *r;
-  r = &package_game_instance::data[(int)item->type];
-  auto slot_max = item_game_instance::load_slot_max(item->id);
-  std::vector<int32_t> same_slots;
-  std::vector<int32_t> add_slots;
-  for (int32_t i = 0; i < r->size(); i++) {
-    auto itm = r->at(i);
+  const size_t n = r->size();
+
+  // 第一遍：收集同 id 且未满的槽位
+  for (size_t i = 0; i < n && num > 0; ++i) {
+    auto &itm = r->at(i);
     if (itm->id == item->id) {
-      same_slots.push_back(i);
-    } else if (itm->id.empty()) {
-      add_slots.push_back(i);
+      const auto itm_num = item_game_instance::load_item_num(itm);
+      if (itm_num >= slot_max)
+        continue; // 已满，跳过
+      num -= (slot_max - itm_num);
+      blank.push_back(static_cast<int>(i));
     }
   }
-  same_slots.append_range(add_slots);
-  for (auto i : same_slots) {
-    auto itm = r->at(i);
-    if (itm->id == item->id) {
-      auto itm_num = item_game_instance::load_item_num(itm);
-      if (itm_num < slot_max) {
-        num = num - (slot_max - itm_num);
-      }
-      blank.push_back(i);
-    } else if (itm->id.empty()) {
+  // 第二遍：若还没装满，继续找空槽位
+  for (size_t i = 0; i < n && num > 0; ++i) {
+    const auto &itm = r->at(i);
+    if (itm->id.empty()) {
       num -= slot_max;
-      blank.push_back(i);
-    }
-    if (num <= 0) {
-      break;
+      blank.push_back(static_cast<int>(i));
     }
   }
-  if (num <= 0) {
-    return blank;
-  } else {
-    return {};
-  }
+
+  return num <= 0 ? blank : std::vector<int>{};
 }
 
 std::polymorphic<game_item> *

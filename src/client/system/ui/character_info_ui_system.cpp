@@ -200,10 +200,12 @@ void character_info_ui_system::render_items() {
       break;
     }
     std::u16string itm_id;
+    bool cash = false;
     if (i < v.size()) {
       itm_id = v[i].id;
     } else {
       itm_id = v2[i - v.size()].id;
+      cash = true;
     }
 
     static auto entry_back = wz_resource::load_texture(
@@ -229,6 +231,19 @@ void character_info_ui_system::render_items() {
         static_cast<float>(texture->h),
     };
     SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+
+    if (cash) {
+      auto cash_icon = wz_resource::load_texture(
+          wz_resource::ms->get_root()->find(u"UI.img/CashItem"));
+      pos_rect = {
+          static_cast<float>(int(19 + pos.x + item_lt.x + w)),
+          static_cast<float>(
+              int(19 + pos.y + item_lt.y + h + line_h * (i - item_page))),
+          static_cast<float>(cash_icon->w),
+          static_cast<float>(cash_icon->h),
+      };
+      SDL_RenderTexture(window::renderer, cash_icon, nullptr, &pos_rect);
+    }
 
     freetype::load_color(0, 0, 0, 255);
 
