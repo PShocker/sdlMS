@@ -1,8 +1,12 @@
 #include "keybinding_ui_system.h"
+#include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <SDL3/SDL_scancode.h>
@@ -36,7 +40,7 @@ const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
         {SDL_SCANCODE_9, {320, 66}},
         {SDL_SCANCODE_0, {354, 66}},
         {SDL_SCANCODE_MINUS, {388, 66}},
-        {SDL_SCANCODE_EQUALS, {428, 66}},
+        {SDL_SCANCODE_EQUALS, {422, 66}},
         {SDL_SCANCODE_Q, {64, 99}},
         {SDL_SCANCODE_W, {98, 99}},
         {SDL_SCANCODE_E, {132, 99}},
@@ -82,11 +86,17 @@ const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
         {SDL_SCANCODE_PAGEUP, {582, 66}},
         {SDL_SCANCODE_DELETE, {514, 99}},
         {SDL_SCANCODE_END, {548, 99}},
-        {SDL_SCANCODE_PAGEDOWN, {583, 99}},
-        {SDL_SCANCODE_ESCAPE, {0, 0}},
+        {SDL_SCANCODE_PAGEDOWN, {582, 99}},
+        {SDL_SCANCODE_UP, {548, 165}},    // up
+        {SDL_SCANCODE_DOWN, {548, 198}},  // down
+        {SDL_SCANCODE_LEFT, {514, 198}},  // left
+        {SDL_SCANCODE_RIGHT, {582, 198}}, // right
+
 };
 
-SDL_FPoint keybinding_ui_system::load_wh() { return {631, 375}; }
+SDL_FPoint keybinding_ui_system::load_wh() { return {636, 445}; }
+
+const static SDL_FPoint key_lt{5, 56};
 
 void keybinding_ui_system::render_backgrnd_key() {
   static auto keys = wz_resource::ui->find(u"KeyBindings.img/key");
@@ -161,10 +171,6 @@ void keybinding_ui_system::render_backgrnd_key() {
       {SDL_SCANCODE_F12, wz_resource::load_texture(keys->get_child(u"88"))},
 
       // 以下特殊按键的映射可能需要根据实际 SDL3 定义调整
-      {SDL_SCANCODE_SYSREQ,
-       wz_resource::load_texture(keys->get_child(u"Brk"))}, // Brk (Break)
-      {SDL_SCANCODE_PRINTSCREEN,
-       wz_resource::load_texture(keys->get_child(u"Psc"))}, // Psc
       {SDL_SCANCODE_HOME,
        wz_resource::load_texture(keys->get_child(u"71"))}, // Hm
       {SDL_SCANCODE_PAGEUP,
@@ -177,22 +183,35 @@ void keybinding_ui_system::render_backgrnd_key() {
        wz_resource::load_texture(keys->get_child(u"82"))}, // Ins
       {SDL_SCANCODE_DELETE,
        wz_resource::load_texture(keys->get_child(u"83"))}, // Del
+
+      {SDL_SCANCODE_UP, wz_resource::load_texture(keys->get_child(u"72"))},
+      {SDL_SCANCODE_DOWN, wz_resource::load_texture(keys->get_child(u"80"))},
+      {SDL_SCANCODE_LEFT, wz_resource::load_texture(keys->get_child(u"75"))},
+      {SDL_SCANCODE_RIGHT, wz_resource::load_texture(keys->get_child(u"77"))},
+
   };
   for (auto [k, v] : key_textures) {
     if (!mapped_scancode_position.contains(k)) {
       continue;
     }
     auto key_pos = mapped_scancode_position.at(k);
+    // render icon
+    int x = pos.x + key_pos.x + key_lt.x;
+    int y = pos.y + key_pos.y + key_lt.y;
+    if (keyboard_game_instance::data.contains(k)) {
+      const auto &input = keyboard_game_instance::data.at(k);
+      quick_slot_ui_system::render_input_icon(input, x - 1, y - 1);
+    }
     SDL_FRect pos_rect{
-        pos.x + key_pos.x,
-        pos.y + key_pos.y,
+        static_cast<float>(x),
+        static_cast<float>(y),
         static_cast<float>(v->w),
         static_cast<float>(v->h),
     };
-    pos_rect.w = 32;
-    pos_rect.h = 32;
-    SDL_RenderFillRect(window::renderer, &pos_rect);
-    //SDL_RenderTexture(window::renderer, v, nullptr, &pos_rect);
+    // pos_rect.w = 32;
+    // pos_rect.h = 32;
+    // SDL_RenderFillRect(window::renderer, &pos_rect);
+    SDL_RenderTexture(window::renderer, v, nullptr, &pos_rect);
   }
 }
 
@@ -205,8 +224,46 @@ void keybinding_ui_system::render_backgrnd() {
   return;
 }
 
+void keybinding_ui_system::render_tab() {
+  static auto node = wz_resource::ui->find(u"KeyBindings.img/tab:kind");
+  const SDL_FPoint lt{9, 24};
+  for (auto i : {0, 1}) {
+    SDL_Texture *texture;
+    if (active_tab == i) {
+      texture = wz_resource::load_texture(
+          node->get_child(u"selected")->get_child(std::to_string(i)));
+    } else {
+      texture = wz_resource::load_texture(
+          node->get_child(u"normal")->get_child(std::to_string(i)));
+    }
+    SDL_FRect pos_rect = {
+        int(pos.x) + lt.x + texture->w * i,
+        int(pos.y) + lt.y,
+        static_cast<float>(texture->w),
+        static_cast<float>(texture->h),
+    };
+    SDL_RenderTexture(window::renderer, texture, nullptr, &pos_rect);
+  }
+}
+
+void keybinding_ui_system::render_backgrnd2() {
+  static auto backgrnd2 = wz_resource::load_texture(
+      wz_resource::ui->find(u"KeyBindings.img/backgrnd_keyboard"));
+  SDL_FPoint lt{9, 53};
+  SDL_FRect pos_rect{
+      pos.x + lt.x,
+      pos.y + lt.y,
+      static_cast<float>(backgrnd2->w),
+      static_cast<float>(backgrnd2->h),
+  };
+  SDL_RenderTexture(window::renderer, backgrnd2, nullptr, &pos_rect);
+  return;
+}
+
 bool keybinding_ui_system::render() {
   render_backgrnd();
+  render_backgrnd2();
+  render_tab();
   render_backgrnd_key();
   return true;
 }
@@ -272,6 +329,7 @@ void keybinding_ui_system::event_drag_move(SDL_Event *event) {
 }
 
 void keybinding_ui_system::toggle() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
   auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
     close();

@@ -3,9 +3,9 @@
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_input.h"
+#include <cstdint>
 class quick_slot_ui_system {
 private:
-  static void render_input_icon(const game_input &i, int x, int y);
   static void render_quickSlot();
   static void render_button();
 
@@ -31,4 +31,7 @@ public:
   static bool cursor_in();
 
   static void toggle();
+
+  static void render_input_icon(const game_input &i, int x, int y,
+                                uint8_t alpha = 255);
 };

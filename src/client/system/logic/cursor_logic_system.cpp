@@ -381,6 +381,7 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
       if (tradeBlock) {
         notice_ui_system::type = notice_ui_system::notice_enum::trade_block;
         notice_ui_system::open();
+        cursor_hand = std::nullopt;
         break; // 不执行丢弃，等待用户选择数量
       }
 
@@ -388,7 +389,7 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
       DropT dt;
       ItemT it;
       it.item_id = std::stoi(std::string(itm->id.begin(), itm->id.end()));
-      it.item_num = std::max(1, num);
+      it.item_num = std::max(0, num);
       dt.drop.Set(it);
 
       dt.x1 = character_game_instance::self.pos.x;

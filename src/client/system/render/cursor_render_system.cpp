@@ -9,6 +9,7 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/ui/equip_ui_system.h"
+#include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
@@ -92,7 +93,12 @@ void cursor_render_system::render_hand() {
         auto info = item_game_instance::load_item_info(item_id, 0);
         auto icon = wz_resource::load_texture(info->get_child(u"icon"));
         render_icon(icon, 172); // 技能透明度不同
+      } else {
+        auto x = window::mouse_pos.x - 16;
+        auto y = window::mouse_pos.y - 16;
+        quick_slot_ui_system::render_input_icon(input, x, y, 172);
       }
+
       break;
     }
     default: {

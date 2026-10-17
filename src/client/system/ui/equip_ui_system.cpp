@@ -293,6 +293,7 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
   auto &self = character_game_instance::self;
   auto &cursor_hand = cursor_game_instance::cursor_hand;
   if (cursor_hand.has_value()) {
+    audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
     switch (cursor_hand->type) {
     case cursor_game_instance::equipment: {
       if (index == cursor_hand->sub_val && active_tab == 0) {
@@ -356,6 +357,7 @@ bool equip_ui_system::event_click_equip(SDL_Event *event) {
         click = equip_game_instance::load_deco(index)->has_value();
       }
       if (click) {
+        audio_game_instance::load_audio(u"UI.img/DragStart", 0);
         if (active_tab == 0) {
           cursor_game_instance::cursor_hand = {
               .type = cursor_game_instance::equipment,

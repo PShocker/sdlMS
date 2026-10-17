@@ -235,14 +235,14 @@ void character_info_ui_system::render_items() {
     if (cash) {
       auto cash_icon = wz_resource::load_texture(
           wz_resource::ms->get_root()->find(u"UI.img/CashItem"));
-      pos_rect = {
+      SDL_FRect rect = {
           static_cast<float>(int(19 + pos.x + item_lt.x + w)),
           static_cast<float>(
               int(19 + pos.y + item_lt.y + h + line_h * (i - item_page))),
           static_cast<float>(cash_icon->w),
           static_cast<float>(cash_icon->h),
       };
-      SDL_RenderTexture(window::renderer, cash_icon, nullptr, &pos_rect);
+      SDL_RenderTexture(window::renderer, cash_icon, nullptr, &rect);
     }
 
     freetype::load_color(0, 0, 0, 255);

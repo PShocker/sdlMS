@@ -386,6 +386,7 @@ bool skill_ui_system::render() {
 }
 
 void skill_ui_system::toggle() {
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
   auto fn = &render;
   if (std::ranges::contains(system::render_systems, fn)) {
     close();

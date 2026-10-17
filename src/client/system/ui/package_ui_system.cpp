@@ -475,31 +475,48 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
   // 有手持物品
   auto &sf = character_game_instance::self;
   auto &hand = cursor_game_instance::cursor_hand.value();
+  auto &r = package_game_instance::data[hand.val];
+  if (index.value() >= r.size()) {
+    audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+    cursor_game_instance::cursor_hand = std::nullopt;
+    return false;
+  }
   switch ((cursor_game_instance::cursor_hand_type)hand.type) {
   case cursor_game_instance::equipment: {
-    switch (hand.val) {
-    case 0: {
-      if (active_tab == 0) {
-        auto &r = package_game_instance::data[0];
-        if (r[index.value()]->id.empty()) {
-          auto eqp = equip_game_instance::load_equip(hand.sub_val);
-          auto eqp2 = std::polymorphic<game_item>(eqp->value());
-          r[index.value()] = eqp2;
-          *eqp = std::nullopt;
-          audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
-          cursor_game_instance::cursor_hand = std::nullopt;
-          character_logic_system::cct.map_id = scene_system_instance::map_id;
-        }
-      }
+    if (active_tab != (int)item_enum::equip) {
       break;
     }
+    auto &r = package_game_instance::data[(int)item_enum::equip];
+    if (r[index.value()]->id.empty()) {
+      auto eqp = equip_game_instance::load_equip(hand.sub_val);
+      auto eqp2 = std::polymorphic<game_item>(eqp->value());
+      r[index.value()] = eqp2;
+      *eqp = std::nullopt;
+      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+      cursor_game_instance::cursor_hand = std::nullopt;
+      character_logic_system::cct.map_id = scene_system_instance::map_id;
+    }
+    break;
+  }
+  case cursor_game_instance::deco: {
+    if (active_tab != (int)item_enum::deco) {
+      break;
+    }
+    auto &r = package_game_instance::data[(int)item_enum::deco];
+    if (r[index.value()]->id.empty()) {
+      auto eqp = equip_game_instance::load_deco(hand.sub_val);
+      auto eqp2 = std::polymorphic<game_item>(eqp->value());
+      r[index.value()] = eqp2;
+      *eqp = std::nullopt;
+      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+      cursor_game_instance::cursor_hand = std::nullopt;
+      character_logic_system::cct.map_id = scene_system_instance::map_id;
     }
     break;
   }
   case cursor_game_instance::package: {
     if (hand.val != active_tab) {
       // 只有卷轴类道具可以跨tab使用
-      auto &r = package_game_instance::data[hand.val];
       auto &itm = r.at(hand.sub_val);
       if (!((item_enum)active_tab == item_enum::equip &&
             hand.val == (int)item_enum::consume &&
@@ -518,7 +535,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
           cursor_game_instance::cursor_hand = std::nullopt;
           return true;
         } else {
-          auto &equips = package_game_instance::data[0];
+          auto &equips = r;
           // 点击不同格子：交换
           std::swap(equips[hand.sub_val], equips[index.value()]);
           cursor_game_instance::cursor_hand = std::nullopt;
@@ -526,7 +543,6 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         }
       } else {
       }
-
       break;
     }
     case item_enum::deco: {
@@ -536,7 +552,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
         cursor_game_instance::cursor_hand = std::nullopt;
         return true;
       } else {
-        auto &decos = package_game_instance::data[(int)item_enum::deco];
+        auto &decos = r;
         // 点击不同格子：交换
         std::swap(decos[hand.sub_val], decos[index.value()]);
         cursor_game_instance::cursor_hand = std::nullopt;
@@ -545,6 +561,7 @@ bool package_ui_system::event_click_item(SDL_Event *event) {
       break;
     }
     case item_enum::etc:
+    case item_enum::install:
     case item_enum::consume: {
       audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
       // 处理普通背包栏

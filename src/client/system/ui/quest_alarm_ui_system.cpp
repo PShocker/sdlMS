@@ -351,6 +351,10 @@ bool quest_alarm_ui_system::cursor_in() {
 }
 
 void quest_alarm_ui_system::accept_quest(const std::u16string &id) {
+  auto it = std::ranges::find(system::render_systems, &render);
+  if (it == system::render_systems.end()) {
+    return;
+  }
   if (quests.size() > 5) {
     return;
   }

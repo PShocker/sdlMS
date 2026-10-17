@@ -515,12 +515,12 @@ bool character_logic_system::run_jump(game_character &g_character) {
               self_foothold_cooldown = window::dt_now + 120;
               run_action(g_character, u"jump");
               self_two_jump_cooldown = window::dt_now + 400;
+              audio_game_instance::load_audio(u"Game.img/Jump", 0);
               break;
             }
           }
         }
       }
-      audio_game_instance::load_audio(u"Game.img/Jump", 0);
       return false;
       break;
     }

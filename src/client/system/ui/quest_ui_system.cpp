@@ -761,7 +761,6 @@ bool quest_ui_system::cursor_in() {
 
 bool quest_ui_system::event_checkbox() {
   if (!checkbox_quest_name.empty()) {
-    audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
     auto fn = &quest_alarm_ui_system::render;
     if (!std::ranges::contains(system::render_systems, fn)) {
       quest_alarm_ui_system::open();

@@ -5,7 +5,9 @@
 class keybinding_ui_system {
 private:
   static void render_backgrnd();
+  static void render_backgrnd2();
   static void render_backgrnd_key();
+  static void render_tab();
   static SDL_FPoint load_wh();
   static void event_top();
   static void event_drag_start(SDL_Event *event);
@@ -13,6 +15,7 @@ private:
   static void event_drag_move(SDL_Event *event);
 
   static inline std::optional<SDL_FPoint> drag;
+  static inline uint8_t active_tab;
 
 public:
   static inline SDL_FPoint pos;

@@ -3,6 +3,7 @@
 #include "server_client_instance.h"
 #include "server_scene_instance.h"
 #include "src/client/game/game_reactor.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/window/window.h"
@@ -119,6 +120,15 @@ void server_reactor_instance::handle_s_reactor(const ReactorT &r) {
   reactor->ani_time = 0;
   if (r.action == "hit") {
     reactor->hit = true;
+    auto tmp_state = std::to_string(r.state);
+    std::u16string tmp_state2{tmp_state.begin(), tmp_state.end()};
+
+    auto view = reactor->id |
+                std::views::drop_while([](char16_t c) { return c == u'0'; });
+    std::u16string r(view.begin(), view.end());
+
+    std::u16string path = u"Reactor.img/" + r + u"/" + tmp_state2 + u"/Hit";
+    audio_game_instance::load_audio(path, 0);
   } else if (r.action == "revive") {
     reactor->alpha = 0;
     reactor->hit = false;

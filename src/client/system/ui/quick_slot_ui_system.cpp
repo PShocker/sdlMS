@@ -2,6 +2,7 @@
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 #include "src/client/game/game_input.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
@@ -18,8 +19,8 @@
 #include <optional>
 #include <string>
 
-void quick_slot_ui_system::render_input_icon(const game_input &i, int x,
-                                             int y) {
+void quick_slot_ui_system::render_input_icon(const game_input &i, int x, int y,
+                                             uint8_t alpha) {
   SDL_Texture *t;
   std::u16string id;
   if (i.type == "skill") {
@@ -30,6 +31,73 @@ void quick_slot_ui_system::render_input_icon(const game_input &i, int x,
     id = {i.val.begin(), i.val.end()};
     auto item_info = item_game_instance::load_item_info(id, 1);
     t = wz_resource::load_texture(item_info->get_child(u"icon"));
+  } else if (i.type == "action") {
+    const static std::flat_map<std::string, SDL_Texture *> actions = {
+        {"pick", wz_resource::load_texture(
+                     wz_resource::ui->find(u"KeyBindings.img/icon/50"))},
+        {"sit", wz_resource::load_texture(
+                    wz_resource::ui->find(u"KeyBindings.img/icon/51"))},
+        {"attack", wz_resource::load_texture(
+                       wz_resource::ui->find(u"KeyBindings.img/icon/52"))},
+        {"jump", wz_resource::load_texture(
+                     wz_resource::ui->find(u"KeyBindings.img/icon/53"))},
+    };
+    if (actions.contains(i.val)) {
+      t = actions.at(i.val);
+    }
+  } else if (i.type == "ui") {
+    const static std::flat_map<std::string, SDL_Texture *> uis = {
+        {"equip", wz_resource::load_texture(
+                          wz_resource::ui->find(u"KeyBindings.img/icon/0"))},
+        {"package", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/1"))},
+        {"characterStat", wz_resource::load_texture(
+                     wz_resource::ui->find(u"KeyBindings.img/icon/2"))},
+        {"skill", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/3"))},
+        {"buddy", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/4"))},
+        {"worldMap", wz_resource::load_texture(
+                         wz_resource::ui->find(u"KeyBindings.img/icon/5"))},
+        {"mapleChat", wz_resource::load_texture(
+                          wz_resource::ui->find(u"KeyBindings.img/icon/6"))},
+        {"miniMap", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/7"))},
+        {"quest", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/8"))},
+        {"keyBind", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/9"))},
+        {"toAll", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/10"))},
+        {"whisper", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/11"))},
+        {"toParty", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/12"))},
+        {"toBuddy", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/13"))},
+        {"shortCut", wz_resource::load_texture(
+                         wz_resource::ui->find(u"KeyBindings.img/icon/14"))},
+        {"quickSlot", wz_resource::load_texture(
+                          wz_resource::ui->find(u"KeyBindings.img/icon/15"))},
+        {"chat+", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/16"))},
+        {"party", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/19"))},
+        {"cashShop", wz_resource::load_texture(
+                         wz_resource::ui->find(u"KeyBindings.img/icon/22"))},
+        {"changeChannel", wz_resource::load_texture(wz_resource::ui->find(
+                              u"KeyBindings.img/icon/45"))},
+        {"menu", wz_resource::load_texture(
+                     wz_resource::ui->find(u"KeyBindings.img/icon/46"))},
+        {"screenShot", wz_resource::load_texture(
+                           wz_resource::ui->find(u"KeyBindings.img/icon/47"))},
+        {"picMode", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/48"))},
+
+    };
+    if (uis.contains(i.val)) {
+      t = uis.at(i.val);
+    }
   }
   if (t == nullptr) {
     return;
@@ -40,7 +108,12 @@ void quick_slot_ui_system::render_input_icon(const game_input &i, int x,
       static_cast<float>(t->w),
       static_cast<float>(t->h),
   };
+  if (i.type == "item") {
+    pos_rect.y += (32 - pos_rect.h) / 2;
+  }
+  SDL_SetTextureAlphaMod(t, alpha);
   SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+  SDL_SetTextureAlphaMod(t, 255);
   if (i.type == "item") {
     auto num = package_game_instance::load_item_num(id);
     package_ui_system::render_number(num, x, y + 16);
@@ -134,7 +207,7 @@ SDL_FPoint quick_slot_ui_system::load_wh() {
   case quick_slot::hide:
     return {0, 0};
   case quick_slot::two:
-    return {151, 80};
+    return {151, 78};
   case quick_slot::three:
     return {151, 114};
   }
@@ -180,7 +253,7 @@ bool quick_slot_ui_system::cursor_in() {
       h,
   };
   if (quickSlot == quick_slot::two) {
-    base_y += 34;
+    pos_rect.y += 36;
   }
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
@@ -221,7 +294,7 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
     for (int i = 0; i < r.size(); i++) {
       SDL_FRect pos_rect{
           r[i].x,
-          r[i].y + 34,
+          r[i].y + 32,
           static_cast<float>(32),
           static_cast<float>(32),
       };
@@ -266,6 +339,7 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
           }
           }
           cursor_game_instance::cursor_hand = std::nullopt;
+          audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
         } else {
           auto &key_data = keyboard_game_instance::data;
           auto scan_code = t[i];
@@ -276,6 +350,7 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
                 .val = scan_code,
             };
           }
+          audio_game_instance::load_audio(u"UI.img/DragStart", 0);
         }
         return true;
       }
