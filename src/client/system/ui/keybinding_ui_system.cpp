@@ -1,8 +1,10 @@
 #include "keybinding_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game/game_input.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
@@ -65,8 +67,8 @@ const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
         {SDL_SCANCODE_L, {353, 132}},
         {SDL_SCANCODE_SEMICOLON, {387, 132}},
         {SDL_SCANCODE_APOSTROPHE, {421, 132}},
-        {SDL_SCANCODE_LSHIFT, {457, 165}}, // 左Shift
-        {SDL_SCANCODE_RSHIFT, {38, 165}},  // 右Shift
+        {SDL_SCANCODE_RSHIFT, {457, 165}}, // 左Shift
+        {SDL_SCANCODE_LSHIFT, {38, 165}},  // 右Shift
         {SDL_SCANCODE_Z, {98, 165}},
         {SDL_SCANCODE_X, {132, 165}},
         {SDL_SCANCODE_C, {166, 165}},
@@ -260,11 +262,99 @@ void keybinding_ui_system::render_backgrnd2() {
   return;
 }
 
+void keybinding_ui_system::render_button() {
+  const static std::array buttons_nodes = {
+      wz_resource::ui->find(u"Basic.img/BtClose"),
+      wz_resource::ui->find(u"KeyBindings.img/button:Default"),
+      wz_resource::ui->find(u"KeyBindings.img/button:Delete"),
+      wz_resource::ui->find(u"KeyBindings.img/button:quickslots"),
+
+      wz_resource::ui->find(u"KeyBindings.img/button:presetPage1"),
+      wz_resource::ui->find(u"KeyBindings.img/button:presetPage2"),
+      wz_resource::ui->find(u"KeyBindings.img/button:presetPage3"),
+      wz_resource::ui->find(u"KeyBindings.img/button:presetSave"),
+      wz_resource::ui->find(u"KeyBindings.img/button:presetUndo"),
+  };
+  auto wh = load_wh();
+  const std::array buttons_rect = {
+      SDL_FRect{wh.x - 18, 6, 12, 12}, //
+      SDL_FRect{6, 421, 54, 16},       //
+      SDL_FRect{65, 421, 54, 16},      //
+      SDL_FRect{172, 59, 84, 16},      //
+
+      SDL_FRect{74, 60, 25, 14},   //
+      SDL_FRect{103, 60, 25, 14},  //
+      SDL_FRect{132, 60, 25, 14},  //
+      SDL_FRect{495, 419, 65, 19}, //
+      SDL_FRect{564, 419, 65, 19}, //
+
+  };
+
+  for (size_t i = 0; i < buttons_nodes.size(); ++i) {
+    auto k = buttons_nodes[i];
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    pos_rect.x = (int)pos_rect.x;
+    pos_rect.y = (int)pos_rect.y;
+    auto &mouse_pos = window::mouse_pos;
+    // 判断按钮是否被遮挡
+    auto cursor_in = cursor_game_instance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+        !cursor_game_instance::modal_overlay) {
+      if (window::mouse_state & SDL_BUTTON_LMASK) {
+        auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+        SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+      } else {
+        auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+        SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+      }
+    } else {
+      auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+      SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+    }
+  }
+}
+
+void keybinding_ui_system::render_remain_icon(int i, int x, int y) {
+  game_input input;
+  switch ((cursor_game_instance::cursor_keybind_type)i) {
+  case cursor_game_instance::keybind_action_attack: {
+    break;
+  }
+  case cursor_game_instance::keybind_action_sit:
+  case cursor_game_instance::keybind_action_jump:
+  case cursor_game_instance::keybind_action_pick:
+  case cursor_game_instance::keybind_ui_worldMap:
+  case cursor_game_instance::keybind_ui_package:
+  case cursor_game_instance::keybind_ui_characterStat:
+  case cursor_game_instance::keybind_ui_keybind:
+  case cursor_game_instance::keybind_ui_skill:
+  case cursor_game_instance::keybind_ui_equip:
+  case cursor_game_instance::keybind_ui_craft:
+  case cursor_game_instance::keybind_ui_quest:
+  case cursor_game_instance::keybind_ui_option:
+  case cursor_game_instance::keybind_face_vomit:
+    break;
+  }
+  quick_slot_ui_system::render_input_icon(input, x, y);
+}
+
+void keybinding_ui_system::render_remain_key() {
+  SDL_FPoint lt{8, 200};
+  const static std::flat_map<int, SDL_FPoint> m = {
+      {cursor_game_instance::keybind_ui_craft, SDL_FPoint{0, 0}},
+  };
+  const auto &key_data = keyboard_game_instance::data;
+}
+
 bool keybinding_ui_system::render() {
   render_backgrnd();
   render_backgrnd2();
+  render_button();
   render_tab();
   render_backgrnd_key();
+  render_remain_key();
   return true;
 }
 
@@ -289,7 +379,145 @@ void keybinding_ui_system::close() {
   event_drag_end();
 }
 
-bool keybinding_ui_system::event(SDL_Event *event) { return true; }
+void keybinding_ui_system::event_button_close() {
+  close();
+  return;
+}
+
+void keybinding_ui_system::event_button_default() { return; }
+
+void keybinding_ui_system::event_button_delete() { return; }
+
+void keybinding_ui_system::event_button_quickSlot() { return; }
+
+void keybinding_ui_system::event_button_prePage1() { return; }
+
+void keybinding_ui_system::event_button_prePage2() { return; }
+
+void keybinding_ui_system::event_button_prePage3() { return; }
+
+void keybinding_ui_system::event_button_save() { return; }
+
+void keybinding_ui_system::event_button_undo() { return; }
+
+void keybinding_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto wh = load_wh();
+  std::vector<SDL_FRect> buttons_rect = {
+      SDL_FRect{wh.x - 18, 6, 12, 12}, //
+      SDL_FRect{8, 268, 14, 14},       //
+      SDL_FRect{164, 6, 12, 12},       //
+      SDL_FRect{177, 6, 12, 12},       //
+  };
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
+}
+
+bool keybinding_ui_system::event_button(SDL_Event *event) {
+  std::vector<void (*)()> fns;
+  auto wh = load_wh();
+  const std::array buttons_rect = {
+      SDL_FRect{wh.x - 18, 6, 12, 12}, //
+      SDL_FRect{6, 421, 54, 16},       //
+      SDL_FRect{65, 421, 54, 16},      //
+      SDL_FRect{172, 59, 84, 16},      //
+
+      SDL_FRect{74, 60, 25, 14},   //
+      SDL_FRect{103, 60, 25, 14},  //
+      SDL_FRect{132, 60, 25, 14},  //
+      SDL_FRect{495, 419, 65, 19}, //
+      SDL_FRect{564, 419, 65, 19}, //
+
+  };
+  fns = {
+      event_button_close,     event_button_default,  event_button_delete,
+      event_button_quickSlot, event_button_prePage1, event_button_prePage2,
+      event_button_prePage3,  event_button_save,     event_button_undo,
+  };
+
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      fns[i]();
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+bool keybinding_ui_system::event(SDL_Event *event) {
+  bool r = true;
+  switch (event->type) {
+  case SDL_EVENT_KEY_DOWN: {
+    auto scan_code = event->key.scancode;
+    switch (scan_code) {
+    case SDL_SCANCODE_ESCAPE: {
+      toggle();
+      return false;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        event_top();
+        event_drag_start(event);
+        r = false;
+      }
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_BUTTON_UP: {
+    if (event->button.button == SDL_BUTTON_LEFT) {
+      if (cursor_game_instance::cursor_ui == render) {
+        // event_tab(event);
+        // event_click_item(event);
+        r = !event_button(event);
+      }
+      event_drag_end();
+    }
+    break;
+  }
+  case SDL_EVENT_MOUSE_MOTION: {
+    event_drag_move(event);
+    // event_motion_bt_audio(event);
+    break;
+  }
+  case SDL_EVENT_MOUSE_WHEEL: {
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+
+  return r;
+}
 
 void keybinding_ui_system::event_top() {
   std::erase(system::render_systems, render);
@@ -336,4 +564,11 @@ void keybinding_ui_system::toggle() {
   } else {
     open();
   }
+}
+
+bool keybinding_ui_system::cursor_in() {
+  auto [w, h] = load_wh();
+  auto &mouse = window::mouse_pos;
+  SDL_FRect pos_rect{pos.x, pos.y, w, h};
+  return SDL_PointInRectFloat(&mouse, &pos_rect);
 }

@@ -4,7 +4,6 @@
 #include "SDL3/SDL_rect.h"
 #include "src/client/game/game_item.h"
 #include <cstdint>
-#include <memory>
 #include <optional>
 #include <string>
 

@@ -281,6 +281,7 @@ bool worldmap_ui_system::event_button(SDL_Event *event) {
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       buttons_func[i]();
       return true;
     }

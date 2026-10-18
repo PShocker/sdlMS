@@ -9,13 +9,10 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
-#include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
-#include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
-#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
 #include "src/client/game_instance/shop_game_instance.h"
 #include "src/client/system/system.h"
@@ -24,6 +21,7 @@
 #include "src/client/system/ui/context_menu_ui_system.h"
 #include "src/client/system/ui/craft_ui_system.h"
 #include "src/client/system/ui/equip_ui_system.h"
+#include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system/ui/notice_ui_system.h"
@@ -262,6 +260,10 @@ void cursor_logic_system::run_cursor_ui() {
       }
     } else if (fn == quest_alarm_ui_system::render) {
       if (quest_alarm_ui_system::cursor_in()) {
+        cursor_game_instance::cursor_ui = fn;
+      }
+    } else if (fn == keybinding_ui_system::render) {
+      if (keybinding_ui_system::cursor_in()) {
         cursor_game_instance::cursor_ui = fn;
       }
     } else if (fn == login_notice_ui_system::render) {

@@ -844,7 +844,7 @@ bool package_ui_system::event(SDL_Event *event) {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      event_close();
+      toggle();
       return false;
       break;
     }

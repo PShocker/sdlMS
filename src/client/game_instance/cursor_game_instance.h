@@ -25,6 +25,22 @@ public:
     skill,
     keybind,
   };
+  enum cursor_keybind_type { // sub_val
+    keybind_action_attack,
+    keybind_action_sit,
+    keybind_action_jump,
+    keybind_action_pick,
+    keybind_ui_worldMap,
+    keybind_ui_package,
+    keybind_ui_characterStat,
+    keybind_ui_keybind,
+    keybind_ui_skill,
+    keybind_ui_equip,
+    keybind_ui_craft,
+    keybind_ui_quest,
+    keybind_ui_option,
+    keybind_face_vomit,
+  };
   struct cursor_hand_data {
     cursor_hand_type type;
     uint32_t val;

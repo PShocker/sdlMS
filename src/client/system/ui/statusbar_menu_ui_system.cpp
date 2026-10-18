@@ -1,6 +1,7 @@
 #include "statusbar_menu_ui_system.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
+#include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
@@ -213,6 +214,7 @@ void statusbar_menu_ui_system::toggle() {
     close();
   } else {
     open();
+    audio_game_instance::load_audio(u"UI.img/DlgNotice", 0);
   }
 }
 

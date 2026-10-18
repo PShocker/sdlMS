@@ -228,35 +228,47 @@ int package_game_instance::add_item_slot(std::polymorphic<game_item> &item,
 
 std::optional<int>
 package_game_instance::add_item(std::polymorphic<game_item> &item) {
-  auto b = load_empty_index(item);
-  if (b.empty()) {
-    return std::nullopt;
-  }
+  // 提前解引用，避免多次 -> 调用
+  const auto type = item->type;
+
+  // 特例：货币类道具（id 全零）
   if (item->id == u"00000000") {
-    auto num = item_game_instance::load_item_num(item);
-    add_meso(num);
+    add_meso(item_game_instance::load_item_num(item));
     return 0;
   }
-  std::optional<int> r;
-  auto &p = package_game_instance::data[(int)item->type];
-  switch (item->type) {
+
+  auto empty_slots = load_empty_index(item);
+  if (empty_slots.empty()) {
+    return std::nullopt;
+  }
+
+  std::optional<int> result;
+  auto &slots = package_game_instance::data[static_cast<int>(type)];
+
+  switch (type) {
   case item_enum::consume:
   case item_enum::etc: {
-    for (auto i : b) {
-      if (add_item_slot(item, i)) {
-        r = i;
+    // 逐个尝试放入空槽，直到成功一个即可
+    for (const int idx : empty_slots) {
+      if (add_item_slot(item, idx)) {
+        result = idx;
+        break; // 成功即止，避免重复添加
       }
     }
     break;
   }
   default: {
-    r = b[0];
-    p[b[0]] = (item);
+    const int idx = empty_slots.front();
+    slots[idx] = item;
+    result = idx;
     break;
   }
   }
-  quest_game_instance::update_check_item();
-  return r;
+  // 仅在实际添加成功时更新任务检查
+  if (result) {
+    quest_game_instance::update_check_item();
+  }
+  return result;
 }
 
 std::optional<int>
