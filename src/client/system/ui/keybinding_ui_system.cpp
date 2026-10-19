@@ -6,6 +6,7 @@
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
+#include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
@@ -19,6 +20,7 @@
 
 const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
     mapped_scancode_position = {
+        {SDL_SCANCODE_ESCAPE, {14, 27}},
         {SDL_SCANCODE_F1, {82, 27}},
         {SDL_SCANCODE_F2, {116, 27}},
         {SDL_SCANCODE_F3, {150, 27}},
@@ -134,6 +136,7 @@ void keybinding_ui_system::render_backgrnd_key() {
       {SDL_SCANCODE_RIGHTBRACKET,
        wz_resource::load_texture(keys->get_child(u"27"))},
       {SDL_SCANCODE_LCTRL, wz_resource::load_texture(keys->get_child(u"29"))},
+      {SDL_SCANCODE_RCTRL, wz_resource::load_texture(keys->get_child(u"29"))},
       {SDL_SCANCODE_A, wz_resource::load_texture(keys->get_child(u"30"))},
       {SDL_SCANCODE_S, wz_resource::load_texture(keys->get_child(u"31"))},
       {SDL_SCANCODE_D, wz_resource::load_texture(keys->get_child(u"32"))},
@@ -149,6 +152,7 @@ void keybinding_ui_system::render_backgrnd_key() {
        wz_resource::load_texture(keys->get_child(u"40"))},
       {SDL_SCANCODE_GRAVE, wz_resource::load_texture(keys->get_child(u"41"))},
       {SDL_SCANCODE_LSHIFT, wz_resource::load_texture(keys->get_child(u"42"))},
+      {SDL_SCANCODE_RSHIFT, wz_resource::load_texture(keys->get_child(u"42"))},
       {SDL_SCANCODE_BACKSLASH,
        wz_resource::load_texture(keys->get_child(u"43"))},
       {SDL_SCANCODE_Z, wz_resource::load_texture(keys->get_child(u"44"))},
@@ -161,6 +165,7 @@ void keybinding_ui_system::render_backgrnd_key() {
       {SDL_SCANCODE_COMMA, wz_resource::load_texture(keys->get_child(u"51"))},
       {SDL_SCANCODE_PERIOD, wz_resource::load_texture(keys->get_child(u"52"))},
       {SDL_SCANCODE_LALT, wz_resource::load_texture(keys->get_child(u"56"))},
+      {SDL_SCANCODE_RALT, wz_resource::load_texture(keys->get_child(u"56"))},
       {SDL_SCANCODE_SPACE, wz_resource::load_texture(keys->get_child(u"57"))},
       {SDL_SCANCODE_F1, wz_resource::load_texture(keys->get_child(u"59"))},
       {SDL_SCANCODE_F2, wz_resource::load_texture(keys->get_child(u"60"))},
@@ -335,24 +340,39 @@ static std::optional<game_input> remain_input;
 
 void keybinding_ui_system::render_remain_key() {
   remain_input = std::nullopt;
-  SDL_FPoint lt{8, 200};
+  SDL_FPoint lt{12, 300};
   const static std::flat_map<int, SDL_FPoint> m = {
       {cursor_game_instance::keybind_action_attack, SDL_FPoint{0, 0}},
+      {cursor_game_instance::keybind_action_sit, SDL_FPoint{34, 0}},
+      {cursor_game_instance::keybind_action_jump, SDL_FPoint{68, 0}},
+      {cursor_game_instance::keybind_action_pick, SDL_FPoint{102, 0}},
+      {cursor_game_instance::keybind_action_up, SDL_FPoint{136, 0}},
+      {cursor_game_instance::keybind_action_down, SDL_FPoint{170, 0}},
+      {cursor_game_instance::keybind_action_left, SDL_FPoint{204, 0}},
+      {cursor_game_instance::keybind_action_right, SDL_FPoint{238, 0}},
+      {cursor_game_instance::keybind_ui_worldMap, SDL_FPoint{272, 0}},
+      {cursor_game_instance::keybind_ui_package, SDL_FPoint{306, 0}},
+      {cursor_game_instance::keybind_ui_characterStat, SDL_FPoint{340, 0}},
+      {cursor_game_instance::keybind_ui_keybind, SDL_FPoint{374, 0}},
+      {cursor_game_instance::keybind_ui_skill, SDL_FPoint{408, 0}},
+      {cursor_game_instance::keybind_ui_equip, SDL_FPoint{442, 0}},
+      {cursor_game_instance::keybind_ui_craft, SDL_FPoint{476, 0}},
+      {cursor_game_instance::keybind_ui_quest, SDL_FPoint{510, 0}},
+      {cursor_game_instance::keybind_ui_option, SDL_FPoint{544, 0}},
   };
   const auto &key_data = keyboard_game_instance::data;
   auto &mouse_pos = window::mouse_pos;
   for (auto [k, v] : m) {
-    auto input = keyboard_game_instance::find_input_by_cursor(k);
-    if (keyboard_game_instance::find_key_by_val(input.val)) {
-      continue;
-    }
+    // if (keyboard_game_instance::find_key_by_val(input.val)) {
+    //   continue;
+    // }
     SDL_FRect pos_rect;
     pos_rect.x = (int)pos.x + lt.x + v.x;
     pos_rect.y = (int)pos.y + lt.y + v.y;
     pos_rect.w = 32;
     pos_rect.h = 32;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      remain_input = input;
+      remain_input = keyboard_game_instance::find_input_by_cursor(k);
     }
     render_remain_icon(k, pos_rect.x, pos_rect.y);
   }

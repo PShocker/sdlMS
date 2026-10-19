@@ -43,6 +43,7 @@ public:
     keybind_ui_craft,
     keybind_ui_quest,
     keybind_ui_option,
+    keybind_ui_buddy,
     keybind_face_vomit,
   };
   struct cursor_hand_data {

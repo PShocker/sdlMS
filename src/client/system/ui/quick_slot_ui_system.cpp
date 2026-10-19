@@ -41,6 +41,16 @@ void quick_slot_ui_system::render_input_icon(const game_input &i, int x, int y,
                        wz_resource::ui->find(u"KeyBindings.img/icon/52"))},
         {"jump", wz_resource::load_texture(
                      wz_resource::ui->find(u"KeyBindings.img/icon/53"))},
+        {"up", wz_resource::load_texture(
+                   wz_resource::ui->find(u"KeyBindings.img/icon/302"))},
+        {"down", wz_resource::load_texture(
+                     wz_resource::ui->find(u"KeyBindings.img/icon/303"))},
+        {"left", wz_resource::load_texture(
+                     wz_resource::ui->find(u"KeyBindings.img/icon/300"))},
+        {"right", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/301"))},
+        {"harvest", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/54"))},
     };
     if (actions.contains(i.val)) {
       t = actions.at(i.val);
@@ -93,10 +103,33 @@ void quick_slot_ui_system::render_input_icon(const game_input &i, int x, int y,
                            wz_resource::ui->find(u"KeyBindings.img/icon/47"))},
         {"picMode", wz_resource::load_texture(
                         wz_resource::ui->find(u"KeyBindings.img/icon/48"))},
-
+        {"craft", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/55"))},
+        {"mailBox", wz_resource::load_texture(
+                        wz_resource::ui->find(u"KeyBindings.img/icon/58"))},
     };
     if (uis.contains(i.val)) {
       t = uis.at(i.val);
+    }
+  } else if (i.type == "face") {
+    const static std::flat_map<std::string, SDL_Texture *> faces = {
+        {"hit", wz_resource::load_texture(
+                    wz_resource::ui->find(u"KeyBindings.img/icon/100"))},
+        {"smile", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/101"))},
+        {"troubled", wz_resource::load_texture(
+                         wz_resource::ui->find(u"KeyBindings.img/icon/102"))},
+        {"cry", wz_resource::load_texture(
+                    wz_resource::ui->find(u"KeyBindings.img/icon/103"))},
+        {"angry", wz_resource::load_texture(
+                      wz_resource::ui->find(u"KeyBindings.img/icon/104"))},
+        {"bewildered", wz_resource::load_texture(
+                           wz_resource::ui->find(u"KeyBindings.img/icon/105"))},
+        {"stunned", wz_resource::load_texture(
+                     wz_resource::ui->find(u"KeyBindings.img/icon/106"))},
+    };
+    if (faces.contains(i.val)) {
+      t = faces.at(i.val);
     }
   }
   if (t == nullptr) {
@@ -308,11 +341,7 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
           case cursor_game_instance::keybind: {
             auto input =
                 keyboard_game_instance::data.at((SDL_Scancode)cursor_hand.val);
-            if (input.type == "skill") {
-              keyboard_game_instance::add_input(
-                  scan_code, keyboard_game_instance::skill, input.val);
-            } else if (input.type == "item") {
-            }
+            keyboard_game_instance::insert_input(scan_code, input);
             break;
           }
           case cursor_game_instance::package: {
@@ -324,15 +353,21 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
                   id.starts_with("0207")) {
                 break;
               }
-              keyboard_game_instance::add_input(
-                  scan_code, keyboard_game_instance::item, id);
+              game_input input{
+                  .type = "item",
+                  .val = id,
+              };
+              keyboard_game_instance::insert_input(scan_code, input);
             }
             break;
           }
           case cursor_game_instance::skill: {
             id = std::format("{:07d}", cursor_hand.sub_val);
-            keyboard_game_instance::add_input(
-                scan_code, keyboard_game_instance::skill, id);
+            game_input input{
+                .type = "item",
+                .val = id,
+            };
+            keyboard_game_instance::insert_input(scan_code, input);
             break;
           }
           default: {

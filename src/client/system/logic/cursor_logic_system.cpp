@@ -326,7 +326,7 @@ bool cursor_logic_system::event_cursor_hand(SDL_Event *event) {
   switch (cursor_hand->type) {
   case cursor_game_instance::keybind: {
     auto c = (SDL_Scancode)cursor_hand->val;
-    keyboard_game_instance::add_input(c, keyboard_game_instance::none, "");
+    keyboard_game_instance::erase_input(c);
     cursor_hand = std::nullopt;
     audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
     break;

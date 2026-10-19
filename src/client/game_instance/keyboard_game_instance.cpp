@@ -5,36 +5,44 @@
 #include <string>
 
 void keyboard_game_instance::reset() {
-  data = {
-      {SDL_SCANCODE_UP, {.type = "action", .val = "up"}},
-      {SDL_SCANCODE_DOWN, {.type = "action", .val = "down"}},
-      {SDL_SCANCODE_LEFT, {.type = "action", .val = "left"}},
-      {SDL_SCANCODE_RIGHT, {.type = "action", .val = "right"}},
-      {SDL_SCANCODE_LALT, {.type = "action", .val = "jump"}},
-      {SDL_SCANCODE_LCTRL, {.type = "action", .val = "attack"}},
-      {SDL_SCANCODE_X, {.type = "action", .val = "sit"}},
-      {SDL_SCANCODE_Z, {.type = "action", .val = "pick"}},
-      {SDL_SCANCODE_W, {.type = "ui", .val = "worldMap"}},
-      {SDL_SCANCODE_I, {.type = "ui", .val = "package"}},
-      {SDL_SCANCODE_S, {.type = "ui", .val = "characterStat"}},
-      // {SDL_SCANCODE_O, {.type = "ui", .val = "keyBind"}},
-      {SDL_SCANCODE_K, {.type = "ui", .val = "skill"}},
-      {SDL_SCANCODE_E, {.type = "ui", .val = "equip"}},
-      {SDL_SCANCODE_C, {.type = "ui", .val = "craft"}},
-      {SDL_SCANCODE_Q, {.type = "ui", .val = "quest"}},
-      {SDL_SCANCODE_P, {.type = "ui", .val = "option"}},
-      {SDL_SCANCODE_A, {.type = "skill", .val = "3001002"}},
-      {SDL_SCANCODE_LSHIFT, {.type = "skill", .val = "4001003"}},
-      {SDL_SCANCODE_V, {.type = "skill", .val = "0001000"}},
-      {SDL_SCANCODE_B, {.type = "skill", .val = "4001001"}},
-      {SDL_SCANCODE_N, {.type = "skill", .val = "0001002"}},
-      {SDL_SCANCODE_H, {.type = "skill", .val = "2001003"}},
-      {SDL_SCANCODE_SPACE, {.type = "skill", .val = "2301000"}},
-      {SDL_SCANCODE_M, {.type = "skill", .val = "3101003"}},
-      {SDL_SCANCODE_C, {.type = "item", .val = "03010008"}},
-      {SDL_SCANCODE_F4, {.type = "face", .val = "vomit"}},
-
-  };
+  data.clear();
+  insert_input(SDL_SCANCODE_ESCAPE, {.type = "ui", .val = "menu"});
+  insert_input(SDL_SCANCODE_F1, {.type = "face", .val = "hit"});
+  insert_input(SDL_SCANCODE_F2, {.type = "face", .val = "smile"});
+  insert_input(SDL_SCANCODE_F3, {.type = "face", .val = "troubled"});
+  insert_input(SDL_SCANCODE_F4, {.type = "face", .val = "cry"});
+  insert_input(SDL_SCANCODE_F5, {.type = "face", .val = "angry"});
+  insert_input(SDL_SCANCODE_F6, {.type = "face", .val = "bewildered"});
+  insert_input(SDL_SCANCODE_F7, {.type = "face", .val = "stunned"});
+  insert_input(SDL_SCANCODE_1, {.type = "ui", .val = "toAll"});
+  insert_input(SDL_SCANCODE_2, {.type = "ui", .val = "toParty"});
+  insert_input(SDL_SCANCODE_3, {.type = "ui", .val = "toBuddy"});
+  insert_input(SDL_SCANCODE_Q, {.type = "ui", .val = "quest"});
+  insert_input(SDL_SCANCODE_W, {.type = "ui", .val = "worldMap"});
+  insert_input(SDL_SCANCODE_E, {.type = "ui", .val = "equip"});
+  insert_input(SDL_SCANCODE_I, {.type = "ui", .val = "package"});
+  insert_input(SDL_SCANCODE_O, {.type = "ui", .val = "buddy"});
+  insert_input(SDL_SCANCODE_P, {.type = "ui", .val = "party"});
+  insert_input(SDL_SCANCODE_LEFTBRACKET, {.type = "ui", .val = "mapleChat"});
+  insert_input(SDL_SCANCODE_RIGHTBRACKET, {.type = "ui", .val = "quickSlot"});
+  insert_input(SDL_SCANCODE_BACKSLASH, {.type = "ui", .val = "keyBind"});
+  insert_input(SDL_SCANCODE_S, {.type = "ui", .val = "characterStat"});
+  insert_input(SDL_SCANCODE_H, {.type = "ui", .val = "whisper"});
+  insert_input(SDL_SCANCODE_K, {.type = "ui", .val = "skill"});
+  insert_input(SDL_SCANCODE_L, {.type = "ui", .val = "craft"});
+  insert_input(SDL_SCANCODE_SEMICOLON, {.type = "ui", .val = "mailBox"});
+  insert_input(SDL_SCANCODE_APOSTROPHE, {.type = "ui", .val = "chat+"});
+  insert_input(SDL_SCANCODE_Z, {.type = "action", .val = "pick"});
+  insert_input(SDL_SCANCODE_X, {.type = "action", .val = "sit"});
+  insert_input(SDL_SCANCODE_M, {.type = "ui", .val = "miniMap"});
+  insert_input(SDL_SCANCODE_COMMA, {.type = "ui", .val = "changeChannel"});
+  insert_input(SDL_SCANCODE_LCTRL, {.type = "action", .val = "attack"});
+  insert_input(SDL_SCANCODE_LALT, {.type = "action", .val = "jump"});
+  insert_input(SDL_SCANCODE_SPACE, {.type = "action", .val = "harvest"});
+  insert_input(SDL_SCANCODE_UP, {.type = "action", .val = "up"});
+  insert_input(SDL_SCANCODE_DOWN, {.type = "action", .val = "down"});
+  insert_input(SDL_SCANCODE_LEFT, {.type = "action", .val = "left"});
+  insert_input(SDL_SCANCODE_RIGHT, {.type = "action", .val = "right"});
 }
 
 void keyboard_game_instance::load() { reset(); }
@@ -70,9 +78,27 @@ game_input keyboard_game_instance::find_input_by_cursor(int i) {
     };
     break;
   }
-  case cursor_game_instance::keybind_action_sit:
-  case cursor_game_instance::keybind_action_jump:
-  case cursor_game_instance::keybind_action_pick:
+  case cursor_game_instance::keybind_action_sit: {
+    input = {
+        .type = "action",
+        .val = "sit",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_action_jump: {
+    input = {
+        .type = "action",
+        .val = "jump",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_action_pick: {
+    input = {
+        .type = "action",
+        .val = "pick",
+    };
+    break;
+  }
   case cursor_game_instance::keybind_action_up: {
     input = {
         .type = "action",
@@ -118,14 +144,14 @@ game_input keyboard_game_instance::find_input_by_cursor(int i) {
   case cursor_game_instance::keybind_ui_characterStat: {
     input = {
         .type = "ui",
-        .val = "right",
+        .val = "characterStat",
     };
     break;
   }
   case cursor_game_instance::keybind_ui_keybind: {
     input = {
         .type = "ui",
-        .val = "keybind",
+        .val = "keyBind",
     };
     break;
   }
@@ -164,6 +190,13 @@ game_input keyboard_game_instance::find_input_by_cursor(int i) {
     };
     break;
   }
+  case cursor_game_instance::keybind_ui_buddy: {
+    input = {
+        .type = "ui",
+        .val = "buddy",
+    };
+    break;
+  }
   case cursor_game_instance::keybind_face_vomit: {
     input = {
         .type = "face",
@@ -178,30 +211,56 @@ game_input keyboard_game_instance::find_input_by_cursor(int i) {
   return input;
 }
 
-void keyboard_game_instance::add_input(SDL_Scancode c, input_type t,
-                                       const std::string &id) {
-  data.erase(c);
-  if (id.empty()) {
-    return;
-  }
-  std::string type;
-  switch (t) {
-  case none: {
+void keyboard_game_instance::insert_input(SDL_Scancode c, game_input i) {
+  erase_input(c);
+  erase_input(i);
+  switch (c) {
+  case SDL_SCANCODE_LCTRL:
+  case SDL_SCANCODE_RCTRL:
+    data[SDL_SCANCODE_LCTRL] = i;
+    data[SDL_SCANCODE_RCTRL] = i;
+    break;
+  case SDL_SCANCODE_LALT:
+  case SDL_SCANCODE_RALT:
+    data[SDL_SCANCODE_LALT] = i;
+    data[SDL_SCANCODE_RALT] = i;
+    break;
+  case SDL_SCANCODE_LSHIFT:
+  case SDL_SCANCODE_RSHIFT:
+    data[SDL_SCANCODE_LSHIFT] = i;
+    data[SDL_SCANCODE_RSHIFT] = i;
+    break;
+  default:
+    data[c] = i;
     break;
   }
-  case item: {
-    type = "item";
+}
+
+void keyboard_game_instance::erase_input(SDL_Scancode c) {
+  switch (c) {
+  case SDL_SCANCODE_LCTRL:
+  case SDL_SCANCODE_RCTRL:
+    data.erase(SDL_SCANCODE_LCTRL);
+    data.erase(SDL_SCANCODE_RCTRL);
+    break;
+  case SDL_SCANCODE_LALT:
+  case SDL_SCANCODE_RALT:
+    data.erase(SDL_SCANCODE_LALT);
+    data.erase(SDL_SCANCODE_RALT);
+    break;
+  case SDL_SCANCODE_LSHIFT:
+  case SDL_SCANCODE_RSHIFT:
+    data.erase(SDL_SCANCODE_LSHIFT);
+    data.erase(SDL_SCANCODE_RSHIFT);
+    break;
+  default:
+    data.erase(c);
     break;
   }
-  case skill: {
-    type = "skill";
-    break;
-  }
-  }
+}
+
+void keyboard_game_instance::erase_input(game_input i) {
   std::erase_if(data, [&](const auto &kv) {
-    game_input input = kv.second;
-    return input.type == type && input.val == id; // 举例字段
+    return kv.second == i; // 举例字段
   });
-  data[c].type = type;
-  data[c].val = id;
 }

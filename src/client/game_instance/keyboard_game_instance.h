@@ -17,6 +17,7 @@ public:
   static SDL_Scancode find_key_by_val(const std::string &target_val);
   static game_input find_input_by_cursor(int i);
 
-  enum input_type { none, item, skill };
-  static void add_input(SDL_Scancode c, input_type t, const std::string &id);
+  static void insert_input(SDL_Scancode c, game_input i);
+  static void erase_input(SDL_Scancode c);
+  static void erase_input(game_input i);
 };

@@ -198,6 +198,11 @@ void statusbar_menu_ui_system::open() {
       std::ranges::find(system::render_systems, &cursor_render_system::render);
   if (it != system::render_systems.end()) {
     alpha = 0;
+
+    if (!menu_type.has_value()) {
+      menu_type = menu_enums::menu;
+    }
+
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
   }
@@ -206,6 +211,8 @@ void statusbar_menu_ui_system::open() {
 void statusbar_menu_ui_system::close() {
   std::erase(system::render_systems, render);
   std::erase(system::event_systems, event);
+
+  audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
 }
 
 void statusbar_menu_ui_system::toggle() {
@@ -321,6 +328,7 @@ bool statusbar_menu_ui_system::event(SDL_Event *event) {
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
       close();
+      return false;
       break;
     }
     default: {

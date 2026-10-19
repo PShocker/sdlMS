@@ -9,6 +9,7 @@
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/system/ui/skill_ui_system.h"
+#include "src/client/system/ui/statusbar_menu_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
 #include <flat_map>
 #include <string>
@@ -25,8 +26,11 @@ void input_system::handle_ui_input(game_input &g_input) {
       {"craft", craft_ui_system::toggle},
       {"quest", quest_ui_system::toggle},
       {"option", option_ui_system::toggle},
+      {"menu", statusbar_menu_ui_system::toggle},
   };
-  fns.at(g_input.val)();
+  if (fns.contains(g_input.val)) {
+    fns.at(g_input.val)();
+  }
 }
 
 void input_system::handle_item_input(game_input &g_input, bool press) {
