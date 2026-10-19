@@ -48,11 +48,11 @@ void quick_slot_ui_system::render_input_icon(const game_input &i, int x, int y,
   } else if (i.type == "ui") {
     const static std::flat_map<std::string, SDL_Texture *> uis = {
         {"equip", wz_resource::load_texture(
-                          wz_resource::ui->find(u"KeyBindings.img/icon/0"))},
+                      wz_resource::ui->find(u"KeyBindings.img/icon/0"))},
         {"package", wz_resource::load_texture(
                         wz_resource::ui->find(u"KeyBindings.img/icon/1"))},
-        {"characterStat", wz_resource::load_texture(
-                     wz_resource::ui->find(u"KeyBindings.img/icon/2"))},
+        {"characterStat", wz_resource::load_texture(wz_resource::ui->find(
+                              u"KeyBindings.img/icon/2"))},
         {"skill", wz_resource::load_texture(
                       wz_resource::ui->find(u"KeyBindings.img/icon/3"))},
         {"buddy", wz_resource::load_texture(
@@ -109,6 +109,7 @@ void quick_slot_ui_system::render_input_icon(const game_input &i, int x, int y,
       static_cast<float>(t->h),
   };
   if (i.type == "item") {
+    pos_rect.x += (32 - pos_rect.w) / 2;
     pos_rect.y += (32 - pos_rect.h) / 2;
   }
   SDL_SetTextureAlphaMod(t, alpha);

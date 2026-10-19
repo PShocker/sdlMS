@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/client/game/game_input.h"
+#include <cstdint>
 #include <optional>
 class keybinding_ui_system {
 private:
@@ -40,7 +42,7 @@ public:
   static void open();
   static void close();
 
-  static void render_remain_icon(int i, int x, int y);
+  static void render_remain_icon(int i, int x, int y, uint8_t alpha = 255);
   static bool render();
   static bool event(SDL_Event *event);
 

@@ -555,14 +555,20 @@ void minimap_ui_system::render_name() {
 void minimap_ui_system::render_canvas() {
   auto canvas_texture = load_canvas_texture();
   auto canvas_viewport = load_canvas_viewport();
-  SDL_FRect src_rect{canvas_viewport.x, canvas_viewport.y,
-                     static_cast<float>(canvas_viewport.w),
-                     static_cast<float>(canvas_viewport.h)};
+  SDL_FRect src_rect{
+      canvas_viewport.x,
+      canvas_viewport.y,
+      static_cast<float>(canvas_viewport.w),
+      static_cast<float>(canvas_viewport.h),
+  };
 
   auto canvas_o = load_canvas_o();
-  SDL_FRect pos_rect{pos.x + canvas_o.x, pos.y + canvas_o.y,
-                     static_cast<float>(canvas_viewport.w),
-                     static_cast<float>(canvas_viewport.h)};
+  SDL_FRect pos_rect{
+      pos.x + canvas_o.x,
+      pos.y + canvas_o.y,
+      static_cast<float>(canvas_viewport.w),
+      static_cast<float>(canvas_viewport.h),
+  };
 
   SDL_RenderTexture(window::renderer, canvas_texture, &src_rect, &pos_rect);
 }

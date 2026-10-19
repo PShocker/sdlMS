@@ -128,6 +128,14 @@ void popup_tip_ui_system::render_button(game_popup_tip &t) {
   }
 }
 
+void popup_tip_ui_system::destory() {
+  auto &data = popup_tip_game_instance::data;
+  const auto now = window::dt_now;
+  std::erase_if(data, [now](const game_popup_tip &t) {
+    return t.destroy < now && t.alpha == 0.0f;
+  });
+}
+
 bool popup_tip_ui_system::render() {
   auto &data = popup_tip_game_instance::data;
   const auto now = window::dt_now;
@@ -140,10 +148,8 @@ bool popup_tip_ui_system::render() {
     render_text(t);
     render_button(t);
   }
-
-  std::erase_if(data, [now](const game_popup_tip &t) {
-    return t.destroy < now && t.alpha == 0.0f;
-  });
+  
+  destory();
 
   return true;
 }

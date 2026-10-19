@@ -1,5 +1,6 @@
 #include "keyboard_game_instance.h"
 #include "SDL3/SDL_scancode.h"
+#include "cursor_game_instance.h"
 #include "src/client/game/game_input.h"
 #include <string>
 
@@ -57,6 +58,124 @@ keyboard_game_instance::find_key_by_val(const std::string &target_val) {
     }
   }
   return SDL_SCANCODE_UNKNOWN; // 未找到
+}
+
+game_input keyboard_game_instance::find_input_by_cursor(int i) {
+  game_input input;
+  switch ((cursor_game_instance::cursor_keybind_type)i) {
+  case cursor_game_instance::keybind_action_attack: {
+    input = {
+        .type = "action",
+        .val = "attack",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_action_sit:
+  case cursor_game_instance::keybind_action_jump:
+  case cursor_game_instance::keybind_action_pick:
+  case cursor_game_instance::keybind_action_up: {
+    input = {
+        .type = "action",
+        .val = "up",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_action_down: {
+    input = {
+        .type = "action",
+        .val = "down",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_action_left: {
+    input = {
+        .type = "action",
+        .val = "left",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_action_right: {
+    input = {
+        .type = "action",
+        .val = "right",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_worldMap: {
+    input = {
+        .type = "ui",
+        .val = "worldMap",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_package: {
+    input = {
+        .type = "ui",
+        .val = "package",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_characterStat: {
+    input = {
+        .type = "ui",
+        .val = "right",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_keybind: {
+    input = {
+        .type = "ui",
+        .val = "keybind",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_skill: {
+    input = {
+        .type = "ui",
+        .val = "skill",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_equip: {
+    input = {
+        .type = "ui",
+        .val = "equip",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_craft: {
+    input = {
+        .type = "ui",
+        .val = "craft",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_quest: {
+    input = {
+        .type = "ui",
+        .val = "quest",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_option: {
+    input = {
+        .type = "ui",
+        .val = "option",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_face_vomit: {
+    input = {
+        .type = "face",
+        .val = "vomit",
+    };
+    break;
+  }
+  default: {
+    return input;
+  }
+  }
+  return input;
 }
 
 void keyboard_game_instance::add_input(SDL_Scancode c, input_type t,

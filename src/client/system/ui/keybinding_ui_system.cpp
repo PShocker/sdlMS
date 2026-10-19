@@ -14,6 +14,7 @@
 #include <SDL3/SDL_scancode.h>
 #include <algorithm>
 #include <flat_map>
+#include <optional>
 #include <string>
 
 const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
@@ -100,8 +101,10 @@ SDL_FPoint keybinding_ui_system::load_wh() { return {636, 445}; }
 
 const static SDL_FPoint key_lt{5, 56};
 
+static std::optional<SDL_Scancode> backgrnd_key;
+
 void keybinding_ui_system::render_backgrnd_key() {
-  static auto keys = wz_resource::ui->find(u"KeyBindings.img/key");
+  auto keys = wz_resource::ui->find(u"KeyBindings.img/key");
   static const std::flat_map<SDL_Scancode, SDL_Texture *> key_textures = {
       {SDL_SCANCODE_ESCAPE, wz_resource::load_texture(keys->get_child(u"1"))},
       {SDL_SCANCODE_1, wz_resource::load_texture(keys->get_child(u"2"))},
@@ -192,6 +195,8 @@ void keybinding_ui_system::render_backgrnd_key() {
       {SDL_SCANCODE_RIGHT, wz_resource::load_texture(keys->get_child(u"77"))},
 
   };
+  backgrnd_key = std::nullopt;
+  auto &mouse_pos = window::mouse_pos;
   for (auto [k, v] : key_textures) {
     if (!mapped_scancode_position.contains(k)) {
       continue;
@@ -200,6 +205,10 @@ void keybinding_ui_system::render_backgrnd_key() {
     // render icon
     int x = pos.x + key_pos.x + key_lt.x;
     int y = pos.y + key_pos.y + key_lt.y;
+    SDL_FRect pp{static_cast<float>(x), static_cast<float>(y), 32, 32};
+    if (SDL_PointInRectFloat(&mouse_pos, &pp)) {
+      backgrnd_key = k;
+    }
     if (keyboard_game_instance::data.contains(k)) {
       const auto &input = keyboard_game_instance::data.at(k);
       quick_slot_ui_system::render_input_icon(input, x - 1, y - 1);
@@ -316,36 +325,37 @@ void keybinding_ui_system::render_button() {
   }
 }
 
-void keybinding_ui_system::render_remain_icon(int i, int x, int y) {
-  game_input input;
-  switch ((cursor_game_instance::cursor_keybind_type)i) {
-  case cursor_game_instance::keybind_action_attack: {
-    break;
-  }
-  case cursor_game_instance::keybind_action_sit:
-  case cursor_game_instance::keybind_action_jump:
-  case cursor_game_instance::keybind_action_pick:
-  case cursor_game_instance::keybind_ui_worldMap:
-  case cursor_game_instance::keybind_ui_package:
-  case cursor_game_instance::keybind_ui_characterStat:
-  case cursor_game_instance::keybind_ui_keybind:
-  case cursor_game_instance::keybind_ui_skill:
-  case cursor_game_instance::keybind_ui_equip:
-  case cursor_game_instance::keybind_ui_craft:
-  case cursor_game_instance::keybind_ui_quest:
-  case cursor_game_instance::keybind_ui_option:
-  case cursor_game_instance::keybind_face_vomit:
-    break;
-  }
-  quick_slot_ui_system::render_input_icon(input, x, y);
+void keybinding_ui_system::render_remain_icon(int i, int x, int y,
+                                              uint8_t alpha) {
+  auto input = keyboard_game_instance::find_input_by_cursor(i);
+  quick_slot_ui_system::render_input_icon(input, x, y, alpha);
 }
 
+static std::optional<game_input> remain_input;
+
 void keybinding_ui_system::render_remain_key() {
+  remain_input = std::nullopt;
   SDL_FPoint lt{8, 200};
   const static std::flat_map<int, SDL_FPoint> m = {
-      {cursor_game_instance::keybind_ui_craft, SDL_FPoint{0, 0}},
+      {cursor_game_instance::keybind_action_attack, SDL_FPoint{0, 0}},
   };
   const auto &key_data = keyboard_game_instance::data;
+  auto &mouse_pos = window::mouse_pos;
+  for (auto [k, v] : m) {
+    auto input = keyboard_game_instance::find_input_by_cursor(k);
+    if (keyboard_game_instance::find_key_by_val(input.val)) {
+      continue;
+    }
+    SDL_FRect pos_rect;
+    pos_rect.x = (int)pos.x + lt.x + v.x;
+    pos_rect.y = (int)pos.y + lt.y + v.y;
+    pos_rect.w = 32;
+    pos_rect.h = 32;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      remain_input = input;
+    }
+    render_remain_icon(k, pos_rect.x, pos_rect.y);
+  }
 }
 
 bool keybinding_ui_system::render() {
@@ -355,6 +365,7 @@ bool keybinding_ui_system::render() {
   render_tab();
   render_backgrnd_key();
   render_remain_key();
+
   return true;
 }
 

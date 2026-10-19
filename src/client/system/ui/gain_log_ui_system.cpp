@@ -5,11 +5,12 @@
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
+#include <format>
+#include <string>
 
-bool gain_log_ui_system::render() {
+void gain_log_ui_system::render_text() {
   auto &data = gain_log_game_instance::data;
   freetype::load_size(12);
-  freetype::load_bold(false);
   auto screen_w = camera_game_instance::camera.w;
   auto screen_h = camera_game_instance::camera.h;
   auto base_y = (screen_h - 168);
@@ -52,9 +53,19 @@ bool gain_log_ui_system::render() {
       base_y -= freetype::load_lh();
     }
   }
+}
+
+void gain_log_ui_system::destory() {
+  auto &data = gain_log_game_instance::data;
   std::erase_if(data, [](game_gain_log &g_log) {
     auto destroy = g_log.destroy;
     return destroy <= window::dt_now;
   });
+}
+
+bool gain_log_ui_system::render() {
+  render_text();
+  destory();
+
   return true;
 }

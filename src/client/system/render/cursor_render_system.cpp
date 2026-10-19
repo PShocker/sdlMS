@@ -9,6 +9,7 @@
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/ui/equip_ui_system.h"
+#include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
@@ -82,23 +83,28 @@ void cursor_render_system::render_hand() {
       break;
     }
     case cursor_game_instance::keybind: {
-      auto &input = keyboard_game_instance::data.at((SDL_Scancode)hand.val);
-      if (input.type == "skill") {
-        std::u16string ski_id{input.val.begin(), input.val.end()};
-        auto ski_node = skill_game_instance::load_ski_node(ski_id);
-        auto icon = wz_resource::load_texture(ski_node->get_child(u"icon"));
-        render_icon(icon, 172); // 技能透明度不同
-      } else if (input.type == "item") {
-        std::u16string item_id{input.val.begin(), input.val.end()};
-        auto info = item_game_instance::load_item_info(item_id, 0);
-        auto icon = wz_resource::load_texture(info->get_child(u"icon"));
-        render_icon(icon, 172); // 技能透明度不同
+      if (keyboard_game_instance::data.contains((SDL_Scancode)hand.val)) {
+        auto &input = keyboard_game_instance::data.at((SDL_Scancode)hand.val);
+        if (input.type == "skill") {
+          std::u16string ski_id{input.val.begin(), input.val.end()};
+          auto ski_node = skill_game_instance::load_ski_node(ski_id);
+          auto icon = wz_resource::load_texture(ski_node->get_child(u"icon"));
+          render_icon(icon, 172); // 技能透明度不同
+        } else if (input.type == "item") {
+          std::u16string item_id{input.val.begin(), input.val.end()};
+          auto info = item_game_instance::load_item_info(item_id, 0);
+          auto icon = wz_resource::load_texture(info->get_child(u"icon"));
+          render_icon(icon, 172); // 技能透明度不同
+        } else {
+          auto x = window::mouse_pos.x - 16;
+          auto y = window::mouse_pos.y - 16;
+          quick_slot_ui_system::render_input_icon(input, x, y, 172);
+        }
       } else {
         auto x = window::mouse_pos.x - 16;
         auto y = window::mouse_pos.y - 16;
-        quick_slot_ui_system::render_input_icon(input, x, y, 172);
+        keybinding_ui_system::render_remain_icon(hand.sub_val, x, y);
       }
-
       break;
     }
     default: {

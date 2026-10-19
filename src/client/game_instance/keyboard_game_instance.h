@@ -15,6 +15,7 @@ public:
   static void load();
   static inline std::flat_map<SDL_Scancode, game_input> data;
   static SDL_Scancode find_key_by_val(const std::string &target_val);
+  static game_input find_input_by_cursor(int i);
 
   enum input_type { none, item, skill };
   static void add_input(SDL_Scancode c, input_type t, const std::string &id);

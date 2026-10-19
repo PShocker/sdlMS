@@ -15,6 +15,8 @@ private:
 
   static bool event_button(SDL_Event *event);
 
+  static void destory();
+
 public:
   static inline SDL_FPoint pos = {429, -32};
 
