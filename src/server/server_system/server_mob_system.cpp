@@ -341,9 +341,6 @@ bool server_mob_system::run_hitting(server_mob &mob) {
   if (first.hit_time > current_time) {
     return false;
   }
-  // 3) 更新朝向/击退方向
-  mob.hforce = first.left ? MOVE_FORCE : -MOVE_FORCE;
-  mob.flip = !first.left;
   // 4) 死亡判定：HP 归零且最后一击已过期
   if (mob.hp <= 0 && last.hit_time < current_time) {
     const auto killer_id = last.hit_id; // clear 前保存
@@ -353,7 +350,10 @@ bool server_mob_system::run_hitting(server_mob &mob) {
   }
   mob.hate_id = last.hit_id;
   // 5) 推进动作：非击退帧执行 hit action；击退帧弹出队首
-  if (!first.hit_push) {
+  if (first.hit_push) {
+    // 3) 更新朝向/击退方向
+    mob.hforce = first.left ? MOVE_FORCE : -MOVE_FORCE;
+    mob.flip = !first.left;
     run_hit_action(mob);
   } else {
     mob.hits.erase(mob.hits.begin());

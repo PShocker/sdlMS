@@ -327,8 +327,7 @@ bool statusbar_menu_ui_system::event(SDL_Event *event) {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      close();
-      return false;
+      return r;
       break;
     }
     default: {

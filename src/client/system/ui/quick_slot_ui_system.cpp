@@ -292,63 +292,6 @@ bool quick_slot_ui_system::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void quick_slot_ui_system::event_cursor_quickslot_in(SDL_Scancode c) {
-  if (!cursor_game_instance::cursor_hand.has_value()) {
-    return;
-  }
-  auto &cursor_hand = cursor_game_instance::cursor_hand.value();
-  auto scan_code = c;
-  std::string id;
-  switch (cursor_hand.type) {
-  case cursor_game_instance::keybind: {
-    auto input = keyboard_game_instance::data.at((SDL_Scancode)cursor_hand.val);
-    keyboard_game_instance::insert_input(scan_code, input);
-    break;
-  }
-  case cursor_game_instance::package: {
-    auto &item =
-        package_game_instance::data[cursor_hand.val][cursor_hand.sub_val];
-    id = std::string{item->id.begin(), item->id.end()};
-    if (id.starts_with("02")) {
-      if (id.starts_with("0204") || id.starts_with("0206") ||
-          id.starts_with("0207")) {
-        break;
-      }
-      game_input input{
-          .type = "item",
-          .val = id,
-      };
-      keyboard_game_instance::insert_input(scan_code, input);
-    }
-    break;
-  }
-  case cursor_game_instance::skill: {
-    id = std::format("{:07d}", cursor_hand.sub_val);
-    game_input input{
-        .type = "skill",
-        .val = id,
-    };
-    keyboard_game_instance::insert_input(scan_code, input);
-    break;
-  }
-  default: {
-    break;
-  }
-  }
-}
-
-void quick_slot_ui_system::event_cursor_quickslot_out(SDL_Scancode c) {
-  auto &key_data = keyboard_game_instance::data;
-  auto scan_code = c;
-  if (key_data.contains(scan_code)) {
-    auto &input = key_data.at(scan_code);
-    cursor_game_instance::cursor_hand = {
-        .type = cursor_game_instance::keybind,
-        .val = scan_code,
-    };
-  }
-}
-
 bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     return false;
@@ -391,12 +334,18 @@ bool quick_slot_ui_system::event_click_quickslot(SDL_Event *event) {
       };
       if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
         if (cursor_game_instance::cursor_hand.has_value()) {
-          event_cursor_quickslot_in(t[i]);
+          auto input = keyboard_game_instance::load_cursor_input();
+          keyboard_game_instance::insert_input(t[i], input.value());
           cursor_game_instance::cursor_hand = std::nullopt;
           audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
         } else {
-          event_cursor_quickslot_out(t[i]);
-          audio_game_instance::load_audio(u"UI.img/DragStart", 0);
+          if (keyboard_game_instance::data.contains(t[i])) {
+            cursor_game_instance::cursor_hand = {
+                .type = cursor_game_instance::keybind,
+                .val = t[i],
+            };
+            audio_game_instance::load_audio(u"UI.img/DragStart", 0);
+          }
         }
         return true;
       }

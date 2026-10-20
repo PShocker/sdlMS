@@ -33,9 +33,6 @@ public:
 
   static void toggle();
 
-  static void event_cursor_quickslot_in(SDL_Scancode c);
-  static void event_cursor_quickslot_out(SDL_Scancode c);
-
   static void render_input_icon(const game_input &i, int x, int y,
                                 uint8_t alpha = 255);
 };

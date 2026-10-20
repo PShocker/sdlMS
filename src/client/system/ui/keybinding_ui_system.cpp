@@ -18,6 +18,8 @@
 #include <optional>
 #include <string>
 
+static std::flat_map<SDL_Scancode, game_input> data_bak;
+
 const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
     mapped_scancode_position = {
         {SDL_SCANCODE_ESCAPE, {14, 27}},
@@ -398,6 +400,8 @@ void keybinding_ui_system::open() {
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
+    data_bak = keyboard_game_instance::data;
+
     system::render_systems.insert(it, render);
     system::event_systems.insert(system::event_systems.begin(), event);
   }
@@ -412,6 +416,7 @@ void keybinding_ui_system::close() {
 
 void keybinding_ui_system::event_button_close() {
   close();
+  keyboard_game_instance::data = data_bak;
   return;
 }
 
@@ -427,9 +432,15 @@ void keybinding_ui_system::event_button_prePage2() { return; }
 
 void keybinding_ui_system::event_button_prePage3() { return; }
 
-void keybinding_ui_system::event_button_save() { return; }
+void keybinding_ui_system::event_button_save() {
+  close();
+  return;
+}
 
-void keybinding_ui_system::event_button_undo() { return; }
+void keybinding_ui_system::event_button_undo() {
+  event_button_close();
+  return;
+}
 
 void keybinding_ui_system::event_motion_bt_audio(SDL_Event *event) {
   if (cursor_game_instance::cursor_ui != render) {
@@ -470,12 +481,18 @@ void keybinding_ui_system::event_backgrnd_key() {
   auto scan_code = backgrnd_key.value();
   auto &cursor_hand = cursor_game_instance::cursor_hand;
   if (cursor_hand.has_value()) {
-    quick_slot_ui_system::event_cursor_quickslot_in(scan_code);
+    auto input = keyboard_game_instance::load_cursor_input();
+    keyboard_game_instance::insert_input(scan_code, input.value());
     cursor_game_instance::cursor_hand = std::nullopt;
     audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
   } else {
-    quick_slot_ui_system::event_cursor_quickslot_out(scan_code);
-    audio_game_instance::load_audio(u"UI.img/DragStart", 0);
+    if (keyboard_game_instance::data.contains(scan_code)) {
+      cursor_game_instance::cursor_hand = {
+          .type = cursor_game_instance::keybind,
+          .val = scan_code,
+      };
+      audio_game_instance::load_audio(u"UI.img/DragStart", 0);
+    }
   }
 }
 
@@ -535,7 +552,8 @@ bool keybinding_ui_system::event(SDL_Event *event) {
     auto scan_code = event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      toggle();
+      event_button_close();
+      audio_game_instance::load_audio(u"UI.img/BtMouseClick", 0);
       return false;
       break;
     }

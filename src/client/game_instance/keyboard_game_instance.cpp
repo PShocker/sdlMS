@@ -2,6 +2,9 @@
 #include "SDL3/SDL_scancode.h"
 #include "cursor_game_instance.h"
 #include "src/client/game/game_input.h"
+#include "src/client/game_instance/package_game_instance.h"
+#include <format>
+#include <optional>
 #include <string>
 
 void keyboard_game_instance::reset() {
@@ -263,4 +266,49 @@ void keyboard_game_instance::erase_input(game_input i) {
   std::erase_if(data, [&](const auto &kv) {
     return kv.second == i; // 举例字段
   });
+}
+
+std::optional<game_input> keyboard_game_instance::load_cursor_input() {
+  if (!cursor_game_instance::cursor_hand.has_value()) {
+    return std::nullopt;
+  }
+  auto &cursor_hand = cursor_game_instance::cursor_hand.value();
+  std::string id;
+  switch (cursor_hand.type) {
+  case cursor_game_instance::keybind: {
+    auto input = keyboard_game_instance::data.at((SDL_Scancode)cursor_hand.val);
+    return input;
+    break;
+  }
+  case cursor_game_instance::package: {
+    auto &item =
+        package_game_instance::data[cursor_hand.val][cursor_hand.sub_val];
+    id = std::string{item->id.begin(), item->id.end()};
+    if (id.starts_with("02")) {
+      if (id.starts_with("0204") || id.starts_with("0206") ||
+          id.starts_with("0207")) {
+        break;
+      }
+      game_input input{
+          .type = "item",
+          .val = id,
+      };
+      return input;
+    }
+    break;
+  }
+  case cursor_game_instance::skill: {
+    id = std::format("{:07d}", cursor_hand.sub_val);
+    game_input input{
+        .type = "skill",
+        .val = id,
+    };
+    return input;
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return std::nullopt;
 }

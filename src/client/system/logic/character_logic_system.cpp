@@ -953,7 +953,7 @@ bool character_logic_system::run_attack(game_character &g_character) {
     auto cm = run_attack_check(g_character, g_r);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
-      cm.data[0].hits = {10};
+      cm.data[0].hits = {1};
       auto hit_type = afterimage_game_instance::load_hit_type(g_character);
       auto effect =
           "Afterimage/hit.img/" + std::string{hit_type.begin(), hit_type.end()};
