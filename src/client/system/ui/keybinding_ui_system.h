@@ -31,6 +31,10 @@ private:
   static void event_button_save();
   static void event_button_undo();
 
+  static void event_backgrnd_key();
+  static void event_remain_key();
+
+
   static bool event_button(SDL_Event *event);
 
   static inline std::optional<SDL_FPoint> drag;

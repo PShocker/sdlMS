@@ -336,10 +336,10 @@ void keybinding_ui_system::render_remain_icon(int i, int x, int y,
   quick_slot_ui_system::render_input_icon(input, x, y, alpha);
 }
 
-static std::optional<game_input> remain_input;
+static std::optional<uint32_t> remain_key;
 
 void keybinding_ui_system::render_remain_key() {
-  remain_input = std::nullopt;
+  remain_key = std::nullopt;
   SDL_FPoint lt{12, 300};
   const static std::flat_map<int, SDL_FPoint> m = {
       {cursor_game_instance::keybind_action_attack, SDL_FPoint{0, 0}},
@@ -372,7 +372,7 @@ void keybinding_ui_system::render_remain_key() {
     pos_rect.w = 32;
     pos_rect.h = 32;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      remain_input = keyboard_game_instance::find_input_by_cursor(k);
+      remain_key = k;
     }
     render_remain_icon(k, pos_rect.x, pos_rect.y);
   }
@@ -460,6 +460,38 @@ void keybinding_ui_system::event_motion_bt_audio(SDL_Event *event) {
   bt_audio = bt_in;
 }
 
+void keybinding_ui_system::event_backgrnd_key() {
+  if (cursor_game_instance::cursor_hand_net.has_value()) {
+    return;
+  }
+  if (!backgrnd_key.has_value()) {
+    return;
+  }
+  auto scan_code = backgrnd_key.value();
+  auto &cursor_hand = cursor_game_instance::cursor_hand;
+  if (cursor_hand.has_value()) {
+    quick_slot_ui_system::event_cursor_quickslot_in(scan_code);
+    cursor_game_instance::cursor_hand = std::nullopt;
+    audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+  } else {
+    quick_slot_ui_system::event_cursor_quickslot_out(scan_code);
+    audio_game_instance::load_audio(u"UI.img/DragStart", 0);
+  }
+}
+
+void keybinding_ui_system::event_remain_key() {
+  if (cursor_game_instance::cursor_hand_net.has_value()) {
+    return;
+  }
+  if (remain_key.has_value()) {
+    cursor_game_instance::cursor_hand = {
+        .type = cursor_game_instance::keybind,
+        .val = SDL_SCANCODE_UNKNOWN,
+        .sub_val = remain_key.value(),
+    };
+  }
+}
+
 bool keybinding_ui_system::event_button(SDL_Event *event) {
   std::vector<void (*)()> fns;
   auto wh = load_wh();
@@ -527,7 +559,8 @@ bool keybinding_ui_system::event(SDL_Event *event) {
     if (event->button.button == SDL_BUTTON_LEFT) {
       if (cursor_game_instance::cursor_ui == render) {
         // event_tab(event);
-        // event_click_item(event);
+        event_backgrnd_key();
+        event_remain_key();
         r = !event_button(event);
       }
       event_drag_end();

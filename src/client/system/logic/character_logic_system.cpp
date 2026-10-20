@@ -1,5 +1,6 @@
 #include "character_logic_system.h"
 #include "SDL3/SDL_rect.h"
+#include "cursor_logic_system.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_tomb.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
@@ -7,6 +8,7 @@
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/drop_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
@@ -15,6 +17,7 @@
 #include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
+#include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/game_instance/random_game_instance.h"
@@ -395,6 +398,31 @@ void character_logic_system::run_pick(game_character &g_character) {
     }
     return;
   }
+}
+
+bool character_logic_system::run_harvest(game_character &g_character) {
+  bool r = false;
+  if (g_character.debuffs.contains(game_debuff::dizz)) {
+    return r;
+  }
+  if (character_action_input.contains("harvest")) {
+    if (cursor_game_instance::cursor_hand_net.has_value()) {
+      return false;
+    }
+    // npc talk
+    auto g_pos = g_character.pos;
+    for (auto &m : npc_game_instance::data) {
+      for (auto &g_npc : m) {
+        auto n_pos = g_npc.pos;
+        auto dx = n_pos.x - g_pos.x;
+        auto dy = n_pos.y - g_pos.y;
+        if (dx * dx + dy * dy <= std::pow(50, 2)) {
+          return cursor_logic_system::event_click_npc(g_npc);
+        }
+      }
+    }
+  }
+  return r;
 }
 
 bool character_logic_system::run_walk(game_character &g_character) {
@@ -1303,6 +1331,9 @@ void character_logic_system::run_state_machine() {
     run_animate(g_character);
     run_flip(g_character);
     run_pick(g_character);
+    if (run_harvest(g_character)) {
+      break;
+    }
     if (run_climb(g_character)) {
       break;
     }

@@ -25,5 +25,6 @@ private:
 public:
   static bool run();
 
+  static bool event_click_npc(game_npc npc);
   static bool event(SDL_Event *event);
 };

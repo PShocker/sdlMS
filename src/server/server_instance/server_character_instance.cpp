@@ -21,6 +21,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
 #include "src/server/server_main.h"
+#include "wz/Property.h"
 #include <cstdint>
 #include <flat_set>
 #include <format>
@@ -277,11 +278,15 @@ void server_character_instance::handle_attack(uint64_t client_id,
   auto &mobs = server_scene_instance::scenes.at(map_id).mobs;
   for (const auto &a : r.payload) {
     auto &mob = mobs.at(a->mob_index);
+    auto mob_info = mob_game_instance::load_mob_info(mob.id);
+    auto pushed =
+        static_cast<wz::Property<int> *>(mob_info->get_child(u"pushed"))->get();
     mob_hit mh;
     mh.left = a->left;
     mh.hit_id = client_id;
     mh.hit_time = a->attack->delay;
     mh.hit_num = a->attack->num;
+    mh.hit_push = mh.hit_num >= pushed;
     mob.hits.emplace(mh.hit_time, mh);
   }
   // 转发

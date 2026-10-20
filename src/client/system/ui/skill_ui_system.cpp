@@ -433,6 +433,9 @@ bool skill_ui_system::event_button(SDL_Event *event) {
 }
 
 bool skill_ui_system::event_click_ski(SDL_Event *event) {
+  if (cursor_game_instance::cursor_hand_net.has_value()) {
+    return false;
+  }
   if (!mouse_skill_id.empty()) {
     if (event->button.clicks >= 1) {
       auto id = mouse_skill_id;
@@ -455,13 +458,13 @@ bool skill_ui_system::event_click_ski(SDL_Event *event) {
           }
         }
         cursor_game_instance::cursor_hand = std::nullopt;
-        audio_game_instance::load_audio(u"UI.img/DragEnd", 0); 
+        audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
         return false;
       } else {
         audio_game_instance::load_audio(u"UI.img/DragStart", 0);
         cursor_game_instance::cursor_hand = {
             .type = cursor_game_instance::skill,
-            .val = 0,
+            .val = active_tab,
             .sub_val = static_cast<uint32_t>(sub_val),
         };
       }

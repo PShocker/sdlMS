@@ -471,6 +471,50 @@ bool cursor_logic_system::event_character(SDL_Event *event) {
   return r;
 }
 
+bool cursor_logic_system::event_click_npc(game_npc npc) {
+  bool r = false;
+  auto npc_id = npc.id;
+  auto npc_type = npc_game_instance::load_npc_type(npc_id);
+  switch (npc_type) {
+  case npc_game_instance::npc_type::shop: {
+    auto shop = shop_game_instance::load_npc_shop(npc_id);
+    shop_ui_system::shop = shop;
+    shop_ui_system::npc = npc;
+    shop_ui_system::close();
+    shop_ui_system::open();
+    r = true;
+    break;
+  }
+  case npc_game_instance::npc_type::script: {
+    auto node = wz_resource::npc->find(npc_id + u".img");
+    auto script_node = node->find(u"info/script/0/script");
+    auto script_str =
+        static_cast<wz::Property<std::u16string> *>(script_node)->get();
+    script::fns().at(script_str)(nullptr);
+    r = true;
+    break;
+  }
+  case npc_game_instance::npc_type::quest: {
+    npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
+    npc_dlg_ui_system::index = 0;
+    npc_dlg_ui_system::max_index = 0;
+    npc_dlg_ui_system::npc_id = npc_id;
+    npc_dlg_ui_system::time = window::dt_now;
+    // string.wz找d0
+    npc_dlg_ui_system::text = npc_game_instance::load_npc_text(npc_id, u"d0");
+    npc_dlg_ui_system::cb = {};
+    npc_dlg_ui_system::close();
+    npc_dlg_ui_system::open();
+    r = true;
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  return r;
+}
+
 bool cursor_logic_system::event_npc(SDL_Event *event) {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     return false;
@@ -484,46 +528,7 @@ bool cursor_logic_system::event_npc(SDL_Event *event) {
       }
       auto npc = cursor_npc();
       if (npc.has_value()) {
-        auto npc_id = npc->id;
-        auto npc_type = npc_game_instance::load_npc_type(npc_id);
-        switch (npc_type) {
-        case npc_game_instance::npc_type::shop: {
-          auto shop = shop_game_instance::load_npc_shop(npc_id);
-          shop_ui_system::shop = shop;
-          shop_ui_system::npc = npc.value();
-          shop_ui_system::close();
-          shop_ui_system::open();
-          r = true;
-          break;
-        }
-        case npc_game_instance::npc_type::script: {
-          auto node = wz_resource::npc->find(npc_id + u".img");
-          auto script_node = node->find(u"info/script/0/script");
-          auto script_str =
-              static_cast<wz::Property<std::u16string> *>(script_node)->get();
-          script::fns().at(script_str)(nullptr);
-          r = true;
-          break;
-        }
-        case npc_game_instance::npc_type::quest: {
-          npc_dlg_ui_system::type = npc_dlg_ui_system::npc_dlg_enum::quest;
-          npc_dlg_ui_system::index = 0;
-          npc_dlg_ui_system::max_index = 0;
-          npc_dlg_ui_system::npc_id = npc_id;
-          npc_dlg_ui_system::time = window::dt_now;
-          // string.wz找d0
-          npc_dlg_ui_system::text =
-              npc_game_instance::load_npc_text(npc_id, u"d0");
-          npc_dlg_ui_system::cb = {};
-          r = true;
-          npc_dlg_ui_system::close();
-          npc_dlg_ui_system::open();
-          break;
-        }
-        default: {
-          break;
-        }
-        }
+        r = event_click_npc(npc.value());
       }
     }
   }

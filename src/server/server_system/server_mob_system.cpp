@@ -324,47 +324,64 @@ bool server_mob_system::run_hitting(server_mob &mob) {
   if (mob.hits.empty()) {
     return false;
   }
-
-  // 累积所有beats的伤害
-  int32_t total_damage = 0;
+  const auto current_time = window::dt_time;
+  // 1) 结算本帧累积伤害（用 int64_t 防溢出）
+  int64_t total_damage = 0;
   for (auto &b : mob.hits | std::views::values) {
-    total_damage += b.hit_num;
-    b.hit_num = 0; // 清零已处理的伤害
+    if (b.hit_num != 0) {
+      total_damage += b.hit_num;
+      b.hit_num = 0;
+    }
   }
   mob.hp -= total_damage;
-
-  auto &first = mob.hits.begin()->second;
-  auto &end = mob.hits.rbegin()->second;
-  auto current_time = window::dt_time;
-
+  // 2) 取首/尾（hits 需为有序容器，保证 rbegin 是"最后一次命中"）
+  const auto &first = mob.hits.begin()->second;
+  const auto &last = mob.hits.rbegin()->second;
+  // 首帧未到，暂不推进动作（伤害已结算，保持原语义）
   if (first.hit_time > current_time) {
     return false;
   }
+  // 3) 更新朝向/击退方向
   mob.hforce = first.left ? MOVE_FORCE : -MOVE_FORCE;
   mob.flip = !first.left;
-
-  if (mob.hp <= 0 && end.hit_time < current_time) {
-    run_die(mob, end.hit_id);
+  // 4) 死亡判定：HP 归零且最后一击已过期
+  if (mob.hp <= 0 && last.hit_time < current_time) {
+    const auto killer_id = last.hit_id; // clear 前保存
     mob.hits.clear();
-  } else {
-    mob.hate_id = end.hit_id;
+    run_die(mob, killer_id);
+    return true;
+  }
+  mob.hate_id = last.hit_id;
+  // 5) 推进动作：非击退帧执行 hit action；击退帧弹出队首
+  if (!first.hit_push) {
     run_hit_action(mob);
+  } else {
+    mob.hits.erase(mob.hits.begin());
   }
   return true;
 }
 
 bool server_mob_system::run_hit_check(server_mob &mob) {
-  if (!mob.hits.empty()) {
-    auto &first = mob.hits.begin()->first;
-    auto delay = load_mob_hit_cd(mob);
-    if (first + delay <= window::dt_time) {
-      mob.hits.erase(mob.hits.begin());
-      return true;
-    } else {
-      return false;
-    }
+  if (mob.hits.empty()) {
+    return false;
   }
-  return false;
+
+  auto it = mob.hits.begin();
+  const auto time = it->first;
+
+  // 只读取需要的字段，避免拷贝整个 hit 对象
+  if (!it->second.hit_push) {
+    mob.hits.erase(it);
+    return false;
+  }
+
+  const auto delay = load_mob_hit_cd(mob);
+  if (time + delay > window::dt_time) {
+    return false;
+  }
+
+  mob.hits.erase(it);
+  return true;
 }
 
 void server_mob_system::run_hit(server_mob &mob) {

@@ -2,6 +2,7 @@
 
 #include "SDL3/SDL_events.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_scancode.h"
 #include "src/client/game/game_input.h"
 #include <cstdint>
 class quick_slot_ui_system {
@@ -31,6 +32,9 @@ public:
   static bool cursor_in();
 
   static void toggle();
+
+  static void event_cursor_quickslot_in(SDL_Scancode c);
+  static void event_cursor_quickslot_out(SDL_Scancode c);
 
   static void render_input_icon(const game_input &i, int x, int y,
                                 uint8_t alpha = 255);

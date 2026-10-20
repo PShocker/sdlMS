@@ -270,6 +270,7 @@ table CharacterSave{
     meso:uint64;
     map_id:uint32;
     portal_id:uint32;
+    return_map_id:uint32;
     hp:uint32;
     mp:uint32;
     exp:uint64;

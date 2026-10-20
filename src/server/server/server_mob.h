@@ -11,7 +11,7 @@
 struct mob_hit {
   uint64_t hit_id; // client_id
   uint64_t hit_time;
-  uint64_t hit_move_duration;
+  bool hit_push;
   int64_t hit_num;
   bool left;
 };
