@@ -1,5 +1,6 @@
 #include "character_stat_game_instance.h"
 #include "character_game_instance.h"
+#include "skill_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/flatbuffers/client.h"
@@ -12,21 +13,42 @@
 // load
 // ============================================================
 void character_stat_game_instance::load(const character_save &cs) {
-  str_point = cs.ap.str_ap;
-  dex_point = cs.ap.dex_ap;
-  int_point = cs.ap.int_ap;
-  luk_point = cs.ap.luk_ap;
+  str_ap = cs.ap.str_ap;
+  dex_ap = cs.ap.dex_ap;
+  int_ap = cs.ap.int_ap;
+  luk_ap = cs.ap.luk_ap;
 
-  hp_point = 20;
-  hp_point_max = 100;
-
-  mp_point = 20;
-  mp_point_max = 100;
-
-  exp_point = 50;
-  exp_point_max = 100;
+  remain_ap = cs.remain_ap;
 
   update();
+}
+
+uint32_t character_stat_game_instance::get_base_hp_max() {
+  int base_hp_per;
+  int base_hp;
+  auto &sf = character_game_instance::self;
+  auto sf_job = sf.job;
+  auto jobs = job_skill_game_instance::load_ski_tree(sf_job);
+  if (jobs.size() == 1) {
+    // beginner
+    base_hp_per = 16;
+    base_hp = 50 + (sf.level - 1) * base_hp_per;
+    return base_hp + base_hp_per * hp_ap;
+  }
+  auto job = jobs[1];
+  switch (job) {
+  case job_type::WARRIOR: {
+    base_hp_per = 28;
+    base_hp = 194 + (sf.level - 10) * base_hp_per;
+    break;
+  }
+  case job_type::MAGICIAN:
+  case job_type::BOWMAN:
+  case job_type::THIEF:
+  default: {
+    break;
+  }
+  }
 }
 
 // ============================================================
@@ -72,10 +94,77 @@ int character_stat_game_instance::load_secondary_stat() {
   return static_cast<int>(dex_ap + eqp_dex + itm_dex + ski_dex);
 }
 
+void character_stat_game_instance::update_sf_skill_stat() {
+  ski_hp = 0;
+  ski_mp = 0;
+  ski_str = 0;
+  ski_dex = 0;
+  ski_int = 0;
+  ski_luk = 0;
+  ski_pro = 0; // 熟练度
+
+  ski_accuracy = 0; // 命中
+  ski_avoid = 0;    // 回避
+  ski_exp = 0;
+
+  ski_attack_def = 0;
+  ski_magic_def = 0;
+
+  auto job_id = character_game_instance::self.job;
+  auto ski_tree = job_skill_game_instance::load_ski_tree(job_id);
+  auto &skis = skill_game_instance::skis();
+  for (auto ski_t : ski_tree) {
+    auto job_skis = job_skill_game_instance::load_job_skis(ski_t);
+    for (auto [k, v] : job_skis) {
+      auto ski_lv = job_skill_game_instance::load_ski_level(k);
+      if (ski_lv == 0) {
+        continue;
+      }
+      if (!skis.contains(k)) {
+        continue;
+      }
+      auto &ski = skis.at(k);
+      if (ski.passive) {
+        ski.passive(ski_lv);
+      }
+    }
+  }
+}
+
+void character_stat_game_instance::update_sf_equip_stat() {
+  eqp_hp = 0;
+  eqp_mp = 0;
+  eqp_str = 0;
+  eqp_dex = 0;
+  eqp_int = 0;
+  eqp_luk = 0;
+  eqp_pro = 0; // 熟练度
+
+  eqp_accuracy = 0; // 命中
+  eqp_avoid = 0;    // 回避
+
+  eqp_attack = 0; // pad
+  eqp_magic = 0;
+
+  eqp_attack_def = 0;
+  eqp_magic_def = 0;
+
+  eqp_exp = 0;
+  const auto &sf = character_game_instance::self;
+  for (auto equip : {sf.weapon, sf.cap, sf.cap}) {
+    if (!equip.has_value()) {
+      continue;
+    }
+  }
+}
+
 // ============================================================
 // update
 // ============================================================
 void character_stat_game_instance::update() {
+  update_sf_equip_stat();
+  update_sf_skill_stat();
+
   auto primary_ap = load_primary_stat();
   auto secondary_ap = load_secondary_stat();
 
@@ -111,8 +200,7 @@ bool character_stat_game_instance::upgrade() {
     auto &sf = character_game_instance::self;
     auto job = job_skill_game_instance::load_ski_tree(sf.job);
 
-    if (job.size()==1) {
-    
+    if (job.size() == 1) {
     }
     job_skill_game_instance::remain_point[job.size() - 1] += 3;
 

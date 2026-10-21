@@ -6,25 +6,9 @@
 #include <flat_set>
 #include <string>
 
-void job_skill_game_instance::load_passive_ski() {
-  auto &self = character_game_instance::self;
-  auto job_id = self.job;
-  auto jobs = load_ski_tree(job_id);
-  auto &skis = skill_game_instance::skis();
-  for (auto jo : jobs) {
-    auto job_ski = load_job_skis(jo);
-    for (auto [k, v] : job_ski) {
-      auto &ski = skis.at(k);
-      if (ski.passive) {
-        auto ski_lv = load_ski_level(k);
-        ski.passive(ski_lv);
-      }
-    }
-  }
-}
-
 void job_skill_game_instance::load(const character_save &cs) {
   skill_point = cs.sp.ski_sp;
+  remain_point = cs.remain_sp;
 }
 
 uint8_t job_skill_game_instance::load_ski_level(const std::u16string &id) {

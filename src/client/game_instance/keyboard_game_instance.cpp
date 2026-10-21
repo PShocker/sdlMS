@@ -151,7 +151,7 @@ game_input keyboard_game_instance::find_input_by_cursor(int i) {
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_keybind: {
+  case cursor_game_instance::keybind_ui_keyBind: {
     input = {
         .type = "ui",
         .val = "keyBind",
@@ -207,8 +207,138 @@ game_input keyboard_game_instance::find_input_by_cursor(int i) {
     };
     break;
   }
-  default: {
-    return input;
+  case cursor_game_instance::keybind_ui_menu: {
+    input = {
+        .type = "ui",
+        .val = "menu",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_face_hit: {
+    input = {
+        .type = "face",
+        .val = "hit",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_face_smile: {
+    input = {
+        .type = "face",
+        .val = "smile",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_face_troubled: {
+    input = {
+        .type = "face",
+        .val = "troubled",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_face_cry: {
+    input = {
+        .type = "face",
+        .val = "cry",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_face_angry: {
+    input = {
+        .type = "face",
+        .val = "angry",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_face_bewildered: {
+    input = {
+        .type = "face",
+        .val = "bewildered",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_face_stunned: {
+    input = {
+        .type = "face",
+        .val = "stunned",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_toAll: {
+    input = {
+        .type = "ui",
+        .val = "toAll",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_toParty: {
+    input = {
+        .type = "ui",
+        .val = "toParty",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_party: {
+    input = {
+        .type = "ui",
+        .val = "party",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_mapleChat: {
+    input = {
+        .type = "ui",
+        .val = "mapleChat",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_quickSlot: {
+    input = {
+        .type = "ui",
+        .val = "quickSlot",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_whisper: {
+    input = {
+        .type = "ui",
+        .val = "whisper",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_mailBox: {
+    input = {
+        .type = "ui",
+        .val = "mailBox",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_chatPlus: {
+    input = {
+        .type = "ui",
+        .val = "chat+",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_miniMap: {
+    input = {
+        .type = "ui",
+        .val = "miniMap",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_ui_changeChannel: {
+    input = {
+        .type = "ui",
+        .val = "changeChannel",
+    };
+    break;
+  }
+  case cursor_game_instance::keybind_action_harvest: {
+    input = {
+        .type = "action",
+        .val = "harvest",
+    };
+    break;
   }
   }
   return input;
@@ -276,8 +406,11 @@ std::optional<game_input> keyboard_game_instance::load_cursor_input() {
   std::string id;
   switch (cursor_hand.type) {
   case cursor_game_instance::keybind: {
-    auto input = keyboard_game_instance::data.at((SDL_Scancode)cursor_hand.val);
-    return input;
+    if (keyboard_game_instance::data.contains((SDL_Scancode)cursor_hand.val)) {
+      return keyboard_game_instance::data.at((SDL_Scancode)cursor_hand.val);
+    } else {
+      return find_input_by_cursor(cursor_hand.sub_val);
+    }
     break;
   }
   case cursor_game_instance::package: {

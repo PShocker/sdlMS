@@ -593,6 +593,7 @@ void notice_ui_system::event_button_ap_inc() {
   };
   }
   character_stat_game_instance::set_remain_ap(r_ap - num);
+  character_stat_game_instance::update();
   close();
 }
 

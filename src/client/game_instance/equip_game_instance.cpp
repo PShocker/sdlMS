@@ -616,6 +616,7 @@ int equip_game_instance::use_equip_scroll(game_equip_item &eqp,
       s.id = u"";
     }
   }
+  character_stat_game_instance::update();
   return false;
 }
 
@@ -644,6 +645,7 @@ int equip_game_instance::use_equip(int i, int slot) {
   }
   itm->id = u"";
   character_logic_system::cct.map_id = scene_system_instance::map_id;
+  character_stat_game_instance::update();
   return 1;
 }
 
@@ -782,6 +784,7 @@ int equip_game_instance::unuse_equip(int i) {
   }
   (*load_equip(i)) = std::nullopt;
   character_logic_system::cct.map_id = scene_system_instance::map_id;
+  character_stat_game_instance::update();
   return 1;
 }
 

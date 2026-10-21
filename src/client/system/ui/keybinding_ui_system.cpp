@@ -339,28 +339,29 @@ void keybinding_ui_system::render_remain_icon(int i, int x, int y,
 }
 
 static std::optional<uint32_t> remain_key;
+static SDL_FPoint remain_lt{12, 300};
 
 void keybinding_ui_system::render_remain_key() {
   remain_key = std::nullopt;
-  SDL_FPoint lt{12, 300};
+
   const static std::flat_map<int, SDL_FPoint> m = {
-      {cursor_game_instance::keybind_action_attack, SDL_FPoint{0, 0}},
-      {cursor_game_instance::keybind_action_sit, SDL_FPoint{34, 0}},
-      {cursor_game_instance::keybind_action_jump, SDL_FPoint{68, 0}},
-      {cursor_game_instance::keybind_action_pick, SDL_FPoint{102, 0}},
-      {cursor_game_instance::keybind_action_up, SDL_FPoint{136, 0}},
-      {cursor_game_instance::keybind_action_down, SDL_FPoint{170, 0}},
-      {cursor_game_instance::keybind_action_left, SDL_FPoint{204, 0}},
-      {cursor_game_instance::keybind_action_right, SDL_FPoint{238, 0}},
-      {cursor_game_instance::keybind_ui_worldMap, SDL_FPoint{272, 0}},
-      {cursor_game_instance::keybind_ui_package, SDL_FPoint{306, 0}},
-      {cursor_game_instance::keybind_ui_characterStat, SDL_FPoint{340, 0}},
-      {cursor_game_instance::keybind_ui_keybind, SDL_FPoint{374, 0}},
-      {cursor_game_instance::keybind_ui_skill, SDL_FPoint{408, 0}},
-      {cursor_game_instance::keybind_ui_equip, SDL_FPoint{442, 0}},
-      {cursor_game_instance::keybind_ui_craft, SDL_FPoint{476, 0}},
-      {cursor_game_instance::keybind_ui_quest, SDL_FPoint{510, 0}},
-      {cursor_game_instance::keybind_ui_option, SDL_FPoint{544, 0}},
+      {cursor_game_instance::keybind_ui_menu, SDL_FPoint{0, 0}},
+      {cursor_game_instance::keybind_face_hit, SDL_FPoint{34, 0}},
+      {cursor_game_instance::keybind_face_smile, SDL_FPoint{68, 0}},
+      {cursor_game_instance::keybind_face_troubled, SDL_FPoint{102, 0}},
+      {cursor_game_instance::keybind_face_cry, SDL_FPoint{136, 0}},
+      {cursor_game_instance::keybind_face_angry, SDL_FPoint{170, 0}},
+      {cursor_game_instance::keybind_face_bewildered, SDL_FPoint{204, 0}},
+      {cursor_game_instance::keybind_face_stunned, SDL_FPoint{238, 0}},
+      {cursor_game_instance::keybind_ui_toAll, SDL_FPoint{272, 0}},
+      {cursor_game_instance::keybind_ui_toParty, SDL_FPoint{306, 0}},
+      {cursor_game_instance::keybind_ui_quest, SDL_FPoint{340, 0}},
+      {cursor_game_instance::keybind_ui_worldMap, SDL_FPoint{374, 0}},
+      {cursor_game_instance::keybind_ui_equip, SDL_FPoint{408, 0}},
+      {cursor_game_instance::keybind_ui_package, SDL_FPoint{442, 0}},
+      {cursor_game_instance::keybind_ui_buddy, SDL_FPoint{476, 0}},
+      {cursor_game_instance::keybind_ui_party, SDL_FPoint{510, 0}},
+      {cursor_game_instance::keybind_ui_mapleChat, SDL_FPoint{544, 0}},
   };
   const auto &key_data = keyboard_game_instance::data;
   auto &mouse_pos = window::mouse_pos;
@@ -369,8 +370,8 @@ void keybinding_ui_system::render_remain_key() {
     //   continue;
     // }
     SDL_FRect pos_rect;
-    pos_rect.x = (int)pos.x + lt.x + v.x;
-    pos_rect.y = (int)pos.y + lt.y + v.y;
+    pos_rect.x = (int)pos.x + remain_lt.x + v.x;
+    pos_rect.y = (int)pos.y + remain_lt.y + v.y;
     pos_rect.w = 32;
     pos_rect.h = 32;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
@@ -420,9 +421,15 @@ void keybinding_ui_system::event_button_close() {
   return;
 }
 
-void keybinding_ui_system::event_button_default() { return; }
+void keybinding_ui_system::event_button_default() {
+  keyboard_game_instance::reset();
+  return;
+}
 
-void keybinding_ui_system::event_button_delete() { return; }
+void keybinding_ui_system::event_button_delete() {
+  keyboard_game_instance::data.clear();
+  return;
+}
 
 void keybinding_ui_system::event_button_quickSlot() { return; }
 
@@ -447,11 +454,18 @@ void keybinding_ui_system::event_motion_bt_audio(SDL_Event *event) {
     return;
   }
   auto wh = load_wh();
-  std::vector<SDL_FRect> buttons_rect = {
+  const std::array buttons_rect = {
       SDL_FRect{wh.x - 18, 6, 12, 12}, //
-      SDL_FRect{8, 268, 14, 14},       //
-      SDL_FRect{164, 6, 12, 12},       //
-      SDL_FRect{177, 6, 12, 12},       //
+      SDL_FRect{6, 421, 54, 16},       //
+      SDL_FRect{65, 421, 54, 16},      //
+      SDL_FRect{172, 59, 84, 16},      //
+
+      SDL_FRect{74, 60, 25, 14},   //
+      SDL_FRect{103, 60, 25, 14},  //
+      SDL_FRect{132, 60, 25, 14},  //
+      SDL_FRect{495, 419, 65, 19}, //
+      SDL_FRect{564, 419, 65, 19}, //
+
   };
   static int8_t bt_audio = -1;
   auto &mouse_pos = window::mouse_pos;
@@ -500,12 +514,29 @@ void keybinding_ui_system::event_remain_key() {
   if (cursor_game_instance::cursor_hand_net.has_value()) {
     return;
   }
+  const auto b_w = 1;
+  const auto b_h = 1;
+  SDL_FRect pos_rect;
+  pos_rect.x = pos.x + remain_lt.x;
+  pos_rect.y = pos.y + remain_lt.y;
+  pos_rect.w = b_w;
+  pos_rect.h = b_h;
+  auto &mouse_pos = window::mouse_pos;
+  if (cursor_game_instance::cursor_hand.has_value()) {
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      cursor_game_instance::cursor_hand = std::nullopt;
+      audio_game_instance::load_audio(u"UI.img/DragEnd", 0);
+      return;
+    }
+  }
+
   if (remain_key.has_value()) {
     cursor_game_instance::cursor_hand = {
         .type = cursor_game_instance::keybind,
         .val = SDL_SCANCODE_UNKNOWN,
         .sub_val = remain_key.value(),
     };
+    audio_game_instance::load_audio(u"UI.img/DragStart", 0);
   }
 }
 
@@ -587,7 +618,7 @@ bool keybinding_ui_system::event(SDL_Event *event) {
   }
   case SDL_EVENT_MOUSE_MOTION: {
     event_drag_move(event);
-    // event_motion_bt_audio(event);
+    event_motion_bt_audio(event);
     break;
   }
   case SDL_EVENT_MOUSE_WHEEL: {

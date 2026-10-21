@@ -6,8 +6,12 @@
 class character_stat_game_instance {
 private:
   // ============ 私有静态方法 ============
+  static uint32_t get_base_hp_max();
+  static uint32_t get_base_mp_max();
+
   static int load_primary_stat();
   static int load_secondary_stat();
+
   static bool upgrade();
 
   // ============ 基础战斗资源 ============
@@ -107,6 +111,9 @@ private:
 
   // ============ 剩余 AP ============
   static inline uint32_t remain_ap = 100;
+
+  static void update_sf_skill_stat();
+  static void update_sf_equip_stat();
 
 public:
   // ============================================================

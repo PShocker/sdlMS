@@ -36,10 +36,13 @@ struct key_save {
 struct character_save {
   game_character character;
   ap_save ap;
+  uint32_t remain_ap;
   sp_save sp;
+  std::vector<uint32_t> remain_sp;
   std::vector<package_save> package;
   uint64_t meso;
   uint32_t map_id;
+  uint32_t return_map_id;
   uint32_t portal_id;
 
   uint32_t hp;

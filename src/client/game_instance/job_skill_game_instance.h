@@ -28,8 +28,6 @@ class job_skill_game_instance {
 public:
   static void load(const character_save &cs);
 
-  static void load_passive_ski();
-
   static uint8_t load_ski_level(const std::u16string &id);
   static std::vector<job_type> load_ski_tree(const std::u16string &id);
   static std::vector<job_type> load_ski_tree(int i);

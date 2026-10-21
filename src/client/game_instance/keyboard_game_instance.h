@@ -8,10 +8,9 @@
 #include <optional>
 #include <string>
 class keyboard_game_instance {
-private:
+public:
   static void reset();
 
-public:
   static void load(const character_save &cs);
   static void load();
   static inline std::flat_map<SDL_Scancode, game_input> data;

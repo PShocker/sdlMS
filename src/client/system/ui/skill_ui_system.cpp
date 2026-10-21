@@ -5,6 +5,7 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
@@ -403,6 +404,7 @@ void skill_ui_system::event_button_ski_up() {
       std::stoi(std::string(ski_button_id.begin(), ski_button_id.end()));
   job_skill_game_instance::skill_point[ski_id] += 1;
   job_skill_game_instance::remain_point[active_tab] -= 1;
+  character_stat_game_instance::update();
   return;
 }
 
