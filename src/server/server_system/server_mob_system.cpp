@@ -48,7 +48,7 @@ bool server_mob_system::run_try_jump(server_mob &mob) {
   }
   auto &gen = random_game_instance::gen;
   bool jump = false;
-  std::bernoulli_distribution dist(0.2);
+  std::bernoulli_distribution dist(0.005);
   jump = dist(gen);
   if (s_fhs.contains(n_fh)) {
     if (!s_fhs.at(n_fh).fh.k.has_value()) {

@@ -362,13 +362,34 @@ void keybinding_ui_system::render_remain_key() {
       {cursor_game_instance::keybind_ui_buddy, SDL_FPoint{476, 0}},
       {cursor_game_instance::keybind_ui_party, SDL_FPoint{510, 0}},
       {cursor_game_instance::keybind_ui_mapleChat, SDL_FPoint{544, 0}},
+      {cursor_game_instance::keybind_ui_quickSlot, SDL_FPoint{578, 0}},
+      {cursor_game_instance::keybind_ui_keyBind, SDL_FPoint{0, 34}},
+      {cursor_game_instance::keybind_ui_characterStat, SDL_FPoint{34, 34}},
+      {cursor_game_instance::keybind_ui_whisper, SDL_FPoint{68, 34}},
+      {cursor_game_instance::keybind_ui_skill, SDL_FPoint{102, 34}},
+      {cursor_game_instance::keybind_ui_craft, SDL_FPoint{136, 34}},
+      {cursor_game_instance::keybind_ui_mailBox, SDL_FPoint{170, 34}},
+      {cursor_game_instance::keybind_ui_chatPlus, SDL_FPoint{204, 34}},
+      {cursor_game_instance::keybind_ui_miniMap, SDL_FPoint{238, 34}},
+      {cursor_game_instance::keybind_ui_changeChannel, SDL_FPoint{272, 34}},
+      {cursor_game_instance::keybind_ui_ok, SDL_FPoint{306, 34}},
+      {cursor_game_instance::keybind_action_pick, SDL_FPoint{340, 34}},
+      {cursor_game_instance::keybind_action_sit, SDL_FPoint{374, 34}},
+      {cursor_game_instance::keybind_action_attack, SDL_FPoint{408, 34}},
+      {cursor_game_instance::keybind_action_jump, SDL_FPoint{442, 34}},
+      {cursor_game_instance::keybind_action_harvest, SDL_FPoint{476, 34}},
+      {cursor_game_instance::keybind_action_up, SDL_FPoint{510, 34}},
+      {cursor_game_instance::keybind_action_down, SDL_FPoint{544, 34}},
+      {cursor_game_instance::keybind_action_left, SDL_FPoint{578, 34}},
+      {cursor_game_instance::keybind_action_right, SDL_FPoint{0, 68}},
   };
   const auto &key_data = keyboard_game_instance::data;
   auto &mouse_pos = window::mouse_pos;
   for (auto [k, v] : m) {
-    // if (keyboard_game_instance::find_key_by_val(input.val)) {
-    //   continue;
-    // }
+    auto input = keyboard_game_instance::find_input_by_cursor(k);
+    if (keyboard_game_instance::find_key_by_val(input.val)) {
+      continue;
+    }
     SDL_FRect pos_rect;
     pos_rect.x = (int)pos.x + remain_lt.x + v.x;
     pos_rect.y = (int)pos.y + remain_lt.y + v.y;

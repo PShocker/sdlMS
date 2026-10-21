@@ -18,6 +18,7 @@ public:
   SDL_FPoint pos;
 
   std::u16string action;
+  std::u16string next_action;
 
   uint8_t alpha = 255;
 

@@ -107,6 +107,8 @@ void quick_slot_ui_system::render_input_icon(const game_input &i, int x, int y,
                       wz_resource::ui->find(u"KeyBindings.img/icon/55"))},
         {"mailBox", wz_resource::load_texture(
                         wz_resource::ui->find(u"KeyBindings.img/icon/58"))},
+        {"ok", wz_resource::load_texture(
+                   wz_resource::ui->find(u"KeyBindings.img/icon/400"))},
     };
     if (uis.contains(i.val)) {
       t = uis.at(i.val);

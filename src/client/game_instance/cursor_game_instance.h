@@ -53,7 +53,7 @@ public:
     keybind_ui_chatPlus,
     keybind_ui_miniMap,
     keybind_ui_changeChannel,
-    keybind_ui_option,
+    keybind_ui_ok,
     keybind_action_pick,
     keybind_action_sit,
     keybind_action_attack,

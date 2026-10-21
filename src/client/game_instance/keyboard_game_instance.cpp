@@ -186,10 +186,10 @@ game_input keyboard_game_instance::find_input_by_cursor(int i) {
     };
     break;
   }
-  case cursor_game_instance::keybind_ui_option: {
+  case cursor_game_instance::keybind_ui_ok: {
     input = {
         .type = "ui",
-        .val = "option",
+        .val = "ok",
     };
     break;
   }
