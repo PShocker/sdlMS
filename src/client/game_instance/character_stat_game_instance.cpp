@@ -1,5 +1,6 @@
 #include "character_stat_game_instance.h"
 #include "character_game_instance.h"
+#include "equip_game_instance.h"
 #include "skill_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
@@ -7,7 +8,12 @@
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include <algorithm>
+#include <cmath>
 #include <cstdint>
+#include <flat_map>
+#include <optional>
+#include <string>
+#include <utility>
 
 // ============================================================
 // load
@@ -253,8 +259,9 @@ int character_stat_game_instance::load_secondary_stat() {
       return static_cast<int>(luk_ap + eqp_luk + itm_luk + ski_luk);
     case job_type::BOWMAN:
       return static_cast<int>(str_ap + eqp_str + itm_str + ski_str);
-    case job_type::THIEF:
-      return static_cast<int>(dex_ap + eqp_dex + itm_dex + ski_dex);
+    case job_type::THIEF: // 指南：匕首/拳套的 Secondary = STR + DEX
+      return static_cast<int>(str_ap + eqp_str + itm_str + ski_str +
+                              dex_ap + eqp_dex + itm_dex + ski_dex);
     default:
       break;
     }
@@ -318,10 +325,59 @@ void character_stat_game_instance::update_sf_equip_stat() {
   eqp_magic_def = 0;
 
   eqp_exp = 0;
+
   const auto &sf = character_game_instance::self;
-  for (auto equip : {sf.weapon, sf.cap, sf.cap}) {
-    if (!equip.has_value()) {
+
+  // 单个来源（装备本体 / 已成功卷轴）的固定加成累加
+  auto add_inc = [&](const std::flat_map<equip_game_instance::inc_type, int>
+                         &inc) {
+    for (auto [t, v] : inc) {
+      switch (t) {
+      case equip_game_instance::inc_type::WEAPON_PAD:
+        eqp_attack += static_cast<uint32_t>(v);
+        break;
+      case equip_game_instance::inc_type::WEAPON_MAD:
+        eqp_magic += static_cast<uint32_t>(v);
+        break;
+      case equip_game_instance::inc_type::STR:
+        eqp_str += v;
+        break;
+      case equip_game_instance::inc_type::DEX:
+        eqp_dex += v;
+        break;
+      case equip_game_instance::inc_type::INT:
+        eqp_int += v;
+        break;
+      case equip_game_instance::inc_type::LUK:
+        eqp_luk += v;
+        break;
+      case equip_game_instance::inc_type::PDD:
+        eqp_attack_def += v;
+        break;
+      case equip_game_instance::inc_type::ACC:
+        eqp_accuracy += static_cast<uint32_t>(v);
+        break;
+      default: // 攻速/CRT 等暂不进入面板数值
+        break;
+      }
+    }
+  };
+
+  // 遍历所有已穿戴装备：本体 inc + 每个成功卷轴的 inc
+  for (const auto &opt :
+       {sf.weapon, sf.cap, sf.cape, sf.coat, sf.glove, sf.longcoat, sf.pant,
+        sf.shoes, sf.shield, sf.ring0, sf.ring1, sf.ring2, sf.ring3,
+        sf.accessory}) {
+    if (!opt.has_value()) {
       continue;
+    }
+    const auto &eq = opt.value();
+    add_inc(equip_game_instance::load_equip_inc(eq.id));
+    for (const auto &scroll : eq.scroll) {
+      if (!scroll.success) {
+        continue;
+      }
+      add_inc(equip_game_instance::load_scroll_inc(scroll.id));
     }
   }
 }
@@ -333,30 +389,145 @@ void character_stat_game_instance::update() {
   update_sf_equip_stat();
   update_sf_skill_stat();
 
-  auto primary_ap = load_primary_stat();
-  auto secondary_ap = load_secondary_stat();
+  // ---- 总属性（AP + 装备 + 道具/Buff + 技能被动）----
+  str_point = str_ap + eqp_str + itm_str + ski_str;
+  dex_point = dex_ap + eqp_dex + itm_dex + ski_dex;
+  int_point = int_ap + eqp_int + itm_int + ski_int;
+  luk_point = luk_ap + eqp_luk + itm_luk + ski_luk;
 
-  hp_point_max = get_base_hp_max() + eqp_hp + itm_hp + ski_hp;
-  mp_point_max = get_base_mp_max() + eqp_mp + itm_mp + ski_mp;
-  // 攻击力
-  min_atk = static_cast<uint32_t>(primary_ap);
-  max_atk = static_cast<uint32_t>(primary_ap + secondary_ap / 4);
+  // ---- HP / MP 上限 ----
+  hp_point_max = static_cast<int32_t>(std::clamp<int64_t>(
+      static_cast<int64_t>(get_base_hp_max()) + eqp_hp + itm_hp + ski_hp, 1,
+      INT32_MAX));
+  mp_point_max = static_cast<int32_t>(std::clamp<int64_t>(
+      static_cast<int64_t>(get_base_mp_max()) + eqp_mp + itm_mp + ski_mp, 1,
+      INT32_MAX));
+  hp_point = std::min<int32_t>(hp_point, hp_point_max);
+  mp_point = std::min<int32_t>(mp_point, mp_point_max);
 
-  // 物理 / 魔法攻击
-  attack = static_cast<int32_t>(min_atk + eqp_attack + itm_attack);
-  magic = static_cast<int32_t>(int_point + eqp_magic + itm_magic);
+  // ---- 主属性 / 副属性（按职业树推导）----
+  const auto primary_ap = load_primary_stat();
+  const auto secondary_ap = load_secondary_stat();
 
-  // 命中 / 回避
+  // ---- 攻击力 ----
+  // AttackPower：参与最终乘法的攻击力（装备 pad + 道具/Buff pad）
+  const uint32_t atk_power = eqp_attack + itm_attack;
+  // 魔法攻击力（法师公式的 MagicTotal 组成项）
+  const uint32_t mad_power = eqp_magic + itm_magic;
+
+  // ---- 武器动作倍率 W（MeowDB：普通动作包络，MIN 取最低、MAX 取最高）----
+  auto [weapon_mult_min, weapon_mult_max] = []() -> std::pair<float, float> {
+    if (!character_game_instance::self.weapon.has_value()) {
+      return {1.0f, 1.0f};
+    }
+    switch (equip_game_instance::load_weapon_enum(
+        character_game_instance::self.weapon->id)) {
+    case equip_game_instance::weapon_enum::SWORD_1H: // 单手剑
+      return {1.8f, 1.8f};                           // swing/stab 1.8
+    case equip_game_instance::weapon_enum::AXE_1H:  // 单手斧
+    case equip_game_instance::weapon_enum::MACE_1H: // 单手钝器
+      return {1.2f, 2.4f}; // stab 1.2 ~ swing 2.4（mixed 1.8 在包络内）
+    case equip_game_instance::weapon_enum::DAGGER: // 匕首
+      return {1.0f, 2.0f};                         // swing 1.0 ~ stab 2.0
+    case equip_game_instance::weapon_enum::SWORD_2H: // 双手剑
+      return {2.5f, 2.5f};
+    case equip_game_instance::weapon_enum::AXE_2H:  // 双手斧
+    case equip_game_instance::weapon_enum::MACE_2H: // 双手钝器
+      return {2.0f, 3.0f}; // stab 2.0 ~ swing 3.0
+    case equip_game_instance::weapon_enum::SPEAR:   // 长枪：swing 1.5 / stab 3.5
+    case equip_game_instance::weapon_enum::POLEARM: // 矛：swing 3.5 / stab 1.5
+      return {1.5f, 3.5f};
+    case equip_game_instance::weapon_enum::BOW:      // 弓
+    case equip_game_instance::weapon_enum::CROSSBOW: // 弩
+    case equip_game_instance::weapon_enum::CLAW:     // 拳套
+      return {1.0f, 2.5f}; // 近身 1.0 ~ 射击 2.5
+    case equip_game_instance::weapon_enum::WAND:  // 短杖物理敲击
+    case equip_game_instance::weapon_enum::STAFF: // 长杖物理敲击
+      return {1.8f, 1.8f};
+    default: // KNUCKLE/GUN 等指南未收录，占位
+      return {1.0f, 1.0f};
+    }
+  }();
+
+  // ---- 熟练度：m =（MasteryLevel / 10 + 0.1）× 0.7（物理/魔法共用）----
+  const int mastery_lv =
+      static_cast<int>(std::clamp<int64_t>(ski_pro + eqp_pro + itm_pro, 0, 10));
+  const float mastery = (static_cast<float>(mastery_lv) / 10.0f + 0.1f) * 0.7f;
+
+  // ---- 物理武器攻击伤害（MeowDB「Physical / Weapon attacks」）----
+  // K = SkillDamage / 100（面板按 K=1 显示）
+  // MIN = K × TotalWATK × (0.8 + (P×m×Wmin + Q)/StatDiv + AttackPower/APDiv)
+  // MAX = K × TotalWATK × (1.0 + (P×Wmax + Q)/StatDiv + AttackPower/APDiv)
+  // 普通近战/射击：StatDiv = 100，APDiv = 50
+  // TotalWATK = 全部装备提供的武器攻击力（eqp_attack）
+  // AttackPower = 道具/Buff 提供的攻击力加成（itm_attack）
+  constexpr float stat_div = 100.0f;
+  constexpr float ap_div = 50.0f;
+  const float total_watk = static_cast<float>(eqp_attack);
+  const float attack_power = static_cast<float>(itm_attack);
+  const float phys_max =
+      total_watk *
+      (1.0f + (static_cast<float>(primary_ap) * weapon_mult_max +
+               static_cast<float>(secondary_ap)) /
+                  stat_div +
+       attack_power / ap_div);
+  const float phys_min =
+      total_watk *
+      (0.8f + (static_cast<float>(primary_ap) * mastery * weapon_mult_min +
+               static_cast<float>(secondary_ap)) /
+                  stat_div +
+       attack_power / ap_div);
+
+  // ---- 法师魔法伤害（MeowDB「Magic / Spells」）----
+  // K = SkillPower / 100（界面按 K=1 显示）
+  // m =（SpellMastery / 10 + 0.1）× 0.7
+  // MagicTotal = floor(TotalINT / 2) + EquipmentMATK + ScrollMATK + BuffMATK
+  // MAX = K × MagicTotal × (1 + TotalINT / 125)
+  // MIN = K × MagicTotal × (1 + TotalINT × m / 125)
+  const uint32_t magic_total =
+      static_cast<uint32_t>(int_point / 2) + eqp_magic + itm_magic;
+  const float mage_max = static_cast<float>(magic_total) *
+                         (1.0f + static_cast<float>(int_point) / 125.0f);
+  const float mage_min =
+      static_cast<float>(magic_total) *
+      (1.0f + static_cast<float>(int_point) * mastery / 125.0f);
+
+  const auto jobs =
+      job_skill_game_instance::load_ski_tree(character_game_instance::self.job);
+  const bool is_magician = jobs.size() >= 2 && jobs[1] == job_type::MAGICIAN;
+
+  // 面板取整按指南口径 trunc（直接截断，而非四舍五入）
+  if (is_magician) {
+    max_atk = static_cast<uint32_t>(mage_max);
+    min_atk = static_cast<uint32_t>(mage_min);
+  } else {
+    max_atk = static_cast<uint32_t>(phys_max);
+    min_atk = static_cast<uint32_t>(phys_min);
+  }
+  // 防御下限，避免 min > max 的显示异常
+  if (min_atk > max_atk) {
+    min_atk = max_atk;
+  }
+
+  // ---- 攻击力 / 魔法攻击力（界面展示值）----
+  attack = static_cast<int32_t>(atk_power);
+  magic = static_cast<int32_t>(mad_power);
+
+  // ---- 命中 / 回避 ----
   accuracy = ski_accuracy + eqp_accuracy + itm_accuracy;
   avoid = ski_avoid + eqp_avoid + itm_avoid;
 
-  // 防御
+  // ---- 防御 ----
   attack_def = ski_attack_def + eqp_attack_def + itm_attack_def;
   magic_def = ski_magic_def + eqp_magic_def + itm_magic_def;
 
-  // 暴击
-  crit_rate = static_cast<uint32_t>(secondary_ap / 2);
-  crit_damage = 150;
+  // ---- 暴击 ----
+  // 基础必杀伤害 150%，暴击率默认 0；技能/道具通过 set_crit_rate /
+  // set_crit_damage 累加。这里不再每次重置（旧实现按"副属性/2"重置无公式
+  // 依据，且会把 buff 加成冲掉）。
+  if (crit_damage == 0) {
+    crit_damage = 150;
+  }
 }
 
 // ============================================================

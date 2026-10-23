@@ -125,6 +125,16 @@ equip_game_instance::load_weapon_type(const game_character &g_character) {
   return (weapon_type)attack_type;
 }
 
+equip_game_instance::weapon_enum
+equip_game_instance::load_weapon_enum(const std::u16string &id) {
+  if (id.empty()) {
+    return weapon_enum::NONE;
+  }
+  // 装备 id 形如 "013xxxxx"：大类码 = id / 10000，低两位即武器类别（130 → 30）
+  std::string s{id.begin(), id.end()};
+  return static_cast<weapon_enum>((std::stoi(s) / 10000) % 100);
+}
+
 std::u16string equip_game_instance::load_equip_name(const std::u16string &id) {
   static auto str_node = wz_resource::string->find(u"Eqp.img/ClassicWorld");
   auto type = load_equip_type(id);

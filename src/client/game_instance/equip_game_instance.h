@@ -66,6 +66,9 @@ public:
   static std::polymorphic<game_item> load_item(const std::u16string &id);
 
   static weapon_type load_weapon_type(const game_character &g_character);
+  // 由武器道具 id（如 u"01300000"）解析武器大类：
+  // 大类码 = id / 10000 后取低两位（130 → SWORD_1H），供伤害公式选倍率
+  static weapon_enum load_weapon_enum(const std::u16string &id);
   static wz::Node *load_equip_info(const std::u16string &id);
   static std::u16string load_equip_name(const std::u16string &id);
   static std::u16string load_equip_desc(const std::u16string &id);
