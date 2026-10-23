@@ -24,8 +24,8 @@ void character_stat_game_instance::load(const character_save &cs) {
 }
 
 uint32_t character_stat_game_instance::get_base_hp_max() {
-  int base_hp_per;
-  int base_hp;
+  int base_hp_per = 0;
+  int base_hp = 0;
   auto &sf = character_game_instance::self;
   auto sf_job = sf.job;
   auto jobs = job_skill_game_instance::load_ski_tree(sf_job);
@@ -39,16 +39,184 @@ uint32_t character_stat_game_instance::get_base_hp_max() {
   switch (job) {
   case job_type::WARRIOR: {
     base_hp_per = 28;
-    base_hp = 194 + (sf.level - 10) * base_hp_per;
+    base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
     break;
   }
-  case job_type::MAGICIAN:
-  case job_type::BOWMAN:
-  case job_type::THIEF:
+  case job_type::MAGICIAN: {
+    base_hp_per = 16;
+    base_hp = 50 + 16 * 7 + (sf.level - 8) * base_hp_per;
+    break;
+  }
+  case job_type::BOWMAN: {
+    base_hp_per = 22;
+    base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
+    break;
+  }
+  case job_type::THIEF: {
+    base_hp_per = 22;
+    base_hp = 50 + 16 * 9 + (sf.level - 10) * base_hp_per;
+    break;
+  }
   default: {
     break;
   }
   }
+  for (int i = 1; i < jobs.size(); i++) {
+    switch (jobs[i]) {
+    case job_type::WARRIOR: {
+      base_hp += 300;
+      break;
+    }
+    case job_type::MAGICIAN: {
+      base_hp += 150;
+      break;
+    }
+    case job_type::BOWMAN: {
+      base_hp += 250;
+      break;
+    }
+    case job_type::THIEF: {
+      base_hp += 250;
+      break;
+    }
+    case job_type::FIGHTER: {
+      break;
+    }
+    case job_type::PAGE: {
+      break;
+    }
+    case job_type::SPEARMAN: {
+      break;
+    }
+    case job_type::FP_WIZARD: {
+      break;
+    }
+    case job_type::IL_WIZARD: {
+      break;
+    }
+    case job_type::CLERIC: {
+      break;
+    }
+    case job_type::HUNTER: {
+      base_hp += 250;
+      break;
+    }
+    case job_type::CROSSBOWMAN: {
+      base_hp += 250;
+      break;
+    }
+    case job_type::ASSASSIN: {
+      base_hp += 250;
+      break;
+    }
+    case job_type::BANDIT: {
+      base_hp += 250;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+  }
+  return base_hp + base_hp_per * hp_ap;
+}
+
+uint32_t character_stat_game_instance::get_base_mp_max() {
+  int base_mp_per = 0;
+  int base_mp = 0;
+  auto &sf = character_game_instance::self;
+  auto sf_job = sf.job;
+  auto jobs = job_skill_game_instance::load_ski_tree(sf_job);
+  if (jobs.size() == 1) {
+    // beginner
+    base_mp_per = 12;
+    base_mp = 50 + (sf.level - 1) * base_mp_per;
+    return base_mp + base_mp_per * mp_ap;
+  }
+  auto job = jobs[1];
+  switch (job) {
+  case job_type::WARRIOR: {
+    base_mp_per = 28;
+    base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
+    break;
+  }
+  case job_type::MAGICIAN: {
+    base_mp_per = 16;
+    base_mp = 50 + 16 * 7 + (sf.level - 8) * base_mp_per;
+    break;
+  }
+  case job_type::BOWMAN: {
+    base_mp_per = 22;
+    base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
+    break;
+  }
+  case job_type::THIEF: {
+    base_mp_per = 22;
+    base_mp = 50 + 16 * 9 + (sf.level - 10) * base_mp_per;
+    break;
+  }
+  default: {
+    break;
+  }
+  }
+  for (int i = 1; i < jobs.size(); i++) {
+    switch (jobs[i]) {
+    case job_type::WARRIOR: {
+      base_mp += 150;
+      break;
+    }
+    case job_type::MAGICIAN: {
+      base_mp += 350;
+      break;
+    }
+    case job_type::BOWMAN: {
+      base_mp += 250;
+      break;
+    }
+    case job_type::THIEF: {
+      base_mp += 250;
+      break;
+    }
+    case job_type::FIGHTER: {
+      break;
+    }
+    case job_type::PAGE: {
+      break;
+    }
+    case job_type::SPEARMAN: {
+      break;
+    }
+    case job_type::FP_WIZARD: {
+      break;
+    }
+    case job_type::IL_WIZARD: {
+      break;
+    }
+    case job_type::CLERIC: {
+      break;
+    }
+    case job_type::HUNTER: {
+      base_mp += 250;
+      break;
+    }
+    case job_type::CROSSBOWMAN: {
+      base_mp += 250;
+      break;
+    }
+    case job_type::ASSASSIN: {
+      base_mp += 250;
+      break;
+    }
+    case job_type::BANDIT: {
+      base_mp += 250;
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+  }
+  return base_mp + base_mp_per * mp_ap;
 }
 
 // ============================================================
@@ -168,6 +336,8 @@ void character_stat_game_instance::update() {
   auto primary_ap = load_primary_stat();
   auto secondary_ap = load_secondary_stat();
 
+  hp_point_max = get_base_hp_max() + eqp_hp + itm_hp + ski_hp;
+  mp_point_max = get_base_mp_max() + eqp_mp + itm_mp + ski_mp;
   // 攻击力
   min_atk = static_cast<uint32_t>(primary_ap);
   max_atk = static_cast<uint32_t>(primary_ap + secondary_ap / 4);
@@ -201,14 +371,17 @@ bool character_stat_game_instance::upgrade() {
     auto job = job_skill_game_instance::load_ski_tree(sf.job);
 
     if (job.size() == 1) {
+      job_skill_game_instance::remain_point[0] += 1;
+    } else {
+      job_skill_game_instance::remain_point[job.size() - 1] += 3;
     }
-    job_skill_game_instance::remain_point[job.size() - 1] += 3;
 
     ClientCharacterLvUpT ccl;
     ccl.map_id = scene_system_instance::map_id;
     client_request::send_to_host(ccl);
 
     server_character_instance::handle_lv_up(sf);
+    update();
     return true;
   }
   return false;
