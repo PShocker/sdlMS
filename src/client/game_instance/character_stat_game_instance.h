@@ -19,8 +19,8 @@ private:
   static inline int32_t hp_point_max = INT32_MAX;
   static inline int32_t mp_point = INT32_MAX;
   static inline int32_t mp_point_max = INT32_MAX;
-  static inline uint32_t exp_point = 0;
-  static inline uint32_t exp_point_max = UINT32_MAX;
+  static inline uint64_t exp_point = 0;
+  static inline uint64_t exp_point_max = UINT64_MAX;
 
   // ============ 主属性 ============
   static inline uint32_t str_point = 0;
@@ -136,8 +136,8 @@ public:
   static int32_t get_mp();
   static int32_t get_hp_max();
   static int32_t get_mp_max();
-  static uint32_t get_exp();
-  static uint32_t get_exp_max();
+  static uint64_t get_exp();
+  static uint64_t get_exp_max();
 
   // ============================================================
   // 剩余 AP

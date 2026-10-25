@@ -292,27 +292,26 @@ void mob_logic_system::run_state_machine(game_mob &g_mob) {
   if (action_type == action_enum::revive) {
     return;
   }
-  if (g_mob.next_action == u"jump" || g_mob.next_action == u"hit1" ||
-      g_mob.action == u"hit1") {
+  if (g_mob.next_action == u"die1") {
+    g_mob.action = g_mob.next_action;
+    g_mob.ani_index = 0;
+    g_mob.ani_time = 0;
+    g_mob.debuffs = {};
+    g_mob.next_action = u"";
+    audio_game_instance::load_audio(u"Mob.img/" + g_mob.id + u"/Die", 0);
+  } else if ((g_mob.next_action == u"hit1" || g_mob.next_action == u"jump" ||
+              g_mob.action == u"hit1")) {
     g_mob.action = g_mob.next_action;
     g_mob.ani_index = 0;
     g_mob.ani_time = 0;
   } else if (run_animate(g_mob)) {
+    if (action_type == action_enum::die) {
+      g_mob.action = u"";
+    }
     if (g_mob.next_action.empty()) {
       return;
     }
     g_mob.action = g_mob.next_action;
-    action_type = mob_logic_system::load_action_type(g_mob.action);
-    switch (action_type) {
-    case mob_logic_system::action_enum::die: {
-      g_mob.debuffs = {};
-      audio_game_instance::load_audio(u"Mob.img/" + g_mob.id + u"/Die", 0);
-      break;
-    }
-    default: {
-      break;
-    }
-    }
   }
   run_alpha(g_mob);
   run_debuff(g_mob);

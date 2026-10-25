@@ -6,7 +6,9 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
+#include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_character_instance.h"
+#include "wz/Property.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -233,6 +235,7 @@ int character_stat_game_instance::load_primary_stat() {
   auto jobs = job_skill_game_instance::load_ski_tree(job);
   if (jobs.size() >= 2) {
     switch (jobs[1]) {
+    case job_type::BEGINNER:
     case job_type::WARRIOR:
       return static_cast<int>(str_ap + eqp_str + itm_str + ski_str);
     case job_type::MAGICIAN:
@@ -260,8 +263,7 @@ int character_stat_game_instance::load_secondary_stat() {
     case job_type::BOWMAN:
       return static_cast<int>(str_ap + eqp_str + itm_str + ski_str);
     case job_type::THIEF: // 指南：匕首/拳套的 Secondary = STR + DEX
-      return static_cast<int>(str_ap + eqp_str + itm_str + ski_str +
-                              dex_ap + eqp_dex + itm_dex + ski_dex);
+      return static_cast<int>(dex_ap + eqp_dex + itm_dex + ski_dex);
     default:
       break;
     }
@@ -329,45 +331,44 @@ void character_stat_game_instance::update_sf_equip_stat() {
   const auto &sf = character_game_instance::self;
 
   // 单个来源（装备本体 / 已成功卷轴）的固定加成累加
-  auto add_inc = [&](const std::flat_map<equip_game_instance::inc_type, int>
-                         &inc) {
-    for (auto [t, v] : inc) {
-      switch (t) {
-      case equip_game_instance::inc_type::WEAPON_PAD:
-        eqp_attack += static_cast<uint32_t>(v);
-        break;
-      case equip_game_instance::inc_type::WEAPON_MAD:
-        eqp_magic += static_cast<uint32_t>(v);
-        break;
-      case equip_game_instance::inc_type::STR:
-        eqp_str += v;
-        break;
-      case equip_game_instance::inc_type::DEX:
-        eqp_dex += v;
-        break;
-      case equip_game_instance::inc_type::INT:
-        eqp_int += v;
-        break;
-      case equip_game_instance::inc_type::LUK:
-        eqp_luk += v;
-        break;
-      case equip_game_instance::inc_type::PDD:
-        eqp_attack_def += v;
-        break;
-      case equip_game_instance::inc_type::ACC:
-        eqp_accuracy += static_cast<uint32_t>(v);
-        break;
-      default: // 攻速/CRT 等暂不进入面板数值
-        break;
-      }
-    }
-  };
+  auto add_inc =
+      [&](const std::flat_map<equip_game_instance::inc_type, int> &inc) {
+        for (auto [t, v] : inc) {
+          switch (t) {
+          case equip_game_instance::inc_type::WEAPON_PAD:
+            eqp_attack += static_cast<uint32_t>(v);
+            break;
+          case equip_game_instance::inc_type::WEAPON_MAD:
+            eqp_magic += static_cast<uint32_t>(v);
+            break;
+          case equip_game_instance::inc_type::STR:
+            eqp_str += v;
+            break;
+          case equip_game_instance::inc_type::DEX:
+            eqp_dex += v;
+            break;
+          case equip_game_instance::inc_type::INT:
+            eqp_int += v;
+            break;
+          case equip_game_instance::inc_type::LUK:
+            eqp_luk += v;
+            break;
+          case equip_game_instance::inc_type::PDD:
+            eqp_attack_def += v;
+            break;
+          case equip_game_instance::inc_type::ACC:
+            eqp_accuracy += static_cast<uint32_t>(v);
+            break;
+          default: // 攻速/CRT 等暂不进入面板数值
+            break;
+          }
+        }
+      };
 
   // 遍历所有已穿戴装备：本体 inc + 每个成功卷轴的 inc
-  for (const auto &opt :
-       {sf.weapon, sf.cap, sf.cape, sf.coat, sf.glove, sf.longcoat, sf.pant,
-        sf.shoes, sf.shield, sf.ring0, sf.ring1, sf.ring2, sf.ring3,
-        sf.accessory}) {
+  for (const auto &opt : {sf.weapon, sf.cap, sf.cape, sf.coat, sf.glove,
+                          sf.longcoat, sf.pant, sf.shoes, sf.shield, sf.ring0,
+                          sf.ring1, sf.ring2, sf.ring3, sf.accessory}) {
     if (!opt.has_value()) {
       continue;
     }
@@ -424,25 +425,25 @@ void character_stat_game_instance::update() {
         character_game_instance::self.weapon->id)) {
     case equip_game_instance::weapon_enum::SWORD_1H: // 单手剑
       return {1.8f, 1.8f};                           // swing/stab 1.8
-    case equip_game_instance::weapon_enum::AXE_1H:  // 单手斧
-    case equip_game_instance::weapon_enum::MACE_1H: // 单手钝器
+    case equip_game_instance::weapon_enum::AXE_1H:   // 单手斧
+    case equip_game_instance::weapon_enum::MACE_1H:  // 单手钝器
       return {1.2f, 2.4f}; // stab 1.2 ~ swing 2.4（mixed 1.8 在包络内）
-    case equip_game_instance::weapon_enum::DAGGER: // 匕首
-      return {1.0f, 2.0f};                         // swing 1.0 ~ stab 2.0
+    case equip_game_instance::weapon_enum::DAGGER:   // 匕首
+      return {1.0f, 2.0f};                           // swing 1.0 ~ stab 2.0
     case equip_game_instance::weapon_enum::SWORD_2H: // 双手剑
       return {2.5f, 2.5f};
     case equip_game_instance::weapon_enum::AXE_2H:  // 双手斧
     case equip_game_instance::weapon_enum::MACE_2H: // 双手钝器
-      return {2.0f, 3.0f}; // stab 2.0 ~ swing 3.0
-    case equip_game_instance::weapon_enum::SPEAR:   // 长枪：swing 1.5 / stab 3.5
+      return {2.0f, 3.0f};                          // stab 2.0 ~ swing 3.0
+    case equip_game_instance::weapon_enum::SPEAR: // 长枪：swing 1.5 / stab 3.5
     case equip_game_instance::weapon_enum::POLEARM: // 矛：swing 3.5 / stab 1.5
       return {1.5f, 3.5f};
     case equip_game_instance::weapon_enum::BOW:      // 弓
     case equip_game_instance::weapon_enum::CROSSBOW: // 弩
     case equip_game_instance::weapon_enum::CLAW:     // 拳套
-      return {1.0f, 2.5f}; // 近身 1.0 ~ 射击 2.5
-    case equip_game_instance::weapon_enum::WAND:  // 短杖物理敲击
-    case equip_game_instance::weapon_enum::STAFF: // 长杖物理敲击
+      return {1.0f, 2.5f};                           // 近身 1.0 ~ 射击 2.5
+    case equip_game_instance::weapon_enum::WAND:     // 短杖物理敲击
+    case equip_game_instance::weapon_enum::STAFF:    // 长杖物理敲击
       return {1.8f, 1.8f};
     default: // KNUCKLE/GUN 等指南未收录，占位
       return {1.0f, 1.0f};
@@ -466,16 +467,17 @@ void character_stat_game_instance::update() {
   const float total_watk = static_cast<float>(eqp_attack);
   const float attack_power = static_cast<float>(itm_attack);
   const float phys_max =
-      total_watk *
-      (1.0f + (static_cast<float>(primary_ap) * weapon_mult_max +
-               static_cast<float>(secondary_ap)) /
-                  stat_div +
-       attack_power / ap_div);
+      total_watk * (1.0f +
+                    (static_cast<float>(primary_ap) * weapon_mult_max +
+                     static_cast<float>(secondary_ap)) /
+                        stat_div +
+                    attack_power / ap_div);
   const float phys_min =
       total_watk *
-      (0.8f + (static_cast<float>(primary_ap) * mastery * weapon_mult_min +
-               static_cast<float>(secondary_ap)) /
-                  stat_div +
+      (0.8f +
+       (static_cast<float>(primary_ap) * mastery * weapon_mult_min +
+        static_cast<float>(secondary_ap)) /
+           stat_div +
        attack_power / ap_div);
 
   // ---- 法师魔法伤害（MeowDB「Magic / Spells」）----
@@ -536,9 +538,10 @@ void character_stat_game_instance::update() {
 bool character_stat_game_instance::upgrade() {
   if (exp_point >= exp_point_max) {
     exp_point -= exp_point_max;
+    auto &sf = character_game_instance::self;
+    sf.level += 1;
 
     remain_ap += 5;
-    auto &sf = character_game_instance::self;
     auto job = job_skill_game_instance::load_ski_tree(sf.job);
 
     if (job.size() == 1) {
@@ -592,8 +595,23 @@ int32_t character_stat_game_instance::get_hp() { return hp_point; }
 int32_t character_stat_game_instance::get_mp() { return mp_point; }
 int32_t character_stat_game_instance::get_hp_max() { return hp_point_max; }
 int32_t character_stat_game_instance::get_mp_max() { return mp_point_max; }
-uint32_t character_stat_game_instance::get_exp() { return exp_point; }
-uint32_t character_stat_game_instance::get_exp_max() { return exp_point_max; }
+uint64_t character_stat_game_instance::get_exp() { return exp_point; }
+
+uint64_t character_stat_game_instance::get_exp_max() {
+  static std::flat_map<int, int> cache;
+  auto &sf = character_game_instance::self;
+  if (!cache.contains(sf.level)) {
+    auto exp_node = wz_resource::ms->get_root()->find(u"LevelExp.img");
+    exp_node = exp_node->get_child(std::to_string(sf.level));
+    if (exp_node == nullptr) {
+      return UINT64_MAX;
+    }
+    exp_point_max = static_cast<wz::Property<int> *>(exp_node)->get();
+    cache[sf.level] = exp_point_max;
+  }
+  exp_point_max = cache.at(sf.level);
+  return exp_point_max;
+}
 
 // ============================================================
 // 剩余 AP

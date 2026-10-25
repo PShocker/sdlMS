@@ -7,6 +7,7 @@
 class keybinding_ui_system {
 private:
   static void render_button();
+  static bool render_info();
 
   static void render_backgrnd();
   static void render_backgrnd2();
@@ -21,6 +22,8 @@ private:
 
   static void event_motion_bt_audio(SDL_Event *event);
 
+  static void event_motion(SDL_Event *event);
+  
   static void event_button_close();
   static void event_button_default();
   static void event_button_delete();

@@ -16,4 +16,5 @@ public:
   uint64_t delay;
   float fade;
   SDL_AudioStream *stream;
+  float volume;
 };

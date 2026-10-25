@@ -354,6 +354,8 @@ void statusbar_ui_system::render_character_stat() {
   pos_rect.x = base_x + 44;
   pos_rect.y = base_y + 49;
   int32_t w = 0;
+  int digits = level == 0 ? 1 : static_cast<int>(std::log10(level)) + 1;
+  pos_rect.x += (36 - digits * 12) / (digits + 1);
   for (auto c : level_str) {
     auto t = wz_resource::load_texture(lvNumber->get_child(std::string{c}));
     pos_rect.x += w;

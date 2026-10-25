@@ -5,11 +5,13 @@
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <SDL3/SDL_scancode.h>
@@ -431,6 +433,7 @@ void keybinding_ui_system::open() {
 
 void keybinding_ui_system::close() {
   std::erase(system::render_systems, render);
+  std::erase(system::render_systems, render_info);
   std::erase(system::event_systems, event);
 
   event_drag_end();
@@ -638,6 +641,7 @@ bool keybinding_ui_system::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
+    event_motion(event);
     event_drag_move(event);
     event_motion_bt_audio(event);
     break;
@@ -705,4 +709,204 @@ bool keybinding_ui_system::cursor_in() {
   auto &mouse = window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
+}
+
+bool keybinding_ui_system::render_info() {
+  if (cursor_game_instance::modal_overlay) {
+    return true;
+  }
+  if (cursor_game_instance::cursor_ui != render) {
+    return true;
+  }
+  if (cursor_game_instance::cursor_hand.has_value()) {
+    return true;
+  }
+  if (remain_key.has_value()) {
+    std::u16string text;
+    switch ((cursor_game_instance::cursor_keybind_type)remain_key.value()) {
+    case cursor_game_instance::keybind_ui_menu: {
+      text = u"menu";
+      break;
+    }
+    case cursor_game_instance::keybind_face_hit: {
+      text = u"hit";
+      break;
+    }
+    case cursor_game_instance::keybind_face_smile: {
+      text = u"smile";
+      break;
+    }
+    case cursor_game_instance::keybind_face_troubled: {
+      text = u"troubled";
+      break;
+    }
+    case cursor_game_instance::keybind_face_cry: {
+      text = u"menu";
+      break;
+    }
+    case cursor_game_instance::keybind_face_angry: {
+      text = u"angry";
+      break;
+    }
+    case cursor_game_instance::keybind_face_bewildered: {
+      text = u"bewildered";
+      break;
+    }
+    case cursor_game_instance::keybind_face_stunned: {
+      text = u"bewildered";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_toAll: {
+      text = u"to all";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_toParty: {
+      text = u"to party";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_quest: {
+      text = u"quest";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_worldMap: {
+      text = u"worldMap";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_equip: {
+      text = u"equip";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_package: {
+      text = u"item";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_buddy: {
+      text = u"buddy";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_party: {
+      text = u"party";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_mapleChat: {
+      text = u"mapleChat";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_quickSlot: {
+      text = u"quickSlot";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_keyBind: {
+      text = u"keyBind";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_characterStat: {
+      text = u"characterStat";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_whisper: {
+      text = u"whisper";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_skill: {
+      text = u"skill";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_craft: {
+      text = u"craft";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_mailBox: {
+      text = u"mailBox";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_chatPlus: {
+      text = u"chat+";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_miniMap: {
+      text = u"miniMap";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_changeChannel: {
+      text = u"changeChannel";
+      break;
+    }
+    case cursor_game_instance::keybind_ui_ok: {
+      text = u"ok";
+      break;
+    }
+    case cursor_game_instance::keybind_action_pick: {
+      text = u"pick";
+      break;
+    }
+    case cursor_game_instance::keybind_action_sit: {
+      text = u"sit";
+      break;
+    }
+    case cursor_game_instance::keybind_action_attack: {
+      text = u"ok";
+      break;
+    }
+    case cursor_game_instance::keybind_action_jump: {
+      text = u"jump";
+      break;
+    }
+    case cursor_game_instance::keybind_action_harvest: {
+      text = u"harvest";
+      break;
+    }
+    case cursor_game_instance::keybind_action_up: {
+      text = u"up";
+      break;
+    }
+    case cursor_game_instance::keybind_action_down: {
+      text = u"down";
+      break;
+    }
+    case cursor_game_instance::keybind_action_left: {
+      text = u"left";
+      break;
+    }
+    case cursor_game_instance::keybind_action_right: {
+      text = u"right";
+      break;
+    }
+    case cursor_game_instance::keybind_face_vomit: {
+      text = u"vomit";
+      break;
+    }
+    }
+    auto &mouse_pos = window::mouse_pos;
+    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
+    tooltip_ui_system::render_str(text, show_pos.x, show_pos.y);
+  } else if (backgrnd_key.has_value() &&
+             keyboard_game_instance::data.contains(backgrnd_key.value())) {
+    auto scan_code = backgrnd_key.value();
+    auto input = keyboard_game_instance::data.at(scan_code);
+    auto &mouse_pos = window::mouse_pos;
+    SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
+    if (input.type == "skill") {
+      auto ski_id = input.val;
+      std::u16string ski_id2{ski_id.begin(), ski_id.end()};
+      auto ski_lv = job_skill_game_instance::load_ski_level(ski_id2);
+      tooltip_ui_system::render_skill(ski_id2, ski_lv, show_pos.x, show_pos.y);
+    } else if (input.type == "item") {
+      auto item_id = input.val;
+      game_item item;
+      item.id = {item_id.begin(), item_id.end()};
+      tooltip_ui_system::render_item(item, show_pos.x, show_pos.y);
+    } else {
+    }
+  }
+  return true;
+}
+
+void keybinding_ui_system::event_motion(SDL_Event *event) {
+  auto &sys = system::render_systems;
+  std::erase(sys, render_info);
+  auto it = std::ranges::find(sys, &cursor_render_system::render);
+  if (it != sys.end()) {
+    sys.insert(it, render_info);
+  }
 }
