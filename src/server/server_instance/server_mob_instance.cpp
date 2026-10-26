@@ -127,7 +127,20 @@ void server_mob_instance::handle_server_flip(const ServerMobFlipT &m) {
 void server_mob_instance::handle_server_action(const ServerMobActionT &m) {
   auto &mob = mob_game_instance::data.at(m.mob_index).mob;
   const auto &a = m.payload;
-  mob.next_action = std::u16string{a->action.begin(), a->action.end()};
+  mob.action = std::u16string{a->action.begin(), a->action.end()};
+  mob.ani_index = 0;
+  mob.ani_time = 0;
+  auto mob_type = mob_logic_system::load_action_type(mob.action);
+  switch (mob_type) {
+  case mob_logic_system::action_enum::die: {
+    mob.debuffs = {};
+    audio_game_instance::load_audio(u"Mob.img/" + mob.id + u"/Die", 0);
+    break;
+  }
+  default: {
+    break;
+  }
+  }
 }
 
 void server_mob_instance::handle_server_state(const ServerMobStateT &m) {

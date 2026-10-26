@@ -1,11 +1,22 @@
 #include "option_ui_system.h"
+#include "SDL3/SDL_rect.h"
+#include "slider_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+enum option_type {
+  graphic,
+  sound,
+  game,
+  social,
+  controller,
+};
 
 void option_ui_system::render_backgrnd() {
   static auto texture = wz_resource::load_texture(
@@ -21,16 +32,55 @@ void option_ui_system::render_backgrnd() {
 
 void option_ui_system::render_option() {
   switch (active_tab) {
-  case 0: {
+  case graphic: {
     static auto graphic = wz_resource::load_texture(wz_resource::ui->find(
         u"Options.img/OptionMenu/graphic/layer:backgrnd"));
     SDL_FRect pos_rect{
         pos.x + 9,
-        pos.y + 51,
+        pos.y + 53,
         static_cast<float>(graphic->w),
         static_cast<float>(graphic->h),
     };
     SDL_RenderTexture(window::renderer, graphic, nullptr, &pos_rect);
+    break;
+  }
+  case sound: {
+    static auto graphic = wz_resource::load_texture(
+        wz_resource::ui->find(u"Options.img/sound/layer:backgrnd"));
+    SDL_FRect pos_rect{
+        pos.x + 9,
+        pos.y + 53,
+        static_cast<float>(graphic->w),
+        static_cast<float>(graphic->h),
+    };
+    SDL_RenderTexture(window::renderer, graphic, nullptr, &pos_rect);
+    break;
+  }
+  case game: {
+    static auto graphic = wz_resource::load_texture(
+        wz_resource::ui->find(u"Options.img/game/layer:backgrnd"));
+    SDL_FRect pos_rect{
+        pos.x + 9,
+        pos.y + 53,
+        static_cast<float>(graphic->w),
+        static_cast<float>(graphic->h),
+    };
+    SDL_RenderTexture(window::renderer, graphic, nullptr, &pos_rect);
+    auto top = cursor_game_instance::cursor_ui == render;
+    // hp warn
+    freetype::load_aligned(true);
+    freetype::load_color(0, 0, 0, 255);
+    freetype::draw_cstr(u"HP Warning", pos.x + 12, pos.y + 53, 105, 1.3);
+    // hp slider
+    slider_ui_system::render_hslider(pos.x + 163, pos.y + 63, hp_warn, 100, 167,
+                                     top, false);
+    // mp warn
+    freetype::draw_cstr(u"MP Warning", pos.x + 12, pos.y + 86, 105, 1.3);
+    slider_ui_system::render_hslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
+                                     top, false);
+    // enemy info
+    freetype::draw_cstr(u"Enemy Info", pos.x + 12, pos.y + 119, 105, 1.3);
+
     break;
   }
   }
@@ -172,6 +222,21 @@ void option_ui_system::event_drag_move(SDL_Event *event) {
 
 void option_ui_system::event_button_ok() { close(); }
 
+void option_ui_system::event_tab(SDL_Event *event) {
+  const static std::array tab_rect = {
+      SDL_FRect{5, 26, 33, 19},  //
+      SDL_FRect{38, 26, 33, 19}, //
+  };
+  for (uint8_t i = 0; i < tab_rect.size(); i++) {
+    auto pos_rect = tab_rect[i];
+    pos_rect.x += pos.x;
+    pos_rect.y += pos.y;
+    if (SDL_PointInRectFloat(&window::mouse_pos, &pos_rect)) {
+      active_tab = i;
+    }
+  }
+}
+
 bool option_ui_system::event_button(SDL_Event *event) {
   const static std::array buttons_rect = {
       SDL_FRect{119, 115, 47, 18}, //
@@ -191,6 +256,31 @@ bool option_ui_system::event_button(SDL_Event *event) {
     }
   }
   return false;
+}
+
+void option_ui_system::event_motion_bt_audio(SDL_Event *event) {
+  if (cursor_game_instance::cursor_ui != render) {
+    return;
+  }
+  auto wh = load_wh();
+  std::vector<SDL_FRect> buttons_rect = {};
+
+  static int8_t bt_audio = -1;
+  auto &mouse_pos = window::mouse_pos;
+  int8_t bt_in = -1;
+  for (size_t i = 0; i < buttons_rect.size(); ++i) {
+    auto pos_rect = buttons_rect[i];
+    pos_rect.x += (int)pos.x;
+    pos_rect.y += (int)pos.y;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
+      bt_in = i;
+      break;
+    }
+  }
+  if (bt_in != -1 && bt_audio != bt_in) {
+    audio_game_instance::load_audio(u"UI.img/BtMouseOver", 0);
+  }
+  bt_audio = bt_in;
 }
 
 bool option_ui_system::event(SDL_Event *event) {
