@@ -19,8 +19,8 @@ enum option_type {
 };
 
 void option_ui_system::render_backgrnd() {
-  static auto texture = wz_resource::load_texture(
-      wz_resource::ui->find(u"Options.img/OptionMenu/backgrnd"));
+  static auto texture =
+      wz_resource::load_texture(wz_resource::ui->find(u"Options.img/backgrnd"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
@@ -33,8 +33,8 @@ void option_ui_system::render_backgrnd() {
 void option_ui_system::render_option() {
   switch (active_tab) {
   case graphic: {
-    static auto graphic = wz_resource::load_texture(wz_resource::ui->find(
-        u"Options.img/OptionMenu/graphic/layer:backgrnd"));
+    static auto graphic = wz_resource::load_texture(
+        wz_resource::ui->find(u"Options.img/graphic/layer:backgrnd"));
     SDL_FRect pos_rect{
         pos.x + 9,
         pos.y + 53,
@@ -72,12 +72,14 @@ void option_ui_system::render_option() {
     freetype::load_color(0, 0, 0, 255);
     freetype::draw_cstr(u"HP Warning", pos.x + 12, pos.y + 53, 105, 1.3);
     // hp slider
-    slider_ui_system::render_hslider(pos.x + 163, pos.y + 63, hp_warn, 100, 167,
-                                     top, false);
+    // slider_ui_system::render_hslider(pos.x + 163, pos.y + 63, hp_warn, 100,
+    // 167,
+    //                                  top, false);
     // mp warn
     freetype::draw_cstr(u"MP Warning", pos.x + 12, pos.y + 86, 105, 1.3);
-    slider_ui_system::render_hslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
-                                     top, false);
+    // slider_ui_system::render_hslider(pos.x + 163, pos.y + 95, hp_warn, 100,
+    // 167,
+    //  top, false);
     // enemy info
     freetype::draw_cstr(u"Enemy Info", pos.x + 12, pos.y + 119, 105, 1.3);
 
@@ -123,24 +125,26 @@ void option_ui_system::render_button() {
 
 void option_ui_system::render_tab() {
   const static std::array tab_pos = {
-      SDL_FPoint{6, 23},   //
-      SDL_FPoint{65, 23},  //
-      SDL_FPoint{124, 23}, //
-      SDL_FPoint{183, 23}, //
+      SDL_FPoint{10, 24},  //
+      SDL_FPoint{81, 24},  //
+      SDL_FPoint{152, 24}, //
+      SDL_FPoint{223, 24}, //
+      SDL_FPoint{294, 24}, //
   };
-  const static auto tab_node =
-      wz_resource::ui->find(u"Options.img/OptionMenu/tab");
+  const static auto tab_node = wz_resource::ui->find(u"Options.img/tab");
   const static std::array active_texture = {
       wz_resource::load_texture(tab_node->find(u"enabled/0")),
       wz_resource::load_texture(tab_node->find(u"enabled/1")),
       wz_resource::load_texture(tab_node->find(u"enabled/2")),
       wz_resource::load_texture(tab_node->find(u"enabled/3")),
+      wz_resource::load_texture(tab_node->find(u"enabled/4")),
   };
   const static std::array disabled_texture = {
       wz_resource::load_texture(tab_node->find(u"disabled/0")),
       wz_resource::load_texture(tab_node->find(u"disabled/1")),
       wz_resource::load_texture(tab_node->find(u"disabled/2")),
       wz_resource::load_texture(tab_node->find(u"disabled/3")),
+      wz_resource::load_texture(tab_node->find(u"disabled/4")),
   };
   for (uint8_t i = 0; i < tab_pos.size(); i++) {
     SDL_Texture *t = active_tab == i ? active_texture[i] : disabled_texture[i];
