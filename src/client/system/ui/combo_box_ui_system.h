@@ -17,6 +17,6 @@ struct combo_box {
 
 class combo_box_ui_system {
 public:
-  static void render(float x, float y, combo_box cm, bool top, bool disable);
-  static bool click(float x, float y, combo_box cm, bool top, bool disable);
+  static void render(int x, int y, combo_box cm, bool top, bool disable);
+  static bool click(int x, int y, combo_box cm, bool top, bool disable);
 };

@@ -37,7 +37,7 @@ public:
   };
   static inline combo_box enemy_info_cm = {
       .open = false,
-      .w = 200,
+      .w = 226,
       .selected = u"Name and HP",
       .selects = {u"Name and HP", u"Name", u"HP"},
       .val = (uint8_t)option_ui_system::enemy_info_enum::name_hp,
@@ -49,7 +49,7 @@ public:
   };
   static inline combo_box screenshot_format = {
       .open = false,
-      .w = 200,
+      .w = 226,
       .selected = u"JPEG",
       .selects = {u"JPEG", u"PNG"},
       .val = (uint8_t)option_ui_system::screenshot_format_enum::jpeg,
@@ -59,7 +59,7 @@ public:
   };
   static inline combo_box screenshot_location = {
       .open = false,
-      .w = 200,
+      .w = 226,
       .selected = u"MapleStory Folder",
       .selects = {u"MapleStory Folder"},
       .val = (uint8_t)option_ui_system::screenshot_location_enum::folder,
@@ -72,14 +72,14 @@ public:
 
   static inline bool memory_map;
 
-  static inline text_input memory_limit;
+  static inline int32_t memory_limit;
 
   enum class language_enum {
     english,
   };
   static inline combo_box language = {
       .open = false,
-      .w = 200,
+      .w = 226,
       .selected = u"English",
       .selects = {u"English"},
       .val = (uint8_t)option_ui_system::language_enum::english,

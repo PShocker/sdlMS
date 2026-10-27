@@ -6,7 +6,7 @@
 #include <cmath>
 #include <optional>
 
-void slider_ui_system::render_hslider(float x, float y, uint32_t val,
+void slider_ui_system::render_hslider(int x, int y, uint32_t val,
                                       uint32_t count, int32_t length, bool top,
                                       bool disable) {
   static auto normal = wz_resource::load_texture(
@@ -42,12 +42,12 @@ void slider_ui_system::render_hslider(float x, float y, uint32_t val,
   SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
 }
 
-std::optional<int> slider_ui_system::click_thumb(float x, float y, uint32_t val,
+std::optional<int> slider_ui_system::click_thumb(int x, int y, uint32_t val,
                                                  uint32_t count, int32_t length,
                                                  bool top, SDL_FPoint mouse) {
   SDL_FRect pos_rect = {
-      x,
-      y,
+      static_cast<float>(x),
+      static_cast<float>(y),
       static_cast<float>(length),
       static_cast<float>(14),
   };

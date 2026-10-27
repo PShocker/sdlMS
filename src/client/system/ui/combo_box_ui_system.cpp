@@ -5,7 +5,7 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 
-void combo_box_ui_system::render(float x, float y, combo_box cm, bool top,
+void combo_box_ui_system::render(int x, int y, combo_box cm, bool top,
                                  bool disable) {
   SDL_Texture *l = wz_resource::load_texture(
       wz_resource::ui->find(u"Basic.img/ComboBox/normal/0"));
@@ -59,7 +59,7 @@ void combo_box_ui_system::render(float x, float y, combo_box cm, bool top,
   SDL_RenderTexture(window::renderer, r, nullptr, &pos_rect);
   freetype::load_size(12);
   freetype::load_color(0, 0, 0, 255);
-  freetype::draw_line(cm.selected, x, pos_rect.y);
+  freetype::draw_line(cm.selected, x + 10, pos_rect.y);
   if (cm.open) {
     auto lh = freetype::load_lh();
     auto h = cm.selects.size() * lh * 1.3;
@@ -75,13 +75,13 @@ void combo_box_ui_system::render(float x, float y, combo_box cm, bool top,
     auto base_y = pos_rr.y;
     for (int i = 0; i < cm.selects.size(); i++) {
       auto text = cm.selects[i];
-      freetype::draw_line(text, x, base_y);
+      freetype::draw_line(text, x + 10, base_y);
       base_y += lh * 1.3;
     }
   }
 }
 
-bool combo_box_ui_system::click(float x, float y, combo_box cm, bool top,
+bool combo_box_ui_system::click(int x, int y, combo_box cm, bool top,
                                 bool disable) {
   return false;
 }
