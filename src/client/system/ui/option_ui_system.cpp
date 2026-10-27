@@ -1,14 +1,17 @@
 #include "option_ui_system.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 #include "slider_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/combo_box_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+#include <string>
 
 enum option_type {
   graphic,
@@ -72,16 +75,117 @@ void option_ui_system::render_option() {
     freetype::load_color(0, 0, 0, 255);
     freetype::draw_cstr(u"HP Warning", pos.x + 12, pos.y + 53, 105, 1.3);
     // hp slider
-    // slider_ui_system::render_hslider(pos.x + 163, pos.y + 63, hp_warn, 100,
-    // 167,
-    //                                  top, false);
+    slider_ui_system::render_hslider(pos.x + 163, pos.y + 63, hp_warn, 100, 167,
+                                     top, false);
     // mp warn
     freetype::draw_cstr(u"MP Warning", pos.x + 12, pos.y + 86, 105, 1.3);
-    // slider_ui_system::render_hslider(pos.x + 163, pos.y + 95, hp_warn, 100,
-    // 167,
-    //  top, false);
+    slider_ui_system::render_hslider(pos.x + 163, pos.y + 95, hp_warn, 100, 167,
+                                     top, false);
     // enemy info
     freetype::draw_cstr(u"Enemy Info", pos.x + 12, pos.y + 119, 105, 1.3);
+    combo_box_ui_system::render(pos.x +, float y, enemy_info_cm, bool top,
+                                bool disable);
+    // screen format
+    combo_box_ui_system::render(pos.x +, float y, screenshot_format, bool top,
+                                bool disable);
+    // screen folder
+    combo_box_ui_system::render(pos.x +, float y, screenshot_location, bool top,
+                                bool disable);
+    // burst screen shot
+    SDL_Texture *t;
+    if (continue_capture) {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find(u"Basic.img/CheckBox/0/1"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find(u"Basic.img/CheckBox/0/0"));
+    }
+    pos_rect.x = pos.x + 1;
+    pos_rect.y = pos.y + 1;
+    pos_rect.w = t->w;
+    pos_rect.h = t->h;
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    std::u16string text = u"Continuous Capture";
+    freetype::load_size(12);
+    freetype::draw_line(text, pos_rect.x + 100, pos_rect.y);
+
+    auto tmp = std::to_string(continue_capture_num);
+    text = std::u16string{tmp.begin(), tmp.end()} + u"   Shots";
+    freetype::load_color(0, 0, 0, 255);
+    freetype::draw_line(text, pos_rect.x + 100, pos_rect.y);
+
+    const static std::array buttons_nodes = {
+        wz_resource::ui->find(u"Basic.img/BtMax"),
+        wz_resource::ui->find(u"Basic.img/BtMin"),
+        wz_resource::ui->find(u"Basic.img/BtMax"),
+        wz_resource::ui->find(u"Basic.img/BtMin"),
+    };
+    std::array buttons_rect = {
+        SDL_FRect{wh.x - 20, 7, 12, 12}, //
+        SDL_FRect{wh.x - 20, 7, 12, 12}, //
+        SDL_FRect{wh.x - 20, 7, 12, 12}, //
+        SDL_FRect{wh.x - 20, 7, 12, 12}, //
+    };
+
+    for (size_t i = 0; i < buttons_nodes.size(); ++i) {
+      auto k = buttons_nodes[i];
+      auto pos_rect = buttons_rect[i];
+      pos_rect.x += pos.x;
+      pos_rect.y += pos.y;
+      pos_rect.x = (int)pos_rect.x;
+      pos_rect.y = (int)pos_rect.y;
+      auto &mouse_pos = window::mouse_pos;
+      // 判断按钮是否被遮挡
+      auto cursor_in = cursor_game_instance::cursor_ui;
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+          !cursor_game_instance::modal_overlay) {
+        if (window::mouse_state & SDL_BUTTON_LMASK) {
+          auto pressed = wz_resource::load_texture(k->find(u"pressed/0"));
+          SDL_RenderTexture(window::renderer, pressed, nullptr, &pos_rect);
+        } else {
+          auto mouse_over = wz_resource::load_texture(k->find(u"mouseOver/0"));
+          SDL_RenderTexture(window::renderer, mouse_over, nullptr, &pos_rect);
+        }
+      } else {
+        auto normal = wz_resource::load_texture(k->find(u"normal/0"));
+        SDL_RenderTexture(window::renderer, normal, nullptr, &pos_rect);
+      }
+    }
+    text = u"2 to 10 Shots Avaliable";
+    freetype::draw_line(text, pos.x, pos.y);
+
+    if (auto_capture) {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find(u"Basic.img/CheckBox/0/1"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find(u"Basic.img/CheckBox/0/0"));
+    }
+    pos_rect.x = pos.x + 1;
+    pos_rect.y = pos.y + 1;
+    pos_rect.w = t->w;
+    pos_rect.h = t->h;
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    text = u"Auto-Capture Memorable Moments";
+
+    if (memory_map) {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find(u"Basic.img/CheckBox/0/1"));
+    } else {
+      t = wz_resource::load_texture(
+          wz_resource::ui->find(u"Basic.img/CheckBox/0/0"));
+    }
+    pos_rect.x = pos.x + 1;
+    pos_rect.y = pos.y + 1;
+    pos_rect.w = t->w;
+    pos_rect.h = t->h;
+    SDL_RenderTexture(window::renderer, t, nullptr, &pos_rect);
+    text = u"Use";
+
+    tmp = std::to_string(memory_limit);
+    text = std::u16string{tmp.begin(), tmp.end()} + u"   Shots";
+    freetype::load_color(0, 0, 0, 255);
+    freetype::draw_line(text, pos_rect.x + 100, pos_rect.y);
 
     break;
   }

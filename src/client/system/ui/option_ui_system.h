@@ -1,6 +1,8 @@
 #pragma once
 
 #include "SDL3/SDL_events.h"
+#include "src/client/system/ui/combo_box_ui_system.h"
+#include "src/client/system/ui/text_input_ui_system.h"
 #include <cstdint>
 #include <optional>
 class option_ui_system {
@@ -33,7 +35,55 @@ public:
     name,
     hp,
   };
-  static inline enemy_info_enum enemy_info;
+  static inline combo_box enemy_info_cm = {
+      .open = false,
+      .w = 200,
+      .selected = u"Name and HP",
+      .selects = {u"Name and HP", u"Name", u"HP"},
+      .val = (uint8_t)option_ui_system::enemy_info_enum::name_hp,
+  };
+
+  enum class screenshot_format_enum {
+    jpeg,
+    png,
+  };
+  static inline combo_box screenshot_format = {
+      .open = false,
+      .w = 200,
+      .selected = u"JPEG",
+      .selects = {u"JPEG", u"PNG"},
+      .val = (uint8_t)option_ui_system::screenshot_format_enum::jpeg,
+  };
+  enum class screenshot_location_enum {
+    folder,
+  };
+  static inline combo_box screenshot_location = {
+      .open = false,
+      .w = 200,
+      .selected = u"MapleStory Folder",
+      .selects = {u"MapleStory Folder"},
+      .val = (uint8_t)option_ui_system::screenshot_location_enum::folder,
+  };
+
+  static inline bool continue_capture;
+  static inline int32_t continue_capture_num;
+
+  static inline bool auto_capture;
+
+  static inline bool memory_map;
+
+  static inline text_input memory_limit;
+
+  enum class language_enum {
+    english,
+  };
+  static inline combo_box language = {
+      .open = false,
+      .w = 200,
+      .selected = u"English",
+      .selects = {u"English"},
+      .val = (uint8_t)option_ui_system::language_enum::english,
+  };
 
   static inline uint8_t active_tab;
 
