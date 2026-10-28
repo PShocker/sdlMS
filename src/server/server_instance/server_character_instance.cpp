@@ -393,7 +393,7 @@ void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
     // 伤害数字
     DamageData data = {
         .num = ct->attack->num,
-        .type = DamageData::T::kR,
+        .type = DamageData::DamageColor::kRed,
     };
     GameEffect d = {
         .id = u"",

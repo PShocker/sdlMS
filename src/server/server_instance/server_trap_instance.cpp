@@ -31,7 +31,7 @@ void ServerTrapInstance::HandleSAttack(uint64_t client_id, fbs::AttackT& at) {
   // 伤害数字
   DamageData data = {
       .num = attack.num,
-      .type = (DamageData::T)attack.type,
+      .type = (DamageData::DamageColor)attack.type,
   };
   GameEffect d = {
       .id = u"",

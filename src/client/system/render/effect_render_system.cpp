@@ -97,15 +97,15 @@ void EffectRenderSystem::RenderDamage(SDL_FPoint pos, GameEffect& g_effect) {
   uint32_t w = 0;
   wz::Node* node;
   switch (d_data.type) {
-    case DamageData::T::kR: {
+    case DamageData::DamageColor::kRed: {
       node = red;
       break;
     }
-    case DamageData::T::kB: {
+    case DamageData::DamageColor::kBlue: {
       node = blue;
       break;
     }
-    case DamageData::T::kV: {
+    case DamageData::DamageColor::kWhite: {
       node = viole;
       break;
     }

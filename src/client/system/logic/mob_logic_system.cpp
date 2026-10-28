@@ -151,7 +151,7 @@ void MobLogicSystem::RunCollision() {
         .num = hit_num,
         .x = self.pos.x,
         .y = self.pos.y - 30,
-        .type = static_cast<uint8_t>(DamageData::T::kV),
+        .type = static_cast<uint8_t>(DamageData::DamageColor::kWhite),
     };
     ServerMobInstance::HandleSAttack(0, at);
     fbs::ClientMobAttackT cma;

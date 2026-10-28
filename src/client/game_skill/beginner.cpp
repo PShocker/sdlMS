@@ -95,7 +95,7 @@ static void Recover() {
       fbs::AttackT at;
       at.x = pos.x - 10;
       at.y = pos.y - 30;
-      at.type = static_cast<uint8_t>(DamageData::T::kB);
+      at.type = static_cast<uint8_t>(DamageData::DamageColor::kBlue);
       at.num = 20;
       ServerMobInstance::HandleSAttack(0, at);
       auto sf_hp = CharacterStatGameInstance::GetHp();
