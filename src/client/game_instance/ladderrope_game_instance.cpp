@@ -1,6 +1,8 @@
 #include "src/client/game_instance/ladderrope_game_instance.h"
+
 #include "src/client/game/game_ladderrope.h"
 #include "src/common/wz/wz_resource.h"
+
 #include <wz/Property.h>
 namespace sdlms {
 
@@ -15,19 +17,18 @@ void LadderropeGameInstance::Load(uint32_t map_id) {
     auto ladder_node = val[0];
     GameLadderrope g_ladderrope;
     g_ladderrope.l =
-        static_cast<wz::Property<int> *>(ladder_node->get_child(u"l"))->get();
+        static_cast<wz::Property<int>*>(ladder_node->get_child(u"l"))->get();
     g_ladderrope.uf =
-        static_cast<wz::Property<int> *>(ladder_node->get_child(u"uf"))->get();
+        static_cast<wz::Property<int>*>(ladder_node->get_child(u"uf"))->get();
     g_ladderrope.page =
-        static_cast<wz::Property<int> *>(ladder_node->get_child(u"page"))
-            ->get();
+        static_cast<wz::Property<int>*>(ladder_node->get_child(u"page"))->get();
 
     g_ladderrope.x =
-        static_cast<wz::Property<int> *>(ladder_node->get_child(u"x"))->get();
+        static_cast<wz::Property<int>*>(ladder_node->get_child(u"x"))->get();
     g_ladderrope.y1 =
-        static_cast<wz::Property<int> *>(ladder_node->get_child(u"y1"))->get();
+        static_cast<wz::Property<int>*>(ladder_node->get_child(u"y1"))->get();
     g_ladderrope.y2 =
-        static_cast<wz::Property<int> *>(ladder_node->get_child(u"y2"))->get();
+        static_cast<wz::Property<int>*>(ladder_node->get_child(u"y2"))->get();
 
     g_ladderrope.t = std::min(g_ladderrope.y1, g_ladderrope.y2);
     g_ladderrope.b = std::max(g_ladderrope.y1, g_ladderrope.y2);

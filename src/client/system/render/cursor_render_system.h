@@ -2,11 +2,11 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_RENDER_CURSOR_RENDER_SYSTEM_H_
 namespace sdlms {
 class CursorRenderSystem {
-private:
+ private:
   static void RenderCursor();
   static void RenderHand();
 
-public:
+ public:
   static bool Render();
 };
 

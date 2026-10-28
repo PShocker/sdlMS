@@ -3,15 +3,16 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
+
 #include <string>
 namespace sdlms {
 
 class ScreenNoticeUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderText();
 
-public:
+ public:
   static inline SDL_FPoint pos_;
   static inline std::u16string path_;
   static inline std::u16string text_;
@@ -20,7 +21,7 @@ public:
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
 

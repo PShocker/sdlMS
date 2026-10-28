@@ -1,16 +1,18 @@
 #include "src/client/system/logic/ball_logic_system.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
 namespace sdlms {
 
 
-void BallLogicSystem::RunAnimate(GameBall &b) {
-  wz::Node *n = WzResource::skill_->find(b.path);
+void BallLogicSystem::RunAnimate(GameBall& b) {
+  wz::Node* n = WzResource::skill_->find(b.path);
   if (!n) {
     n = WzResource::item_->find(b.path);
   }
@@ -19,7 +21,7 @@ void BallLogicSystem::RunAnimate(GameBall &b) {
   auto texture_node = n->get_child(index);
   int delay = 100;
   if (texture_node->get_child(u"delay")) {
-    delay = static_cast<wz::Property<int> *>(texture_node->get_child(u"delay"))
+    delay = static_cast<wz::Property<int>*>(texture_node->get_child(u"delay"))
                 ->get();
   }
   if (b.ani_time >= delay) {
@@ -27,8 +29,7 @@ void BallLogicSystem::RunAnimate(GameBall &b) {
     b.ani_index += 1;
     auto m = n->children;
     if (m.contains(u"rotatePeriod")) {
-      auto r =
-          static_cast<wz::Property<int> *>(m.at(u"rotatePeriod")[0])->get();
+      auto r = static_cast<wz::Property<int>*>(m.at(u"rotatePeriod")[0])->get();
       b.rotate += r;
       m.erase(u"rotatePeriod");
     }
@@ -37,7 +38,7 @@ void BallLogicSystem::RunAnimate(GameBall &b) {
   float dx = b.goal.x - b.pos.x;
   float dy = b.goal.y - b.pos.y;
   if (MobGameInstance::data_.contains(b.mob_index)) {
-    const auto &mob = MobGameInstance::data_.at(b.mob_index).mob;
+    const auto& mob = MobGameInstance::data_.at(b.mob_index).mob;
     dx = (b.goal.x + mob.pos.x) - b.pos.x;
     dy = (b.goal.y + mob.pos.y) - b.pos.y;
   }
@@ -73,7 +74,7 @@ SDL_FPoint BallLogicSystem::Move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
   return result;
 }
 
-bool BallLogicSystem::RunMove(GameBall &b) {
+bool BallLogicSystem::RunMove(GameBall& b) {
   if (MobGameInstance::data_.contains(b.mob_index)) {
     auto mob_pos = MobGameInstance::data_.at(b.mob_index).mob.pos;
     auto p2 = b.goal;
@@ -99,7 +100,7 @@ bool BallLogicSystem::RunMove(GameBall &b) {
 
 bool BallLogicSystem::Run() {
   auto now = Window::dt_time_;
-  for (auto &bs : BallGameInstance::data_) {
+  for (auto& bs : BallGameInstance::data_) {
     // 使用迭代器遍历并安全删除
     for (auto it = bs.begin(); it != bs.end();) {
       if (it->delay >= now) {
@@ -110,7 +111,7 @@ bool BallLogicSystem::Run() {
       RunAnimate(*it);
       auto r = RunMove(*it);
       if (!r) {
-        it = bs.erase(it); // erase 返回下一个迭代器
+        it = bs.erase(it);  // erase 返回下一个迭代器
         continue;
       }
       it++;

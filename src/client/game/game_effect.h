@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_EFFECT_H_
 
 #include <SDL3/SDL_rect.h>
+
 #include <any>
 #include <cstdint>
 #include <optional>
@@ -15,7 +16,7 @@ struct DamageData {
   T type;
 };
 
-struct GameEffect{
+struct GameEffect {
   std::u16string id;
 
   uint32_t index = 0;

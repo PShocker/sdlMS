@@ -1,4 +1,3 @@
-#include "src/common/script/script.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
@@ -6,7 +5,9 @@
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
+#include "src/common/script/script.h"
 #include "src/common/wz/wz_resource.h"
+
 #include <wz/Property.h>
 namespace sdlms {
 
@@ -25,7 +26,7 @@ static void Q1002e(std::any data) {
 };
 
 [[maybe_unused]] static const bool r = [] {
-  auto &fns = Script::fns();
+  auto& fns = Script::fns();
   fns[u"q1002e"] = Q1002e;
   return true;
 }();

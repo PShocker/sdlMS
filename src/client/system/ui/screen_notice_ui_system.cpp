@@ -1,16 +1,21 @@
 #include "src/client/system/ui/screen_notice_ui_system.h"
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_render.h>
+
 #include <ranges>
 namespace sdlms {
 
 
-SDL_FPoint ScreenNoticeUiSystem::LoadWh() { return {209, 289}; }
+SDL_FPoint ScreenNoticeUiSystem::LoadWh() {
+  return {209, 289};
+}
 
 void ScreenNoticeUiSystem::RenderBackgrnd() {
   auto [w, h] = LoadWh();
@@ -53,7 +58,7 @@ void ScreenNoticeUiSystem::Open() {
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -68,7 +73,9 @@ bool ScreenNoticeUiSystem::Render() {
   return true;
 }
 
-bool ScreenNoticeUiSystem::Event(SDL_Event *Event) { return true; }
+bool ScreenNoticeUiSystem::Event(SDL_Event* Event) {
+  return true;
+}
 
 void ScreenNoticeUiSystem::Close() {
   std::erase(System::render_systems_, Render);

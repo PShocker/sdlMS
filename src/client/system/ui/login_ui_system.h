@@ -1,16 +1,18 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_LOGIN_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_LOGIN_UI_SYSTEM_H_
 
+#include "src/client/system/ui/text_input_ui_system.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
-#include "src/client/system/ui/text_input_ui_system.h"
 #include <uv.h>
+
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
 class LoginUiSystem {
-private:
+ private:
   static bool LoginAnimate();
 
   static SDL_FPoint LoadPos();
@@ -29,15 +31,15 @@ private:
   static void EventButtonQuit();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
-public:
+ public:
   static inline uv_pipe_t g_pipe_;
   static inline TextInput username_;
   static bool CameraAnimate(float x, float y);
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 };
 
 }  // namespace sdlms

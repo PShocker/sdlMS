@@ -6,18 +6,18 @@
 namespace sdlms {
 
 class MinigameCardUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static SDL_FPoint LoadWh();
 
-public:
+ public:
   static inline SDL_FPoint pos_;
 
   static void Open();
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
 

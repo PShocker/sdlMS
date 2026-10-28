@@ -1,14 +1,16 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_KEYBINDING_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_KEYBINDING_UI_SYSTEM_H_
 
-#include <SDL3/SDL_events.h>
 #include "src/client/game/game_input.h"
+
+#include <SDL3/SDL_events.h>
+
 #include <cstdint>
 #include <optional>
 namespace sdlms {
 
 class KeybindingUiSystem {
-private:
+ private:
   static void RenderButton();
   static bool RenderInfo();
 
@@ -19,14 +21,14 @@ private:
   static void RenderRemainKey();
   static SDL_FPoint LoadWh();
   static void EventTop();
-  static void EventDragStart(SDL_Event *Event);
+  static void EventDragStart(SDL_Event* Event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event *Event);
+  static void EventDragMove(SDL_Event* Event);
 
-  static void EventMotionBtAudio(SDL_Event *Event);
+  static void EventMotionBtAudio(SDL_Event* Event);
 
-  static void EventMotion(SDL_Event *Event);
-  
+  static void EventMotion(SDL_Event* Event);
+
   static void EventButtonClose();
   static void EventButtonDefault();
   static void EventButtonDelete();
@@ -41,12 +43,12 @@ private:
   static void EventRemainKey();
 
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
   static inline std::optional<SDL_FPoint> drag_;
   static inline uint8_t active_tab_;
 
-public:
+ public:
   static inline SDL_FPoint pos_;
 
   static void Open();
@@ -54,7 +56,7 @@ public:
 
   static void RenderRemainIcon(int i, int x, int y, uint8_t alpha = 255);
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
 

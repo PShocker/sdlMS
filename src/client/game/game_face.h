@@ -5,7 +5,7 @@
 #include <string>
 namespace sdlms {
 
-struct GameFace{
+struct GameFace {
   std::u16string id;
   std::u16string action = u"default";
   uint32_t time = 0;

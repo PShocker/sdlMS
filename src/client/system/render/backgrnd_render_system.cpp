@@ -1,15 +1,18 @@
 #include "src/client/system/render/backgrnd_render_system.h"
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_render.h>
 #include <wz/Property.h>
+
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
 
-bool BackgrndRenderSystem::Render(GameBackgrnd &g_backgrnd) {
+bool BackgrndRenderSystem::Render(GameBackgrnd& g_backgrnd) {
   auto delta_time = Window::delta_time_;
 
   auto viewprot_x = CameraGameInstance::camera_.x;
@@ -17,7 +20,7 @@ bool BackgrndRenderSystem::Render(GameBackgrnd &g_backgrnd) {
   auto viewprot_w = CameraGameInstance::camera_.w;
   auto viewprot_h = CameraGameInstance::camera_.h;
 
-  SDL_Texture *texture;
+  SDL_Texture* texture;
   auto back_node = WzResource::map_->find(g_backgrnd.path);
   if (g_backgrnd.ani) {
     auto index =
@@ -27,7 +30,7 @@ bool BackgrndRenderSystem::Render(GameBackgrnd &g_backgrnd) {
   texture = WzResource::LoadTexture(back_node);
 
   auto v =
-      static_cast<wz::Property<wz::WzVec2D> *>(back_node->get_child(u"origin"))
+      static_cast<wz::Property<wz::WzVec2D>*>(back_node->get_child(u"origin"))
           ->get();
   auto origin = SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
 
@@ -76,20 +79,20 @@ bool BackgrndRenderSystem::Render(GameBackgrnd &g_backgrnd) {
 
   if (cx == texture->w && cy == texture->h && g_backgrnd.flip == 0) {
     SDL_FRect dst_rect = {
-        (float)point.x - viewprot_x, // x 起始位置
-        (float)point.y - viewprot_y, // y 起始位置
-        (float)tile_cnt_x * cx,      // 总宽度
-        (float)tile_cnt_y * cy       // 总高度
+        (float)point.x - viewprot_x,  // x 起始位置
+        (float)point.y - viewprot_y,  // y 起始位置
+        (float)tile_cnt_x * cx,       // 总宽度
+        (float)tile_cnt_y * cy        // 总高度
     };
     SDL_RenderTextureTiled(Window::renderer_, texture, nullptr, 1, &dst_rect);
   } else {
     for (int i = 0; i < tile_cnt_y; i++) {
       for (int j = 0; j < tile_cnt_x; j++) {
         SDL_FRect dst_rect = {
-            (float)point.x + j * cx - viewprot_x, // x 起始位置
-            (float)point.y + i * cy - viewprot_y, // y 起始位置
-            (float)texture->w,                    // 总宽度
-            (float)texture->h                     // 总高度
+            (float)point.x + j * cx - viewprot_x,  // x 起始位置
+            (float)point.y + i * cy - viewprot_y,  // y 起始位置
+            (float)texture->w,                     // 总宽度
+            (float)texture->h                      // 总高度
         };
         SDL_RenderTextureRotated(Window::renderer_, texture, nullptr, &dst_rect,
                                  0, nullptr, (SDL_FlipMode)g_backgrnd.flip);

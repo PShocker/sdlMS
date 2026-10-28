@@ -1,5 +1,5 @@
 #include "src/client/game_instance/ball_game_instance.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/game/game_foothold.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
@@ -8,6 +8,9 @@
 #include "src/client/system/logic/mob_logic_system.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/physic/physic.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cmath>
 #include <cstdint>
 #include <flat_map>
@@ -16,10 +19,12 @@
 namespace sdlms {
 
 
-void BallGameInstance::Reset() { data_ = {}; }
+void BallGameInstance::Reset() {
+  data_ = {};
+}
 
-SDL_FPoint BallGameInstance::ClosestPointOnRect(const SDL_FPoint &pos,
-                                                     const SDL_FRect &rect) {
+SDL_FPoint BallGameInstance::ClosestPointOnRect(const SDL_FPoint& pos,
+                                                const SDL_FRect& rect) {
   SDL_FPoint closest;
 
   // X 方向夹紧（clamp）
@@ -28,7 +33,7 @@ SDL_FPoint BallGameInstance::ClosestPointOnRect(const SDL_FPoint &pos,
   else if (pos.x > rect.x + rect.w)
     closest.x = rect.x + rect.w;
   else
-    closest.x = pos.x; // 点在矩形 X 范围内
+    closest.x = pos.x;  // 点在矩形 X 范围内
 
   // Y 方向夹紧（clamp）
   if (pos.y < rect.y)
@@ -36,30 +41,29 @@ SDL_FPoint BallGameInstance::ClosestPointOnRect(const SDL_FPoint &pos,
   else if (pos.y > rect.y + rect.h)
     closest.y = rect.y + rect.h;
   else
-    closest.y = pos.y; // 点在矩形 Y 范围内
+    closest.y = pos.y;  // 点在矩形 Y 范围内
 
   return closest;
 }
 
 fbs::ClientCharacterBallT BallGameInstance::CreateBallPayload(
-    CheckMobs &cm, SDL_FPoint pos, SDL_FPoint goal, uint64_t delay, int page,
-    int speed, const std::u16string &path) {
-
+    CheckMobs& cm, SDL_FPoint pos, SDL_FPoint goal, uint64_t delay, int page,
+    int speed, const std::u16string& path) {
   fbs::ClientCharacterBallT ccb;
 
   // 1. 直接构造BallT，避免unique_ptr的单独分配
   auto ball = std::make_unique<fbs::BallT>(fbs::BallT{
       .x1 = pos.x,
       .y1 = pos.y,
-      .x2 = goal.x, // 默认值
-      .y2 = goal.y, // 默认值
+      .x2 = goal.x,  // 默认值
+      .y2 = goal.y,  // 默认值
       .speed = (float)speed,
       .mob_index = UINT32_MAX,
       .delay = delay,
       .page = (uint8_t)page,
   });
 
-  const auto &fhs = FootholdGameInstance::data_;
+  const auto& fhs = FootholdGameInstance::data_;
   auto hspeed = (goal.x > pos.x) ? speed : -speed;
 
   // 2. 提取目标计算逻辑为lambda，减少重复
@@ -68,19 +72,19 @@ fbs::ClientCharacterBallT BallGameInstance::CreateBallPayload(
 
     SDL_FPoint best_point = target;
     float min_dx = std::numeric_limits<float>::max();
-    const float pos_x = pos.x; // 缓存pos.x
+    const float pos_x = pos.x;  // 缓存pos.x
 
-    for (const auto &[k, v] : ins) {
+    for (const auto& [k, v] : ins) {
       bool check = false;
       // 预计算dx避免重复
       const float dx = std::abs(pos_x - v.pos.x);
       if (dx >= min_dx)
-        continue; // 提前剪枝
+        continue;  // 提前剪枝
 
       if (!v.fh.k.has_value()) {
         check = Physic::FallCollideWall(hspeed, v.fh, fhs);
       } else if (v.fh.k == 0) {
-        check = (pos.y < target.y); // 禁止从上到下
+        check = (pos.y < target.y);  // 禁止从上到下
       } else {
         // 禁止同向
         const bool moving_right = v.fh.x1 < v.fh.x2;
@@ -98,7 +102,7 @@ fbs::ClientCharacterBallT BallGameInstance::CreateBallPayload(
 
   // 3. 主逻辑流
   if (!cm.data.empty()) {
-    const auto &mob = cm.data[0].mob;
+    const auto& mob = cm.data[0].mob;
     auto mob_r = MobLogicSystem::LoadRect(mob);
 
     if (mob_r.has_value()) {
@@ -142,8 +146,8 @@ fbs::ClientCharacterBallT BallGameInstance::CreateBallPayload(
   return ccb;
 }
 
-uint64_t BallGameInstance::LoadBallTime(fbs::ClientCharacterBallT &cct) {
-  const auto &b = cct.payload->ball;
+uint64_t BallGameInstance::LoadBallTime(fbs::ClientCharacterBallT& cct) {
+  const auto& b = cct.payload->ball;
 
   // 一次查找，避免 contains + at 的双重开销
   auto it = MobGameInstance::data_.find(b->mob_index);
@@ -151,7 +155,7 @@ uint64_t BallGameInstance::LoadBallTime(fbs::ClientCharacterBallT &cct) {
     return 0;
   }
 
-  const auto &mob_pos = it->second.mob.pos;
+  const auto& mob_pos = it->second.mob.pos;
 
   // 起点 = b->x1/y1,终点 = b->x2/y2 + mob 偏移
   const float dx = (b->x2 + mob_pos.x) - b->x1;
@@ -169,12 +173,12 @@ uint64_t BallGameInstance::LoadBallTime(fbs::ClientCharacterBallT &cct) {
   return static_cast<uint64_t>(dt + 0.5) + b->delay;
 }
 
-std::u16string BallGameInstance::LoadBallPath(const std::u16string &id) {
+std::u16string BallGameInstance::LoadBallPath(const std::u16string& id) {
   std::u16string path;
   // 硬编码判断无影箭
-  auto &ski = SkillGameInstance::ski_;
+  auto& ski = SkillGameInstance::ski_;
   auto it = std::ranges::find_if(
-      ski, [](const GameSkill &s) { return s.id == u"3101003"; });
+      ski, [](const GameSkill& s) { return s.id == u"3101003"; });
   if (it != ski.end()) {
     path = u"310.img/skill/3101003/ball";
   } else {
@@ -184,8 +188,7 @@ std::u16string BallGameInstance::LoadBallPath(const std::u16string &id) {
   return path;
 }
 
-std::u16string
-BallGameInstance::LoadCashBallPath(const std::u16string &id) {
+std::u16string BallGameInstance::LoadCashBallPath(const std::u16string& id) {
   std::u16string path;
   if (!id.empty()) {
     auto sub_id = id.substr(0, 4) + u".img";
@@ -194,8 +197,7 @@ BallGameInstance::LoadCashBallPath(const std::u16string &id) {
   return path;
 }
 
-std::u16string
-BallGameInstance::LoadCashBallEffect(const std::u16string &id) {
+std::u16string BallGameInstance::LoadCashBallEffect(const std::u16string& id) {
   std::u16string effect;
   if (!id.empty()) {
     auto sub_id = id.substr(0, 4) + u".img";

@@ -5,8 +5,8 @@
 namespace sdlms {
 
 class BackgrndRenderSystem {
-public:
-  static bool Render(GameBackgrnd &g_backgrnd);
+ public:
+  static bool Render(GameBackgrnd& g_backgrnd);
 };
 
 }  // namespace sdlms

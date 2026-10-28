@@ -1,5 +1,4 @@
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
@@ -14,6 +13,9 @@
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -29,7 +31,7 @@ static void ThreeSnail() {
         SDL_FPoint{-350, 100},
         SDL_FPoint{0, -28},
     }};
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
@@ -49,8 +51,8 @@ static void ThreeSnail() {
     } else {
       goal.x -= 350;
     }
-    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
-                                                       page, 700, path);
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
+                                                   700, path);
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
@@ -67,7 +69,7 @@ static void ThreeSnail() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 
@@ -78,9 +80,9 @@ static void Recover() {
 
   static uint64_t now;
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski_;
+    auto& ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
-        ski, [](const GameSkill &s) { return s.id == u"0001001"; });
+        ski, [](const GameSkill& s) { return s.id == u"0001001"; });
     if (it != ski.end()) {
       ski.erase(it);
     }
@@ -88,7 +90,7 @@ static void Recover() {
 
   g_skill.frame = []() {
     if (now <= Window::dt_now_) {
-      const auto &pos = CharacterGameInstance::self_.pos;
+      const auto& pos = CharacterGameInstance::self_.pos;
       now = Window::dt_now_ + 1000;
       fbs::AttackT at;
       at.x = pos.x - 10;
@@ -104,20 +106,20 @@ static void Recover() {
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     SkillGameInstance::Skis()[u"0001001"].cd = Window::dt_now_ + 10000;
 
-    auto &ski = SkillGameInstance::ski_;
+    auto& ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
     g_skill.destroy = Window::dt_now_ + g_skill.duration;
     ski.push_back(g_skill);
 
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     auto ckt = SkillGameInstance::CreateSkillPayload(1001, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
 
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 
@@ -126,9 +128,9 @@ static void NimbleFeet() {
   g_skill.climb = true;
   g_skill.id = u"0001002";
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski_;
+    auto& ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
-        ski, [](const GameSkill &s) { return s.id == u"0001002"; });
+        ski, [](const GameSkill& s) { return s.id == u"0001002"; });
     if (it != ski.end()) {
       ski.erase(it);
       CharacterLogicSystem::self_hspeed_max_ -= 100;
@@ -141,7 +143,7 @@ static void NimbleFeet() {
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
     SkillGameInstance::Skis()[u"0001002"].cd = Window::dt_now_ + 1000;
 
-    auto &ski = SkillGameInstance::ski_;
+    auto& ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
@@ -151,13 +153,13 @@ static void NimbleFeet() {
     CharacterLogicSystem::self_hspeed_max_ += 100;
     CharacterLogicSystem::self_hspeed_min_ -= 100;
 
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     auto ckt = SkillGameInstance::CreateSkillPayload(1002, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
 
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 

@@ -1,5 +1,4 @@
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -9,6 +8,9 @@
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 namespace sdlms {
 
@@ -22,7 +24,7 @@ static void Huojianshu() {
         SDL_FPoint{-400, 100},
         SDL_FPoint{0, -30},
     }};
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"shoot1");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
@@ -41,8 +43,8 @@ static void Huojianshu() {
     } else {
       goal.x -= 400;
     }
-    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
-                                                       page, 700, path);
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
+                                                   700, path);
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
@@ -57,7 +59,7 @@ static void Huojianshu() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 

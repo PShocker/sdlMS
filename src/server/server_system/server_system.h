@@ -5,7 +5,7 @@
 namespace sdlms {
 
 class ServerSystem {
-public:
+ public:
   static inline std::vector<bool (*)()> server_systems_;
 };
 

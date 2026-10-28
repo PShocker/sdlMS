@@ -5,8 +5,8 @@
 namespace sdlms {
 
 class DropRenderSystem {
-public:
-  static bool Render(GameDrop &g_drop);
+ public:
+  static bool Render(GameDrop& g_drop);
 };
 
 }  // namespace sdlms

@@ -3,12 +3,13 @@
 
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <optional>
 #include <string>
 namespace sdlms {
 
-struct GameChatballoon{
+struct GameChatballoon {
   std::u16string text;
   std::u16string path = u"0";
 

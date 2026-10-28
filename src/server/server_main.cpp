@@ -1,17 +1,20 @@
 #include "src/server/server_main.h"
-#include <SDL3/SDL_timer.h>
+
+#include "src/common/request/client_request.h"
 #include "src/server/request_handler.h"
 #include "src/server/server_system_instance/server_system_instance.h"
-#include "src/common/request/client_request.h"
+
+#include <SDL3/SDL_timer.h>
+
 #include <cstdint>
 #include <ctime>
 namespace sdlms {
 
 
 // 分配缓冲区回调
-void ServerMain::AllocCb(uv_handle_t *handle, size_t suggested_size,
-                           uv_buf_t *buf) {
-  buf->base = (char *)malloc(suggested_size);
+void ServerMain::AllocCb(uv_handle_t* handle, size_t suggested_size,
+                         uv_buf_t* buf) {
+  buf->base = (char*)malloc(suggested_size);
   buf->len = suggested_size;
 }
 
@@ -22,18 +25,17 @@ uint64_t ServerMain::CombineIpPort(uint32_t ip, uint16_t port) {
 }
 
 // 分解uint64为IP和端口
-void ServerMain::SplitIpPort(uint64_t combined, uint32_t &ip,
-                                uint16_t &port) {
-  ip = (uint32_t)(combined >> 32);      // 取高32位
-  port = (uint16_t)(combined & 0xFFFF); // 取低16位（注意是16位，不是32位）
+void ServerMain::SplitIpPort(uint64_t combined, uint32_t& ip, uint16_t& port) {
+  ip = (uint32_t)(combined >> 32);       // 取高32位
+  port = (uint16_t)(combined & 0xFFFF);  // 取低16位（注意是16位，不是32位）
 }
 
 // 接收回调：当收到数据时被调用
-void ServerMain::OnRecv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
-                          const struct sockaddr *addr, unsigned flags) {
+void ServerMain::OnRecv(uv_udp_t* handle, ssize_t nread, const uv_buf_t* buf,
+                        const struct sockaddr* addr, unsigned flags) {
   if (nread < 0) {
     fprintf(stderr, "Read error: %s\n", uv_err_name(nread));
-    uv_close((uv_handle_t *)handle, NULL);
+    uv_close((uv_handle_t*)handle, NULL);
     free(buf->base);
     return;
   }
@@ -43,7 +45,7 @@ void ServerMain::OnRecv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
     return;
   }
 
-  auto addr_in = (const struct sockaddr_in *)addr;
+  auto addr_in = (const struct sockaddr_in*)addr;
   auto ip = (uint32_t)(addr_in->sin_addr.s_addr);
   auto port = ntohs(addr_in->sin_port);
   auto client_id = CombineIpPort(ip, port);
@@ -53,12 +55,12 @@ void ServerMain::OnRecv(uv_udp_t *handle, ssize_t nread, const uv_buf_t *buf,
   char sender_ip[17] = {0};
   uint16_t sender_port = 0;
   if (addr) {
-    uv_ip4_name((const struct sockaddr_in *)addr, sender_ip, 16);
-    sender_port = ntohs(((const struct sockaddr_in *)addr)->sin_port);
+    uv_ip4_name((const struct sockaddr_in*)addr, sender_ip, 16);
+    sender_port = ntohs(((const struct sockaddr_in*)addr)->sin_port);
   }
   printf("Received %zd bytes from %s:%d\n", nread, sender_ip, sender_port);
 
-  free(buf->base); // 释放由 alloc_cb 分配的内存
+  free(buf->base);  // 释放由 alloc_cb 分配的内存
 }
 
 void ServerMain::ServerInit() {
@@ -69,14 +71,14 @@ void ServerMain::ServerInit() {
   // 绑定到 IPv4 和 IPv6
   struct sockaddr_in local_addr;
   uv_ip4_addr("0.0.0.0", 0, &local_addr);
-  auto r = uv_udp_bind(&local_socket_, (const struct sockaddr *)&local_addr, 0);
+  auto r = uv_udp_bind(&local_socket_, (const struct sockaddr*)&local_addr, 0);
   if (r < 0) {
     std::abort();
   }
   // 4. 获取系统实际分配的端口号
   struct sockaddr_in assigned_addr;
   int32_t namelen = sizeof(assigned_addr);
-  r = uv_udp_getsockname(&local_socket_, (struct sockaddr *)&assigned_addr,
+  r = uv_udp_getsockname(&local_socket_, (struct sockaddr*)&assigned_addr,
                          &namelen);
   if (r) {
     fprintf(stderr, "Getsockname error: %s\n", uv_strerror(r));
@@ -89,7 +91,7 @@ void ServerMain::ServerInit() {
   }
   if (!host_) {
     // 连接到指定的远程地址
-    uv_udp_connect(&local_socket_, (const struct sockaddr *)&host_addr);
+    uv_udp_connect(&local_socket_, (const struct sockaddr*)&host_addr);
   }
   // 开始接收数据
   r = uv_udp_recv_start(&local_socket_, AllocCb, OnRecv);
@@ -102,30 +104,30 @@ void ServerMain::ServerInit() {
   ServerSystemInstance::Enter(host_);
 }
 
-void ServerMain::ServerInit(const std::string &ip, uint32_t port) {
+void ServerMain::ServerInit(const std::string& ip, uint32_t port) {
   host_ = false;
   uv_ip4_addr(ip.c_str(), port, &host_addr);
   ServerInit();
 }
 
-bool ServerMain::ServerSend(const uint8_t *data, size_t len,
-                              sockaddr_in *addr) {
-  auto buffer = (uint8_t *)malloc(len);
+bool ServerMain::ServerSend(const uint8_t* data, size_t len,
+                            sockaddr_in* addr) {
+  auto buffer = (uint8_t*)malloc(len);
   memcpy(buffer, data, len);
-  uv_udp_send_t *send_req = (uv_udp_send_t *)malloc(sizeof(uv_udp_send_t));
+  uv_udp_send_t* send_req = (uv_udp_send_t*)malloc(sizeof(uv_udp_send_t));
   send_req->data = buffer;
 
-  uv_buf_t buf = uv_buf_init((char *)buffer, len);
+  uv_buf_t buf = uv_buf_init((char*)buffer, len);
 
   // 使用在 main 中初始化好的目标地址 send_addr
   auto r =
-      uv_udp_send(send_req, &local_socket_, &buf, 1, (const sockaddr *)addr,
-                  [](uv_udp_send_t *req, int status) {
+      uv_udp_send(send_req, &local_socket_, &buf, 1, (const sockaddr*)addr,
+                  [](uv_udp_send_t* req, int status) {
                     if (status < 0) {
                       fprintf(stderr, "Send error: %s\n", uv_strerror(status));
                     }
                     free(req->data);
-                    free(req); // 释放发送请求
+                    free(req);  // 释放发送请求
                   });
   if (r < 0) {
     fprintf(stderr, "uv_udp_send error: %s\n", uv_strerror(r));
@@ -135,8 +137,8 @@ bool ServerMain::ServerSend(const uint8_t *data, size_t len,
   return true;
 }
 
-bool ServerMain::ServerSend(const uint8_t *data, size_t len,
-                              uint64_t client_id) {
+bool ServerMain::ServerSend(const uint8_t* data, size_t len,
+                            uint64_t client_id) {
   uint32_t ip;
   uint16_t port;
   SplitIpPort(client_id, ip, port);

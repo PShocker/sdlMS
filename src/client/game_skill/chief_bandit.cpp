@@ -1,5 +1,4 @@
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -13,6 +12,9 @@
 #include "src/common/flatbuffers/client.h"
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_character_instance.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <vector>
 namespace sdlms {
@@ -22,14 +24,14 @@ static void Jinqianzhadan() {
   GameSkill g_skill;
   g_skill.id = u"4211004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"prone2");
     auto g_r = SkillGameInstance::LoadSkiR(u"4211004");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
     fbs::ClientCharacterAttackT cat;
     fbs::ClientDropFadeT ccdf;
     uint64_t meso = 0;
-    for (const auto &[k, v] : DropGameInstance::data_) {
+    for (const auto& [k, v] : DropGameInstance::data_) {
       if (v.type != GameDrop::DropEnum::kLand) {
         continue;
       }
@@ -46,7 +48,7 @@ static void Jinqianzhadan() {
     if (!cm.data.empty() && meso > 0) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
-      for (auto &data : cm.data) {
+      for (auto& data : cm.data) {
         data.hits = {(int64_t)meso};
       }
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
@@ -56,7 +58,7 @@ static void Jinqianzhadan() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 
@@ -65,16 +67,16 @@ static void Luoyezhan() {
   g_skill.id = u"4211001";
 
   struct DataPack {
-    GameCharacter *c;
+    GameCharacter* c;
     std::vector<GameEffect> es;
   };
 
-  g_skill.effect = [](SDL_FPoint p, GameEffect *e, bool f) {
-    DataPack *dp;
-    const std::type_info &tp = e->data.type();
-    if (tp == typeid(GameCharacter *)) {
+  g_skill.effect = [](SDL_FPoint p, GameEffect* e, bool f) {
+    DataPack* dp;
+    const std::type_info& tp = e->data.type();
+    if (tp == typeid(GameCharacter*)) {
       DataPack d;
-      auto g_character = std::any_cast<GameCharacter *>(e->data);
+      auto g_character = std::any_cast<GameCharacter*>(e->data);
       d.c = g_character;
       GameEffect ef = {
           .id = u"4211001",
@@ -95,12 +97,12 @@ static void Luoyezhan() {
     if (EffectLogicSystem::RunEffect(*e)) {
       return false;
     }
-    auto g_character = std::any_cast<GameCharacter *>(e->data);
+    auto g_character = std::any_cast<GameCharacter*>(e->data);
     EffectRenderSystem::RenderEffect(g_character->pos, *e);
     return false;
   };
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, false);
     auto g_r = SkillGameInstance::LoadSkiR(u"4211001");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
@@ -116,7 +118,7 @@ static void Luoyezhan() {
     ClientRequest::send_to_host(ckt);
     // 地面位移，与瞬移不同
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 

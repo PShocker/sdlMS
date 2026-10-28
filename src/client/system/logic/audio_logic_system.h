@@ -2,11 +2,11 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_AUDIO_LOGIC_SYSTEM_H_
 namespace sdlms {
 class AudioLogicSystem {
-private:
+ private:
   static void RunBackgrnd();
   static void RunAudios();
 
-public:
+ public:
   static bool Run();
 };
 

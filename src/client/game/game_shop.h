@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_SHOP_H_
 
 #include "src/client/game/game_item.h"
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -13,7 +14,7 @@ struct GameShopItem {
 };
 
 class GameShop {
-public:
+ public:
   std::vector<GameShopItem> items;
 };
 

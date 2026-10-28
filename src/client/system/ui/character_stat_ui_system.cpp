@@ -1,6 +1,5 @@
 #include "src/client/system/ui/character_stat_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include "src/client/system/ui/notice_ui_system.h"
+
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -9,15 +8,21 @@
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <algorithm>
 #include <string>
 namespace sdlms {
 
 
-SDL_FPoint CharacterStatUiSystem::LoadWh() { return {185, 281}; }
+SDL_FPoint CharacterStatUiSystem::LoadWh() {
+  return {185, 281};
+}
 
 static const SDL_FRect detail_rect = {185, 58, 187, 223};
 
@@ -32,8 +37,8 @@ void CharacterStatUiSystem::RenderBackgrnd() {
 void CharacterStatUiSystem::RenderText() {
   SDL_FPoint p{pos_.x + 60, pos_.y + 32};
   // name
-  const auto &self = CharacterGameInstance::self_;
-  auto &self_name = self.name;
+  const auto& self = CharacterGameInstance::self_;
+  auto& self_name = self.name;
   Freetype::LoadSize(12);
   Freetype::LoadAligned(true);
   Freetype::LoadColor(0, 0, 0, 255);
@@ -143,37 +148,37 @@ void CharacterStatUiSystem::RenderRemainAp() {
 
 void CharacterStatUiSystem::RenderButton() {
   // 构建按钮列表
-  std::vector<wz::Node *> nodes = {
+  std::vector<wz::Node*> nodes = {
       WzResource::ui_->find(u"Basic.img/BtClose"),
       WzResource::ui_->find(u"CharacterStat.img/Main/button:detail"),
-      WzResource::ui_->find(u"Basic.img/BtUP"), // hp
+      WzResource::ui_->find(u"Basic.img/BtUP"),  // hp
       WzResource::ui_->find(u"CharacterStat.img/Main/button:hpupall"),
-      WzResource::ui_->find(u"Basic.img/BtUP"), // mp
+      WzResource::ui_->find(u"Basic.img/BtUP"),  // mp
       WzResource::ui_->find(u"CharacterStat.img/Main/button:hpupall"),
-      WzResource::ui_->find(u"Basic.img/BtUP"), // str
+      WzResource::ui_->find(u"Basic.img/BtUP"),  // str
       WzResource::ui_->find(u"CharacterStat.img/Main/button:hpupall"),
-      WzResource::ui_->find(u"Basic.img/BtUP"), // dex
+      WzResource::ui_->find(u"Basic.img/BtUP"),  // dex
       WzResource::ui_->find(u"CharacterStat.img/Main/button:hpupall"),
-      WzResource::ui_->find(u"Basic.img/BtUP"), // int
+      WzResource::ui_->find(u"Basic.img/BtUP"),  // int
       WzResource::ui_->find(u"CharacterStat.img/Main/button:hpupall"),
-      WzResource::ui_->find(u"Basic.img/BtUP"), // luk
+      WzResource::ui_->find(u"Basic.img/BtUP"),  // luk
       WzResource::ui_->find(u"CharacterStat.img/Main/button:hpupall"),
   };
   std::vector<SDL_FRect> rects = {
-      {166, 6, 12, 12},   //
-      {122, 256, 47, 18}, //
-      {148, 99, 12, 12},  //
-      {161, 99, 12, 12},  //
-      {148, 117, 12, 12}, //
-      {161, 117, 12, 12}, //
-      {148, 177, 12, 12}, // str
-      {161, 177, 12, 12}, // strall
-      {148, 195, 12, 12}, // dex
-      {161, 195, 12, 12}, // dexall
-      {148, 213, 12, 12}, // dex
-      {161, 213, 12, 12}, // dexall
-      {148, 231, 12, 12}, // dex
-      {161, 231, 12, 12}, // dexall
+      {166, 6, 12, 12},    //
+      {122, 256, 47, 18},  //
+      {148, 99, 12, 12},   //
+      {161, 99, 12, 12},   //
+      {148, 117, 12, 12},  //
+      {161, 117, 12, 12},  //
+      {148, 177, 12, 12},  // str
+      {161, 177, 12, 12},  // strall
+      {148, 195, 12, 12},  // dex
+      {161, 195, 12, 12},  // dexall
+      {148, 213, 12, 12},  // dex
+      {161, 213, 12, 12},  // dexall
+      {148, 231, 12, 12},  // dex
+      {161, 231, 12, 12},  // dexall
   };
   std::vector<bool> disable = {};
   auto ap = CharacterStatGameInstance::GetRemainAp();
@@ -309,7 +314,7 @@ void CharacterStatUiSystem::Open() {
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -337,9 +342,13 @@ void CharacterStatUiSystem::Toggle() {
   }
 }
 
-void CharacterStatUiSystem::EventButtonDetailShow() { detail_ = true; }
+void CharacterStatUiSystem::EventButtonDetailShow() {
+  detail_ = true;
+}
 
-void CharacterStatUiSystem::EventButtonDetailHide() { detail_ = false; }
+void CharacterStatUiSystem::EventButtonDetailHide() {
+  detail_ = false;
+}
 
 void CharacterStatUiSystem::EventButtonHpInc() {
   auto hp_ap = CharacterStatGameInstance::GetHpAp();
@@ -419,24 +428,24 @@ void CharacterStatUiSystem::EventButtonLukIncMax() {
   NoticeUiSystem::Open();
 }
 
-bool CharacterStatUiSystem::EventButton(SDL_Event *Event) {
+bool CharacterStatUiSystem::EventButton(SDL_Event* Event) {
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
-      {166, 6, 12, 12},   // close
-      {122, 256, 47, 18}, // detail
-      {148, 99, 12, 12},  // hp
-      {161, 99, 12, 12},  // hpm
-      {148, 117, 12, 12}, // mp
-      {161, 117, 12, 12}, // mpm
-      {148, 177, 12, 12}, // str
-      {161, 177, 12, 12}, // strall
-      {148, 195, 12, 12}, // dex
-      {161, 195, 12, 12}, // dexall
-      {148, 213, 12, 12}, // dex
-      {161, 213, 12, 12}, // dexall
-      {148, 231, 12, 12}, // dex
-      {161, 231, 12, 12}, // dexall
+      {166, 6, 12, 12},    // close
+      {122, 256, 47, 18},  // detail
+      {148, 99, 12, 12},   // hp
+      {161, 99, 12, 12},   // hpm
+      {148, 117, 12, 12},  // mp
+      {161, 117, 12, 12},  // mpm
+      {148, 177, 12, 12},  // str
+      {161, 177, 12, 12},  // strall
+      {148, 195, 12, 12},  // dex
+      {161, 195, 12, 12},  // dexall
+      {148, 213, 12, 12},  // dex
+      {161, 213, 12, 12},  // dexall
+      {148, 231, 12, 12},  // dex
+      {161, 231, 12, 12},  // dexall
   };
   fns = {
       Close,
@@ -473,49 +482,49 @@ bool CharacterStatUiSystem::EventButton(SDL_Event *Event) {
   return false;
 }
 
-bool CharacterStatUiSystem::Event(SDL_Event *Event) {
+bool CharacterStatUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_ESCAPE: {
-      Close();
-      return false;
+    case SDL_EVENT_KEY_DOWN: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_ESCAPE: {
+          Close();
+          return false;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTop();
+          EventDragStart(Event);
+          r = false;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          r = !EventButton(Event);
+        }
+        EventDragEnd();
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventDragMove(Event);
       break;
     }
     default: {
       break;
     }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTop();
-        EventDragStart(Event);
-        r = false;
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        r = !EventButton(Event);
-      }
-      EventDragEnd();
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventDragMove(Event);
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   return r;
@@ -532,7 +541,7 @@ void CharacterStatUiSystem::EventTop() {
   }
 }
 
-void CharacterStatUiSystem::EventDragStart(SDL_Event *Event) {
+void CharacterStatUiSystem::EventDragStart(SDL_Event* Event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
@@ -547,10 +556,10 @@ void CharacterStatUiSystem::EventDragEnd() {
   return;
 }
 
-void CharacterStatUiSystem::EventDragMove(SDL_Event *Event) {
+void CharacterStatUiSystem::EventDragMove(SDL_Event* Event) {
   if (drag_.has_value()) {
     pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     auto wh = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - wh.x);
     pos_.y = std::clamp(pos_.y, (float)0, camera.h - wh.y);

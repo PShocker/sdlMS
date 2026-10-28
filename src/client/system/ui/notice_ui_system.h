@@ -1,14 +1,16 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_NOTICE_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_NOTICE_UI_SYSTEM_H_
 
-#include <SDL3/SDL_events.h>
 #include "src/client/game/game_item.h"
 #include "src/client/system/ui/text_input_ui_system.h"
+
+#include <SDL3/SDL_events.h>
+
 #include <any>
 namespace sdlms {
 
 class NoticeUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderButton();
   static void RenderText();
@@ -29,14 +31,14 @@ private:
 
   static void EventButtonEquipNoAp();
 
-  static bool EventButton(SDL_Event *Event);
-  static void EventInput(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
+  static void EventInput(SDL_Event* Event);
 
   static SDL_FPoint LoadWh();
 
-  static void EventMotionBtAudio(SDL_Event *Event);
+  static void EventMotionBtAudio(SDL_Event* Event);
 
-public:
+ public:
   enum class NoticeEnum {
     kShopbuy,
     kShopbuySell,
@@ -77,7 +79,7 @@ public:
   static void OpenNoSpace(ItemEnum type);
   static void Close();
 
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
 

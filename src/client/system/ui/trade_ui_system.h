@@ -1,20 +1,21 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_TRADE_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_TRADE_UI_SYSTEM_H_
 
+#include "src/client/game/game_character.h"
+
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
-#include "src/client/game/game_character.h"
 namespace sdlms {
 
 class TradeUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderButton();
 
   static void EventButtonClose();
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
-public:
+ public:
   static inline SDL_FPoint pos_;
   static inline GameCharacter other_;
 
@@ -26,7 +27,7 @@ public:
   static void Open();
   static void Close();
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 };
 
 }  // namespace sdlms

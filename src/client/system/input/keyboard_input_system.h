@@ -5,8 +5,8 @@
 namespace sdlms {
 
 class KeyboardInputSystem {
-public:
-  static bool Event(SDL_Event *Event);
+ public:
+  static bool Event(SDL_Event* Event);
   static void Reset();
 };
 

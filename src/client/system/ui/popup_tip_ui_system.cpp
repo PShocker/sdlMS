@@ -1,6 +1,5 @@
 #include "src/client/system/ui/popup_tip_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
@@ -10,37 +9,41 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
+
 #include <string>
 namespace sdlms {
 
 
-void PopupTipUiSystem::RenderBackgrnd(GamePopupTip &t) {
-  SDL_Texture *te;
-  SDL_Texture *i = nullptr;
+void PopupTipUiSystem::RenderBackgrnd(GamePopupTip& t) {
+  SDL_Texture* te;
+  SDL_Texture* i = nullptr;
   SDL_FPoint icon_pos;
   switch (t.type) {
-  case PopupTipEnums::kTrade: {
-    static auto texture = WzResource::LoadTexture(
-        WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
-    break;
-  }
-  case PopupTipEnums::kParty: {
-    static auto texture = WzResource::LoadTexture(
-        WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
-    break;
-  }
-  case PopupTipEnums::kQuest: {
-    static auto texture = WzResource::LoadTexture(
-        WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
-    static auto icon = WzResource::LoadTexture(
-        WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/icon6"));
-    te = texture;
-    i = icon;
-    icon_pos = {-10, -12};
-    break;
-  }
+    case PopupTipEnums::kTrade: {
+      static auto texture = WzResource::LoadTexture(
+          WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
+      break;
+    }
+    case PopupTipEnums::kParty: {
+      static auto texture = WzResource::LoadTexture(
+          WzResource::ui_->find(u"StatusBar.img/submenu/backgrnd/1"));
+      break;
+    }
+    case PopupTipEnums::kQuest: {
+      static auto texture = WzResource::LoadTexture(
+          WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/backgrnd3"));
+      static auto icon = WzResource::LoadTexture(
+          WzResource::ui_->find(u"FadeYesNo.img/FadeYesNo/icon6"));
+      te = texture;
+      i = icon;
+      icon_pos = {-10, -12};
+      break;
+    }
   }
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
@@ -64,48 +67,48 @@ void PopupTipUiSystem::RenderBackgrnd(GamePopupTip &t) {
   SDL_RenderTexture(Window::renderer_, i, nullptr, &pos_rect);
 }
 
-void PopupTipUiSystem::RenderText(GamePopupTip &t) {
+void PopupTipUiSystem::RenderText(GamePopupTip& t) {
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
   auto x = pos.x + (screen_w - 808) / 2;
   auto y = pos.y + (screen_h - 73);
 
   switch (t.type) {
-  case PopupTipEnums::kQuest: {
-    auto quest_id = std::any_cast<std::u16string>(t.data);
-    auto node = QuestGameInstance::LoadQuestNode(quest_id);
-    node = node->find(u"QuestInfo/name");
-    auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
-    if (name.size() > 17) {
-      name = name.substr(0, 17) + u"...";
-    }
-    Freetype::LoadSize(12);
-    Freetype::LoadColor(255, 255, 255, t.alpha);
-    Freetype::LoadAligned(true);
-    Freetype::DrawLine(name, x + 28, y + 3);
+    case PopupTipEnums::kQuest: {
+      auto quest_id = std::any_cast<std::u16string>(t.data);
+      auto node = QuestGameInstance::LoadQuestNode(quest_id);
+      node = node->find(u"QuestInfo/name");
+      auto name = static_cast<wz::Property<std::u16string>*>(node)->get();
+      if (name.size() > 17) {
+        name = name.substr(0, 17) + u"...";
+      }
+      Freetype::LoadSize(12);
+      Freetype::LoadColor(255, 255, 255, t.alpha);
+      Freetype::LoadAligned(true);
+      Freetype::DrawLine(name, x + 28, y + 3);
 
-    name = u"Quest Complete!";
-    Freetype::DrawLine(name, x + 28, y + 16);
-    break;
-  }
+      name = u"Quest Complete!";
+      Freetype::DrawLine(name, x + 28, y + 16);
+      break;
+    }
   }
 }
 
-void PopupTipUiSystem::RenderButton(GamePopupTip &t) {
+void PopupTipUiSystem::RenderButton(GamePopupTip& t) {
   // 构建按钮列表
-  std::vector<wz::Node *> nodes = {};
+  std::vector<wz::Node*> nodes = {};
   std::vector<SDL_FRect> rects = {};
   switch (t.type) {
-  case PopupTipEnums::kTrade: {
-    nodes = {};
-    rects = {};
-    break;
-  }
-  case PopupTipEnums::kParty: {
-    nodes = {};
-    rects = {};
-    break;
-  }
+    case PopupTipEnums::kTrade: {
+      nodes = {};
+      rects = {};
+      break;
+    }
+    case PopupTipEnums::kParty: {
+      nodes = {};
+      rects = {};
+      break;
+    }
   }
   // 渲染所有按钮
   bool mouse_down = Window::mouse_state_ & SDL_BUTTON_LMASK;
@@ -131,79 +134,79 @@ void PopupTipUiSystem::RenderButton(GamePopupTip &t) {
 }
 
 void PopupTipUiSystem::Destory() {
-  auto &data = PopupTipGameInstance::data_;
+  auto& data = PopupTipGameInstance::data_;
   const auto now = Window::dt_now_;
-  std::erase_if(data, [now](const GamePopupTip &t) {
+  std::erase_if(data, [now](const GamePopupTip& t) {
     return t.destroy < now && t.alpha == 0.0f;
   });
 }
 
 bool PopupTipUiSystem::Render() {
-  auto &data = PopupTipGameInstance::data_;
+  auto& data = PopupTipGameInstance::data_;
   const auto now = Window::dt_now_;
   const auto dt = Window::delta_time_;
 
-  for (auto &t : data) {
+  for (auto& t : data) {
     const float dir = (t.destroy < now) ? -1.0f : 1.0f;
     t.alpha = std::clamp(t.alpha + dir * dt, 0.0f, 255.0f);
     RenderBackgrnd(t);
     RenderText(t);
     RenderButton(t);
   }
-  
+
   Destory();
 
   return true;
 }
 
-void PopupTipUiSystem::EventButtonParty(GamePopupTip &t) {
+void PopupTipUiSystem::EventButtonParty(GamePopupTip& t) {
   fbs::ClientCharacterPartyT ccp;
   ccp.step = 1;
   ClientRequest::send_to_host(ccp);
   return;
 }
 
-void PopupTipUiSystem::EventButtonTrade(GamePopupTip &t) {}
+void PopupTipUiSystem::EventButtonTrade(GamePopupTip& t) {}
 
-void PopupTipUiSystem::EventButtonOk(GamePopupTip &t) {
+void PopupTipUiSystem::EventButtonOk(GamePopupTip& t) {
   switch (t.type) {
-  case PopupTipEnums::kTrade: {
-    EventButtonTrade(t);
-    break;
-  }
-  case PopupTipEnums::kParty: {
-    EventButtonParty(t);
-    break;
-  }
+    case PopupTipEnums::kTrade: {
+      EventButtonTrade(t);
+      break;
+    }
+    case PopupTipEnums::kParty: {
+      EventButtonParty(t);
+      break;
+    }
   }
 }
 
-void PopupTipUiSystem::EventButtonCancel(GamePopupTip &t) {
-  auto &data = PopupTipGameInstance::data_;
-  std::erase_if(data, [t](const auto &tip) { return &t == &tip; });
+void PopupTipUiSystem::EventButtonCancel(GamePopupTip& t) {
+  auto& data = PopupTipGameInstance::data_;
+  std::erase_if(data, [t](const auto& tip) { return &t == &tip; });
 }
 
-bool PopupTipUiSystem::EventButton(SDL_Event *Event) {
+bool PopupTipUiSystem::EventButton(SDL_Event* Event) {
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
 
   std::vector<SDL_FRect> buttons_rect;
-  std::vector<void (*)(GamePopupTip &)> fns = {
+  std::vector<void (*)(GamePopupTip&)> fns = {
       EventButtonOk,
       EventButtonCancel,
   };
 
   for (int i = 0; i < PopupTipGameInstance::data_.size(); i++) {
-    auto &t = PopupTipGameInstance::data_[i];
+    auto& t = PopupTipGameInstance::data_[i];
     switch (t.type) {
-    case PopupTipEnums::kTrade: {
-      break;
-    }
-    case PopupTipEnums::kParty: {
-      break;
-    }
+      case PopupTipEnums::kTrade: {
+        break;
+      }
+      case PopupTipEnums::kParty: {
+        break;
+      }
     }
     for (size_t i = 0; i < buttons_rect.size(); ++i) {
       auto pos_rect = buttons_rect[i];
@@ -218,20 +221,20 @@ bool PopupTipUiSystem::EventButton(SDL_Event *Event) {
   return false;
 }
 
-bool PopupTipUiSystem::Event(SDL_Event *Event) {
+bool PopupTipUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        r = EventButton(Event);
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          r = EventButton(Event);
+        }
       }
+      break;
     }
-    break;
-  }
-  default: {
-    break;
-  }
+    default: {
+      break;
+    }
   }
   return r;
 }

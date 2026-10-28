@@ -2,11 +2,12 @@
 #define SDLMS_SRC_SERVER_SERVER_SERVER_SCENE_H_
 
 #include "src/server/server/server_client.h"
+#include "src/server/server/server_drop.h"
+#include "src/server/server/server_foothold.h"
 #include "src/server/server/server_mob.h"
 #include "src/server/server/server_reactor.h"
 #include "src/server/server/server_region_skill.h"
-#include "src/server/server/server_drop.h"
-#include "src/server/server/server_foothold.h"
+
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -14,7 +15,7 @@
 namespace sdlms {
 
 
-struct ServerSceneState{
+struct ServerSceneState {
   uint32_t map_id;
 
   std::flat_map<uint32_t, ServerMob> mobs;

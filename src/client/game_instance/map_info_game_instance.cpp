@@ -1,9 +1,12 @@
 #include "src/client/game_instance/map_info_game_instance.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
+
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>
@@ -13,7 +16,7 @@
 namespace sdlms {
 
 
-wz::Node *MapInfoGameInstance::Load(uint32_t map_id) {
+wz::Node* MapInfoGameInstance::Load(uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);
   auto map_info = map_node->get_child(u"info");
   return map_info;
@@ -22,12 +25,11 @@ wz::Node *MapInfoGameInstance::Load(uint32_t map_id) {
 SDL_FRect MapInfoGameInstance::LoadVrBorder(uint32_t map_id) {
   SDL_FRect r;
   auto map_info = Load(map_id);
-  r.x = static_cast<wz::Property<int> *>(map_info->get_child(u"VRTop"))->get();
-  r.y = static_cast<wz::Property<int> *>(map_info->get_child(u"VRLeft"))->get();
+  r.x = static_cast<wz::Property<int>*>(map_info->get_child(u"VRTop"))->get();
+  r.y = static_cast<wz::Property<int>*>(map_info->get_child(u"VRLeft"))->get();
   r.w =
-      static_cast<wz::Property<int> *>(map_info->get_child(u"VRBottom"))->get();
-  r.h =
-      static_cast<wz::Property<int> *>(map_info->get_child(u"VRRight"))->get();
+      static_cast<wz::Property<int>*>(map_info->get_child(u"VRBottom"))->get();
+  r.h = static_cast<wz::Property<int>*>(map_info->get_child(u"VRRight"))->get();
   return r;
 }
 
@@ -41,7 +43,7 @@ SDL_FRect MapInfoGameInstance::LoadMrBorder(uint32_t map_id) {
       float t = fhs.begin()->second.y1;
       float r = fhs.begin()->second.x2;
       float b = fhs.begin()->second.y2;
-      for (const auto &fh : fhs | std::views::values) {
+      for (const auto& fh : fhs | std::views::values) {
         l = std::min({l, (float)fh.x1, (float)fh.x2});
         t = std::min({t, (float)fh.y1, (float)fh.y2});
         r = std::max({r, (float)fh.x1, (float)fh.x2});
@@ -55,13 +57,13 @@ SDL_FRect MapInfoGameInstance::LoadMrBorder(uint32_t map_id) {
       cache[map_id] = rect;
     } else {
       SDL_FRect r;
-      r.x = static_cast<wz::Property<int> *>(map_info->get_child(u"MRLeft"))
+      r.x = static_cast<wz::Property<int>*>(map_info->get_child(u"MRLeft"))
                 ->get();
-      r.y = static_cast<wz::Property<int> *>(map_info->get_child(u"MRTop"))
+      r.y =
+          static_cast<wz::Property<int>*>(map_info->get_child(u"MRTop"))->get();
+      r.w = static_cast<wz::Property<int>*>(map_info->get_child(u"MRRight"))
                 ->get();
-      r.w = static_cast<wz::Property<int> *>(map_info->get_child(u"MRRight"))
-                ->get();
-      r.h = static_cast<wz::Property<int> *>(map_info->get_child(u"MRBottom"))
+      r.h = static_cast<wz::Property<int>*>(map_info->get_child(u"MRBottom"))
                 ->get();
       cache[map_id] = r;
     }
@@ -69,8 +71,7 @@ SDL_FRect MapInfoGameInstance::LoadMrBorder(uint32_t map_id) {
   return cache.at(map_id);
 }
 
-std::optional<SDL_FRect>
-MapInfoGameInstance::LoadSwimRect(uint32_t map_id) {
+std::optional<SDL_FRect> MapInfoGameInstance::LoadSwimRect(uint32_t map_id) {
   static std::flat_map<uint32_t, std::optional<SDL_FRect>> cache;
   if (!cache.contains(map_id)) {
     std::optional<SDL_FRect> swim_r;
@@ -88,7 +89,7 @@ std::vector<SDL_FPoint> MapInfoGameInstance::LoadSeat(uint32_t map_id) {
     auto map_info = Load(map_id);
     if (map_info->get_child(u"seat")) {
       for (auto [k, v] : *map_info->get_child(u"seat")) {
-        auto seat_pos = static_cast<wz::Property<wz::WzVec2D> *>(v[0])->get();
+        auto seat_pos = static_cast<wz::Property<wz::WzVec2D>*>(v[0])->get();
         vec.push_back(SDL_FPoint{static_cast<float>(seat_pos.x),
                                  static_cast<float>(seat_pos.y)});
       }
@@ -101,8 +102,7 @@ std::vector<SDL_FPoint> MapInfoGameInstance::LoadSeat(uint32_t map_id) {
 uint32_t MapInfoGameInstance::LoadReturnMap(uint32_t map_id) {
   uint32_t r = 0;
   auto map_info = Load(map_id);
-  r = static_cast<wz::Property<int> *>(map_info->get_child(u"returnMap"))
-          ->get();
+  r = static_cast<wz::Property<int>*>(map_info->get_child(u"returnMap"))->get();
   return r;
 }
 
@@ -110,7 +110,7 @@ std::u16string MapInfoGameInstance::LoadBgm(uint32_t map_id) {
   auto map_info = Load(map_id);
   if (map_info->get_child(u"bgm")) {
     auto map_bgm =
-        static_cast<wz::Property<std::u16string> *>(map_info->get_child(u"bgm"))
+        static_cast<wz::Property<std::u16string>*>(map_info->get_child(u"bgm"))
             ->get();
     size_t pos = map_bgm.find(u'/');
     if (pos != std::u16string::npos) {

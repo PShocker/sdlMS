@@ -1,16 +1,17 @@
 #include "src/server/server_system/server_drop_system.h"
+
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
 #include "src/server/server_instance/server_scene_instance.h"
+
 #include <memory>
 namespace sdlms {
 
 
-
 void ServerDropSystem::RunFade() {
   fbs::ServerDropFadeT sdf;
-  auto &scene = ServerSceneInstance::scenes_;
+  auto& scene = ServerSceneInstance::scenes_;
   for (auto [map_id, sc] : scene) {
     sdf.drop_ids.clear();
     for (auto [random_id, dt] : sc.drops) {
@@ -28,19 +29,19 @@ void ServerDropSystem::RunFade() {
 }
 
 void ServerDropSystem::RunDestroy() {
-  auto &scene = ServerSceneInstance::scenes_;
+  auto& scene = ServerSceneInstance::scenes_;
   for (auto [map_id, sc] : scene) {
-    std::erase_if(sc.drops, [](const auto &pair) {
-      const auto &[id, drop] = pair;
+    std::erase_if(sc.drops, [](const auto& pair) {
+      const auto& [id, drop] = pair;
       return drop.destroy <= Window::dt_now_;
     });
   }
 }
 
 void ServerDropSystem::RunDelayDrops() {
-  auto &scene = ServerSceneInstance::scenes_;
+  auto& scene = ServerSceneInstance::scenes_;
   for (auto [map_id, sc] : scene) {
-    auto &delay_drops = sc.delay_drops;
+    auto& delay_drops = sc.delay_drops;
     for (auto [k, v] : delay_drops) {
       if (k <= Window::dt_time_) {
         fbs::ServerCreateDropT scd;
@@ -57,8 +58,8 @@ void ServerDropSystem::RunDelayDrops() {
         }
       }
     }
-    std::erase_if(sc.delay_drops, [](const auto &pair) {
-      const auto &[delay, drop] = pair;
+    std::erase_if(sc.delay_drops, [](const auto& pair) {
+      const auto& [delay, drop] = pair;
       return delay <= Window::dt_time_;
     });
   }

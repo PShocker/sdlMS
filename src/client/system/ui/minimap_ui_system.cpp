@@ -1,6 +1,5 @@
 #include "src/client/system/ui/minimap_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -16,8 +15,12 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
+
 #include <algorithm>
 #include <array>
 #include <cstddef>
@@ -70,7 +73,7 @@ static SDL_FPoint backgrnd_min_wh;
 
 static SDL_FPoint backgrnd_max_wh;
 
-SDL_Texture *MinimapUiSystem::LoadCanvasTexture() {
+SDL_Texture* MinimapUiSystem::LoadCanvasTexture() {
   auto map_node = WzResource::LoadMapNode(SceneSystemInstance::map_id_);
   if (auto minimap_node = map_node->get_child(u"miniMap")) {
     return WzResource::LoadTexture(minimap_node->get_child(u"canvas"));
@@ -208,11 +211,11 @@ void MinimapUiSystem::RenderButton() {
       WzResource::ui_->find(u"MiniMap.img/BtMax"),
   };
   std::array buttons_rect = {
-      SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12}, //
-      SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12}, //
-      SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12}, //
+      SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12},  //
+      SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12},  //
+      SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12},  //
   };
-  std::vector<wz::Node *> buttons_node;
+  std::vector<wz::Node*> buttons_node;
   std::vector<bool> r = {true, true, true};
   if (disable_) {
     buttons_node = {
@@ -221,8 +224,8 @@ void MinimapUiSystem::RenderButton() {
     };
     auto wh = LoadWh();
     buttons_rect = {
-        SDL_FRect{wh.x - 34, 4, 12, 12}, //
-        SDL_FRect{wh.x - 20, 4, 12, 12}, //
+        SDL_FRect{wh.x - 34, 4, 12, 12},  //
+        SDL_FRect{wh.x - 20, 4, 12, 12},  //
     };
     if (LoadCanvasTexture() == nullptr) {
       r = {false, false};
@@ -240,7 +243,7 @@ void MinimapUiSystem::RenderButton() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += pos.x;
     pos_rect.y += pos.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (r[i] == false) {
@@ -263,7 +266,7 @@ void MinimapUiSystem::RenderButton() {
 };
 
 SDL_FPoint MinimapUiSystem::LoadCanvasPoint(SDL_FPoint point, int8_t ox,
-                                                int8_t oy) {
+                                            int8_t oy) {
   struct MapMinimapInfo {
     int32_t width;
     int32_t height;
@@ -279,20 +282,19 @@ SDL_FPoint MinimapUiSystem::LoadCanvasPoint(SDL_FPoint point, int8_t ox,
     auto map_node = WzResource::LoadMapNode(SceneSystemInstance::map_id_);
     auto minimap_node = map_node->get_child(u"miniMap");
     m_info.width =
-        static_cast<wz::Property<int> *>(minimap_node->get_child(u"width"))
+        static_cast<wz::Property<int>*>(minimap_node->get_child(u"width"))
             ->get();
     m_info.height =
-        static_cast<wz::Property<int> *>(minimap_node->get_child(u"height"))
+        static_cast<wz::Property<int>*>(minimap_node->get_child(u"height"))
             ->get();
     m_info.centerX =
-        static_cast<wz::Property<int> *>(minimap_node->get_child(u"centerX"))
+        static_cast<wz::Property<int>*>(minimap_node->get_child(u"centerX"))
             ->get();
     m_info.centerY =
-        static_cast<wz::Property<int> *>(minimap_node->get_child(u"centerY"))
+        static_cast<wz::Property<int>*>(minimap_node->get_child(u"centerY"))
             ->get();
     m_info.mag =
-        static_cast<wz::Property<int> *>(minimap_node->get_child(u"mag"))
-            ->get();
+        static_cast<wz::Property<int>*>(minimap_node->get_child(u"mag"))->get();
     m_info.scale = std::pow(2, m_info.mag);
     map_minimap_cache[map_id] = m_info;
   }
@@ -366,7 +368,7 @@ SDL_FPoint MinimapUiSystem::LoadCanvasLt() {
 
 SDL_FRect MinimapUiSystem::LoadCanvasViewport() {
   SDL_FRect viewport;
-  auto &self = CharacterGameInstance::self_;
+  auto& self = CharacterGameInstance::self_;
   // 获取人在小地图的偏移
   auto self_pos = LoadCanvasPoint(self.pos, -2, -4);
   auto canvas_wh = LoadCanvasWh();
@@ -410,13 +412,13 @@ void MinimapUiSystem::RenderCanvasLife() {
   // render npc
   auto canvas_o = LoadCanvasO();
   auto canvas_viewport = LoadCanvasViewport();
-  for (auto &npcs : NpcGameInstance::data_) {
-    for (auto &npc : npcs) {
+  for (auto& npcs : NpcGameInstance::data_) {
+    for (auto& npc : npcs) {
       auto npc_pos = LoadCanvasPoint(npc.pos, 4, 2);
       if (!SDL_PointInRectFloat(&npc_pos, &canvas_viewport)) {
         continue;
       }
-      SDL_Texture *texture = npc_texture;
+      SDL_Texture* texture = npc_texture;
       auto progress_complete =
           NpcGameInstance::LoadProgressCompleteQuest(npc.id);
       if (!progress_complete.empty()) {
@@ -440,7 +442,7 @@ void MinimapUiSystem::RenderCanvasLife() {
     }
   }
   // render portal
-  for (auto &portal : PortalGameInstance::data_ | std::views::values) {
+  for (auto& portal : PortalGameInstance::data_ | std::views::values) {
     if (portal.pt != 2) {
       continue;
     }
@@ -457,8 +459,8 @@ void MinimapUiSystem::RenderCanvasLife() {
     SDL_RenderTexture(Window::renderer_, por_texture, nullptr, &pos_rect);
   }
   // // render others
-  for (auto &other : CharacterGameInstance::others_ | std::views::values) {
-    auto &o_character = other.g_character;
+  for (auto& other : CharacterGameInstance::others_ | std::views::values) {
+    auto& o_character = other.g_character;
     auto character_pos = LoadCanvasPoint(o_character.pos, 4, 2);
     if (!SDL_PointInRectFloat(&character_pos, &canvas_viewport)) {
       continue;
@@ -474,7 +476,7 @@ void MinimapUiSystem::RenderCanvasLife() {
     SDL_RenderTexture(Window::renderer_, other_texture, nullptr, &pos_rect);
   }
   // // render self
-  auto &self = CharacterGameInstance::self_;
+  auto& self = CharacterGameInstance::self_;
   auto self_pos = LoadCanvasPoint(self.pos, 4, 2);
   self_pos.x = self_pos.x - (canvas_viewport.x);
   self_pos.y = self_pos.y - (canvas_viewport.y);
@@ -491,7 +493,7 @@ void MinimapUiSystem::RenderCanvasLife() {
 
 void MinimapUiSystem::RenderMark() {
   auto info_node = MapInfoGameInstance::Load(SceneSystemInstance::map_id_);
-  auto mark_str = static_cast<wz::Property<std::u16string> *>(
+  auto mark_str = static_cast<wz::Property<std::u16string>*>(
                       info_node->get_child(u"mapMark"))
                       ->get();
   auto mark_node = WzResource::map_->find(u"MapHelper.img/mark/" + mark_str);
@@ -510,10 +512,10 @@ MinimapUiSystem::MapName MinimapUiSystem::LoadMapName(uint32_t map_id) {
       for (auto [k2, v2] : *v[0]->get_children()) {
         auto id = std::stoi(std::string{k2.begin(), k2.end()});
         MapName desc;
-        desc.street_name = static_cast<wz::Property<std::u16string> *>(
+        desc.street_name = static_cast<wz::Property<std::u16string>*>(
                                v2[0]->get_child(u"streetName"))
                                ->get();
-        desc.map_name = static_cast<wz::Property<std::u16string> *>(
+        desc.map_name = static_cast<wz::Property<std::u16string>*>(
                             v2[0]->get_child(u"mapName"))
                             ->get();
         if (auto d = v2[0]->get_child(u"mapDesc")) {
@@ -631,21 +633,21 @@ void MinimapUiSystem::EventMax() {
   } else {
     max_ = true;
   }
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   auto [w, h] = LoadWh();
   pos.x = std::clamp(pos.x, (float)0, camera.w - w);
   pos.y = std::clamp(pos.y, (float)0, camera.h - h);
   return;
 }
 
-bool MinimapUiSystem::EventButton(SDL_Event *Event) {
+bool MinimapUiSystem::EventButton(SDL_Event* Event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   if (disable_) {
     auto wh = LoadWh();
     r = {
-        SDL_FRect{wh.x - 34, 4, 12, 12}, //
-        SDL_FRect{wh.x - 20, 4, 12, 12}, //
+        SDL_FRect{wh.x - 34, 4, 12, 12},  //
+        SDL_FRect{wh.x - 20, 4, 12, 12},  //
     };
     fns = {
         EventMin,
@@ -653,9 +655,9 @@ bool MinimapUiSystem::EventButton(SDL_Event *Event) {
     };
   } else {
     r = {
-        SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12}, //
-        SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12}, //
-        SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12}, //
+        SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12},  //
+        SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12},  //
+        SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12},  //
     };
     fns = {
         EventWorldMap,
@@ -689,7 +691,7 @@ void MinimapUiSystem::EventTop() {
   }
 }
 
-void MinimapUiSystem::EventDragStart(SDL_Event *Event) {
+void MinimapUiSystem::EventDragStart(SDL_Event* Event) {
   auto w = LoadWh().x;
   SDL_FRect pos_rect = {pos.x, pos.y, w, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
@@ -721,10 +723,10 @@ SDL_FPoint MinimapUiSystem::LoadWh() {
   }
 }
 
-void MinimapUiSystem::EventDragMove(SDL_Event *Event) {
+void MinimapUiSystem::EventDragMove(SDL_Event* Event) {
   if (drag_.has_value()) {
     pos = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - w);
     pos.y = std::clamp(pos.y, (float)0, camera.h - h);
@@ -732,7 +734,7 @@ void MinimapUiSystem::EventDragMove(SDL_Event *Event) {
   return;
 }
 
-void MinimapUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+void MinimapUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
@@ -740,18 +742,18 @@ void MinimapUiSystem::EventMotionBtAudio(SDL_Event *Event) {
   if (disable_) {
     auto wh = LoadWh();
     buttons_rect = {
-        SDL_FRect{wh.x - 34, 4, 12, 12}, //
-        SDL_FRect{wh.x - 20, 4, 12, 12}, //
+        SDL_FRect{wh.x - 34, 4, 12, 12},  //
+        SDL_FRect{wh.x - 20, 4, 12, 12},  //
     };
   } else {
     buttons_rect = {
-        SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12}, //
-        SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12}, //
-        SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12}, //
+        SDL_FRect{backgrnd_max_wh.x - 42, 6, 36, 12},  //
+        SDL_FRect{backgrnd_max_wh.x - 72, 6, 12, 12},  //
+        SDL_FRect{backgrnd_max_wh.x - 58, 6, 12, 12},  //
     };
   }
   static int8_t bt_audio = -1;
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -768,36 +770,36 @@ void MinimapUiSystem::EventMotionBtAudio(SDL_Event *Event) {
   bt_audio = bt_in;
 }
 
-bool MinimapUiSystem::Event(SDL_Event *Event) {
+bool MinimapUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTop();
-        EventDragStart(Event);
-        r = false;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTop();
+          EventDragStart(Event);
+          r = false;
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        r = !EventButton(Event);
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          r = !EventButton(Event);
+        }
+        EventDragEnd();
       }
-      EventDragEnd();
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventMotionBtAudio(Event);
-    EventDragMove(Event);
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventMotionBtAudio(Event);
+      EventDragMove(Event);
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return r;

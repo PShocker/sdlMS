@@ -5,7 +5,7 @@
 namespace sdlms {
 
 class CameraLogicSystem {
-public:
+ public:
   static bool Run();
 };
 

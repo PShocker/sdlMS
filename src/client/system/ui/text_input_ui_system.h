@@ -4,6 +4,7 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
+
 #include <bitset>
 #include <optional>
 #include <string>
@@ -27,21 +28,21 @@ struct TextInput {
   std::optional<int> cur_next = std::nullopt;
 
   enum TextInputType : size_t {
-    kDigit = 0,  // 第0位：允许数字
-    kLetter = 1, // 第1位：允许字母
-    kSymbol = 2, // 第2位：允许符号
-    kIme = 3,    // 第3位：允许中文
+    kDigit = 0,   // 第0位：允许数字
+    kLetter = 1,  // 第1位：允许字母
+    kSymbol = 2,  // 第2位：允许符号
+    kIme = 3,     // 第3位：允许中文
     kCount,
   };
   std::bitset<kCount> type;
 };
 
 class TextInputUiSystem {
-public:
-  static void Close(TextInput &input);
-  static void Render(TextInput &input, int x, int y);
-  static void Active(TextInput &input);
-  static bool Event(SDL_Event *Event, TextInput &input);
+ public:
+  static void Close(TextInput& input);
+  static void Render(TextInput& input, int x, int y);
+  static void Active(TextInput& input);
+  static bool Event(SDL_Event* Event, TextInput& input);
 };
 
 }  // namespace sdlms

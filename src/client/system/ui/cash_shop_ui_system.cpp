@@ -1,7 +1,9 @@
 #include "src/client/system/ui/cash_shop_ui_system.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
 namespace sdlms {
 
 
@@ -22,26 +24,26 @@ bool CashShopUiSystem::Render() {
   return true;
 }
 
-bool CashShopUiSystem::Event(SDL_Event *Event) {
+bool CashShopUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      r = false;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        r = false;
+      }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+      }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return r;

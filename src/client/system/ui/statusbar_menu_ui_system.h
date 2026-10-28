@@ -3,11 +3,12 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
+
 #include <optional>
 namespace sdlms {
 
 class StatusbarMenuUiSystem {
-private:
+ private:
   static SDL_FRect LoadR();
   static void RenderBackgrnd();
   static void RenderButton();
@@ -26,11 +27,11 @@ private:
   static void EventButtonCraft();
 
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
   static inline int alpha_;
 
-public:
+ public:
   enum class MenuEnums {
     kMenu,
     kShortcut,
@@ -44,7 +45,7 @@ public:
   static void Open();
   static void Close();
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 };
 
 }  // namespace sdlms

@@ -1,4 +1,5 @@
 #include "src/client/system/ui/revive_ui_system.h"
+
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
@@ -12,6 +13,7 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
 #include <algorithm>
 #include <optional>
 namespace sdlms {
@@ -30,14 +32,14 @@ void ReviveUiSystem::RenderButton() {
       WzResource::ui_->find(u"Basic.img/BtOK2"),
   };
   const std::array buttons_rect = {
-      SDL_FRect{15, 84, 47, 18}, //
+      SDL_FRect{15, 84, 47, 18},  //
   };
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
     auto pos_rect = buttons_rect[i];
     pos_rect.x += pos_.x;
     pos_rect.y += pos_.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
@@ -62,14 +64,16 @@ bool ReviveUiSystem::Render() {
   return true;
 }
 
-SDL_FPoint ReviveUiSystem::LoadWh() { return {286, 146}; }
+SDL_FPoint ReviveUiSystem::LoadWh() {
+  return {286, 146};
+}
 
 void ReviveUiSystem::Open() {
   auto it =
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -94,20 +98,20 @@ void ReviveUiSystem::Toggle() {
 
 bool ReviveUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos_;
+  auto& mouse = Window::mouse_pos_;
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void ReviveUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+void ReviveUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
   const std::array buttons_rect = {
-      SDL_FRect{15, 84, 47, 18}, //
+      SDL_FRect{15, 84, 47, 18},  //
   };
   static int8_t bt_audio = -1;
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -124,33 +128,33 @@ void ReviveUiSystem::EventMotionBtAudio(SDL_Event *Event) {
   bt_audio = bt_in;
 }
 
-bool ReviveUiSystem::Event(SDL_Event *Event) {
+bool ReviveUiSystem::Event(SDL_Event* Event) {
   KeyboardInputSystem::Event(Event);
   bool r = false;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        r = false;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          r = false;
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        r = !EventButton(Event);
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          r = !EventButton(Event);
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventMotionBtAudio(Event);
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventMotionBtAudio(Event);
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return r;
@@ -164,9 +168,9 @@ void ReviveUiSystem::EventButtonOk() {
 
   CharacterLogicSystem::self_portal_cooldown_ = Window::dt_now_ + 1500;
 
-  auto &v = SkillGameInstance::ski_;
+  auto& v = SkillGameInstance::ski_;
   std::vector<std::function<void()>> ends;
-  for (const auto &sk : v) {
+  for (const auto& sk : v) {
     ends.push_back(sk.end);
   }
   for (auto fn : ends) {
@@ -180,9 +184,9 @@ void ReviveUiSystem::EventButtonOk() {
   return;
 }
 
-bool ReviveUiSystem::EventButton(SDL_Event *Event) {
+bool ReviveUiSystem::EventButton(SDL_Event* Event) {
   const std::array buttons_rect = {
-      SDL_FRect{15, 84, 47, 18}, //
+      SDL_FRect{15, 84, 47, 18},  //
   };
   const static std::array buttons_func = {
       EventButtonOk,

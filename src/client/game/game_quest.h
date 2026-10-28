@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_QUEST_H_
 
 #include <wz/Node.h>
+
 #include <cstdint>
 #include <flat_map>
 #include <string>
@@ -29,7 +30,7 @@ enum class QuestEnum : uint8_t {
   kDecline,
 };
 
-struct GameQuest{
+struct GameQuest {
   std::u16string quest_id;
   uint8_t index;
 

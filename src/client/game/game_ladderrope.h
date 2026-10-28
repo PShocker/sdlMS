@@ -2,10 +2,11 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_LADDERROPE_H_
 
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 namespace sdlms {
 
-struct GameLadderrope{
+struct GameLadderrope {
   uint8_t l;
   uint8_t uf;
   int32_t x;

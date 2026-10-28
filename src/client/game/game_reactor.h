@@ -2,11 +2,12 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_REACTOR_H_
 
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
-struct GameReactor{
+struct GameReactor {
   std::u16string id;
   uint8_t index;
 

@@ -1,17 +1,19 @@
 #include "src/server/server_instance/server_ball_instance.h"
-#include <SDL3/SDL_rect.h>
-#include "src/server/server_instance/server_client_instance.h"
-#include "src/server/server_instance/server_scene_instance.h"
+
 #include "src/client/game/game_ball.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
+#include "src/server/server_instance/server_client_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
+
+#include <SDL3/SDL_rect.h>
 namespace sdlms {
 
 
 void ServerBallInstance::HandleBall(uint64_t client_id,
-                                       fbs::ClientCharacterBallT &r) {
+                                    fbs::ClientCharacterBallT& r) {
   if (ServerClientInstance::clients_.contains(client_id)) {
     auto map_id = ServerClientInstance::clients_.at(client_id).map_id;
     auto clients = ServerSceneInstance::scenes_[map_id].clients;
@@ -26,8 +28,8 @@ void ServerBallInstance::HandleBall(uint64_t client_id,
 }
 
 void ServerBallInstance::HandleServerB(
-    const std::unique_ptr<fbs::CharacterBallT> &r) {
-  const auto &src = *r->ball;
+    const std::unique_ptr<fbs::CharacterBallT>& r) {
+  const auto& src = *r->ball;
 
   GameBall b;
   b.delay = src.delay;
@@ -41,7 +43,7 @@ void ServerBallInstance::HandleServerB(
 
   auto it = MobGameInstance::data_.find(b.mob_index);
   if (it != MobGameInstance::data_.end()) {
-    const auto &mob_pos = it->second.mob.pos;
+    const auto& mob_pos = it->second.mob.pos;
     const float target_x = b.goal.x + mob_pos.x;
     b.flip = b.pos.x < target_x;
   }
@@ -50,7 +52,7 @@ void ServerBallInstance::HandleServerB(
 }
 
 void ServerBallInstance::HandleServerBall(uint64_t client_id,
-                                              fbs::ServerCharacterBallT &r) {
+                                          fbs::ServerCharacterBallT& r) {
   HandleServerB(r.payload);
 }
 

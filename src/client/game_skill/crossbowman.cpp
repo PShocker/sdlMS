@@ -1,5 +1,4 @@
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/ball_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -14,6 +13,9 @@
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <vector>
 namespace sdlms {
@@ -24,7 +26,7 @@ static void Guanchuanjian() {
   GameSkill g_skill;
   g_skill.id = u"3201004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, true);
     auto delay = SkillGameInstance::LoadSkiTime(sf);
     auto ski_lvl2 = std::to_string(ski_lv);
@@ -41,8 +43,8 @@ static void Guanchuanjian() {
       goal.x -= w;
     }
     CheckMobs cm;
-    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
-                                                       page, 800, path);
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
+                                                   800, path);
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
@@ -52,7 +54,7 @@ static void Guanchuanjian() {
     auto g_r = SkillGameInstance::LoadR(lt, rb, sf.pos, sf.flip);
     cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
     if (!cm.data.empty()) {
-      for (auto &data : cm.data) {
+      for (auto& data : cm.data) {
         cct.payload->ball->mob_index = data.mob.index;
         auto mob_pos = MobGameInstance::data_.at(data.mob.index).mob.pos;
         cct.payload->ball->y1 = mob_pos.y;
@@ -63,7 +65,7 @@ static void Guanchuanjian() {
       }
       // Create and send attack payload
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, 0);
-      for (auto &data : cat.payload) {
+      for (auto& data : cat.payload) {
         data->effect = "Afterimage/hit.img/sword2";
       }
       ClientRequest::send_to_host(cat);
@@ -72,7 +74,7 @@ static void Guanchuanjian() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 

@@ -2,11 +2,12 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_FOOTHOLD_H_
 
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <optional>
 namespace sdlms {
 
-struct GameFoothold{
+struct GameFoothold {
   uint32_t id;
   uint32_t page;
   uint32_t zmass;
@@ -25,7 +26,7 @@ struct GameFoothold{
 
   bool forbidFallDown = false;
 
-  std::optional<float> k = std::nullopt; // 斜率,若k值不存在,可以判断是否是墙面
+  std::optional<float> k = std::nullopt;  // 斜率,若k值不存在,可以判断是否是墙面
   std::optional<float> intercept = std::nullopt;
 };
 

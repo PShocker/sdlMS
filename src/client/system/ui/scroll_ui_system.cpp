@@ -1,16 +1,19 @@
 #include "src/client/system/ui/scroll_ui_system.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <algorithm>
 #include <cmath>
 namespace sdlms {
 
 
 void ScrollUiSystem::RenderVscroll(float x, float y, uint32_t val,
-                                      uint32_t count, int32_t length, bool top,
-                                      uint32_t size) {
+                                   uint32_t count, int32_t length, bool top,
+                                   uint32_t size) {
   static auto prev0 = WzResource::LoadTexture(
       WzResource::ui_->find(u"Basic.img/VScr4/enabled/prev0"));
   static auto prev1 = WzResource::LoadTexture(
@@ -47,7 +50,7 @@ void ScrollUiSystem::RenderVscroll(float x, float y, uint32_t val,
     SDL_RenderTexture(Window::renderer_, prev, nullptr, &pos_rect);
     pre = false;
   } else {
-    SDL_Texture *pv;
+    SDL_Texture* pv;
     if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect) && top) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         pv = prev1;
@@ -68,7 +71,7 @@ void ScrollUiSystem::RenderVscroll(float x, float y, uint32_t val,
     SDL_RenderTexture(Window::renderer_, next, nullptr, &pos_rect);
     nex = false;
   } else {
-    SDL_Texture *nx;
+    SDL_Texture* nx;
     if (SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect) && top) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         nx = next1;
@@ -111,8 +114,8 @@ void ScrollUiSystem::RenderVscroll(float x, float y, uint32_t val,
 }
 
 uint32_t ScrollUiSystem::ClickVscroll(float x, float y, uint32_t val,
-                                         uint32_t count, int32_t length,
-                                         bool top, SDL_FPoint mouse) {
+                                      uint32_t count, int32_t length, bool top,
+                                      SDL_FPoint mouse) {
   if (!top) {
     return val;
   }
@@ -161,7 +164,7 @@ uint32_t ScrollUiSystem::ClickVscroll(float x, float y, uint32_t val,
 }
 
 bool ScrollUiSystem::ClickThumb(float x, float y, int32_t length,
-                                   SDL_FPoint mouse) {
+                                SDL_FPoint mouse) {
   SDL_FRect pos_rect{
       x,
       y + 13,

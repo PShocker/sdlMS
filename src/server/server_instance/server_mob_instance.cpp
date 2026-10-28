@@ -1,6 +1,5 @@
 #include "src/server/server_instance/server_mob_instance.h"
-#include "src/server/server_instance/server_client_instance.h"
-#include "src/server/server_instance/server_scene_instance.h"
+
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_gain_log.h"
 #include "src/client/game/game_mob.h"
@@ -21,10 +20,14 @@
 #include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server/server_mob.h"
+#include "src/server/server_instance/server_client_instance.h"
 #include "src/server/server_instance/server_drop_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
 #include "src/server/server_main.h"
 #include "src/server/server_system/server_mob_system.h"
+
 #include <wz/Property.h>
+
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>
@@ -34,7 +37,7 @@ namespace sdlms {
 
 
 void ServerMobInstance::LoadDefaultMob(const std::u16string id,
-                                           ServerMob &mob) {
+                                       ServerMob& mob) {
   // default action
   mob.id = id;
   auto mob_node = WzResource::mob_->find(mob.id + u".img");
@@ -49,17 +52,17 @@ void ServerMobInstance::LoadDefaultMob(const std::u16string id,
 
   auto info_node = MobGameInstance::LoadMobInfo(mob.id);
   mob.hp =
-      static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
+      static_cast<wz::Property<int>*>(info_node->get_child(u"maxHP"))->get();
   mob.mp =
-      static_cast<wz::Property<int> *>(info_node->get_child(u"maxMP"))->get();
+      static_cast<wz::Property<int>*>(info_node->get_child(u"maxMP"))->get();
   if (info_node->get_child(u"speed") != nullptr) {
     auto speed =
-        static_cast<wz::Property<int> *>(info_node->get_child(u"speed"))->get();
+        static_cast<wz::Property<int>*>(info_node->get_child(u"speed"))->get();
     mob.hspeed_max = (float)(speed + 100) / 100 * 125;
   }
 }
 
-void ServerMobInstance::LoadMob(ServerSceneState &scene) {
+void ServerMobInstance::LoadMob(ServerSceneState& scene) {
   std::flat_map<uint32_t, ServerMob> data;
   auto map_id = scene.map_id;
   auto map_node = WzResource::LoadMapNode(map_id);
@@ -67,7 +70,7 @@ void ServerMobInstance::LoadMob(ServerSceneState &scene) {
   auto fhs = FootholdGameInstance::Load(map_id);
   for (auto [key, val] : *map_life_node->get_children()) {
     auto type =
-        static_cast<wz::Property<std::u16string> *>(val[0]->get_child(u"type"))
+        static_cast<wz::Property<std::u16string>*>(val[0]->get_child(u"type"))
             ->get();
     if (type == u"n") {
       continue;
@@ -76,16 +79,15 @@ void ServerMobInstance::LoadMob(ServerSceneState &scene) {
     auto mob_node = val[0];
     mob.index = std::stoi(std::string{key.begin(), key.end()});
     mob.id =
-        static_cast<wz::Property<std::u16string> *>(mob_node->get_child(u"id"))
+        static_cast<wz::Property<std::u16string>*>(mob_node->get_child(u"id"))
             ->get();
-    mob.fh =
-        static_cast<wz::Property<int> *>(mob_node->get_child(u"fh"))->get();
+    mob.fh = static_cast<wz::Property<int>*>(mob_node->get_child(u"fh"))->get();
     mob.rx0 =
-        static_cast<wz::Property<int> *>(mob_node->get_child(u"rx0"))->get();
+        static_cast<wz::Property<int>*>(mob_node->get_child(u"rx0"))->get();
     mob.rx1 =
-        static_cast<wz::Property<int> *>(mob_node->get_child(u"rx1"))->get();
+        static_cast<wz::Property<int>*>(mob_node->get_child(u"rx1"))->get();
 
-    auto x = static_cast<wz::Property<int> *>(mob_node->get_child(u"x"))->get();
+    auto x = static_cast<wz::Property<int>*>(mob_node->get_child(u"x"))->get();
     auto m_fh = fhs.at(mob.fh);
     auto y = m_fh.k.value() * x + m_fh.intercept.value();
     mob.pos = {
@@ -100,7 +102,7 @@ void ServerMobInstance::LoadMob(ServerSceneState &scene) {
 }
 
 void ServerMobInstance::HandleAttack(uint64_t client_id,
-                                        fbs::ClientMobAttackT &r) {
+                                     fbs::ClientMobAttackT& r) {
   if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
@@ -116,58 +118,58 @@ void ServerMobInstance::HandleAttack(uint64_t client_id,
   }
 }
 
-void ServerMobInstance::HandleServerMv(const fbs::ServerMobMvT &m) {
-  auto &mvs = MobGameInstance::data_.at(m.mob_index).mvs;
+void ServerMobInstance::HandleServerMv(const fbs::ServerMobMvT& m) {
+  auto& mvs = MobGameInstance::data_.at(m.mob_index).mvs;
   mvs.push_back(*m.payload);
 }
 
-void ServerMobInstance::HandleServerFlip(const fbs::ServerMobFlipT &m) {
-  auto &mob = MobGameInstance::data_.at(m.mob_index).mob;
+void ServerMobInstance::HandleServerFlip(const fbs::ServerMobFlipT& m) {
+  auto& mob = MobGameInstance::data_.at(m.mob_index).mob;
   mob.flip = m.payload->flip;
 }
 
-void ServerMobInstance::HandleServerAction(const fbs::ServerMobActionT &m) {
-  auto &mob = MobGameInstance::data_.at(m.mob_index).mob;
-  const auto &a = m.payload;
+void ServerMobInstance::HandleServerAction(const fbs::ServerMobActionT& m) {
+  auto& mob = MobGameInstance::data_.at(m.mob_index).mob;
+  const auto& a = m.payload;
   mob.action = std::u16string{a->action.begin(), a->action.end()};
   mob.ani_index = 0;
   mob.ani_time = 0;
   auto MobType = MobLogicSystem::LoadActionType(mob.action);
   switch (MobType) {
-  case MobLogicSystem::ActionEnum::kDie: {
-    mob.debuffs = {};
-    AudioGameInstance::LoadAudio(u"Mob.img/" + mob.id + u"/Die", 0);
-    break;
-  }
-  default: {
-    break;
-  }
-  }
-}
-
-void ServerMobInstance::HandleServerState(const fbs::ServerMobStateT &m) {
-  auto &mob = MobGameInstance::data_.at(m.mob_index).mob;
-  for (const auto &s : m.payload) {
-    switch (s->state) {
-    case fbs::StateEnum_HP: {
-      mob.hp = s->val;
+    case MobLogicSystem::ActionEnum::kDie: {
+      mob.debuffs = {};
+      AudioGameInstance::LoadAudio(u"Mob.img/" + mob.id + u"/Die", 0);
       break;
     }
     default: {
       break;
     }
+  }
+}
+
+void ServerMobInstance::HandleServerState(const fbs::ServerMobStateT& m) {
+  auto& mob = MobGameInstance::data_.at(m.mob_index).mob;
+  for (const auto& s : m.payload) {
+    switch (s->state) {
+      case fbs::StateEnum_HP: {
+        mob.hp = s->val;
+        break;
+      }
+      default: {
+        break;
+      }
     }
   }
 }
 
-void ServerMobInstance::HandleServerDie(const fbs::ServerMobDieT &m) {
-  auto &mob = MobGameInstance::data_.at(m.mob_index).mob;
+void ServerMobInstance::HandleServerDie(const fbs::ServerMobDieT& m) {
+  auto& mob = MobGameInstance::data_.at(m.mob_index).mob;
   float percent = (float)mob.attack_val / mob.max_hp;
   if (percent) {
     percent = std::min(percent, 1.0f);
     auto info_node = MobGameInstance::LoadMobInfo(mob.id);
     auto max_exp =
-        static_cast<wz::Property<int> *>(info_node->get_child(u"exp"))->get();
+        static_cast<wz::Property<int>*>(info_node->get_child(u"exp"))->get();
     auto exp = percent * max_exp;
     GainLogGameInstance::Add(u"", exp, GainEnum::kExperience);
     CharacterStatGameInstance::AddExp(exp);
@@ -179,60 +181,60 @@ void ServerMobInstance::HandleServerDie(const fbs::ServerMobDieT &m) {
   mob.attack_val = 0;
 }
 
-void ServerMobInstance::HandleServerDrop(const fbs::ServerMobDropT &m) {
+void ServerMobInstance::HandleServerDrop(const fbs::ServerMobDropT& m) {
   // Drop
-  for (const auto &dt : m.drop) {
+  for (const auto& dt : m.drop) {
     ServerDropInstance::HandleServerDt(*dt);
   }
   AudioGameInstance::LoadAudio(u"Game.img/DropItem", 0);
   return;
 }
 
-void ServerMobInstance::HandleServerEvent(const fbs::ServerMobEventT &m) {
+void ServerMobInstance::HandleServerEvent(const fbs::ServerMobEventT& m) {
   if (m.map_id != SceneSystemInstance::map_id_) {
     return;
   }
-  for (const auto &ev : m.payload) {
+  for (const auto& ev : m.payload) {
     switch (ev.type) {
-    case fbs::MobEventUnion_ServerMobMv: {
-      const auto mv = ev.AsServerMobMv();
-      HandleServerMv(*mv);
-      break;
-    }
-    case fbs::MobEventUnion_ServerMobFlip: {
-      const auto fp = ev.AsServerMobFlip();
-      HandleServerFlip(*fp);
-      break;
-    }
-    case fbs::MobEventUnion_ServerMobAction: {
-      const auto action = ev.AsServerMobAction();
-      HandleServerAction(*action);
-      break;
-    }
-    case fbs::MobEventUnion_ServerMobState: {
-      const auto st = ev.AsServerMobState();
-      HandleServerState(*st);
-      break;
-    }
-    case fbs::MobEventUnion_ServerMobDie: {
-      const auto d = ev.AsServerMobDie();
-      HandleServerDie(*d);
-      break;
-    }
-    case fbs::MobEventUnion_ServerMobDrop: {
-      const auto d = ev.AsServerMobDrop();
-      HandleServerDrop(*d);
-      break;
-    }
-    default: {
-      break;
-    }
+      case fbs::MobEventUnion_ServerMobMv: {
+        const auto mv = ev.AsServerMobMv();
+        HandleServerMv(*mv);
+        break;
+      }
+      case fbs::MobEventUnion_ServerMobFlip: {
+        const auto fp = ev.AsServerMobFlip();
+        HandleServerFlip(*fp);
+        break;
+      }
+      case fbs::MobEventUnion_ServerMobAction: {
+        const auto action = ev.AsServerMobAction();
+        HandleServerAction(*action);
+        break;
+      }
+      case fbs::MobEventUnion_ServerMobState: {
+        const auto st = ev.AsServerMobState();
+        HandleServerState(*st);
+        break;
+      }
+      case fbs::MobEventUnion_ServerMobDie: {
+        const auto d = ev.AsServerMobDie();
+        HandleServerDie(*d);
+        break;
+      }
+      case fbs::MobEventUnion_ServerMobDrop: {
+        const auto d = ev.AsServerMobDrop();
+        HandleServerDrop(*d);
+        break;
+      }
+      default: {
+        break;
+      }
     }
   }
 }
 
-void ServerMobInstance::HandleSAttack(uint64_t client_id, fbs::AttackT &at) {
-  const auto &attack = at;
+void ServerMobInstance::HandleSAttack(uint64_t client_id, fbs::AttackT& at) {
+  const auto& attack = at;
   // 伤害数字
   DamageData data = {
       .num = attack.num,
@@ -252,18 +254,17 @@ void ServerMobInstance::HandleSAttack(uint64_t client_id, fbs::AttackT &at) {
   EffectGameInstance::data_[7].emplace_back(d);
 }
 
-void ServerMobInstance::HandleServerAttack(fbs::ServerMobAttackT &r) {
+void ServerMobInstance::HandleServerAttack(fbs::ServerMobAttackT& r) {
   HandleSAttack(r.client_id, *r.payload);
 }
 
-void ServerMobInstance::HanleServerMob(
-    const std::unique_ptr<fbs::MobT> &m) {
-  auto &data = MobGameInstance::data_;
+void ServerMobInstance::HanleServerMob(const std::unique_ptr<fbs::MobT>& m) {
+  auto& data = MobGameInstance::data_;
   GameMob g_mob;
   auto tmp = std::format("{:07d}", m->mob_id);
   g_mob.id = {tmp.begin(), tmp.end()};
   g_mob.index = m->mob_index;
-  const auto &state = m->state;
+  const auto& state = m->state;
   g_mob.action = {
       state->action.begin(),
       state->action.end(),
@@ -275,7 +276,7 @@ void ServerMobInstance::HanleServerMob(
   g_mob.hp = m->mob_hp;
   auto info_node = MobGameInstance::LoadMobInfo(g_mob.id);
   g_mob.max_hp =
-      static_cast<wz::Property<int> *>(info_node->get_child(u"maxHP"))->get();
+      static_cast<wz::Property<int>*>(info_node->get_child(u"maxHP"))->get();
 
   g_mob.ani_index = 0;
   g_mob.ani_time = 0;
@@ -290,11 +291,11 @@ void ServerMobInstance::HanleServerMob(
   return;
 }
 
-void ServerMobInstance::HandleCreateMob(fbs::ClientCreateMobT &r) {
+void ServerMobInstance::HandleCreateMob(fbs::ClientCreateMobT& r) {
   auto map_id = r.map_id;
-  auto &scene = ServerSceneInstance::scenes_[map_id];
+  auto& scene = ServerSceneInstance::scenes_[map_id];
   int i = 0;
-  for (const auto &mb : r.mobs) {
+  for (const auto& mb : r.mobs) {
     ServerMob mob;
     mob.create = true;
     mob.index = scene.mobs.size();
@@ -323,15 +324,15 @@ void ServerMobInstance::HandleCreateMob(fbs::ClientCreateMobT &r) {
   return;
 }
 
-void ServerMobInstance::HandleSCreateMob(fbs::ServerCreateMobT &r) {
-  for (const auto &m : r.mobs) {
+void ServerMobInstance::HandleSCreateMob(fbs::ServerCreateMobT& r) {
+  for (const auto& m : r.mobs) {
     HanleServerMob(m);
   }
   return;
 }
 
-std::vector<ServerMobInstance::MobDrop>
-ServerMobInstance::LoadMobDrops(const std::u16string &mob_id) {
+std::vector<ServerMobInstance::MobDrop> ServerMobInstance::LoadMobDrops(
+    const std::u16string& mob_id) {
   using CacheType = std::flat_map<std::u16string, std::vector<MobDrop>>;
   static CacheType cache;
 
@@ -346,8 +347,8 @@ ServerMobInstance::LoadMobDrops(const std::u16string &mob_id) {
     return {};
   }
 
-  auto &drops = it->second;
-  auto *children = node->get_children();
+  auto& drops = it->second;
+  auto* children = node->get_children();
   drops.reserve(children ? children->size() : 0);
 
   if (!children) {
@@ -358,23 +359,23 @@ ServerMobInstance::LoadMobDrops(const std::u16string &mob_id) {
     if (v.empty())
       continue;
 
-    auto *child = v[0];
+    auto* child = v[0];
     if (!child)
       continue;
 
-    auto *min_quantity_prop =
-        static_cast<wz::Property<int> *>(child->get_child(u"min_quantity"));
-    auto *max_quantity_prop =
-        static_cast<wz::Property<int> *>(child->get_child(u"max_quantity"));
-    auto *chance_prop =
-        static_cast<wz::Property<int> *>(child->get_child(u"chance"));
+    auto* min_quantity_prop =
+        static_cast<wz::Property<int>*>(child->get_child(u"min_quantity"));
+    auto* max_quantity_prop =
+        static_cast<wz::Property<int>*>(child->get_child(u"max_quantity"));
+    auto* chance_prop =
+        static_cast<wz::Property<int>*>(child->get_child(u"chance"));
 
     if (!min_quantity_prop || !max_quantity_prop || !chance_prop) {
       continue;
     }
 
     MobDrop md;
-    md.id = k; // 如果后续不需要原字符串，可改为 std::move(k)
+    md.id = k;  // 如果后续不需要原字符串，可改为 std::move(k)
     md.min_quantity = min_quantity_prop->get();
     md.max_quantity = max_quantity_prop->get();
     md.rate = chance_prop->get() / 1000000.0f;
@@ -384,13 +385,12 @@ ServerMobInstance::LoadMobDrops(const std::u16string &mob_id) {
   return drops;
 }
 
-std::vector<fbs::DropT>
-ServerMobInstance::CreateMobDts(const std::u16string &mob_id, float x,
-                                    float y, int page) {
+std::vector<fbs::DropT> ServerMobInstance::CreateMobDts(
+    const std::u16string& mob_id, float x, float y, int page) {
   auto mob_drops = LoadMobDrops(mob_id);
   std::vector<fbs::DropT> dts;
-  for (const auto &drop : mob_drops) {
-    auto &gen = RandomGameInstance::gen;
+  for (const auto& drop : mob_drops) {
+    auto& gen = RandomGameInstance::gen;
     std::uniform_real_distribution<float> dis(0.0f, 1.0f);
     bool success = dis(gen) <= drop.rate;
     if (!success) {
@@ -420,13 +420,13 @@ ServerMobInstance::CreateMobDts(const std::u16string &mob_id, float x,
 }
 
 void ServerMobInstance::HandleDebuff(uint64_t client_id,
-                                        fbs::ClientMobDebuffT &r) {
+                                     fbs::ClientMobDebuffT& r) {
   auto map_id = r.map_id;
-  auto &scene = ServerSceneInstance::scenes_[map_id];
-  auto &Mobs = scene.mobs;
-  for (auto &db : r.payload) {
+  auto& scene = ServerSceneInstance::scenes_[map_id];
+  auto& Mobs = scene.mobs;
+  for (auto& db : r.payload) {
     if (Mobs.contains(db->mob_index)) {
-      auto &mb = Mobs.at(db->mob_index);
+      auto& mb = Mobs.at(db->mob_index);
       ServerDebuff sd;
       GameDebuff debuff;
       debuff.type = (GameDebuff::DebuffType)db->payload->val;
@@ -446,14 +446,14 @@ void ServerMobInstance::HandleDebuff(uint64_t client_id,
   return;
 }
 
-void ServerMobInstance::HandleSDebuff(fbs::ServerMobDebuffT &r) {
-  auto &Mobs = MobGameInstance::data_;
-  for (const auto &db : r.payload) {
+void ServerMobInstance::HandleSDebuff(fbs::ServerMobDebuffT& r) {
+  auto& Mobs = MobGameInstance::data_;
+  for (const auto& db : r.payload) {
     if (db->payload->time <= Window::dt_time_) {
       continue;
     }
     if (Mobs.contains(db->mob_index)) {
-      auto &mb = Mobs.at(db->mob_index).mob;
+      auto& mb = Mobs.at(db->mob_index).mob;
       GameDebuff debuff;
       debuff.type = (GameDebuff::DebuffType)db->payload->val;
       debuff.delay = db->payload->delay;

@@ -1,8 +1,5 @@
 #include "src/client/system/ui/buff_ui_system.h"
-#include <SDL3/SDL_mouse.h>
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
-#include "src/client/system/ui/package_ui_system.h"
+
 #include "src/client/game/game_item_buff.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -11,10 +8,16 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "src/client/system/ui/tooltip_ui_system.h"
+
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
@@ -25,7 +28,7 @@ namespace sdlms {
 static std::optional<GameSkill> mouse_ski;
 static std::optional<GameItemBuff> mouse_item;
 
-void BuffUiSystem::RenderUi(GameSkill &sk, float x, float y) {
+void BuffUiSystem::RenderUi(GameSkill& sk, float x, float y) {
   auto id = sk.id;
   auto ski_node = SkillGameInstance::LoadSkiNode(id);
   auto icon = WzResource::LoadTexture(ski_node->get_child(u"icon"));
@@ -36,7 +39,7 @@ void BuffUiSystem::RenderUi(GameSkill &sk, float x, float y) {
       static_cast<float>(icon->h),
   };
   SDL_RenderTexture(Window::renderer_, icon, NULL, &pos_rect);
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     mouse_ski = sk;
   }
@@ -55,7 +58,7 @@ void BuffUiSystem::RenderUi(GameSkill &sk, float x, float y) {
   }
 }
 
-void BuffUiSystem::RenderUi(GameItemBuff &gb, float x, float y) {
+void BuffUiSystem::RenderUi(GameItemBuff& gb, float x, float y) {
   auto id = gb.id;
   auto info = ItemGameInstance::LoadItemInfo(id, 0);
   auto icon = WzResource::LoadTexture(info->get_child(u"icon"));
@@ -66,7 +69,7 @@ void BuffUiSystem::RenderUi(GameItemBuff &gb, float x, float y) {
       static_cast<float>(icon->h),
   };
   SDL_RenderTexture(Window::renderer_, icon, NULL, &pos_rect);
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
     mouse_item = gb;
   }
@@ -95,8 +98,8 @@ bool BuffUiSystem::RenderUiInfo() {
   auto ski = mouse_ski.value();
   // 宽度固定330
   const auto w = 390;
-  auto &mouse_pos = Window::mouse_pos_;
-  const auto &camera = CameraGameInstance::camera_;
+  auto& mouse_pos = Window::mouse_pos_;
+  const auto& camera = CameraGameInstance::camera_;
   auto x = 0;
   if (mouse_pos.x + w <= camera.w) {
     x = mouse_pos.x;
@@ -109,7 +112,7 @@ bool BuffUiSystem::RenderUiInfo() {
 
 void BuffUiSystem::RenderUi() {
   // ski buff
-  const auto &camera = CameraGameInstance::camera_;
+  const auto& camera = CameraGameInstance::camera_;
   for (uint32_t i = 0; i < SkillGameInstance::ski_.size(); i++) {
     auto col = i % 5;
     auto row = i / 5;
@@ -127,8 +130,8 @@ void BuffUiSystem::RenderUi() {
   }
 }
 
-void BuffUiSystem::EventMotion(SDL_Event *Event) {
-  auto &sys = System::render_systems_;
+void BuffUiSystem::EventMotion(SDL_Event* Event) {
+  auto& sys = System::render_systems_;
   std::erase(sys, RenderUiInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {
@@ -143,28 +146,28 @@ bool BuffUiSystem::Render() {
   return true;
 }
 
-bool BuffUiSystem::Event(SDL_Event *Event) {
+bool BuffUiSystem::Event(SDL_Event* Event) {
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_RIGHT) {
-      if (CursorGameInstance::cursor_ui == nullptr) {
-        if (mouse_ski.has_value()) {
-          mouse_ski->end();
-        }
-        if (mouse_item.has_value()) {
-          ItemGameInstance::UnuseBuffItem(mouse_item->id);
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_RIGHT) {
+        if (CursorGameInstance::cursor_ui == nullptr) {
+          if (mouse_ski.has_value()) {
+            mouse_ski->end();
+          }
+          if (mouse_item.has_value()) {
+            ItemGameInstance::UnuseBuffItem(mouse_item->id);
+          }
         }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventMotion(Event);
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventMotion(Event);
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return true;

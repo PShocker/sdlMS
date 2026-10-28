@@ -1,6 +1,5 @@
 #include "src/client/system/ui/quest_alarm_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -13,7 +12,11 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <wz/Property.h>
+
 #include <cstdint>
 #include <format>
 #include <string>
@@ -73,13 +76,13 @@ void QuestAlarmUiSystem::RenderBackgrnd() {
 
 void QuestAlarmUiSystem::RenderButton() {
   // 构建按钮列表
-  std::vector<wz::Node *> nodes = {
+  std::vector<wz::Node*> nodes = {
       WzResource::ui_->find(u"Quest.img/QuestAlarm/BtAuto"),
-      WzResource::ui_->find(u"Basic.img/BtClose"), // hp
+      WzResource::ui_->find(u"Basic.img/BtClose"),  // hp
   };
   std::vector<SDL_FRect> rects = {
-      {173, 4, 21, 12}, //
-      {208, 4, 12, 12}, //
+      {173, 4, 21, 12},  //
+      {208, 4, 12, 12},  //
   };
   if (max_) {
     nodes.push_back(WzResource::ui_->find(u"Basic.img/BtMin"));
@@ -117,10 +120,10 @@ static std::u16string close_quest;
 void QuestAlarmUiSystem::RenderQuests() {
   close_quest = u"";
   int y = 20;
-  for (const auto &id : quests_) {
+  for (const auto& id : quests_) {
     auto node = QuestGameInstance::LoadQuestNode(id);
     node = node->find(u"QuestInfo/name");
-    auto name = static_cast<wz::Property<std::u16string> *>(node)->get();
+    auto name = static_cast<wz::Property<std::u16string>*>(node)->get();
     if (name.size() > 25) {
       name = name.substr(0, 25) + u"...";
     }
@@ -143,8 +146,8 @@ void QuestAlarmUiSystem::RenderQuests() {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       close_quest = id;
     }
-    const auto &quest = QuestGameInstance::progress_quests_.at(id);
-    for (const auto &[k, v] : quest.check_item) {
+    const auto& quest = QuestGameInstance::progress_quests_.at(id);
+    for (const auto& [k, v] : quest.check_item) {
       y += 18;
       uint32_t num = 0;
       if (quest.item.contains(k)) {
@@ -161,7 +164,7 @@ void QuestAlarmUiSystem::RenderQuests() {
       str = std::u16string{tmp.begin(), tmp.end()} + u" " + str;
       Freetype::DrawLine(str, pos_.x + 5, pos_.y + y);
     }
-    for (const auto &[k, v] : quest.check_mob) {
+    for (const auto& [k, v] : quest.check_mob) {
       y += 18;
       uint32_t num = 0;
       if (quest.mob.contains(k)) {
@@ -179,7 +182,7 @@ void QuestAlarmUiSystem::RenderQuests() {
 
 void QuestAlarmUiSystem::RenderTitle() {
   auto n = WzResource::ms_->get_root()->find(u"String.img/Quest/Helper");
-  auto str = static_cast<wz::Property<std::u16string> *>(n)->get();
+  auto str = static_cast<wz::Property<std::u16string>*>(n)->get();
   Freetype::LoadSize(12);
   Freetype::LoadColor(0, 0, 0, 255);
   Freetype::LoadAligned(true);
@@ -198,18 +201,22 @@ bool QuestAlarmUiSystem::Render() {
   return true;
 }
 
-void QuestAlarmUiSystem::EventButtonAuto() { EventAutoQuests(); }
+void QuestAlarmUiSystem::EventButtonAuto() {
+  EventAutoQuests();
+}
 
 void QuestAlarmUiSystem::EventButtonMax() {}
 
 void QuestAlarmUiSystem::EventButtonMin() {}
 
-void QuestAlarmUiSystem::EventButtonClose() { Close(); }
+void QuestAlarmUiSystem::EventButtonClose() {
+  Close();
+}
 
-bool QuestAlarmUiSystem::EventButton(SDL_Event *Event) {
+bool QuestAlarmUiSystem::EventButton(SDL_Event* Event) {
   std::vector<SDL_FRect> r = {
-      {173, 4, 21, 12}, //
-      {208, 4, 12, 12}, //
+      {173, 4, 21, 12},  //
+      {208, 4, 12, 12},  //
   };
   std::vector<void (*)()> fns = {
       EventButtonAuto,
@@ -266,7 +273,7 @@ void QuestAlarmUiSystem::EventTop() {
   }
 }
 
-void QuestAlarmUiSystem::EventDragStart(SDL_Event *Event) {
+void QuestAlarmUiSystem::EventDragStart(SDL_Event* Event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
@@ -281,10 +288,10 @@ void QuestAlarmUiSystem::EventDragEnd() {
   return;
 }
 
-void QuestAlarmUiSystem::EventDragMove(SDL_Event *Event) {
+void QuestAlarmUiSystem::EventDragMove(SDL_Event* Event) {
   if (drag_.has_value()) {
     pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
     pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
@@ -299,36 +306,36 @@ void QuestAlarmUiSystem::EventQuestClose() {
   quests_.erase(close_quest);
 }
 
-bool QuestAlarmUiSystem::Event(SDL_Event *Event) {
+bool QuestAlarmUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTop();
-        EventDragStart(Event);
-        r = false;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTop();
+          EventDragStart(Event);
+          r = false;
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventQuestClose();
-        r = !EventButton(Event);
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventQuestClose();
+          r = !EventButton(Event);
+        }
+        EventDragEnd();
       }
-      EventDragEnd();
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventDragMove(Event);
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventDragMove(Event);
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return r;
@@ -337,7 +344,7 @@ bool QuestAlarmUiSystem::Event(SDL_Event *Event) {
 void QuestAlarmUiSystem::EventAutoQuests() {
   if (quests_.empty()) {
     size_t count = 0;
-    for (const auto &[key, _] : QuestGameInstance::progress_quests_) {
+    for (const auto& [key, _] : QuestGameInstance::progress_quests_) {
       if (count++ >= 5)
         break;
       quests_.emplace(key);
@@ -347,12 +354,12 @@ void QuestAlarmUiSystem::EventAutoQuests() {
 
 bool QuestAlarmUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos_;
+  auto& mouse = Window::mouse_pos_;
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void QuestAlarmUiSystem::AcceptQuest(const std::u16string &id) {
+void QuestAlarmUiSystem::AcceptQuest(const std::u16string& id) {
   auto it = std::ranges::find(System::render_systems_, &Render);
   if (it == System::render_systems_.end()) {
     return;
@@ -363,7 +370,7 @@ void QuestAlarmUiSystem::AcceptQuest(const std::u16string &id) {
   quests_.insert(id);
 }
 
-void QuestAlarmUiSystem::CompleteQuest(const std::u16string &id) {
+void QuestAlarmUiSystem::CompleteQuest(const std::u16string& id) {
   quests_.erase(id);
 }
 

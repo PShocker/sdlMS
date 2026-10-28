@@ -7,10 +7,11 @@ namespace sdlms {
 
 
 class ServerBallInstance {
-public:
-  static void HandleBall(uint64_t client_id, fbs::ClientCharacterBallT &r);
-  static void HandleServerB(const std::unique_ptr<fbs::CharacterBallT> &r);
-  static void HandleServerBall(uint64_t client_id, fbs::ServerCharacterBallT &r);
+ public:
+  static void HandleBall(uint64_t client_id, fbs::ClientCharacterBallT& r);
+  static void HandleServerB(const std::unique_ptr<fbs::CharacterBallT>& r);
+  static void HandleServerBall(uint64_t client_id,
+                               fbs::ServerCharacterBallT& r);
 };
 
 }  // namespace sdlms

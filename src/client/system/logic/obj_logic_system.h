@@ -5,9 +5,9 @@
 namespace sdlms {
 
 class ObjLogicSystem {
-public:
-  static void RunAnimate(GameObj &g_obj);
-  static void RunAlpha(GameObj &g_obj);
+ public:
+  static void RunAnimate(GameObj& g_obj);
+  static void RunAlpha(GameObj& g_obj);
   static bool Run();
 };
 

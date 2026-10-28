@@ -1,11 +1,12 @@
 #include "src/client/system/logic/mob_logic_system.h"
-#include "src/client/system/logic/character_logic_system.h"
+
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -13,8 +14,10 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_mob_instance.h"
+
 #include <wz/Property.h>
 #include <wz/Wz.h>
+
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>
@@ -25,8 +28,8 @@
 namespace sdlms {
 
 
-MobLogicSystem::ActionEnum
-MobLogicSystem::LoadActionType(const std::u16string &action) {
+MobLogicSystem::ActionEnum MobLogicSystem::LoadActionType(
+    const std::u16string& action) {
   const static std::flat_map<std::u16string, ActionEnum> MapName = {
       {u"stand", ActionEnum::kStand}, {u"move", ActionEnum::kMove},
       {u"hit1", ActionEnum::kHit},    {u"die1", ActionEnum::kDie},
@@ -35,7 +38,7 @@ MobLogicSystem::LoadActionType(const std::u16string &action) {
   return MapName.at(action);
 }
 
-std::optional<SDL_FRect> MobLogicSystem::LoadRect(const GameMob &g_mob) {
+std::optional<SDL_FRect> MobLogicSystem::LoadRect(const GameMob& g_mob) {
   if (g_mob.action.empty()) {
     return std::nullopt;
   }
@@ -56,7 +59,7 @@ std::optional<SDL_FRect> MobLogicSystem::LoadRect(const GameMob &g_mob) {
   auto texture_node = mob_action_node->get_child(frame_index);
   if (texture_node->type == wz::Type::UOL) {
     texture_node =
-        static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
+        static_cast<wz::Property<wz::WzUOL>*>(texture_node)->get_uol();
   }
   if (texture_node->get_child(u"lt") == nullptr) {
     return std::nullopt;
@@ -77,7 +80,7 @@ std::optional<SDL_FRect> MobLogicSystem::LoadRect(const GameMob &g_mob) {
   return rect;
 }
 
-std::optional<SDL_FPoint> MobLogicSystem::LoadHead(const GameMob &g_mob) {
+std::optional<SDL_FPoint> MobLogicSystem::LoadHead(const GameMob& g_mob) {
   if (g_mob.action.empty()) {
     return std::nullopt;
   }
@@ -98,7 +101,7 @@ std::optional<SDL_FPoint> MobLogicSystem::LoadHead(const GameMob &g_mob) {
   auto texture_node = mob_action_node->get_child(frame_index);
   if (texture_node->type == wz::Type::UOL) {
     texture_node =
-        static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
+        static_cast<wz::Property<wz::WzUOL>*>(texture_node)->get_uol();
   }
   if (texture_node->get_child(u"head") == nullptr) {
     return std::nullopt;
@@ -111,12 +114,12 @@ void MobLogicSystem::RunCollision() {
   if (CharacterLogicSystem::self_invincible_cooldown_ >= Window::dt_now_) {
     return;
   }
-  auto &self = CharacterGameInstance::self_;
+  auto& self = CharacterGameInstance::self_;
   if (self.action == u"dead") {
     return;
   }
   std::flat_map<float, GameMob> Mobs;
-  for (auto &m : MobGameInstance::data_ | std::views::values) {
+  for (auto& m : MobGameInstance::data_ | std::views::values) {
     auto action_type = LoadActionType(m.mob.action);
     if (action_type == ActionEnum::kRevive || action_type == ActionEnum::kDie) {
       continue;
@@ -134,10 +137,10 @@ void MobLogicSystem::RunCollision() {
     }
   }
   if (!Mobs.empty()) {
-    auto &mob = Mobs.begin()->second;
+    auto& mob = Mobs.begin()->second;
     uint64_t hit_num = 1;
-    auto &buff = SkillGameInstance::ski_;
-    for (auto &buf : buff) {
+    auto& buff = SkillGameInstance::ski_;
+    for (auto& buf : buff) {
       if (buf.hit) {
         hit_num = buf.hit(&mob, hit_num);
       }
@@ -158,7 +161,7 @@ void MobLogicSystem::RunCollision() {
   }
 }
 
-bool MobLogicSystem::RunAnimate(GameMob &g_mob) {
+bool MobLogicSystem::RunAnimate(GameMob& g_mob) {
   bool r = false;
   if (!g_mob.ani_animate) {
     return r;
@@ -189,10 +192,10 @@ bool MobLogicSystem::RunAnimate(GameMob &g_mob) {
     if (auto delay_node = canvas_node->get_child(u"delay")) {
       if (delay_node->type == wz::Type::String) {
         auto delay2 =
-            static_cast<wz::Property<std::u16string> *>(delay_node)->get();
+            static_cast<wz::Property<std::u16string>*>(delay_node)->get();
         delay = std::stoi(std::string{delay2.begin(), delay2.end()});
       } else {
-        delay = static_cast<wz::Property<int32_t> *>(delay_node)->get();
+        delay = static_cast<wz::Property<int32_t>*>(delay_node)->get();
       }
     }
   }
@@ -207,7 +210,7 @@ bool MobLogicSystem::RunAnimate(GameMob &g_mob) {
   return r;
 }
 
-void MobLogicSystem::RunAlpha(GameMob &g_mob) {
+void MobLogicSystem::RunAlpha(GameMob& g_mob) {
   auto node =
       MobGameInstance::LoadLinkMobNode(g_mob.id)->get_child(g_mob.action);
   bool zigzag = node->get_child(u"zigzag") == nullptr ? false : true;
@@ -227,21 +230,21 @@ void MobLogicSystem::RunAlpha(GameMob &g_mob) {
     int32_t a0 = 255;
     int32_t a1 = 255;
     if (canvas_node->get_child(u"a0")) {
-      a0 = static_cast<wz::Property<int> *>(canvas_node->get_child(u"a0"))
-               ->get();
+      a0 =
+          static_cast<wz::Property<int>*>(canvas_node->get_child(u"a0"))->get();
     }
     if (canvas_node->get_child(u"a1")) {
-      a1 = static_cast<wz::Property<int> *>(canvas_node->get_child(u"a1"))
-               ->get();
+      a1 =
+          static_cast<wz::Property<int>*>(canvas_node->get_child(u"a1"))->get();
     }
     uint32_t delay = 100;
     if (auto delay_node = canvas_node->get_child(u"delay")) {
       if (delay_node->type == wz::Type::String) {
         auto delay2 =
-            static_cast<wz::Property<std::u16string> *>(delay_node)->get();
+            static_cast<wz::Property<std::u16string>*>(delay_node)->get();
         delay = std::stoi(std::string{delay2.begin(), delay2.end()});
       } else {
-        delay = static_cast<wz::Property<int32_t> *>(delay_node)->get();
+        delay = static_cast<wz::Property<int32_t>*>(delay_node)->get();
       }
     }
     float t = (float)g_mob.ani_time / (float)delay;
@@ -250,8 +253,8 @@ void MobLogicSystem::RunAlpha(GameMob &g_mob) {
 }
 
 void MobLogicSystem::RunMv() {
-  for (auto &c : MobGameInstance::data_ | std::views::values) {
-    auto &mvs = c.mvs;
+  for (auto& c : MobGameInstance::data_ | std::views::values) {
+    auto& mvs = c.mvs;
     if (mvs.empty()) {
       continue;
     }
@@ -282,14 +285,14 @@ void MobLogicSystem::RunMv() {
   }
 }
 
-void MobLogicSystem::RunDebuff(GameMob &g_mob) {
-  std::erase_if(g_mob.debuffs, [](const auto &pair) {
+void MobLogicSystem::RunDebuff(GameMob& g_mob) {
+  std::erase_if(g_mob.debuffs, [](const auto& pair) {
     GameDebuff db = pair.second;
     return db.destroy <= Window::dt_time_;
   });
 }
 
-void MobLogicSystem::RunStateMachine(GameMob &g_mob) {
+void MobLogicSystem::RunStateMachine(GameMob& g_mob) {
   auto action_type = LoadActionType(g_mob.action);
   if (action_type == ActionEnum::kRevive) {
     return;
@@ -305,7 +308,7 @@ void MobLogicSystem::RunStateMachine(GameMob &g_mob) {
 }
 
 bool MobLogicSystem::Run() {
-  for (auto &m : MobGameInstance::data_ | std::views::values) {
+  for (auto& m : MobGameInstance::data_ | std::views::values) {
     RunStateMachine(m.mob);
   }
   RunCollision();

@@ -2,7 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_CASH_SHOP_SYSTEM_INSTANCE_H_
 namespace sdlms {
 class CashShopSystemInstance {
-public:
+ public:
   static void Enter();
 };
 

@@ -6,17 +6,17 @@
 namespace sdlms {
 
 class PlayerShopUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderButton();
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
-public:
+ public:
   static inline SDL_FPoint pos_;
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 };
 
 }  // namespace sdlms

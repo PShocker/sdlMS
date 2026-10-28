@@ -1,5 +1,5 @@
 #include "src/client/system_instance/scene_system_instance.h"
-#include "src/client/system_instance/cash_shop_system_instance.h"
+
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_mob.h"
@@ -60,12 +60,14 @@
 #include "src/client/system/ui/quest_alarm_ui_system.h"
 #include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/system/ui/statusbar_ui_system.h"
+#include "src/client/system_instance/cash_shop_system_instance.h"
 #include "src/client/system_instance/fade_system_instance.h"
 #include "src/client/system_instance/login_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_character_instance.h"
+
 #include <array>
 #include <cstdint>
 #include <cstdlib>
@@ -77,76 +79,75 @@ namespace sdlms {
 
 
 bool SceneSystemInstance::RenderGame() {
-  std::array<std::vector<GameCharacter *>, 8> character_array;
-  for (auto &other_data :
-       CharacterGameInstance::others_ | std::views::values) {
-    auto &g_character = other_data.g_character;
+  std::array<std::vector<GameCharacter*>, 8> character_array;
+  for (auto& other_data : CharacterGameInstance::others_ | std::views::values) {
+    auto& g_character = other_data.g_character;
     character_array[g_character.page].push_back(&g_character);
   }
-  auto &self = CharacterGameInstance::self_;
+  auto& self = CharacterGameInstance::self_;
   character_array[self.page].push_back(&self);
 
-  std::array<std::vector<GameMob *>, 8> mob_array;
-  for (auto &mob_data : MobGameInstance::data_ | std::views::values) {
-    auto &mob = mob_data.mob;
+  std::array<std::vector<GameMob*>, 8> mob_array;
+  for (auto& mob_data : MobGameInstance::data_ | std::views::values) {
+    auto& mob = mob_data.mob;
     mob_array[mob.page].push_back(&mob);
   }
 
-  std::array<std::vector<GameDrop *>, 8> drop_array;
-  for (auto &drop : DropGameInstance::data_ | std::views::values) {
+  std::array<std::vector<GameDrop*>, 8> drop_array;
+  for (auto& drop : DropGameInstance::data_ | std::views::values) {
     drop_array[drop.page].push_back(&drop);
   }
   //   后景
-  for (auto &b_backgrnd : BackgrndGameInstance::back_ | std::views::values) {
+  for (auto& b_backgrnd : BackgrndGameInstance::back_ | std::views::values) {
     BackgrndRenderSystem::Render(b_backgrnd);
   }
   for (uint8_t i = 0; i < 8; i++) {
-    for (auto &obj : ObjGameInstance::data_[i] | std::views::values) {
+    for (auto& obj : ObjGameInstance::data_[i] | std::views::values) {
       ObjRenderSystem::Render(obj);
     }
-    for (auto &trap : TrapGameInstance::data_[i] | std::views::values) {
+    for (auto& trap : TrapGameInstance::data_[i] | std::views::values) {
       ObjRenderSystem::Render(trap);
     }
-    for (auto &tile : TileGameInstance::data_[i] | std::views::values) {
+    for (auto& tile : TileGameInstance::data_[i] | std::views::values) {
       TileRenderSystem::Render(tile);
     }
-    for (auto &reactor : ReactorGameInstance::data_[i]) {
+    for (auto& reactor : ReactorGameInstance::data_[i]) {
       ReactorRenderSystem::Render(reactor);
     }
-    for (auto &effect : EffectGameInstance::data_[i]) {
+    for (auto& effect : EffectGameInstance::data_[i]) {
       EffectRenderSystem::Render(effect);
     }
-    for (auto &npc : NpcGameInstance::data_[i]) {
+    for (auto& npc : NpcGameInstance::data_[i]) {
       NpcRenderSystem::Render(npc);
     }
-    for (auto &mob : mob_array[i]) {
+    for (auto& mob : mob_array[i]) {
       MobRenderSystem::Render(*mob);
     }
-    for (auto &ball : BallGameInstance::data_[i]) {
+    for (auto& ball : BallGameInstance::data_[i]) {
       BallRenderSystem::Render(ball);
     }
-    for (auto &character : character_array[i]) {
+    for (auto& character : character_array[i]) {
       CharacterRenderSystem::Render(*character);
     }
-    for (auto &drop : drop_array[i]) {
+    for (auto& drop : drop_array[i]) {
       DropRenderSystem::Render(*drop);
     }
   }
   // 传送门
-  for (auto &portal : PortalGameInstance::data_ | std::views::values) {
+  for (auto& portal : PortalGameInstance::data_ | std::views::values) {
     PortalRenderSystem::Render(portal);
   }
   // 前景
-  for (auto &f_backgrnd : BackgrndGameInstance::front_ | std::views::values) {
+  for (auto& f_backgrnd : BackgrndGameInstance::front_ | std::views::values) {
     BackgrndRenderSystem::Render(f_backgrnd);
   }
-  for (auto &npcs : NpcGameInstance::data_) {
-    for (auto &npc : npcs) {
+  for (auto& npcs : NpcGameInstance::data_) {
+    for (auto& npc : npcs) {
       NpcRenderSystem::RenderChatballoon(npc);
     }
   }
-  for (auto &cs : character_array) {
-    for (auto &c : cs) {
+  for (auto& cs : character_array) {
+    for (auto& c : cs) {
       CharacterRenderSystem::RenderChatballoon(*c);
     }
   }
@@ -154,8 +155,8 @@ bool SceneSystemInstance::RenderGame() {
 }
 
 void SceneSystemInstance::EnterPrepare() {
-  const auto &pos = SceneSystemInstance::prepare_pos_;
-  auto &self = CharacterGameInstance::self_;
+  const auto& pos = SceneSystemInstance::prepare_pos_;
+  auto& self = CharacterGameInstance::self_;
   if (pos.has_value()) {
     self.pos = pos.value();
     CharacterLogicSystem::RunAction(self, u"jump");
@@ -198,8 +199,8 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   AudioGameInstance::LoadBackgrndAudio(bgm);
 
   System::event_systems_ = {
-      QuestAlarmUiSystem::Event, MinimapUiSystem::Event,
-      QuickSlotUiSystem::Event,  StatusbarUiSystem::Event,
+      QuestAlarmUiSystem::Event,  MinimapUiSystem::Event,
+      QuickSlotUiSystem::Event,   StatusbarUiSystem::Event,
       BuffUiSystem::Event,        CursorLogicSystem::Event,
       KeyboardInputSystem::Event,
   };
@@ -230,12 +231,11 @@ void SceneSystemInstance::Enter(uint32_t map_id) {
   Window::delta_time_ = 0;
 }
 
-SDL_FPoint SceneSystemInstance::LoadPreparePos(const std::u16string &pn,
-                                                   uint8_t index) {
+SDL_FPoint SceneSystemInstance::LoadPreparePos(const std::u16string& pn,
+                                               uint8_t index) {
   SDL_FPoint r;
-  GamePortal *por;
-  auto portals =
-      PortalGameInstance::Load(SceneSystemInstance::prepare_map_id_);
+  GamePortal* por;
+  auto portals = PortalGameInstance::Load(SceneSystemInstance::prepare_map_id_);
   if (index == 0) {
     // 只需要第一个元素，使用 find 更高效
     auto it = portals.find(pn);
@@ -256,7 +256,7 @@ SDL_FPoint SceneSystemInstance::LoadPreparePos(const std::u16string &pn,
 }
 
 void SceneSystemInstance::EnterPrepare(uint32_t map_id,
-                                          const std::u16string &pn, int i) {
+                                       const std::u16string& pn, int i) {
   prepare_map_id_ = map_id;
   prepare_pos_ = LoadPreparePos(pn, i);
 

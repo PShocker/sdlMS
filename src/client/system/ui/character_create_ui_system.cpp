@@ -1,7 +1,5 @@
 #include "src/client/system/ui/character_create_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
-#include "src/client/system/ui/login_ui_system.h"
+
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -14,6 +12,7 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/character_choose_ui_system.h"
+#include "src/client/system/ui/login_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/character_create_system_instance.h"
@@ -23,7 +22,11 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <wz/Property.h>
+
 #include <cmath>
 #include <cstdint>
 #include <optional>
@@ -38,7 +41,7 @@ void CharacterCreateUiSystem::RenderButton() {
       WzResource::ui_->find(u"Login.img/NewChar/button:cancel"),
   };
   auto pos = LoadPos();
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   std::array buttons_rect = {
       SDL_FRect{66 - camera.x, -1154 - camera.y, 104, 52},
       SDL_FRect{160 - camera.x, -1156 - camera.y, 104, 52},
@@ -48,7 +51,7 @@ void CharacterCreateUiSystem::RenderButton() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
@@ -69,7 +72,7 @@ SDL_FPoint CharacterCreateUiSystem::LoadPos() {
   SDL_FPoint pos;
   const auto w = 1366;
   const auto h = 768;
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   pos.x = (camera.w - w) / 2;
   pos.y = (camera.h - h) / 2;
   return pos;
@@ -91,7 +94,7 @@ void CharacterCreateUiSystem::RenderBackgrnd() {
 void CharacterCreateUiSystem::RenderStat() {
   static auto t = WzResource::LoadTexture(
       WzResource::ui_->find(u"Login.img/NewChar/stat/canvas:statback"));
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   SDL_FRect pos_rect{
       70 - camera.x,
       -1322 - camera.y,
@@ -132,7 +135,7 @@ void CharacterCreateUiSystem::RenderStat() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     if (r[i]) {
       auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
       SDL_RenderTexture(Window::renderer_, d, nullptr, &pos_rect);
@@ -158,25 +161,25 @@ void CharacterCreateUiSystem::RenderStat() {
   auto str2 = std::u16string{str1.begin(), str1.end()};
   auto dx = Freetype::LoadW(str2);
   Freetype::DrawLine(str2, buttons_rect[0].x + 32 - dx / 2,
-                      buttons_rect[0].y - 2);
+                     buttons_rect[0].y - 2);
 
   auto dex1 = std::to_string(dex_point_);
   auto dex2 = std::u16string{dex1.begin(), dex1.end()};
   dx = Freetype::LoadW(dex2);
   Freetype::DrawLine(dex2, buttons_rect[2].x + 32 - dx / 2,
-                      buttons_rect[2].y - 2);
+                     buttons_rect[2].y - 2);
 
   auto int1 = std::to_string(int_point_);
   auto int2 = std::u16string{int1.begin(), int1.end()};
   dx = Freetype::LoadW(int2);
   Freetype::DrawLine(int2, buttons_rect[4].x + 32 - dx / 2,
-                      buttons_rect[4].y - 2);
+                     buttons_rect[4].y - 2);
 
   auto luk1 = std::to_string(luk_point_);
   auto luk2 = std::u16string{luk1.begin(), luk1.end()};
   dx = Freetype::LoadW(luk2);
   Freetype::DrawLine(luk2, buttons_rect[6].x + 32 - dx / 2,
-                      buttons_rect[6].y - 2);
+                     buttons_rect[6].y - 2);
   Freetype::LoadBold(true);
   Freetype::LoadSize(21);
   auto r1 = std::to_string(remain_point_);
@@ -217,7 +220,7 @@ void CharacterCreateUiSystem::RenderBanner() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
         auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
@@ -234,141 +237,141 @@ void CharacterCreateUiSystem::RenderBanner() {
 }
 
 void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
-                                                    ChooseType type) {
+                                               ChooseType type) {
   std::u16string item_name;
   SDL_FPoint pos;
-  SDL_Texture *t;
+  SDL_Texture* t;
   bool choose = false;
   switch (type) {
-  case ChooseType::kGender: {
-    if (!gender_) {
-      auto str_node =
-          WzResource::ms_->get_root()->find(u"String.img/Character/gender/0");
-      item_name = static_cast<wz::Property<std::u16string> *>(str_node)->get();
-    } else {
-      auto str_node =
-          WzResource::ms_->get_root()->find(u"String.img/Character/gender/1");
-      item_name = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+    case ChooseType::kGender: {
+      if (!gender_) {
+        auto str_node =
+            WzResource::ms_->get_root()->find(u"String.img/Character/gender/0");
+        item_name = static_cast<wz::Property<std::u16string>*>(str_node)->get();
+      } else {
+        auto str_node =
+            WzResource::ms_->get_root()->find(u"String.img/Character/gender/1");
+        item_name = static_cast<wz::Property<std::u16string>*>(str_node)->get();
+      }
+      if (choose_index_ == 0) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:gender_selected"));
+      } else {
+        t = WzResource::LoadTexture(
+            WzResource::ui_->find("Login.img/NewChar/customize/canvas:gender"));
+      }
+      pos = {35, 30};
+      break;
     }
-    if (choose_index_ == 0) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:gender_selected"));
-    } else {
-      t = WzResource::LoadTexture(
-          WzResource::ui_->find("Login.img/NewChar/customize/canvas:gender"));
+    case ChooseType::kFace: {
+      item_name = EquipGameInstance::LoadEquipName(g_character_.face.id);
+      if (choose_index_ == 1) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:face_selected"));
+      } else {
+        t = WzResource::LoadTexture(
+            WzResource::ui_->find("Login.img/NewChar/customize/canvas:face"));
+      }
+      pos = {35, 48};
+      break;
     }
-    pos = {35, 30};
-    break;
-  }
-  case ChooseType::kFace: {
-    item_name = EquipGameInstance::LoadEquipName(g_character_.face.id);
-    if (choose_index_ == 1) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:face_selected"));
-    } else {
-      t = WzResource::LoadTexture(
-          WzResource::ui_->find("Login.img/NewChar/customize/canvas:face"));
+    case ChooseType::kHairstyle: {
+      item_name = EquipGameInstance::LoadEquipName(g_character_.hair);
+      if (choose_index_ == 2) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:hairstyle_selected"));
+      } else {
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:hairstyle"));
+      }
+      pos = {35, 66};
+      break;
     }
-    pos = {35, 48};
-    break;
-  }
-  case ChooseType::kHairstyle: {
-    item_name = EquipGameInstance::LoadEquipName(g_character_.hair);
-    if (choose_index_ == 2) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:hairstyle_selected"));
-    } else {
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:hairstyle"));
+    case ChooseType::kHaircolor: {
+      static auto haircolor_node =
+          WzResource::ui_->find(u"Login.img/HairColorName");
+      auto back = g_character_.hair.back();
+      auto node = haircolor_node->get_child(std::u16string{back});
+      item_name = static_cast<wz::Property<std::u16string>*>(node)->get();
+      if (choose_index_ == 3) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:haircolor_selected"));
+      } else {
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:haircolor"));
+      }
+      pos = {35, 84};
+      break;
     }
-    pos = {35, 66};
-    break;
-  }
-  case ChooseType::kHaircolor: {
-    static auto haircolor_node =
-        WzResource::ui_->find(u"Login.img/HairColorName");
-    auto back = g_character_.hair.back();
-    auto node = haircolor_node->get_child(std::u16string{back});
-    item_name = static_cast<wz::Property<std::u16string> *>(node)->get();
-    if (choose_index_ == 3) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:haircolor_selected"));
-    } else {
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:haircolor"));
+    case ChooseType::kSkin: {
+      item_name = EquipGameInstance::LoadEquipName(g_character_.head);
+      if (choose_index_ == 4) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:skincolor_selected"));
+      } else {
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:skincolor"));
+      }
+      pos = {35, 102};
+      break;
     }
-    pos = {35, 84};
-    break;
-  }
-  case ChooseType::kSkin: {
-    item_name = EquipGameInstance::LoadEquipName(g_character_.head);
-    if (choose_index_ == 4) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:skincolor_selected"));
-    } else {
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:skincolor"));
+    case ChooseType::kTop: {
+      item_name = EquipGameInstance::LoadEquipName(g_character_.coat->id);
+      if (choose_index_ == 5) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:top_selected"));
+      } else {
+        t = WzResource::LoadTexture(
+            WzResource::ui_->find("Login.img/NewChar/customize/canvas:top"));
+      }
+      pos = {35, 120};
+      break;
     }
-    pos = {35, 102};
-    break;
-  }
-  case ChooseType::kTop: {
-    item_name = EquipGameInstance::LoadEquipName(g_character_.coat->id);
-    if (choose_index_ == 5) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:top_selected"));
-    } else {
-      t = WzResource::LoadTexture(
-          WzResource::ui_->find("Login.img/NewChar/customize/canvas:top"));
+    case ChooseType::kBottom: {
+      item_name = EquipGameInstance::LoadEquipName(g_character_.pant->id);
+      if (choose_index_ == 6) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:bottom_selected"));
+      } else {
+        t = WzResource::LoadTexture(
+            WzResource::ui_->find("Login.img/NewChar/customize/canvas:bottom"));
+      }
+      pos = {35, 138};
+      break;
     }
-    pos = {35, 120};
-    break;
-  }
-  case ChooseType::kBottom: {
-    item_name = EquipGameInstance::LoadEquipName(g_character_.pant->id);
-    if (choose_index_ == 6) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:bottom_selected"));
-    } else {
-      t = WzResource::LoadTexture(
-          WzResource::ui_->find("Login.img/NewChar/customize/canvas:bottom"));
+    case ChooseType::kShoes: {
+      item_name = EquipGameInstance::LoadEquipName(g_character_.shoes->id);
+      if (choose_index_ == 7) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:shoes_selected"));
+      } else {
+        t = WzResource::LoadTexture(
+            WzResource::ui_->find("Login.img/NewChar/customize/canvas:shoes"));
+      }
+      pos = {35, 156};
+      break;
     }
-    pos = {35, 138};
-    break;
-  }
-  case ChooseType::kShoes: {
-    item_name = EquipGameInstance::LoadEquipName(g_character_.shoes->id);
-    if (choose_index_ == 7) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:shoes_selected"));
-    } else {
-      t = WzResource::LoadTexture(
-          WzResource::ui_->find("Login.img/NewChar/customize/canvas:shoes"));
+    case ChooseType::kWeapon: {
+      item_name = EquipGameInstance::LoadEquipName(g_character_.weapon->id);
+      if (choose_index_ == 8) {
+        choose = true;
+        t = WzResource::LoadTexture(WzResource::ui_->find(
+            "Login.img/NewChar/customize/canvas:weapon_selected"));
+      } else {
+        t = WzResource::LoadTexture(
+            WzResource::ui_->find("Login.img/NewChar/customize/canvas:weapon"));
+      }
+      pos = {35, 174};
+      break;
     }
-    pos = {35, 156};
-    break;
-  }
-  case ChooseType::kWeapon: {
-    item_name = EquipGameInstance::LoadEquipName(g_character_.weapon->id);
-    if (choose_index_ == 8) {
-      choose = true;
-      t = WzResource::LoadTexture(WzResource::ui_->find(
-          "Login.img/NewChar/customize/canvas:weapon_selected"));
-    } else {
-      t = WzResource::LoadTexture(
-          WzResource::ui_->find("Login.img/NewChar/customize/canvas:weapon"));
-    }
-    pos = {35, 174};
-    break;
-  }
   }
   SDL_FRect pos_rect{
       cx + pos.x,
@@ -391,10 +394,10 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
   static auto next_button =
       WzResource::ui_->find("Login.img/NewChar/customize/button:gender_next");
   if (choose) {
-    std::vector<wz::Node *> buttons_nodes = {prev_button, next_button};
+    std::vector<wz::Node*> buttons_nodes = {prev_button, next_button};
     std::vector<SDL_FRect> buttons_rect = {
-        SDL_FRect{cx + pos.x + 95, cy + pos.y, 16, 17},  //
-        SDL_FRect{cx + pos.x + 235, cy + pos.y, 16, 17}, //
+        SDL_FRect{cx + pos.x + 95, cy + pos.y, 16, 17},   //
+        SDL_FRect{cx + pos.x + 235, cy + pos.y, 16, 17},  //
     };
 
     for (size_t i = 0; i < buttons_nodes.size(); ++i) {
@@ -402,7 +405,7 @@ void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
       auto pos_rect = buttons_rect[i];
       pos_rect.x = (int)pos_rect.x;
       pos_rect.y = (int)pos_rect.y;
-      auto &mouse_pos = Window::mouse_pos_;
+      auto& mouse_pos = Window::mouse_pos_;
       if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
           !CursorGameInstance::modal_overlay) {
         if (Window::mouse_state_ & SDL_BUTTON_LMASK) {
@@ -424,7 +427,7 @@ void CharacterCreateUiSystem::RenderCustom() {
   static auto backgrnd = WzResource::LoadTexture(
       WzResource::ui_->find(u"Login.img/NewChar/customize/animOpen/3"));
   auto pos = LoadPos();
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   auto cx = -440 - camera.x;
   auto cy = -1370 - camera.y;
   SDL_FRect pos_rect{
@@ -488,7 +491,7 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadHaircolors() {
   std::vector<std::u16string> r;
   static auto haircolors = WzResource::ui_->find(u"Login.img/HairColorName");
   for (auto [k, v] : *haircolors->get_children()) {
-    r.push_back(static_cast<wz::Property<std::u16string> *>(v[0])->get());
+    r.push_back(static_cast<wz::Property<std::u16string>*>(v[0])->get());
   }
   return r;
 }
@@ -496,7 +499,7 @@ std::vector<std::u16string> CharacterCreateUiSystem::LoadHaircolors() {
 void CharacterCreateUiSystem::ResetCharacter(bool g) {
   gender_ = g;
 
-  auto &g_character = CharacterCreateUiSystem::g_character_;
+  auto& g_character = CharacterCreateUiSystem::g_character_;
   CharacterGameInstance::AddBody(g_character, u"00002000");
   CharacterGameInstance::AddHead(g_character, u"00012000");
   CharacterGameInstance::AddEar(g_character, u"humanEar");
@@ -631,7 +634,7 @@ void CharacterCreateUiSystem::EventButtonSkinColorPrev() {
 void CharacterCreateUiSystem::EventButtonSkinColorNext() {
   AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto &head_id = g_character_.head;
+  auto& head_id = g_character_.head;
   auto body_id = g_character_.body;
   auto back = head_id.back();
   if (back < u'3') {
@@ -837,23 +840,23 @@ void CharacterCreateUiSystem::EventButtonLukDec() {
   }
 }
 
-bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event *Event) {
-  auto &camera = CameraGameInstance::camera_;
+bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event* Event) {
+  auto& camera = CameraGameInstance::camera_;
   auto cx = -440 - camera.x;
   auto cy = -1370 - camera.y;
   cx += 35;
   cy += 30;
   for (uint8_t i = 0; i <= 8; i++) {
     SDL_FRect pos_rect{cx, cy + 18 * i, 256, 17};
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       if (choose_index_ != i) {
         choose_index_ = i;
         return true;
       } else {
         std::vector<SDL_FRect> buttons_rect = {
-            SDL_FRect{cx + 95, cy + 18 * i, 16, 17},  //
-            SDL_FRect{cx + 235, cy + 18 * i, 16, 17}, //
+            SDL_FRect{cx + 95, cy + 18 * i, 16, 17},   //
+            SDL_FRect{cx + 235, cy + 18 * i, 16, 17},  //
         };
         std::optional<bool> left;
         if (SDL_PointInRectFloat(&mouse_pos, &buttons_rect[0])) {
@@ -863,76 +866,76 @@ bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event *Event) {
         }
         if (left.has_value()) {
           switch (choose_index_) {
-          case 0: {
-            AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-            ResetCharacter(!gender_);
-            break;
-          }
-          case 1: {
-            // face
-            if (left.value()) {
-              EventButtonFacePrev();
-            } else {
-              EventButtonFaceNext();
+            case 0: {
+              AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+              ResetCharacter(!gender_);
+              break;
             }
-            break;
-          }
-          case 2: {
-            if (left.value()) {
-              EventButtonHairPrev();
-            } else {
-              EventButtonHairNext();
+            case 1: {
+              // face
+              if (left.value()) {
+                EventButtonFacePrev();
+              } else {
+                EventButtonFaceNext();
+              }
+              break;
             }
-            break;
-          }
-          case 3: {
-            if (left.value()) {
-              EventButtonHairColorPrev();
-            } else {
-              EventButtonHairColorNext();
+            case 2: {
+              if (left.value()) {
+                EventButtonHairPrev();
+              } else {
+                EventButtonHairNext();
+              }
+              break;
             }
-            break;
-          }
-          case 4: {
-            if (left.value()) {
-              EventButtonSkinColorPrev();
-            } else {
-              EventButtonSkinColorNext();
+            case 3: {
+              if (left.value()) {
+                EventButtonHairColorPrev();
+              } else {
+                EventButtonHairColorNext();
+              }
+              break;
             }
-            break;
-          }
-          case 5: {
-            if (left.value()) {
-              EventButtonTopPrev();
-            } else {
-              EventButtonTopNext();
+            case 4: {
+              if (left.value()) {
+                EventButtonSkinColorPrev();
+              } else {
+                EventButtonSkinColorNext();
+              }
+              break;
             }
-            break;
-          }
-          case 6: {
-            if (left.value()) {
-              EventButtonBottomPrev();
-            } else {
-              EventButtonBottomNext();
+            case 5: {
+              if (left.value()) {
+                EventButtonTopPrev();
+              } else {
+                EventButtonTopNext();
+              }
+              break;
             }
-            break;
-          }
-          case 7: {
-            if (left.value()) {
-              EventButtonShoesPrev();
-            } else {
-              EventButtonShoesNext();
+            case 6: {
+              if (left.value()) {
+                EventButtonBottomPrev();
+              } else {
+                EventButtonBottomNext();
+              }
+              break;
             }
-            break;
-          }
-          case 8: {
-            if (left.value()) {
-              EventButtonWeaponPrev();
-            } else {
-              EventButtonWeaponNext();
+            case 7: {
+              if (left.value()) {
+                EventButtonShoesPrev();
+              } else {
+                EventButtonShoesNext();
+              }
+              break;
             }
-            break;
-          }
+            case 8: {
+              if (left.value()) {
+                EventButtonWeaponPrev();
+              } else {
+                EventButtonWeaponNext();
+              }
+              break;
+            }
           }
         }
       }
@@ -943,7 +946,7 @@ bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event *Event) {
 
 void CharacterCreateUiSystem::EventButtonOk() {
   // check size
-  auto &characters = CharacterChooseUiSystem::characters_;
+  auto& characters = CharacterChooseUiSystem::characters_;
   if (characters.size() >= 3) {
     LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacterFull, nullptr);
@@ -951,7 +954,7 @@ void CharacterCreateUiSystem::EventButtonOk() {
     return;
   }
   // check name
-  auto &name_text = name_.text;
+  auto& name_text = name_.text;
   if (name_text.empty()) {
     LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacternameError, nullptr);
@@ -1007,12 +1010,14 @@ void CharacterCreateUiSystem::EventButtonOk() {
   EventButtonBack();
 }
 
-void CharacterCreateUiSystem::EventButtonCancel() { EventButtonBack(); }
+void CharacterCreateUiSystem::EventButtonCancel() {
+  EventButtonBack();
+}
 
-bool CharacterCreateUiSystem::EventButton(SDL_Event *Event) {
+bool CharacterCreateUiSystem::EventButton(SDL_Event* Event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   auto pos = LoadPos();
   SDL_FPoint stat_point{
       70 - camera.x,
@@ -1036,7 +1041,7 @@ bool CharacterCreateUiSystem::EventButton(SDL_Event *Event) {
       EventButtonStrDec, EventButtonStrInc, EventButtonDexDec,
       EventButtonDexInc, EventButtonIntDec, EventButtonIntInc,
       EventButtonLukDec, EventButtonLukInc, EventButtonBack,
-      EventButtonOk,      EventButtonCancel,
+      EventButtonOk,     EventButtonCancel,
   };
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
@@ -1051,42 +1056,42 @@ bool CharacterCreateUiSystem::EventButton(SDL_Event *Event) {
   return false;
 }
 
-bool CharacterCreateUiSystem::Event(SDL_Event *Event) {
+bool CharacterCreateUiSystem::Event(SDL_Event* Event) {
   TextInputUiSystem::Event(Event, name_);
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_ESCAPE: {
-      return false;
+    case SDL_EVENT_KEY_DOWN: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_ESCAPE: {
+          return false;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        r = false;
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        EventButton(Event);
+        EventButtonCustom(Event);
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
       break;
     }
     default: {
       break;
     }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      r = false;
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      EventButton(Event);
-      EventButtonCustom(Event);
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   return r;

@@ -1,5 +1,5 @@
 #include "src/client/system/render/npc_render_system.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
@@ -7,15 +7,17 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
 #include <wz/Property.h>
 #include <wz/Wz.h>
+
 #include <ranges>
 namespace sdlms {
 
 
-void NpcRenderSystem::RenderNametag(const std::u16string &text,
-                                       SDL_FPoint p) {
-  const auto &camera = CameraGameInstance::camera_;
+void NpcRenderSystem::RenderNametag(const std::u16string& text, SDL_FPoint p) {
+  const auto& camera = CameraGameInstance::camera_;
   Freetype::LoadAligned(true);
   Freetype::LoadSize(13);
   auto w = Freetype::LoadW(text);
@@ -40,7 +42,7 @@ void NpcRenderSystem::RenderNametag(const std::u16string &text,
   return;
 }
 
-void NpcRenderSystem::RenderNametag(GameNpc &g_npc) {
+void NpcRenderSystem::RenderNametag(GameNpc& g_npc) {
   auto npc_name = NpcGameInstance::LoadNpcText(g_npc.id, u"name");
   if (npc_name != u"") {
     RenderNametag(npc_name, {g_npc.pos.x, g_npc.pos.y});
@@ -51,7 +53,7 @@ void NpcRenderSystem::RenderNametag(GameNpc &g_npc) {
   }
 }
 
-void NpcRenderSystem::RenderChatballoon(GameNpc &g_npc) {
+void NpcRenderSystem::RenderChatballoon(GameNpc& g_npc) {
   if (!g_npc.chatballoon.has_value()) {
     return;
   }
@@ -66,7 +68,7 @@ void NpcRenderSystem::RenderChatballoon(GameNpc &g_npc) {
   auto index = std::to_string(g_npc.ani_index);
   npc_node = action_node->get_child(index);
   if (npc_node->type == wz::Type::UOL) {
-    npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
+    npc_node = static_cast<wz::Property<wz::WzUOL>*>(npc_node)->get_uol();
   }
 
   auto texture = WzResource::LoadTexture(npc_node);
@@ -79,14 +81,14 @@ void NpcRenderSystem::RenderChatballoon(GameNpc &g_npc) {
   ChatballoonRenderSystem::Render(chatballoon, pos);
 }
 
-bool NpcRenderSystem::RenderNpc(GameNpc &g_npc) {
+bool NpcRenderSystem::RenderNpc(GameNpc& g_npc) {
   auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
   auto action_node = npc_node->get_child(g_npc.action);
 
   auto index = std::to_string(g_npc.ani_index);
   npc_node = action_node->get_child(index);
   if (npc_node->type == wz::Type::UOL) {
-    npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
+    npc_node = static_cast<wz::Property<wz::WzUOL>*>(npc_node)->get_uol();
   }
 
   auto texture = WzResource::LoadTexture(npc_node);
@@ -97,7 +99,7 @@ bool NpcRenderSystem::RenderNpc(GameNpc &g_npc) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
@@ -109,12 +111,12 @@ bool NpcRenderSystem::RenderNpc(GameNpc &g_npc) {
   return true;
 }
 
-void NpcRenderSystem::RenderQuest(GameNpc &g_npc) {
+void NpcRenderSystem::RenderQuest(GameNpc& g_npc) {
   auto node = NpcGameInstance::LoadQuestNode(g_npc);
   if (node != nullptr) {
     auto origin = WzResource::LoadFpoint(node->get_child(u"origin"));
     auto texture = WzResource::LoadTexture(node);
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     auto pos_rect = NpcGameInstance::LoadQuestRect(g_npc).value();
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
@@ -124,7 +126,7 @@ void NpcRenderSystem::RenderQuest(GameNpc &g_npc) {
   }
 }
 
-bool NpcRenderSystem::Render(GameNpc &g_npc) {
+bool NpcRenderSystem::Render(GameNpc& g_npc) {
   RenderNpc(g_npc);
   RenderNametag(g_npc);
   RenderQuest(g_npc);

@@ -1,12 +1,5 @@
 #include "src/client/system/ui/statusbar_ui_system.h"
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
-#include <SDL3/SDL_scancode.h>
-#include "src/client/system/ui/character_stat_ui_system.h"
-#include "src/client/system/ui/equip_ui_system.h"
-#include "src/client/system/ui/scroll_ui_system.h"
-#include "src/client/system/ui/skill_ui_system.h"
+
 #include "src/client/game/game_chat.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -16,9 +9,15 @@
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/input/keyboard_input_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/character_stat_ui_system.h"
 #include "src/client/system/ui/chat_log_ui_system.h"
+#include "src/client/system/ui/equip_ui_system.h"
 #include "src/client/system/ui/keybinding_ui_system.h"
 #include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system/ui/scroll_ui_system.h"
+#include "src/client/system/ui/skill_ui_system.h"
+#include "src/client/system/ui/statusbar_menu_ui_system.h"
+#include "src/client/system/ui/text_input_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/client.h"
@@ -26,10 +25,14 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
-#include "src/client/system/ui/statusbar_menu_ui_system.h"
-#include "src/client/system/ui/text_input_ui_system.h"
+
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_scancode.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
+
 #include <algorithm>
 #include <array>
 #include <cmath>
@@ -64,7 +67,7 @@ void StatusbarUiSystem::RenderHmAlert() {
   if (hp_percent_now < hp_percent && hp_percent <= 0.3) {
     auto now = Window::dt_now_;
     auto sum = 5 * 130;
-    auto offset = now % sum; // 取余，得到周期内偏移
+    auto offset = now % sum;  // 取余，得到周期内偏移
     auto i = offset / 130;
     auto node = WzResource::ui_->find(u"StatusBar.img/alertHP");
     node = node->get_child(std::to_string(i));
@@ -90,7 +93,7 @@ void StatusbarUiSystem::RenderHmAlert() {
   if (mp_percent_now < mp_percent && mp_percent <= 0.3) {
     auto now = Window::dt_now_;
     auto sum = 5 * 130;
-    auto offset = now % sum; // 取余，得到周期内偏移
+    auto offset = now % sum;  // 取余，得到周期内偏移
     auto i = offset / 130;
     auto node = WzResource::ui_->find(u"StatusBar.img/alertMP");
     node = node->get_child(std::to_string(i));
@@ -200,8 +203,7 @@ void StatusbarUiSystem::RenderGaugeText() {
   int32_t w = 0;
   for (auto c : num) {
     pos_rect.x = base_x + w + a4.x;
-    auto texture =
-        WzResource::LoadTexture(num_node->get_child(std::string{c}));
+    auto texture = WzResource::LoadTexture(num_node->get_child(std::string{c}));
     pos_rect.w = texture->w;
     pos_rect.h = texture->h;
     SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
@@ -215,8 +217,7 @@ void StatusbarUiSystem::RenderGaugeText() {
 
   auto exp_percent_num = std::format("{:.2f}", self_exp_percent * 100);
   for (auto c : exp_percent_num) {
-    auto texture =
-        WzResource::LoadTexture(num_node->get_child(std::string{c}));
+    auto texture = WzResource::LoadTexture(num_node->get_child(std::string{c}));
     pos_rect.x += 6;
     pos_rect.w = texture->w;
     pos_rect.h = texture->h;
@@ -336,14 +337,14 @@ void StatusbarUiSystem::RenderCharacterStat() {
   // job
   auto job_node = WzResource::ms_->get_root()->find(
       u"String.img/Job/" + CharacterGameInstance::self_.job);
-  auto job_name = static_cast<wz::Property<std::u16string> *>(job_node)->get();
+  auto job_name = static_cast<wz::Property<std::u16string>*>(job_node)->get();
   Freetype::LoadSize(12);
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::LoadAligned(true);
   Freetype::DrawLine(job_name, base_x + 88, base_y + 36);
   // name
-  const auto &self = CharacterGameInstance::self_;
-  auto &self_name = self.name;
+  const auto& self = CharacterGameInstance::self_;
+  auto& self_name = self.name;
   Freetype::LoadSize(12);
   Freetype::LoadColor(255, 255, 255, 255);
   Freetype::DrawLine(self_name, base_x + 88, base_y + 52);
@@ -394,30 +395,30 @@ void StatusbarUiSystem::RenderButton() {
       WzResource::ui_->find(u"StatusBar.img/button:ChatLogMax");
 
   std::array buttons_node = {
-      CashShop,   //
-      Menu,       //
-      Shortcut,   //
-      Mailbox,    //
-      equip,      //
-      Inven,      //
-      Stat,       // Stat StatUp
-      Skill,      // Skill SkillUp
-      Key,        //
-      QuickSlot,  // QuickSlot QuickSlotD
-      ChatLogMin, // ChatLogMin ChatLogMax
+      CashShop,    //
+      Menu,        //
+      Shortcut,    //
+      Mailbox,     //
+      equip,       //
+      Inven,       //
+      Stat,        // Stat StatUp
+      Skill,       // Skill SkillUp
+      Key,         //
+      QuickSlot,   // QuickSlot QuickSlotD
+      ChatLogMin,  // ChatLogMin ChatLogMax
   };
   const static std::array buttons_rect = {
-      SDL_FRect{578, 38, 73, 34}, // CashShop
-      SDL_FRect{652, 38, 73, 34}, // Menu
-      SDL_FRect{726, 38, 73, 34}, // Shortcut
-      SDL_FRect{578, 11, 22, 19}, // Mailbox
-      SDL_FRect{621, 10, 28, 20}, // Equip
-      SDL_FRect{651, 10, 28, 20}, // Inven
-      SDL_FRect{681, 10, 28, 20}, // Stat StatUp
-      SDL_FRect{711, 10, 28, 20}, // Skill SkillUp
-      SDL_FRect{741, 10, 28, 20}, // Key
-      SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
-      SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
+      SDL_FRect{578, 38, 73, 34},  // CashShop
+      SDL_FRect{652, 38, 73, 34},  // Menu
+      SDL_FRect{726, 38, 73, 34},  // Shortcut
+      SDL_FRect{578, 11, 22, 19},  // Mailbox
+      SDL_FRect{621, 10, 28, 20},  // Equip
+      SDL_FRect{651, 10, 28, 20},  // Inven
+      SDL_FRect{681, 10, 28, 20},  // Stat StatUp
+      SDL_FRect{711, 10, 28, 20},  // Skill SkillUp
+      SDL_FRect{741, 10, 28, 20},  // Key
+      SDL_FRect{771, 10, 28, 20},  // QuickSlot QuickSlotD
+      SDL_FRect{539, 14, 12, 12},  // ChatLogMin ChatLogMax
   };
 
   auto screen_w = CameraGameInstance::camera_.w;
@@ -430,7 +431,7 @@ void StatusbarUiSystem::RenderButton() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += base_x;
     pos_rect.y += base_y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
@@ -460,7 +461,7 @@ void StatusbarUiSystem::RenderChat() {
     SDL_FRect pos_rect{6, 11, 80, 18};
     pos_rect.x += base_x;
     pos_rect.y += base_y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
@@ -542,7 +543,9 @@ bool StatusbarUiSystem::Render() {
   return true;
 }
 
-SDL_FPoint StatusbarUiSystem::LoadWh() { return {808, 73}; }
+SDL_FPoint StatusbarUiSystem::LoadWh() {
+  return {808, 73};
+}
 
 bool StatusbarUiSystem::CursorIn() {
   auto wh = LoadWh();
@@ -554,11 +557,12 @@ bool StatusbarUiSystem::CursorIn() {
   return SDL_PointInRectFloat(&Window::mouse_pos_, &pos_rect);
 }
 
-void StatusbarUiSystem::EventButtonCashshop() { return; }
+void StatusbarUiSystem::EventButtonCashshop() {
+  return;
+}
 
 void StatusbarUiSystem::EventButtonMenu() {
-  StatusbarMenuUiSystem::menu_type_ =
-      StatusbarMenuUiSystem::MenuEnums::kMenu;
+  StatusbarMenuUiSystem::menu_type_ = StatusbarMenuUiSystem::MenuEnums::kMenu;
   StatusbarMenuUiSystem::Toggle();
   return;
 }
@@ -570,7 +574,9 @@ void StatusbarUiSystem::EventButtonShortcut() {
   return;
 }
 
-void StatusbarUiSystem::EventButtonMailbox() { return; }
+void StatusbarUiSystem::EventButtonMailbox() {
+  return;
+}
 
 void StatusbarUiSystem::EventButtonEquip() {
   EquipUiSystem::Toggle();
@@ -597,7 +603,9 @@ void StatusbarUiSystem::EventButtonKeybind() {
   return;
 }
 
-void StatusbarUiSystem::EventButtonQuickslot() { return; }
+void StatusbarUiSystem::EventButtonQuickslot() {
+  return;
+}
 
 void StatusbarUiSystem::EventButtonChatlog() {
   ChatLogUiSystem::Toggle();
@@ -611,27 +619,27 @@ void StatusbarUiSystem::EventButtonChatlog() {
 
 std::u16string StatusbarUiSystem::LoadChatType() {
   switch (chat_type_.value()) {
-  case GameChatEnum::kMap: {
-    return u"All";
-    break;
-  }
+    case GameChatEnum::kMap: {
+      return u"All";
+      break;
+    }
   }
   return u"";
 }
 
-bool StatusbarUiSystem::EventButton(SDL_Event *Event) {
+bool StatusbarUiSystem::EventButton(SDL_Event* Event) {
   const static std::array buttons_rect = {
-      SDL_FRect{578, 38, 73, 34}, // CashShop
-      SDL_FRect{652, 38, 73, 34}, // Menu
-      SDL_FRect{726, 38, 73, 34}, // Shortcut
-      SDL_FRect{578, 11, 22, 19}, // Mailbox
-      SDL_FRect{621, 10, 28, 20}, // Equip
-      SDL_FRect{651, 10, 28, 20}, // Inven
-      SDL_FRect{681, 10, 28, 20}, // Stat StatUp
-      SDL_FRect{711, 10, 28, 20}, // Skill SkillUp
-      SDL_FRect{741, 10, 28, 20}, // Key
-      SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
-      SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
+      SDL_FRect{578, 38, 73, 34},  // CashShop
+      SDL_FRect{652, 38, 73, 34},  // Menu
+      SDL_FRect{726, 38, 73, 34},  // Shortcut
+      SDL_FRect{578, 11, 22, 19},  // Mailbox
+      SDL_FRect{621, 10, 28, 20},  // Equip
+      SDL_FRect{651, 10, 28, 20},  // Inven
+      SDL_FRect{681, 10, 28, 20},  // Stat StatUp
+      SDL_FRect{711, 10, 28, 20},  // Skill SkillUp
+      SDL_FRect{741, 10, 28, 20},  // Key
+      SDL_FRect{771, 10, 28, 20},  // QuickSlot QuickSlotD
+      SDL_FRect{539, 14, 12, 12},  // ChatLogMin ChatLogMax
   };
   const static std::array buttons_func = {
       EventButtonCashshop,  EventButtonMenu,    EventButtonShortcut,
@@ -657,22 +665,22 @@ bool StatusbarUiSystem::EventButton(SDL_Event *Event) {
   return false;
 }
 
-void StatusbarUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+void StatusbarUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
   const static std::array buttons_rect = {
-      SDL_FRect{578, 38, 73, 34}, // CashShop
-      SDL_FRect{652, 38, 73, 34}, // Menu
-      SDL_FRect{726, 38, 73, 34}, // Shortcut
-      SDL_FRect{578, 11, 22, 19}, // Mailbox
-      SDL_FRect{621, 10, 28, 20}, // Equip
-      SDL_FRect{651, 10, 28, 20}, // Inven
-      SDL_FRect{681, 10, 28, 20}, // Stat StatUp
-      SDL_FRect{711, 10, 28, 20}, // Skill SkillUp
-      SDL_FRect{741, 10, 28, 20}, // Key
-      SDL_FRect{771, 10, 28, 20}, // QuickSlot QuickSlotD
-      SDL_FRect{539, 14, 12, 12}, // ChatLogMin ChatLogMax
+      SDL_FRect{578, 38, 73, 34},  // CashShop
+      SDL_FRect{652, 38, 73, 34},  // Menu
+      SDL_FRect{726, 38, 73, 34},  // Shortcut
+      SDL_FRect{578, 11, 22, 19},  // Mailbox
+      SDL_FRect{621, 10, 28, 20},  // Equip
+      SDL_FRect{651, 10, 28, 20},  // Inven
+      SDL_FRect{681, 10, 28, 20},  // Stat StatUp
+      SDL_FRect{711, 10, 28, 20},  // Skill SkillUp
+      SDL_FRect{741, 10, 28, 20},  // Key
+      SDL_FRect{771, 10, 28, 20},  // QuickSlot QuickSlotD
+      SDL_FRect{539, 14, 12, 12},  // ChatLogMin ChatLogMax
   };
   auto screen_w = CameraGameInstance::camera_.w;
   auto screen_h = CameraGameInstance::camera_.h;
@@ -680,7 +688,7 @@ void StatusbarUiSystem::EventMotionBtAudio(SDL_Event *Event) {
   auto base_x = (screen_w - w) / 2;
   auto base_y = (screen_h - h);
   static int8_t bt_audio = -1;
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -697,72 +705,72 @@ void StatusbarUiSystem::EventMotionBtAudio(SDL_Event *Event) {
   bt_audio = bt_in;
 }
 
-bool StatusbarUiSystem::Event(SDL_Event *Event) {
+bool StatusbarUiSystem::Event(SDL_Event* Event) {
   auto cr = TextInputUiSystem::Event(Event, chat_);
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventButton(Event);
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventButton(Event);
+          r = false;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        std::erase(System::event_systems_, KeyboardInputSystem::Event);
+        if (cr) {
+          // close input
+          System::event_systems_.push_back(KeyboardInputSystem::Event);
+        }
         r = false;
       }
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      std::erase(System::event_systems_, KeyboardInputSystem::Event);
-      if (cr) {
-        // close input
-        System::event_systems_.push_back(KeyboardInputSystem::Event);
+    case SDL_EVENT_KEY_DOWN: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_RETURN: {
+          std::erase(System::event_systems_, KeyboardInputSystem::Event);
+          ChatLogUiSystem::Toggle();
+          if (chat_type_.has_value()) {
+            EventChatSend();
+            chat_type_ = std::nullopt;
+            TextInputUiSystem::Close(chat_);
+            System::event_systems_.push_back(KeyboardInputSystem::Event);
+          } else {
+            chat_type_ = GameChatEnum::kMap;
+            TextInputUiSystem::Active(chat_);
+            KeyboardInputSystem::Reset();
+          }
+          r = false;
+          break;
+        }
+        default: {
+          break;
+        }
       }
-      r = false;
+      break;
     }
-  }
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_RETURN: {
-      std::erase(System::event_systems_, KeyboardInputSystem::Event);
-      ChatLogUiSystem::Toggle();
-      if (chat_type_.has_value()) {
-        EventChatSend();
-        chat_type_ = std::nullopt;
-        TextInputUiSystem::Close(chat_);
-        System::event_systems_.push_back(KeyboardInputSystem::Event);
-      } else {
-        chat_type_ = GameChatEnum::kMap;
-        TextInputUiSystem::Active(chat_);
-        KeyboardInputSystem::Reset();
+    case SDL_EVENT_KEY_UP: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_RETURN: {
+          break;
+        }
+        default: {
+          break;
+        }
       }
-      r = false;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventMotionBtAudio(Event);
       break;
     }
     default: {
       break;
     }
-    }
-    break;
-  }
-  case SDL_EVENT_KEY_UP: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_RETURN: {
-      break;
-    }
-    default: {
-      break;
-    }
-    }
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventMotionBtAudio(Event);
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   return r;

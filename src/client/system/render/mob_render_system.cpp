@@ -1,20 +1,23 @@
 #include "src/client/system/render/mob_render_system.h"
-#include "src/client/system/render/debuff_render_system.h"
-#include "src/client/system/render/gauge_render_system.h"
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/render/debuff_render_system.h"
 #include "src/client/system/render/effect_render_system.h"
+#include "src/client/system/render/gauge_render_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
 #include <wz/Property.h>
+
 #include <algorithm>
 #include <string>
 namespace sdlms {
 
 
-bool MobRenderSystem::RenderMob(GameMob &g_mob) {
+bool MobRenderSystem::RenderMob(GameMob& g_mob) {
   auto action_type = MobLogicSystem::LoadActionType(g_mob.action);
   if (action_type == MobLogicSystem::ActionEnum::kRevive) {
     return false;
@@ -40,13 +43,13 @@ bool MobRenderSystem::RenderMob(GameMob &g_mob) {
 
   mob_node = action_node->get_child(frame_index);
   if (mob_node->type == wz::Type::UOL) {
-    mob_node = static_cast<wz::Property<wz::WzUOL> *>(mob_node)->get_uol();
+    mob_node = static_cast<wz::Property<wz::WzUOL>*>(mob_node)->get_uol();
   }
 
   auto texture = WzResource::LoadTexture(mob_node);
 
   auto v =
-      static_cast<wz::Property<wz::WzVec2D> *>(mob_node->get_child(u"origin"))
+      static_cast<wz::Property<wz::WzVec2D>*>(mob_node->get_child(u"origin"))
           ->get();
   auto origin = SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
 
@@ -60,7 +63,7 @@ bool MobRenderSystem::RenderMob(GameMob &g_mob) {
     pos_rect.x = g_mob.pos.x;
     pos_rect.x = (pos_rect.x - (texture->w - origin.x));
   }
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
@@ -72,7 +75,7 @@ bool MobRenderSystem::RenderMob(GameMob &g_mob) {
   return true;
 }
 
-bool MobRenderSystem::RenderGauge(GameMob &g_mob) {
+bool MobRenderSystem::RenderGauge(GameMob& g_mob) {
   if (g_mob.gauge.has_value()) {
     auto r = MobLogicSystem::LoadRect(g_mob);
     if (!r.has_value()) {
@@ -92,15 +95,15 @@ bool MobRenderSystem::RenderGauge(GameMob &g_mob) {
   return false;
 }
 
-bool MobRenderSystem::RenderEffectBack(GameMob &g_mob) {
+bool MobRenderSystem::RenderEffectBack(GameMob& g_mob) {
   return EffectRenderSystem::RenderMobEffects(g_mob, false);
 }
 
-void MobRenderSystem::RenderDebuff(GameMob &g_mob) {
+void MobRenderSystem::RenderDebuff(GameMob& g_mob) {
   DebuffRenderSystem::RenderMob(g_mob);
 }
 
-bool MobRenderSystem::Render(GameMob &g_mob) {
+bool MobRenderSystem::Render(GameMob& g_mob) {
   RenderMob(g_mob);
   RenderEffectBack(g_mob);
   RenderDebuff(g_mob);
@@ -118,9 +121,8 @@ bool MobRenderSystem::Render(GameMob &g_mob) {
   return true;
 }
 
-void MobRenderSystem::RenderNametag(const std::u16string &text,
-                                       SDL_FPoint p) {
-  const auto &camera = CameraGameInstance::camera_;
+void MobRenderSystem::RenderNametag(const std::u16string& text, SDL_FPoint p) {
+  const auto& camera = CameraGameInstance::camera_;
   Freetype::LoadAligned(true);
   Freetype::LoadSize(13);
   auto w = Freetype::LoadW(text);
@@ -145,7 +147,7 @@ void MobRenderSystem::RenderNametag(const std::u16string &text,
   return;
 }
 
-bool MobRenderSystem::RenderNametag(GameMob &g_mob) {
+bool MobRenderSystem::RenderNametag(GameMob& g_mob) {
   if (!g_mob.gauge.has_value()) {
     return false;
   }

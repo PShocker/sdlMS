@@ -1,19 +1,21 @@
 #include "src/client/game_instance/foothold_game_instance.h"
+
 #include "src/common/wz/wz_resource.h"
+
 #include <wz/Property.h>
+
 #include <vector>
 namespace sdlms {
 
 
-std::flat_map<int32_t, GameFoothold>
-FootholdGameInstance::Load(wz::Node *node) {
+std::flat_map<int32_t, GameFoothold> FootholdGameInstance::Load(
+    wz::Node* node) {
   std::flat_map<int32_t, GameFoothold> data;
   auto map_node = node;
   auto map_foothold_node = map_node->get_child(u"foothold");
   for (auto [page, val0] : *map_foothold_node->get_children()) {
     for (auto [zmass, val1] : *val0[0]->get_children()) {
       for (auto [key, val2] : *val1[0]->get_children()) {
-
         auto foothold_node = val2[0];
         GameFoothold g_foothold;
 
@@ -22,22 +24,22 @@ FootholdGameInstance::Load(wz::Node *node) {
         g_foothold.zmass = std::stoi(std::string{zmass.begin(), zmass.end()});
 
         g_foothold.next =
-            static_cast<wz::Property<int> *>(foothold_node->get_child(u"next"))
+            static_cast<wz::Property<int>*>(foothold_node->get_child(u"next"))
                 ->get();
         g_foothold.prev =
-            static_cast<wz::Property<int> *>(foothold_node->get_child(u"prev"))
+            static_cast<wz::Property<int>*>(foothold_node->get_child(u"prev"))
                 ->get();
         g_foothold.x1 =
-            static_cast<wz::Property<int> *>(foothold_node->get_child(u"x1"))
+            static_cast<wz::Property<int>*>(foothold_node->get_child(u"x1"))
                 ->get();
         g_foothold.x2 =
-            static_cast<wz::Property<int> *>(foothold_node->get_child(u"x2"))
+            static_cast<wz::Property<int>*>(foothold_node->get_child(u"x2"))
                 ->get();
         g_foothold.y1 =
-            static_cast<wz::Property<int> *>(foothold_node->get_child(u"y1"))
+            static_cast<wz::Property<int>*>(foothold_node->get_child(u"y1"))
                 ->get();
         g_foothold.y2 =
-            static_cast<wz::Property<int> *>(foothold_node->get_child(u"y2"))
+            static_cast<wz::Property<int>*>(foothold_node->get_child(u"y2"))
                 ->get();
 
         g_foothold.l = std::min(g_foothold.x1, g_foothold.x2);
@@ -59,8 +61,8 @@ FootholdGameInstance::Load(wz::Node *node) {
   return data;
 }
 
-std::flat_map<int32_t, GameFoothold>
-FootholdGameInstance::Load(uint32_t map_id) {
+std::flat_map<int32_t, GameFoothold> FootholdGameInstance::Load(
+    uint32_t map_id) {
   auto map_node = WzResource::LoadMapNode(map_id);
   return Load(map_node);
 }

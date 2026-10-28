@@ -1,13 +1,14 @@
 #ifndef SDLMS_SRC_CLIENT_GAME_GAME_DROP_H_
 #define SDLMS_SRC_CLIENT_GAME_GAME_DROP_H_
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_item.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <memory>
 #include <optional>
 namespace sdlms {
-
 
 
 struct GameDropPick {
@@ -15,7 +16,7 @@ struct GameDropPick {
   std::optional<uint8_t> pet_index;
 };
 
-struct GameDrop{
+struct GameDrop {
   uint64_t random_id;
 
   std::polymorphic<GameItem> data;

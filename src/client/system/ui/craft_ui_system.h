@@ -2,22 +2,23 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_CRAFT_UI_SYSTEM_H_
 
 #include <SDL3/SDL_events.h>
+
 #include <cstdint>
 #include <flat_map>
 namespace sdlms {
 
 
 class CraftUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderTab();
 
-  static bool EventButton(SDL_Event *Event);
-  static void EventTab(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
+  static void EventTab(SDL_Event* Event);
   static void EventTop();
-  static void EventDragStart(SDL_Event *Event);
+  static void EventDragStart(SDL_Event* Event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event *Event);
+  static void EventDragMove(SDL_Event* Event);
 
   static SDL_FPoint LoadWh();
 
@@ -25,7 +26,7 @@ private:
 
   static inline std::optional<SDL_FPoint> drag_;
 
-public:
+ public:
   static inline SDL_FPoint pos_;
 
   static inline uint8_t selected_tab_;
@@ -34,7 +35,7 @@ public:
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
 

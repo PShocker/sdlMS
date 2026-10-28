@@ -3,9 +3,10 @@
 #include <SDL3/SDL_pixels.h>
 #include <SDL3/SDL_rect.h>
 #include <SDL3/SDL_render.h>
+#include <ft2build.h>
+
 #include <cstdint>
 #include <flat_map>
-#include <ft2build.h>
 #include <optional>
 #include <string>
 
@@ -19,16 +20,16 @@ class Freetype {
     uint8_t size;
     bool bold;
 
-    auto operator<=>(const FreetypeCacheKey &) const = default;
+    auto operator<=>(const FreetypeCacheKey&) const = default;
   };
 
   struct FreetypeCacheValue {
     float advance;
     int32_t bearingY;
-    SDL_Texture *texture;
+    SDL_Texture* texture;
   };
 
-private:
+ private:
   static inline FT_Library library_ = nullptr;
   static inline FT_Face face_ = nullptr;
   static inline uint8_t size_;
@@ -43,39 +44,37 @@ private:
   static float DrawChar(float x, float y, char16_t c);
 
   static void DrawDashLine(float x1, float y1, float x2, float y2,
-                             float dash_len, float gap_len);
+                           float dash_len, float gap_len);
 
-public:
+ public:
   static void Init();
   static void LoadSize(uint8_t i);
   static void LoadColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-  static float LoadW(const std::u16string &str);
+  static float LoadW(const std::u16string& str);
   static float LoadLh();
 
   static void LoadAligned(bool r);
   static void LoadBold(bool r);
 
-  static float LoadCh(const std::u16string &str, float w, float h);
-  static float LoadRh(const std::u16string &str, float w, float h,
-                       std::optional<SDL_FRect> obstacle);
+  static float LoadCh(const std::u16string& str, float w, float h);
+  static float LoadRh(const std::u16string& str, float w, float h,
+                      std::optional<SDL_FRect> obstacle);
 
-  static void DrawLine(const std::u16string &str, float x, float y);
+  static void DrawLine(const std::u16string& str, float x, float y);
 
-  static void DrawStr(const std::u16string &str, float x, float y, float w,
-                       float h);
+  static void DrawStr(const std::u16string& str, float x, float y, float w,
+                      float h);
   struct DrawData {
     float height;
     int select;
   };
-  static DrawData DrawRstr(const std::u16string &str, float x, float y,
-                             float w, float h,
-                             std::optional<SDL_FRect> obstacle);
-  static DrawData DrawRstr(const std::u16string &str, float x, float y,
-                             float w, float h,
-                             std::optional<SDL_FRect> obstacle,
-                             int default_select, bool dryRun, int visibleCount);
-  static DrawData DrawCstr(const std::u16string &str, float x, float y,
-                             float w, float h, bool dryRun = false);
+  static DrawData DrawRstr(const std::u16string& str, float x, float y, float w,
+                           float h, std::optional<SDL_FRect> obstacle);
+  static DrawData DrawRstr(const std::u16string& str, float x, float y, float w,
+                           float h, std::optional<SDL_FRect> obstacle,
+                           int default_select, bool dryRun, int visibleCount);
+  static DrawData DrawCstr(const std::u16string& str, float x, float y, float w,
+                           float h, bool dryRun = false);
 };
 
 }  // namespace sdlms

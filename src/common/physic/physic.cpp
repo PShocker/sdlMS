@@ -1,6 +1,8 @@
 #include "src/common/physic/physic.h"
+
 #include "src/client/game/game_foothold.h"
 #include "src/client/window/window.h"
+
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
@@ -9,10 +11,10 @@
 namespace sdlms {
 
 
-bool Physic::WalkFh(SDL_FPoint &pos, bool Fall, int32_t next_fh,
-                     int32_t &current_fh, float &hspeed, float &vspeed,
-                     const std::flat_map<int32_t, GameFoothold> &fhs) {
-  const GameFoothold *n_fh = nullptr;
+bool Physic::WalkFh(SDL_FPoint& pos, bool Fall, int32_t next_fh,
+                    int32_t& current_fh, float& hspeed, float& vspeed,
+                    const std::flat_map<int32_t, GameFoothold>& fhs) {
+  const GameFoothold* n_fh = nullptr;
   if (next_fh != 0) {
     n_fh = &fhs.at(next_fh);
   } else if (Fall) {
@@ -21,7 +23,7 @@ bool Physic::WalkFh(SDL_FPoint &pos, bool Fall, int32_t next_fh,
     return false;
   } else {
     // 禁止掉落
-    const auto &c_fh = fhs.at(current_fh);
+    const auto& c_fh = fhs.at(current_fh);
     pos.x = hspeed < 0 ? c_fh.l + 0.1 : c_fh.r - 0.1;
     hspeed = 0;
     vspeed = 0;
@@ -31,7 +33,7 @@ bool Physic::WalkFh(SDL_FPoint &pos, bool Fall, int32_t next_fh,
     if (pos.y == std::clamp(pos.y, (float)n_fh->b - 1, (float)n_fh->b + 1) ||
         pos.y >= (float)n_fh->b + 1) {
       // 撞墙
-      const auto &c_fh = fhs.at(current_fh);
+      const auto& c_fh = fhs.at(current_fh);
       pos.x = std::clamp(pos.x, (float)c_fh.l, (float)c_fh.r);
       pos.x = hspeed < 0 ? pos.x + 0.1 : pos.x - 0.1;
       pos.y = c_fh.k.value() * pos.x + c_fh.intercept.value();
@@ -44,7 +46,7 @@ bool Physic::WalkFh(SDL_FPoint &pos, bool Fall, int32_t next_fh,
       current_fh = 0;
       return false;
     } else {
-      const auto &c_fh = fhs.at(current_fh);
+      const auto& c_fh = fhs.at(current_fh);
       // 禁止掉落
       pos.x = hspeed < 0 ? pos.x - 0.1 : pos.x + 0.1;
       pos.x = std::clamp(pos.x, (float)c_fh.l, (float)c_fh.r);
@@ -56,11 +58,11 @@ bool Physic::WalkFh(SDL_FPoint &pos, bool Fall, int32_t next_fh,
   return true;
 }
 
-bool Physic::Walk(SDL_FPoint &pos, float delta_time, float &hspeed,
-                  float &vspeed, float &hforce, float hspeed_min,
+bool Physic::Walk(SDL_FPoint& pos, float delta_time, float& hspeed,
+                  float& vspeed, float& hforce, float hspeed_min,
                   float hspeed_max, float friction, bool Fall,
-                  int32_t &current_fh, std::optional<SDL_FRect> border,
-                  const std::flat_map<int32_t, GameFoothold> &fhs) {
+                  int32_t& current_fh, std::optional<SDL_FRect> border,
+                  const std::flat_map<int32_t, GameFoothold>& fhs) {
   // 判断摩擦力方向
   if (hspeed > 0) {
     hforce -= friction;
@@ -79,7 +81,7 @@ bool Physic::Walk(SDL_FPoint &pos, float delta_time, float &hspeed,
 
   // 往左走
   while (true) {
-    const auto &c_fh = fhs.at(current_fh);
+    const auto& c_fh = fhs.at(current_fh);
     if (pos.x >= c_fh.l) {
       break;
     }
@@ -90,7 +92,7 @@ bool Physic::Walk(SDL_FPoint &pos, float delta_time, float &hspeed,
   }
   // 往左走
   while (true) {
-    const auto &c_fh = fhs.at(current_fh);
+    const auto& c_fh = fhs.at(current_fh);
     if (pos.x >= c_fh.l) {
       break;
     }
@@ -101,7 +103,7 @@ bool Physic::Walk(SDL_FPoint &pos, float delta_time, float &hspeed,
   }
   // 往右走
   while (true) {
-    const auto &c_fh = fhs.at(current_fh);
+    const auto& c_fh = fhs.at(current_fh);
     if (pos.x <= c_fh.r) {
       break;
     }
@@ -110,15 +112,15 @@ bool Physic::Walk(SDL_FPoint &pos, float delta_time, float &hspeed,
       return false;
     }
   }
-  const auto &cur_fh = fhs.at(current_fh);
+  const auto& cur_fh = fhs.at(current_fh);
   pos.y = cur_fh.k.value() * pos.x + cur_fh.intercept.value();
   return true;
 }
 
-std::optional<SDL_FPoint> Physic::FallIntersect(const SDL_FPoint &p1,
-                                                 const SDL_FPoint &p2,
-                                                 const SDL_FPoint &p3,
-                                                 const SDL_FPoint &p4) {
+std::optional<SDL_FPoint> Physic::FallIntersect(const SDL_FPoint& p1,
+                                                const SDL_FPoint& p2,
+                                                const SDL_FPoint& p3,
+                                                const SDL_FPoint& p4) {
   // 预计算差值（复用）
   const float dx1 = p2.x - p1.x;
   const float dy1 = p2.y - p1.y;
@@ -155,13 +157,13 @@ std::optional<SDL_FPoint> Physic::FallIntersect(const SDL_FPoint &p1,
   return SDL_FPoint{p1.x + t * dx1, p1.y + t * dy1};
 }
 
-std::flat_multimap<float, Physic::IntersectPos>
-Physic::FallIntersectPos(const SDL_FPoint &p1, const SDL_FPoint &p2,
-                           const std::flat_map<int32_t, GameFoothold> &fhs) {
+std::flat_multimap<float, Physic::IntersectPos> Physic::FallIntersectPos(
+    const SDL_FPoint& p1, const SDL_FPoint& p2,
+    const std::flat_map<int32_t, GameFoothold>& fhs) {
   std::flat_multimap<float, Physic::IntersectPos> r;
-  for (const auto &fh : fhs | std::views::values) {
+  for (const auto& fh : fhs | std::views::values) {
     auto collide = FallIntersect(p1, p2, {(float)fh.x1, (float)fh.y1},
-                                  {(float)fh.x2, (float)fh.y2});
+                                 {(float)fh.x2, (float)fh.y2});
     if (collide.has_value()) {
       Physic::IntersectPos inter_pos;
       inter_pos.fh = fh;
@@ -172,9 +174,8 @@ Physic::FallIntersectPos(const SDL_FPoint &p1, const SDL_FPoint &p2,
   return r;
 }
 
-bool Physic::FallCollideWall(
-    float hspeed, GameFoothold fh,
-    const std::flat_map<int32_t, GameFoothold> &fhs) {
+bool Physic::FallCollideWall(float hspeed, GameFoothold fh,
+                             const std::flat_map<int32_t, GameFoothold>& fhs) {
   bool r = false;
   if (fh.k.has_value()) {
     return true;
@@ -197,11 +198,11 @@ bool Physic::FallCollideWall(
   return r;
 }
 
-bool Physic::Fall(SDL_FPoint &pos, float delta_time, float &hspeed,
-                  float &vspeed, float vspeed_min, float vspeed_max,
+bool Physic::Fall(SDL_FPoint& pos, float delta_time, float& hspeed,
+                  float& vspeed, float vspeed_min, float vspeed_max,
                   std::optional<SDL_FRect> border, bool fall_collide,
-                  bool wall_collide, int32_t &current_fh, uint8_t &page,
-                  const std::flat_map<int32_t, GameFoothold> &fhs,
+                  bool wall_collide, int32_t& current_fh, uint8_t& page,
+                  const std::flat_map<int32_t, GameFoothold>& fhs,
                   int32_t fall_fh) {
   // 限速
   vspeed = std::clamp(vspeed, vspeed_min, vspeed_max);
@@ -238,8 +239,8 @@ bool Physic::Fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   }
 
   // Lambda: 处理墙碰撞
-  const auto handle_wall = [&](const GameFoothold &fh,
-                               const SDL_FPoint &collide_pos) -> bool {
+  const auto handle_wall = [&](const GameFoothold& fh,
+                               const SDL_FPoint& collide_pos) -> bool {
     if (!wall_collide)
       return false;
     if (FallCollideWall(hspeed, fh, fhs)) {
@@ -259,8 +260,8 @@ bool Physic::Fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   };
 
   // Lambda: 处理落地
-  const auto handle_landing = [&](const GameFoothold &fh,
-                                  const SDL_FPoint &collide_pos) -> bool {
+  const auto handle_landing = [&](const GameFoothold& fh,
+                                  const SDL_FPoint& collide_pos) -> bool {
     current_fh = fh.id;
     hspeed /= 2;
     vspeed = 0;
@@ -270,8 +271,8 @@ bool Physic::Fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   };
 
   // Lambda: 判断是否在斜坡上
-  const auto is_on_slope = [&](const GameFoothold &fh,
-                               const SDL_FPoint &collide_pos) -> bool {
+  const auto is_on_slope = [&](const GameFoothold& fh,
+                               const SDL_FPoint& collide_pos) -> bool {
     if (hspeed == 0) {
       return false;
     }
@@ -293,8 +294,8 @@ bool Physic::Fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   // 下落 (vspeed >= 0)
   if (vspeed >= 0) {
     for (auto it = inter_pos.begin(); it != inter_pos.end(); ++it) {
-      const auto &collide_pos = it->second.pos;
-      const auto &fh = it->second.fh;
+      const auto& collide_pos = it->second.pos;
+      const auto& fh = it->second.fh;
 
       // 只处理从左到右的立足点
       if (fh.x2 < fh.x1)
@@ -314,8 +315,8 @@ bool Physic::Fall(SDL_FPoint &pos, float delta_time, float &hspeed,
   // 上升 (vspeed < 0)
   else {
     for (auto it = inter_pos.rbegin(); it != inter_pos.rend(); ++it) {
-      const auto &collide_pos = it->second.pos;
-      const auto &fh = it->second.fh;
+      const auto& collide_pos = it->second.pos;
+      const auto& fh = it->second.fh;
 
       if (!fh.k.has_value()) {
         // 撞墙

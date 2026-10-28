@@ -2,13 +2,14 @@
 #define SDLMS_SRC_SERVER_SERVER_SERVER_CLIENT_H_
 
 #include "src/common/flatbuffers/common.h"
+
 #include <uv.h>
+
 #include <cstdint>
 namespace sdlms {
 
 
-
-struct ServerClient{
+struct ServerClient {
   uint64_t client_id;
   uint64_t map_id;
 

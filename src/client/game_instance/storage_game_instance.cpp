@@ -2,7 +2,7 @@
 namespace sdlms {
 
 
-void StorageGameInstance::Load(const GameSaveData &gs) {
+void StorageGameInstance::Load(const GameSaveData& gs) {
   storage_ = gs.storage;
   return;
 }

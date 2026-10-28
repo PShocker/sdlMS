@@ -2,6 +2,8 @@
 namespace sdlms {
 
 
-bool MinigameOmokUiSystem::Render() { return true; }
+bool MinigameOmokUiSystem::Render() {
+  return true;
+}
 
 }  // namespace sdlms

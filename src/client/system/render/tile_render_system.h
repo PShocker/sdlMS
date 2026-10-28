@@ -5,8 +5,8 @@
 namespace sdlms {
 
 class TileRenderSystem {
-public:
-  static bool Render(GameTile &g_tile);
+ public:
+  static bool Render(GameTile& g_tile);
 };
 
 }  // namespace sdlms

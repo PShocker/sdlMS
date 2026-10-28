@@ -1,13 +1,16 @@
 #include "src/client/game_instance/text_game_instance.h"
-#include <SDL3/SDL_stdinc.h>
+
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/ui/minimap_ui_system.h"
+
+#include <SDL3/SDL_stdinc.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
+
 #include <cstddef>
 #include <cstring>
 #include <flat_map>
@@ -21,14 +24,14 @@ std::u16string TextGameInstance::ReplaceN(std::u16string str) {
   size_t pos = 0;
   while ((pos = str.find(pattern, pos)) != std::u16string::npos) {
     str.replace(pos, pattern.size(), replacement);
-    pos += replacement.size(); // 跳过替换后的内容
+    pos += replacement.size();  // 跳过替换后的内容
   }
   pattern = u"\\r";
   replacement = u"";
   pos = 0;
   while ((pos = str.find(pattern, pos)) != std::u16string::npos) {
     str.replace(pos, pattern.size(), replacement);
-    pos += replacement.size(); // 跳过替换后的内容
+    pos += replacement.size();  // 跳过替换后的内容
   }
   return str;
 }
@@ -78,38 +81,38 @@ std::u16string TextGameInstance::ReplaceR(std::u16string text) {
     // 获取替换文本
     std::u16string replacement;
     switch (type) {
-    case u'm': {
-      // get map name
-      int id = std::stoi(std::string{num_str.begin(), num_str.end()});
-      auto MapName = MinimapUiSystem::LoadMapName(id).map_name;
-      replacement = MapName;
-      break;
-    }
-    case u'p': {
-      auto npc_name = NpcGameInstance::LoadNpcText(num_str, u"name");
-      replacement = npc_name;
-      break;
-    }
-    case u'o': {
-      // mob
-      auto mob_name = MobGameInstance::LoadMobName(num_str);
-      replacement = mob_name;
-      break;
-    }
-    case u't': {
-      std::u16string item_name;
-      // item(equip)
-      if (num_str.length() < 8) {
-        num_str.insert(0, 8 - num_str.length(), u'0');
+      case u'm': {
+        // get map name
+        int id = std::stoi(std::string{num_str.begin(), num_str.end()});
+        auto MapName = MinimapUiSystem::LoadMapName(id).map_name;
+        replacement = MapName;
+        break;
       }
-      if (EquipGameInstance::CheckEquip(num_str)) {
-        item_name = EquipGameInstance::LoadEquipName(num_str);
-      } else {
-        item_name = ItemGameInstance::LoadItemText(num_str, u"name");
+      case u'p': {
+        auto npc_name = NpcGameInstance::LoadNpcText(num_str, u"name");
+        replacement = npc_name;
+        break;
       }
-      replacement = item_name;
-      break;
-    }
+      case u'o': {
+        // mob
+        auto mob_name = MobGameInstance::LoadMobName(num_str);
+        replacement = mob_name;
+        break;
+      }
+      case u't': {
+        std::u16string item_name;
+        // item(equip)
+        if (num_str.length() < 8) {
+          num_str.insert(0, 8 - num_str.length(), u'0');
+        }
+        if (EquipGameInstance::CheckEquip(num_str)) {
+          item_name = EquipGameInstance::LoadEquipName(num_str);
+        } else {
+          item_name = ItemGameInstance::LoadItemText(num_str, u"name");
+        }
+        replacement = item_name;
+        break;
+      }
     }
 
     // 执行替换
@@ -120,16 +123,16 @@ std::u16string TextGameInstance::ReplaceR(std::u16string text) {
   return result;
 }
 
-std::u16string TextGameInstance::LoadRstr(wz::Node *node) {
-  static std::flat_map<wz::Node *, std::u16string> cache;
+std::u16string TextGameInstance::LoadRstr(wz::Node* node) {
+  static std::flat_map<wz::Node*, std::u16string> cache;
   std::u16string r;
   if (!cache.contains(node)) {
-    r = static_cast<wz::Property<std::u16string> *>(node)->get();
+    r = static_cast<wz::Property<std::u16string>*>(node)->get();
     r = ReplaceN(r);
     r = ReplaceR(r);
     size_t pos = 0;
     const std::u16string tok = u"#c";
-    const auto is_digits = [](const std::u16string &s) {
+    const auto is_digits = [](const std::u16string& s) {
       if (s.empty())
         return false;
       for (char16_t c : s)
@@ -141,7 +144,7 @@ std::u16string TextGameInstance::LoadRstr(wz::Node *node) {
     while ((pos = r.find(tok, pos)) != std::u16string::npos) {
       auto itm_id = r.substr(pos + 2, 7);
       if (!is_digits(itm_id)) {
-        pos += tok.size(); // 关键：跳过整个 tok，避免重复/死循环
+        pos += tok.size();  // 关键：跳过整个 tok，避免重复/死循环
         continue;
       }
       itm_id = u"0" + itm_id;
@@ -161,20 +164,20 @@ std::u16string TextGameInstance::LoadRstr(wz::Node *node) {
   return cache.at(node);
 }
 
-std::u16string TextGameInstance::LoadU16str(const char *text) {
+std::u16string TextGameInstance::LoadU16str(const char* text) {
   size_t utf8_len = std::strlen(text);
-  char *utf16_data = SDL_iconv_string("UTF-16LE", "UTF-8", text, utf8_len);
+  char* utf16_data = SDL_iconv_string("UTF-16LE", "UTF-8", text, utf8_len);
   // 直接构造,SDL已经添加了null终止符
-  auto u16_ptr = reinterpret_cast<const char16_t *>(utf16_data);
-  std::u16string result(u16_ptr); // 自动查找null终止符
+  auto u16_ptr = reinterpret_cast<const char16_t*>(utf16_data);
+  std::u16string result(u16_ptr);  // 自动查找null终止符
   SDL_free(utf16_data);
   return result;
 }
 
-std::string TextGameInstance::LoadU8str(const std::u16string &str) {
+std::string TextGameInstance::LoadU8str(const std::u16string& str) {
   size_t in_bytes = str.length() * sizeof(char16_t);
-  char *utf8_text = SDL_iconv_string("UTF-8", "UTF-16LE",
-                                     (const char *)str.c_str(), in_bytes);
+  char* utf8_text =
+      SDL_iconv_string("UTF-8", "UTF-16LE", (const char*)str.c_str(), in_bytes);
   std::string result(utf8_text);
   SDL_free(utf8_text);
   return result;

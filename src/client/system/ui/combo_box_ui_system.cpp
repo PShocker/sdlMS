@@ -1,19 +1,21 @@
 #include "src/client/system/ui/combo_box_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 namespace sdlms {
 
 
 void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
-                                 bool disable) {
-  SDL_Texture *l = WzResource::LoadTexture(
+                              bool disable) {
+  SDL_Texture* l = WzResource::LoadTexture(
       WzResource::ui_->find(u"Basic.img/ComboBox/normal/0"));
-  SDL_Texture *c = WzResource::LoadTexture(
+  SDL_Texture* c = WzResource::LoadTexture(
       WzResource::ui_->find(u"Basic.img/ComboBox/normal/1"));
-  SDL_Texture *r = WzResource::LoadTexture(
+  SDL_Texture* r = WzResource::LoadTexture(
       WzResource::ui_->find(u"Basic.img/ComboBox/normal/2"));
   if (disable) {
     l = WzResource::LoadTexture(
@@ -84,7 +86,7 @@ void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
 }
 
 bool ComboBoxUiSystem::Click(int x, int y, ComboBox cm, bool top,
-                                bool disable) {
+                             bool disable) {
   return false;
 }
 

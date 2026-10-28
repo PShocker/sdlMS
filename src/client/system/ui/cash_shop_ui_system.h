@@ -5,12 +5,12 @@
 namespace sdlms {
 
 class CashShopUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
 
-public:
+ public:
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 };
 
 }  // namespace sdlms

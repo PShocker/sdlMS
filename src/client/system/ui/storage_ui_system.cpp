@@ -1,4 +1,5 @@
 #include "src/client/system/ui/storage_ui_system.h"
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -9,15 +10,20 @@
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
 #include <algorithm>
 #include <cstdint>
 #include <optional>
 namespace sdlms {
 
 
-SDL_FPoint StorageUiSystem::LoadWh() { return {421, 366}; }
+SDL_FPoint StorageUiSystem::LoadWh() {
+  return {421, 366};
+}
 
-bool StorageUiSystem::CursorIn() { return false; }
+bool StorageUiSystem::CursorIn() {
+  return false;
+}
 
 std::optional<uint32_t> StorageUiSystem::LoadMouseIndex() {
   auto CursorIn = CursorGameInstance::cursor_ui;
@@ -28,7 +34,7 @@ std::optional<uint32_t> StorageUiSystem::LoadMouseIndex() {
   const auto slot_space_x = 4;
   const auto slot_space_y = 2;
 
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   auto lx = pos_.x + slot_pos.x;
   auto rx = lx + 36 * 5;
 
@@ -58,8 +64,8 @@ void StorageUiSystem::RenderBackgrnd() {
 }
 
 void StorageUiSystem::RenderItems() {
-  auto &items0 = StorageGameInstance::storage_.data;
-  auto &items1 = PackageGameInstance::data_[active_tab_];
+  auto& items0 = StorageGameInstance::storage_.data;
+  auto& items1 = PackageGameInstance::data_[active_tab_];
   int m = 0;
   for (auto items : {items0, items1}) {
     for (uint8_t i = 0; i <= items.size(); i++) {
@@ -80,17 +86,17 @@ void StorageUiSystem::RenderButton() {
       WzResource::ui_->find(u"Storage.img/Trunk/button:exit"),
   };
   const std::array buttons_rect = {
-      SDL_FRect{132, 31, 70, 18}, //
-      SDL_FRect{340, 11, 70, 18}, //
-      SDL_FRect{132, 51, 70, 19}, //
-      SDL_FRect{132, 11, 70, 18}, //
+      SDL_FRect{132, 31, 70, 18},  //
+      SDL_FRect{340, 11, 70, 18},  //
+      SDL_FRect{132, 51, 70, 19},  //
+      SDL_FRect{132, 11, 70, 18},  //
   };
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
     auto pos_rect = buttons_rect[i];
     pos_rect.x += (int)pos_.x;
     pos_rect.y += (int)pos_.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
@@ -121,7 +127,9 @@ void StorageUiSystem::RenderTab() {
   SDL_RenderTexture(Window::renderer_, t, nullptr, &pos_rect);
 }
 
-bool StorageUiSystem::Render() { return true; }
+bool StorageUiSystem::Render() {
+  return true;
+}
 
 void StorageUiSystem::Toggle() {
   auto fn = &Render;
@@ -137,7 +145,7 @@ void StorageUiSystem::Open() {
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -151,14 +159,14 @@ void StorageUiSystem::Close() {
   std::erase(System::event_systems_, Event);
 }
 
-bool StorageUiSystem::EventButton(SDL_Event *Event) {
+bool StorageUiSystem::EventButton(SDL_Event* Event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   r = {
-      SDL_FRect{132, 31, 70, 18}, //
-      SDL_FRect{340, 11, 70, 18}, //
-      SDL_FRect{132, 51, 70, 19}, //
-      SDL_FRect{132, 11, 70, 18}, //
+      SDL_FRect{132, 31, 70, 18},  //
+      SDL_FRect{340, 11, 70, 18},  //
+      SDL_FRect{132, 51, 70, 19},  //
+      SDL_FRect{132, 11, 70, 18},  //
   };
   fns = {
       EventButtonGet,
@@ -182,12 +190,12 @@ bool StorageUiSystem::EventButton(SDL_Event *Event) {
 
 void StorageUiSystem::EventTab() {
   const static std::array tab_rect = {
-      SDL_FRect{5, 24, 33, 19},   //
-      SDL_FRect{38, 24, 33, 19},  //
-      SDL_FRect{71, 24, 33, 19},  //
-      SDL_FRect{104, 24, 33, 19}, //
-      SDL_FRect{137, 24, 33, 19}, //
-      SDL_FRect{170, 24, 33, 19}, //
+      SDL_FRect{5, 24, 33, 19},    //
+      SDL_FRect{38, 24, 33, 19},   //
+      SDL_FRect{71, 24, 33, 19},   //
+      SDL_FRect{104, 24, 33, 19},  //
+      SDL_FRect{137, 24, 33, 19},  //
+      SDL_FRect{170, 24, 33, 19},  //
   };
   for (uint8_t i = 0; i < tab_rect.size(); i++) {
     auto pos_rect = tab_rect[i];
@@ -200,11 +208,13 @@ void StorageUiSystem::EventTab() {
   return;
 }
 
-void StorageUiSystem::EventClose() { Close(); }
+void StorageUiSystem::EventClose() {
+  Close();
+}
 
 void StorageUiSystem::EventButtonGet() {
   if (active_item_[0].has_value()) {
-    auto &itm = StorageGameInstance::storage_.data.at(active_item_[0].value());
+    auto& itm = StorageGameInstance::storage_.data.at(active_item_[0].value());
     if (itm->id.empty()) {
       return;
     }
@@ -217,11 +227,11 @@ void StorageUiSystem::EventButtonGet() {
   return;
 }
 
-bool StorageUiSystem::AddItem(std::polymorphic<GameItem> &item) {
+bool StorageUiSystem::AddItem(std::polymorphic<GameItem>& item) {
   if (item->id.empty()) {
     return true;
   }
-  for (auto &itm : StorageGameInstance::storage_.data) {
+  for (auto& itm : StorageGameInstance::storage_.data) {
     if (itm->id.empty()) {
       itm = item;
       return true;
@@ -232,7 +242,7 @@ bool StorageUiSystem::AddItem(std::polymorphic<GameItem> &item) {
 
 void StorageUiSystem::EventButtonPut() {
   if (active_item_[1].has_value()) {
-    auto &itm =
+    auto& itm =
         PackageGameInstance::data_[active_tab_].at(active_item_[1].value());
     if (!AddItem(itm)) {
       NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kNoStorageSpace;
@@ -243,8 +253,8 @@ void StorageUiSystem::EventButtonPut() {
 }
 
 void StorageUiSystem::EventButtonSort() {
-  const auto cmp = [](const std::polymorphic<GameItem> &a,
-                      const std::polymorphic<GameItem> &b) {
+  const auto cmp = [](const std::polymorphic<GameItem>& a,
+                      const std::polymorphic<GameItem>& b) {
     bool aEmpty = a->id.empty();
     bool bEmpty = b->id.empty();
     if (aEmpty != bEmpty)
@@ -254,34 +264,36 @@ void StorageUiSystem::EventButtonSort() {
   std::ranges::sort(StorageGameInstance::storage_.data, cmp);
 }
 
-void StorageUiSystem::EventButtonExit() { EventClose(); }
+void StorageUiSystem::EventButtonExit() {
+  EventClose();
+}
 
-bool StorageUiSystem::Event(SDL_Event *Event) {
+bool StorageUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        r = false;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          r = false;
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTab();
-        r = !EventButton(Event);
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTab();
+          r = !EventButton(Event);
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return r;

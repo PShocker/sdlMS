@@ -1,18 +1,21 @@
 #include "src/client/system/ui/worldmap_ui_system.h"
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_rect.h>
-#include "src/client/system/ui/minimap_ui_system.h"
-#include "src/client/system/ui/notice_ui_system.h"
+
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system/ui/notice_ui_system.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "src/client/system/ui/tooltip_ui_system.h"
+
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
 #include <wz/Property.h>
+
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>
@@ -51,7 +54,8 @@ void WorldmapUiSystem::RenderBackgrnd() {
   pos_rect = {pos_.x + w - 7, pos_.y + 32, static_cast<float>(rm->w),
               (float)h - b->h - 32};
   SDL_RenderTexture(Window::renderer_, rm, nullptr, &pos_rect);
-  pos_rect = {pos_.x, pos_.y + h - b->h, static_cast<float>(lb->w), (float)lb->h};
+  pos_rect = {pos_.x, pos_.y + h - b->h, static_cast<float>(lb->w),
+              (float)lb->h};
   SDL_RenderTexture(Window::renderer_, lb, nullptr, &pos_rect);
   pos_rect = {pos_.x + 7, pos_.y + h - b->h, static_cast<float>(w - 14),
               (float)b->h};
@@ -82,13 +86,13 @@ void WorldmapUiSystem::RenderSpot() {
     for (auto [k, v] : *spot_node->get_children()) {
       WorldmapSpot wsp;
       auto vec =
-          static_cast<wz::Property<wz::WzVec2D> *>(v[0]->get_child(u"spot"))
+          static_cast<wz::Property<wz::WzVec2D>*>(v[0]->get_child(u"spot"))
               ->get();
       wsp.pos = {static_cast<float>(vec.x), static_cast<float>(vec.y)};
       wsp.type =
-          static_cast<wz::Property<int> *>(v[0]->get_child("type"))->get();
+          static_cast<wz::Property<int>*>(v[0]->get_child("type"))->get();
       for (auto [m, mid] : *v[0]->get_child(u"mapNo")) {
-        auto map_id = static_cast<wz::Property<int> *>(mid[0])->get();
+        auto map_id = static_cast<wz::Property<int>*>(mid[0])->get();
         wsp.map_id.insert(map_id);
       }
       spot_cache[path_].push_back(wsp);
@@ -106,9 +110,9 @@ void WorldmapUiSystem::RenderSpot() {
   auto map_ox = (wh.x - 12) / 2;
   auto map_oy = (wh.y - 44) / 2;
 
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   std::optional<SDL_FPoint> spot_point;
-  for (auto &spot : spots) {
+  for (auto& spot : spots) {
     auto texture = map_img_array[spot.type];
     SDL_FRect pos_rect = {
         static_cast<float>(int(pos_.x + map_ox + spot.pos.x + map_offset.x -
@@ -149,7 +153,7 @@ void WorldmapUiSystem::RenderCurPos(SDL_FPoint point) {
   static auto point_node =
       WzResource::map_->find(u"MapHelper.img/worldMap/curPos");
   auto sum = point_node->children_count() * 200;
-  auto offset = now % sum; // 取余，得到周期内偏移
+  auto offset = now % sum;  // 取余，得到周期内偏移
   auto i = offset / 200;
   auto index = std::to_string(i);
   auto node = point_node->get_child(index);
@@ -167,21 +171,20 @@ void WorldmapUiSystem::RenderCurPos(SDL_FPoint point) {
 bool WorldmapUiSystem::RenderSpotInfo() {
   if (CursorGameInstance::modal_overlay == nullptr &&
       CursorGameInstance::cursor_ui == Render && spot_info_id != 0) {
-    const auto &mouse_pos = Window::mouse_pos_;
-    TooltipUiSystem::RenderWorldMapInfo(spot_info_id, mouse_pos.x,
-                                             mouse_pos.y);
+    const auto& mouse_pos = Window::mouse_pos_;
+    TooltipUiSystem::RenderWorldMapInfo(spot_info_id, mouse_pos.x, mouse_pos.y);
   }
   return true;
 }
 
 void WorldmapUiSystem::RenderButton() {
   // 构建按钮列表
-  std::vector<wz::Node *> nodes = {
+  std::vector<wz::Node*> nodes = {
       WzResource::ui_->find(u"Basic.img/BtClose"),
   };
   auto [w, h] = LoadWh();
   std::vector<SDL_FRect> rects = {
-      {w - 18, 6, 12, 12}, //
+      {w - 18, 6, 12, 12},  //
   };
   // 渲染所有按钮
   bool mouse_down = Window::mouse_state_ & SDL_BUTTON_LMASK;
@@ -221,7 +224,7 @@ SDL_FPoint WorldmapUiSystem::LoadWh() {
         WzResource::map_->find(u"WorldMap/" + path_ + u"/BaseImg/0");
     auto texture = WzResource::LoadTexture(back_node);
     whs[path_] = SDL_FPoint{static_cast<float>(texture->w + 12),
-                           static_cast<float>(texture->h + 44)};
+                            static_cast<float>(texture->h + 44)};
   }
   return whs.at(path_);
 }
@@ -239,7 +242,7 @@ void WorldmapUiSystem::Open() {
     WorldmapUiSystem::path_ = u"WorldMap000.img";
 
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -258,7 +261,9 @@ void WorldmapUiSystem::Close() {
   EventDragEnd();
 }
 
-void WorldmapUiSystem::EventClose() { Close(); }
+void WorldmapUiSystem::EventClose() {
+  Close();
+}
 
 void WorldmapUiSystem::EventClickSpot() {
   if (spot_info_id != 0) {
@@ -269,10 +274,10 @@ void WorldmapUiSystem::EventClickSpot() {
   }
 }
 
-bool WorldmapUiSystem::EventButton(SDL_Event *Event) {
+bool WorldmapUiSystem::EventButton(SDL_Event* Event) {
   auto [w, h] = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
-      {w - 18, 6, 12, 12}, //
+      {w - 18, 6, 12, 12},  //
   };
   const static std::array buttons_func = {
       EventClose,
@@ -291,8 +296,8 @@ bool WorldmapUiSystem::EventButton(SDL_Event *Event) {
   return false;
 }
 
-void WorldmapUiSystem::EventMotion(SDL_Event *Event) {
-  auto &sys = System::render_systems_;
+void WorldmapUiSystem::EventMotion(SDL_Event* Event) {
+  auto& sys = System::render_systems_;
   std::erase(sys, RenderSpotInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {
@@ -300,49 +305,49 @@ void WorldmapUiSystem::EventMotion(SDL_Event *Event) {
   }
 }
 
-bool WorldmapUiSystem::Event(SDL_Event *Event) {
+bool WorldmapUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_ESCAPE: {
-      EventClose();
-      return false;
+    case SDL_EVENT_KEY_DOWN: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_ESCAPE: {
+          EventClose();
+          return false;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTop();
+          EventDragStart(Event);
+          r = false;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        r = !EventButton(Event);
+        EventDragEnd();
+        EventClickSpot();
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventMotion(Event);
+      EventDragMove(Event);
       break;
     }
     default: {
       break;
     }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTop();
-        EventDragStart(Event);
-        r = false;
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      r = !EventButton(Event);
-      EventDragEnd();
-      EventClickSpot();
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventMotion(Event);
-    EventDragMove(Event);
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   return r;
@@ -377,7 +382,7 @@ void WorldmapUiSystem::EventTop() {
   }
 }
 
-void WorldmapUiSystem::EventDragStart(SDL_Event *Event) {
+void WorldmapUiSystem::EventDragStart(SDL_Event* Event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
@@ -392,10 +397,10 @@ void WorldmapUiSystem::EventDragEnd() {
   return;
 }
 
-void WorldmapUiSystem::EventDragMove(SDL_Event *Event) {
+void WorldmapUiSystem::EventDragMove(SDL_Event* Event) {
   if (drag_.has_value()) {
     pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
     pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);

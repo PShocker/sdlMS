@@ -1,16 +1,17 @@
 #include "src/client/system/logic/audio_logic_system.h"
+
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/window/window.h"
 namespace sdlms {
 
 
 void AudioLogicSystem::RunBackgrnd() {
-  auto &backgrnds = AudioGameInstance::backgrnds_;
+  auto& backgrnds = AudioGameInstance::backgrnds_;
   if (backgrnds.empty()) {
     return;
   }
-  auto &audio = backgrnds[0];
-  auto &data = AudioGameInstance::LoadCache(audio.path);
+  auto& audio = backgrnds[0];
+  auto& data = AudioGameInstance::LoadCache(audio.path);
   if (SDL_GetAudioStreamQueued(audio.stream) < (int)data.data.size()) {
     // 当数据不足时，重新放入完整音频数据
     SDL_PutAudioStreamData(audio.stream, data.data.data(), data.data.size());
@@ -26,11 +27,11 @@ void AudioLogicSystem::RunBackgrnd() {
 
 void AudioLogicSystem::RunAudios() {
   auto now = Window::dt_time_;
-  auto &audios = AudioGameInstance::audios_;
+  auto& audios = AudioGameInstance::audios_;
   for (auto it = audios.begin(); it != audios.end();) {
     if (now >= it->delay || it->delay == 0) {
       if (it->fade == 0) {
-        auto &data = AudioGameInstance::LoadCache(it->path);
+        auto& data = AudioGameInstance::LoadCache(it->path);
         SDL_PutAudioStreamData(it->stream, data.data.data(), data.data.size());
         SDL_FlushAudioStream(it->stream);
         it->fade = 1;

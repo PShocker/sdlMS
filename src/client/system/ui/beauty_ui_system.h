@@ -3,6 +3,7 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -11,7 +12,7 @@
 namespace sdlms {
 
 class BeautyUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderNpc();
   static void RenderButton();
@@ -25,15 +26,15 @@ private:
   static void EventButtonPrev();
   static void EventButtonNext();
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
-public:
+ public:
   static bool Render();
 
   static void Open();
   static void Close();
 
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
 

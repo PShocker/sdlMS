@@ -1,6 +1,4 @@
 
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
 #include "src/client/game/game_ball.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
@@ -21,6 +19,10 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_character_instance.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+
 #include <array>
 #include <cstdint>
 #include <memory>
@@ -36,13 +38,13 @@ static void Douqijizhong() {
   g_skill.id = u"1111000";
 
   struct DataPack {
-    GameCharacter *c;
+    GameCharacter* c;
     std::array<float, 5> zoom = {0, 0, 0, 0, 0};
   };
 
-  const static auto end_ski = [](GameCharacter *c) {
+  const static auto end_ski = [](GameCharacter* c) {
     if (c == nullptr) {
-      auto &ccs = CharacterLogicSystem::ccs_;
+      auto& ccs = CharacterLogicSystem::ccs_;
       fbs::StateT st;
       st.state = fbs::StateEnum_BUFF_SKILL;
       st.val = 1111000;
@@ -50,14 +52,14 @@ static void Douqijizhong() {
       ccs.payload.push_back(std::make_unique<fbs::StateT>(st));
       c = &CharacterGameInstance::self_;
     }
-    auto &eff = c->effect;
-    std::erase_if(eff, [&](const auto &ef) { return ef.id == u"1111000"; });
+    auto& eff = c->effect;
+    std::erase_if(eff, [&](const auto& ef) { return ef.id == u"1111000"; });
   };
 
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski_;
+    auto& ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
-        ski, [](const GameSkill &s) { return s.id == u"1111000"; });
+        ski, [](const GameSkill& s) { return s.id == u"1111000"; });
     if (it != ski.end()) {
       ski.erase(it);
       end_ski(nullptr);
@@ -66,18 +68,18 @@ static void Douqijizhong() {
 
   g_skill.frame = []() { return; };
 
-  g_skill.state = [](GameCharacter *c, int index) {
+  g_skill.state = [](GameCharacter* c, int index) {
     if (index > 6) {
       return;
     }
-    auto &eff = c->effect;
+    auto& eff = c->effect;
     bool find_ski = false;
     if (index > 1) {
-      for (auto &e : eff) {
+      for (auto& e : eff) {
         if (e.id == u"1111000") {
           find_ski = true;
-          const std::type_info &tp = e.data.type();
-          if (tp == typeid(GameCharacter *) && index == 2) {
+          const std::type_info& tp = e.data.type();
+          if (tp == typeid(GameCharacter*) && index == 2) {
             DataPack dp;
             dp.c = c;
             dp.zoom[0] = 3;
@@ -122,7 +124,7 @@ static void Douqijizhong() {
       eff.push_back(e);
     }
     if (c == &CharacterGameInstance::self_) {
-      auto &ccs = CharacterLogicSystem::ccs_;
+      auto& ccs = CharacterLogicSystem::ccs_;
       fbs::StateT st;
       st.state = fbs::StateEnum_BUFF_SKILL;
       st.val = 1111000;
@@ -131,21 +133,21 @@ static void Douqijizhong() {
     }
   };
 
-  g_skill.action = [g_skill](GameSkill *s, std::u16string ski_id) {
+  g_skill.action = [g_skill](GameSkill* s, std::u16string ski_id) {
     if (ski_id.empty()) {
       return;
     }
-    auto &sf = CharacterGameInstance::self_;
-    auto &eff = sf.effect;
-    for (auto &e : eff) {
+    auto& sf = CharacterGameInstance::self_;
+    auto& eff = sf.effect;
+    for (auto& e : eff) {
       if (e.id == u"1111000") {
-        const std::type_info &tp = e.data.type();
-        if (tp == typeid(GameCharacter *)) {
+        const std::type_info& tp = e.data.type();
+        if (tp == typeid(GameCharacter*)) {
           break;
         }
         auto dp = std::any_cast<DataPack>(&e.data);
         int i = 0;
-        for (auto &f : dp->zoom) {
+        for (auto& f : dp->zoom) {
           if (f == 0) {
             break;
           }
@@ -159,12 +161,12 @@ static void Douqijizhong() {
     return;
   };
 
-  g_skill.effect = [](SDL_FPoint p, GameEffect *e, bool f) {
-    GameCharacter *g_character;
-    DataPack *dp;
-    const std::type_info &tp = e->data.type();
-    if (tp == typeid(GameCharacter *)) {
-      g_character = std::any_cast<GameCharacter *>(e->data);
+  g_skill.effect = [](SDL_FPoint p, GameEffect* e, bool f) {
+    GameCharacter* g_character;
+    DataPack* dp;
+    const std::type_info& tp = e->data.type();
+    if (tp == typeid(GameCharacter*)) {
+      g_character = std::any_cast<GameCharacter*>(e->data);
     } else {
       dp = std::any_cast<DataPack>(&e->data);
       g_character = dp->c;
@@ -177,7 +179,7 @@ static void Douqijizhong() {
         e->lv = 1;
       } else {
         EffectRenderSystem::RenderSkiUse(g_character->pos, *e,
-                                             g_character->flip);
+                                         g_character->flip);
       }
       e->type = GameEffect::EffectType::kSkillCustom;
       e->data = origin_data;
@@ -203,7 +205,7 @@ static void Douqijizhong() {
     if (dp) {
       static auto node =
           WzResource::skill_->find(u"111.img/skill/1111000/state");
-      auto &z = dp->zoom;
+      auto& z = dp->zoom;
       const int count = static_cast<int>(z.size());
       for (int i = 0; i < count; i++) {
         auto texture_node = node->get_child(std::to_string(i));
@@ -220,7 +222,7 @@ static void Douqijizhong() {
         float cx = x + radius * std::cos(angle);
         float cy = y + radius * std::sin(angle);
 
-        auto &scale = z[i];
+        auto& scale = z[i];
         if (scale == 0) {
           continue;
         }
@@ -232,8 +234,8 @@ static void Douqijizhong() {
             static_cast<float>(t->h * scale),
         };
 
-        SDL_RenderTextureRotated(Window::renderer_, t, nullptr, &pos_rect, angle,
-                                 nullptr, (SDL_FlipMode)0);
+        SDL_RenderTextureRotated(Window::renderer_, t, nullptr, &pos_rect,
+                                 angle, nullptr, (SDL_FlipMode)0);
         scale -= 0.08;
         scale = std::max(scale, 1.0f);
       }
@@ -243,7 +245,7 @@ static void Douqijizhong() {
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &ski = SkillGameInstance::ski_;
+    auto& ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 0;
@@ -253,13 +255,13 @@ static void Douqijizhong() {
 
     SkillGameInstance::Skis()[u"1111000"].cd = Window::dt_now_ + 1000;
 
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     auto ckt = SkillGameInstance::CreateSkillPayload(1111000, ski_lv);
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
 
     CharacterLogicSystem::RunAction(sf, u"alert4");
-    auto &ccs = CharacterLogicSystem::ccs_;
+    auto& ccs = CharacterLogicSystem::ccs_;
     fbs::StateT st;
     st.state = fbs::StateEnum_BUFF_SKILL;
     st.val = 1111000;
@@ -267,7 +269,7 @@ static void Douqijizhong() {
     ccs.payload.push_back(std::make_unique<fbs::StateT>(st));
   };
 
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 
@@ -275,7 +277,7 @@ static void Hupaoxiao() {
   GameSkill g_skill;
   g_skill.id = u"1111003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"alert3");
     auto g_r = SkillGameInstance::LoadSkiR(u"1111003");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
@@ -283,7 +285,7 @@ static void Hupaoxiao() {
     if (!cm.data.empty()) {
       auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
-      for (auto &data : cm.data) {
+      for (auto& data : cm.data) {
         data.hits = {30, 30};
       }
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
@@ -293,7 +295,7 @@ static void Hupaoxiao() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 

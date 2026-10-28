@@ -1,9 +1,11 @@
 #ifndef SDLMS_SRC_SERVER_SERVER_SERVER_MOB_H_
 #define SDLMS_SRC_SERVER_SERVER_SERVER_MOB_H_
 
-#include <SDL3/SDL_rect.h>
-#include "src/server/server/server_debuff.h"
 #include "src/common/flatbuffers/common.h"
+#include "src/server/server/server_debuff.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <flat_map>
 #include <string>
@@ -12,14 +14,14 @@ namespace sdlms {
 
 
 struct MobHit {
-  uint64_t hit_id; // client_id
+  uint64_t hit_id;  // client_id
   uint64_t hit_time;
   bool hit_push;
   int64_t hit_num;
   bool left;
 };
 
-struct ServerMob{
+struct ServerMob {
   uint32_t index;
   std::u16string id;
 
@@ -33,7 +35,7 @@ struct ServerMob{
   uint8_t page;
   bool flip;
 
-  uint64_t revive; // 复活时间
+  uint64_t revive;  // 复活时间
 
   int32_t rx0;
   int32_t rx1;
@@ -52,7 +54,7 @@ struct ServerMob{
 
   std::flat_map<GameDebuff::DebuffType, ServerDebuff> debuffs;
 
-  bool create = false; // 是否是道具召唤的
+  bool create = false;  // 是否是道具召唤的
 
   enum class MobType {
     kStand,

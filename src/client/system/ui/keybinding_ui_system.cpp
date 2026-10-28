@@ -1,6 +1,5 @@
 #include "src/client/system/ui/keybinding_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game/game_input.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -14,7 +13,11 @@
 #include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <SDL3/SDL_scancode.h>
+
 #include <algorithm>
 #include <flat_map>
 #include <optional>
@@ -76,8 +79,8 @@ const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
         {SDL_SCANCODE_L, {353, 132}},
         {SDL_SCANCODE_SEMICOLON, {387, 132}},
         {SDL_SCANCODE_APOSTROPHE, {421, 132}},
-        {SDL_SCANCODE_RSHIFT, {457, 165}}, // 左Shift
-        {SDL_SCANCODE_LSHIFT, {38, 165}},  // 右Shift
+        {SDL_SCANCODE_RSHIFT, {457, 165}},  // 左Shift
+        {SDL_SCANCODE_LSHIFT, {38, 165}},   // 右Shift
         {SDL_SCANCODE_Z, {98, 165}},
         {SDL_SCANCODE_X, {132, 165}},
         {SDL_SCANCODE_C, {166, 165}},
@@ -87,10 +90,10 @@ const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
         {SDL_SCANCODE_M, {302, 165}},
         {SDL_SCANCODE_COMMA, {336, 165}},
         {SDL_SCANCODE_PERIOD, {370, 165}},
-        {SDL_SCANCODE_LCTRL, {22, 198}},  // 左Ctrl
-        {SDL_SCANCODE_RCTRL, {460, 198}}, // 右Ctrl
-        {SDL_SCANCODE_LALT, {122, 198}},  // 左Alt
-        {SDL_SCANCODE_RALT, {348, 198}},  // 右Alt
+        {SDL_SCANCODE_LCTRL, {22, 198}},   // 左Ctrl
+        {SDL_SCANCODE_RCTRL, {460, 198}},  // 右Ctrl
+        {SDL_SCANCODE_LALT, {122, 198}},   // 左Alt
+        {SDL_SCANCODE_RALT, {348, 198}},   // 右Alt
         {SDL_SCANCODE_SPACE, {232, 198}},
         {SDL_SCANCODE_INSERT, {514, 66}},
         {SDL_SCANCODE_HOME, {548, 66}},
@@ -98,14 +101,16 @@ const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
         {SDL_SCANCODE_DELETE, {514, 99}},
         {SDL_SCANCODE_END, {548, 99}},
         {SDL_SCANCODE_PAGEDOWN, {582, 99}},
-        {SDL_SCANCODE_UP, {548, 165}},    // up
-        {SDL_SCANCODE_DOWN, {548, 198}},  // down
-        {SDL_SCANCODE_LEFT, {514, 198}},  // left
-        {SDL_SCANCODE_RIGHT, {582, 198}}, // right
+        {SDL_SCANCODE_UP, {548, 165}},     // up
+        {SDL_SCANCODE_DOWN, {548, 198}},   // down
+        {SDL_SCANCODE_LEFT, {514, 198}},   // left
+        {SDL_SCANCODE_RIGHT, {582, 198}},  // right
 
 };
 
-SDL_FPoint KeybindingUiSystem::LoadWh() { return {636, 445}; }
+SDL_FPoint KeybindingUiSystem::LoadWh() {
+  return {636, 445};
+}
 
 const static SDL_FPoint key_lt{5, 56};
 
@@ -113,7 +118,7 @@ static std::optional<SDL_Scancode> backgrnd_key;
 
 void KeybindingUiSystem::RenderBackgrndKey() {
   auto keys = WzResource::ui_->find(u"KeyBindings.img/key");
-  static const std::flat_map<SDL_Scancode, SDL_Texture *> key_textures = {
+  static const std::flat_map<SDL_Scancode, SDL_Texture*> key_textures = {
       {SDL_SCANCODE_ESCAPE, WzResource::LoadTexture(keys->get_child(u"1"))},
       {SDL_SCANCODE_1, WzResource::LoadTexture(keys->get_child(u"2"))},
       {SDL_SCANCODE_2, WzResource::LoadTexture(keys->get_child(u"3"))},
@@ -152,15 +157,13 @@ void KeybindingUiSystem::RenderBackgrndKey() {
       {SDL_SCANCODE_J, WzResource::LoadTexture(keys->get_child(u"36"))},
       {SDL_SCANCODE_K, WzResource::LoadTexture(keys->get_child(u"37"))},
       {SDL_SCANCODE_L, WzResource::LoadTexture(keys->get_child(u"38"))},
-      {SDL_SCANCODE_SEMICOLON,
-       WzResource::LoadTexture(keys->get_child(u"39"))},
+      {SDL_SCANCODE_SEMICOLON, WzResource::LoadTexture(keys->get_child(u"39"))},
       {SDL_SCANCODE_APOSTROPHE,
        WzResource::LoadTexture(keys->get_child(u"40"))},
       {SDL_SCANCODE_GRAVE, WzResource::LoadTexture(keys->get_child(u"41"))},
       {SDL_SCANCODE_LSHIFT, WzResource::LoadTexture(keys->get_child(u"42"))},
       {SDL_SCANCODE_RSHIFT, WzResource::LoadTexture(keys->get_child(u"42"))},
-      {SDL_SCANCODE_BACKSLASH,
-       WzResource::LoadTexture(keys->get_child(u"43"))},
+      {SDL_SCANCODE_BACKSLASH, WzResource::LoadTexture(keys->get_child(u"43"))},
       {SDL_SCANCODE_Z, WzResource::LoadTexture(keys->get_child(u"44"))},
       {SDL_SCANCODE_X, WzResource::LoadTexture(keys->get_child(u"45"))},
       {SDL_SCANCODE_C, WzResource::LoadTexture(keys->get_child(u"46"))},
@@ -188,17 +191,17 @@ void KeybindingUiSystem::RenderBackgrndKey() {
 
       // 以下特殊按键的映射可能需要根据实际 SDL3 定义调整
       {SDL_SCANCODE_HOME,
-       WzResource::LoadTexture(keys->get_child(u"71"))}, // Hm
+       WzResource::LoadTexture(keys->get_child(u"71"))},  // Hm
       {SDL_SCANCODE_PAGEUP,
-       WzResource::LoadTexture(keys->get_child(u"73"))}, // Pup
+       WzResource::LoadTexture(keys->get_child(u"73"))},  // Pup
       {SDL_SCANCODE_END,
-       WzResource::LoadTexture(keys->get_child(u"79"))}, // End
+       WzResource::LoadTexture(keys->get_child(u"79"))},  // End
       {SDL_SCANCODE_PAGEDOWN,
-       WzResource::LoadTexture(keys->get_child(u"81"))}, // Pdn
+       WzResource::LoadTexture(keys->get_child(u"81"))},  // Pdn
       {SDL_SCANCODE_INSERT,
-       WzResource::LoadTexture(keys->get_child(u"82"))}, // Ins
+       WzResource::LoadTexture(keys->get_child(u"82"))},  // Ins
       {SDL_SCANCODE_DELETE,
-       WzResource::LoadTexture(keys->get_child(u"83"))}, // Del
+       WzResource::LoadTexture(keys->get_child(u"83"))},  // Del
 
       {SDL_SCANCODE_UP, WzResource::LoadTexture(keys->get_child(u"72"))},
       {SDL_SCANCODE_DOWN, WzResource::LoadTexture(keys->get_child(u"80"))},
@@ -207,7 +210,7 @@ void KeybindingUiSystem::RenderBackgrndKey() {
 
   };
   backgrnd_key = std::nullopt;
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   for (auto [k, v] : key_textures) {
     if (!mapped_scancode_position.contains(k)) {
       continue;
@@ -221,7 +224,7 @@ void KeybindingUiSystem::RenderBackgrndKey() {
       backgrnd_key = k;
     }
     if (KeyboardGameInstance::data_.contains(k)) {
-      const auto &input = KeyboardGameInstance::data_.at(k);
+      const auto& input = KeyboardGameInstance::data_.at(k);
       QuickSlotUiSystem::RenderInputIcon(input, x - 1, y - 1);
     }
     SDL_FRect pos_rect{
@@ -250,7 +253,7 @@ void KeybindingUiSystem::RenderTab() {
   static auto node = WzResource::ui_->find(u"KeyBindings.img/tab:kind");
   const SDL_FPoint lt{9, 24};
   for (auto i : {0, 1}) {
-    SDL_Texture *texture;
+    SDL_Texture* texture;
     if (active_tab_ == i) {
       texture = WzResource::LoadTexture(
           node->get_child(u"selected")->get_child(std::to_string(i)));
@@ -297,16 +300,16 @@ void KeybindingUiSystem::RenderButton() {
   };
   auto wh = LoadWh();
   const std::array buttons_rect = {
-      SDL_FRect{wh.x - 18, 6, 12, 12}, //
-      SDL_FRect{6, 421, 54, 16},       //
-      SDL_FRect{65, 421, 54, 16},      //
-      SDL_FRect{172, 59, 84, 16},      //
+      SDL_FRect{wh.x - 18, 6, 12, 12},  //
+      SDL_FRect{6, 421, 54, 16},        //
+      SDL_FRect{65, 421, 54, 16},       //
+      SDL_FRect{172, 59, 84, 16},       //
 
-      SDL_FRect{74, 60, 25, 14},   //
-      SDL_FRect{103, 60, 25, 14},  //
-      SDL_FRect{132, 60, 25, 14},  //
-      SDL_FRect{495, 419, 65, 19}, //
-      SDL_FRect{564, 419, 65, 19}, //
+      SDL_FRect{74, 60, 25, 14},    //
+      SDL_FRect{103, 60, 25, 14},   //
+      SDL_FRect{132, 60, 25, 14},   //
+      SDL_FRect{495, 419, 65, 19},  //
+      SDL_FRect{564, 419, 65, 19},  //
 
   };
 
@@ -317,7 +320,7 @@ void KeybindingUiSystem::RenderButton() {
     pos_rect.y += pos_.y;
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
@@ -336,8 +339,7 @@ void KeybindingUiSystem::RenderButton() {
   }
 }
 
-void KeybindingUiSystem::RenderRemainIcon(int i, int x, int y,
-                                              uint8_t alpha) {
+void KeybindingUiSystem::RenderRemainIcon(int i, int x, int y, uint8_t alpha) {
   auto input = KeyboardGameInstance::FindInputByCursor(i);
   QuickSlotUiSystem::RenderInputIcon(input, x, y, alpha);
 }
@@ -348,50 +350,87 @@ static SDL_FPoint remain_lt{12, 300};
 void KeybindingUiSystem::RenderRemainKey() {
   remain_key = std::nullopt;
 
-  const static std::flat_map<CursorGameInstance::CursorKeybindType, SDL_FPoint> m = {
-      {CursorGameInstance::CursorKeybindType::kKeybindUiMenu, SDL_FPoint{0, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindFaceHit, SDL_FPoint{34, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindFaceSmile, SDL_FPoint{68, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindFaceTroubled, SDL_FPoint{102, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindFaceCry, SDL_FPoint{136, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindFaceAngry, SDL_FPoint{170, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindFaceBewildered, SDL_FPoint{204, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindFaceStunned, SDL_FPoint{238, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiToAll, SDL_FPoint{272, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiToParty, SDL_FPoint{306, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiQuest, SDL_FPoint{340, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiWorldMap, SDL_FPoint{374, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiEquip, SDL_FPoint{408, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiPackage, SDL_FPoint{442, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiBuddy, SDL_FPoint{476, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiParty, SDL_FPoint{510, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiMapleChat, SDL_FPoint{544, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiQuickSlot, SDL_FPoint{578, 0}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiKeyBind, SDL_FPoint{0, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiCharacterStat, SDL_FPoint{34, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiWhisper, SDL_FPoint{68, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiSkill, SDL_FPoint{102, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiCraft, SDL_FPoint{136, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiMailBox, SDL_FPoint{170, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiChatPlus, SDL_FPoint{204, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiMiniMap, SDL_FPoint{238, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiChangeChannel, SDL_FPoint{272, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindUiOk, SDL_FPoint{306, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionPick, SDL_FPoint{340, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionSit, SDL_FPoint{374, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionAttack, SDL_FPoint{408, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionJump, SDL_FPoint{442, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionHarvest, SDL_FPoint{476, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionUp, SDL_FPoint{510, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionDown, SDL_FPoint{544, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionLeft, SDL_FPoint{578, 34}},
-      {CursorGameInstance::CursorKeybindType::kKeybindActionRight, SDL_FPoint{0, 68}},
+  const static std::flat_map<CursorGameInstance::CursorKeybindType, SDL_FPoint>
+      m = {
+          {CursorGameInstance::CursorKeybindType::kKeybindUiMenu,
+           SDL_FPoint{0, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindFaceHit,
+           SDL_FPoint{34, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindFaceSmile,
+           SDL_FPoint{68, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindFaceTroubled,
+           SDL_FPoint{102, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindFaceCry,
+           SDL_FPoint{136, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindFaceAngry,
+           SDL_FPoint{170, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindFaceBewildered,
+           SDL_FPoint{204, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindFaceStunned,
+           SDL_FPoint{238, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiToAll,
+           SDL_FPoint{272, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiToParty,
+           SDL_FPoint{306, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiQuest,
+           SDL_FPoint{340, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiWorldMap,
+           SDL_FPoint{374, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiEquip,
+           SDL_FPoint{408, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiPackage,
+           SDL_FPoint{442, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiBuddy,
+           SDL_FPoint{476, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiParty,
+           SDL_FPoint{510, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiMapleChat,
+           SDL_FPoint{544, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiQuickSlot,
+           SDL_FPoint{578, 0}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiKeyBind,
+           SDL_FPoint{0, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiCharacterStat,
+           SDL_FPoint{34, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiWhisper,
+           SDL_FPoint{68, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiSkill,
+           SDL_FPoint{102, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiCraft,
+           SDL_FPoint{136, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiMailBox,
+           SDL_FPoint{170, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiChatPlus,
+           SDL_FPoint{204, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiMiniMap,
+           SDL_FPoint{238, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiChangeChannel,
+           SDL_FPoint{272, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindUiOk,
+           SDL_FPoint{306, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionPick,
+           SDL_FPoint{340, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionSit,
+           SDL_FPoint{374, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionAttack,
+           SDL_FPoint{408, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionJump,
+           SDL_FPoint{442, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionHarvest,
+           SDL_FPoint{476, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionUp,
+           SDL_FPoint{510, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionDown,
+           SDL_FPoint{544, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionLeft,
+           SDL_FPoint{578, 34}},
+          {CursorGameInstance::CursorKeybindType::kKeybindActionRight,
+           SDL_FPoint{0, 68}},
   };
-  const auto &key_data = KeyboardGameInstance::data_;
-  auto &mouse_pos = Window::mouse_pos_;
+  const auto& key_data = KeyboardGameInstance::data_;
+  auto& mouse_pos = Window::mouse_pos_;
   for (auto [k, v] : m) {
-    auto input =
-        KeyboardGameInstance::FindInputByCursor(static_cast<int>(k));
+    auto input = KeyboardGameInstance::FindInputByCursor(static_cast<int>(k));
     if (KeyboardGameInstance::FindKeyByVal(input.val)) {
       continue;
     }
@@ -423,7 +462,7 @@ void KeybindingUiSystem::Open() {
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -458,13 +497,21 @@ void KeybindingUiSystem::EventButtonDelete() {
   return;
 }
 
-void KeybindingUiSystem::EventButtonQuickSlot() { return; }
+void KeybindingUiSystem::EventButtonQuickSlot() {
+  return;
+}
 
-void KeybindingUiSystem::EventButtonPrePage1() { return; }
+void KeybindingUiSystem::EventButtonPrePage1() {
+  return;
+}
 
-void KeybindingUiSystem::EventButtonPrePage2() { return; }
+void KeybindingUiSystem::EventButtonPrePage2() {
+  return;
+}
 
-void KeybindingUiSystem::EventButtonPrePage3() { return; }
+void KeybindingUiSystem::EventButtonPrePage3() {
+  return;
+}
 
 void KeybindingUiSystem::EventButtonSave() {
   Close();
@@ -476,26 +523,26 @@ void KeybindingUiSystem::EventButtonUndo() {
   return;
 }
 
-void KeybindingUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+void KeybindingUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
   auto wh = LoadWh();
   const std::array buttons_rect = {
-      SDL_FRect{wh.x - 18, 6, 12, 12}, //
-      SDL_FRect{6, 421, 54, 16},       //
-      SDL_FRect{65, 421, 54, 16},      //
-      SDL_FRect{172, 59, 84, 16},      //
+      SDL_FRect{wh.x - 18, 6, 12, 12},  //
+      SDL_FRect{6, 421, 54, 16},        //
+      SDL_FRect{65, 421, 54, 16},       //
+      SDL_FRect{172, 59, 84, 16},       //
 
-      SDL_FRect{74, 60, 25, 14},   //
-      SDL_FRect{103, 60, 25, 14},  //
-      SDL_FRect{132, 60, 25, 14},  //
-      SDL_FRect{495, 419, 65, 19}, //
-      SDL_FRect{564, 419, 65, 19}, //
+      SDL_FRect{74, 60, 25, 14},    //
+      SDL_FRect{103, 60, 25, 14},   //
+      SDL_FRect{132, 60, 25, 14},   //
+      SDL_FRect{495, 419, 65, 19},  //
+      SDL_FRect{564, 419, 65, 19},  //
 
   };
   static int8_t bt_audio = -1;
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -520,7 +567,7 @@ void KeybindingUiSystem::EventBackgrndKey() {
     return;
   }
   auto scan_code = backgrnd_key.value();
-  auto &cursor_hand = CursorGameInstance::cursor_hand_;
+  auto& cursor_hand = CursorGameInstance::cursor_hand_;
   if (cursor_hand.has_value()) {
     auto input = KeyboardGameInstance::LoadCursorInput();
     KeyboardGameInstance::InsertInput(scan_code, input.value());
@@ -548,7 +595,7 @@ void KeybindingUiSystem::EventRemainKey() {
   pos_rect.y = pos_.y + remain_lt.y;
   pos_rect.w = b_w;
   pos_rect.h = b_h;
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   if (CursorGameInstance::cursor_hand_.has_value()) {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       CursorGameInstance::cursor_hand_ = std::nullopt;
@@ -567,20 +614,20 @@ void KeybindingUiSystem::EventRemainKey() {
   }
 }
 
-bool KeybindingUiSystem::EventButton(SDL_Event *Event) {
+bool KeybindingUiSystem::EventButton(SDL_Event* Event) {
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
   const std::array buttons_rect = {
-      SDL_FRect{wh.x - 18, 6, 12, 12}, //
-      SDL_FRect{6, 421, 54, 16},       //
-      SDL_FRect{65, 421, 54, 16},      //
-      SDL_FRect{172, 59, 84, 16},      //
+      SDL_FRect{wh.x - 18, 6, 12, 12},  //
+      SDL_FRect{6, 421, 54, 16},        //
+      SDL_FRect{65, 421, 54, 16},       //
+      SDL_FRect{172, 59, 84, 16},       //
 
-      SDL_FRect{74, 60, 25, 14},   //
-      SDL_FRect{103, 60, 25, 14},  //
-      SDL_FRect{132, 60, 25, 14},  //
-      SDL_FRect{495, 419, 65, 19}, //
-      SDL_FRect{564, 419, 65, 19}, //
+      SDL_FRect{74, 60, 25, 14},    //
+      SDL_FRect{103, 60, 25, 14},   //
+      SDL_FRect{132, 60, 25, 14},   //
+      SDL_FRect{495, 419, 65, 19},  //
+      SDL_FRect{564, 419, 65, 19},  //
 
   };
   fns = {
@@ -603,58 +650,58 @@ bool KeybindingUiSystem::EventButton(SDL_Event *Event) {
   return false;
 }
 
-bool KeybindingUiSystem::Event(SDL_Event *Event) {
+bool KeybindingUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_ESCAPE: {
-      EventButtonClose();
-      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
-      return false;
+    case SDL_EVENT_KEY_DOWN: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_ESCAPE: {
+          EventButtonClose();
+          AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+          return false;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTop();
+          EventDragStart(Event);
+          r = false;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          // event_tab(event);
+          EventBackgrndKey();
+          EventRemainKey();
+          r = !EventButton(Event);
+        }
+        EventDragEnd();
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventMotion(Event);
+      EventDragMove(Event);
+      EventMotionBtAudio(Event);
+      break;
+    }
+    case SDL_EVENT_MOUSE_WHEEL: {
       break;
     }
     default: {
       break;
     }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTop();
-        EventDragStart(Event);
-        r = false;
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        // event_tab(event);
-        EventBackgrndKey();
-        EventRemainKey();
-        r = !EventButton(Event);
-      }
-      EventDragEnd();
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventMotion(Event);
-    EventDragMove(Event);
-    EventMotionBtAudio(Event);
-    break;
-  }
-  case SDL_EVENT_MOUSE_WHEEL: {
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   return r;
@@ -671,7 +718,7 @@ void KeybindingUiSystem::EventTop() {
   }
 }
 
-void KeybindingUiSystem::EventDragStart(SDL_Event *Event) {
+void KeybindingUiSystem::EventDragStart(SDL_Event* Event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
@@ -686,10 +733,10 @@ void KeybindingUiSystem::EventDragEnd() {
   return;
 }
 
-void KeybindingUiSystem::EventDragMove(SDL_Event *Event) {
+void KeybindingUiSystem::EventDragMove(SDL_Event* Event) {
   if (drag_.has_value()) {
     pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
     pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
@@ -709,7 +756,7 @@ void KeybindingUiSystem::Toggle() {
 
 bool KeybindingUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos_;
+  auto& mouse = Window::mouse_pos_;
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
@@ -727,167 +774,167 @@ bool KeybindingUiSystem::RenderInfo() {
   if (remain_key.has_value()) {
     std::u16string text;
     switch ((CursorGameInstance::CursorKeybindType)remain_key.value()) {
-    case CursorGameInstance::CursorKeybindType::kKeybindUiMenu: {
-      text = u"menu";
-      break;
+      case CursorGameInstance::CursorKeybindType::kKeybindUiMenu: {
+        text = u"menu";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindFaceHit: {
+        text = u"hit";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindFaceSmile: {
+        text = u"smile";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindFaceTroubled: {
+        text = u"troubled";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindFaceCry: {
+        text = u"menu";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindFaceAngry: {
+        text = u"angry";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindFaceBewildered: {
+        text = u"bewildered";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindFaceStunned: {
+        text = u"bewildered";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiToAll: {
+        text = u"to all";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiToParty: {
+        text = u"to party";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiQuest: {
+        text = u"quest";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiWorldMap: {
+        text = u"worldMap";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiEquip: {
+        text = u"equip";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiPackage: {
+        text = u"item";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiBuddy: {
+        text = u"buddy";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiParty: {
+        text = u"party";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiMapleChat: {
+        text = u"mapleChat";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiQuickSlot: {
+        text = u"quickSlot";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiKeyBind: {
+        text = u"keyBind";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiCharacterStat: {
+        text = u"characterStat";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiWhisper: {
+        text = u"whisper";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiSkill: {
+        text = u"skill";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiCraft: {
+        text = u"craft";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiMailBox: {
+        text = u"mailBox";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiChatPlus: {
+        text = u"chat+";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiMiniMap: {
+        text = u"miniMap";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiChangeChannel: {
+        text = u"changeChannel";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindUiOk: {
+        text = u"ok";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionPick: {
+        text = u"pick";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionSit: {
+        text = u"sit";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionAttack: {
+        text = u"ok";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionJump: {
+        text = u"jump";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionHarvest: {
+        text = u"harvest";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionUp: {
+        text = u"up";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionDown: {
+        text = u"down";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionLeft: {
+        text = u"left";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindActionRight: {
+        text = u"right";
+        break;
+      }
+      case CursorGameInstance::CursorKeybindType::kKeybindFaceVomit: {
+        text = u"vomit";
+        break;
+      }
     }
-    case CursorGameInstance::CursorKeybindType::kKeybindFaceHit: {
-      text = u"hit";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindFaceSmile: {
-      text = u"smile";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindFaceTroubled: {
-      text = u"troubled";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindFaceCry: {
-      text = u"menu";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindFaceAngry: {
-      text = u"angry";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindFaceBewildered: {
-      text = u"bewildered";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindFaceStunned: {
-      text = u"bewildered";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiToAll: {
-      text = u"to all";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiToParty: {
-      text = u"to party";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiQuest: {
-      text = u"quest";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiWorldMap: {
-      text = u"worldMap";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiEquip: {
-      text = u"equip";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiPackage: {
-      text = u"item";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiBuddy: {
-      text = u"buddy";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiParty: {
-      text = u"party";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiMapleChat: {
-      text = u"mapleChat";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiQuickSlot: {
-      text = u"quickSlot";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiKeyBind: {
-      text = u"keyBind";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiCharacterStat: {
-      text = u"characterStat";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiWhisper: {
-      text = u"whisper";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiSkill: {
-      text = u"skill";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiCraft: {
-      text = u"craft";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiMailBox: {
-      text = u"mailBox";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiChatPlus: {
-      text = u"chat+";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiMiniMap: {
-      text = u"miniMap";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiChangeChannel: {
-      text = u"changeChannel";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindUiOk: {
-      text = u"ok";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionPick: {
-      text = u"pick";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionSit: {
-      text = u"sit";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionAttack: {
-      text = u"ok";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionJump: {
-      text = u"jump";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionHarvest: {
-      text = u"harvest";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionUp: {
-      text = u"up";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionDown: {
-      text = u"down";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionLeft: {
-      text = u"left";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindActionRight: {
-      text = u"right";
-      break;
-    }
-    case CursorGameInstance::CursorKeybindType::kKeybindFaceVomit: {
-      text = u"vomit";
-      break;
-    }
-    }
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     TooltipUiSystem::RenderStr(text, show_pos.x, show_pos.y);
   } else if (backgrnd_key.has_value() &&
              KeyboardGameInstance::data_.contains(backgrnd_key.value())) {
     auto scan_code = backgrnd_key.value();
     auto input = KeyboardGameInstance::data_.at(scan_code);
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     if (input.type == "skill") {
       auto ski_id = input.val;
@@ -905,8 +952,8 @@ bool KeybindingUiSystem::RenderInfo() {
   return true;
 }
 
-void KeybindingUiSystem::EventMotion(SDL_Event *Event) {
-  auto &sys = System::render_systems_;
+void KeybindingUiSystem::EventMotion(SDL_Event* Event) {
+  auto& sys = System::render_systems_;
   std::erase(sys, RenderInfo);
   auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {

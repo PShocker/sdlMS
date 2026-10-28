@@ -2,13 +2,14 @@
 #define SDLMS_SRC_SERVER_SERVER_SERVER_REGION_SKILL_H_
 
 #include <SDL3/SDL_rect.h>
+
 #include <any>
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
 
-struct ServerRegionSkill{
+struct ServerRegionSkill {
   uint64_t client_id;
   uint64_t map_id;
   std::u16string id;

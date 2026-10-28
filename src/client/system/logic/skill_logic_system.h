@@ -2,7 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_SKILL_LOGIC_SYSTEM_H_
 namespace sdlms {
 class SkillLogicSystem {
-public:
+ public:
   static bool Run();
 };
 

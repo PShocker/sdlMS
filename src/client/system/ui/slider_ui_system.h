@@ -1,20 +1,21 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_SLIDER_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_SLIDER_UI_SYSTEM_H_
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/window/window.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <optional>
 namespace sdlms {
 
 class SliderUiSystem {
-public:
+ public:
   static void RenderHslider(int x, int y, uint32_t val, uint32_t count,
-                             int32_t length, bool top, bool disable);
+                            int32_t length, bool top, bool disable);
   static std::optional<int> ClickThumb(int x, int y, uint32_t val,
-                                        uint32_t count, int32_t length,
-                                        bool top,
-                                        SDL_FPoint mouse = Window::mouse_pos_);
+                                       uint32_t count, int32_t length, bool top,
+                                       SDL_FPoint mouse = Window::mouse_pos_);
 };
 
 }  // namespace sdlms

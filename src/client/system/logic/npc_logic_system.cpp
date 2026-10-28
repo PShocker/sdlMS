@@ -1,5 +1,5 @@
 #include "src/client/system/logic/npc_logic_system.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/game/game_chatballoon.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -11,7 +11,10 @@
 #include "src/client/window/window.h"
 #include "src/common/physic/physic.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
 #include <wz/Property.h>
+
 #include <cstdint>
 #include <flat_set>
 #include <optional>
@@ -21,7 +24,7 @@
 namespace sdlms {
 
 
-bool NpcLogicSystem::RunAnimate(GameNpc &g_npc) {
+bool NpcLogicSystem::RunAnimate(GameNpc& g_npc) {
   bool r = false;
   g_npc.ani_time += Window::delta_time_;
   auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
@@ -32,7 +35,7 @@ bool NpcLogicSystem::RunAnimate(GameNpc &g_npc) {
   int32_t delay = 100;
   auto delay_node = texture_node->get_child(u"delay");
   if (delay_node != nullptr) {
-    delay = static_cast<wz::Property<int> *>(delay_node)->get();
+    delay = static_cast<wz::Property<int>*>(delay_node)->get();
   }
   auto child = *action_node->get_children();
   int32_t canvas_count = 0;
@@ -50,7 +53,7 @@ bool NpcLogicSystem::RunAnimate(GameNpc &g_npc) {
   return r;
 }
 
-bool NpcLogicSystem::RunDuration(GameNpc &g_npc) {
+bool NpcLogicSystem::RunDuration(GameNpc& g_npc) {
   if (g_npc.duration > Window::dt_now_) {
     return false;
   }
@@ -59,14 +62,14 @@ bool NpcLogicSystem::RunDuration(GameNpc &g_npc) {
   child.erase(u"info");
   std::uniform_int_distribution<> dis(0, child.size() - 1);
 
-  auto &gen = RandomGameInstance::gen;
+  auto& gen = RandomGameInstance::gen;
   auto it = std::next(child.begin(), dis(gen));
   auto random_key = it->first;
 
   g_npc.action = random_key;
   auto action_type = LoadActionType(g_npc);
   if (action_type == ActionEnum::kMove) {
-    std::bernoulli_distribution dist(0.5); // 50% 概率为 true
+    std::bernoulli_distribution dist(0.5);  // 50% 概率为 true
     bool random_bool = dist(gen);
     g_npc.hforce = random_bool ? 1400 : -1400;
     g_npc.hspeed = 0.0f;
@@ -80,20 +83,20 @@ bool NpcLogicSystem::RunDuration(GameNpc &g_npc) {
   return true;
 }
 
-bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
+bool NpcLogicSystem::RunChatballoon(GameNpc& g_npc) {
   auto node = NpcGameInstance::LoadQuestNode(g_npc);
   if (node != nullptr) {
     g_npc.chatballoon = std::nullopt;
     return true;
   }
   if (g_npc.chatballoon.has_value()) {
-    auto &chatballoon = g_npc.chatballoon.value();
+    auto& chatballoon = g_npc.chatballoon.value();
     if (chatballoon.destroy < Window::dt_now_) {
       g_npc.chatballoon = std::nullopt;
     }
   } else {
     std::uniform_int_distribution<int> dist(5000, 10000);
-    auto &gen = RandomGameInstance::gen;
+    auto& gen = RandomGameInstance::gen;
     // 生成随机数
     int random_number = dist(gen);
 
@@ -103,7 +106,7 @@ bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
     if (npc_info) {
       if (auto speak_node = npc_info->get_child(u"speak")) {
         for (auto [k, v] : *speak_node->get_children()) {
-          auto str = static_cast<wz::Property<std::u16string> *>(v[0])->get();
+          auto str = static_cast<wz::Property<std::u16string>*>(v[0])->get();
           speaks.insert(str);
         }
       }
@@ -124,7 +127,7 @@ bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
     auto child = *str_node->get_children();
     std::vector<std::u16string> intersection;
 
-    for (const auto &key : speaks) {
+    for (const auto& key : speaks) {
       if (child.contains(key)) {
         intersection.push_back(key);
       }
@@ -133,19 +136,18 @@ bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
       std::uniform_int_distribution<int> dist2(0, intersection.size() - 1);
       int random_number2 = dist2(gen);
       str_node = child.at(intersection[random_number2])[0];
-      c.text = static_cast<wz::Property<std::u16string> *>(str_node)->get();
+      c.text = static_cast<wz::Property<std::u16string>*>(str_node)->get();
       g_npc.chatballoon = c;
     }
   }
   return true;
 }
 
-bool NpcLogicSystem::RunMove(GameNpc &g_npc) {
+bool NpcLogicSystem::RunMove(GameNpc& g_npc) {
   // 移动
   auto delta_time = Window::delta_time_ / 1000.0f;
   float vspeed = 0;
-  auto border =
-      MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id_);
+  auto border = MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id_);
   border.x = g_npc.rx0;
   border.w = g_npc.rx1;
   auto force = g_npc.hforce.value();
@@ -155,8 +157,7 @@ bool NpcLogicSystem::RunMove(GameNpc &g_npc) {
   return r;
 }
 
-NpcLogicSystem::ActionEnum
-NpcLogicSystem::LoadActionType(GameNpc &g_npc) {
+NpcLogicSystem::ActionEnum NpcLogicSystem::LoadActionType(GameNpc& g_npc) {
   if (g_npc.action == u"move") {
     return ActionEnum::kMove;
   }
@@ -164,18 +165,18 @@ NpcLogicSystem::LoadActionType(GameNpc &g_npc) {
 }
 
 bool NpcLogicSystem::Run() {
-  for (auto &m : NpcGameInstance::data_) {
-    for (auto &g_npc : m) {
+  for (auto& m : NpcGameInstance::data_) {
+    for (auto& g_npc : m) {
       RunChatballoon(g_npc);
       auto action_type = LoadActionType(g_npc);
       switch (action_type) {
-      case ActionEnum::kMove: {
-        RunMove(g_npc);
-        break;
-      }
-      default: {
-        break;
-      }
+        case ActionEnum::kMove: {
+          RunMove(g_npc);
+          break;
+        }
+        default: {
+          break;
+        }
       }
       if (RunAnimate(g_npc)) {
         RunDuration(g_npc);

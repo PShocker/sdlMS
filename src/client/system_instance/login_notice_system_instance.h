@@ -5,7 +5,7 @@
 namespace sdlms {
 
 class LoginNoticeSystemInstance {
-public:
+ public:
   enum class NoticeType {
     kCharacternameError,
     kCharacternameUsed,

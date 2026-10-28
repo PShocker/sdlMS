@@ -1,13 +1,15 @@
 #include "src/client/system/render/gauge_render_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 namespace sdlms {
 
 
-bool GaugeRenderSystem::RenderMob(SDL_FPoint pos, GameGauge &g) {
+bool GaugeRenderSystem::RenderMob(SDL_FPoint pos, GameGauge& g) {
   static auto back = WzResource::LoadTexture(
       WzResource::ui_->find(u"PartyHP.img/GaugeBar2/graduation"));
   const auto w = 200;
@@ -18,7 +20,7 @@ bool GaugeRenderSystem::RenderMob(SDL_FPoint pos, GameGauge &g) {
       static_cast<float>(back->w),
       static_cast<float>(back->h),
   };
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= (int)camera.x;
     pos_rect.y -= (int)camera.y;
@@ -54,7 +56,7 @@ bool GaugeRenderSystem::RenderCharacter(SDL_FPoint pos, float hp_percent) {
       static_cast<float>(back->w),
       static_cast<float>(back->h),
   };
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= (int)camera.x;
     pos_rect.y -= (int)camera.y;

@@ -2,15 +2,15 @@
 #define SDLMS_SRC_CLIENT_GAME_INSTANCE_CURSOR_GAME_INSTANCE_H_
 
 #include "src/common/flatbuffers/common.h"
+
 #include <cstdint>
 #include <optional>
 #include <string>
 namespace sdlms {
 
 
-
 class CursorGameInstance {
-public:
+ public:
   static inline std::u16string cursor_type_ = u"0";
   static inline uint8_t cursor_index_;
   static inline uint32_t cursor_time_;
@@ -27,7 +27,7 @@ public:
     kSkill,
     kKeybind,
   };
-  enum class CursorKeybindType { // sub_val
+  enum class CursorKeybindType {  // sub_val
     kKeybindUiMenu,
     kKeybindFaceHit,
     kKeybindFaceSmile,

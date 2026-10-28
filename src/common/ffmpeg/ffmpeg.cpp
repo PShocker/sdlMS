@@ -1,4 +1,5 @@
 #include "src/common/ffmpeg/ffmpeg.h"
+
 #include <cassert>
 #include <cstdint>
 #include <iostream>
@@ -12,8 +13,7 @@ extern "C" {
 
 namespace sdlms {
 
-GameAudioCache
-Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
+GameAudioCache Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t>& audio_data) {
   GameAudioCache gac;
 
   if (audio_data.empty()) {
@@ -21,10 +21,10 @@ Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
   }
 
   // 1. 打开输入（直接从内存读取）
-  AVIOContext *avio_ctx = nullptr;
-  AVFormatContext *fmt_ctx = nullptr;
+  AVIOContext* avio_ctx = nullptr;
+  AVFormatContext* fmt_ctx = nullptr;
 
-  uint8_t *buffer = (uint8_t *)av_malloc(audio_data.size());
+  uint8_t* buffer = (uint8_t*)av_malloc(audio_data.size());
   if (!buffer)
     return gac;
   memcpy(buffer, audio_data.data(), audio_data.size());
@@ -59,14 +59,14 @@ Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
   }
 
   // 3. 创建解码器
-  const AVCodec *codec =
+  const AVCodec* codec =
       avcodec_find_decoder(fmt_ctx->streams[audio_idx]->codecpar->codec_id);
   if (!codec) {
     avformat_close_input(&fmt_ctx);
     return gac;
   }
 
-  AVCodecContext *codec_ctx = avcodec_alloc_context3(codec);
+  AVCodecContext* codec_ctx = avcodec_alloc_context3(codec);
   avcodec_parameters_to_context(codec_ctx,
                                 fmt_ctx->streams[audio_idx]->codecpar);
   avcodec_open2(codec_ctx, codec, nullptr);
@@ -82,28 +82,28 @@ Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
 
   // 映射到SDL格式
   switch (out_fmt) {
-  case AV_SAMPLE_FMT_U8:
-    gac.spec.format = SDL_AUDIO_U8;
-    break;
-  case AV_SAMPLE_FMT_S16:
-    gac.spec.format = SDL_AUDIO_S16LE;
-    break;
-  case AV_SAMPLE_FMT_S32:
-    gac.spec.format = SDL_AUDIO_S32LE;
-    break;
-  case AV_SAMPLE_FMT_FLT:
-    gac.spec.format = SDL_AUDIO_F32LE;
-    break;
-  default:
-    gac.spec.format = SDL_AUDIO_S16LE;
-    break;
+    case AV_SAMPLE_FMT_U8:
+      gac.spec.format = SDL_AUDIO_U8;
+      break;
+    case AV_SAMPLE_FMT_S16:
+      gac.spec.format = SDL_AUDIO_S16LE;
+      break;
+    case AV_SAMPLE_FMT_S32:
+      gac.spec.format = SDL_AUDIO_S32LE;
+      break;
+    case AV_SAMPLE_FMT_FLT:
+      gac.spec.format = SDL_AUDIO_F32LE;
+      break;
+    default:
+      gac.spec.format = SDL_AUDIO_S16LE;
+      break;
   }
   gac.spec.freq = codec_ctx->sample_rate;
   gac.spec.channels = codec_ctx->ch_layout.nb_channels;
 
   // 5. 解码并转换
-  AVPacket *packet = av_packet_alloc();
-  AVFrame *frame = av_frame_alloc();
+  AVPacket* packet = av_packet_alloc();
+  AVFrame* frame = av_frame_alloc();
   std::vector<uint8_t> pcm_data;
 
   int channels = gac.spec.channels;
@@ -123,7 +123,7 @@ Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
         if (is_planar) {
           // 平面 → 交错（手动交织）
           pcm_data.resize(old_size + nb_samples * channels * bytes_per_sample);
-          uint8_t *dst = pcm_data.data() + old_size;
+          uint8_t* dst = pcm_data.data() + old_size;
 
           for (int s = 0; s < nb_samples; s++) {
             for (int c = 0; c < channels; c++) {
@@ -153,7 +153,7 @@ Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
 
     if (is_planar) {
       pcm_data.resize(old_size + nb_samples * channels * bytes_per_sample);
-      uint8_t *dst = pcm_data.data() + old_size;
+      uint8_t* dst = pcm_data.data() + old_size;
       for (int s = 0; s < nb_samples; s++) {
         for (int c = 0; c < channels; c++) {
           memcpy(dst, frame->extended_data[c] + s * bytes_per_sample,

@@ -1,14 +1,17 @@
 #include "src/client/system/ui/chat_log_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include "src/client/system/ui/scroll_ui_system.h"
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/chat_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/scroll_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <flat_map>
 #include <format>
 namespace sdlms {
@@ -23,14 +26,14 @@ void ChatLogUiSystem::RenderVscr() {
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   bool top = CursorIn == Render && !CursorGameInstance::modal_overlay;
-  ScrollUiSystem::RenderVscroll(base_x + 570, base_y - 75, 5, size, length,
-                                   top, 1);
+  ScrollUiSystem::RenderVscroll(base_x + 570, base_y - 75, 5, size, length, top,
+                                1);
   return;
 }
 
 void ChatLogUiSystem::RenderChats() {
   float str_h = 0;
-  auto &chats = ChatGameInstance::chats_;
+  auto& chats = ChatGameInstance::chats_;
   for (int i = chats.size() - 1; i >= 0; i--) {
     auto chat = chats[i];
     Freetype::LoadAligned(true);
@@ -102,7 +105,7 @@ void ChatLogUiSystem::EventClickChatVscr() {
   auto base_y = (screen_h - 73);
 
   int size = 0;
-  for (const auto &chats : ChatGameInstance::chats_) {
+  for (const auto& chats : ChatGameInstance::chats_) {
     auto str = chats.owner + u":" + chats.text;
     auto h = Freetype::LoadCh(str, 564, 1.1);
     size += h;
@@ -110,35 +113,35 @@ void ChatLogUiSystem::EventClickChatVscr() {
   size = size / (Freetype::LoadLh() * 1.1);
   size = std::max(0, size);
   auto val = ScrollUiSystem::ClickVscroll(base_x + 564, base_y - 71, page_,
-                                             size, length, top);
+                                          size, length, top);
   page_ = val;
   return;
 }
 
-bool ChatLogUiSystem::Event(SDL_Event *Event) {
+bool ChatLogUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventClickChatVscr();
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventClickChatVscr();
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return r;

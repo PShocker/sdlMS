@@ -1,4 +1,5 @@
 #include "src/client/system/ui/party_ui_system.h"
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/party_game_instance.h"
@@ -6,7 +7,9 @@
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
 #include <wz/Property.h>
+
 #include <algorithm>
 namespace sdlms {
 
@@ -17,29 +20,25 @@ void PartyUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
       WzResource::ui_->find(u"UIToolTip.img/Skill/Frame");
 
   auto texture_c = WzResource::LoadTexture(backgrnd_node->get_child(u"c"));
-  auto texture_e =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas> *>(
-          backgrnd_node->get_child(u"e")));
+  auto texture_e = WzResource::LoadTexture(
+      static_cast<wz::Property<wz::WzCanvas>*>(backgrnd_node->get_child(u"e")));
   auto texture_ne =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas> *>(
+      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas>*>(
           backgrnd_node->get_child(u"ne")));
-  auto texture_n =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas> *>(
-          backgrnd_node->get_child(u"n")));
+  auto texture_n = WzResource::LoadTexture(
+      static_cast<wz::Property<wz::WzCanvas>*>(backgrnd_node->get_child(u"n")));
   auto texture_nw =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas> *>(
+      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas>*>(
           backgrnd_node->get_child(u"nw")));
-  auto texture_w =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas> *>(
-          backgrnd_node->get_child(u"w")));
+  auto texture_w = WzResource::LoadTexture(
+      static_cast<wz::Property<wz::WzCanvas>*>(backgrnd_node->get_child(u"w")));
   auto texture_sw =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas> *>(
+      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas>*>(
           backgrnd_node->get_child(u"sw")));
-  auto texture_s =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas> *>(
-          backgrnd_node->get_child(u"s")));
+  auto texture_s = WzResource::LoadTexture(
+      static_cast<wz::Property<wz::WzCanvas>*>(backgrnd_node->get_child(u"s")));
   auto texture_se =
-      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas> *>(
+      WzResource::LoadTexture(static_cast<wz::Property<wz::WzCanvas>*>(
           backgrnd_node->get_child(u"se")));
 
   SDL_FRect rect;
@@ -122,7 +121,7 @@ void PartyUiSystem::RenderBackgrnd(float x, float y, float w, float h) {
 
 void PartyUiSystem::RenderPartyHp() {
   for (int i = 0; i < PartyGameInstance::data_->clients.size(); i++) {
-    const auto &player = PartyGameInstance::data_->clients[i];
+    const auto& player = PartyGameInstance::data_->clients[i];
     static auto texture = WzResource::LoadTexture(WzResource::ui_->find(u""));
   }
 }
@@ -133,7 +132,9 @@ bool PartyUiSystem::Render() {
   return true;
 }
 
-SDL_FPoint PartyUiSystem::LoadWh() { return {209, 289}; }
+SDL_FPoint PartyUiSystem::LoadWh() {
+  return {209, 289};
+}
 
 void PartyUiSystem::Open() {
   auto it = std::ranges::find(System::render_systems_, &Render);
@@ -143,7 +144,7 @@ void PartyUiSystem::Open() {
   it = std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -168,7 +169,7 @@ void PartyUiSystem::EventTop() {
   }
 }
 
-void PartyUiSystem::EventDragStart(SDL_Event *Event) {
+void PartyUiSystem::EventDragStart(SDL_Event* Event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
@@ -183,10 +184,10 @@ void PartyUiSystem::EventDragEnd() {
   return;
 }
 
-void PartyUiSystem::EventDragMove(SDL_Event *Event) {
+void PartyUiSystem::EventDragMove(SDL_Event* Event) {
   if (drag_.has_value()) {
     pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
     pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
@@ -205,39 +206,39 @@ void PartyUiSystem::Toggle() {
 
 bool PartyUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos_;
+  auto& mouse = Window::mouse_pos_;
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-bool PartyUiSystem::Event(SDL_Event *Event) {
+bool PartyUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTop();
-        EventDragStart(Event);
-        r = false;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTop();
+          EventDragStart(Event);
+          r = false;
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+        }
+        EventDragEnd();
       }
-      EventDragEnd();
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventDragMove(Event);
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventDragMove(Event);
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return r;

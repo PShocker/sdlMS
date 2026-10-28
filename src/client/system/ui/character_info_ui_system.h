@@ -1,10 +1,12 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_INFO_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_INFO_UI_SYSTEM_H_
 
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_item.h"
+
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -13,7 +15,7 @@
 namespace sdlms {
 
 class CharacterInfoUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderButton();
   static void RenderCharacter();
@@ -24,11 +26,11 @@ private:
 
   static SDL_FPoint LoadWh();
   static void EventTop();
-  static void EventDragStart(SDL_Event *Event);
+  static void EventDragStart(SDL_Event* Event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event *Event);
+  static void EventDragMove(SDL_Event* Event);
 
-  static bool EventVscr(SDL_Event *Event);
+  static bool EventVscr(SDL_Event* Event);
 
   static void EventButtonParty();
   static void EventButtonTrade();
@@ -40,16 +42,16 @@ private:
   static void EventButtonShowPet();
   static void EventClose();
 
-  static void EventMotionBtAudio(SDL_Event *Event);
-  static void EventMotion(SDL_Event *Event);
+  static void EventMotionBtAudio(SDL_Event* Event);
+  static void EventMotion(SDL_Event* Event);
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
-  static void EventWheel(SDL_Event *Event);
+  static void EventWheel(SDL_Event* Event);
 
-  static void EventVscrStart(SDL_Event *Event);
+  static void EventVscrStart(SDL_Event* Event);
   static void EventVscrEnd();
-  static void EventVscrMove(SDL_Event *Event);
+  static void EventVscrMove(SDL_Event* Event);
 
   static inline bool vscr_motion_;
 
@@ -64,7 +66,7 @@ private:
 
   static inline bool pet_;
 
-public:
+ public:
   static inline GameCharacter character_;
 
   static inline SDL_FPoint pos_;
@@ -76,7 +78,7 @@ public:
   static void Open();
   static void Close();
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 };
 
 }  // namespace sdlms

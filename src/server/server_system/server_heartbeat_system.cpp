@@ -1,5 +1,5 @@
 #include "src/server/server_system/server_heartbeat_system.h"
-#include <SDL3/SDL_timer.h>
+
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -8,6 +8,9 @@
 #include "src/server/server_instance/server_client_instance.h"
 #include "src/server/server_instance/server_heartbeat_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
+
+#include <SDL3/SDL_timer.h>
+
 #include <cstdint>
 #include <ranges>
 #include <vector>
@@ -46,13 +49,13 @@ bool ServerHeartbeatSystem::RunClientHeartbeat() {
 bool ServerHeartbeatSystem::RunServerHeartbeat() {
   // 服务端主动检查心跳
   auto current_time = Window::dt_now_;
-  auto &clients = ServerClientInstance::clients_;
+  auto& clients = ServerClientInstance::clients_;
   for (auto it = clients.begin(); it != clients.end();) {
     auto client = it->second;
     if (current_time - client.heartbeat >=
         ServerHeartbeatInstance::heartbeat_interval * 2000) {
       it = clients.erase(it);
-      auto &scenes = ServerSceneInstance::scenes_[client.map_id];
+      auto& scenes = ServerSceneInstance::scenes_[client.map_id];
       scenes.clients.erase(client.client_id);
       for (const auto other : scenes.clients) {
         fbs::ServerCharacterOutT r;

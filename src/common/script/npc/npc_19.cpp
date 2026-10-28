@@ -1,6 +1,6 @@
-#include "src/common/script/script.h"
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/window/window.h"
+#include "src/common/script/script.h"
 namespace sdlms {
 
 
@@ -14,7 +14,7 @@ static void Npc19(std::any data) {
 };
 
 [[maybe_unused]] static const bool r = [] {
-  auto &fns = Script::fns();
+  auto& fns = Script::fns();
   fns[u"npc_19"] = Npc19;
   return true;
 }();

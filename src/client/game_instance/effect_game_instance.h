@@ -5,7 +5,9 @@
 #include "src/client/game/game_effect.h"
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/common.h"
+
 #include <wz/Node.h>
+
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -13,9 +15,8 @@
 namespace sdlms {
 
 
-
 class EffectGameInstance {
-public:
+ public:
   static inline std::array<std::vector<GameEffect>, 8> data_;
   static void Reset();
 };

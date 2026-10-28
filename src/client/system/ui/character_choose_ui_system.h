@@ -1,9 +1,11 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CHOOSE_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CHOOSE_UI_SYSTEM_H_
 
-#include <SDL3/SDL_events.h>
 #include "src/client/game/game_animate.h"
 #include "src/client/game/game_character.h"
+
+#include <SDL3/SDL_events.h>
+
 #include <array>
 #include <cstdint>
 #include <optional>
@@ -12,7 +14,7 @@ namespace sdlms {
 
 
 class CharacterChooseUiSystem {
-private:
+ private:
   static bool NewAnimate();
   static bool BackAnimate();
 
@@ -32,17 +34,17 @@ private:
   static void EventButtonDelete();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event *Event);
-  static bool EventChooseCharacter(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
+  static bool EventChooseCharacter(SDL_Event* Event);
 
-public:
+ public:
   static inline std::optional<uint8_t> choose_;
   static inline std::vector<GameCharacter> characters_;
   static inline GameAnimate board_;
   static inline GameAnimate effect_;
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
   static bool Run();
 };
 

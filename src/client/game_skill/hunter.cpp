@@ -1,5 +1,4 @@
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_skill.h"
@@ -16,6 +15,9 @@
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <vector>
 namespace sdlms {
@@ -33,7 +35,7 @@ static void Baozhajian() {
             SDL_FPoint{0, -30},
         },
     };
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAttackAction(sf, true);
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
@@ -52,8 +54,8 @@ static void Baozhajian() {
     } else {
       goal.x -= 400;
     }
-    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
-                                                       page, 700, path);
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
+                                                   700, path);
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
@@ -65,7 +67,7 @@ static void Baozhajian() {
       cm = CharacterLogicSystem::RunAttackCheck(mob_pos, g_r, 2);
       // Create and send attack payload
       for (int i = 0; i < cm.data.size(); i++) {
-        auto &data = cm.data[i];
+        auto& data = cm.data[i];
         if (i == 0) {
           data.hits = {100};
         } else {
@@ -83,7 +85,7 @@ static void Baozhajian() {
     fbs::ClientMobDebuffT cmb;
     cmb.map_id = SceneSystemInstance::map_id_;
     for (int i = 0; i < cm.data.size(); i++) {
-      auto &data = cm.data[i];
+      auto& data = cm.data[i];
       fbs::MobDebuffT md;
       md.mob_index = data.mob.index;
       md.payload->val = static_cast<int64_t>(GameDebuff::DebuffType::kDizz);
@@ -94,7 +96,7 @@ static void Baozhajian() {
       ClientRequest::send_to_host(cmb);
     }
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 
@@ -103,21 +105,21 @@ static void Wuyingjian() {
   g_skill.climb = true;
   g_skill.id = u"3101003";
   g_skill.end = []() {
-    auto &ski = SkillGameInstance::ski_;
+    auto& ski = SkillGameInstance::ski_;
     auto it = std::ranges::find_if(
-        ski, [](const GameSkill &s) { return s.id == u"3101003"; });
+        ski, [](const GameSkill& s) { return s.id == u"3101003"; });
     if (it != ski.end()) {
       ski.erase(it);
     }
   };
 
-  g_skill.action = [](GameSkill *s, std::u16string ski_id) {
+  g_skill.action = [](GameSkill* s, std::u16string ski_id) {
     auto b = PackageGameInstance::LoadActiveBall();
     if (b == nullptr) {
       return;
     }
     if (ski_id.empty()) {
-      auto &sf = CharacterGameInstance::self_;
+      auto& sf = CharacterGameInstance::self_;
       if (sf.action == u"shoot1") {
         ItemGameInstance::AddItemNum(*b, 1);
       }
@@ -132,7 +134,7 @@ static void Wuyingjian() {
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     auto action_type = CharacterLogicSystem::LoadActionType(sf);
     if (action_type != CharacterLogicSystem::ActionEnum::kClimb) {
       CharacterLogicSystem::RunAction(sf, u"alert2");
@@ -140,7 +142,7 @@ static void Wuyingjian() {
       CharacterLogicSystem::self_climb_animate_cooldown_ =
           Window::dt_now_ + 700;
     }
-    auto &ski = SkillGameInstance::ski_;
+    auto& ski = SkillGameInstance::ski_;
     g_skill.end();
     g_skill.lv = ski_lv;
     g_skill.duration = 30 * 1000;
@@ -154,7 +156,7 @@ static void Wuyingjian() {
     ClientRequest::send_to_host(ckt);
   };
 
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 

@@ -1,26 +1,28 @@
 #include "src/server/server_instance/server_region_skill_instance.h"
-#include "src/server/server_instance/server_scene_instance.h"
+
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_region_skill.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/server/server/server_region_skill.h"
+#include "src/server/server_instance/server_scene_instance.h"
+
 #include <format>
 namespace sdlms {
 
 
 void ServerRegionSkillInstance::HandleRskill(uint64_t client_id,
-                                                 fbs::ClientRSkillT &r) {
+                                             fbs::ClientRSkillT& r) {
   auto map_id = r.map_id;
-  auto &scene = ServerSceneInstance::scenes_.at(map_id);
-  for (const auto &v : r.payload) {
+  auto& scene = ServerSceneInstance::scenes_.at(map_id);
+  for (const auto& v : r.payload) {
     ServerRegionSkill srs;
     srs.client_id = client_id;
     srs.id = v->ski_id;
   }
 }
 
-void ServerRegionSkillInstance::HandleSRskill(fbs::ServerRSkillT &r) {
-  for (const auto &v : r.payload) {
+void ServerRegionSkillInstance::HandleSRskill(fbs::ServerRSkillT& r) {
+  for (const auto& v : r.payload) {
     GameRegionSkill grs;
     auto tmp = std::format("{:07d}", v->ski_id);
     grs.id = {tmp.begin(), tmp.end()};

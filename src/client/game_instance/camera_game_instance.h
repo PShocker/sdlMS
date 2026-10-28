@@ -5,7 +5,7 @@
 namespace sdlms {
 
 class CameraGameInstance {
-public:
+ public:
   static void Reset();
   static void Load(float x, float y, float w, float h);
   static inline SDL_FRect camera_;

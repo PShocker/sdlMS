@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_GAME_INSTANCE_PORTAL_GAME_INSTANCE_H_
 
 #include "src/client/game/game_portal.h"
+
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -10,7 +11,7 @@
 namespace sdlms {
 
 class PortalGameInstance {
-public:
+ public:
   static std::flat_multimap<std::u16string, GamePortal> Load(uint32_t map_id);
   static inline std::flat_multimap<std::u16string, GamePortal> data_;
 };

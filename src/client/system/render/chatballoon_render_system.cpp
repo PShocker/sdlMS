@@ -1,41 +1,44 @@
 #include "src/client/system/render/chatballoon_render_system.h"
-#include <SDL3/SDL_pixels.h>
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <wz/Property.h>
+
 #include <numeric>
 #include <optional>
 namespace sdlms {
 
 
 std::optional<ChatballoonRenderSystem::BackgrndPad>
-ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon &g_chatballoon,
-                                           SDL_FPoint base) {
+ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon& g_chatballoon,
+                                        SDL_FPoint base) {
   auto path = g_chatballoon.path;
   auto node = WzResource::ui_->find(u"ChatBalloon.img/" + path);
   auto texture_c = WzResource::LoadTexture(node->get_child(u"c"));
   auto texture_e = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"e")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"e")));
   auto texture_ne = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"ne")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"ne")));
   auto texture_n = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"n")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"n")));
   auto texture_nw = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"nw")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"nw")));
   auto texture_w = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"w")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"w")));
   auto texture_sw = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"sw")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"sw")));
   auto texture_s = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"s")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"s")));
   auto texture_se = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"se")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"se")));
   auto texture_arrow = WzResource::LoadTexture(
-      static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"arrow")));
+      static_cast<wz::Property<wz::WzCanvas>*>(node->get_child(u"arrow")));
 
   auto origin_c = WzResource::LoadFpoint(node->find(u"c/origin"));
   auto origin_e = WzResource::LoadFpoint(node->find(u"e/origin"));
@@ -53,13 +56,13 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon &g_chatballoon,
 
   int a = (float)texture_c->w;
   int b = g_chatballoon.w;
-  auto result_w = a * ((b + a - 1) / a); // 整数向上取整技巧
+  auto result_w = a * ((b + a - 1) / a);  // 整数向上取整技巧
 
   int h = Freetype::LoadCh(g_chatballoon.text, result_w, 1.3);
 
   a = h;
   b = (float)texture_c->h;
-  auto result_h = a * ((b + a - 1) / a); // 整数向上取整技巧
+  auto result_h = a * ((b + a - 1) / a);  // 整数向上取整技巧
 
   SDL_FRect rect;
   rect.w = result_w + texture_nw->w + texture_ne->w;
@@ -67,7 +70,7 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon &g_chatballoon,
   base.y -= rect.h;
   rect.x = base.x - rect.w / 2;
   rect.y = base.y;
-  const auto &camera = CameraGameInstance::camera_;
+  const auto& camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&rect, &camera)) {
     rect.x -= camera.x;
     rect.y -= camera.y;
@@ -168,7 +171,7 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon &g_chatballoon,
     SDL_RenderTextureTiled(Window::renderer_, texture_s, nullptr, 1, &rect);
     std::optional<int32_t> clr;
     if (auto clr_node = node->get_child(u"clr")) {
-      clr = static_cast<wz::Property<int32_t> *>(clr_node)->get();
+      clr = static_cast<wz::Property<int32_t>*>(clr_node)->get();
     }
     return BackgrndPad{
         static_cast<float>(r_x + texture_nw->w),
@@ -181,8 +184,8 @@ ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon &g_chatballoon,
   return std::nullopt;
 }
 
-bool ChatballoonRenderSystem::Render(GameChatballoon &g_chatballoon,
-                                       SDL_FPoint base) {
+bool ChatballoonRenderSystem::Render(GameChatballoon& g_chatballoon,
+                                     SDL_FPoint base) {
   auto bacgrnd_pad = RenderBackgrnd(g_chatballoon, base);
   if (bacgrnd_pad.has_value()) {
     if (g_chatballoon.color.has_value()) {
@@ -205,7 +208,7 @@ bool ChatballoonRenderSystem::Render(GameChatballoon &g_chatballoon,
     Freetype::LoadAligned(true);
     Freetype::LoadSize(g_chatballoon.size);
     Freetype::DrawCstr(g_chatballoon.text, bacgrnd_pad->x, bacgrnd_pad->y,
-                        bacgrnd_pad->w, 1.3);
+                       bacgrnd_pad->w, 1.3);
   }
   return true;
 }

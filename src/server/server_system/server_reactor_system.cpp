@@ -1,4 +1,5 @@
 #include "src/server/server_system/server_reactor_system.h"
+
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
@@ -6,11 +7,12 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_reactor_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
+
 #include <wz/Property.h>
 namespace sdlms {
 
 
-void ServerReactorSystem::RunScript(ServerReactorState &r) {
+void ServerReactorSystem::RunScript(ServerReactorState& r) {
   if (r.revive != 0) {
     return;
   }
@@ -20,13 +22,13 @@ void ServerReactorSystem::RunScript(ServerReactorState &r) {
     r.revive = Window::dt_time_ + 30000;
     auto Script = ServerReactorInstance::LoadScript(r.id);
     if (!Script.empty()) {
-      const auto &fns = Script::fns();
+      const auto& fns = Script::fns();
       fns.at(Script)(&r);
     }
   }
 }
 
-void ServerReactorSystem::RunRevive(ServerReactorState &r) {
+void ServerReactorSystem::RunRevive(ServerReactorState& r) {
   if (r.revive == 0) {
     return;
   }
@@ -48,7 +50,7 @@ void ServerReactorSystem::RunRevive(ServerReactorState &r) {
   return;
 }
 
-void ServerReactorSystem::RunHit(ServerReactorState &r) {
+void ServerReactorSystem::RunHit(ServerReactorState& r) {
   if (r.hit_time == 0) {
     return;
   }
@@ -79,13 +81,13 @@ void ServerReactorSystem::RunHit(ServerReactorState &r) {
 }
 
 bool ServerReactorSystem::Run() {
-  auto &scenes = ServerSceneInstance::scenes_;
-  for (auto &sc : scenes | std::views::values) {
+  auto& scenes = ServerSceneInstance::scenes_;
+  for (auto& sc : scenes | std::views::values) {
     if (sc.clients.empty()) {
       continue;
     }
     map_id_ = sc.map_id;
-    for (auto &r : sc.reactors) {
+    for (auto& r : sc.reactors) {
       RunHit(r);
       RunScript(r);
       RunRevive(r);

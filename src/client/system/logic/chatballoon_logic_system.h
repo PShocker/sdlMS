@@ -5,7 +5,7 @@
 namespace sdlms {
 
 class ChatballoonLogicSystem {
-public:
+ public:
   static bool Run();
 };
 

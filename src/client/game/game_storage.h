@@ -2,6 +2,7 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_STORAGE_H_
 
 #include "src/client/game/game_item.h"
+
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -9,7 +10,7 @@
 namespace sdlms {
 
 
-struct GameStorage{
+struct GameStorage {
   std::vector<std::polymorphic<GameItem>> data;
   uint64_t meso;
 };

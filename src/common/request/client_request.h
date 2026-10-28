@@ -4,14 +4,15 @@
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/protocol.h"
 #include "src/server/server_main.h"
+
 #include <cstdint>
 namespace sdlms {
 
 
-
 class ClientRequest {
-public:
-  template <typename T> static void send_to_host(T &message_data) {
+ public:
+  template <typename T>
+  static void send_to_host(T& message_data) {
     // 构建 NetPacket
     fbs::NetPacketT packet;
     fbs::NetPayloadUnion u;

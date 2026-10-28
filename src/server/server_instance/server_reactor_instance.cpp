@@ -1,7 +1,5 @@
 #include "src/server/server_instance/server_reactor_instance.h"
-#include <SDL3/SDL_rect.h>
-#include "src/server/server_instance/server_client_instance.h"
-#include "src/server/server_instance/server_scene_instance.h"
+
 #include "src/client/game/game_reactor.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
@@ -10,8 +8,13 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
+#include "src/server/server_instance/server_client_instance.h"
 #include "src/server/server_instance/server_drop_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
+
+#include <SDL3/SDL_rect.h>
 #include <wz/Property.h>
+
 #include <cstdint>
 #include <string>
 #include <utility>
@@ -19,7 +22,7 @@
 namespace sdlms {
 
 
-void ServerReactorInstance::LoadReactor(ServerSceneState &scene) {
+void ServerReactorInstance::LoadReactor(ServerSceneState& scene) {
   std::vector<ServerReactorState> data;
   auto map_id = scene.map_id;
   auto map_node = WzResource::LoadMapNode(map_id);
@@ -30,13 +33,13 @@ void ServerReactorInstance::LoadReactor(ServerSceneState &scene) {
     for (auto [key, val] : *map_reactor_node->get_children()) {
       auto reactor_node = val[0];
       ServerReactorState reactor;
-      reactor.id = static_cast<wz::Property<std::u16string> *>(
+      reactor.id = static_cast<wz::Property<std::u16string>*>(
                        reactor_node->get_child(u"id"))
                        ->get();
-      auto x = static_cast<wz::Property<int> *>(reactor_node->get_child(u"x"))
-                   ->get();
-      auto y = static_cast<wz::Property<int> *>(reactor_node->get_child(u"y"))
-                   ->get();
+      auto x =
+          static_cast<wz::Property<int>*>(reactor_node->get_child(u"x"))->get();
+      auto y =
+          static_cast<wz::Property<int>*>(reactor_node->get_child(u"y"))->get();
       reactor.pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
       reactor.index = i;
       reactor.state = 0;
@@ -47,28 +50,28 @@ void ServerReactorInstance::LoadReactor(ServerSceneState &scene) {
   scene.reactors = data;
 }
 
-int ServerReactorInstance::LoadNextState(const std::u16string &id,
-                                             uint8_t state) {
+int ServerReactorInstance::LoadNextState(const std::u16string& id,
+                                         uint8_t state) {
   auto node = WzResource::reactor_->find(id + u".img");
   node = node->get_child(std::to_string(state));
   if (node->get_child(u"event")) {
     node = node->find(u"event/0/state");
-    state = static_cast<wz::Property<int> *>(node)->get();
+    state = static_cast<wz::Property<int>*>(node)->get();
   }
   return state;
 }
 
-std::u16string ServerReactorInstance::LoadScript(const std::u16string &id) {
+std::u16string ServerReactorInstance::LoadScript(const std::u16string& id) {
   std::u16string r;
   auto node = WzResource::reactor_->find(id + u".img");
   if (node->get_child(u"action")) {
     node = node->get_child(u"action");
-    r = static_cast<wz::Property<std::u16string> *>(node)->get();
+    r = static_cast<wz::Property<std::u16string>*>(node)->get();
   }
   return r;
 }
 
-uint64_t ServerReactorInstance::LoadHitCd(ServerReactorState &r) {
+uint64_t ServerReactorInstance::LoadHitCd(ServerReactorState& r) {
   auto res = Window::dt_time_;
   auto node = WzResource::reactor_->find(r.id + u".img");
   node = node->get_child(std::to_string(r.state));
@@ -77,7 +80,7 @@ uint64_t ServerReactorInstance::LoadHitCd(ServerReactorState &r) {
     for (auto [k, v] : *node->get_children()) {
       if (v[0]->get_child(u"delay")) {
         auto delay =
-            static_cast<wz::Property<int> *>(v[0]->get_child(u"delay"))->get();
+            static_cast<wz::Property<int>*>(v[0]->get_child(u"delay"))->get();
         res += delay;
       }
     }
@@ -86,12 +89,12 @@ uint64_t ServerReactorInstance::LoadHitCd(ServerReactorState &r) {
 }
 
 void ServerReactorInstance::HandleReactor(uint64_t client_id,
-                                             fbs::ClientReactorT &r) {
+                                          fbs::ClientReactorT& r) {
   if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
-  auto &scene = ServerSceneInstance::scenes_.at(r.map_id);
-  auto &reactor = scene.reactors.at(r.payload->reactor_index);
+  auto& scene = ServerSceneInstance::scenes_.at(r.map_id);
+  auto& reactor = scene.reactors.at(r.payload->reactor_index);
   if (reactor.revive != 0) {
     return;
   }
@@ -104,10 +107,10 @@ void ServerReactorInstance::HandleReactor(uint64_t client_id,
   return;
 }
 
-void ServerReactorInstance::HandleSReactor(const fbs::ReactorT &r) {
-  GameReactor *reactor = nullptr;
-  for (auto &rs : ReactorGameInstance::data_) {
-    for (auto &gr : rs) {
+void ServerReactorInstance::HandleSReactor(const fbs::ReactorT& r) {
+  GameReactor* reactor = nullptr;
+  for (auto& rs : ReactorGameInstance::data_) {
+    for (auto& gr : rs) {
       if (gr.index == r.reactor_index) {
         reactor = &gr;
         break;
@@ -139,15 +142,15 @@ void ServerReactorInstance::HandleSReactor(const fbs::ReactorT &r) {
 }
 
 void ServerReactorInstance::HandleServerReactor(uint64_t client_id,
-                                                    fbs::ServerReactorT &r) {
+                                                fbs::ServerReactorT& r) {
   HandleSReactor(*r.payload);
   return;
 }
 
 void ServerReactorInstance::HandleServerReactorDrop(
-    fbs::ServerReactorDropT &r) {
+    fbs::ServerReactorDropT& r) {
   // Drop
-  for (const auto &dt : r.payload) {
+  for (const auto& dt : r.payload) {
     ServerDropInstance::HandleServerDt(*dt);
   }
 }

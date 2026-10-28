@@ -1,8 +1,10 @@
 #ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_AUDIO_GAME_INSTANCE_H_
 #define SDLMS_SRC_CLIENT_GAME_INSTANCE_AUDIO_GAME_INSTANCE_H_
 
-#include <SDL3/SDL_audio.h>
 #include "src/client/game/game_audio.h"
+
+#include <SDL3/SDL_audio.h>
+
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -13,18 +15,18 @@ namespace sdlms {
 
 
 class AudioGameInstance {
-public:
+ public:
   static inline float backgrnd_volume_;
   static inline float audio_volume_;
 
   static inline std::vector<GameAudio> backgrnds_;
   static inline std::vector<GameAudio> audios_;
-  static GameAudioCache &LoadCache(const std::u16string &path);
+  static GameAudioCache& LoadCache(const std::u16string& path);
 
-  static void LoadAudio(const std::u16string &path, uint64_t delay);
-  static void LoadBackgrndAudio(const std::u16string &path);
+  static void LoadAudio(const std::u16string& path, uint64_t delay);
+  static void LoadBackgrndAudio(const std::u16string& path);
 
-  static void CloseAudio(const GameAudio &audio);
+  static void CloseAudio(const GameAudio& audio);
 
   static void Init();
   static inline SDL_AudioDeviceID device_id_;

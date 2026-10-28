@@ -4,7 +4,7 @@
 #include <cstdint>
 namespace sdlms {
 
-struct GameGauge{
+struct GameGauge {
   float hp_percent;
   float hp_percent_now;
 };

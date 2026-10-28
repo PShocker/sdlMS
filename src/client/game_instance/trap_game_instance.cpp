@@ -1,10 +1,13 @@
 #include "src/client/game_instance/trap_game_instance.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/game/game_obj.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
 #include <wz/Property.h>
 #include <wz/Wz.h>
+
 #include <chrono>
 #include <cstdint>
 #include <flat_map>
@@ -14,7 +17,7 @@
 namespace sdlms {
 
 
-void TrapGameInstance::Load(wz::Node *image) {
+void TrapGameInstance::Load(wz::Node* image) {
   data_ = {};
   auto map_node = image;
   uint8_t map_layer = 0;
@@ -23,34 +26,34 @@ void TrapGameInstance::Load(wz::Node *image) {
     for (auto [key, val] : *layer_node->get_child(u"obj")->get_children()) {
       GameObj g_obj;
       auto obj_node = val[0];
-      auto oS = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"oS"))
-                    ->get();
+      auto oS =
+          static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"oS"))
+              ->get();
       if (oS != u"obj_trap") {
         continue;
       }
-      auto l0 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l0"))
-                    ->get();
-      auto l1 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l1"))
-                    ->get();
-      auto l2 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l2"))
-                    ->get();
+      auto l0 =
+          static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"l0"))
+              ->get();
+      auto l1 =
+          static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"l1"))
+              ->get();
+      auto l2 =
+          static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"l2"))
+              ->get();
       g_obj.path = u"Obj/" + oS + u".img/" + l0 + u"/" + l1 + u"/" + l2;
 
       auto x =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"x"))->get();
+          static_cast<wz::Property<int>*>(obj_node->get_child(u"x"))->get();
       auto y =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"y"))->get();
+          static_cast<wz::Property<int>*>(obj_node->get_child(u"y"))->get();
       auto z =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"z"))->get();
+          static_cast<wz::Property<int>*>(obj_node->get_child(u"z"))->get();
 
       g_obj.pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
 
       auto flip =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"f"))->get();
+          static_cast<wz::Property<int>*>(obj_node->get_child(u"f"))->get();
 
       g_obj.flip = flip;
 
@@ -64,14 +67,14 @@ void TrapGameInstance::Load(wz::Node *image) {
       std::vector<int> delays;
       for (auto [k, v] : *obj_node->get_children()) {
         if (v[0]->type == wz::Type::UOL) {
-          v[0] = static_cast<wz::Property<wz::WzUOL> *>(v[0])->get_uol();
+          v[0] = static_cast<wz::Property<wz::WzUOL>*>(v[0])->get_uol();
         }
         if (v[0]->type == wz::Type::Canvas) {
           canvas_count++;
           int delay = 100;
           if (v[0]->get_child(u"delay")) {
             delay =
-                static_cast<wz::Property<int> *>(obj_node->get_child(u"delay"))
+                static_cast<wz::Property<int>*>(obj_node->get_child(u"delay"))
                     ->get();
           }
           delays.push_back(delay);
@@ -91,11 +94,11 @@ void TrapGameInstance::Load(wz::Node *image) {
   }
 }
 
-TrapGameInstance::AnimateData
-TrapGameInstance::LoadAnimateIndex(std::vector<int> delays) {
+TrapGameInstance::AnimateData TrapGameInstance::LoadAnimateIndex(
+    std::vector<int> delays) {
   auto ds = delays;
   auto sum = std::accumulate(ds.begin(), ds.end(), 0);
-  auto offset = Window::dt_time_ % sum; // 取余，得到周期内偏移
+  auto offset = Window::dt_time_ % sum;  // 取余，得到周期内偏移
   uint32_t accumulated = 0;
   uint8_t index = 0;
   for (auto j = 0; j < ds.size(); j++) {
@@ -111,8 +114,8 @@ TrapGameInstance::LoadAnimateIndex(std::vector<int> delays) {
   return data;
 }
 
-std::vector<int> TrapGameInstance::LoadAnimateDelays(wz::Node *node) {
-  static std::flat_map<wz::Node *, std::vector<int>> cache;
+std::vector<int> TrapGameInstance::LoadAnimateDelays(wz::Node* node) {
+  static std::flat_map<wz::Node*, std::vector<int>> cache;
   if (!cache.contains(node)) {
     for (int i = 0;; i++) {
       auto n = node->get_child(std::to_string(i));
@@ -120,7 +123,7 @@ std::vector<int> TrapGameInstance::LoadAnimateDelays(wz::Node *node) {
         break;
       }
       auto delay =
-          static_cast<wz::Property<int> *>(n->get_child(u"delay"))->get();
+          static_cast<wz::Property<int>*>(n->get_child(u"delay"))->get();
       cache[node].push_back(delay);
     }
   }

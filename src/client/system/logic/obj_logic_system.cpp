@@ -1,16 +1,19 @@
 #include "src/client/system/logic/obj_logic_system.h"
+
 #include "src/client/game_instance/obj_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
 #include <wz/Property.h>
 #include <wz/Wz.h>
+
 #include <cstdint>
 #include <ranges>
 #include <string>
 namespace sdlms {
 
 
-void ObjLogicSystem::RunAnimate(GameObj &g_obj) {
+void ObjLogicSystem::RunAnimate(GameObj& g_obj) {
   if (g_obj.ani_count > 1) {
     g_obj.ani_time += Window::delta_time_;
 
@@ -19,12 +22,12 @@ void ObjLogicSystem::RunAnimate(GameObj &g_obj) {
     auto obj_node = WzResource::map_->find(g_obj.path);
     obj_node = obj_node->get_child(index);
     if (obj_node->type == wz::Type::UOL) {
-      obj_node = static_cast<wz::Property<wz::WzUOL> *>(obj_node)->get_uol();
+      obj_node = static_cast<wz::Property<wz::WzUOL>*>(obj_node)->get_uol();
     }
     int32_t delay = 100;
     auto delay_node = obj_node->get_child(u"delay");
     if (delay_node != nullptr) {
-      delay = static_cast<wz::Property<int> *>(delay_node)->get();
+      delay = static_cast<wz::Property<int>*>(delay_node)->get();
     }
 
     if (g_obj.ani_time >= delay) {
@@ -35,20 +38,20 @@ void ObjLogicSystem::RunAnimate(GameObj &g_obj) {
   }
 }
 
-void ObjLogicSystem::RunAlpha(GameObj &g_obj) {
+void ObjLogicSystem::RunAlpha(GameObj& g_obj) {
   auto obj_node = WzResource::map_->find(g_obj.path);
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
   if (obj_node->type == wz::Type::UOL) {
-    obj_node = static_cast<wz::Property<wz::WzUOL> *>(obj_node)->get_uol();
+    obj_node = static_cast<wz::Property<wz::WzUOL>*>(obj_node)->get_uol();
   }
   if (obj_node->get_child(u"a0")) {
     auto a0 =
-        static_cast<wz::Property<int> *>(obj_node->get_child(u"a0"))->get();
+        static_cast<wz::Property<int>*>(obj_node->get_child(u"a0"))->get();
     auto a1 =
-        static_cast<wz::Property<int> *>(obj_node->get_child(u"a1"))->get();
+        static_cast<wz::Property<int>*>(obj_node->get_child(u"a1"))->get();
     auto delay_node = obj_node->get_child(u"delay");
-    auto delay = static_cast<wz::Property<int> *>(delay_node)->get();
+    auto delay = static_cast<wz::Property<int>*>(delay_node)->get();
 
     float t = (float)g_obj.ani_time / (float)delay;
     g_obj.alpha = a0 + (a1 - a0) * t;
@@ -56,8 +59,8 @@ void ObjLogicSystem::RunAlpha(GameObj &g_obj) {
 }
 
 bool ObjLogicSystem::Run() {
-  for (auto &o : ObjGameInstance::data_) {
-    for (auto &g_obj : o | std::views::values) {
+  for (auto& o : ObjGameInstance::data_) {
+    for (auto& g_obj : o | std::views::values) {
       RunAnimate(g_obj);
       RunAlpha(g_obj);
     }

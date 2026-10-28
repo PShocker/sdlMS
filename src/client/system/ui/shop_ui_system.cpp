@@ -1,9 +1,5 @@
 #include "src/client/system/ui/shop_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
-#include "src/client/system/ui/notice_ui_system.h"
-#include "src/client/system/ui/package_ui_system.h"
-#include "src/client/system/ui/scroll_ui_system.h"
+
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
@@ -21,11 +17,18 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/notice_ui_system.h"
+#include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system/ui/scroll_ui_system.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
-#include "src/client/system/ui/tooltip_ui_system.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <wz/Property.h>
+
 #include <algorithm>
 #include <optional>
 #include <string>
@@ -34,7 +37,9 @@
 namespace sdlms {
 
 
-SDL_FPoint ShopUiSystem::LoadWh() { return SDL_FPoint{465, 381}; }
+SDL_FPoint ShopUiSystem::LoadWh() {
+  return SDL_FPoint{465, 381};
+}
 
 void ShopUiSystem::RenderBackgrnd() {
   static auto texture = WzResource::LoadTexture(
@@ -48,9 +53,9 @@ void ShopUiSystem::RenderBackgrnd() {
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
 }
 
-void ShopUiSystem::RenderItem(std::vector<GameShopItem> &items, int page,
-                                 SDL_FPoint p) {
-  GameShopItem *item_info = nullptr;
+void ShopUiSystem::RenderItem(std::vector<GameShopItem>& items, int page,
+                              SDL_FPoint p) {
+  GameShopItem* item_info = nullptr;
   const auto page_size = 6;
   for (int i = page; i < page + page_size; i++) {
     auto x = (int)pos_.x + p.x;
@@ -67,11 +72,11 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem> &items, int page,
       SDL_RenderTexture(Window::renderer_, icon, nullptr, &pos_rect);
       continue;
     }
-    auto &item = items[i];
+    auto& item = items[i];
     if (item.item->id.empty()) {
       continue;
     }
-    SDL_Texture *texture;
+    SDL_Texture* texture;
     std::u16string item_name;
     if (ItemGameInstance::CheckItem(item.item->id)) {
       auto info = ItemGameInstance::LoadItemInfo(item.item->id, 0);
@@ -104,7 +109,7 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem> &items, int page,
 
     pos_rect.w = 202;
     pos_rect.h = 35;
-    const auto &mouse_pos = Window::mouse_pos_;
+    const auto& mouse_pos = Window::mouse_pos_;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       item_info = &item;
     }
@@ -116,8 +121,8 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem> &items, int page,
     y = y - 2;
     Freetype::DrawLine(item_name, x, y);
     // render meso
-    static auto meso = WzResource::LoadTexture(
-        WzResource::ui_->find(u"UIShop.img/Shop/meso"));
+    static auto meso =
+        WzResource::LoadTexture(WzResource::ui_->find(u"UIShop.img/Shop/meso"));
     pos_rect.x = x;
     pos_rect.y = y + 23;
     pos_rect.w = meso->w;
@@ -126,7 +131,7 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem> &items, int page,
     auto tmp = std::to_string(item.price);
     std::u16string tmp2{tmp.begin(), tmp.end()};
     auto n = WzResource::ms_->get_root()->find(u"String.img/Shop/mesos");
-    tmp2 = tmp2 + u" " + static_cast<wz::Property<std::u16string> *>(n)->get();
+    tmp2 = tmp2 + u" " + static_cast<wz::Property<std::u16string>*>(n)->get();
     Freetype::DrawLine(tmp2, pos_rect.x + 15, pos_rect.y - 4);
   }
 
@@ -138,7 +143,7 @@ void ShopUiSystem::RenderItem(std::vector<GameShopItem> &items, int page,
 void ShopUiSystem::RenderPkgItems() {
   std::vector<GameShopItem> items;
   auto its = ShopGameInstance::LoadPkgItems(active_tab_[1]);
-  for (auto &itm : its) {
+  for (auto& itm : its) {
     if (itm != nullptr) {
       auto item = ShopGameInstance::LoadShopItem((*itm)->id);
       item.item = *itm;
@@ -148,7 +153,7 @@ void ShopUiSystem::RenderPkgItems() {
       items.push_back(item);
     }
   }
-  auto &r = PackageGameInstance::data_[active_tab_[1]];
+  auto& r = PackageGameInstance::data_[active_tab_[1]];
   if (items.size() < 6) {
     auto min = std::min(items.size() + 6, r.size());
     items.resize(min);
@@ -176,14 +181,13 @@ void ShopUiSystem::RenderVscr() {
   auto CursorIn = CursorGameInstance::cursor_ui;
   auto items_size = 0;
   if (active_tab_[0] == 0) {
-    auto &items = shop_->items;
+    auto& items = shop_->items;
     items_size = items.size();
   } else {
-    auto &items = ShopGameInstance::must_;
+    auto& items = ShopGameInstance::must_;
     items_size = items.size();
   }
-  bool top =
-      CursorIn == Render && CursorGameInstance::modal_overlay == Render;
+  bool top = CursorIn == Render && CursorGameInstance::modal_overlay == Render;
   ScrollUiSystem::RenderVscroll(x, y, pages_[0], items_size, length, top, 6);
   x += 230;
   auto pkg_size = ShopGameInstance::LoadPkgItems(active_tab_[1]).size();
@@ -198,16 +202,16 @@ void ShopUiSystem::RenderButton() {
       WzResource::ui_->find(u"UIShop.img/Shop/BtExit"),
   };
   const std::array buttons_rect = {
-      SDL_FRect{154, 34, 68, 16}, //
-      SDL_FRect{384, 34, 68, 16}, //
-      SDL_FRect{154, 14, 68, 16}, //
+      SDL_FRect{154, 34, 68, 16},  //
+      SDL_FRect{384, 34, 68, 16},  //
+      SDL_FRect{154, 14, 68, 16},  //
   };
   for (size_t i = 0; i < buttons_node.size(); ++i) {
     auto k = buttons_node[i];
     auto pos_rect = buttons_rect[i];
     pos_rect.x += (int)pos_.x;
     pos_rect.y += (int)pos_.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
@@ -228,8 +232,8 @@ void ShopUiSystem::RenderButton() {
 
 void ShopUiSystem::RenderTab() {
   const static std::array tab_pos0 = {
-      SDL_FPoint{7, 96},  //
-      SDL_FPoint{64, 96}, //
+      SDL_FPoint{7, 96},   //
+      SDL_FPoint{64, 96},  //
   };
   const static auto tab_node0 =
       WzResource::ui_->find(u"UIShop.img/Shop/TabBuy");
@@ -242,7 +246,7 @@ void ShopUiSystem::RenderTab() {
       WzResource::LoadTexture(tab_node0->find(u"disabled/1")),
   };
   for (uint8_t i = 0; i < tab_pos0.size(); i++) {
-    SDL_Texture *t =
+    SDL_Texture* t =
         active_tab_[0] == i ? active_texture0[i] : disabled_texture0[i];
     SDL_FRect pos_rect{static_cast<float>(int(pos_.x + tab_pos0[i].x)),
                        static_cast<float>(int(pos_.y + tab_pos0[i].y)),
@@ -252,10 +256,10 @@ void ShopUiSystem::RenderTab() {
 
   //
   const static std::array tab_pos1 = {
-      SDL_FPoint{237, 96}, //
-      SDL_FPoint{281, 96}, //
-      SDL_FPoint{325, 96}, //
-      SDL_FPoint{369, 96}, //
+      SDL_FPoint{237, 96},  //
+      SDL_FPoint{281, 96},  //
+      SDL_FPoint{325, 96},  //
+      SDL_FPoint{369, 96},  //
   };
   const static auto tab_node1 =
       WzResource::ui_->find(u"UIShop.img/Shop/TabSell");
@@ -272,7 +276,7 @@ void ShopUiSystem::RenderTab() {
       WzResource::LoadTexture(tab_node1->find(u"disabled/3")),
   };
   for (uint8_t i = 0; i < tab_pos1.size(); i++) {
-    SDL_Texture *t =
+    SDL_Texture* t =
         active_tab_[1] == i ? active_texture1[i] : disabled_texture1[i];
     SDL_FRect pos_rect{static_cast<float>(int(pos_.x + tab_pos1[i].x)),
                        static_cast<float>(int(pos_.y + tab_pos1[i].y)),
@@ -318,7 +322,7 @@ void ShopUiSystem::RenderNpc() {
   }
   auto n = npc_.value();
   n.action = u"stand";
-  const auto &camera = CameraGameInstance::camera_;
+  const auto& camera = CameraGameInstance::camera_;
   n.pos.x = camera.x + pos_.x + 55;
   n.pos.y = camera.y + pos_.y + 76;
   n.ani_index = 0;
@@ -332,31 +336,31 @@ void ShopUiSystem::RenderAvatar() {
   self.flip = 0;
   self.face.action = u"default";
   self.face.index = 0;
-  const auto &camera = CameraGameInstance::camera_;
+  const auto& camera = CameraGameInstance::camera_;
   self.pos.x = camera.x + (int)pos_.x + 290;
   self.pos.y = camera.y + (int)pos_.y + 76;
   CharacterRenderSystem::RenderCharacter(self);
 }
 
-void ShopUiSystem::RenderItemInfo(std::polymorphic<GameItem> &item) {
-  auto &mouse_pos = Window::mouse_pos_;
+void ShopUiSystem::RenderItemInfo(std::polymorphic<GameItem>& item) {
+  auto& mouse_pos = Window::mouse_pos_;
   SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
   switch (item->type) {
-  case ItemEnum::kEquip: {
-    auto eqp = static_cast<GameEquipItem &>(*item);
-    TooltipUiSystem::RenderEquip(eqp, show_pos.x, show_pos.y);
-    auto self = CharacterGameInstance::self_;
-    auto eqps = EquipGameInstance::LoadEquipSlot(eqp.id, self);
-    if (!eqps.empty()) {
-      TooltipUiSystem::RenderEquip(eqps[0], show_pos.x + 238, show_pos.y);
+    case ItemEnum::kEquip: {
+      auto eqp = static_cast<GameEquipItem&>(*item);
+      TooltipUiSystem::RenderEquip(eqp, show_pos.x, show_pos.y);
+      auto self = CharacterGameInstance::self_;
+      auto eqps = EquipGameInstance::LoadEquipSlot(eqp.id, self);
+      if (!eqps.empty()) {
+        TooltipUiSystem::RenderEquip(eqps[0], show_pos.x + 238, show_pos.y);
+      }
+      break;
     }
-    break;
-  }
-  default: {
-    auto itm = static_cast<GameItem &>(*item);
-    TooltipUiSystem::RenderItem(itm, show_pos.x, show_pos.y);
-    break;
-  }
+    default: {
+      auto itm = static_cast<GameItem&>(*item);
+      TooltipUiSystem::RenderItem(itm, show_pos.x, show_pos.y);
+      break;
+    }
   }
 }
 
@@ -364,8 +368,7 @@ void ShopUiSystem::RenderMeso() {
   Freetype::LoadSize(12);
   Freetype::LoadAligned(true);
   Freetype::LoadColor(0, 0, 0, 255);
-  auto meso =
-      TextGameInstance::FormatWithCommas(PackageGameInstance::meso_);
+  auto meso = TextGameInstance::FormatWithCommas(PackageGameInstance::meso_);
   std::u16string meso2 = {meso.begin(), meso.end()};
   auto w = Freetype::LoadW(meso2);
   Freetype::DrawLine(meso2, pos_.x + 448 - w, pos_.y + 64);
@@ -391,7 +394,7 @@ void ShopUiSystem::Open() {
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -405,7 +408,7 @@ void ShopUiSystem::Open() {
   }
 }
 
-bool ShopUiSystem::EventButton(SDL_Event *Event) {
+bool ShopUiSystem::EventButton(SDL_Event* Event) {
   std::vector<void (*)()> fns;
   auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
@@ -435,18 +438,20 @@ void ShopUiSystem::Close() {
 
 bool ShopUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos_;
+  auto& mouse = Window::mouse_pos_;
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void ShopUiSystem::EventClose() { Close(); }
+void ShopUiSystem::EventClose() {
+  Close();
+}
 
-std::optional<int> ShopUiSystem::EventItemClick(SDL_Event *Event,
-                                                    SDL_FPoint p) {
+std::optional<int> ShopUiSystem::EventItemClick(SDL_Event* Event,
+                                                SDL_FPoint p) {
   auto x = (int)pos_.x + p.x;
   auto y = (int)pos_.y + p.y;
-  const auto &mouse_pos = Window::mouse_pos_;
+  const auto& mouse_pos = Window::mouse_pos_;
   SDL_FRect pos_rect;
   pos_rect.x = x;
   pos_rect.y = y;
@@ -458,10 +463,10 @@ std::optional<int> ShopUiSystem::EventItemClick(SDL_Event *Event,
   return std::nullopt;
 }
 
-bool ShopUiSystem::EventItem(SDL_Event *Event) {
+bool ShopUiSystem::EventItem(SDL_Event* Event) {
   auto item0 = EventItemClick(Event, {8, 129});
   if (item0.has_value()) {
-    const std::vector<GameShopItem> *items =
+    const std::vector<GameShopItem>* items =
         (active_tab_[0] == 0) ? &shop_->items : &ShopGameInstance::must_;
     auto index = pages_[0] + item0.value();
     if (index >= items->size()) {
@@ -473,7 +478,7 @@ bool ShopUiSystem::EventItem(SDL_Event *Event) {
       return true;
     }
     auto meso = PackageGameInstance::meso_;
-    const auto &itm = items->at(index);
+    const auto& itm = items->at(index);
     auto itm2 = items->at(index);
     bool space = PackageGameInstance::LoadEmptyIndex(itm2.item).empty();
     if (meso < itm.price) {
@@ -483,8 +488,8 @@ bool ShopUiSystem::EventItem(SDL_Event *Event) {
       return true;
     } else {
       NoticeUiSystem::type_ = (itm.item->type == ItemEnum::kEquip)
-                                   ? NoticeUiSystem::NoticeEnum::kShopbuy
-                                   : NoticeUiSystem::NoticeEnum::kShopbuyMul;
+                                  ? NoticeUiSystem::NoticeEnum::kShopbuy
+                                  : NoticeUiSystem::NoticeEnum::kShopbuyMul;
       NoticeUiSystem::data_ = &itm;
     }
     NoticeUiSystem::Open();
@@ -513,8 +518,7 @@ bool ShopUiSystem::EventItem(SDL_Event *Event) {
       if (num == 1 || unitPrice) {
         NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuySell;
       } else {
-        NoticeUiSystem::type_ =
-            NoticeUiSystem::NoticeEnum::kShopbuySellMul;
+        NoticeUiSystem::type_ = NoticeUiSystem::NoticeEnum::kShopbuySellMul;
       }
     }
     NoticeUiSystem::data_ = itm;
@@ -523,7 +527,7 @@ bool ShopUiSystem::EventItem(SDL_Event *Event) {
   return false;
 }
 
-bool ShopUiSystem::EventVscr(SDL_Event *Event) {
+bool ShopUiSystem::EventVscr(SDL_Event* Event) {
   const uint32_t length = 235;
   auto x = (int)pos_.x + 212;
   auto y = (int)pos_.y + 129;
@@ -546,8 +550,8 @@ bool ShopUiSystem::EventVscr(SDL_Event *Event) {
   return true;
 }
 
-bool ShopUiSystem::EventTab(SDL_Event *Event) {
-  const auto &mouse_pos = Window::mouse_pos_;
+bool ShopUiSystem::EventTab(SDL_Event* Event) {
+  const auto& mouse_pos = Window::mouse_pos_;
 
   // 第一组标签页（商店分类）
   const static std::array tab_pos0 = {
@@ -590,7 +594,7 @@ bool ShopUiSystem::EventTab(SDL_Event *Event) {
   return false;
 }
 
-void ShopUiSystem::EventVscrStart(SDL_Event *Event) {
+void ShopUiSystem::EventVscrStart(SDL_Event* Event) {
   SDL_FPoint lt{212, 129};
   const uint32_t length = 235;
   if (vscr_motion_[0] == false) {
@@ -604,9 +608,11 @@ void ShopUiSystem::EventVscrStart(SDL_Event *Event) {
   }
 }
 
-void ShopUiSystem::EventVscrEnd() { vscr_motion_ = {}; }
+void ShopUiSystem::EventVscrEnd() {
+  vscr_motion_ = {};
+}
 
-void ShopUiSystem::EventVscrMove(SDL_Event *Event) {
+void ShopUiSystem::EventVscrMove(SDL_Event* Event) {
   auto mouse_state = Window::mouse_state_;
   SDL_FPoint lt{212, 129};
   const uint32_t length = 235;
@@ -625,49 +631,49 @@ void ShopUiSystem::EventVscrMove(SDL_Event *Event) {
   }
 }
 
-bool ShopUiSystem::Event(SDL_Event *Event) {
+bool ShopUiSystem::Event(SDL_Event* Event) {
   switch (Event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_ESCAPE: {
-      EventClose();
+    case SDL_EVENT_KEY_DOWN: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_ESCAPE: {
+          EventClose();
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          if (EventItem(Event)) {
+            return false;
+          }
+          if (EventTab(Event)) {
+            return false;
+          }
+          EventButton(Event);
+          EventVscr(Event);
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
       break;
     }
     default: {
       break;
     }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        if (EventItem(Event)) {
-          return false;
-        }
-        if (EventTab(Event)) {
-          return false;
-        }
-        EventButton(Event);
-        EventVscr(Event);
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   return false;

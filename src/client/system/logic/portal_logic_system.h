@@ -2,7 +2,7 @@
 #define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_PORTAL_LOGIC_SYSTEM_H_
 namespace sdlms {
 class PortalLogicSystem {
-public:
+ public:
   static bool Run();
 };
 

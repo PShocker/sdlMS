@@ -5,11 +5,11 @@
 namespace sdlms {
 
 class BackgrndLogicSystem {
-private:
-  static void RunOffset(GameBackgrnd &g_backgrnd);
-  static void RunAnimate(GameBackgrnd &g_backgrnd);
+ private:
+  static void RunOffset(GameBackgrnd& g_backgrnd);
+  static void RunAnimate(GameBackgrnd& g_backgrnd);
 
-public:
+ public:
   static bool Run();
 };
 

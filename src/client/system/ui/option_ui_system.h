@@ -1,36 +1,38 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_OPTION_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_OPTION_UI_SYSTEM_H_
 
-#include <SDL3/SDL_events.h>
 #include "src/client/system/ui/combo_box_ui_system.h"
 #include "src/client/system/ui/text_input_ui_system.h"
+
+#include <SDL3/SDL_events.h>
+
 #include <cstdint>
 #include <optional>
 namespace sdlms {
 
 class OptionUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderButton();
   static void RenderTab();
   static void RenderOption();
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
   static void EventButtonOk();
 
-  static void EventTab(SDL_Event *Event);
+  static void EventTab(SDL_Event* Event);
 
   static void EventTop();
-  static void EventDragStart(SDL_Event *Event);
+  static void EventDragStart(SDL_Event* Event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event *Event);
-  static void EventMotionBtAudio(SDL_Event *Event);
+  static void EventDragMove(SDL_Event* Event);
+  static void EventMotionBtAudio(SDL_Event* Event);
 
   static SDL_FPoint LoadWh();
 
   static inline std::optional<SDL_FPoint> drag_;
 
-public:
+ public:
   // sound
   static inline uint8_t master_volume_;
   static inline bool master_volume_mute_;
@@ -43,7 +45,7 @@ public:
   static inline uint8_t skill_volume_;
   static inline bool skill_volume_mute_;
 
-  //social
+  // social
   static inline bool whisper_;
   static inline bool chat_invite_;
   static inline bool friend_chat_;
@@ -120,7 +122,7 @@ public:
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
   static void Toggle();

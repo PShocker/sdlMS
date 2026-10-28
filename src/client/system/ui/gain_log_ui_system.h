@@ -1,11 +1,11 @@
 
 namespace sdlms {
 class GainLogUiSystem {
-private:
+ private:
   static void RenderText();
   static void Destory();
 
-public:
+ public:
   static bool Render();
 };
 

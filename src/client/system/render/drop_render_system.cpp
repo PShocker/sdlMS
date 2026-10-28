@@ -1,51 +1,54 @@
 #include "src/client/system/render/drop_render_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+
 #include <string>
 namespace sdlms {
 
 
-bool DropRenderSystem::Render(GameDrop &g_drop) {
-  SDL_Texture *icon;
+bool DropRenderSystem::Render(GameDrop& g_drop) {
+  SDL_Texture* icon;
   SDL_FPoint o;
   switch (g_drop.data->type) {
-  case ItemEnum::kEquip: {
-  case ItemEnum::kDeco:
-    auto equip_info = EquipGameInstance::LoadEquipInfo(g_drop.data->id);
-    icon = WzResource::LoadTexture(equip_info->get_child(u"iconRaw"));
-    o = WzResource::LoadFpoint(
-        equip_info->get_child(u"iconRaw")->get_child(u"origin"));
-    break;
-  }
-  case ItemEnum::kConsume:
-  case ItemEnum::kEtc:
-  case ItemEnum::kInstall: {
-    auto item_num = ItemGameInstance::LoadItemNum(g_drop.data);
-    auto item_info =
-        ItemGameInstance::LoadItemInfo(g_drop.data->id, item_num);
-    if (item_info->get_child(u"iconRaw")) {
-      item_info = item_info->get_child(u"iconRaw");
-      icon = WzResource::LoadTexture(item_info);
-      o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
-    } else {
-      auto now = Window::dt_now_;
-      auto sum = item_info->children_count() * 100;
-      auto offset = now % sum; // 取余，得到周期内偏移
-      auto i = offset / 100;
-      item_info = item_info->get_child(std::to_string(i));
-      icon = WzResource::LoadTexture(item_info);
-      o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
+    case ItemEnum::kEquip: {
+      case ItemEnum::kDeco:
+        auto equip_info = EquipGameInstance::LoadEquipInfo(g_drop.data->id);
+        icon = WzResource::LoadTexture(equip_info->get_child(u"iconRaw"));
+        o = WzResource::LoadFpoint(
+            equip_info->get_child(u"iconRaw")->get_child(u"origin"));
+        break;
     }
-    break;
-  }
-  case ItemEnum::kCash: {
-    break;
-  }
+    case ItemEnum::kConsume:
+    case ItemEnum::kEtc:
+    case ItemEnum::kInstall: {
+      auto item_num = ItemGameInstance::LoadItemNum(g_drop.data);
+      auto item_info =
+          ItemGameInstance::LoadItemInfo(g_drop.data->id, item_num);
+      if (item_info->get_child(u"iconRaw")) {
+        item_info = item_info->get_child(u"iconRaw");
+        icon = WzResource::LoadTexture(item_info);
+        o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
+      } else {
+        auto now = Window::dt_now_;
+        auto sum = item_info->children_count() * 100;
+        auto offset = now % sum;  // 取余，得到周期内偏移
+        auto i = offset / 100;
+        item_info = item_info->get_child(std::to_string(i));
+        icon = WzResource::LoadTexture(item_info);
+        o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
+      }
+      break;
+    }
+    case ItemEnum::kCash: {
+      break;
+    }
   }
   SDL_FRect pos_rect{
       g_drop.pos.x - o.x,
@@ -53,7 +56,7 @@ bool DropRenderSystem::Render(GameDrop &g_drop) {
       static_cast<float>(icon->w),
       static_cast<float>(icon->h),
   };
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;

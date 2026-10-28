@@ -2,8 +2,8 @@
 #define SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_REGION_SKILL_SYSTEM_H_
 namespace sdlms {
 class ServerRegionSkillSystem {
-private:
-public:
+ private:
+ public:
   static bool Run();
 };
 

@@ -4,6 +4,8 @@ namespace sdlms {
 
 void PlayerShopUiSystem::RenderBackgrnd() {}
 
-bool PlayerShopUiSystem::Render() { return true; }
+bool PlayerShopUiSystem::Render() {
+  return true;
+}
 
 }  // namespace sdlms

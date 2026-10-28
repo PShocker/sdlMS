@@ -1,6 +1,5 @@
 #include "src/client/system/ui/craft_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -8,6 +7,10 @@
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>
@@ -16,8 +19,8 @@ namespace sdlms {
 
 
 void CraftUiSystem::RenderBackgrnd() {
-  static auto texture = WzResource::LoadTexture(
-      WzResource::ui_->find(u"Crafting.img/backgrnd"));
+  static auto texture =
+      WzResource::LoadTexture(WzResource::ui_->find(u"Crafting.img/backgrnd"));
   SDL_FRect pos_rect{pos_.x, pos_.y, static_cast<float>(texture->w),
                      static_cast<float>(texture->h)};
   SDL_RenderTexture(Window::renderer_, texture, nullptr, &pos_rect);
@@ -45,7 +48,7 @@ void CraftUiSystem::RenderTab() {
       WzResource::LoadTexture(tab_node->find(u"normal/5")),
   };
   for (uint8_t i = 0; i < selected_texture.size(); i++) {
-    SDL_Texture *t =
+    SDL_Texture* t =
         selected_tab_ == i ? selected_texture[i] : normal_texture[i];
     SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 88), lt.y};
     SDL_FRect pos_rect{static_cast<float>(int(pos_.x + tab_pos.x)),
@@ -61,14 +64,16 @@ bool CraftUiSystem::Render() {
   return true;
 }
 
-SDL_FPoint CraftUiSystem::LoadWh() { return {545, 409}; }
+SDL_FPoint CraftUiSystem::LoadWh() {
+  return {545, 409};
+}
 
 void CraftUiSystem::Open() {
   auto it =
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
     auto wh = LoadWh();
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = (camera.w - wh.x) / 2;
     pos_.y = (camera.h - wh.y) / 2;
 
@@ -93,7 +98,7 @@ void CraftUiSystem::EventTop() {
   }
 }
 
-void CraftUiSystem::EventDragStart(SDL_Event *Event) {
+void CraftUiSystem::EventDragStart(SDL_Event* Event) {
   auto wh = LoadWh();
   SDL_FRect pos_rect = {pos_.x, pos_.y, wh.x, 20};
   SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
@@ -108,10 +113,10 @@ void CraftUiSystem::EventDragEnd() {
   return;
 }
 
-void CraftUiSystem::EventDragMove(SDL_Event *Event) {
+void CraftUiSystem::EventDragMove(SDL_Event* Event) {
   if (drag_.has_value()) {
     pos_ = {Event->motion.x + drag_->x, Event->motion.y + drag_->y};
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     auto [w, h] = LoadWh();
     pos_.x = std::clamp(pos_.x, (float)0, camera.w - w);
     pos_.y = std::clamp(pos_.y, (float)0, camera.h - h);
@@ -131,12 +136,12 @@ void CraftUiSystem::Toggle() {
 
 bool CraftUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos_;
+  auto& mouse = Window::mouse_pos_;
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void CraftUiSystem::EventTab(SDL_Event *Event) {
+void CraftUiSystem::EventTab(SDL_Event* Event) {
   const static SDL_FPoint lt = {9, 23};
   const static SDL_FPoint rb = {537, 44};
   for (uint8_t i = 0; i <= 5; i++) {
@@ -148,40 +153,42 @@ void CraftUiSystem::EventTab(SDL_Event *Event) {
   }
 }
 
-bool CraftUiSystem::Event(SDL_Event *Event) {
+bool CraftUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTop();
-        EventDragStart(Event);
-        r = false;
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTop();
+          EventDragStart(Event);
+          r = false;
+        }
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventTab(Event);
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventTab(Event);
+        }
+        EventDragEnd();
       }
-      EventDragEnd();
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventDragMove(Event);
-    break;
-  }
-  default: {
-    break;
-  }
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventDragMove(Event);
+      break;
+    }
+    default: {
+      break;
+    }
   }
 
   return r;
 }
 
-bool CraftUiSystem::Run() { return true; }
+bool CraftUiSystem::Run() {
+  return true;
+}
 
 }  // namespace sdlms

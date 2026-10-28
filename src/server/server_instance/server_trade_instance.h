@@ -7,9 +7,9 @@ namespace sdlms {
 
 
 class ServerTradeInstance {
-public:
-  static void HandleClient(uint64_t client_id, fbs::ClientCharacterTradeT &r);
-  static void HandleServer(uint64_t client_id, fbs::ServerCharacterTradeT &r);
+ public:
+  static void HandleClient(uint64_t client_id, fbs::ClientCharacterTradeT& r);
+  static void HandleServer(uint64_t client_id, fbs::ServerCharacterTradeT& r);
 };
 
 }  // namespace sdlms

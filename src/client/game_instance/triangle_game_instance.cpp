@@ -1,20 +1,21 @@
 #include "src/client/game_instance/triangle_game_instance.h"
+
 #include "src/client/game/game_triangle.h"
 namespace sdlms {
 
 
-bool TriangleGameInstance::RectInsTri(SDL_FRect &r, GameTriangle &t) {
+bool TriangleGameInstance::RectInsTri(SDL_FRect& r, GameTriangle& t) {
   // 1. 获取矩形4个顶点
   std::array<SDL_FPoint, 4> rect_pts = {
       {{r.x, r.y}, {r.x + r.w, r.y}, {r.x, r.y + r.h}, {r.x + r.w, r.y + r.h}}};
 
   // 2. 获取三角形3个顶点
-  auto &[v1, v2, v3] = t.point;
+  auto& [v1, v2, v3] = t.point;
   std::array<SDL_FPoint, 3> tri_pts = {{v1, v2, v3}};
 
   // 3. 投影函数：将多边形投影到指定轴上
-  auto project = [](const auto &pts, const SDL_FPoint &axis, float &min,
-                    float &max) {
+  auto project = [](const auto& pts, const SDL_FPoint& axis, float& min,
+                    float& max) {
     // 计算第一个顶点的投影值
     min = max = pts[0].x * axis.x + pts[0].y * axis.y;
 
@@ -32,15 +33,15 @@ bool TriangleGameInstance::RectInsTri(SDL_FRect &r, GameTriangle &t) {
   //    矩形：水平轴(1,0) 和 垂直轴(0,1)
   //    三角形：三条边的法线方向
   std::array<SDL_FPoint, 5> axes = {{
-      {1.0f, 0.0f},                  // 矩形水平轴
-      {0.0f, 1.0f},                  // 矩形垂直轴
-      {-(v2.y - v1.y), v2.x - v1.x}, // 三角形边 v1->v2 的法线
-      {-(v3.y - v2.y), v3.x - v2.x}, // 三角形边 v2->v3 的法线
-      {-(v1.y - v3.y), v1.x - v3.x}  // 三角形边 v3->v1 的法线
+      {1.0f, 0.0f},                   // 矩形水平轴
+      {0.0f, 1.0f},                   // 矩形垂直轴
+      {-(v2.y - v1.y), v2.x - v1.x},  // 三角形边 v1->v2 的法线
+      {-(v3.y - v2.y), v3.x - v2.x},  // 三角形边 v2->v3 的法线
+      {-(v1.y - v3.y), v1.x - v3.x}   // 三角形边 v3->v1 的法线
   }};
 
   // 5. 对每个轴进行投影测试
-  for (const auto &axis : axes) {
+  for (const auto& axis : axes) {
     // 跳过零向量（防止退化三角形）
     if (axis.x == 0.0f && axis.y == 0.0f)
       continue;
@@ -64,14 +65,14 @@ bool TriangleGameInstance::RectInsTri(SDL_FRect &r, GameTriangle &t) {
 }
 
 GameTriangle TriangleGameInstance::LoadTri(GameTriangle t, bool flip,
-                                               SDL_FPoint &pos) {
+                                           SDL_FPoint& pos) {
   if (flip) {
-    for (auto &p : t.point) {
+    for (auto& p : t.point) {
       p.x = pos.x - p.x;
       p.y = pos.y - p.y;
     }
   } else {
-    for (auto &p : t.point) {
+    for (auto& p : t.point) {
       p.x += pos.x;
       p.y += pos.y;
     }

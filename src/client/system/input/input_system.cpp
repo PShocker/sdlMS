@@ -1,4 +1,5 @@
 #include "src/client/system/input/input_system.h"
+
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"
@@ -11,12 +12,13 @@
 #include "src/client/system/ui/skill_ui_system.h"
 #include "src/client/system/ui/statusbar_menu_ui_system.h"
 #include "src/client/system/ui/worldmap_ui_system.h"
+
 #include <flat_map>
 #include <string>
 namespace sdlms {
 
 
-void InputSystem::HandleUiInput(GameInput &g_input) {
+void InputSystem::HandleUiInput(GameInput& g_input) {
   static const std::flat_map<std::string, void (*)()> fns = {
       {"worldMap", WorldmapUiSystem::Toggle},
       {"package", PackageUiSystem::Toggle},
@@ -35,7 +37,7 @@ void InputSystem::HandleUiInput(GameInput &g_input) {
   }
 }
 
-void InputSystem::HandleItemInput(GameInput &g_input, bool press) {
+void InputSystem::HandleItemInput(GameInput& g_input, bool press) {
   if (press) {
     CharacterLogicSystem::character_item_input_.insert(g_input);
   } else {
@@ -43,7 +45,7 @@ void InputSystem::HandleItemInput(GameInput &g_input, bool press) {
   }
 }
 
-void InputSystem::HandleActionInput(GameInput &g_input, bool press) {
+void InputSystem::HandleActionInput(GameInput& g_input, bool press) {
   if (press) {
     CharacterLogicSystem::character_action_input_.insert(g_input.val);
   } else {
@@ -51,7 +53,7 @@ void InputSystem::HandleActionInput(GameInput &g_input, bool press) {
   }
 }
 
-void InputSystem::HandleSkillInput(GameInput &g_input, bool press) {
+void InputSystem::HandleSkillInput(GameInput& g_input, bool press) {
   if (press) {
     CharacterLogicSystem::character_skill_input_.insert(g_input.val);
   } else {
@@ -59,7 +61,7 @@ void InputSystem::HandleSkillInput(GameInput &g_input, bool press) {
   }
 }
 
-void InputSystem::HandleFaceInput(GameInput &g_input, bool press) {
+void InputSystem::HandleFaceInput(GameInput& g_input, bool press) {
   if (press) {
     CharacterLogicSystem::character_face_input_.insert(g_input.val);
   } else {

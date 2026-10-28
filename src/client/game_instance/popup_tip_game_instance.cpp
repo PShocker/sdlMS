@@ -1,4 +1,5 @@
 #include "src/client/game_instance/popup_tip_game_instance.h"
+
 #include "src/client/game/game_popup_tip.h"
 namespace sdlms {
 
@@ -22,7 +23,7 @@ void PopupTipGameInstance::AddTip(PopupTipEnums type, fbs::PlayerT player_t) {
   data_.emplace_back(tp);
 }
 
-void PopupTipGameInstance::AddQuestTip(const std::u16string &id) {
+void PopupTipGameInstance::AddQuestTip(const std::u16string& id) {
   GamePopupTip tp;
   tp.type = PopupTipEnums::kQuest;
   tp.data = id;

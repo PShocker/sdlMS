@@ -5,11 +5,11 @@ namespace sdlms {
 
 
 class PetLogicSystem {
-private:
+ private:
   static void RunStateMachine();
-  static void RunAnimate(GamePet &pet);
+  static void RunAnimate(GamePet& pet);
 
-public:
+ public:
   static bool Run();
 };
 

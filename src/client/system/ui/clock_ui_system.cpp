@@ -1,10 +1,13 @@
 #include "src/client/system/ui/clock_ui_system.h"
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_render.h>
+
 #include <array>
 #include <cmath>
 
@@ -12,18 +15,18 @@ namespace sdlms {
 
 
 void ClockUiSystem::RenderBackgrnd() {
-  SDL_Texture *t;
+  SDL_Texture* t;
   switch (type_) {
-  case ClockEnum::kMin: {
-    t = WzResource::LoadTexture(
-        WzResource::map_->find(u"Obj/etc.img/timer/backgrnd"));
-    break;
-  }
-  case ClockEnum::kHour: {
-    t = WzResource::LoadTexture(
-        WzResource::ui_->find(u"Obj/etc.img/timer/backgrndhour"));
-    break;
-  }
+    case ClockEnum::kMin: {
+      t = WzResource::LoadTexture(
+          WzResource::map_->find(u"Obj/etc.img/timer/backgrnd"));
+      break;
+    }
+    case ClockEnum::kHour: {
+      t = WzResource::LoadTexture(
+          WzResource::ui_->find(u"Obj/etc.img/timer/backgrndhour"));
+      break;
+    }
   }
   SDL_FRect pos_rect{
       pos_.x,
@@ -35,7 +38,7 @@ void ClockUiSystem::RenderBackgrnd() {
 }
 
 void ClockUiSystem::RenderNumber(uint32_t num, float x, float y) {
-  const static std::vector<SDL_Texture *> textures = {
+  const static std::vector<SDL_Texture*> textures = {
       WzResource::LoadTexture(
           WzResource::map_->find(u"Map/Obj/etc.img/clock/fontTime/0")),
       WzResource::LoadTexture(
@@ -80,23 +83,24 @@ void ClockUiSystem::RenderNumber(uint32_t num, float x, float y) {
 void ClockUiSystem::RenderTime() {
   auto dt = destroy_ - Window::dt_now_;
   switch (type_) {
-  case ClockEnum::kMin: {
-    // render min
-    auto totalSeconds = dt / 1000;    // 总秒数
-    auto minutes = totalSeconds / 60; // 分钟
-    auto seconds = totalSeconds % 60; // 余数秒数
-    RenderNumber(minutes, pos_.x, pos_.y);
+    case ClockEnum::kMin: {
+      // render min
+      auto totalSeconds = dt / 1000;     // 总秒数
+      auto minutes = totalSeconds / 60;  // 分钟
+      auto seconds = totalSeconds % 60;  // 余数秒数
+      RenderNumber(minutes, pos_.x, pos_.y);
 
-    break;
-  }
-  case ClockEnum::kHour: {
-    auto totalSeconds = dt / 1000;             // 总秒数
-    auto hours = totalSeconds / 3600;          // 小时（1小时 = 3600秒）
-    auto minutes = (totalSeconds % 3600) / 60; // 分钟（除去小时后，剩余的分钟）
-    RenderNumber(minutes, pos_.x, pos_.y);
+      break;
+    }
+    case ClockEnum::kHour: {
+      auto totalSeconds = dt / 1000;     // 总秒数
+      auto hours = totalSeconds / 3600;  // 小时（1小时 = 3600秒）
+      auto minutes =
+          (totalSeconds % 3600) / 60;  // 分钟（除去小时后，剩余的分钟）
+      RenderNumber(minutes, pos_.x, pos_.y);
 
-    break;
-  }
+      break;
+    }
   }
 }
 
@@ -110,13 +114,15 @@ void ClockUiSystem::Open() {
   auto it =
       std::ranges::find(System::render_systems_, &CursorRenderSystem::Render);
   if (it != System::render_systems_.end()) {
-    auto &camera = CameraGameInstance::camera_;
+    auto& camera = CameraGameInstance::camera_;
     pos_.x = camera.w;
     pos_.y = camera.h;
     System::render_systems_.insert(it, Render);
   }
 }
 
-void ClockUiSystem::Close() { std::erase(System::render_systems_, Render); }
+void ClockUiSystem::Close() {
+  std::erase(System::render_systems_, Render);
+}
 
 }  // namespace sdlms

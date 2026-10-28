@@ -2,12 +2,13 @@
 #define SDLMS_SRC_CLIENT_GAME_INSTANCE_CHARACTER_STAT_GAME_INSTANCE_H_
 
 #include "src/client/game/game_save.h"
+
 #include <cstdint>
 namespace sdlms {
 
 
 class CharacterStatGameInstance {
-private:
+ private:
   // ============ 私有静态方法 ============
   static uint32_t GetBaseHpMax();
   static uint32_t GetBaseMpMax();
@@ -38,8 +39,8 @@ private:
   static inline uint32_t crit_damage_ = 0;
 
   // ============ 命中 / 回避 ============
-  static inline uint32_t accuracy_ = 0; // 命中
-  static inline uint32_t avoid_ = 0;    // 回避
+  static inline uint32_t accuracy_ = 0;  // 命中
+  static inline uint32_t avoid_ = 0;     // 回避
 
   // ============ 防御 ============
   static inline int32_t attack_def_ = 0;
@@ -64,10 +65,10 @@ private:
   static inline int64_t ski_dex_ = 0;
   static inline int64_t ski_int_ = 0;
   static inline int64_t ski_luk_ = 0;
-  static inline int64_t ski_pro_ = 0; // 熟练度
+  static inline int64_t ski_pro_ = 0;  // 熟练度
 
-  static inline uint32_t ski_accuracy_ = 0; // 命中
-  static inline uint32_t ski_avoid_ = 0;    // 回避
+  static inline uint32_t ski_accuracy_ = 0;  // 命中
+  static inline uint32_t ski_avoid_ = 0;     // 回避
   static inline uint32_t ski_exp_ = 0;
 
   static inline int32_t ski_attack_def_ = 0;
@@ -80,12 +81,12 @@ private:
   static inline int64_t eqp_dex_ = 0;
   static inline int64_t eqp_int_ = 0;
   static inline int64_t eqp_luk_ = 0;
-  static inline int64_t eqp_pro_ = 0; // 熟练度
+  static inline int64_t eqp_pro_ = 0;  // 熟练度
 
-  static inline uint32_t eqp_accuracy_ = 0; // 命中
-  static inline uint32_t eqp_avoid_ = 0;    // 回避
+  static inline uint32_t eqp_accuracy_ = 0;  // 命中
+  static inline uint32_t eqp_avoid_ = 0;     // 回避
 
-  static inline uint32_t eqp_attack_ = 0; // pad
+  static inline uint32_t eqp_attack_ = 0;  // pad
   static inline uint32_t eqp_magic_ = 0;
 
   static inline int32_t eqp_attack_def_ = 0;
@@ -100,12 +101,12 @@ private:
   static inline int64_t itm_dex_ = 0;
   static inline int64_t itm_int_ = 0;
   static inline int64_t itm_luk_ = 0;
-  static inline int64_t itm_pro_ = 0; // 熟练度
+  static inline int64_t itm_pro_ = 0;  // 熟练度
 
-  static inline uint32_t itm_accuracy_ = 0; // 命中
-  static inline uint32_t itm_avoid_ = 0;    // 回避
+  static inline uint32_t itm_accuracy_ = 0;  // 命中
+  static inline uint32_t itm_avoid_ = 0;     // 回避
 
-  static inline uint32_t itm_attack_ = 0; // pad
+  static inline uint32_t itm_attack_ = 0;  // pad
   static inline uint32_t itm_magic_ = 0;
   static inline uint32_t itm_exp_ = 0;
 
@@ -118,13 +119,13 @@ private:
   static void UpdateSfSkillStat();
   static void UpdateSfEquipStat();
 
-public:
+ public:
   // ============================================================
   // 经验 / 更新 / 加载
   // ============================================================
   static void AddExp(uint32_t num);
   static void Update();
-  static void Load(const CharacterSaveData &cs);
+  static void Load(const CharacterSaveData& cs);
 
   // ============================================================
   // HP / MP

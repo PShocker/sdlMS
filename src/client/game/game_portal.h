@@ -2,15 +2,16 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_PORTAL_H_
 
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
-struct GamePortal{
+struct GamePortal {
   int32_t tm = 0;
   int32_t pt = 0;
-  std::u16string pn; // portal_name
-  std::u16string tn; // portal_goal
+  std::u16string pn;  // portal_name
+  std::u16string tn;  // portal_goal
 
   std::u16string path;
   std::u16string path2;

@@ -1,8 +1,8 @@
-#include "src/common/script/script.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
+#include "src/common/script/script.h"
 #include "src/server/server/server_reactor.h"
 #include "src/server/server_instance/server_drop_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
@@ -10,11 +10,10 @@
 namespace sdlms {
 
 
-
 // reactor1
 static void Q90008(std::any data) {
   auto map_id = ServerReactorSystem::map_id_;
-  auto r = std::any_cast<ServerReactorState *>(data);
+  auto r = std::any_cast<ServerReactorState*>(data);
   auto pos = r->pos;
   std::vector<fbs::DropT> dts;
 
@@ -44,7 +43,7 @@ static void Q90008(std::any data) {
   fbs::ServerReactorDropT srd;
   srd.payload = ServerDropInstance::CreateDts(dts, map_id);
 
-  for (const auto &dt : srd.payload) {
+  for (const auto& dt : srd.payload) {
     ServerDropInstance::SaveDrop(map_id, *dt);
   }
   auto scenes = ServerSceneInstance::scenes_[map_id].clients;
@@ -55,7 +54,7 @@ static void Q90008(std::any data) {
 };
 
 [[maybe_unused]] static const bool r = [] {
-  auto &fns = Script::fns();
+  auto& fns = Script::fns();
   fns[u"q90008"] = Q90008;
   return true;
 }();

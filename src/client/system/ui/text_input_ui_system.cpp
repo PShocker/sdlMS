@@ -1,32 +1,35 @@
 #include "src/client/system/ui/text_input_ui_system.h"
-#include <SDL3/SDL_events.h>
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_scancode.h>
+
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
+
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_scancode.h>
+
 #include <algorithm>
 #include <optional>
 namespace sdlms {
 
 
-void TextInputUiSystem::Close(TextInput &input) {
+void TextInputUiSystem::Close(TextInput& input) {
   input.active = false;
   if (input.type.test(TextInput::kIme)) {
     SDL_StopTextInput(SDL_GetKeyboardFocus());
   }
 }
 
-void TextInputUiSystem::Active(TextInput &input) {
+void TextInputUiSystem::Active(TextInput& input) {
   input.active = true;
   if (input.type.test(TextInput::kIme)) {
-    SDL_Window *sdl_window = SDL_GetKeyboardFocus();
+    SDL_Window* sdl_window = SDL_GetKeyboardFocus();
     SDL_StartTextInput(sdl_window);
     SDL_SetTextInputArea(sdl_window, &input.r, 0);
   }
 }
 
-void TextInputUiSystem::Render(TextInput &input, int x, int y) {
+void TextInputUiSystem::Render(TextInput& input, int x, int y) {
   // ============================================================
   // 1. 基础设置和坐标计算
   // ============================================================
@@ -171,7 +174,7 @@ void TextInputUiSystem::Render(TextInput &input, int x, int y) {
   Freetype::LoadAligned(true);
   Freetype::LoadBold(false);
   Freetype::LoadColor(input.font_color.r, input.font_color.g,
-                       input.font_color.b, input.font_color.a);
+                      input.font_color.b, input.font_color.a);
 
   // ============================================================
   // 7. 绘制选区背景（蓝色高亮）
@@ -251,161 +254,126 @@ void TextInputUiSystem::Render(TextInput &input, int x, int y) {
   Freetype::LoadBold(false);
 }
 
-bool TextInputUiSystem::Event(SDL_Event *Event, TextInput &input) {
+bool TextInputUiSystem::Event(SDL_Event* Event, TextInput& input) {
   bool r = false;
   switch (Event->type) {
-  case SDL_EVENT_TEXT_EDITING: {
-    auto text = Event->edit.text;
-    if (text[0] != '\0') {
-      input.composition = TextGameInstance::LoadU16str(text);
-    } else {
-      input.composition = u"";
-    }
-    break;
-  }
-  case SDL_EVENT_TEXT_INPUT: {
-    if (input.text.length() >= input.max_size) {
-      break;
-    }
-    auto text = Event->edit.text;
-    auto cur0 = input.text.length();
-    auto str1 = input.text.substr(0, input.cur);
-    auto str2 = TextGameInstance::LoadU16str(text);
-    auto str3 = input.text.substr(input.cur);
-    if (input.cur_next.has_value()) {
-      auto min_index = std::min(input.cur, input.cur_next.value());
-      auto max_index = std::max(input.cur, input.cur_next.value());
-      input.text.replace(min_index, max_index - min_index, str2);
-      input.cur = min_index + str2.size();
-      input.cur_next = std::nullopt;
-      input.text = input.text.substr(0, input.max_size);
-    } else {
-      input.text = str1 + str2 + str3;
-      input.text = input.text.substr(0, input.max_size);
-      auto cur1 = input.text.length();
-      input.cur += cur1 - cur0;
-    }
-    break;
-  }
-  case SDL_EVENT_KEY_DOWN: {
-    if (input.active == false) {
-      break;
-    }
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_LEFT: {
-      input.cur--;
-      input.cur = std::clamp(input.cur, 0, (int)input.text.length());
-      break;
-    }
-    case SDL_SCANCODE_RIGHT: {
-      input.cur++;
-      input.cur = std::clamp(input.cur, 0, (int)input.text.length());
-      break;
-    }
-    case SDL_SCANCODE_BACKSPACE: {
-      if (input.active && !input.text.empty() && input.cur > 0) {
-        if (input.cur_next.has_value()) {
-          auto cur_min = std::min(input.cur, input.cur_next.value());
-          auto cur_max = std::max(input.cur, input.cur_next.value());
-          input.text.erase(cur_min, cur_max - cur_min);
-          input.cur = cur_min + 1;
-          input.cur_next = std::nullopt;
-        } else if (input.cur < input.text.length()) {
-          input.text.erase(input.cur - 1, 1);
-        } else {
-          input.text.pop_back();
-        }
-        input.cur--;
-      }
-      break;
-    }
-    default: {
-      SDL_Keycode key =
-          SDL_GetKeyFromScancode(Event->key.scancode, Event->key.mod, true);
-      // 过滤
-      bool digit = (key >= SDLK_0 && key <= SDLK_9);
-      bool letter = (key >= SDLK_A && key <= SDLK_Z);
-      bool symbol = !digit && !letter;
-      if (!input.type.test(TextInput::kSymbol)) {
-        if (symbol) {
-          break;
-        }
-      }
-      if (!input.type.test(TextInput::kDigit)) {
-        if (digit) {
-          break;
-        }
-      }
-      if (!input.type.test(TextInput::kLetter)) {
-        if (letter) {
-          break;
-        }
-      }
-      SDL_Event e;
-      e.type = SDL_EVENT_TEXT_INPUT;
-      // 如果是字母且 Caps Lock 开启，手动转换
-      if ((Event->key.mod & SDL_KMOD_CAPS) && (key >= 'a' && key <= 'z')) {
-        key -= 32; // 小写转大写
-      }
-      char c[2] = {0, 0};
-      c[0] = key;
-      e.edit.text = c;
-      TextInputUiSystem::Event(&e, input);
-      break;
-    }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      SDL_Point p = {
-          static_cast<int>(Window::mouse_pos_.x),
-          static_cast<int>(Window::mouse_pos_.y),
-      };
-      input.cur_next = std::nullopt;
-      if (SDL_PointInRect(&p, &input.r)) {
-        Active(input);
-        auto dx = p.x - input.r.x;
-        Freetype::LoadSize(input.font_size);
-        auto text_w = Freetype::LoadW(input.text);
-        if (dx >= text_w) {
-          input.cur = input.text.length();
-          break;
-        }
-        auto w = 0;
-        for (int i = 0; i < input.text.length(); i++) {
-          auto c = input.text[i];
-          auto cw = Freetype::LoadW({c});
-          if (w <= dx && dx <= cw + w) {
-            input.cur = i;
-            break;
-          }
-          w += cw;
-        }
+    case SDL_EVENT_TEXT_EDITING: {
+      auto text = Event->edit.text;
+      if (text[0] != '\0') {
+        input.composition = TextGameInstance::LoadU16str(text);
       } else {
-        Close(input);
-        r = true;
+        input.composition = u"";
       }
+      break;
     }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    if (Event->motion.state & SDL_BUTTON_LMASK) {
-      if (input.active) {
+    case SDL_EVENT_TEXT_INPUT: {
+      if (input.text.length() >= input.max_size) {
+        break;
+      }
+      auto text = Event->edit.text;
+      auto cur0 = input.text.length();
+      auto str1 = input.text.substr(0, input.cur);
+      auto str2 = TextGameInstance::LoadU16str(text);
+      auto str3 = input.text.substr(input.cur);
+      if (input.cur_next.has_value()) {
+        auto min_index = std::min(input.cur, input.cur_next.value());
+        auto max_index = std::max(input.cur, input.cur_next.value());
+        input.text.replace(min_index, max_index - min_index, str2);
+        input.cur = min_index + str2.size();
+        input.cur_next = std::nullopt;
+        input.text = input.text.substr(0, input.max_size);
+      } else {
+        input.text = str1 + str2 + str3;
+        input.text = input.text.substr(0, input.max_size);
+        auto cur1 = input.text.length();
+        input.cur += cur1 - cur0;
+      }
+      break;
+    }
+    case SDL_EVENT_KEY_DOWN: {
+      if (input.active == false) {
+        break;
+      }
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_LEFT: {
+          input.cur--;
+          input.cur = std::clamp(input.cur, 0, (int)input.text.length());
+          break;
+        }
+        case SDL_SCANCODE_RIGHT: {
+          input.cur++;
+          input.cur = std::clamp(input.cur, 0, (int)input.text.length());
+          break;
+        }
+        case SDL_SCANCODE_BACKSPACE: {
+          if (input.active && !input.text.empty() && input.cur > 0) {
+            if (input.cur_next.has_value()) {
+              auto cur_min = std::min(input.cur, input.cur_next.value());
+              auto cur_max = std::max(input.cur, input.cur_next.value());
+              input.text.erase(cur_min, cur_max - cur_min);
+              input.cur = cur_min + 1;
+              input.cur_next = std::nullopt;
+            } else if (input.cur < input.text.length()) {
+              input.text.erase(input.cur - 1, 1);
+            } else {
+              input.text.pop_back();
+            }
+            input.cur--;
+          }
+          break;
+        }
+        default: {
+          SDL_Keycode key =
+              SDL_GetKeyFromScancode(Event->key.scancode, Event->key.mod, true);
+          // 过滤
+          bool digit = (key >= SDLK_0 && key <= SDLK_9);
+          bool letter = (key >= SDLK_A && key <= SDLK_Z);
+          bool symbol = !digit && !letter;
+          if (!input.type.test(TextInput::kSymbol)) {
+            if (symbol) {
+              break;
+            }
+          }
+          if (!input.type.test(TextInput::kDigit)) {
+            if (digit) {
+              break;
+            }
+          }
+          if (!input.type.test(TextInput::kLetter)) {
+            if (letter) {
+              break;
+            }
+          }
+          SDL_Event e;
+          e.type = SDL_EVENT_TEXT_INPUT;
+          // 如果是字母且 Caps Lock 开启，手动转换
+          if ((Event->key.mod & SDL_KMOD_CAPS) && (key >= 'a' && key <= 'z')) {
+            key -= 32;  // 小写转大写
+          }
+          char c[2] = {0, 0};
+          c[0] = key;
+          e.edit.text = c;
+          TextInputUiSystem::Event(&e, input);
+          break;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
         SDL_Point p = {
             static_cast<int>(Window::mouse_pos_.x),
             static_cast<int>(Window::mouse_pos_.y),
         };
+        input.cur_next = std::nullopt;
         if (SDL_PointInRect(&p, &input.r)) {
+          Active(input);
           auto dx = p.x - input.r.x;
           Freetype::LoadSize(input.font_size);
           auto text_w = Freetype::LoadW(input.text);
           if (dx >= text_w) {
-            input.cur_next = input.text.length();
+            input.cur = input.text.length();
             break;
           }
           auto w = 0;
@@ -413,15 +381,50 @@ bool TextInputUiSystem::Event(SDL_Event *Event, TextInput &input) {
             auto c = input.text[i];
             auto cw = Freetype::LoadW({c});
             if (w <= dx && dx <= cw + w) {
-              input.cur_next = i;
+              input.cur = i;
               break;
             }
             w += cw;
           }
+        } else {
+          Close(input);
+          r = true;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      break;
+    }
+    case SDL_EVENT_MOUSE_MOTION: {
+      if (Event->motion.state & SDL_BUTTON_LMASK) {
+        if (input.active) {
+          SDL_Point p = {
+              static_cast<int>(Window::mouse_pos_.x),
+              static_cast<int>(Window::mouse_pos_.y),
+          };
+          if (SDL_PointInRect(&p, &input.r)) {
+            auto dx = p.x - input.r.x;
+            Freetype::LoadSize(input.font_size);
+            auto text_w = Freetype::LoadW(input.text);
+            if (dx >= text_w) {
+              input.cur_next = input.text.length();
+              break;
+            }
+            auto w = 0;
+            for (int i = 0; i < input.text.length(); i++) {
+              auto c = input.text[i];
+              auto cw = Freetype::LoadW({c});
+              if (w <= dx && dx <= cw + w) {
+                input.cur_next = i;
+                break;
+              }
+              w += cw;
+            }
+          }
         }
       }
     }
-  }
   }
   return r;
 }

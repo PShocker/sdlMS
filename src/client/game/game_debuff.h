@@ -6,7 +6,7 @@
 namespace sdlms {
 
 
-struct GameDebuff{
+struct GameDebuff {
   enum class DebuffType {
     kDizz,
     kSlow,

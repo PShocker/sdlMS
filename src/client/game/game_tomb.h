@@ -2,11 +2,12 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_TOMB_H_
 
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
-struct GameTomb{
+struct GameTomb {
   std::u16string ani_type;
   uint8_t ani_index;
   uint32_t ani_time;

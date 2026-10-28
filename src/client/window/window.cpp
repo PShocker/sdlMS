@@ -1,13 +1,16 @@
 #include "src/client/window/window.h"
-#include <SDL3/SDL_render.h>
+
 #include "src/server/server_main.h"
+
+#include <SDL3/SDL_render.h>
+
 #include <chrono>
 #include <cstdint>
 #include <cstdlib>
 namespace sdlms {
 
 
-void Window::Create(const char *title, uint32_t logic_w, uint32_t logic_h,
+void Window::Create(const char* title, uint32_t logic_w, uint32_t logic_h,
                     uint32_t window_w, uint32_t window_h) {
   // hint
   SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition");
@@ -35,14 +38,16 @@ void Window::Tick() {
   delta_time_ = dt_now_ - dt_last_;
   if (ServerMain::host_) {
     dt_time_ = std::chrono::duration_cast<std::chrono::milliseconds>(
-                  std::chrono::system_clock::now().time_since_epoch())
-                  .count();
+                   std::chrono::system_clock::now().time_since_epoch())
+                   .count();
   } else {
     dt_time_ = dt_time_base_ + (dt_now_ - dt_time_end_);
   }
 }
 
-void Window::Clear() { SDL_RenderClear(renderer_); }
+void Window::Clear() {
+  SDL_RenderClear(renderer_);
+}
 
 void Window::Update() {
   pre_mouse_state_ = mouse_state_;

@@ -1,15 +1,16 @@
 #include "src/server/server_instance/server_trap_instance.h"
-#include "src/server/server_instance/server_client_instance.h"
-#include "src/server/server_instance/server_scene_instance.h"
+
 #include "src/client/game/game_effect.h"
 #include "src/client/game_instance/effect_game_instance.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
+#include "src/server/server_instance/server_client_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
 namespace sdlms {
 
 
 void ServerTrapInstance::HandleAttack(uint64_t client_id,
-                                         fbs::ClientTrapAttackT &r) {
+                                      fbs::ClientTrapAttackT& r) {
   if (!ServerClientInstance::clients_.contains(client_id)) {
     return;
   }
@@ -25,8 +26,8 @@ void ServerTrapInstance::HandleAttack(uint64_t client_id,
   }
 }
 
-void ServerTrapInstance::HandleSAttack(uint64_t client_id, fbs::AttackT &at) {
-  const auto &attack = at;
+void ServerTrapInstance::HandleSAttack(uint64_t client_id, fbs::AttackT& at) {
+  const auto& attack = at;
   // 伤害数字
   DamageData data = {
       .num = attack.num,
@@ -47,7 +48,7 @@ void ServerTrapInstance::HandleSAttack(uint64_t client_id, fbs::AttackT &at) {
 }
 
 void ServerTrapInstance::HandleServerAttack(uint64_t client_id,
-                                                fbs::ServerTrapAttackT &r) {
+                                            fbs::ServerTrapAttackT& r) {
   HandleSAttack(client_id, *r.payload);
 }
 

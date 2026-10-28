@@ -1,16 +1,18 @@
 #include "src/client/system/ui/slider_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
+
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+
 #include <cmath>
 #include <optional>
 namespace sdlms {
 
 
-void SliderUiSystem::RenderHslider(int x, int y, uint32_t val,
-                                      uint32_t count, int32_t length, bool top,
-                                      bool disable) {
+void SliderUiSystem::RenderHslider(int x, int y, uint32_t val, uint32_t count,
+                                   int32_t length, bool top, bool disable) {
   static auto normal = WzResource::LoadTexture(
       WzResource::ui_->find(u"Slider.img/0/thumbNormal"));
   static auto pressed = WzResource::LoadTexture(
@@ -26,7 +28,7 @@ void SliderUiSystem::RenderHslider(int x, int y, uint32_t val,
   pos_rect.y = y;
   pos_rect.w = normal->w;
   pos_rect.h = normal->h;
-  SDL_Texture *t;
+  SDL_Texture* t;
   if (disable) {
     t = disabled;
   } else {
@@ -45,8 +47,8 @@ void SliderUiSystem::RenderHslider(int x, int y, uint32_t val,
 }
 
 std::optional<int> SliderUiSystem::ClickThumb(int x, int y, uint32_t val,
-                                                 uint32_t count, int32_t length,
-                                                 bool top, SDL_FPoint mouse) {
+                                              uint32_t count, int32_t length,
+                                              bool top, SDL_FPoint mouse) {
   SDL_FRect pos_rect = {
       static_cast<float>(x),
       static_cast<float>(y),

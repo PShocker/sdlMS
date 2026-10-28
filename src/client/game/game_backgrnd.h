@@ -2,11 +2,12 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_BACKGRND_H_
 
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
-struct GameBackgrnd{
+struct GameBackgrnd {
   std::u16string path;
   SDL_FPoint pos;
 

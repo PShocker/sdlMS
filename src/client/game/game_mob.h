@@ -1,10 +1,12 @@
 #ifndef SDLMS_SRC_CLIENT_GAME_GAME_MOB_H_
 #define SDLMS_SRC_CLIENT_GAME_GAME_MOB_H_
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_debuff.h"
-#include "src/client/game/game_gauge.h"
 #include "src/client/game/game_effect.h"
+#include "src/client/game/game_gauge.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <flat_map>
 #include <optional>
@@ -13,7 +15,7 @@
 namespace sdlms {
 
 
-struct GameMob{
+struct GameMob {
   uint32_t index;
   std::u16string id;
 

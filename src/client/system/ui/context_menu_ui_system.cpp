@@ -1,5 +1,5 @@
 #include "src/client/system/ui/context_menu_ui_system.h"
-#include <SDL3/SDL_render.h>
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -12,15 +12,20 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
+
+#include <SDL3/SDL_render.h>
+
 #include <cstddef>
 namespace sdlms {
 
 
-SDL_FPoint ContextMenuUiSystem::LoadWh() { return {100, 122}; }
+SDL_FPoint ContextMenuUiSystem::LoadWh() {
+  return {100, 122};
+}
 
 bool ContextMenuUiSystem::CursorIn() {
   bool r = false;
-  auto &mouse = Window::mouse_pos_;
+  auto& mouse = Window::mouse_pos_;
   auto [w, h] = LoadWh();
   SDL_FRect pos_rect{pos_.x + 3, pos_.y, w - 3, h};
   r = SDL_PointInRectFloat(&mouse, &pos_rect);
@@ -86,7 +91,7 @@ void ContextMenuUiSystem::RenderButton() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     if (disable[i]) {
       auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
       SDL_RenderTexture(Window::renderer_, d, nullptr, &pos_rect);
@@ -149,9 +154,9 @@ void ContextMenuUiSystem::EventButtonFriend() {}
 
 void ContextMenuUiSystem::EventButtonChat() {}
 
-bool ContextMenuUiSystem::EventButton(SDL_Event *Event) {
+bool ContextMenuUiSystem::EventButton(SDL_Event* Event) {
   std::vector<void (*)()> fns;
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   std::array r = {
       SDL_FRect{pos_.x + 9, pos_.y + 6, 85, 14},
       SDL_FRect{pos_.x + 9, pos_.y + 22, 85, 14},
@@ -162,9 +167,8 @@ bool ContextMenuUiSystem::EventButton(SDL_Event *Event) {
       SDL_FRect{pos_.x + 9, pos_.y + 102, 85, 14},
   };
   fns = {
-      EventButtonInfo,  EventButtonSave,  EventButtonWhisper,
-      EventButtonParty, EventButtonTrade, EventButtonFriend,
-      EventButtonChat,
+      EventButtonInfo,  EventButtonSave,   EventButtonWhisper, EventButtonParty,
+      EventButtonTrade, EventButtonFriend, EventButtonChat,
   };
   std::vector<bool> disable = {
       false,
@@ -185,46 +189,48 @@ bool ContextMenuUiSystem::EventButton(SDL_Event *Event) {
   return true;
 }
 
-void ContextMenuUiSystem::EventClose() { Close(); };
+void ContextMenuUiSystem::EventClose() {
+  Close();
+};
 
-bool ContextMenuUiSystem::Event(SDL_Event *Event) {
+bool ContextMenuUiSystem::Event(SDL_Event* Event) {
   bool r = true;
   switch (Event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_ESCAPE: {
+    case SDL_EVENT_KEY_DOWN: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_ESCAPE: {
+          EventClose();
+          return false;
+          break;
+        }
+        default: {
+          break;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          r = false;
+        }
+      }
+      break;
+    }
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          EventButton(Event);
+        }
+      }
       EventClose();
-      return false;
+      r = false;
       break;
     }
     default: {
       break;
     }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        r = false;
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        EventButton(Event);
-      }
-    }
-    EventClose();
-    r = false;
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   return r;

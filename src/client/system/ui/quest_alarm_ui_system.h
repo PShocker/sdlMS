@@ -3,13 +3,14 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
+
 #include <flat_set>
 #include <optional>
 #include <string>
 namespace sdlms {
 
 class QuestAlarmUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderQuests();
   static void RenderButton();
@@ -24,18 +25,18 @@ private:
 
   static void EventQuestClose();
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
   static void EventTop();
-  static void EventDragStart(SDL_Event *Event);
+  static void EventDragStart(SDL_Event* Event);
   static void EventDragEnd();
-  static void EventDragMove(SDL_Event *Event);
+  static void EventDragMove(SDL_Event* Event);
 
   static inline std::optional<SDL_FPoint> drag_;
 
-public:
-  static void AcceptQuest(const std::u16string &id);
-  static void CompleteQuest(const std::u16string &id);
+ public:
+  static void AcceptQuest(const std::u16string& id);
+  static void CompleteQuest(const std::u16string& id);
   static inline std::flat_set<std::u16string> quests_;
 
   static inline bool max_ = true;
@@ -50,7 +51,7 @@ public:
   static bool CursorIn();
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 };
 
 }  // namespace sdlms

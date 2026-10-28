@@ -5,8 +5,8 @@
 namespace sdlms {
 
 class BallRenderSystem {
-public:
-  static bool Render(GameBall &g_ball);
+ public:
+  static bool Render(GameBall& g_ball);
 };
 
 }  // namespace sdlms

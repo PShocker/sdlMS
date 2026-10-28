@@ -6,10 +6,10 @@
 namespace sdlms {
 
 class StorageGameInstance {
-public:
+ public:
   static inline GameStorage storage_;
 
-  static void Load(const GameSaveData &gs);
+  static void Load(const GameSaveData& gs);
 };
 
 }  // namespace sdlms

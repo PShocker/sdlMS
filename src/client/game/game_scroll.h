@@ -4,7 +4,7 @@
 #include <string>
 namespace sdlms {
 
-struct GameScroll{
+struct GameScroll {
   std::u16string id;
   bool success;
 };

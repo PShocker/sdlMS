@@ -1,15 +1,18 @@
 #include "src/client/game_instance/obj_game_instance.h"
-#include <SDL3/SDL_rect.h>
+
 #include "src/client/game/game_obj.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
 #include <wz/Property.h>
 #include <wz/Wz.h>
+
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
 
-void ObjGameInstance::Load(wz::Node *image) {
+void ObjGameInstance::Load(wz::Node* image) {
   data_ = {};
   auto map_node = image;
   uint8_t map_layer = 0;
@@ -18,34 +21,34 @@ void ObjGameInstance::Load(wz::Node *image) {
     for (auto [key, val] : *layer_node->get_child(u"obj")->get_children()) {
       GameObj g_obj;
       auto obj_node = val[0];
-      auto oS = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"oS"))
-                    ->get();
+      auto oS =
+          static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"oS"))
+              ->get();
       if (oS == u"obj_trap") {
         continue;
       }
-      auto l0 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l0"))
-                    ->get();
-      auto l1 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l1"))
-                    ->get();
-      auto l2 = static_cast<wz::Property<std::u16string> *>(
-                    obj_node->get_child(u"l2"))
-                    ->get();
+      auto l0 =
+          static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"l0"))
+              ->get();
+      auto l1 =
+          static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"l1"))
+              ->get();
+      auto l2 =
+          static_cast<wz::Property<std::u16string>*>(obj_node->get_child(u"l2"))
+              ->get();
       g_obj.path = u"Obj/" + oS + u".img/" + l0 + u"/" + l1 + u"/" + l2;
 
       auto x =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"x"))->get();
+          static_cast<wz::Property<int>*>(obj_node->get_child(u"x"))->get();
       auto y =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"y"))->get();
+          static_cast<wz::Property<int>*>(obj_node->get_child(u"y"))->get();
       auto z =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"z"))->get();
+          static_cast<wz::Property<int>*>(obj_node->get_child(u"z"))->get();
 
       g_obj.pos = SDL_FPoint{static_cast<float>(x), static_cast<float>(y)};
 
       auto flip =
-          static_cast<wz::Property<int> *>(obj_node->get_child(u"f"))->get();
+          static_cast<wz::Property<int>*>(obj_node->get_child(u"f"))->get();
 
       g_obj.flip = flip;
 
@@ -57,7 +60,7 @@ void ObjGameInstance::Load(wz::Node *image) {
       uint8_t canvas_count = 0;
       for (auto [k, v] : *obj_node->get_children()) {
         if (v[0]->type == wz::Type::UOL) {
-          v[0] = static_cast<wz::Property<wz::WzUOL> *>(v[0])->get_uol();
+          v[0] = static_cast<wz::Property<wz::WzUOL>*>(v[0])->get_uol();
         }
         if (v[0]->type == wz::Type::Canvas) {
           canvas_count++;

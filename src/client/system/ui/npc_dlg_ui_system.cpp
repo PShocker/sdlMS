@@ -1,9 +1,5 @@
 #include "src/client/system/ui/npc_dlg_ui_system.h"
-#include <SDL3/SDL_rect.h>
-#include <SDL3/SDL_render.h>
-#include <SDL3/SDL_scancode.h>
-#include "src/client/system/ui/notice_ui_system.h"
-#include "src/client/system/ui/quest_ui_system.h"
+
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -21,13 +17,20 @@
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/system.h"
+#include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/system/ui/quest_alarm_ui_system.h"
+#include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/script/script.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_scancode.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
+
 #include <algorithm>
 #include <cstdint>
 #include <functional>
@@ -41,7 +44,7 @@ static std::u16string selected;
 
 void NpcDlgUiSystem::ResetPos() {
   auto wh = LoadWh();
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   pos_.x = (camera.w - wh.x) / 2;
   pos_.y = (camera.h - wh.y) / 2;
 }
@@ -82,7 +85,7 @@ void NpcDlgUiSystem::RenderNpc() {
   auto [w, h] = LoadWh();
   GameNpc npc;
   npc.action = u"stand";
-  const auto &camera = CameraGameInstance::camera_;
+  const auto& camera = CameraGameInstance::camera_;
   npc.pos.x = camera.x + pos_.x + 80;
   npc.pos.y = camera.y + pos_.y + 15 + h / 2;
   npc.ani_index = 0;
@@ -111,11 +114,11 @@ void NpcDlgUiSystem::RenderNpc() {
 
 void NpcDlgUiSystem::RenderButton() {
   auto [w, h] = LoadWh();
-  std::vector<wz::Node *> buttons_node = {
+  std::vector<wz::Node*> buttons_node = {
       WzResource::ui_->find(u"UtilDlgEx.img/UtilDlgEx/BtClose"),
   };
   std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{10, h - 25, 85, 18}, //
+      SDL_FRect{10, h - 25, 85, 18},  //
   };
 
   auto w0 = w - 72;
@@ -147,7 +150,7 @@ void NpcDlgUiSystem::RenderButton() {
     auto pos_rect = buttons_rect[i];
     pos_rect.x += (int)pos_.x;
     pos_rect.y += (int)pos_.y;
-    auto &mouse_pos = Window::mouse_pos_;
+    auto& mouse_pos = Window::mouse_pos_;
     // 判断按钮是否被遮挡
     auto CursorIn = CursorGameInstance::cursor_ui;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render) {
@@ -169,29 +172,29 @@ void NpcDlgUiSystem::RenderText() {
   auto dt = Window::dt_now_ - time_;
   int visibleCount = int(dt * 0.05);
   switch (type_) {
-  case NpcDlgEnum::kQuest:
-  case NpcDlgEnum::kQuestAvaliable:
-  case NpcDlgEnum::kQuestComplete:
-  case NpcDlgEnum::kQuestYes:
-  case NpcDlgEnum::kQuestNo:
-  case NpcDlgEnum::kQuestStopItem:
-  case NpcDlgEnum::kQuestStopLost:
-  case NpcDlgEnum::kQuestStopMob:
-  case NpcDlgEnum::kQuestStopNpc:
-  case NpcDlgEnum::kTalk:
-  case NpcDlgEnum::kSelect: {
-    Freetype::LoadSize(12);
-    Freetype::LoadAligned(true);
-    Freetype::LoadColor(0, 0, 0, 255);
-    select_mouse_ =
-        Freetype::DrawRstr(text_, pos_.x + 165, pos_.y + 30, 330, 1.3,
-                            std::nullopt, select_, false, visibleCount)
-            .select;
-    break;
-  }
-  default: {
-    break;
-  }
+    case NpcDlgEnum::kQuest:
+    case NpcDlgEnum::kQuestAvaliable:
+    case NpcDlgEnum::kQuestComplete:
+    case NpcDlgEnum::kQuestYes:
+    case NpcDlgEnum::kQuestNo:
+    case NpcDlgEnum::kQuestStopItem:
+    case NpcDlgEnum::kQuestStopLost:
+    case NpcDlgEnum::kQuestStopMob:
+    case NpcDlgEnum::kQuestStopNpc:
+    case NpcDlgEnum::kTalk:
+    case NpcDlgEnum::kSelect: {
+      Freetype::LoadSize(12);
+      Freetype::LoadAligned(true);
+      Freetype::LoadColor(0, 0, 0, 255);
+      select_mouse_ =
+          Freetype::DrawRstr(text_, pos_.x + 165, pos_.y + 30, 330, 1.3,
+                             std::nullopt, select_, false, visibleCount)
+              .select;
+      break;
+    }
+    default: {
+      break;
+    }
   }
 }
 
@@ -224,15 +227,15 @@ void NpcDlgUiSystem::RenderList() {
                               std::back_inserter(result));
   progress_quest = result;
 
-  const auto &mouse_pos = Window::mouse_pos_;
+  const auto& mouse_pos = Window::mouse_pos_;
   selected = u"";
   Freetype::LoadSize(12);
   Freetype::LoadAligned(true);
   Freetype::LoadColor(128, 0, 128, 255);
   auto lh = Freetype::LoadLh();
 
-  const auto render_q = [&](SDL_Texture *t, std::vector<std::u16string> &q,
-                            float &y, std::u16string type) {
+  const auto render_q = [&](SDL_Texture* t, std::vector<std::u16string>& q,
+                            float& y, std::u16string type) {
     if (q.empty()) {
       return;
     }
@@ -247,11 +250,11 @@ void NpcDlgUiSystem::RenderList() {
     for (int i = 0; i < q.size(); i++) {
       auto quest_node = QuestGameInstance::LoadQuestNode(q[i]);
       auto name_node = quest_node->find(u"QuestInfo/name");
-      auto name = static_cast<wz::Property<std::u16string> *>(name_node)->get();
+      auto name = static_cast<wz::Property<std::u16string>*>(name_node)->get();
       auto lv_node = quest_node->find(u"Check/0/lvmin");
       auto lv = 0;
       if (lv_node) {
-        lv = static_cast<wz::Property<int> *>(lv_node)->get();
+        lv = static_cast<wz::Property<int>*>(lv_node)->get();
       }
       auto lv2 = std::to_string(lv);
       std::u16string lv3{lv2.begin(), lv2.end()};
@@ -377,7 +380,7 @@ void NpcDlgUiSystem::RenderObtain() {
       if (v <= 0) {
         continue;
       }
-      SDL_Texture *t;
+      SDL_Texture* t;
       std::u16string name;
       if (ItemGameInstance::CheckItem(k)) {
         auto info = ItemGameInstance::LoadItemInfo(k, 0);
@@ -431,7 +434,7 @@ SDL_FPoint NpcDlgUiSystem::LoadWh() {
     progress_quest = result;
     Freetype::LoadSize(12);
     auto lh = Freetype::LoadLh();
-    for (const auto &v :
+    for (const auto& v :
          {avaliable_quest, progress_quest, progress_complete_quest}) {
       if (!v.empty()) {
         h += v.size() * lh;
@@ -490,14 +493,16 @@ void NpcDlgUiSystem::Toggle() {
   }
 }
 
-void NpcDlgUiSystem::EventButtonClose() { Close(); }
+void NpcDlgUiSystem::EventButtonClose() {
+  Close();
+}
 
 void NpcDlgUiSystem::EventButtonOk() {
   if (type_ == NpcDlgEnum::kQuestComplete && index_ == max_index_) {
     auto back_meso = PackageGameInstance::meso_;
     auto back_data = PackageGameInstance::data_;
     if (!act_random_item_.empty()) {
-      auto &r = RandomGameInstance::gen;
+      auto& r = RandomGameInstance::gen;
       std::uniform_int_distribution<int> dist(0, act_random_item_.size() - 1);
       auto it = act_random_item_.begin();
       std::advance(it, dist(r));
@@ -560,32 +565,31 @@ void NpcDlgUiSystem::EventButtonUpdate() {
   // 根据 type 决定后缀，统一拼接路径
   std::u16string suffix;
   switch (type_) {
-  case NpcDlgEnum::kQuestComplete:
-  case NpcDlgEnum::kQuest:
-    suffix = u"";
-    break;
-  case NpcDlgEnum::kQuestYes:
-    suffix = u"/yes";
-    break;
-  case NpcDlgEnum::kQuestStopItem:
-    suffix = u"/item";
-    break;
-  case NpcDlgEnum::kQuestStopLost:
-    suffix = u"/lost";
-    break;
-  case NpcDlgEnum::kQuestStopNpc:
-    suffix = u"/npc";
-    break;
-  default:
-    suffix = u"";
+    case NpcDlgEnum::kQuestComplete:
+    case NpcDlgEnum::kQuest:
+      suffix = u"";
+      break;
+    case NpcDlgEnum::kQuestYes:
+      suffix = u"/yes";
+      break;
+    case NpcDlgEnum::kQuestStopItem:
+      suffix = u"/item";
+      break;
+    case NpcDlgEnum::kQuestStopLost:
+      suffix = u"/lost";
+      break;
+    case NpcDlgEnum::kQuestStopNpc:
+      suffix = u"/npc";
+      break;
+    default:
+      suffix = u"";
   }
   auto node = QuestGameInstance::LoadQuestNode(quest_id_);
   if (node) {
     node = node->find(u"Say/" + quest_index_ + suffix);
   }
   if (node != nullptr) {
-    text_ =
-        TextGameInstance::LoadRstr(node->get_child(std::to_string(index_)));
+    text_ = TextGameInstance::LoadRstr(node->get_child(std::to_string(index_)));
   }
   ResetPos();
   time_ = Window::dt_now_;
@@ -599,50 +603,50 @@ void NpcDlgUiSystem::EventButtonPrev() {
 
 void NpcDlgUiSystem::EventButtonNext() {
   switch (type_) {
-  case NpcDlgEnum::kSelect: {
-    if (cb_) {
-      cb_();
-      return;
-    }
-    auto node = QuestGameInstance::LoadQuestNode(quest_id_);
-    node = node->find(u"Say/" + quest_index_ + u"/stop/0/answer");
-    auto ans = static_cast<wz::Property<int> *>(node)->get() - 1;
-    auto st = select_;
-    if (select_mouse_ != -1) {
-      st = select_mouse_;
-    }
-    if (ans == st) {
-      type_ = NpcDlgEnum::kQuestComplete;
-      node = QuestGameInstance::LoadQuestNode(quest_id_);
-      node = node->find(u"Say/" + quest_index_);
-      node = node->get_child(std::to_string(index_ + 1));
-      time_ = Window::dt_now_;
-      text_ = TextGameInstance::LoadRstr(node);
-      index_ = 0;
-      max_index_ = 0;
+    case NpcDlgEnum::kSelect: {
+      if (cb_) {
+        cb_();
+        return;
+      }
+      auto node = QuestGameInstance::LoadQuestNode(quest_id_);
+      node = node->find(u"Say/" + quest_index_ + u"/stop/0/answer");
+      auto ans = static_cast<wz::Property<int>*>(node)->get() - 1;
+      auto st = select_;
+      if (select_mouse_ != -1) {
+        st = select_mouse_;
+      }
+      if (ans == st) {
+        type_ = NpcDlgEnum::kQuestComplete;
+        node = QuestGameInstance::LoadQuestNode(quest_id_);
+        node = node->find(u"Say/" + quest_index_);
+        node = node->get_child(std::to_string(index_ + 1));
+        time_ = Window::dt_now_;
+        text_ = TextGameInstance::LoadRstr(node);
+        index_ = 0;
+        max_index_ = 0;
 
-      act_meso_ = QuestGameInstance::LoadQuestActMeso(quest_id_);
-      act_item_ = QuestGameInstance::LoadQuestActItem(quest_id_);
-      act_exp_ = QuestGameInstance::LoadQuestActExp(quest_id_);
-    } else {
-      type_ = NpcDlgEnum::kTalk;
-      node = QuestGameInstance::LoadQuestNode(quest_id_);
-      node = node->find(u"Say/" + quest_index_ + u"/stop");
-      node = node->get_child(std::to_string(index_));
-      node = node->get_child(std::to_string(st));
-      time_ = Window::dt_now_;
-      text_ = TextGameInstance::LoadRstr(node);
-      index_ = 0;
-      max_index_ = 0;
+        act_meso_ = QuestGameInstance::LoadQuestActMeso(quest_id_);
+        act_item_ = QuestGameInstance::LoadQuestActItem(quest_id_);
+        act_exp_ = QuestGameInstance::LoadQuestActExp(quest_id_);
+      } else {
+        type_ = NpcDlgEnum::kTalk;
+        node = QuestGameInstance::LoadQuestNode(quest_id_);
+        node = node->find(u"Say/" + quest_index_ + u"/stop");
+        node = node->get_child(std::to_string(index_));
+        node = node->get_child(std::to_string(st));
+        time_ = Window::dt_now_;
+        text_ = TextGameInstance::LoadRstr(node);
+        index_ = 0;
+        max_index_ = 0;
+      }
+      break;
     }
-    break;
-  }
-  default: {
-    selected = u"";
-    ++index_;
-    EventButtonUpdate();
-    break;
-  }
+    default: {
+      selected = u"";
+      ++index_;
+      EventButtonUpdate();
+      break;
+    }
   }
 }
 
@@ -666,16 +670,15 @@ void NpcDlgUiSystem::EventList() {
   auto progress = QuestGameInstance::LoadQuestProgress(selected);
   auto tmp = std::to_string(progress);
   quest_index_ = {tmp.begin(), tmp.end()};
-  auto progress_complete =
-      NpcGameInstance::LoadProgressCompleteQuest(npc_id_);
+  auto progress_complete = NpcGameInstance::LoadProgressCompleteQuest(npc_id_);
 
-  wz::Node *node = nullptr;
+  wz::Node* node = nullptr;
   if (std::ranges::contains(progress_complete, quest_id_)) {
     // 待完成
     node = QuestGameInstance::LoadQuestNode(quest_id_);
     if (auto n = node->find(u"Check/" + quest_index_ + u"/endscript");
         n != nullptr) {
-      auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
+      auto spt = static_cast<wz::Property<std::u16string>*>(n)->get();
       Script::fns().at(spt)(nullptr);
       script_id_ = spt;
       return;
@@ -725,7 +728,7 @@ void NpcDlgUiSystem::EventList() {
 
   } else if (QuestGameInstance::progress_quests_.contains(quest_id_)) {
     // 判断是否是进行中的任务
-    auto &q = QuestGameInstance::progress_quests_.at(quest_id_);
+    auto& q = QuestGameInstance::progress_quests_.at(quest_id_);
     if (!q.item_bool) {
       type_ = NpcDlgEnum::kQuestStopItem;
       node = QuestGameInstance::LoadQuestNode(selected);
@@ -746,7 +749,7 @@ void NpcDlgUiSystem::EventList() {
     type_ = NpcDlgEnum::kQuestAvaliable;
     node = QuestGameInstance::LoadQuestNode(selected);
     if (auto n = node->find(u"Check/0/startscript"); n != nullptr) {
-      auto spt = static_cast<wz::Property<std::u16string> *>(n)->get();
+      auto spt = static_cast<wz::Property<std::u16string>*>(n)->get();
       Script::fns().at(spt)(nullptr);
       script_id_ = spt;
       return;
@@ -797,7 +800,7 @@ void NpcDlgUiSystem::EventButtonQuestYes() {
   // accept quest
   QuestGameInstance::AcceptQuest(quest_id_);
   QuestAlarmUiSystem::AcceptQuest(quest_id_);
-  static wz::Node *yes_node;
+  static wz::Node* yes_node;
   yes_node = QuestGameInstance::LoadQuestNode(quest_id_);
   yes_node = yes_node->find(u"Say/" + quest_index_ + u"/yes");
   if (yes_node == nullptr) {
@@ -814,7 +817,7 @@ void NpcDlgUiSystem::EventButtonQuestYes() {
 }
 
 void NpcDlgUiSystem::EventButtonQuestNo() {
-  static wz::Node *no_node;
+  static wz::Node* no_node;
   no_node = QuestGameInstance::LoadQuestNode(quest_id_);
   no_node = no_node->find(u"Say/" + quest_index_ + u"/no");
   if (no_node == nullptr) {
@@ -830,10 +833,10 @@ void NpcDlgUiSystem::EventButtonQuestNo() {
   }
 }
 
-bool NpcDlgUiSystem::EventButton(SDL_Event *Event) {
+bool NpcDlgUiSystem::EventButton(SDL_Event* Event) {
   auto [w, h] = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{10, h - 25, 85, 18}, //
+      SDL_FRect{10, h - 25, 85, 18},  //
   };
   std::vector<std::function<void()>> func = {
       EventButtonClose,
@@ -876,18 +879,18 @@ bool NpcDlgUiSystem::EventButton(SDL_Event *Event) {
 
 bool NpcDlgUiSystem::CursorIn() {
   auto [w, h] = LoadWh();
-  auto &mouse = Window::mouse_pos_;
+  auto& mouse = Window::mouse_pos_;
   SDL_FRect pos_rect{pos_.x, pos_.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event* Event) {
   if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
   auto [w, h] = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
-      SDL_FRect{10, h - 25, 85, 18}, //
+      SDL_FRect{10, h - 25, 85, 18},  //
   };
   auto w0 = w - 72;
   if (index_ < max_index_) {
@@ -905,7 +908,7 @@ void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event *Event) {
     buttons_rect.push_back(SDL_FRect{w - 56, h - 25, 46, 18});
   }
   static int8_t bt_audio = -1;
-  auto &mouse_pos = Window::mouse_pos_;
+  auto& mouse_pos = Window::mouse_pos_;
   int8_t bt_in = -1;
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -922,83 +925,83 @@ void NpcDlgUiSystem::EventMotionBtAudio(SDL_Event *Event) {
   bt_audio = bt_in;
 }
 
-bool NpcDlgUiSystem::Event(SDL_Event *Event) {
+bool NpcDlgUiSystem::Event(SDL_Event* Event) {
   bool r = false;
   switch (Event->type) {
-  case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = Event->key.scancode;
-    switch (scan_code) {
-    case SDL_SCANCODE_UP: {
-      if (type_ == NpcDlgEnum::kSelect) {
-        select_--;
-        select_ = std::max((int8_t)0, select_);
+    case SDL_EVENT_KEY_DOWN: {
+      auto scan_code = Event->key.scancode;
+      switch (scan_code) {
+        case SDL_SCANCODE_UP: {
+          if (type_ == NpcDlgEnum::kSelect) {
+            select_--;
+            select_ = std::max((int8_t)0, select_);
+          }
+          break;
+        }
+        case SDL_SCANCODE_DOWN: {
+          if (type_ == NpcDlgEnum::kSelect) {
+            select_++;
+            select_ = std::min(select_, max_select_);
+          }
+          break;
+        }
+        case SDL_SCANCODE_ESCAPE: {
+          EventButtonClose();
+          return false;
+          break;
+        }
+        case SDL_SCANCODE_RETURN: {
+          if (index_ == max_index_ && cb_ == nullptr &&
+              type_ == NpcDlgEnum::kQuestAvaliable) {
+            EventButtonQuestYes();
+            return false;
+          }
+          if (type_ == NpcDlgEnum::kQuestAvaliable && index_ < max_index_) {
+            EventButtonNext();
+            return false;
+          }
+          if (type_ == NpcDlgEnum::kQuestComplete) {
+            EventButtonOk();
+            return false;
+          }
+          EventButtonClose();
+          return false;
+          break;
+        }
+        default: {
+          break;
+        }
       }
       break;
     }
-    case SDL_SCANCODE_DOWN: {
-      if (type_ == NpcDlgEnum::kSelect) {
-        select_++;
-        select_ = std::min(select_, max_select_);
+    case SDL_EVENT_MOUSE_BUTTON_DOWN: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          time_ = UINT64_MAX;
+        }
       }
       break;
     }
-    case SDL_SCANCODE_ESCAPE: {
-      EventButtonClose();
-      return false;
+    case SDL_EVENT_MOUSE_BUTTON_UP: {
+      if (Event->button.button == SDL_BUTTON_LEFT) {
+        if (CursorGameInstance::cursor_ui == Render) {
+          time_ = UINT64_MAX;
+          EventList();
+          EventButton(Event);
+          if (type_ == NpcDlgEnum::kSelect && select_mouse_ >= 0) {
+            EventButtonNext();
+          }
+        }
+      }
       break;
     }
-    case SDL_SCANCODE_RETURN: {
-      if (index_ == max_index_ && cb_ == nullptr &&
-          type_ == NpcDlgEnum::kQuestAvaliable) {
-        EventButtonQuestYes();
-        return false;
-      }
-      if (type_ == NpcDlgEnum::kQuestAvaliable && index_ < max_index_) {
-        EventButtonNext();
-        return false;
-      }
-      if (type_ == NpcDlgEnum::kQuestComplete) {
-        EventButtonOk();
-        return false;
-      }
-      EventButtonClose();
-      return false;
+    case SDL_EVENT_MOUSE_MOTION: {
+      EventMotionBtAudio(Event);
       break;
     }
     default: {
       break;
     }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        time_ = UINT64_MAX;
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (Event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == Render) {
-        time_ = UINT64_MAX;
-        EventList();
-        EventButton(Event);
-        if (type_ == NpcDlgEnum::kSelect && select_mouse_ >= 0) {
-          EventButtonNext();
-        }
-      }
-    }
-    break;
-  }
-  case SDL_EVENT_MOUSE_MOTION: {
-    EventMotionBtAudio(Event);
-    break;
-  }
-  default: {
-    break;
-  }
   }
 
   return r;
@@ -1011,7 +1014,7 @@ bool NpcDlgUiSystem::StartNextQuest() {
     QuestGameInstance::CompleteQuest(selected);
     QuestAlarmUiSystem::CompleteQuest(selected);
     QuestUiSystem::CompleteQuest(quest_id_);
-    auto nq = static_cast<wz::Property<int> *>(n)->get();
+    auto nq = static_cast<wz::Property<int>*>(n)->get();
     auto tmp = std::to_string(nq);
     selected = std::u16string{tmp.begin(), tmp.end()} + u".img";
     type_ = NpcDlgEnum::kQuest;

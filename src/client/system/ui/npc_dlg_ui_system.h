@@ -3,6 +3,7 @@
 
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <flat_map>
 #include <functional>
@@ -10,7 +11,7 @@
 namespace sdlms {
 
 class NpcDlgUiSystem {
-private:
+ private:
   static inline int8_t select_mouse_ = -1;
   static void ResetPos();
 
@@ -23,7 +24,7 @@ private:
 
   static SDL_FPoint LoadWh();
 
-  static void EventMotionBtAudio(SDL_Event *Event);
+  static void EventMotionBtAudio(SDL_Event* Event);
 
   static void EventList();
 
@@ -36,18 +37,18 @@ private:
   static void EventButtonQuestYes();
   static void EventButtonQuestNo();
 
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
   static void EventButtonUpdate();
 
   static bool StartNextQuest();
 
-public:
+ public:
   static bool Render();
 
   static void Open();
   static void Close();
 
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
 

@@ -2,6 +2,8 @@
 namespace sdlms {
 
 
-bool ServerRegionSkillSystem::Run() { return true; }
+bool ServerRegionSkillSystem::Run() {
+  return true;
+}
 
 }  // namespace sdlms

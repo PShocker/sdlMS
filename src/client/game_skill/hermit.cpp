@@ -1,5 +1,4 @@
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_ball.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
@@ -16,6 +15,9 @@
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <memory>
 #include <vector>
@@ -31,8 +33,8 @@ static void Erduantiao() {
   g_skill.frame = []() { return; };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    auto &ski = SkillGameInstance::ski_;
-    auto &sf = CharacterGameInstance::self_;
+    auto& ski = SkillGameInstance::ski_;
+    auto& sf = CharacterGameInstance::self_;
     auto action_type = CharacterLogicSystem::LoadActionType(sf);
     if (action_type != CharacterLogicSystem::ActionEnum::kJump) {
       return;
@@ -50,12 +52,12 @@ static void Erduantiao() {
     ckt.y = sf.pos.y;
     ckt.flip = sf.flip;
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0,
-                                          ckt.x, ckt.y, ckt.flip);
+                                       ckt.x, ckt.y, ckt.flip);
     ClientRequest::send_to_host(ckt);
     SkillGameInstance::Skis()[u"4111005"].cd = Window::dt_now_ + 100;
   };
 
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 
@@ -63,7 +65,7 @@ static void Dafeibiao() {
   GameSkill g_skill;
   g_skill.id = u"4111004";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"avenger");
     auto delay = SkillGameInstance::LoadSkiTime(sf);
     auto ski_lvl2 = std::to_string(ski_lv);
@@ -80,8 +82,8 @@ static void Dafeibiao() {
       goal.x -= w;
     }
     CheckMobs cm;
-    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
-                                                       page, 800, path);
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
+                                                   800, path);
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
@@ -91,7 +93,7 @@ static void Dafeibiao() {
     auto g_r = SkillGameInstance::LoadR(lt, rb, sf.pos, sf.flip);
     cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
     if (!cm.data.empty()) {
-      for (auto &data : cm.data) {
+      for (auto& data : cm.data) {
         cct.payload->ball->mob_index = data.mob.index;
         auto mob_pos = MobGameInstance::data_.at(data.mob.index).mob.pos;
         cct.payload->ball->y1 = mob_pos.y;
@@ -102,7 +104,7 @@ static void Dafeibiao() {
       }
       // Create and send attack payload
       cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, 0);
-      for (auto &data : cat.payload) {
+      for (auto& data : cat.payload) {
         data->effect = "Afterimage/hit.img/sword2";
       }
       ClientRequest::send_to_host(cat);
@@ -111,7 +113,7 @@ static void Dafeibiao() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 

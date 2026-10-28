@@ -1,22 +1,25 @@
 #include "src/client/system/render/portal_render_system.h"
-#include <SDL3/SDL_rect.h>
-#include "src/client/system/render/npc_render_system.h"
+
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
+#include "src/client/system/render/npc_render_system.h"
 #include "src/client/system/ui/minimap_ui_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
+#include <SDL3/SDL_rect.h>
 #include <wz/Node.h>
 #include <wz/Property.h>
+
 #include <cstdint>
 #include <flat_map>
 #include <string>
 namespace sdlms {
 
 
-bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
+bool PortalRenderSystem::RenderPortal(GamePortal& g_portal) {
   if (!(g_portal.pt == 1 || g_portal.pt == 2)) {
     return true;
   }
@@ -24,7 +27,7 @@ bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
 
   auto portal_node = WzResource::map_->find(path);
   auto portal_pos = g_portal.pos;
-  wz::Node *texture_node;
+  wz::Node* texture_node;
   if (portal_node->get_child(u"portalStart")) {
     // 三段式传送门
     auto self_character = CharacterGameInstance::self_;
@@ -45,7 +48,7 @@ bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
       std::to_string(g_portal.ani_index % texture_node->children_count());
   texture_node = texture_node->get_child(index);
   auto texture = WzResource::LoadTexture(texture_node);
-  auto v = static_cast<wz::Property<wz::WzVec2D> *>(
+  auto v = static_cast<wz::Property<wz::WzVec2D>*>(
                texture_node->get_child(u"origin"))
                ->get();
   auto origin = SDL_FPoint{static_cast<float>(v.x), static_cast<float>(v.y)};
@@ -56,7 +59,7 @@ bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
       .w = static_cast<float>(texture->w),
       .h = static_cast<float>(texture->h),
   };
-  auto &camera = CameraGameInstance::camera_;
+  auto& camera = CameraGameInstance::camera_;
   if (SDL_HasRectIntersectionFloat(&pos_rect, &camera)) {
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
@@ -65,7 +68,7 @@ bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
   return true;
 }
 
-void PortalRenderSystem::RenderNametag(GamePortal &g_portal) {
+void PortalRenderSystem::RenderNametag(GamePortal& g_portal) {
   if (g_portal.tm == SceneSystemInstance::map_id_) {
     return;
   }
@@ -76,7 +79,7 @@ void PortalRenderSystem::RenderNametag(GamePortal &g_portal) {
   NpcRenderSystem::RenderNametag(name, {g_portal.pos.x, g_portal.pos.y + 4});
 }
 
-bool PortalRenderSystem::Render(GamePortal &g_portal) {
+bool PortalRenderSystem::Render(GamePortal& g_portal) {
   RenderPortal(g_portal);
   RenderNametag(g_portal);
   return true;

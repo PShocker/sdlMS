@@ -5,22 +5,22 @@
 namespace sdlms {
 
 class ChatLogUiSystem {
-private:
+ private:
   static void RenderBackgrnd();
   static void RenderChats();
   static void RenderVscr();
 
   static void EventClickChatVscr();
-  static bool EventButton(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
 
-public:
+ public:
   static inline int page_;
 
   static void Open();
   static void Close();
 
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
 
   static bool CursorIn();
 

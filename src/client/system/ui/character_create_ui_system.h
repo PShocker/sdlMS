@@ -1,15 +1,17 @@
 #ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CREATE_UI_SYSTEM_H_
 #define SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CREATE_UI_SYSTEM_H_
 
-#include <SDL3/SDL_events.h>
 #include "src/client/game/game_character.h"
 #include "src/client/system/ui/text_input_ui_system.h"
+
+#include <SDL3/SDL_events.h>
+
 #include <string>
 #include <vector>
 namespace sdlms {
 
 class CharacterCreateUiSystem {
-private:
+ private:
   static std::vector<std::u16string> LoadDefaultFace();
   static std::vector<std::u16string> LoadDefaultHair();
   static std::vector<std::u16string> LoadDefaultTop();
@@ -84,10 +86,10 @@ private:
   static void EventButtonCancel();
   static void EventButtonBack();
 
-  static bool EventButton(SDL_Event *Event);
-  static bool EventButtonCustom(SDL_Event *Event);
+  static bool EventButton(SDL_Event* Event);
+  static bool EventButtonCustom(SDL_Event* Event);
 
-public:
+ public:
   static inline TextInput name_;
 
   static inline int str_point_;
@@ -101,7 +103,7 @@ public:
 
   static void ResetCharacter(bool g);
   static bool Render();
-  static bool Event(SDL_Event *Event);
+  static bool Event(SDL_Event* Event);
   static bool Run();
 
   static inline GameCharacter g_character_;

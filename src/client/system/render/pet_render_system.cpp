@@ -2,6 +2,8 @@
 namespace sdlms {
 
 
-bool PetRenderSystem::Render() { return true; }
+bool PetRenderSystem::Render() {
+  return true;
+}
 
 }  // namespace sdlms

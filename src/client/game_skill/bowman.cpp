@@ -1,5 +1,4 @@
 
-#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"
@@ -14,6 +13,9 @@
 #include "src/common/request/client_request.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
+
+#include <SDL3/SDL_rect.h>
+
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -31,7 +33,7 @@ static void Duanhunjian() {
             SDL_FPoint{0, -28},
         },
     };
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     CharacterLogicSystem::RunAction(sf, u"swingO1");
     auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
@@ -49,8 +51,8 @@ static void Duanhunjian() {
     } else {
       goal.x -= 350;
     }
-    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
-                                                       page, 700, path);
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
+                                                   700, path);
     ClientRequest::send_to_host(cct);
     ServerBallInstance::HandleServerB(cct.payload);
 
@@ -67,7 +69,7 @@ static void Duanhunjian() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 
@@ -82,7 +84,7 @@ static void Shuangfeizhan() {
             SDL_FPoint{0, -28},
         },
     };
-    auto &sf = CharacterGameInstance::self_;
+    auto& sf = CharacterGameInstance::self_;
     auto WeaponType = EquipGameInstance::LoadWeaponType(sf);
     if (!(WeaponType == EquipGameInstance::WeaponType::kBow ||
           WeaponType == EquipGameInstance::WeaponType::kCrossbow)) {
@@ -110,8 +112,8 @@ static void Shuangfeizhan() {
     } else {
       goal.x -= 350;
     }
-    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
-                                                       page, 750, path);
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay, page,
+                                                   750, path);
     if (cct.payload->ball->mob_index != UINT32_MAX) {
       if (cct.payload->ball->y2 >= -8) {
         cct.payload->ball->y2 -= 8;
@@ -140,7 +142,7 @@ static void Shuangfeizhan() {
     ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &Skis = SkillGameInstance::Skis();
+  auto& Skis = SkillGameInstance::Skis();
   Skis[g_skill.id] = g_skill;
 }
 

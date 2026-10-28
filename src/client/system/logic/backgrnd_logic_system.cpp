@@ -1,23 +1,26 @@
 #include "src/client/system/logic/backgrnd_logic_system.h"
+
 #include "src/client/game_instance/backgrnd_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
+
 #include <wz/Property.h>
+
 #include <cstdint>
 #include <ranges>
 #include <string>
 namespace sdlms {
 
 
-void BackgrndLogicSystem::RunAnimate(GameBackgrnd &g_backgrnd) {
+void BackgrndLogicSystem::RunAnimate(GameBackgrnd& g_backgrnd) {
   if (g_backgrnd.ani == 1) {
     auto texture_node = WzResource::map_->find(g_backgrnd.path);
     auto ani_index = g_backgrnd.ani_index % texture_node->children_count();
     texture_node = texture_node->get_child(std::to_string(ani_index));
 
     auto delay =
-        static_cast<wz::Property<int> *>(texture_node->get_child(u"delay"))
+        static_cast<wz::Property<int>*>(texture_node->get_child(u"delay"))
             ->get();
 
     g_backgrnd.ani_time += Window::delta_time_;
@@ -28,7 +31,7 @@ void BackgrndLogicSystem::RunAnimate(GameBackgrnd &g_backgrnd) {
   }
 }
 
-void BackgrndLogicSystem::RunOffset(GameBackgrnd &g_backgrnd) {
+void BackgrndLogicSystem::RunOffset(GameBackgrnd& g_backgrnd) {
   auto viewprot_x = CameraGameInstance::camera_.x;
   auto viewprot_y = CameraGameInstance::camera_.y;
   auto viewprot_w = CameraGameInstance::camera_.w;
@@ -53,9 +56,8 @@ void BackgrndLogicSystem::RunOffset(GameBackgrnd &g_backgrnd) {
 }
 
 bool BackgrndLogicSystem::Run() {
-  for (auto m :
-       {&BackgrndGameInstance::front_, &BackgrndGameInstance::back_}) {
-    for (auto &backgrnd : *m | std::views::values) {
+  for (auto m : {&BackgrndGameInstance::front_, &BackgrndGameInstance::back_}) {
+    for (auto& backgrnd : *m | std::views::values) {
       RunOffset(backgrnd);
       RunAnimate(backgrnd);
     }

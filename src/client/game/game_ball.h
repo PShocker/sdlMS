@@ -2,12 +2,13 @@
 #define SDLMS_SRC_CLIENT_GAME_GAME_BALL_H_
 
 #include <SDL3/SDL.h>
+
 #include <cstdint>
 #include <string>
 namespace sdlms {
 
 
-struct GameBall{
+struct GameBall {
   std::u16string path;
 
   SDL_FPoint goal;
