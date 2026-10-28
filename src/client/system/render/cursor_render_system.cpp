@@ -16,7 +16,7 @@
 #include "wz/Property.h"
 #include <string>
 
-void CursorRenderSystem::render_hand() {
+void CursorRenderSystem::RenderHand() {
   if (CursorGameInstance::cursor_hand_net.has_value()) {
     return;
   }
@@ -43,17 +43,17 @@ void CursorRenderSystem::render_hand() {
     switch (hand.type) {
     case CursorGameInstance::CursorHandType::kEquipment: {
       auto index = hand.sub_val;
-      auto eqp = EquipGameInstance::load_equip(index);
-      auto info = EquipGameInstance::load_equip_info(eqp->value().id);
-      auto t = WzResource::load_texture(info->get_child(u"iconRaw"));
+      auto eqp = EquipGameInstance::LoadEquip(index);
+      auto info = EquipGameInstance::LoadEquipInfo(eqp->value().id);
+      auto t = WzResource::LoadTexture(info->get_child(u"iconRaw"));
       render_icon(t);
       break;
     }
     case CursorGameInstance::CursorHandType::kDeco: {
       auto index = hand.sub_val;
-      auto deco = EquipGameInstance::load_deco(index);
-      auto info = EquipGameInstance::load_equip_info(deco->value().id);
-      auto t = WzResource::load_texture(info->get_child(u"iconRaw"));
+      auto deco = EquipGameInstance::LoadDeco(index);
+      auto info = EquipGameInstance::LoadEquipInfo(deco->value().id);
+      auto t = WzResource::LoadTexture(info->get_child(u"iconRaw"));
       render_icon(t);
       break;
     }
@@ -62,14 +62,14 @@ void CursorRenderSystem::render_hand() {
       if (hand.val == (int)ItemEnum::kEquip ||
           hand.val == (int)ItemEnum::kDeco) {
         auto &equip = PackageGameInstance::data[hand.val][hand.sub_val];
-        auto info = EquipGameInstance::load_equip_info(equip->id);
-        icon = WzResource::load_texture(info->get_child(u"iconRaw"));
+        auto info = EquipGameInstance::LoadEquipInfo(equip->id);
+        icon = WzResource::LoadTexture(info->get_child(u"iconRaw"));
         render_icon(icon);
       } else {
         auto &r = PackageGameInstance::data[hand.val];
         const auto &item = r.at(hand.sub_val);
-        auto info = ItemGameInstance::load_item_info(item->id, 0);
-        icon = WzResource::load_texture(info->get_child(u"iconRaw"));
+        auto info = ItemGameInstance::LoadItemInfo(item->id, 0);
+        icon = WzResource::LoadTexture(info->get_child(u"iconRaw"));
         render_icon(icon);
       }
       break;
@@ -77,8 +77,8 @@ void CursorRenderSystem::render_hand() {
     case CursorGameInstance::CursorHandType::kSkill: {
       auto tmp = std::format("{:07d}", hand.sub_val);
       std::u16string ski_id{tmp.begin(), tmp.end()};
-      auto ski_node = SkillGameInstance::load_ski_node(ski_id);
-      auto icon = WzResource::load_texture(ski_node->get_child(u"icon"));
+      auto ski_node = SkillGameInstance::LoadSkiNode(ski_id);
+      auto icon = WzResource::LoadTexture(ski_node->get_child(u"icon"));
       render_icon(icon, 172); // 技能透明度不同
       break;
     }
@@ -87,23 +87,23 @@ void CursorRenderSystem::render_hand() {
         auto &input = KeyboardGameInstance::data.at((SDL_Scancode)hand.val);
         if (input.type == "skill") {
           std::u16string ski_id{input.val.begin(), input.val.end()};
-          auto ski_node = SkillGameInstance::load_ski_node(ski_id);
-          auto icon = WzResource::load_texture(ski_node->get_child(u"icon"));
+          auto ski_node = SkillGameInstance::LoadSkiNode(ski_id);
+          auto icon = WzResource::LoadTexture(ski_node->get_child(u"icon"));
           render_icon(icon, 172); // 技能透明度不同
         } else if (input.type == "item") {
           std::u16string item_id{input.val.begin(), input.val.end()};
-          auto info = ItemGameInstance::load_item_info(item_id, 0);
-          auto icon = WzResource::load_texture(info->get_child(u"icon"));
+          auto info = ItemGameInstance::LoadItemInfo(item_id, 0);
+          auto icon = WzResource::LoadTexture(info->get_child(u"icon"));
           render_icon(icon, 172); // 技能透明度不同
         } else {
           auto x = Window::mouse_pos.x - 16;
           auto y = Window::mouse_pos.y - 16;
-          QuickSlotUiSystem::render_input_icon(input, x, y, 172);
+          QuickSlotUiSystem::RenderInputIcon(input, x, y, 172);
         }
       } else {
         auto x = Window::mouse_pos.x - 16;
         auto y = Window::mouse_pos.y - 16;
-        KeybindingUiSystem::render_remain_icon(hand.sub_val, x, y);
+        KeybindingUiSystem::RenderRemainIcon(hand.sub_val, x, y);
       }
       break;
     }
@@ -114,7 +114,7 @@ void CursorRenderSystem::render_hand() {
   }
 }
 
-void CursorRenderSystem::render_cursor() {
+void CursorRenderSystem::RenderCursor() {
   static auto cursor_node = WzResource::ui->find(u"Cursor.img");
   auto cursor_index_node =
       cursor_node->get_child(CursorGameInstance::cursor_type);
@@ -124,8 +124,8 @@ void CursorRenderSystem::render_cursor() {
     texture_node =
         static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
   }
-  auto texture = WzResource::load_texture(texture_node);
-  auto origin = WzResource::load_fpoint(texture_node->get_child(u"origin"));
+  auto texture = WzResource::LoadTexture(texture_node);
+  auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = Window::mouse_pos.x - origin.x,
       .y = Window::mouse_pos.y - origin.y,
@@ -135,8 +135,8 @@ void CursorRenderSystem::render_cursor() {
   SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
 }
 
-bool CursorRenderSystem::render() {
-  render_hand();
-  render_cursor();
+bool CursorRenderSystem::Render() {
+  RenderHand();
+  RenderCursor();
   return true;
 }

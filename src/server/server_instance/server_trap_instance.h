@@ -8,7 +8,7 @@ using namespace fbs;
 
 class ServerTrapInstance {
 public:
-  static void handle_s_attack(uint64_t client_id, AttackT &at);
-  static void handle_attack(uint64_t client_id, ClientTrapAttackT &r);
-  static void handle_server_attack(uint64_t client_id, ServerTrapAttackT &r);
+  static void HandleSAttack(uint64_t client_id, AttackT &at);
+  static void HandleAttack(uint64_t client_id, ClientTrapAttackT &r);
+  static void HandleServerAttack(uint64_t client_id, ServerTrapAttackT &r);
 };

@@ -14,42 +14,42 @@
 
 class StatusbarUiSystem {
 private:
-  static void render_hm_alert();
-  static void render_gauge_text();
-  static void render_backgrnd();
-  static void render_button();
-  static void render_character_stat();
-  static void render_chat();
-  static void render_back_chat();
+  static void RenderHmAlert();
+  static void RenderGaugeText();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderCharacterStat();
+  static void RenderChat();
+  static void RenderBackChat();
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
-  static void event_chat_send();
-  static std::u16string load_chat_type();
+  static void EventChatSend();
+  static std::u16string LoadChatType();
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
   // button_func
-  static void event_button_cashshop();
-  static void event_button_menu();
-  static void event_button_shortcut();
-  static void event_button_mailbox();
-  static void event_button_equip();
-  static void event_button_inven();
-  static void event_button_stat();
-  static void event_button_skill();
-  static void event_button_keybind();
-  static void event_button_quickslot();
-  static void event_button_chatlog();
+  static void EventButtonCashshop();
+  static void EventButtonMenu();
+  static void EventButtonShortcut();
+  static void EventButtonMailbox();
+  static void EventButtonEquip();
+  static void EventButtonInven();
+  static void EventButtonStat();
+  static void EventButtonSkill();
+  static void EventButtonKeybind();
+  static void EventButtonQuickslot();
+  static void EventButtonChatlog();
 
 public:
   static inline std::optional<GameChatEnum> chat_type;
   static inline TextInput chat;
 
-  static void reset();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void Reset();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 };

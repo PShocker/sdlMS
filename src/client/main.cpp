@@ -23,8 +23,8 @@
 #include <SDL3/SDL_main.h>
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
-  Window::tick();
-  Window::clear();
+  Window::Tick();
+  Window::Clear();
   for (const auto &fn : System::logic_systems) {
     if (!fn()) {
       break;
@@ -39,7 +39,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   }
   // shader_game_instance::end();
 
-  Window::update();
+  Window::Update();
   for (const auto &fn : ServerSystem::server_systems) {
     if (fn() == false) {
       break;
@@ -57,23 +57,23 @@ static int32_t window_w = 1366;
 static int32_t window_h = 768;
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
-  WzResource::init();
-  Freetype::init();
+  WzResource::Init();
+  Freetype::Init();
 
   if (argc == 3) {
-    ServerMain::server_init(argv[1], SDL_atoi(argv[2]));
+    ServerMain::ServerInit(argv[1], SDL_atoi(argv[2]));
   } else {
-    ServerMain::server_init();
+    ServerMain::ServerInit();
   }
-  Window::create("sdlMS", logic_w, logic_h, window_w, window_h);
-  CameraGameInstance::load(0, 0, logic_w, logic_h);
-  KeyboardGameInstance::load();
-  AudioGameInstance::init();
+  Window::Create("sdlMS", logic_w, logic_h, window_w, window_h);
+  CameraGameInstance::Load(0, 0, logic_w, logic_h);
+  KeyboardGameInstance::Load();
+  AudioGameInstance::Init();
   // shader_game_instance::init();
 
-  CharacterGameInstance::init_character_bone();
-  CharacterGameInstance::init_default_clothes();
-  CharacterGameInstance::load_self_character();
+  CharacterGameInstance::InitCharacterBone();
+  CharacterGameInstance::InitDefaultClothes();
+  CharacterGameInstance::LoadSelfCharacter();
   CharacterGameInstance::self.job = u"000";
   CharacterGameInstance::self.level = 1;
   CharacterGameInstance::self.name = u"进击的蓝蘑菇";
@@ -81,11 +81,11 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
 
   SDL_HideCursor();
   CharacterSaveData cs;
-  PackageGameInstance::load(cs);
-  CharacterStatGameInstance::load(cs);
-  QuestGameInstance::load(cs);
+  PackageGameInstance::Load(cs);
+  CharacterStatGameInstance::Load(cs);
+  QuestGameInstance::Load(cs);
 
-  SceneSystemInstance::enter_prepare(1010, u"sp", 0);
+  SceneSystemInstance::EnterPrepare(1010, u"sp", 0);
   // scene_system_instance::prepare_pos = {600, -470};
   // character_create_system_instance::enter();
   // login_system_instance::enter();
@@ -93,10 +93,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   return SDL_APP_CONTINUE;
 }
 
-SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
-  auto r = (event->type == SDL_EVENT_QUIT) ? SDL_APP_SUCCESS : SDL_APP_CONTINUE;
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *Event) {
+  auto r = (Event->type == SDL_EVENT_QUIT) ? SDL_APP_SUCCESS : SDL_APP_CONTINUE;
   for (auto &fn : System::event_systems) {
-    if (fn(event) == false) {
+    if (fn(Event) == false) {
       break;
     }
   }
@@ -105,6 +105,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   // save
-  GameSaveSystemInstance::save_game();
+  GameSaveSystemInstance::SaveGame();
   SDL_Quit();
 }

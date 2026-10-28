@@ -8,36 +8,36 @@
 #include "src/common/wz/wz_resource.h"
 #include <string>
 
-bool DropRenderSystem::render(GameDrop &g_drop) {
+bool DropRenderSystem::Render(GameDrop &g_drop) {
   SDL_Texture *icon;
   SDL_FPoint o;
   switch (g_drop.data->type) {
   case ItemEnum::kEquip: {
   case ItemEnum::kDeco:
-    auto equip_info = EquipGameInstance::load_equip_info(g_drop.data->id);
-    icon = WzResource::load_texture(equip_info->get_child(u"iconRaw"));
-    o = WzResource::load_fpoint(
+    auto equip_info = EquipGameInstance::LoadEquipInfo(g_drop.data->id);
+    icon = WzResource::LoadTexture(equip_info->get_child(u"iconRaw"));
+    o = WzResource::LoadFpoint(
         equip_info->get_child(u"iconRaw")->get_child(u"origin"));
     break;
   }
   case ItemEnum::kConsume:
   case ItemEnum::kEtc:
   case ItemEnum::kInstall: {
-    auto item_num = ItemGameInstance::load_item_num(g_drop.data);
+    auto item_num = ItemGameInstance::LoadItemNum(g_drop.data);
     auto item_info =
-        ItemGameInstance::load_item_info(g_drop.data->id, item_num);
+        ItemGameInstance::LoadItemInfo(g_drop.data->id, item_num);
     if (item_info->get_child(u"iconRaw")) {
       item_info = item_info->get_child(u"iconRaw");
-      icon = WzResource::load_texture(item_info);
-      o = WzResource::load_fpoint(item_info->get_child(u"origin"));
+      icon = WzResource::LoadTexture(item_info);
+      o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
     } else {
       auto now = Window::dt_now;
       auto sum = item_info->children_count() * 100;
       auto offset = now % sum; // 取余，得到周期内偏移
       auto i = offset / 100;
       item_info = item_info->get_child(std::to_string(i));
-      icon = WzResource::load_texture(item_info);
-      o = WzResource::load_fpoint(item_info->get_child(u"origin"));
+      icon = WzResource::LoadTexture(item_info);
+      o = WzResource::LoadFpoint(item_info->get_child(u"origin"));
     }
     break;
   }

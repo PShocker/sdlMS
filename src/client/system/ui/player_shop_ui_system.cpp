@@ -1,5 +1,5 @@
 #include "player_shop_ui_system.h"
 
-void PlayerShopUiSystem::render_backgrnd() {}
+void PlayerShopUiSystem::RenderBackgrnd() {}
 
-bool PlayerShopUiSystem::render() { return true; }
+bool PlayerShopUiSystem::Render() { return true; }

@@ -4,7 +4,7 @@
 #include <functional>
 #include <vector>
 
-bool SkillLogicSystem::run() {
+bool SkillLogicSystem::Run() {
   auto &v = SkillGameInstance::ski;
   std::vector<std::function<void()>> ends;
   for (const auto &sk : v) {

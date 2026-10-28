@@ -23,28 +23,28 @@
 #include <string>
 #include <vector>
 
-SDL_FPoint CharacterInfoUiSystem::load_wh() { return SDL_FPoint{320, 183}; }
+SDL_FPoint CharacterInfoUiSystem::LoadWh() { return SDL_FPoint{320, 183}; }
 
 const static SDL_FPoint item_lt{316, 0};
 
-void CharacterInfoUiSystem::render_scroll() {
+void CharacterInfoUiSystem::RenderScroll() {
   if (!item) {
     return;
   }
   const SDL_FPoint lt{225 + item_lt.x, 31 + item_lt.y};
   const uint32_t length = 115;
-  auto v = EquipGameInstance::load_equips(character).size();
-  auto v2 = EquipGameInstance::load_decos(character).size();
+  auto v = EquipGameInstance::LoadEquips(character).size();
+  auto v2 = EquipGameInstance::LoadDecos(character).size();
   auto size = v + v2;
-  auto cursor_in = CursorGameInstance::cursor_ui;
-  bool top = cursor_in == render && !CursorGameInstance::modal_overlay;
-  ScrollUiSystem::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
+  auto CursorIn = CursorGameInstance::cursor_ui;
+  bool top = CursorIn == Render && !CursorGameInstance::modal_overlay;
+  ScrollUiSystem::RenderVscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
                                    item_page, size, length, top, 3);
   return;
 }
 
-void CharacterInfoUiSystem::render_backgrnd() {
-  static auto backgrnd = WzResource::load_texture(
+void CharacterInfoUiSystem::RenderBackgrnd() {
+  static auto backgrnd = WzResource::LoadTexture(
       WzResource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd"));
   SDL_FRect pos_rect{
       static_cast<float>((int)pos.x),
@@ -54,7 +54,7 @@ void CharacterInfoUiSystem::render_backgrnd() {
   };
   SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 
-  static auto backgrnd_detail = WzResource::load_texture(
+  static auto backgrnd_detail = WzResource::LoadTexture(
       WzResource::ui->find(u"CharacterInfo.img/RemoteInfo/backgrnd_detail"));
   pos_rect = {
       static_cast<float>((int)pos.x + 8),
@@ -65,7 +65,7 @@ void CharacterInfoUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, backgrnd_detail, nullptr, &pos_rect);
 
   if (item) {
-    static auto backgrnd_item = WzResource::load_texture(
+    static auto backgrnd_item = WzResource::LoadTexture(
         WzResource::ui->find(u"CharacterInfo.img/ItemList/backgrnd"));
     pos_rect = {
         (int)pos.x + item_lt.x,
@@ -77,7 +77,7 @@ void CharacterInfoUiSystem::render_backgrnd() {
   }
 }
 
-void CharacterInfoUiSystem::render_button() {
+void CharacterInfoUiSystem::RenderButton() {
   std::vector<wz::Node *> buttons_nodes = {
       WzResource::ui->find(u"CharacterInfo.img/RemoteInfo/button:party"),
       WzResource::ui->find(u"CharacterInfo.img/RemoteInfo/button:trade"),
@@ -90,7 +90,7 @@ void CharacterInfoUiSystem::render_button() {
       WzResource::ui->find(u"CharacterInfo.img/RemoteInfo/button:showPet"),
       WzResource::ui->find(u"Basic.img/BtClose"),
   };
-  auto wh = load_wh();
+  auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{130, 133, 89, 16},     //
       SDL_FRect{223, 133, 89, 16},     //
@@ -116,85 +116,85 @@ void CharacterInfoUiSystem::render_button() {
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+    auto CursorIn = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void CharacterInfoUiSystem::render_character() {
+void CharacterInfoUiSystem::RenderCharacter() {
   auto &camera = CameraGameInstance::camera;
   character.pos.x = int(camera.x + pos.x + 68);
   character.pos.y = int(camera.y + pos.y + 119);
-  CharacterRenderSystem::render_character(character);
+  CharacterRenderSystem::RenderCharacter(character);
 }
 
-void CharacterInfoUiSystem::render_text() {
-  Freetype::load_aligned(true);
-  Freetype::load_size(12);
+void CharacterInfoUiSystem::RenderText() {
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(12);
   const auto label_offset = -43;
   // name
   auto charname = character.name;
-  auto w = Freetype::load_w(charname);
-  Freetype::load_color(255, 255, 255, 255);
+  auto w = Freetype::LoadW(charname);
+  Freetype::LoadColor(255, 255, 255, 255);
   auto x = int(pos.x + 67 - w / 2);
-  Freetype::draw_line(charname, x, int(pos.y + 127));
+  Freetype::DrawLine(charname, x, int(pos.y + 127));
 
-  Freetype::load_color(0, 0, 0, 255);
+  Freetype::LoadColor(0, 0, 0, 255);
   // level
   auto level = character.level;
   std::string level2 = std::to_string(level);
   std::u16string level3{level2.begin(), level2.end()};
   x = int(pos.x + 208);
-  Freetype::draw_line(level3, x, int(pos.y + 53));
+  Freetype::DrawLine(level3, x, int(pos.y + 53));
   x += label_offset;
   std::u16string str = u"LEVEL";
-  w = Freetype::load_w(str);
-  Freetype::load_color(255, 255, 255, 255);
-  Freetype::draw_line(str, x - w / 2, int(pos.y + 53));
+  w = Freetype::LoadW(str);
+  Freetype::LoadColor(255, 255, 255, 255);
+  Freetype::DrawLine(str, x - w / 2, int(pos.y + 53));
 
-  Freetype::load_color(0, 0, 0, 255);
+  Freetype::LoadColor(0, 0, 0, 255);
   // job
   auto job_node =
       WzResource::ms->get_root()->find(u"String.img/Job/" + character.job);
   auto job_name = static_cast<wz::Property<std::u16string> *>(job_node)->get();
-  Freetype::draw_line(job_name, int(pos.x + 208), int(pos.y + 72));
+  Freetype::DrawLine(job_name, int(pos.x + 208), int(pos.y + 72));
   str = u"JOB";
-  w = Freetype::load_w(str);
-  Freetype::load_color(255, 255, 255, 255);
-  Freetype::draw_line(str, x - w / 2, int(pos.y + 72));
+  w = Freetype::LoadW(str);
+  Freetype::LoadColor(255, 255, 255, 255);
+  Freetype::DrawLine(str, x - w / 2, int(pos.y + 72));
 
-  Freetype::load_color(0, 0, 0, 255);
+  Freetype::LoadColor(0, 0, 0, 255);
   auto fame = character.fame;
   std::string fame2 = std::to_string(fame);
   std::u16string fame3{fame2.begin(), fame2.end()};
-  Freetype::draw_line(fame3, int(pos.x + 208), int(pos.y + 91));
+  Freetype::DrawLine(fame3, int(pos.x + 208), int(pos.y + 91));
   str = u"FAME";
-  w = Freetype::load_w(str);
-  Freetype::load_color(255, 255, 255, 255);
-  Freetype::draw_line(str, x - w / 2, int(pos.y + 91));
+  w = Freetype::LoadW(str);
+  Freetype::LoadColor(255, 255, 255, 255);
+  Freetype::DrawLine(str, x - w / 2, int(pos.y + 91));
 }
 
-void CharacterInfoUiSystem::render_items() {
+void CharacterInfoUiSystem::RenderItems() {
   if (!item) {
     return;
   }
   const auto line_h = 38;
   auto w = 9;
   auto h = 31;
-  auto v = EquipGameInstance::load_equips(character);
-  auto v2 = EquipGameInstance::load_decos(character);
+  auto v = EquipGameInstance::LoadEquips(character);
+  auto v2 = EquipGameInstance::LoadDecos(character);
   for (uint8_t i = item_page; i < item_page + 3; i++) {
     if (i >= v.size() + v2.size()) {
       break;
@@ -208,7 +208,7 @@ void CharacterInfoUiSystem::render_items() {
       cash = true;
     }
 
-    static auto entry_back = WzResource::load_texture(
+    static auto entry_back = WzResource::LoadTexture(
         WzResource::ui->find(u"CharacterInfo.img/ItemListEntry/backgrnd"));
 
     SDL_FRect pos_rect = {
@@ -220,8 +220,8 @@ void CharacterInfoUiSystem::render_items() {
     };
     SDL_RenderTexture(Window::renderer, entry_back, nullptr, &pos_rect);
 
-    auto info = EquipGameInstance::load_equip_info(itm_id);
-    auto texture = WzResource::load_texture(info->get_child(u"icon"));
+    auto info = EquipGameInstance::LoadEquipInfo(itm_id);
+    auto texture = WzResource::LoadTexture(info->get_child(u"icon"));
     pos_rect = {
         static_cast<float>(int(pos.x + item_lt.x + w + (35 - texture->w) / 2)),
         static_cast<float>(int(pos.y + item_lt.y + h +
@@ -233,7 +233,7 @@ void CharacterInfoUiSystem::render_items() {
     SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
 
     if (cash) {
-      auto cash_icon = WzResource::load_texture(
+      auto cash_icon = WzResource::LoadTexture(
           WzResource::ms->get_root()->find(u"UI.img/CashItem"));
       SDL_FRect rect = {
           static_cast<float>(int(19 + pos.x + item_lt.x + w)),
@@ -245,23 +245,23 @@ void CharacterInfoUiSystem::render_items() {
       SDL_RenderTexture(Window::renderer, cash_icon, nullptr, &rect);
     }
 
-    Freetype::load_color(0, 0, 0, 255);
+    Freetype::LoadColor(0, 0, 0, 255);
 
-    auto name = EquipGameInstance::load_equip_name(itm_id);
+    auto name = EquipGameInstance::LoadEquipName(itm_id);
     if (name.size() > 22) {
       name = name.substr(0, 22) + u"...";
     }
-    Freetype::load_aligned(true);
-    Freetype::load_size(12);
+    Freetype::LoadAligned(true);
+    Freetype::LoadSize(12);
     auto x = pos.x + item_lt.x + w + 43;
     auto y = pos.y + item_lt.y + h + line_h * (i - item_page) - 1;
-    Freetype::draw_line(name, x, y);
+    Freetype::DrawLine(name, x, y);
 
     x = pos.x + item_lt.x + w + 43;
     y = pos.y + item_lt.y + h + line_h * (i - item_page) + 17;
-    Freetype::draw_line(u"Level", x, y);
+    Freetype::DrawLine(u"Level", x, y);
 
-    auto equip_info = EquipGameInstance::load_equip_info(itm_id);
+    auto equip_info = EquipGameInstance::LoadEquipInfo(itm_id);
     auto req =
         static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLevel"))
             ->get();
@@ -269,10 +269,10 @@ void CharacterInfoUiSystem::render_items() {
     std::u16string req3{req2.begin(), req2.end()};
     x = pos.x + item_lt.x + w + 79;
     y = pos.y + item_lt.y + h + line_h * (i - item_page) + 17;
-    Freetype::draw_line(req3, x, y);
+    Freetype::DrawLine(req3, x, y);
 
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (cursor_in != render) {
+    auto CursorIn = CursorGameInstance::cursor_ui;
+    if (CursorIn != Render) {
       continue;
     }
     auto &mouse_pos = Window::mouse_pos;
@@ -286,58 +286,58 @@ void CharacterInfoUiSystem::render_items() {
   }
 }
 
-bool CharacterInfoUiSystem::render_items_info() {
+bool CharacterInfoUiSystem::RenderItemsInfo() {
   if (item_info.has_value()) {
     auto &mouse_pos = Window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     if (std::holds_alternative<GameEquipItem>(item_info.value())) {
       // 是装备类型
       auto &equip = std::get<GameEquipItem>(item_info.value());
-      TooltipUiSystem::render_equip(equip, show_pos.x, show_pos.y);
+      TooltipUiSystem::RenderEquip(equip, show_pos.x, show_pos.y);
     } else {
       auto &equip = std::get<GameDecoItem>(item_info.value());
-      TooltipUiSystem::render_deco(equip, show_pos.x, show_pos.y);
+      TooltipUiSystem::RenderDeco(equip, show_pos.x, show_pos.y);
     }
   }
   item_info = std::nullopt;
   return true;
 }
 
-bool CharacterInfoUiSystem::render() {
-  render_backgrnd();
-  render_scroll();
-  render_button();
-  render_character();
-  render_text();
-  render_items();
+bool CharacterInfoUiSystem::Render() {
+  RenderBackgrnd();
+  RenderScroll();
+  RenderButton();
+  RenderCharacter();
+  RenderText();
+  RenderItems();
   return true;
 }
 
-bool CharacterInfoUiSystem::event_vscr(SDL_Event *event) {
+bool CharacterInfoUiSystem::EventVscr(SDL_Event *Event) {
   if (!item) {
     return false;
   }
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
-  auto v = EquipGameInstance::load_equips(character).size();
-  auto v2 = EquipGameInstance::load_decos(character).size();
+  auto v = EquipGameInstance::LoadEquips(character).size();
+  auto v2 = EquipGameInstance::LoadDecos(character).size();
   int size = v + v2 - 3;
-  auto cursor_in = CursorGameInstance::cursor_ui;
-  bool top = cursor_in == render;
+  auto CursorIn = CursorGameInstance::cursor_ui;
+  bool top = CursorIn == Render;
   size = std::max(0, size);
-  auto mouse_pos = SDL_FPoint{event->button.x, event->button.y};
+  auto mouse_pos = SDL_FPoint{Event->button.x, Event->button.y};
   auto val =
-      ScrollUiSystem::click_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
+      ScrollUiSystem::ClickVscroll((int)pos.x + lt.x, (int)pos.y + lt.y,
                                       item_page, size, length, top, mouse_pos);
   item_page = val;
   return true;
 }
 
-void CharacterInfoUiSystem::open() {
+void CharacterInfoUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
@@ -345,75 +345,75 @@ void CharacterInfoUiSystem::open() {
     item = false;
     pet = false;
 
-    CharacterLogicSystem::run_stand_action(character);
-    CharacterLogicSystem::run_face_action(character, u"default");
+    CharacterLogicSystem::RunStandAction(character);
+    CharacterLogicSystem::RunFaceAction(character, u"default");
     character.flip = 0;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
 
-    event_motion(nullptr);
+    EventMotion(nullptr);
   }
 }
 
-void CharacterInfoUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
-  std::erase(System::render_systems, render_items_info);
+void CharacterInfoUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
+  std::erase(System::render_systems, RenderItemsInfo);
 }
 
-void CharacterInfoUiSystem::event_top() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void CharacterInfoUiSystem::EventTop() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
 
-    event_motion(nullptr);
+    EventMotion(nullptr);
   }
 }
 
-void CharacterInfoUiSystem::event_drag_start(SDL_Event *event) {
-  auto wh = load_wh();
+void CharacterInfoUiSystem::EventDragStart(SDL_Event *Event) {
+  auto wh = LoadWh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
+  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - event->button.x, pos.y - event->button.y};
+    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
   }
   return;
 }
 
-void CharacterInfoUiSystem::event_drag_end() {
+void CharacterInfoUiSystem::EventDragEnd() {
   drag = std::nullopt;
   return;
 }
 
-void CharacterInfoUiSystem::event_drag_move(SDL_Event *event) {
+void CharacterInfoUiSystem::EventDragMove(SDL_Event *Event) {
   if (drag.has_value()) {
-    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
+    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
     auto &camera = CameraGameInstance::camera;
-    auto [w, h] = load_wh();
+    auto [w, h] = LoadWh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - w);
     pos.y = std::clamp(pos.y, (float)0, camera.h - h);
   }
   return;
 }
 
-void CharacterInfoUiSystem::toggle() {
-  auto fn = &render;
+void CharacterInfoUiSystem::Toggle() {
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-bool CharacterInfoUiSystem::cursor_in() {
+bool CharacterInfoUiSystem::CursorIn() {
   bool r = false;
   auto &mouse = Window::mouse_pos;
-  auto [w, h] = load_wh();
+  auto [w, h] = LoadWh();
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   r = SDL_PointInRectFloat(&mouse, &pos_rect);
   if (r) {
@@ -431,27 +431,27 @@ bool CharacterInfoUiSystem::cursor_in() {
   return r;
 }
 
-void CharacterInfoUiSystem::event_button_party() {}
+void CharacterInfoUiSystem::EventButtonParty() {}
 
-void CharacterInfoUiSystem::event_button_trade() {}
+void CharacterInfoUiSystem::EventButtonTrade() {}
 
-void CharacterInfoUiSystem::event_button_toggleitem() { item = true; }
+void CharacterInfoUiSystem::EventButtonToggleitem() { item = true; }
 
-void CharacterInfoUiSystem::event_button_toggleitem_hide() { item = false; }
+void CharacterInfoUiSystem::EventButtonToggleitemHide() { item = false; }
 
-void CharacterInfoUiSystem::event_button_citizenship() {}
+void CharacterInfoUiSystem::EventButtonCitizenship() {}
 
-void CharacterInfoUiSystem::event_button_up_fame() {}
+void CharacterInfoUiSystem::EventButtonUpFame() {}
 
-void CharacterInfoUiSystem::event_button_dowm_fame() {}
+void CharacterInfoUiSystem::EventButtonDowmFame() {}
 
-void CharacterInfoUiSystem::event_button_show_pet() {}
+void CharacterInfoUiSystem::EventButtonShowPet() {}
 
-void CharacterInfoUiSystem::event_close() { close(); }
+void CharacterInfoUiSystem::EventClose() { Close(); }
 
-bool CharacterInfoUiSystem::event_button(SDL_Event *event) {
+bool CharacterInfoUiSystem::EventButton(SDL_Event *Event) {
   std::vector<void (*)()> fns;
-  auto wh = load_wh();
+  auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{130, 133, 89, 16},     //
       SDL_FRect{223, 133, 89, 16},     //
@@ -463,13 +463,13 @@ bool CharacterInfoUiSystem::event_button(SDL_Event *event) {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
   fns = {
-      event_button_party,       event_button_trade,   event_button_toggleitem,
-      event_button_citizenship, event_button_up_fame, event_button_dowm_fame,
-      event_button_show_pet,    event_close,
+      EventButtonParty,       EventButtonTrade,   EventButtonToggleitem,
+      EventButtonCitizenship, EventButtonUpFame, EventButtonDowmFame,
+      EventButtonShowPet,    EventClose,
   };
   if (item) {
     buttons_rect.push_back(SDL_FRect{227 + item_lt.x, 7 + item_lt.y, 12, 12});
-    fns.push_back(event_button_toggleitem_hide);
+    fns.push_back(EventButtonToggleitemHide);
   }
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
@@ -478,7 +478,7 @@ bool CharacterInfoUiSystem::event_button(SDL_Event *event) {
     pos_rect.y += (int)pos.y;
     if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
       fns[i]();
-      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }
@@ -486,35 +486,35 @@ bool CharacterInfoUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-void CharacterInfoUiSystem::event_vscr_start(SDL_Event *event) {
+void CharacterInfoUiSystem::EventVscrStart(SDL_Event *Event) {
   const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
   const uint32_t length = 115;
   if (vscr_motion == false) {
     vscr_motion =
-        ScrollUiSystem::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+        ScrollUiSystem::ClickThumb(pos.x + lt.x, pos.y + lt.y, length);
   }
 }
 
-void CharacterInfoUiSystem::event_vscr_end() { vscr_motion = false; }
+void CharacterInfoUiSystem::EventVscrEnd() { vscr_motion = false; }
 
-void CharacterInfoUiSystem::event_vscr_move(SDL_Event *event) {
+void CharacterInfoUiSystem::EventVscrMove(SDL_Event *Event) {
   auto mouse_state = Window::mouse_state;
   if (vscr_motion) {
     const SDL_FPoint lt{219 + item_lt.x, 32 + item_lt.y};
     const uint32_t length = 115;
 
-    event->button.x = pos.x + lt.x;
-    event->button.y =
-        std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
-    event_vscr(event);
+    Event->button.x = pos.x + lt.x;
+    Event->button.y =
+        std::clamp(Event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+    EventVscr(Event);
   }
 }
 
-void CharacterInfoUiSystem::event_motion_bt_audio(SDL_Event *event) {
-  if (CursorGameInstance::cursor_ui != render) {
+void CharacterInfoUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+  if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
-  auto wh = load_wh();
+  auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{130, 133, 89, 16},     //
       SDL_FRect{223, 133, 89, 16},     //
@@ -541,24 +541,24 @@ void CharacterInfoUiSystem::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-void CharacterInfoUiSystem::event_wheel(SDL_Event *event) {
-  if (CursorGameInstance::cursor_ui != render) {
+void CharacterInfoUiSystem::EventWheel(SDL_Event *Event) {
+  if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
-  auto dy = event->wheel.integer_y;
+  auto dy = Event->wheel.integer_y;
   if (dy > 0) {
     // up
     if (item_page > 0) {
       item_page--;
     }
   } else {
-    auto v = EquipGameInstance::load_equips(character).size();
-    auto v2 = EquipGameInstance::load_decos(character).size();
+    auto v = EquipGameInstance::LoadEquips(character).size();
+    auto v2 = EquipGameInstance::LoadDecos(character).size();
     int size = v + v2 - 3;
     size = std::max(0, size);
     if (item_page < size) {
@@ -567,14 +567,14 @@ void CharacterInfoUiSystem::event_wheel(SDL_Event *event) {
   }
 }
 
-bool CharacterInfoUiSystem::event(SDL_Event *event) {
+bool CharacterInfoUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      event_close();
+      EventClose();
       return false;
       break;
     }
@@ -585,34 +585,34 @@ bool CharacterInfoUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_top();
-        event_drag_start(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTop();
+        EventDragStart(Event);
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_vscr(event);
-        r = !event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventVscr(Event);
+        r = !EventButton(Event);
       }
-      event_drag_end();
+      EventDragEnd();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_motion(event);
-    event_motion_bt_audio(event);
-    event_drag_move(event);
-    event_vscr_move(event);
+    EventMotion(Event);
+    EventMotionBtAudio(Event);
+    EventDragMove(Event);
+    EventVscrMove(Event);
     break;
   }
   case SDL_EVENT_MOUSE_WHEEL: {
-    event_wheel(event);
+    EventWheel(Event);
     break;
   }
   default: {
@@ -623,11 +623,11 @@ bool CharacterInfoUiSystem::event(SDL_Event *event) {
   return r;
 }
 
-void CharacterInfoUiSystem::event_motion(SDL_Event *event) {
+void CharacterInfoUiSystem::EventMotion(SDL_Event *Event) {
   auto &sys = System::render_systems;
-  std::erase(sys, render_items_info);
-  auto it = std::ranges::find(sys, &CursorRenderSystem::render);
+  std::erase(sys, RenderItemsInfo);
+  auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {
-    sys.insert(it, render_items_info);
+    sys.insert(it, RenderItemsInfo);
   }
 }

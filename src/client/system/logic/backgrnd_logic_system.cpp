@@ -8,7 +8,7 @@
 #include <ranges>
 #include <string>
 
-void BackgrndLogicSystem::run_animate(GameBackgrnd &g_backgrnd) {
+void BackgrndLogicSystem::RunAnimate(GameBackgrnd &g_backgrnd) {
   if (g_backgrnd.ani == 1) {
     auto texture_node = WzResource::map->find(g_backgrnd.path);
     auto ani_index = g_backgrnd.ani_index % texture_node->children_count();
@@ -26,7 +26,7 @@ void BackgrndLogicSystem::run_animate(GameBackgrnd &g_backgrnd) {
   }
 }
 
-void BackgrndLogicSystem::run_offset(GameBackgrnd &g_backgrnd) {
+void BackgrndLogicSystem::RunOffset(GameBackgrnd &g_backgrnd) {
   auto viewprot_x = CameraGameInstance::camera.x;
   auto viewprot_y = CameraGameInstance::camera.y;
   auto viewprot_w = CameraGameInstance::camera.w;
@@ -50,12 +50,12 @@ void BackgrndLogicSystem::run_offset(GameBackgrnd &g_backgrnd) {
   }
 }
 
-bool BackgrndLogicSystem::run() {
+bool BackgrndLogicSystem::Run() {
   for (auto m :
        {&BackgrndGameInstance::front, &BackgrndGameInstance::back}) {
     for (auto &backgrnd : *m | std::views::values) {
-      run_offset(backgrnd);
-      run_animate(backgrnd);
+      RunOffset(backgrnd);
+      RunAnimate(backgrnd);
     }
   }
   return true;

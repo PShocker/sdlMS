@@ -5,23 +5,23 @@
 #include "src/client/game/game_character.h"
 class TradeUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_button();
+  static void RenderBackgrnd();
+  static void RenderButton();
 
-  static void event_button_close();
-  static bool event_button(SDL_Event *event);
+  static void EventButtonClose();
+  static bool EventButton(SDL_Event *Event);
 
 public:
   static inline SDL_FPoint pos;
   static inline GameCharacter other;
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
-  static SDL_FPoint load_wh();
+  static void Toggle();
+  static SDL_FPoint LoadWh();
 
-  static void open();
-  static void close();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void Open();
+  static void Close();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

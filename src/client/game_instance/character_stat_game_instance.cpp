@@ -20,7 +20,7 @@
 // ============================================================
 // load
 // ============================================================
-void CharacterStatGameInstance::load(const CharacterSaveData &cs) {
+void CharacterStatGameInstance::Load(const CharacterSaveData &cs) {
   str_ap = cs.ap.str_ap;
   dex_ap = cs.ap.dex_ap;
   int_ap = cs.ap.int_ap;
@@ -28,15 +28,15 @@ void CharacterStatGameInstance::load(const CharacterSaveData &cs) {
 
   remain_ap = cs.remain_ap;
 
-  update();
+  Update();
 }
 
-uint32_t CharacterStatGameInstance::get_base_hp_max() {
+uint32_t CharacterStatGameInstance::GetBaseHpMax() {
   int base_hp_per = 0;
   int base_hp = 0;
   auto &sf = CharacterGameInstance::self;
   auto sf_job = sf.job;
-  auto jobs = JobSkillGameInstance::load_ski_tree(sf_job);
+  auto jobs = JobSkillGameInstance::LoadSkiTree(sf_job);
   if (jobs.size() == 1) {
     // beginner
     base_hp_per = 16;
@@ -129,12 +129,12 @@ uint32_t CharacterStatGameInstance::get_base_hp_max() {
   return base_hp + base_hp_per * hp_ap;
 }
 
-uint32_t CharacterStatGameInstance::get_base_mp_max() {
+uint32_t CharacterStatGameInstance::GetBaseMpMax() {
   int base_mp_per = 0;
   int base_mp = 0;
   auto &sf = CharacterGameInstance::self;
   auto sf_job = sf.job;
-  auto jobs = JobSkillGameInstance::load_ski_tree(sf_job);
+  auto jobs = JobSkillGameInstance::LoadSkiTree(sf_job);
   if (jobs.size() == 1) {
     // beginner
     base_mp_per = 12;
@@ -230,9 +230,9 @@ uint32_t CharacterStatGameInstance::get_base_mp_max() {
 // ============================================================
 // 主 / 副属性
 // ============================================================
-int CharacterStatGameInstance::load_primary_stat() {
+int CharacterStatGameInstance::LoadPrimaryStat() {
   auto job = CharacterGameInstance::self.job;
-  auto jobs = JobSkillGameInstance::load_ski_tree(job);
+  auto jobs = JobSkillGameInstance::LoadSkiTree(job);
   if (jobs.size() >= 2) {
     switch (jobs[1]) {
     case JobType::kBeginner:
@@ -251,9 +251,9 @@ int CharacterStatGameInstance::load_primary_stat() {
   return static_cast<int>(str_ap + eqp_str + itm_str + ski_str);
 }
 
-int CharacterStatGameInstance::load_secondary_stat() {
+int CharacterStatGameInstance::LoadSecondaryStat() {
   auto job = CharacterGameInstance::self.job;
-  auto jobs = JobSkillGameInstance::load_ski_tree(job);
+  auto jobs = JobSkillGameInstance::LoadSkiTree(job);
   if (jobs.size() >= 2) {
     switch (jobs[1]) {
     case JobType::kWarrior:
@@ -271,7 +271,7 @@ int CharacterStatGameInstance::load_secondary_stat() {
   return static_cast<int>(dex_ap + eqp_dex + itm_dex + ski_dex);
 }
 
-void CharacterStatGameInstance::update_sf_skill_stat() {
+void CharacterStatGameInstance::UpdateSfSkillStat() {
   ski_hp = 0;
   ski_mp = 0;
   ski_str = 0;
@@ -288,19 +288,19 @@ void CharacterStatGameInstance::update_sf_skill_stat() {
   ski_magic_def = 0;
 
   auto job_id = CharacterGameInstance::self.job;
-  auto ski_tree = JobSkillGameInstance::load_ski_tree(job_id);
-  auto &skis = SkillGameInstance::skis();
+  auto ski_tree = JobSkillGameInstance::LoadSkiTree(job_id);
+  auto &Skis = SkillGameInstance::Skis();
   for (auto ski_t : ski_tree) {
-    auto job_skis = JobSkillGameInstance::load_job_skis(ski_t);
+    auto job_skis = JobSkillGameInstance::LoadJobSkis(ski_t);
     for (auto [k, v] : job_skis) {
-      auto ski_lv = JobSkillGameInstance::load_ski_level(k);
+      auto ski_lv = JobSkillGameInstance::LoadSkiLevel(k);
       if (ski_lv == 0) {
         continue;
       }
-      if (!skis.contains(k)) {
+      if (!Skis.contains(k)) {
         continue;
       }
-      auto &ski = skis.at(k);
+      auto &ski = Skis.at(k);
       if (ski.passive) {
         ski.passive(ski_lv);
       }
@@ -308,7 +308,7 @@ void CharacterStatGameInstance::update_sf_skill_stat() {
   }
 }
 
-void CharacterStatGameInstance::update_sf_equip_stat() {
+void CharacterStatGameInstance::UpdateSfEquipStat() {
   eqp_hp = 0;
   eqp_mp = 0;
   eqp_str = 0;
@@ -373,12 +373,12 @@ void CharacterStatGameInstance::update_sf_equip_stat() {
       continue;
     }
     const auto &eq = opt.value();
-    add_inc(EquipGameInstance::load_equip_inc(eq.id));
+    add_inc(EquipGameInstance::LoadEquipInc(eq.id));
     for (const auto &scroll : eq.scroll) {
       if (!scroll.success) {
         continue;
       }
-      add_inc(EquipGameInstance::load_scroll_inc(scroll.id));
+      add_inc(EquipGameInstance::LoadScrollInc(scroll.id));
     }
   }
 }
@@ -386,9 +386,9 @@ void CharacterStatGameInstance::update_sf_equip_stat() {
 // ============================================================
 // update
 // ============================================================
-void CharacterStatGameInstance::update() {
-  update_sf_equip_stat();
-  update_sf_skill_stat();
+void CharacterStatGameInstance::Update() {
+  UpdateSfEquipStat();
+  UpdateSfSkillStat();
 
   // ---- 总属性（AP + 装备 + 道具/Buff + 技能被动）----
   str_point = str_ap + eqp_str + itm_str + ski_str;
@@ -398,17 +398,17 @@ void CharacterStatGameInstance::update() {
 
   // ---- HP / MP 上限 ----
   hp_point_max = static_cast<int32_t>(std::clamp<int64_t>(
-      static_cast<int64_t>(get_base_hp_max()) + eqp_hp + itm_hp + ski_hp, 1,
+      static_cast<int64_t>(GetBaseHpMax()) + eqp_hp + itm_hp + ski_hp, 1,
       INT32_MAX));
   mp_point_max = static_cast<int32_t>(std::clamp<int64_t>(
-      static_cast<int64_t>(get_base_mp_max()) + eqp_mp + itm_mp + ski_mp, 1,
+      static_cast<int64_t>(GetBaseMpMax()) + eqp_mp + itm_mp + ski_mp, 1,
       INT32_MAX));
   hp_point = std::min<int32_t>(hp_point, hp_point_max);
   mp_point = std::min<int32_t>(mp_point, mp_point_max);
 
   // ---- 主属性 / 副属性（按职业树推导）----
-  const auto primary_ap = load_primary_stat();
-  const auto secondary_ap = load_secondary_stat();
+  const auto primary_ap = LoadPrimaryStat();
+  const auto secondary_ap = LoadSecondaryStat();
 
   // ---- 攻击力 ----
   // AttackPower：参与最终乘法的攻击力（装备 pad + 道具/Buff pad）
@@ -421,7 +421,7 @@ void CharacterStatGameInstance::update() {
     if (!CharacterGameInstance::self.weapon.has_value()) {
       return {1.0f, 1.0f};
     }
-    switch (EquipGameInstance::load_weapon_enum(
+    switch (EquipGameInstance::LoadWeaponEnum(
         CharacterGameInstance::self.weapon->id)) {
     case EquipGameInstance::WeaponEnum::kSword1H: // 单手剑
       return {1.8f, 1.8f};                           // swing/stab 1.8
@@ -495,7 +495,7 @@ void CharacterStatGameInstance::update() {
       (1.0f + static_cast<float>(int_point) * mastery / 125.0f);
 
   const auto jobs =
-      JobSkillGameInstance::load_ski_tree(CharacterGameInstance::self.job);
+      JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self.job);
   const bool is_magician = jobs.size() >= 2 && jobs[1] == JobType::kMagician;
 
   // 面板取整按指南口径 trunc（直接截断，而非四舍五入）
@@ -535,14 +535,14 @@ void CharacterStatGameInstance::update() {
 // ============================================================
 // upgrade / exp
 // ============================================================
-bool CharacterStatGameInstance::upgrade() {
+bool CharacterStatGameInstance::Upgrade() {
   if (exp_point >= exp_point_max) {
     exp_point -= exp_point_max;
     auto &sf = CharacterGameInstance::self;
     sf.level += 1;
 
     remain_ap += 5;
-    auto job = JobSkillGameInstance::load_ski_tree(sf.job);
+    auto job = JobSkillGameInstance::LoadSkiTree(sf.job);
 
     if (job.size() == 1) {
       JobSkillGameInstance::remain_point[0] += 1;
@@ -554,50 +554,50 @@ bool CharacterStatGameInstance::upgrade() {
     ccl.map_id = SceneSystemInstance::map_id;
     ClientRequest::send_to_host(ccl);
 
-    ServerCharacterInstance::handle_lv_up(sf);
-    update();
+    ServerCharacterInstance::HandleLvUp(sf);
+    Update();
     return true;
   }
   return false;
 }
 
-void CharacterStatGameInstance::add_exp(uint32_t num) {
+void CharacterStatGameInstance::AddExp(uint32_t num) {
   if (num == 0)
     return;
   exp_point += num;
-  upgrade();
-  update();
+  Upgrade();
+  Update();
 }
 
 // ============================================================
 // HP / MP
 // ============================================================
-void CharacterStatGameInstance::set_hp(int32_t n) {
-  update();
+void CharacterStatGameInstance::SetHp(int32_t n) {
+  Update();
   hp_point = std::min<int32_t>(n, hp_point_max);
   if (hp_point < 0)
     hp_point = 0;
 }
 
-void CharacterStatGameInstance::set_mp(int32_t n) {
-  update();
+void CharacterStatGameInstance::SetMp(int32_t n) {
+  Update();
   mp_point = std::min<int32_t>(n, mp_point_max);
   if (mp_point < 0)
     mp_point = 0;
 }
 
-void CharacterStatGameInstance::set_crit_rate(uint32_t n) { crit_rate = n; }
-void CharacterStatGameInstance::set_crit_damage(uint32_t n) {
+void CharacterStatGameInstance::SetCritRate(uint32_t n) { crit_rate = n; }
+void CharacterStatGameInstance::SetCritDamage(uint32_t n) {
   crit_damage = n;
 }
 
-int32_t CharacterStatGameInstance::get_hp() { return hp_point; }
-int32_t CharacterStatGameInstance::get_mp() { return mp_point; }
-int32_t CharacterStatGameInstance::get_hp_max() { return hp_point_max; }
-int32_t CharacterStatGameInstance::get_mp_max() { return mp_point_max; }
-uint64_t CharacterStatGameInstance::get_exp() { return exp_point; }
+int32_t CharacterStatGameInstance::GetHp() { return hp_point; }
+int32_t CharacterStatGameInstance::GetMp() { return mp_point; }
+int32_t CharacterStatGameInstance::GetHpMax() { return hp_point_max; }
+int32_t CharacterStatGameInstance::GetMpMax() { return mp_point_max; }
+uint64_t CharacterStatGameInstance::GetExp() { return exp_point; }
 
-uint64_t CharacterStatGameInstance::get_exp_max() {
+uint64_t CharacterStatGameInstance::GetExpMax() {
   static std::flat_map<int, int> cache;
   auto &sf = CharacterGameInstance::self;
   if (!cache.contains(sf.level)) {
@@ -616,291 +616,291 @@ uint64_t CharacterStatGameInstance::get_exp_max() {
 // ============================================================
 // 剩余 AP
 // ============================================================
-uint32_t CharacterStatGameInstance::get_remain_ap() { return remain_ap; }
+uint32_t CharacterStatGameInstance::GetRemainAp() { return remain_ap; }
 
-void CharacterStatGameInstance::set_remain_ap(uint32_t n) { remain_ap = n; }
+void CharacterStatGameInstance::SetRemainAp(uint32_t n) { remain_ap = n; }
 
 // ============================================================
 // AP 加点
 // ============================================================
-void CharacterStatGameInstance::set_str_ap(uint32_t n) {
+void CharacterStatGameInstance::SetStrAp(uint32_t n) {
   str_ap = n;
-  update();
+  Update();
 }
-uint32_t CharacterStatGameInstance::get_str_ap() { return str_ap; }
+uint32_t CharacterStatGameInstance::GetStrAp() { return str_ap; }
 
-void CharacterStatGameInstance::set_dex_ap(uint32_t n) {
+void CharacterStatGameInstance::SetDexAp(uint32_t n) {
   dex_ap = n;
-  update();
+  Update();
 }
-uint32_t CharacterStatGameInstance::get_dex_ap() { return dex_ap; }
+uint32_t CharacterStatGameInstance::GetDexAp() { return dex_ap; }
 
-void CharacterStatGameInstance::set_int_ap(uint32_t n) {
+void CharacterStatGameInstance::SetIntAp(uint32_t n) {
   int_ap = n;
-  update();
+  Update();
 }
-uint32_t CharacterStatGameInstance::get_int_ap() {
+uint32_t CharacterStatGameInstance::GetIntAp() {
   return int_ap;
 } // 修复：原返回 dex_ap
 
-void CharacterStatGameInstance::set_luk_ap(uint32_t n) {
+void CharacterStatGameInstance::SetLukAp(uint32_t n) {
   luk_ap = n;
-  update();
+  Update();
 }
-uint32_t CharacterStatGameInstance::get_luk_ap() { return luk_ap; }
+uint32_t CharacterStatGameInstance::GetLukAp() { return luk_ap; }
 
-void CharacterStatGameInstance::set_hp_ap(uint32_t n) {
+void CharacterStatGameInstance::SetHpAp(uint32_t n) {
   hp_ap = n;
-  update();
+  Update();
 }
-uint32_t CharacterStatGameInstance::get_hp_ap() { return hp_ap; }
+uint32_t CharacterStatGameInstance::GetHpAp() { return hp_ap; }
 
-void CharacterStatGameInstance::set_mp_ap(uint32_t n) {
+void CharacterStatGameInstance::SetMpAp(uint32_t n) {
   mp_ap = n;
-  update();
+  Update();
 }
-uint32_t CharacterStatGameInstance::get_mp_ap() { return mp_ap; }
+uint32_t CharacterStatGameInstance::GetMpAp() { return mp_ap; }
 
 // ============================================================
 // 主属性 getter
 // ============================================================
-uint32_t CharacterStatGameInstance::get_str_point() { return str_point; }
-uint32_t CharacterStatGameInstance::get_dex_point() { return dex_point; }
-uint32_t CharacterStatGameInstance::get_int_point() { return int_point; }
-uint32_t CharacterStatGameInstance::get_luk_point() { return luk_point; }
+uint32_t CharacterStatGameInstance::GetStrPoint() { return str_point; }
+uint32_t CharacterStatGameInstance::GetDexPoint() { return dex_point; }
+uint32_t CharacterStatGameInstance::GetIntPoint() { return int_point; }
+uint32_t CharacterStatGameInstance::GetLukPoint() { return luk_point; }
 
 // ============================================================
 // 最终战斗属性 getter
 // ============================================================
-uint32_t CharacterStatGameInstance::get_min_atk() { return min_atk; }
-uint32_t CharacterStatGameInstance::get_max_atk() { return max_atk; }
-uint32_t CharacterStatGameInstance::get_crit_rate() { return crit_rate; }
-uint32_t CharacterStatGameInstance::get_crit_damage() { return crit_damage; }
-uint32_t CharacterStatGameInstance::get_acc() { return accuracy; }
-uint32_t CharacterStatGameInstance::get_avd() { return avoid; }
-int32_t CharacterStatGameInstance::get_def() { return attack_def; }
-int32_t CharacterStatGameInstance::get_mdef() { return magic_def; }
-int32_t CharacterStatGameInstance::get_attack() { return attack; }
-int32_t CharacterStatGameInstance::get_magic() { return magic; }
+uint32_t CharacterStatGameInstance::GetMinAtk() { return min_atk; }
+uint32_t CharacterStatGameInstance::GetMaxAtk() { return max_atk; }
+uint32_t CharacterStatGameInstance::GetCritRate() { return crit_rate; }
+uint32_t CharacterStatGameInstance::GetCritDamage() { return crit_damage; }
+uint32_t CharacterStatGameInstance::GetAcc() { return accuracy; }
+uint32_t CharacterStatGameInstance::GetAvd() { return avoid; }
+int32_t CharacterStatGameInstance::GetDef() { return attack_def; }
+int32_t CharacterStatGameInstance::GetMdef() { return magic_def; }
+int32_t CharacterStatGameInstance::GetAttack() { return attack; }
+int32_t CharacterStatGameInstance::GetMagic() { return magic; }
 
 // ============================================================
 // 技能加成 setter (ski_)
 // ============================================================
-void CharacterStatGameInstance::set_ski_hp(int64_t n) {
+void CharacterStatGameInstance::SetSkiHp(int64_t n) {
   ski_hp = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_mp(int64_t n) {
+void CharacterStatGameInstance::SetSkiMp(int64_t n) {
   ski_mp = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_str(int64_t n) {
+void CharacterStatGameInstance::SetSkiStr(int64_t n) {
   ski_str = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_dex(int64_t n) {
+void CharacterStatGameInstance::SetSkiDex(int64_t n) {
   ski_dex = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_int(int64_t n) {
+void CharacterStatGameInstance::SetSkiInt(int64_t n) {
   ski_int = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_luk(int64_t n) {
+void CharacterStatGameInstance::SetSkiLuk(int64_t n) {
   ski_luk = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_pro(int64_t n) {
+void CharacterStatGameInstance::SetSkiPro(int64_t n) {
   ski_pro = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_acc(uint32_t n) {
+void CharacterStatGameInstance::SetSkiAcc(uint32_t n) {
   ski_accuracy = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_avd(uint32_t n) {
+void CharacterStatGameInstance::SetSkiAvd(uint32_t n) {
   ski_avoid = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_def(int32_t n) {
+void CharacterStatGameInstance::SetSkiDef(int32_t n) {
   ski_attack_def = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_ski_mdef(int32_t n) {
+void CharacterStatGameInstance::SetSkiMdef(int32_t n) {
   ski_magic_def = n;
-  update();
+  Update();
 } // 修复：原写 ski_attack_def
-void CharacterStatGameInstance::set_ski_exp(uint32_t n) {
+void CharacterStatGameInstance::SetSkiExp(uint32_t n) {
   ski_exp = n;
-  update();
+  Update();
 }
 
 // ============================================================
 // 技能加成 getter (ski_)
 // ============================================================
-int64_t CharacterStatGameInstance::get_ski_hp() { return ski_hp; }
-int64_t CharacterStatGameInstance::get_ski_mp() { return ski_mp; }
-int64_t CharacterStatGameInstance::get_ski_str() { return ski_str; }
-int64_t CharacterStatGameInstance::get_ski_dex() { return ski_dex; }
-int64_t CharacterStatGameInstance::get_ski_int() { return ski_int; }
-int64_t CharacterStatGameInstance::get_ski_luk() { return ski_luk; }
-int64_t CharacterStatGameInstance::get_ski_pro() { return ski_pro; }
-uint32_t CharacterStatGameInstance::get_ski_acc() { return ski_accuracy; }
-uint32_t CharacterStatGameInstance::get_ski_avd() { return ski_avoid; }
-int32_t CharacterStatGameInstance::get_ski_def() { return ski_attack_def; }
-int32_t CharacterStatGameInstance::get_ski_mdef() { return ski_magic_def; }
-uint32_t CharacterStatGameInstance::get_ski_exp() { return ski_exp; }
+int64_t CharacterStatGameInstance::GetSkiHp() { return ski_hp; }
+int64_t CharacterStatGameInstance::GetSkiMp() { return ski_mp; }
+int64_t CharacterStatGameInstance::GetSkiStr() { return ski_str; }
+int64_t CharacterStatGameInstance::GetSkiDex() { return ski_dex; }
+int64_t CharacterStatGameInstance::GetSkiInt() { return ski_int; }
+int64_t CharacterStatGameInstance::GetSkiLuk() { return ski_luk; }
+int64_t CharacterStatGameInstance::GetSkiPro() { return ski_pro; }
+uint32_t CharacterStatGameInstance::GetSkiAcc() { return ski_accuracy; }
+uint32_t CharacterStatGameInstance::GetSkiAvd() { return ski_avoid; }
+int32_t CharacterStatGameInstance::GetSkiDef() { return ski_attack_def; }
+int32_t CharacterStatGameInstance::GetSkiMdef() { return ski_magic_def; }
+uint32_t CharacterStatGameInstance::GetSkiExp() { return ski_exp; }
 
 // ============================================================
 // 装备加成 setter (eqp_)
 // ============================================================
-void CharacterStatGameInstance::set_eqp_hp(int64_t n) {
+void CharacterStatGameInstance::SetEqpHp(int64_t n) {
   eqp_hp = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_mp(int64_t n) {
+void CharacterStatGameInstance::SetEqpMp(int64_t n) {
   eqp_mp = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_str(int64_t n) {
+void CharacterStatGameInstance::SetEqpStr(int64_t n) {
   eqp_str = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_dex(int64_t n) {
+void CharacterStatGameInstance::SetEqpDex(int64_t n) {
   eqp_dex = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_int(int64_t n) {
+void CharacterStatGameInstance::SetEqpInt(int64_t n) {
   eqp_int = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_luk(int64_t n) {
+void CharacterStatGameInstance::SetEqpLuk(int64_t n) {
   eqp_luk = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_pro(int64_t n) {
+void CharacterStatGameInstance::SetEqpPro(int64_t n) {
   eqp_pro = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_acc(uint32_t n) {
+void CharacterStatGameInstance::SetEqpAcc(uint32_t n) {
   eqp_accuracy = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_avd(uint32_t n) {
+void CharacterStatGameInstance::SetEqpAvd(uint32_t n) {
   eqp_avoid = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_def(int32_t n) {
+void CharacterStatGameInstance::SetEqpDef(int32_t n) {
   eqp_attack_def = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_mdef(int32_t n) {
+void CharacterStatGameInstance::SetEqpMdef(int32_t n) {
   eqp_magic_def = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_exp(uint32_t n) {
+void CharacterStatGameInstance::SetEqpExp(uint32_t n) {
   eqp_exp = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_attack(uint32_t n) {
+void CharacterStatGameInstance::SetEqpAttack(uint32_t n) {
   eqp_attack = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_eqp_magic(uint32_t n) {
+void CharacterStatGameInstance::SetEqpMagic(uint32_t n) {
   eqp_magic = n;
-  update();
+  Update();
 }
 // ============================================================
 // 装备加成 getter (eqp_)
 // ============================================================
-int64_t CharacterStatGameInstance::get_eqp_hp() { return eqp_hp; }
-int64_t CharacterStatGameInstance::get_eqp_mp() { return eqp_mp; }
-int64_t CharacterStatGameInstance::get_eqp_str() { return eqp_str; }
-int64_t CharacterStatGameInstance::get_eqp_dex() { return eqp_dex; }
-int64_t CharacterStatGameInstance::get_eqp_int() { return eqp_int; }
-int64_t CharacterStatGameInstance::get_eqp_luk() { return eqp_luk; }
-int64_t CharacterStatGameInstance::get_eqp_pro() { return eqp_pro; }
-uint32_t CharacterStatGameInstance::get_eqp_acc() { return eqp_accuracy; }
-uint32_t CharacterStatGameInstance::get_eqp_avd() { return eqp_avoid; }
-int32_t CharacterStatGameInstance::get_eqp_def() { return eqp_attack_def; }
-int32_t CharacterStatGameInstance::get_eqp_mdef() { return eqp_magic_def; }
-uint32_t CharacterStatGameInstance::get_eqp_exp() { return eqp_exp; }
+int64_t CharacterStatGameInstance::GetEqpHp() { return eqp_hp; }
+int64_t CharacterStatGameInstance::GetEqpMp() { return eqp_mp; }
+int64_t CharacterStatGameInstance::GetEqpStr() { return eqp_str; }
+int64_t CharacterStatGameInstance::GetEqpDex() { return eqp_dex; }
+int64_t CharacterStatGameInstance::GetEqpInt() { return eqp_int; }
+int64_t CharacterStatGameInstance::GetEqpLuk() { return eqp_luk; }
+int64_t CharacterStatGameInstance::GetEqpPro() { return eqp_pro; }
+uint32_t CharacterStatGameInstance::GetEqpAcc() { return eqp_accuracy; }
+uint32_t CharacterStatGameInstance::GetEqpAvd() { return eqp_avoid; }
+int32_t CharacterStatGameInstance::GetEqpDef() { return eqp_attack_def; }
+int32_t CharacterStatGameInstance::GetEqpMdef() { return eqp_magic_def; }
+uint32_t CharacterStatGameInstance::GetEqpExp() { return eqp_exp; }
 
 // ============================================================
 // 道具加成 setter (itm_)
 // ============================================================
-void CharacterStatGameInstance::set_itm_hp(int64_t n) {
+void CharacterStatGameInstance::SetItmHp(int64_t n) {
   itm_hp = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_mp(int64_t n) {
+void CharacterStatGameInstance::SetItmMp(int64_t n) {
   itm_mp = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_str(int64_t n) {
+void CharacterStatGameInstance::SetItmStr(int64_t n) {
   itm_str = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_dex(int64_t n) {
+void CharacterStatGameInstance::SetItmDex(int64_t n) {
   itm_dex = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_int(int64_t n) {
+void CharacterStatGameInstance::SetItmInt(int64_t n) {
   itm_int = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_luk(int64_t n) {
+void CharacterStatGameInstance::SetItmLuk(int64_t n) {
   itm_luk = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_pro(int64_t n) {
+void CharacterStatGameInstance::SetItmPro(int64_t n) {
   itm_pro = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_acc(uint32_t n) {
+void CharacterStatGameInstance::SetItmAcc(uint32_t n) {
   itm_accuracy = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_avd(uint32_t n) {
+void CharacterStatGameInstance::SetItmAvd(uint32_t n) {
   itm_avoid = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_def(int32_t n) {
+void CharacterStatGameInstance::SetItmDef(int32_t n) {
   itm_attack_def = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_mdef(int32_t n) {
+void CharacterStatGameInstance::SetItmMdef(int32_t n) {
   itm_magic_def = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_exp(uint32_t n) {
+void CharacterStatGameInstance::SetItmExp(uint32_t n) {
   itm_exp = n;
-  update();
+  Update();
 }
 
-void CharacterStatGameInstance::set_itm_attack(uint32_t n) {
+void CharacterStatGameInstance::SetItmAttack(uint32_t n) {
   itm_attack = n;
-  update();
+  Update();
 }
-void CharacterStatGameInstance::set_itm_magic(uint32_t n) {
+void CharacterStatGameInstance::SetItmMagic(uint32_t n) {
   itm_magic = n;
-  update();
+  Update();
 }
 
 // ============================================================
 // 道具加成 getter (itm_)
 // ============================================================
-int64_t CharacterStatGameInstance::get_itm_hp() { return itm_hp; }
-int64_t CharacterStatGameInstance::get_itm_mp() { return itm_mp; }
-int64_t CharacterStatGameInstance::get_itm_str() { return itm_str; }
-int64_t CharacterStatGameInstance::get_itm_dex() { return itm_dex; }
-int64_t CharacterStatGameInstance::get_itm_int() { return itm_int; }
-int64_t CharacterStatGameInstance::get_itm_luk() { return itm_luk; }
-int64_t CharacterStatGameInstance::get_itm_pro() { return itm_pro; }
-uint32_t CharacterStatGameInstance::get_itm_acc() { return itm_accuracy; }
-uint32_t CharacterStatGameInstance::get_itm_avd() { return itm_avoid; }
-uint32_t CharacterStatGameInstance::get_itm_attack() { return itm_attack; }
-uint32_t CharacterStatGameInstance::get_itm_magic() { return itm_magic; }
-uint32_t CharacterStatGameInstance::get_itm_exp() { return itm_exp; }
-int32_t CharacterStatGameInstance::get_itm_def() { return itm_attack_def; }
-int32_t CharacterStatGameInstance::get_itm_mdef() { return itm_magic_def; }
+int64_t CharacterStatGameInstance::GetItmHp() { return itm_hp; }
+int64_t CharacterStatGameInstance::GetItmMp() { return itm_mp; }
+int64_t CharacterStatGameInstance::GetItmStr() { return itm_str; }
+int64_t CharacterStatGameInstance::GetItmDex() { return itm_dex; }
+int64_t CharacterStatGameInstance::GetItmInt() { return itm_int; }
+int64_t CharacterStatGameInstance::GetItmLuk() { return itm_luk; }
+int64_t CharacterStatGameInstance::GetItmPro() { return itm_pro; }
+uint32_t CharacterStatGameInstance::GetItmAcc() { return itm_accuracy; }
+uint32_t CharacterStatGameInstance::GetItmAvd() { return itm_avoid; }
+uint32_t CharacterStatGameInstance::GetItmAttack() { return itm_attack; }
+uint32_t CharacterStatGameInstance::GetItmMagic() { return itm_magic; }
+uint32_t CharacterStatGameInstance::GetItmExp() { return itm_exp; }
+int32_t CharacterStatGameInstance::GetItmDef() { return itm_attack_def; }
+int32_t CharacterStatGameInstance::GetItmMdef() { return itm_magic_def; }

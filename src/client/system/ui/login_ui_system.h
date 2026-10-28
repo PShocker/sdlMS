@@ -8,31 +8,31 @@
 #include <string>
 class LoginUiSystem {
 private:
-  static bool login_animate();
+  static bool LoginAnimate();
 
-  static SDL_FPoint load_pos();
-  static void render_backgrnd();
-  static void render_button();
-  static void render_effect();
-  static void render_banner();
-  static void render_username();
+  static SDL_FPoint LoadPos();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderEffect();
+  static void RenderBanner();
+  static void RenderUsername();
 
-  static void event_button_login();
-  static void event_button_login_save();
-  static void event_button_find_id();
-  static void event_button_find_pw();
-  static void event_button_register();
-  static void event_button_homepage();
-  static void event_button_quit();
-  static void event_button_back();
+  static void EventButtonLogin();
+  static void EventButtonLoginSave();
+  static void EventButtonFindId();
+  static void EventButtonFindPw();
+  static void EventButtonRegister();
+  static void EventButtonHomepage();
+  static void EventButtonQuit();
+  static void EventButtonBack();
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
 public:
   static inline uv_pipe_t g_pipe;
   static inline TextInput username;
-  static bool camera_animate(float x, float y);
+  static bool CameraAnimate(float x, float y);
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

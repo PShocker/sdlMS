@@ -14,7 +14,7 @@
 
 using namespace fbs;
 
-void ServerSceneInstance::clean_client(uint64_t client_id,
+void ServerSceneInstance::CleanClient(uint64_t client_id,
                                          ClientSceneT client_scene) {
   if (ServerClientInstance::clients.contains(client_id)) {
     // 地图切换
@@ -29,7 +29,7 @@ void ServerSceneInstance::clean_client(uint64_t client_id,
   }
 }
 
-void ServerSceneInstance::save_client(uint64_t client_id,
+void ServerSceneInstance::SaveClient(uint64_t client_id,
                                         ClientSceneT client_scene) {
   auto &clients = ServerClientInstance::clients;
   auto &scenes = ServerSceneInstance::scenes;
@@ -55,7 +55,7 @@ void ServerSceneInstance::save_client(uint64_t client_id,
   scenes[map_id].clients.insert(client_id);
 }
 
-void ServerSceneInstance::send_scene_clients(uint64_t client_id,
+void ServerSceneInstance::SendSceneClients(uint64_t client_id,
                                                ClientSceneT client_scene) {
   fbs::ServerSceneT r;
   r.map_id = client_scene.map_id;
@@ -91,7 +91,7 @@ void ServerSceneInstance::send_scene_clients(uint64_t client_id,
   ServerResponse::send_to_client(client_id, r);
 }
 
-void ServerSceneInstance::send_in_scene(uint64_t client_id,
+void ServerSceneInstance::SendInScene(uint64_t client_id,
                                           ClientSceneT client_scene) {
   ServerCharacterInT r;
   const auto &p = ServerClientInstance::clients.at(client_id).player_t;
@@ -105,7 +105,7 @@ void ServerSceneInstance::send_in_scene(uint64_t client_id,
   }
 }
 
-void ServerSceneInstance::send_in_fade(uint64_t client_id,
+void ServerSceneInstance::SendInFade(uint64_t client_id,
                                          ClientSceneT client_scene) {
   if (client_scene.map_id == 0) {
     return;
@@ -118,7 +118,7 @@ void ServerSceneInstance::send_in_fade(uint64_t client_id,
   ServerResponse::send_to_client(client_id, r);
 }
 
-void ServerSceneInstance::init_scene(uint64_t client_id,
+void ServerSceneInstance::InitScene(uint64_t client_id,
                                        ClientSceneT client_scene) {
   //
   auto map_id = client_scene.map_id;
@@ -126,24 +126,24 @@ void ServerSceneInstance::init_scene(uint64_t client_id,
     ServerSceneState scene;
     scene.map_id = map_id;
 
-    ServerMobInstance::load_mob(scene);
-    ServerFootholdInstance::load_fh(scene);
-    ServerReactorInstance::load_reactor(scene);
+    ServerMobInstance::LoadMob(scene);
+    ServerFootholdInstance::LoadFh(scene);
+    ServerReactorInstance::LoadReactor(scene);
 
     scenes[map_id] = scene;
   }
 }
 
-void ServerSceneInstance::handle_scene(uint64_t client_id,
+void ServerSceneInstance::HandleScene(uint64_t client_id,
                                          ClientSceneT client_scene) {
   if (client_scene.fade == false) {
     // 黑屏过渡
-    send_in_fade(client_id, client_scene);
-    clean_client(client_id, client_scene);
+    SendInFade(client_id, client_scene);
+    CleanClient(client_id, client_scene);
   } else {
-    init_scene(client_id, client_scene);
-    save_client(client_id, client_scene);
-    send_scene_clients(client_id, client_scene);
-    send_in_scene(client_id, client_scene);
+    InitScene(client_id, client_scene);
+    SaveClient(client_id, client_scene);
+    SendSceneClients(client_id, client_scene);
+    SendInScene(client_id, client_scene);
   }
 }

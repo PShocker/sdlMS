@@ -26,82 +26,82 @@
 #include <string>
 #include <vector>
 
-SDL_FPoint SkillUiSystem::load_wh() { return {197, 371}; }
+SDL_FPoint SkillUiSystem::LoadWh() { return {197, 371}; }
 
-bool SkillUiSystem::cursor_in() {
-  auto [w, h] = load_wh();
+bool SkillUiSystem::CursorIn() {
+  auto [w, h] = LoadWh();
   auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void SkillUiSystem::open() {
+void SkillUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
 
-    event_motion(nullptr);
+    EventMotion(nullptr);
   }
 }
 
-void SkillUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::render_systems, render_info);
-  std::erase(System::event_systems, event);
+void SkillUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::render_systems, RenderInfo);
+  std::erase(System::event_systems, Event);
 
-  event_drag_end();
-  event_vscr_end();
+  EventDragEnd();
+  EventVscrEnd();
 }
 
-void SkillUiSystem::event_top() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void SkillUiSystem::EventTop() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
 
-    event_motion(nullptr);
+    EventMotion(nullptr);
   }
 }
 
-void SkillUiSystem::event_drag_start(SDL_Event *event) {
-  auto wh = load_wh();
+void SkillUiSystem::EventDragStart(SDL_Event *Event) {
+  auto wh = LoadWh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
+  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - event->button.x, pos.y - event->button.y};
+    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
   }
   return;
 }
 
-void SkillUiSystem::event_drag_end() {
+void SkillUiSystem::EventDragEnd() {
   drag = std::nullopt;
   return;
 }
 
-void SkillUiSystem::event_drag_move(SDL_Event *event) {
+void SkillUiSystem::EventDragMove(SDL_Event *Event) {
   if (drag.has_value()) {
-    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
+    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
     auto &camera = CameraGameInstance::camera;
-    auto [w, h] = load_wh();
+    auto [w, h] = LoadWh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - w);
     pos.y = std::clamp(pos.y, (float)0, camera.h - h);
   }
   return;
 }
 
-void SkillUiSystem::render_backgrnd() {
+void SkillUiSystem::RenderBackgrnd() {
   static auto back_texture =
-      WzResource::load_texture(WzResource::ui->find(u"Skill.img/backgrnd"));
+      WzResource::LoadTexture(WzResource::ui->find(u"Skill.img/backgrnd"));
   SDL_FRect pos_rect = {
       pos.x,
       pos.y,
@@ -111,25 +111,25 @@ void SkillUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, back_texture, nullptr, &pos_rect);
 }
 
-void SkillUiSystem::render_tab() {
+void SkillUiSystem::RenderTab() {
   const static SDL_FPoint lt = {5, 24};
   const static SDL_FPoint rb = {186, 43};
   const static auto tab_node = WzResource::ui->find(u"Skill.img/tab:grade");
   auto jobs =
-      JobSkillGameInstance::load_ski_tree(CharacterGameInstance::self.job);
+      JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self.job);
   const static std::array selected_texture = {
-      WzResource::load_texture(tab_node->find(u"selected/0")),
-      WzResource::load_texture(tab_node->find(u"selected/1")),
-      WzResource::load_texture(tab_node->find(u"selected/2")),
-      WzResource::load_texture(tab_node->find(u"selected/3")),
-      WzResource::load_texture(tab_node->find(u"selected/4")),
+      WzResource::LoadTexture(tab_node->find(u"selected/0")),
+      WzResource::LoadTexture(tab_node->find(u"selected/1")),
+      WzResource::LoadTexture(tab_node->find(u"selected/2")),
+      WzResource::LoadTexture(tab_node->find(u"selected/3")),
+      WzResource::LoadTexture(tab_node->find(u"selected/4")),
   };
   const static std::array normal_texture = {
-      WzResource::load_texture(tab_node->find(u"normal/0")),
-      WzResource::load_texture(tab_node->find(u"normal/1")),
-      WzResource::load_texture(tab_node->find(u"normal/2")),
-      WzResource::load_texture(tab_node->find(u"normal/3")),
-      WzResource::load_texture(tab_node->find(u"normal/4")),
+      WzResource::LoadTexture(tab_node->find(u"normal/0")),
+      WzResource::LoadTexture(tab_node->find(u"normal/1")),
+      WzResource::LoadTexture(tab_node->find(u"normal/2")),
+      WzResource::LoadTexture(tab_node->find(u"normal/3")),
+      WzResource::LoadTexture(tab_node->find(u"normal/4")),
   };
   for (uint8_t i = 0; i < jobs.size(); i++) {
     SDL_Texture *t = active_tab == i ? selected_texture[i] : normal_texture[i];
@@ -143,9 +143,9 @@ void SkillUiSystem::render_tab() {
 
 static std::u16string mouse_skill_id;
 
-void SkillUiSystem::render_skill_entry() {
+void SkillUiSystem::RenderSkillEntry() {
   mouse_skill_id = u"";
-  auto entry = WzResource::load_texture(
+  auto entry = WzResource::LoadTexture(
       WzResource::ui->find(u"Skill.img/entry/skill1"));
 
   const SDL_FPoint lt{8, 99};
@@ -155,14 +155,14 @@ void SkillUiSystem::render_skill_entry() {
   const auto l =
       (rb.y - lt.y - max_scroll_num * entry->h) / (max_scroll_num - 1);
   auto self_job = CharacterGameInstance::self.job;
-  auto ski_tree = JobSkillGameInstance::load_ski_tree(self_job);
+  auto ski_tree = JobSkillGameInstance::LoadSkiTree(self_job);
   JobType jt = ski_tree.at(active_tab);
 
   auto &mouse_pos = Window::mouse_pos;
   // 判断按钮是否被遮挡
-  auto cursor_in = CursorGameInstance::cursor_ui;
+  auto CursorIn = CursorGameInstance::cursor_ui;
   uint8_t i = 0;
-  auto nodes = JobSkillGameInstance::load_job_skis(jt);
+  auto nodes = JobSkillGameInstance::LoadJobSkis(jt);
   for (auto it = nodes.begin() + page; it != nodes.end(); ++it) {
     auto &k = it->first;
     auto &v = it->second;
@@ -173,7 +173,7 @@ void SkillUiSystem::render_skill_entry() {
     auto skl_id2 = std::stoi(skl_id);
 
     SDL_Texture *ski_texture;
-    auto ski_level = JobSkillGameInstance::load_ski_level(k);
+    auto ski_level = JobSkillGameInstance::LoadSkiLevel(k);
     SDL_FRect pos_rect = {
         pos.x + lt.x + 2,
         pos.y + lt.y + i * entry->h + l * i + 2,
@@ -184,17 +184,17 @@ void SkillUiSystem::render_skill_entry() {
       mouse_skill_id = k;
     }
     if (ski_level > 0) {
-      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+      if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
           !CursorGameInstance::modal_overlay) {
         ski_texture =
-            WzResource::load_texture(v[0]->get_child(u"iconMouseOver"));
+            WzResource::LoadTexture(v[0]->get_child(u"iconMouseOver"));
       } else {
-        ski_texture = WzResource::load_texture(v[0]->get_child(u"icon"));
+        ski_texture = WzResource::LoadTexture(v[0]->get_child(u"icon"));
       }
     } else {
       // disable
-      ski_texture = WzResource::load_texture(v[0]->get_child(u"iconDisabled"));
-      entry = WzResource::load_texture(
+      ski_texture = WzResource::LoadTexture(v[0]->get_child(u"iconDisabled"));
+      entry = WzResource::LoadTexture(
           WzResource::ui->find(u"Skill.img/entry/skill0"));
     }
     // render backgrnd
@@ -214,56 +214,56 @@ void SkillUiSystem::render_skill_entry() {
     };
     SDL_RenderTexture(Window::renderer, ski_texture, nullptr, &pos_rect);
     // render ski_name
-    auto ski_name = SkillGameInstance::load_ski_name(k);
-    Freetype::load_color(0, 0, 0, 255);
-    Freetype::load_aligned(true);
-    Freetype::load_size(12);
-    Freetype::draw_line(ski_name.name, pos.x + lt.x + 40, pos_rect.y - 3);
+    auto ski_name = SkillGameInstance::LoadSkiName(k);
+    Freetype::LoadColor(0, 0, 0, 255);
+    Freetype::LoadAligned(true);
+    Freetype::LoadSize(12);
+    Freetype::DrawLine(ski_name.name, pos.x + lt.x + 40, pos_rect.y - 3);
     auto ski_level2 = std::to_string(ski_level);
     auto ski_level3 = std::u16string{ski_level2.begin(), ski_level2.end()};
-    Freetype::draw_line(ski_level3, pos.x + lt.x + 40, pos_rect.y + 15);
+    Freetype::DrawLine(ski_level3, pos.x + lt.x + 40, pos_rect.y + 15);
 
-    Freetype::load_aligned(false);
+    Freetype::LoadAligned(false);
     i++;
   }
 }
 
-void SkillUiSystem::render_scroll() {
+void SkillUiSystem::RenderScroll() {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   auto self_job = CharacterGameInstance::self.job;
-  auto ski_tree = JobSkillGameInstance::load_ski_tree(self_job);
+  auto ski_tree = JobSkillGameInstance::LoadSkiTree(self_job);
   JobType jt = ski_tree.at(active_tab);
-  auto skill_node = JobSkillGameInstance::load_job_skis(jt);
+  auto skill_node = JobSkillGameInstance::LoadJobSkis(jt);
   auto size = skill_node.size();
-  auto cursor_in = CursorGameInstance::cursor_ui;
-  bool top = (cursor_in == render) && !CursorGameInstance::modal_overlay;
-  ScrollUiSystem::render_vscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
+  auto CursorIn = CursorGameInstance::cursor_ui;
+  bool top = (CursorIn == Render) && !CursorGameInstance::modal_overlay;
+  ScrollUiSystem::RenderVscroll((int)pos.x + lt.x, (int)pos.y + lt.y, page,
                                    size, length, top, 6);
   return;
 }
 
-bool SkillUiSystem::render_info() {
+bool SkillUiSystem::RenderInfo() {
   if (!mouse_skill_id.empty() && !CursorGameInstance::modal_overlay &&
-      CursorGameInstance::cursor_ui == render) {
+      CursorGameInstance::cursor_ui == Render) {
     auto &mouse_pos = Window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    TooltipUiSystem::render_skill(mouse_skill_id, 1, show_pos.x, show_pos.y);
+    TooltipUiSystem::RenderSkill(mouse_skill_id, 1, show_pos.x, show_pos.y);
   }
   return true;
 }
 
 static std::u16string ski_button_id = u"";
 
-void SkillUiSystem::render_button() {
+void SkillUiSystem::RenderButton() {
   ski_button_id = u"";
 
-  auto wh = load_wh();
+  auto wh = LoadWh();
   auto self_job = CharacterGameInstance::self.job;
-  auto ski_tree = JobSkillGameInstance::load_ski_tree(self_job);
+  auto ski_tree = JobSkillGameInstance::LoadSkiTree(self_job);
   JobType jt = ski_tree.at(active_tab);
-  self_job = JobSkillGameInstance::load_job_id(jt);
-  auto skill_node = JobSkillGameInstance::load_job_skis(jt);
+  self_job = JobSkillGameInstance::LoadJobId(jt);
+  auto skill_node = JobSkillGameInstance::LoadJobSkis(jt);
 
   const int max_scroll = 6;
   const int entry_h = 35;
@@ -274,24 +274,24 @@ void SkillUiSystem::render_button() {
   std::vector<SDL_FRect> rects = {{wh.x - 20, 8, 12, 12}};
 
   const auto disable_ski = [](std::u16string id) {
-    auto active = active_tab;
+    auto Active = active_tab;
     const auto sps = JobSkillGameInstance::remain_point;
-    if (sps.at(active) == 0) {
+    if (sps.at(Active) == 0) {
       return true;
     }
     // 判断前置技能
-    auto ski_node = SkillGameInstance::load_ski_node(id);
+    auto ski_node = SkillGameInstance::LoadSkiNode(id);
     if (auto req = ski_node->get_child(u"req")) {
       for (auto [k, v] : *req) {
         auto lv = static_cast<wz::Property<int> *>(v[0])->get();
-        auto req_lv = JobSkillGameInstance::load_ski_level(k);
+        auto req_lv = JobSkillGameInstance::LoadSkiLevel(k);
         if (req_lv < lv) {
           return true;
         }
       }
     }
-    auto ski_max_lvl = SkillGameInstance::load_ski_max_lvl(id);
-    auto ski_lvl = JobSkillGameInstance::load_ski_level(id);
+    auto ski_max_lvl = SkillGameInstance::LoadSkiMaxLvl(id);
+    auto ski_lvl = JobSkillGameInstance::LoadSkiLevel(id);
     if (ski_lvl >= ski_max_lvl) {
       return true;
     }
@@ -311,7 +311,7 @@ void SkillUiSystem::render_button() {
 
   // 渲染所有按钮
   bool mouse_down = Window::mouse_state & SDL_BUTTON_LMASK;
-  bool cursor_on_ui = CursorGameInstance::cursor_ui == render;
+  bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
   bool modal_blocked = CursorGameInstance::modal_overlay;
 
   for (size_t i = 0; i < nodes.size(); ++i) {
@@ -322,30 +322,30 @@ void SkillUiSystem::render_button() {
         rects[i].h,
     };
 
-    std::u16string state = u"normal";
+    std::u16string State = u"normal";
     bool mouse_in = SDL_PointInRectFloat(&Window::mouse_pos, &rect);
 
     if (disable[i]) {
-      state = u"disabled";
+      State = u"disabled";
     } else if (cursor_on_ui && !modal_blocked && mouse_in) {
-      state = mouse_down ? u"pressed" : u"mouseOver";
+      State = mouse_down ? u"pressed" : u"mouseOver";
       if (i >= 1) {
         ski_button_id = (skill_node.begin() + page + (i - 1))->first;
       }
     }
-    auto texture = WzResource::load_texture(nodes[i]->find((state + u"/0")));
+    auto texture = WzResource::LoadTexture(nodes[i]->find((State + u"/0")));
     SDL_RenderTexture(Window::renderer, texture, nullptr, &rect);
   }
 }
 
-void SkillUiSystem::render_book() {
+void SkillUiSystem::RenderBook() {
   auto self_job = CharacterGameInstance::self.job;
-  auto ski_tree = JobSkillGameInstance::load_ski_tree(self_job);
+  auto ski_tree = JobSkillGameInstance::LoadSkiTree(self_job);
   JobType jt = ski_tree.at(active_tab);
-  auto job_str = JobSkillGameInstance::load_job_id(jt);
+  auto job_str = JobSkillGameInstance::LoadJobId(jt);
 
   auto icon_node = WzResource::skill->find(job_str + u".img/info/icon");
-  auto t = WzResource::load_texture(icon_node);
+  auto t = WzResource::LoadTexture(icon_node);
   SDL_FRect pos_rect{
       pos.x + 15,
       pos.y + 57,
@@ -358,45 +358,45 @@ void SkillUiSystem::render_book() {
       WzResource::string->find(u"Skill.img/" + job_str + u"/bookName");
   auto book_name =
       static_cast<wz::Property<std::u16string> *>(book_node)->get();
-  Freetype::load_aligned(true);
-  Freetype::load_size(12);
-  Freetype::load_color(255, 255, 255, 255);
-  Freetype::draw_line(book_name, pos_rect.x + 35, pos_rect.y + 6);
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(12);
+  Freetype::LoadColor(255, 255, 255, 255);
+  Freetype::DrawLine(book_name, pos_rect.x + 35, pos_rect.y + 6);
 }
 
-void SkillUiSystem::render_point() {
+void SkillUiSystem::RenderPoint() {
   auto point = JobSkillGameInstance::remain_point[active_tab];
-  Freetype::load_aligned(true);
-  Freetype::load_size(12);
-  Freetype::load_color(0, 0, 0, 255);
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(12);
+  Freetype::LoadColor(0, 0, 0, 255);
   auto str = std::to_string(point);
   std::u16string str2{str.begin(), str.end()};
-  auto w = Freetype::load_w(str2);
-  Freetype::draw_line(str2, pos.x + 104 - w, pos.y + 347);
+  auto w = Freetype::LoadW(str2);
+  Freetype::DrawLine(str2, pos.x + 104 - w, pos.y + 347);
 }
 
-bool SkillUiSystem::render() {
-  render_backgrnd();
-  render_skill_entry();
-  render_button();
-  render_scroll();
-  render_tab();
-  render_book();
-  render_point();
+bool SkillUiSystem::Render() {
+  RenderBackgrnd();
+  RenderSkillEntry();
+  RenderButton();
+  RenderScroll();
+  RenderTab();
+  RenderBook();
+  RenderPoint();
   return true;
 }
 
-void SkillUiSystem::toggle() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
-  auto fn = &render;
+void SkillUiSystem::Toggle() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-void SkillUiSystem::event_button_ski_up() {
+void SkillUiSystem::EventButtonSkiUp() {
   if (ski_button_id == u"") {
     return;
   }
@@ -404,21 +404,21 @@ void SkillUiSystem::event_button_ski_up() {
       std::stoi(std::string(ski_button_id.begin(), ski_button_id.end()));
   JobSkillGameInstance::skill_point[ski_id] += 1;
   JobSkillGameInstance::remain_point[active_tab] -= 1;
-  CharacterStatGameInstance::update();
+  CharacterStatGameInstance::Update();
   return;
 }
 
-void SkillUiSystem::event_close() { close(); }
+void SkillUiSystem::EventClose() { Close(); }
 
-bool SkillUiSystem::event_button(SDL_Event *event) {
+bool SkillUiSystem::EventButton(SDL_Event *Event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
-  auto wh = load_wh();
+  auto wh = LoadWh();
   r = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
   fns = {
-      event_close,
+      EventClose,
   };
 
   for (size_t i = 0; i < r.size(); ++i) {
@@ -434,17 +434,17 @@ bool SkillUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-bool SkillUiSystem::event_click_ski(SDL_Event *event) {
+bool SkillUiSystem::EventClickSki(SDL_Event *Event) {
   if (CursorGameInstance::cursor_hand_net.has_value()) {
     return false;
   }
   if (!mouse_skill_id.empty()) {
-    if (event->button.clicks >= 1) {
+    if (Event->button.clicks >= 1) {
       auto id = mouse_skill_id;
-      if (!SkillGameInstance::load_ski_active(id)) {
+      if (!SkillGameInstance::LoadSkiActive(id)) {
         return false;
       }
-      if (JobSkillGameInstance::load_ski_level(id) == 0) {
+      if (JobSkillGameInstance::LoadSkiLevel(id) == 0) {
         return false;
       }
       auto val = std::string{id.begin(), id.end()};
@@ -456,14 +456,14 @@ bool SkillUiSystem::event_click_ski(SDL_Event *event) {
           if (CursorGameInstance::cursor_hand->sub_val == sub_val) {
             // run_skill
             auto &c = CharacterGameInstance::self;
-            CharacterLogicSystem::run_skill(c, id);
+            CharacterLogicSystem::RunSkill(c, id);
           }
         }
         CursorGameInstance::cursor_hand = std::nullopt;
-        AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+        AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
         return false;
       } else {
-        AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
+        AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
         CursorGameInstance::cursor_hand = {
             .type = CursorGameInstance::CursorHandType::kSkill,
             .val = active_tab,
@@ -476,11 +476,11 @@ bool SkillUiSystem::event_click_ski(SDL_Event *event) {
   return false;
 }
 
-bool SkillUiSystem::event_click_tab(SDL_Event *event) {
+bool SkillUiSystem::EventClickTab(SDL_Event *Event) {
   const static SDL_FPoint lt = {5, 24};
   const static SDL_FPoint rb = {186, 43};
   auto jobs =
-      JobSkillGameInstance::load_ski_tree(CharacterGameInstance::self.job);
+      JobSkillGameInstance::LoadSkiTree(CharacterGameInstance::self.job);
   auto &mouse_pos = Window::mouse_pos;
   for (uint8_t i = 0; i < jobs.size(); i++) {
     SDL_FPoint tab_pos = {static_cast<float>(lt.x + i * 33), lt.y};
@@ -491,7 +491,7 @@ bool SkillUiSystem::event_click_tab(SDL_Event *event) {
         19,
     };
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       active_tab = i;
       page = 0;
       return true;
@@ -500,60 +500,60 @@ bool SkillUiSystem::event_click_tab(SDL_Event *event) {
   return false;
 }
 
-void SkillUiSystem::event_vscr(SDL_Event *event) {
+void SkillUiSystem::EventVscr(SDL_Event *Event) {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   auto self_job = CharacterGameInstance::self.job;
-  auto ski_tree = JobSkillGameInstance::load_ski_tree(self_job);
+  auto ski_tree = JobSkillGameInstance::LoadSkiTree(self_job);
   JobType jt = ski_tree.at(active_tab);
   // 根据active_tab获取技能组
-  auto skill_node = JobSkillGameInstance::load_job_skis(jt);
+  auto skill_node = JobSkillGameInstance::LoadJobSkis(jt);
   int size = skill_node.size() - 6;
-  auto cursor_in = CursorGameInstance::cursor_ui;
-  bool top = cursor_in == render;
+  auto CursorIn = CursorGameInstance::cursor_ui;
+  bool top = CursorIn == Render;
   size = std::max(0, size);
-  auto val = ScrollUiSystem::click_vscroll(
+  auto val = ScrollUiSystem::ClickVscroll(
       (int)pos.x + lt.x, (int)pos.y + lt.y, page, size, length, top);
   page = val;
 }
 
-void SkillUiSystem::event_motion(SDL_Event *event) {
+void SkillUiSystem::EventMotion(SDL_Event *Event) {
   auto &sys = System::render_systems;
-  std::erase(sys, render_info);
-  auto it = std::ranges::find(sys, &CursorRenderSystem::render);
+  std::erase(sys, RenderInfo);
+  auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {
-    sys.insert(it, render_info);
+    sys.insert(it, RenderInfo);
   }
 }
 
-void SkillUiSystem::event_vscr_start(SDL_Event *event) {
+void SkillUiSystem::EventVscrStart(SDL_Event *Event) {
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   if (vscr_motion == false) {
     vscr_motion =
-        ScrollUiSystem::click_thumb(pos.x + lt.x, pos.y + lt.y, length);
+        ScrollUiSystem::ClickThumb(pos.x + lt.x, pos.y + lt.y, length);
   }
 }
 
-void SkillUiSystem::event_vscr_end() { vscr_motion = {}; }
+void SkillUiSystem::EventVscrEnd() { vscr_motion = {}; }
 
-void SkillUiSystem::event_vscr_move(SDL_Event *event) {
+void SkillUiSystem::EventVscrMove(SDL_Event *Event) {
   auto mouse_state = Window::mouse_state;
   const SDL_FPoint lt{174, 98};
   const uint32_t length = 236;
   if (vscr_motion) {
-    event->button.x = pos.x + lt.x;
-    event->button.y =
-        std::clamp(event->button.y, pos.y + lt.y, pos.y + lt.y + length);
-    event_vscr(event);
+    Event->button.x = pos.x + lt.x;
+    Event->button.y =
+        std::clamp(Event->button.y, pos.y + lt.y, pos.y + lt.y + length);
+    EventVscr(Event);
   }
 }
 
-void SkillUiSystem::event_wheel(SDL_Event *event) {
-  if (CursorGameInstance::cursor_ui != render) {
+void SkillUiSystem::EventWheel(SDL_Event *Event) {
+  if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
-  auto dy = event->wheel.integer_y;
+  auto dy = Event->wheel.integer_y;
   if (dy > 0) {
     // up
     if (page > 0) {
@@ -562,10 +562,10 @@ void SkillUiSystem::event_wheel(SDL_Event *event) {
   } else {
     // down
     auto self_job = CharacterGameInstance::self.job;
-    auto ski_tree = JobSkillGameInstance::load_ski_tree(self_job);
+    auto ski_tree = JobSkillGameInstance::LoadSkiTree(self_job);
     JobType jt = ski_tree.at(active_tab);
     // 根据active_tab获取技能组
-    auto skill_node = JobSkillGameInstance::load_job_skis(jt);
+    auto skill_node = JobSkillGameInstance::LoadJobSkis(jt);
     int size = skill_node.size() - 6;
     size = std::max(0, size);
     if (page < size) {
@@ -574,19 +574,19 @@ void SkillUiSystem::event_wheel(SDL_Event *event) {
   }
 }
 
-void SkillUiSystem::event_motion_bt_audio(SDL_Event *event) {
-  if (CursorGameInstance::cursor_ui != render) {
+void SkillUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+  if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
   static std::u16string ski_button_i;
   if (!ski_button_id.empty() && ski_button_i.empty()) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
     ski_button_i = ski_button_id;
     return;
   }
   ski_button_i = ski_button_id;
 
-  auto wh = load_wh();
+  auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
@@ -603,19 +603,19 @@ void SkillUiSystem::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-bool SkillUiSystem::event(SDL_Event *event) {
+bool SkillUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      event_close();
+      EventClose();
       return false;
       break;
     }
@@ -626,36 +626,36 @@ bool SkillUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_top();
-        event_drag_start(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTop();
+        EventDragStart(Event);
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_button_ski_up();
-        event_vscr(event);
-        event_click_ski(event);
-        event_click_tab(event);
-        r = event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventButtonSkiUp();
+        EventVscr(Event);
+        EventClickSki(Event);
+        EventClickTab(Event);
+        r = EventButton(Event);
       }
-      event_drag_end();
+      EventDragEnd();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_motion_bt_audio(event);
-    event_motion(event);
-    event_drag_move(event);
+    EventMotionBtAudio(Event);
+    EventMotion(Event);
+    EventDragMove(Event);
     break;
   }
   case SDL_EVENT_MOUSE_WHEEL: {
-    event_wheel(event);
+    EventWheel(Event);
     break;
   }
   default: {

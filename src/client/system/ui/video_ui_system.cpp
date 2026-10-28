@@ -181,7 +181,7 @@ static AVCodecContext *OpenAudioStream(AVFormatContext *ic, int stream,
   return context;
 }
 
-void VideoUiSystem::close() {
+void VideoUiSystem::Close() {
   if (video_context) {
     video_start = 0;
     f_pts = -1;
@@ -204,11 +204,11 @@ void VideoUiSystem::close() {
   avformat_close_input(&ic);
 }
 
-void VideoUiSystem::open(const std::string &path) {
-  auto it = std::ranges::find(System::render_systems, &render);
+void VideoUiSystem::Open(const std::string &path) {
+  auto it = std::ranges::find(System::render_systems, &Render);
   if (it != System::render_systems.end()) {
     System::render_systems.erase(it);
-    close();
+    Close();
   }
 
   auto result = avformat_open_input(&ic, path.c_str(), NULL, NULL);
@@ -249,9 +249,9 @@ void VideoUiSystem::open(const std::string &path) {
     std::abort();
   }
 
-  it = std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+  it = std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
+    System::render_systems.insert(it, Render);
   }
 }
 
@@ -547,7 +547,7 @@ static void HandleVideoFrame(AVFrame *frame) {
   DisplayVideoFrame();
 }
 
-bool VideoUiSystem::render() {
+bool VideoUiSystem::Render() {
   double now = (double)(Window::dt_now - video_start) / 1000.0;
   // pts控制帧率
   if (now >= g_pts && ic != NULL) {
@@ -579,7 +579,7 @@ bool VideoUiSystem::render() {
     }
   }
   if (video_context) {
-    bool render = false;
+    bool Render = false;
     while (avcodec_receive_frame(video_context, frame) >= 0) {
       g_pts = ((double)frame->pts * video_context->pkt_timebase.num) /
               video_context->pkt_timebase.den;
@@ -588,9 +588,9 @@ bool VideoUiSystem::render() {
       }
       g_pts -= f_pts;
       HandleVideoFrame(frame);
-      render = true;
+      Render = true;
     }
-    if (!render) {
+    if (!Render) {
       DisplayVideoFrame();
     }
   }

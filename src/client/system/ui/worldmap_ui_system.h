@@ -9,24 +9,24 @@
 
 class WorldmapUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_map();
-  static void render_spot();
-  static void render_button();
-  static bool render_spot_info();
-  static void render_cur_pos(SDL_FPoint point);
+  static void RenderBackgrnd();
+  static void RenderMap();
+  static void RenderSpot();
+  static void RenderButton();
+  static bool RenderSpotInfo();
+  static void RenderCurPos(SDL_FPoint point);
 
-  static void event_motion(SDL_Event *event);
-  static void event_close();
+  static void EventMotion(SDL_Event *Event);
+  static void EventClose();
 
-  static SDL_FPoint load_wh();
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static SDL_FPoint LoadWh();
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static void event_click_spot();
-  static bool event_button(SDL_Event *event);
+  static void EventClickSpot();
+  static bool EventButton(SDL_Event *Event);
 
   static inline std::optional<SDL_FPoint> drag;
 
@@ -36,12 +36,12 @@ public:
 
   static inline std::array<uint32_t, 3> pos_ani_time;
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
-  static void open();
-  static void close();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void Open();
+  static void Close();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

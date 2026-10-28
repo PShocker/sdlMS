@@ -5,17 +5,17 @@
 #include <cstdint>
 class CharacterRenderSystem {
 private:
-  static bool render_afterimage(GameCharacter &g_character);
-  static void render_tomb(GameCharacter &g_character);
-  static bool render_effect_front(GameCharacter &g_character);
-  static bool render_effect_back(GameCharacter &g_character);
-  static void render_chair(GameCharacter &g_character);
-  static void render_chair(GameCharacter &g_character, bool front);
-  static void render_morph(GameCharacter &g_character);
+  static bool RenderAfterimage(GameCharacter &g_character);
+  static void RenderTomb(GameCharacter &g_character);
+  static bool RenderEffectFront(GameCharacter &g_character);
+  static bool RenderEffectBack(GameCharacter &g_character);
+  static void RenderChair(GameCharacter &g_character);
+  static void RenderChair(GameCharacter &g_character, bool front);
+  static void RenderMorph(GameCharacter &g_character);
 
 public:
-  static void render_chatballoon(GameCharacter &g_character);
-  static void render_nametag(GameCharacter &g_character);
-  static bool render(GameCharacter &g_character);
-  static bool render_character(GameCharacter &g_character);
+  static void RenderChatballoon(GameCharacter &g_character);
+  static void RenderNametag(GameCharacter &g_character);
+  static bool Render(GameCharacter &g_character);
+  static bool RenderCharacter(GameCharacter &g_character);
 };

@@ -8,7 +8,7 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
 
-void ServerBallInstance::handle_ball(uint64_t client_id,
+void ServerBallInstance::HandleBall(uint64_t client_id,
                                        ClientCharacterBallT &r) {
   if (ServerClientInstance::clients.contains(client_id)) {
     auto map_id = ServerClientInstance::clients.at(client_id).map_id;
@@ -23,7 +23,7 @@ void ServerBallInstance::handle_ball(uint64_t client_id,
   }
 }
 
-void ServerBallInstance::handle_server_b(
+void ServerBallInstance::HandleServerB(
     const std::unique_ptr<fbs::CharacterBallT> &r) {
   const auto &src = *r->ball;
 
@@ -47,7 +47,7 @@ void ServerBallInstance::handle_server_b(
   BallGameInstance::data[src.page].emplace_back(std::move(b));
 }
 
-void ServerBallInstance::handle_server_ball(uint64_t client_id,
+void ServerBallInstance::HandleServerBall(uint64_t client_id,
                                               ServerCharacterBallT &r) {
-  handle_server_b(r.payload);
+  HandleServerB(r.payload);
 }

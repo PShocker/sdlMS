@@ -16,37 +16,37 @@ private:
   static inline std::flat_map<int32_t, GameFoothold> g_fhs;
   static inline ServerMobEventT events;
 
-  static int load_mob_hit_cd(ServerMob &mob);
+  static int LoadMobHitCd(ServerMob &mob);
 
-  static bool run_try_jump(ServerMob &mob);
+  static bool RunTryJump(ServerMob &mob);
 
-  static bool run_hit_check(ServerMob &mob);
+  static bool RunHitCheck(ServerMob &mob);
 
-  static bool run_debuff_action(ServerMob &mob);
+  static bool RunDebuffAction(ServerMob &mob);
 
-  static void run_hit_action(ServerMob &mob);
-  static void run_default_action(ServerMob &mob);
-  static void run_move_action(ServerMob &mob);
-  static void run_stand_action(ServerMob &mob);
-  static void run_fly_action(ServerMob &mob);
-  static void run_swim_action(ServerMob &mob);
-  static void run_die_action(ServerMob &mob);
-  static void run_walk(ServerMob &mob);
-  static void run_state_machine(ServerMob &mob);
-  static void run_duration(ServerMob &mob);
-  static bool run_hitting(ServerMob &mob);
-  static void run_hit(ServerMob &mob);
-  static void run_die(ServerMob &mob, uint64_t client_id);
-  static void run_send();
-  static bool run_fall(ServerMob &mob);
+  static void RunHitAction(ServerMob &mob);
+  static void RunDefaultAction(ServerMob &mob);
+  static void RunMoveAction(ServerMob &mob);
+  static void RunStandAction(ServerMob &mob);
+  static void RunFlyAction(ServerMob &mob);
+  static void RunSwimAction(ServerMob &mob);
+  static void RunDieAction(ServerMob &mob);
+  static void RunWalk(ServerMob &mob);
+  static void RunStateMachine(ServerMob &mob);
+  static void RunDuration(ServerMob &mob);
+  static bool RunHitting(ServerMob &mob);
+  static void RunHit(ServerMob &mob);
+  static void RunDie(ServerMob &mob, uint64_t client_id);
+  static void RunSend();
+  static bool RunFall(ServerMob &mob);
 
-  static void run_network_sync_pos(ServerMob &mob, ServerMob &o_mob);
-  static void run_network_sync_flip(ServerMob &mob, ServerMob &o_mob);
-  static void run_network_sync_action(ServerMob &mob, ServerMob &o_mob);
-  static void run_network_sync_hp(ServerMob &mob, ServerMob &o_mob);
+  static void RunNetworkSyncPos(ServerMob &mob, ServerMob &o_mob);
+  static void RunNetworkSyncFlip(ServerMob &mob, ServerMob &o_mob);
+  static void RunNetworkSyncAction(ServerMob &mob, ServerMob &o_mob);
+  static void RunNetworkSyncHp(ServerMob &mob, ServerMob &o_mob);
 
-  static void run_network_sync(ServerMob &mob, ServerMob &o_mob);
+  static void RunNetworkSync(ServerMob &mob, ServerMob &o_mob);
 
 public:
-  static bool run();
+  static bool Run();
 };

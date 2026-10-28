@@ -6,6 +6,6 @@ using namespace fbs;
 
 class ServerRegionSkillInstance {
 public:
-  static void handle_rskill(uint64_t client_id, ClientRSkillT &r);
-  static void handle_s_rskill(ServerRSkillT &r);
+  static void HandleRskill(uint64_t client_id, ClientRSkillT &r);
+  static void HandleSRskill(ServerRSkillT &r);
 };

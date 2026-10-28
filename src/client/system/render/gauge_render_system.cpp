@@ -5,8 +5,8 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
-bool GaugeRenderSystem::render_mob(SDL_FPoint pos, GameGauge &g) {
-  static auto back = WzResource::load_texture(
+bool GaugeRenderSystem::RenderMob(SDL_FPoint pos, GameGauge &g) {
+  static auto back = WzResource::LoadTexture(
       WzResource::ui->find(u"PartyHP.img/GaugeBar2/graduation"));
   const auto w = 200;
 
@@ -41,8 +41,8 @@ bool GaugeRenderSystem::render_mob(SDL_FPoint pos, GameGauge &g) {
   return true;
 }
 
-bool GaugeRenderSystem::render_character(SDL_FPoint pos, float hp_percent) {
-  static auto back = WzResource::load_texture(
+bool GaugeRenderSystem::RenderCharacter(SDL_FPoint pos, float hp_percent) {
+  static auto back = WzResource::LoadTexture(
       WzResource::ui->find(u"PartyHP.img/GaugeBar2/graduation"));
   const auto w = 200;
 

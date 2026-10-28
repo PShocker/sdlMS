@@ -30,10 +30,10 @@ const static SDL_FPoint cape_slot{2, 89};
 const static SDL_FPoint shield_slot{134, 89};
 const static SDL_FPoint weapon_slot{101, 89};
 
-SDL_FPoint EquipUiSystem::load_wh() { return {175, 289}; }
+SDL_FPoint EquipUiSystem::LoadWh() { return {175, 289}; }
 
-void EquipUiSystem::render_backgrnd() {
-  static auto backgrnd = WzResource::load_texture(
+void EquipUiSystem::RenderBackgrnd() {
+  static auto backgrnd = WzResource::LoadTexture(
       WzResource::ui->find(u"Equipment.img/backgrnd"));
 
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
@@ -41,7 +41,7 @@ void EquipUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
-void EquipUiSystem::render_equip_texture(
+void EquipUiSystem::RenderEquipTexture(
     std::optional<GameEquipItem> &equip, SDL_FPoint slot,
     EquipMouseIndex i) {
   const SDL_FPoint lt{4, 45};
@@ -57,8 +57,8 @@ void EquipUiSystem::render_equip_texture(
   if (!equip.has_value()) {
     return;
   }
-  auto info = EquipGameInstance::load_equip_info(equip->id);
-  auto icon = WzResource::load_texture(info->get_child(u"icon"));
+  auto info = EquipGameInstance::LoadEquipInfo(equip->id);
+  auto icon = WzResource::LoadTexture(info->get_child(u"icon"));
   auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
   auto y = (int)pos.y + slot.y + lt.y + (32 - icon->h) / 2;
   pos_rect = {
@@ -70,23 +70,23 @@ void EquipUiSystem::render_equip_texture(
   SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
 }
 
-void EquipUiSystem::render_equip() {
+void EquipUiSystem::RenderEquip() {
   mouse_index = std::nullopt;
   auto &self = CharacterGameInstance::self;
-  render_equip_texture(self.cap, cap_slot, EquipMouseIndex::kCap);
-  render_equip_texture(self.accessory, earacc_slot, EquipMouseIndex::kEarcc);
-  render_equip_texture(self.coat, clothes_slot, EquipMouseIndex::kClothes);
-  render_equip_texture(self.pant, pants_slot, EquipMouseIndex::kPants);
-  render_equip_texture(self.shoes, shoes_slot, EquipMouseIndex::kShoes);
-  render_equip_texture(self.glove, gloves_slot, EquipMouseIndex::kGloves);
-  render_equip_texture(self.cape, cape_slot, EquipMouseIndex::kCape);
-  render_equip_texture(self.shield, shield_slot, EquipMouseIndex::kShield);
-  render_equip_texture(self.weapon, weapon_slot, EquipMouseIndex::kWeapon);
+  RenderEquipTexture(self.cap, cap_slot, EquipMouseIndex::kCap);
+  RenderEquipTexture(self.accessory, earacc_slot, EquipMouseIndex::kEarcc);
+  RenderEquipTexture(self.coat, clothes_slot, EquipMouseIndex::kClothes);
+  RenderEquipTexture(self.pant, pants_slot, EquipMouseIndex::kPants);
+  RenderEquipTexture(self.shoes, shoes_slot, EquipMouseIndex::kShoes);
+  RenderEquipTexture(self.glove, gloves_slot, EquipMouseIndex::kGloves);
+  RenderEquipTexture(self.cape, cape_slot, EquipMouseIndex::kCape);
+  RenderEquipTexture(self.shield, shield_slot, EquipMouseIndex::kShield);
+  RenderEquipTexture(self.weapon, weapon_slot, EquipMouseIndex::kWeapon);
 }
 
-void EquipUiSystem::render_disable_texture(SDL_FPoint slot) {
+void EquipUiSystem::RenderDisableTexture(SDL_FPoint slot) {
   const SDL_FPoint lt{4, 45};
-  static auto icon = WzResource::load_texture(
+  static auto icon = WzResource::LoadTexture(
       WzResource::ui->find(u"Equipment.img/equip/canvas:disabled0"));
   auto x = (int)pos.x + slot.x + lt.x;
   auto y = (int)pos.y + slot.y + lt.y;
@@ -99,7 +99,7 @@ void EquipUiSystem::render_disable_texture(SDL_FPoint slot) {
   SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
 }
 
-void EquipUiSystem::render_deco_texture(std::optional<GameDecoItem> &deco,
+void EquipUiSystem::RenderDecoTexture(std::optional<GameDecoItem> &deco,
                                           SDL_FPoint slot,
                                           EquipMouseIndex i) {
   const SDL_FPoint lt{4, 45};
@@ -115,8 +115,8 @@ void EquipUiSystem::render_deco_texture(std::optional<GameDecoItem> &deco,
   if (!deco.has_value()) {
     return;
   }
-  auto info = EquipGameInstance::load_equip_info(deco->id);
-  auto icon = WzResource::load_texture(info->get_child(u"icon"));
+  auto info = EquipGameInstance::LoadEquipInfo(deco->id);
+  auto icon = WzResource::LoadTexture(info->get_child(u"icon"));
   auto x = (int)pos.x + slot.x + lt.x + (32 - icon->w) / 2;
   auto y = (int)pos.y + slot.y + lt.y + (32 - icon->h) / 2;
   pos_rect = {
@@ -126,7 +126,7 @@ void EquipUiSystem::render_deco_texture(std::optional<GameDecoItem> &deco,
       static_cast<float>(icon->h),
   };
   SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
-  icon = WzResource::load_texture(
+  icon = WzResource::LoadTexture(
       WzResource::ms->get_root()->find(u"UI.img/CashItem"));
   pos_rect.x = (int)pos.x + slot.x + lt.x + 19;
   pos_rect.y = (int)pos.y + slot.y + lt.y + 19;
@@ -135,19 +135,19 @@ void EquipUiSystem::render_deco_texture(std::optional<GameDecoItem> &deco,
   SDL_RenderTexture(Window::renderer, icon, nullptr, &pos_rect);
 }
 
-void EquipUiSystem::render_deco() {
+void EquipUiSystem::RenderDeco() {
   mouse_index = std::nullopt;
   auto &self = CharacterGameInstance::self;
-  render_deco_texture(self.cap_deco, cap_slot, EquipMouseIndex::kCap);
-  render_deco_texture(self.accessory_deco, earacc_slot,
+  RenderDecoTexture(self.cap_deco, cap_slot, EquipMouseIndex::kCap);
+  RenderDecoTexture(self.accessory_deco, earacc_slot,
                       EquipMouseIndex::kEarcc);
-  render_deco_texture(self.coat_deco, clothes_slot, EquipMouseIndex::kClothes);
-  render_deco_texture(self.pant_deco, pants_slot, EquipMouseIndex::kPants);
-  render_deco_texture(self.shoes_deco, shoes_slot, EquipMouseIndex::kShoes);
-  render_deco_texture(self.glove_deco, gloves_slot, EquipMouseIndex::kGloves);
-  render_deco_texture(self.cape_deco, cape_slot, EquipMouseIndex::kCape);
-  render_deco_texture(self.shield_deco, shield_slot, EquipMouseIndex::kShield);
-  render_deco_texture(self.weapon_deco, weapon_slot, EquipMouseIndex::kWeapon);
+  RenderDecoTexture(self.coat_deco, clothes_slot, EquipMouseIndex::kClothes);
+  RenderDecoTexture(self.pant_deco, pants_slot, EquipMouseIndex::kPants);
+  RenderDecoTexture(self.shoes_deco, shoes_slot, EquipMouseIndex::kShoes);
+  RenderDecoTexture(self.glove_deco, gloves_slot, EquipMouseIndex::kGloves);
+  RenderDecoTexture(self.cape_deco, cape_slot, EquipMouseIndex::kCape);
+  RenderDecoTexture(self.shield_deco, shield_slot, EquipMouseIndex::kShield);
+  RenderDecoTexture(self.weapon_deco, weapon_slot, EquipMouseIndex::kWeapon);
   bool weapon_deco = false;
   if (self.weapon_deco.has_value()) {
     if (self.weapon_deco.has_value()) {
@@ -160,41 +160,41 @@ void EquipUiSystem::render_deco() {
       }
     }
     if (!weapon_deco) {
-      render_disable_texture(weapon_slot);
+      RenderDisableTexture(weapon_slot);
     }
   }
 }
 
-bool EquipUiSystem::render_info() {
+bool EquipUiSystem::RenderInfo() {
   auto index = mouse_index;
   if (index.has_value() && !CursorGameInstance::modal_overlay) {
     auto &mouse_pos = Window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
     if (active_tab == 0) {
-      auto equip = EquipGameInstance::load_equip((int)index.value());
+      auto equip = EquipGameInstance::LoadEquip((int)index.value());
       if (equip->has_value()) {
-        TooltipUiSystem::render_equip(equip->value(), show_pos.x, show_pos.y);
+        TooltipUiSystem::RenderEquip(equip->value(), show_pos.x, show_pos.y);
       }
     } else {
-      auto deco = EquipGameInstance::load_deco((int)index.value());
+      auto deco = EquipGameInstance::LoadDeco((int)index.value());
       if (deco->has_value()) {
-        TooltipUiSystem::render_deco(deco->value(), show_pos.x, show_pos.y);
+        TooltipUiSystem::RenderDeco(deco->value(), show_pos.x, show_pos.y);
       }
     }
   }
   return true;
 }
 
-void EquipUiSystem::render_tab() {
+void EquipUiSystem::RenderTab() {
   static auto node = WzResource::ui->find(u"Equipment.img/tab:mainTab");
   const SDL_FPoint lt{5, 26};
   for (auto i : {0, 1}) {
     SDL_Texture *texture;
     if (active_tab == i) {
-      texture = WzResource::load_texture(
+      texture = WzResource::LoadTexture(
           node->get_child(u"selected")->get_child(std::to_string(i)));
     } else {
-      texture = WzResource::load_texture(
+      texture = WzResource::LoadTexture(
           node->get_child(u"normal")->get_child(std::to_string(i)));
     }
     SDL_FRect pos_rect = {
@@ -207,10 +207,10 @@ void EquipUiSystem::render_tab() {
   }
 }
 
-void EquipUiSystem::render_backgrnd2() {
+void EquipUiSystem::RenderBackgrnd2() {
   const SDL_FPoint lt{4, 45};
   if (active_tab == 0) {
-    static auto texture = WzResource::load_texture(
+    static auto texture = WzResource::LoadTexture(
         WzResource::ui->find(u"Equipment.img/equip/backgrnd"));
     SDL_FRect pos_rect = {
         int(pos.x) + lt.x,
@@ -220,7 +220,7 @@ void EquipUiSystem::render_backgrnd2() {
     };
     SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
   } else {
-    static auto texture = WzResource::load_texture(
+    static auto texture = WzResource::LoadTexture(
         WzResource::ui->find(u"Equipment.img/cash/backgrnd"));
     SDL_FRect pos_rect = {
         int(pos.x) + lt.x,
@@ -232,11 +232,11 @@ void EquipUiSystem::render_backgrnd2() {
   }
 }
 
-void EquipUiSystem::render_button() {
+void EquipUiSystem::RenderButton() {
   const static std::array buttons_nodes = {
       WzResource::ui->find(u"Basic.img/BtClose"),
   };
-  auto wh = load_wh();
+  auto wh = LoadWh();
   std::array buttons_rect = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
@@ -250,39 +250,39 @@ void EquipUiSystem::render_button() {
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+    auto CursorIn = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-bool EquipUiSystem::render() {
-  render_backgrnd();
-  render_backgrnd2();
-  render_tab();
-  render_button();
+bool EquipUiSystem::Render() {
+  RenderBackgrnd();
+  RenderBackgrnd2();
+  RenderTab();
+  RenderButton();
 
   if (active_tab == 0) {
-    render_equip();
+    RenderEquip();
   } else {
-    render_deco();
+    RenderDeco();
   }
 
   return true;
 }
 
-bool EquipUiSystem::event_click_equip(SDL_Event *event) {
+bool EquipUiSystem::EventClickEquip(SDL_Event *Event) {
   if (CursorGameInstance::cursor_hand_net.has_value()) {
     return false;
   }
@@ -293,11 +293,11 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
   auto &self = CharacterGameInstance::self;
   auto &cursor_hand = CursorGameInstance::cursor_hand;
   if (cursor_hand.has_value()) {
-    AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
     switch (cursor_hand->type) {
     case CursorGameInstance::CursorHandType::kEquipment: {
       if (index == cursor_hand->sub_val && active_tab == 0) {
-        EquipGameInstance::unuse_equip(index);
+        EquipGameInstance::UnuseEquip(index);
       }
       CursorGameInstance::cursor_hand = std::nullopt;
       break;
@@ -305,11 +305,11 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
     case CursorGameInstance::CursorHandType::kPackage: {
       switch ((ItemEnum)cursor_hand->val) {
       case ItemEnum::kEquip: {
-        EquipGameInstance::use_equip(cursor_hand->sub_val);
+        EquipGameInstance::UseEquip(cursor_hand->sub_val);
         break;
       }
       case ItemEnum::kDeco: {
-        EquipGameInstance::use_deco(cursor_hand->sub_val);
+        EquipGameInstance::UseDeco(cursor_hand->sub_val);
         CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
         break;
       }
@@ -318,11 +318,11 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
                                                [cursor_hand->sub_val];
         if (itm->id.starts_with(u"0204")) {
           if (active_tab == 0) {
-            auto eqp = EquipGameInstance::load_equip(index);
+            auto eqp = EquipGameInstance::LoadEquip(index);
             if (eqp->has_value()) {
               auto &equip = eqp->value();
               auto &it = static_cast<GameConsumeItem &>(*itm);
-              EquipGameInstance::use_equip_scroll(equip, it);
+              EquipGameInstance::UseEquipScroll(equip, it);
               CursorGameInstance::cursor_hand = std::nullopt;
               return true;
             }
@@ -338,7 +338,7 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
     }
     case CursorGameInstance::CursorHandType::kDeco: {
       if (index == cursor_hand->sub_val && active_tab == 1) {
-        EquipGameInstance::unuse_deco(index);
+        EquipGameInstance::UnuseDeco(index);
       }
       CursorGameInstance::cursor_hand = std::nullopt;
 
@@ -349,15 +349,15 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
     }
     }
   } else {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      bool click = false;
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      bool Click = false;
       if (active_tab == 0) {
-        click = EquipGameInstance::load_equip(index)->has_value();
+        Click = EquipGameInstance::LoadEquip(index)->has_value();
       } else {
-        click = EquipGameInstance::load_deco(index)->has_value();
+        Click = EquipGameInstance::LoadDeco(index)->has_value();
       }
-      if (click) {
-        AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
+      if (Click) {
+        AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
         if (active_tab == 0) {
           CursorGameInstance::cursor_hand = {
               .type = CursorGameInstance::CursorHandType::kEquipment,
@@ -377,97 +377,97 @@ bool EquipUiSystem::event_click_equip(SDL_Event *event) {
   return false;
 }
 
-void EquipUiSystem::open() {
+void EquipUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
 
-    event_motion(nullptr);
+    EventMotion(nullptr);
   }
 }
 
-void EquipUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::render_systems, render_info);
-  std::erase(System::event_systems, event);
+void EquipUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::render_systems, RenderInfo);
+  std::erase(System::event_systems, Event);
 
-  event_drag_end();
+  EventDragEnd();
 }
 
-void EquipUiSystem::toggle() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
-  auto fn = &render;
+void EquipUiSystem::Toggle() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-bool EquipUiSystem::cursor_in() {
-  auto [w, h] = load_wh();
+bool EquipUiSystem::CursorIn() {
+  auto [w, h] = LoadWh();
   auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void EquipUiSystem::event_top() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void EquipUiSystem::EventTop() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
 
-    event_motion(nullptr);
+    EventMotion(nullptr);
   }
 }
 
-void EquipUiSystem::event_drag_start(SDL_Event *event) {
-  auto wh = load_wh();
+void EquipUiSystem::EventDragStart(SDL_Event *Event) {
+  auto wh = LoadWh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
+  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - event->button.x, pos.y - event->button.y};
+    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
   }
   return;
 }
 
-void EquipUiSystem::event_drag_end() {
+void EquipUiSystem::EventDragEnd() {
   drag = std::nullopt;
   return;
 }
 
-void EquipUiSystem::event_drag_move(SDL_Event *event) {
+void EquipUiSystem::EventDragMove(SDL_Event *Event) {
   if (drag.has_value()) {
-    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
+    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
     auto &camera = CameraGameInstance::camera;
-    auto [w, h] = load_wh();
+    auto [w, h] = LoadWh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - w);
     pos.y = std::clamp(pos.y, (float)0, camera.h - h);
   }
   return;
 }
 
-void EquipUiSystem::event_close() { close(); }
+void EquipUiSystem::EventClose() { Close(); }
 
-bool EquipUiSystem::event_button(SDL_Event *event) {
+bool EquipUiSystem::EventButton(SDL_Event *Event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
-  auto wh = load_wh();
+  auto wh = LoadWh();
   r = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
   fns = {
-      event_close,
+      EventClose,
   };
 
   for (size_t i = 0; i < r.size(); ++i) {
@@ -483,7 +483,7 @@ bool EquipUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-void EquipUiSystem::event_tab(SDL_Event *event) {
+void EquipUiSystem::EventTab(SDL_Event *Event) {
   const static std::array tab_rect = {
       SDL_FRect{5, 26, 33, 19},  //
       SDL_FRect{38, 26, 33, 19}, //
@@ -498,21 +498,21 @@ void EquipUiSystem::event_tab(SDL_Event *event) {
   }
 }
 
-void EquipUiSystem::event_motion(SDL_Event *event) {
+void EquipUiSystem::EventMotion(SDL_Event *Event) {
   auto &sys = System::render_systems;
-  std::erase(sys, render_info);
-  auto it = std::ranges::find(sys, &CursorRenderSystem::render);
+  std::erase(sys, RenderInfo);
+  auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {
-    sys.insert(it, render_info);
+    sys.insert(it, RenderInfo);
   }
 }
 
-void EquipUiSystem::event_motion_bt_audio(SDL_Event *event) {
-  if (CursorGameInstance::cursor_ui != render) {
+void EquipUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+  if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
   std::vector<SDL_FRect> buttons_rect;
-  auto wh = load_wh();
+  auto wh = LoadWh();
   buttons_rect = {
       SDL_FRect{wh.x - 20, 7, 12, 12}, //
   };
@@ -529,19 +529,19 @@ void EquipUiSystem::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-bool EquipUiSystem::event(SDL_Event *event) {
+bool EquipUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      event_close();
+      EventClose();
       return false;
       break;
     }
@@ -552,30 +552,30 @@ bool EquipUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_top();
-        event_drag_start(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTop();
+        EventDragStart(Event);
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_tab(event);
-        event_click_equip(event);
-        r = !event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTab(Event);
+        EventClickEquip(Event);
+        r = !EventButton(Event);
       }
-      event_drag_end();
+      EventDragEnd();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_motion_bt_audio(event);
-    event_motion(event);
-    event_drag_move(event);
+    EventMotionBtAudio(Event);
+    EventMotion(Event);
+    EventDragMove(Event);
     break;
   }
   default: {

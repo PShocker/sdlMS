@@ -8,9 +8,9 @@
 #include <format>
 #include <string>
 
-void GainLogUiSystem::render_text() {
+void GainLogUiSystem::RenderText() {
   auto &data = GainLogGameInstance::data;
-  Freetype::load_size(12);
+  Freetype::LoadSize(12);
   auto screen_w = CameraGameInstance::camera.w;
   auto screen_h = CameraGameInstance::camera.h;
   auto base_y = (screen_h - 168);
@@ -26,12 +26,12 @@ void GainLogUiSystem::render_text() {
       auto num3 = std::u16string{num2.begin(), num2.end()};
       if (itm_id == u"00000000") {
         text = u"You have gained meso (+" + num3 + u")";
-      } else if (ItemGameInstance::check_item(itm_id)) {
-        item_name = ItemGameInstance::load_item_text(itm_id, u"name");
-        auto item_type = ItemGameInstance::load_item_type(itm_id);
+      } else if (ItemGameInstance::CheckItem(itm_id)) {
+        item_name = ItemGameInstance::LoadItemText(itm_id, u"name");
+        auto item_type = ItemGameInstance::LoadItemType(itm_id);
         text = item_name + u" x" + num3 + u" earned (" + item_type + u")";
       } else {
-        item_name = EquipGameInstance::load_equip_name(itm_id);
+        item_name = EquipGameInstance::LoadEquipName(itm_id);
         text = item_name + u" x" + num3 + u" earned (Equip/Deco)";
       }
       break;
@@ -46,16 +46,16 @@ void GainLogUiSystem::render_text() {
     if (g_log.destroy > Window::dt_now) {
       float alpha = g_log.destroy - Window::dt_now;
       alpha = (alpha / 10000) * 255;
-      Freetype::load_color(255, 255, 255, alpha);
-      auto text_w = Freetype::load_w(text);
+      Freetype::LoadColor(255, 255, 255, alpha);
+      auto text_w = Freetype::LoadW(text);
       auto base_x = screen_w - text_w;
-      Freetype::draw_line(text, base_x, base_y);
-      base_y -= Freetype::load_lh();
+      Freetype::DrawLine(text, base_x, base_y);
+      base_y -= Freetype::LoadLh();
     }
   }
 }
 
-void GainLogUiSystem::destory() {
+void GainLogUiSystem::Destory() {
   auto &data = GainLogGameInstance::data;
   std::erase_if(data, [](GameGainLog &g_log) {
     auto destroy = g_log.destroy;
@@ -63,9 +63,9 @@ void GainLogUiSystem::destory() {
   });
 }
 
-bool GainLogUiSystem::render() {
-  render_text();
-  destory();
+bool GainLogUiSystem::Render() {
+  RenderText();
+  Destory();
 
   return true;
 }

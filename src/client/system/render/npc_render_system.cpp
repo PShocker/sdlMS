@@ -11,13 +11,13 @@
 #include "wz/Wz.h"
 #include <ranges>
 
-void NpcRenderSystem::render_nametag(const std::u16string &text,
+void NpcRenderSystem::RenderNametag(const std::u16string &text,
                                        SDL_FPoint p) {
   const auto &camera = CameraGameInstance::camera;
-  Freetype::load_aligned(true);
-  Freetype::load_size(13);
-  auto w = Freetype::load_w(text);
-  auto h = Freetype::load_lh();
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(13);
+  auto w = Freetype::LoadW(text);
+  auto h = Freetype::LoadLh();
 
   auto x = p.x;
   auto y = p.y;
@@ -32,33 +32,33 @@ void NpcRenderSystem::render_nametag(const std::u16string &text,
     SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
     SDL_RenderFillRect(Window::renderer, &rect);
-    Freetype::load_color(255, 205, 0, 255);
-    Freetype::draw_line(text, x - camera.x - w / 2, y - camera.y);
+    Freetype::LoadColor(255, 205, 0, 255);
+    Freetype::DrawLine(text, x - camera.x - w / 2, y - camera.y);
   }
   return;
 }
 
-void NpcRenderSystem::render_nametag(GameNpc &g_npc) {
-  auto npc_name = NpcGameInstance::load_npc_text(g_npc.id, u"name");
+void NpcRenderSystem::RenderNametag(GameNpc &g_npc) {
+  auto npc_name = NpcGameInstance::LoadNpcText(g_npc.id, u"name");
   if (npc_name != u"") {
-    render_nametag(npc_name, {g_npc.pos.x, g_npc.pos.y});
+    RenderNametag(npc_name, {g_npc.pos.x, g_npc.pos.y});
   }
-  auto npc_func = NpcGameInstance::load_npc_text(g_npc.id, u"func");
+  auto npc_func = NpcGameInstance::LoadNpcText(g_npc.id, u"func");
   if (npc_func != u"") {
-    render_nametag(npc_func, {g_npc.pos.x, g_npc.pos.y + 18});
+    RenderNametag(npc_func, {g_npc.pos.x, g_npc.pos.y + 18});
   }
 }
 
-void NpcRenderSystem::render_chatballoon(GameNpc &g_npc) {
+void NpcRenderSystem::RenderChatballoon(GameNpc &g_npc) {
   if (!g_npc.chatballoon.has_value()) {
     return;
   }
-  auto quests = QuestGameInstance::load_npc_quest(g_npc.id);
+  auto quests = QuestGameInstance::LoadNpcQuest(g_npc.id);
   if (!quests.empty()) {
     return;
   }
   auto chatballoon = g_npc.chatballoon.value();
-  auto npc_node = NpcGameInstance::load_link_npc_node(g_npc.id);
+  auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
   auto action_node = npc_node->get_child(g_npc.action);
 
   auto index = std::to_string(g_npc.ani_index);
@@ -67,18 +67,18 @@ void NpcRenderSystem::render_chatballoon(GameNpc &g_npc) {
     npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
   }
 
-  auto texture = WzResource::load_texture(npc_node);
-  auto origin = WzResource::load_fpoint(npc_node->get_child(u"origin"));
-  Freetype::load_size(chatballoon.size);
+  auto texture = WzResource::LoadTexture(npc_node);
+  auto origin = WzResource::LoadFpoint(npc_node->get_child(u"origin"));
+  Freetype::LoadSize(chatballoon.size);
   SDL_FPoint pos{
       .x = g_npc.pos.x,
       .y = g_npc.pos.y - origin.y - texture->h / 8,
   };
-  ChatballoonRenderSystem::render(chatballoon, pos);
+  ChatballoonRenderSystem::Render(chatballoon, pos);
 }
 
-bool NpcRenderSystem::render_npc(GameNpc &g_npc) {
-  auto npc_node = NpcGameInstance::load_link_npc_node(g_npc.id);
+bool NpcRenderSystem::RenderNpc(GameNpc &g_npc) {
+  auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
   auto action_node = npc_node->get_child(g_npc.action);
 
   auto index = std::to_string(g_npc.ani_index);
@@ -87,8 +87,8 @@ bool NpcRenderSystem::render_npc(GameNpc &g_npc) {
     npc_node = static_cast<wz::Property<wz::WzUOL> *>(npc_node)->get_uol();
   }
 
-  auto texture = WzResource::load_texture(npc_node);
-  auto origin = WzResource::load_fpoint(npc_node->get_child(u"origin"));
+  auto texture = WzResource::LoadTexture(npc_node);
+  auto origin = WzResource::LoadFpoint(npc_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = g_npc.pos.x - origin.x,
       .y = g_npc.pos.y - origin.y,
@@ -107,13 +107,13 @@ bool NpcRenderSystem::render_npc(GameNpc &g_npc) {
   return true;
 }
 
-void NpcRenderSystem::render_quest(GameNpc &g_npc) {
-  auto node = NpcGameInstance::load_quest_node(g_npc);
+void NpcRenderSystem::RenderQuest(GameNpc &g_npc) {
+  auto node = NpcGameInstance::LoadQuestNode(g_npc);
   if (node != nullptr) {
-    auto origin = WzResource::load_fpoint(node->get_child(u"origin"));
-    auto texture = WzResource::load_texture(node);
+    auto origin = WzResource::LoadFpoint(node->get_child(u"origin"));
+    auto texture = WzResource::LoadTexture(node);
     auto &camera = CameraGameInstance::camera;
-    auto pos_rect = NpcGameInstance::load_quest_rect(g_npc).value();
+    auto pos_rect = NpcGameInstance::LoadQuestRect(g_npc).value();
     pos_rect.x -= camera.x;
     pos_rect.y -= camera.y;
     pos_rect.x = (int)pos_rect.x;
@@ -122,9 +122,9 @@ void NpcRenderSystem::render_quest(GameNpc &g_npc) {
   }
 }
 
-bool NpcRenderSystem::render(GameNpc &g_npc) {
-  render_npc(g_npc);
-  render_nametag(g_npc);
-  render_quest(g_npc);
+bool NpcRenderSystem::Render(GameNpc &g_npc) {
+  RenderNpc(g_npc);
+  RenderNametag(g_npc);
+  RenderQuest(g_npc);
   return true;
 }

@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-bool EquipGameInstance::check_equip(const std::u16string &id) {
+bool EquipGameInstance::CheckEquip(const std::u16string &id) {
   auto r = id.substr(0, 2);
   if (r == u"01") {
     return true;
@@ -28,7 +28,7 @@ bool EquipGameInstance::check_equip(const std::u16string &id) {
 }
 
 std::polymorphic<GameItem>
-EquipGameInstance::load_item(const std::u16string &id) {
+EquipGameInstance::LoadItem(const std::u16string &id) {
   GameEquipItem eqp;
   eqp.type = ItemEnum::kEquip;
   eqp.id = id;
@@ -36,7 +36,7 @@ EquipGameInstance::load_item(const std::u16string &id) {
   return r;
 }
 
-std::u16string EquipGameInstance::load_equip_type(const std::u16string &id) {
+std::u16string EquipGameInstance::LoadEquipType(const std::u16string &id) {
   auto result = id.substr(1, 3);
   static const std::flat_map<std::u16string, std::u16string> equip_type = {
       // Accessory
@@ -102,10 +102,10 @@ std::u16string EquipGameInstance::load_equip_type(const std::u16string &id) {
   return u"";
 }
 
-wz::Node *EquipGameInstance::load_equip_info(const std::u16string &id) {
+wz::Node *EquipGameInstance::LoadEquipInfo(const std::u16string &id) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(id)) {
-    auto equip_type = load_equip_type(id);
+    auto equip_type = LoadEquipType(id);
     cache[id] =
         WzResource::character->find(equip_type + u"/" + id + u".img/info");
   }
@@ -113,12 +113,12 @@ wz::Node *EquipGameInstance::load_equip_info(const std::u16string &id) {
 }
 
 EquipGameInstance::WeaponType
-EquipGameInstance::load_weapon_type(const GameCharacter &g_character) {
+EquipGameInstance::LoadWeaponType(const GameCharacter &g_character) {
   if (!g_character.weapon.has_value()) {
     return WeaponType::kNone;
   }
   auto g_weapon = g_character.weapon->id;
-  auto g_weapon_info = EquipGameInstance::load_equip_info(g_weapon);
+  auto g_weapon_info = EquipGameInstance::LoadEquipInfo(g_weapon);
   auto attack_type =
       static_cast<wz::Property<int16_t> *>(g_weapon_info->get_child(u"attack"))
           ->get();
@@ -126,7 +126,7 @@ EquipGameInstance::load_weapon_type(const GameCharacter &g_character) {
 }
 
 EquipGameInstance::WeaponEnum
-EquipGameInstance::load_weapon_enum(const std::u16string &id) {
+EquipGameInstance::LoadWeaponEnum(const std::u16string &id) {
   if (id.empty()) {
     return WeaponEnum::kNone;
   }
@@ -135,9 +135,9 @@ EquipGameInstance::load_weapon_enum(const std::u16string &id) {
   return static_cast<WeaponEnum>((std::stoi(s) / 10000) % 100);
 }
 
-std::u16string EquipGameInstance::load_equip_name(const std::u16string &id) {
+std::u16string EquipGameInstance::LoadEquipName(const std::u16string &id) {
   static auto str_node = WzResource::string->find(u"Eqp.img/ClassicWorld");
-  auto type = load_equip_type(id);
+  auto type = LoadEquipType(id);
 
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
   std::u16string result(view.begin(), view.end());
@@ -146,9 +146,9 @@ std::u16string EquipGameInstance::load_equip_name(const std::u16string &id) {
   return static_cast<wz::Property<std::u16string> *>(str)->get();
 }
 
-std::u16string EquipGameInstance::load_equip_desc(const std::u16string &id) {
+std::u16string EquipGameInstance::LoadEquipDesc(const std::u16string &id) {
   static auto str_node = WzResource::string->find(u"Eqp.img/ClassicWorld");
-  auto type = load_equip_type(id);
+  auto type = LoadEquipType(id);
 
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
   std::u16string result(view.begin(), view.end());
@@ -157,13 +157,13 @@ std::u16string EquipGameInstance::load_equip_desc(const std::u16string &id) {
   if (str == nullptr) {
     return u"";
   }
-  return TextGameInstance::load_rstr(str);
+  return TextGameInstance::LoadRstr(str);
 }
 
 std::flat_set<JobType>
-EquipGameInstance::load_equip_job(const std::u16string &id) {
+EquipGameInstance::LoadEquipJob(const std::u16string &id) {
   std::flat_set<JobType> r;
-  auto equip_info = EquipGameInstance::load_equip_info(id);
+  auto equip_info = EquipGameInstance::LoadEquipInfo(id);
   auto reqJob =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqJob"))->get();
   if (reqJob == 0) {
@@ -189,9 +189,9 @@ EquipGameInstance::load_equip_job(const std::u16string &id) {
 }
 
 std::flat_map<EquipGameInstance::IncType, int>
-EquipGameInstance::load_equip_inc(const std::u16string &id) {
+EquipGameInstance::LoadEquipInc(const std::u16string &id) {
   std::flat_map<EquipGameInstance::IncType, int> r;
-  auto equip_info = load_equip_info(id);
+  auto equip_info = LoadEquipInfo(id);
   static const std::flat_map<std::u16string, IncType> incs = {
       {u"attackSpeed", EquipGameInstance::IncType::kWeaponSpeed},
       {u"incWAT", EquipGameInstance::IncType::kWeaponPad},
@@ -213,9 +213,9 @@ EquipGameInstance::load_equip_inc(const std::u16string &id) {
 }
 
 std::flat_map<EquipGameInstance::IncType, int>
-EquipGameInstance::load_scroll_inc(const std::u16string &id) {
+EquipGameInstance::LoadScrollInc(const std::u16string &id) {
   std::flat_map<EquipGameInstance::IncType, int> r;
-  auto scroll_info = ItemGameInstance::load_item_info(id, 0);
+  auto scroll_info = ItemGameInstance::LoadItemInfo(id, 0);
   static const std::flat_map<std::u16string, IncType> incs = {
       {u"incWAT", EquipGameInstance::IncType::kWeaponPad},
       {u"incMMP", EquipGameInstance::IncType::kWeaponMad},
@@ -236,34 +236,34 @@ EquipGameInstance::load_scroll_inc(const std::u16string &id) {
   return r;
 }
 
-uint8_t EquipGameInstance::load_equip_tuc(const std::u16string &id) {
-  auto equip_info = load_equip_info(id);
+uint8_t EquipGameInstance::LoadEquipTuc(const std::u16string &id) {
+  auto equip_info = LoadEquipInfo(id);
   return static_cast<wz::Property<int> *>(equip_info->get_child(u"tuc"))->get();
 }
 
-void EquipGameInstance::add_equip(GameEquipItem &equip,
+void EquipGameInstance::AddEquip(GameEquipItem &equip,
                                     GameCharacter &character, int slot) {
-  auto type = load_equip_type(equip.id);
+  auto type = LoadEquipType(equip.id);
   if (type == u"Accessory") {
-    CharacterGameInstance::add_accessory(character, equip.id);
+    CharacterGameInstance::AddAccessory(character, equip.id);
     character.accessory = equip;
   } else if (type == u"Cap") {
-    CharacterGameInstance::add_cap(character, equip.id);
+    CharacterGameInstance::AddCap(character, equip.id);
     character.cap = equip;
   } else if (type == u"Cape") {
-    CharacterGameInstance::add_cape(character, equip.id);
+    CharacterGameInstance::AddCape(character, equip.id);
     character.cape = equip;
   } else if (type == u"Coat") {
-    CharacterGameInstance::add_coat(character, equip.id);
+    CharacterGameInstance::AddCoat(character, equip.id);
     character.coat = equip;
   } else if (type == u"Glove") {
-    CharacterGameInstance::add_glove(character, equip.id);
+    CharacterGameInstance::AddGlove(character, equip.id);
     character.glove = equip;
   } else if (type == u"Longcoat") {
-    CharacterGameInstance::add_longcoat(character, equip.id);
+    CharacterGameInstance::AddLongcoat(character, equip.id);
     character.longcoat = equip;
   } else if (type == u"Pants") {
-    CharacterGameInstance::add_pants(character, equip.id);
+    CharacterGameInstance::AddPants(character, equip.id);
     character.pant = equip;
   } else if (type == u"Ring") {
     if (slot == -1) {
@@ -271,20 +271,20 @@ void EquipGameInstance::add_equip(GameEquipItem &equip,
     } else {
     }
   } else if (type == u"Shield") {
-    CharacterGameInstance::add_shield(character, equip.id);
+    CharacterGameInstance::AddShield(character, equip.id);
     character.shield = equip;
   } else if (type == u"Shoes") {
-    CharacterGameInstance::add_shoes(character, equip.id);
+    CharacterGameInstance::AddShoes(character, equip.id);
     character.shoes = equip;
   } else if (type == u"Weapon") {
-    CharacterGameInstance::add_weapon(character, equip.id);
+    CharacterGameInstance::AddWeapon(character, equip.id);
     character.weapon = equip;
   }
 }
 
-bool EquipGameInstance::add_equip_limit(GameEquipItem &equip,
+bool EquipGameInstance::AddEquipLimit(GameEquipItem &equip,
                                           GameCharacter &character, int slot) {
-  auto equip_info = load_equip_info(equip.id);
+  auto equip_info = LoadEquipInfo(equip.id);
   auto require_job =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqJob"))->get();
   auto require_lv =
@@ -299,8 +299,8 @@ bool EquipGameInstance::add_equip_limit(GameEquipItem &equip,
   auto require_luk =
       static_cast<wz::Property<int> *>(equip_info->get_child(u"reqLUK"))->get();
 
-  auto jobs = EquipGameInstance::load_equip_job(equip.id);
-  auto job = JobSkillGameInstance::load_ski_tree(character.job);
+  auto jobs = EquipGameInstance::LoadEquipJob(equip.id);
+  auto job = JobSkillGameInstance::LoadSkiTree(character.job);
   bool job_r = false;
   for (auto j : job) {
     if (jobs.contains(j)) {
@@ -315,73 +315,73 @@ bool EquipGameInstance::add_equip_limit(GameEquipItem &equip,
   if (lv < require_lv) {
     return false;
   }
-  auto str_ap = CharacterStatGameInstance::get_str_ap();
+  auto str_ap = CharacterStatGameInstance::GetStrAp();
   if (str_ap < require_str) {
     return false;
   }
-  auto dex_ap = CharacterStatGameInstance::get_dex_ap();
+  auto dex_ap = CharacterStatGameInstance::GetDexAp();
   if (dex_ap < require_dex) {
     return false;
   }
-  auto int_ap = CharacterStatGameInstance::get_int_ap();
+  auto int_ap = CharacterStatGameInstance::GetIntAp();
   if (int_ap < require_int) {
     return false;
   }
-  auto luk_ap = CharacterStatGameInstance::get_luk_ap();
+  auto luk_ap = CharacterStatGameInstance::GetLukAp();
   if (luk_ap < require_luk) {
     return false;
   }
-  add_equip(equip, character, slot);
+  AddEquip(equip, character, slot);
   return true;
 }
 
-bool EquipGameInstance::add_equip_deco(GameDecoItem &deco,
+bool EquipGameInstance::AddEquipDeco(GameDecoItem &deco,
                                          GameCharacter &character, int slot) {
-  if (add_equip_deco_limit(deco, character, slot)) {
-    auto type = load_equip_type(deco.id);
+  if (AddEquipDecoLimit(deco, character, slot)) {
+    auto type = LoadEquipType(deco.id);
     if (type == u"Accessory") {
-      CharacterGameInstance::add_accessory_deco(character, deco.id);
+      CharacterGameInstance::AddAccessoryDeco(character, deco.id);
     } else if (type == u"Cap") {
-      CharacterGameInstance::add_cap_deco(character, deco.id);
+      CharacterGameInstance::AddCapDeco(character, deco.id);
     } else if (type == u"Cape") {
-      CharacterGameInstance::add_cape_deco(character, deco.id);
+      CharacterGameInstance::AddCapeDeco(character, deco.id);
     } else if (type == u"Coat") {
-      CharacterGameInstance::add_coat_deco(character, deco.id);
+      CharacterGameInstance::AddCoatDeco(character, deco.id);
     } else if (type == u"Glove") {
-      CharacterGameInstance::add_glove_deco(character, deco.id);
+      CharacterGameInstance::AddGloveDeco(character, deco.id);
     } else if (type == u"Longcoat") {
-      CharacterGameInstance::add_longcoat_deco(character, deco.id);
+      CharacterGameInstance::AddLongcoatDeco(character, deco.id);
     } else if (type == u"Pants") {
-      CharacterGameInstance::add_pants_deco(character, deco.id);
+      CharacterGameInstance::AddPantsDeco(character, deco.id);
     } else if (type == u"Ring") {
       if (slot == -1) {
         if (!character.ring0_deco.has_value()) {
-          CharacterGameInstance::add_ring0_deco(character, deco.id);
+          CharacterGameInstance::AddRing0Deco(character, deco.id);
         } else {
-          CharacterGameInstance::add_ring1_deco(character, deco.id);
+          CharacterGameInstance::AddRing1Deco(character, deco.id);
         }
       }
     } else if (type == u"Shield") {
-      CharacterGameInstance::add_shield_deco(character, deco.id);
+      CharacterGameInstance::AddShieldDeco(character, deco.id);
     } else if (type == u"Shoes") {
-      CharacterGameInstance::add_shoes_deco(character, deco.id);
+      CharacterGameInstance::AddShoesDeco(character, deco.id);
     } else if (type == u"Weapon") {
-      CharacterGameInstance::add_weapon_deco(character, deco.id);
+      CharacterGameInstance::AddWeaponDeco(character, deco.id);
     }
     return true;
   }
   return false;
 }
 
-bool EquipGameInstance::add_equip_deco_limit(GameDecoItem &deco,
+bool EquipGameInstance::AddEquipDecoLimit(GameDecoItem &deco,
                                                GameCharacter &character,
                                                int slot) {
-  auto type = load_equip_type(deco.id);
+  auto type = LoadEquipType(deco.id);
   if (type == u"Weapon") {
     if (!character.weapon.has_value()) {
       return false;
     }
-    auto equip_info = load_equip_info(deco.id);
+    auto equip_info = LoadEquipInfo(deco.id);
     std::u16string sub = character.weapon->id.substr(2, 2);
     return equip_info->find(u"../" + sub);
   }
@@ -389,10 +389,10 @@ bool EquipGameInstance::add_equip_deco_limit(GameDecoItem &deco,
 }
 
 std::vector<GameEquipItem>
-EquipGameInstance::load_equip_slot(const std::u16string &id,
+EquipGameInstance::LoadEquipSlot(const std::u16string &id,
                                      GameCharacter &character) {
   std::vector<GameEquipItem> r;
-  auto type = load_equip_type(id);
+  auto type = LoadEquipType(id);
   if (type == u"Accessory") {
     if (character.accessory.has_value()) {
       r.push_back(character.accessory.value());
@@ -452,10 +452,10 @@ EquipGameInstance::load_equip_slot(const std::u16string &id,
 }
 
 std::vector<GameDecoItem>
-EquipGameInstance::load_deco_slot(const std::u16string &id,
+EquipGameInstance::LoadDecoSlot(const std::u16string &id,
                                     GameCharacter &character) {
   std::vector<GameDecoItem> r;
-  auto type = load_equip_type(id);
+  auto type = LoadEquipType(id);
   if (type == u"Accessory") {
     if (character.accessory_deco.has_value()) {
       r.push_back(character.accessory_deco.value());
@@ -511,7 +511,7 @@ EquipGameInstance::load_deco_slot(const std::u16string &id,
 }
 
 std::vector<GameEquipItem>
-EquipGameInstance::load_equips(const GameCharacter &c) {
+EquipGameInstance::LoadEquips(const GameCharacter &c) {
   std::vector<GameEquipItem> v;
   if (c.cap.has_value()) {
     v.push_back(c.cap.value());
@@ -553,7 +553,7 @@ EquipGameInstance::load_equips(const GameCharacter &c) {
 }
 
 std::vector<GameDecoItem>
-EquipGameInstance::load_decos(const GameCharacter &c) {
+EquipGameInstance::LoadDecos(const GameCharacter &c) {
   std::vector<GameDecoItem> v;
   if (c.coat_deco.has_value()) {
     v.push_back(c.coat_deco.value());
@@ -594,11 +594,11 @@ EquipGameInstance::load_decos(const GameCharacter &c) {
   return v;
 }
 
-int EquipGameInstance::use_equip_scroll(GameEquipItem &eqp,
+int EquipGameInstance::UseEquipScroll(GameEquipItem &eqp,
                                           GameConsumeItem &s) {
-  auto tuc = EquipGameInstance::load_equip_tuc(eqp.id);
+  auto tuc = EquipGameInstance::LoadEquipTuc(eqp.id);
   if (eqp.scroll.size() < tuc) {
-    auto item_info = ItemGameInstance::load_item_info(s.id, 0);
+    auto item_info = ItemGameInstance::LoadItemInfo(s.id, 0);
     int success = 100;
     if (item_info->get_child(u"success")) {
       success =
@@ -613,7 +613,7 @@ int EquipGameInstance::use_equip_scroll(GameEquipItem &eqp,
     eqp.scroll.push_back({s.id, true});
 
     auto &sf = CharacterGameInstance::self;
-    ServerCharacterInstance::handle_scroll_use(sf, true);
+    ServerCharacterInstance::HandleScrollUse(sf, true);
 
     StateT st;
     st.state = fbs::StateEnum_ITEM_USE;
@@ -626,28 +626,28 @@ int EquipGameInstance::use_equip_scroll(GameEquipItem &eqp,
       s.id = u"";
     }
   }
-  CharacterStatGameInstance::update();
+  CharacterStatGameInstance::Update();
   return false;
 }
 
-int EquipGameInstance::use_equip(int i, int slot) {
+int EquipGameInstance::UseEquip(int i, int slot) {
   auto &equips = PackageGameInstance::data[(int)ItemEnum::kEquip];
   auto &itm = equips[i];
   auto &sf = CharacterGameInstance::self;
   auto &eq = static_cast<GameEquipItem &>(*itm);
-  auto ev = EquipGameInstance::load_equip_slot(eq.id, sf);
+  auto ev = EquipGameInstance::LoadEquipSlot(eq.id, sf);
   auto blank_slot =
-      PackageGameInstance::load_empty_index((int)ItemEnum::kEquip);
+      PackageGameInstance::LoadEmptyIndex((int)ItemEnum::kEquip);
   blank_slot.push_back(i);
   std::ranges::sort(blank_slot);
   if (blank_slot.size() < ev.size()) {
     NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
-    NoticeUiSystem::open();
+    NoticeUiSystem::Open();
     return 0;
   }
-  if (!EquipGameInstance::add_equip_limit(eq, sf, slot)) {
+  if (!EquipGameInstance::AddEquipLimit(eq, sf, slot)) {
     NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
-    NoticeUiSystem::open();
+    NoticeUiSystem::Open();
     return 0;
   }
   for (int32_t i = 0; i < ev.size(); i++) {
@@ -655,28 +655,28 @@ int EquipGameInstance::use_equip(int i, int slot) {
   }
   itm->id = u"";
   CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
-  CharacterStatGameInstance::update();
+  CharacterStatGameInstance::Update();
   return 1;
 }
 
-int EquipGameInstance::use_deco(int i, int slot) {
+int EquipGameInstance::UseDeco(int i, int slot) {
   auto &equips = PackageGameInstance::data[(int)ItemEnum::kDeco];
   auto &itm = equips[i];
   auto &sf = CharacterGameInstance::self;
   auto &de = static_cast<GameDecoItem &>(*itm);
-  auto ev = EquipGameInstance::load_deco_slot(de.id, sf);
+  auto ev = EquipGameInstance::LoadDecoSlot(de.id, sf);
   auto blank_slot =
-      PackageGameInstance::load_empty_index((int)ItemEnum::kEquip);
+      PackageGameInstance::LoadEmptyIndex((int)ItemEnum::kEquip);
   blank_slot.push_back(i);
   std::ranges::sort(blank_slot);
   if (blank_slot.size() < ev.size()) {
     NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
-    NoticeUiSystem::open();
+    NoticeUiSystem::Open();
     return 0;
   }
-  if (!EquipGameInstance::add_equip_deco(de, sf, 0)) {
+  if (!EquipGameInstance::AddEquipDeco(de, sf, 0)) {
     NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoAbility;
-    NoticeUiSystem::open();
+    NoticeUiSystem::Open();
     return 0;
   }
   for (int32_t i = 0; i < ev.size(); i++) {
@@ -687,7 +687,7 @@ int EquipGameInstance::use_deco(int i, int slot) {
   return 1;
 }
 
-std::optional<GameEquipItem> *EquipGameInstance::load_equip(int index) {
+std::optional<GameEquipItem> *EquipGameInstance::LoadEquip(int index) {
   std::optional<GameEquipItem> *equip;
   auto &self = CharacterGameInstance::self;
   switch ((EquipMouseIndex)index) {
@@ -736,7 +736,7 @@ std::optional<GameEquipItem> *EquipGameInstance::load_equip(int index) {
   return equip;
 }
 
-std::optional<GameDecoItem> *EquipGameInstance::load_deco(int index) {
+std::optional<GameDecoItem> *EquipGameInstance::LoadDeco(int index) {
   std::optional<GameDecoItem> *deco;
   auto &self = CharacterGameInstance::self;
   switch ((EquipMouseIndex)index) {
@@ -785,27 +785,27 @@ std::optional<GameDecoItem> *EquipGameInstance::load_deco(int index) {
   return deco;
 }
 
-int EquipGameInstance::unuse_equip(int i) {
-  auto eqp = std::polymorphic<GameItem>(load_equip(i)->value());
-  if (!PackageGameInstance::add_item(eqp)) {
+int EquipGameInstance::UnuseEquip(int i) {
+  auto eqp = std::polymorphic<GameItem>(LoadEquip(i)->value());
+  if (!PackageGameInstance::AddItem(eqp)) {
     NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
-    NoticeUiSystem::open();
+    NoticeUiSystem::Open();
     return 0;
   }
-  (*load_equip(i)) = std::nullopt;
+  (*LoadEquip(i)) = std::nullopt;
   CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
-  CharacterStatGameInstance::update();
+  CharacterStatGameInstance::Update();
   return 1;
 }
 
-int EquipGameInstance::unuse_deco(int i) {
-  auto eqp = std::polymorphic<GameItem>(load_deco(i)->value());
-  if (!PackageGameInstance::add_item(eqp)) {
+int EquipGameInstance::UnuseDeco(int i) {
+  auto eqp = std::polymorphic<GameItem>(LoadDeco(i)->value());
+  if (!PackageGameInstance::AddItem(eqp)) {
     NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kEquipNoSpace;
-    NoticeUiSystem::open();
+    NoticeUiSystem::Open();
     return 0;
   }
-  (*load_deco(i)) = std::nullopt;
+  (*LoadDeco(i)) = std::nullopt;
   CharacterLogicSystem::cct.map_id = SceneSystemInstance::map_id;
   return 1;
 }

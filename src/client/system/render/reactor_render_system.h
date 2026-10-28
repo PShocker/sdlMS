@@ -3,5 +3,5 @@
 #include "src/client/game/game_reactor.h"
 class ReactorRenderSystem {
 public:
-  static bool render(GameReactor &g_reactor);
+  static bool Render(GameReactor &g_reactor);
 };

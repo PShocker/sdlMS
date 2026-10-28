@@ -13,26 +13,26 @@
 #include FT_FREETYPE_H
 #include FT_SYNTHESIS_H // 这个宏对应 ftsynth.h
 
-void Freetype::load_size(uint8_t i) {
+void Freetype::LoadSize(uint8_t i) {
   size = i;
   FT_Set_Pixel_Sizes(face, 0, i);
 }
 
-void Freetype::load_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
+void Freetype::LoadColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a) {
   color.r = r;
   color.g = g;
   color.b = b;
   color.a = a;
 }
 
-void Freetype::init() {
+void Freetype::Init() {
   FT_Init_FreeType(&library);
   FT_New_Face(library, "./Font/simsun.ttc", 0, &face);
   FT_Select_Charmap(face, FT_ENCODING_UNICODE);
   return;
 }
 
-float Freetype::load_char_w(const char16_t c) {
+float Freetype::LoadCharW(const char16_t c) {
   static std::flat_map<FreetypeCacheKey, float> w_cache;
   FreetypeCacheKey t{
       .c = c,
@@ -47,25 +47,25 @@ float Freetype::load_char_w(const char16_t c) {
   return w_cache.at(t);
 }
 
-float Freetype::load_w(const std::u16string &str) {
+float Freetype::LoadW(const std::u16string &str) {
   float w = 0;
   for (auto c : str) {
-    w += load_char_w(c);
+    w += LoadCharW(c);
   }
   return w;
 }
 
-float Freetype::load_lh() { return face->size->metrics.height >> 6; }
+float Freetype::LoadLh() { return face->size->metrics.height >> 6; }
 
-float Freetype::load_ch(const std::u16string &str, float w, float h) {
-  return draw_cstr(str, 0, 0, w, h, true).height;
+float Freetype::LoadCh(const std::u16string &str, float w, float h) {
+  return DrawCstr(str, 0, 0, w, h, true).height;
 }
 
-void Freetype::load_aligned(bool r) { aligned = r; }
+void Freetype::LoadAligned(bool r) { aligned = r; }
 
-void Freetype::load_bold(bool r) { bold = r; }
+void Freetype::LoadBold(bool r) { bold = r; }
 
-float Freetype::draw_char(float x, float y, char16_t c) {
+float Freetype::DrawChar(float x, float y, char16_t c) {
   if (c == u'\n') {
     return 0;
   }
@@ -136,15 +136,15 @@ float Freetype::draw_char(float x, float y, char16_t c) {
   return advance;
 }
 
-void Freetype::draw_line(const std::u16string &str, float x, float y) {
+void Freetype::DrawLine(const std::u16string &str, float x, float y) {
   auto l = x;
   auto t = y;
   for (auto c : str) {
-    l += draw_char(l, t, c);
+    l += DrawChar(l, t, c);
   }
 }
 
-void Freetype::draw_str(const std::u16string &str, float x, float y, float w,
+void Freetype::DrawStr(const std::u16string &str, float x, float y, float w,
                         float h) {
   auto l = x;
   auto t = y;
@@ -156,11 +156,11 @@ void Freetype::draw_str(const std::u16string &str, float x, float y, float w,
       t += lineHeight;
       l = x;
     }
-    l += draw_char(l, t, c);
+    l += DrawChar(l, t, c);
   }
 }
 
-void Freetype::draw_dash_line(float x1, float y1, float x2, float y2,
+void Freetype::DrawDashLine(float x1, float y1, float x2, float y2,
                               float dash_len, float gap_len) {
   float dx = x2 - x1;
   float dy = y2 - y1;
@@ -195,7 +195,7 @@ void Freetype::draw_dash_line(float x1, float y1, float x2, float y2,
   }
 }
 
-Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
+Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
                                         float y, float w, float h,
                                         std::optional<SDL_FRect> obstacle,
                                         int default_select, bool dryRun,
@@ -243,9 +243,9 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
   // 探测从索引 start 开始、到“下一次实际换行”之前，这一渲染行是否含图标。
   // 模拟实际渲染：累加普通字符宽度，遇到 \n 或超过右边界即停止。
   // startX 用于处理选项缩进（l 的起始位置）。
-  const auto lineHasIconFrom = [&](size_t start, float startX) -> bool {
+  const auto lineHasIconFrom = [&](size_t Start, float startX) -> bool {
     float used = startX - x;
-    for (size_t j = start; j < str.size(); ++j) {
+    for (size_t j = Start; j < str.size(); ++j) {
       const char16_t c = str[j];
 
       if (c == u'\n')
@@ -281,7 +281,7 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
       }
 
       // 普通字符：累加宽度，超过右边界即视为换行
-      used += load_char_w(c);
+      used += LoadCharW(c);
       if (used > rightEdge - x)
         break;
     }
@@ -351,27 +351,27 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
       const char16_t d = str[i + 1];
       switch (d) {
       case u'c':
-        load_color(240, 224, 104, 255);
+        LoadColor(240, 224, 104, 255);
         ++i;
         break;
       case u'b':
-        load_color(0, 0, 255, 255);
+        LoadColor(0, 0, 255, 255);
         ++i;
         break;
       case u'k':
-        load_color(0, 0, 0, 255);
+        LoadColor(0, 0, 0, 255);
         ++i;
         break;
       case u'r':
-        load_color(255, 0, 0, 255);
+        LoadColor(255, 0, 0, 255);
         ++i;
         break;
       case u'e':
-        load_bold(true);
+        LoadBold(true);
         ++i;
         break;
       case u'n':
-        load_bold(false);
+        LoadBold(false);
         ++i;
         break;
       case u'L': {
@@ -393,11 +393,11 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
       case u'i': {
         auto itm_id = str.substr(i + 2, 7);
         itm_id = u"0" + itm_id;
-        auto node = ItemGameInstance::load_item_info(itm_id, 1);
-        if (!ItemGameInstance::check_item(itm_id)) {
-          node = EquipGameInstance::load_equip_info(itm_id);
+        auto node = ItemGameInstance::LoadItemInfo(itm_id, 1);
+        if (!ItemGameInstance::CheckItem(itm_id)) {
+          node = EquipGameInstance::LoadEquipInfo(itm_id);
         }
-        icon = WzResource::load_texture(node->get_child(u"icon"));
+        icon = WzResource::LoadTexture(node->get_child(u"icon"));
 
         // 行高已在本行开始时确定为 32，这里直接底部对齐绘制
         SDL_FRect pos{
@@ -430,7 +430,7 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
     }
 
     // --- 普通字符 ---
-    const float charWidth = load_char_w(c);
+    const float charWidth = LoadCharW(c);
     const float charHeight = lineHeight;
 
     if (isBlocked(l, t, charWidth, charHeight)) {
@@ -471,7 +471,7 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
         }
         // 文字按当前行高底部对齐：draw_char 的 y 为文字顶部
         const float drawY = t + lineHeight - baseLineHeight;
-        l += draw_char(l, drawY, c);
+        l += DrawChar(l, drawY, c);
       } else {
         l += charWidth;
       }
@@ -484,12 +484,12 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
   }
 
   // === 选择按钮 ===
-  const auto loadDot = [](bool active) -> SDL_Texture * {
-    static const auto dot0 = WzResource::load_texture(
+  const auto loadDot = [](bool Active) -> SDL_Texture * {
+    static const auto dot0 = WzResource::LoadTexture(
         WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot0"));
-    static const auto dot1 = WzResource::load_texture(
+    static const auto dot1 = WzResource::LoadTexture(
         WzResource::ui->find(u"UtilDlgEx.img/UtilDlgEx/dot1"));
-    return active ? dot1 : dot0;
+    return Active ? dot1 : dot0;
   };
 
   for (size_t i = 0; i < select_dot.size(); ++i) {
@@ -513,7 +513,7 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
     SDL_SetRenderDrawColor(Window::renderer, color.r, color.g, color.b,
                            color.a);
     if (dashed) {
-      draw_dash_line(r.x, y1, r.x + r.w, y1, kDashOn, kDashOff);
+      DrawDashLine(r.x, y1, r.x + r.w, y1, kDashOn, kDashOff);
     } else {
       SDL_RenderLine(Window::renderer, r.x, y1, r.x + r.w, y1);
     }
@@ -529,7 +529,7 @@ Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
   return r;
 }
 
-Freetype::DrawData Freetype::draw_cstr(const std::u16string &str, float x,
+Freetype::DrawData Freetype::DrawCstr(const std::u16string &str, float x,
                                         float y, float w, float h,
                                         bool dryRun) {
   DrawData d{.height = 0};
@@ -552,7 +552,7 @@ Freetype::DrawData Freetype::draw_cstr(const std::u16string &str, float x,
       if (!currentLine.empty()) {
         // 水平居中
         float midX = x + (w - lineWidth) / 2.0f;
-        draw_line(currentLine, midX, currentY);
+        DrawLine(currentLine, midX, currentY);
         currentLine.clear();
         lineWidth = 0.0f;
       }
@@ -561,7 +561,7 @@ Freetype::DrawData Freetype::draw_cstr(const std::u16string &str, float x,
     }
 
     // 获取字符宽度
-    float charWidth = static_cast<float>(load_w({c}));
+    float charWidth = static_cast<float>(LoadW({c}));
 
     // 检查是否需要换行（当前行已有内容且加上新字符会超出宽度）
     if (!currentLine.empty() && lineWidth + charWidth >= w) {
@@ -569,7 +569,7 @@ Freetype::DrawData Freetype::draw_cstr(const std::u16string &str, float x,
       auto dx = (w - lineWidth) / 2.0f;
       float midX = (int)x + (int)dx;
       if (!dryRun) {
-        draw_line(currentLine, midX, currentY);
+        DrawLine(currentLine, midX, currentY);
       }
 
       // 重置当前行
@@ -588,7 +588,7 @@ Freetype::DrawData Freetype::draw_cstr(const std::u16string &str, float x,
     auto dx = (w - lineWidth) / 2.0f;
     float midX = (int)x + (int)dx;
     if (!dryRun) {
-      draw_line(currentLine, midX, currentY);
+      DrawLine(currentLine, midX, currentY);
     }
   }
   d.height = currentY - y;
@@ -596,14 +596,14 @@ Freetype::DrawData Freetype::draw_cstr(const std::u16string &str, float x,
   return d;
 }
 
-float Freetype::load_rh(const std::u16string &str, float w, float h,
+float Freetype::LoadRh(const std::u16string &str, float w, float h,
                         std::optional<SDL_FRect> obstacle) {
-  return draw_rstr(str, 0, 0, w, h, obstacle, -1, true, INT32_MAX)
+  return DrawRstr(str, 0, 0, w, h, obstacle, -1, true, INT32_MAX)
       .height; // 添加 dryRun 参数
 }
 
-Freetype::DrawData Freetype::draw_rstr(const std::u16string &str, float x,
+Freetype::DrawData Freetype::DrawRstr(const std::u16string &str, float x,
                                         float y, float w, float h,
                                         std::optional<SDL_FRect> obstacle) {
-  return draw_rstr(str, x, y, w, h, obstacle, -1, false, INT32_MAX);
+  return DrawRstr(str, x, y, w, h, obstacle, -1, false, INT32_MAX);
 }

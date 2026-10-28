@@ -11,7 +11,7 @@ extern "C" {
 }
 
 GameAudioCache
-Ffmpeg::decode_audio_pcm(const std::vector<uint8_t> &audio_data) {
+Ffmpeg::DecodeAudioPcm(const std::vector<uint8_t> &audio_data) {
   GameAudioCache gac;
 
   if (audio_data.empty()) {

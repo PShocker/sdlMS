@@ -18,7 +18,7 @@
 #include <ranges>
 #include <string>
 
-bool ItemGameInstance::check_item(const std::u16string &id) {
+bool ItemGameInstance::CheckItem(const std::u16string &id) {
   auto r = id.substr(0, 2);
   if (r == u"01") {
     return false;
@@ -26,9 +26,9 @@ bool ItemGameInstance::check_item(const std::u16string &id) {
   return true;
 }
 
-std::u16string ItemGameInstance::load_item_text(const std::u16string &id,
+std::u16string ItemGameInstance::LoadItemText(const std::u16string &id,
                                                   const std::u16string &val) {
-  auto item_type = load_item_type(id);
+  auto item_type = LoadItemType(id);
   auto str_node = WzResource::string->find(item_type + u".img");
   if (item_type == u"Etc") {
     str_node = str_node->get_child("Etc");
@@ -36,10 +36,10 @@ std::u16string ItemGameInstance::load_item_text(const std::u16string &id,
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
   std::u16string result(view.begin(), view.end());
   str_node = str_node->get_child(result)->get_child(val);
-  return TextGameInstance::load_rstr(str_node);
+  return TextGameInstance::LoadRstr(str_node);
 }
 
-std::u16string ItemGameInstance::load_item_type(const std::u16string &id) {
+std::u16string ItemGameInstance::LoadItemType(const std::u16string &id) {
   auto str = id;
   if (str.length() < 8) {
     str.insert(0, 8 - str.size(), u'0');
@@ -56,14 +56,14 @@ std::u16string ItemGameInstance::load_item_type(const std::u16string &id) {
   return types.at(r);
 }
 
-wz::Node *ItemGameInstance::load_item_info(const std::u16string &id,
+wz::Node *ItemGameInstance::LoadItemInfo(const std::u16string &id,
                                              uint32_t num) {
   wz::Node *node;
   if (id == u"00000000") {
     node = WzResource::item->find(u"Special/0900.img/09000000/iconRaw");
     return node;
   }
-  auto type = load_item_type(id);
+  auto type = LoadItemType(id);
   if (type == u"Ins") {
     type = u"Install";
   }
@@ -76,8 +76,8 @@ wz::Node *ItemGameInstance::load_item_info(const std::u16string &id,
 }
 
 std::polymorphic<GameItem>
-ItemGameInstance::load_item(const std::u16string &id, uint32_t num) {
-  auto item_type = ItemGameInstance::load_item_type(id);
+ItemGameInstance::LoadItem(const std::u16string &id, uint32_t num) {
+  auto item_type = ItemGameInstance::LoadItemType(id);
   if (item_type == u"Cash") {
     GameCashItem cash;
     cash.id = id;
@@ -105,16 +105,16 @@ ItemGameInstance::load_item(const std::u16string &id, uint32_t num) {
   return std::polymorphic<GameItem>(); // 返回空对象
 }
 
-int ItemGameInstance::load_slot_max(const std::u16string &id) {
+int ItemGameInstance::LoadSlotMax(const std::u16string &id) {
   int r = 200;
-  auto info = load_item_info(id, 0);
+  auto info = LoadItemInfo(id, 0);
   if (info->get_child(u"slotMax")) {
     r = static_cast<wz::Property<int> *>(info->get_child(u"slotMax"))->get();
   }
   return r;
 }
 
-int ItemGameInstance::load_item_num(std::polymorphic<GameItem> &itm) {
+int ItemGameInstance::LoadItemNum(std::polymorphic<GameItem> &itm) {
   int num = 0;
   switch (itm->type) {
   case ItemEnum::kConsume: {
@@ -134,7 +134,7 @@ int ItemGameInstance::load_item_num(std::polymorphic<GameItem> &itm) {
   return num;
 }
 
-void ItemGameInstance::set_item_num(std::polymorphic<GameItem> &itm,
+void ItemGameInstance::SetItemNum(std::polymorphic<GameItem> &itm,
                                       int num) {
   switch (itm->type) {
   case ItemEnum::kConsume: {
@@ -151,11 +151,11 @@ void ItemGameInstance::set_item_num(std::polymorphic<GameItem> &itm,
     break;
   }
   }
-  QuestGameInstance::update_check_item();
+  QuestGameInstance::UpdateCheckItem();
   return;
 }
 
-void ItemGameInstance::add_item_num(std::polymorphic<GameItem> &item,
+void ItemGameInstance::AddItemNum(std::polymorphic<GameItem> &item,
                                       int num) {
   switch (item->type) {
   case ItemEnum::kConsume: {
@@ -172,11 +172,11 @@ void ItemGameInstance::add_item_num(std::polymorphic<GameItem> &item,
     break;
   }
   }
-  QuestGameInstance::update_check_item();
+  QuestGameInstance::UpdateCheckItem();
   return;
 }
 
-void ItemGameInstance::dec_item_num(std::polymorphic<GameItem> &item,
+void ItemGameInstance::DecItemNum(std::polymorphic<GameItem> &item,
                                       int num) {
   switch (item->type) {
   case ItemEnum::kEquip: {
@@ -217,13 +217,13 @@ void ItemGameInstance::dec_item_num(std::polymorphic<GameItem> &item,
     break;
   }
   }
-  QuestGameInstance::update_check_item();
+  QuestGameInstance::UpdateCheckItem();
   return;
 }
 
-void ItemGameInstance::use_morph_item(const std::u16string &id,
+void ItemGameInstance::UseMorphItem(const std::u16string &id,
                                         GameCharacter &g_character) {
-  auto info = ItemGameInstance::load_item_info(id, 0);
+  auto info = ItemGameInstance::LoadItemInfo(id, 0);
   info = info->find(u"../spec");
   auto morph =
       static_cast<wz::Property<int> *>(info->get_child(u"morph"))->get();
@@ -233,7 +233,7 @@ void ItemGameInstance::use_morph_item(const std::u16string &id,
   g_character.action_index = 0;
   g_character.action_time = 0;
   if (&g_character == &CharacterGameInstance::self) {
-    CharacterLogicSystem::run_unsit_chair(g_character);
+    CharacterLogicSystem::RunUnsitChair(g_character);
 
     StateT st;
     st.state = fbs::StateEnum_BUFF_ITEM;
@@ -245,11 +245,11 @@ void ItemGameInstance::use_morph_item(const std::u16string &id,
     st.sub_val = 1;
     CharacterLogicSystem::ccs.payload.push_back(std::make_unique<StateT>(st));
 
-    ServerCharacterInstance::handle_morph_use(g_character, true);
+    ServerCharacterInstance::HandleMorphUse(g_character, true);
   }
 }
 
-void ItemGameInstance::unuse_morph_item(const std::u16string &id,
+void ItemGameInstance::UnuseMorphItem(const std::u16string &id,
                                           GameCharacter &g_character) {
   g_character.morph = u"";
   g_character.action_index = 0;
@@ -268,38 +268,38 @@ void ItemGameInstance::unuse_morph_item(const std::u16string &id,
     st.sub_val = 0;
     CharacterLogicSystem::ccs.payload.push_back(std::make_unique<StateT>(st));
 
-    ServerCharacterInstance::handle_morph_use(g_character, false);
+    ServerCharacterInstance::HandleMorphUse(g_character, false);
   }
 }
 
-void ItemGameInstance::unuse_buff_item(const std::u16string &id) {
+void ItemGameInstance::UnuseBuffItem(const std::u16string &id) {
   for (auto &gib : buff) {
     if (gib.id == id) {
-      auto info = ItemGameInstance::load_item_info(id, 0);
+      auto info = ItemGameInstance::LoadItemInfo(id, 0);
       info = info->find(u"../spec");
       if (info->get_child(u"pad")) {
         auto pad =
             static_cast<wz::Property<int> *>(info->get_child(u"pad"))->get();
-        auto itm_atk = CharacterStatGameInstance::get_itm_attack();
-        CharacterStatGameInstance::set_itm_attack(itm_atk - pad);
+        auto itm_atk = CharacterStatGameInstance::GetItmAttack();
+        CharacterStatGameInstance::SetItmAttack(itm_atk - pad);
       }
       if (info->get_child(u"mad")) {
         auto mad =
             static_cast<wz::Property<int> *>(info->get_child(u"mad"))->get();
-        auto itm_magic = CharacterStatGameInstance::get_itm_magic();
-        CharacterStatGameInstance::set_itm_magic(itm_magic - mad);
+        auto itm_magic = CharacterStatGameInstance::GetItmMagic();
+        CharacterStatGameInstance::SetItmMagic(itm_magic - mad);
       }
       if (info->get_child(u"acc")) {
         auto acc =
             static_cast<wz::Property<int> *>(info->get_child(u"acc"))->get();
-        auto itm_acc = CharacterStatGameInstance::get_itm_acc();
-        CharacterStatGameInstance::set_itm_acc(itm_acc - acc);
+        auto itm_acc = CharacterStatGameInstance::GetItmAcc();
+        CharacterStatGameInstance::SetItmAcc(itm_acc - acc);
       }
       if (info->get_child(u"eva")) {
         auto eva =
             static_cast<wz::Property<int> *>(info->get_child(u"eva"))->get();
-        auto itm_avd = CharacterStatGameInstance::get_itm_avd();
-        CharacterStatGameInstance::set_itm_avd(itm_avd - eva);
+        auto itm_avd = CharacterStatGameInstance::GetItmAvd();
+        CharacterStatGameInstance::SetItmAvd(itm_avd - eva);
       }
       if (info->get_child(u"speed")) {
         auto speed =
@@ -310,19 +310,19 @@ void ItemGameInstance::unuse_buff_item(const std::u16string &id) {
       if (info->get_child(u"crt")) {
         auto crt =
             static_cast<wz::Property<int> *>(info->get_child(u"crt"))->get();
-        auto sf_crt = CharacterStatGameInstance::get_crit_damage();
-        CharacterStatGameInstance::set_crit_damage(sf_crt - crt);
+        auto sf_crt = CharacterStatGameInstance::GetCritDamage();
+        CharacterStatGameInstance::SetCritDamage(sf_crt - crt);
       }
       if (info->get_child(u"expBuff")) {
         auto expBuff =
             static_cast<wz::Property<int> *>(info->get_child(u"expBuff"))
                 ->get();
-        auto itm_exp = CharacterStatGameInstance::get_itm_exp();
-        CharacterStatGameInstance::set_itm_exp(itm_exp - expBuff);
+        auto itm_exp = CharacterStatGameInstance::GetItmExp();
+        CharacterStatGameInstance::SetItmExp(itm_exp - expBuff);
       }
       if (info->get_child(u"morph")) {
         auto &sf = CharacterGameInstance::self;
-        unuse_morph_item(id, sf);
+        UnuseMorphItem(id, sf);
       }
       break;
     }
@@ -330,9 +330,9 @@ void ItemGameInstance::unuse_buff_item(const std::u16string &id) {
   std::erase_if(buff, [id](const auto &buff) { return id == buff.id; });
 }
 
-bool ItemGameInstance::use_buff_item(std::polymorphic<GameItem> &itm) {
+bool ItemGameInstance::UseBuffItem(std::polymorphic<GameItem> &itm) {
   auto id = itm->id;
-  auto info = ItemGameInstance::load_item_info(id, 0);
+  auto info = ItemGameInstance::LoadItemInfo(id, 0);
   info = info->find(u"../spec");
   if (info == nullptr) {
     return false;
@@ -341,30 +341,30 @@ bool ItemGameInstance::use_buff_item(std::polymorphic<GameItem> &itm) {
     return false;
   }
   bool r = false;
-  unuse_buff_item(itm->id);
+  UnuseBuffItem(itm->id);
   auto time = static_cast<wz::Property<int> *>(info->get_child(u"time"))->get();
   if (info->get_child(u"pad")) {
     auto pad = static_cast<wz::Property<int> *>(info->get_child(u"pad"))->get();
-    auto itm_atk = CharacterStatGameInstance::get_itm_attack();
-    CharacterStatGameInstance::set_itm_attack(itm_atk + pad);
+    auto itm_atk = CharacterStatGameInstance::GetItmAttack();
+    CharacterStatGameInstance::SetItmAttack(itm_atk + pad);
     r = true;
   }
   if (info->get_child(u"mad")) {
     auto mad = static_cast<wz::Property<int> *>(info->get_child(u"mad"))->get();
-    auto itm_mag = CharacterStatGameInstance::get_itm_magic();
-    CharacterStatGameInstance::set_itm_magic(itm_mag + mad);
+    auto itm_mag = CharacterStatGameInstance::GetItmMagic();
+    CharacterStatGameInstance::SetItmMagic(itm_mag + mad);
     r = true;
   }
   if (info->get_child(u"acc")) {
     auto acc = static_cast<wz::Property<int> *>(info->get_child(u"acc"))->get();
-    auto itm_acc = CharacterStatGameInstance::get_itm_acc();
-    CharacterStatGameInstance::set_itm_acc(acc + itm_acc);
+    auto itm_acc = CharacterStatGameInstance::GetItmAcc();
+    CharacterStatGameInstance::SetItmAcc(acc + itm_acc);
     r = true;
   }
   if (info->get_child(u"eva")) {
     auto eva = static_cast<wz::Property<int> *>(info->get_child(u"eva"))->get();
-    auto itm_avd = CharacterStatGameInstance::get_itm_avd();
-    CharacterStatGameInstance::set_itm_avd(itm_avd + eva);
+    auto itm_avd = CharacterStatGameInstance::GetItmAvd();
+    CharacterStatGameInstance::SetItmAvd(itm_avd + eva);
     r = true;
   }
   if (info->get_child(u"speed")) {
@@ -374,18 +374,18 @@ bool ItemGameInstance::use_buff_item(std::polymorphic<GameItem> &itm) {
   }
   if (info->get_child(u"crt")) {
     auto crt = static_cast<wz::Property<int> *>(info->get_child(u"crt"))->get();
-    auto sf_crt = CharacterStatGameInstance::get_crit_damage();
-    CharacterStatGameInstance::set_crit_damage(sf_crt + crt);
+    auto sf_crt = CharacterStatGameInstance::GetCritDamage();
+    CharacterStatGameInstance::SetCritDamage(sf_crt + crt);
     r = true;
   }
   if (info->get_child(u"expBuff")) {
     auto expBuff =
         static_cast<wz::Property<int> *>(info->get_child(u"expBuff"))->get();
-    auto itm_exp = CharacterStatGameInstance::get_itm_exp();
-    CharacterStatGameInstance::set_itm_exp(itm_exp + expBuff);
+    auto itm_exp = CharacterStatGameInstance::GetItmExp();
+    CharacterStatGameInstance::SetItmExp(itm_exp + expBuff);
   }
   if (info->get_child(u"morph")) {
-    use_morph_item(id, CharacterGameInstance::self);
+    UseMorphItem(id, CharacterGameInstance::self);
     r = true;
   }
   GameItemBuff gib;
@@ -396,12 +396,12 @@ bool ItemGameInstance::use_buff_item(std::polymorphic<GameItem> &itm) {
   return r;
 }
 
-bool ItemGameInstance::use_mob_item(std::polymorphic<GameItem> &itm) {
+bool ItemGameInstance::UseMobItem(std::polymorphic<GameItem> &itm) {
   bool r = false;
   if (CharacterLogicSystem::self_fh == 0) {
     return false;
   }
-  auto info = ItemGameInstance::load_item_info(itm->id, 0);
+  auto info = ItemGameInstance::LoadItemInfo(itm->id, 0);
   info = info->find(u"../mob");
   if (info) {
     auto &g_character = CharacterGameInstance::self;
@@ -430,69 +430,69 @@ bool ItemGameInstance::use_mob_item(std::polymorphic<GameItem> &itm) {
   return r;
 }
 
-bool ItemGameInstance::use_consume_item(const std::u16string &id) {
+bool ItemGameInstance::UseConsumeItem(const std::u16string &id) {
   bool r = false;
-  auto info = ItemGameInstance::load_item_info(id, 0);
+  auto info = ItemGameInstance::LoadItemInfo(id, 0);
   info = info->find(u"../spec");
   if (info == nullptr) {
     return false;
   }
   if (info->get_child(u"hp")) {
     auto hp = static_cast<wz::Property<int> *>(info->get_child(u"hp"))->get();
-    auto sf_hp = CharacterStatGameInstance::get_hp();
-    CharacterStatGameInstance::set_hp(sf_hp + hp);
+    auto sf_hp = CharacterStatGameInstance::GetHp();
+    CharacterStatGameInstance::SetHp(sf_hp + hp);
     r = true;
   }
   if (info->get_child(u"hpR")) {
     auto hpR = static_cast<wz::Property<int> *>(info->get_child(u"hpR"))->get();
-    auto sf_hp_max = CharacterStatGameInstance::get_hp_max();
-    auto sf_hp = CharacterStatGameInstance::get_hp();
-    CharacterStatGameInstance::set_hp(sf_hp + sf_hp_max * hpR);
+    auto sf_hp_max = CharacterStatGameInstance::GetHpMax();
+    auto sf_hp = CharacterStatGameInstance::GetHp();
+    CharacterStatGameInstance::SetHp(sf_hp + sf_hp_max * hpR);
     r = true;
   }
   if (info->get_child(u"mp")) {
     auto mp = static_cast<wz::Property<int> *>(info->get_child(u"mp"))->get();
-    auto sf_mp = CharacterStatGameInstance::get_mp();
-    CharacterStatGameInstance::set_mp(sf_mp + mp);
+    auto sf_mp = CharacterStatGameInstance::GetMp();
+    CharacterStatGameInstance::SetMp(sf_mp + mp);
     r = true;
   }
   if (info->get_child(u"mpR")) {
     auto mpR = static_cast<wz::Property<int> *>(info->get_child(u"mpR"))->get();
-    auto sf_mp_max = CharacterStatGameInstance::get_mp_max();
-    auto sf_mp = CharacterStatGameInstance::get_mp();
-    CharacterStatGameInstance::set_mp(sf_mp + sf_mp_max * mpR);
+    auto sf_mp_max = CharacterStatGameInstance::GetMpMax();
+    auto sf_mp = CharacterStatGameInstance::GetMp();
+    CharacterStatGameInstance::SetMp(sf_mp + sf_mp_max * mpR);
     r = true;
   }
   if (info->get_child(u"moveTo")) {
     auto moveTo =
         static_cast<wz::Property<int> *>(info->get_child(u"moveTo"))->get();
-    SceneSystemInstance::enter_prepare(moveTo, u"sp", 0);
+    SceneSystemInstance::EnterPrepare(moveTo, u"sp", 0);
     r = true;
   }
   if (info->get_child(u"exp")) {
     auto exp = static_cast<wz::Property<int> *>(info->get_child(u"exp"))->get();
-    CharacterStatGameInstance::add_exp(exp);
+    CharacterStatGameInstance::AddExp(exp);
     r = true;
   }
   return r;
 }
 
-bool ItemGameInstance::use_consume_item(std::polymorphic<GameItem> &itm) {
+bool ItemGameInstance::UseConsumeItem(std::polymorphic<GameItem> &itm) {
   bool r = false;
-  if (use_buff_item(itm)) {
+  if (UseBuffItem(itm)) {
     r = true;
   }
-  if (use_consume_item(itm->id)) {
+  if (UseConsumeItem(itm->id)) {
     r = true;
   }
-  if (use_mob_item(itm)) {
+  if (UseMobItem(itm)) {
     r = true;
   }
   return r;
 }
 
-void ItemGameInstance::use_item(std::polymorphic<GameItem> &itm) {
-  auto item_type = ItemGameInstance::load_item_type(itm->id);
+void ItemGameInstance::UseItem(std::polymorphic<GameItem> &itm) {
+  auto item_type = ItemGameInstance::LoadItemType(itm->id);
   auto &g_character = CharacterGameInstance::self;
   auto self_sit_cooldown = CharacterLogicSystem::self_sit_cooldown;
 
@@ -501,14 +501,14 @@ void ItemGameInstance::use_item(std::polymorphic<GameItem> &itm) {
       if (!g_character.morph.empty()) {
         return;
       }
-      auto action_type = CharacterLogicSystem::load_action_type(g_character);
+      auto action_type = CharacterLogicSystem::LoadActionType(g_character);
       switch (action_type) {
       case CharacterLogicSystem::ActionEnum::kStand: {
-        CharacterLogicSystem::run_sit_chair(g_character, itm->id);
+        CharacterLogicSystem::RunSitChair(g_character, itm->id);
         break;
       }
       case CharacterLogicSystem::ActionEnum::kSit: {
-        CharacterLogicSystem::run_unsit_chair(g_character);
+        CharacterLogicSystem::RunUnsitChair(g_character);
         break;
       }
       default: {
@@ -518,8 +518,8 @@ void ItemGameInstance::use_item(std::polymorphic<GameItem> &itm) {
       return;
     }
   } else if (item_type == u"Consume") {
-    if (use_consume_item(itm)) {
-      dec_item_num(itm, 1);
+    if (UseConsumeItem(itm)) {
+      DecItemNum(itm, 1);
     }
   }
   return;

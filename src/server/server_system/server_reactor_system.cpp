@@ -8,15 +8,15 @@
 #include "src/server/server_instance/server_scene_instance.h"
 #include "wz/Property.h"
 
-void ServerReactorSystem::run_script(ServerReactorState &r) {
+void ServerReactorSystem::RunScript(ServerReactorState &r) {
   if (r.revive != 0) {
     return;
   }
-  auto state = r.state;
-  auto next_state = ServerReactorInstance::load_next_state(r.id, r.state);
-  if (state == next_state && r.hit_cd <= Window::dt_time) {
+  auto State = r.state;
+  auto next_state = ServerReactorInstance::LoadNextState(r.id, r.state);
+  if (State == next_state && r.hit_cd <= Window::dt_time) {
     r.revive = Window::dt_time + 30000;
-    auto Script = ServerReactorInstance::load_script(r.id);
+    auto Script = ServerReactorInstance::LoadScript(r.id);
     if (!Script.empty()) {
       const auto &fns = Script::fns();
       fns.at(Script)(&r);
@@ -24,7 +24,7 @@ void ServerReactorSystem::run_script(ServerReactorState &r) {
   }
 }
 
-void ServerReactorSystem::run_revive(ServerReactorState &r) {
+void ServerReactorSystem::RunRevive(ServerReactorState &r) {
   if (r.revive == 0) {
     return;
   }
@@ -46,18 +46,18 @@ void ServerReactorSystem::run_revive(ServerReactorState &r) {
   return;
 }
 
-void ServerReactorSystem::run_hit(ServerReactorState &r) {
+void ServerReactorSystem::RunHit(ServerReactorState &r) {
   if (r.hit_time == 0) {
     return;
   }
-  auto state = r.state;
-  auto next_state = ServerReactorInstance::load_next_state(r.id, r.state);
-  if (state == next_state) {
+  auto State = r.state;
+  auto next_state = ServerReactorInstance::LoadNextState(r.id, r.state);
+  if (State == next_state) {
     return;
   }
   if (r.hit_time <= Window::dt_time) {
     if (r.hit_cd <= Window::dt_time) {
-      r.hit_cd = ServerReactorInstance::load_hit_cd(r);
+      r.hit_cd = ServerReactorInstance::LoadHitCd(r);
 
       fbs::ServerReactorT srt;
       srt.payload = std::make_unique<ReactorT>();
@@ -69,14 +69,14 @@ void ServerReactorSystem::run_hit(ServerReactorState &r) {
         ServerResponse::send_to_client(c, srt);
       }
 
-      r.state = ServerReactorInstance::load_next_state(r.id, r.state);
+      r.state = ServerReactorInstance::LoadNextState(r.id, r.state);
       r.hit_time = 0;
     }
   }
   return;
 }
 
-bool ServerReactorSystem::run() {
+bool ServerReactorSystem::Run() {
   auto &scenes = ServerSceneInstance::scenes;
   for (auto &sc : scenes | std::views::values) {
     if (sc.clients.empty()) {
@@ -84,9 +84,9 @@ bool ServerReactorSystem::run() {
     }
     map_id = sc.map_id;
     for (auto &r : sc.reactors) {
-      run_hit(r);
-      run_script(r);
-      run_revive(r);
+      RunHit(r);
+      RunScript(r);
+      RunRevive(r);
     }
   }
 

@@ -74,7 +74,7 @@
 #include <utility>
 #include <vector>
 
-bool SceneSystemInstance::render_game() {
+bool SceneSystemInstance::RenderGame() {
   std::array<std::vector<GameCharacter *>, 8> character_array;
   for (auto &other_data :
        CharacterGameInstance::others | std::views::values) {
@@ -96,144 +96,144 @@ bool SceneSystemInstance::render_game() {
   }
   //   后景
   for (auto &b_backgrnd : BackgrndGameInstance::back | std::views::values) {
-    BackgrndRenderSystem::render(b_backgrnd);
+    BackgrndRenderSystem::Render(b_backgrnd);
   }
   for (uint8_t i = 0; i < 8; i++) {
     for (auto &obj : ObjGameInstance::data[i] | std::views::values) {
-      ObjRenderSystem::render(obj);
+      ObjRenderSystem::Render(obj);
     }
     for (auto &trap : TrapGameInstance::data[i] | std::views::values) {
-      ObjRenderSystem::render(trap);
+      ObjRenderSystem::Render(trap);
     }
     for (auto &tile : TileGameInstance::data[i] | std::views::values) {
-      TileRenderSystem::render(tile);
+      TileRenderSystem::Render(tile);
     }
     for (auto &reactor : ReactorGameInstance::data[i]) {
-      ReactorRenderSystem::render(reactor);
+      ReactorRenderSystem::Render(reactor);
     }
     for (auto &effect : EffectGameInstance::data[i]) {
-      EffectRenderSystem::render(effect);
+      EffectRenderSystem::Render(effect);
     }
     for (auto &npc : NpcGameInstance::data[i]) {
-      NpcRenderSystem::render(npc);
+      NpcRenderSystem::Render(npc);
     }
     for (auto &mob : mob_array[i]) {
-      MobRenderSystem::render(*mob);
+      MobRenderSystem::Render(*mob);
     }
     for (auto &ball : BallGameInstance::data[i]) {
-      BallRenderSystem::render(ball);
+      BallRenderSystem::Render(ball);
     }
     for (auto &character : character_array[i]) {
-      CharacterRenderSystem::render(*character);
+      CharacterRenderSystem::Render(*character);
     }
     for (auto &drop : drop_array[i]) {
-      DropRenderSystem::render(*drop);
+      DropRenderSystem::Render(*drop);
     }
   }
   // 传送门
   for (auto &portal : PortalGameInstance::data | std::views::values) {
-    PortalRenderSystem::render(portal);
+    PortalRenderSystem::Render(portal);
   }
   // 前景
   for (auto &f_backgrnd : BackgrndGameInstance::front | std::views::values) {
-    BackgrndRenderSystem::render(f_backgrnd);
+    BackgrndRenderSystem::Render(f_backgrnd);
   }
   for (auto &npcs : NpcGameInstance::data) {
     for (auto &npc : npcs) {
-      NpcRenderSystem::render_chatballoon(npc);
+      NpcRenderSystem::RenderChatballoon(npc);
     }
   }
   for (auto &cs : character_array) {
     for (auto &c : cs) {
-      CharacterRenderSystem::render_chatballoon(*c);
+      CharacterRenderSystem::RenderChatballoon(*c);
     }
   }
   return true;
 }
 
-void SceneSystemInstance::enter_prepare() {
+void SceneSystemInstance::EnterPrepare() {
   const auto &pos = SceneSystemInstance::prepare_pos;
   auto &self = CharacterGameInstance::self;
   if (pos.has_value()) {
     self.pos = pos.value();
-    CharacterLogicSystem::run_action(self, u"jump");
+    CharacterLogicSystem::RunAction(self, u"jump");
   }
   CharacterLogicSystem::self_fh = 0;
   CharacterLogicSystem::self_lr = 0;
   CharacterLogicSystem::self_hspeed = 0;
   CharacterLogicSystem::self_vspeed = 0;
-  CharacterLogicSystem::run_unsit_chair(self);
+  CharacterLogicSystem::RunUnsitChair(self);
 
   self.action_animate = true;
   self.tomb = std::nullopt;
   self.skill = std::nullopt;
 }
 
-void SceneSystemInstance::enter(uint32_t map_id) {
-  enter_prepare();
+void SceneSystemInstance::Enter(uint32_t map_id) {
+  EnterPrepare();
   SceneSystemInstance::map_id = map_id;
 
-  FootholdGameInstance::data = FootholdGameInstance::load(map_id);
-  BackgrndGameInstance::load(map_id);
-  LadderropeGameInstance::load(map_id);
-  MobGameInstance::load(map_id);
-  NpcGameInstance::load(map_id);
-  ObjGameInstance::load(map_id);
-  TrapGameInstance::load(map_id);
-  PortalGameInstance::data = PortalGameInstance::load(map_id);
-  ReactorGameInstance::load(map_id);
-  TileGameInstance::load(map_id);
-  TooltipGameInstance::load(map_id);
-  SeatGameInstance::load(map_id);
-  MinimapUiSystem::load();
+  FootholdGameInstance::data = FootholdGameInstance::Load(map_id);
+  BackgrndGameInstance::Load(map_id);
+  LadderropeGameInstance::Load(map_id);
+  MobGameInstance::Load(map_id);
+  NpcGameInstance::Load(map_id);
+  ObjGameInstance::Load(map_id);
+  TrapGameInstance::Load(map_id);
+  PortalGameInstance::data = PortalGameInstance::Load(map_id);
+  ReactorGameInstance::Load(map_id);
+  TileGameInstance::Load(map_id);
+  TooltipGameInstance::Load(map_id);
+  SeatGameInstance::Load(map_id);
+  MinimapUiSystem::Load();
   CharacterGameInstance::others.clear();
-  EffectGameInstance::reset();
-  CameraGameInstance::reset();
-  StatusbarUiSystem::reset();
-  BallGameInstance::reset();
-  DropGameInstance::reset();
-  auto bgm = MapInfoGameInstance::load_bgm(map_id);
-  AudioGameInstance::load_backgrnd_audio(bgm);
+  EffectGameInstance::Reset();
+  CameraGameInstance::Reset();
+  StatusbarUiSystem::Reset();
+  BallGameInstance::Reset();
+  DropGameInstance::Reset();
+  auto bgm = MapInfoGameInstance::LoadBgm(map_id);
+  AudioGameInstance::LoadBackgrndAudio(bgm);
 
   System::event_systems = {
-      QuestAlarmUiSystem::event, MinimapUiSystem::event,
-      QuickSlotUiSystem::event,  StatusbarUiSystem::event,
-      BuffUiSystem::event,        CursorLogicSystem::event,
-      KeyboardInputSystem::event,
+      QuestAlarmUiSystem::Event, MinimapUiSystem::Event,
+      QuickSlotUiSystem::Event,  StatusbarUiSystem::Event,
+      BuffUiSystem::Event,        CursorLogicSystem::Event,
+      KeyboardInputSystem::Event,
   };
 
   System::logic_systems = {
-      CameraLogicSystem::run,    BackgrndLogicSystem::run,
-      BallLogicSystem::run,      EffectLogicSystem::run,
-      CharacterLogicSystem::run, ChatballoonLogicSystem::run,
-      DropLogicSystem::run,      MobLogicSystem::run,
-      NpcLogicSystem::run,       PortalLogicSystem::run,
-      AudioLogicSystem::run,     ObjLogicSystem::run,
-      CursorLogicSystem::run,    SkillLogicSystem::run,
-      ReactorLogicSystem::run,   ItemLogicSystem::run,
-      TrapLogicSystem::run,
+      CameraLogicSystem::Run,    BackgrndLogicSystem::Run,
+      BallLogicSystem::Run,      EffectLogicSystem::Run,
+      CharacterLogicSystem::Run, ChatballoonLogicSystem::Run,
+      DropLogicSystem::Run,      MobLogicSystem::Run,
+      NpcLogicSystem::Run,       PortalLogicSystem::Run,
+      AudioLogicSystem::Run,     ObjLogicSystem::Run,
+      CursorLogicSystem::Run,    SkillLogicSystem::Run,
+      ReactorLogicSystem::Run,   ItemLogicSystem::Run,
+      TrapLogicSystem::Run,
   };
   System::render_systems = {
-      render_game,
-      BuffUiSystem::render,
-      StatusbarUiSystem::render,
-      QuickSlotUiSystem::render,
-      PopupTipUiSystem::render,
-      MinimapUiSystem::render,
-      QuestAlarmUiSystem::render,
-      GainLogUiSystem::render,
-      CursorRenderSystem::render,
+      RenderGame,
+      BuffUiSystem::Render,
+      StatusbarUiSystem::Render,
+      QuickSlotUiSystem::Render,
+      PopupTipUiSystem::Render,
+      MinimapUiSystem::Render,
+      QuestAlarmUiSystem::Render,
+      GainLogUiSystem::Render,
+      CursorRenderSystem::Render,
   };
-  FadeSystemInstance::enter_out();
+  FadeSystemInstance::EnterOut();
   Window::delta_time = 0;
 }
 
-SDL_FPoint SceneSystemInstance::load_prepare_pos(const std::u16string &pn,
+SDL_FPoint SceneSystemInstance::LoadPreparePos(const std::u16string &pn,
                                                    uint8_t index) {
   SDL_FPoint r;
   GamePortal *por;
   auto portals =
-      PortalGameInstance::load(SceneSystemInstance::prepare_map_id);
+      PortalGameInstance::Load(SceneSystemInstance::prepare_map_id);
   if (index == 0) {
     // 只需要第一个元素，使用 find 更高效
     auto it = portals.find(pn);
@@ -253,10 +253,10 @@ SDL_FPoint SceneSystemInstance::load_prepare_pos(const std::u16string &pn,
   return r;
 }
 
-void SceneSystemInstance::enter_prepare(uint32_t map_id,
+void SceneSystemInstance::EnterPrepare(uint32_t map_id,
                                           const std::u16string &pn, int i) {
   prepare_map_id = map_id;
-  prepare_pos = load_prepare_pos(pn, i);
+  prepare_pos = LoadPreparePos(pn, i);
 
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;
@@ -267,12 +267,12 @@ void SceneSystemInstance::enter_prepare(uint32_t map_id,
   ClientRequest::send_to_host(client_scene);
 }
 
-void SceneSystemInstance::enter_fade() {
+void SceneSystemInstance::EnterFade() {
   auto g = CharacterGameInstance::self;
   g.pos = prepare_pos.value();
 
-  CharacterLogicSystem::run_action(g, u"jump");
-  auto c = ServerCharacterInstance::load_charactert(g);
+  CharacterLogicSystem::RunAction(g, u"jump");
+  auto c = ServerCharacterInstance::LoadCharactert(g);
 
   fbs::ClientSceneT client_scene;
   client_scene.fade = true;
@@ -282,30 +282,30 @@ void SceneSystemInstance::enter_fade() {
   ClientRequest::send_to_host(client_scene);
 }
 
-void SceneSystemInstance::enter_quit() {
-  LoginSystemInstance::enter();
-  FadeSystemInstance::enter_out();
-  FadeSystemInstance::enter_out();
+void SceneSystemInstance::EnterQuit() {
+  LoginSystemInstance::Enter();
+  FadeSystemInstance::EnterOut();
+  FadeSystemInstance::EnterOut();
 }
 
-void SceneSystemInstance::quit_prepare() {
+void SceneSystemInstance::QuitPrepare() {
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;
   client_scene.map_id = 0;
   ClientRequest::send_to_host(client_scene);
-  FadeSystemInstance::enter_in(SceneSystemInstance::enter_quit);
+  FadeSystemInstance::EnterIn(SceneSystemInstance::EnterQuit);
 }
 
-void SceneSystemInstance::enter_cash_shop() {
-  CashShopSystemInstance::enter();
-  FadeSystemInstance::enter_out();
-  FadeSystemInstance::enter_out();
+void SceneSystemInstance::EnterCashShop() {
+  CashShopSystemInstance::Enter();
+  FadeSystemInstance::EnterOut();
+  FadeSystemInstance::EnterOut();
 }
 
-void SceneSystemInstance::cash_shop_prepare() {
+void SceneSystemInstance::CashShopPrepare() {
   fbs::ClientSceneT client_scene;
   client_scene.fade = false;
   client_scene.map_id = 0;
   ClientRequest::send_to_host(client_scene);
-  FadeSystemInstance::enter_in(SceneSystemInstance::enter_quit);
+  FadeSystemInstance::EnterIn(SceneSystemInstance::EnterQuit);
 }

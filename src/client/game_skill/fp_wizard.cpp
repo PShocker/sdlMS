@@ -11,7 +11,7 @@
 #include "src/server/server_instance/server_character_instance.h"
 #include <cstdint>
 
-static void huojianshu() {
+static void Huojianshu() {
   GameSkill g_skill;
   g_skill.id = u"2101003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
@@ -21,13 +21,13 @@ static void huojianshu() {
         SDL_FPoint{0, -30},
     }};
     auto &sf = CharacterGameInstance::self;
-    CharacterLogicSystem::run_action(sf, u"shoot1");
-    auto cm = CharacterLogicSystem::run_attack_check(sf, tri);
+    CharacterLogicSystem::RunAction(sf, u"shoot1");
+    auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
       cm.data[0].hits = {60};
     }
-    auto delay = SkillGameInstance::load_ski_time(sf);
+    auto delay = SkillGameInstance::LoadSkiTime(sf);
     auto ski_lvl2 = std::to_string(ski_lv);
     std::u16string path = u"210.img/skill/2101003/ball";
     auto pos = sf.pos;
@@ -39,27 +39,27 @@ static void huojianshu() {
     } else {
       goal.x -= 400;
     }
-    auto cct = BallGameInstance::create_ball_payload(cm, pos, goal, delay,
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
                                                        page, 700, path);
     ClientRequest::send_to_host(cct);
-    ServerBallInstance::handle_server_b(cct.payload);
+    ServerBallInstance::HandleServerB(cct.payload);
 
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
-      auto d = BallGameInstance::load_ball_time(cct);
+      auto d = BallGameInstance::LoadBallTime(cct);
       // Create and send attack payload
-      cat = SkillGameInstance::create_attack_payload(cm, sf.pos, d);
+      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d);
       ClientRequest::send_to_host(cat);
     }
-    auto ckt = SkillGameInstance::create_skill_payload(cat, 2101003, ski_lv);
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    auto ckt = SkillGameInstance::CreateSkillPayload(cat, 2101003, ski_lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {
-  huojianshu();
+  Huojianshu();
   return true;
 }();

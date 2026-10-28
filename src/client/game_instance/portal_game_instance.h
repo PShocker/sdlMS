@@ -8,6 +8,6 @@
 #include <vector>
 class PortalGameInstance {
 public:
-  static std::flat_multimap<std::u16string, GamePortal> load(uint32_t map_id);
+  static std::flat_multimap<std::u16string, GamePortal> Load(uint32_t map_id);
   static inline std::flat_multimap<std::u16string, GamePortal> data;
 };

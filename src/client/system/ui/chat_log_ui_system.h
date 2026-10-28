@@ -3,23 +3,23 @@
 #include "SDL3/SDL_events.h"
 class ChatLogUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_chats();
-  static void render_vscr();
+  static void RenderBackgrnd();
+  static void RenderChats();
+  static void RenderVscr();
 
-  static void event_click_chat_vscr();
-  static bool event_button(SDL_Event *event);
+  static void EventClickChatVscr();
+  static bool EventButton(SDL_Event *Event);
 
 public:
   static inline int page;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

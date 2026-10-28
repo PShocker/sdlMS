@@ -3,9 +3,9 @@
 #include "SDL3/SDL_events.h"
 class CashShopUiSystem {
 private:
-  static void render_backgrnd();
+  static void RenderBackgrnd();
 
 public:
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

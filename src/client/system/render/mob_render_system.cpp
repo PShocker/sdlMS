@@ -13,12 +13,12 @@
 #include <algorithm>
 #include <string>
 
-bool MobRenderSystem::render_mob(GameMob &g_mob) {
-  auto action_type = MobLogicSystem::load_action_type(g_mob.action);
+bool MobRenderSystem::RenderMob(GameMob &g_mob) {
+  auto action_type = MobLogicSystem::LoadActionType(g_mob.action);
   if (action_type == MobLogicSystem::ActionEnum::kRevive) {
     return false;
   }
-  auto mob_node = MobGameInstance::load_link_mob_node(g_mob.id);
+  auto mob_node = MobGameInstance::LoadLinkMobNode(g_mob.id);
 
   auto action_node = mob_node->get_child(g_mob.action);
 
@@ -42,7 +42,7 @@ bool MobRenderSystem::render_mob(GameMob &g_mob) {
     mob_node = static_cast<wz::Property<wz::WzUOL> *>(mob_node)->get_uol();
   }
 
-  auto texture = WzResource::load_texture(mob_node);
+  auto texture = WzResource::LoadTexture(mob_node);
 
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(mob_node->get_child(u"origin"))
@@ -71,40 +71,40 @@ bool MobRenderSystem::render_mob(GameMob &g_mob) {
   return true;
 }
 
-bool MobRenderSystem::render_gauge(GameMob &g_mob) {
+bool MobRenderSystem::RenderGauge(GameMob &g_mob) {
   if (g_mob.gauge.has_value()) {
-    auto r = MobLogicSystem::load_rect(g_mob);
+    auto r = MobLogicSystem::LoadRect(g_mob);
     if (!r.has_value()) {
       return false;
     }
     auto pos = g_mob.pos;
-    auto head = MobLogicSystem::load_head(g_mob);
+    auto head = MobLogicSystem::LoadHead(g_mob);
     pos.y = pos.y + head->y - 20;
     auto hp_percent_now = (float)g_mob.hp / g_mob.max_hp;
     hp_percent_now = std::max(0.0f, hp_percent_now);
     g_mob.gauge->hp_percent =
         std::lerp(g_mob.gauge->hp_percent, hp_percent_now, 0.03);
     g_mob.gauge->hp_percent_now = hp_percent_now;
-    GaugeRenderSystem::render_mob(pos, g_mob.gauge.value());
+    GaugeRenderSystem::RenderMob(pos, g_mob.gauge.value());
     return true;
   }
   return false;
 }
 
-bool MobRenderSystem::render_effect_back(GameMob &g_mob) {
-  return EffectRenderSystem::render_mob_effects(g_mob, false);
+bool MobRenderSystem::RenderEffectBack(GameMob &g_mob) {
+  return EffectRenderSystem::RenderMobEffects(g_mob, false);
 }
 
-void MobRenderSystem::render_debuff(GameMob &g_mob) {
-  DebuffRenderSystem::render_mob(g_mob);
+void MobRenderSystem::RenderDebuff(GameMob &g_mob) {
+  DebuffRenderSystem::RenderMob(g_mob);
 }
 
-bool MobRenderSystem::render(GameMob &g_mob) {
-  render_mob(g_mob);
-  render_effect_back(g_mob);
-  render_debuff(g_mob);
-  render_gauge(g_mob);
-  render_nametag(g_mob);
+bool MobRenderSystem::Render(GameMob &g_mob) {
+  RenderMob(g_mob);
+  RenderEffectBack(g_mob);
+  RenderDebuff(g_mob);
+  RenderGauge(g_mob);
+  RenderNametag(g_mob);
   // auto r = mob_logic_system::load_rect(g_mob);
   // if (r.has_value()) {
   //   SDL_FRect rr = r.value();
@@ -117,13 +117,13 @@ bool MobRenderSystem::render(GameMob &g_mob) {
   return true;
 }
 
-void MobRenderSystem::render_nametag(const std::u16string &text,
+void MobRenderSystem::RenderNametag(const std::u16string &text,
                                        SDL_FPoint p) {
   const auto &camera = CameraGameInstance::camera;
-  Freetype::load_aligned(true);
-  Freetype::load_size(13);
-  auto w = Freetype::load_w(text);
-  auto h = Freetype::load_lh();
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(13);
+  auto w = Freetype::LoadW(text);
+  auto h = Freetype::LoadLh();
 
   auto x = p.x;
   auto y = p.y;
@@ -138,21 +138,21 @@ void MobRenderSystem::render_nametag(const std::u16string &text,
     SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
     SDL_RenderFillRect(Window::renderer, &rect);
-    Freetype::load_color(255, 255, 255, 255);
-    Freetype::draw_line(text, x - camera.x - w / 2, y - camera.y);
+    Freetype::LoadColor(255, 255, 255, 255);
+    Freetype::DrawLine(text, x - camera.x - w / 2, y - camera.y);
   }
   return;
 }
 
-bool MobRenderSystem::render_nametag(GameMob &g_mob) {
+bool MobRenderSystem::RenderNametag(GameMob &g_mob) {
   if (!g_mob.gauge.has_value()) {
     return false;
   }
-  auto r = MobLogicSystem::load_rect(g_mob);
+  auto r = MobLogicSystem::LoadRect(g_mob);
   if (!r.has_value()) {
     return false;
   }
-  auto mob_name = MobGameInstance::load_mob_name(g_mob.id);
-  render_nametag(mob_name, {g_mob.pos.x, g_mob.pos.y + 5});
+  auto mob_name = MobGameInstance::LoadMobName(g_mob.id);
+  RenderNametag(mob_name, {g_mob.pos.x, g_mob.pos.y + 5});
   return true;
 }

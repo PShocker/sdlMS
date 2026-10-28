@@ -3,9 +3,9 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 
-void LadderropeGameInstance::load(uint32_t map_id) {
+void LadderropeGameInstance::Load(uint32_t map_id) {
   data.clear();
-  auto map_node = WzResource::load_map_node(map_id);
+  auto map_node = WzResource::LoadMapNode(map_id);
   auto map_ladder_node = map_node->get_child(u"ladderRope");
   for (auto [key, val] : *map_ladder_node->get_children()) {
     auto id = std::stoi(std::string{key.begin(), key.end()});

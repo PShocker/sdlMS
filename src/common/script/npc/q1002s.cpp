@@ -10,20 +10,20 @@
 #include "wz/Property.h"
 // roger apple
 
-static void state() {
+static void State() {
   switch (NpcDlgUiSystem::index) {
   case 1: {
-    NpcDlgUiSystem::close();
+    NpcDlgUiSystem::Close();
     GameConsumeItem con;
     con.num = 1;
     con.id = u"02010000";
     std::polymorphic<GameItem> itm{con};
-    auto i = PackageGameInstance::add_new_item(itm);
+    auto i = PackageGameInstance::AddNewItem(itm);
     if (!i.has_value()) {
-      NoticeUiSystem::open_no_space(itm->type);
+      NoticeUiSystem::OpenNoSpace(itm->type);
     } else {
       // accept quest
-      QuestGameInstance::accept_quest(u"1002.img");
+      QuestGameInstance::AcceptQuest(u"1002.img");
     }
     break;
   }
@@ -38,16 +38,16 @@ static void state() {
   NpcDlgUiSystem::time = Window::dt_now;
 }
 
-static void q1002s(std::any data) {
+static void Q1002s(std::any data) {
   NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kQuestAvaliable;
   NpcDlgUiSystem::max_index = 0;
   NpcDlgUiSystem::npc_id = u"0000003";
-  state();
+  State();
   return;
 };
 
 [[maybe_unused]] static const bool r = [] {
   auto &fns = Script::fns();
-  fns[u"q1002s"] = q1002s;
+  fns[u"q1002s"] = Q1002s;
   return true;
 }();

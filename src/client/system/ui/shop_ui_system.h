@@ -10,41 +10,41 @@
 #include <string>
 class ShopUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_button();
+  static void RenderBackgrnd();
+  static void RenderButton();
 
-  static void render_item(std::vector<GameShopItem> &items, int page,
+  static void RenderItem(std::vector<GameShopItem> &items, int page,
                           SDL_FPoint p);
 
-  static void render_items();
-  static void render_tab();
-  static void render_vscr();
-  static void render_meso();
+  static void RenderItems();
+  static void RenderTab();
+  static void RenderVscr();
+  static void RenderMeso();
 
-  static void render_npc();
-  static void render_avatar();
-  static void render_pkg_items();
+  static void RenderNpc();
+  static void RenderAvatar();
+  static void RenderPkgItems();
 
-  static void render_active_item();
+  static void RenderActiveItem();
 
-  static void render_item_info(std::polymorphic<GameItem> &item);
+  static void RenderItemInfo(std::polymorphic<GameItem> &item);
 
-  static std::optional<int> event_item_click(SDL_Event *event, SDL_FPoint p);
-  static bool event_item(SDL_Event *event);
+  static std::optional<int> EventItemClick(SDL_Event *Event, SDL_FPoint p);
+  static bool EventItem(SDL_Event *Event);
 
-  static bool event_vscr(SDL_Event *event);
-  static void event_close();
-  static bool event_button(SDL_Event *event);
+  static bool EventVscr(SDL_Event *Event);
+  static void EventClose();
+  static bool EventButton(SDL_Event *Event);
 
-  static void event_vscr_start(SDL_Event *event);
-  static void event_vscr_end();
-  static void event_vscr_move(SDL_Event *event);
+  static void EventVscrStart(SDL_Event *Event);
+  static void EventVscrEnd();
+  static void EventVscrMove(SDL_Event *Event);
 
   static inline std::array<bool, 2> vscr_motion;
 
-  static bool event_tab(SDL_Event *event);
+  static bool EventTab(SDL_Event *Event);
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
 public:
   static inline std::array<int, 2> pages;
@@ -57,13 +57,13 @@ public:
 
   static inline SDL_FPoint pos;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

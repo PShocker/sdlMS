@@ -18,27 +18,27 @@
 #include <algorithm>
 #include <ranges>
 
-bool LoginSystemInstance::render_game() {
+bool LoginSystemInstance::RenderGame() {
   //   后景
   for (auto &b_backgrnd : BackgrndGameInstance::back | std::views::values) {
-    BackgrndRenderSystem::render(b_backgrnd);
+    BackgrndRenderSystem::Render(b_backgrnd);
   }
   for (uint8_t i = 0; i < 8; i++) {
     for (auto &obj : ObjGameInstance::data[i] | std::views::values) {
-      ObjRenderSystem::render(obj);
+      ObjRenderSystem::Render(obj);
     }
     for (auto &tile : TileGameInstance::data[i] | std::views::values) {
-      TileRenderSystem::render(tile);
+      TileRenderSystem::Render(tile);
     }
   }
   // 前景
   for (auto &f_backgrnd : BackgrndGameInstance::front | std::views::values) {
-    BackgrndRenderSystem::render(f_backgrnd);
+    BackgrndRenderSystem::Render(f_backgrnd);
   }
   return true;
 }
 
-void LoginSystemInstance::enter_prepare() {
+void LoginSystemInstance::EnterPrepare() {
   auto camera = CameraGameInstance::camera;
   camera.x = -80 - camera.w / 2;
   camera.y = 1023 - camera.h / 2;
@@ -66,31 +66,31 @@ void LoginSystemInstance::enter_prepare() {
   }
 }
 
-void LoginSystemInstance::enter() {
-  AudioGameInstance::load_backgrnd_audio(u"BgmUI.img/TitleClassic");
+void LoginSystemInstance::Enter() {
+  AudioGameInstance::LoadBackgrndAudio(u"BgmUI.img/TitleClassic");
 
-  enter_prepare();
-  auto fn = &LoginSystemInstance::render_game;
+  EnterPrepare();
+  auto fn = &LoginSystemInstance::RenderGame;
   if (!std::ranges::contains(System::render_systems, fn)) {
     static auto image = WzResource::ui->find(u"MapLogin.img");
-    BackgrndGameInstance::load(image);
-    ObjGameInstance::load(image);
-    TileGameInstance::load(image);
+    BackgrndGameInstance::Load(image);
+    ObjGameInstance::Load(image);
+    TileGameInstance::Load(image);
   }
 
   System::logic_systems = {
-      BackgrndLogicSystem::run,
-      ObjLogicSystem::run,
-      AudioLogicSystem::run,
-      CursorLogicSystem::run,
+      BackgrndLogicSystem::Run,
+      ObjLogicSystem::Run,
+      AudioLogicSystem::Run,
+      CursorLogicSystem::Run,
   };
   System::render_systems = {
-      render_game,
-      LoginUiSystem::render,
-      CursorRenderSystem::render,
+      RenderGame,
+      LoginUiSystem::Render,
+      CursorRenderSystem::Render,
   };
   System::event_systems = {
-      LoginUiSystem::event,
+      LoginUiSystem::Event,
   };
   auto &camera = CameraGameInstance::camera;
   camera.x = -80 - camera.w / 2;

@@ -4,7 +4,7 @@
 #include <string>
 class VideoUiSystem {
 public:
-  static bool render();
-  static void open(const std::string &path);
-  static void close();
+  static bool Render();
+  static void Open(const std::string &path);
+  static void Close();
 };

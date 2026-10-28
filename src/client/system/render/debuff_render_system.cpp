@@ -7,7 +7,7 @@
 #include "wz/Node.h"
 #include <string>
 
-void DebuffRenderSystem::render(GameDebuff::DebuffType type,
+void DebuffRenderSystem::Render(GameDebuff::DebuffType type,
                                   SDL_FPoint pos) {
   wz::Node *n;
   switch (type) {
@@ -25,12 +25,12 @@ void DebuffRenderSystem::render(GameDebuff::DebuffType type,
     break;
   }
   }
-  auto delays = TrapGameInstance::load_animate_delays(n);
-  auto data = TrapGameInstance::load_animate_index(delays);
+  auto delays = TrapGameInstance::LoadAnimateDelays(n);
+  auto data = TrapGameInstance::LoadAnimateIndex(delays);
   auto index = data.index;
   n = n->get_child(std::to_string(index));
-  auto t = WzResource::load_texture(n);
-  auto origin = WzResource::load_fpoint(n->get_child(u"origin"));
+  auto t = WzResource::LoadTexture(n);
+  auto origin = WzResource::LoadFpoint(n->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = pos.x - origin.x,
       .y = pos.y - origin.y,
@@ -45,14 +45,14 @@ void DebuffRenderSystem::render(GameDebuff::DebuffType type,
   }
 }
 
-void DebuffRenderSystem::render_character(GameCharacter &character) {
+void DebuffRenderSystem::RenderCharacter(GameCharacter &character) {
   for (auto k : character.debuffs | std::views::keys) {
-    render(k, character.pos);
+    Render(k, character.pos);
   }
 }
 
-void DebuffRenderSystem::render_mob(GameMob &mob) {
+void DebuffRenderSystem::RenderMob(GameMob &mob) {
   for (auto k : mob.debuffs | std::views::keys) {
-    render(k, mob.pos);
+    Render(k, mob.pos);
   }
 }

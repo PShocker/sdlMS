@@ -10,9 +10,9 @@ private:
   static inline SDL_Texture *backgrnd;
 
 public:
-  static bool run();
-  static bool render();
+  static bool Run();
+  static bool Render();
 
-  static void enter_in(std::function<void()> cb);
-  static void enter_out();
+  static void EnterIn(std::function<void()> cb);
+  static void EnterOut();
 };

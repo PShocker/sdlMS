@@ -3,5 +3,5 @@
 #include <cstdint>
 class ChatballoonLogicSystem {
 public:
-  static bool run();
+  static bool Run();
 };

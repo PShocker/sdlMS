@@ -11,49 +11,49 @@
 #include <optional>
 
 std::optional<ChatballoonRenderSystem::BackgrndPad>
-ChatballoonRenderSystem::render_backgrnd(GameChatballoon &g_chatballoon,
+ChatballoonRenderSystem::RenderBackgrnd(GameChatballoon &g_chatballoon,
                                            SDL_FPoint base) {
   auto path = g_chatballoon.path;
   auto node = WzResource::ui->find(u"ChatBalloon.img/" + path);
-  auto texture_c = WzResource::load_texture(node->get_child(u"c"));
-  auto texture_e = WzResource::load_texture(
+  auto texture_c = WzResource::LoadTexture(node->get_child(u"c"));
+  auto texture_e = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"e")));
-  auto texture_ne = WzResource::load_texture(
+  auto texture_ne = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"ne")));
-  auto texture_n = WzResource::load_texture(
+  auto texture_n = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"n")));
-  auto texture_nw = WzResource::load_texture(
+  auto texture_nw = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"nw")));
-  auto texture_w = WzResource::load_texture(
+  auto texture_w = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"w")));
-  auto texture_sw = WzResource::load_texture(
+  auto texture_sw = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"sw")));
-  auto texture_s = WzResource::load_texture(
+  auto texture_s = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"s")));
-  auto texture_se = WzResource::load_texture(
+  auto texture_se = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"se")));
-  auto texture_arrow = WzResource::load_texture(
+  auto texture_arrow = WzResource::LoadTexture(
       static_cast<wz::Property<wz::WzCanvas> *>(node->get_child(u"arrow")));
 
-  auto origin_c = WzResource::load_fpoint(node->find(u"c/origin"));
-  auto origin_e = WzResource::load_fpoint(node->find(u"e/origin"));
-  auto origin_ne = WzResource::load_fpoint(node->find(u"ne/origin"));
-  auto origin_n = WzResource::load_fpoint(node->find(u"n/origin"));
-  auto origin_nw = WzResource::load_fpoint(node->find(u"nw/origin"));
-  auto origin_w = WzResource::load_fpoint(node->find(u"w/origin"));
-  auto origin_sw = WzResource::load_fpoint(node->find(u"sw/origin"));
-  auto origin_s = WzResource::load_fpoint(node->find(u"s/origin"));
-  auto origin_se = WzResource::load_fpoint(node->find(u"se/origin"));
-  auto origin_arrow = WzResource::load_fpoint(node->find(u"arrow/origin"));
+  auto origin_c = WzResource::LoadFpoint(node->find(u"c/origin"));
+  auto origin_e = WzResource::LoadFpoint(node->find(u"e/origin"));
+  auto origin_ne = WzResource::LoadFpoint(node->find(u"ne/origin"));
+  auto origin_n = WzResource::LoadFpoint(node->find(u"n/origin"));
+  auto origin_nw = WzResource::LoadFpoint(node->find(u"nw/origin"));
+  auto origin_w = WzResource::LoadFpoint(node->find(u"w/origin"));
+  auto origin_sw = WzResource::LoadFpoint(node->find(u"sw/origin"));
+  auto origin_s = WzResource::LoadFpoint(node->find(u"s/origin"));
+  auto origin_se = WzResource::LoadFpoint(node->find(u"se/origin"));
+  auto origin_arrow = WzResource::LoadFpoint(node->find(u"arrow/origin"));
 
-  Freetype::load_size(g_chatballoon.size);
+  Freetype::LoadSize(g_chatballoon.size);
   auto text_w = g_chatballoon.w - (texture_nw->w + texture_ne->w);
 
   int a = (float)texture_c->w;
   int b = g_chatballoon.w;
   auto result_w = a * ((b + a - 1) / a); // 整数向上取整技巧
 
-  int h = Freetype::load_ch(g_chatballoon.text, result_w, 1.3);
+  int h = Freetype::LoadCh(g_chatballoon.text, result_w, 1.3);
 
   a = h;
   b = (float)texture_c->h;
@@ -179,9 +179,9 @@ ChatballoonRenderSystem::render_backgrnd(GameChatballoon &g_chatballoon,
   return std::nullopt;
 }
 
-bool ChatballoonRenderSystem::render(GameChatballoon &g_chatballoon,
+bool ChatballoonRenderSystem::Render(GameChatballoon &g_chatballoon,
                                        SDL_FPoint base) {
-  auto bacgrnd_pad = render_backgrnd(g_chatballoon, base);
+  auto bacgrnd_pad = RenderBackgrnd(g_chatballoon, base);
   if (bacgrnd_pad.has_value()) {
     if (g_chatballoon.color.has_value()) {
       uint8_t a, r, g, b;
@@ -189,7 +189,7 @@ bool ChatballoonRenderSystem::render(GameChatballoon &g_chatballoon,
       r = g_chatballoon.color->r;
       g = g_chatballoon.color->g;
       b = g_chatballoon.color->b;
-      Freetype::load_color(r, g, b, a);
+      Freetype::LoadColor(r, g, b, a);
     } else if (bacgrnd_pad->color.has_value()) {
       auto clr = bacgrnd_pad->color.value();
       uint8_t a, r, g, b;
@@ -197,12 +197,12 @@ bool ChatballoonRenderSystem::render(GameChatballoon &g_chatballoon,
       r = (clr >> 16) & 0xFF;
       g = (clr >> 8) & 0xFF;
       b = clr & 0xFF;
-      Freetype::load_color(r, g, b, a);
+      Freetype::LoadColor(r, g, b, a);
     }
 
-    Freetype::load_aligned(true);
-    Freetype::load_size(g_chatballoon.size);
-    Freetype::draw_cstr(g_chatballoon.text, bacgrnd_pad->x, bacgrnd_pad->y,
+    Freetype::LoadAligned(true);
+    Freetype::LoadSize(g_chatballoon.size);
+    Freetype::DrawCstr(g_chatballoon.text, bacgrnd_pad->x, bacgrnd_pad->y,
                         bacgrnd_pad->w, 1.3);
   }
   return true;

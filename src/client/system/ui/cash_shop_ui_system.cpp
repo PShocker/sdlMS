@@ -3,8 +3,8 @@
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 
-void CashShopUiSystem::render_backgrnd() {
-  static auto backgrnd = WzResource::load_texture(
+void CashShopUiSystem::RenderBackgrnd() {
+  static auto backgrnd = WzResource::LoadTexture(
       WzResource::ui->find(u"Login.img/NewChar/customize/canvas:top"));
   SDL_FRect pos_rect = {
       160,
@@ -15,22 +15,22 @@ void CashShopUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
-bool CashShopUiSystem::render() {
-  render_backgrnd();
+bool CashShopUiSystem::Render() {
+  RenderBackgrnd();
   return true;
 }
 
-bool CashShopUiSystem::event(SDL_Event *event) {
+bool CashShopUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
       r = false;
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
     }
     break;
   }

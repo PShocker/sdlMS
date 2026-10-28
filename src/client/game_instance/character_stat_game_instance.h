@@ -6,13 +6,13 @@
 class CharacterStatGameInstance {
 private:
   // ============ 私有静态方法 ============
-  static uint32_t get_base_hp_max();
-  static uint32_t get_base_mp_max();
+  static uint32_t GetBaseHpMax();
+  static uint32_t GetBaseMpMax();
 
-  static int load_primary_stat();
-  static int load_secondary_stat();
+  static int LoadPrimaryStat();
+  static int LoadSecondaryStat();
 
-  static bool upgrade();
+  static bool Upgrade();
 
   // ============ 基础战斗资源 ============
   static inline int32_t hp_point = INT32_MAX;
@@ -112,178 +112,178 @@ private:
   // ============ 剩余 AP ============
   static inline uint32_t remain_ap = 100;
 
-  static void update_sf_skill_stat();
-  static void update_sf_equip_stat();
+  static void UpdateSfSkillStat();
+  static void UpdateSfEquipStat();
 
 public:
   // ============================================================
   // 经验 / 更新 / 加载
   // ============================================================
-  static void add_exp(uint32_t num);
-  static void update();
-  static void load(const CharacterSaveData &cs);
+  static void AddExp(uint32_t num);
+  static void Update();
+  static void Load(const CharacterSaveData &cs);
 
   // ============================================================
   // HP / MP
   // ============================================================
-  static void set_hp(int32_t n);
-  static void set_mp(int32_t n);
+  static void SetHp(int32_t n);
+  static void SetMp(int32_t n);
 
-  static void set_crit_rate(uint32_t n);
-  static void set_crit_damage(uint32_t n);
+  static void SetCritRate(uint32_t n);
+  static void SetCritDamage(uint32_t n);
 
-  static int32_t get_hp();
-  static int32_t get_mp();
-  static int32_t get_hp_max();
-  static int32_t get_mp_max();
-  static uint64_t get_exp();
-  static uint64_t get_exp_max();
+  static int32_t GetHp();
+  static int32_t GetMp();
+  static int32_t GetHpMax();
+  static int32_t GetMpMax();
+  static uint64_t GetExp();
+  static uint64_t GetExpMax();
 
   // ============================================================
   // 剩余 AP
   // ============================================================
-  static uint32_t get_remain_ap();
+  static uint32_t GetRemainAp();
 
   // ============================================================
   // AP 加点 setter / getter
   // ============================================================
-  static void set_str_ap(uint32_t n);
-  static void set_dex_ap(uint32_t n);
-  static void set_int_ap(uint32_t n);
-  static void set_luk_ap(uint32_t n);
-  static void set_hp_ap(uint32_t n);
-  static void set_mp_ap(uint32_t n);
+  static void SetStrAp(uint32_t n);
+  static void SetDexAp(uint32_t n);
+  static void SetIntAp(uint32_t n);
+  static void SetLukAp(uint32_t n);
+  static void SetHpAp(uint32_t n);
+  static void SetMpAp(uint32_t n);
 
-  static void set_remain_ap(uint32_t n);
+  static void SetRemainAp(uint32_t n);
 
-  static uint32_t get_str_ap();
-  static uint32_t get_dex_ap();
-  static uint32_t get_int_ap();
-  static uint32_t get_luk_ap();
-  static uint32_t get_hp_ap();
-  static uint32_t get_mp_ap();
+  static uint32_t GetStrAp();
+  static uint32_t GetDexAp();
+  static uint32_t GetIntAp();
+  static uint32_t GetLukAp();
+  static uint32_t GetHpAp();
+  static uint32_t GetMpAp();
 
   // ============================================================
   // 主属性 getter
   // ============================================================
-  static uint32_t get_str_point();
-  static uint32_t get_dex_point();
-  static uint32_t get_int_point();
-  static uint32_t get_luk_point();
+  static uint32_t GetStrPoint();
+  static uint32_t GetDexPoint();
+  static uint32_t GetIntPoint();
+  static uint32_t GetLukPoint();
 
   // ============================================================
   // 最终战斗属性 getter
   // ============================================================
-  static uint32_t get_min_atk();
-  static uint32_t get_max_atk();
-  static uint32_t get_crit_rate();
-  static uint32_t get_crit_damage();
-  static uint32_t get_acc();
-  static uint32_t get_avd();
-  static int32_t get_def();
-  static int32_t get_mdef();
-  static int32_t get_attack();
-  static int32_t get_magic();
+  static uint32_t GetMinAtk();
+  static uint32_t GetMaxAtk();
+  static uint32_t GetCritRate();
+  static uint32_t GetCritDamage();
+  static uint32_t GetAcc();
+  static uint32_t GetAvd();
+  static int32_t GetDef();
+  static int32_t GetMdef();
+  static int32_t GetAttack();
+  static int32_t GetMagic();
 
   // ============================================================
   // 技能加成 setter (ski_)
   // ============================================================
-  static void set_ski_hp(int64_t n);
-  static void set_ski_mp(int64_t n);
-  static void set_ski_str(int64_t n);
-  static void set_ski_dex(int64_t n);
-  static void set_ski_int(int64_t n);
-  static void set_ski_luk(int64_t n);
-  static void set_ski_pro(int64_t n);
-  static void set_ski_acc(uint32_t n);
-  static void set_ski_avd(uint32_t n);
-  static void set_ski_def(int32_t n);
-  static void set_ski_mdef(int32_t n);
-  static void set_ski_exp(uint32_t n);
+  static void SetSkiHp(int64_t n);
+  static void SetSkiMp(int64_t n);
+  static void SetSkiStr(int64_t n);
+  static void SetSkiDex(int64_t n);
+  static void SetSkiInt(int64_t n);
+  static void SetSkiLuk(int64_t n);
+  static void SetSkiPro(int64_t n);
+  static void SetSkiAcc(uint32_t n);
+  static void SetSkiAvd(uint32_t n);
+  static void SetSkiDef(int32_t n);
+  static void SetSkiMdef(int32_t n);
+  static void SetSkiExp(uint32_t n);
 
   // ============================================================
   // 技能加成 getter (ski_)
   // ============================================================
-  static int64_t get_ski_hp();
-  static int64_t get_ski_mp();
-  static int64_t get_ski_str();
-  static int64_t get_ski_dex();
-  static int64_t get_ski_int();
-  static int64_t get_ski_luk();
-  static int64_t get_ski_pro();
-  static uint32_t get_ski_acc();
-  static uint32_t get_ski_avd();
-  static int32_t get_ski_def();
-  static int32_t get_ski_mdef();
-  static uint32_t get_ski_exp();
+  static int64_t GetSkiHp();
+  static int64_t GetSkiMp();
+  static int64_t GetSkiStr();
+  static int64_t GetSkiDex();
+  static int64_t GetSkiInt();
+  static int64_t GetSkiLuk();
+  static int64_t GetSkiPro();
+  static uint32_t GetSkiAcc();
+  static uint32_t GetSkiAvd();
+  static int32_t GetSkiDef();
+  static int32_t GetSkiMdef();
+  static uint32_t GetSkiExp();
 
   // ============================================================
   // 装备加成 setter (eqp_)
   // ============================================================
-  static void set_eqp_hp(int64_t n);
-  static void set_eqp_mp(int64_t n);
-  static void set_eqp_str(int64_t n);
-  static void set_eqp_dex(int64_t n);
-  static void set_eqp_int(int64_t n);
-  static void set_eqp_luk(int64_t n);
-  static void set_eqp_pro(int64_t n);
-  static void set_eqp_acc(uint32_t n);
-  static void set_eqp_avd(uint32_t n);
-  static void set_eqp_attack(uint32_t n);
-  static void set_eqp_magic(uint32_t n);
-  static void set_eqp_def(int32_t n);
-  static void set_eqp_mdef(int32_t n);
-  static void set_eqp_exp(uint32_t n);
+  static void SetEqpHp(int64_t n);
+  static void SetEqpMp(int64_t n);
+  static void SetEqpStr(int64_t n);
+  static void SetEqpDex(int64_t n);
+  static void SetEqpInt(int64_t n);
+  static void SetEqpLuk(int64_t n);
+  static void SetEqpPro(int64_t n);
+  static void SetEqpAcc(uint32_t n);
+  static void SetEqpAvd(uint32_t n);
+  static void SetEqpAttack(uint32_t n);
+  static void SetEqpMagic(uint32_t n);
+  static void SetEqpDef(int32_t n);
+  static void SetEqpMdef(int32_t n);
+  static void SetEqpExp(uint32_t n);
 
   // ============================================================
   // 装备加成 getter (eqp_)
   // ============================================================
-  static int64_t get_eqp_hp();
-  static int64_t get_eqp_mp();
-  static int64_t get_eqp_str();
-  static int64_t get_eqp_dex();
-  static int64_t get_eqp_int();
-  static int64_t get_eqp_luk();
-  static int64_t get_eqp_pro();
-  static uint32_t get_eqp_acc();
-  static uint32_t get_eqp_avd();
-  static int32_t get_eqp_def();
-  static int32_t get_eqp_mdef();
-  static uint32_t get_eqp_exp();
+  static int64_t GetEqpHp();
+  static int64_t GetEqpMp();
+  static int64_t GetEqpStr();
+  static int64_t GetEqpDex();
+  static int64_t GetEqpInt();
+  static int64_t GetEqpLuk();
+  static int64_t GetEqpPro();
+  static uint32_t GetEqpAcc();
+  static uint32_t GetEqpAvd();
+  static int32_t GetEqpDef();
+  static int32_t GetEqpMdef();
+  static uint32_t GetEqpExp();
 
   // ============================================================
   // 道具加成 setter (itm_)
   // ============================================================
-  static void set_itm_hp(int64_t n);
-  static void set_itm_mp(int64_t n);
-  static void set_itm_str(int64_t n);
-  static void set_itm_dex(int64_t n);
-  static void set_itm_int(int64_t n);
-  static void set_itm_luk(int64_t n);
-  static void set_itm_pro(int64_t n);
-  static void set_itm_acc(uint32_t n);
-  static void set_itm_avd(uint32_t n);
-  static void set_itm_attack(uint32_t n);
-  static void set_itm_magic(uint32_t n);
-  static void set_itm_def(int32_t n);
-  static void set_itm_mdef(int32_t n);
-  static void set_itm_exp(uint32_t n);
+  static void SetItmHp(int64_t n);
+  static void SetItmMp(int64_t n);
+  static void SetItmStr(int64_t n);
+  static void SetItmDex(int64_t n);
+  static void SetItmInt(int64_t n);
+  static void SetItmLuk(int64_t n);
+  static void SetItmPro(int64_t n);
+  static void SetItmAcc(uint32_t n);
+  static void SetItmAvd(uint32_t n);
+  static void SetItmAttack(uint32_t n);
+  static void SetItmMagic(uint32_t n);
+  static void SetItmDef(int32_t n);
+  static void SetItmMdef(int32_t n);
+  static void SetItmExp(uint32_t n);
 
   // ============================================================
   // 道具加成 getter (itm_)
   // ============================================================
-  static int64_t get_itm_hp();
-  static int64_t get_itm_mp();
-  static int64_t get_itm_str();
-  static int64_t get_itm_dex();
-  static int64_t get_itm_int();
-  static int64_t get_itm_luk();
-  static int64_t get_itm_pro();
-  static uint32_t get_itm_acc();
-  static uint32_t get_itm_avd();
-  static uint32_t get_itm_attack();
-  static uint32_t get_itm_magic();
-  static uint32_t get_itm_exp();
-  static int32_t get_itm_def();
-  static int32_t get_itm_mdef();
+  static int64_t GetItmHp();
+  static int64_t GetItmMp();
+  static int64_t GetItmStr();
+  static int64_t GetItmDex();
+  static int64_t GetItmInt();
+  static int64_t GetItmLuk();
+  static int64_t GetItmPro();
+  static uint32_t GetItmAcc();
+  static uint32_t GetItmAvd();
+  static uint32_t GetItmAttack();
+  static uint32_t GetItmMagic();
+  static uint32_t GetItmExp();
+  static int32_t GetItmDef();
+  static int32_t GetItmMdef();
 };

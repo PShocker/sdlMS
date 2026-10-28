@@ -2,10 +2,10 @@
 
 class ServerDropSystem {
 private:
-  static void run_fade();
-  static void run_delay_drops();
-  static void run_destroy();
+  static void RunFade();
+  static void RunDelayDrops();
+  static void RunDestroy();
 
 public:
-  static bool run();
+  static bool Run();
 };

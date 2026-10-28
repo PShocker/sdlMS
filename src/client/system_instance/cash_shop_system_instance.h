@@ -2,5 +2,5 @@
 
 class CashShopSystemInstance {
 public:
-  static void enter();
+  static void Enter();
 };

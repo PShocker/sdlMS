@@ -35,42 +35,42 @@ private:
   static inline bool aligned;
   static inline bool bold;
 
-  static float load_char_w(const char16_t c);
+  static float LoadCharW(const char16_t c);
 
-  static float draw_char(float x, float y, char16_t c);
+  static float DrawChar(float x, float y, char16_t c);
 
-  static void draw_dash_line(float x1, float y1, float x2, float y2,
+  static void DrawDashLine(float x1, float y1, float x2, float y2,
                              float dash_len, float gap_len);
 
 public:
-  static void init();
-  static void load_size(uint8_t i);
-  static void load_color(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
-  static float load_w(const std::u16string &str);
-  static float load_lh();
+  static void Init();
+  static void LoadSize(uint8_t i);
+  static void LoadColor(uint8_t r, uint8_t g, uint8_t b, uint8_t a);
+  static float LoadW(const std::u16string &str);
+  static float LoadLh();
 
-  static void load_aligned(bool r);
-  static void load_bold(bool r);
+  static void LoadAligned(bool r);
+  static void LoadBold(bool r);
 
-  static float load_ch(const std::u16string &str, float w, float h);
-  static float load_rh(const std::u16string &str, float w, float h,
+  static float LoadCh(const std::u16string &str, float w, float h);
+  static float LoadRh(const std::u16string &str, float w, float h,
                        std::optional<SDL_FRect> obstacle);
 
-  static void draw_line(const std::u16string &str, float x, float y);
+  static void DrawLine(const std::u16string &str, float x, float y);
 
-  static void draw_str(const std::u16string &str, float x, float y, float w,
+  static void DrawStr(const std::u16string &str, float x, float y, float w,
                        float h);
   struct DrawData {
     float height;
     int select;
   };
-  static DrawData draw_rstr(const std::u16string &str, float x, float y,
+  static DrawData DrawRstr(const std::u16string &str, float x, float y,
                              float w, float h,
                              std::optional<SDL_FRect> obstacle);
-  static DrawData draw_rstr(const std::u16string &str, float x, float y,
+  static DrawData DrawRstr(const std::u16string &str, float x, float y,
                              float w, float h,
                              std::optional<SDL_FRect> obstacle,
                              int default_select, bool dryRun, int visibleCount);
-  static DrawData draw_cstr(const std::u16string &str, float x, float y,
+  static DrawData DrawCstr(const std::u16string &str, float x, float y,
                              float w, float h, bool dryRun = false);
 };

@@ -62,49 +62,49 @@ public:
     kMhp,
     kMmp,
   };
-  static bool check_equip(const std::u16string &id);
-  static std::polymorphic<GameItem> load_item(const std::u16string &id);
+  static bool CheckEquip(const std::u16string &id);
+  static std::polymorphic<GameItem> LoadItem(const std::u16string &id);
 
-  static WeaponType load_weapon_type(const GameCharacter &g_character);
+  static WeaponType LoadWeaponType(const GameCharacter &g_character);
   // 由武器道具 id（如 u"01300000"）解析武器大类：
   // 大类码 = id / 10000 后取低两位（130 → SWORD_1H），供伤害公式选倍率
-  static WeaponEnum load_weapon_enum(const std::u16string &id);
-  static wz::Node *load_equip_info(const std::u16string &id);
-  static std::u16string load_equip_name(const std::u16string &id);
-  static std::u16string load_equip_desc(const std::u16string &id);
-  static std::flat_set<JobType> load_equip_job(const std::u16string &id);
-  static std::u16string load_equip_type(const std::u16string &id);
-  static uint8_t load_equip_tuc(const std::u16string &id);
+  static WeaponEnum LoadWeaponEnum(const std::u16string &id);
+  static wz::Node *LoadEquipInfo(const std::u16string &id);
+  static std::u16string LoadEquipName(const std::u16string &id);
+  static std::u16string LoadEquipDesc(const std::u16string &id);
+  static std::flat_set<JobType> LoadEquipJob(const std::u16string &id);
+  static std::u16string LoadEquipType(const std::u16string &id);
+  static uint8_t LoadEquipTuc(const std::u16string &id);
 
-  static void add_equip(GameEquipItem &equip, GameCharacter &character,
+  static void AddEquip(GameEquipItem &equip, GameCharacter &character,
                         int slot);
-  static bool add_equip_limit(GameEquipItem &equip, GameCharacter &character,
+  static bool AddEquipLimit(GameEquipItem &equip, GameCharacter &character,
                               int slot);
 
-  static bool add_equip_deco(GameDecoItem &deco, GameCharacter &character,
+  static bool AddEquipDeco(GameDecoItem &deco, GameCharacter &character,
                              int slot);
-  static bool add_equip_deco_limit(GameDecoItem &deco,
+  static bool AddEquipDecoLimit(GameDecoItem &deco,
                                    GameCharacter &character, int slot);
 
   static std::vector<GameEquipItem>
-  load_equip_slot(const std::u16string &id, GameCharacter &character);
+  LoadEquipSlot(const std::u16string &id, GameCharacter &character);
 
-  static std::vector<GameDecoItem> load_deco_slot(const std::u16string &id,
+  static std::vector<GameDecoItem> LoadDecoSlot(const std::u16string &id,
                                                     GameCharacter &character);
 
-  static std::flat_map<IncType, int> load_equip_inc(const std::u16string &id);
-  static std::flat_map<IncType, int> load_scroll_inc(const std::u16string &id);
+  static std::flat_map<IncType, int> LoadEquipInc(const std::u16string &id);
+  static std::flat_map<IncType, int> LoadScrollInc(const std::u16string &id);
 
-  static std::vector<GameEquipItem> load_equips(const GameCharacter &c);
-  static std::vector<GameDecoItem> load_decos(const GameCharacter &c);
+  static std::vector<GameEquipItem> LoadEquips(const GameCharacter &c);
+  static std::vector<GameDecoItem> LoadDecos(const GameCharacter &c);
 
-  static int use_equip(int i, int slot = 0);
-  static int use_deco(int i, int slot = 0);
-  static int use_equip_scroll(GameEquipItem &eqp, GameConsumeItem &s);
+  static int UseEquip(int i, int slot = 0);
+  static int UseDeco(int i, int slot = 0);
+  static int UseEquipScroll(GameEquipItem &eqp, GameConsumeItem &s);
 
-  static int unuse_equip(int i);
-  static int unuse_deco(int i);
+  static int UnuseEquip(int i);
+  static int UnuseDeco(int i);
 
-  static std::optional<GameEquipItem> *load_equip(int index);
-  static std::optional<GameDecoItem> *load_deco(int index);
+  static std::optional<GameEquipItem> *LoadEquip(int index);
+  static std::optional<GameDecoItem> *LoadDeco(int index);
 };

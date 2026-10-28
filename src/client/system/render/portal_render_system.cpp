@@ -14,7 +14,7 @@
 #include <flat_map>
 #include <string>
 
-bool PortalRenderSystem::render_portal(GamePortal &g_portal) {
+bool PortalRenderSystem::RenderPortal(GamePortal &g_portal) {
   if (!(g_portal.pt == 1 || g_portal.pt == 2)) {
     return true;
   }
@@ -42,7 +42,7 @@ bool PortalRenderSystem::render_portal(GamePortal &g_portal) {
   auto index =
       std::to_string(g_portal.ani_index % texture_node->children_count());
   texture_node = texture_node->get_child(index);
-  auto texture = WzResource::load_texture(texture_node);
+  auto texture = WzResource::LoadTexture(texture_node);
   auto v = static_cast<wz::Property<wz::WzVec2D> *>(
                texture_node->get_child(u"origin"))
                ->get();
@@ -63,19 +63,19 @@ bool PortalRenderSystem::render_portal(GamePortal &g_portal) {
   return true;
 }
 
-void PortalRenderSystem::render_nametag(GamePortal &g_portal) {
+void PortalRenderSystem::RenderNametag(GamePortal &g_portal) {
   if (g_portal.tm == SceneSystemInstance::map_id) {
     return;
   }
   if (g_portal.tm == 999999999) {
     return;
   }
-  auto name = MinimapUiSystem::load_map_name(g_portal.tm).map_name;
-  NpcRenderSystem::render_nametag(name, {g_portal.pos.x, g_portal.pos.y + 4});
+  auto name = MinimapUiSystem::LoadMapName(g_portal.tm).map_name;
+  NpcRenderSystem::RenderNametag(name, {g_portal.pos.x, g_portal.pos.y + 4});
 }
 
-bool PortalRenderSystem::render(GamePortal &g_portal) {
-  render_portal(g_portal);
-  render_nametag(g_portal);
+bool PortalRenderSystem::Render(GamePortal &g_portal) {
+  RenderPortal(g_portal);
+  RenderNametag(g_portal);
   return true;
 }

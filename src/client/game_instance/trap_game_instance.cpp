@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-void TrapGameInstance::load(wz::Node *image) {
+void TrapGameInstance::Load(wz::Node *image) {
   data = {};
   auto map_node = image;
   uint8_t map_layer = 0;
@@ -79,7 +79,7 @@ void TrapGameInstance::load(wz::Node *image) {
       g_obj.ani_index = delays.size() - 1;
       g_obj.ani_time = 0;
 
-      auto AnimateData = load_animate_index(delays);
+      auto AnimateData = LoadAnimateIndex(delays);
       g_obj.ani_index = AnimateData.index;
       g_obj.ani_time = AnimateData.time;
 
@@ -90,7 +90,7 @@ void TrapGameInstance::load(wz::Node *image) {
 }
 
 TrapGameInstance::AnimateData
-TrapGameInstance::load_animate_index(std::vector<int> delays) {
+TrapGameInstance::LoadAnimateIndex(std::vector<int> delays) {
   auto ds = delays;
   auto sum = std::accumulate(ds.begin(), ds.end(), 0);
   auto offset = Window::dt_time % sum; // 取余，得到周期内偏移
@@ -109,7 +109,7 @@ TrapGameInstance::load_animate_index(std::vector<int> delays) {
   return data;
 }
 
-std::vector<int> TrapGameInstance::load_animate_delays(wz::Node *node) {
+std::vector<int> TrapGameInstance::LoadAnimateDelays(wz::Node *node) {
   static std::flat_map<wz::Node *, std::vector<int>> cache;
   if (!cache.contains(node)) {
     for (int i = 0;; i++) {
@@ -125,7 +125,7 @@ std::vector<int> TrapGameInstance::load_animate_delays(wz::Node *node) {
   return cache.at(node);
 }
 
-void TrapGameInstance::load(uint32_t map_id) {
-  auto map_node = WzResource::load_map_node(map_id);
-  load(map_node);
+void TrapGameInstance::Load(uint32_t map_id) {
+  auto map_node = WzResource::LoadMapNode(map_id);
+  Load(map_node);
 }

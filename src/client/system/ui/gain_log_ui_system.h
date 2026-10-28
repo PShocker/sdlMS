@@ -2,9 +2,9 @@
 
 class GainLogUiSystem {
 private:
-  static void render_text();
-  static void destory();
+  static void RenderText();
+  static void Destory();
 
 public:
-  static bool render();
+  static bool Render();
 };

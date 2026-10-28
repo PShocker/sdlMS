@@ -6,4 +6,4 @@
 #include <optional>
 #include <string>
 
-void EffectGameInstance::reset() { data = {}; }
+void EffectGameInstance::Reset() { data = {}; }

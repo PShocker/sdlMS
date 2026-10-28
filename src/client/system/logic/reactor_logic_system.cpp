@@ -9,7 +9,7 @@
 #include <ranges>
 #include <string>
 
-bool ReactorLogicSystem::run_animate(GameReactor &g_reactor) {
+bool ReactorLogicSystem::RunAnimate(GameReactor &g_reactor) {
   bool finish = false;
   if (g_reactor.hit) {
     auto node = WzResource::reactor->find(g_reactor.id + u".img");
@@ -44,7 +44,7 @@ bool ReactorLogicSystem::run_animate(GameReactor &g_reactor) {
   return finish;
 }
 
-void ReactorLogicSystem::run_alpha(GameReactor &g_reactor) {
+void ReactorLogicSystem::RunAlpha(GameReactor &g_reactor) {
   if (g_reactor.alpha < 255) {
     int alpha = g_reactor.alpha;
     alpha += Window::delta_time;
@@ -52,12 +52,12 @@ void ReactorLogicSystem::run_alpha(GameReactor &g_reactor) {
   }
 }
 
-bool ReactorLogicSystem::run() {
+bool ReactorLogicSystem::Run() {
   for (auto &rs : ReactorGameInstance::data) {
     for (auto &r : rs) {
-      run_alpha(r);
-      if (run_animate(r)) {
-        r.state = ServerReactorInstance::load_next_state(r.id, r.state);
+      RunAlpha(r);
+      if (RunAnimate(r)) {
+        r.state = ServerReactorInstance::LoadNextState(r.id, r.state);
         r.ani_index = 0;
         r.ani_time = 0;
         r.hit = false;

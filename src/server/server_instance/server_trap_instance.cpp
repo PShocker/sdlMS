@@ -6,7 +6,7 @@
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
 
-void ServerTrapInstance::handle_attack(uint64_t client_id,
+void ServerTrapInstance::HandleAttack(uint64_t client_id,
                                          ClientTrapAttackT &r) {
   if (!ServerClientInstance::clients.contains(client_id)) {
     return;
@@ -23,7 +23,7 @@ void ServerTrapInstance::handle_attack(uint64_t client_id,
   }
 }
 
-void ServerTrapInstance::handle_s_attack(uint64_t client_id, AttackT &at) {
+void ServerTrapInstance::HandleSAttack(uint64_t client_id, AttackT &at) {
   const auto &attack = at;
   // 伤害数字
   DamageData data = {
@@ -44,7 +44,7 @@ void ServerTrapInstance::handle_s_attack(uint64_t client_id, AttackT &at) {
   EffectGameInstance::data[7].emplace_back(d);
 }
 
-void ServerTrapInstance::handle_server_attack(uint64_t client_id,
+void ServerTrapInstance::HandleServerAttack(uint64_t client_id,
                                                 ServerTrapAttackT &r) {
-  handle_s_attack(client_id, *r.payload);
+  HandleSAttack(client_id, *r.payload);
 }

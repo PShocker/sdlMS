@@ -24,7 +24,7 @@
 #include <optional>
 #include <utility>
 
-float ServerDropInstance::cal_available_time(float y1, float y2) {
+float ServerDropInstance::CalAvailableTime(float y1, float y2) {
   const float VY = 400.0f;                     // 初速度（向上）
   const float G = 800.0f;                      // 重力加速度
   const float MAX_RISE = VY * VY / (2.0f * G); // 最大上升高度 = 100.0f
@@ -48,33 +48,33 @@ float ServerDropInstance::cal_available_time(float y1, float y2) {
   return rise_time + fall_time;
 }
 
-void ServerDropInstance::save_drop(uint64_t map_id, const DropT &drop) {
+void ServerDropInstance::SaveDrop(uint64_t map_id, const DropT &drop) {
   auto &scene = ServerSceneInstance::scenes[map_id];
   ServerDrop sd;
   sd.dt = drop;
   sd.destroy = Window::dt_now + 60 * 5 * 1000;
-  sd.available = Window::dt_now + cal_available_time(drop.y1, drop.y2) * 1000;
+  sd.available = Window::dt_now + CalAvailableTime(drop.y1, drop.y2) * 1000;
   scene.drops.emplace(drop.random_id, sd);
 }
 
-void ServerDropInstance::save_delay_drop(uint64_t map_id, uint64_t d,
+void ServerDropInstance::SaveDelayDrop(uint64_t map_id, uint64_t d,
                                            const DropT &drop) {
   auto &scene = ServerSceneInstance::scenes[map_id];
   ServerDrop sd;
   sd.dt = drop;
   sd.destroy = Window::dt_now + (d - Window::dt_time) + 60 * 5 * 1000;
   sd.available = Window::dt_now + (d - Window::dt_time) +
-                 cal_available_time(drop.y1, drop.y2) * 1000;
+                 CalAvailableTime(drop.y1, drop.y2) * 1000;
   scene.delay_drops[d].emplace_back(sd);
 }
 
-void ServerDropInstance::handle_client_drop(uint64_t client_id,
+void ServerDropInstance::HandleClientDrop(uint64_t client_id,
                                               ClientCharacterDropT &r) {
   auto map_id = r.map_id;
 
-  auto dts = create_dts({*r.payload}, map_id);
+  auto dts = CreateDts({*r.payload}, map_id);
   for (const auto &dt : dts) {
-    save_drop(map_id, *dt);
+    SaveDrop(map_id, *dt);
   }
   const auto &clients = ServerSceneInstance::scenes[map_id].clients;
   ServerCharacterDropT t;
@@ -85,7 +85,7 @@ void ServerDropInstance::handle_client_drop(uint64_t client_id,
   }
 }
 
-void ServerDropInstance::handle_pick(uint64_t client_id,
+void ServerDropInstance::HandlePick(uint64_t client_id,
                                        ClientCharacterPickT &r) {
   auto map_id = r.map_id;
   auto &scene = ServerSceneInstance::scenes[map_id];
@@ -107,7 +107,7 @@ void ServerDropInstance::handle_pick(uint64_t client_id,
   }
 }
 
-void ServerDropInstance::handle_server_pick(uint64_t client_id,
+void ServerDropInstance::HandleServerPick(uint64_t client_id,
                                               ServerCharacterPickT &r) {
   if (r.client_id == ServerMain::local_addr && r.random_id == 0) {
     // 捡取物品失败
@@ -127,19 +127,19 @@ void ServerDropInstance::handle_server_pick(uint64_t client_id,
 
     if (r.client_id == ServerMain::local_addr) {
       auto itm = dt.data;
-      PackageGameInstance::add_new_item(itm);
-      AudioGameInstance::load_audio(u"Game.img/PickUpItem", 0);
+      PackageGameInstance::AddNewItem(itm);
+      AudioGameInstance::LoadAudio(u"Game.img/PickUpItem", 0);
 
       CharacterLogicSystem::ccp = {};
 
-      auto itm_num = ItemGameInstance::load_item_num(dt.data);
+      auto itm_num = ItemGameInstance::LoadItemNum(dt.data);
       itm_num = std::max(1, itm_num);
-      GainLogGameInstance::add(dt.data->id, itm_num, GainEnum::kItem);
+      GainLogGameInstance::Add(dt.data->id, itm_num, GainEnum::kItem);
     }
   }
 }
 
-void ServerDropInstance::handle_server_dt(const DropT &dt) {
+void ServerDropInstance::HandleServerDt(const DropT &dt) {
   GameDrop drop;
   drop.random_id = dt.random_id;
   drop.page = dt.page;
@@ -162,7 +162,7 @@ void ServerDropInstance::handle_server_dt(const DropT &dt) {
     auto item = dt.drop.AsItem();
     auto tmp = std::format("{:08d}", item->item_id);
     drop.data =
-        ItemGameInstance::load_item({tmp.begin(), tmp.end()}, item->item_num);
+        ItemGameInstance::LoadItem({tmp.begin(), tmp.end()}, item->item_num);
     break;
   }
   default: {
@@ -172,8 +172,8 @@ void ServerDropInstance::handle_server_dt(const DropT &dt) {
   DropGameInstance::data.emplace(dt.random_id, drop);
 }
 
-void ServerDropInstance::handle_server_scene_dt(const DropT &dt) {
-  handle_server_dt(dt);
+void ServerDropInstance::HandleServerSceneDt(const DropT &dt) {
+  HandleServerDt(dt);
   auto &drop = DropGameInstance::data.at(dt.random_id);
   drop.hspeed = 0;
   drop.pos.x = dt.x2;
@@ -182,7 +182,7 @@ void ServerDropInstance::handle_server_scene_dt(const DropT &dt) {
   return;
 }
 
-void ServerDropInstance::handle_server_drop(uint64_t client_id,
+void ServerDropInstance::HandleServerDrop(uint64_t client_id,
                                               ServerCharacterDropT &r) {
   if (CursorGameInstance::cursor_hand_net.has_value()) {
     if (r.client_id == ServerMain::local_addr) {
@@ -216,8 +216,8 @@ void ServerDropInstance::handle_server_drop(uint64_t client_id,
             break;
           }
           default: {
-            ItemGameInstance::dec_item_num(itm, num);
-            auto itm_num = ItemGameInstance::load_item_num(itm);
+            ItemGameInstance::DecItemNum(itm, num);
+            auto itm_num = ItemGameInstance::LoadItemNum(itm);
             if (itm_num == 0) {
               itm->id = u"";
             }
@@ -240,12 +240,12 @@ void ServerDropInstance::handle_server_drop(uint64_t client_id,
       CursorGameInstance::cursor_hand = std::nullopt;
     }
   }
-  handle_server_dt(*r.payload);
-  AudioGameInstance::load_audio(u"Game.img/DropItem", 0);
+  HandleServerDt(*r.payload);
+  AudioGameInstance::LoadAudio(u"Game.img/DropItem", 0);
 }
 
 std::vector<std::unique_ptr<fbs::DropT>>
-ServerDropInstance::create_dts(const std::vector<DropT> &dts,
+ServerDropInstance::CreateDts(const std::vector<DropT> &dts,
                                  uint32_t map_id) {
   std::vector<std::unique_ptr<fbs::DropT>> r;
 
@@ -257,7 +257,7 @@ ServerDropInstance::create_dts(const std::vector<DropT> &dts,
   for (const auto &[key, value] : s_fhs) {
     g_fhs.emplace(key, value.fh);
   }
-  auto border = MapInfoGameInstance::load_mr_border(map_id);
+  auto border = MapInfoGameInstance::LoadMrBorder(map_id);
   border.w -= 80;
   auto dts_size = dts.size();
   const auto dt_w = 24;
@@ -284,12 +284,12 @@ ServerDropInstance::create_dts(const std::vector<DropT> &dts,
 
     // 提取判断墙面
     auto ins =
-        Physic::fall_intersect_pos({dt.x1, dt.y1}, {dt.x2, dt.y2}, g_fhs);
+        Physic::FallIntersectPos({dt.x1, dt.y1}, {dt.x2, dt.y2}, g_fhs);
     auto hspeed = (dt.x1 > dt.x2) ? -1 : 1;
 
     for (const auto &[k, v] : ins) {
       if (!v.fh.k.has_value()) {
-        auto check = Physic::fall_collide_wall(hspeed, v.fh, g_fhs);
+        auto check = Physic::FallCollideWall(hspeed, v.fh, g_fhs);
         if (check) {
           dt.x2 = v.pos.x;
           break;
@@ -302,12 +302,12 @@ ServerDropInstance::create_dts(const std::vector<DropT> &dts,
     float tmp_hsp = 0;
     float tmp_vsp = 10000;
     SDL_FPoint tmp_fp{dt.x2, dt.y2};
-    Physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
+    Physic::Fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
                  true, true, tmp_fh, tmp_page, g_fhs);
     if (tmp_fp.y == border.h) {
       // 如果这个掉落物会掉落在地图外，则修正x为原始x
       tmp_fp = {dt.x1, dt.y2};
-      Physic::fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
+      Physic::Fall(tmp_fp, 100000, tmp_hsp, tmp_vsp, tmp_vsp, tmp_vsp, border,
                    true, true, tmp_fh, tmp_page, g_fhs);
     }
     dt.page = tmp_page;
@@ -321,7 +321,7 @@ ServerDropInstance::create_dts(const std::vector<DropT> &dts,
   return r;
 }
 
-void ServerDropInstance::handle_server_drop_fade(ServerDropFadeT &r) {
+void ServerDropInstance::HandleServerDropFade(ServerDropFadeT &r) {
   auto &data = DropGameInstance::data;
   for (const auto id : r.drop_ids) {
     if (data.contains(id)) {
@@ -331,7 +331,7 @@ void ServerDropInstance::handle_server_drop_fade(ServerDropFadeT &r) {
   return;
 }
 
-void ServerDropInstance::handle_client_drop_fade(ClientDropFadeT &r) {
+void ServerDropInstance::HandleClientDropFade(ClientDropFadeT &r) {
   auto map_id = r.map_id;
   auto &drops = ServerSceneInstance::scenes.at(map_id).drops;
   for (auto id : r.random_id) {
@@ -342,7 +342,7 @@ void ServerDropInstance::handle_client_drop_fade(ClientDropFadeT &r) {
   return;
 }
 
-void ServerDropInstance::handle_client_create_drop(uint64_t client_id,
+void ServerDropInstance::HandleClientCreateDrop(uint64_t client_id,
                                                      ClientCreateDropT &r) {
   auto map_id = r.map_id;
 
@@ -350,16 +350,16 @@ void ServerDropInstance::handle_client_create_drop(uint64_t client_id,
   for (auto &p : r.drops) {
     dt.push_back(*p);
   }
-  auto dts = create_dts(dt, map_id);
+  auto dts = CreateDts(dt, map_id);
   for (const auto &dt : dts) {
-    save_delay_drop(map_id, r.delay, *dt);
+    SaveDelayDrop(map_id, r.delay, *dt);
   }
 }
 
-void ServerDropInstance::handle_server_create_drop(uint64_t client_id,
+void ServerDropInstance::HandleServerCreateDrop(uint64_t client_id,
                                                      ServerCreateDropT &r) {
   for (const auto &dt : r.payload) {
-    ServerDropInstance::handle_server_dt(*dt);
+    ServerDropInstance::HandleServerDt(*dt);
   }
-  AudioGameInstance::load_audio(u"Game.img/DropItem", 0);
+  AudioGameInstance::LoadAudio(u"Game.img/DropItem", 0);
 }

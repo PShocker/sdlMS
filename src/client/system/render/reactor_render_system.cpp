@@ -8,7 +8,7 @@
 #include "wz/Wz.h"
 #include <string>
 
-bool ReactorRenderSystem::render(GameReactor &g_reactor) {
+bool ReactorRenderSystem::Render(GameReactor &g_reactor) {
   auto node = WzResource::reactor->find(g_reactor.id + u".img");
   if (node->get_child(std::to_string(g_reactor.state))) {
     node = node->get_child(std::to_string(g_reactor.state));
@@ -23,9 +23,9 @@ bool ReactorRenderSystem::render(GameReactor &g_reactor) {
     if (node->type == wz::Type::UOL) {
       node = static_cast<wz::Property<wz::WzUOL> *>(node)->get_uol();
     }
-    auto t = WzResource::load_texture(node);
+    auto t = WzResource::LoadTexture(node);
     SDL_FRect pos_rect;
-    auto o = WzResource::load_fpoint(node->get_child(u"origin"));
+    auto o = WzResource::LoadFpoint(node->get_child(u"origin"));
     pos_rect.x = g_reactor.pos.x - o.x;
     pos_rect.y = g_reactor.pos.y - o.y;
     pos_rect.w = t->w;

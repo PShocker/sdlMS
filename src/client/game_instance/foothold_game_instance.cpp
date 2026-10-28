@@ -4,7 +4,7 @@
 #include <vector>
 
 std::flat_map<int32_t, GameFoothold>
-FootholdGameInstance::load(wz::Node *node) {
+FootholdGameInstance::Load(wz::Node *node) {
   std::flat_map<int32_t, GameFoothold> data;
   auto map_node = node;
   auto map_foothold_node = map_node->get_child(u"foothold");
@@ -58,7 +58,7 @@ FootholdGameInstance::load(wz::Node *node) {
 }
 
 std::flat_map<int32_t, GameFoothold>
-FootholdGameInstance::load(uint32_t map_id) {
-  auto map_node = WzResource::load_map_node(map_id);
-  return load(map_node);
+FootholdGameInstance::Load(uint32_t map_id) {
+  auto map_node = WzResource::LoadMapNode(map_id);
+  return Load(map_node);
 }

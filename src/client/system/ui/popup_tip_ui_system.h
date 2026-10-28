@@ -4,22 +4,22 @@
 #include "src/client/game/game_popup_tip.h"
 class PopupTipUiSystem {
 private:
-  static void render_backgrnd(GamePopupTip &t);
-  static void render_text(GamePopupTip &t);
-  static void render_button(GamePopupTip &t);
+  static void RenderBackgrnd(GamePopupTip &t);
+  static void RenderText(GamePopupTip &t);
+  static void RenderButton(GamePopupTip &t);
 
-  static void event_button_party(GamePopupTip &t);
-  static void event_button_trade(GamePopupTip &t);
-  static void event_button_ok(GamePopupTip &t);
-  static void event_button_cancel(GamePopupTip &t);
+  static void EventButtonParty(GamePopupTip &t);
+  static void EventButtonTrade(GamePopupTip &t);
+  static void EventButtonOk(GamePopupTip &t);
+  static void EventButtonCancel(GamePopupTip &t);
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
-  static void destory();
+  static void Destory();
 
 public:
   static inline SDL_FPoint pos = {429, -32};
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

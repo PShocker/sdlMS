@@ -24,6 +24,6 @@ public:
 
     auto point = builder.GetBufferPointer();
     auto size = builder.GetSize();
-    ServerMain::server_send(point, size, addr);
+    ServerMain::ServerSend(point, size, addr);
   }
 };

@@ -12,5 +12,5 @@ public:
     kLogining,
     kLoginingUsed,
   };
-  static void enter(NoticeType type, void (*fn)());
+  static void Enter(NoticeType type, void (*fn)());
 };

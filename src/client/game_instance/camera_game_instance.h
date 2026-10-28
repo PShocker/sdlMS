@@ -3,7 +3,7 @@
 #include "SDL3/SDL_rect.h"
 class CameraGameInstance {
 public:
-  static void reset();
-  static void load(float x, float y, float w, float h);
+  static void Reset();
+  static void Load(float x, float y, float w, float h);
   static inline SDL_FRect camera;
 };

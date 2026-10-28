@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <cstdlib>
 
-void Window::create(const char *title, uint32_t logic_w, uint32_t logic_h,
+void Window::Create(const char *title, uint32_t logic_w, uint32_t logic_h,
                     uint32_t window_w, uint32_t window_h) {
   // hint
   SDL_SetHint(SDL_HINT_IME_IMPLEMENTED_UI, "composition");
@@ -27,7 +27,7 @@ void Window::create(const char *title, uint32_t logic_w, uint32_t logic_h,
   SDL_SetRenderLogicalPresentation(renderer, logic_w, logic_h, logical_mode);
 }
 
-void Window::tick() {
+void Window::Tick() {
   dt_last = dt_now;
   dt_now = SDL_GetTicks();
   delta_time = dt_now - dt_last;
@@ -40,9 +40,9 @@ void Window::tick() {
   }
 }
 
-void Window::clear() { SDL_RenderClear(renderer); }
+void Window::Clear() { SDL_RenderClear(renderer); }
 
-void Window::update() {
+void Window::Update() {
   pre_mouse_state = mouse_state;
   mouse_state = SDL_GetMouseState(&mouse_pos.x, &mouse_pos.y);
   SDL_RenderPresent(renderer);

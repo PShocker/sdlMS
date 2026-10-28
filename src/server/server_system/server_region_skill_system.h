@@ -3,5 +3,5 @@
 class ServerRegionSkillSystem {
 private:
 public:
-  static bool run();
+  static bool Run();
 };

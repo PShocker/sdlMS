@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-void NoticeUiSystem::render_backgrnd() {
+void NoticeUiSystem::RenderBackgrnd() {
   wz::Node *node;
   switch (type) {
   case NoticeEnum::kWorldmapDisable:
@@ -60,8 +60,8 @@ void NoticeUiSystem::render_backgrnd() {
     break;
   }
   }
-  auto [w, h] = load_wh();
-  auto t = WzResource::load_texture(node->get_child(u"t"));
+  auto [w, h] = LoadWh();
+  auto t = WzResource::LoadTexture(node->get_child(u"t"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
@@ -69,8 +69,8 @@ void NoticeUiSystem::render_backgrnd() {
       static_cast<float>(t->h),
   };
   SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
-  auto c = WzResource::load_texture(node->get_child(u"c"));
-  auto s = WzResource::load_texture(node->get_child(u"s"));
+  auto c = WzResource::LoadTexture(node->get_child(u"c"));
+  auto s = WzResource::LoadTexture(node->get_child(u"s"));
   pos_rect = {
       pos.x,
       pos.y + t->h,
@@ -88,10 +88,10 @@ void NoticeUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, s, nullptr, &pos_rect);
 }
 
-void NoticeUiSystem::render_button() {
+void NoticeUiSystem::RenderButton() {
   std::vector<wz::Node *> buttons_node = {};
   std::vector<SDL_FRect> buttons_rect = {};
-  auto [w, h] = load_wh();
+  auto [w, h] = LoadWh();
   switch (type) {
   case NoticeEnum::kWorldmapDisable:
   case NoticeEnum::kWorldmapTeleport:
@@ -131,23 +131,23 @@ void NoticeUiSystem::render_button() {
     pos_rect.y += (int)pos.y;
     auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+    auto CursorIn = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void NoticeUiSystem::render_text() {
+void NoticeUiSystem::RenderText() {
   std::u16string text = u"";
   SDL_FPoint p;
   switch (type) {
@@ -279,20 +279,20 @@ void NoticeUiSystem::render_text() {
   }
   }
   if (!text.empty()) {
-    Freetype::load_aligned(true);
-    Freetype::load_size(12);
-    Freetype::load_color(255, 255, 255, 255);
-    Freetype::draw_str(text, pos.x + p.x, pos.y + p.y, 240, 1.3);
+    Freetype::LoadAligned(true);
+    Freetype::LoadSize(12);
+    Freetype::LoadColor(255, 255, 255, 255);
+    Freetype::DrawStr(text, pos.x + p.x, pos.y + p.y, 240, 1.3);
   }
 }
 
-void NoticeUiSystem::render_input() {
+void NoticeUiSystem::RenderInput() {
   switch (type) {
   case NoticeEnum::kApInc:
   case NoticeEnum::kShopbuySellMul:
   case NoticeEnum::kShopbuyMul:
   case NoticeEnum::kThrowMul: {
-    TextInputUiSystem::render(text, 5, 5);
+    TextInputUiSystem::Render(text, 5, 5);
     break;
   }
   default: {
@@ -301,21 +301,21 @@ void NoticeUiSystem::render_input() {
   }
 }
 
-bool NoticeUiSystem::render() {
-  render_backgrnd();
-  render_button();
-  render_text();
-  render_input();
+bool NoticeUiSystem::Render() {
+  RenderBackgrnd();
+  RenderButton();
+  RenderText();
+  RenderInput();
   return true;
 }
 
-void NoticeUiSystem::open() {
-  KeyboardInputSystem::reset();
+void NoticeUiSystem::Open() {
+  KeyboardInputSystem::Reset();
 
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
@@ -346,7 +346,7 @@ void NoticeUiSystem::open() {
       text.type.reset();
       text.type.set(TextInput::kDigit);
       text.cur = 1;
-      TextInputUiSystem::active(text);
+      TextInputUiSystem::Active(text);
       break;
     }
     default: {
@@ -359,7 +359,7 @@ void NoticeUiSystem::open() {
     case NoticeEnum::kShopbuySellMul: {
       auto p =
           std::any_cast<std::polymorphic<GameItem> *>(NoticeUiSystem::data);
-      auto num = ItemGameInstance::load_item_num(*p);
+      auto num = ItemGameInstance::LoadItemNum(*p);
       auto tmp = std::to_string(num);
       text.text = {tmp.begin(), tmp.end()};
       break;
@@ -368,13 +368,13 @@ void NoticeUiSystem::open() {
       break;
     }
     }
-    AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void NoticeUiSystem::open_no_space(ItemEnum type) {
+void NoticeUiSystem::OpenNoSpace(ItemEnum type) {
   switch (type) {
   case ItemEnum::kEquip: {
     NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoEquipSpace;
@@ -401,17 +401,17 @@ void NoticeUiSystem::open_no_space(ItemEnum type) {
     break;
   }
   }
-  if (!std::ranges::contains(System::render_systems, &render)) {
-    open();
+  if (!std::ranges::contains(System::render_systems, &Render)) {
+    Open();
   }
 }
 
-void NoticeUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void NoticeUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }
 
-SDL_FPoint NoticeUiSystem::load_wh() {
+SDL_FPoint NoticeUiSystem::LoadWh() {
   switch (type) {
   case NoticeEnum::kWorldmapDisable:
   case NoticeEnum::kWorldmapTeleport:
@@ -440,20 +440,20 @@ SDL_FPoint NoticeUiSystem::load_wh() {
   return {0, 0};
 }
 
-void NoticeUiSystem::event_close() { close(); }
+void NoticeUiSystem::EventClose() { Close(); }
 
-void NoticeUiSystem::event_button_shopbuy() {
+void NoticeUiSystem::EventButtonShopbuy() {
   auto p = std::any_cast<const GameShopItem *>(NoticeUiSystem::data);
   auto itm = p->item;
   switch (type) {
   case NoticeEnum::kShopbuy: {
-    PackageGameInstance::add_item(itm);
+    PackageGameInstance::AddItem(itm);
     PackageGameInstance::meso -= p->price;
     break;
   }
   case NoticeEnum::kShopbuyMul: {
     auto num = std::stoi(std::string{text.text.begin(), text.text.end()});
-    ItemGameInstance::set_item_num(itm, num);
+    ItemGameInstance::SetItemNum(itm, num);
     auto price = p->price * num;
     if (PackageGameInstance::meso < price) {
       type = NoticeEnum::kShopbuyNoMeso;
@@ -464,21 +464,21 @@ void NoticeUiSystem::event_button_shopbuy() {
     if (ShopUiSystem::active_tab[0] == 1) {
       auto &must = ShopGameInstance::must;
       auto &must_itm = must[ShopUiSystem::active_item[0].value()];
-      auto itm_num = ItemGameInstance::load_item_num(must_itm.item);
+      auto itm_num = ItemGameInstance::LoadItemNum(must_itm.item);
       if (buy_num > itm_num) {
         type = NoticeEnum::kShopbuySellNoNum;
         return;
       }
     }
-    if (PackageGameInstance::add_item(itm)) {
+    if (PackageGameInstance::AddItem(itm)) {
       PackageGameInstance::meso -= price;
       if (ShopUiSystem::active_tab[0] == 1) {
         auto &must = ShopGameInstance::must;
         auto &must_itm = must[ShopUiSystem::active_item[0].value()];
-        ItemGameInstance::dec_item_num(must_itm.item, buy_num);
+        ItemGameInstance::DecItemNum(must_itm.item, buy_num);
       }
     } else {
-      open_no_space(itm->type);
+      OpenNoSpace(itm->type);
       return;
     }
     break;
@@ -490,7 +490,7 @@ void NoticeUiSystem::event_button_shopbuy() {
   if (ShopUiSystem::active_tab[0] == 1) {
     auto &must = ShopGameInstance::must;
     auto &itm = must[ShopUiSystem::active_item[0].value()].item;
-    if (ItemGameInstance::load_item_num(itm) == 0) {
+    if (ItemGameInstance::LoadItemNum(itm) == 0) {
       must.erase(must.begin() + ShopUiSystem::active_item[0].value());
     }
     ShopUiSystem::pages[0] = 0;
@@ -498,57 +498,57 @@ void NoticeUiSystem::event_button_shopbuy() {
   ShopUiSystem::active_tab[1] = (int)itm->type;
   ShopUiSystem::pages[1] = 0;
   ShopUiSystem::active_item = {};
-  close();
+  Close();
 }
 
-void NoticeUiSystem::event_button_shopbuy_sell() {
+void NoticeUiSystem::EventButtonShopbuySell() {
   auto p = std::any_cast<std::polymorphic<GameItem> *>(NoticeUiSystem::data);
-  GameShopItem gst = ShopGameInstance::load_shop_item((*p)->id);
+  GameShopItem gst = ShopGameInstance::LoadShopItem((*p)->id);
   gst.item = *p;
   switch (type) {
   case NoticeEnum::kShopbuySell: {
-    auto itm_info = ItemGameInstance::load_item_info(gst.item->id, 0);
+    auto itm_info = ItemGameInstance::LoadItemInfo(gst.item->id, 0);
     auto unitPrice = itm_info->get_child(u"unitPrice");
-    auto num = ItemGameInstance::load_item_num(gst.item);
+    auto num = ItemGameInstance::LoadItemNum(gst.item);
     if (unitPrice) {
       auto u_price = static_cast<wz::Property<double> *>(unitPrice)->get();
-      PackageGameInstance::add_meso(u_price * num);
+      PackageGameInstance::AddMeso(u_price * num);
     } else {
-      PackageGameInstance::add_meso(gst.price);
+      PackageGameInstance::AddMeso(gst.price);
     }
     if ((*p)->id.starts_with(u"0207")) {
       (*p)->id = u"";
     } else {
-      ItemGameInstance::dec_item_num(*p, num);
+      ItemGameInstance::DecItemNum(*p, num);
     }
     break;
   }
   case NoticeEnum::kShopbuySellMul: {
-    auto num = ItemGameInstance::load_item_num(gst.item);
+    auto num = ItemGameInstance::LoadItemNum(gst.item);
     auto sell_num = std::stoi(std::string{text.text.begin(), text.text.end()});
     if (sell_num > num) {
       type = NoticeEnum::kShopbuySellNoNum;
       return;
     }
-    PackageGameInstance::add_meso(gst.price * num);
-    ItemGameInstance::dec_item_num(*p, sell_num);
-    ItemGameInstance::add_item_num(gst.item, (sell_num - num));
+    PackageGameInstance::AddMeso(gst.price * num);
+    ItemGameInstance::DecItemNum(*p, sell_num);
+    ItemGameInstance::AddItemNum(gst.item, (sell_num - num));
     break;
   }
   default: {
     break;
   }
   }
-  ShopGameInstance::add_must_item(gst.item);
+  ShopGameInstance::AddMustItem(gst.item);
   ShopUiSystem::active_tab[0] = 1;
   ShopUiSystem::active_item = {};
   ShopUiSystem::pages = {};
-  close();
+  Close();
 }
 
-void NoticeUiSystem::event_button_ap_inc() {
+void NoticeUiSystem::EventButtonApInc() {
   auto num = std::stoi(std::string{text.text.begin(), text.text.end()});
-  auto r_ap = CharacterStatGameInstance::get_remain_ap();
+  auto r_ap = CharacterStatGameInstance::GetRemainAp();
   if (num > r_ap) {
     type = NoticeEnum::kShopbuySellNoNum;
     return;
@@ -557,52 +557,52 @@ void NoticeUiSystem::event_button_ap_inc() {
   switch (p) {
   case 0: {
     // hp
-    auto sf_hp = CharacterStatGameInstance::get_hp_ap();
-    CharacterStatGameInstance::set_hp_ap(sf_hp + num);
+    auto sf_hp = CharacterStatGameInstance::GetHpAp();
+    CharacterStatGameInstance::SetHpAp(sf_hp + num);
     break;
   };
   case 1: {
     // mp
-    auto sf_mp = CharacterStatGameInstance::get_mp_ap();
-    CharacterStatGameInstance::set_mp_ap(sf_mp + num);
+    auto sf_mp = CharacterStatGameInstance::GetMpAp();
+    CharacterStatGameInstance::SetMpAp(sf_mp + num);
     break;
   };
   case 2: {
     // str
-    auto sf_str = CharacterStatGameInstance::get_str_ap();
-    CharacterStatGameInstance::set_str_ap(sf_str + num);
+    auto sf_str = CharacterStatGameInstance::GetStrAp();
+    CharacterStatGameInstance::SetStrAp(sf_str + num);
     break;
   };
   case 3: {
     // dex
-    auto sf_dex = CharacterStatGameInstance::get_dex_ap();
-    CharacterStatGameInstance::set_dex_ap(sf_dex + num);
+    auto sf_dex = CharacterStatGameInstance::GetDexAp();
+    CharacterStatGameInstance::SetDexAp(sf_dex + num);
     break;
   };
   case 4: {
     // int
-    auto sf_int = CharacterStatGameInstance::get_int_ap();
-    CharacterStatGameInstance::set_int_ap(sf_int + num);
+    auto sf_int = CharacterStatGameInstance::GetIntAp();
+    CharacterStatGameInstance::SetIntAp(sf_int + num);
     break;
   };
   case 5: {
     // luk
-    auto sf_luk = CharacterStatGameInstance::get_luk_ap();
-    CharacterStatGameInstance::set_luk_ap(sf_luk + num);
+    auto sf_luk = CharacterStatGameInstance::GetLukAp();
+    CharacterStatGameInstance::SetLukAp(sf_luk + num);
     break;
   };
   }
-  CharacterStatGameInstance::set_remain_ap(r_ap - num);
-  CharacterStatGameInstance::update();
-  close();
+  CharacterStatGameInstance::SetRemainAp(r_ap - num);
+  CharacterStatGameInstance::Update();
+  Close();
 }
 
-void NoticeUiSystem::event_button_worldmap_teleport() {
+void NoticeUiSystem::EventButtonWorldmapTeleport() {
   auto p = std::any_cast<uint32_t>(NoticeUiSystem::data);
-  SceneSystemInstance::enter_prepare(p, u"sp", 0);
+  SceneSystemInstance::EnterPrepare(p, u"sp", 0);
 }
 
-void NoticeUiSystem::event_button_throw_mul() {
+void NoticeUiSystem::EventButtonThrowMul() {
   int itm_num;
   std::u16string itm_id;
   if (std::any_cast<std::nullptr_t>(&NoticeUiSystem::data)) {
@@ -612,7 +612,7 @@ void NoticeUiSystem::event_button_throw_mul() {
     auto p =
         std::any_cast<std::polymorphic<GameItem> *>(NoticeUiSystem::data);
     itm_id = (*p)->id;
-    itm_num = ItemGameInstance::load_item_num(*p);
+    itm_num = ItemGameInstance::LoadItemNum(*p);
   }
   auto throw_num = std::stoi(std::string{text.text.begin(), text.text.end()});
   if (throw_num > itm_num) {
@@ -639,24 +639,24 @@ void NoticeUiSystem::event_button_throw_mul() {
     CursorGameInstance::cursor_hand_net = {
         .type = CursorGameInstance::CursorHandNetType::kDrop,
     };
-    close();
+    Close();
   }
 }
 
-void NoticeUiSystem::event_button_throw_close() {
+void NoticeUiSystem::EventButtonThrowClose() {
   CursorGameInstance::cursor_hand = std::nullopt;
-  close();
+  Close();
 }
 
-void NoticeUiSystem::event_button_equip_no_ap() {
+void NoticeUiSystem::EventButtonEquipNoAp() {
   CursorGameInstance::cursor_hand = std::nullopt;
-  close();
+  Close();
 }
 
-bool NoticeUiSystem::event_button(SDL_Event *event) {
+bool NoticeUiSystem::EventButton(SDL_Event *Event) {
   std::vector<SDL_FRect> buttons_rect;
   std::vector<std::function<void()>> func = {};
-  auto [w, h] = load_wh();
+  auto [w, h] = LoadWh();
   buttons_rect = {
       {w - 105, h - 30, 47, 18},
       {w - 55, h - 30, 47, 18},
@@ -664,32 +664,32 @@ bool NoticeUiSystem::event_button(SDL_Event *event) {
   switch (type) {
   case NoticeEnum::kShopbuy:
   case NoticeEnum::kShopbuyMul: {
-    func = {event_button_shopbuy, close};
+    func = {EventButtonShopbuy, Close};
     break;
   }
   case NoticeEnum::kApInc: {
-    func = {event_button_shopbuy_sell, close};
+    func = {EventButtonShopbuySell, Close};
     break;
   }
   case NoticeEnum::kWorldmapTeleport: {
-    func = {event_button_worldmap_teleport, close};
+    func = {EventButtonWorldmapTeleport, Close};
     break;
   }
   case NoticeEnum::kShopbuySell:
   case NoticeEnum::kShopbuySellMul: {
-    func = {event_button_shopbuy_sell, close};
+    func = {EventButtonShopbuySell, Close};
     break;
   }
   case NoticeEnum::kThrowMul: {
-    func = {event_button_throw_mul, event_button_throw_close};
+    func = {EventButtonThrowMul, EventButtonThrowClose};
     break;
   }
   case NoticeEnum::kEquipNoAbility: {
-    func = {event_button_equip_no_ap, event_button_equip_no_ap};
+    func = {EventButtonEquipNoAp, EventButtonEquipNoAp};
     break;
   }
   default: {
-    func = {close, close};
+    func = {Close, Close};
     break;
   }
   }
@@ -699,20 +699,20 @@ bool NoticeUiSystem::event_button(SDL_Event *event) {
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
       func[i]();
-      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }
   return false;
 }
 
-void NoticeUiSystem::event_input(SDL_Event *event) {
+void NoticeUiSystem::EventInput(SDL_Event *Event) {
   switch (type) {
   case NoticeEnum::kApInc:
   case NoticeEnum::kShopbuySellMul:
   case NoticeEnum::kShopbuyMul:
   case NoticeEnum::kThrowMul: {
-    TextInputUiSystem::event(event, text);
+    TextInputUiSystem::Event(Event, text);
   }
   default: {
     break;
@@ -720,12 +720,12 @@ void NoticeUiSystem::event_input(SDL_Event *event) {
   }
 }
 
-void NoticeUiSystem::event_motion_bt_audio(SDL_Event *event) {
-  if (CursorGameInstance::cursor_ui != render) {
+void NoticeUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+  if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
   std::vector<SDL_FRect> buttons_rect;
-  auto [w, h] = load_wh();
+  auto [w, h] = LoadWh();
   buttons_rect = {
       {w - 105, h - 30, 47, 18},
       {w - 55, h - 30, 47, 18},
@@ -743,19 +743,19 @@ void NoticeUiSystem::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-bool NoticeUiSystem::event(SDL_Event *event) {
-  event_input(event);
-  switch (event->type) {
+bool NoticeUiSystem::Event(SDL_Event *Event) {
+  EventInput(Event);
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      event_close();
+      EventClose();
       if (type == NoticeEnum::kThrowMul) {
         CursorGameInstance::cursor_hand = std::nullopt;
       }
@@ -765,27 +765,27 @@ bool NoticeUiSystem::event(SDL_Event *event) {
       switch (type) {
       case NoticeEnum::kShopbuy:
       case NoticeEnum::kShopbuyMul: {
-        event_button_shopbuy();
+        EventButtonShopbuy();
         break;
       }
       case NoticeEnum::kShopbuySell:
       case NoticeEnum::kShopbuySellMul: {
-        event_button_shopbuy_sell();
+        EventButtonShopbuySell();
         break;
       }
       case NoticeEnum::kApInc: {
         break;
       }
       case NoticeEnum::kWorldmapTeleport: {
-        event_button_worldmap_teleport();
+        EventButtonWorldmapTeleport();
         break;
       }
       case NoticeEnum::kThrowMul: {
-        event_button_throw_mul();
+        EventButtonThrowMul();
         break;
       }
       default: {
-        close();
+        Close();
         break;
       }
       }
@@ -798,22 +798,22 @@ bool NoticeUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventButton(Event);
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_motion_bt_audio(event);
+    EventMotionBtAudio(Event);
     break;
   }
   default: {
@@ -824,8 +824,8 @@ bool NoticeUiSystem::event(SDL_Event *event) {
   return false;
 }
 
-bool NoticeUiSystem::cursor_in() {
-  auto [w, h] = load_wh();
+bool NoticeUiSystem::CursorIn() {
+  auto [w, h] = LoadWh();
   auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);

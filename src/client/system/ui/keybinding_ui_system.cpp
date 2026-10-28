@@ -103,105 +103,105 @@ const static inline std::flat_map<SDL_Scancode, SDL_FPoint>
 
 };
 
-SDL_FPoint KeybindingUiSystem::load_wh() { return {636, 445}; }
+SDL_FPoint KeybindingUiSystem::LoadWh() { return {636, 445}; }
 
 const static SDL_FPoint key_lt{5, 56};
 
 static std::optional<SDL_Scancode> backgrnd_key;
 
-void KeybindingUiSystem::render_backgrnd_key() {
+void KeybindingUiSystem::RenderBackgrndKey() {
   auto keys = WzResource::ui->find(u"KeyBindings.img/key");
   static const std::flat_map<SDL_Scancode, SDL_Texture *> key_textures = {
-      {SDL_SCANCODE_ESCAPE, WzResource::load_texture(keys->get_child(u"1"))},
-      {SDL_SCANCODE_1, WzResource::load_texture(keys->get_child(u"2"))},
-      {SDL_SCANCODE_2, WzResource::load_texture(keys->get_child(u"3"))},
-      {SDL_SCANCODE_3, WzResource::load_texture(keys->get_child(u"4"))},
-      {SDL_SCANCODE_4, WzResource::load_texture(keys->get_child(u"5"))},
-      {SDL_SCANCODE_5, WzResource::load_texture(keys->get_child(u"6"))},
-      {SDL_SCANCODE_6, WzResource::load_texture(keys->get_child(u"7"))},
-      {SDL_SCANCODE_7, WzResource::load_texture(keys->get_child(u"8"))},
-      {SDL_SCANCODE_8, WzResource::load_texture(keys->get_child(u"9"))},
-      {SDL_SCANCODE_9, WzResource::load_texture(keys->get_child(u"10"))},
-      {SDL_SCANCODE_0, WzResource::load_texture(keys->get_child(u"11"))},
-      {SDL_SCANCODE_MINUS, WzResource::load_texture(keys->get_child(u"12"))},
-      {SDL_SCANCODE_EQUALS, WzResource::load_texture(keys->get_child(u"13"))},
-      {SDL_SCANCODE_Q, WzResource::load_texture(keys->get_child(u"16"))},
-      {SDL_SCANCODE_W, WzResource::load_texture(keys->get_child(u"17"))},
-      {SDL_SCANCODE_E, WzResource::load_texture(keys->get_child(u"18"))},
-      {SDL_SCANCODE_R, WzResource::load_texture(keys->get_child(u"19"))},
-      {SDL_SCANCODE_T, WzResource::load_texture(keys->get_child(u"20"))},
-      {SDL_SCANCODE_Y, WzResource::load_texture(keys->get_child(u"21"))},
-      {SDL_SCANCODE_U, WzResource::load_texture(keys->get_child(u"22"))},
-      {SDL_SCANCODE_I, WzResource::load_texture(keys->get_child(u"23"))},
-      {SDL_SCANCODE_O, WzResource::load_texture(keys->get_child(u"24"))},
-      {SDL_SCANCODE_P, WzResource::load_texture(keys->get_child(u"25"))},
+      {SDL_SCANCODE_ESCAPE, WzResource::LoadTexture(keys->get_child(u"1"))},
+      {SDL_SCANCODE_1, WzResource::LoadTexture(keys->get_child(u"2"))},
+      {SDL_SCANCODE_2, WzResource::LoadTexture(keys->get_child(u"3"))},
+      {SDL_SCANCODE_3, WzResource::LoadTexture(keys->get_child(u"4"))},
+      {SDL_SCANCODE_4, WzResource::LoadTexture(keys->get_child(u"5"))},
+      {SDL_SCANCODE_5, WzResource::LoadTexture(keys->get_child(u"6"))},
+      {SDL_SCANCODE_6, WzResource::LoadTexture(keys->get_child(u"7"))},
+      {SDL_SCANCODE_7, WzResource::LoadTexture(keys->get_child(u"8"))},
+      {SDL_SCANCODE_8, WzResource::LoadTexture(keys->get_child(u"9"))},
+      {SDL_SCANCODE_9, WzResource::LoadTexture(keys->get_child(u"10"))},
+      {SDL_SCANCODE_0, WzResource::LoadTexture(keys->get_child(u"11"))},
+      {SDL_SCANCODE_MINUS, WzResource::LoadTexture(keys->get_child(u"12"))},
+      {SDL_SCANCODE_EQUALS, WzResource::LoadTexture(keys->get_child(u"13"))},
+      {SDL_SCANCODE_Q, WzResource::LoadTexture(keys->get_child(u"16"))},
+      {SDL_SCANCODE_W, WzResource::LoadTexture(keys->get_child(u"17"))},
+      {SDL_SCANCODE_E, WzResource::LoadTexture(keys->get_child(u"18"))},
+      {SDL_SCANCODE_R, WzResource::LoadTexture(keys->get_child(u"19"))},
+      {SDL_SCANCODE_T, WzResource::LoadTexture(keys->get_child(u"20"))},
+      {SDL_SCANCODE_Y, WzResource::LoadTexture(keys->get_child(u"21"))},
+      {SDL_SCANCODE_U, WzResource::LoadTexture(keys->get_child(u"22"))},
+      {SDL_SCANCODE_I, WzResource::LoadTexture(keys->get_child(u"23"))},
+      {SDL_SCANCODE_O, WzResource::LoadTexture(keys->get_child(u"24"))},
+      {SDL_SCANCODE_P, WzResource::LoadTexture(keys->get_child(u"25"))},
       {SDL_SCANCODE_LEFTBRACKET,
-       WzResource::load_texture(keys->get_child(u"26"))},
+       WzResource::LoadTexture(keys->get_child(u"26"))},
       {SDL_SCANCODE_RIGHTBRACKET,
-       WzResource::load_texture(keys->get_child(u"27"))},
-      {SDL_SCANCODE_LCTRL, WzResource::load_texture(keys->get_child(u"29"))},
-      {SDL_SCANCODE_RCTRL, WzResource::load_texture(keys->get_child(u"29"))},
-      {SDL_SCANCODE_A, WzResource::load_texture(keys->get_child(u"30"))},
-      {SDL_SCANCODE_S, WzResource::load_texture(keys->get_child(u"31"))},
-      {SDL_SCANCODE_D, WzResource::load_texture(keys->get_child(u"32"))},
-      {SDL_SCANCODE_F, WzResource::load_texture(keys->get_child(u"33"))},
-      {SDL_SCANCODE_G, WzResource::load_texture(keys->get_child(u"34"))},
-      {SDL_SCANCODE_H, WzResource::load_texture(keys->get_child(u"35"))},
-      {SDL_SCANCODE_J, WzResource::load_texture(keys->get_child(u"36"))},
-      {SDL_SCANCODE_K, WzResource::load_texture(keys->get_child(u"37"))},
-      {SDL_SCANCODE_L, WzResource::load_texture(keys->get_child(u"38"))},
+       WzResource::LoadTexture(keys->get_child(u"27"))},
+      {SDL_SCANCODE_LCTRL, WzResource::LoadTexture(keys->get_child(u"29"))},
+      {SDL_SCANCODE_RCTRL, WzResource::LoadTexture(keys->get_child(u"29"))},
+      {SDL_SCANCODE_A, WzResource::LoadTexture(keys->get_child(u"30"))},
+      {SDL_SCANCODE_S, WzResource::LoadTexture(keys->get_child(u"31"))},
+      {SDL_SCANCODE_D, WzResource::LoadTexture(keys->get_child(u"32"))},
+      {SDL_SCANCODE_F, WzResource::LoadTexture(keys->get_child(u"33"))},
+      {SDL_SCANCODE_G, WzResource::LoadTexture(keys->get_child(u"34"))},
+      {SDL_SCANCODE_H, WzResource::LoadTexture(keys->get_child(u"35"))},
+      {SDL_SCANCODE_J, WzResource::LoadTexture(keys->get_child(u"36"))},
+      {SDL_SCANCODE_K, WzResource::LoadTexture(keys->get_child(u"37"))},
+      {SDL_SCANCODE_L, WzResource::LoadTexture(keys->get_child(u"38"))},
       {SDL_SCANCODE_SEMICOLON,
-       WzResource::load_texture(keys->get_child(u"39"))},
+       WzResource::LoadTexture(keys->get_child(u"39"))},
       {SDL_SCANCODE_APOSTROPHE,
-       WzResource::load_texture(keys->get_child(u"40"))},
-      {SDL_SCANCODE_GRAVE, WzResource::load_texture(keys->get_child(u"41"))},
-      {SDL_SCANCODE_LSHIFT, WzResource::load_texture(keys->get_child(u"42"))},
-      {SDL_SCANCODE_RSHIFT, WzResource::load_texture(keys->get_child(u"42"))},
+       WzResource::LoadTexture(keys->get_child(u"40"))},
+      {SDL_SCANCODE_GRAVE, WzResource::LoadTexture(keys->get_child(u"41"))},
+      {SDL_SCANCODE_LSHIFT, WzResource::LoadTexture(keys->get_child(u"42"))},
+      {SDL_SCANCODE_RSHIFT, WzResource::LoadTexture(keys->get_child(u"42"))},
       {SDL_SCANCODE_BACKSLASH,
-       WzResource::load_texture(keys->get_child(u"43"))},
-      {SDL_SCANCODE_Z, WzResource::load_texture(keys->get_child(u"44"))},
-      {SDL_SCANCODE_X, WzResource::load_texture(keys->get_child(u"45"))},
-      {SDL_SCANCODE_C, WzResource::load_texture(keys->get_child(u"46"))},
-      {SDL_SCANCODE_V, WzResource::load_texture(keys->get_child(u"47"))},
-      {SDL_SCANCODE_B, WzResource::load_texture(keys->get_child(u"48"))},
-      {SDL_SCANCODE_N, WzResource::load_texture(keys->get_child(u"49"))},
-      {SDL_SCANCODE_M, WzResource::load_texture(keys->get_child(u"50"))},
-      {SDL_SCANCODE_COMMA, WzResource::load_texture(keys->get_child(u"51"))},
-      {SDL_SCANCODE_PERIOD, WzResource::load_texture(keys->get_child(u"52"))},
-      {SDL_SCANCODE_LALT, WzResource::load_texture(keys->get_child(u"56"))},
-      {SDL_SCANCODE_RALT, WzResource::load_texture(keys->get_child(u"56"))},
-      {SDL_SCANCODE_SPACE, WzResource::load_texture(keys->get_child(u"57"))},
-      {SDL_SCANCODE_F1, WzResource::load_texture(keys->get_child(u"59"))},
-      {SDL_SCANCODE_F2, WzResource::load_texture(keys->get_child(u"60"))},
-      {SDL_SCANCODE_F3, WzResource::load_texture(keys->get_child(u"61"))},
-      {SDL_SCANCODE_F4, WzResource::load_texture(keys->get_child(u"62"))},
-      {SDL_SCANCODE_F5, WzResource::load_texture(keys->get_child(u"63"))},
-      {SDL_SCANCODE_F6, WzResource::load_texture(keys->get_child(u"64"))},
-      {SDL_SCANCODE_F7, WzResource::load_texture(keys->get_child(u"65"))},
-      {SDL_SCANCODE_F8, WzResource::load_texture(keys->get_child(u"66"))},
-      {SDL_SCANCODE_F9, WzResource::load_texture(keys->get_child(u"67"))},
-      {SDL_SCANCODE_F10, WzResource::load_texture(keys->get_child(u"68"))},
-      {SDL_SCANCODE_F11, WzResource::load_texture(keys->get_child(u"87"))},
-      {SDL_SCANCODE_F12, WzResource::load_texture(keys->get_child(u"88"))},
+       WzResource::LoadTexture(keys->get_child(u"43"))},
+      {SDL_SCANCODE_Z, WzResource::LoadTexture(keys->get_child(u"44"))},
+      {SDL_SCANCODE_X, WzResource::LoadTexture(keys->get_child(u"45"))},
+      {SDL_SCANCODE_C, WzResource::LoadTexture(keys->get_child(u"46"))},
+      {SDL_SCANCODE_V, WzResource::LoadTexture(keys->get_child(u"47"))},
+      {SDL_SCANCODE_B, WzResource::LoadTexture(keys->get_child(u"48"))},
+      {SDL_SCANCODE_N, WzResource::LoadTexture(keys->get_child(u"49"))},
+      {SDL_SCANCODE_M, WzResource::LoadTexture(keys->get_child(u"50"))},
+      {SDL_SCANCODE_COMMA, WzResource::LoadTexture(keys->get_child(u"51"))},
+      {SDL_SCANCODE_PERIOD, WzResource::LoadTexture(keys->get_child(u"52"))},
+      {SDL_SCANCODE_LALT, WzResource::LoadTexture(keys->get_child(u"56"))},
+      {SDL_SCANCODE_RALT, WzResource::LoadTexture(keys->get_child(u"56"))},
+      {SDL_SCANCODE_SPACE, WzResource::LoadTexture(keys->get_child(u"57"))},
+      {SDL_SCANCODE_F1, WzResource::LoadTexture(keys->get_child(u"59"))},
+      {SDL_SCANCODE_F2, WzResource::LoadTexture(keys->get_child(u"60"))},
+      {SDL_SCANCODE_F3, WzResource::LoadTexture(keys->get_child(u"61"))},
+      {SDL_SCANCODE_F4, WzResource::LoadTexture(keys->get_child(u"62"))},
+      {SDL_SCANCODE_F5, WzResource::LoadTexture(keys->get_child(u"63"))},
+      {SDL_SCANCODE_F6, WzResource::LoadTexture(keys->get_child(u"64"))},
+      {SDL_SCANCODE_F7, WzResource::LoadTexture(keys->get_child(u"65"))},
+      {SDL_SCANCODE_F8, WzResource::LoadTexture(keys->get_child(u"66"))},
+      {SDL_SCANCODE_F9, WzResource::LoadTexture(keys->get_child(u"67"))},
+      {SDL_SCANCODE_F10, WzResource::LoadTexture(keys->get_child(u"68"))},
+      {SDL_SCANCODE_F11, WzResource::LoadTexture(keys->get_child(u"87"))},
+      {SDL_SCANCODE_F12, WzResource::LoadTexture(keys->get_child(u"88"))},
 
       // 以下特殊按键的映射可能需要根据实际 SDL3 定义调整
       {SDL_SCANCODE_HOME,
-       WzResource::load_texture(keys->get_child(u"71"))}, // Hm
+       WzResource::LoadTexture(keys->get_child(u"71"))}, // Hm
       {SDL_SCANCODE_PAGEUP,
-       WzResource::load_texture(keys->get_child(u"73"))}, // Pup
+       WzResource::LoadTexture(keys->get_child(u"73"))}, // Pup
       {SDL_SCANCODE_END,
-       WzResource::load_texture(keys->get_child(u"79"))}, // End
+       WzResource::LoadTexture(keys->get_child(u"79"))}, // End
       {SDL_SCANCODE_PAGEDOWN,
-       WzResource::load_texture(keys->get_child(u"81"))}, // Pdn
+       WzResource::LoadTexture(keys->get_child(u"81"))}, // Pdn
       {SDL_SCANCODE_INSERT,
-       WzResource::load_texture(keys->get_child(u"82"))}, // Ins
+       WzResource::LoadTexture(keys->get_child(u"82"))}, // Ins
       {SDL_SCANCODE_DELETE,
-       WzResource::load_texture(keys->get_child(u"83"))}, // Del
+       WzResource::LoadTexture(keys->get_child(u"83"))}, // Del
 
-      {SDL_SCANCODE_UP, WzResource::load_texture(keys->get_child(u"72"))},
-      {SDL_SCANCODE_DOWN, WzResource::load_texture(keys->get_child(u"80"))},
-      {SDL_SCANCODE_LEFT, WzResource::load_texture(keys->get_child(u"75"))},
-      {SDL_SCANCODE_RIGHT, WzResource::load_texture(keys->get_child(u"77"))},
+      {SDL_SCANCODE_UP, WzResource::LoadTexture(keys->get_child(u"72"))},
+      {SDL_SCANCODE_DOWN, WzResource::LoadTexture(keys->get_child(u"80"))},
+      {SDL_SCANCODE_LEFT, WzResource::LoadTexture(keys->get_child(u"75"))},
+      {SDL_SCANCODE_RIGHT, WzResource::LoadTexture(keys->get_child(u"77"))},
 
   };
   backgrnd_key = std::nullopt;
@@ -220,7 +220,7 @@ void KeybindingUiSystem::render_backgrnd_key() {
     }
     if (KeyboardGameInstance::data.contains(k)) {
       const auto &input = KeyboardGameInstance::data.at(k);
-      QuickSlotUiSystem::render_input_icon(input, x - 1, y - 1);
+      QuickSlotUiSystem::RenderInputIcon(input, x - 1, y - 1);
     }
     SDL_FRect pos_rect{
         static_cast<float>(x),
@@ -235,8 +235,8 @@ void KeybindingUiSystem::render_backgrnd_key() {
   }
 }
 
-void KeybindingUiSystem::render_backgrnd() {
-  static auto backgrnd = WzResource::load_texture(
+void KeybindingUiSystem::RenderBackgrnd() {
+  static auto backgrnd = WzResource::LoadTexture(
       WzResource::ui->find(u"KeyBindings.img/backgrnd"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
                      static_cast<float>(backgrnd->h)};
@@ -244,16 +244,16 @@ void KeybindingUiSystem::render_backgrnd() {
   return;
 }
 
-void KeybindingUiSystem::render_tab() {
+void KeybindingUiSystem::RenderTab() {
   static auto node = WzResource::ui->find(u"KeyBindings.img/tab:kind");
   const SDL_FPoint lt{9, 24};
   for (auto i : {0, 1}) {
     SDL_Texture *texture;
     if (active_tab == i) {
-      texture = WzResource::load_texture(
+      texture = WzResource::LoadTexture(
           node->get_child(u"selected")->get_child(std::to_string(i)));
     } else {
-      texture = WzResource::load_texture(
+      texture = WzResource::LoadTexture(
           node->get_child(u"normal")->get_child(std::to_string(i)));
     }
     SDL_FRect pos_rect = {
@@ -266,8 +266,8 @@ void KeybindingUiSystem::render_tab() {
   }
 }
 
-void KeybindingUiSystem::render_backgrnd2() {
-  static auto backgrnd2 = WzResource::load_texture(
+void KeybindingUiSystem::RenderBackgrnd2() {
+  static auto backgrnd2 = WzResource::LoadTexture(
       WzResource::ui->find(u"KeyBindings.img/backgrnd_keyboard"));
   SDL_FPoint lt{9, 53};
   SDL_FRect pos_rect{
@@ -280,7 +280,7 @@ void KeybindingUiSystem::render_backgrnd2() {
   return;
 }
 
-void KeybindingUiSystem::render_button() {
+void KeybindingUiSystem::RenderButton() {
   const static std::array buttons_nodes = {
       WzResource::ui->find(u"Basic.img/BtClose"),
       WzResource::ui->find(u"KeyBindings.img/button:Default"),
@@ -293,7 +293,7 @@ void KeybindingUiSystem::render_button() {
       WzResource::ui->find(u"KeyBindings.img/button:presetSave"),
       WzResource::ui->find(u"KeyBindings.img/button:presetUndo"),
   };
-  auto wh = load_wh();
+  auto wh = LoadWh();
   const std::array buttons_rect = {
       SDL_FRect{wh.x - 18, 6, 12, 12}, //
       SDL_FRect{6, 421, 54, 16},       //
@@ -317,33 +317,33 @@ void KeybindingUiSystem::render_button() {
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
+    auto CursorIn = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void KeybindingUiSystem::render_remain_icon(int i, int x, int y,
+void KeybindingUiSystem::RenderRemainIcon(int i, int x, int y,
                                               uint8_t alpha) {
-  auto input = KeyboardGameInstance::find_input_by_cursor(i);
-  QuickSlotUiSystem::render_input_icon(input, x, y, alpha);
+  auto input = KeyboardGameInstance::FindInputByCursor(i);
+  QuickSlotUiSystem::RenderInputIcon(input, x, y, alpha);
 }
 
 static std::optional<uint32_t> remain_key;
 static SDL_FPoint remain_lt{12, 300};
 
-void KeybindingUiSystem::render_remain_key() {
+void KeybindingUiSystem::RenderRemainKey() {
   remain_key = std::nullopt;
 
   const static std::flat_map<CursorGameInstance::CursorKeybindType, SDL_FPoint> m = {
@@ -389,8 +389,8 @@ void KeybindingUiSystem::render_remain_key() {
   auto &mouse_pos = Window::mouse_pos;
   for (auto [k, v] : m) {
     auto input =
-        KeyboardGameInstance::find_input_by_cursor(static_cast<int>(k));
-    if (KeyboardGameInstance::find_key_by_val(input.val)) {
+        KeyboardGameInstance::FindInputByCursor(static_cast<int>(k));
+    if (KeyboardGameInstance::FindKeyByVal(input.val)) {
       continue;
     }
     SDL_FRect pos_rect;
@@ -401,84 +401,84 @@ void KeybindingUiSystem::render_remain_key() {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       remain_key = static_cast<uint32_t>(k);
     }
-    render_remain_icon(static_cast<int>(k), pos_rect.x, pos_rect.y);
+    RenderRemainIcon(static_cast<int>(k), pos_rect.x, pos_rect.y);
   }
 }
 
-bool KeybindingUiSystem::render() {
-  render_backgrnd();
-  render_backgrnd2();
-  render_button();
-  render_tab();
-  render_backgrnd_key();
-  render_remain_key();
+bool KeybindingUiSystem::Render() {
+  RenderBackgrnd();
+  RenderBackgrnd2();
+  RenderButton();
+  RenderTab();
+  RenderBackgrndKey();
+  RenderRemainKey();
 
   return true;
 }
 
-void KeybindingUiSystem::open() {
+void KeybindingUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
     data_bak = KeyboardGameInstance::data;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void KeybindingUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::render_systems, render_info);
-  std::erase(System::event_systems, event);
+void KeybindingUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::render_systems, RenderInfo);
+  std::erase(System::event_systems, Event);
 
-  event_drag_end();
+  EventDragEnd();
 }
 
-void KeybindingUiSystem::event_button_close() {
-  close();
+void KeybindingUiSystem::EventButtonClose() {
+  Close();
   KeyboardGameInstance::data = data_bak;
   return;
 }
 
-void KeybindingUiSystem::event_button_default() {
-  KeyboardGameInstance::reset();
+void KeybindingUiSystem::EventButtonDefault() {
+  KeyboardGameInstance::Reset();
   return;
 }
 
-void KeybindingUiSystem::event_button_delete() {
+void KeybindingUiSystem::EventButtonDelete() {
   KeyboardGameInstance::data.clear();
   return;
 }
 
-void KeybindingUiSystem::event_button_quickSlot() { return; }
+void KeybindingUiSystem::EventButtonQuickSlot() { return; }
 
-void KeybindingUiSystem::event_button_prePage1() { return; }
+void KeybindingUiSystem::EventButtonPrePage1() { return; }
 
-void KeybindingUiSystem::event_button_prePage2() { return; }
+void KeybindingUiSystem::EventButtonPrePage2() { return; }
 
-void KeybindingUiSystem::event_button_prePage3() { return; }
+void KeybindingUiSystem::EventButtonPrePage3() { return; }
 
-void KeybindingUiSystem::event_button_save() {
-  close();
+void KeybindingUiSystem::EventButtonSave() {
+  Close();
   return;
 }
 
-void KeybindingUiSystem::event_button_undo() {
-  event_button_close();
+void KeybindingUiSystem::EventButtonUndo() {
+  EventButtonClose();
   return;
 }
 
-void KeybindingUiSystem::event_motion_bt_audio(SDL_Event *event) {
-  if (CursorGameInstance::cursor_ui != render) {
+void KeybindingUiSystem::EventMotionBtAudio(SDL_Event *Event) {
+  if (CursorGameInstance::cursor_ui != Render) {
     return;
   }
-  auto wh = load_wh();
+  auto wh = LoadWh();
   const std::array buttons_rect = {
       SDL_FRect{wh.x - 18, 6, 12, 12}, //
       SDL_FRect{6, 421, 54, 16},       //
@@ -505,12 +505,12 @@ void KeybindingUiSystem::event_motion_bt_audio(SDL_Event *event) {
     }
   }
   if (bt_in != -1 && bt_audio != bt_in) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseOver", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseOver", 0);
   }
   bt_audio = bt_in;
 }
 
-void KeybindingUiSystem::event_backgrnd_key() {
+void KeybindingUiSystem::EventBackgrndKey() {
   if (CursorGameInstance::cursor_hand_net.has_value()) {
     return;
   }
@@ -520,22 +520,22 @@ void KeybindingUiSystem::event_backgrnd_key() {
   auto scan_code = backgrnd_key.value();
   auto &cursor_hand = CursorGameInstance::cursor_hand;
   if (cursor_hand.has_value()) {
-    auto input = KeyboardGameInstance::load_cursor_input();
-    KeyboardGameInstance::insert_input(scan_code, input.value());
+    auto input = KeyboardGameInstance::LoadCursorInput();
+    KeyboardGameInstance::InsertInput(scan_code, input.value());
     CursorGameInstance::cursor_hand = std::nullopt;
-    AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
   } else {
     if (KeyboardGameInstance::data.contains(scan_code)) {
       CursorGameInstance::cursor_hand = {
           .type = CursorGameInstance::CursorHandType::kKeybind,
           .val = scan_code,
       };
-      AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
     }
   }
 }
 
-void KeybindingUiSystem::event_remain_key() {
+void KeybindingUiSystem::EventRemainKey() {
   if (CursorGameInstance::cursor_hand_net.has_value()) {
     return;
   }
@@ -550,7 +550,7 @@ void KeybindingUiSystem::event_remain_key() {
   if (CursorGameInstance::cursor_hand.has_value()) {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       CursorGameInstance::cursor_hand = std::nullopt;
-      AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
       return;
     }
   }
@@ -561,13 +561,13 @@ void KeybindingUiSystem::event_remain_key() {
         .val = SDL_SCANCODE_UNKNOWN,
         .sub_val = remain_key.value(),
     };
-    AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
   }
 }
 
-bool KeybindingUiSystem::event_button(SDL_Event *event) {
+bool KeybindingUiSystem::EventButton(SDL_Event *Event) {
   std::vector<void (*)()> fns;
-  auto wh = load_wh();
+  auto wh = LoadWh();
   const std::array buttons_rect = {
       SDL_FRect{wh.x - 18, 6, 12, 12}, //
       SDL_FRect{6, 421, 54, 16},       //
@@ -582,9 +582,9 @@ bool KeybindingUiSystem::event_button(SDL_Event *event) {
 
   };
   fns = {
-      event_button_close,     event_button_default,  event_button_delete,
-      event_button_quickSlot, event_button_prePage1, event_button_prePage2,
-      event_button_prePage3,  event_button_save,     event_button_undo,
+      EventButtonClose,     EventButtonDefault,  EventButtonDelete,
+      EventButtonQuickSlot, EventButtonPrePage1, EventButtonPrePage2,
+      EventButtonPrePage3,  EventButtonSave,     EventButtonUndo,
   };
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
@@ -593,7 +593,7 @@ bool KeybindingUiSystem::event_button(SDL_Event *event) {
     pos_rect.y += pos.y;
     if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
       fns[i]();
-      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       return true;
     }
   }
@@ -601,15 +601,15 @@ bool KeybindingUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-bool KeybindingUiSystem::event(SDL_Event *event) {
+bool KeybindingUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      event_button_close();
-      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+      EventButtonClose();
+      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       return false;
       break;
     }
@@ -620,31 +620,31 @@ bool KeybindingUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_top();
-        event_drag_start(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTop();
+        EventDragStart(Event);
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
         // event_tab(event);
-        event_backgrnd_key();
-        event_remain_key();
-        r = !event_button(event);
+        EventBackgrndKey();
+        EventRemainKey();
+        r = !EventButton(Event);
       }
-      event_drag_end();
+      EventDragEnd();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_motion(event);
-    event_drag_move(event);
-    event_motion_bt_audio(event);
+    EventMotion(Event);
+    EventDragMove(Event);
+    EventMotionBtAudio(Event);
     break;
   }
   case SDL_EVENT_MOUSE_WHEEL: {
@@ -658,65 +658,65 @@ bool KeybindingUiSystem::event(SDL_Event *event) {
   return r;
 }
 
-void KeybindingUiSystem::event_top() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void KeybindingUiSystem::EventTop() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void KeybindingUiSystem::event_drag_start(SDL_Event *event) {
-  auto wh = load_wh();
+void KeybindingUiSystem::EventDragStart(SDL_Event *Event) {
+  auto wh = LoadWh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
+  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - event->button.x, pos.y - event->button.y};
+    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
   }
   return;
 }
 
-void KeybindingUiSystem::event_drag_end() {
+void KeybindingUiSystem::EventDragEnd() {
   drag = std::nullopt;
   return;
 }
 
-void KeybindingUiSystem::event_drag_move(SDL_Event *event) {
+void KeybindingUiSystem::EventDragMove(SDL_Event *Event) {
   if (drag.has_value()) {
-    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
+    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
     auto &camera = CameraGameInstance::camera;
-    auto [w, h] = load_wh();
+    auto [w, h] = LoadWh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - w);
     pos.y = std::clamp(pos.y, (float)0, camera.h - h);
   }
   return;
 }
 
-void KeybindingUiSystem::toggle() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
-  auto fn = &render;
+void KeybindingUiSystem::Toggle() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-bool KeybindingUiSystem::cursor_in() {
-  auto [w, h] = load_wh();
+bool KeybindingUiSystem::CursorIn() {
+  auto [w, h] = LoadWh();
   auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-bool KeybindingUiSystem::render_info() {
+bool KeybindingUiSystem::RenderInfo() {
   if (CursorGameInstance::modal_overlay) {
     return true;
   }
-  if (CursorGameInstance::cursor_ui != render) {
+  if (CursorGameInstance::cursor_ui != Render) {
     return true;
   }
   if (CursorGameInstance::cursor_hand.has_value()) {
@@ -880,7 +880,7 @@ bool KeybindingUiSystem::render_info() {
     }
     auto &mouse_pos = Window::mouse_pos;
     SDL_FPoint show_pos = {mouse_pos.x + 15, mouse_pos.y + 15};
-    TooltipUiSystem::render_str(text, show_pos.x, show_pos.y);
+    TooltipUiSystem::RenderStr(text, show_pos.x, show_pos.y);
   } else if (backgrnd_key.has_value() &&
              KeyboardGameInstance::data.contains(backgrnd_key.value())) {
     auto scan_code = backgrnd_key.value();
@@ -890,24 +890,24 @@ bool KeybindingUiSystem::render_info() {
     if (input.type == "skill") {
       auto ski_id = input.val;
       std::u16string ski_id2{ski_id.begin(), ski_id.end()};
-      auto ski_lv = JobSkillGameInstance::load_ski_level(ski_id2);
-      TooltipUiSystem::render_skill(ski_id2, ski_lv, show_pos.x, show_pos.y);
+      auto ski_lv = JobSkillGameInstance::LoadSkiLevel(ski_id2);
+      TooltipUiSystem::RenderSkill(ski_id2, ski_lv, show_pos.x, show_pos.y);
     } else if (input.type == "item") {
       auto item_id = input.val;
       GameItem item;
       item.id = {item_id.begin(), item_id.end()};
-      TooltipUiSystem::render_item(item, show_pos.x, show_pos.y);
+      TooltipUiSystem::RenderItem(item, show_pos.x, show_pos.y);
     } else {
     }
   }
   return true;
 }
 
-void KeybindingUiSystem::event_motion(SDL_Event *event) {
+void KeybindingUiSystem::EventMotion(SDL_Event *Event) {
   auto &sys = System::render_systems;
-  std::erase(sys, render_info);
-  auto it = std::ranges::find(sys, &CursorRenderSystem::render);
+  std::erase(sys, RenderInfo);
+  auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {
-    sys.insert(it, render_info);
+    sys.insert(it, RenderInfo);
   }
 }

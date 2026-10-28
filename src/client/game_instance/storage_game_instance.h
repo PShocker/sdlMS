@@ -6,5 +6,5 @@ class StorageGameInstance {
 public:
   static inline GameStorage storage;
 
-  static void load(const GameSaveData &gs);
+  static void Load(const GameSaveData &gs);
 };

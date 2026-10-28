@@ -6,9 +6,9 @@
 #include <optional>
 class SliderUiSystem {
 public:
-  static void render_hslider(int x, int y, uint32_t val, uint32_t count,
+  static void RenderHslider(int x, int y, uint32_t val, uint32_t count,
                              int32_t length, bool top, bool disable);
-  static std::optional<int> click_thumb(int x, int y, uint32_t val,
+  static std::optional<int> ClickThumb(int x, int y, uint32_t val,
                                         uint32_t count, int32_t length,
                                         bool top,
                                         SDL_FPoint mouse = Window::mouse_pos);

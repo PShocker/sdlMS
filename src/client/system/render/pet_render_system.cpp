@@ -1,3 +1,3 @@
 #include "pet_render_system.h"
 
-bool PetRenderSystem::render() { return true; }
+bool PetRenderSystem::Render() { return true; }

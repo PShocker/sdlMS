@@ -4,6 +4,6 @@
 #include "src/client/game/game_triangle.h"
 class TriangleGameInstance {
 public:
-  static bool rect_ins_tri(SDL_FRect &r, GameTriangle &t);
-  static GameTriangle load_tri(GameTriangle t, bool flip, SDL_FPoint &pos);
+  static bool RectInsTri(SDL_FRect &r, GameTriangle &t);
+  static GameTriangle LoadTri(GameTriangle t, bool flip, SDL_FPoint &pos);
 };

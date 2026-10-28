@@ -11,40 +11,40 @@
 
 class PackageUiSystem {
 private:
-  static void render_scroll();
-  static void render_backgrnd();
-  static void render_tab();
-  static void render_items();
-  static bool render_items_info();
-  static void render_button();
-  static void render_meso();
+  static void RenderScroll();
+  static void RenderBackgrnd();
+  static void RenderTab();
+  static void RenderItems();
+  static bool RenderItemsInfo();
+  static void RenderButton();
+  static void RenderMeso();
 
-  static void event_close();
-  static void event_button_coin();
-  static void event_button_gather();
-  static void event_button_sort();
+  static void EventClose();
+  static void EventButtonCoin();
+  static void EventButtonGather();
+  static void EventButtonSort();
 
-  static void event_motion(SDL_Event *event);
+  static void EventMotion(SDL_Event *Event);
 
-  static bool event_click_item(SDL_Event *event);
+  static bool EventClickItem(SDL_Event *Event);
 
-  static bool event_vscr(SDL_Event *event);
-  static bool event_button(SDL_Event *event);
-  static void event_tab(SDL_Event *event);
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static bool EventVscr(SDL_Event *Event);
+  static bool EventButton(SDL_Event *Event);
+  static void EventTab(SDL_Event *Event);
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static void event_vscr_start(SDL_Event *event);
-  static void event_vscr_end();
-  static void event_vscr_move(SDL_Event *event);
+  static void EventVscrStart(SDL_Event *Event);
+  static void EventVscrEnd();
+  static void EventVscrMove(SDL_Event *Event);
 
-  static void event_wheel(SDL_Event *event);
+  static void EventWheel(SDL_Event *Event);
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
   static inline bool vscr_motion;
 
@@ -53,23 +53,23 @@ private:
   static inline std::optional<SDL_FPoint> drag;
 
 public:
-  static void render_number(uint32_t num, int x, int y);
+  static void RenderNumber(uint32_t num, int x, int y);
 
   static inline SDL_FPoint pos;
   static inline std::optional<uint32_t> mouse_index;
   static inline uint8_t active_tab;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
-  static void cal_mouse_index();
+  static void CalMouseIndex();
 
   struct NewItem {
     ItemEnum type;

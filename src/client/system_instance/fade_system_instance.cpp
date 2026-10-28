@@ -10,7 +10,7 @@
 #include <cstdint>
 #include <ranges>
 
-bool FadeSystemInstance::render() {
+bool FadeSystemInstance::Render() {
   SDL_FRect pos_rect{
       0,
       0,
@@ -29,7 +29,7 @@ bool FadeSystemInstance::render() {
   return true;
 }
 
-void FadeSystemInstance::enter_in(std::function<void()> cb) {
+void FadeSystemInstance::EnterIn(std::function<void()> cb) {
   // save texture
   SDL_Rect pos_rect{
       0,
@@ -46,17 +46,17 @@ void FadeSystemInstance::enter_in(std::function<void()> cb) {
   SDL_DestroySurface(surface);
 
   System::logic_systems = {};
-  System::render_systems = {run, render};
-  System::event_systems = {KeyboardInputSystem::event};
+  System::render_systems = {Run, Render};
+  System::event_systems = {KeyboardInputSystem::Event};
 
   mask_alpha = 0;
   fn = cb;
   fade_in = true;
 }
 
-void FadeSystemInstance::enter_out() {
-  System::render_systems.push_back(run);
-  System::render_systems.push_back(render);
+void FadeSystemInstance::EnterOut() {
+  System::render_systems.push_back(Run);
+  System::render_systems.push_back(Render);
 
   mask_alpha = 0;
   fn = {};
@@ -65,7 +65,7 @@ void FadeSystemInstance::enter_out() {
   CharacterLogicSystem::self_invincible_cooldown = UINT64_MAX;
 }
 
-bool FadeSystemInstance::run() {
+bool FadeSystemInstance::Run() {
   CharacterLogicSystem::self_invincible_cooldown = Window::dt_now + 900;
   if (mask_alpha < 255) {
     mask_alpha += 15;
@@ -74,13 +74,13 @@ bool FadeSystemInstance::run() {
       fn();
     }
     // 只移除第一个 render
-    auto it = std::ranges::find(System::render_systems, &render);
+    auto it = std::ranges::find(System::render_systems, &Render);
     if (it != System::render_systems.end()) {
       System::render_systems.erase(it);
     }
 
     // 只移除第一个 run
-    it = std::ranges::find(System::render_systems, &run);
+    it = std::ranges::find(System::render_systems, &Run);
     if (it != System::render_systems.end()) {
       System::render_systems.erase(it);
     }

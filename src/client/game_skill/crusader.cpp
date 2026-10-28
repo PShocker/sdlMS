@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-static void douqijizhong() {
+static void Douqijizhong() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"1111000";
@@ -171,16 +171,16 @@ static void douqijizhong() {
       e->type = GameEffect::EffectType::kSkillUse;
       auto origin_data = e->data;
       e->data = g_character;
-      if (EffectLogicSystem::run_skill_use(*e)) {
+      if (EffectLogicSystem::RunSkillUse(*e)) {
         e->lv = 1;
       } else {
-        EffectRenderSystem::render_ski_use(g_character->pos, *e,
+        EffectRenderSystem::RenderSkiUse(g_character->pos, *e,
                                              g_character->flip);
       }
       e->type = GameEffect::EffectType::kSkillCustom;
       e->data = origin_data;
     }
-    static auto t = WzResource::load_texture(
+    static auto t = WzResource::LoadTexture(
         WzResource::skill->find(u"111.img/skill/1111000/special/0"));
 
     auto x = g_character->pos.x - CameraGameInstance::camera.x;
@@ -205,9 +205,9 @@ static void douqijizhong() {
       const int count = static_cast<int>(z.size());
       for (int i = 0; i < count; i++) {
         auto texture_node = node->get_child(std::to_string(i));
-        auto t = WzResource::load_texture(texture_node);
+        auto t = WzResource::LoadTexture(texture_node);
         auto origin =
-            WzResource::load_fpoint(texture_node->get_child(u"origin"));
+            WzResource::LoadFpoint(texture_node->get_child(u"origin"));
 
         // 每个 state 的角度：均匀分布 + 随时间旋转
         float angle =
@@ -249,14 +249,14 @@ static void douqijizhong() {
     g_skill.start = 0;
     ski.push_back(g_skill);
 
-    SkillGameInstance::skis()[u"1111000"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"1111000"].cd = Window::dt_now + 1000;
 
     auto &sf = CharacterGameInstance::self;
-    auto ckt = SkillGameInstance::create_skill_payload(1111000, ski_lv);
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    auto ckt = SkillGameInstance::CreateSkillPayload(1111000, ski_lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
 
-    CharacterLogicSystem::run_action(sf, u"alert4");
+    CharacterLogicSystem::RunAction(sf, u"alert4");
     auto &ccs = CharacterLogicSystem::ccs;
     StateT st;
     st.state = StateEnum_BUFF_SKILL;
@@ -265,38 +265,38 @@ static void douqijizhong() {
     ccs.payload.push_back(std::make_unique<StateT>(st));
   };
 
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
-static void hupaoxiao() {
+static void Hupaoxiao() {
   GameSkill g_skill;
   g_skill.id = u"1111003";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = CharacterGameInstance::self;
-    CharacterLogicSystem::run_action(sf, u"alert3");
-    auto g_r = SkillGameInstance::load_ski_r(u"1111003");
-    auto cm = CharacterLogicSystem::run_attack_check(sf, g_r);
+    CharacterLogicSystem::RunAction(sf, u"alert3");
+    auto g_r = SkillGameInstance::LoadSkiR(u"1111003");
+    auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r);
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
-      auto delay = SkillGameInstance::load_ski_time(sf);
+      auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
       for (auto &data : cm.data) {
         data.hits = {30, 30};
       }
-      cat = SkillGameInstance::create_attack_payload(cm, sf.pos, delay);
+      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
       ClientRequest::send_to_host(cat);
     }
-    auto ckt = SkillGameInstance::create_skill_payload(cat, 1111003, ski_lv);
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    auto ckt = SkillGameInstance::CreateSkillPayload(cat, 1111003, ski_lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {
-  douqijizhong();
-  hupaoxiao();
+  Douqijizhong();
+  Hupaoxiao();
   return true;
 }();

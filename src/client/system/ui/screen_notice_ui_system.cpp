@@ -8,14 +8,14 @@
 #include "src/common/wz/wz_resource.h"
 #include <ranges>
 
-SDL_FPoint ScreenNoticeUiSystem::load_wh() { return {209, 289}; }
+SDL_FPoint ScreenNoticeUiSystem::LoadWh() { return {209, 289}; }
 
-void ScreenNoticeUiSystem::render_backgrnd() {
-  auto [w, h] = load_wh();
+void ScreenNoticeUiSystem::RenderBackgrnd() {
+  auto [w, h] = LoadWh();
   auto n = WzResource::ui->find(u"UIWindow.img/FloatNotice/" + path);
-  auto l = WzResource::load_texture(n->get_child(u"0"));
-  auto m = WzResource::load_texture(n->get_child(u"1"));
-  auto r = WzResource::load_texture(n->get_child(u"2"));
+  auto l = WzResource::LoadTexture(n->get_child(u"0"));
+  auto m = WzResource::LoadTexture(n->get_child(u"1"));
+  auto r = WzResource::LoadTexture(n->get_child(u"2"));
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
@@ -39,36 +39,36 @@ void ScreenNoticeUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, r, nullptr, &pos_rect);
 }
 
-void ScreenNoticeUiSystem::render_text() {
-  Freetype::load_size(12);
-  Freetype::load_aligned(true);
-  Freetype::load_color(255, 255, 255, 255);
+void ScreenNoticeUiSystem::RenderText() {
+  Freetype::LoadSize(12);
+  Freetype::LoadAligned(true);
+  Freetype::LoadColor(255, 255, 255, 255);
   // freetype::draw_str();
 }
 
-void ScreenNoticeUiSystem::open() {
+void ScreenNoticeUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-bool ScreenNoticeUiSystem::render() {
-  render_backgrnd();
+bool ScreenNoticeUiSystem::Render() {
+  RenderBackgrnd();
 
   return true;
 }
 
-bool ScreenNoticeUiSystem::event(SDL_Event *event) { return true; }
+bool ScreenNoticeUiSystem::Event(SDL_Event *Event) { return true; }
 
-void ScreenNoticeUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void ScreenNoticeUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }

@@ -24,11 +24,11 @@ public:
   static inline uint64_t dt_time_start = 0;
   static inline uint64_t dt_time_end = 0;
 
-  static void create(const char *title, uint32_t logic_w, uint32_t logic_h,
+  static void Create(const char *title, uint32_t logic_w, uint32_t logic_h,
                      uint32_t window_w, uint32_t window_h);
 
-  static void tick();
+  static void Tick();
 
-  static void clear();
-  static void update();
+  static void Clear();
+  static void Update();
 };

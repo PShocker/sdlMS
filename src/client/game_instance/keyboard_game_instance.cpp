@@ -7,50 +7,50 @@
 #include <optional>
 #include <string>
 
-void KeyboardGameInstance::reset() {
+void KeyboardGameInstance::Reset() {
   data.clear();
-  insert_input(SDL_SCANCODE_ESCAPE, {.type = "ui", .val = "menu"});
-  insert_input(SDL_SCANCODE_F1, {.type = "face", .val = "hit"});
-  insert_input(SDL_SCANCODE_F2, {.type = "face", .val = "smile"});
-  insert_input(SDL_SCANCODE_F3, {.type = "face", .val = "troubled"});
-  insert_input(SDL_SCANCODE_F4, {.type = "face", .val = "cry"});
-  insert_input(SDL_SCANCODE_F5, {.type = "face", .val = "angry"});
-  insert_input(SDL_SCANCODE_F6, {.type = "face", .val = "bewildered"});
-  insert_input(SDL_SCANCODE_F7, {.type = "face", .val = "stunned"});
-  insert_input(SDL_SCANCODE_1, {.type = "ui", .val = "toAll"});
-  insert_input(SDL_SCANCODE_2, {.type = "ui", .val = "toParty"});
-  insert_input(SDL_SCANCODE_3, {.type = "ui", .val = "toBuddy"});
-  insert_input(SDL_SCANCODE_Q, {.type = "ui", .val = "quest"});
-  insert_input(SDL_SCANCODE_W, {.type = "ui", .val = "worldMap"});
-  insert_input(SDL_SCANCODE_E, {.type = "ui", .val = "equip"});
-  insert_input(SDL_SCANCODE_I, {.type = "ui", .val = "package"});
-  insert_input(SDL_SCANCODE_O, {.type = "ui", .val = "buddy"});
-  insert_input(SDL_SCANCODE_P, {.type = "ui", .val = "party"});
-  insert_input(SDL_SCANCODE_LEFTBRACKET, {.type = "ui", .val = "mapleChat"});
-  insert_input(SDL_SCANCODE_RIGHTBRACKET, {.type = "ui", .val = "quickSlot"});
-  insert_input(SDL_SCANCODE_BACKSLASH, {.type = "ui", .val = "keyBind"});
-  insert_input(SDL_SCANCODE_S, {.type = "ui", .val = "characterStat"});
-  insert_input(SDL_SCANCODE_H, {.type = "ui", .val = "whisper"});
-  insert_input(SDL_SCANCODE_K, {.type = "ui", .val = "skill"});
-  insert_input(SDL_SCANCODE_L, {.type = "ui", .val = "craft"});
-  insert_input(SDL_SCANCODE_SEMICOLON, {.type = "ui", .val = "mailBox"});
-  insert_input(SDL_SCANCODE_APOSTROPHE, {.type = "ui", .val = "chat+"});
-  insert_input(SDL_SCANCODE_Z, {.type = "action", .val = "pick"});
-  insert_input(SDL_SCANCODE_X, {.type = "action", .val = "sit"});
-  insert_input(SDL_SCANCODE_M, {.type = "ui", .val = "miniMap"});
-  insert_input(SDL_SCANCODE_COMMA, {.type = "ui", .val = "changeChannel"});
-  insert_input(SDL_SCANCODE_LCTRL, {.type = "action", .val = "attack"});
-  insert_input(SDL_SCANCODE_LALT, {.type = "action", .val = "jump"});
-  insert_input(SDL_SCANCODE_SPACE, {.type = "action", .val = "harvest"});
-  insert_input(SDL_SCANCODE_UP, {.type = "action", .val = "up"});
-  insert_input(SDL_SCANCODE_DOWN, {.type = "action", .val = "down"});
-  insert_input(SDL_SCANCODE_LEFT, {.type = "action", .val = "left"});
-  insert_input(SDL_SCANCODE_RIGHT, {.type = "action", .val = "right"});
+  InsertInput(SDL_SCANCODE_ESCAPE, {.type = "ui", .val = "menu"});
+  InsertInput(SDL_SCANCODE_F1, {.type = "face", .val = "hit"});
+  InsertInput(SDL_SCANCODE_F2, {.type = "face", .val = "smile"});
+  InsertInput(SDL_SCANCODE_F3, {.type = "face", .val = "troubled"});
+  InsertInput(SDL_SCANCODE_F4, {.type = "face", .val = "cry"});
+  InsertInput(SDL_SCANCODE_F5, {.type = "face", .val = "angry"});
+  InsertInput(SDL_SCANCODE_F6, {.type = "face", .val = "bewildered"});
+  InsertInput(SDL_SCANCODE_F7, {.type = "face", .val = "stunned"});
+  InsertInput(SDL_SCANCODE_1, {.type = "ui", .val = "toAll"});
+  InsertInput(SDL_SCANCODE_2, {.type = "ui", .val = "toParty"});
+  InsertInput(SDL_SCANCODE_3, {.type = "ui", .val = "toBuddy"});
+  InsertInput(SDL_SCANCODE_Q, {.type = "ui", .val = "quest"});
+  InsertInput(SDL_SCANCODE_W, {.type = "ui", .val = "worldMap"});
+  InsertInput(SDL_SCANCODE_E, {.type = "ui", .val = "equip"});
+  InsertInput(SDL_SCANCODE_I, {.type = "ui", .val = "package"});
+  InsertInput(SDL_SCANCODE_O, {.type = "ui", .val = "buddy"});
+  InsertInput(SDL_SCANCODE_P, {.type = "ui", .val = "party"});
+  InsertInput(SDL_SCANCODE_LEFTBRACKET, {.type = "ui", .val = "mapleChat"});
+  InsertInput(SDL_SCANCODE_RIGHTBRACKET, {.type = "ui", .val = "quickSlot"});
+  InsertInput(SDL_SCANCODE_BACKSLASH, {.type = "ui", .val = "keyBind"});
+  InsertInput(SDL_SCANCODE_S, {.type = "ui", .val = "characterStat"});
+  InsertInput(SDL_SCANCODE_H, {.type = "ui", .val = "whisper"});
+  InsertInput(SDL_SCANCODE_K, {.type = "ui", .val = "skill"});
+  InsertInput(SDL_SCANCODE_L, {.type = "ui", .val = "craft"});
+  InsertInput(SDL_SCANCODE_SEMICOLON, {.type = "ui", .val = "mailBox"});
+  InsertInput(SDL_SCANCODE_APOSTROPHE, {.type = "ui", .val = "chat+"});
+  InsertInput(SDL_SCANCODE_Z, {.type = "action", .val = "pick"});
+  InsertInput(SDL_SCANCODE_X, {.type = "action", .val = "sit"});
+  InsertInput(SDL_SCANCODE_M, {.type = "ui", .val = "miniMap"});
+  InsertInput(SDL_SCANCODE_COMMA, {.type = "ui", .val = "changeChannel"});
+  InsertInput(SDL_SCANCODE_LCTRL, {.type = "action", .val = "attack"});
+  InsertInput(SDL_SCANCODE_LALT, {.type = "action", .val = "jump"});
+  InsertInput(SDL_SCANCODE_SPACE, {.type = "action", .val = "harvest"});
+  InsertInput(SDL_SCANCODE_UP, {.type = "action", .val = "up"});
+  InsertInput(SDL_SCANCODE_DOWN, {.type = "action", .val = "down"});
+  InsertInput(SDL_SCANCODE_LEFT, {.type = "action", .val = "left"});
+  InsertInput(SDL_SCANCODE_RIGHT, {.type = "action", .val = "right"});
 }
 
-void KeyboardGameInstance::load() { reset(); }
+void KeyboardGameInstance::Load() { Reset(); }
 
-void KeyboardGameInstance::load(const CharacterSaveData &cs) {
+void KeyboardGameInstance::Load(const CharacterSaveData &cs) {
   data = {};
   for (auto &k : cs.keys) {
     data[(SDL_Scancode)k.scan_code] = {
@@ -62,7 +62,7 @@ void KeyboardGameInstance::load(const CharacterSaveData &cs) {
 }
 
 SDL_Scancode
-KeyboardGameInstance::find_key_by_val(const std::string &target_val) {
+KeyboardGameInstance::FindKeyByVal(const std::string &target_val) {
   for (const auto &[scancode, binding] : data) {
     if (binding.val == target_val) {
       return scancode;
@@ -71,7 +71,7 @@ KeyboardGameInstance::find_key_by_val(const std::string &target_val) {
   return SDL_SCANCODE_UNKNOWN; // 未找到
 }
 
-GameInput KeyboardGameInstance::find_input_by_cursor(int i) {
+GameInput KeyboardGameInstance::FindInputByCursor(int i) {
   GameInput input;
   switch ((CursorGameInstance::CursorKeybindType)i) {
   case CursorGameInstance::CursorKeybindType::kKeybindActionAttack: {
@@ -344,9 +344,9 @@ GameInput KeyboardGameInstance::find_input_by_cursor(int i) {
   return input;
 }
 
-void KeyboardGameInstance::insert_input(SDL_Scancode c, GameInput i) {
-  erase_input(c);
-  erase_input(i);
+void KeyboardGameInstance::InsertInput(SDL_Scancode c, GameInput i) {
+  EraseInput(c);
+  EraseInput(i);
   switch (c) {
   case SDL_SCANCODE_LCTRL:
   case SDL_SCANCODE_RCTRL:
@@ -369,7 +369,7 @@ void KeyboardGameInstance::insert_input(SDL_Scancode c, GameInput i) {
   }
 }
 
-void KeyboardGameInstance::erase_input(SDL_Scancode c) {
+void KeyboardGameInstance::EraseInput(SDL_Scancode c) {
   switch (c) {
   case SDL_SCANCODE_LCTRL:
   case SDL_SCANCODE_RCTRL:
@@ -392,13 +392,13 @@ void KeyboardGameInstance::erase_input(SDL_Scancode c) {
   }
 }
 
-void KeyboardGameInstance::erase_input(GameInput i) {
+void KeyboardGameInstance::EraseInput(GameInput i) {
   std::erase_if(data, [&](const auto &kv) {
     return kv.second == i; // 举例字段
   });
 }
 
-std::optional<GameInput> KeyboardGameInstance::load_cursor_input() {
+std::optional<GameInput> KeyboardGameInstance::LoadCursorInput() {
   if (!CursorGameInstance::cursor_hand.has_value()) {
     return std::nullopt;
   }
@@ -409,7 +409,7 @@ std::optional<GameInput> KeyboardGameInstance::load_cursor_input() {
     if (KeyboardGameInstance::data.contains((SDL_Scancode)cursor_hand.val)) {
       return KeyboardGameInstance::data.at((SDL_Scancode)cursor_hand.val);
     } else {
-      return find_input_by_cursor(cursor_hand.sub_val);
+      return FindInputByCursor(cursor_hand.sub_val);
     }
     break;
   }

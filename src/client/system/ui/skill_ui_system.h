@@ -6,37 +6,37 @@
 
 class SkillUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_tab();
-  static void render_skill_entry();
-  static void render_scroll();
-  static bool render_info();
-  static void render_button();
-  static void render_book();
-  static void render_point();
+  static void RenderBackgrnd();
+  static void RenderTab();
+  static void RenderSkillEntry();
+  static void RenderScroll();
+  static bool RenderInfo();
+  static void RenderButton();
+  static void RenderBook();
+  static void RenderPoint();
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
-  static bool event_click_ski(SDL_Event *event);
-  static bool event_click_tab(SDL_Event *event);
-  static void event_vscr(SDL_Event *event);
+  static bool EventClickSki(SDL_Event *Event);
+  static bool EventClickTab(SDL_Event *Event);
+  static void EventVscr(SDL_Event *Event);
 
-  static void event_motion(SDL_Event *event);
-  static void event_button_ski_up();
-  static bool event_button(SDL_Event *event);
-  static void event_close();
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static void EventMotion(SDL_Event *Event);
+  static void EventButtonSkiUp();
+  static bool EventButton(SDL_Event *Event);
+  static void EventClose();
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static void event_wheel(SDL_Event *event);
+  static void EventWheel(SDL_Event *Event);
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
   
-  static void event_vscr_start(SDL_Event *event);
-  static void event_vscr_end();
-  static void event_vscr_move(SDL_Event *event);
+  static void EventVscrStart(SDL_Event *Event);
+  static void EventVscrEnd();
+  static void EventVscrMove(SDL_Event *Event);
 
   static inline bool vscr_motion;
 
@@ -48,12 +48,12 @@ private:
 public:
   static inline SDL_FPoint pos;
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
-  static void open();
-  static void close();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void Open();
+  static void Close();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

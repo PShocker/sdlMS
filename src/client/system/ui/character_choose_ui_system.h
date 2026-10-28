@@ -10,27 +10,27 @@
 
 class CharacterChooseUiSystem {
 private:
-  static bool new_animate();
-  static bool back_animate();
+  static bool NewAnimate();
+  static bool BackAnimate();
 
-  static SDL_FPoint load_pos();
-  static void render_backgrnd();
-  static void render_button();
-  static void render_effect();
-  static void render_banner();
-  static void render_character();
-  static void render_character_board(uint8_t i);
-  static void render_character_effect(uint8_t i);
+  static SDL_FPoint LoadPos();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderEffect();
+  static void RenderBanner();
+  static void RenderCharacter();
+  static void RenderCharacterBoard(uint8_t i);
+  static void RenderCharacterEffect(uint8_t i);
 
-  static void event_button_delete_cb();
+  static void EventButtonDeleteCb();
 
-  static void event_button_select();
-  static void event_button_new();
-  static void event_button_delete();
-  static void event_button_back();
+  static void EventButtonSelect();
+  static void EventButtonNew();
+  static void EventButtonDelete();
+  static void EventButtonBack();
 
-  static bool event_button(SDL_Event *event);
-  static bool event_choose_character(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
+  static bool EventChooseCharacter(SDL_Event *Event);
 
 public:
   static inline std::optional<uint8_t> choose;
@@ -38,7 +38,7 @@ public:
   static inline GameAnimate board;
   static inline GameAnimate effect;
 
-  static bool render();
-  static bool event(SDL_Event *event);
-  static bool run();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
+  static bool Run();
 };

@@ -29,17 +29,17 @@ public:
   // patch
   static inline wz::File *ms;
 
-  static void init();
-  static std::string load_map_path(uint32_t map_id);
-  static wz::Node *load_map_node(uint32_t map_id);
-  static SDL_Texture *load_texture(wz::Node *node);
-  static SDL_FPoint load_fpoint(wz::Node *node);
+  static void Init();
+  static std::string LoadMapPath(uint32_t map_id);
+  static wz::Node *LoadMapNode(uint32_t map_id);
+  static SDL_Texture *LoadTexture(wz::Node *node);
+  static SDL_FPoint LoadFpoint(wz::Node *node);
 
 private:
-  static void init_key();
-  static void init_files();
-  static wz::Node *load_real_node_texture(wz::Node *node);
-  static SDL_Texture *load_node_texture(wz::Node *node);
+  static void InitKey();
+  static void InitFiles();
+  static wz::Node *LoadRealNodeTexture(wz::Node *node);
+  static SDL_Texture *LoadNodeTexture(wz::Node *node);
 
   static inline std::flat_map<wz::Node *, SDL_Texture *> texture_cache;
   static inline std::flat_map<uint32_t, wz::Node *> map_node_cache;

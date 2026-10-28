@@ -4,7 +4,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 
-static void state() {
+static void State() {
   switch (NpcDlgUiSystem::index) {
   case 0: {
     auto text_node =
@@ -24,20 +24,20 @@ static void state() {
   NpcDlgUiSystem::time = Window::dt_now;
 }
 
-static void npc_8(std::any data) {
-  NpcDlgUiSystem::close();
-  NpcDlgUiSystem::open();
+static void Npc8(std::any data) {
+  NpcDlgUiSystem::Close();
+  NpcDlgUiSystem::Open();
   NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kTalk;
   NpcDlgUiSystem::index = 0;
   NpcDlgUiSystem::max_index = 1;
-  NpcDlgUiSystem::cb = state;
+  NpcDlgUiSystem::cb = State;
   NpcDlgUiSystem::npc_id = u"0000008";
-  state();
+  State();
   return;
 };
 
 [[maybe_unused]] static const bool r = [] {
   auto &fns = Script::fns();
-  fns[u"npc_8"] = npc_8;
+  fns[u"npc_8"] = Npc8;
   return true;
 }();

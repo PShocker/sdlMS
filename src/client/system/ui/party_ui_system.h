@@ -4,28 +4,28 @@
 #include <optional>
 class PartyUiSystem {
 private:
-  static void render_backgrnd(float x, float y, float w, float h);
-  static void render_party_hp();
+  static void RenderBackgrnd(float x, float y, float w, float h);
+  static void RenderPartyHp();
 
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
   static inline std::optional<SDL_FPoint> drag;
 
 public:
   static inline SDL_FPoint pos;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

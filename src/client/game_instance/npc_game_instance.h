@@ -9,25 +9,25 @@
 #include <vector>
 class NpcGameInstance {
 public:
-  static void load(uint32_t map_id);
-  static wz::Node *load_link_npc_node(const std::u16string &id);
+  static void Load(uint32_t map_id);
+  static wz::Node *LoadLinkNpcNode(const std::u16string &id);
 
-  static SDL_FRect load_rect(const GameNpc &g_npc);
+  static SDL_FRect LoadRect(const GameNpc &g_npc);
 
   static std::vector<std::u16string>
-  load_avaliable_quest(const std::u16string &id);
+  LoadAvaliableQuest(const std::u16string &id);
   static std::vector<std::u16string>
-  load_progress_quest(const std::u16string &id);
+  LoadProgressQuest(const std::u16string &id);
   static std::vector<std::u16string>
-  load_progress_complete_quest(const std::u16string &id);
+  LoadProgressCompleteQuest(const std::u16string &id);
 
-  static wz::Node *load_quest_node(const GameNpc &g_npc);
-  static std::optional<SDL_FRect> load_quest_rect(const GameNpc &g_npc);
+  static wz::Node *LoadQuestNode(const GameNpc &g_npc);
+  static std::optional<SDL_FRect> LoadQuestRect(const GameNpc &g_npc);
 
-  static std::u16string load_npc_text(const std::u16string &id,
+  static std::u16string LoadNpcText(const std::u16string &id,
                                       const std::u16string &val);
 
-  static std::u16string load_npc_script(const std::u16string &id);
+  static std::u16string LoadNpcScript(const std::u16string &id);
 
   enum class NpcType {
     kNone,
@@ -35,7 +35,7 @@ public:
     kShop,
     kScript,
   };
-  static NpcType load_npc_type(const std::u16string &id);
+  static NpcType LoadNpcType(const std::u16string &id);
 
   static inline std::array<std::vector<GameNpc>, 8> data;
 

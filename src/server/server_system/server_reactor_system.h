@@ -3,15 +3,15 @@
 #include "src/server/server/server_reactor.h"
 class ServerReactorSystem {
 private:
-  static uint64_t load_hit_cd(ServerReactorState &r);
+  static uint64_t LoadHitCd(ServerReactorState &r);
 
-  static void run_script(ServerReactorState &r);
-  static void run_revive(ServerReactorState &r);
-  static void run_hit(ServerReactorState &r);
-  static void run_destroy();
+  static void RunScript(ServerReactorState &r);
+  static void RunRevive(ServerReactorState &r);
+  static void RunHit(ServerReactorState &r);
+  static void RunDestroy();
 
 public:
   static inline uint32_t map_id = 0;
 
-  static bool run();
+  static bool Run();
 };

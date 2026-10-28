@@ -19,7 +19,7 @@
 #include "src/common/wz/wz_resource.h"
 #include <algorithm>
 
-SDL_FRect StatusbarMenuUiSystem::load_r() {
+SDL_FRect StatusbarMenuUiSystem::LoadR() {
   int w;
   int h;
   int x = 0;
@@ -47,10 +47,10 @@ SDL_FRect StatusbarMenuUiSystem::load_r() {
   return {base_x, base_y, static_cast<float>(w), static_cast<float>(h)};
 }
 
-void StatusbarMenuUiSystem::render_backgrnd() {
-  auto [x, y, w, h] = load_r();
+void StatusbarMenuUiSystem::RenderBackgrnd() {
+  auto [x, y, w, h] = LoadR();
   // render backgrnd
-  static auto t2 = WzResource::load_texture(
+  static auto t2 = WzResource::LoadTexture(
       WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/0"));
   SDL_FRect pos_rect{
       x,
@@ -60,9 +60,9 @@ void StatusbarMenuUiSystem::render_backgrnd() {
   };
   SDL_SetTextureAlphaMod(t2, alpha);
   SDL_RenderTexture(Window::renderer, t2, nullptr, &pos_rect);
-  static auto c = WzResource::load_texture(
+  static auto c = WzResource::LoadTexture(
       WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/1"));
-  static auto s = WzResource::load_texture(
+  static auto s = WzResource::LoadTexture(
       WzResource::ui->find(u"StatusBar.img/submenu/backgrnd/2"));
   pos_rect = {
       x,
@@ -83,8 +83,8 @@ void StatusbarMenuUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, s, nullptr, &pos_rect);
 }
 
-void StatusbarMenuUiSystem::render_button() {
-  auto [x, y, w, h] = load_r();
+void StatusbarMenuUiSystem::RenderButton() {
+  auto [x, y, w, h] = LoadR();
 
   std::vector<wz::Node *> buttons_nodes;
   std::vector<SDL_FRect> buttons_rect;
@@ -139,41 +139,41 @@ void StatusbarMenuUiSystem::render_button() {
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
+    auto CursorIn = CursorGameInstance::cursor_ui;
     if (disable[i]) {
-      auto disabled = WzResource::load_texture(k->find(u"disabled/0"));
+      auto disabled = WzResource::LoadTexture(k->find(u"disabled/0"));
       SDL_SetTextureAlphaMod(disabled, alpha);
       SDL_RenderTexture(Window::renderer, disabled, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
-               cursor_in == render && !CursorGameInstance::modal_overlay) {
+               CursorIn == Render && !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_SetTextureAlphaMod(pressed, alpha);
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_SetTextureAlphaMod(mouse_over, alpha);
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_SetTextureAlphaMod(normal, alpha);
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void StatusbarMenuUiSystem::render_title() {
-  auto [x, y, w, h] = load_r();
+void StatusbarMenuUiSystem::RenderTitle() {
+  auto [x, y, w, h] = LoadR();
   SDL_Texture *t;
   switch (menu_type.value()) {
   case MenuEnums::kMenu: {
-    t = WzResource::load_texture(
+    t = WzResource::LoadTexture(
         WzResource::ui->find(u"StatusBar.img/submenu/canvas:menu"));
     break;
   }
   case MenuEnums::kShortcut: {
-    t = WzResource::load_texture(
+    t = WzResource::LoadTexture(
         WzResource::ui->find(u"StatusBar.img/submenu/canvas:shortcut"));
     break;
   }
@@ -184,18 +184,18 @@ void StatusbarMenuUiSystem::render_title() {
   SDL_RenderTexture(Window::renderer, t, nullptr, &pos);
 }
 
-bool StatusbarMenuUiSystem::render() {
+bool StatusbarMenuUiSystem::Render() {
   alpha += Window::delta_time;
   alpha = std::min(alpha, 255);
-  render_backgrnd();
-  render_button();
-  render_title();
+  RenderBackgrnd();
+  RenderButton();
+  RenderTitle();
   return true;
 }
 
-void StatusbarMenuUiSystem::open() {
+void StatusbarMenuUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
     alpha = 0;
 
@@ -203,73 +203,73 @@ void StatusbarMenuUiSystem::open() {
       menu_type = MenuEnums::kMenu;
     }
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void StatusbarMenuUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void StatusbarMenuUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 }
 
-void StatusbarMenuUiSystem::toggle() {
-  auto fn = &render;
+void StatusbarMenuUiSystem::Toggle() {
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
-    AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
+    Open();
+    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
   }
 }
 
-void StatusbarMenuUiSystem::event_button_cc() { return; }
+void StatusbarMenuUiSystem::EventButtonCc() { return; }
 
-void StatusbarMenuUiSystem::event_button_option() {
-  OptionUiSystem::toggle();
+void StatusbarMenuUiSystem::EventButtonOption() {
+  OptionUiSystem::Toggle();
   return;
 }
 
-void StatusbarMenuUiSystem::event_button_quit() {
-  SceneSystemInstance::quit_prepare();
+void StatusbarMenuUiSystem::EventButtonQuit() {
+  SceneSystemInstance::QuitPrepare();
   return;
 }
 
-void StatusbarMenuUiSystem::event_button_item() {
-  PackageUiSystem::toggle();
+void StatusbarMenuUiSystem::EventButtonItem() {
+  PackageUiSystem::Toggle();
   return;
 }
 
-void StatusbarMenuUiSystem::event_button_equip() {
-  EquipUiSystem::toggle();
+void StatusbarMenuUiSystem::EventButtonEquip() {
+  EquipUiSystem::Toggle();
   return;
 }
 
-void StatusbarMenuUiSystem::event_button_stat() {
-  CharacterStatUiSystem::toggle();
+void StatusbarMenuUiSystem::EventButtonStat() {
+  CharacterStatUiSystem::Toggle();
   return;
 }
 
-void StatusbarMenuUiSystem::event_button_skill() {
-  SkillUiSystem::toggle();
+void StatusbarMenuUiSystem::EventButtonSkill() {
+  SkillUiSystem::Toggle();
   return;
 }
 
-void StatusbarMenuUiSystem::event_button_party() { return; }
+void StatusbarMenuUiSystem::EventButtonParty() { return; }
 
-void StatusbarMenuUiSystem::event_button_quest() {
-  QuestUiSystem::toggle();
+void StatusbarMenuUiSystem::EventButtonQuest() {
+  QuestUiSystem::Toggle();
   return;
 }
 
-void StatusbarMenuUiSystem::event_button_craft() {
-  CraftUiSystem::toggle();
+void StatusbarMenuUiSystem::EventButtonCraft() {
+  CraftUiSystem::Toggle();
   return;
 }
 
-bool StatusbarMenuUiSystem::event_button(SDL_Event *event) {
+bool StatusbarMenuUiSystem::EventButton(SDL_Event *Event) {
   std::vector<wz::Node *> buttons_nodes;
   std::vector<SDL_FRect> buttons_rect;
   std::vector<void (*)()> fns;
@@ -282,17 +282,17 @@ bool StatusbarMenuUiSystem::event_button(SDL_Event *event) {
         SDL_FRect{6, 76, 81, 25}, //
     };
     fns = {
-        event_button_cc,
-        event_button_option,
-        event_button_quit,
+        EventButtonCc,
+        EventButtonOption,
+        EventButtonQuit,
     };
     break;
   }
   case MenuEnums::kShortcut: {
     fns = {
-        event_button_item,  event_button_equip, event_button_stat,
-        event_button_skill, event_button_party, event_button_quest,
-        event_button_craft,
+        EventButtonItem,  EventButtonEquip, EventButtonStat,
+        EventButtonSkill, EventButtonParty, EventButtonQuest,
+        EventButtonCraft,
     };
     buttons_rect = {
         SDL_FRect{6, 24, 81, 25},  //
@@ -306,7 +306,7 @@ bool StatusbarMenuUiSystem::event_button(SDL_Event *event) {
     break;
   }
   }
-  auto [x, y, w, h] = load_r();
+  auto [x, y, w, h] = LoadR();
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
     auto pos_rect = buttons_rect[i];
@@ -320,11 +320,11 @@ bool StatusbarMenuUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-bool StatusbarMenuUiSystem::event(SDL_Event *event) {
+bool StatusbarMenuUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
       return r;
@@ -337,19 +337,19 @@ bool StatusbarMenuUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
     r = false;
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        r = !event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        r = !EventButton(Event);
       }
-      close();
+      Close();
     }
     break;
   }
@@ -361,8 +361,8 @@ bool StatusbarMenuUiSystem::event(SDL_Event *event) {
   return r;
 }
 
-bool StatusbarMenuUiSystem::cursor_in() {
-  auto r = load_r();
+bool StatusbarMenuUiSystem::CursorIn() {
+  auto r = LoadR();
   auto &mouse = Window::mouse_pos;
   return SDL_PointInRectFloat(&mouse, &r);
 }

@@ -2,7 +2,7 @@
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/window/window.h"
 
-static void npc_18(std::any data) {
+static void Npc18(std::any data) {
   NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kTalk;
   NpcDlgUiSystem::text = u"npc_19";
   NpcDlgUiSystem::index = 0;
@@ -13,6 +13,6 @@ static void npc_18(std::any data) {
 
 [[maybe_unused]] static const bool r = [] {
   auto &fns = Script::fns();
-  fns[u"npc_18"] = npc_18;
+  fns[u"npc_18"] = Npc18;
   return true;
 }();

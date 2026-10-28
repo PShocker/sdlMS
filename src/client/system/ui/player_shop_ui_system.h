@@ -4,14 +4,14 @@
 #include "SDL3/SDL_rect.h"
 class PlayerShopUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_button();
+  static void RenderBackgrnd();
+  static void RenderButton();
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
 public:
   static inline SDL_FPoint pos;
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

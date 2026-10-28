@@ -3,7 +3,7 @@
 #include "src/client/window/window.h"
 #include <ranges>
 
-bool PortalLogicSystem::run() {
+bool PortalLogicSystem::Run() {
   for (auto &portal : PortalGameInstance::data | std::views::values) {
     portal.ani_time += Window::delta_time;
     if (portal.ani_time >= 100) {

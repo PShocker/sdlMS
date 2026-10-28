@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-bool CharacterRenderSystem::render_character(GameCharacter &g_character) {
+bool CharacterRenderSystem::RenderCharacter(GameCharacter &g_character) {
   std::flat_multimap<std::u16string, const CharacterAvatar *> renders;
   std::flat_map<std::u16string, const CharacterAvatarRender *> render_parts;
   auto &camera = CameraGameInstance::camera;
@@ -216,15 +216,15 @@ bool CharacterRenderSystem::render_character(GameCharacter &g_character) {
   return true;
 }
 
-bool CharacterRenderSystem::render_afterimage(GameCharacter &g_character) {
+bool CharacterRenderSystem::RenderAfterimage(GameCharacter &g_character) {
   // 如果是法杖，而且是技能状态，不显示
-  auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
+  auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);
   if (WeaponType == EquipGameInstance::WeaponType::kWand &&
       g_character.skill.has_value()) {
     return false;
   }
   // 通常情况下,attack和skill都会有afterimag的渲染
-  auto r = AfterimageGameInstance::load_data(g_character);
+  auto r = AfterimageGameInstance::LoadData(g_character);
   if (r.has_value()) {
     auto texture = r.value().texture;
     auto alpha = r.value().alpha;
@@ -251,12 +251,12 @@ bool CharacterRenderSystem::render_afterimage(GameCharacter &g_character) {
   return true;
 }
 
-void CharacterRenderSystem::render_nametag(GameCharacter &g_character) {
+void CharacterRenderSystem::RenderNametag(GameCharacter &g_character) {
   const auto &camera = CameraGameInstance::camera;
-  Freetype::load_aligned(true);
-  Freetype::load_size(13);
-  auto w = Freetype::load_w(g_character.name);
-  auto h = Freetype::load_lh();
+  Freetype::LoadAligned(true);
+  Freetype::LoadSize(13);
+  auto w = Freetype::LoadW(g_character.name);
+  auto h = Freetype::LoadLh();
 
   auto x = g_character.pos.x;
   auto y = g_character.pos.y;
@@ -264,7 +264,7 @@ void CharacterRenderSystem::render_nametag(GameCharacter &g_character) {
   std::u16string nametag = u"";
   for (auto r : {g_character.ring0_deco, g_character.ring1_deco}) {
     if (r.has_value()) {
-      auto info = EquipGameInstance::load_equip_info(r->id);
+      auto info = EquipGameInstance::LoadEquipInfo(r->id);
       if (info->get_child(u"nameTag")) {
         auto tmp = static_cast<wz::Property<int> *>(info->get_child(u"nameTag"))
                        ->get();
@@ -286,18 +286,18 @@ void CharacterRenderSystem::render_nametag(GameCharacter &g_character) {
       SDL_SetRenderDrawBlendMode(Window::renderer, SDL_BLENDMODE_BLEND);
       SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 178);
       SDL_RenderFillRect(Window::renderer, &rect);
-      Freetype::load_color(255, 255, 255, 255);
-      Freetype::draw_line(g_character.name, x - camera.x - w / 2, y - camera.y);
+      Freetype::LoadColor(255, 255, 255, 255);
+      Freetype::DrawLine(g_character.name, x - camera.x - w / 2, y - camera.y);
     }
   } else {
     static auto nametag_node = WzResource::ui->find(u"NameTag.img");
     auto texture_node = nametag_node->get_child(nametag);
-    auto texture_w = WzResource::load_texture(texture_node->get_child("w"));
-    auto texture_c = WzResource::load_texture(texture_node->get_child("c"));
-    auto texture_e = WzResource::load_texture(texture_node->get_child("e"));
+    auto texture_w = WzResource::LoadTexture(texture_node->get_child("w"));
+    auto texture_c = WzResource::LoadTexture(texture_node->get_child("c"));
+    auto texture_e = WzResource::LoadTexture(texture_node->get_child("e"));
 
-    auto ow = WzResource::load_fpoint(texture_node->find(u"w/origin"));
-    auto oc = WzResource::load_fpoint(texture_node->find(u"c/origin"));
+    auto ow = WzResource::LoadFpoint(texture_node->find(u"w/origin"));
+    auto oc = WzResource::LoadFpoint(texture_node->find(u"c/origin"));
 
     auto a = (float)texture_c->w;
     auto b = w;
@@ -332,14 +332,14 @@ void CharacterRenderSystem::render_nametag(GameCharacter &g_character) {
       r = (clr >> 16) & 0xFF;
       g = (clr >> 8) & 0xFF;
       b = clr & 0xFF;
-      Freetype::load_color(r, g, b, a);
-      Freetype::draw_line(g_character.name, rect.x - result, y - camera.y);
+      Freetype::LoadColor(r, g, b, a);
+      Freetype::DrawLine(g_character.name, rect.x - result, y - camera.y);
     }
   }
   return;
 }
 
-void CharacterRenderSystem::render_tomb(GameCharacter &g_character) {
+void CharacterRenderSystem::RenderTomb(GameCharacter &g_character) {
   if (!g_character.tomb.has_value()) {
     return;
   }
@@ -353,8 +353,8 @@ void CharacterRenderSystem::render_tomb(GameCharacter &g_character) {
     texture_node =
         static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
   }
-  auto texture = WzResource::load_texture(texture_node);
-  auto origin = WzResource::load_fpoint(texture_node->get_child(u"origin"));
+  auto texture = WzResource::LoadTexture(texture_node);
+  auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = tomb.pos.x - origin.x,
       .y = tomb.pos.y - origin.y,
@@ -369,37 +369,37 @@ void CharacterRenderSystem::render_tomb(GameCharacter &g_character) {
   }
 }
 
-bool CharacterRenderSystem::render_effect_front(GameCharacter &g_character) {
-  return EffectRenderSystem::render_character_effects(&g_character, true);
+bool CharacterRenderSystem::RenderEffectFront(GameCharacter &g_character) {
+  return EffectRenderSystem::RenderCharacterEffects(&g_character, true);
 }
 
-bool CharacterRenderSystem::render_effect_back(GameCharacter &g_character) {
-  return EffectRenderSystem::render_character_effects(&g_character, false);
+bool CharacterRenderSystem::RenderEffectBack(GameCharacter &g_character) {
+  return EffectRenderSystem::RenderCharacterEffects(&g_character, false);
 }
 
-void CharacterRenderSystem::render_chatballoon(GameCharacter &g_character) {
+void CharacterRenderSystem::RenderChatballoon(GameCharacter &g_character) {
   if (!g_character.chatballoon.has_value()) {
     return;
   }
   auto chatballoon = g_character.chatballoon.value();
   auto name = g_character.name + u":";
   chatballoon.text = name + chatballoon.text;
-  Freetype::load_size(chatballoon.size);
+  Freetype::LoadSize(chatballoon.size);
   SDL_FPoint pos{
       .x = g_character.pos.x,
       .y = g_character.pos.y - 70,
   };
-  ChatballoonRenderSystem::render(chatballoon, pos);
+  ChatballoonRenderSystem::Render(chatballoon, pos);
 }
 
-void CharacterRenderSystem::render_chair(GameCharacter &g_character) {
+void CharacterRenderSystem::RenderChair(GameCharacter &g_character) {
   auto chair_id = g_character.chair->id;
   auto chair_node =
       WzResource::item->find(u"Install/0301.img/" + chair_id + u"/effect");
   chair_node =
       chair_node->get_child(std::to_string(g_character.chair->ani_index));
-  auto t = WzResource::load_texture(chair_node);
-  auto origin = WzResource::load_fpoint(chair_node->get_child(u"origin"));
+  auto t = WzResource::LoadTexture(chair_node);
+  auto origin = WzResource::LoadFpoint(chair_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = g_character.pos.x - origin.x,
       .y = g_character.pos.y - origin.y - (t->h - origin.y),
@@ -419,7 +419,7 @@ void CharacterRenderSystem::render_chair(GameCharacter &g_character) {
   }
 }
 
-void CharacterRenderSystem::render_chair(GameCharacter &g_character,
+void CharacterRenderSystem::RenderChair(GameCharacter &g_character,
                                            bool front) {
   if (!g_character.chair.has_value()) {
     return;
@@ -431,17 +431,17 @@ void CharacterRenderSystem::render_chair(GameCharacter &g_character,
   auto z = static_cast<wz::Property<int> *>(z_node)->get();
 
   if ((front && z < 0) || (!front && z > 0)) {
-    render_chair(g_character);
+    RenderChair(g_character);
   }
 }
 
-void CharacterRenderSystem::render_morph(GameCharacter &g_character) {
+void CharacterRenderSystem::RenderMorph(GameCharacter &g_character) {
   auto node = WzResource::morph->find(g_character.morph + u".img");
-  auto action = CharacterLogicSystem::load_morph_type(g_character);
+  auto action = CharacterLogicSystem::LoadMorphType(g_character);
   node = node->get_child(action);
   node = node->get_child(std::to_string(g_character.action_index));
-  auto t = WzResource::load_texture(node);
-  auto origin = WzResource::load_fpoint(node->get_child(u"origin"));
+  auto t = WzResource::LoadTexture(node);
+  auto origin = WzResource::LoadFpoint(node->get_child(u"origin"));
   SDL_FRect pos_rect{
       .x = g_character.pos.x - origin.x,
       .y = g_character.pos.y - origin.y - (t->h - origin.y),
@@ -464,20 +464,20 @@ void CharacterRenderSystem::render_morph(GameCharacter &g_character) {
   }
 }
 
-bool CharacterRenderSystem::render(GameCharacter &g_character) {
+bool CharacterRenderSystem::Render(GameCharacter &g_character) {
   if (g_character.morph.empty()) {
-    render_effect_front(g_character);
-    render_chair(g_character, true);
-    render_afterimage(g_character);
-    render_tomb(g_character);
-    render_character(g_character);
-    render_chair(g_character, false);
-    render_effect_back(g_character);
+    RenderEffectFront(g_character);
+    RenderChair(g_character, true);
+    RenderAfterimage(g_character);
+    RenderTomb(g_character);
+    RenderCharacter(g_character);
+    RenderChair(g_character, false);
+    RenderEffectBack(g_character);
   } else {
-    render_morph(g_character);
-    render_effect_back(g_character);
+    RenderMorph(g_character);
+    RenderEffectBack(g_character);
   }
-  render_nametag(g_character);
+  RenderNametag(g_character);
   // auto r = character_logic_system::load_rect(g_character);
   // auto &camera = camera_game_instance::camera;
   // r.x -= camera.x;

@@ -8,7 +8,7 @@
 #include "src/server/server_instance/server_character_instance.h"
 #include <memory>
 
-void ServerTradeInstance::handle_client(uint64_t client_id,
+void ServerTradeInstance::HandleClient(uint64_t client_id,
                                           ClientCharacterTradeT &r) {
   switch (r.step) {
   case 0: {
@@ -36,19 +36,19 @@ void ServerTradeInstance::handle_client(uint64_t client_id,
   }
 }
 
-void ServerTradeInstance::handle_server(uint64_t client_id,
+void ServerTradeInstance::HandleServer(uint64_t client_id,
                                           ServerCharacterTradeT &r) {
   switch (r.step) {
   case 0: {
-    PopupTipGameInstance::add_tip(PopupTipEnums::kTrade, *r.player);
+    PopupTipGameInstance::AddTip(PopupTipEnums::kTrade, *r.player);
     break;
   }
   case 1: {
     //  建立交易
     TradeUiSystem::other =
-        ServerCharacterInstance::load_g_character(r.player->character);
-    TradeUiSystem::close();
-    TradeUiSystem::open();
+        ServerCharacterInstance::LoadGCharacter(r.player->character);
+    TradeUiSystem::Close();
+    TradeUiSystem::Open();
     break;
   }
   }

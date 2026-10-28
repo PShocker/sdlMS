@@ -4,7 +4,7 @@
 #include "wz/Property.h"
 #include <string>
 
-void TileGameInstance::load(wz::Node *image) {
+void TileGameInstance::Load(wz::Node *image) {
   data = {};
   auto map_node = image;
   uint8_t map_layer = 0;
@@ -53,7 +53,7 @@ void TileGameInstance::load(wz::Node *image) {
   }
 }
 
-void TileGameInstance::load(uint32_t map_id) {
-  auto map_node = WzResource::load_map_node(map_id);
-  load(map_node);
+void TileGameInstance::Load(uint32_t map_id) {
+  auto map_node = WzResource::LoadMapNode(map_id);
+  Load(map_node);
 }

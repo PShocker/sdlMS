@@ -3,19 +3,19 @@
 #include "SDL3/SDL_events.h"
 class MinigameOmokUiSystem {
 private:
-  static void render_backgrnd();
-  static SDL_FPoint load_wh();
+  static void RenderBackgrnd();
+  static SDL_FPoint LoadWh();
 
 public:
   static inline SDL_FPoint pos;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

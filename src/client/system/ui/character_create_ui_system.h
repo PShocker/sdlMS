@@ -7,25 +7,25 @@
 #include <vector>
 class CharacterCreateUiSystem {
 private:
-  static std::vector<std::u16string> load_default_face();
-  static std::vector<std::u16string> load_default_hair();
-  static std::vector<std::u16string> load_default_top();
-  static std::vector<std::u16string> load_default_bottom();
-  static std::vector<std::u16string> load_default_shoes();
-  static std::vector<std::u16string> load_default_weapon();
+  static std::vector<std::u16string> LoadDefaultFace();
+  static std::vector<std::u16string> LoadDefaultHair();
+  static std::vector<std::u16string> LoadDefaultTop();
+  static std::vector<std::u16string> LoadDefaultBottom();
+  static std::vector<std::u16string> LoadDefaultShoes();
+  static std::vector<std::u16string> LoadDefaultWeapon();
 
-  static std::vector<std::u16string> load_haircolors();
-  static bool back_animate();
+  static std::vector<std::u16string> LoadHaircolors();
+  static bool BackAnimate();
 
-  static SDL_FPoint load_pos();
-  static void render_backgrnd();
-  static void render_button();
-  static void render_effect();
-  static void render_banner();
-  static void render_stat();
-  static void render_character();
-  static void render_custom();
-  static void render_name();
+  static SDL_FPoint LoadPos();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderEffect();
+  static void RenderBanner();
+  static void RenderStat();
+  static void RenderCharacter();
+  static void RenderCustom();
+  static void RenderName();
 
   enum class ChooseType {
     kGender,
@@ -39,50 +39,50 @@ private:
     kWeapon,
   };
 
-  static void render_custom_item(float cx, float cy, ChooseType type);
+  static void RenderCustomItem(float cx, float cy, ChooseType type);
 
-  static void event_button_face_prev();
-  static void event_button_face_next();
+  static void EventButtonFacePrev();
+  static void EventButtonFaceNext();
 
-  static void event_button_hair_prev();
-  static void event_button_hair_next();
+  static void EventButtonHairPrev();
+  static void EventButtonHairNext();
 
-  static void event_button_hair_color_prev();
-  static void event_button_hair_color_next();
+  static void EventButtonHairColorPrev();
+  static void EventButtonHairColorNext();
 
-  static void event_button_skin_color_prev();
-  static void event_button_skin_color_next();
+  static void EventButtonSkinColorPrev();
+  static void EventButtonSkinColorNext();
 
-  static void event_button_top_prev();
-  static void event_button_top_next();
+  static void EventButtonTopPrev();
+  static void EventButtonTopNext();
 
-  static void event_button_bottom_prev();
-  static void event_button_bottom_next();
+  static void EventButtonBottomPrev();
+  static void EventButtonBottomNext();
 
-  static void event_button_shoes_prev();
-  static void event_button_shoes_next();
+  static void EventButtonShoesPrev();
+  static void EventButtonShoesNext();
 
-  static void event_button_weapon_prev();
-  static void event_button_weapon_next();
+  static void EventButtonWeaponPrev();
+  static void EventButtonWeaponNext();
 
-  static void event_button_str_inc();
-  static void event_button_str_dec();
+  static void EventButtonStrInc();
+  static void EventButtonStrDec();
 
-  static void event_button_dex_inc();
-  static void event_button_dex_dec();
+  static void EventButtonDexInc();
+  static void EventButtonDexDec();
 
-  static void event_button_int_inc();
-  static void event_button_int_dec();
+  static void EventButtonIntInc();
+  static void EventButtonIntDec();
 
-  static void event_button_luk_inc();
-  static void event_button_luk_dec();
+  static void EventButtonLukInc();
+  static void EventButtonLukDec();
 
-  static void event_button_ok();
-  static void event_button_cancel();
-  static void event_button_back();
+  static void EventButtonOk();
+  static void EventButtonCancel();
+  static void EventButtonBack();
 
-  static bool event_button(SDL_Event *event);
-  static bool event_button_custom(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
+  static bool EventButtonCustom(SDL_Event *Event);
 
 public:
   static inline TextInput name;
@@ -96,10 +96,10 @@ public:
   static inline int gender;
   static inline int choose_index;
 
-  static void reset_character(bool g);
-  static bool render();
-  static bool event(SDL_Event *event);
-  static bool run();
+  static void ResetCharacter(bool g);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
+  static bool Run();
 
   static inline GameCharacter g_character;
 };

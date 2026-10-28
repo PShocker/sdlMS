@@ -10,15 +10,15 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_trap_instance.h"
 
-void TrapLogicSystem::run_move(GameObj &g_trap) {
+void TrapLogicSystem::RunMove(GameObj &g_trap) {
   auto node = WzResource::map->find(g_trap.path);
 
   return;
 }
 
-bool TrapLogicSystem::run_attack_check(GameObj &g_trap) { return false; }
+bool TrapLogicSystem::RunAttackCheck(GameObj &g_trap) { return false; }
 
-void TrapLogicSystem::run_collision() {
+void TrapLogicSystem::RunCollision() {
   if (CharacterLogicSystem::self_invincible_cooldown >= Window::dt_now) {
     return;
   }
@@ -28,9 +28,9 @@ void TrapLogicSystem::run_collision() {
   }
   for (auto &m : TrapGameInstance::data) {
     for (auto &g_trap : m | std::views::values) {
-      if (run_attack_check(g_trap)) {
+      if (RunAttackCheck(g_trap)) {
         uint64_t hit_num = 1;
-        CharacterLogicSystem::run_being_hit(g_trap.pos.x, hit_num);
+        CharacterLogicSystem::RunBeingHit(g_trap.pos.x, hit_num);
         AttackT at{
             .delay = Window::dt_time,
             .num = hit_num,
@@ -38,7 +38,7 @@ void TrapLogicSystem::run_collision() {
             .y = self.pos.y - 30,
             .type = static_cast<uint8_t>(DamageData::T::kV),
         };
-        ServerTrapInstance::handle_s_attack(0, at);
+        ServerTrapInstance::HandleSAttack(0, at);
         ClientTrapAttackT cta;
         cta.map_id = SceneSystemInstance::map_id;
         cta.payload = std::make_unique<AttackT>(std::move(at));
@@ -50,13 +50,13 @@ void TrapLogicSystem::run_collision() {
   return;
 }
 
-bool TrapLogicSystem::run() {
+bool TrapLogicSystem::Run() {
   for (auto &o : TrapGameInstance::data) {
     for (auto &g_trap : o | std::views::values) {
-      ObjLogicSystem::run_animate(g_trap);
-      ObjLogicSystem::run_alpha(g_trap);
+      ObjLogicSystem::RunAnimate(g_trap);
+      ObjLogicSystem::RunAlpha(g_trap);
     }
   }
-  run_collision();
+  RunCollision();
   return true;
 }

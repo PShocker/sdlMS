@@ -5,20 +5,20 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 
-void ComboBoxUiSystem::render(int x, int y, ComboBox cm, bool top,
+void ComboBoxUiSystem::Render(int x, int y, ComboBox cm, bool top,
                                  bool disable) {
-  SDL_Texture *l = WzResource::load_texture(
+  SDL_Texture *l = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/ComboBox/normal/0"));
-  SDL_Texture *c = WzResource::load_texture(
+  SDL_Texture *c = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/ComboBox/normal/1"));
-  SDL_Texture *r = WzResource::load_texture(
+  SDL_Texture *r = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/ComboBox/normal/2"));
   if (disable) {
-    l = WzResource::load_texture(
+    l = WzResource::LoadTexture(
         WzResource::ui->find(u"Basic.img/ComboBox/disabled/0"));
-    c = WzResource::load_texture(
+    c = WzResource::LoadTexture(
         WzResource::ui->find(u"Basic.img/ComboBox/disabled/1"));
-    r = WzResource::load_texture(
+    r = WzResource::LoadTexture(
         WzResource::ui->find(u"Basic.img/ComboBox/disabled/2"));
   } else {
     auto mouse_pos = Window::mouse_pos;
@@ -29,18 +29,18 @@ void ComboBoxUiSystem::render(int x, int y, ComboBox cm, bool top,
     pos_r.h = 17;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_r)) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        l = WzResource::load_texture(
+        l = WzResource::LoadTexture(
             WzResource::ui->find(u"Basic.img/ComboBox/normal/0"));
-        c = WzResource::load_texture(
+        c = WzResource::LoadTexture(
             WzResource::ui->find(u"Basic.img/ComboBox/normal/1"));
-        r = WzResource::load_texture(
+        r = WzResource::LoadTexture(
             WzResource::ui->find(u"Basic.img/ComboBox/normal/2"));
       } else {
-        l = WzResource::load_texture(
+        l = WzResource::LoadTexture(
             WzResource::ui->find(u"Basic.img/ComboBox/normal/0"));
-        c = WzResource::load_texture(
+        c = WzResource::LoadTexture(
             WzResource::ui->find(u"Basic.img/ComboBox/normal/1"));
-        r = WzResource::load_texture(
+        r = WzResource::LoadTexture(
             WzResource::ui->find(u"Basic.img/ComboBox/mouseOver/2"));
       }
     }
@@ -57,11 +57,11 @@ void ComboBoxUiSystem::render(int x, int y, ComboBox cm, bool top,
   pos_rect.x += pos_rect.w;
   pos_rect.w = r->w;
   SDL_RenderTexture(Window::renderer, r, nullptr, &pos_rect);
-  Freetype::load_size(12);
-  Freetype::load_color(0, 0, 0, 255);
-  Freetype::draw_line(cm.selected, x + 10, pos_rect.y);
+  Freetype::LoadSize(12);
+  Freetype::LoadColor(0, 0, 0, 255);
+  Freetype::DrawLine(cm.selected, x + 10, pos_rect.y);
   if (cm.open) {
-    auto lh = Freetype::load_lh();
+    auto lh = Freetype::LoadLh();
     auto h = cm.selects.size() * lh * 1.3;
     SDL_SetRenderDrawColor(Window::renderer, 0, 0, 0, 255);
     SDL_FRect pos_rr;
@@ -75,13 +75,13 @@ void ComboBoxUiSystem::render(int x, int y, ComboBox cm, bool top,
     auto base_y = pos_rr.y;
     for (int i = 0; i < cm.selects.size(); i++) {
       auto text = cm.selects[i];
-      Freetype::draw_line(text, x + 10, base_y);
+      Freetype::DrawLine(text, x + 10, base_y);
       base_y += lh * 1.3;
     }
   }
 }
 
-bool ComboBoxUiSystem::click(int x, int y, ComboBox cm, bool top,
+bool ComboBoxUiSystem::Click(int x, int y, ComboBox cm, bool top,
                                 bool disable) {
   return false;
 }

@@ -8,5 +8,5 @@ class GainLogGameInstance {
 public:
   static inline std::vector<GameGainLog> data;
 
-  static void add(const std::u16string &id, int num, GainEnum type);
+  static void Add(const std::u16string &id, int num, GainEnum type);
 };

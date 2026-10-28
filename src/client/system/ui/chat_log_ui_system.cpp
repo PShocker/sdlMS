@@ -12,45 +12,45 @@
 #include <flat_map>
 #include <format>
 
-void ChatLogUiSystem::render_vscr() {
+void ChatLogUiSystem::RenderVscr() {
   const uint32_t length = 80;
   auto size = 6;
-  auto cursor_in = CursorGameInstance::cursor_ui;
+  auto CursorIn = CursorGameInstance::cursor_ui;
   auto screen_w = CameraGameInstance::camera.w;
   auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
-  bool top = cursor_in == render && !CursorGameInstance::modal_overlay;
-  ScrollUiSystem::render_vscroll(base_x + 570, base_y - 75, 5, size, length,
+  bool top = CursorIn == Render && !CursorGameInstance::modal_overlay;
+  ScrollUiSystem::RenderVscroll(base_x + 570, base_y - 75, 5, size, length,
                                    top, 1);
   return;
 }
 
-void ChatLogUiSystem::render_chats() {
+void ChatLogUiSystem::RenderChats() {
   float str_h = 0;
   auto &chats = ChatGameInstance::chats;
   for (int i = chats.size() - 1; i >= 0; i--) {
     auto chat = chats[i];
-    Freetype::load_aligned(true);
-    Freetype::load_size(12);
+    Freetype::LoadAligned(true);
+    Freetype::LoadSize(12);
     auto str = chat.owner + u":" + chat.text;
     auto screen_w = CameraGameInstance::camera.w;
     auto screen_h = CameraGameInstance::camera.h;
     auto base_x = (screen_w - 808) / 2;
     auto base_y = (screen_h - 73);
-    Freetype::load_color(255, 255, 255, 255);
-    str_h += Freetype::load_ch(str, 550, 1.1);
-    Freetype::draw_str(str, base_x + 8, base_y - str_h + 2, 550, 1.1);
+    Freetype::LoadColor(255, 255, 255, 255);
+    str_h += Freetype::LoadCh(str, 550, 1.1);
+    Freetype::DrawStr(str, base_x + 8, base_y - str_h + 2, 550, 1.1);
   }
 }
 
-void ChatLogUiSystem::render_backgrnd() {
+void ChatLogUiSystem::RenderBackgrnd() {
   auto screen_w = CameraGameInstance::camera.w;
   auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - 808) / 2;
   auto base_y = (screen_h - 73);
   SDL_FRect pos_rect;
-  static auto chatbackgrnd1 = WzResource::load_texture(
+  static auto chatbackgrnd1 = WzResource::LoadTexture(
       WzResource::ui->find(u"StatusBar.img/chat/canvas:chatbackgrnd1"));
   pos_rect.x = base_x + 6;
   pos_rect.y = base_y - 75;
@@ -60,40 +60,40 @@ void ChatLogUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, chatbackgrnd1, nullptr, &pos_rect);
 }
 
-bool ChatLogUiSystem::render() {
-  render_backgrnd();
-  render_chats();
-  render_vscr();
+bool ChatLogUiSystem::Render() {
+  RenderBackgrnd();
+  RenderChats();
+  RenderVscr();
   return true;
 }
 
-void ChatLogUiSystem::open() {
+void ChatLogUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void ChatLogUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void ChatLogUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }
 
-void ChatLogUiSystem::toggle() {
-  auto fn = &render;
+void ChatLogUiSystem::Toggle() {
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-void ChatLogUiSystem::event_click_chat_vscr() {
+void ChatLogUiSystem::EventClickChatVscr() {
   const uint32_t length = 76;
-  auto cursor_in = CursorGameInstance::cursor_ui;
-  bool top = cursor_in == render;
+  auto CursorIn = CursorGameInstance::cursor_ui;
+  bool top = CursorIn == Render;
   auto screen_w = CameraGameInstance::camera.w;
   auto screen_h = CameraGameInstance::camera.h;
   auto base_x = (screen_w - 808) / 2;
@@ -102,31 +102,31 @@ void ChatLogUiSystem::event_click_chat_vscr() {
   int size = 0;
   for (const auto &chats : ChatGameInstance::chats) {
     auto str = chats.owner + u":" + chats.text;
-    auto h = Freetype::load_ch(str, 564, 1.1);
+    auto h = Freetype::LoadCh(str, 564, 1.1);
     size += h;
   }
-  size = size / (Freetype::load_lh() * 1.1);
+  size = size / (Freetype::LoadLh() * 1.1);
   size = std::max(0, size);
-  auto val = ScrollUiSystem::click_vscroll(base_x + 564, base_y - 71, page,
+  auto val = ScrollUiSystem::ClickVscroll(base_x + 564, base_y - 71, page,
                                              size, length, top);
   page = val;
   return;
 }
 
-bool ChatLogUiSystem::event(SDL_Event *event) {
+bool ChatLogUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_click_chat_vscr();
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventClickChatVscr();
       }
     }
     break;

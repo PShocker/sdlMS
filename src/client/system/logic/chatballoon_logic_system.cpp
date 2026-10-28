@@ -4,7 +4,7 @@
 #include "src/client/window/window.h"
 #include <optional>
 
-bool ChatballoonLogicSystem::run() {
+bool ChatballoonLogicSystem::Run() {
   // self
   auto &self = CharacterGameInstance::self;
   if (self.chatballoon.has_value()) {

@@ -2,5 +2,5 @@
 
 class ItemLogicSystem {
 public:
-  static bool run();
+  static bool Run();
 };

@@ -11,46 +11,46 @@
 #include <vector>
 class CharacterInfoUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_button();
-  static void render_character();
-  static void render_text();
-  static void render_items();
-  static bool render_items_info();
-  static void render_scroll();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderCharacter();
+  static void RenderText();
+  static void RenderItems();
+  static bool RenderItemsInfo();
+  static void RenderScroll();
 
-  static SDL_FPoint load_wh();
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static SDL_FPoint LoadWh();
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static bool event_vscr(SDL_Event *event);
+  static bool EventVscr(SDL_Event *Event);
 
-  static void event_button_party();
-  static void event_button_trade();
-  static void event_button_toggleitem();
-  static void event_button_toggleitem_hide();
-  static void event_button_citizenship();
-  static void event_button_up_fame();
-  static void event_button_dowm_fame();
-  static void event_button_show_pet();
-  static void event_close();
+  static void EventButtonParty();
+  static void EventButtonTrade();
+  static void EventButtonToggleitem();
+  static void EventButtonToggleitemHide();
+  static void EventButtonCitizenship();
+  static void EventButtonUpFame();
+  static void EventButtonDowmFame();
+  static void EventButtonShowPet();
+  static void EventClose();
 
-  static void event_motion_bt_audio(SDL_Event *event);
-  static void event_motion(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
+  static void EventMotion(SDL_Event *Event);
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
-  static void event_wheel(SDL_Event *event);
+  static void EventWheel(SDL_Event *Event);
 
-  static void event_vscr_start(SDL_Event *event);
-  static void event_vscr_end();
-  static void event_vscr_move(SDL_Event *event);
+  static void EventVscrStart(SDL_Event *Event);
+  static void EventVscrEnd();
+  static void EventVscrMove(SDL_Event *Event);
 
   static inline bool vscr_motion;
 
-  static bool run();
+  static bool Run();
 
   static inline std::optional<SDL_FPoint> drag;
 
@@ -66,12 +66,12 @@ public:
 
   static inline SDL_FPoint pos;
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
-  static void open();
-  static void close();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void Open();
+  static void Close();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

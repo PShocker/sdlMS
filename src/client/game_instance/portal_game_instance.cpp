@@ -9,10 +9,10 @@ const static std::u16string pt_list[] = {
     u"psi", u"pcs", u"ph", u"psh", u"pcj", u"pci", u"pcig", u"pshg"};
 
 std::flat_multimap<std::u16string, GamePortal>
-PortalGameInstance::load(uint32_t map_id) {
+PortalGameInstance::Load(uint32_t map_id) {
   std::flat_multimap<std::u16string, GamePortal> data;
 
-  auto map_node = WzResource::load_map_node(map_id);
+  auto map_node = WzResource::LoadMapNode(map_id);
   auto map_portal_node = map_node->get_child(u"portal");
   for (auto [key, val] : *map_portal_node->get_children()) {
     auto id = std::stoi(std::string{key.begin(), key.end()});

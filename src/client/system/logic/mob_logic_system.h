@@ -4,12 +4,12 @@
 #include <string>
 class MobLogicSystem {
 private:
-  static bool run_animate(GameMob &g_mob);
-  static void run_collision();
-  static void run_mv();
-  static void run_state_machine(GameMob &g_mob);
-  static void run_alpha(GameMob &g_mob);
-  static void run_debuff(GameMob &g_mob);
+  static bool RunAnimate(GameMob &g_mob);
+  static void RunCollision();
+  static void RunMv();
+  static void RunStateMachine(GameMob &g_mob);
+  static void RunAlpha(GameMob &g_mob);
+  static void RunDebuff(GameMob &g_mob);
 
 public:
   enum class ActionEnum {
@@ -22,9 +22,9 @@ public:
     kDie,
     kRevive,
   };
-  static ActionEnum load_action_type(const std::u16string &action);
+  static ActionEnum LoadActionType(const std::u16string &action);
 
-  static bool run();
-  static std::optional<SDL_FRect> load_rect(const GameMob &g_mob);
-  static std::optional<SDL_FPoint> load_head(const GameMob &g_mob);
+  static bool Run();
+  static std::optional<SDL_FRect> LoadRect(const GameMob &g_mob);
+  static std::optional<SDL_FPoint> LoadHead(const GameMob &g_mob);
 };

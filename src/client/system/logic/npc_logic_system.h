@@ -6,17 +6,17 @@
 #include <string>
 class NpcLogicSystem {
 private:
-  static bool run_animate(GameNpc &g_npc);
-  static bool run_move(GameNpc &g_npc);
-  static bool run_duration(GameNpc &g_npc);
-  static bool run_chatballoon(GameNpc &g_npc);
+  static bool RunAnimate(GameNpc &g_npc);
+  static bool RunMove(GameNpc &g_npc);
+  static bool RunDuration(GameNpc &g_npc);
+  static bool RunChatballoon(GameNpc &g_npc);
 
   enum class ActionEnum {
     kStand,
     kMove,
   };
-  static ActionEnum load_action_type(GameNpc &g_npc);
+  static ActionEnum LoadActionType(GameNpc &g_npc);
 
 public:
-  static bool run();
+  static bool Run();
 };

@@ -2,9 +2,9 @@
 
 class AudioLogicSystem {
 private:
-  static void run_backgrnd();
-  static void run_audios();
+  static void RunBackgrnd();
+  static void RunAudios();
 
 public:
-  static bool run();
+  static bool Run();
 };

@@ -6,11 +6,11 @@
 #include "wz/Property.h"
 #include <cstddef>
 
-void AudioGameInstance::init() {
+void AudioGameInstance::Init() {
   device_id = SDL_OpenAudioDevice(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, NULL);
 }
 
-GameAudioCache &AudioGameInstance::load_cache(const std::u16string &path) {
+GameAudioCache &AudioGameInstance::LoadCache(const std::u16string &path) {
   if (!cache.contains(path)) {
     auto audio_node = WzResource::sound->find(path);
     if (audio_node->type == wz::Type::UOL) {
@@ -19,25 +19,25 @@ GameAudioCache &AudioGameInstance::load_cache(const std::u16string &path) {
     }
     auto audio = static_cast<wz::Property<wz::WzSound> *>(audio_node);
     auto audio_data = audio->get_raw_data();
-    cache[path] = Ffmpeg::decode_audio_pcm(audio_data);
+    cache[path] = Ffmpeg::DecodeAudioPcm(audio_data);
   }
   return cache.at(path);
 }
 
-void AudioGameInstance::load_audio(const std::u16string &path,
+void AudioGameInstance::LoadAudio(const std::u16string &path,
                                      uint64_t delay) {
   GameAudio audio{
       .path = path,
       .delay = delay,
       .fade = 0,
   };
-  auto spec = load_cache(path).spec;
+  auto spec = LoadCache(path).spec;
   audio.stream = SDL_CreateAudioStream(&spec, NULL);
   SDL_BindAudioStream(device_id, audio.stream);
   audios.emplace_back(audio);
 }
 
-void AudioGameInstance::load_backgrnd_audio(const std::u16string &path) {
+void AudioGameInstance::LoadBackgrndAudio(const std::u16string &path) {
   // if (path.empty()) {
   //   return;
   // }
@@ -62,7 +62,7 @@ void AudioGameInstance::load_backgrnd_audio(const std::u16string &path) {
   // backgrnds.emplace_back(backgrnd);
 }
 
-void AudioGameInstance::close_audio(const GameAudio &audio) {
+void AudioGameInstance::CloseAudio(const GameAudio &audio) {
   SDL_UnbindAudioStream(audio.stream);
   SDL_DestroyAudioStream(audio.stream);
 }

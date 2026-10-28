@@ -1,7 +1,7 @@
 #include "pet_logic_system.h"
 
-void PetLogicSystem::run_animate(GamePet &pet) {}
+void PetLogicSystem::RunAnimate(GamePet &pet) {}
 
-void PetLogicSystem::run_state_machine() {}
+void PetLogicSystem::RunStateMachine() {}
 
-bool PetLogicSystem::run() { return true; }
+bool PetLogicSystem::Run() { return true; }

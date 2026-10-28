@@ -13,34 +13,34 @@
 #include <cstdlib>
 #include <string>
 
-void CraftUiSystem::render_backgrnd() {
-  static auto texture = WzResource::load_texture(
+void CraftUiSystem::RenderBackgrnd() {
+  static auto texture = WzResource::LoadTexture(
       WzResource::ui->find(u"Crafting.img/backgrnd"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(texture->w),
                      static_cast<float>(texture->h)};
   SDL_RenderTexture(Window::renderer, texture, nullptr, &pos_rect);
 }
 
-void CraftUiSystem::render_tab() {
+void CraftUiSystem::RenderTab() {
   const static SDL_FPoint lt = {9, 23};
   const static SDL_FPoint rb = {537, 44};
   const static auto tab_node =
       WzResource::ui->find(u"Crafting.img/tab:category");
   const static std::array selected_texture = {
-      WzResource::load_texture(tab_node->find(u"selected/0")),
-      WzResource::load_texture(tab_node->find(u"selected/1")),
-      WzResource::load_texture(tab_node->find(u"selected/2")),
-      WzResource::load_texture(tab_node->find(u"selected/3")),
-      WzResource::load_texture(tab_node->find(u"selected/4")),
-      WzResource::load_texture(tab_node->find(u"selected/5")),
+      WzResource::LoadTexture(tab_node->find(u"selected/0")),
+      WzResource::LoadTexture(tab_node->find(u"selected/1")),
+      WzResource::LoadTexture(tab_node->find(u"selected/2")),
+      WzResource::LoadTexture(tab_node->find(u"selected/3")),
+      WzResource::LoadTexture(tab_node->find(u"selected/4")),
+      WzResource::LoadTexture(tab_node->find(u"selected/5")),
   };
   const static std::array normal_texture = {
-      WzResource::load_texture(tab_node->find(u"normal/0")),
-      WzResource::load_texture(tab_node->find(u"normal/1")),
-      WzResource::load_texture(tab_node->find(u"normal/2")),
-      WzResource::load_texture(tab_node->find(u"normal/3")),
-      WzResource::load_texture(tab_node->find(u"normal/4")),
-      WzResource::load_texture(tab_node->find(u"normal/5")),
+      WzResource::LoadTexture(tab_node->find(u"normal/0")),
+      WzResource::LoadTexture(tab_node->find(u"normal/1")),
+      WzResource::LoadTexture(tab_node->find(u"normal/2")),
+      WzResource::LoadTexture(tab_node->find(u"normal/3")),
+      WzResource::LoadTexture(tab_node->find(u"normal/4")),
+      WzResource::LoadTexture(tab_node->find(u"normal/5")),
   };
   for (uint8_t i = 0; i < selected_texture.size(); i++) {
     SDL_Texture *t =
@@ -53,88 +53,88 @@ void CraftUiSystem::render_tab() {
   }
 }
 
-bool CraftUiSystem::render() {
-  render_backgrnd();
-  render_tab();
+bool CraftUiSystem::Render() {
+  RenderBackgrnd();
+  RenderTab();
   return true;
 }
 
-SDL_FPoint CraftUiSystem::load_wh() { return {545, 409}; }
+SDL_FPoint CraftUiSystem::LoadWh() { return {545, 409}; }
 
-void CraftUiSystem::open() {
+void CraftUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void CraftUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void CraftUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }
 
-void CraftUiSystem::event_top() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void CraftUiSystem::EventTop() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void CraftUiSystem::event_drag_start(SDL_Event *event) {
-  auto wh = load_wh();
+void CraftUiSystem::EventDragStart(SDL_Event *Event) {
+  auto wh = LoadWh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
+  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - event->button.x, pos.y - event->button.y};
+    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
   }
   return;
 }
 
-void CraftUiSystem::event_drag_end() {
+void CraftUiSystem::EventDragEnd() {
   drag = std::nullopt;
   return;
 }
 
-void CraftUiSystem::event_drag_move(SDL_Event *event) {
+void CraftUiSystem::EventDragMove(SDL_Event *Event) {
   if (drag.has_value()) {
-    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
+    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
     auto &camera = CameraGameInstance::camera;
-    auto [w, h] = load_wh();
+    auto [w, h] = LoadWh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - w);
     pos.y = std::clamp(pos.y, (float)0, camera.h - h);
   }
   return;
 }
 
-void CraftUiSystem::toggle() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
-  auto fn = &render;
+void CraftUiSystem::Toggle() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-bool CraftUiSystem::cursor_in() {
-  auto [w, h] = load_wh();
+bool CraftUiSystem::CursorIn() {
+  auto [w, h] = LoadWh();
   auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void CraftUiSystem::event_tab(SDL_Event *event) {
+void CraftUiSystem::EventTab(SDL_Event *Event) {
   const static SDL_FPoint lt = {9, 23};
   const static SDL_FPoint rb = {537, 44};
   for (uint8_t i = 0; i <= 5; i++) {
@@ -146,30 +146,30 @@ void CraftUiSystem::event_tab(SDL_Event *event) {
   }
 }
 
-bool CraftUiSystem::event(SDL_Event *event) {
+bool CraftUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_top();
-        event_drag_start(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTop();
+        EventDragStart(Event);
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_tab(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTab(Event);
       }
-      event_drag_end();
+      EventDragEnd();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_drag_move(event);
+    EventDragMove(Event);
     break;
   }
   default: {
@@ -180,4 +180,4 @@ bool CraftUiSystem::event(SDL_Event *event) {
   return r;
 }
 
-bool CraftUiSystem::run() { return true; }
+bool CraftUiSystem::Run() { return true; }

@@ -8,7 +8,7 @@
 #include "wz/Property.h"
 #include <string>
 
-bool BallRenderSystem::render(GameBall &g_ball) {
+bool BallRenderSystem::Render(GameBall &g_ball) {
   auto now = Window::dt_time;
   if (g_ball.delay >= now) {
     return false;
@@ -20,7 +20,7 @@ bool BallRenderSystem::render(GameBall &g_ball) {
   }
   auto index = std::to_string(g_ball.ani_index);
   auto texture_node = n->get_child(index);
-  t = WzResource::load_texture(texture_node);
+  t = WzResource::LoadTexture(texture_node);
   auto v = static_cast<wz::Property<wz::WzVec2D> *>(
                texture_node->get_child(u"origin"))
                ->get();

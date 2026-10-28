@@ -7,7 +7,7 @@
 #include "wz/Node.h"
 #include "wz/Property.h"
 
-void BallLogicSystem::run_animate(GameBall &b) {
+void BallLogicSystem::RunAnimate(GameBall &b) {
   wz::Node *n = WzResource::skill->find(b.path);
   if (!n) {
     n = WzResource::item->find(b.path);
@@ -48,7 +48,7 @@ void BallLogicSystem::run_animate(GameBall &b) {
   return;
 }
 
-SDL_FPoint BallLogicSystem::move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
+SDL_FPoint BallLogicSystem::Move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
   auto step = speed * Window::delta_time / 1000.0f;
 
   float dx = p2.x - p1.x;
@@ -71,13 +71,13 @@ SDL_FPoint BallLogicSystem::move(SDL_FPoint p1, SDL_FPoint p2, int speed) {
   return result;
 }
 
-bool BallLogicSystem::run_move(GameBall &b) {
+bool BallLogicSystem::RunMove(GameBall &b) {
   if (MobGameInstance::data.contains(b.mob_index)) {
     auto mob_pos = MobGameInstance::data.at(b.mob_index).mob.pos;
     auto p2 = b.goal;
     p2.x += mob_pos.x;
     p2.y += mob_pos.y;
-    auto p = move(b.pos, p2, b.speed);
+    auto p = Move(b.pos, p2, b.speed);
     b.pos = p;
     if (p.x == p2.x && p.y == p2.y) {
       // 删除ball
@@ -85,7 +85,7 @@ bool BallLogicSystem::run_move(GameBall &b) {
     }
   } else {
     auto p2 = b.goal;
-    auto p = move(b.pos, b.goal, b.speed);
+    auto p = Move(b.pos, b.goal, b.speed);
     b.pos = p;
     if (p.x == p2.x && p.y == p2.y) {
       // 删除ball
@@ -95,7 +95,7 @@ bool BallLogicSystem::run_move(GameBall &b) {
   return true;
 }
 
-bool BallLogicSystem::run() {
+bool BallLogicSystem::Run() {
   auto now = Window::dt_time;
   for (auto &bs : BallGameInstance::data) {
     // 使用迭代器遍历并安全删除
@@ -105,8 +105,8 @@ bool BallLogicSystem::run() {
         continue;
       }
 
-      run_animate(*it);
-      auto r = run_move(*it);
+      RunAnimate(*it);
+      auto r = RunMove(*it);
       if (!r) {
         it = bs.erase(it); // erase 返回下一个迭代器
         continue;

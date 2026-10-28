@@ -7,7 +7,7 @@
 #include <cstdlib>
 #include <string>
 
-void BackgrndGameInstance::load(wz::Node *image) {
+void BackgrndGameInstance::Load(wz::Node *image) {
   front = {};
   back = {};
 
@@ -129,7 +129,7 @@ void BackgrndGameInstance::load(wz::Node *image) {
           std::to_string(g_backgrnd.ani_index % back_node->children_count());
       back_node = back_node->get_child(index);
     }
-    texture = WzResource::load_texture(back_node);
+    texture = WzResource::LoadTexture(back_node);
 
     g_backgrnd.cx = g_backgrnd.cx == 0 ? texture->w : g_backgrnd.cx;
     g_backgrnd.cy = g_backgrnd.cy == 0 ? texture->h : g_backgrnd.cy;
@@ -148,7 +148,7 @@ void BackgrndGameInstance::load(wz::Node *image) {
   }
 }
 
-void BackgrndGameInstance::load(uint32_t map_id) {
-  auto map_node = WzResource::load_map_node(map_id);
-  load(map_node);
+void BackgrndGameInstance::Load(uint32_t map_id) {
+  auto map_node = WzResource::LoadMapNode(map_id);
+  Load(map_node);
 }

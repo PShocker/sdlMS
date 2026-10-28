@@ -19,37 +19,37 @@
 #include <optional>
 #include <string>
 
-void QuickSlotUiSystem::render_input_icon(const GameInput &i, int x, int y,
+void QuickSlotUiSystem::RenderInputIcon(const GameInput &i, int x, int y,
                                              uint8_t alpha) {
   SDL_Texture *t;
   std::u16string id;
   if (i.type == "skill") {
     id = {i.val.begin(), i.val.end()};
-    auto ski_info = SkillGameInstance::load_ski_node(id);
-    t = WzResource::load_texture(ski_info->get_child(u"icon"));
+    auto ski_info = SkillGameInstance::LoadSkiNode(id);
+    t = WzResource::LoadTexture(ski_info->get_child(u"icon"));
   } else if (i.type == "item") {
     id = {i.val.begin(), i.val.end()};
-    auto item_info = ItemGameInstance::load_item_info(id, 1);
-    t = WzResource::load_texture(item_info->get_child(u"icon"));
+    auto item_info = ItemGameInstance::LoadItemInfo(id, 1);
+    t = WzResource::LoadTexture(item_info->get_child(u"icon"));
   } else if (i.type == "action") {
     const static std::flat_map<std::string, SDL_Texture *> actions = {
-        {"pick", WzResource::load_texture(
+        {"pick", WzResource::LoadTexture(
                      WzResource::ui->find(u"KeyBindings.img/icon/50"))},
-        {"sit", WzResource::load_texture(
+        {"sit", WzResource::LoadTexture(
                     WzResource::ui->find(u"KeyBindings.img/icon/51"))},
-        {"attack", WzResource::load_texture(
+        {"attack", WzResource::LoadTexture(
                        WzResource::ui->find(u"KeyBindings.img/icon/52"))},
-        {"jump", WzResource::load_texture(
+        {"jump", WzResource::LoadTexture(
                      WzResource::ui->find(u"KeyBindings.img/icon/53"))},
-        {"up", WzResource::load_texture(
+        {"up", WzResource::LoadTexture(
                    WzResource::ui->find(u"KeyBindings.img/icon/302"))},
-        {"down", WzResource::load_texture(
+        {"down", WzResource::LoadTexture(
                      WzResource::ui->find(u"KeyBindings.img/icon/303"))},
-        {"left", WzResource::load_texture(
+        {"left", WzResource::LoadTexture(
                      WzResource::ui->find(u"KeyBindings.img/icon/300"))},
-        {"right", WzResource::load_texture(
+        {"right", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/301"))},
-        {"harvest", WzResource::load_texture(
+        {"harvest", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/54"))},
     };
     if (actions.contains(i.val)) {
@@ -57,57 +57,57 @@ void QuickSlotUiSystem::render_input_icon(const GameInput &i, int x, int y,
     }
   } else if (i.type == "ui") {
     const static std::flat_map<std::string, SDL_Texture *> uis = {
-        {"equip", WzResource::load_texture(
+        {"equip", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/0"))},
-        {"package", WzResource::load_texture(
+        {"package", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/1"))},
-        {"characterStat", WzResource::load_texture(WzResource::ui->find(
+        {"characterStat", WzResource::LoadTexture(WzResource::ui->find(
                               u"KeyBindings.img/icon/2"))},
-        {"skill", WzResource::load_texture(
+        {"skill", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/3"))},
-        {"buddy", WzResource::load_texture(
+        {"buddy", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/4"))},
-        {"worldMap", WzResource::load_texture(
+        {"worldMap", WzResource::LoadTexture(
                          WzResource::ui->find(u"KeyBindings.img/icon/5"))},
-        {"mapleChat", WzResource::load_texture(
+        {"mapleChat", WzResource::LoadTexture(
                           WzResource::ui->find(u"KeyBindings.img/icon/6"))},
-        {"miniMap", WzResource::load_texture(
+        {"miniMap", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/7"))},
-        {"quest", WzResource::load_texture(
+        {"quest", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/8"))},
-        {"keyBind", WzResource::load_texture(
+        {"keyBind", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/9"))},
-        {"toAll", WzResource::load_texture(
+        {"toAll", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/10"))},
-        {"whisper", WzResource::load_texture(
+        {"whisper", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/11"))},
-        {"toParty", WzResource::load_texture(
+        {"toParty", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/12"))},
-        {"toBuddy", WzResource::load_texture(
+        {"toBuddy", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/13"))},
-        {"shortCut", WzResource::load_texture(
+        {"shortCut", WzResource::LoadTexture(
                          WzResource::ui->find(u"KeyBindings.img/icon/14"))},
-        {"quickSlot", WzResource::load_texture(
+        {"quickSlot", WzResource::LoadTexture(
                           WzResource::ui->find(u"KeyBindings.img/icon/15"))},
-        {"chat+", WzResource::load_texture(
+        {"chat+", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/16"))},
-        {"party", WzResource::load_texture(
+        {"party", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/19"))},
-        {"cashShop", WzResource::load_texture(
+        {"cashShop", WzResource::LoadTexture(
                          WzResource::ui->find(u"KeyBindings.img/icon/22"))},
-        {"changeChannel", WzResource::load_texture(WzResource::ui->find(
+        {"changeChannel", WzResource::LoadTexture(WzResource::ui->find(
                               u"KeyBindings.img/icon/45"))},
-        {"menu", WzResource::load_texture(
+        {"menu", WzResource::LoadTexture(
                      WzResource::ui->find(u"KeyBindings.img/icon/46"))},
-        {"screenShot", WzResource::load_texture(
+        {"screenShot", WzResource::LoadTexture(
                            WzResource::ui->find(u"KeyBindings.img/icon/47"))},
-        {"picMode", WzResource::load_texture(
+        {"picMode", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/48"))},
-        {"craft", WzResource::load_texture(
+        {"craft", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/55"))},
-        {"mailBox", WzResource::load_texture(
+        {"mailBox", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/58"))},
-        {"ok", WzResource::load_texture(
+        {"ok", WzResource::LoadTexture(
                    WzResource::ui->find(u"KeyBindings.img/icon/400"))},
     };
     if (uis.contains(i.val)) {
@@ -115,19 +115,19 @@ void QuickSlotUiSystem::render_input_icon(const GameInput &i, int x, int y,
     }
   } else if (i.type == "face") {
     const static std::flat_map<std::string, SDL_Texture *> faces = {
-        {"hit", WzResource::load_texture(
+        {"hit", WzResource::LoadTexture(
                     WzResource::ui->find(u"KeyBindings.img/icon/100"))},
-        {"smile", WzResource::load_texture(
+        {"smile", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/101"))},
-        {"troubled", WzResource::load_texture(
+        {"troubled", WzResource::LoadTexture(
                          WzResource::ui->find(u"KeyBindings.img/icon/102"))},
-        {"cry", WzResource::load_texture(
+        {"cry", WzResource::LoadTexture(
                     WzResource::ui->find(u"KeyBindings.img/icon/103"))},
-        {"angry", WzResource::load_texture(
+        {"angry", WzResource::LoadTexture(
                       WzResource::ui->find(u"KeyBindings.img/icon/104"))},
-        {"bewildered", WzResource::load_texture(
+        {"bewildered", WzResource::LoadTexture(
                            WzResource::ui->find(u"KeyBindings.img/icon/105"))},
-        {"stunned", WzResource::load_texture(
+        {"stunned", WzResource::LoadTexture(
                         WzResource::ui->find(u"KeyBindings.img/icon/106"))},
     };
     if (faces.contains(i.val)) {
@@ -151,28 +151,28 @@ void QuickSlotUiSystem::render_input_icon(const GameInput &i, int x, int y,
   SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
   SDL_SetTextureAlphaMod(t, 255);
   if (i.type == "item") {
-    auto num = PackageGameInstance::load_item_num(id);
-    PackageUiSystem::render_number(num, x, y + 16);
+    auto num = PackageGameInstance::LoadItemNum(id);
+    PackageUiSystem::RenderNumber(num, x, y + 16);
   }
 }
 
-void QuickSlotUiSystem::render_quickSlot() {
+void QuickSlotUiSystem::RenderQuickSlot() {
   const static std::flat_map<SDL_Scancode, SDL_Texture *> textures = {
-      {SDL_SCANCODE_PAGEDOWN, WzResource::load_texture(WzResource::ui->find(
+      {SDL_SCANCODE_PAGEDOWN, WzResource::LoadTexture(WzResource::ui->find(
                                   u"QuickSlot.img/key/81"))},
-      {SDL_SCANCODE_END, WzResource::load_texture(
+      {SDL_SCANCODE_END, WzResource::LoadTexture(
                              WzResource::ui->find(u"QuickSlot.img/key/79"))},
-      {SDL_SCANCODE_PAGEUP, WzResource::load_texture(WzResource::ui->find(
+      {SDL_SCANCODE_PAGEUP, WzResource::LoadTexture(WzResource::ui->find(
                                 u"QuickSlot.img/key/73"))},
-      {SDL_SCANCODE_HOME, WzResource::load_texture(
+      {SDL_SCANCODE_HOME, WzResource::LoadTexture(
                               WzResource::ui->find(u"QuickSlot.img/key/71"))},
-      {SDL_SCANCODE_INSERT, WzResource::load_texture(WzResource::ui->find(
+      {SDL_SCANCODE_INSERT, WzResource::LoadTexture(WzResource::ui->find(
                                 u"QuickSlot.img/key/82"))},
-      {SDL_SCANCODE_DELETE, WzResource::load_texture(WzResource::ui->find(
+      {SDL_SCANCODE_DELETE, WzResource::LoadTexture(WzResource::ui->find(
                                 u"QuickSlot.img/key/83"))},
-      {SDL_SCANCODE_LCTRL, WzResource::load_texture(
+      {SDL_SCANCODE_LCTRL, WzResource::LoadTexture(
                                WzResource::ui->find(u"QuickSlot.img/key/29"))},
-      {SDL_SCANCODE_LSHIFT, WzResource::load_texture(WzResource::ui->find(
+      {SDL_SCANCODE_LSHIFT, WzResource::LoadTexture(WzResource::ui->find(
                                 u"QuickSlot.img/key/42"))},
   };
   switch (quickSlot) {
@@ -180,7 +180,7 @@ void QuickSlotUiSystem::render_quickSlot() {
     break;
   }
   case QuickSlot::kTwo: {
-    static auto q = WzResource::load_texture(
+    static auto q = WzResource::LoadTexture(
         WzResource::ui->find(u"QuickSlot.img/layer:backgrnd"));
     auto screen_w = CameraGameInstance::camera.w;
     auto screen_h = CameraGameInstance::camera.h;
@@ -213,7 +213,7 @@ void QuickSlotUiSystem::render_quickSlot() {
       SDL_FRect pos_rect;
       if (KeyboardGameInstance::data.contains(scode[i])) {
         const auto &input = KeyboardGameInstance::data.at(scode[i]);
-        render_input_icon(input, r[i].x - 2, r[i].y + 32);
+        RenderInputIcon(input, r[i].x - 2, r[i].y + 32);
       }
       auto texture = textures.at(scode[i]);
       pos_rect = {
@@ -233,12 +233,12 @@ void QuickSlotUiSystem::render_quickSlot() {
   }
 }
 
-bool QuickSlotUiSystem::render() {
-  render_quickSlot();
+bool QuickSlotUiSystem::Render() {
+  RenderQuickSlot();
   return true;
 }
 
-SDL_FPoint QuickSlotUiSystem::load_wh() {
+SDL_FPoint QuickSlotUiSystem::LoadWh() {
   switch (quickSlot) {
   case QuickSlot::kHide:
     return {0, 0};
@@ -250,31 +250,31 @@ SDL_FPoint QuickSlotUiSystem::load_wh() {
   return {0, 0};
 }
 
-void QuickSlotUiSystem::open() {
+void QuickSlotUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void QuickSlotUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void QuickSlotUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }
 
-void QuickSlotUiSystem::toggle() {
-  auto fn = &render;
+void QuickSlotUiSystem::Toggle() {
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-bool QuickSlotUiSystem::cursor_in() {
-  auto [w, h] = load_wh();
+bool QuickSlotUiSystem::CursorIn() {
+  auto [w, h] = LoadWh();
   auto &mouse = Window::mouse_pos;
   auto screen_w = CameraGameInstance::camera.w;
   auto screen_h = CameraGameInstance::camera.h;
@@ -294,7 +294,7 @@ bool QuickSlotUiSystem::cursor_in() {
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-bool QuickSlotUiSystem::event_click_quickslot(SDL_Event *event) {
+bool QuickSlotUiSystem::EventClickQuickslot(SDL_Event *Event) {
   if (CursorGameInstance::cursor_hand_net.has_value()) {
     return false;
   }
@@ -336,17 +336,17 @@ bool QuickSlotUiSystem::event_click_quickslot(SDL_Event *event) {
       };
       if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
         if (CursorGameInstance::cursor_hand.has_value()) {
-          auto input = KeyboardGameInstance::load_cursor_input();
-          KeyboardGameInstance::insert_input(t[i], input.value());
+          auto input = KeyboardGameInstance::LoadCursorInput();
+          KeyboardGameInstance::InsertInput(t[i], input.value());
           CursorGameInstance::cursor_hand = std::nullopt;
-          AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+          AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
         } else {
           if (KeyboardGameInstance::data.contains(t[i])) {
             CursorGameInstance::cursor_hand = {
                 .type = CursorGameInstance::CursorHandType::kKeybind,
                 .val = t[i],
             };
-            AudioGameInstance::load_audio(u"UI.img/DragStart", 0);
+            AudioGameInstance::LoadAudio(u"UI.img/DragStart", 0);
           }
         }
         return true;
@@ -362,21 +362,21 @@ bool QuickSlotUiSystem::event_click_quickslot(SDL_Event *event) {
   return false;
 }
 
-bool QuickSlotUiSystem::event(SDL_Event *event) {
+bool QuickSlotUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        r = !event_click_quickslot(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        r = !EventClickQuickslot(Event);
       }
     }
     break;

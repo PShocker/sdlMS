@@ -6,9 +6,9 @@
 
 class ReactorGameInstance {
 public:
-  static void load(uint32_t map_id);
+  static void Load(uint32_t map_id);
   static inline std::array<std::vector<GameReactor>, 8> data;
 
 private:
-  static uint8_t load_reactor_layer(SDL_FPoint pos);
+  static uint8_t LoadReactorLayer(SDL_FPoint pos);
 };

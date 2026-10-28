@@ -11,26 +11,26 @@
 
 class StorageUiSystem {
 private:
-  static bool add_item(std::polymorphic<GameItem> &item);
+  static bool AddItem(std::polymorphic<GameItem> &item);
 
-  static std::optional<uint32_t> load_mouse_index();
-  static SDL_FPoint load_wh();
+  static std::optional<uint32_t> LoadMouseIndex();
+  static SDL_FPoint LoadWh();
 
-  static void render_backgrnd();
-  static void render_button();
-  static void render_tab();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderTab();
 
-  static void render_items();
-  static void render_item_info();
-  static void render_vscr();
+  static void RenderItems();
+  static void RenderItemInfo();
+  static void RenderVscr();
 
-  static void event_tab();
-  static void event_button_get();
-  static void event_button_put();
-  static void event_button_sort();
-  static void event_button_exit();
-  static bool event_button(SDL_Event *event);
-  static void event_close();
+  static void EventTab();
+  static void EventButtonGet();
+  static void EventButtonPut();
+  static void EventButtonSort();
+  static void EventButtonExit();
+  static bool EventButton(SDL_Event *Event);
+  static void EventClose();
 
   static inline std::array<std::optional<uint16_t>, 2> active_item;
   static inline int active_tab;
@@ -40,12 +40,12 @@ public:
   static inline std::u16string npc_id;
   static inline SDL_FPoint pos;
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
-  static void open();
-  static void close();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void Open();
+  static void Close();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

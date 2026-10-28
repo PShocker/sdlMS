@@ -2,7 +2,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 
-void ClockGameInstance::load(wz::Node *image) {
+void ClockGameInstance::Load(wz::Node *image) {
   data = {};
   if (auto n = image->get_child(u"clock")) {
     SDL_FRect r;
@@ -14,7 +14,7 @@ void ClockGameInstance::load(wz::Node *image) {
   }
 }
 
-void ClockGameInstance::load(uint32_t map_id) {
-  auto map_node = WzResource::load_map_node(map_id);
-  load(map_node);
+void ClockGameInstance::Load(uint32_t map_id) {
+  auto map_node = WzResource::LoadMapNode(map_id);
+  Load(map_node);
 }

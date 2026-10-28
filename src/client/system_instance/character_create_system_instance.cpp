@@ -20,8 +20,8 @@
 #include <algorithm>
 #include <ranges>
 
-void CharacterCreateSystemInstance::enter_prepare() {
-  CharacterCreateUiSystem::reset_character(false);
+void CharacterCreateSystemInstance::EnterPrepare() {
+  CharacterCreateUiSystem::ResetCharacter(false);
   CharacterCreateUiSystem::str_point = 4;
   CharacterCreateUiSystem::dex_point = 4;
   CharacterCreateUiSystem::int_point = 4;
@@ -29,8 +29,8 @@ void CharacterCreateSystemInstance::enter_prepare() {
   CharacterCreateUiSystem::remain_point = 9;
 }
 
-void CharacterCreateSystemInstance::enter() {
-  enter_prepare();
+void CharacterCreateSystemInstance::Enter() {
+  EnterPrepare();
   auto &camera = CameraGameInstance::camera;
   camera.x = -80 - camera.w / 2;
   camera.y = -1294 - camera.h / 2;
@@ -53,25 +53,25 @@ void CharacterCreateSystemInstance::enter() {
   };
   CharacterCreateUiSystem::name.type.set(TextInput::kIme);
 
-  auto fn = &LoginSystemInstance::render_game;
+  auto fn = &LoginSystemInstance::RenderGame;
   if (!std::ranges::contains(System::render_systems, fn)) {
     static auto image = WzResource::ui->find(u"MapLogin.img");
-    BackgrndGameInstance::load(image);
-    ObjGameInstance::load(image);
-    TileGameInstance::load(image);
+    BackgrndGameInstance::Load(image);
+    ObjGameInstance::Load(image);
+    TileGameInstance::Load(image);
   }
 
   System::logic_systems = {
-      BackgrndLogicSystem::run,      ObjLogicSystem::run,
-      AudioLogicSystem::run,         CursorLogicSystem::run,
-      CharacterCreateUiSystem::run,
+      BackgrndLogicSystem::Run,      ObjLogicSystem::Run,
+      AudioLogicSystem::Run,         CursorLogicSystem::Run,
+      CharacterCreateUiSystem::Run,
   };
   System::render_systems = {
-      LoginSystemInstance::render_game,
-      CharacterCreateUiSystem::render,
-      CursorRenderSystem::render,
+      LoginSystemInstance::RenderGame,
+      CharacterCreateUiSystem::Render,
+      CursorRenderSystem::Render,
   };
   System::event_systems = {
-      CharacterCreateUiSystem::event,
+      CharacterCreateUiSystem::Event,
   };
 }

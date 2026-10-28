@@ -14,20 +14,20 @@
 #include "src/server/server_main.h"
 #include <cstddef>
 
-SDL_FPoint ContextMenuUiSystem::load_wh() { return {100, 122}; }
+SDL_FPoint ContextMenuUiSystem::LoadWh() { return {100, 122}; }
 
-bool ContextMenuUiSystem::cursor_in() {
+bool ContextMenuUiSystem::CursorIn() {
   bool r = false;
   auto &mouse = Window::mouse_pos;
-  auto [w, h] = load_wh();
+  auto [w, h] = LoadWh();
   SDL_FRect pos_rect{pos.x + 3, pos.y, w - 3, h};
   r = SDL_PointInRectFloat(&mouse, &pos_rect);
   return r;
 }
 
-void ContextMenuUiSystem::render_backgrnd() {
-  auto [w, h] = load_wh();
-  static auto t2 = WzResource::load_texture(
+void ContextMenuUiSystem::RenderBackgrnd() {
+  auto [w, h] = LoadWh();
+  static auto t2 = WzResource::LoadTexture(
       WzResource::ui->find(u"ContextMenu.img/ContextMenu/t2"));
   SDL_FRect pos_rect{
       pos.x,
@@ -36,9 +36,9 @@ void ContextMenuUiSystem::render_backgrnd() {
       static_cast<float>(t2->h),
   };
   SDL_RenderTexture(Window::renderer, t2, nullptr, &pos_rect);
-  static auto c = WzResource::load_texture(
+  static auto c = WzResource::LoadTexture(
       WzResource::ui->find(u"ContextMenu.img/ContextMenu/c"));
-  static auto s = WzResource::load_texture(
+  static auto s = WzResource::LoadTexture(
       WzResource::ui->find(u"ContextMenu.img/ContextMenu/s"));
   pos_rect = {
       pos.x + 3,
@@ -57,7 +57,7 @@ void ContextMenuUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, s, nullptr, &pos_rect);
 }
 
-void ContextMenuUiSystem::render_button() {
+void ContextMenuUiSystem::RenderButton() {
   const static std::array buttons_nodes = {
       WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtInfo"),
       WzResource::ui->find(u"ContextMenu.img/ContextMenu/BtSave"),
@@ -86,40 +86,40 @@ void ContextMenuUiSystem::render_button() {
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = Window::mouse_pos;
     if (disable[i]) {
-      auto d = WzResource::load_texture(k->find(u"disabled/0"));
+      auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
       SDL_RenderTexture(Window::renderer, d, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-bool ContextMenuUiSystem::render() {
-  render_backgrnd();
-  render_button();
+bool ContextMenuUiSystem::Render() {
+  RenderBackgrnd();
+  RenderButton();
   return true;
 }
 
-void ContextMenuUiSystem::event_button_info() {
+void ContextMenuUiSystem::EventButtonInfo() {
   if (client_id == ServerMain::local_addr) {
     // self
     CharacterInfoUiSystem::character = CharacterGameInstance::self;
-    CharacterInfoUiSystem::close();
-    CharacterInfoUiSystem::open();
+    CharacterInfoUiSystem::Close();
+    CharacterInfoUiSystem::Open();
   } else if (CharacterGameInstance::others.contains(client_id)) {
     CharacterInfoUiSystem::character =
         CharacterGameInstance::others[client_id].g_character;
-    CharacterInfoUiSystem::close();
-    CharacterInfoUiSystem::open();
+    CharacterInfoUiSystem::Close();
+    CharacterInfoUiSystem::Open();
   } else {
     fbs::ClientCharacterInfoT ct;
     ct.payload = client_id;
@@ -127,27 +127,27 @@ void ContextMenuUiSystem::event_button_info() {
   }
 }
 
-void ContextMenuUiSystem::event_button_save() {
+void ContextMenuUiSystem::EventButtonSave() {
   auto name = client_name;
-  auto utf8_str = TextGameInstance::load_u8str(name);
+  auto utf8_str = TextGameInstance::LoadU8str(name);
   SDL_SetClipboardText(utf8_str.c_str());
 }
 
-void ContextMenuUiSystem::event_button_whisper() {}
+void ContextMenuUiSystem::EventButtonWhisper() {}
 
-void ContextMenuUiSystem::event_button_party() {}
+void ContextMenuUiSystem::EventButtonParty() {}
 
-void ContextMenuUiSystem::event_button_trade() {
+void ContextMenuUiSystem::EventButtonTrade() {
   fbs::ClientCharacterTradeT ct;
   ct.to_id = client_id;
   ClientRequest::send_to_host(ct);
 }
 
-void ContextMenuUiSystem::event_button_friend() {}
+void ContextMenuUiSystem::EventButtonFriend() {}
 
-void ContextMenuUiSystem::event_button_chat() {}
+void ContextMenuUiSystem::EventButtonChat() {}
 
-bool ContextMenuUiSystem::event_button(SDL_Event *event) {
+bool ContextMenuUiSystem::EventButton(SDL_Event *Event) {
   std::vector<void (*)()> fns;
   auto &camera = CameraGameInstance::camera;
   std::array r = {
@@ -160,9 +160,9 @@ bool ContextMenuUiSystem::event_button(SDL_Event *event) {
       SDL_FRect{pos.x + 9, pos.y + 102, 85, 14},
   };
   fns = {
-      event_button_info,  event_button_save,  event_button_whisper,
-      event_button_party, event_button_trade, event_button_friend,
-      event_button_chat,
+      EventButtonInfo,  EventButtonSave,  EventButtonWhisper,
+      EventButtonParty, EventButtonTrade, EventButtonFriend,
+      EventButtonChat,
   };
   std::vector<bool> disable = {
       false,
@@ -183,16 +183,16 @@ bool ContextMenuUiSystem::event_button(SDL_Event *event) {
   return true;
 }
 
-void ContextMenuUiSystem::event_close() { close(); };
+void ContextMenuUiSystem::EventClose() { Close(); };
 
-bool ContextMenuUiSystem::event(SDL_Event *event) {
+bool ContextMenuUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      event_close();
+      EventClose();
       return false;
       break;
     }
@@ -203,20 +203,20 @@ bool ContextMenuUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventButton(Event);
       }
     }
-    event_close();
+    EventClose();
     r = false;
     break;
   }
@@ -227,16 +227,16 @@ bool ContextMenuUiSystem::event(SDL_Event *event) {
 
   return r;
 }
-void ContextMenuUiSystem::open() {
+void ContextMenuUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void ContextMenuUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void ContextMenuUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }

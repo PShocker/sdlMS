@@ -4,16 +4,16 @@
 #include <vector>
 class EffectLogicSystem {
 private:
-  static bool run_damage(GameEffect &g_effect);
-  static bool run_skill_affected(GameEffect &g_effect);
-  static bool run_skill_hit(GameEffect &g_effect);
-  static bool run_skill_region(GameEffect &g_effect);
+  static bool RunDamage(GameEffect &g_effect);
+  static bool RunSkillAffected(GameEffect &g_effect);
+  static bool RunSkillHit(GameEffect &g_effect);
+  static bool RunSkillRegion(GameEffect &g_effect);
 
-  static void run_animate(std::vector<GameEffect> &v);
+  static void RunAnimate(std::vector<GameEffect> &v);
 
 public:
-  static bool run_effect(GameEffect &g_effect);
-  static bool run_skill_use(GameEffect &g_effect);
+  static bool RunEffect(GameEffect &g_effect);
+  static bool RunSkillUse(GameEffect &g_effect);
 
-  static bool run();
+  static bool Run();
 };

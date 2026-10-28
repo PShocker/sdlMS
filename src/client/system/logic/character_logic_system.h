@@ -37,96 +37,96 @@ struct CheckReactors {
 
 class CharacterLogicSystem {
 private:
-  static CheckReactors run_reactor_check(GameCharacter &g, SDL_FRect g_r);
+  static CheckReactors RunReactorCheck(GameCharacter &g, SDL_FRect g_r);
 
-  static void run_climb_action(GameCharacter &g_character);
-  static void run_face_animate(GameCharacter &g_character);
-  static bool run_flip(GameCharacter &g_character);
-  static void run_pick(GameCharacter &g_character);
-  static bool run_walk(GameCharacter &g_character);
-  static bool run_fall(GameCharacter &g_character);
-  static bool run_jump(GameCharacter &g_character);
-  static bool run_prone(GameCharacter &g_character);
-  static bool run_climb(GameCharacter &g_character);
-  static bool run_climbing(GameCharacter &g_character);
-  static bool run_sit(GameCharacter &g_character);
-  static bool run_sitting(GameCharacter &g_character);
+  static void RunClimbAction(GameCharacter &g_character);
+  static void RunFaceAnimate(GameCharacter &g_character);
+  static bool RunFlip(GameCharacter &g_character);
+  static void RunPick(GameCharacter &g_character);
+  static bool RunWalk(GameCharacter &g_character);
+  static bool RunFall(GameCharacter &g_character);
+  static bool RunJump(GameCharacter &g_character);
+  static bool RunProne(GameCharacter &g_character);
+  static bool RunClimb(GameCharacter &g_character);
+  static bool RunClimbing(GameCharacter &g_character);
+  static bool RunSit(GameCharacter &g_character);
+  static bool RunSitting(GameCharacter &g_character);
 
-  static bool run_attack(GameCharacter &g_character);
+  static bool RunAttack(GameCharacter &g_character);
 
-  static bool run_skill(GameCharacter &g_character);
-  static bool run_portal(GameCharacter &g_character);
-  static bool run_face(GameCharacter &g_character);
-  static void run_tomb(GameCharacter &g_character);
+  static bool RunSkill(GameCharacter &g_character);
+  static bool RunPortal(GameCharacter &g_character);
+  static bool RunFace(GameCharacter &g_character);
+  static void RunTomb(GameCharacter &g_character);
 
-  static void run_item(GameCharacter &g_character);
+  static void RunItem(GameCharacter &g_character);
 
-  static void run_state_machine();
-  static void run_color();
+  static void RunStateMachine();
+  static void RunColor();
   enum class PosType {
     kLand,
     kSwim,
     kFly,
   };
-  static PosType load_pos_type(GameCharacter &g_character);
+  static PosType LoadPosType(GameCharacter &g_character);
 
-  static void run_others_state_machine();
-  static void run_others_mv();
-  static void run_others();
-  static void run_network_sync();
-  static void run_network_sync_action();
-  static void run_network_sync_pos();
-  static void run_network_sync_flip();
-  static void run_network_sync_face();
-  static void run_network_sync_self();
-  static void run_network_sync_hp();
-  static void run_network_sync_max_hp();
-  static void run_network_sync_state();
+  static void RunOthersStateMachine();
+  static void RunOthersMv();
+  static void RunOthers();
+  static void RunNetworkSync();
+  static void RunNetworkSyncAction();
+  static void RunNetworkSyncPos();
+  static void RunNetworkSyncFlip();
+  static void RunNetworkSyncFace();
+  static void RunNetworkSyncSelf();
+  static void RunNetworkSyncHp();
+  static void RunNetworkSyncMaxHp();
+  static void RunNetworkSyncState();
 
-  static void run_animate_chair(GameCharacter &g_character);
+  static void RunAnimateChair(GameCharacter &g_character);
 
 public:
   static inline ClientCharacterStateT ccs;
   static inline ClientCharacterPickT ccp;
   static inline ClientCharacterT cct;
 
-  static bool run_harvest(GameCharacter &g_character); //or npc talk
+  static bool RunHarvest(GameCharacter &g_character); //or npc talk
 
-  static void run_being_hit(float x, uint64_t num);
+  static void RunBeingHit(float x, uint64_t num);
 
-  static void run_sit_chair(GameCharacter &g_character,
+  static void RunSitChair(GameCharacter &g_character,
                             const std::u16string &id);
-  static void run_unsit_chair(GameCharacter &g_character);
+  static void RunUnsitChair(GameCharacter &g_character);
 
-  static bool run_skill(GameCharacter &g_character, const std::u16string &id);
+  static bool RunSkill(GameCharacter &g_character, const std::u16string &id);
 
-  static std::vector<uint64_t> run_buff_check(GameCharacter &g_character,
+  static std::vector<uint64_t> RunBuffCheck(GameCharacter &g_character,
                                               SDL_FRect g_r);
-  static CheckMobs run_attack_check(SDL_FPoint pos, SDL_FRect g_r, int num);
-  static CheckMobs run_attack_check(GameCharacter &g_character, SDL_FRect g_r,
+  static CheckMobs RunAttackCheck(SDL_FPoint pos, SDL_FRect g_r, int num);
+  static CheckMobs RunAttackCheck(GameCharacter &g_character, SDL_FRect g_r,
                                      int num);
-  static CheckMobs run_attack_check(GameCharacter &g_character,
+  static CheckMobs RunAttackCheck(GameCharacter &g_character,
                                      SDL_FRect g_r);
-  static CheckMobs run_attack_check(GameCharacter &g_character,
+  static CheckMobs RunAttackCheck(GameCharacter &g_character,
                                      GameTriangle tri, int num);
-  static CheckMobs run_attack_check(GameCharacter &g_character,
+  static CheckMobs RunAttackCheck(GameCharacter &g_character,
                                      GameTriangle tri);
-  static bool run_animate(GameCharacter &g_character);
-  static void run_network_die_sync(GameCharacter &g_character);
-  static bool run_action(GameCharacter &g_character,
+  static bool RunAnimate(GameCharacter &g_character);
+  static void RunNetworkDieSync(GameCharacter &g_character);
+  static bool RunAction(GameCharacter &g_character,
                          const std::u16string &action);
-  static bool run_face_action(GameCharacter &g_character,
+  static bool RunFaceAction(GameCharacter &g_character,
                               const std::u16string &action);
-  static void run_die_action(GameCharacter &g_character);
-  static void run_stand_action(GameCharacter &g_character);
-  static void run_walk_action(GameCharacter &g_character);
-  static bool run_attack_action(GameCharacter &g_character, bool shoot);
+  static void RunDieAction(GameCharacter &g_character);
+  static void RunStandAction(GameCharacter &g_character);
+  static void RunWalkAction(GameCharacter &g_character);
+  static bool RunAttackAction(GameCharacter &g_character, bool shoot);
 
-  static void load_sfx(GameCharacter &g_character);
-  static float load_attack_speed(GameCharacter &g_character);
+  static void LoadSfx(GameCharacter &g_character);
+  static float LoadAttackSpeed(GameCharacter &g_character);
 
-  static std::u16string load_morph_type(GameCharacter &g_character);
-  static SDL_FRect load_rect(GameCharacter &g_character);
+  static std::u16string LoadMorphType(GameCharacter &g_character);
+  static SDL_FRect LoadRect(GameCharacter &g_character);
   enum class ActionEnum {
     kStand,
     kAlert,
@@ -139,8 +139,8 @@ public:
     kSkill,
     kDead,
   };
-  static ActionEnum load_action_type(GameCharacter &g_character);
-  static bool run();
+  static ActionEnum LoadActionType(GameCharacter &g_character);
+  static bool Run();
   static inline std::flat_set<std::string> character_action_input;
   static inline std::flat_set<std::string> character_skill_input;
   static inline std::flat_set<std::string> character_face_input;

@@ -32,7 +32,7 @@
 
 using namespace fbs;
 
-void ServerCharacterInstance::handle_mv(uint64_t client_id,
+void ServerCharacterInstance::HandleMv(uint64_t client_id,
                                           ClientCharacterMvT &m) {
   if (!ServerClientInstance::clients.contains(client_id)) {
     return;
@@ -57,7 +57,7 @@ void ServerCharacterInstance::handle_mv(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_flip(uint64_t client_id,
+void ServerCharacterInstance::HandleFlip(uint64_t client_id,
                                             ClientCharacterFlipT &m) {
   if (!ServerClientInstance::clients.contains(client_id)) {
     return;
@@ -79,7 +79,7 @@ void ServerCharacterInstance::handle_flip(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_action(uint64_t client_id,
+void ServerCharacterInstance::HandleAction(uint64_t client_id,
                                               ClientCharacterActionT &m) {
   if (!ServerClientInstance::clients.contains(client_id)) {
     return;
@@ -110,7 +110,7 @@ void ServerCharacterInstance::handle_action(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_die(uint64_t client_id,
+void ServerCharacterInstance::HandleDie(uint64_t client_id,
                                            ClientCharacterDieT &m) {
   if (!ServerClientInstance::clients.contains(client_id)) {
     return;
@@ -136,7 +136,7 @@ void ServerCharacterInstance::handle_die(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_fc(uint64_t client_id,
+void ServerCharacterInstance::HandleFc(uint64_t client_id,
                                           ClientCharacterFcT &m) {
   if (!ServerClientInstance::clients.contains(client_id)) {
     return;
@@ -158,7 +158,7 @@ void ServerCharacterInstance::handle_fc(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_server_mv(uint64_t client_id,
+void ServerCharacterInstance::HandleServerMv(uint64_t client_id,
                                                  ServerCharacterMvT &m) {
   if (!CharacterGameInstance::others.contains(m.client_id)) {
     return;
@@ -167,7 +167,7 @@ void ServerCharacterInstance::handle_server_mv(uint64_t client_id,
   mvs.push_back(*m.payload);
 }
 
-void ServerCharacterInstance::handle_server_flip(uint64_t client_id,
+void ServerCharacterInstance::HandleServerFlip(uint64_t client_id,
                                                    ServerCharacterFlipT &m) {
   if (!CharacterGameInstance::others.contains(m.client_id)) {
     return;
@@ -176,7 +176,7 @@ void ServerCharacterInstance::handle_server_flip(uint64_t client_id,
   c.flip = m.payload->flip;
 }
 
-void ServerCharacterInstance::handle_server_action(
+void ServerCharacterInstance::HandleServerAction(
     uint64_t client_id, ServerCharacterActionT &m) {
   if (!CharacterGameInstance::others.contains(m.client_id)) {
     return;
@@ -187,7 +187,7 @@ void ServerCharacterInstance::handle_server_action(
   c.action_index = a->action_index;
   c.action_animate = a->action_animate;
   c.action_time = 0;
-  auto action = CharacterLogicSystem::load_action_type(c);
+  auto action = CharacterLogicSystem::LoadActionType(c);
   switch (action) {
   case CharacterLogicSystem::ActionEnum::kJump:
   case CharacterLogicSystem::ActionEnum::kStand: {
@@ -196,11 +196,11 @@ void ServerCharacterInstance::handle_server_action(
   }
   case CharacterLogicSystem::ActionEnum::kSkill:
   case CharacterLogicSystem::ActionEnum::kAttack: {
-    CharacterLogicSystem::load_sfx(c);
+    CharacterLogicSystem::LoadSfx(c);
     break;
   }
   case CharacterLogicSystem::ActionEnum::kDead: {
-    AudioGameInstance::load_audio(u"Game.img/Tombstone", 0);
+    AudioGameInstance::LoadAudio(u"Game.img/Tombstone", 0);
     break;
   }
   default: {
@@ -209,7 +209,7 @@ void ServerCharacterInstance::handle_server_action(
   }
 }
 
-void ServerCharacterInstance::handle_server_die(uint64_t client_id,
+void ServerCharacterInstance::HandleServerDie(uint64_t client_id,
                                                   ServerCharacterDieT &m) {
   if (!CharacterGameInstance::others.contains(m.client_id)) {
     return;
@@ -232,7 +232,7 @@ void ServerCharacterInstance::handle_server_die(uint64_t client_id,
   c.tomb = t;
 }
 
-void ServerCharacterInstance::handle_server_fc(uint64_t client_id,
+void ServerCharacterInstance::HandleServerFc(uint64_t client_id,
                                                  ServerCharacterFcT &m) {
   if (!CharacterGameInstance::others.contains(m.client_id)) {
     return;
@@ -249,7 +249,7 @@ void ServerCharacterInstance::handle_server_fc(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_skill(uint64_t client_id,
+void ServerCharacterInstance::HandleSkill(uint64_t client_id,
                                              ClientCharacterSkillT &r) {
   if (ServerClientInstance::clients.contains(client_id)) {
     auto map_id = ServerClientInstance::clients.at(client_id).map_id;
@@ -269,7 +269,7 @@ void ServerCharacterInstance::handle_skill(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_attack(uint64_t client_id,
+void ServerCharacterInstance::HandleAttack(uint64_t client_id,
                                               ClientCharacterAttackT &r) {
   if (!ServerClientInstance::clients.contains(client_id)) {
     return;
@@ -278,7 +278,7 @@ void ServerCharacterInstance::handle_attack(uint64_t client_id,
   auto &Mobs = ServerSceneInstance::scenes.at(map_id).mobs;
   for (const auto &a : r.payload) {
     auto &mob = Mobs.at(a->mob_index);
-    auto mob_info = MobGameInstance::load_mob_info(mob.id);
+    auto mob_info = MobGameInstance::LoadMobInfo(mob.id);
     auto pushed =
         static_cast<wz::Property<int> *>(mob_info->get_child(u"pushed"))->get();
     MobHit mh;
@@ -299,7 +299,7 @@ void ServerCharacterInstance::handle_attack(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_chat(uint64_t client_id,
+void ServerCharacterInstance::HandleChat(uint64_t client_id,
                                             ClientCharacterChatT &r) {
   // 转发
   auto client_name =
@@ -314,7 +314,7 @@ void ServerCharacterInstance::handle_chat(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_server_chat(uint64_t client_id,
+void ServerCharacterInstance::HandleServerChat(uint64_t client_id,
                                                    ServerCharacterChatT &r) {
   GameCharacter *g_character = nullptr;
   if (r.client_id == ServerMain::local_addr) {
@@ -339,7 +339,7 @@ void ServerCharacterInstance::handle_server_chat(uint64_t client_id,
   });
 }
 
-void ServerCharacterInstance::handle_character(uint64_t client_id,
+void ServerCharacterInstance::HandleCharacter(uint64_t client_id,
                                                  ClientCharacterT &r) {
   if (ServerClientInstance::clients.contains(client_id)) {
     auto map_id = r.map_id;
@@ -357,7 +357,7 @@ void ServerCharacterInstance::handle_character(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_server_atk(uint64_t client_id,
+void ServerCharacterInstance::HandleServerAtk(uint64_t client_id,
                                                   ServerCharacterAttackT &r) {
   auto &Mobs = MobGameInstance::data;
   std::flat_multiset<uint32_t> MobHit;
@@ -385,7 +385,7 @@ void ServerCharacterInstance::handle_server_atk(uint64_t client_id,
     // 声音
     if (!ct->sound.empty()) {
       std::u16string tmp{ct->sound.begin(), ct->sound.end()};
-      AudioGameInstance::load_audio(tmp, ct->attack->delay);
+      AudioGameInstance::LoadAudio(tmp, ct->attack->delay);
     }
     // 伤害数字
     DamageData data = {
@@ -407,13 +407,13 @@ void ServerCharacterInstance::handle_server_atk(uint64_t client_id,
       mob.attack_val += data.num;
     }
     std::u16string path = u"Mob.img/" + mob.id + u"/Damage";
-    AudioGameInstance::load_audio(path, ct->attack->delay);
+    AudioGameInstance::LoadAudio(path, ct->attack->delay);
     MobHit.insert(mob.index);
     EffectGameInstance::data[7].emplace_back(d);
   }
 }
 
-void ServerCharacterInstance::handle_ski(
+void ServerCharacterInstance::HandleSki(
     uint32_t ski_id, uint8_t ski_lv,
     const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
     uint64_t client_id) {
@@ -426,10 +426,10 @@ void ServerCharacterInstance::handle_ski(
     }
     g_character->skill = ski_id3;
   }
-  handle_ski(ski_id, ski_lv, v, client_id, INT32_MAX, INT32_MAX, false);
+  HandleSki(ski_id, ski_lv, v, client_id, INT32_MAX, INT32_MAX, false);
 }
 
-void ServerCharacterInstance::handle_ski(
+void ServerCharacterInstance::HandleSki(
     uint32_t ski_id, uint8_t ski_lv,
     const std::vector<std::unique_ptr<fbs::CharacterSkillT>> &v,
     uint64_t client_id, int32_t x, int32_t y, bool flip) {
@@ -449,9 +449,9 @@ void ServerCharacterInstance::handle_ski(
   }
 
   g_character->skill = ski_id3;
-  auto skis = SkillGameInstance::skis();
+  auto Skis = SkillGameInstance::Skis();
 
-  if (skis.at(ski_id3).effect) {
+  if (Skis.at(ski_id3).effect) {
     GameEffect e = {
         .id = ski_id3,
         .index = 0,
@@ -467,7 +467,7 @@ void ServerCharacterInstance::handle_ski(
     std::erase_if(eff, [&](const auto &ef) { return ef.id == e.id; });
     eff.push_back(e);
   } else {
-    auto ski_node = SkillGameInstance::load_ski_node(ski_id3);
+    auto ski_node = SkillGameInstance::LoadSkiNode(ski_id3);
 
     const bool has_position = (x != INT32_MAX || y != INT32_MAX);
     const bool has_z = static_cast<bool>(ski_node->find(u"effect/z"));
@@ -513,7 +513,7 @@ void ServerCharacterInstance::handle_ski(
   auto sound_path = u"Skill.img/" + ski_id3 + u"/Use";
   auto audio_node = WzResource::sound->find(sound_path);
   if (audio_node) {
-    AudioGameInstance::load_audio(sound_path, 0);
+    AudioGameInstance::LoadAudio(sound_path, 0);
   }
 
   auto &mob = MobGameInstance::data;
@@ -543,8 +543,8 @@ void ServerCharacterInstance::handle_ski(
       } else if (s->player == ServerMain::local_addr) {
         c = &CharacterGameInstance::self;
         // ski_buff
-        auto &skis = SkillGameInstance::skis();
-        skis.at(ski_id3).use(client_id, ski_lv);
+        auto &Skis = SkillGameInstance::Skis();
+        Skis.at(ski_id3).use(client_id, ski_lv);
       }
       if (c != nullptr) {
         GameEffect e = {
@@ -563,29 +563,29 @@ void ServerCharacterInstance::handle_ski(
   }
 }
 
-void ServerCharacterInstance::handle_server_ski(uint64_t client_id,
+void ServerCharacterInstance::HandleServerSki(uint64_t client_id,
                                                   ServerCharacterSkillT &r) {
-  handle_ski(r.ski_id, r.ski_lv, r.payload, r.client_id, r.x, r.y, r.flip);
+  HandleSki(r.ski_id, r.ski_lv, r.payload, r.client_id, r.x, r.y, r.flip);
 }
 
-void ServerCharacterInstance::load_g_character(
+void ServerCharacterInstance::LoadGCharacter(
     GameCharacter &g_character, const std::unique_ptr<CharacterT> &c) {
   const auto &appearance = c->appearance;
 
   std::string tmp = std::format("{:08d}", appearance->body);
-  CharacterGameInstance::add_body(g_character, {tmp.begin(), tmp.end()});
+  CharacterGameInstance::AddBody(g_character, {tmp.begin(), tmp.end()});
 
   tmp = std::format("{:08d}", appearance->head);
-  CharacterGameInstance::add_head(g_character, {tmp.begin(), tmp.end()});
+  CharacterGameInstance::AddHead(g_character, {tmp.begin(), tmp.end()});
 
   tmp = std::format("{:08d}", appearance->face);
-  CharacterGameInstance::add_face(g_character, {tmp.begin(), tmp.end()});
+  CharacterGameInstance::AddFace(g_character, {tmp.begin(), tmp.end()});
 
   tmp = std::format("{:08d}", appearance->hair);
-  CharacterGameInstance::add_hair(g_character, {tmp.begin(), tmp.end()});
+  CharacterGameInstance::AddHair(g_character, {tmp.begin(), tmp.end()});
 
   tmp = appearance->ear;
-  CharacterGameInstance::add_ear(g_character, {tmp.begin(), tmp.end()});
+  CharacterGameInstance::AddEar(g_character, {tmp.begin(), tmp.end()});
 
   g_character.action = {
       c->state->action.begin(),
@@ -652,31 +652,31 @@ void ServerCharacterInstance::load_g_character(
       tmp = std::format("{:08d}", scroll->scroll_id);
       e.scroll.push_back({{tmp.begin(), tmp.end()}, scroll->success});
     }
-    EquipGameInstance::add_equip(e, g_character, -1);
+    EquipGameInstance::AddEquip(e, g_character, -1);
   }
   for (auto &deco : c->decos) {
     tmp = std::format("{:08d}", deco->deco_id);
     GameDecoItem e;
     e.id = {tmp.begin(), tmp.end()};
-    EquipGameInstance::add_equip_deco(e, g_character, -1);
+    EquipGameInstance::AddEquipDeco(e, g_character, -1);
   }
 }
 
-GameCharacter ServerCharacterInstance::load_g_character(
+GameCharacter ServerCharacterInstance::LoadGCharacter(
     const std::unique_ptr<CharacterT> &c) {
   GameCharacter g_character;
-  load_g_character(g_character, c);
+  LoadGCharacter(g_character, c);
   return g_character;
 }
 
-CharacterT ServerCharacterInstance::load_charactert(const GameCharacter &g) {
+CharacterT ServerCharacterInstance::LoadCharactert(const GameCharacter &g) {
   fbs::CharacterT c;
 
   c.appearance = std::make_unique<fbs::CharacterAppearanceT>();
   c.state = std::make_unique<fbs::LifeStateT>();
   c.face = std::make_unique<fbs::FaceT>();
 
-  auto equips = EquipGameInstance::load_equips(g);
+  auto equips = EquipGameInstance::LoadEquips(g);
   for (const auto &eq : equips) {
     auto id = eq.id;
     EquipT et;
@@ -691,7 +691,7 @@ CharacterT ServerCharacterInstance::load_charactert(const GameCharacter &g) {
     c.equips.push_back(std::make_unique<EquipT>(et));
   }
 
-  auto decos = EquipGameInstance::load_decos(g);
+  auto decos = EquipGameInstance::LoadDecos(g);
   for (const auto &de : decos) {
     DecoT dt;
     dt.deco_id = std::stoi(std::string{de.id.begin(), de.id.end()});
@@ -728,9 +728,9 @@ CharacterT ServerCharacterInstance::load_charactert(const GameCharacter &g) {
   return c;
 }
 
-void ServerCharacterInstance::handle_server_playert(
+void ServerCharacterInstance::HandleServerPlayert(
     const std::unique_ptr<fbs::PlayerT> &c) {
-  auto g_character = load_g_character(c->character);
+  auto g_character = LoadGCharacter(c->character);
 
   if (g_character.action == u"dead") {
     GameTomb t{
@@ -749,15 +749,15 @@ void ServerCharacterInstance::handle_server_playert(
   auto it =
       CharacterGameInstance::others.emplace(c->client_id, std::move(cod));
   auto &character = it.first->second.g_character;
-  ServerCharacterInstance::handle_s_state(character, c->character->states);
+  ServerCharacterInstance::HandleSState(character, c->character->states);
 }
 
-void ServerCharacterInstance::handle_state(uint64_t client_id,
+void ServerCharacterInstance::HandleState(uint64_t client_id,
                                              ClientCharacterStateT &r) {
   if (ServerClientInstance::clients.contains(client_id)) {
     auto &c = ServerClientInstance::clients.at(client_id).player_t.character;
     for (const auto &st : r.payload) {
-      handle_save_state(*st, *c);
+      HandleSaveState(*st, *c);
     }
     auto scenes = ServerSceneInstance::scenes[r.map_id].clients;
     scenes.erase(client_id);
@@ -770,32 +770,32 @@ void ServerCharacterInstance::handle_state(uint64_t client_id,
   }
 }
 
-void ServerCharacterInstance::handle_buff_item(GameCharacter &g_character,
+void ServerCharacterInstance::HandleBuffItem(GameCharacter &g_character,
                                                  const StateT &st) {
   auto tmp = std::format("{:08d}", st.val);
   std::u16string itm_id{tmp.begin(), tmp.end()};
-  auto item_type = ItemGameInstance::load_item_type(itm_id);
+  auto item_type = ItemGameInstance::LoadItemType(itm_id);
   if (item_type == u"Ins") {
     if (itm_id.starts_with(u"0301")) {
       if (st.sub_val == 1) {
-        CharacterLogicSystem::run_sit_chair(g_character, itm_id);
+        CharacterLogicSystem::RunSitChair(g_character, itm_id);
       } else {
-        CharacterLogicSystem::run_unsit_chair(g_character);
+        CharacterLogicSystem::RunUnsitChair(g_character);
       }
     }
   } else if (item_type == u"Consume") {
     if (itm_id.starts_with(u"0221")) {
       if (st.sub_val == 1) {
-        ItemGameInstance::use_morph_item(itm_id, g_character);
+        ItemGameInstance::UseMorphItem(itm_id, g_character);
       } else {
-        ItemGameInstance::unuse_morph_item(itm_id, g_character);
+        ItemGameInstance::UnuseMorphItem(itm_id, g_character);
       }
     }
   }
   return;
 }
 
-void ServerCharacterInstance::handle_scroll_use(GameCharacter &g_character,
+void ServerCharacterInstance::HandleScrollUse(GameCharacter &g_character,
                                                   bool success) {
   GameEffect e = {
       .id = u"BasicEff.img/Enchant/Success",
@@ -813,10 +813,10 @@ void ServerCharacterInstance::handle_scroll_use(GameCharacter &g_character,
   g_character.effect.emplace_back(e);
 }
 
-void ServerCharacterInstance::handle_morph_use(GameCharacter &g_character,
+void ServerCharacterInstance::HandleMorphUse(GameCharacter &g_character,
                                                  bool success) {
   std::u16string path = u"BasicEff.img/Transform";
-  auto type = CharacterLogicSystem::load_action_type(g_character);
+  auto type = CharacterLogicSystem::LoadActionType(g_character);
   if (type == CharacterLogicSystem::ActionEnum::kClimb) {
     path = u"BasicEff.img/TransformOnLadder";
   }
@@ -833,52 +833,52 @@ void ServerCharacterInstance::handle_morph_use(GameCharacter &g_character,
   g_character.effect.emplace_back(e);
 }
 
-void ServerCharacterInstance::handle_item_use(GameCharacter &g_character,
+void ServerCharacterInstance::HandleItemUse(GameCharacter &g_character,
                                                 const StateT &st) {
   auto tmp = std::format("{:08d}", st.val);
   std::u16string itm_id{tmp.begin(), tmp.end()};
-  auto item_type = ItemGameInstance::load_item_type(itm_id);
+  auto item_type = ItemGameInstance::LoadItemType(itm_id);
   if (item_type == u"Consume") {
     if (itm_id.starts_with(u"0204")) {
       if (st.sub_val == 1) {
-        handle_scroll_use(g_character, true);
+        HandleScrollUse(g_character, true);
       } else {
-        handle_scroll_use(g_character, false);
+        HandleScrollUse(g_character, false);
       }
       return;
     }
     if (itm_id.starts_with(u"0221")) {
       if (st.sub_val == 1) {
-        handle_morph_use(g_character, true);
+        HandleMorphUse(g_character, true);
       } else {
-        handle_morph_use(g_character, false);
+        HandleMorphUse(g_character, false);
       }
       return;
     }
   }
 }
 
-void ServerCharacterInstance::handle_s_state(
+void ServerCharacterInstance::HandleSState(
     GameCharacter &g_character,
     const std::vector<std::unique_ptr<fbs::StateT>> &v) {
   for (auto &st : v) {
     switch (st->state) {
     case StateEnum_BUFF_SKILL: {
-      auto &skis = SkillGameInstance::skis();
+      auto &Skis = SkillGameInstance::Skis();
       auto ski_id2 = std::to_string(st->val);
       auto ski_id3 = std::u16string{ski_id2.begin(), ski_id2.end()};
       if (ski_id3.length() < 7) {
         ski_id3.insert(0, 7 - ski_id3.length(), u'0');
       }
-      skis.at(ski_id3).state(&g_character, st->sub_val);
+      Skis.at(ski_id3).state(&g_character, st->sub_val);
       break;
     }
     case StateEnum_BUFF_ITEM: {
-      handle_buff_item(g_character, *st);
+      HandleBuffItem(g_character, *st);
       break;
     }
     case StateEnum_ITEM_USE: {
-      handle_item_use(g_character, *st);
+      HandleItemUse(g_character, *st);
       break;
     }
     default: {
@@ -888,20 +888,20 @@ void ServerCharacterInstance::handle_s_state(
   }
 }
 
-void ServerCharacterInstance::handle_server_state(uint64_t client_id,
+void ServerCharacterInstance::HandleServerState(uint64_t client_id,
                                                     ServerCharacterStateT &r) {
   if (CharacterGameInstance::others.contains(r.client_id)) {
     auto &c =
         CharacterGameInstance::others.at(r.client_id).player_t.character;
     for (const auto &st : r.payload) {
-      handle_save_state(*st, *c);
+      HandleSaveState(*st, *c);
     }
-    handle_s_state(CharacterGameInstance::others.at(r.client_id).g_character,
+    HandleSState(CharacterGameInstance::others.at(r.client_id).g_character,
                    r.payload);
   }
 }
 
-void ServerCharacterInstance::handle_save_state(const StateT &st,
+void ServerCharacterInstance::HandleSaveState(const StateT &st,
                                                   CharacterT &c) {
   for (auto it = c.states.begin(); it != c.states.end();) {
     auto &ist = *it;
@@ -934,7 +934,7 @@ void ServerCharacterInstance::handle_save_state(const StateT &st,
   }
 }
 
-void ServerCharacterInstance::handle_lv_up(GameCharacter &g_character) {
+void ServerCharacterInstance::HandleLvUp(GameCharacter &g_character) {
   GameEffect e = {
       .id = u"BasicEff.img/LevelUp",
       .index = 0,
@@ -946,10 +946,10 @@ void ServerCharacterInstance::handle_lv_up(GameCharacter &g_character) {
       .z = false,
   };
   g_character.effect.emplace_back(e);
-  AudioGameInstance::load_audio(u"Game.img/LevelUp", 0);
+  AudioGameInstance::LoadAudio(u"Game.img/LevelUp", 0);
 }
 
-void ServerCharacterInstance::handle_lv_up(uint64_t client_id,
+void ServerCharacterInstance::HandleLvUp(uint64_t client_id,
                                              ClientCharacterLvUpT &r) {
   if (ServerClientInstance::clients.contains(client_id)) {
     auto map_id = r.map_id;

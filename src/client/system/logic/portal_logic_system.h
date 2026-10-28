@@ -2,5 +2,5 @@
 
 class PortalLogicSystem {
 public:
-  static bool run();
+  static bool Run();
 };

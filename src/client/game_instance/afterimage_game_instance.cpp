@@ -14,8 +14,8 @@
 #include <string>
 
 std::u16string
-AfterimageGameInstance::load_hit_type(GameCharacter &g_character) {
-  auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
+AfterimageGameInstance::LoadHitType(GameCharacter &g_character) {
+  auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);
   const static std::flat_map<EquipGameInstance::WeaponType, std::u16string>
       h = {
           {EquipGameInstance::WeaponType::kS1A1M1D, u"sword1"},
@@ -31,7 +31,7 @@ AfterimageGameInstance::load_hit_type(GameCharacter &g_character) {
 }
 
 wz::Node *
-AfterimageGameInstance::load_atf_node_cache(const std::u16string &i) {
+AfterimageGameInstance::LoadAtfNodeCache(const std::u16string &i) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(i)) {
     cache[i] = WzResource::character->find(u"Afterimage/" + i + u".img");
@@ -39,18 +39,18 @@ AfterimageGameInstance::load_atf_node_cache(const std::u16string &i) {
   return cache.at(i);
 }
 
-wz::Node *AfterimageGameInstance::load_atf_node(GameCharacter &g_character) {
+wz::Node *AfterimageGameInstance::LoadAtfNode(GameCharacter &g_character) {
   if (!g_character.weapon.has_value()) {
     return nullptr;
   }
   auto action = g_character.action;
   auto weapon_info =
-      EquipGameInstance::load_equip_info(g_character.weapon.value().id);
+      EquipGameInstance::LoadEquipInfo(g_character.weapon.value().id);
   auto weapon_level = weapon_info->get_child(u"reqLevel");
   auto weapon_level2 = static_cast<wz::Property<int> *>(weapon_level)->get();
   auto aft_type = weapon_info->get_child(u"afterImage");
   auto aft_type2 = static_cast<wz::Property<std::u16string> *>(aft_type)->get();
-  auto aft_node = load_atf_node_cache(aft_type2);
+  auto aft_node = LoadAtfNodeCache(aft_type2);
   auto weapon_level3 = std::to_string(weapon_level2 / 10);
   aft_node = aft_node->get_child(weapon_level3);
   if (auto r = aft_node->get_child(action)) {
@@ -60,8 +60,8 @@ wz::Node *AfterimageGameInstance::load_atf_node(GameCharacter &g_character) {
 }
 
 std::optional<AfterimageData>
-AfterimageGameInstance::load_data(GameCharacter &g_character) {
-  if (auto data = load_atf_node(g_character)) {
+AfterimageGameInstance::LoadData(GameCharacter &g_character) {
+  if (auto data = LoadAtfNode(g_character)) {
     int32_t action_i = 0;
     wz::Node *n;
     for (auto [k, v] : *data->get_children()) {
@@ -91,8 +91,8 @@ AfterimageGameInstance::load_data(GameCharacter &g_character) {
         AfterimageData r;
         // 判断帧内时间
         auto delta = delay - (afterimage_time - character_time);
-        r.texture = WzResource::load_texture(v[0]);
-        r.origin = WzResource::load_fpoint(v[0]->get_child(u"origin"));
+        r.texture = WzResource::LoadTexture(v[0]);
+        r.origin = WzResource::LoadFpoint(v[0]->get_child(u"origin"));
         int32_t a0 = 255;
         int32_t a1;
         if (v[0]->get_child(u"a1")) {
@@ -110,10 +110,10 @@ AfterimageGameInstance::load_data(GameCharacter &g_character) {
 }
 
 std::optional<SDL_FRect>
-AfterimageGameInstance::load_rect(GameCharacter &g_character) {
-  if (auto data = load_atf_node(g_character)) {
-    auto lt = WzResource::load_fpoint(data->get_child(u"lt"));
-    auto rb = WzResource::load_fpoint(data->get_child(u"rb"));
+AfterimageGameInstance::LoadRect(GameCharacter &g_character) {
+  if (auto data = LoadAtfNode(g_character)) {
+    auto lt = WzResource::LoadFpoint(data->get_child(u"lt"));
+    auto rb = WzResource::LoadFpoint(data->get_child(u"rb"));
     SDL_FRect rect{
         .x = lt.x,
         .y = lt.y,
@@ -130,11 +130,11 @@ AfterimageGameInstance::load_rect(GameCharacter &g_character) {
   return std::nullopt;
 }
 
-uint64_t AfterimageGameInstance::load_beat_time(GameCharacter &g_character) {
+uint64_t AfterimageGameInstance::LoadBeatTime(GameCharacter &g_character) {
   uint64_t time = 0;
-  auto speed = CharacterLogicSystem::load_attack_speed(g_character);
+  auto speed = CharacterLogicSystem::LoadAttackSpeed(g_character);
   speed = 1.0 / speed;
-  if (auto data = load_atf_node(g_character)) {
+  if (auto data = LoadAtfNode(g_character)) {
     auto childs = *data->get_children();
     childs.erase(u"lt");
     childs.erase(u"rb");

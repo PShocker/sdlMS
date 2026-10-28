@@ -18,32 +18,32 @@ public:
     int max_quantity;
     float rate;
   };
-  static std::vector<MobDrop> load_mob_drops(const std::u16string &mob_id);
+  static std::vector<MobDrop> LoadMobDrops(const std::u16string &mob_id);
 
-  static std::vector<DropT> create_mob_dts(const std::u16string &mob_id,
+  static std::vector<DropT> CreateMobDts(const std::u16string &mob_id,
                                            float x, float y, int page);
 
-  static void load_default_mob(const std::u16string id, ServerMob &mob);
-  static void load_mob(ServerSceneState &scene);
+  static void LoadDefaultMob(const std::u16string id, ServerMob &mob);
+  static void LoadMob(ServerSceneState &scene);
 
-  static void handle_create_mob(ClientCreateMobT &r);
-  static void handle_s_create_mob(ServerCreateMobT &r);
+  static void HandleCreateMob(ClientCreateMobT &r);
+  static void HandleSCreateMob(ServerCreateMobT &r);
 
-  static void hanle_server_mob(const std::unique_ptr<fbs::MobT> &m);
+  static void HanleServerMob(const std::unique_ptr<fbs::MobT> &m);
 
-  static void handle_s_attack(uint64_t client_id, AttackT &at);
+  static void HandleSAttack(uint64_t client_id, AttackT &at);
 
-  static void handle_attack(uint64_t client_id, ClientMobAttackT &r);
-  static void handle_server_attack(ServerMobAttackT &r);
+  static void HandleAttack(uint64_t client_id, ClientMobAttackT &r);
+  static void HandleServerAttack(ServerMobAttackT &r);
 
-  static void handle_server_mv(const ServerMobMvT &m);
-  static void handle_server_flip(const ServerMobFlipT &m);
-  static void handle_server_action(const ServerMobActionT &m);
-  static void handle_server_state(const ServerMobStateT &m);
-  static void handle_server_die(const ServerMobDieT &m);
-  static void handle_server_drop(const ServerMobDropT &m);
-  static void handle_server_event(const ServerMobEventT &m);
+  static void HandleServerMv(const ServerMobMvT &m);
+  static void HandleServerFlip(const ServerMobFlipT &m);
+  static void HandleServerAction(const ServerMobActionT &m);
+  static void HandleServerState(const ServerMobStateT &m);
+  static void HandleServerDie(const ServerMobDieT &m);
+  static void HandleServerDrop(const ServerMobDropT &m);
+  static void HandleServerEvent(const ServerMobEventT &m);
 
-  static void handle_debuff(uint64_t client_id, ClientMobDebuffT &r);
-  static void handle_s_debuff(ServerMobDebuffT &r);
+  static void HandleDebuff(uint64_t client_id, ClientMobDebuffT &r);
+  static void HandleSDebuff(ServerMobDebuffT &r);
 };

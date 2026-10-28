@@ -2,7 +2,7 @@
 
 class LoginSystemInstance {
 public:
-  static void enter_prepare();
-  static void enter();
-  static bool render_game();
+  static void EnterPrepare();
+  static void Enter();
+  static bool RenderGame();
 };

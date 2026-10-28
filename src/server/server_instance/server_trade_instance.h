@@ -6,6 +6,6 @@ using namespace fbs;
 
 class ServerTradeInstance {
 public:
-  static void handle_client(uint64_t client_id, ClientCharacterTradeT &r);
-  static void handle_server(uint64_t client_id, ServerCharacterTradeT &r);
+  static void HandleClient(uint64_t client_id, ClientCharacterTradeT &r);
+  static void HandleServer(uint64_t client_id, ServerCharacterTradeT &r);
 };

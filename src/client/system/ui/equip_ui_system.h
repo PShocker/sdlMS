@@ -25,35 +25,35 @@ enum class EquipMouseIndex {
 
 class EquipUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_backgrnd2();
-  static void render_tab();
-  static void render_equip();
-  static void render_deco();
-  static void render_disable_texture(SDL_FPoint slot);
-  static void render_equip_texture(std::optional<GameEquipItem> &equip,
+  static void RenderBackgrnd();
+  static void RenderBackgrnd2();
+  static void RenderTab();
+  static void RenderEquip();
+  static void RenderDeco();
+  static void RenderDisableTexture(SDL_FPoint slot);
+  static void RenderEquipTexture(std::optional<GameEquipItem> &equip,
                                    SDL_FPoint slot, EquipMouseIndex i);
-  static void render_deco_texture(std::optional<GameDecoItem> &deco,
+  static void RenderDecoTexture(std::optional<GameDecoItem> &deco,
                                   SDL_FPoint slot, EquipMouseIndex i);
-  static bool render_info();
-  static void render_button();
+  static bool RenderInfo();
+  static void RenderButton();
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
-  static void event_close();
+  static void EventClose();
 
-  static bool event_click_equip(SDL_Event *event);
+  static bool EventClickEquip(SDL_Event *Event);
 
-  static void event_motion(SDL_Event *event);
-  static void event_tab(SDL_Event *event);
-  static bool event_button(SDL_Event *event);
-  static void event_top();
+  static void EventMotion(SDL_Event *Event);
+  static void EventTab(SDL_Event *Event);
+  static bool EventButton(SDL_Event *Event);
+  static void EventTop();
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
   static inline std::optional<SDL_FPoint> drag;
   static inline uint8_t active_tab;
@@ -63,12 +63,12 @@ public:
 
   static inline SDL_FPoint pos;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
-  static void toggle();
+  static bool CursorIn();
+  static void Toggle();
 };

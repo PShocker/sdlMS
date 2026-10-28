@@ -5,7 +5,7 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include <cmath>
 
-bool CameraLogicSystem::run() {
+bool CameraLogicSystem::Run() {
   auto self = CharacterGameInstance::self;
   auto self_pos = self.pos;
   auto &camera = CameraGameInstance::camera;
@@ -25,7 +25,7 @@ bool CameraLogicSystem::run() {
       std::roundf(std::lerp(prev_y, next_y, std::abs(delta_y) / 6000.0f));
 
   auto border =
-      MapInfoGameInstance::load_vr_border(SceneSystemInstance::map_id);
+      MapInfoGameInstance::LoadVrBorder(SceneSystemInstance::map_id);
   auto [t, l, b, r] = border;
   if (camera.x < l) {
     camera.x = l;

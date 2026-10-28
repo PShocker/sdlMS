@@ -1,11 +1,11 @@
 #include "../script.h"
 
-static void npc_101(std::any data) {
+static void Npc101(std::any data) {
 
 };
 
 [[maybe_unused]] static const bool r = [] {
   auto &fns = Script::fns();
-  fns[u"npc_101"] = npc_101;
+  fns[u"npc_101"] = Npc101;
   return true;
 }();

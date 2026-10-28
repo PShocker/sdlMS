@@ -4,6 +4,6 @@
 #include <vector>
 class SeatGameInstance {
 public:
-  static void load(uint32_t map_id);
+  static void Load(uint32_t map_id);
   static inline std::vector<GameSeat> data;
 };

@@ -11,7 +11,7 @@ using namespace fbs;
 
 class DropGameInstance {
 public:
-  static void reset();
+  static void Reset();
 
   static inline std::flat_map<uint64_t, GameDrop> data;
 };

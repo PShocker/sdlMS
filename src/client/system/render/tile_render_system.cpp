@@ -4,9 +4,9 @@
 #include "src/common/wz/wz_resource.h"
 #include "wz/Property.h"
 
-bool TileRenderSystem::render(GameTile &g_tile) {
+bool TileRenderSystem::Render(GameTile &g_tile) {
   auto tile_node = WzResource::map->find(g_tile.path);
-  auto texture = WzResource::load_texture(tile_node);
+  auto texture = WzResource::LoadTexture(tile_node);
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(tile_node->get_child(u"origin"))
           ->get();

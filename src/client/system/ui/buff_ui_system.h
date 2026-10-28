@@ -7,13 +7,13 @@
 
 class BuffUiSystem {
 private:
-  static void render_ui();
-  static void render_ui(GameSkill &sk, float x, float y);
-  static void render_ui(GameItemBuff &gb, float x, float y);
-  static void event_motion(SDL_Event *event);
+  static void RenderUi();
+  static void RenderUi(GameSkill &sk, float x, float y);
+  static void RenderUi(GameItemBuff &gb, float x, float y);
+  static void EventMotion(SDL_Event *Event);
 
 public:
-  static bool render_ui_info();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool RenderUiInfo();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

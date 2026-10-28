@@ -6,5 +6,5 @@
 class Ffmpeg {
 public:
   static GameAudioCache
-  decode_audio_pcm(const std::vector<uint8_t> &audio_data);
+  DecodeAudioPcm(const std::vector<uint8_t> &audio_data);
 };

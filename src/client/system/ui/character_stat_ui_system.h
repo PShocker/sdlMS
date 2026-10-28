@@ -6,34 +6,34 @@
 #include <vector>
 class CharacterStatUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_text();
-  static void render_remain_ap();
-  static void render_button();
-  static void render_detail();
-  static SDL_FPoint load_wh();
+  static void RenderBackgrnd();
+  static void RenderText();
+  static void RenderRemainAp();
+  static void RenderButton();
+  static void RenderDetail();
+  static SDL_FPoint LoadWh();
 
-  static void event_button_hp_inc();
-  static void event_button_hp_inc_max();
-  static void event_button_mp_inc();
-  static void event_button_mp_inc_max();
-  static void event_button_str_inc();
-  static void event_button_str_inc_max();
-  static void event_button_dex_inc();
-  static void event_button_dex_inc_max();
-  static void event_button_int_inc();
-  static void event_button_int_inc_max();
-  static void event_button_luk_inc();
-  static void event_button_luk_inc_max();
+  static void EventButtonHpInc();
+  static void EventButtonHpIncMax();
+  static void EventButtonMpInc();
+  static void EventButtonMpIncMax();
+  static void EventButtonStrInc();
+  static void EventButtonStrIncMax();
+  static void EventButtonDexInc();
+  static void EventButtonDexIncMax();
+  static void EventButtonIntInc();
+  static void EventButtonIntIncMax();
+  static void EventButtonLukInc();
+  static void EventButtonLukIncMax();
 
-  static void event_button_detail_show();
-  static void event_button_detail_hide();
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static void EventButtonDetailShow();
+  static void EventButtonDetailHide();
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
   static inline std::optional<SDL_FPoint> drag;
 
@@ -41,13 +41,13 @@ private:
 
 public:
   static inline SDL_FPoint pos;
-  static bool render();
+  static bool Render();
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void open();
-  static void close();
-  static bool event(SDL_Event *event);
+  static void Open();
+  static void Close();
+  static bool Event(SDL_Event *Event);
 
-  static void toggle();
+  static void Toggle();
 };

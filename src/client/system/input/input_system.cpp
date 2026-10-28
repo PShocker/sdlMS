@@ -14,26 +14,26 @@
 #include <flat_map>
 #include <string>
 
-void InputSystem::handle_ui_input(GameInput &g_input) {
+void InputSystem::HandleUiInput(GameInput &g_input) {
   static const std::flat_map<std::string, void (*)()> fns = {
-      {"worldMap", WorldmapUiSystem::toggle},
-      {"package", PackageUiSystem::toggle},
-      {"characterStat", CharacterStatUiSystem::toggle},
-      {"characterInfo", CharacterInfoUiSystem::toggle},
-      {"keyBind", KeybindingUiSystem::toggle},
-      {"skill", SkillUiSystem::toggle},
-      {"equip", EquipUiSystem::toggle},
-      {"craft", CraftUiSystem::toggle},
-      {"quest", QuestUiSystem::toggle},
-      {"option", OptionUiSystem::toggle},
-      {"menu", StatusbarMenuUiSystem::toggle},
+      {"worldMap", WorldmapUiSystem::Toggle},
+      {"package", PackageUiSystem::Toggle},
+      {"characterStat", CharacterStatUiSystem::Toggle},
+      {"characterInfo", CharacterInfoUiSystem::Toggle},
+      {"keyBind", KeybindingUiSystem::Toggle},
+      {"skill", SkillUiSystem::Toggle},
+      {"equip", EquipUiSystem::Toggle},
+      {"craft", CraftUiSystem::Toggle},
+      {"quest", QuestUiSystem::Toggle},
+      {"option", OptionUiSystem::Toggle},
+      {"menu", StatusbarMenuUiSystem::Toggle},
   };
   if (fns.contains(g_input.val)) {
     fns.at(g_input.val)();
   }
 }
 
-void InputSystem::handle_item_input(GameInput &g_input, bool press) {
+void InputSystem::HandleItemInput(GameInput &g_input, bool press) {
   if (press) {
     CharacterLogicSystem::character_item_input.insert(g_input);
   } else {
@@ -41,7 +41,7 @@ void InputSystem::handle_item_input(GameInput &g_input, bool press) {
   }
 }
 
-void InputSystem::handle_action_input(GameInput &g_input, bool press) {
+void InputSystem::HandleActionInput(GameInput &g_input, bool press) {
   if (press) {
     CharacterLogicSystem::character_action_input.insert(g_input.val);
   } else {
@@ -49,7 +49,7 @@ void InputSystem::handle_action_input(GameInput &g_input, bool press) {
   }
 }
 
-void InputSystem::handle_skill_input(GameInput &g_input, bool press) {
+void InputSystem::HandleSkillInput(GameInput &g_input, bool press) {
   if (press) {
     CharacterLogicSystem::character_skill_input.insert(g_input.val);
   } else {
@@ -57,7 +57,7 @@ void InputSystem::handle_skill_input(GameInput &g_input, bool press) {
   }
 }
 
-void InputSystem::handle_face_input(GameInput &g_input, bool press) {
+void InputSystem::HandleFaceInput(GameInput &g_input, bool press) {
   if (press) {
     CharacterLogicSystem::character_face_input.insert(g_input.val);
   } else {
@@ -65,7 +65,7 @@ void InputSystem::handle_face_input(GameInput &g_input, bool press) {
   }
 }
 
-void InputSystem::reset() {
+void InputSystem::Reset() {
   CharacterLogicSystem::character_item_input.clear();
   CharacterLogicSystem::character_action_input.clear();
   CharacterLogicSystem::character_skill_input.clear();

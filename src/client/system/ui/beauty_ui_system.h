@@ -9,32 +9,32 @@
 #include <vector>
 class BeautyUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_npc();
-  static void render_button();
-  static void render_text();
+  static void RenderBackgrnd();
+  static void RenderNpc();
+  static void RenderButton();
+  static void RenderText();
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
-  static void event_button_close();
-  static void event_button_ok();
+  static void EventButtonClose();
+  static void EventButtonOk();
 
-  static void event_button_prev();
-  static void event_button_next();
+  static void EventButtonPrev();
+  static void EventButtonNext();
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
 public:
-  static bool render();
+  static bool Render();
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool event(SDL_Event *event);
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
   static inline SDL_FPoint pos;
 };

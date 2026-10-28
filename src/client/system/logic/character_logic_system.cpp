@@ -79,7 +79,7 @@ static const std::flat_map<EquipGameInstance::WeaponType,
         {EquipGameInstance::WeaponType::kGun, {u"swingP1", u"stabT2"}},
 };
 
-SDL_FRect CharacterLogicSystem::load_rect(GameCharacter &g_character) {
+SDL_FRect CharacterLogicSystem::LoadRect(GameCharacter &g_character) {
   const auto stand_w = 44.0f;
   const auto stand_h = 65.0f;
   const auto prone_w = 46.0f;
@@ -102,7 +102,7 @@ SDL_FRect CharacterLogicSystem::load_rect(GameCharacter &g_character) {
   return rect;
 }
 
-CheckReactors CharacterLogicSystem::run_reactor_check(GameCharacter &g,
+CheckReactors CharacterLogicSystem::RunReactorCheck(GameCharacter &g,
                                                          SDL_FRect g_r) {
   auto &g_pos = g.pos;
   std::vector<CheckReactors::Reactors> v;
@@ -144,27 +144,27 @@ CheckReactors CharacterLogicSystem::run_reactor_check(GameCharacter &g,
   return {v};
 }
 
-CheckMobs CharacterLogicSystem::run_attack_check(GameCharacter &g_character,
+CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter &g_character,
                                                     GameTriangle tri,
                                                     int num) {
   std::vector<CheckMobs::Mobs> v;
   std::flat_multimap<float, CheckMobs::Mobs> m;
   auto &g_pos = g_character.pos;
   auto t =
-      TriangleGameInstance::load_tri(tri, g_character.flip, g_character.pos);
+      TriangleGameInstance::LoadTri(tri, g_character.flip, g_character.pos);
   for (const auto &[k, v] : MobGameInstance::data) {
     auto &mob = v.mob;
     if (mob.hp <= 0) {
       continue;
     }
-    auto mob_action = MobLogicSystem::load_action_type(mob.action);
+    auto mob_action = MobLogicSystem::LoadActionType(mob.action);
     if (mob_action == MobLogicSystem::ActionEnum::kRevive ||
         mob_action == MobLogicSystem::ActionEnum::kDie) {
       continue;
     }
-    auto m_r = MobLogicSystem::load_rect(mob).value();
+    auto m_r = MobLogicSystem::LoadRect(mob).value();
 
-    if (TriangleGameInstance::rect_ins_tri(m_r, t)) {
+    if (TriangleGameInstance::RectInsTri(m_r, t)) {
       auto &m_pos = mob.pos;
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
                  (m_pos.y - g_pos.y) * (m_pos.y - g_pos.y);
@@ -183,19 +183,19 @@ CheckMobs CharacterLogicSystem::run_attack_check(GameCharacter &g_character,
   return {v};
 }
 
-CheckMobs CharacterLogicSystem::run_attack_check(GameCharacter &g_character,
+CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter &g_character,
                                                     GameTriangle tri) {
-  return run_attack_check(g_character, tri, 1);
+  return RunAttackCheck(g_character, tri, 1);
 }
 
-CheckMobs CharacterLogicSystem::run_attack_check(SDL_FPoint pos,
+CheckMobs CharacterLogicSystem::RunAttackCheck(SDL_FPoint pos,
                                                     SDL_FRect g_r, int num) {
   std::vector<CheckMobs::Mobs> v;
   std::flat_multimap<float, CheckMobs::Mobs> m;
   auto &g_pos = pos;
   for (const auto &[k, v] : MobGameInstance::data) {
     auto &mob = v.mob;
-    auto mob_action = MobLogicSystem::load_action_type(mob.action);
+    auto mob_action = MobLogicSystem::LoadActionType(mob.action);
     if (mob_action == MobLogicSystem::ActionEnum::kRevive ||
         mob_action == MobLogicSystem::ActionEnum::kDie) {
       continue;
@@ -203,7 +203,7 @@ CheckMobs CharacterLogicSystem::run_attack_check(SDL_FPoint pos,
     if (mob.hp <= 0) {
       continue;
     }
-    auto m_r = MobLogicSystem::load_rect(mob).value();
+    auto m_r = MobLogicSystem::LoadRect(mob).value();
     if (SDL_HasRectIntersectionFloat(&m_r, &g_r)) {
       auto &m_pos = mob.pos;
       auto dis = (m_pos.x - g_pos.x) * (m_pos.x - g_pos.x) +
@@ -227,17 +227,17 @@ CheckMobs CharacterLogicSystem::run_attack_check(SDL_FPoint pos,
   return {v};
 }
 
-CheckMobs CharacterLogicSystem::run_attack_check(GameCharacter &g_character,
+CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter &g_character,
                                                     SDL_FRect g_r, int num) {
-  return run_attack_check(g_character.pos, g_r, num);
+  return RunAttackCheck(g_character.pos, g_r, num);
 }
 
-CheckMobs CharacterLogicSystem::run_attack_check(GameCharacter &g_character,
+CheckMobs CharacterLogicSystem::RunAttackCheck(GameCharacter &g_character,
                                                     SDL_FRect g_r) {
-  return run_attack_check(g_character, g_r, UINT32_MAX);
+  return RunAttackCheck(g_character, g_r, UINT32_MAX);
 }
 
-bool CharacterLogicSystem::run_action(GameCharacter &g_character,
+bool CharacterLogicSystem::RunAction(GameCharacter &g_character,
                                         const std::u16string &action) {
   if (g_character.action == action) {
     return false;
@@ -248,7 +248,7 @@ bool CharacterLogicSystem::run_action(GameCharacter &g_character,
   return true;
 }
 
-bool CharacterLogicSystem::run_face_action(GameCharacter &g_character,
+bool CharacterLogicSystem::RunFaceAction(GameCharacter &g_character,
                                              const std::u16string &action) {
   if (g_character.face.id == action) {
     return false;
@@ -260,58 +260,58 @@ bool CharacterLogicSystem::run_face_action(GameCharacter &g_character,
   return true;
 }
 
-void CharacterLogicSystem::run_walk_action(GameCharacter &g_character) {
+void CharacterLogicSystem::RunWalkAction(GameCharacter &g_character) {
   if (g_character.weapon.has_value()) {
     auto weapon_id = g_character.weapon.value().id;
     const auto &avatar_data = CharacterGameInstance::avatar_data;
     if (avatar_data.at(weapon_id).data.contains(u"walk1")) {
-      run_action(g_character, u"walk1");
+      RunAction(g_character, u"walk1");
     } else {
-      run_action(g_character, u"walk2");
+      RunAction(g_character, u"walk2");
     }
   } else {
-    run_action(g_character, u"walk1");
+    RunAction(g_character, u"walk1");
   }
   return;
 }
 
-void CharacterLogicSystem::run_stand_action(GameCharacter &g_character) {
+void CharacterLogicSystem::RunStandAction(GameCharacter &g_character) {
   if (g_character.weapon.has_value()) {
     auto weapon_id = g_character.weapon.value().id;
     const auto &avatar_data = CharacterGameInstance::avatar_data;
     if (avatar_data.at(weapon_id).data.contains(u"stand1")) {
-      run_action(g_character, u"stand1");
+      RunAction(g_character, u"stand1");
     } else {
-      run_action(g_character, u"stand2");
+      RunAction(g_character, u"stand2");
     }
   } else {
-    run_action(g_character, u"stand1");
+    RunAction(g_character, u"stand1");
   }
   return;
 }
 
-void CharacterLogicSystem::run_climb_action(GameCharacter &g_character) {
+void CharacterLogicSystem::RunClimbAction(GameCharacter &g_character) {
   const auto &c_lr = LadderropeGameInstance::data.at(self_lr);
   if (c_lr.l == 1) {
-    run_action(g_character, u"ladder");
+    RunAction(g_character, u"ladder");
   } else {
-    run_action(g_character, u"rope");
+    RunAction(g_character, u"rope");
   }
   return;
 }
 
-bool CharacterLogicSystem::run_animate(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunAnimate(GameCharacter &g_character) {
   bool r = false;
   if (!g_character.action_animate) {
     return r;
   }
   auto delta = Window::delta_time;
-  auto action_type = load_action_type(g_character);
+  auto action_type = LoadActionType(g_character);
   float speed = 1;
   switch (action_type) {
   case ActionEnum::kAttack:
   case ActionEnum::kSkill: {
-    speed = load_attack_speed(g_character);
+    speed = LoadAttackSpeed(g_character);
     break;
   }
   default: {
@@ -324,7 +324,7 @@ bool CharacterLogicSystem::run_animate(GameCharacter &g_character) {
   uint32_t size = 0;
   if (!g_character.morph.empty()) {
     auto node = WzResource::morph->find(g_character.morph + u".img");
-    auto action = load_morph_type(g_character);
+    auto action = LoadMorphType(g_character);
     node = node->get_child(action);
     size = node->children_count();
     node = node->get_child(std::to_string(g_character.action_index));
@@ -353,7 +353,7 @@ bool CharacterLogicSystem::run_animate(GameCharacter &g_character) {
   return r;
 }
 
-bool CharacterLogicSystem::run_flip(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunFlip(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
@@ -373,7 +373,7 @@ bool CharacterLogicSystem::run_flip(GameCharacter &g_character) {
   return false;
 }
 
-void CharacterLogicSystem::run_pick(GameCharacter &g_character) {
+void CharacterLogicSystem::RunPick(GameCharacter &g_character) {
   if (ccp.random_id != 0) {
     return;
   }
@@ -383,7 +383,7 @@ void CharacterLogicSystem::run_pick(GameCharacter &g_character) {
   if (character_action_input.contains("pick")) {
     for (auto &v : DropGameInstance::data | std::views::values) {
       if (v.type == GameDrop::DropEnum::kLand) {
-        if (PackageGameInstance::load_empty_index(v.data).empty()) {
+        if (PackageGameInstance::LoadEmptyIndex(v.data).empty()) {
           continue;
         }
         auto pos = g_character.pos;
@@ -400,7 +400,7 @@ void CharacterLogicSystem::run_pick(GameCharacter &g_character) {
   }
 }
 
-bool CharacterLogicSystem::run_harvest(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunHarvest(GameCharacter &g_character) {
   bool r = false;
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return r;
@@ -417,7 +417,7 @@ bool CharacterLogicSystem::run_harvest(GameCharacter &g_character) {
         auto dx = n_pos.x - g_pos.x;
         auto dy = n_pos.y - g_pos.y;
         if (dx * dx + dy * dy <= std::pow(50, 2)) {
-          return CursorLogicSystem::event_click_npc(g_npc);
+          return CursorLogicSystem::EventClickNpc(g_npc);
         }
       }
     }
@@ -425,23 +425,23 @@ bool CharacterLogicSystem::run_harvest(GameCharacter &g_character) {
   return r;
 }
 
-bool CharacterLogicSystem::run_walk(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunWalk(GameCharacter &g_character) {
   bool r = true;
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return r;
   }
   if (character_action_input.contains("left")) {
     self_hforce = -1400;
-    run_walk_action(g_character);
+    RunWalkAction(g_character);
   } else if (character_action_input.contains("right")) {
     self_hforce = 1400;
-    run_walk_action(g_character);
+    RunWalkAction(g_character);
   } else {
     // 左右都没输入，stand或alert
     if (self_alert_cooldown > Window::dt_now) {
-      run_action(g_character, u"alert");
+      RunAction(g_character, u"alert");
     } else {
-      run_stand_action(g_character);
+      RunStandAction(g_character);
     }
     self_hforce = 0;
     if (self_hspeed == 0) {
@@ -452,15 +452,15 @@ bool CharacterLogicSystem::run_walk(GameCharacter &g_character) {
   auto delta_time = Window::delta_time / 1000.0f;
 
   auto map_id = SceneSystemInstance::map_id;
-  auto border = MapInfoGameInstance::load_mr_border(map_id);
+  auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
-  r = Physic::walk(g_character.pos, delta_time, self_hspeed, self_vspeed,
+  r = Physic::Walk(g_character.pos, delta_time, self_hspeed, self_vspeed,
                    self_hforce, self_hspeed_min, self_hspeed_max, 800, true,
                    self_fh, border, FootholdGameInstance::data);
   return r;
 }
 
-bool CharacterLogicSystem::run_fall(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunFall(GameCharacter &g_character) {
   if (self_fh != 0) {
     return false;
   }
@@ -480,9 +480,9 @@ bool CharacterLogicSystem::run_fall(GameCharacter &g_character) {
   auto fall_collide = self_foothold_cooldown <= Window::dt_now;
 
   auto map_id = SceneSystemInstance::map_id;
-  auto border = MapInfoGameInstance::load_mr_border(map_id);
+  auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
-  bool r = Physic::fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
+  bool r = Physic::Fall(g_character.pos, delta_time, self_hspeed, self_vspeed,
                         self_vspeed_min, self_vspeed_max, border, fall_collide,
                         true, self_fh, g_character.page,
                         FootholdGameInstance::data, self_fall_fh);
@@ -493,7 +493,7 @@ bool CharacterLogicSystem::run_fall(GameCharacter &g_character) {
   return r;
 }
 
-bool CharacterLogicSystem::run_prone(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunProne(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
@@ -501,7 +501,7 @@ bool CharacterLogicSystem::run_prone(GameCharacter &g_character) {
     return false;
   }
   if (character_action_input.contains("down")) {
-    run_action(g_character, u"prone");
+    RunAction(g_character, u"prone");
     self_hspeed = 0;
     self_vspeed = 0;
     return true;
@@ -509,12 +509,12 @@ bool CharacterLogicSystem::run_prone(GameCharacter &g_character) {
   return false;
 }
 
-bool CharacterLogicSystem::run_jump(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunJump(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
   if (character_action_input.contains("jump")) {
-    auto g_action = load_action_type(g_character);
+    auto g_action = LoadActionType(g_character);
     switch (g_action) {
     case ActionEnum::kStand:
     case ActionEnum::kAlert:
@@ -541,9 +541,9 @@ bool CharacterLogicSystem::run_jump(GameCharacter &g_character) {
               self_hspeed = 0;
               self_fh = 0;
               self_foothold_cooldown = Window::dt_now + 120;
-              run_action(g_character, u"jump");
+              RunAction(g_character, u"jump");
               self_two_jump_cooldown = Window::dt_now + 400;
-              AudioGameInstance::load_audio(u"Game.img/Jump", 0);
+              AudioGameInstance::LoadAudio(u"Game.img/Jump", 0);
               break;
             }
           }
@@ -555,9 +555,9 @@ bool CharacterLogicSystem::run_jump(GameCharacter &g_character) {
     case ActionEnum::kJump: {
       // two jump
       if (self_two_jump_cooldown <= Window::dt_now) {
-        auto ski_id = JobSkillGameInstance::load_two_jump();
+        auto ski_id = JobSkillGameInstance::LoadTwoJump();
         if (!ski_id.empty()) {
-          run_skill(g_character, ski_id);
+          RunSkill(g_character, ski_id);
         }
       }
       return true;
@@ -588,14 +588,14 @@ bool CharacterLogicSystem::run_jump(GameCharacter &g_character) {
     self_two_jump_cooldown = Window::dt_now + 200;
     self_fall_fh = self_fh;
     self_fh = 0;
-    run_action(g_character, u"jump");
-    AudioGameInstance::load_audio(u"Game.img/Jump", 0);
+    RunAction(g_character, u"jump");
+    AudioGameInstance::LoadAudio(u"Game.img/Jump", 0);
     return true;
   }
   return false;
 }
 
-bool CharacterLogicSystem::run_climb(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunClimb(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
@@ -632,7 +632,7 @@ bool CharacterLogicSystem::run_climb(GameCharacter &g_character) {
           pos.x = lr.x;
           pos.y = std::clamp(pos.y, (float)lr.t, (float)lr.b);
           g_character.page = lr.page;
-          run_climb_action(g_character);
+          RunClimbAction(g_character);
           return true;
         }
       }
@@ -641,9 +641,9 @@ bool CharacterLogicSystem::run_climb(GameCharacter &g_character) {
   return false;
 }
 
-bool CharacterLogicSystem::run_climbing(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunClimbing(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
-    run_action(g_character, u"jump");
+    RunAction(g_character, u"jump");
     return false;
   }
   if (self_climb_animate_cooldown >= Window::dt_now) {
@@ -688,7 +688,7 @@ bool CharacterLogicSystem::run_climbing(GameCharacter &g_character) {
   return true;
 }
 
-bool CharacterLogicSystem::run_sit(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunSit(GameCharacter &g_character) {
   if (!g_character.morph.empty()) {
     return false;
   }
@@ -697,7 +697,7 @@ bool CharacterLogicSystem::run_sit(GameCharacter &g_character) {
       for (const auto &[seat_pos] : SeatGameInstance::data) {
         if (std::abs(g_character.pos.x - seat_pos.x) <= 20 &&
             std::abs(g_character.pos.y - seat_pos.y) <= 20) {
-          run_action(g_character, u"sit");
+          RunAction(g_character, u"sit");
           self_sit_cooldown = Window::dt_now + 120;
           return true;
         }
@@ -707,21 +707,21 @@ bool CharacterLogicSystem::run_sit(GameCharacter &g_character) {
   return false;
 }
 
-bool CharacterLogicSystem::run_sitting(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunSitting(GameCharacter &g_character) {
   if (!character_action_input.empty()) {
     if (self_sit_cooldown <= Window::dt_now) {
-      run_unsit_chair(g_character);
+      RunUnsitChair(g_character);
       return false;
     }
   }
   if (self_alert_cooldown > Window::dt_now) {
-    run_action(g_character, u"alert");
+    RunAction(g_character, u"alert");
     return false;
   }
   return true;
 }
 
-bool CharacterLogicSystem::run_skill(GameCharacter &g_character,
+bool CharacterLogicSystem::RunSkill(GameCharacter &g_character,
                                        const std::u16string &id) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
@@ -729,16 +729,16 @@ bool CharacterLogicSystem::run_skill(GameCharacter &g_character,
   if (!g_character.morph.empty()) {
     return false;
   }
-  auto &skis = SkillGameInstance::skis();
-  if (skis.contains(id)) {
-    auto ski_lv = JobSkillGameInstance::load_ski_level(id);
-    const auto &ski = skis[id];
+  auto &Skis = SkillGameInstance::Skis();
+  if (Skis.contains(id)) {
+    auto ski_lv = JobSkillGameInstance::LoadSkiLevel(id);
+    const auto &ski = Skis[id];
     if (!ski.use) {
       return false;
     }
     bool use = false;
     if (ski.cd < Window::dt_now) {
-      auto action_type = load_action_type(g_character);
+      auto action_type = LoadActionType(g_character);
       switch (action_type) {
       case ActionEnum::kJump: {
         if (ski.fall) {
@@ -765,29 +765,29 @@ bool CharacterLogicSystem::run_skill(GameCharacter &g_character,
         }
       }
       ski.use(0, ski_lv);
-      CharacterLogicSystem::load_sfx(g_character);
+      CharacterLogicSystem::LoadSfx(g_character);
     }
   }
   return true;
 }
 
-bool CharacterLogicSystem::run_skill(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunSkill(GameCharacter &g_character) {
   if (!character_skill_input.empty()) {
     const auto &id = *character_skill_input.begin();
-    return run_skill(g_character, {id.begin(), id.end()});
+    return RunSkill(g_character, {id.begin(), id.end()});
   }
   return false;
 }
 
-bool CharacterLogicSystem::run_attack_action(GameCharacter &g_character,
+bool CharacterLogicSystem::RunAttackAction(GameCharacter &g_character,
                                                bool shoot) {
   if (!g_character.weapon.has_value()) {
     return false;
   }
-  auto g_action = load_action_type(g_character);
+  auto g_action = LoadActionType(g_character);
   auto g_weapon = g_character.weapon->id;
-  auto g_weapon_info = EquipGameInstance::load_equip_info(g_weapon);
-  auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
+  auto g_weapon_info = EquipGameInstance::LoadEquipInfo(g_weapon);
+  auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);
   switch (g_action) {
   case ActionEnum::kStand:
   case ActionEnum::kAlert:
@@ -802,11 +802,11 @@ bool CharacterLogicSystem::run_attack_action(GameCharacter &g_character,
     }
     std::uniform_int_distribution<> dis(0, actions->size() - 1);
     auto selected = *std::next(actions->begin(), dis(gen));
-    run_action(g_character, selected);
+    RunAction(g_character, selected);
     break;
   }
   case ActionEnum::kProne: {
-    run_action(g_character, u"proneStab");
+    RunAction(g_character, u"proneStab");
     break;
   }
   default: {
@@ -816,7 +816,7 @@ bool CharacterLogicSystem::run_attack_action(GameCharacter &g_character,
   return true;
 }
 
-bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunAttack(GameCharacter &g_character) {
   if (g_character.debuffs.contains(GameDebuff::DebuffType::kDizz)) {
     return false;
   }
@@ -829,7 +829,7 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
   if (self_attack_cooldown > Window::dt_now) {
     return false;
   }
-  auto g_action = load_action_type(g_character);
+  auto g_action = LoadActionType(g_character);
   if (g_action == ActionEnum::kAttack || g_action == ActionEnum::kSkill) {
     return false;
   }
@@ -837,9 +837,9 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
     return false;
   }
   auto g_weapon = g_character.weapon->id;
-  auto g_weapon_info = EquipGameInstance::load_equip_info(g_weapon);
+  auto g_weapon_info = EquipGameInstance::LoadEquipInfo(g_weapon);
   uint64_t delay;
-  auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
+  auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);
   bool shoot_weapon = shoot_weapons.contains(WeaponType);
   auto &gen = RandomGameInstance::gen;
   const std::flat_set<std::u16string> *actions;
@@ -850,10 +850,10 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
   }
   std::uniform_int_distribution<> dis(0, actions->size() - 1);
   auto selected = *std::next(actions->begin(), dis(gen));
-  run_action(g_character, selected);
-  SDL_FRect g_r = AfterimageGameInstance::load_rect(g_character).value();
-  auto rt = run_reactor_check(g_character, g_r);
-  auto ball = PackageGameInstance::load_active_ball();
+  RunAction(g_character, selected);
+  SDL_FRect g_r = AfterimageGameInstance::LoadRect(g_character).value();
+  auto rt = RunReactorCheck(g_character, g_r);
+  auto ball = PackageGameInstance::LoadActiveBall();
   switch (g_action) {
   case ActionEnum::kStand:
   case ActionEnum::kAlert:
@@ -880,12 +880,12 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
     }
     std::uniform_int_distribution<> dis(0, actions->size() - 1);
     auto selected = *std::next(actions->begin(), dis(gen));
-    run_action(g_character, selected);
+    RunAction(g_character, selected);
     break;
   }
   case ActionEnum::kProne: {
     shoot_weapon = false;
-    run_action(g_character, u"proneStab");
+    RunAction(g_character, u"proneStab");
     break;
   }
   default: {
@@ -893,9 +893,9 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
     break;
   }
   }
-  delay = AfterimageGameInstance::load_beat_time(g_character);
+  delay = AfterimageGameInstance::LoadBeatTime(g_character);
   self_alert_cooldown = Window::dt_now + 5000;
-  load_sfx(g_character);
+  LoadSfx(g_character);
   // reactor
   if (!rt.data.empty()) {
     auto &r = rt.data[0];
@@ -915,18 +915,18 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
             SDL_FPoint{0, -28},
         },
     };
-    auto cm = CharacterLogicSystem::run_attack_check(g_character, tri);
-    auto cash_ball = PackageGameInstance::load_active_cash_ball();
+    auto cm = CharacterLogicSystem::RunAttackCheck(g_character, tri);
+    auto cash_ball = PackageGameInstance::LoadActiveCashBall();
     std::u16string path;
     std::u16string effect;
     if (!cash_ball.empty()) {
-      path = BallGameInstance::load_cash_ball_path(cash_ball);
-      effect = BallGameInstance::load_cash_ball_effect(cash_ball);
+      path = BallGameInstance::LoadCashBallPath(cash_ball);
+      effect = BallGameInstance::LoadCashBallEffect(cash_ball);
     } else {
-      path = BallGameInstance::load_ball_path((*ball)->id);
+      path = BallGameInstance::LoadBallPath((*ball)->id);
       effect = u"Afterimage/hit.img/maceF";
     }
-    ItemGameInstance::dec_item_num(*ball, 1);
+    ItemGameInstance::DecItemNum(*ball, 1);
 
     auto page = g_character.page;
     SDL_FPoint pos = g_character.pos;
@@ -937,27 +937,27 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
     } else {
       goal.x -= 350;
     }
-    auto cct = BallGameInstance::create_ball_payload(cm, pos, goal, delay,
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
                                                        page, 700, path);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
       cm.data[0].hits = {100};
-      auto d = BallGameInstance::load_ball_time(cct);
-      auto cat = SkillGameInstance::create_attack_payload(cm, pos, d);
+      auto d = BallGameInstance::LoadBallTime(cct);
+      auto cat = SkillGameInstance::CreateAttackPayload(cm, pos, d);
       cat.payload[0]->effect = {effect.begin(), effect.end()};
       ClientRequest::send_to_host(cat);
     }
-    ServerBallInstance::handle_server_b(cct.payload);
+    ServerBallInstance::HandleServerB(cct.payload);
     ClientRequest::send_to_host(cct);
   } else {
-    auto cm = run_attack_check(g_character, g_r);
+    auto cm = RunAttackCheck(g_character, g_r);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
       cm.data[0].hits = {1};
-      auto hit_type = AfterimageGameInstance::load_hit_type(g_character);
+      auto hit_type = AfterimageGameInstance::LoadHitType(g_character);
       auto effect =
           "Afterimage/hit.img/" + std::string{hit_type.begin(), hit_type.end()};
-      auto cat = SkillGameInstance::create_attack_payload(
+      auto cat = SkillGameInstance::CreateAttackPayload(
           cm, g_character.pos, delay, 0, effect, "");
       ClientRequest::send_to_host(cat);
     }
@@ -970,10 +970,10 @@ bool CharacterLogicSystem::run_attack(GameCharacter &g_character) {
   return true;
 }
 
-bool CharacterLogicSystem::run_portal(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunPortal(GameCharacter &g_character) {
   // 特殊情况，如果掉到了地图外,直接传送到sp出生点
   auto border =
-      MapInfoGameInstance::load_mr_border(SceneSystemInstance::map_id);
+      MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id);
   if (g_character.pos.y >= border.h) {
     // no change map
     const auto &tn = PortalGameInstance::data.find(u"sp")->second;
@@ -982,7 +982,7 @@ bool CharacterLogicSystem::run_portal(GameCharacter &g_character) {
     self_hspeed = 0;
     self_vspeed = 0;
     self_fh = 0;
-    run_action(g_character, u"jump");
+    RunAction(g_character, u"jump");
     self_portal_cooldown = Window::dt_now + 1200;
     return true;
   }
@@ -1002,9 +1002,9 @@ bool CharacterLogicSystem::run_portal(GameCharacter &g_character) {
             g_pos.y == std::clamp(g_pos.y, p_pos.y - 50, p_pos.y + 50)) {
           if (por.tm != SceneSystemInstance::map_id) {
             // need to change map
-            SceneSystemInstance::enter_prepare(por.tm, por.tn, 0);
+            SceneSystemInstance::EnterPrepare(por.tm, por.tn, 0);
             self_portal_cooldown = Window::dt_now + 1000;
-            AudioGameInstance::load_audio(u"Game.img/Portal", 0);
+            AudioGameInstance::LoadAudio(u"Game.img/Portal", 0);
           } else {
             // no change map
             const auto &tn = PortalGameInstance::data.find(por.tn)->second;
@@ -1013,9 +1013,9 @@ bool CharacterLogicSystem::run_portal(GameCharacter &g_character) {
             self_hspeed = 0;
             self_vspeed = 0;
             self_fh = 0;
-            run_action(g_character, u"jump");
+            RunAction(g_character, u"jump");
             self_portal_cooldown = Window::dt_now + 1200;
-            AudioGameInstance::load_audio(u"Game.img/Portal", 0);
+            AudioGameInstance::LoadAudio(u"Game.img/Portal", 0);
             return true;
           }
         }
@@ -1025,16 +1025,16 @@ bool CharacterLogicSystem::run_portal(GameCharacter &g_character) {
   return false;
 }
 
-bool CharacterLogicSystem::run_face(GameCharacter &g_character) {
+bool CharacterLogicSystem::RunFace(GameCharacter &g_character) {
   if (!character_face_input.empty()) {
     auto &face = *character_face_input.begin();
-    run_face_action(g_character, std::u16string{face.begin(), face.end()});
+    RunFaceAction(g_character, std::u16string{face.begin(), face.end()});
     return true;
   }
   return false;
 }
 
-void CharacterLogicSystem::run_face_animate(GameCharacter &g_character) {
+void CharacterLogicSystem::RunFaceAnimate(GameCharacter &g_character) {
   g_character.face.time += Window::delta_time;
   const auto &delays =
       CharacterGameInstance::face_data.at(g_character.face.id)
@@ -1069,9 +1069,9 @@ void CharacterLogicSystem::run_face_animate(GameCharacter &g_character) {
 }
 
 CharacterLogicSystem::PosType
-CharacterLogicSystem::load_pos_type(GameCharacter &g_character) {
+CharacterLogicSystem::LoadPosType(GameCharacter &g_character) {
   auto swim_r =
-      MapInfoGameInstance::load_swim_rect(SceneSystemInstance::map_id);
+      MapInfoGameInstance::LoadSwimRect(SceneSystemInstance::map_id);
   if (swim_r.has_value()) {
     if (SDL_PointInRectFloat(&g_character.pos, &swim_r.value())) {
       return PosType::kSwim;
@@ -1082,7 +1082,7 @@ CharacterLogicSystem::load_pos_type(GameCharacter &g_character) {
   return PosType::kLand;
 }
 
-void CharacterLogicSystem::run_network_sync_state() {
+void CharacterLogicSystem::RunNetworkSyncState() {
   if (ccs.payload.empty()) {
     return;
   }
@@ -1091,7 +1091,7 @@ void CharacterLogicSystem::run_network_sync_state() {
   ccs.payload.clear();
 }
 
-void CharacterLogicSystem::run_network_sync_action() {
+void CharacterLogicSystem::RunNetworkSyncAction() {
   const auto &sf = CharacterGameInstance::self;
   auto map_id = SceneSystemInstance::map_id;
 
@@ -1114,7 +1114,7 @@ void CharacterLogicSystem::run_network_sync_action() {
 }
 const static int32_t MIN_SEND_INTERVAL_MS = 33;
 
-void CharacterLogicSystem::run_network_sync_pos() {
+void CharacterLogicSystem::RunNetworkSyncPos() {
   const auto &sf = CharacterGameInstance::self;
   auto map_id = SceneSystemInstance::map_id;
   static SDL_FPoint pos;
@@ -1134,7 +1134,7 @@ void CharacterLogicSystem::run_network_sync_pos() {
   }
 }
 
-void CharacterLogicSystem::run_network_sync_flip() {
+void CharacterLogicSystem::RunNetworkSyncFlip() {
   const auto &sf = CharacterGameInstance::self;
   auto map_id = SceneSystemInstance::map_id;
   static bool flip;
@@ -1149,7 +1149,7 @@ void CharacterLogicSystem::run_network_sync_flip() {
   }
 }
 
-void CharacterLogicSystem::run_network_sync_face() {
+void CharacterLogicSystem::RunNetworkSyncFace() {
   const auto &sf = CharacterGameInstance::self;
   auto map_id = SceneSystemInstance::map_id;
   static std::u16string face;
@@ -1169,19 +1169,19 @@ void CharacterLogicSystem::run_network_sync_face() {
   }
 }
 
-void CharacterLogicSystem::run_network_sync_self() {
+void CharacterLogicSystem::RunNetworkSyncSelf() {
   if (cct.map_id != 0) {
     const auto &sf = CharacterGameInstance::self;
-    auto c = ServerCharacterInstance::load_charactert(sf);
+    auto c = ServerCharacterInstance::LoadCharactert(sf);
     cct.payload = std::make_unique<fbs::CharacterT>(std::move(c));
     ClientRequest::send_to_host(cct);
     cct.map_id = 0;
   }
 }
 
-void CharacterLogicSystem::run_network_sync_hp() {
+void CharacterLogicSystem::RunNetworkSyncHp() {
   static int32_t hp;
-  auto sf_hp = CharacterStatGameInstance::get_hp();
+  auto sf_hp = CharacterStatGameInstance::GetHp();
   if (hp != sf_hp) {
     StateT st;
     st.state = StateEnum_HP;
@@ -1191,9 +1191,9 @@ void CharacterLogicSystem::run_network_sync_hp() {
   }
 }
 
-void CharacterLogicSystem::run_network_sync_max_hp() {
+void CharacterLogicSystem::RunNetworkSyncMaxHp() {
   static int32_t max_hp;
-  auto sf_max_hp = CharacterStatGameInstance::get_hp_max();
+  auto sf_max_hp = CharacterStatGameInstance::GetHpMax();
   if (max_hp != sf_max_hp) {
     StateT st;
     st.state = StateEnum_MAX_HP;
@@ -1203,24 +1203,24 @@ void CharacterLogicSystem::run_network_sync_max_hp() {
   }
 }
 
-void CharacterLogicSystem::run_network_sync() {
-  run_network_sync_action();
-  run_network_sync_self();
-  run_network_sync_hp();
-  run_network_sync_max_hp();
-  run_network_sync_state();
+void CharacterLogicSystem::RunNetworkSync() {
+  RunNetworkSyncAction();
+  RunNetworkSyncSelf();
+  RunNetworkSyncHp();
+  RunNetworkSyncMaxHp();
+  RunNetworkSyncState();
   static uint64_t time = 0;
   // 节流：频率限制
   if (Window::dt_now - time <= MIN_SEND_INTERVAL_MS) {
     return;
   }
   time = Window::dt_now;
-  run_network_sync_pos();
-  run_network_sync_flip();
-  run_network_sync_face();
+  RunNetworkSyncPos();
+  RunNetworkSyncFlip();
+  RunNetworkSyncFace();
 }
 
-void CharacterLogicSystem::run_network_die_sync(GameCharacter &g_character) {
+void CharacterLogicSystem::RunNetworkDieSync(GameCharacter &g_character) {
   DieT d;
   d.x = g_character.pos.x;
   d.y = g_character.pos.y;
@@ -1232,7 +1232,7 @@ void CharacterLogicSystem::run_network_die_sync(GameCharacter &g_character) {
 }
 
 CharacterLogicSystem::ActionEnum
-CharacterLogicSystem::load_action_type(GameCharacter &g_character) {
+CharacterLogicSystem::LoadActionType(GameCharacter &g_character) {
   const static std::flat_map<std::u16string, ActionEnum> MapName = {
       {u"stand1", ActionEnum::kStand},    {u"stand2", ActionEnum::kStand},
       {u"alert", ActionEnum::kAlert},     {u"walk1", ActionEnum::kWalk},
@@ -1271,7 +1271,7 @@ CharacterLogicSystem::load_action_type(GameCharacter &g_character) {
   return action;
 };
 
-void CharacterLogicSystem::run_tomb(GameCharacter &g_character) {
+void CharacterLogicSystem::RunTomb(GameCharacter &g_character) {
   if (!g_character.tomb.has_value()) {
     return;
   }
@@ -1310,156 +1310,156 @@ void CharacterLogicSystem::run_tomb(GameCharacter &g_character) {
   return;
 }
 
-void CharacterLogicSystem::run_animate_chair(GameCharacter &g_character) {
+void CharacterLogicSystem::RunAnimateChair(GameCharacter &g_character) {
   if (!g_character.chair.has_value()) {
     return;
   }
   auto chair_id = g_character.chair->id;
 }
 
-void CharacterLogicSystem::run_state_machine() {
+void CharacterLogicSystem::RunStateMachine() {
   auto &g_character = CharacterGameInstance::self;
   auto o_character = g_character;
-  run_item(g_character);
-  auto g_action = load_action_type(g_character);
-  run_face(g_character);
-  run_face_animate(g_character);
+  RunItem(g_character);
+  auto g_action = LoadActionType(g_character);
+  RunFace(g_character);
+  RunFaceAnimate(g_character);
   switch (g_action) {
   case ActionEnum::kStand:
   case ActionEnum::kAlert:
   case ActionEnum::kWalk: {
-    run_animate(g_character);
-    run_flip(g_character);
-    run_pick(g_character);
-    if (run_harvest(g_character)) {
+    RunAnimate(g_character);
+    RunFlip(g_character);
+    RunPick(g_character);
+    if (RunHarvest(g_character)) {
       break;
     }
-    if (run_climb(g_character)) {
+    if (RunClimb(g_character)) {
       break;
     }
-    if (run_prone(g_character)) {
+    if (RunProne(g_character)) {
       break;
     }
-    if (!run_walk(g_character)) {
-      run_action(g_character, u"jump");
+    if (!RunWalk(g_character)) {
+      RunAction(g_character, u"jump");
       break;
     }
-    if (run_attack(g_character)) {
+    if (RunAttack(g_character)) {
       break;
     }
-    if (run_skill(g_character)) {
+    if (RunSkill(g_character)) {
       break;
     }
-    if (run_portal(g_character)) {
+    if (RunPortal(g_character)) {
       break;
     }
-    run_jump(g_character);
+    RunJump(g_character);
     break;
   }
   case ActionEnum::kProne: {
-    run_flip(g_character);
-    run_pick(g_character);
-    if (!run_prone(g_character)) {
-      run_stand_action(g_character);
+    RunFlip(g_character);
+    RunPick(g_character);
+    if (!RunProne(g_character)) {
+      RunStandAction(g_character);
     }
-    if (run_jump(g_character)) {
+    if (RunJump(g_character)) {
       break;
     }
-    if (run_climb(g_character)) {
+    if (RunClimb(g_character)) {
       break;
     }
-    if (run_attack(g_character)) {
+    if (RunAttack(g_character)) {
       break;
     }
-    if (run_skill(g_character)) {
+    if (RunSkill(g_character)) {
       break;
     }
-    if (run_portal(g_character)) {
+    if (RunPortal(g_character)) {
       break;
     }
     break;
   }
   case ActionEnum::kJump: {
-    run_flip(g_character);
-    if (!run_fall(g_character)) {
+    RunFlip(g_character);
+    if (!RunFall(g_character)) {
       // 刚落地后，瞬间动作不一定是stand，需要再进行一次状态机
-      run_stand_action(g_character);
-      run_state_machine();
+      RunStandAction(g_character);
+      RunStateMachine();
       break;
     }
-    if (run_attack(g_character)) {
+    if (RunAttack(g_character)) {
       break;
     }
-    if (run_skill(g_character)) {
+    if (RunSkill(g_character)) {
       break;
     }
-    if (run_climb(g_character)) {
+    if (RunClimb(g_character)) {
       break;
     }
-    if (run_portal(g_character)) {
+    if (RunPortal(g_character)) {
       break;
     }
-    if (run_jump(g_character)) {
+    if (RunJump(g_character)) {
       break;
     }
     break;
   }
   case ActionEnum::kClimb: {
-    run_animate(g_character);
-    run_flip(g_character);
-    if (run_jump(g_character)) {
+    RunAnimate(g_character);
+    RunFlip(g_character);
+    if (RunJump(g_character)) {
       break;
     }
-    if (!run_climbing(g_character)) {
-      run_action(g_character, u"jump");
+    if (!RunClimbing(g_character)) {
+      RunAction(g_character, u"jump");
     }
-    if (run_portal(g_character)) {
+    if (RunPortal(g_character)) {
       break;
     }
-    if (run_skill(g_character)) {
+    if (RunSkill(g_character)) {
       break;
     }
     break;
   }
   case ActionEnum::kSit: {
-    if (!run_sitting(g_character)) {
-      run_state_machine();
+    if (!RunSitting(g_character)) {
+      RunStateMachine();
     }
     break;
   }
   case ActionEnum::kSkill:
   case ActionEnum::kAttack: {
-    bool fall = run_fall(g_character);
-    if (run_animate(g_character)) {
+    bool Fall = RunFall(g_character);
+    if (RunAnimate(g_character)) {
       // 冷却
       self_flip_cooldown = Window::dt_now + 33;
       self_attack_cooldown = Window::dt_now + 33;
-      if (!fall) {
+      if (!Fall) {
         // 落地
         self_vspeed = 0;
         self_hspeed = 0;
-        run_stand_action(g_character);
+        RunStandAction(g_character);
       } else {
-        run_action(g_character, u"jump");
+        RunAction(g_character, u"jump");
       }
       g_character.skill = std::nullopt;
-      run_network_sync();
-      run_state_machine();
+      RunNetworkSync();
+      RunStateMachine();
     }
     break;
   }
   case ActionEnum::kDead: {
-    run_tomb(g_character);
+    RunTomb(g_character);
     break;
   }
   default: {
     std::abort();
   }
   }
-  run_network_sync();
+  RunNetworkSync();
 }
 
-void CharacterLogicSystem::run_others_mv() {
+void CharacterLogicSystem::RunOthersMv() {
   for (auto &c : CharacterGameInstance::others | std::views::values) {
     auto &mvs = c.mvs;
     if (mvs.empty()) {
@@ -1493,24 +1493,24 @@ void CharacterLogicSystem::run_others_mv() {
   }
 }
 
-void CharacterLogicSystem::run_others_state_machine() {
+void CharacterLogicSystem::RunOthersStateMachine() {
   for (auto &c : CharacterGameInstance::others | std::views::values) {
     auto &g_character = c.g_character;
-    run_face_animate(g_character);
-    auto g_action = load_action_type(g_character);
+    RunFaceAnimate(g_character);
+    auto g_action = LoadActionType(g_character);
     switch (g_action) {
     case ActionEnum::kStand:
     case ActionEnum::kAlert:
     case ActionEnum::kWalk:
     case ActionEnum::kClimb: {
-      run_animate(g_character);
+      RunAnimate(g_character);
       break;
     }
     case ActionEnum::kAttack:
     case ActionEnum::kSkill: {
       auto action_index = g_character.action_index;
       auto action_time = g_character.action_time;
-      if (run_animate(g_character)) {
+      if (RunAnimate(g_character)) {
         g_character.skill = std::nullopt;
         // 一次性动作,但是不知道后续是什么动作,保留动作
         g_character.action_index = action_index;
@@ -1522,11 +1522,11 @@ void CharacterLogicSystem::run_others_state_machine() {
       break;
     }
     case ActionEnum::kDead: {
-      run_tomb(g_character);
+      RunTomb(g_character);
       break;
     }
     case ActionEnum::kSit: {
-      run_animate_chair(g_character);
+      RunAnimateChair(g_character);
       break;
     }
     default: {
@@ -1536,12 +1536,12 @@ void CharacterLogicSystem::run_others_state_machine() {
   }
 }
 
-void CharacterLogicSystem::run_others() {
-  run_others_state_machine();
-  run_others_mv();
+void CharacterLogicSystem::RunOthers() {
+  RunOthersStateMachine();
+  RunOthersMv();
 }
 
-void CharacterLogicSystem::run_color() {
+void CharacterLogicSystem::RunColor() {
   auto g_character = &CharacterGameInstance::self;
   auto cooldown = CharacterLogicSystem::self_invincible_cooldown;
   if (cooldown >= Window::dt_now) {
@@ -1555,15 +1555,15 @@ void CharacterLogicSystem::run_color() {
 }
 
 // 人物状态机
-bool CharacterLogicSystem::run() {
-  run_others();
-  run_state_machine();
-  run_color();
+bool CharacterLogicSystem::Run() {
+  RunOthers();
+  RunStateMachine();
+  RunColor();
   return true;
 }
 
-void CharacterLogicSystem::run_die_action(GameCharacter &g_character) {
-  run_action(g_character, u"dead");
+void CharacterLogicSystem::RunDieAction(GameCharacter &g_character) {
+  RunAction(g_character, u"dead");
   if (self_fh == 0 || self_lr == 0) {
     auto o_character = g_character;
     // 空中
@@ -1571,13 +1571,13 @@ void CharacterLogicSystem::run_die_action(GameCharacter &g_character) {
     self_vspeed = self_vspeed_max;
     //
     auto map_id = SceneSystemInstance::map_id;
-    auto border = MapInfoGameInstance::load_mr_border(map_id);
+    auto border = MapInfoGameInstance::LoadMrBorder(map_id);
 
     SDL_FPoint new_pos{
         .x = g_character.pos.x,
         .y = border.h,
     };
-    auto inter_pos = Physic::fall_intersect_pos(g_character.pos, new_pos,
+    auto inter_pos = Physic::FallIntersectPos(g_character.pos, new_pos,
                                                 FootholdGameInstance::data);
     g_character.pos = inter_pos.begin()->second.pos;
   }
@@ -1593,25 +1593,25 @@ void CharacterLogicSystem::run_die_action(GameCharacter &g_character) {
   self_hspeed = 0;
   self_alert_cooldown = 0;
 
-  run_network_die_sync(g_character);
+  RunNetworkDieSync(g_character);
 
-  AudioGameInstance::load_audio(u"Game.img/Tombstone", 0);
+  AudioGameInstance::LoadAudio(u"Game.img/Tombstone", 0);
 
-  ReviveUiSystem::toggle();
+  ReviveUiSystem::Toggle();
 }
 
-void CharacterLogicSystem::load_sfx(GameCharacter &g_character) {
+void CharacterLogicSystem::LoadSfx(GameCharacter &g_character) {
   if (!g_character.weapon.has_value()) {
     return;
   }
-  auto delay = AfterimageGameInstance::load_beat_time(g_character);
+  auto delay = AfterimageGameInstance::LoadBeatTime(g_character);
   auto g_weapon = g_character.weapon->id;
-  auto g_weapon_info = EquipGameInstance::load_equip_info(g_weapon);
+  auto g_weapon_info = EquipGameInstance::LoadEquipInfo(g_weapon);
   auto sfx = static_cast<wz::Property<std::u16string> *>(
                  g_weapon_info->get_child(u"sfx"))
                  ->get();
-  auto WeaponType = EquipGameInstance::load_weapon_type(g_character);
-  auto action_type = load_action_type(g_character);
+  auto WeaponType = EquipGameInstance::LoadWeaponType(g_character);
+  auto action_type = LoadActionType(g_character);
   if (!(action_type == CharacterLogicSystem::ActionEnum::kSkill ||
         action_type == CharacterLogicSystem::ActionEnum::kAttack)) {
     return;
@@ -1642,28 +1642,28 @@ void CharacterLogicSystem::load_sfx(GameCharacter &g_character) {
       return;
     }
   }
-  AudioGameInstance::load_audio(u"Weapon.img/" + sfx, delay);
+  AudioGameInstance::LoadAudio(u"Weapon.img/" + sfx, delay);
   if (g_character.skill.has_value()) {
     // hard code
     if (g_character.skill == u"4001003") {
-      AudioGameInstance::load_audio(u"Weapon.img/" + sfx, delay + 120);
+      AudioGameInstance::LoadAudio(u"Weapon.img/" + sfx, delay + 120);
     }
   }
 }
 
-float CharacterLogicSystem::load_attack_speed(GameCharacter &g_character) {
+float CharacterLogicSystem::LoadAttackSpeed(GameCharacter &g_character) {
   if (!g_character.weapon.has_value()) {
     return 1.0;
   }
-  auto w_speed = EquipGameInstance::load_equip_inc(g_character.weapon->id)
+  auto w_speed = EquipGameInstance::LoadEquipInc(g_character.weapon->id)
                      .at(EquipGameInstance::IncType::kWeaponSpeed);
   float speed = w_speed + g_character.attack_speed;
   return 1.6 - speed / 10;
 }
 
-void CharacterLogicSystem::run_sit_chair(GameCharacter &g_character,
+void CharacterLogicSystem::RunSitChair(GameCharacter &g_character,
                                            const std::u16string &id) {
-  run_action(g_character, u"sit");
+  RunAction(g_character, u"sit");
   g_character.chair = GameChair{};
   g_character.chair->id = id;
   if (&g_character == &CharacterGameInstance::self) {
@@ -1677,9 +1677,9 @@ void CharacterLogicSystem::run_sit_chair(GameCharacter &g_character,
   return;
 }
 
-void CharacterLogicSystem::run_unsit_chair(GameCharacter &g_character) {
+void CharacterLogicSystem::RunUnsitChair(GameCharacter &g_character) {
   if (g_character.chair.has_value()) {
-    run_stand_action(g_character);
+    RunStandAction(g_character);
     if (&g_character == &CharacterGameInstance::self) {
       StateT st;
       st.state = fbs::StateEnum_BUFF_ITEM;
@@ -1696,24 +1696,24 @@ void CharacterLogicSystem::run_unsit_chair(GameCharacter &g_character) {
   return;
 }
 
-void CharacterLogicSystem::run_item(GameCharacter &g_character) {
+void CharacterLogicSystem::RunItem(GameCharacter &g_character) {
   if (!character_item_input.empty()) {
     for (const auto &input : character_item_input) {
       auto item_id = input.val;
       std::u16string item_id2{item_id.begin(), item_id.end()};
-      auto itm = PackageGameInstance::load_item(item_id2);
+      auto itm = PackageGameInstance::LoadItem(item_id2);
       if (itm == nullptr) {
         return;
       }
-      ItemGameInstance::use_item(*itm);
+      ItemGameInstance::UseItem(*itm);
     }
   }
   return;
 }
 
 std::u16string
-CharacterLogicSystem::load_morph_type(GameCharacter &g_character) {
-  auto action_type = load_action_type(g_character);
+CharacterLogicSystem::LoadMorphType(GameCharacter &g_character) {
+  auto action_type = LoadActionType(g_character);
   switch (action_type) {
   case ActionEnum::kStand: {
     return u"stand";
@@ -1741,23 +1741,23 @@ CharacterLogicSystem::load_morph_type(GameCharacter &g_character) {
   return u"";
 }
 
-void CharacterLogicSystem::run_being_hit(float x, uint64_t num) {
+void CharacterLogicSystem::RunBeingHit(float x, uint64_t num) {
   auto &sf = CharacterGameInstance::self;
   sf.action_animate = true;
-  auto action_type = CharacterLogicSystem::load_action_type(sf);
+  auto action_type = CharacterLogicSystem::LoadActionType(sf);
   switch (action_type) {
   case CharacterLogicSystem::ActionEnum::kStand:
   case CharacterLogicSystem::ActionEnum::kAlert:
   case CharacterLogicSystem::ActionEnum::kWalk:
   case CharacterLogicSystem::ActionEnum::kClimb:
   case CharacterLogicSystem::ActionEnum::kProne: {
-    CharacterLogicSystem::run_action(sf, u"jump");
+    CharacterLogicSystem::RunAction(sf, u"jump");
     self_fall_fh = self_fh;
     break;
   }
   case CharacterLogicSystem::ActionEnum::kSit: {
-    CharacterLogicSystem::run_unsit_chair(sf);
-    CharacterLogicSystem::run_action(sf, u"jump");
+    CharacterLogicSystem::RunUnsitChair(sf);
+    CharacterLogicSystem::RunAction(sf, u"jump");
     self_fall_fh = self_fh;
     break;
   }
@@ -1793,25 +1793,25 @@ void CharacterLogicSystem::run_being_hit(float x, uint64_t num) {
   } else {
     CharacterLogicSystem::self_vspeed -= speed;
   }
-  auto sf_hp = CharacterStatGameInstance::get_hp();
+  auto sf_hp = CharacterStatGameInstance::GetHp();
   sf_hp -= num;
   if (sf_hp <= 0) {
-    CharacterStatGameInstance::set_hp(0);
-    CharacterLogicSystem::run_die_action(sf);
+    CharacterStatGameInstance::SetHp(0);
+    CharacterLogicSystem::RunDieAction(sf);
   } else {
-    CharacterStatGameInstance::set_hp(sf_hp);
-    CharacterLogicSystem::run_face_action(sf, u"hit");
+    CharacterStatGameInstance::SetHp(sf_hp);
+    CharacterLogicSystem::RunFaceAction(sf, u"hit");
   }
   return;
 }
 
 std::vector<uint64_t>
-CharacterLogicSystem::run_buff_check(GameCharacter &g_character,
+CharacterLogicSystem::RunBuffCheck(GameCharacter &g_character,
                                        SDL_FRect g_r) {
   std::vector<uint64_t> r;
   auto &g_pos = g_character.pos;
   for (const auto &[k, v] : CharacterGameInstance::others) {
-    auto c_r = load_rect(v.g_character);
+    auto c_r = LoadRect(v.g_character);
     if (SDL_HasRectIntersectionFloat(&c_r, &g_r)) {
       r.push_back(k);
     }

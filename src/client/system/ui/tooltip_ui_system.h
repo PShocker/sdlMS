@@ -6,33 +6,33 @@
 #include <string>
 class TooltipUiSystem {
 private:
-  static int load_equip_width(const std::u16string &id);
+  static int LoadEquipWidth(const std::u16string &id);
 
-  static void render_backgrnd(float x, float y, float w, float h);
-  static void render_equip_req(uint32_t req, uint32_t val,
+  static void RenderBackgrnd(float x, float y, float w, float h);
+  static void RenderEquipReq(uint32_t req, uint32_t val,
                                const std::u16string &path, float x, float y);
-  static void render_equip_job(const std::u16string &id, float x, float y);
-  static void render_equip_bottom_inc(std::u16string label, std::u16string val,
+  static void RenderEquipJob(const std::u16string &id, float x, float y);
+  static void RenderEquipBottomInc(std::u16string label, std::u16string val,
                                       float x, float &y);
 
-  static void render_equip_bottom(GameEquipItem &equip, float x, float y);
-  static float load_equip_bottom_h(GameEquipItem &equip);
+  static void RenderEquipBottom(GameEquipItem &equip, float x, float y);
+  static float LoadEquipBottomH(GameEquipItem &equip);
 
-  static void render_deco_bottom(GameDecoItem &deco, float x, float y);
-  static float load_deco_bottom_h(const std::u16string &id);
+  static void RenderDecoBottom(GameDecoItem &deco, float x, float y);
+  static float LoadDecoBottomH(const std::u16string &id);
 
-  static void render_skill_bottom(const std::u16string &id, uint8_t level,
+  static void RenderSkillBottom(const std::u16string &id, uint8_t level,
                                   float x, float y);
-  static float load_skill_bottom_h(const std::u16string &id);
+  static float LoadSkillBottomH(const std::u16string &id);
 
 public:
-  static void render_deco(GameDecoItem &deco, float x, float y);
-  static void render_equip(GameEquipItem &equip, float x, float y);
-  static void render_item(GameItem &item, float x, float y);
-  static void render_install(GameInstallItem &ins, float x, float y);
-  static void render_skill(const std::u16string &id, uint8_t level, float x,
+  static void RenderDeco(GameDecoItem &deco, float x, float y);
+  static void RenderEquip(GameEquipItem &equip, float x, float y);
+  static void RenderItem(GameItem &item, float x, float y);
+  static void RenderInstall(GameInstallItem &ins, float x, float y);
+  static void RenderSkill(const std::u16string &id, uint8_t level, float x,
                            float y);
-  static void render_world_map_info(uint32_t id, float x, float y);
-  static void render_str(const std::u16string &str, float x, float y);
-  static bool event(SDL_Event *event);
+  static void RenderWorldMapInfo(uint32_t id, float x, float y);
+  static void RenderStr(const std::u16string &str, float x, float y);
+  static bool Event(SDL_Event *Event);
 };

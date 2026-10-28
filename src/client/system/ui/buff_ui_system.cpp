@@ -23,10 +23,10 @@
 static std::optional<GameSkill> mouse_ski;
 static std::optional<GameItemBuff> mouse_item;
 
-void BuffUiSystem::render_ui(GameSkill &sk, float x, float y) {
+void BuffUiSystem::RenderUi(GameSkill &sk, float x, float y) {
   auto id = sk.id;
-  auto ski_node = SkillGameInstance::load_ski_node(id);
-  auto icon = WzResource::load_texture(ski_node->get_child(u"icon"));
+  auto ski_node = SkillGameInstance::LoadSkiNode(id);
+  auto icon = WzResource::LoadTexture(ski_node->get_child(u"icon"));
   SDL_FRect pos_rect{
       x,
       y,
@@ -49,14 +49,14 @@ void BuffUiSystem::render_ui(GameSkill &sk, float x, float y) {
     SDL_RenderFillRect(Window::renderer, &pos_rect);
     // 渲染冷却时间
     auto num = d / 1000;
-    PackageUiSystem::render_number(num, x, y + 21);
+    PackageUiSystem::RenderNumber(num, x, y + 21);
   }
 }
 
-void BuffUiSystem::render_ui(GameItemBuff &gb, float x, float y) {
+void BuffUiSystem::RenderUi(GameItemBuff &gb, float x, float y) {
   auto id = gb.id;
-  auto info = ItemGameInstance::load_item_info(id, 0);
-  auto icon = WzResource::load_texture(info->get_child(u"icon"));
+  auto info = ItemGameInstance::LoadItemInfo(id, 0);
+  auto icon = WzResource::LoadTexture(info->get_child(u"icon"));
   SDL_FRect pos_rect{
       x,
       y,
@@ -79,11 +79,11 @@ void BuffUiSystem::render_ui(GameItemBuff &gb, float x, float y) {
     SDL_RenderFillRect(Window::renderer, &pos_rect);
     // 渲染冷却时间
     auto num = d / 1000;
-    PackageUiSystem::render_number(num, x, y + 21);
+    PackageUiSystem::RenderNumber(num, x, y + 21);
   }
 }
 
-bool BuffUiSystem::render_ui_info() {
+bool BuffUiSystem::RenderUiInfo() {
   if (!mouse_ski.has_value()) {
     return true;
   }
@@ -101,11 +101,11 @@ bool BuffUiSystem::render_ui_info() {
   } else {
     x = camera.w - w;
   }
-  TooltipUiSystem::render_skill(ski.id, ski.lv, x, mouse_pos.y);
+  TooltipUiSystem::RenderSkill(ski.id, ski.lv, x, mouse_pos.y);
   return true;
 }
 
-void BuffUiSystem::render_ui() {
+void BuffUiSystem::RenderUi() {
   // ski buff
   const auto &camera = CameraGameInstance::camera;
   for (uint32_t i = 0; i < SkillGameInstance::ski.size(); i++) {
@@ -113,7 +113,7 @@ void BuffUiSystem::render_ui() {
     auto row = i / 5;
     auto x = camera.w - 32 - col * 32;
     auto y = row * 32;
-    render_ui(SkillGameInstance::ski[i], x, y);
+    RenderUi(SkillGameInstance::ski[i], x, y);
   }
   auto ski_size = SkillGameInstance::ski.size();
   for (uint32_t i = 0; i < ItemGameInstance::buff.size(); i++) {
@@ -121,43 +121,43 @@ void BuffUiSystem::render_ui() {
     auto row = (i + ski_size) / 5;
     auto x = camera.w - 32 - col * 32;
     auto y = row * 32;
-    render_ui(ItemGameInstance::buff[i], x, y);
+    RenderUi(ItemGameInstance::buff[i], x, y);
   }
 }
 
-void BuffUiSystem::event_motion(SDL_Event *event) {
+void BuffUiSystem::EventMotion(SDL_Event *Event) {
   auto &sys = System::render_systems;
-  std::erase(sys, render_ui_info);
-  auto it = std::ranges::find(sys, &CursorRenderSystem::render);
+  std::erase(sys, RenderUiInfo);
+  auto it = std::ranges::find(sys, &CursorRenderSystem::Render);
   if (it != sys.end()) {
-    sys.insert(it, render_ui_info);
+    sys.insert(it, RenderUiInfo);
   }
 }
 
-bool BuffUiSystem::render() {
+bool BuffUiSystem::Render() {
   mouse_ski = std::nullopt;
   mouse_item = std::nullopt;
-  render_ui();
+  RenderUi();
   return true;
 }
 
-bool BuffUiSystem::event(SDL_Event *event) {
-  switch (event->type) {
+bool BuffUiSystem::Event(SDL_Event *Event) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_RIGHT) {
+    if (Event->button.button == SDL_BUTTON_RIGHT) {
       if (CursorGameInstance::cursor_ui == nullptr) {
         if (mouse_ski.has_value()) {
           mouse_ski->end();
         }
         if (mouse_item.has_value()) {
-          ItemGameInstance::unuse_buff_item(mouse_item->id);
+          ItemGameInstance::UnuseBuffItem(mouse_item->id);
         }
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_motion(event);
+    EventMotion(Event);
     break;
   }
   default: {

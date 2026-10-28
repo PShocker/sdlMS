@@ -3,5 +3,5 @@
 #include "src/client/game/game_backgrnd.h"
 class BackgrndRenderSystem {
 public:
-  static bool render(GameBackgrnd &g_backgrnd);
+  static bool Render(GameBackgrnd &g_backgrnd);
 };

@@ -5,23 +5,23 @@
 #include <string>
 class ScreenNoticeUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_text();
+  static void RenderBackgrnd();
+  static void RenderText();
 
 public:
   static inline SDL_FPoint pos;
   static inline std::u16string path;
   static inline std::u16string text;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 };

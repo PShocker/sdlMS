@@ -11,13 +11,13 @@ using namespace fbs;
 
 class ServerPartyInstance {
 private:
-  static ServerParty &load_party(uint64_t captain_id);
+  static ServerParty &LoadParty(uint64_t captain_id);
 
 public:
   static inline std::flat_map<uint64_t, ServerParty> data;
 
-  static std::optional<ServerParty> load_client_party(uint64_t client_id);
+  static std::optional<ServerParty> LoadClientParty(uint64_t client_id);
 
-  static void handle_party(uint64_t client_id, ClientCharacterPartyT &r);
-  static void handle_server_party(uint64_t client_id, ServerCharacterPartyT &r);
+  static void HandleParty(uint64_t client_id, ClientCharacterPartyT &r);
+  static void HandleServerParty(uint64_t client_id, ServerCharacterPartyT &r);
 };

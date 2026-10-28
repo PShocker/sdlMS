@@ -24,7 +24,7 @@
 #include <utility>
 
 MobLogicSystem::ActionEnum
-MobLogicSystem::load_action_type(const std::u16string &action) {
+MobLogicSystem::LoadActionType(const std::u16string &action) {
   const static std::flat_map<std::u16string, ActionEnum> MapName = {
       {u"stand", ActionEnum::kStand}, {u"move", ActionEnum::kMove},
       {u"hit1", ActionEnum::kHit},    {u"die1", ActionEnum::kDie},
@@ -33,11 +33,11 @@ MobLogicSystem::load_action_type(const std::u16string &action) {
   return MapName.at(action);
 }
 
-std::optional<SDL_FRect> MobLogicSystem::load_rect(const GameMob &g_mob) {
+std::optional<SDL_FRect> MobLogicSystem::LoadRect(const GameMob &g_mob) {
   if (g_mob.action.empty()) {
     return std::nullopt;
   }
-  auto mob_node = MobGameInstance::load_link_mob_node(g_mob.id);
+  auto mob_node = MobGameInstance::LoadLinkMobNode(g_mob.id);
   auto mob_action_node = mob_node->get_child(g_mob.action);
   bool zigzag = mob_action_node->get_child(u"zigzag") == nullptr ? false : true;
   int32_t canvas_count = mob_action_node->children_count();
@@ -59,8 +59,8 @@ std::optional<SDL_FRect> MobLogicSystem::load_rect(const GameMob &g_mob) {
   if (texture_node->get_child(u"lt") == nullptr) {
     return std::nullopt;
   }
-  auto lt = WzResource::load_fpoint(texture_node->get_child(u"lt"));
-  auto rb = WzResource::load_fpoint(texture_node->get_child(u"rb"));
+  auto lt = WzResource::LoadFpoint(texture_node->get_child(u"lt"));
+  auto rb = WzResource::LoadFpoint(texture_node->get_child(u"rb"));
   SDL_FRect rect{
       .x = lt.x,
       .y = lt.y,
@@ -75,11 +75,11 @@ std::optional<SDL_FRect> MobLogicSystem::load_rect(const GameMob &g_mob) {
   return rect;
 }
 
-std::optional<SDL_FPoint> MobLogicSystem::load_head(const GameMob &g_mob) {
+std::optional<SDL_FPoint> MobLogicSystem::LoadHead(const GameMob &g_mob) {
   if (g_mob.action.empty()) {
     return std::nullopt;
   }
-  auto mob_node = MobGameInstance::load_link_mob_node(g_mob.id);
+  auto mob_node = MobGameInstance::LoadLinkMobNode(g_mob.id);
   auto mob_action_node = mob_node->get_child(g_mob.action);
   bool zigzag = mob_action_node->get_child(u"zigzag") == nullptr ? false : true;
   int32_t canvas_count = mob_action_node->children_count();
@@ -101,11 +101,11 @@ std::optional<SDL_FPoint> MobLogicSystem::load_head(const GameMob &g_mob) {
   if (texture_node->get_child(u"head") == nullptr) {
     return std::nullopt;
   }
-  auto head = WzResource::load_fpoint(texture_node->get_child(u"head"));
+  auto head = WzResource::LoadFpoint(texture_node->get_child(u"head"));
   return head;
 }
 
-void MobLogicSystem::run_collision() {
+void MobLogicSystem::RunCollision() {
   if (CharacterLogicSystem::self_invincible_cooldown >= Window::dt_now) {
     return;
   }
@@ -115,15 +115,15 @@ void MobLogicSystem::run_collision() {
   }
   std::flat_map<float, GameMob> Mobs;
   for (auto &m : MobGameInstance::data | std::views::values) {
-    auto action_type = load_action_type(m.mob.action);
+    auto action_type = LoadActionType(m.mob.action);
     if (action_type == ActionEnum::kRevive || action_type == ActionEnum::kDie) {
       continue;
     }
     if (m.mob.hp <= 0) {
       continue;
     }
-    auto m_r = load_rect(m.mob).value();
-    auto c_r = CharacterLogicSystem::load_rect(self);
+    auto m_r = LoadRect(m.mob).value();
+    auto c_r = CharacterLogicSystem::LoadRect(self);
     if (SDL_HasRectIntersectionFloat(&m_r, &c_r)) {
       auto dx = self.pos.x - m.mob.pos.x;
       auto dy = self.pos.y - m.mob.pos.y;
@@ -140,7 +140,7 @@ void MobLogicSystem::run_collision() {
         hit_num = buf.hit(&mob, hit_num);
       }
     }
-    CharacterLogicSystem::run_being_hit(mob.pos.x, hit_num);
+    CharacterLogicSystem::RunBeingHit(mob.pos.x, hit_num);
     AttackT at{
         .delay = Window::dt_time,
         .num = hit_num,
@@ -148,7 +148,7 @@ void MobLogicSystem::run_collision() {
         .y = self.pos.y - 30,
         .type = static_cast<uint8_t>(DamageData::T::kV),
     };
-    ServerMobInstance::handle_s_attack(0, at);
+    ServerMobInstance::HandleSAttack(0, at);
     ClientMobAttackT cma;
     cma.map_id = SceneSystemInstance::map_id;
     cma.payload = std::make_unique<AttackT>(std::move(at));
@@ -156,7 +156,7 @@ void MobLogicSystem::run_collision() {
   }
 }
 
-bool MobLogicSystem::run_animate(GameMob &g_mob) {
+bool MobLogicSystem::RunAnimate(GameMob &g_mob) {
   bool r = false;
   if (!g_mob.ani_animate) {
     return r;
@@ -168,7 +168,7 @@ bool MobLogicSystem::run_animate(GameMob &g_mob) {
   uint32_t delay = 100;
 
   auto node =
-      MobGameInstance::load_link_mob_node(g_mob.id)->get_child(g_mob.action);
+      MobGameInstance::LoadLinkMobNode(g_mob.id)->get_child(g_mob.action);
   bool zigzag = node->get_child(u"zigzag") == nullptr ? false : true;
   int32_t canvas_count = node->children_count();
   if (zigzag) {
@@ -205,9 +205,9 @@ bool MobLogicSystem::run_animate(GameMob &g_mob) {
   return r;
 }
 
-void MobLogicSystem::run_alpha(GameMob &g_mob) {
+void MobLogicSystem::RunAlpha(GameMob &g_mob) {
   auto node =
-      MobGameInstance::load_link_mob_node(g_mob.id)->get_child(g_mob.action);
+      MobGameInstance::LoadLinkMobNode(g_mob.id)->get_child(g_mob.action);
   bool zigzag = node->get_child(u"zigzag") == nullptr ? false : true;
   int32_t canvas_count = node->children_count();
   if (zigzag) {
@@ -247,7 +247,7 @@ void MobLogicSystem::run_alpha(GameMob &g_mob) {
   }
 }
 
-void MobLogicSystem::run_mv() {
+void MobLogicSystem::RunMv() {
   for (auto &c : MobGameInstance::data | std::views::values) {
     auto &mvs = c.mvs;
     if (mvs.empty()) {
@@ -280,33 +280,33 @@ void MobLogicSystem::run_mv() {
   }
 }
 
-void MobLogicSystem::run_debuff(GameMob &g_mob) {
+void MobLogicSystem::RunDebuff(GameMob &g_mob) {
   std::erase_if(g_mob.debuffs, [](const auto &pair) {
     GameDebuff db = pair.second;
     return db.destroy <= Window::dt_time;
   });
 }
 
-void MobLogicSystem::run_state_machine(GameMob &g_mob) {
-  auto action_type = load_action_type(g_mob.action);
+void MobLogicSystem::RunStateMachine(GameMob &g_mob) {
+  auto action_type = LoadActionType(g_mob.action);
   if (action_type == ActionEnum::kRevive) {
     return;
   }
-  if (run_animate(g_mob)) {
+  if (RunAnimate(g_mob)) {
     if (action_type == ActionEnum::kDie) {
       g_mob.action = u"";
       return;
     }
   }
-  run_alpha(g_mob);
-  run_debuff(g_mob);
+  RunAlpha(g_mob);
+  RunDebuff(g_mob);
 }
 
-bool MobLogicSystem::run() {
+bool MobLogicSystem::Run() {
   for (auto &m : MobGameInstance::data | std::views::values) {
-    run_state_machine(m.mob);
+    RunStateMachine(m.mob);
   }
-  run_collision();
-  run_mv();
+  RunCollision();
+  RunMv();
   return true;
 }

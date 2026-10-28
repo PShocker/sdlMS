@@ -25,7 +25,7 @@
 #include <cstdint>
 #include <string>
 
-static void shunjianyidong() {
+static void Shunjianyidong() {
   GameSkill g_skill;
   g_skill.id = u"2301000";
 
@@ -33,24 +33,24 @@ static void shunjianyidong() {
     e->id = u"BasicEff.img/Teleport";
     e->lv = 1;
     e->pos = SDL_FPoint{0, 0};
-    if (EffectLogicSystem::run_effect(*e)) {
+    if (EffectLogicSystem::RunEffect(*e)) {
       return false;
     }
     auto g_character = std::any_cast<GameCharacter *>(e->data);
-    EffectRenderSystem::render_effect(g_character->pos, *e);
+    EffectRenderSystem::RenderEffect(g_character->pos, *e);
     e->id = u"2301000";
     return true;
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) {
-    CharacterStatGameInstance::add_exp(1000);
-    SkillGameInstance::skis()[u"2301000"].cd = Window::dt_now + 500;
+    CharacterStatGameInstance::AddExp(1000);
+    SkillGameInstance::Skis()[u"2301000"].cd = Window::dt_now + 500;
     auto &sf = CharacterGameInstance::self;
 
-    auto up = KeyboardGameInstance::find_key_by_val("up");
-    auto down = KeyboardGameInstance::find_key_by_val("down");
-    auto left = KeyboardGameInstance::find_key_by_val("left");
-    auto right = KeyboardGameInstance::find_key_by_val("right");
+    auto up = KeyboardGameInstance::FindKeyByVal("up");
+    auto down = KeyboardGameInstance::FindKeyByVal("down");
+    auto left = KeyboardGameInstance::FindKeyByVal("left");
+    auto right = KeyboardGameInstance::FindKeyByVal("right");
 
     auto x = sf.pos.x;
     auto y = sf.pos.y;
@@ -67,13 +67,13 @@ static void shunjianyidong() {
 
     const auto &fhs = FootholdGameInstance::data;
     auto border =
-        MapInfoGameInstance::load_mr_border(SceneSystemInstance::map_id);
+        MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id);
     auto [l, t, r, b] = border;
     x = std::clamp(x, l, r);
     y = std::clamp(y, t, b);
     if (y != sf.pos.y) {
       // 垂直移动
-      auto ins = Physic::fall_intersect_pos(sf.pos, {x, y}, fhs);
+      auto ins = Physic::FallIntersectPos(sf.pos, {x, y}, fhs);
       if (!ins.empty()) {
         if (sf.pos.y < y) {
           sf.pos = ins.rbegin()->second.pos;
@@ -84,13 +84,13 @@ static void shunjianyidong() {
         }
       }
     } else if (x != sf.pos.x) {
-      auto ins = Physic::fall_intersect_pos({x, y}, {x, y + 70}, fhs);
+      auto ins = Physic::FallIntersectPos({x, y}, {x, y + 70}, fhs);
       if (!ins.empty()) {
         auto top = ins.begin()->first;
         sf.pos = ins.begin()->second.pos;
         CharacterLogicSystem::self_fh = ins.begin()->second.fh.id;
       } else {
-        auto ins = Physic::fall_intersect_pos({x, y}, {x, y - 70}, fhs);
+        auto ins = Physic::FallIntersectPos({x, y}, {x, y - 70}, fhs);
         if (!ins.empty()) {
           auto top = ins.rbegin()->first;
           sf.pos = ins.rbegin()->second.pos;
@@ -102,22 +102,22 @@ static void shunjianyidong() {
     CharacterLogicSystem::self_hspeed = 0;
     CharacterLogicSystem::self_vspeed = 0;
 
-    auto ckt = SkillGameInstance::create_skill_payload(2301000, ski_lv);
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    auto ckt = SkillGameInstance::CreateSkillPayload(2301000, ski_lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
-static void huixueshu() {
+static void Huixueshu() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"2301001";
 
   static uint64_t now;
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    SkillGameInstance::skis()[u"2301001"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"2301001"].cd = Window::dt_now + 1000;
 
     auto &ski = SkillGameInstance::ski;
     g_skill.end();
@@ -127,16 +127,16 @@ static void huixueshu() {
     ski.push_back(g_skill);
 
     auto &sf = CharacterGameInstance::self;
-    auto ckt = SkillGameInstance::create_skill_payload(1001, ski_lv);
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    auto ckt = SkillGameInstance::CreateSkillPayload(1001, ski_lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
 
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
-static void qidao() {
+static void Qidao() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"2301003";
@@ -168,22 +168,22 @@ static void qidao() {
       return;
     }
 
-    SkillGameInstance::skis()[u"2301003"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"2301003"].cd = Window::dt_now + 1000;
 
     auto &sf = CharacterGameInstance::self;
-    auto g_r = SkillGameInstance::load_ski_r(u"2301003");
-    auto players = CharacterLogicSystem::run_buff_check(sf, g_r);
+    auto g_r = SkillGameInstance::LoadSkiR(u"2301003");
+    auto players = CharacterLogicSystem::RunBuffCheck(sf, g_r);
     auto ckt =
-        SkillGameInstance::create_skill_payload(players, 2301003, ski_lv);
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+        SkillGameInstance::CreateSkillPayload(players, 2301003, ski_lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
 
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {
-  shunjianyidong();
+  Shunjianyidong();
   return true;
 }();

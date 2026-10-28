@@ -6,19 +6,19 @@
 
 class CraftUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_tab();
+  static void RenderBackgrnd();
+  static void RenderTab();
 
-  static bool event_button(SDL_Event *event);
-  static void event_tab(SDL_Event *event);
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
+  static void EventTab(SDL_Event *Event);
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
-  static bool run();
+  static bool Run();
 
   static inline std::optional<SDL_FPoint> drag;
 
@@ -27,13 +27,13 @@ public:
 
   static inline uint8_t selected_tab;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

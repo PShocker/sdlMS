@@ -13,13 +13,13 @@
 #include <cstdint>
 #include <optional>
 
-SDL_FPoint StorageUiSystem::load_wh() { return {421, 366}; }
+SDL_FPoint StorageUiSystem::LoadWh() { return {421, 366}; }
 
-bool StorageUiSystem::cursor_in() { return false; }
+bool StorageUiSystem::CursorIn() { return false; }
 
-std::optional<uint32_t> StorageUiSystem::load_mouse_index() {
-  auto cursor_in = CursorGameInstance::cursor_ui;
-  if (cursor_in != render) {
+std::optional<uint32_t> StorageUiSystem::LoadMouseIndex() {
+  auto CursorIn = CursorGameInstance::cursor_ui;
+  if (CursorIn != Render) {
     return std::nullopt;
   }
   SDL_FPoint slot_pos{8, 51};
@@ -43,8 +43,8 @@ std::optional<uint32_t> StorageUiSystem::load_mouse_index() {
   return std::nullopt;
 }
 
-void StorageUiSystem::render_backgrnd() {
-  static auto back_texture = WzResource::load_texture(
+void StorageUiSystem::RenderBackgrnd() {
+  static auto back_texture = WzResource::LoadTexture(
       WzResource::ui->find(u"Storage.img/Trunk/backgrnd"));
   SDL_FRect pos_rect = {
       pos.x,
@@ -55,7 +55,7 @@ void StorageUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, back_texture, nullptr, &pos_rect);
 }
 
-void StorageUiSystem::render_items() {
+void StorageUiSystem::RenderItems() {
   auto &items0 = StorageGameInstance::storage.data;
   auto &items1 = PackageGameInstance::data[active_tab];
   int m = 0;
@@ -68,9 +68,9 @@ void StorageUiSystem::render_items() {
   }
 }
 
-void StorageUiSystem::render_vscr() {}
+void StorageUiSystem::RenderVscr() {}
 
-void StorageUiSystem::render_button() {
+void StorageUiSystem::RenderButton() {
   const static std::array buttons_node = {
       WzResource::ui->find(u"Storage.img/Trunk/button:get"),
       WzResource::ui->find(u"Storage.img/Trunk/button:put"),
@@ -90,25 +90,25 @@ void StorageUiSystem::render_button() {
     pos_rect.y += (int)pos.y;
     auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render &&
-        CursorGameInstance::modal_overlay == render) {
+    auto CursorIn = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render &&
+        CursorGameInstance::modal_overlay == Render) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void StorageUiSystem::render_tab() {
-  auto t = WzResource::load_texture(
+void StorageUiSystem::RenderTab() {
+  auto t = WzResource::LoadTexture(
       WzResource::ui->find(u"Storage.img/Trunk/tab:get/selected/0"));
   SDL_FRect pos_rect{
       static_cast<float>((int)pos.x + 6),
@@ -119,37 +119,37 @@ void StorageUiSystem::render_tab() {
   SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
 }
 
-bool StorageUiSystem::render() { return true; }
+bool StorageUiSystem::Render() { return true; }
 
-void StorageUiSystem::toggle() {
-  auto fn = &render;
+void StorageUiSystem::Toggle() {
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-void StorageUiSystem::open() {
+void StorageUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void StorageUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void StorageUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }
 
-bool StorageUiSystem::event_button(SDL_Event *event) {
+bool StorageUiSystem::EventButton(SDL_Event *Event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   r = {
@@ -159,10 +159,10 @@ bool StorageUiSystem::event_button(SDL_Event *event) {
       SDL_FRect{132, 11, 70, 18}, //
   };
   fns = {
-      event_button_get,
-      event_button_put,
-      event_button_sort,
-      event_button_exit,
+      EventButtonGet,
+      EventButtonPut,
+      EventButtonSort,
+      EventButtonExit,
   };
 
   for (size_t i = 0; i < r.size(); ++i) {
@@ -178,7 +178,7 @@ bool StorageUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-void StorageUiSystem::event_tab() {
+void StorageUiSystem::EventTab() {
   const static std::array tab_rect = {
       SDL_FRect{5, 24, 33, 19},   //
       SDL_FRect{38, 24, 33, 19},  //
@@ -198,24 +198,24 @@ void StorageUiSystem::event_tab() {
   return;
 }
 
-void StorageUiSystem::event_close() { close(); }
+void StorageUiSystem::EventClose() { Close(); }
 
-void StorageUiSystem::event_button_get() {
+void StorageUiSystem::EventButtonGet() {
   if (active_item[0].has_value()) {
     auto &itm = StorageGameInstance::storage.data.at(active_item[0].value());
     if (itm->id.empty()) {
       return;
     }
-    if (PackageGameInstance::add_item(itm)) {
+    if (PackageGameInstance::AddItem(itm)) {
       itm->id = u"";
     } else {
-      NoticeUiSystem::open_no_space(itm->type);
+      NoticeUiSystem::OpenNoSpace(itm->type);
     }
   }
   return;
 }
 
-bool StorageUiSystem::add_item(std::polymorphic<GameItem> &item) {
+bool StorageUiSystem::AddItem(std::polymorphic<GameItem> &item) {
   if (item->id.empty()) {
     return true;
   }
@@ -228,19 +228,19 @@ bool StorageUiSystem::add_item(std::polymorphic<GameItem> &item) {
   return false;
 }
 
-void StorageUiSystem::event_button_put() {
+void StorageUiSystem::EventButtonPut() {
   if (active_item[1].has_value()) {
     auto &itm =
         PackageGameInstance::data[active_tab].at(active_item[1].value());
-    if (!add_item(itm)) {
+    if (!AddItem(itm)) {
       NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kNoStorageSpace;
-      NoticeUiSystem::open();
+      NoticeUiSystem::Open();
     }
   }
   return;
 }
 
-void StorageUiSystem::event_button_sort() {
+void StorageUiSystem::EventButtonSort() {
   const auto cmp = [](const std::polymorphic<GameItem> &a,
                       const std::polymorphic<GameItem> &b) {
     bool aEmpty = a->id.empty();
@@ -252,24 +252,24 @@ void StorageUiSystem::event_button_sort() {
   std::ranges::sort(StorageGameInstance::storage.data, cmp);
 }
 
-void StorageUiSystem::event_button_exit() { event_close(); }
+void StorageUiSystem::EventButtonExit() { EventClose(); }
 
-bool StorageUiSystem::event(SDL_Event *event) {
+bool StorageUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_tab();
-        r = !event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTab();
+        r = !EventButton(Event);
       }
     }
     break;

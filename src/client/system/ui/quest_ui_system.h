@@ -9,59 +9,59 @@
 #include <string>
 class QuestUiSystem {
 private:
-  static int load_vscr_num0();
-  static int load_vscr_num1();
-  static int load_detail_summary_backgrnd_h();
-  static std::u16string load_detail_str();
+  static int LoadVscrNum0();
+  static int LoadVscrNum1();
+  static int LoadDetailSummaryBackgrndH();
+  static std::u16string LoadDetailStr();
 
-  static void render_backgrnd();
-  static void render_button();
-  static void render_quests();
-  static void render_quest_detail();
-  static void render_tab();
-  static void render_area_name(int i, int y);
-  static void render_quest(GameQuest &q, int y);
-  static void render_vscr();
-  static void render_detail_vscr();
-  static void render_detail_avaliable();
-  static void render_detail_progress();
-  static void render_detail_summary();
-  static void render_detail_summary_backgrnd();
-  static bool render_info();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderQuests();
+  static void RenderQuestDetail();
+  static void RenderTab();
+  static void RenderAreaName(int i, int y);
+  static void RenderQuest(GameQuest &q, int y);
+  static void RenderVscr();
+  static void RenderDetailVscr();
+  static void RenderDetailAvaliable();
+  static void RenderDetailProgress();
+  static void RenderDetailSummary();
+  static void RenderDetailSummaryBackgrnd();
+  static bool RenderInfo();
 
-  static void event_fold();
-  static void event_quest();
+  static void EventFold();
+  static void EventQuest();
 
-  static void event_button_close();
-  static void event_button_detail();
+  static void EventButtonClose();
+  static void EventButtonDetail();
 
-  static bool event_checkbox();
-  static bool event_vscr(SDL_Event *event);
-  static bool event_button(SDL_Event *event);
-  static void event_tab(SDL_Event *event);
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static bool EventCheckbox();
+  static bool EventVscr(SDL_Event *Event);
+  static bool EventButton(SDL_Event *Event);
+  static void EventTab(SDL_Event *Event);
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static void event_wheel(SDL_Event *event);
+  static void EventWheel(SDL_Event *Event);
   
-  static void event_vscr_start(SDL_Event *event);
-  static void event_vscr_end();
-  static void event_vscr_move(SDL_Event *event);
+  static void EventVscrStart(SDL_Event *Event);
+  static void EventVscrEnd();
+  static void EventVscrMove(SDL_Event *Event);
 
-  static void event_motion_bt_audio(SDL_Event *event);
-  static void event_motion(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
+  static void EventMotion(SDL_Event *Event);
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
   static inline std::optional<SDL_FPoint> drag;
 
   static inline std::array<bool, 2> vscr_motion;
 
 public:
-  static void accept_quest(const std::u16string &id);
-  static void complete_quest(const std::u16string &id);
+  static void AcceptQuest(const std::u16string &id);
+  static void CompleteQuest(const std::u16string &id);
   static inline SDL_FPoint pos;
   static inline bool detail;
   static inline uint8_t active_tab;
@@ -69,13 +69,13 @@ public:
   static inline std::array<int, 2> pages;
   static inline std::u16string detail_quest; // quest
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

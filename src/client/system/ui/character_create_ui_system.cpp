@@ -31,12 +31,12 @@
 #include <string>
 #include <vector>
 
-void CharacterCreateUiSystem::render_button() {
+void CharacterCreateUiSystem::RenderButton() {
   const static std::array buttons_nodes = {
       WzResource::ui->find(u"Login.img/NewChar/button:ok"),
       WzResource::ui->find(u"Login.img/NewChar/button:cancel"),
   };
-  auto pos = load_pos();
+  auto pos = LoadPos();
   auto &camera = CameraGameInstance::camera;
   std::array buttons_rect = {
       SDL_FRect{66 - camera.x, -1154 - camera.y, 104, 52},
@@ -51,20 +51,20 @@ void CharacterCreateUiSystem::render_button() {
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
         !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-SDL_FPoint CharacterCreateUiSystem::load_pos() {
+SDL_FPoint CharacterCreateUiSystem::LoadPos() {
   SDL_FPoint pos;
   const auto w = 1366;
   const auto h = 768;
@@ -74,10 +74,10 @@ SDL_FPoint CharacterCreateUiSystem::load_pos() {
   return pos;
 }
 
-void CharacterCreateUiSystem::render_backgrnd() {
-  static auto t = WzResource::load_texture(
+void CharacterCreateUiSystem::RenderBackgrnd() {
+  static auto t = WzResource::LoadTexture(
       WzResource::ui->find(u"Login.img/Common/classicFrame"));
-  auto pos = load_pos();
+  auto pos = LoadPos();
   SDL_FRect pos_rect{
       pos.x,
       pos.y,
@@ -87,8 +87,8 @@ void CharacterCreateUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
 }
 
-void CharacterCreateUiSystem::render_stat() {
-  static auto t = WzResource::load_texture(
+void CharacterCreateUiSystem::RenderStat() {
+  static auto t = WzResource::LoadTexture(
       WzResource::ui->find(u"Login.img/NewChar/stat/canvas:statback"));
   auto &camera = CameraGameInstance::camera;
   SDL_FRect pos_rect{
@@ -133,70 +133,70 @@ void CharacterCreateUiSystem::render_stat() {
     pos_rect.y = (int)pos_rect.y;
     auto &mouse_pos = Window::mouse_pos;
     if (r[i]) {
-      auto d = WzResource::load_texture(k->find(u"disabled/0"));
+      auto d = WzResource::LoadTexture(k->find(u"disabled/0"));
       SDL_RenderTexture(Window::renderer, d, nullptr, &pos_rect);
     } else if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
                !CursorGameInstance::modal_overlay) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 
-  Freetype::load_size(13);
-  Freetype::load_aligned(true);
-  Freetype::load_color(0, 0, 0, 255);
+  Freetype::LoadSize(13);
+  Freetype::LoadAligned(true);
+  Freetype::LoadColor(0, 0, 0, 255);
   auto str1 = std::to_string(str_point);
   auto str2 = std::u16string{str1.begin(), str1.end()};
-  auto dx = Freetype::load_w(str2);
-  Freetype::draw_line(str2, buttons_rect[0].x + 32 - dx / 2,
+  auto dx = Freetype::LoadW(str2);
+  Freetype::DrawLine(str2, buttons_rect[0].x + 32 - dx / 2,
                       buttons_rect[0].y - 2);
 
   auto dex1 = std::to_string(dex_point);
   auto dex2 = std::u16string{dex1.begin(), dex1.end()};
-  dx = Freetype::load_w(dex2);
-  Freetype::draw_line(dex2, buttons_rect[2].x + 32 - dx / 2,
+  dx = Freetype::LoadW(dex2);
+  Freetype::DrawLine(dex2, buttons_rect[2].x + 32 - dx / 2,
                       buttons_rect[2].y - 2);
 
   auto int1 = std::to_string(int_point);
   auto int2 = std::u16string{int1.begin(), int1.end()};
-  dx = Freetype::load_w(int2);
-  Freetype::draw_line(int2, buttons_rect[4].x + 32 - dx / 2,
+  dx = Freetype::LoadW(int2);
+  Freetype::DrawLine(int2, buttons_rect[4].x + 32 - dx / 2,
                       buttons_rect[4].y - 2);
 
   auto luk1 = std::to_string(luk_point);
   auto luk2 = std::u16string{luk1.begin(), luk1.end()};
-  dx = Freetype::load_w(luk2);
-  Freetype::draw_line(luk2, buttons_rect[6].x + 32 - dx / 2,
+  dx = Freetype::LoadW(luk2);
+  Freetype::DrawLine(luk2, buttons_rect[6].x + 32 - dx / 2,
                       buttons_rect[6].y - 2);
-  Freetype::load_bold(true);
-  Freetype::load_size(21);
+  Freetype::LoadBold(true);
+  Freetype::LoadSize(21);
   auto r1 = std::to_string(remain_point);
   auto r2 = std::u16string{r1.begin(), r1.end()};
-  Freetype::draw_line(r2, buttons_rect[6].x + 98, buttons_rect[6].y - 28);
-  Freetype::load_bold(false);
+  Freetype::DrawLine(r2, buttons_rect[6].x + 98, buttons_rect[6].y - 28);
+  Freetype::LoadBold(false);
 
-  Freetype::load_aligned(false);
+  Freetype::LoadAligned(false);
 }
 
-void CharacterCreateUiSystem::render_character() {
+void CharacterCreateUiSystem::RenderCharacter() {
   g_character.pos.x = -84;
   g_character.pos.y = -1211;
   // animate
-  CharacterRenderSystem::render_character(g_character);
+  CharacterRenderSystem::RenderCharacter(g_character);
 }
 
-void CharacterCreateUiSystem::render_banner() {
-  static auto t = WzResource::load_texture(
+void CharacterCreateUiSystem::RenderBanner() {
+  static auto t = WzResource::LoadTexture(
       WzResource::ui->find(u"Login.img/LoginStart/StepBanner/NewChar"));
-  auto pos = load_pos();
+  auto pos = LoadPos();
   SDL_FRect pos_rect{
       pos.x + 160,
       pos.y + 85,
@@ -219,20 +219,20 @@ void CharacterCreateUiSystem::render_banner() {
     auto &mouse_pos = Window::mouse_pos;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
+void CharacterCreateUiSystem::RenderCustomItem(float cx, float cy,
                                                     ChooseType type) {
   std::u16string item_name;
   SDL_FPoint pos;
@@ -251,36 +251,36 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     }
     if (choose_index == 0) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:gender_selected"));
     } else {
-      t = WzResource::load_texture(
+      t = WzResource::LoadTexture(
           WzResource::ui->find("Login.img/NewChar/customize/canvas:gender"));
     }
     pos = {35, 30};
     break;
   }
   case ChooseType::kFace: {
-    item_name = EquipGameInstance::load_equip_name(g_character.face.id);
+    item_name = EquipGameInstance::LoadEquipName(g_character.face.id);
     if (choose_index == 1) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:face_selected"));
     } else {
-      t = WzResource::load_texture(
+      t = WzResource::LoadTexture(
           WzResource::ui->find("Login.img/NewChar/customize/canvas:face"));
     }
     pos = {35, 48};
     break;
   }
   case ChooseType::kHairstyle: {
-    item_name = EquipGameInstance::load_equip_name(g_character.hair);
+    item_name = EquipGameInstance::LoadEquipName(g_character.hair);
     if (choose_index == 2) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:hairstyle_selected"));
     } else {
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:hairstyle"));
     }
     pos = {35, 66};
@@ -294,75 +294,75 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
     item_name = static_cast<wz::Property<std::u16string> *>(node)->get();
     if (choose_index == 3) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:haircolor_selected"));
     } else {
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:haircolor"));
     }
     pos = {35, 84};
     break;
   }
   case ChooseType::kSkin: {
-    item_name = EquipGameInstance::load_equip_name(g_character.head);
+    item_name = EquipGameInstance::LoadEquipName(g_character.head);
     if (choose_index == 4) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:skincolor_selected"));
     } else {
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:skincolor"));
     }
     pos = {35, 102};
     break;
   }
   case ChooseType::kTop: {
-    item_name = EquipGameInstance::load_equip_name(g_character.coat->id);
+    item_name = EquipGameInstance::LoadEquipName(g_character.coat->id);
     if (choose_index == 5) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:top_selected"));
     } else {
-      t = WzResource::load_texture(
+      t = WzResource::LoadTexture(
           WzResource::ui->find("Login.img/NewChar/customize/canvas:top"));
     }
     pos = {35, 120};
     break;
   }
   case ChooseType::kBottom: {
-    item_name = EquipGameInstance::load_equip_name(g_character.pant->id);
+    item_name = EquipGameInstance::LoadEquipName(g_character.pant->id);
     if (choose_index == 6) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:bottom_selected"));
     } else {
-      t = WzResource::load_texture(
+      t = WzResource::LoadTexture(
           WzResource::ui->find("Login.img/NewChar/customize/canvas:bottom"));
     }
     pos = {35, 138};
     break;
   }
   case ChooseType::kShoes: {
-    item_name = EquipGameInstance::load_equip_name(g_character.shoes->id);
+    item_name = EquipGameInstance::LoadEquipName(g_character.shoes->id);
     if (choose_index == 7) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:shoes_selected"));
     } else {
-      t = WzResource::load_texture(
+      t = WzResource::LoadTexture(
           WzResource::ui->find("Login.img/NewChar/customize/canvas:shoes"));
     }
     pos = {35, 156};
     break;
   }
   case ChooseType::kWeapon: {
-    item_name = EquipGameInstance::load_equip_name(g_character.weapon->id);
+    item_name = EquipGameInstance::LoadEquipName(g_character.weapon->id);
     if (choose_index == 8) {
       choose = true;
-      t = WzResource::load_texture(WzResource::ui->find(
+      t = WzResource::LoadTexture(WzResource::ui->find(
           "Login.img/NewChar/customize/canvas:weapon_selected"));
     } else {
-      t = WzResource::load_texture(
+      t = WzResource::LoadTexture(
           WzResource::ui->find("Login.img/NewChar/customize/canvas:weapon"));
     }
     pos = {35, 174};
@@ -377,12 +377,12 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
   };
   SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
 
-  Freetype::load_size(13);
-  Freetype::load_aligned(true);
-  Freetype::load_color(0, 0, 0, 255);
-  auto dx = Freetype::load_w(item_name);
-  Freetype::draw_line(item_name, pos_rect.x + 175 - dx / 2, pos_rect.y);
-  Freetype::load_aligned(false);
+  Freetype::LoadSize(13);
+  Freetype::LoadAligned(true);
+  Freetype::LoadColor(0, 0, 0, 255);
+  auto dx = Freetype::LoadW(item_name);
+  Freetype::DrawLine(item_name, pos_rect.x + 175 - dx / 2, pos_rect.y);
+  Freetype::LoadAligned(false);
 
   static auto prev_button =
       WzResource::ui->find("Login.img/NewChar/customize/button:gender_prev");
@@ -405,24 +405,24 @@ void CharacterCreateUiSystem::render_custom_item(float cx, float cy,
       if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) &&
           !CursorGameInstance::modal_overlay) {
         if (Window::mouse_state & SDL_BUTTON_LMASK) {
-          auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+          auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
           SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
         } else {
-          auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+          auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
           SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
         }
       } else {
-        auto normal = WzResource::load_texture(k->find(u"normal/0"));
+        auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
         SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
       }
     }
   }
 }
 
-void CharacterCreateUiSystem::render_custom() {
-  static auto backgrnd = WzResource::load_texture(
+void CharacterCreateUiSystem::RenderCustom() {
+  static auto backgrnd = WzResource::LoadTexture(
       WzResource::ui->find(u"Login.img/NewChar/customize/animOpen/3"));
-  auto pos = load_pos();
+  auto pos = LoadPos();
   auto &camera = CameraGameInstance::camera;
   auto cx = -440 - camera.x;
   auto cy = -1370 - camera.y;
@@ -434,56 +434,56 @@ void CharacterCreateUiSystem::render_custom() {
   };
   SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 
-  render_custom_item(cx, cy, ChooseType::kGender);
-  render_custom_item(cx, cy, ChooseType::kFace);
-  render_custom_item(cx, cy, ChooseType::kHairstyle);
-  render_custom_item(cx, cy, ChooseType::kHaircolor);
-  render_custom_item(cx, cy, ChooseType::kSkin);
-  render_custom_item(cx, cy, ChooseType::kTop);
-  render_custom_item(cx, cy, ChooseType::kBottom);
-  render_custom_item(cx, cy, ChooseType::kShoes);
-  render_custom_item(cx, cy, ChooseType::kWeapon);
+  RenderCustomItem(cx, cy, ChooseType::kGender);
+  RenderCustomItem(cx, cy, ChooseType::kFace);
+  RenderCustomItem(cx, cy, ChooseType::kHairstyle);
+  RenderCustomItem(cx, cy, ChooseType::kHaircolor);
+  RenderCustomItem(cx, cy, ChooseType::kSkin);
+  RenderCustomItem(cx, cy, ChooseType::kTop);
+  RenderCustomItem(cx, cy, ChooseType::kBottom);
+  RenderCustomItem(cx, cy, ChooseType::kShoes);
+  RenderCustomItem(cx, cy, ChooseType::kWeapon);
 }
 
-void CharacterCreateUiSystem::render_name() {
-  TextInputUiSystem::render(name, 5, 5);
+void CharacterCreateUiSystem::RenderName() {
+  TextInputUiSystem::Render(name, 5, 5);
 }
 
-bool CharacterCreateUiSystem::render() {
-  render_stat();
-  render_button();
-  render_character();
-  render_custom();
-  render_backgrnd();
-  render_banner();
-  render_name();
+bool CharacterCreateUiSystem::Render() {
+  RenderStat();
+  RenderButton();
+  RenderCharacter();
+  RenderCustom();
+  RenderBackgrnd();
+  RenderBanner();
+  RenderName();
   return true;
 }
 
-bool CharacterCreateUiSystem::back_animate() {
-  TextInputUiSystem::close(name);
-  if (LoginUiSystem::camera_animate(-80, -479)) {
-    CharacterChooseSystemInstance::enter();
+bool CharacterCreateUiSystem::BackAnimate() {
+  TextInputUiSystem::Close(name);
+  if (LoginUiSystem::CameraAnimate(-80, -479)) {
+    CharacterChooseSystemInstance::Enter();
     return false;
   }
   return true;
 }
 
-void CharacterCreateUiSystem::event_button_back() {
-  AudioGameInstance::load_audio(u"UI.img/ScrollUp", 0);
+void CharacterCreateUiSystem::EventButtonBack() {
+  AudioGameInstance::LoadAudio(u"UI.img/ScrollUp", 0);
   CharacterChooseUiSystem::choose = std::nullopt;
 
-  CharacterCreateSystemInstance::enter();
-  System::logic_systems.push_back(back_animate);
+  CharacterCreateSystemInstance::Enter();
+  System::logic_systems.push_back(BackAnimate);
   System::render_systems = {
-      LoginSystemInstance::render_game,
-      CharacterChooseUiSystem::render,
-      CursorRenderSystem::render,
+      LoginSystemInstance::RenderGame,
+      CharacterChooseUiSystem::Render,
+      CursorRenderSystem::Render,
   };
   System::event_systems = {};
 }
 
-std::vector<std::u16string> CharacterCreateUiSystem::load_haircolors() {
+std::vector<std::u16string> CharacterCreateUiSystem::LoadHaircolors() {
   std::vector<std::u16string> r;
   static auto haircolors = WzResource::ui->find(u"Login.img/HairColorName");
   for (auto [k, v] : *haircolors->get_children()) {
@@ -492,26 +492,26 @@ std::vector<std::u16string> CharacterCreateUiSystem::load_haircolors() {
   return r;
 }
 
-void CharacterCreateUiSystem::reset_character(bool g) {
+void CharacterCreateUiSystem::ResetCharacter(bool g) {
   gender = g;
 
   auto &g_character = CharacterCreateUiSystem::g_character;
-  CharacterGameInstance::add_body(g_character, u"00002000");
-  CharacterGameInstance::add_head(g_character, u"00012000");
-  CharacterGameInstance::add_ear(g_character, u"humanEar");
-  CharacterGameInstance::add_face(g_character, load_default_face()[0]);
-  CharacterGameInstance::add_hair(g_character, load_default_hair()[0]);
-  CharacterGameInstance::add_coat(g_character, load_default_top()[0]);
-  CharacterGameInstance::add_pants(g_character, load_default_bottom()[0]);
-  CharacterGameInstance::add_shoes(g_character, load_default_shoes()[0]);
+  CharacterGameInstance::AddBody(g_character, u"00002000");
+  CharacterGameInstance::AddHead(g_character, u"00012000");
+  CharacterGameInstance::AddEar(g_character, u"humanEar");
+  CharacterGameInstance::AddFace(g_character, LoadDefaultFace()[0]);
+  CharacterGameInstance::AddHair(g_character, LoadDefaultHair()[0]);
+  CharacterGameInstance::AddCoat(g_character, LoadDefaultTop()[0]);
+  CharacterGameInstance::AddPants(g_character, LoadDefaultBottom()[0]);
+  CharacterGameInstance::AddShoes(g_character, LoadDefaultShoes()[0]);
 
-  CharacterGameInstance::add_weapon(g_character, load_default_weapon()[0]);
-  CharacterLogicSystem::run_stand_action(g_character);
+  CharacterGameInstance::AddWeapon(g_character, LoadDefaultWeapon()[0]);
+  CharacterLogicSystem::RunStandAction(g_character);
   g_character.flip = 1;
   g_character.name = u"";
 }
 
-std::vector<std::u16string> CharacterCreateUiSystem::load_default_face() {
+std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultFace() {
   std::vector<std::u16string> faces;
   if (!gender) {
     faces = {u"00020000", u"00020001", u"00020002"};
@@ -521,32 +521,32 @@ std::vector<std::u16string> CharacterCreateUiSystem::load_default_face() {
   return faces;
 }
 
-void CharacterCreateUiSystem::event_button_face_prev() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonFacePrev() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto faces = load_default_face();
+  auto faces = LoadDefaultFace();
   auto face_id = g_character.face.id;
   auto it = std::ranges::find(faces, face_id);
   if (it != faces.end()) {
     // 计算前一个迭代器（循环）
     auto prev_it = (it == faces.begin()) ? (faces.end() - 1) : (it - 1);
-    CharacterGameInstance::add_face(g_character, *prev_it);
+    CharacterGameInstance::AddFace(g_character, *prev_it);
   }
 }
 
-void CharacterCreateUiSystem::event_button_face_next() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonFaceNext() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto faces = load_default_face();
+  auto faces = LoadDefaultFace();
   auto face_id = g_character.face.id;
   auto it = std::ranges::find(faces, face_id);
   if (it != faces.end()) {
     auto next_it = (it + 1 == faces.end()) ? faces.begin() : (it + 1);
-    CharacterGameInstance::add_face(g_character, *next_it);
+    CharacterGameInstance::AddFace(g_character, *next_it);
   }
 }
 
-std::vector<std::u16string> CharacterCreateUiSystem::load_default_hair() {
+std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultHair() {
   std::vector<std::u16string> hairs;
   if (!gender) {
     hairs = {u"00030000", u"00030020", u"00030030"};
@@ -556,34 +556,34 @@ std::vector<std::u16string> CharacterCreateUiSystem::load_default_hair() {
   return hairs;
 }
 
-void CharacterCreateUiSystem::event_button_hair_prev() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonHairPrev() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto hairs = load_default_hair();
+  auto hairs = LoadDefaultHair();
   auto hair_id = g_character.hair;
   hair_id.back() = u'0';
   auto it = std::ranges::find(hairs, hair_id);
   if (it != hairs.end()) {
     auto prev_it = (it == hairs.begin()) ? (hairs.end() - 1) : (it - 1);
-    CharacterGameInstance::add_hair(g_character, *prev_it);
+    CharacterGameInstance::AddHair(g_character, *prev_it);
   }
 }
 
-void CharacterCreateUiSystem::event_button_hair_next() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonHairNext() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto hairs = load_default_hair();
+  auto hairs = LoadDefaultHair();
   auto hair_id = g_character.hair;
   hair_id.back() = u'0';
   auto it = std::ranges::find(hairs, hair_id);
   if (it != hairs.end()) {
     auto next_it = (it + 1 == hairs.end()) ? hairs.begin() : (it + 1);
-    CharacterGameInstance::add_hair(g_character, *next_it);
+    CharacterGameInstance::AddHair(g_character, *next_it);
   }
 }
 
-void CharacterCreateUiSystem::event_button_hair_color_prev() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonHairColorPrev() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto hair_id = g_character.hair;
   auto back = hair_id.back();
@@ -593,11 +593,11 @@ void CharacterCreateUiSystem::event_button_hair_color_prev() {
     back = u'7';
   }
   hair_id.back() = back;
-  CharacterGameInstance::add_hair(g_character, hair_id);
+  CharacterGameInstance::AddHair(g_character, hair_id);
 }
 
-void CharacterCreateUiSystem::event_button_hair_color_next() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonHairColorNext() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto hair_id = g_character.hair;
   auto back = hair_id.back();
@@ -607,11 +607,11 @@ void CharacterCreateUiSystem::event_button_hair_color_next() {
     back = u'0';
   }
   hair_id.back() = back;
-  CharacterGameInstance::add_hair(g_character, hair_id);
+  CharacterGameInstance::AddHair(g_character, hair_id);
 }
 
-void CharacterCreateUiSystem::event_button_skin_color_prev() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonSkinColorPrev() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto head_id = g_character.head;
   auto body_id = g_character.body;
@@ -623,12 +623,12 @@ void CharacterCreateUiSystem::event_button_skin_color_prev() {
   }
   head_id.back() = back;
   body_id.back() = back;
-  CharacterGameInstance::add_head(g_character, head_id);
-  CharacterGameInstance::add_body(g_character, body_id);
+  CharacterGameInstance::AddHead(g_character, head_id);
+  CharacterGameInstance::AddBody(g_character, body_id);
 }
 
-void CharacterCreateUiSystem::event_button_skin_color_next() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonSkinColorNext() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
   auto &head_id = g_character.head;
   auto body_id = g_character.body;
@@ -640,11 +640,11 @@ void CharacterCreateUiSystem::event_button_skin_color_next() {
   }
   head_id.back() = back;
   body_id.back() = back;
-  CharacterGameInstance::add_head(g_character, head_id);
-  CharacterGameInstance::add_body(g_character, body_id);
+  CharacterGameInstance::AddHead(g_character, head_id);
+  CharacterGameInstance::AddBody(g_character, body_id);
 }
 
-std::vector<std::u16string> CharacterCreateUiSystem::load_default_top() {
+std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultTop() {
   std::vector<std::u16string> tops;
   if (!gender) {
     tops = {u"01040001", u"01040002", u"01040003"};
@@ -654,31 +654,31 @@ std::vector<std::u16string> CharacterCreateUiSystem::load_default_top() {
   return tops;
 }
 
-void CharacterCreateUiSystem::event_button_top_prev() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonTopPrev() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto tops = load_default_top();
+  auto tops = LoadDefaultTop();
   auto top_id = g_character.coat->id;
   auto it = std::ranges::find(tops, top_id);
   if (it != tops.end()) {
     auto prev_it = (it == tops.begin()) ? (tops.end() - 1) : (it - 1);
-    CharacterGameInstance::add_coat(g_character, *prev_it);
+    CharacterGameInstance::AddCoat(g_character, *prev_it);
   }
 }
 
-void CharacterCreateUiSystem::event_button_top_next() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonTopNext() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto tops = load_default_top();
+  auto tops = LoadDefaultTop();
   auto top_id = g_character.coat->id;
   auto it = std::ranges::find(tops, top_id);
   if (it != tops.end()) {
     auto next_it = (it + 1 == tops.end()) ? tops.begin() : (it + 1);
-    CharacterGameInstance::add_coat(g_character, *next_it);
+    CharacterGameInstance::AddCoat(g_character, *next_it);
   }
 }
 
-std::vector<std::u16string> CharacterCreateUiSystem::load_default_bottom() {
+std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultBottom() {
   std::vector<std::u16string> bottom;
   if (!gender) {
     bottom = {u"01060001", u"01060002"};
@@ -688,155 +688,155 @@ std::vector<std::u16string> CharacterCreateUiSystem::load_default_bottom() {
   return bottom;
 }
 
-void CharacterCreateUiSystem::event_button_bottom_prev() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonBottomPrev() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto bottoms = load_default_bottom();
+  auto bottoms = LoadDefaultBottom();
   auto pant_id = g_character.pant->id;
   auto it = std::ranges::find(bottoms, pant_id);
   if (it != bottoms.end()) {
     auto prev_it = (it == bottoms.begin()) ? (bottoms.end() - 1) : (it - 1);
-    CharacterGameInstance::add_pants(g_character, *prev_it);
+    CharacterGameInstance::AddPants(g_character, *prev_it);
   }
 }
 
-void CharacterCreateUiSystem::event_button_bottom_next() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonBottomNext() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto bottoms = load_default_bottom();
+  auto bottoms = LoadDefaultBottom();
   auto pant_id = g_character.pant->id;
   auto it = std::ranges::find(bottoms, pant_id);
   if (it != bottoms.end()) {
     auto next_it = (it + 1 == bottoms.end()) ? bottoms.begin() : (it + 1);
-    CharacterGameInstance::add_pants(g_character, *next_it);
+    CharacterGameInstance::AddPants(g_character, *next_it);
   }
 }
 
-std::vector<std::u16string> CharacterCreateUiSystem::load_default_shoes() {
+std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultShoes() {
   std::vector<std::u16string> shoes;
   shoes = {u"01072000", u"01072001", u"01072002", u"01072003"};
   return shoes;
 }
 
-void CharacterCreateUiSystem::event_button_shoes_prev() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonShoesPrev() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto shoes = load_default_shoes();
+  auto shoes = LoadDefaultShoes();
   auto shoes_id = g_character.shoes->id;
   auto it = std::ranges::find(shoes, shoes_id);
   if (it != shoes.end()) {
     auto prev_it = (it == shoes.begin()) ? (shoes.end() - 1) : (it - 1);
-    CharacterGameInstance::add_shoes(g_character, *prev_it);
+    CharacterGameInstance::AddShoes(g_character, *prev_it);
   }
 }
 
-void CharacterCreateUiSystem::event_button_shoes_next() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonShoesNext() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto shoes = load_default_shoes();
+  auto shoes = LoadDefaultShoes();
   auto shoes_id = g_character.shoes->id;
   auto it = std::ranges::find(shoes, shoes_id);
   if (it != shoes.end()) {
     auto next_it = (it + 1 == shoes.end()) ? shoes.begin() : (it + 1);
-    CharacterGameInstance::add_shoes(g_character, *next_it);
+    CharacterGameInstance::AddShoes(g_character, *next_it);
   }
 }
 
-std::vector<std::u16string> CharacterCreateUiSystem::load_default_weapon() {
+std::vector<std::u16string> CharacterCreateUiSystem::LoadDefaultWeapon() {
   std::vector<std::u16string> weapon;
   weapon = {u"01302000", u"01312000", u"01322000"};
   return weapon;
 }
 
-void CharacterCreateUiSystem::event_button_weapon_prev() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonWeaponPrev() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto weapons = load_default_weapon();
+  auto weapons = LoadDefaultWeapon();
   auto weapon_id = g_character.weapon->id;
   auto it = std::ranges::find(weapons, weapon_id);
   if (it != weapons.end()) {
     auto prev_it = (it == weapons.begin()) ? (weapons.end() - 1) : (it - 1);
-    CharacterGameInstance::add_weapon(g_character, *prev_it);
+    CharacterGameInstance::AddWeapon(g_character, *prev_it);
   }
 }
 
-void CharacterCreateUiSystem::event_button_weapon_next() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+void CharacterCreateUiSystem::EventButtonWeaponNext() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
 
-  auto weapons = load_default_weapon();
+  auto weapons = LoadDefaultWeapon();
   auto weapon_id = g_character.weapon->id;
   auto it = std::ranges::find(weapons, weapon_id);
   if (it != weapons.end()) {
     auto next_it = (it + 1 == weapons.end()) ? weapons.begin() : (it + 1);
-    CharacterGameInstance::add_weapon(g_character, *next_it);
+    CharacterGameInstance::AddWeapon(g_character, *next_it);
   }
 }
 
-void CharacterCreateUiSystem::event_button_str_inc() {
+void CharacterCreateUiSystem::EventButtonStrInc() {
   if (remain_point > 0) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     str_point++;
     remain_point--;
   }
 }
 
-void CharacterCreateUiSystem::event_button_str_dec() {
+void CharacterCreateUiSystem::EventButtonStrDec() {
   if (str_point > 4) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     str_point--;
     remain_point++;
   }
 }
 
-void CharacterCreateUiSystem::event_button_dex_inc() {
+void CharacterCreateUiSystem::EventButtonDexInc() {
   if (remain_point > 0) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     dex_point++;
     remain_point--;
   }
 }
 
-void CharacterCreateUiSystem::event_button_dex_dec() {
+void CharacterCreateUiSystem::EventButtonDexDec() {
   if (dex_point > 4) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     dex_point--;
     remain_point++;
   }
 }
 
-void CharacterCreateUiSystem::event_button_int_inc() {
+void CharacterCreateUiSystem::EventButtonIntInc() {
   if (remain_point > 0) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     int_point++;
     remain_point--;
   }
 }
 
-void CharacterCreateUiSystem::event_button_int_dec() {
+void CharacterCreateUiSystem::EventButtonIntDec() {
   if (int_point > 4) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     int_point--;
     remain_point++;
   }
 }
 
-void CharacterCreateUiSystem::event_button_luk_inc() {
+void CharacterCreateUiSystem::EventButtonLukInc() {
   if (remain_point > 0) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     luk_point++;
     remain_point--;
   }
 }
 
-void CharacterCreateUiSystem::event_button_luk_dec() {
+void CharacterCreateUiSystem::EventButtonLukDec() {
   if (luk_point > 4) {
-    AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
     luk_point--;
     remain_point++;
   }
 }
 
-bool CharacterCreateUiSystem::event_button_custom(SDL_Event *event) {
+bool CharacterCreateUiSystem::EventButtonCustom(SDL_Event *Event) {
   auto &camera = CameraGameInstance::camera;
   auto cx = -440 - camera.x;
   auto cy = -1370 - camera.y;
@@ -863,72 +863,72 @@ bool CharacterCreateUiSystem::event_button_custom(SDL_Event *event) {
         if (left.has_value()) {
           switch (choose_index) {
           case 0: {
-            AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
-            reset_character(!gender);
+            AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+            ResetCharacter(!gender);
             break;
           }
           case 1: {
             // face
             if (left.value()) {
-              event_button_face_prev();
+              EventButtonFacePrev();
             } else {
-              event_button_face_next();
+              EventButtonFaceNext();
             }
             break;
           }
           case 2: {
             if (left.value()) {
-              event_button_hair_prev();
+              EventButtonHairPrev();
             } else {
-              event_button_hair_next();
+              EventButtonHairNext();
             }
             break;
           }
           case 3: {
             if (left.value()) {
-              event_button_hair_color_prev();
+              EventButtonHairColorPrev();
             } else {
-              event_button_hair_color_next();
+              EventButtonHairColorNext();
             }
             break;
           }
           case 4: {
             if (left.value()) {
-              event_button_skin_color_prev();
+              EventButtonSkinColorPrev();
             } else {
-              event_button_skin_color_next();
+              EventButtonSkinColorNext();
             }
             break;
           }
           case 5: {
             if (left.value()) {
-              event_button_top_prev();
+              EventButtonTopPrev();
             } else {
-              event_button_top_next();
+              EventButtonTopNext();
             }
             break;
           }
           case 6: {
             if (left.value()) {
-              event_button_bottom_prev();
+              EventButtonBottomPrev();
             } else {
-              event_button_bottom_next();
+              EventButtonBottomNext();
             }
             break;
           }
           case 7: {
             if (left.value()) {
-              event_button_shoes_prev();
+              EventButtonShoesPrev();
             } else {
-              event_button_shoes_next();
+              EventButtonShoesNext();
             }
             break;
           }
           case 8: {
             if (left.value()) {
-              event_button_weapon_prev();
+              EventButtonWeaponPrev();
             } else {
-              event_button_weapon_next();
+              EventButtonWeaponNext();
             }
             break;
           }
@@ -940,50 +940,50 @@ bool CharacterCreateUiSystem::event_button_custom(SDL_Event *event) {
   return false;
 }
 
-void CharacterCreateUiSystem::event_button_ok() {
+void CharacterCreateUiSystem::EventButtonOk() {
   // check size
   auto &characters = CharacterChooseUiSystem::characters;
   if (characters.size() >= 3) {
-    LoginNoticeSystemInstance::enter(
+    LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacterFull, nullptr);
-    AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
     return;
   }
   // check name
   auto &name_text = name.text;
   if (name_text.empty()) {
-    LoginNoticeSystemInstance::enter(
+    LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacternameError, nullptr);
-    AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
     return;
   }
   // check ap
   if (remain_point != 0) {
-    LoginNoticeSystemInstance::enter(
+    LoginNoticeSystemInstance::Enter(
         LoginNoticeSystemInstance::NoticeType::kCharacterUseAp, nullptr);
-    AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
     return;
   }
   for (auto ch : name_text) {
     if (SDL_ispunct(static_cast<int>(ch)) ||
         SDL_isspace(static_cast<int>(ch))) {
       // 发现标点符号
-      LoginNoticeSystemInstance::enter(
+      LoginNoticeSystemInstance::Enter(
           LoginNoticeSystemInstance::NoticeType::kCharacternameError, nullptr);
-      AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
       return;
     }
   }
   for (auto g : characters) {
     if (g.name == name_text) {
       // 名称重复
-      LoginNoticeSystemInstance::enter(
+      LoginNoticeSystemInstance::Enter(
           LoginNoticeSystemInstance::NoticeType::kCharacternameUsed, nullptr);
-      AudioGameInstance::load_audio(u"UI.img/DlgNotice", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/DlgNotice", 0);
       return;
     }
   }
-  AudioGameInstance::load_audio(u"UI.img/ScrollUp", 0);
+  AudioGameInstance::LoadAudio(u"UI.img/ScrollUp", 0);
 
   g_character.name = name_text;
   characters.push_back(g_character);
@@ -1002,17 +1002,17 @@ void CharacterCreateUiSystem::event_button_ok() {
 
   GameSaveSystemInstance::save.characters.push_back(std::move(cs));
 
-  CharacterCreateSystemInstance::enter();
-  event_button_back();
+  CharacterCreateSystemInstance::Enter();
+  EventButtonBack();
 }
 
-void CharacterCreateUiSystem::event_button_cancel() { event_button_back(); }
+void CharacterCreateUiSystem::EventButtonCancel() { EventButtonBack(); }
 
-bool CharacterCreateUiSystem::event_button(SDL_Event *event) {
+bool CharacterCreateUiSystem::EventButton(SDL_Event *Event) {
   std::vector<SDL_FRect> r;
   std::vector<void (*)()> fns;
   auto &camera = CameraGameInstance::camera;
-  auto pos = load_pos();
+  auto pos = LoadPos();
   SDL_FPoint stat_point{
       70 - camera.x,
       -1322 - camera.y,
@@ -1032,10 +1032,10 @@ bool CharacterCreateUiSystem::event_button(SDL_Event *event) {
 
   };
   fns = {
-      event_button_str_dec, event_button_str_inc, event_button_dex_dec,
-      event_button_dex_inc, event_button_int_dec, event_button_int_inc,
-      event_button_luk_dec, event_button_luk_inc, event_button_back,
-      event_button_ok,      event_button_cancel,
+      EventButtonStrDec, EventButtonStrInc, EventButtonDexDec,
+      EventButtonDexInc, EventButtonIntDec, EventButtonIntInc,
+      EventButtonLukDec, EventButtonLukInc, EventButtonBack,
+      EventButtonOk,      EventButtonCancel,
   };
   for (size_t i = 0; i < r.size(); ++i) {
     auto pos_rect = r[i];
@@ -1050,12 +1050,12 @@ bool CharacterCreateUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-bool CharacterCreateUiSystem::event(SDL_Event *event) {
-  TextInputUiSystem::event(event, name);
+bool CharacterCreateUiSystem::Event(SDL_Event *Event) {
+  TextInputUiSystem::Event(Event, name);
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
       return false;
@@ -1068,15 +1068,15 @@ bool CharacterCreateUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
       r = false;
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      event_button(event);
-      event_button_custom(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      EventButton(Event);
+      EventButtonCustom(Event);
     }
     break;
   }
@@ -1091,7 +1091,7 @@ bool CharacterCreateUiSystem::event(SDL_Event *event) {
   return r;
 }
 
-bool CharacterCreateUiSystem::run() {
-  CharacterLogicSystem::run_animate(g_character);
+bool CharacterCreateUiSystem::Run() {
+  CharacterLogicSystem::RunAnimate(g_character);
   return true;
 }

@@ -2,5 +2,5 @@
 
 class SkillLogicSystem {
 public:
-  static bool run();
+  static bool Run();
 };

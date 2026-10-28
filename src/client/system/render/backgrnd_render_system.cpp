@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <string>
 
-bool BackgrndRenderSystem::render(GameBackgrnd &g_backgrnd) {
+bool BackgrndRenderSystem::Render(GameBackgrnd &g_backgrnd) {
   auto delta_time = Window::delta_time;
 
   auto viewprot_x = CameraGameInstance::camera.x;
@@ -22,7 +22,7 @@ bool BackgrndRenderSystem::render(GameBackgrnd &g_backgrnd) {
         std::to_string(g_backgrnd.ani_index % back_node->children_count());
     back_node = back_node->get_child(index);
   }
-  texture = WzResource::load_texture(back_node);
+  texture = WzResource::LoadTexture(back_node);
 
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(back_node->get_child(u"origin"))

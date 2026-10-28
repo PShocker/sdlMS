@@ -4,6 +4,6 @@
 #include "src/client/game/game_obj.h"
 class ObjRenderSystem {
 public:
-  static bool render(GameObj &g_obj);
-  static void render_clock(SDL_FRect &r);
+  static bool Render(GameObj &g_obj);
+  static void RenderClock(SDL_FRect &r);
 };

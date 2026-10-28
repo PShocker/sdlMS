@@ -3,5 +3,5 @@
 #include <cstdint>
 class CameraLogicSystem {
 public:
-  static bool run();
+  static bool Run();
 };

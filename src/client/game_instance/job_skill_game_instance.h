@@ -26,15 +26,15 @@ enum class JobType : uint8_t {
 
 class JobSkillGameInstance {
 public:
-  static void load(const CharacterSaveData &cs);
+  static void Load(const CharacterSaveData &cs);
 
-  static uint8_t load_ski_level(const std::u16string &id);
-  static std::vector<JobType> load_ski_tree(const std::u16string &id);
-  static std::vector<JobType> load_ski_tree(int i);
-  static std::u16string load_job_id(JobType type);
-  static wz::WzMap load_job_skis(JobType type);
+  static uint8_t LoadSkiLevel(const std::u16string &id);
+  static std::vector<JobType> LoadSkiTree(const std::u16string &id);
+  static std::vector<JobType> LoadSkiTree(int i);
+  static std::u16string LoadJobId(JobType type);
+  static wz::WzMap LoadJobSkis(JobType type);
 
-  static std::u16string load_two_jump();
+  static std::u16string LoadTwoJump();
 
   static inline std::flat_map<uint32_t, uint8_t> skill_point;
   static inline std::vector<uint32_t> remain_point = {100, 100, 100, 100};

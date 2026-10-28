@@ -9,7 +9,7 @@
 #include <cmath>
 #include <ranges>
 
-void DropLogicSystem::run_state_machine(GameDrop &drop) {
+void DropLogicSystem::RunStateMachine(GameDrop &drop) {
   switch (drop.type) {
   case GameDrop::DropEnum::kFly: {
     auto delta_time = Window::delta_time / 1000.0;
@@ -112,17 +112,17 @@ void DropLogicSystem::run_state_machine(GameDrop &drop) {
   return;
 }
 
-void DropLogicSystem::run_destroy() {
+void DropLogicSystem::RunDestroy() {
   std::erase_if(DropGameInstance::data, [](const auto &pair) {
     const auto &[id, drop] = pair;
     return drop.alpha == 0;
   });
 }
 
-bool DropLogicSystem::run() {
+bool DropLogicSystem::Run() {
   for (auto &drop : DropGameInstance::data | std::views::values) {
-    run_state_machine(drop);
+    RunStateMachine(drop);
   }
-  run_destroy();
+  RunDestroy();
   return true;
 }

@@ -6,5 +6,5 @@
 
 class ServerFootholdInstance {
 public:
-  static void load_fh(ServerSceneState &scene);
+  static void LoadFh(ServerSceneState &scene);
 };

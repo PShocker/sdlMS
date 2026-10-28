@@ -6,39 +6,39 @@
 #include <optional>
 class KeybindingUiSystem {
 private:
-  static void render_button();
-  static bool render_info();
+  static void RenderButton();
+  static bool RenderInfo();
 
-  static void render_backgrnd();
-  static void render_backgrnd2();
-  static void render_backgrnd_key();
-  static void render_tab();
-  static void render_remain_key();
-  static SDL_FPoint load_wh();
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static void RenderBackgrnd();
+  static void RenderBackgrnd2();
+  static void RenderBackgrndKey();
+  static void RenderTab();
+  static void RenderRemainKey();
+  static SDL_FPoint LoadWh();
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
-  static void event_motion(SDL_Event *event);
+  static void EventMotion(SDL_Event *Event);
   
-  static void event_button_close();
-  static void event_button_default();
-  static void event_button_delete();
-  static void event_button_quickSlot();
-  static void event_button_prePage1();
-  static void event_button_prePage2();
-  static void event_button_prePage3();
-  static void event_button_save();
-  static void event_button_undo();
+  static void EventButtonClose();
+  static void EventButtonDefault();
+  static void EventButtonDelete();
+  static void EventButtonQuickSlot();
+  static void EventButtonPrePage1();
+  static void EventButtonPrePage2();
+  static void EventButtonPrePage3();
+  static void EventButtonSave();
+  static void EventButtonUndo();
 
-  static void event_backgrnd_key();
-  static void event_remain_key();
+  static void EventBackgrndKey();
+  static void EventRemainKey();
 
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
   static inline std::optional<SDL_FPoint> drag;
   static inline uint8_t active_tab;
@@ -46,14 +46,14 @@ private:
 public:
   static inline SDL_FPoint pos;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static void render_remain_icon(int i, int x, int y, uint8_t alpha = 255);
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void RenderRemainIcon(int i, int x, int y, uint8_t alpha = 255);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

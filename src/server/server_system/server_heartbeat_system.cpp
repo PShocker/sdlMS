@@ -12,7 +12,7 @@
 #include <ranges>
 #include <vector>
 
-bool ServerHeartbeatSystem::run_client_heartbeat() {
+bool ServerHeartbeatSystem::RunClientHeartbeat() {
   if (SceneSystemInstance::map_id == 0 ||
       SceneSystemInstance::prepare_map_id == 0) {
     return false;
@@ -24,7 +24,7 @@ bool ServerHeartbeatSystem::run_client_heartbeat() {
       (current_time - server_hb_time >=
        ServerHeartbeatInstance::heartbeat_interval * 2000)) {
     // 掉线了,客户端退出到人物选择界面
-    CharacterChooseSystemInstance::enter();
+    CharacterChooseSystemInstance::Enter();
     return false;
   }
   // 客户端发送心跳
@@ -41,7 +41,7 @@ bool ServerHeartbeatSystem::run_client_heartbeat() {
   return true;
 }
 
-bool ServerHeartbeatSystem::run_server_heartbeat() {
+bool ServerHeartbeatSystem::RunServerHeartbeat() {
   // 服务端主动检查心跳
   auto current_time = Window::dt_now;
   auto &clients = ServerClientInstance::clients;
@@ -65,7 +65,7 @@ bool ServerHeartbeatSystem::run_server_heartbeat() {
   return true;
 }
 
-void ServerHeartbeatSystem::receive_client_heartbeat(uint64_t client_id) {
+void ServerHeartbeatSystem::ReceiveClientHeartbeat(uint64_t client_id) {
   if (ServerClientInstance::clients.contains(client_id)) {
     ServerClientInstance::clients.at(client_id).heartbeat = Window::dt_now;
   }
@@ -73,6 +73,6 @@ void ServerHeartbeatSystem::receive_client_heartbeat(uint64_t client_id) {
   ServerResponse::send_to_client(client_id, r);
 }
 
-void ServerHeartbeatSystem::receive_server_heartbeat() {
+void ServerHeartbeatSystem::ReceiveServerHeartbeat() {
   ServerHeartbeatInstance::host_heartbeat = Window::dt_now;
 }

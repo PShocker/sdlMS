@@ -10,7 +10,7 @@
 #include <string>
 #include <vector>
 
-SDL_FPoint LoginNoticeUiSystem::load_pos() {
+SDL_FPoint LoginNoticeUiSystem::LoadPos() {
   SDL_FPoint pos;
   const auto w = 1366;
   const auto h = 768;
@@ -20,57 +20,57 @@ SDL_FPoint LoginNoticeUiSystem::load_pos() {
   return pos;
 }
 
-void LoginNoticeUiSystem::render_backgrnd() {
+void LoginNoticeUiSystem::RenderBackgrnd() {
   const auto w = 1366;
   const auto h = 768;
   SDL_Texture *backgrnd;
   SDL_Texture *text;
   SDL_FPoint text_pos;
   static auto notice_node = WzResource::ui->find(u"Login.img/Notice");
-  auto [bx, by] = load_pos();
+  auto [bx, by] = LoadPos();
   switch (type) {
   case LoginNoticeSystemInstance::NoticeType::kCharacternameError: {
-    backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
+    backgrnd = WzResource::LoadTexture(notice_node->find(u"backgrnd/0"));
     text =
-        WzResource::load_texture(notice_node->find(u"text/cannotUseThisName"));
+        WzResource::LoadTexture(notice_node->find(u"text/cannotUseThisName"));
     text_pos = {17, 13};
     break;
   }
   case LoginNoticeSystemInstance::NoticeType::kCharacternameUsed: {
-    backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
-    text = WzResource::load_texture(notice_node->find(u"text/8"));
+    backgrnd = WzResource::LoadTexture(notice_node->find(u"backgrnd/0"));
+    text = WzResource::LoadTexture(notice_node->find(u"text/8"));
     text_pos = {17, 13};
     break;
   }
   case LoginNoticeSystemInstance::NoticeType::kCharacterDelete: {
-    backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
-    text = WzResource::load_texture(notice_node->find(u"text/58"));
+    backgrnd = WzResource::LoadTexture(notice_node->find(u"backgrnd/0"));
+    text = WzResource::LoadTexture(notice_node->find(u"text/58"));
     text_pos = {17, 13};
     break;
   }
   case LoginNoticeSystemInstance::NoticeType::kCharacterFull: {
-    backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
-    text = WzResource::load_texture(
+    backgrnd = WzResource::LoadTexture(notice_node->find(u"backgrnd/0"));
+    text = WzResource::LoadTexture(
         notice_node->find(u"text/cannotCreateAccountMore"));
     text_pos = {17, 13};
     break;
   }
   case LoginNoticeSystemInstance::NoticeType::kCharacterUseAp: {
-    backgrnd = WzResource::load_texture(notice_node->find(u"backgrnd/0"));
-    text = WzResource::load_texture(notice_node->find(u"text/useAllAP"));
+    backgrnd = WzResource::LoadTexture(notice_node->find(u"backgrnd/0"));
+    text = WzResource::LoadTexture(notice_node->find(u"text/useAllAP"));
     text_pos = {17, 13};
     break;
   }
   case LoginNoticeSystemInstance::NoticeType::kLogining: {
     backgrnd =
-        WzResource::load_texture(notice_node->find(u"Loading/backgrnd"));
+        WzResource::LoadTexture(notice_node->find(u"Loading/backgrnd"));
     text = nullptr;
     break;
   }
   case LoginNoticeSystemInstance::NoticeType::kLoginingUsed: {
     backgrnd =
-        WzResource::load_texture(notice_node->find(u"Loading/backgrnd"));
-    text = WzResource::load_texture(notice_node->find(u"text/8"));
+        WzResource::LoadTexture(notice_node->find(u"Loading/backgrnd"));
+    text = WzResource::LoadTexture(notice_node->find(u"text/8"));
     text_pos = {17, 13};
     break;
   }
@@ -98,7 +98,7 @@ void LoginNoticeUiSystem::render_backgrnd() {
     auto now = Window::dt_now;
     auto index = (now / circle_delay) % (circle_node->children_count());
     auto circle_texture = circle_node->get_child(std::to_string(index));
-    auto circle = WzResource::load_texture(circle_texture);
+    auto circle = WzResource::LoadTexture(circle_texture);
     pos_rect.x += 84;
     pos_rect.y += 40;
     pos_rect.w = circle->w;
@@ -112,12 +112,12 @@ void LoginNoticeUiSystem::render_backgrnd() {
   }
 }
 
-void LoginNoticeUiSystem::render_button() {
+void LoginNoticeUiSystem::RenderButton() {
   const auto w = 1366;
   const auto h = 768;
   std::vector<wz::Node *> buttons_nodes;
   std::vector<SDL_FRect> buttons_rect;
-  auto [bx, by] = load_pos();
+  auto [bx, by] = LoadPos();
   switch (type) {
   case LoginNoticeSystemInstance::NoticeType::kCharacternameError:
   case LoginNoticeSystemInstance::NoticeType::kCharacterFull:
@@ -155,36 +155,36 @@ void LoginNoticeUiSystem::render_button() {
     auto &mouse_pos = Window::mouse_pos;
     if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-bool LoginNoticeUiSystem::render() {
-  render_backgrnd();
-  render_button();
+bool LoginNoticeUiSystem::Render() {
+  RenderBackgrnd();
+  RenderButton();
   return true;
 }
 
-void LoginNoticeUiSystem::event_close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void LoginNoticeUiSystem::EventClose() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }
 
-bool LoginNoticeUiSystem::event_button(SDL_Event *event) {
+bool LoginNoticeUiSystem::EventButton(SDL_Event *Event) {
   const auto w = 1366;
   const auto h = 768;
   std::vector<SDL_FRect> buttons_rect;
-  std::vector<void (*)()> fns = {event_close};
-  auto [bx, by] = load_pos();
+  std::vector<void (*)()> fns = {EventClose};
+  auto [bx, by] = LoadPos();
   switch (type) {
   case LoginNoticeSystemInstance::NoticeType::kCharacternameError:
   case LoginNoticeSystemInstance::NoticeType::kCharacterFull:
@@ -201,7 +201,7 @@ bool LoginNoticeUiSystem::event_button(SDL_Event *event) {
         SDL_FRect{bx - 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
         SDL_FRect{bx + 35 + (w - 50) / 2, by + 35 + (h) / 2, 50, 23},
     };
-    fns = {fn, event_close};
+    fns = {fn, EventClose};
     break;
   }
   default: {
@@ -213,7 +213,7 @@ bool LoginNoticeUiSystem::event_button(SDL_Event *event) {
     pos_rect.x = (int)pos_rect.x;
     pos_rect.y = (int)pos_rect.y;
     if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
-      AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
+      AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
       fns[i]();
       return false;
     }
@@ -221,15 +221,15 @@ bool LoginNoticeUiSystem::event_button(SDL_Event *event) {
   return true;
 }
 
-bool LoginNoticeUiSystem::event(SDL_Event *event) {
+bool LoginNoticeUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      r = event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      r = EventButton(Event);
     }
     break;
   }
@@ -244,4 +244,4 @@ bool LoginNoticeUiSystem::event(SDL_Event *event) {
   return false;
 }
 
-bool LoginNoticeUiSystem::run() { return true; }
+bool LoginNoticeUiSystem::Run() { return true; }

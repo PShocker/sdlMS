@@ -9,46 +9,46 @@
 class NpcDlgUiSystem {
 private:
   static inline int8_t select_mouse = -1;
-  static void reset_pos();
+  static void ResetPos();
 
-  static void render_backgrnd();
-  static void render_npc();
-  static void render_button();
-  static void render_text();
-  static void render_list();
-  static void render_obtain();
+  static void RenderBackgrnd();
+  static void RenderNpc();
+  static void RenderButton();
+  static void RenderText();
+  static void RenderList();
+  static void RenderObtain();
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
-  static void event_list();
+  static void EventList();
 
-  static void event_button_close();
-  static void event_button_ok();
+  static void EventButtonClose();
+  static void EventButtonOk();
 
-  static void event_button_prev();
-  static void event_button_next();
+  static void EventButtonPrev();
+  static void EventButtonNext();
 
-  static void event_button_quest_yes();
-  static void event_button_quest_no();
+  static void EventButtonQuestYes();
+  static void EventButtonQuestNo();
 
-  static bool event_button(SDL_Event *event);
-  static void event_button_update();
+  static bool EventButton(SDL_Event *Event);
+  static void EventButtonUpdate();
 
-  static bool start_next_quest();
+  static bool StartNextQuest();
 
 public:
-  static bool render();
+  static bool Render();
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool event(SDL_Event *event);
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
   static inline SDL_FPoint pos;
 

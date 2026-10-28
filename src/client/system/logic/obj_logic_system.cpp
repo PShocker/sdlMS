@@ -8,7 +8,7 @@
 #include <ranges>
 #include <string>
 
-void ObjLogicSystem::run_animate(GameObj &g_obj) {
+void ObjLogicSystem::RunAnimate(GameObj &g_obj) {
   if (g_obj.ani_count > 1) {
     g_obj.ani_time += Window::delta_time;
 
@@ -33,7 +33,7 @@ void ObjLogicSystem::run_animate(GameObj &g_obj) {
   }
 }
 
-void ObjLogicSystem::run_alpha(GameObj &g_obj) {
+void ObjLogicSystem::RunAlpha(GameObj &g_obj) {
   auto obj_node = WzResource::map->find(g_obj.path);
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
@@ -53,11 +53,11 @@ void ObjLogicSystem::run_alpha(GameObj &g_obj) {
   }
 }
 
-bool ObjLogicSystem::run() {
+bool ObjLogicSystem::Run() {
   for (auto &o : ObjGameInstance::data) {
     for (auto &g_obj : o | std::views::values) {
-      run_animate(g_obj);
-      run_alpha(g_obj);
+      RunAnimate(g_obj);
+      RunAlpha(g_obj);
     }
   }
   return true;

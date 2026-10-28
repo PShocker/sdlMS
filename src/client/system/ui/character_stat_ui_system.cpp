@@ -15,32 +15,32 @@
 #include <algorithm>
 #include <string>
 
-SDL_FPoint CharacterStatUiSystem::load_wh() { return {185, 281}; }
+SDL_FPoint CharacterStatUiSystem::LoadWh() { return {185, 281}; }
 
 static const SDL_FRect detail_rect = {185, 58, 187, 223};
 
-void CharacterStatUiSystem::render_backgrnd() {
-  static auto backgrnd = WzResource::load_texture(
+void CharacterStatUiSystem::RenderBackgrnd() {
+  static auto backgrnd = WzResource::LoadTexture(
       WzResource::ui->find(u"CharacterStat.img/Main/backgrnd"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
                      static_cast<float>(backgrnd->h)};
   SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
-void CharacterStatUiSystem::render_text() {
+void CharacterStatUiSystem::RenderText() {
   SDL_FPoint p{pos.x + 60, pos.y + 32};
   // name
   const auto &self = CharacterGameInstance::self;
   auto &self_name = self.name;
-  Freetype::load_size(12);
-  Freetype::load_aligned(true);
-  Freetype::load_color(0, 0, 0, 255);
-  Freetype::draw_line(self_name, p.x, p.y);
+  Freetype::LoadSize(12);
+  Freetype::LoadAligned(true);
+  Freetype::LoadColor(0, 0, 0, 255);
+  Freetype::DrawLine(self_name, p.x, p.y);
   // job
   auto self_job = self.job;
   p = {pos.x + 61, pos.y + 55};
   static auto job_node = WzResource::ui->find(u"CharacterStat.img/Main/Job");
-  auto job_texture = WzResource::load_texture(
+  auto job_texture = WzResource::LoadTexture(
       job_node->find(u"main/" + std::u16string{self_job[0]}));
   SDL_FRect pos_rect{
       static_cast<float>((int)p.x),
@@ -56,7 +56,7 @@ void CharacterStatUiSystem::render_text() {
     self_job = u"0";
   }
   auto sub_job_texture =
-      WzResource::load_texture(job_sub_node->get_child(self_job));
+      WzResource::LoadTexture(job_sub_node->get_child(self_job));
   pos_rect = {
       static_cast<float>((int)pos.x + 61),
       static_cast<float>((int)pos.y + 67),
@@ -70,76 +70,76 @@ void CharacterStatUiSystem::render_text() {
   auto level = self.level;
   auto level1 = std::to_string(level);
   auto level2 = std::u16string{level1.begin(), level1.end()};
-  Freetype::draw_line(level2, p.x, p.y);
+  Freetype::DrawLine(level2, p.x, p.y);
 
   // hp
   p = {pos.x + 60, pos.y + 97};
-  auto hp = CharacterStatGameInstance::get_hp();
+  auto hp = CharacterStatGameInstance::GetHp();
   auto hp1 = std::to_string(hp);
   auto hp2 = std::u16string{hp1.begin(), hp1.end()};
-  Freetype::draw_line(hp2, p.x, p.y);
+  Freetype::DrawLine(hp2, p.x, p.y);
 
   // mp
   p = {pos.x + 60, pos.y + 115};
-  auto mp = CharacterStatGameInstance::get_mp();
+  auto mp = CharacterStatGameInstance::GetMp();
   auto mp1 = std::to_string(mp);
   auto mp2 = std::u16string{mp1.begin(), mp1.end()};
-  Freetype::draw_line(mp2, p.x, p.y);
+  Freetype::DrawLine(mp2, p.x, p.y);
 
   // exp
   p = {pos.x + 60, pos.y + 133};
-  auto exp = CharacterStatGameInstance::get_exp();
+  auto exp = CharacterStatGameInstance::GetExp();
   auto exp1 = std::to_string(exp);
   auto exp2 = std::u16string{exp1.begin(), exp1.end()};
-  Freetype::draw_line(exp2, p.x, p.y);
+  Freetype::DrawLine(exp2, p.x, p.y);
 
   // fame
   p = {pos.x + 60, pos.y + 151};
   auto fame = self.fame;
   auto fame1 = std::to_string(fame);
   auto fame2 = std::u16string{fame1.begin(), fame1.end()};
-  Freetype::draw_line(fame2, p.x, p.y);
+  Freetype::DrawLine(fame2, p.x, p.y);
 
   // str
   p = {pos.x + 60, pos.y + 175};
-  auto str = CharacterStatGameInstance::get_str_ap();
+  auto str = CharacterStatGameInstance::GetStrAp();
   auto str1 = std::to_string(str);
   auto str2 = std::u16string{str1.begin(), str1.end()};
-  Freetype::draw_line(str2, p.x, p.y);
+  Freetype::DrawLine(str2, p.x, p.y);
 
   // dex
   p = {pos.x + 60, pos.y + 193};
-  auto dex = CharacterStatGameInstance::get_dex_ap();
+  auto dex = CharacterStatGameInstance::GetDexAp();
   auto dex1 = std::to_string(dex);
   auto dex2 = std::u16string{dex1.begin(), dex1.end()};
-  Freetype::draw_line(dex2, p.x, p.y);
+  Freetype::DrawLine(dex2, p.x, p.y);
 
   // int
   p = {pos.x + 60, pos.y + 211};
-  auto in = CharacterStatGameInstance::get_int_ap();
+  auto in = CharacterStatGameInstance::GetIntAp();
   auto in1 = std::to_string(in);
   auto in2 = std::u16string{in1.begin(), in1.end()};
-  Freetype::draw_line(in2, p.x, p.y);
+  Freetype::DrawLine(in2, p.x, p.y);
 
   // luk
   p = {pos.x + 60, pos.y + 229};
-  auto luk = CharacterStatGameInstance::get_luk_ap();
+  auto luk = CharacterStatGameInstance::GetLukAp();
   auto luk1 = std::to_string(luk);
   auto luk2 = std::u16string{luk1.begin(), luk1.end()};
-  Freetype::draw_line(luk2, p.x, p.y);
+  Freetype::DrawLine(luk2, p.x, p.y);
 }
 
-void CharacterStatUiSystem::render_remain_ap() {
-  auto ap = CharacterStatGameInstance::get_remain_ap();
+void CharacterStatUiSystem::RenderRemainAp() {
+  auto ap = CharacterStatGameInstance::GetRemainAp();
   auto s = std::to_string(ap);
   auto s2 = std::u16string{s.begin(), s.end()};
-  Freetype::load_size(12);
-  Freetype::load_aligned(true);
-  Freetype::load_color(0, 0, 0, 255);
-  Freetype::draw_line(s2, pos.x + 90, pos.y + 258);
+  Freetype::LoadSize(12);
+  Freetype::LoadAligned(true);
+  Freetype::LoadColor(0, 0, 0, 255);
+  Freetype::DrawLine(s2, pos.x + 90, pos.y + 258);
 }
 
-void CharacterStatUiSystem::render_button() {
+void CharacterStatUiSystem::RenderButton() {
   // 构建按钮列表
   std::vector<wz::Node *> nodes = {
       WzResource::ui->find(u"Basic.img/BtClose"),
@@ -174,7 +174,7 @@ void CharacterStatUiSystem::render_button() {
       {161, 231, 12, 12}, // dexall
   };
   std::vector<bool> disable = {};
-  auto ap = CharacterStatGameInstance::get_remain_ap();
+  auto ap = CharacterStatGameInstance::GetRemainAp();
   if (ap) {
     disable = {
         false, false, false, false, false, false, false,
@@ -194,7 +194,7 @@ void CharacterStatUiSystem::render_button() {
   }
   // 渲染所有按钮
   bool mouse_down = Window::mouse_state & SDL_BUTTON_LMASK;
-  bool cursor_on_ui = CursorGameInstance::cursor_ui == render;
+  bool cursor_on_ui = CursorGameInstance::cursor_ui == Render;
   bool modal_blocked = CursorGameInstance::modal_overlay;
 
   for (size_t i = 0; i < nodes.size(); ++i) {
@@ -205,21 +205,21 @@ void CharacterStatUiSystem::render_button() {
         rects[i].h,
     };
 
-    std::u16string state = u"normal";
+    std::u16string State = u"normal";
     bool mouse_in = SDL_PointInRectFloat(&Window::mouse_pos, &rect);
 
     if (disable[i]) {
-      state = u"disabled";
+      State = u"disabled";
     } else if (cursor_on_ui && !modal_blocked && mouse_in) {
-      state = mouse_down ? u"pressed" : u"mouseOver";
+      State = mouse_down ? u"pressed" : u"mouseOver";
     }
-    auto texture = WzResource::load_texture(nodes[i]->find((state + u"/0")));
+    auto texture = WzResource::LoadTexture(nodes[i]->find((State + u"/0")));
     SDL_RenderTexture(Window::renderer, texture, nullptr, &rect);
   }
 }
 
-void CharacterStatUiSystem::render_detail() {
-  static auto backgrnd_detail = WzResource::load_texture(
+void CharacterStatUiSystem::RenderDetail() {
+  static auto backgrnd_detail = WzResource::LoadTexture(
       WzResource::ui->find(u"CharacterStat.img/Detail/backgrnd"));
   SDL_FRect pos_rect = {pos.x + detail_rect.x, pos.y + detail_rect.y,
                         static_cast<float>(backgrnd_detail->w),
@@ -230,196 +230,196 @@ void CharacterStatUiSystem::render_detail() {
   auto dy = detail_rect.y + pos.y;
   // atk
   SDL_FPoint p = {dx + 78, dy + 10};
-  auto min_atk = CharacterStatGameInstance::get_min_atk();
-  auto max_atk = CharacterStatGameInstance::get_max_atk();
+  auto min_atk = CharacterStatGameInstance::GetMinAtk();
+  auto max_atk = CharacterStatGameInstance::GetMaxAtk();
   auto s = std::to_string(min_atk) + " - " + std::to_string(max_atk);
   auto s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // pdd
   p = {dx + 78, dy + 28};
-  auto pdd = CharacterStatGameInstance::get_def();
+  auto pdd = CharacterStatGameInstance::GetDef();
   s = std::to_string(pdd);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // mad
   p = {dx + 78, dy + 46};
-  auto mad = CharacterStatGameInstance::get_magic();
+  auto mad = CharacterStatGameInstance::GetMagic();
   s = std::to_string(mad);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // mdd
   p = {dx + 78, dy + 62};
-  auto mdd = CharacterStatGameInstance::get_mdef();
+  auto mdd = CharacterStatGameInstance::GetMdef();
   s = std::to_string(mdd);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // acc
   p = {dx + 78, dy + 82};
-  auto acc = CharacterStatGameInstance::get_acc();
+  auto acc = CharacterStatGameInstance::GetAcc();
   s = std::to_string(acc);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // eva
   p = {dx + 78, dy + 100};
-  auto avoid = CharacterStatGameInstance::get_avd();
+  auto avoid = CharacterStatGameInstance::GetAvd();
   s = std::to_string(avoid);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // crtr
   p = {dx + 78, dy + 118};
-  auto crit_rate = CharacterStatGameInstance::get_crit_rate();
+  auto crit_rate = CharacterStatGameInstance::GetCritRate();
   s = std::to_string(crit_rate);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // crtd
   p = {dx + 78, dy + 136};
-  auto crit_damage = CharacterStatGameInstance::get_crit_damage();
+  auto crit_damage = CharacterStatGameInstance::GetCritDamage();
   s = std::to_string(crit_damage);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // hspd
   p = {dx + 78, dy + 154};
   auto hspd = CharacterLogicSystem::self_hspeed_max;
   s = std::to_string((int)hspd);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
   // vspd
   p = {dx + 78, dy + 172};
   auto vspd = -CharacterLogicSystem::self_vspeed_min * 0.1;
   s = std::to_string((int)vspd);
   s2 = std::u16string{s.begin(), s.end()};
-  Freetype::draw_line(s2, p.x, p.y);
+  Freetype::DrawLine(s2, p.x, p.y);
 }
 
-bool CharacterStatUiSystem::render() {
-  render_backgrnd();
-  render_text();
-  render_remain_ap();
+bool CharacterStatUiSystem::Render() {
+  RenderBackgrnd();
+  RenderText();
+  RenderRemainAp();
   if (detail) {
-    render_detail();
+    RenderDetail();
   }
-  render_button();
+  RenderButton();
   return true;
 }
 
-void CharacterStatUiSystem::open() {
+void CharacterStatUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
     detail = true;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void CharacterStatUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void CharacterStatUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 
-  event_drag_end();
+  EventDragEnd();
 }
 
-void CharacterStatUiSystem::toggle() {
-  AudioGameInstance::load_audio(u"UI.img/BtMouseClick", 0);
-  auto fn = &render;
+void CharacterStatUiSystem::Toggle() {
+  AudioGameInstance::LoadAudio(u"UI.img/BtMouseClick", 0);
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-void CharacterStatUiSystem::event_button_detail_show() { detail = true; }
+void CharacterStatUiSystem::EventButtonDetailShow() { detail = true; }
 
-void CharacterStatUiSystem::event_button_detail_hide() { detail = false; }
+void CharacterStatUiSystem::EventButtonDetailHide() { detail = false; }
 
-void CharacterStatUiSystem::event_button_hp_inc() {
-  auto hp_ap = CharacterStatGameInstance::get_hp_ap();
-  CharacterStatGameInstance::set_hp_ap(hp_ap + 1);
-  auto r_ap = CharacterStatGameInstance::get_remain_ap();
-  CharacterStatGameInstance::set_remain_ap(r_ap - 1);
+void CharacterStatUiSystem::EventButtonHpInc() {
+  auto hp_ap = CharacterStatGameInstance::GetHpAp();
+  CharacterStatGameInstance::SetHpAp(hp_ap + 1);
+  auto r_ap = CharacterStatGameInstance::GetRemainAp();
+  CharacterStatGameInstance::SetRemainAp(r_ap - 1);
 }
 
-void CharacterStatUiSystem::event_button_hp_inc_max() {
+void CharacterStatUiSystem::EventButtonHpIncMax() {
   NoticeUiSystem::data = 0;
   NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
-  NoticeUiSystem::open();
+  NoticeUiSystem::Open();
 }
 
-void CharacterStatUiSystem::event_button_mp_inc() {
-  auto mp_ap = CharacterStatGameInstance::get_mp_ap();
-  CharacterStatGameInstance::set_mp_ap(mp_ap + 1);
-  auto r_ap = CharacterStatGameInstance::get_remain_ap();
-  CharacterStatGameInstance::set_remain_ap(r_ap - 1);
+void CharacterStatUiSystem::EventButtonMpInc() {
+  auto mp_ap = CharacterStatGameInstance::GetMpAp();
+  CharacterStatGameInstance::SetMpAp(mp_ap + 1);
+  auto r_ap = CharacterStatGameInstance::GetRemainAp();
+  CharacterStatGameInstance::SetRemainAp(r_ap - 1);
 }
 
-void CharacterStatUiSystem::event_button_mp_inc_max() {
+void CharacterStatUiSystem::EventButtonMpIncMax() {
   NoticeUiSystem::data = 1;
   NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
-  NoticeUiSystem::open();
+  NoticeUiSystem::Open();
 }
 
-void CharacterStatUiSystem::event_button_str_inc() {
-  auto str_ap = CharacterStatGameInstance::get_str_ap();
-  CharacterStatGameInstance::set_str_ap(str_ap + 1);
-  auto r_ap = CharacterStatGameInstance::get_remain_ap();
-  CharacterStatGameInstance::set_remain_ap(r_ap - 1);
+void CharacterStatUiSystem::EventButtonStrInc() {
+  auto str_ap = CharacterStatGameInstance::GetStrAp();
+  CharacterStatGameInstance::SetStrAp(str_ap + 1);
+  auto r_ap = CharacterStatGameInstance::GetRemainAp();
+  CharacterStatGameInstance::SetRemainAp(r_ap - 1);
 }
 
-void CharacterStatUiSystem::event_button_str_inc_max() {
+void CharacterStatUiSystem::EventButtonStrIncMax() {
   NoticeUiSystem::data = 2;
   NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
-  NoticeUiSystem::open();
+  NoticeUiSystem::Open();
 }
 
-void CharacterStatUiSystem::event_button_dex_inc() {
-  auto dex_ap = CharacterStatGameInstance::get_dex_ap();
-  CharacterStatGameInstance::set_dex_ap(dex_ap + 1);
-  auto r_ap = CharacterStatGameInstance::get_remain_ap();
-  CharacterStatGameInstance::set_remain_ap(r_ap - 1);
+void CharacterStatUiSystem::EventButtonDexInc() {
+  auto dex_ap = CharacterStatGameInstance::GetDexAp();
+  CharacterStatGameInstance::SetDexAp(dex_ap + 1);
+  auto r_ap = CharacterStatGameInstance::GetRemainAp();
+  CharacterStatGameInstance::SetRemainAp(r_ap - 1);
 }
 
-void CharacterStatUiSystem::event_button_dex_inc_max() {
+void CharacterStatUiSystem::EventButtonDexIncMax() {
   NoticeUiSystem::data = 3;
   NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
-  NoticeUiSystem::open();
+  NoticeUiSystem::Open();
 }
 
-void CharacterStatUiSystem::event_button_int_inc() {
-  auto int_ap = CharacterStatGameInstance::get_int_ap();
-  CharacterStatGameInstance::set_int_ap(int_ap + 1);
-  auto r_ap = CharacterStatGameInstance::get_remain_ap();
-  CharacterStatGameInstance::set_remain_ap(r_ap - 1);
+void CharacterStatUiSystem::EventButtonIntInc() {
+  auto int_ap = CharacterStatGameInstance::GetIntAp();
+  CharacterStatGameInstance::SetIntAp(int_ap + 1);
+  auto r_ap = CharacterStatGameInstance::GetRemainAp();
+  CharacterStatGameInstance::SetRemainAp(r_ap - 1);
 }
 
-void CharacterStatUiSystem::event_button_int_inc_max() {
+void CharacterStatUiSystem::EventButtonIntIncMax() {
   NoticeUiSystem::data = 4;
   NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
-  NoticeUiSystem::open();
+  NoticeUiSystem::Open();
 }
 
-void CharacterStatUiSystem::event_button_luk_inc() {
-  auto luk_ap = CharacterStatGameInstance::get_luk_ap();
-  CharacterStatGameInstance::set_luk_ap(luk_ap + 1);
-  auto r_ap = CharacterStatGameInstance::get_remain_ap();
-  CharacterStatGameInstance::set_remain_ap(r_ap - 1);
+void CharacterStatUiSystem::EventButtonLukInc() {
+  auto luk_ap = CharacterStatGameInstance::GetLukAp();
+  CharacterStatGameInstance::SetLukAp(luk_ap + 1);
+  auto r_ap = CharacterStatGameInstance::GetRemainAp();
+  CharacterStatGameInstance::SetRemainAp(r_ap - 1);
 }
 
-void CharacterStatUiSystem::event_button_luk_inc_max() {
+void CharacterStatUiSystem::EventButtonLukIncMax() {
   NoticeUiSystem::data = 5;
   NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kApInc;
-  NoticeUiSystem::open();
+  NoticeUiSystem::Open();
 }
 
-bool CharacterStatUiSystem::event_button(SDL_Event *event) {
+bool CharacterStatUiSystem::EventButton(SDL_Event *Event) {
   std::vector<void (*)()> fns;
-  auto wh = load_wh();
+  auto wh = LoadWh();
   std::vector<SDL_FRect> buttons_rect = {
       {166, 6, 12, 12},   // close
       {122, 256, 47, 18}, // detail
@@ -437,25 +437,25 @@ bool CharacterStatUiSystem::event_button(SDL_Event *event) {
       {161, 231, 12, 12}, // dexall
   };
   fns = {
-      close,
-      event_button_detail_show,
-      event_button_hp_inc,
-      event_button_hp_inc_max,
-      event_button_mp_inc,
-      event_button_mp_inc_max,
-      event_button_str_inc,
-      event_button_str_inc_max,
-      event_button_dex_inc,
-      event_button_dex_inc_max,
-      event_button_int_inc,
-      event_button_int_inc_max,
-      event_button_luk_inc,
-      event_button_luk_inc_max,
+      Close,
+      EventButtonDetailShow,
+      EventButtonHpInc,
+      EventButtonHpIncMax,
+      EventButtonMpInc,
+      EventButtonMpIncMax,
+      EventButtonStrInc,
+      EventButtonStrIncMax,
+      EventButtonDexInc,
+      EventButtonDexIncMax,
+      EventButtonIntInc,
+      EventButtonIntIncMax,
+      EventButtonLukInc,
+      EventButtonLukIncMax,
   };
 
   if (detail) {
     buttons_rect.push_back({164 + detail_rect.x, 203 + detail_rect.y, 13, 12});
-    fns.push_back(event_button_detail_hide);
+    fns.push_back(EventButtonDetailHide);
   }
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
@@ -471,14 +471,14 @@ bool CharacterStatUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-bool CharacterStatUiSystem::event(SDL_Event *event) {
+bool CharacterStatUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_KEY_DOWN: {
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_ESCAPE: {
-      close();
+      Close();
       return false;
       break;
     }
@@ -489,26 +489,26 @@ bool CharacterStatUiSystem::event(SDL_Event *event) {
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        event_top();
-        event_drag_start(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        EventTop();
+        EventDragStart(Event);
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        r = !event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        r = !EventButton(Event);
       }
-      event_drag_end();
+      EventDragEnd();
     }
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    event_drag_move(event);
+    EventDragMove(Event);
     break;
   }
   default: {
@@ -519,45 +519,45 @@ bool CharacterStatUiSystem::event(SDL_Event *event) {
   return r;
 }
 
-void CharacterStatUiSystem::event_top() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void CharacterStatUiSystem::EventTop() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void CharacterStatUiSystem::event_drag_start(SDL_Event *event) {
-  auto wh = load_wh();
+void CharacterStatUiSystem::EventDragStart(SDL_Event *Event) {
+  auto wh = LoadWh();
   SDL_FRect pos_rect = {pos.x, pos.y, wh.x, 20};
-  SDL_FPoint mouse_pos = {event->button.x, event->button.y};
+  SDL_FPoint mouse_pos = {Event->button.x, Event->button.y};
   if (SDL_PointInRectFloat(&mouse_pos, &pos_rect)) {
-    drag = {pos.x - event->button.x, pos.y - event->button.y};
+    drag = {pos.x - Event->button.x, pos.y - Event->button.y};
   }
   return;
 }
 
-void CharacterStatUiSystem::event_drag_end() {
+void CharacterStatUiSystem::EventDragEnd() {
   drag = std::nullopt;
   return;
 }
 
-void CharacterStatUiSystem::event_drag_move(SDL_Event *event) {
+void CharacterStatUiSystem::EventDragMove(SDL_Event *Event) {
   if (drag.has_value()) {
-    pos = {event->motion.x + drag->x, event->motion.y + drag->y};
+    pos = {Event->motion.x + drag->x, Event->motion.y + drag->y};
     auto &camera = CameraGameInstance::camera;
-    auto wh = load_wh();
+    auto wh = LoadWh();
     pos.x = std::clamp(pos.x, (float)0, camera.w - wh.x);
     pos.y = std::clamp(pos.y, (float)0, camera.h - wh.y);
   }
   return;
 }
 
-bool CharacterStatUiSystem::cursor_in() {
-  auto wh = load_wh();
+bool CharacterStatUiSystem::CursorIn() {
+  auto wh = LoadWh();
   SDL_FRect pos_rect{pos.x, pos.y, wh.x, wh.y};
   if (SDL_PointInRectFloat(&Window::mouse_pos, &pos_rect)) {
     return true;

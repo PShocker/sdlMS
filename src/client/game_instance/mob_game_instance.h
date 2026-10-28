@@ -21,11 +21,11 @@ struct MobServerData {
 
 class MobGameInstance {
 public:
-  static std::u16string load_mob_name(const std::u16string &id);
-  static wz::Node *load_mob_info(const std::u16string &id);
-  static wz::Node *load_link_mob_node(const std::u16string &id);
+  static std::u16string LoadMobName(const std::u16string &id);
+  static wz::Node *LoadMobInfo(const std::u16string &id);
+  static wz::Node *LoadLinkMobNode(const std::u16string &id);
 
-  static void load(uint32_t map_id);
+  static void Load(uint32_t map_id);
 
   static inline std::flat_map<int32_t, MobServerData> data;
 };

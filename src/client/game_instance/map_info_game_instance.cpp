@@ -11,15 +11,15 @@
 #include <ranges>
 #include <string>
 
-wz::Node *MapInfoGameInstance::load(uint32_t map_id) {
-  auto map_node = WzResource::load_map_node(map_id);
+wz::Node *MapInfoGameInstance::Load(uint32_t map_id) {
+  auto map_node = WzResource::LoadMapNode(map_id);
   auto map_info = map_node->get_child(u"info");
   return map_info;
 }
 
-SDL_FRect MapInfoGameInstance::load_vr_border(uint32_t map_id) {
+SDL_FRect MapInfoGameInstance::LoadVrBorder(uint32_t map_id) {
   SDL_FRect r;
-  auto map_info = load(map_id);
+  auto map_info = Load(map_id);
   r.x = static_cast<wz::Property<int> *>(map_info->get_child(u"VRTop"))->get();
   r.y = static_cast<wz::Property<int> *>(map_info->get_child(u"VRLeft"))->get();
   r.w =
@@ -29,12 +29,12 @@ SDL_FRect MapInfoGameInstance::load_vr_border(uint32_t map_id) {
   return r;
 }
 
-SDL_FRect MapInfoGameInstance::load_mr_border(uint32_t map_id) {
+SDL_FRect MapInfoGameInstance::LoadMrBorder(uint32_t map_id) {
   static std::flat_map<uint32_t, SDL_FRect> cache;
   if (!cache.contains(map_id)) {
-    auto map_info = load(map_id);
+    auto map_info = Load(map_id);
     if (!map_info->get_child(u"MRTop")) {
-      auto fhs = FootholdGameInstance::load(map_id);
+      auto fhs = FootholdGameInstance::Load(map_id);
       float l = fhs.begin()->second.x1;
       float t = fhs.begin()->second.y1;
       float r = fhs.begin()->second.x2;
@@ -68,22 +68,22 @@ SDL_FRect MapInfoGameInstance::load_mr_border(uint32_t map_id) {
 }
 
 std::optional<SDL_FRect>
-MapInfoGameInstance::load_swim_rect(uint32_t map_id) {
+MapInfoGameInstance::LoadSwimRect(uint32_t map_id) {
   static std::flat_map<uint32_t, std::optional<SDL_FRect>> cache;
   if (!cache.contains(map_id)) {
     std::optional<SDL_FRect> swim_r;
-    auto map_info = load(map_id);
+    auto map_info = Load(map_id);
 
     cache[map_id] = swim_r;
   }
   return cache.at(map_id);
 }
 
-std::vector<SDL_FPoint> MapInfoGameInstance::load_seat(uint32_t map_id) {
+std::vector<SDL_FPoint> MapInfoGameInstance::LoadSeat(uint32_t map_id) {
   static std::flat_map<uint32_t, std::vector<SDL_FPoint>> cache;
   if (!cache.contains(map_id)) {
     std::vector<SDL_FPoint> vec;
-    auto map_info = load(map_id);
+    auto map_info = Load(map_id);
     if (map_info->get_child(u"seat")) {
       for (auto [k, v] : *map_info->get_child(u"seat")) {
         auto seat_pos = static_cast<wz::Property<wz::WzVec2D> *>(v[0])->get();
@@ -96,16 +96,16 @@ std::vector<SDL_FPoint> MapInfoGameInstance::load_seat(uint32_t map_id) {
   return cache.at(map_id);
 }
 
-uint32_t MapInfoGameInstance::load_return_map(uint32_t map_id) {
+uint32_t MapInfoGameInstance::LoadReturnMap(uint32_t map_id) {
   uint32_t r = 0;
-  auto map_info = load(map_id);
+  auto map_info = Load(map_id);
   r = static_cast<wz::Property<int> *>(map_info->get_child(u"returnMap"))
           ->get();
   return r;
 }
 
-std::u16string MapInfoGameInstance::load_bgm(uint32_t map_id) {
-  auto map_info = load(map_id);
+std::u16string MapInfoGameInstance::LoadBgm(uint32_t map_id) {
+  auto map_info = Load(map_id);
   if (map_info->get_child(u"bgm")) {
     auto map_bgm =
         static_cast<wz::Property<std::u16string> *>(map_info->get_child(u"bgm"))

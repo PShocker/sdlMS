@@ -7,24 +7,24 @@
 #include <string>
 class CursorLogicSystem {
 private:
-  static std::optional<GameNpc> cursor_npc();
+  static std::optional<GameNpc> CursorNpc();
 
-  static bool run_package_motion();
-  static bool run_vscroll_motion();
-  static bool run_animate();
+  static bool RunPackageMotion();
+  static bool RunVscrollMotion();
+  static bool RunAnimate();
 
-  static void run_cursor_ui();
-  static void run_cursor_action(const std::u16string &action);
+  static void RunCursorUi();
+  static void RunCursorAction(const std::u16string &action);
 
-  static bool run_default();
+  static bool RunDefault();
 
-  static bool event_cursor_hand(SDL_Event *event);
-  static bool event_character(SDL_Event *event);
-  static bool event_npc(SDL_Event *event);
+  static bool EventCursorHand(SDL_Event *Event);
+  static bool EventCharacter(SDL_Event *Event);
+  static bool EventNpc(SDL_Event *Event);
 
 public:
-  static bool run();
+  static bool Run();
 
-  static bool event_click_npc(GameNpc npc);
-  static bool event(SDL_Event *event);
+  static bool EventClickNpc(GameNpc npc);
+  static bool Event(SDL_Event *Event);
 };

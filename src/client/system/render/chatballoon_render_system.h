@@ -17,8 +17,8 @@ private:
     std::optional<int32_t> color;
   };
   static std::optional<BackgrndPad>
-  render_backgrnd(GameChatballoon &g_chatballoon, SDL_FPoint base);
+  RenderBackgrnd(GameChatballoon &g_chatballoon, SDL_FPoint base);
 
 public:
-  static bool render(GameChatballoon &g_chatballoon, SDL_FPoint base);
+  static bool Render(GameChatballoon &g_chatballoon, SDL_FPoint base);
 };

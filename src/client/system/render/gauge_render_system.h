@@ -5,6 +5,6 @@
 #include <cstdint>
 class GaugeRenderSystem {
 public:
-  static bool render_mob(SDL_FPoint pos, GameGauge &g);
-  static bool render_character(SDL_FPoint pos, float hp_percent);
+  static bool RenderMob(SDL_FPoint pos, GameGauge &g);
+  static bool RenderCharacter(SDL_FPoint pos, float hp_percent);
 };

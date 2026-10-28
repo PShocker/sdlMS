@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-std::u16string MobGameInstance::load_mob_name(const std::u16string &id) {
+std::u16string MobGameInstance::LoadMobName(const std::u16string &id) {
   std::u16string r = u"";
   auto view = id | std::views::drop_while([](char16_t c) { return c == u'0'; });
 
@@ -28,16 +28,16 @@ std::u16string MobGameInstance::load_mob_name(const std::u16string &id) {
   return str;
 }
 
-wz::Node *MobGameInstance::load_mob_info(const std::u16string &id) {
+wz::Node *MobGameInstance::LoadMobInfo(const std::u16string &id) {
   static std::flat_map<std::u16string, wz::Node *> cache;
   if (!cache.contains(id)) {
-    auto mob_node = load_link_mob_node(id);
+    auto mob_node = LoadLinkMobNode(id);
     cache[id] = mob_node->get_child(u"info");
   }
   return cache.at(id);
 }
 
-wz::Node *MobGameInstance::load_link_mob_node(const std::u16string &id) {
+wz::Node *MobGameInstance::LoadLinkMobNode(const std::u16string &id) {
   auto mob_node = WzResource::mob->find(id + u".img");
   while (mob_node->find(u"info/link")) {
     auto link_node = mob_node->find(u"info/link");
@@ -47,4 +47,4 @@ wz::Node *MobGameInstance::load_link_mob_node(const std::u16string &id) {
   return mob_node;
 }
 
-void MobGameInstance::load(uint32_t map_id) { data = {}; }
+void MobGameInstance::Load(uint32_t map_id) { data = {}; }

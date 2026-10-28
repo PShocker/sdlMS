@@ -6,14 +6,14 @@
 #include "wz/Property.h"
 #include "wz/Wz.h"
 
-bool ObjRenderSystem::render(GameObj &g_obj) {
+bool ObjRenderSystem::Render(GameObj &g_obj) {
   auto obj_node = WzResource::map->find(g_obj.path);
   auto index = std::to_string(g_obj.ani_index);
   obj_node = obj_node->get_child(index);
   if (obj_node->type == wz::Type::UOL) {
     obj_node = static_cast<wz::Property<wz::WzUOL> *>(obj_node)->get_uol();
   }
-  auto texture = WzResource::load_texture(obj_node);
+  auto texture = WzResource::LoadTexture(obj_node);
   auto v =
       static_cast<wz::Property<wz::WzVec2D> *>(obj_node->get_child(u"origin"))
           ->get();
@@ -37,4 +37,4 @@ bool ObjRenderSystem::render(GameObj &g_obj) {
   return true;
 }
 
-void ObjRenderSystem::render_clock(SDL_FRect &r) {}
+void ObjRenderSystem::RenderClock(SDL_FRect &r) {}

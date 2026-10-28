@@ -19,7 +19,7 @@
 #include <memory>
 #include <string>
 
-static void yinshenshu() {
+static void Yinshenshu() {
   GameSkill g_skill;
   g_skill.climb = true;
   g_skill.id = u"4001001";
@@ -48,7 +48,7 @@ static void yinshenshu() {
   g_skill.frame = [g_skill]() {
     auto &self = CharacterGameInstance::self;
     self.color = {255, 255, 255, 128};
-    auto type = CharacterLogicSystem::load_action_type(self);
+    auto type = CharacterLogicSystem::LoadActionType(self);
     switch (type) {
     case CharacterLogicSystem::ActionEnum::kAttack:
     case CharacterLogicSystem::ActionEnum::kSkill: {
@@ -63,7 +63,7 @@ static void yinshenshu() {
   };
 
   g_skill.use = [g_skill](uint64_t client_id, int ski_lv) mutable {
-    SkillGameInstance::skis()[u"4001001"].cd = Window::dt_now + 1000;
+    SkillGameInstance::Skis()[u"4001001"].cd = Window::dt_now + 1000;
 
     auto &ski = SkillGameInstance::ski;
     g_skill.end();
@@ -74,8 +74,8 @@ static void yinshenshu() {
 
     auto &sf = CharacterGameInstance::self;
 
-    auto ckt = SkillGameInstance::create_skill_payload(4001001, ski_lv);
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    auto ckt = SkillGameInstance::CreateSkillPayload(4001001, ski_lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
 
     auto &ccs = CharacterLogicSystem::ccs;
@@ -88,28 +88,28 @@ static void yinshenshu() {
     g_skill.state(&sf, 0);
   };
 
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
-static void huibishu() {
+static void Huibishu() {
   GameSkill g_skill;
   g_skill.id = u"2001099";
 
   g_skill.end = []() {
-    auto &skis = SkillGameInstance::skis();
-    auto ski_lv = skis[u"2001099"].lv;
+    auto &Skis = SkillGameInstance::Skis();
+    auto ski_lv = Skis[u"2001099"].lv;
   };
   g_skill.passive = [](int ski_lv) {
-    auto &skis = SkillGameInstance::skis();
-    skis[u"2001099"].lv = ski_lv;
+    auto &Skis = SkillGameInstance::Skis();
+    Skis[u"2001099"].lv = ski_lv;
   };
-  auto &skis = SkillGameInstance::skis();
+  auto &Skis = SkillGameInstance::Skis();
 
-  skis[g_skill.id] = g_skill;
+  Skis[g_skill.id] = g_skill;
 }
 
-static void shuangfeizhan() {
+static void Shuangfeizhan() {
   GameSkill g_skill;
   g_skill.id = u"4001003";
   g_skill.fall = true;
@@ -122,22 +122,22 @@ static void shuangfeizhan() {
         },
     };
     auto &sf = CharacterGameInstance::self;
-    auto WeaponType = EquipGameInstance::load_weapon_type(sf);
+    auto WeaponType = EquipGameInstance::LoadWeaponType(sf);
     if (WeaponType != EquipGameInstance::WeaponType::kClaw) {
       return;
     }
-    auto ball = PackageGameInstance::load_active_ball();
+    auto ball = PackageGameInstance::LoadActiveBall();
     if (ball == nullptr) {
       return;
     }
     auto ball_id = (*ball)->id;
-    CharacterLogicSystem::run_stand_action(sf);
-    CharacterLogicSystem::run_attack_action(sf, true);
-    auto cm = CharacterLogicSystem::run_attack_check(sf, tri);
+    CharacterLogicSystem::RunStandAction(sf);
+    CharacterLogicSystem::RunAttackAction(sf, true);
+    auto cm = CharacterLogicSystem::RunAttackCheck(sf, tri);
     if (!cm.data.empty()) {
       cm.data = {cm.data[0]};
     }
-    auto delay = SkillGameInstance::load_ski_time(sf);
+    auto delay = SkillGameInstance::LoadSkiTime(sf);
     std::u16string path = u"Consume/0207.img/" + ball_id + u"/bullet";
     auto pos = sf.pos;
     pos.y -= 28;
@@ -148,14 +148,14 @@ static void shuangfeizhan() {
     } else {
       goal.x -= 350;
     }
-    auto cct = BallGameInstance::create_ball_payload(cm, pos, goal, delay,
+    auto cct = BallGameInstance::CreateBallPayload(cm, pos, goal, delay,
                                                        page, 700, path);
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
-      auto d = BallGameInstance::load_ball_time(cct);
+      auto d = BallGameInstance::LoadBallTime(cct);
       // Create and send attack payload
       cm.data[0].hits = {15, 15};
-      cat = SkillGameInstance::create_attack_payload(cm, sf.pos, d, 120, "",
+      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, d, 120, "",
                                                        "");
       ClientRequest::send_to_host(cat);
     }
@@ -163,47 +163,47 @@ static void shuangfeizhan() {
       cct.payload->ball->y1 += i * 5;
       cct.payload->ball->y2 += i * 5;
       ClientRequest::send_to_host(cct);
-      ServerBallInstance::handle_server_b(cct.payload);
+      ServerBallInstance::HandleServerB(cct.payload);
       cct.payload->ball->delay += 120;
     }
-    auto ckt = SkillGameInstance::create_skill_payload(cat, 4001003, ski_lv);
+    auto ckt = SkillGameInstance::CreateSkillPayload(cat, 4001003, ski_lv);
     if (!ckt.payload.empty()) {
       ckt.payload[1]->y += 10;
     }
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
-static void erlianji() {
+static void Erlianji() {
   GameSkill g_skill;
   g_skill.id = u"4001002";
   g_skill.use = [](uint64_t client_id, int ski_lv) {
     auto &sf = CharacterGameInstance::self;
-    CharacterLogicSystem::run_attack_action(sf, false);
-    auto g_r = SkillGameInstance::load_ski_r(u"4001002");
-    auto cm = CharacterLogicSystem::run_attack_check(sf, g_r, 1);
+    CharacterLogicSystem::RunAttackAction(sf, false);
+    auto g_r = SkillGameInstance::LoadSkiR(u"4001002");
+    auto cm = CharacterLogicSystem::RunAttackCheck(sf, g_r, 1);
     ClientCharacterAttackT cat;
     if (!cm.data.empty()) {
-      auto delay = SkillGameInstance::load_ski_time(sf);
+      auto delay = SkillGameInstance::LoadSkiTime(sf);
       // Create and send attack payload
-      cat = SkillGameInstance::create_attack_payload(cm, sf.pos, delay);
+      cat = SkillGameInstance::CreateAttackPayload(cm, sf.pos, delay);
       ClientRequest::send_to_host(cat);
     }
-    auto ckt = SkillGameInstance::create_skill_payload(cat, 4001002, ski_lv);
-    ServerCharacterInstance::handle_ski(ckt.ski_id, ski_lv, ckt.payload, 0);
+    auto ckt = SkillGameInstance::CreateSkillPayload(cat, 4001002, ski_lv);
+    ServerCharacterInstance::HandleSki(ckt.ski_id, ski_lv, ckt.payload, 0);
     ClientRequest::send_to_host(ckt);
   };
-  auto &skis = SkillGameInstance::skis();
-  skis[g_skill.id] = g_skill;
+  auto &Skis = SkillGameInstance::Skis();
+  Skis[g_skill.id] = g_skill;
 }
 
 [[maybe_unused]] static const bool r = [] {
-  yinshenshu();
-  huibishu();
-  shuangfeizhan();
-  erlianji();
+  Yinshenshu();
+  Huibishu();
+  Shuangfeizhan();
+  Erlianji();
   return true;
 }();

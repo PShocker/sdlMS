@@ -35,8 +35,8 @@ struct TextInput {
 
 class TextInputUiSystem {
 public:
-  static void close(TextInput &input);
-  static void render(TextInput &input, int x, int y);
-  static void active(TextInput &input);
-  static bool event(SDL_Event *event, TextInput &input);
+  static void Close(TextInput &input);
+  static void Render(TextInput &input, int x, int y);
+  static void Active(TextInput &input);
+  static bool Event(SDL_Event *Event, TextInput &input);
 };

@@ -6,7 +6,7 @@
 #include "src/server/server/server_region_skill.h"
 #include <format>
 
-void ServerRegionSkillInstance::handle_rskill(uint64_t client_id,
+void ServerRegionSkillInstance::HandleRskill(uint64_t client_id,
                                                  ClientRSkillT &r) {
   auto map_id = r.map_id;
   auto &scene = ServerSceneInstance::scenes.at(map_id);
@@ -17,7 +17,7 @@ void ServerRegionSkillInstance::handle_rskill(uint64_t client_id,
   }
 }
 
-void ServerRegionSkillInstance::handle_s_rskill(ServerRSkillT &r) {
+void ServerRegionSkillInstance::HandleSRskill(ServerRSkillT &r) {
   for (const auto &v : r.payload) {
     GameRegionSkill grs;
     auto tmp = std::format("{:07d}", v->ski_id);

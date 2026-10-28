@@ -6,32 +6,32 @@
 #include <any>
 class NoticeUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_button();
-  static void render_text();
-  static void render_input();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderText();
+  static void RenderInput();
 
-  static void event_close();
+  static void EventClose();
 
-  static void event_button_shopbuy();
-  static void event_button_shopbuy_must();
-  static void event_button_shopbuy_sell();
+  static void EventButtonShopbuy();
+  static void EventButtonShopbuyMust();
+  static void EventButtonShopbuySell();
 
-  static void event_button_throw_mul();
-  static void event_button_throw_close();
+  static void EventButtonThrowMul();
+  static void EventButtonThrowClose();
 
-  static void event_button_worldmap_teleport();
+  static void EventButtonWorldmapTeleport();
 
-  static void event_button_ap_inc();
+  static void EventButtonApInc();
 
-  static void event_button_equip_no_ap();
+  static void EventButtonEquipNoAp();
 
-  static bool event_button(SDL_Event *event);
-  static void event_input(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
+  static void EventInput(SDL_Event *Event);
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
 public:
   enum class NoticeEnum {
@@ -68,15 +68,15 @@ public:
   static inline TextInput text;
   static inline std::any data;
 
-  static bool render();
+  static bool Render();
 
-  static void open();
-  static void open_no_space(ItemEnum type);
-  static void close();
+  static void Open();
+  static void OpenNoSpace(ItemEnum type);
+  static void Close();
 
-  static bool event(SDL_Event *event);
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

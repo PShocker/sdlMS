@@ -6,34 +6,34 @@
 #include <algorithm>
 #include <cmath>
 
-void ScrollUiSystem::render_vscroll(float x, float y, uint32_t val,
+void ScrollUiSystem::RenderVscroll(float x, float y, uint32_t val,
                                       uint32_t count, int32_t length, bool top,
                                       uint32_t size) {
-  static auto prev0 = WzResource::load_texture(
+  static auto prev0 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/prev0"));
-  static auto prev1 = WzResource::load_texture(
+  static auto prev1 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/prev1"));
-  static auto prev2 = WzResource::load_texture(
+  static auto prev2 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/prev2"));
-  static auto next0 = WzResource::load_texture(
+  static auto next0 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/next0"));
-  static auto next1 = WzResource::load_texture(
+  static auto next1 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/next1"));
-  static auto next2 = WzResource::load_texture(
+  static auto next2 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/next2"));
-  static auto base0 = WzResource::load_texture(
+  static auto base0 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/base"));
-  static auto thumb0 = WzResource::load_texture(
+  static auto thumb0 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/thumb0"));
-  static auto thumb1 = WzResource::load_texture(
+  static auto thumb1 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/thumb1"));
-  static auto thumb2 = WzResource::load_texture(
+  static auto thumb2 = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/enabled/thumb2"));
-  static auto prev = WzResource::load_texture(
+  static auto prev = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/disabled/prev"));
-  static auto next = WzResource::load_texture(
+  static auto next = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/disabled/next"));
-  static auto base = WzResource::load_texture(
+  static auto base = WzResource::LoadTexture(
       WzResource::ui->find(u"Basic.img/VScr4/disabled/base"));
   bool pre = true;
   bool nex = true;
@@ -108,7 +108,7 @@ void ScrollUiSystem::render_vscroll(float x, float y, uint32_t val,
   }
 }
 
-uint32_t ScrollUiSystem::click_vscroll(float x, float y, uint32_t val,
+uint32_t ScrollUiSystem::ClickVscroll(float x, float y, uint32_t val,
                                          uint32_t count, int32_t length,
                                          bool top, SDL_FPoint mouse) {
   if (!top) {
@@ -158,7 +158,7 @@ uint32_t ScrollUiSystem::click_vscroll(float x, float y, uint32_t val,
   return val;
 }
 
-bool ScrollUiSystem::click_thumb(float x, float y, int32_t length,
+bool ScrollUiSystem::ClickThumb(float x, float y, int32_t length,
                                    SDL_FPoint mouse) {
   SDL_FRect pos_rect{
       x,

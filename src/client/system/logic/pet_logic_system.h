@@ -3,9 +3,9 @@
 
 class PetLogicSystem {
 private:
-  static void run_state_machine();
-  static void run_animate(GamePet &pet);
+  static void RunStateMachine();
+  static void RunAnimate(GamePet &pet);
 
 public:
-  static bool run();
+  static bool Run();
 };

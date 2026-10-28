@@ -10,56 +10,56 @@
 #include <algorithm>
 #include <ranges>
 
-SDL_FPoint TradeUiSystem::load_wh() { return SDL_FPoint{567, 442}; }
+SDL_FPoint TradeUiSystem::LoadWh() { return SDL_FPoint{567, 442}; }
 
-bool TradeUiSystem::cursor_in() {
-  auto [w, h] = load_wh();
+bool TradeUiSystem::CursorIn() {
+  auto [w, h] = LoadWh();
   auto &mouse = Window::mouse_pos;
   SDL_FRect pos_rect{pos.x, pos.y, w, h};
   return SDL_PointInRectFloat(&mouse, &pos_rect);
 }
 
-void TradeUiSystem::close() {
-  std::erase(System::render_systems, render);
-  std::erase(System::event_systems, event);
+void TradeUiSystem::Close() {
+  std::erase(System::render_systems, Render);
+  std::erase(System::event_systems, Event);
 }
 
-void TradeUiSystem::open() {
+void TradeUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
-    auto wh = load_wh();
+    auto wh = LoadWh();
     auto &camera = CameraGameInstance::camera;
     pos.x = (camera.w - wh.x) / 2;
     pos.y = (camera.h - wh.y) / 2;
 
-    CharacterLogicSystem::run_stand_action(other);
-    CharacterLogicSystem::run_face_action(other, u"default");
+    CharacterLogicSystem::RunStandAction(other);
+    CharacterLogicSystem::RunFaceAction(other, u"default");
     other.flip = 0;
 
-    System::render_systems.insert(it, render);
-    System::event_systems.insert(System::event_systems.begin(), event);
+    System::render_systems.insert(it, Render);
+    System::event_systems.insert(System::event_systems.begin(), Event);
   }
 }
 
-void TradeUiSystem::toggle() {
-  auto fn = &render;
+void TradeUiSystem::Toggle() {
+  auto fn = &Render;
   if (std::ranges::contains(System::render_systems, fn)) {
-    close();
+    Close();
   } else {
-    open();
+    Open();
   }
 }
 
-void TradeUiSystem::render_backgrnd() {
-  static auto backgrnd = WzResource::load_texture(
+void TradeUiSystem::RenderBackgrnd() {
+  static auto backgrnd = WzResource::LoadTexture(
       WzResource::ui->find(u"Trade.img/TradingRoom/backgrnd"));
   SDL_FRect pos_rect{pos.x, pos.y, static_cast<float>(backgrnd->w),
                      static_cast<float>(backgrnd->h)};
   SDL_RenderTexture(Window::renderer, backgrnd, nullptr, &pos_rect);
 }
 
-void TradeUiSystem::render_button() {
+void TradeUiSystem::RenderButton() {
   const static std::array buttons_node = {
       WzResource::ui->find(u"MapleChat.img/MapleChat/button:claim"),
       WzResource::ui->find(u"Trade.img/TradingRoom/button:trade"),
@@ -81,32 +81,32 @@ void TradeUiSystem::render_button() {
     pos_rect.y += pos.y;
     auto &mouse_pos = Window::mouse_pos;
     // 判断按钮是否被遮挡
-    auto cursor_in = CursorGameInstance::cursor_ui;
-    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && cursor_in == render) {
+    auto CursorIn = CursorGameInstance::cursor_ui;
+    if (SDL_PointInRectFloat(&mouse_pos, &pos_rect) && CursorIn == Render) {
       if (Window::mouse_state & SDL_BUTTON_LMASK) {
-        auto pressed = WzResource::load_texture(k->find(u"pressed/0"));
+        auto pressed = WzResource::LoadTexture(k->find(u"pressed/0"));
         SDL_RenderTexture(Window::renderer, pressed, nullptr, &pos_rect);
       } else {
-        auto mouse_over = WzResource::load_texture(k->find(u"mouseOver/0"));
+        auto mouse_over = WzResource::LoadTexture(k->find(u"mouseOver/0"));
         SDL_RenderTexture(Window::renderer, mouse_over, nullptr, &pos_rect);
       }
     } else {
-      auto normal = WzResource::load_texture(k->find(u"normal/0"));
+      auto normal = WzResource::LoadTexture(k->find(u"normal/0"));
       SDL_RenderTexture(Window::renderer, normal, nullptr, &pos_rect);
     }
   }
 }
 
-bool TradeUiSystem::render() { return true; }
+bool TradeUiSystem::Render() { return true; }
 
-void TradeUiSystem::event_button_close() { close(); }
+void TradeUiSystem::EventButtonClose() { Close(); }
 
-bool TradeUiSystem::event_button(SDL_Event *event) {
+bool TradeUiSystem::EventButton(SDL_Event *Event) {
   const static std::array buttons_rect = {
       SDL_FRect{119, 115, 47, 18}, //
   };
   const static std::array buttons_func = {
-      event_button_close,
+      EventButtonClose,
   };
 
   for (size_t i = 0; i < buttons_rect.size(); ++i) {
@@ -121,21 +121,21 @@ bool TradeUiSystem::event_button(SDL_Event *event) {
   return false;
 }
 
-bool TradeUiSystem::event(SDL_Event *event) {
+bool TradeUiSystem::Event(SDL_Event *Event) {
   bool r = true;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
         r = false;
       }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
-      if (CursorGameInstance::cursor_ui == render) {
-        r = !event_button(event);
+    if (Event->button.button == SDL_BUTTON_LEFT) {
+      if (CursorGameInstance::cursor_ui == Render) {
+        r = !EventButton(Event);
       }
     }
     break;

@@ -10,7 +10,7 @@ enum class ShaderEnum {
 
 class ShaderGameInstance {
 public:
-  static bool init();
-  static void start(ShaderEnum type);
-  static void end();
+  static bool Init();
+  static void Start(ShaderEnum type);
+  static void End();
 };

@@ -14,7 +14,7 @@
 #include <ranges>
 #include <string>
 
-bool EffectLogicSystem::run_damage(GameEffect &g_effect) {
+bool EffectLogicSystem::RunDamage(GameEffect &g_effect) {
   bool r = false;
   auto current_time = Window::dt_time;
   if (g_effect.delay >= current_time) {
@@ -38,7 +38,7 @@ bool EffectLogicSystem::run_damage(GameEffect &g_effect) {
   return r;
 }
 
-bool EffectLogicSystem::run_effect(GameEffect &g_effect) {
+bool EffectLogicSystem::RunEffect(GameEffect &g_effect) {
   bool r = false;
   auto current_time = Window::dt_time;
   if (g_effect.delay >= current_time) {
@@ -82,9 +82,9 @@ bool EffectLogicSystem::run_effect(GameEffect &g_effect) {
   return r;
 }
 
-bool EffectLogicSystem::run_skill_use(GameEffect &g_effect) {
+bool EffectLogicSystem::RunSkillUse(GameEffect &g_effect) {
   bool r = false;
-  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::LoadSkiNode(g_effect.id);
   if (g_effect.order.has_value()) {
     ski_node =
         ski_node->get_child("effect" + std::to_string(g_effect.order.value()));
@@ -99,12 +99,12 @@ bool EffectLogicSystem::run_skill_use(GameEffect &g_effect) {
     delay = static_cast<wz::Property<std::int32_t> *>(delay_node)->get();
   }
   auto g_character = std::any_cast<GameCharacter *>(g_effect.data);
-  auto action_type = CharacterLogicSystem::load_action_type(*g_character);
+  auto action_type = CharacterLogicSystem::LoadActionType(*g_character);
   float speed = 1;
   switch (action_type) {
   case CharacterLogicSystem::ActionEnum::kAttack:
   case CharacterLogicSystem::ActionEnum::kSkill: {
-    speed = CharacterLogicSystem::load_attack_speed(*g_character);
+    speed = CharacterLogicSystem::LoadAttackSpeed(*g_character);
     break;
   }
   default: {
@@ -124,9 +124,9 @@ bool EffectLogicSystem::run_skill_use(GameEffect &g_effect) {
   return r;
 }
 
-bool EffectLogicSystem::run_skill_affected(GameEffect &g_effect) {
+bool EffectLogicSystem::RunSkillAffected(GameEffect &g_effect) {
   bool r = false;
-  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::LoadSkiNode(g_effect.id);
   ski_node = ski_node->get_child(u"affected");
   if (ski_node == nullptr) {
     return true;
@@ -149,18 +149,18 @@ bool EffectLogicSystem::run_skill_affected(GameEffect &g_effect) {
   return r;
 }
 
-bool EffectLogicSystem::run_skill_hit(GameEffect &g_effect) {
+bool EffectLogicSystem::RunSkillHit(GameEffect &g_effect) {
   auto now = Window::dt_time;
   if (g_effect.delay >= now) {
     return false;
   }
   bool r = false;
-  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::LoadSkiNode(g_effect.id);
   if (ski_node->find(u"hit/0")) {
     ski_node = ski_node->find(u"hit/0");
   } else {
     ski_node =
-        SkillGameInstance::load_ski_level_node(g_effect.id, g_effect.lv);
+        SkillGameInstance::LoadSkiLevelNode(g_effect.id, g_effect.lv);
     ski_node = ski_node->find(u"hit/0");
   }
   auto index = std::to_string(g_effect.index);
@@ -181,7 +181,7 @@ bool EffectLogicSystem::run_skill_hit(GameEffect &g_effect) {
   return r;
 }
 
-bool EffectLogicSystem::run_skill_region(GameEffect &g_effect) {
+bool EffectLogicSystem::RunSkillRegion(GameEffect &g_effect) {
   auto rski = std::any_cast<GameRegionSkill>(&g_effect.data);
   if (rski->end <= Window::dt_time) {
     return true;
@@ -189,33 +189,33 @@ bool EffectLogicSystem::run_skill_region(GameEffect &g_effect) {
   return false;
 }
 
-void EffectLogicSystem::run_animate(std::vector<GameEffect> &v) {
+void EffectLogicSystem::RunAnimate(std::vector<GameEffect> &v) {
   for (auto it = v.begin(); it != v.end();) {
     bool remove = false;
     auto &g_effect = *it;
     switch (g_effect.type) {
     case GameEffect::EffectType::kEffect: {
-      remove = run_effect(g_effect);
+      remove = RunEffect(g_effect);
       break;
     }
     case GameEffect::EffectType::kSkillUse: {
-      remove = run_skill_use(g_effect);
+      remove = RunSkillUse(g_effect);
       break;
     }
     case GameEffect::EffectType::kSkillAffected: {
-      remove = run_skill_affected(g_effect);
+      remove = RunSkillAffected(g_effect);
       break;
     }
     case GameEffect::EffectType::kSkillHit: {
-      remove = run_skill_hit(g_effect);
+      remove = RunSkillHit(g_effect);
       break;
     }
     case GameEffect::EffectType::kDamage: {
-      remove = run_damage(g_effect);
+      remove = RunDamage(g_effect);
       break;
     }
     case GameEffect::EffectType::kSkillRegion: {
-      remove = run_skill_region(g_effect);
+      remove = RunSkillRegion(g_effect);
       break;
     }
     default: {
@@ -231,16 +231,16 @@ void EffectLogicSystem::run_animate(std::vector<GameEffect> &v) {
   }
 }
 
-bool EffectLogicSystem::run() {
-  run_animate(CharacterGameInstance::self.effect);
+bool EffectLogicSystem::Run() {
+  RunAnimate(CharacterGameInstance::self.effect);
   for (auto &o : CharacterGameInstance::others | std::views::values) {
-    run_animate(o.g_character.effect);
+    RunAnimate(o.g_character.effect);
   }
   for (auto &m : MobGameInstance::data | std::views::values) {
-    run_animate(m.mob.effect);
+    RunAnimate(m.mob.effect);
   }
   for (auto &de : EffectGameInstance::data) {
-    run_animate(de);
+    RunAnimate(de);
   }
   return true;
 }

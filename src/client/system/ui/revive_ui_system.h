@@ -4,26 +4,26 @@
 #include <optional>
 class ReviveUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_button();
+  static void RenderBackgrnd();
+  static void RenderButton();
 
-  static bool event_button(SDL_Event *event);
-  static void event_button_ok();
+  static bool EventButton(SDL_Event *Event);
+  static void EventButtonOk();
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
 public:
   static inline SDL_FPoint pos;
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 };

@@ -5,7 +5,7 @@
 #include <vector>
 class TileGameInstance {
 public:
-  static void load(wz::Node *image);
-  static void load(uint32_t map_id);
+  static void Load(wz::Node *image);
+  static void Load(uint32_t map_id);
   static inline std::array<std::flat_multimap<int64_t, GameTile>, 8> data;
 };

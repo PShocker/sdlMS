@@ -2,9 +2,9 @@
 
 class CursorRenderSystem {
 private:
-  static void render_cursor();
-  static void render_hand();
+  static void RenderCursor();
+  static void RenderHand();
 
 public:
-  static bool render();
+  static bool Render();
 };

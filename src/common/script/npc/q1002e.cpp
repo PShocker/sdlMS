@@ -10,7 +10,7 @@
 #include "wz/Property.h"
 // roger apple
 
-static void q1002e(std::any data) {
+static void Q1002e(std::any data) {
   NpcDlgUiSystem::type = NpcDlgUiSystem::NpcDlgEnum::kQuestComplete;
   NpcDlgUiSystem::index = 0;
   NpcDlgUiSystem::max_index = 0;
@@ -24,6 +24,6 @@ static void q1002e(std::any data) {
 
 [[maybe_unused]] static const bool r = [] {
   auto &fns = Script::fns();
-  fns[u"q1002e"] = q1002e;
+  fns[u"q1002e"] = Q1002e;
   return true;
 }();

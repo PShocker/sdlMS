@@ -4,6 +4,6 @@
 #include <vector>
 class TooltipGameInstance {
 public:
-  static void load(uint32_t map_id);
+  static void Load(uint32_t map_id);
   static inline std::vector<GameTooltip> data;
 };

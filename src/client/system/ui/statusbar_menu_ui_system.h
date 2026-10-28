@@ -5,25 +5,25 @@
 #include <optional>
 class StatusbarMenuUiSystem {
 private:
-  static SDL_FRect load_r();
-  static void render_backgrnd();
-  static void render_button();
-  static void render_title();
+  static SDL_FRect LoadR();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderTitle();
 
-  static void event_button_cc();
-  static void event_button_option();
-  static void event_button_quit();
+  static void EventButtonCc();
+  static void EventButtonOption();
+  static void EventButtonQuit();
 
-  static void event_button_item();
-  static void event_button_equip();
-  static void event_button_stat();
-  static void event_button_skill();
-  static void event_button_party();
-  static void event_button_quest();
-  static void event_button_craft();
+  static void EventButtonItem();
+  static void EventButtonEquip();
+  static void EventButtonStat();
+  static void EventButtonSkill();
+  static void EventButtonParty();
+  static void EventButtonQuest();
+  static void EventButtonCraft();
 
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
   static inline int alpha;
 
@@ -34,12 +34,12 @@ public:
   };
   static inline std::optional<MenuEnums> menu_type;
 
-  static bool cursor_in();
+  static bool CursorIn();
 
-  static void toggle();
+  static void Toggle();
 
-  static void open();
-  static void close();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void Open();
+  static void Close();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 };

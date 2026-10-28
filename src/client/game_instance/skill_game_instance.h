@@ -15,18 +15,18 @@ using namespace fbs;
 class SkillGameInstance {
 public:
   static inline std::vector<GameSkill> ski; // buff
-  static auto &skis() {
+  static auto &Skis() {
     static std::flat_map<std::u16string, GameSkill> instance;
     return instance;
   }
 
-  static wz::Node *load_ski_node(uint32_t id);
-  static wz::Node *load_ski_node(const std::string &id);
-  static wz::Node *load_ski_node(const std::u16string &id);
-  static wz::Node *load_ski_level_node(const std::u16string &id, uint8_t l);
+  static wz::Node *LoadSkiNode(uint32_t id);
+  static wz::Node *LoadSkiNode(const std::string &id);
+  static wz::Node *LoadSkiNode(const std::u16string &id);
+  static wz::Node *LoadSkiLevelNode(const std::u16string &id, uint8_t l);
 
-  static uint64_t load_ski_time(GameCharacter &g_character);
-  static SDL_FRect load_r(SDL_FPoint lt, SDL_FPoint rb, SDL_FPoint pos,
+  static uint64_t LoadSkiTime(GameCharacter &g_character);
+  static SDL_FRect LoadR(SDL_FPoint lt, SDL_FPoint rb, SDL_FPoint pos,
                           bool flip);
 
   struct SkillName {
@@ -34,29 +34,29 @@ public:
     std::u16string desc;
     std::vector<std::u16string> level;
   };
-  static SkillName load_ski_name(const std::u16string &id);
-  static int load_ski_max_lvl(const std::u16string &id);
-  static bool load_ski_active(const std::u16string &id);
+  static SkillName LoadSkiName(const std::u16string &id);
+  static int LoadSkiMaxLvl(const std::u16string &id);
+  static bool LoadSkiActive(const std::u16string &id);
 
-  static SDL_FRect load_ski_r(const std::u16string &id);
-  static SDL_FRect load_ski_r(const std::u16string &id, SDL_FPoint pos,
+  static SDL_FRect LoadSkiR(const std::u16string &id);
+  static SDL_FRect LoadSkiR(const std::u16string &id, SDL_FPoint pos,
                               bool flip);
-  static int load_ski_ball_num(const std::u16string &id, uint8_t lv);
-  static int load_ski_mob_count(const std::u16string &id, uint8_t lv);
-  static int load_ski_atk_count(const std::u16string &id, uint8_t lv);
+  static int LoadSkiBallNum(const std::u16string &id, uint8_t lv);
+  static int LoadSkiMobCount(const std::u16string &id, uint8_t lv);
+  static int LoadSkiAtkCount(const std::u16string &id, uint8_t lv);
 
   static ClientCharacterAttackT
-  create_attack_payload(CheckMobs &cm, SDL_FPoint pos, uint64_t delay);
+  CreateAttackPayload(CheckMobs &cm, SDL_FPoint pos, uint64_t delay);
   static ClientCharacterAttackT
-  create_attack_payload(CheckMobs &cm, SDL_FPoint pos, uint64_t delay,
+  CreateAttackPayload(CheckMobs &cm, SDL_FPoint pos, uint64_t delay,
                         uint32_t interval, std::string effect,
                         std::string sound);
 
   static ClientCharacterSkillT
-  create_skill_payload(const ClientCharacterAttackT &attack_payload, int ski_id,
+  CreateSkillPayload(const ClientCharacterAttackT &attack_payload, int ski_id,
                        uint8_t ski_lv);
   static ClientCharacterSkillT
-  create_skill_payload(const std::vector<uint64_t> &buff_payload, int ski_id,
+  CreateSkillPayload(const std::vector<uint64_t> &buff_payload, int ski_id,
                        uint8_t ski_lv);
-  static ClientCharacterSkillT create_skill_payload(int ski_id, uint8_t ski_lv);
+  static ClientCharacterSkillT CreateSkillPayload(int ski_id, uint8_t ski_lv);
 };

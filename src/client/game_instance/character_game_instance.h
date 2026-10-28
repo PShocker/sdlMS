@@ -57,48 +57,48 @@ public:
 
 class CharacterGameInstance {
 private:
-  static std::flat_set<std::u16string> split_vslot(const std::u16string &vslot);
-  static std::u16string split_islot(const std::u16string &islot);
-  static void add_avatar_cache(const std::u16string &val,
+  static std::flat_set<std::u16string> SplitVslot(const std::u16string &vslot);
+  static std::u16string SplitIslot(const std::u16string &islot);
+  static void AddAvatarCache(const std::u16string &val,
                                const std::u16string &sub);
 
 public:
   static inline GameCharacter self;
 
-  static void init_character_bone();
-  static void init_default_clothes();
+  static void InitCharacterBone();
+  static void InitDefaultClothes();
 
-  static void load_self_character();
+  static void LoadSelfCharacter();
 
-  static void add_body(GameCharacter &g, const std::u16string &val);
-  static void add_coat(GameCharacter &g, const std::u16string &val);
-  static void add_cap(GameCharacter &g, const std::u16string &val);
-  static void add_pants(GameCharacter &g, const std::u16string &val);
-  static void add_head(GameCharacter &g, const std::u16string &val);
-  static void add_ear(GameCharacter &g, const std::u16string &val);
-  static void add_face(GameCharacter &g, const std::u16string &val);
-  static void add_hair(GameCharacter &g, const std::u16string &val);
-  static void add_shoes(GameCharacter &g, const std::u16string &val);
-  static void add_weapon(GameCharacter &g, const std::u16string &val);
-  static void add_shield(GameCharacter &g, const std::u16string &val);
-  static void add_cape(GameCharacter &g, const std::u16string &val);
-  static void add_accessory(GameCharacter &g, const std::u16string &val);
-  static void add_glove(GameCharacter &g, const std::u16string &val);
-  static void add_longcoat(GameCharacter &g, const std::u16string &val);
+  static void AddBody(GameCharacter &g, const std::u16string &val);
+  static void AddCoat(GameCharacter &g, const std::u16string &val);
+  static void AddCap(GameCharacter &g, const std::u16string &val);
+  static void AddPants(GameCharacter &g, const std::u16string &val);
+  static void AddHead(GameCharacter &g, const std::u16string &val);
+  static void AddEar(GameCharacter &g, const std::u16string &val);
+  static void AddFace(GameCharacter &g, const std::u16string &val);
+  static void AddHair(GameCharacter &g, const std::u16string &val);
+  static void AddShoes(GameCharacter &g, const std::u16string &val);
+  static void AddWeapon(GameCharacter &g, const std::u16string &val);
+  static void AddShield(GameCharacter &g, const std::u16string &val);
+  static void AddCape(GameCharacter &g, const std::u16string &val);
+  static void AddAccessory(GameCharacter &g, const std::u16string &val);
+  static void AddGlove(GameCharacter &g, const std::u16string &val);
+  static void AddLongcoat(GameCharacter &g, const std::u16string &val);
 
-  static void add_coat_deco(GameCharacter &g, const std::u16string &val);
-  static void add_cap_deco(GameCharacter &g, const std::u16string &val);
-  static void add_pants_deco(GameCharacter &g, const std::u16string &val);
-  static void add_shoes_deco(GameCharacter &g, const std::u16string &val);
-  static void add_shield_deco(GameCharacter &g, const std::u16string &val);
-  static void add_cape_deco(GameCharacter &g, const std::u16string &val);
-  static void add_accessory_deco(GameCharacter &g, const std::u16string &val);
-  static void add_glove_deco(GameCharacter &g, const std::u16string &val);
-  static void add_longcoat_deco(GameCharacter &g, const std::u16string &val);
-  static void add_weapon_deco(GameCharacter &g, const std::u16string &val);
+  static void AddCoatDeco(GameCharacter &g, const std::u16string &val);
+  static void AddCapDeco(GameCharacter &g, const std::u16string &val);
+  static void AddPantsDeco(GameCharacter &g, const std::u16string &val);
+  static void AddShoesDeco(GameCharacter &g, const std::u16string &val);
+  static void AddShieldDeco(GameCharacter &g, const std::u16string &val);
+  static void AddCapeDeco(GameCharacter &g, const std::u16string &val);
+  static void AddAccessoryDeco(GameCharacter &g, const std::u16string &val);
+  static void AddGloveDeco(GameCharacter &g, const std::u16string &val);
+  static void AddLongcoatDeco(GameCharacter &g, const std::u16string &val);
+  static void AddWeaponDeco(GameCharacter &g, const std::u16string &val);
 
-  static void add_ring0_deco(GameCharacter &g, const std::u16string &val);
-  static void add_ring1_deco(GameCharacter &g, const std::u16string &val);
+  static void AddRing0Deco(GameCharacter &g, const std::u16string &val);
+  static void AddRing1Deco(GameCharacter &g, const std::u16string &val);
 
   static inline std::flat_map<uint64_t, CharacterOtherData> others;
 

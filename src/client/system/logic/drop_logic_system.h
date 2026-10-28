@@ -6,9 +6,9 @@
 #include <vector>
 class DropLogicSystem {
 private:
-  static void run_destroy();
-  static void run_state_machine(GameDrop &drop);
+  static void RunDestroy();
+  static void RunStateMachine(GameDrop &drop);
 
 public:
-  static bool run();
+  static bool Run();
 };

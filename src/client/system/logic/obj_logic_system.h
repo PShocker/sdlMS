@@ -3,7 +3,7 @@
 #include "src/client/game/game_obj.h"
 class ObjLogicSystem {
 public:
-  static void run_animate(GameObj &g_obj);
-  static void run_alpha(GameObj &g_obj);
-  static bool run();
+  static void RunAnimate(GameObj &g_obj);
+  static void RunAlpha(GameObj &g_obj);
+  static bool Run();
 };

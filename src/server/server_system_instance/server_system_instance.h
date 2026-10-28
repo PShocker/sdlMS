@@ -2,5 +2,5 @@
 
 class ServerSystemInstance {
 public:
-  static void enter(bool host);
+  static void Enter(bool host);
 };

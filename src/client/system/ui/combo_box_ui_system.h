@@ -17,6 +17,6 @@ struct ComboBox {
 
 class ComboBoxUiSystem {
 public:
-  static void render(int x, int y, ComboBox cm, bool top, bool disable);
-  static bool click(int x, int y, ComboBox cm, bool top, bool disable);
+  static void Render(int x, int y, ComboBox cm, bool top, bool disable);
+  static bool Click(int x, int y, ComboBox cm, bool top, bool disable);
 };

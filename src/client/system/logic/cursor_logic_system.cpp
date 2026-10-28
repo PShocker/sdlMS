@@ -57,12 +57,12 @@
 
 using namespace fbs;
 
-std::optional<GameNpc> CursorLogicSystem::cursor_npc() {
+std::optional<GameNpc> CursorLogicSystem::CursorNpc() {
   const auto &pos = Window::mouse_pos;
   auto &camera = CameraGameInstance::camera;
   for (auto &m : NpcGameInstance::data) {
     for (auto &g_npc : m) {
-      auto quest_rr = NpcGameInstance::load_quest_rect(g_npc);
+      auto quest_rr = NpcGameInstance::LoadQuestRect(g_npc);
       if (quest_rr.has_value()) {
         auto quest_r = quest_rr.value();
         quest_r.x -= camera.x;
@@ -71,7 +71,7 @@ std::optional<GameNpc> CursorLogicSystem::cursor_npc() {
           return g_npc;
         }
       }
-      auto npc_rect = NpcGameInstance::load_rect(g_npc);
+      auto npc_rect = NpcGameInstance::LoadRect(g_npc);
       npc_rect.x -= camera.x;
       npc_rect.y -= camera.y;
       if (SDL_PointInRectFloat(&pos, &npc_rect)) {
@@ -82,7 +82,7 @@ std::optional<GameNpc> CursorLogicSystem::cursor_npc() {
   return std::nullopt;
 }
 
-bool CursorLogicSystem::run_package_motion() {
+bool CursorLogicSystem::RunPackageMotion() {
   auto index = PackageUiSystem::mouse_index;
   if (!index.has_value()) {
     return false;
@@ -98,11 +98,11 @@ bool CursorLogicSystem::run_package_motion() {
   return true;
 }
 
-bool CursorLogicSystem::run_vscroll_motion() {
+bool CursorLogicSystem::RunVscrollMotion() {
   return CursorGameInstance::cursor_vscr;
 }
 
-void CursorLogicSystem::run_cursor_action(const std::u16string &action) {
+void CursorLogicSystem::RunCursorAction(const std::u16string &action) {
   if (CursorGameInstance::cursor_type != action) {
     CursorGameInstance::cursor_type = action;
     CursorGameInstance::cursor_index = 0;
@@ -110,163 +110,163 @@ void CursorLogicSystem::run_cursor_action(const std::u16string &action) {
   }
 }
 
-bool CursorLogicSystem::run_default() {
+bool CursorLogicSystem::RunDefault() {
   if (CursorGameInstance::cursor_hand.has_value()) {
     if (!CursorGameInstance::modal_overlay) {
-      run_cursor_action(u"11");
+      RunCursorAction(u"11");
       return true;
     }
   }
   if (CursorGameInstance::cursor_ui == nullptr) {
     if (!(Window::mouse_state & SDL_BUTTON_LMASK)) {
-      auto npc = cursor_npc();
+      auto npc = CursorNpc();
       if (npc.has_value()) {
-        run_cursor_action(u"1");
+        RunCursorAction(u"1");
         return true;
       }
     }
   }
-  if (CursorGameInstance::cursor_ui == PackageUiSystem::render &&
+  if (CursorGameInstance::cursor_ui == PackageUiSystem::Render &&
       !CursorGameInstance::modal_overlay) {
-    if (run_vscroll_motion()) {
-      run_cursor_action(u"9");
+    if (RunVscrollMotion()) {
+      RunCursorAction(u"9");
       return true;
     }
-    if (run_package_motion()) {
-      run_cursor_action(u"5");
-      return true;
-    }
-  }
-  if (CursorGameInstance::cursor_ui == CharacterInfoUiSystem::render) {
-    if (run_vscroll_motion()) {
-      run_cursor_action(u"9");
+    if (RunPackageMotion()) {
+      RunCursorAction(u"5");
       return true;
     }
   }
-  if (CursorGameInstance::cursor_ui == SkillUiSystem::render) {
-    if (run_vscroll_motion()) {
-      run_cursor_action(u"9");
+  if (CursorGameInstance::cursor_ui == CharacterInfoUiSystem::Render) {
+    if (RunVscrollMotion()) {
+      RunCursorAction(u"9");
       return true;
     }
   }
-  if (CursorGameInstance::cursor_ui == ShopUiSystem::render) {
-    if (run_vscroll_motion()) {
-      run_cursor_action(u"9");
+  if (CursorGameInstance::cursor_ui == SkillUiSystem::Render) {
+    if (RunVscrollMotion()) {
+      RunCursorAction(u"9");
       return true;
     }
   }
-  if (CursorGameInstance::cursor_ui == QuestUiSystem::render) {
-    if (run_vscroll_motion()) {
-      run_cursor_action(u"9");
+  if (CursorGameInstance::cursor_ui == ShopUiSystem::Render) {
+    if (RunVscrollMotion()) {
+      RunCursorAction(u"9");
+      return true;
+    }
+  }
+  if (CursorGameInstance::cursor_ui == QuestUiSystem::Render) {
+    if (RunVscrollMotion()) {
+      RunCursorAction(u"9");
       return true;
     }
   }
   if (Window::mouse_state & SDL_BUTTON_LMASK) {
-    run_cursor_action(u"12");
+    RunCursorAction(u"12");
   } else {
-    run_cursor_action(u"0");
+    RunCursorAction(u"0");
   }
 
   return true;
 }
 
-void CursorLogicSystem::run_cursor_ui() {
+void CursorLogicSystem::RunCursorUi() {
   CursorGameInstance::cursor_ui = nullptr;
   CursorGameInstance::cursor_vscr = false;
   CursorGameInstance::modal_overlay = nullptr;
   for (auto &fn : System::render_systems | std::views::reverse) {
-    if (fn == MinimapUiSystem::render) {
-      if (MinimapUiSystem::cursor_in()) {
+    if (fn == MinimapUiSystem::Render) {
+      if (MinimapUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == StatusbarUiSystem::render) {
-      if (StatusbarUiSystem::cursor_in()) {
+    } else if (fn == StatusbarUiSystem::Render) {
+      if (StatusbarUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == WorldmapUiSystem::render) {
-      if (WorldmapUiSystem::cursor_in()) {
+    } else if (fn == WorldmapUiSystem::Render) {
+      if (WorldmapUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == EquipUiSystem::render) {
-      if (EquipUiSystem::cursor_in()) {
+    } else if (fn == EquipUiSystem::Render) {
+      if (EquipUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == PackageUiSystem::render) {
-      if (PackageUiSystem::cursor_in()) {
+    } else if (fn == PackageUiSystem::Render) {
+      if (PackageUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == CharacterStatUiSystem::render) {
-      if (CharacterStatUiSystem::cursor_in()) {
+    } else if (fn == CharacterStatUiSystem::Render) {
+      if (CharacterStatUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == CharacterInfoUiSystem::render) {
-      if (CharacterInfoUiSystem::cursor_in()) {
+    } else if (fn == CharacterInfoUiSystem::Render) {
+      if (CharacterInfoUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == SkillUiSystem::render) {
-      if (SkillUiSystem::cursor_in()) {
+    } else if (fn == SkillUiSystem::Render) {
+      if (SkillUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == CraftUiSystem::render) {
-      if (CraftUiSystem::cursor_in()) {
+    } else if (fn == CraftUiSystem::Render) {
+      if (CraftUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == ReviveUiSystem::render) {
-      if (ReviveUiSystem::cursor_in()) {
+    } else if (fn == ReviveUiSystem::Render) {
+      if (ReviveUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == TradeUiSystem::render) {
-      if (TradeUiSystem::cursor_in()) {
+    } else if (fn == TradeUiSystem::Render) {
+      if (TradeUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == StorageUiSystem::render) {
-      if (StorageUiSystem::cursor_in()) {
+    } else if (fn == StorageUiSystem::Render) {
+      if (StorageUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == ContextMenuUiSystem::render) {
-      if (ContextMenuUiSystem::cursor_in()) {
+    } else if (fn == ContextMenuUiSystem::Render) {
+      if (ContextMenuUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == PartyUiSystem::render) {
-      if (PartyUiSystem::cursor_in()) {
+    } else if (fn == PartyUiSystem::Render) {
+      if (PartyUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == StatusbarMenuUiSystem::render) {
-      if (StatusbarMenuUiSystem::cursor_in()) {
+    } else if (fn == StatusbarMenuUiSystem::Render) {
+      if (StatusbarMenuUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == NpcDlgUiSystem::render) {
+    } else if (fn == NpcDlgUiSystem::Render) {
       CursorGameInstance::modal_overlay = fn;
-      if (NpcDlgUiSystem::cursor_in()) {
+      if (NpcDlgUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == ShopUiSystem::render) {
+    } else if (fn == ShopUiSystem::Render) {
       CursorGameInstance::modal_overlay = fn;
-      if (ShopUiSystem::cursor_in()) {
+      if (ShopUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == NoticeUiSystem::render) {
+    } else if (fn == NoticeUiSystem::Render) {
       CursorGameInstance::modal_overlay = fn;
-      if (NoticeUiSystem::cursor_in()) {
+      if (NoticeUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == QuestUiSystem::render) {
-      if (QuestUiSystem::cursor_in()) {
+    } else if (fn == QuestUiSystem::Render) {
+      if (QuestUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == QuickSlotUiSystem::render) {
-      if (QuickSlotUiSystem::cursor_in()) {
+    } else if (fn == QuickSlotUiSystem::Render) {
+      if (QuickSlotUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == QuestAlarmUiSystem::render) {
-      if (QuestAlarmUiSystem::cursor_in()) {
+    } else if (fn == QuestAlarmUiSystem::Render) {
+      if (QuestAlarmUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == KeybindingUiSystem::render) {
-      if (KeybindingUiSystem::cursor_in()) {
+    } else if (fn == KeybindingUiSystem::Render) {
+      if (KeybindingUiSystem::CursorIn()) {
         CursorGameInstance::cursor_ui = fn;
       }
-    } else if (fn == LoginNoticeUiSystem::render) {
+    } else if (fn == LoginNoticeUiSystem::Render) {
       CursorGameInstance::modal_overlay = fn;
     }
     if (CursorGameInstance::cursor_ui != nullptr) {
@@ -275,7 +275,7 @@ void CursorLogicSystem::run_cursor_ui() {
   }
 }
 
-bool CursorLogicSystem::run_animate() {
+bool CursorLogicSystem::RunAnimate() {
   static auto cursor_node = WzResource::ui->find(u"Cursor.img");
   auto type_node = cursor_node->get_child(CursorGameInstance::cursor_type);
   auto child_count = type_node->children_count();
@@ -299,17 +299,17 @@ bool CursorLogicSystem::run_animate() {
   return true;
 }
 
-bool CursorLogicSystem::run() {
-  run_animate();
-  run_default();
-  run_cursor_ui();
+bool CursorLogicSystem::Run() {
+  RunAnimate();
+  RunDefault();
+  RunCursorUi();
   return true;
 }
 
-bool CursorLogicSystem::event_cursor_hand(SDL_Event *event) {
+bool CursorLogicSystem::EventCursorHand(SDL_Event *Event) {
   // 1. 事件类型检查
-  if (!event || event->type != SDL_EVENT_MOUSE_BUTTON_UP ||
-      event->button.button != SDL_BUTTON_LEFT) {
+  if (!Event || Event->type != SDL_EVENT_MOUSE_BUTTON_UP ||
+      Event->button.button != SDL_BUTTON_LEFT) {
     return false;
   }
 
@@ -326,20 +326,20 @@ bool CursorLogicSystem::event_cursor_hand(SDL_Event *event) {
   switch (cursor_hand->type) {
   case CursorGameInstance::CursorHandType::kKeybind: {
     auto c = (SDL_Scancode)cursor_hand->val;
-    KeyboardGameInstance::erase_input(c);
+    KeyboardGameInstance::EraseInput(c);
     cursor_hand = std::nullopt;
-    AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
     break;
   }
   case CursorGameInstance::CursorHandType::kEquipment: {
     cursor_hand = std::nullopt;
-    AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
 
     break;
   }
   case CursorGameInstance::CursorHandType::kSkill: {
     cursor_hand = std::nullopt;
-    AudioGameInstance::load_audio(u"UI.img/DragEnd", 0);
+    AudioGameInstance::LoadAudio(u"UI.img/DragEnd", 0);
     break;
   }
   case CursorGameInstance::CursorHandType::kPackage: {
@@ -368,21 +368,21 @@ bool CursorLogicSystem::event_cursor_hand(SDL_Event *event) {
     // 处理物品丢弃
     else {
       auto &itm = PackageGameInstance::data[active_tab][sub_index];
-      int num = ItemGameInstance::load_item_num(itm);
-      auto itm_info = ItemGameInstance::load_item_info(itm->id, 0);
+      int num = ItemGameInstance::LoadItemNum(itm);
+      auto itm_info = ItemGameInstance::LoadItemInfo(itm->id, 0);
       bool unitPrice = itm_info->get_child(u"unitPrice");
 
       // 数量>1且非单价物品，弹出多选对话框
       if (num > 1 && !unitPrice) {
         NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kThrowMul;
         NoticeUiSystem::data = &itm;
-        NoticeUiSystem::open();
+        NoticeUiSystem::Open();
         break; // 不执行丢弃，等待用户选择数量
       }
       bool tradeBlock = itm_info->get_child(u"tradeBlock");
       if (tradeBlock) {
         NoticeUiSystem::type = NoticeUiSystem::NoticeEnum::kTradeBlock;
-        NoticeUiSystem::open();
+        NoticeUiSystem::Open();
         cursor_hand = std::nullopt;
         break; // 不执行丢弃，等待用户选择数量
       }
@@ -415,11 +415,11 @@ bool CursorLogicSystem::event_cursor_hand(SDL_Event *event) {
   return false;
 }
 
-bool CursorLogicSystem::event_character(SDL_Event *event) {
+bool CursorLogicSystem::EventCharacter(SDL_Event *Event) {
   bool r = false;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks >= 2) {
+    if (Event->button.button == SDL_BUTTON_LEFT && Event->button.clicks >= 2) {
       if (CursorGameInstance::cursor_ui != nullptr) {
         break;
       }
@@ -428,18 +428,18 @@ bool CursorLogicSystem::event_character(SDL_Event *event) {
       others.push_back(s);
       auto &camera = CameraGameInstance::camera;
       for (auto character : others) {
-        auto rect = CharacterLogicSystem::load_rect(character.g_character);
+        auto rect = CharacterLogicSystem::LoadRect(character.g_character);
         rect.x -= camera.x;
         rect.y -= camera.y;
         bool ins = SDL_PointInRectFloat(&Window::mouse_pos, &rect);
         if (ins) {
           CharacterInfoUiSystem::character = character.g_character;
-          CharacterInfoUiSystem::close();
-          CharacterInfoUiSystem::open();
+          CharacterInfoUiSystem::Close();
+          CharacterInfoUiSystem::Open();
           return true;
         }
       }
-    } else if (event->button.button == SDL_BUTTON_RIGHT) {
+    } else if (Event->button.button == SDL_BUTTON_RIGHT) {
       if (CursorGameInstance::cursor_ui != nullptr) {
         break;
       }
@@ -448,7 +448,7 @@ bool CursorLogicSystem::event_character(SDL_Event *event) {
       others[0] = s;
       auto &camera = CameraGameInstance::camera;
       for (auto [k, v] : others) {
-        auto rect = CharacterLogicSystem::load_rect(v.g_character);
+        auto rect = CharacterLogicSystem::LoadRect(v.g_character);
         rect.x -= camera.x;
         rect.y -= camera.y;
         bool ins = SDL_PointInRectFloat(&Window::mouse_pos, &rect);
@@ -456,8 +456,8 @@ bool CursorLogicSystem::event_character(SDL_Event *event) {
           ContextMenuUiSystem::pos = Window::mouse_pos;
           ContextMenuUiSystem::client_id = k;
           ContextMenuUiSystem::client_name = v.g_character.name;
-          ContextMenuUiSystem::close();
-          ContextMenuUiSystem::open();
+          ContextMenuUiSystem::Close();
+          ContextMenuUiSystem::Open();
           return true;
         }
       }
@@ -471,17 +471,17 @@ bool CursorLogicSystem::event_character(SDL_Event *event) {
   return r;
 }
 
-bool CursorLogicSystem::event_click_npc(GameNpc npc) {
+bool CursorLogicSystem::EventClickNpc(GameNpc npc) {
   bool r = false;
   auto npc_id = npc.id;
-  auto NpcType = NpcGameInstance::load_npc_type(npc_id);
+  auto NpcType = NpcGameInstance::LoadNpcType(npc_id);
   switch (NpcType) {
   case NpcGameInstance::NpcType::kShop: {
-    auto shop = ShopGameInstance::load_npc_shop(npc_id);
+    auto shop = ShopGameInstance::LoadNpcShop(npc_id);
     ShopUiSystem::shop = shop;
     ShopUiSystem::npc = npc;
-    ShopUiSystem::close();
-    ShopUiSystem::open();
+    ShopUiSystem::Close();
+    ShopUiSystem::Open();
     r = true;
     break;
   }
@@ -501,10 +501,10 @@ bool CursorLogicSystem::event_click_npc(GameNpc npc) {
     NpcDlgUiSystem::npc_id = npc_id;
     NpcDlgUiSystem::time = Window::dt_now;
     // string.wz找d0
-    NpcDlgUiSystem::text = NpcGameInstance::load_npc_text(npc_id, u"d0");
+    NpcDlgUiSystem::text = NpcGameInstance::LoadNpcText(npc_id, u"d0");
     NpcDlgUiSystem::cb = {};
-    NpcDlgUiSystem::close();
-    NpcDlgUiSystem::open();
+    NpcDlgUiSystem::Close();
+    NpcDlgUiSystem::Open();
     r = true;
     break;
   }
@@ -515,20 +515,20 @@ bool CursorLogicSystem::event_click_npc(GameNpc npc) {
   return r;
 }
 
-bool CursorLogicSystem::event_npc(SDL_Event *event) {
+bool CursorLogicSystem::EventNpc(SDL_Event *Event) {
   if (CursorGameInstance::cursor_hand_net.has_value()) {
     return false;
   }
   bool r = false;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_MOUSE_BUTTON_UP: {
-    if (event->button.button == SDL_BUTTON_LEFT && event->button.clicks >= 2) {
+    if (Event->button.button == SDL_BUTTON_LEFT && Event->button.clicks >= 2) {
       if (CursorGameInstance::cursor_ui != nullptr) {
         break;
       }
-      auto npc = cursor_npc();
+      auto npc = CursorNpc();
       if (npc.has_value()) {
-        r = event_click_npc(npc.value());
+        r = EventClickNpc(npc.value());
       }
     }
   }
@@ -539,14 +539,14 @@ bool CursorLogicSystem::event_npc(SDL_Event *event) {
   return r;
 }
 
-bool CursorLogicSystem::event(SDL_Event *event) {
-  if (event_cursor_hand(event)) {
+bool CursorLogicSystem::Event(SDL_Event *Event) {
+  if (EventCursorHand(Event)) {
     return false;
   }
-  if (event_character(event)) {
+  if (EventCharacter(Event)) {
     return false;
   }
-  if (event_npc(event)) {
+  if (EventNpc(Event)) {
     return false;
   }
 

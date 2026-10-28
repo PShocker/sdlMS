@@ -9,39 +9,39 @@
 
 class MinimapUiSystem {
 private:
-  static void render_max_backgrnd();
-  static void render_min_backgrnd();
-  static void render_button();
-  static void render_name_text();
-  static void render_street_text();
-  static void render_canvas_life();
-  static void render_portal();
-  static void render_mark();
-  static void render_canvas();
-  static void render_mini();
-  static void render_name();
+  static void RenderMaxBackgrnd();
+  static void RenderMinBackgrnd();
+  static void RenderButton();
+  static void RenderNameText();
+  static void RenderStreetText();
+  static void RenderCanvasLife();
+  static void RenderPortal();
+  static void RenderMark();
+  static void RenderCanvas();
+  static void RenderMini();
+  static void RenderName();
 
-  static void event_world_map();
-  static void event_min();
-  static void event_max();
+  static void EventWorldMap();
+  static void EventMin();
+  static void EventMax();
 
-  static bool event_button(SDL_Event *event);
-  static void event_top();
+  static bool EventButton(SDL_Event *Event);
+  static void EventTop();
 
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
 
-  static SDL_FPoint load_canvas_point(SDL_FPoint point, int8_t ox, int8_t oy);
-  static SDL_FPoint load_canvas_wh();
-  static SDL_FPoint load_canvas_o();
-  static SDL_FPoint load_canvas_lt();
-  static SDL_FRect load_canvas_viewport();
-  static SDL_Texture *load_canvas_texture();
+  static SDL_FPoint LoadCanvasPoint(SDL_FPoint point, int8_t ox, int8_t oy);
+  static SDL_FPoint LoadCanvasWh();
+  static SDL_FPoint LoadCanvasO();
+  static SDL_FPoint LoadCanvasLt();
+  static SDL_FRect LoadCanvasViewport();
+  static SDL_Texture *LoadCanvasTexture();
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
   static inline std::optional<SDL_FPoint> drag;
 
@@ -55,11 +55,11 @@ public:
     std::u16string map_name;
     std::u16string map_desc = u"";
   };
-  static MapName load_map_name(uint32_t map_id);
+  static MapName LoadMapName(uint32_t map_id);
 
-  static void load();
-  static bool render();
-  static bool event(SDL_Event *event);
+  static void Load();
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
+  static bool CursorIn();
 };

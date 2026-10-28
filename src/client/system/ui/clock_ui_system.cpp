@@ -9,16 +9,16 @@
 #include <array>
 #include <cmath>
 
-void ClockUiSystem::render_backgrnd() {
+void ClockUiSystem::RenderBackgrnd() {
   SDL_Texture *t;
   switch (type) {
   case ClockEnum::kMin: {
-    t = WzResource::load_texture(
+    t = WzResource::LoadTexture(
         WzResource::map->find(u"Obj/etc.img/timer/backgrnd"));
     break;
   }
   case ClockEnum::kHour: {
-    t = WzResource::load_texture(
+    t = WzResource::LoadTexture(
         WzResource::ui->find(u"Obj/etc.img/timer/backgrndhour"));
     break;
   }
@@ -32,27 +32,27 @@ void ClockUiSystem::render_backgrnd() {
   SDL_RenderTexture(Window::renderer, t, nullptr, &pos_rect);
 }
 
-void ClockUiSystem::render_number(uint32_t num, float x, float y) {
+void ClockUiSystem::RenderNumber(uint32_t num, float x, float y) {
   const static std::vector<SDL_Texture *> textures = {
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/0")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/1")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/2")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/3")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/4")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/5")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/6")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/7")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/8")),
-      WzResource::load_texture(
+      WzResource::LoadTexture(
           WzResource::map->find(u"Map/Obj/etc.img/clock/fontTime/9")),
   };
 
@@ -75,7 +75,7 @@ void ClockUiSystem::render_number(uint32_t num, float x, float y) {
   }
 }
 
-void ClockUiSystem::render_time() {
+void ClockUiSystem::RenderTime() {
   auto dt = destroy - Window::dt_now;
   switch (type) {
   case ClockEnum::kMin: {
@@ -83,7 +83,7 @@ void ClockUiSystem::render_time() {
     auto totalSeconds = dt / 1000;    // 总秒数
     auto minutes = totalSeconds / 60; // 分钟
     auto seconds = totalSeconds % 60; // 余数秒数
-    render_number(minutes, pos.x, pos.y);
+    RenderNumber(minutes, pos.x, pos.y);
 
     break;
   }
@@ -91,28 +91,28 @@ void ClockUiSystem::render_time() {
     auto totalSeconds = dt / 1000;             // 总秒数
     auto hours = totalSeconds / 3600;          // 小时（1小时 = 3600秒）
     auto minutes = (totalSeconds % 3600) / 60; // 分钟（除去小时后，剩余的分钟）
-    render_number(minutes, pos.x, pos.y);
+    RenderNumber(minutes, pos.x, pos.y);
 
     break;
   }
   }
 }
 
-bool ClockUiSystem::render() {
-  render_backgrnd();
-  render_time();
+bool ClockUiSystem::Render() {
+  RenderBackgrnd();
+  RenderTime();
   return true;
 }
 
-void ClockUiSystem::open() {
+void ClockUiSystem::Open() {
   auto it =
-      std::ranges::find(System::render_systems, &CursorRenderSystem::render);
+      std::ranges::find(System::render_systems, &CursorRenderSystem::Render);
   if (it != System::render_systems.end()) {
     auto &camera = CameraGameInstance::camera;
     pos.x = camera.w;
     pos.y = camera.h;
-    System::render_systems.insert(it, render);
+    System::render_systems.insert(it, Render);
   }
 }
 
-void ClockUiSystem::close() { std::erase(System::render_systems, render); }
+void ClockUiSystem::Close() { std::erase(System::render_systems, Render); }

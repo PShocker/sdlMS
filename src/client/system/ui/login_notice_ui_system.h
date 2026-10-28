@@ -5,19 +5,19 @@
 #include "src/client/system_instance/login_notice_system_instance.h"
 class LoginNoticeUiSystem {
 private:
-  static SDL_FPoint load_pos();
-  static void render_backgrnd();
-  static void render_button();
+  static SDL_FPoint LoadPos();
+  static void RenderBackgrnd();
+  static void RenderButton();
 
-  static bool event_button(SDL_Event *event);
+  static bool EventButton(SDL_Event *Event);
 
 public:
-  static void event_close();
+  static void EventClose();
 
   static inline void (*fn)();
 
   static inline LoginNoticeSystemInstance::NoticeType type;
-  static bool render();
-  static bool run();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Run();
+  static bool Event(SDL_Event *Event);
 };

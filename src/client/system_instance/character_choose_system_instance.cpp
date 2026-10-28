@@ -20,45 +20,45 @@
 #include <optional>
 #include <ranges>
 
-void CharacterChooseSystemInstance::enter_prepare(const std::string &login) {
-  GameSaveSystemInstance::load_save(login);
+void CharacterChooseSystemInstance::EnterPrepare(const std::string &login) {
+  GameSaveSystemInstance::LoadSave(login);
   // 进一步解析game_save
   auto character_size = GameSaveSystemInstance::save.characters.size();
   CharacterChooseUiSystem::characters.resize(character_size);
   for (int i = 0; i < character_size; i++) {
     auto &sc = GameSaveSystemInstance::save.characters[i];
     CharacterChooseUiSystem::characters[i] = sc.character;
-    CharacterLogicSystem::run_stand_action(
+    CharacterLogicSystem::RunStandAction(
         CharacterChooseUiSystem::characters[i]);
     CharacterChooseUiSystem::characters[i].flip = 1;
   }
 }
 
-void CharacterChooseSystemInstance::enter(const std::string &login) {
-  enter_prepare(login);
-  enter();
+void CharacterChooseSystemInstance::Enter(const std::string &login) {
+  EnterPrepare(login);
+  Enter();
 }
 
-void CharacterChooseSystemInstance::enter() {
-  auto fn = &LoginSystemInstance::render_game;
+void CharacterChooseSystemInstance::Enter() {
+  auto fn = &LoginSystemInstance::RenderGame;
   if (!std::ranges::contains(System::render_systems, fn)) {
     static auto image = WzResource::ui->find(u"MapLogin.img");
-    BackgrndGameInstance::load(image);
-    ObjGameInstance::load(image);
-    TileGameInstance::load(image);
+    BackgrndGameInstance::Load(image);
+    ObjGameInstance::Load(image);
+    TileGameInstance::Load(image);
   }
   System::logic_systems = {
-      BackgrndLogicSystem::run,      ObjLogicSystem::run,
-      AudioLogicSystem::run,         CursorLogicSystem::run,
-      CharacterChooseUiSystem::run,
+      BackgrndLogicSystem::Run,      ObjLogicSystem::Run,
+      AudioLogicSystem::Run,         CursorLogicSystem::Run,
+      CharacterChooseUiSystem::Run,
   };
   System::render_systems = {
-      LoginSystemInstance::render_game,
-      CharacterChooseUiSystem::render,
-      CursorRenderSystem::render,
+      LoginSystemInstance::RenderGame,
+      CharacterChooseUiSystem::Render,
+      CursorRenderSystem::Render,
   };
   System::event_systems = {
-      CharacterChooseUiSystem::event,
+      CharacterChooseUiSystem::Event,
   };
   auto &camera = CameraGameInstance::camera;
   camera.x = -80 - camera.w / 2;

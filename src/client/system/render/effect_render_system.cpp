@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-void EffectRenderSystem::render_effect(SDL_FPoint pos,
+void EffectRenderSystem::RenderEffect(SDL_FPoint pos,
                                          GameEffect &g_effect) {
   auto current_time = Window::dt_time;
   if (current_time <= g_effect.delay) {
@@ -41,8 +41,8 @@ void EffectRenderSystem::render_effect(SDL_FPoint pos,
   auto pos2 = g_effect.pos.value();
   auto index = std::to_string(g_effect.index);
   auto texture_node = node->get_child(index);
-  auto texture = WzResource::load_texture(texture_node);
-  auto origin = WzResource::load_fpoint(texture_node->get_child(u"origin"));
+  auto texture = WzResource::LoadTexture(texture_node);
+  auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = pos.x - origin.x + pos2.x,
       .y = pos.y - origin.y + pos2.y,
@@ -57,7 +57,7 @@ void EffectRenderSystem::render_effect(SDL_FPoint pos,
   }
 }
 
-void EffectRenderSystem::render_damage(SDL_FPoint pos,
+void EffectRenderSystem::RenderDamage(SDL_FPoint pos,
                                          GameEffect &g_effect) {
   enum class DamageType {
     kN0,
@@ -112,8 +112,8 @@ void EffectRenderSystem::render_damage(SDL_FPoint pos,
   }
   for (auto n : num_str) {
     auto texture_node = node->get_child(std::string{n});
-    auto texture = WzResource::load_texture(texture_node);
-    auto origin = WzResource::load_fpoint(texture_node->get_child(u"origin"));
+    auto texture = WzResource::LoadTexture(texture_node);
+    auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
     auto x = pos.x - origin.x + w;
     auto y = pos.y - origin.y - g_effect.index * texture->h - 32 -
              (255 - g_effect.alpha) / 5;
@@ -133,9 +133,9 @@ void EffectRenderSystem::render_damage(SDL_FPoint pos,
   }
 }
 
-void EffectRenderSystem::render_ski_use(SDL_FPoint pos, GameEffect &g_effect,
+void EffectRenderSystem::RenderSkiUse(SDL_FPoint pos, GameEffect &g_effect,
                                           bool flip) {
-  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::LoadSkiNode(g_effect.id);
   if (g_effect.order.has_value()) {
     ski_node =
         ski_node->get_child("effect" + std::to_string(g_effect.order.value()));
@@ -144,8 +144,8 @@ void EffectRenderSystem::render_ski_use(SDL_FPoint pos, GameEffect &g_effect,
   }
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
-  auto texture = WzResource::load_texture(texture_node);
-  auto origin = WzResource::load_fpoint(texture_node->get_child(u"origin"));
+  auto texture = WzResource::LoadTexture(texture_node);
+  auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   auto x = pos.x;
   auto y = pos.y;
   if (g_effect.pos.has_value()) {
@@ -172,18 +172,18 @@ void EffectRenderSystem::render_ski_use(SDL_FPoint pos, GameEffect &g_effect,
   }
 }
 
-void EffectRenderSystem::render_ski_affected(SDL_FPoint pos,
+void EffectRenderSystem::RenderSkiAffected(SDL_FPoint pos,
                                                GameEffect &g_effect,
                                                bool flip) {
-  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::LoadSkiNode(g_effect.id);
   if (!ski_node->get_child(u"affected")) {
     return;
   }
   ski_node = ski_node->get_child(u"affected");
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
-  auto texture = WzResource::load_texture(texture_node);
-  auto origin = WzResource::load_fpoint(texture_node->get_child(u"origin"));
+  auto texture = WzResource::LoadTexture(texture_node);
+  auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = pos.x - origin.x,
       .y = pos.y - origin.y,
@@ -203,28 +203,28 @@ void EffectRenderSystem::render_ski_affected(SDL_FPoint pos,
   }
 }
 
-void EffectRenderSystem::render_ski_hit(SDL_FPoint pos, GameEffect &g_effect,
+void EffectRenderSystem::RenderSkiHit(SDL_FPoint pos, GameEffect &g_effect,
                                           bool flip) {
   auto now = Window::dt_time;
   if (g_effect.delay >= now) {
     return;
   }
-  auto ski_node = SkillGameInstance::load_ski_node(g_effect.id);
+  auto ski_node = SkillGameInstance::LoadSkiNode(g_effect.id);
   if (ski_node->find(u"hit/0")) {
     ski_node = ski_node->find(u"hit/0");
   } else {
     ski_node =
-        SkillGameInstance::load_ski_level_node(g_effect.id, g_effect.lv);
+        SkillGameInstance::LoadSkiLevelNode(g_effect.id, g_effect.lv);
     ski_node = ski_node->find(u"hit/0");
   }
   auto index = std::to_string(g_effect.index);
   auto texture_node = ski_node->get_child(index);
-  auto texture = WzResource::load_texture(texture_node);
+  auto texture = WzResource::LoadTexture(texture_node);
   if (texture_node->type == wz::Type::UOL) {
     texture_node =
         static_cast<wz::Property<wz::WzUOL> *>(texture_node)->get_uol();
   }
-  auto origin = WzResource::load_fpoint(texture_node->get_child(u"origin"));
+  auto origin = WzResource::LoadFpoint(texture_node->get_child(u"origin"));
   SDL_FRect pos_rect = {
       .x = pos.x - origin.x + g_effect.pos->x,
       .y = pos.y - origin.y + g_effect.pos->y,
@@ -244,26 +244,26 @@ void EffectRenderSystem::render_ski_hit(SDL_FPoint pos, GameEffect &g_effect,
   }
 }
 
-bool EffectRenderSystem::render_custom(SDL_FPoint pos, GameEffect &g_effect,
+bool EffectRenderSystem::RenderCustom(SDL_FPoint pos, GameEffect &g_effect,
                                          bool flip) {
-  auto skis = SkillGameInstance::skis();
-  if (skis.contains(g_effect.id)) {
-    return skis.at(g_effect.id).effect(pos, &g_effect, flip);
+  auto Skis = SkillGameInstance::Skis();
+  if (Skis.contains(g_effect.id)) {
+    return Skis.at(g_effect.id).effect(pos, &g_effect, flip);
   }
   return false;
 }
 
-void EffectRenderSystem::render_ski_region(GameEffect &g_effect) {
+void EffectRenderSystem::RenderSkiRegion(GameEffect &g_effect) {
   auto rski = std::any_cast<GameRegionSkill>(&g_effect.data);
   auto id = rski->id;
-  auto ski_node = SkillGameInstance::load_ski_node(id);
+  auto ski_node = SkillGameInstance::LoadSkiNode(id);
   if (ski_node->find(u"special/x")) {
     // 311002,
     auto special = ski_node->get_child(u"special");
     auto x = static_cast<wz::Property<int> *>(special->find(u"x"))->get();
     auto y = static_cast<wz::Property<int> *>(special->find(u"y"))->get();
-    auto fall = static_cast<wz::Property<int> *>(special->find(u"fall"))->get();
-    auto start =
+    auto Fall = static_cast<wz::Property<int> *>(special->find(u"fall"))->get();
+    auto Start =
         static_cast<wz::Property<int> *>(special->find(u"start"))->get();
     auto interval =
         static_cast<wz::Property<int> *>(special->find(u"interval"))->get();
@@ -276,32 +276,32 @@ void EffectRenderSystem::render_ski_region(GameEffect &g_effect) {
   return;
 }
 
-bool EffectRenderSystem::render(SDL_FPoint pos, GameEffect &g_effect,
+bool EffectRenderSystem::Render(SDL_FPoint pos, GameEffect &g_effect,
                                   bool flip) {
   bool r = true;
   switch (g_effect.type) {
   case GameEffect::EffectType::kEffect: {
-    render_effect(pos, g_effect);
+    RenderEffect(pos, g_effect);
     break;
   }
   case GameEffect::EffectType::kDamage: {
-    render_damage(pos, g_effect);
+    RenderDamage(pos, g_effect);
     break;
   }
   case GameEffect::EffectType::kSkillUse: {
-    render_ski_use(pos, g_effect, flip);
+    RenderSkiUse(pos, g_effect, flip);
     break;
   }
   case GameEffect::EffectType::kSkillAffected: {
-    render_ski_affected(pos, g_effect, flip);
+    RenderSkiAffected(pos, g_effect, flip);
     break;
   }
   case GameEffect::EffectType::kSkillHit: {
-    render_ski_hit(pos, g_effect, flip);
+    RenderSkiHit(pos, g_effect, flip);
     break;
   }
   case GameEffect::EffectType::kSkillCustom: {
-    r = render_custom(pos, g_effect, flip);
+    r = RenderCustom(pos, g_effect, flip);
     break;
   }
   default: {
@@ -312,23 +312,23 @@ bool EffectRenderSystem::render(SDL_FPoint pos, GameEffect &g_effect,
   return r;
 }
 
-bool EffectRenderSystem::render_mob_effects(GameMob &g_mob, bool front) {
+bool EffectRenderSystem::RenderMobEffects(GameMob &g_mob, bool front) {
   auto &v = g_mob.effect;
   for (auto &e : v) {
     if (e.z.has_value() && e.z.value() == front) {
-      render(g_mob.pos, e, g_mob.flip);
+      Render(g_mob.pos, e, g_mob.flip);
     }
   }
   return true;
 }
 
-bool EffectRenderSystem::render_character_effects(GameCharacter *g_character,
+bool EffectRenderSystem::RenderCharacterEffects(GameCharacter *g_character,
                                                     bool front) {
   auto &effect = g_character->effect;
   for (auto it = effect.begin(); it != effect.end();) {
     auto &e = *it;
     if (e.z.has_value() && e.z.value() == front) {
-      auto r = render(g_character->pos, e, g_character->flip);
+      auto r = Render(g_character->pos, e, g_character->flip);
       if (r == false) {
         it = effect.erase(it);
         continue;
@@ -339,9 +339,9 @@ bool EffectRenderSystem::render_character_effects(GameCharacter *g_character,
   return true;
 }
 
-bool EffectRenderSystem::render(GameEffect &g_effect) {
+bool EffectRenderSystem::Render(GameEffect &g_effect) {
   const auto &pos = g_effect.pos.value();
   const auto &flip = g_effect.flip.value();
-  EffectRenderSystem::render(pos, g_effect, flip);
+  EffectRenderSystem::Render(pos, g_effect, flip);
   return true;
 }

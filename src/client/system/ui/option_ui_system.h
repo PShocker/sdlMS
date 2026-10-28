@@ -7,23 +7,23 @@
 #include <optional>
 class OptionUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_button();
-  static void render_tab();
-  static void render_option();
+  static void RenderBackgrnd();
+  static void RenderButton();
+  static void RenderTab();
+  static void RenderOption();
 
-  static bool event_button(SDL_Event *event);
-  static void event_button_ok();
+  static bool EventButton(SDL_Event *Event);
+  static void EventButtonOk();
 
-  static void event_tab(SDL_Event *event);
+  static void EventTab(SDL_Event *Event);
 
-  static void event_top();
-  static void event_drag_start(SDL_Event *event);
-  static void event_drag_end();
-  static void event_drag_move(SDL_Event *event);
-  static void event_motion_bt_audio(SDL_Event *event);
+  static void EventTop();
+  static void EventDragStart(SDL_Event *Event);
+  static void EventDragEnd();
+  static void EventDragMove(SDL_Event *Event);
+  static void EventMotionBtAudio(SDL_Event *Event);
 
-  static SDL_FPoint load_wh();
+  static SDL_FPoint LoadWh();
 
   static inline std::optional<SDL_FPoint> drag;
 
@@ -113,12 +113,12 @@ public:
   static inline uint8_t active_tab;
 
   static inline SDL_FPoint pos;
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 
-  static bool render();
-  static bool event(SDL_Event *event);
+  static bool Render();
+  static bool Event(SDL_Event *Event);
 
-  static bool cursor_in();
-  static void toggle();
+  static bool CursorIn();
+  static void Toggle();
 };

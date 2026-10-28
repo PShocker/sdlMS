@@ -19,10 +19,10 @@
 #include <ranges>
 #include <string>
 
-bool NpcLogicSystem::run_animate(GameNpc &g_npc) {
+bool NpcLogicSystem::RunAnimate(GameNpc &g_npc) {
   bool r = false;
   g_npc.ani_time += Window::delta_time;
-  auto npc_node = NpcGameInstance::load_link_npc_node(g_npc.id);
+  auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
   auto action_node = npc_node->get_child(g_npc.action);
 
   auto texture_node = action_node->get_child(std::to_string(g_npc.ani_index));
@@ -48,11 +48,11 @@ bool NpcLogicSystem::run_animate(GameNpc &g_npc) {
   return r;
 }
 
-bool NpcLogicSystem::run_duration(GameNpc &g_npc) {
+bool NpcLogicSystem::RunDuration(GameNpc &g_npc) {
   if (g_npc.duration > Window::dt_now) {
     return false;
   }
-  auto npc_node = NpcGameInstance::load_link_npc_node(g_npc.id);
+  auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
   auto child = *npc_node->get_children();
   child.erase(u"info");
   std::uniform_int_distribution<> dis(0, child.size() - 1);
@@ -62,7 +62,7 @@ bool NpcLogicSystem::run_duration(GameNpc &g_npc) {
   auto random_key = it->first;
 
   g_npc.action = random_key;
-  auto action_type = load_action_type(g_npc);
+  auto action_type = LoadActionType(g_npc);
   if (action_type == ActionEnum::kMove) {
     std::bernoulli_distribution dist(0.5); // 50% 概率为 true
     bool random_bool = dist(gen);
@@ -78,8 +78,8 @@ bool NpcLogicSystem::run_duration(GameNpc &g_npc) {
   return true;
 }
 
-bool NpcLogicSystem::run_chatballoon(GameNpc &g_npc) {
-  auto node = NpcGameInstance::load_quest_node(g_npc);
+bool NpcLogicSystem::RunChatballoon(GameNpc &g_npc) {
+  auto node = NpcGameInstance::LoadQuestNode(g_npc);
   if (node != nullptr) {
     g_npc.chatballoon = std::nullopt;
     return true;
@@ -95,7 +95,7 @@ bool NpcLogicSystem::run_chatballoon(GameNpc &g_npc) {
     // 生成随机数
     int random_number = dist(gen);
 
-    auto npc_node = NpcGameInstance::load_link_npc_node(g_npc.id);
+    auto npc_node = NpcGameInstance::LoadLinkNpcNode(g_npc.id);
     auto npc_info = npc_node->get_child(u"info");
     std::flat_set<std::u16string> speaks;
     if (npc_info) {
@@ -138,45 +138,45 @@ bool NpcLogicSystem::run_chatballoon(GameNpc &g_npc) {
   return true;
 }
 
-bool NpcLogicSystem::run_move(GameNpc &g_npc) {
+bool NpcLogicSystem::RunMove(GameNpc &g_npc) {
   // 移动
   auto delta_time = Window::delta_time / 1000.0f;
   float vspeed = 0;
   auto border =
-      MapInfoGameInstance::load_mr_border(SceneSystemInstance::map_id);
+      MapInfoGameInstance::LoadMrBorder(SceneSystemInstance::map_id);
   border.x = g_npc.rx0;
   border.w = g_npc.rx1;
   auto force = g_npc.hforce.value();
-  auto r = Physic::walk(g_npc.pos, delta_time, g_npc.hspeed.value(), vspeed,
+  auto r = Physic::Walk(g_npc.pos, delta_time, g_npc.hspeed.value(), vspeed,
                         force, -100, 100, 800, false, g_npc.fh, border,
                         FootholdGameInstance::data);
   return r;
 }
 
 NpcLogicSystem::ActionEnum
-NpcLogicSystem::load_action_type(GameNpc &g_npc) {
+NpcLogicSystem::LoadActionType(GameNpc &g_npc) {
   if (g_npc.action == u"move") {
     return ActionEnum::kMove;
   }
   return ActionEnum::kStand;
 }
 
-bool NpcLogicSystem::run() {
+bool NpcLogicSystem::Run() {
   for (auto &m : NpcGameInstance::data) {
     for (auto &g_npc : m) {
-      run_chatballoon(g_npc);
-      auto action_type = load_action_type(g_npc);
+      RunChatballoon(g_npc);
+      auto action_type = LoadActionType(g_npc);
       switch (action_type) {
       case ActionEnum::kMove: {
-        run_move(g_npc);
+        RunMove(g_npc);
         break;
       }
       default: {
         break;
       }
       }
-      if (run_animate(g_npc)) {
-        run_duration(g_npc);
+      if (RunAnimate(g_npc)) {
+        RunDuration(g_npc);
       }
     }
   }

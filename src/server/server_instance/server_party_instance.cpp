@@ -13,7 +13,7 @@
 #include <memory>
 #include <optional>
 
-ServerParty &ServerPartyInstance::load_party(uint64_t captain_id) {
+ServerParty &ServerPartyInstance::LoadParty(uint64_t captain_id) {
   if (data.contains(captain_id)) {
     return data.at(captain_id);
   }
@@ -21,7 +21,7 @@ ServerParty &ServerPartyInstance::load_party(uint64_t captain_id) {
   return data[captain_id];
 }
 
-void ServerPartyInstance::handle_party(uint64_t client_id,
+void ServerPartyInstance::HandleParty(uint64_t client_id,
                                          ClientCharacterPartyT &r) {
   switch (r.step) {
   case 0: {
@@ -36,7 +36,7 @@ void ServerPartyInstance::handle_party(uint64_t client_id,
   }
   case 1: {
     auto captain_id = r.to_id;
-    auto party = load_party(captain_id);
+    auto party = LoadParty(captain_id);
     party.client_ids.push_back(client_id);
     ServerCharacterPartyT scp;
     scp.to_id = captain_id;
@@ -56,7 +56,7 @@ void ServerPartyInstance::handle_party(uint64_t client_id,
   return;
 }
 
-void ServerPartyInstance::handle_server_party(uint64_t client_id,
+void ServerPartyInstance::HandleServerParty(uint64_t client_id,
                                                 ServerCharacterPartyT &r) {
   switch (r.step) {
   case 0: {
@@ -64,7 +64,7 @@ void ServerPartyInstance::handle_server_party(uint64_t client_id,
       return;
     }
     // show popup tip
-    PopupTipGameInstance::add_tip(
+    PopupTipGameInstance::AddTip(
         PopupTipEnums::kParty,
         CharacterGameInstance::others[r.to_id].player_t);
     return;
@@ -76,14 +76,14 @@ void ServerPartyInstance::handle_server_party(uint64_t client_id,
     for (const auto &p : r.players) {
       pt.clients.push_back(*p);
     }
-    PartyUiSystem::open();
+    PartyUiSystem::Open();
     return;
   }
   }
 }
 
 std::optional<ServerParty>
-ServerPartyInstance::load_client_party(uint64_t client_id) {
+ServerPartyInstance::LoadClientParty(uint64_t client_id) {
   for (const auto [k, v] : data) {
     auto clients = v.client_ids;
     clients.push_back(k);

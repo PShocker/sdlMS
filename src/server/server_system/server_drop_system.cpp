@@ -7,7 +7,7 @@
 
 using namespace fbs;
 
-void ServerDropSystem::run_fade() {
+void ServerDropSystem::RunFade() {
   ServerDropFadeT sdf;
   auto &scene = ServerSceneInstance::scenes;
   for (auto [map_id, sc] : scene) {
@@ -26,7 +26,7 @@ void ServerDropSystem::run_fade() {
   return;
 }
 
-void ServerDropSystem::run_destroy() {
+void ServerDropSystem::RunDestroy() {
   auto &scene = ServerSceneInstance::scenes;
   for (auto [map_id, sc] : scene) {
     std::erase_if(sc.drops, [](const auto &pair) {
@@ -36,7 +36,7 @@ void ServerDropSystem::run_destroy() {
   }
 }
 
-void ServerDropSystem::run_delay_drops() {
+void ServerDropSystem::RunDelayDrops() {
   auto &scene = ServerSceneInstance::scenes;
   for (auto [map_id, sc] : scene) {
     auto &delay_drops = sc.delay_drops;
@@ -63,9 +63,9 @@ void ServerDropSystem::run_delay_drops() {
   }
 }
 
-bool ServerDropSystem::run() {
-  run_delay_drops();
-  run_fade();
-  run_destroy();
+bool ServerDropSystem::Run() {
+  RunDelayDrops();
+  RunFade();
+  RunDestroy();
   return true;
 }

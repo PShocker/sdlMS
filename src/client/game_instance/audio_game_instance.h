@@ -16,14 +16,14 @@ public:
 
   static inline std::vector<GameAudio> backgrnds;
   static inline std::vector<GameAudio> audios;
-  static GameAudioCache &load_cache(const std::u16string &path);
+  static GameAudioCache &LoadCache(const std::u16string &path);
 
-  static void load_audio(const std::u16string &path, uint64_t delay);
-  static void load_backgrnd_audio(const std::u16string &path);
+  static void LoadAudio(const std::u16string &path, uint64_t delay);
+  static void LoadBackgrndAudio(const std::u16string &path);
 
-  static void close_audio(const GameAudio &audio);
+  static void CloseAudio(const GameAudio &audio);
 
-  static void init();
+  static void Init();
   static inline SDL_AudioDeviceID device_id;
   static inline std::flat_map<std::u16string, GameAudioCache> cache;
 };

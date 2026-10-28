@@ -6,41 +6,41 @@
 #include <flat_map>
 #include <string>
 
-bool KeyboardInputSystem::event(SDL_Event *event) {
-  auto repeat = event->key.repeat;
-  auto scan_code = event->key.scancode;
+bool KeyboardInputSystem::Event(SDL_Event *Event) {
+  auto repeat = Event->key.repeat;
+  auto scan_code = Event->key.scancode;
   if (!KeyboardGameInstance::data.contains(scan_code)) {
     return true;
   }
   auto &g_input = KeyboardGameInstance::data.at(scan_code);
-  if (event->type == SDL_EVENT_KEY_DOWN) {
+  if (Event->type == SDL_EVENT_KEY_DOWN) {
     if (repeat == false) {
       if (g_input.type == "item") {
-        InputSystem::handle_item_input(g_input, true);
+        InputSystem::HandleItemInput(g_input, true);
       } else if (g_input.type == "ui") {
-        InputSystem::handle_ui_input(g_input);
+        InputSystem::HandleUiInput(g_input);
       } else if (g_input.type == "action") {
-        InputSystem::handle_action_input(g_input, true);
+        InputSystem::HandleActionInput(g_input, true);
       } else if (g_input.type == "skill") {
-        InputSystem::handle_skill_input(g_input, true);
+        InputSystem::HandleSkillInput(g_input, true);
       } else if (g_input.type == "face") {
-        InputSystem::handle_face_input(g_input, true);
+        InputSystem::HandleFaceInput(g_input, true);
       }
     }
-  } else if (event->type == SDL_EVENT_KEY_UP) {
+  } else if (Event->type == SDL_EVENT_KEY_UP) {
     if (g_input.type == "item") {
-      InputSystem::handle_item_input(g_input, false);
+      InputSystem::HandleItemInput(g_input, false);
     } else if (g_input.type == "action") {
-      InputSystem::handle_action_input(g_input, false);
+      InputSystem::HandleActionInput(g_input, false);
     } else if (g_input.type == "skill") {
-      InputSystem::handle_skill_input(g_input, false);
+      InputSystem::HandleSkillInput(g_input, false);
     } else if (g_input.type == "face") {
-      InputSystem::handle_face_input(g_input, false);
+      InputSystem::HandleFaceInput(g_input, false);
     }
   }
   return false;
 }
 
-void KeyboardInputSystem::reset() {
-  InputSystem::reset();
+void KeyboardInputSystem::Reset() {
+  InputSystem::Reset();
 }

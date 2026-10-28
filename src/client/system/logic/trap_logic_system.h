@@ -3,10 +3,10 @@
 #include "src/client/game/game_obj.h"
 class TrapLogicSystem {
 private:
-  static void run_move(GameObj &g_trap);
-  static bool run_attack_check(GameObj &g_trap);
-  static void run_collision();
+  static void RunMove(GameObj &g_trap);
+  static bool RunAttackCheck(GameObj &g_trap);
+  static void RunCollision();
 
 public:
-  static bool run();
+  static bool Run();
 };

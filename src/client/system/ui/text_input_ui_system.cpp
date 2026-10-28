@@ -8,14 +8,14 @@
 #include <algorithm>
 #include <optional>
 
-void TextInputUiSystem::close(TextInput &input) {
+void TextInputUiSystem::Close(TextInput &input) {
   input.active = false;
   if (input.type.test(TextInput::kIme)) {
     SDL_StopTextInput(SDL_GetKeyboardFocus());
   }
 }
 
-void TextInputUiSystem::active(TextInput &input) {
+void TextInputUiSystem::Active(TextInput &input) {
   input.active = true;
   if (input.type.test(TextInput::kIme)) {
     SDL_Window *sdl_window = SDL_GetKeyboardFocus();
@@ -24,13 +24,13 @@ void TextInputUiSystem::active(TextInput &input) {
   }
 }
 
-void TextInputUiSystem::render(TextInput &input, int x, int y) {
+void TextInputUiSystem::Render(TextInput &input, int x, int y) {
   // ============================================================
   // 1. 基础设置和坐标计算
   // ============================================================
-  Freetype::load_size(input.font_size);
+  Freetype::LoadSize(input.font_size);
 
-  const float line_height = Freetype::load_lh();
+  const float line_height = Freetype::LoadLh();
   const float rect_x = static_cast<float>(input.r.x + x);
   const float rect_y = static_cast<float>(input.r.y + y);
   const float max_width = static_cast<float>(input.r.w);
@@ -62,7 +62,7 @@ void TextInputUiSystem::render(TextInput &input, int x, int y) {
     display_text = full_text;
   } else {
     const size_t focus_pos = has_selection ? sel_start : input.cur;
-    float full_width = Freetype::load_w(full_text);
+    float full_width = Freetype::LoadW(full_text);
 
     if (full_width > max_width) {
       // 以 focus_pos 为中心，向两侧扩展
@@ -73,7 +73,7 @@ void TextInputUiSystem::render(TextInput &input, int x, int y) {
       while (left > 0) {
         size_t new_left = left - 1;
         auto test_text = full_text.substr(new_left, right - new_left);
-        if (Freetype::load_w(test_text) > max_width)
+        if (Freetype::LoadW(test_text) > max_width)
           break;
         left = new_left;
       }
@@ -82,23 +82,23 @@ void TextInputUiSystem::render(TextInput &input, int x, int y) {
       while (right < full_text.length()) {
         size_t new_right = right + 1;
         auto test_text = full_text.substr(left, new_right - left);
-        if (Freetype::load_w(test_text) > max_width)
+        if (Freetype::LoadW(test_text) > max_width)
           break;
         right = new_right;
       }
 
       // 如果仍然超出，从右侧逐步裁剪
       float current_width =
-          Freetype::load_w(full_text.substr(left, right - left));
+          Freetype::LoadW(full_text.substr(left, right - left));
       while (current_width > max_width && right > left + 1) {
         right--;
-        current_width = Freetype::load_w(full_text.substr(left, right - left));
+        current_width = Freetype::LoadW(full_text.substr(left, right - left));
       }
 
       // 如果还是超出，从左侧裁剪（极端情况）
       while (current_width > max_width && left < right - 1) {
         left++;
-        current_width = Freetype::load_w(full_text.substr(left, right - left));
+        current_width = Freetype::LoadW(full_text.substr(left, right - left));
       }
 
       display_offset = left;
@@ -130,7 +130,7 @@ void TextInputUiSystem::render(TextInput &input, int x, int y) {
         // 计算光标前文本在显示区域中的宽度
         const auto text_before_cursor_display =
             display_text.substr(0, cursor_display_pos);
-        const float cursor_x = Freetype::load_w(text_before_cursor_display);
+        const float cursor_x = Freetype::LoadW(text_before_cursor_display);
 
         // 确保光标不会超出显示区域右边界
         if (cursor_x <= max_width) {
@@ -166,9 +166,9 @@ void TextInputUiSystem::render(TextInput &input, int x, int y) {
   // ============================================================
   // 6. 文本渲染配置
   // ============================================================
-  Freetype::load_aligned(true);
-  Freetype::load_bold(false);
-  Freetype::load_color(input.font_color.r, input.font_color.g,
+  Freetype::LoadAligned(true);
+  Freetype::LoadBold(false);
+  Freetype::LoadColor(input.font_color.r, input.font_color.g,
                        input.font_color.b, input.font_color.a);
 
   // ============================================================
@@ -188,8 +188,8 @@ void TextInputUiSystem::render(TextInput &input, int x, int y) {
       const auto text_selected =
           display_text.substr(clip_start, clip_end - clip_start);
 
-      const float sel_x = Freetype::load_w(text_before_sel);
-      const float sel_width = Freetype::load_w(text_selected);
+      const float sel_x = Freetype::LoadW(text_before_sel);
+      const float sel_width = Freetype::LoadW(text_selected);
 
       SDL_FRect sel_rect = {rect_x + sel_x, rect_y + 2.0f, sel_width,
                             line_height};
@@ -215,8 +215,8 @@ void TextInputUiSystem::render(TextInput &input, int x, int y) {
     // 8.1 绘制选区前的文本
     if (clip_start > 0) {
       const auto text_before = display_text.substr(0, clip_start);
-      Freetype::draw_line(text_before, draw_x, rect_y);
-      draw_x += Freetype::load_w(text_before);
+      Freetype::DrawLine(text_before, draw_x, rect_y);
+      draw_x += Freetype::LoadW(text_before);
     }
 
     // 8.2 绘制选区文本（白色高亮）
@@ -224,38 +224,38 @@ void TextInputUiSystem::render(TextInput &input, int x, int y) {
       const auto text_selected =
           display_text.substr(clip_start, clip_end - clip_start);
       const auto old_color = input.font_color;
-      Freetype::load_color(255, 255, 255, 255);
-      Freetype::draw_line(text_selected, draw_x, rect_y);
-      draw_x += Freetype::load_w(text_selected);
-      Freetype::load_color(old_color.r, old_color.g, old_color.b, old_color.a);
+      Freetype::LoadColor(255, 255, 255, 255);
+      Freetype::DrawLine(text_selected, draw_x, rect_y);
+      draw_x += Freetype::LoadW(text_selected);
+      Freetype::LoadColor(old_color.r, old_color.g, old_color.b, old_color.a);
     }
 
     // 8.3 绘制选区后的文本
     if (clip_end < static_cast<int>(display_text.length())) {
       const auto text_after = display_text.substr(clip_end);
-      Freetype::draw_line(text_after, draw_x, rect_y);
+      Freetype::DrawLine(text_after, draw_x, rect_y);
     }
   } else {
     // 无选区，直接绘制
     if (!display_text.empty()) {
-      Freetype::draw_line(display_text, rect_x, rect_y);
+      Freetype::DrawLine(display_text, rect_x, rect_y);
     }
   }
 
   // ============================================================
   // 9. 恢复设置
   // ============================================================
-  Freetype::load_aligned(false);
-  Freetype::load_bold(false);
+  Freetype::LoadAligned(false);
+  Freetype::LoadBold(false);
 }
 
-bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
+bool TextInputUiSystem::Event(SDL_Event *Event, TextInput &input) {
   bool r = false;
-  switch (event->type) {
+  switch (Event->type) {
   case SDL_EVENT_TEXT_EDITING: {
-    auto text = event->edit.text;
+    auto text = Event->edit.text;
     if (text[0] != '\0') {
-      input.composition = TextGameInstance::load_u16str(text);
+      input.composition = TextGameInstance::LoadU16str(text);
     } else {
       input.composition = u"";
     }
@@ -265,10 +265,10 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
     if (input.text.length() >= input.max_size) {
       break;
     }
-    auto text = event->edit.text;
+    auto text = Event->edit.text;
     auto cur0 = input.text.length();
     auto str1 = input.text.substr(0, input.cur);
-    auto str2 = TextGameInstance::load_u16str(text);
+    auto str2 = TextGameInstance::LoadU16str(text);
     auto str3 = input.text.substr(input.cur);
     if (input.cur_next.has_value()) {
       auto min_index = std::min(input.cur, input.cur_next.value());
@@ -289,7 +289,7 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
     if (input.active == false) {
       break;
     }
-    auto scan_code = event->key.scancode;
+    auto scan_code = Event->key.scancode;
     switch (scan_code) {
     case SDL_SCANCODE_LEFT: {
       input.cur--;
@@ -320,7 +320,7 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
     }
     default: {
       SDL_Keycode key =
-          SDL_GetKeyFromScancode(event->key.scancode, event->key.mod, true);
+          SDL_GetKeyFromScancode(Event->key.scancode, Event->key.mod, true);
       // 过滤
       bool digit = (key >= SDLK_0 && key <= SDLK_9);
       bool letter = (key >= SDLK_A && key <= SDLK_Z);
@@ -343,30 +343,30 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
       SDL_Event e;
       e.type = SDL_EVENT_TEXT_INPUT;
       // 如果是字母且 Caps Lock 开启，手动转换
-      if ((event->key.mod & SDL_KMOD_CAPS) && (key >= 'a' && key <= 'z')) {
+      if ((Event->key.mod & SDL_KMOD_CAPS) && (key >= 'a' && key <= 'z')) {
         key -= 32; // 小写转大写
       }
       char c[2] = {0, 0};
       c[0] = key;
       e.edit.text = c;
-      TextInputUiSystem::event(&e, input);
+      TextInputUiSystem::Event(&e, input);
       break;
     }
     }
     break;
   }
   case SDL_EVENT_MOUSE_BUTTON_DOWN: {
-    if (event->button.button == SDL_BUTTON_LEFT) {
+    if (Event->button.button == SDL_BUTTON_LEFT) {
       SDL_Point p = {
           static_cast<int>(Window::mouse_pos.x),
           static_cast<int>(Window::mouse_pos.y),
       };
       input.cur_next = std::nullopt;
       if (SDL_PointInRect(&p, &input.r)) {
-        active(input);
+        Active(input);
         auto dx = p.x - input.r.x;
-        Freetype::load_size(input.font_size);
-        auto text_w = Freetype::load_w(input.text);
+        Freetype::LoadSize(input.font_size);
+        auto text_w = Freetype::LoadW(input.text);
         if (dx >= text_w) {
           input.cur = input.text.length();
           break;
@@ -374,7 +374,7 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
         auto w = 0;
         for (int i = 0; i < input.text.length(); i++) {
           auto c = input.text[i];
-          auto cw = Freetype::load_w({c});
+          auto cw = Freetype::LoadW({c});
           if (w <= dx && dx <= cw + w) {
             input.cur = i;
             break;
@@ -382,7 +382,7 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
           w += cw;
         }
       } else {
-        close(input);
+        Close(input);
         r = true;
       }
     }
@@ -392,7 +392,7 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
     break;
   }
   case SDL_EVENT_MOUSE_MOTION: {
-    if (event->motion.state & SDL_BUTTON_LMASK) {
+    if (Event->motion.state & SDL_BUTTON_LMASK) {
       if (input.active) {
         SDL_Point p = {
             static_cast<int>(Window::mouse_pos.x),
@@ -400,8 +400,8 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
         };
         if (SDL_PointInRect(&p, &input.r)) {
           auto dx = p.x - input.r.x;
-          Freetype::load_size(input.font_size);
-          auto text_w = Freetype::load_w(input.text);
+          Freetype::LoadSize(input.font_size);
+          auto text_w = Freetype::LoadW(input.text);
           if (dx >= text_w) {
             input.cur_next = input.text.length();
             break;
@@ -409,7 +409,7 @@ bool TextInputUiSystem::event(SDL_Event *event, TextInput &input) {
           auto w = 0;
           for (int i = 0; i < input.text.length(); i++) {
             auto c = input.text[i];
-            auto cw = Freetype::load_w({c});
+            auto cw = Freetype::LoadW({c});
             if (w <= dx && dx <= cw + w) {
               input.cur_next = i;
               break;

@@ -4,9 +4,9 @@
 #include <cstdint>
 class ClockUiSystem {
 private:
-  static void render_backgrnd();
-  static void render_number(uint32_t num, float x, float y);
-  static void render_time();
+  static void RenderBackgrnd();
+  static void RenderNumber(uint32_t num, float x, float y);
+  static void RenderTime();
 
 public:
   enum class ClockEnum {
@@ -17,8 +17,8 @@ public:
   static inline uint64_t destroy;
 
   static inline SDL_FPoint pos;
-  static bool render();
+  static bool Render();
 
-  static void open();
-  static void close();
+  static void Open();
+  static void Close();
 };
