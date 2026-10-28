@@ -1,4 +1,4 @@
-#include "server_reactor_system.h"
+#include "src/server/server_system/server_reactor_system.h"
 #include "src/client/window/window.h"
 #include "src/common/flatbuffers/server.h"
 #include "src/common/response/server_response.h"
@@ -6,7 +6,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_reactor_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 namespace sdlms {
 
 

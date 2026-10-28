@@ -1,5 +1,5 @@
-#include "trap_logic_system.h"
-#include "character_logic_system.h"
+#include "src/client/system/logic/trap_logic_system.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/trap_game_instance.h"
 #include "src/client/system/logic/obj_logic_system.h"

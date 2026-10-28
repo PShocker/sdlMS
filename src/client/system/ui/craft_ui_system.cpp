@@ -1,6 +1,6 @@
-#include "craft_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#include "src/client/system/ui/craft_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"

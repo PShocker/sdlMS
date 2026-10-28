@@ -1,8 +1,8 @@
-#include "tile_render_system.h"
+#include "src/client/system/render/tile_render_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 namespace sdlms {
 
 

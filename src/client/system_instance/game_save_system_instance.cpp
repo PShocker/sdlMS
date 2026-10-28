@@ -1,6 +1,6 @@
-#include "game_save_system_instance.h"
-#include "SDL3/SDL_filesystem.h"
-#include "scene_system_instance.h"
+#include "src/client/system_instance/game_save_system_instance.h"
+#include <SDL3/SDL_filesystem.h>
+#include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game/game_save.h"

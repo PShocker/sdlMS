@@ -1,5 +1,5 @@
-#include "ball_game_instance.h"
-#include "SDL3/SDL_rect.h"
+#include "src/client/game_instance/ball_game_instance.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_foothold.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"

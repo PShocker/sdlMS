@@ -1,7 +1,7 @@
-#include "server_reactor_instance.h"
-#include "SDL3/SDL_rect.h"
-#include "server_client_instance.h"
-#include "server_scene_instance.h"
+#include "src/server/server_instance/server_reactor_instance.h"
+#include <SDL3/SDL_rect.h>
+#include "src/server/server_instance/server_client_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
 #include "src/client/game/game_reactor.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/effect_game_instance.h"
@@ -11,7 +11,7 @@
 #include "src/common/response/server_response.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_drop_instance.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <cstdint>
 #include <string>
 #include <utility>

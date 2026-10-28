@@ -1,11 +1,11 @@
-#include "character_game_instance.h"
-#include "SDL3/SDL_rect.h"
-#include "equip_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
+#include <SDL3/SDL_rect.h>
+#include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
-#include "wz/Wz.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
+#include <wz/Wz.h>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>

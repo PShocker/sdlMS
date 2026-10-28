@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_SERVER_SERVER_MAIN_H_
+#define SDLMS_SRC_SERVER_SERVER_MAIN_H_
 
-#include "uv.h"
+#include <uv.h>
 #include <cstdint>
 #include <string>
 namespace sdlms {
@@ -34,3 +35,5 @@ private:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_SERVER_SERVER_MAIN_H_

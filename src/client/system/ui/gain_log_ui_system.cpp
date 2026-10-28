@@ -1,4 +1,4 @@
-#include "gain_log_ui_system.h"
+#include "src/client/system/ui/gain_log_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/gain_log_game_instance.h"

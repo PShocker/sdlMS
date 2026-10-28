@@ -1,6 +1,7 @@
-#pragma once
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#ifndef SDLMS_SRC_COMMON_WZ_WZ_RESOURCE_H_
+#define SDLMS_SRC_COMMON_WZ_WZ_RESOURCE_H_
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <any>
 #include <cstdint>
 #include <flat_map>
@@ -48,3 +49,5 @@ private:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_COMMON_WZ_WZ_RESOURCE_H_

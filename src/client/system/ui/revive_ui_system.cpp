@@ -1,4 +1,4 @@
-#include "revive_ui_system.h"
+#include "src/client/system/ui/revive_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"

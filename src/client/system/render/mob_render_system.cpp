@@ -1,15 +1,14 @@
-#include "mob_render_system.h"
-#include "debuff_render_system.h"
-#include "gauge_render_system.h"
+#include "src/client/system/render/mob_render_system.h"
+#include "src/client/system/render/debuff_render_system.h"
+#include "src/client/system/render/gauge_render_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/system/logic/mob_logic_system.h"
-#include "src/client/system/render/debuff_render_system.h"
 #include "src/client/system/render/effect_render_system.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <algorithm>
 #include <string>
 namespace sdlms {

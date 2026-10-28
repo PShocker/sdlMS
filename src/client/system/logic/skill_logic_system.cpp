@@ -1,4 +1,4 @@
-#include "skill_logic_system.h"
+#include "src/client/system/logic/skill_logic_system.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include <functional>

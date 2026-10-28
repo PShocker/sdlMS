@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_SYSTEM_H_
 
-#include "SDL3/SDL_events.h"
+#include <SDL3/SDL_events.h>
 #include <functional>
 #include <vector>
 namespace sdlms {
@@ -13,3 +14,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_SYSTEM_H_

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_GAIN_LOG_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_GAIN_LOG_H_
 
 #include <cstdint>
 #include <string>
@@ -16,3 +17,5 @@ struct GameGainLog{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_GAIN_LOG_H_

@@ -1,8 +1,9 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_CHATBALLOON_RENDER_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_CHATBALLOON_RENDER_SYSTEM_H_
 
-#include "SDL3/SDL_pixels.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include "src/client/game/game_chatballoon.h"
 #include <flat_map>
 #include <optional>
@@ -26,3 +27,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_CHATBALLOON_RENDER_SYSTEM_H_

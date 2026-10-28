@@ -1,8 +1,8 @@
-#include "../script.h"
+#include "src/common/script/script.h"
 #include "src/client/system/ui/npc_dlg_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 namespace sdlms {
 
 

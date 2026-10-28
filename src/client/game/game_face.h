@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_FACE_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_FACE_H_
 
 #include <cstdint>
 #include <string>
@@ -14,3 +15,5 @@ struct GameFace{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_FACE_H_

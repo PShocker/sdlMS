@@ -1,7 +1,7 @@
-#include "ladderrope_game_instance.h"
+#include "src/client/game_instance/ladderrope_game_instance.h"
 #include "src/client/game/game_ladderrope.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 namespace sdlms {
 
 

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_GAUGE_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_GAUGE_H_
 
 #include <cstdint>
 namespace sdlms {
@@ -9,3 +10,5 @@ struct GameGauge{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_GAUGE_H_

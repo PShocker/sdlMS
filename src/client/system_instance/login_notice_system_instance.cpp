@@ -1,4 +1,4 @@
-#include "login_notice_system_instance.h"
+#include "src/client/system_instance/login_notice_system_instance.h"
 #include "src/client/system/system.h"
 #include "src/client/system/ui/login_notice_ui_system.h"
 namespace sdlms {

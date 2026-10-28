@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_SHADER_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_SHADER_GAME_INSTANCE_H_
 
-#include "SDL3/SDL_render.h"
+#include <SDL3/SDL_render.h>
 #include <flat_map>
 #include <vector>
 namespace sdlms {
@@ -18,3 +19,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_SHADER_GAME_INSTANCE_H_

@@ -1,7 +1,8 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_NPC_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_NPC_H_
 
-#include "SDL3/SDL_rect.h"
-#include "game_chatballoon.h"
+#include <SDL3/SDL_rect.h>
+#include "src/client/game/game_chatballoon.h"
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -31,3 +32,5 @@ struct GameNpc{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_NPC_H_

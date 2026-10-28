@@ -1,11 +1,11 @@
-#include "reactor_logic_system.h"
+#include "src/client/system/logic/reactor_logic_system.h"
 #include "src/client/game/game_reactor.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_reactor_instance.h"
-#include "wz/Property.h"
-#include "wz/Wz.h"
+#include <wz/Property.h>
+#include <wz/Wz.h>
 #include <ranges>
 #include <string>
 namespace sdlms {

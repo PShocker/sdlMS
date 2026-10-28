@@ -1,8 +1,8 @@
-#include "game_instance/character_game_instance.h"
-#include "game_instance/character_stat_game_instance.h"
-#include "game_instance/keyboard_game_instance.h"
-#include "game_instance/quest_game_instance.h"
-#include "game_instance/shader_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/keyboard_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
+#include "src/client/game_instance/shader_game_instance.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -11,10 +11,10 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
 #include "src/server/server_system/server_system.h"
-#include "system_instance/game_save_system_instance.h"
-#include "system_instance/login_system_instance.h"
-#include "system_instance/scene_system_instance.h"
-#include "window/window.h"
+#include "src/client/system_instance/game_save_system_instance.h"
+#include "src/client/system_instance/login_system_instance.h"
+#include "src/client/system_instance/scene_system_instance.h"
+#include "src/client/window/window.h"
 #include <cstdint>
 
 #define SDL_MAIN_USE_CALLBACKS

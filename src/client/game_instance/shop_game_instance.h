@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_SHOP_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_SHOP_GAME_INSTANCE_H_
 #include "src/client/game/game_shop.h"
 #include <cstdint>
 #include <optional>
@@ -19,3 +20,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_SHOP_GAME_INSTANCE_H_

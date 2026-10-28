@@ -1,9 +1,9 @@
-#include "audio_game_instance.h"
-#include "SDL3/SDL_audio.h"
+#include "src/client/game_instance/audio_game_instance.h"
+#include <SDL3/SDL_audio.h>
 #include "src/client/game/game_audio.h"
 #include "src/common/ffmpeg/ffmpeg.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <cstddef>
 namespace sdlms {
 

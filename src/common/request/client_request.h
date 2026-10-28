@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_COMMON_REQUEST_CLIENT_REQUEST_H_
+#define SDLMS_SRC_COMMON_REQUEST_CLIENT_REQUEST_H_
 
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/protocol.h"
@@ -30,3 +31,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_COMMON_REQUEST_CLIENT_REQUEST_H_

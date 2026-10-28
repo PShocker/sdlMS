@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_TEXT_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_TEXT_GAME_INSTANCE_H_
 
-#include "wz/Node.h"
+#include <wz/Node.h>
 #include <string>
 namespace sdlms {
 
@@ -18,3 +19,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_TEXT_GAME_INSTANCE_H_

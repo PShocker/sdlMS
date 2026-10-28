@@ -1,5 +1,5 @@
-#include "server_region_skill_instance.h"
-#include "server_scene_instance.h"
+#include "src/server/server_instance/server_region_skill_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_region_skill.h"
 #include "src/client/game_instance/effect_game_instance.h"

@@ -1,13 +1,13 @@
-#include "text_game_instance.h"
-#include "SDL3/SDL_stdinc.h"
+#include "src/client/game_instance/text_game_instance.h"
+#include <SDL3/SDL_stdinc.h>
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/mob_game_instance.h"
 #include "src/client/game_instance/npc_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/ui/minimap_ui_system.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
 #include <cstddef>
 #include <cstring>
 #include <flat_map>

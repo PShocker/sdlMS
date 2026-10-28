@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_REACTOR_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_REACTOR_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include <cstdint>
 #include <string>
 namespace sdlms {
@@ -21,3 +22,5 @@ struct GameReactor{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_REACTOR_H_

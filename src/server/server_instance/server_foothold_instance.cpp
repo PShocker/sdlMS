@@ -1,4 +1,4 @@
-#include "server_foothold_instance.h"
+#include "src/server/server_instance/server_foothold_instance.h"
 #include "src/client/game_instance/foothold_game_instance.h"
 #include "src/server/server/server_foothold.h"
 namespace sdlms {

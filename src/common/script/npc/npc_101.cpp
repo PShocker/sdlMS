@@ -1,4 +1,4 @@
-#include "../script.h"
+#include "src/common/script/script.h"
 namespace sdlms {
 
 

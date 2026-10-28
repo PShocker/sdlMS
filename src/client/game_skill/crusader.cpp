@@ -1,6 +1,6 @@
 
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include "src/client/game/game_ball.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"

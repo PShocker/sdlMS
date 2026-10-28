@@ -1,6 +1,6 @@
-#include "tooltip_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
@@ -12,8 +12,8 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
 #include <algorithm>
 #include <cstdint>
 #include <optional>

@@ -1,8 +1,9 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_TRAP_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_TRAP_GAME_INSTANCE_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_obj.h"
-#include "wz/Node.h"
+#include <wz/Node.h>
 #include <array>
 #include <cstdint>
 #include <flat_map>
@@ -23,3 +24,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_TRAP_GAME_INSTANCE_H_

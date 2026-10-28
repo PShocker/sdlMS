@@ -1,5 +1,5 @@
-#include "cursor_render_system.h"
-#include "SDL3/SDL_render.h"
+#include "src/client/system/render/cursor_render_system.h"
+#include <SDL3/SDL_render.h>
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -13,7 +13,7 @@
 #include "src/client/system/ui/quick_slot_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <string>
 namespace sdlms {
 

@@ -1,8 +1,8 @@
-#include "worldmap_ui_system.h"
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_rect.h"
-#include "minimap_ui_system.h"
-#include "notice_ui_system.h"
+#include "src/client/system/ui/worldmap_ui_system.h"
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
+#include "src/client/system/ui/minimap_ui_system.h"
+#include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -11,8 +11,8 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "tooltip_ui_system.h"
-#include "wz/Property.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
+#include <wz/Property.h>
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>

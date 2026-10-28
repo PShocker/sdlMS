@@ -1,5 +1,5 @@
-#include "server_client_instance.h"
-#include "server_scene_instance.h"
+#include "src/server/server_instance/server_client_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
 #include <ranges>
 namespace sdlms {
 

@@ -1,6 +1,6 @@
-#include "character_logic_system.h"
-#include "SDL3/SDL_rect.h"
-#include "cursor_logic_system.h"
+#include "src/client/system/logic/character_logic_system.h"
+#include <SDL3/SDL_rect.h>
+#include "src/client/system/logic/cursor_logic_system.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_tomb.h"
 #include "src/client/game_instance/afterimage_game_instance.h"
@@ -36,7 +36,7 @@
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_ball_instance.h"
 #include "src/server/server_instance/server_character_instance.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>

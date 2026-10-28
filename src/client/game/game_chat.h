@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_CHAT_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_CHAT_H_
 #include <cstdint>
 #include <string>
 namespace sdlms {
@@ -17,3 +18,5 @@ struct GameChat {
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_CHAT_H_

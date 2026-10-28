@@ -1,5 +1,5 @@
-#include "server_party_instance.h"
-#include "server_client_instance.h"
+#include "src/server/server_instance/server_party_instance.h"
+#include "src/server/server_instance/server_client_instance.h"
 #include "src/client/game/game_party.h"
 #include "src/client/game/game_popup_tip.h"
 #include "src/client/game_instance/character_game_instance.h"

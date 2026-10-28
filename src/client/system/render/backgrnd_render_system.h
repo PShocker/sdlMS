@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_RENDER_BACKGRND_RENDER_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_RENDER_BACKGRND_RENDER_SYSTEM_H_
 
 #include "src/client/game/game_backgrnd.h"
 namespace sdlms {
@@ -9,3 +10,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_RENDER_BACKGRND_RENDER_SYSTEM_H_

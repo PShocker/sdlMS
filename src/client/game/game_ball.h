@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_BALL_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_BALL_H_
 
 #include <SDL3/SDL.h>
 #include <cstdint>
@@ -24,3 +25,5 @@ struct GameBall{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_BALL_H_

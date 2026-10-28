@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_WINDOW_WINDOW_H_
+#define SDLMS_SRC_CLIENT_WINDOW_WINDOW_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include <SDL3/SDL.h>
 #include <cstdint>
 namespace sdlms {
@@ -36,3 +37,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_WINDOW_WINDOW_H_

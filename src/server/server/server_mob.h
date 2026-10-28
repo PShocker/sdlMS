@@ -1,7 +1,8 @@
-#pragma once
+#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_MOB_H_
+#define SDLMS_SRC_SERVER_SERVER_SERVER_MOB_H_
 
-#include "SDL3/SDL_rect.h"
-#include "server_debuff.h"
+#include <SDL3/SDL_rect.h>
+#include "src/server/server/server_debuff.h"
 #include "src/common/flatbuffers/common.h"
 #include <cstdint>
 #include <flat_map>
@@ -62,3 +63,5 @@ struct ServerMob{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_MOB_H_

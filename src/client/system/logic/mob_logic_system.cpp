@@ -1,5 +1,5 @@
-#include "mob_logic_system.h"
-#include "character_logic_system.h"
+#include "src/client/system/logic/mob_logic_system.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_mob.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -13,8 +13,8 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_mob_instance.h"
-#include "wz/Property.h"
-#include "wz/Wz.h"
+#include <wz/Property.h>
+#include <wz/Wz.h>
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>

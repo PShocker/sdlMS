@@ -1,9 +1,9 @@
-#include "shop_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
-#include "notice_ui_system.h"
-#include "package_ui_system.h"
-#include "scroll_ui_system.h"
+#include "src/client/system/ui/shop_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include "src/client/system/ui/notice_ui_system.h"
+#include "src/client/system/ui/package_ui_system.h"
+#include "src/client/system/ui/scroll_ui_system.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
@@ -24,8 +24,8 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
-#include "tooltip_ui_system.h"
-#include "wz/Property.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
+#include <wz/Property.h>
 #include <algorithm>
 #include <optional>
 #include <string>

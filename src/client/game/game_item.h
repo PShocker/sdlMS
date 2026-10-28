@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_ITEM_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_ITEM_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_scroll.h"
 #include <cstdint>
 #include <string>
@@ -50,3 +51,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_ITEM_H_

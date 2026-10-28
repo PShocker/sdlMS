@@ -1,10 +1,11 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_MOB_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_MOB_GAME_INSTANCE_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_mob.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"
-#include "wz/Node.h"
+#include <wz/Node.h>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>
@@ -32,3 +33,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_MOB_GAME_INSTANCE_H_

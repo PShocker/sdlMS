@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_NOTICE_SYSTEM_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_NOTICE_SYSTEM_INSTANCE_H_
 
 #include <cstdint>
 namespace sdlms {
@@ -18,3 +19,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_NOTICE_SYSTEM_INSTANCE_H_

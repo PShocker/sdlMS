@@ -1,5 +1,5 @@
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game/game_triangle.h"

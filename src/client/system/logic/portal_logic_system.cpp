@@ -1,4 +1,4 @@
-#include "portal_logic_system.h"
+#include "src/client/system/logic/portal_logic_system.h"
 #include "src/client/game_instance/portal_game_instance.h"
 #include "src/client/window/window.h"
 #include <ranges>

@@ -1,11 +1,12 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_STATUSBAR_UI_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_UI_STATUSBAR_UI_SYSTEM_H_
 
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_chat.h"
 #include "src/client/game/game_popup_tip.h"
 #include "src/common/flatbuffers/server.h"
-#include "text_input_ui_system.h"
+#include "src/client/system/ui/text_input_ui_system.h"
 #include <cstdint>
 #include <flat_map>
 #include <optional>
@@ -57,3 +58,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_STATUSBAR_UI_SYSTEM_H_

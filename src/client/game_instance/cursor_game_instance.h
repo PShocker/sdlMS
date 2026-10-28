@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_CURSOR_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_CURSOR_GAME_INSTANCE_H_
 
 #include "src/common/flatbuffers/common.h"
 #include <cstdint>
@@ -84,3 +85,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_CURSOR_GAME_INSTANCE_H_

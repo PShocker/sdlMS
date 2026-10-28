@@ -1,7 +1,7 @@
-#include "quest_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
-#include "scroll_ui_system.h"
+#include "src/client/system/ui/quest_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include "src/client/system/ui/scroll_ui_system.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -20,9 +20,9 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
-#include "tooltip_ui_system.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
+#include "src/client/system/ui/tooltip_ui_system.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
 #include <algorithm>
 #include <cstdint>
 #include <cstdlib>

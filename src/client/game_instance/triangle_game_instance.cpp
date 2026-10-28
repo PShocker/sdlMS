@@ -1,4 +1,4 @@
-#include "triangle_game_instance.h"
+#include "src/client/game_instance/triangle_game_instance.h"
 #include "src/client/game/game_triangle.h"
 namespace sdlms {
 

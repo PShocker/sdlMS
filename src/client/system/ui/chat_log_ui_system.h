@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_CHAT_LOG_UI_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_UI_CHAT_LOG_UI_SYSTEM_H_
 
-#include "SDL3/SDL_events.h"
+#include <SDL3/SDL_events.h>
 namespace sdlms {
 
 class ChatLogUiSystem {
@@ -27,3 +28,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_CHAT_LOG_UI_SYSTEM_H_

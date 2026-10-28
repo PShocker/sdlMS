@@ -1,4 +1,4 @@
-#include "input_system.h"
+#include "src/client/system/input/input_system.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system/ui/character_info_ui_system.h"
 #include "src/client/system/ui/character_stat_ui_system.h"

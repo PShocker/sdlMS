@@ -1,7 +1,7 @@
-#include "tile_game_instance.h"
+#include "src/client/game_instance/tile_game_instance.h"
 #include "src/client/game/game_tile.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <string>
 namespace sdlms {
 

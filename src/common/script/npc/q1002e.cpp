@@ -1,4 +1,4 @@
-#include "../script.h"
+#include "src/common/script/script.h"
 #include "src/client/game/game_item.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/game_instance/quest_game_instance.h"
@@ -7,7 +7,7 @@
 #include "src/client/system/ui/package_ui_system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 namespace sdlms {
 
 // roger apple

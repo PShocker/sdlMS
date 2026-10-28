@@ -1,7 +1,7 @@
-#include "text_input_ui_system.h"
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_scancode.h"
+#include "src/client/system/ui/text_input_ui_system.h"
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_scancode.h>
 #include "src/client/game_instance/text_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"

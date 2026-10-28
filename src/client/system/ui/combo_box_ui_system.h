@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_COMBO_BOX_UI_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_UI_COMBO_BOX_UI_SYSTEM_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/window/window.h"
 #include <cstdint>
 #include <optional>
@@ -24,3 +25,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_COMBO_BOX_UI_SYSTEM_H_

@@ -1,7 +1,7 @@
-#include "character_create_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
-#include "login_ui_system.h"
+#include "src/client/system/ui/character_create_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include "src/client/system/ui/login_ui_system.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_save.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -23,8 +23,7 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
-#include "text_input_ui_system.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <cmath>
 #include <cstdint>
 #include <optional>

@@ -1,4 +1,4 @@
-#include "popup_tip_game_instance.h"
+#include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/game/game_popup_tip.h"
 namespace sdlms {
 

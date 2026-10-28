@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_COMMON_RESPONSE_SERVER_RESPONSE_H_
+#define SDLMS_SRC_COMMON_RESPONSE_SERVER_RESPONSE_H_
 
 #include "src/common/flatbuffers/protocol.h"
 #include "src/common/flatbuffers/server.h"
@@ -30,3 +31,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_COMMON_RESPONSE_SERVER_RESPONSE_H_

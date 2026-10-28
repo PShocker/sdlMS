@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_DROP_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_DROP_GAME_INSTANCE_H_
 
 #include "src/client/game/game_drop.h"
 #include "src/common/flatbuffers/common.h"
@@ -18,3 +19,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_DROP_GAME_INSTANCE_H_

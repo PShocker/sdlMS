@@ -1,5 +1,6 @@
-#pragma once
-#include "SDL3/SDL_audio.h"
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_PACKAGE_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_PACKAGE_GAME_INSTANCE_H_
+#include <SDL3/SDL_audio.h>
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_save.h"
 #include <array>
@@ -31,3 +32,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_PACKAGE_GAME_INSTANCE_H_

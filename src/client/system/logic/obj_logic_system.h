@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_LOGIC_OBJ_LOGIC_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_OBJ_LOGIC_SYSTEM_H_
 
 #include "src/client/game/game_obj.h"
 namespace sdlms {
@@ -11,3 +12,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_LOGIC_OBJ_LOGIC_SYSTEM_H_

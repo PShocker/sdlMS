@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_JOB_SKILL_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_JOB_SKILL_GAME_INSTANCE_H_
 
 #include "src/client/game/game_save.h"
 #include <cstdint>
@@ -43,3 +44,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_JOB_SKILL_GAME_INSTANCE_H_

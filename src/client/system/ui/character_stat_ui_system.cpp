@@ -1,6 +1,6 @@
-#include "character_stat_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "notice_ui_system.h"
+#include "src/client/system/ui/character_stat_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include "src/client/system/ui/notice_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"

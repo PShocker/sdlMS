@@ -1,9 +1,9 @@
-#include "character_choose_ui_system.h"
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
-#include "login_notice_ui_system.h"
-#include "login_ui_system.h"
+#include "src/client/system/ui/character_choose_ui_system.h"
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include "src/client/system/ui/login_notice_ui_system.h"
+#include "src/client/system/ui/login_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -24,7 +24,7 @@
 #include "src/client/window/window.h"
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
-#include "uv.h"
+#include <uv.h>
 #include <array>
 #include <cmath>
 #include <cstdint>

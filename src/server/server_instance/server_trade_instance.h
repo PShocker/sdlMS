@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_TRADE_INSTANCE_H_
+#define SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_TRADE_INSTANCE_H_
 
 #include "src/common/flatbuffers/client.h"
 #include "src/common/flatbuffers/server.h"
@@ -12,3 +13,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_TRADE_INSTANCE_H_

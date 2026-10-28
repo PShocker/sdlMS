@@ -1,4 +1,4 @@
-#include "party_ui_system.h"
+#include "src/client/system/ui/party_ui_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
 #include "src/client/game_instance/party_game_instance.h"
@@ -6,7 +6,7 @@
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <algorithm>
 namespace sdlms {
 

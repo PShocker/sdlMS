@@ -1,9 +1,10 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_AFTERIMAGE_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_AFTERIMAGE_GAME_INSTANCE_H_
 
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include "src/client/game/game_character.h"
-#include "wz/Node.h"
+#include <wz/Node.h>
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -29,3 +30,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_AFTERIMAGE_GAME_INSTANCE_H_

@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_TOOLTIP_UI_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_UI_TOOLTIP_UI_SYSTEM_H_
 
-#include "SDL3/SDL_events.h"
+#include <SDL3/SDL_events.h>
 #include "src/client/game/game_item.h"
 #include <cstdint>
 #include <string>
@@ -40,3 +41,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_TOOLTIP_UI_SYSTEM_H_

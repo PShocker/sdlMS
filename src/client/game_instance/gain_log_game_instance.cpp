@@ -1,4 +1,4 @@
-#include "gain_log_game_instance.h"
+#include "src/client/game_instance/gain_log_game_instance.h"
 #include "src/client/window/window.h"
 namespace sdlms {
 

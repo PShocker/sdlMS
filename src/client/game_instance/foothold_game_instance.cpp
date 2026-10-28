@@ -1,6 +1,6 @@
-#include "foothold_game_instance.h"
+#include "src/client/game_instance/foothold_game_instance.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <vector>
 namespace sdlms {
 

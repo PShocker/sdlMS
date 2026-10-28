@@ -1,6 +1,6 @@
-#include "drop_render_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#include "src/client/system/render/drop_render_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/equip_game_instance.h"
 #include "src/client/game_instance/item_game_instance.h"

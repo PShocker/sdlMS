@@ -1,5 +1,5 @@
-#include "camera_game_instance.h"
-#include "character_game_instance.h"
+#include "src/client/game_instance/camera_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 namespace sdlms {
 
 

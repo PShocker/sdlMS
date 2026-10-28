@@ -1,14 +1,15 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_CHARACTER_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_CHARACTER_H_
 
-#include "SDL3/SDL_pixels.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
-#include "game_chair.h"
-#include "game_chatballoon.h"
-#include "game_debuff.h"
-#include "game_face.h"
-#include "game_item.h"
-#include "game_tomb.h"
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include "src/client/game/game_chair.h"
+#include "src/client/game/game_chatballoon.h"
+#include "src/client/game/game_debuff.h"
+#include "src/client/game/game_face.h"
+#include "src/client/game/game_item.h"
+#include "src/client/game/game_tomb.h"
 #include "src/client/game/game_effect.h"
 #include <cstdint>
 #include <flat_map>
@@ -99,3 +100,5 @@ struct GameCharacter{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_CHARACTER_H_

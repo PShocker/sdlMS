@@ -1,7 +1,8 @@
-#pragma once
-#include "SDL3/SDL_pixels.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#ifndef SDLMS_SRC_COMMON_FREETYPE_FREETYPE_H_
+#define SDLMS_SRC_COMMON_FREETYPE_FREETYPE_H_
+#include <SDL3/SDL_pixels.h>
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include <cstdint>
 #include <flat_map>
 #include <ft2build.h>
@@ -78,3 +79,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_COMMON_FREETYPE_FREETYPE_H_

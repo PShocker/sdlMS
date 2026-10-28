@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_SHOP_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_SHOP_H_
 
 #include "src/client/game/game_item.h"
 #include <memory>
@@ -17,3 +18,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_SHOP_H_

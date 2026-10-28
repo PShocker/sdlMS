@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_AUDIO_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_AUDIO_H_
 
-#include "SDL3/SDL_audio.h"
+#include <SDL3/SDL_audio.h>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -21,3 +22,5 @@ struct GameAudio{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_AUDIO_H_

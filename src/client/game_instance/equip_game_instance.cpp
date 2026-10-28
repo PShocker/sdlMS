@@ -1,6 +1,6 @@
-#include "equip_game_instance.h"
-#include "character_game_instance.h"
-#include "item_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/character_stat_game_instance.h"
 #include "src/client/game_instance/job_skill_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
@@ -11,7 +11,7 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_character_instance.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>

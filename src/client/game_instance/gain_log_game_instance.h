@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_GAIN_LOG_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_GAIN_LOG_GAME_INSTANCE_H_
 
 #include "src/client/game/game_gain_log.h"
 #include <cstdint>
@@ -14,3 +15,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_GAIN_LOG_GAME_INSTANCE_H_

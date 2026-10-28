@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_AUDIO_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_AUDIO_GAME_INSTANCE_H_
 
-#include "SDL3/SDL_audio.h"
+#include <SDL3/SDL_audio.h>
 #include "src/client/game/game_audio.h"
 #include <cstdint>
 #include <flat_map>
@@ -31,3 +32,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_AUDIO_GAME_INSTANCE_H_

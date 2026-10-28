@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_LADDERROPE_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_LADDERROPE_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include <cstdint>
 namespace sdlms {
 
@@ -19,3 +20,5 @@ struct GameLadderrope{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_LADDERROPE_H_

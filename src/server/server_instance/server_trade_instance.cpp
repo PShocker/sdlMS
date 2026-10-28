@@ -1,5 +1,5 @@
-#include "server_trade_instance.h"
-#include "server_client_instance.h"
+#include "src/server/server_instance/server_trade_instance.h"
+#include "src/server/server_instance/server_client_instance.h"
 #include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/system/ui/trade_ui_system.h"
 #include "src/common/flatbuffers/common.h"

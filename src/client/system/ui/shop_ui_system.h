@@ -1,7 +1,8 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_SHOP_UI_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_UI_SHOP_UI_SYSTEM_H_
 
-#include "SDL3/SDL_events.h"
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_item.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_shop.h"
@@ -71,3 +72,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_SHOP_UI_SYSTEM_H_

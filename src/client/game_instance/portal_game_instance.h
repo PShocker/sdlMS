@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_PORTAL_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_PORTAL_GAME_INSTANCE_H_
 
 #include "src/client/game/game_portal.h"
 #include <cstdint>
@@ -15,3 +16,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_PORTAL_GAME_INSTANCE_H_

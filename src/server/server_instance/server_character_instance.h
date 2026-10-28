@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_CHARACTER_INSTANCE_H_
+#define SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_CHARACTER_INSTANCE_H_
 
 #include "src/client/game/game_character.h"
 #include "src/common/flatbuffers/client.h"
@@ -69,3 +70,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_CHARACTER_INSTANCE_H_

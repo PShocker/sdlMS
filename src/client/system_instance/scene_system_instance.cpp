@@ -1,5 +1,5 @@
-#include "scene_system_instance.h"
-#include "cash_shop_system_instance.h"
+#include "src/client/system_instance/scene_system_instance.h"
+#include "src/client/system_instance/cash_shop_system_instance.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_mob.h"

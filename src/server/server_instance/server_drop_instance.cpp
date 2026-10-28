@@ -1,5 +1,5 @@
-#include "server_drop_instance.h"
-#include "server_scene_instance.h"
+#include "src/server/server_instance/server_drop_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_gain_log.h"
 #include "src/client/game_instance/audio_game_instance.h"

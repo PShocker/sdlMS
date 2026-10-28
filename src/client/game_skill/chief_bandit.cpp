@@ -1,5 +1,5 @@
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_drop.h"
 #include "src/client/game/game_skill.h"
 #include "src/client/game_instance/character_game_instance.h"

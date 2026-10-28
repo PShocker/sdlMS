@@ -1,5 +1,5 @@
-#include "window.h"
-#include "SDL3/SDL_render.h"
+#include "src/client/window/window.h"
+#include <SDL3/SDL_render.h>
 #include "src/server/server_main.h"
 #include <chrono>
 #include <cstdint>

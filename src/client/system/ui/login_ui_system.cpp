@@ -1,7 +1,7 @@
-#include "login_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
-#include "login_notice_ui_system.h"
+#include "src/client/system/ui/login_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include "src/client/system/ui/login_notice_ui_system.h"
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/trap_game_instance.h"
@@ -14,8 +14,8 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_main.h"
-#include "text_input_ui_system.h"
-#include "wz/Property.h"
+#include "src/client/system/ui/text_input_ui_system.h"
+#include <wz/Property.h>
 #include <assert.h>
 #include <cmath>
 #include <cstdint>

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_SYSTEM_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_SYSTEM_INSTANCE_H_
 namespace sdlms {
 class LoginSystemInstance {
 public:
@@ -8,3 +9,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_LOGIN_SYSTEM_INSTANCE_H_

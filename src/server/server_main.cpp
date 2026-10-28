@@ -1,7 +1,7 @@
-#include "server_main.h"
-#include "SDL3/SDL_timer.h"
-#include "request_handler.h"
-#include "server_system_instance/server_system_instance.h"
+#include "src/server/server_main.h"
+#include <SDL3/SDL_timer.h>
+#include "src/server/request_handler.h"
+#include "src/server/server_system_instance/server_system_instance.h"
 #include "src/common/request/client_request.h"
 #include <cstdint>
 #include <ctime>

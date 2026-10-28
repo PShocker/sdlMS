@@ -1,5 +1,5 @@
-#include "job_skill_game_instance.h"
-#include "character_game_instance.h"
+#include "src/client/game_instance/job_skill_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/common/wz/wz_resource.h"
 #include <cstdint>

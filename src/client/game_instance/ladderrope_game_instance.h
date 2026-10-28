@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_LADDERROPE_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_LADDERROPE_GAME_INSTANCE_H_
 
 #include "src/client/game/game_ladderrope.h"
 #include <flat_map>
@@ -12,3 +13,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_LADDERROPE_GAME_INSTANCE_H_

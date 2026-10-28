@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_MOB_SYSTEM_H_
+#define SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_MOB_SYSTEM_H_
 
 #include "src/client/game/game_foothold.h"
 #include "src/common/flatbuffers/server.h"
@@ -53,3 +54,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_SERVER_SERVER_SYSTEM_SERVER_MOB_SYSTEM_H_

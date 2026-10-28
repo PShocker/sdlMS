@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_PET_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_PET_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_character.h"
 #include <string>
 namespace sdlms {
@@ -22,3 +23,5 @@ struct GamePet{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_PET_H_

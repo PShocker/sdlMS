@@ -1,7 +1,8 @@
-#pragma once
+#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_CLIENT_H_
+#define SDLMS_SRC_SERVER_SERVER_SERVER_CLIENT_H_
 
 #include "src/common/flatbuffers/common.h"
-#include "uv.h"
+#include <uv.h>
 #include <cstdint>
 namespace sdlms {
 
@@ -16,3 +17,5 @@ struct ServerClient{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_CLIENT_H_

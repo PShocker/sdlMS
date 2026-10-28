@@ -1,9 +1,10 @@
-#pragma once
+#ifndef SDLMS_SRC_SERVER_SERVER_SERVER_SCENE_H_
+#define SDLMS_SRC_SERVER_SERVER_SERVER_SCENE_H_
 
-#include "server_client.h"
-#include "server_mob.h"
-#include "server_reactor.h"
-#include "server_region_skill.h"
+#include "src/server/server/server_client.h"
+#include "src/server/server/server_mob.h"
+#include "src/server/server/server_reactor.h"
+#include "src/server/server/server_region_skill.h"
 #include "src/server/server/server_drop.h"
 #include "src/server/server/server_foothold.h"
 #include <cstdint>
@@ -28,3 +29,5 @@ struct ServerSceneState{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_SERVER_SERVER_SERVER_SCENE_H_

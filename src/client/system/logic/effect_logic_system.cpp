@@ -1,5 +1,5 @@
-#include "effect_logic_system.h"
-#include "character_logic_system.h"
+#include "src/client/system/logic/effect_logic_system.h"
+#include "src/client/system/logic/character_logic_system.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_region_skill.h"
 #include "src/client/game_instance/character_game_instance.h"
@@ -8,8 +8,8 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
 #include <cstdint>
 #include <ranges>
 #include <string>

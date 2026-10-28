@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_HEARTBEAT_INSTANCE_H_
+#define SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_HEARTBEAT_INSTANCE_H_
 
 #include <cstdint>
 namespace sdlms {
@@ -9,3 +10,5 @@ struct ServerHeartbeatInstance{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_SERVER_SERVER_INSTANCE_SERVER_HEARTBEAT_INSTANCE_H_

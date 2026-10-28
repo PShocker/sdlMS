@@ -1,11 +1,11 @@
-#include "quest_game_instance.h"
-#include "popup_tip_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
+#include "src/client/game_instance/popup_tip_game_instance.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/package_game_instance.h"
 #include "src/client/system/ui/quest_ui_system.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <cstdint>
 #include <flat_map>
 #include <flat_set>

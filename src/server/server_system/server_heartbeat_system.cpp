@@ -1,5 +1,5 @@
-#include "server_heartbeat_system.h"
-#include "SDL3/SDL_timer.h"
+#include "src/server/server_system/server_heartbeat_system.h"
+#include <SDL3/SDL_timer.h>
 #include "src/client/system_instance/character_choose_system_instance.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"

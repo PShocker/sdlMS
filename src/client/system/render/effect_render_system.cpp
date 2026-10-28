@@ -1,4 +1,4 @@
-#include "effect_render_system.h"
+#include "src/client/system/render/effect_render_system.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_region_skill.h"
 #include "src/client/game_instance/camera_game_instance.h"
@@ -6,8 +6,8 @@
 #include "src/client/game_instance/skill_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
 #include <array>
 #include <cstdint>
 #include <string>

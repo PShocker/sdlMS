@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_FADE_SYSTEM_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_FADE_SYSTEM_INSTANCE_H_
 
-#include "SDL3/SDL_render.h"
+#include <SDL3/SDL_render.h>
 #include <functional>
 namespace sdlms {
 
@@ -20,3 +21,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_INSTANCE_FADE_SYSTEM_INSTANCE_H_

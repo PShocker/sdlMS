@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CHOOSE_UI_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CHOOSE_UI_SYSTEM_H_
 
-#include "SDL3/SDL_events.h"
+#include <SDL3/SDL_events.h>
 #include "src/client/game/game_animate.h"
 #include "src/client/game/game_character.h"
 #include <array>
@@ -46,3 +47,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_CHARACTER_CHOOSE_UI_SYSTEM_H_

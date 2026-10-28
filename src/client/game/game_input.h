@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_INPUT_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_INPUT_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include <cstdint>
 #include <string>
 #include <vector>
@@ -16,3 +17,5 @@ struct GameInput{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_INPUT_H_

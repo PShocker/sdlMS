@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_COMMON_FFMPEG_FFMPEG_H_
+#define SDLMS_SRC_COMMON_FFMPEG_FFMPEG_H_
 
 #include "src/client/game/game_audio.h"
 #include <cstdint>
@@ -12,3 +13,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_COMMON_FFMPEG_FFMPEG_H_

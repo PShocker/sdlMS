@@ -1,7 +1,7 @@
-#include "item_game_instance.h"
-#include "character_game_instance.h"
-#include "character_stat_game_instance.h"
-#include "quest_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/character_stat_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/system/logic/character_logic_system.h"
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
@@ -9,9 +9,9 @@
 #include "src/common/request/client_request.h"
 #include "src/common/wz/wz_resource.h"
 #include "src/server/server_instance/server_character_instance.h"
-#include "text_game_instance.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
+#include "src/client/game_instance/text_game_instance.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>

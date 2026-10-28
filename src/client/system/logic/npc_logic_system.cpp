@@ -1,5 +1,5 @@
-#include "npc_logic_system.h"
-#include "SDL3/SDL_rect.h"
+#include "src/client/system/logic/npc_logic_system.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_chatballoon.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/cursor_game_instance.h"
@@ -11,7 +11,7 @@
 #include "src/client/window/window.h"
 #include "src/common/physic/physic.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <cstdint>
 #include <flat_set>
 #include <optional>

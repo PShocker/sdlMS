@@ -1,9 +1,9 @@
-#include "npc_dlg_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
-#include "SDL3/SDL_scancode.h"
-#include "notice_ui_system.h"
-#include "quest_ui_system.h"
+#include "src/client/system/ui/npc_dlg_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
+#include <SDL3/SDL_scancode.h>
+#include "src/client/system/ui/notice_ui_system.h"
+#include "src/client/system/ui/quest_ui_system.h"
 #include "src/client/game/game_npc.h"
 #include "src/client/game/game_quest.h"
 #include "src/client/game_instance/audio_game_instance.h"
@@ -26,8 +26,8 @@
 #include "src/common/freetype/freetype.h"
 #include "src/common/script/script.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
 #include <algorithm>
 #include <cstdint>
 #include <functional>

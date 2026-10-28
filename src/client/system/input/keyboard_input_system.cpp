@@ -1,6 +1,6 @@
-#include "keyboard_input_system.h"
-#include "SDL3/SDL_events.h"
-#include "input_system.h"
+#include "src/client/system/input/keyboard_input_system.h"
+#include <SDL3/SDL_events.h>
+#include "src/client/system/input/input_system.h"
 #include "src/client/game_instance/keyboard_game_instance.h"
 #include <cstdio>
 #include <flat_map>

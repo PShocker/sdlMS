@@ -1,5 +1,5 @@
-#include "server_mob_system.h"
-#include "SDL3/SDL_rect.h"
+#include "src/server/server_system/server_mob_system.h"
+#include <SDL3/SDL_rect.h>
 #include "src/client/game/game_debuff.h"
 #include "src/client/game_instance/item_game_instance.h"
 #include "src/client/game_instance/map_info_game_instance.h"
@@ -16,7 +16,7 @@
 #include "src/server/server_instance/server_drop_instance.h"
 #include "src/server/server_instance/server_mob_instance.h"
 #include "src/server/server_instance/server_scene_instance.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>

@@ -1,9 +1,9 @@
-#include "obj_logic_system.h"
+#include "src/client/system/logic/obj_logic_system.h"
 #include "src/client/game_instance/obj_game_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Property.h"
-#include "wz/Wz.h"
+#include <wz/Property.h>
+#include <wz/Wz.h>
 #include <cstdint>
 #include <ranges>
 #include <string>

@@ -1,6 +1,6 @@
-#include "server_mob_instance.h"
-#include "server_client_instance.h"
-#include "server_scene_instance.h"
+#include "src/server/server_instance/server_mob_instance.h"
+#include "src/server/server_instance/server_client_instance.h"
+#include "src/server/server_instance/server_scene_instance.h"
 #include "src/client/game/game_debuff.h"
 #include "src/client/game/game_gain_log.h"
 #include "src/client/game/game_mob.h"
@@ -24,7 +24,7 @@
 #include "src/server/server_instance/server_drop_instance.h"
 #include "src/server/server_main.h"
 #include "src/server/server_system/server_mob_system.h"
-#include "wz/Property.h"
+#include <wz/Property.h>
 #include <algorithm>
 #include <cstdint>
 #include <flat_map>

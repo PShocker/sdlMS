@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_KEYBOARD_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_KEYBOARD_GAME_INSTANCE_H_
 
-#include "SDL3/SDL_scancode.h"
+#include <SDL3/SDL_scancode.h>
 #include "src/client/game/game_input.h"
 #include "src/client/game/game_save.h"
 #include <cstdint>
@@ -26,3 +27,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_KEYBOARD_GAME_INSTANCE_H_

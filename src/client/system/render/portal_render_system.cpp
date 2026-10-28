@@ -1,6 +1,6 @@
-#include "portal_render_system.h"
-#include "SDL3/SDL_rect.h"
-#include "npc_render_system.h"
+#include "src/client/system/render/portal_render_system.h"
+#include <SDL3/SDL_rect.h>
+#include "src/client/system/render/npc_render_system.h"
 #include "src/client/game_instance/camera_game_instance.h"
 #include "src/client/game_instance/character_game_instance.h"
 #include "src/client/game_instance/portal_game_instance.h"
@@ -8,8 +8,8 @@
 #include "src/client/system_instance/scene_system_instance.h"
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
-#include "wz/Node.h"
-#include "wz/Property.h"
+#include <wz/Node.h>
+#include <wz/Property.h>
 #include <cstdint>
 #include <flat_map>
 #include <string>

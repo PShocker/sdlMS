@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_STORAGE_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_STORAGE_H_
 
-#include "game_item.h"
+#include "src/client/game/game_item.h"
 #include <cstdint>
 #include <memory>
 #include <optional>
@@ -14,3 +15,5 @@ struct GameStorage{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_STORAGE_H_

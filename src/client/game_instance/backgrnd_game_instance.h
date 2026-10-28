@@ -1,7 +1,8 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_INSTANCE_BACKGRND_GAME_INSTANCE_H_
+#define SDLMS_SRC_CLIENT_GAME_INSTANCE_BACKGRND_GAME_INSTANCE_H_
 
 #include "src/client/game/game_backgrnd.h"
-#include "wz/Node.h"
+#include <wz/Node.h>
 #include <cstdint>
 #include <flat_map>
 namespace sdlms {
@@ -15,3 +16,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_INSTANCE_BACKGRND_GAME_INSTANCE_H_

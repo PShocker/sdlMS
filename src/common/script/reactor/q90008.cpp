@@ -1,4 +1,4 @@
-#include "../script.h"
+#include "src/common/script/script.h"
 #include "src/client/game_instance/reactor_game_instance.h"
 #include "src/common/flatbuffers/common.h"
 #include "src/common/flatbuffers/server.h"

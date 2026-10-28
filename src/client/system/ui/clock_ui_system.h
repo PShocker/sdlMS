@@ -1,6 +1,7 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_UI_CLOCK_UI_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_UI_CLOCK_UI_SYSTEM_H_
 
-#include "SDL3/SDL_rect.h"
+#include <SDL3/SDL_rect.h>
 #include <cstdint>
 namespace sdlms {
 
@@ -26,3 +27,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_UI_CLOCK_UI_SYSTEM_H_

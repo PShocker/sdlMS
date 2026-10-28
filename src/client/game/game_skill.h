@@ -1,7 +1,8 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_GAME_GAME_SKILL_H_
+#define SDLMS_SRC_CLIENT_GAME_GAME_SKILL_H_
 
-#include "SDL3/SDL_rect.h"
-#include "game_region_skill.h"
+#include <SDL3/SDL_rect.h>
+#include "src/client/game/game_region_skill.h"
 #include "src/client/game/game_character.h"
 #include "src/client/game/game_effect.h"
 #include "src/client/game/game_mob.h"
@@ -37,3 +38,5 @@ struct GameSkill{
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_GAME_GAME_SKILL_H_

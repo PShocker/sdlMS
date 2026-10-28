@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SDLMS_SRC_CLIENT_SYSTEM_LOGIC_MOB_LOGIC_SYSTEM_H_
+#define SDLMS_SRC_CLIENT_SYSTEM_LOGIC_MOB_LOGIC_SYSTEM_H_
 
 #include "src/client/game/game_mob.h"
 #include <string>
@@ -32,3 +33,5 @@ public:
 };
 
 }  // namespace sdlms
+
+#endif  // SDLMS_SRC_CLIENT_SYSTEM_LOGIC_MOB_LOGIC_SYSTEM_H_

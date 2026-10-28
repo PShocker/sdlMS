@@ -1,11 +1,12 @@
-#include "video_ui_system.h"
-#include "SDL3/SDL_cpuinfo.h"
-#include "SDL3/SDL_log.h"
-#include "SDL3/SDL_render.h"
+#include "src/client/system/ui/video_ui_system.h"
+#include <SDL3/SDL_cpuinfo.h>
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_render.h>
 #include "src/client/game_instance/audio_game_instance.h"
 #include "src/client/system/render/cursor_render_system.h"
 #include "src/client/system/system.h"
 #include "src/client/window/window.h"
+#include <string>
 
 extern "C" {
 #include <libavcodec/avcodec.h>
@@ -15,7 +16,6 @@ extern "C" {
 #include <libavutil/pixdesc.h>
 #include <libswscale/swscale.h>
 }
-#include <string>
 namespace sdlms {
 
 

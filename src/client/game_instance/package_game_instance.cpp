@@ -1,8 +1,8 @@
-#include "package_game_instance.h"
-#include "character_game_instance.h"
-#include "equip_game_instance.h"
-#include "item_game_instance.h"
-#include "quest_game_instance.h"
+#include "src/client/game_instance/package_game_instance.h"
+#include "src/client/game_instance/character_game_instance.h"
+#include "src/client/game_instance/equip_game_instance.h"
+#include "src/client/game_instance/item_game_instance.h"
+#include "src/client/game_instance/quest_game_instance.h"
 #include "src/client/game/game_item.h"
 #include "src/client/system/ui/package_ui_system.h"
 #include <algorithm>

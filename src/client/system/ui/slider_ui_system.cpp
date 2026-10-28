@@ -1,6 +1,6 @@
-#include "slider_ui_system.h"
-#include "SDL3/SDL_rect.h"
-#include "SDL3/SDL_render.h"
+#include "src/client/system/ui/slider_ui_system.h"
+#include <SDL3/SDL_rect.h>
+#include <SDL3/SDL_render.h>
 #include "src/client/window/window.h"
 #include "src/common/wz/wz_resource.h"
 #include <cmath>
