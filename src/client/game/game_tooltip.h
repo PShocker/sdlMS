@@ -3,8 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class GameTooltip {
-public:
+struct GameTooltip{
   std::u16string path;
   SDL_FRect r;
 };

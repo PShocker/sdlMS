@@ -4,8 +4,7 @@
 #include "src/client/game/game_character.h"
 #include <string>
 
-class GamePet {
-public:
+struct GamePet{
   GameCharacter *g_character;
 
   std::u16string action;

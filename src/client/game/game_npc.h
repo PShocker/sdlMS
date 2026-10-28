@@ -5,8 +5,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-class GameNpc {
-public:
+struct GameNpc{
   std::u16string id;
   int32_t rx0;
   int32_t rx1;

@@ -3,8 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class GameTomb {
-public:
+struct GameTomb{
   std::u16string ani_type;
   uint8_t ani_index;
   uint32_t ani_time;

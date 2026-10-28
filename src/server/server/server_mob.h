@@ -16,8 +16,7 @@ struct MobHit {
   bool left;
 };
 
-class ServerMob {
-public:
+struct ServerMob{
   uint32_t index;
   std::u16string id;
 

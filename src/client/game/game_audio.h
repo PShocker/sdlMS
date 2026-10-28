@@ -10,8 +10,7 @@ struct GameAudioCache {
   std::vector<uint8_t> data;
 };
 
-class GameAudio {
-public:
+struct GameAudio{
   std::u16string path;
   uint64_t delay;
   float fade;

@@ -26,8 +26,7 @@ enum class QuestEnum : uint8_t {
   kDecline,
 };
 
-class GameQuest {
-public:
+struct GameQuest{
   std::u16string quest_id;
   uint8_t index;
 

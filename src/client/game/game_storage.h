@@ -6,8 +6,7 @@
 #include <optional>
 #include <vector>
 
-class GameStorage {
-public:
+struct GameStorage{
   std::vector<std::polymorphic<GameItem>> data;
   uint64_t meso;
 };

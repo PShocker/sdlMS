@@ -11,8 +11,7 @@
 
 using namespace fbs;
 
-class CharacterExternAction {
-public:
+struct CharacterExternAction{
   std::u16string action;
   int8_t frame;
   int32_t delay;
@@ -46,8 +45,7 @@ struct CharacterOtherData {
   PlayerT player_t;
 };
 
-class CharacterBoneData {
-public:
+struct CharacterBoneData{
   std::flat_map<std::u16string, SDL_FPoint> bone_pos;
   std::flat_map<std::u16string, SDL_FPoint> part_pos;
 

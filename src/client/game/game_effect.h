@@ -12,8 +12,7 @@ struct DamageData {
   T type;
 };
 
-class GameEffect {
-public:
+struct GameEffect{
   std::u16string id;
 
   uint32_t index = 0;

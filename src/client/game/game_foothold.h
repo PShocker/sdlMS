@@ -3,8 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <optional>
-class GameFoothold {
-public:
+struct GameFoothold{
   uint32_t id;
   uint32_t page;
   uint32_t zmass;

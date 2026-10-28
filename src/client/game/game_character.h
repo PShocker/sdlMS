@@ -17,8 +17,7 @@
 #include <string>
 #include <vector>
 
-class GameCharacter {
-public:
+struct GameCharacter{
   uint8_t page;
 
   std::u16string action;

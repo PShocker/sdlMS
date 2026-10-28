@@ -5,8 +5,7 @@
 #include <string>
 #include <vector>
 
-class GameInput {
-public:
+struct GameInput{
   std::string type;
   std::string val;
   std::string sub_val;

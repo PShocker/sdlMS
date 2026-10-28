@@ -1,8 +1,7 @@
 #pragma once
 
 #include <cstdint>
-class GameGauge {
-public:
+struct GameGauge{
   float hp_percent;
   float hp_percent_now;
 };

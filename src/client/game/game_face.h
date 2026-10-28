@@ -2,8 +2,7 @@
 
 #include <cstdint>
 #include <string>
-class GameFace {
-public:
+struct GameFace{
   std::u16string id;
   std::u16string action = u"default";
   uint32_t time = 0;

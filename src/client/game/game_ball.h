@@ -4,8 +4,7 @@
 #include <cstdint>
 #include <string>
 
-class GameBall {
-public:
+struct GameBall{
   std::u16string path;
 
   SDL_FPoint goal;

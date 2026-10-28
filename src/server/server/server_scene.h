@@ -11,8 +11,7 @@
 #include <flat_set>
 #include <vector>
 
-class ServerSceneState {
-public:
+struct ServerSceneState{
   uint32_t map_id;
 
   std::flat_map<uint32_t, ServerMob> mobs;

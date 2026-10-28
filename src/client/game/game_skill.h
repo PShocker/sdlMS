@@ -9,8 +9,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
-class GameSkill {
-public:
+struct GameSkill{
   std::u16string id;
   std::function<void(uint64_t, int)> use;
   std::function<void()> frame;

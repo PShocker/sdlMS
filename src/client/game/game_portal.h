@@ -3,8 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class GamePortal {
-public:
+struct GamePortal{
   int32_t tm = 0;
   int32_t pt = 0;
   std::u16string pn; // portal_name

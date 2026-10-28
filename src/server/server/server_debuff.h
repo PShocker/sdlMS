@@ -6,8 +6,7 @@
 #include <flat_map>
 #include <optional>
 #include <string>
-class ServerDebuff {
-public:
+struct ServerDebuff{
   uint64_t client_id;
   GameDebuff db;
 };

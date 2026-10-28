@@ -5,8 +5,7 @@
 #include <optional>
 #include <string>
 
-class GameChair {
-public:
+struct GameChair{
   std::u16string id;
   uint8_t ani_index = 0;
   uint32_t ani_time = 0;

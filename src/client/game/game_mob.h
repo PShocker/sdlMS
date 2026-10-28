@@ -10,8 +10,7 @@
 #include <string>
 #include <vector>
 
-class GameMob {
-public:
+struct GameMob{
   uint32_t index;
   std::u16string id;
 

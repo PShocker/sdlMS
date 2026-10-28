@@ -12,8 +12,7 @@ struct GameDropPick {
   std::optional<uint8_t> pet_index;
 };
 
-class GameDrop {
-public:
+struct GameDrop{
   uint64_t random_id;
 
   std::polymorphic<GameItem> data;

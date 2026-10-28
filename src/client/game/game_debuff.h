@@ -3,8 +3,7 @@
 #include <cstdint>
 #include <string>
 
-class GameDebuff {
-public:
+struct GameDebuff{
   enum class DebuffType {
     kDizz,
     kSlow,

@@ -13,8 +13,7 @@ enum class PopupTipEnums {
   kQuest,
 };
 
-class GamePopupTip {
-public:
+struct GamePopupTip{
   PopupTipEnums type;
   int32_t alpha = 0;
   uint64_t destroy = Window::dt_now + 120 * 1000;

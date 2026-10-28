@@ -3,8 +3,7 @@
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
 #include <string>
-class GameBackgrnd {
-public:
+struct GameBackgrnd{
   std::u16string path;
   SDL_FPoint pos;
 

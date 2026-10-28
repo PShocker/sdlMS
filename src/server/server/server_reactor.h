@@ -5,8 +5,7 @@
 #include <string>
 #include <vector>
 
-class ServerReactorState {
-public:
+struct ServerReactorState{
   std::u16string id;
   uint32_t index;
 

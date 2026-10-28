@@ -4,8 +4,7 @@
 #include <cstdint>
 #include <string>
 
-class GameRegionSkill {
-public:
+struct GameRegionSkill{
   std::u16string id;
   uint8_t lv;
   SDL_FPoint pos;

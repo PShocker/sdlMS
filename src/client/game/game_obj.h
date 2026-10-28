@@ -4,8 +4,7 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-class GameObj {
-public:
+struct GameObj{
   std::u16string path;
   int64_t z;
 

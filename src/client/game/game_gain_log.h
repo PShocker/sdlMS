@@ -5,8 +5,7 @@
 
 enum class GainEnum { kItem, kExperience };
 
-class GameGainLog {
-public:
+struct GameGainLog{
   std::u16string id;
   int32_t num;
   uint64_t destroy;

@@ -2,8 +2,7 @@
 
 #include "SDL3/SDL_rect.h"
 #include <cstdint>
-class GameLadderrope {
-public:
+struct GameLadderrope{
   uint8_t l;
   uint8_t uf;
   int32_t x;

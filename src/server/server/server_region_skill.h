@@ -5,8 +5,7 @@
 #include <cstdint>
 #include <string>
 
-class ServerRegionSkill {
-public:
+struct ServerRegionSkill{
   uint64_t client_id;
   uint64_t map_id;
   std::u16string id;

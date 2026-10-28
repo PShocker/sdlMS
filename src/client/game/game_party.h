@@ -8,8 +8,7 @@
 
 using namespace fbs;
 
-class GameParty {
-public:
+struct GameParty{
   uint64_t captain_id;
   std::vector<PlayerT> clients;
 };

@@ -53,8 +53,7 @@ struct CharacterSaveData {
   std::vector<KeySave> keys;
 };
 
-class GameSaveData {
-public:
+struct GameSaveData{
   std::string username;
   std::vector<CharacterSaveData> characters;
   GameStorage storage;

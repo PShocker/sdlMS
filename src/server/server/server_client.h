@@ -6,8 +6,7 @@
 
 using namespace fbs;
 
-class ServerClient {
-public:
+struct ServerClient{
   uint64_t client_id;
   uint64_t map_id;
 
