@@ -46,6 +46,9 @@ void OptionUiSystem::RenderOption() {
   auto top = CursorGameInstance::cursor_ui == Render;
 
   switch (static_cast<OptionType>(active_tab_)) {
+    case OptionType::kController: {
+      break;
+    }
     case OptionType::kGraphic: {
       static auto backgrnd = WzResource::LoadTexture(
           WzResource::ui_->find(u"Options.img/graphic/layer:backgrnd"));

@@ -727,6 +727,7 @@ bool StatusbarUiSystem::Event(SDL_Event* Event) {
         }
         r = false;
       }
+      [[fallthrough]];
     }
     case SDL_EVENT_KEY_DOWN: {
       auto scan_code = Event->key.scancode;
@@ -763,6 +764,7 @@ bool StatusbarUiSystem::Event(SDL_Event* Event) {
           break;
         }
       }
+      [[fallthrough]];
     }
     case SDL_EVENT_MOUSE_MOTION: {
       EventMotionBtAudio(Event);

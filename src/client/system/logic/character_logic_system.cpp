@@ -862,6 +862,7 @@ bool CharacterLogicSystem::RunAttack(GameCharacter& g_character) {
     case ActionEnum::kAlert:
     case ActionEnum::kWalk: {
       self_hspeed_ = 0;
+      [[fallthrough]];
     }
     case ActionEnum::kJump: {
       if (g_action == ActionEnum::kJump &&

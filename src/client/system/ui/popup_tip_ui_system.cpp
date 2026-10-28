@@ -91,6 +91,10 @@ void PopupTipUiSystem::RenderText(GamePopupTip& t) {
       Freetype::DrawLine(name, x + 28, y + 16);
       break;
     }
+    case PopupTipEnums::kTrade:
+    case PopupTipEnums::kParty: {
+      break;
+    }
   }
 }
 
@@ -107,6 +111,9 @@ void PopupTipUiSystem::RenderButton(GamePopupTip& t) {
     case PopupTipEnums::kParty: {
       nodes = {};
       rects = {};
+      break;
+    }
+    case PopupTipEnums::kQuest: {
       break;
     }
   }
@@ -178,6 +185,9 @@ void PopupTipUiSystem::EventButtonOk(GamePopupTip& t) {
       EventButtonParty(t);
       break;
     }
+    case PopupTipEnums::kQuest: {
+      break;
+    }
   }
 }
 
@@ -205,6 +215,9 @@ bool PopupTipUiSystem::EventButton(SDL_Event* Event) {
         break;
       }
       case PopupTipEnums::kParty: {
+        break;
+      }
+      case PopupTipEnums::kQuest: {
         break;
       }
     }

@@ -719,7 +719,7 @@ void NpcDlgUiSystem::EventList() {
     act_item_ = QuestGameInstance::LoadQuestActItem(quest_id_);
     act_exp_ = QuestGameInstance::LoadQuestActExp(quest_id_);
     act_random_item_ = QuestGameInstance::LoadQuestActRandomItem(quest_id_);
-    if (act_meso_ == 0 && act_exp_ == 0 || max_index_ == -1) {
+    if ((act_meso_ == 0 && act_exp_ == 0) || max_index_ == -1) {
       max_index_ = 0;
       index_ = max_index_;
       EventButtonOk();

@@ -297,10 +297,12 @@ bool GameSaveSystemInstance::SaveGame() {
         case ItemEnum::kConsume: {
           GameConsumeItem& consume = static_cast<GameConsumeItem&>(*pkg.val);
           item_num = consume.num;
+          [[fallthrough]];
         }
         case ItemEnum::kEtc: {
           GameEtcItem& etc = static_cast<GameEtcItem&>(*pkg.val);
           item_num = etc.num;
+          [[fallthrough]];
         }
         case ItemEnum::kInstall: {
         }

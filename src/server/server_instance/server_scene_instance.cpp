@@ -69,7 +69,7 @@ void ServerSceneInstance::SendSceneClients(uint64_t client_id,
     auto client = ServerClientInstance::clients_.at(c);
     r.players.push_back(std::make_unique<fbs::PlayerT>(client.player_t));
   }
-  for (const auto d : scene.drops | std::views::values) {
+  for (const auto& d : scene.drops | std::views::values) {
     r.drops.push_back(std::make_unique<fbs::DropT>(d.dt));
   }
   for (const auto& rs : scene.reactors) {
